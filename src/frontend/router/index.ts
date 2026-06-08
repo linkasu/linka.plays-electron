@@ -6,6 +6,7 @@ import CountItemsGame from "../games/count-items/CountItemsGame.vue";
 import DucksGame from "../games/ducks/DucksGame.vue";
 import EatOrNotEatGame from "../games/eat-or-not-eat/EatOrNotEatGame.vue";
 import FlowersGame from "../games/flowers/FlowersGame.vue";
+import PyramidGame from "../games/pyramid/PyramidGame.vue";
 import HomePage from "../pages/HomePage.vue";
 import PlannedGamePage from "../pages/PlannedGamePage.vue";
 import TobiiCalibrationPage from "../pages/TobiiCalibrationPage.vue";
@@ -22,6 +23,7 @@ export default createRouter({
     { path: "/games/count-items", name: "count-items", component: CountItemsGame },
     { path: "/games/choose-picture", name: "choose-picture", component: ChoosePictureGame },
     { path: "/games/eat-or-not-eat", name: "eat-or-not-eat", component: EatOrNotEatGame },
+    { path: "/games/pyramid", name: "pyramid", component: PyramidGame },
     { path: "/games/:gameId", name: "planned-game", component: PlannedGamePage }
   ]
 });

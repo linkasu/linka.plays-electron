@@ -159,7 +159,7 @@ export const games: GameInfo[] = [
     category: "tracker-basics",
     icon: "mdi-pyramid",
     skills: ["sequence", "choice"],
-    status: "planned",
+    status: "mvp",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 120,
     defaultDwellMs: 1200
