@@ -102,15 +102,15 @@ export const games: GameInfo[] = [
   {
     id: "fishes",
     title: "Рыбки",
-    description: "Смотри на рыбку и мягко следуй за её движением.",
+    description: "Лови спокойных рыбок взглядом в мягком подводном мире.",
     route: "/games/fishes",
     category: "tracker-basics",
     icon: "mdi-fish",
-    skills: ["smooth-pursuit", "attention-shift"],
-    status: "mvp",
-    recommendedSessionSeconds: 90,
-    minTargetSizePx: 140,
-    defaultDwellMs: 1200
+    skills: ["smooth-pursuit", "fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 60,
+    minTargetSizePx: 160,
+    defaultDwellMs: 850
   },
   {
     id: "frog",
@@ -215,6 +215,19 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 120,
     minTargetSizePx: 96,
     defaultDwellMs: 1200
+  },
+  {
+    id: "tic-tac-toe",
+    title: "Крестики-нолики",
+    description: "Играй крестиками против спокойного Deep-Q агента на классическом поле 3×3.",
+    route: "/games/tic-tac-toe",
+    category: "math",
+    icon: "mdi-grid-large",
+    skills: ["choice", "sequence", "attention-shift"],
+    status: "polished",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 128,
+    defaultDwellMs: 1300
   },
   {
     id: "table-tennis",
