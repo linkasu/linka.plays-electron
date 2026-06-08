@@ -63,15 +63,15 @@ export const games: GameInfo[] = [
   {
     id: "butterfly",
     title: "Бабочки",
-    description: "Веди взглядом или мышью по экрану и оставляй след из бабочек.",
+    description: "Смотри на мягкие световые пятна и буди бабочек взглядом.",
     route: "/games/butterfly",
     category: "tracker-basics",
     icon: "mdi-butterfly",
-    skills: ["smooth-pursuit"],
+    skills: ["fixation", "attention-shift"],
     status: "mvp",
-    recommendedSessionSeconds: 90,
-    minTargetSizePx: 120,
-    defaultDwellMs: 1000
+    recommendedSessionSeconds: 60,
+    minTargetSizePx: 180,
+    defaultDwellMs: 900
   },
   {
     id: "bubbles",
