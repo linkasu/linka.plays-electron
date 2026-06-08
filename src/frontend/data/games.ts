@@ -198,7 +198,7 @@ export const games: GameInfo[] = [
     category: "words",
     icon: "mdi-keyboard",
     skills: ["typing", "vocabulary", "sequence"],
-    status: "planned",
+    status: "mvp",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 96,
     defaultDwellMs: 1200
