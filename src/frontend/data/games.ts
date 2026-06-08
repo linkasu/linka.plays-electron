@@ -224,7 +224,7 @@ export const games: GameInfo[] = [
     category: "math",
     icon: "mdi-calculator-variant",
     skills: ["math", "typing"],
-    status: "planned",
+    status: "mvp",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 96,
     defaultDwellMs: 1200
