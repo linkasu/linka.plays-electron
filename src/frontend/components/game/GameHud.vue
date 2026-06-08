@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRouter } from "vue-router";
+import GazePointerOverlay from "./GazePointerOverlay.vue";
 import TobiiStatusBadge from "../TobiiStatusBadge.vue";
 
 const props = defineProps<{
@@ -38,6 +39,7 @@ const progress = computed(() => props.maxSteps > 0 ? Math.min(100, (props.step /
     <v-chip v-if="mistakes !== undefined" color="warning" variant="tonal">Ошибки: {{ mistakes }}</v-chip>
     <TobiiStatusBadge />
   </div>
+  <GazePointerOverlay />
 </template>
 
 <style scoped>
