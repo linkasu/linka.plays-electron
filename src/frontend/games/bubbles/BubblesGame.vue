@@ -54,6 +54,8 @@ refillBubbles();
       :step="session.step"
       :max-steps="session.maxSteps"
       :score="session.score"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
       :paused="session.status === 'paused'"
       @pause="pauseSession"
       @resume="resumeSession"

@@ -86,7 +86,7 @@ function restart() {
 <template>
   <div class="tennis-shell">
     <canvas ref="canvasRef" class="tennis-canvas" />
-    <GameHud title="Теннис" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud title="Теннис" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
     <GameResultDialog :model-value="resultVisible" title="Теннис" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
   </div>
 </template>

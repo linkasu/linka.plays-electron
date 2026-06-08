@@ -10,6 +10,8 @@ const props = defineProps<{
   maxSteps: number;
   score?: number;
   mistakes?: number;
+  durationMs?: number;
+  sessionSeconds?: number;
   paused?: boolean;
 }>();
 
@@ -20,6 +22,10 @@ const emit = defineEmits<{
 
 const router = useRouter();
 const progress = computed(() => props.maxSteps > 0 ? Math.min(100, (props.step / props.maxSteps) * 100) : 0);
+const remainingSeconds = computed(() => {
+  if (props.durationMs === undefined || props.sessionSeconds === undefined) return undefined;
+  return Math.max(0, Math.ceil(props.sessionSeconds - props.durationMs / 1000));
+});
 </script>
 
 <template>
@@ -37,6 +43,9 @@ const progress = computed(() => props.maxSteps > 0 ? Math.min(100, (props.step /
     </v-card>
     <v-chip v-if="score !== undefined" color="primary" variant="flat">Успех: {{ score }}</v-chip>
     <v-chip v-if="mistakes !== undefined" color="warning" variant="tonal">Ошибки: {{ mistakes }}</v-chip>
+    <v-chip v-if="remainingSeconds !== undefined" color="info" prepend-icon="mdi-timer-outline" variant="tonal">
+      {{ remainingSeconds }} сек
+    </v-chip>
     <TobiiStatusBadge />
   </div>
   <GazePointerOverlay />

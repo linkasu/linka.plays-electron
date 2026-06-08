@@ -40,7 +40,7 @@ moveFish();
 
 <template>
   <div class="fishes-shell">
-    <GameHud title="Рыбки" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud title="Рыбки" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
     <div class="sea">
       <div class="coral coral-a">🪸</div>
       <div class="coral coral-b">🪸</div>

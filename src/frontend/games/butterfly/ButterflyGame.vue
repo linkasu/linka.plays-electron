@@ -23,6 +23,7 @@ const { session, durationMs, recommendation, pauseSession, resumeSession, finish
   sessionSeconds: 90
 });
 const butterflies = reactive<Butterfly[]>([]);
+const createdButterflies = ref(0);
 const maxButterflies = 220;
 const spawnDistance = 38;
 let ctx: CanvasRenderingContext2D | undefined;
@@ -51,6 +52,7 @@ function distance(a: Point, b: Point) {
 
 function spawnButterfly(from: Point, to: Point) {
   const angle = Math.atan2(to.y - from.y, to.x - from.x);
+  createdButterflies.value += 1;
   butterflies.push({
     x: to.x,
     y: to.y,
@@ -172,6 +174,7 @@ onUnmounted(() => {
 
 function restart() {
   butterflies.splice(0);
+  createdButterflies.value = 0;
   lastPoint = undefined;
   startSession();
 }
@@ -184,7 +187,9 @@ function restart() {
       title="Бабочки"
       :step="session.status === 'finished' ? 1 : 0"
       :max-steps="1"
-      :score="butterflies.length"
+      :score="createdButterflies"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
       :paused="session.status === 'paused'"
       @pause="pauseSession"
       @resume="resumeSession"
@@ -197,7 +202,7 @@ function restart() {
     <GameResultDialog
       :model-value="resultVisible"
       title="Бабочки"
-      :score="butterflies.length"
+      :score="createdButterflies"
       :mistakes="session.mistakes"
       :duration-ms="durationMs"
       :recommendation="recommendation"

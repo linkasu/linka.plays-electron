@@ -1,4 +1,4 @@
-import { computed, reactive } from "vue";
+import { computed, onUnmounted, reactive, ref } from "vue";
 import type { SessionSettings } from "./settings";
 import { createDefaultSettings, recommendNextSettings } from "./settings";
 
@@ -59,10 +59,18 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
     settings,
     events: []
   });
+  const nowMs = ref(Date.now());
+  const maxMistakesBeforeFinish = Math.max(6, settings.maxSteps * 3);
+  const timer = window.setInterval(() => {
+    nowMs.value = Date.now();
+    if (session.status === "running" && session.startedAt && nowMs.value - session.startedAt >= session.settings.sessionSeconds * 1000) {
+      finishSession();
+    }
+  }, 250);
 
   const durationMs = computed(() => {
     if (!session.startedAt) return 0;
-    return (session.finishedAt ?? Date.now()) - session.startedAt;
+    return (session.finishedAt ?? nowMs.value) - session.startedAt;
   });
 
   const metrics = computed(() => {
@@ -147,6 +155,7 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
     if (session.status !== "running") return;
     session.mistakes += 1;
     recordEvent("mistake", { step: session.step, ...payload });
+    if (session.mistakes >= maxMistakesBeforeFinish) finishSession();
   }
 
   function recordHint(payload: Record<string, unknown> = {}) {
@@ -155,6 +164,10 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
   }
 
   startSession();
+
+  onUnmounted(() => {
+    window.clearInterval(timer);
+  });
 
   return {
     session,

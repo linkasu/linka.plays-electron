@@ -49,7 +49,7 @@ moveBud();
 
 <template>
   <div class="flowers-shell">
-    <GameHud title="Цветы" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud title="Цветы" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
 
     <div class="garden">
       <div v-for="flower in grownFlowers" :key="flower.id" class="grown-flower" :style="{ left: `${flower.x}%`, top: `${flower.y}%` }">

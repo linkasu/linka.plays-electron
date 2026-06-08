@@ -1,3 +1,7 @@
+<script lang="ts">
+let sharedCooldownUntil = 0;
+</script>
+
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useGazePointer } from "../../composables/useGazePointer";
@@ -22,7 +26,12 @@ const active = ref(false);
 const { pointer } = useGazePointer();
 let frame = 0;
 let enteredAt = 0;
+let lastInsideAt = 0;
+let disposed = false;
 let cooldownUntil = 0;
+
+const hitPaddingPx = 18;
+const leaveGraceMs = 160;
 
 const progressValue = computed(() => progress.value * 100);
 
@@ -30,7 +39,10 @@ function containsPointer() {
   const element = rootRef.value;
   if (!element || !pointer.value.valid || props.disabled) return false;
   const rect = element.getBoundingClientRect();
-  return pointer.value.x >= rect.left && pointer.value.x <= rect.right && pointer.value.y >= rect.top && pointer.value.y <= rect.bottom;
+  return pointer.value.x >= rect.left - hitPaddingPx
+    && pointer.value.x <= rect.right + hitPaddingPx
+    && pointer.value.y >= rect.top - hitPaddingPx
+    && pointer.value.y <= rect.bottom + hitPaddingPx;
 }
 
 function reset() {
@@ -40,16 +52,20 @@ function reset() {
 }
 
 function tick(now: number) {
-  if (now < cooldownUntil) {
+  if (disposed) return;
+
+  if (now < cooldownUntil || now < sharedCooldownUntil) {
     frame = requestAnimationFrame(tick);
     return;
   }
 
   if (!containsPointer()) {
-    reset();
+    if (!active.value || now - lastInsideAt > leaveGraceMs) reset();
     frame = requestAnimationFrame(tick);
     return;
   }
+
+  lastInsideAt = now;
 
   if (!active.value) {
     active.value = true;
@@ -60,10 +76,11 @@ function tick(now: number) {
   if (progress.value >= 1) {
     emit("select");
     cooldownUntil = now + 500;
+    sharedCooldownUntil = now + 700;
     reset();
   }
 
-  frame = requestAnimationFrame(tick);
+  if (!disposed) frame = requestAnimationFrame(tick);
 }
 
 onMounted(() => {
@@ -71,6 +88,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  disposed = true;
   cancelAnimationFrame(frame);
 });
 </script>

@@ -46,7 +46,7 @@ function restart() {
 
 <template>
   <div class="type-shell">
-    <GameHud title="Печать слов" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud title="Печать слов" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10">

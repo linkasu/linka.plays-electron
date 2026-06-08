@@ -40,7 +40,7 @@ function restart() {
 
 <template>
   <div class="seek-shell">
-    <GameHud title="Прятки" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud title="Прятки" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
     <div class="scene">
       <v-card class="prompt pa-5" rounded="xl" elevation="8">
         <div class="text-overline text-secondary">Найди</div>

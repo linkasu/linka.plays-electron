@@ -38,7 +38,7 @@ moveFirefly();
 
 <template>
   <div class="frog-shell">
-    <GameHud title="Жаба" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud title="Жаба" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
     <div class="meadow">
       <div class="frog">🐸</div>
       <GameDwellButton

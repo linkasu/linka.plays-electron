@@ -47,7 +47,7 @@ spawnDucks();
 
 <template>
   <div class="ducks-shell">
-    <GameHud title="Утки" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud title="Утки" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
     <div class="pond">
       <GameDwellButton
         v-for="duck in ducks"
