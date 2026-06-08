@@ -107,7 +107,7 @@ export const games: GameInfo[] = [
     category: "tracker-basics",
     icon: "mdi-duck",
     skills: ["visual-search", "choice"],
-    status: "planned",
+    status: "mvp",
     recommendedSessionSeconds: 90,
     minTargetSizePx: 140,
     defaultDwellMs: 1200
