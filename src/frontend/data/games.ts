@@ -74,19 +74,6 @@ export const games: GameInfo[] = [
     defaultDwellMs: 900
   },
   {
-    id: "bubbles",
-    title: "Бульк",
-    description: "Лопай пузыри удержанием взгляда и тренируй спокойную фиксацию.",
-    route: "/games/bubbles",
-    category: "tracker-basics",
-    icon: "mdi-circle-outline",
-    skills: ["fixation", "choice"],
-    status: "mvp",
-    recommendedSessionSeconds: 90,
-    minTargetSizePx: 140,
-    defaultDwellMs: 1400
-  },
-  {
     id: "flowers",
     title: "Цветы",
     description: "Удерживай взгляд на бутоне, чтобы вырастить спокойный сад.",

@@ -26,7 +26,6 @@ src/frontend/
     games.ts
     wordBank.ts
   games/
-    bubbles/
     butterfly/
     ...
   pages/
