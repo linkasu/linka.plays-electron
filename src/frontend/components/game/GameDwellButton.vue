@@ -76,23 +76,30 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <v-card
-    ref="rootRef"
-    :class="['dwell-button', { 'dwell-button--active': active }]"
-    :color="active ? 'primary' : color"
-    :disabled="disabled"
-    :style="{ minBlockSize: `${minHeight}px` }"
-    class="pa-5 text-center d-flex flex-column justify-center"
-    rounded="xl"
-    variant="elevated"
-  >
-    <slot :active="active" :progress="progress" />
-    <v-progress-linear class="mt-4" :model-value="progressValue" color="secondary" height="8" rounded />
-  </v-card>
+  <div ref="rootRef" class="dwell-hitbox">
+    <v-card
+      :class="['dwell-button', { 'dwell-button--active': active }]"
+      :color="active ? 'primary' : color"
+      :disabled="disabled"
+      :style="{ minBlockSize: `${minHeight}px` }"
+      class="pa-5 text-center d-flex flex-column justify-center"
+      rounded="xl"
+      variant="elevated"
+    >
+      <slot :active="active" :progress="progress" />
+      <v-progress-linear class="mt-4" :model-value="progressValue" color="secondary" height="8" rounded />
+    </v-card>
+  </div>
 </template>
 
 <style scoped>
+.dwell-hitbox {
+  display: block;
+}
+
 .dwell-button {
+  block-size: 100%;
+  inline-size: 100%;
   transition: transform 160ms ease, box-shadow 160ms ease;
 }
 
