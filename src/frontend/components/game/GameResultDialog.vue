@@ -6,7 +6,33 @@ const props = defineProps<{
   mistakes: number;
   durationMs: number;
   recommendation: string;
+  metrics?: {
+    finishReason?: string;
+    validGazeRatio?: number;
+    meanDwellMs?: number;
+    targetCancels?: number;
+    gazeLostCount?: number;
+    hintsUsed?: number;
+  };
 }>();
+
+const finishReasonLabels: Record<string, string> = {
+  "max-steps": "все шаги выполнены",
+  timeout: "время занятия закончилось",
+  "too-many-mistakes": "много сложных попыток",
+  manual: "завершено вручную",
+  "game-complete": "игра завершена"
+};
+
+function percent(value?: number) {
+  if (value === undefined) return "—";
+  return `${Math.round(value * 100)}%`;
+}
+
+function milliseconds(value?: number) {
+  if (value === undefined) return "—";
+  return `${Math.round(value)} мс`;
+}
 
 const emit = defineEmits<{
   "update:modelValue": [value: boolean];
@@ -38,6 +64,35 @@ const emit = defineEmits<{
         <v-alert class="mt-4" color="info" variant="tonal">
           Длительность: {{ Math.round(durationMs / 1000) }} сек. {{ recommendation }}
         </v-alert>
+        <v-card v-if="metrics" class="mt-4 pa-4" color="surface" rounded="lg" variant="tonal">
+          <div class="text-subtitle-2 font-weight-bold mb-3">Наблюдения для взрослого</div>
+          <v-row dense>
+            <v-col cols="12" sm="6">
+              <div class="text-caption text-medium-emphasis">Завершение</div>
+              <div class="text-body-2 font-weight-bold">{{ finishReasonLabels[metrics.finishReason ?? ''] ?? '—' }}</div>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <div class="text-caption text-medium-emphasis">Валидный взгляд</div>
+              <div class="text-body-2 font-weight-bold">{{ percent(metrics.validGazeRatio) }}</div>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <div class="text-caption text-medium-emphasis">Средний dwell</div>
+              <div class="text-body-2 font-weight-bold">{{ milliseconds(metrics.meanDwellMs) }}</div>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <div class="text-caption text-medium-emphasis">Отмены выбора</div>
+              <div class="text-body-2 font-weight-bold">{{ metrics.targetCancels ?? 0 }}</div>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <div class="text-caption text-medium-emphasis">Потери взгляда</div>
+              <div class="text-body-2 font-weight-bold">{{ metrics.gazeLostCount ?? 0 }}</div>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <div class="text-caption text-medium-emphasis">Подсказки</div>
+              <div class="text-body-2 font-weight-bold">{{ metrics.hintsUsed ?? 0 }}</div>
+            </v-col>
+          </v-row>
+        </v-card>
       </v-card-text>
       <v-card-actions>
         <v-spacer />

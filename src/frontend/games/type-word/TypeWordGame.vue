@@ -8,30 +8,36 @@ import { useGameSession } from "../../core/session";
 import { generateTypeWordRound, type TypeWordRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("type-word", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("type-word", {
   maxSteps: 5,
   dwellMs: 1200,
   sessionSeconds: 120
 });
 
-const round = ref<TypeWordRound>(generateTypeWordRound(session.settings));
+let roundIndex = 1;
+const round = ref<TypeWordRound>(generateTypeWordRound(session.settings, roundIndex));
 const currentIndex = ref(0);
 const resultVisible = computed(() => session.status === "finished");
 const currentLetter = computed(() => round.value.letters[currentIndex.value]);
 
+function keyTargetId(key: string) {
+  return `type-word:key:${key}`;
+}
+
 function nextWord() {
-  round.value = generateTypeWordRound(session.settings);
+  roundIndex += 1;
+  round.value = generateTypeWordRound(session.settings, roundIndex);
   currentIndex.value = 0;
 }
 
 function pressKey(key: string) {
   if (session.status !== "running") return;
   if (key !== currentLetter.value) {
-    recordMistake({ expected: currentLetter.value, actual: key });
+    recordMistake({ roundId: round.value.roundId, targetId: keyTargetId(key), expectedTargetId: keyTargetId(currentLetter.value), expected: currentLetter.value, actual: key, isCorrect: false });
     return;
   }
   if (currentIndex.value === round.value.letters.length - 1) {
-    recordSuccess({ targetId: round.value.item.id });
+    recordSuccess({ roundId: round.value.roundId, targetId: keyTargetId(key), wordId: round.value.item.id, expected: round.value.item.word, actual: round.value.item.word, isCorrect: true });
     if (session.step < session.maxSteps) nextWord();
     return;
   }
@@ -40,7 +46,9 @@ function pressKey(key: string) {
 
 function restart() {
   startSession();
-  nextWord();
+  roundIndex = 1;
+  round.value = generateTypeWordRound(session.settings, roundIndex);
+  currentIndex.value = 0;
 }
 </script>
 
@@ -61,7 +69,7 @@ function restart() {
             </div>
             <v-row>
               <v-col v-for="key in round.keyboardChoices" :key="key" cols="4" md="2">
-                <GameDwellButton :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="110" @select="pressKey(key)">
+                <GameDwellButton :target-id="keyTargetId(key)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="110" @select="pressKey(key)">
                   <template #default>
                     <div class="text-h3 font-weight-bold">{{ key }}</div>
                   </template>
@@ -72,7 +80,7 @@ function restart() {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Печать слов" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
+    <GameResultDialog :model-value="resultVisible" title="Печать слов" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
   </div>
 </template>
 

@@ -4,13 +4,14 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { randomTargetCenterPercent } from "../../core/placement";
 import { useGameSession } from "../../core/session";
 
 type Flower = { id: string; x: number; y: number; emoji: string };
 
 const flowerEmojis = ["🌸", "🌼", "🌷", "🌻", "🪻"];
 const router = useRouter();
-const { session, durationMs, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("flowers", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("flowers", {
   maxSteps: 6,
   dwellMs: 1400,
   sessionSeconds: 90
@@ -20,10 +21,20 @@ const grownFlowers = reactive<Flower[]>([]);
 const bud = reactive({ id: "bud", x: 50, y: 52 });
 const resultVisible = computed(() => session.status === "finished");
 
+function budSize() {
+  return 150 * session.settings.targetScale;
+}
+
 function moveBud() {
+  const point = randomTargetCenterPercent({
+    targetWidth: budSize(),
+    targetHeight: budSize(),
+    previous: bud,
+    minDistance: 190
+  });
   bud.id = `bud-${Date.now()}`;
-  bud.x = 14 + Math.random() * 72;
-  bud.y = 28 + Math.random() * 56;
+  bud.x = point.x;
+  bud.y = point.y;
 }
 
 function growFlower() {
@@ -59,10 +70,11 @@ moveBud();
       <GameDwellButton
         class="bud-target"
         color="transparent"
+        :target-id="bud.id"
         :disabled="session.status !== 'running'"
         :dwell-ms="session.settings.dwellMs"
-        :min-height="150 * session.settings.targetScale"
-        :style="{ left: `${bud.x}%`, top: `${bud.y}%`, inlineSize: `${150 * session.settings.targetScale}px` }"
+        :min-height="budSize()"
+        :style="{ left: `${bud.x}%`, top: `${bud.y}%`, inlineSize: `${budSize()}px` }"
         @select="growFlower"
       >
         <template #default="{ progress }">
@@ -71,7 +83,7 @@ moveBud();
       </GameDwellButton>
     </div>
 
-    <GameResultDialog :model-value="resultVisible" title="Цветы" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
+    <GameResultDialog :model-value="resultVisible" title="Цветы" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
   </div>
 </template>
 

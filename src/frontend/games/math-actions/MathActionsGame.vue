@@ -8,19 +8,27 @@ import { useGameSession } from "../../core/session";
 import { generateMathRound, type MathRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("math-actions", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("math-actions", {
   maxSteps: 8,
   dwellMs: 1000,
   sessionSeconds: 120
 });
 
-const round = ref<MathRound>(generateMathRound(session.settings));
+let roundIndex = 1;
+const round = ref<MathRound>(generateMathRound(session.settings, roundIndex));
 const answer = ref("");
 const resultVisible = computed(() => session.status === "finished");
 const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "⌫", "0", "✓"];
 
+function keyTargetId(key: string) {
+  if (key === "⌫") return "math-actions:key:backspace";
+  if (key === "✓") return "math-actions:key:confirm";
+  return `math-actions:key:${key}`;
+}
+
 function nextRound() {
-  round.value = generateMathRound(session.settings);
+  roundIndex += 1;
+  round.value = generateMathRound(session.settings, roundIndex);
   answer.value = "";
 }
 
@@ -32,8 +40,9 @@ function pressKey(key: string) {
   }
   if (key === "✓") {
     if (!answer.value) return;
-    if (answer.value === round.value.answerText) recordSuccess({ expression: round.value.expression });
-    else recordMistake({ expected: round.value.answerText, actual: answer.value });
+    const targetId = keyTargetId(key);
+    if (answer.value === round.value.answerText) recordSuccess({ roundId: round.value.roundId, targetId, expression: round.value.expression, expected: round.value.answerText, actual: answer.value, isCorrect: true });
+    else recordMistake({ roundId: round.value.roundId, targetId, expression: round.value.expression, expected: round.value.answerText, actual: answer.value, isCorrect: false });
     if (session.step < session.maxSteps) nextRound();
     return;
   }
@@ -42,7 +51,9 @@ function pressKey(key: string) {
 
 function restart() {
   startSession();
-  nextRound();
+  roundIndex = 1;
+  round.value = generateMathRound(session.settings, roundIndex);
+  answer.value = "";
 }
 </script>
 
@@ -58,7 +69,7 @@ function restart() {
             </div>
             <v-row>
               <v-col v-for="key in keys" :key="key" cols="4">
-                <GameDwellButton :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="96" @select="pressKey(key)">
+                <GameDwellButton :target-id="keyTargetId(key)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="96" @select="pressKey(key)">
                   <template #default>
                     <div class="text-h3 font-weight-bold">{{ key }}</div>
                   </template>
@@ -69,7 +80,7 @@ function restart() {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Математика" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
+    <GameResultDialog :model-value="resultVisible" title="Математика" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
   </div>
 </template>
 

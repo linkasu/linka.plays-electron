@@ -8,13 +8,14 @@ import { useGameSession } from "../../core/session";
 import { generateEatOrNotEatRound, type EatOrNotEatAnswer, type EatOrNotEatRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("eat-or-not-eat", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("eat-or-not-eat", {
   maxSteps: 8,
   dwellMs: 1200,
   sessionSeconds: 120
 });
 
-const round = ref<EatOrNotEatRound>(generateEatOrNotEatRound());
+let roundIndex = 1;
+const round = ref<EatOrNotEatRound>(generateEatOrNotEatRound(roundIndex));
 const resultVisible = computed(() => session.status === "finished");
 
 const answers: Array<{ id: EatOrNotEatAnswer; title: string; emoji: string }> = [
@@ -22,20 +23,28 @@ const answers: Array<{ id: EatOrNotEatAnswer; title: string; emoji: string }> = 
   { id: "thing", title: "Нельзя есть", emoji: "📦" }
 ];
 
+function answerTargetId(value: EatOrNotEatAnswer) {
+  return `eat-or-not-eat:answer:${value}`;
+}
+
 function nextRound() {
-  round.value = generateEatOrNotEatRound();
+  roundIndex += 1;
+  round.value = generateEatOrNotEatRound(roundIndex);
 }
 
 function answer(value: EatOrNotEatAnswer) {
   if (session.status !== "running") return;
-  if (value === round.value.correctAnswer) recordSuccess({ targetId: round.value.item.id });
-  else recordMistake({ expected: round.value.correctAnswer, actual: value });
+  const targetId = answerTargetId(value);
+  const expectedTargetId = answerTargetId(round.value.correctAnswer);
+  if (value === round.value.correctAnswer) recordSuccess({ roundId: round.value.roundId, targetId, itemId: round.value.item.id, expected: round.value.correctAnswer, actual: value, isCorrect: true });
+  else recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, itemId: round.value.item.id, expected: round.value.correctAnswer, actual: value, isCorrect: false });
   if (session.step < session.maxSteps) nextRound();
 }
 
 function restart() {
   startSession();
-  nextRound();
+  roundIndex = 1;
+  round.value = generateEatOrNotEatRound(roundIndex);
 }
 </script>
 
@@ -53,7 +62,7 @@ function restart() {
             </div>
             <v-row>
               <v-col v-for="option in answers" :key="option.id" cols="12" md="6">
-                <GameDwellButton :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="210" @select="answer(option.id)">
+                <GameDwellButton :target-id="answerTargetId(option.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="210" @select="answer(option.id)">
                   <template #default>
                     <div class="choice-emoji">{{ option.emoji }}</div>
                     <div class="text-h4 font-weight-bold">{{ option.title }}</div>
@@ -65,7 +74,7 @@ function restart() {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Съедобное" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
+    <GameResultDialog :model-value="resultVisible" title="Съедобное" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
   </div>
 </template>
 

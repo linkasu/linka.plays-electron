@@ -2,6 +2,7 @@ import { shuffleItems } from "../../data/wordBank";
 import type { SessionSettings } from "../../core/settings";
 
 export type CountItemsRound = {
+  roundId: string;
   targetCount: number;
   itemEmoji: string;
   choices: number[];
@@ -10,7 +11,7 @@ export type CountItemsRound = {
 
 const itemEmojis = ["🍎", "⭐", "🌸", "🐟", "🦋", "🟡"];
 
-export function generateCountItemsRound(settings: SessionSettings): CountItemsRound {
+export function generateCountItemsRound(settings: SessionSettings, roundIndex = 1): CountItemsRound {
   const max = settings.preset === "gentle" ? 3 : 9;
   const choiceCount = settings.preset === "gentle" ? 2 : 4;
   const targetCount = 1 + Math.floor(Math.random() * max);
@@ -20,6 +21,7 @@ export function generateCountItemsRound(settings: SessionSettings): CountItemsRo
   while (!choices.includes(targetCount)) choices[choices.length - 1] = targetCount;
   const shuffled = shuffleItems([...new Set(choices)]).slice(0, choiceCount);
   return {
+    roundId: `count-items:round:${roundIndex}`,
     targetCount,
     itemEmoji: itemEmojis[Math.floor(Math.random() * itemEmojis.length)],
     choices: shuffled,

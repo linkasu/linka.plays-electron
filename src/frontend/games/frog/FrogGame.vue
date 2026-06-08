@@ -4,10 +4,11 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { randomTargetCenterPercent } from "../../core/placement";
 import { useGameSession } from "../../core/session";
 
 const router = useRouter();
-const { session, durationMs, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("frog", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("frog", {
   maxSteps: 8,
   dwellMs: 850,
   sessionSeconds: 90
@@ -16,10 +17,24 @@ const { session, durationMs, recommendation, pauseSession, resumeSession, record
 const firefly = reactive({ id: "firefly", x: 62, y: 44 });
 const resultVisible = computed(() => session.status === "finished");
 
+function fireflyWidth() {
+  return 150 * session.settings.targetScale;
+}
+
+function fireflyHeight() {
+  return 140 * session.settings.targetScale;
+}
+
 function moveFirefly() {
+  const point = randomTargetCenterPercent({
+    targetWidth: fireflyWidth(),
+    targetHeight: fireflyHeight(),
+    previous: firefly,
+    minDistance: 200
+  });
   firefly.id = `firefly-${Date.now()}`;
-  firefly.x = 16 + Math.random() * 70;
-  firefly.y = 28 + Math.random() * 52;
+  firefly.x = point.x;
+  firefly.y = point.y;
 }
 
 function catchFirefly() {
@@ -44,10 +59,11 @@ moveFirefly();
       <GameDwellButton
         class="firefly-target"
         color="transparent"
+        :target-id="firefly.id"
         :disabled="session.status !== 'running'"
         :dwell-ms="session.settings.dwellMs"
-        :min-height="140 * session.settings.targetScale"
-        :style="{ left: `${firefly.x}%`, top: `${firefly.y}%`, inlineSize: `${150 * session.settings.targetScale}px` }"
+        :min-height="fireflyHeight()"
+        :style="{ left: `${firefly.x}%`, top: `${firefly.y}%`, inlineSize: `${fireflyWidth()}px` }"
         @select="catchFirefly"
       >
         <template #default>
@@ -56,7 +72,7 @@ moveFirefly();
         </template>
       </GameDwellButton>
     </div>
-    <GameResultDialog :model-value="resultVisible" title="Жаба" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
+    <GameResultDialog :model-value="resultVisible" title="Жаба" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
   </div>
 </template>
 

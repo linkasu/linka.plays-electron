@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { clampTargetCenterPercent } from "../../core/placement";
 import { useGameSession } from "../../core/session";
 
 type HiddenObject = { id: string; emoji: string; name: string; x: number; y: number; found: boolean };
@@ -17,7 +18,7 @@ const objects = reactive<HiddenObject[]>([
 ]);
 
 const router = useRouter();
-const { session, durationMs, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("hide-and-seek", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("hide-and-seek", {
   maxSteps: objects.length,
   dwellMs: 1200,
   sessionSeconds: 120
@@ -25,6 +26,32 @@ const { session, durationMs, recommendation, pauseSession, resumeSession, record
 
 const resultVisible = computed(() => session.status === "finished");
 const currentObject = computed(() => objects.find((object) => !object.found));
+
+function objectWidth() {
+  return 160 * session.settings.targetScale;
+}
+
+function objectHeight() {
+  return 150 * session.settings.targetScale;
+}
+
+function objectTargetId(object: HiddenObject) {
+  return `hide-and-seek:object:${object.id}`;
+}
+
+function objectStyle(object: HiddenObject) {
+  const point = clampTargetCenterPercent({ x: object.x, y: object.y }, {
+    targetWidth: objectWidth(),
+    targetHeight: objectHeight()
+  });
+
+  return {
+    left: `${point.x}%`,
+    top: `${point.y}%`,
+    inlineSize: `${objectWidth()}px`,
+    opacity: object.found ? 1 : object.id === currentObject.value?.id ? 0.9 : 0.28
+  };
+}
 
 function findObject(object: HiddenObject) {
   if (session.status !== "running" || object.found || object.id !== currentObject.value?.id) return;
@@ -51,10 +78,11 @@ function restart() {
         :key="object.id"
         class="hidden-target"
         color="transparent"
+        :target-id="objectTargetId(object)"
         :disabled="session.status !== 'running' || object.found || object.id !== currentObject?.id"
         :dwell-ms="session.settings.dwellMs"
-        :min-height="150"
-        :style="{ left: `${object.x}%`, top: `${object.y}%`, inlineSize: '160px', opacity: object.found ? 1 : object.id === currentObject?.id ? 0.9 : 0.28 }"
+        :min-height="objectHeight()"
+        :style="objectStyle(object)"
         @select="findObject(object)"
       >
         <template #default>
@@ -62,7 +90,7 @@ function restart() {
         </template>
       </GameDwellButton>
     </div>
-    <GameResultDialog :model-value="resultVisible" title="Прятки" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
+    <GameResultDialog :model-value="resultVisible" title="Прятки" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
   </div>
 </template>
 

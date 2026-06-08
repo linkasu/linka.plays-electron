@@ -9,7 +9,7 @@ import { useGameSession } from "../../core/session";
 type Ring = { id: string; size: number; color: string; placed: boolean };
 
 const router = useRouter();
-const { session, durationMs, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("pyramid", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("pyramid", {
   maxSteps: 4,
   dwellMs: 1200,
   sessionSeconds: 120
@@ -18,6 +18,11 @@ const { session, durationMs, recommendation, pauseSession, resumeSession, record
 const rings = reactive<Ring[]>([]);
 const resultVisible = computed(() => session.status === "finished");
 const nextRing = computed(() => rings.filter((ring) => !ring.placed).sort((a, b) => b.size - a.size)[0]);
+const currentRoundId = computed(() => `pyramid:round:${session.step + 1}`);
+
+function ringTargetId(ring: Ring) {
+  return `pyramid:ring:${ring.id}`;
+}
 
 function resetRings() {
   rings.splice(0, rings.length,
@@ -32,9 +37,9 @@ function chooseRing(ring: Ring) {
   if (session.status !== "running" || ring.placed) return;
   if (ring.id === nextRing.value?.id) {
     ring.placed = true;
-    recordSuccess({ targetId: ring.id });
+    recordSuccess({ roundId: currentRoundId.value, targetId: ringTargetId(ring), expected: ring.id, actual: ring.id, isCorrect: true });
   } else {
-    recordMistake({ expected: nextRing.value?.id, actual: ring.id });
+    recordMistake({ roundId: currentRoundId.value, targetId: ringTargetId(ring), expectedTargetId: nextRing.value ? ringTargetId(nextRing.value) : undefined, expected: nextRing.value?.id, actual: ring.id, isCorrect: false });
   }
 }
 
@@ -60,7 +65,7 @@ resetRings();
                 <div v-for="ring in rings.filter((item) => item.placed).sort((a, b) => b.size - a.size)" :key="`placed-${ring.id}`" class="stack-ring" :style="{ inlineSize: `${ring.size}px`, background: ring.color }" />
               </div>
               <div class="rings">
-                <GameDwellButton v-for="ring in rings" :key="ring.id" :disabled="session.status !== 'running' || ring.placed" :dwell-ms="session.settings.dwellMs" :min-height="130" @select="chooseRing(ring)">
+                <GameDwellButton v-for="ring in rings" :key="ring.id" :target-id="ringTargetId(ring)" :disabled="session.status !== 'running' || ring.placed" :dwell-ms="session.settings.dwellMs" :min-height="130" @select="chooseRing(ring)">
                   <template #default>
                     <div class="loose-ring" :style="{ inlineSize: `${ring.size}px`, background: ring.color, opacity: ring.placed ? 0.25 : 1 }" />
                   </template>
@@ -71,7 +76,7 @@ resetRings();
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Пирамидка" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
+    <GameResultDialog :model-value="resultVisible" title="Пирамидка" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
   </div>
 </template>
 

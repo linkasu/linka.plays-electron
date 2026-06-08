@@ -18,7 +18,7 @@ type Butterfly = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, recommendation, pauseSession, resumeSession, finishSession, startSession } = useGameSession("butterfly", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, startSession } = useGameSession("butterfly", {
   maxSteps: 1,
   sessionSeconds: 90
 });
@@ -205,6 +205,7 @@ function restart() {
       :score="createdButterflies"
       :mistakes="session.mistakes"
       :duration-ms="durationMs"
+      :metrics="metrics"
       :recommendation="recommendation"
       @menu="router.push('/')"
       @restart="restart"

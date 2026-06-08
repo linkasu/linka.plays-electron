@@ -4,38 +4,40 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
-import { useCanvasStage, useGameLoop } from "../../core/canvas";
+import { safeGameArea, useCanvasStage, useGameLoop } from "../../core/canvas";
 import { useGameSession } from "../../core/session";
 
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("table-tennis", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("table-tennis", {
   maxSteps: 10,
   sessionSeconds: 90
 });
 
 const paddle = reactive({ x: 72, y: window.innerHeight / 2, width: 24, height: 190 });
-const ball = reactive({ x: window.innerWidth * 0.58, y: window.innerHeight * 0.45, vx: -220, vy: 120, radius: 22, lastHitAt: 0 });
+const ball = reactive({ x: window.innerWidth * 0.58, y: Math.max(180, window.innerHeight * 0.45), vx: -220 * session.settings.motionSpeed, vy: 120 * session.settings.motionSpeed, radius: 22, lastHitAt: 0 });
 const resultVisible = computed(() => session.status === "finished");
 
 function resetBall(direction = -1) {
-  ball.x = width.value * 0.62;
-  ball.y = 140 + Math.random() * Math.max(120, height.value - 240);
+  const area = safeGameArea(width.value, height.value);
+  ball.x = Math.max(area.x + ball.radius, Math.min(area.x + area.width - ball.radius, width.value * 0.62));
+  ball.y = area.y + ball.radius + Math.random() * Math.max(1, area.height - ball.radius * 2);
   ball.vx = direction * 220 * session.settings.motionSpeed;
   ball.vy = (Math.random() > 0.5 ? 1 : -1) * 130 * session.settings.motionSpeed;
 }
 
 function update(delta: number, now: number) {
   if (session.status !== "running") return;
+  const area = safeGameArea(width.value, height.value);
   const targetY = pointer.value.valid ? pointer.value.y : paddle.y;
   paddle.y += (targetY - paddle.y) * Math.min(1, delta * 7);
-  paddle.y = Math.max(130, Math.min(height.value - 80, paddle.y));
+  paddle.y = Math.max(area.y + paddle.height / 2, Math.min(area.y + area.height - paddle.height / 2, paddle.y));
 
   ball.x += ball.vx * delta;
   ball.y += ball.vy * delta;
 
-  if (ball.y < 118 + ball.radius || ball.y > height.value - ball.radius) {
+  if (ball.y < area.y + ball.radius || ball.y > area.y + area.height - ball.radius) {
     ball.vy *= -1;
   }
 
@@ -87,7 +89,7 @@ function restart() {
   <div class="tennis-shell">
     <canvas ref="canvasRef" class="tennis-canvas" />
     <GameHud title="Теннис" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
-    <GameResultDialog :model-value="resultVisible" title="Теннис" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
+    <GameResultDialog :model-value="resultVisible" title="Теннис" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
   </div>
 </template>
 

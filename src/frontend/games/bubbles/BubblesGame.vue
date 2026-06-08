@@ -4,12 +4,13 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { randomTargetCenterPercent } from "../../core/placement";
 import { useGameSession } from "../../core/session";
 
 type Bubble = { id: string; x: number; y: number; size: number; hue: number };
 
 const router = useRouter();
-const { session, durationMs, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("bubbles", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("bubbles", {
   maxSteps: 8,
   dwellMs: 1200,
   sessionSeconds: 90
@@ -20,10 +21,16 @@ const resultVisible = computed(() => session.status === "finished");
 
 function createBubble(index = 0): Bubble {
   const size = 116 * session.settings.targetScale;
+  const point = randomTargetCenterPercent({
+    targetWidth: size,
+    targetHeight: size,
+    previous: bubbles[0],
+    minDistance: 180
+  });
   return {
     id: `bubble-${Date.now()}-${index}`,
-    x: 8 + Math.random() * 76,
-    y: 22 + Math.random() * 58,
+    x: point.x,
+    y: point.y,
     size,
     hue: 185 + Math.random() * 55
   };
@@ -67,6 +74,7 @@ refillBubbles();
         :key="bubble.id"
         class="bubble-target"
         color="transparent"
+        :target-id="bubble.id"
         :disabled="session.status !== 'running'"
         :dwell-ms="session.settings.dwellMs"
         :min-height="bubble.size"
@@ -85,6 +93,7 @@ refillBubbles();
       :score="session.score"
       :mistakes="session.mistakes"
       :duration-ms="durationMs"
+      :metrics="metrics"
       :recommendation="recommendation"
       @menu="router.push('/')"
       @restart="restart"

@@ -4,12 +4,13 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { randomTargetCenterPercent } from "../../core/placement";
 import { useGameSession } from "../../core/session";
 
 type Duck = { id: string; x: number; y: number; label: string };
 
 const router = useRouter();
-const { session, durationMs, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("ducks", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("ducks", {
   maxSteps: 8,
   dwellMs: 1100,
   sessionSeconds: 90
@@ -18,14 +19,28 @@ const { session, durationMs, recommendation, pauseSession, resumeSession, record
 const ducks = reactive<Duck[]>([]);
 const resultVisible = computed(() => session.status === "finished");
 
+function duckWidth() {
+  return 170 * session.settings.targetScale;
+}
+
+function duckHeight() {
+  return 150 * session.settings.targetScale;
+}
+
 function spawnDucks() {
   const count = session.settings.preset === "gentle" ? 1 : 3;
   ducks.splice(0, ducks.length);
   for (let index = 0; index < count; index++) {
+    const point = randomTargetCenterPercent({
+      targetWidth: duckWidth(),
+      targetHeight: duckHeight(),
+      previous: ducks[index - 1],
+      minDistance: 190
+    });
     ducks.push({
       id: `duck-${Date.now()}-${index}`,
-      x: 16 + Math.random() * 68,
-      y: 34 + Math.random() * 48,
+      x: point.x,
+      y: point.y,
       label: index === 0 ? "Найди утку" : "Утка"
     });
   }
@@ -54,10 +69,11 @@ spawnDucks();
         :key="duck.id"
         class="duck-target"
         color="transparent"
+        :target-id="duck.id"
         :disabled="session.status !== 'running'"
         :dwell-ms="session.settings.dwellMs"
-        :min-height="150 * session.settings.targetScale"
-        :style="{ left: `${duck.x}%`, top: `${duck.y}%`, inlineSize: `${170 * session.settings.targetScale}px` }"
+        :min-height="duckHeight()"
+        :style="{ left: `${duck.x}%`, top: `${duck.y}%`, inlineSize: `${duckWidth()}px` }"
         @select="chooseDuck(duck)"
       >
         <template #default>
@@ -66,7 +82,7 @@ spawnDucks();
         </template>
       </GameDwellButton>
     </div>
-    <GameResultDialog :model-value="resultVisible" title="Утки" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
+    <GameResultDialog :model-value="resultVisible" title="Утки" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
   </div>
 </template>
 

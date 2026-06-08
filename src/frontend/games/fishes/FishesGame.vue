@@ -4,10 +4,11 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { randomTargetCenterPercent } from "../../core/placement";
 import { useGameSession } from "../../core/session";
 
 const router = useRouter();
-const { session, durationMs, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("fishes", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("fishes", {
   maxSteps: 7,
   dwellMs: 1100,
   sessionSeconds: 90
@@ -16,11 +17,25 @@ const { session, durationMs, recommendation, pauseSession, resumeSession, record
 const fish = reactive({ id: "fish", x: 50, y: 52, flip: false });
 const resultVisible = computed(() => session.status === "finished");
 
+function fishWidth() {
+  return 190 * session.settings.targetScale;
+}
+
+function fishHeight() {
+  return 160 * session.settings.targetScale;
+}
+
 function moveFish() {
-  const nextX = 14 + Math.random() * 72;
+  const point = randomTargetCenterPercent({
+    targetWidth: fishWidth(),
+    targetHeight: fishHeight(),
+    previous: fish,
+    minDistance: 210
+  });
+  const nextX = point.x;
   fish.flip = nextX < fish.x;
   fish.x = nextX;
-  fish.y = 30 + Math.random() * 50;
+  fish.y = point.y;
   fish.id = `fish-${Date.now()}`;
 }
 
@@ -47,10 +62,11 @@ moveFish();
       <GameDwellButton
         class="fish-target"
         color="transparent"
+        :target-id="fish.id"
         :disabled="session.status !== 'running'"
         :dwell-ms="session.settings.dwellMs"
-        :min-height="160 * session.settings.targetScale"
-        :style="{ left: `${fish.x}%`, top: `${fish.y}%`, inlineSize: `${190 * session.settings.targetScale}px` }"
+        :min-height="fishHeight()"
+        :style="{ left: `${fish.x}%`, top: `${fish.y}%`, inlineSize: `${fishWidth()}px` }"
         @select="catchFish"
       >
         <template #default>
@@ -59,7 +75,7 @@ moveFish();
         </template>
       </GameDwellButton>
     </div>
-    <GameResultDialog :model-value="resultVisible" title="Рыбки" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
+    <GameResultDialog :model-value="resultVisible" title="Рыбки" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
   </div>
 </template>
 

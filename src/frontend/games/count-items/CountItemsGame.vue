@@ -8,29 +8,39 @@ import { useGameSession } from "../../core/session";
 import { generateCountItemsRound, type CountItemsRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("count-items", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("count-items", {
   maxSteps: 8,
   dwellMs: 1100,
   sessionSeconds: 120
 });
 
-const round = ref<CountItemsRound>(generateCountItemsRound(session.settings));
+let roundIndex = 1;
+const round = ref<CountItemsRound>(generateCountItemsRound(session.settings, roundIndex));
 const resultVisible = computed(() => session.status === "finished");
 
+function choiceTargetId(choice: number) {
+  return `count-items:choice:${choice}`;
+}
+
 function nextRound() {
-  round.value = generateCountItemsRound(session.settings);
+  roundIndex += 1;
+  round.value = generateCountItemsRound(session.settings, roundIndex);
 }
 
 function answer(index: number) {
   if (session.status !== "running") return;
-  if (index === round.value.correctIndex) recordSuccess({ actual: round.value.choices[index] });
-  else recordMistake({ expected: round.value.targetCount, actual: round.value.choices[index] });
+  const actual = round.value.choices[index];
+  const targetId = choiceTargetId(actual);
+  const expectedTargetId = choiceTargetId(round.value.targetCount);
+  if (index === round.value.correctIndex) recordSuccess({ roundId: round.value.roundId, targetId, actual, isCorrect: true });
+  else recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, expected: round.value.targetCount, actual, isCorrect: false });
   if (session.step < session.maxSteps) nextRound();
 }
 
 function restart() {
   startSession();
-  nextRound();
+  roundIndex = 1;
+  round.value = generateCountItemsRound(session.settings, roundIndex);
 }
 </script>
 
@@ -47,7 +57,7 @@ function restart() {
             </div>
             <v-row>
               <v-col v-for="(choice, index) in round.choices" :key="choice" cols="6" md="3">
-                <GameDwellButton :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" @select="answer(index)">
+                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" @select="answer(index)">
                   <template #default>
                     <div class="text-h2 font-weight-bold">{{ choice }}</div>
                   </template>
@@ -58,7 +68,7 @@ function restart() {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Счёт" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
+    <GameResultDialog :model-value="resultVisible" title="Счёт" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
   </div>
 </template>
 

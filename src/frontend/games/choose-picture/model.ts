@@ -2,13 +2,14 @@ import { getAllWords, sampleItems, shuffleItems, type WordItem } from "../../dat
 import type { SessionSettings } from "../../core/settings";
 
 export type ChoosePictureRound = {
+  roundId: string;
   prompt: string;
   target: WordItem;
   choices: WordItem[];
   correctIndex: number;
 };
 
-export function generateChoosePictureRound(settings: SessionSettings): ChoosePictureRound {
+export function generateChoosePictureRound(settings: SessionSettings, roundIndex = 1): ChoosePictureRound {
   const words = getAllWords();
   const choiceCount = settings.preset === "gentle" ? 2 : 4;
   if (words.length < choiceCount) throw new Error("Недостаточно слов для игры.");
@@ -16,6 +17,7 @@ export function generateChoosePictureRound(settings: SessionSettings): ChoosePic
   const distractors = sampleItems(words, choiceCount - 1, [target]);
   const choices = shuffleItems([target, ...distractors]);
   return {
+    roundId: `choose-picture:round:${roundIndex}`,
     prompt: `Где ${target.word}?`,
     target,
     choices,

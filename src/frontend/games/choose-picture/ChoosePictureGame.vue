@@ -8,30 +8,39 @@ import { useGameSession } from "../../core/session";
 import { generateChoosePictureRound, type ChoosePictureRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("choose-picture", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("choose-picture", {
   maxSteps: 8,
   dwellMs: 1200,
   sessionSeconds: 120
 });
 
-const round = ref<ChoosePictureRound>(generateChoosePictureRound(session.settings));
+let roundIndex = 1;
+const round = ref<ChoosePictureRound>(generateChoosePictureRound(session.settings, roundIndex));
 const resultVisible = computed(() => session.status === "finished");
 
+function choiceTargetId(choiceId: string) {
+  return `choose-picture:choice:${choiceId}`;
+}
+
 function nextRound() {
-  round.value = generateChoosePictureRound(session.settings);
+  roundIndex += 1;
+  round.value = generateChoosePictureRound(session.settings, roundIndex);
 }
 
 function choose(index: number) {
   if (session.status !== "running") return;
   const choice = round.value.choices[index];
-  if (index === round.value.correctIndex) recordSuccess({ targetId: choice.id });
-  else recordMistake({ expected: round.value.target.word, actual: choice.word });
+  const targetId = choiceTargetId(choice.id);
+  const expectedTargetId = choiceTargetId(round.value.target.id);
+  if (index === round.value.correctIndex) recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: true });
+  else recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: false });
   if (session.step < session.maxSteps) nextRound();
 }
 
 function restart() {
   startSession();
-  nextRound();
+  roundIndex = 1;
+  round.value = generateChoosePictureRound(session.settings, roundIndex);
 }
 </script>
 
@@ -46,7 +55,7 @@ function restart() {
             <h1 class="text-h3 font-weight-bold text-center mb-8">{{ round.prompt }}</h1>
             <v-row>
               <v-col v-for="(choice, index) in round.choices" :key="choice.id" cols="6" md="3">
-                <GameDwellButton :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" @select="choose(index)">
+                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" @select="choose(index)">
                   <template #default>
                     <div class="choice-emoji">{{ choice.emoji }}</div>
                     <div class="text-h5 font-weight-bold mt-2">{{ choice.word }}</div>
@@ -58,7 +67,7 @@ function restart() {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Выбери картинку" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
+    <GameResultDialog :model-value="resultVisible" title="Выбери картинку" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
   </div>
 </template>
 
