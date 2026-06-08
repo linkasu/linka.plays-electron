@@ -36,14 +36,15 @@ const telemetry = inject(gameSessionTelemetryKey, undefined);
 const instance = getCurrentInstance();
 let frame = 0;
 let enteredAt = 0;
-let lastInsideAt = 0;
 let disposed = false;
 let cooldownUntil = 0;
 
 const hitPaddingPx = 18;
-const leaveGraceMs = 160;
 
-const progressValue = computed(() => progress.value * 100);
+const progressStyle = computed(() => ({
+  "--dwell-seconds": `${props.dwellMs / 1000}s`,
+  "--dwell-size": `${Math.max(64, Math.min(props.minHeight * 0.72, 150))}px`
+}));
 
 function currentTargetId() {
   return props.targetId ?? rootRef.value?.id ?? `dwell-button-${instance?.uid ?? "unknown"}`;
@@ -107,16 +108,15 @@ function tick(now: number) {
 
   const reason = cancelReason();
   if (reason) {
-    if (!active.value || now - lastInsideAt > leaveGraceMs) reset(now, active.value ? reason : undefined);
+    reset(now, active.value ? reason : undefined);
     frame = requestAnimationFrame(tick);
     return;
   }
 
-  lastInsideAt = now;
-
   if (!active.value) {
     active.value = true;
     enteredAt = now;
+    progress.value = 0;
     record("target-enter", makePayload(now, 0));
   }
 
@@ -155,7 +155,7 @@ onUnmounted(() => {
       variant="elevated"
     >
       <slot :active="active" :progress="progress" />
-      <v-progress-linear class="mt-4" :model-value="progressValue" color="secondary" height="8" rounded />
+      <div v-if="active" class="dwell-progress" :style="progressStyle" aria-hidden="true" />
     </v-card>
   </div>
 </template>
@@ -168,10 +168,40 @@ onUnmounted(() => {
 .dwell-button {
   block-size: 100%;
   inline-size: 100%;
+  overflow: hidden;
+  position: relative;
   transition: transform 160ms ease, box-shadow 160ms ease;
 }
 
 .dwell-button--active {
   transform: scale(1.03);
+}
+
+@property --dwell-progress {
+  syntax: '<integer>';
+  initial-value: 0;
+  inherits: false;
+}
+
+@keyframes dwell-progress {
+  to {
+    --dwell-progress: 100;
+  }
+}
+
+.dwell-progress {
+  animation: dwell-progress var(--dwell-seconds) linear forwards;
+  background: radial-gradient(closest-side, transparent 76%, rgb(var(--v-theme-primary)) 77% 82%, transparent 83%),
+    conic-gradient(rgb(var(--v-theme-secondary)) calc(var(--dwell-progress) * 1%), transparent 0);
+  block-size: var(--dwell-size);
+  border-radius: 999px;
+  box-shadow: 0 0 0 8px rgb(var(--v-theme-secondary) / 14%);
+  inline-size: var(--dwell-size);
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  pointer-events: none;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 2;
 }
 </style>
