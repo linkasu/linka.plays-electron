@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import ButterflyGame from "../games/butterfly/ButterflyGame.vue";
 import HomePage from "../pages/HomePage.vue";
+import PlannedGamePage from "../pages/PlannedGamePage.vue";
 import TobiiCalibrationPage from "../pages/TobiiCalibrationPage.vue";
 
 export default createRouter({
@@ -8,6 +9,7 @@ export default createRouter({
   routes: [
     { path: "/", name: "home", component: HomePage },
     { path: "/tobii-calibration", name: "tobii-calibration", component: TobiiCalibrationPage },
-    { path: "/games/butterfly", name: "butterfly", component: ButterflyGame }
+    { path: "/games/butterfly", name: "butterfly", component: ButterflyGame },
+    { path: "/games/:gameId", name: "planned-game", component: PlannedGamePage }
   ]
 });

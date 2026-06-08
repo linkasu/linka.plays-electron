@@ -5,6 +5,58 @@ export type GameInfo = {
   route: string;
   category: string;
   icon: string;
+  skills: GameSkill[];
+  status: GameStatus;
+  recommendedSessionSeconds: number;
+  minTargetSizePx: number;
+  defaultDwellMs: number;
+};
+
+export type GameStatus = "planned" | "mvp" | "therapy-ready" | "polished";
+
+export type GameSkill =
+  | "fixation"
+  | "smooth-pursuit"
+  | "attention-shift"
+  | "visual-search"
+  | "choice"
+  | "aac"
+  | "vocabulary"
+  | "classification"
+  | "sequence"
+  | "counting"
+  | "math"
+  | "typing"
+  | "continuous-control";
+
+export const gameCategories: Record<string, string> = {
+  "tracker-basics": "Знакомство с трекером",
+  words: "Учим слова",
+  math: "Математика",
+  adventure: "Приключения"
+};
+
+export const gameSkillLabels: Record<GameSkill, string> = {
+  fixation: "фиксация",
+  "smooth-pursuit": "слежение",
+  "attention-shift": "переключение",
+  "visual-search": "поиск",
+  choice: "выбор",
+  aac: "AAC",
+  vocabulary: "словарь",
+  classification: "классификация",
+  sequence: "последовательность",
+  counting: "счёт",
+  math: "арифметика",
+  typing: "печать",
+  "continuous-control": "непрерывное управление"
+};
+
+export const gameStatusLabels: Record<GameStatus, string> = {
+  planned: "Запланировано",
+  mvp: "MVP",
+  "therapy-ready": "Для занятий",
+  polished: "Готово"
 };
 
 export const games: GameInfo[] = [
@@ -13,7 +65,186 @@ export const games: GameInfo[] = [
     title: "Бабочки",
     description: "Веди взглядом или мышью по экрану и оставляй след из бабочек.",
     route: "/games/butterfly",
-    category: "Основы",
-    icon: "mdi-butterfly"
+    category: "tracker-basics",
+    icon: "mdi-butterfly",
+    skills: ["smooth-pursuit"],
+    status: "mvp",
+    recommendedSessionSeconds: 90,
+    minTargetSizePx: 120,
+    defaultDwellMs: 1000
+  },
+  {
+    id: "bubbles",
+    title: "Бульк",
+    description: "Лопай пузыри удержанием взгляда и тренируй спокойную фиксацию.",
+    route: "/games/bubbles",
+    category: "tracker-basics",
+    icon: "mdi-circle-outline",
+    skills: ["fixation", "choice"],
+    status: "planned",
+    recommendedSessionSeconds: 90,
+    minTargetSizePx: 140,
+    defaultDwellMs: 1400
+  },
+  {
+    id: "flowers",
+    title: "Цветы",
+    description: "Удерживай взгляд на бутоне, чтобы вырастить спокойный сад.",
+    route: "/games/flowers",
+    category: "tracker-basics",
+    icon: "mdi-flower",
+    skills: ["fixation"],
+    status: "planned",
+    recommendedSessionSeconds: 90,
+    minTargetSizePx: 140,
+    defaultDwellMs: 1500
+  },
+  {
+    id: "ducks",
+    title: "Утки",
+    description: "Находи уток на пруду и выбирай их взглядом.",
+    route: "/games/ducks",
+    category: "tracker-basics",
+    icon: "mdi-duck",
+    skills: ["visual-search", "choice"],
+    status: "planned",
+    recommendedSessionSeconds: 90,
+    minTargetSizePx: 140,
+    defaultDwellMs: 1200
+  },
+  {
+    id: "fishes",
+    title: "Рыбки",
+    description: "Смотри на рыбку и мягко следуй за её движением.",
+    route: "/games/fishes",
+    category: "tracker-basics",
+    icon: "mdi-fish",
+    skills: ["smooth-pursuit", "attention-shift"],
+    status: "planned",
+    recommendedSessionSeconds: 90,
+    minTargetSizePx: 140,
+    defaultDwellMs: 1200
+  },
+  {
+    id: "frog",
+    title: "Жаба",
+    description: "Помоги жабе ловить светлячков взглядом без спешки и стресса.",
+    route: "/games/frog",
+    category: "tracker-basics",
+    icon: "mdi-frog",
+    skills: ["attention-shift", "choice"],
+    status: "planned",
+    recommendedSessionSeconds: 90,
+    minTargetSizePx: 140,
+    defaultDwellMs: 900
+  },
+  {
+    id: "hide-and-seek",
+    title: "Прятки",
+    description: "Ищи спрятанных персонажей на спокойных иллюстрациях.",
+    route: "/games/hide-and-seek",
+    category: "tracker-basics",
+    icon: "mdi-eye-search",
+    skills: ["visual-search", "choice"],
+    status: "planned",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 130,
+    defaultDwellMs: 1200
+  },
+  {
+    id: "pyramid",
+    title: "Пирамидка",
+    description: "Собирай кольца по порядку и тренируй последовательность.",
+    route: "/games/pyramid",
+    category: "tracker-basics",
+    icon: "mdi-pyramid",
+    skills: ["sequence", "choice"],
+    status: "planned",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 120,
+    defaultDwellMs: 1200
+  },
+  {
+    id: "choose-picture",
+    title: "Выбери картинку",
+    description: "Слушай слово и выбирай подходящую картинку взглядом.",
+    route: "/games/choose-picture",
+    category: "words",
+    icon: "mdi-image-search",
+    skills: ["aac", "vocabulary", "choice"],
+    status: "planned",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1200
+  },
+  {
+    id: "eat-or-not-eat",
+    title: "Съедобное",
+    description: "Сортируй предметы на съедобные и несъедобные.",
+    route: "/games/eat-or-not-eat",
+    category: "words",
+    icon: "mdi-food-apple",
+    skills: ["classification", "aac", "choice"],
+    status: "planned",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1200
+  },
+  {
+    id: "type-word",
+    title: "Печать слов",
+    description: "Собирай короткие слова из крупных букв взглядом.",
+    route: "/games/type-word",
+    category: "words",
+    icon: "mdi-keyboard",
+    skills: ["typing", "vocabulary", "sequence"],
+    status: "planned",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 96,
+    defaultDwellMs: 1200
+  },
+  {
+    id: "count-items",
+    title: "Счёт",
+    description: "Посчитай предметы и выбери правильное число.",
+    route: "/games/count-items",
+    category: "math",
+    icon: "mdi-counter",
+    skills: ["counting", "choice"],
+    status: "planned",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 160,
+    defaultDwellMs: 1200
+  },
+  {
+    id: "math-actions",
+    title: "Математика. Операции",
+    description: "Решай простые примеры и вводи ответ крупными кнопками.",
+    route: "/games/math-actions",
+    category: "math",
+    icon: "mdi-calculator-variant",
+    skills: ["math", "typing"],
+    status: "planned",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 96,
+    defaultDwellMs: 1200
+  },
+  {
+    id: "table-tennis",
+    title: "Теннис",
+    description: "Веди ракетку взглядом и удерживай мяч в игре.",
+    route: "/games/table-tennis",
+    category: "adventure",
+    icon: "mdi-table-tennis",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "planned",
+    recommendedSessionSeconds: 90,
+    minTargetSizePx: 160,
+    defaultDwellMs: 1000
   }
 ];
+
+export function findGame(gameId: string | string[]) {
+  const id = Array.isArray(gameId) ? gameId[0] : gameId;
+  return games.find((game) => game.id === id);
+}
