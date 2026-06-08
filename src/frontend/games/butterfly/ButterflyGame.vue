@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
+import GameHud from "../../components/game/GameHud.vue";
+import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSession } from "../../core/session";
 
 type Point = { x: number; y: number };
 type Butterfly = Point & {
@@ -15,6 +18,10 @@ type Butterfly = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
+const { session, durationMs, recommendation, pauseSession, resumeSession, finishSession, startSession } = useGameSession("butterfly", {
+  maxSteps: 1,
+  sessionSeconds: 90
+});
 const butterflies = reactive<Butterfly[]>([]);
 const maxButterflies = 220;
 const spawnDistance = 38;
@@ -24,6 +31,7 @@ let lastPoint: Point | undefined;
 let lastTime = performance.now();
 
 const inputLabel = computed(() => pointer.value.source === "tobii" ? "Tobii" : "мышь");
+const resultVisible = computed(() => session.status === "finished");
 
 function resizeCanvas() {
   const canvas = canvasRef.value;
@@ -106,9 +114,13 @@ function tick(now: number) {
     return;
   }
 
-  const delta = Math.min(0.05, (now - lastTime) / 1000);
+  const delta = session.status === "paused" ? 0 : Math.min(0.05, (now - lastTime) / 1000);
   lastTime = now;
   drawBackground(context);
+
+  if (session.status === "running" && durationMs.value >= session.settings.sessionSeconds * 1000) {
+    finishSession();
+  }
 
   for (let i = butterflies.length - 1; i >= 0; i--) {
     const butterfly = butterflies[i];
@@ -132,6 +144,7 @@ function tick(now: number) {
 }
 
 watch(pointer, (nextPointer) => {
+  if (session.status !== "running") return;
   if (!nextPointer.valid) return;
   const nextPoint = { x: nextPointer.x, y: nextPointer.y };
   if (!lastPoint) {
@@ -156,26 +169,41 @@ onUnmounted(() => {
   window.removeEventListener("resize", resizeCanvas);
   cancelAnimationFrame(frame);
 });
+
+function restart() {
+  butterflies.splice(0);
+  lastPoint = undefined;
+  startSession();
+}
 </script>
 
 <template>
   <div class="game-shell">
     <canvas ref="canvasRef" class="game-canvas" />
-    <div class="game-hud">
-      <v-btn color="surface" prepend-icon="mdi-arrow-left" variant="flat" @click="router.push('/')">
-        В меню
-      </v-btn>
-      <v-chip color="primary" variant="flat">
-        Ввод: {{ inputLabel }}
-      </v-chip>
-      <v-chip color="secondary" variant="flat">
-        Бабочек: {{ butterflies.length }}
-      </v-chip>
-    </div>
+    <GameHud
+      title="Бабочки"
+      :step="session.status === 'finished' ? 1 : 0"
+      :max-steps="1"
+      :score="butterflies.length"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <div class="game-title">
       <div class="text-h4 font-weight-bold">Бабочки</div>
       <div class="text-body-1">Двигай взглядом или мышью, чтобы рисовать полёт.</div>
+      <v-chip class="mt-3" color="primary" variant="flat">Ввод: {{ inputLabel }}</v-chip>
     </div>
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Бабочки"
+      :score="butterflies.length"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :recommendation="recommendation"
+      @menu="router.push('/')"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -191,17 +219,6 @@ onUnmounted(() => {
   display: block;
   inset: 0;
   position: absolute;
-}
-
-.game-hud {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  left: 20px;
-  position: absolute;
-  top: 20px;
-  z-index: 2;
 }
 
 .game-title {
