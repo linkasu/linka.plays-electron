@@ -172,7 +172,7 @@ export const games: GameInfo[] = [
     category: "words",
     icon: "mdi-image-search",
     skills: ["aac", "vocabulary", "choice"],
-    status: "planned",
+    status: "mvp",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1200
