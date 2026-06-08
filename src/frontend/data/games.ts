@@ -237,7 +237,7 @@ export const games: GameInfo[] = [
     category: "adventure",
     icon: "mdi-table-tennis",
     skills: ["continuous-control", "smooth-pursuit"],
-    status: "planned",
+    status: "mvp",
     recommendedSessionSeconds: 90,
     minTargetSizePx: 160,
     defaultDwellMs: 1000
