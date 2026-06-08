@@ -211,7 +211,7 @@ export const games: GameInfo[] = [
     category: "math",
     icon: "mdi-counter",
     skills: ["counting", "choice"],
-    status: "planned",
+    status: "mvp",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 160,
     defaultDwellMs: 1200
