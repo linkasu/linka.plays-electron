@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
-import { games } from "../data/games";
+import { gameCategories, games, gameSkillLabels, gameStatusLabels } from "../data/games";
 </script>
 
 <template>
@@ -13,7 +13,7 @@ import { games } from "../data/games";
               <div class="text-overline text-secondary mb-2">LINKa plays MVP</div>
               <h1 class="text-h3 text-md-h2 font-weight-bold mb-3">Игры взглядом</h1>
               <p class="text-h6 text-medium-emphasis mb-0">
-                Первый Electron/Vue старт: меню, Tobii-ready input и canvas-игра.
+                Каталог игр взглядом: общий Tobii-ready input, mouse fallback и перенос Unity-игр в Electron.
               </p>
             </div>
             <TobiiStatusBadge />
@@ -35,12 +35,30 @@ import { games } from "../data/games";
                     </v-avatar>
                   </template>
                   <v-card-title>{{ game.title }}</v-card-title>
-                  <v-card-subtitle>{{ game.category }}</v-card-subtitle>
+                  <v-card-subtitle>{{ gameCategories[game.category] ?? game.category }}</v-card-subtitle>
                 </v-card-item>
-                <v-card-text class="text-body-1">{{ game.description }}</v-card-text>
+                <v-card-text>
+                  <p class="text-body-1 mb-4">{{ game.description }}</p>
+                  <div class="d-flex flex-wrap ga-2">
+                    <v-chip :color="game.status === 'planned' ? 'default' : 'primary'" size="small" variant="tonal">
+                      {{ gameStatusLabels[game.status] }}
+                    </v-chip>
+                    <v-chip v-for="skill in game.skills" :key="skill" color="secondary" size="small" variant="tonal">
+                      {{ gameSkillLabels[skill] }}
+                    </v-chip>
+                    <v-chip color="info" size="small" variant="tonal">
+                      {{ game.recommendedSessionSeconds }} сек
+                    </v-chip>
+                  </div>
+                </v-card-text>
                 <v-card-actions>
-                  <v-btn :to="game.route" color="primary" size="large" variant="flat">
-                    Играть
+                  <v-btn
+                    :to="game.route"
+                    :color="game.status === 'planned' ? 'secondary' : 'primary'"
+                    size="large"
+                    variant="flat"
+                  >
+                    {{ game.status === "planned" ? "Открыть план" : "Играть" }}
                     <v-icon end icon="mdi-arrow-right" />
                   </v-btn>
                 </v-card-actions>
