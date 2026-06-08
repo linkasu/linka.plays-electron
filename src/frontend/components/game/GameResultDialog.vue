@@ -42,7 +42,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <v-dialog :model-value="props.modelValue" max-width="560" persistent @update:model-value="emit('update:modelValue', $event)">
+  <v-dialog :model-value="props.modelValue" max-width="560" persistent transition="fade-transition" @update:model-value="emit('update:modelValue', $event)">
     <v-card class="pa-2" rounded="xl">
       <v-card-title class="text-h4 font-weight-bold">{{ title }}</v-card-title>
       <v-card-text>

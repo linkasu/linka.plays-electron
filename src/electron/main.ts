@@ -4,6 +4,8 @@ import { join } from "path";
 
 let mainWindow: BrowserWindow | undefined;
 
+app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required");
+
 async function createWindow() {
   const win = new BrowserWindow({
     width: 1280,

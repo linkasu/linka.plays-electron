@@ -5,6 +5,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { randomTargetCenterPercent, percentToPixels } from "../../core/placement";
 import { useGameSession } from "../../core/session";
+import { disposeButterflyAudio, playButterflyMelody, resetButterflyAudioSession, warmButterflyAudio } from "./audio";
 
 type Point = { x: number; y: number };
 type TargetPhase = "appearing" | "waiting" | "gazing" | "blooming";
@@ -29,7 +30,7 @@ type RewardButterfly = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSession("butterfly", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSession("butterfly", {
   preset: "gentle",
   maxSteps: 5,
   dwellMs: 900,
@@ -38,6 +39,8 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   motionSpeed: 0.55,
   distractors: "none",
   hints: "high"
+}, {
+  finishOnMaxSteps: false
 });
 
 const target = ref<GlowTarget>();
@@ -147,6 +150,7 @@ function spawnRewardButterfly(nextTarget: GlowTarget) {
 function awakenTarget(nextTarget: GlowTarget, now: number) {
   recordEvent("target-click", targetPayload(nextTarget, now, 1));
   recordSuccess({ targetId: nextTarget.id, hue: nextTarget.hue });
+  void playButterflyMelody(session.settings.sound);
   spawnRewardButterfly(nextTarget);
   nextTarget.phase = "blooming";
   nextTarget.phaseAge = 0;
@@ -166,6 +170,10 @@ function cancelTarget(nextTarget: GlowTarget, now: number, reason: "left" | "inv
 
 function ensureTarget(now: number) {
   if (session.status !== "running" || target.value || rewardButterflies.length > 0 || now < restUntil) return;
+  if (session.step >= session.maxSteps) {
+    finishSession("max-steps");
+    return;
+  }
   target.value = createTarget(session.step === 0 && previousTargetPoint === undefined);
 }
 
@@ -317,6 +325,7 @@ function restart() {
   rewardButterflies.splice(0);
   previousTargetPoint = undefined;
   restUntil = 0;
+  resetButterflyAudioSession();
   startSession();
   target.value = createTarget(true);
 }
@@ -326,6 +335,8 @@ onMounted(async () => {
   resizeCanvas();
   window.addEventListener("resize", resizeCanvas);
   target.value = createTarget(true);
+  resetButterflyAudioSession();
+  warmButterflyAudio(session.settings.sound);
   lastTime = performance.now();
   frame = requestAnimationFrame(tick);
 });
@@ -333,6 +344,7 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener("resize", resizeCanvas);
   cancelAnimationFrame(frame);
+  disposeButterflyAudio();
 });
 </script>
 

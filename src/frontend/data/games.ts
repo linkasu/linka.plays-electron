@@ -68,7 +68,7 @@ export const games: GameInfo[] = [
     category: "tracker-basics",
     icon: "mdi-butterfly",
     skills: ["fixation", "attention-shift"],
-    status: "mvp",
+    status: "polished",
     recommendedSessionSeconds: 60,
     minTargetSizePx: 180,
     defaultDwellMs: 900
