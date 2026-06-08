@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import ButterflyGame from "../games/butterfly/ButterflyGame.vue";
 import BubblesGame from "../games/bubbles/BubblesGame.vue";
+import CountItemsGame from "../games/count-items/CountItemsGame.vue";
 import DucksGame from "../games/ducks/DucksGame.vue";
 import FlowersGame from "../games/flowers/FlowersGame.vue";
 import HomePage from "../pages/HomePage.vue";
@@ -16,6 +17,7 @@ export default createRouter({
     { path: "/games/bubbles", name: "bubbles", component: BubblesGame },
     { path: "/games/flowers", name: "flowers", component: FlowersGame },
     { path: "/games/ducks", name: "ducks", component: DucksGame },
+    { path: "/games/count-items", name: "count-items", component: CountItemsGame },
     { path: "/games/:gameId", name: "planned-game", component: PlannedGamePage }
   ]
 });
