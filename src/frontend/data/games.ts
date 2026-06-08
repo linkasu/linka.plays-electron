@@ -89,15 +89,15 @@ export const games: GameInfo[] = [
   {
     id: "ducks",
     title: "Утки",
-    description: "Находи уток на пруду и выбирай их взглядом.",
+    description: "Следи за утками на волнах и мягко попадай по ним взглядом.",
     route: "/games/ducks",
     category: "tracker-basics",
     icon: "mdi-duck",
-    skills: ["visual-search", "choice"],
-    status: "mvp",
-    recommendedSessionSeconds: 90,
-    minTargetSizePx: 140,
-    defaultDwellMs: 1200
+    skills: ["visual-search", "fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 60,
+    minTargetSizePx: 160,
+    defaultDwellMs: 850
   },
   {
     id: "fishes",

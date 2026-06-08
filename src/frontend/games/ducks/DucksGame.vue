@@ -1,114 +1,349 @@
 <script setup lang="ts">
-import { computed, reactive } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
-import GameDwellButton from "../../components/game/GameDwellButton.vue";
-import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
-import { randomTargetCenterPercent } from "../../core/placement";
+import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSession } from "../../core/session";
-
-type Duck = { id: string; x: number; y: number; label: string };
+import { disposeDuckAudio, playDuckMelody, resetDuckAudioSession, warmDuckAudio } from "./audio";
+import { drawDuckScene, duckHitRadius, waterTop, type Duck, type Point, type Splash } from "./scene";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("ducks", {
-  maxSteps: 8,
-  dwellMs: 1100,
-  sessionSeconds: 90
+const canvasRef = ref<HTMLCanvasElement>();
+const { pointer } = useGazePointer();
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSession("ducks", {
+  preset: "gentle",
+  maxSteps: 999,
+  dwellMs: 850,
+  sessionSeconds: 60,
+  targetScale: 1.35,
+  motionSpeed: 0.6,
+  distractors: "none",
+  hints: "high"
+}, {
+  finishOnMaxSteps: false
 });
 
 const ducks = reactive<Duck[]>([]);
+const splashes = reactive<Splash[]>([]);
 const resultVisible = computed(() => session.status === "finished");
 
-function duckWidth() {
-  return 170 * session.settings.targetScale;
+let ctx: CanvasRenderingContext2D | undefined;
+let frame = 0;
+let lastTime = performance.now();
+let spawnSequence = 0;
+let lastSpawnDirection: -1 | 1 = 1;
+let sameSideSpawns = 0;
+
+function resizeCanvas() {
+  const canvas = canvasRef.value;
+  if (!canvas) return;
+  const ratio = window.devicePixelRatio || 1;
+  canvas.width = Math.round(window.innerWidth * ratio);
+  canvas.height = Math.round(window.innerHeight * ratio);
+  canvas.style.width = `${window.innerWidth}px`;
+  canvas.style.height = `${window.innerHeight}px`;
+  ctx = canvas.getContext("2d") ?? undefined;
+  ctx?.setTransform(ratio, 0, 0, ratio, 0, 0);
 }
 
-function duckHeight() {
-  return 150 * session.settings.targetScale;
+function randomRange(min: number, max: number) {
+  return min + Math.random() * (max - min);
 }
 
-function spawnDucks() {
-  const count = session.settings.preset === "gentle" ? 1 : 3;
-  ducks.splice(0, ducks.length);
-  for (let index = 0; index < count; index++) {
-    const point = randomTargetCenterPercent({
-      targetWidth: duckWidth(),
-      targetHeight: duckHeight(),
-      previous: ducks[index - 1],
-      minDistance: 190
-    });
-    ducks.push({
-      id: `duck-${Date.now()}-${index}`,
-      x: point.x,
-      y: point.y,
-      label: index === 0 ? "Найди утку" : "Утка"
-    });
+function maxDuckCount() {
+  return window.innerWidth < 760 ? 2 : 3;
+}
+
+function activeDuckCount() {
+  if (session.step >= 2) return maxDuckCount();
+  if (session.step >= 1) return Math.min(maxDuckCount(), 2);
+  return 1;
+}
+
+function progressionSpeed() {
+  return 1 + Math.min(0.78, session.step * 0.13);
+}
+
+function duckSize() {
+  const viewportLimit = Math.min(window.innerWidth, window.innerHeight) * 0.18;
+  return Math.min(140, Math.max(74, Math.min(viewportLimit, 78 * session.settings.targetScale)));
+}
+
+function laneY(index: number, count: number) {
+  const top = waterTop() + window.innerHeight * 0.12;
+  const bottom = window.innerHeight * 0.82;
+  const spacing = count <= 1 ? 0.5 : index / (count - 1);
+  return top + (bottom - top) * spacing + randomRange(-window.innerHeight * 0.012, window.innerHeight * 0.012);
+}
+
+function nextSpawnDirection() {
+  let direction: -1 | 1 = Math.random() > 0.5 ? 1 : -1;
+  if (spawnSequence % 2 === 1 && Math.random() < 0.72) direction = lastSpawnDirection === 1 ? -1 : 1;
+  if (direction === lastSpawnDirection && sameSideSpawns >= 1) direction = direction === 1 ? -1 : 1;
+
+  sameSideSpawns = direction === lastSpawnDirection ? sameSideSpawns + 1 : 0;
+  lastSpawnDirection = direction;
+  spawnSequence += 1;
+  return direction;
+}
+
+function resetDuck(duck: Duck, index: number, fromEdge = false) {
+  const direction = fromEdge ? nextSpawnDirection() : index % 2 === 0 ? 1 : -1;
+  const depthScale = 0.58 + index / Math.max(1, maxDuckCount() - 1) * 0.58;
+  const size = duckSize() * depthScale * randomRange(0.92, 1.08);
+  const edgeDelay = size * (1.4 + index * 2.6 + randomRange(0, 1.8));
+  duck.direction = direction;
+  duck.size = size;
+  duck.laneY = laneY(index, Math.max(1, maxDuckCount()));
+  duck.y = duck.laneY;
+  duck.x = fromEdge
+    ? direction === 1 ? -edgeDelay : window.innerWidth + edgeDelay
+    : window.innerWidth * ((index + 1) / (activeDuckCount() + 1));
+  duck.speed = randomRange(24, 42) * session.settings.motionSpeed * progressionSpeed() * (0.92 + depthScale * 0.24);
+  duck.bob = randomRange(0, Math.PI * 2);
+  duck.state = "swimming";
+  duck.dwellProgress = 0;
+  duck.enteredAt = undefined;
+  duck.hitAge = 0;
+}
+
+function createDuck(index: number, fromEdge = false): Duck {
+  const duck: Duck = {
+    id: `duck-${Date.now()}-${index}`,
+    x: 0,
+    y: 0,
+    laneY: 0,
+    size: 100,
+    direction: 1,
+    speed: 26,
+    bob: 0,
+    state: "swimming",
+    dwellProgress: 0,
+    hitAge: 0
+  };
+  resetDuck(duck, index, fromEdge);
+  return duck;
+}
+
+function initDucks() {
+  ducks.splice(0);
+  spawnSequence = 0;
+  sameSideSpawns = 0;
+  for (let index = 0; index < activeDuckCount(); index++) ducks.push(createDuck(index, true));
+}
+
+function ensureProgressionDucks() {
+  while (ducks.length < activeDuckCount()) ducks.push(createDuck(ducks.length, true));
+}
+
+function copyPointer() {
+  return {
+    x: pointer.value.x,
+    y: pointer.value.y,
+    valid: pointer.value.valid,
+    source: pointer.value.source,
+    timestamp: pointer.value.timestamp
+  };
+}
+
+function distance(a: Point, b: Point) {
+  return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+function targetPayload(duck: Duck, now: number, progress: number, reason?: "left" | "invalid-gaze") {
+  return {
+    targetId: duck.id,
+    at: Date.now(),
+    dwellMs: session.settings.dwellMs,
+    elapsedMs: duck.enteredAt === undefined ? 0 : now - duck.enteredAt,
+    progress,
+    pointer: copyPointer(),
+    reason
+  };
+}
+
+function addSplash(duck: Duck) {
+  splashes.push({
+    x: duck.x,
+    y: duck.y + duck.size * 0.22,
+    age: 0,
+    life: 1.1,
+    radius: duck.size * 0.32
+  });
+  if (splashes.length > 8) splashes.shift();
+}
+
+function cancelDuck(duck: Duck, now: number, reason: "left" | "invalid-gaze") {
+  recordEvent("target-cancel", targetPayload(duck, now, duck.dwellProgress, reason));
+  duck.dwellProgress = 0;
+  duck.enteredAt = undefined;
+}
+
+function hitDuck(duck: Duck, now: number) {
+  recordEvent("target-click", targetPayload(duck, now, 1));
+  recordSuccess({ targetId: duck.id });
+  void playDuckMelody(session.settings.sound);
+  addSplash(duck);
+  duck.state = "hit";
+  duck.hitAge = 0;
+  duck.dwellProgress = 1;
+  duck.enteredAt = undefined;
+}
+
+function updateDuckGaze(duck: Duck, now: number) {
+  if (duck.state !== "swimming" || session.status !== "running") return;
+  const inside = pointer.value.valid && distance(duck, pointer.value) <= duckHitRadius(duck);
+
+  if (!inside) {
+    if (duck.enteredAt !== undefined) cancelDuck(duck, now, pointer.value.valid ? "left" : "invalid-gaze");
+    return;
+  }
+
+  if (duck.enteredAt === undefined) {
+    duck.enteredAt = now;
+    recordEvent("target-enter", targetPayload(duck, now, 0));
+  }
+
+  duck.dwellProgress = Math.min(1, (now - duck.enteredAt) / session.settings.dwellMs);
+  if (duck.dwellProgress >= 1) hitDuck(duck, now);
+}
+
+function updateDucks(delta: number, now: number) {
+  ensureProgressionDucks();
+  for (let index = 0; index < ducks.length; index++) {
+    const duck = ducks[index];
+    duck.x += duck.direction * duck.speed * delta;
+    duck.bob += delta * 1.8;
+    duck.y = duck.laneY + Math.sin(duck.bob) * duck.size * 0.035;
+
+    if (duck.state === "hit") {
+      duck.hitAge += delta;
+      if (duck.hitAge > 0.75 && session.status === "running") resetDuck(duck, index, true);
+      continue;
+    }
+
+    if (duck.x < -duck.size * 2 || duck.x > window.innerWidth + duck.size * 2) resetDuck(duck, index, true);
+    updateDuckGaze(duck, now);
   }
 }
 
-function chooseDuck(duck: Duck) {
-  if (session.status !== "running") return;
-  recordSuccess({ targetId: duck.id });
-  if (session.step < session.maxSteps) spawnDucks();
+function updateSplashes(delta: number) {
+  for (let index = splashes.length - 1; index >= 0; index--) {
+    const splash = splashes[index];
+    splash.age += delta;
+    if (splash.age >= splash.life) splashes.splice(index, 1);
+  }
+}
+
+function draw(context: CanvasRenderingContext2D, now: number) {
+  drawDuckScene(context, {
+    ducks,
+    splashes,
+    pointer: pointer.value,
+    running: session.status === "running",
+    now,
+    durationMs: durationMs.value,
+    sessionSeconds: session.settings.sessionSeconds
+  });
+}
+
+function tick(now: number) {
+  const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+  lastTime = now;
+
+  if (session.status === "running") {
+    updateDucks(delta, now);
+    updateSplashes(delta);
+  }
+
+  if (ctx) draw(ctx, now);
+  frame = requestAnimationFrame(tick);
 }
 
 function restart() {
+  splashes.splice(0);
+  resetDuckAudioSession();
   startSession();
-  spawnDucks();
+  initDucks();
 }
 
-spawnDucks();
+onMounted(async () => {
+  await nextTick();
+  resizeCanvas();
+  initDucks();
+  resetDuckAudioSession();
+  warmDuckAudio(session.settings.sound);
+  window.addEventListener("resize", resizeCanvas);
+  lastTime = performance.now();
+  frame = requestAnimationFrame(tick);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", resizeCanvas);
+  cancelAnimationFrame(frame);
+  disposeDuckAudio();
+});
 </script>
 
 <template>
   <div class="ducks-shell">
-    <GameHud title="Утки" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
-    <div class="pond">
-      <GameDwellButton
-        v-for="duck in ducks"
-        :key="duck.id"
-        class="duck-target"
-        color="transparent"
-        :target-id="duck.id"
-        :disabled="session.status !== 'running'"
-        :dwell-ms="session.settings.dwellMs"
-        :min-height="duckHeight()"
-        :style="{ left: `${duck.x}%`, top: `${duck.y}%`, inlineSize: `${duckWidth()}px` }"
-        @select="chooseDuck(duck)"
-      >
-        <template #default>
-          <div class="duck">🦆</div>
-          <div class="text-body-2 font-weight-bold">{{ duck.label }}</div>
-        </template>
-      </GameDwellButton>
+    <canvas ref="canvasRef" class="ducks-canvas" />
+
+    <div class="quiet-controls d-flex align-center ga-1 pa-1">
+      <v-btn aria-label="В меню" color="surface" density="comfortable" icon="mdi-arrow-left" size="small" variant="text" @click="router.push('/')" />
+      <v-btn
+        :aria-label="session.status === 'paused' ? 'Продолжить' : 'Пауза'"
+        color="surface"
+        density="comfortable"
+        :icon="session.status === 'paused' ? 'mdi-play' : 'mdi-pause'"
+        size="small"
+        variant="text"
+        @click="session.status === 'paused' ? resumeSession() : pauseSession()"
+      />
     </div>
-    <GameResultDialog :model-value="resultVisible" title="Утки" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
+
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Утки"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push('/')"
+      @restart="restart"
+    />
   </div>
 </template>
 
 <style scoped>
 .ducks-shell {
+  background: #92d8f0;
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;
-}
-
-.pond {
-  background: linear-gradient(180deg, #ddfbff 0%, #b9eaff 56%, #9ddbe8 100%);
-  block-size: 100%;
-  inline-size: 100%;
   position: relative;
 }
 
-.duck-target {
-  border-radius: 999px;
+.ducks-canvas {
+  display: block;
+  inset: 0;
   position: absolute;
-  transform: translate(-50%, -50%);
 }
 
-.duck {
-  filter: drop-shadow(0 12px 16px rgb(34 98 120 / 20%));
-  font-size: clamp(4rem, 9vw, 7rem);
-  line-height: 1;
+.quiet-controls {
+  background: rgb(255 255 255 / 34%);
+  border-radius: 18px;
+  inset-block-start: 16px;
+  inset-inline-start: 16px;
+  opacity: 0.46;
+  position: absolute;
+  transition: opacity 160ms ease;
+  z-index: 2;
+}
+
+.quiet-controls:focus-within,
+.quiet-controls:hover {
+  opacity: 0.95;
 }
 </style>
