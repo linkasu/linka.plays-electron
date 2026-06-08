@@ -185,7 +185,7 @@ export const games: GameInfo[] = [
     category: "words",
     icon: "mdi-food-apple",
     skills: ["classification", "aac", "choice"],
-    status: "planned",
+    status: "mvp",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1200
