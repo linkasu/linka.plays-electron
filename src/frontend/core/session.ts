@@ -1,8 +1,12 @@
-import { computed, onUnmounted, reactive, ref } from "vue";
+import { computed, onUnmounted, provide, reactive, ref, watch, type InjectionKey } from "vue";
+import { useGazePointer } from "../composables/useGazePointer";
+import { createGazeMetricsTracker } from "./gaze";
 import type { SessionSettings } from "./settings";
 import { createDefaultSettings, recommendNextSettings } from "./settings";
 
 export type SessionStatus = "idle" | "running" | "paused" | "finished";
+
+export type SessionFinishReason = "max-steps" | "timeout" | "too-many-mistakes" | "manual" | "game-complete";
 
 export type SessionEventType =
   | "session-start"
@@ -34,6 +38,9 @@ export type GameSessionState = {
   gameId: string;
   startedAt: number;
   finishedAt?: number;
+  pausedAt?: number;
+  pausedMs: number;
+  finishReason?: SessionFinishReason;
   status: SessionStatus;
   step: number;
   maxSteps: number;
@@ -44,12 +51,21 @@ export type GameSessionState = {
   events: SessionEvent[];
 };
 
+export type GameSessionTelemetry = {
+  recordEvent: (type: SessionEventType, payload?: Record<string, unknown>) => void;
+};
+
+export const gameSessionTelemetryKey: InjectionKey<GameSessionTelemetry> = Symbol("game-session-telemetry");
+
 export function useGameSession(gameId: string, initialSettings: Partial<SessionSettings> = {}) {
   const settings = createDefaultSettings(initialSettings);
+  const { pointer } = useGazePointer();
+  const gazeTracker = createGazeMetricsTracker();
   const session = reactive<GameSessionState>({
     sessionId: `${gameId}-${Date.now()}`,
     gameId,
     startedAt: 0,
+    pausedMs: 0,
     status: "idle",
     step: 0,
     maxSteps: settings.maxSteps,
@@ -63,22 +79,28 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
   const maxMistakesBeforeFinish = Math.max(6, settings.maxSteps * 3);
   const timer = window.setInterval(() => {
     nowMs.value = Date.now();
-    if (session.status === "running" && session.startedAt && nowMs.value - session.startedAt >= session.settings.sessionSeconds * 1000) {
-      finishSession();
+    if (session.status === "running" && activeDurationMs(nowMs.value) >= session.settings.sessionSeconds * 1000) {
+      finishSession("timeout");
     }
   }, 250);
 
-  const durationMs = computed(() => {
+  function activeDurationMs(at = Date.now()) {
     if (!session.startedAt) return 0;
-    return (session.finishedAt ?? nowMs.value) - session.startedAt;
+    const currentPausedMs = session.status === "paused" && session.pausedAt ? at - session.pausedAt : 0;
+    return Math.max(0, at - session.startedAt - session.pausedMs - currentPausedMs);
+  }
+
+  const durationMs = computed(() => {
+    if (session.status === "finished" && session.finishedAt) return activeDurationMs(session.finishedAt);
+    return activeDurationMs(nowMs.value);
   });
 
   const metrics = computed(() => {
-    const targetCancels = session.events.filter((event) => event.type === "target-cancel").length;
-    const gazeLostCount = session.events.filter((event) => event.type === "gaze-lost").length;
+    const gaze = gazeTracker.snapshot();
+    const targetCancels = session.events.filter((event) => event.type === "target-cancel" && event.payload?.reason !== "disabled").length;
     const dwellEvents = session.events.filter((event) => event.type === "target-click");
     const dwellMs = dwellEvents
-      .map((event) => Number(event.payload?.dwellMs))
+      .map((event) => Number(event.payload?.elapsedMs ?? event.payload?.dwellMs))
       .filter((value) => Number.isFinite(value));
     const meanDwellMs = dwellMs.length ? dwellMs.reduce((sum, value) => sum + value, 0) / dwellMs.length : undefined;
 
@@ -86,15 +108,23 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
       sessionId: session.sessionId,
       gameId,
       durationMs: durationMs.value,
+      pausedMs: session.pausedMs,
+      finishReason: session.finishReason,
       stepsCompleted: session.step,
       maxSteps: session.maxSteps,
       successes: session.score,
       mistakes: session.mistakes,
       hintsUsed: session.hintsUsed,
-      validGazeRatio: 1,
+      validGazeRatio: gaze.validGazeRatio,
+      totalGazeSamples: gaze.totalGazeSamples,
+      validGazeSamples: gaze.validGazeSamples,
+      invalidGazeSamples: gaze.invalidGazeSamples,
+      rawPathLength: gaze.rawPathLength,
+      meanSampleIntervalMs: gaze.meanSampleIntervalMs,
       meanDwellMs,
       targetCancels,
-      gazeLostCount,
+      gazeLostCount: gaze.lostGazeEvents,
+      gazeRestoredCount: gaze.restoredGazeEvents,
       difficultyChanges: session.events.filter((event) => event.type === "difficulty-change").length
     };
   });
@@ -113,34 +143,49 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
   }
 
   function startSession() {
+    session.sessionId = `${gameId}-${Date.now()}`;
     session.startedAt = Date.now();
     session.finishedAt = undefined;
+    session.pausedAt = undefined;
+    session.pausedMs = 0;
+    session.finishReason = undefined;
     session.status = "running";
     session.step = 0;
     session.score = 0;
     session.mistakes = 0;
     session.hintsUsed = 0;
     session.events = [];
+    gazeTracker.reset();
     recordEvent("session-start");
   }
 
   function pauseSession() {
     if (session.status !== "running") return;
+    session.pausedAt = Date.now();
     session.status = "paused";
     recordEvent("session-pause");
   }
 
   function resumeSession() {
     if (session.status !== "paused") return;
+    const now = Date.now();
+    if (session.pausedAt) session.pausedMs += now - session.pausedAt;
+    session.pausedAt = undefined;
     session.status = "running";
     recordEvent("session-resume");
   }
 
-  function finishSession() {
+  function finishSession(reason: SessionFinishReason = "manual") {
     if (session.status === "finished") return;
+    const now = Date.now();
+    if (session.status === "paused" && session.pausedAt) {
+      session.pausedMs += now - session.pausedAt;
+      session.pausedAt = undefined;
+    }
     session.status = "finished";
-    session.finishedAt = Date.now();
-    recordEvent("session-finish");
+    session.finishedAt = now;
+    session.finishReason = reason;
+    recordEvent("session-finish", { reason, durationMs: activeDurationMs(now), pausedMs: session.pausedMs });
   }
 
   function recordSuccess(payload: Record<string, unknown> = {}) {
@@ -148,14 +193,14 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
     session.step += 1;
     session.score += 1;
     recordEvent("success", { step: session.step, ...payload });
-    if (session.step >= session.maxSteps) finishSession();
+    if (session.step >= session.maxSteps) finishSession("max-steps");
   }
 
   function recordMistake(payload: Record<string, unknown> = {}) {
     if (session.status !== "running") return;
     session.mistakes += 1;
     recordEvent("mistake", { step: session.step, ...payload });
-    if (session.mistakes >= maxMistakesBeforeFinish) finishSession();
+    if (session.mistakes >= maxMistakesBeforeFinish) finishSession("too-many-mistakes");
   }
 
   function recordHint(payload: Record<string, unknown> = {}) {
@@ -164,6 +209,15 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
   }
 
   startSession();
+
+  watch(pointer, (nextPointer) => {
+    if (session.status !== "running") return;
+    const transition = gazeTracker.record(nextPointer);
+    if (transition === "lost") recordEvent("gaze-lost", { source: nextPointer.source });
+    if (transition === "restored") recordEvent("gaze-restored", { source: nextPointer.source });
+  }, { deep: true });
+
+  provide(gameSessionTelemetryKey, { recordEvent });
 
   onUnmounted(() => {
     window.clearInterval(timer);

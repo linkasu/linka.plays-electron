@@ -30,6 +30,7 @@
     "cross-env": "^10.1.0",
     "electron": "^39.2.6",
     "electron-builder": "^26.0.12",
+    "happy-dom": "^20.10.2",
     "typescript": "^5.9.3",
     "vite": "^7.2.4",
     "vitest": "^4.0.13",

@@ -13,6 +13,103 @@ export type DwellTarget = {
 
 export type DwellCancelReason = "left" | "invalid-gaze" | "disabled";
 
+export type DwellEventPayload = {
+  targetId: string;
+  at: number;
+  dwellMs: number;
+  elapsedMs: number;
+  progress: number;
+  pointer: GazePoint;
+  reason?: DwellCancelReason;
+};
+
+export type GazeMetricsSnapshot = {
+  totalGazeSamples: number;
+  validGazeSamples: number;
+  invalidGazeSamples: number;
+  validGazeRatio: number;
+  lostGazeEvents: number;
+  restoredGazeEvents: number;
+  rawPathLength: number;
+  meanSampleIntervalMs?: number;
+};
+
+export function createGazeMetricsTracker() {
+  let totalGazeSamples = 0;
+  let validGazeSamples = 0;
+  let invalidGazeSamples = 0;
+  let lostGazeEvents = 0;
+  let restoredGazeEvents = 0;
+  let rawPathLength = 0;
+  let sampleIntervalSum = 0;
+  let sampleIntervalCount = 0;
+  let previousPoint: GazePoint | undefined;
+  let previousValidPoint: GazePoint | undefined;
+
+  function reset() {
+    totalGazeSamples = 0;
+    validGazeSamples = 0;
+    invalidGazeSamples = 0;
+    lostGazeEvents = 0;
+    restoredGazeEvents = 0;
+    rawPathLength = 0;
+    sampleIntervalSum = 0;
+    sampleIntervalCount = 0;
+    previousPoint = undefined;
+    previousValidPoint = undefined;
+  }
+
+  function record(point: GazePoint): "lost" | "restored" | undefined {
+    const timestamp = point.timestamp ?? Date.now();
+    const normalizedPoint = { ...point, timestamp };
+    let transition: "lost" | "restored" | undefined;
+
+    totalGazeSamples += 1;
+    if (point.valid) validGazeSamples += 1;
+    else invalidGazeSamples += 1;
+
+    if (previousPoint) {
+      if (previousPoint.valid && !point.valid) {
+        lostGazeEvents += 1;
+        transition = "lost";
+      }
+      if (!previousPoint.valid && point.valid) {
+        restoredGazeEvents += 1;
+        transition = "restored";
+      }
+
+      const interval = timestamp - (previousPoint.timestamp ?? timestamp);
+      if (Number.isFinite(interval) && interval > 0) {
+        sampleIntervalSum += interval;
+        sampleIntervalCount += 1;
+      }
+    }
+
+    if (point.valid && previousValidPoint) {
+      rawPathLength += Math.hypot(point.x - previousValidPoint.x, point.y - previousValidPoint.y);
+    }
+
+    if (point.valid) previousValidPoint = normalizedPoint;
+    previousPoint = normalizedPoint;
+    return transition;
+  }
+
+  function snapshot(): GazeMetricsSnapshot {
+    return {
+      totalGazeSamples,
+      validGazeSamples,
+      invalidGazeSamples,
+      validGazeRatio: totalGazeSamples ? validGazeSamples / totalGazeSamples : 1,
+      lostGazeEvents,
+      restoredGazeEvents,
+      rawPathLength,
+      meanSampleIntervalMs: sampleIntervalCount ? sampleIntervalSum / sampleIntervalCount : undefined
+    };
+  }
+
+  return { reset, record, snapshot };
+}
+
 export function containsPoint(target: DwellTarget, point: { x: number; y: number }) {
   return point.x >= target.x && point.x <= target.x + target.width && point.y >= target.y && point.y <= target.y + target.height;
 }
