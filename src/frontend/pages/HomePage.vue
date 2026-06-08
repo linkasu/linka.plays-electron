@@ -19,6 +19,12 @@ import { games } from "../data/games";
             <TobiiStatusBadge />
           </div>
 
+          <div class="d-flex flex-wrap ga-3 mb-8">
+            <v-btn color="secondary" prepend-icon="mdi-eye-settings" size="large" to="/tobii-calibration" variant="flat">
+              Калибровка Tobii
+            </v-btn>
+          </div>
+
           <v-row>
             <v-col v-for="game in games" :key="game.id" cols="12" md="6" lg="4">
               <v-card class="h-100" color="surface" rounded="xl" variant="outlined">

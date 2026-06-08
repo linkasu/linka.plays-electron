@@ -39,6 +39,11 @@ declare global {
     linkaTobii?: {
       getStatus: () => Promise<TobiiStatus>;
       rendererReady: () => void;
+      startCalibration: () => Promise<boolean>;
+      addCalibrationPoint: (point: { x: number; y: number }) => Promise<boolean>;
+      finishCalibration: () => Promise<boolean>;
+      applySavedCalibration: () => Promise<boolean>;
+      restartService: () => Promise<boolean>;
       onStatus: (listener: (status: TobiiStatus) => void) => Dispose;
       onGaze: (listener: (point: GazePoint) => void) => Dispose;
     };

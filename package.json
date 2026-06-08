@@ -16,7 +16,7 @@
     "electron:build": "npm run build && electron-builder -p never"
   },
   "dependencies": {
-    "@linkasu/tobii-electron": "github:linkasu/linka-tobii-electron#v0.2.4",
+    "@linkasu/tobii-electron": "github:linkasu/linka-tobii-electron#v0.2.5",
     "@mdi/font": "^7.4.47",
     "roboto-fontface": "^0.10.0",
     "vue": "^3.5.24",
