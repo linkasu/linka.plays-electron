@@ -1,0 +1,52 @@
+<script setup lang="ts">
+import { computed } from "vue";
+import { useRouter } from "vue-router";
+import TobiiStatusBadge from "../TobiiStatusBadge.vue";
+
+const props = defineProps<{
+  title: string;
+  step: number;
+  maxSteps: number;
+  score?: number;
+  mistakes?: number;
+  paused?: boolean;
+}>();
+
+const emit = defineEmits<{
+  pause: [];
+  resume: [];
+}>();
+
+const router = useRouter();
+const progress = computed(() => props.maxSteps > 0 ? Math.min(100, (props.step / props.maxSteps) * 100) : 0);
+</script>
+
+<template>
+  <div class="game-hud d-flex flex-wrap align-center ga-3 pa-4">
+    <v-btn color="surface" prepend-icon="mdi-arrow-left" variant="flat" @click="router.push('/')">
+      В меню
+    </v-btn>
+    <v-btn color="surface" :prepend-icon="paused ? 'mdi-play' : 'mdi-pause'" variant="flat" @click="paused ? emit('resume') : emit('pause')">
+      {{ paused ? "Продолжить" : "Пауза" }}
+    </v-btn>
+    <v-card class="px-4 py-2" color="surface" rounded="pill" variant="flat">
+      <div class="text-caption text-medium-emphasis">{{ title }}</div>
+      <div class="text-body-2 font-weight-bold">Шаг {{ step }} / {{ maxSteps }}</div>
+      <v-progress-linear class="mt-1" :model-value="progress" color="primary" height="6" rounded />
+    </v-card>
+    <v-chip v-if="score !== undefined" color="primary" variant="flat">Успех: {{ score }}</v-chip>
+    <v-chip v-if="mistakes !== undefined" color="warning" variant="tonal">Ошибки: {{ mistakes }}</v-chip>
+    <TobiiStatusBadge />
+  </div>
+</template>
+
+<style scoped>
+.game-hud {
+  left: 0;
+  pointer-events: auto;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 10;
+}
+</style>
