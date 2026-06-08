@@ -76,15 +76,15 @@ export const games: GameInfo[] = [
   {
     id: "flowers",
     title: "Цветы",
-    description: "Удерживай взгляд на бутоне, чтобы вырастить спокойный сад.",
+    description: "Находи новый росток на лугу и мягко выращивай цветок взглядом.",
     route: "/games/flowers",
     category: "tracker-basics",
     icon: "mdi-flower",
-    skills: ["fixation"],
-    status: "mvp",
-    recommendedSessionSeconds: 90,
-    minTargetSizePx: 140,
-    defaultDwellMs: 1500
+    skills: ["fixation", "attention-shift", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 75,
+    minTargetSizePx: 170,
+    defaultDwellMs: 1100
   },
   {
     id: "ducks",
