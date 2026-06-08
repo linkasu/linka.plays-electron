@@ -1,0 +1,81 @@
+{
+  "name": "linka.plays-electron",
+  "version": "0.1.0",
+  "private": true,
+  "description": "LINKa plays MVP on Electron, Vue and Canvas",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev": "npm run build:electron && concurrently -k \"vite --host 127.0.0.1\" \"wait-on tcp:5173 && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5173 electron dist-electron/main.js\"",
+    "electron:serve": "npm run dev",
+    "build": "npm run build:renderer && npm run build:electron",
+    "build:renderer": "vite build",
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.electron.json",
+    "preview": "vite preview",
+    "test:unit": "vitest run",
+    "electron:build": "npm run build && electron-builder -p never"
+  },
+  "dependencies": {
+    "@linkasu/tobii-electron": "github:linkasu/linka-tobii-electron#v0.2.1",
+    "@mdi/font": "^7.4.47",
+    "roboto-fontface": "^0.10.0",
+    "vue": "^3.5.24",
+    "vue-router": "^4.6.3",
+    "vuetify": "^3.10.11"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@vitejs/plugin-vue": "^6.0.2",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
+    "electron": "^39.2.6",
+    "electron-builder": "^26.0.12",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.4",
+    "vitest": "^4.0.13",
+    "vue-tsc": "^3.1.5",
+    "wait-on": "^9.0.3"
+  },
+  "build": {
+    "productName": "LINKa plays",
+    "appId": "su.linka.plays",
+    "asarUnpack": [
+      "node_modules/@linkasu/tobii-electron/native/tobiifree-native/**/*.node",
+      "node_modules/@linkasu/tobii-electron/node_modules/@linka/tobiifree-native/**/*.node",
+      "node_modules/@linka/tobiifree-native/**/*.node"
+    ],
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "node_modules/@linkasu/tobii-electron/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "./node_modules/@linkasu/tobii-electron/tools/tobiifree-helper/",
+        "to": "extraResources/bin/tobiifree-helper",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "./node_modules/@linkasu/tobii-electron/tools/tobiifree-sdk/",
+        "to": "extraResources/bin/tobiifree-sdk",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "./node_modules/usb/",
+        "to": "extraResources/bin/node_modules/usb",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "./node_modules/node-gyp-build/",
+        "to": "extraResources/bin/node_modules/node-gyp-build",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "./node_modules/@linkasu/tobii-electron/extraResources/bin/",
+        "to": "extraResources/bin",
+        "filter": ["EyeLog.exe", "*.dll", "*.config"]
+      }
+    ]
+  }
+}
