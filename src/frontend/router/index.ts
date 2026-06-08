@@ -7,6 +7,7 @@ import DucksGame from "../games/ducks/DucksGame.vue";
 import EatOrNotEatGame from "../games/eat-or-not-eat/EatOrNotEatGame.vue";
 import FishesGame from "../games/fishes/FishesGame.vue";
 import FlowersGame from "../games/flowers/FlowersGame.vue";
+import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import PyramidGame from "../games/pyramid/PyramidGame.vue";
 import HomePage from "../pages/HomePage.vue";
 import PlannedGamePage from "../pages/PlannedGamePage.vue";
@@ -26,6 +27,7 @@ export default createRouter({
     { path: "/games/eat-or-not-eat", name: "eat-or-not-eat", component: EatOrNotEatGame },
     { path: "/games/pyramid", name: "pyramid", component: PyramidGame },
     { path: "/games/fishes", name: "fishes", component: FishesGame },
+    { path: "/games/hide-and-seek", name: "hide-and-seek", component: HideAndSeekGame },
     { path: "/games/:gameId", name: "planned-game", component: PlannedGamePage }
   ]
 });
