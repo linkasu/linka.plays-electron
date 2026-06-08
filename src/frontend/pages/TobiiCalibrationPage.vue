@@ -42,6 +42,10 @@ const calibrationGroups: CalibrationPoint[][] = [
 ];
 
 const currentGroup = computed(() => calibrationGroups[activeGroupIndex.value]);
+const currentTargetIndex = computed(() => {
+  const index = pointStates.value.findIndex((state) => state !== "done");
+  return index >= 0 ? index : null;
+});
 const canUseTobii = computed(() => tobiiStatus.value?.state === "connected" || tobiiStatus.value?.state === "tracking");
 const tobiiStatusMessage = computed(() => tobiiStatus.value?.message || "Проверяю состояние Tobii...");
 const tobiiStatusAlertType = computed(() => {
@@ -125,6 +129,7 @@ function targetClasses(index: number) {
   return {
     [`is-${state}`]: true,
     "is-active": activePointIndex.value === index,
+    "is-current": currentTargetIndex.value === index,
     "is-disabled": isPointDisabled(index)
   };
 }
@@ -132,6 +137,7 @@ function targetClasses(index: number) {
 function isPointDisabled(index: number) {
   if (phase.value !== "look") return true;
   if (completingPoint.value) return true;
+  if (currentTargetIndex.value !== index) return true;
   const state = pointStates.value[index];
   if (state === "done" || state === "bursting") return true;
   return activePointIndex.value !== null && activePointIndex.value !== index;
@@ -160,7 +166,7 @@ function onGaze(point: GazePoint) {
 }
 
 function findHitTarget(point: GazePoint) {
-  const targets = Array.from(document.querySelectorAll<HTMLElement>(".calibration-target:not(.is-done)"));
+  const targets = Array.from(document.querySelectorAll<HTMLElement>(".calibration-target.is-current:not(.is-done)"));
   const target = targets.find((element) => {
     const rect = element.getBoundingClientRect();
     const centerX = rect.x + rect.width / 2;
@@ -348,7 +354,7 @@ onBeforeUnmount(() => {
       <div v-if="gazePoint?.valid" class="debug-gaze-marker" :style="gazeMarkerStyle" />
       <div
         v-for="(point, index) in currentGroup"
-        v-show="pointStates[index] !== 'done'"
+        v-show="pointStates[index] !== 'done' && currentTargetIndex === index"
         :key="`${activeGroupIndex}-${index}`"
         class="calibration-target"
         :class="targetClasses(index)"
