@@ -23,6 +23,7 @@ const gazePoint = ref<GazePoint>();
 const holdMs = 1600;
 const burstMs = 280;
 const groupPauseMs = 120;
+const targetHitRadius = 360;
 let holdFrame: number | undefined;
 let disposeStatus: Dispose | undefined;
 let disposeGaze: Dispose | undefined;
@@ -164,7 +165,7 @@ function findHitTarget(point: GazePoint) {
     const rect = element.getBoundingClientRect();
     const centerX = rect.x + rect.width / 2;
     const centerY = rect.y + rect.height / 2;
-    return Math.hypot(point.x - centerX, point.y - centerY) <= rect.width / 2;
+    return Math.hypot(point.x - centerX, point.y - centerY) <= targetHitRadius;
   });
   if (!target?.dataset.index) return undefined;
   return Number(target.dataset.index);
