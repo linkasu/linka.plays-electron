@@ -483,6 +483,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 90,
     minTargetSizePx: 160,
     defaultDwellMs: 1000
+  },
+  {
+    id: "garden-watering",
+    title: "Садовая лейка",
+    description: "Веди лейку взглядом и мягко поливай цветы в любом порядке.",
+    selfDescription: "Полей цветы взглядом.",
+    route: "/games/garden-watering",
+    category: "continuous-control",
+    icon: "mdi-watering-can",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1200
   }
 ];
 
