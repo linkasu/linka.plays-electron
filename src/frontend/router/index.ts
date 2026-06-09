@@ -1,19 +1,25 @@
 import { createRouter, createWebHashHistory } from "vue-router";
+import BigButtonGame from "../games/big-button/BigButtonGame.vue";
 import ButterflyGame from "../games/butterfly/ButterflyGame.vue";
 import ChoosePictureGame from "../games/choose-picture/ChoosePictureGame.vue";
 import ConnectFourGame from "../games/connect-four/ConnectFourGame.vue";
 import CountItemsGame from "../games/count-items/CountItemsGame.vue";
 import DucksGame from "../games/ducks/DucksGame.vue";
 import EatOrNotEatGame from "../games/eat-or-not-eat/EatOrNotEatGame.vue";
+import FireflyMeadowGame from "../games/firefly-meadow/FireflyMeadowGame.vue";
+import FindColorGame from "../games/find-color/FindColorGame.vue";
 import FishesGame from "../games/fishes/FishesGame.vue";
 import FlowersGame from "../games/flowers/FlowersGame.vue";
 import FrogGame from "../games/frog/FrogGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import MathActionsGame from "../games/math-actions/MathActionsGame.vue";
 import PyramidGame from "../games/pyramid/PyramidGame.vue";
+import QuietBubblesGame from "../games/quiet-bubbles/QuietBubblesGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
 import TicTacToeGame from "../games/tic-tac-toe/TicTacToeGame.vue";
+import TowerGame from "../games/tower/TowerGame.vue";
 import TypeWordGame from "../games/type-word/TypeWordGame.vue";
+import YesNoGame from "../games/yes-no/YesNoGame.vue";
 import HomePage from "../pages/HomePage.vue";
 import PlannedGamePage from "../pages/PlannedGamePage.vue";
 import SelfMenuPage from "../pages/SelfMenuPage.vue";
@@ -27,13 +33,19 @@ export default createRouter({
     { path: "/menu/specialist", name: "menu-specialist", component: HomePage },
     { path: "/menu/self", name: "menu-self", component: SelfMenuPage },
     { path: "/tobii-calibration", name: "tobii-calibration", component: TobiiCalibrationPage },
+    { path: "/games/firefly-meadow", name: "firefly-meadow", component: FireflyMeadowGame },
+    { path: "/games/big-button", name: "big-button", component: BigButtonGame },
     { path: "/games/butterfly", name: "butterfly", component: ButterflyGame },
     { path: "/games/flowers", name: "flowers", component: FlowersGame },
+    { path: "/games/quiet-bubbles", name: "quiet-bubbles", component: QuietBubblesGame },
     { path: "/games/ducks", name: "ducks", component: DucksGame },
     { path: "/games/count-items", name: "count-items", component: CountItemsGame },
     { path: "/games/choose-picture", name: "choose-picture", component: ChoosePictureGame },
     { path: "/games/eat-or-not-eat", name: "eat-or-not-eat", component: EatOrNotEatGame },
+    { path: "/games/yes-no", name: "yes-no", component: YesNoGame },
     { path: "/games/pyramid", name: "pyramid", component: PyramidGame },
+    { path: "/games/find-color", name: "find-color", component: FindColorGame },
+    { path: "/games/tower", name: "tower", component: TowerGame },
     { path: "/games/fishes", name: "fishes", component: FishesGame },
     { path: "/games/hide-and-seek", name: "hide-and-seek", component: HideAndSeekGame },
     { path: "/games/type-word", name: "type-word", component: TypeWordGame },

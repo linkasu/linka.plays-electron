@@ -107,6 +107,34 @@ export const gameStatusLabels: Record<GameStatus, string> = {
 
 export const games: GameInfo[] = [
   {
+    id: "firefly-meadow",
+    title: "Светлячковая поляна",
+    description: "Смотри на тихую поляну и мягко зажигай светлячков взглядом.",
+    selfDescription: "Зажги светлячков взглядом.",
+    route: "/games/firefly-meadow",
+    category: "gaze-basics",
+    icon: "mdi-lightbulb-night",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 75,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1350
+  },
+  {
+    id: "big-button",
+    title: "Большая кнопка",
+    description: "Первая спокойная игра: смотри на одну большую кнопку и получай мягкий отклик.",
+    selfDescription: "Посмотри на большую кнопку.",
+    route: "/games/big-button",
+    category: "gaze-basics",
+    icon: "mdi-radiobox-marked",
+    skills: ["fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 70,
+    minTargetSizePx: 240,
+    defaultDwellMs: 1500
+  },
+  {
     id: "butterfly",
     title: "Бабочки",
     description: "Смотри на мягкие световые пятна и буди бабочек взглядом.",
@@ -133,6 +161,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 75,
     minTargetSizePx: 170,
     defaultDwellMs: 1100
+  },
+  {
+    id: "quiet-bubbles",
+    title: "Тихие пузыри",
+    description: "Лопай крупные пузыри взглядом на спокойном пастельном фоне.",
+    selfDescription: "Лопни пузыри взглядом.",
+    route: "/games/quiet-bubbles",
+    category: "gaze-basics",
+    icon: "mdi-water-circle",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 75,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1200
   },
   {
     id: "ducks",
@@ -191,6 +233,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "find-color",
+    title: "Найди цвет",
+    description: "Найди нужный цвет среди крупных карточек.",
+    selfDescription: "Найди нужный цвет.",
+    route: "/games/find-color",
+    category: "visual-search",
+    icon: "mdi-palette",
+    skills: ["visual-search", "choice"],
+    status: "polished",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1200
+  },
+  {
     id: "pyramid",
     title: "Пирамидка",
     description: "Собирай кольца по порядку и тренируй последовательность.",
@@ -202,6 +258,20 @@ export const games: GameInfo[] = [
     status: "polished",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 120,
+    defaultDwellMs: 1200
+  },
+  {
+    id: "tower",
+    title: "Башня",
+    description: "Выбирай крупные блоки и спокойно строй башню без ошибок и падений.",
+    selfDescription: "Построй башню.",
+    route: "/games/tower",
+    category: "sequencing",
+    icon: "mdi-office-building-outline",
+    skills: ["sequence", "choice"],
+    status: "polished",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 136,
     defaultDwellMs: 1200
   },
   {
@@ -231,6 +301,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1200
+  },
+  {
+    id: "yes-no",
+    title: "Да / нет",
+    description: "Отвечай да или нет на простой вопрос с картинкой.",
+    selfDescription: "Ответь да или нет.",
+    route: "/games/yes-no",
+    category: "language-aac",
+    icon: "mdi-check-circle-outline",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "polished",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
   },
   {
     id: "type-word",
