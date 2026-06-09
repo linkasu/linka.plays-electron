@@ -205,6 +205,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "memory-cards",
+    title: "Пары",
+    description: "Открывай две карточки и находи одинаковые пары без спешки.",
+    selfDescription: "Найди одинаковые карточки.",
+    route: "/games/memory-cards",
+    category: "visual-search",
+    icon: "mdi-cards",
+    skills: ["visual-search", "choice", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1300
+  },
+  {
     id: "pyramid",
     title: "Пирамидка",
     description: "Собирай кольца по порядку и тренируй последовательность.",
