@@ -205,6 +205,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "tower",
+    title: "Башня",
+    description: "Выбирай крупные блоки и спокойно строй башню без ошибок и падений.",
+    selfDescription: "Построй башню.",
+    route: "/games/tower",
+    category: "sequencing",
+    icon: "mdi-office-building-outline",
+    skills: ["sequence", "choice"],
+    status: "polished",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 136,
+    defaultDwellMs: 1200
+  },
+  {
     id: "choose-picture",
     title: "Выбери картинку",
     description: "Слушай слово и выбирай подходящую картинку взглядом.",
