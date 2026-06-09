@@ -205,6 +205,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "patterns",
+    title: "Паттерны",
+    description: "Продолжай ряд крупных фигур и цветов по повторяющемуся паттерну.",
+    selfDescription: "Продолжи ряд.",
+    route: "/games/patterns",
+    category: "sequencing",
+    icon: "mdi-dots-grid",
+    skills: ["sequence", "choice"],
+    status: "polished",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1200
+  },
+  {
     id: "choose-picture",
     title: "Выбери картинку",
     description: "Слушай слово и выбирай подходящую картинку взглядом.",

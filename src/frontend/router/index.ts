@@ -10,6 +10,7 @@ import FlowersGame from "../games/flowers/FlowersGame.vue";
 import FrogGame from "../games/frog/FrogGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import MathActionsGame from "../games/math-actions/MathActionsGame.vue";
+import PatternsGame from "../games/patterns/PatternsGame.vue";
 import PyramidGame from "../games/pyramid/PyramidGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
 import TicTacToeGame from "../games/tic-tac-toe/TicTacToeGame.vue";
@@ -34,6 +35,7 @@ export default createRouter({
     { path: "/games/choose-picture", name: "choose-picture", component: ChoosePictureGame },
     { path: "/games/eat-or-not-eat", name: "eat-or-not-eat", component: EatOrNotEatGame },
     { path: "/games/pyramid", name: "pyramid", component: PyramidGame },
+    { path: "/games/patterns", name: "patterns", component: PatternsGame },
     { path: "/games/fishes", name: "fishes", component: FishesGame },
     { path: "/games/hide-and-seek", name: "hide-and-seek", component: HideAndSeekGame },
     { path: "/games/type-word", name: "type-word", component: TypeWordGame },
