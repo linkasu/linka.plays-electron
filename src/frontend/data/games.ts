@@ -163,6 +163,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "magic-dust",
+    title: "Волшебная пыль",
+    description: "Смотри спокойно: вокруг взгляда появляются мягкие искры и постепенно исчезают без ошибок.",
+    selfDescription: "Зажги волшебную пыль взглядом.",
+    route: "/games/magic-dust",
+    category: "gaze-basics",
+    icon: "mdi-creation",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 75,
+    minTargetSizePx: 170,
+    defaultDwellMs: 1300
+  },
+  {
     id: "northern-lights",
     title: "Северное сияние",
     description: "Смотри на ночное небо и мягко рисуй световые полосы взглядом без целей и ошибок.",
