@@ -2,8 +2,9 @@ export type GameInfo = {
   id: string;
   title: string;
   description: string;
+  selfDescription: string;
   route: string;
-  category: string;
+  category: GameCategoryId;
   icon: string;
   skills: GameSkill[];
   status: GameStatus;
@@ -13,6 +14,18 @@ export type GameInfo = {
 };
 
 export type GameStatus = "planned" | "mvp" | "therapy-ready" | "polished";
+
+export const gameCategoryOrder = [
+  "gaze-basics",
+  "visual-search",
+  "sequencing",
+  "language-aac",
+  "numeracy",
+  "strategy",
+  "continuous-control"
+] as const;
+
+export type GameCategoryId = (typeof gameCategoryOrder)[number];
 
 export type GameSkill =
   | "fixation"
@@ -29,11 +42,44 @@ export type GameSkill =
   | "typing"
   | "continuous-control";
 
-export const gameCategories: Record<string, string> = {
-  "tracker-basics": "Знакомство с трекером",
-  words: "Учим слова",
-  math: "Математика",
-  adventure: "Приключения"
+export const gameCategories: Record<GameCategoryId, string> = {
+  "gaze-basics": "Основы взгляда",
+  "visual-search": "Поиск и внимание",
+  sequencing: "Последовательности",
+  "language-aac": "Слова и AAC",
+  numeracy: "Счёт и математика",
+  strategy: "Спокойные настольные игры",
+  "continuous-control": "Непрерывное управление"
+};
+
+export const gameCategoryDescriptions: Record<GameCategoryId, string> = {
+  "gaze-basics": "Первые спокойные игры для фиксации, переключения и мягкого попадания взглядом.",
+  "visual-search": "Задания, где нужно найти объект, удержать цель и не спешить.",
+  sequencing: "Игры с порядком действий, сборкой и понятной очередностью шагов.",
+  "language-aac": "Выбор картинок, слов и смысловых категорий для коммуникации.",
+  numeracy: "Количество, числа и простые арифметические действия крупными целями.",
+  strategy: "Очередность, планирование хода и спокойный выбор без давления времени.",
+  "continuous-control": "Плавное слежение и мягкое управление движением взглядом."
+};
+
+export const selfMenuCategoryLabels: Record<GameCategoryId, string> = {
+  "gaze-basics": "Смотреть",
+  "visual-search": "Искать",
+  sequencing: "Собирать",
+  "language-aac": "Слова",
+  numeracy: "Считать",
+  strategy: "Играть вместе",
+  "continuous-control": "Управлять"
+};
+
+export const selfMenuCategoryDescriptions: Record<GameCategoryId, string> = {
+  "gaze-basics": "Смотри спокойно, цель откликнется.",
+  "visual-search": "Найди, кто спрятался.",
+  sequencing: "Выбирай по порядку.",
+  "language-aac": "Выбери картинку или слово.",
+  numeracy: "Посчитай и выбери ответ.",
+  strategy: "Сделай ход без спешки.",
+  "continuous-control": "Веди движение взглядом."
 };
 
 export const gameSkillLabels: Record<GameSkill, string> = {
@@ -64,8 +110,9 @@ export const games: GameInfo[] = [
     id: "butterfly",
     title: "Бабочки",
     description: "Смотри на мягкие световые пятна и буди бабочек взглядом.",
+    selfDescription: "Разбуди бабочек взглядом.",
     route: "/games/butterfly",
-    category: "tracker-basics",
+    category: "gaze-basics",
     icon: "mdi-butterfly",
     skills: ["fixation", "attention-shift"],
     status: "polished",
@@ -77,8 +124,9 @@ export const games: GameInfo[] = [
     id: "flowers",
     title: "Цветы",
     description: "Находи новый росток на лугу и мягко выращивай цветок взглядом.",
+    selfDescription: "Вырасти цветок.",
     route: "/games/flowers",
-    category: "tracker-basics",
+    category: "gaze-basics",
     icon: "mdi-flower",
     skills: ["fixation", "attention-shift", "visual-search"],
     status: "therapy-ready",
@@ -90,8 +138,9 @@ export const games: GameInfo[] = [
     id: "ducks",
     title: "Утки",
     description: "Следи за утками на волнах и мягко попадай по ним взглядом.",
+    selfDescription: "Найди утку на воде.",
     route: "/games/ducks",
-    category: "tracker-basics",
+    category: "gaze-basics",
     icon: "mdi-duck",
     skills: ["visual-search", "fixation", "attention-shift"],
     status: "therapy-ready",
@@ -103,8 +152,9 @@ export const games: GameInfo[] = [
     id: "fishes",
     title: "Рыбки",
     description: "Лови спокойных рыбок взглядом в мягком подводном мире.",
+    selfDescription: "Поймай рыбку взглядом.",
     route: "/games/fishes",
-    category: "tracker-basics",
+    category: "gaze-basics",
     icon: "mdi-fish",
     skills: ["smooth-pursuit", "fixation", "attention-shift"],
     status: "therapy-ready",
@@ -116,8 +166,9 @@ export const games: GameInfo[] = [
     id: "frog",
     title: "Жаба",
     description: "Помоги жабе ловить светлячков взглядом без спешки и стресса.",
+    selfDescription: "Помоги жабе поймать огонёк.",
     route: "/games/frog",
-    category: "tracker-basics",
+    category: "gaze-basics",
     icon: "mdi-frog",
     skills: ["attention-shift", "choice"],
     status: "polished",
@@ -129,8 +180,9 @@ export const games: GameInfo[] = [
     id: "hide-and-seek",
     title: "Прятки",
     description: "Ищи спрятанных персонажей на спокойных иллюстрациях.",
+    selfDescription: "Найди спрятанного друга.",
     route: "/games/hide-and-seek",
-    category: "tracker-basics",
+    category: "visual-search",
     icon: "mdi-eye-search",
     skills: ["visual-search", "choice"],
     status: "polished",
@@ -142,8 +194,9 @@ export const games: GameInfo[] = [
     id: "pyramid",
     title: "Пирамидка",
     description: "Собирай кольца по порядку и тренируй последовательность.",
+    selfDescription: "Собери кольца по порядку.",
     route: "/games/pyramid",
-    category: "tracker-basics",
+    category: "sequencing",
     icon: "mdi-pyramid",
     skills: ["sequence", "choice"],
     status: "polished",
@@ -155,8 +208,9 @@ export const games: GameInfo[] = [
     id: "choose-picture",
     title: "Выбери картинку",
     description: "Слушай слово и выбирай подходящую картинку взглядом.",
+    selfDescription: "Найди нужную картинку.",
     route: "/games/choose-picture",
-    category: "words",
+    category: "language-aac",
     icon: "mdi-image-search",
     skills: ["aac", "vocabulary", "choice"],
     status: "polished",
@@ -168,8 +222,9 @@ export const games: GameInfo[] = [
     id: "eat-or-not-eat",
     title: "Съедобное",
     description: "Сортируй предметы на съедобные и несъедобные.",
+    selfDescription: "Выбери, что можно есть.",
     route: "/games/eat-or-not-eat",
-    category: "words",
+    category: "language-aac",
     icon: "mdi-food-apple",
     skills: ["classification", "aac", "choice"],
     status: "polished",
@@ -181,8 +236,9 @@ export const games: GameInfo[] = [
     id: "type-word",
     title: "Печать слов",
     description: "Собирай короткие слова из крупных букв взглядом.",
+    selfDescription: "Собери слово.",
     route: "/games/type-word",
-    category: "words",
+    category: "language-aac",
     icon: "mdi-keyboard",
     skills: ["typing", "vocabulary", "sequence"],
     status: "polished",
@@ -194,8 +250,9 @@ export const games: GameInfo[] = [
     id: "count-items",
     title: "Счёт",
     description: "Посчитай предметы и выбери правильное число.",
+    selfDescription: "Посчитай предметы.",
     route: "/games/count-items",
-    category: "math",
+    category: "numeracy",
     icon: "mdi-counter",
     skills: ["counting", "choice"],
     status: "polished",
@@ -207,8 +264,9 @@ export const games: GameInfo[] = [
     id: "math-actions",
     title: "Математика. Операции",
     description: "Решай простые примеры и вводи ответ крупными кнопками.",
+    selfDescription: "Выбери ответ.",
     route: "/games/math-actions",
-    category: "math",
+    category: "numeracy",
     icon: "mdi-calculator-variant",
     skills: ["math", "typing"],
     status: "polished",
@@ -220,8 +278,9 @@ export const games: GameInfo[] = [
     id: "tic-tac-toe",
     title: "Крестики-нолики",
     description: "Играй крестиками против спокойного Deep-Q агента на классическом поле 3×3.",
+    selfDescription: "Сделай ход.",
     route: "/games/tic-tac-toe",
-    category: "math",
+    category: "strategy",
     icon: "mdi-grid-large",
     skills: ["choice", "sequence", "attention-shift"],
     status: "polished",
@@ -233,8 +292,9 @@ export const games: GameInfo[] = [
     id: "connect-four",
     title: "4 в ряд",
     description: "Собирай четыре фишки в ряд против спокойного Deep-Q агента.",
+    selfDescription: "Поставь фишку.",
     route: "/games/connect-four",
-    category: "math",
+    category: "strategy",
     icon: "mdi-dots-grid",
     skills: ["choice", "sequence", "attention-shift"],
     status: "polished",
@@ -246,8 +306,9 @@ export const games: GameInfo[] = [
     id: "table-tennis",
     title: "Теннис",
     description: "Веди мягкую ракетку взглядом и вместе с партнёром спокойно держи мяч в игре.",
+    selfDescription: "Веди ракетку.",
     route: "/games/table-tennis",
-    category: "adventure",
+    category: "continuous-control",
     icon: "mdi-table-tennis",
     skills: ["continuous-control", "smooth-pursuit"],
     status: "polished",
@@ -256,6 +317,19 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1000
   }
 ];
+
+export function groupGamesByCategory(inputGames: GameInfo[] = games) {
+  return gameCategoryOrder
+    .map((category) => ({
+      category,
+      label: gameCategories[category],
+      description: gameCategoryDescriptions[category],
+      selfLabel: selfMenuCategoryLabels[category],
+      selfDescription: selfMenuCategoryDescriptions[category],
+      games: inputGames.filter((game) => game.category === category)
+    }))
+    .filter((group) => group.games.length > 0);
+}
 
 export function findGame(gameId: string | string[]) {
   const id = Array.isArray(gameId) ? gameId[0] : gameId;
