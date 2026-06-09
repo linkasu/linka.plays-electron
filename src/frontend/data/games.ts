@@ -149,6 +149,7 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1350
   },
   {
+<<<<<<< HEAD
     id: "starry-sky",
     title: "Звёздное небо",
     description: "Смотри на тихое небо и мягко соединяй звёзды световыми линиями.",
@@ -189,6 +190,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 84,
     minTargetSizePx: 190,
     defaultDwellMs: 1300
+  },
+  {
+    id: "paper-lanterns",
+    title: "Бумажные фонарики",
+    description: "Зажигай крупные бумажные фонарики взглядом и смотри, как они мягко улетают вверх.",
+    selfDescription: "Зажги фонарик взглядом.",
+    route: "/games/paper-lanterns",
+    category: "gaze-basics",
+    icon: "mdi-lightbulb-on-outline",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1350
   },
   {
     id: "big-button",
