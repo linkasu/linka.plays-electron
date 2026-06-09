@@ -13,6 +13,7 @@ import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import MatchSameGame from "../games/match-same/MatchSameGame.vue";
 import MathActionsGame from "../games/math-actions/MathActionsGame.vue";
 import PyramidGame from "../games/pyramid/PyramidGame.vue";
+import ShapesGame from "../games/shapes/ShapesGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
 import TicTacToeGame from "../games/tic-tac-toe/TicTacToeGame.vue";
 import TrainSequenceGame from "../games/train-sequence/TrainSequenceGame.vue";
@@ -44,6 +45,7 @@ export default createRouter({
     { path: "/games/match-same", name: "match-same", component: MatchSameGame },
     { path: "/games/type-word", name: "type-word", component: TypeWordGame },
     { path: "/games/math-actions", name: "math-actions", component: MathActionsGame },
+    { path: "/games/shapes", name: "shapes", component: ShapesGame },
     { path: "/games/tic-tac-toe", name: "tic-tac-toe", component: TicTacToeGame },
     { path: "/games/connect-four", name: "connect-four", component: ConnectFourGame },
     { path: "/games/frog", name: "frog", component: FrogGame },
