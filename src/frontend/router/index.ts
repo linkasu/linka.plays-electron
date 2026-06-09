@@ -7,6 +7,7 @@ import Calm2048Game from "../games/calm-2048/Calm2048Game.vue";
 import ChoosePictureGame from "../games/choose-picture/ChoosePictureGame.vue";
 import CalmTetrisGame from "../games/calm-tetris/CalmTetrisGame.vue";
 import CalmSnakeGame from "../games/calm-snake/CalmSnakeGame.vue";
+import CloudsGame from "../games/clouds/CloudsGame.vue";
 import ConnectFourGame from "../games/connect-four/ConnectFourGame.vue";
 import CountItemsGame from "../games/count-items/CountItemsGame.vue";
 import DucksGame from "../games/ducks/DucksGame.vue";
@@ -53,6 +54,7 @@ export default createRouter({
     { path: "/menu/self", name: "menu-self", component: SelfMenuPage },
     { path: "/tobii-calibration", name: "tobii-calibration", component: TobiiCalibrationPage },
     { path: "/games/breathing-flower", name: "breathing-flower", component: BreathingFlowerGame },
+    { path: "/games/clouds", name: "clouds", component: CloudsGame },
     { path: "/games/firefly-meadow", name: "firefly-meadow", component: FireflyMeadowGame },
     { path: "/games/starry-sky", name: "starry-sky", component: StarrySkyGame },
     { path: "/games/northern-lights", name: "northern-lights", component: NorthernLightsGame },
