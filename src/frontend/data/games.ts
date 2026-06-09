@@ -133,7 +133,7 @@ export const games: GameInfo[] = [
     category: "tracker-basics",
     icon: "mdi-eye-search",
     skills: ["visual-search", "choice"],
-    status: "mvp",
+    status: "polished",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 130,
     defaultDwellMs: 1200
