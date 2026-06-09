@@ -28,6 +28,7 @@ import MemoryCardsGame from "../games/memory-cards/MemoryCardsGame.vue";
 import PyramidGame from "../games/pyramid/PyramidGame.vue";
 import QuietBubblesGame from "../games/quiet-bubbles/QuietBubblesGame.vue";
 import ShapesGame from "../games/shapes/ShapesGame.vue";
+import StarrySkyGame from "../games/starry-sky/StarrySkyGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
 import TicTacToeGame from "../games/tic-tac-toe/TicTacToeGame.vue";
 import TowerGame from "../games/tower/TowerGame.vue";
@@ -50,6 +51,7 @@ export default createRouter({
     { path: "/tobii-calibration", name: "tobii-calibration", component: TobiiCalibrationPage },
     { path: "/games/breathing-flower", name: "breathing-flower", component: BreathingFlowerGame },
     { path: "/games/firefly-meadow", name: "firefly-meadow", component: FireflyMeadowGame },
+    { path: "/games/starry-sky", name: "starry-sky", component: StarrySkyGame },
     { path: "/games/big-button", name: "big-button", component: BigButtonGame },
     { path: "/games/butterfly", name: "butterfly", component: ButterflyGame },
     { path: "/games/flowers", name: "flowers", component: FlowersGame },
