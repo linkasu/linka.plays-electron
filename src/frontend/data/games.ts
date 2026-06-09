@@ -107,6 +107,20 @@ export const gameStatusLabels: Record<GameStatus, string> = {
 
 export const games: GameInfo[] = [
   {
+    id: "firefly-meadow",
+    title: "Светлячковая поляна",
+    description: "Смотри на тихую поляну и мягко зажигай светлячков взглядом.",
+    selfDescription: "Зажги светлячков взглядом.",
+    route: "/games/firefly-meadow",
+    category: "gaze-basics",
+    icon: "mdi-lightbulb-night",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 75,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1350
+  },
+  {
     id: "butterfly",
     title: "Бабочки",
     description: "Смотри на мягкие световые пятна и буди бабочек взглядом.",
