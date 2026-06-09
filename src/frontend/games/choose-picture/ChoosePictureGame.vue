@@ -68,8 +68,8 @@ onUnmounted(() => {
             <div class="text-overline text-secondary text-center mb-2">Слушаем и выбираем</div>
             <h1 class="text-h3 font-weight-bold text-center mb-8">{{ round.prompt }}</h1>
             <v-row>
-              <v-col v-for="(choice, index) in round.choices" :key="choice.id" cols="6" md="3">
-                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" @select="choose(index)">
+              <v-col v-for="(choice, index) in round.choices" :key="choice.id" cols="6" md="6">
+                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="210" @select="choose(index)">
                   <template #default>
                     <div class="choice-emoji">{{ choice.emoji }}</div>
                     <div class="text-h5 font-weight-bold mt-2">{{ choice.word }}</div>

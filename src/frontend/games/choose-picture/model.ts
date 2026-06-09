@@ -11,7 +11,7 @@ export type ChoosePictureRound = {
 
 export function generateChoosePictureRound(settings: SessionSettings, roundIndex = 1): ChoosePictureRound {
   const words = getAllWords();
-  const choiceCount = settings.preset === "gentle" ? 2 : 4;
+  const choiceCount = 4;
   if (words.length < choiceCount) throw new Error("Недостаточно слов для игры.");
   const [target] = sampleItems(words, 1);
   const distractors = sampleItems(words, choiceCount - 1, [target]);
