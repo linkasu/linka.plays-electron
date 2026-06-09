@@ -141,12 +141,12 @@ export const games: GameInfo[] = [
   {
     id: "pyramid",
     title: "Пирамидка",
-    description: "Собирай кольца по порядку и тренируй последовательность.",
+    description: "Собирай кольца и спокойно смотри на готовую пирамидку.",
     route: "/games/pyramid",
     category: "tracker-basics",
     icon: "mdi-pyramid",
     skills: ["sequence", "choice"],
-    status: "mvp",
+    status: "polished",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 120,
     defaultDwellMs: 1200
