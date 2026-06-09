@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSession } from "../../core/session";
+import { disposeChoosePictureAudio, playChoosePictureMistakeMelody, playChoosePictureSuccessMelody, warmChoosePictureAudio } from "./audio";
 import { generateChoosePictureRound, type ChoosePictureRound } from "./model";
 
 const router = useRouter();
@@ -32,8 +33,13 @@ function choose(index: number) {
   const choice = round.value.choices[index];
   const targetId = choiceTargetId(choice.id);
   const expectedTargetId = choiceTargetId(round.value.target.id);
-  if (index === round.value.correctIndex) recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: true });
-  else recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: false });
+  if (index === round.value.correctIndex) {
+    recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: true });
+    void playChoosePictureSuccessMelody(session.settings.sound);
+  } else {
+    recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: false });
+    void playChoosePictureMistakeMelody(session.settings.sound);
+  }
   if (session.step < session.maxSteps) nextRound();
 }
 
@@ -42,6 +48,14 @@ function restart() {
   roundIndex = 1;
   round.value = generateChoosePictureRound(session.settings, roundIndex);
 }
+
+onMounted(() => {
+  warmChoosePictureAudio(session.settings.sound);
+});
+
+onUnmounted(() => {
+  disposeChoosePictureAudio();
+});
 </script>
 
 <template>
