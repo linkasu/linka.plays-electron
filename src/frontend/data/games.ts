@@ -205,6 +205,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 850
   },
   {
+    id: "jellyfish",
+    title: "Медузы",
+    description: "Следи за медленными светящимися медузами в спокойной воде без проигрыша.",
+    selfDescription: "Следи за медузой взглядом.",
+    route: "/games/jellyfish",
+    category: "gaze-basics",
+    icon: "mdi-fish",
+    skills: ["smooth-pursuit", "fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 165,
+    defaultDwellMs: 1450
+  },
+  {
     id: "frog",
     title: "Жаба",
     description: "Помоги жабе ловить светлячков взглядом без спешки и стресса.",
