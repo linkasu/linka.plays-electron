@@ -107,6 +107,20 @@ export const gameStatusLabels: Record<GameStatus, string> = {
 
 export const games: GameInfo[] = [
   {
+    id: "big-button",
+    title: "Большая кнопка",
+    description: "Первая спокойная игра: смотри на одну большую кнопку и получай мягкий отклик.",
+    selfDescription: "Посмотри на большую кнопку.",
+    route: "/games/big-button",
+    category: "gaze-basics",
+    icon: "mdi-radiobox-marked",
+    skills: ["fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 70,
+    minTargetSizePx: 240,
+    defaultDwellMs: 1500
+  },
+  {
     id: "butterfly",
     title: "Бабочки",
     description: "Смотри на мягкие световые пятна и буди бабочек взглядом.",

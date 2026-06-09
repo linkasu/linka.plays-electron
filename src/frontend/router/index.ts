@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
+import BigButtonGame from "../games/big-button/BigButtonGame.vue";
 import ButterflyGame from "../games/butterfly/ButterflyGame.vue";
 import ChoosePictureGame from "../games/choose-picture/ChoosePictureGame.vue";
 import ConnectFourGame from "../games/connect-four/ConnectFourGame.vue";
@@ -27,6 +28,7 @@ export default createRouter({
     { path: "/menu/specialist", name: "menu-specialist", component: HomePage },
     { path: "/menu/self", name: "menu-self", component: SelfMenuPage },
     { path: "/tobii-calibration", name: "tobii-calibration", component: TobiiCalibrationPage },
+    { path: "/games/big-button", name: "big-button", component: BigButtonGame },
     { path: "/games/butterfly", name: "butterfly", component: ButterflyGame },
     { path: "/games/flowers", name: "flowers", component: FlowersGame },
     { path: "/games/ducks", name: "ducks", component: DucksGame },
