@@ -3,14 +3,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useGameSession } from "./session";
 import type { SessionSettings } from "./settings";
 
-function mountSession(overrides: Partial<SessionSettings> = {}) {
+function mountSession(overrides: Partial<SessionSettings> = {}, options: Parameters<typeof useGameSession>[2] = {}) {
   let api: ReturnType<typeof useGameSession> | undefined;
   const root = document.createElement("div");
   document.body.append(root);
 
   const app = createApp(defineComponent({
     setup() {
-      api = useGameSession("unit-game", overrides);
+      api = useGameSession("unit-game", overrides, options);
       return () => null;
     }
   }));
@@ -90,6 +90,19 @@ describe("useGameSession", () => {
 
       expect(mounted.api.session.sessionId).not.toBe(firstSessionId);
       expect(mounted.api.session.status).toBe("running");
+    } finally {
+      mounted.unmount();
+    }
+  });
+
+  it("can keep running after many mistakes", () => {
+    const mounted = mountSession({ maxSteps: 2, sessionSeconds: 30 }, { finishOnMistakes: false });
+
+    try {
+      for (let index = 0; index < 10; index += 1) mounted.api.recordMistake();
+
+      expect(mounted.api.session.status).toBe("running");
+      expect(mounted.api.metrics.value.mistakes).toBe(10);
     } finally {
       mounted.unmount();
     }

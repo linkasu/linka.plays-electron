@@ -247,6 +247,34 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "match-same",
+    title: "Где такой же?",
+    description: "Найди картинку, которая совпадает с образцом.",
+    selfDescription: "Найди такую же картинку.",
+    route: "/games/match-same",
+    category: "visual-search",
+    icon: "mdi-image-search",
+    skills: ["visual-search", "choice"],
+    status: "polished",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1200
+  },
+  {
+    id: "memory-cards",
+    title: "Пары",
+    description: "Открывай две карточки и находи одинаковые пары без спешки.",
+    selfDescription: "Найди одинаковые карточки.",
+    route: "/games/memory-cards",
+    category: "visual-search",
+    icon: "mdi-cards",
+    skills: ["visual-search", "choice", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1300
+  },
+  {
     id: "pyramid",
     title: "Пирамидка",
     description: "Собирай кольца по порядку и тренируй последовательность.",
@@ -272,6 +300,34 @@ export const games: GameInfo[] = [
     status: "polished",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 136,
+    defaultDwellMs: 1200
+  },
+  {
+    id: "train-sequence",
+    title: "Поезд",
+    description: "Прицепляй вагоны по подсказанному порядку цвета и номера.",
+    selfDescription: "Прицепи вагоны.",
+    route: "/games/train-sequence",
+    category: "sequencing",
+    icon: "mdi-train",
+    skills: ["sequence", "choice"],
+    status: "polished",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1200
+  },
+  {
+    id: "patterns",
+    title: "Паттерны",
+    description: "Продолжай ряд крупных фигур и цветов по повторяющемуся паттерну.",
+    selfDescription: "Продолжи ряд.",
+    route: "/games/patterns",
+    category: "sequencing",
+    icon: "mdi-dots-grid",
+    skills: ["sequence", "choice"],
+    status: "polished",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 150,
     defaultDwellMs: 1200
   },
   {
@@ -342,6 +398,34 @@ export const games: GameInfo[] = [
     status: "polished",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 160,
+    defaultDwellMs: 1200
+  },
+  {
+    id: "greater-less",
+    title: "Больше / меньше",
+    description: "Сравни две группы предметов и выбери, где больше или меньше.",
+    selfDescription: "Выбери, где больше.",
+    route: "/games/greater-less",
+    category: "numeracy",
+    icon: "mdi-compare-horizontal",
+    skills: ["counting", "choice"],
+    status: "polished",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 160,
+    defaultDwellMs: 1200
+  },
+  {
+    id: "shapes",
+    title: "Формы",
+    description: "Находи нужную форму среди крупных контрастных карточек.",
+    selfDescription: "Найди нужную форму.",
+    route: "/games/shapes",
+    category: "numeracy",
+    icon: "mdi-shape",
+    skills: ["choice", "classification"],
+    status: "polished",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
     defaultDwellMs: 1200
   },
   {
