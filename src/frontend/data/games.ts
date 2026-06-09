@@ -393,7 +393,7 @@ export const games: GameInfo[] = [
     selfDescription: "Ответь партнёру.",
     route: "/games/mini-dialog",
     category: "language-aac",
-    icon: "mdi-chat-heart-outline",
+    icon: "mdi-chat-outline",
     skills: ["aac", "choice", "vocabulary"],
     status: "therapy-ready",
     recommendedSessionSeconds: 135,
