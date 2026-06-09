@@ -373,6 +373,34 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "want-dont-want",
+    title: "Хочу / не хочу",
+    description: "Выбирай, хочешь ли мягкий предмет или занятие: любой ответ считается важной коммуникацией.",
+    selfDescription: "Скажи, хочешь или не хочешь.",
+    route: "/games/want-dont-want",
+    category: "language-aac",
+    icon: "mdi-hand-heart",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 220,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "mini-dialog",
+    title: "Мини-диалог",
+    description: "Выбирай мягкие реплики для короткого AAC-диалога без неправильных ответов.",
+    selfDescription: "Ответь партнёру.",
+    route: "/games/mini-dialog",
+    category: "language-aac",
+    icon: "mdi-chat-outline",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 135,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1350
+  },
+  {
     id: "type-word",
     title: "Печать слов",
     description: "Собирай короткие слова из крупных букв взглядом.",
@@ -443,6 +471,34 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "calm-2048",
+    title: "2048 мягкий",
+    description: "Сдвигай плитки 4×4 и спокойно собирай одинаковые числа без резкого проигрыша.",
+    selfDescription: "Собери одинаковые плитки.",
+    route: "/games/calm-2048",
+    category: "strategy",
+    icon: "mdi-grid-large",
+    skills: ["choice", "sequence", "counting"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 132,
+    defaultDwellMs: 1100
+  },
+  {
+    id: "calm-tetris",
+    title: "Тетрис спокойный",
+    description: "Ставь фигуры пошагово: выбери колонку, поверни и мягко опусти без спешки.",
+    selfDescription: "Поставь фигуру на место.",
+    route: "/games/calm-tetris",
+    category: "strategy",
+    icon: "mdi-view-grid-plus",
+    skills: ["choice", "sequence"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 116,
+    defaultDwellMs: 1100
+  },
+  {
     id: "tic-tac-toe",
     title: "Крестики-нолики",
     description: "Играй крестиками против спокойного Deep-Q агента на классическом поле 3×3.",
@@ -471,6 +527,34 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1450
   },
   {
+    id: "calm-snake",
+    title: "Змейка спокойная",
+    description: "Веди медленную змейку по мягкой сетке: края и столкновения дают подсказку, а не проигрыш.",
+    selfDescription: "Помоги змейке найти листочки.",
+    route: "/games/calm-snake",
+    category: "strategy",
+    icon: "mdi-snake",
+    skills: ["choice", "sequence", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 165,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1100
+  },
+  {
+    id: "boat",
+    title: "Лодочка",
+    description: "Веди лодочку взглядом по спокойной реке и проходи мягкие checkpoints без столкновений и штрафов.",
+    selfDescription: "Веди лодочку по реке.",
+    route: "/games/boat",
+    category: "continuous-control",
+    icon: "mdi-sail-boat",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 135,
+    minTargetSizePx: 150,
+    defaultDwellMs: 500
+  },
+  {
     id: "table-tennis",
     title: "Теннис",
     description: "Веди мягкую ракетку взглядом и вместе с партнёром спокойно держи мяч в игре.",
@@ -483,6 +567,34 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 90,
     minTargetSizePx: 160,
     defaultDwellMs: 1000
+  },
+  {
+    id: "maze-path",
+    title: "Лабиринт-дорожка",
+    description: "Веди мягкий свет по широкой дорожке к финишу без сбросов и резких ошибок.",
+    selfDescription: "Веди свет по дорожке.",
+    route: "/games/maze-path",
+    category: "continuous-control",
+    icon: "mdi-vector-polyline",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1000
+  },
+  {
+    id: "garden-watering",
+    title: "Садовая лейка",
+    description: "Веди лейку взглядом и мягко поливай цветы в любом порядке.",
+    selfDescription: "Полей цветы взглядом.",
+    route: "/games/garden-watering",
+    category: "continuous-control",
+    icon: "mdi-watering-can",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1200
   }
 ];
 
