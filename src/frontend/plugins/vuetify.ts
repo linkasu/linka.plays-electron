@@ -11,12 +11,15 @@ export default createVuetify({
       linkaLight: {
         dark: false,
         colors: {
-          background: "#fbf7ef",
-          surface: "#ffffff",
-          primary: "#6c5ce7",
-          secondary: "#00a8a8",
-          accent: "#ff8a3d",
-          error: "#d7263d"
+          background: "#f6f1e8",
+          surface: "#fffaf1",
+          primary: "#5d7f78",
+          secondary: "#8b7bb8",
+          accent: "#d89a72",
+          error: "#b85c5c",
+          info: "#6f8fa8",
+          success: "#6f9b7a",
+          warning: "#c49a4a"
         }
       }
     }

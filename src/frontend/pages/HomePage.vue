@@ -12,10 +12,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-container class="py-10" fluid>
+  <v-container class="gallery-menu py-10" fluid>
     <v-row justify="center">
       <v-col cols="12" lg="10" xl="8">
-        <v-card class="pa-6 pa-md-10" rounded="xl" elevation="8">
+        <v-card class="gallery-card pa-6 pa-md-10" rounded="xl" elevation="8">
           <div class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-6 mb-8">
             <div>
               <div class="text-overline text-secondary mb-2">Режим специалиста</div>
@@ -53,7 +53,7 @@ onMounted(() => {
 
             <v-row>
               <v-col v-for="game in group.games" :key="game.id" cols="12" md="6" lg="4">
-                <v-card class="h-100" color="surface" rounded="xl" variant="outlined">
+                <v-card class="gallery-game-card h-100" color="surface" rounded="xl" variant="outlined">
                   <v-card-item>
                     <template #prepend>
                       <v-avatar color="primary" size="56">
@@ -103,3 +103,18 @@ onMounted(() => {
     </v-row>
   </v-container>
 </template>
+
+<style scoped>
+.gallery-menu {
+  background:
+    radial-gradient(circle at 10% 10%, rgb(216 154 114 / 18%), transparent 28rem),
+    radial-gradient(circle at 90% 18%, rgb(111 143 168 / 18%), transparent 28rem),
+    rgb(var(--v-theme-background));
+  min-block-size: 100vh;
+}
+
+.gallery-card,
+.gallery-game-card {
+  border: 1px solid rgb(93 127 120 / 15%);
+}
+</style>

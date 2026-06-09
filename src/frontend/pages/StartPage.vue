@@ -4,10 +4,10 @@ import { rememberMenuMode } from "../core/menuMode";
 </script>
 
 <template>
-  <v-container class="py-10" fluid>
+  <v-container class="gallery-menu py-10" fluid>
     <v-row justify="center">
       <v-col cols="12" lg="10" xl="8">
-        <v-card class="pa-6 pa-md-10" rounded="xl" elevation="8">
+        <v-card class="gallery-card pa-6 pa-md-10" rounded="xl" elevation="8">
           <div class="d-flex flex-column flex-md-row align-md-start justify-space-between ga-6 mb-10">
             <div>
               <div class="text-overline text-secondary mb-2">LINKa plays</div>
@@ -22,7 +22,7 @@ import { rememberMenuMode } from "../core/menuMode";
 
           <v-row class="mb-8" align="stretch">
             <v-col cols="12" md="6">
-              <v-card class="h-100 pa-5" color="surface" rounded="xl" variant="tonal">
+              <v-card class="mode-card h-100 pa-5" color="surface" rounded="xl" variant="tonal">
                 <v-avatar class="mb-5" color="primary" size="72">
                   <v-icon icon="mdi-clipboard-heart-outline" size="40" />
                 </v-avatar>
@@ -37,7 +37,7 @@ import { rememberMenuMode } from "../core/menuMode";
             </v-col>
 
             <v-col cols="12" md="6">
-              <v-card class="h-100 pa-5" color="secondary" rounded="xl" variant="tonal">
+              <v-card class="mode-card h-100 pa-5" color="secondary" rounded="xl" variant="tonal">
                 <v-avatar class="mb-5" color="secondary" size="72" variant="flat">
                   <v-icon icon="mdi-eye-heart-outline" size="40" />
                 </v-avatar>
@@ -62,3 +62,18 @@ import { rememberMenuMode } from "../core/menuMode";
     </v-row>
   </v-container>
 </template>
+
+<style scoped>
+.gallery-menu {
+  background:
+    radial-gradient(circle at 12% 8%, rgb(216 154 114 / 22%), transparent 28rem),
+    radial-gradient(circle at 88% 14%, rgb(139 123 184 / 18%), transparent 26rem),
+    rgb(var(--v-theme-background));
+  min-block-size: 100vh;
+}
+
+.gallery-card,
+.mode-card {
+  border: 1px solid rgb(93 127 120 / 16%);
+}
+</style>
