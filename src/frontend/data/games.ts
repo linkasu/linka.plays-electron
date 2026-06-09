@@ -107,6 +107,20 @@ export const gameStatusLabels: Record<GameStatus, string> = {
 
 export const games: GameInfo[] = [
   {
+    id: "clouds",
+    title: "Облака",
+    description: "Смотри на мягкие облака: они медленно меняют форму и расступаются рядом со взглядом.",
+    selfDescription: "Раздвинь облака взглядом.",
+    route: "/games/clouds",
+    category: "gaze-basics",
+    icon: "mdi-cloud",
+    skills: ["fixation", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 75,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1500
+  },
+  {
     id: "firefly-meadow",
     title: "Светлячковая поляна",
     description: "Смотри на тихую поляну и мягко зажигай светлячков взглядом.",
