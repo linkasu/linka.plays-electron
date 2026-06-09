@@ -135,6 +135,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1100
   },
   {
+    id: "quiet-bubbles",
+    title: "Тихие пузыри",
+    description: "Лопай крупные пузыри взглядом на спокойном пастельном фоне.",
+    selfDescription: "Лопни пузыри взглядом.",
+    route: "/games/quiet-bubbles",
+    category: "gaze-basics",
+    icon: "mdi-water-circle",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 75,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1200
+  },
+  {
     id: "ducks",
     title: "Утки",
     description: "Следи за утками на волнах и мягко попадай по ним взглядом.",

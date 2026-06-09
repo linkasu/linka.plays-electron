@@ -11,6 +11,7 @@ import FrogGame from "../games/frog/FrogGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import MathActionsGame from "../games/math-actions/MathActionsGame.vue";
 import PyramidGame from "../games/pyramid/PyramidGame.vue";
+import QuietBubblesGame from "../games/quiet-bubbles/QuietBubblesGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
 import TicTacToeGame from "../games/tic-tac-toe/TicTacToeGame.vue";
 import TypeWordGame from "../games/type-word/TypeWordGame.vue";
@@ -29,6 +30,7 @@ export default createRouter({
     { path: "/tobii-calibration", name: "tobii-calibration", component: TobiiCalibrationPage },
     { path: "/games/butterfly", name: "butterfly", component: ButterflyGame },
     { path: "/games/flowers", name: "flowers", component: FlowersGame },
+    { path: "/games/quiet-bubbles", name: "quiet-bubbles", component: QuietBubblesGame },
     { path: "/games/ducks", name: "ducks", component: DucksGame },
     { path: "/games/count-items", name: "count-items", component: CountItemsGame },
     { path: "/games/choose-picture", name: "choose-picture", component: ChoosePictureGame },
