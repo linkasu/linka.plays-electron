@@ -149,7 +149,6 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1350
   },
   {
-<<<<<<< HEAD
     id: "starry-sky",
     title: "Звёздное небо",
     description: "Смотри на тихое небо и мягко соединяй звёзды световыми линиями.",

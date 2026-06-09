@@ -31,11 +31,8 @@ import MemoryCardsGame from "../games/memory-cards/MemoryCardsGame.vue";
 import PaperLanternsGame from "../games/paper-lanterns/PaperLanternsGame.vue";
 import PyramidGame from "../games/pyramid/PyramidGame.vue";
 import QuietBubblesGame from "../games/quiet-bubbles/QuietBubblesGame.vue";
-<<<<<<< HEAD
 import RainGardenGame from "../games/rain-garden/RainGardenGame.vue";
-=======
 import SandGardenGame from "../games/sand-garden/SandGardenGame.vue";
->>>>>>> game/sand-garden
 import ShapesGame from "../games/shapes/ShapesGame.vue";
 import StarrySkyGame from "../games/starry-sky/StarrySkyGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
