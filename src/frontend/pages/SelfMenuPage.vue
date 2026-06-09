@@ -2,9 +2,7 @@
 import { onMounted } from "vue";
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
 import { rememberMenuMode } from "../core/menuMode";
-import { groupGamesByCategory } from "../data/games";
-
-const gameGroups = groupGamesByCategory();
+import { games } from "../data/games";
 
 onMounted(() => {
   rememberMenuMode("self");
@@ -39,37 +37,29 @@ onMounted(() => {
             </v-btn>
           </div>
 
-          <section v-for="group in gameGroups" :key="group.category" class="mb-10">
-            <div class="mb-4">
-              <div class="text-overline text-primary mb-1">Папка</div>
-              <h2 class="text-h4 text-md-h3 font-weight-bold mb-2">{{ group.selfLabel }}</h2>
-              <p class="text-h6 text-medium-emphasis mb-0">{{ group.selfDescription }}</p>
-            </div>
-
-            <v-row align="stretch">
-              <v-col v-for="game in group.games" :key="game.id" cols="12" md="6" xl="4">
-                <v-card
-                  class="self-game-card h-100 pa-5 d-flex flex-column"
-                  color="surface"
-                  min-height="240"
-                  rounded="xl"
-                  :to="game.route"
-                  variant="outlined"
-                >
-                  <v-avatar class="mb-5" color="primary" size="88">
-                    <v-icon :icon="game.icon" size="52" />
-                  </v-avatar>
-                  <h3 class="text-h4 font-weight-bold mb-3">{{ game.title }}</h3>
-                  <p class="text-h6 text-medium-emphasis mb-6">{{ game.selfDescription }}</p>
-                  <v-spacer />
-                  <v-btn color="primary" size="x-large" variant="flat">
-                    Играть
-                    <v-icon end icon="mdi-arrow-right" />
-                  </v-btn>
-                </v-card>
-              </v-col>
-            </v-row>
-          </section>
+          <v-row align="stretch">
+            <v-col v-for="game in games" :key="game.id" cols="12" md="6" xl="4">
+              <v-card
+                class="self-game-card h-100 pa-5 d-flex flex-column"
+                color="surface"
+                min-height="240"
+                rounded="xl"
+                :to="game.route"
+                variant="outlined"
+              >
+                <v-avatar class="mb-5" color="primary" size="88">
+                  <v-icon :icon="game.icon" size="52" />
+                </v-avatar>
+                <h3 class="text-h4 font-weight-bold mb-3">{{ game.title }}</h3>
+                <p class="text-h6 text-medium-emphasis mb-6">{{ game.selfDescription }}</p>
+                <v-spacer />
+                <v-btn color="primary" size="x-large" variant="flat">
+                  Играть
+                  <v-icon end icon="mdi-arrow-right" />
+                </v-btn>
+              </v-card>
+            </v-col>
+          </v-row>
         </v-card>
       </v-col>
     </v-row>
