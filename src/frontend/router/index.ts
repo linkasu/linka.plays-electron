@@ -12,6 +12,7 @@ import GreaterLessGame from "../games/greater-less/GreaterLessGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import MatchSameGame from "../games/match-same/MatchSameGame.vue";
 import MathActionsGame from "../games/math-actions/MathActionsGame.vue";
+import PatternsGame from "../games/patterns/PatternsGame.vue";
 import PyramidGame from "../games/pyramid/PyramidGame.vue";
 import ShapesGame from "../games/shapes/ShapesGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
@@ -40,6 +41,7 @@ export default createRouter({
     { path: "/games/eat-or-not-eat", name: "eat-or-not-eat", component: EatOrNotEatGame },
     { path: "/games/pyramid", name: "pyramid", component: PyramidGame },
     { path: "/games/train-sequence", name: "train-sequence", component: TrainSequenceGame },
+    { path: "/games/patterns", name: "patterns", component: PatternsGame },
     { path: "/games/fishes", name: "fishes", component: FishesGame },
     { path: "/games/hide-and-seek", name: "hide-and-seek", component: HideAndSeekGame },
     { path: "/games/match-same", name: "match-same", component: MatchSameGame },
