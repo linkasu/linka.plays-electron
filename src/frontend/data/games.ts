@@ -121,6 +121,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1350
   },
   {
+    id: "starry-sky",
+    title: "Звёздное небо",
+    description: "Смотри на тихое небо и мягко соединяй звёзды световыми линиями.",
+    selfDescription: "Зажги звёзды взглядом.",
+    route: "/games/starry-sky",
+    category: "gaze-basics",
+    icon: "mdi-star",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 80,
+    minTargetSizePx: 170,
+    defaultDwellMs: 1200
+  },
+  {
     id: "big-button",
     title: "Большая кнопка",
     description: "Первая спокойная игра: смотри на одну большую кнопку и получай мягкий отклик.",
