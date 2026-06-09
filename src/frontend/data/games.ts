@@ -219,6 +219,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "train-sequence",
+    title: "Поезд",
+    description: "Прицепляй вагоны по подсказанному порядку цвета и номера.",
+    selfDescription: "Прицепи вагоны.",
+    route: "/games/train-sequence",
+    category: "sequencing",
+    icon: "mdi-train",
+    skills: ["sequence", "choice"],
+    status: "polished",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1200
+  },
+  {
     id: "choose-picture",
     title: "Выбери картинку",
     description: "Слушай слово и выбирай подходящую картинку взглядом.",
