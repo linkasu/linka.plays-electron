@@ -107,6 +107,20 @@ export const gameStatusLabels: Record<GameStatus, string> = {
 
 export const games: GameInfo[] = [
   {
+    id: "breathing-flower",
+    title: "Дышащий цветок",
+    description: "Смотри спокойно в центр цветка, и он будет мягко раскрываться и закрываться.",
+    selfDescription: "Подыши вместе с цветком.",
+    route: "/games/breathing-flower",
+    category: "gaze-basics",
+    icon: "mdi-flower",
+    skills: ["fixation", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 220,
+    defaultDwellMs: 1400
+  },
+  {
     id: "firefly-meadow",
     title: "Светлячковая поляна",
     description: "Смотри на тихую поляну и мягко зажигай светлячков взглядом.",

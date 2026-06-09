@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import BigButtonGame from "../games/big-button/BigButtonGame.vue";
 import BoatGame from "../games/boat/BoatGame.vue";
+import BreathingFlowerGame from "../games/breathing-flower/BreathingFlowerGame.vue";
 import ButterflyGame from "../games/butterfly/ButterflyGame.vue";
 import Calm2048Game from "../games/calm-2048/Calm2048Game.vue";
 import ChoosePictureGame from "../games/choose-picture/ChoosePictureGame.vue";
@@ -47,6 +48,7 @@ export default createRouter({
     { path: "/menu/specialist", name: "menu-specialist", component: HomePage },
     { path: "/menu/self", name: "menu-self", component: SelfMenuPage },
     { path: "/tobii-calibration", name: "tobii-calibration", component: TobiiCalibrationPage },
+    { path: "/games/breathing-flower", name: "breathing-flower", component: BreathingFlowerGame },
     { path: "/games/firefly-meadow", name: "firefly-meadow", component: FireflyMeadowGame },
     { path: "/games/big-button", name: "big-button", component: BigButtonGame },
     { path: "/games/butterfly", name: "butterfly", component: ButterflyGame },
