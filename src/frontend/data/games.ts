@@ -230,6 +230,19 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "connect-four",
+    title: "4 в ряд",
+    description: "Собирай четыре фишки в ряд против спокойного Deep-Q агента.",
+    route: "/games/connect-four",
+    category: "math",
+    icon: "mdi-dots-grid",
+    skills: ["choice", "sequence", "attention-shift"],
+    status: "polished",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 140,
+    defaultDwellMs: 1450
+  },
+  {
     id: "table-tennis",
     title: "Теннис",
     description: "Веди ракетку взглядом и удерживай мяч в игре.",
