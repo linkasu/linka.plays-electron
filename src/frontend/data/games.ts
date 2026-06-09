@@ -471,6 +471,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1450
   },
   {
+    id: "calm-snake",
+    title: "Змейка спокойная",
+    description: "Веди медленную змейку по мягкой сетке: края и столкновения дают подсказку, а не проигрыш.",
+    selfDescription: "Помоги змейке найти листочки.",
+    route: "/games/calm-snake",
+    category: "strategy",
+    icon: "mdi-snake",
+    skills: ["choice", "sequence", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 165,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1100
+  },
+  {
     id: "table-tennis",
     title: "Теннис",
     description: "Веди мягкую ракетку взглядом и вместе с партнёром спокойно держи мяч в игре.",
