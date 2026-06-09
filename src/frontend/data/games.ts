@@ -177,6 +177,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1400
   },
   {
+    id: "sand-garden",
+    title: "Песочный сад",
+    description: "Веди взглядом мягкие борозды по тёплому песку: следы появляются спокойно и постепенно исчезают.",
+    selfDescription: "Рисуй следы на песке взглядом.",
+    route: "/games/sand-garden",
+    category: "gaze-basics",
+    icon: "mdi-dots-grid",
+    skills: ["smooth-pursuit", "fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 84,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
     id: "big-button",
     title: "Большая кнопка",
     description: "Первая спокойная игра: смотри на одну большую кнопку и получай мягкий отклик.",
