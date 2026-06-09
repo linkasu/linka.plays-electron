@@ -483,6 +483,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 90,
     minTargetSizePx: 160,
     defaultDwellMs: 1000
+  },
+  {
+    id: "maze-path",
+    title: "Лабиринт-дорожка",
+    description: "Веди мягкий свет по широкой дорожке к финишу без сбросов и резких ошибок.",
+    selfDescription: "Веди свет по дорожке.",
+    route: "/games/maze-path",
+    category: "continuous-control",
+    icon: "mdi-vector-polyline",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1000
   }
 ];
 

@@ -15,6 +15,7 @@ import GreaterLessGame from "../games/greater-less/GreaterLessGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import MatchSameGame from "../games/match-same/MatchSameGame.vue";
 import MathActionsGame from "../games/math-actions/MathActionsGame.vue";
+import MazePathGame from "../games/maze-path/MazePathGame.vue";
 import PatternsGame from "../games/patterns/PatternsGame.vue";
 import MemoryCardsGame from "../games/memory-cards/MemoryCardsGame.vue";
 import PyramidGame from "../games/pyramid/PyramidGame.vue";
@@ -66,6 +67,7 @@ export default createRouter({
     { path: "/games/connect-four", name: "connect-four", component: ConnectFourGame },
     { path: "/games/frog", name: "frog", component: FrogGame },
     { path: "/games/table-tennis", name: "table-tennis", component: TableTennisGame },
+    { path: "/games/maze-path", name: "maze-path", component: MazePathGame },
     { path: "/games/:gameId", name: "planned-game", component: PlannedGamePage }
   ]
 });
