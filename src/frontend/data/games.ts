@@ -107,6 +107,34 @@ export const gameStatusLabels: Record<GameStatus, string> = {
 
 export const games: GameInfo[] = [
   {
+    id: "breathing-flower",
+    title: "Дышащий цветок",
+    description: "Смотри спокойно в центр цветка, и он будет мягко раскрываться и закрываться.",
+    selfDescription: "Подыши вместе с цветком.",
+    route: "/games/breathing-flower",
+    category: "gaze-basics",
+    icon: "mdi-flower",
+    skills: ["fixation", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 220,
+    defaultDwellMs: 1400
+  },
+  {
+    id: "clouds",
+    title: "Облака",
+    description: "Смотри на мягкие облака: они медленно меняют форму и расступаются рядом со взглядом.",
+    selfDescription: "Раздвинь облака взглядом.",
+    route: "/games/clouds",
+    category: "gaze-basics",
+    icon: "mdi-cloud",
+    skills: ["fixation", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 75,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1500
+  },
+  {
     id: "firefly-meadow",
     title: "Светлячковая поляна",
     description: "Смотри на тихую поляну и мягко зажигай светлячков взглядом.",
@@ -118,6 +146,62 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     recommendedSessionSeconds: 75,
     minTargetSizePx: 180,
+    defaultDwellMs: 1350
+  },
+  {
+    id: "starry-sky",
+    title: "Звёздное небо",
+    description: "Смотри на тихое небо и мягко соединяй звёзды световыми линиями.",
+    selfDescription: "Зажги звёзды взглядом.",
+    route: "/games/starry-sky",
+    category: "gaze-basics",
+    icon: "mdi-star",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 80,
+    minTargetSizePx: 170,
+    defaultDwellMs: 1200
+  },
+  {
+    id: "northern-lights",
+    title: "Северное сияние",
+    description: "Смотри на ночное небо и мягко рисуй световые полосы взглядом без целей и ошибок.",
+    selfDescription: "Рисуй сияние взглядом.",
+    route: "/games/northern-lights",
+    category: "gaze-basics",
+    icon: "mdi-weather-night",
+    skills: ["fixation", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1400
+  },
+  {
+    id: "sand-garden",
+    title: "Песочный сад",
+    description: "Веди взглядом мягкие борозды по тёплому песку: следы появляются спокойно и постепенно исчезают.",
+    selfDescription: "Рисуй следы на песке взглядом.",
+    route: "/games/sand-garden",
+    category: "gaze-basics",
+    icon: "mdi-dots-grid",
+    skills: ["smooth-pursuit", "fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 84,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "paper-lanterns",
+    title: "Бумажные фонарики",
+    description: "Зажигай крупные бумажные фонарики взглядом и смотри, как они мягко улетают вверх.",
+    selfDescription: "Зажги фонарик взглядом.",
+    route: "/games/paper-lanterns",
+    category: "gaze-basics",
+    icon: "mdi-lightbulb-on-outline",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 190,
     defaultDwellMs: 1350
   },
   {
@@ -177,6 +261,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "rain-garden",
+    title: "Сад дождя",
+    description: "Смотри на листья и воду, чтобы вызывать мягкие круги под спокойным дождём.",
+    selfDescription: "Сделай круги на воде взглядом.",
+    route: "/games/rain-garden",
+    category: "gaze-basics",
+    icon: "mdi-weather-rainy",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 75,
+    minTargetSizePx: 176,
+    defaultDwellMs: 1300
+  },
+  {
     id: "ducks",
     title: "Утки",
     description: "Следи за утками на волнах и мягко попадай по ним взглядом.",
@@ -203,6 +301,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 60,
     minTargetSizePx: 160,
     defaultDwellMs: 850
+  },
+  {
+    id: "jellyfish",
+    title: "Медузы",
+    description: "Следи за медленными светящимися медузами в спокойной воде без проигрыша.",
+    selfDescription: "Следи за медузой взглядом.",
+    route: "/games/jellyfish",
+    category: "gaze-basics",
+    icon: "mdi-fish",
+    skills: ["smooth-pursuit", "fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 165,
+    defaultDwellMs: 1450
   },
   {
     id: "frog",
