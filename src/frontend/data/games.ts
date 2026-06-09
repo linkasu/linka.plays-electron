@@ -191,6 +191,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "match-same",
+    title: "Где такой же?",
+    description: "Найди картинку, которая совпадает с образцом.",
+    selfDescription: "Найди такую же картинку.",
+    route: "/games/match-same",
+    category: "visual-search",
+    icon: "mdi-image-search",
+    skills: ["visual-search", "choice"],
+    status: "polished",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1200
+  },
+  {
     id: "pyramid",
     title: "Пирамидка",
     description: "Собирай кольца по порядку и тренируй последовательность.",
