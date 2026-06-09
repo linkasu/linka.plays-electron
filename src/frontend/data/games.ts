@@ -135,6 +135,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1500
   },
   {
+    id: "leaves-wind",
+    title: "Листья на ветру",
+    description: "Веди взглядом спокойный поток ветра: листья плавно подхватывают движение без проигрыша.",
+    selfDescription: "Проведи листья ветром.",
+    route: "/games/leaves-wind",
+    category: "gaze-basics",
+    icon: "mdi-leaf",
+    skills: ["smooth-pursuit", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 80,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1500
+  },
+  {
     id: "firefly-meadow",
     title: "Светлячковая поляна",
     description: "Смотри на тихую поляну и мягко зажигай светлячков взглядом.",
