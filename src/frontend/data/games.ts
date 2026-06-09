@@ -471,6 +471,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "calm-2048",
+    title: "2048 мягкий",
+    description: "Сдвигай плитки 4×4 и спокойно собирай одинаковые числа без резкого проигрыша.",
+    selfDescription: "Собери одинаковые плитки.",
+    route: "/games/calm-2048",
+    category: "strategy",
+    icon: "mdi-grid-large",
+    skills: ["choice", "sequence", "counting"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 132,
+    defaultDwellMs: 1100
+  },
+  {
     id: "tic-tac-toe",
     title: "Крестики-нолики",
     description: "Играй крестиками против спокойного Deep-Q агента на классическом поле 3×3.",
