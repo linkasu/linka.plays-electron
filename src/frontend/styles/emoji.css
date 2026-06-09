@@ -1,10 +1,5 @@
-@font-face {
-  font-family: "Linka Apple Emoji";
-  src: local("Apple Color Emoji");
-}
-
 .emoji-glyph {
-  font-family: "Linka Apple Emoji", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", emoji, sans-serif;
+  font-family: "Twemoji", "Apple Color Emoji", "Segoe UI Emoji", emoji, sans-serif;
   font-variant-emoji: emoji;
   font-weight: 400;
   text-rendering: optimizeLegibility;

@@ -1,5 +1,6 @@
 import "@mdi/font/css/materialdesignicons.css";
 import "roboto-fontface/css/roboto/roboto-fontface.css";
+import "twemoji-colr-font/twemoji.css";
 import "vuetify/styles";
 import "./styles/emoji.css";
 
