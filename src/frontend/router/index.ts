@@ -26,6 +26,7 @@ import PatternsGame from "../games/patterns/PatternsGame.vue";
 import MemoryCardsGame from "../games/memory-cards/MemoryCardsGame.vue";
 import PyramidGame from "../games/pyramid/PyramidGame.vue";
 import QuietBubblesGame from "../games/quiet-bubbles/QuietBubblesGame.vue";
+import RainGardenGame from "../games/rain-garden/RainGardenGame.vue";
 import ShapesGame from "../games/shapes/ShapesGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
 import TicTacToeGame from "../games/tic-tac-toe/TicTacToeGame.vue";
@@ -52,6 +53,7 @@ export default createRouter({
     { path: "/games/butterfly", name: "butterfly", component: ButterflyGame },
     { path: "/games/flowers", name: "flowers", component: FlowersGame },
     { path: "/games/quiet-bubbles", name: "quiet-bubbles", component: QuietBubblesGame },
+    { path: "/games/rain-garden", name: "rain-garden", component: RainGardenGame },
     { path: "/games/ducks", name: "ducks", component: DucksGame },
     { path: "/games/count-items", name: "count-items", component: CountItemsGame },
     { path: "/games/greater-less", name: "greater-less", component: GreaterLessGame },
