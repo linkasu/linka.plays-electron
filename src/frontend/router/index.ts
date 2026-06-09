@@ -17,6 +17,7 @@ import QuietBubblesGame from "../games/quiet-bubbles/QuietBubblesGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
 import TicTacToeGame from "../games/tic-tac-toe/TicTacToeGame.vue";
 import TypeWordGame from "../games/type-word/TypeWordGame.vue";
+import YesNoGame from "../games/yes-no/YesNoGame.vue";
 import HomePage from "../pages/HomePage.vue";
 import PlannedGamePage from "../pages/PlannedGamePage.vue";
 import SelfMenuPage from "../pages/SelfMenuPage.vue";
@@ -39,6 +40,7 @@ export default createRouter({
     { path: "/games/count-items", name: "count-items", component: CountItemsGame },
     { path: "/games/choose-picture", name: "choose-picture", component: ChoosePictureGame },
     { path: "/games/eat-or-not-eat", name: "eat-or-not-eat", component: EatOrNotEatGame },
+    { path: "/games/yes-no", name: "yes-no", component: YesNoGame },
     { path: "/games/pyramid", name: "pyramid", component: PyramidGame },
     { path: "/games/fishes", name: "fishes", component: FishesGame },
     { path: "/games/hide-and-seek", name: "hide-and-seek", component: HideAndSeekGame },

@@ -275,6 +275,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "yes-no",
+    title: "Да / нет",
+    description: "Отвечай да или нет на простой вопрос с картинкой.",
+    selfDescription: "Ответь да или нет.",
+    route: "/games/yes-no",
+    category: "language-aac",
+    icon: "mdi-check-circle-outline",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "polished",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "type-word",
     title: "Печать слов",
     description: "Собирай короткие слова из крупных букв взглядом.",
