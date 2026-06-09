@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useRoundGame } from "../../composables/useRoundGame";
 import { useGameSession } from "../../core/session";
-import { generateCountItemsRound, type CountItemsRound } from "./model";
+import { generateCountItemsRound } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("count-items", {
@@ -14,17 +14,14 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   sessionSeconds: 120
 });
 
-let roundIndex = 1;
-const round = ref<CountItemsRound>(generateCountItemsRound(session.settings, roundIndex));
-const resultVisible = computed(() => session.status === "finished");
+const { round, resultVisible, nextRound, restart } = useRoundGame({
+  session,
+  startSession,
+  generateRound: (roundIndex) => generateCountItemsRound(session.settings, roundIndex)
+});
 
 function choiceTargetId(choice: number) {
   return `count-items:choice:${choice}`;
-}
-
-function nextRound() {
-  roundIndex += 1;
-  round.value = generateCountItemsRound(session.settings, roundIndex);
 }
 
 function answer(index: number) {
@@ -37,11 +34,6 @@ function answer(index: number) {
   if (session.step < session.maxSteps) nextRound();
 }
 
-function restart() {
-  startSession();
-  roundIndex = 1;
-  round.value = generateCountItemsRound(session.settings, roundIndex);
-}
 </script>
 
 <template>

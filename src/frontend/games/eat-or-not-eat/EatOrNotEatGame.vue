@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useRoundGame } from "../../composables/useRoundGame";
 import { useGameSession } from "../../core/session";
 import { generateEatOrNotEatRound, type EatOrNotEatAnswer, type EatOrNotEatRound } from "./model";
 
@@ -14,9 +14,11 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   sessionSeconds: 120
 });
 
-let roundIndex = 1;
-const round = ref<EatOrNotEatRound>(generateEatOrNotEatRound(roundIndex));
-const resultVisible = computed(() => session.status === "finished");
+const { round, resultVisible, nextRound, restart } = useRoundGame<EatOrNotEatRound>({
+  session,
+  startSession,
+  generateRound: generateEatOrNotEatRound
+});
 
 const answers: Array<{ id: EatOrNotEatAnswer; title: string; emoji: string }> = [
   { id: "food", title: "Можно есть", emoji: "🍽️" },
@@ -25,11 +27,6 @@ const answers: Array<{ id: EatOrNotEatAnswer; title: string; emoji: string }> = 
 
 function answerTargetId(value: EatOrNotEatAnswer) {
   return `eat-or-not-eat:answer:${value}`;
-}
-
-function nextRound() {
-  roundIndex += 1;
-  round.value = generateEatOrNotEatRound(roundIndex);
 }
 
 function answer(value: EatOrNotEatAnswer) {
@@ -41,11 +38,6 @@ function answer(value: EatOrNotEatAnswer) {
   if (session.step < session.maxSteps) nextRound();
 }
 
-function restart() {
-  startSession();
-  roundIndex = 1;
-  round.value = generateEatOrNotEatRound(roundIndex);
-}
 </script>
 
 <template>

@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useRoundGame } from "../../composables/useRoundGame";
 import { useGameSession } from "../../core/session";
 import { disposeChoosePictureAudio, playChoosePictureMistakeMelody, playChoosePictureSuccessMelody, warmChoosePictureAudio } from "./audio";
-import { generateChoosePictureRound, type ChoosePictureRound } from "./model";
+import { generateChoosePictureRound } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("choose-picture", {
@@ -15,17 +16,14 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   sessionSeconds: 120
 });
 
-let roundIndex = 1;
-const round = ref<ChoosePictureRound>(generateChoosePictureRound(session.settings, roundIndex));
-const resultVisible = computed(() => session.status === "finished");
+const { round, resultVisible, nextRound, restart } = useRoundGame({
+  session,
+  startSession,
+  generateRound: (roundIndex) => generateChoosePictureRound(session.settings, roundIndex)
+});
 
 function choiceTargetId(choiceId: string) {
   return `choose-picture:choice:${choiceId}`;
-}
-
-function nextRound() {
-  roundIndex += 1;
-  round.value = generateChoosePictureRound(session.settings, roundIndex);
 }
 
 function choose(index: number) {
@@ -41,12 +39,6 @@ function choose(index: number) {
     void playChoosePictureMistakeMelody(session.settings.sound);
   }
   if (session.step < session.maxSteps) nextRound();
-}
-
-function restart() {
-  startSession();
-  roundIndex = 1;
-  round.value = generateChoosePictureRound(session.settings, roundIndex);
 }
 
 onMounted(() => {
