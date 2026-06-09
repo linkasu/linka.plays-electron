@@ -16,12 +16,16 @@ import TicTacToeGame from "../games/tic-tac-toe/TicTacToeGame.vue";
 import TypeWordGame from "../games/type-word/TypeWordGame.vue";
 import HomePage from "../pages/HomePage.vue";
 import PlannedGamePage from "../pages/PlannedGamePage.vue";
+import SelfMenuPage from "../pages/SelfMenuPage.vue";
+import StartPage from "../pages/StartPage.vue";
 import TobiiCalibrationPage from "../pages/TobiiCalibrationPage.vue";
 
 export default createRouter({
   history: createWebHashHistory(),
   routes: [
-    { path: "/", name: "home", component: HomePage },
+    { path: "/", name: "start", component: StartPage },
+    { path: "/menu/specialist", name: "menu-specialist", component: HomePage },
+    { path: "/menu/self", name: "menu-self", component: SelfMenuPage },
     { path: "/tobii-calibration", name: "tobii-calibration", component: TobiiCalibrationPage },
     { path: "/games/butterfly", name: "butterfly", component: ButterflyGame },
     { path: "/games/flowers", name: "flowers", component: FlowersGame },
