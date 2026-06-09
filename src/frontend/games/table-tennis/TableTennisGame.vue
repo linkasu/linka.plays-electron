@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
+import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
 import { disposeTennisAudio, playTennisMelody, resetTennisAudioSession, warmTennisAudio } from "./audio";
 import { drawTennisScene, tennisCourtBottom, tennisCourtTop, type TennisBall, type TennisBurst, type TennisPaddle, type TennisTrail } from "./scene";
@@ -310,7 +311,7 @@ onUnmounted(() => {
     <canvas ref="canvasRef" class="tennis-canvas" />
 
     <div class="quiet-controls d-flex align-center ga-1 pa-1">
-      <v-btn aria-label="В меню" color="surface" density="comfortable" icon="mdi-arrow-left" size="small" variant="text" @click="router.push('/')" />
+      <v-btn aria-label="В меню" color="surface" density="comfortable" icon="mdi-arrow-left" size="small" variant="text" @click="router.push(resolveMenuRoute())" />
       <v-btn
         :aria-label="session.status === 'paused' ? 'Продолжить' : 'Пауза'"
         color="surface"
@@ -322,7 +323,7 @@ onUnmounted(() => {
       />
     </div>
 
-    <GameResultDialog :model-value="resultVisible" title="Теннис" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
+    <GameResultDialog :model-value="resultVisible" title="Теннис" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
   </div>
 </template>
 

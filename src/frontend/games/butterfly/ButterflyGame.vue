@@ -3,6 +3,7 @@ import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { resolveMenuRoute } from "../../core/menuMode";
 import { randomTargetCenterPercent, percentToPixels } from "../../core/placement";
 import { useGameSession } from "../../core/session";
 import { disposeButterflyAudio, playButterflyMelody, resetButterflyAudioSession, warmButterflyAudio } from "./audio";
@@ -353,7 +354,7 @@ onUnmounted(() => {
     <canvas ref="canvasRef" class="butterfly-canvas" />
 
     <div class="quiet-controls d-flex align-center ga-1 pa-1">
-      <v-btn aria-label="В меню" color="surface" density="comfortable" icon="mdi-arrow-left" size="small" variant="text" @click="router.push('/')" />
+      <v-btn aria-label="В меню" color="surface" density="comfortable" icon="mdi-arrow-left" size="small" variant="text" @click="router.push(resolveMenuRoute())" />
       <v-btn
         :aria-label="session.status === 'paused' ? 'Продолжить' : 'Пауза'"
         color="surface"
@@ -373,7 +374,7 @@ onUnmounted(() => {
       :duration-ms="durationMs"
       :metrics="metrics"
       :recommendation="recommendation"
-      @menu="router.push('/')"
+      @menu="router.push(resolveMenuRoute())"
       @restart="restart"
     />
   </div>

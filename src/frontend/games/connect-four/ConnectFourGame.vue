@@ -3,6 +3,7 @@ import { computed, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
 import {
   availableColumns,
@@ -183,7 +184,7 @@ onUnmounted(() => {
 <template>
   <div class="connect-shell">
     <div class="quiet-controls d-flex align-center ga-2 pa-1">
-      <GameDwellButton :target-id="menuTargetId()" :dwell-ms="session.settings.dwellMs" :min-height="72" color="surface" @select="router.push('/')">
+      <GameDwellButton :target-id="menuTargetId()" :dwell-ms="session.settings.dwellMs" :min-height="72" color="surface" @select="router.push(resolveMenuRoute())">
         <template #default>
           <div class="control-button-content">
             <v-icon icon="mdi-arrow-left" size="26" />
@@ -252,7 +253,7 @@ onUnmounted(() => {
       </v-row>
     </v-container>
 
-    <GameResultDialog :model-value="resultVisible" title="4 в ряд" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
+    <GameResultDialog :model-value="resultVisible" title="4 в ряд" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
   </div>
 </template>
 

@@ -4,6 +4,7 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import GameSquareChoiceGrid, { type GameSquareChoice } from "../../components/game/GameSquareChoiceGrid.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
 import { generateCountItemsRound } from "./model";
 
@@ -63,7 +64,7 @@ function answerChoice(choice: GameSquareChoice) {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Счёт" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push('/')" @restart="restart" />
+    <GameResultDialog :model-value="resultVisible" title="Счёт" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
   </div>
 </template>
 

@@ -1,8 +1,14 @@
 <script setup lang="ts">
+import { onMounted } from "vue";
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
+import { rememberMenuMode } from "../core/menuMode";
 import { groupGamesByCategory } from "../data/games";
 
 const gameGroups = groupGamesByCategory();
+
+onMounted(() => {
+  rememberMenuMode("self");
+});
 </script>
 
 <template>
@@ -25,7 +31,7 @@ const gameGroups = groupGamesByCategory();
             <v-btn color="secondary" prepend-icon="mdi-eye-settings" size="large" to="/tobii-calibration" variant="tonal">
               Проверить взгляд
             </v-btn>
-            <v-btn color="primary" prepend-icon="mdi-clipboard-heart-outline" size="large" to="/menu/specialist" variant="text">
+            <v-btn color="primary" prepend-icon="mdi-clipboard-heart-outline" size="large" to="/menu/specialist" variant="text" @click="rememberMenuMode('specialist')">
               Режим специалиста
             </v-btn>
             <v-btn color="secondary" prepend-icon="mdi-home-heart" size="large" to="/" variant="text">

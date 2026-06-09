@@ -2,10 +2,12 @@
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
+import { resolveMenuRoute } from "../core/menuMode";
 import { findGame, gameCategories, gameSkillLabels } from "../data/games";
 
 const route = useRoute();
 const game = computed(() => findGame(route.params.gameId));
+const menuRoute = computed(() => resolveMenuRoute());
 </script>
 
 <template>
@@ -45,7 +47,7 @@ const game = computed(() => findGame(route.params.gameId));
           </template>
 
           <div class="d-flex flex-wrap ga-3">
-            <v-btn color="primary" prepend-icon="mdi-arrow-left" size="large" to="/" variant="flat">
+            <v-btn color="primary" prepend-icon="mdi-arrow-left" size="large" :to="menuRoute" variant="flat">
               В меню
             </v-btn>
             <v-btn color="secondary" prepend-icon="mdi-eye-settings" size="large" to="/tobii-calibration" variant="tonal">

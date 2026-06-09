@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
+import { rememberMenuMode } from "../core/menuMode";
 </script>
 
 <template>
@@ -29,7 +30,7 @@ import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
                 <p class="text-body-1 text-medium-emphasis mb-6">
                   Подробный каталог: навыки, длительность, статус готовности и параметры занятия для взрослого.
                 </p>
-                <v-btn block color="primary" size="x-large" to="/menu/specialist" variant="flat">
+                <v-btn block color="primary" size="x-large" to="/menu/specialist" variant="flat" @click="rememberMenuMode('specialist')">
                   Открыть режим специалиста
                 </v-btn>
               </v-card>
@@ -44,7 +45,7 @@ import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
                 <p class="text-body-1 text-medium-emphasis mb-6">
                   Крупные спокойные карточки, меньше текста и больше пространства для выбора взглядом.
                 </p>
-                <v-btn block color="secondary" size="x-large" to="/menu/self" variant="flat">
+                <v-btn block color="secondary" size="x-large" to="/menu/self" variant="flat" @click="rememberMenuMode('self')">
                   Играть самостоятельно
                 </v-btn>
               </v-card>

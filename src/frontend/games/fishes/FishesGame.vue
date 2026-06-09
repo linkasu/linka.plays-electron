@@ -3,6 +3,7 @@ import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
 import { disposeFishAudio, playFishMelody, resetFishAudioSession, warmFishAudio } from "./audio";
 import { drawFishScene, fishHitRadius, swimBottom, swimTop, type Bubble, type CatchRipple, type Fish, type Point } from "./scene";
@@ -329,7 +330,7 @@ onUnmounted(() => {
     <canvas ref="canvasRef" class="fishes-canvas" />
 
     <div class="quiet-controls d-flex align-center ga-2 pa-1">
-      <v-btn aria-label="В меню" class="exit-button" color="surface" density="comfortable" prepend-icon="mdi-arrow-left" size="small" variant="tonal" @click="router.push('/')">
+      <v-btn aria-label="В меню" class="exit-button" color="surface" density="comfortable" prepend-icon="mdi-arrow-left" size="small" variant="tonal" @click="router.push(resolveMenuRoute())">
         В меню
       </v-btn>
       <v-btn
@@ -351,7 +352,7 @@ onUnmounted(() => {
       :duration-ms="durationMs"
       :metrics="metrics"
       :recommendation="recommendation"
-      @menu="router.push('/')"
+      @menu="router.push(resolveMenuRoute())"
       @restart="restart"
     />
   </div>

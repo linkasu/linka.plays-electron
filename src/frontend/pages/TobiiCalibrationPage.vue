@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import { resolveMenuRoute } from "../core/menuMode";
 
 type CalibrationPhase = "idle" | "start" | "look" | "finish";
 type CalibrationPointState = "idle" | "holding" | "bursting" | "done";
@@ -343,7 +344,7 @@ onBeforeUnmount(() => {
             Перезапустить Tobii
           </v-btn>
           <v-spacer />
-          <v-btn @click="router.push('/')">
+          <v-btn @click="router.push(resolveMenuRoute())">
             В меню
           </v-btn>
         </v-card-actions>

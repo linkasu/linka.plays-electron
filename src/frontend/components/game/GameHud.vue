@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRouter } from "vue-router";
+import { resolveMenuRoute } from "../../core/menuMode";
 import GazePointerOverlay from "./GazePointerOverlay.vue";
 import TobiiStatusBadge from "../TobiiStatusBadge.vue";
 
@@ -30,7 +31,7 @@ const remainingSeconds = computed(() => {
 
 <template>
   <div class="game-hud d-flex flex-wrap align-center ga-3 pa-4">
-    <v-btn color="surface" prepend-icon="mdi-arrow-left" variant="flat" @click="router.push('/')">
+    <v-btn color="surface" prepend-icon="mdi-arrow-left" variant="flat" @click="router.push(resolveMenuRoute())">
       В меню
     </v-btn>
     <v-btn color="surface" :prepend-icon="paused ? 'mdi-play' : 'mdi-pause'" variant="flat" @click="paused ? emit('resume') : emit('pause')">
