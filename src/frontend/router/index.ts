@@ -8,6 +8,7 @@ import EatOrNotEatGame from "../games/eat-or-not-eat/EatOrNotEatGame.vue";
 import FishesGame from "../games/fishes/FishesGame.vue";
 import FlowersGame from "../games/flowers/FlowersGame.vue";
 import FrogGame from "../games/frog/FrogGame.vue";
+import GreaterLessGame from "../games/greater-less/GreaterLessGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import MatchSameGame from "../games/match-same/MatchSameGame.vue";
 import MathActionsGame from "../games/math-actions/MathActionsGame.vue";
@@ -33,6 +34,7 @@ export default createRouter({
     { path: "/games/flowers", name: "flowers", component: FlowersGame },
     { path: "/games/ducks", name: "ducks", component: DucksGame },
     { path: "/games/count-items", name: "count-items", component: CountItemsGame },
+    { path: "/games/greater-less", name: "greater-less", component: GreaterLessGame },
     { path: "/games/choose-picture", name: "choose-picture", component: ChoosePictureGame },
     { path: "/games/eat-or-not-eat", name: "eat-or-not-eat", component: EatOrNotEatGame },
     { path: "/games/pyramid", name: "pyramid", component: PyramidGame },
