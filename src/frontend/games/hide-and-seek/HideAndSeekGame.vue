@@ -110,7 +110,7 @@ onUnmounted(() => {
     <div class="scene">
       <v-card class="prompt pa-7 pa-md-8 text-center" rounded="xl" elevation="10">
         <div class="text-overline text-secondary mb-2">Найди</div>
-        <div v-if="currentObject" class="prompt-sample mb-3">{{ currentObject.emoji }}</div>
+        <div v-if="currentObject" class="prompt-sample emoji-glyph mb-3">{{ currentObject.emoji }}</div>
         <div class="text-h3 font-weight-bold">{{ currentObject ? currentObject.name : 'всех друзей' }}</div>
         <div class="text-body-1 text-medium-emphasis mt-2">{{ feedbackMessage }}</div>
       </v-card>
@@ -127,7 +127,7 @@ onUnmounted(() => {
         @select="chooseObject(object)"
       >
         <template #default>
-          <div class="object-emoji">{{ object.emoji }}</div>
+          <div class="object-emoji emoji-glyph">{{ object.emoji }}</div>
         </template>
       </GameDwellButton>
     </div>

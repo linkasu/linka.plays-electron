@@ -60,7 +60,7 @@ function restart() {
         <v-col cols="12" lg="10">
           <v-card class="pa-6 pa-md-8" rounded="xl" elevation="8">
             <div class="word-card mb-8">
-              <div class="word-emoji">{{ round.item.emoji }}</div>
+              <div class="word-emoji emoji-glyph">{{ round.item.emoji }}</div>
               <div class="letters">
                 <span v-for="(letter, index) in round.letters" :key="`${letter}-${index}`" :class="['letter', { done: index < currentIndex, current: index === currentIndex }]">
                   {{ letter }}

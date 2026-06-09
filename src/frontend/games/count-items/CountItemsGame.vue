@@ -45,7 +45,7 @@ function answer(index: number) {
           <v-card class="pa-6 pa-md-8" rounded="xl" elevation="8">
             <h1 class="text-h4 text-md-h3 font-weight-bold mb-6 text-center">Сколько предметов?</h1>
             <div class="items-grid mb-8">
-              <span v-for="index in round.targetCount" :key="index" class="item-emoji">{{ round.itemEmoji }}</span>
+              <span v-for="index in round.targetCount" :key="index" class="item-emoji emoji-glyph">{{ round.itemEmoji }}</span>
             </div>
             <v-row>
               <v-col v-for="(choice, index) in round.choices" :key="choice" cols="6" md="3">

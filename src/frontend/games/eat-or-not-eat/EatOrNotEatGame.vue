@@ -49,14 +49,14 @@ function answer(value: EatOrNotEatAnswer) {
           <v-card class="pa-6 pa-md-8" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Куда положим?</div>
             <div class="item-display mb-8">
-              <div class="item-emoji">{{ round.item.emoji }}</div>
+              <div class="item-emoji emoji-glyph">{{ round.item.emoji }}</div>
               <h1 class="text-h3 font-weight-bold">{{ round.item.word }}</h1>
             </div>
             <v-row>
               <v-col v-for="option in answers" :key="option.id" cols="12" md="6">
                 <GameDwellButton :target-id="answerTargetId(option.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="210" @select="answer(option.id)">
                   <template #default>
-                    <div class="choice-emoji">{{ option.emoji }}</div>
+                    <div class="choice-emoji emoji-glyph">{{ option.emoji }}</div>
                     <div class="text-h4 font-weight-bold">{{ option.title }}</div>
                   </template>
                 </GameDwellButton>

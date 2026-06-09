@@ -63,7 +63,7 @@ onUnmounted(() => {
               <v-col v-for="(choice, index) in round.choices" :key="choice.id" cols="6" md="6">
                 <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="210" @select="choose(index)">
                   <template #default>
-                    <div class="choice-emoji">{{ choice.emoji }}</div>
+                    <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
                     <div class="text-h5 font-weight-bold mt-2">{{ choice.word }}</div>
                   </template>
                 </GameDwellButton>

@@ -19,6 +19,12 @@ describe("wordBank", () => {
     expect(words.size).toBe(wordBank.length);
   });
 
+  it("does not use placeholder symbols as emoji", () => {
+    const placeholderSymbols = new Set(["▭", "〽️", "♠️", "🟫", "🟦", "🟨"]);
+
+    expect(wordBank.filter((item) => placeholderSymbols.has(item.emoji))).toEqual([]);
+  });
+
   it("keeps enough words for category games", () => {
     expect(getWordsByCategory("food")).toHaveLength(40);
     expect(getWordsByCategory("thing")).toHaveLength(40);

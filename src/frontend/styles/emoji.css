@@ -1,0 +1,6 @@
+.emoji-glyph {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", emoji, sans-serif;
+  font-variant-emoji: emoji;
+  font-weight: 400;
+  text-rendering: optimizeLegibility;
+}
