@@ -120,7 +120,7 @@ export const games: GameInfo[] = [
     category: "tracker-basics",
     icon: "mdi-frog",
     skills: ["attention-shift", "choice"],
-    status: "mvp",
+    status: "polished",
     recommendedSessionSeconds: 90,
     minTargetSizePx: 140,
     defaultDwellMs: 900
@@ -146,7 +146,7 @@ export const games: GameInfo[] = [
     category: "tracker-basics",
     icon: "mdi-pyramid",
     skills: ["sequence", "choice"],
-    status: "mvp",
+    status: "polished",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 120,
     defaultDwellMs: 1200
@@ -159,7 +159,7 @@ export const games: GameInfo[] = [
     category: "words",
     icon: "mdi-image-search",
     skills: ["aac", "vocabulary", "choice"],
-    status: "mvp",
+    status: "polished",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1200
@@ -172,7 +172,7 @@ export const games: GameInfo[] = [
     category: "words",
     icon: "mdi-food-apple",
     skills: ["classification", "aac", "choice"],
-    status: "mvp",
+    status: "polished",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1200
