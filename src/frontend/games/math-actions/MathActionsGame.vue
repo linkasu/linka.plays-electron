@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
-import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameSquareChoiceGrid, { type GameSquareChoice } from "../../components/game/GameSquareChoiceGrid.vue";
 import { useGameSession } from "../../core/session";
 import { generateMathRound, type MathRound } from "./model";
 
@@ -18,7 +18,7 @@ let roundIndex = 1;
 const round = ref<MathRound>(generateMathRound(session.settings, roundIndex));
 const answer = ref("");
 const resultVisible = computed(() => session.status === "finished");
-const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "⌫", "0", "✓"];
+const keys = ["1", "2", "3", "⌫", "4", "5", "6", "0", "7", "8", "9", "✓"];
 
 function keyTargetId(key: string) {
   if (key === "⌫") return "math-actions:key:backspace";
@@ -49,6 +49,10 @@ function pressKey(key: string) {
   if (answer.value.length < 3) answer.value += key;
 }
 
+function selectKey(choice: GameSquareChoice) {
+  pressKey(String(choice));
+}
+
 function restart() {
   startSession();
   roundIndex = 1;
@@ -61,21 +65,17 @@ function restart() {
   <div class="math-shell">
     <GameHud title="Математика" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
     <v-container class="game-container" fluid>
-      <v-row justify="center">
-        <v-col cols="12" md="10" lg="8">
-          <v-card class="pa-6 pa-md-8" rounded="xl" elevation="8">
-            <div class="expression mb-8">
+      <v-row justify="center" no-gutters>
+        <v-col cols="12" lg="11">
+          <v-card class="math-card pa-4 pa-md-6" rounded="xl" elevation="8">
+            <div class="expression mb-3">
               {{ round.expression }} = <span class="answer">{{ answer || "?" }}</span>
             </div>
-            <v-row>
-              <v-col v-for="key in keys" :key="key" cols="4">
-                <GameDwellButton :target-id="keyTargetId(key)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="96" @select="pressKey(key)">
-                  <template #default>
-                    <div class="text-h3 font-weight-bold">{{ key }}</div>
-                  </template>
-                </GameDwellButton>
-              </v-col>
-            </v-row>
+            <GameSquareChoiceGrid :items="keys" :columns="4" grid-offset="16.5rem" min-size="6rem" max-size="11rem" compact-size="6.5rem" width-factor="13vw" :target-id="(choice) => keyTargetId(String(choice))" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" @select="selectKey">
+              <template #default="{ choice }">
+                <div class="text-h3 font-weight-bold">{{ choice }}</div>
+              </template>
+            </GameSquareChoiceGrid>
           </v-card>
         </v-col>
       </v-row>
@@ -91,16 +91,30 @@ function restart() {
 }
 
 .game-container {
-  padding-block-start: 132px;
+  padding-block-end: 0;
+  padding-block-start: 9.75rem;
 }
 
 .expression {
-  font-size: clamp(3rem, 9vw, 6rem);
+  font-size: clamp(2.6rem, min(8vw, 10vh), 5.25rem);
   font-weight: 900;
+  line-height: 1.05;
   text-align: center;
 }
 
 .answer {
   color: #6c5ce7;
+}
+
+@media (min-width: 68.75rem) {
+  .game-container {
+    padding-block-start: 7.25rem;
+  }
+}
+
+@media (max-height: 40rem) {
+  .game-container {
+    padding-block-start: 9.25rem;
+  }
 }
 </style>

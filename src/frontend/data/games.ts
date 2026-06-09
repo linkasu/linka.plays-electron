@@ -185,7 +185,7 @@ export const games: GameInfo[] = [
     category: "words",
     icon: "mdi-keyboard",
     skills: ["typing", "vocabulary", "sequence"],
-    status: "mvp",
+    status: "polished",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 96,
     defaultDwellMs: 1200
@@ -198,7 +198,7 @@ export const games: GameInfo[] = [
     category: "math",
     icon: "mdi-counter",
     skills: ["counting", "choice"],
-    status: "mvp",
+    status: "polished",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 160,
     defaultDwellMs: 1200
@@ -211,7 +211,7 @@ export const games: GameInfo[] = [
     category: "math",
     icon: "mdi-calculator-variant",
     skills: ["math", "typing"],
-    status: "mvp",
+    status: "polished",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 96,
     defaultDwellMs: 1200

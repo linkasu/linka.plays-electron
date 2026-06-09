@@ -16,7 +16,8 @@ export function generateTypeWordRound(settings: SessionSettings, roundIndex = 1)
   const [item] = sampleItems(words, 1);
   if (!item) throw new Error("Нет коротких слов для печати.");
   const letters = Array.from(item.word.toLowerCase());
-  const keyCount = settings.preset === "gentle" ? Math.max(3, letters.length) : Math.max(5, letters.length + 2);
+  const baseKeyCount = settings.preset === "gentle" ? Math.max(4, letters.length) : Math.max(6, letters.length + 2);
+  const keyCount = Math.min(8, baseKeyCount + (baseKeyCount % 2));
   const keys = new Set(letters);
   while (keys.size < keyCount) keys.add(alphabet[Math.floor(Math.random() * alphabet.length)]);
   return { roundId: `type-word:round:${roundIndex}`, item, letters, keyboardChoices: shuffleItems([...keys]) };

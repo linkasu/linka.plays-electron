@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameSquareChoiceGrid, { type GameSquareChoice } from "../../components/game/GameSquareChoiceGrid.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useGameSession } from "../../core/session";
 import { generateCountItemsRound } from "./model";
@@ -34,28 +34,31 @@ function answer(index: number) {
   if (session.step < session.maxSteps) nextRound();
 }
 
+function answerChoice(choice: GameSquareChoice) {
+  const index = round.value.choices.indexOf(Number(choice));
+  if (index >= 0) answer(index);
+}
+
 </script>
 
 <template>
   <div class="count-shell">
     <GameHud title="Счёт" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
     <v-container class="game-container" fluid>
-      <v-row justify="center">
-        <v-col cols="12" lg="10">
-          <v-card class="pa-6 pa-md-8" rounded="xl" elevation="8">
-            <h1 class="text-h4 text-md-h3 font-weight-bold mb-6 text-center">Сколько предметов?</h1>
-            <div class="items-grid mb-8">
+      <v-row justify="center" no-gutters>
+        <v-col cols="12" lg="11">
+          <v-card class="count-card pa-4 pa-md-6" rounded="xl" elevation="8">
+            <div class="count-prompt mb-3 mb-md-5">
+              <h1 class="text-h4 text-md-h3 font-weight-bold">Сколько предметов?</h1>
+            </div>
+            <div class="items-grid mb-3 mb-md-5">
               <span v-for="index in round.targetCount" :key="index" class="item-emoji emoji-glyph">{{ round.itemEmoji }}</span>
             </div>
-            <v-row>
-              <v-col v-for="(choice, index) in round.choices" :key="choice" cols="6" md="3">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" @select="answer(index)">
-                  <template #default>
-                    <div class="text-h2 font-weight-bold">{{ choice }}</div>
-                  </template>
-                </GameDwellButton>
-              </v-col>
-            </v-row>
+            <GameSquareChoiceGrid :items="round.choices" grid-offset="21rem" compact-size="9.25rem" :target-id="(choice) => choiceTargetId(Number(choice))" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" @select="answerChoice">
+              <template #default="{ choice }">
+                <div class="text-h2 font-weight-bold">{{ choice }}</div>
+              </template>
+            </GameSquareChoiceGrid>
           </v-card>
         </v-col>
       </v-row>
@@ -71,20 +74,36 @@ function answer(index: number) {
 }
 
 .game-container {
-  padding-block-start: 132px;
+  padding-block-end: 0;
+  padding-block-start: 9.75rem;
+}
+
+.count-prompt {
+  text-align: center;
 }
 
 .items-grid {
   align-items: center;
   display: flex;
   flex-wrap: wrap;
-  gap: 18px;
+  gap: 0.5rem 0.75rem;
   justify-content: center;
-  min-block-size: 180px;
 }
 
 .item-emoji {
-  font-size: clamp(3rem, 8vw, 5.5rem);
+  font-size: clamp(2.6rem, min(6vw, 8vh), 4.8rem);
   line-height: 1;
+}
+
+@media (min-width: 68.75rem) {
+  .game-container {
+    padding-block-start: 7.25rem;
+  }
+}
+
+@media (max-height: 40rem) {
+  .game-container {
+    padding-block-start: 9.25rem;
+  }
 }
 </style>

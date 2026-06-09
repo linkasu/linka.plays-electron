@@ -13,7 +13,7 @@ const props = withDefaults(defineProps<{
   dwellMs?: number;
   disabled?: boolean;
   color?: string;
-  minHeight?: number;
+  minHeight?: number | string;
 }>(), {
   dwellMs: 1000,
   disabled: false,
@@ -43,8 +43,9 @@ const hitPaddingPx = 18;
 
 const progressStyle = computed(() => ({
   "--dwell-seconds": `${props.dwellMs / 1000}s`,
-  "--dwell-size": `${Math.max(64, Math.min(props.minHeight * 0.72, 150))}px`
+  "--dwell-size": typeof props.minHeight === "number" ? `${Math.max(64, Math.min(props.minHeight * 0.72, 150))}px` : "min(72%, 9.375rem)"
 }));
+const minBlockSize = computed(() => typeof props.minHeight === "number" ? `${props.minHeight}px` : props.minHeight);
 
 function currentTargetId() {
   return props.targetId ?? rootRef.value?.id ?? `dwell-button-${instance?.uid ?? "unknown"}`;
@@ -149,7 +150,7 @@ onUnmounted(() => {
       :class="['dwell-button', { 'dwell-button--active': active }]"
       :color="active ? 'primary' : color"
       :disabled="disabled"
-      :style="{ minBlockSize: `${minHeight}px` }"
+      :style="{ minBlockSize }"
       class="pa-5 text-center d-flex flex-column justify-center"
       rounded="xl"
       variant="elevated"

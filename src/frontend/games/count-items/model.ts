@@ -17,9 +17,14 @@ export function generateCountItemsRound(settings: SessionSettings, roundIndex = 
   const targetCount = 1 + Math.floor(Math.random() * max);
   const nearby = [targetCount - 1, targetCount + 1, targetCount + 2, targetCount - 2]
     .filter((value) => value >= 1 && value <= 9 && value !== targetCount);
-  const choices = shuffleItems([targetCount, ...nearby]).slice(0, choiceCount);
-  while (!choices.includes(targetCount)) choices[choices.length - 1] = targetCount;
-  const shuffled = shuffleItems([...new Set(choices)]).slice(0, choiceCount);
+  const choices = new Set([targetCount]);
+  for (const value of shuffleItems(nearby)) {
+    if (choices.size < choiceCount) choices.add(value);
+  }
+  for (const value of shuffleItems([1, 2, 3, 4, 5, 6, 7, 8, 9])) {
+    if (choices.size < choiceCount && value !== targetCount) choices.add(value);
+  }
+  const shuffled = shuffleItems([...choices]).slice(0, choiceCount);
   return {
     roundId: `count-items:round:${roundIndex}`,
     targetCount,
