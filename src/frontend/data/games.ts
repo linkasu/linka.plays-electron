@@ -191,6 +191,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "sea-shells",
+    title: "Морские ракушки",
+    description: "Открывай крупные морские ракушки взглядом: внутри появляется мягкий свет и жемчужина без ошибки выбора.",
+    selfDescription: "Открой ракушку взглядом.",
+    route: "/games/sea-shells",
+    category: "gaze-basics",
+    icon: "mdi-water",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 200,
+    defaultDwellMs: 1350
+  },
+  {
     id: "paper-lanterns",
     title: "Бумажные фонарики",
     description: "Зажигай крупные бумажные фонарики взглядом и смотри, как они мягко улетают вверх.",
