@@ -149,6 +149,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "northern-lights",
+    title: "Северное сияние",
+    description: "Смотри на ночное небо и мягко рисуй световые полосы взглядом без целей и ошибок.",
+    selfDescription: "Рисуй сияние взглядом.",
+    route: "/games/northern-lights",
+    category: "gaze-basics",
+    icon: "mdi-weather-night",
+    skills: ["fixation", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1400
+  },
+  {
     id: "big-button",
     title: "Большая кнопка",
     description: "Первая спокойная игра: смотри на одну большую кнопку и получай мягкий отклик.",
