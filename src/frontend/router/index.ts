@@ -24,6 +24,7 @@ import MiniDialogGame from "../games/mini-dialog/MiniDialogGame.vue";
 import MazePathGame from "../games/maze-path/MazePathGame.vue";
 import PatternsGame from "../games/patterns/PatternsGame.vue";
 import MemoryCardsGame from "../games/memory-cards/MemoryCardsGame.vue";
+import PaperLanternsGame from "../games/paper-lanterns/PaperLanternsGame.vue";
 import PyramidGame from "../games/pyramid/PyramidGame.vue";
 import QuietBubblesGame from "../games/quiet-bubbles/QuietBubblesGame.vue";
 import ShapesGame from "../games/shapes/ShapesGame.vue";
@@ -48,6 +49,7 @@ export default createRouter({
     { path: "/menu/self", name: "menu-self", component: SelfMenuPage },
     { path: "/tobii-calibration", name: "tobii-calibration", component: TobiiCalibrationPage },
     { path: "/games/firefly-meadow", name: "firefly-meadow", component: FireflyMeadowGame },
+    { path: "/games/paper-lanterns", name: "paper-lanterns", component: PaperLanternsGame },
     { path: "/games/big-button", name: "big-button", component: BigButtonGame },
     { path: "/games/butterfly", name: "butterfly", component: ButterflyGame },
     { path: "/games/flowers", name: "flowers", component: FlowersGame },

@@ -121,6 +121,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1350
   },
   {
+    id: "paper-lanterns",
+    title: "Бумажные фонарики",
+    description: "Зажигай крупные бумажные фонарики взглядом и смотри, как они мягко улетают вверх.",
+    selfDescription: "Зажги фонарик взглядом.",
+    route: "/games/paper-lanterns",
+    category: "gaze-basics",
+    icon: "mdi-lightbulb-on-outline",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1350
+  },
+  {
     id: "big-button",
     title: "Большая кнопка",
     description: "Первая спокойная игра: смотри на одну большую кнопку и получай мягкий отклик.",
