@@ -373,6 +373,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "mini-dialog",
+    title: "Мини-диалог",
+    description: "Выбирай мягкие реплики для короткого AAC-диалога без неправильных ответов.",
+    selfDescription: "Ответь партнёру.",
+    route: "/games/mini-dialog",
+    category: "language-aac",
+    icon: "mdi-chat-heart-outline",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 135,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1350
+  },
+  {
     id: "type-word",
     title: "Печать слов",
     description: "Собирай короткие слова из крупных букв взглядом.",
