@@ -191,6 +191,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "find-color",
+    title: "Найди цвет",
+    description: "Найди нужный цвет среди крупных карточек.",
+    selfDescription: "Найди нужный цвет.",
+    route: "/games/find-color",
+    category: "visual-search",
+    icon: "mdi-palette",
+    skills: ["visual-search", "choice"],
+    status: "polished",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1200
+  },
+  {
     id: "pyramid",
     title: "Пирамидка",
     description: "Собирай кольца по порядку и тренируй последовательность.",

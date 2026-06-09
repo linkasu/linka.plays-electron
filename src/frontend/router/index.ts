@@ -5,6 +5,7 @@ import ConnectFourGame from "../games/connect-four/ConnectFourGame.vue";
 import CountItemsGame from "../games/count-items/CountItemsGame.vue";
 import DucksGame from "../games/ducks/DucksGame.vue";
 import EatOrNotEatGame from "../games/eat-or-not-eat/EatOrNotEatGame.vue";
+import FindColorGame from "../games/find-color/FindColorGame.vue";
 import FishesGame from "../games/fishes/FishesGame.vue";
 import FlowersGame from "../games/flowers/FlowersGame.vue";
 import FrogGame from "../games/frog/FrogGame.vue";
@@ -34,6 +35,7 @@ export default createRouter({
     { path: "/games/choose-picture", name: "choose-picture", component: ChoosePictureGame },
     { path: "/games/eat-or-not-eat", name: "eat-or-not-eat", component: EatOrNotEatGame },
     { path: "/games/pyramid", name: "pyramid", component: PyramidGame },
+    { path: "/games/find-color", name: "find-color", component: FindColorGame },
     { path: "/games/fishes", name: "fishes", component: FishesGame },
     { path: "/games/hide-and-seek", name: "hide-and-seek", component: HideAndSeekGame },
     { path: "/games/type-word", name: "type-word", component: TypeWordGame },
