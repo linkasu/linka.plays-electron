@@ -15,6 +15,7 @@ import FindColorGame from "../games/find-color/FindColorGame.vue";
 import FishesGame from "../games/fishes/FishesGame.vue";
 import FlowersGame from "../games/flowers/FlowersGame.vue";
 import FrogGame from "../games/frog/FrogGame.vue";
+import GardenWateringGame from "../games/garden-watering/GardenWateringGame.vue";
 import GreaterLessGame from "../games/greater-less/GreaterLessGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import MatchSameGame from "../games/match-same/MatchSameGame.vue";
@@ -80,6 +81,7 @@ export default createRouter({
     { path: "/games/frog", name: "frog", component: FrogGame },
     { path: "/games/table-tennis", name: "table-tennis", component: TableTennisGame },
     { path: "/games/maze-path", name: "maze-path", component: MazePathGame },
+    { path: "/games/garden-watering", name: "garden-watering", component: GardenWateringGame },
     { path: "/games/:gameId", name: "planned-game", component: PlannedGamePage }
   ]
 });
