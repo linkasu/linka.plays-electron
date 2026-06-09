@@ -245,12 +245,12 @@ export const games: GameInfo[] = [
   {
     id: "table-tennis",
     title: "Теннис",
-    description: "Веди ракетку взглядом и удерживай мяч в игре.",
+    description: "Веди мягкую ракетку взглядом и вместе с партнёром спокойно держи мяч в игре.",
     route: "/games/table-tennis",
     category: "adventure",
     icon: "mdi-table-tennis",
     skills: ["continuous-control", "smooth-pursuit"],
-    status: "mvp",
+    status: "polished",
     recommendedSessionSeconds: 90,
     minTargetSizePx: 160,
     defaultDwellMs: 1000
