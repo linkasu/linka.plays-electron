@@ -373,6 +373,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "want-dont-want",
+    title: "Хочу / не хочу",
+    description: "Выбирай, хочешь ли мягкий предмет или занятие: любой ответ считается важной коммуникацией.",
+    selfDescription: "Скажи, хочешь или не хочешь.",
+    route: "/games/want-dont-want",
+    category: "language-aac",
+    icon: "mdi-hand-heart",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 220,
+    defaultDwellMs: 1300
+  },
+  {
     id: "type-word",
     title: "Печать слов",
     description: "Собирай короткие слова из крупных букв взглядом.",
