@@ -261,6 +261,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "shapes",
+    title: "Формы",
+    description: "Находи нужную форму среди крупных контрастных карточек.",
+    selfDescription: "Найди нужную форму.",
+    route: "/games/shapes",
+    category: "numeracy",
+    icon: "mdi-shape",
+    skills: ["choice", "classification"],
+    status: "polished",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1200
+  },
+  {
     id: "math-actions",
     title: "Математика. Операции",
     description: "Решай простые примеры и вводи ответ крупными кнопками.",
