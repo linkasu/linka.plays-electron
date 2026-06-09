@@ -443,6 +443,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "calm-tetris",
+    title: "Тетрис спокойный",
+    description: "Ставь фигуры пошагово: выбери колонку, поверни и мягко опусти без спешки.",
+    selfDescription: "Поставь фигуру на место.",
+    route: "/games/calm-tetris",
+    category: "strategy",
+    icon: "mdi-view-grid-plus",
+    skills: ["choice", "sequence"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 116,
+    defaultDwellMs: 1100
+  },
+  {
     id: "tic-tac-toe",
     title: "Крестики-нолики",
     description: "Играй крестиками против спокойного Deep-Q агента на классическом поле 3×3.",
