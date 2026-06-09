@@ -24,7 +24,7 @@ import { rememberMenuMode } from "../core/menuMode";
             <v-col cols="12" md="6">
               <v-card class="mode-card h-100 pa-5" color="surface" rounded="xl" variant="tonal">
                 <v-avatar class="mb-5" color="primary" size="72">
-                  <v-icon icon="mdi-clipboard-heart-outline" size="40" />
+                  <v-icon icon="mdi-clipboard-text-outline" size="40" />
                 </v-avatar>
                 <h2 class="text-h4 font-weight-bold mb-3">Специалист</h2>
                 <p class="text-body-1 text-medium-emphasis mb-6">
@@ -39,7 +39,7 @@ import { rememberMenuMode } from "../core/menuMode";
             <v-col cols="12" md="6">
               <v-card class="mode-card h-100 pa-5" color="secondary" rounded="xl" variant="tonal">
                 <v-avatar class="mb-5" color="secondary" size="72" variant="flat">
-                  <v-icon icon="mdi-eye-heart-outline" size="40" />
+                  <v-icon icon="mdi-eye-outline" size="40" />
                 </v-avatar>
                 <h2 class="text-h4 font-weight-bold mb-3">Самостоятельно</h2>
                 <p class="text-body-1 text-medium-emphasis mb-6">

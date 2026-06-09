@@ -31,7 +31,7 @@ onMounted(() => {
             <v-btn color="secondary" prepend-icon="mdi-eye-settings" size="large" to="/tobii-calibration" variant="flat">
               Калибровка Tobii
             </v-btn>
-            <v-btn color="primary" prepend-icon="mdi-eye-heart-outline" size="large" to="/menu/self" variant="tonal" @click="rememberMenuMode('self')">
+            <v-btn color="primary" prepend-icon="mdi-eye-outline" size="large" to="/menu/self" variant="tonal" @click="rememberMenuMode('self')">
               Самостоятельный режим
             </v-btn>
             <v-btn color="secondary" prepend-icon="mdi-home-heart" size="large" to="/" variant="text">
@@ -78,7 +78,7 @@ onMounted(() => {
                       <v-chip color="info" prepend-icon="mdi-target" size="small" variant="tonal">
                         цель {{ game.minTargetSizePx }} px
                       </v-chip>
-                      <v-chip color="info" prepend-icon="mdi-eye-clock-outline" size="small" variant="tonal">
+                      <v-chip color="info" prepend-icon="mdi-clock-outline" size="small" variant="tonal">
                         dwell {{ game.defaultDwellMs }} мс
                       </v-chip>
                     </div>

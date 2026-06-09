@@ -31,7 +31,7 @@ onMounted(() => {
             <v-btn color="secondary" prepend-icon="mdi-eye-settings" size="large" to="/tobii-calibration" variant="tonal">
               Проверить взгляд
             </v-btn>
-            <v-btn color="primary" prepend-icon="mdi-clipboard-heart-outline" size="large" to="/menu/specialist" variant="text" @click="rememberMenuMode('specialist')">
+            <v-btn color="primary" prepend-icon="mdi-clipboard-text-outline" size="large" to="/menu/specialist" variant="text" @click="rememberMenuMode('specialist')">
               Режим специалиста
             </v-btn>
             <v-btn color="secondary" prepend-icon="mdi-home-heart" size="large" to="/" variant="text">
