@@ -261,6 +261,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "greater-less",
+    title: "Больше / меньше",
+    description: "Сравни две группы предметов и выбери, где больше или меньше.",
+    selfDescription: "Выбери, где больше.",
+    route: "/games/greater-less",
+    category: "numeracy",
+    icon: "mdi-compare-horizontal",
+    skills: ["counting", "choice"],
+    status: "polished",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 160,
+    defaultDwellMs: 1200
+  },
+  {
     id: "math-actions",
     title: "Математика. Операции",
     description: "Решай простые примеры и вводи ответ крупными кнопками.",
