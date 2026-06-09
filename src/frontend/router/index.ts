@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import BigButtonGame from "../games/big-button/BigButtonGame.vue";
+import BoatGame from "../games/boat/BoatGame.vue";
 import ButterflyGame from "../games/butterfly/ButterflyGame.vue";
 import Calm2048Game from "../games/calm-2048/Calm2048Game.vue";
 import ChoosePictureGame from "../games/choose-picture/ChoosePictureGame.vue";
@@ -75,6 +76,7 @@ export default createRouter({
     { path: "/games/tic-tac-toe", name: "tic-tac-toe", component: TicTacToeGame },
     { path: "/games/calm-snake", name: "calm-snake", component: CalmSnakeGame },
     { path: "/games/connect-four", name: "connect-four", component: ConnectFourGame },
+    { path: "/games/boat", name: "boat", component: BoatGame },
     { path: "/games/frog", name: "frog", component: FrogGame },
     { path: "/games/table-tennis", name: "table-tennis", component: TableTennisGame },
     { path: "/games/maze-path", name: "maze-path", component: MazePathGame },

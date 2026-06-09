@@ -541,6 +541,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1100
   },
   {
+    id: "boat",
+    title: "Лодочка",
+    description: "Веди лодочку взглядом по спокойной реке и проходи мягкие checkpoints без столкновений и штрафов.",
+    selfDescription: "Веди лодочку по реке.",
+    route: "/games/boat",
+    category: "continuous-control",
+    icon: "mdi-sail-boat",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 135,
+    minTargetSizePx: 150,
+    defaultDwellMs: 500
+  },
+  {
     id: "table-tennis",
     title: "Теннис",
     description: "Веди мягкую ракетку взглядом и вместе с партнёром спокойно держи мяч в игре.",
