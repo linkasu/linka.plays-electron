@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useGameSession } from "../../core/session";
+import { disposeEatOrNotEatAudio, playEatOrNotEatMistakeMelody, warmEatOrNotEatAudio } from "./audio";
 import { generateEatOrNotEatRound, type EatOrNotEatAnswer, type EatOrNotEatRound } from "./model";
 
 const router = useRouter();
@@ -34,9 +36,20 @@ function answer(value: EatOrNotEatAnswer) {
   const targetId = answerTargetId(value);
   const expectedTargetId = answerTargetId(round.value.correctAnswer);
   if (value === round.value.correctAnswer) recordSuccess({ roundId: round.value.roundId, targetId, itemId: round.value.item.id, expected: round.value.correctAnswer, actual: value, isCorrect: true });
-  else recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, itemId: round.value.item.id, expected: round.value.correctAnswer, actual: value, isCorrect: false });
+  else {
+    recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, itemId: round.value.item.id, expected: round.value.correctAnswer, actual: value, isCorrect: false });
+    void playEatOrNotEatMistakeMelody(session.settings.sound);
+  }
   if (session.step < session.maxSteps) nextRound();
 }
+
+onMounted(() => {
+  warmEatOrNotEatAudio(session.settings.sound);
+});
+
+onUnmounted(() => {
+  disposeEatOrNotEatAudio();
+});
 
 </script>
 
