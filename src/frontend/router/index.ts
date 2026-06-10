@@ -109,6 +109,7 @@ import PatternsGame from "../games/patterns/PatternsGame.vue";
 import MemoryCardsGame from "../games/memory-cards/MemoryCardsGame.vue";
 import PaperLanternsGame from "../games/paper-lanterns/PaperLanternsGame.vue";
 import PizzaFractionsGame from "../games/pizza-fractions/PizzaFractionsGame.vue";
+import PulsingTargetGame from "../games/pulsing-target/PulsingTargetGame.vue";
 import PyramidGame from "../games/pyramid/PyramidGame.vue";
 import QuietBubblesGame from "../games/quiet-bubbles/QuietBubblesGame.vue";
 import RainbowButtonGame from "../games/rainbow-button/RainbowButtonGame.vue";
@@ -335,6 +336,7 @@ export default createRouter({
     { path: "/games/table-tennis", name: "table-tennis", component: TableTennisGame },
     { path: "/games/line-drawing", name: "line-drawing", component: LineDrawingGame },
     { path: "/games/cursor-magnet", name: "cursor-magnet", component: CursorMagnetGame },
+    { path: "/games/pulsing-target", name: "pulsing-target", component: PulsingTargetGame },
     { path: "/games/gates-path", name: "gates-path", component: GatesPathGame },
     { path: "/games/guide-fish", name: "guide-fish", component: GuideFishGame },
     { path: "/games/rails", name: "rails", component: RailsGame },
