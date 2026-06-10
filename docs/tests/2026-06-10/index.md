@@ -29,6 +29,7 @@
 | [devtools-after-overlap-fix.md](./devtools-after-overlap-fix.md) | Проверка после исправления HUD/prompt overlaps в `hide-and-seek`, `musical-path`, `rails` |
 | [devtools-after-target-size-fix.md](./devtools-after-target-size-fix.md) | Проверка после укрупнения малых targets в `tic-tac-toe` и `connect-four` |
 | [devtools-full-runtime-after-fixes.md](./devtools-full-runtime-after-fixes.md) | Полный post-fix прогон 169 игр после закрытия P0/P1 runtime-флагов |
+| [devtools-after-sequencing-compact.md](./devtools-after-sequencing-compact.md) | Проверка representative sequencing compact layout для `train-sequence`, `schedule`, `soup-recipe`, `build-bridge` |
 
 Ключевые результаты полного post-fix runtime-прогона: все 169 routes открываются, route mismatch = 0, blank-like screens = 0, console/runtime errors = 0, horizontal overflow = 0, HUD/prompt overlaps = 0, small visible targets `<88px` = 0. Остаточные флаги относятся к vertical first-viewport layout: targets ниже fold, очень высокая страница или карточки ниже первого viewport.
 

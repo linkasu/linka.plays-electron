@@ -324,4 +324,43 @@ watch(() => session.status, (status) => {
     block-size: 19rem;
   }
 }
+
+@media (max-height: 680px) {
+  .game-container {
+    padding-block-start: 104px;
+  }
+
+  .game-container :deep(.v-card.pa-4) {
+    padding: 1rem !important;
+  }
+
+  .game-container .text-overline,
+  .game-container p {
+    display: none;
+  }
+
+  .play-area {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .piece-grid {
+    gap: 0.6rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    order: -1;
+  }
+
+  .piece-grid :deep(.dwell-button) {
+    padding: 0.75rem !important;
+  }
+
+  .bridge-card {
+    padding: 0.75rem !important;
+  }
+
+  .bridge-stage {
+    block-size: 11rem;
+  }
+}
 </style>

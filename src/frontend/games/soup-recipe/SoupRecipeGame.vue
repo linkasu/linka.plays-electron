@@ -341,4 +341,47 @@ watch(() => session.status, (status) => {
     min-block-size: 320px;
   }
 }
+
+@media (max-height: 680px) {
+  .game-container {
+    padding-block-start: 104px;
+  }
+
+  .game-container :deep(.v-card.pa-5) {
+    padding: 1rem !important;
+  }
+
+  .game-container > .v-row p,
+  .game-container .text-overline {
+    display: none;
+  }
+
+  .recipe-strip {
+    display: none;
+  }
+
+  .play-area {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .ingredient-grid {
+    gap: 0.6rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    order: -1;
+  }
+
+  .ingredient-grid :deep(.dwell-button) {
+    padding: 0.75rem !important;
+  }
+
+  .pot-card {
+    padding: 0.75rem !important;
+  }
+
+  .pot-scene {
+    min-block-size: 150px;
+  }
+}
 </style>

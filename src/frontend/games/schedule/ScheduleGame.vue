@@ -112,7 +112,7 @@ onUnmounted(() => {
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
-          <v-card class="pa-5 pa-md-8" rounded="xl" elevation="8">
+          <v-card class="schedule-card pa-5 pa-md-8" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">AAC-последовательность</div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-3">Собери расписание дня</h1>
             <p class="text-body-1 text-medium-emphasis text-center mb-6">{{ feedbackMessage }}</p>
@@ -129,7 +129,7 @@ onUnmounted(() => {
               </v-card>
             </div>
 
-            <v-alert class="mb-6" color="blue-lighten-5" rounded="xl" variant="flat">
+            <v-alert class="next-card mb-6" color="blue-lighten-5" rounded="xl" variant="flat">
               <div class="text-caption text-medium-emphasis mb-1">Следующая карточка</div>
               <div v-if="nextStep" class="d-flex flex-wrap align-center ga-3">
                 <v-avatar :color="nextStep.color" size="58"><v-icon color="white" :icon="nextStep.icon" size="34" /></v-avatar>
@@ -141,7 +141,7 @@ onUnmounted(() => {
               <div v-else class="text-h5 font-weight-bold">Все карточки на месте.</div>
             </v-alert>
 
-            <v-row justify="center">
+            <v-row class="choice-row" justify="center">
               <v-col v-for="card in cards" :key="card.id" cols="6" md="3">
                 <GameDwellButton :target-id="scheduleTargetId(card)" :disabled="session.status !== 'running' || pendingSelection || card.placed" :dwell-ms="session.settings.dwellMs" :min-height="176" :color="choiceColor(card)" @select="choose(card)">
                   <template #default>
@@ -232,6 +232,52 @@ onUnmounted(() => {
 
   .schedule-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-height: 680px) {
+  .game-container {
+    padding-block-start: 104px;
+  }
+
+  .schedule-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem !important;
+  }
+
+  .schedule-card > .text-overline,
+  .schedule-card > p {
+    display: none;
+  }
+
+  .schedule-strip {
+    gap: 0.35rem;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    margin-block-end: 0.75rem !important;
+    order: 3;
+  }
+
+  .schedule-slot {
+    min-block-size: 58px;
+  }
+
+  .next-card {
+    margin-block-end: 0.75rem !important;
+    order: 2;
+    padding: 0.75rem !important;
+  }
+
+  .choice-row {
+    order: 1;
+  }
+
+  .choice-row :deep(.dwell-button) {
+    padding: 0.75rem !important;
+  }
+
+  .choice-icon {
+    font-size: clamp(2rem, 4vw, 3rem);
   }
 }
 </style>

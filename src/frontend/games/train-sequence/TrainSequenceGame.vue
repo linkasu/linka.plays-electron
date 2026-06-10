@@ -356,4 +356,49 @@ watch(() => session.status, (status) => {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-height: 680px) {
+  .game-container {
+    padding-block-start: 104px;
+  }
+
+  .game-container :deep(.v-card.pa-5) {
+    padding: 1rem !important;
+  }
+
+  .game-container p,
+  .track-card .text-body-1 {
+    display: none;
+  }
+
+  .hint-card {
+    margin-block-end: 0.75rem !important;
+    padding: 0.75rem !important;
+  }
+
+  .play-area {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .wagon-grid {
+    gap: 0.6rem;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    order: -1;
+  }
+
+  .track-card {
+    padding: 0.75rem !important;
+  }
+
+  .train-track {
+    min-block-size: 150px;
+    padding-block-start: 2rem;
+  }
+
+  .loose-wagon {
+    block-size: 54px;
+  }
+}
 </style>
