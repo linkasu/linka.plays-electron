@@ -29,6 +29,7 @@ import FindColorGame from "../games/find-color/FindColorGame.vue";
 import FindNumberGame from "../games/find-number/FindNumberGame.vue";
 import FindShapeGame from "../games/find-shape/FindShapeGame.vue";
 import FishesGame from "../games/fishes/FishesGame.vue";
+import FollowCueGame from "../games/follow-cue/FollowCueGame.vue";
 import FlowersGame from "../games/flowers/FlowersGame.vue";
 import FrogGame from "../games/frog/FrogGame.vue";
 import GardenWateringGame from "../games/garden-watering/GardenWateringGame.vue";
@@ -162,6 +163,7 @@ export default createRouter({
     { path: "/games/hidden-picture", name: "hidden-picture", component: HiddenPictureGame },
     { path: "/games/who-hiding", name: "who-hiding", component: WhoHidingGame },
     { path: "/games/what-missing", name: "what-missing", component: WhatMissingGame },
+    { path: "/games/follow-cue", name: "follow-cue", component: FollowCueGame },
     { path: "/games/row-scanning", name: "row-scanning", component: RowScanningGame },
     { path: "/games/grid-scanning", name: "grid-scanning", component: GridScanningGame },
     { path: "/games/find-letter", name: "find-letter", component: FindLetterGame },

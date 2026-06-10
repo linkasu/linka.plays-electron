@@ -849,6 +849,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "follow-cue",
+    title: "Следуй за подсказкой",
+    description: "Мягкая стрелка и световая подсказка ведут к следующей крупной цели; неверный выбор только усиливает подсказку.",
+    selfDescription: "Следуй за стрелкой.",
+    route: "/games/follow-cue",
+    category: "visual-search",
+    icon: "mdi-arrow-right-bold",
+    skills: ["visual-search", "attention-shift", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 200,
+    defaultDwellMs: 1250
+  },
+  {
     id: "row-scanning",
     title: "Сканирование ряда",
     description: "Просмотри спокойный ряд крупных объектов и найди названную цель без спешки.",
