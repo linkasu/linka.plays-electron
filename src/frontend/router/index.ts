@@ -45,6 +45,7 @@ import SeaShellsGame from "../games/sea-shells/SeaShellsGame.vue";
 import ShapesGame from "../games/shapes/ShapesGame.vue";
 import SnowflakesGame from "../games/snowflakes/SnowflakesGame.vue";
 import StarrySkyGame from "../games/starry-sky/StarrySkyGame.vue";
+import SunRaysGame from "../games/sun-rays/SunRaysGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
 import TicTacToeGame from "../games/tic-tac-toe/TicTacToeGame.vue";
 import TowerGame from "../games/tower/TowerGame.vue";
@@ -77,6 +78,7 @@ export default createRouter({
     { path: "/games/magic-dust", name: "magic-dust", component: MagicDustGame },
     { path: "/games/light-gallery", name: "light-gallery", component: LightGalleryGame },
     { path: "/games/northern-lights", name: "northern-lights", component: NorthernLightsGame },
+    { path: "/games/sun-rays", name: "sun-rays", component: SunRaysGame },
     { path: "/games/snowflakes", name: "snowflakes", component: SnowflakesGame },
     { path: "/games/moon-path", name: "moon-path", component: MoonPathGame },
     { path: "/games/sand-garden", name: "sand-garden", component: SandGardenGame },

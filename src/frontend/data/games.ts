@@ -247,6 +247,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1400
   },
   {
+    id: "sun-rays",
+    title: "Солнце и лучи",
+    description: "Смотри на большое солнце: лучи постепенно раскрываются, а при уходе взгляда солнце спокойно ждёт.",
+    selfDescription: "Открой лучи солнца.",
+    route: "/games/sun-rays",
+    category: "gaze-basics",
+    icon: "mdi-white-balance-sunny",
+    skills: ["fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 80,
+    minTargetSizePx: 240,
+    defaultDwellMs: 1400
+  },
+  {
     id: "koi-pond",
     title: "Кои-пруд",
     description: "Смотри на тихий пруд: рыбы кои медленно подплывают к взгляду, а круги на воде загораются мягко и без ошибок.",
