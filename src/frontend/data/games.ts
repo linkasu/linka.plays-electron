@@ -1045,6 +1045,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "day-routine",
+    title: "Утро-день-вечер",
+    description: "Выбирай картинки по порядку дня: сначала утро, потом день и вечер. Неверный выбор даёт мягкую подсказку.",
+    selfDescription: "Собери день по порядку.",
+    route: "/games/day-routine",
+    category: "sequencing",
+    icon: "mdi-weather-sunset",
+    skills: ["sequence", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 168,
+    defaultDwellMs: 1300
+  },
+  {
     id: "patterns",
     title: "Паттерны",
     description: "Продолжай ряд крупных фигур и цветов по повторяющемуся паттерну.",

@@ -17,6 +17,7 @@ import CloudsGame from "../games/clouds/CloudsGame.vue";
 import ColorCircleGame from "../games/color-circle/ColorCircleGame.vue";
 import ConnectFourGame from "../games/connect-four/ConnectFourGame.vue";
 import CountItemsGame from "../games/count-items/CountItemsGame.vue";
+import DayRoutineGame from "../games/day-routine/DayRoutineGame.vue";
 import DucksGame from "../games/ducks/DucksGame.vue";
 import EatOrNotEatGame from "../games/eat-or-not-eat/EatOrNotEatGame.vue";
 import FeedAnimalGame from "../games/feed-animal/FeedAnimalGame.vue";
@@ -153,6 +154,7 @@ export default createRouter({
     { path: "/games/find-shape", name: "find-shape", component: FindShapeGame },
     { path: "/games/tower", name: "tower", component: TowerGame },
     { path: "/games/train-sequence", name: "train-sequence", component: TrainSequenceGame },
+    { path: "/games/day-routine", name: "day-routine", component: DayRoutineGame },
     { path: "/games/patterns", name: "patterns", component: PatternsGame },
     { path: "/games/fishes", name: "fishes", component: FishesGame },
     { path: "/games/jellyfish", name: "jellyfish", component: JellyfishGame },
