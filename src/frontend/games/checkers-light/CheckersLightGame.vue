@@ -10,6 +10,7 @@ import {
   applyCheckersLightMove,
   cellPosition,
   checkersLightSize,
+  checkersLightOutcome,
   createInitialCheckersLightBoard,
   getMovablePieceIndexes,
   getMoveTargets,
@@ -18,7 +19,7 @@ import {
 } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSession("checkers-light", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession, finishSession } = useGameSession("checkers-light", {
   maxSteps: 10,
   dwellMs: 1300,
   sessionSeconds: 180,
@@ -97,7 +98,7 @@ function moveSelectedPiece(toIndex: number) {
   const nextBoard = applyCheckersLightMove(board.value, fromIndex, toIndex);
   if (!nextBoard || !piece) return;
 
-  board.value = getMovablePieceIndexes(nextBoard).length ? nextBoard : createInitialCheckersLightBoard();
+  board.value = nextBoard;
   selectedIndex.value = undefined;
   recordSuccess({
     pieceId: piece.id,
@@ -105,6 +106,10 @@ function moveSelectedPiece(toIndex: number) {
     fromIndex,
     toIndex
   });
+
+  if (checkersLightOutcome(nextBoard) === "loss") {
+    finishSession("game-lost");
+  }
 }
 
 function restart() {
@@ -126,7 +131,7 @@ function restart() {
             <div class="text-overline text-secondary text-center mb-2">Спокойная стратегия 4×4</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">Шашки light</h1>
             <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-4">
-              Выбери шашку, затем одну из подсвеченных клеток. Ошибок и проигрыша нет.
+              Выбери шашку, затем одну из подсвеченных клеток. Если ходов не осталось, партия завершится.
             </p>
             <v-chip class="d-flex mx-auto mb-5 status-chip" color="primary" size="large" variant="tonal">
               {{ statusText }}

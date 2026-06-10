@@ -7,6 +7,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { stepPongChoiceOutcome } from "./model";
 
 type PaddleLaneId = "top" | "middle" | "bottom";
 
@@ -35,7 +36,7 @@ const incomingSequence: PaddleLaneId[] = ["middle", "top", "bottom", "middle", "
 const returnSequence: PaddleLaneId[] = ["top", "middle", "middle", "bottom", "top", "bottom", "top", "bottom", "middle", "top"];
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("step-pong", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSession("step-pong", {
   maxSteps: 10,
   dwellMs: 1200,
   sessionSeconds: 180,
@@ -93,19 +94,26 @@ function chooseLane(lane: PaddleLane) {
   const expectedTargetId = laneTargetId(round.value.incomingLane);
 
   if (lane.id !== round.value.incomingLane.id) {
+    const outcome = stepPongChoiceOutcome(false, session.mistakes + 1);
     lastMistakeLaneId.value = lane.id;
     lastSuccessLaneId.value = undefined;
     hintStrength.value = Math.min(3, hintStrength.value + 1);
-    feedbackText.value = "Мяч мягко остался в игре. Подсказка показывает, куда поставить ракетку.";
+    feedbackText.value = outcome === "loss"
+      ? "Третья неверная позиция: мяч пропущен, партия проиграна."
+      : "Мяч мягко остался в игре. Подсказка показывает, куда поставить ракетку.";
     recordMistake({
       roundId: round.value.roundId,
       targetId,
       expectedTargetId,
       expected: round.value.incomingLane.label,
       actual: lane.label,
-      softReturn: true,
+      outcome,
       isCorrect: false
     });
+    if (outcome === "loss") {
+      finishSession("game-lost");
+      return;
+    }
     recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "step-pong-lane", strength: hintStrength.value });
     return;
   }
@@ -208,7 +216,7 @@ function restart() {
                   </div>
 
                   <v-alert class="mt-4 text-body-1" color="info" icon="mdi-hand-heart-outline" rounded="xl" variant="tonal">
-                    Если позиция не подошла, мяч не теряется. Игра только мягко подсказывает правильную линию.
+                    Если позиция не подошла, это промах. Третий промах пропускает мяч и завершает партию.
                   </v-alert>
                 </v-card>
               </v-col>

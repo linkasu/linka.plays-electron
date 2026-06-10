@@ -29,6 +29,8 @@ export type PacPathRound = {
 };
 
 export const pacPathMaxSteps = 10;
+export const pacPathMaxDetours = 3;
+export type PacPathChoiceOutcome = "safe" | "detour" | "loss";
 
 export const pacPathWaypoints: PacPathWaypoint[] = [
   { id: "start", order: 0, label: "Старт", cue: "Пак готов к спокойному пути.", x: 10, y: 76, mobileX: 20, mobileY: 86, icon: "mdi-pac-man", color: "amber" },
@@ -75,4 +77,9 @@ export function createPacPathRound(stepIndex: number): PacPathRound {
 
 export function isPacPathSafeChoice(choice: PacPathChoice, round: PacPathRound): choice is PacPathWaypoint & { safe: true } {
   return choice.safe === true && choice.id === round.expected.id;
+}
+
+export function pacPathChoiceOutcome(choice: PacPathChoice, round: PacPathRound, mistakesAfterChoice: number): PacPathChoiceOutcome {
+  if (isPacPathSafeChoice(choice, round)) return "safe";
+  return mistakesAfterChoice >= pacPathMaxDetours ? "loss" : "detour";
 }

@@ -7,6 +7,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { arkanoidAssistChoiceOutcome } from "./model";
 
 type PlatformSectorId = "left" | "center" | "right";
 
@@ -63,7 +64,7 @@ const blockRows: ArkanoidBlock[][] = [
 
 const targetSequence = blockRows.flat();
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("arkanoid-assist", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSession("arkanoid-assist", {
   maxSteps: 10,
   dwellMs: 1200,
   sessionSeconds: 180,
@@ -130,11 +131,18 @@ function chooseSector(sector: PlatformSector) {
   const targetId = sectorTargetId(sector);
   const expectedTargetId = sectorTargetId(round.value.requiredSector);
   if (sector.id !== round.value.requiredSector.id) {
+    const outcome = arkanoidAssistChoiceOutcome(false, session.mistakes + 1);
     lastMistakeSectorId.value = sector.id;
     lastHitBlockId.value = undefined;
     hintStrength.value = Math.min(3, hintStrength.value + 1);
-    feedbackMessage.value = "Мяч мягко вернулся на платформу. Попробуй сектор, который ведёт к подсвеченному блоку.";
-    recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, expected: round.value.requiredSector.label, actual: sector.label, softReturn: true, isCorrect: false });
+    feedbackMessage.value = outcome === "loss"
+      ? "Третий неверный сектор: мяч потерян, партия проиграна."
+      : "Мяч мягко вернулся на платформу. Попробуй сектор, который ведёт к подсвеченному блоку.";
+    recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, expected: round.value.requiredSector.label, actual: sector.label, outcome, isCorrect: false });
+    if (outcome === "loss") {
+      finishSession("game-lost");
+      return;
+    }
     recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "arkanoid-sector", strength: hintStrength.value });
     return;
   }
@@ -239,7 +247,7 @@ function restart() {
                   </div>
 
                   <v-alert class="mt-4 text-body-1" color="info" icon="mdi-hand-heart-outline" rounded="xl" variant="tonal">
-                    Если сектор не подошёл, мяч мягко возвращается. Игра продолжается без резкой потери мяча.
+                    Если сектор не подошёл, это промах. Третий промах теряет мяч и завершает партию.
                   </v-alert>
                 </v-card>
               </v-col>

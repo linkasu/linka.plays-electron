@@ -6,10 +6,10 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
-import { createCalmSnakeState, setSnakeDirection, stepSnake, type CalmSnakeStepEvent, type SnakeDirection, type SnakePoint } from "./model";
+import { calmSnakeOutcome, createCalmSnakeState, setSnakeDirection, stepSnake, type CalmSnakeStepEvent, type SnakeDirection, type SnakePoint } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("calm-snake", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSession("calm-snake", {
   maxSteps: 24,
   dwellMs: 1100,
   sessionSeconds: 165,
@@ -59,6 +59,14 @@ function tick() {
   lastStepAt = now;
   const result = stepSnake(boardState.value);
   boardState.value = result.state;
+  if (calmSnakeOutcome(result) === "loss") {
+    feedbackMessage.value = result.event === "blocked-wall"
+      ? "Змейка упёрлась в край поля. Партия проиграна."
+      : "Змейка столкнулась с хвостиком. Партия проиграна.";
+    recordMistake({ event: result.event, moved: result.moved, direction: boardState.value.direction, isCorrect: false });
+    finishSession("game-lost");
+    return;
+  }
   handleStepEvent(result.event, result.moved);
 }
 
@@ -182,7 +190,7 @@ onUnmounted(() => {
             <v-row class="mt-4" justify="center">
               <v-col cols="12" md="8">
                 <v-alert color="info" rounded="xl" variant="tonal">
-                  Листочки: {{ leavesEaten }}. Если путь упирается в край или хвостик, игра не заканчивается: змейка замедляется и ждёт новый спокойный выбор.
+                  Листочки: {{ leavesEaten }}. Если путь упирается в край или хвостик, партия завершается.
                 </v-alert>
               </v-col>
             </v-row>

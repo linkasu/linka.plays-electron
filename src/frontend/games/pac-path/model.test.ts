@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createPacPathRound, isPacPathSafeChoice, pacPathMaxSteps, pacPathWaypoints } from "./model";
+import { createPacPathRound, isPacPathSafeChoice, pacPathChoiceOutcome, pacPathMaxDetours, pacPathMaxSteps, pacPathWaypoints } from "./model";
 
 describe("pac-path model", () => {
   it("contains exactly ten safe moves after start", () => {
@@ -32,5 +32,17 @@ describe("pac-path model", () => {
 
     expect(round.expected.order).toBe(pacPathMaxSteps);
     expect(round.roundId).toBe("pac-path:round:10");
+  });
+
+  it("turns repeated detours into a loss", () => {
+    const round = createPacPathRound(0);
+    const detour = round.choices.find((choice) => !isPacPathSafeChoice(choice, round));
+    const safe = round.choices.find((choice) => isPacPathSafeChoice(choice, round));
+
+    expect(detour).toBeDefined();
+    expect(safe).toBeDefined();
+    expect(pacPathChoiceOutcome(safe!, round, pacPathMaxDetours)).toBe("safe");
+    expect(pacPathChoiceOutcome(detour!, round, pacPathMaxDetours - 1)).toBe("detour");
+    expect(pacPathChoiceOutcome(detour!, round, pacPathMaxDetours)).toBe("loss");
   });
 });

@@ -6,6 +6,7 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { tanksNoShootingChoiceOutcome } from "./model";
 
 type Direction = "up" | "down" | "left" | "right";
 
@@ -70,7 +71,7 @@ const directionDegrees: Record<Direction, number> = {
 };
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("tanks-no-shooting", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSession("tanks-no-shooting", {
   maxSteps: 10,
   dwellMs: 1300,
   sessionSeconds: 180,
@@ -192,18 +193,26 @@ function chooseDirection(control: DirectionControl) {
     return;
   }
 
+  const outcome = tanksNoShootingChoiceOutcome(control.direction, expected.direction, session.mistakes + 1);
   pendingChoice.value = true;
   wrongDirection.value = control.direction;
   hintedDirection.value = expected.direction;
-  feedbackText.value = `Это направление сейчас не самое спокойное. Мягкая подсказка: выбери ${expected.label.toLowerCase()}.`;
+  feedbackText.value = outcome === "loss"
+    ? "Третье неверное направление: танк съехал с маршрута, партия проиграна."
+    : `Это направление сейчас не самое спокойное. Мягкая подсказка: выбери ${expected.label.toLowerCase()}.`;
   recordMistake({
     targetId,
     expectedTargetId,
     actual: control.direction,
     expected: expected.direction,
     routeIndex: session.step,
+    outcome,
     isCorrect: false
   });
+  if (outcome === "loss") {
+    finishSession("game-lost");
+    return;
+  }
   recordHint({ targetId: expectedTargetId, reason: "safe-tank-route", expectedDirection: expected.direction, selectedDirection: control.direction });
 
   feedbackTimer = window.setTimeout(() => {
@@ -234,7 +243,7 @@ onUnmounted(() => {
             <div class="text-overline text-primary text-center mb-2">Стратегия: безопасный маршрут</div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-3">Проведи танк по тихой дороге</h1>
             <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5">
-              Выбирай направление по одному шагу. Ошибка только подсказывает безопасный ход.
+              Выбирай направление по одному шагу. Третья ошибка завершает маршрут.
             </p>
 
             <v-alert class="mb-5 text-h6" :color="hintedDirection ? 'primary' : 'teal'" :icon="hintedDirection ? 'mdi-lightbulb-on-outline' : 'mdi-shield-check-outline'" rounded="xl" variant="tonal">

@@ -21,6 +21,7 @@ export type CalmSnakeStepResult = {
   event: CalmSnakeStepEvent;
   moved: boolean;
 };
+export type CalmSnakeOutcome = "playing" | "loss";
 
 const directionDeltas: Record<SnakeDirection, SnakePoint> = {
   up: { row: -1, column: 0 },
@@ -78,6 +79,10 @@ export function stepSnake(state: CalmSnakeState, requestedDirection = state.dire
 
 export function pointsEqual(a: SnakePoint, b: SnakePoint) {
   return a.row === b.row && a.column === b.column;
+}
+
+export function calmSnakeOutcome(result: CalmSnakeStepResult): CalmSnakeOutcome {
+  return result.event === "blocked-wall" || result.event === "blocked-self" ? "loss" : "playing";
 }
 
 function applyMove(state: CalmSnakeState, direction: SnakeDirection, event: CalmSnakeStepEvent): CalmSnakeStepResult {

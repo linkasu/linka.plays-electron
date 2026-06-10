@@ -7,6 +7,7 @@ export type CheckersLightPiece = {
 
 export type CheckersLightCell = CheckersLightPiece | undefined;
 export type CheckersLightBoard = CheckersLightCell[];
+export type CheckersLightOutcome = "playing" | "loss";
 
 export const checkersLightSize = 4;
 export const checkersLightCells = checkersLightSize * checkersLightSize;
@@ -63,6 +64,10 @@ export function getMovablePieceIndexes(board: CheckersLightBoard) {
   return board
     .map((piece, index) => piece && getMoveTargets(board, index).length ? index : undefined)
     .filter((index): index is number => index !== undefined);
+}
+
+export function checkersLightOutcome(board: CheckersLightBoard): CheckersLightOutcome {
+  return getMovablePieceIndexes(board).length ? "playing" : "loss";
 }
 
 export function applyCheckersLightMove(board: CheckersLightBoard, fromIndex: number, toIndex: number) {

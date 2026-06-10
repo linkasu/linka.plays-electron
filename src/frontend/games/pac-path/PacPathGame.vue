@@ -6,10 +6,10 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
-import { createPacPathRound, isPacPathSafeChoice, pacPathMaxSteps, pacPathWaypoints, type PacPathChoice, type PacPathWaypoint } from "./model";
+import { createPacPathRound, isPacPathSafeChoice, pacPathChoiceOutcome, pacPathMaxSteps, pacPathWaypoints, type PacPathChoice, type PacPathWaypoint } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("pac-path", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSession("pac-path", {
   maxSteps: pacPathMaxSteps,
   dwellMs: 1300,
   sessionSeconds: 180,
@@ -19,7 +19,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnMistakes: false
 });
 
-const feedbackText = ref("Выбери следующий безопасный waypoint на светлой дорожке. Ошибки только включают подсказку.");
+const feedbackText = ref("Выбери следующий безопасный waypoint на светлой дорожке. Три detour завершают партию.");
 const hintedChoiceId = ref<string>();
 const wrongChoiceId = ref<string>();
 const pendingChoice = ref(false);
@@ -99,10 +99,13 @@ function chooseWaypoint(choice: PacPathChoice) {
     return;
   }
 
+  const outcome = pacPathChoiceOutcome(choice, currentRound, session.mistakes + 1);
   pendingChoice.value = true;
   wrongChoiceId.value = choice.id;
   hintedChoiceId.value = currentRound.expected.id;
-  feedbackText.value = `${choice.label} не проигрывает игру, но сейчас безопаснее ${currentRound.expected.label.toLowerCase()}. Попробуй ещё раз.`;
+  feedbackText.value = outcome === "loss"
+    ? `${choice.label} оказался третьим detour. Партия завершена.`
+    : `${choice.label} — detour. Сейчас безопаснее ${currentRound.expected.label.toLowerCase()}. Попробуй ещё раз.`;
   recordMistake({
     roundId: currentRound.roundId,
     targetId: selectedTargetId,
@@ -120,6 +123,11 @@ function chooseWaypoint(choice: PacPathChoice) {
     expectedWaypointId: currentRound.expected.id
   });
 
+  if (outcome === "loss") {
+    finishSession("game-lost");
+    return;
+  }
+
   feedbackTimer = window.setTimeout(() => {
     pendingChoice.value = false;
     wrongChoiceId.value = undefined;
@@ -128,7 +136,7 @@ function chooseWaypoint(choice: PacPathChoice) {
 
 function restart() {
   resetChoiceState();
-  feedbackText.value = "Выбери следующий безопасный waypoint на светлой дорожке. Ошибки только включают подсказку.";
+  feedbackText.value = "Выбери следующий безопасный waypoint на светлой дорожке. Три detour завершают партию.";
   startSession();
 }
 
@@ -148,7 +156,7 @@ onUnmounted(() => {
             <div class="text-overline text-primary text-center mb-2">Strategy · choice sequence · visual-search</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">Pac-path</h1>
             <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5">
-              Выбирай следующий безопасный waypoint на лабиринтной дорожке. Здесь нет погони, проигрыша и резких ошибок.
+              Выбирай следующий безопасный waypoint на лабиринтной дорожке. Detour тратит попытку, третий detour завершает партию.
             </p>
 
             <v-alert class="mb-5 text-h6" :color="hintedChoiceId ? 'warning' : 'secondary'" :icon="hintedChoiceId ? 'mdi-lightbulb-on-outline' : 'mdi-pac-man'" rounded="xl" variant="tonal">

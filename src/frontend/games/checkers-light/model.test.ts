@@ -3,6 +3,7 @@ import {
   applyCheckersLightMove,
   cellIndex,
   checkersLightCells,
+  checkersLightOutcome,
   createInitialCheckersLightBoard,
   getMovablePieceIndexes,
   getMoveTargets,
@@ -49,5 +50,15 @@ describe("checkers-light model", () => {
     const board = createInitialCheckersLightBoard();
 
     expect(getMovablePieceIndexes(board)).toEqual([1, 3, 12, 14]);
+  });
+
+  it("reports loss when no pieces can move", () => {
+    const board = Array(checkersLightCells).fill(undefined);
+    for (let index = 0; index < checkersLightCells; index += 1) {
+      if (isDarkCell(index)) board[index] = { id: `piece-${index}`, side: "gold" };
+    }
+
+    expect(checkersLightOutcome(board)).toBe("loss");
+    expect(checkersLightOutcome(createInitialCheckersLightBoard())).toBe("playing");
   });
 });

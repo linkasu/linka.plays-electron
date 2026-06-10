@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createCalmSnakeState, nextSnakeHead, pointsEqual, setSnakeDirection, stepSnake, type CalmSnakeState } from "./model";
+import { calmSnakeOutcome, createCalmSnakeState, nextSnakeHead, pointsEqual, setSnakeDirection, stepSnake, type CalmSnakeState } from "./model";
 
 function state(overrides: Partial<CalmSnakeState>): CalmSnakeState {
   return {
@@ -50,13 +50,11 @@ describe("calm snake model", () => {
     expect(stepSnake(current, "left").state.snake[0]).toEqual({ row: 2, column: 3 });
   });
 
-  it("uses a gentle turn instead of dying at a wall", () => {
+  it("reports loss when a step reaches a wall", () => {
     const result = stepSnake(state({ snake: [{ row: 0, column: 4 }, { row: 0, column: 3 }], direction: "right" }));
 
     expect(result.event).toBe("blocked-wall");
-    expect(result.moved).toBe(true);
-    expect(result.state.direction).toBe("down");
-    expect(result.state.snake[0]).toEqual({ row: 1, column: 4 });
+    expect(calmSnakeOutcome(result)).toBe("loss");
   });
 
   it("stops safely when no fallback move is available", () => {
