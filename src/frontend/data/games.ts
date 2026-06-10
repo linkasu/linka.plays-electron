@@ -1003,6 +1003,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "hero-route",
+    title: "Маршрут героя",
+    description: "Выбирай следующий шаг маршрута героя по крупным картинкам и стрелкам; неверный выбор даёт только мягкую подсказку.",
+    selfDescription: "Проведи героя по маршруту.",
+    route: "/games/hero-route",
+    category: "sequencing",
+    icon: "mdi-map-marker-path",
+    skills: ["sequence", "choice", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 135,
+    minTargetSizePx: 170,
+    defaultDwellMs: 1300
+  },
+  {
     id: "pyramid",
     title: "Пирамидка",
     description: "Собирай кольца по порядку и тренируй последовательность.",
