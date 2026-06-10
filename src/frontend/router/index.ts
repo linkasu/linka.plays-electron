@@ -124,6 +124,7 @@ import SlidingPuzzleGame from "../games/sliding-puzzle/SlidingPuzzleGame.vue";
 import SmoothCarGame from "../games/smooth-car/SmoothCarGame.vue";
 import SoapCirclesGame from "../games/soap-circles/SoapCirclesGame.vue";
 import SoundSourceGame from "../games/sound-source/SoundSourceGame.vue";
+import SpaceOrbitGame from "../games/space-orbit/SpaceOrbitGame.vue";
 import SnowflakesGame from "../games/snowflakes/SnowflakesGame.vue";
 import StarrySkyGame from "../games/starry-sky/StarrySkyGame.vue";
 import SocialPhrasesGame from "../games/social-phrases/SocialPhrasesGame.vue";
@@ -321,6 +322,7 @@ export default createRouter({
     { path: "/games/table-tennis", name: "table-tennis", component: TableTennisGame },
     { path: "/games/maze-path", name: "maze-path", component: MazePathGame },
     { path: "/games/garden-watering", name: "garden-watering", component: GardenWateringGame },
+    { path: "/games/space-orbit", name: "space-orbit", component: SpaceOrbitGame },
     { path: "/games/gaze-maze", name: "gaze-maze", component: GazeMazeGame },
     { path: "/games/:gameId", name: "planned-game", component: PlannedGamePage }
   ]

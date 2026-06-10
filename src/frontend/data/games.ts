@@ -2247,6 +2247,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 120,
     minTargetSizePx: 150,
     defaultDwellMs: 1200
+  },
+  {
+    id: "space-orbit",
+    title: "Космическая орбита",
+    description: "Веди ракету взглядом по мягкой орбите и спокойно собирай звёзды без взрывов и штрафов.",
+    selfDescription: "Собери звёзды на орбите.",
+    route: "/games/space-orbit",
+    category: "continuous-control",
+    icon: "mdi-orbit",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 600
   }
 ];
 
