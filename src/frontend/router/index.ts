@@ -28,6 +28,7 @@ import FrogGame from "../games/frog/FrogGame.vue";
 import GardenWateringGame from "../games/garden-watering/GardenWateringGame.vue";
 import GreaterLessGame from "../games/greater-less/GreaterLessGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
+import IslandGame from "../games/island/IslandGame.vue";
 import JellyfishGame from "../games/jellyfish/JellyfishGame.vue";
 import KiteGame from "../games/kite/KiteGame.vue";
 import KoiPondGame from "../games/koi-pond/KoiPondGame.vue";
@@ -94,6 +95,7 @@ export default createRouter({
     { path: "/games/light-gallery", name: "light-gallery", component: LightGalleryGame },
     { path: "/games/soap-circles", name: "soap-circles", component: SoapCirclesGame },
     { path: "/games/lighthouse", name: "lighthouse", component: LighthouseGame },
+    { path: "/games/island", name: "island", component: IslandGame },
     { path: "/games/find-house", name: "find-house", component: FindHouseGame },
     { path: "/games/northern-lights", name: "northern-lights", component: NorthernLightsGame },
     { path: "/games/sun-rays", name: "sun-rays", component: SunRaysGame },

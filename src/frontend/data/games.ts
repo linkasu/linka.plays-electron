@@ -401,6 +401,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1400
   },
   {
+    id: "island",
+    title: "Островок",
+    description: "Удерживай взгляд в мягком безопасном круге у островка: лодка и огонёк остаются рядом, а при уходе взгляда спокойно ждут.",
+    selfDescription: "Удержи лодку у островка.",
+    route: "/games/island",
+    category: "gaze-basics",
+    icon: "mdi-island",
+    skills: ["fixation", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1400
+  },
+  {
     id: "sand-garden",
     title: "Песочный сад",
     description: "Веди взглядом мягкие борозды по тёплому песку: следы появляются спокойно и постепенно исчезают.",
