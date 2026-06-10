@@ -1787,6 +1787,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1100
   },
   {
+    id: "battleship-light",
+    title: "Морской бой light",
+    description: "Выбирай клетку на крупной сетке: попадания и вода появляются мягко, без резких эффектов и поражения.",
+    selfDescription: "Найди кораблик на море.",
+    route: "/games/battleship-light",
+    category: "strategy",
+    icon: "mdi-ferry",
+    skills: ["choice", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 112,
+    defaultDwellMs: 1300
+  },
+  {
     id: "tic-tac-toe",
     title: "Крестики-нолики",
     description: "Играй крестиками против спокойного Deep-Q агента на классическом поле 3×3.",
