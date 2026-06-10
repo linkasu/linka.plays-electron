@@ -835,6 +835,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "gaze-maze",
+    title: "Лабиринт взгляда-указателя",
+    description: "Выбирай следующий мягкий waypoint или выход в широком лабиринте взглядом; неверный выбор даёт только подсказку без провала.",
+    selfDescription: "Найди выход взглядом.",
+    route: "/games/gaze-maze",
+    category: "visual-search",
+    icon: "mdi-routes",
+    skills: ["visual-search", "attention-shift", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 170,
+    defaultDwellMs: 1300
+  },
+  {
     id: "pyramid",
     title: "Пирамидка",
     description: "Собирай кольца по порядку и тренируй последовательность.",
