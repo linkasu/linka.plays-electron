@@ -108,6 +108,7 @@ import WarmLampGame from "../games/warm-lamp/WarmLampGame.vue";
 import WakeOwlGame from "../games/wake-owl/WakeOwlGame.vue";
 import WarmWindowGame from "../games/warm-window/WarmWindowGame.vue";
 import WhatMissingGame from "../games/what-missing/WhatMissingGame.vue";
+import WhereObjectGame from "../games/where-object/WhereObjectGame.vue";
 import WhoHidingGame from "../games/who-hiding/WhoHidingGame.vue";
 import YesNoGame from "../games/yes-no/YesNoGame.vue";
 import HomePage from "../pages/HomePage.vue";
