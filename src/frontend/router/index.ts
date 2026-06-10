@@ -9,6 +9,7 @@ import Calm2048Game from "../games/calm-2048/Calm2048Game.vue";
 import ChoosePictureGame from "../games/choose-picture/ChoosePictureGame.vue";
 import CalmTetrisGame from "../games/calm-tetris/CalmTetrisGame.vue";
 import CalmSnakeGame from "../games/calm-snake/CalmSnakeGame.vue";
+import CatchLightGame from "../games/catch-light/CatchLightGame.vue";
 import CloudsGame from "../games/clouds/CloudsGame.vue";
 import ConnectFourGame from "../games/connect-four/ConnectFourGame.vue";
 import CountItemsGame from "../games/count-items/CountItemsGame.vue";
@@ -78,6 +79,7 @@ export default createRouter({
     { path: "/games/clouds", name: "clouds", component: CloudsGame },
     { path: "/games/leaves-wind", name: "leaves-wind", component: LeavesWindGame },
     { path: "/games/firefly-meadow", name: "firefly-meadow", component: FireflyMeadowGame },
+    { path: "/games/catch-light", name: "catch-light", component: CatchLightGame },
     { path: "/games/starry-sky", name: "starry-sky", component: StarrySkyGame },
     { path: "/games/magic-dust", name: "magic-dust", component: MagicDustGame },
     { path: "/games/light-gallery", name: "light-gallery", component: LightGalleryGame },

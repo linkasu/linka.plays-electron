@@ -205,6 +205,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1350
   },
   {
+    id: "catch-light",
+    title: "Поймай свет",
+    description: "Смотри на мягкую световую цель: удержи взгляд, и свет спокойно переедет в новую зону без ошибок.",
+    selfDescription: "Поймай свет взглядом.",
+    route: "/games/catch-light",
+    category: "gaze-basics",
+    icon: "mdi-brightness-5",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "starry-sky",
     title: "Звёздное небо",
     description: "Смотри на тихое небо и мягко соединяй звёзды световыми линиями.",
