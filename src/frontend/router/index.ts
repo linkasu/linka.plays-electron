@@ -85,6 +85,7 @@ import OppositesGame from "../games/opposites/OppositesGame.vue";
 import PatternsGame from "../games/patterns/PatternsGame.vue";
 import MemoryCardsGame from "../games/memory-cards/MemoryCardsGame.vue";
 import PaperLanternsGame from "../games/paper-lanterns/PaperLanternsGame.vue";
+import PizzaFractionsGame from "../games/pizza-fractions/PizzaFractionsGame.vue";
 import PyramidGame from "../games/pyramid/PyramidGame.vue";
 import QuietBubblesGame from "../games/quiet-bubbles/QuietBubblesGame.vue";
 import RainbowButtonGame from "../games/rainbow-button/RainbowButtonGame.vue";
@@ -184,6 +185,7 @@ export default createRouter({
     { path: "/games/clock", name: "clock", component: ClockGame },
     { path: "/games/count-items", name: "count-items", component: CountItemsGame },
     { path: "/games/coin-counting", name: "coin-counting", component: CoinCountingGame },
+    { path: "/games/pizza-fractions", name: "pizza-fractions", component: PizzaFractionsGame },
     { path: "/games/greater-less", name: "greater-less", component: GreaterLessGame },
     { path: "/games/number-line", name: "number-line", component: NumberLineGame },
     { path: "/games/choose-emotion", name: "choose-emotion", component: ChooseEmotionGame },
