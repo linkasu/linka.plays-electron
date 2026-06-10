@@ -205,6 +205,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "light-gallery",
+    title: "Галерея света",
+    description: "Смотри на спокойные панели: взгляд мягко проявляет картины и повышает контраст без ошибок.",
+    selfDescription: "Прояви картины взглядом.",
+    route: "/games/light-gallery",
+    category: "gaze-basics",
+    icon: "mdi-image-multiple",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 90,
+    minTargetSizePx: 170,
+    defaultDwellMs: 1400
+  },
+  {
     id: "northern-lights",
     title: "Северное сияние",
     description: "Смотри на ночное небо и мягко рисуй световые полосы взглядом без целей и ошибок.",
