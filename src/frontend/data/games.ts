@@ -919,6 +919,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "logic-pairs",
+    title: "Логические пары",
+    description: "Подбери пару по смыслу, форме или числу: ключ к замку, форма к форме, цифра к точкам; ошибка только мягко подсветит ответ.",
+    selfDescription: "Найди подходящую пару.",
+    route: "/games/logic-pairs",
+    category: "numeracy",
+    icon: "mdi-link-variant",
+    skills: ["choice", "classification", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 200,
+    defaultDwellMs: 1300
+  },
+  {
     id: "find-number",
     title: "Найди число",
     description: "Выбери заданную крупную цифру среди нескольких вариантов без давления времени.",
@@ -1661,6 +1675,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "calendar",
+    title: "Календарь",
+    description: "Выбирай день недели или карточку вчера-сегодня-завтра: крупные варианты, мягкая подсказка при ошибке и спокойный темп.",
+    selfDescription: "Выбери день в календаре.",
+    route: "/games/calendar",
+    category: "numeracy",
+    icon: "mdi-calendar-check",
+    skills: ["choice", "sequence", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
     id: "count-items",
     title: "Счёт",
     description: "Посчитай предметы и выбери правильное число.",
@@ -1689,6 +1717,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "pizza-fractions",
+    title: "Доли пиццы",
+    description: "Выбирай половину, четверть или целую пиццу на крупных карточках; ошибка мягко подсвечивает правильную долю.",
+    selfDescription: "Выбери долю пиццы.",
+    route: "/games/pizza-fractions",
+    category: "numeracy",
+    icon: "mdi-pizza",
+    skills: ["math", "choice", "classification"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
     id: "greater-less",
     title: "Больше / меньше",
     description: "Сравни две группы предметов и выбери, где больше или меньше.",
@@ -1703,6 +1745,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "scales",
+    title: "Весы",
+    description: "Смотри на картинку весов и выбирай, какая сторона тяжелее, легче или равна; ошибка даёт мягкую подсказку.",
+    selfDescription: "Выбери сторону весов.",
+    route: "/games/scales",
+    category: "numeracy",
+    icon: "mdi-scale-balance",
+    skills: ["counting", "math", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 125,
+    minTargetSizePx: 170,
+    defaultDwellMs: 1300
+  },
+  {
     id: "number-line",
     title: "Числовая дорожка",
     description: "Выбирай нужное или следующее число на крупной дорожке от 1 до 10.",
@@ -1714,6 +1770,104 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 150,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "number-sorting",
+    title: "Сортировка чисел",
+    description: "Выбирай следующее число по возрастанию или убыванию из крупных карточек; ошибка мягко подсвечивает подсказку.",
+    selfDescription: "Выбери следующее число.",
+    route: "/games/number-sorting",
+    category: "numeracy",
+    icon: "mdi-counter",
+    skills: ["counting", "choice", "sequence"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "sudoku-2x2",
+    title: "Судоку 2x2",
+    description: "Заполни простую сетку 2x2 недостающим числом или цветом, а ошибка мягко объяснит выбор.",
+    selfDescription: "Выбери недостающую клетку.",
+    route: "/games/sudoku-2x2",
+    category: "numeracy",
+    icon: "mdi-check",
+    skills: ["counting", "choice", "math"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 170,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "lines-angles",
+    title: "Линии и углы",
+    description: "Выбирай прямую или кривую линию, угол или направление на крупных геометрических карточках.",
+    selfDescription: "Найди линию или угол.",
+    route: "/games/lines-angles",
+    category: "numeracy",
+    icon: "mdi-angle-acute",
+    skills: ["choice", "classification", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "simple-graphs",
+    title: "Простые графики",
+    description: "Смотри на крупный столбиковый график и выбирай, где больше, меньше или сколько предметов.",
+    selfDescription: "Ответь по графику.",
+    route: "/games/simple-graphs",
+    category: "numeracy",
+    icon: "mdi-chart-bar",
+    skills: ["counting", "math", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 170,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "number-bonds",
+    title: "Состав числа",
+    description: "Выбирай недостающую часть состава числа до 5 или 10 на крупных спокойных карточках.",
+    selfDescription: "Найди часть числа.",
+    route: "/games/number-bonds",
+    category: "numeracy",
+    icon: "mdi-check-circle-outline",
+    skills: ["counting", "math", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 170,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "shop",
+    title: "Магазин",
+    description: "Выбирай товар по цене или спокойно собирай оплату крупными монетами.",
+    selfDescription: "Купи товар в магазине.",
+    route: "/games/shop",
+    category: "numeracy",
+    icon: "mdi-cart-outline",
+    skills: ["counting", "math", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 140,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "coordinates",
+    title: "Координаты",
+    description: "Выбирай клетку по координате A1, B2 или C3 в крупной спокойной сетке.",
+    selfDescription: "Найди клетку по координате.",
+    route: "/games/coordinates",
+    category: "numeracy",
+    icon: "mdi-grid-large",
+    skills: ["visual-search", "choice", "math"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 160,
     defaultDwellMs: 1300
   },
   {
@@ -1759,6 +1913,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "minesweeper-safe",
+    title: "Сапёр без взрыва",
+    description: "Выбирай безопасные клетки по числам-подсказкам: мина не взрывается, а спокойно становится флажком.",
+    selfDescription: "Найди безопасную клетку.",
+    route: "/games/minesweeper-safe",
+    category: "strategy",
+    icon: "mdi-mine",
+    skills: ["choice", "visual-search", "sequence"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 112,
+    defaultDwellMs: 1200
+  },
+  {
     id: "calm-2048",
     title: "2048 мягкий",
     description: "Сдвигай плитки 4×4 и спокойно собирай одинаковые числа без резкого проигрыша.",
@@ -1773,6 +1941,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1100
   },
   {
+    id: "sliding-puzzle",
+    title: "Пятнашки 3×3",
+    description: "Собирай спокойные пятнашки на поле 3×3: выбирай соседнюю с пустой клеткой плитку, а ошибка мягко подсветит возможные ходы.",
+    selfDescription: "Собери пятнашки.",
+    route: "/games/sliding-puzzle",
+    category: "strategy",
+    icon: "mdi-puzzle-outline",
+    skills: ["choice", "sequence", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 132,
+    defaultDwellMs: 1200
+  },
+  {
     id: "calm-tetris",
     title: "Тетрис спокойный",
     description: "Ставь фигуры пошагово: выбери колонку, поверни и мягко опусти без спешки.",
@@ -1785,6 +1967,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 180,
     minTargetSizePx: 116,
     defaultDwellMs: 1100
+  },
+  {
+    id: "sokoban-large",
+    title: "Сокобан крупный",
+    description: "Выбирай направление, чтобы спокойно подтолкнуть ящик к цели на маленькой крупной сетке; неверный ход не применяется и даёт подсказку.",
+    selfDescription: "Подтолкни ящик к цели.",
+    route: "/games/sokoban-large",
+    category: "strategy",
+    icon: "mdi-package-variant-closed",
+    skills: ["choice", "sequence"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 148,
+    defaultDwellMs: 1200
   },
   {
     id: "tic-tac-toe",
@@ -1815,6 +2011,76 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1450
   },
   {
+    id: "reversi-light",
+    title: "Реверси light",
+    description: "Играй в мини-реверси 4×4: выбирай подсвеченные ходы и спокойно переворачивай фишки.",
+    selfDescription: "Выбери подсвеченный ход.",
+    route: "/games/reversi-light",
+    category: "strategy",
+    icon: "mdi-circle-double",
+    skills: ["choice", "sequence", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 126,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "checkers-light",
+    title: "Шашки light",
+    description: "Играй в упрощённые шашки 4x4: возможные ходы подсвечены, а проигрыша и резких ошибок нет.",
+    selfDescription: "Выбери ход шашкой.",
+    route: "/games/checkers-light",
+    category: "strategy",
+    icon: "mdi-checkerboard",
+    skills: ["choice", "sequence", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 126,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "battleship-light",
+    title: "Морской бой light",
+    description: "Выбирай клетки на крупной морской сетке: попадания и вода показываются спокойно, без поражения.",
+    selfDescription: "Выбери клетку моря.",
+    route: "/games/battleship-light",
+    category: "strategy",
+    icon: "mdi-water",
+    skills: ["choice", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 130,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "tanks-no-shooting",
+    title: "Танчики без стрельбы",
+    description: "Веди танк по безопасному маршруту выбором направлений, без стрельбы, взрывов и проигрыша.",
+    selfDescription: "Проведи танк по маршруту.",
+    route: "/games/tanks-no-shooting",
+    category: "strategy",
+    icon: "mdi-tank",
+    skills: ["choice", "sequence"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "arkanoid-assist",
+    title: "Арканоид assist",
+    description: "Выбирай сектор мягкого удара по блоку: мяч не теряется резко, а игра спокойно подсказывает следующий сектор.",
+    selfDescription: "Выбери сектор удара.",
+    route: "/games/arkanoid-assist",
+    category: "strategy",
+    icon: "mdi-wall",
+    skills: ["choice", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1200
+  },
+  {
     id: "calm-snake",
     title: "Змейка спокойная",
     description: "Веди медленную змейку по мягкой сетке: края и столкновения дают подсказку, а не проигрыш.",
@@ -1827,6 +2093,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 165,
     minTargetSizePx: 150,
     defaultDwellMs: 1100
+  },
+  {
+    id: "pac-path",
+    title: "Pac-path",
+    description: "Выбирай следующий безопасный waypoint на лабиринтной дорожке без погони, проигрыша и резких ошибок.",
+    selfDescription: "Выбери безопасную крошку.",
+    route: "/games/pac-path",
+    category: "strategy",
+    icon: "mdi-pac-man",
+    skills: ["choice", "sequence", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1300
   },
   {
     id: "boat",
