@@ -12,13 +12,14 @@ import {
   getSokobanLargeExpectedDirection,
   isSokobanLargeComplete,
   pointsEqual,
+  sokobanLargeChoiceOutcome,
   sokobanLargeDirectionLabels,
   type SokobanLargeDirection,
   type SokobanLargePoint
 } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("sokoban-large", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSession("sokoban-large", {
   maxSteps: 12,
   dwellMs: 1200,
   sessionSeconds: 180,
@@ -78,14 +79,21 @@ function chooseDirection(direction: SokobanLargeDirection) {
   clearFeedbackTimer();
 
   if (!result.moved) {
+    const outcome = sokobanLargeChoiceOutcome(result, session.mistakes + 1);
     const hint = result.expectedDirection ?? expectedDirection.value;
     wrongDirection.value = direction;
     hintedDirection.value = hint;
     pendingChoice.value = true;
-    feedbackMessage.value = hint
+    feedbackMessage.value = outcome === "loss"
+      ? "Третий неверный ход: задача провалена, партия проиграна."
+      : hint
       ? `Этот ход не применяем. Подсказка: спокойно выбери ${sokobanLargeDirectionLabels[hint]}.`
       : "Ящик уже на цели. Можно начать заново или вернуться в меню.";
-    recordMistake({ targetId, direction, reason: result.event, expectedDirection: hint, isCorrect: false });
+    recordMistake({ targetId, direction, reason: result.event, expectedDirection: hint, outcome, isCorrect: false });
+    if (outcome === "loss") {
+      finishSession("game-lost");
+      return;
+    }
     if (hint) recordHint({ targetId: directionTargetId(hint), reason: "next-sokoban-move", expectedDirection: hint, selectedDirection: direction });
     feedbackTimer = window.setTimeout(() => {
       pendingChoice.value = false;
@@ -181,7 +189,7 @@ onUnmounted(() => {
               <div>
                 <div class="text-overline text-primary mb-1">Спокойная стратегия на крупной сетке</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Доведи ящик до цели</h1>
-                <p class="text-body-1 text-medium-emphasis mb-0">Выбирай направление взгляда. Неверный ход не сдвигает героя или ящик, а только показывает подсказку.</p>
+                <p class="text-body-1 text-medium-emphasis mb-0">Выбирай направление взгляда. Третий неверный ход завершает задачу.</p>
               </div>
               <div class="d-flex flex-wrap ga-2">
                 <v-chip color="primary" size="large" variant="tonal">Ход {{ boardState.stepIndex }} / {{ session.maxSteps }}</v-chip>

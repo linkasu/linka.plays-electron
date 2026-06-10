@@ -4,6 +4,8 @@ import {
   createSokobanLargeState,
   getSokobanLargeExpectedDirection,
   isSokobanLargeComplete,
+  sokobanLargeChoiceOutcome,
+  sokobanLargeMaxWrongMoves,
   sokobanLargePlan,
   type SokobanLargeState
 } from "./model";
@@ -34,6 +36,16 @@ describe("sokoban large model", () => {
     expect(result.expectedDirection).toBe("left");
     expect(result.state).toEqual(state);
     expect(result.state).not.toBe(state);
+  });
+
+  it("turns repeated wrong moves into a loss", () => {
+    const state = createSokobanLargeState();
+    const wrong = applySokobanLargeMove(state, "right");
+    const right = applySokobanLargeMove(state, "left");
+
+    expect(sokobanLargeChoiceOutcome(right, sokobanLargeMaxWrongMoves)).toBe("move");
+    expect(sokobanLargeChoiceOutcome(wrong, sokobanLargeMaxWrongMoves - 1)).toBe("wrong-move");
+    expect(sokobanLargeChoiceOutcome(wrong, sokobanLargeMaxWrongMoves)).toBe("loss");
   });
 
   it("applies walking moves without moving the box", () => {

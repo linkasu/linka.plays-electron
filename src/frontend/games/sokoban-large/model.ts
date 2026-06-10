@@ -24,6 +24,9 @@ export type SokobanLargeMoveResult = {
   expectedDirection?: SokobanLargeDirection;
 };
 
+export const sokobanLargeMaxWrongMoves = 3;
+export type SokobanLargeChoiceOutcome = "move" | "wrong-move" | "loss";
+
 export const sokobanLargePlan: SokobanLargeDirection[] = [
   "left",
   "up",
@@ -117,6 +120,11 @@ export function applySokobanLargeMove(state: SokobanLargeState, direction: Sokob
     pushed: true,
     expectedDirection
   };
+}
+
+export function sokobanLargeChoiceOutcome(result: SokobanLargeMoveResult, mistakesAfterChoice: number): SokobanLargeChoiceOutcome {
+  if (result.moved || result.event === "complete") return "move";
+  return mistakesAfterChoice >= sokobanLargeMaxWrongMoves ? "loss" : "wrong-move";
 }
 
 export function isSokobanLargeComplete(state: SokobanLargeState) {
