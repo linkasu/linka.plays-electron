@@ -2123,6 +2123,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 500
   },
   {
+    id: "balloon-ride",
+    title: "Воздушный шар",
+    description: "Веди воздушный шар взглядом через мягкие облачные кольца без падений, штрафов и резких движений.",
+    selfDescription: "Веди шар через облака.",
+    route: "/games/balloon-ride",
+    category: "continuous-control",
+    icon: "mdi-airballoon",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 600
+  },
+  {
     id: "table-tennis",
     title: "Теннис",
     description: "Веди мягкую ракетку взглядом и вместе с партнёром спокойно держи мяч в игре.",
