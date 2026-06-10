@@ -317,6 +317,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1450
   },
   {
+    id: "lighthouse",
+    title: "Маяк",
+    description: "Смотри на большой маяк: после спокойной фиксации мягкий луч проходит по морю без ошибок.",
+    selfDescription: "Зажги маяк взглядом.",
+    route: "/games/lighthouse",
+    category: "gaze-basics",
+    icon: "mdi-lightbulb-on-outline",
+    skills: ["fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 220,
+    defaultDwellMs: 1400
+  },
+  {
     id: "sand-garden",
     title: "Песочный сад",
     description: "Веди взглядом мягкие борозды по тёплому песку: следы появляются спокойно и постепенно исчезают.",
