@@ -82,6 +82,7 @@ import OrchestraGame from "../games/orchestra/OrchestraGame.vue";
 import OneManyGame from "../games/one-many/OneManyGame.vue";
 import OddOneOutGame from "../games/odd-one-out/OddOneOutGame.vue";
 import OppositesGame from "../games/opposites/OppositesGame.vue";
+import PacPathGame from "../games/pac-path/PacPathGame.vue";
 import PatternsGame from "../games/patterns/PatternsGame.vue";
 import MemoryCardsGame from "../games/memory-cards/MemoryCardsGame.vue";
 import PaperLanternsGame from "../games/paper-lanterns/PaperLanternsGame.vue";
@@ -259,6 +260,7 @@ export default createRouter({
     { path: "/games/calm-tetris", name: "calm-tetris", component: CalmTetrisGame },
     { path: "/games/tic-tac-toe", name: "tic-tac-toe", component: TicTacToeGame },
     { path: "/games/calm-snake", name: "calm-snake", component: CalmSnakeGame },
+    { path: "/games/pac-path", name: "pac-path", component: PacPathGame },
     { path: "/games/connect-four", name: "connect-four", component: ConnectFourGame },
     { path: "/games/boat", name: "boat", component: BoatGame },
     { path: "/games/frog", name: "frog", component: FrogGame },

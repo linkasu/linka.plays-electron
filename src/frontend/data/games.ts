@@ -1829,6 +1829,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1100
   },
   {
+    id: "pac-path",
+    title: "Pac-path",
+    description: "Выбирай следующий безопасный waypoint на лабиринтной дорожке без погони, проигрыша и резких ошибок.",
+    selfDescription: "Выбери безопасную крошку.",
+    route: "/games/pac-path",
+    category: "strategy",
+    icon: "mdi-pac-man",
+    skills: ["choice", "sequence", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1300
+  },
+  {
     id: "boat",
     title: "Лодочка",
     description: "Веди лодочку взглядом по спокойной реке и проходи мягкие checkpoints без столкновений и штрафов.",
