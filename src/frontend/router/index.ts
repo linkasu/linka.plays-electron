@@ -61,6 +61,7 @@ import SeaShellsGame from "../games/sea-shells/SeaShellsGame.vue";
 import ShadowMatchGame from "../games/shadow-match/ShadowMatchGame.vue";
 import ShapesGame from "../games/shapes/ShapesGame.vue";
 import SoapCirclesGame from "../games/soap-circles/SoapCirclesGame.vue";
+import SoundSourceGame from "../games/sound-source/SoundSourceGame.vue";
 import SnowflakesGame from "../games/snowflakes/SnowflakesGame.vue";
 import StarrySkyGame from "../games/starry-sky/StarrySkyGame.vue";
 import SpotDifferenceGame from "../games/spot-difference/SpotDifferenceGame.vue";
