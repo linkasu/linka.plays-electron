@@ -20,10 +20,13 @@ import CountItemsGame from "../games/count-items/CountItemsGame.vue";
 import DucksGame from "../games/ducks/DucksGame.vue";
 import EatOrNotEatGame from "../games/eat-or-not-eat/EatOrNotEatGame.vue";
 import FeedAnimalGame from "../games/feed-animal/FeedAnimalGame.vue";
+import FindAnimalGame from "../games/find-animal/FindAnimalGame.vue";
+import FindEmotionGame from "../games/find-emotion/FindEmotionGame.vue";
 import FindLetterGame from "../games/find-letter/FindLetterGame.vue";
 import FindHouseGame from "../games/find-house/FindHouseGame.vue";
 import FireflyMeadowGame from "../games/firefly-meadow/FireflyMeadowGame.vue";
 import FindColorGame from "../games/find-color/FindColorGame.vue";
+import FindNumberGame from "../games/find-number/FindNumberGame.vue";
 import FindShapeGame from "../games/find-shape/FindShapeGame.vue";
 import FishesGame from "../games/fishes/FishesGame.vue";
 import FlowersGame from "../games/flowers/FlowersGame.vue";
@@ -34,6 +37,7 @@ import GreaterLessGame from "../games/greater-less/GreaterLessGame.vue";
 import GridScanningGame from "../games/grid-scanning/GridScanningGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import HighFiveHandsGame from "../games/high-five-hands/HighFiveHandsGame.vue";
+import IslandGame from "../games/island/IslandGame.vue";
 import JellyfishGame from "../games/jellyfish/JellyfishGame.vue";
 import KiteGame from "../games/kite/KiteGame.vue";
 import KoiPondGame from "../games/koi-pond/KoiPondGame.vue";
@@ -80,6 +84,7 @@ import WarmLampGame from "../games/warm-lamp/WarmLampGame.vue";
 import WakeOwlGame from "../games/wake-owl/WakeOwlGame.vue";
 import WarmWindowGame from "../games/warm-window/WarmWindowGame.vue";
 import WhatMissingGame from "../games/what-missing/WhatMissingGame.vue";
+import WhoHidingGame from "../games/who-hiding/WhoHidingGame.vue";
 import YesNoGame from "../games/yes-no/YesNoGame.vue";
 import HomePage from "../pages/HomePage.vue";
 import PlannedGamePage from "../pages/PlannedGamePage.vue";
@@ -153,7 +158,17 @@ export default createRouter({
     { path: "/games/jellyfish", name: "jellyfish", component: JellyfishGame },
     { path: "/games/koi-pond", name: "koi-pond", component: KoiPondGame },
     { path: "/games/hide-and-seek", name: "hide-and-seek", component: HideAndSeekGame },
+    { path: "/games/who-hiding", name: "who-hiding", component: WhoHidingGame },
     { path: "/games/what-missing", name: "what-missing", component: WhatMissingGame },
+    { path: "/games/row-scanning", name: "row-scanning", component: RowScanningGame },
+    { path: "/games/grid-scanning", name: "grid-scanning", component: GridScanningGame },
+    { path: "/games/find-letter", name: "find-letter", component: FindLetterGame },
+    { path: "/games/find-number", name: "find-number", component: FindNumberGame },
+    { path: "/games/shadow-match", name: "shadow-match", component: ShadowMatchGame },
+    { path: "/games/sound-source", name: "sound-source", component: SoundSourceGame },
+    { path: "/games/odd-one-out", name: "odd-one-out", component: OddOneOutGame },
+    { path: "/games/find-emotion", name: "find-emotion", component: FindEmotionGame },
+    { path: "/games/letter-hunt", name: "letter-hunt", component: LetterHuntGame },
     { path: "/games/match-same", name: "match-same", component: MatchSameGame },
     { path: "/games/spot-difference", name: "spot-difference", component: SpotDifferenceGame },
     { path: "/games/memory-cards", name: "memory-cards", component: MemoryCardsGame },
