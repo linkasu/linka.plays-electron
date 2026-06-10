@@ -129,6 +129,7 @@ import SoapCirclesGame from "../games/soap-circles/SoapCirclesGame.vue";
 import SoundSourceGame from "../games/sound-source/SoundSourceGame.vue";
 import SpaceOrbitGame from "../games/space-orbit/SpaceOrbitGame.vue";
 import SnowflakesGame from "../games/snowflakes/SnowflakesGame.vue";
+import SnowTrailGame from "../games/snow-trail/SnowTrailGame.vue";
 import StarrySkyGame from "../games/starry-sky/StarrySkyGame.vue";
 import SocialPhrasesGame from "../games/social-phrases/SocialPhrasesGame.vue";
 import SokobanLargeGame from "../games/sokoban-large/SokobanLargeGame.vue";
