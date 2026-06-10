@@ -1353,6 +1353,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "action-who",
+    title: "Кто что делает?",
+    description: "Выбирай персонажа или картинку действия по вопросу: кто прыгает, спит или ест; ошибка даёт мягкую подсказку.",
+    selfDescription: "Выбери, кто что делает.",
+    route: "/games/action-who",
+    category: "language-aac",
+    icon: "mdi-human-greeting",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "eat-or-not-eat",
     title: "Съедобное",
     description: "Сортируй предметы на съедобные и несъедобные.",
