@@ -38,6 +38,7 @@ import JellyfishGame from "../games/jellyfish/JellyfishGame.vue";
 import KiteGame from "../games/kite/KiteGame.vue";
 import KoiPondGame from "../games/koi-pond/KoiPondGame.vue";
 import LeavesWindGame from "../games/leaves-wind/LeavesWindGame.vue";
+import LetterHuntGame from "../games/letter-hunt/LetterHuntGame.vue";
 import LighthouseGame from "../games/lighthouse/LighthouseGame.vue";
 import LightGalleryGame from "../games/light-gallery/LightGalleryGame.vue";
 import MagicDustGame from "../games/magic-dust/MagicDustGame.vue";
