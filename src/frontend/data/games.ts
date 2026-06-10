@@ -1815,6 +1815,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1450
   },
   {
+    id: "checkers-light",
+    title: "Шашки light",
+    description: "Двигай шашки по спокойному полю 4×4: выбери фишку, затем подсвеченную клетку без ошибок и проигрыша.",
+    selfDescription: "Сделай ход шашкой.",
+    route: "/games/checkers-light",
+    category: "strategy",
+    icon: "mdi-checkerboard",
+    skills: ["choice", "sequence", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 118,
+    defaultDwellMs: 1300
+  },
+  {
     id: "calm-snake",
     title: "Змейка спокойная",
     description: "Веди медленную змейку по мягкой сетке: края и столкновения дают подсказку, а не проигрыш.",
