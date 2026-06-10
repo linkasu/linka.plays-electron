@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import ActionWhoGame from "../games/action-who/ActionWhoGame.vue";
 import AquariumGame from "../games/aquarium/AquariumGame.vue";
+import ArkanoidAssistGame from "../games/arkanoid-assist/ArkanoidAssistGame.vue";
 import BalloonsGame from "../games/balloons/BalloonsGame.vue";
 import BellsGame from "../games/bells/BellsGame.vue";
 import BigCardsGame from "../games/big-cards/BigCardsGame.vue";
@@ -140,6 +141,7 @@ export default createRouter({
     { path: "/menu/self", name: "menu-self", component: SelfMenuPage },
     { path: "/tobii-calibration", name: "tobii-calibration", component: TobiiCalibrationPage },
     { path: "/games/aquarium", name: "aquarium", component: AquariumGame },
+    { path: "/games/arkanoid-assist", name: "arkanoid-assist", component: ArkanoidAssistGame },
     { path: "/games/balloons", name: "balloons", component: BalloonsGame },
     { path: "/games/bells", name: "bells", component: BellsGame },
     { path: "/games/high-five-hands", name: "high-five-hands", component: HighFiveHandsGame },

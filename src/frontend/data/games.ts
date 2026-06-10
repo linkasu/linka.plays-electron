@@ -1759,6 +1759,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "arkanoid-assist",
+    title: "Арканоид assist",
+    description: "Выбирай сектор платформы для мягкого удара по подсвеченному блоку: мяч спокойно возвращается без резкой потери.",
+    selfDescription: "Выбери сектор платформы.",
+    route: "/games/arkanoid-assist",
+    category: "strategy",
+    icon: "mdi-wall",
+    skills: ["choice", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1200
+  },
+  {
     id: "calm-2048",
     title: "2048 мягкий",
     description: "Сдвигай плитки 4×4 и спокойно собирай одинаковые числа без резкого проигрыша.",
