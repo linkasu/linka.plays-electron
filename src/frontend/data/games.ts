@@ -513,6 +513,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1500
   },
   {
+    id: "rainbow-button",
+    title: "Радужная кнопка",
+    description: "Смотри на одну большую радужную кнопку, получай мягкий отклик и выбирай: ещё или стоп, без ошибок.",
+    selfDescription: "Нажми радужную кнопку взглядом.",
+    route: "/games/rainbow-button",
+    category: "gaze-basics",
+    icon: "mdi-rainbow",
+    skills: ["choice", "fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 80,
+    minTargetSizePx: 240,
+    defaultDwellMs: 1300
+  },
+  {
     id: "big-cards",
     title: "Большие карточки",
     description: "Выбирай одну из 2-4 крупных картинок по мягкой подсказке: любой выбор даёт спокойный отклик без ошибки.",
