@@ -104,6 +104,7 @@ import WarmLampGame from "../games/warm-lamp/WarmLampGame.vue";
 import WakeOwlGame from "../games/wake-owl/WakeOwlGame.vue";
 import WarmWindowGame from "../games/warm-window/WarmWindowGame.vue";
 import WhatMissingGame from "../games/what-missing/WhatMissingGame.vue";
+import WhereObjectGame from "../games/where-object/WhereObjectGame.vue";
 import WhoHidingGame from "../games/who-hiding/WhoHidingGame.vue";
 import YesNoGame from "../games/yes-no/YesNoGame.vue";
 import HomePage from "../pages/HomePage.vue";
@@ -168,6 +169,7 @@ export default createRouter({
     { path: "/games/feed-animal", name: "feed-animal", component: FeedAnimalGame },
     { path: "/games/yes-no", name: "yes-no", component: YesNoGame },
     { path: "/games/want-dont-want", name: "want-dont-want", component: WantDontWantGame },
+    { path: "/games/where-object", name: "where-object", component: WhereObjectGame },
     { path: "/games/mini-dialog", name: "mini-dialog", component: MiniDialogGame },
     { path: "/games/build-robot", name: "build-robot", component: BuildRobotGame },
     { path: "/games/pyramid", name: "pyramid", component: PyramidGame },

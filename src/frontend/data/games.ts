@@ -1395,6 +1395,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "where-object",
+    title: "Где предмет?",
+    description: "Выбери место, где находится предмет, или ответь коротким предлогом: на, под или в; ошибка только даёт мягкую подсказку.",
+    selfDescription: "Найди, где предмет.",
+    route: "/games/where-object",
+    category: "language-aac",
+    icon: "mdi-image-search",
+    skills: ["aac", "choice", "vocabulary", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "mini-dialog",
     title: "Мини-диалог",
     description: "Выбирай мягкие реплики для короткого AAC-диалога без неправильных ответов.",
