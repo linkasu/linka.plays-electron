@@ -1409,6 +1409,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "i-want",
+    title: "Я хочу...",
+    description: "Выбирай карточку желания или предмета и составляй фразу «Я хочу ...»; любой выбор засчитывается как коммуникация.",
+    selfDescription: "Скажи, что хочешь.",
+    route: "/games/i-want",
+    category: "language-aac",
+    icon: "mdi-message-text-outline",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 220,
+    defaultDwellMs: 1300
+  },
+  {
     id: "want-dont-want",
     title: "Хочу / не хочу",
     description: "Выбирай, хочешь ли мягкий предмет или занятие: любой ответ считается важной коммуникацией.",
