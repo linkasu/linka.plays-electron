@@ -695,6 +695,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "row-scanning",
+    title: "Сканирование ряда",
+    description: "Веди взгляд слева направо и найди названную цель среди крупных объектов в одном ряду.",
+    selfDescription: "Найди цель в ряду.",
+    route: "/games/row-scanning",
+    category: "visual-search",
+    icon: "mdi-view-sequential",
+    skills: ["visual-search", "attention-shift", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1250
+  },
+  {
     id: "match-same",
     title: "Где такой же?",
     description: "Найди картинку, которая совпадает с образцом.",
