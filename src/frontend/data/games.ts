@@ -415,6 +415,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1500
   },
   {
+    id: "feed-animal",
+    title: "Покорми зверька",
+    description: "Выбери любую крупную еду взглядом, чтобы мягко покормить зверька без ошибки выбора.",
+    selfDescription: "Покорми зверька.",
+    route: "/games/feed-animal",
+    category: "gaze-basics",
+    icon: "mdi-paw",
+    skills: ["choice", "fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 90,
+    minTargetSizePx: 210,
+    defaultDwellMs: 1300
+  },
+  {
     id: "butterfly",
     title: "Бабочки",
     description: "Смотри на мягкие световые пятна и буди бабочек взглядом.",
