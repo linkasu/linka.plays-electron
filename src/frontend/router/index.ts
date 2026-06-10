@@ -69,6 +69,7 @@ import KoiPondGame from "../games/koi-pond/KoiPondGame.vue";
 import LeavesWindGame from "../games/leaves-wind/LeavesWindGame.vue";
 import LetterHuntGame from "../games/letter-hunt/LetterHuntGame.vue";
 import LighthouseGame from "../games/lighthouse/LighthouseGame.vue";
+import LineDrawingGame from "../games/line-drawing/LineDrawingGame.vue";
 import LinesAnglesGame from "../games/lines-angles/LinesAnglesGame.vue";
 import LightGalleryGame from "../games/light-gallery/LightGalleryGame.vue";
 import LogicPairsGame from "../games/logic-pairs/LogicPairsGame.vue";
@@ -305,6 +306,7 @@ export default createRouter({
     { path: "/games/table-tennis", name: "table-tennis", component: TableTennisGame },
     { path: "/games/maze-path", name: "maze-path", component: MazePathGame },
     { path: "/games/garden-watering", name: "garden-watering", component: GardenWateringGame },
+    { path: "/games/line-drawing", name: "line-drawing", component: LineDrawingGame },
     { path: "/games/gaze-maze", name: "gaze-maze", component: GazeMazeGame },
     { path: "/games/:gameId", name: "planned-game", component: PlannedGamePage }
   ]

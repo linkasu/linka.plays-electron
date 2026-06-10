@@ -2163,6 +2163,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 120,
     minTargetSizePx: 150,
     defaultDwellMs: 1200
+  },
+  {
+    id: "line-drawing",
+    title: "Рисование линией",
+    description: "Веди взглядом мягкую кисть, рисуй свободную линию и проходи крупные точки по порядку.",
+    selfDescription: "Нарисуй линию по точкам.",
+    route: "/games/line-drawing",
+    category: "continuous-control",
+    icon: "mdi-draw-pen",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 170,
+    defaultDwellMs: 600
   }
 ];
 
