@@ -24,6 +24,7 @@ import GardenWateringGame from "../games/garden-watering/GardenWateringGame.vue"
 import GreaterLessGame from "../games/greater-less/GreaterLessGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import JellyfishGame from "../games/jellyfish/JellyfishGame.vue";
+import KiteGame from "../games/kite/KiteGame.vue";
 import KoiPondGame from "../games/koi-pond/KoiPondGame.vue";
 import LeavesWindGame from "../games/leaves-wind/LeavesWindGame.vue";
 import LightGalleryGame from "../games/light-gallery/LightGalleryGame.vue";
@@ -77,6 +78,7 @@ export default createRouter({
     { path: "/games/wake-owl", name: "wake-owl", component: WakeOwlGame },
     { path: "/games/clouds", name: "clouds", component: CloudsGame },
     { path: "/games/leaves-wind", name: "leaves-wind", component: LeavesWindGame },
+    { path: "/games/kite", name: "kite", component: KiteGame },
     { path: "/games/firefly-meadow", name: "firefly-meadow", component: FireflyMeadowGame },
     { path: "/games/starry-sky", name: "starry-sky", component: StarrySkyGame },
     { path: "/games/magic-dust", name: "magic-dust", component: MagicDustGame },

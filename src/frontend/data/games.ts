@@ -191,6 +191,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1500
   },
   {
+    id: "kite",
+    title: "Воздушный змей",
+    description: "Смотри на крупного змея: спокойный взгляд мягко удерживает его в воздухе и поднимает выше без ошибок.",
+    selfDescription: "Подними змея взглядом.",
+    route: "/games/kite",
+    category: "gaze-basics",
+    icon: "mdi-kite",
+    skills: ["fixation", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1450
+  },
+  {
     id: "firefly-meadow",
     title: "Светлячковая поляна",
     description: "Смотри на тихую поляну и мягко зажигай светлячков взглядом.",
