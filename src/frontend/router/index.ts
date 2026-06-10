@@ -100,6 +100,7 @@ import SpotDifferenceGame from "../games/spot-difference/SpotDifferenceGame.vue"
 import SoupRecipeGame from "../games/soup-recipe/SoupRecipeGame.vue";
 import SunRaysGame from "../games/sun-rays/SunRaysGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
+import TellPictureGame from "../games/tell-picture/TellPictureGame.vue";
 import ThreeFrameStoryGame from "../games/three-frame-story/ThreeFrameStoryGame.vue";
 import TicTacToeGame from "../games/tic-tac-toe/TicTacToeGame.vue";
 import TowerGame from "../games/tower/TowerGame.vue";
