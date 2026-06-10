@@ -303,6 +303,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1350
   },
   {
+    id: "warm-fire",
+    title: "Тёплый костёр",
+    description: "Смотри рядом с тихим костром: свечение и искры мягко усиливаются без вспышек и ошибок.",
+    selfDescription: "Согрей костёр взглядом.",
+    route: "/games/warm-fire",
+    category: "gaze-basics",
+    icon: "mdi-fire",
+    skills: ["fixation", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 88,
+    minTargetSizePx: 210,
+    defaultDwellMs: 1450
+  },
+  {
     id: "musical-pebbles",
     title: "Музыкальные камешки",
     description: "Смотри на крупные камешки, и они отвечают мягкими визуальными музыкальными волнами без ошибок.",
