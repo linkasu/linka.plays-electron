@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import ActionWhoGame from "../games/action-who/ActionWhoGame.vue";
 import AquariumGame from "../games/aquarium/AquariumGame.vue";
 import ArkanoidAssistGame from "../games/arkanoid-assist/ArkanoidAssistGame.vue";
+import BalancerGame from "../games/balancer/BalancerGame.vue";
 import BalloonRideGame from "../games/balloon-ride/BalloonRideGame.vue";
 import BalloonsGame from "../games/balloons/BalloonsGame.vue";
 import BattleshipLightGame from "../games/battleship-light/BattleshipLightGame.vue";
@@ -58,11 +59,13 @@ import FollowCueGame from "../games/follow-cue/FollowCueGame.vue";
 import FlowersGame from "../games/flowers/FlowersGame.vue";
 import FrogGame from "../games/frog/FrogGame.vue";
 import GardenWateringGame from "../games/garden-watering/GardenWateringGame.vue";
+import GatesPathGame from "../games/gates-path/GatesPathGame.vue";
 import GazeFollowSnakeGame from "../games/gaze-follow-snake/GazeFollowSnakeGame.vue";
 import GazeMazeGame from "../games/gaze-maze/GazeMazeGame.vue";
 import GliderGame from "../games/glider/GliderGame.vue";
 import GreaterLessGame from "../games/greater-less/GreaterLessGame.vue";
 import GridScanningGame from "../games/grid-scanning/GridScanningGame.vue";
+import GuideFishGame from "../games/guide-fish/GuideFishGame.vue";
 import HeroRouteGame from "../games/hero-route/HeroRouteGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import HiddenPictureGame from "../games/hidden-picture/HiddenPictureGame.vue";
@@ -76,6 +79,7 @@ import KoiPondGame from "../games/koi-pond/KoiPondGame.vue";
 import LeavesWindGame from "../games/leaves-wind/LeavesWindGame.vue";
 import LetterHuntGame from "../games/letter-hunt/LetterHuntGame.vue";
 import LighthouseGame from "../games/lighthouse/LighthouseGame.vue";
+import LineDrawingGame from "../games/line-drawing/LineDrawingGame.vue";
 import LinesFiveGame from "../games/lines-five/LinesFiveGame.vue";
 import LinesAnglesGame from "../games/lines-angles/LinesAnglesGame.vue";
 import LightGalleryGame from "../games/light-gallery/LightGalleryGame.vue";
@@ -314,6 +318,8 @@ export default createRouter({
     { path: "/games/tic-tac-toe", name: "tic-tac-toe", component: TicTacToeGame },
     { path: "/games/reversi-light", name: "reversi-light", component: ReversiLightGame },
     { path: "/games/lines-five", name: "lines-five", component: LinesFiveGame },
+    { path: "/games/tangram", name: "tangram", component: TangramGame },
+    { path: "/games/chess-mini", name: "chess-mini", component: ChessMiniGame },
     { path: "/games/calm-snake", name: "calm-snake", component: CalmSnakeGame },
     { path: "/games/pac-path", name: "pac-path", component: PacPathGame },
     { path: "/games/connect-four", name: "connect-four", component: ConnectFourGame },
@@ -323,9 +329,19 @@ export default createRouter({
     { path: "/games/step-pong", name: "step-pong", component: StepPongGame },
     { path: "/games/boat", name: "boat", component: BoatGame },
     { path: "/games/gaze-follow-snake", name: "gaze-follow-snake", component: GazeFollowSnakeGame },
+    { path: "/games/smooth-car", name: "smooth-car", component: SmoothCarGame },
+    { path: "/games/glider", name: "glider", component: GliderGame },
     { path: "/games/frog", name: "frog", component: FrogGame },
     { path: "/games/table-tennis", name: "table-tennis", component: TableTennisGame },
+    { path: "/games/line-drawing", name: "line-drawing", component: LineDrawingGame },
+    { path: "/games/cursor-magnet", name: "cursor-magnet", component: CursorMagnetGame },
     { path: "/games/gates-path", name: "gates-path", component: GatesPathGame },
+    { path: "/games/guide-fish", name: "guide-fish", component: GuideFishGame },
+    { path: "/games/rails", name: "rails", component: RailsGame },
+    { path: "/games/balancer", name: "balancer", component: BalancerGame },
+    { path: "/games/catch-wave", name: "catch-wave", component: CatchWaveGame },
+    { path: "/games/snow-trail", name: "snow-trail", component: SnowTrailGame },
+    { path: "/games/robot-vacuum", name: "robot-vacuum", component: RobotVacuumGame },
     { path: "/games/maze-path", name: "maze-path", component: MazePathGame },
     { path: "/games/garden-watering", name: "garden-watering", component: GardenWateringGame },
     { path: "/games/space-orbit", name: "space-orbit", component: SpaceOrbitGame },
