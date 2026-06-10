@@ -1395,6 +1395,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "one-many",
+    title: "Один / много",
+    description: "Выбирай, где один предмет, а где много предметов: мягкая AAC-тренировка количества без завершения на ошибке.",
+    selfDescription: "Выбери один или много.",
+    route: "/games/one-many",
+    category: "language-aac",
+    icon: "mdi-numeric-1-box-multiple-outline",
+    skills: ["aac", "choice", "counting", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "mini-dialog",
     title: "Мини-диалог",
     description: "Выбирай мягкие реплики для короткого AAC-диалога без неправильных ответов.",
