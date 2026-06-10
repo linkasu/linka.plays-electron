@@ -303,6 +303,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "find-house",
+    title: "Найди домик",
+    description: "Выбери крупный домик среди мягких объектов: если взгляд попал рядом, игра спокойно подскажет без поражения.",
+    selfDescription: "Найди домик взглядом.",
+    route: "/games/find-house",
+    category: "gaze-basics",
+    icon: "mdi-home-outline",
+    skills: ["choice", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 90,
+    minTargetSizePx: 210,
+    defaultDwellMs: 1300
+  },
+  {
     id: "northern-lights",
     title: "Северное сияние",
     description: "Смотри на ночное небо и мягко рисуй световые полосы взглядом без целей и ошибок.",
