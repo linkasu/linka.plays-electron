@@ -21,6 +21,8 @@ export type CalmTetrisPlacement = {
   column: number;
 };
 
+export type CalmTetrisSpawnOutcome = "playing" | "loss";
+
 export const calmTetrisColumns = 10;
 export const calmTetrisRows = 12;
 export const calmTetrisCells = calmTetrisColumns * calmTetrisRows;
@@ -227,4 +229,8 @@ export function clearTopRows(board: CalmTetrisBoard, rows = calmTetrisTopRecover
 
 export function canSpawnPiece(board: CalmTetrisBoard, piece: CalmTetrisPiece) {
   return isValidPlacement(board, createSpawnPlacement(piece));
+}
+
+export function calmTetrisSpawnOutcome(board: CalmTetrisBoard, piece: CalmTetrisPiece): CalmTetrisSpawnOutcome {
+  return canSpawnPiece(board, piece) ? "playing" : "loss";
 }

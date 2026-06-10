@@ -10,9 +10,8 @@ import {
   calmTetrisColumns,
   calmTetrisPieceIds,
   calmTetrisRows,
-  canSpawnPiece,
+  calmTetrisSpawnOutcome,
   cellIndex,
-  clearTopRows,
   createEmptyBoard,
   createPiece,
   createSpawnPlacement,
@@ -29,7 +28,7 @@ import {
 } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession } = useGameSession("calm-tetris", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSession("calm-tetris", {
   maxSteps: 24,
   dwellMs: 1100,
   sessionSeconds: 180,
@@ -124,24 +123,15 @@ function nextPiece() {
   const piece = createPiece(pieceSequence[pieceIndex.value % pieceSequence.length]);
   const placement = createSpawnPlacement(piece);
 
-  if (isValidPlacement(board.value, placement)) {
+  if (calmTetrisSpawnOutcome(board.value, piece) === "playing") {
     currentPlacement.value = placement;
     return;
   }
 
-  const recoveredBoard = clearTopRows(board.value);
-  if (canSpawnPiece(recoveredBoard, piece)) {
-    board.value = recoveredBoard;
-    currentPlacement.value = placement;
-    feedbackMessage.value = "Наверху стало тесно. Мы мягко освободили место и продолжаем.";
-    recordMistake({ kind: "soft-top-clear", piece: piece.id });
-    return;
-  }
-
-  board.value = createEmptyBoard();
   currentPlacement.value = placement;
-  feedbackMessage.value = "Поле стало слишком плотным. Начали новую спокойную доску без проигрыша.";
-  recordMistake({ kind: "soft-board-reset", piece: piece.id });
+  feedbackMessage.value = "Наверху нет места для новой фигуры. Это top-out: партия проиграна.";
+  recordMistake({ kind: "top-out", piece: piece.id, isCorrect: false });
+  finishSession("game-lost");
 }
 
 function dropCurrent() {

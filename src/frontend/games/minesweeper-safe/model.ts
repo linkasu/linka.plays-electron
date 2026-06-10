@@ -9,6 +9,7 @@ export type MinesweeperSafeCell = {
 };
 
 export type MinesweeperSafeCellState = "hidden" | "revealed" | "flagged";
+export type MinesweeperSafeChoiceOutcome = "safe" | "mine" | "ignored";
 
 export type MinesweeperSafeBoard = {
   roundId: string;
@@ -66,6 +67,11 @@ export function findSuggestedSafeIndex(cells: MinesweeperSafeCell[], states: Min
       revealedNeighbors: adjacentIndexes(cell.index, Math.trunc(Math.sqrt(cells.length))).filter((index) => revealed.has(index)).length
     }))
     .sort((a, b) => b.revealedNeighbors - a.revealedNeighbors || a.cell.adjacentMines - b.cell.adjacentMines || a.cell.index - b.cell.index)[0]?.cell.index;
+}
+
+export function minesweeperSafeChoiceOutcome(cell: MinesweeperSafeCell, state: MinesweeperSafeCellState): MinesweeperSafeChoiceOutcome {
+  if (state !== "hidden") return "ignored";
+  return cell.mine ? "mine" : "safe";
 }
 
 export function generateMinesweeperSafeBoard(settings: SessionSettings, roundIndex = 1): MinesweeperSafeBoard {

@@ -21,6 +21,8 @@ export type BattleshipLightShotResult = {
   allShipsFound: boolean;
 };
 
+export type BattleshipLightOutcome = "playing" | "win" | "loss";
+
 const shipCells = new Map<number, string>([
   [cellIndex(0, 1), "north-boat"],
   [cellIndex(0, 2), "north-boat"],
@@ -77,6 +79,12 @@ export function applyBattleshipLightShot(board: BattleshipLightCell[], shots: Ba
 
   const result: BattleshipLightShot = cell.hasShip ? "hit" : "water";
   return buildShotResult(board, { ...shots, [index]: result }, result);
+}
+
+export function battleshipLightOutcome(result: BattleshipLightShotResult, maxShots: number): BattleshipLightOutcome {
+  if (result.allShipsFound) return "win";
+  if (result.shotCount >= maxShots) return "loss";
+  return "playing";
 }
 
 function buildShotResult(board: BattleshipLightCell[], shots: BattleshipLightShots, result: BattleshipLightShot): BattleshipLightShotResult {

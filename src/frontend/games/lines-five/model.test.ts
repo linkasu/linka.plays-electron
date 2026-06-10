@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cellIndex, countColors, createInitialLinesFiveBoard, linesFiveCellCount, nextColorForStep, placeBall, suggestedMoveIndexes } from "./model";
+import { cellIndex, countColors, createInitialLinesFiveBoard, linesFiveCellCount, linesFiveOutcome, nextColorForStep, placeBall, suggestedMoveIndexes } from "./model";
 
 describe("lines-five model", () => {
   it("creates a 5x5 opening board with the first soft line setup", () => {
@@ -40,5 +40,10 @@ describe("lines-five model", () => {
     const result = placeBall(board, cellIndex(4, 4), "berry");
 
     expect(result?.cleared).toEqual([cellIndex(0, 0), cellIndex(1, 1), cellIndex(2, 2), cellIndex(3, 3), cellIndex(4, 4)]);
+  });
+
+  it("reports a loss when the board is full", () => {
+    expect(linesFiveOutcome(Array(linesFiveCellCount).fill("sky"))).toBe("loss");
+    expect(linesFiveOutcome(createInitialLinesFiveBoard())).toBe("playing");
   });
 });

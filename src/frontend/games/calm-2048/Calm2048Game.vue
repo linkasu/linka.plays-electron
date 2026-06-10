@@ -6,10 +6,10 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
-import { canMove, createInitialBoard, highestTile, moveBoard, spawnTile, type Calm2048Board, type Calm2048Direction } from "./model";
+import { calm2048Outcome, canMove, createInitialBoard, highestTile, moveBoard, spawnTile, type Calm2048Board, type Calm2048Direction } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession } = useGameSession("calm-2048", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSession("calm-2048", {
   preset: "gentle",
   maxSteps: 32,
   dwellMs: 1100,
@@ -62,8 +62,10 @@ function chooseDirection(direction: Calm2048Direction) {
   lastSpawnedIndex.value = spawn.spawnedIndex;
   recordSuccess({ targetId, direction, merged: move.merged, scoreGain: move.scoreGain, highestTile: highestTile(board.value), isCorrect: true });
 
-  if (!canMove(board.value)) {
-    feedbackMessage.value = "Поле мягко заполнилось. Это не проигрыш: можно отменить ход или начать новую доску.";
+  if (calm2048Outcome(board.value) === "loss") {
+    feedbackMessage.value = "Ходов больше нет. Партия 2048 проиграна, можно начать новую доску.";
+    recordMistake({ targetId, direction, reason: "no-legal-moves", highestTile: highestTile(board.value), isCorrect: false });
+    finishSession("game-lost");
   } else if (move.merged) {
     feedbackMessage.value = `Есть слияние: +${move.scoreGain}. Продолжаем спокойно.`;
   } else {
@@ -114,7 +116,7 @@ function tileColor(value: number) {
               <div>
                 <div class="text-overline text-secondary mb-1">Спокойная стратегия</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Собирай одинаковые плитки</h1>
-                <p class="text-body-1 text-medium-emphasis mb-0">Двигай всё поле одной крупной кнопкой. Нет спешки и резких завершений.</p>
+                <p class="text-body-1 text-medium-emphasis mb-0">Двигай всё поле одной крупной кнопкой. Если ходов не останется, партия завершится.</p>
               </div>
               <div class="d-flex flex-wrap ga-2">
                 <v-chip color="primary" size="large" variant="tonal">Лучшая плитка: {{ maxTile || 0 }}</v-chip>

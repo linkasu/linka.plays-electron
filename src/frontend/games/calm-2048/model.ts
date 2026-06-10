@@ -15,6 +15,8 @@ export type Calm2048SpawnResult = {
   value?: number;
 };
 
+export type Calm2048Outcome = "playing" | "loss";
+
 export const calm2048BoardSize = 4;
 export const calm2048CellCount = calm2048BoardSize * calm2048BoardSize;
 
@@ -80,6 +82,10 @@ export function canMove(board: Calm2048Board, direction?: Calm2048Direction) {
   }
 
   return false;
+}
+
+export function calm2048Outcome(board: Calm2048Board): Calm2048Outcome {
+  return canMove(board) ? "playing" : "loss";
 }
 
 export function highestTile(board: Calm2048Board) {

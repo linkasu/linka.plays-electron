@@ -6,10 +6,10 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
-import { cellIndex, columnOf, countColors, createEmptyLinesFiveBoard, createInitialLinesFiveBoard, isBoardFull, linesFiveSize, nextColorForStep, placeBall, rowOf, suggestedMoveIndexes, type LinesFiveCell, type LinesFiveColor } from "./model";
+import { cellIndex, columnOf, countColors, createInitialLinesFiveBoard, linesFiveOutcome, linesFiveSize, nextColorForStep, placeBall, rowOf, suggestedMoveIndexes, type LinesFiveCell, type LinesFiveColor } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordHint, recordMistake, recordSuccess, startSession } = useGameSession("lines-five", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordHint, recordMistake, recordSuccess, startSession, finishSession } = useGameSession("lines-five", {
   maxSteps: 10,
   dwellMs: 1300,
   sessionSeconds: 180,
@@ -56,7 +56,7 @@ function cellClasses(index: number, cell: LinesFiveCell) {
     "lines-cell-content",
     cell ? `lines-cell-content--${cell}` : "",
     {
-      "lines-cell-content--suggested": !cell && isSuggested(index),
+      "lines-cell-content--suggested": hintActive.value && !cell && isSuggested(index),
       "lines-cell-content--last": lastPlacedIndex.value === index,
       "lines-cell-content--cleared": clearedIndexes.value.includes(index)
     }
@@ -97,10 +97,10 @@ function chooseCell(index: number) {
     return;
   }
 
-  if (isBoardFull(board.value)) {
-    board.value = createEmptyLinesFiveBoard();
-    feedbackMessage.value = "Поле заполнилось без проигрыша. Мы спокойно очистили его и продолжаем.";
-    recordEvent("level-start", { reason: "board-refill" });
+  if (linesFiveOutcome(board.value) === "loss") {
+    feedbackMessage.value = "Поле заполнилось, а линия не собралась. Партия проиграна.";
+    recordMistake({ targetId: target, row: rowOf(index), column: columnOf(index), reason: "board-full", isCorrect: false });
+    finishSession("game-lost");
     return;
   }
 
@@ -129,7 +129,7 @@ function restart() {
               <div>
                 <div class="text-overline text-secondary mb-1">Мини-стратегия 5×5</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Lines 5</h1>
-                <p class="text-body-1 text-medium-emphasis mb-0">Ставь шарики и собирай линии из 3–5 одинаковых цветов. Проигрыша нет.</p>
+                <p class="text-body-1 text-medium-emphasis mb-0">Ставь шарики и собирай линии из 3–5 одинаковых цветов. Если поле заполнится без линии, партия закончится.</p>
               </div>
               <div class="d-flex flex-wrap ga-2">
                 <v-chip color="primary" size="large" variant="tonal">Следующий: {{ colorLabels[nextColor] }}</v-chip>
@@ -159,7 +159,7 @@ function restart() {
                       <template #default>
                         <div :class="cellClasses(cellIndex(row, column), board[cellIndex(row, column)])">
                           <div v-if="board[cellIndex(row, column)]" :class="['ball', `ball--${board[cellIndex(row, column)]}`]" />
-                          <div v-else-if="isSuggested(cellIndex(row, column))" class="soft-hint">
+                          <div v-else-if="hintActive && isSuggested(cellIndex(row, column))" class="soft-hint">
                             <v-icon icon="mdi-plus-circle-outline" size="34" />
                           </div>
                         </div>
@@ -182,7 +182,7 @@ function restart() {
                 </v-card>
 
                 <v-alert class="mt-4 text-body-2" color="info" icon="mdi-heart-outline" rounded="xl" variant="tonal">
-                  Если выбрать занятую клетку, игра только подскажет пустые места и продолжится.
+                  Если выбрать занятую клетку, игра покажет подсказку. Если заполнить всё поле без линии, партия завершится.
                 </v-alert>
               </v-col>
             </v-row>

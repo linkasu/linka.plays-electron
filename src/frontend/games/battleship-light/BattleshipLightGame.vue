@@ -6,7 +6,7 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
-import { applyBattleshipLightShot, coordinateLabel, countShots, createBattleshipLightBoard, totalShipCells, type BattleshipLightCell, type BattleshipLightShots } from "./model";
+import { applyBattleshipLightShot, battleshipLightOutcome, coordinateLabel, countShots, createBattleshipLightBoard, totalShipCells, type BattleshipLightCell, type BattleshipLightShots } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSession("battleship-light", {
@@ -21,6 +21,7 @@ const board = createBattleshipLightBoard();
 const shots = ref<BattleshipLightShots>({});
 const feedbackMessage = ref("Выбери любую крупную клетку моря. Попадание покажет лодочку, вода даст мягкую волну.");
 const lastShotIndex = ref<number>();
+const gameOutcome = ref<"playing" | "win" | "loss">("playing");
 
 const resultVisible = computed(() => session.status === "finished");
 const shotCount = computed(() => countShots(shots.value));
@@ -33,7 +34,8 @@ const hudStep = computed(() => Math.min(session.maxSteps, shotCount.value));
 const statusText = computed(() => {
   if (session.status === "paused") return "Пауза";
   if (session.status === "finished" && remainingShipCells.value === 0) return "Все кораблики найдены";
-  if (session.status === "finished") return "Раунд завершён спокойно";
+  if (session.status === "finished" && gameOutcome.value === "loss") return "Не все кораблики найдены";
+  if (session.status === "finished") return "Раунд завершён";
   if (lastShotIndex.value === undefined) return "Выбери клетку";
   return shots.value[lastShotIndex.value] === "hit" ? "Мягкое попадание" : "Вода, продолжаем";
 });
@@ -68,17 +70,24 @@ function chooseCell(index: number) {
     feedbackMessage.value = `Попадание на ${coordinate}. Кораблик спокойно подсветился.`;
     recordSuccess({ targetId, coordinate, result: "hit", isCorrect: true });
   } else {
-    feedbackMessage.value = `На ${coordinate} вода. Это не поражение: можно искать дальше.`;
+    feedbackMessage.value = `На ${coordinate} вода. Это промах: ход потрачен, ищем дальше.`;
     recordMistake({ targetId, coordinate, result: "water", isCorrect: false });
   }
 
-  if (shot.allShipsFound) finishSession("game-complete");
-  else if (shot.shotCount >= session.maxSteps) finishSession("max-steps");
+  gameOutcome.value = battleshipLightOutcome(shot, session.maxSteps);
+  if (gameOutcome.value === "win") {
+    feedbackMessage.value = "Все кораблики найдены до конца хода. Победа.";
+    finishSession("game-complete");
+  } else if (gameOutcome.value === "loss") {
+    feedbackMessage.value = "Ходы закончились, а часть корабликов осталась в море. Партия проиграна.";
+    finishSession("game-lost");
+  }
 }
 
 function restart() {
   shots.value = {};
   lastShotIndex.value = undefined;
+  gameOutcome.value = "playing";
   feedbackMessage.value = "Новое спокойное море готово. Выбери любую крупную клетку.";
   startSession();
 }
@@ -96,7 +105,7 @@ function restart() {
               <div>
                 <div class="text-overline text-secondary mb-1">Спокойная стратегия</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Морской бой light</h1>
-                <p class="text-body-1 text-medium-emphasis mb-0">Смотри на крупную клетку моря. Попадание и вода появляются мягко, без резких эффектов и поражения.</p>
+                <p class="text-body-1 text-medium-emphasis mb-0">Смотри на крупную клетку моря. Попадание помогает победить, вода тратит ход.</p>
               </div>
               <div class="d-flex flex-wrap ga-2">
                 <v-chip color="primary" size="large" variant="tonal" prepend-icon="mdi-radar">{{ statusText }}</v-chip>
@@ -130,7 +139,7 @@ function restart() {
               </GameDwellButton>
             </div>
 
-            <div class="text-body-1 text-medium-emphasis text-center mt-5">Можно выбирать любые клетки. Вода только подсказывает, где кораблика нет.</div>
+            <div class="text-body-1 text-medium-emphasis text-center mt-5">Можно выбирать любые клетки, но за {{ session.maxSteps }} ходов нужно найти все кораблики.</div>
           </v-card>
         </v-col>
       </v-row>

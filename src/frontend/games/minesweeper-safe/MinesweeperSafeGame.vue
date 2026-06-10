@@ -6,10 +6,10 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
-import { createInitialCellStates, findSuggestedSafeIndex, generateMinesweeperSafeBoard, type MinesweeperSafeCell } from "./model";
+import { createInitialCellStates, findSuggestedSafeIndex, generateMinesweeperSafeBoard, minesweeperSafeChoiceOutcome, type MinesweeperSafeCell } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("minesweeper-safe", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSession("minesweeper-safe", {
   maxSteps: 10,
   dwellMs: 1200,
   sessionSeconds: 180
@@ -24,7 +24,7 @@ const lastFlaggedIndex = ref<number>();
 const resultVisible = computed(() => session.status === "finished");
 const safeRemaining = computed(() => board.value.cells.filter((cell) => !cell.mine && cellStates.value[cell.index] === "hidden").length);
 const helperText = computed(() => {
-  if (lastFlaggedIndex.value !== undefined) return "Это была мина. Мы тихо поставили флажок и подсветили безопасный следующий ход.";
+  if (lastFlaggedIndex.value !== undefined) return "Это была мина. Партия завершена: в сапёре мина считается проигрышем.";
   if (hintedIndex.value !== undefined) return "Мягкая подсказка включена: выбери подсвеченную безопасную клетку.";
   return "Открытые числа показывают, сколько мин рядом. Выбирай закрытые клетки, которые выглядят безопасно.";
 });
@@ -76,11 +76,13 @@ function requestHint(reason = "manual") {
 function chooseCell(cell: MinesweeperSafeCell) {
   if (isDisabled(cell)) return;
 
-  if (cell.mine) {
-    cellStates.value[cell.index] = "flagged";
+  const outcome = minesweeperSafeChoiceOutcome(cell, cellStates.value[cell.index]);
+  if (outcome === "ignored") return;
+
+  if (outcome === "mine") {
     lastFlaggedIndex.value = cell.index;
-    recordMistake({ roundId: board.value.roundId, targetId: cellTargetId(cell.index), result: "flagged-mine" });
-    requestHint("mine-flagged");
+    recordMistake({ roundId: board.value.roundId, targetId: cellTargetId(cell.index), result: "mine", isCorrect: false });
+    finishSession("game-lost");
     return;
   }
 
@@ -103,7 +105,7 @@ function restart() {
 
 <template>
   <div class="minesweeper-safe-shell">
-    <GameHud title="Сапёр без взрыва" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud title="Сапёр" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
 
     <v-container class="game-container" fluid>
       <v-row justify="center">
@@ -111,8 +113,8 @@ function restart() {
           <v-card class="pa-4 pa-md-7" rounded="xl" elevation="10">
             <div class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-5">
               <div>
-                <div class="text-overline text-secondary mb-1">Стратегия без резких ошибок</div>
-                <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Сапёр без взрыва</h1>
+                <div class="text-overline text-secondary mb-1">Спокойная стратегия</div>
+                <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Сапёр</h1>
                 <p class="text-body-1 text-md-h6 text-medium-emphasis mb-0">{{ helperText }}</p>
               </div>
               <div class="d-flex flex-column flex-sm-row align-stretch align-sm-center ga-3">
@@ -130,7 +132,7 @@ function restart() {
               </div>
             </div>
 
-            <div class="board-wrap mx-auto" :style="{ '--board-size': board.size }" role="grid" aria-label="Поле сапёра без взрыва">
+            <div class="board-wrap mx-auto" :style="{ '--board-size': board.size }" role="grid" aria-label="Поле сапёра">
               <GameDwellButton
                 v-for="cell in board.cells"
                 :key="`${board.roundId}:${cell.index}`"
@@ -161,14 +163,14 @@ function restart() {
             </div>
 
             <v-alert class="mt-5 text-body-1" color="info" icon="mdi-flag-variant" rounded="xl" variant="tonal">
-              Если выбрать мину, игра не взрывается: клетка станет флажком, а рядом появится мягкая подсказка.
+              Если выбрать мину, партия завершится. Используй числа и подсказку, чтобы искать безопасные клетки.
             </v-alert>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
 
-    <GameResultDialog :model-value="resultVisible" title="Сапёр без взрыва" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog :model-value="resultVisible" title="Сапёр" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
   </div>
 </template>
 

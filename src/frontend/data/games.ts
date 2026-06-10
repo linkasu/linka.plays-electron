@@ -1914,8 +1914,8 @@ export const games: GameInfo[] = [
   },
   {
     id: "minesweeper-safe",
-    title: "Сапёр без взрыва",
-    description: "Выбирай безопасные клетки по числам-подсказкам: мина не взрывается, а спокойно становится флажком.",
+    title: "Сапёр",
+    description: "Выбирай безопасные клетки по числам-подсказкам: мина завершает партию, поэтому ищи аккуратно.",
     selfDescription: "Найди безопасную клетку.",
     route: "/games/minesweeper-safe",
     category: "strategy",
@@ -1943,7 +1943,7 @@ export const games: GameInfo[] = [
   {
     id: "calm-2048",
     title: "2048 мягкий",
-    description: "Сдвигай плитки 4×4 и спокойно собирай одинаковые числа без резкого проигрыша.",
+    description: "Сдвигай плитки 4×4 и собирай одинаковые числа: если ходов не останется, партия завершится.",
     selfDescription: "Собери одинаковые плитки.",
     route: "/games/calm-2048",
     category: "strategy",
@@ -2055,7 +2055,7 @@ export const games: GameInfo[] = [
   {
     id: "lines-five",
     title: "Lines 5",
-    description: "Ставь шарики на мини-поле 5×5 и спокойно собирай линии из 3–5 одинаковых цветов; неверный выбор только включает подсказку.",
+    description: "Ставь шарики на мини-поле 5×5 и собирай линии из 3–5 одинаковых цветов, пока поле не заполнилось.",
     selfDescription: "Собери линию шариков.",
     route: "/games/lines-five",
     category: "strategy",
@@ -2111,7 +2111,7 @@ export const games: GameInfo[] = [
   {
     id: "battleship-light",
     title: "Морской бой light",
-    description: "Выбирай клетки на крупной морской сетке: попадания и вода показываются спокойно, без поражения.",
+    description: "Выбирай клетки на крупной морской сетке: за ограниченное число ходов нужно найти все кораблики.",
     selfDescription: "Выбери клетку моря.",
     route: "/games/battleship-light",
     category: "strategy",

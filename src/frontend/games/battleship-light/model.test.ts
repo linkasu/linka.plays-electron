@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyBattleshipLightShot, battleshipLightSize, cellIndex, coordinateLabel, countShots, createBattleshipLightBoard, totalShipCells, type BattleshipLightShots } from "./model";
+import { applyBattleshipLightShot, battleshipLightOutcome, battleshipLightSize, cellIndex, coordinateLabel, countShots, createBattleshipLightBoard, totalShipCells, type BattleshipLightShots } from "./model";
 
 describe("battleship light model", () => {
   it("creates a fixed large 5 by 5 board", () => {
@@ -46,6 +46,20 @@ describe("battleship light model", () => {
 
     expect(countShots(final, "hit")).toBe(totalShipCells(board));
     expect(applyBattleshipLightShot(board, final, shipIndexes[0]).allShipsFound).toBe(true);
+  });
+
+  it("reports win or loss by shot budget", () => {
+    const board = createBattleshipLightBoard();
+    const shipIndexes = board.filter((cell) => cell.hasShip).map((cell) => cell.index);
+    const waterIndexes = board.filter((cell) => !cell.hasShip).map((cell) => cell.index);
+    const winningShots = shipIndexes.reduce((shots, index) => applyBattleshipLightShot(board, shots, index).shots, {} as BattleshipLightShots);
+    const losingResult = waterIndexes.slice(0, 10).reduce(
+      (_, index, shotIndex) => applyBattleshipLightShot(board, waterIndexes.slice(0, shotIndex).reduce((shots, previousIndex) => applyBattleshipLightShot(board, shots, previousIndex).shots, {} as BattleshipLightShots), index),
+      applyBattleshipLightShot(board, {}, waterIndexes[0])
+    );
+
+    expect(battleshipLightOutcome(applyBattleshipLightShot(board, winningShots, shipIndexes[0]), 10)).toBe("win");
+    expect(battleshipLightOutcome(losingResult, 10)).toBe("loss");
   });
 
   it("throws for an invalid cell index", () => {

@@ -3,10 +3,10 @@ import {
   calmTetrisCells,
   calmTetrisColumns,
   calmTetrisRows,
+  calmTetrisSpawnOutcome,
   canSpawnPiece,
   cellIndex,
   clearFullLines,
-  clearTopRows,
   createEmptyBoard,
   createPiece,
   createSpawnPlacement,
@@ -84,13 +84,14 @@ describe("calm-tetris model", () => {
     expect(result.board[cellIndex(0, 0)]).toBe("");
   });
 
-  it("clears crowded top rows for soft recovery", () => {
+  it("detects crowded top rows as top-out in strict play", () => {
     const board = createEmptyBoard();
     const piece = createPiece("i");
     const spawn = createSpawnPlacement(piece);
     board[cellIndex(0, spawn.column)] = "s";
 
     expect(canSpawnPiece(board, piece)).toBe(false);
-    expect(canSpawnPiece(clearTopRows(board), piece)).toBe(true);
+    expect(calmTetrisSpawnOutcome(board, piece)).toBe("loss");
+    expect(calmTetrisSpawnOutcome(createEmptyBoard(), piece)).toBe("playing");
   });
 });

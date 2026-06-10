@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canMove, createEmptyBoard, createInitialBoard, highestTile, moveBoard, spawnTile, type Calm2048Random } from "./model";
+import { calm2048Outcome, canMove, createEmptyBoard, createInitialBoard, highestTile, moveBoard, spawnTile, type Calm2048Random } from "./model";
 
 function randomFrom(values: number[]): Calm2048Random {
   let index = 0;
@@ -75,5 +75,10 @@ describe("calm 2048 model", () => {
 
   it("reports the highest tile", () => {
     expect(highestTile([2, 4, 0, 16, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])).toBe(16);
+  });
+
+  it("reports a loss when the board has no legal moves", () => {
+    expect(calm2048Outcome([2, 4, 2, 4, 4, 2, 4, 2, 2, 4, 2, 4, 4, 2, 4, 2])).toBe("loss");
+    expect(calm2048Outcome([2, 4, 2, 4, 4, 2, 4, 2, 2, 4, 2, 4, 4, 2, 2, 4])).toBe("playing");
   });
 });

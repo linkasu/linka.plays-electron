@@ -9,6 +9,8 @@ export type LinesFiveMoveResult = {
   completedLines: number[][];
 };
 
+export type LinesFiveOutcome = "playing" | "loss";
+
 export const linesFiveSize = 5;
 export const linesFiveCellCount = linesFiveSize * linesFiveSize;
 export const linesFiveColors: LinesFiveColor[] = ["sky", "sun", "leaf", "berry"];
@@ -60,6 +62,10 @@ export function emptyCellIndexes(board: LinesFiveBoard) {
 
 export function isBoardFull(board: LinesFiveBoard) {
   return emptyCellIndexes(board).length === 0;
+}
+
+export function linesFiveOutcome(board: LinesFiveBoard): LinesFiveOutcome {
+  return isBoardFull(board) ? "loss" : "playing";
 }
 
 export function countColors(board: LinesFiveBoard) {

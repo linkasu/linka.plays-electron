@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { settingsFromPreset } from "../../core/settings";
-import { adjacentIndexes, createInitialCellStates, findSuggestedSafeIndex, generateMinesweeperSafeBoard } from "./model";
+import { adjacentIndexes, createInitialCellStates, findSuggestedSafeIndex, generateMinesweeperSafeBoard, minesweeperSafeChoiceOutcome } from "./model";
 
 describe("minesweeper-safe model", () => {
   it("creates a standard board with five mines and safe opening clues", () => {
@@ -41,5 +41,18 @@ describe("minesweeper-safe model", () => {
     expect(suggestion).toBeTypeOf("number");
     expect(board.cells[suggestion ?? -1].mine).toBe(false);
     expect(states[suggestion ?? -1]).toBe("hidden");
+  });
+
+  it("treats selecting a mine as a losing choice", () => {
+    const board = generateMinesweeperSafeBoard(settingsFromPreset("standard"), 7);
+    const states = createInitialCellStates(board);
+    const mine = board.cells.find((cell) => cell.mine);
+    const safe = board.cells.find((cell) => !cell.mine && states[cell.index] === "hidden");
+
+    expect(mine).toBeDefined();
+    expect(safe).toBeDefined();
+    expect(minesweeperSafeChoiceOutcome(mine!, states[mine!.index])).toBe("mine");
+    expect(minesweeperSafeChoiceOutcome(safe!, states[safe!.index])).toBe("safe");
+    expect(minesweeperSafeChoiceOutcome(board.cells[board.initialRevealed[0]], "revealed")).toBe("ignored");
   });
 });
