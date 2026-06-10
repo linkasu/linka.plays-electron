@@ -1927,6 +1927,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "domino-matching",
+    title: "Домино: найди сторону",
+    description: "Подбирай домино по количеству точек на нужной стороне: ошибка мягко подсветит подходящую сторону.",
+    selfDescription: "Подбери сторону домино.",
+    route: "/games/domino-matching",
+    category: "strategy",
+    icon: "mdi-dots-grid",
+    skills: ["counting", "choice", "classification"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 148,
+    defaultDwellMs: 1300
+  },
+  {
     id: "calm-2048",
     title: "2048 мягкий",
     description: "Сдвигай плитки 4×4 и спокойно собирай одинаковые числа без резкого проигрыша.",
