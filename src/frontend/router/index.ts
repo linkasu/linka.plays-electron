@@ -176,6 +176,7 @@ export default createRouter({
     { path: "/games/rain-garden", name: "rain-garden", component: RainGardenGame },
     { path: "/games/ducks", name: "ducks", component: DucksGame },
     { path: "/games/count-items", name: "count-items", component: CountItemsGame },
+    { path: "/games/coin-counting", name: "coin-counting", component: CoinCountingGame },
     { path: "/games/greater-less", name: "greater-less", component: GreaterLessGame },
     { path: "/games/choose-emotion", name: "choose-emotion", component: ChooseEmotionGame },
     { path: "/games/choose-picture", name: "choose-picture", component: ChoosePictureGame },

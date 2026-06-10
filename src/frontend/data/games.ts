@@ -1535,6 +1535,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "coin-counting",
+    title: "Сложи монетки",
+    description: "Выбирай крупные монетки 1, 2 и 5, спокойно собирая заданную сумму от 1 до 10.",
+    selfDescription: "Сложи монетки.",
+    route: "/games/coin-counting",
+    category: "numeracy",
+    icon: "mdi-cash-multiple",
+    skills: ["counting", "math", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 140,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "greater-less",
     title: "Больше / меньше",
     description: "Сравни две группы предметов и выбери, где больше или меньше.",
