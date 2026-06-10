@@ -11,6 +11,7 @@ import BreathingFlowerGame from "../games/breathing-flower/BreathingFlowerGame.v
 import BuildBridgeGame from "../games/build-bridge/BuildBridgeGame.vue";
 import BuildRobotGame from "../games/build-robot/BuildRobotGame.vue";
 import ButterflyGame from "../games/butterfly/ButterflyGame.vue";
+import CalendarGame from "../games/calendar/CalendarGame.vue";
 import Calm2048Game from "../games/calm-2048/Calm2048Game.vue";
 import ChoosePictureGame from "../games/choose-picture/ChoosePictureGame.vue";
 import CalmTetrisGame from "../games/calm-tetris/CalmTetrisGame.vue";
@@ -181,6 +182,7 @@ export default createRouter({
     { path: "/games/quiet-bubbles", name: "quiet-bubbles", component: QuietBubblesGame },
     { path: "/games/rain-garden", name: "rain-garden", component: RainGardenGame },
     { path: "/games/ducks", name: "ducks", component: DucksGame },
+    { path: "/games/calendar", name: "calendar", component: CalendarGame },
     { path: "/games/clock", name: "clock", component: ClockGame },
     { path: "/games/count-items", name: "count-items", component: CountItemsGame },
     { path: "/games/coin-counting", name: "coin-counting", component: CoinCountingGame },
