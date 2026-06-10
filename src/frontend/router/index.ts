@@ -98,6 +98,7 @@ import ShadowMatchGame from "../games/shadow-match/ShadowMatchGame.vue";
 import ShapeDanceGame from "../games/shape-dance/ShapeDanceGame.vue";
 import ShapesGame from "../games/shapes/ShapesGame.vue";
 import ShelfSortingGame from "../games/shelf-sorting/ShelfSortingGame.vue";
+import SimpleGraphsGame from "../games/simple-graphs/SimpleGraphsGame.vue";
 import SoapCirclesGame from "../games/soap-circles/SoapCirclesGame.vue";
 import SoundSourceGame from "../games/sound-source/SoundSourceGame.vue";
 import SnowflakesGame from "../games/snowflakes/SnowflakesGame.vue";
@@ -185,6 +186,7 @@ export default createRouter({
     { path: "/games/count-items", name: "count-items", component: CountItemsGame },
     { path: "/games/coin-counting", name: "coin-counting", component: CoinCountingGame },
     { path: "/games/greater-less", name: "greater-less", component: GreaterLessGame },
+    { path: "/games/simple-graphs", name: "simple-graphs", component: SimpleGraphsGame },
     { path: "/games/number-line", name: "number-line", component: NumberLineGame },
     { path: "/games/choose-emotion", name: "choose-emotion", component: ChooseEmotionGame },
     { path: "/games/choose-picture", name: "choose-picture", component: ChoosePictureGame },

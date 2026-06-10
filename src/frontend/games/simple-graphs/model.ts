@@ -1,0 +1,132 @@
+import type { SessionSettings } from "../../core/settings";
+import { shuffleItems } from "../../data/wordBank";
+
+export type SimpleGraphsQuestionKind = "more" | "less" | "count";
+
+export type SimpleGraphsBar = {
+  id: string;
+  label: string;
+  emoji: string;
+  value: number;
+  color: string;
+};
+
+export type SimpleGraphsChoice = {
+  choiceId: string;
+  label: string;
+  value?: number;
+  barId?: string;
+};
+
+export type SimpleGraphsRound = {
+  roundId: string;
+  prompt: string;
+  helperText: string;
+  mistakeHint: string;
+  questionKind: SimpleGraphsQuestionKind;
+  bars: SimpleGraphsBar[];
+  choices: SimpleGraphsChoice[];
+  correctChoiceId: string;
+  correctIndex: number;
+  targetBar?: SimpleGraphsBar;
+};
+
+const graphItems = [
+  { id: "apples", label: "яблоки", emoji: "🍎", color: "#f28b82" },
+  { id: "stars", label: "звёзды", emoji: "⭐", color: "#fdd663" },
+  { id: "fish", label: "рыбки", emoji: "🐟", color: "#7baaf7" },
+  { id: "flowers", label: "цветы", emoji: "🌸", color: "#f7a1c4" },
+  { id: "ducks", label: "утки", emoji: "🦆", color: "#81c995" },
+  { id: "cars", label: "машинки", emoji: "🚗", color: "#a78bfa" }
+] as const;
+
+function maxValueFor(settings: SessionSettings) {
+  if (settings.preset === "gentle") return 5;
+  if (settings.preset === "challenge") return 9;
+  return 7;
+}
+
+function questionKindFor(roundIndex: number): SimpleGraphsQuestionKind {
+  const kinds: SimpleGraphsQuestionKind[] = ["more", "less", "count"];
+  return kinds[(roundIndex - 1) % kinds.length];
+}
+
+function pickValues(settings: SessionSettings) {
+  return shuffleItems(Array.from({ length: maxValueFor(settings) }, (_, index) => index + 1)).slice(0, 3);
+}
+
+function buildCountChoices(answer: number, settings: SessionSettings): SimpleGraphsChoice[] {
+  const choiceCount = settings.preset === "gentle" ? 3 : 4;
+  const max = maxValueFor(settings);
+  const nearby = [answer - 1, answer + 1, answer - 2, answer + 2]
+    .filter((value) => value >= 1 && value <= max && value !== answer);
+  const values = new Set([answer]);
+
+  for (const value of shuffleItems(nearby)) {
+    if (values.size < choiceCount) values.add(value);
+  }
+  for (const value of shuffleItems(Array.from({ length: max }, (_, index) => index + 1))) {
+    if (values.size < choiceCount && value !== answer) values.add(value);
+  }
+
+  return shuffleItems([...values]).map((value) => ({
+    choiceId: `count:${value}`,
+    label: String(value),
+    value
+  }));
+}
+
+function buildBarChoices(bars: SimpleGraphsBar[]): SimpleGraphsChoice[] {
+  return bars.map((bar) => ({
+    choiceId: `bar:${bar.id}`,
+    label: `${bar.emoji} ${bar.label}`,
+    barId: bar.id,
+    value: bar.value
+  }));
+}
+
+export function generateSimpleGraphsRound(settings: SessionSettings, roundIndex = 1): SimpleGraphsRound {
+  const questionKind = questionKindFor(roundIndex);
+  const items = shuffleItems([...graphItems]).slice(0, 3);
+  const values = pickValues(settings);
+  const bars = items.map((item, index) => ({ ...item, value: values[index] }));
+
+  if (questionKind === "count") {
+    const targetBar = bars[(roundIndex - 1) % bars.length];
+    const choices = buildCountChoices(targetBar.value, settings);
+    const correctChoiceId = `count:${targetBar.value}`;
+
+    return {
+      roundId: `simple-graphs:round:${roundIndex}`,
+      prompt: `Сколько у столбика "${targetBar.label}"?`,
+      helperText: "Найди столбик и выбери его число.",
+      mistakeHint: `Мягко посмотри на столбик "${targetBar.label}": его высота показывает ${targetBar.value}.`,
+      questionKind,
+      bars,
+      choices,
+      correctChoiceId,
+      correctIndex: choices.findIndex((choice) => choice.choiceId === correctChoiceId),
+      targetBar
+    };
+  }
+
+  const correctBar = bars.reduce((best, bar) => questionKind === "more"
+    ? bar.value > best.value ? bar : best
+    : bar.value < best.value ? bar : best);
+  const choices = buildBarChoices(bars);
+  const correctChoiceId = `bar:${correctBar.id}`;
+
+  return {
+    roundId: `simple-graphs:round:${roundIndex}`,
+    prompt: questionKind === "more" ? "Где больше?" : "Где меньше?",
+    helperText: questionKind === "more" ? "Выбери самый высокий столбик." : "Выбери самый низкий столбик.",
+    mistakeHint: questionKind === "more"
+      ? `Самый высокий столбик - "${correctBar.label}", там ${correctBar.value}.`
+      : `Самый низкий столбик - "${correctBar.label}", там ${correctBar.value}.`,
+    questionKind,
+    bars,
+    choices,
+    correctChoiceId,
+    correctIndex: choices.findIndex((choice) => choice.choiceId === correctChoiceId)
+  };
+}

@@ -1703,6 +1703,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "simple-graphs",
+    title: "Простые графики",
+    description: "Прочитай простой столбиковый график: выбери, где больше, где меньше или сколько показано.",
+    selfDescription: "Прочитай столбики.",
+    route: "/games/simple-graphs",
+    category: "numeracy",
+    icon: "mdi-chart-bar",
+    skills: ["counting", "math", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "number-line",
     title: "Числовая дорожка",
     description: "Выбирай нужное или следующее число на крупной дорожке от 1 до 10.",
