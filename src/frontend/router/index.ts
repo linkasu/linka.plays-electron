@@ -18,6 +18,7 @@ import CatchStarGame from "../games/catch-star/CatchStarGame.vue";
 import CloudsGame from "../games/clouds/CloudsGame.vue";
 import ColorCircleGame from "../games/color-circle/ColorCircleGame.vue";
 import ColorPatternGame from "../games/color-pattern/ColorPatternGame.vue";
+import CoinCountingGame from "../games/coin-counting/CoinCountingGame.vue";
 import ConnectFourGame from "../games/connect-four/ConnectFourGame.vue";
 import CountItemsGame from "../games/count-items/CountItemsGame.vue";
 import ComicStripGame from "../games/comic-strip/ComicStripGame.vue";
@@ -162,6 +163,7 @@ export default createRouter({
     { path: "/games/rain-garden", name: "rain-garden", component: RainGardenGame },
     { path: "/games/ducks", name: "ducks", component: DucksGame },
     { path: "/games/count-items", name: "count-items", component: CountItemsGame },
+    { path: "/games/coin-counting", name: "coin-counting", component: CoinCountingGame },
     { path: "/games/greater-less", name: "greater-less", component: GreaterLessGame },
     { path: "/games/choose-picture", name: "choose-picture", component: ChoosePictureGame },
     { path: "/games/eat-or-not-eat", name: "eat-or-not-eat", component: EatOrNotEatGame },
