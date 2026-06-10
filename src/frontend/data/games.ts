@@ -1045,6 +1045,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "three-frame-story",
+    title: "История из 3 кадров",
+    description: "Выбирай следующий крупный кадр и постепенно собирай короткую историю из трёх шагов.",
+    selfDescription: "Собери историю по кадрам.",
+    route: "/games/three-frame-story",
+    category: "sequencing",
+    icon: "mdi-filmstrip",
+    skills: ["sequence", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 140,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "patterns",
     title: "Паттерны",
     description: "Продолжай ряд крупных фигур и цветов по повторяющемуся паттерну.",

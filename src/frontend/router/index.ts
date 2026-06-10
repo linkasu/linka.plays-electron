@@ -74,6 +74,7 @@ import StarrySkyGame from "../games/starry-sky/StarrySkyGame.vue";
 import SpotDifferenceGame from "../games/spot-difference/SpotDifferenceGame.vue";
 import SunRaysGame from "../games/sun-rays/SunRaysGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
+import ThreeFrameStoryGame from "../games/three-frame-story/ThreeFrameStoryGame.vue";
 import TicTacToeGame from "../games/tic-tac-toe/TicTacToeGame.vue";
 import TowerGame from "../games/tower/TowerGame.vue";
 import TrainSequenceGame from "../games/train-sequence/TrainSequenceGame.vue";
@@ -152,6 +153,7 @@ export default createRouter({
     { path: "/games/find-color", name: "find-color", component: FindColorGame },
     { path: "/games/find-shape", name: "find-shape", component: FindShapeGame },
     { path: "/games/tower", name: "tower", component: TowerGame },
+    { path: "/games/three-frame-story", name: "three-frame-story", component: ThreeFrameStoryGame },
     { path: "/games/train-sequence", name: "train-sequence", component: TrainSequenceGame },
     { path: "/games/patterns", name: "patterns", component: PatternsGame },
     { path: "/games/fishes", name: "fishes", component: FishesGame },
