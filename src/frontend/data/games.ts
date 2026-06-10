@@ -1045,6 +1045,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "shape-dance",
+    title: "Танец фигур",
+    description: "Повтори последовательность крупных фигур, которые мягко двигаются и подсвечиваются по очереди; ошибка спокойно повторит танец.",
+    selfDescription: "Повтори танец фигур.",
+    route: "/games/shape-dance",
+    category: "sequencing",
+    icon: "mdi-shape-outline",
+    skills: ["sequence", "choice", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 210,
+    defaultDwellMs: 1250
+  },
+  {
     id: "patterns",
     title: "Паттерны",
     description: "Продолжай ряд крупных фигур и цветов по повторяющемуся паттерну.",
