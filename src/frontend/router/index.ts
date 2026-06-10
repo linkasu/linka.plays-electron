@@ -175,6 +175,7 @@ export default createRouter({
     { path: "/games/choose-picture", name: "choose-picture", component: ChoosePictureGame },
     { path: "/games/action-who", name: "action-who", component: ActionWhoGame },
     { path: "/games/eat-or-not-eat", name: "eat-or-not-eat", component: EatOrNotEatGame },
+    { path: "/games/word-categories", name: "word-categories", component: WordCategoriesGame },
     { path: "/games/feed-animal", name: "feed-animal", component: FeedAnimalGame },
     { path: "/games/yes-no", name: "yes-no", component: YesNoGame },
     { path: "/games/i-want", name: "i-want", component: IWantGame },
