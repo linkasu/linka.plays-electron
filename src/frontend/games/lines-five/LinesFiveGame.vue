@@ -209,7 +209,7 @@ function restart() {
 }
 
 .game-container {
-  padding-block-start: 132px;
+  padding-block-start: 112px;
 }
 
 .board-grid {

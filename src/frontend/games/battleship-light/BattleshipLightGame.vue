@@ -159,7 +159,7 @@ function restart() {
 }
 
 .game-container {
-  padding-block-start: 132px;
+  padding-block-start: 112px;
 }
 
 .game-card {
@@ -206,7 +206,7 @@ function restart() {
 
 @media (max-width: 600px) {
   .game-container {
-    padding-block-start: 176px;
+    padding-block-start: 140px;
   }
 
   .sea-grid {

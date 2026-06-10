@@ -184,7 +184,7 @@ function restart() {
 }
 
 .game-container {
-  padding-block-start: 8.5rem;
+  padding-block-start: 7rem;
 }
 
 .hint-button-content,
@@ -229,7 +229,7 @@ function restart() {
 
 @media (max-width: 720px) {
   .game-container {
-    padding-block-start: 10.5rem;
+    padding-block-start: 8.75rem;
   }
 
   .board-wrap {
@@ -240,7 +240,7 @@ function restart() {
 
 @media (max-height: 44rem) {
   .game-container {
-    padding-block-start: 7.75rem;
+    padding-block-start: 7rem;
   }
 }
 </style>

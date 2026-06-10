@@ -254,7 +254,7 @@ function restart() {
 }
 
 .game-container {
-  padding-block-start: 132px;
+  padding-block-start: 112px;
 }
 
 .game-card {
@@ -323,7 +323,7 @@ function restart() {
 
 @media (max-width: 720px) {
   .game-container {
-    padding-block-start: 170px;
+    padding-block-start: 140px;
   }
 
   .controls-grid {

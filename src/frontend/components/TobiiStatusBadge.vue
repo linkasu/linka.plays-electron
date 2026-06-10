@@ -19,7 +19,7 @@ const icon = computed(() => {
 </script>
 
 <template>
-  <v-chip :color="color" size="large" variant="flat">
+  <v-chip :color="color" size="small" variant="flat">
     <v-icon start :icon="icon" />
     {{ status.message }}
   </v-chip>

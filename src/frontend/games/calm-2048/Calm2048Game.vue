@@ -196,7 +196,7 @@ function tileColor(value: number) {
 }
 
 .game-container {
-  padding-block-start: 132px;
+  padding-block-start: 112px;
 }
 
 .board-grid {
@@ -238,7 +238,7 @@ function tileColor(value: number) {
 
 @media (max-width: 600px) {
   .game-container {
-    padding-block-start: 156px;
+    padding-block-start: 140px;
   }
 }
 </style>
