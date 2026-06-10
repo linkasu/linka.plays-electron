@@ -379,4 +379,14 @@ onUnmounted(() => {
     inline-size: clamp(5.5rem, 20vw, 7.2rem);
   }
 }
+
+@media (min-width: 721px) and (max-width: 900px), (max-height: 700px) {
+  .gaze-maze-container {
+    padding-block-start: 7rem;
+  }
+
+  .gaze-maze-stage {
+    min-block-size: auto;
+  }
+}
 </style>

@@ -410,4 +410,18 @@ onUnmounted(() => {
     display: none;
   }
 }
+
+@media (min-width: 721px) and (max-width: 900px), (max-height: 700px) {
+  .pac-path-container {
+    padding-block-start: 7rem;
+  }
+
+  .pac-path-stage {
+    min-block-size: auto;
+  }
+
+  .pac-path-choice {
+    inline-size: clamp(8rem, 18vw, 10rem);
+  }
+}
 </style>
