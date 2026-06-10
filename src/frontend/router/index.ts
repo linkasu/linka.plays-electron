@@ -20,6 +20,7 @@ import CountItemsGame from "../games/count-items/CountItemsGame.vue";
 import DucksGame from "../games/ducks/DucksGame.vue";
 import EatOrNotEatGame from "../games/eat-or-not-eat/EatOrNotEatGame.vue";
 import FeedAnimalGame from "../games/feed-animal/FeedAnimalGame.vue";
+import FindLetterGame from "../games/find-letter/FindLetterGame.vue";
 import FindHouseGame from "../games/find-house/FindHouseGame.vue";
 import FireflyMeadowGame from "../games/firefly-meadow/FireflyMeadowGame.vue";
 import FindColorGame from "../games/find-color/FindColorGame.vue";
