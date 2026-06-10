@@ -123,6 +123,7 @@ import SoupRecipeGame from "../games/soup-recipe/SoupRecipeGame.vue";
 import Sudoku2x2Game from "../games/sudoku-2x2/Sudoku2x2Game.vue";
 import SunRaysGame from "../games/sun-rays/SunRaysGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
+import TanksNoShootingGame from "../games/tanks-no-shooting/TanksNoShootingGame.vue";
 import TellPictureGame from "../games/tell-picture/TellPictureGame.vue";
 import ThreeFrameStoryGame from "../games/three-frame-story/ThreeFrameStoryGame.vue";
 import TicTacToeGame from "../games/tic-tac-toe/TicTacToeGame.vue";
