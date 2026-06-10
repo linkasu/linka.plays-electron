@@ -149,6 +149,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "high-five-hands",
+    title: "Ладошки",
+    description: "Выбери одну из больших ладошек взглядом: она мягко ответит «дай пять» без ошибок и спешки.",
+    selfDescription: "Дай пять ладошке взглядом.",
+    route: "/games/high-five-hands",
+    category: "gaze-basics",
+    icon: "mdi-hand-front-right-outline",
+    skills: ["fixation", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 240,
+    defaultDwellMs: 1300
+  },
+  {
     id: "breathing-flower",
     title: "Дышащий цветок",
     description: "Смотри спокойно в центр цветка, и он будет мягко раскрываться и закрываться.",
