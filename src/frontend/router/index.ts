@@ -114,6 +114,7 @@ import ShapesGame from "../games/shapes/ShapesGame.vue";
 import ShopGame from "../games/shop/ShopGame.vue";
 import ShelfSortingGame from "../games/shelf-sorting/ShelfSortingGame.vue";
 import SimpleGraphsGame from "../games/simple-graphs/SimpleGraphsGame.vue";
+import SlidingPuzzleGame from "../games/sliding-puzzle/SlidingPuzzleGame.vue";
 import SoapCirclesGame from "../games/soap-circles/SoapCirclesGame.vue";
 import SoundSourceGame from "../games/sound-source/SoundSourceGame.vue";
 import SnowflakesGame from "../games/snowflakes/SnowflakesGame.vue";
@@ -281,6 +282,10 @@ export default createRouter({
     { path: "/games/type-word", name: "type-word", component: TypeWordGame },
     { path: "/games/math-actions", name: "math-actions", component: MathActionsGame },
     { path: "/games/sudoku-2x2", name: "sudoku-2x2", component: Sudoku2x2Game },
+    { path: "/games/lines-angles", name: "lines-angles", component: LinesAnglesGame },
+    { path: "/games/simple-graphs", name: "simple-graphs", component: SimpleGraphsGame },
+    { path: "/games/number-bonds", name: "number-bonds", component: NumberBondsGame },
+    { path: "/games/shop", name: "shop", component: ShopGame },
     { path: "/games/shapes", name: "shapes", component: ShapesGame },
     { path: "/games/minesweeper-safe", name: "minesweeper-safe", component: MinesweeperSafeGame },
     { path: "/games/calm-2048", name: "calm-2048", component: Calm2048Game },
@@ -293,6 +298,8 @@ export default createRouter({
     { path: "/games/pac-path", name: "pac-path", component: PacPathGame },
     { path: "/games/connect-four", name: "connect-four", component: ConnectFourGame },
     { path: "/games/checkers-light", name: "checkers-light", component: CheckersLightGame },
+    { path: "/games/battleship-light", name: "battleship-light", component: BattleshipLightGame },
+    { path: "/games/tanks-no-shooting", name: "tanks-no-shooting", component: TanksNoShootingGame },
     { path: "/games/boat", name: "boat", component: BoatGame },
     { path: "/games/frog", name: "frog", component: FrogGame },
     { path: "/games/table-tennis", name: "table-tennis", component: TableTennisGame },
