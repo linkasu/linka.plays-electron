@@ -119,6 +119,7 @@ import ShopGame from "../games/shop/ShopGame.vue";
 import ShelfSortingGame from "../games/shelf-sorting/ShelfSortingGame.vue";
 import SimpleGraphsGame from "../games/simple-graphs/SimpleGraphsGame.vue";
 import SlidingPuzzleGame from "../games/sliding-puzzle/SlidingPuzzleGame.vue";
+import SmoothCarGame from "../games/smooth-car/SmoothCarGame.vue";
 import SoapCirclesGame from "../games/soap-circles/SoapCirclesGame.vue";
 import SoundSourceGame from "../games/sound-source/SoundSourceGame.vue";
 import SnowflakesGame from "../games/snowflakes/SnowflakesGame.vue";
