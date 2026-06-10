@@ -1045,6 +1045,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "soup-recipe",
+    title: "Рецепт супа",
+    description: "Добавляй ингредиенты супа по порядку: ошибка не прерывает готовку, а мягко подсвечивает следующий шаг.",
+    selfDescription: "Свари суп по рецепту.",
+    route: "/games/soup-recipe",
+    category: "sequencing",
+    icon: "mdi-pot-steam-outline",
+    skills: ["sequence", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 135,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1300
+  },
+  {
     id: "patterns",
     title: "Паттерны",
     description: "Продолжай ряд крупных фигур и цветов по повторяющемуся паттерну.",
