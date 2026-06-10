@@ -48,6 +48,7 @@ import TowerGame from "../games/tower/TowerGame.vue";
 import TrainSequenceGame from "../games/train-sequence/TrainSequenceGame.vue";
 import TypeWordGame from "../games/type-word/TypeWordGame.vue";
 import WantDontWantGame from "../games/want-dont-want/WantDontWantGame.vue";
+import WakeOwlGame from "../games/wake-owl/WakeOwlGame.vue";
 import WarmWindowGame from "../games/warm-window/WarmWindowGame.vue";
 import YesNoGame from "../games/yes-no/YesNoGame.vue";
 import HomePage from "../pages/HomePage.vue";
@@ -64,6 +65,7 @@ export default createRouter({
     { path: "/menu/self", name: "menu-self", component: SelfMenuPage },
     { path: "/tobii-calibration", name: "tobii-calibration", component: TobiiCalibrationPage },
     { path: "/games/breathing-flower", name: "breathing-flower", component: BreathingFlowerGame },
+    { path: "/games/wake-owl", name: "wake-owl", component: WakeOwlGame },
     { path: "/games/clouds", name: "clouds", component: CloudsGame },
     { path: "/games/leaves-wind", name: "leaves-wind", component: LeavesWindGame },
     { path: "/games/firefly-meadow", name: "firefly-meadow", component: FireflyMeadowGame },

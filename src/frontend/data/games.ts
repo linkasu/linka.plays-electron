@@ -121,6 +121,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1400
   },
   {
+    id: "wake-owl",
+    title: "Разбуди сову",
+    description: "Смотри на большую сонную сову: она мягко открывает глаза и моргает от спокойной фиксации.",
+    selfDescription: "Разбуди сову взглядом.",
+    route: "/games/wake-owl",
+    category: "gaze-basics",
+    icon: "mdi-owl",
+    skills: ["fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 82,
+    minTargetSizePx: 240,
+    defaultDwellMs: 1400
+  },
+  {
     id: "clouds",
     title: "Облака",
     description: "Смотри на мягкие облака: они медленно меняют форму и расступаются рядом со взглядом.",
