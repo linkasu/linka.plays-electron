@@ -73,6 +73,7 @@ import NorthernLightsGame from "../games/northern-lights/NorthernLightsGame.vue"
 import OpenDoorGame from "../games/open-door/OpenDoorGame.vue";
 import ObjectActionGame from "../games/object-action/ObjectActionGame.vue";
 import OrchestraGame from "../games/orchestra/OrchestraGame.vue";
+import OneManyGame from "../games/one-many/OneManyGame.vue";
 import OddOneOutGame from "../games/odd-one-out/OddOneOutGame.vue";
 import PatternsGame from "../games/patterns/PatternsGame.vue";
 import MemoryCardsGame from "../games/memory-cards/MemoryCardsGame.vue";
