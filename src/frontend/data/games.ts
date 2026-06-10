@@ -709,6 +709,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "odd-one-out",
+    title: "Что лишнее?",
+    description: "Выбери лишний предмет среди 3-5 крупных карточек; ошибка спокойно объясняет общую категорию.",
+    selfDescription: "Найди лишнюю карточку.",
+    route: "/games/odd-one-out",
+    category: "visual-search",
+    icon: "mdi-select-compare",
+    skills: ["classification", "choice", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "memory-cards",
     title: "Пары",
     description: "Открывай две карточки и находи одинаковые пары без спешки.",

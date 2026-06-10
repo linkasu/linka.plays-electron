@@ -43,6 +43,7 @@ import MusicalPebblesGame from "../games/musical-pebbles/MusicalPebblesGame.vue"
 import MoonPathGame from "../games/moon-path/MoonPathGame.vue";
 import NorthernLightsGame from "../games/northern-lights/NorthernLightsGame.vue";
 import OpenDoorGame from "../games/open-door/OpenDoorGame.vue";
+import OddOneOutGame from "../games/odd-one-out/OddOneOutGame.vue";
 import PatternsGame from "../games/patterns/PatternsGame.vue";
 import MemoryCardsGame from "../games/memory-cards/MemoryCardsGame.vue";
 import PaperLanternsGame from "../games/paper-lanterns/PaperLanternsGame.vue";
@@ -132,6 +133,7 @@ export default createRouter({
     { path: "/games/koi-pond", name: "koi-pond", component: KoiPondGame },
     { path: "/games/hide-and-seek", name: "hide-and-seek", component: HideAndSeekGame },
     { path: "/games/match-same", name: "match-same", component: MatchSameGame },
+    { path: "/games/odd-one-out", name: "odd-one-out", component: OddOneOutGame },
     { path: "/games/memory-cards", name: "memory-cards", component: MemoryCardsGame },
     { path: "/games/type-word", name: "type-word", component: TypeWordGame },
     { path: "/games/math-actions", name: "math-actions", component: MathActionsGame },
