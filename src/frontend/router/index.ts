@@ -29,6 +29,7 @@ import FlowersGame from "../games/flowers/FlowersGame.vue";
 import FrogGame from "../games/frog/FrogGame.vue";
 import GardenWateringGame from "../games/garden-watering/GardenWateringGame.vue";
 import GreaterLessGame from "../games/greater-less/GreaterLessGame.vue";
+import GridScanningGame from "../games/grid-scanning/GridScanningGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import HighFiveHandsGame from "../games/high-five-hands/HighFiveHandsGame.vue";
 import JellyfishGame from "../games/jellyfish/JellyfishGame.vue";
