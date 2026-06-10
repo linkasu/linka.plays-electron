@@ -2123,6 +2123,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 500
   },
   {
+    id: "glider",
+    title: "Планер",
+    description: "Веди планер взглядом через широкие воздушные ворота: мягкое движение, без падений и штрафов.",
+    selfDescription: "Проведи планер через ворота.",
+    route: "/games/glider",
+    category: "continuous-control",
+    icon: "mdi-airplane",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 170,
+    defaultDwellMs: 600
+  },
+  {
     id: "table-tennis",
     title: "Теннис",
     description: "Веди мягкую ракетку взглядом и вместе с партнёром спокойно держи мяч в игре.",
