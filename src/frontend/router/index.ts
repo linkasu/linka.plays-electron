@@ -29,6 +29,7 @@ import FrogGame from "../games/frog/FrogGame.vue";
 import GardenWateringGame from "../games/garden-watering/GardenWateringGame.vue";
 import GreaterLessGame from "../games/greater-less/GreaterLessGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
+import HighFiveHandsGame from "../games/high-five-hands/HighFiveHandsGame.vue";
 import JellyfishGame from "../games/jellyfish/JellyfishGame.vue";
 import KiteGame from "../games/kite/KiteGame.vue";
 import KoiPondGame from "../games/koi-pond/KoiPondGame.vue";
@@ -84,6 +85,7 @@ export default createRouter({
     { path: "/games/aquarium", name: "aquarium", component: AquariumGame },
     { path: "/games/balloons", name: "balloons", component: BalloonsGame },
     { path: "/games/bells", name: "bells", component: BellsGame },
+    { path: "/games/high-five-hands", name: "high-five-hands", component: HighFiveHandsGame },
     { path: "/games/breathing-flower", name: "breathing-flower", component: BreathingFlowerGame },
     { path: "/games/wake-owl", name: "wake-owl", component: WakeOwlGame },
     { path: "/games/clouds", name: "clouds", component: CloudsGame },
