@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
+import AquariumGame from "../games/aquarium/AquariumGame.vue";
 import BigButtonGame from "../games/big-button/BigButtonGame.vue";
 import BoatGame from "../games/boat/BoatGame.vue";
 import BreathingFlowerGame from "../games/breathing-flower/BreathingFlowerGame.vue";
@@ -64,6 +65,7 @@ export default createRouter({
     { path: "/menu/specialist", name: "menu-specialist", component: HomePage },
     { path: "/menu/self", name: "menu-self", component: SelfMenuPage },
     { path: "/tobii-calibration", name: "tobii-calibration", component: TobiiCalibrationPage },
+    { path: "/games/aquarium", name: "aquarium", component: AquariumGame },
     { path: "/games/breathing-flower", name: "breathing-flower", component: BreathingFlowerGame },
     { path: "/games/clouds", name: "clouds", component: CloudsGame },
     { path: "/games/leaves-wind", name: "leaves-wind", component: LeavesWindGame },

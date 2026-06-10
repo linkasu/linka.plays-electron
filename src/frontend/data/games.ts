@@ -107,6 +107,20 @@ export const gameStatusLabels: Record<GameStatus, string> = {
 
 export const games: GameInfo[] = [
   {
+    id: "aquarium",
+    title: "Аквариум",
+    description: "Смотри в спокойный аквариум: рыбки мягко подплывают к взгляду и получают тихий корм без ошибок.",
+    selfDescription: "Покорми рыбок взглядом.",
+    route: "/games/aquarium",
+    category: "gaze-basics",
+    icon: "mdi-fishbowl",
+    skills: ["smooth-pursuit", "fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 88,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1350
+  },
+  {
     id: "breathing-flower",
     title: "Дышащий цветок",
     description: "Смотри спокойно в центр цветка, и он будет мягко раскрываться и закрываться.",
