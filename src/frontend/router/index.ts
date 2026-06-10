@@ -1,4 +1,6 @@
 import { createRouter, createWebHashHistory } from "vue-router";
+import AquariumGame from "../games/aquarium/AquariumGame.vue";
+import BalloonsGame from "../games/balloons/BalloonsGame.vue";
 import BigButtonGame from "../games/big-button/BigButtonGame.vue";
 import BoatGame from "../games/boat/BoatGame.vue";
 import BreathingFlowerGame from "../games/breathing-flower/BreathingFlowerGame.vue";
@@ -12,6 +14,7 @@ import ConnectFourGame from "../games/connect-four/ConnectFourGame.vue";
 import CountItemsGame from "../games/count-items/CountItemsGame.vue";
 import DucksGame from "../games/ducks/DucksGame.vue";
 import EatOrNotEatGame from "../games/eat-or-not-eat/EatOrNotEatGame.vue";
+import FeedAnimalGame from "../games/feed-animal/FeedAnimalGame.vue";
 import FireflyMeadowGame from "../games/firefly-meadow/FireflyMeadowGame.vue";
 import FindColorGame from "../games/find-color/FindColorGame.vue";
 import FishesGame from "../games/fishes/FishesGame.vue";
@@ -23,6 +26,7 @@ import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import JellyfishGame from "../games/jellyfish/JellyfishGame.vue";
 import KoiPondGame from "../games/koi-pond/KoiPondGame.vue";
 import LeavesWindGame from "../games/leaves-wind/LeavesWindGame.vue";
+import LightGalleryGame from "../games/light-gallery/LightGalleryGame.vue";
 import MagicDustGame from "../games/magic-dust/MagicDustGame.vue";
 import MatchSameGame from "../games/match-same/MatchSameGame.vue";
 import MathActionsGame from "../games/math-actions/MathActionsGame.vue";
@@ -31,6 +35,7 @@ import MazePathGame from "../games/maze-path/MazePathGame.vue";
 import MusicalPebblesGame from "../games/musical-pebbles/MusicalPebblesGame.vue";
 import MoonPathGame from "../games/moon-path/MoonPathGame.vue";
 import NorthernLightsGame from "../games/northern-lights/NorthernLightsGame.vue";
+import OpenDoorGame from "../games/open-door/OpenDoorGame.vue";
 import PatternsGame from "../games/patterns/PatternsGame.vue";
 import MemoryCardsGame from "../games/memory-cards/MemoryCardsGame.vue";
 import PaperLanternsGame from "../games/paper-lanterns/PaperLanternsGame.vue";
@@ -42,12 +47,15 @@ import SeaShellsGame from "../games/sea-shells/SeaShellsGame.vue";
 import ShapesGame from "../games/shapes/ShapesGame.vue";
 import SnowflakesGame from "../games/snowflakes/SnowflakesGame.vue";
 import StarrySkyGame from "../games/starry-sky/StarrySkyGame.vue";
+import SunRaysGame from "../games/sun-rays/SunRaysGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
 import TicTacToeGame from "../games/tic-tac-toe/TicTacToeGame.vue";
 import TowerGame from "../games/tower/TowerGame.vue";
 import TrainSequenceGame from "../games/train-sequence/TrainSequenceGame.vue";
 import TypeWordGame from "../games/type-word/TypeWordGame.vue";
 import WantDontWantGame from "../games/want-dont-want/WantDontWantGame.vue";
+import WarmFireGame from "../games/warm-fire/WarmFireGame.vue";
+import WakeOwlGame from "../games/wake-owl/WakeOwlGame.vue";
 import WarmWindowGame from "../games/warm-window/WarmWindowGame.vue";
 import YesNoGame from "../games/yes-no/YesNoGame.vue";
 import HomePage from "../pages/HomePage.vue";
@@ -63,19 +71,26 @@ export default createRouter({
     { path: "/menu/specialist", name: "menu-specialist", component: HomePage },
     { path: "/menu/self", name: "menu-self", component: SelfMenuPage },
     { path: "/tobii-calibration", name: "tobii-calibration", component: TobiiCalibrationPage },
+    { path: "/games/aquarium", name: "aquarium", component: AquariumGame },
+    { path: "/games/balloons", name: "balloons", component: BalloonsGame },
     { path: "/games/breathing-flower", name: "breathing-flower", component: BreathingFlowerGame },
+    { path: "/games/wake-owl", name: "wake-owl", component: WakeOwlGame },
     { path: "/games/clouds", name: "clouds", component: CloudsGame },
     { path: "/games/leaves-wind", name: "leaves-wind", component: LeavesWindGame },
     { path: "/games/firefly-meadow", name: "firefly-meadow", component: FireflyMeadowGame },
     { path: "/games/starry-sky", name: "starry-sky", component: StarrySkyGame },
     { path: "/games/magic-dust", name: "magic-dust", component: MagicDustGame },
+    { path: "/games/light-gallery", name: "light-gallery", component: LightGalleryGame },
     { path: "/games/northern-lights", name: "northern-lights", component: NorthernLightsGame },
+    { path: "/games/sun-rays", name: "sun-rays", component: SunRaysGame },
     { path: "/games/snowflakes", name: "snowflakes", component: SnowflakesGame },
     { path: "/games/moon-path", name: "moon-path", component: MoonPathGame },
     { path: "/games/sand-garden", name: "sand-garden", component: SandGardenGame },
     { path: "/games/sea-shells", name: "sea-shells", component: SeaShellsGame },
     { path: "/games/paper-lanterns", name: "paper-lanterns", component: PaperLanternsGame },
+    { path: "/games/open-door", name: "open-door", component: OpenDoorGame },
     { path: "/games/warm-window", name: "warm-window", component: WarmWindowGame },
+    { path: "/games/warm-fire", name: "warm-fire", component: WarmFireGame },
     { path: "/games/musical-pebbles", name: "musical-pebbles", component: MusicalPebblesGame },
     { path: "/games/big-button", name: "big-button", component: BigButtonGame },
     { path: "/games/butterfly", name: "butterfly", component: ButterflyGame },
@@ -87,6 +102,7 @@ export default createRouter({
     { path: "/games/greater-less", name: "greater-less", component: GreaterLessGame },
     { path: "/games/choose-picture", name: "choose-picture", component: ChoosePictureGame },
     { path: "/games/eat-or-not-eat", name: "eat-or-not-eat", component: EatOrNotEatGame },
+    { path: "/games/feed-animal", name: "feed-animal", component: FeedAnimalGame },
     { path: "/games/yes-no", name: "yes-no", component: YesNoGame },
     { path: "/games/want-dont-want", name: "want-dont-want", component: WantDontWantGame },
     { path: "/games/mini-dialog", name: "mini-dialog", component: MiniDialogGame },

@@ -107,6 +107,34 @@ export const gameStatusLabels: Record<GameStatus, string> = {
 
 export const games: GameInfo[] = [
   {
+    id: "aquarium",
+    title: "Аквариум",
+    description: "Смотри в спокойный аквариум: рыбки мягко подплывают к взгляду и получают тихий корм без ошибок.",
+    selfDescription: "Покорми рыбок взглядом.",
+    route: "/games/aquarium",
+    category: "gaze-basics",
+    icon: "mdi-fishbowl",
+    skills: ["smooth-pursuit", "fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 88,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1350
+  },
+  {
+    id: "balloons",
+    title: "Шарики",
+    description: "Смотри на крупный шарик и удерживай взгляд: он мягко улетит вверх без ошибок и спешки.",
+    selfDescription: "Отпусти шарик взглядом.",
+    route: "/games/balloons",
+    category: "gaze-basics",
+    icon: "mdi-balloon",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 82,
+    minTargetSizePx: 188,
+    defaultDwellMs: 1300
+  },
+  {
     id: "breathing-flower",
     title: "Дышащий цветок",
     description: "Смотри спокойно в центр цветка, и он будет мягко раскрываться и закрываться.",
@@ -118,6 +146,20 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 220,
+    defaultDwellMs: 1400
+  },
+  {
+    id: "wake-owl",
+    title: "Разбуди сову",
+    description: "Смотри на большую сонную сову: она мягко открывает глаза и моргает от спокойной фиксации.",
+    selfDescription: "Разбуди сову взглядом.",
+    route: "/games/wake-owl",
+    category: "gaze-basics",
+    icon: "mdi-owl",
+    skills: ["fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 82,
+    minTargetSizePx: 240,
     defaultDwellMs: 1400
   },
   {
@@ -191,6 +233,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "light-gallery",
+    title: "Галерея света",
+    description: "Смотри на спокойные панели: взгляд мягко проявляет картины и повышает контраст без ошибок.",
+    selfDescription: "Прояви картины взглядом.",
+    route: "/games/light-gallery",
+    category: "gaze-basics",
+    icon: "mdi-image-multiple",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 90,
+    minTargetSizePx: 170,
+    defaultDwellMs: 1400
+  },
+  {
     id: "northern-lights",
     title: "Северное сияние",
     description: "Смотри на ночное небо и мягко рисуй световые полосы взглядом без целей и ошибок.",
@@ -202,6 +258,20 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 180,
+    defaultDwellMs: 1400
+  },
+  {
+    id: "sun-rays",
+    title: "Солнце и лучи",
+    description: "Смотри на большое солнце: лучи постепенно раскрываются, а при уходе взгляда солнце спокойно ждёт.",
+    selfDescription: "Открой лучи солнца.",
+    route: "/games/sun-rays",
+    category: "gaze-basics",
+    icon: "mdi-white-balance-sunny",
+    skills: ["fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 80,
+    minTargetSizePx: 240,
     defaultDwellMs: 1400
   },
   {
@@ -289,6 +359,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1350
   },
   {
+    id: "open-door",
+    title: "Открой дверцу",
+    description: "Смотри на крупную дверцу: она мягко открывается и показывает тихий свет или добрый предмет без ошибок.",
+    selfDescription: "Открой дверцу взглядом.",
+    route: "/games/open-door",
+    category: "gaze-basics",
+    icon: "mdi-door-open",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 220,
+    defaultDwellMs: 1350
+  },
+  {
     id: "warm-window",
     title: "Тёплое окно",
     description: "Смотри на спокойный дом и мягко зажигай тёплый свет в окнах без ошибок.",
@@ -301,6 +385,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 80,
     minTargetSizePx: 180,
     defaultDwellMs: 1350
+  },
+  {
+    id: "warm-fire",
+    title: "Тёплый костёр",
+    description: "Смотри рядом с тихим костром: свечение и искры мягко усиливаются без вспышек и ошибок.",
+    selfDescription: "Согрей костёр взглядом.",
+    route: "/games/warm-fire",
+    category: "gaze-basics",
+    icon: "mdi-fire",
+    skills: ["fixation", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 88,
+    minTargetSizePx: 210,
+    defaultDwellMs: 1450
   },
   {
     id: "musical-pebbles",
@@ -329,6 +427,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 70,
     minTargetSizePx: 240,
     defaultDwellMs: 1500
+  },
+  {
+    id: "feed-animal",
+    title: "Покорми зверька",
+    description: "Выбери любую крупную еду взглядом, чтобы мягко покормить зверька без ошибки выбора.",
+    selfDescription: "Покорми зверька.",
+    route: "/games/feed-animal",
+    category: "gaze-basics",
+    icon: "mdi-paw",
+    skills: ["choice", "fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 90,
+    minTargetSizePx: 210,
+    defaultDwellMs: 1300
   },
   {
     id: "butterfly",
