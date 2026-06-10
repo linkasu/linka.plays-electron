@@ -275,6 +275,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1350
   },
   {
+    id: "musical-pebbles",
+    title: "Музыкальные камешки",
+    description: "Смотри на крупные камешки, и они отвечают мягкими визуальными музыкальными волнами без ошибок.",
+    selfDescription: "Разбуди тихую волну взглядом.",
+    route: "/games/musical-pebbles",
+    category: "gaze-basics",
+    icon: "mdi-music-note",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 90,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1350
+  },
+  {
     id: "big-button",
     title: "Большая кнопка",
     description: "Первая спокойная игра: смотри на одну большую кнопку и получай мягкий отклик.",

@@ -28,6 +28,7 @@ import MatchSameGame from "../games/match-same/MatchSameGame.vue";
 import MathActionsGame from "../games/math-actions/MathActionsGame.vue";
 import MiniDialogGame from "../games/mini-dialog/MiniDialogGame.vue";
 import MazePathGame from "../games/maze-path/MazePathGame.vue";
+import MusicalPebblesGame from "../games/musical-pebbles/MusicalPebblesGame.vue";
 import NorthernLightsGame from "../games/northern-lights/NorthernLightsGame.vue";
 import PatternsGame from "../games/patterns/PatternsGame.vue";
 import MemoryCardsGame from "../games/memory-cards/MemoryCardsGame.vue";
@@ -71,6 +72,7 @@ export default createRouter({
     { path: "/games/sand-garden", name: "sand-garden", component: SandGardenGame },
     { path: "/games/paper-lanterns", name: "paper-lanterns", component: PaperLanternsGame },
     { path: "/games/warm-window", name: "warm-window", component: WarmWindowGame },
+    { path: "/games/musical-pebbles", name: "musical-pebbles", component: MusicalPebblesGame },
     { path: "/games/big-button", name: "big-button", component: BigButtonGame },
     { path: "/games/butterfly", name: "butterfly", component: ButterflyGame },
     { path: "/games/flowers", name: "flowers", component: FlowersGame },
