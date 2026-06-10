@@ -695,6 +695,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "find-letter",
+    title: "Найди букву",
+    description: "Найди заданную букву среди крупных символов; ошибка мягко подсвечивает правильный ответ.",
+    selfDescription: "Найди нужную букву.",
+    route: "/games/find-letter",
+    category: "visual-search",
+    icon: "mdi-alphabetical-variant",
+    skills: ["visual-search", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "match-same",
     title: "Где такой же?",
     description: "Найди картинку, которая совпадает с образцом.",

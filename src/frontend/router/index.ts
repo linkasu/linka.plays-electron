@@ -19,6 +19,7 @@ import CountItemsGame from "../games/count-items/CountItemsGame.vue";
 import DucksGame from "../games/ducks/DucksGame.vue";
 import EatOrNotEatGame from "../games/eat-or-not-eat/EatOrNotEatGame.vue";
 import FeedAnimalGame from "../games/feed-animal/FeedAnimalGame.vue";
+import FindLetterGame from "../games/find-letter/FindLetterGame.vue";
 import FindHouseGame from "../games/find-house/FindHouseGame.vue";
 import FireflyMeadowGame from "../games/firefly-meadow/FireflyMeadowGame.vue";
 import FindColorGame from "../games/find-color/FindColorGame.vue";
@@ -124,6 +125,7 @@ export default createRouter({
     { path: "/games/mini-dialog", name: "mini-dialog", component: MiniDialogGame },
     { path: "/games/pyramid", name: "pyramid", component: PyramidGame },
     { path: "/games/find-color", name: "find-color", component: FindColorGame },
+    { path: "/games/find-letter", name: "find-letter", component: FindLetterGame },
     { path: "/games/tower", name: "tower", component: TowerGame },
     { path: "/games/train-sequence", name: "train-sequence", component: TrainSequenceGame },
     { path: "/games/patterns", name: "patterns", component: PatternsGame },
