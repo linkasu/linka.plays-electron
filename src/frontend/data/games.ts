@@ -681,6 +681,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "who-hiding",
+    title: "Кто спрятался?",
+    description: "Найди частично скрытого персонажа в спокойной фигура-фон сцене; неверный выбор мягко даёт подсказку.",
+    selfDescription: "Найди, кто спрятался.",
+    route: "/games/who-hiding",
+    category: "visual-search",
+    icon: "mdi-account-question-outline",
+    skills: ["visual-search", "attention-shift", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 170,
+    defaultDwellMs: 1300
+  },
+  {
     id: "find-color",
     title: "Найди цвет",
     description: "Найди нужный цвет среди крупных карточек.",
