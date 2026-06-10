@@ -53,6 +53,7 @@ import FollowCueGame from "../games/follow-cue/FollowCueGame.vue";
 import FlowersGame from "../games/flowers/FlowersGame.vue";
 import FrogGame from "../games/frog/FrogGame.vue";
 import GardenWateringGame from "../games/garden-watering/GardenWateringGame.vue";
+import GazeFollowSnakeGame from "../games/gaze-follow-snake/GazeFollowSnakeGame.vue";
 import GazeMazeGame from "../games/gaze-maze/GazeMazeGame.vue";
 import GreaterLessGame from "../games/greater-less/GreaterLessGame.vue";
 import GridScanningGame from "../games/grid-scanning/GridScanningGame.vue";
@@ -301,6 +302,7 @@ export default createRouter({
     { path: "/games/battleship-light", name: "battleship-light", component: BattleshipLightGame },
     { path: "/games/tanks-no-shooting", name: "tanks-no-shooting", component: TanksNoShootingGame },
     { path: "/games/boat", name: "boat", component: BoatGame },
+    { path: "/games/gaze-follow-snake", name: "gaze-follow-snake", component: GazeFollowSnakeGame },
     { path: "/games/frog", name: "frog", component: FrogGame },
     { path: "/games/table-tennis", name: "table-tennis", component: TableTennisGame },
     { path: "/games/maze-path", name: "maze-path", component: MazePathGame },

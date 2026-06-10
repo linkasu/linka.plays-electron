@@ -2123,6 +2123,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 500
   },
   {
+    id: "gaze-follow-snake",
+    title: "Змейка gaze-follow",
+    description: "Веди мягкую змейку взглядом к большим листьям: столкновения не проигрыш, движение спокойное и непрерывное.",
+    selfDescription: "Веди змейку к листьям.",
+    route: "/games/gaze-follow-snake",
+    category: "continuous-control",
+    icon: "mdi-snake",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 600
+  },
+  {
     id: "table-tennis",
     title: "Теннис",
     description: "Веди мягкую ракетку взглядом и вместе с партнёром спокойно держи мяч в игре.",
