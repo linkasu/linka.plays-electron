@@ -41,6 +41,7 @@ import PyramidGame from "../games/pyramid/PyramidGame.vue";
 import QuietBubblesGame from "../games/quiet-bubbles/QuietBubblesGame.vue";
 import RainGardenGame from "../games/rain-garden/RainGardenGame.vue";
 import SandGardenGame from "../games/sand-garden/SandGardenGame.vue";
+import SeaShellsGame from "../games/sea-shells/SeaShellsGame.vue";
 import ShapesGame from "../games/shapes/ShapesGame.vue";
 import SnowflakesGame from "../games/snowflakes/SnowflakesGame.vue";
 import StarrySkyGame from "../games/starry-sky/StarrySkyGame.vue";
@@ -75,6 +76,7 @@ export default createRouter({
     { path: "/games/snowflakes", name: "snowflakes", component: SnowflakesGame },
     { path: "/games/moon-path", name: "moon-path", component: MoonPathGame },
     { path: "/games/sand-garden", name: "sand-garden", component: SandGardenGame },
+    { path: "/games/sea-shells", name: "sea-shells", component: SeaShellsGame },
     { path: "/games/paper-lanterns", name: "paper-lanterns", component: PaperLanternsGame },
     { path: "/games/warm-window", name: "warm-window", component: WarmWindowGame },
     { path: "/games/musical-pebbles", name: "musical-pebbles", component: MusicalPebblesGame },
