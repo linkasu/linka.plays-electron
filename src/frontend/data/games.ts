@@ -1675,6 +1675,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "calendar",
+    title: "Календарь",
+    description: "Выбирай день недели или карточку вчера-сегодня-завтра: крупные варианты, мягкая подсказка при ошибке и спокойный темп.",
+    selfDescription: "Выбери день в календаре.",
+    route: "/games/calendar",
+    category: "numeracy",
+    icon: "mdi-calendar-check",
+    skills: ["choice", "sequence", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
     id: "count-items",
     title: "Счёт",
     description: "Посчитай предметы и выбери правильное число.",
