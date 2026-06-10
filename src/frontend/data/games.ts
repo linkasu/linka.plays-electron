@@ -709,6 +709,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "spot-difference",
+    title: "Найди отличие",
+    description: "Сравни две или несколько крупных карточек и выбери объект, который мягко отличается от остальных.",
+    selfDescription: "Найди, кто отличается.",
+    route: "/games/spot-difference",
+    category: "visual-search",
+    icon: "mdi-compare",
+    skills: ["visual-search", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 220,
+    defaultDwellMs: 1300
+  },
+  {
     id: "memory-cards",
     title: "Пары",
     description: "Открывай две карточки и находи одинаковые пары без спешки.",
