@@ -2123,6 +2123,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 500
   },
   {
+    id: "smooth-car",
+    title: "Плавная машинка",
+    description: "Веди машинку взглядом по широкой дороге и спокойно проходи checkpoints без столкновений и поражения.",
+    selfDescription: "Веди машинку по дороге.",
+    route: "/games/smooth-car",
+    category: "continuous-control",
+    icon: "mdi-car-side",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 600
+  },
+  {
     id: "table-tennis",
     title: "Теннис",
     description: "Веди мягкую ракетку взглядом и вместе с партнёром спокойно держи мяч в игре.",
