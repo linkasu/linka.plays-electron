@@ -1353,6 +1353,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "who-is-this",
+    title: "Кто это?",
+    description: "Смотри на картинку и выбирай, кто это: мама, папа, врач, друг, кот и другие AAC-слова.",
+    selfDescription: "Выбери, кто на картинке.",
+    route: "/games/who-is-this",
+    category: "language-aac",
+    icon: "mdi-account-check-outline",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "eat-or-not-eat",
     title: "Съедобное",
     description: "Сортируй предметы на съедобные и несъедобные.",
