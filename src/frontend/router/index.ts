@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import ActionWhoGame from "../games/action-who/ActionWhoGame.vue";
 import AquariumGame from "../games/aquarium/AquariumGame.vue";
 import BalloonsGame from "../games/balloons/BalloonsGame.vue";
+import BattleshipLightGame from "../games/battleship-light/BattleshipLightGame.vue";
 import BellsGame from "../games/bells/BellsGame.vue";
 import BigCardsGame from "../games/big-cards/BigCardsGame.vue";
 import BigButtonGame from "../games/big-button/BigButtonGame.vue";
