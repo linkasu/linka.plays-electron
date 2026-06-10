@@ -48,6 +48,7 @@ import TowerGame from "../games/tower/TowerGame.vue";
 import TrainSequenceGame from "../games/train-sequence/TrainSequenceGame.vue";
 import TypeWordGame from "../games/type-word/TypeWordGame.vue";
 import WantDontWantGame from "../games/want-dont-want/WantDontWantGame.vue";
+import WarmFireGame from "../games/warm-fire/WarmFireGame.vue";
 import WarmWindowGame from "../games/warm-window/WarmWindowGame.vue";
 import YesNoGame from "../games/yes-no/YesNoGame.vue";
 import HomePage from "../pages/HomePage.vue";
@@ -76,6 +77,7 @@ export default createRouter({
     { path: "/games/sea-shells", name: "sea-shells", component: SeaShellsGame },
     { path: "/games/paper-lanterns", name: "paper-lanterns", component: PaperLanternsGame },
     { path: "/games/warm-window", name: "warm-window", component: WarmWindowGame },
+    { path: "/games/warm-fire", name: "warm-fire", component: WarmFireGame },
     { path: "/games/musical-pebbles", name: "musical-pebbles", component: MusicalPebblesGame },
     { path: "/games/big-button", name: "big-button", component: BigButtonGame },
     { path: "/games/butterfly", name: "butterfly", component: ButterflyGame },
