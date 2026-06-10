@@ -20,6 +20,7 @@ import CatchStarGame from "../games/catch-star/CatchStarGame.vue";
 import ChooseEmotionGame from "../games/choose-emotion/ChooseEmotionGame.vue";
 import CloudsGame from "../games/clouds/CloudsGame.vue";
 import ClockGame from "../games/clock/ClockGame.vue";
+import CoinCountingGame from "../games/coin-counting/CoinCountingGame.vue";
 import ColorCircleGame from "../games/color-circle/ColorCircleGame.vue";
 import ColorPatternGame from "../games/color-pattern/ColorPatternGame.vue";
 import ColorShapeGame from "../games/color-shape/ColorShapeGame.vue";
@@ -54,6 +55,7 @@ import HeroRouteGame from "../games/hero-route/HeroRouteGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import HiddenPictureGame from "../games/hidden-picture/HiddenPictureGame.vue";
 import HighFiveHandsGame from "../games/high-five-hands/HighFiveHandsGame.vue";
+import HurtGoodGame from "../games/hurt-good/HurtGoodGame.vue";
 import IWantGame from "../games/i-want/IWantGame.vue";
 import IslandGame from "../games/island/IslandGame.vue";
 import JellyfishGame from "../games/jellyfish/JellyfishGame.vue";
@@ -79,6 +81,7 @@ import ObjectActionGame from "../games/object-action/ObjectActionGame.vue";
 import OrchestraGame from "../games/orchestra/OrchestraGame.vue";
 import OneManyGame from "../games/one-many/OneManyGame.vue";
 import OddOneOutGame from "../games/odd-one-out/OddOneOutGame.vue";
+import OppositesGame from "../games/opposites/OppositesGame.vue";
 import PatternsGame from "../games/patterns/PatternsGame.vue";
 import MemoryCardsGame from "../games/memory-cards/MemoryCardsGame.vue";
 import PaperLanternsGame from "../games/paper-lanterns/PaperLanternsGame.vue";
@@ -117,9 +120,11 @@ import WakeOwlGame from "../games/wake-owl/WakeOwlGame.vue";
 import WarmWindowGame from "../games/warm-window/WarmWindowGame.vue";
 import WhatFirstGame from "../games/what-first/WhatFirstGame.vue";
 import WhatMissingGame from "../games/what-missing/WhatMissingGame.vue";
+import WhatSoundsGame from "../games/what-sounds/WhatSoundsGame.vue";
 import WhereObjectGame from "../games/where-object/WhereObjectGame.vue";
 import WhoHidingGame from "../games/who-hiding/WhoHidingGame.vue";
 import WhoIsThisGame from "../games/who-is-this/WhoIsThisGame.vue";
+import WordCategoriesGame from "../games/word-categories/WordCategoriesGame.vue";
 import YesNoGame from "../games/yes-no/YesNoGame.vue";
 import HomePage from "../pages/HomePage.vue";
 import PlannedGamePage from "../pages/PlannedGamePage.vue";
@@ -180,6 +185,7 @@ export default createRouter({
     { path: "/games/count-items", name: "count-items", component: CountItemsGame },
     { path: "/games/coin-counting", name: "coin-counting", component: CoinCountingGame },
     { path: "/games/greater-less", name: "greater-less", component: GreaterLessGame },
+    { path: "/games/number-line", name: "number-line", component: NumberLineGame },
     { path: "/games/choose-emotion", name: "choose-emotion", component: ChooseEmotionGame },
     { path: "/games/choose-picture", name: "choose-picture", component: ChoosePictureGame },
     { path: "/games/action-who", name: "action-who", component: ActionWhoGame },
@@ -190,8 +196,15 @@ export default createRouter({
     { path: "/games/i-want", name: "i-want", component: IWantGame },
     { path: "/games/want-dont-want", name: "want-dont-want", component: WantDontWantGame },
     { path: "/games/object-action", name: "object-action", component: ObjectActionGame },
+    { path: "/games/hurt-good", name: "hurt-good", component: HurtGoodGame },
+    { path: "/games/where-object", name: "where-object", component: WhereObjectGame },
+    { path: "/games/big-small", name: "big-small", component: BigSmallGame },
+    { path: "/games/one-many", name: "one-many", component: OneManyGame },
+    { path: "/games/who-is-this", name: "who-is-this", component: WhoIsThisGame },
+    { path: "/games/opposites", name: "opposites", component: OppositesGame },
     { path: "/games/mini-dialog", name: "mini-dialog", component: MiniDialogGame },
     { path: "/games/social-phrases", name: "social-phrases", component: SocialPhrasesGame },
+    { path: "/games/tell-picture", name: "tell-picture", component: TellPictureGame },
     { path: "/games/build-robot", name: "build-robot", component: BuildRobotGame },
     { path: "/games/pyramid", name: "pyramid", component: PyramidGame },
     { path: "/games/find-color", name: "find-color", component: FindColorGame },
