@@ -1059,6 +1059,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "mosaic",
+    title: "Мозаика",
+    description: "Выбирай крупные плитки по подсказке и заполняй простой узор; ошибка мягко показывает нужный цвет и форму.",
+    selfDescription: "Собери мозаику по подсказке.",
+    route: "/games/mosaic",
+    category: "sequencing",
+    icon: "mdi-collage",
+    skills: ["sequence", "choice", "classification"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 140,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
     id: "choose-picture",
     title: "Выбери картинку",
     description: "Слушай слово и выбирай подходящую картинку взглядом.",

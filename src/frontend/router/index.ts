@@ -50,6 +50,7 @@ import MatchSameGame from "../games/match-same/MatchSameGame.vue";
 import MathActionsGame from "../games/math-actions/MathActionsGame.vue";
 import MiniDialogGame from "../games/mini-dialog/MiniDialogGame.vue";
 import MazePathGame from "../games/maze-path/MazePathGame.vue";
+import MosaicGame from "../games/mosaic/MosaicGame.vue";
 import MusicalPebblesGame from "../games/musical-pebbles/MusicalPebblesGame.vue";
 import MoonPathGame from "../games/moon-path/MoonPathGame.vue";
 import NorthernLightsGame from "../games/northern-lights/NorthernLightsGame.vue";
@@ -154,6 +155,7 @@ export default createRouter({
     { path: "/games/tower", name: "tower", component: TowerGame },
     { path: "/games/train-sequence", name: "train-sequence", component: TrainSequenceGame },
     { path: "/games/patterns", name: "patterns", component: PatternsGame },
+    { path: "/games/mosaic", name: "mosaic", component: MosaicGame },
     { path: "/games/fishes", name: "fishes", component: FishesGame },
     { path: "/games/jellyfish", name: "jellyfish", component: JellyfishGame },
     { path: "/games/koi-pond", name: "koi-pond", component: KoiPondGame },
