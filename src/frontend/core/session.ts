@@ -6,7 +6,7 @@ import { createDefaultSettings, recommendNextSettings } from "./settings";
 
 export type SessionStatus = "idle" | "running" | "paused" | "finished";
 
-export type SessionFinishReason = "max-steps" | "timeout" | "too-many-mistakes" | "manual" | "game-complete";
+export type SessionFinishReason = "max-steps" | "timeout" | "too-many-mistakes" | "manual" | "game-complete" | "game-lost" | "game-draw";
 
 export type SessionEventType =
   | "session-start"

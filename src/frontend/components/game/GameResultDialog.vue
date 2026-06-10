@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from "vue";
+
 const props = defineProps<{
   modelValue: boolean;
   title: string;
@@ -21,8 +23,18 @@ const finishReasonLabels: Record<string, string> = {
   timeout: "время занятия закончилось",
   "too-many-mistakes": "много сложных попыток",
   manual: "завершено вручную",
-  "game-complete": "игра завершена"
+  "game-complete": "игра завершена",
+  "game-lost": "партия проиграна",
+  "game-draw": "ничья"
 };
+
+const finishReason = computed(() => props.metrics?.finishReason);
+const resultMessage = computed(() => {
+  if (finishReason.value === "game-lost") return "Партия завершена. Можно спокойно попробовать ещё раз.";
+  if (finishReason.value === "game-draw") return "Партия завершилась вничью.";
+  if (finishReason.value === "too-many-mistakes") return "Сессия завершена: было много сложных попыток.";
+  return "Хорошая работа. Сессия завершена.";
+});
 
 function percent(value?: number) {
   if (value === undefined) return "—";
@@ -46,7 +58,7 @@ const emit = defineEmits<{
     <v-card class="pa-2" rounded="xl">
       <v-card-title class="text-h4 font-weight-bold">{{ title }}</v-card-title>
       <v-card-text>
-        <p class="text-h6 mb-4">Хорошая работа. Сессия завершена.</p>
+        <p class="text-h6 mb-4">{{ resultMessage }}</p>
         <v-row>
           <v-col cols="6">
             <v-card color="primary" variant="tonal" rounded="lg" class="pa-4">
