@@ -2123,6 +2123,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 500
   },
   {
+    id: "balancer",
+    title: "Балансир",
+    description: "Удерживай мягкий шар взглядом в широкой зоне баланса: если шар вышел из зоны, прогресс спокойно ждёт.",
+    selfDescription: "Удержи шар в зоне.",
+    route: "/games/balancer",
+    category: "continuous-control",
+    icon: "mdi-scale-balance",
+    skills: ["continuous-control", "smooth-pursuit", "fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 180,
+    defaultDwellMs: 600
+  },
+  {
     id: "table-tennis",
     title: "Теннис",
     description: "Веди мягкую ракетку взглядом и вместе с партнёром спокойно держи мяч в игре.",
