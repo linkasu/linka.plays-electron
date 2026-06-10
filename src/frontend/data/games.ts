@@ -1367,6 +1367,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "word-categories",
+    title: "Категории слов",
+    description: "Выбирай категорию для предмета или предмет для заданной категории с мягкой подсказкой после ошибки.",
+    selfDescription: "Выбери группу или предмет.",
+    route: "/games/word-categories",
+    category: "language-aac",
+    icon: "mdi-shape-outline",
+    skills: ["aac", "choice", "classification", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 125,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "yes-no",
     title: "Да / нет",
     description: "Отвечай да или нет на простой вопрос с картинкой.",

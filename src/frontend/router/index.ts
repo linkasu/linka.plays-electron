@@ -105,6 +105,7 @@ import WakeOwlGame from "../games/wake-owl/WakeOwlGame.vue";
 import WarmWindowGame from "../games/warm-window/WarmWindowGame.vue";
 import WhatMissingGame from "../games/what-missing/WhatMissingGame.vue";
 import WhoHidingGame from "../games/who-hiding/WhoHidingGame.vue";
+import WordCategoriesGame from "../games/word-categories/WordCategoriesGame.vue";
 import YesNoGame from "../games/yes-no/YesNoGame.vue";
 import HomePage from "../pages/HomePage.vue";
 import PlannedGamePage from "../pages/PlannedGamePage.vue";
@@ -165,6 +166,7 @@ export default createRouter({
     { path: "/games/greater-less", name: "greater-less", component: GreaterLessGame },
     { path: "/games/choose-picture", name: "choose-picture", component: ChoosePictureGame },
     { path: "/games/eat-or-not-eat", name: "eat-or-not-eat", component: EatOrNotEatGame },
+    { path: "/games/word-categories", name: "word-categories", component: WordCategoriesGame },
     { path: "/games/feed-animal", name: "feed-animal", component: FeedAnimalGame },
     { path: "/games/yes-no", name: "yes-no", component: YesNoGame },
     { path: "/games/want-dont-want", name: "want-dont-want", component: WantDontWantGame },
