@@ -135,6 +135,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "bells",
+    title: "Колокольчики",
+    description: "Выбирай крупный колокольчик взглядом: он мягко качается и даёт спокойную визуальную волну.",
+    selfDescription: "Позвони в колокольчик взглядом.",
+    route: "/games/bells",
+    category: "gaze-basics",
+    icon: "mdi-bell-outline",
+    skills: ["choice", "fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 90,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
     id: "breathing-flower",
     title: "Дышащий цветок",
     description: "Смотри спокойно в центр цветка, и он будет мягко раскрываться и закрываться.",
@@ -191,6 +205,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1500
   },
   {
+    id: "kite",
+    title: "Воздушный змей",
+    description: "Смотри на крупного змея: спокойный взгляд мягко удерживает его в воздухе и поднимает выше без ошибок.",
+    selfDescription: "Подними змея взглядом.",
+    route: "/games/kite",
+    category: "gaze-basics",
+    icon: "mdi-kite",
+    skills: ["fixation", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1450
+  },
+  {
     id: "firefly-meadow",
     title: "Светлячковая поляна",
     description: "Смотри на тихую поляну и мягко зажигай светлячков взглядом.",
@@ -203,6 +231,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 75,
     minTargetSizePx: 180,
     defaultDwellMs: 1350
+  },
+  {
+    id: "catch-light",
+    title: "Поймай свет",
+    description: "Смотри на мягкую световую цель: удержи взгляд, и свет спокойно переедет в новую зону без ошибок.",
+    selfDescription: "Поймай свет взглядом.",
+    route: "/games/catch-light",
+    category: "gaze-basics",
+    icon: "mdi-brightness-5",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
   },
   {
     id: "starry-sky",
@@ -245,6 +287,34 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 90,
     minTargetSizePx: 170,
     defaultDwellMs: 1400
+  },
+  {
+    id: "soap-circles",
+    title: "Мыльные круги",
+    description: "Смотри на крупные мыльные круги: выбранный круг мягко расширяется и растворяется без ошибок.",
+    selfDescription: "Раствори мыльный круг взглядом.",
+    route: "/games/soap-circles",
+    category: "gaze-basics",
+    icon: "mdi-water-circle",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "find-house",
+    title: "Найди домик",
+    description: "Выбери крупный домик среди мягких объектов: если взгляд попал рядом, игра спокойно подскажет без поражения.",
+    selfDescription: "Найди домик взглядом.",
+    route: "/games/find-house",
+    category: "gaze-basics",
+    icon: "mdi-home-outline",
+    skills: ["choice", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 90,
+    minTargetSizePx: 210,
+    defaultDwellMs: 1300
   },
   {
     id: "northern-lights",
@@ -315,6 +385,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 86,
     minTargetSizePx: 180,
     defaultDwellMs: 1450
+  },
+  {
+    id: "lighthouse",
+    title: "Маяк",
+    description: "Смотри на большой маяк: после спокойной фиксации мягкий луч проходит по морю без ошибок.",
+    selfDescription: "Зажги маяк взглядом.",
+    route: "/games/lighthouse",
+    category: "gaze-basics",
+    icon: "mdi-lightbulb-on-outline",
+    skills: ["fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 220,
+    defaultDwellMs: 1400
   },
   {
     id: "sand-garden",
@@ -427,6 +511,34 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 70,
     minTargetSizePx: 240,
     defaultDwellMs: 1500
+  },
+  {
+    id: "big-cards",
+    title: "Большие карточки",
+    description: "Выбирай одну из 2-4 крупных картинок по мягкой подсказке: любой выбор даёт спокойный отклик без ошибки.",
+    selfDescription: "Выбери большую карточку.",
+    route: "/games/big-cards",
+    category: "gaze-basics",
+    icon: "mdi-card-multiple-outline",
+    skills: ["choice", "fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 90,
+    minTargetSizePx: 220,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "color-circle",
+    title: "Цветной круг",
+    description: "Выбери названный цвет на большом круге из секторов; ошибка даёт мягкую подсказку и следующий круг.",
+    selfDescription: "Выбери цвет в круге.",
+    route: "/games/color-circle",
+    category: "gaze-basics",
+    icon: "mdi-palette",
+    skills: ["choice", "fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 90,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
   },
   {
     id: "feed-animal",
