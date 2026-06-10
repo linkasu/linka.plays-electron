@@ -1815,6 +1815,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1450
   },
   {
+    id: "tanks-no-shooting",
+    title: "Танчики без стрельбы",
+    description: "Веди танк по безопасному маршруту без стрельбы и взрывов, выбирая направление по одному шагу.",
+    selfDescription: "Проведи танк по дороге.",
+    route: "/games/tanks-no-shooting",
+    category: "strategy",
+    icon: "mdi-tank",
+    skills: ["choice", "sequence"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1300
+  },
+  {
     id: "calm-snake",
     title: "Змейка спокойная",
     description: "Веди медленную змейку по мягкой сетке: края и столкновения дают подсказку, а не проигрыш.",

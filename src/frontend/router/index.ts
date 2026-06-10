@@ -107,6 +107,7 @@ import SpotDifferenceGame from "../games/spot-difference/SpotDifferenceGame.vue"
 import SoupRecipeGame from "../games/soup-recipe/SoupRecipeGame.vue";
 import SunRaysGame from "../games/sun-rays/SunRaysGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
+import TanksNoShootingGame from "../games/tanks-no-shooting/TanksNoShootingGame.vue";
 import TellPictureGame from "../games/tell-picture/TellPictureGame.vue";
 import ThreeFrameStoryGame from "../games/three-frame-story/ThreeFrameStoryGame.vue";
 import TicTacToeGame from "../games/tic-tac-toe/TicTacToeGame.vue";
@@ -260,6 +261,7 @@ export default createRouter({
     { path: "/games/tic-tac-toe", name: "tic-tac-toe", component: TicTacToeGame },
     { path: "/games/calm-snake", name: "calm-snake", component: CalmSnakeGame },
     { path: "/games/connect-four", name: "connect-four", component: ConnectFourGame },
+    { path: "/games/tanks-no-shooting", name: "tanks-no-shooting", component: TanksNoShootingGame },
     { path: "/games/boat", name: "boat", component: BoatGame },
     { path: "/games/frog", name: "frog", component: FrogGame },
     { path: "/games/table-tennis", name: "table-tennis", component: TableTennisGame },
