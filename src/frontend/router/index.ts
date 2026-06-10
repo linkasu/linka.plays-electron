@@ -103,6 +103,7 @@ import ShadowMatchGame from "../games/shadow-match/ShadowMatchGame.vue";
 import ShapeDanceGame from "../games/shape-dance/ShapeDanceGame.vue";
 import ShapesGame from "../games/shapes/ShapesGame.vue";
 import ShelfSortingGame from "../games/shelf-sorting/ShelfSortingGame.vue";
+import SimpleGraphsGame from "../games/simple-graphs/SimpleGraphsGame.vue";
 import SoapCirclesGame from "../games/soap-circles/SoapCirclesGame.vue";
 import SoundSourceGame from "../games/sound-source/SoundSourceGame.vue";
 import SnowflakesGame from "../games/snowflakes/SnowflakesGame.vue";
