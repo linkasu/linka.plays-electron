@@ -146,7 +146,7 @@ onUnmounted(() => {
 <template>
   <div class="tic-shell">
     <div class="quiet-controls d-flex align-center ga-2 pa-1">
-      <GameDwellButton :target-id="menuTargetId()" :dwell-ms="session.settings.dwellMs" :min-height="72" color="surface" @select="router.push(resolveMenuRoute())">
+      <GameDwellButton :target-id="menuTargetId()" :dwell-ms="session.settings.dwellMs" :min-height="96" color="surface" @select="router.push(resolveMenuRoute())">
         <template #default>
           <div class="control-button-content">
             <v-icon icon="mdi-arrow-left" size="26" />
@@ -154,7 +154,7 @@ onUnmounted(() => {
           </div>
         </template>
       </GameDwellButton>
-      <GameDwellButton :target-id="pauseTargetId()" :disabled="session.status === 'finished'" :dwell-ms="session.settings.dwellMs" :min-height="72" color="surface" @select="togglePause">
+      <GameDwellButton :target-id="pauseTargetId()" :disabled="session.status === 'finished'" :dwell-ms="session.settings.dwellMs" :min-height="96" color="surface" @select="togglePause">
         <template #default>
           <div class="control-button-content">
             <v-icon :icon="session.status === 'paused' ? 'mdi-play' : 'mdi-pause'" size="26" />

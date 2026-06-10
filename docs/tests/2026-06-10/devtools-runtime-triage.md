@@ -37,8 +37,8 @@
 | P0 | `hide-and-seek` | HUD/target overlap на `800x600` | 1 target пересекал fixed HUD; дополнительная проверка показала prompt/target overlap | Исправлено после triage; см. `devtools-after-overlap-fix.md` |
 | P0 | `musical-path` | HUD/target overlap на `800x600` | верхний stone target стартовал в зоне HUD из-за процентов от всего viewport | Исправлено после triage; см. `devtools-after-overlap-fix.md` |
 | P0 | `rails` | HUD/target overlap на `800x600` | стартовый выбор поезда складывался вертикально под wrapped HUD | Исправлено после triage; см. `devtools-after-overlap-fix.md` |
-| P1 | `tic-tac-toe` | Small targets | min visible target `72px`, ниже gaze target spec `120px` | Применить `targetScale` к клеткам, поднять grid min до безопасного значения |
-| P1 | `connect-four` | Small targets | 7 column targets дают min visible target `72px` | Нужен redesign/укрупнение column selection или documented custom hit-testing; 7 × 120px физически не помещаются в `800px` с gap/padding |
+| P1 | `tic-tac-toe` | Small targets | min visible target `72px`, ниже gaze target spec `120px` | Runtime-флаг `<88px` исправлен; см. `devtools-after-target-size-fix.md` |
+| P1 | `connect-four` | Small targets | 7 column targets давали min visible target `72px` | Runtime-флаг `<88px` исправлен; strict `>=120px` требует отдельного redesign выбора колонок |
 
 ## Подтвержденный общий layout-риск
 
@@ -58,6 +58,6 @@
 
 ## Следующие фиксы по порядку
 
-1. Укрупнить или redesign targets в `tic-tac-toe` и `connect-four`.
-2. Ввести общий compact-card паттерн для sequencing/language/numeracy игр, начиная с `train-sequence`, `tell-picture`, `schedule`, `soup-recipe`.
-3. Обновить audit-script: классифицировать canvas routes отдельно и не считать отсутствие `h1/.dwell-hitbox` blank screen для canvas-only игр.
+1. Ввести общий compact-card паттерн для sequencing/language/numeracy игр, начиная с `train-sequence`, `tell-picture`, `schedule`, `soup-recipe`.
+2. Обновить audit-script: классифицировать canvas routes отдельно и не считать отсутствие `h1/.dwell-hitbox` blank screen для canvas-only игр.
+3. Если продуктово требуется strict gaze target `>=120px` для `connect-four`, сделать отдельный redesign выбора колонок.
