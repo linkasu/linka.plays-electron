@@ -247,6 +247,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "catch-star",
+    title: "Поймай звезду",
+    description: "Смотри на мягкую звезду: удержи взгляд, и она спокойно появится в новой зоне без ошибок.",
+    selfDescription: "Поймай звезду взглядом.",
+    route: "/games/catch-star",
+    category: "gaze-basics",
+    icon: "mdi-star",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 184,
+    defaultDwellMs: 1300
+  },
+  {
     id: "starry-sky",
     title: "Звёздное небо",
     description: "Смотри на тихое небо и мягко соединяй звёзды световыми линиями.",
