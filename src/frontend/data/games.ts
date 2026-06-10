@@ -681,6 +681,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "sound-source",
+    title: "Где звук?",
+    description: "Найди источник мягкой звуковой или визуальной волны среди крупных объектов без спешки и с мягкими подсказками.",
+    selfDescription: "Найди, откуда идёт волна.",
+    route: "/games/sound-source",
+    category: "visual-search",
+    icon: "mdi-volume-high",
+    skills: ["visual-search", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "find-color",
     title: "Найди цвет",
     description: "Найди нужный цвет среди крупных карточек.",

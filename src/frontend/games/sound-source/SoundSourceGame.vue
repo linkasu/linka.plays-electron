@@ -1,0 +1,479 @@
+<script setup lang="ts">
+import { computed, onUnmounted, reactive, ref, watch } from "vue";
+import { useRouter } from "vue-router";
+import GameDwellButton from "../../components/game/GameDwellButton.vue";
+import GameHud from "../../components/game/GameHud.vue";
+import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { resolveMenuRoute } from "../../core/menuMode";
+import { useGameSession } from "../../core/session";
+
+type SoundSource = {
+  id: string;
+  title: string;
+  soundLabel: string;
+  icon: string;
+  accent: string;
+  wash: string;
+  frequency: number;
+};
+
+type SoundRound = {
+  roundId: string;
+  target: SoundSource;
+  choices: SoundSource[];
+};
+
+const soundSources: SoundSource[] = [
+  {
+    id: "shell",
+    title: "Ракушка",
+    soundLabel: "морская волна",
+    icon: "mdi-seashell",
+    accent: "#5ab8c8",
+    wash: "#ddfbff",
+    frequency: 392
+  },
+  {
+    id: "bell",
+    title: "Колокольчик",
+    soundLabel: "тихий звон",
+    icon: "mdi-bell-outline",
+    accent: "#f0b64a",
+    wash: "#fff1c8",
+    frequency: 523.25
+  },
+  {
+    id: "bird",
+    title: "Птичка",
+    soundLabel: "лёгкая песня",
+    icon: "mdi-bird",
+    accent: "#8dbb5d",
+    wash: "#eef8d8",
+    frequency: 587.33
+  },
+  {
+    id: "stream",
+    title: "Ручей",
+    soundLabel: "мягкая вода",
+    icon: "mdi-water",
+    accent: "#6b9dec",
+    wash: "#e5f0ff",
+    frequency: 349.23
+  },
+  {
+    id: "leaf",
+    title: "Лист",
+    soundLabel: "шорох листа",
+    icon: "mdi-leaf",
+    accent: "#68b78d",
+    wash: "#e4f8ec",
+    frequency: 440
+  },
+  {
+    id: "speaker",
+    title: "Динамик",
+    soundLabel: "тёплая нота",
+    icon: "mdi-speaker",
+    accent: "#b28be8",
+    wash: "#f2e9ff",
+    frequency: 493.88
+  }
+];
+
+const router = useRouter();
+const selectedSourceId = ref("");
+const lastMistakeSourceId = ref("");
+const feedbackMessage = ref("Найди объект, от которого расходятся мягкие волны.");
+const mistakenSourceIds = new Set<string>();
+let nextRoundTimer = 0;
+let audioContext: AudioContext | undefined;
+let audioUnavailable = false;
+
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("sound-source", {
+  preset: "gentle",
+  maxSteps: 8,
+  dwellMs: 1300,
+  sessionSeconds: 120,
+  targetScale: 1.55,
+  motionSpeed: 0.45,
+  distractors: "none",
+  hints: "high",
+  sound: false
+}, {
+  finishOnMistakes: false
+});
+
+const round = reactive<SoundRound>(createRound(0));
+const resultVisible = computed(() => session.status === "finished");
+const promptText = computed(() => `Где слышна ${round.target.soundLabel}?`);
+
+function createRound(step: number): SoundRound {
+  const count = Math.min(4, 2 + Math.floor(step / 3));
+  const offset = (step * 2) % soundSources.length;
+  const choices = Array.from({ length: count }, (_, index) => soundSources[(offset + index) % soundSources.length]);
+  if (step % 2 === 1) choices.reverse();
+
+  return {
+    roundId: `sound-source-${step}`,
+    target: choices[(step + 1) % choices.length],
+    choices
+  };
+}
+
+function setRound(step: number) {
+  Object.assign(round, createRound(step));
+  selectedSourceId.value = "";
+  lastMistakeSourceId.value = "";
+  mistakenSourceIds.clear();
+  feedbackMessage.value = "Смотри на объект с волнами. Звук можно включить, но волна видна всегда.";
+  void playSourceCue(round.target, "source");
+}
+
+function sourceTargetId(source: SoundSource) {
+  return `sound-source:${round.roundId}:${source.id}`;
+}
+
+function sourceStyle(source: SoundSource, index: number) {
+  return {
+    "--source-accent": source.accent,
+    "--source-wash": source.wash,
+    "--source-delay": `${index * 180}ms`
+  };
+}
+
+function chooseSource(source: SoundSource) {
+  if (session.status !== "running" || selectedSourceId.value) return;
+
+  if (source.id !== round.target.id) {
+    lastMistakeSourceId.value = source.id;
+    feedbackMessage.value = `Почти. Волна идёт от объекта «${round.target.title}». Попробуй ещё раз спокойно.`;
+    if (!mistakenSourceIds.has(source.id)) {
+      mistakenSourceIds.add(source.id);
+      recordMistake({ roundId: round.roundId, selectedId: source.id, targetId: round.target.id, expected: round.target.soundLabel });
+    }
+    return;
+  }
+
+  selectedSourceId.value = source.id;
+  feedbackMessage.value = `Да, это «${source.title}». Волна найдена.`;
+  recordSuccess({ roundId: round.roundId, targetId: source.id, sound: source.soundLabel });
+  void playSourceCue(source, "success");
+
+  if (session.status === "running") {
+    window.clearTimeout(nextRoundTimer);
+    nextRoundTimer = window.setTimeout(() => setRound(session.step), 1050);
+  }
+}
+
+function createAudioContext() {
+  const AudioContextConstructor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  return AudioContextConstructor ? new AudioContextConstructor() : undefined;
+}
+
+async function playSourceCue(source: SoundSource, kind: "source" | "success") {
+  if (!session.settings.sound || audioUnavailable) return;
+
+  try {
+    audioContext = audioContext ?? createAudioContext();
+    if (!audioContext) return;
+    if (audioContext.state === "suspended") await audioContext.resume();
+    if (audioContext.state !== "running") return;
+
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    const filter = audioContext.createBiquadFilter();
+    const startAt = audioContext.currentTime + 0.04;
+    const duration = kind === "success" ? 0.72 : 0.9;
+    const endAt = startAt + duration;
+
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(source.frequency, startAt);
+    if (kind === "success") oscillator.frequency.linearRampToValueAtTime(source.frequency * 1.125, startAt + 0.32);
+
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(1200, startAt);
+    gain.gain.setValueAtTime(0.0001, startAt);
+    gain.gain.linearRampToValueAtTime(kind === "success" ? 0.045 : 0.032, startAt + 0.18);
+    gain.gain.exponentialRampToValueAtTime(0.0001, endAt);
+
+    oscillator.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioContext.destination);
+    oscillator.start(startAt);
+    oscillator.stop(endAt + 0.05);
+  } catch {
+    audioUnavailable = true;
+  }
+}
+
+function restart() {
+  window.clearTimeout(nextRoundTimer);
+  audioUnavailable = false;
+  startSession();
+  setRound(0);
+}
+
+watch(() => session.settings.sound, (enabled) => {
+  if (enabled) void playSourceCue(round.target, "source");
+});
+
+onUnmounted(() => {
+  window.clearTimeout(nextRoundTimer);
+  void audioContext?.close().catch(() => undefined);
+});
+</script>
+
+<template>
+  <div class="sound-source-shell">
+    <div class="sound-source-backdrop" aria-hidden="true" />
+
+    <GameHud
+      title="Где звук?"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
+
+    <v-container class="sound-source-container d-flex align-center justify-center" fluid>
+      <v-card class="sound-source-panel pa-4 pa-sm-6 pa-md-8" color="surface" rounded="xl" elevation="8">
+        <div class="text-center mb-5">
+          <div class="text-overline text-primary">визуальная волна по умолчанию</div>
+          <h1 class="text-h3 text-md-h2 font-weight-bold mb-3">Где звук?</h1>
+          <p class="text-h6 text-medium-emphasis mb-2">{{ promptText }}</p>
+          <p class="text-body-1 text-medium-emphasis mb-0">Выбери один из крупных объектов. Ошибка только подскажет, где искать волну.</p>
+        </div>
+
+        <div class="d-flex flex-column flex-sm-row align-center justify-space-between ga-3 mb-5">
+          <v-alert class="flex-grow-1" color="primary" icon="mdi-waves" rounded="xl" variant="tonal">
+            {{ feedbackMessage }}
+          </v-alert>
+          <v-switch
+            v-model="session.settings.sound"
+            class="sound-source-toggle"
+            color="primary"
+            density="compact"
+            hide-details
+            inset
+            label="Тихий звук"
+          />
+        </div>
+
+        <div class="sound-source-grid" :class="`sound-source-grid--${round.choices.length}`" role="group" aria-label="Выбор источника звука или визуальной волны">
+          <GameDwellButton
+            v-for="(source, index) in round.choices"
+            :key="sourceTargetId(source)"
+            class="sound-source-target"
+            :target-id="sourceTargetId(source)"
+            :disabled="session.status !== 'running' || Boolean(selectedSourceId)"
+            :dwell-ms="session.settings.dwellMs"
+            :min-height="230"
+            color="surface"
+            @select="chooseSource(source)"
+          >
+            <template #default="{ active, progress }">
+              <div
+                class="source-card"
+                :class="{
+                  'source-card--target': source.id === round.target.id,
+                  'source-card--active': active,
+                  'source-card--selected': selectedSourceId === source.id,
+                  'source-card--mistake': lastMistakeSourceId === source.id
+                }"
+                :style="sourceStyle(source, index)"
+              >
+                <div v-if="source.id === round.target.id" class="source-waves" aria-hidden="true">
+                  <span class="source-wave source-wave--one" />
+                  <span class="source-wave source-wave--two" />
+                  <span class="source-wave source-wave--three" />
+                </div>
+                <div class="source-glow" :style="{ opacity: source.id === round.target.id ? 0.44 + progress * 0.22 : active ? 0.28 : 0.18 }" aria-hidden="true" />
+                <v-icon class="source-icon" :icon="source.icon" />
+                <div class="text-h5 text-md-h4 font-weight-bold mt-4">{{ source.title }}</div>
+                <div class="text-body-2 text-medium-emphasis mt-2">
+                  {{ selectedSourceId === source.id ? 'Волна найдена' : lastMistakeSourceId === source.id ? 'Не отсюда' : active ? 'Держи взгляд' : 'Посмотри сюда' }}
+                </div>
+              </div>
+            </template>
+          </GameDwellButton>
+        </div>
+      </v-card>
+    </v-container>
+
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Где звук?"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
+  </div>
+</template>
+
+<style scoped>
+.sound-source-shell {
+  background: linear-gradient(135deg, #eef8ff 0%, #fff7dc 48%, #f4ecff 100%);
+  min-block-size: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.sound-source-backdrop {
+  background: radial-gradient(circle at 18% 20%, rgb(255 255 255 / 70%), transparent 26%),
+    radial-gradient(circle at 82% 18%, rgb(168 218 255 / 34%), transparent 30%),
+    radial-gradient(circle at 50% 88%, rgb(255 214 153 / 28%), transparent 42%);
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.sound-source-container {
+  min-block-size: 100vh;
+  padding-block-start: 118px;
+  position: relative;
+  z-index: 1;
+}
+
+.sound-source-panel {
+  inline-size: min(1120px, 100%);
+}
+
+.sound-source-toggle {
+  min-inline-size: 154px;
+}
+
+.sound-source-grid {
+  display: grid;
+  gap: clamp(16px, 2vw, 24px);
+}
+
+.sound-source-grid--2 {
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+}
+
+.sound-source-grid--3 {
+  grid-template-columns: repeat(3, minmax(190px, 1fr));
+}
+
+.sound-source-grid--4 {
+  grid-template-columns: repeat(4, minmax(170px, 1fr));
+}
+
+.sound-source-target :deep(.dwell-button) {
+  background: linear-gradient(180deg, var(--source-wash), rgb(var(--v-theme-surface))) !important;
+}
+
+.source-card {
+  align-items: center;
+  block-size: 100%;
+  color: rgb(var(--v-theme-on-surface));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-block-size: 210px;
+  overflow: hidden;
+  position: relative;
+}
+
+.source-card--active,
+.source-card--selected {
+  transform: scale(1.02);
+}
+
+.source-card--mistake {
+  filter: saturate(0.74);
+}
+
+.source-card > :not(.source-waves, .source-glow) {
+  position: relative;
+  z-index: 1;
+}
+
+.source-glow {
+  background: radial-gradient(circle, color-mix(in srgb, var(--source-accent) 42%, transparent), transparent 68%);
+  block-size: 210px;
+  border-radius: 999px;
+  inline-size: 210px;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+.source-icon {
+  color: var(--source-accent);
+  filter: drop-shadow(0 18px 26px color-mix(in srgb, var(--source-accent) 30%, transparent));
+  font-size: clamp(5.2rem, 10vw, 8rem);
+}
+
+.source-waves {
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.source-wave {
+  animation: source-wave 2300ms ease-out infinite;
+  animation-delay: var(--source-delay);
+  border: 4px solid color-mix(in srgb, var(--source-accent) 46%, transparent);
+  border-radius: 999px;
+  block-size: 72px;
+  inline-size: 72px;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  opacity: 0;
+  position: absolute;
+  transform: translate(-50%, -50%) scale(0.55);
+}
+
+.source-wave--two {
+  animation-delay: calc(var(--source-delay) + 520ms);
+}
+
+.source-wave--three {
+  animation-delay: calc(var(--source-delay) + 1040ms);
+}
+
+@keyframes source-wave {
+  0% {
+    opacity: 0.42;
+    transform: translate(-50%, -50%) scale(0.62);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2.65);
+  }
+}
+
+@media (max-width: 900px) {
+  .sound-source-grid,
+  .sound-source-grid--2,
+  .sound-source-grid--3,
+  .sound-source-grid--4 {
+    grid-template-columns: repeat(2, minmax(150px, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .sound-source-container {
+    padding-block-start: 168px;
+  }
+
+  .sound-source-grid,
+  .sound-source-grid--2,
+  .sound-source-grid--3,
+  .sound-source-grid--4 {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
