@@ -68,7 +68,7 @@ function restartGame() {
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11" xl="10">
-          <v-card class="pa-4 pa-md-6" rounded="xl" elevation="8">
+          <v-card class="number-bonds-card pa-4 pa-md-6" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Составь число до {{ session.settings.preset === "gentle" ? 5 : 10 }}</div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-4">{{ round.prompt }}</h1>
 
@@ -238,6 +238,41 @@ function restartGame() {
 
   .bond-equation {
     font-size: clamp(2.75rem, min(9vw, 10vh), 5.25rem);
+  }
+}
+
+@media (max-height: 680px) {
+  .game-container {
+    padding-block-start: 104px;
+  }
+
+  .number-bonds-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem !important;
+  }
+
+  .number-bonds-card > .text-overline,
+  .number-bonds-card > .v-alert {
+    display: none;
+  }
+
+  .choice-row {
+    order: 1;
+  }
+
+  .bond-panel {
+    margin-block-end: 0.75rem !important;
+    order: 2;
+    padding: 0.75rem !important;
+  }
+
+  .bond-equation {
+    font-size: clamp(2.5rem, min(8vw, 9vh), 4.5rem);
+  }
+
+  .part-row {
+    display: none;
   }
 }
 </style>

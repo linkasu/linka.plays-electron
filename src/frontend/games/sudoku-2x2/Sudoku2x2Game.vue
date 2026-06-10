@@ -86,7 +86,7 @@ function restart() {
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="10" xl="8">
-          <v-card class="pa-4 pa-md-7" rounded="xl" elevation="8">
+          <v-card class="sudoku-card pa-4 pa-md-7" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Маленькое судоку</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
             <v-alert class="mb-5 text-body-1 text-md-h6 font-weight-bold" :color="mistakesInRound > 0 ? 'secondary' : 'primary'" :icon="mistakesInRound > 0 ? 'mdi-heart-outline' : 'mdi-check'" rounded="xl" variant="tonal">
@@ -218,6 +218,45 @@ function restart() {
   .sudoku-cell,
   .choice-card {
     min-block-size: 8.75rem;
+  }
+}
+
+@media (max-height: 680px) {
+  .game-container {
+    padding-block-start: 104px;
+  }
+
+  .sudoku-card {
+    padding: 1rem !important;
+  }
+
+  .sudoku-card > .text-overline,
+  .sudoku-card > .v-alert {
+    display: none;
+  }
+
+  .sudoku-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .choice-panel {
+    order: -1;
+  }
+
+  .sudoku-board {
+    gap: 0.35rem;
+    padding: 0.45rem;
+  }
+
+  .choice-panel .text-h5 {
+    display: none;
+  }
+
+  .sudoku-cell,
+  .choice-card {
+    min-block-size: 8rem;
   }
 }
 </style>

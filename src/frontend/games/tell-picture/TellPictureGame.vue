@@ -238,10 +238,10 @@ onUnmounted(() => {
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
-          <v-card class="pa-5 pa-md-8" rounded="xl" elevation="8">
+          <v-card class="tell-picture-card pa-5 pa-md-8" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-3">AAC-рассказ без неправильных ответов</div>
 
-            <v-row align="stretch" class="mb-5">
+            <v-row align="stretch" class="scene-row mb-5">
               <v-col cols="12" md="5">
                 <v-card class="scene-card pa-5 h-100" color="blue-lighten-5" rounded="xl" variant="flat">
                   <v-chip class="mb-4" color="primary" size="large" variant="tonal">{{ round.scene.place }}</v-chip>
@@ -277,15 +277,15 @@ onUnmounted(() => {
               </v-col>
             </v-row>
 
-            <v-card class="pa-4 pa-md-5 mb-5" color="green-lighten-5" rounded="xl" variant="flat">
+            <v-card class="prompt-card pa-4 pa-md-5 mb-5" color="green-lighten-5" rounded="xl" variant="flat">
               <div class="d-flex flex-wrap align-center justify-center ga-3 text-center">
                 <v-icon icon="mdi-message-text-outline" color="primary" size="34" />
                 <div class="text-h5 text-md-h4 font-weight-bold">{{ round.prompt }}</div>
               </div>
             </v-card>
 
-            <v-row justify="center">
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" md="4">
+            <v-row class="choice-row" justify="center">
+              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="4" md="4">
                 <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="220" :color="choice.color" @select="choose(choice)">
                   <template #default>
                     <div class="choice-emoji emoji-glyph mb-3">{{ choice.emoji }}</div>
@@ -341,6 +341,54 @@ onUnmounted(() => {
 @media (max-width: 700px) {
   .sentence-parts {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-height: 680px) {
+  .game-container {
+    padding-block-start: 104px;
+  }
+
+  .tell-picture-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem !important;
+  }
+
+  .tell-picture-card > .text-overline {
+    display: none;
+  }
+
+  .choice-row {
+    order: 1;
+  }
+
+  .prompt-card {
+    margin-block-end: 0.75rem !important;
+    order: 2;
+    padding: 0.75rem !important;
+  }
+
+  .scene-row {
+    margin-block-end: 0.75rem !important;
+    order: 3;
+  }
+
+  .scene-card,
+  .scene-row :deep(.v-card) {
+    padding: 0.75rem !important;
+  }
+
+  .scene-emoji,
+  .sentence-parts,
+  .scene-card p,
+  .scene-row .text-h6,
+  .scene-row .v-chip {
+    display: none;
+  }
+
+  .choice-emoji {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
   }
 }
 </style>

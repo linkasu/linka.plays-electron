@@ -76,7 +76,7 @@ function restartGame() {
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11" xl="10">
-          <v-card class="pa-4 pa-md-6" rounded="xl" elevation="8">
+          <v-card class="simple-graphs-card pa-4 pa-md-6" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Прочитай столбики</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
             <v-alert class="mb-4 text-body-1 font-weight-bold" :color="lastMistakeTargetId ? 'secondary' : 'primary'" :icon="lastMistakeTargetId ? 'mdi-heart-outline' : 'mdi-lightbulb-outline'" rounded="xl" variant="tonal">
@@ -261,6 +261,41 @@ function restartGame() {
 
   .graph-track {
     min-block-size: 8rem;
+  }
+}
+
+@media (max-height: 680px) {
+  .game-container {
+    padding-block-start: 104px;
+  }
+
+  .simple-graphs-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem !important;
+  }
+
+  .simple-graphs-card > .text-overline,
+  .simple-graphs-card > .v-alert {
+    display: none;
+  }
+
+  .choice-row {
+    order: 1;
+  }
+
+  .graph-panel {
+    margin-block-end: 0.75rem !important;
+    order: 2;
+    padding: 0.75rem !important;
+  }
+
+  .graph-bars {
+    min-block-size: 8rem;
+  }
+
+  .graph-track {
+    min-block-size: 5.5rem;
   }
 }
 </style>

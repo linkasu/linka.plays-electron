@@ -69,13 +69,13 @@ function restart() {
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11" xl="10">
-          <v-card class="pa-4 pa-md-7" rounded="xl" elevation="8">
+          <v-card class="who-card pa-4 pa-md-7" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">AAC-словарь</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
             <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5">{{ feedbackText }}</p>
 
             <v-row align="stretch" class="main-row" dense>
-              <v-col cols="12" md="5">
+              <v-col class="picture-col" cols="12" md="5">
                 <v-card class="picture-card pa-5" rounded="xl" variant="flat" :style="{ '--person-color': round.target.color }">
                   <v-chip class="mb-4" color="white" prepend-icon="mdi-image-outline" rounded="pill" size="large" variant="elevated">
                     Картинка
@@ -87,7 +87,7 @@ function restart() {
                 </v-card>
               </v-col>
 
-              <v-col cols="12" md="7">
+              <v-col class="choices-col" cols="12" md="7">
                 <v-row class="choice-grid" dense>
                   <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6">
                     <GameDwellButton :class="{ 'choice-hint': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="205" :color="hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="choose(choice)">
@@ -194,6 +194,44 @@ function restart() {
 
   .picture-card {
     min-block-size: 21rem;
+  }
+}
+
+@media (max-height: 680px) {
+  .game-container {
+    padding-block-start: 104px;
+  }
+
+  .who-card {
+    padding: 1rem !important;
+  }
+
+  .who-card > .text-overline,
+  .who-card > p {
+    display: none;
+  }
+
+  .choices-col {
+    order: -1;
+  }
+
+  .picture-card {
+    min-block-size: 10rem;
+    padding: 0.75rem !important;
+  }
+
+  .picture-card .v-chip,
+  .picture-card .text-h6 {
+    display: none;
+  }
+
+  .portrait {
+    inline-size: min(12rem, 30vw);
+    padding: 0.75rem;
+  }
+
+  .portrait-icon {
+    font-size: clamp(4rem, 9vw, 6rem);
   }
 }
 </style>
