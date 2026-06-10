@@ -1759,6 +1759,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "minesweeper-safe",
+    title: "Сапёр без взрыва",
+    description: "Выбирай безопасные клетки по числам-подсказкам: мина не взрывается, а спокойно становится флажком.",
+    selfDescription: "Найди безопасную клетку.",
+    route: "/games/minesweeper-safe",
+    category: "strategy",
+    icon: "mdi-mine",
+    skills: ["choice", "visual-search", "sequence"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 112,
+    defaultDwellMs: 1200
+  },
+  {
     id: "calm-2048",
     title: "2048 мягкий",
     description: "Сдвигай плитки 4×4 и спокойно собирай одинаковые числа без резкого проигрыша.",

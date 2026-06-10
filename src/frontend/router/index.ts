@@ -69,6 +69,7 @@ import MagicDustGame from "../games/magic-dust/MagicDustGame.vue";
 import MatchSameGame from "../games/match-same/MatchSameGame.vue";
 import MathActionsGame from "../games/math-actions/MathActionsGame.vue";
 import MiniDialogGame from "../games/mini-dialog/MiniDialogGame.vue";
+import MinesweeperSafeGame from "../games/minesweeper-safe/MinesweeperSafeGame.vue";
 import MazePathGame from "../games/maze-path/MazePathGame.vue";
 import MosaicGame from "../games/mosaic/MosaicGame.vue";
 import MusicalPathGame from "../games/musical-path/MusicalPathGame.vue";
@@ -255,6 +256,7 @@ export default createRouter({
     { path: "/games/type-word", name: "type-word", component: TypeWordGame },
     { path: "/games/math-actions", name: "math-actions", component: MathActionsGame },
     { path: "/games/shapes", name: "shapes", component: ShapesGame },
+    { path: "/games/minesweeper-safe", name: "minesweeper-safe", component: MinesweeperSafeGame },
     { path: "/games/calm-2048", name: "calm-2048", component: Calm2048Game },
     { path: "/games/calm-tetris", name: "calm-tetris", component: CalmTetrisGame },
     { path: "/games/tic-tac-toe", name: "tic-tac-toe", component: TicTacToeGame },
