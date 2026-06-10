@@ -1689,6 +1689,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "pizza-fractions",
+    title: "Доли пиццы",
+    description: "Выбирай половину, четверть или целую пиццу на крупных карточках; ошибка мягко подсвечивает правильную долю.",
+    selfDescription: "Выбери долю пиццы.",
+    route: "/games/pizza-fractions",
+    category: "numeracy",
+    icon: "mdi-pizza",
+    skills: ["math", "choice", "classification"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
     id: "greater-less",
     title: "Больше / меньше",
     description: "Сравни две группы предметов и выбери, где больше или меньше.",
