@@ -44,6 +44,7 @@ import TowerGame from "../games/tower/TowerGame.vue";
 import TrainSequenceGame from "../games/train-sequence/TrainSequenceGame.vue";
 import TypeWordGame from "../games/type-word/TypeWordGame.vue";
 import WantDontWantGame from "../games/want-dont-want/WantDontWantGame.vue";
+import WarmWindowGame from "../games/warm-window/WarmWindowGame.vue";
 import YesNoGame from "../games/yes-no/YesNoGame.vue";
 import HomePage from "../pages/HomePage.vue";
 import PlannedGamePage from "../pages/PlannedGamePage.vue";
@@ -67,6 +68,7 @@ export default createRouter({
     { path: "/games/northern-lights", name: "northern-lights", component: NorthernLightsGame },
     { path: "/games/sand-garden", name: "sand-garden", component: SandGardenGame },
     { path: "/games/paper-lanterns", name: "paper-lanterns", component: PaperLanternsGame },
+    { path: "/games/warm-window", name: "warm-window", component: WarmWindowGame },
     { path: "/games/big-button", name: "big-button", component: BigButtonGame },
     { path: "/games/butterfly", name: "butterfly", component: ButterflyGame },
     { path: "/games/flowers", name: "flowers", component: FlowersGame },

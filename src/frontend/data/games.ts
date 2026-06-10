@@ -247,6 +247,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1350
   },
   {
+    id: "warm-window",
+    title: "Тёплое окно",
+    description: "Смотри на спокойный дом и мягко зажигай тёплый свет в окнах без ошибок.",
+    selfDescription: "Зажги окна взглядом.",
+    route: "/games/warm-window",
+    category: "gaze-basics",
+    icon: "mdi-window-closed",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 80,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1350
+  },
+  {
     id: "big-button",
     title: "Большая кнопка",
     description: "Первая спокойная игра: смотри на одну большую кнопку и получай мягкий отклик.",
