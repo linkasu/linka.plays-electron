@@ -211,6 +211,7 @@ export default createRouter({
     { path: "/games/hidden-picture", name: "hidden-picture", component: HiddenPictureGame },
     { path: "/games/who-hiding", name: "who-hiding", component: WhoHidingGame },
     { path: "/games/what-missing", name: "what-missing", component: WhatMissingGame },
+    { path: "/games/what-sounds", name: "what-sounds", component: WhatSoundsGame },
     { path: "/games/follow-cue", name: "follow-cue", component: FollowCueGame },
     { path: "/games/row-scanning", name: "row-scanning", component: RowScanningGame },
     { path: "/games/grid-scanning", name: "grid-scanning", component: GridScanningGame },
