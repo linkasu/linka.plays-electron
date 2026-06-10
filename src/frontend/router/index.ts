@@ -6,6 +6,8 @@ import BigCardsGame from "../games/big-cards/BigCardsGame.vue";
 import BigButtonGame from "../games/big-button/BigButtonGame.vue";
 import BoatGame from "../games/boat/BoatGame.vue";
 import BreathingFlowerGame from "../games/breathing-flower/BreathingFlowerGame.vue";
+import BuildBridgeGame from "../games/build-bridge/BuildBridgeGame.vue";
+import BuildRobotGame from "../games/build-robot/BuildRobotGame.vue";
 import ButterflyGame from "../games/butterfly/ButterflyGame.vue";
 import Calm2048Game from "../games/calm-2048/Calm2048Game.vue";
 import ChoosePictureGame from "../games/choose-picture/ChoosePictureGame.vue";
@@ -15,27 +17,36 @@ import CatchLightGame from "../games/catch-light/CatchLightGame.vue";
 import CatchStarGame from "../games/catch-star/CatchStarGame.vue";
 import CloudsGame from "../games/clouds/CloudsGame.vue";
 import ColorCircleGame from "../games/color-circle/ColorCircleGame.vue";
+import ColorPatternGame from "../games/color-pattern/ColorPatternGame.vue";
 import ConnectFourGame from "../games/connect-four/ConnectFourGame.vue";
 import CountItemsGame from "../games/count-items/CountItemsGame.vue";
+import ComicStripGame from "../games/comic-strip/ComicStripGame.vue";
+import DayRoutineGame from "../games/day-routine/DayRoutineGame.vue";
+import DressCharacterGame from "../games/dress-character/DressCharacterGame.vue";
 import DucksGame from "../games/ducks/DucksGame.vue";
 import EatOrNotEatGame from "../games/eat-or-not-eat/EatOrNotEatGame.vue";
 import FeedAnimalGame from "../games/feed-animal/FeedAnimalGame.vue";
+import FirstThenGame from "../games/first-then/FirstThenGame.vue";
 import FindAnimalGame from "../games/find-animal/FindAnimalGame.vue";
 import FindEmotionGame from "../games/find-emotion/FindEmotionGame.vue";
 import FindLetterGame from "../games/find-letter/FindLetterGame.vue";
+import FixPictureGame from "../games/fix-picture/FixPictureGame.vue";
 import FindHouseGame from "../games/find-house/FindHouseGame.vue";
 import FireflyMeadowGame from "../games/firefly-meadow/FireflyMeadowGame.vue";
 import FindColorGame from "../games/find-color/FindColorGame.vue";
 import FindNumberGame from "../games/find-number/FindNumberGame.vue";
 import FindShapeGame from "../games/find-shape/FindShapeGame.vue";
 import FishesGame from "../games/fishes/FishesGame.vue";
+import FollowCueGame from "../games/follow-cue/FollowCueGame.vue";
 import FlowersGame from "../games/flowers/FlowersGame.vue";
 import FrogGame from "../games/frog/FrogGame.vue";
 import GardenWateringGame from "../games/garden-watering/GardenWateringGame.vue";
 import GazeMazeGame from "../games/gaze-maze/GazeMazeGame.vue";
 import GreaterLessGame from "../games/greater-less/GreaterLessGame.vue";
 import GridScanningGame from "../games/grid-scanning/GridScanningGame.vue";
+import HeroRouteGame from "../games/hero-route/HeroRouteGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
+import HiddenPictureGame from "../games/hidden-picture/HiddenPictureGame.vue";
 import HighFiveHandsGame from "../games/high-five-hands/HighFiveHandsGame.vue";
 import IslandGame from "../games/island/IslandGame.vue";
 import JellyfishGame from "../games/jellyfish/JellyfishGame.vue";
@@ -50,10 +61,13 @@ import MatchSameGame from "../games/match-same/MatchSameGame.vue";
 import MathActionsGame from "../games/math-actions/MathActionsGame.vue";
 import MiniDialogGame from "../games/mini-dialog/MiniDialogGame.vue";
 import MazePathGame from "../games/maze-path/MazePathGame.vue";
+import MosaicGame from "../games/mosaic/MosaicGame.vue";
+import MusicalPathGame from "../games/musical-path/MusicalPathGame.vue";
 import MusicalPebblesGame from "../games/musical-pebbles/MusicalPebblesGame.vue";
 import MoonPathGame from "../games/moon-path/MoonPathGame.vue";
 import NorthernLightsGame from "../games/northern-lights/NorthernLightsGame.vue";
 import OpenDoorGame from "../games/open-door/OpenDoorGame.vue";
+import OrchestraGame from "../games/orchestra/OrchestraGame.vue";
 import OddOneOutGame from "../games/odd-one-out/OddOneOutGame.vue";
 import PatternsGame from "../games/patterns/PatternsGame.vue";
 import MemoryCardsGame from "../games/memory-cards/MemoryCardsGame.vue";
@@ -64,16 +78,22 @@ import RainbowButtonGame from "../games/rainbow-button/RainbowButtonGame.vue";
 import RainGardenGame from "../games/rain-garden/RainGardenGame.vue";
 import RowScanningGame from "../games/row-scanning/RowScanningGame.vue";
 import SandGardenGame from "../games/sand-garden/SandGardenGame.vue";
+import SandwichGame from "../games/sandwich/SandwichGame.vue";
+import ScheduleGame from "../games/schedule/ScheduleGame.vue";
 import SeaShellsGame from "../games/sea-shells/SeaShellsGame.vue";
 import ShadowMatchGame from "../games/shadow-match/ShadowMatchGame.vue";
+import ShapeDanceGame from "../games/shape-dance/ShapeDanceGame.vue";
 import ShapesGame from "../games/shapes/ShapesGame.vue";
+import ShelfSortingGame from "../games/shelf-sorting/ShelfSortingGame.vue";
 import SoapCirclesGame from "../games/soap-circles/SoapCirclesGame.vue";
 import SoundSourceGame from "../games/sound-source/SoundSourceGame.vue";
 import SnowflakesGame from "../games/snowflakes/SnowflakesGame.vue";
 import StarrySkyGame from "../games/starry-sky/StarrySkyGame.vue";
 import SpotDifferenceGame from "../games/spot-difference/SpotDifferenceGame.vue";
+import SoupRecipeGame from "../games/soup-recipe/SoupRecipeGame.vue";
 import SunRaysGame from "../games/sun-rays/SunRaysGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
+import ThreeFrameStoryGame from "../games/three-frame-story/ThreeFrameStoryGame.vue";
 import TicTacToeGame from "../games/tic-tac-toe/TicTacToeGame.vue";
 import TowerGame from "../games/tower/TowerGame.vue";
 import TrainSequenceGame from "../games/train-sequence/TrainSequenceGame.vue";
@@ -131,6 +151,7 @@ export default createRouter({
     { path: "/games/warm-lamp", name: "warm-lamp", component: WarmLampGame },
     { path: "/games/warm-fire", name: "warm-fire", component: WarmFireGame },
     { path: "/games/musical-pebbles", name: "musical-pebbles", component: MusicalPebblesGame },
+    { path: "/games/musical-path", name: "musical-path", component: MusicalPathGame },
     { path: "/games/big-button", name: "big-button", component: BigButtonGame },
     { path: "/games/rainbow-button", name: "rainbow-button", component: RainbowButtonGame },
     { path: "/games/big-cards", name: "big-cards", component: BigCardsGame },
@@ -148,18 +169,37 @@ export default createRouter({
     { path: "/games/yes-no", name: "yes-no", component: YesNoGame },
     { path: "/games/want-dont-want", name: "want-dont-want", component: WantDontWantGame },
     { path: "/games/mini-dialog", name: "mini-dialog", component: MiniDialogGame },
+    { path: "/games/build-robot", name: "build-robot", component: BuildRobotGame },
     { path: "/games/pyramid", name: "pyramid", component: PyramidGame },
     { path: "/games/find-color", name: "find-color", component: FindColorGame },
     { path: "/games/find-shape", name: "find-shape", component: FindShapeGame },
+    { path: "/games/dress-character", name: "dress-character", component: DressCharacterGame },
     { path: "/games/tower", name: "tower", component: TowerGame },
+    { path: "/games/three-frame-story", name: "three-frame-story", component: ThreeFrameStoryGame },
     { path: "/games/train-sequence", name: "train-sequence", component: TrainSequenceGame },
+    { path: "/games/sandwich", name: "sandwich", component: SandwichGame },
     { path: "/games/patterns", name: "patterns", component: PatternsGame },
+    { path: "/games/color-pattern", name: "color-pattern", component: ColorPatternGame },
+    { path: "/games/day-routine", name: "day-routine", component: DayRoutineGame },
+    { path: "/games/first-then", name: "first-then", component: FirstThenGame },
+    { path: "/games/mosaic", name: "mosaic", component: MosaicGame },
+    { path: "/games/shape-dance", name: "shape-dance", component: ShapeDanceGame },
+    { path: "/games/hero-route", name: "hero-route", component: HeroRouteGame },
+    { path: "/games/soup-recipe", name: "soup-recipe", component: SoupRecipeGame },
+    { path: "/games/fix-picture", name: "fix-picture", component: FixPictureGame },
+    { path: "/games/comic-strip", name: "comic-strip", component: ComicStripGame },
+    { path: "/games/schedule", name: "schedule", component: ScheduleGame },
+    { path: "/games/build-bridge", name: "build-bridge", component: BuildBridgeGame },
+    { path: "/games/shelf-sorting", name: "shelf-sorting", component: ShelfSortingGame },
+    { path: "/games/orchestra", name: "orchestra", component: OrchestraGame },
     { path: "/games/fishes", name: "fishes", component: FishesGame },
     { path: "/games/jellyfish", name: "jellyfish", component: JellyfishGame },
     { path: "/games/koi-pond", name: "koi-pond", component: KoiPondGame },
     { path: "/games/hide-and-seek", name: "hide-and-seek", component: HideAndSeekGame },
+    { path: "/games/hidden-picture", name: "hidden-picture", component: HiddenPictureGame },
     { path: "/games/who-hiding", name: "who-hiding", component: WhoHidingGame },
     { path: "/games/what-missing", name: "what-missing", component: WhatMissingGame },
+    { path: "/games/follow-cue", name: "follow-cue", component: FollowCueGame },
     { path: "/games/row-scanning", name: "row-scanning", component: RowScanningGame },
     { path: "/games/grid-scanning", name: "grid-scanning", component: GridScanningGame },
     { path: "/games/find-letter", name: "find-letter", component: FindLetterGame },
