@@ -1,8 +1,8 @@
 # Аудит игр LINKa Plays — 2026-06-10
 
-Этот каталог содержит статический аудит всех игр из `src/frontend/data/games.ts`. Отчеты не заменяют визуальную проверку в реальном Electron окне через CDP, но фиксируют подозрительные места для проверки и исправления.
+Этот каталог содержит статический аудит всех игр из `src/frontend/data/games.ts`, а также runtime-проверки через реальный Electron CDP target.
 
-Этап аудита: только документация багов. Код игр, модели и правила на этом этапе не исправляются.
+Статический этап зафиксировал подозрительные места, runtime-этап подтвердил часть layout-дефектов на `1024x600` и `800x600`.
 
 ## Сводка
 
@@ -15,6 +15,18 @@
 | Низкий общий риск | 0 |
 | Высокий риск правил | 16 |
 | Высокий UI-риск | 152 |
+
+## Runtime CDP 2026-06-10
+
+| Отчет | Назначение |
+|---|---|
+| [devtools-baseline-p0.md](./devtools-baseline-p0.md) | Базовая Electron CDP-проверка P0 до layout-фиксов |
+| [devtools-after-compact-hud.md](./devtools-after-compact-hud.md) | Проверка после compact HUD |
+| [devtools-after-controls-reorder.md](./devtools-after-controls-reorder.md) | Проверка controls-above-fold для `calm-2048` и `calm-tetris` |
+| [devtools-full-runtime-audit.md](./devtools-full-runtime-audit.md) | Полный прогон 169 игр на `1024x600` и `800x600` |
+| [devtools-runtime-triage.md](./devtools-runtime-triage.md) | Разбор false positives и подтвержденных runtime-дефектов |
+
+Ключевые результаты полного runtime-прогона: все 169 routes открываются, route mismatch = 0, console/runtime errors = 0. Первичные `blank`-флаги у 8 canvas-only игр подтверждены как false positives: canvas видим и рисует кадры. Подтвержденные дефекты: horizontal overflow у `gaze-maze`/`pac-path`, HUD/target overlap у `hide-and-seek`/`musical-path`/`rails`, small targets у `tic-tac-toe`/`connect-four`, а также общий риск targets below fold у карточных sequencing/language/numeracy игр.
 
 ## Статус фиксов
 
