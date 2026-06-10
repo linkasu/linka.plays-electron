@@ -133,6 +133,7 @@ import TicTacToeGame from "../games/tic-tac-toe/TicTacToeGame.vue";
 import TowerGame from "../games/tower/TowerGame.vue";
 import TrainSequenceGame from "../games/train-sequence/TrainSequenceGame.vue";
 import TypeWordGame from "../games/type-word/TypeWordGame.vue";
+import UnoLikeGame from "../games/uno-like/UnoLikeGame.vue";
 import WantDontWantGame from "../games/want-dont-want/WantDontWantGame.vue";
 import WarmFireGame from "../games/warm-fire/WarmFireGame.vue";
 import WarmLampGame from "../games/warm-lamp/WarmLampGame.vue";
@@ -290,6 +291,7 @@ export default createRouter({
     { path: "/games/minesweeper-safe", name: "minesweeper-safe", component: MinesweeperSafeGame },
     { path: "/games/calm-2048", name: "calm-2048", component: Calm2048Game },
     { path: "/games/sliding-puzzle", name: "sliding-puzzle", component: SlidingPuzzleGame },
+    { path: "/games/uno-like", name: "uno-like", component: UnoLikeGame },
     { path: "/games/calm-tetris", name: "calm-tetris", component: CalmTetrisGame },
     { path: "/games/sokoban-large", name: "sokoban-large", component: SokobanLargeGame },
     { path: "/games/tic-tac-toe", name: "tic-tac-toe", component: TicTacToeGame },
