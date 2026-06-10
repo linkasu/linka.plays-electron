@@ -1031,6 +1031,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "fix-picture",
+    title: "Почини картинку",
+    description: "Выбери отсутствующую часть или следующий фрагмент, чтобы мягко восстановить спокойную картинку; ошибка только покажет подсказку.",
+    selfDescription: "Почини картинку по частям.",
+    route: "/games/fix-picture",
+    category: "sequencing",
+    icon: "mdi-image-edit-outline",
+    skills: ["sequence", "choice", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "train-sequence",
     title: "Поезд",
     description: "Прицепляй вагоны по подсказанному порядку цвета и номера.",
