@@ -58,6 +58,7 @@ import FrogGame from "../games/frog/FrogGame.vue";
 import GardenWateringGame from "../games/garden-watering/GardenWateringGame.vue";
 import GazeFollowSnakeGame from "../games/gaze-follow-snake/GazeFollowSnakeGame.vue";
 import GazeMazeGame from "../games/gaze-maze/GazeMazeGame.vue";
+import GliderGame from "../games/glider/GliderGame.vue";
 import GreaterLessGame from "../games/greater-less/GreaterLessGame.vue";
 import GridScanningGame from "../games/grid-scanning/GridScanningGame.vue";
 import HeroRouteGame from "../games/hero-route/HeroRouteGame.vue";
