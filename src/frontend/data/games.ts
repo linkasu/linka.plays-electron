@@ -1689,6 +1689,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "sudoku-2x2",
+    title: "Судоку 2x2",
+    description: "Выбери недостающую карточку в очень простой сетке 2x2: числа и цвета помогают увидеть ответ.",
+    selfDescription: "Найди карточку для пустой клетки.",
+    route: "/games/sudoku-2x2",
+    category: "numeracy",
+    icon: "mdi-check",
+    skills: ["counting", "choice", "math"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "greater-less",
     title: "Больше / меньше",
     description: "Сравни две группы предметов и выбери, где больше или меньше.",
