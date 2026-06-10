@@ -40,6 +40,7 @@ import GardenWateringGame from "../games/garden-watering/GardenWateringGame.vue"
 import GazeMazeGame from "../games/gaze-maze/GazeMazeGame.vue";
 import GreaterLessGame from "../games/greater-less/GreaterLessGame.vue";
 import GridScanningGame from "../games/grid-scanning/GridScanningGame.vue";
+import HeroRouteGame from "../games/hero-route/HeroRouteGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import HiddenPictureGame from "../games/hidden-picture/HiddenPictureGame.vue";
 import HighFiveHandsGame from "../games/high-five-hands/HighFiveHandsGame.vue";
