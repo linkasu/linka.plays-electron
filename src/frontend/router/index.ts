@@ -27,6 +27,7 @@ import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import JellyfishGame from "../games/jellyfish/JellyfishGame.vue";
 import KoiPondGame from "../games/koi-pond/KoiPondGame.vue";
 import LeavesWindGame from "../games/leaves-wind/LeavesWindGame.vue";
+import LighthouseGame from "../games/lighthouse/LighthouseGame.vue";
 import LightGalleryGame from "../games/light-gallery/LightGalleryGame.vue";
 import MagicDustGame from "../games/magic-dust/MagicDustGame.vue";
 import MatchSameGame from "../games/match-same/MatchSameGame.vue";
@@ -85,6 +86,7 @@ export default createRouter({
     { path: "/games/magic-dust", name: "magic-dust", component: MagicDustGame },
     { path: "/games/light-gallery", name: "light-gallery", component: LightGalleryGame },
     { path: "/games/soap-circles", name: "soap-circles", component: SoapCirclesGame },
+    { path: "/games/lighthouse", name: "lighthouse", component: LighthouseGame },
     { path: "/games/northern-lights", name: "northern-lights", component: NorthernLightsGame },
     { path: "/games/sun-rays", name: "sun-rays", component: SunRaysGame },
     { path: "/games/snowflakes", name: "snowflakes", component: SnowflakesGame },
