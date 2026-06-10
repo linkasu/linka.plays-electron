@@ -2123,6 +2123,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 500
   },
   {
+    id: "catch-wave",
+    title: "Поймай волну",
+    description: "Следуй взглядом за мягкой волной и серфером, собирая крупные спокойные маркеры без падений и проигрыша.",
+    selfDescription: "Поймай волну взглядом.",
+    route: "/games/catch-wave",
+    category: "continuous-control",
+    icon: "mdi-waves",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 600
+  },
+  {
     id: "table-tennis",
     title: "Теннис",
     description: "Веди мягкую ракетку взглядом и вместе с партнёром спокойно держи мяч в игре.",

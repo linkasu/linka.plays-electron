@@ -20,6 +20,7 @@ import CalmTetrisGame from "../games/calm-tetris/CalmTetrisGame.vue";
 import CalmSnakeGame from "../games/calm-snake/CalmSnakeGame.vue";
 import CatchLightGame from "../games/catch-light/CatchLightGame.vue";
 import CatchStarGame from "../games/catch-star/CatchStarGame.vue";
+import CatchWaveGame from "../games/catch-wave/CatchWaveGame.vue";
 import CheckersLightGame from "../games/checkers-light/CheckersLightGame.vue";
 import ChooseEmotionGame from "../games/choose-emotion/ChooseEmotionGame.vue";
 import CloudsGame from "../games/clouds/CloudsGame.vue";
@@ -301,6 +302,7 @@ export default createRouter({
     { path: "/games/battleship-light", name: "battleship-light", component: BattleshipLightGame },
     { path: "/games/tanks-no-shooting", name: "tanks-no-shooting", component: TanksNoShootingGame },
     { path: "/games/boat", name: "boat", component: BoatGame },
+    { path: "/games/catch-wave", name: "catch-wave", component: CatchWaveGame },
     { path: "/games/frog", name: "frog", component: FrogGame },
     { path: "/games/table-tennis", name: "table-tennis", component: TableTennisGame },
     { path: "/games/maze-path", name: "maze-path", component: MazePathGame },
