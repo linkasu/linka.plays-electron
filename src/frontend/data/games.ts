@@ -2025,6 +2025,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "lines-five",
+    title: "Lines 5",
+    description: "Ставь шарики на мини-поле 5×5 и спокойно собирай линии из 3–5 одинаковых цветов; неверный выбор только включает подсказку.",
+    selfDescription: "Собери линию шариков.",
+    route: "/games/lines-five",
+    category: "strategy",
+    icon: "mdi-vector-line",
+    skills: ["choice", "sequence", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 104,
+    defaultDwellMs: 1300
+  },
+  {
     id: "checkers-light",
     title: "Шашки light",
     description: "Играй в упрощённые шашки 4x4: возможные ходы подсвечены, а проигрыша и резких ошибок нет.",
