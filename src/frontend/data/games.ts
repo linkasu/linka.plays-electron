@@ -2235,6 +2235,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1000
   },
   {
+    id: "gates-path",
+    title: "Дорожка с воротами",
+    description: "Веди мягкий свет по дорожке через широкие ворота: промах не ошибка, только спокойная подсказка вернуться.",
+    selfDescription: "Проведи свет через ворота.",
+    route: "/games/gates-path",
+    category: "continuous-control",
+    icon: "mdi-gate-open",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 180,
+    defaultDwellMs: 600
+  },
+  {
     id: "maze-path",
     title: "Лабиринт-дорожка",
     description: "Веди мягкий свет по широкой дорожке к финишу без сбросов и резких ошибок.",

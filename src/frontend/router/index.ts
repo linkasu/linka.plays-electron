@@ -321,6 +321,7 @@ export default createRouter({
     { path: "/games/gaze-follow-snake", name: "gaze-follow-snake", component: GazeFollowSnakeGame },
     { path: "/games/frog", name: "frog", component: FrogGame },
     { path: "/games/table-tennis", name: "table-tennis", component: TableTennisGame },
+    { path: "/games/gates-path", name: "gates-path", component: GatesPathGame },
     { path: "/games/maze-path", name: "maze-path", component: MazePathGame },
     { path: "/games/garden-watering", name: "garden-watering", component: GardenWateringGame },
     { path: "/games/space-orbit", name: "space-orbit", component: SpaceOrbitGame },
