@@ -709,6 +709,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "what-missing",
+    title: "Что пропало?",
+    description: "Запомни три крупных предмета, затем выбери тот, который мягко исчез.",
+    selfDescription: "Вспомни, что пропало.",
+    route: "/games/what-missing",
+    category: "visual-search",
+    icon: "mdi-help-circle-outline",
+    skills: ["visual-search", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "memory-cards",
     title: "Пары",
     description: "Открывай две карточки и находи одинаковые пары без спешки.",
