@@ -1395,6 +1395,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "what-first",
+    title: "Что сначала?",
+    description: "Выбирай первое действие в паре или мини-сцене; ошибка мягко объясняет порядок.",
+    selfDescription: "Выбери, что сначала.",
+    route: "/games/what-first",
+    category: "language-aac",
+    icon: "mdi-order-bool-ascending",
+    skills: ["aac", "choice", "sequence", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 125,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "mini-dialog",
     title: "Мини-диалог",
     description: "Выбирай мягкие реплики для короткого AAC-диалога без неправильных ответов.",

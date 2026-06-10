@@ -103,6 +103,7 @@ import WarmFireGame from "../games/warm-fire/WarmFireGame.vue";
 import WarmLampGame from "../games/warm-lamp/WarmLampGame.vue";
 import WakeOwlGame from "../games/wake-owl/WakeOwlGame.vue";
 import WarmWindowGame from "../games/warm-window/WarmWindowGame.vue";
+import WhatFirstGame from "../games/what-first/WhatFirstGame.vue";
 import WhatMissingGame from "../games/what-missing/WhatMissingGame.vue";
 import WhoHidingGame from "../games/who-hiding/WhoHidingGame.vue";
 import YesNoGame from "../games/yes-no/YesNoGame.vue";
@@ -198,6 +199,7 @@ export default createRouter({
     { path: "/games/hide-and-seek", name: "hide-and-seek", component: HideAndSeekGame },
     { path: "/games/hidden-picture", name: "hidden-picture", component: HiddenPictureGame },
     { path: "/games/who-hiding", name: "who-hiding", component: WhoHidingGame },
+    { path: "/games/what-first", name: "what-first", component: WhatFirstGame },
     { path: "/games/what-missing", name: "what-missing", component: WhatMissingGame },
     { path: "/games/follow-cue", name: "follow-cue", component: FollowCueGame },
     { path: "/games/row-scanning", name: "row-scanning", component: RowScanningGame },
