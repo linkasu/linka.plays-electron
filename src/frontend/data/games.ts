@@ -1059,6 +1059,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "schedule",
+    title: "Расписание",
+    description: "Собирай дневное расписание из крупных AAC-карточек по порядку; ошибка только мягко подсказывает следующий шаг.",
+    selfDescription: "Собери день по порядку.",
+    route: "/games/schedule",
+    category: "sequencing",
+    icon: "mdi-calendar-clock-outline",
+    skills: ["sequence", "choice", "aac"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 140,
+    minTargetSizePx: 176,
+    defaultDwellMs: 1300
+  },
+  {
     id: "choose-picture",
     title: "Выбери картинку",
     description: "Слушай слово и выбирай подходящую картинку взглядом.",
