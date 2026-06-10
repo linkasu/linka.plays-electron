@@ -1045,6 +1045,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "musical-path",
+    title: "Музыкальная дорожка",
+    description: "Выбирай ноты-камешки по порядку на мягкой дорожке: ошибка только спокойно подсказывает следующий шаг.",
+    selfDescription: "Пройди камешки по порядку.",
+    route: "/games/musical-path",
+    category: "sequencing",
+    icon: "mdi-music-clef-treble",
+    skills: ["sequence", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 178,
+    defaultDwellMs: 1250
+  },
+  {
     id: "patterns",
     title: "Паттерны",
     description: "Продолжай ряд крупных фигур и цветов по повторяющемуся паттерну.",

@@ -50,6 +50,7 @@ import MatchSameGame from "../games/match-same/MatchSameGame.vue";
 import MathActionsGame from "../games/math-actions/MathActionsGame.vue";
 import MiniDialogGame from "../games/mini-dialog/MiniDialogGame.vue";
 import MazePathGame from "../games/maze-path/MazePathGame.vue";
+import MusicalPathGame from "../games/musical-path/MusicalPathGame.vue";
 import MusicalPebblesGame from "../games/musical-pebbles/MusicalPebblesGame.vue";
 import MoonPathGame from "../games/moon-path/MoonPathGame.vue";
 import NorthernLightsGame from "../games/northern-lights/NorthernLightsGame.vue";
@@ -131,6 +132,7 @@ export default createRouter({
     { path: "/games/warm-lamp", name: "warm-lamp", component: WarmLampGame },
     { path: "/games/warm-fire", name: "warm-fire", component: WarmFireGame },
     { path: "/games/musical-pebbles", name: "musical-pebbles", component: MusicalPebblesGame },
+    { path: "/games/musical-path", name: "musical-path", component: MusicalPathGame },
     { path: "/games/big-button", name: "big-button", component: BigButtonGame },
     { path: "/games/rainbow-button", name: "rainbow-button", component: RainbowButtonGame },
     { path: "/games/big-cards", name: "big-cards", component: BigCardsGame },
