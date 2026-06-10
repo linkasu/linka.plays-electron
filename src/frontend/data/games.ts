@@ -219,6 +219,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1350
   },
   {
+    id: "snowflakes",
+    title: "Снежинки",
+    description: "Смотри на медленно падающие снежинки: рядом со взглядом они мягко светятся и тают без ошибок.",
+    selfDescription: "Растопи снежинки взглядом.",
+    route: "/games/snowflakes",
+    category: "gaze-basics",
+    icon: "mdi-snowflake",
+    skills: ["smooth-pursuit", "fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1400
+  },
+  {
     id: "sand-garden",
     title: "Песочный сад",
     description: "Веди взглядом мягкие борозды по тёплому песку: следы появляются спокойно и постепенно исчезают.",
