@@ -113,6 +113,7 @@ export default createRouter({
     { path: "/games/lighthouse", name: "lighthouse", component: LighthouseGame },
     { path: "/games/island", name: "island", component: IslandGame },
     { path: "/games/find-house", name: "find-house", component: FindHouseGame },
+    { path: "/games/find-animal", name: "find-animal", component: FindAnimalGame },
     { path: "/games/northern-lights", name: "northern-lights", component: NorthernLightsGame },
     { path: "/games/sun-rays", name: "sun-rays", component: SunRaysGame },
     { path: "/games/snowflakes", name: "snowflakes", component: SnowflakesGame },
