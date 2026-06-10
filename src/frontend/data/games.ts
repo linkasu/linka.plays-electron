@@ -1717,6 +1717,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "scales",
+    title: "Весы",
+    description: "Смотри на картинку весов и выбирай, какая сторона тяжелее, легче или равна; ошибка даёт мягкую подсказку.",
+    selfDescription: "Выбери сторону весов.",
+    route: "/games/scales",
+    category: "numeracy",
+    icon: "mdi-scale-balance",
+    skills: ["counting", "math", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 125,
+    minTargetSizePx: 170,
+    defaultDwellMs: 1300
+  },
+  {
     id: "number-line",
     title: "Числовая дорожка",
     description: "Выбирай нужное или следующее число на крупной дорожке от 1 до 10.",

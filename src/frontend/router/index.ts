@@ -93,6 +93,7 @@ import RainGardenGame from "../games/rain-garden/RainGardenGame.vue";
 import RowScanningGame from "../games/row-scanning/RowScanningGame.vue";
 import SandGardenGame from "../games/sand-garden/SandGardenGame.vue";
 import SandwichGame from "../games/sandwich/SandwichGame.vue";
+import ScalesGame from "../games/scales/ScalesGame.vue";
 import ScheduleGame from "../games/schedule/ScheduleGame.vue";
 import SeaShellsGame from "../games/sea-shells/SeaShellsGame.vue";
 import ShadowMatchGame from "../games/shadow-match/ShadowMatchGame.vue";
@@ -187,6 +188,7 @@ export default createRouter({
     { path: "/games/coin-counting", name: "coin-counting", component: CoinCountingGame },
     { path: "/games/pizza-fractions", name: "pizza-fractions", component: PizzaFractionsGame },
     { path: "/games/greater-less", name: "greater-less", component: GreaterLessGame },
+    { path: "/games/scales", name: "scales", component: ScalesGame },
     { path: "/games/number-line", name: "number-line", component: NumberLineGame },
     { path: "/games/choose-emotion", name: "choose-emotion", component: ChooseEmotionGame },
     { path: "/games/choose-picture", name: "choose-picture", component: ChoosePictureGame },
