@@ -99,6 +99,7 @@ export default createRouter({
     { path: "/games/light-gallery", name: "light-gallery", component: LightGalleryGame },
     { path: "/games/soap-circles", name: "soap-circles", component: SoapCirclesGame },
     { path: "/games/lighthouse", name: "lighthouse", component: LighthouseGame },
+    { path: "/games/island", name: "island", component: IslandGame },
     { path: "/games/find-house", name: "find-house", component: FindHouseGame },
     { path: "/games/northern-lights", name: "northern-lights", component: NorthernLightsGame },
     { path: "/games/sun-rays", name: "sun-rays", component: SunRaysGame },
