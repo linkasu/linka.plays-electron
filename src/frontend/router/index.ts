@@ -111,6 +111,7 @@ import RainbowButtonGame from "../games/rainbow-button/RainbowButtonGame.vue";
 import RailsGame from "../games/rails/RailsGame.vue";
 import RainGardenGame from "../games/rain-garden/RainGardenGame.vue";
 import ReversiLightGame from "../games/reversi-light/ReversiLightGame.vue";
+import RobotVacuumGame from "../games/robot-vacuum/RobotVacuumGame.vue";
 import RowScanningGame from "../games/row-scanning/RowScanningGame.vue";
 import SandGardenGame from "../games/sand-garden/SandGardenGame.vue";
 import SandwichGame from "../games/sandwich/SandwichGame.vue";
