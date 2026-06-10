@@ -18,6 +18,7 @@ import CatchStarGame from "../games/catch-star/CatchStarGame.vue";
 import CloudsGame from "../games/clouds/CloudsGame.vue";
 import ColorCircleGame from "../games/color-circle/ColorCircleGame.vue";
 import ColorPatternGame from "../games/color-pattern/ColorPatternGame.vue";
+import ColorShapeGame from "../games/color-shape/ColorShapeGame.vue";
 import ConnectFourGame from "../games/connect-four/ConnectFourGame.vue";
 import CountItemsGame from "../games/count-items/CountItemsGame.vue";
 import ComicStripGame from "../games/comic-strip/ComicStripGame.vue";
@@ -180,6 +181,7 @@ export default createRouter({
     { path: "/games/sandwich", name: "sandwich", component: SandwichGame },
     { path: "/games/patterns", name: "patterns", component: PatternsGame },
     { path: "/games/color-pattern", name: "color-pattern", component: ColorPatternGame },
+    { path: "/games/color-shape", name: "color-shape", component: ColorShapeGame },
     { path: "/games/day-routine", name: "day-routine", component: DayRoutineGame },
     { path: "/games/first-then", name: "first-then", component: FirstThenGame },
     { path: "/games/mosaic", name: "mosaic", component: MosaicGame },

@@ -1465,6 +1465,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "color-shape",
+    title: "Цвет + форма",
+    description: "Выбери объект по двум признакам, например красный круг: ошибка мягко подсветит цвет или форму.",
+    selfDescription: "Найди цветную форму.",
+    route: "/games/color-shape",
+    category: "numeracy",
+    icon: "mdi-shape-outline",
+    skills: ["choice", "classification", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 125,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
     id: "math-actions",
     title: "Математика. Операции",
     description: "Решай простые примеры и вводи ответ крупными кнопками.",
