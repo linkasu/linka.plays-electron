@@ -2137,6 +2137,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "step-pong",
+    title: "Понг пошаговый",
+    description: "Выбирай позицию ракетки перед мягким ударом: мяч не теряется, а ошибка только спокойно подсказывает нужную линию.",
+    selfDescription: "Поставь ракетку.",
+    route: "/games/step-pong",
+    category: "strategy",
+    icon: "mdi-table-tennis",
+    skills: ["choice", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1200
+  },
+  {
     id: "calm-snake",
     title: "Змейка спокойная",
     description: "Веди медленную змейку по мягкой сетке: края и столкновения дают подсказку, а не проигрыш.",
