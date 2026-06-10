@@ -178,7 +178,7 @@ function restart() {
             </div>
 
             <v-row align="stretch" class="ga-2" no-gutters>
-              <v-col cols="12" lg="7" class="pe-lg-5">
+              <v-col cols="12" lg="7" class="order-2 order-lg-1 pe-lg-5">
                 <div class="board mx-auto" role="grid" aria-label="Поле спокойного тетриса">
                   <div v-for="row in rows" :key="row" class="board-row" role="row">
                     <div
@@ -192,7 +192,7 @@ function restart() {
                 </div>
               </v-col>
 
-              <v-col cols="12" lg="5">
+              <v-col cols="12" lg="5" class="order-1 order-lg-2">
                 <v-card class="side-panel pa-4 pa-md-5 h-100" color="indigo-lighten-5" rounded="xl" variant="flat">
                   <div class="text-body-1 text-medium-emphasis mb-4">{{ feedbackMessage }}</div>
                   <div class="controls-grid">

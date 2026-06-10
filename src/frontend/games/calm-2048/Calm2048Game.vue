@@ -129,7 +129,7 @@ function tileColor(value: number) {
             </v-alert>
 
             <v-row class="align-center" dense>
-              <v-col cols="12" md="7">
+              <v-col cols="12" md="7" class="order-2 order-md-1">
                 <div class="board-grid mx-auto" role="grid" aria-label="Поле 2048 четыре на четыре">
                   <v-card v-for="(value, index) in board" :key="index" :class="['tile-card', { 'tile-card--new': lastSpawnedIndex === index }]" :color="tileColor(value)" rounded="xl" variant="flat">
                     <div class="tile-value">{{ value || "" }}</div>
@@ -137,7 +137,7 @@ function tileColor(value: number) {
                 </div>
               </v-col>
 
-              <v-col cols="12" md="5">
+              <v-col cols="12" md="5" class="order-1 order-md-2">
                 <v-row dense>
                   <v-col v-for="item in directions" :key="item.direction" cols="6">
                     <GameDwellButton :target-id="directionTargetId(item.direction)" :disabled="session.status !== 'running' || !hasMoves" :dwell-ms="session.settings.dwellMs" :min-height="132" :color="canMove(board, item.direction) ? 'surface' : 'blue-grey-lighten-5'" @select="chooseDirection(item.direction)">
