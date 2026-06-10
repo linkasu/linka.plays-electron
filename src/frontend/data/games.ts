@@ -1381,6 +1381,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "hurt-good",
+    title: "Болит / хорошо",
+    description: "Выбирай самочувствие или часть тела AAC-карточками: любой ответ мягко подтверждается без наказания.",
+    selfDescription: "Скажи, хорошо или болит.",
+    route: "/games/hurt-good",
+    category: "language-aac",
+    icon: "mdi-emoticon-sick-outline",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 220,
+    defaultDwellMs: 1300
+  },
+  {
     id: "want-dont-want",
     title: "Хочу / не хочу",
     description: "Выбирай, хочешь ли мягкий предмет или занятие: любой ответ считается важной коммуникацией.",
