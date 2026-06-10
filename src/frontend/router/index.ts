@@ -77,6 +77,7 @@ import MusicalPathGame from "../games/musical-path/MusicalPathGame.vue";
 import MusicalPebblesGame from "../games/musical-pebbles/MusicalPebblesGame.vue";
 import MoonPathGame from "../games/moon-path/MoonPathGame.vue";
 import NorthernLightsGame from "../games/northern-lights/NorthernLightsGame.vue";
+import NumberBondsGame from "../games/number-bonds/NumberBondsGame.vue";
 import NumberLineGame from "../games/number-line/NumberLineGame.vue";
 import NumberSortingGame from "../games/number-sorting/NumberSortingGame.vue";
 import OpenDoorGame from "../games/open-door/OpenDoorGame.vue";
