@@ -71,6 +71,7 @@ import WarmFireGame from "../games/warm-fire/WarmFireGame.vue";
 import WarmLampGame from "../games/warm-lamp/WarmLampGame.vue";
 import WakeOwlGame from "../games/wake-owl/WakeOwlGame.vue";
 import WarmWindowGame from "../games/warm-window/WarmWindowGame.vue";
+import WhatMissingGame from "../games/what-missing/WhatMissingGame.vue";
 import YesNoGame from "../games/yes-no/YesNoGame.vue";
 import HomePage from "../pages/HomePage.vue";
 import PlannedGamePage from "../pages/PlannedGamePage.vue";
@@ -143,6 +144,7 @@ export default createRouter({
     { path: "/games/jellyfish", name: "jellyfish", component: JellyfishGame },
     { path: "/games/koi-pond", name: "koi-pond", component: KoiPondGame },
     { path: "/games/hide-and-seek", name: "hide-and-seek", component: HideAndSeekGame },
+    { path: "/games/what-missing", name: "what-missing", component: WhatMissingGame },
     { path: "/games/match-same", name: "match-same", component: MatchSameGame },
     { path: "/games/spot-difference", name: "spot-difference", component: SpotDifferenceGame },
     { path: "/games/memory-cards", name: "memory-cards", component: MemoryCardsGame },
