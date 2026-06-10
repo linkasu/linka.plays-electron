@@ -1031,6 +1031,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "first-then",
+    title: "Сначала-потом",
+    description: "Выбирай, что происходит сначала и что потом в знакомой паре действий; ошибка спокойно объясняет порядок.",
+    selfDescription: "Выбери сначала и потом.",
+    route: "/games/first-then",
+    category: "sequencing",
+    icon: "mdi-order-bool-ascending",
+    skills: ["sequence", "choice", "aac"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 220,
+    defaultDwellMs: 1300
+  },
+  {
     id: "train-sequence",
     title: "Поезд",
     description: "Прицепляй вагоны по подсказанному порядку цвета и номера.",
