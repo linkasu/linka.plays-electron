@@ -476,4 +476,14 @@ onUnmounted(() => {
     inset-block-end: 16px;
   }
 }
+
+@media (min-width: 761px) and (max-width: 900px), (max-height: 700px) {
+  .path-stone-target {
+    inset-block-start: max(var(--stone-y), 210px);
+  }
+
+  .note-spark {
+    inset-block-start: max(var(--spark-y), 210px);
+  }
+}
 </style>

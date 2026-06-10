@@ -45,9 +45,11 @@ function objectTargetId(object: HiddenObject) {
 }
 
 function objectStyle(object: HiddenObject) {
+  const hudHeight = window.innerHeight <= 700 ? 220 : 136;
   const point = clampTargetCenterPercent({ x: object.x, y: object.y }, {
     targetWidth: objectWidth(),
-    targetHeight: objectHeight()
+    targetHeight: objectHeight(),
+    hudHeight
   });
   const isLastMistake = object.id === lastMistakeObjectId.value;
 
@@ -171,5 +173,30 @@ onUnmounted(() => {
 .object-emoji {
   font-size: clamp(4rem, 8vw, 6rem);
   line-height: 1;
+}
+
+@media (max-height: 700px) {
+  .prompt {
+    left: 50%;
+    max-inline-size: min(480px, calc(100vw - 32px));
+    min-inline-size: auto;
+    padding: 0.75rem 1rem !important;
+    top: 124px;
+    transform: translateX(-50%);
+  }
+
+  .prompt-sample {
+    display: none;
+  }
+
+  .prompt .text-overline,
+  .prompt .text-body-1 {
+    display: none;
+  }
+
+  .prompt .text-h3 {
+    font-size: 1.35rem !important;
+    line-height: 1.15;
+  }
 }
 </style>

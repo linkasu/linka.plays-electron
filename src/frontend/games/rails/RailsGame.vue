@@ -568,7 +568,7 @@ useGameLoop({ context, update, draw });
         </p>
 
         <v-row>
-          <v-col v-for="choice in trainChoices" :key="choice.id" cols="12" md="4">
+          <v-col v-for="choice in trainChoices" :key="choice.id" cols="12" sm="4">
             <GameDwellButton :target-id="`rails:train:${choice.id}`" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="170" color="surface" @select="chooseTrain(choice)">
               <template #default="{ active, progress }">
                 <v-icon :icon="choice.icon" size="54" :style="{ color: choice.body }" />

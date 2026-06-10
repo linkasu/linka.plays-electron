@@ -26,6 +26,7 @@
 | [devtools-full-runtime-audit.md](./devtools-full-runtime-audit.md) | Полный прогон 169 игр на `1024x600` и `800x600` |
 | [devtools-runtime-triage.md](./devtools-runtime-triage.md) | Разбор false positives и подтвержденных runtime-дефектов |
 | [devtools-after-overflow-fix.md](./devtools-after-overflow-fix.md) | Проверка после исправления horizontal overflow в `gaze-maze` и `pac-path` |
+| [devtools-after-overlap-fix.md](./devtools-after-overlap-fix.md) | Проверка после исправления HUD/prompt overlaps в `hide-and-seek`, `musical-path`, `rails` |
 
 Ключевые результаты полного runtime-прогона: все 169 routes открываются, route mismatch = 0, console/runtime errors = 0. Первичные `blank`-флаги у 8 canvas-only игр подтверждены как false positives: canvas видим и рисует кадры. Подтвержденные дефекты: horizontal overflow у `gaze-maze`/`pac-path`, HUD/target overlap у `hide-and-seek`/`musical-path`/`rails`, small targets у `tic-tac-toe`/`connect-four`, а также общий риск targets below fold у карточных sequencing/language/numeracy игр.
 

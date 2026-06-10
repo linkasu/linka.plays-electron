@@ -34,9 +34,9 @@
 |---|---|---|---|---|
 | P0 | `gaze-maze` | Horizontal overflow на `800x600` | `overflowX=true`, `targets=5/7`, stage `aspect-ratio: 16/9` + `min-block-size: 28rem` | Исправлено после triage; см. `devtools-after-overflow-fix.md` |
 | P0 | `pac-path` | Horizontal overflow на `800x600` | `overflowX=true`, `targets=2/4`, stage `aspect-ratio: 16/9` + `min-block-size: 30rem` | Исправлено после triage; см. `devtools-after-overflow-fix.md` |
-| P0 | `hide-and-seek` | HUD/target overlap на `800x600` | 1 target пересекает fixed HUD/prompt area | Учитывать prompt/HUD как exclusion zone или поднять compact safe top |
-| P0 | `musical-path` | HUD/target overlap на `800x600` | верхний stone target стартует в зоне HUD из-за процентов от всего viewport | Считать `stone-y` от usable area ниже HUD или включать compact coordinates для `max-height:700px` |
-| P0 | `rails` | HUD/target overlap на `800x600` | guidance/rail geometry начинается около wrapped HUD | Ввести `hudSafeTop` в canvas geometry и guidance positioning |
+| P0 | `hide-and-seek` | HUD/target overlap на `800x600` | 1 target пересекал fixed HUD; дополнительная проверка показала prompt/target overlap | Исправлено после triage; см. `devtools-after-overlap-fix.md` |
+| P0 | `musical-path` | HUD/target overlap на `800x600` | верхний stone target стартовал в зоне HUD из-за процентов от всего viewport | Исправлено после triage; см. `devtools-after-overlap-fix.md` |
+| P0 | `rails` | HUD/target overlap на `800x600` | стартовый выбор поезда складывался вертикально под wrapped HUD | Исправлено после triage; см. `devtools-after-overlap-fix.md` |
 | P1 | `tic-tac-toe` | Small targets | min visible target `72px`, ниже gaze target spec `120px` | Применить `targetScale` к клеткам, поднять grid min до безопасного значения |
 | P1 | `connect-four` | Small targets | 7 column targets дают min visible target `72px` | Нужен redesign/укрупнение column selection или documented custom hit-testing; 7 × 120px физически не помещаются в `800px` с gap/padding |
 
@@ -58,7 +58,6 @@
 
 ## Следующие фиксы по порядку
 
-1. Исправить HUD-safe placement для `hide-and-seek`, `musical-path`, `rails`.
-2. Укрупнить или redesign targets в `tic-tac-toe` и `connect-four`.
-3. Ввести общий compact-card паттерн для sequencing/language/numeracy игр, начиная с `train-sequence`, `tell-picture`, `schedule`, `soup-recipe`.
-4. Обновить audit-script: классифицировать canvas routes отдельно и не считать отсутствие `h1/.dwell-hitbox` blank screen для canvas-only игр.
+1. Укрупнить или redesign targets в `tic-tac-toe` и `connect-four`.
+2. Ввести общий compact-card паттерн для sequencing/language/numeracy игр, начиная с `train-sequence`, `tell-picture`, `schedule`, `soup-recipe`.
+3. Обновить audit-script: классифицировать canvas routes отдельно и не считать отсутствие `h1/.dwell-hitbox` blank screen для canvas-only игр.
