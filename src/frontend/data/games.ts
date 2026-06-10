@@ -1381,6 +1381,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "opposites",
+    title: "Противоположности",
+    description: "Подбирай противоположное слово к понятиям вроде горячий — холодный и большой — маленький.",
+    selfDescription: "Найди противоположность.",
+    route: "/games/opposites",
+    category: "language-aac",
+    icon: "mdi-swap-horizontal",
+    skills: ["aac", "choice", "vocabulary", "classification"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 125,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "want-dont-want",
     title: "Хочу / не хочу",
     description: "Выбирай, хочешь ли мягкий предмет или занятие: любой ответ считается важной коммуникацией.",
