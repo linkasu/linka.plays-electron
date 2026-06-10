@@ -28,11 +28,8 @@ import MatchSameGame from "../games/match-same/MatchSameGame.vue";
 import MathActionsGame from "../games/math-actions/MathActionsGame.vue";
 import MiniDialogGame from "../games/mini-dialog/MiniDialogGame.vue";
 import MazePathGame from "../games/maze-path/MazePathGame.vue";
-<<<<<<< HEAD
 import MusicalPebblesGame from "../games/musical-pebbles/MusicalPebblesGame.vue";
-=======
 import MoonPathGame from "../games/moon-path/MoonPathGame.vue";
->>>>>>> game/moon-path
 import NorthernLightsGame from "../games/northern-lights/NorthernLightsGame.vue";
 import PatternsGame from "../games/patterns/PatternsGame.vue";
 import MemoryCardsGame from "../games/memory-cards/MemoryCardsGame.vue";

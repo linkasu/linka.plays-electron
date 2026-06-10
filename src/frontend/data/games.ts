@@ -205,7 +205,6 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1400
   },
   {
-<<<<<<< HEAD
     id: "koi-pond",
     title: "Кои-пруд",
     description: "Смотри на тихий пруд: рыбы кои медленно подплывают к взгляду, а круги на воде загораются мягко и без ошибок.",
