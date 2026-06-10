@@ -499,6 +499,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1500
   },
   {
+    id: "big-cards",
+    title: "Большие карточки",
+    description: "Выбирай одну из 2-4 крупных картинок по мягкой подсказке: любой выбор даёт спокойный отклик без ошибки.",
+    selfDescription: "Выбери большую карточку.",
+    route: "/games/big-cards",
+    category: "gaze-basics",
+    icon: "mdi-card-multiple-outline",
+    skills: ["choice", "fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 90,
+    minTargetSizePx: 220,
+    defaultDwellMs: 1300
+  },
+  {
     id: "feed-animal",
     title: "Покорми зверька",
     description: "Выбери любую крупную еду взглядом, чтобы мягко покормить зверька без ошибки выбора.",

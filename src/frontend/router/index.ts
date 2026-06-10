@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import AquariumGame from "../games/aquarium/AquariumGame.vue";
 import BalloonsGame from "../games/balloons/BalloonsGame.vue";
 import BellsGame from "../games/bells/BellsGame.vue";
+import BigCardsGame from "../games/big-cards/BigCardsGame.vue";
 import BigButtonGame from "../games/big-button/BigButtonGame.vue";
 import BoatGame from "../games/boat/BoatGame.vue";
 import BreathingFlowerGame from "../games/breathing-flower/BreathingFlowerGame.vue";
@@ -103,6 +104,7 @@ export default createRouter({
     { path: "/games/warm-fire", name: "warm-fire", component: WarmFireGame },
     { path: "/games/musical-pebbles", name: "musical-pebbles", component: MusicalPebblesGame },
     { path: "/games/big-button", name: "big-button", component: BigButtonGame },
+    { path: "/games/big-cards", name: "big-cards", component: BigCardsGame },
     { path: "/games/butterfly", name: "butterfly", component: ButterflyGame },
     { path: "/games/flowers", name: "flowers", component: FlowersGame },
     { path: "/games/quiet-bubbles", name: "quiet-bubbles", component: QuietBubblesGame },
