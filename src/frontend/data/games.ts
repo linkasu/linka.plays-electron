@@ -1059,6 +1059,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "shelf-sorting",
+    title: "Сортировка по полкам",
+    description: "Выбирай подходящую полку для предмета по категории или цвету; ошибка даёт мягкую подсказку.",
+    selfDescription: "Положи предмет на полку.",
+    route: "/games/shelf-sorting",
+    category: "sequencing",
+    icon: "mdi-bookshelf",
+    skills: ["sequence", "choice", "classification"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 135,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "choose-picture",
     title: "Выбери картинку",
     description: "Слушай слово и выбирай подходящую картинку взглядом.",
