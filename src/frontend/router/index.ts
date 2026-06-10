@@ -13,6 +13,7 @@ import CalmTetrisGame from "../games/calm-tetris/CalmTetrisGame.vue";
 import CalmSnakeGame from "../games/calm-snake/CalmSnakeGame.vue";
 import CatchLightGame from "../games/catch-light/CatchLightGame.vue";
 import CloudsGame from "../games/clouds/CloudsGame.vue";
+import ColorCircleGame from "../games/color-circle/ColorCircleGame.vue";
 import ConnectFourGame from "../games/connect-four/ConnectFourGame.vue";
 import CountItemsGame from "../games/count-items/CountItemsGame.vue";
 import DucksGame from "../games/ducks/DucksGame.vue";
@@ -105,6 +106,7 @@ export default createRouter({
     { path: "/games/musical-pebbles", name: "musical-pebbles", component: MusicalPebblesGame },
     { path: "/games/big-button", name: "big-button", component: BigButtonGame },
     { path: "/games/big-cards", name: "big-cards", component: BigCardsGame },
+    { path: "/games/color-circle", name: "color-circle", component: ColorCircleGame },
     { path: "/games/butterfly", name: "butterfly", component: ButterflyGame },
     { path: "/games/flowers", name: "flowers", component: FlowersGame },
     { path: "/games/quiet-bubbles", name: "quiet-bubbles", component: QuietBubblesGame },

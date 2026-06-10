@@ -513,6 +513,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "color-circle",
+    title: "Цветной круг",
+    description: "Выбери названный цвет на большом круге из секторов; ошибка даёт мягкую подсказку и следующий круг.",
+    selfDescription: "Выбери цвет в круге.",
+    route: "/games/color-circle",
+    category: "gaze-basics",
+    icon: "mdi-palette",
+    skills: ["choice", "fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 90,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "feed-animal",
     title: "Покорми зверька",
     description: "Выбери любую крупную еду взглядом, чтобы мягко покормить зверька без ошибки выбора.",
