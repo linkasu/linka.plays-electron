@@ -1409,6 +1409,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1350
   },
   {
+    id: "tell-picture",
+    title: "Расскажи картинку",
+    description: "Выбирай фразу, объект и действие по картинке: выборы складываются в короткое AAC-высказывание без неправильных ответов.",
+    selfDescription: "Расскажи картинку словами.",
+    route: "/games/tell-picture",
+    category: "language-aac",
+    icon: "mdi-check",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 135,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "type-word",
     title: "Печать слов",
     description: "Собирай короткие слова из крупных букв взглядом.",

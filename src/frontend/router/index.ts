@@ -93,6 +93,7 @@ import SpotDifferenceGame from "../games/spot-difference/SpotDifferenceGame.vue"
 import SoupRecipeGame from "../games/soup-recipe/SoupRecipeGame.vue";
 import SunRaysGame from "../games/sun-rays/SunRaysGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
+import TellPictureGame from "../games/tell-picture/TellPictureGame.vue";
 import ThreeFrameStoryGame from "../games/three-frame-story/ThreeFrameStoryGame.vue";
 import TicTacToeGame from "../games/tic-tac-toe/TicTacToeGame.vue";
 import TowerGame from "../games/tower/TowerGame.vue";
@@ -169,6 +170,7 @@ export default createRouter({
     { path: "/games/yes-no", name: "yes-no", component: YesNoGame },
     { path: "/games/want-dont-want", name: "want-dont-want", component: WantDontWantGame },
     { path: "/games/mini-dialog", name: "mini-dialog", component: MiniDialogGame },
+    { path: "/games/tell-picture", name: "tell-picture", component: TellPictureGame },
     { path: "/games/build-robot", name: "build-robot", component: BuildRobotGame },
     { path: "/games/pyramid", name: "pyramid", component: PyramidGame },
     { path: "/games/find-color", name: "find-color", component: FindColorGame },
