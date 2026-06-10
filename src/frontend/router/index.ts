@@ -75,6 +75,7 @@ import MusicalPathGame from "../games/musical-path/MusicalPathGame.vue";
 import MusicalPebblesGame from "../games/musical-pebbles/MusicalPebblesGame.vue";
 import MoonPathGame from "../games/moon-path/MoonPathGame.vue";
 import NorthernLightsGame from "../games/northern-lights/NorthernLightsGame.vue";
+import NumberBondsGame from "../games/number-bonds/NumberBondsGame.vue";
 import NumberLineGame from "../games/number-line/NumberLineGame.vue";
 import OpenDoorGame from "../games/open-door/OpenDoorGame.vue";
 import ObjectActionGame from "../games/object-action/ObjectActionGame.vue";
@@ -185,6 +186,7 @@ export default createRouter({
     { path: "/games/count-items", name: "count-items", component: CountItemsGame },
     { path: "/games/coin-counting", name: "coin-counting", component: CoinCountingGame },
     { path: "/games/greater-less", name: "greater-less", component: GreaterLessGame },
+    { path: "/games/number-bonds", name: "number-bonds", component: NumberBondsGame },
     { path: "/games/number-line", name: "number-line", component: NumberLineGame },
     { path: "/games/choose-emotion", name: "choose-emotion", component: ChooseEmotionGame },
     { path: "/games/choose-picture", name: "choose-picture", component: ChoosePictureGame },

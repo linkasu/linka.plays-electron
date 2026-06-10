@@ -1703,6 +1703,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "number-bonds",
+    title: "Состав числа",
+    description: "Выбери недостающую часть состава числа до 5 или 10 на крупных спокойных карточках; ошибка даёт мягкую подсказку.",
+    selfDescription: "Найди недостающую часть.",
+    route: "/games/number-bonds",
+    category: "numeracy",
+    icon: "mdi-check-circle-outline",
+    skills: ["counting", "math", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
     id: "number-line",
     title: "Числовая дорожка",
     description: "Выбирай нужное или следующее число на крупной дорожке от 1 до 10.",
