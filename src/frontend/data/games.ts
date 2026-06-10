@@ -1661,6 +1661,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "coordinates",
+    title: "Координаты",
+    description: "Выбери клетку по координате A1, B2 или C3 в крупной сетке 3×3; ошибка мягко подсвечивает правильный ответ.",
+    selfDescription: "Найди клетку по координате.",
+    route: "/games/coordinates",
+    category: "numeracy",
+    icon: "mdi-grid-large",
+    skills: ["visual-search", "choice", "math"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "count-items",
     title: "Счёт",
     description: "Посчитай предметы и выбери правильное число.",

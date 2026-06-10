@@ -25,6 +25,7 @@ import ColorCircleGame from "../games/color-circle/ColorCircleGame.vue";
 import ColorPatternGame from "../games/color-pattern/ColorPatternGame.vue";
 import ColorShapeGame from "../games/color-shape/ColorShapeGame.vue";
 import ConnectFourGame from "../games/connect-four/ConnectFourGame.vue";
+import CoordinatesGame from "../games/coordinates/CoordinatesGame.vue";
 import CountItemsGame from "../games/count-items/CountItemsGame.vue";
 import ComicStripGame from "../games/comic-strip/ComicStripGame.vue";
 import DayRoutineGame from "../games/day-routine/DayRoutineGame.vue";
@@ -182,6 +183,7 @@ export default createRouter({
     { path: "/games/rain-garden", name: "rain-garden", component: RainGardenGame },
     { path: "/games/ducks", name: "ducks", component: DucksGame },
     { path: "/games/clock", name: "clock", component: ClockGame },
+    { path: "/games/coordinates", name: "coordinates", component: CoordinatesGame },
     { path: "/games/count-items", name: "count-items", component: CountItemsGame },
     { path: "/games/coin-counting", name: "coin-counting", component: CoinCountingGame },
     { path: "/games/greater-less", name: "greater-less", component: GreaterLessGame },
