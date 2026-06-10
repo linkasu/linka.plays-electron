@@ -695,6 +695,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "find-number",
+    title: "Найди число",
+    description: "Найди заданную цифру среди 3-6 крупных цифр; ошибка даёт мягкую подсказку без завершения игры.",
+    selfDescription: "Найди нужную цифру.",
+    route: "/games/find-number",
+    category: "visual-search",
+    icon: "mdi-numeric",
+    skills: ["visual-search", "choice", "counting"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "match-same",
     title: "Где такой же?",
     description: "Найди картинку, которая совпадает с образцом.",
