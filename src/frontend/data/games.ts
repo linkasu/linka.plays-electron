@@ -2123,6 +2123,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 500
   },
   {
+    id: "guide-fish",
+    title: "Рыбка-поводырь",
+    description: "Веди спокойную рыбку взглядом к жемчужинам и светлым рифам без опасностей и проигрыша.",
+    selfDescription: "Веди рыбку к жемчужинам.",
+    route: "/games/guide-fish",
+    category: "continuous-control",
+    icon: "mdi-fish",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 600
+  },
+  {
     id: "table-tennis",
     title: "Теннис",
     description: "Веди мягкую ракетку взглядом и вместе с партнёром спокойно держи мяч в игре.",
