@@ -1787,6 +1787,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1100
   },
   {
+    id: "sokoban-large",
+    title: "Сокобан крупный",
+    description: "Выбирай направление, чтобы спокойно подтолкнуть ящик к цели на маленькой крупной сетке; неверный ход не применяется и даёт подсказку.",
+    selfDescription: "Подтолкни ящик к цели.",
+    route: "/games/sokoban-large",
+    category: "strategy",
+    icon: "mdi-package-variant-closed",
+    skills: ["choice", "sequence"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 148,
+    defaultDwellMs: 1200
+  },
+  {
     id: "tic-tac-toe",
     title: "Крестики-нолики",
     description: "Играй крестиками против спокойного Deep-Q агента на классическом поле 3×3.",

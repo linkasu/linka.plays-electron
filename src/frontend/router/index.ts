@@ -103,6 +103,7 @@ import SoundSourceGame from "../games/sound-source/SoundSourceGame.vue";
 import SnowflakesGame from "../games/snowflakes/SnowflakesGame.vue";
 import StarrySkyGame from "../games/starry-sky/StarrySkyGame.vue";
 import SocialPhrasesGame from "../games/social-phrases/SocialPhrasesGame.vue";
+import SokobanLargeGame from "../games/sokoban-large/SokobanLargeGame.vue";
 import SpotDifferenceGame from "../games/spot-difference/SpotDifferenceGame.vue";
 import SoupRecipeGame from "../games/soup-recipe/SoupRecipeGame.vue";
 import SunRaysGame from "../games/sun-rays/SunRaysGame.vue";
@@ -257,6 +258,7 @@ export default createRouter({
     { path: "/games/shapes", name: "shapes", component: ShapesGame },
     { path: "/games/calm-2048", name: "calm-2048", component: Calm2048Game },
     { path: "/games/calm-tetris", name: "calm-tetris", component: CalmTetrisGame },
+    { path: "/games/sokoban-large", name: "sokoban-large", component: SokobanLargeGame },
     { path: "/games/tic-tac-toe", name: "tic-tac-toe", component: TicTacToeGame },
     { path: "/games/calm-snake", name: "calm-snake", component: CalmSnakeGame },
     { path: "/games/connect-four", name: "connect-four", component: ConnectFourGame },
