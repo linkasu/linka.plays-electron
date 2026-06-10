@@ -709,6 +709,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "shadow-match",
+    title: "Тень и предмет",
+    description: "Выбери предмет, который соответствует крупной тени; ошибка мягко подсвечивает правильную картинку без завершения игры.",
+    selfDescription: "Найди предмет по тени.",
+    route: "/games/shadow-match",
+    category: "visual-search",
+    icon: "mdi-image-filter-center-focus",
+    skills: ["visual-search", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "memory-cards",
     title: "Пары",
     description: "Открывай две карточки и находи одинаковые пары без спешки.",
