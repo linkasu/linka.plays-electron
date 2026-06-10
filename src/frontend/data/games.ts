@@ -2207,6 +2207,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 600
   },
   {
+    id: "pulsing-target",
+    title: "Пульсирующая цель",
+    description: "Удерживай взгляд в большой пульсирующей зоне: цель движется мягко, замедляется при уходе и не наказывает за паузы.",
+    selfDescription: "Удержи взгляд на цели.",
+    route: "/games/pulsing-target",
+    category: "continuous-control",
+    icon: "mdi-bullseye",
+    skills: ["continuous-control", "smooth-pursuit", "fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 900
+  },
+  {
     id: "boat",
     title: "Лодочка",
     description: "Веди лодочку взглядом по спокойной реке и проходи мягкие checkpoints без столкновений и штрафов.",
@@ -2442,6 +2456,20 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
+    defaultDwellMs: 600
+  },
+  {
+    id: "orchestra-conductor",
+    title: "Оркестр-дирижёр",
+    description: "Веди дирижёрскую палочку взглядом по широкой дуге: крупные beat-зоны мягко добавляют оркестр без ошибок и наказаний.",
+    selfDescription: "Проведи палочку по дуге.",
+    route: "/games/orchestra-conductor",
+    category: "continuous-control",
+    icon: "mdi-account-music",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 156,
     defaultDwellMs: 600
   }
 ];

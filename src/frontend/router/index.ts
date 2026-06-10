@@ -100,6 +100,7 @@ import NumberLineGame from "../games/number-line/NumberLineGame.vue";
 import NumberSortingGame from "../games/number-sorting/NumberSortingGame.vue";
 import OpenDoorGame from "../games/open-door/OpenDoorGame.vue";
 import ObjectActionGame from "../games/object-action/ObjectActionGame.vue";
+import OrchestraConductorGame from "../games/orchestra-conductor/OrchestraConductorGame.vue";
 import OrchestraGame from "../games/orchestra/OrchestraGame.vue";
 import OneManyGame from "../games/one-many/OneManyGame.vue";
 import OddOneOutGame from "../games/odd-one-out/OddOneOutGame.vue";
@@ -109,6 +110,7 @@ import PatternsGame from "../games/patterns/PatternsGame.vue";
 import MemoryCardsGame from "../games/memory-cards/MemoryCardsGame.vue";
 import PaperLanternsGame from "../games/paper-lanterns/PaperLanternsGame.vue";
 import PizzaFractionsGame from "../games/pizza-fractions/PizzaFractionsGame.vue";
+import PulsingTargetGame from "../games/pulsing-target/PulsingTargetGame.vue";
 import PyramidGame from "../games/pyramid/PyramidGame.vue";
 import QuietBubblesGame from "../games/quiet-bubbles/QuietBubblesGame.vue";
 import RainbowButtonGame from "../games/rainbow-button/RainbowButtonGame.vue";
@@ -335,6 +337,7 @@ export default createRouter({
     { path: "/games/table-tennis", name: "table-tennis", component: TableTennisGame },
     { path: "/games/line-drawing", name: "line-drawing", component: LineDrawingGame },
     { path: "/games/cursor-magnet", name: "cursor-magnet", component: CursorMagnetGame },
+    { path: "/games/pulsing-target", name: "pulsing-target", component: PulsingTargetGame },
     { path: "/games/gates-path", name: "gates-path", component: GatesPathGame },
     { path: "/games/guide-fish", name: "guide-fish", component: GuideFishGame },
     { path: "/games/rails", name: "rails", component: RailsGame },
@@ -345,6 +348,7 @@ export default createRouter({
     { path: "/games/maze-path", name: "maze-path", component: MazePathGame },
     { path: "/games/garden-watering", name: "garden-watering", component: GardenWateringGame },
     { path: "/games/space-orbit", name: "space-orbit", component: SpaceOrbitGame },
+    { path: "/games/orchestra-conductor", name: "orchestra-conductor", component: OrchestraConductorGame },
     { path: "/games/gaze-maze", name: "gaze-maze", component: GazeMazeGame },
     { path: "/games/:gameId", name: "planned-game", component: PlannedGamePage }
   ]
