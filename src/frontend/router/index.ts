@@ -6,6 +6,7 @@ import BigCardsGame from "../games/big-cards/BigCardsGame.vue";
 import BigButtonGame from "../games/big-button/BigButtonGame.vue";
 import BoatGame from "../games/boat/BoatGame.vue";
 import BreathingFlowerGame from "../games/breathing-flower/BreathingFlowerGame.vue";
+import BuildBridgeGame from "../games/build-bridge/BuildBridgeGame.vue";
 import BuildRobotGame from "../games/build-robot/BuildRobotGame.vue";
 import ButterflyGame from "../games/butterfly/ButterflyGame.vue";
 import Calm2048Game from "../games/calm-2048/Calm2048Game.vue";
@@ -19,6 +20,8 @@ import ColorCircleGame from "../games/color-circle/ColorCircleGame.vue";
 import ColorPatternGame from "../games/color-pattern/ColorPatternGame.vue";
 import ConnectFourGame from "../games/connect-four/ConnectFourGame.vue";
 import CountItemsGame from "../games/count-items/CountItemsGame.vue";
+import ComicStripGame from "../games/comic-strip/ComicStripGame.vue";
+import DayRoutineGame from "../games/day-routine/DayRoutineGame.vue";
 import DressCharacterGame from "../games/dress-character/DressCharacterGame.vue";
 import DucksGame from "../games/ducks/DucksGame.vue";
 import EatOrNotEatGame from "../games/eat-or-not-eat/EatOrNotEatGame.vue";
@@ -58,6 +61,7 @@ import MatchSameGame from "../games/match-same/MatchSameGame.vue";
 import MathActionsGame from "../games/math-actions/MathActionsGame.vue";
 import MiniDialogGame from "../games/mini-dialog/MiniDialogGame.vue";
 import MazePathGame from "../games/maze-path/MazePathGame.vue";
+import MosaicGame from "../games/mosaic/MosaicGame.vue";
 import MusicalPathGame from "../games/musical-path/MusicalPathGame.vue";
 import MusicalPebblesGame from "../games/musical-pebbles/MusicalPebblesGame.vue";
 import MoonPathGame from "../games/moon-path/MoonPathGame.vue";
@@ -75,10 +79,12 @@ import RainGardenGame from "../games/rain-garden/RainGardenGame.vue";
 import RowScanningGame from "../games/row-scanning/RowScanningGame.vue";
 import SandGardenGame from "../games/sand-garden/SandGardenGame.vue";
 import SandwichGame from "../games/sandwich/SandwichGame.vue";
+import ScheduleGame from "../games/schedule/ScheduleGame.vue";
 import SeaShellsGame from "../games/sea-shells/SeaShellsGame.vue";
 import ShadowMatchGame from "../games/shadow-match/ShadowMatchGame.vue";
 import ShapeDanceGame from "../games/shape-dance/ShapeDanceGame.vue";
 import ShapesGame from "../games/shapes/ShapesGame.vue";
+import ShelfSortingGame from "../games/shelf-sorting/ShelfSortingGame.vue";
 import SoapCirclesGame from "../games/soap-circles/SoapCirclesGame.vue";
 import SoundSourceGame from "../games/sound-source/SoundSourceGame.vue";
 import SnowflakesGame from "../games/snowflakes/SnowflakesGame.vue";
@@ -174,6 +180,18 @@ export default createRouter({
     { path: "/games/sandwich", name: "sandwich", component: SandwichGame },
     { path: "/games/patterns", name: "patterns", component: PatternsGame },
     { path: "/games/color-pattern", name: "color-pattern", component: ColorPatternGame },
+    { path: "/games/day-routine", name: "day-routine", component: DayRoutineGame },
+    { path: "/games/first-then", name: "first-then", component: FirstThenGame },
+    { path: "/games/mosaic", name: "mosaic", component: MosaicGame },
+    { path: "/games/shape-dance", name: "shape-dance", component: ShapeDanceGame },
+    { path: "/games/hero-route", name: "hero-route", component: HeroRouteGame },
+    { path: "/games/soup-recipe", name: "soup-recipe", component: SoupRecipeGame },
+    { path: "/games/fix-picture", name: "fix-picture", component: FixPictureGame },
+    { path: "/games/comic-strip", name: "comic-strip", component: ComicStripGame },
+    { path: "/games/schedule", name: "schedule", component: ScheduleGame },
+    { path: "/games/build-bridge", name: "build-bridge", component: BuildBridgeGame },
+    { path: "/games/shelf-sorting", name: "shelf-sorting", component: ShelfSortingGame },
+    { path: "/games/orchestra", name: "orchestra", component: OrchestraGame },
     { path: "/games/fishes", name: "fishes", component: FishesGame },
     { path: "/games/jellyfish", name: "jellyfish", component: JellyfishGame },
     { path: "/games/koi-pond", name: "koi-pond", component: KoiPondGame },
