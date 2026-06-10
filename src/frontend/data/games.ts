@@ -1955,6 +1955,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "tangram",
+    title: "Танграм",
+    description: "Выбери крупную цветную фигуру, которая подходит к серому силуэту; ошибка только мягко подсветит верный танграм.",
+    selfDescription: "Найди фигуру по силуэту.",
+    route: "/games/tangram",
+    category: "strategy",
+    icon: "mdi-tangram",
+    skills: ["choice", "classification", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 210,
+    defaultDwellMs: 1300
+  },
+  {
     id: "calm-tetris",
     title: "Тетрис спокойный",
     description: "Ставь фигуры пошагово: выбери колонку, поверни и мягко опусти без спешки.",
