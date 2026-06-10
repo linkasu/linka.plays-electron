@@ -1395,6 +1395,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "object-action",
+    title: "Предмет + действие",
+    description: "Собирай AAC-пару предмет и действие: мяч катить, ложкой есть, чашкой пить.",
+    selfDescription: "Выбери действие для предмета.",
+    route: "/games/object-action",
+    category: "language-aac",
+    icon: "mdi-check",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 125,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
     id: "mini-dialog",
     title: "Мини-диалог",
     description: "Выбирай мягкие реплики для короткого AAC-диалога без неправильных ответов.",

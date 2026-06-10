@@ -67,6 +67,7 @@ import MusicalPebblesGame from "../games/musical-pebbles/MusicalPebblesGame.vue"
 import MoonPathGame from "../games/moon-path/MoonPathGame.vue";
 import NorthernLightsGame from "../games/northern-lights/NorthernLightsGame.vue";
 import OpenDoorGame from "../games/open-door/OpenDoorGame.vue";
+import ObjectActionGame from "../games/object-action/ObjectActionGame.vue";
 import OrchestraGame from "../games/orchestra/OrchestraGame.vue";
 import OddOneOutGame from "../games/odd-one-out/OddOneOutGame.vue";
 import PatternsGame from "../games/patterns/PatternsGame.vue";
@@ -168,6 +169,7 @@ export default createRouter({
     { path: "/games/feed-animal", name: "feed-animal", component: FeedAnimalGame },
     { path: "/games/yes-no", name: "yes-no", component: YesNoGame },
     { path: "/games/want-dont-want", name: "want-dont-want", component: WantDontWantGame },
+    { path: "/games/object-action", name: "object-action", component: ObjectActionGame },
     { path: "/games/mini-dialog", name: "mini-dialog", component: MiniDialogGame },
     { path: "/games/build-robot", name: "build-robot", component: BuildRobotGame },
     { path: "/games/pyramid", name: "pyramid", component: PyramidGame },
