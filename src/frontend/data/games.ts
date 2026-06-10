@@ -1815,6 +1815,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1450
   },
   {
+    id: "reversi-light",
+    title: "Реверси light",
+    description: "Играй в мини-реверси 4×4: выбирай подсвеченные ходы и спокойно переворачивай фишки.",
+    selfDescription: "Выбери подсвеченный ход.",
+    route: "/games/reversi-light",
+    category: "strategy",
+    icon: "mdi-circle-double",
+    skills: ["choice", "sequence", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 126,
+    defaultDwellMs: 1300
+  },
+  {
     id: "calm-snake",
     title: "Змейка спокойная",
     description: "Веди медленную змейку по мягкой сетке: края и столкновения дают подсказку, а не проигрыш.",
