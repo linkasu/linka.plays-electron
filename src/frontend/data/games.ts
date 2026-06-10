@@ -1423,6 +1423,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "clock",
+    title: "Часы",
+    description: "Выбери время на крупных циферблатах: полные часы, спокойная подсказка при ошибке и без резкого завершения.",
+    selfDescription: "Выбери время на часах.",
+    route: "/games/clock",
+    category: "numeracy",
+    icon: "mdi-clock-outline",
+    skills: ["counting", "choice", "math"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 170,
+    defaultDwellMs: 1300
+  },
+  {
     id: "count-items",
     title: "Счёт",
     description: "Посчитай предметы и выбери правильное число.",
