@@ -95,6 +95,7 @@ import SoapCirclesGame from "../games/soap-circles/SoapCirclesGame.vue";
 import SoundSourceGame from "../games/sound-source/SoundSourceGame.vue";
 import SnowflakesGame from "../games/snowflakes/SnowflakesGame.vue";
 import StarrySkyGame from "../games/starry-sky/StarrySkyGame.vue";
+import SocialPhrasesGame from "../games/social-phrases/SocialPhrasesGame.vue";
 import SpotDifferenceGame from "../games/spot-difference/SpotDifferenceGame.vue";
 import SoupRecipeGame from "../games/soup-recipe/SoupRecipeGame.vue";
 import SunRaysGame from "../games/sun-rays/SunRaysGame.vue";
@@ -182,6 +183,7 @@ export default createRouter({
     { path: "/games/want-dont-want", name: "want-dont-want", component: WantDontWantGame },
     { path: "/games/object-action", name: "object-action", component: ObjectActionGame },
     { path: "/games/mini-dialog", name: "mini-dialog", component: MiniDialogGame },
+    { path: "/games/social-phrases", name: "social-phrases", component: SocialPhrasesGame },
     { path: "/games/build-robot", name: "build-robot", component: BuildRobotGame },
     { path: "/games/pyramid", name: "pyramid", component: PyramidGame },
     { path: "/games/find-color", name: "find-color", component: FindColorGame },

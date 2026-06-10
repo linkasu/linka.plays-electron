@@ -1479,6 +1479,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1350
   },
   {
+    id: "social-phrases",
+    title: "Социальные фразы",
+    description: "Выбирай подходящую AAC-фразу для приветствия, просьбы или благодарности; подсказки мягкие, без поражения.",
+    selfDescription: "Выбери нужную фразу.",
+    route: "/games/social-phrases",
+    category: "language-aac",
+    icon: "mdi-check",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 125,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "type-word",
     title: "Печать слов",
     description: "Собирай короткие слова из крупных букв взглядом.",
