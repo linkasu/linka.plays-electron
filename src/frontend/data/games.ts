@@ -1927,6 +1927,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "domino-matching",
+    title: "Домино: найди сторону",
+    description: "Подбирай домино по количеству точек на нужной стороне: ошибка мягко подсветит подходящую сторону.",
+    selfDescription: "Подбери сторону домино.",
+    route: "/games/domino-matching",
+    category: "strategy",
+    icon: "mdi-dots-grid",
+    skills: ["counting", "choice", "classification"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 148,
+    defaultDwellMs: 1300
+  },
+  {
     id: "calm-2048",
     title: "2048 мягкий",
     description: "Сдвигай плитки 4×4 и спокойно собирай одинаковые числа без резкого проигрыша.",
@@ -1953,6 +1967,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 180,
     minTargetSizePx: 132,
     defaultDwellMs: 1200
+  },
+  {
+    id: "uno-like",
+    title: "Уно-подобное",
+    description: "Выбирай карту по цвету или числу к открытой карте: ошибка мягко подскажет подходящие варианты без проигрыша.",
+    selfDescription: "Подбери карту по цвету или числу.",
+    route: "/games/uno-like",
+    category: "strategy",
+    icon: "mdi-cards-playing-outline",
+    skills: ["choice", "classification", "sequence"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 160,
+    defaultDwellMs: 1300
   },
   {
     id: "calm-tetris",
@@ -2025,6 +2053,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "lines-five",
+    title: "Lines 5",
+    description: "Ставь шарики на мини-поле 5×5 и спокойно собирай линии из 3–5 одинаковых цветов; неверный выбор только включает подсказку.",
+    selfDescription: "Собери линию шариков.",
+    route: "/games/lines-five",
+    category: "strategy",
+    icon: "mdi-vector-line",
+    skills: ["choice", "sequence", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 104,
+    defaultDwellMs: 1300
+  },
+  {
     id: "checkers-light",
     title: "Шашки light",
     description: "Играй в упрощённые шашки 4x4: возможные ходы подсвечены, а проигрыша и резких ошибок нет.",
@@ -2036,6 +2078,34 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 126,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "chess-mini",
+    title: "Chess mini",
+    description: "Решай спокойные шахматные мини-задачи 4×4: выбери допустимый ход фигуры, а неверный выбор мягко покажет подсказку.",
+    selfDescription: "Выбери шахматный ход.",
+    route: "/games/chess-mini",
+    category: "strategy",
+    icon: "mdi-chess-knight",
+    skills: ["choice", "sequence", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 126,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "tangram",
+    title: "Tangram",
+    description: "Выбирай подходящую крупную фигуру для силуэта танграма, а ошибка мягко подсветит правильную деталь.",
+    selfDescription: "Подбери фигуру танграма.",
+    route: "/games/tangram",
+    category: "strategy",
+    icon: "mdi-tangram",
+    skills: ["choice", "classification", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 150,
     defaultDwellMs: 1300
   },
   {
@@ -2081,6 +2151,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "step-pong",
+    title: "Понг пошаговый",
+    description: "Выбирай позицию ракетки перед мягким ударом: мяч не теряется, а ошибка только спокойно подсказывает нужную линию.",
+    selfDescription: "Поставь ракетку.",
+    route: "/games/step-pong",
+    category: "strategy",
+    icon: "mdi-table-tennis",
+    skills: ["choice", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1200
+  },
+  {
     id: "calm-snake",
     title: "Змейка спокойная",
     description: "Веди медленную змейку по мягкой сетке: края и столкновения дают подсказку, а не проигрыш.",
@@ -2109,6 +2193,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "cursor-magnet",
+    title: "Курсор-магнит",
+    description: "Веди магнитный курсор взглядом: спокойные предметы мягко притягиваются к светлой цели без ошибок.",
+    selfDescription: "Притяни предметы к цели.",
+    route: "/games/cursor-magnet",
+    category: "continuous-control",
+    icon: "mdi-magnet-on",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 600
+  },
+  {
     id: "boat",
     title: "Лодочка",
     description: "Веди лодочку взглядом по спокойной реке и проходи мягкие checkpoints без столкновений и штрафов.",
@@ -2123,6 +2221,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 500
   },
   {
+    id: "gaze-follow-snake",
+    title: "Змейка gaze-follow",
+    description: "Веди мягкую змейку взглядом к большим листьям: столкновения не проигрыш, движение спокойное и непрерывное.",
+    selfDescription: "Веди змейку к листьям.",
+    route: "/games/gaze-follow-snake",
+    category: "continuous-control",
+    icon: "mdi-snake",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 600
+  },
+  {
     id: "table-tennis",
     title: "Теннис",
     description: "Веди мягкую ракетку взглядом и вместе с партнёром спокойно держи мяч в игре.",
@@ -2135,6 +2247,160 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 90,
     minTargetSizePx: 160,
     defaultDwellMs: 1000
+  },
+  {
+    id: "gates-path",
+    title: "Дорожка с воротами",
+    description: "Веди мягкий свет по дорожке через широкие ворота: промах не ошибка, только спокойная подсказка вернуться.",
+    selfDescription: "Проведи свет через ворота.",
+    route: "/games/gates-path",
+    category: "continuous-control",
+    icon: "mdi-gate-open",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 180,
+    defaultDwellMs: 600
+  },
+  {
+    id: "smooth-car",
+    title: "Плавная машинка",
+    description: "Веди машинку взглядом по широкой дороге к checkpoints без столкновений, штрафов и проигрыша.",
+    selfDescription: "Веди машинку по дороге.",
+    route: "/games/smooth-car",
+    category: "continuous-control",
+    icon: "mdi-car-side",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 600
+  },
+  {
+    id: "balloon-ride",
+    title: "Воздушный шар",
+    description: "Веди воздушный шар взглядом через мягкие облачные кольца без падений и резких ошибок.",
+    selfDescription: "Проведи шар через облака.",
+    route: "/games/balloon-ride",
+    category: "continuous-control",
+    icon: "mdi-airballoon",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 600
+  },
+  {
+    id: "glider",
+    title: "Планер",
+    description: "Веди планер взглядом через широкие воздушные ворота: он не падает, а мягко ждёт корректировки.",
+    selfDescription: "Проведи планер.",
+    route: "/games/glider",
+    category: "continuous-control",
+    icon: "mdi-airplane",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 600
+  },
+  {
+    id: "line-drawing",
+    title: "Рисование линией",
+    description: "Рисуй мягкую линию взглядом и проходи крупные точки в спокойном темпе.",
+    selfDescription: "Нарисуй линию взглядом.",
+    route: "/games/line-drawing",
+    category: "continuous-control",
+    icon: "mdi-draw-pen",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 600
+  },
+  {
+    id: "guide-fish",
+    title: "Рыбка-поводырь",
+    description: "Веди рыбку взглядом к жемчужинам и рифам без опасностей, штрафов и проигрыша.",
+    selfDescription: "Проведи рыбку.",
+    route: "/games/guide-fish",
+    category: "continuous-control",
+    icon: "mdi-fish",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 600
+  },
+  {
+    id: "rails",
+    title: "Рельсы",
+    description: "Веди поезд по плавным рельсам через станции: схода с пути и проигрыша нет.",
+    selfDescription: "Проведи поезд по рельсам.",
+    route: "/games/rails",
+    category: "continuous-control",
+    icon: "mdi-train",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 700
+  },
+  {
+    id: "balancer",
+    title: "Балансир",
+    description: "Удерживай мягкий шар в широкой зоне баланса взглядом: выход из зоны не ошибка, прогресс просто ждёт.",
+    selfDescription: "Удержи шар в зоне.",
+    route: "/games/balancer",
+    category: "continuous-control",
+    icon: "mdi-scale-balance",
+    skills: ["continuous-control", "smooth-pursuit", "fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 170,
+    defaultDwellMs: 600
+  },
+  {
+    id: "catch-wave",
+    title: "Поймай волну",
+    description: "Следуй взглядом за мягкой волной и собирай крупные маркеры без падений и штрафов.",
+    selfDescription: "Поймай волну взглядом.",
+    route: "/games/catch-wave",
+    category: "continuous-control",
+    icon: "mdi-waves",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 600
+  },
+  {
+    id: "snow-trail",
+    title: "Снежная тропа",
+    description: "Веди санки или мягкий свет по снежной тропе через checkpoints без штрафов.",
+    selfDescription: "Проведи свет по снегу.",
+    route: "/games/snow-trail",
+    category: "continuous-control",
+    icon: "mdi-snowflake",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 600
+  },
+  {
+    id: "robot-vacuum",
+    title: "Робот-пылесос",
+    description: "Веди робота взглядом и собирай пылинки по комнате; столкновения игнорируются.",
+    selfDescription: "Помоги роботу убраться.",
+    route: "/games/robot-vacuum",
+    category: "continuous-control",
+    icon: "mdi-robot-vacuum",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 600
   },
   {
     id: "maze-path",
@@ -2163,6 +2429,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 120,
     minTargetSizePx: 150,
     defaultDwellMs: 1200
+  },
+  {
+    id: "space-orbit",
+    title: "Космическая орбита",
+    description: "Веди ракету взглядом по мягкой орбите и спокойно собирай звёзды без взрывов и штрафов.",
+    selfDescription: "Собери звёзды на орбите.",
+    route: "/games/space-orbit",
+    category: "continuous-control",
+    icon: "mdi-orbit",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 600
   }
 ];
 
