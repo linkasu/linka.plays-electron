@@ -1339,6 +1339,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "choose-emotion",
+    title: "Выбери эмоцию",
+    description: "Выбирай эмоцию для ситуации или лица среди крупных AAC-карточек; неверный выбор только мягко подсказывает.",
+    selfDescription: "Выбери эмоцию.",
+    route: "/games/choose-emotion",
+    category: "language-aac",
+    icon: "mdi-emoticon-outline",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 220,
+    defaultDwellMs: 1300
+  },
+  {
     id: "choose-picture",
     title: "Выбери картинку",
     description: "Слушай слово и выбирай подходящую картинку взглядом.",
