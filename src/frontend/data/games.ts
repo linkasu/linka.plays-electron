@@ -2039,6 +2039,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "chess-mini",
+    title: "Chess mini",
+    description: "Решай спокойные шахматные мини-задачи 4×4: выбери допустимый ход фигуры, а неверный выбор мягко покажет подсказку.",
+    selfDescription: "Выбери шахматный ход.",
+    route: "/games/chess-mini",
+    category: "strategy",
+    icon: "mdi-chess-knight",
+    skills: ["choice", "sequence", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 126,
+    defaultDwellMs: 1300
+  },
+  {
     id: "battleship-light",
     title: "Морской бой light",
     description: "Выбирай клетки на крупной морской сетке: попадания и вода показываются спокойно, без поражения.",

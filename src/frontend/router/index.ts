@@ -16,6 +16,7 @@ import ButterflyGame from "../games/butterfly/ButterflyGame.vue";
 import CalendarGame from "../games/calendar/CalendarGame.vue";
 import Calm2048Game from "../games/calm-2048/Calm2048Game.vue";
 import ChoosePictureGame from "../games/choose-picture/ChoosePictureGame.vue";
+import ChessMiniGame from "../games/chess-mini/ChessMiniGame.vue";
 import CalmTetrisGame from "../games/calm-tetris/CalmTetrisGame.vue";
 import CalmSnakeGame from "../games/calm-snake/CalmSnakeGame.vue";
 import CatchLightGame from "../games/catch-light/CatchLightGame.vue";
@@ -294,6 +295,7 @@ export default createRouter({
     { path: "/games/sokoban-large", name: "sokoban-large", component: SokobanLargeGame },
     { path: "/games/tic-tac-toe", name: "tic-tac-toe", component: TicTacToeGame },
     { path: "/games/reversi-light", name: "reversi-light", component: ReversiLightGame },
+    { path: "/games/chess-mini", name: "chess-mini", component: ChessMiniGame },
     { path: "/games/calm-snake", name: "calm-snake", component: CalmSnakeGame },
     { path: "/games/pac-path", name: "pac-path", component: PacPathGame },
     { path: "/games/connect-four", name: "connect-four", component: ConnectFourGame },
