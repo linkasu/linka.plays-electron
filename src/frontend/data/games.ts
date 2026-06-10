@@ -1045,6 +1045,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "sandwich",
+    title: "Бутерброд",
+    description: "Собирай бутерброд по спокойной последовательности: хлеб, начинка, верхний хлеб.",
+    selfDescription: "Собери бутерброд по порядку.",
+    route: "/games/sandwich",
+    category: "sequencing",
+    icon: "mdi-food-variant",
+    skills: ["sequence", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1300
+  },
+  {
     id: "patterns",
     title: "Паттерны",
     description: "Продолжай ряд крупных фигур и цветов по повторяющемуся паттерну.",
