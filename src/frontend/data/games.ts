@@ -2123,6 +2123,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 500
   },
   {
+    id: "rails",
+    title: "Рельсы",
+    description: "Выбери поезд и веди его взглядом по плавным рельсам через станции без схода, проигрыша и резких ошибок.",
+    selfDescription: "Веди поезд по рельсам.",
+    route: "/games/rails",
+    category: "continuous-control",
+    icon: "mdi-train",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 700
+  },
+  {
     id: "table-tennis",
     title: "Теннис",
     description: "Веди мягкую ракетку взглядом и вместе с партнёром спокойно держи мяч в игре.",
