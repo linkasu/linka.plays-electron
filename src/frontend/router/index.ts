@@ -33,6 +33,7 @@ import CoordinatesGame from "../games/coordinates/CoordinatesGame.vue";
 import CountItemsGame from "../games/count-items/CountItemsGame.vue";
 import ComicStripGame from "../games/comic-strip/ComicStripGame.vue";
 import DayRoutineGame from "../games/day-routine/DayRoutineGame.vue";
+import DominoMatchingGame from "../games/domino-matching/DominoMatchingGame.vue";
 import DressCharacterGame from "../games/dress-character/DressCharacterGame.vue";
 import DucksGame from "../games/ducks/DucksGame.vue";
 import EatOrNotEatGame from "../games/eat-or-not-eat/EatOrNotEatGame.vue";
@@ -289,6 +290,7 @@ export default createRouter({
     { path: "/games/number-bonds", name: "number-bonds", component: NumberBondsGame },
     { path: "/games/shop", name: "shop", component: ShopGame },
     { path: "/games/shapes", name: "shapes", component: ShapesGame },
+    { path: "/games/domino-matching", name: "domino-matching", component: DominoMatchingGame },
     { path: "/games/minesweeper-safe", name: "minesweeper-safe", component: MinesweeperSafeGame },
     { path: "/games/calm-2048", name: "calm-2048", component: Calm2048Game },
     { path: "/games/sliding-puzzle", name: "sliding-puzzle", component: SlidingPuzzleGame },
