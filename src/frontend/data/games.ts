@@ -1955,6 +1955,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "uno-like",
+    title: "Уно-подобное",
+    description: "Выбирай карту по цвету или числу к открытой карте: ошибка мягко подскажет подходящие варианты без проигрыша.",
+    selfDescription: "Подбери карту по цвету или числу.",
+    route: "/games/uno-like",
+    category: "strategy",
+    icon: "mdi-cards-playing-outline",
+    skills: ["choice", "classification", "sequence"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 160,
+    defaultDwellMs: 1300
+  },
+  {
     id: "calm-tetris",
     title: "Тетрис спокойный",
     description: "Ставь фигуры пошагово: выбери колонку, поверни и мягко опусти без спешки.",
