@@ -1003,6 +1003,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "orchestra",
+    title: "Оркестр",
+    description: "Выбирай инструменты по очереди, чтобы собрать тихий оркестр; ошибка мягко подсказывает следующий шаг.",
+    selfDescription: "Собери тихий оркестр.",
+    route: "/games/orchestra",
+    category: "sequencing",
+    icon: "mdi-music-box-outline",
+    skills: ["sequence", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 135,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
     id: "pyramid",
     title: "Пирамидка",
     description: "Собирай кольца по порядку и тренируй последовательность.",
