@@ -2123,6 +2123,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 500
   },
   {
+    id: "snow-trail",
+    title: "Снежная тропа",
+    description: "Веди мягкий свет санок по снежной тропе через checkpoints без штрафов и резких сбросов.",
+    selfDescription: "Веди санки по снегу.",
+    route: "/games/snow-trail",
+    category: "continuous-control",
+    icon: "mdi-snowflake",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 600
+  },
+  {
     id: "table-tennis",
     title: "Теннис",
     description: "Веди мягкую ракетку взглядом и вместе с партнёром спокойно держи мяч в игре.",

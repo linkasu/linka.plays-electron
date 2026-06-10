@@ -118,6 +118,7 @@ import SlidingPuzzleGame from "../games/sliding-puzzle/SlidingPuzzleGame.vue";
 import SoapCirclesGame from "../games/soap-circles/SoapCirclesGame.vue";
 import SoundSourceGame from "../games/sound-source/SoundSourceGame.vue";
 import SnowflakesGame from "../games/snowflakes/SnowflakesGame.vue";
+import SnowTrailGame from "../games/snow-trail/SnowTrailGame.vue";
 import StarrySkyGame from "../games/starry-sky/StarrySkyGame.vue";
 import SocialPhrasesGame from "../games/social-phrases/SocialPhrasesGame.vue";
 import SokobanLargeGame from "../games/sokoban-large/SokobanLargeGame.vue";
@@ -301,6 +302,7 @@ export default createRouter({
     { path: "/games/battleship-light", name: "battleship-light", component: BattleshipLightGame },
     { path: "/games/tanks-no-shooting", name: "tanks-no-shooting", component: TanksNoShootingGame },
     { path: "/games/boat", name: "boat", component: BoatGame },
+    { path: "/games/snow-trail", name: "snow-trail", component: SnowTrailGame },
     { path: "/games/frog", name: "frog", component: FrogGame },
     { path: "/games/table-tennis", name: "table-tennis", component: TableTennisGame },
     { path: "/games/maze-path", name: "maze-path", component: MazePathGame },
