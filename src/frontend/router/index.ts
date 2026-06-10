@@ -70,6 +70,7 @@ import MusicalPathGame from "../games/musical-path/MusicalPathGame.vue";
 import MusicalPebblesGame from "../games/musical-pebbles/MusicalPebblesGame.vue";
 import MoonPathGame from "../games/moon-path/MoonPathGame.vue";
 import NorthernLightsGame from "../games/northern-lights/NorthernLightsGame.vue";
+import NumberLineGame from "../games/number-line/NumberLineGame.vue";
 import OpenDoorGame from "../games/open-door/OpenDoorGame.vue";
 import ObjectActionGame from "../games/object-action/ObjectActionGame.vue";
 import OrchestraGame from "../games/orchestra/OrchestraGame.vue";
