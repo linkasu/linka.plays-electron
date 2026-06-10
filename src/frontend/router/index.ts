@@ -32,6 +32,7 @@ import FeedAnimalGame from "../games/feed-animal/FeedAnimalGame.vue";
 import FirstThenGame from "../games/first-then/FirstThenGame.vue";
 import FindAnimalGame from "../games/find-animal/FindAnimalGame.vue";
 import FindEmotionGame from "../games/find-emotion/FindEmotionGame.vue";
+import FindDigitGame from "../games/find-digit/FindDigitGame.vue";
 import FindLetterGame from "../games/find-letter/FindLetterGame.vue";
 import FixPictureGame from "../games/fix-picture/FixPictureGame.vue";
 import FindHouseGame from "../games/find-house/FindHouseGame.vue";
@@ -222,6 +223,7 @@ export default createRouter({
     { path: "/games/follow-cue", name: "follow-cue", component: FollowCueGame },
     { path: "/games/row-scanning", name: "row-scanning", component: RowScanningGame },
     { path: "/games/grid-scanning", name: "grid-scanning", component: GridScanningGame },
+    { path: "/games/find-digit", name: "find-digit", component: FindDigitGame },
     { path: "/games/find-letter", name: "find-letter", component: FindLetterGame },
     { path: "/games/find-number", name: "find-number", component: FindNumberGame },
     { path: "/games/shadow-match", name: "shadow-match", component: ShadowMatchGame },
