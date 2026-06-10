@@ -135,6 +135,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "bells",
+    title: "Колокольчики",
+    description: "Выбирай крупный колокольчик взглядом: он мягко качается и даёт спокойную визуальную волну.",
+    selfDescription: "Позвони в колокольчик взглядом.",
+    route: "/games/bells",
+    category: "gaze-basics",
+    icon: "mdi-bell-outline",
+    skills: ["choice", "fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 90,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
     id: "breathing-flower",
     title: "Дышащий цветок",
     description: "Смотри спокойно в центр цветка, и он будет мягко раскрываться и закрываться.",
