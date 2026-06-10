@@ -76,6 +76,7 @@ import MusicalPebblesGame from "../games/musical-pebbles/MusicalPebblesGame.vue"
 import MoonPathGame from "../games/moon-path/MoonPathGame.vue";
 import NorthernLightsGame from "../games/northern-lights/NorthernLightsGame.vue";
 import NumberLineGame from "../games/number-line/NumberLineGame.vue";
+import NumberSortingGame from "../games/number-sorting/NumberSortingGame.vue";
 import OpenDoorGame from "../games/open-door/OpenDoorGame.vue";
 import ObjectActionGame from "../games/object-action/ObjectActionGame.vue";
 import OrchestraGame from "../games/orchestra/OrchestraGame.vue";
@@ -190,6 +191,7 @@ export default createRouter({
     { path: "/games/greater-less", name: "greater-less", component: GreaterLessGame },
     { path: "/games/scales", name: "scales", component: ScalesGame },
     { path: "/games/number-line", name: "number-line", component: NumberLineGame },
+    { path: "/games/number-sorting", name: "number-sorting", component: NumberSortingGame },
     { path: "/games/choose-emotion", name: "choose-emotion", component: ChooseEmotionGame },
     { path: "/games/choose-picture", name: "choose-picture", component: ChoosePictureGame },
     { path: "/games/action-who", name: "action-who", component: ActionWhoGame },

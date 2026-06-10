@@ -1745,6 +1745,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "number-sorting",
+    title: "Сортировка чисел",
+    description: "Выбирай следующее число по возрастанию или убыванию из крупных карточек; ошибка мягко подсвечивает подсказку.",
+    selfDescription: "Выбери следующее число.",
+    route: "/games/number-sorting",
+    category: "numeracy",
+    icon: "mdi-counter",
+    skills: ["counting", "choice", "sequence"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
     id: "shapes",
     title: "Формы",
     description: "Находи нужную форму среди крупных контрастных карточек.",
