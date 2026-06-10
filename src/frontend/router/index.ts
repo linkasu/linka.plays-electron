@@ -98,6 +98,7 @@ import ShadowMatchGame from "../games/shadow-match/ShadowMatchGame.vue";
 import ShapeDanceGame from "../games/shape-dance/ShapeDanceGame.vue";
 import ShapesGame from "../games/shapes/ShapesGame.vue";
 import ShelfSortingGame from "../games/shelf-sorting/ShelfSortingGame.vue";
+import SlidingPuzzleGame from "../games/sliding-puzzle/SlidingPuzzleGame.vue";
 import SoapCirclesGame from "../games/soap-circles/SoapCirclesGame.vue";
 import SoundSourceGame from "../games/sound-source/SoundSourceGame.vue";
 import SnowflakesGame from "../games/snowflakes/SnowflakesGame.vue";
@@ -256,6 +257,7 @@ export default createRouter({
     { path: "/games/math-actions", name: "math-actions", component: MathActionsGame },
     { path: "/games/shapes", name: "shapes", component: ShapesGame },
     { path: "/games/calm-2048", name: "calm-2048", component: Calm2048Game },
+    { path: "/games/sliding-puzzle", name: "sliding-puzzle", component: SlidingPuzzleGame },
     { path: "/games/calm-tetris", name: "calm-tetris", component: CalmTetrisGame },
     { path: "/games/tic-tac-toe", name: "tic-tac-toe", component: TicTacToeGame },
     { path: "/games/calm-snake", name: "calm-snake", component: CalmSnakeGame },
