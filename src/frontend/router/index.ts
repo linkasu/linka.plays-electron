@@ -58,6 +58,7 @@ import ShapesGame from "../games/shapes/ShapesGame.vue";
 import SoapCirclesGame from "../games/soap-circles/SoapCirclesGame.vue";
 import SnowflakesGame from "../games/snowflakes/SnowflakesGame.vue";
 import StarrySkyGame from "../games/starry-sky/StarrySkyGame.vue";
+import SpotDifferenceGame from "../games/spot-difference/SpotDifferenceGame.vue";
 import SunRaysGame from "../games/sun-rays/SunRaysGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
 import TicTacToeGame from "../games/tic-tac-toe/TicTacToeGame.vue";
@@ -141,6 +142,7 @@ export default createRouter({
     { path: "/games/koi-pond", name: "koi-pond", component: KoiPondGame },
     { path: "/games/hide-and-seek", name: "hide-and-seek", component: HideAndSeekGame },
     { path: "/games/match-same", name: "match-same", component: MatchSameGame },
+    { path: "/games/spot-difference", name: "spot-difference", component: SpotDifferenceGame },
     { path: "/games/memory-cards", name: "memory-cards", component: MemoryCardsGame },
     { path: "/games/type-word", name: "type-word", component: TypeWordGame },
     { path: "/games/math-actions", name: "math-actions", component: MathActionsGame },
