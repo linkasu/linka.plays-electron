@@ -107,6 +107,7 @@ import PizzaFractionsGame from "../games/pizza-fractions/PizzaFractionsGame.vue"
 import PyramidGame from "../games/pyramid/PyramidGame.vue";
 import QuietBubblesGame from "../games/quiet-bubbles/QuietBubblesGame.vue";
 import RainbowButtonGame from "../games/rainbow-button/RainbowButtonGame.vue";
+import RailsGame from "../games/rails/RailsGame.vue";
 import RainGardenGame from "../games/rain-garden/RainGardenGame.vue";
 import ReversiLightGame from "../games/reversi-light/ReversiLightGame.vue";
 import RowScanningGame from "../games/row-scanning/RowScanningGame.vue";
