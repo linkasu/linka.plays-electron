@@ -32,6 +32,7 @@ import ConnectFourGame from "../games/connect-four/ConnectFourGame.vue";
 import CoordinatesGame from "../games/coordinates/CoordinatesGame.vue";
 import CountItemsGame from "../games/count-items/CountItemsGame.vue";
 import ComicStripGame from "../games/comic-strip/ComicStripGame.vue";
+import CursorMagnetGame from "../games/cursor-magnet/CursorMagnetGame.vue";
 import DayRoutineGame from "../games/day-routine/DayRoutineGame.vue";
 import DressCharacterGame from "../games/dress-character/DressCharacterGame.vue";
 import DucksGame from "../games/ducks/DucksGame.vue";
@@ -301,6 +302,7 @@ export default createRouter({
     { path: "/games/battleship-light", name: "battleship-light", component: BattleshipLightGame },
     { path: "/games/tanks-no-shooting", name: "tanks-no-shooting", component: TanksNoShootingGame },
     { path: "/games/boat", name: "boat", component: BoatGame },
+    { path: "/games/cursor-magnet", name: "cursor-magnet", component: CursorMagnetGame },
     { path: "/games/frog", name: "frog", component: FrogGame },
     { path: "/games/table-tennis", name: "table-tennis", component: TableTennisGame },
     { path: "/games/maze-path", name: "maze-path", component: MazePathGame },
