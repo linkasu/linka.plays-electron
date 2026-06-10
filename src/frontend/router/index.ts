@@ -100,6 +100,7 @@ import NumberLineGame from "../games/number-line/NumberLineGame.vue";
 import NumberSortingGame from "../games/number-sorting/NumberSortingGame.vue";
 import OpenDoorGame from "../games/open-door/OpenDoorGame.vue";
 import ObjectActionGame from "../games/object-action/ObjectActionGame.vue";
+import OrchestraConductorGame from "../games/orchestra-conductor/OrchestraConductorGame.vue";
 import OrchestraGame from "../games/orchestra/OrchestraGame.vue";
 import OneManyGame from "../games/one-many/OneManyGame.vue";
 import OddOneOutGame from "../games/odd-one-out/OddOneOutGame.vue";
@@ -347,6 +348,7 @@ export default createRouter({
     { path: "/games/maze-path", name: "maze-path", component: MazePathGame },
     { path: "/games/garden-watering", name: "garden-watering", component: GardenWateringGame },
     { path: "/games/space-orbit", name: "space-orbit", component: SpaceOrbitGame },
+    { path: "/games/orchestra-conductor", name: "orchestra-conductor", component: OrchestraConductorGame },
     { path: "/games/gaze-maze", name: "gaze-maze", component: GazeMazeGame },
     { path: "/games/:gameId", name: "planned-game", component: PlannedGamePage }
   ]
