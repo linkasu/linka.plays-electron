@@ -2179,6 +2179,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "cursor-magnet",
+    title: "Курсор-магнит",
+    description: "Веди магнитный курсор взглядом: спокойные предметы мягко притягиваются к светлой цели без ошибок.",
+    selfDescription: "Притяни предметы к цели.",
+    route: "/games/cursor-magnet",
+    category: "continuous-control",
+    icon: "mdi-magnet-on",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 600
+  },
+  {
     id: "boat",
     title: "Лодочка",
     description: "Веди лодочку взглядом по спокойной реке и проходи мягкие checkpoints без столкновений и штрафов.",

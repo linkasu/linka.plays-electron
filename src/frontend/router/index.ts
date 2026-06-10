@@ -34,6 +34,7 @@ import ConnectFourGame from "../games/connect-four/ConnectFourGame.vue";
 import CoordinatesGame from "../games/coordinates/CoordinatesGame.vue";
 import CountItemsGame from "../games/count-items/CountItemsGame.vue";
 import ComicStripGame from "../games/comic-strip/ComicStripGame.vue";
+import CursorMagnetGame from "../games/cursor-magnet/CursorMagnetGame.vue";
 import DayRoutineGame from "../games/day-routine/DayRoutineGame.vue";
 import DominoMatchingGame from "../games/domino-matching/DominoMatchingGame.vue";
 import DressCharacterGame from "../games/dress-character/DressCharacterGame.vue";
