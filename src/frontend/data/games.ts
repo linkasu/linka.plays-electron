@@ -205,6 +205,7 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1400
   },
   {
+<<<<<<< HEAD
     id: "koi-pond",
     title: "Кои-пруд",
     description: "Смотри на тихий пруд: рыбы кои медленно подплывают к взгляду, а круги на воде загораются мягко и без ошибок.",
@@ -231,6 +232,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 85,
     minTargetSizePx: 180,
     defaultDwellMs: 1400
+  },
+  {
+    id: "moon-path",
+    title: "Лунная дорожка",
+    description: "Подсвечивай взглядом лунную дорожку на воде: мягкое сканирование без ошибок и спешки.",
+    selfDescription: "Зажги лунную дорожку взглядом.",
+    route: "/games/moon-path",
+    category: "gaze-basics",
+    icon: "mdi-moon-waning-crescent",
+    skills: ["fixation", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 86,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1450
   },
   {
     id: "sand-garden",
