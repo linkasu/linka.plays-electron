@@ -22,6 +22,7 @@ import GreaterLessGame from "../games/greater-less/GreaterLessGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import JellyfishGame from "../games/jellyfish/JellyfishGame.vue";
 import KoiPondGame from "../games/koi-pond/KoiPondGame.vue";
+import LeavesWindGame from "../games/leaves-wind/LeavesWindGame.vue";
 import MatchSameGame from "../games/match-same/MatchSameGame.vue";
 import MathActionsGame from "../games/math-actions/MathActionsGame.vue";
 import MiniDialogGame from "../games/mini-dialog/MiniDialogGame.vue";
@@ -58,6 +59,7 @@ export default createRouter({
     { path: "/tobii-calibration", name: "tobii-calibration", component: TobiiCalibrationPage },
     { path: "/games/breathing-flower", name: "breathing-flower", component: BreathingFlowerGame },
     { path: "/games/clouds", name: "clouds", component: CloudsGame },
+    { path: "/games/leaves-wind", name: "leaves-wind", component: LeavesWindGame },
     { path: "/games/firefly-meadow", name: "firefly-meadow", component: FireflyMeadowGame },
     { path: "/games/starry-sky", name: "starry-sky", component: StarrySkyGame },
     { path: "/games/northern-lights", name: "northern-lights", component: NorthernLightsGame },
