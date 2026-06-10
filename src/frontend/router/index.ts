@@ -27,6 +27,7 @@ import FlowersGame from "../games/flowers/FlowersGame.vue";
 import FrogGame from "../games/frog/FrogGame.vue";
 import GardenWateringGame from "../games/garden-watering/GardenWateringGame.vue";
 import GreaterLessGame from "../games/greater-less/GreaterLessGame.vue";
+import GridScanningGame from "../games/grid-scanning/GridScanningGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import JellyfishGame from "../games/jellyfish/JellyfishGame.vue";
 import KiteGame from "../games/kite/KiteGame.vue";
@@ -124,6 +125,7 @@ export default createRouter({
     { path: "/games/mini-dialog", name: "mini-dialog", component: MiniDialogGame },
     { path: "/games/pyramid", name: "pyramid", component: PyramidGame },
     { path: "/games/find-color", name: "find-color", component: FindColorGame },
+    { path: "/games/grid-scanning", name: "grid-scanning", component: GridScanningGame },
     { path: "/games/tower", name: "tower", component: TowerGame },
     { path: "/games/train-sequence", name: "train-sequence", component: TrainSequenceGame },
     { path: "/games/patterns", name: "patterns", component: PatternsGame },

@@ -695,6 +695,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "grid-scanning",
+    title: "Сканирование поля",
+    description: "Найди заданный объект или символ в сетке 2x2-4x4: ошибка мягко подсвечивает цель без поражения.",
+    selfDescription: "Найди символ в поле.",
+    route: "/games/grid-scanning",
+    category: "visual-search",
+    icon: "mdi-grid",
+    skills: ["visual-search", "attention-shift", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 140,
+    defaultDwellMs: 1250
+  },
+  {
     id: "match-same",
     title: "Где такой же?",
     description: "Найди картинку, которая совпадает с образцом.",
