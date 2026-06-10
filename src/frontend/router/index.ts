@@ -36,6 +36,7 @@ import GazeMazeGame from "../games/gaze-maze/GazeMazeGame.vue";
 import GreaterLessGame from "../games/greater-less/GreaterLessGame.vue";
 import GridScanningGame from "../games/grid-scanning/GridScanningGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
+import HiddenPictureGame from "../games/hidden-picture/HiddenPictureGame.vue";
 import HighFiveHandsGame from "../games/high-five-hands/HighFiveHandsGame.vue";
 import IslandGame from "../games/island/IslandGame.vue";
 import JellyfishGame from "../games/jellyfish/JellyfishGame.vue";
@@ -158,6 +159,7 @@ export default createRouter({
     { path: "/games/jellyfish", name: "jellyfish", component: JellyfishGame },
     { path: "/games/koi-pond", name: "koi-pond", component: KoiPondGame },
     { path: "/games/hide-and-seek", name: "hide-and-seek", component: HideAndSeekGame },
+    { path: "/games/hidden-picture", name: "hidden-picture", component: HiddenPictureGame },
     { path: "/games/who-hiding", name: "who-hiding", component: WhoHidingGame },
     { path: "/games/what-missing", name: "what-missing", component: WhatMissingGame },
     { path: "/games/row-scanning", name: "row-scanning", component: RowScanningGame },
