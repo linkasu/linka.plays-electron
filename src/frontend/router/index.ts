@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
+import ActionWhoGame from "../games/action-who/ActionWhoGame.vue";
 import AquariumGame from "../games/aquarium/AquariumGame.vue";
 import BalloonsGame from "../games/balloons/BalloonsGame.vue";
 import BellsGame from "../games/bells/BellsGame.vue";
@@ -166,6 +167,7 @@ export default createRouter({
     { path: "/games/greater-less", name: "greater-less", component: GreaterLessGame },
     { path: "/games/choose-emotion", name: "choose-emotion", component: ChooseEmotionGame },
     { path: "/games/choose-picture", name: "choose-picture", component: ChoosePictureGame },
+    { path: "/games/action-who", name: "action-who", component: ActionWhoGame },
     { path: "/games/eat-or-not-eat", name: "eat-or-not-eat", component: EatOrNotEatGame },
     { path: "/games/feed-animal", name: "feed-animal", component: FeedAnimalGame },
     { path: "/games/yes-no", name: "yes-no", component: YesNoGame },
