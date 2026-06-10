@@ -21,6 +21,7 @@ import DressCharacterGame from "../games/dress-character/DressCharacterGame.vue"
 import DucksGame from "../games/ducks/DucksGame.vue";
 import EatOrNotEatGame from "../games/eat-or-not-eat/EatOrNotEatGame.vue";
 import FeedAnimalGame from "../games/feed-animal/FeedAnimalGame.vue";
+import FirstThenGame from "../games/first-then/FirstThenGame.vue";
 import FindAnimalGame from "../games/find-animal/FindAnimalGame.vue";
 import FindEmotionGame from "../games/find-emotion/FindEmotionGame.vue";
 import FindLetterGame from "../games/find-letter/FindLetterGame.vue";
