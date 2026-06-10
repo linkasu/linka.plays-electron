@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
 import { rememberMenuMode } from "../core/menuMode";
-import { games } from "../data/games";
+import { groupGamesByCategory, type GameCategoryId } from "../data/games";
+
+const gameGroups = groupGamesByCategory();
+const selectedCategory = ref<GameCategoryId | null>(null);
+const selectedGroup = computed(() => gameGroups.find((group) => group.category === selectedCategory.value));
 
 onMounted(() => {
   rememberMenuMode("self");
@@ -17,9 +21,9 @@ onMounted(() => {
           <div class="d-flex flex-column flex-md-row align-md-start justify-space-between ga-6 mb-8">
             <div>
               <div class="text-overline text-secondary mb-2">Самостоятельный режим</div>
-              <h1 class="text-h3 text-md-h2 font-weight-bold mb-3">Выбери игру</h1>
+              <h1 class="text-h3 text-md-h2 font-weight-bold mb-3">Выбери папку</h1>
               <p class="text-h6 text-medium-emphasis mb-0">
-                Посмотри на большую карточку. Можно играть спокойно, без спешки.
+                Сначала выбери большую папку, потом игру. Можно играть спокойно, без спешки.
               </p>
             </div>
             <TobiiStatusBadge />
@@ -37,29 +41,67 @@ onMounted(() => {
             </v-btn>
           </div>
 
-          <v-row align="stretch">
-            <v-col v-for="game in games" :key="game.id" cols="12" md="6" xl="4">
+          <v-row v-if="!selectedGroup" align="stretch">
+            <v-col v-for="group in gameGroups" :key="group.category" cols="12" md="6" xl="4">
               <v-card
-                class="self-game-card h-100 pa-5 d-flex flex-column"
-                color="surface"
-                min-height="240"
+                class="self-folder-card h-100 pa-5 d-flex flex-column bg-surface text-on-surface"
+                min-height="260"
                 rounded="xl"
-                :to="game.route"
                 variant="outlined"
+                @click="selectedCategory = group.category"
               >
                 <v-avatar class="mb-5" color="primary" size="88">
-                  <v-icon :icon="game.icon" size="52" />
+                  <v-icon icon="mdi-folder-heart-outline" size="52" />
                 </v-avatar>
-                <h3 class="text-h4 font-weight-bold mb-3">{{ game.title }}</h3>
-                <p class="text-h6 text-medium-emphasis mb-6">{{ game.selfDescription }}</p>
+                <h3 class="text-h4 font-weight-bold text-high-emphasis mb-3">{{ group.selfLabel }}</h3>
+                <p class="text-h6 text-medium-emphasis mb-4">{{ group.selfDescription }}</p>
+                <v-chip class="mb-6 align-self-start" color="secondary" size="large" variant="tonal">
+                  {{ group.games.length }} игр
+                </v-chip>
                 <v-spacer />
-                <v-btn color="primary" size="x-large" variant="flat">
-                  Играть
-                  <v-icon end icon="mdi-arrow-right" />
+                <v-btn color="primary" size="x-large" variant="flat" @click.stop="selectedCategory = group.category">
+                  Открыть
+                  <v-icon end icon="mdi-folder-open-outline" />
                 </v-btn>
               </v-card>
             </v-col>
           </v-row>
+
+          <section v-else aria-label="Игры в папке">
+            <div class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-6">
+              <div>
+                <div class="text-overline text-secondary mb-1">Папка</div>
+                <h2 class="text-h3 font-weight-bold mb-2">{{ selectedGroup.selfLabel }}</h2>
+                <p class="text-h6 text-medium-emphasis mb-0">{{ selectedGroup.selfDescription }}</p>
+              </div>
+              <v-btn color="secondary" prepend-icon="mdi-folder-multiple-outline" size="x-large" variant="tonal" @click="selectedCategory = null">
+                Все папки
+              </v-btn>
+            </div>
+
+            <v-row align="stretch">
+              <v-col v-for="game in selectedGroup.games" :key="game.id" cols="12" md="6" xl="4">
+                <v-card
+                  class="self-game-card h-100 pa-5 d-flex flex-column bg-surface text-on-surface"
+                  min-height="240"
+                  rounded="xl"
+                  :to="game.route"
+                  variant="outlined"
+                >
+                  <v-avatar class="mb-5" color="primary" size="88">
+                    <v-icon :icon="game.icon" size="52" />
+                  </v-avatar>
+                  <h3 class="text-h4 font-weight-bold text-high-emphasis mb-3">{{ game.title }}</h3>
+                  <p class="text-h6 text-medium-emphasis mb-6">{{ game.selfDescription }}</p>
+                  <v-spacer />
+                  <v-btn color="primary" size="x-large" variant="flat">
+                    Играть
+                    <v-icon end icon="mdi-arrow-right" />
+                  </v-btn>
+                </v-card>
+              </v-col>
+            </v-row>
+          </section>
         </v-card>
       </v-col>
     </v-row>
@@ -76,7 +118,12 @@ onMounted(() => {
 }
 
 .gallery-card,
+.self-folder-card,
 .self-game-card {
   border: 1px solid rgb(93 127 120 / 16%);
+}
+
+.self-folder-card {
+  cursor: pointer;
 }
 </style>

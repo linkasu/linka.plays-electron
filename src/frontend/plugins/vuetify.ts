@@ -19,7 +19,16 @@ export default createVuetify({
           error: "#b85c5c",
           info: "#6f8fa8",
           success: "#6f9b7a",
-          warning: "#c49a4a"
+          warning: "#c49a4a",
+          "on-background": "#263a36",
+          "on-surface": "#263a36",
+          "on-primary": "#ffffff",
+          "on-secondary": "#ffffff",
+          "on-accent": "#2f2119",
+          "on-error": "#ffffff",
+          "on-info": "#ffffff",
+          "on-success": "#ffffff",
+          "on-warning": "#33270f"
         }
       }
     }
