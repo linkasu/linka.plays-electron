@@ -21,10 +21,15 @@ import GardenWateringGame from "../games/garden-watering/GardenWateringGame.vue"
 import GreaterLessGame from "../games/greater-less/GreaterLessGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import JellyfishGame from "../games/jellyfish/JellyfishGame.vue";
+import KoiPondGame from "../games/koi-pond/KoiPondGame.vue";
+import LeavesWindGame from "../games/leaves-wind/LeavesWindGame.vue";
+import MagicDustGame from "../games/magic-dust/MagicDustGame.vue";
 import MatchSameGame from "../games/match-same/MatchSameGame.vue";
 import MathActionsGame from "../games/math-actions/MathActionsGame.vue";
 import MiniDialogGame from "../games/mini-dialog/MiniDialogGame.vue";
 import MazePathGame from "../games/maze-path/MazePathGame.vue";
+import MusicalPebblesGame from "../games/musical-pebbles/MusicalPebblesGame.vue";
+import MoonPathGame from "../games/moon-path/MoonPathGame.vue";
 import NorthernLightsGame from "../games/northern-lights/NorthernLightsGame.vue";
 import PatternsGame from "../games/patterns/PatternsGame.vue";
 import MemoryCardsGame from "../games/memory-cards/MemoryCardsGame.vue";
@@ -33,7 +38,9 @@ import PyramidGame from "../games/pyramid/PyramidGame.vue";
 import QuietBubblesGame from "../games/quiet-bubbles/QuietBubblesGame.vue";
 import RainGardenGame from "../games/rain-garden/RainGardenGame.vue";
 import SandGardenGame from "../games/sand-garden/SandGardenGame.vue";
+import SeaShellsGame from "../games/sea-shells/SeaShellsGame.vue";
 import ShapesGame from "../games/shapes/ShapesGame.vue";
+import SnowflakesGame from "../games/snowflakes/SnowflakesGame.vue";
 import StarrySkyGame from "../games/starry-sky/StarrySkyGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
 import TicTacToeGame from "../games/tic-tac-toe/TicTacToeGame.vue";
@@ -41,6 +48,7 @@ import TowerGame from "../games/tower/TowerGame.vue";
 import TrainSequenceGame from "../games/train-sequence/TrainSequenceGame.vue";
 import TypeWordGame from "../games/type-word/TypeWordGame.vue";
 import WantDontWantGame from "../games/want-dont-want/WantDontWantGame.vue";
+import WarmWindowGame from "../games/warm-window/WarmWindowGame.vue";
 import YesNoGame from "../games/yes-no/YesNoGame.vue";
 import HomePage from "../pages/HomePage.vue";
 import PlannedGamePage from "../pages/PlannedGamePage.vue";
@@ -57,11 +65,18 @@ export default createRouter({
     { path: "/tobii-calibration", name: "tobii-calibration", component: TobiiCalibrationPage },
     { path: "/games/breathing-flower", name: "breathing-flower", component: BreathingFlowerGame },
     { path: "/games/clouds", name: "clouds", component: CloudsGame },
+    { path: "/games/leaves-wind", name: "leaves-wind", component: LeavesWindGame },
     { path: "/games/firefly-meadow", name: "firefly-meadow", component: FireflyMeadowGame },
     { path: "/games/starry-sky", name: "starry-sky", component: StarrySkyGame },
+    { path: "/games/magic-dust", name: "magic-dust", component: MagicDustGame },
     { path: "/games/northern-lights", name: "northern-lights", component: NorthernLightsGame },
+    { path: "/games/snowflakes", name: "snowflakes", component: SnowflakesGame },
+    { path: "/games/moon-path", name: "moon-path", component: MoonPathGame },
     { path: "/games/sand-garden", name: "sand-garden", component: SandGardenGame },
+    { path: "/games/sea-shells", name: "sea-shells", component: SeaShellsGame },
     { path: "/games/paper-lanterns", name: "paper-lanterns", component: PaperLanternsGame },
+    { path: "/games/warm-window", name: "warm-window", component: WarmWindowGame },
+    { path: "/games/musical-pebbles", name: "musical-pebbles", component: MusicalPebblesGame },
     { path: "/games/big-button", name: "big-button", component: BigButtonGame },
     { path: "/games/butterfly", name: "butterfly", component: ButterflyGame },
     { path: "/games/flowers", name: "flowers", component: FlowersGame },
@@ -82,6 +97,7 @@ export default createRouter({
     { path: "/games/patterns", name: "patterns", component: PatternsGame },
     { path: "/games/fishes", name: "fishes", component: FishesGame },
     { path: "/games/jellyfish", name: "jellyfish", component: JellyfishGame },
+    { path: "/games/koi-pond", name: "koi-pond", component: KoiPondGame },
     { path: "/games/hide-and-seek", name: "hide-and-seek", component: HideAndSeekGame },
     { path: "/games/match-same", name: "match-same", component: MatchSameGame },
     { path: "/games/memory-cards", name: "memory-cards", component: MemoryCardsGame },

@@ -135,6 +135,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1500
   },
   {
+    id: "leaves-wind",
+    title: "Листья на ветру",
+    description: "Веди взглядом спокойный поток ветра: листья плавно подхватывают движение без проигрыша.",
+    selfDescription: "Проведи листья ветром.",
+    route: "/games/leaves-wind",
+    category: "gaze-basics",
+    icon: "mdi-leaf",
+    skills: ["smooth-pursuit", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 80,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1500
+  },
+  {
     id: "firefly-meadow",
     title: "Светлячковая поляна",
     description: "Смотри на тихую поляну и мягко зажигай светлячков взглядом.",
@@ -163,6 +177,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "magic-dust",
+    title: "Волшебная пыль",
+    description: "Смотри спокойно: вокруг взгляда появляются мягкие искры и постепенно исчезают без ошибок.",
+    selfDescription: "Зажги волшебную пыль взглядом.",
+    route: "/games/magic-dust",
+    category: "gaze-basics",
+    icon: "mdi-creation",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 75,
+    minTargetSizePx: 170,
+    defaultDwellMs: 1300
+  },
+  {
     id: "northern-lights",
     title: "Северное сияние",
     description: "Смотри на ночное небо и мягко рисуй световые полосы взглядом без целей и ошибок.",
@@ -175,6 +203,48 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 85,
     minTargetSizePx: 180,
     defaultDwellMs: 1400
+  },
+  {
+    id: "koi-pond",
+    title: "Кои-пруд",
+    description: "Смотри на тихий пруд: рыбы кои медленно подплывают к взгляду, а круги на воде загораются мягко и без ошибок.",
+    selfDescription: "Покорми кои взглядом.",
+    route: "/games/koi-pond",
+    category: "gaze-basics",
+    icon: "mdi-fish",
+    skills: ["smooth-pursuit", "fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 86,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1350
+  },
+  {
+    id: "snowflakes",
+    title: "Снежинки",
+    description: "Смотри на медленно падающие снежинки: рядом со взглядом они мягко светятся и тают без ошибок.",
+    selfDescription: "Растопи снежинки взглядом.",
+    route: "/games/snowflakes",
+    category: "gaze-basics",
+    icon: "mdi-snowflake",
+    skills: ["smooth-pursuit", "fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1400
+  },
+  {
+    id: "moon-path",
+    title: "Лунная дорожка",
+    description: "Подсвечивай взглядом лунную дорожку на воде: мягкое сканирование без ошибок и спешки.",
+    selfDescription: "Зажги лунную дорожку взглядом.",
+    route: "/games/moon-path",
+    category: "gaze-basics",
+    icon: "mdi-moon-waning-crescent",
+    skills: ["fixation", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 86,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1450
   },
   {
     id: "sand-garden",
@@ -191,6 +261,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "sea-shells",
+    title: "Морские ракушки",
+    description: "Открывай крупные морские ракушки взглядом: внутри появляется мягкий свет и жемчужина без ошибки выбора.",
+    selfDescription: "Открой ракушку взглядом.",
+    route: "/games/sea-shells",
+    category: "gaze-basics",
+    icon: "mdi-water",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 200,
+    defaultDwellMs: 1350
+  },
+  {
     id: "paper-lanterns",
     title: "Бумажные фонарики",
     description: "Зажигай крупные бумажные фонарики взглядом и смотри, как они мягко улетают вверх.",
@@ -201,6 +285,34 @@ export const games: GameInfo[] = [
     skills: ["fixation", "attention-shift"],
     status: "therapy-ready",
     recommendedSessionSeconds: 85,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1350
+  },
+  {
+    id: "warm-window",
+    title: "Тёплое окно",
+    description: "Смотри на спокойный дом и мягко зажигай тёплый свет в окнах без ошибок.",
+    selfDescription: "Зажги окна взглядом.",
+    route: "/games/warm-window",
+    category: "gaze-basics",
+    icon: "mdi-window-closed",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 80,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1350
+  },
+  {
+    id: "musical-pebbles",
+    title: "Музыкальные камешки",
+    description: "Смотри на крупные камешки, и они отвечают мягкими визуальными музыкальными волнами без ошибок.",
+    selfDescription: "Разбуди тихую волну взглядом.",
+    route: "/games/musical-pebbles",
+    category: "gaze-basics",
+    icon: "mdi-music-note",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 90,
     minTargetSizePx: 190,
     defaultDwellMs: 1350
   },
