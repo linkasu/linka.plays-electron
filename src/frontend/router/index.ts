@@ -32,6 +32,7 @@ import JellyfishGame from "../games/jellyfish/JellyfishGame.vue";
 import KiteGame from "../games/kite/KiteGame.vue";
 import KoiPondGame from "../games/koi-pond/KoiPondGame.vue";
 import LeavesWindGame from "../games/leaves-wind/LeavesWindGame.vue";
+import LetterHuntGame from "../games/letter-hunt/LetterHuntGame.vue";
 import LighthouseGame from "../games/lighthouse/LighthouseGame.vue";
 import LightGalleryGame from "../games/light-gallery/LightGalleryGame.vue";
 import MagicDustGame from "../games/magic-dust/MagicDustGame.vue";
@@ -131,6 +132,7 @@ export default createRouter({
     { path: "/games/jellyfish", name: "jellyfish", component: JellyfishGame },
     { path: "/games/koi-pond", name: "koi-pond", component: KoiPondGame },
     { path: "/games/hide-and-seek", name: "hide-and-seek", component: HideAndSeekGame },
+    { path: "/games/letter-hunt", name: "letter-hunt", component: LetterHuntGame },
     { path: "/games/match-same", name: "match-same", component: MatchSameGame },
     { path: "/games/memory-cards", name: "memory-cards", component: MemoryCardsGame },
     { path: "/games/type-word", name: "type-word", component: TypeWordGame },

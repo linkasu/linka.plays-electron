@@ -681,6 +681,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "letter-hunt",
+    title: "Охота на буквы",
+    description: "Ищи заданную букву среди медленно плывущих крупных букв и спокойно удерживай взгляд.",
+    selfDescription: "Поймай нужную букву взглядом.",
+    route: "/games/letter-hunt",
+    category: "visual-search",
+    icon: "mdi-alphabetical",
+    skills: ["visual-search", "attention-shift", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 160,
+    defaultDwellMs: 1250
+  },
+  {
     id: "find-color",
     title: "Найди цвет",
     description: "Найди нужный цвет среди крупных карточек.",
