@@ -6,6 +6,7 @@ import BigCardsGame from "../games/big-cards/BigCardsGame.vue";
 import BigButtonGame from "../games/big-button/BigButtonGame.vue";
 import BoatGame from "../games/boat/BoatGame.vue";
 import BreathingFlowerGame from "../games/breathing-flower/BreathingFlowerGame.vue";
+import BuildRobotGame from "../games/build-robot/BuildRobotGame.vue";
 import ButterflyGame from "../games/butterfly/ButterflyGame.vue";
 import Calm2048Game from "../games/calm-2048/Calm2048Game.vue";
 import ChoosePictureGame from "../games/choose-picture/ChoosePictureGame.vue";
@@ -148,6 +149,7 @@ export default createRouter({
     { path: "/games/yes-no", name: "yes-no", component: YesNoGame },
     { path: "/games/want-dont-want", name: "want-dont-want", component: WantDontWantGame },
     { path: "/games/mini-dialog", name: "mini-dialog", component: MiniDialogGame },
+    { path: "/games/build-robot", name: "build-robot", component: BuildRobotGame },
     { path: "/games/pyramid", name: "pyramid", component: PyramidGame },
     { path: "/games/find-color", name: "find-color", component: FindColorGame },
     { path: "/games/find-shape", name: "find-shape", component: FindShapeGame },

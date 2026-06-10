@@ -1003,6 +1003,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "build-robot",
+    title: "Собери роботика",
+    description: "Выбирай детали робота по шагам: голова, корпус, руки и ноги; ошибка только мягко подсветит нужную деталь.",
+    selfDescription: "Собери роботика по порядку.",
+    route: "/games/build-robot",
+    category: "sequencing",
+    icon: "mdi-robot-happy-outline",
+    skills: ["sequence", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 135,
+    minTargetSizePx: 170,
+    defaultDwellMs: 1300
+  },
+  {
     id: "pyramid",
     title: "Пирамидка",
     description: "Собирай кольца по порядку и тренируй последовательность.",
