@@ -50,6 +50,7 @@ import MemoryCardsGame from "../games/memory-cards/MemoryCardsGame.vue";
 import PaperLanternsGame from "../games/paper-lanterns/PaperLanternsGame.vue";
 import PyramidGame from "../games/pyramid/PyramidGame.vue";
 import QuietBubblesGame from "../games/quiet-bubbles/QuietBubblesGame.vue";
+import RainbowButtonGame from "../games/rainbow-button/RainbowButtonGame.vue";
 import RainGardenGame from "../games/rain-garden/RainGardenGame.vue";
 import SandGardenGame from "../games/sand-garden/SandGardenGame.vue";
 import SeaShellsGame from "../games/sea-shells/SeaShellsGame.vue";
@@ -114,6 +115,7 @@ export default createRouter({
     { path: "/games/warm-fire", name: "warm-fire", component: WarmFireGame },
     { path: "/games/musical-pebbles", name: "musical-pebbles", component: MusicalPebblesGame },
     { path: "/games/big-button", name: "big-button", component: BigButtonGame },
+    { path: "/games/rainbow-button", name: "rainbow-button", component: RainbowButtonGame },
     { path: "/games/big-cards", name: "big-cards", component: BigCardsGame },
     { path: "/games/color-circle", name: "color-circle", component: ColorCircleGame },
     { path: "/games/butterfly", name: "butterfly", component: ButterflyGame },
