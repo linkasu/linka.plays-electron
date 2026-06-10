@@ -65,6 +65,7 @@ import LeavesWindGame from "../games/leaves-wind/LeavesWindGame.vue";
 import LetterHuntGame from "../games/letter-hunt/LetterHuntGame.vue";
 import LighthouseGame from "../games/lighthouse/LighthouseGame.vue";
 import LightGalleryGame from "../games/light-gallery/LightGalleryGame.vue";
+import LogicPairsGame from "../games/logic-pairs/LogicPairsGame.vue";
 import MagicDustGame from "../games/magic-dust/MagicDustGame.vue";
 import MatchSameGame from "../games/match-same/MatchSameGame.vue";
 import MathActionsGame from "../games/math-actions/MathActionsGame.vue";
@@ -248,6 +249,7 @@ export default createRouter({
     { path: "/games/row-scanning", name: "row-scanning", component: RowScanningGame },
     { path: "/games/grid-scanning", name: "grid-scanning", component: GridScanningGame },
     { path: "/games/find-digit", name: "find-digit", component: FindDigitGame },
+    { path: "/games/logic-pairs", name: "logic-pairs", component: LogicPairsGame },
     { path: "/games/find-letter", name: "find-letter", component: FindLetterGame },
     { path: "/games/find-number", name: "find-number", component: FindNumberGame },
     { path: "/games/shadow-match", name: "shadow-match", component: ShadowMatchGame },

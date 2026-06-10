@@ -919,6 +919,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "logic-pairs",
+    title: "Логические пары",
+    description: "Подбери пару по смыслу, форме или числу: ключ к замку, форма к форме, цифра к точкам; ошибка только мягко подсветит ответ.",
+    selfDescription: "Найди подходящую пару.",
+    route: "/games/logic-pairs",
+    category: "numeracy",
+    icon: "mdi-link-variant",
+    skills: ["choice", "classification", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 200,
+    defaultDwellMs: 1300
+  },
+  {
     id: "find-number",
     title: "Найди число",
     description: "Выбери заданную крупную цифру среди нескольких вариантов без давления времени.",
