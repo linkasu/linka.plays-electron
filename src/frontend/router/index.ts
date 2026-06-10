@@ -69,6 +69,7 @@ import KoiPondGame from "../games/koi-pond/KoiPondGame.vue";
 import LeavesWindGame from "../games/leaves-wind/LeavesWindGame.vue";
 import LetterHuntGame from "../games/letter-hunt/LetterHuntGame.vue";
 import LighthouseGame from "../games/lighthouse/LighthouseGame.vue";
+import LinesFiveGame from "../games/lines-five/LinesFiveGame.vue";
 import LinesAnglesGame from "../games/lines-angles/LinesAnglesGame.vue";
 import LightGalleryGame from "../games/light-gallery/LightGalleryGame.vue";
 import LogicPairsGame from "../games/logic-pairs/LogicPairsGame.vue";
@@ -294,6 +295,7 @@ export default createRouter({
     { path: "/games/sokoban-large", name: "sokoban-large", component: SokobanLargeGame },
     { path: "/games/tic-tac-toe", name: "tic-tac-toe", component: TicTacToeGame },
     { path: "/games/reversi-light", name: "reversi-light", component: ReversiLightGame },
+    { path: "/games/lines-five", name: "lines-five", component: LinesFiveGame },
     { path: "/games/calm-snake", name: "calm-snake", component: CalmSnakeGame },
     { path: "/games/pac-path", name: "pac-path", component: PacPathGame },
     { path: "/games/connect-four", name: "connect-four", component: ConnectFourGame },
