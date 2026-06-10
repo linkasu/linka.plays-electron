@@ -58,6 +58,7 @@ import RainGardenGame from "../games/rain-garden/RainGardenGame.vue";
 import RowScanningGame from "../games/row-scanning/RowScanningGame.vue";
 import SandGardenGame from "../games/sand-garden/SandGardenGame.vue";
 import SeaShellsGame from "../games/sea-shells/SeaShellsGame.vue";
+import ShadowMatchGame from "../games/shadow-match/ShadowMatchGame.vue";
 import ShapesGame from "../games/shapes/ShapesGame.vue";
 import SoapCirclesGame from "../games/soap-circles/SoapCirclesGame.vue";
 import SnowflakesGame from "../games/snowflakes/SnowflakesGame.vue";
