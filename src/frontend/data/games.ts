@@ -1339,6 +1339,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "big-small",
+    title: "Большой / маленький",
+    description: "Выбирай большой или маленький объект по подсказке; ошибка мягко подсвечивает выбор и предлагает попробовать ещё раз.",
+    selfDescription: "Выбери большой или маленький предмет.",
+    route: "/games/big-small",
+    category: "language-aac",
+    icon: "mdi-arrow-expand-horizontal",
+    skills: ["aac", "choice", "classification", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "choose-picture",
     title: "Выбери картинку",
     description: "Слушай слово и выбирай подходящую картинку взглядом.",

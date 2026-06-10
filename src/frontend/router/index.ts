@@ -4,6 +4,7 @@ import BalloonsGame from "../games/balloons/BalloonsGame.vue";
 import BellsGame from "../games/bells/BellsGame.vue";
 import BigCardsGame from "../games/big-cards/BigCardsGame.vue";
 import BigButtonGame from "../games/big-button/BigButtonGame.vue";
+import BigSmallGame from "../games/big-small/BigSmallGame.vue";
 import BoatGame from "../games/boat/BoatGame.vue";
 import BreathingFlowerGame from "../games/breathing-flower/BreathingFlowerGame.vue";
 import BuildBridgeGame from "../games/build-bridge/BuildBridgeGame.vue";
@@ -163,6 +164,7 @@ export default createRouter({
     { path: "/games/ducks", name: "ducks", component: DucksGame },
     { path: "/games/count-items", name: "count-items", component: CountItemsGame },
     { path: "/games/greater-less", name: "greater-less", component: GreaterLessGame },
+    { path: "/games/big-small", name: "big-small", component: BigSmallGame },
     { path: "/games/choose-picture", name: "choose-picture", component: ChoosePictureGame },
     { path: "/games/eat-or-not-eat", name: "eat-or-not-eat", component: EatOrNotEatGame },
     { path: "/games/feed-animal", name: "feed-animal", component: FeedAnimalGame },
