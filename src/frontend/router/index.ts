@@ -109,6 +109,7 @@ import StarrySkyGame from "../games/starry-sky/StarrySkyGame.vue";
 import SocialPhrasesGame from "../games/social-phrases/SocialPhrasesGame.vue";
 import SpotDifferenceGame from "../games/spot-difference/SpotDifferenceGame.vue";
 import SoupRecipeGame from "../games/soup-recipe/SoupRecipeGame.vue";
+import Sudoku2x2Game from "../games/sudoku-2x2/Sudoku2x2Game.vue";
 import SunRaysGame from "../games/sun-rays/SunRaysGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
 import TellPictureGame from "../games/tell-picture/TellPictureGame.vue";
@@ -262,6 +263,7 @@ export default createRouter({
     { path: "/games/memory-cards", name: "memory-cards", component: MemoryCardsGame },
     { path: "/games/type-word", name: "type-word", component: TypeWordGame },
     { path: "/games/math-actions", name: "math-actions", component: MathActionsGame },
+    { path: "/games/sudoku-2x2", name: "sudoku-2x2", component: Sudoku2x2Game },
     { path: "/games/shapes", name: "shapes", component: ShapesGame },
     { path: "/games/calm-2048", name: "calm-2048", component: Calm2048Game },
     { path: "/games/calm-tetris", name: "calm-tetris", component: CalmTetrisGame },
