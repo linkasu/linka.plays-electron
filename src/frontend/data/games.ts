@@ -177,6 +177,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1400
   },
   {
+    id: "koi-pond",
+    title: "Кои-пруд",
+    description: "Смотри на тихий пруд: рыбы кои медленно подплывают к взгляду, а круги на воде загораются мягко и без ошибок.",
+    selfDescription: "Покорми кои взглядом.",
+    route: "/games/koi-pond",
+    category: "gaze-basics",
+    icon: "mdi-fish",
+    skills: ["smooth-pursuit", "fixation"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 86,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1350
+  },
+  {
     id: "sand-garden",
     title: "Песочный сад",
     description: "Веди взглядом мягкие борозды по тёплому песку: следы появляются спокойно и постепенно исчезают.",
