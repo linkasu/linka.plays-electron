@@ -45,6 +45,7 @@ import RainGardenGame from "../games/rain-garden/RainGardenGame.vue";
 import SandGardenGame from "../games/sand-garden/SandGardenGame.vue";
 import SeaShellsGame from "../games/sea-shells/SeaShellsGame.vue";
 import ShapesGame from "../games/shapes/ShapesGame.vue";
+import SoapCirclesGame from "../games/soap-circles/SoapCirclesGame.vue";
 import SnowflakesGame from "../games/snowflakes/SnowflakesGame.vue";
 import StarrySkyGame from "../games/starry-sky/StarrySkyGame.vue";
 import SunRaysGame from "../games/sun-rays/SunRaysGame.vue";
@@ -81,6 +82,7 @@ export default createRouter({
     { path: "/games/starry-sky", name: "starry-sky", component: StarrySkyGame },
     { path: "/games/magic-dust", name: "magic-dust", component: MagicDustGame },
     { path: "/games/light-gallery", name: "light-gallery", component: LightGalleryGame },
+    { path: "/games/soap-circles", name: "soap-circles", component: SoapCirclesGame },
     { path: "/games/northern-lights", name: "northern-lights", component: NorthernLightsGame },
     { path: "/games/sun-rays", name: "sun-rays", component: SunRaysGame },
     { path: "/games/snowflakes", name: "snowflakes", component: SnowflakesGame },
