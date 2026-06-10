@@ -1,9 +1,11 @@
 import { createRouter, createWebHashHistory } from "vue-router";
+import ActionWhoGame from "../games/action-who/ActionWhoGame.vue";
 import AquariumGame from "../games/aquarium/AquariumGame.vue";
 import BalloonsGame from "../games/balloons/BalloonsGame.vue";
 import BellsGame from "../games/bells/BellsGame.vue";
 import BigCardsGame from "../games/big-cards/BigCardsGame.vue";
 import BigButtonGame from "../games/big-button/BigButtonGame.vue";
+import BigSmallGame from "../games/big-small/BigSmallGame.vue";
 import BoatGame from "../games/boat/BoatGame.vue";
 import BreathingFlowerGame from "../games/breathing-flower/BreathingFlowerGame.vue";
 import BuildBridgeGame from "../games/build-bridge/BuildBridgeGame.vue";
@@ -15,9 +17,13 @@ import CalmTetrisGame from "../games/calm-tetris/CalmTetrisGame.vue";
 import CalmSnakeGame from "../games/calm-snake/CalmSnakeGame.vue";
 import CatchLightGame from "../games/catch-light/CatchLightGame.vue";
 import CatchStarGame from "../games/catch-star/CatchStarGame.vue";
+import ChooseEmotionGame from "../games/choose-emotion/ChooseEmotionGame.vue";
 import CloudsGame from "../games/clouds/CloudsGame.vue";
+import ClockGame from "../games/clock/ClockGame.vue";
+import CoinCountingGame from "../games/coin-counting/CoinCountingGame.vue";
 import ColorCircleGame from "../games/color-circle/ColorCircleGame.vue";
 import ColorPatternGame from "../games/color-pattern/ColorPatternGame.vue";
+import ColorShapeGame from "../games/color-shape/ColorShapeGame.vue";
 import ConnectFourGame from "../games/connect-four/ConnectFourGame.vue";
 import CountItemsGame from "../games/count-items/CountItemsGame.vue";
 import ComicStripGame from "../games/comic-strip/ComicStripGame.vue";
@@ -29,6 +35,7 @@ import FeedAnimalGame from "../games/feed-animal/FeedAnimalGame.vue";
 import FirstThenGame from "../games/first-then/FirstThenGame.vue";
 import FindAnimalGame from "../games/find-animal/FindAnimalGame.vue";
 import FindEmotionGame from "../games/find-emotion/FindEmotionGame.vue";
+import FindDigitGame from "../games/find-digit/FindDigitGame.vue";
 import FindLetterGame from "../games/find-letter/FindLetterGame.vue";
 import FixPictureGame from "../games/fix-picture/FixPictureGame.vue";
 import FindHouseGame from "../games/find-house/FindHouseGame.vue";
@@ -48,6 +55,8 @@ import HeroRouteGame from "../games/hero-route/HeroRouteGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import HiddenPictureGame from "../games/hidden-picture/HiddenPictureGame.vue";
 import HighFiveHandsGame from "../games/high-five-hands/HighFiveHandsGame.vue";
+import HurtGoodGame from "../games/hurt-good/HurtGoodGame.vue";
+import IWantGame from "../games/i-want/IWantGame.vue";
 import IslandGame from "../games/island/IslandGame.vue";
 import JellyfishGame from "../games/jellyfish/JellyfishGame.vue";
 import KiteGame from "../games/kite/KiteGame.vue";
@@ -66,9 +75,13 @@ import MusicalPathGame from "../games/musical-path/MusicalPathGame.vue";
 import MusicalPebblesGame from "../games/musical-pebbles/MusicalPebblesGame.vue";
 import MoonPathGame from "../games/moon-path/MoonPathGame.vue";
 import NorthernLightsGame from "../games/northern-lights/NorthernLightsGame.vue";
+import NumberLineGame from "../games/number-line/NumberLineGame.vue";
 import OpenDoorGame from "../games/open-door/OpenDoorGame.vue";
+import ObjectActionGame from "../games/object-action/ObjectActionGame.vue";
 import OrchestraGame from "../games/orchestra/OrchestraGame.vue";
+import OneManyGame from "../games/one-many/OneManyGame.vue";
 import OddOneOutGame from "../games/odd-one-out/OddOneOutGame.vue";
+import OppositesGame from "../games/opposites/OppositesGame.vue";
 import PatternsGame from "../games/patterns/PatternsGame.vue";
 import MemoryCardsGame from "../games/memory-cards/MemoryCardsGame.vue";
 import PaperLanternsGame from "../games/paper-lanterns/PaperLanternsGame.vue";
@@ -89,10 +102,12 @@ import SoapCirclesGame from "../games/soap-circles/SoapCirclesGame.vue";
 import SoundSourceGame from "../games/sound-source/SoundSourceGame.vue";
 import SnowflakesGame from "../games/snowflakes/SnowflakesGame.vue";
 import StarrySkyGame from "../games/starry-sky/StarrySkyGame.vue";
+import SocialPhrasesGame from "../games/social-phrases/SocialPhrasesGame.vue";
 import SpotDifferenceGame from "../games/spot-difference/SpotDifferenceGame.vue";
 import SoupRecipeGame from "../games/soup-recipe/SoupRecipeGame.vue";
 import SunRaysGame from "../games/sun-rays/SunRaysGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
+import TellPictureGame from "../games/tell-picture/TellPictureGame.vue";
 import ThreeFrameStoryGame from "../games/three-frame-story/ThreeFrameStoryGame.vue";
 import TicTacToeGame from "../games/tic-tac-toe/TicTacToeGame.vue";
 import TowerGame from "../games/tower/TowerGame.vue";
@@ -103,8 +118,13 @@ import WarmFireGame from "../games/warm-fire/WarmFireGame.vue";
 import WarmLampGame from "../games/warm-lamp/WarmLampGame.vue";
 import WakeOwlGame from "../games/wake-owl/WakeOwlGame.vue";
 import WarmWindowGame from "../games/warm-window/WarmWindowGame.vue";
+import WhatFirstGame from "../games/what-first/WhatFirstGame.vue";
 import WhatMissingGame from "../games/what-missing/WhatMissingGame.vue";
+import WhatSoundsGame from "../games/what-sounds/WhatSoundsGame.vue";
+import WhereObjectGame from "../games/where-object/WhereObjectGame.vue";
 import WhoHidingGame from "../games/who-hiding/WhoHidingGame.vue";
+import WhoIsThisGame from "../games/who-is-this/WhoIsThisGame.vue";
+import WordCategoriesGame from "../games/word-categories/WordCategoriesGame.vue";
 import YesNoGame from "../games/yes-no/YesNoGame.vue";
 import HomePage from "../pages/HomePage.vue";
 import PlannedGamePage from "../pages/PlannedGamePage.vue";
@@ -161,14 +181,30 @@ export default createRouter({
     { path: "/games/quiet-bubbles", name: "quiet-bubbles", component: QuietBubblesGame },
     { path: "/games/rain-garden", name: "rain-garden", component: RainGardenGame },
     { path: "/games/ducks", name: "ducks", component: DucksGame },
+    { path: "/games/clock", name: "clock", component: ClockGame },
     { path: "/games/count-items", name: "count-items", component: CountItemsGame },
+    { path: "/games/coin-counting", name: "coin-counting", component: CoinCountingGame },
     { path: "/games/greater-less", name: "greater-less", component: GreaterLessGame },
+    { path: "/games/number-line", name: "number-line", component: NumberLineGame },
+    { path: "/games/choose-emotion", name: "choose-emotion", component: ChooseEmotionGame },
     { path: "/games/choose-picture", name: "choose-picture", component: ChoosePictureGame },
+    { path: "/games/action-who", name: "action-who", component: ActionWhoGame },
     { path: "/games/eat-or-not-eat", name: "eat-or-not-eat", component: EatOrNotEatGame },
+    { path: "/games/word-categories", name: "word-categories", component: WordCategoriesGame },
     { path: "/games/feed-animal", name: "feed-animal", component: FeedAnimalGame },
     { path: "/games/yes-no", name: "yes-no", component: YesNoGame },
+    { path: "/games/i-want", name: "i-want", component: IWantGame },
     { path: "/games/want-dont-want", name: "want-dont-want", component: WantDontWantGame },
+    { path: "/games/object-action", name: "object-action", component: ObjectActionGame },
+    { path: "/games/hurt-good", name: "hurt-good", component: HurtGoodGame },
+    { path: "/games/where-object", name: "where-object", component: WhereObjectGame },
+    { path: "/games/big-small", name: "big-small", component: BigSmallGame },
+    { path: "/games/one-many", name: "one-many", component: OneManyGame },
+    { path: "/games/who-is-this", name: "who-is-this", component: WhoIsThisGame },
+    { path: "/games/opposites", name: "opposites", component: OppositesGame },
     { path: "/games/mini-dialog", name: "mini-dialog", component: MiniDialogGame },
+    { path: "/games/social-phrases", name: "social-phrases", component: SocialPhrasesGame },
+    { path: "/games/tell-picture", name: "tell-picture", component: TellPictureGame },
     { path: "/games/build-robot", name: "build-robot", component: BuildRobotGame },
     { path: "/games/pyramid", name: "pyramid", component: PyramidGame },
     { path: "/games/find-color", name: "find-color", component: FindColorGame },
@@ -180,6 +216,7 @@ export default createRouter({
     { path: "/games/sandwich", name: "sandwich", component: SandwichGame },
     { path: "/games/patterns", name: "patterns", component: PatternsGame },
     { path: "/games/color-pattern", name: "color-pattern", component: ColorPatternGame },
+    { path: "/games/color-shape", name: "color-shape", component: ColorShapeGame },
     { path: "/games/day-routine", name: "day-routine", component: DayRoutineGame },
     { path: "/games/first-then", name: "first-then", component: FirstThenGame },
     { path: "/games/mosaic", name: "mosaic", component: MosaicGame },
@@ -198,10 +235,13 @@ export default createRouter({
     { path: "/games/hide-and-seek", name: "hide-and-seek", component: HideAndSeekGame },
     { path: "/games/hidden-picture", name: "hidden-picture", component: HiddenPictureGame },
     { path: "/games/who-hiding", name: "who-hiding", component: WhoHidingGame },
+    { path: "/games/what-first", name: "what-first", component: WhatFirstGame },
     { path: "/games/what-missing", name: "what-missing", component: WhatMissingGame },
+    { path: "/games/what-sounds", name: "what-sounds", component: WhatSoundsGame },
     { path: "/games/follow-cue", name: "follow-cue", component: FollowCueGame },
     { path: "/games/row-scanning", name: "row-scanning", component: RowScanningGame },
     { path: "/games/grid-scanning", name: "grid-scanning", component: GridScanningGame },
+    { path: "/games/find-digit", name: "find-digit", component: FindDigitGame },
     { path: "/games/find-letter", name: "find-letter", component: FindLetterGame },
     { path: "/games/find-number", name: "find-number", component: FindNumberGame },
     { path: "/games/shadow-match", name: "shadow-match", component: ShadowMatchGame },

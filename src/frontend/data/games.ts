@@ -905,6 +905,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "find-digit",
+    title: "Найди цифру",
+    description: "Найди заданную цифру среди крупных карточек цифровой сценки; ошибка только мягко подсветит правильный выбор.",
+    selfDescription: "Найди цифру.",
+    route: "/games/find-digit",
+    category: "numeracy",
+    icon: "mdi-numeric",
+    skills: ["counting", "choice", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 200,
+    defaultDwellMs: 1300
+  },
+  {
     id: "find-number",
     title: "Найди число",
     description: "Выбери заданную крупную цифру среди нескольких вариантов без давления времени.",
@@ -1339,6 +1353,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "choose-emotion",
+    title: "Выбери эмоцию",
+    description: "Выбирай эмоцию для ситуации или лица среди крупных AAC-карточек; неверный выбор только мягко подсказывает.",
+    selfDescription: "Выбери эмоцию.",
+    route: "/games/choose-emotion",
+    category: "language-aac",
+    icon: "mdi-emoticon-outline",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 220,
+    defaultDwellMs: 1300
+  },
+  {
     id: "choose-picture",
     title: "Выбери картинку",
     description: "Слушай слово и выбирай подходящую картинку взглядом.",
@@ -1351,6 +1379,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1200
+  },
+  {
+    id: "action-who",
+    title: "Кто что делает?",
+    description: "Выбирай персонажа или картинку действия по вопросу: кто прыгает, спит или ест; ошибка даёт мягкую подсказку.",
+    selfDescription: "Выбери, кто что делает.",
+    route: "/games/action-who",
+    category: "language-aac",
+    icon: "mdi-human-greeting",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
   },
   {
     id: "eat-or-not-eat",
@@ -1367,6 +1409,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "word-categories",
+    title: "Категории слов",
+    description: "Выбирай категорию для предмета или предмет для заданной категории с мягкой подсказкой после ошибки.",
+    selfDescription: "Выбери группу или предмет.",
+    route: "/games/word-categories",
+    category: "language-aac",
+    icon: "mdi-shape-outline",
+    skills: ["aac", "choice", "classification", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 125,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "yes-no",
     title: "Да / нет",
     description: "Отвечай да или нет на простой вопрос с картинкой.",
@@ -1378,6 +1434,20 @@ export const games: GameInfo[] = [
     status: "polished",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "i-want",
+    title: "Я хочу...",
+    description: "Выбирай карточку желания или предмета и составляй фразу «Я хочу ...»; любой выбор засчитывается как коммуникация.",
+    selfDescription: "Скажи, что хочешь.",
+    route: "/games/i-want",
+    category: "language-aac",
+    icon: "mdi-message-text-outline",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 220,
     defaultDwellMs: 1300
   },
   {
@@ -1395,6 +1465,146 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "object-action",
+    title: "Предмет + действие",
+    description: "Собирай AAC-пару предмет и действие: мяч катить, ложкой есть, чашкой пить.",
+    selfDescription: "Выбери действие для предмета.",
+    route: "/games/object-action",
+    category: "language-aac",
+    icon: "mdi-check",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 125,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "hurt-good",
+    title: "Болит / хорошо",
+    description: "Выбирай состояние или часть тела: хорошо, болит, где болит; любой ответ мягко подтверждается.",
+    selfDescription: "Скажи, как ты себя чувствуешь.",
+    route: "/games/hurt-good",
+    category: "language-aac",
+    icon: "mdi-emoticon-sick-outline",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 220,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "where-object",
+    title: "Где предмет?",
+    description: "Выбирай место предмета или понятный предлог: на, под, в, рядом, с мягкой подсказкой при ошибке.",
+    selfDescription: "Найди, где предмет.",
+    route: "/games/where-object",
+    category: "language-aac",
+    icon: "mdi-map-marker-question-outline",
+    skills: ["aac", "choice", "vocabulary", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "big-small",
+    title: "Большой / маленький",
+    description: "Выбирай большой или маленький предмет по подсказке, тренируя понятные AAC-признаки.",
+    selfDescription: "Выбери большой или маленький.",
+    route: "/games/big-small",
+    category: "language-aac",
+    icon: "mdi-arrow-expand-horizontal",
+    skills: ["aac", "choice", "classification", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 200,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "one-many",
+    title: "Один / много",
+    description: "Выбирай один предмет или много предметов на крупных карточках, без давления и штрафов.",
+    selfDescription: "Выбери один или много.",
+    route: "/games/one-many",
+    category: "language-aac",
+    icon: "mdi-numeric-1-box-multiple-outline",
+    skills: ["aac", "choice", "counting", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 200,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "who-is-this",
+    title: "Кто это?",
+    description: "Выбирай, кто на картинке: близкий человек, помощник, друг или животное; ошибка мягко подсказывает.",
+    selfDescription: "Выбери, кто это.",
+    route: "/games/who-is-this",
+    category: "language-aac",
+    icon: "mdi-account-check-outline",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "what-sounds",
+    title: "Что звучит?",
+    description: "Выбирай объект по мягкой визуальной звуковой волне; тихий звук можно оставить выключенным.",
+    selfDescription: "Выбери, что звучит.",
+    route: "/games/what-sounds",
+    category: "language-aac",
+    icon: "mdi-volume-high",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "opposites",
+    title: "Противоположности",
+    description: "Подбирай противоположные понятия: горячий и холодный, большой и маленький, день и ночь.",
+    selfDescription: "Найди противоположность.",
+    route: "/games/opposites",
+    category: "language-aac",
+    icon: "mdi-swap-horizontal",
+    skills: ["aac", "choice", "vocabulary", "classification"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 125,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "tell-picture",
+    title: "Расскажи картинку",
+    description: "Выбирай фразы, объекты и действия по картинке, чтобы собрать короткое AAC-высказывание.",
+    selfDescription: "Расскажи про картинку.",
+    route: "/games/tell-picture",
+    category: "language-aac",
+    icon: "mdi-image-text",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 135,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
+    id: "what-first",
+    title: "Что сначала?",
+    description: "Выбери первое действие в короткой сцене, а подсказка спокойно объяснит порядок.",
+    selfDescription: "Выбери, что сначала.",
+    route: "/games/what-first",
+    category: "language-aac",
+    icon: "mdi-order-bool-ascending",
+    skills: ["aac", "choice", "sequence", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 125,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
     id: "mini-dialog",
     title: "Мини-диалог",
     description: "Выбирай мягкие реплики для короткого AAC-диалога без неправильных ответов.",
@@ -1407,6 +1617,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 135,
     minTargetSizePx: 180,
     defaultDwellMs: 1350
+  },
+  {
+    id: "social-phrases",
+    title: "Социальные фразы",
+    description: "Выбирай подходящую AAC-фразу для приветствия, просьбы или благодарности; подсказки мягкие, без поражения.",
+    selfDescription: "Выбери нужную фразу.",
+    route: "/games/social-phrases",
+    category: "language-aac",
+    icon: "mdi-check",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 125,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
   },
   {
     id: "type-word",
@@ -1423,6 +1647,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "clock",
+    title: "Часы",
+    description: "Выбери время на крупных циферблатах: полные часы, спокойная подсказка при ошибке и без резкого завершения.",
+    selfDescription: "Выбери время на часах.",
+    route: "/games/clock",
+    category: "numeracy",
+    icon: "mdi-clock-outline",
+    skills: ["counting", "choice", "math"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 170,
+    defaultDwellMs: 1300
+  },
+  {
     id: "count-items",
     title: "Счёт",
     description: "Посчитай предметы и выбери правильное число.",
@@ -1435,6 +1673,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 120,
     minTargetSizePx: 160,
     defaultDwellMs: 1200
+  },
+  {
+    id: "coin-counting",
+    title: "Сложи монетки",
+    description: "Выбирай крупные монетки 1, 2 и 5, спокойно собирая заданную сумму от 1 до 10.",
+    selfDescription: "Сложи монетки.",
+    route: "/games/coin-counting",
+    category: "numeracy",
+    icon: "mdi-cash-multiple",
+    skills: ["counting", "math", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 140,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
   },
   {
     id: "greater-less",
@@ -1451,6 +1703,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "number-line",
+    title: "Числовая дорожка",
+    description: "Выбирай нужное или следующее число на крупной дорожке от 1 до 10.",
+    selfDescription: "Выбери число на дорожке.",
+    route: "/games/number-line",
+    category: "numeracy",
+    icon: "mdi-counter",
+    skills: ["counting", "choice", "sequence"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1300
+  },
+  {
     id: "shapes",
     title: "Формы",
     description: "Находи нужную форму среди крупных контрастных карточек.",
@@ -1463,6 +1729,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1200
+  },
+  {
+    id: "color-shape",
+    title: "Цвет + форма",
+    description: "Выбери объект по двум признакам, например красный круг: ошибка мягко подсветит цвет или форму.",
+    selfDescription: "Найди цветную форму.",
+    route: "/games/color-shape",
+    category: "numeracy",
+    icon: "mdi-shape-outline",
+    skills: ["choice", "classification", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 125,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
   },
   {
     id: "math-actions",
