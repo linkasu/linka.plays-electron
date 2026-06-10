@@ -695,6 +695,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "find-animal",
+    title: "Найди животное",
+    description: "Найди названное животное среди 2-5 крупных карточек: ошибка даёт мягкую подсказку без завершения игры.",
+    selfDescription: "Найди животное взглядом.",
+    route: "/games/find-animal",
+    category: "visual-search",
+    icon: "mdi-paw",
+    skills: ["visual-search", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
     id: "match-same",
     title: "Где такой же?",
     description: "Найди картинку, которая совпадает с образцом.",
