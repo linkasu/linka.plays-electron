@@ -1451,6 +1451,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "number-line",
+    title: "Числовая дорожка",
+    description: "Выбирай нужное или следующее число на крупной дорожке от 1 до 10.",
+    selfDescription: "Выбери число на дорожке.",
+    route: "/games/number-line",
+    category: "numeracy",
+    icon: "mdi-counter",
+    skills: ["counting", "choice", "sequence"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1300
+  },
+  {
     id: "shapes",
     title: "Формы",
     description: "Находи нужную форму среди крупных контрастных карточек.",
