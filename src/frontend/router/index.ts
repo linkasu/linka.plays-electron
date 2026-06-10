@@ -123,6 +123,7 @@ import SocialPhrasesGame from "../games/social-phrases/SocialPhrasesGame.vue";
 import SokobanLargeGame from "../games/sokoban-large/SokobanLargeGame.vue";
 import SpotDifferenceGame from "../games/spot-difference/SpotDifferenceGame.vue";
 import SoupRecipeGame from "../games/soup-recipe/SoupRecipeGame.vue";
+import StepPongGame from "../games/step-pong/StepPongGame.vue";
 import Sudoku2x2Game from "../games/sudoku-2x2/Sudoku2x2Game.vue";
 import SunRaysGame from "../games/sun-rays/SunRaysGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
@@ -300,6 +301,7 @@ export default createRouter({
     { path: "/games/checkers-light", name: "checkers-light", component: CheckersLightGame },
     { path: "/games/battleship-light", name: "battleship-light", component: BattleshipLightGame },
     { path: "/games/tanks-no-shooting", name: "tanks-no-shooting", component: TanksNoShootingGame },
+    { path: "/games/step-pong", name: "step-pong", component: StepPongGame },
     { path: "/games/boat", name: "boat", component: BoatGame },
     { path: "/games/frog", name: "frog", component: FrogGame },
     { path: "/games/table-tennis", name: "table-tennis", component: TableTennisGame },
