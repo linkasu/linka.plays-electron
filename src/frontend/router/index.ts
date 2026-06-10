@@ -97,6 +97,7 @@ import PyramidGame from "../games/pyramid/PyramidGame.vue";
 import QuietBubblesGame from "../games/quiet-bubbles/QuietBubblesGame.vue";
 import RainbowButtonGame from "../games/rainbow-button/RainbowButtonGame.vue";
 import RainGardenGame from "../games/rain-garden/RainGardenGame.vue";
+import ReversiLightGame from "../games/reversi-light/ReversiLightGame.vue";
 import RowScanningGame from "../games/row-scanning/RowScanningGame.vue";
 import SandGardenGame from "../games/sand-garden/SandGardenGame.vue";
 import SandwichGame from "../games/sandwich/SandwichGame.vue";
@@ -281,6 +282,7 @@ export default createRouter({
     { path: "/games/calm-tetris", name: "calm-tetris", component: CalmTetrisGame },
     { path: "/games/sokoban-large", name: "sokoban-large", component: SokobanLargeGame },
     { path: "/games/tic-tac-toe", name: "tic-tac-toe", component: TicTacToeGame },
+    { path: "/games/reversi-light", name: "reversi-light", component: ReversiLightGame },
     { path: "/games/calm-snake", name: "calm-snake", component: CalmSnakeGame },
     { path: "/games/connect-four", name: "connect-four", component: ConnectFourGame },
     { path: "/games/boat", name: "boat", component: BoatGame },
