@@ -247,6 +247,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1400
   },
   {
+    id: "soap-circles",
+    title: "Мыльные круги",
+    description: "Смотри на крупные мыльные круги: выбранный круг мягко расширяется и растворяется без ошибок.",
+    selfDescription: "Раствори мыльный круг взглядом.",
+    route: "/games/soap-circles",
+    category: "gaze-basics",
+    icon: "mdi-water-circle",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 85,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "northern-lights",
     title: "Северное сияние",
     description: "Смотри на ночное небо и мягко рисуй световые полосы взглядом без целей и ошибок.",
