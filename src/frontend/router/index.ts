@@ -102,6 +102,7 @@ import QuietBubblesGame from "../games/quiet-bubbles/QuietBubblesGame.vue";
 import RainbowButtonGame from "../games/rainbow-button/RainbowButtonGame.vue";
 import RainGardenGame from "../games/rain-garden/RainGardenGame.vue";
 import ReversiLightGame from "../games/reversi-light/ReversiLightGame.vue";
+import RobotVacuumGame from "../games/robot-vacuum/RobotVacuumGame.vue";
 import RowScanningGame from "../games/row-scanning/RowScanningGame.vue";
 import SandGardenGame from "../games/sand-garden/SandGardenGame.vue";
 import SandwichGame from "../games/sandwich/SandwichGame.vue";
@@ -305,6 +306,7 @@ export default createRouter({
     { path: "/games/table-tennis", name: "table-tennis", component: TableTennisGame },
     { path: "/games/maze-path", name: "maze-path", component: MazePathGame },
     { path: "/games/garden-watering", name: "garden-watering", component: GardenWateringGame },
+    { path: "/games/robot-vacuum", name: "robot-vacuum", component: RobotVacuumGame },
     { path: "/games/gaze-maze", name: "gaze-maze", component: GazeMazeGame },
     { path: "/games/:gameId", name: "planned-game", component: PlannedGamePage }
   ]

@@ -2163,6 +2163,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 120,
     minTargetSizePx: 150,
     defaultDwellMs: 1200
+  },
+  {
+    id: "robot-vacuum",
+    title: "Робот-пылесос",
+    description: "Веди робота-пылесоса взглядом по комнате и мягко собирай пылинки и звёздочки.",
+    selfDescription: "Собери пылинки роботом.",
+    route: "/games/robot-vacuum",
+    category: "continuous-control",
+    icon: "mdi-robot-vacuum",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 150,
+    defaultDwellMs: 600
   }
 ];
 
