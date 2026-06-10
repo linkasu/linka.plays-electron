@@ -1857,6 +1857,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1100
   },
   {
+    id: "sliding-puzzle",
+    title: "Пятнашки 3×3",
+    description: "Собирай спокойные пятнашки на поле 3×3: выбирай соседнюю с пустой клеткой плитку, а ошибка мягко подсветит возможные ходы.",
+    selfDescription: "Собери пятнашки.",
+    route: "/games/sliding-puzzle",
+    category: "strategy",
+    icon: "mdi-puzzle-outline",
+    skills: ["choice", "sequence", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 132,
+    defaultDwellMs: 1200
+  },
+  {
     id: "calm-tetris",
     title: "Тетрис спокойный",
     description: "Ставь фигуры пошагово: выбери колонку, поверни и мягко опусти без спешки.",

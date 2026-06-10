@@ -277,6 +277,7 @@ export default createRouter({
     { path: "/games/shapes", name: "shapes", component: ShapesGame },
     { path: "/games/minesweeper-safe", name: "minesweeper-safe", component: MinesweeperSafeGame },
     { path: "/games/calm-2048", name: "calm-2048", component: Calm2048Game },
+    { path: "/games/sliding-puzzle", name: "sliding-puzzle", component: SlidingPuzzleGame },
     { path: "/games/calm-tetris", name: "calm-tetris", component: CalmTetrisGame },
     { path: "/games/sokoban-large", name: "sokoban-large", component: SokobanLargeGame },
     { path: "/games/tic-tac-toe", name: "tic-tac-toe", component: TicTacToeGame },
