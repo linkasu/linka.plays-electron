@@ -1031,6 +1031,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "dress-character",
+    title: "Одень персонажа",
+    description: "Выбирай одежду по мягкой подсказке: шапку, куртку и обувь в спокойной последовательности.",
+    selfDescription: "Одень персонажа по подсказке.",
+    route: "/games/dress-character",
+    category: "sequencing",
+    icon: "mdi-tshirt-crew",
+    skills: ["sequence", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 130,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "train-sequence",
     title: "Поезд",
     description: "Прицепляй вагоны по подсказанному порядку цвета и номера.",
