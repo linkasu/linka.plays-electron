@@ -1031,6 +1031,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "build-bridge",
+    title: "Строим мост",
+    description: "Выбирай опоры и доски по порядку, чтобы спокойно построить мост; ошибка даёт только мягкую подсказку.",
+    selfDescription: "Построй мост по порядку.",
+    route: "/games/build-bridge",
+    category: "sequencing",
+    icon: "mdi-bridge",
+    skills: ["sequence", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 135,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1300
+  },
+  {
     id: "train-sequence",
     title: "Поезд",
     description: "Прицепляй вагоны по подсказанному порядку цвета и номера.",
