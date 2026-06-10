@@ -16,6 +16,7 @@ import ButterflyGame from "../games/butterfly/ButterflyGame.vue";
 import CalendarGame from "../games/calendar/CalendarGame.vue";
 import Calm2048Game from "../games/calm-2048/Calm2048Game.vue";
 import ChoosePictureGame from "../games/choose-picture/ChoosePictureGame.vue";
+import ChessMiniGame from "../games/chess-mini/ChessMiniGame.vue";
 import CalmTetrisGame from "../games/calm-tetris/CalmTetrisGame.vue";
 import CalmSnakeGame from "../games/calm-snake/CalmSnakeGame.vue";
 import CatchLightGame from "../games/catch-light/CatchLightGame.vue";
