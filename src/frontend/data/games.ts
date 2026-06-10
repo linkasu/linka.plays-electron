@@ -695,6 +695,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "find-emotion",
+    title: "Найди эмоцию",
+    description: "Выбери лицо с заданной эмоцией среди 2-4 крупных карточек; ошибка мягко подсказывает верный ответ.",
+    selfDescription: "Найди нужную эмоцию.",
+    route: "/games/find-emotion",
+    category: "visual-search",
+    icon: "mdi-emoticon-outline",
+    skills: ["visual-search", "choice", "aac"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "match-same",
     title: "Где такой же?",
     description: "Найди картинку, которая совпадает с образцом.",
