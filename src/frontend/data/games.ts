@@ -1999,7 +1999,7 @@ export const games: GameInfo[] = [
   {
     id: "sokoban-large",
     title: "Сокобан крупный",
-    description: "Выбирай направление, чтобы спокойно подтолкнуть ящик к цели на маленькой крупной сетке; неверный ход не применяется и даёт подсказку.",
+    description: "Выбирай направление, чтобы подтолкнуть ящик к цели на маленькой крупной сетке; третий неверный ход завершает задачу.",
     selfDescription: "Подтолкни ящик к цели.",
     route: "/games/sokoban-large",
     category: "strategy",
@@ -2069,7 +2069,7 @@ export const games: GameInfo[] = [
   {
     id: "checkers-light",
     title: "Шашки light",
-    description: "Играй в упрощённые шашки 4x4: возможные ходы подсвечены, а проигрыша и резких ошибок нет.",
+    description: "Играй в упрощённые шашки 4x4: возможные ходы подсвечены, а отсутствие ходов завершает партию.",
     selfDescription: "Выбери ход шашкой.",
     route: "/games/checkers-light",
     category: "strategy",
@@ -2125,7 +2125,7 @@ export const games: GameInfo[] = [
   {
     id: "tanks-no-shooting",
     title: "Танчики без стрельбы",
-    description: "Веди танк по безопасному маршруту выбором направлений, без стрельбы, взрывов и проигрыша.",
+    description: "Веди танк по безопасному маршруту выбором направлений: третья ошибка завершает маршрут.",
     selfDescription: "Проведи танк по маршруту.",
     route: "/games/tanks-no-shooting",
     category: "strategy",
@@ -2139,7 +2139,7 @@ export const games: GameInfo[] = [
   {
     id: "arkanoid-assist",
     title: "Арканоид assist",
-    description: "Выбирай сектор мягкого удара по блоку: мяч не теряется резко, а игра спокойно подсказывает следующий сектор.",
+    description: "Выбирай сектор мягкого удара по блоку: третий промах теряет мяч и завершает партию.",
     selfDescription: "Выбери сектор удара.",
     route: "/games/arkanoid-assist",
     category: "strategy",
@@ -2153,7 +2153,7 @@ export const games: GameInfo[] = [
   {
     id: "step-pong",
     title: "Понг пошаговый",
-    description: "Выбирай позицию ракетки перед мягким ударом: мяч не теряется, а ошибка только спокойно подсказывает нужную линию.",
+    description: "Выбирай позицию ракетки перед мягким ударом: третий промах пропускает мяч и завершает партию.",
     selfDescription: "Поставь ракетку.",
     route: "/games/step-pong",
     category: "strategy",
@@ -2167,7 +2167,7 @@ export const games: GameInfo[] = [
   {
     id: "calm-snake",
     title: "Змейка спокойная",
-    description: "Веди медленную змейку по мягкой сетке: края и столкновения дают подсказку, а не проигрыш.",
+    description: "Веди медленную змейку по мягкой сетке: край или столкновение завершают партию.",
     selfDescription: "Помоги змейке найти листочки.",
     route: "/games/calm-snake",
     category: "strategy",
@@ -2181,7 +2181,7 @@ export const games: GameInfo[] = [
   {
     id: "pac-path",
     title: "Pac-path",
-    description: "Выбирай следующий безопасный waypoint на лабиринтной дорожке без погони, проигрыша и резких ошибок.",
+    description: "Выбирай следующий безопасный waypoint на лабиринтной дорожке: третий detour завершает партию.",
     selfDescription: "Выбери безопасную крошку.",
     route: "/games/pac-path",
     category: "strategy",

@@ -61,3 +61,9 @@ Self-menu: Проведи танк по маршруту.
 ## Статус
 
 Требует проверки: да, высокий приоритет
+
+## Статус после фиксов
+
+- Правило исправлено: третий wrong turn завершает маршрут через `game-lost`.
+- Добавлены `model.ts` и `model.test.ts`.
+- Проверено: model tests, `npm run typecheck`, Electron CDP smoke.

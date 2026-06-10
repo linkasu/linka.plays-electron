@@ -62,3 +62,9 @@ Self-menu: Поставь фигуру на место.
 ## Статус
 
 Требует проверки: да, высокий приоритет
+
+## Статус после фиксов
+
+- Правило исправлено: невозможность spawn новой фигуры = top-out `game-lost`; auto clear/reset убран из default.
+- Layout частично исправлен: controls подняты выше поля на узком viewport.
+- Проверено: model tests, `npm run typecheck`, Electron CDP 800x600.

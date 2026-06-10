@@ -16,6 +16,14 @@
 | Высокий риск правил | 16 |
 | Высокий UI-риск | 152 |
 
+## Статус фиксов
+
+| Статус | Игры |
+|---|---|
+| Правила проигрыша исправлены | `minesweeper-safe`, `battleship-light`, `calm-2048`, `calm-tetris`, `lines-five`, `checkers-light`, `calm-snake`, `pac-path`, `sokoban-large`, `tanks-no-shooting`, `arkanoid-assist`, `step-pong` |
+| Runtime layout частично исправлен | Компактный `GameHud`; `calm-2048` и `calm-tetris` controls подняты выше fold на 800x600 |
+| Осталось как продуктовая/следующая задача | `chess-mini`, `domino-matching`, `uno-like`, `tangram`, `sliding-puzzle`, `reversi-light` требуют отдельного решения: strict/adult mode или перекатегоризация |
+
 ## Root cause UI
 
 - `GameHud` фиксирован сверху через `position: fixed`, а игры вручную компенсируют его высоту через `padding-block-start`, `top` и локальные `hudHeight`. Это ломается при переносе текста, изменении масштаба и низком Electron окне.
