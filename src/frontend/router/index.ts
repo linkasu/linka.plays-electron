@@ -22,6 +22,7 @@ import CalmTetrisGame from "../games/calm-tetris/CalmTetrisGame.vue";
 import CalmSnakeGame from "../games/calm-snake/CalmSnakeGame.vue";
 import CatchLightGame from "../games/catch-light/CatchLightGame.vue";
 import CatchStarGame from "../games/catch-star/CatchStarGame.vue";
+import CatchWaveGame from "../games/catch-wave/CatchWaveGame.vue";
 import CheckersLightGame from "../games/checkers-light/CheckersLightGame.vue";
 import ChooseEmotionGame from "../games/choose-emotion/ChooseEmotionGame.vue";
 import CloudsGame from "../games/clouds/CloudsGame.vue";
