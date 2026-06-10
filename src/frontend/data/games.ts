@@ -107,6 +107,20 @@ export const gameStatusLabels: Record<GameStatus, string> = {
 
 export const games: GameInfo[] = [
   {
+    id: "balloons",
+    title: "Шарики",
+    description: "Смотри на крупный шарик и удерживай взгляд: он мягко улетит вверх без ошибок и спешки.",
+    selfDescription: "Отпусти шарик взглядом.",
+    route: "/games/balloons",
+    category: "gaze-basics",
+    icon: "mdi-balloon",
+    skills: ["fixation", "attention-shift"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 82,
+    minTargetSizePx: 188,
+    defaultDwellMs: 1300
+  },
+  {
     id: "breathing-flower",
     title: "Дышащий цветок",
     description: "Смотри спокойно в центр цветка, и он будет мягко раскрываться и закрываться.",
