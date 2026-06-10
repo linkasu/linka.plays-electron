@@ -1689,6 +1689,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "shop",
+    title: "Магазин",
+    description: "Выбери товар по ценнику или спокойно собери оплату монетами 1, 2 и 5 с мягкой подсказкой при ошибке.",
+    selfDescription: "Купи товар в магазине.",
+    route: "/games/shop",
+    category: "numeracy",
+    icon: "mdi-cart-outline",
+    skills: ["counting", "math", "choice"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 140,
+    minTargetSizePx: 180,
+    defaultDwellMs: 1300
+  },
+  {
     id: "greater-less",
     title: "Больше / меньше",
     description: "Сравни две группы предметов и выбери, где больше или меньше.",

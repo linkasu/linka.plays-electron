@@ -97,6 +97,7 @@ import SeaShellsGame from "../games/sea-shells/SeaShellsGame.vue";
 import ShadowMatchGame from "../games/shadow-match/ShadowMatchGame.vue";
 import ShapeDanceGame from "../games/shape-dance/ShapeDanceGame.vue";
 import ShapesGame from "../games/shapes/ShapesGame.vue";
+import ShopGame from "../games/shop/ShopGame.vue";
 import ShelfSortingGame from "../games/shelf-sorting/ShelfSortingGame.vue";
 import SoapCirclesGame from "../games/soap-circles/SoapCirclesGame.vue";
 import SoundSourceGame from "../games/sound-source/SoundSourceGame.vue";
@@ -184,6 +185,7 @@ export default createRouter({
     { path: "/games/clock", name: "clock", component: ClockGame },
     { path: "/games/count-items", name: "count-items", component: CountItemsGame },
     { path: "/games/coin-counting", name: "coin-counting", component: CoinCountingGame },
+    { path: "/games/shop", name: "shop", component: ShopGame },
     { path: "/games/greater-less", name: "greater-less", component: GreaterLessGame },
     { path: "/games/number-line", name: "number-line", component: NumberLineGame },
     { path: "/games/choose-emotion", name: "choose-emotion", component: ChooseEmotionGame },
