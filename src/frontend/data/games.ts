@@ -1045,6 +1045,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "comic-strip",
+    title: "Комикс",
+    description: "Собирай короткий комикс из трёх кадров, выбирая следующий кадр по смыслу истории.",
+    selfDescription: "Собери комикс по порядку.",
+    route: "/games/comic-strip",
+    category: "sequencing",
+    icon: "mdi-filmstrip-box-multiple",
+    skills: ["sequence", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 140,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1300
+  },
+  {
     id: "patterns",
     title: "Паттерны",
     description: "Продолжай ряд крупных фигур и цветов по повторяющемуся паттерну.",
