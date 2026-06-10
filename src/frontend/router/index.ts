@@ -64,6 +64,7 @@ import KoiPondGame from "../games/koi-pond/KoiPondGame.vue";
 import LeavesWindGame from "../games/leaves-wind/LeavesWindGame.vue";
 import LetterHuntGame from "../games/letter-hunt/LetterHuntGame.vue";
 import LighthouseGame from "../games/lighthouse/LighthouseGame.vue";
+import LinesAnglesGame from "../games/lines-angles/LinesAnglesGame.vue";
 import LightGalleryGame from "../games/light-gallery/LightGalleryGame.vue";
 import MagicDustGame from "../games/magic-dust/MagicDustGame.vue";
 import MatchSameGame from "../games/match-same/MatchSameGame.vue";
@@ -185,6 +186,7 @@ export default createRouter({
     { path: "/games/count-items", name: "count-items", component: CountItemsGame },
     { path: "/games/coin-counting", name: "coin-counting", component: CoinCountingGame },
     { path: "/games/greater-less", name: "greater-less", component: GreaterLessGame },
+    { path: "/games/lines-angles", name: "lines-angles", component: LinesAnglesGame },
     { path: "/games/number-line", name: "number-line", component: NumberLineGame },
     { path: "/games/choose-emotion", name: "choose-emotion", component: ChooseEmotionGame },
     { path: "/games/choose-picture", name: "choose-picture", component: ChoosePictureGame },

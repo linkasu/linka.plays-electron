@@ -919,6 +919,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
+    id: "lines-angles",
+    title: "Линии и углы",
+    description: "Выбери прямую или кривую линию, угол или вариант без угла, вертикальное или горизонтальное направление.",
+    selfDescription: "Найди линию или угол.",
+    route: "/games/lines-angles",
+    category: "numeracy",
+    icon: "mdi-angle-acute",
+    skills: ["choice", "classification", "visual-search"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 200,
+    defaultDwellMs: 1300
+  },
+  {
     id: "find-number",
     title: "Найди число",
     description: "Выбери заданную крупную цифру среди нескольких вариантов без давления времени.",
