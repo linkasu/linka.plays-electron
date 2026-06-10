@@ -2443,6 +2443,20 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
     defaultDwellMs: 600
+  },
+  {
+    id: "orchestra-conductor",
+    title: "Оркестр-дирижёр",
+    description: "Веди дирижёрскую палочку взглядом по широкой дуге: крупные beat-зоны мягко добавляют оркестр без ошибок и наказаний.",
+    selfDescription: "Проведи палочку по дуге.",
+    route: "/games/orchestra-conductor",
+    category: "continuous-control",
+    icon: "mdi-account-music",
+    skills: ["continuous-control", "smooth-pursuit"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 150,
+    minTargetSizePx: 156,
+    defaultDwellMs: 600
   }
 ];
 
