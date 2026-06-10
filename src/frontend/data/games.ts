@@ -1353,6 +1353,20 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
+    id: "what-sounds",
+    title: "Что звучит?",
+    description: "Выбери AAC-карточку по мягкой визуальной звуковой волне; тихий звук можно включить, а сбой аудио станет тишиной.",
+    selfDescription: "Найди, что звучит.",
+    route: "/games/what-sounds",
+    category: "language-aac",
+    icon: "mdi-waveform",
+    skills: ["aac", "choice", "vocabulary"],
+    status: "therapy-ready",
+    recommendedSessionSeconds: 120,
+    minTargetSizePx: 200,
+    defaultDwellMs: 1300
+  },
+  {
     id: "eat-or-not-eat",
     title: "Съедобное",
     description: "Сортируй предметы на съедобные и несъедобные.",
