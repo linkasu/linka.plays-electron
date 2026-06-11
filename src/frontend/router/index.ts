@@ -70,7 +70,6 @@ import HiddenPictureGame from "../games/hidden-picture/HiddenPictureGame.vue";
 import HighFiveHandsGame from "../games/high-five-hands/HighFiveHandsGame.vue";
 import HurtGoodGame from "../games/hurt-good/HurtGoodGame.vue";
 import IWantGame from "../games/i-want/IWantGame.vue";
-import IslandGame from "../games/island/IslandGame.vue";
 import JellyfishGame from "../games/jellyfish/JellyfishGame.vue";
 import KiteGame from "../games/kite/KiteGame.vue";
 import LeavesWindGame from "../games/leaves-wind/LeavesWindGame.vue";
@@ -196,7 +195,6 @@ export default createRouter({
     { path: "/games/light-gallery", name: "light-gallery", component: LightGalleryGame },
     { path: "/games/soap-circles", name: "soap-circles", component: SoapCirclesGame },
     { path: "/games/lighthouse", name: "lighthouse", component: LighthouseGame },
-    { path: "/games/island", name: "island", component: IslandGame },
     { path: "/games/find-animal", name: "find-animal", component: FindAnimalGame },
     { path: "/games/northern-lights", name: "northern-lights", component: NorthernLightsGame },
     { path: "/games/sun-rays", name: "sun-rays", component: SunRaysGame },
