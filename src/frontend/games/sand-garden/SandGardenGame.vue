@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive } from "vue";
+import { computed, onMounted, onUnmounted, reactive } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
@@ -7,6 +7,7 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeSandGardenPiano, playSandGardenCue, setSandGardenPianoActive, tickSandGardenPiano, warmSandGardenPiano } from "./audio";
 
 type Point = { x: number; y: number };
 type SandTrail = Point & {
@@ -36,7 +37,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   motionSpeed: 0.5,
   distractors: "none",
   hints: "high",
-  sound: false
+  sound: true
 }, {
   finishOnMaxSteps: false,
   finishOnMistakes: false
@@ -114,6 +115,7 @@ function completeCalmStep(now: number) {
     pointer: copyPointer()
   });
   recordSuccess({ targetId: `sand-trace-${session.step + 1}`, traceSeconds: Number(calmTraceSeconds.toFixed(1)) });
+  playSandGardenCue(session.settings.sound);
   calmTraceSeconds = 0;
   activeTraceStartedAt = now;
 
@@ -133,9 +135,9 @@ function addTrail(now: number) {
     previousY: previous.y,
     age: 0,
     life: randomRange(9.5, 13.5),
-    width: randomRange(22, 34) * session.settings.targetScale,
+    width: randomRange(34, 48) * session.settings.targetScale,
     wobble: randomRange(-1, 1),
-    hue: randomRange(34, 42)
+    hue: randomRange(30, 38)
   });
 
   if (trails.length > 230) trails.splice(0, trails.length - 230);
@@ -230,7 +232,7 @@ function drawTrail(ctx: CanvasRenderingContext2D, trail: SandTrail) {
   ctx.save();
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
-  ctx.strokeStyle = `hsla(${trail.hue}, 54%, 42%, ${alpha})`;
+  ctx.strokeStyle = `hsla(${trail.hue}, 58%, 30%, ${alpha * 1.12})`;
   ctx.lineWidth = trail.width;
   ctx.beginPath();
   ctx.moveTo(trail.previousX, trail.previousY);
@@ -242,8 +244,8 @@ function drawTrail(ctx: CanvasRenderingContext2D, trail: SandTrail) {
   );
   ctx.stroke();
 
-  ctx.strokeStyle = `hsla(${trail.hue + 12}, 72%, 76%, ${alpha * 0.65})`;
-  ctx.lineWidth = Math.max(5, trail.width * 0.24);
+  ctx.strokeStyle = `hsla(${trail.hue + 10}, 62%, 52%, ${alpha * 0.56})`;
+  ctx.lineWidth = Math.max(9, trail.width * 0.34);
   ctx.stroke();
   ctx.restore();
 }
@@ -298,7 +300,9 @@ function update(rawDelta: number, now: number) {
   if (session.status === "running") {
     updateRake(delta);
     updateTrails(delta, now);
+    tickSandGardenPiano(session.settings.sound);
   }
+  setSandGardenPianoActive(session.settings.sound, session.status === "running");
 }
 
 function restart() {
@@ -308,6 +312,11 @@ function restart() {
 
 onMounted(() => {
   resetGarden();
+  warmSandGardenPiano(session.settings.sound);
+});
+
+onUnmounted(() => {
+  disposeSandGardenPiano();
 });
 
 useGameLoop({ context, update, draw });
@@ -321,11 +330,11 @@ useGameLoop({ context, update, draw });
       title="Песочный сад"
       :step="session.step"
       :max-steps="session.maxSteps"
-      :score="session.score"
-      :mistakes="session.mistakes"
       :duration-ms="durationMs"
       :session-seconds="session.settings.sessionSeconds"
       :paused="session.status === 'paused'"
+      :show-progress="false"
+      :show-timer="false"
       @pause="pauseSession"
       @resume="resumeSession"
     />

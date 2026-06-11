@@ -14,6 +14,8 @@ const props = defineProps<{
   durationMs?: number;
   sessionSeconds?: number;
   paused?: boolean;
+  showProgress?: boolean;
+  showTimer?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -23,8 +25,10 @@ const emit = defineEmits<{
 
 const router = useRouter();
 const progress = computed(() => props.maxSteps > 0 ? Math.min(100, (props.step / props.maxSteps) * 100) : 0);
+const showProgress = computed(() => props.showProgress !== false);
+const showTimer = computed(() => props.showTimer !== false);
 const remainingSeconds = computed(() => {
-  if (props.durationMs === undefined || props.sessionSeconds === undefined) return undefined;
+  if (!showTimer.value || props.durationMs === undefined || props.sessionSeconds === undefined) return undefined;
   return Math.max(0, Math.ceil(props.sessionSeconds - props.durationMs / 1000));
 });
 </script>
@@ -37,7 +41,7 @@ const remainingSeconds = computed(() => {
     <v-btn color="surface" density="comfortable" :prepend-icon="paused ? 'mdi-play' : 'mdi-pause'" variant="flat" @click="paused ? emit('resume') : emit('pause')">
       {{ paused ? "Продолжить" : "Пауза" }}
     </v-btn>
-    <v-card class="px-3 py-1" color="surface" rounded="pill" variant="flat">
+    <v-card v-if="showProgress" class="px-3 py-1" color="surface" rounded="pill" variant="flat">
       <div class="text-caption text-medium-emphasis">{{ title }}</div>
       <div class="text-body-2 font-weight-bold">Шаг {{ step }} / {{ maxSteps }}</div>
       <v-progress-linear class="mt-1" :model-value="progress" color="primary" height="6" rounded />
