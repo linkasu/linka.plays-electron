@@ -157,7 +157,7 @@ export const games: GameInfo[] = [
     category: "gaze-basics",
     icon: "mdi-hand-front-right-outline",
     skills: ["fixation", "choice"],
-    status: "therapy-ready",
+    status: "polished",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 240,
     defaultDwellMs: 1300
@@ -171,7 +171,7 @@ export const games: GameInfo[] = [
     category: "gaze-basics",
     icon: "mdi-flower",
     skills: ["fixation", "smooth-pursuit"],
-    status: "therapy-ready",
+    status: "polished",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 220,
     defaultDwellMs: 1400

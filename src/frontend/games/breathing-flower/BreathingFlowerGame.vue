@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive } from "vue";
+import { computed, onMounted, onUnmounted, reactive } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
@@ -7,6 +7,7 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeBreathingFlowerPiano, setBreathingFlowerPianoActive, tickBreathingFlowerPiano, warmBreathingFlowerPiano } from "./audio";
 
 type Point = { x: number; y: number };
 type BreathPhase = "opening" | "closing";
@@ -23,7 +24,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   motionSpeed: 0.42,
   distractors: "none",
   hints: "high",
-  sound: false
+  sound: true
 }, {
   finishOnMaxSteps: false,
   finishOnMistakes: false
@@ -112,6 +113,7 @@ function updateBreath(delta: number, now: number) {
 
   const center = flowerCenter();
   const inside = pointer.value.valid && distance(pointer.value, center) <= hitRadius();
+  setBreathingFlowerPianoActive(session.settings.sound, inside && session.status === "running");
 
   if (inside) {
     if (flower.enteredAt === undefined) {
@@ -135,6 +137,8 @@ function updateBreath(delta: number, now: number) {
 
 function update(delta: number, now: number) {
   if (session.status === "running") updateBreath(delta, now);
+  else setBreathingFlowerPianoActive(session.settings.sound, false);
+  tickBreathingFlowerPiano(session.settings.sound);
   if (finishAfter > 0 && now >= finishAfter) finishSession("game-complete");
 }
 
@@ -286,6 +290,14 @@ function restart() {
   flower.glow = 0;
   startSession();
 }
+
+onMounted(() => {
+  warmBreathingFlowerPiano(session.settings.sound);
+});
+
+onUnmounted(() => {
+  disposeBreathingFlowerPiano();
+});
 
 useGameLoop({ context, update, draw });
 </script>
