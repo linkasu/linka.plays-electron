@@ -378,14 +378,14 @@ export const games: GameInfo[] = [
   {
     id: "lighthouse",
     title: "Маяк",
-    description: "Смотри на большой маяк: после спокойной фиксации мягкий луч проходит по морю без ошибок.",
-    selfDescription: "Зажги маяк взглядом.",
+    description: "Смотри на маяк: луч мягко притягивает лодочки к гавани.",
+    selfDescription: "Приведи лодочки к маяку.",
     route: "/games/lighthouse",
     category: "gaze-basics",
     icon: "mdi-lightbulb-on-outline",
     skills: ["fixation"],
-    status: "therapy-ready",
-    recommendedSessionSeconds: 85,
+    status: "polished",
+    recommendedSessionSeconds: 95,
     minTargetSizePx: 220,
     defaultDwellMs: 1400
   },
