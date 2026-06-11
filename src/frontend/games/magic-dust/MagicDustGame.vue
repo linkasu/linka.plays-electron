@@ -6,6 +6,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeMagicDustPiano, playMagicDustCue, setMagicDustPianoActive, tickMagicDustPiano, warmMagicDustPiano } from "./audio";
 
 type Point = { x: number; y: number };
 type DustParticle = Point & {
@@ -37,7 +38,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   motionSpeed: 0.42,
   distractors: "none",
   hints: "high",
-  sound: false
+  sound: true
 }, {
   finishOnMaxSteps: false,
   finishOnMistakes: false
@@ -166,6 +167,7 @@ function recordAttentionStep(now: number) {
     pointer: copyPointer()
   });
   recordSuccess({ targetId, mode: "ambient-magic-dust" });
+  playMagicDustCue(session.settings.sound);
   intervalEnteredAt = now;
 }
 
@@ -290,7 +292,11 @@ function tick(now: number) {
   const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
 
-  if (session.status === "running") updateAttention(delta, now);
+  if (session.status === "running") {
+    updateAttention(delta, now);
+    tickMagicDustPiano(session.settings.sound);
+  }
+  setMagicDustPianoActive(session.settings.sound, session.status === "running");
   updateParticles(delta);
 
   if (ctx) draw(ctx, now);
@@ -306,6 +312,7 @@ onMounted(async () => {
   await nextTick();
   resizeCanvas();
   resetDust();
+  warmMagicDustPiano(session.settings.sound);
   window.addEventListener("resize", resizeCanvas);
   lastTime = performance.now();
   frame = requestAnimationFrame(tick);
@@ -314,6 +321,7 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener("resize", resizeCanvas);
   cancelAnimationFrame(frame);
+  disposeMagicDustPiano();
 });
 </script>
 

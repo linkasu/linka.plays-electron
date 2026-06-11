@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, reactive } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeLightGalleryPiano, playLightGalleryCue, setLightGalleryPianoActive, tickLightGalleryPiano, warmLightGalleryPiano } from "./audio";
 
 type LightPanel = {
   id: string;
@@ -13,6 +14,15 @@ type LightPanel = {
   caption: string;
   icon: string;
   gradient: string;
+  mood: {
+    base: string;
+    top: string;
+    middle: string;
+    bottom: string;
+    warmAura: string;
+    coolAura: string;
+    lowAura: string;
+  };
   revealed: boolean;
 };
 
@@ -25,7 +35,8 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   targetScale: 1.55,
   motionSpeed: 0.35,
   distractors: "none",
-  hints: "high"
+  hints: "high",
+  sound: true
 }, {
   finishOnMistakes: false
 });
@@ -37,6 +48,15 @@ const panels = reactive<LightPanel[]>([
     caption: "мягкий рассвет",
     icon: "mdi-weather-sunset-up",
     gradient: "linear-gradient(135deg, #fff1c8 0%, #ffd2b8 45%, #adc7ff 100%)",
+    mood: {
+      base: "#271a34",
+      top: "#1a2747",
+      middle: "#59304e",
+      bottom: "#8a5944",
+      warmAura: "255 190 104",
+      coolAura: "156 194 255",
+      lowAura: "255 136 116"
+    },
     revealed: false
   },
   {
@@ -45,6 +65,15 @@ const panels = reactive<LightPanel[]>([
     caption: "тихая вода",
     icon: "mdi-waves",
     gradient: "linear-gradient(135deg, #d7fff4 0%, #9ed8dd 48%, #668fc4 100%)",
+    mood: {
+      base: "#092537",
+      top: "#073145",
+      middle: "#13526a",
+      bottom: "#21456f",
+      warmAura: "148 255 228",
+      coolAura: "118 181 255",
+      lowAura: "82 238 205"
+    },
     revealed: false
   },
   {
@@ -53,6 +82,15 @@ const panels = reactive<LightPanel[]>([
     caption: "светлая трава",
     icon: "mdi-grass",
     gradient: "linear-gradient(135deg, #efffcf 0%, #b7e8b4 50%, #74bda4 100%)",
+    mood: {
+      base: "#11291f",
+      top: "#122d35",
+      middle: "#1f563d",
+      bottom: "#35492d",
+      warmAura: "225 255 151",
+      coolAura: "105 229 184",
+      lowAura: "176 255 176"
+    },
     revealed: false
   },
   {
@@ -61,6 +99,15 @@ const panels = reactive<LightPanel[]>([
     caption: "спокойная ночь",
     icon: "mdi-moon-waning-crescent",
     gradient: "linear-gradient(135deg, #e9eeff 0%, #b9c4ee 48%, #6b79b8 100%)",
+    mood: {
+      base: "#0b102d",
+      top: "#070b21",
+      middle: "#18224d",
+      bottom: "#272150",
+      warmAura: "219 226 255",
+      coolAura: "125 151 255",
+      lowAura: "161 125 255"
+    },
     revealed: false
   },
   {
@@ -69,6 +116,15 @@ const panels = reactive<LightPanel[]>([
     caption: "тёплые листья",
     icon: "mdi-flower-tulip-outline",
     gradient: "linear-gradient(135deg, #ffe8be 0%, #f7b889 44%, #c9786f 100%)",
+    mood: {
+      base: "#301d25",
+      top: "#25192d",
+      middle: "#633135",
+      bottom: "#7b4b2e",
+      warmAura: "255 177 94",
+      coolAura: "255 143 160",
+      lowAura: "255 211 135"
+    },
     revealed: false
   },
   {
@@ -77,6 +133,15 @@ const panels = reactive<LightPanel[]>([
     caption: "воздушный свет",
     icon: "mdi-cloud-outline",
     gradient: "linear-gradient(135deg, #ffffff 0%, #dcecff 52%, #a9c1de 100%)",
+    mood: {
+      base: "#142439",
+      top: "#101b31",
+      middle: "#253c58",
+      bottom: "#343a55",
+      warmAura: "255 255 255",
+      coolAura: "180 220 255",
+      lowAura: "214 232 255"
+    },
     revealed: false
   },
   {
@@ -85,6 +150,15 @@ const panels = reactive<LightPanel[]>([
     caption: "тихое тепло",
     icon: "mdi-lamps-outline",
     gradient: "linear-gradient(135deg, #fff5c2 0%, #ffc875 48%, #c88b64 100%)",
+    mood: {
+      base: "#2f2018",
+      top: "#241a27",
+      middle: "#6a4226",
+      bottom: "#744226",
+      warmAura: "255 199 89",
+      coolAura: "255 149 103",
+      lowAura: "255 230 148"
+    },
     revealed: false
   },
   {
@@ -93,27 +167,72 @@ const panels = reactive<LightPanel[]>([
     caption: "мягкое мерцание",
     icon: "mdi-star-four-points-outline",
     gradient: "linear-gradient(135deg, #f5edff 0%, #bca8f4 46%, #6c63a8 100%)",
+    mood: {
+      base: "#151033",
+      top: "#0d102c",
+      middle: "#30215b",
+      bottom: "#21183d",
+      warmAura: "231 210 255",
+      coolAura: "145 129 255",
+      lowAura: "196 149 255"
+    },
     revealed: false
   }
 ]);
 
 const resultVisible = computed(() => session.status === "finished");
 const revealedCount = computed(() => panels.filter((panel) => panel.revealed).length);
+const activePanelId = ref("");
+const activeMood = computed(() => panels.find((panel) => panel.id === activePanelId.value)?.mood);
+const backdropStyle = computed(() => {
+  const mood = activeMood.value;
+  const top = mood?.top ?? "#081b2a";
+  const middle = mood?.middle ?? "#16203b";
+  const bottom = mood?.bottom ?? "#321f45";
+  const warmAura = mood?.warmAura ?? "255 196 120";
+  const coolAura = mood?.coolAura ?? "112 222 255";
+  const lowAura = mood?.lowAura ?? "244 142 255";
+
+  return {
+    background: `radial-gradient(circle at 16% 18%, rgb(${warmAura} / 18%), transparent 31%), radial-gradient(circle at 82% 22%, rgb(${coolAura} / 17%), transparent 35%), radial-gradient(circle at 48% 88%, rgb(${lowAura} / 15%), transparent 43%), linear-gradient(180deg, ${top} 0%, ${middle} 44%, ${bottom} 100%)`
+  };
+});
+let audioTimer = 0;
 
 function revealPanel(panel: LightPanel) {
   if (session.status !== "running" || panel.revealed) return;
   panel.revealed = true;
+  activePanelId.value = panel.id;
   recordSuccess({ targetId: panel.id, title: panel.title });
+  playLightGalleryCue(session.settings.sound);
 }
 
 function restart() {
   for (const panel of panels) panel.revealed = false;
+  activePanelId.value = "";
   startSession();
 }
+
+watch(() => [session.status, session.settings.sound] as const, () => {
+  setLightGalleryPianoActive(session.settings.sound, session.status === "running");
+}, { immediate: true });
+
+onMounted(() => {
+  warmLightGalleryPiano(session.settings.sound);
+  audioTimer = window.setInterval(() => tickLightGalleryPiano(session.settings.sound), 500);
+});
+
+onUnmounted(() => {
+  window.clearInterval(audioTimer);
+  disposeLightGalleryPiano();
+});
 </script>
 
 <template>
   <div class="light-gallery-shell">
+    <Transition name="light-gallery-backdrop-fade">
+      <div :key="activePanelId || 'gallery-base'" class="light-gallery-backdrop" :style="backdropStyle" aria-hidden="true" />
+    </Transition>
     <div class="light-gallery-aura" aria-hidden="true" />
 
     <GameHud
@@ -135,7 +254,7 @@ function restart() {
           <div class="text-overline text-indigo-lighten-4">ambient gaze basics</div>
           <h1 class="text-h4 text-sm-h3 font-weight-bold">Проявляй картины светом</h1>
           <p class="text-body-1 text-sm-h6 text-blue-grey-lighten-4 mb-0">
-            Смотри на любую панель. Контраст мягко растёт, ошибок нет.
+            Смотри на любую панель. Картина постепенно проявляется светом.
           </p>
         </div>
 
@@ -189,16 +308,38 @@ function restart() {
 
 <style scoped>
 .light-gallery-shell {
-  background: linear-gradient(180deg, #151931 0%, #242744 52%, #31324a 100%);
+  background: #081b2a;
   min-block-size: 100vh;
   overflow: hidden;
   position: relative;
 }
 
+.light-gallery-backdrop {
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.light-gallery-backdrop-fade-enter-active,
+.light-gallery-backdrop-fade-leave-active {
+  transition: opacity 1400ms ease, transform 1600ms ease, filter 1600ms ease;
+}
+
+.light-gallery-backdrop-fade-enter-from {
+  opacity: 0;
+  transform: scale(1.035);
+}
+
+.light-gallery-backdrop-fade-leave-to {
+  filter: blur(8px);
+  opacity: 0;
+  transform: scale(0.985);
+}
+
 .light-gallery-aura {
-  background: radial-gradient(circle at 20% 18%, rgb(255 226 179 / 24%), transparent 32%),
-    radial-gradient(circle at 82% 28%, rgb(179 207 255 / 22%), transparent 34%),
-    radial-gradient(circle at 50% 90%, rgb(190 255 222 / 14%), transparent 42%);
+  background: radial-gradient(circle at 28% 30%, rgb(255 255 255 / 10%), transparent 34%),
+    radial-gradient(circle at 74% 62%, rgb(159 203 255 / 9%), transparent 38%),
+    linear-gradient(110deg, rgb(255 255 255 / 5%), rgb(255 210 164 / 5%));
   inset: 0;
   pointer-events: none;
   position: absolute;

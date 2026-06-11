@@ -6,17 +6,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
-
-type AuroraBand = {
-  id: string;
-  hue: number;
-  baseY: number;
-  amplitude: number;
-  thickness: number;
-  phase: number;
-  speed: number;
-  alpha: number;
-};
+import { disposeNorthernLightsPiano, setNorthernLightsPianoActive, tickNorthernLightsPiano, warmNorthernLightsPiano } from "./audio";
 
 type GazeGlow = {
   x: number;
@@ -46,13 +36,13 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   targetScale: 1.6,
   motionSpeed: 0.4,
   distractors: "none",
-  hints: "high"
+  hints: "high",
+  sound: true
 }, {
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 
-const bands = reactive<AuroraBand[]>([]);
 const glows = reactive<GazeGlow[]>([]);
 const stars = reactive<Star[]>([]);
 const resultVisible = computed(() => session.status === "finished");
@@ -63,6 +53,7 @@ let lastTime = performance.now();
 let lastGlowAt = 0;
 let attentionMs = 0;
 let intervalEnteredAt: number | undefined;
+let audioTimer = 0;
 
 function randomRange(min: number, max: number) {
   return min + Math.random() * (max - min);
@@ -79,23 +70,6 @@ function resizeCanvas() {
   ctx = canvas.getContext("2d") ?? undefined;
   ctx?.setTransform(ratio, 0, 0, ratio, 0, 0);
   initStars();
-}
-
-function initBands() {
-  bands.splice(0);
-  const hues = [152, 174, 196, 276];
-  for (let index = 0; index < 6; index++) {
-    bands.push({
-      id: `aurora-band-${index}`,
-      hue: hues[index % hues.length] + randomRange(-8, 8),
-      baseY: randomRange(0.22, 0.58),
-      amplitude: randomRange(26, 58),
-      thickness: randomRange(34, 72),
-      phase: randomRange(0, Math.PI * 2),
-      speed: randomRange(0.00008, 0.00016),
-      alpha: randomRange(0.14, 0.28)
-    });
-  }
 }
 
 function initStars() {
@@ -211,41 +185,6 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 }
 
-function drawAuroraBand(context: CanvasRenderingContext2D, band: AuroraBand, now: number) {
-  const gazeInfluence = pointer.value.valid
-    ? Math.max(0, 1 - Math.abs(pointer.value.y - window.innerHeight * band.baseY) / (window.innerHeight * 0.42))
-    : 0;
-  const gazeShift = pointer.value.valid ? (pointer.value.x / window.innerWidth - 0.5) * 34 * gazeInfluence : 0;
-
-  context.save();
-  context.globalCompositeOperation = "lighter";
-  context.lineCap = "round";
-  context.lineJoin = "round";
-
-  for (let layer = 0; layer < 4; layer++) {
-    const layerProgress = layer / 3;
-    const alpha = band.alpha * (1.15 - layerProgress * 0.22) + gazeInfluence * 0.06;
-    context.strokeStyle = `hsla(${band.hue + layer * 18}, 86%, ${58 + layer * 8}%, ${alpha})`;
-    context.lineWidth = band.thickness * (1.4 - layerProgress * 0.26);
-    context.shadowBlur = 24 + layer * 10;
-    context.shadowColor = `hsla(${band.hue}, 84%, 68%, ${0.18 + gazeInfluence * 0.08})`;
-    context.beginPath();
-
-    const points = 56;
-    for (let index = 0; index <= points; index++) {
-      const x = window.innerWidth * (index / points);
-      const wave = Math.sin(index * 0.42 + band.phase + now * band.speed) * band.amplitude;
-      const slowWave = Math.sin(index * 0.16 + band.phase * 0.6 + now * band.speed * 0.55) * band.amplitude * 0.42;
-      const y = window.innerHeight * band.baseY + wave + slowWave + gazeShift + layer * band.thickness * 0.2;
-      if (index === 0) context.moveTo(x, y);
-      else context.lineTo(x, y);
-    }
-    context.stroke();
-  }
-
-  context.restore();
-}
-
 function drawGlow(context: CanvasRenderingContext2D, glow: GazeGlow) {
   const progress = Math.min(1, glow.age / glow.life);
   const radius = glow.radius * (1 + progress * 1.45);
@@ -264,29 +203,9 @@ function drawGlow(context: CanvasRenderingContext2D, glow: GazeGlow) {
   context.restore();
 }
 
-function drawGazeCurtain(context: CanvasRenderingContext2D) {
-  if (!pointer.value.valid || session.status !== "running") return;
-  const radius = Math.min(220, Math.max(128, window.innerWidth * 0.11));
-  const gradient = context.createLinearGradient(pointer.value.x, pointer.value.y - radius, pointer.value.x, pointer.value.y + radius);
-  gradient.addColorStop(0, "rgb(141 244 211 / 0%)");
-  gradient.addColorStop(0.38, "rgb(141 244 211 / 18%)");
-  gradient.addColorStop(0.62, "rgb(167 205 255 / 14%)");
-  gradient.addColorStop(1, "rgb(167 205 255 / 0%)");
-
-  context.save();
-  context.globalCompositeOperation = "lighter";
-  context.fillStyle = gradient;
-  context.beginPath();
-  context.ellipse(pointer.value.x, pointer.value.y, radius * 0.8, radius * 1.35, -0.18, 0, Math.PI * 2);
-  context.fill();
-  context.restore();
-}
-
 function draw(context: CanvasRenderingContext2D, now: number) {
   drawBackground(context, now);
-  for (const band of bands) drawAuroraBand(context, band, now);
   for (const glow of glows) drawGlow(context, glow);
-  drawGazeCurtain(context);
 }
 
 function tick(now: number) {
@@ -297,6 +216,7 @@ function tick(now: number) {
     updateAttention(delta, now);
     updateGlows(delta);
   }
+  setNorthernLightsPianoActive(session.settings.sound, session.status === "running");
 
   if (ctx) draw(ctx, now);
   frame = requestAnimationFrame(tick);
@@ -307,33 +227,30 @@ function restart() {
   intervalEnteredAt = undefined;
   lastGlowAt = 0;
   glows.splice(0);
-  initBands();
   startSession();
 }
 
 onMounted(async () => {
   await nextTick();
-  initBands();
   resizeCanvas();
   window.addEventListener("resize", resizeCanvas);
+  warmNorthernLightsPiano(session.settings.sound);
+  audioTimer = window.setInterval(() => tickNorthernLightsPiano(session.settings.sound), 500);
   lastTime = performance.now();
   frame = requestAnimationFrame(tick);
 });
 
 onUnmounted(() => {
   window.removeEventListener("resize", resizeCanvas);
+  window.clearInterval(audioTimer);
   cancelAnimationFrame(frame);
+  disposeNorthernLightsPiano();
 });
 </script>
 
 <template>
   <div class="northern-lights-shell">
     <canvas ref="canvasRef" class="northern-lights-canvas" />
-
-    <v-card class="northern-lights-hint px-4 py-3" color="surface" rounded="xl" variant="tonal">
-      <div class="text-body-2 font-weight-medium">Смотри спокойно: сияние мягко следует за взглядом.</div>
-      <div class="text-caption text-medium-emphasis">Нет целей и ошибок, только тихое удержание внимания.</div>
-    </v-card>
 
     <GameHud
       title="Северное сияние"
@@ -377,13 +294,4 @@ onUnmounted(() => {
   position: absolute;
 }
 
-.northern-lights-hint {
-  inset-block-end: max(18px, env(safe-area-inset-bottom));
-  inset-inline: 18px;
-  margin-inline: auto;
-  max-inline-size: 520px;
-  opacity: 0.72;
-  position: absolute;
-  z-index: 3;
-}
 </style>

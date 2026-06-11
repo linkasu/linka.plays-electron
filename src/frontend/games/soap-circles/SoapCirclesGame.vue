@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, onUnmounted, reactive } from "vue";
+import { computed, onMounted, onUnmounted, reactive, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeSoapCirclesPiano, playSoapCircleCue, setSoapCirclesPianoActive, tickSoapCirclesPiano, warmSoapCirclesPiano } from "./audio";
 
 type SoapCircle = {
   id: string;
@@ -26,7 +27,8 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   targetScale: 1.6,
   motionSpeed: 0.32,
   distractors: "none",
-  hints: "high"
+  hints: "high",
+  sound: true
 }, {
   finishOnMaxSteps: false,
   finishOnMistakes: false
@@ -46,6 +48,7 @@ const positions = [
 const hues = [188, 198, 212, 274, 306, 326];
 let circleIndex = 0;
 let finishTimer: number | undefined;
+let audioTimer = 0;
 
 function clearFinishTimer() {
   if (finishTimer === undefined) return;
@@ -89,6 +92,7 @@ function selectCircle(circle: SoapCircle) {
 
   circle.selected = true;
   recordSuccess({ targetId: circle.id, hue: circle.hue, mode: "soft-dissolve" });
+  playSoapCircleCue(session.settings.sound);
 
   const completed = session.step >= session.maxSteps;
   window.setTimeout(() => {
@@ -115,8 +119,19 @@ function restart() {
 
 resetCircles();
 
+watch(() => [session.status, session.settings.sound] as const, () => {
+  setSoapCirclesPianoActive(session.settings.sound, session.status === "running");
+}, { immediate: true });
+
+onMounted(() => {
+  warmSoapCirclesPiano(session.settings.sound);
+  audioTimer = window.setInterval(() => tickSoapCirclesPiano(session.settings.sound), 500);
+});
+
 onUnmounted(() => {
+  window.clearInterval(audioTimer);
   clearFinishTimer();
+  disposeSoapCirclesPiano();
 });
 </script>
 
@@ -140,12 +155,6 @@ onUnmounted(() => {
     />
 
     <main class="soap-circles-stage" aria-label="Мыльные круги для выбора взглядом">
-      <section class="soap-circles-copy text-center">
-        <div class="text-overline text-cyan-darken-2">gaze basics</div>
-        <h1 class="text-h4 text-sm-h3 font-weight-bold mb-2">Выбери мыльный круг</h1>
-        <p class="text-body-1 text-sm-h6 mb-0">Смотри спокойно: круг мягко расширится и растворится.</p>
-      </section>
-
       <GameDwellButton
         v-for="circle in circles"
         :key="circle.id"
@@ -165,15 +174,9 @@ onUnmounted(() => {
           >
             <span class="soap-circle-shine" aria-hidden="true" />
             <span class="soap-circle-core" aria-hidden="true" />
-            <span class="soap-circle-label">{{ circle.selected ? 'Тихо тает' : active ? 'Смотри' : 'Круг' }}</span>
           </div>
         </template>
       </GameDwellButton>
-
-      <v-card class="soap-circles-progress px-4 py-3" color="cyan-lighten-5" rounded="xl" variant="tonal">
-        <div class="text-body-2 font-weight-medium">Растворено кругов: {{ session.step }} из {{ session.maxSteps }}</div>
-        <div class="text-caption text-medium-emphasis">Ошибок нет: можно смотреть на любой большой круг.</div>
-      </v-card>
     </main>
 
     <GameResultDialog
@@ -234,15 +237,9 @@ onUnmounted(() => {
 .soap-circles-stage {
   block-size: 100vh;
   min-block-size: 620px;
-  padding-block-start: 110px;
+  padding-block-start: 96px;
   position: relative;
   z-index: 1;
-}
-
-.soap-circles-copy {
-  inline-size: min(680px, calc(100% - 32px));
-  margin-inline: auto;
-  text-shadow: 0 1px 18px rgb(255 255 255 / 72%);
 }
 
 .soap-circle-target {
@@ -316,26 +313,6 @@ onUnmounted(() => {
   position: absolute;
 }
 
-.soap-circle-label {
-  align-self: center;
-  background: rgb(255 255 255 / 36%);
-  border-radius: 999px;
-  color: #24556d;
-  font-size: clamp(0.92rem, 1.7vw, 1.12rem);
-  font-weight: 700;
-  padding: 0.28rem 0.72rem;
-  position: relative;
-  text-shadow: 0 1px 10px rgb(255 255 255 / 82%);
-}
-
-.soap-circles-progress {
-  inset-block-end: max(18px, env(safe-area-inset-bottom));
-  inset-inline-start: 50%;
-  max-inline-size: min(520px, calc(100% - 32px));
-  position: absolute;
-  text-align: center;
-  transform: translateX(-50%);
-}
 
 @keyframes soap-float {
   0%,
@@ -351,7 +328,7 @@ onUnmounted(() => {
 @media (max-width: 720px) {
   .soap-circles-stage {
     min-block-size: 680px;
-    padding-block-start: 104px;
+    padding-block-start: 96px;
   }
 
   .soap-circle-target {
@@ -360,9 +337,4 @@ onUnmounted(() => {
   }
 }
 
-@media (max-width: 520px) {
-  .soap-circles-copy p {
-    font-size: 0.98rem !important;
-  }
-}
 </style>

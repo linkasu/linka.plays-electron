@@ -48,7 +48,6 @@ import FindEmotionGame from "../games/find-emotion/FindEmotionGame.vue";
 import FindDigitGame from "../games/find-digit/FindDigitGame.vue";
 import FindLetterGame from "../games/find-letter/FindLetterGame.vue";
 import FixPictureGame from "../games/fix-picture/FixPictureGame.vue";
-import FindHouseGame from "../games/find-house/FindHouseGame.vue";
 import FireflyMeadowGame from "../games/firefly-meadow/FireflyMeadowGame.vue";
 import FindColorGame from "../games/find-color/FindColorGame.vue";
 import FindNumberGame from "../games/find-number/FindNumberGame.vue";
@@ -199,7 +198,6 @@ export default createRouter({
     { path: "/games/soap-circles", name: "soap-circles", component: SoapCirclesGame },
     { path: "/games/lighthouse", name: "lighthouse", component: LighthouseGame },
     { path: "/games/island", name: "island", component: IslandGame },
-    { path: "/games/find-house", name: "find-house", component: FindHouseGame },
     { path: "/games/find-animal", name: "find-animal", component: FindAnimalGame },
     { path: "/games/northern-lights", name: "northern-lights", component: NorthernLightsGame },
     { path: "/games/sun-rays", name: "sun-rays", component: SunRaysGame },
