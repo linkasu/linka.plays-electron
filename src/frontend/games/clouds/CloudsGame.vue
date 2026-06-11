@@ -6,9 +6,10 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeCloudsPiano, setCloudsPianoActive, tickCloudsPiano, warmCloudsPiano } from "./audio";
 
 type Point = { x: number; y: number };
-type CloudPhase = "floating" | "parting" | "clearing";
+type CloudPhase = "floating" | "parting" | "clearing" | "hidden";
 type CloudLobe = {
   offsetX: number;
   offsetY: number;
@@ -34,23 +35,26 @@ type Cloud = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSession("clouds", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSession("clouds", {
   preset: "gentle",
-  maxSteps: 8,
+  maxSteps: 6,
   dwellMs: 1500,
   sessionSeconds: 75,
   targetScale: 1.6,
   motionSpeed: 0.34,
   distractors: "none",
-  hints: "high"
+  hints: "high",
+  sound: true
 }, {
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 
 const clouds = reactive<Cloud[]>([]);
 const resultVisible = computed(() => session.status === "finished");
 
-const clearSeconds = 2.4;
+const clearSeconds = 0.9;
+const hiddenSeconds = 10;
 let ctx: CanvasRenderingContext2D | undefined;
 let frame = 0;
 let lastTime = performance.now();
@@ -76,7 +80,6 @@ function cloudPoint(cloud: Cloud) {
 }
 
 function desiredCloudCount() {
-  if (window.innerWidth < 720) return 4;
   return 6;
 }
 
@@ -210,9 +213,14 @@ function updateCloud(cloud: Cloud, delta: number, now: number) {
 
   if (cloud.phase === "clearing") {
     cloud.openness += (1 - cloud.openness) * Math.min(1, delta * 1.6);
-    if (cloud.phaseAge >= clearSeconds && session.status === "running" && session.step < session.maxSteps) resetCloud(cloud);
+    if (cloud.phaseAge >= clearSeconds) {
+      cloud.phase = "hidden";
+      cloud.phaseAge = 0;
+    }
     return;
   }
+
+  if (cloud.phase === "hidden") return;
 
   const influence = gazeInfluence(cloud);
   const targetOpen = Math.max(influence, cloud.dwellProgress * 0.85);
@@ -239,21 +247,28 @@ function updateCloud(cloud: Cloud, delta: number, now: number) {
 
 function updateClouds(delta: number, now: number) {
   for (const cloud of clouds) updateCloud(cloud, delta, now);
+  if (session.status === "running" && clouds.length > 0 && clouds.every((cloud) => cloud.phase === "hidden")) {
+    finishSession("game-complete");
+    return;
+  }
+  for (const cloud of clouds) {
+    if (cloud.phase === "hidden" && cloud.phaseAge >= hiddenSeconds && session.status === "running") resetCloud(cloud);
+  }
 }
 
 function drawBackground(context: CanvasRenderingContext2D, now: number) {
   const sky = context.createLinearGradient(0, 0, 0, window.innerHeight);
-  sky.addColorStop(0, "#cfeeff");
-  sky.addColorStop(0.54, "#edf7ff");
-  sky.addColorStop(1, "#f8f4e8");
+  sky.addColorStop(0, "#7fb5d5");
+  sky.addColorStop(0.54, "#9ac6dc");
+  sky.addColorStop(1, "#bfc7b6");
   context.fillStyle = sky;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
   const sunX = window.innerWidth * 0.78 + Math.sin(now * 0.00008) * 18;
   const sunY = window.innerHeight * 0.22;
   const glow = context.createRadialGradient(sunX, sunY, 0, sunX, sunY, Math.max(window.innerWidth, window.innerHeight) * 0.42);
-  glow.addColorStop(0, "rgb(255 246 205 / 38%)");
-  glow.addColorStop(0.36, "rgb(255 246 205 / 16%)");
+  glow.addColorStop(0, "rgb(255 233 170 / 24%)");
+  glow.addColorStop(0.36, "rgb(255 233 170 / 10%)");
   glow.addColorStop(1, "rgb(255 246 205 / 0%)");
   context.fillStyle = glow;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
@@ -273,6 +288,7 @@ function drawProgress(context: CanvasRenderingContext2D, cloud: Cloud, point: Po
 }
 
 function drawCloud(context: CanvasRenderingContext2D, cloud: Cloud) {
+  if (cloud.phase === "hidden") return;
   const point = cloudPoint(cloud);
   const clearing = cloud.phase === "clearing" ? Math.min(1, cloud.phaseAge / clearSeconds) : 0;
   const alpha = 0.9 * (1 - clearing);
@@ -337,6 +353,8 @@ function tick(now: number) {
   const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
 
+  setCloudsPianoActive(session.settings.sound, session.status === "running");
+  tickCloudsPiano(session.settings.sound);
   if (session.status === "running") updateClouds(delta, now);
   if (ctx) draw(ctx, now);
   frame = requestAnimationFrame(tick);
@@ -351,6 +369,7 @@ onMounted(async () => {
   await nextTick();
   resizeCanvas();
   initClouds();
+  warmCloudsPiano(session.settings.sound);
   window.addEventListener("resize", resizeCanvas);
   lastTime = performance.now();
   frame = requestAnimationFrame(tick);
@@ -359,20 +378,21 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener("resize", resizeCanvas);
   cancelAnimationFrame(frame);
+  disposeCloudsPiano();
 });
 </script>
 
 <template>
   <div class="clouds-shell">
     <canvas ref="canvasRef" class="clouds-canvas" />
-    <GameHud title="Облака" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud title="Облака" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
     <GameResultDialog :model-value="resultVisible" title="Облака" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
   </div>
 </template>
 
 <style scoped>
 .clouds-shell {
-  background: #cfeeff;
+  background: #7fb5d5;
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;

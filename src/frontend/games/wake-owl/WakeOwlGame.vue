@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import type { CSSProperties } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
@@ -7,6 +7,20 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeWakeOwlAudio, playWakeOwlHoot, warmWakeOwlAudio } from "./audio";
+
+type OwlPosition = {
+  x: number;
+  y: number;
+};
+
+const owlPositions: OwlPosition[] = [
+  { x: 50, y: 62 },
+  { x: 27, y: 58 },
+  { x: 73, y: 58 },
+  { x: 36, y: 42 },
+  { x: 64, y: 42 }
+];
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("wake-owl", {
@@ -18,14 +32,22 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   motionSpeed: 0.32,
   distractors: "none",
   hints: "high",
-  sound: false
+  sound: true
 }, {
   finishOnMistakes: false
 });
 
 const blinking = ref(false);
+const owlPositionIndex = ref(0);
 const resultVisible = computed(() => session.status === "finished");
 const awakeRatio = computed(() => Math.min(1, session.step / session.maxSteps));
+const owlTargetStyle = computed(() => {
+  const position = owlPositions[owlPositionIndex.value] ?? owlPositions[0];
+  return {
+    "--owl-x": `${position.x}%`,
+    "--owl-y": `${position.y}%`
+  } as CSSProperties;
+});
 const owlStateText = computed(() => {
   if (session.status === "paused") return "Сова спокойно ждёт паузу.";
   if (session.step >= session.maxSteps) return "Сова проснулась и тихо смотрит вокруг.";
@@ -35,6 +57,7 @@ const owlStateText = computed(() => {
 });
 
 let blinkTimer: number | undefined;
+let moveTimer: number | undefined;
 
 function eyeOpenValue(active: boolean, progress: number) {
   const activeBoost = active ? progress * 0.72 : 0;
@@ -54,21 +77,36 @@ function owlStyle(active: boolean, progress: number) {
 function wakeOwl() {
   if (session.status !== "running") return;
   recordSuccess({ targetId: "wake-owl:owl", label: "большая сова" });
+  void playWakeOwlHoot(session.settings.sound);
   blinking.value = true;
   window.clearTimeout(blinkTimer);
   blinkTimer = window.setTimeout(() => {
     blinking.value = false;
   }, 520);
+  window.clearTimeout(moveTimer);
+  if (session.step < session.maxSteps) {
+    moveTimer = window.setTimeout(() => {
+      owlPositionIndex.value = (owlPositionIndex.value + 1 + session.step % 2) % owlPositions.length;
+    }, 720);
+  }
 }
 
 function restart() {
   blinking.value = false;
+  owlPositionIndex.value = 0;
   window.clearTimeout(blinkTimer);
+  window.clearTimeout(moveTimer);
   startSession();
 }
 
+onMounted(() => {
+  warmWakeOwlAudio(session.settings.sound);
+});
+
 onUnmounted(() => {
   window.clearTimeout(blinkTimer);
+  window.clearTimeout(moveTimer);
+  disposeWakeOwlAudio();
 });
 </script>
 
@@ -94,21 +132,21 @@ onUnmounted(() => {
       @resume="resumeSession"
     />
 
-    <v-container class="wake-owl-container d-flex align-center justify-center" fluid>
-      <v-card class="wake-owl-scene pa-4 pa-sm-6 pa-md-8" color="transparent" elevation="0">
-        <div class="text-center mb-5 wake-owl-copy">
-          <div class="text-overline text-blue-lighten-4">мягкая фиксация взглядом</div>
-          <h1 class="text-h4 text-sm-h3 font-weight-bold">Разбуди сонную сову</h1>
-          <p class="text-body-1 text-sm-h6 text-blue-grey-lighten-4 mb-0">Удерживай взгляд на сове. Здесь нет ошибок.</p>
-        </div>
+    <section class="wake-owl-playfield" aria-label="Игровая область: разбуди сову">
+      <v-card class="wake-owl-copy-card px-4 py-3 text-center" color="transparent" elevation="0">
+        <div class="text-overline text-blue-lighten-4">фиксация взглядом</div>
+        <h1 class="text-h4 text-sm-h3 font-weight-bold">Разбуди сонную сову</h1>
+        <p class="text-body-1 text-sm-h6 text-blue-grey-lighten-4 mb-0">Удерживай взгляд на сове. Здесь нет ошибок.</p>
+      </v-card>
 
+      <div class="wake-owl-target-zone" :style="owlTargetStyle">
         <GameDwellButton
           target-id="wake-owl:owl"
           :dwell-ms="session.settings.dwellMs"
           :disabled="session.status !== 'running'"
-          :min-height="360"
+          :min-height="320"
           color="transparent"
-          class="wake-owl-target mx-auto"
+          class="wake-owl-target"
           @select="wakeOwl"
         >
           <template #default="{ active, progress }">
@@ -137,13 +175,13 @@ onUnmounted(() => {
             </div>
           </template>
         </GameDwellButton>
+      </div>
 
-        <v-card class="wake-owl-progress mt-5 mx-auto px-4 py-3" color="surface" rounded="xl" variant="tonal">
-          <div class="text-body-2 font-weight-medium">Пробуждение: {{ session.step }} из {{ session.maxSteps }}</div>
-          <div class="text-caption text-medium-emphasis">{{ owlStateText }}</div>
-        </v-card>
+      <v-card class="wake-owl-progress px-4 py-3" color="surface" rounded="xl" variant="tonal">
+        <div class="text-body-2 font-weight-medium">Пробуждение: {{ session.step }} из {{ session.maxSteps }}</div>
+        <div class="text-caption text-medium-emphasis">{{ owlStateText }}</div>
       </v-card>
-    </v-container>
+    </section>
 
     <GameResultDialog
       :model-value="resultVisible"
@@ -173,20 +211,22 @@ onUnmounted(() => {
   position: absolute;
 }
 
-.wake-owl-container {
-  min-block-size: 100vh;
-  padding-block-start: 112px;
-}
-
-.wake-owl-scene {
-  inline-size: min(920px, 100%);
-  position: relative;
+.wake-owl-playfield {
+  block-size: 100vh;
+  inset: 0;
+  padding: clamp(110px, 13vh, 148px) clamp(40px, 5vw, 92px) clamp(104px, 13vh, 136px);
+  position: absolute;
   z-index: 1;
 }
 
-.wake-owl-copy {
+.wake-owl-copy-card {
   color: #f5f8ff;
+  inset-block-start: clamp(102px, 11vh, 132px);
+  inset-inline: clamp(22px, 7vw, 160px);
+  pointer-events: none;
+  position: absolute;
   text-shadow: 0 2px 18px rgb(6 11 28 / 52%);
+  z-index: 2;
 }
 
 .wake-owl-moon {
@@ -226,8 +266,20 @@ onUnmounted(() => {
   transform: scale(0.58);
 }
 
+.wake-owl-target-zone {
+  --owl-x: 50%;
+  --owl-y: 62%;
+  inline-size: clamp(320px, 29vw, 500px);
+  inset-block-start: var(--owl-y);
+  inset-inline-start: var(--owl-x);
+  position: absolute;
+  transform: translate(-50%, -50%);
+  transition: inset-block-start 620ms ease, inset-inline-start 620ms ease;
+  z-index: 2;
+}
+
 .wake-owl-target {
-  inline-size: min(620px, 100%);
+  inline-size: 100%;
 }
 
 .wake-owl-target :deep(.dwell-button) {
@@ -246,8 +298,8 @@ onUnmounted(() => {
   border-radius: 48% 48% 42% 42%;
   box-shadow: inset 0 -26px 56px rgb(42 26 22 / 34%), 0 34px 90px rgb(5 10 25 / 44%);
   margin-inline: auto;
-  max-inline-size: 520px;
-  min-inline-size: min(76vw, 320px);
+  max-inline-size: 100%;
+  min-inline-size: 100%;
   position: relative;
   transition: filter 220ms ease, transform 220ms ease;
 }
@@ -365,7 +417,12 @@ onUnmounted(() => {
 }
 
 .wake-owl-progress {
+  inset-block-end: max(24px, env(safe-area-inset-bottom));
+  inset-inline: clamp(22px, 28vw, 520px);
   inline-size: min(520px, 100%);
+  margin-inline: auto;
+  position: absolute;
+  z-index: 3;
 }
 
 @keyframes wake-owl-slow-blink {
@@ -399,12 +456,21 @@ onUnmounted(() => {
 }
 
 @media (max-width: 600px) {
-  .wake-owl-container {
-    padding-block-start: 104px;
+  .wake-owl-playfield {
+    padding: 120px 18px 116px;
   }
 
-  .wake-owl-target {
-    inline-size: min(100%, 420px);
+  .wake-owl-copy-card {
+    inset-block-start: 96px;
+    inset-inline: 14px;
+  }
+
+  .wake-owl-target-zone {
+    inline-size: min(74vw, 330px);
+  }
+
+  .wake-owl-progress {
+    inset-inline: 16px;
   }
 }
 </style>
