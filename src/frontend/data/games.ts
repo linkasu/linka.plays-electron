@@ -8,12 +8,14 @@ export type GameInfo = {
   icon: string;
   skills: GameSkill[];
   status: GameStatus;
+  tags?: GameTag[];
   recommendedSessionSeconds: number;
   minTargetSizePx: number;
   defaultDwellMs: number;
 };
 
 export type GameStatus = "planned" | "mvp" | "therapy-ready" | "polished";
+export type GameTag = "hidden-from-menu";
 
 export const gameCategoryOrder = [
   "gaze-basics",
@@ -214,6 +216,7 @@ export const games: GameInfo[] = [
     icon: "mdi-leaf",
     skills: ["smooth-pursuit", "attention-shift"],
     status: "therapy-ready",
+    tags: ["hidden-from-menu"],
     recommendedSessionSeconds: 80,
     minTargetSizePx: 180,
     defaultDwellMs: 1500
@@ -227,7 +230,7 @@ export const games: GameInfo[] = [
     category: "gaze-basics",
     icon: "mdi-kite",
     skills: ["fixation", "smooth-pursuit"],
-    status: "therapy-ready",
+    status: "polished",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 190,
     defaultDwellMs: 1450
@@ -241,7 +244,7 @@ export const games: GameInfo[] = [
     category: "gaze-basics",
     icon: "mdi-lightbulb-night",
     skills: ["fixation", "attention-shift"],
-    status: "therapy-ready",
+    status: "polished",
     recommendedSessionSeconds: 75,
     minTargetSizePx: 180,
     defaultDwellMs: 1350
@@ -2482,7 +2485,7 @@ export function groupGamesByCategory(inputGames: GameInfo[] = games) {
       description: gameCategoryDescriptions[category],
       selfLabel: selfMenuCategoryLabels[category],
       selfDescription: selfMenuCategoryDescriptions[category],
-      games: inputGames.filter((game) => game.category === category)
+      games: inputGames.filter((game) => game.category === category && !game.tags?.includes("hidden-from-menu"))
     }))
     .filter((group) => group.games.length > 0);
 }

@@ -6,6 +6,7 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
 import { useGameSession } from "../../core/session";
+import { disposeFireflyMeadowPiano, playFireflyIgniteCue, setFireflyMeadowPianoActive, tickFireflyMeadowPiano, warmFireflyMeadowPiano } from "./audio";
 
 type Point = { x: number; y: number };
 type FireflyPhase = "arriving" | "waiting" | "gazing" | "lit";
@@ -40,7 +41,8 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   targetScale: 1.55,
   motionSpeed: 0.45,
   distractors: "none",
-  hints: "high"
+  hints: "high",
+  sound: true
 }, {
   finishOnMaxSteps: false
 });
@@ -161,6 +163,7 @@ function ensureFireflies() {
 function igniteFirefly(firefly: Firefly, now: number) {
   recordEvent("target-click", targetPayload(firefly, now, 1));
   recordSuccess({ targetId: firefly.id, hue: firefly.hue });
+  playFireflyIgniteCue(session.settings.sound);
   firefly.phase = "lit";
   firefly.phaseAge = 0;
   firefly.dwellProgress = 1;
@@ -332,6 +335,8 @@ function tick(now: number) {
   const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
 
+  setFireflyMeadowPianoActive(session.settings.sound, session.status === "running");
+  tickFireflyMeadowPiano(session.settings.sound);
   if (session.status === "running") updateFireflies(delta, now);
 
   if (ctx) draw(ctx);
@@ -349,6 +354,7 @@ function restart() {
 onMounted(async () => {
   await nextTick();
   resizeCanvas();
+  warmFireflyMeadowPiano(session.settings.sound);
   window.addEventListener("resize", resizeCanvas);
   fireflies.push(createFirefly(true));
   lastTime = performance.now();
@@ -358,6 +364,7 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener("resize", resizeCanvas);
   cancelAnimationFrame(frame);
+  disposeFireflyMeadowPiano();
 });
 </script>
 
