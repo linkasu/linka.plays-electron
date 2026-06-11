@@ -6,6 +6,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeSnowflakesPiano, playSnowflakeCue, setSnowflakesPianoActive, tickSnowflakesPiano, warmSnowflakesPiano } from "./audio";
 
 type Point = { x: number; y: number };
 type SnowflakePhase = "falling" | "melting" | "melted";
@@ -42,7 +43,8 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   targetScale: 1.55,
   motionSpeed: 0.32,
   distractors: "none",
-  hints: "high"
+  hints: "high",
+  sound: true
 }, {
   finishOnMaxSteps: false,
   finishOnMistakes: false
@@ -212,6 +214,7 @@ function cancelSnowflake(flake: Snowflake, now: number, reason: "left" | "invali
 function meltSnowflake(flake: Snowflake, now: number) {
   recordEvent("target-click", targetPayload(flake, now, 1));
   recordSuccess({ targetId: flake.id, mode: "snowflake-melt" });
+  playSnowflakeCue(session.settings.sound);
   addGazeGlow(flake.x, flake.y, gazeRadius(flake) * 0.72, flake.hue);
   flake.phase = "melted";
   flake.phaseAge = 0;
@@ -405,7 +408,9 @@ function tick(now: number) {
     addPointerGlow(now);
     updateSnowflakes(delta, now);
     updateGlows(delta);
+    tickSnowflakesPiano(session.settings.sound);
   }
+  setSnowflakesPianoActive(session.settings.sound, session.status === "running");
 
   if (ctx) draw(ctx, now);
   frame = requestAnimationFrame(tick);
@@ -422,6 +427,7 @@ function restart() {
 onMounted(async () => {
   await nextTick();
   resizeCanvas();
+  warmSnowflakesPiano(session.settings.sound);
   window.addEventListener("resize", resizeCanvas);
   lastTime = performance.now();
   frame = requestAnimationFrame(tick);
@@ -430,17 +436,13 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener("resize", resizeCanvas);
   cancelAnimationFrame(frame);
+  disposeSnowflakesPiano();
 });
 </script>
 
 <template>
   <div class="snowflakes-shell">
     <canvas ref="canvasRef" class="snowflakes-canvas" />
-
-    <v-card class="snowflakes-hint px-4 py-3" color="surface" rounded="xl" variant="tonal">
-      <div class="text-body-2 font-weight-medium">Смотри спокойно: снежинки светятся и тают рядом со взглядом.</div>
-      <div class="text-caption text-medium-emphasis">Здесь нет ошибок и спешки, только мягкое следование.</div>
-    </v-card>
 
     <GameHud
       title="Снежинки"
@@ -484,13 +486,4 @@ onUnmounted(() => {
   position: absolute;
 }
 
-.snowflakes-hint {
-  inset-block-end: max(18px, env(safe-area-inset-bottom));
-  inset-inline: 18px;
-  margin-inline: auto;
-  max-inline-size: 560px;
-  opacity: 0.76;
-  position: absolute;
-  z-index: 3;
-}
 </style>

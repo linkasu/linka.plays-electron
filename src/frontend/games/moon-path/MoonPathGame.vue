@@ -6,6 +6,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeMoonPathPiano, playMoonPathCue, setMoonPathPianoActive, tickMoonPathPiano, warmMoonPathPiano } from "./audio";
 
 type Point = { x: number; y: number };
 type Star = Point & {
@@ -39,7 +40,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   motionSpeed: 0.42,
   distractors: "none",
   hints: "high",
-  sound: false
+  sound: true
 }, {
   finishOnMaxSteps: false,
   finishOnMistakes: false
@@ -156,7 +157,14 @@ function recordPathStep(now: number) {
     pointer: copyPointer()
   });
   recordSuccess({ targetId, mode: "ambient-moon-path" });
+  playMoonPathCue(session.settings.sound);
   activeSegmentStartedAt = now;
+}
+
+function clipToWater(context: CanvasRenderingContext2D) {
+  context.beginPath();
+  context.rect(0, waterTop() + 1, window.innerWidth, window.innerHeight - waterTop() - 1);
+  context.clip();
 }
 
 function startIllumination(now: number) {
@@ -282,6 +290,7 @@ function drawMoon(context: CanvasRenderingContext2D) {
 
 function drawWaterLines(context: CanvasRenderingContext2D, now: number) {
   context.save();
+  clipToWater(context);
   context.lineCap = "round";
   for (const line of waterLines) {
     context.globalAlpha = line.alpha;
@@ -302,6 +311,7 @@ function drawWaterLines(context: CanvasRenderingContext2D, now: number) {
 
 function drawMoonPath(context: CanvasRenderingContext2D, now: number) {
   context.save();
+  clipToWater(context);
   context.globalCompositeOperation = "lighter";
   context.lineCap = "round";
 
@@ -347,6 +357,7 @@ function drawGlow(context: CanvasRenderingContext2D, glow: MoonGlow) {
   gradient.addColorStop(1, "rgba(176, 207, 255, 0)");
 
   context.save();
+  clipToWater(context);
   context.globalCompositeOperation = "lighter";
   context.fillStyle = gradient;
   context.beginPath();
@@ -372,6 +383,7 @@ function drawGazeHighlight(context: CanvasRenderingContext2D, now: number) {
   gradient.addColorStop(1, "rgb(194 218 255 / 0%)");
 
   context.save();
+  clipToWater(context);
   context.globalCompositeOperation = "lighter";
   context.fillStyle = gradient;
   context.beginPath();
@@ -391,6 +403,7 @@ function drawGuideSpark(context: CanvasRenderingContext2D, now: number) {
   gradient.addColorStop(1, "rgb(241 248 255 / 0%)");
 
   context.save();
+  clipToWater(context);
   context.globalCompositeOperation = "lighter";
   context.fillStyle = gradient;
   context.beginPath();
@@ -415,7 +428,9 @@ function tick(now: number) {
   if (session.status === "running") {
     updateIllumination(delta, now);
     updateGlows(delta);
+    tickMoonPathPiano(session.settings.sound);
   }
+  setMoonPathPianoActive(session.settings.sound, session.status === "running");
 
   if (ctx) draw(ctx, now);
   frame = requestAnimationFrame(tick);
@@ -434,6 +449,7 @@ function restart() {
 onMounted(async () => {
   await nextTick();
   resizeCanvas();
+  warmMoonPathPiano(session.settings.sound);
   window.addEventListener("resize", resizeCanvas);
   lastTime = performance.now();
   frame = requestAnimationFrame(tick);
@@ -442,17 +458,13 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener("resize", resizeCanvas);
   cancelAnimationFrame(frame);
+  disposeMoonPathPiano();
 });
 </script>
 
 <template>
   <div class="moon-path-shell">
     <canvas ref="canvasRef" class="moon-path-canvas" />
-
-    <v-card class="moon-path-hint px-4 py-3" color="surface" rounded="xl" variant="tonal">
-      <div class="text-body-2 font-weight-medium">Веди взглядом по воде: лунная дорожка будет мягко светиться.</div>
-      <div class="text-caption text-medium-emphasis">Можно смотреть в своём темпе, ошибок здесь нет.</div>
-    </v-card>
 
     <GameHud
       title="Лунная дорожка"
@@ -496,13 +508,4 @@ onUnmounted(() => {
   position: absolute;
 }
 
-.moon-path-hint {
-  inset-block-end: max(18px, env(safe-area-inset-bottom));
-  inset-inline: 18px;
-  margin-inline: auto;
-  max-inline-size: 560px;
-  opacity: 0.74;
-  position: absolute;
-  z-index: 3;
-}
 </style>

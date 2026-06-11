@@ -73,7 +73,6 @@ import IWantGame from "../games/i-want/IWantGame.vue";
 import IslandGame from "../games/island/IslandGame.vue";
 import JellyfishGame from "../games/jellyfish/JellyfishGame.vue";
 import KiteGame from "../games/kite/KiteGame.vue";
-import KoiPondGame from "../games/koi-pond/KoiPondGame.vue";
 import LeavesWindGame from "../games/leaves-wind/LeavesWindGame.vue";
 import LetterHuntGame from "../games/letter-hunt/LetterHuntGame.vue";
 import LighthouseGame from "../games/lighthouse/LighthouseGame.vue";
@@ -276,7 +275,6 @@ export default createRouter({
     { path: "/games/orchestra", name: "orchestra", component: OrchestraGame },
     { path: "/games/fishes", name: "fishes", component: FishesGame },
     { path: "/games/jellyfish", name: "jellyfish", component: JellyfishGame },
-    { path: "/games/koi-pond", name: "koi-pond", component: KoiPondGame },
     { path: "/games/hide-and-seek", name: "hide-and-seek", component: HideAndSeekGame },
     { path: "/games/hidden-picture", name: "hidden-picture", component: HiddenPictureGame },
     { path: "/games/who-hiding", name: "who-hiding", component: WhoHidingGame },
