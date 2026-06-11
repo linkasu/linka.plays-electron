@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeCatchLightPiano, playCatchLightCue, setCatchLightPianoActive, tickCatchLightPiano, warmCatchLightPiano } from "./audio";
 
 type LightZone = {
   id: string;
@@ -28,7 +29,8 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   targetScale: 1.6,
   motionSpeed: 0.36,
   distractors: "none",
-  hints: "high"
+  hints: "high",
+  sound: true
 }, {
   finishOnMistakes: false
 });
@@ -55,7 +57,6 @@ const targetStyle = computed(() => ({
   insetBlockStart: `${activeZone.value.y}%`
 }));
 const targetTone = computed(() => `hsl(${activeZone.value.hue} 100% 72%)`);
-const prompt = computed(() => session.status === "paused" ? "Пауза. Свет подождёт." : "Удержи взгляд на светлом круге, и он плавно переедет дальше.");
 
 function pickNextZone() {
   const current = zoneIndex.value;
@@ -72,6 +73,7 @@ function catchLight() {
   if (trail.length > 5) trail.shift();
 
   recordSuccess({ targetId: targetId.value, zone: litZone.id, label: litZone.label });
+  playCatchLightCue(session.settings.sound);
   if (nextStep < session.maxSteps) pickNextZone();
 }
 
@@ -80,12 +82,23 @@ function restart() {
   trail.splice(0);
   startSession();
 }
+
+onMounted(() => {
+  warmCatchLightPiano(session.settings.sound);
+  setCatchLightPianoActive(session.settings.sound, session.status === "running");
+});
+
+watch(() => session.status, (status) => {
+  setCatchLightPianoActive(session.settings.sound, status === "running");
+});
+
+onUnmounted(() => {
+  disposeCatchLightPiano();
+});
 </script>
 
 <template>
   <div class="catch-light-shell">
-    <div class="catch-light-glow" aria-hidden="true" />
-
     <GameHud
       title="Поймай свет"
       :step="session.step"
@@ -98,14 +111,6 @@ function restart() {
       @pause="pauseSession"
       @resume="resumeSession"
     />
-
-    <v-container class="catch-light-container d-flex align-start justify-center" fluid>
-      <v-card class="catch-light-card pa-4 pa-sm-6" color="surface" elevation="8" rounded="xl">
-        <div class="text-overline text-amber-darken-2">first target gaze</div>
-        <h1 class="text-h4 text-sm-h3 font-weight-bold">Поймай свет</h1>
-        <p class="text-body-1 text-sm-h6 text-medium-emphasis mb-0">{{ prompt }}</p>
-      </v-card>
-    </v-container>
 
     <div class="catch-light-stage" role="group" aria-label="Световая цель игры Поймай свет">
       <div
@@ -133,8 +138,6 @@ function restart() {
             :style="{ '--light-color': targetTone, '--light-progress': active ? progress : 0 }"
           >
             <v-icon icon="mdi-brightness-5" class="catch-light-icon" />
-            <div class="text-subtitle-1 text-sm-h6 font-weight-bold">Свет</div>
-            <div class="text-caption text-medium-emphasis">{{ active ? 'Ещё чуть-чуть' : 'Смотри спокойно' }}</div>
           </div>
         </template>
       </GameDwellButton>
@@ -156,34 +159,10 @@ function restart() {
 
 <style scoped>
 .catch-light-shell {
-  background: linear-gradient(180deg, #10233f 0%, #183c58 50%, #2d4f5f 100%);
+  background: #080f19;
   min-block-size: 100vh;
   overflow: hidden;
   position: relative;
-}
-
-.catch-light-glow {
-  background: radial-gradient(circle at 20% 24%, rgb(255 224 151 / 24%), transparent 32%),
-    radial-gradient(circle at 82% 34%, rgb(146 217 255 / 20%), transparent 34%),
-    radial-gradient(circle at 50% 100%, rgb(255 214 111 / 18%), transparent 42%);
-  inset: 0;
-  pointer-events: none;
-  position: absolute;
-}
-
-.catch-light-container {
-  min-block-size: 100vh;
-  padding-block-start: 116px;
-  pointer-events: none;
-}
-
-.catch-light-card {
-  inline-size: min(680px, 92vw);
-  opacity: 0.92;
-  pointer-events: none;
-  position: relative;
-  text-align: center;
-  z-index: 1;
 }
 
 .catch-light-stage {
@@ -206,10 +185,8 @@ function restart() {
   color: #263238;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
   justify-content: center;
   position: relative;
-  text-shadow: 0 1px 16px rgb(255 255 255 / 68%);
 }
 
 .catch-light-orb::before {
@@ -245,11 +222,5 @@ function restart() {
   opacity: 0.5;
   position: absolute;
   transform: translate(-50%, -50%);
-}
-
-@media (max-width: 700px) {
-  .catch-light-card {
-    margin-block-start: auto;
-  }
 }
 </style>

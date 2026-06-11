@@ -258,7 +258,7 @@ export const games: GameInfo[] = [
     category: "gaze-basics",
     icon: "mdi-brightness-5",
     skills: ["fixation", "attention-shift"],
-    status: "therapy-ready",
+    status: "polished",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
