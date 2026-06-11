@@ -7,6 +7,7 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
 import { useGameSession } from "../../core/session";
+import { disposeSeaShellsPiano, playSeaShellsCue, setSeaShellsPianoActive, tickSeaShellsPiano, warmSeaShellsPiano } from "./audio";
 
 type Point = { x: number; y: number };
 type ShellPhase = "settling" | "closed" | "opening" | "glowing";
@@ -39,7 +40,8 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   targetScale: 1.62,
   motionSpeed: 0.34,
   distractors: "none",
-  hints: "high"
+  hints: "high",
+  sound: true
 }, {
   finishOnMaxSteps: false,
   finishOnMistakes: false
@@ -89,24 +91,52 @@ function desiredShellCount() {
   return window.innerWidth < 760 ? 2 : 3;
 }
 
-function chooseShellPoint(radius: number, first: boolean) {
-  if (first) return { x: 50, y: 66 };
+function shellPixelPoint(point: Point) {
+  return percentToPixels(point);
+}
 
-  return randomTargetCenterPercent({
-    targetWidth: radius * 2.2,
-    targetHeight: radius * 1.7,
-    hudHeight: Math.max(118, window.innerHeight * 0.18),
-    sidePadding: Math.max(72, window.innerWidth * 0.1),
-    bottomPadding: Math.max(70, window.innerHeight * 0.08),
-    previous: previousShellPoint,
-    minDistance: Math.min(320, Math.max(180, radius * 1.65)),
-    attempts: 24
+function shellOverlaps(point: Point, radius: number, ignoredId?: string) {
+  const pixelPoint = shellPixelPoint(point);
+  return shells.some((shell) => {
+    if (shell.id === ignoredId) return false;
+    const other = shellPixelPoint(shell);
+    return distance(pixelPoint, other) < Math.max(230, (radius + shell.radius) * 0.94);
   });
 }
 
-function createShell(first = false): SeaShell {
+function chooseShellPoint(radius: number, first: boolean, ignoredId?: string) {
+  if (first) return { x: 50, y: 66 };
+
+  let best: Point | undefined;
+  let bestGap = -1;
+  for (let attempt = 0; attempt < 36; attempt++) {
+    const candidate = randomTargetCenterPercent({
+      targetWidth: radius * 2.2,
+      targetHeight: radius * 1.7,
+      hudHeight: Math.max(118, window.innerHeight * 0.18),
+      sidePadding: Math.max(72, window.innerWidth * 0.1),
+      bottomPadding: Math.max(70, window.innerHeight * 0.08),
+      previous: previousShellPoint,
+      minDistance: Math.min(340, Math.max(210, radius * 1.78)),
+      attempts: 12
+    });
+    const candidatePixel = shellPixelPoint(candidate);
+    const gap = shells.reduce((minimum, shell) => {
+      if (shell.id === ignoredId) return minimum;
+      return Math.min(minimum, distance(candidatePixel, shellPixelPoint(shell)) - (radius + shell.radius) * 0.94);
+    }, Number.POSITIVE_INFINITY);
+    if (!best || gap > bestGap) {
+      best = candidate;
+      bestGap = gap;
+    }
+    if (!shellOverlaps(candidate, radius, ignoredId)) return candidate;
+  }
+  return best ?? { x: 50, y: 66 };
+}
+
+function createShell(first = false, ignoredId?: string): SeaShell {
   const radius = shellRadius() * randomRange(0.94, 1.06);
-  const point = chooseShellPoint(radius, first);
+  const point = chooseShellPoint(radius, first, ignoredId);
   previousShellPoint = point;
 
   return {
@@ -157,6 +187,7 @@ function targetPayload(shell: SeaShell, now: number, progress: number, reason?: 
 function openShell(shell: SeaShell, now: number) {
   recordEvent("target-click", targetPayload(shell, now, 1));
   recordSuccess({ targetId: shell.id, hue: shell.hue });
+  playSeaShellsCue(session.settings.sound);
   shell.phase = "glowing";
   shell.phaseAge = 0;
   shell.dwellProgress = 1;
@@ -214,7 +245,7 @@ function updateShellGaze(shell: SeaShell, now: number, gazeShell?: SeaShell) {
 }
 
 function resetShell(shell: SeaShell, index: number) {
-  const fresh = createShell(index === 0 && session.step === 0 && previousShellPoint === undefined);
+  const fresh = createShell(index === 0 && session.step === 0 && previousShellPoint === undefined, shell.id);
   Object.assign(shell, fresh);
   spawnIndex += 1;
 }
@@ -329,6 +360,7 @@ function drawShellHalf(context: CanvasRenderingContext2D, shell: SeaShell, point
   context.save();
   context.translate(point.x, y);
   context.rotate((upper ? -0.24 : 0.09) * open);
+  if (!upper) context.scale(1, -1);
   context.translate(-point.x, -y);
   const gradient = context.createRadialGradient(point.x - radius * 0.28, y - height * 0.28, radius * 0.08, point.x, y, radius * 1.12);
   gradient.addColorStop(0, `hsla(${shell.hue + 32}, 88%, 92%, 0.98)`);
@@ -351,12 +383,23 @@ function drawShellHalf(context: CanvasRenderingContext2D, shell: SeaShell, point
     context.stroke();
   }
 
-  context.strokeStyle = `hsla(${shell.hue + 34}, 86%, 92%, ${0.36 + open * 0.18})`;
-  context.lineWidth = Math.max(2, radius * 0.016);
-  context.beginPath();
-  context.arc(point.x, y + height * 0.18, radius * 0.84, Math.PI * 0.08, Math.PI * 0.92);
-  context.stroke();
   context.restore();
+}
+
+function drawPearl(context: CanvasRenderingContext2D, shell: SeaShell, point: Point, radius: number, openProgress: number, glow: number) {
+  if (openProgress <= 0.12) return;
+
+  const pearlX = point.x + shell.pearlOffset * radius;
+  const pearlY = point.y + radius * (0.2 - openProgress * 0.14);
+  const pearlRadius = radius * (0.16 + glow * 0.045);
+  const pearl = context.createRadialGradient(pearlX - pearlRadius * 0.32, pearlY - pearlRadius * 0.38, pearlRadius * 0.08, pearlX, pearlY, pearlRadius);
+  pearl.addColorStop(0, "rgb(255 255 250 / 100%)");
+  pearl.addColorStop(0.55, "rgb(236 245 255 / 96%)");
+  pearl.addColorStop(1, "rgb(180 202 232 / 82%)");
+  context.fillStyle = pearl;
+  context.beginPath();
+  context.arc(pearlX, pearlY, pearlRadius, 0, Math.PI * 2);
+  context.fill();
 }
 
 function drawShell(context: CanvasRenderingContext2D, shell: SeaShell) {
@@ -368,14 +411,15 @@ function drawShell(context: CanvasRenderingContext2D, shell: SeaShell) {
 
   context.save();
   context.globalAlpha = settle;
-  context.translate(point.x, point.y);
-  context.rotate(shell.tilt);
-  context.translate(-point.x, -point.y);
 
   context.fillStyle = "rgb(70 57 45 / 20%)";
   context.beginPath();
   context.ellipse(point.x, point.y + radius * 0.48, radius * 0.96, radius * 0.23, 0, 0, Math.PI * 2);
   context.fill();
+
+  context.translate(point.x, point.y);
+  context.rotate(shell.tilt);
+  context.translate(-point.x, -point.y);
 
   if (glow > 0.02) {
     const glowRadius = radius * (1.08 + glow * 1.32);
@@ -390,21 +434,7 @@ function drawShell(context: CanvasRenderingContext2D, shell: SeaShell) {
   }
 
   drawShellHalf(context, shell, point, radius, openProgress, false);
-
-  if (openProgress > 0.12) {
-    const pearlX = point.x + shell.pearlOffset * radius;
-    const pearlY = point.y + radius * (0.14 - openProgress * 0.18);
-    const pearlRadius = radius * (0.16 + glow * 0.045);
-    const pearl = context.createRadialGradient(pearlX - pearlRadius * 0.32, pearlY - pearlRadius * 0.38, pearlRadius * 0.08, pearlX, pearlY, pearlRadius);
-    pearl.addColorStop(0, "rgb(255 255 250 / 100%)");
-    pearl.addColorStop(0.55, "rgb(236 245 255 / 96%)");
-    pearl.addColorStop(1, "rgb(180 202 232 / 82%)");
-    context.fillStyle = pearl;
-    context.beginPath();
-    context.arc(pearlX, pearlY, pearlRadius, 0, Math.PI * 2);
-    context.fill();
-  }
-
+  drawPearl(context, shell, point, radius, openProgress, glow);
   drawShellHalf(context, shell, point, radius, openProgress, true);
 
   if (shell.phase === "opening") {
@@ -428,7 +458,11 @@ function tick(now: number) {
   const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
 
-  if (session.status === "running") updateShells(delta, now);
+  if (session.status === "running") {
+    updateShells(delta, now);
+    tickSeaShellsPiano(session.settings.sound);
+  }
+  setSeaShellsPianoActive(session.settings.sound, session.status === "running");
 
   if (ctx) draw(ctx, now);
   frame = requestAnimationFrame(tick);
@@ -444,6 +478,7 @@ onMounted(async () => {
   await nextTick();
   resizeCanvas();
   initShells();
+  warmSeaShellsPiano(session.settings.sound);
   window.addEventListener("resize", resizeCanvas);
   lastTime = performance.now();
   frame = requestAnimationFrame(tick);
@@ -452,6 +487,7 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener("resize", resizeCanvas);
   cancelAnimationFrame(frame);
+  disposeSeaShellsPiano();
 });
 </script>
 
@@ -463,11 +499,11 @@ onUnmounted(() => {
       title="Морские ракушки"
       :step="session.step"
       :max-steps="session.maxSteps"
-      :score="session.score"
-      :mistakes="session.mistakes"
       :duration-ms="durationMs"
       :session-seconds="session.settings.sessionSeconds"
       :paused="session.status === 'paused'"
+      :show-progress="false"
+      :show-timer="false"
       @pause="pauseSession"
       @resume="resumeSession"
     />
