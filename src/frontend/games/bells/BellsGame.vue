@@ -90,7 +90,7 @@ function selectBell(bell: BellDefinition) {
 
   selectedBellId.value = bell.id;
   recordSuccess({ roundId: round.value.roundId, targetId: bell.id, label: bell.label });
-  showFeedback("Колокольчик мягко звенит", 1000);
+  showFeedback("Колокольчик звенит", 1000);
 
   if (session.step < session.maxSteps) {
     window.clearTimeout(nextRoundTimer);
@@ -123,9 +123,9 @@ onUnmounted(() => {
       <v-row justify="center">
         <v-col cols="12" xl="10">
           <v-card class="bells-panel pa-4 pa-md-7" color="surface" rounded="xl" elevation="8">
-            <div class="text-overline text-primary text-center mb-2">Спокойный выбор взглядом</div>
+            <div class="text-overline text-primary text-center mb-2">Выбор взглядом</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">Найди {{ round.target.tone }} колокольчик</h1>
-            <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-6">Удержи взгляд на нужной карточке. Колокольчик качнётся и пустит мягкую волну.</p>
+            <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-6">Удержи взгляд на нужной карточке. Колокольчик качнётся и пустит волну.</p>
 
             <v-row class="bells-grid" justify="center">
               <v-col v-for="bell in round.cards" :key="`${round.roundId}-${bell.id}`" cols="12" sm="6" lg="3">
@@ -136,7 +136,7 @@ onUnmounted(() => {
                       <v-icon class="bell-icon mb-3" icon="mdi-bell-outline" />
                       <div class="text-h5 text-md-h4 font-weight-bold">{{ bell.label }}</div>
                       <div class="text-body-1 text-medium-emphasis mt-2">{{ bell.tone }} колокольчик</div>
-                      <div class="text-body-2 mt-4 bell-hint">{{ selectedBellId === bell.id ? "Мягкий звон" : active ? "Держи взгляд" : "Посмотри сюда" }}</div>
+                      <div class="text-body-2 mt-4 bell-hint">{{ selectedBellId === bell.id ? "Звон" : active ? "Держи взгляд" : "Посмотри сюда" }}</div>
                     </div>
                   </template>
                 </GameDwellButton>

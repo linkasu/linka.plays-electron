@@ -1,0 +1,30 @@
+[
+  {
+    "id": "high-five-hands.intro",
+    "game": "high-five-hands",
+    "text": "Посмотри на ладошку.",
+    "voice": "jane",
+    "path": "/audio/tts/high-five-hands/intro.mp3"
+  },
+  {
+    "id": "high-five-hands.warm-response",
+    "game": "high-five-hands",
+    "text": "Дай пять! Получилось.",
+    "voice": "jane",
+    "path": "/audio/tts/high-five-hands/warm-response.mp3"
+  },
+  {
+    "id": "high-five-hands.friend-response",
+    "game": "high-five-hands",
+    "text": "Спасибо за привет!",
+    "voice": "jane",
+    "path": "/audio/tts/high-five-hands/friend-response.mp3"
+  },
+  {
+    "id": "high-five-hands.next",
+    "game": "high-five-hands",
+    "text": "Ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/high-five-hands/next.mp3"
+  }
+]

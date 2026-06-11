@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -7,6 +7,8 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
+import ttsAssets from "../../data/ttsAssets.json";
 
 type HandDefinition = {
   id: string;
@@ -15,6 +17,7 @@ type HandDefinition = {
   color: string;
   accent: string;
   response: string;
+  ttsId: string;
 };
 
 type HighFiveRound = {
@@ -24,8 +27,8 @@ type HighFiveRound = {
 };
 
 const handDefinitions: HandDefinition[] = [
-  { id: "warm", label: "Тёплая ладошка", side: "right", color: "primary", accent: "#ffb38a", response: "Дай пять! Получилось мягко." },
-  { id: "friend", label: "Дружеская ладошка", side: "left", color: "secondary", accent: "#88c7ff", response: "Спасибо за привет!" }
+  { id: "warm", label: "Тёплая ладошка", side: "right", color: "primary", accent: "#ffb38a", response: "Дай пять! Получилось.", ttsId: "high-five-hands.warm-response" },
+  { id: "friend", label: "Дружеская ладошка", side: "left", color: "secondary", accent: "#88c7ff", response: "Спасибо за привет!", ttsId: "high-five-hands.friend-response" }
 ];
 
 const prompts = [
@@ -38,8 +41,11 @@ const prompts = [
 const router = useRouter();
 const selectedHandId = ref("");
 const feedbackText = ref("Посмотри на большую ладошку. Любой выбор хороший.");
+const highFiveTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.game === "high-five-hands");
+const nextRoundDelayMs = 2600;
 let feedbackTimer = 0;
 let nextRoundTimer = 0;
+let introTimer = 0;
 
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("high-five-hands", {
   preset: "gentle",
@@ -75,11 +81,16 @@ const { round, resultVisible, nextRound, restart: restartRound } = useRoundGame(
 
 const handMinHeight = computed(() => Math.round(280 * session.settings.targetScale));
 
+function ttsAsset(id: string) {
+  return highFiveTtsAssets.find((asset) => asset.id === id);
+}
+
 function selectHand(hand: HandDefinition) {
   if (session.status !== "running" || selectedHandId.value) return;
 
   selectedHandId.value = hand.id;
   feedbackText.value = hand.response;
+  playTtsAsset(session.settings.sound, ttsAsset(hand.ttsId));
   recordSuccess({
     roundId: round.value.roundId,
     targetId: `high-five-hands:${round.value.roundId}:${hand.id}`,
@@ -93,8 +104,9 @@ function selectHand(hand: HandDefinition) {
     nextRoundTimer = window.setTimeout(() => {
       selectedHandId.value = "";
       feedbackText.value = "Следующая ладошка ждёт спокойного приветствия.";
+      playTtsAsset(session.settings.sound, ttsAsset("high-five-hands.next"), 0.36);
       nextRound();
-    }, 1050);
+    }, nextRoundDelayMs);
   }
 
   window.clearTimeout(feedbackTimer);
@@ -108,12 +120,23 @@ function restart() {
   feedbackText.value = "Посмотри на большую ладошку. Любой выбор хороший.";
   window.clearTimeout(feedbackTimer);
   window.clearTimeout(nextRoundTimer);
+  window.clearTimeout(introTimer);
   restartRound();
+  playTtsAsset(session.settings.sound, ttsAsset("high-five-hands.intro"), 0.36);
 }
+
+onMounted(() => {
+  warmTtsAssets(session.settings.sound, highFiveTtsAssets);
+  introTimer = window.setTimeout(() => {
+    playTtsAsset(session.settings.sound, ttsAsset("high-five-hands.intro"), 0.36);
+  }, 450);
+});
 
 onUnmounted(() => {
   window.clearTimeout(feedbackTimer);
   window.clearTimeout(nextRoundTimer);
+  window.clearTimeout(introTimer);
+  disposeTtsAssets(highFiveTtsAssets);
 });
 </script>
 

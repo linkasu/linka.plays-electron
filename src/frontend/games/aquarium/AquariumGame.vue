@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive } from "vue";
+import { computed, onMounted, onUnmounted, reactive } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
@@ -7,6 +7,7 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeAquariumAudio, playAquariumMelody, resetAquariumAudioSession, warmAquariumAudio } from "./audio";
 
 type Point = { x: number; y: number };
 type AquariumFish = Point & {
@@ -35,6 +36,12 @@ type AirBubble = Point & {
   radius: number;
   speed: number;
 };
+type ActivationBurst = Point & {
+  age: number;
+  life: number;
+  radius: number;
+  hue: number;
+};
 
 const router = useRouter();
 const { pointer } = useGazePointer();
@@ -55,6 +62,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 const fishes = reactive<AquariumFish[]>([]);
 const food = reactive<FoodCrumb[]>([]);
 const bubbles = reactive<AirBubble[]>([]);
+const bursts = reactive<ActivationBurst[]>([]);
 const resultVisible = computed(() => session.status === "finished");
 
 const fishHues = [24, 42, 178, 204, 286];
@@ -113,7 +121,9 @@ function initAquarium() {
   fishes.splice(0);
   food.splice(0);
   bubbles.splice(0);
+  bursts.splice(0);
   ambientBubbleTimer = 0;
+  resetAquariumAudioSession();
   for (let index = 0; index < fishCount(); index += 1) fishes.push(createFish(index));
 }
 
@@ -173,6 +183,18 @@ function addBubble(point?: Point) {
   if (bubbles.length > 46) bubbles.shift();
 }
 
+function addActivationBurst(fish: AquariumFish) {
+  bursts.push({
+    x: fish.x,
+    y: fish.y,
+    age: 0,
+    life: 1.6,
+    radius: fish.size * 0.86,
+    hue: fish.hue
+  });
+  if (bursts.length > 8) bursts.shift();
+}
+
 function closestGazeFish() {
   if (!pointer.value.valid || session.step >= session.maxSteps) return undefined;
 
@@ -198,8 +220,10 @@ function cancelFish(fish: AquariumFish, now: number, reason: "left" | "invalid-g
 
 function feedFish(fish: AquariumFish, now: number) {
   recordEvent("target-click", targetPayload(fish, now, 1));
-  addFood(fish, 10);
-  for (let index = 0; index < 4; index += 1) addBubble({ x: fish.x + randomRange(-28, 28), y: fish.y + randomRange(-22, 18) });
+  addFood(fish, 18);
+  addActivationBurst(fish);
+  void playAquariumMelody(session.settings.sound);
+  for (let index = 0; index < 9; index += 1) addBubble({ x: fish.x + randomRange(-36, 36), y: fish.y + randomRange(-28, 22) });
   fish.fedAge = 2.1;
   fish.enteredAt = undefined;
   fish.dwellProgress = 1;
@@ -230,12 +254,40 @@ function updateFishGaze(fish: AquariumFish, delta: number, now: number, gazeFish
   if (fish.dwellProgress >= 1) feedFish(fish, now);
 }
 
-function updateFishMovement(fish: AquariumFish, delta: number) {
+function separationPush(fish: AquariumFish) {
+  const push = { x: 0, y: 0 };
+  for (const other of fishes) {
+    if (other === fish) continue;
+    const dx = fish.x - other.x;
+    const dy = fish.y - other.y;
+    const nextDistance = Math.max(1, Math.hypot(dx, dy));
+    const minimumDistance = (fish.size + other.size) * 0.64;
+    if (nextDistance >= minimumDistance) continue;
+
+    const overlap = minimumDistance - nextDistance;
+    push.x += dx / nextDistance * overlap * 4.2;
+    push.y += dy / nextDistance * overlap * 3.1;
+  }
+  return push;
+}
+
+function gazeTargetForFish(fish: AquariumFish, index: number, gazeFish?: AquariumFish) {
+  if (!pointer.value.valid || session.status !== "running" || session.step >= session.maxSteps) return fish.wander;
+  if (gazeFish === fish) return pointer.value;
+
+  const angle = index * 2.399 + fish.age * 0.16;
+  return {
+    x: pointer.value.x + Math.cos(angle) * fish.size * 1.72,
+    y: pointer.value.y + Math.sin(angle) * fish.size * 1.08
+  };
+}
+
+function updateFishMovement(fish: AquariumFish, delta: number, index: number, gazeFish?: AquariumFish) {
   fish.age += delta;
   if (fish.fedAge > 0) fish.fedAge = Math.max(0, fish.fedAge - delta);
 
   const hasGaze = pointer.value.valid && session.status === "running" && session.step < session.maxSteps;
-  const target = hasGaze ? pointer.value : fish.wander;
+  const target = gazeTargetForFish(fish, index, gazeFish);
   if (!hasGaze && distance(fish, fish.wander) < fish.size * 0.72) fish.wander = safePoint(fish.size);
 
   const dx = target.x - fish.x;
@@ -243,8 +295,11 @@ function updateFishMovement(fish: AquariumFish, delta: number) {
   const angle = Math.atan2(dy, dx);
   const approach = Math.min(distance(fish, target), fish.speed * (hasGaze ? 0.42 : 0.24) * delta);
   const sway = Math.sin(fish.age * 1.7) * fish.size * 0.018 * delta;
+  const separate = separationPush(fish);
   fish.x += Math.cos(angle) * approach - Math.sin(angle) * sway;
   fish.y += Math.sin(angle) * approach + Math.cos(angle) * sway;
+  fish.x += separate.x * delta;
+  fish.y += separate.y * delta;
   fish.angle += (angle - fish.angle) * Math.min(1, delta * 1.65);
 
   const margin = fish.size * 0.7;
@@ -278,18 +333,28 @@ function updateBubbles(delta: number) {
   }
 }
 
+function updateBursts(delta: number) {
+  for (let index = bursts.length - 1; index >= 0; index -= 1) {
+    const burst = bursts[index];
+    burst.age += delta;
+    if (burst.age >= burst.life) bursts.splice(index, 1);
+  }
+}
+
 function updateAquarium(rawDelta: number, now: number) {
   const delta = session.status === "paused" ? 0 : rawDelta;
   if (session.status !== "running") return;
 
   ensureFish();
   const gazeFish = closestGazeFish();
-  for (const fish of fishes) {
-    updateFishMovement(fish, delta);
+  for (let index = 0; index < fishes.length; index += 1) {
+    const fish = fishes[index];
+    updateFishMovement(fish, delta, index, gazeFish);
     updateFishGaze(fish, delta, now, gazeFish);
   }
   updateFood(delta);
   updateBubbles(delta);
+  updateBursts(delta);
 }
 
 function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
@@ -361,6 +426,27 @@ function drawBubble(ctx: CanvasRenderingContext2D, bubble: AirBubble) {
   ctx.restore();
 }
 
+function drawActivationBurst(ctx: CanvasRenderingContext2D, burst: ActivationBurst) {
+  const progress = Math.min(1, burst.age / burst.life);
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  ctx.globalAlpha = (1 - progress) * 0.78;
+  ctx.strokeStyle = `hsla(${burst.hue + 28}, 95%, 82%, 0.92)`;
+  ctx.lineWidth = Math.max(4, burst.radius * 0.075 * (1 - progress * 0.35));
+  ctx.beginPath();
+  ctx.arc(burst.x, burst.y, burst.radius * (0.34 + progress * 1.42), 0, Math.PI * 2);
+  ctx.stroke();
+
+  const glow = ctx.createRadialGradient(burst.x, burst.y, 0, burst.x, burst.y, burst.radius * (0.78 + progress * 0.9));
+  glow.addColorStop(0, `hsla(${burst.hue + 18}, 96%, 86%, ${0.46 * (1 - progress)})`);
+  glow.addColorStop(1, `hsla(${burst.hue + 18}, 96%, 70%, 0)`);
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(burst.x, burst.y, burst.radius * (0.78 + progress * 0.9), 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
 function drawFish(ctx: CanvasRenderingContext2D, fish: AquariumFish) {
   const focus = fish.dwellProgress;
   const fed = fish.fedAge > 0 ? fish.fedAge / 2.1 : 0;
@@ -421,6 +507,7 @@ function drawFish(ctx: CanvasRenderingContext2D, fish: AquariumFish) {
 function draw(ctx: CanvasRenderingContext2D, _delta: number, now: number) {
   drawBackground(ctx, now);
   for (const bubble of bubbles) drawBubble(ctx, bubble);
+  for (const burst of bursts) drawActivationBurst(ctx, burst);
   for (const crumb of food) drawFood(ctx, crumb);
   for (const fish of fishes) drawFish(ctx, fish);
 }
@@ -432,6 +519,11 @@ function restart() {
 
 onMounted(() => {
   initAquarium();
+  warmAquariumAudio(session.settings.sound);
+});
+
+onUnmounted(() => {
+  disposeAquariumAudio();
 });
 
 useGameLoop({ context, update: updateAquarium, draw });

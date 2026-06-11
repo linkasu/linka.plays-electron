@@ -47,6 +47,75 @@ TTS не должен блокировать игру. Аудио должно:
 - не ломать игру при ошибке загрузки;
 - быть отключаемым.
 
+## TTS API
+
+Совместимый сервис найден в соседних проектах `tts-echo-docker`, `tts-echo`, `linka.looks-electron`, `linka-type-pwa-v2` и `linka.plays-unity`.
+
+Для разработки использовать прямой TTS endpoint:
+
+```bash
+curl "https://tts.linka.su/voices"
+curl "https://tts.linka.su/tts?text=Привет&voice=jane" --output sample.mp3
+curl -X POST "https://tts.linka.su/tts" \
+  -H "Content-Type: application/json" \
+  --data '{"text":"Привет","voice":"jane"}' \
+  --output sample.mp3
+```
+
+Локальный сервис из `../tts-echo-docker` обычно поднимается на `http://localhost:3000` через Docker Compose. Для прямого `go run` default может быть `http://localhost:8080`.
+
+Параметры:
+
+- `text` - обязательный текст.
+- `voice` - голос, по умолчанию `jane`.
+- `speed` - совместимый параметр, текущий Go-сервис его принимает, но игнорирует.
+
+Ответ `/tts`: `audio/mpeg` с mp3-байтами. Ошибки возвращаются JSON и не должны ломать генерацию всей партии без понятного сообщения.
+
+## Dev-загрузка ассетов
+
+Статические TTS assets описываются в `src/frontend/data/ttsAssets.json`:
+
+```json
+[
+  {
+    "id": "high-five-hands.intro",
+    "game": "high-five-hands",
+    "text": "Посмотри на ладошку.",
+    "voice": "jane",
+    "path": "/audio/tts/high-five-hands/intro.mp3"
+  }
+]
+```
+
+Генерация mp3 в `public/audio/tts/...`:
+
+```bash
+npm run tts:assets
+npm run tts:assets -- --game high-five-hands
+TTS_BASE_URL=http://localhost:3000 npm run tts:assets -- --game high-five-hands --force
+TTS_VOICE=alena npm run tts:assets -- --game high-five-hands
+```
+
+Опции генератора:
+
+- `--game <id>` - сгенерировать фразы одной игры.
+- `--force` - перезаписать уже существующие mp3.
+- `--dry-run` - проверить манифест без сетевых запросов и записи файлов.
+- `--base-url <url>` или `TTS_BASE_URL` - endpoint сервиса без `/tts`.
+- `--voice <id>` или `TTS_VOICE` - голос по умолчанию для фраз без собственного `voice`.
+- `--delay-ms <ms>` или `TTS_DELAY_MS` - пауза между запросами, чтобы не упираться в rate limit.
+
+Runtime-подключение:
+
+- Игры импортируют `ttsAssets.json` и выбирают фразы по `game`/`id`.
+- Для проигрывания используется `src/frontend/core/ttsAudio.ts`.
+- `warmTtsAssets()` предзагружает mp3 только если `session.settings.sound === true`.
+- `playTtsAsset()` ставит звук тихо и ловит ошибки autoplay/загрузки.
+- Если файла нет, сеть недоступна или браузер запретил звук, игра продолжается без речи.
+
+Для терапевтических игр TTS-фразы должны быть короткими, спокойными, без резких повторов и без обязательной зависимости геймплея от звука.
+
 ## Валидация данных
 
 Проверять:

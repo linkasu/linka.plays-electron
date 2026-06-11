@@ -235,7 +235,7 @@ function initClouds() {
       y: randomRange(16, 56),
       rx: randomRange(60, 150),
       ry: randomRange(18, 42),
-      alpha: randomRange(0.16, 0.34),
+      alpha: randomRange(0.22, 0.42),
       speed: randomRange(1.8, 5.2)
     });
   }
@@ -250,16 +250,16 @@ function updateClouds(delta: number) {
 
 function drawBackground(context: CanvasRenderingContext2D, now: number) {
   const sky = context.createLinearGradient(0, 0, 0, window.innerHeight);
-  sky.addColorStop(0, "#d9f2ff");
-  sky.addColorStop(0.58, "#f4fbff");
-  sky.addColorStop(1, "#d8efdd");
+  sky.addColorStop(0, "#7fb6d4");
+  sky.addColorStop(0.58, "#9fc9dc");
+  sky.addColorStop(1, "#7fae91");
   context.fillStyle = sky;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
   const sunX = window.innerWidth * 0.78 + Math.sin(now * 0.00008) * 18;
   const sunY = window.innerHeight * 0.2;
   const glow = context.createRadialGradient(sunX, sunY, 0, sunX, sunY, Math.max(window.innerWidth, window.innerHeight) * 0.36);
-  glow.addColorStop(0, "rgb(255 235 168 / 38%)");
+  glow.addColorStop(0, "rgb(255 226 144 / 28%)");
   glow.addColorStop(1, "rgb(255 235 168 / 0%)");
   context.fillStyle = glow;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
@@ -269,7 +269,7 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
     const x = window.innerWidth * cloud.x / 100;
     const y = window.innerHeight * cloud.y / 100;
     context.globalAlpha = cloud.alpha;
-    context.fillStyle = "#ffffff";
+    context.fillStyle = "#eaf6fb";
     context.beginPath();
     context.ellipse(x, y, cloud.rx, cloud.ry, 0, 0, Math.PI * 2);
     context.ellipse(x - cloud.rx * 0.45, y + cloud.ry * 0.08, cloud.rx * 0.46, cloud.ry * 0.72, 0, 0, Math.PI * 2);
@@ -278,7 +278,7 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
   }
   context.restore();
 
-  context.fillStyle = "rgb(104 172 106 / 24%)";
+  context.fillStyle = "rgb(62 126 78 / 34%)";
   context.beginPath();
   context.ellipse(window.innerWidth * 0.18, window.innerHeight * 0.94, window.innerWidth * 0.32, window.innerHeight * 0.13, 0, 0, Math.PI * 2);
   context.ellipse(window.innerWidth * 0.74, window.innerHeight * 0.95, window.innerWidth * 0.42, window.innerHeight * 0.15, 0, 0, Math.PI * 2);
@@ -447,7 +447,7 @@ onUnmounted(() => {
 
 <style scoped>
 .balloons-shell {
-  background: #d9f2ff;
+  background: #7fb6d4;
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;

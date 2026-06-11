@@ -13,10 +13,11 @@
     "typecheck": "vue-tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.electron.json",
     "preview": "vite preview",
     "test:unit": "vitest run",
+    "tts:assets": "node scripts/generate-tts-assets.mjs",
     "electron:build": "npm run build && electron-builder -p never"
   },
   "dependencies": {
-    "@linkasu/tobii-electron": "github:linkasu/linka-tobii-electron#v0.2.6",
+    "@linkasu/tobii-electron": "https://github.com/linkasu/linka-tobii-electron/releases/download/v0.2.10/linkasu-tobii-electron-0.2.10.tgz",
     "@mdi/font": "^7.4.47",
     "roboto-fontface": "^0.10.0",
     "smplr": "^0.26.0",
@@ -33,6 +34,7 @@
     "electron": "^39.2.6",
     "electron-builder": "^26.0.12",
     "happy-dom": "^20.10.2",
+    "node-gyp": "^11.5.0",
     "typescript": "^5.9.3",
     "vite": "^7.2.4",
     "vitest": "^4.0.13",

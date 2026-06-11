@@ -115,7 +115,7 @@ export const games: GameInfo[] = [
     category: "gaze-basics",
     icon: "mdi-fishbowl",
     skills: ["smooth-pursuit", "fixation"],
-    status: "therapy-ready",
+    status: "polished",
     recommendedSessionSeconds: 88,
     minTargetSizePx: 180,
     defaultDwellMs: 1350
@@ -129,7 +129,7 @@ export const games: GameInfo[] = [
     category: "gaze-basics",
     icon: "mdi-balloon",
     skills: ["fixation", "attention-shift"],
-    status: "therapy-ready",
+    status: "polished",
     recommendedSessionSeconds: 82,
     minTargetSizePx: 188,
     defaultDwellMs: 1300
@@ -137,13 +137,13 @@ export const games: GameInfo[] = [
   {
     id: "bells",
     title: "Колокольчики",
-    description: "Выбирай крупный колокольчик взглядом: он мягко качается и даёт спокойную визуальную волну.",
+    description: "Выбирай крупный колокольчик взглядом: он качается и даёт визуальную волну.",
     selfDescription: "Позвони в колокольчик взглядом.",
     route: "/games/bells",
     category: "gaze-basics",
     icon: "mdi-bell-outline",
     skills: ["choice", "fixation"],
-    status: "therapy-ready",
+    status: "polished",
     recommendedSessionSeconds: 90,
     minTargetSizePx: 190,
     defaultDwellMs: 1300
