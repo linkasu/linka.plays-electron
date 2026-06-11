@@ -7,6 +7,7 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
 import { useGameSession } from "../../core/session";
+import { disposePaperLanternsPiano, playPaperLanternsCue, setPaperLanternsPianoActive, tickPaperLanternsPiano, warmPaperLanternsPiano } from "./audio";
 
 type Point = { x: number; y: number };
 type LanternPhase = "appearing" | "waiting" | "gazing" | "rising";
@@ -39,7 +40,8 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   targetScale: 1.6,
   motionSpeed: 0.42,
   distractors: "none",
-  hints: "high"
+  hints: "high",
+  sound: true
 }, {
   finishOnMaxSteps: false,
   finishOnMistakes: false
@@ -161,6 +163,7 @@ function lanternPoint(lantern: Lantern) {
 function lightLantern(lantern: Lantern, now: number) {
   recordEvent("target-click", targetPayload(lantern, now, 1));
   recordSuccess({ targetId: lantern.id, hue: lantern.hue });
+  playPaperLanternsCue(session.settings.sound);
   lantern.phase = "rising";
   lantern.phaseAge = 0;
   lantern.dwellProgress = 1;
@@ -364,7 +367,9 @@ function tick(now: number) {
   if (session.status === "running") {
     updateActiveLantern(delta, now);
     updateReleasedLanterns(delta);
+    tickPaperLanternsPiano(session.settings.sound);
   }
+  setPaperLanternsPianoActive(session.settings.sound, session.status === "running");
 
   if (ctx) draw(ctx, now);
   frame = requestAnimationFrame(tick);
@@ -382,6 +387,7 @@ function restart() {
 onMounted(async () => {
   await nextTick();
   resizeCanvas();
+  warmPaperLanternsPiano(session.settings.sound);
   window.addEventListener("resize", resizeCanvas);
   activeLantern.value = createLantern(true);
   lastTime = performance.now();
@@ -391,6 +397,7 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener("resize", resizeCanvas);
   cancelAnimationFrame(frame);
+  disposePaperLanternsPiano();
 });
 </script>
 
