@@ -153,7 +153,6 @@ import TypeWordGame from "../games/type-word/TypeWordGame.vue";
 import UnoLikeGame from "../games/uno-like/UnoLikeGame.vue";
 import WantDontWantGame from "../games/want-dont-want/WantDontWantGame.vue";
 import WarmFireGame from "../games/warm-fire/WarmFireGame.vue";
-import WarmLampGame from "../games/warm-lamp/WarmLampGame.vue";
 import WakeOwlGame from "../games/wake-owl/WakeOwlGame.vue";
 import WarmWindowGame from "../games/warm-window/WarmWindowGame.vue";
 import WhatFirstGame from "../games/what-first/WhatFirstGame.vue";
@@ -205,7 +204,6 @@ export default createRouter({
     { path: "/games/paper-lanterns", name: "paper-lanterns", component: PaperLanternsGame },
     { path: "/games/open-door", name: "open-door", component: OpenDoorGame },
     { path: "/games/warm-window", name: "warm-window", component: WarmWindowGame },
-    { path: "/games/warm-lamp", name: "warm-lamp", component: WarmLampGame },
     { path: "/games/warm-fire", name: "warm-fire", component: WarmFireGame },
     { path: "/games/musical-pebbles", name: "musical-pebbles", component: MusicalPebblesGame },
     { path: "/games/musical-path", name: "musical-path", component: MusicalPathGame },

@@ -448,29 +448,15 @@ export const games: GameInfo[] = [
   {
     id: "warm-window",
     title: "Тёплое окно",
-    description: "Смотри на спокойный дом и мягко зажигай тёплый свет в окнах без ошибок.",
+    description: "Смотри на спокойный дом: в тёплых окнах появляются добрые зверьки.",
     selfDescription: "Зажги окна взглядом.",
     route: "/games/warm-window",
     category: "gaze-basics",
     icon: "mdi-window-closed",
     skills: ["fixation", "attention-shift"],
-    status: "therapy-ready",
+    status: "polished",
     recommendedSessionSeconds: 80,
     minTargetSizePx: 180,
-    defaultDwellMs: 1350
-  },
-  {
-    id: "warm-lamp",
-    title: "Тёплая лампа",
-    description: "Смотри на большую лампу: от спокойной фиксации она мягко включается и становится теплее без ошибок.",
-    selfDescription: "Зажги лампу взглядом.",
-    route: "/games/warm-lamp",
-    category: "gaze-basics",
-    icon: "mdi-lamp",
-    skills: ["fixation"],
-    status: "therapy-ready",
-    recommendedSessionSeconds: 86,
-    minTargetSizePx: 240,
     defaultDwellMs: 1350
   },
   {

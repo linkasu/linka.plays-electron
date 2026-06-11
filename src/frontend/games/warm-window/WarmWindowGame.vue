@@ -1,15 +1,20 @@
 <script setup lang="ts">
-import { computed, reactive } from "vue";
+import { computed, onMounted, onUnmounted, reactive } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
+import ttsAssets from "../../data/ttsAssets.json";
+import { disposeWarmWindowPiano, playWarmWindowCue, setWarmWindowPianoActive, tickWarmWindowPiano, warmWarmWindowPiano } from "./audio";
 
 type WindowTarget = {
   id: string;
   label: string;
+  animal: string;
+  ttsId: string;
   gridColumn: number;
   gridRow: number;
   lit: boolean;
@@ -24,35 +29,67 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   targetScale: 1.6,
   motionSpeed: 0.35,
   distractors: "none",
-  hints: "high"
+  hints: "high",
+  sound: true
 }, {
   finishOnMistakes: false
 });
 
 const windows = reactive<WindowTarget[]>([
-  { id: "warm-window:window:1", label: "верхнее левое окно", gridColumn: 1, gridRow: 1, lit: false },
-  { id: "warm-window:window:2", label: "верхнее среднее окно", gridColumn: 2, gridRow: 1, lit: false },
-  { id: "warm-window:window:3", label: "верхнее правое окно", gridColumn: 3, gridRow: 1, lit: false },
-  { id: "warm-window:window:4", label: "среднее левое окно", gridColumn: 1, gridRow: 2, lit: false },
-  { id: "warm-window:window:5", label: "среднее окно", gridColumn: 2, gridRow: 2, lit: false },
-  { id: "warm-window:window:6", label: "среднее правое окно", gridColumn: 3, gridRow: 2, lit: false },
-  { id: "warm-window:window:7", label: "нижнее левое окно", gridColumn: 1, gridRow: 3, lit: false },
-  { id: "warm-window:window:8", label: "нижнее правое окно", gridColumn: 3, gridRow: 3, lit: false }
+  { id: "warm-window:window:1", label: "котик", animal: "🐱", ttsId: "warm-window.cat", gridColumn: 1, gridRow: 1, lit: false },
+  { id: "warm-window:window:2", label: "щенок", animal: "🐶", ttsId: "warm-window.dog", gridColumn: 2, gridRow: 1, lit: false },
+  { id: "warm-window:window:3", label: "зайчик", animal: "🐰", ttsId: "warm-window.rabbit", gridColumn: 3, gridRow: 1, lit: false },
+  { id: "warm-window:window:4", label: "лисёнок", animal: "🦊", ttsId: "warm-window.fox", gridColumn: 1, gridRow: 2, lit: false },
+  { id: "warm-window:window:5", label: "медвежонок", animal: "🐻", ttsId: "warm-window.bear", gridColumn: 2, gridRow: 2, lit: false },
+  { id: "warm-window:window:6", label: "панда", animal: "🐼", ttsId: "warm-window.panda", gridColumn: 3, gridRow: 2, lit: false },
+  { id: "warm-window:window:7", label: "лягушонок", animal: "🐸", ttsId: "warm-window.frog", gridColumn: 1, gridRow: 3, lit: false },
+  { id: "warm-window:window:8", label: "птичка", animal: "🐦", ttsId: "warm-window.bird", gridColumn: 3, gridRow: 3, lit: false }
 ]);
 
 const resultVisible = computed(() => session.status === "finished");
-const litCount = computed(() => windows.filter((windowTarget) => windowTarget.lit).length);
+const warmWindowTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.game === "warm-window");
+let audioFrame = 0;
+let introTimer = 0;
+
+function ttsAsset(id: string) {
+  return warmWindowTtsAssets.find((asset) => asset.id === id);
+}
 
 function lightWindow(windowTarget: WindowTarget) {
   if (session.status !== "running" || windowTarget.lit) return;
   windowTarget.lit = true;
   recordSuccess({ targetId: windowTarget.id, label: windowTarget.label });
+  playWarmWindowCue(session.settings.sound);
+  playTtsAsset(session.settings.sound, ttsAsset(windowTarget.ttsId), 1);
 }
 
 function restart() {
   for (const windowTarget of windows) windowTarget.lit = false;
   startSession();
+  playTtsAsset(session.settings.sound, ttsAsset("warm-window.intro"), 0.92);
 }
+
+function tickAudio() {
+  tickWarmWindowPiano(session.settings.sound);
+  setWarmWindowPianoActive(session.settings.sound, session.status === "running");
+  audioFrame = requestAnimationFrame(tickAudio);
+}
+
+onMounted(() => {
+  warmTtsAssets(session.settings.sound, warmWindowTtsAssets);
+  warmWarmWindowPiano(session.settings.sound);
+  introTimer = window.setTimeout(() => {
+    playTtsAsset(session.settings.sound, ttsAsset("warm-window.intro"), 0.92);
+  }, 450);
+  audioFrame = requestAnimationFrame(tickAudio);
+});
+
+onUnmounted(() => {
+  cancelAnimationFrame(audioFrame);
+  window.clearTimeout(introTimer);
+  disposeTtsAssets(warmWindowTtsAssets);
+  disposeWarmWindowPiano();
+});
 </script>
 
 <template>
@@ -67,25 +104,22 @@ function restart() {
       title="Тёплое окно"
       :step="session.step"
       :max-steps="session.maxSteps"
-      :score="session.score"
-      :mistakes="session.mistakes"
       :duration-ms="durationMs"
       :session-seconds="session.settings.sessionSeconds"
       :paused="session.status === 'paused'"
+      :show-progress="false"
+      :show-timer="false"
       @pause="pauseSession"
       @resume="resumeSession"
     />
 
     <v-container class="warm-window-container d-flex align-center justify-center" fluid>
       <v-card class="warm-window-scene pa-4 pa-sm-6 pa-md-8" color="transparent" elevation="0">
-        <div class="text-center mb-4 mb-md-6 warm-window-copy">
-          <div class="text-overline text-amber-lighten-3">спокойная фиксация взглядом</div>
-          <h1 class="text-h4 text-sm-h3 font-weight-bold">Зажги тёплый свет в окнах</h1>
-          <p class="text-body-1 text-sm-h6 text-blue-grey-lighten-4 mb-0">Смотри на любое тёмное окно. Здесь нет ошибок.</p>
-        </div>
-
         <div class="warm-window-house" role="group" aria-label="Дом с окнами для игры Тёплое окно">
-          <div class="warm-window-roof" aria-hidden="true" />
+          <div class="warm-window-roof" aria-hidden="true">
+            <div class="warm-window-chimney"></div>
+            <div class="warm-window-roof-triangle"></div>
+          </div>
           <div class="warm-window-body">
             <div class="warm-window-grid">
               <GameDwellButton
@@ -102,10 +136,8 @@ function restart() {
               >
                 <template #default="{ active, progress }">
                   <div :class="['warm-window-pane', { 'warm-window-pane--lit': windowTarget.lit, 'warm-window-pane--active': active }]">
-                    <v-icon :icon="windowTarget.lit ? 'mdi-weather-sunset' : 'mdi-window-closed'" class="warm-window-pane-icon" />
-                    <div class="text-caption font-weight-medium mt-1">
-                      {{ windowTarget.lit ? "Тепло" : active && progress > 0.75 ? "Почти" : "Смотри" }}
-                    </div>
+                    <span v-if="windowTarget.lit" class="warm-window-animal" aria-hidden="true">{{ windowTarget.animal }}</span>
+                    <span v-else class="warm-window-emoji" aria-hidden="true">🪟</span>
                   </div>
                 </template>
               </GameDwellButton>
@@ -117,10 +149,6 @@ function restart() {
           </div>
         </div>
 
-        <v-card class="warm-window-progress mt-5 mx-auto px-4 py-3" color="surface" rounded="xl" variant="tonal">
-          <div class="text-body-2 font-weight-medium">Зажжено окон: {{ litCount }} из {{ session.maxSteps }}</div>
-          <div class="text-caption text-medium-emphasis">Можно смотреть в любом порядке, дом просто становится светлее.</div>
-        </v-card>
       </v-card>
     </v-container>
 
@@ -148,7 +176,7 @@ function restart() {
 
 .warm-window-container {
   min-block-size: 100vh;
-  padding-block-start: 112px;
+  padding-block: 64px 24px;
 }
 
 .warm-window-sky {
@@ -184,34 +212,47 @@ function restart() {
 }
 
 .warm-window-scene {
-  inline-size: min(920px, 100%);
+  inline-size: min(1320px, 98vw);
   position: relative;
   z-index: 1;
 }
 
-.warm-window-copy {
-  color: #fff8e8;
-  text-shadow: 0 2px 18px rgb(20 21 38 / 42%);
-}
-
 .warm-window-house {
   margin-inline: auto;
-  max-inline-size: 680px;
-  padding-block-start: clamp(54px, 9vw, 84px);
+  max-inline-size: min(1160px, 96vw);
+  padding-block-start: clamp(68px, 10vh, 118px);
   position: relative;
 }
 
 .warm-window-roof {
-  background: linear-gradient(135deg, #8f4b3f, #b96f4f 58%, #d09163);
-  block-size: clamp(104px, 18vw, 150px);
-  border-radius: 28px 28px 10px 10px;
-  box-shadow: 0 22px 52px rgb(30 19 28 / 28%);
-  inline-size: 72%;
-  inset-block-start: 6px;
-  inset-inline-start: 14%;
+  block-size: clamp(128px, 16vh, 188px);
+  inline-size: 100%;
+  inset-block-start: 0;
+  inset-inline-start: 0;
   position: absolute;
-  transform: perspective(240px) rotateX(42deg) rotate(45deg);
-  transform-origin: center;
+  z-index: 0;
+}
+
+.warm-window-roof-triangle {
+  background: linear-gradient(135deg, #8f4638 0%, #b95f46 52%, #74352f 100%);
+  block-size: 100%;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  filter: drop-shadow(0 24px 34px rgb(30 19 28 / 28%));
+  inline-size: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.warm-window-chimney {
+  background: linear-gradient(180deg, #8c4438 0%, #69342f 100%);
+  block-size: clamp(58px, 7vh, 86px);
+  border-radius: 10px 10px 2px 2px;
+  box-shadow: inset 0 0 0 2px rgb(255 215 185 / 18%), 0 14px 26px rgb(30 19 28 / 24%);
+  inline-size: clamp(46px, 5vw, 70px);
+  inset-block-start: clamp(12px, 2vh, 22px);
+  inset-inline-end: 24%;
+  position: absolute;
+  z-index: 0;
 }
 
 .warm-window-body {
@@ -220,20 +261,21 @@ function restart() {
   border-radius: 36px 36px 24px 24px;
   box-shadow: inset 0 0 0 2px rgb(255 244 214 / 28%), 0 28px 70px rgb(16 18 32 / 36%);
   margin-inline: auto;
-  max-inline-size: 560px;
-  padding: clamp(22px, 4vw, 38px);
+  max-inline-size: min(1040px, 94vw);
+  padding: clamp(24px, 3.4vw, 46px);
   position: relative;
+  z-index: 1;
 }
 
 .warm-window-grid {
   display: grid;
-  gap: clamp(14px, 3vw, 26px);
-  grid-template-columns: repeat(3, minmax(72px, 1fr));
-  grid-template-rows: repeat(3, minmax(82px, 1fr));
+  gap: clamp(18px, 2.6vw, 34px);
+  grid-template-columns: repeat(3, minmax(136px, 1fr));
+  grid-template-rows: repeat(3, clamp(124px, 15.8vh, 176px));
 }
 
 .warm-window-target {
-  min-block-size: clamp(82px, 13vw, 116px);
+  min-block-size: clamp(124px, 15.8vh, 176px);
 }
 
 .warm-window-pane {
@@ -257,8 +299,17 @@ function restart() {
   filter: drop-shadow(0 0 18px rgb(255 200 102 / 64%));
 }
 
-.warm-window-pane-icon {
-  font-size: clamp(2.2rem, 6vw, 3.8rem);
+.warm-window-emoji,
+.warm-window-animal {
+  filter: drop-shadow(0 0 18px rgb(255 223 154 / 72%));
+  font-family: "Twemoji Mozilla", "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+  font-size: clamp(3.8rem, 7.6vw, 6.6rem);
+  line-height: 1;
+}
+
+.warm-window-emoji {
+  filter: drop-shadow(0 0 14px rgb(210 228 238 / 38%));
+  opacity: 0.86;
 }
 
 .warm-window-door {
@@ -268,32 +319,38 @@ function restart() {
   block-size: 100%;
   color: #ffd88b;
   display: flex;
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(2.8rem, 5.4vw, 4.6rem);
   grid-column: 2;
   grid-row: 3;
   justify-content: center;
-  min-block-size: clamp(82px, 13vw, 116px);
-}
-
-.warm-window-progress {
-  max-inline-size: 440px;
+  min-block-size: clamp(124px, 15.8vh, 176px);
 }
 
 @media (max-width: 640px) {
   .warm-window-container {
     align-items: flex-start !important;
-    padding-block-start: 96px;
+    padding-block: 82px 16px;
+  }
+
+  .warm-window-house {
+    max-inline-size: 96vw;
+    padding-block-start: 54px;
   }
 
   .warm-window-body {
     border-width: 7px;
-    padding: 18px;
+    padding: 14px;
   }
 
   .warm-window-grid {
-    gap: 12px;
-    grid-template-columns: repeat(3, minmax(58px, 1fr));
-    grid-template-rows: repeat(3, minmax(72px, 1fr));
+    gap: 10px;
+    grid-template-columns: repeat(3, minmax(68px, 1fr));
+    grid-template-rows: repeat(3, clamp(76px, 20vw, 96px));
+  }
+
+  .warm-window-target,
+  .warm-window-door {
+    min-block-size: clamp(76px, 20vw, 96px);
   }
 }
 </style>

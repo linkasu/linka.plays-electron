@@ -89,5 +89,68 @@
     "text": "Мягкая искра.",
     "voice": "jane",
     "path": "/audio/tts/open-door/soft-spark.mp3"
+  },
+  {
+    "id": "warm-window.intro",
+    "game": "warm-window",
+    "text": "Посмотри в окно.",
+    "voice": "jane",
+    "path": "/audio/tts/warm-window/intro.mp3"
+  },
+  {
+    "id": "warm-window.cat",
+    "game": "warm-window",
+    "text": "Котик в окне.",
+    "voice": "jane",
+    "path": "/audio/tts/warm-window/cat.mp3"
+  },
+  {
+    "id": "warm-window.dog",
+    "game": "warm-window",
+    "text": "Щенок в окне.",
+    "voice": "jane",
+    "path": "/audio/tts/warm-window/dog.mp3"
+  },
+  {
+    "id": "warm-window.rabbit",
+    "game": "warm-window",
+    "text": "Зайчик в окне.",
+    "voice": "jane",
+    "path": "/audio/tts/warm-window/rabbit.mp3"
+  },
+  {
+    "id": "warm-window.fox",
+    "game": "warm-window",
+    "text": "Лисёнок в окне.",
+    "voice": "jane",
+    "path": "/audio/tts/warm-window/fox.mp3"
+  },
+  {
+    "id": "warm-window.bear",
+    "game": "warm-window",
+    "text": "Медвежонок в окне.",
+    "voice": "jane",
+    "path": "/audio/tts/warm-window/bear.mp3"
+  },
+  {
+    "id": "warm-window.panda",
+    "game": "warm-window",
+    "text": "Панда в окне.",
+    "voice": "jane",
+    "path": "/audio/tts/warm-window/panda.mp3"
+  },
+  {
+    "id": "warm-window.frog",
+    "game": "warm-window",
+    "text": "Лягушонок в окне.",
+    "voice": "jane",
+    "path": "/audio/tts/warm-window/frog.mp3"
+  },
+  {
+    "id": "warm-window.bird",
+    "game": "warm-window",
+    "text": "Птичка в окне.",
+    "voice": "jane",
+    "path": "/audio/tts/warm-window/bird.mp3"
   }
 ]
