@@ -264,32 +264,18 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
-    id: "catch-star",
-    title: "Поймай звезду",
-    description: "Смотри на мягкую звезду: удержи взгляд, и она спокойно появится в новой зоне без ошибок.",
-    selfDescription: "Поймай звезду взглядом.",
-    route: "/games/catch-star",
-    category: "gaze-basics",
-    icon: "mdi-star",
-    skills: ["fixation", "attention-shift"],
-    status: "therapy-ready",
-    recommendedSessionSeconds: 85,
-    minTargetSizePx: 184,
-    defaultDwellMs: 1300
-  },
-  {
     id: "starry-sky",
     title: "Звёздное небо",
-    description: "Смотри на тихое небо и мягко соединяй звёзды световыми линиями.",
-    selfDescription: "Зажги звёзды взглядом.",
+    description: "Соединяй звёзды по порядку, рисуй базовые созвездия и смотри на их подписи после завершения.",
+    selfDescription: "Нарисуй созвездия взглядом.",
     route: "/games/starry-sky",
     category: "gaze-basics",
     icon: "mdi-star",
-    skills: ["fixation", "attention-shift"],
-    status: "therapy-ready",
-    recommendedSessionSeconds: 80,
-    minTargetSizePx: 170,
-    defaultDwellMs: 1200
+    skills: ["fixation", "attention-shift", "sequence"],
+    status: "polished",
+    recommendedSessionSeconds: 210,
+    minTargetSizePx: 150,
+    defaultDwellMs: 1250
   },
   {
     id: "magic-dust",

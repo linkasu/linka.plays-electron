@@ -74,7 +74,7 @@ export function clampSettings(settings: SessionSettings): SessionSettings {
   return {
     ...settings,
     sessionSeconds: Math.min(300, Math.max(30, settings.sessionSeconds)),
-    maxSteps: Math.min(30, Math.max(1, settings.maxSteps)),
+    maxSteps: Math.min(40, Math.max(1, settings.maxSteps)),
     dwellMs: Math.min(3000, Math.max(500, settings.dwellMs)),
     targetScale: Math.min(2, Math.max(0.8, settings.targetScale)),
     motionSpeed: Math.min(1.4, Math.max(0.4, settings.motionSpeed))
