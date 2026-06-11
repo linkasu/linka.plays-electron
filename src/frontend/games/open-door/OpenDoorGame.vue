@@ -1,16 +1,20 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
+import ttsAssets from "../../data/ttsAssets.json";
+import { disposeOpenDoorPiano, playOpenDoorCue, setOpenDoorPianoActive, tickOpenDoorPiano, warmOpenDoorPiano } from "./audio";
 
 type DoorReveal = {
   icon: string;
   label: string;
   glow: string;
+  ttsId: string;
 };
 
 const router = useRouter();
@@ -22,26 +26,34 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   targetScale: 1.7,
   motionSpeed: 0.32,
   distractors: "none",
-  hints: "high"
+  hints: "high",
+  sound: true
 }, {
   finishOnMistakes: false
 });
 
 const reveals: DoorReveal[] = [
-  { icon: "mdi-lightbulb-on", label: "тёплый свет", glow: "#ffe5a3" },
-  { icon: "mdi-heart", label: "мягкое сердце", glow: "#ffc2d6" },
-  { icon: "mdi-flower", label: "тихий цветок", glow: "#c9f4c7" },
-  { icon: "mdi-star", label: "спокойная звезда", glow: "#f9e7ff" },
-  { icon: "mdi-weather-sunny", label: "лучик солнца", glow: "#ffdf8a" },
-  { icon: "mdi-cloud", label: "пушистое облако", glow: "#d7ecff" },
-  { icon: "mdi-music-note", label: "тихая нота", glow: "#d8d1ff" },
-  { icon: "mdi-creation", label: "мягкая искра", glow: "#ffe7bd" }
+  { icon: "mdi-lightbulb-on", label: "тёплый свет", glow: "#ffe5a3", ttsId: "open-door.warm-light" },
+  { icon: "mdi-heart", label: "мягкое сердце", glow: "#ffc2d6", ttsId: "open-door.soft-heart" },
+  { icon: "mdi-flower", label: "тихий цветок", glow: "#c9f4c7", ttsId: "open-door.quiet-flower" },
+  { icon: "mdi-star", label: "спокойная звезда", glow: "#f9e7ff", ttsId: "open-door.calm-star" },
+  { icon: "mdi-weather-sunny", label: "лучик солнца", glow: "#ffdf8a", ttsId: "open-door.sun-ray" },
+  { icon: "mdi-cloud", label: "пушистое облако", glow: "#d7ecff", ttsId: "open-door.soft-cloud" },
+  { icon: "mdi-music-note", label: "тихая нота", glow: "#d8d1ff", ttsId: "open-door.quiet-note" },
+  { icon: "mdi-creation", label: "мягкая искра", glow: "#ffe7bd", ttsId: "open-door.soft-spark" }
 ];
 
 const doorOpen = ref(false);
 const currentReveal = ref(reveals[0]);
 const resultVisible = computed(() => session.status === "finished");
+const openDoorTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.game === "open-door");
 let closeTimer: number | undefined;
+let introTimer = 0;
+let audioFrame = 0;
+
+function ttsAsset(id: string) {
+  return openDoorTtsAssets.find((asset) => asset.id === id);
+}
 
 function clearCloseTimer() {
   if (closeTimer === undefined) return;
@@ -62,6 +74,8 @@ function openDoor() {
   currentReveal.value = reveals[session.step % reveals.length];
   doorOpen.value = true;
   recordSuccess({ targetId: `open-door:door:${session.step + 1}`, label: currentReveal.value.label });
+  playOpenDoorCue(session.settings.sound);
+  playTtsAsset(session.settings.sound, ttsAsset(currentReveal.value.ttsId), 1);
 
   if (session.status === "running" && session.step < session.maxSteps) {
     closeTimer = window.setTimeout(closeDoorForNextStep, 1250);
@@ -70,12 +84,35 @@ function openDoor() {
 
 function restart() {
   clearCloseTimer();
+  window.clearTimeout(introTimer);
   doorOpen.value = false;
   currentReveal.value = reveals[0];
   startSession();
+  playTtsAsset(session.settings.sound, ttsAsset("open-door.intro"), 0.92);
 }
 
-onUnmounted(clearCloseTimer);
+function tickAudio() {
+  tickOpenDoorPiano(session.settings.sound);
+  setOpenDoorPianoActive(session.settings.sound, session.status === "running");
+  audioFrame = requestAnimationFrame(tickAudio);
+}
+
+onMounted(() => {
+  warmTtsAssets(session.settings.sound, openDoorTtsAssets);
+  warmOpenDoorPiano(session.settings.sound);
+  introTimer = window.setTimeout(() => {
+    playTtsAsset(session.settings.sound, ttsAsset("open-door.intro"), 0.92);
+  }, 450);
+  audioFrame = requestAnimationFrame(tickAudio);
+});
+
+onUnmounted(() => {
+  clearCloseTimer();
+  window.clearTimeout(introTimer);
+  cancelAnimationFrame(audioFrame);
+  disposeTtsAssets(openDoorTtsAssets);
+  disposeOpenDoorPiano();
+});
 </script>
 
 <template>
@@ -90,23 +127,17 @@ onUnmounted(clearCloseTimer);
       title="Открой дверцу"
       :step="session.step"
       :max-steps="session.maxSteps"
-      :score="session.score"
-      :mistakes="session.mistakes"
       :duration-ms="durationMs"
       :session-seconds="session.settings.sessionSeconds"
       :paused="session.status === 'paused'"
+      :show-progress="false"
+      :show-timer="false"
       @pause="pauseSession"
       @resume="resumeSession"
     />
 
     <v-container class="open-door-container d-flex align-center justify-center" fluid>
       <v-card class="open-door-scene pa-4 pa-sm-6 pa-md-8" color="transparent" elevation="0">
-        <div class="text-center mb-5 mb-md-7 open-door-copy">
-          <div class="text-overline text-amber-lighten-3">первая цель для спокойной фиксации</div>
-          <h1 class="text-h4 text-sm-h3 font-weight-bold">Посмотри на дверцу, чтобы открыть</h1>
-          <p class="text-body-1 text-sm-h6 text-blue-grey-lighten-5 mb-0">За дверцей каждый раз появляется мягкий свет. Ошибок здесь нет.</p>
-        </div>
-
         <GameDwellButton
           :target-id="`open-door:door:${session.step + 1}`"
           :dwell-ms="session.settings.dwellMs"
@@ -122,7 +153,6 @@ onUnmounted(clearCloseTimer);
 
               <div v-if="doorOpen" class="open-door-reveal">
                 <v-icon :icon="currentReveal.icon" class="open-door-reveal-icon" />
-                <div class="text-h6 text-sm-h5 font-weight-bold mt-2">{{ currentReveal.label }}</div>
               </div>
 
               <div :class="['open-door-panel', { 'open-door-panel--open': doorOpen, 'open-door-panel--active': active }]">
@@ -130,18 +160,9 @@ onUnmounted(clearCloseTimer);
                 <v-icon icon="mdi-door" class="open-door-icon" />
                 <div class="open-door-handle" aria-hidden="true" />
               </div>
-
-              <div class="open-door-label text-body-1 text-sm-h6 font-weight-bold">
-                {{ doorOpen ? "Открыто" : active && progress > 0.72 ? "Почти открыто" : "Смотри на дверцу" }}
-              </div>
             </div>
           </template>
         </GameDwellButton>
-
-        <v-card class="open-door-progress mt-5 mx-auto px-4 py-3" color="surface" rounded="xl" variant="tonal">
-          <div class="text-body-2 font-weight-medium">Открыто дверок: {{ session.step }} из {{ session.maxSteps }}</div>
-          <div class="text-caption text-medium-emphasis">Дверца закрывается сама и ждёт следующий спокойный взгляд.</div>
-        </v-card>
       </v-card>
     </v-container>
 
@@ -169,7 +190,7 @@ onUnmounted(clearCloseTimer);
 
 .open-door-container {
   min-block-size: 100vh;
-  padding-block-start: 112px;
+  padding-block-start: 72px;
 }
 
 .open-door-ambient {
@@ -212,13 +233,8 @@ onUnmounted(clearCloseTimer);
   z-index: 1;
 }
 
-.open-door-copy {
-  color: #fff9ea;
-  text-shadow: 0 2px 18px rgb(16 22 34 / 42%);
-}
-
 .open-door-target {
-  inline-size: min(430px, 100%);
+  inline-size: min(520px, 100%);
 }
 
 .open-door-stage {
@@ -227,7 +243,7 @@ onUnmounted(clearCloseTimer);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-block-size: 320px;
+  min-block-size: 380px;
   overflow: hidden;
   position: relative;
 }
@@ -284,7 +300,7 @@ onUnmounted(clearCloseTimer);
 }
 
 .open-door-panel--open {
-  transform: perspective(760px) rotateY(-64deg) translateX(-16px);
+  transform: perspective(860px) rotateY(-84deg) translateX(-54px);
 }
 
 .open-door-panel-top {
@@ -314,26 +330,14 @@ onUnmounted(clearCloseTimer);
   position: absolute;
 }
 
-.open-door-label {
-  color: #fff4da;
-  inset-block-end: 8px;
-  position: absolute;
-  text-shadow: 0 2px 14px rgb(55 34 20 / 48%);
-  z-index: 3;
-}
-
-.open-door-progress {
-  max-inline-size: 440px;
-}
-
 @media (max-width: 640px) {
   .open-door-container {
     align-items: flex-start !important;
-    padding-block-start: 96px;
+    padding-block-start: 82px;
   }
 
   .open-door-stage {
-    min-block-size: 280px;
+    min-block-size: 330px;
   }
 }
 </style>

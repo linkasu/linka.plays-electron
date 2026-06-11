@@ -434,13 +434,13 @@ export const games: GameInfo[] = [
   {
     id: "open-door",
     title: "Открой дверцу",
-    description: "Смотри на крупную дверцу: она мягко открывается и показывает тихий свет или добрый предмет без ошибок.",
+    description: "Смотри на крупную дверцу: она широко открывается и показывает тихий свет или добрый предмет.",
     selfDescription: "Открой дверцу взглядом.",
     route: "/games/open-door",
     category: "gaze-basics",
     icon: "mdi-door-open",
     skills: ["fixation", "attention-shift"],
-    status: "therapy-ready",
+    status: "polished",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 220,
     defaultDwellMs: 1350

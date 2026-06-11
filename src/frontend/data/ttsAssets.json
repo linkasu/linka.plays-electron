@@ -26,5 +26,68 @@
     "text": "Ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/high-five-hands/next.mp3"
+  },
+  {
+    "id": "open-door.intro",
+    "game": "open-door",
+    "text": "Посмотри на дверцу.",
+    "voice": "jane",
+    "path": "/audio/tts/open-door/intro.mp3"
+  },
+  {
+    "id": "open-door.warm-light",
+    "game": "open-door",
+    "text": "Тёплый свет.",
+    "voice": "jane",
+    "path": "/audio/tts/open-door/warm-light.mp3"
+  },
+  {
+    "id": "open-door.soft-heart",
+    "game": "open-door",
+    "text": "Мягкое сердце.",
+    "voice": "jane",
+    "path": "/audio/tts/open-door/soft-heart.mp3"
+  },
+  {
+    "id": "open-door.quiet-flower",
+    "game": "open-door",
+    "text": "Тихий цветок.",
+    "voice": "jane",
+    "path": "/audio/tts/open-door/quiet-flower.mp3"
+  },
+  {
+    "id": "open-door.calm-star",
+    "game": "open-door",
+    "text": "Спокойная звезда.",
+    "voice": "jane",
+    "path": "/audio/tts/open-door/calm-star.mp3"
+  },
+  {
+    "id": "open-door.sun-ray",
+    "game": "open-door",
+    "text": "Лучик солнца.",
+    "voice": "jane",
+    "path": "/audio/tts/open-door/sun-ray.mp3"
+  },
+  {
+    "id": "open-door.soft-cloud",
+    "game": "open-door",
+    "text": "Пушистое облако.",
+    "voice": "jane",
+    "path": "/audio/tts/open-door/soft-cloud.mp3"
+  },
+  {
+    "id": "open-door.quiet-note",
+    "game": "open-door",
+    "text": "Тихая нота.",
+    "voice": "jane",
+    "path": "/audio/tts/open-door/quiet-note.mp3"
+  },
+  {
+    "id": "open-door.soft-spark",
+    "game": "open-door",
+    "text": "Мягкая искра.",
+    "voice": "jane",
+    "path": "/audio/tts/open-door/soft-spark.mp3"
   }
 ]
