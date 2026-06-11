@@ -462,14 +462,14 @@ export const games: GameInfo[] = [
   {
     id: "warm-fire",
     title: "Тёплый костёр",
-    description: "Смотри рядом с тихим костром: свечение и искры мягко усиливаются без вспышек и ошибок.",
+    description: "Смотри на маленький огонёк: взгляд мягко разжигает пламя, искры, музыку и плавные цветные узоры без вспышек.",
     selfDescription: "Согрей костёр взглядом.",
     route: "/games/warm-fire",
     category: "gaze-basics",
     icon: "mdi-fire",
     skills: ["fixation", "smooth-pursuit"],
-    status: "therapy-ready",
-    recommendedSessionSeconds: 88,
+    status: "polished",
+    recommendedSessionSeconds: 92,
     minTargetSizePx: 210,
     defaultDwellMs: 1450
   },
