@@ -49,7 +49,6 @@ import FindLetterGame from "../games/find-letter/FindLetterGame.vue";
 import FixPictureGame from "../games/fix-picture/FixPictureGame.vue";
 import FireflyMeadowGame from "../games/firefly-meadow/FireflyMeadowGame.vue";
 import FindColorGame from "../games/find-color/FindColorGame.vue";
-import FindNumberGame from "../games/find-number/FindNumberGame.vue";
 import FindShapeGame from "../games/find-shape/FindShapeGame.vue";
 import FishesGame from "../games/fishes/FishesGame.vue";
 import FollowCueGame from "../games/follow-cue/FollowCueGame.vue";
@@ -268,7 +267,6 @@ export default createRouter({
     { path: "/games/find-digit", name: "find-digit", component: FindDigitGame },
     { path: "/games/logic-pairs", name: "logic-pairs", component: LogicPairsGame },
     { path: "/games/find-letter", name: "find-letter", component: FindLetterGame },
-    { path: "/games/find-number", name: "find-number", component: FindNumberGame },
     { path: "/games/shadow-match", name: "shadow-match", component: ShadowMatchGame },
     { path: "/games/sound-source", name: "sound-source", component: SoundSourceGame },
     { path: "/games/odd-one-out", name: "odd-one-out", component: OddOneOutGame },

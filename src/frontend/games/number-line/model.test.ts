@@ -10,7 +10,7 @@ describe("number-line model", () => {
     expect(numberLineNumbers).toHaveLength(10);
   });
 
-  it("creates find-number rounds with a target on the line", () => {
+  it("creates search rounds with a target on the line", () => {
     const round = generateNumberLineRound(settingsFromPreset("standard"), 1);
 
     expect(round.roundId).toBe("number-line:round:1");

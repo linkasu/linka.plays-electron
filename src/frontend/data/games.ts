@@ -786,20 +786,6 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
-    id: "find-number",
-    title: "Найди число",
-    description: "Выбери заданную крупную цифру среди нескольких вариантов без давления времени.",
-    selfDescription: "Найди число.",
-    route: "/games/find-number",
-    category: "visual-search",
-    icon: "mdi-numeric",
-    skills: ["visual-search", "choice", "counting"],
-    status: "therapy-ready",
-    recommendedSessionSeconds: 120,
-    minTargetSizePx: 200,
-    defaultDwellMs: 1300
-  },
-  {
     id: "shadow-match",
     title: "Тень и предмет",
     description: "Подбери крупный предмет к мягкому силуэту; ошибка только подсветит правильный выбор.",
