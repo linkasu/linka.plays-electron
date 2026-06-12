@@ -855,6 +855,7 @@ export const games: GameInfo[] = [
     icon: "mdi-alphabetical",
     skills: ["visual-search", "attention-shift", "vocabulary"],
     status: "therapy-ready",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1250
