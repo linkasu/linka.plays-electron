@@ -685,13 +685,14 @@ export const games: GameInfo[] = [
   {
     id: "find-shape",
     title: "Найди форму",
-    description: "Найди заданную форму среди 2-5 крупных карточек: ошибка мягко подсветит подсказку и не завершит игру.",
+    description: "Найди заданную форму среди крупных карточек: при ошибке нужная форма мягко подсвечивается.",
     selfDescription: "Найди нужную форму.",
     route: "/games/find-shape",
     category: "visual-search",
     icon: "mdi-shape-outline",
     skills: ["visual-search", "choice", "classification"],
     status: "therapy-ready",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 210,
     defaultDwellMs: 1300
