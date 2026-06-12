@@ -12,6 +12,7 @@ type SoundSource = {
   title: string;
   soundLabel: string;
   icon: string;
+  visual?: string;
   accent: string;
   wash: string;
   soundPath: string;
@@ -30,7 +31,8 @@ const soundSources: SoundSource[] = [
     id: "shell",
     title: "Ракушка",
     soundLabel: "морская волна",
-    icon: "mdi-seashell",
+    icon: "mdi-waves",
+    visual: "🐚",
     accent: "#5ab8c8",
     wash: "#ddfbff",
     soundPath: "/audio/sfx/sound-source/shell-wave.mp3",
@@ -327,7 +329,8 @@ onUnmounted(() => {
                   <span class="source-wave source-wave--three" />
                 </div>
                 <div class="source-glow" :style="{ opacity: source.id === round.target.id ? 0.44 + progress * 0.22 : active ? 0.28 : 0.18 }" aria-hidden="true" />
-                <v-icon class="source-icon" :icon="source.icon" />
+                <span v-if="source.visual" class="source-emoji" aria-hidden="true">{{ source.visual }}</span>
+                <v-icon v-else class="source-icon" :icon="source.icon" />
                 <div class="text-h6 text-md-h4 font-weight-bold mt-2">{{ source.title }}</div>
                 <div class="source-caption text-body-2 mt-1">
                   {{ selectedSourceId === source.id ? 'Волна найдена' : lastMistakeSourceId === source.id ? 'Не отсюда' : active ? 'Держи взгляд' : 'Посмотри сюда' }}
@@ -447,6 +450,12 @@ onUnmounted(() => {
   color: var(--source-accent);
   filter: drop-shadow(0 18px 26px color-mix(in srgb, var(--source-accent) 30%, transparent));
   font-size: clamp(4.1rem, min(8vw, 13vh), 7rem);
+}
+
+.source-emoji {
+  filter: drop-shadow(0 18px 26px color-mix(in srgb, var(--source-accent) 30%, transparent));
+  font-size: clamp(4.1rem, min(8vw, 13vh), 7rem);
+  line-height: 1;
 }
 
 .source-caption {
