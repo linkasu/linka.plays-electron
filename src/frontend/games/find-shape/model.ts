@@ -42,7 +42,7 @@ export function generateFindShapeRound(settings: SessionSettings, roundIndex = 1
 
   return {
     roundId: `find-shape:round:${roundIndex}`,
-    prompt: `Найди ${target.promptLabel}`,
+    prompt: `Покажи: ${target.promptLabel}`,
     target,
     choices,
     correctIndex: choices.findIndex((choice) => choice.id === target.id)

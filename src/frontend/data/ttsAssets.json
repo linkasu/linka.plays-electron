@@ -488,5 +488,61 @@
     "text": "Почти. Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/hide-and-seek/mistake.mp3"
+  },
+  {
+    "id": "find-shape.prompt.circle",
+    "game": "find-shape",
+    "text": "Найди круг.",
+    "voice": "jane",
+    "path": "/audio/tts/find-shape/prompt-circle.mp3"
+  },
+  {
+    "id": "find-shape.prompt.square",
+    "game": "find-shape",
+    "text": "Найди квадрат.",
+    "voice": "jane",
+    "path": "/audio/tts/find-shape/prompt-square.mp3"
+  },
+  {
+    "id": "find-shape.prompt.triangle",
+    "game": "find-shape",
+    "text": "Найди треугольник.",
+    "voice": "jane",
+    "path": "/audio/tts/find-shape/prompt-triangle.mp3"
+  },
+  {
+    "id": "find-shape.prompt.star",
+    "game": "find-shape",
+    "text": "Найди звезду.",
+    "voice": "jane",
+    "path": "/audio/tts/find-shape/prompt-star.mp3"
+  },
+  {
+    "id": "find-shape.prompt.heart",
+    "game": "find-shape",
+    "text": "Найди сердце.",
+    "voice": "jane",
+    "path": "/audio/tts/find-shape/prompt-heart.mp3"
+  },
+  {
+    "id": "find-shape.prompt.diamond",
+    "game": "find-shape",
+    "text": "Найди ромб.",
+    "voice": "jane",
+    "path": "/audio/tts/find-shape/prompt-diamond.mp3"
+  },
+  {
+    "id": "find-shape.correct",
+    "game": "find-shape",
+    "text": "Да. Это нужная форма.",
+    "voice": "jane",
+    "path": "/audio/tts/find-shape/correct.mp3"
+  },
+  {
+    "id": "find-shape.mistake",
+    "game": "find-shape",
+    "text": "Почти. Попробуй ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/find-shape/mistake.mp3"
   }
 ]

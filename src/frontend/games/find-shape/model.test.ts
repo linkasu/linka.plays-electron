@@ -25,7 +25,7 @@ describe("find-shape model", () => {
       const targetMatches = round.choices.filter((choice) => choice.id === round.target.id);
 
       expect(round.roundId).toBe(`find-shape:round:${index}`);
-      expect(round.prompt).toBe(`Найди ${round.target.promptLabel}`);
+      expect(round.prompt).toBe(`Покажи: ${round.target.promptLabel}`);
       expect(targetMatches).toHaveLength(1);
       expect(round.choices[round.correctIndex]).toBe(round.target);
     }
