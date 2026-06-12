@@ -21,7 +21,7 @@ type Cover = {
   hint: string;
   icon: string;
   color: string;
-  shape: "bush" | "tree" | "grass" | "flowers" | "rock" | "log";
+  shape: "bush";
 };
 
 type Spot = {
@@ -46,19 +46,19 @@ const characters: Character[] = [
 ];
 
 const covers: Cover[] = [
-  { id: "bush", label: "кустиком", hint: "за круглым кустиком", icon: "mdi-leaf", color: "#86c779", shape: "bush" },
-  { id: "tree", label: "деревом", hint: "рядом с деревом", icon: "mdi-tree-outline", color: "#a5d6a7", shape: "tree" },
-  { id: "grass", label: "травой", hint: "за высокой травой", icon: "mdi-grass", color: "#9ccc65", shape: "grass" },
-  { id: "flower", label: "цветами", hint: "около цветов", icon: "mdi-flower", color: "#f8bbd0", shape: "flowers" },
-  { id: "rock", label: "камнем", hint: "за серым камнем", icon: "mdi-circle", color: "#b0bec5", shape: "rock" },
-  { id: "log", label: "бревном", hint: "за тёплым бревном", icon: "mdi-leaf", color: "#bc8b5f", shape: "log" }
+  { id: "round-bush", label: "кустом", hint: "за круглым кустом", icon: "mdi-leaf", color: "#77c66a", shape: "bush" },
+  { id: "dark-bush", label: "тёмным кустом", hint: "за тёмным кустом", icon: "mdi-leaf", color: "#5cae61", shape: "bush" },
+  { id: "wide-bush", label: "широким кустом", hint: "за широким кустом", icon: "mdi-leaf", color: "#8acb72", shape: "bush" },
+  { id: "flower-bush", label: "цветущим кустом", hint: "за цветущим кустом", icon: "mdi-leaf", color: "#86c779", shape: "bush" },
+  { id: "soft-bush", label: "мягкими кустами", hint: "за мягкими кустами", icon: "mdi-leaf", color: "#96d27f", shape: "bush" },
+  { id: "low-bush", label: "низким кустом", hint: "за низким кустом", icon: "mdi-leaf", color: "#6fbd67", shape: "bush" }
 ];
 
 const layouts = [
-  [{ x: 25, y: 78, size: 178 }, { x: 54, y: 74, size: 190 }, { x: 80, y: 79, size: 174 }],
-  [{ x: 19, y: 76, size: 172 }, { x: 48, y: 80, size: 188 }, { x: 76, y: 75, size: 180 }],
-  [{ x: 23, y: 80, size: 182 }, { x: 53, y: 73, size: 174 }, { x: 82, y: 78, size: 190 }],
-  [{ x: 18, y: 77, size: 170 }, { x: 41, y: 73, size: 178 }, { x: 64, y: 80, size: 186 }, { x: 85, y: 76, size: 170 }]
+  [{ x: 25, y: 68, size: 178 }, { x: 54, y: 64, size: 190 }, { x: 80, y: 69, size: 174 }],
+  [{ x: 20, y: 66, size: 172 }, { x: 48, y: 71, size: 188 }, { x: 76, y: 65, size: 180 }],
+  [{ x: 23, y: 70, size: 182 }, { x: 53, y: 63, size: 174 }, { x: 82, y: 68, size: 190 }],
+  [{ x: 18, y: 68, size: 170 }, { x: 41, y: 63, size: 178 }, { x: 64, y: 71, size: 186 }, { x: 85, y: 66, size: 170 }]
 ] as const;
 
 const router = useRouter();
@@ -191,7 +191,11 @@ function restart() {
                   <div class="hideout" :style="{ '--character-color': spot.character.color, '--cover-color': spot.cover.color }">
                     <v-icon class="hidden-character" :icon="spot.character.icon" />
                     <div :class="['cover-shape', `cover-shape--${spot.cover.shape}`]">
-                      <v-icon class="cover-icon" :icon="spot.cover.icon" />
+                      <span class="bush-blob bush-blob--left" aria-hidden="true" />
+                      <span class="bush-blob bush-blob--center" aria-hidden="true" />
+                      <span class="bush-blob bush-blob--right" aria-hidden="true" />
+                      <span class="bush-blob bush-blob--front-left" aria-hidden="true" />
+                      <span class="bush-blob bush-blob--front-right" aria-hidden="true" />
                     </div>
                     <div v-if="active && progress > 0.72" class="spot-caption text-body-2 font-weight-bold">
                       {{ spot.character.name }} за {{ spot.cover.label }}
@@ -225,7 +229,7 @@ function restart() {
 }
 
 .search-scene {
-  background: linear-gradient(180deg, #dff3ff 0 58%, #cfecc2 58% 100%);
+  background: linear-gradient(180deg, #dff3ff 0 47%, #d8efc8 47% 100%);
   block-size: clamp(31rem, 64vh, 43rem);
   overflow: hidden;
   position: relative;
@@ -253,16 +257,16 @@ function restart() {
 
 .scene-sun {
   background: radial-gradient(circle, #fff9c4 0 36%, rgb(255 249 196 / 0%) 68%);
-  block-size: 13rem;
-  inline-size: 13rem;
-  inset-block-start: 5%;
+  block-size: 11.5rem;
+  inline-size: 11.5rem;
+  inset-block-start: 7%;
   inset-inline-end: 7%;
   position: absolute;
 }
 
 .scene-hill {
   border-radius: 50% 50% 0 0;
-  inset-block-end: 8%;
+  inset-block-end: 22%;
   position: absolute;
 }
 
@@ -281,9 +285,9 @@ function restart() {
 }
 
 .scene-ground {
-  background: linear-gradient(180deg, #95d37d 0%, #72bd67 100%);
-  block-size: 31%;
-  border-radius: 55% 55% 0 0 / 28% 28% 0 0;
+  background: linear-gradient(180deg, #91d277 0%, #70bd65 74%, #64ad5e 100%);
+  block-size: 45%;
+  border-radius: 55% 55% 0 0 / 22% 22% 0 0;
   inset-block-end: -1%;
   inset-inline: -4%;
   position: absolute;
@@ -291,12 +295,12 @@ function restart() {
 
 .scene-path {
   background: rgb(235 202 139 / 44%);
-  block-size: 13%;
+  block-size: 12%;
   border-radius: 50% 50% 0 0;
   filter: blur(0.4px);
-  inline-size: 54%;
+  inline-size: 46%;
   inset-block-end: -1%;
-  inset-inline-start: 23%;
+  inset-inline-start: 27%;
   position: absolute;
 }
 
@@ -333,81 +337,107 @@ function restart() {
   position: relative;
 }
 
+.hideout::after {
+  background: rgb(45 85 60 / 20%);
+  block-size: 13%;
+  border-radius: 50%;
+  content: "";
+  filter: blur(1px);
+  inline-size: 86%;
+  inset-block-end: 1%;
+  inset-inline-start: 7%;
+  position: absolute;
+  z-index: 0;
+}
+
 .hidden-character {
   color: var(--character-color);
   font-size: clamp(4.7rem, 9vw, 7rem);
-  inset-block-end: 30%;
+  inset-block-end: clamp(8.2rem, 10vw, 10.2rem);
   inset-inline-start: 50%;
   line-height: 1;
-  opacity: 0.86;
+  opacity: 0.88;
   position: absolute;
   transform: translateX(-50%);
   z-index: 1;
 }
 
 .cover-shape {
-  align-items: center;
-  background: color-mix(in srgb, var(--cover-color) 84%, white 16%);
-  border: 0.25rem solid rgb(255 255 255 / 58%);
-  box-shadow: inset 0 -0.8rem 1.2rem rgb(0 0 0 / 8%);
-  color: color-mix(in srgb, var(--cover-color) 68%, #2f4f4f 32%);
-  display: flex;
-  justify-content: center;
+  background: linear-gradient(180deg, #79c766 0%, #4d9f4f 68%, #3d8044 100%);
+  border: 0.18rem solid rgb(236 255 221 / 52%);
+  box-shadow: inset 0 -0.85rem 1.2rem rgb(20 79 36 / 18%), 0 0.45rem 1rem rgb(41 94 51 / 28%);
+  color: #2f6f3a;
+  opacity: 0.76;
+  overflow: visible;
   position: absolute;
   z-index: 2;
 }
 
+.cover-shape::before {
+  background: rgb(33 83 45 / 24%);
+  block-size: 18%;
+  border-radius: 50%;
+  content: "";
+  filter: blur(2px);
+  inline-size: 105%;
+  inset-block-end: -8%;
+  inset-inline-start: -2.5%;
+  position: absolute;
+}
+
 .cover-shape--bush {
-  block-size: 54%;
-  border-radius: 55% 45% 48% 52%;
-  inline-size: 82%;
-  inset-block-end: 6%;
-  inset-inline-start: 9%;
+  block-size: clamp(7.2rem, 11vw, 10.4rem);
+  border-radius: 42% 46% 30% 32%;
+  inline-size: 104%;
+  inset-block-end: 0;
+  inset-inline-start: -2%;
 }
 
-.cover-shape--tree {
-  block-size: 76%;
-  border-radius: 50% 50% 38% 38%;
-  inline-size: 72%;
-  inset-block-end: 3%;
-  inset-inline-start: 14%;
+.bush-blob {
+  background: #72c761;
+  border: 0.16rem solid rgb(239 255 226 / 42%);
+  border-radius: 50%;
+  box-shadow: inset 0 -0.45rem 0.85rem rgb(36 95 42 / 18%), 0 0.2rem 0.5rem rgb(38 93 46 / 12%);
+  position: absolute;
 }
 
-.cover-shape--flowers {
-  block-size: 48%;
-  border-radius: 999px 999px 44% 44%;
-  inline-size: 86%;
-  inset-block-end: 7%;
-  inset-inline-start: 7%;
+.bush-blob--left {
+  block-size: 58%;
+  inline-size: 48%;
+  inset-block-start: -20%;
+  inset-inline-start: -5%;
 }
 
-.cover-shape--rock {
-  block-size: 44%;
-  border-radius: 58% 42% 45% 55%;
-  inline-size: 82%;
-  inset-block-end: 5%;
-  inset-inline-start: 9%;
+.bush-blob--center {
+  background: #82d36b;
+  block-size: 70%;
+  inline-size: 56%;
+  inset-block-start: -31%;
+  inset-inline-start: 22%;
 }
 
-.cover-shape--log {
-  block-size: 38%;
-  border-radius: 999px;
-  inline-size: 84%;
-  inset-block-end: 4%;
-  inset-inline-start: 8%;
+.bush-blob--right {
+  background: #63b95b;
+  block-size: 60%;
+  inline-size: 48%;
+  inset-block-start: -18%;
+  inset-inline-end: -5%;
 }
 
-.cover-shape--grass {
+.bush-blob--front-left {
+  background: #59ad53;
   block-size: 56%;
-  border-radius: 24% 24% 42% 42%;
-  inline-size: 78%;
-  inset-block-end: 4%;
-  inset-inline-start: 11%;
+  inline-size: 54%;
+  inset-block-end: 2%;
+  inset-inline-start: 4%;
 }
 
-.cover-icon {
-  font-size: clamp(3.2rem, 7vw, 5.2rem);
-  opacity: 0.74;
+.bush-blob--front-right {
+  background: #4f9f50;
+  block-size: 58%;
+  inline-size: 56%;
+  inset-block-end: 2%;
+  inset-inline-end: 3%;
 }
 
 .spot-caption {
