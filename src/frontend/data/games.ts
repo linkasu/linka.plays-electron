@@ -758,13 +758,14 @@ export const games: GameInfo[] = [
   {
     id: "find-digit",
     title: "Найди цифру",
-    description: "Найди заданную цифру среди крупных карточек цифровой сценки; ошибка только мягко подсветит правильный выбор.",
+    description: "Найди заданную цифру среди крупных спокойных карточек; после промаха нужная цифра мягко подсвечивается.",
     selfDescription: "Найди цифру.",
     route: "/games/find-digit",
     category: "numeracy",
     icon: "mdi-numeric",
     skills: ["counting", "choice", "visual-search"],
     status: "therapy-ready",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 200,
     defaultDwellMs: 1300
