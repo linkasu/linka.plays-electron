@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -7,6 +7,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeShadowMatchAudio, playShadowMatchMistakeMelody, playShadowMatchSuccessMelody, warmShadowMatchAudio } from "./audio";
 import { generateShadowMatchRound, type ShadowMatchItem } from "./model";
 
 const router = useRouter();
@@ -46,6 +47,7 @@ function answer(choice: ShadowMatchItem) {
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: true });
     hintedRoundId.value = undefined;
     lastMistakeId.value = undefined;
+    void playShadowMatchSuccessMelody(session.settings.sound);
     if (session.step < session.maxSteps) nextRound();
     return;
   }
@@ -54,6 +56,7 @@ function answer(choice: ShadowMatchItem) {
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "shadow-mismatch" });
   hintedRoundId.value = round.value.roundId;
   lastMistakeId.value = choice.id;
+  void playShadowMatchMistakeMelody(session.settings.sound);
 }
 
 function restart() {
@@ -61,6 +64,14 @@ function restart() {
   lastMistakeId.value = undefined;
   restartRoundGame();
 }
+
+onMounted(() => {
+  warmShadowMatchAudio(session.settings.sound);
+});
+
+onUnmounted(() => {
+  disposeShadowMatchAudio();
+});
 </script>
 
 <template>
