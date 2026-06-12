@@ -226,4 +226,15 @@ watch(() => session.status, (status) => {
     padding-block-start: 156px;
   }
 }
+
+@media (max-height: 920px) {
+  .game-container {
+    padding-block-start: 7.25rem;
+  }
+
+  .period-card,
+  .game-container .v-divider {
+    display: none;
+  }
+}
 </style>

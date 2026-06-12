@@ -340,4 +340,14 @@ onUnmounted(() => {
     transform: rotate(90deg);
   }
 }
+
+@media (max-height: 920px) {
+  .hero-route-container {
+    padding-block-start: 7.25rem;
+  }
+
+  .route-map {
+    display: none;
+  }
+}
 </style>

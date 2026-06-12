@@ -229,4 +229,14 @@ onUnmounted(() => {
     gap: 10px;
   }
 }
+
+@media (max-height: 920px) {
+  .game-container {
+    padding-block-start: 7.25rem;
+  }
+
+  .story-slots {
+    display: none;
+  }
+}
 </style>

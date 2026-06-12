@@ -256,6 +256,29 @@ watch(() => session.status, (status) => {
   }
 }
 
+@media (min-width: 700px) and (max-height: 820px) {
+  .game-container {
+    padding-block-start: 7rem;
+  }
+
+  .play-area {
+    gap: 1rem;
+    grid-template-columns: minmax(0, 0.8fr) minmax(18rem, 1.2fr);
+  }
+
+  .stack {
+    min-block-size: 220px;
+  }
+
+  .stack-layers {
+    min-block-size: 170px;
+  }
+
+  .stem {
+    block-size: 190px;
+  }
+}
+
 @media (max-width: 600px) {
   .game-container {
     padding-block-start: 104px;

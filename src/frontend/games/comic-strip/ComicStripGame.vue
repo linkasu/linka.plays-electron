@@ -209,4 +209,14 @@ onUnmounted(clearAdvanceTimer);
     min-block-size: 9.5rem;
   }
 }
+
+@media (max-height: 920px) {
+  .comic-strip-container {
+    padding-block-start: 7.25rem;
+  }
+
+  .comic-slot {
+    display: none;
+  }
+}
 </style>

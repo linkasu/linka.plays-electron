@@ -304,8 +304,12 @@ function restart() {
     padding-block-start: 7.25rem;
   }
 
+  .play-area {
+    grid-template-columns: minmax(0, 0.85fr) minmax(18rem, 1.15fr);
+  }
+
   .character-stage {
-    block-size: 22rem;
+    block-size: 16rem;
   }
 }
 </style>

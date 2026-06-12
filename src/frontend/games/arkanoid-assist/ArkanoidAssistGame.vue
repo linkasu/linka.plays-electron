@@ -192,8 +192,8 @@ function restart() {
               </v-chip>
             </div>
 
-            <v-row align="stretch" class="ga-3" no-gutters>
-              <v-col cols="12" lg="7" class="pe-lg-4">
+            <v-row align="stretch">
+              <v-col cols="12" sm="7" class="pe-sm-4">
                 <v-card class="arkanoid-board pa-3 pa-md-5" color="indigo-lighten-5" rounded="xl" variant="flat">
                   <div class="arkanoid-stage" :style="ballStyle" aria-label="Поле арканоида">
                     <div class="block-grid" role="grid" aria-label="Блоки для мягкого удара">
@@ -222,7 +222,7 @@ function restart() {
                 </v-card>
               </v-col>
 
-              <v-col cols="12" lg="5">
+              <v-col cols="12" sm="5">
                 <v-card class="pa-4 pa-md-5 h-100" color="surface" rounded="xl" variant="outlined">
                   <div class="text-overline text-secondary mb-2">Секторы платформы</div>
                   <div class="sector-grid">
@@ -406,6 +406,20 @@ function restart() {
 @media (max-width: 960px) {
   .game-container {
     padding-block-start: 9.5rem;
+  }
+}
+
+@media (min-width: 700px) and (max-height: 920px) {
+  .game-container {
+    padding-block-start: 7.25rem;
+  }
+
+  .arkanoid-board {
+    min-block-size: clamp(20rem, 50vh, 28rem);
+  }
+
+  .arkanoid-stage {
+    block-size: clamp(18rem, 44vh, 25rem);
   }
 }
 

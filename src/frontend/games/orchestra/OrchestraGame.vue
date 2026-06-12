@@ -378,6 +378,20 @@ onUnmounted(() => {
   }
 }
 
+@media (max-height: 820px) {
+  .orchestra-container {
+    padding-block-start: 7.25rem;
+  }
+
+  .stage-card {
+    display: none;
+  }
+
+  .orchestra-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 600px) {
   .choice-grid {
     grid-template-columns: 1fr;

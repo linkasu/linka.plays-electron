@@ -234,4 +234,14 @@ function restart() {
     min-block-size: 18rem;
   }
 }
+
+@media (max-height: 820px) {
+  .game-container {
+    padding-block-start: 7.25rem;
+  }
+
+  .open-card-panel {
+    display: none;
+  }
+}
 </style>

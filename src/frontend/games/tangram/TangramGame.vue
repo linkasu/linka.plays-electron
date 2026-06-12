@@ -192,4 +192,14 @@ function restart() {
     block-size: 7.5rem;
   }
 }
+
+@media (max-height: 920px) {
+  .tangram-container {
+    padding-block-start: 7.25rem;
+  }
+
+  .silhouette-card {
+    display: none;
+  }
+}
 </style>

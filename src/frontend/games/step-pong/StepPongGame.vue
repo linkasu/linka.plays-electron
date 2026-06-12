@@ -170,8 +170,8 @@ function restart() {
               </v-chip>
             </div>
 
-            <v-row align="stretch" class="ga-3" no-gutters>
-              <v-col cols="12" lg="7" class="pe-lg-4">
+            <v-row align="stretch">
+              <v-col cols="12" sm="7" class="pe-sm-4">
                 <v-card class="pong-board pa-3 pa-md-5" color="cyan-lighten-5" rounded="xl" variant="flat">
                   <div class="pong-stage" :style="ballStyle" aria-label="Поле пошагового понга">
                     <div class="partner-paddle" aria-hidden="true" />
@@ -191,7 +191,7 @@ function restart() {
                 </v-card>
               </v-col>
 
-              <v-col cols="12" lg="5">
+              <v-col cols="12" sm="5">
                 <v-card class="pa-4 pa-md-5 h-100" color="surface" rounded="xl" variant="outlined">
                   <div class="text-overline text-secondary mb-2">Позиция ракетки</div>
                   <div class="lane-grid">
@@ -375,6 +375,20 @@ function restart() {
 @media (max-width: 960px) {
   .game-container {
     padding-block-start: 9.5rem;
+  }
+}
+
+@media (min-width: 700px) and (max-height: 920px) {
+  .game-container {
+    padding-block-start: 7.25rem;
+  }
+
+  .pong-board {
+    min-block-size: clamp(20rem, 50vh, 28rem);
+  }
+
+  .pong-stage {
+    block-size: clamp(18rem, 44vh, 25rem);
   }
 }
 

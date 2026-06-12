@@ -191,4 +191,14 @@ onUnmounted(() => {
   font-size: clamp(4.5rem, 10vw, 7rem);
   line-height: 1;
 }
+
+@media (max-height: 820px) {
+  .game-container {
+    padding-block-start: 7.25rem;
+  }
+
+  .timeline-step {
+    display: none;
+  }
+}
 </style>

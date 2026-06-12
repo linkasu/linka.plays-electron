@@ -125,7 +125,7 @@ onUnmounted(() => {
             <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5">{{ feedbackText }}</p>
 
             <v-row class="align-stretch" dense>
-              <v-col cols="12" md="6">
+              <v-col cols="12" sm="6">
                 <v-card class="robot-stage pa-4 pa-md-5" color="cyan-lighten-5" rounded="xl" variant="flat">
                   <div class="text-body-1 text-medium-emphasis text-center mb-3">Робот {{ round.robotIndex }}, шаг {{ round.stepIndex + 1 }} из 4</div>
                   <div class="robot-layout" aria-label="Собираемый робот">
@@ -144,7 +144,7 @@ onUnmounted(() => {
                 </v-card>
               </v-col>
 
-              <v-col cols="12" md="6">
+              <v-col cols="12" sm="6">
                 <v-row class="choice-grid" dense>
                   <v-col v-for="part in round.choices" :key="part.id" cols="12" sm="6">
                     <GameDwellButton :target-id="choiceTargetId(part)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="170" :color="choiceColor(part)" @select="choosePart(part)">
@@ -257,6 +257,21 @@ onUnmounted(() => {
 
   .robot-slot {
     min-block-size: 7.25rem;
+  }
+}
+
+@media (max-height: 820px) {
+  .game-container {
+    padding-block-start: 7.25rem;
+  }
+
+  .robot-slot {
+    min-block-size: clamp(5.5rem, 11vh, 7rem);
+  }
+
+  .slot-icon,
+  .choice-icon {
+    font-size: clamp(2.8rem, min(6vw, 8vh), 4.2rem);
   }
 }
 </style>

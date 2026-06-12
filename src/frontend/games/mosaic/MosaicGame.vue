@@ -246,4 +246,15 @@ onUnmounted(() => {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+@media (max-height: 920px) {
+  .game-container {
+    padding-block-start: 7.25rem;
+  }
+
+  .hint-card,
+  .mosaic-grid {
+    display: none;
+  }
+}
 </style>

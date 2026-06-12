@@ -190,8 +190,8 @@ function restart() {
               </v-chip>
             </div>
 
-            <v-row align="stretch" class="ga-2" no-gutters>
-              <v-col cols="12" lg="7" class="order-2 order-lg-1 pe-lg-5">
+            <div class="tetris-layout">
+              <div class="board-panel">
                 <div class="board mx-auto" role="grid" aria-label="Поле спокойного тетриса">
                   <div v-for="row in rows" :key="row" class="board-row" role="row">
                     <div
@@ -203,9 +203,9 @@ function restart() {
                     />
                   </div>
                 </div>
-              </v-col>
+              </div>
 
-              <v-col cols="12" lg="5" class="order-1 order-lg-2">
+              <div class="controls-panel">
                 <v-card class="side-panel pa-4 pa-md-5 h-100" color="indigo-lighten-5" rounded="xl" variant="flat">
                   <div class="text-body-1 text-medium-emphasis mb-4">{{ feedbackMessage }}</div>
                   <GameWasdPanel :controls="actionButtons" :dwell-ms="session.settings.dwellMs" aria-label="WASD управление тетрисом" @select="chooseAction">
@@ -218,8 +218,8 @@ function restart() {
                     </template>
                   </GameWasdPanel>
                 </v-card>
-              </v-col>
-            </v-row>
+              </div>
+            </div>
           </v-card>
         </v-col>
       </v-row>
@@ -246,13 +246,25 @@ function restart() {
   margin-inline: auto;
 }
 
+.tetris-layout {
+  align-items: start;
+  display: grid;
+  gap: clamp(1rem, 2vw, 2rem);
+  grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.82fr);
+}
+
+.board-panel,
+.controls-panel {
+  min-inline-size: 0;
+}
+
 .board {
   background: rgb(var(--v-theme-surface) / 78%);
   border: 1px solid rgb(var(--v-theme-outline-variant));
   border-radius: 24px;
   display: grid;
   gap: 5px;
-  inline-size: min(100%, 620px);
+  inline-size: min(100%, 36vh, 420px);
   padding: clamp(10px, 2vw, 18px);
 }
 
@@ -321,8 +333,34 @@ function restart() {
     padding-block-start: 140px;
   }
 
+  .tetris-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .controls-panel {
+    order: -1;
+  }
+
   .controls-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-height: 680px) {
+  .game-container {
+    padding-block-start: 112px;
+  }
+
+  .game-card {
+    padding-block: 1rem !important;
+  }
+
+  .tetris-layout {
+    gap: 0.75rem;
+  }
+
+  .board {
+    inline-size: min(100%, 32vh, 320px);
   }
 }
 </style>

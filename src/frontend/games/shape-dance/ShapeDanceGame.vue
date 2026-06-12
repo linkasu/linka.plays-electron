@@ -283,6 +283,16 @@ onUnmounted(() => {
   transform: scale(1.06);
 }
 
+@media (max-height: 920px) {
+  .shape-dance-container {
+    padding-block-start: 7.25rem;
+  }
+
+  .dance-stage {
+    display: none;
+  }
+}
+
 .shape-dance-rise.stage-figure--active,
 .shape-dance-rise.choice-figure--active {
   animation: shape-dance-rise 820ms ease-in-out;

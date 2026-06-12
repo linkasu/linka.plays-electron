@@ -264,4 +264,14 @@ function restart() {
     min-block-size: 7.5rem;
   }
 }
+
+@media (max-height: 820px) {
+  .game-container {
+    padding-block-start: 7.25rem;
+  }
+
+  .picture-board {
+    display: none;
+  }
+}
 </style>

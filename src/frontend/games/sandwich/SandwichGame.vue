@@ -284,6 +284,26 @@ watch(() => session.status, (status) => {
   }
 }
 
+@media (min-width: 700px) and (max-height: 820px) {
+  .game-container {
+    padding-block-start: 7rem;
+  }
+
+  .play-area {
+    gap: 1rem;
+    grid-template-columns: minmax(0, 0.8fr) minmax(18rem, 1.2fr);
+  }
+
+  .plate-stage {
+    min-block-size: 240px;
+  }
+
+  .plate {
+    min-block-size: 190px;
+    padding: 24px 20px;
+  }
+}
+
 @media (max-width: 600px) {
   .game-container {
     padding-block-start: 156px;

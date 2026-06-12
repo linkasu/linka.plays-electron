@@ -116,7 +116,7 @@ onUnmounted(() => {
               <div class="text-h6 text-md-h5 text-medium-emphasis">{{ feedback }}</div>
             </div>
 
-            <v-card class="pa-5 mb-6" color="primary" rounded="xl" variant="tonal">
+            <v-card class="object-card pa-5 mb-6" color="primary" rounded="xl" variant="tonal">
               <div class="d-flex flex-column flex-md-row align-center justify-center ga-4 text-center">
                 <div class="object-emoji emoji-glyph">{{ round.pair.objectEmoji }}</div>
                 <div>
@@ -162,5 +162,15 @@ onUnmounted(() => {
 .choice-emoji {
   font-size: clamp(3.8rem, 8vw, 6rem);
   line-height: 1;
+}
+
+@media (max-height: 820px) {
+  .game-container {
+    padding-block-start: 7.25rem;
+  }
+
+  .object-card {
+    display: none;
+  }
 }
 </style>

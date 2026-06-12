@@ -19,7 +19,8 @@ const defaultRegistryPath = path.join(projectRoot, "src/frontend/data/games.ts")
 
 const viewports = [
   { width: 800, height: 600 },
-  { width: 1024, height: 600 }
+  { width: 1024, height: 600 },
+  { width: 1600, height: 900 }
 ];
 
 function argValue(name, fallback) {
@@ -95,9 +96,9 @@ function createCdpClient(webSocketDebuggerUrl) {
   });
 }
 
-function routeUrl(baseUrl, route) {
+function routeUrl(baseUrl, route, nonce) {
   const base = new URL(baseUrl);
-  return `${base.origin}/#${route}`;
+  return `${base.origin}/?cdpAudit=${nonce}#${route}`;
 }
 
 async function evaluateJson(client, expression) {
@@ -110,8 +111,10 @@ async function evaluateJson(client, expression) {
   return result.result?.value;
 }
 
-async function collectMetrics(client) {
+async function collectMetrics(client, expectedRoute) {
+  const expectedHash = `#${expectedRoute}`;
   return evaluateJson(client, `(() => {
+    const expectedHash = ${JSON.stringify(expectedHash)};
     const viewport = { width: window.innerWidth, height: window.innerHeight };
     const scrolling = document.scrollingElement || document.documentElement;
     const hudRects = Array.from(document.querySelectorAll('.game-hud, [class*="hud"]')).map((el) => {
@@ -146,6 +149,7 @@ async function collectMetrics(client) {
     const visibleTargets = targetRects.filter((target) => target.firstViewportVisible);
     return {
       url: window.location.href,
+      routeMatches: window.location.hash === expectedHash,
       title: document.title,
       viewport,
       scrollWidth: scrolling.scrollWidth,
@@ -167,6 +171,7 @@ async function collectMetrics(client) {
 
 function isFailure(result) {
   return result.errors.length
+    || !result.metrics.routeMatches
     || result.metrics.horizontalOverflow
     || result.metrics.hudOverlapCount
     || (result.metrics.wasdPanelCount > 0 && result.metrics.visibleTargetCount < result.metrics.targetCount)
@@ -254,11 +259,11 @@ async function main() {
         deviceScaleFactor: 1,
         mobile: false
       });
-      await client.send("Page.navigate", { url: routeUrl(pageTarget.url, route) });
-      await wait(80);
+      await client.send("Page.navigate", { url: routeUrl(pageTarget.url, route, `${Date.now()}-${results.length}`) });
+      await wait(250);
       await evaluateJson(client, "window.scrollTo(0, 0); true");
       await wait(900);
-      const metrics = await collectMetrics(client);
+      const metrics = await collectMetrics(client, route);
       const routeErrors = runtimeErrors.slice(errorStart);
       results.push({ route, viewport, errors: routeErrors, metrics });
     }
