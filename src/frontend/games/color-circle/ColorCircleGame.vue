@@ -32,6 +32,7 @@ const advancing = ref(false);
 const colorCircleTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.game === "color-circle");
 let advanceTimer = 0;
 let promptTimer = 0;
+let responseTtsTimer = 0;
 
 const targetStyle = computed(() => ({
   "--target-color": round.value.target.hex,
@@ -56,6 +57,11 @@ function clearAdvanceTimer() {
   promptTimer = 0;
 }
 
+function clearResponseTtsTimer() {
+  window.clearTimeout(responseTtsTimer);
+  responseTtsTimer = 0;
+}
+
 function ttsAsset(id: string) {
   return colorCircleTtsAssets.find((asset) => asset.id === id);
 }
@@ -64,6 +70,13 @@ function playTargetPrompt(delayMs = 0) {
   window.clearTimeout(promptTimer);
   promptTimer = window.setTimeout(() => {
     playTtsAsset(session.settings.sound, ttsAsset(`color-circle.prompt.${round.value.target.id}`), 0.36);
+  }, delayMs);
+}
+
+function playResponseTts(id: string, delayMs = 920) {
+  clearResponseTtsTimer();
+  responseTtsTimer = window.setTimeout(() => {
+    playTtsAsset(session.settings.sound, ttsAsset(id), 0.36);
   }, delayMs);
 }
 
@@ -79,7 +92,7 @@ function prepareNextRound() {
       nextRound();
       playTargetPrompt(160);
     }
-  }, 900);
+  }, 2100);
 }
 
 function answer(color: ColorCircleColor) {
@@ -92,7 +105,7 @@ function answer(color: ColorCircleColor) {
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: color.id, expected: round.value.target.label, actual: color.label, isCorrect: true });
     feedbackText.value = `Да, это ${color.label}.`;
     void playColorCircleSuccessMelody(session.settings.sound);
-    playTtsAsset(session.settings.sound, ttsAsset(`color-circle.${color.id}`), 0.36);
+    playResponseTts(`color-circle.${color.id}`);
     revealedTargetId.value = color.id;
     selectedMistakeId.value = undefined;
     if (session.status === "running" && session.step < session.maxSteps) prepareNextRound();
@@ -103,7 +116,7 @@ function answer(color: ColorCircleColor) {
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, message: "Показан нужный цвет перед следующим кругом." });
   feedbackText.value = `Это ${color.label}. Нужен был ${round.value.target.label}. Следующий круг спокойно.`;
   void playColorCircleMistakeMelody(session.settings.sound);
-  playTtsAsset(session.settings.sound, ttsAsset(`color-circle.${color.id}`), 0.36);
+  playResponseTts(`color-circle.${color.id}`);
   revealedTargetId.value = round.value.target.id;
   selectedMistakeId.value = color.id;
   prepareNextRound();
@@ -111,6 +124,7 @@ function answer(color: ColorCircleColor) {
 
 function restart() {
   clearAdvanceTimer();
+  clearResponseTtsTimer();
   feedbackText.value = "Смотри на сектор нужного цвета.";
   revealedTargetId.value = undefined;
   selectedMistakeId.value = undefined;
@@ -127,6 +141,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   clearAdvanceTimer();
+  clearResponseTtsTimer();
   disposeColorCircleAudio();
   disposeTtsAssets(colorCircleTtsAssets);
 });
