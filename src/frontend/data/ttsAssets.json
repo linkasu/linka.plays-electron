@@ -369,5 +369,124 @@
     "text": "Нет. Это не подходит.",
     "voice": "jane",
     "path": "/audio/tts/feed-animal/mistake.mp3"
+  },
+  {
+    "id": "hide-and-seek.prompt.cat",
+    "game": "hide-and-seek",
+    "text": "Найди кота.",
+    "voice": "jane",
+    "path": "/audio/tts/hide-and-seek/prompt-cat.mp3"
+  },
+  {
+    "id": "hide-and-seek.prompt.star",
+    "game": "hide-and-seek",
+    "text": "Найди звезду.",
+    "voice": "jane",
+    "path": "/audio/tts/hide-and-seek/prompt-star.mp3"
+  },
+  {
+    "id": "hide-and-seek.prompt.flower",
+    "game": "hide-and-seek",
+    "text": "Найди цветок.",
+    "voice": "jane",
+    "path": "/audio/tts/hide-and-seek/prompt-flower.mp3"
+  },
+  {
+    "id": "hide-and-seek.prompt.duck",
+    "game": "hide-and-seek",
+    "text": "Найди утку.",
+    "voice": "jane",
+    "path": "/audio/tts/hide-and-seek/prompt-duck.mp3"
+  },
+  {
+    "id": "hide-and-seek.prompt.ball",
+    "game": "hide-and-seek",
+    "text": "Найди мяч.",
+    "voice": "jane",
+    "path": "/audio/tts/hide-and-seek/prompt-ball.mp3"
+  },
+  {
+    "id": "hide-and-seek.prompt.dog",
+    "game": "hide-and-seek",
+    "text": "Найди собаку.",
+    "voice": "jane",
+    "path": "/audio/tts/hide-and-seek/prompt-dog.mp3"
+  },
+  {
+    "id": "hide-and-seek.prompt.rabbit",
+    "game": "hide-and-seek",
+    "text": "Найди зайца.",
+    "voice": "jane",
+    "path": "/audio/tts/hide-and-seek/prompt-rabbit.mp3"
+  },
+  {
+    "id": "hide-and-seek.prompt.bear",
+    "game": "hide-and-seek",
+    "text": "Найди мишку.",
+    "voice": "jane",
+    "path": "/audio/tts/hide-and-seek/prompt-bear.mp3"
+  },
+  {
+    "id": "hide-and-seek.prompt.car",
+    "game": "hide-and-seek",
+    "text": "Найди машинку.",
+    "voice": "jane",
+    "path": "/audio/tts/hide-and-seek/prompt-car.mp3"
+  },
+  {
+    "id": "hide-and-seek.prompt.tree",
+    "game": "hide-and-seek",
+    "text": "Найди дерево.",
+    "voice": "jane",
+    "path": "/audio/tts/hide-and-seek/prompt-tree.mp3"
+  },
+  {
+    "id": "hide-and-seek.prompt.apple",
+    "game": "hide-and-seek",
+    "text": "Найди яблоко.",
+    "voice": "jane",
+    "path": "/audio/tts/hide-and-seek/prompt-apple.mp3"
+  },
+  {
+    "id": "hide-and-seek.prompt.fish",
+    "game": "hide-and-seek",
+    "text": "Найди рыбку.",
+    "voice": "jane",
+    "path": "/audio/tts/hide-and-seek/prompt-fish.mp3"
+  },
+  {
+    "id": "hide-and-seek.prompt.sun",
+    "game": "hide-and-seek",
+    "text": "Найди солнце.",
+    "voice": "jane",
+    "path": "/audio/tts/hide-and-seek/prompt-sun.mp3"
+  },
+  {
+    "id": "hide-and-seek.prompt.moon",
+    "game": "hide-and-seek",
+    "text": "Найди луну.",
+    "voice": "jane",
+    "path": "/audio/tts/hide-and-seek/prompt-moon.mp3"
+  },
+  {
+    "id": "hide-and-seek.prompt.butterfly",
+    "game": "hide-and-seek",
+    "text": "Найди бабочку.",
+    "voice": "jane",
+    "path": "/audio/tts/hide-and-seek/prompt-butterfly.mp3"
+  },
+  {
+    "id": "hide-and-seek.correct",
+    "game": "hide-and-seek",
+    "text": "Да. Нашли.",
+    "voice": "jane",
+    "path": "/audio/tts/hide-and-seek/correct.mp3"
+  },
+  {
+    "id": "hide-and-seek.mistake",
+    "game": "hide-and-seek",
+    "text": "Почти. Попробуй ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/hide-and-seek/mistake.mp3"
   }
 ]

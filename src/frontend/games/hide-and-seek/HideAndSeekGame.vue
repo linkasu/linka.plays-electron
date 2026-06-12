@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -7,30 +7,108 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { clampTargetCenterPercent } from "../../core/placement";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
+import ttsAssets from "../../data/ttsAssets.json";
 import { disposeHideAndSeekAudio, playHideAndSeekMistakeMelody, playHideAndSeekSuccessMelody, resetHideAndSeekAudioSession, warmHideAndSeekAudio } from "./audio";
 
-type HiddenObject = { id: string; emoji: string; name: string; x: number; y: number; found: boolean };
+type SeekPicture = { id: string; emoji: string; name: string };
+type HiddenObject = SeekPicture & { x: number; y: number; hidden: boolean };
+type SeekRound = { id: string; target: SeekPicture; choices: HiddenObject[] };
 
-const objects = reactive<HiddenObject[]>([
-  { id: "cat", emoji: "🐱", name: "кота", x: 18, y: 58, found: false },
-  { id: "star", emoji: "⭐", name: "звезду", x: 76, y: 34, found: false },
-  { id: "flower", emoji: "🌸", name: "цветок", x: 52, y: 72, found: false },
-  { id: "duck", emoji: "🦆", name: "утку", x: 32, y: 30, found: false },
-  { id: "ball", emoji: "⚽", name: "мяч", x: 68, y: 62, found: false }
-]);
+const totalRounds = 10;
+const choicesPerRound = 5;
+const picturePool: SeekPicture[] = [
+  { id: "cat", emoji: "🐱", name: "кота" },
+  { id: "star", emoji: "⭐", name: "звезду" },
+  { id: "flower", emoji: "🌸", name: "цветок" },
+  { id: "duck", emoji: "🦆", name: "утку" },
+  { id: "ball", emoji: "⚽", name: "мяч" },
+  { id: "dog", emoji: "🐶", name: "собаку" },
+  { id: "rabbit", emoji: "🐰", name: "зайца" },
+  { id: "bear", emoji: "🐻", name: "мишку" },
+  { id: "car", emoji: "🚗", name: "машинку" },
+  { id: "tree", emoji: "🌳", name: "дерево" },
+  { id: "apple", emoji: "🍎", name: "яблоко" },
+  { id: "fish", emoji: "🐟", name: "рыбку" },
+  { id: "sun", emoji: "☀️", name: "солнце" },
+  { id: "moon", emoji: "🌙", name: "луну" },
+  { id: "butterfly", emoji: "🦋", name: "бабочку" }
+];
+
+const positionTemplates = [
+  { x: 30, y: 30 },
+  { x: 72, y: 34 },
+  { x: 22, y: 62 },
+  { x: 52, y: 72 },
+  { x: 78, y: 64 },
+  { x: 46, y: 44 },
+  { x: 62, y: 54 }
+];
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("hide-and-seek", {
-  maxSteps: objects.length,
+  maxSteps: totalRounds,
   dwellMs: 1200,
   sessionSeconds: 120
 });
 
+const hideAndSeekTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.game === "hide-and-seek");
+const rounds = ref<SeekRound[]>(createRounds());
+const pageIndex = ref(0);
+const isAdvancing = ref(false);
 const resultVisible = computed(() => session.status === "finished");
-const currentObject = computed(() => objects.find((object) => !object.found));
+const currentRound = computed(() => rounds.value[pageIndex.value]);
+const currentObject = computed(() => currentRound.value?.target);
 const feedbackMessage = ref("Смотри спокойно и выбирай того, кого просим.");
 const lastMistakeObjectId = ref<string>();
 const mistakenObjectIdsForCurrentTarget = new Set<string>();
+let nextRoundTimer = 0;
+let promptTimer = 0;
+let responseTtsTimer = 0;
+
+function shuffled<T>(items: T[]) {
+  const copy = [...items];
+  for (let index = copy.length - 1; index > 0; index--) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
+  }
+  return copy;
+}
+
+function createRound(roundIndex: number, target: SeekPicture): SeekRound {
+  const distractors = shuffled(picturePool.filter((picture) => picture.id !== target.id)).slice(0, choicesPerRound - 1);
+  const choices = shuffled([target, ...distractors]);
+  const positions = shuffled(positionTemplates).slice(0, choices.length);
+  return {
+    id: `hide-and-seek-round-${roundIndex}-${Date.now()}`,
+    target,
+    choices: choices.map((choice, index) => ({ ...choice, ...positions[index], hidden: false }))
+  };
+}
+
+function createRounds() {
+  return shuffled(picturePool).slice(0, totalRounds).map((target, index) => createRound(index, target));
+}
+
+function ttsAsset(id: string) {
+  return hideAndSeekTtsAssets.find((asset) => asset.id === id);
+}
+
+function playPrompt(delayMs = 0) {
+  window.clearTimeout(promptTimer);
+  promptTimer = window.setTimeout(() => {
+    const object = currentObject.value;
+    if (!object) return;
+    playTtsAsset(session.settings.sound, ttsAsset(`hide-and-seek.prompt.${object.id}`), 0.36);
+  }, delayMs);
+}
+
+function playResponseTts(id: string, delayMs = 920) {
+  window.clearTimeout(responseTtsTimer);
+  responseTtsTimer = window.setTimeout(() => {
+    playTtsAsset(session.settings.sound, ttsAsset(id), 0.36);
+  }, delayMs);
+}
 
 function objectWidth() {
   return 160 * session.settings.targetScale;
@@ -41,7 +119,7 @@ function objectHeight() {
 }
 
 function objectTargetId(object: HiddenObject) {
-  return `hide-and-seek:object:${object.id}`;
+  return `hide-and-seek:${currentRound.value?.id ?? "round"}:object:${object.id}`;
 }
 
 function objectStyle(object: HiddenObject) {
@@ -57,7 +135,7 @@ function objectStyle(object: HiddenObject) {
     left: `${point.x}%`,
     top: `${point.y}%`,
     inlineSize: `${objectWidth()}px`,
-    opacity: object.found ? 1 : isLastMistake ? 0.72 : 0.42
+    opacity: isLastMistake ? 0.72 : 0.42
   };
 }
 
@@ -66,44 +144,69 @@ function objectColor(object: HiddenObject) {
 }
 
 function chooseObject(object: HiddenObject) {
-  if (session.status !== "running" || object.found || !currentObject.value) return;
+  if (session.status !== "running" || object.hidden || !currentObject.value || isAdvancing.value) return;
 
   const expectedObject = currentObject.value;
+  object.hidden = true;
   if (object.id !== expectedObject.id) {
     lastMistakeObjectId.value = object.id;
     feedbackMessage.value = `Почти. Попробуем ещё раз: найди ${expectedObject.name}.`;
+    void playHideAndSeekMistakeMelody(session.settings.sound);
+    playResponseTts("hide-and-seek.mistake");
     if (mistakenObjectIdsForCurrentTarget.has(object.id)) return;
 
     mistakenObjectIdsForCurrentTarget.add(object.id);
     recordMistake({ targetId: object.id, expectedTargetId: expectedObject.id, actual: object.name, expected: expectedObject.name, isCorrect: false });
-    void playHideAndSeekMistakeMelody(session.settings.sound);
     return;
   }
 
-  object.found = true;
   lastMistakeObjectId.value = undefined;
   mistakenObjectIdsForCurrentTarget.clear();
-  feedbackMessage.value = currentObject.value ? "Есть! Ищем следующего друга." : "Всех нашли!";
+  feedbackMessage.value = session.step + 1 >= session.maxSteps ? "Всех нашли!" : "Есть! Сейчас новая страница.";
   recordSuccess({ targetId: object.id, answerId: object.id, expected: object.name, actual: object.name, isCorrect: true });
   void playHideAndSeekSuccessMelody(session.settings.sound);
+  playResponseTts("hide-and-seek.correct");
+  isAdvancing.value = true;
+  window.clearTimeout(nextRoundTimer);
+  nextRoundTimer = window.setTimeout(() => {
+    if (session.status !== "running") return;
+    pageIndex.value = Math.min(pageIndex.value + 1, rounds.value.length - 1);
+    lastMistakeObjectId.value = undefined;
+    mistakenObjectIdsForCurrentTarget.clear();
+    feedbackMessage.value = "Смотри спокойно и выбирай того, кого просим.";
+    isAdvancing.value = false;
+    playPrompt(180);
+  }, 1900);
 }
 
 function restart() {
-  objects.forEach((object) => { object.found = false; });
+  window.clearTimeout(nextRoundTimer);
+  window.clearTimeout(promptTimer);
+  window.clearTimeout(responseTtsTimer);
+  rounds.value = createRounds();
+  pageIndex.value = 0;
+  isAdvancing.value = false;
   lastMistakeObjectId.value = undefined;
   mistakenObjectIdsForCurrentTarget.clear();
   resetHideAndSeekAudioSession();
   feedbackMessage.value = "Смотри спокойно и выбирай того, кого просим.";
   startSession();
+  playPrompt(220);
 }
 
 onMounted(() => {
   resetHideAndSeekAudioSession();
   warmHideAndSeekAudio(session.settings.sound);
+  warmTtsAssets(session.settings.sound, hideAndSeekTtsAssets);
+  playPrompt(450);
 });
 
 onUnmounted(() => {
+  window.clearTimeout(nextRoundTimer);
+  window.clearTimeout(promptTimer);
+  window.clearTimeout(responseTtsTimer);
   disposeHideAndSeekAudio();
+  disposeTtsAssets(hideAndSeekTtsAssets);
 });
 </script>
 
@@ -118,12 +221,12 @@ onUnmounted(() => {
         <div class="text-body-1 text-medium-emphasis mt-2">{{ feedbackMessage }}</div>
       </v-card>
       <GameDwellButton
-        v-for="object in objects"
-        :key="object.id"
+        v-for="object in currentRound?.choices.filter((choice) => !choice.hidden) ?? []"
+        :key="`${currentRound?.id}:${object.id}`"
         class="hidden-target"
         :color="objectColor(object)"
         :target-id="objectTargetId(object)"
-        :disabled="session.status !== 'running' || object.found"
+        :disabled="session.status !== 'running' || object.hidden || isAdvancing"
         :dwell-ms="session.settings.dwellMs"
         :min-height="objectHeight()"
         :style="objectStyle(object)"
