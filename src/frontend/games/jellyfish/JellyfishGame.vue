@@ -6,6 +6,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeJellyfishAudio, playJellyfishSuccess, resetJellyfishAudioSession, scheduleJellyfishAmbient, warmJellyfishAudio } from "./audio";
 
 type Point = { x: number; y: number };
 type JellyfishPhase = "drifting" | "glowing" | "resting";
@@ -185,6 +186,7 @@ function cancelJellyfish(jelly: Jellyfish, now: number, reason: "left" | "invali
 function rewardJellyfish(jelly: Jellyfish, now: number) {
   recordEvent("target-click", targetPayload(jelly, now, 1));
   recordSuccess({ targetId: jelly.id, hue: jelly.hue });
+  playJellyfishSuccess(session.settings.sound);
   jelly.phase = "resting";
   jelly.phaseAge = 0;
   jelly.dwellProgress = 1;
@@ -419,9 +421,11 @@ function tick(now: number) {
 }
 
 function restart() {
+  resetJellyfishAudioSession();
   startSession();
   initJellyfish();
   initBubbles();
+  scheduleJellyfishAmbient(session.settings.sound, () => session.status === "running");
 }
 
 onMounted(async () => {
@@ -429,6 +433,8 @@ onMounted(async () => {
   resizeCanvas();
   initJellyfish();
   window.addEventListener("resize", resizeCanvas);
+  warmJellyfishAudio(session.settings.sound);
+  scheduleJellyfishAmbient(session.settings.sound, () => session.status === "running");
   lastTime = performance.now();
   frame = requestAnimationFrame(tick);
 });
@@ -436,6 +442,7 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener("resize", resizeCanvas);
   cancelAnimationFrame(frame);
+  disposeJellyfishAudio();
 });
 </script>
 
