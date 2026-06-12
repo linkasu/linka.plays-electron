@@ -80,31 +80,25 @@ onUnmounted(() => {
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11" xl="10">
-          <v-card class="shadow-match-card pa-4 pa-md-7" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Сравни силуэт и предмет</div>
-            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
-            <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5">{{ hintText }}</p>
+          <v-card class="shadow-match-card pa-3 pa-md-5" rounded="xl" elevation="8">
+            <div class="text-overline text-secondary text-center mb-1">Сравни силуэт и предмет</div>
+            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-1">{{ round.prompt }}</h1>
+            <p class="text-body-1 text-md-h6 text-medium-emphasis text-center mb-3">{{ hintText }}</p>
 
-            <v-card class="shadow-sample mx-auto mb-5 mb-md-6" rounded="xl" variant="tonal" color="blue-grey-lighten-4">
+            <v-card class="shadow-sample mx-auto mb-3 mb-md-4" rounded="xl" variant="tonal" color="blue-grey-lighten-4">
               <v-icon class="shadow-silhouette" :icon="round.target.icon" aria-hidden="true" />
             </v-card>
 
             <v-row class="choice-grid" dense justify="center">
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6" :md="round.choices.length === 3 ? 4 : 3">
-                <GameDwellButton :class="{ 'target-hint': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="220" :color="hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="answer(choice)">
+              <v-col v-for="choice in round.choices" :key="choice.id" :cols="round.choices.length === 4 ? 3 : 4" :sm="round.choices.length === 4 ? 3 : 4" :md="round.choices.length === 3 ? 4 : 3">
+                <GameDwellButton :class="{ 'target-hint': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" min-height="clamp(9rem, 24vh, 13rem)" :color="hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="answer(choice)">
                   <template #default>
                     <v-icon :class="['choice-icon', { 'choice-icon--mistake': choice.id === lastMistakeId }]" :icon="choice.icon" :color="choice.color" />
-                    <div class="text-h5 text-md-h4 font-weight-bold mt-3">{{ choice.label }}</div>
+                    <div class="text-h6 text-md-h4 font-weight-bold mt-2">{{ choice.label }}</div>
                   </template>
                 </GameDwellButton>
               </v-col>
             </v-row>
-
-            <v-expand-transition>
-              <v-alert v-if="hintedRoundId === round.roundId" class="mt-5 text-h6" color="primary" icon="mdi-lightbulb-on-outline" rounded="xl" variant="tonal">
-                Ошибка не страшна. Правильная картинка мягко подсвечена.
-              </v-alert>
-            </v-expand-transition>
           </v-card>
         </v-col>
       </v-row>
@@ -120,25 +114,29 @@ onUnmounted(() => {
 }
 
 .game-container {
-  padding-block-start: 8.75rem;
+  align-items: center;
+  display: flex;
+  min-block-size: 100vh;
+  padding-block: 5rem 2rem;
 }
 
 .shadow-match-card {
+  inline-size: 100%;
   overflow: hidden;
 }
 
 .shadow-sample {
   align-items: center;
   display: flex;
-  inline-size: min(18rem, 54vw);
+  inline-size: min(14rem, 46vw);
   justify-content: center;
-  min-block-size: min(15rem, 28vh);
+  min-block-size: clamp(7rem, 22vh, 12rem);
 }
 
 .shadow-silhouette {
   color: rgb(var(--v-theme-on-surface));
   filter: blur(0.025rem);
-  font-size: clamp(7rem, min(17vw, 22vh), 11rem);
+  font-size: clamp(5.5rem, min(14vw, 18vh), 9rem);
   line-height: 1;
   opacity: 0.42;
   transform: scaleX(1.08) skewX(-4deg);
@@ -149,7 +147,7 @@ onUnmounted(() => {
 }
 
 .choice-icon {
-  font-size: clamp(4.8rem, min(10vw, 15vh), 7.2rem);
+  font-size: clamp(3.8rem, min(8vw, 12vh), 6.5rem);
   line-height: 1;
   transition: filter 160ms ease, transform 160ms ease;
 }
@@ -166,11 +164,11 @@ onUnmounted(() => {
 
 @media (max-height: 44rem) {
   .game-container {
-    padding-block-start: 7.5rem;
+    padding-block: 4.5rem 1.25rem;
   }
 
   .shadow-sample {
-    min-block-size: 9rem;
+    min-block-size: 6.5rem;
   }
 }
 </style>
