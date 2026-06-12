@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -7,6 +7,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeFollowCueAudio, playFollowCueMistakeMelody, playFollowCueSuccessMelody, warmFollowCueAudio } from "./audio";
 
 type CueSlot = {
   id: string;
@@ -40,8 +41,8 @@ type CueRound = {
 const cueSlots: CueSlot[] = [
   { id: "top-left", label: "сверху слева", className: "cue-target--top-left", rotationDeg: -135 },
   { id: "top-right", label: "сверху справа", className: "cue-target--top-right", rotationDeg: -45 },
-  { id: "bottom-right", label: "снизу справа", className: "cue-target--bottom-right", rotationDeg: 45 },
-  { id: "bottom-left", label: "снизу слева", className: "cue-target--bottom-left", rotationDeg: 135 }
+  { id: "bottom-left", label: "снизу слева", className: "cue-target--bottom-left", rotationDeg: 135 },
+  { id: "bottom-right", label: "снизу справа", className: "cue-target--bottom-right", rotationDeg: 45 }
 ];
 
 const cueItems: CueItem[] = [
@@ -100,8 +101,8 @@ const cueStyle = computed(() => ({
 }));
 const cueStrengthClass = computed(() => `follow-cue--strength-${cueStrength.value}`);
 const helperText = computed(() => {
-  if (!cueStrength.value) return "Смотри на световую стрелку. Она спокойно показывает следующую цель.";
-  return "Почти получилось. Подсказка стала ярче, ошибку можно просто исправить.";
+  if (!cueStrength.value) return "Смотри на стрелку: она показывает нужную карточку.";
+  return "Подсказка ярче. Выбери подсвеченную карточку.";
 });
 
 function choiceTargetId(choiceId: string) {
@@ -123,6 +124,7 @@ function answer(choice: CueChoice) {
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.slot.label, actual: choice.slot.label, isCorrect: true });
     cueStrength.value = 0;
     lastMistakeId.value = undefined;
+    void playFollowCueSuccessMelody(session.settings.sound);
     if (session.step < session.maxSteps) nextRound();
     return;
   }
@@ -131,6 +133,7 @@ function answer(choice: CueChoice) {
   cueStrength.value = Math.min(3, cueStrength.value + 1);
   lastMistakeId.value = choice.id;
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "wrong-cue-target", strength: cueStrength.value });
+  void playFollowCueMistakeMelody(session.settings.sound);
 }
 
 function restart() {
@@ -138,6 +141,14 @@ function restart() {
   lastMistakeId.value = undefined;
   restartRoundGame();
 }
+
+onMounted(() => {
+  warmFollowCueAudio(session.settings.sound);
+});
+
+onUnmounted(() => {
+  disposeFollowCueAudio();
+});
 </script>
 
 <template>
@@ -146,10 +157,10 @@ function restart() {
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="10" xl="9">
-          <v-card class="follow-cue-card pa-4 pa-md-6" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Визуальная подсказка</div>
-            <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
-            <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-4">{{ helperText }}</p>
+          <v-card class="follow-cue-card pa-3 pa-md-5" rounded="xl" elevation="8">
+            <div class="text-overline text-secondary text-center mb-1">Визуальная подсказка</div>
+            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
+            <p class="text-body-1 text-md-h6 text-medium-emphasis text-center mb-3">{{ helperText }}</p>
 
             <div class="cue-board" :style="cueStyle" role="list" aria-label="Крупные цели для выбора">
               <div class="cue-guide" aria-hidden="true">
@@ -165,14 +176,14 @@ function restart() {
                 :target-id="choiceTargetId(choice.id)"
                 :disabled="session.status !== 'running'"
                 :dwell-ms="session.settings.dwellMs"
-                min-height="clamp(10.5rem, 24vh, 15rem)"
+                min-height="clamp(8.5rem, 20vh, 12rem)"
                 :color="choiceColor(choice)"
                 role="listitem"
                 @select="answer(choice)"
               >
                 <template #default="{ active, progress }">
                   <v-icon class="choice-icon" :icon="choice.item.icon" :color="choice.isTarget && cueStrength > 0 ? undefined : choice.item.color" />
-                  <div class="text-h6 text-md-h5 font-weight-bold mt-3">{{ choice.item.label }}</div>
+                  <div class="text-body-1 text-md-h6 font-weight-bold mt-2">{{ choice.item.label }}</div>
                   <v-chip v-if="choice.isTarget && (cueStrength > 1 || (active && progress > 0.78))" class="mt-3" color="primary" variant="flat" size="large">
                     сюда
                   </v-chip>
@@ -180,11 +191,11 @@ function restart() {
               </GameDwellButton>
             </div>
 
-            <v-expand-transition>
-              <v-alert v-if="cueStrength > 0" class="mt-5 text-h6" color="primary" icon="mdi-arrow-right-bold" rounded="xl" variant="tonal">
-                Неверная цель только усиливает подсказку. Следуй за стрелкой к светлой карточке.
+            <div class="cue-feedback-slot mt-2">
+              <v-alert class="cue-feedback text-body-2" :class="{ 'cue-feedback--visible': cueStrength > 0 }" color="primary" icon="mdi-arrow-right-bold" rounded="xl" variant="tonal">
+                Следуй за стрелкой к подсвеченной карточке.
               </v-alert>
-            </v-expand-transition>
+            </div>
           </v-card>
         </v-col>
       </v-row>
@@ -200,10 +211,12 @@ function restart() {
 }
 
 .game-container {
-  padding-block-start: 8.75rem;
+  padding-block-start: 6.25rem;
 }
 
 .follow-cue-card {
+  --cue-color: #c2410c;
+  --cue-color-rgb: 194 65 12;
   overflow: hidden;
 }
 
@@ -228,20 +241,12 @@ function restart() {
 }
 
 .cue-beam {
-  background: linear-gradient(90deg, transparent 0%, rgb(var(--v-theme-primary) / 20%) 34%, rgb(var(--v-theme-primary) / 42%) 100%);
-  block-size: clamp(1.8rem, 5vw, 3rem);
-  border-radius: 999px;
-  filter: blur(0.08rem);
-  inline-size: 58%;
-  inset-block-start: 50%;
-  inset-inline-start: 45%;
-  position: absolute;
-  transform: translateY(-50%);
+  display: none;
 }
 
 .cue-arrow {
-  color: rgb(var(--v-theme-primary));
-  filter: drop-shadow(0 0 1rem rgb(var(--v-theme-primary) / 42%));
+  color: var(--cue-color);
+  filter: drop-shadow(0 0 0.85rem rgb(var(--cue-color-rgb) / 34%));
   font-size: clamp(3rem, 8vw, 5.75rem);
   inset-block-start: 50%;
   inset-inline-start: 62%;
@@ -250,14 +255,7 @@ function restart() {
 }
 
 .cue-glow {
-  background: radial-gradient(circle, rgb(var(--v-theme-primary) / 32%) 0%, transparent 68%);
-  block-size: 42%;
-  border-radius: 999px;
-  inline-size: 42%;
-  inset-block-start: 50%;
-  inset-inline-start: 83%;
-  position: absolute;
-  transform: translate(-50%, -50%);
+  display: none;
 }
 
 .cue-target {
@@ -271,7 +269,7 @@ function restart() {
 }
 
 .choice-icon {
-  font-size: clamp(4.75rem, min(11vw, 16vh), 7.5rem);
+  font-size: clamp(4rem, min(9vw, 13vh), 6.25rem);
   line-height: 1;
   transition: filter 160ms ease, transform 160ms ease;
 }
@@ -291,18 +289,31 @@ function restart() {
 .follow-cue--strength-1 .cue-beam,
 .follow-cue--strength-2 .cue-beam,
 .follow-cue--strength-3 .cue-beam {
-  background: linear-gradient(90deg, transparent 0%, rgb(var(--v-theme-primary) / 30%) 32%, rgb(var(--v-theme-primary) / 62%) 100%);
+  display: none;
 }
 
 .follow-cue--strength-2 .cue-arrow,
 .follow-cue--strength-3 .cue-arrow {
-  filter: drop-shadow(0 0 1.4rem rgb(var(--v-theme-primary) / 62%));
+  filter: drop-shadow(0 0 1.25rem rgb(var(--cue-color-rgb) / 56%));
   transform: translate(-50%, -50%) scale(1.08);
 }
 
 .follow-cue--strength-3 .cue-glow {
-  background: radial-gradient(circle, rgb(var(--v-theme-primary) / 48%) 0%, transparent 70%);
-  transform: translate(-50%, -50%) scale(1.15);
+  display: none;
+}
+
+.cue-feedback-slot {
+  block-size: 2.75rem;
+  overflow: hidden;
+}
+
+.cue-feedback {
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.cue-feedback--visible {
+  opacity: 1;
 }
 
 @media (max-width: 640px) {
@@ -317,7 +328,7 @@ function restart() {
 
 @media (max-height: 44rem) {
   .game-container {
-    padding-block-start: 7.5rem;
+    padding-block-start: 5rem;
   }
 }
 </style>
