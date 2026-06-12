@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -99,6 +99,11 @@ function createCdpClient(webSocketDebuggerUrl) {
 function routeUrl(baseUrl, route, nonce) {
   const base = new URL(baseUrl);
   return `${base.origin}/?cdpAudit=${nonce}#${route}`;
+}
+
+function screenshotName(route, viewport) {
+  const routeSlug = route.replace(/^\//, "").replace(/[^a-z0-9-]+/gi, "-") || "root";
+  return `${routeSlug}-${viewport.width}x${viewport.height}.png`;
 }
 
 async function evaluateJson(client, expression) {
@@ -291,6 +296,9 @@ function summarizeResults(results) {
 async function main() {
   const port = Number(argValue("--port", "9222"));
   const routes = await parseRoutes();
+  const screenshotDirValue = argValue("--screenshot-dir", "");
+  const screenshotDir = screenshotDirValue ? path.resolve(screenshotDirValue) : "";
+  if (screenshotDir) await mkdir(screenshotDir, { recursive: true });
   const listResponse = await fetch(`http://127.0.0.1:${port}/json/list`);
   if (!listResponse.ok) throw new Error(`Cannot read Electron CDP targets on port ${port}`);
   const targets = await listResponse.json();
@@ -324,8 +332,14 @@ async function main() {
       await evaluateJson(client, "window.scrollTo(0, 0); true");
       await wait(900);
       const metrics = await collectMetrics(client, route);
+      let screenshotPath = null;
+      if (screenshotDir) {
+        screenshotPath = path.join(screenshotDir, screenshotName(route, viewport));
+        const screenshot = await client.send("Page.captureScreenshot", { format: "png", fromSurface: true });
+        await writeFile(screenshotPath, Buffer.from(screenshot.data, "base64"));
+      }
       const routeErrors = runtimeErrors.slice(errorStart);
-      results.push({ route, viewport, errors: routeErrors, metrics });
+      results.push({ route, viewport, errors: routeErrors, screenshotPath, metrics });
     }
   }
 
@@ -337,7 +351,7 @@ async function main() {
 
   const failures = results.filter((result) => isFailure(result));
   const summary = summarizeResults(results);
-  const report = { port, routes, checked: results.length, failures: failures.length, summary, results };
+  const report = { port, routes, checked: results.length, failures: failures.length, screenshotDir: screenshotDir || null, summary, results };
   const json = JSON.stringify(report, null, 2);
 
   const outputPath = argValue("--output", "");

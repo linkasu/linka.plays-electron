@@ -71,4 +71,4 @@ When asked to make Electron DevTools stable, implement this minimal sequence:
 
 Run the narrowest relevant verification first. Use `npm run typecheck` before finalizing TypeScript/Electron/preload changes. Use `npm run test:unit` for model/core changes that affect tested logic.
 
-For manual game UI review, do not rely only on JSON CDP metrics. After running Electron CDP audit, capture the real Electron viewport screenshot for the reviewed route, inspect it yourself, and verify that the playable controls, prompts, and result states are visually usable in the actual window before reporting success.
+For manual game UI review, do not rely only on JSON CDP metrics. Run Electron CDP audit with `--screenshot-dir /tmp/linka-plays-cdp-screenshots`, inspect the saved real Electron viewport PNG for the reviewed route, and verify that the playable controls, prompts, and result states are visually usable in the actual window before reporting success.
