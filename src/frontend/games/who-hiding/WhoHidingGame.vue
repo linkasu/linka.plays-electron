@@ -353,7 +353,7 @@ function restart() {
 .hidden-character {
   color: var(--character-color);
   font-size: clamp(4.7rem, 9vw, 7rem);
-  inset-block-end: clamp(8.2rem, 10vw, 10.2rem);
+  inset-block-end: clamp(6.4rem, 8.2vw, 8rem);
   inset-inline-start: 50%;
   line-height: 1;
   opacity: 0.88;
