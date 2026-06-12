@@ -579,20 +579,6 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
-    id: "rain-garden",
-    title: "Сад дождя",
-    description: "Смотри на листья и воду, чтобы вызывать мягкие круги под спокойным дождём.",
-    selfDescription: "Сделай круги на воде взглядом.",
-    route: "/games/rain-garden",
-    category: "gaze-basics",
-    icon: "mdi-weather-rainy",
-    skills: ["fixation", "attention-shift"],
-    status: "therapy-ready",
-    recommendedSessionSeconds: 75,
-    minTargetSizePx: 176,
-    defaultDwellMs: 1300
-  },
-  {
     id: "ducks",
     title: "Утки",
     description: "Следи за утками на волнах и мягко попадай по ним взглядом.",

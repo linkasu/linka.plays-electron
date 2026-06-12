@@ -108,7 +108,6 @@ import PulsingTargetGame from "../games/pulsing-target/PulsingTargetGame.vue";
 import PyramidGame from "../games/pyramid/PyramidGame.vue";
 import QuietBubblesGame from "../games/quiet-bubbles/QuietBubblesGame.vue";
 import RailsGame from "../games/rails/RailsGame.vue";
-import RainGardenGame from "../games/rain-garden/RainGardenGame.vue";
 import ReversiLightGame from "../games/reversi-light/ReversiLightGame.vue";
 import RobotVacuumGame from "../games/robot-vacuum/RobotVacuumGame.vue";
 import RowScanningGame from "../games/row-scanning/RowScanningGame.vue";
@@ -208,7 +207,6 @@ export default createRouter({
     { path: "/games/butterfly", name: "butterfly", component: ButterflyGame },
     { path: "/games/flowers", name: "flowers", component: FlowersGame },
     { path: "/games/quiet-bubbles", name: "quiet-bubbles", component: QuietBubblesGame },
-    { path: "/games/rain-garden", name: "rain-garden", component: RainGardenGame },
     { path: "/games/ducks", name: "ducks", component: DucksGame },
     { path: "/games/calendar", name: "calendar", component: CalendarGame },
     { path: "/games/clock", name: "clock", component: ClockGame },
