@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
@@ -7,6 +7,7 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
 import { useGameSession } from "../../core/session";
+import { disposeLetterHuntAudio, playLetterHuntMistakeMelody, playLetterHuntSuccessMelody, warmLetterHuntAudio } from "./audio";
 
 type Point = { x: number; y: number };
 type LetterFeedback = "idle" | "correct" | "mistake";
@@ -96,12 +97,14 @@ function resizeCanvas() {
 }
 
 function letterRadius() {
-  const viewportLimit = Math.min(window.innerWidth, window.innerHeight) * 0.14;
-  return Math.min(124, Math.max(76, Math.min(viewportLimit, 64 * session.settings.targetScale)));
+  const viewportLimit = Math.min(window.innerWidth, window.innerHeight) * 0.125;
+  return Math.min(112, Math.max(70, Math.min(viewportLimit, 60 * session.settings.targetScale)));
 }
 
 function desiredLetterCount() {
-  return window.innerWidth < 760 ? 4 : 5;
+  if (window.innerWidth < 980) return 3;
+  if (window.innerWidth < 1280) return 4;
+  return 5;
 }
 
 function targetForStep() {
@@ -114,8 +117,24 @@ function pointIsFarEnough(point: Point, placed: Point[], radius: number) {
 }
 
 function chooseLetterPoint(radius: number, placed: Point[]) {
-  const firstRound = session.step === 0 && placed.length === 0;
-  if (firstRound) return { x: 50, y: 58 };
+  if (window.innerWidth < 980) {
+    const slots = [
+      { x: 20, y: 64 },
+      { x: 50, y: 56 },
+      { x: 80, y: 64 }
+    ];
+    return slots[placed.length % slots.length];
+  }
+
+  if (window.innerWidth < 1280) {
+    const slots = [
+      { x: 20, y: 64 },
+      { x: 40, y: 56 },
+      { x: 60, y: 56 },
+      { x: 80, y: 64 }
+    ];
+    return slots[placed.length % slots.length];
+  }
 
   let best = randomTargetCenterPercent({
     targetWidth: radius * 2,
@@ -236,6 +255,7 @@ function selectLetter(letter: FloatingLetter, now: number) {
   letter.dwellProgress = 1;
 
   if (letter.letter === targetLetter.value) {
+    void playLetterHuntSuccessMelody(session.settings.sound);
     recordSuccess({ targetId: letter.id, letter: letter.letter });
     letter.feedback = "correct";
     letter.feedbackAge = 0;
@@ -244,6 +264,7 @@ function selectLetter(letter: FloatingLetter, now: number) {
     return;
   }
 
+  void playLetterHuntMistakeMelody(session.settings.sound);
   recordMistake({ targetId: letter.id, selectedLetter: letter.letter, targetLetter: targetLetter.value });
   letter.feedback = "mistake";
   letter.feedbackAge = 0;
@@ -434,12 +455,6 @@ function drawLetter(context: CanvasRenderingContext2D, letter: FloatingLetter) {
     context.stroke();
   }
 
-  if (letter.feedback === "mistake") {
-    context.fillStyle = "rgb(121 88 38 / 72%)";
-    context.font = `600 ${Math.round(radius * 0.22)}px system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
-    context.fillText("другая", point.x, point.y + radius * 0.72);
-  }
-
   context.restore();
 }
 
@@ -467,6 +482,7 @@ function restart() {
 
 onMounted(async () => {
   await nextTick();
+  warmLetterHuntAudio(session.settings.sound);
   resizeCanvas();
   placeRoundLetters();
   window.addEventListener("resize", resizeCanvas);
@@ -474,9 +490,14 @@ onMounted(async () => {
   frame = requestAnimationFrame(tick);
 });
 
+watch(() => session.settings.sound, (enabled) => {
+  warmLetterHuntAudio(enabled);
+});
+
 onUnmounted(() => {
   window.removeEventListener("resize", resizeCanvas);
   cancelAnimationFrame(frame);
+  disposeLetterHuntAudio();
 });
 </script>
 
