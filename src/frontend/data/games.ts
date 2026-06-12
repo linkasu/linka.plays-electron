@@ -741,20 +741,6 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1250
   },
   {
-    id: "grid-scanning",
-    title: "Сканирование поля",
-    description: "Найди заданный символ или объект в крупной сетке; неверный выбор только покажет подсказку.",
-    selfDescription: "Найди цель в поле.",
-    route: "/games/grid-scanning",
-    category: "visual-search",
-    icon: "mdi-grid",
-    skills: ["visual-search", "attention-shift", "choice"],
-    status: "therapy-ready",
-    recommendedSessionSeconds: 120,
-    minTargetSizePx: 180,
-    defaultDwellMs: 1250
-  },
-  {
     id: "find-letter",
     title: "Найди букву",
     description: "Выбери заданную крупную букву среди нескольких спокойных вариантов.",

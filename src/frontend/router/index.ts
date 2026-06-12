@@ -61,7 +61,6 @@ import GazeFollowSnakeGame from "../games/gaze-follow-snake/GazeFollowSnakeGame.
 import GazeMazeGame from "../games/gaze-maze/GazeMazeGame.vue";
 import GliderGame from "../games/glider/GliderGame.vue";
 import GreaterLessGame from "../games/greater-less/GreaterLessGame.vue";
-import GridScanningGame from "../games/grid-scanning/GridScanningGame.vue";
 import GuideFishGame from "../games/guide-fish/GuideFishGame.vue";
 import HeroRouteGame from "../games/hero-route/HeroRouteGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
@@ -266,7 +265,6 @@ export default createRouter({
     { path: "/games/what-missing", name: "what-missing", component: WhatMissingGame },
     { path: "/games/what-sounds", name: "what-sounds", component: WhatSoundsGame },
     { path: "/games/follow-cue", name: "follow-cue", component: FollowCueGame },
-    { path: "/games/grid-scanning", name: "grid-scanning", component: GridScanningGame },
     { path: "/games/find-digit", name: "find-digit", component: FindDigitGame },
     { path: "/games/logic-pairs", name: "logic-pairs", component: LogicPairsGame },
     { path: "/games/find-letter", name: "find-letter", component: FindLetterGame },
