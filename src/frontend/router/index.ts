@@ -131,7 +131,6 @@ import SnowTrailGame from "../games/snow-trail/SnowTrailGame.vue";
 import StarrySkyGame from "../games/starry-sky/StarrySkyGame.vue";
 import SocialPhrasesGame from "../games/social-phrases/SocialPhrasesGame.vue";
 import SokobanLargeGame from "../games/sokoban-large/SokobanLargeGame.vue";
-import SpotDifferenceGame from "../games/spot-difference/SpotDifferenceGame.vue";
 import SoupRecipeGame from "../games/soup-recipe/SoupRecipeGame.vue";
 import StepPongGame from "../games/step-pong/StepPongGame.vue";
 import Sudoku2x2Game from "../games/sudoku-2x2/Sudoku2x2Game.vue";
@@ -280,7 +279,6 @@ export default createRouter({
     { path: "/games/find-emotion", name: "find-emotion", component: FindEmotionGame },
     { path: "/games/letter-hunt", name: "letter-hunt", component: LetterHuntGame },
     { path: "/games/match-same", name: "match-same", component: MatchSameGame },
-    { path: "/games/spot-difference", name: "spot-difference", component: SpotDifferenceGame },
     { path: "/games/memory-cards", name: "memory-cards", component: MemoryCardsGame },
     { path: "/games/type-word", name: "type-word", component: TypeWordGame },
     { path: "/games/math-actions", name: "math-actions", component: MathActionsGame },
