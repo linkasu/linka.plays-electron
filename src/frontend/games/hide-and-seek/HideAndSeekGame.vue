@@ -256,8 +256,8 @@ onUnmounted(() => {
 }
 
 .prompt {
+  inline-size: min(444px, calc(100vw - 64px));
   left: 32px;
-  min-inline-size: min(360px, calc(100vw - 64px));
   position: absolute;
   top: 118px;
   z-index: 3;
@@ -280,9 +280,9 @@ onUnmounted(() => {
 
 @media (max-height: 700px) {
   .prompt {
+    inline-size: min(480px, calc(100vw - 32px));
     left: 50%;
     max-inline-size: min(480px, calc(100vw - 32px));
-    min-inline-size: auto;
     padding: 0.75rem 1rem !important;
     top: 124px;
     transform: translateX(-50%);
