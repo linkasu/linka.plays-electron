@@ -741,20 +741,6 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1250
   },
   {
-    id: "row-scanning",
-    title: "Сканирование ряда",
-    description: "Просмотри спокойный ряд крупных объектов и найди названную цель без спешки.",
-    selfDescription: "Найди цель в ряду.",
-    route: "/games/row-scanning",
-    category: "visual-search",
-    icon: "mdi-view-sequential",
-    skills: ["visual-search", "attention-shift", "choice"],
-    status: "therapy-ready",
-    recommendedSessionSeconds: 120,
-    minTargetSizePx: 190,
-    defaultDwellMs: 1250
-  },
-  {
     id: "grid-scanning",
     title: "Сканирование поля",
     description: "Найди заданный символ или объект в крупной сетке; неверный выбор только покажет подсказку.",

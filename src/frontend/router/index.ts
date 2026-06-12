@@ -109,7 +109,6 @@ import QuietBubblesGame from "../games/quiet-bubbles/QuietBubblesGame.vue";
 import RailsGame from "../games/rails/RailsGame.vue";
 import ReversiLightGame from "../games/reversi-light/ReversiLightGame.vue";
 import RobotVacuumGame from "../games/robot-vacuum/RobotVacuumGame.vue";
-import RowScanningGame from "../games/row-scanning/RowScanningGame.vue";
 import SandGardenGame from "../games/sand-garden/SandGardenGame.vue";
 import SandwichGame from "../games/sandwich/SandwichGame.vue";
 import ScalesGame from "../games/scales/ScalesGame.vue";
@@ -267,7 +266,6 @@ export default createRouter({
     { path: "/games/what-missing", name: "what-missing", component: WhatMissingGame },
     { path: "/games/what-sounds", name: "what-sounds", component: WhatSoundsGame },
     { path: "/games/follow-cue", name: "follow-cue", component: FollowCueGame },
-    { path: "/games/row-scanning", name: "row-scanning", component: RowScanningGame },
     { path: "/games/grid-scanning", name: "grid-scanning", component: GridScanningGame },
     { path: "/games/find-digit", name: "find-digit", component: FindDigitGame },
     { path: "/games/logic-pairs", name: "logic-pairs", component: LogicPairsGame },
