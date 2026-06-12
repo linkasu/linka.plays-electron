@@ -165,8 +165,6 @@ function chooseLetterPoint(radius: number, placed: Point[]) {
 
 function makeLetter(letter: string, point: Point, isTarget: boolean): FloatingLetter {
   const radius = letterRadius() * randomRange(0.94, 1.06);
-  const speed = isTarget ? 1 : randomRange(0.82, 1.1);
-  const angle = randomRange(0, Math.PI * 2);
   const hue = isTarget ? 46 : letterHues[spawnSerial % letterHues.length];
   spawnSerial += 1;
 
@@ -176,8 +174,8 @@ function makeLetter(letter: string, point: Point, isTarget: boolean): FloatingLe
     x: point.x,
     y: point.y,
     radius,
-    vx: Math.cos(angle) * randomRange(1.2, 2.3) * speed,
-    vy: Math.sin(angle) * randomRange(0.75, 1.55) * speed,
+    vx: 0,
+    vy: 0,
     age: randomRange(0, 6),
     phase: randomRange(0, Math.PI * 2),
     dwellProgress: 0,
