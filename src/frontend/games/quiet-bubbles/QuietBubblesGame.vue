@@ -6,6 +6,7 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
 import { useGameSession } from "../../core/session";
+import { disposeQuietBubblesAudio, playQuietBubbleMelody, resetQuietBubblesAudioSession, warmQuietBubblesAudio } from "./audio";
 
 type Point = { x: number; y: number };
 type BubblePhase = "floating" | "gazing" | "popping";
@@ -139,10 +140,49 @@ function bubbleClearance(point: Point, radius: number) {
   for (const bubble of bubbles) {
     if (bubble.phase === "popping") continue;
     const nextPoint = bubblePoint(bubble);
-    const requiredGap = Math.max(132, Math.max(radius, bubble.radius) * 1.34);
+    const requiredGap = radius + bubble.radius + Math.max(24, Math.min(radius, bubble.radius) * 0.16);
     clearance = Math.min(clearance, distance(candidate, nextPoint) - requiredGap);
   }
   return clearance;
+}
+
+function requiredBubbleGap(first: QuietBubble, second: QuietBubble) {
+  return first.radius + second.radius + Math.max(24, Math.min(first.radius, second.radius) * 0.16);
+}
+
+function clampBubblePosition(bubble: QuietBubble) {
+  const xMargin = (bubble.radius / Math.max(1, window.innerWidth)) * 100 + 2;
+  const yMargin = (bubble.radius / Math.max(1, window.innerHeight)) * 100 + 4;
+  bubble.x = Math.max(xMargin, Math.min(100 - xMargin, bubble.x));
+  bubble.y = Math.max(12 + yMargin, Math.min(100 - yMargin, bubble.y));
+}
+
+function separateBubbles() {
+  const visibleBubbles = bubbles.filter((bubble) => bubble.phase !== "popping");
+  for (let pass = 0; pass < 3; pass++) {
+    for (let firstIndex = 0; firstIndex < visibleBubbles.length; firstIndex++) {
+      for (let secondIndex = firstIndex + 1; secondIndex < visibleBubbles.length; secondIndex++) {
+        const first = visibleBubbles[firstIndex];
+        const second = visibleBubbles[secondIndex];
+        const firstPoint = bubblePoint(first);
+        const secondPoint = bubblePoint(second);
+        const dx = secondPoint.x - firstPoint.x;
+        const dy = secondPoint.y - firstPoint.y;
+        const currentDistance = Math.max(1, Math.hypot(dx, dy));
+        const overlap = requiredBubbleGap(first, second) - currentDistance;
+        if (overlap <= 0) continue;
+
+        const shiftX = dx / currentDistance * overlap * 0.5;
+        const shiftY = dy / currentDistance * overlap * 0.5;
+        first.x -= shiftX / Math.max(1, window.innerWidth) * 100;
+        first.y -= shiftY / Math.max(1, window.innerHeight) * 100;
+        second.x += shiftX / Math.max(1, window.innerWidth) * 100;
+        second.y += shiftY / Math.max(1, window.innerHeight) * 100;
+        clampBubblePosition(first);
+        clampBubblePosition(second);
+      }
+    }
+  }
 }
 
 function randomHue() {
@@ -218,6 +258,7 @@ function cancelBubble(bubble: QuietBubble, now: number, reason: "left" | "invali
 function popBubble(bubble: QuietBubble, now: number) {
   recordEvent("target-click", targetPayload(bubble, now, 1));
   recordSuccess({ targetId: bubble.id, hue: bubble.hue });
+  void playQuietBubbleMelody(session.settings.sound);
   addRipple(bubble);
   bubble.phase = "popping";
   bubble.phaseAge = 0;
@@ -280,7 +321,7 @@ function resetFloatingBubble(bubble: QuietBubble) {
   const radius = bubbleRadius() * randomRange(0.94, 1.08);
   const point = chooseBubblePoint(radius, false);
   bubble.x = point.x;
-  bubble.y = randomRange(72, 92);
+  bubble.y = point.y;
   bubble.radius = radius;
   bubble.hue = randomHue();
   bubble.speed = randomRange(0.48, 0.86);
@@ -312,6 +353,7 @@ function updateBubbles(delta: number, now: number) {
     if (bubble.y < 8 || bubble.x < 6 || bubble.x > 94) resetFloatingBubble(bubble);
     updateBubbleGaze(bubble, now, gazeBubble);
   }
+  separateBubbles();
 }
 
 function updateRipples(delta: number) {
@@ -398,19 +440,20 @@ function drawBubble(context: CanvasRenderingContext2D, bubble: QuietBubble) {
   context.fillRect(point.x - radius, point.y - radius, radius * 2, radius * 2);
 
   if (bubble.dwellProgress > 0) {
-    const fillHeight = radius * 2 * bubble.dwellProgress;
-    const fillTop = point.y + radius - fillHeight;
-    const fill = context.createLinearGradient(0, fillTop, 0, point.y + radius);
-    fill.addColorStop(0, `hsla(${bubble.hue + 22}, 94%, 86%, 0.34)`);
-    fill.addColorStop(1, `hsla(${bubble.hue}, 86%, 72%, 0.52)`);
+    const fillRadius = radius * (0.16 + bubble.dwellProgress * 0.84);
+    const fill = context.createRadialGradient(point.x, point.y, radius * 0.04, point.x, point.y, fillRadius);
+    fill.addColorStop(0, `hsla(${bubble.hue + 24}, 98%, 91%, ${0.48 + bubble.dwellProgress * 0.16})`);
+    fill.addColorStop(0.72, `hsla(${bubble.hue}, 88%, 76%, ${0.28 + bubble.dwellProgress * 0.24})`);
+    fill.addColorStop(1, `hsla(${bubble.hue - 12}, 76%, 68%, 0)`);
     context.fillStyle = fill;
-    context.fillRect(point.x - radius, fillTop, radius * 2, fillHeight);
+    context.beginPath();
+    context.arc(point.x, point.y, fillRadius, 0, Math.PI * 2);
+    context.fill();
 
-    context.strokeStyle = `hsla(${bubble.hue + 30}, 100%, 92%, ${0.26 + bubble.dwellProgress * 0.18})`;
+    context.strokeStyle = `hsla(${bubble.hue + 30}, 100%, 92%, ${0.22 + bubble.dwellProgress * 0.2})`;
     context.lineWidth = 2;
     context.beginPath();
-    context.moveTo(point.x - radius * 0.78, fillTop + Math.sin(bubble.age * 1.3) * radius * 0.018);
-    context.quadraticCurveTo(point.x, fillTop - radius * 0.04, point.x + radius * 0.78, fillTop + Math.cos(bubble.age * 1.2) * radius * 0.018);
+    context.arc(point.x, point.y, fillRadius * 0.82, 0, Math.PI * 2);
     context.stroke();
   }
 
@@ -460,7 +503,9 @@ function initBubbles() {
   bubbles.splice(0);
   ripples.splice(0);
   previousBubblePoint = undefined;
+  resetQuietBubblesAudioSession();
   for (let index = 0; index < desiredBubbleCount(); index++) bubbles.push(createBubble(index === 0));
+  separateBubbles();
 }
 
 function restart() {
@@ -473,6 +518,7 @@ onMounted(async () => {
   resizeCanvas();
   initBubbles();
   window.addEventListener("resize", resizeCanvas);
+  warmQuietBubblesAudio(session.settings.sound);
   lastTime = performance.now();
   frame = requestAnimationFrame(tick);
 });
@@ -480,6 +526,7 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener("resize", resizeCanvas);
   cancelAnimationFrame(frame);
+  disposeQuietBubblesAudio();
 });
 </script>
 
