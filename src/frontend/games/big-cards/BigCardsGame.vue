@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -7,12 +7,16 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
+import ttsAssets from "../../data/ttsAssets.json";
 import { generateBigCardsRound, type BigCard, type BigCardsRound } from "./model";
 
 const router = useRouter();
 const isResponding = ref(false);
 const feedbackText = ref("Выбери одну большую карточку взглядом.");
+const bigCardsTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.game === "big-cards");
 let feedbackTimer = 0;
+let introTimer = 0;
 
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("big-cards", {
   preset: "gentle",
@@ -37,11 +41,16 @@ function cardTargetId(roundId: string, cardId: string) {
   return `big-cards:${roundId}:card:${cardId}`;
 }
 
+function ttsAsset(id: string) {
+  return bigCardsTtsAssets.find((asset) => asset.id === id);
+}
+
 function choose(card: BigCard) {
   if (session.status !== "running" || isResponding.value) return;
 
   isResponding.value = true;
   feedbackText.value = `Ты выбрал: ${card.label}. Хорошо.`;
+  playTtsAsset(session.settings.sound, ttsAsset(`big-cards.${card.id}`), 0.36);
   recordSuccess({
     roundId: round.value.roundId,
     targetId: cardTargetId(round.value.roundId, card.id),
@@ -61,13 +70,24 @@ function choose(card: BigCard) {
 
 function restart() {
   window.clearTimeout(feedbackTimer);
+  window.clearTimeout(introTimer);
   isResponding.value = false;
   feedbackText.value = "Выбери одну большую карточку взглядом.";
   restartRound();
+  playTtsAsset(session.settings.sound, ttsAsset("big-cards.intro"), 0.36);
 }
+
+onMounted(() => {
+  warmTtsAssets(session.settings.sound, bigCardsTtsAssets);
+  introTimer = window.setTimeout(() => {
+    playTtsAsset(session.settings.sound, ttsAsset("big-cards.intro"), 0.36);
+  }, 450);
+});
 
 onUnmounted(() => {
   window.clearTimeout(feedbackTimer);
+  window.clearTimeout(introTimer);
+  disposeTtsAssets(bigCardsTtsAssets);
 });
 </script>
 

@@ -152,5 +152,68 @@
     "text": "Птичка в окне.",
     "voice": "jane",
     "path": "/audio/tts/warm-window/bird.mp3"
+  },
+  {
+    "id": "big-cards.intro",
+    "game": "big-cards",
+    "text": "Посмотри на большую карточку.",
+    "voice": "jane",
+    "path": "/audio/tts/big-cards/intro.mp3"
+  },
+  {
+    "id": "big-cards.sun",
+    "game": "big-cards",
+    "text": "Солнце.",
+    "voice": "jane",
+    "path": "/audio/tts/big-cards/sun.mp3"
+  },
+  {
+    "id": "big-cards.flower",
+    "game": "big-cards",
+    "text": "Цветок.",
+    "voice": "jane",
+    "path": "/audio/tts/big-cards/flower.mp3"
+  },
+  {
+    "id": "big-cards.cat",
+    "game": "big-cards",
+    "text": "Кот.",
+    "voice": "jane",
+    "path": "/audio/tts/big-cards/cat.mp3"
+  },
+  {
+    "id": "big-cards.moon",
+    "game": "big-cards",
+    "text": "Луна.",
+    "voice": "jane",
+    "path": "/audio/tts/big-cards/moon.mp3"
+  },
+  {
+    "id": "big-cards.tree",
+    "game": "big-cards",
+    "text": "Дерево.",
+    "voice": "jane",
+    "path": "/audio/tts/big-cards/tree.mp3"
+  },
+  {
+    "id": "big-cards.duck",
+    "game": "big-cards",
+    "text": "Утка.",
+    "voice": "jane",
+    "path": "/audio/tts/big-cards/duck.mp3"
+  },
+  {
+    "id": "big-cards.star",
+    "game": "big-cards",
+    "text": "Звезда.",
+    "voice": "jane",
+    "path": "/audio/tts/big-cards/star.mp3"
+  },
+  {
+    "id": "big-cards.bear",
+    "game": "big-cards",
+    "text": "Мишка.",
+    "voice": "jane",
+    "path": "/audio/tts/big-cards/bear.mp3"
   }
 ]
