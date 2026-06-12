@@ -65,7 +65,6 @@ import GridScanningGame from "../games/grid-scanning/GridScanningGame.vue";
 import GuideFishGame from "../games/guide-fish/GuideFishGame.vue";
 import HeroRouteGame from "../games/hero-route/HeroRouteGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
-import HiddenPictureGame from "../games/hidden-picture/HiddenPictureGame.vue";
 import HighFiveHandsGame from "../games/high-five-hands/HighFiveHandsGame.vue";
 import HurtGoodGame from "../games/hurt-good/HurtGoodGame.vue";
 import IWantGame from "../games/i-want/IWantGame.vue";
@@ -264,7 +263,6 @@ export default createRouter({
     { path: "/games/fishes", name: "fishes", component: FishesGame },
     { path: "/games/jellyfish", name: "jellyfish", component: JellyfishGame },
     { path: "/games/hide-and-seek", name: "hide-and-seek", component: HideAndSeekGame },
-    { path: "/games/hidden-picture", name: "hidden-picture", component: HiddenPictureGame },
     { path: "/games/who-hiding", name: "who-hiding", component: WhoHidingGame },
     { path: "/games/what-first", name: "what-first", component: WhatFirstGame },
     { path: "/games/what-missing", name: "what-missing", component: WhatMissingGame },

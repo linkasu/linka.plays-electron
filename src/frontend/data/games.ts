@@ -669,20 +669,6 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
-    id: "hidden-picture",
-    title: "Скрытая картинка",
-    description: "Проявляй крупную скрытую картинку по зонам: неверный выбор спокойно добавляет следующий намёк без поражения.",
-    selfDescription: "Прояви картинку взглядом.",
-    route: "/games/hidden-picture",
-    category: "visual-search",
-    icon: "mdi-image-filter-center-focus",
-    skills: ["visual-search", "attention-shift", "choice"],
-    status: "therapy-ready",
-    recommendedSessionSeconds: 120,
-    minTargetSizePx: 160,
-    defaultDwellMs: 1300
-  },
-  {
     id: "find-color",
     title: "Найди цвет",
     description: "Найди нужный цвет среди крупных карточек.",
