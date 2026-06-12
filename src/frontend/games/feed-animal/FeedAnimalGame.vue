@@ -126,7 +126,6 @@ function feed(food: FeedAnimalFood) {
     isCorrect: false
   });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, message: "Показана подходящая еда." });
-  prepareNextRound();
 }
 
 function restart() {
@@ -159,26 +158,28 @@ onUnmounted(() => {
     <v-container class="feed-animal-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="8">
-          <v-card class="pa-5 pa-md-8" color="surface" rounded="xl" elevation="8">
+          <v-card class="feed-animal-card pa-4 pa-md-5" color="surface" rounded="xl" elevation="8">
             <div class="feed-animal-overline text-overline text-secondary text-center mb-2">Что ест зверёк</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">Покорми зверька</h1>
             <p class="feed-animal-feedback text-h6 text-md-h5 text-medium-emphasis text-center mb-6">{{ feedbackText }}</p>
 
-            <v-card class="animal-card pa-5 pa-md-7 mb-6 text-center" color="green-lighten-5" rounded="xl" variant="tonal">
+            <v-card class="animal-card pa-4 pa-md-5 mb-5 text-center" color="green-lighten-5" rounded="xl" variant="tonal">
               <div :class="['animal-emoji emoji-glyph', { 'animal-emoji--fed': isFeeding }]">{{ round.animal.emoji }}</div>
-              <div class="text-h4 text-md-h3 font-weight-bold mt-3">{{ round.animal.name }}</div>
-              <v-chip class="mt-4" color="success" size="large" variant="flat" :prepend-icon="isFeeding ? 'mdi-heart' : 'mdi-paw'">
+              <div class="animal-card__text">
+                <div class="animal-title text-h4 text-md-h3 font-weight-bold">{{ round.animal.name }}</div>
+                <v-chip class="animal-chip mt-3" color="success" size="large" variant="flat" :prepend-icon="isFeeding ? 'mdi-heart' : 'mdi-paw'">
                 {{ isFeeding && selectedFood && animalEatsFood(round.animal, selectedFood) ? `Ням, ${selectedFood.name.toLowerCase()}!` : round.animal.phrase }}
-              </v-chip>
+                </v-chip>
+              </div>
             </v-card>
 
             <v-row justify="center">
               <v-col v-for="food in round.foods" :key="food.id" cols="12" sm="4">
-                <GameDwellButton :class="[{ 'food-choice--hint': revealedFoodId === food.id, 'food-choice--mistake': mistakeFoodId === food.id }]" :target-id="foodTargetId(round.roundId, food.id)" :disabled="session.status !== 'running' || isFeeding" :dwell-ms="session.settings.dwellMs" :min-height="210" :color="food.color" @select="feed(food)">
+                <GameDwellButton :class="[{ 'food-choice--hint': revealedFoodId === food.id, 'food-choice--mistake': mistakeFoodId === food.id }]" :target-id="foodTargetId(round.roundId, food.id)" :disabled="session.status !== 'running' || isFeeding" :dwell-ms="session.settings.dwellMs" min-height="clamp(9.25rem, 20vh, 13rem)" :color="food.color" @select="feed(food)">
                   <template #default="{ active, progress }">
                     <div class="food-emoji emoji-glyph">{{ food.emoji }}</div>
-                    <div class="text-h4 font-weight-bold mt-2">{{ food.name }}</div>
-                    <div class="text-body-1 text-medium-emphasis mt-2">
+                    <div class="food-choice-label text-h4 font-weight-bold mt-2">{{ food.name }}</div>
+                    <div class="food-choice-status text-body-1 font-weight-medium mt-2">
                       {{ revealedFoodId === food.id ? "Подходит" : mistakeFoodId === food.id ? "Не подходит" : active && progress > 0.8 ? "Проверяем" : "Выбери" }}
                     </div>
                   </template>
@@ -204,11 +205,29 @@ onUnmounted(() => {
 }
 
 .animal-card {
+  align-items: center;
+  background: rgb(var(--v-theme-success) / 12%) !important;
+  display: flex;
+  gap: clamp(1rem, 3vw, 2rem);
+  justify-content: center;
   overflow: hidden;
 }
 
+.animal-card__text {
+  color: rgb(var(--v-theme-on-surface));
+  min-inline-size: 0;
+}
+
+.animal-title {
+  color: rgb(var(--v-theme-on-surface));
+}
+
+.animal-chip {
+  color: rgb(var(--v-theme-on-success)) !important;
+}
+
 .animal-emoji {
-  font-size: clamp(7rem, 17vw, 12rem);
+  font-size: clamp(5.5rem, min(10vw, 14vh), 8rem);
   line-height: 1;
   transition: transform 260ms ease;
 }
@@ -218,8 +237,13 @@ onUnmounted(() => {
 }
 
 .food-emoji {
-  font-size: clamp(4.5rem, 10vw, 7rem);
+  font-size: clamp(3.75rem, min(8vw, 12vh), 6rem);
   line-height: 1;
+}
+
+.food-choice-label,
+.food-choice-status {
+  color: rgb(var(--v-theme-on-surface));
 }
 
 .food-choice--hint {
@@ -244,8 +268,25 @@ onUnmounted(() => {
     margin-block-end: 1rem !important;
   }
 
+  .feed-animal-card {
+    padding-block: 1rem !important;
+  }
+
   .animal-card {
-    display: none;
+    margin-block-end: 1rem !important;
+    padding-block: 0.75rem !important;
+  }
+
+  .animal-emoji {
+    font-size: clamp(4rem, min(8vw, 11vh), 5.75rem);
+  }
+
+  .animal-title {
+    font-size: clamp(1.5rem, 3vw, 2rem) !important;
+  }
+
+  .animal-chip {
+    font-size: 0.95rem !important;
   }
 }
 </style>
