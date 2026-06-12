@@ -728,13 +728,14 @@ export const games: GameInfo[] = [
   {
     id: "follow-cue",
     title: "Следуй за подсказкой",
-    description: "Мягкая стрелка и световая подсказка ведут к следующей крупной цели; неверный выбор только усиливает подсказку.",
+    description: "Мягкая стрелка и световая подсказка ведут к следующей крупной цели; после промаха подсказка становится заметнее.",
     selfDescription: "Следуй за стрелкой.",
     route: "/games/follow-cue",
     category: "visual-search",
     icon: "mdi-arrow-right-bold",
     skills: ["visual-search", "attention-shift", "choice"],
     status: "therapy-ready",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 200,
     defaultDwellMs: 1250
