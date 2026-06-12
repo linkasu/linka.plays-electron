@@ -733,5 +733,89 @@
     "text": "Почти. Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/find-letter/mistake.mp3"
+  },
+  {
+    "id": "find-digit.prompt.digit-0",
+    "game": "find-digit",
+    "text": "Найди цифру ноль.",
+    "voice": "jane",
+    "path": "/audio/tts/find-digit/prompt-digit-0.mp3"
+  },
+  {
+    "id": "find-digit.prompt.digit-1",
+    "game": "find-digit",
+    "text": "Найди цифру один.",
+    "voice": "jane",
+    "path": "/audio/tts/find-digit/prompt-digit-1.mp3"
+  },
+  {
+    "id": "find-digit.prompt.digit-2",
+    "game": "find-digit",
+    "text": "Найди цифру два.",
+    "voice": "jane",
+    "path": "/audio/tts/find-digit/prompt-digit-2.mp3"
+  },
+  {
+    "id": "find-digit.prompt.digit-3",
+    "game": "find-digit",
+    "text": "Найди цифру три.",
+    "voice": "jane",
+    "path": "/audio/tts/find-digit/prompt-digit-3.mp3"
+  },
+  {
+    "id": "find-digit.prompt.digit-4",
+    "game": "find-digit",
+    "text": "Найди цифру четыре.",
+    "voice": "jane",
+    "path": "/audio/tts/find-digit/prompt-digit-4.mp3"
+  },
+  {
+    "id": "find-digit.prompt.digit-5",
+    "game": "find-digit",
+    "text": "Найди цифру пять.",
+    "voice": "jane",
+    "path": "/audio/tts/find-digit/prompt-digit-5.mp3"
+  },
+  {
+    "id": "find-digit.prompt.digit-6",
+    "game": "find-digit",
+    "text": "Найди цифру шесть.",
+    "voice": "jane",
+    "path": "/audio/tts/find-digit/prompt-digit-6.mp3"
+  },
+  {
+    "id": "find-digit.prompt.digit-7",
+    "game": "find-digit",
+    "text": "Найди цифру семь.",
+    "voice": "jane",
+    "path": "/audio/tts/find-digit/prompt-digit-7.mp3"
+  },
+  {
+    "id": "find-digit.prompt.digit-8",
+    "game": "find-digit",
+    "text": "Найди цифру восемь.",
+    "voice": "jane",
+    "path": "/audio/tts/find-digit/prompt-digit-8.mp3"
+  },
+  {
+    "id": "find-digit.prompt.digit-9",
+    "game": "find-digit",
+    "text": "Найди цифру девять.",
+    "voice": "jane",
+    "path": "/audio/tts/find-digit/prompt-digit-9.mp3"
+  },
+  {
+    "id": "find-digit.correct",
+    "game": "find-digit",
+    "text": "Да. Это нужная цифра.",
+    "voice": "jane",
+    "path": "/audio/tts/find-digit/correct.mp3"
+  },
+  {
+    "id": "find-digit.mistake",
+    "game": "find-digit",
+    "text": "Почти. Попробуй ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/find-digit/mistake.mp3"
   }
 ]
