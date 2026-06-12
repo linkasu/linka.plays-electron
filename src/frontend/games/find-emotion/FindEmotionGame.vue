@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -7,6 +7,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeFindEmotionAudio, playFindEmotionMistakeMelody, playFindEmotionSuccessMelody, warmFindEmotionAudio } from "./audio";
 import { generateFindEmotionRound, type FindEmotionOption } from "./model";
 
 const router = useRouter();
@@ -43,6 +44,7 @@ function answer(choice: FindEmotionOption, index: number) {
   const targetId = choiceTargetId(choice.id);
   const expectedTargetId = choiceTargetId(round.value.target.id);
   if (index === round.value.correctIndex) {
+    void playFindEmotionSuccessMelody(session.settings.sound);
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: true });
     mistakesInRound.value = 0;
     lastMistakeId.value = undefined;
@@ -52,6 +54,7 @@ function answer(choice: FindEmotionOption, index: number) {
 
   mistakesInRound.value += 1;
   lastMistakeId.value = choice.id;
+  void playFindEmotionMistakeMelody(session.settings.sound);
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "mistake" });
 }
@@ -61,6 +64,18 @@ function restart() {
   lastMistakeId.value = undefined;
   restartRoundGame();
 }
+
+onMounted(() => {
+  warmFindEmotionAudio(session.settings.sound);
+});
+
+watch(() => session.settings.sound, (enabled) => {
+  warmFindEmotionAudio(enabled);
+});
+
+onUnmounted(() => {
+  disposeFindEmotionAudio();
+});
 </script>
 
 <template>
@@ -74,12 +89,12 @@ function restart() {
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
             <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5">{{ hintText }}</p>
             <v-row class="choice-grid" justify="center" dense>
-              <v-col v-for="(choice, index) in round.choices" :key="choice.id" cols="12" sm="6" :md="round.choices.length === 3 ? 4 : 3">
-                <GameDwellButton :class="{ 'hinted-choice': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="220" :color="hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="answer(choice, index)">
+              <v-col v-for="(choice, index) in round.choices" :key="choice.id" cols="4" :md="round.choices.length === 3 ? 4 : 3">
+                <GameDwellButton :class="{ 'hinted-choice': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="176" :color="hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="answer(choice, index)">
                   <template #default>
                     <div :class="['emotion-choice', { 'emotion-choice--mistake': choice.id === lastMistakeId }]">
                       <div class="emotion-emoji emoji-glyph" aria-hidden="true">{{ choice.emoji }}</div>
-                      <div class="text-h4 text-md-h3 font-weight-bold mt-3">{{ choice.label }}</div>
+                      <div class="sr-only">{{ choice.label }}</div>
                     </div>
                   </template>
                 </GameDwellButton>
@@ -100,7 +115,7 @@ function restart() {
 }
 
 .game-container {
-  padding-block-start: 8.75rem;
+  padding-block-start: 6rem;
 }
 
 .find-emotion-card {
@@ -108,7 +123,11 @@ function restart() {
 }
 
 .choice-grid {
-  row-gap: 0.75rem;
+  margin: -6px;
+}
+
+.choice-grid :deep(.v-col) {
+  padding: 6px;
 }
 
 .emotion-choice {
@@ -117,13 +136,22 @@ function restart() {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-block-size: 10.75rem;
+  min-block-size: 7.5rem;
   transition: filter 160ms ease, transform 160ms ease;
 }
 
 .emotion-emoji {
-  font-size: clamp(4.5rem, min(11vw, 16vh), 8.25rem);
+  font-size: clamp(4.25rem, min(10vw, 15vh), 8rem);
   line-height: 1;
+}
+
+.sr-only {
+  block-size: 1px;
+  clip: rect(0, 0, 0, 0);
+  inline-size: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
 }
 
 .hinted-choice {
@@ -137,11 +165,11 @@ function restart() {
 
 @media (max-height: 42rem) {
   .game-container {
-    padding-block-start: 7.5rem;
+    padding-block-start: 5.25rem;
   }
 
   .emotion-choice {
-    min-block-size: 8.5rem;
+    min-block-size: 6.75rem;
   }
 }
 </style>
