@@ -780,6 +780,7 @@ export const games: GameInfo[] = [
     icon: "mdi-link-variant",
     skills: ["choice", "classification", "visual-search"],
     status: "therapy-ready",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 200,
     defaultDwellMs: 1300
