@@ -14,7 +14,9 @@ type SoundSource = {
   icon: string;
   accent: string;
   wash: string;
-  frequency: number;
+  soundPath: string;
+  cueMs: number;
+  volume: number;
 };
 
 type SoundRound = {
@@ -31,7 +33,9 @@ const soundSources: SoundSource[] = [
     icon: "mdi-seashell",
     accent: "#5ab8c8",
     wash: "#ddfbff",
-    frequency: 392
+    soundPath: "/audio/sfx/sound-source/shell-wave.mp3",
+    cueMs: 1700,
+    volume: 0.38
   },
   {
     id: "bell",
@@ -40,7 +44,9 @@ const soundSources: SoundSource[] = [
     icon: "mdi-bell-outline",
     accent: "#f0b64a",
     wash: "#fff1c8",
-    frequency: 523.25
+    soundPath: "/audio/sfx/sound-source/bell.mp3",
+    cueMs: 2200,
+    volume: 0.32
   },
   {
     id: "bird",
@@ -49,7 +55,9 @@ const soundSources: SoundSource[] = [
     icon: "mdi-bird",
     accent: "#8dbb5d",
     wash: "#eef8d8",
-    frequency: 587.33
+    soundPath: "/audio/sfx/sound-source/bird.mp3",
+    cueMs: 1200,
+    volume: 0.34
   },
   {
     id: "stream",
@@ -58,7 +66,9 @@ const soundSources: SoundSource[] = [
     icon: "mdi-water",
     accent: "#6b9dec",
     wash: "#e5f0ff",
-    frequency: 349.23
+    soundPath: "/audio/sfx/sound-source/stream.mp3",
+    cueMs: 1800,
+    volume: 0.36
   },
   {
     id: "leaf",
@@ -67,7 +77,9 @@ const soundSources: SoundSource[] = [
     icon: "mdi-leaf",
     accent: "#68b78d",
     wash: "#e4f8ec",
-    frequency: 440
+    soundPath: "/audio/sfx/sound-source/leaf.mp3",
+    cueMs: 1200,
+    volume: 0.32
   },
   {
     id: "speaker",
@@ -76,7 +88,9 @@ const soundSources: SoundSource[] = [
     icon: "mdi-speaker",
     accent: "#b28be8",
     wash: "#f2e9ff",
-    frequency: 493.88
+    soundPath: "/audio/sfx/sound-source/speaker.mp3",
+    cueMs: 1100,
+    volume: 0.28
   }
 ];
 
@@ -86,8 +100,9 @@ const lastMistakeSourceId = ref("");
 const feedbackMessage = ref("Найди объект, от которого расходятся мягкие волны.");
 const mistakenSourceIds = new Set<string>();
 let nextRoundTimer = 0;
-let audioContext: AudioContext | undefined;
-let audioUnavailable = false;
+let currentAudio: HTMLAudioElement | undefined;
+let stopAudioTimer = 0;
+const audioCache = new Map<string, HTMLAudioElement>();
 
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("sound-source", {
   preset: "gentle",
@@ -166,65 +181,79 @@ function chooseSource(source: SoundSource) {
   }
 }
 
-function createAudioContext() {
-  const AudioContextConstructor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-  return AudioContextConstructor ? new AudioContextConstructor() : undefined;
+function getSourceAudio(source: SoundSource) {
+  let audio = audioCache.get(source.soundPath);
+  if (!audio) {
+    audio = new Audio(source.soundPath);
+    audio.preload = "auto";
+    audio.volume = source.volume;
+    audioCache.set(source.soundPath, audio);
+  }
+  return audio;
+}
+
+function warmSourceAudio() {
+  if (!session.settings.sound) return;
+  for (const source of soundSources) {
+    try {
+      getSourceAudio(source).load();
+    } catch {
+      // Object sounds are supportive only; gameplay continues with visual waves.
+    }
+  }
+}
+
+function stopCurrentAudio() {
+  window.clearTimeout(stopAudioTimer);
+  if (!currentAudio) return;
+  currentAudio.pause();
+  currentAudio.currentTime = 0;
 }
 
 async function playSourceCue(source: SoundSource, kind: "source" | "success") {
-  if (!session.settings.sound || audioUnavailable) return;
+  if (!session.settings.sound) return;
 
   try {
-    audioContext = audioContext ?? createAudioContext();
-    if (!audioContext) return;
-    if (audioContext.state === "suspended") await audioContext.resume();
-    if (audioContext.state !== "running") return;
-
-    const oscillator = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    const filter = audioContext.createBiquadFilter();
-    const startAt = audioContext.currentTime + 0.04;
-    const duration = kind === "success" ? 0.72 : 0.9;
-    const endAt = startAt + duration;
-
-    oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(source.frequency, startAt);
-    if (kind === "success") oscillator.frequency.linearRampToValueAtTime(source.frequency * 1.125, startAt + 0.32);
-
-    filter.type = "lowpass";
-    filter.frequency.setValueAtTime(1200, startAt);
-    gain.gain.setValueAtTime(0.0001, startAt);
-    gain.gain.linearRampToValueAtTime(kind === "success" ? 0.045 : 0.032, startAt + 0.18);
-    gain.gain.exponentialRampToValueAtTime(0.0001, endAt);
-
-    oscillator.connect(filter);
-    filter.connect(gain);
-    gain.connect(audioContext.destination);
-    oscillator.start(startAt);
-    oscillator.stop(endAt + 0.05);
+    stopCurrentAudio();
+    const audio = getSourceAudio(source);
+    currentAudio = audio;
+    audio.currentTime = 0;
+    audio.volume = Math.min(0.42, kind === "success" ? source.volume + 0.04 : source.volume);
+    await audio.play();
+    stopAudioTimer = window.setTimeout(() => {
+      if (currentAudio !== audio) return;
+      audio.pause();
+      audio.currentTime = 0;
+    }, source.cueMs);
   } catch {
-    audioUnavailable = true;
+    // Audio is optional: autoplay/load failures must not disable later user-triggered attempts.
   }
 }
 
 function restart() {
   window.clearTimeout(nextRoundTimer);
-  audioUnavailable = false;
   startSession();
   setRound(0);
 }
 
 watch(() => session.settings.sound, (enabled) => {
-  if (enabled) void playSourceCue(round.target, "source");
+  if (!enabled) {
+    stopCurrentAudio();
+    return;
+  }
+  warmSourceAudio();
+  void playSourceCue(round.target, "source");
 });
 
 onMounted(() => {
+  warmSourceAudio();
   void playSourceCue(round.target, "source");
 });
 
 onUnmounted(() => {
   window.clearTimeout(nextRoundTimer);
-  void audioContext?.close().catch(() => undefined);
+  stopCurrentAudio();
+  audioCache.clear();
 });
 </script>
 
