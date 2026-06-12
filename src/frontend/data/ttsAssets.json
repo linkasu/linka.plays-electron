@@ -544,5 +544,194 @@
     "text": "Почти. Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/find-shape/mistake.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-1",
+    "game": "find-letter",
+    "text": "Найди букву А.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-1.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-2",
+    "game": "find-letter",
+    "text": "Найди букву Б.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-2.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-3",
+    "game": "find-letter",
+    "text": "Найди букву В.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-3.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-4",
+    "game": "find-letter",
+    "text": "Найди букву Г.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-4.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-5",
+    "game": "find-letter",
+    "text": "Найди букву Д.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-5.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-6",
+    "game": "find-letter",
+    "text": "Найди букву Е.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-6.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-7",
+    "game": "find-letter",
+    "text": "Найди букву Ж.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-7.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-8",
+    "game": "find-letter",
+    "text": "Найди букву З.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-8.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-9",
+    "game": "find-letter",
+    "text": "Найди букву И.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-9.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-10",
+    "game": "find-letter",
+    "text": "Найди букву К.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-10.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-11",
+    "game": "find-letter",
+    "text": "Найди букву Л.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-11.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-12",
+    "game": "find-letter",
+    "text": "Найди букву М.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-12.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-13",
+    "game": "find-letter",
+    "text": "Найди букву Н.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-13.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-14",
+    "game": "find-letter",
+    "text": "Найди букву О.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-14.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-15",
+    "game": "find-letter",
+    "text": "Найди букву П.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-15.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-16",
+    "game": "find-letter",
+    "text": "Найди букву Р.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-16.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-17",
+    "game": "find-letter",
+    "text": "Найди букву С.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-17.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-18",
+    "game": "find-letter",
+    "text": "Найди букву Т.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-18.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-19",
+    "game": "find-letter",
+    "text": "Найди букву У.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-19.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-20",
+    "game": "find-letter",
+    "text": "Найди букву Ф.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-20.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-21",
+    "game": "find-letter",
+    "text": "Найди букву Х.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-21.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-22",
+    "game": "find-letter",
+    "text": "Найди букву Ц.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-22.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-23",
+    "game": "find-letter",
+    "text": "Найди букву Ч.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-23.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-24",
+    "game": "find-letter",
+    "text": "Найди букву Ш.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-24.mp3"
+  },
+  {
+    "id": "find-letter.prompt.letter-25",
+    "game": "find-letter",
+    "text": "Найди букву Я.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/prompt-letter-25.mp3"
+  },
+  {
+    "id": "find-letter.correct",
+    "game": "find-letter",
+    "text": "Да. Это нужная буква.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/correct.mp3"
+  },
+  {
+    "id": "find-letter.mistake",
+    "game": "find-letter",
+    "text": "Почти. Попробуй ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/find-letter/mistake.mp3"
   }
 ]
