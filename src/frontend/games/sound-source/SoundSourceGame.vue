@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onUnmounted, reactive, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -98,7 +98,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   motionSpeed: 0.45,
   distractors: "none",
   hints: "high",
-  sound: false
+  sound: true
 }, {
   finishOnMistakes: false
 });
@@ -125,7 +125,7 @@ function setRound(step: number) {
   selectedSourceId.value = "";
   lastMistakeSourceId.value = "";
   mistakenSourceIds.clear();
-  feedbackMessage.value = "Смотри на объект с волнами. Звук можно включить, но волна видна всегда.";
+  feedbackMessage.value = "Смотри на объект с волнами. Тихий звук включён, а волну видно всегда.";
   void playSourceCue(round.target, "source");
 }
 
@@ -151,6 +151,7 @@ function chooseSource(source: SoundSource) {
       mistakenSourceIds.add(source.id);
       recordMistake({ roundId: round.roundId, selectedId: source.id, targetId: round.target.id, expected: round.target.soundLabel });
     }
+    void playSourceCue(round.target, "source");
     return;
   }
 
@@ -217,6 +218,10 @@ watch(() => session.settings.sound, (enabled) => {
   if (enabled) void playSourceCue(round.target, "source");
 });
 
+onMounted(() => {
+  void playSourceCue(round.target, "source");
+});
+
 onUnmounted(() => {
   window.clearTimeout(nextRoundTimer);
   void audioContext?.close().catch(() => undefined);
@@ -241,15 +246,15 @@ onUnmounted(() => {
     />
 
     <v-container class="sound-source-container d-flex align-center justify-center" fluid>
-      <v-card class="sound-source-panel pa-4 pa-sm-6 pa-md-8" color="surface" rounded="xl" elevation="8">
-        <div class="text-center mb-5">
-          <div class="text-overline text-primary">визуальная волна по умолчанию</div>
-          <h1 class="text-h3 text-md-h2 font-weight-bold mb-3">Где звук?</h1>
-          <p class="text-h6 text-medium-emphasis mb-2">{{ promptText }}</p>
-          <p class="text-body-1 text-medium-emphasis mb-0">Выбери один из крупных объектов. Ошибка только подскажет, где искать волну.</p>
+      <v-card class="sound-source-panel pa-3 pa-sm-4 pa-md-6" color="surface" rounded="xl" elevation="8">
+        <div class="text-center mb-3">
+          <div class="text-overline text-primary">тихий звук и визуальная волна</div>
+          <h1 class="text-h4 text-md-h2 font-weight-bold mb-1">Где звук?</h1>
+          <p class="text-body-1 text-md-h6 text-medium-emphasis mb-1">{{ promptText }}</p>
+          <p class="text-body-2 text-md-body-1 text-medium-emphasis mb-0">Выбери один из крупных объектов. Ошибка только подскажет, где искать волну.</p>
         </div>
 
-        <div class="d-flex flex-column flex-sm-row align-center justify-space-between ga-3 mb-5">
+        <div class="d-flex flex-column flex-sm-row align-center justify-space-between ga-2 mb-3">
           <v-alert class="flex-grow-1" color="primary" icon="mdi-waves" rounded="xl" variant="tonal">
             {{ feedbackMessage }}
           </v-alert>
@@ -272,7 +277,7 @@ onUnmounted(() => {
             :target-id="sourceTargetId(source)"
             :disabled="session.status !== 'running' || Boolean(selectedSourceId)"
             :dwell-ms="session.settings.dwellMs"
-            :min-height="230"
+            min-height="clamp(10rem, 28vh, 14rem)"
             color="surface"
             @select="chooseSource(source)"
           >
@@ -294,8 +299,8 @@ onUnmounted(() => {
                 </div>
                 <div class="source-glow" :style="{ opacity: source.id === round.target.id ? 0.44 + progress * 0.22 : active ? 0.28 : 0.18 }" aria-hidden="true" />
                 <v-icon class="source-icon" :icon="source.icon" />
-                <div class="text-h5 text-md-h4 font-weight-bold mt-4">{{ source.title }}</div>
-                <div class="text-body-2 text-medium-emphasis mt-2">
+                <div class="text-h6 text-md-h4 font-weight-bold mt-2">{{ source.title }}</div>
+                <div class="source-caption text-body-2 mt-1">
                   {{ selectedSourceId === source.id ? 'Волна найдена' : lastMistakeSourceId === source.id ? 'Не отсюда' : active ? 'Держи взгляд' : 'Посмотри сюда' }}
                 </div>
               </div>
@@ -338,7 +343,7 @@ onUnmounted(() => {
 
 .sound-source-container {
   min-block-size: 100vh;
-  padding-block-start: 118px;
+  padding-block: 5rem 1.25rem;
   position: relative;
   z-index: 1;
 }
@@ -379,7 +384,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-block-size: 210px;
+  min-block-size: 9.5rem;
   overflow: hidden;
   position: relative;
 }
@@ -400,9 +405,9 @@ onUnmounted(() => {
 
 .source-glow {
   background: radial-gradient(circle, color-mix(in srgb, var(--source-accent) 42%, transparent), transparent 68%);
-  block-size: 210px;
+  block-size: 11rem;
   border-radius: 999px;
-  inline-size: 210px;
+  inline-size: 11rem;
   inset-block-start: 50%;
   inset-inline-start: 50%;
   position: absolute;
@@ -412,7 +417,11 @@ onUnmounted(() => {
 .source-icon {
   color: var(--source-accent);
   filter: drop-shadow(0 18px 26px color-mix(in srgb, var(--source-accent) 30%, transparent));
-  font-size: clamp(5.2rem, 10vw, 8rem);
+  font-size: clamp(4.1rem, min(8vw, 13vh), 7rem);
+}
+
+.source-caption {
+  color: #445852;
 }
 
 .source-waves {
@@ -466,7 +475,7 @@ onUnmounted(() => {
 
 @media (max-width: 560px) {
   .sound-source-container {
-    padding-block-start: 168px;
+    padding-block: 6.5rem 1rem;
   }
 
   .sound-source-grid,
