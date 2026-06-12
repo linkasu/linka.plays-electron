@@ -327,5 +327,47 @@
     "text": "Розовый.",
     "voice": "jane",
     "path": "/audio/tts/color-circle/pink.mp3"
+  },
+  {
+    "id": "feed-animal.prompt.rabbit",
+    "game": "feed-animal",
+    "text": "Покорми зайку. Выбери, что он ест.",
+    "voice": "jane",
+    "path": "/audio/tts/feed-animal/prompt-rabbit.mp3"
+  },
+  {
+    "id": "feed-animal.prompt.puppy",
+    "game": "feed-animal",
+    "text": "Покорми щенка. Выбери, что он ест.",
+    "voice": "jane",
+    "path": "/audio/tts/feed-animal/prompt-puppy.mp3"
+  },
+  {
+    "id": "feed-animal.prompt.bear",
+    "game": "feed-animal",
+    "text": "Покорми мишку. Выбери, что он ест.",
+    "voice": "jane",
+    "path": "/audio/tts/feed-animal/prompt-bear.mp3"
+  },
+  {
+    "id": "feed-animal.prompt.hamster",
+    "game": "feed-animal",
+    "text": "Покорми хомяка. Выбери, что он ест.",
+    "voice": "jane",
+    "path": "/audio/tts/feed-animal/prompt-hamster.mp3"
+  },
+  {
+    "id": "feed-animal.correct",
+    "game": "feed-animal",
+    "text": "Да. Это подходит.",
+    "voice": "jane",
+    "path": "/audio/tts/feed-animal/correct.mp3"
+  },
+  {
+    "id": "feed-animal.mistake",
+    "game": "feed-animal",
+    "text": "Нет. Это не подходит.",
+    "voice": "jane",
+    "path": "/audio/tts/feed-animal/mistake.mp3"
   }
 ]

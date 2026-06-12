@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onUnmounted } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -7,49 +7,23 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
-
-type Animal = {
-  id: string;
-  name: string;
-  emoji: string;
-  phrase: string;
-};
-
-type Food = {
-  id: string;
-  name: string;
-  emoji: string;
-  color: string;
-};
-
-type FeedAnimalRound = {
-  roundId: string;
-  animal: Animal;
-  foods: Food[];
-};
-
-const animals: Animal[] = [
-  { id: "rabbit", name: "Зайка", emoji: "🐰", phrase: "Зайка ждёт угощение" },
-  { id: "puppy", name: "Щенок", emoji: "🐶", phrase: "Щенок смотрит спокойно" },
-  { id: "bear", name: "Мишка", emoji: "🐻", phrase: "Мишке можно дать еду" },
-  { id: "hamster", name: "Хомяк", emoji: "🐹", phrase: "Хомяк готов кушать" }
-];
-
-const foods: Food[] = [
-  { id: "apple", name: "Яблоко", emoji: "🍎", color: "red-lighten-4" },
-  { id: "carrot", name: "Морковка", emoji: "🥕", color: "orange-lighten-4" },
-  { id: "banana", name: "Банан", emoji: "🍌", color: "yellow-lighten-4" },
-  { id: "berries", name: "Ягоды", emoji: "🫐", color: "indigo-lighten-4" },
-  { id: "pear", name: "Груша", emoji: "🍐", color: "green-lighten-4" },
-  { id: "bread", name: "Хлеб", emoji: "🥖", color: "brown-lighten-4" }
-];
+import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
+import ttsAssets from "../../data/ttsAssets.json";
+import { disposeFeedAnimalAudio, playFeedAnimalMistakeMelody, playFeedAnimalSuccessMelody, warmFeedAnimalAudio } from "./audio";
+import { animalEatsFood, generateFeedAnimalRound, type FeedAnimalFood, type FeedAnimalRound } from "./model";
 
 const router = useRouter();
 const isFeeding = ref(false);
-const selectedFood = ref<Food>();
+const selectedFood = ref<FeedAnimalFood>();
+const revealedFoodId = ref<string>();
+const mistakeFoodId = ref<string>();
+const feedbackText = ref("Выбери, что ест зверёк.");
+const feedAnimalTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.game === "feed-animal");
 let feedbackTimer = 0;
+let promptTimer = 0;
+let responseTtsTimer = 0;
 
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("feed-animal", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("feed-animal", {
   preset: "gentle",
   maxSteps: 8,
   dwellMs: 1300,
@@ -62,60 +36,120 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnMistakes: false
 });
 
+const { round, resultVisible, nextRound, restart: restartRound } = useRoundGame<FeedAnimalRound>({
+  session,
+  startSession,
+  generateRound: generateFeedAnimalRound
+});
+
 function foodTargetId(roundId: string, foodId: string) {
   return `feed-animal:${roundId}:food:${foodId}`;
 }
 
-function chooseFoods(roundIndex: number) {
-  const count = Math.min(3, 1 + ((roundIndex - 1) % 3));
-  const start = (roundIndex * 2) % foods.length;
-  return Array.from({ length: count }, (_, index) => foods[(start + index) % foods.length]);
+function ttsAsset(id: string) {
+  return feedAnimalTtsAssets.find((asset) => asset.id === id);
 }
 
-function generateRound(roundIndex: number): FeedAnimalRound {
-  return {
-    roundId: `feed-animal-${roundIndex}`,
-    animal: animals[(roundIndex - 1) % animals.length],
-    foods: chooseFoods(roundIndex)
-  };
+function playPrompt(delayMs = 0) {
+  window.clearTimeout(promptTimer);
+  promptTimer = window.setTimeout(() => {
+    playTtsAsset(session.settings.sound, ttsAsset(`feed-animal.prompt.${round.value.animal.id}`), 0.36);
+  }, delayMs);
 }
 
-const { round, resultVisible, nextRound, restart: restartRound } = useRoundGame<FeedAnimalRound>({
-  session,
-  startSession,
-  generateRound
-});
+function playResponseTts(id: string, delayMs = 920) {
+  window.clearTimeout(responseTtsTimer);
+  responseTtsTimer = window.setTimeout(() => {
+    playTtsAsset(session.settings.sound, ttsAsset(id), 0.36);
+  }, delayMs);
+}
 
-function feed(food: Food) {
+function resetRoundState() {
+  selectedFood.value = undefined;
+  revealedFoodId.value = undefined;
+  mistakeFoodId.value = undefined;
+  isFeeding.value = false;
+  feedbackText.value = "Выбери, что ест зверёк.";
+}
+
+function prepareNextRound() {
+  window.clearTimeout(feedbackTimer);
+  isFeeding.value = true;
+  feedbackTimer = window.setTimeout(() => {
+    resetRoundState();
+    if (session.status === "running" && session.step < session.maxSteps) {
+      nextRound();
+      playPrompt(160);
+    }
+  }, 2300);
+}
+
+function feed(food: FeedAnimalFood) {
   if (session.status !== "running" || isFeeding.value) return;
 
-  isFeeding.value = true;
   selectedFood.value = food;
-  recordSuccess({
+  const isCorrect = animalEatsFood(round.value.animal, food);
+  const targetId = foodTargetId(round.value.roundId, food.id);
+  const expectedTargetId = foodTargetId(round.value.roundId, round.value.correctFood.id);
+
+  if (isCorrect) {
+    feedbackText.value = `Да, ${round.value.animal.name.toLowerCase()} это ест.`;
+    revealedFoodId.value = food.id;
+    mistakeFoodId.value = undefined;
+    void playFeedAnimalSuccessMelody(session.settings.sound);
+    playResponseTts("feed-animal.correct");
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      animalId: round.value.animal.id,
+      foodId: food.id,
+      label: `${round.value.animal.name}: ${food.name}`,
+      isCorrect: true
+    });
+    prepareNextRound();
+    return;
+  }
+
+  feedbackText.value = `Нет, ${round.value.animal.name.toLowerCase()} это не ест. Подходит: ${round.value.correctFood.name.toLowerCase()}.`;
+  revealedFoodId.value = round.value.correctFood.id;
+  mistakeFoodId.value = food.id;
+  void playFeedAnimalMistakeMelody(session.settings.sound);
+  playResponseTts("feed-animal.mistake");
+  recordMistake({
     roundId: round.value.roundId,
-    targetId: foodTargetId(round.value.roundId, food.id),
+    targetId,
+    expectedTargetId,
     animalId: round.value.animal.id,
     foodId: food.id,
-    label: `${round.value.animal.name}: ${food.name}`
+    expectedFoodId: round.value.correctFood.id,
+    label: `${round.value.animal.name}: ${food.name}`,
+    isCorrect: false
   });
-
-  window.clearTimeout(feedbackTimer);
-  feedbackTimer = window.setTimeout(() => {
-    selectedFood.value = undefined;
-    isFeeding.value = false;
-    if (session.status === "running" && session.step < session.maxSteps) nextRound();
-  }, 850);
+  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, message: "Показана подходящая еда." });
+  prepareNextRound();
 }
 
 function restart() {
   window.clearTimeout(feedbackTimer);
-  selectedFood.value = undefined;
-  isFeeding.value = false;
+  window.clearTimeout(promptTimer);
+  window.clearTimeout(responseTtsTimer);
+  resetRoundState();
   restartRound();
+  playPrompt(160);
 }
+
+onMounted(() => {
+  warmFeedAnimalAudio(session.settings.sound);
+  warmTtsAssets(session.settings.sound, feedAnimalTtsAssets);
+  playPrompt(450);
+});
 
 onUnmounted(() => {
   window.clearTimeout(feedbackTimer);
+  window.clearTimeout(promptTimer);
+  window.clearTimeout(responseTtsTimer);
+  disposeFeedAnimalAudio();
+  disposeTtsAssets(feedAnimalTtsAssets);
 });
 </script>
 
@@ -126,26 +160,26 @@ onUnmounted(() => {
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="8">
           <v-card class="pa-5 pa-md-8" color="surface" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Любая еда подойдёт</div>
+            <div class="feed-animal-overline text-overline text-secondary text-center mb-2">Что ест зверёк</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">Покорми зверька</h1>
-            <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-6">Выбери взглядом любую большую еду. Ошибок здесь нет.</p>
+            <p class="feed-animal-feedback text-h6 text-md-h5 text-medium-emphasis text-center mb-6">{{ feedbackText }}</p>
 
             <v-card class="animal-card pa-5 pa-md-7 mb-6 text-center" color="green-lighten-5" rounded="xl" variant="tonal">
               <div :class="['animal-emoji emoji-glyph', { 'animal-emoji--fed': isFeeding }]">{{ round.animal.emoji }}</div>
               <div class="text-h4 text-md-h3 font-weight-bold mt-3">{{ round.animal.name }}</div>
               <v-chip class="mt-4" color="success" size="large" variant="flat" :prepend-icon="isFeeding ? 'mdi-heart' : 'mdi-paw'">
-                {{ isFeeding && selectedFood ? `Ням, ${selectedFood.name.toLowerCase()}!` : round.animal.phrase }}
+                {{ isFeeding && selectedFood && animalEatsFood(round.animal, selectedFood) ? `Ням, ${selectedFood.name.toLowerCase()}!` : round.animal.phrase }}
               </v-chip>
             </v-card>
 
             <v-row justify="center">
-              <v-col v-for="food in round.foods" :key="food.id" :cols="round.foods.length === 1 ? 12 : 6" :md="round.foods.length === 1 ? 8 : round.foods.length === 2 ? 6 : 4">
-                <GameDwellButton :target-id="foodTargetId(round.roundId, food.id)" :disabled="session.status !== 'running' || isFeeding" :dwell-ms="session.settings.dwellMs" :min-height="210" :color="food.color" @select="feed(food)">
+              <v-col v-for="food in round.foods" :key="food.id" cols="12" sm="4">
+                <GameDwellButton :class="[{ 'food-choice--hint': revealedFoodId === food.id, 'food-choice--mistake': mistakeFoodId === food.id }]" :target-id="foodTargetId(round.roundId, food.id)" :disabled="session.status !== 'running' || isFeeding" :dwell-ms="session.settings.dwellMs" :min-height="210" :color="food.color" @select="feed(food)">
                   <template #default="{ active, progress }">
                     <div class="food-emoji emoji-glyph">{{ food.emoji }}</div>
                     <div class="text-h4 font-weight-bold mt-2">{{ food.name }}</div>
                     <div class="text-body-1 text-medium-emphasis mt-2">
-                      {{ active && progress > 0.8 ? "Кормим" : "Выбери" }}
+                      {{ revealedFoodId === food.id ? "Подходит" : mistakeFoodId === food.id ? "Не подходит" : active && progress > 0.8 ? "Проверяем" : "Выбери" }}
                     </div>
                   </template>
                 </GameDwellButton>
@@ -188,9 +222,26 @@ onUnmounted(() => {
   line-height: 1;
 }
 
+.food-choice--hint {
+  filter: drop-shadow(0 0 1rem rgb(var(--v-theme-success) / 42%));
+  transform: scale(1.02);
+}
+
+.food-choice--mistake {
+  filter: saturate(0.72) opacity(0.76);
+}
+
 @media (max-height: 920px) {
   .feed-animal-container {
-    padding-block-start: 7.25rem;
+    padding-block-start: 6.75rem;
+  }
+
+  .feed-animal-overline {
+    display: none;
+  }
+
+  .feed-animal-feedback {
+    margin-block-end: 1rem !important;
   }
 
   .animal-card {

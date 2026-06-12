@@ -521,8 +521,8 @@ export const games: GameInfo[] = [
   {
     id: "feed-animal",
     title: "Покорми зверька",
-    description: "Выбери любую крупную еду взглядом, чтобы мягко покормить зверька без ошибки выбора.",
-    selfDescription: "Покорми зверька.",
+    description: "Выбери подходящую еду для зверька: правильный ответ кормит, неправильный мягко показывает подсказку.",
+    selfDescription: "Выбери, что ест зверёк.",
     route: "/games/feed-animal",
     category: "gaze-basics",
     icon: "mdi-paw",
