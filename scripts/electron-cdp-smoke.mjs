@@ -117,6 +117,60 @@ async function collectMetrics(client, expectedRoute) {
     const expectedHash = ${JSON.stringify(expectedHash)};
     const viewport = { width: window.innerWidth, height: window.innerHeight };
     const scrolling = document.scrollingElement || document.documentElement;
+    function parseRgb(value) {
+      const match = value.match(/rgba?\\(([^)]+)\\)/);
+      if (!match) return undefined;
+      const parts = match[1].split(',').map((part) => Number.parseFloat(part.trim()));
+      if (parts.length < 3 || parts.some((part) => Number.isNaN(part))) return undefined;
+      const alpha = parts.length >= 4 ? parts[3] : 1;
+      if (alpha === 0) return undefined;
+      return { r: parts[0], g: parts[1], b: parts[2], a: alpha };
+    }
+    function blend(foreground, background) {
+      const alpha = foreground.a ?? 1;
+      return {
+        r: foreground.r * alpha + background.r * (1 - alpha),
+        g: foreground.g * alpha + background.g * (1 - alpha),
+        b: foreground.b * alpha + background.b * (1 - alpha),
+        a: 1
+      };
+    }
+    function luminance(channel) {
+      const value = channel / 255;
+      return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+    }
+    function contrastRatio(foreground, background) {
+      const foregroundLuminance = 0.2126 * luminance(foreground.r) + 0.7152 * luminance(foreground.g) + 0.0722 * luminance(foreground.b);
+      const backgroundLuminance = 0.2126 * luminance(background.r) + 0.7152 * luminance(background.g) + 0.0722 * luminance(background.b);
+      const lighter = Math.max(foregroundLuminance, backgroundLuminance);
+      const darker = Math.min(foregroundLuminance, backgroundLuminance);
+      return (lighter + 0.05) / (darker + 0.05);
+    }
+    function effectiveBackground(element) {
+      let current = element;
+      const layers = [];
+      while (current && current !== document.documentElement) {
+        const background = parseRgb(getComputedStyle(current).backgroundColor);
+        if (background) layers.push(background);
+        current = current.parentElement;
+      }
+      let color = { r: 255, g: 255, b: 255, a: 1 };
+      for (const layer of layers.reverse()) color = blend(layer, color);
+      return color;
+    }
+    function directText(element) {
+      return Array.from(element.childNodes).some((node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim());
+    }
+    function targetContrast(element) {
+      const textElements = [element, ...Array.from(element.querySelectorAll('*'))].filter((child) => directText(child));
+      const ratios = textElements.map((child) => {
+        const style = getComputedStyle(child);
+        const background = effectiveBackground(child);
+        const foreground = parseRgb(style.color);
+        return foreground ? contrastRatio(blend(foreground, background), background) : undefined;
+      }).filter((ratio) => ratio !== undefined);
+      return ratios.length ? Number(Math.min(...ratios).toFixed(2)) : null;
+    }
     const hudRects = Array.from(document.querySelectorAll('.game-hud, [class*="hud"]')).map((el) => {
       const rect = el.getBoundingClientRect();
       return { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom };
@@ -139,7 +193,8 @@ async function collectMetrics(client, expectedRoute) {
         viewportAreaRatio: Number((visibleArea / viewportArea).toFixed(4)),
         shortSideRatio: Number((Math.min(rect.width, rect.height) / Math.min(viewport.width, viewport.height)).toFixed(3)),
         firstViewportVisible: visibleArea > 0,
-        overlapsHud
+        overlapsHud,
+        contrastRatio: targetContrast(el)
       };
     });
     const canvasRects = Array.from(document.querySelectorAll('canvas')).map((canvas) => {
@@ -162,6 +217,7 @@ async function collectMetrics(client, expectedRoute) {
       minViewportAreaRatio: visibleTargets.length ? Math.min(...visibleTargets.map((target) => target.viewportAreaRatio)) : 0,
       minShortSideRatio: visibleTargets.length ? Math.min(...visibleTargets.map((target) => target.shortSideRatio)) : 0,
       hudOverlapCount: targetRects.filter((target) => target.overlapsHud).length,
+      lowContrastTargetCount: targetRects.filter((target) => target.firstViewportVisible && target.contrastRatio !== null && target.contrastRatio < 4.5).length,
       wasdPanelCount: document.querySelectorAll('.wasd-panel').length,
       canvases: canvasRects,
       targets: targetRects
@@ -174,6 +230,7 @@ function isFailure(result) {
     || !result.metrics.routeMatches
     || result.metrics.horizontalOverflow
     || result.metrics.hudOverlapCount
+    || result.metrics.lowContrastTargetCount
     || (result.metrics.wasdPanelCount > 0 && result.metrics.visibleTargetCount < result.metrics.targetCount)
     || (result.metrics.targetCount > 0 && result.metrics.visibleTargetCount === 0);
 }
@@ -192,6 +249,7 @@ function summarizeResults(results) {
       errorCount: 0,
       horizontalOverflowCount: 0,
       hudOverlapCount: 0,
+      lowContrastTargetCount: 0,
       hiddenTargetViewportCount: 0,
       zeroVisibleTargetViewportCount: 0,
       wasdPartialViewportCount: 0,
@@ -207,6 +265,7 @@ function summarizeResults(results) {
     current.errorCount += result.errors.length;
     current.horizontalOverflowCount += metrics.horizontalOverflow ? 1 : 0;
     current.hudOverlapCount += metrics.hudOverlapCount;
+    current.lowContrastTargetCount += metrics.lowContrastTargetCount;
     current.hiddenTargetViewportCount += metrics.visibleTargetCount < metrics.targetCount ? 1 : 0;
     current.zeroVisibleTargetViewportCount += metrics.targetCount > 0 && metrics.visibleTargetCount === 0 ? 1 : 0;
     current.wasdPartialViewportCount += metrics.wasdPanelCount > 0 && metrics.visibleTargetCount < metrics.targetCount ? 1 : 0;
