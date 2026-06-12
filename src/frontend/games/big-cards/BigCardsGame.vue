@@ -13,7 +13,7 @@ import { generateBigCardsRound, type BigCard, type BigCardsRound } from "./model
 
 const router = useRouter();
 const isResponding = ref(false);
-const feedbackText = ref("Выбери одну большую карточку взглядом.");
+const feedbackText = ref("Посмотри на карточку, какая тебе больше нравится.");
 const bigCardsTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.game === "big-cards");
 let feedbackTimer = 0;
 let introTimer = 0;
@@ -72,7 +72,7 @@ function restart() {
   window.clearTimeout(feedbackTimer);
   window.clearTimeout(introTimer);
   isResponding.value = false;
-  feedbackText.value = "Выбери одну большую карточку взглядом.";
+  feedbackText.value = "Посмотри на карточку, какая тебе больше нравится.";
   restartRound();
   playTtsAsset(session.settings.sound, ttsAsset("big-cards.intro"), 0.36);
 }

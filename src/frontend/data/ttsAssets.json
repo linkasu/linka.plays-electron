@@ -156,7 +156,7 @@
   {
     "id": "big-cards.intro",
     "game": "big-cards",
-    "text": "Посмотри на большую карточку.",
+    "text": "Посмотри на карточку, какая тебе больше нравится.",
     "voice": "jane",
     "path": "/audio/tts/big-cards/intro.mp3"
   },
