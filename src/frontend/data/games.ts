@@ -543,6 +543,7 @@ export const games: GameInfo[] = [
     icon: "mdi-butterfly",
     skills: ["fixation", "attention-shift"],
     status: "polished",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 60,
     minTargetSizePx: 180,
     defaultDwellMs: 900
