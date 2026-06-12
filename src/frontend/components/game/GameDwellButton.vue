@@ -1,5 +1,6 @@
 <script lang="ts">
 let sharedCooldownUntil = 0;
+let visibilityCheckTimer = 0;
 </script>
 
 <script setup lang="ts">
@@ -86,6 +87,27 @@ function containsPointer() {
     && pointer.value.y <= rect.bottom + hitPaddingPx;
 }
 
+function hasVisibleDwellTarget() {
+  return Array.from(document.querySelectorAll<HTMLElement>(".dwell-hitbox")).some((element) => {
+    const rect = element.getBoundingClientRect();
+    return rect.right > 0 && rect.bottom > 0 && rect.left < window.innerWidth && rect.top < window.innerHeight;
+  });
+}
+
+function scheduleInitialVisibilityCheck() {
+  window.clearTimeout(visibilityCheckTimer);
+  const scheduledHref = window.location.href;
+  visibilityCheckTimer = window.setTimeout(() => {
+    if (window.location.href !== scheduledHref) return;
+    const firstTarget = document.querySelector<HTMLElement>(".dwell-hitbox");
+    if (!firstTarget || document.querySelector(".wasd-panel") || hasVisibleDwellTarget()) return;
+    const hud = document.querySelector<HTMLElement>(".game-hud, [class*='hud']");
+    const hudBottom = hud?.getBoundingClientRect().bottom ?? 0;
+    const targetTop = firstTarget.getBoundingClientRect().top;
+    window.scrollBy({ top: targetTop - hudBottom - 16, behavior: "auto" });
+  }, 700);
+}
+
 function cancelReason(): DwellCancelReason | undefined {
   if (props.disabled) return "disabled";
   if (!pointer.value.valid) return "invalid-gaze";
@@ -135,6 +157,7 @@ function tick(now: number) {
 }
 
 onMounted(() => {
+  scheduleInitialVisibilityCheck();
   frame = requestAnimationFrame(tick);
 });
 

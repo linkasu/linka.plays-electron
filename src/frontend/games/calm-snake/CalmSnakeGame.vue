@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWasdPanel, { type GameWasdControl } from "../../components/game/GameWasdPanel.vue";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
 import { calmSnakeOutcome, createCalmSnakeState, setSnakeDirection, stepSnake, type CalmSnakeStepEvent, type SnakeDirection, type SnakePoint } from "./model";
@@ -26,15 +26,23 @@ const resultVisible = computed(() => session.status === "finished");
 let lastStepAt = performance.now();
 const stepTimer = window.setInterval(tick, 180);
 
-const directionControls: { direction: SnakeDirection; label: string; icon: string; color: string }[] = [
-  { direction: "up", label: "Вверх", icon: "mdi-arrow-up-bold", color: "blue-lighten-5" },
-  { direction: "left", label: "Влево", icon: "mdi-arrow-left-bold", color: "green-lighten-5" },
-  { direction: "right", label: "Вправо", icon: "mdi-arrow-right-bold", color: "green-lighten-5" },
-  { direction: "down", label: "Вниз", icon: "mdi-arrow-down-bold", color: "blue-lighten-5" }
+const directionControls: { direction: SnakeDirection; key: "w" | "a" | "s" | "d"; label: string; icon: string; color: string }[] = [
+  { direction: "up", key: "w", label: "Вверх", icon: "mdi-arrow-up-bold", color: "blue-lighten-5" },
+  { direction: "left", key: "a", label: "Влево", icon: "mdi-arrow-left-bold", color: "green-lighten-5" },
+  { direction: "down", key: "s", label: "Вниз", icon: "mdi-arrow-down-bold", color: "blue-lighten-5" },
+  { direction: "right", key: "d", label: "Вправо", icon: "mdi-arrow-right-bold", color: "green-lighten-5" }
 ];
 
 const rows = computed(() => Array.from({ length: boardState.value.height }, (_, row) => row));
 const columns = computed(() => Array.from({ length: boardState.value.width }, (_, column) => column));
+const directionButtons = computed<GameWasdControl[]>(() => directionControls.map((control) => ({
+  id: control.direction,
+  key: control.key,
+  label: control.label,
+  icon: control.icon,
+  targetId: directionTargetId(control.direction),
+  color: control.color
+})));
 
 function directionTargetId(direction: SnakeDirection) {
   return `calm-snake:direction:${direction}`;
@@ -47,6 +55,10 @@ function chooseDirection(direction: SnakeDirection) {
   feedbackMessage.value = previousDirection === boardState.value.direction && previousDirection !== direction
     ? "Разворот слишком резкий. Продолжаем мягко вперёд."
     : "Хорошо. Змейка повернёт спокойно.";
+}
+
+function chooseDirectionButton(control: GameWasdControl) {
+  chooseDirection(control.id as SnakeDirection);
 }
 
 function tick() {
@@ -146,22 +158,7 @@ onUnmounted(() => {
             <p class="text-body-1 text-medium-emphasis text-center mb-4">{{ feedbackMessage }}</p>
 
             <v-row align="center" justify="center" class="ga-2">
-              <v-col cols="12" md="3" class="order-2 order-md-1">
-                <v-row dense>
-                  <v-col v-for="control in directionControls.slice(0, 2)" :key="control.direction" cols="6" md="12">
-                    <GameDwellButton :target-id="directionTargetId(control.direction)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="150" :color="control.color" @select="chooseDirection(control.direction)">
-                      <template #default>
-                        <div class="direction-content">
-                          <v-icon :icon="control.icon" size="48" color="primary" />
-                          <span>{{ control.label }}</span>
-                        </div>
-                      </template>
-                    </GameDwellButton>
-                  </v-col>
-                </v-row>
-              </v-col>
-
-              <v-col cols="12" md="6" class="order-1 order-md-2">
+              <v-col cols="12" md="7" class="order-2">
                 <div class="snake-board mx-auto" role="grid" aria-label="Поле спокойной змейки">
                   <div v-for="row in rows" :key="row" class="snake-row" role="row">
                     <div v-for="column in columns" :key="column" :class="cellClasses(row, column)" role="gridcell">
@@ -171,19 +168,8 @@ onUnmounted(() => {
                 </div>
               </v-col>
 
-              <v-col cols="12" md="3" class="order-3">
-                <v-row dense>
-                  <v-col v-for="control in directionControls.slice(2)" :key="control.direction" cols="6" md="12">
-                    <GameDwellButton :target-id="directionTargetId(control.direction)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="150" :color="control.color" @select="chooseDirection(control.direction)">
-                      <template #default>
-                        <div class="direction-content">
-                          <v-icon :icon="control.icon" size="48" color="primary" />
-                          <span>{{ control.label }}</span>
-                        </div>
-                      </template>
-                    </GameDwellButton>
-                  </v-col>
-                </v-row>
+              <v-col cols="12" md="5" class="order-1">
+                <GameWasdPanel :controls="directionButtons" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" aria-label="Направления змейки" @select="chooseDirectionButton" />
               </v-col>
             </v-row>
 

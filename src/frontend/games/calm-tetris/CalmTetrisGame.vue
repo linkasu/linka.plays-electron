@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
-import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWasdPanel, { type GameWasdControl } from "../../components/game/GameWasdPanel.vue";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
 import {
@@ -55,6 +55,12 @@ const validRotation = computed(() => findValidRotation(currentPlacement.value));
 const canRotate = computed(() => canPlay.value && Boolean(validRotation.value));
 const canDrop = computed(() => canPlay.value && Boolean(ghostPlacement.value));
 const currentColumnLabel = computed(() => currentPlacement.value.column + 1);
+const actionButtons = computed<GameWasdControl[]>(() => [
+  { id: "rotate", key: "w", label: "Повернуть", icon: "mdi-rotate-right", targetId: cellTargetId("rotate"), disabled: !canRotate.value, color: "secondary" },
+  { id: "left", key: "a", label: "Влево", icon: "mdi-arrow-left-bold", targetId: cellTargetId("left"), disabled: !canMoveLeft.value, color: "surface" },
+  { id: "drop", key: "s", label: "Поставить", icon: "mdi-arrow-down-bold-box", targetId: cellTargetId("drop"), disabled: !canDrop.value, color: "primary" },
+  { id: "right", key: "d", label: "Вправо", icon: "mdi-arrow-right-bold", targetId: cellTargetId("right"), disabled: !canMoveRight.value, color: "surface" }
+]);
 
 function cellTargetId(action: string) {
   return `calm-tetris:${action}`;
@@ -149,6 +155,13 @@ function dropCurrent() {
   if (session.status === "running") nextPiece();
 }
 
+function chooseAction(control: GameWasdControl) {
+  if (control.id === "left") moveCurrent(-1);
+  if (control.id === "right") moveCurrent(1);
+  if (control.id === "rotate") rotateCurrent();
+  if (control.id === "drop") dropCurrent();
+}
+
 function restart() {
   board.value = createEmptyBoard();
   pieceIndex.value = 0;
@@ -195,43 +208,15 @@ function restart() {
               <v-col cols="12" lg="5" class="order-1 order-lg-2">
                 <v-card class="side-panel pa-4 pa-md-5 h-100" color="indigo-lighten-5" rounded="xl" variant="flat">
                   <div class="text-body-1 text-medium-emphasis mb-4">{{ feedbackMessage }}</div>
-                  <div class="controls-grid">
-                    <GameDwellButton :target-id="cellTargetId('left')" :disabled="!canMoveLeft" :dwell-ms="session.settings.dwellMs" :min-height="116" color="surface" @select="moveCurrent(-1)">
-                      <template #default>
-                        <div class="control-content">
-                          <v-icon icon="mdi-arrow-left-bold" size="34" />
-                          <span>Влево</span>
-                        </div>
-                      </template>
-                    </GameDwellButton>
-
-                    <GameDwellButton :target-id="cellTargetId('right')" :disabled="!canMoveRight" :dwell-ms="session.settings.dwellMs" :min-height="116" color="surface" @select="moveCurrent(1)">
-                      <template #default>
-                        <div class="control-content">
-                          <v-icon icon="mdi-arrow-right-bold" size="34" />
-                          <span>Вправо</span>
-                        </div>
-                      </template>
-                    </GameDwellButton>
-
-                    <GameDwellButton :target-id="cellTargetId('rotate')" :disabled="!canRotate" :dwell-ms="session.settings.dwellMs" :min-height="124" color="secondary" @select="rotateCurrent">
-                      <template #default>
-                        <div class="control-content">
-                          <v-icon icon="mdi-rotate-right" size="38" />
-                          <span>Повернуть</span>
-                        </div>
-                      </template>
-                    </GameDwellButton>
-
-                    <GameDwellButton :target-id="cellTargetId('drop')" :disabled="!canDrop" :dwell-ms="session.settings.dwellMs" :min-height="124" color="primary" @select="dropCurrent">
-                      <template #default>
-                        <div class="control-content">
-                          <v-icon icon="mdi-arrow-down-bold-box" size="40" />
-                          <span>Поставить</span>
-                        </div>
-                      </template>
-                    </GameDwellButton>
-                  </div>
+                  <GameWasdPanel :controls="actionButtons" :dwell-ms="session.settings.dwellMs" aria-label="WASD управление тетрисом" @select="chooseAction">
+                    <template #control="{ control }">
+                      <div class="control-content">
+                        <span class="control-key">{{ control.key.toUpperCase() }}</span>
+                        <v-icon :icon="control.icon" size="38" />
+                        <span>{{ control.label }}</span>
+                      </div>
+                    </template>
+                  </GameWasdPanel>
                 </v-card>
               </v-col>
             </v-row>
@@ -319,6 +304,16 @@ function restart() {
   font-weight: 800;
   gap: 8px;
   justify-content: center;
+}
+
+.control-key {
+  border: 0.1em solid rgb(var(--v-theme-primary) / 28%);
+  border-radius: 0.65em;
+  color: rgb(var(--v-theme-primary));
+  font-size: 0.78em;
+  line-height: 1;
+  min-inline-size: 1.9em;
+  padding: 0.32em 0.5em;
 }
 
 @media (max-width: 720px) {

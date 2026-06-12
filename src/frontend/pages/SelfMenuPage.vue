@@ -4,7 +4,7 @@ import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
 import { rememberMenuMode } from "../core/menuMode";
 import { groupGamesByCategory, type GameCategoryId } from "../data/games";
 
-const gameGroups = groupGamesByCategory();
+const gameGroups = groupGamesByCategory(undefined, { excludeArchived: true });
 const selectedCategory = ref<GameCategoryId | null>(null);
 const selectedGroup = computed(() => gameGroups.find((group) => group.category === selectedCategory.value));
 

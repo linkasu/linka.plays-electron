@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWasdPanel, { type GameWasdControl } from "../../components/game/GameWasdPanel.vue";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
 import {
@@ -27,11 +27,11 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   sound: false
 }, { finishOnMistakes: false });
 
-const directionControls: { direction: SokobanLargeDirection; label: string; icon: string }[] = [
-  { direction: "up", label: "Вверх", icon: "mdi-arrow-up-bold" },
-  { direction: "left", label: "Влево", icon: "mdi-arrow-left-bold" },
-  { direction: "right", label: "Вправо", icon: "mdi-arrow-right-bold" },
-  { direction: "down", label: "Вниз", icon: "mdi-arrow-down-bold" }
+const directionControls: { direction: SokobanLargeDirection; key: "w" | "a" | "s" | "d"; label: string; icon: string }[] = [
+  { direction: "up", key: "w", label: "Вверх", icon: "mdi-arrow-up-bold" },
+  { direction: "left", key: "a", label: "Влево", icon: "mdi-arrow-left-bold" },
+  { direction: "down", key: "s", label: "Вниз", icon: "mdi-arrow-down-bold" },
+  { direction: "right", key: "d", label: "Вправо", icon: "mdi-arrow-right-bold" }
 ];
 
 const boardState = ref(createSokobanLargeState());
@@ -48,6 +48,16 @@ const expectedDirection = computed(() => getSokobanLargeExpectedDirection(boardS
 const resultVisible = computed(() => session.status === "finished");
 const complete = computed(() => isSokobanLargeComplete(boardState.value));
 const progressPercent = computed(() => Math.round((boardState.value.stepIndex / session.maxSteps) * 100));
+const directionButtons = computed<GameWasdControl[]>(() => directionControls.map((control) => ({
+  id: control.direction,
+  key: control.key,
+  label: control.label,
+  icon: control.icon,
+  targetId: directionTargetId(control.direction),
+  color: controlColor(control.direction),
+  chipText: hintedDirection.value === control.direction ? "Подсказка" : undefined,
+  chipColor: "primary"
+})));
 
 function directionTargetId(direction: SokobanLargeDirection) {
   return `sokoban-large:direction:${direction}`;
@@ -135,6 +145,10 @@ function chooseDirection(direction: SokobanLargeDirection) {
   }, 650);
 }
 
+function chooseDirectionButton(control: GameWasdControl) {
+  chooseDirection(control.id as SokobanLargeDirection);
+}
+
 function restart() {
   boardState.value = createSokobanLargeState();
   resetChoiceState();
@@ -197,12 +211,12 @@ onUnmounted(() => {
               </div>
             </div>
 
-            <v-alert class="mb-5 text-body-1 font-weight-medium" :color="hintedDirection ? 'primary' : 'secondary'" :icon="hintedDirection ? 'mdi-lightbulb-on-outline' : 'mdi-package-variant-closed'" rounded="xl" variant="tonal">
+            <v-alert class="compact-feedback mb-5 text-body-1 font-weight-medium" :color="hintedDirection ? 'primary' : 'secondary'" :icon="hintedDirection ? 'mdi-lightbulb-on-outline' : 'mdi-package-variant-closed'" rounded="xl" variant="tonal">
               {{ feedbackMessage }}
             </v-alert>
 
             <v-row class="align-center" dense>
-              <v-col cols="12" md="7">
+              <v-col cols="12" md="7" class="order-2 order-md-1">
                 <div class="sokoban-board mx-auto" role="grid" aria-label="Поле сокобана пять на пять">
                   <div v-for="row in rows" :key="row" class="sokoban-row" role="row">
                     <div v-for="column in columns" :key="column" :class="cellClasses(row, column)" role="gridcell" :aria-label="pointTargetId({ row, column })">
@@ -216,22 +230,19 @@ onUnmounted(() => {
                 <v-progress-linear class="mt-5" :model-value="progressPercent" color="primary" height="14" rounded />
               </v-col>
 
-              <v-col cols="12" md="5">
+              <v-col cols="12" md="5" class="order-1 order-md-2">
                 <div class="text-h6 font-weight-bold text-center mb-3">Выбери следующий ход</div>
-                <v-row dense>
-                  <v-col v-for="control in directionControls" :key="control.direction" cols="6">
-                    <GameDwellButton :target-id="directionTargetId(control.direction)" :disabled="session.status !== 'running' || pendingChoice || complete" :dwell-ms="session.settings.dwellMs" :min-height="148" :color="controlColor(control.direction)" @select="chooseDirection(control.direction)">
-                      <template #default="{ active, progress }">
-                        <div class="direction-content">
-                          <v-icon :icon="control.icon" size="48" color="primary" />
-                          <span>{{ control.label }}</span>
-                          <v-chip v-if="hintedDirection === control.direction" color="primary" size="small" variant="flat">Подсказка</v-chip>
-                          <v-chip v-else-if="active" color="secondary" size="small" variant="flat">{{ Math.round(progress * 100) }}%</v-chip>
-                        </div>
-                      </template>
-                    </GameDwellButton>
-                  </v-col>
-                </v-row>
+                <GameWasdPanel :controls="directionButtons" :disabled="session.status !== 'running' || pendingChoice || complete" :dwell-ms="session.settings.dwellMs" aria-label="Направления сокобана" @select="chooseDirectionButton">
+                  <template #control="{ control, active, progress }">
+                    <div class="direction-content">
+                      <span class="direction-key">{{ control.key.toUpperCase() }}</span>
+                      <v-icon :icon="control.icon" size="44" color="primary" />
+                      <span>{{ control.label }}</span>
+                      <v-chip v-if="control.chipText" color="primary" size="small" variant="flat">{{ control.chipText }}</v-chip>
+                      <v-chip v-else-if="active" color="secondary" size="small" variant="flat">{{ Math.round(progress * 100) }}%</v-chip>
+                    </div>
+                  </template>
+                </GameWasdPanel>
 
                 <v-alert class="mt-4" color="info" rounded="xl" variant="tonal">
                   План спокойный: сначала герой подходит к ящику, потом толкает его вверх и вправо к мишени.
@@ -325,9 +336,29 @@ onUnmounted(() => {
   justify-content: center;
 }
 
+.direction-key {
+  border: 0.1em solid rgb(var(--v-theme-primary) / 28%);
+  border-radius: 0.65em;
+  color: rgb(var(--v-theme-primary));
+  font-size: 0.8em;
+  line-height: 1;
+  min-inline-size: 1.9em;
+  padding: 0.32em 0.5em;
+}
+
 @media (max-width: 600px) {
   .sokoban-large-container {
     padding-block-start: 164px;
+  }
+}
+
+@media (max-height: 680px) {
+  .sokoban-large-container {
+    padding-block-start: 112px;
+  }
+
+  .compact-feedback {
+    display: none;
   }
 }
 </style>

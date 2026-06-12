@@ -6,6 +6,11 @@ let mainWindow: BrowserWindow | undefined;
 
 app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required");
 
+const devSession = process.env.LINKA_DEV_SESSION;
+if (devSession) {
+  app.setPath("userData", join(app.getPath("userData"), devSession));
+}
+
 async function createWindow() {
   const win = new BrowserWindow({
     width: 1280,
@@ -21,11 +26,13 @@ async function createWindow() {
   });
 
   mainWindow = win;
-  const backWatch = new BackWatch(win, {
-    socketName: "su.linka.plays.tobiifree",
-    showStartupError: false
-  });
-  void backWatch;
+  if (process.env.LINKA_NO_TOBII !== "1") {
+    const backWatch = new BackWatch(win, {
+      socketName: process.env.LINKA_TOBII_SOCKET_NAME ?? "su.linka.plays.tobiifree",
+      showStartupError: false
+    });
+    void backWatch;
+  }
   win.on("closed", () => {
     mainWindow = undefined;
   });

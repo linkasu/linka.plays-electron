@@ -8,7 +8,6 @@ import BalloonsGame from "../games/balloons/BalloonsGame.vue";
 import BattleshipLightGame from "../games/battleship-light/BattleshipLightGame.vue";
 import BellsGame from "../games/bells/BellsGame.vue";
 import BigCardsGame from "../games/big-cards/BigCardsGame.vue";
-import BigButtonGame from "../games/big-button/BigButtonGame.vue";
 import BigSmallGame from "../games/big-small/BigSmallGame.vue";
 import BoatGame from "../games/boat/BoatGame.vue";
 import BreathingFlowerGame from "../games/breathing-flower/BreathingFlowerGame.vue";
@@ -88,7 +87,6 @@ import MinesweeperSafeGame from "../games/minesweeper-safe/MinesweeperSafeGame.v
 import MazePathGame from "../games/maze-path/MazePathGame.vue";
 import MosaicGame from "../games/mosaic/MosaicGame.vue";
 import MusicalPathGame from "../games/musical-path/MusicalPathGame.vue";
-import MusicalPebblesGame from "../games/musical-pebbles/MusicalPebblesGame.vue";
 import MoonPathGame from "../games/moon-path/MoonPathGame.vue";
 import NorthernLightsGame from "../games/northern-lights/NorthernLightsGame.vue";
 import NumberBondsGame from "../games/number-bonds/NumberBondsGame.vue";
@@ -109,7 +107,6 @@ import PizzaFractionsGame from "../games/pizza-fractions/PizzaFractionsGame.vue"
 import PulsingTargetGame from "../games/pulsing-target/PulsingTargetGame.vue";
 import PyramidGame from "../games/pyramid/PyramidGame.vue";
 import QuietBubblesGame from "../games/quiet-bubbles/QuietBubblesGame.vue";
-import RainbowButtonGame from "../games/rainbow-button/RainbowButtonGame.vue";
 import RailsGame from "../games/rails/RailsGame.vue";
 import RainGardenGame from "../games/rain-garden/RainGardenGame.vue";
 import ReversiLightGame from "../games/reversi-light/ReversiLightGame.vue";
@@ -205,10 +202,7 @@ export default createRouter({
     { path: "/games/open-door", name: "open-door", component: OpenDoorGame },
     { path: "/games/warm-window", name: "warm-window", component: WarmWindowGame },
     { path: "/games/warm-fire", name: "warm-fire", component: WarmFireGame },
-    { path: "/games/musical-pebbles", name: "musical-pebbles", component: MusicalPebblesGame },
     { path: "/games/musical-path", name: "musical-path", component: MusicalPathGame },
-    { path: "/games/big-button", name: "big-button", component: BigButtonGame },
-    { path: "/games/rainbow-button", name: "rainbow-button", component: RainbowButtonGame },
     { path: "/games/big-cards", name: "big-cards", component: BigCardsGame },
     { path: "/games/color-circle", name: "color-circle", component: ColorCircleGame },
     { path: "/games/butterfly", name: "butterfly", component: ButterflyGame },

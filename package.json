@@ -13,6 +13,7 @@
     "typecheck": "vue-tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.electron.json",
     "preview": "vite preview",
     "test:unit": "vitest run",
+    "audit:electron-cdp": "node scripts/electron-cdp-smoke.mjs",
     "tts:assets": "node scripts/generate-tts-assets.mjs",
     "electron:build": "npm run build && electron-builder -p never"
   },

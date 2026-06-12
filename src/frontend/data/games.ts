@@ -8,6 +8,7 @@ export type GameInfo = {
   icon: string;
   skills: GameSkill[];
   status: GameStatus;
+  stabilityStatus?: GameStabilityStatus;
   tags?: GameTag[];
   recommendedSessionSeconds: number;
   minTargetSizePx: number;
@@ -15,6 +16,7 @@ export type GameInfo = {
 };
 
 export type GameStatus = "planned" | "mvp" | "therapy-ready" | "polished";
+export type GameStabilityStatus = "needs-check" | "prefixed" | "publish" | "archived";
 export type GameTag = "hidden-from-menu";
 
 export const gameCategoryOrder = [
@@ -50,7 +52,7 @@ export const gameCategories: Record<GameCategoryId, string> = {
   sequencing: "Последовательности",
   "language-aac": "Слова и AAC",
   numeracy: "Счёт и математика",
-  strategy: "Спокойные настольные игры",
+  strategy: "Головоломки",
   "continuous-control": "Непрерывное управление"
 };
 
@@ -60,7 +62,7 @@ export const gameCategoryDescriptions: Record<GameCategoryId, string> = {
   sequencing: "Игры с порядком действий, сборкой и понятной очередностью шагов.",
   "language-aac": "Выбор картинок, слов и смысловых категорий для коммуникации.",
   numeracy: "Количество, числа и простые арифметические действия крупными целями.",
-  strategy: "Очередность, планирование хода и спокойный выбор без давления времени.",
+  strategy: "Головоломки, настольные и пошаговые игры для тех, кто хочет настоящую задачу без таймера и давления.",
   "continuous-control": "Плавное слежение и мягкое управление движением взглядом."
 };
 
@@ -70,7 +72,7 @@ export const selfMenuCategoryLabels: Record<GameCategoryId, string> = {
   sequencing: "Собирать",
   "language-aac": "Слова",
   numeracy: "Считать",
-  strategy: "Играть вместе",
+  strategy: "Головоломки",
   "continuous-control": "Управлять"
 };
 
@@ -80,7 +82,7 @@ export const selfMenuCategoryDescriptions: Record<GameCategoryId, string> = {
   sequencing: "Выбирай по порядку.",
   "language-aac": "Выбери картинку или слово.",
   numeracy: "Посчитай и выбери ответ.",
-  strategy: "Сделай ход без спешки.",
+  strategy: "Думай, выбирай ход и проходи задачу.",
   "continuous-control": "Веди движение взглядом."
 };
 
@@ -106,6 +108,19 @@ export const gameStatusLabels: Record<GameStatus, string> = {
   "therapy-ready": "Для занятий",
   polished: "Готово"
 };
+
+export const gameStabilityStatusLabels: Record<GameStabilityStatus, string> = {
+  "needs-check": "Нужна проверка",
+  prefixed: "Предварительно исправлено",
+  publish: "В публикацию",
+  archived: "В архив"
+};
+
+export function resolveGameStabilityStatus(game: GameInfo): GameStabilityStatus {
+  if (game.stabilityStatus) return game.stabilityStatus;
+  if (game.tags?.includes("hidden-from-menu")) return "archived";
+  return game.status === "polished" ? "publish" : "needs-check";
+}
 
 export const games: GameInfo[] = [
   {
@@ -472,48 +487,6 @@ export const games: GameInfo[] = [
     recommendedSessionSeconds: 92,
     minTargetSizePx: 210,
     defaultDwellMs: 1450
-  },
-  {
-    id: "musical-pebbles",
-    title: "Музыкальные камешки",
-    description: "Смотри на крупные камешки, и они отвечают мягкими визуальными музыкальными волнами без ошибок.",
-    selfDescription: "Разбуди тихую волну взглядом.",
-    route: "/games/musical-pebbles",
-    category: "gaze-basics",
-    icon: "mdi-music-note",
-    skills: ["fixation", "attention-shift"],
-    status: "therapy-ready",
-    recommendedSessionSeconds: 90,
-    minTargetSizePx: 190,
-    defaultDwellMs: 1350
-  },
-  {
-    id: "big-button",
-    title: "Большая кнопка",
-    description: "Первая спокойная игра: смотри на одну большую кнопку и получай мягкий отклик.",
-    selfDescription: "Посмотри на большую кнопку.",
-    route: "/games/big-button",
-    category: "gaze-basics",
-    icon: "mdi-radiobox-marked",
-    skills: ["fixation"],
-    status: "therapy-ready",
-    recommendedSessionSeconds: 70,
-    minTargetSizePx: 240,
-    defaultDwellMs: 1500
-  },
-  {
-    id: "rainbow-button",
-    title: "Радужная кнопка",
-    description: "Смотри на одну большую радужную кнопку, получай мягкий отклик и выбирай: ещё или стоп, без ошибок.",
-    selfDescription: "Нажми радужную кнопку взглядом.",
-    route: "/games/rainbow-button",
-    category: "gaze-basics",
-    icon: "mdi-gradient-horizontal",
-    skills: ["choice", "fixation"],
-    status: "therapy-ready",
-    recommendedSessionSeconds: 80,
-    minTargetSizePx: 240,
-    defaultDwellMs: 1300
   },
   {
     id: "big-cards",
@@ -2407,7 +2380,11 @@ export const games: GameInfo[] = [
   }
 ];
 
-export function groupGamesByCategory(inputGames: GameInfo[] = games) {
+export type GroupGamesByCategoryOptions = {
+  excludeArchived?: boolean;
+};
+
+export function groupGamesByCategory(inputGames: GameInfo[] = games, options: GroupGamesByCategoryOptions = {}) {
   return gameCategoryOrder
     .map((category) => ({
       category,
@@ -2415,7 +2392,9 @@ export function groupGamesByCategory(inputGames: GameInfo[] = games) {
       description: gameCategoryDescriptions[category],
       selfLabel: selfMenuCategoryLabels[category],
       selfDescription: selfMenuCategoryDescriptions[category],
-      games: inputGames.filter((game) => game.category === category && !game.tags?.includes("hidden-from-menu"))
+      games: inputGames.filter((game) => game.category === category
+        && !game.tags?.includes("hidden-from-menu")
+        && (!options.excludeArchived || resolveGameStabilityStatus(game) !== "archived"))
     }))
     .filter((group) => group.games.length > 0);
 }

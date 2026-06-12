@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWasdPanel, { type GameWasdControl } from "../../components/game/GameWasdPanel.vue";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
 import { tanksNoShootingChoiceOutcome } from "./model";
@@ -23,6 +23,7 @@ type TankRouteStep = {
 
 type DirectionControl = {
   direction: Direction;
+  key: "w" | "a" | "s" | "d";
   label: string;
   icon: string;
   color: string;
@@ -57,10 +58,10 @@ const routeSteps: TankRouteStep[] = [
 ];
 
 const directionControls: DirectionControl[] = [
-  { direction: "up", label: "Вверх", icon: "mdi-arrow-up-bold", color: "blue-lighten-5" },
-  { direction: "left", label: "Влево", icon: "mdi-arrow-left-bold", color: "green-lighten-5" },
-  { direction: "right", label: "Вправо", icon: "mdi-arrow-right-bold", color: "green-lighten-5" },
-  { direction: "down", label: "Вниз", icon: "mdi-arrow-down-bold", color: "blue-lighten-5" }
+  { direction: "up", key: "w", label: "Вверх", icon: "mdi-arrow-up-bold", color: "blue-lighten-5" },
+  { direction: "left", key: "a", label: "Влево", icon: "mdi-arrow-left-bold", color: "green-lighten-5" },
+  { direction: "down", key: "s", label: "Вниз", icon: "mdi-arrow-down-bold", color: "blue-lighten-5" },
+  { direction: "right", key: "d", label: "Вправо", icon: "mdi-arrow-right-bold", color: "green-lighten-5" }
 ];
 
 const directionDegrees: Record<Direction, number> = {
@@ -95,6 +96,16 @@ const resultVisible = computed(() => session.status === "finished");
 const progressPercent = computed(() => Math.round(Math.min(1, session.step / session.maxSteps) * 100));
 const tankDirection = computed<Direction>(() => session.step === 0 ? "right" : routeSteps[Math.min(session.step - 1, routeSteps.length - 1)].direction);
 const tankStyle = computed(() => ({ transform: `rotate(${directionDegrees[tankDirection.value]}deg)` }));
+const directionButtons = computed<GameWasdControl[]>(() => directionControls.map((control) => ({
+  id: control.direction,
+  key: control.key,
+  label: control.label,
+  icon: control.icon,
+  targetId: directionTargetId(control.direction),
+  color: directionButtonColor(control),
+  chipText: hintedDirection.value === control.direction ? "Сюда безопасно" : undefined,
+  chipColor: "primary"
+})));
 
 function clearFeedbackTimer() {
   window.clearTimeout(feedbackTimer);
@@ -221,6 +232,11 @@ function chooseDirection(control: DirectionControl) {
   }, 1000);
 }
 
+function chooseDirectionButton(control: GameWasdControl) {
+  const directionControl = directionControls.find((item) => item.direction === control.id);
+  if (directionControl) chooseDirection(directionControl);
+}
+
 function restart() {
   resetChoiceState();
   feedbackText.value = "Выбери безопасное направление. Танк едет спокойно, без стрельбы и взрывов.";
@@ -246,12 +262,12 @@ onUnmounted(() => {
               Выбирай направление по одному шагу. Третья ошибка завершает маршрут.
             </p>
 
-            <v-alert class="mb-5 text-h6" :color="hintedDirection ? 'primary' : 'teal'" :icon="hintedDirection ? 'mdi-lightbulb-on-outline' : 'mdi-shield-check-outline'" rounded="xl" variant="tonal">
+            <v-alert class="compact-feedback mb-5 text-h6" :color="hintedDirection ? 'primary' : 'teal'" :icon="hintedDirection ? 'mdi-lightbulb-on-outline' : 'mdi-shield-check-outline'" rounded="xl" variant="tonal">
               {{ feedbackText }}
             </v-alert>
 
             <v-row align="stretch" justify="center">
-              <v-col cols="12" lg="7">
+              <v-col cols="12" lg="7" class="order-2 order-lg-1">
                 <v-card class="tank-map-card pa-4 pa-md-5" color="green-lighten-5" rounded="xl" variant="flat">
                   <div class="d-flex flex-wrap align-center justify-space-between ga-3 mb-4">
                     <v-chip color="primary" size="large" variant="flat">Шаг {{ session.step }} из {{ session.maxSteps }}</v-chip>
@@ -274,22 +290,19 @@ onUnmounted(() => {
                 </v-card>
               </v-col>
 
-              <v-col cols="12" lg="5">
+              <v-col cols="12" lg="5" class="order-1 order-lg-2">
                 <div class="text-h5 font-weight-bold text-center mb-4">Куда повернуть?</div>
-                <v-row dense>
-                  <v-col v-for="control in directionControls" :key="control.direction" cols="6">
-                    <GameDwellButton :target-id="directionTargetId(control.direction)" :disabled="session.status !== 'running' || pendingChoice" :dwell-ms="session.settings.dwellMs" :min-height="164" :color="directionButtonColor(control)" @select="chooseDirection(control)">
-                      <template #default="{ active, progress }">
-                        <div class="direction-card">
-                          <v-icon :icon="control.icon" color="primary" size="54" />
-                          <div class="text-h6 text-md-h5 font-weight-bold mt-2">{{ control.label }}</div>
-                          <v-chip v-if="hintedDirection === control.direction" class="mt-3" color="primary" variant="flat">Сюда безопасно</v-chip>
-                          <v-chip v-else-if="active" class="mt-3" color="secondary" variant="flat">Держи взгляд {{ Math.round(progress * 100) }}%</v-chip>
-                        </div>
-                      </template>
-                    </GameDwellButton>
-                  </v-col>
-                </v-row>
+                <GameWasdPanel :controls="directionButtons" :disabled="session.status !== 'running' || pendingChoice" :dwell-ms="session.settings.dwellMs" aria-label="Направления танка" @select="chooseDirectionButton">
+                  <template #control="{ control, active, progress }">
+                    <div class="direction-card">
+                      <span class="direction-key">{{ control.key.toUpperCase() }}</span>
+                      <v-icon :icon="control.icon" color="primary" size="48" />
+                      <div class="text-h6 text-md-h5 font-weight-bold mt-1">{{ control.label }}</div>
+                      <v-chip v-if="control.chipText" class="mt-2" color="primary" variant="flat">{{ control.chipText }}</v-chip>
+                      <v-chip v-else-if="active" class="mt-2" color="secondary" variant="flat">Держи взгляд {{ Math.round(progress * 100) }}%</v-chip>
+                    </div>
+                  </template>
+                </GameWasdPanel>
 
                 <v-alert class="mt-4" color="info" icon="mdi-hand-heart-outline" rounded="xl" variant="tonal">
                   Здесь нет стрельбы, взрывов и проигрыша от ошибки: танк просто ждёт новый выбор.
@@ -380,6 +393,16 @@ onUnmounted(() => {
   text-align: center;
 }
 
+.direction-key {
+  border: 0.1em solid rgb(var(--v-theme-primary) / 28%);
+  border-radius: 0.65em;
+  color: rgb(var(--v-theme-primary));
+  font-size: 0.78em;
+  line-height: 1;
+  min-inline-size: 1.9em;
+  padding: 0.32em 0.5em;
+}
+
 @media (max-width: 600px) {
   .tanks-container {
     padding-block-start: 7.5rem;
@@ -397,6 +420,12 @@ onUnmounted(() => {
 
   .tank-cell {
     border-radius: 0.8rem;
+  }
+}
+
+@media (max-height: 680px) {
+  .compact-feedback {
+    display: none;
   }
 }
 </style>

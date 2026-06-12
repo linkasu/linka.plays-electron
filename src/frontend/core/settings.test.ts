@@ -13,7 +13,7 @@ describe("settings", () => {
     });
 
     expect(settings.sessionSeconds).toBe(30);
-    expect(settings.maxSteps).toBe(30);
+    expect(settings.maxSteps).toBe(40);
     expect(settings.dwellMs).toBe(500);
     expect(settings.targetScale).toBe(2);
     expect(settings.motionSpeed).toBe(1.4);

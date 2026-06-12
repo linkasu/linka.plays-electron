@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
-import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWasdPanel, { type GameWasdControl } from "../../components/game/GameWasdPanel.vue";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
 import { calm2048Outcome, canMove, createInitialBoard, highestTile, moveBoard, spawnTile, type Calm2048Board, type Calm2048Direction } from "./model";
@@ -19,10 +19,10 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 }, { finishOnMistakes: false });
 
 const directions = [
-  { direction: "up", label: "Вверх", icon: "mdi-arrow-up-bold" },
-  { direction: "left", label: "Влево", icon: "mdi-arrow-left-bold" },
-  { direction: "right", label: "Вправо", icon: "mdi-arrow-right-bold" },
-  { direction: "down", label: "Вниз", icon: "mdi-arrow-down-bold" }
+  { direction: "up", key: "w", label: "Вверх", icon: "mdi-arrow-up-bold" },
+  { direction: "left", key: "a", label: "Влево", icon: "mdi-arrow-left-bold" },
+  { direction: "down", key: "s", label: "Вниз", icon: "mdi-arrow-down-bold" },
+  { direction: "right", key: "d", label: "Вправо", icon: "mdi-arrow-right-bold" }
 ] as const;
 
 const board = ref<Calm2048Board>(createInitialBoard());
@@ -34,6 +34,14 @@ const resultVisible = computed(() => session.status === "finished");
 const hasMoves = computed(() => canMove(board.value));
 const canUndo = computed(() => Boolean(previousBoard.value) && session.status === "running");
 const maxTile = computed(() => highestTile(board.value));
+const directionButtons = computed<GameWasdControl[]>(() => directions.map((item) => ({
+  id: item.direction,
+  key: item.key,
+  label: item.label,
+  icon: item.icon,
+  targetId: directionTargetId(item.direction),
+  color: canMove(board.value, item.direction) ? "surface" : "blue-grey-lighten-5"
+})));
 
 function directionTargetId(direction: Calm2048Direction) {
   return `calm-2048:direction:${direction}`;
@@ -71,6 +79,10 @@ function chooseDirection(direction: Calm2048Direction) {
   } else {
     feedbackMessage.value = "Плитки мягко сдвинулись. Можно искать следующее слияние.";
   }
+}
+
+function chooseDirectionButton(control: GameWasdControl) {
+  chooseDirection(control.id as Calm2048Direction);
 }
 
 function undoMove() {
@@ -124,7 +136,7 @@ function tileColor(value: number) {
               </div>
             </div>
 
-            <v-alert class="mb-5 text-body-1 font-weight-medium" :color="hasMoves ? 'primary' : 'secondary'" icon="mdi-leaf" rounded="xl" variant="tonal">
+            <v-alert class="compact-feedback mb-5 text-body-1 font-weight-medium" :color="hasMoves ? 'primary' : 'secondary'" icon="mdi-leaf" rounded="xl" variant="tonal">
               {{ feedbackMessage }}
             </v-alert>
 
@@ -138,18 +150,7 @@ function tileColor(value: number) {
               </v-col>
 
               <v-col cols="12" md="5" class="order-1 order-md-2">
-                <v-row dense>
-                  <v-col v-for="item in directions" :key="item.direction" cols="6">
-                    <GameDwellButton :target-id="directionTargetId(item.direction)" :disabled="session.status !== 'running' || !hasMoves" :dwell-ms="session.settings.dwellMs" :min-height="132" :color="canMove(board, item.direction) ? 'surface' : 'blue-grey-lighten-5'" @select="chooseDirection(item.direction)">
-                      <template #default>
-                        <div class="direction-button-content">
-                          <v-icon :icon="item.icon" size="44" />
-                          <span>{{ item.label }}</span>
-                        </div>
-                      </template>
-                    </GameDwellButton>
-                  </v-col>
-                </v-row>
+                <GameWasdPanel :controls="directionButtons" :disabled="session.status !== 'running' || !hasMoves" :dwell-ms="session.settings.dwellMs" aria-label="Направления 2048" @select="chooseDirectionButton" />
 
                 <v-divider class="my-4" />
 
@@ -239,6 +240,12 @@ function tileColor(value: number) {
 @media (max-width: 600px) {
   .game-container {
     padding-block-start: 140px;
+  }
+}
+
+@media (max-height: 680px) {
+  .compact-feedback {
+    display: none;
   }
 }
 </style>
