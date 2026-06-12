@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -7,6 +7,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeFindAnimalAudio, playFindAnimalMistakeMelody, playFindAnimalSuccessMelody, warmFindAnimalAudio } from "./audio";
 import { generateFindAnimalRound, type FindAnimalChoice } from "./model";
 
 const router = useRouter();
@@ -53,6 +54,7 @@ function answer(choice: FindAnimalChoice) {
   const targetId = choiceTargetId(choice.id);
   const expectedTargetId = choiceTargetId(round.value.target.id);
   if (choice.id === round.value.target.id) {
+    void playFindAnimalSuccessMelody(session.settings.sound);
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: true });
     hintedRoundId.value = undefined;
     lastMistakeId.value = undefined;
@@ -60,6 +62,7 @@ function answer(choice: FindAnimalChoice) {
     return;
   }
 
+  void playFindAnimalMistakeMelody(session.settings.sound);
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "wrong-animal-selected" });
   hintedRoundId.value = round.value.roundId;
@@ -71,6 +74,18 @@ function restart() {
   lastMistakeId.value = undefined;
   restartRoundGame();
 }
+
+onMounted(() => {
+  warmFindAnimalAudio(session.settings.sound);
+});
+
+watch(() => session.settings.sound, (enabled) => {
+  warmFindAnimalAudio(enabled);
+});
+
+onUnmounted(() => {
+  disposeFindAnimalAudio();
+});
 </script>
 
 <template>
@@ -80,24 +95,19 @@ function restart() {
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11" xl="10">
           <v-card class="find-animal-card pa-4 pa-md-7" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Лесная поляна</div>
-            <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
-            <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5">{{ hintText }}</p>
+            <div class="text-overline text-secondary text-center mb-1 mb-md-2">Лесная поляна</div>
+            <h1 class="text-h4 text-md-h2 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
+            <p class="hint-line text-body-1 text-md-h5 text-medium-emphasis text-center mb-3 mb-md-5">{{ hintText }}</p>
             <v-row class="choice-grid" justify="center" dense>
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6" :md="mdCols(round.choices.length)" :lg="lgCols(round.choices.length)">
-                <GameDwellButton :class="{ 'target-hint': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="round.choices.length >= 5 ? 190 : 230" :color="hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="answer(choice)">
+              <v-col v-for="choice in round.choices" :key="choice.id" cols="3" :md="mdCols(round.choices.length)" :lg="lgCols(round.choices.length)">
+                <GameDwellButton :class="{ 'target-hint': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="156" :color="hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="answer(choice)">
                   <template #default="{ active, progress }">
                     <div :class="['animal-emoji', 'emoji-glyph', { 'animal-emoji--mistake': choice.id === lastMistakeId }]">{{ choice.emoji }}</div>
-                    <div class="text-h5 text-md-h4 font-weight-bold mt-3">{{ hintedChoiceId === choice.id && active && progress > 0.78 ? `Вот ${choice.word}` : choice.word }}</div>
+                    <div class="animal-label text-h6 text-md-h4 font-weight-bold mt-2">{{ hintedChoiceId === choice.id && active && progress > 0.78 ? `Вот ${choice.word}` : choice.word }}</div>
                   </template>
                 </GameDwellButton>
               </v-col>
             </v-row>
-            <v-expand-transition>
-              <v-alert v-if="hintedRoundId === round.roundId" class="mt-5 text-h6" color="primary" icon="mdi-paw" rounded="xl" variant="tonal">
-                Ошибки не страшны. Попробуй посмотреть на карточку: {{ round.target.word }}.
-              </v-alert>
-            </v-expand-transition>
           </v-card>
         </v-col>
       </v-row>
@@ -113,7 +123,7 @@ function restart() {
 }
 
 .game-container {
-  padding-block-start: 8.75rem;
+  padding-block-start: 6rem;
 }
 
 .find-animal-card {
@@ -121,13 +131,25 @@ function restart() {
 }
 
 .choice-grid {
-  row-gap: 0.75rem;
+  margin: -6px;
+}
+
+.choice-grid :deep(.v-col) {
+  padding: 6px;
 }
 
 .animal-emoji {
-  font-size: clamp(4.8rem, min(11vw, 16vh), 8rem);
+  font-size: clamp(3.1rem, min(8vw, 12vh), 7rem);
   line-height: 1;
   transition: filter 160ms ease, transform 160ms ease;
+}
+
+.animal-label {
+  overflow-wrap: anywhere;
+}
+
+.hint-line {
+  min-block-size: 1.5rem;
 }
 
 .animal-emoji--mistake {
@@ -142,7 +164,7 @@ function restart() {
 
 @media (max-height: 44rem) {
   .game-container {
-    padding-block-start: 7.5rem;
+    padding-block-start: 5.25rem;
   }
 }
 </style>
