@@ -21,7 +21,7 @@ type Cover = {
   hint: string;
   icon: string;
   color: string;
-  shape: "leaf" | "cloud" | "curtain" | "grass";
+  shape: "bush" | "tree" | "grass" | "flowers" | "rock" | "log";
 };
 
 type Spot = {
@@ -46,19 +46,19 @@ const characters: Character[] = [
 ];
 
 const covers: Cover[] = [
-  { id: "bush", label: "кустиком", hint: "за круглым кустиком", icon: "mdi-leaf", color: "#8bc48a", shape: "leaf" },
-  { id: "cloud", label: "облаком", hint: "под мягким облаком", icon: "mdi-cloud-outline", color: "#b7dff5", shape: "cloud" },
-  { id: "curtain", label: "занавесом", hint: "у тёплого занавеса", icon: "mdi-blinds-open", color: "#f2b6a0", shape: "curtain" },
+  { id: "bush", label: "кустиком", hint: "за круглым кустиком", icon: "mdi-leaf", color: "#86c779", shape: "bush" },
+  { id: "tree", label: "деревом", hint: "рядом с деревом", icon: "mdi-tree-outline", color: "#a5d6a7", shape: "tree" },
   { id: "grass", label: "травой", hint: "за высокой травой", icon: "mdi-grass", color: "#9ccc65", shape: "grass" },
-  { id: "tree", label: "деревом", hint: "рядом с деревом", icon: "mdi-tree-outline", color: "#a5d6a7", shape: "leaf" },
-  { id: "flower", label: "цветами", hint: "около цветов", icon: "mdi-flower", color: "#f8bbd0", shape: "cloud" }
+  { id: "flower", label: "цветами", hint: "около цветов", icon: "mdi-flower", color: "#f8bbd0", shape: "flowers" },
+  { id: "rock", label: "камнем", hint: "за серым камнем", icon: "mdi-circle", color: "#b0bec5", shape: "rock" },
+  { id: "log", label: "бревном", hint: "за тёплым бревном", icon: "mdi-leaf", color: "#bc8b5f", shape: "log" }
 ];
 
 const layouts = [
-  [{ x: 24, y: 68, size: 178 }, { x: 55, y: 52, size: 190 }, { x: 79, y: 70, size: 174 }],
-  [{ x: 20, y: 50, size: 172 }, { x: 48, y: 72, size: 188 }, { x: 76, y: 48, size: 180 }],
-  [{ x: 22, y: 72, size: 182 }, { x: 54, y: 46, size: 174 }, { x: 82, y: 64, size: 190 }],
-  [{ x: 18, y: 60, size: 170 }, { x: 43, y: 44, size: 178 }, { x: 64, y: 72, size: 186 }, { x: 84, y: 52, size: 170 }]
+  [{ x: 25, y: 78, size: 178 }, { x: 54, y: 74, size: 190 }, { x: 80, y: 79, size: 174 }],
+  [{ x: 19, y: 76, size: 172 }, { x: 48, y: 80, size: 188 }, { x: 76, y: 75, size: 180 }],
+  [{ x: 23, y: 80, size: 182 }, { x: 53, y: 73, size: 174 }, { x: 82, y: 78, size: 190 }],
+  [{ x: 18, y: 77, size: 170 }, { x: 41, y: 73, size: 178 }, { x: 64, y: 80, size: 186 }, { x: 85, y: 76, size: 170 }]
 ] as const;
 
 const router = useRouter();
@@ -160,13 +160,17 @@ function restart() {
         <v-col cols="12" xl="10">
           <v-card class="pa-4 pa-md-7" color="surface" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Фигура и фон</div>
-            <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
-            <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5">{{ hintText }}</p>
+            <h1 class="who-hiding-title text-h3 text-md-h2 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
+            <p class="who-hiding-hint text-h6 text-md-h5 text-medium-emphasis text-center mb-5">{{ hintText }}</p>
 
             <v-card class="search-scene" color="blue-lighten-5" rounded="xl" variant="flat">
+              <div class="scene-cloud scene-cloud--left" aria-hidden="true" />
+              <div class="scene-cloud scene-cloud--right" aria-hidden="true" />
               <div class="scene-sun" aria-hidden="true" />
               <div class="scene-hill scene-hill--back" aria-hidden="true" />
               <div class="scene-hill scene-hill--front" aria-hidden="true" />
+              <div class="scene-ground" aria-hidden="true" />
+              <div class="scene-path" aria-hidden="true" />
               <v-chip class="scene-chip" color="white" prepend-icon="mdi-eye-outline" rounded="pill" size="large" variant="elevated">
                 Ищи спокойным взглядом
               </v-chip>
@@ -221,9 +225,30 @@ function restart() {
 }
 
 .search-scene {
+  background: linear-gradient(180deg, #dff3ff 0 58%, #cfecc2 58% 100%);
   block-size: clamp(31rem, 64vh, 43rem);
   overflow: hidden;
   position: relative;
+}
+
+.scene-cloud {
+  background: rgb(255 255 255 / 66%);
+  border-radius: 999px;
+  block-size: 4.2rem;
+  box-shadow: -3.3rem 0.5rem 0 -0.6rem rgb(255 255 255 / 56%), 3.1rem 0.65rem 0 -0.8rem rgb(255 255 255 / 54%);
+  inline-size: 9.4rem;
+  position: absolute;
+}
+
+.scene-cloud--left {
+  inset-block-start: 12%;
+  inset-inline-start: 14%;
+}
+
+.scene-cloud--right {
+  inset-block-start: 9%;
+  inset-inline-end: 19%;
+  transform: scale(0.78);
 }
 
 .scene-sun {
@@ -237,22 +262,42 @@ function restart() {
 
 .scene-hill {
   border-radius: 50% 50% 0 0;
-  inset-block-end: -22%;
+  inset-block-end: 8%;
   position: absolute;
 }
 
 .scene-hill--back {
   background: #cde8c2;
-  block-size: 48%;
+  block-size: 28%;
   inline-size: 82%;
   inset-inline-start: -6%;
 }
 
 .scene-hill--front {
   background: #bfe2d4;
-  block-size: 38%;
+  block-size: 24%;
   inline-size: 76%;
   inset-inline-end: -8%;
+}
+
+.scene-ground {
+  background: linear-gradient(180deg, #95d37d 0%, #72bd67 100%);
+  block-size: 31%;
+  border-radius: 55% 55% 0 0 / 28% 28% 0 0;
+  inset-block-end: -1%;
+  inset-inline: -4%;
+  position: absolute;
+}
+
+.scene-path {
+  background: rgb(235 202 139 / 44%);
+  block-size: 13%;
+  border-radius: 50% 50% 0 0;
+  filter: blur(0.4px);
+  inline-size: 54%;
+  inset-block-end: -1%;
+  inset-inline-start: 23%;
+  position: absolute;
 }
 
 .scene-chip {
@@ -265,7 +310,7 @@ function restart() {
 .hidden-choice {
   position: absolute;
   transform: translate(-50%, -50%);
-  z-index: 4;
+  z-index: 6;
 }
 
 .hidden-choice :deep(.dwell-button) {
@@ -291,7 +336,7 @@ function restart() {
 .hidden-character {
   color: var(--character-color);
   font-size: clamp(4.7rem, 9vw, 7rem);
-  inset-block-end: 27%;
+  inset-block-end: 30%;
   inset-inline-start: 50%;
   line-height: 1;
   opacity: 0.86;
@@ -312,7 +357,7 @@ function restart() {
   z-index: 2;
 }
 
-.cover-shape--leaf {
+.cover-shape--bush {
   block-size: 54%;
   border-radius: 55% 45% 48% 52%;
   inline-size: 82%;
@@ -320,20 +365,36 @@ function restart() {
   inset-inline-start: 9%;
 }
 
-.cover-shape--cloud {
+.cover-shape--tree {
+  block-size: 76%;
+  border-radius: 50% 50% 38% 38%;
+  inline-size: 72%;
+  inset-block-end: 3%;
+  inset-inline-start: 14%;
+}
+
+.cover-shape--flowers {
   block-size: 48%;
-  border-radius: 999px 999px 55% 55%;
+  border-radius: 999px 999px 44% 44%;
   inline-size: 86%;
-  inset-block-end: 9%;
+  inset-block-end: 7%;
   inset-inline-start: 7%;
 }
 
-.cover-shape--curtain {
-  block-size: 72%;
-  border-radius: 44% 44% 14% 14%;
-  inline-size: 72%;
+.cover-shape--rock {
+  block-size: 44%;
+  border-radius: 58% 42% 45% 55%;
+  inline-size: 82%;
+  inset-block-end: 5%;
+  inset-inline-start: 9%;
+}
+
+.cover-shape--log {
+  block-size: 38%;
+  border-radius: 999px;
+  inline-size: 84%;
   inset-block-end: 4%;
-  inset-inline-start: 14%;
+  inset-inline-start: 8%;
 }
 
 .cover-shape--grass {
@@ -369,6 +430,36 @@ function restart() {
   }
 
   .scene-chip {
+    display: none;
+  }
+}
+
+@media (max-height: 760px) {
+  .game-container {
+    padding-block-start: 6.25rem;
+  }
+
+  .game-container :deep(.v-card.pa-4) {
+    padding-block: 1rem !important;
+  }
+
+  .who-hiding-title {
+    font-size: clamp(1.7rem, 4vw, 2.25rem) !important;
+    line-height: 1.08;
+    margin-block-end: 0.5rem !important;
+  }
+
+  .who-hiding-hint {
+    font-size: 1rem !important;
+    margin-block-end: 0.75rem !important;
+  }
+
+  .search-scene {
+    block-size: min(24rem, calc(100vh - 13.75rem));
+  }
+
+  .scene-chip,
+  .scene-cloud {
     display: none;
   }
 }
