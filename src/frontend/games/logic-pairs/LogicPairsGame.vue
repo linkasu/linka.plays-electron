@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -7,6 +7,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeLogicPairsAudio, playLogicPairsMistakeMelody, playLogicPairsSuccessMelody, warmLogicPairsAudio } from "./audio";
 import { generateLogicPairsRound, type LogicPairCard, type LogicPairsRound } from "./model";
 
 const router = useRouter();
@@ -51,6 +52,7 @@ function choose(choice: LogicPairCard) {
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.pair.label, actual: choice.label, relation: round.value.relation, isCorrect: true });
     hintedRoundId.value = undefined;
     lastMistakeId.value = undefined;
+    void playLogicPairsSuccessMelody(session.settings.sound);
     if (session.step < session.maxSteps) nextRound();
     return;
   }
@@ -59,6 +61,7 @@ function choose(choice: LogicPairCard) {
   lastMistakeId.value = choice.id;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.pair.label, actual: choice.label, relation: round.value.relation, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, text: round.value.explanation, reason: "wrong-pair-selected" });
+  void playLogicPairsMistakeMelody(session.settings.sound);
 }
 
 function restart() {
@@ -66,6 +69,14 @@ function restart() {
   lastMistakeId.value = undefined;
   restartRoundGame();
 }
+
+onMounted(() => {
+  warmLogicPairsAudio(session.settings.sound);
+});
+
+onUnmounted(() => {
+  disposeLogicPairsAudio();
+});
 </script>
 
 <template>
