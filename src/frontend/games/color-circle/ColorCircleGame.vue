@@ -9,6 +9,7 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
 import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
 import ttsAssets from "../../data/ttsAssets.json";
+import { disposeColorCircleAudio, playColorCircleMistakeMelody, playColorCircleSuccessMelody, warmColorCircleAudio } from "./audio";
 import { generateColorCircleRound, type ColorCircleColor } from "./model";
 
 const router = useRouter();
@@ -90,6 +91,7 @@ function answer(color: ColorCircleColor) {
   if (color.id === round.value.target.id) {
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: color.id, expected: round.value.target.label, actual: color.label, isCorrect: true });
     feedbackText.value = `Да, это ${color.label}.`;
+    void playColorCircleSuccessMelody(session.settings.sound);
     playTtsAsset(session.settings.sound, ttsAsset(`color-circle.${color.id}`), 0.36);
     revealedTargetId.value = color.id;
     selectedMistakeId.value = undefined;
@@ -100,6 +102,7 @@ function answer(color: ColorCircleColor) {
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: color.id, expected: round.value.target.label, actual: color.label, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, message: "Показан нужный цвет перед следующим кругом." });
   feedbackText.value = `Это ${color.label}. Нужен был ${round.value.target.label}. Следующий круг спокойно.`;
+  void playColorCircleMistakeMelody(session.settings.sound);
   playTtsAsset(session.settings.sound, ttsAsset(`color-circle.${color.id}`), 0.36);
   revealedTargetId.value = round.value.target.id;
   selectedMistakeId.value = color.id;
@@ -117,12 +120,14 @@ function restart() {
 }
 
 onMounted(() => {
+  warmColorCircleAudio(session.settings.sound);
   warmTtsAssets(session.settings.sound, colorCircleTtsAssets);
   playTargetPrompt(450);
 });
 
 onUnmounted(() => {
   clearAdvanceTimer();
+  disposeColorCircleAudio();
   disposeTtsAssets(colorCircleTtsAssets);
 });
 </script>
