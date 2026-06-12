@@ -237,6 +237,7 @@ async function main() {
   const targets = await listResponse.json();
   const pageTarget = targets.find((target) => target.type === "page" && target.webSocketDebuggerUrl && /^https?:/.test(target.url));
   if (!pageTarget) throw new Error("No Electron page target with webSocketDebuggerUrl found");
+  const originalUrl = pageTarget.url;
 
   const client = await createCdpClient(pageTarget.webSocketDebuggerUrl);
   const runtimeErrors = [];
@@ -268,6 +269,10 @@ async function main() {
       results.push({ route, viewport, errors: routeErrors, metrics });
     }
   }
+
+  await client.send("Emulation.clearDeviceMetricsOverride");
+  await client.send("Page.navigate", { url: originalUrl });
+  await wait(250);
 
   client.close();
 

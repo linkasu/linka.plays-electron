@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -7,6 +7,8 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
+import ttsAssets from "../../data/ttsAssets.json";
 import { generateColorCircleRound, type ColorCircleColor } from "./model";
 
 const router = useRouter();
@@ -26,7 +28,9 @@ const feedbackText = ref("Смотри на сектор нужного цвет
 const revealedTargetId = ref<string>();
 const selectedMistakeId = ref<string>();
 const advancing = ref(false);
+const colorCircleTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.game === "color-circle");
 let advanceTimer = 0;
+let promptTimer = 0;
 
 const targetStyle = computed(() => ({
   "--target-color": round.value.target.hex,
@@ -46,7 +50,20 @@ function sectorStyle(color: ColorCircleColor) {
 
 function clearAdvanceTimer() {
   window.clearTimeout(advanceTimer);
+  window.clearTimeout(promptTimer);
   advanceTimer = 0;
+  promptTimer = 0;
+}
+
+function ttsAsset(id: string) {
+  return colorCircleTtsAssets.find((asset) => asset.id === id);
+}
+
+function playTargetPrompt(delayMs = 0) {
+  window.clearTimeout(promptTimer);
+  promptTimer = window.setTimeout(() => {
+    playTtsAsset(session.settings.sound, ttsAsset(`color-circle.prompt.${round.value.target.id}`), 0.36);
+  }, delayMs);
 }
 
 function prepareNextRound() {
@@ -57,7 +74,10 @@ function prepareNextRound() {
     revealedTargetId.value = undefined;
     selectedMistakeId.value = undefined;
     feedbackText.value = "Смотри на сектор нужного цвета.";
-    if (session.status === "running") nextRound();
+    if (session.status === "running") {
+      nextRound();
+      playTargetPrompt(160);
+    }
   }, 900);
 }
 
@@ -70,6 +90,7 @@ function answer(color: ColorCircleColor) {
   if (color.id === round.value.target.id) {
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: color.id, expected: round.value.target.label, actual: color.label, isCorrect: true });
     feedbackText.value = `Да, это ${color.label}.`;
+    playTtsAsset(session.settings.sound, ttsAsset(`color-circle.${color.id}`), 0.36);
     revealedTargetId.value = color.id;
     selectedMistakeId.value = undefined;
     if (session.status === "running" && session.step < session.maxSteps) prepareNextRound();
@@ -79,6 +100,7 @@ function answer(color: ColorCircleColor) {
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: color.id, expected: round.value.target.label, actual: color.label, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, message: "Показан нужный цвет перед следующим кругом." });
   feedbackText.value = `Это ${color.label}. Нужен был ${round.value.target.label}. Следующий круг спокойно.`;
+  playTtsAsset(session.settings.sound, ttsAsset(`color-circle.${color.id}`), 0.36);
   revealedTargetId.value = round.value.target.id;
   selectedMistakeId.value = color.id;
   prepareNextRound();
@@ -91,10 +113,17 @@ function restart() {
   selectedMistakeId.value = undefined;
   advancing.value = false;
   restartRoundGame();
+  playTargetPrompt(160);
 }
+
+onMounted(() => {
+  warmTtsAssets(session.settings.sound, colorCircleTtsAssets);
+  playTargetPrompt(450);
+});
 
 onUnmounted(() => {
   clearAdvanceTimer();
+  disposeTtsAssets(colorCircleTtsAssets);
 });
 </script>
 
@@ -105,13 +134,13 @@ onUnmounted(() => {
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="8">
           <v-card class="color-circle-card pa-4 pa-md-7" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Первый выбор цвета</div>
-            <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
+            <div class="color-circle-overline text-overline text-secondary text-center mb-2">Первый выбор цвета</div>
+            <h1 class="color-circle-title text-h3 text-md-h2 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
             <div class="target-chip mx-auto mb-4" :style="targetStyle">
               <span class="target-chip__dot" aria-hidden="true" />
               <span>{{ round.target.label }}</span>
             </div>
-            <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-6">{{ feedbackText }}</p>
+            <p class="color-circle-feedback text-h6 text-md-h5 text-medium-emphasis text-center mb-6">{{ feedbackText }}</p>
 
             <div class="color-circle-board mx-auto" role="group" :aria-label="round.prompt">
               <GameDwellButton v-for="color in round.sectors" :key="`${round.roundId}-${color.id}`" class="color-sector-button" :target-id="sectorTargetId(color)" :disabled="session.status !== 'running' || advancing" :dwell-ms="session.settings.dwellMs" min-height="0" color="surface" @select="answer(color)">
@@ -177,7 +206,7 @@ onUnmounted(() => {
   display: grid;
   gap: 0.5rem;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  inline-size: min(78vw, 35rem);
+  inline-size: min(78vw, 52vh, 30rem);
   overflow: hidden;
 }
 
@@ -222,6 +251,43 @@ onUnmounted(() => {
 
 .color-sector--mistake {
   filter: saturate(0.72) brightness(0.96);
+}
+
+@media (max-height: 920px) {
+  .color-circle-container {
+    align-items: flex-start !important;
+    padding-block-start: 5.9rem;
+  }
+
+  .color-circle-card {
+    padding-block: 0.9rem !important;
+  }
+
+  .color-circle-overline,
+  .color-circle-feedback {
+    display: none;
+  }
+
+  .color-circle-title {
+    font-size: clamp(2rem, 5vw, 3rem) !important;
+    margin-block-end: 0.45rem !important;
+  }
+
+  .target-chip {
+    font-size: clamp(1rem, 2.1vw, 1.45rem);
+    margin-block-end: 0.75rem !important;
+    padding: 0.45rem 1rem;
+  }
+
+  .color-circle-board {
+    border-width: 0.5rem;
+    gap: 0.35rem;
+    inline-size: min(76vw, 43vh, 27rem);
+  }
+
+  .color-sector {
+    min-block-size: 0;
+  }
 }
 
 @media (max-width: 600px) {

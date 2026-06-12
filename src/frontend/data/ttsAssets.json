@@ -215,5 +215,117 @@
     "text": "Мишка.",
     "voice": "jane",
     "path": "/audio/tts/big-cards/bear.mp3"
+  },
+  {
+    "id": "color-circle.prompt.red",
+    "game": "color-circle",
+    "text": "Выбери красный цвет.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/prompt-red.mp3"
+  },
+  {
+    "id": "color-circle.prompt.yellow",
+    "game": "color-circle",
+    "text": "Выбери жёлтый цвет.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/prompt-yellow.mp3"
+  },
+  {
+    "id": "color-circle.prompt.blue",
+    "game": "color-circle",
+    "text": "Выбери синий цвет.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/prompt-blue.mp3"
+  },
+  {
+    "id": "color-circle.prompt.green",
+    "game": "color-circle",
+    "text": "Выбери зелёный цвет.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/prompt-green.mp3"
+  },
+  {
+    "id": "color-circle.prompt.purple",
+    "game": "color-circle",
+    "text": "Выбери фиолетовый цвет.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/prompt-purple.mp3"
+  },
+  {
+    "id": "color-circle.prompt.orange",
+    "game": "color-circle",
+    "text": "Выбери оранжевый цвет.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/prompt-orange.mp3"
+  },
+  {
+    "id": "color-circle.prompt.teal",
+    "game": "color-circle",
+    "text": "Выбери бирюзовый цвет.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/prompt-teal.mp3"
+  },
+  {
+    "id": "color-circle.prompt.pink",
+    "game": "color-circle",
+    "text": "Выбери розовый цвет.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/prompt-pink.mp3"
+  },
+  {
+    "id": "color-circle.red",
+    "game": "color-circle",
+    "text": "Красный.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/red.mp3"
+  },
+  {
+    "id": "color-circle.yellow",
+    "game": "color-circle",
+    "text": "Жёлтый.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/yellow.mp3"
+  },
+  {
+    "id": "color-circle.blue",
+    "game": "color-circle",
+    "text": "Синий.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/blue.mp3"
+  },
+  {
+    "id": "color-circle.green",
+    "game": "color-circle",
+    "text": "Зелёный.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/green.mp3"
+  },
+  {
+    "id": "color-circle.purple",
+    "game": "color-circle",
+    "text": "Фиолетовый.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/purple.mp3"
+  },
+  {
+    "id": "color-circle.orange",
+    "game": "color-circle",
+    "text": "Оранжевый.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/orange.mp3"
+  },
+  {
+    "id": "color-circle.teal",
+    "game": "color-circle",
+    "text": "Бирюзовый.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/teal.mp3"
+  },
+  {
+    "id": "color-circle.pink",
+    "game": "color-circle",
+    "text": "Розовый.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/pink.mp3"
   }
 ]
