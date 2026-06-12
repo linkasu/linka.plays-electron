@@ -603,6 +603,7 @@ export const games: GameInfo[] = [
     icon: "mdi-fish",
     skills: ["smooth-pursuit", "fixation", "attention-shift"],
     status: "therapy-ready",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 60,
     minTargetSizePx: 160,
     defaultDwellMs: 850
