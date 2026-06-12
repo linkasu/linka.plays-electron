@@ -138,7 +138,6 @@ function bubbleClearance(point: Point, radius: number) {
   const candidate = percentToPixels(point);
   let clearance = Number.POSITIVE_INFINITY;
   for (const bubble of bubbles) {
-    if (bubble.phase === "popping") continue;
     const nextPoint = bubblePoint(bubble);
     const requiredGap = radius + bubble.radius + Math.max(24, Math.min(radius, bubble.radius) * 0.16);
     clearance = Math.min(clearance, distance(candidate, nextPoint) - requiredGap);
@@ -311,8 +310,7 @@ function ensureBubbles() {
     return;
   }
 
-  const visibleCount = bubbles.filter((bubble) => bubble.phase !== "popping").length;
-  for (let index = visibleCount; index < desiredBubbleCount(); index++) {
+  for (let index = bubbles.length; index < desiredBubbleCount(); index++) {
     bubbles.push(createBubble(bubbles.length === 0 && session.step === 0));
   }
 }
