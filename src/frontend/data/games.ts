@@ -825,6 +825,7 @@ export const games: GameInfo[] = [
     icon: "mdi-select-compare",
     skills: ["classification", "choice", "visual-search"],
     status: "therapy-ready",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 200,
     defaultDwellMs: 1300
