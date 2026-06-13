@@ -138,7 +138,6 @@ import TanksNoShootingGame from "../games/tanks-no-shooting/TanksNoShootingGame.
 import TellPictureGame from "../games/tell-picture/TellPictureGame.vue";
 import ThreeFrameStoryGame from "../games/three-frame-story/ThreeFrameStoryGame.vue";
 import TicTacToeGame from "../games/tic-tac-toe/TicTacToeGame.vue";
-import TowerGame from "../games/tower/TowerGame.vue";
 import TrainSequenceGame from "../games/train-sequence/TrainSequenceGame.vue";
 import TypeWordGame from "../games/type-word/TypeWordGame.vue";
 import UnoLikeGame from "../games/uno-like/UnoLikeGame.vue";
@@ -237,7 +236,6 @@ export default createRouter({
     { path: "/games/find-color", name: "find-color", component: FindColorGame },
     { path: "/games/find-shape", name: "find-shape", component: FindShapeGame },
     { path: "/games/dress-character", name: "dress-character", component: DressCharacterGame },
-    { path: "/games/tower", name: "tower", component: TowerGame },
     { path: "/games/three-frame-story", name: "three-frame-story", component: ThreeFrameStoryGame },
     { path: "/games/train-sequence", name: "train-sequence", component: TrainSequenceGame },
     { path: "/games/sandwich", name: "sandwich", component: SandwichGame },
