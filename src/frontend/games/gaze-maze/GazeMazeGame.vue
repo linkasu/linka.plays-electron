@@ -1,398 +1,574 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGazePointer } from "../../composables/useGazePointer";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
 import { disposeGazeMazeAudio, playGazeMazeHintMelody, playGazeMazeStepMelody, warmGazeMazeAudio } from "./audio";
 
-type PathNode = {
+type MazeNode = {
   id: string;
   label: string;
   x: number;
   y: number;
+  kind?: "start" | "exit" | "branch" | "candy" | "deadend";
 };
 
-type SelectableNode = PathNode & {
-  pathIndex: number;
+type MazeEdge = [string, string];
+
+type MazeLevel = {
+  id: string;
+  title: string;
+  startId: string;
+  exitId: string;
+  nodes: MazeNode[];
+  edges: MazeEdge[];
 };
 
-const pathNodes: PathNode[] = [
-  { id: "start", label: "Старт", x: 13, y: 22 },
-  { id: "soft-turn", label: "Мягкий поворот", x: 35, y: 19 },
-  { id: "quiet-down", label: "Тихий спуск", x: 44, y: 47 },
-  { id: "left-corner", label: "Левый угол", x: 20, y: 47 },
-  { id: "middle", label: "Середина", x: 20, y: 76 },
-  { id: "wide-corridor", label: "Широкий коридор", x: 58, y: 68 },
-  { id: "last-turn", label: "Поворот к выходу", x: 66, y: 87 },
-  { id: "exit", label: "Выход", x: 86, y: 87 }
+type Point = { x: number; y: number };
+
+const levels: MazeLevel[] = [
+  {
+    id: "sweet-garden",
+    title: "Сладкий сад",
+    startId: "start",
+    exitId: "exit",
+    nodes: [
+      { id: "start", label: "Домик", x: 12, y: 53, kind: "start" },
+      { id: "berry", label: "Ягодная конфета", x: 30, y: 33, kind: "candy" },
+      { id: "mint", label: "Мятная тропа", x: 30, y: 72, kind: "candy" },
+      { id: "caramel", label: "Карамельная развилка", x: 52, y: 52, kind: "branch" },
+      { id: "cotton", label: "Ватный тупик", x: 49, y: 17, kind: "deadend" },
+      { id: "crumb", label: "Крошечный тупик", x: 48, y: 88, kind: "deadend" },
+      { id: "star", label: "Звёздная конфета", x: 70, y: 31, kind: "candy" },
+      { id: "exit", label: "Конфетный выход", x: 86, y: 56, kind: "exit" }
+    ],
+    edges: [["start", "berry"], ["start", "mint"], ["berry", "caramel"], ["berry", "cotton"], ["mint", "caramel"], ["mint", "crumb"], ["caramel", "star"], ["caramel", "exit"], ["star", "exit"]]
+  },
+  {
+    id: "lollipop-bridge",
+    title: "Леденцовый мостик",
+    startId: "start",
+    exitId: "exit",
+    nodes: [
+      { id: "start", label: "Домик", x: 11, y: 69, kind: "start" },
+      { id: "sugar", label: "Сахарный камень", x: 28, y: 50, kind: "candy" },
+      { id: "upper", label: "Верхний мостик", x: 47, y: 30, kind: "branch" },
+      { id: "lower", label: "Нижний мостик", x: 47, y: 73, kind: "branch" },
+      { id: "marshmallow", label: "Зефирный тупик", x: 66, y: 19, kind: "deadend" },
+      { id: "wafer", label: "Вафельный тупик", x: 67, y: 84, kind: "deadend" },
+      { id: "cream", label: "Сливочная поляна", x: 67, y: 54, kind: "candy" },
+      { id: "exit", label: "Конфетный выход", x: 87, y: 33, kind: "exit" }
+    ],
+    edges: [["start", "sugar"], ["sugar", "upper"], ["sugar", "lower"], ["upper", "cream"], ["upper", "marshmallow"], ["lower", "cream"], ["lower", "wafer"], ["cream", "exit"], ["upper", "exit"]]
+  },
+  {
+    id: "candy-loop",
+    title: "Карамельная петля",
+    startId: "start",
+    exitId: "exit",
+    nodes: [
+      { id: "start", label: "Домик", x: 13, y: 35, kind: "start" },
+      { id: "gate", label: "Вафельная калитка", x: 32, y: 35, kind: "candy" },
+      { id: "pink", label: "Розовая конфета", x: 51, y: 22, kind: "branch" },
+      { id: "blue", label: "Голубая конфета", x: 51, y: 60, kind: "branch" },
+      { id: "mint-cave", label: "Мятный тупик", x: 69, y: 17, kind: "deadend" },
+      { id: "jelly-corner", label: "Желейный тупик", x: 33, y: 78, kind: "deadend" },
+      { id: "loop", label: "Карамельная петля", x: 70, y: 58, kind: "candy" },
+      { id: "exit", label: "Конфетный выход", x: 88, y: 73, kind: "exit" }
+    ],
+    edges: [["start", "gate"], ["gate", "pink"], ["gate", "blue"], ["gate", "jelly-corner"], ["pink", "loop"], ["pink", "mint-cave"], ["blue", "loop"], ["loop", "gate"], ["loop", "exit"]]
+  }
 ];
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("gaze-maze", {
+const canvasRef = ref<HTMLCanvasElement>();
+const { pointer } = useGazePointer();
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSession("gaze-maze", {
   preset: "gentle",
-  maxSteps: 7,
+  maxSteps: 18,
   dwellMs: 1300,
   sessionSeconds: 120,
-  targetScale: 1.55,
-  motionSpeed: 0.45,
-  distractors: "none",
+  targetScale: 1.35,
+  sound: true,
   hints: "high"
 }, {
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 
-const feedbackText = ref("Смотри на подсвеченный огонёк: он покажет следующий мягкий шаг.");
-const hintedIndex = ref<number>();
-const lastChoiceIndex = ref<number>();
-let feedbackTimer = 0;
-
-const selectableNodes = computed<SelectableNode[]>(() => pathNodes.slice(1).map((node, index) => ({ ...node, pathIndex: index + 1 })));
-const currentPathIndex = computed(() => Math.min(session.step + 1, pathNodes.length - 1));
-const currentNode = computed(() => pathNodes[currentPathIndex.value]);
+const currentLevelIndex = ref(0);
+const currentNodeId = ref(levels[0].startId);
+const feedbackText = ref("Помоги гномику пройти к конфете. Можно идти туда и обратно.");
 const resultVisible = computed(() => session.status === "finished");
-const mazeLinePoints = computed(() => pathNodes.map((node) => `${node.x},${node.y}`).join(" "));
-const completedLinePoints = computed(() => pathNodes.slice(0, Math.min(session.step, pathNodes.length - 1) + 1).map((node) => `${node.x},${node.y}`).join(" "));
 
-function clearFeedbackTimer() {
-  window.clearTimeout(feedbackTimer);
-  feedbackTimer = 0;
+let ctx: CanvasRenderingContext2D | undefined;
+let frame = 0;
+let stage = { x: 0, y: 0, width: 1, height: 1 };
+let hoverNodeId: string | undefined;
+let enteredAt = 0;
+let dwellProgress = 0;
+let cooldownUntil = 0;
+let lastTime = performance.now();
+let moveFromId: string | undefined;
+let moveToId: string | undefined;
+let moveStartedAt = 0;
+let pendingMoveNode: MazeNode | undefined;
+
+const moveDurationMs = 780;
+
+const currentLevel = computed(() => levels[currentLevelIndex.value]);
+const currentNode = computed(() => nodeById(currentNodeId.value));
+const adjacentIds = computed(() => new Set(neighborIds(currentNodeId.value)));
+
+function nodeById(id: string) {
+  const node = currentLevel.value.nodes.find((item) => item.id === id);
+  if (!node) throw new Error(`Unknown gaze maze node: ${id}`);
+  return node;
 }
 
-function showFeedback(text: string, delay = 1800) {
-  feedbackText.value = text;
-  clearFeedbackTimer();
-  feedbackTimer = window.setTimeout(() => {
-    feedbackText.value = session.status === "running"
-      ? `Следующий шаг: ${currentNode.value.label.toLowerCase()}.`
-      : "Путь найден спокойно.";
-  }, delay);
+function neighborIds(id: string) {
+  return currentLevel.value.edges.flatMap(([fromId, toId]) => {
+    if (fromId === id) return [toId];
+    if (toId === id) return [fromId];
+    return [];
+  });
 }
 
-function targetId(node: SelectableNode) {
-  return `gaze-maze:waypoint:${node.id}`;
+function isDeadEnd(node: MazeNode) {
+  return node.kind === "deadend" || (node.kind !== "start" && node.kind !== "exit" && neighborIds(node.id).length === 1);
 }
 
-function isCompleted(node: SelectableNode) {
-  return node.pathIndex <= session.step;
-}
-
-function isCurrent(node: SelectableNode) {
-  return session.status === "running" && node.pathIndex === currentPathIndex.value;
-}
-
-function waypointStyle(node: SelectableNode) {
-  const scale = isCurrent(node) ? 1.12 : isCompleted(node) ? 0.9 : 0.98;
+function nodePoint(node: MazeNode): Point {
   return {
-    "--x": node.x,
-    "--y": node.y,
-    "--waypoint-scale": scale
+    x: stage.x + stage.width * node.x / 100,
+    y: stage.y + stage.height * node.y / 100
   };
 }
 
-function selectWaypoint(node: SelectableNode) {
-  if (session.status !== "running" || isCompleted(node)) return;
+function nodeRadius() {
+  return Math.max(42, Math.min(76, Math.min(stage.width, stage.height) * 0.092 * session.settings.targetScale));
+}
 
-  const selectedTargetId = targetId(node);
-  const expectedNode = currentNode.value;
-  const expectedTargetId = `gaze-maze:waypoint:${expectedNode.id}`;
-  lastChoiceIndex.value = node.pathIndex;
+function nodeScale(node: MazeNode) {
+  if (node.kind === "exit") return 1.42;
+  if (node.kind === "start") return 1.12;
+  return 1;
+}
 
-  if (node.pathIndex === currentPathIndex.value) {
-    hintedIndex.value = undefined;
-    void playGazeMazeStepMelody(session.settings.sound);
-    recordSuccess({
-      targetId: selectedTargetId,
-      waypointId: node.id,
-      waypointLabel: node.label,
-      pathIndex: node.pathIndex,
-      isExit: node.id === "exit"
-    });
-    showFeedback(node.id === "exit" ? "Выход найден. Лабиринт пройден без спешки." : "Да, это следующий шаг. Путь мягко светится.", 1300);
+function nodeHitRadius(node: MazeNode) {
+  return nodeRadius() * nodeScale(node) * 1.05;
+}
+
+function resizeCanvas() {
+  const canvas = canvasRef.value;
+  if (!canvas) return;
+  const ratio = window.devicePixelRatio || 1;
+  canvas.width = Math.round(window.innerWidth * ratio);
+  canvas.height = Math.round(window.innerHeight * ratio);
+  canvas.style.width = `${window.innerWidth}px`;
+  canvas.style.height = `${window.innerHeight}px`;
+  ctx = canvas.getContext("2d") ?? undefined;
+  ctx?.setTransform(ratio, 0, 0, ratio, 0, 0);
+}
+
+function roundRect(context: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) {
+  context.beginPath();
+  context.roundRect(x, y, width, height, radius);
+}
+
+function isMoving(now = performance.now()) {
+  return moveToId !== undefined && now - moveStartedAt < moveDurationMs;
+}
+
+function easeMove(progress: number) {
+  return progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+}
+
+function pathControls(from: Point, to: Point) {
+  const midX = (from.x + to.x) / 2;
+  return {
+    first: { x: midX, y: from.y },
+    second: { x: midX, y: to.y }
+  };
+}
+
+function cubicPoint(from: Point, first: Point, second: Point, to: Point, progress: number) {
+  const inverse = 1 - progress;
+  return {
+    x: inverse ** 3 * from.x + 3 * inverse ** 2 * progress * first.x + 3 * inverse * progress ** 2 * second.x + progress ** 3 * to.x,
+    y: inverse ** 3 * from.y + 3 * inverse ** 2 * progress * first.y + 3 * inverse * progress ** 2 * second.y + progress ** 3 * to.y
+  };
+}
+
+function cubicTangent(from: Point, first: Point, second: Point, to: Point, progress: number) {
+  const inverse = 1 - progress;
+  return {
+    x: 3 * inverse ** 2 * (first.x - from.x) + 6 * inverse * progress * (second.x - first.x) + 3 * progress ** 2 * (to.x - second.x),
+    y: 3 * inverse ** 2 * (first.y - from.y) + 6 * inverse * progress * (second.y - first.y) + 3 * progress ** 2 * (to.y - second.y)
+  };
+}
+
+function setNodeFeedback(node: MazeNode) {
+  if (isDeadEnd(node)) {
+    feedbackText.value = "Это тупик. Гномик может спокойно вернуться назад.";
     return;
   }
 
-  hintedIndex.value = currentPathIndex.value;
-  void playGazeMazeHintMelody(session.settings.sound);
-  recordMistake({
-    targetId: selectedTargetId,
-    expectedTargetId,
-    waypointId: node.id,
-    expectedWaypointId: expectedNode.id,
-    selectedPathIndex: node.pathIndex,
-    expectedPathIndex: currentPathIndex.value,
-    hintOnly: true
+  const choices = neighborIds(node.id).map((id) => nodeById(id).label.toLowerCase());
+  feedbackText.value = `Гномик на месте: ${node.label.toLowerCase()}. Можно идти: ${choices.join(" или ")}.`;
+}
+
+function beginMove(node: MazeNode, now: number) {
+  moveFromId = currentNodeId.value;
+  moveToId = node.id;
+  moveStartedAt = now;
+  pendingMoveNode = node;
+  feedbackText.value = node.id === currentLevel.value.exitId
+    ? "Гномик бежит к большой конфете."
+    : isDeadEnd(node)
+      ? "Гномик заглядывает в тупик."
+      : "Гномик перебегает к соседней конфете.";
+}
+
+function completeMove() {
+  if (!moveToId || !pendingMoveNode) return;
+
+  const arrivedNode = pendingMoveNode;
+  currentNodeId.value = arrivedNode.id;
+  moveFromId = undefined;
+  moveToId = undefined;
+  pendingMoveNode = undefined;
+
+  if (arrivedNode.id === currentLevel.value.exitId) {
+    if (currentLevelIndex.value >= levels.length - 1) {
+      feedbackText.value = "Гномик нашёл большую конфету. Лабиринты пройдены.";
+      finishSession("game-complete");
+      return;
+    }
+    currentLevelIndex.value += 1;
+    currentNodeId.value = currentLevel.value.startId;
+    feedbackText.value = `Новый уровень: ${currentLevel.value.title}. Иди по соседним конфетам.`;
+    return;
+  }
+
+  setNodeFeedback(arrivedNode);
+}
+
+function selectNode(node: MazeNode) {
+  const now = performance.now();
+  if (session.status !== "running" || node.id === currentNodeId.value || now < cooldownUntil || isMoving(now)) return;
+  cooldownUntil = now + 650;
+  resetDwell();
+
+  if (!adjacentIds.value.has(node.id)) {
+    void playGazeMazeHintMelody(session.settings.sound);
+    recordMistake({ selectedNodeId: node.id, currentNodeId: currentNodeId.value, levelId: currentLevel.value.id, hintOnly: true });
+    recordHint({ targetId: node.id, reason: "not-neighbor", currentNodeId: currentNodeId.value });
+    feedbackText.value = "Сюда пока далеко. Выбери соседнюю конфету на дорожке.";
+    return;
+  }
+
+  void playGazeMazeStepMelody(session.settings.sound);
+  recordSuccess({ selectedNodeId: node.id, levelId: currentLevel.value.id, isExit: node.id === currentLevel.value.exitId });
+  beginMove(node, now);
+}
+
+function nodeAt(point: Point) {
+  return currentLevel.value.nodes.find((node) => {
+    if (node.id === currentNodeId.value) return false;
+    const center = nodePoint(node);
+    return Math.hypot(point.x - center.x, point.y - center.y) <= nodeHitRadius(node);
   });
-  recordHint({
-    targetId: expectedTargetId,
-    reason: "next-waypoint-needed",
-    selectedWaypointId: node.id,
-    expectedWaypointId: expectedNode.id
-  });
-  showFeedback(`Это тоже часть лабиринта, но сейчас нужен ${expectedNode.label.toLowerCase()}. Ошибки не проваливают игру.`, 2400);
+}
+
+function resetDwell() {
+  hoverNodeId = undefined;
+  enteredAt = 0;
+  dwellProgress = 0;
+}
+
+function updateDwell(now: number) {
+  if (session.status !== "running" || !pointer.value.valid || now < cooldownUntil || isMoving(now)) {
+    resetDwell();
+    return;
+  }
+
+  const node = nodeAt(pointer.value);
+  if (!node) {
+    resetDwell();
+    return;
+  }
+
+  if (hoverNodeId !== node.id) {
+    hoverNodeId = node.id;
+    enteredAt = now;
+    dwellProgress = 0;
+    return;
+  }
+
+  dwellProgress = Math.min(1, (now - enteredAt) / session.settings.dwellMs);
+  if (dwellProgress >= 1) selectNode(node);
+}
+
+function onCanvasClick(event: MouseEvent) {
+  const node = nodeAt({ x: event.clientX, y: event.clientY });
+  if (node) selectNode(node);
 }
 
 function restart() {
-  clearFeedbackTimer();
-  hintedIndex.value = undefined;
-  lastChoiceIndex.value = undefined;
-  feedbackText.value = "Смотри на подсвеченный огонёк: он покажет следующий мягкий шаг.";
+  currentLevelIndex.value = 0;
+  currentNodeId.value = levels[0].startId;
+  feedbackText.value = "Помоги гномику пройти к конфете. Можно идти туда и обратно.";
+  moveFromId = undefined;
+  moveToId = undefined;
+  pendingMoveNode = undefined;
+  resetDwell();
   startSession();
 }
 
-onMounted(() => {
-  warmGazeMazeAudio(session.settings.sound);
-});
+function drawBackground(context: CanvasRenderingContext2D) {
+  const gradient = context.createLinearGradient(0, 0, window.innerWidth, window.innerHeight);
+  gradient.addColorStop(0, "#fff4c8");
+  gradient.addColorStop(0.48, "#eef9f4");
+  gradient.addColorStop(1, "#f7edff");
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-watch(() => session.settings.sound, (enabled) => {
-  warmGazeMazeAudio(enabled);
+  context.save();
+  context.globalAlpha = 0.32;
+  for (let i = 0; i < 9; i += 1) {
+    const x = (i * 217) % window.innerWidth;
+    const y = 90 + (i * 83) % Math.max(160, window.innerHeight - 180);
+    context.fillStyle = i % 2 ? "#ffffff" : "#ffd5e7";
+    context.beginPath();
+    context.ellipse(x, y, 70, 22, 0, 0, Math.PI * 2);
+    context.fill();
+  }
+  context.restore();
+}
+
+function updateStage() {
+  const marginX = Math.max(28, Math.min(82, window.innerWidth * 0.065));
+  const top = window.innerHeight < 680 ? 104 : Math.max(118, window.innerHeight * 0.16);
+  const bottom = window.innerHeight < 680 ? 42 : Math.max(54, window.innerHeight * 0.07);
+  stage = {
+    x: marginX,
+    y: top,
+    width: window.innerWidth - marginX * 2,
+    height: Math.max(300, window.innerHeight - top - bottom)
+  };
+}
+
+function drawSceneChrome(context: CanvasRenderingContext2D) {
+  context.save();
+  context.fillStyle = "rgb(255 255 255 / 68%)";
+  roundRect(context, Math.max(16, window.innerWidth * 0.03), window.innerHeight - 66, window.innerWidth - Math.max(32, window.innerWidth * 0.06), 42, 21);
+  context.fill();
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillStyle = "#32463f";
+  context.font = `700 ${window.innerWidth < 900 ? 15 : 18}px system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+  context.fillText(`${currentLevel.value.title}. ${feedbackText.value}`, window.innerWidth / 2, window.innerHeight - 45, window.innerWidth - 72);
+  context.restore();
+}
+
+function drawCandyPath(context: CanvasRenderingContext2D) {
+  context.lineCap = "round";
+  context.lineJoin = "round";
+  for (const [fromId, toId] of currentLevel.value.edges) {
+    const from = nodePoint(nodeById(fromId));
+    const to = nodePoint(nodeById(toId));
+    const active = fromId === currentNodeId.value || toId === currentNodeId.value;
+    const deadEndPath = isDeadEnd(nodeById(fromId)) || isDeadEnd(nodeById(toId));
+    context.strokeStyle = active ? "rgb(255 187 104 / 88%)" : deadEndPath ? "rgb(212 185 223 / 68%)" : "rgb(192 211 225 / 70%)";
+    context.lineWidth = active ? 22 : deadEndPath ? 15 : 18;
+    context.beginPath();
+    context.moveTo(from.x, from.y);
+    const controls = pathControls(from, to);
+    context.bezierCurveTo(controls.first.x, controls.first.y, controls.second.x, controls.second.y, to.x, to.y);
+    context.stroke();
+    context.strokeStyle = "rgb(255 255 255 / 78%)";
+    context.lineWidth = active ? 10 : 8;
+    context.stroke();
+  }
+}
+
+function drawCandyNode(context: CanvasRenderingContext2D, node: MazeNode, now: number) {
+  const center = nodePoint(node);
+  const radius = nodeRadius();
+  const isCurrent = node.id === currentNodeId.value;
+  const isAdjacent = adjacentIds.value.has(node.id);
+  const isHover = hoverNodeId === node.id;
+  const deadEnd = isDeadEnd(node);
+  const pulse = Math.sin(now * 0.004) * 0.04;
+  const drawRadius = radius * nodeScale(node) * (isCurrent ? 1.12 : isAdjacent ? 1.02 + pulse : 0.92);
+
+  context.save();
+  context.translate(center.x, center.y);
+  context.rotate(node.kind === "exit" ? 0 : Math.sin(now * 0.0015 + node.x) * 0.05);
+  context.shadowColor = isAdjacent ? "rgb(255 162 74 / 45%)" : "rgb(62 83 104 / 16%)";
+  context.shadowBlur = isAdjacent ? 22 : 10;
+  context.fillStyle = isCurrent ? "#fff0b6" : deadEnd ? "#f7e9ff" : isAdjacent ? "#fff8df" : "#f7fbff";
+  context.strokeStyle = isCurrent ? "#243631" : deadEnd && isAdjacent ? "#c278d3" : isAdjacent ? "#f3a95b" : "#b8cbd1";
+  context.lineWidth = isCurrent ? 5 : isAdjacent ? 4 : 3;
+  context.beginPath();
+  context.arc(0, 0, drawRadius, 0, Math.PI * 2);
+  context.fill();
+  context.stroke();
+
+  context.fillStyle = deadEnd ? "#b46fd0" : isAdjacent ? "#ef6f8f" : "#7aa59c";
+  context.beginPath();
+  context.arc(-drawRadius * 0.32, -drawRadius * 0.18, drawRadius * 0.16, 0, Math.PI * 2);
+  context.arc(drawRadius * 0.25, drawRadius * 0.18, drawRadius * 0.13, 0, Math.PI * 2);
+  context.fill();
+
+  if (node.kind === "exit") {
+    context.fillStyle = "#243631";
+    context.font = `800 ${Math.round(drawRadius * 0.58)}px system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText("🍬", 0, -drawRadius * 0.03);
+  } else if (node.kind === "start") {
+    context.fillStyle = "#7b6ec8";
+    context.font = `800 ${Math.round(drawRadius * 0.42)}px system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText("дом", 0, drawRadius * 0.02);
+  } else if (deadEnd) {
+    context.strokeStyle = "rgb(130 86 155 / 72%)";
+    context.lineWidth = 5;
+    context.beginPath();
+    context.moveTo(-drawRadius * 0.3, -drawRadius * 0.28);
+    context.lineTo(drawRadius * 0.3, drawRadius * 0.28);
+    context.moveTo(drawRadius * 0.3, -drawRadius * 0.28);
+    context.lineTo(-drawRadius * 0.3, drawRadius * 0.28);
+    context.stroke();
+  }
+
+  if (isHover && dwellProgress > 0) {
+    context.strokeStyle = "#ff8a3d";
+    context.lineWidth = 6;
+    context.beginPath();
+    context.arc(0, 0, drawRadius + 8, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * dwellProgress);
+    context.stroke();
+  }
+  context.restore();
+}
+
+function drawGnome(context: CanvasRenderingContext2D, now: number) {
+  const fromNode = moveFromId ? nodeById(moveFromId) : currentNode.value;
+  const toNode = moveToId ? nodeById(moveToId) : fromNode;
+  const from = nodePoint(fromNode);
+  const to = nodePoint(toNode);
+  const rawProgress = moveToId ? Math.min(1, Math.max(0, (now - moveStartedAt) / moveDurationMs)) : 1;
+  const progress = easeMove(rawProgress);
+  const controls = pathControls(from, to);
+  const center = moveToId ? cubicPoint(from, controls.first, controls.second, to, progress) : from;
+  const tangent = moveToId ? cubicTangent(from, controls.first, controls.second, to, progress) : { x: 1, y: 0 };
+  const radius = nodeRadius();
+  const runBounce = moveToId ? Math.abs(Math.sin(progress * Math.PI * 4)) * 8 : Math.sin(now * 0.004) * 4;
+  const facing = tangent.x >= 0 ? 1 : -1;
+  context.save();
+  context.translate(center.x, center.y - radius * 0.95 - runBounce);
+  context.scale(facing, 1);
+  context.fillStyle = "#db4b56";
+  context.beginPath();
+  context.moveTo(0, -radius * 0.58);
+  context.lineTo(-radius * 0.42, radius * 0.05);
+  context.lineTo(radius * 0.42, radius * 0.05);
+  context.closePath();
+  context.fill();
+  context.fillStyle = "#ffd5b8";
+  context.beginPath();
+  context.arc(0, radius * 0.1, radius * 0.34, 0, Math.PI * 2);
+  context.fill();
+  context.fillStyle = "#4d3528";
+  context.beginPath();
+  context.arc(-radius * 0.11, radius * 0.05, radius * 0.035, 0, Math.PI * 2);
+  context.arc(radius * 0.11, radius * 0.05, radius * 0.035, 0, Math.PI * 2);
+  context.fill();
+  context.fillStyle = "#ffffff";
+  context.beginPath();
+  context.ellipse(0, radius * 0.24, radius * 0.22, radius * 0.1, 0, 0, Math.PI * 2);
+  context.fill();
+
+  if (moveToId) {
+    context.strokeStyle = "#314d45";
+    context.lineWidth = 3;
+    context.lineCap = "round";
+    const legSwing = Math.sin(progress * Math.PI * 6) * radius * 0.12;
+    context.beginPath();
+    context.moveTo(-radius * 0.13, radius * 0.42);
+    context.lineTo(-radius * 0.24 - legSwing, radius * 0.58);
+    context.moveTo(radius * 0.13, radius * 0.42);
+    context.lineTo(radius * 0.24 + legSwing, radius * 0.58);
+    context.stroke();
+  }
+  context.restore();
+}
+
+function draw(now: number) {
+  if (!ctx) return;
+  drawBackground(ctx);
+  updateStage();
+  drawSceneChrome(ctx);
+  drawCandyPath(ctx);
+  for (const node of currentLevel.value.nodes) drawCandyNode(ctx, node, now);
+  drawGnome(ctx, now);
+}
+
+function tick(now: number) {
+  const delta = Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+  lastTime = now;
+  if (moveToId && now - moveStartedAt >= moveDurationMs) completeMove();
+  if (delta >= 0) updateDwell(now);
+  draw(now);
+  frame = requestAnimationFrame(tick);
+}
+
+onMounted(async () => {
+  await nextTick();
+  resizeCanvas();
+  warmGazeMazeAudio(session.settings.sound);
+  window.addEventListener("resize", resizeCanvas);
+  frame = requestAnimationFrame(tick);
 });
 
 onUnmounted(() => {
-  clearFeedbackTimer();
+  window.removeEventListener("resize", resizeCanvas);
+  cancelAnimationFrame(frame);
   disposeGazeMazeAudio();
 });
 </script>
 
 <template>
   <div class="gaze-maze-shell">
-    <GameHud title="Лабиринт взгляда-указателя" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
-
-    <v-container class="gaze-maze-container d-flex align-center" fluid>
-      <v-row justify="center">
-        <v-col cols="12" xl="10">
-          <v-card class="gaze-maze-panel pa-3 pa-md-5" color="surface" rounded="xl" elevation="8">
-            <div class="text-overline text-primary text-center mb-1">Следующий шаг взглядом</div>
-            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">Найди путь к выходу</h1>
-            <p class="feedback-line text-body-1 text-md-h6 text-medium-emphasis text-center mb-3">{{ feedbackText }}</p>
-
-            <div class="gaze-maze-stage mx-auto" role="group" aria-label="Широкий лабиринт с waypoint">
-              <svg class="gaze-maze-path" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-                <polyline class="gaze-maze-path__shadow" :points="mazeLinePoints" />
-                <polyline class="gaze-maze-path__lane" :points="mazeLinePoints" />
-                <polyline v-if="session.step > 0" class="gaze-maze-path__done" :points="completedLinePoints" />
-              </svg>
-
-              <div class="gaze-maze-start" :style="{ '--x': pathNodes[0].x, '--y': pathNodes[0].y }">
-                <v-icon icon="mdi-map-marker-check-outline" />
-                <span>Старт</span>
-              </div>
-
-              <GameDwellButton
-                v-for="node in selectableNodes"
-                :key="node.id"
-                :class="['gaze-maze-waypoint', {
-                  'gaze-maze-waypoint--current': isCurrent(node),
-                  'gaze-maze-waypoint--completed': isCompleted(node),
-                  'gaze-maze-waypoint--hint': hintedIndex === node.pathIndex,
-                  'gaze-maze-waypoint--mistake': lastChoiceIndex === node.pathIndex && !isCurrent(node) && !isCompleted(node)
-                }]"
-                :style="waypointStyle(node)"
-                :target-id="targetId(node)"
-                :disabled="session.status !== 'running' || isCompleted(node)"
-                :dwell-ms="session.settings.dwellMs"
-                min-height="100%"
-                color="surface"
-                @select="selectWaypoint(node)"
-              >
-                <template #default="{ active, progress }">
-                  <div class="gaze-maze-waypoint__content">
-                    <v-icon :icon="node.id === 'exit' ? 'mdi-door-open' : isCompleted(node) ? 'mdi-check-circle-outline' : 'mdi-circle-slice-8'" />
-                    <div class="gaze-maze-waypoint__label">{{ node.id === 'exit' ? 'Выход' : node.pathIndex }}</div>
-                    <div class="gaze-maze-waypoint__hint">
-                      {{ isCurrent(node) ? active && progress > 0.65 ? 'держи' : 'сюда' : isCompleted(node) ? 'готово' : '' }}
-                    </div>
-                  </div>
-                </template>
-              </GameDwellButton>
-            </div>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
-
-    <GameResultDialog :model-value="resultVisible" title="Лабиринт взгляда-указателя" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <canvas ref="canvasRef" class="gaze-maze-canvas" @click="onCanvasClick" />
+    <GameHud title="Конфетный лабиринт" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameResultDialog :model-value="resultVisible" title="Конфетный лабиринт" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
   </div>
 </template>
 
 <style scoped>
 .gaze-maze-shell {
-  background: radial-gradient(circle at 18% 12%, rgb(255 236 180 / 54%), transparent 32%), linear-gradient(135deg, #eef8f6 0%, #f8f4ff 52%, #fff8e8 100%);
   block-size: 100vh;
-  overflow: hidden;
-}
-
-.gaze-maze-container {
-  block-size: 100vh;
-  padding-block: clamp(5rem, 10vh, 7rem) clamp(0.75rem, 3vh, 2rem);
-}
-
-.gaze-maze-panel {
-  max-block-size: calc(100vh - 6rem);
-  overflow: hidden;
-}
-
-.feedback-line {
-  min-block-size: 1.5rem;
-}
-
-.gaze-maze-stage {
-  aspect-ratio: 16 / 9;
-  background: linear-gradient(145deg, rgb(229 247 242 / 94%), rgb(239 240 255 / 96%));
-  border: 0.75rem solid rgb(255 255 255 / 76%);
-  border-radius: 2rem;
-  box-shadow: inset 0 0 0 0.125rem rgb(var(--v-theme-primary) / 10%), 0 1.5rem 4rem rgb(70 90 116 / 18%);
-  block-size: clamp(21rem, 55vh, 34rem);
-  inline-size: min(100%, 62rem);
-  min-block-size: 0;
+  inline-size: 100vw;
   overflow: hidden;
   position: relative;
 }
 
-.gaze-maze-path {
-  block-size: 100%;
-  inline-size: 100%;
+.gaze-maze-canvas {
+  cursor: pointer;
+  display: block;
   inset: 0;
   position: absolute;
+  z-index: 0;
 }
 
-.gaze-maze-path polyline {
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.gaze-maze-path__shadow {
-  stroke: rgb(86 109 137 / 18%);
-  stroke-width: 20;
-}
-
-.gaze-maze-path__lane {
-  stroke: rgb(255 255 255 / 90%);
-  stroke-width: 14;
-}
-
-.gaze-maze-path__done {
-  stroke: rgb(var(--v-theme-primary) / 58%);
-  stroke-width: 8;
-}
-
-.gaze-maze-start,
-.gaze-maze-waypoint {
-  inset-block-start: calc(var(--y) * 1%);
-  inset-inline-start: calc(var(--x) * 1%);
-  position: absolute;
-  transform: translate(-50%, -50%);
-}
-
-.gaze-maze-start {
-  align-items: center;
-  background: rgb(255 255 255 / 88%);
-  border: 0.25rem solid rgb(var(--v-theme-secondary) / 32%);
-  border-radius: 999px;
-  color: rgb(var(--v-theme-secondary));
-  display: flex;
-  font-weight: 800;
-  gap: 0.35rem;
-  padding: 0.55rem 0.8rem;
-  z-index: 2;
-}
-
-.gaze-maze-waypoint {
-  block-size: clamp(5.1rem, min(9vw, 14vh), 8rem);
-  inline-size: clamp(5.1rem, min(9vw, 14vh), 8rem);
-  transform: translate(-50%, -50%) scale(var(--waypoint-scale));
-  transition: filter 180ms ease, opacity 180ms ease, transform 180ms ease;
-  z-index: 3;
-}
-
-.gaze-maze-waypoint :deep(.dwell-button) {
-  border: 0.3rem solid rgb(255 255 255 / 82%);
-  border-radius: 999px !important;
-  box-shadow: 0 1rem 2.25rem rgb(70 85 120 / 18%);
-  color: #243631;
-  padding: 0 !important;
-}
-
-.gaze-maze-waypoint :deep(.dwell-hitbox) {
-  block-size: 100%;
-}
-
-.gaze-maze-waypoint--current {
-  filter: drop-shadow(0 0 1.6rem rgb(var(--v-theme-primary) / 42%));
-}
-
-.gaze-maze-waypoint--current :deep(.dwell-button) {
-  border-color: rgb(var(--v-theme-primary) / 54%);
-}
-
-.gaze-maze-waypoint--completed {
-  opacity: 0.76;
-}
-
-.gaze-maze-waypoint--hint {
-  filter: drop-shadow(0 0 1.9rem rgb(var(--v-theme-secondary) / 54%));
-}
-
-.gaze-maze-waypoint--mistake {
-  opacity: 0.82;
-}
-
-.gaze-maze-waypoint__content {
-  align-items: center;
-  block-size: 100%;
-  color: #243631;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  line-height: 1;
-}
-
-.gaze-maze-waypoint__content .v-icon {
-  font-size: clamp(1.8rem, 3.6vw, 3.1rem);
-}
-
-.gaze-maze-waypoint__label {
-  color: rgb(var(--v-theme-on-surface));
-  font-size: clamp(1rem, 1.9vw, 1.45rem);
-  font-weight: 900;
-  margin-block-start: 0.25rem;
-}
-
-.gaze-maze-waypoint__hint {
-  color: rgb(var(--v-theme-on-surface) / 90%);
-  font-size: clamp(0.72rem, 1.25vw, 0.9rem);
-  font-weight: 700;
-  margin-block-start: 0.25rem;
-}
-
-@media (max-width: 720px) {
-  .gaze-maze-container {
-    padding-block-start: 5rem;
-  }
-
-  .gaze-maze-stage {
-    aspect-ratio: 4 / 3;
-    block-size: clamp(19rem, 53vh, 24rem);
-    min-block-size: 0;
-  }
-
-  .gaze-maze-waypoint {
-    block-size: clamp(4.7rem, 17vw, 6rem);
-    inline-size: clamp(4.7rem, 17vw, 6rem);
-  }
-}
-
-@media (min-width: 721px) and (max-width: 900px), (max-height: 700px) {
-  .gaze-maze-container {
-    padding-block-start: 5rem;
-  }
-
-  .gaze-maze-stage {
-    block-size: clamp(20rem, 52vh, 26rem);
-    min-block-size: 0;
-  }
+:deep(.game-hud) {
+  z-index: 40;
 }
 </style>
