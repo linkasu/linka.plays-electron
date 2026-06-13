@@ -930,6 +930,7 @@ export const games: GameInfo[] = [
     icon: "mdi-pyramid",
     skills: ["sequence", "choice"],
     status: "polished",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 120,
     defaultDwellMs: 1200
