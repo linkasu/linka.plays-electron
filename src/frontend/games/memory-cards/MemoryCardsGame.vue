@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeMemoryCardsAudio, playMemoryCardsMatchMelody, playMemoryCardsMismatchMelody, warmMemoryCardsAudio } from "./audio";
 import { createMemoryCardsRound, type MemoryCard } from "./model";
 
 type MemoryCardState = MemoryCard & {
@@ -20,7 +21,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   dwellMs: 1300,
   sessionSeconds: 180,
   targetScale: 1.2,
-  sound: false
+  sound: true
 }, { finishOnMaxSteps: false, finishOnMistakes: false });
 
 const roundIndex = ref(1);
@@ -34,7 +35,7 @@ let closeTimeout = 0;
 
 const resultVisible = computed(() => session.status === "finished");
 const matchedCount = computed(() => cards.value.filter((card) => card.matched).length / 2);
-const targetCardHeight = computed(() => Math.max(150, Math.round(160 * session.settings.targetScale)));
+const targetCardHeight = computed(() => `clamp(128px, ${Math.round(21 * session.settings.targetScale)}vh, 200px)`);
 const cardColSpan = computed(() => round.value.columns === 4 ? 3 : 4);
 
 function createCardStates(memoryCards: MemoryCard[]): MemoryCardState[] {
@@ -80,6 +81,7 @@ function chooseCard(card: MemoryCardState) {
     second.matched = true;
     selectedCardIds.value = [];
     lastMismatchCardIds.value = [];
+    void playMemoryCardsMatchMelody(session.settings.sound);
     recordSuccess({ roundId: round.value.roundId, targetId: cardTargetId(second), pairId: second.pairId, expected: first.label, actual: second.label, isCorrect: true });
     feedbackMessage.value = matchedCount.value === round.value.pairCount ? "Все пары найдены." : "Пара найдена. Продолжаем спокойно.";
     inputBlocked.value = false;
@@ -88,6 +90,7 @@ function chooseCard(card: MemoryCardState) {
   }
 
   lastMismatchCardIds.value = [first.id, second.id];
+  void playMemoryCardsMismatchMelody(session.settings.sound);
   recordMistake({ roundId: round.value.roundId, targetId: cardTargetId(second), expectedTargetId: cardTargetId(first), expected: first.label, actual: second.label, isCorrect: false });
   feedbackMessage.value = "Это разные карточки. Они мягко закроются.";
   closeTimeout = window.setTimeout(() => {
@@ -113,8 +116,17 @@ function restart() {
   startSession();
 }
 
+onMounted(() => {
+  warmMemoryCardsAudio(session.settings.sound);
+});
+
+watch(() => session.settings.sound, (enabled) => {
+  warmMemoryCardsAudio(enabled);
+});
+
 onUnmounted(() => {
   clearCloseTimeout();
+  disposeMemoryCardsAudio();
 });
 </script>
 
@@ -123,11 +135,11 @@ onUnmounted(() => {
     <GameHud title="Пары" :step="matchedCount" :max-steps="round.pairCount" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
     <v-container class="game-container" fluid>
       <v-row justify="center">
-        <v-col cols="12" xl="10">
-          <v-card class="pa-5 pa-md-8" color="rgba(255, 255, 255, 0.9)" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Спокойная память</div>
-            <h1 class="text-h3 font-weight-bold text-center mb-3">Найди одинаковые карточки</h1>
-            <div class="text-body-1 text-medium-emphasis text-center mb-6">{{ feedbackMessage }}</div>
+        <v-col cols="12" lg="9" xl="8">
+          <v-card class="memory-panel pa-3 pa-md-6" color="rgba(255, 255, 255, 0.9)" rounded="xl" elevation="8">
+            <div class="text-overline text-secondary text-center mb-1">Спокойная память</div>
+            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">Найди одинаковые карточки</h1>
+            <div class="feedback-line text-body-1 text-medium-emphasis text-center mb-3">{{ feedbackMessage }}</div>
             <v-row class="memory-grid" justify="center">
               <v-col v-for="card in cards" :key="card.id" cols="6" :sm="cardColSpan" :md="cardColSpan">
                 <GameDwellButton :target-id="cardTargetId(card)" :disabled="session.status !== 'running' || inputBlocked || card.matched || card.revealed" :dwell-ms="session.settings.dwellMs" :min-height="targetCardHeight" :color="cardColor(card)" @select="chooseCard(card)">
@@ -139,7 +151,7 @@ onUnmounted(() => {
                       </template>
                       <template v-else>
                         <v-icon icon="mdi-cards" size="76" color="primary" />
-                        <div class="text-h6 font-weight-bold mt-3">Карточка</div>
+                        <div class="sr-only">Закрытая карточка</div>
                       </template>
                     </div>
                   </template>
@@ -157,16 +169,40 @@ onUnmounted(() => {
 <style scoped>
 .memory-shell {
   background: radial-gradient(circle at 20% 20%, #fff6d8 0 22%, transparent 34%), linear-gradient(135deg, #e7f5ff 0%, #f7edff 52%, #fff3e2 100%);
-  min-block-size: 100vh;
+  block-size: 100vh;
+  overflow: hidden;
 }
 
 .game-container {
-  padding-block-start: 132px;
+  block-size: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: clamp(5rem, 10vh, 7rem) clamp(1rem, 4vh, 2.5rem);
+}
+
+.game-container :deep(.v-row) {
+  margin: 0;
+}
+
+.memory-panel {
+  max-block-size: calc(100vh - 6rem);
+  overflow: hidden;
 }
 
 .memory-grid {
+  flex: 0 1 min(1040px, 100%);
+  inline-size: min(1040px, 100%);
   max-inline-size: 1040px;
   margin-inline: auto;
+}
+
+.memory-grid :deep(.v-col) {
+  padding: 6px;
+}
+
+.feedback-line {
+  min-block-size: 1.5rem;
 }
 
 .memory-card-content {
@@ -178,7 +214,23 @@ onUnmounted(() => {
 }
 
 .memory-card-emoji {
-  font-size: clamp(4rem, 8vw, 6.5rem);
+  font-size: clamp(3rem, min(7vw, 10vh), 6.5rem);
   line-height: 1;
+}
+
+.sr-only {
+  block-size: 1px;
+  clip: rect(0, 0, 0, 0);
+  inline-size: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+}
+
+@media (max-height: 44rem) {
+  .game-container {
+    justify-content: flex-start;
+    padding-block-start: 5rem;
+  }
 }
 </style>
