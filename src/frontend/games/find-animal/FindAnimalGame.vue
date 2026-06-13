@@ -55,6 +55,11 @@ function lgCols(choiceCount: number) {
   return choiceCount === 5 ? 2 : mdCols(choiceCount);
 }
 
+function choiceMinHeight(choiceCount: number) {
+  if (choiceCount <= 3) return "clamp(180px, 28vh, 300px)";
+  return "clamp(168px, 25vh, 260px)";
+}
+
 function clearFeedbackTimer() {
   window.clearTimeout(feedbackTimer);
   window.clearTimeout(promptTimer);
@@ -150,7 +155,7 @@ onUnmounted(() => {
   <div class="find-animal-shell">
     <GameHud title="Найди животное" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
     <v-container class="game-container" fluid>
-      <v-row justify="center" no-gutters>
+      <v-row class="game-row" justify="center" no-gutters>
         <v-col cols="12" lg="11" xl="10">
           <v-card class="find-animal-card pa-4 pa-md-7" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-1 mb-md-2">Лесная поляна</div>
@@ -158,7 +163,7 @@ onUnmounted(() => {
             <p class="hint-line text-body-1 text-md-h5 text-medium-emphasis text-center mb-3 mb-md-5">{{ hintText }}</p>
             <v-row class="choice-grid" justify="center" dense>
               <v-col v-for="choice in round.choices" :key="choice.id" cols="3" :md="mdCols(round.choices.length)" :lg="lgCols(round.choices.length)">
-                <GameDwellButton :class="{ 'target-hint': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="156" :color="hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="answer(choice)">
+                <GameDwellButton :class="{ 'target-hint': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="choiceMinHeight(round.choices.length)" :color="hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="answer(choice)">
                   <template #default="{ active, progress }">
                     <div :class="['animal-emoji', 'emoji-glyph', { 'animal-emoji--mistake': choice.id === lastMistakeId }]">{{ choice.emoji }}</div>
                     <div class="animal-label text-h6 text-md-h4 font-weight-bold mt-2">{{ hintedChoiceId === choice.id && active && progress > 0.78 ? `Вот ${choice.word}` : choice.word }}</div>
@@ -183,12 +188,20 @@ onUnmounted(() => {
 
 .game-container {
   block-size: 100vh;
-  padding-block-start: 6rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: clamp(5.5rem, 11vh, 8rem) clamp(1rem, 4vh, 3rem);
 }
 
 .find-animal-card {
   max-block-size: calc(100vh - 6.75rem);
   overflow: hidden;
+}
+
+.game-row {
+  align-items: center;
+  flex: 1 1 auto;
 }
 
 .choice-grid {
@@ -225,7 +238,12 @@ onUnmounted(() => {
 
 @media (max-height: 44rem) {
   .game-container {
+    justify-content: flex-start;
     padding-block-start: 5.25rem;
+  }
+
+  .game-row {
+    align-items: flex-start;
   }
 }
 </style>
