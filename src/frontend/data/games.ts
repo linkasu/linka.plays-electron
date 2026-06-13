@@ -900,6 +900,7 @@ export const games: GameInfo[] = [
     icon: "mdi-routes",
     skills: ["visual-search", "attention-shift", "choice"],
     status: "therapy-ready",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 170,
     defaultDwellMs: 1300
