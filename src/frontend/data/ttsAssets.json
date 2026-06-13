@@ -817,5 +817,229 @@
     "text": "Почти. Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/find-digit/mistake.mp3"
+  },
+  {
+    "id": "find-animal.prompt.cat",
+    "game": "find-animal",
+    "text": "Найди кота.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-cat.mp3"
+  },
+  {
+    "id": "find-animal.prompt.dog",
+    "game": "find-animal",
+    "text": "Найди пса.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-dog.mp3"
+  },
+  {
+    "id": "find-animal.prompt.fish",
+    "game": "find-animal",
+    "text": "Найди рыбу.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-fish.mp3"
+  },
+  {
+    "id": "find-animal.prompt.duck",
+    "game": "find-animal",
+    "text": "Найди утку.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-duck.mp3"
+  },
+  {
+    "id": "find-animal.prompt.cow",
+    "game": "find-animal",
+    "text": "Найди корову.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-cow.mp3"
+  },
+  {
+    "id": "find-animal.prompt.horse",
+    "game": "find-animal",
+    "text": "Найди лошадь.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-horse.mp3"
+  },
+  {
+    "id": "find-animal.prompt.pig",
+    "game": "find-animal",
+    "text": "Найди свинью.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-pig.mp3"
+  },
+  {
+    "id": "find-animal.prompt.sheep",
+    "game": "find-animal",
+    "text": "Найди овцу.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-sheep.mp3"
+  },
+  {
+    "id": "find-animal.prompt.goat",
+    "game": "find-animal",
+    "text": "Найди козу.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-goat.mp3"
+  },
+  {
+    "id": "find-animal.prompt.rabbit",
+    "game": "find-animal",
+    "text": "Найди зайца.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-rabbit.mp3"
+  },
+  {
+    "id": "find-animal.prompt.fox",
+    "game": "find-animal",
+    "text": "Найди лису.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-fox.mp3"
+  },
+  {
+    "id": "find-animal.prompt.bear",
+    "game": "find-animal",
+    "text": "Найди медведя.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-bear.mp3"
+  },
+  {
+    "id": "find-animal.prompt.wolf",
+    "game": "find-animal",
+    "text": "Найди волка.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-wolf.mp3"
+  },
+  {
+    "id": "find-animal.prompt.lion",
+    "game": "find-animal",
+    "text": "Найди льва.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-lion.mp3"
+  },
+  {
+    "id": "find-animal.prompt.tiger",
+    "game": "find-animal",
+    "text": "Найди тигра.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-tiger.mp3"
+  },
+  {
+    "id": "find-animal.prompt.elephant",
+    "game": "find-animal",
+    "text": "Найди слона.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-elephant.mp3"
+  },
+  {
+    "id": "find-animal.prompt.giraffe",
+    "game": "find-animal",
+    "text": "Найди жирафа.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-giraffe.mp3"
+  },
+  {
+    "id": "find-animal.prompt.zebra",
+    "game": "find-animal",
+    "text": "Найди зебру.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-zebra.mp3"
+  },
+  {
+    "id": "find-animal.prompt.monkey",
+    "game": "find-animal",
+    "text": "Найди обезьяну.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-monkey.mp3"
+  },
+  {
+    "id": "find-animal.prompt.mouse",
+    "game": "find-animal",
+    "text": "Найди мышь.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-mouse.mp3"
+  },
+  {
+    "id": "find-animal.prompt.frog",
+    "game": "find-animal",
+    "text": "Найди жабу.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-frog.mp3"
+  },
+  {
+    "id": "find-animal.prompt.bird",
+    "game": "find-animal",
+    "text": "Найди птицу.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-bird.mp3"
+  },
+  {
+    "id": "find-animal.prompt.owl",
+    "game": "find-animal",
+    "text": "Найди сову.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-owl.mp3"
+  },
+  {
+    "id": "find-animal.prompt.hen",
+    "game": "find-animal",
+    "text": "Найди курицу.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-hen.mp3"
+  },
+  {
+    "id": "find-animal.prompt.turtle",
+    "game": "find-animal",
+    "text": "Найди черепаху.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-turtle.mp3"
+  },
+  {
+    "id": "find-animal.prompt.dolphin",
+    "game": "find-animal",
+    "text": "Найди дельфина.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-dolphin.mp3"
+  },
+  {
+    "id": "find-animal.prompt.whale",
+    "game": "find-animal",
+    "text": "Найди кита.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-whale.mp3"
+  },
+  {
+    "id": "find-animal.prompt.snail",
+    "game": "find-animal",
+    "text": "Найди улитку.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-snail.mp3"
+  },
+  {
+    "id": "find-animal.prompt.bee",
+    "game": "find-animal",
+    "text": "Найди пчелу.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-bee.mp3"
+  },
+  {
+    "id": "find-animal.prompt.butterfly",
+    "game": "find-animal",
+    "text": "Найди бабочку.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/prompt-butterfly.mp3"
+  },
+  {
+    "id": "find-animal.correct",
+    "game": "find-animal",
+    "text": "Да. Это нужное животное.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/correct.mp3"
+  },
+  {
+    "id": "find-animal.mistake",
+    "game": "find-animal",
+    "text": "Почти. Попробуй ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/find-animal/mistake.mp3"
   }
 ]

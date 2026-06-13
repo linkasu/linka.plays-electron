@@ -7,6 +7,8 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
+import ttsAssets from "../../data/ttsAssets.json";
 import { disposeFindAnimalAudio, playFindAnimalMistakeMelody, playFindAnimalSuccessMelody, warmFindAnimalAudio } from "./audio";
 import { generateFindAnimalRound, type FindAnimalChoice } from "./model";
 
@@ -21,6 +23,11 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 
 const hintedRoundId = ref<string>();
 const lastMistakeId = ref<string>();
+const pendingSelection = ref(false);
+const findAnimalTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.game === "find-animal");
+let feedbackTimer = 0;
+let promptTimer = 0;
+let responseTimer = 0;
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
@@ -48,43 +55,94 @@ function lgCols(choiceCount: number) {
   return choiceCount === 5 ? 2 : mdCols(choiceCount);
 }
 
+function clearFeedbackTimer() {
+  window.clearTimeout(feedbackTimer);
+  window.clearTimeout(promptTimer);
+  window.clearTimeout(responseTimer);
+  feedbackTimer = 0;
+  promptTimer = 0;
+  responseTimer = 0;
+}
+
+function ttsAsset(id: string) {
+  return findAnimalTtsAssets.find((asset) => asset.id === id);
+}
+
+function playTargetPrompt(delayMs = 0) {
+  window.clearTimeout(promptTimer);
+  promptTimer = window.setTimeout(() => {
+    playTtsAsset(session.settings.sound, ttsAsset(`find-animal.prompt.${round.value.target.id}`), 0.36);
+  }, delayMs);
+}
+
+function playResponse(id: string, delayMs = 0) {
+  window.clearTimeout(responseTimer);
+  responseTimer = window.setTimeout(() => {
+    playTtsAsset(session.settings.sound, ttsAsset(id), 0.36);
+  }, delayMs);
+}
+
 function answer(choice: FindAnimalChoice) {
-  if (session.status !== "running") return;
+  if (session.status !== "running" || pendingSelection.value) return;
 
   const targetId = choiceTargetId(choice.id);
   const expectedTargetId = choiceTargetId(round.value.target.id);
+  clearFeedbackTimer();
   if (choice.id === round.value.target.id) {
+    pendingSelection.value = true;
     void playFindAnimalSuccessMelody(session.settings.sound);
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: true });
     hintedRoundId.value = undefined;
     lastMistakeId.value = undefined;
-    if (session.step < session.maxSteps) nextRound();
+    playResponse("find-animal.correct", 980);
+    if (session.status === "running" && session.step < session.maxSteps) {
+      feedbackTimer = window.setTimeout(() => {
+        nextRound();
+        pendingSelection.value = false;
+        playTargetPrompt(350);
+      }, 2600);
+    }
     return;
   }
 
+  pendingSelection.value = true;
   void playFindAnimalMistakeMelody(session.settings.sound);
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "wrong-animal-selected" });
   hintedRoundId.value = round.value.roundId;
   lastMistakeId.value = choice.id;
+  playResponse("find-animal.mistake", 940);
+  playTargetPrompt(2700);
+  feedbackTimer = window.setTimeout(() => {
+    pendingSelection.value = false;
+    lastMistakeId.value = undefined;
+  }, 2200);
 }
 
 function restart() {
+  clearFeedbackTimer();
   hintedRoundId.value = undefined;
   lastMistakeId.value = undefined;
+  pendingSelection.value = false;
   restartRoundGame();
+  playTargetPrompt(450);
 }
 
 onMounted(() => {
   warmFindAnimalAudio(session.settings.sound);
+  warmTtsAssets(session.settings.sound, findAnimalTtsAssets);
+  playTargetPrompt(450);
 });
 
 watch(() => session.settings.sound, (enabled) => {
   warmFindAnimalAudio(enabled);
+  warmTtsAssets(enabled, findAnimalTtsAssets);
 });
 
 onUnmounted(() => {
+  clearFeedbackTimer();
   disposeFindAnimalAudio();
+  disposeTtsAssets(findAnimalTtsAssets);
 });
 </script>
 
@@ -100,7 +158,7 @@ onUnmounted(() => {
             <p class="hint-line text-body-1 text-md-h5 text-medium-emphasis text-center mb-3 mb-md-5">{{ hintText }}</p>
             <v-row class="choice-grid" justify="center" dense>
               <v-col v-for="choice in round.choices" :key="choice.id" cols="3" :md="mdCols(round.choices.length)" :lg="lgCols(round.choices.length)">
-                <GameDwellButton :class="{ 'target-hint': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="156" :color="hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="answer(choice)">
+                <GameDwellButton :class="{ 'target-hint': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="156" :color="hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="answer(choice)">
                   <template #default="{ active, progress }">
                     <div :class="['animal-emoji', 'emoji-glyph', { 'animal-emoji--mistake': choice.id === lastMistakeId }]">{{ choice.emoji }}</div>
                     <div class="animal-label text-h6 text-md-h4 font-weight-bold mt-2">{{ hintedChoiceId === choice.id && active && progress > 0.78 ? `Вот ${choice.word}` : choice.word }}</div>
@@ -119,14 +177,17 @@ onUnmounted(() => {
 <style scoped>
 .find-animal-shell {
   background: linear-gradient(135deg, #fff8ed 0%, #edf7f0 54%, #eef4ff 100%);
-  min-block-size: 100vh;
+  block-size: 100vh;
+  overflow: hidden;
 }
 
 .game-container {
+  block-size: 100vh;
   padding-block-start: 6rem;
 }
 
 .find-animal-card {
+  max-block-size: calc(100vh - 6.75rem);
   overflow: hidden;
 }
 
