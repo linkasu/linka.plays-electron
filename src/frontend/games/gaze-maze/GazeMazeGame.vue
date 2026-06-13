@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { useGameSession } from "../../core/session";
+import { disposeGazeMazeAudio, playGazeMazeHintMelody, playGazeMazeStepMelody, warmGazeMazeAudio } from "./audio";
 
 type PathNode = {
   id: string;
@@ -19,14 +20,14 @@ type SelectableNode = PathNode & {
 };
 
 const pathNodes: PathNode[] = [
-  { id: "start", label: "Старт", x: 14, y: 18 },
-  { id: "soft-turn", label: "Мягкий поворот", x: 36, y: 18 },
-  { id: "quiet-down", label: "Тихий спуск", x: 36, y: 40 },
-  { id: "left-corner", label: "Левый угол", x: 20, y: 40 },
-  { id: "middle", label: "Середина", x: 20, y: 64 },
-  { id: "wide-corridor", label: "Широкий коридор", x: 58, y: 64 },
-  { id: "last-turn", label: "Поворот к выходу", x: 58, y: 84 },
-  { id: "exit", label: "Выход", x: 84, y: 84 }
+  { id: "start", label: "Старт", x: 13, y: 22 },
+  { id: "soft-turn", label: "Мягкий поворот", x: 35, y: 19 },
+  { id: "quiet-down", label: "Тихий спуск", x: 44, y: 47 },
+  { id: "left-corner", label: "Левый угол", x: 20, y: 47 },
+  { id: "middle", label: "Середина", x: 20, y: 76 },
+  { id: "wide-corridor", label: "Широкий коридор", x: 58, y: 68 },
+  { id: "last-turn", label: "Поворот к выходу", x: 66, y: 87 },
+  { id: "exit", label: "Выход", x: 86, y: 87 }
 ];
 
 const router = useRouter();
@@ -52,7 +53,6 @@ const selectableNodes = computed<SelectableNode[]>(() => pathNodes.slice(1).map(
 const currentPathIndex = computed(() => Math.min(session.step + 1, pathNodes.length - 1));
 const currentNode = computed(() => pathNodes[currentPathIndex.value]);
 const resultVisible = computed(() => session.status === "finished");
-const progressPercent = computed(() => Math.round(Math.min(1, session.step / session.maxSteps) * 100));
 const mazeLinePoints = computed(() => pathNodes.map((node) => `${node.x},${node.y}`).join(" "));
 const completedLinePoints = computed(() => pathNodes.slice(0, Math.min(session.step, pathNodes.length - 1) + 1).map((node) => `${node.x},${node.y}`).join(" "));
 
@@ -102,6 +102,7 @@ function selectWaypoint(node: SelectableNode) {
 
   if (node.pathIndex === currentPathIndex.value) {
     hintedIndex.value = undefined;
+    void playGazeMazeStepMelody(session.settings.sound);
     recordSuccess({
       targetId: selectedTargetId,
       waypointId: node.id,
@@ -114,6 +115,7 @@ function selectWaypoint(node: SelectableNode) {
   }
 
   hintedIndex.value = currentPathIndex.value;
+  void playGazeMazeHintMelody(session.settings.sound);
   recordMistake({
     targetId: selectedTargetId,
     expectedTargetId,
@@ -140,8 +142,17 @@ function restart() {
   startSession();
 }
 
+onMounted(() => {
+  warmGazeMazeAudio(session.settings.sound);
+});
+
+watch(() => session.settings.sound, (enabled) => {
+  warmGazeMazeAudio(enabled);
+});
+
 onUnmounted(() => {
   clearFeedbackTimer();
+  disposeGazeMazeAudio();
 });
 </script>
 
@@ -152,12 +163,10 @@ onUnmounted(() => {
     <v-container class="gaze-maze-container d-flex align-center" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
-          <v-card class="gaze-maze-panel pa-4 pa-md-6" color="surface" rounded="xl" elevation="8">
-            <div class="text-overline text-primary text-center mb-2">Выбор следующего шага взглядом</div>
-            <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">Найди путь к выходу</h1>
-            <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5">
-              Удержи взгляд на следующем мягком огоньке. Если выбрать другой, появится только подсказка.
-            </p>
+          <v-card class="gaze-maze-panel pa-3 pa-md-5" color="surface" rounded="xl" elevation="8">
+            <div class="text-overline text-primary text-center mb-1">Следующий шаг взглядом</div>
+            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">Найди путь к выходу</h1>
+            <p class="feedback-line text-body-1 text-md-h6 text-medium-emphasis text-center mb-3">{{ feedbackText }}</p>
 
             <div class="gaze-maze-stage mx-auto" role="group" aria-label="Широкий лабиринт с waypoint">
               <svg class="gaze-maze-path" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
@@ -193,25 +202,12 @@ onUnmounted(() => {
                     <v-icon :icon="node.id === 'exit' ? 'mdi-door-open' : isCompleted(node) ? 'mdi-check-circle-outline' : 'mdi-circle-slice-8'" />
                     <div class="gaze-maze-waypoint__label">{{ node.id === 'exit' ? 'Выход' : node.pathIndex }}</div>
                     <div class="gaze-maze-waypoint__hint">
-                      {{ isCurrent(node) ? active && progress > 0.65 ? 'держи' : 'сюда' : isCompleted(node) ? 'готово' : 'позже' }}
+                      {{ isCurrent(node) ? active && progress > 0.65 ? 'держи' : 'сюда' : isCompleted(node) ? 'готово' : '' }}
                     </div>
                   </div>
                 </template>
               </GameDwellButton>
             </div>
-
-            <v-row class="mt-5" align="center">
-              <v-col cols="12" md="8">
-                <v-alert class="text-h6" :color="hintedIndex ? 'primary' : 'secondary'" :icon="hintedIndex ? 'mdi-lightbulb-on-outline' : 'mdi-routes'" rounded="xl" variant="tonal">
-                  {{ feedbackText }}
-                </v-alert>
-              </v-col>
-              <v-col cols="12" md="4">
-                <div class="text-caption text-medium-emphasis mb-2">Прогресс пути</div>
-                <v-progress-linear :model-value="progressPercent" color="primary" height="12" rounded />
-                <div class="text-body-2 text-medium-emphasis mt-2">{{ progressPercent }}% · цель: {{ currentNode.label }}</div>
-              </v-col>
-            </v-row>
           </v-card>
         </v-col>
       </v-row>
@@ -224,16 +220,22 @@ onUnmounted(() => {
 <style scoped>
 .gaze-maze-shell {
   background: radial-gradient(circle at 18% 12%, rgb(255 236 180 / 54%), transparent 32%), linear-gradient(135deg, #eef8f6 0%, #f8f4ff 52%, #fff8e8 100%);
-  min-block-size: 100vh;
+  block-size: 100vh;
+  overflow: hidden;
 }
 
 .gaze-maze-container {
-  min-block-size: 100vh;
-  padding-block-start: 7.75rem;
+  block-size: 100vh;
+  padding-block: clamp(5rem, 10vh, 7rem) clamp(0.75rem, 3vh, 2rem);
 }
 
 .gaze-maze-panel {
+  max-block-size: calc(100vh - 6rem);
   overflow: hidden;
+}
+
+.feedback-line {
+  min-block-size: 1.5rem;
 }
 
 .gaze-maze-stage {
@@ -242,8 +244,9 @@ onUnmounted(() => {
   border: 0.75rem solid rgb(255 255 255 / 76%);
   border-radius: 2rem;
   box-shadow: inset 0 0 0 0.125rem rgb(var(--v-theme-primary) / 10%), 0 1.5rem 4rem rgb(70 90 116 / 18%);
-  inline-size: min(100%, 68rem);
-  min-block-size: 28rem;
+  block-size: clamp(21rem, 55vh, 34rem);
+  inline-size: min(100%, 62rem);
+  min-block-size: 0;
   overflow: hidden;
   position: relative;
 }
@@ -298,8 +301,8 @@ onUnmounted(() => {
 }
 
 .gaze-maze-waypoint {
-  block-size: clamp(6.7rem, 12vw, 9.5rem);
-  inline-size: clamp(6.7rem, 12vw, 9.5rem);
+  block-size: clamp(5.1rem, min(9vw, 14vh), 8rem);
+  inline-size: clamp(5.1rem, min(9vw, 14vh), 8rem);
   transform: translate(-50%, -50%) scale(var(--waypoint-scale));
   transition: filter 180ms ease, opacity 180ms ease, transform 180ms ease;
   z-index: 3;
@@ -309,6 +312,7 @@ onUnmounted(() => {
   border: 0.3rem solid rgb(255 255 255 / 82%);
   border-radius: 999px !important;
   box-shadow: 0 1rem 2.25rem rgb(70 85 120 / 18%);
+  color: #243631;
   padding: 0 !important;
 }
 
@@ -339,7 +343,7 @@ onUnmounted(() => {
 .gaze-maze-waypoint__content {
   align-items: center;
   block-size: 100%;
-  color: rgb(var(--v-theme-primary));
+  color: #243631;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -347,46 +351,48 @@ onUnmounted(() => {
 }
 
 .gaze-maze-waypoint__content .v-icon {
-  font-size: clamp(2.2rem, 4.5vw, 3.8rem);
+  font-size: clamp(1.8rem, 3.6vw, 3.1rem);
 }
 
 .gaze-maze-waypoint__label {
   color: rgb(var(--v-theme-on-surface));
-  font-size: clamp(1.15rem, 2.2vw, 1.65rem);
+  font-size: clamp(1rem, 1.9vw, 1.45rem);
   font-weight: 900;
   margin-block-start: 0.25rem;
 }
 
 .gaze-maze-waypoint__hint {
-  color: rgb(var(--v-theme-on-surface) / 68%);
-  font-size: clamp(0.78rem, 1.4vw, 0.95rem);
+  color: rgb(var(--v-theme-on-surface) / 90%);
+  font-size: clamp(0.72rem, 1.25vw, 0.9rem);
   font-weight: 700;
   margin-block-start: 0.25rem;
 }
 
 @media (max-width: 720px) {
   .gaze-maze-container {
-    padding-block-start: 7rem;
+    padding-block-start: 5rem;
   }
 
   .gaze-maze-stage {
-    aspect-ratio: 5 / 7;
-    min-block-size: 34rem;
+    aspect-ratio: 4 / 3;
+    block-size: clamp(19rem, 53vh, 24rem);
+    min-block-size: 0;
   }
 
   .gaze-maze-waypoint {
-    block-size: clamp(5.5rem, 20vw, 7.2rem);
-    inline-size: clamp(5.5rem, 20vw, 7.2rem);
+    block-size: clamp(4.7rem, 17vw, 6rem);
+    inline-size: clamp(4.7rem, 17vw, 6rem);
   }
 }
 
 @media (min-width: 721px) and (max-width: 900px), (max-height: 700px) {
   .gaze-maze-container {
-    padding-block-start: 7rem;
+    padding-block-start: 5rem;
   }
 
   .gaze-maze-stage {
-    min-block-size: auto;
+    block-size: clamp(20rem, 52vh, 26rem);
+    min-block-size: 0;
   }
 }
 </style>
