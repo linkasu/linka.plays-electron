@@ -1,23 +1,19 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
-import GameDwellButton from "../../components/game/GameDwellButton.vue";
+import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
+import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
-import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
-import ttsAssets from "../../data/ttsAssets.json";
-import { disposeFindDigitAudio, playFindDigitMistakeMelody, playFindDigitSuccessMelody, warmFindDigitAudio } from "./audio";
+import { findDigitFeedback } from "./audio";
 import { generateFindDigitRound, type FindDigitOption } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("find-digit", {
-  maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 120
-}, { finishOnMistakes: false });
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("find-digit", { maxSteps: 8, finishOnMistakes: false });
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
@@ -29,10 +25,8 @@ const mistakesInRound = ref(0);
 const lastMistakeId = ref<string>();
 const successChoiceId = ref<string>();
 const pendingSelection = ref(false);
-const findDigitTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.game === "find-digit");
+const promptAudio = useGamePromptAudio({ gameId: "find-digit", soundEnabled: toRef(session.settings, "sound") });
 let feedbackTimer = 0;
-let promptTimer = 0;
-let responseTimer = 0;
 
 const hintText = computed(() => {
   if (mistakesInRound.value <= 0) return "Посмотри на карточки и выбери такую же цифру.";
@@ -49,29 +43,16 @@ function digitTone(choice: FindDigitOption) {
 
 function clearTimers() {
   window.clearTimeout(feedbackTimer);
-  window.clearTimeout(promptTimer);
-  window.clearTimeout(responseTimer);
+  promptAudio.cancelPending();
   feedbackTimer = 0;
-  promptTimer = 0;
-  responseTimer = 0;
-}
-
-function ttsAsset(id: string) {
-  return findDigitTtsAssets.find((asset) => asset.id === id);
 }
 
 function playTargetPrompt(delayMs = 0) {
-  window.clearTimeout(promptTimer);
-  promptTimer = window.setTimeout(() => {
-    playTtsAsset(session.settings.sound, ttsAsset(`find-digit.prompt.${round.value.target.id}`), 0.36);
-  }, delayMs);
+  promptAudio.play(`find-digit.prompt.${round.value.target.id}`, delayMs);
 }
 
 function playResponse(id: string, delayMs = 0) {
-  window.clearTimeout(responseTimer);
-  responseTimer = window.setTimeout(() => {
-    playTtsAsset(session.settings.sound, ttsAsset(id), 0.36);
-  }, delayMs);
+  promptAudio.play(id, delayMs);
 }
 
 function resetRoundFeedback() {
@@ -94,7 +75,7 @@ function answer(choice: FindDigitOption) {
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: true });
     mistakesInRound.value = 0;
     lastMistakeId.value = undefined;
-    void playFindDigitSuccessMelody(session.settings.sound);
+    void findDigitFeedback.playSuccess(session.settings.sound);
     playResponse("find-digit.correct", 980);
     if (session.status === "running" && session.step < session.maxSteps) {
       feedbackTimer = window.setTimeout(() => {
@@ -110,7 +91,7 @@ function answer(choice: FindDigitOption) {
   mistakesInRound.value += 1;
   lastMistakeId.value = choice.id;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: false });
-  void playFindDigitMistakeMelody(session.settings.sound);
+  void findDigitFeedback.playMistake(session.settings.sound);
   playResponse("find-digit.mistake", 940);
   playTargetPrompt(2700);
   feedbackTimer = window.setTimeout(() => {
@@ -126,21 +107,26 @@ function restart() {
 }
 
 onMounted(() => {
-  warmFindDigitAudio(session.settings.sound);
-  warmTtsAssets(session.settings.sound, findDigitTtsAssets);
+  findDigitFeedback.warm(session.settings.sound);
+  promptAudio.warm();
   playTargetPrompt(450);
+});
+
+watch(() => session.settings.sound, (enabled) => {
+  findDigitFeedback.warm(enabled);
 });
 
 onUnmounted(() => {
   clearTimers();
-  disposeFindDigitAudio();
-  disposeTtsAssets(findDigitTtsAssets);
+  findDigitFeedback.dispose();
 });
 </script>
 
 <template>
-  <div class="find-digit-shell">
-    <GameHud title="Найди цифру" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+  <GamePageShell gradient="linear-gradient(135deg, #f5fbff 0%, #f7f1ff 48%, #fff7df 100%)" padding-top="0" full-height>
+    <template #hud>
+      <GameHud title="Найди цифру" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    </template>
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="10" xl="9">
@@ -148,31 +134,22 @@ onUnmounted(() => {
             <div class="text-overline text-secondary text-center mb-1">Цифровая полянка</div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-1">{{ round.prompt }}</h1>
             <p class="text-body-1 text-md-h6 text-medium-emphasis text-center mb-3">{{ hintText }}</p>
-            <v-row class="choice-grid" justify="center" dense>
-              <v-col v-for="choice in round.choices" :key="choice.id" :cols="round.choices.length === 4 ? 3 : 4" :sm="round.choices.length === 4 ? 3 : 4" :md="round.choices.length > 4 ? 4 : round.choices.length === 4 ? 3 : 4">
-                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" min-height="clamp(12rem, 30vh, 18rem)" @select="answer(choice)">
-                  <template #default>
-                    <div :class="['digit-scene', digitTone(choice), { 'digit-scene--hinted': mistakesInRound > 0 && choice.id === round.target.id, 'digit-scene--mistake': choice.id === lastMistakeId, 'digit-scene--success': choice.id === successChoiceId }]">
-                      <span class="digit-scene__number">{{ choice.label }}</span>
-                    </div>
-                  </template>
-                </GameDwellButton>
-              </v-col>
-            </v-row>
+            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" min-height="clamp(12rem, 30vh, 18rem)" :cols="round.choices.length === 4 ? 3 : 4" :sm="round.choices.length === 4 ? 3 : 4" :md="round.choices.length > 4 ? 4 : round.choices.length === 4 ? 3 : 4" @select="answer">
+              <template #default="{ choice }">
+                <div :class="['digit-scene', digitTone(choice), { 'digit-scene--hinted': mistakesInRound > 0 && choice.id === round.target.id, 'digit-scene--mistake': choice.id === lastMistakeId, 'digit-scene--success': choice.id === successChoiceId }]">
+                  <span class="digit-scene__number">{{ choice.label }}</span>
+                </div>
+              </template>
+            </GameChoiceCardGrid>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
     <GameResultDialog :model-value="resultVisible" title="Найди цифру" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
-  </div>
+  </GamePageShell>
 </template>
 
 <style scoped>
-.find-digit-shell {
-  background: linear-gradient(135deg, #f5fbff 0%, #f7f1ff 48%, #fff7df 100%);
-  min-block-size: 100vh;
-}
-
 .game-container {
   align-items: center;
   display: flex;
@@ -182,10 +159,6 @@ onUnmounted(() => {
 
 .find-digit-card {
   inline-size: 100%;
-}
-
-.choice-grid {
-  row-gap: 0.75rem;
 }
 
 .digit-scene {

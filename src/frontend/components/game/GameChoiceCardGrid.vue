@@ -11,6 +11,10 @@ const props = withDefaults(defineProps<{
   mistakeChoice?: (choice: T) => boolean;
   minHeight?: number | string;
   color?: (choice: T) => string | undefined;
+  cols?: number;
+  sm?: number;
+  md?: number;
+  lg?: number;
 }>(), {
   disabled: false,
   dwellMs: 1300
@@ -24,19 +28,25 @@ const totalCols = 12;
 
 const breakpoints = computed(() => {
   const count = props.choices.length;
+  let fallback: { cols: number; sm: number; md: number; lg: number };
   if (count <= 2) {
-    return { cols: 6, sm: 6, md: 5, lg: 5 };
+    fallback = { cols: 6, sm: 6, md: 5, lg: 5 };
+  } else if (count === 3) {
+    fallback = { cols: 4, sm: 4, md: 4, lg: 4 };
+  } else if (count === 4) {
+    fallback = { cols: 6, sm: 6, md: 3, lg: 3 };
+  } else if (count === 5) {
+    fallback = { cols: 4, sm: 4, md: 3, lg: Math.floor(totalCols / 5) || 2 };
+  } else {
+    fallback = { cols: 4, sm: 4, md: 3, lg: 3 };
   }
-  if (count === 3) {
-    return { cols: 4, sm: 4, md: 4, lg: 4 };
-  }
-  if (count === 4) {
-    return { cols: 6, sm: 6, md: 3, lg: 3 };
-  }
-  if (count === 5) {
-    return { cols: 4, sm: 4, md: 3, lg: Math.floor(totalCols / 5) || 2 };
-  }
-  return { cols: 4, sm: 4, md: 3, lg: 3 };
+
+  return {
+    cols: props.cols ?? fallback.cols,
+    sm: props.sm ?? fallback.sm,
+    md: props.md ?? fallback.md,
+    lg: props.lg ?? fallback.lg
+  };
 });
 
 const computedMinHeight = computed(() => {

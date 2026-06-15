@@ -1,23 +1,20 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
-import GameDwellButton from "../../components/game/GameDwellButton.vue";
+import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
+import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
-import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
-import ttsAssets from "../../data/ttsAssets.json";
-import { disposeFindLetterAudio, playFindLetterMistakeMelody, playFindLetterSuccessMelody, warmFindLetterAudio } from "./audio";
+import { findLetterFeedback } from "./audio";
 import { generateFindLetterRound, type FindLetterOption } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("find-letter", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("find-letter", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 120
-}, {
   finishOnMistakes: false
 });
 
@@ -32,10 +29,8 @@ const hintedRoundId = ref<string>();
 const wrongChoiceId = ref<string>();
 const successChoiceId = ref<string>();
 const pendingSelection = ref(false);
-const findLetterTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.game === "find-letter");
+const promptAudio = useGamePromptAudio({ gameId: "find-letter", soundEnabled: toRef(session.settings, "sound") });
 let feedbackTimer = 0;
-let promptTimer = 0;
-let responseTimer = 0;
 
 const hintedChoiceId = computed(() => hintedRoundId.value === round.value.roundId ? round.value.target.id : undefined);
 
@@ -45,29 +40,16 @@ function choiceTargetId(choice: FindLetterOption) {
 
 function clearFeedbackTimer() {
   window.clearTimeout(feedbackTimer);
-  window.clearTimeout(promptTimer);
-  window.clearTimeout(responseTimer);
+  promptAudio.cancelPending();
   feedbackTimer = 0;
-  promptTimer = 0;
-  responseTimer = 0;
-}
-
-function ttsAsset(id: string) {
-  return findLetterTtsAssets.find((asset) => asset.id === id);
 }
 
 function playTargetPrompt(delayMs = 0) {
-  window.clearTimeout(promptTimer);
-  promptTimer = window.setTimeout(() => {
-    playTtsAsset(session.settings.sound, ttsAsset(`find-letter.prompt.${round.value.target.id}`), 0.36);
-  }, delayMs);
+  promptAudio.play(`find-letter.prompt.${round.value.target.id}`, delayMs);
 }
 
 function playResponse(id: string, delayMs = 0) {
-  window.clearTimeout(responseTimer);
-  responseTimer = window.setTimeout(() => {
-    playTtsAsset(session.settings.sound, ttsAsset(id), 0.36);
-  }, delayMs);
+  promptAudio.play(id, delayMs);
 }
 
 function resetFeedback() {
@@ -91,7 +73,7 @@ function answer(choice: FindLetterOption) {
     successChoiceId.value = choice.id;
     feedbackMessage.value = "Верно. Это нужная буква.";
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.letter, actual: choice.letter, isCorrect: true });
-    void playFindLetterSuccessMelody(session.settings.sound);
+    void findLetterFeedback.playSuccess(session.settings.sound);
     playResponse("find-letter.correct", 980);
 
     if (session.status === "running" && session.step < session.maxSteps) {
@@ -110,7 +92,7 @@ function answer(choice: FindLetterOption) {
   feedbackMessage.value = `Почти. Ищи букву ${round.value.target.letter}; она подсвечена мягкой рамкой.`;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.letter, actual: choice.letter, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "mistake" });
-  void playFindLetterMistakeMelody(session.settings.sound);
+  void findLetterFeedback.playMistake(session.settings.sound);
   playResponse("find-letter.mistake", 940);
   playTargetPrompt(2700);
   feedbackTimer = window.setTimeout(() => {
@@ -133,21 +115,26 @@ function restart() {
 }
 
 onMounted(() => {
-  warmFindLetterAudio(session.settings.sound);
-  warmTtsAssets(session.settings.sound, findLetterTtsAssets);
+  findLetterFeedback.warm(session.settings.sound);
+  promptAudio.warm();
   playTargetPrompt(450);
+});
+
+watch(() => session.settings.sound, (enabled) => {
+  findLetterFeedback.warm(enabled);
 });
 
 onUnmounted(() => {
   clearFeedbackTimer();
-  disposeFindLetterAudio();
-  disposeTtsAssets(findLetterTtsAssets);
+  findLetterFeedback.dispose();
 });
 </script>
 
 <template>
-  <div class="find-letter-shell">
-    <GameHud title="Найди букву" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+  <GamePageShell gradient="linear-gradient(135deg, #f5f7ff 0%, #fff3e8 100%)" padding-top="6.25rem">
+    <template #hud>
+      <GameHud title="Найди букву" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    </template>
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="10" xl="9">
@@ -159,35 +146,22 @@ onUnmounted(() => {
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-1">{{ round.prompt }}</h1>
             <p class="text-body-1 text-md-h6 text-medium-emphasis text-center mb-3">{{ feedbackMessage }}</p>
 
-            <v-row class="choice-grid" justify="center" dense>
-              <v-col v-for="choice in round.choices" :key="choice.id" :cols="round.choices.length === 4 ? 3 : 4" :sm="round.choices.length === 4 ? 3 : 4" :md="round.choices.length > 4 ? 4 : round.choices.length === 4 ? 3 : 4">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="150" :color="choiceColor(choice)" @select="answer(choice)">
-                  <template #default>
-                    <div :class="['letter-choice', { 'letter-choice--hinted': hintedChoiceId === choice.id, 'letter-choice--mistake': wrongChoiceId === choice.id }]">
-                      {{ choice.letter }}
-                    </div>
-                  </template>
-                </GameDwellButton>
-              </v-col>
-            </v-row>
+            <GameChoiceCardGrid :choices="round.choices" :target-id="choiceTargetId" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="150" :color="choiceColor" :cols="round.choices.length === 4 ? 3 : 4" :sm="round.choices.length === 4 ? 3 : 4" :md="round.choices.length > 4 ? 4 : round.choices.length === 4 ? 3 : 4" @select="answer">
+              <template #default="{ choice }">
+                <div :class="['letter-choice', { 'letter-choice--hinted': hintedChoiceId === choice.id, 'letter-choice--mistake': wrongChoiceId === choice.id }]">
+                  {{ choice.letter }}
+                </div>
+              </template>
+            </GameChoiceCardGrid>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
     <GameResultDialog :model-value="resultVisible" title="Найди букву" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
-  </div>
+  </GamePageShell>
 </template>
 
 <style scoped>
-.find-letter-shell {
-  background: linear-gradient(135deg, #f5f7ff 0%, #fff3e8 100%);
-  min-block-size: 100vh;
-}
-
-.game-container {
-  padding-block-start: 6.25rem;
-}
-
 .find-letter-card {
   overflow: hidden;
 }
@@ -231,15 +205,7 @@ onUnmounted(() => {
   transform: scale(0.96);
 }
 
-.choice-grid {
-  row-gap: 0.75rem;
-}
-
 @media (max-height: 43rem) {
-  .game-container {
-    padding-block-start: 5rem;
-  }
-
   .target-letter-card {
     min-block-size: 6.25rem;
   }
