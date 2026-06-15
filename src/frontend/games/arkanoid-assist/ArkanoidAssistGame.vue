@@ -4,9 +4,9 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { arkanoidAssistChoiceOutcome } from "./model";
 
 type PlatformSectorId = "left" | "center" | "right";
@@ -64,13 +64,9 @@ const blockRows: ArkanoidBlock[][] = [
 
 const targetSequence = blockRows.flat();
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSession("arkanoid-assist", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("arkanoid-assist", {
   maxSteps: 10,
-  dwellMs: 1200,
-  sessionSeconds: 180,
-  targetScale: 1.25,
-  motionSpeed: 0.6
-}, {
+  overrides: { targetScale: 1.25, motionSpeed: 0.6 },
   finishOnMistakes: false
 });
 
@@ -159,7 +155,7 @@ function chooseSector(sector: PlatformSector) {
 function sectorColor(sector: PlatformSector) {
   if (hintStrength.value > 0 && sector.id === round.value.requiredSector.id) return "primary";
   if (lastMistakeSectorId.value === sector.id) return "warning";
-  return sector.color;
+  return "surface";
 }
 
 function restart() {
@@ -181,13 +177,13 @@ function restart() {
       <v-row justify="center">
         <v-col cols="12" xl="10">
           <v-card class="pa-4 pa-md-6" rounded="xl" elevation="8">
-            <div class="d-flex flex-column flex-lg-row align-lg-center justify-space-between ga-4 mb-5">
+            <div class="game-header d-flex flex-column flex-lg-row align-lg-center justify-space-between ga-4 mb-5">
               <div>
                 <div class="text-overline text-secondary mb-1">Strategy/control hybrid</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Выбери сектор платформы</h1>
-                <p class="text-body-1 text-md-h6 text-medium-emphasis mb-0">{{ feedbackMessage }}</p>
+                <p class="game-feedback text-body-1 text-md-h6 text-medium-emphasis mb-0">{{ feedbackMessage }}</p>
               </div>
-              <v-chip color="primary" size="large" variant="tonal">
+              <v-chip class="game-helper" color="primary" size="large" variant="tonal">
                 {{ helperText }}
               </v-chip>
             </div>
@@ -232,21 +228,21 @@ function restart() {
                       :target-id="sectorTargetId(sector)"
                       :disabled="session.status !== 'running'"
                       :dwell-ms="session.settings.dwellMs"
-                      :min-height="150"
+                      :min-height="92"
                       :color="sectorColor(sector)"
                       @select="chooseSector(sector)"
                     >
                       <template #default>
                         <div :class="['sector-choice', { 'sector-choice--hinted': hintStrength > 0 && sector.id === round.requiredSector.id }]">
-                          <v-icon :icon="sector.icon" size="48" color="primary" />
-                          <div class="text-h6 text-md-h5 font-weight-bold mt-2">{{ sector.label }}</div>
-                          <div class="text-body-2 text-medium-emphasis">{{ sector.hint }}</div>
+                          <v-icon :icon="sector.icon" size="42" color="on-surface" />
+                          <div class="sector-choice__label text-subtitle-1 text-md-h6 font-weight-bold mt-1">{{ sector.label }}</div>
+                          <div class="sector-choice__hint text-body-2">{{ sector.hint }}</div>
                         </div>
                       </template>
                     </GameDwellButton>
                   </div>
 
-                  <v-alert class="mt-4 text-body-1" color="info" icon="mdi-hand-heart-outline" rounded="xl" variant="tonal">
+                  <v-alert class="game-note mt-4 text-body-1" color="info" icon="mdi-hand-heart-outline" rounded="xl" variant="tonal">
                     Если сектор не подошёл, это промах. Третий промах теряет мяч и завершает партию.
                   </v-alert>
                 </v-card>
@@ -420,6 +416,44 @@ function restart() {
 
   .arkanoid-stage {
     block-size: clamp(18rem, 44vh, 25rem);
+  }
+
+  .sector-grid {
+    gap: 0.55rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .sector-choice :deep(.v-icon) {
+    font-size: 2.25rem !important;
+  }
+
+  .sector-choice .text-body-2 {
+    display: none;
+  }
+
+  .sector-choice {
+    color: #1f2a27;
+    min-block-size: 4.5rem;
+  }
+
+  .sector-choice :deep(.v-icon) {
+    color: #1f2a27 !important;
+  }
+
+  .sector-choice__label,
+  .sector-choice__hint {
+    color: #1f2a27 !important;
+  }
+
+  .game-feedback,
+  .game-helper,
+  .game-note,
+  .text-overline {
+    display: none;
+  }
+
+  .game-header {
+    margin-block-end: 0.75rem !important;
   }
 }
 

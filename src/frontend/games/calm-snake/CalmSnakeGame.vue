@@ -4,19 +4,16 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import GameWasdPanel, { type GameWasdControl } from "../../components/game/GameWasdPanel.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { calmSnakeOutcome, createCalmSnakeState, setSnakeDirection, stepSnake, type CalmSnakeStepEvent, type SnakeDirection, type SnakePoint } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSession("calm-snake", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("calm-snake", {
   maxSteps: 24,
-  dwellMs: 1100,
-  sessionSeconds: 165,
-  motionSpeed: 0.65,
-  targetScale: 1.25,
-  sound: false
-}, { finishOnMistakes: false });
+  overrides: { motionSpeed: 0.65, targetScale: 1.25, sound: false },
+  finishOnMistakes: false
+});
 
 const boardState = ref(createCalmSnakeState());
 const feedbackMessage = ref("Выбери направление. Змейка движется сама и спокойно ищет листочек.");
@@ -27,10 +24,10 @@ let lastStepAt = performance.now();
 const stepTimer = window.setInterval(tick, 180);
 
 const directionControls: { direction: SnakeDirection; key: "w" | "a" | "s" | "d"; label: string; icon: string; color: string }[] = [
-  { direction: "up", key: "w", label: "Вверх", icon: "mdi-arrow-up-bold", color: "blue-lighten-5" },
-  { direction: "left", key: "a", label: "Влево", icon: "mdi-arrow-left-bold", color: "green-lighten-5" },
-  { direction: "down", key: "s", label: "Вниз", icon: "mdi-arrow-down-bold", color: "blue-lighten-5" },
-  { direction: "right", key: "d", label: "Вправо", icon: "mdi-arrow-right-bold", color: "green-lighten-5" }
+  { direction: "up", key: "w", label: "Вверх", icon: "mdi-arrow-up-bold", color: "surface" },
+  { direction: "left", key: "a", label: "Влево", icon: "mdi-arrow-left-bold", color: "surface" },
+  { direction: "down", key: "s", label: "Вниз", icon: "mdi-arrow-down-bold", color: "surface" },
+  { direction: "right", key: "d", label: "Вправо", icon: "mdi-arrow-right-bold", color: "surface" }
 ];
 
 const rows = computed(() => Array.from({ length: boardState.value.height }, (_, row) => row));

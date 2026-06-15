@@ -45,7 +45,7 @@ const emit = defineEmits<{
           <slot name="control" :control="control" :active="active" :progress="progress">
             <div class="wasd-panel__content">
               <span v-if="showKeyCaps" class="wasd-panel__cap">{{ control.key.toUpperCase() }}</span>
-              <v-icon :icon="control.icon" color="primary" size="44" />
+              <v-icon :icon="control.icon" color="on-surface" size="44" />
               <span>{{ control.label }}</span>
               <v-chip v-if="control.chipText" :color="control.chipColor ?? 'primary'" size="small" variant="flat">{{ control.chipText }}</v-chip>
             </div>
@@ -104,7 +104,7 @@ const emit = defineEmits<{
 .wasd-panel__cap {
   border: 0.1em solid rgb(var(--v-theme-primary) / 28%);
   border-radius: 0.65em;
-  color: rgb(var(--v-theme-primary));
+  color: rgb(var(--v-theme-on-surface));
   font-size: 0.72em;
   line-height: 1;
   min-inline-size: 1.8em;

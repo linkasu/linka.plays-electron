@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import GameWasdPanel, { type GameWasdControl } from "../../components/game/GameWasdPanel.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { tanksNoShootingChoiceOutcome } from "./model";
 
 type Direction = "up" | "down" | "left" | "right";
@@ -58,10 +58,10 @@ const routeSteps: TankRouteStep[] = [
 ];
 
 const directionControls: DirectionControl[] = [
-  { direction: "up", key: "w", label: "Вверх", icon: "mdi-arrow-up-bold", color: "blue-lighten-5" },
-  { direction: "left", key: "a", label: "Влево", icon: "mdi-arrow-left-bold", color: "green-lighten-5" },
-  { direction: "down", key: "s", label: "Вниз", icon: "mdi-arrow-down-bold", color: "blue-lighten-5" },
-  { direction: "right", key: "d", label: "Вправо", icon: "mdi-arrow-right-bold", color: "green-lighten-5" }
+  { direction: "up", key: "w", label: "Вверх", icon: "mdi-arrow-up-bold", color: "surface" },
+  { direction: "left", key: "a", label: "Влево", icon: "mdi-arrow-left-bold", color: "surface" },
+  { direction: "down", key: "s", label: "Вниз", icon: "mdi-arrow-down-bold", color: "surface" },
+  { direction: "right", key: "d", label: "Вправо", icon: "mdi-arrow-right-bold", color: "surface" }
 ];
 
 const directionDegrees: Record<Direction, number> = {
@@ -72,12 +72,11 @@ const directionDegrees: Record<Direction, number> = {
 };
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSession("tanks-no-shooting", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("tanks-no-shooting", {
   maxSteps: 10,
-  dwellMs: 1300,
-  sessionSeconds: 180,
-  sound: false
-}, { finishOnMistakes: false });
+  overrides: { sound: false },
+  finishOnMistakes: false
+});
 
 const feedbackText = ref("Выбери безопасное направление. Танк едет спокойно, без стрельбы и взрывов.");
 const pendingChoice = ref(false);
@@ -296,7 +295,7 @@ onUnmounted(() => {
                   <template #control="{ control, active, progress }">
                     <div class="direction-card">
                       <span class="direction-key">{{ control.key.toUpperCase() }}</span>
-                      <v-icon :icon="control.icon" color="primary" size="48" />
+                      <v-icon :icon="control.icon" color="on-surface" size="48" />
                       <div class="text-h6 text-md-h5 font-weight-bold mt-1">{{ control.label }}</div>
                       <v-chip v-if="control.chipText" class="mt-2" color="primary" variant="flat">{{ control.chipText }}</v-chip>
                       <v-chip v-else-if="active" class="mt-2" color="secondary" variant="flat">Держи взгляд {{ Math.round(progress * 100) }}%</v-chip>
@@ -396,7 +395,7 @@ onUnmounted(() => {
 .direction-key {
   border: 0.1em solid rgb(var(--v-theme-primary) / 28%);
   border-radius: 0.65em;
-  color: rgb(var(--v-theme-primary));
+  color: rgb(var(--v-theme-on-surface));
   font-size: 0.78em;
   line-height: 1;
   min-inline-size: 1.9em;

@@ -4,9 +4,9 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { stepPongChoiceOutcome } from "./model";
 
 type PaddleLaneId = "top" | "middle" | "bottom";
@@ -36,13 +36,9 @@ const incomingSequence: PaddleLaneId[] = ["middle", "top", "bottom", "middle", "
 const returnSequence: PaddleLaneId[] = ["top", "middle", "middle", "bottom", "top", "bottom", "top", "bottom", "middle", "top"];
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSession("step-pong", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("step-pong", {
   maxSteps: 10,
-  dwellMs: 1200,
-  sessionSeconds: 180,
-  targetScale: 1.2,
-  motionSpeed: 0.55
-}, {
+  overrides: { targetScale: 1.2, motionSpeed: 0.55 },
   finishOnMistakes: false
 });
 
@@ -138,7 +134,7 @@ function laneColor(lane: PaddleLane) {
   if (hintStrength.value > 0 && lane.id === round.value.incomingLane.id) return "primary";
   if (lastMistakeLaneId.value === lane.id) return "warning";
   if (lastSuccessLaneId.value === lane.id) return "success";
-  return lane.color;
+  return "surface";
 }
 
 function restart() {
@@ -159,13 +155,13 @@ function restart() {
       <v-row justify="center">
         <v-col cols="12" xl="10">
           <v-card class="pa-4 pa-md-6" rounded="xl" elevation="8">
-            <div class="d-flex flex-column flex-lg-row align-lg-center justify-space-between ga-4 mb-5">
+            <div class="game-header d-flex flex-column flex-lg-row align-lg-center justify-space-between ga-4 mb-5">
               <div>
                 <div class="text-overline text-secondary mb-1">Strategy/control: спокойный выбор позиции</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Поставь ракетку перед ударом</h1>
-                <p class="text-body-1 text-md-h6 text-medium-emphasis mb-0">{{ feedbackText }}</p>
+                <p class="game-feedback text-body-1 text-md-h6 text-medium-emphasis mb-0">{{ feedbackText }}</p>
               </div>
-              <v-chip color="primary" size="large" variant="tonal">
+              <v-chip class="game-helper" color="primary" size="large" variant="tonal">
                 {{ helperText }}
               </v-chip>
             </div>
@@ -201,21 +197,21 @@ function restart() {
                       :target-id="laneTargetId(lane)"
                       :disabled="session.status !== 'running'"
                       :dwell-ms="session.settings.dwellMs"
-                      :min-height="142"
+                      :min-height="92"
                       :color="laneColor(lane)"
                       @select="chooseLane(lane)"
                     >
                       <template #default>
                         <div :class="['lane-choice', { 'lane-choice--hinted': hintStrength > 0 && lane.id === round.incomingLane.id }]">
-                          <v-icon :icon="lane.icon" size="48" color="primary" />
-                          <div class="text-h6 text-md-h5 font-weight-bold mt-2">{{ lane.label }}</div>
-                          <div class="text-body-2 text-medium-emphasis">{{ lane.hint }}</div>
+                          <v-icon :icon="lane.icon" size="42" color="on-surface" />
+                          <div class="lane-choice__label text-subtitle-1 text-md-h6 font-weight-bold mt-1">{{ lane.label }}</div>
+                          <div class="lane-choice__hint text-body-2">{{ lane.hint }}</div>
                         </div>
                       </template>
                     </GameDwellButton>
                   </div>
 
-                  <v-alert class="mt-4 text-body-1" color="info" icon="mdi-hand-heart-outline" rounded="xl" variant="tonal">
+                  <v-alert class="game-note mt-4 text-body-1" color="info" icon="mdi-hand-heart-outline" rounded="xl" variant="tonal">
                     Если позиция не подошла, это промах. Третий промах пропускает мяч и завершает партию.
                   </v-alert>
                 </v-card>
@@ -389,6 +385,44 @@ function restart() {
 
   .pong-stage {
     block-size: clamp(18rem, 44vh, 25rem);
+  }
+
+  .lane-grid {
+    gap: 0.55rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .lane-choice :deep(.v-icon) {
+    font-size: 2.25rem !important;
+  }
+
+  .lane-choice .text-body-2 {
+    display: none;
+  }
+
+  .lane-choice {
+    color: #1f2a27;
+    min-block-size: 4.5rem;
+  }
+
+  .lane-choice :deep(.v-icon) {
+    color: #1f2a27 !important;
+  }
+
+  .lane-choice__label,
+  .lane-choice__hint {
+    color: #1f2a27 !important;
+  }
+
+  .game-feedback,
+  .game-helper,
+  .game-note,
+  .text-overline {
+    display: none;
+  }
+
+  .game-header {
+    margin-block-end: 0.75rem !important;
   }
 }
 
