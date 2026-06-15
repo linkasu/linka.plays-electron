@@ -4,19 +4,16 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import GameWasdPanel, { type GameWasdControl } from "../../components/game/GameWasdPanel.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { calm2048Outcome, canMove, createInitialBoard, highestTile, moveBoard, spawnTile, type Calm2048Board, type Calm2048Direction } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSession("calm-2048", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("calm-2048", {
   maxSteps: 32,
-  dwellMs: 1100,
-  sessionSeconds: 180,
-  targetScale: 1.15,
-  sound: false
-}, { finishOnMistakes: false });
+  overrides: { preset: "gentle", targetScale: 1.15, sound: false },
+  finishOnMistakes: false
+});
 
 const directions = [
   { direction: "up", key: "w", label: "Вверх", icon: "mdi-arrow-up-bold" },

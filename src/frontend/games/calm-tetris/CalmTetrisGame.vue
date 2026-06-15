@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import GameWasdPanel, { type GameWasdControl } from "../../components/game/GameWasdPanel.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import {
   calmTetrisColumns,
   calmTetrisPieceIds,
@@ -28,12 +28,9 @@ import {
 } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSession("calm-tetris", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("calm-tetris", {
   maxSteps: 24,
-  dwellMs: 1100,
-  sessionSeconds: 180,
-  targetScale: 1.25
-}, {
+  overrides: { targetScale: 1.25 },
   finishOnMistakes: false
 });
 
@@ -56,9 +53,9 @@ const canRotate = computed(() => canPlay.value && Boolean(validRotation.value));
 const canDrop = computed(() => canPlay.value && Boolean(ghostPlacement.value));
 const currentColumnLabel = computed(() => currentPlacement.value.column + 1);
 const actionButtons = computed<GameWasdControl[]>(() => [
-  { id: "rotate", key: "w", label: "Повернуть", icon: "mdi-rotate-right", targetId: cellTargetId("rotate"), disabled: !canRotate.value, color: "secondary" },
+  { id: "rotate", key: "w", label: "Повернуть", icon: "mdi-rotate-right", targetId: cellTargetId("rotate"), disabled: !canRotate.value, color: "surface" },
   { id: "left", key: "a", label: "Влево", icon: "mdi-arrow-left-bold", targetId: cellTargetId("left"), disabled: !canMoveLeft.value, color: "surface" },
-  { id: "drop", key: "s", label: "Поставить", icon: "mdi-arrow-down-bold-box", targetId: cellTargetId("drop"), disabled: !canDrop.value, color: "primary" },
+  { id: "drop", key: "s", label: "Поставить", icon: "mdi-arrow-down-bold-box", targetId: cellTargetId("drop"), disabled: !canDrop.value, color: "surface" },
   { id: "right", key: "d", label: "Вправо", icon: "mdi-arrow-right-bold", targetId: cellTargetId("right"), disabled: !canMoveRight.value, color: "surface" }
 ]);
 
@@ -310,6 +307,7 @@ function restart() {
 
 .control-content {
   align-items: center;
+  color: #000000;
   display: flex;
   flex-direction: column;
   font-size: clamp(1.05rem, 2vw, 1.35rem);
@@ -318,10 +316,14 @@ function restart() {
   justify-content: center;
 }
 
+.control-content :deep(.v-icon) {
+  color: #000000 !important;
+}
+
 .control-key {
   border: 0.1em solid rgb(var(--v-theme-primary) / 28%);
   border-radius: 0.65em;
-  color: rgb(var(--v-theme-primary));
+  color: #000000;
   font-size: 0.78em;
   line-height: 1;
   min-inline-size: 1.9em;

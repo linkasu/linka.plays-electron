@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import GameWasdPanel, { type GameWasdControl } from "../../components/game/GameWasdPanel.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import {
   applySokobanLargeMove,
   createSokobanLargeState,
@@ -19,13 +19,11 @@ import {
 } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSession("sokoban-large", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("sokoban-large", {
   maxSteps: 12,
-  dwellMs: 1200,
-  sessionSeconds: 180,
-  targetScale: 1.2,
-  sound: false
-}, { finishOnMistakes: false });
+  overrides: { targetScale: 1.2, sound: false },
+  finishOnMistakes: false
+});
 
 const directionControls: { direction: SokobanLargeDirection; key: "w" | "a" | "s" | "d"; label: string; icon: string }[] = [
   { direction: "up", key: "w", label: "Вверх", icon: "mdi-arrow-up-bold" },
@@ -157,9 +155,7 @@ function restart() {
 }
 
 function controlColor(direction: SokobanLargeDirection) {
-  if (successDirection.value === direction) return "green-lighten-4";
-  if (wrongDirection.value === direction) return "orange-lighten-4";
-  if (hintedDirection.value === direction) return "blue-lighten-5";
+  if (successDirection.value === direction || wrongDirection.value === direction || hintedDirection.value === direction) return "surface";
   return "surface";
 }
 
@@ -236,7 +232,7 @@ onUnmounted(() => {
                   <template #control="{ control, active, progress }">
                     <div class="direction-content">
                       <span class="direction-key">{{ control.key.toUpperCase() }}</span>
-                      <v-icon :icon="control.icon" size="44" color="primary" />
+                      <v-icon class="direction-icon" :icon="control.icon" size="44" />
                       <span>{{ control.label }}</span>
                       <v-chip v-if="control.chipText" color="primary" size="small" variant="flat">{{ control.chipText }}</v-chip>
                       <v-chip v-else-if="active" color="secondary" size="small" variant="flat">{{ Math.round(progress * 100) }}%</v-chip>
@@ -328,6 +324,7 @@ onUnmounted(() => {
 
 .direction-content {
   align-items: center;
+  color: #000000;
   display: flex;
   flex-direction: column;
   font-size: 1.08rem;
@@ -336,10 +333,14 @@ onUnmounted(() => {
   justify-content: center;
 }
 
+.direction-icon {
+  color: #000000 !important;
+}
+
 .direction-key {
   border: 0.1em solid rgb(var(--v-theme-primary) / 28%);
   border-radius: 0.65em;
-  color: rgb(var(--v-theme-primary));
+  color: #000000;
   font-size: 0.8em;
   line-height: 1;
   min-inline-size: 1.9em;

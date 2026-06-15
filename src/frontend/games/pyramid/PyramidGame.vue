@@ -4,18 +4,15 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { disposePyramidAudio, playPyramidCompleteMelody, playPyramidMistakeMelody, playPyramidPlaceMelody, warmPyramidAudio } from "./audio";
 
 type Ring = { id: string; size: number; color: string; placed: boolean; placedIndex?: number };
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSession("pyramid", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("pyramid", {
   maxSteps: 4,
-  dwellMs: 1200,
-  sessionSeconds: 120
-}, {
   finishOnMaxSteps: false
 });
 

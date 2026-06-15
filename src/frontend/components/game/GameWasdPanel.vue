@@ -44,9 +44,9 @@ const emit = defineEmits<{
         <template #default="{ active, progress }">
           <slot name="control" :control="control" :active="active" :progress="progress">
             <div class="wasd-panel__content">
-              <span v-if="showKeyCaps" class="wasd-panel__cap">{{ control.key.toUpperCase() }}</span>
-              <v-icon :icon="control.icon" color="on-surface" size="44" />
-              <span>{{ control.label }}</span>
+              <span v-if="showKeyCaps" class="wasd-panel__cap" style="color: #000000">{{ control.key.toUpperCase() }}</span>
+              <v-icon :icon="control.icon" class="wasd-panel__icon" size="44" style="color: #000000" />
+              <span style="color: #000000">{{ control.label }}</span>
               <v-chip v-if="control.chipText" :color="control.chipColor ?? 'primary'" size="small" variant="flat">{{ control.chipText }}</v-chip>
             </div>
           </slot>
@@ -93,6 +93,7 @@ const emit = defineEmits<{
 
 .wasd-panel__content {
   align-items: center;
+  color: #000000 !important;
   display: flex;
   flex-direction: column;
   font-size: clamp(0.95rem, 2vw, 1.2rem);
@@ -101,10 +102,14 @@ const emit = defineEmits<{
   justify-content: center;
 }
 
+.wasd-panel__icon {
+  color: #000000 !important;
+}
+
 .wasd-panel__cap {
   border: 0.1em solid rgb(var(--v-theme-primary) / 28%);
   border-radius: 0.65em;
-  color: rgb(var(--v-theme-on-surface));
+  color: #000000 !important;
   font-size: 0.72em;
   line-height: 1;
   min-inline-size: 1.8em;
