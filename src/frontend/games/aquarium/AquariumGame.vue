@@ -4,9 +4,9 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { disposeAquariumAudio, playAquariumMelody, resetAquariumAudioSession, warmAquariumAudio } from "./audio";
 
 type Point = { x: number; y: number };
@@ -46,16 +46,9 @@ type ActivationBurst = Point & {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSession("aquarium", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("aquarium", {
   maxSteps: 8,
-  dwellMs: 1350,
-  sessionSeconds: 88,
-  targetScale: 1.55,
-  motionSpeed: 0.38,
-  distractors: "none",
-  hints: "high"
-}, {
+  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.38, distractors: "none", hints: "high" },
   finishOnMistakes: false
 });
 

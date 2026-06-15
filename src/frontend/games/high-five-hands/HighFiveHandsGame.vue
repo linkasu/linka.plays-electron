@@ -4,9 +4,9 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
 import ttsAssets from "../../data/ttsAssets.json";
 
@@ -47,16 +47,9 @@ let feedbackTimer = 0;
 let nextRoundTimer = 0;
 let introTimer = 0;
 
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("high-five-hands", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSessionFor("high-five-hands", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 85,
-  targetScale: 1.45,
-  motionSpeed: 0.45,
-  distractors: "none",
-  hints: "high"
-}, {
+  overrides: { preset: "gentle", targetScale: 1.45, motionSpeed: 0.45, distractors: "none", hints: "high" },
   finishOnMistakes: false
 });
 
@@ -79,7 +72,7 @@ const { round, resultVisible, nextRound, restart: restartRound } = useRoundGame(
   generateRound: createRound
 });
 
-const handMinHeight = computed(() => Math.round(280 * session.settings.targetScale));
+const handMinHeight = computed(() => Math.round(180 * session.settings.targetScale));
 
 function ttsAsset(id: string) {
   return highFiveTtsAssets.find((asset) => asset.id === id);
@@ -154,13 +147,13 @@ onUnmounted(() => {
 
             <v-row class="high-five-grid" justify="center">
               <v-col v-for="hand in round.hands" :key="`${round.roundId}-${hand.id}`" cols="12" :md="round.hands.length === 1 ? 8 : 6" :lg="round.hands.length === 1 ? 6 : 5">
-                <GameDwellButton :target-id="`high-five-hands:${round.roundId}:${hand.id}`" :disabled="session.status !== 'running' || Boolean(selectedHandId)" :dwell-ms="session.settings.dwellMs" :min-height="handMinHeight" :color="hand.color" @select="selectHand(hand)">
+                <GameDwellButton :target-id="`high-five-hands:${round.roundId}:${hand.id}`" :disabled="session.status !== 'running' || Boolean(selectedHandId)" :dwell-ms="session.settings.dwellMs" :min-height="handMinHeight" color="surface" @select="selectHand(hand)">
                   <template #default="{ active, progress }">
                     <div class="hand-card-content" :class="{ 'hand-card-content--active': active, 'hand-card-content--selected': selectedHandId === hand.id, 'hand-card-content--left': hand.side === 'left' }" :style="{ '--hand-accent': hand.accent, '--hand-progress': progress }">
                       <div class="hand-glow" aria-hidden="true" />
                       <v-icon class="hand-icon mb-4" icon="mdi-hand-front-right-outline" />
-                      <div class="text-h4 text-md-h3 font-weight-bold">{{ selectedHandId === hand.id ? 'Дай пять!' : hand.label }}</div>
-                      <div class="text-h6 text-md-h5 mt-3 text-medium-emphasis">{{ active ? 'Держи взгляд спокойно' : 'Посмотри на ладошку' }}</div>
+                      <div class="hand-card-title text-h4 text-md-h3 font-weight-bold">{{ selectedHandId === hand.id ? 'Дай пять!' : hand.label }}</div>
+                      <div class="hand-card-hint text-h6 text-md-h5 mt-3">{{ active ? 'Держи взгляд спокойно' : 'Посмотри на ладошку' }}</div>
                     </div>
                   </template>
                 </GameDwellButton>
@@ -208,9 +201,14 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-block-size: 260px;
+  min-block-size: 220px;
   overflow: hidden;
   position: relative;
+}
+
+.hand-card-title,
+.hand-card-hint {
+  color: #17212b !important;
 }
 
 .hand-glow {
@@ -261,6 +259,34 @@ onUnmounted(() => {
 .hand-card-content--left.hand-card-content--active .hand-icon,
 .hand-card-content--left.hand-card-content--selected .hand-icon {
   animation-name: soft-high-five-left;
+}
+
+@media (max-height: 680px) {
+  .high-five-container {
+    padding-block-start: 5.75rem;
+  }
+
+  .high-five-panel {
+    padding-block: 1rem !important;
+  }
+
+  .high-five-panel > .text-overline,
+  .high-five-panel > p {
+    display: none;
+  }
+
+  .high-five-panel > h1 {
+    font-size: clamp(2rem, 6vw, 3rem) !important;
+    margin-block-end: 1rem !important;
+  }
+
+  .hand-card-content {
+    min-block-size: 190px;
+  }
+
+  .hand-icon {
+    font-size: clamp(4.8rem, 14vw, 7rem);
+  }
 }
 
 @keyframes soft-high-five-left {

@@ -4,9 +4,9 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 
 type BellDefinition = {
   id: string;
@@ -34,16 +34,9 @@ const feedbackText = ref("");
 let feedbackTimer = 0;
 let nextRoundTimer = 0;
 
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("bells", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("bells", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 90,
-  targetScale: 1.55,
-  motionSpeed: 0.5,
-  distractors: "none",
-  hints: "high"
-}, {
+  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.5, distractors: "none", hints: "high" },
   finishOnMistakes: false
 });
 
@@ -134,8 +127,8 @@ onUnmounted(() => {
                     <div class="bell-card-content" :class="{ 'bell-card-content--active': active, 'bell-card-content--selected': selectedBellId === bell.id }" :style="{ '--bell-accent': bell.accent, '--bell-progress': progress }">
                       <div v-if="active || selectedBellId === bell.id" class="bell-wave" aria-hidden="true" />
                       <v-icon class="bell-icon mb-3" icon="mdi-bell-outline" />
-                      <div class="text-h5 text-md-h4 font-weight-bold">{{ bell.label }}</div>
-                      <div class="text-body-1 text-medium-emphasis mt-2">{{ bell.tone }} колокольчик</div>
+                      <div class="bell-label text-h5 text-md-h4 font-weight-bold">{{ bell.label }}</div>
+                      <div class="bell-tone text-body-1 mt-2">{{ bell.tone }} колокольчик</div>
                       <div class="text-body-2 mt-4 bell-hint">{{ selectedBellId === bell.id ? "Звон" : active ? "Держи взгляд" : "Посмотри сюда" }}</div>
                     </div>
                   </template>
@@ -189,6 +182,11 @@ onUnmounted(() => {
   position: relative;
 }
 
+.bell-label,
+.bell-tone {
+  color: #17212b !important;
+}
+
 .bell-card-content::before {
   background: radial-gradient(circle, color-mix(in srgb, var(--bell-accent) 28%, transparent), transparent 64%);
   block-size: 190px;
@@ -236,7 +234,7 @@ onUnmounted(() => {
 }
 
 .bell-hint {
-  color: color-mix(in srgb, var(--bell-accent) 70%, rgb(var(--v-theme-on-surface)));
+  color: #17212b;
 }
 
 @keyframes bell-swing {

@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { disposeCatchLightPiano, playCatchLightCue, setCatchLightPianoActive, tickCatchLightPiano, warmCatchLightPiano } from "./audio";
 
 type LightZone = {
@@ -21,17 +21,9 @@ type LightTrail = LightZone & {
 };
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("catch-light", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSessionFor("catch-light", {
   maxSteps: 9,
-  dwellMs: 1300,
-  sessionSeconds: 85,
-  targetScale: 1.6,
-  motionSpeed: 0.36,
-  distractors: "none",
-  hints: "high",
-  sound: true
-}, {
+  overrides: { preset: "gentle", targetScale: 1.6, motionSpeed: 0.36, distractors: "none", hints: "high", sound: true },
   finishOnMistakes: false
 });
 

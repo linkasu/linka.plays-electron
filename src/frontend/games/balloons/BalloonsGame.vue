@@ -4,9 +4,9 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
-import { useGameSession } from "../../core/session";
 
 type Point = { x: number; y: number };
 type BalloonPhase = "appearing" | "waiting" | "gazing" | "flying";
@@ -32,16 +32,9 @@ type Cloud = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSession("balloons", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("balloons", {
   maxSteps: 9,
-  dwellMs: 1300,
-  sessionSeconds: 82,
-  targetScale: 1.6,
-  motionSpeed: 0.38,
-  distractors: "none",
-  hints: "high"
-}, {
+  overrides: { preset: "gentle", targetScale: 1.6, motionSpeed: 0.38, distractors: "none", hints: "high" },
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });

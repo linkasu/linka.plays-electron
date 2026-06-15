@@ -5,8 +5,8 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { disposeWakeOwlAudio, playWakeOwlHoot, warmWakeOwlAudio } from "./audio";
 
 type OwlPosition = {
@@ -23,17 +23,9 @@ const owlPositions: OwlPosition[] = [
 ];
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("wake-owl", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSessionFor("wake-owl", {
   maxSteps: 8,
-  dwellMs: 1400,
-  sessionSeconds: 82,
-  targetScale: 1.75,
-  motionSpeed: 0.32,
-  distractors: "none",
-  hints: "high",
-  sound: true
-}, {
+  overrides: { preset: "gentle", targetScale: 1.75, motionSpeed: 0.32, distractors: "none", hints: "high", sound: true },
   finishOnMistakes: false
 });
 

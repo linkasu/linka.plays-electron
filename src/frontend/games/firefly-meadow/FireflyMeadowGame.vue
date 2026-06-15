@@ -3,9 +3,9 @@ import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
-import { useGameSession } from "../../core/session";
 import { disposeFireflyMeadowPiano, playFireflyIgniteCue, setFireflyMeadowPianoActive, tickFireflyMeadowPiano, warmFireflyMeadowPiano } from "./audio";
 
 type Point = { x: number; y: number };
@@ -33,17 +33,9 @@ type GrassBlade = {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSession("firefly-meadow", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("firefly-meadow", {
   maxSteps: 9,
-  dwellMs: 1350,
-  sessionSeconds: 75,
-  targetScale: 1.55,
-  motionSpeed: 0.45,
-  distractors: "none",
-  hints: "high",
-  sound: true
-}, {
+  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.45, distractors: "none", hints: "high", sound: true },
   finishOnMaxSteps: false
 });
 
