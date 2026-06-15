@@ -1,23 +1,18 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
-import GameDwellButton from "../../components/game/GameDwellButton.vue";
+import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
+import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
-import { disposeLogicPairsAudio, playLogicPairsMistakeMelody, playLogicPairsSuccessMelody, warmLogicPairsAudio } from "./audio";
+import { logicPairsFeedback } from "./audio";
 import { generateLogicPairsRound, type LogicPairCard, type LogicPairsRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("logic-pairs", {
-  maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 130
-}, {
-  finishOnMistakes: false
-});
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("logic-pairs", { maxSteps: 8, finishOnMistakes: false });
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<LogicPairsRound>({
   session,
@@ -52,7 +47,7 @@ function choose(choice: LogicPairCard) {
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.pair.label, actual: choice.label, relation: round.value.relation, isCorrect: true });
     hintedRoundId.value = undefined;
     lastMistakeId.value = undefined;
-    void playLogicPairsSuccessMelody(session.settings.sound);
+    void logicPairsFeedback.playSuccess(session.settings.sound);
     if (session.step < session.maxSteps) nextRound();
     return;
   }
@@ -61,7 +56,7 @@ function choose(choice: LogicPairCard) {
   lastMistakeId.value = choice.id;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.pair.label, actual: choice.label, relation: round.value.relation, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, text: round.value.explanation, reason: "wrong-pair-selected" });
-  void playLogicPairsMistakeMelody(session.settings.sound);
+  void logicPairsFeedback.playMistake(session.settings.sound);
 }
 
 function restart() {
@@ -71,17 +66,23 @@ function restart() {
 }
 
 onMounted(() => {
-  warmLogicPairsAudio(session.settings.sound);
+  logicPairsFeedback.warm(session.settings.sound);
+});
+
+watch(() => session.settings.sound, (enabled) => {
+  logicPairsFeedback.warm(enabled);
 });
 
 onUnmounted(() => {
-  disposeLogicPairsAudio();
+  logicPairsFeedback.dispose();
 });
 </script>
 
 <template>
-  <div class="logic-pairs-shell">
-    <GameHud title="Логические пары" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+  <GamePageShell gradient="linear-gradient(135deg, #f4f7ff 0%, #fff7e8 54%, #eefbf4 100%)" padding-top="8.75rem">
+    <template #hud>
+      <GameHud title="Логические пары" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    </template>
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11" xl="10">
@@ -93,7 +94,7 @@ onUnmounted(() => {
             </v-alert>
 
             <v-row class="pair-layout" dense align="stretch">
-              <v-col cols="12" md="4">
+              <v-col cols="12" sm="4">
                 <v-sheet class="target-card pa-4" color="primary" rounded="xl">
                   <div class="text-overline text-white text-center mb-2">Найди пару для</div>
                   <div class="target-card__visual text-white">{{ round.target.visual }}</div>
@@ -101,19 +102,15 @@ onUnmounted(() => {
                 </v-sheet>
               </v-col>
 
-              <v-col cols="12" md="8">
-                <v-row class="choice-grid" dense>
-                  <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6">
-                    <GameDwellButton :class="{ 'target-hint': hintedRoundId === round.roundId && choice.id === round.pair.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="210" :color="hintedRoundId === round.roundId && choice.id === round.pair.id ? 'primary' : 'surface'" @select="choose(choice)">
-                      <template #default>
-                        <div :class="['choice-card', { 'choice-card--mistake': choice.id === lastMistakeId }]">
-                          <div class="choice-card__visual">{{ choice.visual }}</div>
-                          <div class="text-h5 text-md-h4 font-weight-bold mt-3">{{ choice.label }}</div>
-                        </div>
-                      </template>
-                    </GameDwellButton>
-                  </v-col>
-                </v-row>
+              <v-col cols="12" sm="8">
+                <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="210" :highlight-choice="(choice) => hintedRoundId === round.roundId && choice.id === round.pair.id" :color="(choice) => hintedRoundId === round.roundId && choice.id === round.pair.id ? 'primary' : 'surface'" :cols="6" :sm="3" @select="choose">
+                  <template #default="{ choice }">
+                    <div :class="['choice-card', { 'choice-card--mistake': choice.id === lastMistakeId }]">
+                      <div class="choice-card__visual">{{ choice.visual }}</div>
+                      <div class="choice-card__label text-body-1 text-md-h6 font-weight-bold mt-3">{{ choice.label }}</div>
+                    </div>
+                  </template>
+                </GameChoiceCardGrid>
               </v-col>
             </v-row>
           </v-card>
@@ -121,25 +118,15 @@ onUnmounted(() => {
       </v-row>
     </v-container>
     <GameResultDialog :model-value="resultVisible" title="Логические пары" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
-  </div>
+  </GamePageShell>
 </template>
 
 <style scoped>
-.logic-pairs-shell {
-  background: linear-gradient(135deg, #f4f7ff 0%, #fff7e8 54%, #eefbf4 100%);
-  min-block-size: 100vh;
-}
-
-.game-container {
-  padding-block-start: 8.75rem;
-}
-
 .logic-card {
   overflow: hidden;
 }
 
-.pair-layout,
-.choice-grid {
+.pair-layout {
   row-gap: 1rem;
 }
 
@@ -169,21 +156,18 @@ onUnmounted(() => {
   transition: filter 160ms ease, transform 160ms ease;
 }
 
+.choice-card__label {
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
 .choice-card--mistake {
   filter: saturate(0.75) opacity(0.72);
   transform: scale(0.97);
 }
 
-.target-hint {
-  filter: drop-shadow(0 0 1.25rem rgb(var(--v-theme-primary) / 42%));
-  transform: scale(1.03);
-}
-
 @media (max-height: 44rem) {
-  .game-container {
-    padding-block-start: 7.5rem;
-  }
-
   .target-card {
     min-block-size: 13rem;
   }

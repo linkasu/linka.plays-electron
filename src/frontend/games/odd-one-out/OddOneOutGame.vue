@@ -1,23 +1,18 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
-import GameDwellButton from "../../components/game/GameDwellButton.vue";
+import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
+import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
-import { disposeOddOneOutAudio, playOddOneOutMistakeMelody, playOddOneOutSuccessMelody, warmOddOneOutAudio } from "./audio";
+import { oddOneOutFeedback } from "./audio";
 import { generateOddOneOutRound, type OddOneOutItem, type OddOneOutRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("odd-one-out", {
-  maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 120
-}, {
-  finishOnMistakes: false
-});
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("odd-one-out", { maxSteps: 8, finishOnMistakes: false });
 
 const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame<OddOneOutRound>({
   session,
@@ -48,20 +43,19 @@ function resetFeedback() {
   successChoiceId.value = undefined;
 }
 
-function choose(index: number) {
+function choose(choice: OddOneOutItem) {
   if (session.status !== "running" || pendingSelection.value) return;
 
-  const choice = round.value.choices[index];
   const targetId = choiceTargetId(choice);
   const expectedTargetId = choiceTargetId(round.value.oddItem);
 
   clearFeedbackTimer();
 
-  if (index === round.value.correctIndex) {
+  if (choice.id === round.value.oddItem.id) {
     pendingSelection.value = true;
     successChoiceId.value = choice.id;
     feedbackMessage.value = `Верно. ${choice.label} из другой группы.`;
-    void playOddOneOutSuccessMelody(session.settings.sound);
+    void oddOneOutFeedback.playSuccess(session.settings.sound);
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.oddItem.label, actual: choice.label, isCorrect: true });
 
     if (session.status === "running" && session.step < session.maxSteps) {
@@ -76,7 +70,7 @@ function choose(index: number) {
   pendingSelection.value = true;
   wrongChoiceId.value = choice.id;
   feedbackMessage.value = round.value.mistakeHint;
-  void playOddOneOutMistakeMelody(session.settings.sound);
+  void oddOneOutFeedback.playMistake(session.settings.sound);
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.oddItem.label, actual: choice.label, isCorrect: false, commonCategory: round.value.commonCategory.id });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "mistake", category: round.value.commonCategory.id });
   feedbackTimer = window.setTimeout(() => {
@@ -97,22 +91,24 @@ function restart() {
 }
 
 onMounted(() => {
-  warmOddOneOutAudio(session.settings.sound);
+  oddOneOutFeedback.warm(session.settings.sound);
 });
 
 watch(() => session.settings.sound, (enabled) => {
-  warmOddOneOutAudio(enabled);
+  oddOneOutFeedback.warm(enabled);
 });
 
 onUnmounted(() => {
   clearFeedbackTimer();
-  disposeOddOneOutAudio();
+  oddOneOutFeedback.dispose();
 });
 </script>
 
 <template>
-  <div class="odd-shell">
-    <GameHud title="Что лишнее?" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+  <GamePageShell gradient="linear-gradient(135deg, #f0f7ff 0%, #fff6e7 100%)" padding-top="5.125rem">
+    <template #hud>
+      <GameHud title="Что лишнее?" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    </template>
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="9">
@@ -121,34 +117,21 @@ onUnmounted(() => {
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2 mb-md-3">{{ round.prompt }}</h1>
             <p class="odd-feedback text-body-1 text-medium-emphasis text-center mb-3 mb-md-6">{{ feedbackMessage }}</p>
 
-            <v-row class="choice-grid" justify="center">
-              <v-col v-for="(choice, index) in round.choices" :key="choice.id" class="choice-col" cols="6" :md="round.choices.length === 4 ? 3 : 4">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="156" :color="choiceColor(choice)" @select="choose(index)">
-                  <template #default>
-                    <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
-                    <div class="text-h6 text-md-h5 font-weight-bold mt-2">{{ choice.label }}</div>
-                  </template>
-                </GameDwellButton>
-              </v-col>
-            </v-row>
+            <GameChoiceCardGrid :choices="round.choices" :target-id="choiceTargetId" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="156" :color="choiceColor" :cols="6" :md="round.choices.length === 4 ? 3 : 4" @select="choose">
+              <template #default="{ choice }">
+                <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
+                <div class="text-h6 text-md-h5 font-weight-bold mt-2">{{ choice.label }}</div>
+              </template>
+            </GameChoiceCardGrid>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
     <GameResultDialog :model-value="resultVisible" title="Что лишнее?" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
-  </div>
+  </GamePageShell>
 </template>
 
 <style scoped>
-.odd-shell {
-  background: linear-gradient(135deg, #f0f7ff 0%, #fff6e7 100%);
-  min-block-size: 100vh;
-}
-
-.game-container {
-  padding-block-start: 82px;
-}
-
 .odd-card {
   max-block-size: calc(100vh - 98px);
 }
@@ -157,22 +140,9 @@ onUnmounted(() => {
   min-block-size: 1.5rem;
 }
 
-.choice-grid {
-  margin: -6px;
-}
-
-.choice-col {
-  padding: 6px;
-}
-
 .choice-emoji {
   font-size: clamp(3.2rem, min(8vw, 11vh), 6.5rem);
   line-height: 1;
 }
 
-@media (max-width: 600px) {
-  .game-container {
-    padding-block-start: 108px;
-  }
-}
 </style>
