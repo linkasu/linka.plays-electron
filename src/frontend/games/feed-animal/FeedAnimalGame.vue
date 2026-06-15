@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
+import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
-import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
-import ttsAssets from "../../data/ttsAssets.json";
-import { disposeFeedAnimalAudio, playFeedAnimalMistakeMelody, playFeedAnimalSuccessMelody, warmFeedAnimalAudio } from "./audio";
+import { feedAnimalFeedback } from "./audio";
 import { animalEatsFood, generateFeedAnimalRound, type FeedAnimalFood, type FeedAnimalRound } from "./model";
 
 const router = useRouter();
@@ -18,23 +18,21 @@ const selectedFood = ref<FeedAnimalFood>();
 const revealedFoodId = ref<string>();
 const mistakeFoodId = ref<string>();
 const feedbackText = ref("Выбери, что ест зверёк.");
-const feedAnimalTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.game === "feed-animal");
 let feedbackTimer = 0;
-let promptTimer = 0;
-let responseTtsTimer = 0;
 
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("feed-animal", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("feed-animal", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 90,
-  targetScale: 1.6,
-  motionSpeed: 0.45,
-  distractors: "none",
-  hints: "high"
-}, {
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.6,
+    motionSpeed: 0.45,
+    distractors: "none",
+    hints: "high"
+  },
   finishOnMistakes: false
 });
+const promptAudio = useGamePromptAudio({ gameId: "feed-animal", soundEnabled: toRef(session.settings, "sound") });
+const responseAudio = useGamePromptAudio({ gameId: "feed-animal", soundEnabled: toRef(session.settings, "sound") });
 
 const { round, resultVisible, nextRound, restart: restartRound } = useRoundGame<FeedAnimalRound>({
   session,
@@ -46,22 +44,14 @@ function foodTargetId(roundId: string, foodId: string) {
   return `feed-animal:${roundId}:food:${foodId}`;
 }
 
-function ttsAsset(id: string) {
-  return feedAnimalTtsAssets.find((asset) => asset.id === id);
-}
-
 function playPrompt(delayMs = 0) {
-  window.clearTimeout(promptTimer);
-  promptTimer = window.setTimeout(() => {
-    playTtsAsset(session.settings.sound, ttsAsset(`feed-animal.prompt.${round.value.animal.id}`), 0.36);
-  }, delayMs);
+  promptAudio.cancelPending();
+  promptAudio.play(`feed-animal.prompt.${round.value.animal.id}`, delayMs);
 }
 
 function playResponseTts(id: string, delayMs = 920) {
-  window.clearTimeout(responseTtsTimer);
-  responseTtsTimer = window.setTimeout(() => {
-    playTtsAsset(session.settings.sound, ttsAsset(id), 0.36);
-  }, delayMs);
+  responseAudio.cancelPending();
+  responseAudio.play(id, delayMs);
 }
 
 function resetRoundState() {
@@ -96,7 +86,7 @@ function feed(food: FeedAnimalFood) {
     feedbackText.value = `Да, ${round.value.animal.name.toLowerCase()} это ест.`;
     revealedFoodId.value = food.id;
     mistakeFoodId.value = undefined;
-    void playFeedAnimalSuccessMelody(session.settings.sound);
+    void feedAnimalFeedback.playSuccess(session.settings.sound);
     playResponseTts("feed-animal.correct");
     recordSuccess({
       roundId: round.value.roundId,
@@ -113,7 +103,7 @@ function feed(food: FeedAnimalFood) {
   feedbackText.value = `Нет, ${round.value.animal.name.toLowerCase()} это не ест. Подходит: ${round.value.correctFood.name.toLowerCase()}.`;
   revealedFoodId.value = round.value.correctFood.id;
   mistakeFoodId.value = food.id;
-  void playFeedAnimalMistakeMelody(session.settings.sound);
+  void feedAnimalFeedback.playMistake(session.settings.sound);
   playResponseTts("feed-animal.mistake");
   recordMistake({
     roundId: round.value.roundId,
@@ -130,31 +120,37 @@ function feed(food: FeedAnimalFood) {
 
 function restart() {
   window.clearTimeout(feedbackTimer);
-  window.clearTimeout(promptTimer);
-  window.clearTimeout(responseTtsTimer);
+  promptAudio.cancelPending();
+  responseAudio.cancelPending();
   resetRoundState();
   restartRound();
   playPrompt(160);
 }
 
 onMounted(() => {
-  warmFeedAnimalAudio(session.settings.sound);
-  warmTtsAssets(session.settings.sound, feedAnimalTtsAssets);
+  feedAnimalFeedback.warm(session.settings.sound);
+  promptAudio.warm();
+  responseAudio.warm();
   playPrompt(450);
+});
+
+watch(() => session.settings.sound, (enabled) => {
+  feedAnimalFeedback.warm(enabled);
 });
 
 onUnmounted(() => {
   window.clearTimeout(feedbackTimer);
-  window.clearTimeout(promptTimer);
-  window.clearTimeout(responseTtsTimer);
-  disposeFeedAnimalAudio();
-  disposeTtsAssets(feedAnimalTtsAssets);
+  promptAudio.dispose();
+  responseAudio.dispose();
+  feedAnimalFeedback.dispose();
 });
 </script>
 
 <template>
-  <div class="feed-animal-shell">
-    <GameHud title="Покорми зверька" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+  <GamePageShell gradient="linear-gradient(135deg, #fff7e8 0%, #ecfff2 52%, #eef7ff 100%)" padding-top="8.25rem">
+    <template #hud>
+      <GameHud title="Покорми зверька" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    </template>
     <v-container class="feed-animal-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="8">
@@ -191,19 +187,10 @@ onUnmounted(() => {
       </v-row>
     </v-container>
     <GameResultDialog :model-value="resultVisible" title="Покорми зверька" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
-  </div>
+  </GamePageShell>
 </template>
 
 <style scoped>
-.feed-animal-shell {
-  background: linear-gradient(135deg, #fff7e8 0%, #ecfff2 52%, #eef7ff 100%);
-  min-block-size: 100vh;
-}
-
-.feed-animal-container {
-  padding-block-start: 132px;
-}
-
 .animal-card {
   align-items: center;
   background: rgb(var(--v-theme-success) / 12%) !important;
@@ -256,10 +243,6 @@ onUnmounted(() => {
 }
 
 @media (max-height: 920px) {
-  .feed-animal-container {
-    padding-block-start: 6.75rem;
-  }
-
   .feed-animal-overline {
     display: none;
   }

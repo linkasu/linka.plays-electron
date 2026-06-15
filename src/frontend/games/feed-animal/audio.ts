@@ -1,13 +1,8 @@
-import { createSoftPianoCuePlayer } from "../../core/softPianoCues";
-import type { SoftPianoMelody } from "../../core/softPiano";
+import { createGameFeedback } from "../../core/gameFeedbackAudio";
 
-type FeedAnimalCue = "success" | "mistake";
-
-const notesToLoad = [55, 60, 64, 67, 72];
-
-const cues: Record<FeedAnimalCue, SoftPianoMelody> = {
+export const feedAnimalFeedback = createGameFeedback({
+  notesToLoad: [55, 60, 64, 67, 72],
   success: {
-    notesToLoad,
     lengthSeconds: 0.82,
     sampled: [
       { note: "C4", at: 0, duration: 0.54, velocity: 54 },
@@ -21,7 +16,6 @@ const cues: Record<FeedAnimalCue, SoftPianoMelody> = {
     ]
   },
   mistake: {
-    notesToLoad,
     lengthSeconds: 0.78,
     sampled: [
       { note: "G4", at: 0, duration: 0.52, velocity: 46 },
@@ -32,22 +26,4 @@ const cues: Record<FeedAnimalCue, SoftPianoMelody> = {
       { frequency: 196, at: 0.24, duration: 0.46, peak: 0.065 }
     ]
   }
-};
-
-const player = createSoftPianoCuePlayer(cues, notesToLoad);
-
-export function warmFeedAnimalAudio(enabled: boolean) {
-  player.warm(enabled);
-}
-
-export function playFeedAnimalSuccessMelody(enabled: boolean) {
-  return player.play(enabled, "success");
-}
-
-export function playFeedAnimalMistakeMelody(enabled: boolean) {
-  return player.play(enabled, "mistake");
-}
-
-export function disposeFeedAnimalAudio() {
-  player.dispose();
-}
+});

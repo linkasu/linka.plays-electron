@@ -1,20 +1,17 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import GameDwellButton from "../../components/game/GameDwellButton.vue";
+import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
+import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateYesNoRound, type YesNoAnswer, type YesNoRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, finishSession, startSession } = useGameSession("yes-no", {
-  maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 120
-}, { finishOnMaxSteps: false });
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, finishSession, startSession } = useGameSessionFor("yes-no", { maxSteps: 8, finishOnMaxSteps: false });
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<YesNoRound>({
   session,
@@ -72,8 +69,10 @@ function restart() {
 </script>
 
 <template>
-  <div class="yes-no-shell">
-    <GameHud title="Да / нет" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+  <GamePageShell gradient="linear-gradient(135deg, #eef7ff 0%, #fff4e9 100%)" padding-top="8.25rem">
+    <template #hud>
+      <GameHud title="Да / нет" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    </template>
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10">
@@ -84,34 +83,21 @@ function restart() {
               <h1 class="text-h3 font-weight-bold mb-2">{{ round.prompt }}</h1>
               <div class="text-h6 text-medium-emphasis">{{ feedback }}</div>
             </div>
-            <v-row>
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" md="6">
-                <GameDwellButton :target-id="answerTargetId(choice.id)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="220" @select="answer(choice.id)">
-                  <template #default>
-                    <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
-                    <div class="text-h3 font-weight-bold">{{ choice.title }}</div>
-                  </template>
-                </GameDwellButton>
-              </v-col>
-            </v-row>
+            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => answerTargetId(choice.id)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="220" :cols="12" :md="6" @select="(choice) => answer(choice.id)">
+              <template #default="{ choice }">
+                <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
+                <div class="text-h3 font-weight-bold">{{ choice.title }}</div>
+              </template>
+            </GameChoiceCardGrid>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
     <GameResultDialog :model-value="resultVisible" title="Да / нет" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
-  </div>
+  </GamePageShell>
 </template>
 
 <style scoped>
-.yes-no-shell {
-  background: linear-gradient(135deg, #eef7ff 0%, #fff4e9 100%);
-  min-block-size: 100vh;
-}
-
-.game-container {
-  padding-block-start: 132px;
-}
-
 .item-display {
   text-align: center;
 }
