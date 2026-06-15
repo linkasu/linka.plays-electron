@@ -3,10 +3,10 @@ import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
-import { useGameSession } from "../../core/session";
 import { disposeLetterHuntAudio, playLetterHuntMistakeMelody, playLetterHuntSuccessMelody, warmLetterHuntAudio } from "./audio";
 
 type Point = { x: number; y: number };
@@ -35,16 +35,9 @@ type Cloud = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, recordMistake, startSession } = useGameSession("letter-hunt", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, recordMistake, startSession } = useGameSessionFor("letter-hunt", {
   maxSteps: 8,
-  dwellMs: 1250,
-  sessionSeconds: 120,
-  targetScale: 1.55,
-  motionSpeed: 0.44,
-  distractors: "low",
-  hints: "high"
-}, {
+  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.44, distractors: "low", hints: "high" },
   finishOnMistakes: false
 });
 

@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { disposeGazeMazeAudio, playGazeMazeHintMelody, playGazeMazeStepMelody, warmGazeMazeAudio } from "./audio";
 
 type MazeNode = {
@@ -86,15 +86,9 @@ const levels: MazeLevel[] = [
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSession("gaze-maze", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("gaze-maze", {
   maxSteps: 18,
-  dwellMs: 1300,
-  sessionSeconds: 120,
-  targetScale: 1.35,
-  sound: true,
-  hints: "high"
-}, {
+  overrides: { preset: "gentle", targetScale: 1.35, sound: true, hints: "high" },
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });

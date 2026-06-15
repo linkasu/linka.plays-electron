@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 
 type SoundSource = {
   id: string;
@@ -106,17 +106,9 @@ let currentAudio: HTMLAudioElement | undefined;
 let stopAudioTimer = 0;
 const audioCache = new Map<string, HTMLAudioElement>();
 
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("sound-source", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("sound-source", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 120,
-  targetScale: 1.55,
-  motionSpeed: 0.45,
-  distractors: "none",
-  hints: "high",
-  sound: true
-}, {
+  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.45, distractors: "none", hints: "high", sound: true },
   finishOnMistakes: false
 });
 

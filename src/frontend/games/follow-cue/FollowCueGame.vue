@@ -4,9 +4,9 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { disposeFollowCueAudio, playFollowCueMistakeMelody, playFollowCueSuccessMelody, warmFollowCueAudio } from "./audio";
 
 type CueSlot = {
@@ -57,13 +57,7 @@ const cueItems: CueItem[] = [
 ];
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("follow-cue", {
-  maxSteps: 8,
-  dwellMs: 1250,
-  sessionSeconds: 120
-}, {
-  finishOnMistakes: false
-});
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("follow-cue", { maxSteps: 8, finishOnMistakes: false });
 
 const cueStrength = ref(0);
 const lastMistakeId = ref<string>();
