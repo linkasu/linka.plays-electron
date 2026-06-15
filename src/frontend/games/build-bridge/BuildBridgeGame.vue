@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 
 type BridgePiece = {
   id: string;
@@ -17,11 +17,8 @@ type BridgePiece = {
 };
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSession("build-bridge", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("build-bridge", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 135
-}, {
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });
@@ -149,8 +146,8 @@ watch(() => session.status, (status) => {
                   <template #default>
                     <div :class="['choice-piece', { 'choice-piece--next': piece.id === nextPiece?.id, 'choice-piece--mistake': piece.id === lastMistakeId }]">
                       <v-icon :icon="piece.kind === 'support' ? 'mdi-pillar' : 'mdi-minus-thick'" :color="piece.kind === 'support' ? 'blue-grey-darken-1' : 'brown-darken-1'" size="56" />
-                      <div class="text-h6 text-md-h5 font-weight-bold mt-2">{{ piece.label }}</div>
-                      <div class="text-body-2 text-medium-emphasis">шаг {{ piece.order }}</div>
+                      <div class="piece-label text-h6 text-md-h5 font-weight-bold mt-2">{{ piece.label }}</div>
+                      <div class="piece-step text-body-2">шаг {{ piece.order }}</div>
                     </div>
                   </template>
                 </GameDwellButton>
@@ -289,10 +286,16 @@ watch(() => session.status, (status) => {
 
 .choice-piece {
   align-items: center;
+  color: #17212b;
   display: flex;
   flex-direction: column;
   justify-content: center;
   transition: filter 160ms ease, transform 160ms ease;
+}
+
+.piece-label,
+.piece-step {
+  color: #17212b !important;
 }
 
 .choice-piece--next {
@@ -349,6 +352,10 @@ watch(() => session.status, (status) => {
     gap: 0.6rem;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     order: -1;
+  }
+
+  .piece-grid :deep(.dwell-hitbox) {
+    min-block-size: 6.75rem !important;
   }
 
   .piece-grid :deep(.dwell-button) {

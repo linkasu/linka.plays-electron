@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { createScheduleCards, dailyScheduleSteps, isExpectedScheduleChoice, nextScheduleStep, scheduleMaxSteps, scheduleTargetId, type ScheduleCard } from "./model";
 
 type ScheduleCardState = ScheduleCard & {
@@ -14,12 +14,11 @@ type ScheduleCardState = ScheduleCard & {
 };
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("schedule", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("schedule", {
   maxSteps: scheduleMaxSteps,
-  dwellMs: 1300,
-  sessionSeconds: 140,
-  sound: false
-}, { finishOnMistakes: false });
+  overrides: { sound: false },
+  finishOnMistakes: false
+});
 
 const cards = ref<ScheduleCardState[]>(makeCards());
 const feedbackMessage = ref("Собери день по порядку. Начни с первой карточки утром.");
@@ -142,13 +141,13 @@ onUnmounted(() => {
             </v-alert>
 
             <v-row class="choice-row" justify="center">
-              <v-col v-for="card in cards" :key="card.id" cols="6" md="3">
+              <v-col v-for="card in cards" :key="card.id" class="schedule-choice-col" cols="6" md="3">
                 <GameDwellButton :target-id="scheduleTargetId(card)" :disabled="session.status !== 'running' || pendingSelection || card.placed" :dwell-ms="session.settings.dwellMs" :min-height="176" :color="choiceColor(card)" @select="choose(card)">
                   <template #default>
                     <div :class="['schedule-choice', { 'schedule-choice--placed': card.placed, 'schedule-choice--hint': hintedCardId === card.id && !card.placed }]">
                       <v-icon class="choice-icon" :color="card.color" :icon="card.icon" />
-                      <div class="text-h6 font-weight-bold mt-2">{{ card.title }}</div>
-                      <v-chip class="mt-3" color="primary" size="large" variant="tonal">{{ card.aacLabel }}</v-chip>
+                      <div class="schedule-choice-title text-h6 font-weight-bold mt-2">{{ card.title }}</div>
+                      <v-chip class="schedule-choice-chip mt-3" color="primary" size="large" variant="tonal">{{ card.aacLabel }}</v-chip>
                     </div>
                   </template>
                 </GameDwellButton>
@@ -208,7 +207,13 @@ onUnmounted(() => {
 }
 
 .schedule-choice {
+  color: #17212b;
   transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.schedule-choice-title,
+.schedule-choice-chip {
+  color: #17212b !important;
 }
 
 .schedule-choice--hint {
@@ -272,12 +277,25 @@ onUnmounted(() => {
     order: 1;
   }
 
+  .schedule-choice-col {
+    flex: 0 0 25% !important;
+    max-width: 25% !important;
+  }
+
   .choice-row :deep(.dwell-button) {
     padding: 0.75rem !important;
   }
 
+  .choice-row :deep(.dwell-hitbox) {
+    min-block-size: 7rem !important;
+  }
+
   .choice-icon {
     font-size: clamp(2rem, 4vw, 3rem);
+  }
+
+  .schedule-choice-chip {
+    margin-block-start: 0.25rem !important;
   }
 }
 </style>

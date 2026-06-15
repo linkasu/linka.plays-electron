@@ -4,18 +4,17 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateSimpleGraphsRound, type SimpleGraphsBar, type SimpleGraphsChoice } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("simple-graphs", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("simple-graphs", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 130,
-  sound: false
-}, { finishOnMistakes: false });
+  overrides: { sound: false },
+  finishOnMistakes: false
+});
 
 const feedback = ref("");
 const lastMistakeTargetId = ref<string>();
@@ -107,7 +106,7 @@ function restartGame() {
                       <div class="choice-label font-weight-bold" :class="round.questionKind === 'count' ? 'text-h2' : 'text-h5 text-md-h4'">
                         {{ choice.label }}
                       </div>
-                      <div v-if="round.questionKind !== 'count'" class="text-body-1 text-medium-emphasis mt-2">столбик</div>
+                      <div v-if="round.questionKind !== 'count'" class="choice-caption text-body-1 mt-2">столбик</div>
                     </div>
                   </template>
                 </GameDwellButton>
@@ -230,7 +229,12 @@ function restartGame() {
 }
 
 .choice-label {
+  color: #17212b !important;
   line-height: 1.05;
+}
+
+.choice-caption {
+  color: #17212b !important;
 }
 
 @media (min-width: 68.75rem) {

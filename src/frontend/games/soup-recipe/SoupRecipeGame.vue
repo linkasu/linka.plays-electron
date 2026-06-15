@@ -4,16 +4,13 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { createSoupRecipeRound, type SoupIngredient } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSession("soup-recipe", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("soup-recipe", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 135
-}, {
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });
@@ -154,8 +151,8 @@ watch(() => session.status, (status) => {
                       <v-avatar :color="ingredient.color" size="64" class="mb-3">
                         <v-icon :icon="ingredient.icon" size="36" />
                       </v-avatar>
-                      <div class="text-h6 font-weight-bold">{{ ingredient.label }}</div>
-                      <div class="text-caption text-medium-emphasis">шаг {{ ingredient.orderIndex }}</div>
+                      <div class="ingredient-label text-h6 font-weight-bold">{{ ingredient.label }}</div>
+                      <div class="ingredient-step text-caption">шаг {{ ingredient.orderIndex }}</div>
                     </div>
                   </template>
                 </GameDwellButton>
@@ -312,9 +309,15 @@ watch(() => session.status, (status) => {
 
 .ingredient-content {
   align-items: center;
+  color: #17212b;
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.ingredient-label,
+.ingredient-step {
+  color: #17212b !important;
 }
 
 .ingredient-choice--hint {
@@ -372,8 +375,18 @@ watch(() => session.status, (status) => {
     order: -1;
   }
 
+  .ingredient-grid :deep(.dwell-hitbox) {
+    min-block-size: 6.75rem !important;
+  }
+
   .ingredient-grid :deep(.dwell-button) {
     padding: 0.75rem !important;
+  }
+
+  .ingredient-content :deep(.v-avatar) {
+    block-size: 3rem !important;
+    inline-size: 3rem !important;
+    margin-block-end: 0.35rem !important;
   }
 
   .pot-card {

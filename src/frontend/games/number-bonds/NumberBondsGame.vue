@@ -4,18 +4,17 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateNumberBondsRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("number-bonds", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("number-bonds", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 130,
-  sound: false
-}, { finishOnMistakes: false });
+  overrides: { sound: false },
+  finishOnMistakes: false
+});
 
 const { round, resultVisible, nextRound, restart } = useRoundGame({
   session,
@@ -107,7 +106,7 @@ function restartGame() {
                   <template #default>
                     <div :class="['choice-card', { 'choice-card--mistake': lastMistakeTargetId === choiceTargetId(choice) }]">
                       <div class="choice-card__number">{{ choice }}</div>
-                      <div class="text-body-1 text-medium-emphasis">часть</div>
+                      <div class="choice-card__caption text-body-1">часть</div>
                     </div>
                   </template>
                 </GameDwellButton>
@@ -203,10 +202,14 @@ function restartGame() {
 }
 
 .choice-card__number {
-  color: rgb(var(--v-theme-primary));
+  color: #17212b;
   font-size: clamp(4rem, min(11vw, 13vh), 6.5rem);
   font-weight: 900;
   line-height: 0.95;
+}
+
+.choice-card__caption {
+  color: #17212b !important;
 }
 
 .choice-card--mistake {
