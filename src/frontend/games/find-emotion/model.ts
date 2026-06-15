@@ -1,5 +1,5 @@
 import type { SessionSettings } from "../../core/settings";
-import { shuffleItems } from "../../data/wordBank";
+import { buildChoiceRound, choiceCountByPreset, idEquality, pickRandom, type ChoiceRound } from "../../core/round";
 
 export type FindEmotionOption = {
   id: string;
@@ -7,13 +7,7 @@ export type FindEmotionOption = {
   emoji: string;
 };
 
-export type FindEmotionRound = {
-  roundId: string;
-  prompt: string;
-  target: FindEmotionOption;
-  choices: FindEmotionOption[];
-  correctIndex: number;
-};
+export type FindEmotionRound = ChoiceRound<FindEmotionOption>;
 
 export const findEmotionOptions: FindEmotionOption[] = [
   { id: "joy", label: "радость", emoji: "😊" },
@@ -26,25 +20,17 @@ export const findEmotionOptions: FindEmotionOption[] = [
   { id: "shy", label: "смущение", emoji: "☺️" }
 ];
 
-function choiceCountFor(settings: SessionSettings) {
-  if (settings.preset === "gentle") return 2;
-  if (settings.preset === "challenge") return 4;
-  return 3;
-}
-
 export function generateFindEmotionRound(settings: SessionSettings, roundIndex = 1): FindEmotionRound {
-  const choiceCount = choiceCountFor(settings);
+  const choiceCount = choiceCountByPreset(settings, roundIndex, { gentle: 2, standard: 3, challenge: 4 });
   if (findEmotionOptions.length < choiceCount) throw new Error("Недостаточно эмоций для игры.");
 
-  const [target] = shuffleItems(findEmotionOptions).slice(0, 1);
-  const distractors = shuffleItems(findEmotionOptions.filter((emotion) => emotion.id !== target.id)).slice(0, choiceCount - 1);
-  const choices = shuffleItems([target, ...distractors]);
-
-  return {
-    roundId: `find-emotion:round:${roundIndex}`,
-    prompt: `Найди эмоцию: ${target.label}`,
-    target,
-    choices,
-    correctIndex: choices.indexOf(target)
-  };
+  return buildChoiceRound({
+    idPrefix: "find-emotion",
+    roundIndex,
+    items: findEmotionOptions,
+    choiceCount,
+    pickTarget: (items) => pickRandom(items),
+    isSame: idEquality,
+    prompt: (target) => `Найди эмоцию: ${target.label}`
+  });
 }

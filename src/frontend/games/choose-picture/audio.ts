@@ -1,13 +1,8 @@
-import { createSoftPianoCuePlayer } from "../../core/softPianoCues";
-import type { SoftPianoMelody } from "../../core/softPiano";
+import { createGameFeedback } from "../../core/gameFeedbackAudio";
 
-type ChoosePictureCue = "success" | "mistake";
-
-const notesToLoad = [55, 60, 64, 67, 72];
-
-const cues: Record<ChoosePictureCue, SoftPianoMelody> = {
+export const choosePictureFeedback = createGameFeedback({
+  notesToLoad: [55, 60, 64, 67, 72],
   success: {
-    notesToLoad,
     lengthSeconds: 0.82,
     sampled: [
       { note: "C4", at: 0, duration: 0.54, velocity: 40 },
@@ -21,7 +16,6 @@ const cues: Record<ChoosePictureCue, SoftPianoMelody> = {
     ]
   },
   mistake: {
-    notesToLoad,
     lengthSeconds: 0.78,
     sampled: [
       { note: "G4", at: 0, duration: 0.52, velocity: 34 },
@@ -32,22 +26,4 @@ const cues: Record<ChoosePictureCue, SoftPianoMelody> = {
       { frequency: 196, at: 0.24, duration: 0.46, peak: 0.04 }
     ]
   }
-};
-
-const player = createSoftPianoCuePlayer(cues, notesToLoad);
-
-export function warmChoosePictureAudio(enabled: boolean) {
-  player.warm(enabled);
-}
-
-export function playChoosePictureSuccessMelody(enabled: boolean) {
-  return player.play(enabled, "success");
-}
-
-export function playChoosePictureMistakeMelody(enabled: boolean) {
-  return player.play(enabled, "mistake");
-}
-
-export function disposeChoosePictureAudio() {
-  player.dispose();
-}
+});
