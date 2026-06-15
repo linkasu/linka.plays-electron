@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { disposeSnowflakesPiano, playSnowflakeCue, setSnowflakesPianoActive, tickSnowflakesPiano, warmSnowflakesPiano } from "./audio";
 
 type Point = { x: number; y: number };
@@ -35,17 +35,9 @@ type GazeGlow = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSession("snowflakes", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("snowflakes", {
   maxSteps: 8,
-  dwellMs: 1400,
-  sessionSeconds: 85,
-  targetScale: 1.55,
-  motionSpeed: 0.32,
-  distractors: "none",
-  hints: "high",
-  sound: true
-}, {
+  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.32, distractors: "none", hints: "high", sound: true },
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });

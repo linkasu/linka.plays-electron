@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { disposeLightGalleryPiano, playLightGalleryCue, setLightGalleryPianoActive, tickLightGalleryPiano, warmLightGalleryPiano } from "./audio";
 
 type LightPanel = {
@@ -27,17 +27,9 @@ type LightPanel = {
 };
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("light-gallery", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSessionFor("light-gallery", {
   maxSteps: 8,
-  dwellMs: 1400,
-  sessionSeconds: 90,
-  targetScale: 1.55,
-  motionSpeed: 0.35,
-  distractors: "none",
-  hints: "high",
-  sound: true
-}, {
+  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.35, distractors: "none", hints: "high", sound: true },
   finishOnMistakes: false
 });
 
@@ -265,7 +257,7 @@ onUnmounted(() => {
             :target-id="panel.id"
             :dwell-ms="session.settings.dwellMs"
             :disabled="session.status !== 'running' || panel.revealed"
-            :min-height="150"
+            :min-height="118"
             color="indigo-darken-4"
             class="light-gallery-target"
             @select="revealPanel(panel)"
@@ -278,8 +270,8 @@ onUnmounted(() => {
                 <div class="light-gallery-panel-art" aria-hidden="true">
                   <v-icon :icon="panel.icon" class="light-gallery-panel-icon" />
                 </div>
-                <div class="text-subtitle-1 text-sm-h6 font-weight-bold">{{ panel.title }}</div>
-                <div class="text-caption text-medium-emphasis">{{ panel.revealed ? panel.caption : active && progress > 0.72 ? 'Проявляется' : 'Смотри спокойно' }}</div>
+                <div class="light-gallery-panel-title text-subtitle-1 text-sm-h6 font-weight-bold">{{ panel.title }}</div>
+                <div class="light-gallery-panel-caption text-caption">{{ panel.revealed ? panel.caption : active && progress > 0.72 ? 'Проявляется' : 'Смотри спокойно' }}</div>
               </div>
             </template>
           </GameDwellButton>
@@ -387,6 +379,11 @@ onUnmounted(() => {
   transition: color 220ms ease, filter 220ms ease, opacity 220ms ease, transform 220ms ease;
 }
 
+.light-gallery-panel-title,
+.light-gallery-panel-caption {
+  color: #f8fbff !important;
+}
+
 .light-gallery-panel::before {
   background: var(--panel-gradient);
   border-radius: 22px;
@@ -402,6 +399,13 @@ onUnmounted(() => {
 .light-gallery-panel--active,
 .light-gallery-panel--revealed {
   color: #19213b;
+}
+
+.light-gallery-panel--active .light-gallery-panel-title,
+.light-gallery-panel--active .light-gallery-panel-caption,
+.light-gallery-panel--revealed .light-gallery-panel-title,
+.light-gallery-panel--revealed .light-gallery-panel-caption {
+  color: #19213b !important;
 }
 
 .light-gallery-panel--revealed {
@@ -431,6 +435,39 @@ onUnmounted(() => {
 @media (max-width: 860px) {
   .light-gallery-grid {
     grid-template-columns: repeat(2, minmax(136px, 1fr));
+  }
+}
+
+@media (max-height: 720px) {
+  .light-gallery-container {
+    padding-block-start: 5.75rem;
+  }
+
+  .light-gallery-copy,
+  .light-gallery-progress {
+    display: none;
+  }
+
+  .light-gallery-grid {
+    gap: 0.75rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .light-gallery-target {
+    min-block-size: 7rem;
+  }
+
+  .light-gallery-panel-art {
+    block-size: 3.25rem;
+    inline-size: 3.25rem;
+  }
+
+  .light-gallery-panel-icon {
+    font-size: 1.9rem;
+  }
+
+  .light-gallery-panel-caption {
+    display: none;
   }
 }
 

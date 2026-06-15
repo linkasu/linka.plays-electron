@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { disposeSoapCirclesPiano, playSoapCircleCue, setSoapCirclesPianoActive, tickSoapCirclesPiano, warmSoapCirclesPiano } from "./audio";
 
 type SoapCircle = {
@@ -19,17 +19,9 @@ type SoapCircle = {
 };
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordSuccess, startSession } = useGameSession("soap-circles", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordSuccess, startSession } = useGameSessionFor("soap-circles", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 85,
-  targetScale: 1.6,
-  motionSpeed: 0.32,
-  distractors: "none",
-  hints: "high",
-  sound: true
-}, {
+  overrides: { preset: "gentle", targetScale: 1.6, motionSpeed: 0.32, distractors: "none", hints: "high", sound: true },
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });

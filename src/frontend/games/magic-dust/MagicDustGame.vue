@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { disposeMagicDustPiano, playMagicDustCue, setMagicDustPianoActive, tickMagicDustPiano, warmMagicDustPiano } from "./audio";
 
 type Point = { x: number; y: number };
@@ -29,17 +29,9 @@ type BackgroundSpark = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSession("magic-dust", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("magic-dust", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 75,
-  targetScale: 1.45,
-  motionSpeed: 0.42,
-  distractors: "none",
-  hints: "high",
-  sound: true
-}, {
+  overrides: { preset: "gentle", targetScale: 1.45, motionSpeed: 0.42, distractors: "none", hints: "high", sound: true },
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });
