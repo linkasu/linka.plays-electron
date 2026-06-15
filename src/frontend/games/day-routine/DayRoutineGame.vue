@@ -3,18 +3,16 @@ import { computed, onUnmounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
+import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { createDayRoutineBoard, findDayRoutinePeriod, type DayRoutineItem, type DayRoutinePeriod } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("day-routine", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("day-routine", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 130,
-  sound: false
-}, {
+  overrides: { sound: false },
   finishOnMistakes: false
 });
 
@@ -124,8 +122,10 @@ watch(() => session.status, (status) => {
 </script>
 
 <template>
-  <div class="day-routine-shell">
-    <GameHud title="Утро-день-вечер" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+  <GamePageShell gradient="linear-gradient(135deg, #fff8e1 0%, #e3f2fd 48%, #ede7f6 100%)" padding-top="5rem">
+    <template #hud>
+      <GameHud title="Утро-день-вечер" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    </template>
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
@@ -134,7 +134,7 @@ watch(() => session.status, (status) => {
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-3">Что бывает {{ currentPeriod?.label ?? "дальше" }}?</h1>
             <p class="text-body-1 text-medium-emphasis text-center mb-6">{{ feedbackMessage }}</p>
 
-            <v-row class="mb-6" align="stretch">
+            <v-row class="period-row mb-6" align="stretch">
               <v-col v-for="period in board.periods" :key="period.id" cols="12" md="4">
                 <v-card :class="['period-card', { 'period-card--active': highlightedPeriodId === period.id }]" :color="period.color" rounded="xl" variant="flat">
                   <div class="d-flex align-center ga-3 mb-3">
@@ -161,8 +161,8 @@ watch(() => session.status, (status) => {
             <v-divider class="mb-5" />
             <div class="text-h6 font-weight-bold text-center mb-4">Выбери подходящую картинку</div>
             <v-row justify="center">
-              <v-col v-for="item in remainingChoices" :key="item.id" cols="6" sm="4" lg="3">
-                <GameDwellButton :target-id="itemTargetId(item)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="168" :color="choiceColor(item)" @select="choose(item)">
+              <v-col v-for="item in remainingChoices" :key="item.id" cols="3" sm="3">
+                <GameDwellButton :target-id="itemTargetId(item)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="130" :color="choiceColor(item)" @select="choose(item)">
                   <template #default>
                     <div class="choice-emoji emoji-glyph">{{ item.emoji }}</div>
                     <div class="text-subtitle-1 text-md-h6 font-weight-bold mt-2">{{ item.label }}</div>
@@ -175,19 +175,10 @@ watch(() => session.status, (status) => {
       </v-row>
     </v-container>
     <GameResultDialog :model-value="resultVisible" title="Утро-день-вечер" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
-  </div>
+  </GamePageShell>
 </template>
 
 <style scoped>
-.day-routine-shell {
-  background: linear-gradient(135deg, #fff8e1 0%, #e3f2fd 48%, #ede7f6 100%);
-  min-block-size: 100vh;
-}
-
-.game-container {
-  padding-block-start: 132px;
-}
-
 .period-card {
   block-size: 100%;
   border: 2px solid transparent;
@@ -212,7 +203,7 @@ watch(() => session.status, (status) => {
 }
 
 .choice-emoji {
-  font-size: clamp(3.8rem, 8vw, 6.4rem);
+  font-size: clamp(2.9rem, 6vw, 5rem);
   line-height: 1;
 }
 
@@ -221,17 +212,8 @@ watch(() => session.status, (status) => {
   line-height: 1;
 }
 
-@media (max-width: 600px) {
-  .game-container {
-    padding-block-start: 156px;
-  }
-}
-
 @media (max-height: 920px) {
-  .game-container {
-    padding-block-start: 7.25rem;
-  }
-
+  .period-row,
   .period-card,
   .game-container .v-divider {
     display: none;

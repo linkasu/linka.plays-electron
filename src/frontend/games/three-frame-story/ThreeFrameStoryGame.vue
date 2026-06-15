@@ -3,17 +3,14 @@ import { computed, onUnmounted, shallowRef, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
+import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateThreeFrameStoryRound, type ThreeFrameStoryFrame } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("three-frame-story", {
-  maxSteps: 6,
-  dwellMs: 1300,
-  sessionSeconds: 140
-}, { finishOnMistakes: false });
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("three-frame-story", { maxSteps: 6, finishOnMistakes: false });
 
 const round = shallowRef(generateThreeFrameStoryRound(session.step));
 const feedbackMessage = ref("Выбери первый кадр истории.");
@@ -122,8 +119,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="story-shell">
-    <GameHud title="История из 3 кадров" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+  <GamePageShell gradient="linear-gradient(135deg, #fff8e1 0%, #e3f2fd 54%, #f3e5f5 100%)" padding-top="5rem">
+    <template #hud>
+      <GameHud title="История из 3 кадров" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    </template>
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
@@ -155,8 +154,8 @@ onUnmounted(() => {
             </div>
 
             <v-row justify="center">
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" md="4">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="230" :color="choiceColor(choice)" @select="choose(choice)">
+              <v-col v-for="choice in round.choices" :key="choice.id" cols="4" sm="4">
+                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="150" :color="choiceColor(choice)" @select="choose(choice)">
                   <template #default>
                     <div class="frame-emoji emoji-glyph">{{ choice.emoji }}</div>
                     <div class="text-h5 font-weight-bold mt-3">{{ choice.label }}</div>
@@ -169,19 +168,10 @@ onUnmounted(() => {
       </v-row>
     </v-container>
     <GameResultDialog :model-value="resultVisible" title="История из 3 кадров" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
-  </div>
+  </GamePageShell>
 </template>
 
 <style scoped>
-.story-shell {
-  background: linear-gradient(135deg, #fff8e1 0%, #e3f2fd 54%, #f3e5f5 100%);
-  min-block-size: 100vh;
-}
-
-.game-container {
-  padding-block-start: 132px;
-}
-
 .story-slots {
   display: grid;
   gap: 18px;
@@ -221,20 +211,12 @@ onUnmounted(() => {
 }
 
 @media (max-width: 700px) {
-  .game-container {
-    padding-block-start: 156px;
-  }
-
   .story-slots {
     gap: 10px;
   }
 }
 
 @media (max-height: 920px) {
-  .game-container {
-    padding-block-start: 7.25rem;
-  }
-
   .story-slots {
     display: none;
   }

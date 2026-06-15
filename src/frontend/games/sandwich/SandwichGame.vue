@@ -3,18 +3,16 @@ import { computed, onUnmounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
+import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { buildSandwichSteps, sandwichChoices, type SandwichChoice, type SandwichStep } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("sandwich", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("sandwich", {
   maxSteps: 6,
-  dwellMs: 1300,
-  sessionSeconds: 130,
-  sound: false
-}, {
+  overrides: { sound: false },
   finishOnMistakes: false
 });
 
@@ -120,8 +118,10 @@ watch(() => session.status, (status) => {
 </script>
 
 <template>
-  <div class="sandwich-shell">
-    <GameHud title="Бутерброд" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+  <GamePageShell gradient="linear-gradient(135deg, #fff8e1 0%, #eef8ee 54%, #fff3e0 100%)" padding-top="4rem">
+    <template #hud>
+      <GameHud title="Бутерброд" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    </template>
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
@@ -161,13 +161,13 @@ watch(() => session.status, (status) => {
               </v-card>
 
               <div class="ingredient-grid" aria-label="Ингредиенты для бутерброда">
-                <GameDwellButton v-for="choice in sandwichChoices" :key="choice.id" :class="{ 'needed-choice': hintedStepId === currentStep?.id && currentStep?.choice.id === choice.id }" :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingFeedback" :dwell-ms="session.settings.dwellMs" :min-height="150" :color="choiceColor(choice)" @select="chooseIngredient(choice)">
+                <GameDwellButton v-for="choice in sandwichChoices" :key="choice.id" :class="{ 'needed-choice': hintedStepId === currentStep?.id && currentStep?.choice.id === choice.id }" :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingFeedback" :dwell-ms="session.settings.dwellMs" :min-height="110" :color="choiceColor(choice)" @select="chooseIngredient(choice)">
                   <template #default>
                     <div class="ingredient-content">
-                      <v-avatar :color="choice.color" size="70">
-                        <v-icon color="white" :icon="choice.icon" size="42" />
+                      <v-avatar :color="choice.color" size="58">
+                        <v-icon color="white" :icon="choice.icon" size="34" />
                       </v-avatar>
-                      <div class="text-h6 font-weight-bold mt-3">{{ choice.label }}</div>
+                      <div class="text-subtitle-1 font-weight-bold mt-2">{{ choice.label }}</div>
                     </div>
                   </template>
                 </GameDwellButton>
@@ -178,19 +178,10 @@ watch(() => session.status, (status) => {
       </v-row>
     </v-container>
     <GameResultDialog :model-value="resultVisible" title="Бутерброд" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
-  </div>
+  </GamePageShell>
 </template>
 
 <style scoped>
-.sandwich-shell {
-  background: linear-gradient(135deg, #fff8e1 0%, #eef8ee 54%, #fff3e0 100%);
-  min-block-size: 100vh;
-}
-
-.game-container {
-  padding-block-start: 132px;
-}
-
 .prompt-card {
   border: 2px solid rgb(var(--v-theme-warning) / 18%);
 }
@@ -285,13 +276,13 @@ watch(() => session.status, (status) => {
 }
 
 @media (min-width: 700px) and (max-height: 820px) {
-  .game-container {
-    padding-block-start: 7rem;
-  }
-
   .play-area {
     gap: 1rem;
-    grid-template-columns: minmax(0, 0.8fr) minmax(18rem, 1.2fr);
+    grid-template-columns: 1fr;
+  }
+
+  .plate-card {
+    display: none;
   }
 
   .plate-stage {
@@ -302,13 +293,17 @@ watch(() => session.status, (status) => {
     min-block-size: 190px;
     padding: 24px 20px;
   }
+
+  .ingredient-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .ingredient-grid > :last-child {
+    grid-column: auto;
+  }
 }
 
 @media (max-width: 600px) {
-  .game-container {
-    padding-block-start: 156px;
-  }
-
   .plate-stage {
     min-block-size: 340px;
   }
