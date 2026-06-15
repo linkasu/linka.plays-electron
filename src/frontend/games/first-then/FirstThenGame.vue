@@ -1,19 +1,16 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import GameDwellButton from "../../components/game/GameDwellButton.vue";
+import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
+import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateFirstThenRound, type FirstThenAction, type FirstThenPhase, type FirstThenRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, finishSession, startSession } = useGameSession("first-then", {
-  maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 120
-}, { finishOnMistakes: false, finishOnMaxSteps: false });
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, finishSession, startSession } = useGameSessionFor("first-then", { maxSteps: 8, finishOnMistakes: false, finishOnMaxSteps: false });
 
 const pairIndex = ref(1);
 const phase = ref<FirstThenPhase>("first");
@@ -118,8 +115,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="first-then-shell">
-    <GameHud title="Сначала-потом" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+  <GamePageShell gradient="linear-gradient(135deg, #f1f7ff 0%, #fff6e8 52%, #f3ecff 100%)" padding-top="8.25rem">
+    <template #hud>
+      <GameHud title="Сначала-потом" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    </template>
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="9">
@@ -143,35 +142,22 @@ onUnmounted(() => {
             </v-card>
 
             <v-chip class="mb-4" color="primary" size="large" variant="tonal">Выбираем: {{ phaseLabel }}</v-chip>
-            <v-row>
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" md="6">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="230" color="surface" @select="chooseAction(choice)">
-                  <template #default>
-                    <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
-                    <div class="text-h3 text-md-h2 font-weight-bold mb-2">{{ choice.title }}</div>
-                    <div class="text-h6 text-medium-emphasis">{{ choice.phrase }}</div>
-                  </template>
-                </GameDwellButton>
-              </v-col>
-            </v-row>
+            <GameChoiceCardGrid :choices="round.choices" :target-id="choiceTargetId" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="170" :cols="12" :md="6" @select="chooseAction">
+              <template #default="{ choice }">
+                <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
+                <div class="text-h4 text-md-h3 font-weight-bold mb-2">{{ choice.title }}</div>
+                <div class="choice-phrase text-body-1 text-md-h6 font-weight-medium">{{ choice.phrase }}</div>
+              </template>
+            </GameChoiceCardGrid>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
     <GameResultDialog :model-value="resultVisible" title="Сначала-потом" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
-  </div>
+  </GamePageShell>
 </template>
 
 <style scoped>
-.first-then-shell {
-  background: linear-gradient(135deg, #f1f7ff 0%, #fff6e8 52%, #f3ecff 100%);
-  min-block-size: 100vh;
-}
-
-.game-container {
-  padding-block-start: 132px;
-}
-
 .timeline-step {
   background: rgb(var(--v-theme-surface) / 72%);
   border: 2px solid rgb(var(--v-theme-primary) / 12%);
@@ -188,15 +174,15 @@ onUnmounted(() => {
 }
 
 .choice-emoji {
-  font-size: clamp(4.5rem, 10vw, 7rem);
+  font-size: clamp(3.75rem, 8vw, 6rem);
   line-height: 1;
 }
 
-@media (max-height: 820px) {
-  .game-container {
-    padding-block-start: 7.25rem;
-  }
+.choice-phrase {
+  color: rgb(var(--v-theme-on-surface));
+}
 
+@media (max-height: 820px) {
   .timeline-step {
     display: none;
   }

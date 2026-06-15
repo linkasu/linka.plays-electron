@@ -1,20 +1,17 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import GameDwellButton from "../../components/game/GameDwellButton.vue";
+import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
+import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateObjectActionRound, type ObjectActionChoice, type ObjectActionRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, finishSession, startSession } = useGameSession("object-action", {
-  maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 125
-}, { finishOnMistakes: false, finishOnMaxSteps: false });
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, finishSession, startSession } = useGameSessionFor("object-action", { maxSteps: 8, finishOnMistakes: false, finishOnMaxSteps: false });
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<ObjectActionRound>({
   session,
@@ -24,7 +21,7 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
 
 const feedback = ref("Выбери действие, которое подходит к предмету.");
 const isChangingRound = ref(false);
-const choiceMinHeight = computed(() => Math.round(210 * session.settings.targetScale));
+const choiceMinHeight = computed(() => Math.round(160 * session.settings.targetScale));
 let transitionTimer = 0;
 
 function choiceTargetId(choice: ObjectActionChoice) {
@@ -104,8 +101,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="object-action-shell">
-    <GameHud title="Предмет + действие" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+  <GamePageShell gradient="linear-gradient(135deg, #eef8ff 0%, #fff7e8 50%, #f1ecff 100%)" padding-top="8.25rem">
+    <template #hud>
+      <GameHud title="Предмет + действие" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    </template>
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="9">
@@ -126,34 +125,21 @@ onUnmounted(() => {
               </div>
             </v-card>
 
-            <v-row>
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="choiceMinHeight" color="surface" @select="chooseAction(choice)">
-                  <template #default>
-                    <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
-                    <div class="text-h4 text-md-h3 font-weight-bold">{{ choice.title }}</div>
-                  </template>
-                </GameDwellButton>
-              </v-col>
-            </v-row>
+            <GameChoiceCardGrid :choices="round.choices" :target-id="choiceTargetId" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="choiceMinHeight" :cols="6" :sm="3" @select="chooseAction">
+              <template #default="{ choice }">
+                <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
+                <div class="choice-title text-h5 text-md-h4 font-weight-bold">{{ choice.title }}</div>
+              </template>
+            </GameChoiceCardGrid>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
     <GameResultDialog :model-value="resultVisible" title="Предмет + действие" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
-  </div>
+  </GamePageShell>
 </template>
 
 <style scoped>
-.object-action-shell {
-  background: linear-gradient(135deg, #eef8ff 0%, #fff7e8 50%, #f1ecff 100%);
-  min-block-size: 100vh;
-}
-
-.game-container {
-  padding-block-start: 132px;
-}
-
 .object-emoji {
   font-size: clamp(5rem, 12vw, 8.5rem);
   line-height: 1;
@@ -164,11 +150,13 @@ onUnmounted(() => {
   line-height: 1;
 }
 
-@media (max-height: 820px) {
-  .game-container {
-    padding-block-start: 7.25rem;
-  }
+.choice-title {
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
 
+@media (max-height: 820px) {
   .object-card {
     display: none;
   }

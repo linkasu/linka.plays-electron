@@ -3,21 +3,16 @@ import { computed, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
+import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateComicStripRound, getComicFrameChoices, type ComicFrame } from "./model";
 
 const storyAdvanceMs = 1300;
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("comic-strip", {
-  maxSteps: 6,
-  dwellMs: 1300,
-  sessionSeconds: 140
-}, {
-  finishOnMistakes: false
-});
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("comic-strip", { maxSteps: 6, finishOnMistakes: false });
 
 const storyRoundIndex = ref(1);
 const placedFrameIds = ref<string[]>([]);
@@ -107,8 +102,10 @@ onUnmounted(clearAdvanceTimer);
 </script>
 
 <template>
-  <div class="comic-strip-shell">
-    <GameHud title="Комикс" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+  <GamePageShell gradient="linear-gradient(135deg, #fff7e8 0%, #eef8ff 48%, #f6f0ff 100%)" padding-top="5rem">
+    <template #hud>
+      <GameHud title="Комикс" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    </template>
     <v-container class="comic-strip-container" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
@@ -150,13 +147,13 @@ onUnmounted(clearAdvanceTimer);
             </v-card>
 
             <v-row dense justify="center">
-              <v-col v-for="frame in choices" :key="frame.id" cols="12" md="4">
-                <GameDwellButton :target-id="frameTargetId(frame)" :disabled="session.status !== 'running' || isAdvancingStory" :dwell-ms="session.settings.dwellMs" :min-height="190" :color="hintedFrameId === frame.id ? 'primary' : frame.color" @select="chooseFrame(frame)">
+              <v-col v-for="frame in choices" :key="frame.id" cols="4" sm="4">
+                <GameDwellButton :target-id="frameTargetId(frame)" :disabled="session.status !== 'running' || isAdvancingStory" :dwell-ms="session.settings.dwellMs" :min-height="130" :color="hintedFrameId === frame.id ? 'primary' : 'surface'" @select="chooseFrame(frame)">
                   <template #default>
                     <div :class="['choice-frame', { 'choice-frame--mistake': lastMistakeFrameId === frame.id }]">
                       <v-icon :icon="frame.icon" size="64" />
-                      <div class="text-h5 font-weight-bold mt-3">{{ frame.caption }}</div>
-                      <div class="text-body-1 text-medium-emphasis mt-1">выбрать кадр</div>
+                      <div class="choice-frame__caption text-body-1 text-md-h6 font-weight-bold mt-3">{{ frame.caption }}</div>
+                      <div class="choice-frame__note text-body-2 font-weight-medium mt-1">выбрать кадр</div>
                     </div>
                   </template>
                 </GameDwellButton>
@@ -167,19 +164,10 @@ onUnmounted(clearAdvanceTimer);
       </v-row>
     </v-container>
     <GameResultDialog :model-value="session.status === 'finished'" title="Комикс" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
-  </div>
+  </GamePageShell>
 </template>
 
 <style scoped>
-.comic-strip-shell {
-  background: linear-gradient(135deg, #fff7e8 0%, #eef8ff 48%, #f6f0ff 100%);
-  min-block-size: 100vh;
-}
-
-.comic-strip-container {
-  padding-block-start: 8.75rem;
-}
-
 .comic-slot {
   align-items: center;
   border: 2px solid rgb(var(--v-theme-primary) / 12%);
@@ -196,25 +184,26 @@ onUnmounted(clearAdvanceTimer);
   transition: transform 180ms ease;
 }
 
+.choice-frame__caption {
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.choice-frame__note {
+  color: rgb(var(--v-theme-on-surface));
+}
+
 .choice-frame--mistake {
   transform: scale(0.96);
 }
 
 @media (max-height: 44rem) {
-  .comic-strip-container {
-    padding-block-start: 7.5rem;
-  }
-
   .comic-slot {
     min-block-size: 9.5rem;
   }
 }
 
 @media (max-height: 920px) {
-  .comic-strip-container {
-    padding-block-start: 7.25rem;
-  }
-
   .comic-slot {
     display: none;
   }
