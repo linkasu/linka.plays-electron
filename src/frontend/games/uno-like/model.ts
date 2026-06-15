@@ -33,7 +33,7 @@ export type UnoLikeRound = {
 export const unoLikeColors: UnoLikeColor[] = [
   { id: "red", label: "красный", hex: "#d83a3a", textColor: "#ffffff" },
   { id: "blue", label: "синий", hex: "#2f6fdb", textColor: "#ffffff" },
-  { id: "green", label: "зелёный", hex: "#2f9e62", textColor: "#ffffff" },
+  { id: "green", label: "зелёный", hex: "#1b5e20", textColor: "#ffffff" },
   { id: "yellow", label: "жёлтый", hex: "#f8c73e", textColor: "#25210c" }
 ];
 

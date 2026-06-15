@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { disposeMemoryCardsAudio, playMemoryCardsMatchMelody, playMemoryCardsMismatchMelody, warmMemoryCardsAudio } from "./audio";
 import { createMemoryCardsRound, type MemoryCard } from "./model";
 
@@ -15,14 +15,12 @@ type MemoryCardState = MemoryCard & {
 };
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSession("memory-cards", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("memory-cards", {
   maxSteps: 3,
-  dwellMs: 1300,
-  sessionSeconds: 180,
-  targetScale: 1.2,
-  sound: true
-}, { finishOnMaxSteps: false, finishOnMistakes: false });
+  overrides: { preset: "gentle", targetScale: 1.2, sound: true },
+  finishOnMaxSteps: false,
+  finishOnMistakes: false
+});
 
 const roundIndex = ref(1);
 const round = ref(createMemoryCardsRound(session.settings, roundIndex.value));

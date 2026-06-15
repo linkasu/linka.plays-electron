@@ -4,19 +4,13 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateUnoLikeRound, getUnoLikeMatchTraits, isUnoLikePlayable, type UnoLikeCard, type UnoLikeRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("uno-like", {
-  maxSteps: 10,
-  dwellMs: 1300,
-  sessionSeconds: 180
-}, {
-  finishOnMistakes: false
-});
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("uno-like", { maxSteps: 10, finishOnMistakes: false });
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<UnoLikeRound>({
   session,
@@ -87,8 +81,8 @@ function restart() {
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11" xl="9">
-          <v-card class="pa-4 pa-md-7" color="rgba(255, 255, 255, 0.94)" rounded="xl" elevation="8">
-            <div class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-5">
+          <v-card class="pa-4 pa-md-6" color="rgba(255, 255, 255, 0.94)" rounded="xl" elevation="8">
+            <div class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-4">
               <div>
                 <div class="text-overline text-secondary mb-1">Стратегия: цвет или число</div>
                 <h1 class="text-h3 text-md-h2 font-weight-bold mb-2">{{ round.prompt }}</h1>
@@ -100,7 +94,7 @@ function restart() {
             </div>
 
             <v-row class="align-stretch" dense>
-              <v-col cols="12" md="4">
+              <v-col class="open-card-col" cols="12" md="4">
                 <v-sheet class="open-card-panel pa-4" color="secondary" rounded="xl">
                   <div class="text-overline text-white text-center mb-3">Открытая карта</div>
                   <div class="uno-card uno-card--open" :style="{ borderColor: round.openCard.color.hex }">
@@ -113,18 +107,16 @@ function restart() {
 
               <v-col cols="12" md="8">
                 <v-row class="choice-grid" dense>
-                  <v-col v-for="card in round.choices" :key="card.id" cols="12" sm="6" :lg="round.choices.length >= 5 ? 4 : 6">
-                    <GameDwellButton :class="{ 'target-hint': isHinted(card) }" :target-id="cardTargetId(card)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="220" :color="cardButtonColor(card)" @select="choose(card)">
+                  <v-col v-for="card in round.choices" :key="card.id" cols="6" sm="3" :lg="round.choices.length >= 5 ? 4 : 6">
+                    <GameDwellButton :class="{ 'target-hint': isHinted(card) }" :target-id="cardTargetId(card)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="170" :color="cardButtonColor(card)" @select="choose(card)">
                       <template #default>
                         <div :class="['choice-card', { 'choice-card--mistake': lastMistakeId === card.id }]">
                           <div class="uno-card" :style="{ borderColor: card.color.hex }">
                             <div class="uno-card__stripe" :style="{ backgroundColor: card.color.hex, color: card.color.textColor }">{{ card.color.label }}</div>
                             <div class="uno-card__number">{{ card.number }}</div>
                           </div>
-                          <div class="text-h6 text-md-h5 font-weight-bold mt-3">{{ card.label }}</div>
-                          <v-chip class="mt-2" :color="isHinted(card) ? 'primary' : 'secondary'" :variant="isHinted(card) ? 'flat' : 'tonal'" rounded="lg" size="large">
-                            {{ matchLabel(card) }}
-                          </v-chip>
+                          <div class="choice-label text-body-1 text-md-h6 font-weight-bold mt-2">{{ card.label }}</div>
+                          <div class="match-pill mt-2">{{ matchLabel(card) }}</div>
                         </div>
                       </template>
                     </GameDwellButton>
@@ -156,7 +148,7 @@ function restart() {
 }
 
 .game-container {
-  padding-block-start: 8.75rem;
+  padding-block-start: 5rem;
 }
 
 .open-card-panel {
@@ -183,6 +175,22 @@ function restart() {
 .choice-card--mistake {
   filter: saturate(0.74) opacity(0.74);
   transform: scale(0.97);
+}
+
+.choice-label {
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.match-pill {
+  background: #1b5e20;
+  border-radius: 0.75rem;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.1;
+  padding: 0.35rem 0.55rem;
 }
 
 .uno-card {
@@ -227,7 +235,7 @@ function restart() {
 
 @media (max-height: 44rem) {
   .game-container {
-    padding-block-start: 7.5rem;
+    padding-block-start: 5rem;
   }
 
   .open-card-panel {
@@ -237,11 +245,16 @@ function restart() {
 
 @media (max-height: 820px) {
   .game-container {
-    padding-block-start: 7.25rem;
+    padding-block-start: 5rem;
   }
 
+  .open-card-col,
   .open-card-panel {
     display: none;
+  }
+
+  .uno-card {
+    inline-size: clamp(5rem, 12vw, 7rem);
   }
 }
 </style>

@@ -4,9 +4,9 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 
 type PictureFragment = {
   id: string;
@@ -34,13 +34,7 @@ const pictureFragments: PictureFragment[] = [
 ];
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("fix-picture", {
-  maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 130
-}, {
-  finishOnMistakes: false
-});
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("fix-picture", { maxSteps: 8, finishOnMistakes: false });
 
 const revealedIds = ref<string[]>([]);
 const hintedRoundId = ref<string>();
