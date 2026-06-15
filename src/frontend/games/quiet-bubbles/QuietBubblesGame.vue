@@ -3,9 +3,9 @@ import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
-import { useGameSession } from "../../core/session";
 import { disposeQuietBubblesAudio, playQuietBubbleMelody, resetQuietBubblesAudioSession, warmQuietBubblesAudio } from "./audio";
 
 type Point = { x: number; y: number };
@@ -33,16 +33,9 @@ type Ripple = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSession("quiet-bubbles", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("quiet-bubbles", {
   maxSteps: 10,
-  dwellMs: 1200,
-  sessionSeconds: 75,
-  targetScale: 1.55,
-  motionSpeed: 0.42,
-  distractors: "none",
-  hints: "high"
-}, {
+  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.42, distractors: "none", hints: "high" },
   finishOnMaxSteps: false
 });
 
@@ -533,14 +526,14 @@ onUnmounted(() => {
     <canvas ref="canvasRef" class="quiet-bubbles-canvas" />
 
     <div class="quiet-controls d-flex align-center ga-1 pa-1">
-      <v-btn aria-label="В меню" color="surface" density="comfortable" icon="mdi-arrow-left" size="small" variant="text" @click="router.push(resolveMenuRoute())" />
+      <v-btn aria-label="В меню" color="primary" density="comfortable" icon="mdi-arrow-left" size="small" variant="flat" @click="router.push(resolveMenuRoute())" />
       <v-btn
         :aria-label="session.status === 'paused' ? 'Продолжить' : 'Пауза'"
-        color="surface"
+        color="primary"
         density="comfortable"
         :icon="session.status === 'paused' ? 'mdi-play' : 'mdi-pause'"
         size="small"
-        variant="text"
+        variant="flat"
         @click="session.status === 'paused' ? resumeSession() : pauseSession()"
       />
     </div>
@@ -575,12 +568,12 @@ onUnmounted(() => {
 }
 
 .quiet-controls {
-  background: rgb(255 255 255 / 34%);
-  border: 1px solid rgb(255 255 255 / 42%);
+  background: rgb(var(--v-theme-surface) / 88%);
+  border: 1px solid rgb(var(--v-theme-primary) / 18%);
   border-radius: 18px;
   inset-block-start: max(16px, env(safe-area-inset-top));
   inset-inline-start: max(16px, env(safe-area-inset-left));
-  opacity: 0.5;
+  opacity: 0.9;
   position: absolute;
   transition: opacity 160ms ease;
   z-index: 2;

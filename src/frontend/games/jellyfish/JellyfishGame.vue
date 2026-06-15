@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { disposeJellyfishAudio, playJellyfishSuccess, resetJellyfishAudioSession, scheduleJellyfishAmbient, warmJellyfishAudio } from "./audio";
 
 type Point = { x: number; y: number };
@@ -34,16 +34,9 @@ type Bubble = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSession("jellyfish", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("jellyfish", {
   maxSteps: 8,
-  dwellMs: 1450,
-  sessionSeconds: 85,
-  targetScale: 1.55,
-  motionSpeed: 0.36,
-  distractors: "none",
-  hints: "high"
-}, {
+  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.36, distractors: "none", hints: "high" },
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });

@@ -4,9 +4,9 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { clampTargetCenterPercent } from "../../core/placement";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
 import ttsAssets from "../../data/ttsAssets.json";
 import { disposeHideAndSeekAudio, playHideAndSeekMistakeMelody, playHideAndSeekSuccessMelody, resetHideAndSeekAudioSession, warmHideAndSeekAudio } from "./audio";
@@ -46,11 +46,7 @@ const positionTemplates = [
 ];
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("hide-and-seek", {
-  maxSteps: totalRounds,
-  dwellMs: 1200,
-  sessionSeconds: 120
-});
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("hide-and-seek", { maxSteps: totalRounds });
 
 const hideAndSeekTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.game === "hide-and-seek");
 const rounds = ref<SeekRound[]>(createRounds());
