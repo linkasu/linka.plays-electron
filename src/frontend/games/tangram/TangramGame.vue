@@ -4,19 +4,13 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateTangramRound, type TangramFigure, type TangramPiece, type TangramRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("tangram", {
-  maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 180
-}, {
-  finishOnMistakes: false
-});
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("tangram", { maxSteps: 8, finishOnMistakes: false });
 
 const hintedRoundId = ref<string>();
 const lastMistakeId = ref<string>();
@@ -102,14 +96,14 @@ function restart() {
             </v-card>
 
             <v-row class="choice-grid" dense justify="center">
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6" :lg="round.choices.length === 3 ? 4 : 3">
-                <GameDwellButton :class="[{ 'target-hint': hintedChoiceId === choice.id, 'choice-mistake': lastMistakeId === choice.id }]" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="230" :color="hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="answer(choice)">
+              <v-col v-for="choice in round.choices" :key="choice.id" cols="6" sm="3" :lg="round.choices.length === 3 ? 4 : 3">
+                <GameDwellButton :class="[{ 'target-hint': hintedChoiceId === choice.id, 'choice-mistake': lastMistakeId === choice.id }]" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="170" :color="hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="answer(choice)">
                   <template #default>
                     <svg class="choice-figure" viewBox="0 0 100 100" role="img" :aria-label="choice.label">
                       <polygon v-for="(piece, index) in choice.pieces" :key="`${choice.id}-${index}`" :points="piece.points" :fill="pieceFill(piece)" />
                     </svg>
-                    <div class="text-h5 text-md-h4 font-weight-bold mt-3">{{ choice.label }}</div>
-                    <div class="text-body-1 text-medium-emphasis mt-1">{{ choice.category }}</div>
+                    <div class="choice-label text-h5 text-md-h4 font-weight-bold mt-3">{{ choice.label }}</div>
+                    <div class="choice-category text-body-1 mt-1">{{ choice.category }}</div>
                   </template>
                 </GameDwellButton>
               </v-col>
@@ -169,6 +163,11 @@ function restart() {
   transition: filter 180ms ease, transform 180ms ease;
 }
 
+.choice-label,
+.choice-category {
+  color: #1f2a27 !important;
+}
+
 .target-hint {
   filter: drop-shadow(0 0 1.2rem rgb(var(--v-theme-primary) / 44%));
   transform: scale(1.03);
@@ -189,7 +188,15 @@ function restart() {
   }
 
   .choice-figure {
-    block-size: 7.5rem;
+    block-size: 5.5rem;
+  }
+
+  .choice-label {
+    font-size: 1.15rem !important;
+  }
+
+  .choice-category {
+    display: none;
   }
 }
 

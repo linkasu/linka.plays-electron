@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 
 type HeroRouteStep = {
   id: string;
@@ -27,12 +27,9 @@ const routeSteps: HeroRouteStep[] = [
 ];
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("hero-route", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("hero-route", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 135,
-  sound: false
-}, {
+  overrides: { sound: false },
   finishOnMistakes: false
 });
 
@@ -174,11 +171,11 @@ onUnmounted(() => {
           <v-card class="hero-route-panel pa-4 pa-md-7" rounded="xl" elevation="8">
             <div class="text-overline text-primary text-center mb-2">Последовательность по картинкам и стрелкам</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">Маршрут героя</h1>
-            <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5">
+            <p class="hero-route-description text-h6 text-md-h5 text-medium-emphasis text-center mb-5">
               Выбирай следующий ориентир. Если ошибиться, игра только подскажет нужный шаг.
             </p>
 
-            <v-alert class="mb-5 text-h6" :color="hintedChoiceId ? 'primary' : 'secondary'" :icon="hintedChoiceId ? 'mdi-lightbulb-on-outline' : 'mdi-map-marker-path'" rounded="xl" variant="tonal">
+            <v-alert class="hero-route-feedback mb-5 text-h6" :color="hintedChoiceId ? 'primary' : 'secondary'" :icon="hintedChoiceId ? 'mdi-lightbulb-on-outline' : 'mdi-map-marker-path'" rounded="xl" variant="tonal">
               {{ feedbackText }}
             </v-alert>
 
@@ -211,15 +208,15 @@ onUnmounted(() => {
               </v-row>
             </v-card>
 
-            <div class="text-h5 font-weight-bold text-center mb-4">Куда герой идёт сейчас?</div>
+            <div class="choice-title text-h5 font-weight-bold text-center mb-4">Куда герой идёт сейчас?</div>
             <v-row justify="center">
-              <v-col v-for="step in choiceSteps" :key="`choice-${step.id}`" cols="12" md="4">
-                <GameDwellButton :target-id="stepTargetId(step)" :disabled="session.status !== 'running' || pendingChoice" :dwell-ms="session.settings.dwellMs" :min-height="210" :color="choiceColor(step)" @select="chooseStep(step)">
+              <v-col v-for="step in choiceSteps" :key="`choice-${step.id}`" cols="4" md="4">
+                <GameDwellButton :target-id="stepTargetId(step)" :disabled="session.status !== 'running' || pendingChoice" :dwell-ms="session.settings.dwellMs" :min-height="150" :color="choiceColor(step)" @select="chooseStep(step)">
                   <template #default="{ active, progress }">
                     <div class="choice-content" :style="markerStyle(step)">
                       <v-icon class="choice-icon" :icon="step.icon" />
-                      <div class="text-h5 font-weight-bold mt-3">{{ step.label }}</div>
-                      <div class="text-body-2 text-medium-emphasis mt-2">{{ step.cue }}</div>
+                      <div class="choice-label text-h5 font-weight-bold mt-3">{{ step.label }}</div>
+                      <div class="choice-cue text-body-2 mt-2">{{ step.cue }}</div>
                       <v-chip v-if="hintedChoiceId === step.id" class="mt-3" color="primary" variant="flat">Подсказка: сюда</v-chip>
                       <v-chip v-else-if="active" class="mt-3" color="secondary" variant="flat">Держи взгляд {{ Math.round(progress * 100) }}%</v-chip>
                     </div>
@@ -318,6 +315,11 @@ onUnmounted(() => {
   justify-content: center;
 }
 
+.choice-label,
+.choice-cue {
+  color: #1f2a27 !important;
+}
+
 .choice-icon {
   background: linear-gradient(180deg, var(--route-step-color), rgb(255 255 255 / 70%));
   border-radius: 2rem;
@@ -348,6 +350,22 @@ onUnmounted(() => {
 
   .route-map {
     display: none;
+  }
+
+  .hero-route-description,
+  .hero-route-feedback,
+  .choice-cue,
+  .text-overline {
+    display: none;
+  }
+
+  .choice-title {
+    margin-block-end: 0.75rem !important;
+  }
+
+  .choice-icon {
+    font-size: clamp(2.8rem, 7vw, 4rem);
+    padding: 0.85rem;
   }
 }
 </style>

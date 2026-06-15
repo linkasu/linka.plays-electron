@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 
 type OrchestraInstrument = {
   id: string;
@@ -32,16 +32,9 @@ const feedbackMessage = ref("Выбирай инструменты по поря
 const audioEnabled = ref(false);
 let audioContext: AudioContext | null = null;
 
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("orchestra", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("orchestra", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 135,
-  targetScale: 1.55,
-  motionSpeed: 0.42,
-  distractors: "none",
-  hints: "high"
-}, {
+  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.42, distractors: "none", hints: "high" },
   finishOnMistakes: false
 });
 
@@ -210,15 +203,15 @@ onUnmounted(() => {
                   :target-id="instrumentTargetId(instrument)"
                   :disabled="session.status !== 'running'"
                   :dwell-ms="session.settings.dwellMs"
-                  :min-height="190"
+                  :min-height="128"
                   color="surface"
                   @select="chooseInstrument(instrument)"
                 >
                   <template #default="{ active, progress }">
                     <div class="instrument-card" :class="{ 'instrument-card--active': active }" :style="{ '--instrument-color': instrument.color, '--instrument-progress': progress }">
                       <v-icon class="instrument-icon" :icon="instrument.icon" />
-                      <div class="text-h5 font-weight-bold mt-3">{{ instrument.label }}</div>
-                      <div class="text-body-2 text-medium-emphasis mt-2">{{ active ? "Держи взгляд" : "Посмотри сюда" }}</div>
+                      <div class="instrument-card__label text-h5 font-weight-bold mt-3">{{ instrument.label }}</div>
+                      <div class="instrument-card__hint text-body-2 mt-2">{{ active ? "Держи взгляд" : "Посмотри сюда" }}</div>
                     </div>
                   </template>
                 </GameDwellButton>
@@ -387,8 +380,31 @@ onUnmounted(() => {
     display: none;
   }
 
+  .orchestra-panel > .d-flex,
+  .conductor-card {
+    display: none !important;
+  }
+
   .orchestra-layout {
     grid-template-columns: 1fr;
+  }
+
+  .choice-grid {
+    gap: 12px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .instrument-card__label,
+  .instrument-card__hint {
+    color: #1f2a27 !important;
+  }
+
+  .instrument-card__hint {
+    display: none;
+  }
+
+  .instrument-icon {
+    font-size: clamp(3rem, 8vw, 4.5rem);
   }
 }
 

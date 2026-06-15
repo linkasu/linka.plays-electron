@@ -4,9 +4,9 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateShapeDanceRound, type ShapeDanceFigure, type ShapeDanceRound } from "./model";
 
 type DancePhase = "watch" | "repeat" | "feedback";
@@ -26,13 +26,7 @@ const isLocked = ref(true);
 let sequenceTimers: number[] = [];
 let feedbackTimer = 0;
 
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("shape-dance", {
-  maxSteps: 8,
-  dwellMs: 1250,
-  sessionSeconds: 130
-}, {
-  finishOnMistakes: false
-});
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("shape-dance", { maxSteps: 8, finishOnMistakes: false });
 
 const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame<ShapeDanceRound>({
   session,
@@ -158,7 +152,7 @@ function chooseFigure(figure: ShapeDanceFigure) {
 }
 
 function figureColor(figure: ShapeDanceFigure) {
-  if (activeFigureId.value === figure.id) return "primary";
+  if (activeFigureId.value === figure.id) return "blue-grey-darken-4";
   if (hintedFigureId.value === figure.id) return "warning-lighten-4";
   if (selectedIds.value.includes(figure.id)) return "green-lighten-5";
   return figure.surfaceColor;
@@ -192,7 +186,7 @@ onUnmounted(() => {
               <div class="dance-stage__figures" aria-label="Фигуры танца">
                 <div v-for="figure in round.choices" :key="`stage-${figure.id}`" :class="['stage-figure', figure.motionClass, { 'stage-figure--active': activeFigureId === figure.id, 'stage-figure--hint': hintedFigureId === figure.id }]">
                   <v-icon class="stage-figure__icon" :color="figure.iconColor" :icon="figure.icon" />
-                  <div class="text-h6 text-md-h5 font-weight-bold mt-2">{{ figure.label }}</div>
+                  <div class="figure-label text-h6 text-md-h5 font-weight-bold mt-2">{{ figure.label }}</div>
                 </div>
               </div>
             </v-card>
@@ -205,12 +199,12 @@ onUnmounted(() => {
             </div>
 
             <v-row dense justify="center">
-              <v-col v-for="figure in round.choices" :key="figure.id" cols="12" sm="6" md="3">
-                <GameDwellButton :target-id="figureTargetId(figure)" :disabled="session.status !== 'running' || phase !== 'repeat' || isLocked" :dwell-ms="session.settings.dwellMs" :min-height="210" :color="figureColor(figure)" @select="chooseFigure(figure)">
+              <v-col v-for="figure in round.choices" :key="figure.id" cols="6" sm="3" md="3">
+                <GameDwellButton :target-id="figureTargetId(figure)" :disabled="session.status !== 'running' || phase !== 'repeat' || isLocked" :dwell-ms="session.settings.dwellMs" :min-height="170" :color="figureColor(figure)" @select="chooseFigure(figure)">
                   <template #default>
                     <div :class="['choice-figure', figure.motionClass, { 'choice-figure--active': activeFigureId === figure.id }]">
                       <v-icon class="choice-figure__icon" :color="activeFigureId === figure.id ? 'white' : figure.iconColor" :icon="figure.icon" />
-                      <div class="text-h5 text-md-h4 font-weight-bold mt-3">{{ figure.label }}</div>
+                      <div class="figure-label text-h5 text-md-h4 font-weight-bold mt-3">{{ figure.label }}</div>
                     </div>
                   </template>
                 </GameDwellButton>
@@ -279,8 +273,16 @@ onUnmounted(() => {
   transition: transform 220ms ease;
 }
 
+.figure-label {
+  color: #1f2a27 !important;
+}
+
 .choice-figure--active {
   transform: scale(1.06);
+}
+
+.choice-figure--active .figure-label {
+  color: #ffffff !important;
 }
 
 @media (max-height: 920px) {
@@ -290,6 +292,14 @@ onUnmounted(() => {
 
   .dance-stage {
     display: none;
+  }
+
+  .choice-figure__icon {
+    font-size: clamp(3.2rem, 8vw, 5rem);
+  }
+
+  .figure-label {
+    font-size: 1.2rem !important;
   }
 }
 
