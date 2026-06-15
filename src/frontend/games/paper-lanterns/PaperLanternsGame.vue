@@ -4,9 +4,9 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
-import { useGameSession } from "../../core/session";
 import { disposePaperLanternsPiano, playPaperLanternsCue, setPaperLanternsPianoActive, tickPaperLanternsPiano, warmPaperLanternsPiano } from "./audio";
 
 type Point = { x: number; y: number };
@@ -32,17 +32,9 @@ type Star = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSession("paper-lanterns", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("paper-lanterns", {
   maxSteps: 9,
-  dwellMs: 1350,
-  sessionSeconds: 85,
-  targetScale: 1.6,
-  motionSpeed: 0.42,
-  distractors: "none",
-  hints: "high",
-  sound: true
-}, {
+  overrides: { preset: "gentle", targetScale: 1.6, motionSpeed: 0.42, distractors: "none", hints: "high", sound: true },
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });

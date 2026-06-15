@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
 import ttsAssets from "../../data/ttsAssets.json";
 import { disposeWarmWindowPiano, playWarmWindowCue, setWarmWindowPianoActive, tickWarmWindowPiano, warmWarmWindowPiano } from "./audio";
@@ -21,17 +21,9 @@ type WindowTarget = {
 };
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("warm-window", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSessionFor("warm-window", {
   maxSteps: 8,
-  dwellMs: 1350,
-  sessionSeconds: 80,
-  targetScale: 1.6,
-  motionSpeed: 0.35,
-  distractors: "none",
-  hints: "high",
-  sound: true
-}, {
+  overrides: { preset: "gentle", targetScale: 1.6, motionSpeed: 0.35, distractors: "none", hints: "high", sound: true },
   finishOnMistakes: false
 });
 
