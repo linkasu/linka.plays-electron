@@ -14,14 +14,14 @@ export type ColorCircleRound = {
 };
 
 export const colorCircleColors: ColorCircleColor[] = [
-  { id: "red", label: "красный", hex: "#D83A3A", textColor: "#FFFFFF" },
+  { id: "red", label: "красный", hex: "#B71C1C", textColor: "#FFFFFF" },
   { id: "yellow", label: "жёлтый", hex: "#F8C73E", textColor: "#25210C" },
-  { id: "blue", label: "синий", hex: "#2F6FDB", textColor: "#FFFFFF" },
-  { id: "green", label: "зелёный", hex: "#2F9E62", textColor: "#FFFFFF" },
-  { id: "purple", label: "фиолетовый", hex: "#8E55C7", textColor: "#FFFFFF" },
+  { id: "blue", label: "синий", hex: "#0D47A1", textColor: "#FFFFFF" },
+  { id: "green", label: "зелёный", hex: "#1B5E20", textColor: "#FFFFFF" },
+  { id: "purple", label: "фиолетовый", hex: "#4A148C", textColor: "#FFFFFF" },
   { id: "orange", label: "оранжевый", hex: "#F28A2E", textColor: "#2B1708" },
-  { id: "teal", label: "бирюзовый", hex: "#21A7A1", textColor: "#FFFFFF" },
-  { id: "pink", label: "розовый", hex: "#E45C95", textColor: "#FFFFFF" }
+  { id: "teal", label: "бирюзовый", hex: "#00695C", textColor: "#FFFFFF" },
+  { id: "pink", label: "розовый", hex: "#880E4F", textColor: "#FFFFFF" }
 ];
 
 const sectorCount = 4;

@@ -1,23 +1,18 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
-import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
-import ttsAssets from "../../data/ttsAssets.json";
-import { disposeColorCircleAudio, playColorCircleMistakeMelody, playColorCircleSuccessMelody, warmColorCircleAudio } from "./audio";
+import { colorCircleFeedback } from "./audio";
 import { generateColorCircleRound, type ColorCircleColor } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("color-circle", {
-  maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 90
-}, { finishOnMistakes: false });
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("color-circle", { maxSteps: 8, finishOnMistakes: false });
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
@@ -29,10 +24,9 @@ const feedbackText = ref("Смотри на сектор нужного цвет
 const revealedTargetId = ref<string>();
 const selectedMistakeId = ref<string>();
 const advancing = ref(false);
-const colorCircleTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.game === "color-circle");
+const promptAudio = useGamePromptAudio({ gameId: "color-circle", soundEnabled: toRef(session.settings, "sound") });
+const responseAudio = useGamePromptAudio({ gameId: "color-circle", soundEnabled: toRef(session.settings, "sound") });
 let advanceTimer = 0;
-let promptTimer = 0;
-let responseTtsTimer = 0;
 
 const targetStyle = computed(() => ({
   "--target-color": round.value.target.hex,
@@ -52,32 +46,17 @@ function sectorStyle(color: ColorCircleColor) {
 
 function clearAdvanceTimer() {
   window.clearTimeout(advanceTimer);
-  window.clearTimeout(promptTimer);
+  promptAudio.cancelPending();
   advanceTimer = 0;
-  promptTimer = 0;
-}
-
-function clearResponseTtsTimer() {
-  window.clearTimeout(responseTtsTimer);
-  responseTtsTimer = 0;
-}
-
-function ttsAsset(id: string) {
-  return colorCircleTtsAssets.find((asset) => asset.id === id);
 }
 
 function playTargetPrompt(delayMs = 0) {
-  window.clearTimeout(promptTimer);
-  promptTimer = window.setTimeout(() => {
-    playTtsAsset(session.settings.sound, ttsAsset(`color-circle.prompt.${round.value.target.id}`), 0.36);
-  }, delayMs);
+  promptAudio.play(`color-circle.prompt.${round.value.target.id}`, delayMs);
 }
 
 function playResponseTts(id: string, delayMs = 920) {
-  clearResponseTtsTimer();
-  responseTtsTimer = window.setTimeout(() => {
-    playTtsAsset(session.settings.sound, ttsAsset(id), 0.36);
-  }, delayMs);
+  responseAudio.cancelPending();
+  responseAudio.play(id, delayMs);
 }
 
 function prepareNextRound() {
@@ -104,7 +83,7 @@ function answer(color: ColorCircleColor) {
   if (color.id === round.value.target.id) {
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: color.id, expected: round.value.target.label, actual: color.label, isCorrect: true });
     feedbackText.value = `Да, это ${color.label}.`;
-    void playColorCircleSuccessMelody(session.settings.sound);
+    void colorCircleFeedback.playSuccess(session.settings.sound);
     playResponseTts(`color-circle.${color.id}`);
     revealedTargetId.value = color.id;
     selectedMistakeId.value = undefined;
@@ -115,7 +94,7 @@ function answer(color: ColorCircleColor) {
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: color.id, expected: round.value.target.label, actual: color.label, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, message: "Показан нужный цвет перед следующим кругом." });
   feedbackText.value = `Это ${color.label}. Нужен был ${round.value.target.label}. Следующий круг спокойно.`;
-  void playColorCircleMistakeMelody(session.settings.sound);
+  void colorCircleFeedback.playMistake(session.settings.sound);
   playResponseTts(`color-circle.${color.id}`);
   revealedTargetId.value = round.value.target.id;
   selectedMistakeId.value = color.id;
@@ -124,7 +103,7 @@ function answer(color: ColorCircleColor) {
 
 function restart() {
   clearAdvanceTimer();
-  clearResponseTtsTimer();
+  responseAudio.cancelPending();
   feedbackText.value = "Смотри на сектор нужного цвета.";
   revealedTargetId.value = undefined;
   selectedMistakeId.value = undefined;
@@ -134,16 +113,20 @@ function restart() {
 }
 
 onMounted(() => {
-  warmColorCircleAudio(session.settings.sound);
-  warmTtsAssets(session.settings.sound, colorCircleTtsAssets);
+  colorCircleFeedback.warm(session.settings.sound);
+  promptAudio.warm();
+  responseAudio.warm();
   playTargetPrompt(450);
+});
+
+watch(() => session.settings.sound, (enabled) => {
+  colorCircleFeedback.warm(enabled);
 });
 
 onUnmounted(() => {
   clearAdvanceTimer();
-  clearResponseTtsTimer();
-  disposeColorCircleAudio();
-  disposeTtsAssets(colorCircleTtsAssets);
+  responseAudio.dispose();
+  colorCircleFeedback.dispose();
 });
 </script>
 
@@ -253,11 +236,16 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   min-block-size: clamp(8.25rem, 24vw, 16rem);
+  padding: 0.6rem;
   position: relative;
   transition: filter 180ms ease, transform 180ms ease;
 }
 
 .color-sector__label {
+  font-size: clamp(1.05rem, min(2.7vw, 3.8vh), 1.75rem) !important;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+  text-align: center;
   text-shadow: 0 0.125rem 0.5rem rgb(0 0 0 / 28%);
 }
 
