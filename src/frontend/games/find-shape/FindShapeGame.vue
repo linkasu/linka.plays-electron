@@ -1,22 +1,19 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
-import GameDwellButton from "../../components/game/GameDwellButton.vue";
+import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
+import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
-import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
-import ttsAssets from "../../data/ttsAssets.json";
 import { generateFindShapeRound, type FindShapeId, type FindShapeOption, type FindShapeRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("find-shape", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("find-shape", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 120
-}, {
   finishOnMistakes: false
 });
 
@@ -30,10 +27,8 @@ const hintedRoundId = ref<string>();
 const lastMistakeId = ref<FindShapeId>();
 const feedbackText = ref("Слушай задание и выбери такую же форму.");
 const advancing = ref(false);
-const findShapeTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.game === "find-shape");
+const promptAudio = useGamePromptAudio({ gameId: "find-shape", soundEnabled: toRef(session.settings, "sound") });
 let advanceTimer = 0;
-let promptTimer = 0;
-let responseTimer = 0;
 
 const shapeView: Record<FindShapeId, { title: string; color: string }> = {
   circle: { title: "Круг", color: "#0f766e" },
@@ -49,31 +44,18 @@ const hintText = computed(() => {
   return `Почти. Нужна форма: ${round.value.target.label}. Посмотри на мягкую подсветку.`;
 });
 
-function ttsAsset(id: string) {
-  return findShapeTtsAssets.find((asset) => asset.id === id);
-}
-
 function clearTtsTimers() {
   window.clearTimeout(advanceTimer);
-  window.clearTimeout(promptTimer);
-  window.clearTimeout(responseTimer);
+  promptAudio.cancelPending();
   advanceTimer = 0;
-  promptTimer = 0;
-  responseTimer = 0;
 }
 
 function playTargetPrompt(delayMs = 0) {
-  window.clearTimeout(promptTimer);
-  promptTimer = window.setTimeout(() => {
-    playTtsAsset(session.settings.sound, ttsAsset(`find-shape.prompt.${round.value.target.id}`), 0.36);
-  }, delayMs);
+  promptAudio.play(`find-shape.prompt.${round.value.target.id}`, delayMs);
 }
 
 function playResponse(id: string, delayMs = 0) {
-  window.clearTimeout(responseTimer);
-  responseTimer = window.setTimeout(() => {
-    playTtsAsset(session.settings.sound, ttsAsset(id), 0.36);
-  }, delayMs);
+  promptAudio.play(id, delayMs);
 }
 
 function choiceTargetId(choiceId: FindShapeId) {
@@ -127,19 +109,20 @@ function restart() {
 }
 
 onMounted(() => {
-  warmTtsAssets(session.settings.sound, findShapeTtsAssets);
+  promptAudio.warm();
   playTargetPrompt(450);
 });
 
 onUnmounted(() => {
   clearTtsTimers();
-  disposeTtsAssets(findShapeTtsAssets);
 });
 </script>
 
 <template>
-  <div class="find-shape-shell">
-    <GameHud title="Найди форму" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+  <GamePageShell gradient="violet">
+    <template #hud>
+      <GameHud title="Найди форму" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    </template>
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="10" xl="9">
@@ -147,48 +130,31 @@ onUnmounted(() => {
             <div class="text-overline text-secondary text-center mb-2">Спокойный выбор формы</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
             <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5" role="status">{{ hintText }}</p>
-            <v-row class="choice-grid" justify="center" dense>
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6" :md="round.choices.length <= 3 ? 4 : 3">
-                <GameDwellButton :class="{ 'target-hint': hintedRoundId === round.roundId && choice.id === round.target.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || advancing" :dwell-ms="session.settings.dwellMs" :min-height="round.choices.length >= 5 ? 210 : 235" @select="choose(choice)">
-                  <template #default>
-                    <div :class="['shape-choice', { 'shape-choice--mistake': choice.id === lastMistakeId }]">
-                      <svg class="shape-svg" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
-                        <circle v-if="choice.id === 'circle'" cx="60" cy="60" r="42" :fill="shapeView[choice.id].color" />
-                        <rect v-else-if="choice.id === 'square'" x="22" y="22" width="76" height="76" rx="10" :fill="shapeView[choice.id].color" />
-                        <polygon v-else-if="choice.id === 'triangle'" points="60,16 104,98 16,98" :fill="shapeView[choice.id].color" />
-                        <polygon v-else-if="choice.id === 'star'" points="60,12 74,43 108,46 82,68 90,102 60,84 30,102 38,68 12,46 46,43" :fill="shapeView[choice.id].color" />
-                        <path v-else-if="choice.id === 'heart'" d="M60 101 C25 72 14 55 18 36 C22 18 45 15 60 33 C75 15 98 18 102 36 C106 55 95 72 60 101 Z" :fill="shapeView[choice.id].color" />
-                        <polygon v-else points="60,10 104,60 60,110 16,60" :fill="shapeView[choice.id].color" />
-                      </svg>
-                    </div>
-                  </template>
-                </GameDwellButton>
-              </v-col>
-            </v-row>
+            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || advancing" :dwell-ms="session.settings.dwellMs" :min-height="round.choices.length >= 5 ? 210 : 235" :highlight-choice="(choice) => hintedRoundId === round.roundId && choice.id === round.target.id" @select="choose">
+              <template #default="{ choice }">
+                <div :class="['shape-choice', { 'shape-choice--mistake': choice.id === lastMistakeId }]">
+                  <svg class="shape-svg" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+                    <circle v-if="choice.id === 'circle'" cx="60" cy="60" r="42" :fill="shapeView[choice.id].color" />
+                    <rect v-else-if="choice.id === 'square'" x="22" y="22" width="76" height="76" rx="10" :fill="shapeView[choice.id].color" />
+                    <polygon v-else-if="choice.id === 'triangle'" points="60,16 104,98 16,98" :fill="shapeView[choice.id].color" />
+                    <polygon v-else-if="choice.id === 'star'" points="60,12 74,43 108,46 82,68 90,102 60,84 30,102 38,68 12,46 46,43" :fill="shapeView[choice.id].color" />
+                    <path v-else-if="choice.id === 'heart'" d="M60 101 C25 72 14 55 18 36 C22 18 45 15 60 33 C75 15 98 18 102 36 C106 55 95 72 60 101 Z" :fill="shapeView[choice.id].color" />
+                    <polygon v-else points="60,10 104,60 60,110 16,60" :fill="shapeView[choice.id].color" />
+                  </svg>
+                </div>
+              </template>
+            </GameChoiceCardGrid>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
     <GameResultDialog :model-value="resultVisible" title="Найди форму" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
-  </div>
+  </GamePageShell>
 </template>
 
 <style scoped>
-.find-shape-shell {
-  background: linear-gradient(135deg, #fff7ed 0%, #eef8ff 52%, #f5f3ff 100%);
-  min-block-size: 100vh;
-}
-
-.game-container {
-  padding-block-start: 8.75rem;
-}
-
 .find-shape-card {
   overflow: hidden;
-}
-
-.choice-grid {
-  row-gap: 0.75rem;
 }
 
 .shape-choice {
@@ -210,14 +176,4 @@ onUnmounted(() => {
   inline-size: clamp(5.5rem, min(14vw, 19vh), 8.75rem);
 }
 
-.target-hint {
-  filter: drop-shadow(0 0 1.15rem rgb(var(--v-theme-primary) / 38%));
-  transform: scale(1.03);
-}
-
-@media (max-height: 44rem) {
-  .game-container {
-    padding-block-start: 7.5rem;
-  }
-}
 </style>

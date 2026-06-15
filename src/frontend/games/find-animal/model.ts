@@ -1,37 +1,29 @@
 import type { SessionSettings } from "../../core/settings";
-import { getWordsByCategory, shuffleItems, type WordItem } from "../../data/wordBank";
+import { buildChoiceRound, choiceCountByPreset, idEquality, pickByRoundIndex, type ChoiceRound } from "../../core/round";
+import { getWordsByCategory, type WordItem } from "../../data/wordBank";
 
 export type FindAnimalChoice = WordItem;
 
-export type FindAnimalRound = {
-  roundId: string;
-  prompt: string;
-  target: FindAnimalChoice;
-  choices: FindAnimalChoice[];
-  correctIndex: number;
-};
+export type FindAnimalRound = ChoiceRound<FindAnimalChoice>;
 
 const animalWords = getWordsByCategory("animal");
-
-function choiceCountFor(settings: SessionSettings, roundIndex: number) {
-  if (settings.preset === "gentle") return 2 + (roundIndex % 2);
-  if (settings.preset === "challenge") return 4 + (roundIndex % 2);
-  return 3 + (roundIndex % 3);
-}
 
 export function generateFindAnimalRound(settings: SessionSettings, roundIndex = 1): FindAnimalRound {
   if (animalWords.length < 2) throw new Error("FindAnimalGame needs at least two animal words.");
 
-  const choiceCount = Math.min(5, animalWords.length, choiceCountFor(settings, roundIndex));
-  const target = animalWords[(roundIndex - 1) % animalWords.length];
-  const distractors = shuffleItems(animalWords.filter((animal) => animal.id !== target.id)).slice(0, choiceCount - 1);
-  const choices = shuffleItems([target, ...distractors]);
+  const choiceCount = Math.min(5, animalWords.length, choiceCountByPreset(settings, roundIndex, {
+    gentle: (index) => 2 + (index % 2),
+    standard: (index) => 3 + (index % 3),
+    challenge: (index) => 4 + (index % 2)
+  }));
 
-  return {
-    roundId: `find-animal:round:${roundIndex}`,
-    prompt: `Найди животное: ${target.word}`,
-    target,
-    choices,
-    correctIndex: choices.indexOf(target)
-  };
+  return buildChoiceRound({
+    idPrefix: "find-animal",
+    roundIndex,
+    items: animalWords,
+    choiceCount,
+    pickTarget: (items, index) => pickByRoundIndex(items, index),
+    isSame: idEquality,
+    prompt: (target) => `Найди животное: ${target.word}`
+  });
 }

@@ -1,5 +1,5 @@
 import type { SessionSettings } from "../../core/settings";
-import { shuffleItems } from "../../data/wordBank";
+import { buildChoiceRound, choiceCountByPreset, idEquality, pickRandom, type ChoiceRound } from "../../core/round";
 
 export type FindColorOption = {
   id: string;
@@ -8,42 +8,30 @@ export type FindColorOption = {
   textColor: string;
 };
 
-export type FindColorRound = {
-  roundId: string;
-  prompt: string;
-  target: FindColorOption;
-  choices: FindColorOption[];
-  correctIndex: number;
-};
+export type FindColorRound = ChoiceRound<FindColorOption>;
 
 export const findColorOptions: FindColorOption[] = [
-  { id: "red", label: "красный", hex: "#D32F2F", textColor: "#FFFFFF" },
-  { id: "blue", label: "синий", hex: "#1976D2", textColor: "#FFFFFF" },
-  { id: "green", label: "зелёный", hex: "#2E7D32", textColor: "#FFFFFF" },
+  { id: "red", label: "красный", hex: "#B71C1C", textColor: "#FFFFFF" },
+  { id: "blue", label: "синий", hex: "#0D47A1", textColor: "#FFFFFF" },
+  { id: "green", label: "зелёный", hex: "#1B5E20", textColor: "#FFFFFF" },
   { id: "yellow", label: "жёлтый", hex: "#F9A825", textColor: "#1A1A1A" },
-  { id: "purple", label: "фиолетовый", hex: "#7B1FA2", textColor: "#FFFFFF" },
+  { id: "purple", label: "фиолетовый", hex: "#4A148C", textColor: "#FFFFFF" },
   { id: "orange", label: "оранжевый", hex: "#EF6C00", textColor: "#1A1A1A" },
-  { id: "teal", label: "бирюзовый", hex: "#00897B", textColor: "#FFFFFF" },
-  { id: "pink", label: "розовый", hex: "#C2185B", textColor: "#FFFFFF" }
+  { id: "teal", label: "бирюзовый", hex: "#00695C", textColor: "#FFFFFF" },
+  { id: "pink", label: "розовый", hex: "#880E4F", textColor: "#FFFFFF" }
 ];
 
-function choiceCountFor(settings: SessionSettings) {
-  return settings.preset === "gentle" ? 3 : 4;
-}
-
 export function generateFindColorRound(settings: SessionSettings, roundIndex = 1): FindColorRound {
-  const choiceCount = choiceCountFor(settings);
+  const choiceCount = choiceCountByPreset(settings, roundIndex, { gentle: 3, standard: 4, challenge: 4 });
   if (findColorOptions.length < choiceCount) throw new Error("Недостаточно цветов для игры.");
 
-  const [target] = shuffleItems(findColorOptions).slice(0, 1);
-  const distractors = shuffleItems(findColorOptions.filter((color) => color.id !== target.id)).slice(0, choiceCount - 1);
-  const choices = shuffleItems([target, ...distractors]);
-
-  return {
-    roundId: `find-color:round:${roundIndex}`,
-    prompt: `Найди ${target.label}`,
-    target,
-    choices,
-    correctIndex: choices.indexOf(target)
-  };
+  return buildChoiceRound({
+    idPrefix: "find-color",
+    roundIndex,
+    items: findColorOptions,
+    choiceCount,
+    pickTarget: (items) => pickRandom(items),
+    isSame: idEquality,
+    prompt: (target) => `Найди ${target.label}`
+  });
 }

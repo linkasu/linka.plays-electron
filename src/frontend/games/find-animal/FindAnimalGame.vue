@@ -1,33 +1,28 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
-import GameDwellButton from "../../components/game/GameDwellButton.vue";
+import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
+import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
-import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
-import ttsAssets from "../../data/ttsAssets.json";
-import { disposeFindAnimalAudio, playFindAnimalMistakeMelody, playFindAnimalSuccessMelody, warmFindAnimalAudio } from "./audio";
+import { findAnimalFeedback } from "./audio";
 import { generateFindAnimalRound, type FindAnimalChoice } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("find-animal", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("find-animal", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 120
-}, {
   finishOnMistakes: false
 });
 
 const hintedRoundId = ref<string>();
 const lastMistakeId = ref<string>();
 const pendingSelection = ref(false);
-const findAnimalTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.game === "find-animal");
+const promptAudio = useGamePromptAudio({ gameId: "find-animal", soundEnabled: toRef(session.settings, "sound") });
 let feedbackTimer = 0;
-let promptTimer = 0;
-let responseTimer = 0;
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
@@ -45,16 +40,6 @@ function choiceTargetId(choiceId: string) {
   return `find-animal:choice:${choiceId}`;
 }
 
-function mdCols(choiceCount: number) {
-  if (choiceCount <= 2) return 5;
-  if (choiceCount === 3) return 4;
-  return 3;
-}
-
-function lgCols(choiceCount: number) {
-  return choiceCount === 5 ? 2 : mdCols(choiceCount);
-}
-
 function choiceMinHeight(choiceCount: number) {
   if (choiceCount <= 3) return "clamp(180px, 28vh, 300px)";
   return "clamp(168px, 25vh, 260px)";
@@ -62,29 +47,16 @@ function choiceMinHeight(choiceCount: number) {
 
 function clearFeedbackTimer() {
   window.clearTimeout(feedbackTimer);
-  window.clearTimeout(promptTimer);
-  window.clearTimeout(responseTimer);
+  promptAudio.cancelPending();
   feedbackTimer = 0;
-  promptTimer = 0;
-  responseTimer = 0;
-}
-
-function ttsAsset(id: string) {
-  return findAnimalTtsAssets.find((asset) => asset.id === id);
 }
 
 function playTargetPrompt(delayMs = 0) {
-  window.clearTimeout(promptTimer);
-  promptTimer = window.setTimeout(() => {
-    playTtsAsset(session.settings.sound, ttsAsset(`find-animal.prompt.${round.value.target.id}`), 0.36);
-  }, delayMs);
+  promptAudio.play(`find-animal.prompt.${round.value.target.id}`, delayMs);
 }
 
 function playResponse(id: string, delayMs = 0) {
-  window.clearTimeout(responseTimer);
-  responseTimer = window.setTimeout(() => {
-    playTtsAsset(session.settings.sound, ttsAsset(id), 0.36);
-  }, delayMs);
+  promptAudio.play(id, delayMs);
 }
 
 function answer(choice: FindAnimalChoice) {
@@ -95,7 +67,7 @@ function answer(choice: FindAnimalChoice) {
   clearFeedbackTimer();
   if (choice.id === round.value.target.id) {
     pendingSelection.value = true;
-    void playFindAnimalSuccessMelody(session.settings.sound);
+    void findAnimalFeedback.playSuccess(session.settings.sound);
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: true });
     hintedRoundId.value = undefined;
     lastMistakeId.value = undefined;
@@ -111,7 +83,7 @@ function answer(choice: FindAnimalChoice) {
   }
 
   pendingSelection.value = true;
-  void playFindAnimalMistakeMelody(session.settings.sound);
+  void findAnimalFeedback.playMistake(session.settings.sound);
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "wrong-animal-selected" });
   hintedRoundId.value = round.value.roundId;
@@ -134,26 +106,26 @@ function restart() {
 }
 
 onMounted(() => {
-  warmFindAnimalAudio(session.settings.sound);
-  warmTtsAssets(session.settings.sound, findAnimalTtsAssets);
+  findAnimalFeedback.warm(session.settings.sound);
+  promptAudio.warm();
   playTargetPrompt(450);
 });
 
 watch(() => session.settings.sound, (enabled) => {
-  warmFindAnimalAudio(enabled);
-  warmTtsAssets(enabled, findAnimalTtsAssets);
+  findAnimalFeedback.warm(enabled);
 });
 
 onUnmounted(() => {
   clearFeedbackTimer();
-  disposeFindAnimalAudio();
-  disposeTtsAssets(findAnimalTtsAssets);
+  findAnimalFeedback.dispose();
 });
 </script>
 
 <template>
-  <div class="find-animal-shell">
-    <GameHud title="Найди животное" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+  <GamePageShell gradient="forest" padding-top="0" full-height>
+    <template #hud>
+      <GameHud title="Найди животное" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    </template>
     <v-container class="game-container" fluid>
       <v-row class="game-row" justify="center" no-gutters>
         <v-col cols="12" lg="11" xl="10">
@@ -161,31 +133,21 @@ onUnmounted(() => {
             <div class="text-overline text-secondary text-center mb-1 mb-md-2">Лесная поляна</div>
             <h1 class="text-h4 text-md-h2 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
             <p class="hint-line text-body-1 text-md-h5 text-medium-emphasis text-center mb-3 mb-md-5">{{ hintText }}</p>
-            <v-row class="choice-grid" justify="center" dense>
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="3" :md="mdCols(round.choices.length)" :lg="lgCols(round.choices.length)">
-                <GameDwellButton :class="{ 'target-hint': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="choiceMinHeight(round.choices.length)" :color="hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="answer(choice)">
-                  <template #default="{ active, progress }">
-                    <div :class="['animal-emoji', 'emoji-glyph', { 'animal-emoji--mistake': choice.id === lastMistakeId }]">{{ choice.emoji }}</div>
-                    <div class="animal-label text-h6 text-md-h4 font-weight-bold mt-2">{{ hintedChoiceId === choice.id && active && progress > 0.78 ? `Вот ${choice.word}` : choice.word }}</div>
-                  </template>
-                </GameDwellButton>
-              </v-col>
-            </v-row>
+            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="choiceMinHeight(round.choices.length)" :highlight-choice="(choice) => hintedChoiceId === choice.id" :color="(choice) => hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="answer">
+              <template #default="{ choice, active, progress }">
+                <div :class="['animal-emoji', 'emoji-glyph', { 'animal-emoji--mistake': choice.id === lastMistakeId }]">{{ choice.emoji }}</div>
+                <div class="animal-label text-h6 text-md-h4 font-weight-bold mt-2">{{ hintedChoiceId === choice.id && active && progress > 0.78 ? `Вот ${choice.word}` : choice.word }}</div>
+              </template>
+            </GameChoiceCardGrid>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
     <GameResultDialog :model-value="resultVisible" title="Найди животное" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
-  </div>
+  </GamePageShell>
 </template>
 
 <style scoped>
-.find-animal-shell {
-  background: linear-gradient(135deg, #fff8ed 0%, #edf7f0 54%, #eef4ff 100%);
-  block-size: 100vh;
-  overflow: hidden;
-}
-
 .game-container {
   block-size: 100vh;
   display: flex;
@@ -202,14 +164,6 @@ onUnmounted(() => {
 .game-row {
   align-items: center;
   flex: 1 1 auto;
-}
-
-.choice-grid {
-  margin: -6px;
-}
-
-.choice-grid :deep(.v-col) {
-  padding: 6px;
 }
 
 .animal-emoji {
@@ -229,11 +183,6 @@ onUnmounted(() => {
 .animal-emoji--mistake {
   filter: saturate(0.75) opacity(0.72);
   transform: scale(0.96);
-}
-
-.target-hint {
-  filter: drop-shadow(0 0 1.2rem rgb(var(--v-theme-primary) / 42%));
-  transform: scale(1.03);
 }
 
 @media (max-height: 44rem) {

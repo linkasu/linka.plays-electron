@@ -1,20 +1,17 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
-import GameDwellButton from "../../components/game/GameDwellButton.vue";
+import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
+import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateFindColorRound, type FindColorOption } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("find-color", {
-  maxSteps: 8,
-  dwellMs: 1200,
-  sessionSeconds: 120
-});
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("find-color", { maxSteps: 8 });
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
@@ -67,8 +64,10 @@ function restart() {
 </script>
 
 <template>
-  <div class="find-color-shell">
-    <GameHud title="Найди цвет" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+  <GamePageShell gradient="warm" padding-top="5.5rem">
+    <template #hud>
+      <GameHud title="Найди цвет" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    </template>
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="10" xl="9">
@@ -76,42 +75,25 @@ function restart() {
             <div class="text-overline text-secondary text-center mb-2">Смотри и выбирай</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
             <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5">{{ hintText }}</p>
-            <v-row class="choice-grid" justify="center" dense>
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6" :md="round.choices.length === 3 ? 4 : 3">
-                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" min-height="220" @select="answer(choice)">
-                  <template #default>
-                    <div :class="['color-choice', { 'color-choice--hinted': mistakesInRound > 0 && choice.id === round.target.id, 'color-choice--mistake': choice.id === lastMistakeId }]" :style="choiceStyle(choice)">
-                      <div class="color-dot" aria-hidden="true" />
-                      <div class="text-h4 text-md-h3 font-weight-bold color-label">{{ choice.label }}</div>
-                    </div>
-                  </template>
-                </GameDwellButton>
-              </v-col>
-            </v-row>
+            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" min-height="clamp(132px, 25vh, 220px)" @select="answer">
+              <template #default="{ choice }">
+                <div :class="['color-choice', { 'color-choice--hinted': mistakesInRound > 0 && choice.id === round.target.id, 'color-choice--mistake': choice.id === lastMistakeId }]" :style="choiceStyle(choice)">
+                  <div class="color-dot" aria-hidden="true" />
+                  <div class="text-h4 text-md-h3 font-weight-bold color-label">{{ choice.label }}</div>
+                </div>
+              </template>
+            </GameChoiceCardGrid>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
     <GameResultDialog :model-value="resultVisible" title="Найди цвет" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
-  </div>
+  </GamePageShell>
 </template>
 
 <style scoped>
-.find-color-shell {
-  background: linear-gradient(135deg, #fff7ed 0%, #eef8ff 100%);
-  min-block-size: 100vh;
-}
-
-.game-container {
-  padding-block-start: 8.75rem;
-}
-
 .find-color-card {
   overflow: hidden;
-}
-
-.choice-grid {
-  row-gap: 0.75rem;
 }
 
 .color-choice {
@@ -125,7 +107,7 @@ function restart() {
   flex-direction: column;
   gap: 1rem;
   justify-content: center;
-  min-block-size: 10.5rem;
+  min-block-size: clamp(7rem, 20vh, 10.5rem);
   outline: 0 solid transparent;
   transition: filter 160ms ease, outline 160ms ease, transform 160ms ease;
 }
@@ -133,9 +115,9 @@ function restart() {
 .color-dot {
   background: currentColor;
   border-radius: 999px;
-  block-size: clamp(4.5rem, 12vw, 7.5rem);
+  block-size: clamp(3.25rem, min(8vh, 12vw), 7.5rem);
   box-shadow: 0 0 0 0.875rem rgb(255 255 255 / 26%);
-  inline-size: clamp(4.5rem, 12vw, 7.5rem);
+  inline-size: clamp(3.25rem, min(8vh, 12vw), 7.5rem);
   opacity: 0.95;
 }
 
@@ -153,12 +135,8 @@ function restart() {
 }
 
 @media (max-height: 42rem) {
-  .game-container {
-    padding-block-start: 7.5rem;
-  }
-
   .color-choice {
-    min-block-size: 8.5rem;
+    gap: 0.5rem;
   }
 }
 </style>
