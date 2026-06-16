@@ -4,9 +4,9 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 
 type Point = { x: number; y: number };
 type BalanceZone = Point & {
@@ -33,16 +33,9 @@ type BalanceSpark = Point & {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSession("balancer", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("balancer", {
   maxSteps: 8,
-  dwellMs: 600,
-  sessionSeconds: 150,
-  targetScale: 1.55,
-  motionSpeed: 0.5,
-  distractors: "none",
-  hints: "high"
-}, {
+  overrides: { preset: "gentle", dwellMs: 600, targetScale: 1.55, motionSpeed: 0.5, distractors: "none", hints: "high" },
   finishOnMistakes: false
 });
 

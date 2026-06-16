@@ -4,9 +4,9 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { disposeOrchestraConductorAudio, playOrchestraConductorBeat, playOrchestraConductorComplete, warmOrchestraConductorAudio } from "./audio";
 import {
   beatProgress,
@@ -51,17 +51,9 @@ const sections: OrchestraSection[] = [
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordHint, recordSuccess, startSession } = useGameSession("orchestra-conductor", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordHint, recordSuccess, startSession } = useGameSessionFor("orchestra-conductor", {
   maxSteps: orchestraConductorMaxBeats,
-  dwellMs: 600,
-  sessionSeconds: 150,
-  targetScale: 1.55,
-  motionSpeed: 0.5,
-  distractors: "none",
-  hints: "high",
-  sound: false
-}, {
+  overrides: { preset: "gentle", dwellMs: 600, targetScale: 1.55, motionSpeed: 0.5, distractors: "none", hints: "high", sound: false },
   finishOnMistakes: false
 });
 

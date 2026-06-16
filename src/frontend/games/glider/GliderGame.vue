@@ -4,9 +4,9 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 
 type Point = { x: number; y: number };
 
@@ -45,17 +45,9 @@ type Trail = Point & {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSession("glider", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("glider", {
   maxSteps: 8,
-  dwellMs: 600,
-  sessionSeconds: 150,
-  targetScale: 1.45,
-  motionSpeed: 0.62,
-  distractors: "none",
-  hints: "high",
-  sound: false
-}, {
+  overrides: { preset: "gentle", dwellMs: 600, targetScale: 1.45, motionSpeed: 0.62, distractors: "none", hints: "high", sound: false },
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });

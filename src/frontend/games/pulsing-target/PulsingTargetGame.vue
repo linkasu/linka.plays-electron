@@ -4,9 +4,9 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { advanceHoldProgress, calculatePulsingTargetRadii, computeTargetAssistState, distanceBetween, targetPathPoint, type Point, type TargetAssistState } from "./model";
 
 type PulsingTarget = Point & {
@@ -30,16 +30,9 @@ type CompletionRing = Point & {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordHint, recordSuccess, startSession } = useGameSession("pulsing-target", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordHint, recordSuccess, startSession } = useGameSessionFor("pulsing-target", {
   maxSteps: 8,
-  dwellMs: 900,
-  sessionSeconds: 150,
-  targetScale: 1.58,
-  motionSpeed: 0.48,
-  distractors: "none",
-  hints: "high"
-}, {
+  overrides: { preset: "gentle", dwellMs: 900, targetScale: 1.58, motionSpeed: 0.48, distractors: "none", hints: "high" },
   finishOnMistakes: false
 });
 

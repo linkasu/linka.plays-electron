@@ -4,9 +4,9 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 
 type Point = { x: number; y: number };
 type Balloon = Point & {
@@ -38,16 +38,9 @@ type Sparkle = Point & {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSession("balloon-ride", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("balloon-ride", {
   maxSteps: 8,
-  dwellMs: 600,
-  sessionSeconds: 150,
-  targetScale: 1.45,
-  motionSpeed: 0.52,
-  distractors: "none",
-  hints: "high"
-}, {
+  overrides: { preset: "gentle", dwellMs: 600, targetScale: 1.45, motionSpeed: 0.52, distractors: "none", hints: "high" },
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });
