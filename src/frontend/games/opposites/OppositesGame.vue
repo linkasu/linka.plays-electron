@@ -4,17 +4,15 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateOppositesRound, type OppositeConcept, type OppositesRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("opposites", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("opposites", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 125
-}, {
+  overrides: { dwellMs: 1300, sessionSeconds: 125 },
   finishOnMistakes: false
 });
 
@@ -121,7 +119,7 @@ onUnmounted(() => {
             </v-sheet>
 
             <v-row justify="center" dense>
-              <v-col v-for="(choice, index) in round.choices" :key="choice.id" cols="6" :md="round.choices.length === 3 ? 4 : 3">
+              <v-col v-for="(choice, index) in round.choices" :key="choice.id" cols="6" :sm="round.choices.length === 3 ? 4 : 3" :md="round.choices.length === 3 ? 4 : 3">
                 <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="190" :color="choiceColor(choice)" @select="choose(index)">
                   <template #default>
                     <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>

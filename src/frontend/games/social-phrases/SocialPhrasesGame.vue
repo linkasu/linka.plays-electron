@@ -4,9 +4,9 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 
 type PhraseKind = "greeting" | "request" | "thanks";
 
@@ -130,11 +130,11 @@ const rounds: Omit<SocialPhraseRound, "roundId">[] = [
 ];
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("social-phrases", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("social-phrases", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 125
-}, { finishOnMistakes: false });
+  overrides: { dwellMs: 1300, sessionSeconds: 125 },
+  finishOnMistakes: false
+});
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<SocialPhraseRound>({
   session,
@@ -243,23 +243,23 @@ onUnmounted(() => {
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="9">
-          <v-card class="pa-5 pa-md-8" rounded="xl" elevation="8">
+          <v-card class="social-phrases-card pa-5 pa-md-8" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-3">AAC: приветствие, просьба, благодарность</div>
             <v-card class="scene-card pa-5 pa-md-7 mb-5" color="teal-lighten-5" rounded="xl" variant="flat">
-              <v-chip class="mb-4" color="primary" size="large" variant="tonal">Нужна фраза: {{ expectedKindLabel }}</v-chip>
+              <v-chip class="mb-4 text-white" color="deep-purple-darken-3" size="large" variant="flat">Нужна фраза: {{ expectedKindLabel }}</v-chip>
               <h1 class="text-h3 text-md-h2 font-weight-bold mb-3">{{ round.scene }}</h1>
-              <div class="text-h6 text-md-h5 text-medium-emphasis mb-2">{{ round.partner }}</div>
+              <div class="scene-partner text-h6 text-md-h5 mb-2">{{ round.partner }}</div>
               <div class="text-h6 text-md-h5 font-weight-medium">{{ round.prompt }}</div>
             </v-card>
 
-            <div class="text-h6 text-md-h5 text-center text-medium-emphasis mb-5">{{ feedback }}</div>
+            <div class="social-feedback text-h6 text-md-h5 text-center mb-5">{{ feedback }}</div>
 
             <v-row justify="center">
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" md="4">
-                <GameDwellButton :class="{ 'hinted-choice': hintedKind === choice.kind, 'selected-choice': selectedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="220" :color="hintedKind === choice.kind ? 'primary' : 'surface'" @select="choose(choice)">
+              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="4" md="4">
+                <GameDwellButton :class="{ 'hinted-choice': hintedKind === choice.kind, 'selected-choice': selectedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="200" :color="hintedKind === choice.kind ? 'deep-purple-darken-3' : 'surface'" @select="choose(choice)">
                   <template #default>
                     <div class="choice-emoji emoji-glyph mb-3" aria-hidden="true">{{ choice.emoji }}</div>
-                    <div class="text-overline text-primary mb-2">{{ kindLabels[choice.kind] }}</div>
+                    <div class="choice-kind text-overline mb-2">{{ kindLabels[choice.kind] }}</div>
                     <div class="text-h4 text-md-h3 font-weight-bold">{{ choice.text }}</div>
                   </template>
                 </GameDwellButton>
@@ -287,6 +287,12 @@ onUnmounted(() => {
   text-align: center;
 }
 
+.scene-partner,
+.social-feedback,
+.choice-kind {
+  color: #263238;
+}
+
 .choice-emoji {
   font-size: clamp(3.8rem, 8vw, 6.5rem);
   line-height: 1;
@@ -300,5 +306,51 @@ onUnmounted(() => {
 .selected-choice {
   outline: 0.25rem solid rgb(var(--v-theme-secondary) / 32%);
   outline-offset: 0.2rem;
+}
+
+@media (max-height: 42rem) {
+  .game-container {
+    padding-block-start: 56px;
+  }
+
+  .social-phrases-card {
+    padding: 1rem !important;
+  }
+
+  .scene-card {
+    margin-block-end: 0.75rem !important;
+    padding: 1rem !important;
+  }
+
+  .scene-card h1 {
+    font-size: 2.25rem !important;
+    line-height: 1.08;
+    margin-block-end: 0.5rem !important;
+  }
+
+  .scene-partner {
+    font-size: 1rem !important;
+  }
+
+  .social-feedback {
+    margin-block-end: 0.75rem !important;
+  }
+
+  .choice-emoji {
+    font-size: clamp(3rem, 7vw, 4.5rem);
+  }
+
+  .game-container :deep(.dwell-button) {
+    min-block-size: 7.75rem !important;
+  }
+
+  .choice-kind {
+    margin-block-end: 0.25rem !important;
+  }
+
+  .choice-kind + .text-h4 {
+    font-size: 1.8rem !important;
+    line-height: 1.08;
+  }
 }
 </style>

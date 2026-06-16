@@ -4,17 +4,15 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateActionWhoRound, type ActionWhoChoice } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("action-who", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("action-who", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 120
-}, {
+  overrides: { dwellMs: 1300, sessionSeconds: 120 },
   finishOnMistakes: false
 });
 
@@ -79,16 +77,16 @@ function restart() {
             <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5">{{ hintText }}</p>
 
             <v-row class="choice-grid" justify="center" dense>
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6" :md="mdCols(round.choices.length)">
-                <GameDwellButton :class="{ 'target-hint': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="230" :color="hintedChoiceId === choice.id ? 'primary' : choice.action.color" @select="answer(choice)">
+              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" :sm="round.choices.length === 2 ? 6 : 4" :md="mdCols(round.choices.length)">
+                <GameDwellButton :class="{ 'target-hint': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="210" :color="hintedChoiceId === choice.id ? 'deep-purple-darken-3' : 'surface'" @select="answer(choice)">
                   <template #default="{ active, progress }">
                     <div :class="['action-choice', { 'action-choice--mistake': choice.id === lastMistakeId }]">
                       <div class="character-stack" :style="{ '--character-color': choice.character.color }">
                         <v-icon class="character-icon" :icon="choice.character.icon" />
                         <v-icon class="action-icon" :icon="choice.action.icon" />
                       </div>
-                      <div class="text-h5 text-md-h4 font-weight-bold mt-3">{{ choice.character.name }}</div>
-                      <div class="text-h6 text-md-h5 text-medium-emphasis mt-1">
+                      <div class="action-choice__title text-h5 text-md-h4 font-weight-bold mt-3">{{ choice.character.name }}</div>
+                      <div class="action-choice__subtitle text-h6 text-md-h5 mt-1">
                         {{ hintedChoiceId === choice.id && active && progress > 0.72 ? 'вот ответ' : choice.action.label }}
                       </div>
                     </div>
@@ -131,11 +129,16 @@ function restart() {
 .action-choice {
   align-items: center;
   block-size: 100%;
+  color: rgb(var(--v-theme-on-surface));
   display: flex;
   flex-direction: column;
   justify-content: center;
   min-block-size: 12rem;
   transition: filter 160ms ease, transform 160ms ease;
+}
+
+.action-choice__subtitle {
+  color: #263238;
 }
 
 .character-stack {
@@ -177,11 +180,15 @@ function restart() {
 
 @media (max-height: 44rem) {
   .game-container {
-    padding-block-start: 7.5rem;
+    padding-block-start: 5rem;
   }
 
   .action-choice {
-    min-block-size: 9.75rem;
+    min-block-size: 8.75rem;
+  }
+
+  .choice-grid :deep(.dwell-button) {
+    min-block-size: 8.75rem !important;
   }
 }
 </style>

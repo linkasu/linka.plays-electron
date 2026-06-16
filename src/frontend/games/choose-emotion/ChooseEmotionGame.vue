@@ -4,17 +4,15 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateChooseEmotionRound, type ChooseEmotionOption } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("choose-emotion", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("choose-emotion", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 120
-}, {
+  overrides: { dwellMs: 1300, sessionSeconds: 120 },
   finishOnMistakes: false
 });
 
@@ -77,8 +75,8 @@ function restart() {
             <p class="text-body-1 text-md-h6 text-primary text-center mb-5">{{ helperText }}</p>
 
             <v-row class="choice-grid" justify="center" dense>
-              <v-col v-for="(choice, index) in round.choices" :key="choice.id" cols="12" sm="6" :md="round.choices.length === 3 ? 4 : 3">
-                <GameDwellButton :class="{ 'hinted-choice': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="220" :color="hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="choose(choice, index)">
+              <v-col v-for="(choice, index) in round.choices" :key="choice.id" cols="12" :sm="round.choices.length === 3 ? 4 : 3" :md="round.choices.length === 3 ? 4 : 3">
+                <GameDwellButton :class="{ 'hinted-choice': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="200" :color="hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="choose(choice, index)">
                   <template #default>
                     <div :class="['emotion-choice', { 'emotion-choice--last': lastChoiceId === choice.id && hintedChoiceId }]">
                       <div class="choice-emoji emoji-glyph" aria-hidden="true">{{ choice.emoji }}</div>
@@ -145,11 +143,15 @@ function restart() {
 
 @media (max-height: 42rem) {
   .game-container {
-    padding-block-start: 7.5rem;
+    padding-block-start: 5rem;
   }
 
   .emotion-choice {
     min-block-size: 8.5rem;
+  }
+
+  .choice-grid :deep(.dwell-button) {
+    min-block-size: 8.5rem !important;
   }
 }
 </style>

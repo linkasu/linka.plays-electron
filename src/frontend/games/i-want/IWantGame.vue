@@ -4,9 +4,9 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 
 type IWantCard = {
   id: string;
@@ -35,11 +35,11 @@ const cards: IWantCard[] = [
 ];
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("i-want", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSessionFor("i-want", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 120
-}, { finishOnMistakes: false });
+  overrides: { dwellMs: 1300, sessionSeconds: 120 },
+  finishOnMistakes: false
+});
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<IWantRound>({
   session,
@@ -115,7 +115,7 @@ function restart() {
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="11" xl="10">
-          <v-card class="pa-5 pa-md-8" rounded="xl" elevation="8">
+          <v-card class="i-want-card pa-5 pa-md-8" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">AAC: любой выбор засчитывается</div>
             <div class="text-center mb-5 mb-md-7">
               <v-chip class="mb-4" color="primary" size="large" variant="tonal">{{ round.prompt }}</v-chip>
@@ -124,12 +124,12 @@ function restart() {
             </div>
 
             <v-row>
-              <v-col v-for="card in round.cards" :key="card.id" cols="12" sm="6" md="4">
-                <GameDwellButton :target-id="cardTargetId(card)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="220" :color="selectedCardId === card.id ? 'primary' : 'surface'" @select="choose(card)">
+              <v-col v-for="card in round.cards" :key="card.id" cols="6" sm="4" md="4">
+                <GameDwellButton :target-id="cardTargetId(card)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="200" :color="selectedCardId === card.id ? 'deep-purple-darken-3' : 'surface'" @select="choose(card)">
                   <template #default>
                     <div class="card-emoji emoji-glyph mb-3">{{ card.emoji }}</div>
                     <div class="text-h4 text-md-h3 font-weight-bold">{{ card.label }}</div>
-                    <div class="text-body-1 text-medium-emphasis mt-2">{{ card.kind }}</div>
+                    <div class="card-kind text-body-1 mt-2">{{ card.kind }}</div>
                   </template>
                 </GameDwellButton>
               </v-col>
@@ -155,5 +155,52 @@ function restart() {
 .card-emoji {
   font-size: clamp(4rem, 9vw, 6.5rem);
   line-height: 1;
+}
+
+.card-kind {
+  color: #263238;
+}
+
+@media (max-height: 42rem) {
+  .game-container {
+    padding-block-start: 56px;
+  }
+
+  .i-want-card {
+    padding: 1rem !important;
+  }
+
+  .i-want-card > .text-overline {
+    display: none;
+  }
+
+  .i-want-card .text-center {
+    margin-block-end: 0.75rem !important;
+  }
+
+  .i-want-card h1 {
+    font-size: 2.6rem !important;
+    line-height: 1.05;
+    margin-block: 0.5rem !important;
+  }
+
+  .game-container :deep(.dwell-button) {
+    min-block-size: 7.5rem !important;
+  }
+
+  .card-emoji {
+    font-size: clamp(2.5rem, 6vw, 3.7rem);
+    margin-block-end: 0.375rem !important;
+  }
+
+  .card-emoji + .text-h4 {
+    font-size: 1.65rem !important;
+    line-height: 1.05;
+  }
+
+  .card-kind {
+    font-size: 0.875rem !important;
+    margin-block-start: 0.25rem !important;
+  }
 }
 </style>

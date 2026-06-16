@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 
 type HurtGoodMode = "state" | "body";
 
@@ -32,11 +32,11 @@ const bodyChoices: HurtGoodChoice[] = [
 ];
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, finishSession, startSession } = useGameSession("hurt-good", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, finishSession, startSession } = useGameSessionFor("hurt-good", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 120
-}, { finishOnMistakes: false });
+  overrides: { dwellMs: 1300, sessionSeconds: 120 },
+  finishOnMistakes: false
+});
 
 const mode = ref<HurtGoodMode>("state");
 const feedback = ref("Выбери карточку. Любой ответ важен.");
@@ -128,11 +128,11 @@ onUnmounted(() => {
 
             <v-row justify="center">
               <v-col v-for="choice in choices" :key="choice.id" cols="12" sm="6" :md="choiceColumns">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="mode === 'state' ? 250 : 210" :color="choice.color" @select="choose(choice)">
+                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="mode === 'state' ? 240 : 200" color="surface" @select="choose(choice)">
                   <template #default>
                     <div class="choice-emoji emoji-glyph mb-3" aria-hidden="true">{{ choice.emoji }}</div>
                     <div class="text-h3 text-md-h2 font-weight-bold mb-2">{{ choice.title }}</div>
-                    <div class="text-h6 text-medium-emphasis">{{ choice.phrase }}</div>
+                    <div class="choice-phrase text-h6">{{ choice.phrase }}</div>
                   </template>
                 </GameDwellButton>
               </v-col>
@@ -158,5 +158,19 @@ onUnmounted(() => {
 .choice-emoji {
   font-size: clamp(4rem, 9vw, 6.75rem);
   line-height: 1;
+}
+
+.choice-phrase {
+  color: #263238;
+}
+
+@media (max-height: 42rem) {
+  .game-container {
+    padding-block-start: 118px;
+  }
+
+  .game-container :deep(.dwell-button) {
+    min-block-size: 12rem !important;
+  }
 }
 </style>

@@ -4,17 +4,15 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateWordCategoriesRound, type WordCategory, type WordCategoryChoice } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("word-categories", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("word-categories", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 125
-}, {
+  overrides: { dwellMs: 1300, sessionSeconds: 125 },
   finishOnMistakes: false
 });
 
@@ -130,27 +128,27 @@ onUnmounted(() => {
           <v-card class="pa-5 pa-md-8" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">{{ round.instruction }}</div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
-            <p class="text-body-1 text-medium-emphasis text-center mb-6">{{ feedbackMessage }}</p>
+            <p class="word-feedback text-body-1 text-center mb-6">{{ feedbackMessage }}</p>
 
             <v-card class="target-card pa-5 pa-md-6 mb-6" color="indigo-lighten-5" rounded="xl" variant="flat">
-              <div class="text-caption text-medium-emphasis mb-2">{{ targetCardTitle }}</div>
+              <div class="target-caption text-caption mb-2">{{ targetCardTitle }}</div>
               <div class="d-flex flex-column flex-sm-row align-center justify-center ga-4">
                 <div class="target-emoji emoji-glyph" aria-hidden="true">{{ targetEmoji }}</div>
                 <div class="text-center text-sm-start">
                   <div class="text-h4 font-weight-bold">{{ targetLabel }}</div>
-                  <v-chip class="mt-2" color="primary" variant="tonal" size="large">{{ modeChip }}</v-chip>
+                  <v-chip class="mt-2 text-white" color="deep-purple-darken-3" variant="flat" size="large">{{ modeChip }}</v-chip>
                 </div>
               </div>
             </v-card>
 
             <v-row justify="center">
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="6" md="3">
-                <GameDwellButton :class="{ 'choice--hint': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="220" :color="choiceColor(choice)" @select="choose(choice)">
+              <v-col v-for="choice in round.choices" :key="choice.id" cols="6" sm="3" md="3">
+                <GameDwellButton :class="{ 'choice--hint': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="190" :color="choiceColor(choice)" @select="choose(choice)">
                   <template #default>
                     <div class="choice-content">
                       <div class="choice-emoji emoji-glyph" aria-hidden="true">{{ choice.emoji }}</div>
                       <div class="text-h5 font-weight-bold mt-2">{{ choiceLabel(choice) }}</div>
-                      <div class="text-body-2 text-medium-emphasis mt-2">{{ choiceHint(choice) }}</div>
+                      <div class="choice-hint text-body-2 mt-2">{{ choiceHint(choice) }}</div>
                     </div>
                   </template>
                 </GameDwellButton>
@@ -178,6 +176,12 @@ onUnmounted(() => {
   border: 2px solid rgb(var(--v-theme-primary) / 14%);
 }
 
+.word-feedback,
+.target-caption,
+.choice-hint {
+  color: #263238;
+}
+
 .target-emoji {
   font-size: clamp(4.8rem, 10vw, 7.4rem);
   line-height: 1;
@@ -188,7 +192,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-block-size: 170px;
+  min-block-size: 150px;
   text-align: center;
 }
 
@@ -204,6 +208,27 @@ onUnmounted(() => {
 @media (max-width: 600px) {
   .game-container {
     padding-block-start: 156px;
+  }
+}
+
+@media (max-height: 42rem) {
+  .game-container {
+    padding-block-start: 116px;
+  }
+
+  .target-card {
+    margin-block-end: 1rem !important;
+    padding: 1rem !important;
+  }
+
+  .target-emoji,
+  .choice-emoji {
+    font-size: clamp(3rem, 7vw, 4.5rem);
+  }
+
+  .choice-content,
+  .game-container :deep(.dwell-button) {
+    min-block-size: 9.5rem !important;
   }
 }
 </style>

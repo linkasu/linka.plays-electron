@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 
 type SoundObject = {
   id: string;
@@ -45,17 +45,9 @@ let nextRoundTimer = 0;
 let audioContext: AudioContext | undefined;
 let audioUnavailable = false;
 
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("what-sounds", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("what-sounds", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 120,
-  targetScale: 1.55,
-  motionSpeed: 0.42,
-  distractors: "none",
-  hints: "high",
-  sound: false
-}, {
+  overrides: { preset: "gentle", dwellMs: 1300, sessionSeconds: 120, targetScale: 1.55, motionSpeed: 0.42, distractors: "none", hints: "high", sound: false },
   finishOnMistakes: false
 });
 
@@ -251,10 +243,10 @@ onUnmounted(() => {
                 <div class="sound-glow" :style="{ opacity: object.id === round.target.id ? 0.46 + progress * 0.2 : active ? 0.28 : 0.16 }" aria-hidden="true" />
                 <v-icon class="sound-icon" :icon="object.icon" />
                 <div class="text-h5 text-md-h4 font-weight-bold mt-4">{{ object.title }}</div>
-                <v-chip class="mt-3 text-uppercase" color="primary" rounded="pill" size="large" variant="tonal">
+                <v-chip class="mt-3 text-uppercase text-white" color="deep-purple-darken-3" rounded="pill" size="large" variant="flat">
                   {{ object.aacLabel }}
                 </v-chip>
-                <div class="text-body-2 text-medium-emphasis mt-3">
+                <div class="sound-status text-body-2 mt-3">
                   {{ selectedObjectId === object.id ? 'Выбрано' : lastMistakeObjectId === object.id ? 'Не эта карточка' : active ? 'Держи взгляд' : 'Посмотри сюда' }}
                 </div>
               </div>
@@ -343,6 +335,10 @@ onUnmounted(() => {
   position: relative;
 }
 
+.sound-status {
+  color: #263238;
+}
+
 .sound-card--active,
 .sound-card--selected {
   transform: scale(1.02);
@@ -420,6 +416,25 @@ onUnmounted(() => {
   .what-sounds-grid--3,
   .what-sounds-grid--4 {
     grid-template-columns: repeat(2, minmax(150px, 1fr));
+  }
+}
+
+@media (max-height: 42rem) {
+  .what-sounds-container {
+    padding-block-start: 104px;
+  }
+
+  .what-sounds-panel {
+    padding: 1rem !important;
+  }
+
+  .what-sounds-target :deep(.dwell-button),
+  .sound-card {
+    min-block-size: 12rem !important;
+  }
+
+  .sound-icon {
+    font-size: clamp(4rem, 8vw, 5.5rem);
   }
 }
 

@@ -4,17 +4,15 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateWhereObjectRound, phraseFor, type WhereObjectPlace, type WhereObjectPreposition } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("where-object", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("where-object", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 120
-}, {
+  overrides: { dwellMs: 1300, sessionSeconds: 120 },
   finishOnMistakes: false
 });
 
@@ -115,8 +113,8 @@ function restart() {
             </v-card>
 
             <v-row v-if="round.mode === 'place'" class="choice-grid" justify="center" dense>
-              <v-col v-for="place in round.places" :key="place.id" cols="12" sm="6" :md="round.places.length <= 3 ? 4 : 3">
-                <GameDwellButton :class="{ 'target-hint': hintedRoundId === round.roundId && correctChoiceId === place.id }" :target-id="placeTargetId(place.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="230" :color="hintedRoundId === round.roundId && correctChoiceId === place.id ? 'primary' : 'surface'" @select="answerPlace(place)">
+              <v-col v-for="place in round.places" :key="place.id" cols="12" :sm="round.places.length <= 3 ? 4 : 3" :md="round.places.length <= 3 ? 4 : 3">
+                <GameDwellButton :class="{ 'target-hint': hintedRoundId === round.roundId && correctChoiceId === place.id }" :target-id="placeTargetId(place.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="200" :color="hintedRoundId === round.roundId && correctChoiceId === place.id ? 'primary' : 'surface'" @select="answerPlace(place)">
                   <template #default="{ active, progress }">
                     <div class="place-scene" :class="`place-scene--${round.targetPreposition.id}`">
                       <v-icon class="place-icon" :color="place.color" :icon="place.icon" />

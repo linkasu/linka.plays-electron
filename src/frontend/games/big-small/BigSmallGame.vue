@@ -4,18 +4,17 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateBigSmallRound, type BigSmallChoice, type BigSmallRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("big-small", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("big-small", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 120,
-  sound: false
-}, { finishOnMistakes: false });
+  overrides: { dwellMs: 1300, sessionSeconds: 120, sound: false },
+  finishOnMistakes: false
+});
 
 const hint = ref("");
 const mistakenChoiceId = ref<string>();
@@ -71,10 +70,10 @@ function restartGame() {
               {{ hint }} Посмотри ещё раз спокойно.
             </v-alert>
             <v-row class="choice-row" dense>
-              <v-col v-for="(choice, index) in round.choices" :key="choice.choiceId" cols="12" md="6">
+              <v-col v-for="(choice, index) in round.choices" :key="choice.choiceId" cols="12" sm="6" md="6">
                 <GameDwellButton :class="{ 'choice--mistake': mistakenChoiceId === choice.choiceId }" :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="260" color="surface" @select="choose(index)">
                   <template #default>
-                    <div class="text-overline text-medium-emphasis mb-3">{{ choice.sizeLabel }}</div>
+                    <div class="choice-size-label text-overline mb-3">{{ choice.sizeLabel }}</div>
                     <div :class="['choice-emoji', 'emoji-glyph', `choice-emoji--${choice.size}`]" aria-hidden="true">{{ choice.emoji }}</div>
                     <div class="text-h4 font-weight-bold mt-3">{{ choice.label }}</div>
                     <div class="sr-only">Размер: {{ choice.sizeLabel }}. Объект: {{ choice.label }}.</div>
@@ -102,6 +101,10 @@ function restartGame() {
 
 .choice-row {
   row-gap: 1rem;
+}
+
+.choice-size-label {
+  color: #263238;
 }
 
 .choice-emoji {
@@ -133,6 +136,20 @@ function restartGame() {
 @media (max-width: 37.5rem) {
   .game-container {
     padding-block-start: 9.25rem;
+  }
+}
+
+@media (max-height: 42rem) {
+  .game-container {
+    padding-block-start: 5rem;
+  }
+
+  .choice-row :deep(.dwell-button) {
+    min-block-size: 12.5rem !important;
+  }
+
+  .choice-emoji--big {
+    font-size: clamp(5.5rem, min(14vw, 17vh), 8rem);
   }
 }
 </style>
