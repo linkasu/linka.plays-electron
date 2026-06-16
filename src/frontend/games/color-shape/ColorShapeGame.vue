@@ -4,17 +4,14 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateColorShapeRound, getColorShapeMismatch, type ColorShapeItem, type ColorShapeRound, type ColorShapeTrait } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("color-shape", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("color-shape", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 125
-}, {
   finishOnMistakes: false
 });
 
@@ -104,11 +101,11 @@ function restart() {
                       </div>
                       <div class="text-h5 text-md-h4 font-weight-bold mt-3">{{ choice.label }}</div>
                       <div class="trait-row mt-3">
-                        <v-chip :color="isTargetTraitHint(choice, 'color') ? 'primary' : 'secondary'" :variant="isTargetTraitHint(choice, 'color') ? 'flat' : 'tonal'" size="large" rounded="lg">
+                        <v-chip class="text-white" color="deep-purple-darken-3" variant="flat" size="large" rounded="lg">
                           <span class="color-dot mr-2" :style="{ backgroundColor: choice.color.hex }" />
                           {{ choice.color.label }}
                         </v-chip>
-                        <v-chip :color="isTargetTraitHint(choice, 'shape') ? 'primary' : 'secondary'" :variant="isTargetTraitHint(choice, 'shape') ? 'flat' : 'tonal'" size="large" rounded="lg">
+                        <v-chip class="text-white" color="deep-purple-darken-3" variant="flat" size="large" rounded="lg">
                           {{ choice.shape.label }}
                         </v-chip>
                       </div>
@@ -151,6 +148,7 @@ function restart() {
 
 .object-choice {
   align-items: center;
+  color: #263238;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -208,7 +206,16 @@ function restart() {
 
 @media (max-height: 44rem) {
   .game-container {
-    padding-block-start: 7.5rem;
+    padding-block-start: 5rem;
+  }
+
+  .choice-grid :deep(.dwell-button) {
+    min-block-size: 12rem !important;
+  }
+
+  .shape-svg {
+    block-size: clamp(4.5rem, min(11vw, 14vh), 6.25rem);
+    inline-size: clamp(4.5rem, min(11vw, 14vh), 6.25rem);
   }
 }
 </style>

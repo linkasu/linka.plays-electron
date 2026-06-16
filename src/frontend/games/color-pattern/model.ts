@@ -20,14 +20,14 @@ export type ColorPatternRound = {
 };
 
 export const colorPatternColors: ColorPatternColor[] = [
-  { id: "red", label: "красный", hex: "#D84343", textColor: "#FFFFFF" },
+  { id: "red", label: "красный", hex: "#C62828", textColor: "#FFFFFF" },
   { id: "blue", label: "синий", hex: "#256BD8", textColor: "#FFFFFF" },
-  { id: "green", label: "зелёный", hex: "#2F9B63", textColor: "#FFFFFF" },
+  { id: "green", label: "зелёный", hex: "#17683F", textColor: "#FFFFFF" },
   { id: "yellow", label: "жёлтый", hex: "#F7C948", textColor: "#2A2106" },
-  { id: "purple", label: "фиолетовый", hex: "#8754C8", textColor: "#FFFFFF" },
+  { id: "purple", label: "фиолетовый", hex: "#6D3DB5", textColor: "#FFFFFF" },
   { id: "orange", label: "оранжевый", hex: "#F28B2E", textColor: "#2B1708" },
-  { id: "teal", label: "бирюзовый", hex: "#1E9F98", textColor: "#FFFFFF" },
-  { id: "pink", label: "розовый", hex: "#D94D88", textColor: "#FFFFFF" }
+  { id: "teal", label: "бирюзовый", hex: "#075A56", textColor: "#FFFFFF" },
+  { id: "pink", label: "розовый", hex: "#B8326E", textColor: "#FFFFFF" }
 ];
 
 const patternKinds: ColorPatternKind[] = ["AB", "ABC", "ABB"];

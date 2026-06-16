@@ -4,18 +4,17 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateColorPatternRound, type ColorPatternColor } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("color-pattern", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("color-pattern", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 130,
-  sound: false
-}, { finishOnMistakes: false });
+  overrides: { dwellMs: 1300, sessionSeconds: 130, sound: false },
+  finishOnMistakes: false
+});
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
@@ -141,8 +140,8 @@ onUnmounted(() => {
             <v-divider class="my-5 my-md-6" />
 
             <v-row class="choice-row" justify="center" dense>
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6" :md="round.choices.length === 3 ? 4 : 3">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="220" :color="choiceColor(choice)" @select="choose(choice)">
+              <v-col v-for="choice in round.choices" :key="choice.id" cols="6" :sm="round.choices.length === 3 ? 4 : 3" :md="round.choices.length === 3 ? 4 : 3">
+                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="190" :color="choiceColor(choice)" @select="choose(choice)">
                   <template #default>
                     <div class="choice-card" :style="colorStyle(choice)">
                       <span class="text-h4 text-md-h3 font-weight-bold color-label">{{ choice.label }}</span>
@@ -239,6 +238,32 @@ onUnmounted(() => {
 
   .pattern-slot {
     min-block-size: 5.75rem;
+  }
+}
+
+@media (max-height: 44rem) {
+  .game-container {
+    padding-block-start: 5rem;
+  }
+
+  .pattern-row {
+    gap: 0.5rem;
+  }
+
+  .pattern-slot,
+  .choice-card,
+  .choice-row :deep(.dwell-button) {
+    min-block-size: 8.5rem !important;
+  }
+
+  .choice-card .color-label {
+    font-size: 1.25rem !important;
+    line-height: 1.05;
+  }
+
+  .pattern-slot .color-label {
+    font-size: 1.5rem !important;
+    line-height: 1.1;
   }
 }
 </style>

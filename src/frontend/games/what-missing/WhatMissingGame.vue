@@ -4,9 +4,9 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateWhatMissingRound, type WhatMissingItem, type WhatMissingRound } from "./model";
 
 type RoundPhase = "observe" | "choose";
@@ -22,11 +22,8 @@ const feedbackText = ref("Запомни три предмета.");
 let observeTimer = 0;
 let feedbackTimer = 0;
 
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("what-missing", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("what-missing", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 120
-}, {
   finishOnMistakes: false
 });
 
@@ -125,11 +122,11 @@ onUnmounted(() => {
 
             <v-row dense justify="center">
               <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="4">
-                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || phase !== 'choose' || isResponding" :dwell-ms="session.settings.dwellMs" :min-height="190" :color="hintedChoiceId === choice.id ? 'primary' : choice.color" @select="answer(choice)">
+                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || phase !== 'choose' || isResponding" :dwell-ms="session.settings.dwellMs" :min-height="180" :color="hintedChoiceId === choice.id ? 'deep-purple-darken-3' : 'surface'" @select="answer(choice)">
                   <template #default>
                     <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
                     <div class="text-h5 text-md-h4 font-weight-bold mt-2">{{ choice.label }}</div>
-                    <div class="text-body-1 text-medium-emphasis mt-1">{{ phase === "observe" ? "смотри" : "выбрать" }}</div>
+                    <div class="choice-status text-body-1 mt-1">{{ phase === "observe" ? "смотри" : "выбрать" }}</div>
                   </template>
                 </GameDwellButton>
               </v-col>
@@ -174,9 +171,13 @@ onUnmounted(() => {
   line-height: 1;
 }
 
+.choice-status {
+  color: #263238;
+}
+
 @media (max-height: 44rem) {
   .what-missing-container {
-    padding-block-start: 7.5rem;
+    padding-block-start: 5rem;
   }
 
   .memory-slot {
@@ -185,6 +186,10 @@ onUnmounted(() => {
 
   .scene-emoji {
     font-size: clamp(4rem, min(10vw, 14vh), 7rem);
+  }
+
+  .what-missing-container :deep(.dwell-button) {
+    min-block-size: 10rem !important;
   }
 }
 </style>

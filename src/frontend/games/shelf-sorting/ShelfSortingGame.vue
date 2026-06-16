@@ -4,17 +4,15 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateShelfSortingRound, type ShelfSortingShelf } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("shelf-sorting", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("shelf-sorting", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 135
-}, {
+  overrides: { dwellMs: 1300, sessionSeconds: 135 },
   finishOnMistakes: false
 });
 
@@ -111,27 +109,27 @@ onUnmounted(() => {
           <v-card class="pa-5 pa-md-8" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">{{ round.prompt }}</div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-3">Куда положить предмет?</h1>
-            <p class="text-body-1 text-medium-emphasis text-center mb-6">{{ feedbackMessage }}</p>
+            <p class="shelf-feedback text-body-1 text-center mb-6">{{ feedbackMessage }}</p>
 
             <v-card class="item-card pa-5 pa-md-6 mb-6" color="blue-grey-lighten-5" rounded="xl" variant="flat">
-              <div class="text-caption text-medium-emphasis mb-2">Предмет для сортировки</div>
+              <div class="item-caption text-caption mb-2">Предмет для сортировки</div>
               <div class="d-flex flex-column flex-sm-row align-center justify-center ga-4">
                 <div class="item-emoji emoji-glyph" aria-hidden="true">{{ round.item.emoji }}</div>
                 <div class="text-center text-sm-start">
                   <div class="text-h4 font-weight-bold">{{ round.item.label }}</div>
-                  <v-chip class="mt-2" color="primary" variant="tonal" size="large">{{ round.rule === "category" ? "сортируем по категории" : "сортируем по цвету" }}</v-chip>
+                  <v-chip class="mt-2 text-white" color="deep-purple-darken-3" variant="flat" size="large">{{ round.rule === "category" ? "сортируем по категории" : "сортируем по цвету" }}</v-chip>
                 </div>
               </div>
             </v-card>
 
             <v-row justify="center">
-              <v-col v-for="shelf in round.shelves" :key="shelf.id" cols="12" md="4">
-                <GameDwellButton :class="{ 'shelf-choice--hint': hintedShelfId === shelf.id }" :target-id="shelfTargetId(shelf)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="220" :color="shelfColor(shelf)" @select="chooseShelf(shelf)">
+              <v-col v-for="shelf in round.shelves" :key="shelf.id" cols="12" sm="4" md="4">
+                <GameDwellButton :class="{ 'shelf-choice--hint': hintedShelfId === shelf.id }" :target-id="shelfTargetId(shelf)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="190" :color="shelfColor(shelf)" @select="chooseShelf(shelf)">
                   <template #default>
                     <div class="shelf-choice-content">
                       <v-icon class="shelf-icon mb-3" :icon="shelf.icon" color="brown-darken-2" />
                       <div class="text-h5 font-weight-bold mb-2">{{ shelf.title }}</div>
-                      <div class="text-body-2 text-medium-emphasis">{{ shelf.hint }}</div>
+                      <div class="shelf-hint text-body-2">{{ shelf.hint }}</div>
                     </div>
                   </template>
                 </GameDwellButton>
@@ -157,6 +155,12 @@ onUnmounted(() => {
 
 .item-card {
   border: 2px solid rgb(var(--v-theme-primary) / 16%);
+}
+
+.shelf-feedback,
+.item-caption,
+.shelf-hint {
+  color: #263238;
 }
 
 .item-emoji {
@@ -185,6 +189,27 @@ onUnmounted(() => {
 @media (max-width: 600px) {
   .game-container {
     padding-block-start: 156px;
+  }
+}
+
+@media (max-height: 44rem) {
+  .game-container {
+    padding-block-start: 5rem;
+  }
+
+  .item-card {
+    margin-block-end: 1rem !important;
+    padding: 1rem !important;
+  }
+
+  .item-emoji,
+  .shelf-icon {
+    font-size: clamp(3rem, 7vw, 4.5rem);
+  }
+
+  .shelf-choice-content,
+  .game-container :deep(.dwell-button) {
+    min-block-size: 9rem !important;
   }
 }
 </style>

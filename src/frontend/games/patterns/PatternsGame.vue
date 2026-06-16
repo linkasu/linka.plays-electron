@@ -4,17 +4,15 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generatePatternRound, type PatternItem } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("patterns", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("patterns", {
   maxSteps: 8,
-  dwellMs: 1200,
-  sessionSeconds: 120,
-  sound: false
+  overrides: { dwellMs: 1200, sessionSeconds: 120, sound: false }
 });
 
 const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame({
@@ -121,8 +119,8 @@ onUnmounted(() => {
             </div>
 
             <v-row justify="center">
-              <v-col v-for="(choice, index) in round.choices" :key="choice.id" cols="6" :md="round.choices.length === 3 ? 4 : 3">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="180" :color="choiceColor(choice)" @select="choose(index)">
+              <v-col v-for="(choice, index) in round.choices" :key="choice.id" cols="6" :sm="round.choices.length === 3 ? 4 : 3" :md="round.choices.length === 3 ? 4 : 3">
+                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="160" :color="choiceColor(choice)" @select="choose(index)">
                   <template #default>
                     <v-icon class="choice-icon" :color="choice.color" :icon="choice.icon" />
                   </template>
@@ -188,6 +186,21 @@ onUnmounted(() => {
   .pattern-row {
     gap: 10px;
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-height: 44rem) {
+  .game-container {
+    padding-block-start: 5rem;
+  }
+
+  .pattern-row {
+    margin-block-end: 1rem !important;
+  }
+
+  .pattern-slot,
+  .game-container :deep(.dwell-button) {
+    min-block-size: 8.5rem !important;
   }
 }
 </style>
