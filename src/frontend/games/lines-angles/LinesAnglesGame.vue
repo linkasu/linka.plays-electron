@@ -5,16 +5,16 @@ import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateLinesAnglesRound, type LinesAnglesOption, type LinesAnglesRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("lines-angles", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("lines-angles", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 120
-}, { finishOnMistakes: false });
+  overrides: { dwellMs: 1300, sessionSeconds: 120 },
+  finishOnMistakes: false
+});
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<LinesAnglesRound>({
   session,

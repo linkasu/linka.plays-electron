@@ -4,18 +4,16 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { applyMove, cellIndex, chooseAiMove, countPieces, createInitialBoard, findWinner, hasAnyMove, reversiLightSize, validMoves, type ReversiLightBoard, type ReversiLightCell, type ReversiLightWinner } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSession("reversi-light", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("reversi-light", {
   maxSteps: 10,
-  dwellMs: 1300,
-  sessionSeconds: 180,
-  targetScale: 1.25,
-  sound: false
-}, { finishOnMistakes: false });
+  overrides: { dwellMs: 1300, sessionSeconds: 180, targetScale: 1.25, sound: false },
+  finishOnMistakes: false
+});
 
 const aiMoveDelayMs = 850;
 const passDelayMs = 700;
@@ -324,6 +322,47 @@ onUnmounted(() => {
 
   .reversi-cell-content {
     min-block-size: 74px;
+  }
+}
+
+@media (max-height: 680px) {
+  .game-container {
+    padding-block-start: 4.75rem;
+  }
+
+  .game-container :deep(.v-card) {
+    padding-block: 1rem !important;
+  }
+
+  .game-container .text-overline,
+  .game-container h1,
+  .game-container p,
+  .game-container .v-alert,
+  .game-container .v-btn {
+    display: none;
+  }
+
+  .game-container .d-flex.flex-column.flex-md-row {
+    margin-block-end: 0.75rem !important;
+  }
+
+  .board-grid {
+    gap: 0.45rem;
+    max-inline-size: min(100%, 28rem);
+  }
+
+  .board-grid :deep(.dwell-button) {
+    min-block-size: 4rem !important;
+    padding: 0.35rem !important;
+  }
+
+  .reversi-cell-content {
+    min-block-size: 3.2rem;
+  }
+
+  .piece {
+    block-size: 2.7rem;
+    inline-size: 2.7rem;
   }
 }
 </style>

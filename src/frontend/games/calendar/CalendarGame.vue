@@ -5,16 +5,16 @@ import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateCalendarRound, type CalendarChoice } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("calendar", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("calendar", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 130
-}, { finishOnMistakes: false });
+  overrides: { dwellMs: 1300, sessionSeconds: 130 },
+  finishOnMistakes: false
+});
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
@@ -87,9 +87,9 @@ function restart() {
                   <template #default>
                     <div class="calendar-choice">
                       <v-icon v-if="mistakeChoiceId && choice.id === round.correctChoiceId" class="calendar-choice__check" icon="mdi-check-circle" size="34" />
-                      <v-icon :icon="choice.icon" class="mb-3" size="48" />
+                      <v-icon :icon="choice.icon" class="calendar-choice__icon mb-3" size="48" />
                       <div class="calendar-choice__label font-weight-black">{{ choice.label }}</div>
-                      <div class="text-h6 text-md-h5 text-medium-emphasis font-weight-bold mt-2">{{ choice.sublabel }}</div>
+                      <div class="calendar-choice__sublabel text-h6 text-md-h5 text-medium-emphasis font-weight-bold mt-2">{{ choice.sublabel }}</div>
                     </div>
                   </template>
                 </GameDwellButton>
@@ -120,11 +120,18 @@ function restart() {
 .calendar-choice {
   align-items: center;
   block-size: 100%;
+  color: #17212b;
   display: flex;
   flex-direction: column;
   justify-content: center;
   position: relative;
   text-align: center;
+}
+
+.calendar-choice__icon,
+.calendar-choice__label,
+.calendar-choice__sublabel {
+  color: #17212b !important;
 }
 
 .calendar-choice__label {
@@ -147,6 +154,41 @@ function restart() {
 @media (max-height: 42rem) and (min-width: 60rem) {
   .game-container {
     padding-block-start: 7.4rem;
+  }
+}
+
+@media (max-height: 680px) {
+  .game-container {
+    padding-block-start: 4.75rem;
+  }
+
+  .game-container :deep(.v-card) {
+    padding-block: 1rem !important;
+  }
+
+  .game-container .d-flex,
+  .game-container .text-overline,
+  .game-container h1,
+  .game-container .v-alert {
+    display: none !important;
+  }
+
+  .choice-row {
+    row-gap: 0.35rem;
+  }
+
+  .choice-row :deep(.v-col) {
+    flex: 0 0 50% !important;
+    max-inline-size: 50% !important;
+  }
+
+  .choice-row :deep(.dwell-button) {
+    min-block-size: 7.25rem !important;
+    padding: 0.5rem !important;
+  }
+
+  .calendar-choice__label {
+    font-size: 2.4rem;
   }
 }
 </style>

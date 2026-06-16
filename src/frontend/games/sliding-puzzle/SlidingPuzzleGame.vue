@@ -4,19 +4,14 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { createInitialBoard, isSolved, movableTileIndexes, moveTile, type SlidingPuzzleBoard } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("sliding-puzzle", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("sliding-puzzle", {
   maxSteps: 12,
-  dwellMs: 1200,
-  sessionSeconds: 180,
-  targetScale: 1.2,
-  sound: false
-}, {
+  overrides: { preset: "gentle", dwellMs: 1200, sessionSeconds: 180, targetScale: 1.2, sound: false },
   finishOnMistakes: false
 });
 
@@ -129,8 +124,8 @@ onUnmounted(() => {
                 <GameDwellButton v-else :class="['tile-button', { 'tile-button--hint': hintedIndexes.includes(index), 'tile-button--wrong': wrongIndex === index }]" :target-id="tileTargetId(tile, index)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="132" :color="tileColor(tile, index)" @select="chooseTile(tile, index)">
                   <template #default>
                     <div class="tile-number">{{ tile }}</div>
-                    <div v-if="availableMoves.includes(index)" class="text-caption font-weight-bold text-primary mt-1">можно</div>
-                    <div v-else class="text-caption text-medium-emphasis mt-1">плитка</div>
+                    <div v-if="availableMoves.includes(index)" class="tile-caption text-caption font-weight-bold mt-1">можно</div>
+                    <div v-else class="tile-caption text-caption mt-1">плитка</div>
                   </template>
                 </GameDwellButton>
               </div>
@@ -199,10 +194,15 @@ onUnmounted(() => {
 }
 
 .tile-number {
-  color: rgb(var(--v-theme-on-surface));
+  color: #0b1117 !important;
   font-size: clamp(3rem, min(12vw, 14vh), 6.8rem);
   font-weight: 900;
   line-height: 1;
+}
+
+.tile-caption {
+  color: #0b1117 !important;
+  font-weight: 800;
 }
 
 @media (max-width: 600px) {
@@ -212,6 +212,42 @@ onUnmounted(() => {
 
   .puzzle-grid {
     gap: 0.55rem;
+  }
+}
+
+@media (max-height: 680px) {
+  .game-container {
+    padding-block-start: 4.75rem;
+  }
+
+  .game-container :deep(.v-card) {
+    padding-block: 1rem !important;
+  }
+
+  .game-container .text-overline,
+  .game-container h1,
+  .game-container p,
+  .game-container .v-avatar,
+  .game-container .v-alert {
+    display: none;
+  }
+
+  .game-container .d-flex.flex-column.flex-md-row {
+    margin-block-end: 0.75rem !important;
+  }
+
+  .puzzle-grid {
+    gap: 0.45rem;
+    max-inline-size: min(100%, 28rem);
+  }
+
+  .puzzle-grid :deep(.dwell-button) {
+    min-block-size: 4rem !important;
+    padding: 0.4rem !important;
+  }
+
+  .tile-number {
+    font-size: 3.1rem;
   }
 }
 </style>

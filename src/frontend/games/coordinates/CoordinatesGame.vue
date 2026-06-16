@@ -5,16 +5,14 @@ import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { coordinateColumns, coordinateRows, generateCoordinatesRound, type CoordinateCell } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("coordinates", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("coordinates", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 130
-}, {
+  overrides: { dwellMs: 1300, sessionSeconds: 130 },
   finishOnMistakes: false
 });
 
@@ -156,6 +154,7 @@ function restart() {
 
 .coordinate-cell {
   align-items: center;
+  color: #17212b;
   display: grid;
   gap: 0.35rem;
   justify-items: center;
@@ -169,6 +168,7 @@ function restart() {
 }
 
 .coordinate-cell__hint {
+  color: #17212b !important;
   font-weight: 700;
 }
 
@@ -183,12 +183,36 @@ function restart() {
 
 @media (max-height: 44rem) {
   .game-container {
-    padding-block-start: 7.5rem;
+    padding-block-start: 4.75rem;
+  }
+
+  .coordinates-card {
+    padding-block: 1rem !important;
+  }
+
+  .coordinates-card .text-overline,
+  .coordinates-card h1,
+  .coordinates-card p,
+  .coordinates-card .v-alert {
+    display: none;
   }
 
   .axis-label,
   .corner-label {
     min-block-size: 3rem;
+  }
+
+  .axis-label--row,
+  .coordinate-board :deep(.dwell-button) {
+    min-block-size: 4rem !important;
+  }
+
+  .coordinate-board {
+    gap: 0.35rem;
+  }
+
+  .coordinate-cell__value {
+    font-size: 2.6rem;
   }
 }
 </style>

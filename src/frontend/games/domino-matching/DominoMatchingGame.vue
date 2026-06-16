@@ -5,16 +5,16 @@ import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateDominoMatchingRound, type DominoChoice, type DominoSide, type DominoTile } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("domino-matching", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("domino-matching", {
   maxSteps: 10,
-  dwellMs: 1300,
-  sessionSeconds: 180
-}, { finishOnMistakes: false });
+  overrides: { dwellMs: 1300, sessionSeconds: 180 },
+  finishOnMistakes: false
+});
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
@@ -110,7 +110,7 @@ function restart() {
                     <GameDwellButton :class="{ 'target-hint': hintedRoundId === round.roundId && choice.tile[choice.matchSide] === round.targetDots }" :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="210" :color="hintedRoundId === round.roundId && choice.tile[choice.matchSide] === round.targetDots ? 'primary' : 'surface'" @select="choose(choice)">
                       <template #default>
                         <div :class="['choice-card', { 'choice-card--mistake': choice.id === lastMistakeId }]">
-                          <div class="text-overline text-medium-emphasis mb-2">Смотри на {{ sideName(choice.matchSide) }} сторону</div>
+                          <div class="choice-card__hint text-overline text-medium-emphasis mb-2">Смотри на {{ sideName(choice.matchSide) }} сторону</div>
                           <div class="domino" :aria-label="`Домино ${choice.tile.left} и ${choice.tile.right}`">
                             <div :class="['domino__half', { 'domino__half--match': choice.matchSide === 'left' }]">
                               <span v-for="dot in dotArray(choice.tile.left)" :key="`${choice.id}-left-${dot}`" class="domino__dot" />
@@ -119,7 +119,7 @@ function restart() {
                               <span v-for="dot in dotArray(choice.tile.right)" :key="`${choice.id}-right-${dot}`" class="domino__dot" />
                             </div>
                           </div>
-                          <div class="text-h6 font-weight-bold mt-3">{{ sideValue(choice.tile, choice.matchSide) }} точек</div>
+                          <div class="choice-card__value text-h6 font-weight-bold mt-3">{{ sideValue(choice.tile, choice.matchSide) }} точек</div>
                         </div>
                       </template>
                     </GameDwellButton>
@@ -161,10 +161,16 @@ function restart() {
 
 .choice-card {
   align-items: center;
+  color: #17212b;
   display: flex;
   flex-direction: column;
   justify-content: center;
   transition: filter 160ms ease, transform 160ms ease;
+}
+
+.choice-card__hint,
+.choice-card__value {
+  color: #17212b !important;
 }
 
 .choice-card--mistake {
@@ -231,11 +237,46 @@ function restart() {
 
 @media (max-height: 44rem) {
   .game-container {
-    padding-block-start: 7.25rem;
+    padding-block-start: 4.75rem;
+  }
+
+  .game-container :deep(.v-card) {
+    padding-block: 1rem !important;
+  }
+
+  .game-container h1,
+  .game-container .text-overline,
+  .game-container .v-alert {
+    display: none;
   }
 
   .target-panel {
-    min-block-size: 17rem;
+    min-block-size: 10rem;
+    padding: 1rem !important;
+  }
+
+  .choice-grid {
+    row-gap: 0.35rem;
+  }
+
+  .choice-grid :deep(.dwell-button) {
+    min-block-size: 7rem !important;
+    padding: 0.5rem !important;
+  }
+
+  .domino {
+    grid-template-columns: repeat(2, minmax(3.5rem, 1fr));
+    inline-size: min(100%, 10rem);
+    min-block-size: 5.25rem;
+  }
+
+  .domino--target {
+    inline-size: min(100%, 12rem);
+    min-block-size: 6rem;
+  }
+
+  .domino__half {
+    padding: 0.55rem;
   }
 }
 </style>

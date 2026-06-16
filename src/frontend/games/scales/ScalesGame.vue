@@ -5,17 +5,16 @@ import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { answerLabel, generateScalesRound, scalesAnswers, type ScalesAnswer, type ScalesSide } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("scales", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("scales", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 125,
-  sound: false
-}, { finishOnMistakes: false });
+  overrides: { dwellMs: 1300, sessionSeconds: 125, sound: false },
+  finishOnMistakes: false
+});
 
 const feedback = ref("");
 const lastMistakeAnswer = ref<ScalesAnswer>();
@@ -108,7 +107,7 @@ function restartGame() {
             </v-sheet>
 
             <v-row class="answer-row" dense>
-              <v-col v-for="answer in scalesAnswers" :key="answer" cols="12" md="4">
+              <v-col v-for="answer in scalesAnswers" :key="answer" class="scales-answer-col" cols="12" md="4">
                 <GameDwellButton :target-id="answerTargetId(answer)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="158" :color="lastMistakeAnswer === answer ? 'secondary' : 'surface'" @select="choose(answer)">
                   <template #default>
                     <div class="d-flex align-center justify-center ga-3 text-h5 text-md-h4 font-weight-bold">
@@ -261,11 +260,40 @@ function restartGame() {
 
 @media (max-height: 42rem) {
   .game-container {
-    padding-block-start: 9.25rem;
+    padding-block-start: 4.75rem;
+  }
+
+  .game-container :deep(.v-card) {
+    padding-block: 1rem !important;
+  }
+
+  .game-container .text-overline,
+  .game-container h1,
+  .game-container .v-alert {
+    display: none;
+  }
+
+  .scale-stage {
+    margin-block-end: 0.75rem !important;
+    padding: 0.75rem !important;
   }
 
   .scale-frame {
-    block-size: 15rem;
+    block-size: 13rem;
+  }
+
+  .scale-pan {
+    min-block-size: 6.5rem;
+  }
+
+  .scales-answer-col {
+    flex: 0 0 33.3333% !important;
+    max-inline-size: 33.3333% !important;
+  }
+
+  .answer-row :deep(.dwell-button) {
+    min-block-size: 6.25rem !important;
+    padding: 0.5rem !important;
   }
 }
 </style>

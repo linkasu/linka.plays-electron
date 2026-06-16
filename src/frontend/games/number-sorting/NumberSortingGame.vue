@@ -5,16 +5,16 @@ import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateNumberSortingRound, type NumberSortingCard } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("number-sorting", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("number-sorting", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 130
-}, { finishOnMistakes: false });
+  overrides: { dwellMs: 1300, sessionSeconds: 130 },
+  finishOnMistakes: false
+});
 
 const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame({
   session,
@@ -247,6 +247,45 @@ onUnmounted(() => {
 
   .number-card-content {
     min-block-size: 7rem;
+  }
+}
+
+@media (max-height: 680px) {
+  .game-container {
+    padding-block-start: 4.75rem;
+  }
+
+  .game-container :deep(.v-card) {
+    padding-block: 1rem !important;
+  }
+
+  .game-container .text-overline,
+  .game-container h1,
+  .game-container p {
+    display: none;
+  }
+
+  .game-container .v-sheet {
+    margin-block-end: 0.75rem !important;
+    padding: 0.75rem !important;
+  }
+
+  .number-card-col {
+    flex-basis: 20% !important;
+    max-inline-size: 20% !important;
+  }
+
+  .card-grid :deep(.dwell-button) {
+    min-block-size: 8rem !important;
+    padding: 0.5rem !important;
+  }
+
+  .number-card-content {
+    min-block-size: 6.5rem;
+  }
+
+  .number-card-value {
+    font-size: 4.2rem;
   }
 }
 </style>

@@ -5,17 +5,16 @@ import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateShopRound, type ShopCoin, type ShopCoinValue, type ShopItem } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("shop", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("shop", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 140,
-  sound: false
-}, { finishOnMistakes: false });
+  overrides: { dwellMs: 1300, sessionSeconds: 140, sound: false },
+  finishOnMistakes: false
+});
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
@@ -136,13 +135,13 @@ function restart() {
             </v-alert>
 
             <v-row v-if="round.taskKind === 'choose-item'" class="choice-row" dense>
-              <v-col v-for="item in round.choices" :key="item.id" cols="12" sm="6" lg="3">
+              <v-col v-for="item in round.choices" :key="item.id" class="shop-choice-col" cols="12" sm="6" lg="3">
                 <GameDwellButton :target-id="itemTargetId(item.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="230" color="surface" @select="chooseItem(item)">
                   <template #default>
                     <div :class="['item-card', { 'item-card--mistake': lastMistakeTargetId === itemTargetId(item.id) }]">
                       <div class="item-card__emoji emoji-glyph" aria-hidden="true">{{ item.emoji }}</div>
-                      <div class="text-h5 text-md-h4 font-weight-bold text-center">{{ item.label }}</div>
-                      <v-chip class="mt-3" color="primary" size="x-large" variant="flat">
+                      <div class="item-card__label text-h5 text-md-h4 font-weight-bold text-center">{{ item.label }}</div>
+                      <v-chip class="item-card__price mt-3" color="deep-purple-darken-3" size="x-large" variant="flat">
                         {{ item.price }} мон.
                       </v-chip>
                     </div>
@@ -249,6 +248,14 @@ function restart() {
   color: #223048;
 }
 
+.item-card__label {
+  color: #0b1117 !important;
+}
+
+.item-card__price {
+  color: #ffffff !important;
+}
+
 .item-card__emoji {
   font-size: clamp(4rem, min(9vw, 12vh), 6.5rem);
   line-height: 1;
@@ -342,12 +349,41 @@ function restart() {
 
 @media (max-height: 44rem) {
   .game-container {
-    padding-block-start: 8.5rem;
+    padding-block-start: 4.75rem;
+  }
+
+  .shop-card {
+    padding-block: 1rem !important;
+  }
+
+  .shop-card .text-overline,
+  .shop-card h1,
+  .shop-card .v-alert {
+    display: none;
+  }
+
+  .shop-choice-col {
+    flex: 0 0 25% !important;
+    max-inline-size: 25% !important;
+  }
+
+  .choice-row :deep(.dwell-button) {
+    min-block-size: 10rem !important;
+    padding: 0.5rem !important;
   }
 
   .item-card,
   .coin-card {
-    min-block-size: 8rem;
+    min-block-size: 7rem;
+  }
+
+  .item-card__emoji {
+    font-size: 3.25rem;
+    margin-block-end: 0.35rem;
+  }
+
+  .item-card__label {
+    font-size: 1.35rem !important;
   }
 }
 </style>

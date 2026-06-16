@@ -5,17 +5,16 @@ import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generatePizzaFractionsRound, type PizzaFractionChoice, type PizzaFractionsRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("pizza-fractions", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("pizza-fractions", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 130,
-  sound: false
-}, { finishOnMistakes: false });
+  overrides: { dwellMs: 1300, sessionSeconds: 130, sound: false },
+  finishOnMistakes: false
+});
 
 const mistakenChoiceId = ref<string>();
 const { round, resultVisible, nextRound, restart } = useRoundGame<PizzaFractionsRound>({
@@ -77,7 +76,7 @@ function restartGame() {
             </v-alert>
 
             <v-row class="choice-row" dense>
-              <v-col v-for="(choice, index) in round.choices" :key="choice.id" cols="12" md="4">
+              <v-col v-for="(choice, index) in round.choices" :key="choice.id" class="pizza-choice-col" cols="12" md="4">
                 <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="270" color="surface" @select="choose(index)">
                   <template #default>
                     <div :class="['pizza-choice', { 'pizza-choice--correct-hint': mistakenChoiceId && choice.id === round.targetId, 'pizza-choice--mistake': mistakenChoiceId === choice.id }]">
@@ -86,9 +85,9 @@ function restartGame() {
                           <div class="pizza__cuts" />
                         </div>
                       </div>
-                      <div class="text-h4 text-md-h3 font-weight-bold mt-4">{{ choice.label }}</div>
-                      <v-chip class="mt-2" color="primary" size="large" variant="tonal">{{ choice.shortLabel }}</v-chip>
-                      <div class="text-body-1 text-medium-emphasis mt-3">{{ choice.helperText }}</div>
+                      <div class="pizza-choice__label text-h4 text-md-h3 font-weight-bold mt-4">{{ choice.label }}</div>
+                      <v-chip class="pizza-choice__chip mt-2" color="deep-purple-darken-3" size="large" variant="flat">{{ choice.shortLabel }}</v-chip>
+                      <div class="pizza-choice__helper text-body-1 text-medium-emphasis mt-3">{{ choice.helperText }}</div>
                       <div class="sr-only">Доля: {{ choice.label }}.</div>
                     </div>
                   </template>
@@ -120,6 +119,7 @@ function restartGame() {
 .pizza-choice {
   align-items: center;
   block-size: 100%;
+  color: #17212b;
   border: 0.25rem solid transparent;
   border-radius: 1.5rem;
   display: flex;
@@ -128,6 +128,16 @@ function restartGame() {
   min-block-size: 14.5rem;
   padding: 0.75rem;
   transition: filter 160ms ease, outline 160ms ease, transform 160ms ease;
+}
+
+.pizza-choice__label,
+.pizza-choice__helper,
+.pizza-choice__chip {
+  color: #0b1117 !important;
+}
+
+.pizza-choice__chip {
+  color: #ffffff !important;
 }
 
 .pizza-choice--correct-hint {
@@ -200,6 +210,51 @@ function restartGame() {
   .pizza-plate {
     inline-size: 8rem;
     min-block-size: 8rem;
+  }
+}
+
+@media (max-height: 680px) {
+  .game-container {
+    padding-block-start: 4.75rem;
+  }
+
+  .game-container :deep(.v-card) {
+    padding-block: 1rem !important;
+  }
+
+  .game-container .text-overline,
+  .game-container h1,
+  .game-container .v-alert {
+    display: none;
+  }
+
+  .pizza-choice-col {
+    flex: 0 0 33.3333% !important;
+    max-inline-size: 33.3333% !important;
+  }
+
+  .choice-row :deep(.dwell-button) {
+    min-block-size: 15rem !important;
+    padding: 0.5rem !important;
+  }
+
+  .pizza-choice {
+    min-block-size: 11rem;
+    padding: 0.35rem;
+  }
+
+  .pizza-plate {
+    inline-size: 6.4rem;
+    min-block-size: 6.4rem;
+  }
+
+  .pizza-choice__label {
+    font-size: 1.75rem !important;
+    margin-block-start: 0.5rem !important;
+  }
+
+  .pizza-choice__helper {
+    display: none;
   }
 }
 </style>
