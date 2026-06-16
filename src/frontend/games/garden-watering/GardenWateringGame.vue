@@ -4,10 +4,10 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels } from "../../core/placement";
-import { useGameSession } from "../../core/session";
 import { advanceFlowerGrowth } from "./model";
 
 type Point = { x: number; y: number };
@@ -34,16 +34,9 @@ type WaterDrop = Point & {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSession("garden-watering", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("garden-watering", {
   maxSteps: 6,
-  dwellMs: 1200,
-  sessionSeconds: 120,
-  targetScale: 1.45,
-  motionSpeed: 0.55,
-  distractors: "none",
-  hints: "high"
-}, {
+  overrides: { preset: "gentle", dwellMs: 1200, sessionSeconds: 120, targetScale: 1.45, motionSpeed: 0.55, distractors: "none", hints: "high" },
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });

@@ -4,9 +4,9 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 
 type Point = { x: number; y: number };
 type Leaf = Point & {
@@ -34,17 +34,9 @@ type WindLine = {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSession("leaves-wind", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("leaves-wind", {
   maxSteps: 8,
-  dwellMs: 1500,
-  sessionSeconds: 80,
-  targetScale: 1.5,
-  motionSpeed: 0.42,
-  distractors: "none",
-  hints: "high",
-  sound: false
-}, {
+  overrides: { preset: "gentle", dwellMs: 1500, sessionSeconds: 80, targetScale: 1.5, motionSpeed: 0.42, distractors: "none", hints: "high", sound: false },
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });

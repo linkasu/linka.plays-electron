@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 
 type Point = { x: number; y: number };
 type Projection = Point & { distance: number; ratio: number };
@@ -13,16 +13,9 @@ type Projection = Point & { distance: number; ratio: number };
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordHint, recordSuccess, startSession } = useGameSession("maze-path", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordHint, recordSuccess, startSession } = useGameSessionFor("maze-path", {
   maxSteps: 5,
-  dwellMs: 1000,
-  sessionSeconds: 120,
-  targetScale: 1.55,
-  motionSpeed: 0.48,
-  distractors: "none",
-  hints: "high"
-}, {
+  overrides: { preset: "gentle", dwellMs: 1000, sessionSeconds: 120, targetScale: 1.55, motionSpeed: 0.48, distractors: "none", hints: "high" },
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });

@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 
 type Point = {
   x: number;
@@ -42,16 +42,9 @@ type Ripple = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSession("boat", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("boat", {
   maxSteps: 7,
-  dwellMs: 500,
-  sessionSeconds: 135,
-  targetScale: 1.35,
-  motionSpeed: 0.62,
-  distractors: "none",
-  hints: "high"
-}, {
+  overrides: { preset: "gentle", dwellMs: 500, sessionSeconds: 135, targetScale: 1.35, motionSpeed: 0.62, distractors: "none", hints: "high" },
   finishOnMistakes: false
 });
 

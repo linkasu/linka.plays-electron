@@ -4,22 +4,15 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 
 const rayIndexes = Array.from({ length: 8 }, (_, index) => index);
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("sun-rays", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSessionFor("sun-rays", {
   maxSteps: 8,
-  dwellMs: 1400,
-  sessionSeconds: 80,
-  targetScale: 1.7,
-  motionSpeed: 0.35,
-  distractors: "none",
-  hints: "high"
-}, {
+  overrides: { preset: "gentle", dwellMs: 1400, sessionSeconds: 80, targetScale: 1.7, motionSpeed: 0.35, distractors: "none", hints: "high" },
   finishOnMistakes: false
 });
 
