@@ -3,9 +3,9 @@ import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { disposeTennisAudio, playTennisMelody, resetTennisAudioSession, warmTennisAudio } from "./audio";
 import { drawTennisScene, tennisCourtBottom, tennisCourtTop, type TennisBall, type TennisBurst, type TennisPaddle, type TennisTrail } from "./scene";
 
@@ -22,16 +22,9 @@ type RallyBall = TennisBall & {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, recordMistake, startSession } = useGameSession("table-tennis", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, recordMistake, startSession } = useGameSessionFor("table-tennis", {
   maxSteps: 30,
-  dwellMs: 850,
-  sessionSeconds: 90,
-  targetScale: 1.38,
-  motionSpeed: 0.72,
-  distractors: "none",
-  hints: "high"
-}, {
+  overrides: { preset: "gentle", dwellMs: 850, sessionSeconds: 90, targetScale: 1.38, motionSpeed: 0.72, distractors: "none", hints: "high" },
   finishOnMaxSteps: false
 });
 

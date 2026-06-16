@@ -3,24 +3,17 @@ import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { disposeFishAudio, playFishMelody, resetFishAudioSession, warmFishAudio } from "./audio";
 import { drawFishScene, fishHitRadius, swimBottom, swimTop, type Bubble, type CatchRipple, type Fish, type Point } from "./scene";
 
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSession("fishes", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("fishes", {
   maxSteps: 999,
-  dwellMs: 850,
-  sessionSeconds: 60,
-  targetScale: 1.35,
-  motionSpeed: 0.62,
-  distractors: "none",
-  hints: "high"
-}, {
+  overrides: { preset: "gentle", dwellMs: 850, sessionSeconds: 60, targetScale: 1.35, motionSpeed: 0.62, distractors: "none", hints: "high" },
   finishOnMaxSteps: false
 });
 

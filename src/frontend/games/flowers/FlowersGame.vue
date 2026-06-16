@@ -3,9 +3,9 @@ import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
-import { useGameSession } from "../../core/session";
 import { disposeFlowerAudio, playFlowerMelody, resetFlowerAudioSession, warmFlowerAudio } from "./audio";
 
 type Point = { x: number; y: number };
@@ -39,16 +39,9 @@ type Cloud = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSession("flowers", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("flowers", {
   maxSteps: 5,
-  dwellMs: 1100,
-  sessionSeconds: 75,
-  targetScale: 1.45,
-  motionSpeed: 0.55,
-  distractors: "none",
-  hints: "high"
-}, {
+  overrides: { preset: "gentle", dwellMs: 1100, sessionSeconds: 75, targetScale: 1.45, motionSpeed: 0.55, distractors: "none", hints: "high" },
   finishOnMaxSteps: false
 });
 

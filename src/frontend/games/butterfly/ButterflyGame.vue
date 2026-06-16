@@ -3,9 +3,9 @@ import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { randomTargetCenterPercent, percentToPixels } from "../../core/placement";
-import { useGameSession } from "../../core/session";
 import { disposeButterflyAudio, playButterflyMelody, resetButterflyAudioSession, warmButterflyAudio } from "./audio";
 
 type Point = { x: number; y: number };
@@ -31,16 +31,9 @@ type RewardButterfly = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSession("butterfly", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("butterfly", {
   maxSteps: 5,
-  dwellMs: 900,
-  sessionSeconds: 60,
-  targetScale: 1.45,
-  motionSpeed: 0.55,
-  distractors: "none",
-  hints: "high"
-}, {
+  overrides: { preset: "gentle", dwellMs: 900, sessionSeconds: 60, targetScale: 1.45, motionSpeed: 0.55, distractors: "none", hints: "high" },
   finishOnMaxSteps: false
 });
 
@@ -267,6 +260,17 @@ function drawGlowTarget(context: CanvasRenderingContext2D, nextTarget: GlowTarge
   context.beginPath();
   context.arc(point.x, point.y, radius * 0.85, 0, Math.PI * 2);
   context.fill();
+
+  context.globalCompositeOperation = "source-over";
+  context.fillStyle = `hsla(${nextTarget.hue}, 96%, 86%, ${appear * bloomFade * 0.68})`;
+  context.beginPath();
+  context.arc(point.x, point.y, radius * 0.22, 0, Math.PI * 2);
+  context.fill();
+  context.strokeStyle = `hsla(${nextTarget.hue}, 92%, 84%, ${appear * bloomFade * 0.86})`;
+  context.lineWidth = Math.max(4, radius * 0.045);
+  context.beginPath();
+  context.arc(point.x, point.y, radius * (0.58 + nextTarget.dwellProgress * 0.1), 0, Math.PI * 2);
+  context.stroke();
   context.restore();
 }
 
