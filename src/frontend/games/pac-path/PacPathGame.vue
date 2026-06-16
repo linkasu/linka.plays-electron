@@ -4,18 +4,14 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { createPacPathRound, isPacPathSafeChoice, pacPathChoiceOutcome, pacPathMaxSteps, pacPathWaypoints, type PacPathChoice, type PacPathWaypoint } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSession("pac-path", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("pac-path", {
   maxSteps: pacPathMaxSteps,
-  dwellMs: 1300,
-  sessionSeconds: 180,
-  targetScale: 1.35,
-  sound: false
-}, {
+  overrides: { targetScale: 1.35, sound: false },
   finishOnMistakes: false
 });
 
@@ -422,6 +418,46 @@ onUnmounted(() => {
 
   .pac-path-choice {
     inline-size: clamp(8rem, 18vw, 10rem);
+  }
+}
+
+@media (max-height: 680px) {
+  .pac-path-container {
+    padding-block-start: 4.75rem;
+  }
+
+  .pac-path-panel {
+    padding-block: 1rem !important;
+  }
+
+  .pac-path-panel > .text-overline,
+  .pac-path-panel > h1,
+  .pac-path-panel > p,
+  .pac-path-panel > .v-alert,
+  .pac-path-panel > .v-row {
+    display: none;
+  }
+
+  .pac-path-stage {
+    aspect-ratio: 16 / 9;
+    min-block-size: 24rem;
+  }
+
+  .pac-path-choice {
+    inline-size: clamp(7.25rem, 16vw, 9rem);
+  }
+
+  .pac-path-choice :deep(.dwell-button) {
+    min-block-size: 5.25rem !important;
+    padding: 0.4rem !important;
+  }
+
+  .pac-path-choice__content {
+    min-block-size: 4.6rem;
+  }
+
+  .pac-path-choice__cue {
+    display: none;
   }
 }
 </style>

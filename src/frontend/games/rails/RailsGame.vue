@@ -5,9 +5,9 @@ import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 
 type Point = {
   x: number;
@@ -42,16 +42,9 @@ const trainChoices: TrainChoice[] = [
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordHint, recordSuccess, startSession } = useGameSession("rails", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordHint, recordSuccess, startSession } = useGameSessionFor("rails", {
   maxSteps: 8,
-  dwellMs: 700,
-  sessionSeconds: 150,
-  targetScale: 1.35,
-  motionSpeed: 0.52,
-  distractors: "none",
-  hints: "high"
-}, {
+  overrides: { preset: "gentle", dwellMs: 700, targetScale: 1.35, motionSpeed: 0.52, distractors: "none", hints: "high" },
   finishOnMistakes: false
 });
 
@@ -572,8 +565,8 @@ useGameLoop({ context, update, draw });
             <GameDwellButton :target-id="`rails:train:${choice.id}`" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="170" color="surface" @select="chooseTrain(choice)">
               <template #default="{ active, progress }">
                 <v-icon :icon="choice.icon" size="54" :style="{ color: choice.body }" />
-                <div class="text-h6 font-weight-bold mt-3">{{ choice.title }}</div>
-                <div class="text-body-2 text-medium-emphasis mt-1">{{ active ? `${Math.round(progress * 100)}%` : choice.label }}</div>
+                <div class="train-choice-title text-h6 font-weight-bold mt-3">{{ choice.title }}</div>
+                <div class="train-choice-caption text-body-2 mt-1">{{ active ? `${Math.round(progress * 100)}%` : choice.label }}</div>
               </template>
             </GameDwellButton>
           </v-col>
@@ -618,6 +611,11 @@ useGameLoop({ context, update, draw });
 
 .rails-picker-card {
   inline-size: min(920px, calc(100vw - 32px));
+}
+
+.train-choice-title,
+.train-choice-caption {
+  color: #17212b !important;
 }
 
 @media (max-width: 720px) {

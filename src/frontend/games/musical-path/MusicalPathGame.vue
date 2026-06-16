@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { disposeMusicalPathAudio, playMusicalPathComplete, playMusicalPathNote, warmMusicalPathAudio } from "./audio";
 
 type PathStone = {
@@ -40,17 +40,9 @@ const pathPoints = computed(() => stones.map((stone) => `${stone.x},${stone.y}`)
 let errorTimer = 0;
 let sparkTimer = 0;
 
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("musical-path", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("musical-path", {
   maxSteps: 8,
-  dwellMs: 1250,
-  sessionSeconds: 130,
-  targetScale: 1.45,
-  motionSpeed: 0.42,
-  distractors: "none",
-  hints: "high",
-  sound: true
-}, {
+  overrides: { preset: "gentle", targetScale: 1.45, motionSpeed: 0.42, distractors: "none", hints: "high", sound: true },
   finishOnMistakes: false
 });
 

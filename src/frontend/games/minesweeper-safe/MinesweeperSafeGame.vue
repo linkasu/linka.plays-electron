@@ -4,16 +4,15 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { createInitialCellStates, findSuggestedSafeIndex, generateMinesweeperSafeBoard, minesweeperSafeChoiceOutcome, type MinesweeperSafeCell } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSession("minesweeper-safe", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("minesweeper-safe", {
   maxSteps: 10,
-  dwellMs: 1200,
-  sessionSeconds: 180
-}, { finishOnMistakes: false });
+  finishOnMistakes: false
+});
 
 const roundIndex = ref(1);
 const board = ref(generateMinesweeperSafeBoard(session.settings, roundIndex.value));
@@ -44,7 +43,7 @@ function isDisabled(cell: MinesweeperSafeCell) {
 function cellColor(cell: MinesweeperSafeCell) {
   const state = cellStates.value[cell.index];
   if (state === "flagged") return "warning";
-  if (state === "revealed") return "primary";
+  if (state === "revealed") return "surface";
   if (hintedIndex.value === cell.index) return "success";
   return "surface";
 }
@@ -121,7 +120,7 @@ function restart() {
                 <v-chip color="primary" prepend-icon="mdi-shield-check-outline" size="large" variant="tonal">
                   Безопасных: {{ safeRemaining }}
                 </v-chip>
-                <GameDwellButton :target-id="hintTargetId()" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="88" color="secondary" @select="requestHint()">
+                <GameDwellButton :target-id="hintTargetId()" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="88" color="deep-purple-darken-3" @select="requestHint()">
                   <template #default>
                     <div class="hint-button-content">
                       <v-icon icon="mdi-map-marker-question-outline" size="30" />
@@ -148,7 +147,7 @@ function restart() {
                 <template #default>
                   <div v-if="cellStates[cell.index] === 'revealed'" class="revealed-cell">
                     <v-icon v-if="cell.adjacentMines === 0" icon="mdi-shield-check-outline" color="success" size="34" />
-                    <span v-else class="cell-number" :class="`text-${cellNumberColor(cell.adjacentMines)}`">{{ cell.adjacentMines }}</span>
+                    <span v-else class="cell-number" :class="`text-${cellNumberColor(cell.adjacentMines)}`" style="color: #17212b">{{ cell.adjacentMines }}</span>
                   </div>
                   <div v-else-if="cellStates[cell.index] === 'flagged'" class="flagged-cell">
                     <v-icon icon="mdi-flag-variant" color="warning" size="42" />
@@ -198,6 +197,18 @@ function restart() {
   justify-content: center;
 }
 
+.hidden-cell,
+.flagged-cell {
+  color: #17212b !important;
+}
+
+.hidden-cell span,
+.flagged-cell span,
+.hidden-cell :deep(.v-icon),
+.flagged-cell :deep(.v-icon) {
+  color: #17212b !important;
+}
+
 .hint-button-content {
   font-weight: 800;
 }
@@ -222,6 +233,7 @@ function restart() {
 }
 
 .cell-number {
+  color: #17212b !important;
   font-size: clamp(2.2rem, min(7vw, 9vh), 4.2rem);
   font-weight: 900;
   line-height: 1;
@@ -241,6 +253,57 @@ function restart() {
 @media (max-height: 44rem) {
   .game-container {
     padding-block-start: 7rem;
+  }
+}
+
+@media (max-height: 680px) {
+  .game-container {
+    padding-block-start: 4.75rem;
+  }
+
+  .game-container :deep(.v-card) {
+    padding-block: 1rem !important;
+  }
+
+  .game-container .text-overline,
+  .game-container p,
+  .game-container .v-alert {
+    display: none;
+  }
+
+  .game-container .d-flex.flex-column.flex-md-row {
+    margin-block-end: 0.75rem !important;
+  }
+
+  .game-container h1 {
+    display: none;
+  }
+
+  .board-wrap {
+    gap: 0.4rem;
+    grid-template-columns: repeat(var(--board-size), minmax(0, 1fr));
+    max-inline-size: min(100%, 36rem);
+  }
+
+  .mine-cell :deep(.dwell-button) {
+    min-block-size: 3.6rem !important;
+    padding: 0.35rem !important;
+  }
+
+  .hidden-cell,
+  .flagged-cell,
+  .revealed-cell {
+    gap: 0.15rem;
+  }
+
+  .hidden-cell :deep(.v-icon),
+  .flagged-cell :deep(.v-icon),
+  .revealed-cell :deep(.v-icon) {
+    font-size: 1.55rem !important;
+  }
+
+  .cell-number {
+    font-size: 2.2rem;
   }
 }
 </style>

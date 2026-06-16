@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import {
   applyCheckersLightMove,
   cellPosition,
@@ -19,12 +19,9 @@ import {
 } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession, finishSession } = useGameSession("checkers-light", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession, finishSession } = useGameSessionFor("checkers-light", {
   maxSteps: 10,
-  dwellMs: 1300,
-  sessionSeconds: 180,
-  targetScale: 1.15
-}, {
+  overrides: { targetScale: 1.15 },
   finishOnMistakes: false
 });
 
@@ -161,7 +158,7 @@ function restart() {
                         <v-icon icon="mdi-check" size="44" />
                         <span>ход</span>
                       </div>
-                      <div v-else class="cell-coordinate text-caption text-medium-emphasis">
+                      <div v-else class="cell-coordinate text-caption">
                         {{ cellPosition(row * checkersLightSize + column).row + 1 }}{{ cellPosition(row * checkersLightSize + column).column + 1 }}
                       </div>
                     </div>
@@ -235,6 +232,10 @@ function restart() {
   min-block-size: clamp(4.5rem, 12vw, 6.5rem);
 }
 
+.cell-coordinate {
+  color: #17212b !important;
+}
+
 .piece,
 .move-cue {
   align-items: center;
@@ -253,12 +254,13 @@ function restart() {
 }
 
 .piece-label {
+  color: #17212b !important;
   font-size: clamp(0.7rem, 1.8vw, 0.9rem);
   line-height: 1.1;
 }
 
 .move-cue {
-  color: rgb(var(--v-theme-success));
+  color: #17212b;
 }
 
 @media (max-height: 44rem) {
@@ -268,6 +270,45 @@ function restart() {
 
   .cell-content {
     min-block-size: 3.8rem;
+  }
+}
+
+@media (max-height: 680px) {
+  .game-container {
+    padding-block-start: 4.75rem;
+  }
+
+  .game-container :deep(.v-card) {
+    padding-block: 1rem !important;
+  }
+
+  .game-container .text-overline,
+  .game-container h1,
+  .game-container p,
+  .game-container .v-alert {
+    display: none;
+  }
+
+  .status-chip {
+    margin-block-end: 0.75rem !important;
+  }
+
+  .board {
+    gap: 0.45rem;
+    inline-size: min(100%, 28rem);
+  }
+
+  .board-row {
+    gap: 0.45rem;
+  }
+
+  .board-cell :deep(.dwell-button) {
+    min-block-size: 4rem !important;
+    padding: 0.35rem !important;
+  }
+
+  .cell-content {
+    min-block-size: 3.2rem;
   }
 }
 </style>

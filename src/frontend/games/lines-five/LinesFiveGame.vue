@@ -4,18 +4,16 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { cellIndex, columnOf, countColors, createInitialLinesFiveBoard, linesFiveOutcome, linesFiveSize, nextColorForStep, placeBall, rowOf, suggestedMoveIndexes, type LinesFiveCell, type LinesFiveColor } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordHint, recordMistake, recordSuccess, startSession, finishSession } = useGameSession("lines-five", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordHint, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("lines-five", {
   maxSteps: 10,
-  dwellMs: 1300,
-  sessionSeconds: 180,
-  targetScale: 1.18,
-  sound: false
-}, { finishOnMistakes: false });
+  overrides: { targetScale: 1.18, sound: false },
+  finishOnMistakes: false
+});
 
 const colorLabels: Record<LinesFiveColor, string> = {
   sky: "голубой",
@@ -293,6 +291,48 @@ function restart() {
 
   .lines-cell-content {
     min-block-size: 58px;
+  }
+}
+
+@media (max-height: 680px) {
+  .game-container {
+    padding-block-start: 4.75rem;
+  }
+
+  .game-container :deep(.v-card) {
+    padding-block: 1rem !important;
+  }
+
+  .game-container .text-overline,
+  .game-container h1,
+  .game-container p,
+  .game-container .v-alert,
+  .game-container .v-btn,
+  .game-container .v-col-md-4 {
+    display: none;
+  }
+
+  .game-container .d-flex.flex-column.flex-md-row {
+    margin-block-end: 0.75rem !important;
+  }
+
+  .board-grid {
+    gap: 0.4rem;
+    max-inline-size: min(100%, 33rem);
+  }
+
+  .board-grid :deep(.dwell-button) {
+    min-block-size: 3.65rem !important;
+    padding: 0.35rem !important;
+  }
+
+  .lines-cell-content {
+    min-block-size: 3rem;
+  }
+
+  .ball {
+    block-size: 2.75rem;
+    inline-size: 2.75rem;
   }
 }
 </style>

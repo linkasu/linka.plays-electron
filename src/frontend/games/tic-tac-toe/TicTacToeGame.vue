@@ -3,16 +3,14 @@ import { computed, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { chooseDeepQMove, createEmptyBoard, findWinner, winningLine, type TicTacToeBoard, type TicTacToeWinner } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSession("tic-tac-toe", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("tic-tac-toe", {
   maxSteps: 1,
-  dwellMs: 1300,
-  sessionSeconds: 86400,
-  targetScale: 1.25
+  overrides: { sessionSeconds: 86400, targetScale: 1.25 }
 });
 
 const aiMoveDelayMs = 900;
@@ -178,11 +176,11 @@ onUnmounted(() => {
                 <v-chip :color="gazeBlocked ? 'secondary' : 'primary'" size="large" variant="tonal">
                   {{ statusText }}
                 </v-chip>
-                <GameDwellButton :target-id="sleepTargetId()" :disabled="sleepDisabled" :dwell-ms="session.settings.dwellMs" :min-height="96" :color="sleeping ? 'primary' : 'secondary'" @select="toggleThinkMode">
+                <GameDwellButton :target-id="sleepTargetId()" :disabled="sleepDisabled" :dwell-ms="session.settings.dwellMs" :min-height="96" color="deep-purple-darken-3" @select="toggleThinkMode">
                   <template #default>
                     <div class="think-button-content">
-                      <v-icon :icon="sleeping ? 'mdi-check-circle' : 'mdi-sleep'" size="32" />
-                      <span>{{ sleeping ? "Готов ходить" : "Подумать" }}</span>
+                      <v-icon :icon="sleeping ? 'mdi-check-circle' : 'mdi-sleep'" size="32" style="color: #ffffff" />
+                      <span style="color: #ffffff">{{ sleeping ? "Готов ходить" : "Подумать" }}</span>
                     </div>
                   </template>
                 </GameDwellButton>
@@ -271,6 +269,7 @@ onUnmounted(() => {
 
 .think-button-content {
   align-items: center;
+  color: #ffffff;
   display: flex;
   font-size: 1.1rem;
   font-weight: 700;
@@ -305,6 +304,37 @@ onUnmounted(() => {
 @media (max-width: 600px) {
   .game-container {
     padding-block-start: 112px;
+  }
+}
+
+@media (max-height: 680px) {
+  .game-container {
+    padding-block-start: 4.75rem;
+  }
+
+  .game-container :deep(.v-card) {
+    padding-block: 1rem !important;
+  }
+
+  .game-container .text-overline,
+  .game-container h1,
+  .game-container p,
+  .game-container > .v-row .text-body-1.text-medium-emphasis {
+    display: none;
+  }
+
+  .game-container .d-flex.flex-column.flex-md-row {
+    margin-block-end: 0.75rem !important;
+  }
+
+  .board-grid {
+    gap: 0.55rem;
+    max-inline-size: 23rem;
+  }
+
+  .board-grid :deep(.dwell-button) {
+    min-block-size: 5rem !important;
+    padding: 0.5rem !important;
   }
 }
 </style>

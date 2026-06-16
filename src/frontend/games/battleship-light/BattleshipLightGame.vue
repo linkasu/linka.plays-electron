@@ -4,18 +4,16 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { applyBattleshipLightShot, battleshipLightOutcome, coordinateLabel, countShots, createBattleshipLightBoard, totalShipCells, type BattleshipLightCell, type BattleshipLightShots } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSession("battleship-light", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("battleship-light", {
   maxSteps: 10,
-  dwellMs: 1300,
-  sessionSeconds: 180,
-  targetScale: 1.3,
-  sound: false
-}, { finishOnMistakes: false });
+  overrides: { targetScale: 1.3, sound: false },
+  finishOnMistakes: false
+});
 
 const board = createBattleshipLightBoard();
 const shots = ref<BattleshipLightShots>({});
@@ -211,6 +209,42 @@ function restart() {
 
   .sea-grid {
     gap: 7px;
+  }
+}
+
+@media (max-height: 680px) {
+  .game-container {
+    padding-block-start: 4.75rem;
+  }
+
+  .game-card {
+    padding-block: 1rem !important;
+  }
+
+  .game-card .text-overline,
+  .game-card h1,
+  .game-card p,
+  .game-card .v-alert,
+  .game-card > .text-body-1 {
+    display: none;
+  }
+
+  .game-card > .d-flex {
+    margin-block-end: 0.75rem !important;
+  }
+
+  .sea-grid {
+    gap: 0.4rem;
+    max-inline-size: min(100%, 36rem);
+  }
+
+  .sea-grid :deep(.dwell-button) {
+    min-block-size: 3.8rem !important;
+    padding: 0.35rem !important;
+  }
+
+  .sea-cell {
+    min-block-size: 3rem;
   }
 }
 </style>

@@ -3,8 +3,8 @@ import { computed, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import {
   availableColumns,
   cellIndex,
@@ -21,11 +21,9 @@ import {
 } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSession("connect-four", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("connect-four", {
   maxSteps: 1,
-  dwellMs: 1450,
-  sessionSeconds: 86400,
-  targetScale: 1.35
+  overrides: { dwellMs: 1450, sessionSeconds: 86400, targetScale: 1.35 }
 });
 
 const aiMoveDelayMs = 950;
@@ -210,11 +208,11 @@ onUnmounted(() => {
               <v-chip :color="gazeBlocked ? 'secondary' : 'primary'" size="large" variant="flat">
                 {{ statusText }}
               </v-chip>
-              <GameDwellButton :target-id="sleepTargetId()" :disabled="sleepDisabled" :dwell-ms="session.settings.dwellMs" :min-height="92" :color="sleeping ? 'primary' : 'secondary'" @select="toggleThinkMode">
+                  <GameDwellButton :target-id="sleepTargetId()" :disabled="sleepDisabled" :dwell-ms="session.settings.dwellMs" :min-height="92" color="deep-purple-darken-3" @select="toggleThinkMode">
                 <template #default>
                   <div class="think-button-content">
-                    <v-icon :icon="sleeping ? 'mdi-check-circle' : 'mdi-sleep'" size="32" />
-                    <span>{{ sleeping ? "Готов ходить" : "Подумать" }}</span>
+                      <v-icon :icon="sleeping ? 'mdi-check-circle' : 'mdi-sleep'" size="32" style="color: #ffffff" />
+                      <span style="color: #ffffff">{{ sleeping ? "Готов ходить" : "Подумать" }}</span>
                   </div>
                 </template>
               </GameDwellButton>
@@ -307,6 +305,7 @@ onUnmounted(() => {
 
 .think-button-content {
   align-items: center;
+  color: #ffffff;
   display: flex;
   font-size: 1.1rem;
   font-weight: 700;

@@ -4,18 +4,16 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { cellIndex, chessMiniSize, createChessMiniTasks, isLegalMove, legalMoves, squareLabel, type ChessMiniPiece } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordMistake, recordSuccess, recordHint, startSession } = useGameSession("chess-mini", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordMistake, recordSuccess, recordHint, startSession } = useGameSessionFor("chess-mini", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 180,
-  targetScale: 1.25,
-  sound: false
-}, { finishOnMistakes: false });
+  overrides: { targetScale: 1.25, sound: false },
+  finishOnMistakes: false
+});
 
 const tasks = createChessMiniTasks();
 const taskIndex = ref(0);
@@ -253,6 +251,45 @@ onUnmounted(() => {
 
   .board-grid {
     gap: 0.45rem;
+  }
+}
+
+@media (max-height: 680px) {
+  .game-container {
+    padding-block-start: 4.5rem;
+  }
+
+  .game-container :deep(.v-card) {
+    padding-block: 1rem !important;
+  }
+
+  .game-container .text-overline,
+  .game-container h1,
+  .game-container p,
+  .game-container .v-alert,
+  .game-container .v-btn {
+    display: none;
+  }
+
+  .game-container .d-flex.flex-column.flex-md-row {
+    margin-block-end: 0.75rem !important;
+  }
+
+  .board-grid {
+    gap: 0.45rem;
+    max-inline-size: min(100%, 26rem);
+  }
+
+  .board-grid :deep(.dwell-button) {
+    min-block-size: 3.5rem !important;
+    padding: 0.35rem !important;
+  }
+
+  .piece-icon,
+  .blocker-icon,
+  .hint-icon,
+  .wrong-icon {
+    font-size: 2rem !important;
   }
 }
 </style>
