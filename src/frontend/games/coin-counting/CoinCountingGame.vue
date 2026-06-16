@@ -4,18 +4,17 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateCoinCountingRound, type CoinCountingCoin, type CoinCountingCoinValue } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("coin-counting", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("coin-counting", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 140,
-  sound: false
-}, { finishOnMistakes: false });
+  overrides: { dwellMs: 1300, sessionSeconds: 140, sound: false },
+  finishOnMistakes: false
+});
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
@@ -129,8 +128,8 @@ function restart() {
                   <template #default>
                     <div :class="['coin-button', coinTone(coin), { 'coin-button--mistake': lastMistakeTargetId === coinTargetId(coin.value) }]">
                       <div class="coin-button__value">{{ coin.label }}</div>
-                      <div class="text-body-1 text-medium-emphasis">монетка</div>
-                      <v-chip v-if="coin.count > 0" class="mt-2" color="primary" size="large" variant="tonal">Выбрано: {{ coin.count }}</v-chip>
+                      <div class="coin-label text-body-1">монетка</div>
+                      <v-chip v-if="coin.count > 0" class="mt-2 text-white" color="deep-purple-darken-3" size="large" variant="flat">Выбрано: {{ coin.count }}</v-chip>
                     </div>
                   </template>
                 </GameDwellButton>
@@ -146,7 +145,7 @@ function restart() {
                 </GameDwellButton>
               </v-col>
               <v-col cols="12" sm="7">
-                <GameDwellButton :target-id="actionTargetId('check')" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="118" color="primary" @select="checkTotal">
+                <GameDwellButton :target-id="actionTargetId('check')" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="118" color="deep-purple-darken-3" @select="checkTotal">
                   <template #default>
                     <div class="d-flex align-center justify-center ga-3 text-h5 text-md-h4 font-weight-bold">
                       <v-icon icon="mdi-check" size="42" />
@@ -245,6 +244,10 @@ function restart() {
   min-block-size: clamp(5.5rem, min(15vw, 17vh), 8.25rem);
 }
 
+.coin-label {
+  color: #263238;
+}
+
 .coin-button--1 {
   background: linear-gradient(145deg, #fff8d7, #ffe8a1);
 }
@@ -270,11 +273,56 @@ function restart() {
 
 @media (max-height: 44rem) {
   .game-container {
-    padding-block-start: 8.5rem;
+    padding-block-start: 56px;
+  }
+
+  .coin-card {
+    padding: 1rem !important;
+  }
+
+  .coin-card h1 {
+    font-size: 2.2rem !important;
+    line-height: 1.05;
+    margin-block-end: 0.5rem !important;
+  }
+
+  .sum-panel {
+    margin-block-end: 0.75rem !important;
+    padding: 0.75rem !important;
+  }
+
+  .sum-panel__number {
+    font-size: 2.9rem;
+  }
+
+  .selected-coins {
+    min-block-size: 1rem;
+  }
+
+  .selected-coins .text-h6 {
+    font-size: 1rem !important;
+  }
+
+  .coin-card .v-alert {
+    margin-block-end: 0.75rem !important;
   }
 
   .coin-button {
-    min-block-size: 8rem;
+    min-block-size: 6rem;
+  }
+
+  .coin-button__value {
+    font-size: 2.6rem;
+    inline-size: 3.6rem;
+    min-block-size: 3.6rem;
+  }
+
+  .coin-row :deep(.dwell-button) {
+    min-block-size: 6.25rem !important;
+  }
+
+  .action-row :deep(.dwell-button) {
+    min-block-size: 4.75rem !important;
   }
 }
 </style>

@@ -4,17 +4,15 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateGreaterLessRound, type GreaterLessSide } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("greater-less", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("greater-less", {
   maxSteps: 8,
-  dwellMs: 1200,
-  sessionSeconds: 120,
-  sound: false
+  overrides: { dwellMs: 1200, sessionSeconds: 120, sound: false }
 });
 
 const hint = ref("");
@@ -79,10 +77,10 @@ function restartGame() {
               {{ hint }}
             </v-alert>
             <v-row class="choice-row" dense>
-              <v-col v-for="group in [round.left, round.right]" :key="group.side" cols="12" md="6">
-                <GameDwellButton :target-id="sideTargetId(group.side)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="280" color="surface" @select="choose(group.side)">
+              <v-col v-for="group in [round.left, round.right]" :key="group.side" cols="12" sm="6" md="6">
+                <GameDwellButton :target-id="sideTargetId(group.side)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="250" color="surface" @select="choose(group.side)">
                   <template #default>
-                    <div class="text-overline text-medium-emphasis mb-3">{{ group.side === "left" ? "Слева" : "Справа" }}</div>
+                    <div class="group-label text-overline mb-3">{{ group.side === "left" ? "Слева" : "Справа" }}</div>
                     <div class="group-items" aria-hidden="true">
                       <span v-for="(item, index) in group.items" :key="index" class="group-emoji emoji-glyph">{{ item }}</span>
                     </div>
@@ -125,6 +123,10 @@ function restartGame() {
   min-block-size: 13rem;
 }
 
+.group-label {
+  color: #263238;
+}
+
 .group-emoji {
   font-size: clamp(3.25rem, min(7vw, 9vh), 5.25rem);
   line-height: 1;
@@ -148,11 +150,15 @@ function restartGame() {
 
 @media (max-height: 40rem) {
   .game-container {
-    padding-block-start: 9.25rem;
+    padding-block-start: 5rem;
+  }
+
+  .choice-row :deep(.dwell-button) {
+    min-block-size: 13rem !important;
   }
 
   .group-items {
-    min-block-size: 9rem;
+    min-block-size: 8rem;
   }
 }
 </style>

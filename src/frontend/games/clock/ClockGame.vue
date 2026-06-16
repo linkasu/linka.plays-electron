@@ -4,17 +4,17 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import GameSquareChoiceGrid, { type GameSquareChoice } from "../../components/game/GameSquareChoiceGrid.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { formatClockHour, generateClockRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("clock", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("clock", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 130
-}, { finishOnMistakes: false });
+  overrides: { dwellMs: 1300, sessionSeconds: 130 },
+  finishOnMistakes: false
+});
 
 const hint = ref("");
 const { round, resultVisible, nextRound, restart } = useRoundGame({
@@ -120,6 +120,7 @@ function restartGame() {
 
 .clock-choice {
   align-items: center;
+  color: #263238;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -136,7 +137,7 @@ function restartGame() {
 }
 
 .clock-mark {
-  color: rgb(var(--v-theme-primary));
+  color: #263238;
   font-size: clamp(0.8rem, 2.2vw, 1.25rem);
   font-weight: 800;
   position: absolute;
@@ -164,7 +165,7 @@ function restartGame() {
 }
 
 .clock-dot {
-  background: rgb(var(--v-theme-primary));
+  background: #263238;
   border-radius: 50%;
   block-size: 0.9rem;
   inline-size: 0.9rem;
@@ -182,7 +183,7 @@ function restartGame() {
 
 @media (max-height: 40rem) {
   .game-container {
-    padding-block-start: 9.25rem;
+    padding-block-start: 5rem;
   }
 
   .clock-face {
