@@ -4,17 +4,18 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateMiniDialogRound, getMiniDialogChoice, type MiniDialogRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, finishSession, startSession } = useGameSession("mini-dialog", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, finishSession, startSession } = useGameSessionFor("mini-dialog", {
   maxSteps: 7,
-  dwellMs: 1350,
-  sessionSeconds: 135
-}, { finishOnMaxSteps: false, finishOnMistakes: false });
+  overrides: { dwellMs: 1350, sessionSeconds: 135 },
+  finishOnMaxSteps: false,
+  finishOnMistakes: false
+});
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<MiniDialogRound>({
   session,
@@ -88,8 +89,8 @@ function restart() {
             </v-card>
             <div class="text-h6 text-center text-medium-emphasis mb-5">{{ feedback }}</div>
             <v-row justify="center">
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" :md="round.choices.length === 2 ? 6 : 4">
-                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="220" color="surface" @select="choose(choice.id)">
+              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" :sm="round.choices.length === 2 ? 6 : 4" :md="round.choices.length === 2 ? 6 : 4">
+                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="200" color="surface" @select="choose(choice.id)">
                   <template #default>
                     <div class="choice-emoji emoji-glyph mb-3">{{ choice.emoji }}</div>
                     <div class="text-h4 text-md-h3 font-weight-bold">{{ choice.text }}</div>
@@ -122,5 +123,25 @@ function restart() {
 .choice-emoji {
   font-size: clamp(3.8rem, 8vw, 6.5rem);
   line-height: 1;
+}
+
+@media (max-height: 44rem) {
+  .game-container {
+    padding-block-start: 56px;
+  }
+
+  .partner-card {
+    margin-block-end: 1rem !important;
+    padding: 1rem !important;
+  }
+
+  .partner-card h1 {
+    font-size: 2.5rem !important;
+    line-height: 1.05;
+  }
+
+  .game-container :deep(.dwell-button) {
+    min-block-size: 9rem !important;
+  }
 }
 </style>

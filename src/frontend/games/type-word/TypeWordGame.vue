@@ -4,16 +4,15 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import GameSquareChoiceGrid, { type GameSquareChoice } from "../../components/game/GameSquareChoiceGrid.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { disposeTypeWordAudio, playTypeWordMistakeMelody, playTypeWordSuccessMelody, warmTypeWordAudio } from "./audio";
 import { generateTypeWordRound, type TypeWordRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("type-word", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("type-word", {
   maxSteps: 5,
-  dwellMs: 1200,
-  sessionSeconds: 120
+  overrides: { dwellMs: 1200, sessionSeconds: 120 }
 });
 
 let roundIndex = 1;

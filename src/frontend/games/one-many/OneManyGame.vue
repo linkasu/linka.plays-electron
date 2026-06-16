@@ -4,17 +4,16 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateOneManyRound, type OneManyAnswer, type OneManyChoice, type OneManyRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSession("one-many", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("one-many", {
   maxSteps: 8,
-  dwellMs: 1300,
-  sessionSeconds: 120
-}, { finishOnMistakes: false });
+  finishOnMistakes: false
+});
 
 const { round, resultVisible, nextRound, restart } = useRoundGame<OneManyRound>({
   session,
@@ -87,13 +86,13 @@ function restartGame() {
           <v-card class="pa-5 pa-md-7" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Понятия количества</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
-            <div class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5">{{ feedback }}</div>
+            <div class="one-many-feedback text-h6 text-md-h5 text-center mb-5">{{ feedback }}</div>
 
             <v-row class="choice-row" dense>
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" md="6">
-                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="280" color="surface" @select="choose(choice)">
+              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6" md="6">
+                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="250" color="surface" @select="choose(choice)">
                   <template #default>
-                    <div class="text-overline text-medium-emphasis mb-3">{{ choice.side === "left" ? "Слева" : "Справа" }}</div>
+                    <div class="choice-side text-overline mb-3">{{ choice.side === "left" ? "Слева" : "Справа" }}</div>
                     <div class="items" aria-hidden="true">
                       <span v-for="(item, index) in choice.items" :key="index" class="item-emoji emoji-glyph">{{ item }}</span>
                     </div>
@@ -124,6 +123,11 @@ function restartGame() {
 
 .choice-row {
   row-gap: 1rem;
+}
+
+.one-many-feedback,
+.choice-side {
+  color: #263238;
 }
 
 .items {
@@ -160,7 +164,11 @@ function restartGame() {
 
 @media (max-height: 40rem) {
   .game-container {
-    padding-block-start: 9.25rem;
+    padding-block-start: 5rem;
+  }
+
+  .choice-row :deep(.dwell-button) {
+    min-block-size: 13rem !important;
   }
 
   .items {

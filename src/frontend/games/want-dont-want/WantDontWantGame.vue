@@ -4,19 +4,17 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { generateWantDontWantRound, type WantDontWantAnswer, type WantDontWantRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSession("want-dont-want", {
-  preset: "gentle",
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSessionFor("want-dont-want", {
   maxSteps: 9,
-  dwellMs: 1300,
-  sessionSeconds: 120,
-  targetScale: 1.2
-}, { finishOnMistakes: false });
+  overrides: { preset: "gentle", dwellMs: 1300, sessionSeconds: 120, targetScale: 1.2 },
+  finishOnMistakes: false
+});
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<WantDontWantRound>({
   session,
@@ -75,19 +73,19 @@ function restart() {
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="9">
-          <v-card class="pa-5 pa-md-8" rounded="xl" elevation="8">
+          <v-card class="want-card pa-5 pa-md-8" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Любой ответ важен</div>
             <div class="item-display mb-5 mb-md-7">
-              <v-chip class="mb-4" color="primary" size="large" variant="tonal">{{ round.item.kind }}</v-chip>
+              <v-chip class="mb-4 text-white" color="deep-purple-darken-3" size="large" variant="flat">{{ round.item.kind }}</v-chip>
               <div class="item-emoji emoji-glyph">{{ round.item.emoji }}</div>
               <h1 class="text-h3 text-md-h2 font-weight-bold mb-2">{{ round.item.title }}</h1>
-              <div class="text-h6 text-md-h5 text-medium-emphasis">{{ round.prompt }}</div>
+              <div class="want-prompt text-h6 text-md-h5">{{ round.prompt }}</div>
               <div class="text-h6 text-md-h5 mt-3">{{ feedback }}</div>
             </div>
 
             <v-row>
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" md="6">
-                <GameDwellButton :target-id="answerTargetId(choice.id)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="choiceMinHeight" :color="choice.id === 'want' ? 'primary' : 'secondary'" @select="answer(choice.id)">
+              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6" md="6">
+                <GameDwellButton :target-id="answerTargetId(choice.id)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="choiceMinHeight" :color="choice.id === 'want' ? 'deep-purple-darken-3' : 'teal-darken-3'" @select="answer(choice.id)">
                   <template #default>
                     <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
                     <div class="text-h3 text-md-h2 font-weight-bold">{{ choice.title }}</div>
@@ -117,6 +115,10 @@ function restart() {
   text-align: center;
 }
 
+.want-prompt {
+  color: #263238;
+}
+
 .item-emoji {
   font-size: clamp(5rem, 12vw, 8.5rem);
   line-height: 1;
@@ -125,5 +127,32 @@ function restart() {
 .choice-emoji {
   font-size: clamp(4rem, 9vw, 6.5rem);
   line-height: 1;
+}
+
+@media (max-height: 44rem) {
+  .game-container {
+    padding-block-start: 56px;
+  }
+
+  .want-card {
+    padding: 1rem !important;
+  }
+
+  .item-display {
+    margin-block-end: 1rem !important;
+  }
+
+  .item-emoji {
+    font-size: clamp(3.5rem, 8vw, 5rem);
+  }
+
+  .want-card h1 {
+    font-size: 2.5rem !important;
+    line-height: 1.05;
+  }
+
+  .game-container :deep(.dwell-button) {
+    min-block-size: 11.5rem !important;
+  }
 }
 </style>

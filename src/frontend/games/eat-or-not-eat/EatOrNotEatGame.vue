@@ -4,17 +4,16 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { useGameSession } from "../../core/session";
 import { disposeEatOrNotEatAudio, playEatOrNotEatMistakeMelody, warmEatOrNotEatAudio } from "./audio";
 import { generateEatOrNotEatRound, type EatOrNotEatAnswer, type EatOrNotEatRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSession("eat-or-not-eat", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("eat-or-not-eat", {
   maxSteps: 8,
-  dwellMs: 1200,
-  sessionSeconds: 120
+  overrides: { dwellMs: 1200, sessionSeconds: 120 }
 });
 
 const { round, resultVisible, nextRound, restart } = useRoundGame<EatOrNotEatRound>({
