@@ -2,9 +2,33 @@ import { Reverb, SplendidGrandPiano } from "smplr";
 
 type SoftPiano = ReturnType<typeof SplendidGrandPiano>;
 
+export type AmbientPianoPatternNote = {
+  note: number;
+  beat: number;
+  duration: number;
+  velocity: number;
+  grace?: readonly number[];
+};
+
+export type AmbientPianoLoopLayer = {
+  notes: readonly number[];
+  stepSeconds: number;
+  durationSeconds: number;
+  velocity: number;
+};
+
 export type AmbientPianoConfig = {
   notesToLoad: number[];
-  loopNotes: readonly number[];
+  loopNotes?: readonly number[];
+  loopLayers?: AmbientPianoLoopLayer[];
+  patternNotes?: readonly AmbientPianoPatternNote[];
+  patternLengthSeconds?: number;
+  graceOffsetSeconds?: number;
+  graceStepSeconds?: number;
+  graceDurationSeconds?: number;
+  graceMinVelocity?: number;
+  graceVelocityOffset?: number;
+  patternVelocityOffset?: number;
   cueNotes?: readonly number[];
   reverbName: string;
   reverbAmount: number;
@@ -20,13 +44,15 @@ export type AmbientPianoConfig = {
   loopAccentVelocity: number;
   loopBaseVelocity: number;
   cueStepSeconds?: number;
-  cueDurationSeconds?: number;
+  cueDurationSeconds?: number | readonly number[];
+  cueVelocities?: readonly number[];
   cueStartVelocity?: number;
   cueVelocityStep?: number;
   cueCooldownSeconds?: number;
   activeGain: number;
   fadeInSeconds: number;
   fadeOutSeconds: number;
+  rescheduleActive?: boolean;
 };
 
 function createAudioContext() {
@@ -111,8 +137,47 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
     if (scheduledUntil > now + config.loopLookaheadSeconds) return;
 
     const startAt = Math.max(now + 0.08, scheduledUntil);
-    config.loopNotes.forEach((note, index) => {
-      const isAccent = index % config.loopAccentEvery === 0;
+    for (const layer of config.loopLayers ?? []) {
+      layer.notes.forEach((note, index) => {
+        instrument.start({
+          note,
+          time: startAt + index * layer.stepSeconds,
+          duration: layer.durationSeconds,
+          velocity: layer.velocity
+        });
+      });
+    }
+
+    if (config.patternNotes) {
+      const graceOffset = config.graceOffsetSeconds ?? -0.12;
+      const graceStep = config.graceStepSeconds ?? 0.055;
+      const graceDuration = config.graceDurationSeconds ?? 0.2;
+      const graceMinVelocity = config.graceMinVelocity ?? 42;
+      const graceVelocityOffset = config.graceVelocityOffset ?? -3;
+      const patternVelocityOffset = config.patternVelocityOffset ?? 8;
+      config.patternNotes.forEach((item) => {
+        item.grace?.forEach((note, index) => {
+          instrument.start({
+            note,
+            time: startAt + item.beat + graceOffset + index * graceStep,
+            duration: graceDuration,
+            velocity: Math.max(graceMinVelocity, item.velocity + graceVelocityOffset)
+          });
+        });
+        instrument.start({
+          note: item.note,
+          time: startAt + item.beat,
+          duration: item.duration,
+          velocity: item.velocity + patternVelocityOffset
+        });
+      });
+      scheduledUntil = startAt + (config.patternLengthSeconds ?? config.loopStepSeconds);
+      return;
+    }
+
+    const loopNotes = config.loopNotes ?? [];
+    loopNotes.forEach((note, index) => {
+      const isAccent = config.loopAccentEvery > 0 && index % config.loopAccentEvery === 0;
       instrument.start({
         note,
         time: startAt + index * config.loopStepSeconds,
@@ -120,7 +185,7 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
         velocity: isAccent ? config.loopAccentVelocity : config.loopBaseVelocity
       });
     });
-    scheduledUntil = startAt + config.loopNotes.length * config.loopStepSeconds;
+    scheduledUntil = startAt + loopNotes.length * config.loopStepSeconds;
   }
 
   function playCue(instrument: SoftPiano) {
@@ -130,15 +195,16 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
 
     const startAt = now + 0.04;
     const step = config.cueStepSeconds ?? 0.15;
-    const duration = config.cueDurationSeconds ?? 0.95;
     const startVelocity = config.cueStartVelocity ?? 64;
     const velocityStep = config.cueVelocityStep ?? 2;
     config.cueNotes.forEach((note, index) => {
+      const duration = Array.isArray(config.cueDurationSeconds) ? config.cueDurationSeconds[index] : config.cueDurationSeconds;
+      const velocity = config.cueVelocities?.[index] ?? startVelocity - index * velocityStep;
       instrument.start({
         note,
         time: startAt + index * step,
-        duration,
-        velocity: startVelocity - index * velocityStep
+        duration: duration ?? 0.95,
+        velocity
       });
     });
     cueUntil = startAt + (config.cueCooldownSeconds ?? 0.82);
@@ -151,7 +217,7 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
     },
     setActive(enabled: boolean, nextActive: boolean) {
       if (!enabled) nextActive = false;
-      if (nextActive === active) return;
+      if (nextActive === active && (!nextActive || !config.rescheduleActive)) return;
 
       active = nextActive;
       if (!active) {

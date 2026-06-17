@@ -1,9 +1,5 @@
-import { Reverb, SplendidGrandPiano } from "smplr";
+import { createAmbientPiano, type AmbientPianoPatternNote } from "../../core/ambientPiano";
 
-type SoftPiano = ReturnType<typeof SplendidGrandPiano>;
-type PatternNote = { note: number; beat: number; duration: number; velocity: number; grace?: readonly number[] };
-
-const notesToLoad = [50, 52, 54, 57, 59, 62, 64, 66, 69, 71, 74, 76, 78, 81, 83];
 const lanternPattern = [
   { note: 62, beat: 0, duration: 0.72, velocity: 46, grace: [57, 59] },
   { note: 66, beat: 0.48, duration: 0.78, velocity: 48 },
@@ -25,172 +21,57 @@ const lanternPattern = [
   { note: 66, beat: 10.48, duration: 0.92, velocity: 50, grace: [62, 64] },
   { note: 64, beat: 11.14, duration: 0.74, velocity: 44 },
   { note: 59, beat: 11.64, duration: 1.28, velocity: 42 }
-] satisfies readonly PatternNote[];
-const cueNotes = [62, 66, 69, 74, 69, 66] as const;
-const patternLength = 13.2;
+] satisfies readonly AmbientPianoPatternNote[];
 
-let audioContext: AudioContext | undefined;
-let outputGain: GainNode | undefined;
-let piano: SoftPiano | undefined;
-let loading: Promise<SoftPiano | undefined> | undefined;
-let unavailable = false;
-let scheduledUntil = 0;
-let cueUntil = 0;
-let active = false;
-
-function createAudioContext() {
-  const AudioContextConstructor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-  return AudioContextConstructor ? new AudioContextConstructor() : undefined;
-}
-
-async function ensurePiano(resumeAudio: boolean) {
-  if (unavailable) return undefined;
-  audioContext = audioContext ?? createAudioContext();
-  if (!audioContext) return undefined;
-
-  if (resumeAudio && audioContext.state === "suspended") {
-    try {
-      await audioContext.resume();
-    } catch {
-      return undefined;
-    }
-  }
-
-  if (piano) return piano;
-  if (loading) return loading;
-
-  loading = (async () => {
-    try {
-      const context = audioContext;
-      if (!context) return undefined;
-      outputGain = context.createGain();
-      outputGain.gain.value = 0;
-      outputGain.connect(context.destination);
-
-      const nextPiano = SplendidGrandPiano(context, {
-        destination: outputGain,
-        volume: 86,
-        velocity: 58,
-        decayTime: 2.45,
-        notesToLoad: {
-          notes: notesToLoad,
-          velocityRange: [1, 76]
-        }
-      });
-
-      try {
-        nextPiano.output.addEffect("paper-lanterns-soft-room", Reverb(context), 0.32);
-      } catch {
-        // Reverb is optional: lantern gameplay must continue with dry piano or silence.
-      }
-
-      await nextPiano.ready;
-      piano = nextPiano;
-      return nextPiano;
-    } catch {
-      unavailable = true;
-      return undefined;
-    }
-  })();
-
-  return loading;
-}
-
-function fadeTo(target: number, seconds: number) {
-  if (!audioContext || !outputGain) return;
-  const gain = outputGain.gain;
-  const now = audioContext.currentTime;
-  gain.cancelScheduledValues(now);
-  gain.setTargetAtTime(target, now, seconds / 3);
-}
-
-function scheduleLoop(instrument: SoftPiano) {
-  if (!audioContext) return;
-  const now = audioContext.currentTime;
-  if (scheduledUntil > now + 1.8) return;
-
-  const startAt = Math.max(now + 0.08, scheduledUntil);
-  lanternPattern.forEach((item) => {
-    item.grace?.forEach((note, index) => {
-      instrument.start({
-        note,
-        time: startAt + item.beat - 0.12 + index * 0.055,
-        duration: 0.2,
-        velocity: Math.max(42, item.velocity - 3)
-      });
-    });
-    instrument.start({
-      note: item.note,
-      time: startAt + item.beat,
-      duration: item.duration,
-      velocity: item.velocity + 8
-    });
-  });
-  scheduledUntil = startAt + patternLength;
-}
-
-function playCue(instrument: SoftPiano) {
-  if (!audioContext) return;
-  const now = audioContext.currentTime;
-  if (now < cueUntil) return;
-
-  const startAt = now + 0.04;
-  cueNotes.forEach((note, index) => {
-    instrument.start({
-      note,
-      time: startAt + index * 0.13,
-      duration: index === 3 ? 1.05 : 0.62,
-      velocity: index === 3 ? 74 : 66 - index * 2
-    });
-  });
-  cueUntil = startAt + 0.98;
-}
+const piano = createAmbientPiano({
+  notesToLoad: [50, 52, 54, 57, 59, 62, 64, 66, 69, 71, 74, 76, 78, 81, 83],
+  patternNotes: lanternPattern,
+  patternLengthSeconds: 13.2,
+  cueNotes: [62, 66, 69, 74, 69, 66],
+  reverbName: "paper-lanterns-soft-room",
+  reverbAmount: 0.32,
+  volume: 86,
+  velocity: 58,
+  decayTime: 2.45,
+  velocityRange: [1, 76],
+  loopLookaheadSeconds: 1.8,
+  loopStepSeconds: 13.2,
+  loopAccentEvery: 1,
+  loopAccentDurationSeconds: 1,
+  loopBaseDurationSeconds: 1,
+  loopAccentVelocity: 1,
+  loopBaseVelocity: 1,
+  graceOffsetSeconds: -0.12,
+  graceStepSeconds: 0.055,
+  graceDurationSeconds: 0.2,
+  graceMinVelocity: 42,
+  graceVelocityOffset: -3,
+  patternVelocityOffset: 8,
+  cueStepSeconds: 0.13,
+  cueDurationSeconds: [0.62, 0.62, 0.62, 1.05, 0.62, 0.62],
+  cueVelocities: [66, 64, 62, 74, 58, 56],
+  cueCooldownSeconds: 0.98,
+  activeGain: 1,
+  fadeInSeconds: 0.9,
+  fadeOutSeconds: 1.5
+});
 
 export function warmPaperLanternsPiano(enabled: boolean) {
-  if (!enabled) return;
-  void ensurePiano(false);
+  piano.warm(enabled);
 }
 
 export function setPaperLanternsPianoActive(enabled: boolean, nextActive: boolean) {
-  if (!enabled) nextActive = false;
-  if (nextActive === active) return;
-
-  active = nextActive;
-  if (!active) {
-    fadeTo(0, 1.5);
-    return;
-  }
-
-  void ensurePiano(true).then((instrument) => {
-    if (!instrument || !active || !enabled) return;
-    fadeTo(1, 0.9);
-    scheduleLoop(instrument);
-  });
+  piano.setActive(enabled, nextActive);
 }
 
 export function tickPaperLanternsPiano(enabled: boolean) {
-  if (!enabled || !active || !piano) return;
-  scheduleLoop(piano);
+  piano.tick(enabled);
 }
 
 export function playPaperLanternsCue(enabled: boolean) {
-  if (!enabled) return;
-  void ensurePiano(true).then((instrument) => {
-    if (!instrument || !enabled) return;
-    playCue(instrument);
-  });
+  piano.playCue(enabled);
 }
 
 export function disposePaperLanternsPiano() {
-  active = false;
-  scheduledUntil = 0;
-  cueUntil = 0;
-  piano?.dispose();
-  piano = undefined;
-  loading = undefined;
-  outputGain?.disconnect();
-  outputGain = undefined;
-  void audioContext?.close().catch(() => undefined);
-  audioContext = undefined;
-  unavailable = false;
+  piano.dispose();
 }
