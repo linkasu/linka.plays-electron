@@ -7,92 +7,94 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeDressCharacterAudio, playDressCharacterHintMelody, playDressCharacterSuccessMelody, warmDressCharacterAudio } from "./audio";
+import { clothingSlots, dressCharacterMaxSteps, getDressCharacterExpectedItem, getDressCharacterKit, isDressCharacterKitCompleteStep, type ClothingItem, type ClothingSlot } from "./model";
 
-type ClothingSlot = "hat" | "jacket" | "shoes";
-
-type ClothingItem = {
-  slot: ClothingSlot;
-  label: string;
-  prompt: string;
-  hint: string;
-  color: string;
-  darkColor: string;
-};
-
-const clothingItems: ClothingItem[] = [
-  {
-    slot: "hat",
-    label: "Шапка",
-    prompt: "Сначала найдём тёплую шапку.",
-    hint: "Посмотри на шапку сверху.",
-    color: "#b39ddb",
-    darkColor: "#4a3d76"
-  },
-  {
-    slot: "jacket",
-    label: "Куртка",
-    prompt: "Теперь выбери куртку для прогулки.",
-    hint: "Куртка надевается на плечи.",
-    color: "#64b5f6",
-    darkColor: "#16446f"
-  },
-  {
-    slot: "shoes",
-    label: "Обувь",
-    prompt: "Осталось выбрать обувь.",
-    hint: "Обувь ждёт внизу, у ног.",
-    color: "#4db6ac",
-    darkColor: "#15514d"
-  }
-];
+const resetDelayMs = 1300;
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("dress-character", {
-  maxSteps: 8,
-  overrides: { dwellMs: 1300, sessionSeconds: 130, sound: true },
+  maxSteps: dressCharacterMaxSteps(),
+  overrides: { dwellMs: 1300, sessionSeconds: 150, sound: true },
   finishOnMistakes: false
 });
 
-const dressed = reactive<Record<ClothingSlot, boolean>>({
-  hat: false,
-  jacket: false,
-  shoes: false
-});
+const dressed = reactive<Record<ClothingSlot, boolean>>(Object.fromEntries(clothingSlots.map((slot) => [slot, false])) as Record<ClothingSlot, boolean>);
 const hintedSlot = ref<ClothingSlot>();
 const lastMistakeSlot = ref<ClothingSlot>();
 const feedbackMessage = ref("Слушай мягкую подсказку и выбирай нужную одежду.");
+const isResettingKit = ref(false);
+const isInputCoolingDown = ref(false);
+let resetTimer = 0;
+let inputCooldownTimer = 0;
 
 const resultVisible = computed(() => session.status === "finished");
-const currentItem = computed(() => clothingItems[session.step % clothingItems.length]);
-const completedCycles = computed(() => Math.floor(session.step / clothingItems.length));
-const progressText = computed(() => `Шаг ${Math.min(session.step + 1, session.maxSteps)} из ${session.maxSteps}`);
+const visibleStep = computed(() => isResettingKit.value ? Math.max(0, session.step - 1) : Math.min(session.step, session.maxSteps - 1));
+const currentKit = computed(() => getDressCharacterKit(visibleStep.value));
+const clothingItems = computed(() => currentKit.value.items);
+const currentItem = computed(() => getDressCharacterExpectedItem(visibleStep.value));
+const completedCycles = computed(() => Math.floor(visibleStep.value / clothingSlots.length));
+const progressText = computed(() => `Шаг ${Math.min(visibleStep.value + 1, session.maxSteps)} из ${session.maxSteps}`);
+const kitStyle = computed(() => {
+  const entries = currentKit.value.items.flatMap((item) => [
+    [`--${item.slot}-color`, item.color],
+    [`--${item.slot}-dark`, item.darkColor]
+  ]);
+  return Object.fromEntries([
+    ["--scene-start", currentKit.value.sceneStart],
+    ["--scene-end", currentKit.value.sceneEnd],
+    ["--scene-accent", currentKit.value.sceneAccent],
+    ...entries
+  ]);
+});
 
 function choiceTargetId(item: ClothingItem) {
   return `dress-character:choice:${item.slot}`;
 }
 
 function resetClothes() {
-  dressed.hat = false;
-  dressed.jacket = false;
-  dressed.shoes = false;
+  for (const slot of clothingSlots) dressed[slot] = false;
+}
+
+function clearResetTimer() {
+  window.clearTimeout(resetTimer);
+  window.clearTimeout(inputCooldownTimer);
+  resetTimer = 0;
+  inputCooldownTimer = 0;
+}
+
+function scheduleKitReset() {
+  clearResetTimer();
+  isResettingKit.value = true;
+  feedbackMessage.value = `${currentKit.value.title}: комплект готов. Посмотрим на него и подготовим следующую погоду.`;
+  resetTimer = window.setTimeout(() => {
+    resetClothes();
+    hintedSlot.value = undefined;
+    lastMistakeSlot.value = undefined;
+    isResettingKit.value = false;
+    isInputCoolingDown.value = true;
+    feedbackMessage.value = `${currentKit.value.title}. ${currentKit.value.helper}`;
+    inputCooldownTimer = window.setTimeout(() => {
+      isInputCoolingDown.value = false;
+    }, 700);
+  }, resetDelayMs);
 }
 
 function choose(item: ClothingItem) {
-  if (session.status !== "running") return;
+  if (session.status !== "running" || isResettingKit.value || isInputCoolingDown.value) return;
 
-  const expectedItem = currentItem.value;
+  const expectedItem = getDressCharacterExpectedItem(session.step);
   const targetId = choiceTargetId(item);
   const expectedTargetId = choiceTargetId(expectedItem);
   const roundId = `dress-character:round:${session.step + 1}`;
 
   if (item.slot === expectedItem.slot) {
-    if (item.slot === "hat" && session.step > 0) resetClothes();
     dressed[item.slot] = true;
     hintedSlot.value = undefined;
     lastMistakeSlot.value = undefined;
     feedbackMessage.value = `Да, это ${item.label.toLowerCase()}. Персонажу удобно.`;
     void playDressCharacterSuccessMelody(session.settings.sound);
     recordSuccess({ roundId, targetId, answerId: item.slot, expected: expectedItem.label, actual: item.label, isCorrect: true });
+    if (session.status === "running" && isDressCharacterKitCompleteStep(session.step - 1)) scheduleKitReset();
     return;
   }
 
@@ -118,9 +120,12 @@ function choiceColor(item: ClothingItem) {
 }
 
 function restart() {
+  clearResetTimer();
   resetClothes();
   hintedSlot.value = undefined;
   lastMistakeSlot.value = undefined;
+  isResettingKit.value = false;
+  isInputCoolingDown.value = false;
   feedbackMessage.value = "Слушай мягкую подсказку и выбирай нужную одежду.";
   startSession();
 }
@@ -130,6 +135,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  clearResetTimer();
   disposeDressCharacterAudio();
 });
 </script>
@@ -143,12 +149,12 @@ onUnmounted(() => {
           <v-card class="dress-card pa-3 pa-md-4" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-1">Гардероб для прогулки</div>
             <h1 class="text-h5 text-md-h4 font-weight-bold text-center mb-1">Одень персонажа</h1>
-            <p class="prompt-line text-body-1 text-md-h6 text-medium-emphasis text-center mb-3">{{ currentItem.prompt }}</p>
+            <p class="prompt-line text-body-1 text-md-h6 text-medium-emphasis text-center mb-3">{{ isResettingKit ? currentKit.helper : currentItem.prompt }}</p>
 
             <div class="play-area">
-              <v-card class="character-card pa-3" rounded="xl" variant="flat">
+              <v-card class="character-card pa-3" rounded="xl" variant="flat" :style="kitStyle">
                 <div class="scene-meta d-flex align-center justify-space-between mb-2">
-                  <span>Комплект {{ completedCycles + 1 }}</span>
+                  <span>Комплект {{ completedCycles + 1 }} · {{ currentKit.title }}</span>
                   <v-chip color="primary" size="small" variant="tonal">{{ progressText }}</v-chip>
                 </div>
                 <div class="character-stage" aria-label="Персонаж для одевания">
@@ -182,7 +188,7 @@ onUnmounted(() => {
               </v-card>
 
               <div class="choice-grid" aria-label="Выбор одежды">
-                <GameDwellButton v-for="item in clothingItems" :key="item.slot" :class="['choice-button', `choice-button--${item.slot}`, { 'choice-button--hinted': hintedSlot === item.slot }]" :style="itemStyle(item)" :target-id="choiceTargetId(item)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="118" :color="choiceColor(item)" @select="choose(item)">
+                <GameDwellButton v-for="item in clothingItems" :key="item.slot" :class="['choice-button', `choice-button--${item.slot}`, { 'choice-button--hinted': hintedSlot === item.slot }]" :style="itemStyle(item)" :target-id="choiceTargetId(item)" :disabled="session.status !== 'running' || isResettingKit || isInputCoolingDown" :dwell-ms="session.settings.dwellMs" :min-height="118" :color="choiceColor(item)" @select="choose(item)">
                   <template #default>
                     <div :class="['choice-content', { 'choice-content--mistake': lastMistakeSlot === item.slot }]">
                       <div :class="['choice-art', `choice-art--${item.slot}`]" aria-hidden="true">
@@ -233,7 +239,7 @@ onUnmounted(() => {
 }
 
 .character-card {
-  background: linear-gradient(160deg, #dff7f3 0%, #f6eefb 100%);
+  background: linear-gradient(160deg, var(--scene-start) 0%, var(--scene-end) 100%);
   min-inline-size: 0;
 }
 
@@ -272,7 +278,7 @@ onUnmounted(() => {
 }
 
 .scene-rug {
-  background: radial-gradient(ellipse, rgb(255 214 165 / 70%) 0 58%, transparent 60%);
+  background: radial-gradient(ellipse, color-mix(in srgb, var(--scene-accent) 74%, white) 0 58%, transparent 60%);
   block-size: 4.1rem;
   inline-size: 18rem;
   inset-block-end: 0.5rem;
@@ -404,7 +410,7 @@ onUnmounted(() => {
 }
 
 .dress-piece--hat {
-  background: linear-gradient(180deg, #d8c5ff 0%, #a78bda 100%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--hat-color) 58%, white) 0%, var(--hat-color) 100%);
   block-size: clamp(2.2rem, 5.5vh, 3rem);
   border: 0.2rem solid rgb(255 255 255 / 86%);
   border-radius: 2rem 2rem 0.75rem 0.75rem;
@@ -429,7 +435,7 @@ onUnmounted(() => {
 }
 
 .dress-piece--jacket {
-  background: linear-gradient(150deg, #64b5f6 0%, #1976d2 100%);
+  background: linear-gradient(150deg, var(--jacket-color) 0%, var(--jacket-dark) 100%);
   block-size: clamp(7rem, 18vh, 9.5rem);
   border: 0.2rem solid rgb(255 255 255 / 88%);
   border-radius: 2rem 2rem 1.1rem 1.1rem;
@@ -443,7 +449,7 @@ onUnmounted(() => {
 
 .dress-piece--jacket::before,
 .dress-piece--jacket::after {
-  background: linear-gradient(180deg, #64b5f6, #1769aa);
+  background: linear-gradient(180deg, var(--jacket-color), var(--jacket-dark));
   block-size: 82%;
   border: 0.18rem solid rgb(255 255 255 / 82%);
   border-radius: 999px;
@@ -493,7 +499,7 @@ onUnmounted(() => {
 
 .dress-piece--shoes::before,
 .dress-piece--shoes::after {
-  background: linear-gradient(180deg, #4db6ac 0%, #00897b 100%);
+  background: linear-gradient(180deg, var(--shoes-color) 0%, var(--shoes-dark) 100%);
   border: 0.18rem solid rgb(255 255 255 / 88%);
   border-radius: 1rem 1rem 0.55rem 0.55rem;
   box-shadow: inset 0 -0.25rem 0 rgb(0 0 0 / 12%);

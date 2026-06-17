@@ -946,7 +946,8 @@ export const games: GameInfo[] = [
     icon: "mdi-tshirt-crew",
     skills: ["sequence", "choice", "vocabulary"],
     status: "therapy-ready",
-    recommendedSessionSeconds: 130,
+    stabilityStatus: "publish",
+    recommendedSessionSeconds: 150,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
   },
