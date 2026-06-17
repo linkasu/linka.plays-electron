@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -7,6 +7,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { whatMissingFeedback } from "./audio";
 import { generateWhatMissingRound, type WhatMissingItem, type WhatMissingRound } from "./model";
 
 type RoundPhase = "observe" | "choose";
@@ -24,6 +25,7 @@ let feedbackTimer = 0;
 
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("what-missing", {
   maxSteps: 8,
+  overrides: { sound: true },
   finishOnMistakes: false
 });
 
@@ -69,6 +71,7 @@ function answer(choice: WhatMissingItem) {
     isResponding.value = true;
     hintedRoundId.value = undefined;
     feedbackText.value = `Верно, пропал ${choice.label}.`;
+    void whatMissingFeedback.playSuccess(session.settings.sound);
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.missingItem.label, actual: choice.label, isCorrect: true });
     feedbackTimer = window.setTimeout(() => {
       isResponding.value = false;
@@ -79,6 +82,7 @@ function answer(choice: WhatMissingItem) {
 
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.missingItem.label, actual: choice.label, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "mistake" });
+  void whatMissingFeedback.playMistake(session.settings.sound);
   hintedRoundId.value = round.value.roundId;
   feedbackText.value = "Почти. Ничего страшного, попробуй ещё раз.";
 }
@@ -90,8 +94,17 @@ function restart() {
 
 watch(() => round.value.roundId, startObservePhase, { immediate: true });
 
+onMounted(() => {
+  whatMissingFeedback.warm(session.settings.sound);
+});
+
+watch(() => session.settings.sound, (enabled) => {
+  whatMissingFeedback.warm(enabled);
+});
+
 onUnmounted(() => {
   clearTimers();
+  whatMissingFeedback.dispose();
 });
 </script>
 
