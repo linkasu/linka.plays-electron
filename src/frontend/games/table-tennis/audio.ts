@@ -1,26 +1,19 @@
-import { createNonRepeatingRandomIndexGenerator } from "../../core/random";
-import { notesToLoadForSoftTherapeuticMelodies, softTherapeuticMelodies } from "../../core/softMelodies";
-import { disposeSoftPiano, playSoftPianoMelody, warmSoftPiano } from "../../core/softPiano";
+import { createTherapeuticMelodyPlayer } from "../../core/therapeuticMelodyPlayer";
 
-const melodyGenerator = createNonRepeatingRandomIndexGenerator(softTherapeuticMelodies.length);
-
-function nextTennisMelody() {
-  return softTherapeuticMelodies[melodyGenerator.next() ?? 0];
-}
+const player = createTherapeuticMelodyPlayer();
 
 export function resetTennisAudioSession() {
-  melodyGenerator.reset();
+  player.reset();
 }
 
 export function warmTennisAudio(enabled: boolean) {
-  warmSoftPiano(enabled, notesToLoadForSoftTherapeuticMelodies());
+  player.warm(enabled);
 }
 
 export function playTennisMelody(enabled: boolean) {
-  return playSoftPianoMelody(enabled, nextTennisMelody());
+  return player.play(enabled);
 }
 
 export function disposeTennisAudio() {
-  resetTennisAudioSession();
-  disposeSoftPiano();
+  player.dispose();
 }

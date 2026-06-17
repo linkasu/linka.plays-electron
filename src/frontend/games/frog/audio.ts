@@ -1,26 +1,19 @@
-import { createNonRepeatingRandomIndexGenerator } from "../../core/random";
-import { notesToLoadForSoftTherapeuticMelodies, softTherapeuticMelodies } from "../../core/softMelodies";
-import { disposeSoftPiano, playSoftPianoMelody, warmSoftPiano } from "../../core/softPiano";
+import { createTherapeuticMelodyPlayer } from "../../core/therapeuticMelodyPlayer";
 
-const melodyGenerator = createNonRepeatingRandomIndexGenerator(softTherapeuticMelodies.length);
-
-function nextFrogMelody() {
-  return softTherapeuticMelodies[melodyGenerator.next() ?? 0];
-}
+const player = createTherapeuticMelodyPlayer();
 
 export function resetFrogAudioSession() {
-  melodyGenerator.reset();
+  player.reset();
 }
 
 export function warmFrogAudio(enabled: boolean) {
-  warmSoftPiano(enabled, notesToLoadForSoftTherapeuticMelodies());
+  player.warm(enabled);
 }
 
 export function playFrogMelody(enabled: boolean) {
-  return playSoftPianoMelody(enabled, nextFrogMelody());
+  return player.play(enabled);
 }
 
 export function disposeFrogAudio() {
-  resetFrogAudioSession();
-  disposeSoftPiano();
+  player.dispose();
 }

@@ -1,26 +1,19 @@
-import { createNonRepeatingRandomIndexGenerator } from "../../core/random";
-import { notesToLoadForSoftTherapeuticMelodies, softTherapeuticMelodies } from "../../core/softMelodies";
-import { disposeSoftPiano, playSoftPianoMelody, warmSoftPiano } from "../../core/softPiano";
+import { createTherapeuticMelodyPlayer } from "../../core/therapeuticMelodyPlayer";
 
-const melodyGenerator = createNonRepeatingRandomIndexGenerator(softTherapeuticMelodies.length);
-
-function nextFlowerMelody() {
-  return softTherapeuticMelodies[melodyGenerator.next() ?? 0];
-}
+const player = createTherapeuticMelodyPlayer();
 
 export function resetFlowerAudioSession() {
-  melodyGenerator.reset();
+  player.reset();
 }
 
 export function warmFlowerAudio(enabled: boolean) {
-  warmSoftPiano(enabled, notesToLoadForSoftTherapeuticMelodies());
+  player.warm(enabled);
 }
 
 export function playFlowerMelody(enabled: boolean) {
-  return playSoftPianoMelody(enabled, nextFlowerMelody());
+  return player.play(enabled);
 }
 
 export function disposeFlowerAudio() {
-  resetFlowerAudioSession();
-  disposeSoftPiano();
+  player.dispose();
 }

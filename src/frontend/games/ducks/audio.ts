@@ -1,26 +1,19 @@
-import { createNonRepeatingRandomIndexGenerator } from "../../core/random";
-import { notesToLoadForSoftTherapeuticMelodies, softTherapeuticMelodies } from "../../core/softMelodies";
-import { disposeSoftPiano, playSoftPianoMelody, warmSoftPiano } from "../../core/softPiano";
+import { createTherapeuticMelodyPlayer } from "../../core/therapeuticMelodyPlayer";
 
-const melodyGenerator = createNonRepeatingRandomIndexGenerator(softTherapeuticMelodies.length);
-
-function nextDuckMelody() {
-  return softTherapeuticMelodies[melodyGenerator.next() ?? 0];
-}
+const player = createTherapeuticMelodyPlayer();
 
 export function resetDuckAudioSession() {
-  melodyGenerator.reset();
+  player.reset();
 }
 
 export function warmDuckAudio(enabled: boolean) {
-  warmSoftPiano(enabled, notesToLoadForSoftTherapeuticMelodies());
+  player.warm(enabled);
 }
 
 export function playDuckMelody(enabled: boolean) {
-  return playSoftPianoMelody(enabled, nextDuckMelody());
+  return player.play(enabled);
 }
 
 export function disposeDuckAudio() {
-  resetDuckAudioSession();
-  disposeSoftPiano();
+  player.dispose();
 }
