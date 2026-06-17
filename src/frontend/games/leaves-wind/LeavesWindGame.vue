@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive } from "vue";
+import { computed, onMounted, onUnmounted, reactive } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
@@ -7,6 +7,7 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { disposeLeavesWindAudio, playLeavesWindFlowCue, warmLeavesWindAudio } from "./audio";
 
 type Point = { x: number; y: number };
 type Leaf = Point & {
@@ -36,7 +37,7 @@ const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("leaves-wind", {
   maxSteps: 8,
-  overrides: { preset: "gentle", dwellMs: 1500, sessionSeconds: 80, targetScale: 1.5, motionSpeed: 0.42, distractors: "none", hints: "high", sound: false },
+  overrides: { preset: "gentle", dwellMs: 1500, sessionSeconds: 80, targetScale: 1.5, motionSpeed: 0.42, distractors: "none", hints: "high", sound: true },
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });
@@ -67,6 +68,10 @@ function copyPointer() {
     source: pointer.value.source,
     timestamp: pointer.value.timestamp
   };
+}
+
+function leafFocus(leaf: Point) {
+  return pointer.value.valid ? clamp(1 - Math.hypot(pointer.value.x - leaf.x, pointer.value.y - leaf.y) / 360, 0, 1) : 0;
 }
 
 function stepTargetSeconds() {
@@ -127,6 +132,7 @@ function completeFlowStep(now: number) {
     pointer: copyPointer()
   });
   recordSuccess({ targetId, mode: "ambient-flow" });
+  void playLeavesWindFlowCue(session.settings.sound);
   intervalStartedAt = now;
 }
 
@@ -178,7 +184,8 @@ function updateLeaves(delta: number, now: number) {
     leaf.vy += ((dy / distance) * 24 * pull + windY * 0.1 + ambientY + flutterY - leaf.vy) * Math.min(1, delta * 0.72 * session.settings.motionSpeed);
     leaf.x += leaf.vx * delta;
     leaf.y += leaf.vy * delta;
-    leaf.angle += (leaf.spin + leaf.vx * 0.0025 + Math.sin(leaf.age * 1.2 + leaf.seed) * 0.012) * delta * 18;
+    const spinBoost = 1 + leafFocus(leaf) * 1.35;
+    leaf.angle += (leaf.spin + leaf.vx * 0.0025 + Math.sin(leaf.age * 1.2 + leaf.seed) * 0.012) * delta * 18 * spinBoost;
     wrapLeaf(leaf);
   }
 }
@@ -259,19 +266,11 @@ function drawWindLine(ctx: CanvasRenderingContext2D, line: WindLine) {
 }
 
 function drawLeaf(ctx: CanvasRenderingContext2D, leaf: Leaf) {
-  const focus = pointer.value.valid ? clamp(1 - Math.hypot(pointer.value.x - leaf.x, pointer.value.y - leaf.y) / 360, 0, 1) : 0;
+  const focus = leafFocus(leaf);
   const size = leaf.size * (1 + focus * 0.08);
   ctx.save();
   ctx.translate(leaf.x, leaf.y);
   ctx.rotate(leaf.angle);
-
-  const shadow = ctx.createRadialGradient(0, size * 0.18, size * 0.2, 0, size * 0.18, size * 0.9);
-  shadow.addColorStop(0, "rgb(74 69 38 / 22%)");
-  shadow.addColorStop(1, "rgb(74 69 38 / 0%)");
-  ctx.fillStyle = shadow;
-  ctx.beginPath();
-  ctx.ellipse(0, size * 0.16, size * 0.9, size * 0.42, 0, 0, Math.PI * 2);
-  ctx.fill();
 
   const fill = ctx.createLinearGradient(-size * 0.68, -size * 0.34, size * 0.72, size * 0.38);
   fill.addColorStop(0, `hsl(${leaf.hue + 18}, 72%, ${68 + focus * 10}%)`);
@@ -331,6 +330,11 @@ function restart() {
 
 onMounted(() => {
   resetScene();
+  warmLeavesWindAudio(session.settings.sound);
+});
+
+onUnmounted(() => {
+  disposeLeavesWindAudio();
 });
 
 useGameLoop({ context, update, draw });

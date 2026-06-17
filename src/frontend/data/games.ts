@@ -231,7 +231,7 @@ export const games: GameInfo[] = [
     icon: "mdi-leaf",
     skills: ["smooth-pursuit", "attention-shift"],
     status: "therapy-ready",
-    tags: ["hidden-from-menu"],
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 80,
     minTargetSizePx: 180,
     defaultDwellMs: 1500
