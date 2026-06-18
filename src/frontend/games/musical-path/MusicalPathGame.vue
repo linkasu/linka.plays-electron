@@ -1,26 +1,14 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { disposeMusicalPathAudio, playMusicalPathComplete, playMusicalPathNote, warmMusicalPathAudio } from "./audio";
-
-type PathStone = {
-  id: string;
-  order: number;
-  note: string;
-  icon: string;
-  x: number;
-  y: number;
-  mobileX: number;
-  mobileY: number;
-  hue: number;
-  selected: boolean;
-  softError: boolean;
-};
+import { disposeMusicalPathAudio, playMusicalPathComplete, playMusicalPathMistake, playMusicalPathNote, warmMusicalPathAudio } from "./audio";
+import { createMusicalPathStones, findNextMusicalPathStone, isExpectedMusicalPathStone, type MusicalPathStone } from "./model";
 
 type Spark = {
   id: string;
@@ -33,7 +21,7 @@ type Spark = {
 };
 
 const router = useRouter();
-const stones = reactive<PathStone[]>(createStones());
+const stones = reactive<MusicalPathStone[]>(createMusicalPathStones());
 const sparks = reactive<Spark[]>([]);
 const feedbackMessage = ref("Начни с подсвеченного камешка 1 и иди по дорожке дальше.");
 const pathPoints = computed(() => stones.map((stone) => `${stone.x},${stone.y}`).join(" "));
@@ -45,24 +33,12 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   overrides: { preset: "gentle", targetScale: 1.45, motionSpeed: 0.42, distractors: "none", hints: "high", sound: true },
   finishOnMistakes: false
 });
+const promptAudio = useGamePromptAudio({ gameId: "musical-path", soundEnabled: toRef(session.settings, "sound") });
 
 const resultVisible = computed(() => session.status === "finished");
-const nextStone = computed(() => stones.find((stone) => !stone.selected && stone.order === session.step + 1));
+const nextStone = computed(() => findNextMusicalPathStone(stones, session.step));
 
-function createStones(): PathStone[] {
-  return [
-    { id: "do-low", order: 1, note: "до", icon: "mdi-music-note", x: 13, y: 72, mobileX: 24, mobileY: 81, hue: 198, selected: false, softError: false },
-    { id: "re", order: 2, note: "ре", icon: "mdi-music-note-eighth", x: 25, y: 51, mobileX: 67, mobileY: 73, hue: 222, selected: false, softError: false },
-    { id: "mi", order: 3, note: "ми", icon: "mdi-music-note", x: 37, y: 66, mobileX: 31, mobileY: 62, hue: 263, selected: false, softError: false },
-    { id: "fa", order: 4, note: "фа", icon: "mdi-music-clef-treble", x: 49, y: 44, mobileX: 72, mobileY: 53, hue: 286, selected: false, softError: false },
-    { id: "sol", order: 5, note: "соль", icon: "mdi-music-note-eighth", x: 61, y: 62, mobileX: 29, mobileY: 43, hue: 154, selected: false, softError: false },
-    { id: "la", order: 6, note: "ля", icon: "mdi-music-note", x: 72, y: 39, mobileX: 69, mobileY: 34, hue: 124, selected: false, softError: false },
-    { id: "si", order: 7, note: "си", icon: "mdi-music-clef-treble", x: 83, y: 55, mobileX: 34, mobileY: 24, hue: 36, selected: false, softError: false },
-    { id: "do-high", order: 8, note: "до", icon: "mdi-music-note", x: 91, y: 31, mobileX: 72, mobileY: 15, hue: 14, selected: false, softError: false }
-  ];
-}
-
-function stoneStyle(stone: PathStone) {
+function stoneStyle(stone: MusicalPathStone) {
   return {
     "--stone-x": `${stone.x}%`,
     "--stone-y": `${stone.y}%`,
@@ -82,19 +58,27 @@ function sparkStyle(spark: Spark) {
   };
 }
 
-function targetId(stone: PathStone) {
+function targetId(stone: MusicalPathStone) {
   return `musical-path:${stone.order}:${stone.id}`;
+}
+
+function playNextStonePrompt(delayMs = 0) {
+  const stone = nextStone.value;
+  if (!stone) return;
+  promptAudio.cancelPending();
+  promptAudio.play(`musical-path.prompt.${stone.order}`, delayMs);
 }
 
 function resetStones() {
   window.clearTimeout(errorTimer);
   window.clearTimeout(sparkTimer);
-  stones.splice(0, stones.length, ...createStones());
+  promptAudio.cancelPending();
+  stones.splice(0, stones.length, ...createMusicalPathStones(session.maxSteps));
   sparks.splice(0);
   feedbackMessage.value = "Начни с подсвеченного камешка 1 и иди по дорожке дальше.";
 }
 
-function addSpark(stone: PathStone) {
+function addSpark(stone: MusicalPathStone) {
   sparks.push({
     id: `spark-${stone.id}-${Date.now()}`,
     x: stone.x,
@@ -112,7 +96,7 @@ function addSpark(stone: PathStone) {
   }, 2200);
 }
 
-function showSoftError(stone: PathStone) {
+function showSoftError(stone: MusicalPathStone) {
   stone.softError = true;
   feedbackMessage.value = `Этот камешек подождёт. Сейчас нужен камешек ${nextStone.value?.order ?? session.step + 1}.`;
   window.clearTimeout(errorTimer);
@@ -121,12 +105,12 @@ function showSoftError(stone: PathStone) {
   }, 1100);
 }
 
-function chooseStone(stone: PathStone) {
+function chooseStone(stone: MusicalPathStone) {
   if (session.status !== "running" || stone.selected) return;
 
   const expectedStone = nextStone.value;
   const roundId = `musical-path:step:${session.step + 1}`;
-  if (stone.id !== expectedStone?.id) {
+  if (!isExpectedMusicalPathStone(stone, expectedStone)) {
     recordMistake({
       roundId,
       targetId: targetId(stone),
@@ -135,6 +119,8 @@ function chooseStone(stone: PathStone) {
       actual: stone.order,
       isCorrect: false
     });
+    void playMusicalPathMistake(session.settings.sound);
+    promptAudio.play("musical-path.mistake");
     showSoftError(stone);
     return;
   }
@@ -144,8 +130,13 @@ function chooseStone(stone: PathStone) {
   feedbackMessage.value = stone.order === session.maxSteps ? "Дорожка собрана. Мелодия завершилась мягко." : `Верно: ${stone.note}. Теперь камешек ${stone.order + 1}.`;
   recordSuccess({ roundId, targetId: targetId(stone), note: stone.note, order: stone.order, isCorrect: true });
 
-  if (stone.order >= session.maxSteps) void playMusicalPathComplete(session.settings.sound);
-  else void playMusicalPathNote(session.settings.sound, stone.order - 1);
+  if (stone.order >= session.maxSteps) {
+    void playMusicalPathComplete(session.settings.sound);
+    promptAudio.play("musical-path.complete", 360);
+  } else {
+    void playMusicalPathNote(session.settings.sound, stone.order - 1);
+    playNextStonePrompt(680);
+  }
 }
 
 function restart() {
@@ -155,11 +146,14 @@ function restart() {
 
 onMounted(() => {
   warmMusicalPathAudio(session.settings.sound);
+  promptAudio.warm();
+  playNextStonePrompt(450);
 });
 
 onUnmounted(() => {
   window.clearTimeout(errorTimer);
   window.clearTimeout(sparkTimer);
+  promptAudio.cancelPending();
   disposeMusicalPathAudio();
 });
 </script>

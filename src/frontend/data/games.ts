@@ -1064,6 +1064,7 @@ export const games: GameInfo[] = [
     icon: "mdi-music-clef-treble",
     skills: ["sequence", "choice"],
     status: "therapy-ready",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 180,
     defaultDwellMs: 1250

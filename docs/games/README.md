@@ -9,7 +9,7 @@
 | `ready` | `resolvedStabilityStatus === "publish"` |
 | `development` | всё кроме `publish`: `needs-check`, `prefixed`, `archived`, скрытые или спорные игры |
 
-Сводка по последнему readiness-аудиту: 154 игры, 75 игр, 79 игр. Все registry-игры имеют `docs/games/<id>.md`.
+Сводка по последнему readiness-аудиту: 154 игры, 76 игр, 78 игр. Все registry-игры имеют `docs/games/<id>.md`.
 
 ## Форматы документов
 
@@ -94,7 +94,7 @@
 | Утро-день-вечер | `day-routine` | [day-routine.md](day-routine.md) | `therapy-ready` | `publish` | `ready` |
 | История из 3 кадров | `three-frame-story` | [three-frame-story.md](three-frame-story.md) | `therapy-ready` | `publish` | `ready` |
 | Сначала-потом | `first-then` | [first-then.md](first-then.md) | `therapy-ready` | `publish` | `ready` |
-| Музыкальная дорожка | `musical-path` | [musical-path.md](musical-path.md) | `therapy-ready` | `needs-check` | `development` |
+| Музыкальная дорожка | `musical-path` | [musical-path.md](musical-path.md) | `therapy-ready` | `publish` | `ready` |
 | Мозаика | `mosaic` | [mosaic.md](mosaic.md) | `therapy-ready` | `needs-check` | `development` |
 | Танец фигур | `shape-dance` | [shape-dance.md](shape-dance.md) | `therapy-ready` | `needs-check` | `development` |
 | Маршрут героя | `hero-route` | [hero-route.md](hero-route.md) | `therapy-ready` | `needs-check` | `development` |

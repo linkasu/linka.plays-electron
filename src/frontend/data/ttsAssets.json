@@ -1251,5 +1251,75 @@
     "text": "Порядок такой: сначала садимся, потом пристёгиваемся.",
     "voice": "jane",
     "path": "/audio/tts/first-then/mistake-sit-buckle.mp3"
+  },
+  {
+    "id": "musical-path.prompt.1",
+    "game": "musical-path",
+    "text": "Начни с камешка один: до.",
+    "voice": "jane",
+    "path": "/audio/tts/musical-path/prompt-1.mp3"
+  },
+  {
+    "id": "musical-path.prompt.2",
+    "game": "musical-path",
+    "text": "Теперь камешек два: ре.",
+    "voice": "jane",
+    "path": "/audio/tts/musical-path/prompt-2.mp3"
+  },
+  {
+    "id": "musical-path.prompt.3",
+    "game": "musical-path",
+    "text": "Теперь камешек три: ми.",
+    "voice": "jane",
+    "path": "/audio/tts/musical-path/prompt-3.mp3"
+  },
+  {
+    "id": "musical-path.prompt.4",
+    "game": "musical-path",
+    "text": "Теперь камешек четыре: фа.",
+    "voice": "jane",
+    "path": "/audio/tts/musical-path/prompt-4.mp3"
+  },
+  {
+    "id": "musical-path.prompt.5",
+    "game": "musical-path",
+    "text": "Теперь камешек пять: соль.",
+    "voice": "jane",
+    "path": "/audio/tts/musical-path/prompt-5.mp3"
+  },
+  {
+    "id": "musical-path.prompt.6",
+    "game": "musical-path",
+    "text": "Теперь камешек шесть: ля.",
+    "voice": "jane",
+    "path": "/audio/tts/musical-path/prompt-6.mp3"
+  },
+  {
+    "id": "musical-path.prompt.7",
+    "game": "musical-path",
+    "text": "Теперь камешек семь: си.",
+    "voice": "jane",
+    "path": "/audio/tts/musical-path/prompt-7.mp3"
+  },
+  {
+    "id": "musical-path.prompt.8",
+    "game": "musical-path",
+    "text": "Теперь камешек восемь: до.",
+    "voice": "jane",
+    "path": "/audio/tts/musical-path/prompt-8.mp3"
+  },
+  {
+    "id": "musical-path.mistake",
+    "game": "musical-path",
+    "text": "Этот камешек подождёт. Найди подсвеченный следующий камешек.",
+    "voice": "jane",
+    "path": "/audio/tts/musical-path/mistake.mp3"
+  },
+  {
+    "id": "musical-path.complete",
+    "game": "musical-path",
+    "text": "Дорожка готова. Мелодия завершилась.",
+    "voice": "jane",
+    "path": "/audio/tts/musical-path/complete.mp3"
   }
 ]
