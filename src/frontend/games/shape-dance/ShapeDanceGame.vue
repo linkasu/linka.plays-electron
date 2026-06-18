@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { playSoftPianoMelody, warmSoftPiano } from "../../core/softPiano";
 import { generateShapeDanceRound, type ShapeDanceFigure, type ShapeDanceRound } from "./model";
 
 type DancePhase = "watch" | "repeat" | "feedback";
@@ -14,6 +16,16 @@ type DancePhase = "watch" | "repeat" | "feedback";
 const highlightMs = 820;
 const stepGapMs = 1040;
 const feedbackMs = 900;
+const roundPauseMs = 1800;
+const danceFeedback = createStandardGameFeedback();
+const danceNoteByFigureId: Record<string, { note: number; frequency: number }> = {
+  circle: { note: 60, frequency: 261.63 },
+  square: { note: 64, frequency: 329.63 },
+  triangle: { note: 67, frequency: 392 },
+  diamond: { note: 72, frequency: 523.25 },
+  star: { note: 63, frequency: 311.13 },
+  hexagon: { note: 55, frequency: 196 }
+};
 
 const router = useRouter();
 const phase = ref<DancePhase>("watch");
@@ -26,7 +38,11 @@ const isLocked = ref(true);
 let sequenceTimers: number[] = [];
 let feedbackTimer = 0;
 
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("shape-dance", { maxSteps: 8, finishOnMistakes: false });
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("shape-dance", {
+  maxSteps: 8,
+  overrides: { sound: true },
+  finishOnMistakes: false
+});
 
 const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame<ShapeDanceRound>({
   session,
@@ -55,6 +71,17 @@ function queueSequenceTimer(callback: () => void, delayMs: number) {
   sequenceTimers.push(window.setTimeout(callback, delayMs));
 }
 
+function playDanceNote(figure: ShapeDanceFigure) {
+  const note = danceNoteByFigureId[figure.id];
+  if (!note) return;
+  void playSoftPianoMelody(session.settings.sound, {
+    notesToLoad: [55, 60, 63, 64, 67, 72],
+    sampled: [{ note: note.note, at: 0, duration: 0.48, velocity: 30 }],
+    fallback: [{ frequency: note.frequency, at: 0, duration: 0.44, peak: 0.034 }],
+    lengthSeconds: 0.5
+  });
+}
+
 function playSequence(message = "Смотри, как фигуры танцуют по очереди.") {
   clearSequenceTimers();
   clearFeedbackTimer();
@@ -71,6 +98,7 @@ function playSequence(message = "Смотри, как фигуры танцую�
       activeFigureId.value = figure.id;
       activeStepIndex.value = index;
       feedbackText.value = `Шаг ${index + 1}: ${figure.label}.`;
+      playDanceNote(figure);
     }, 320 + index * stepGapMs);
 
     queueSequenceTimer(() => {
@@ -115,6 +143,7 @@ function chooseFigure(figure: ShapeDanceFigure) {
     activeFigureId.value = figure.id;
     hintedFigureId.value = expected.id;
     feedbackText.value = "Почти. Сейчас фигуры мягко повторят танец ещё раз.";
+    void danceFeedback.playMistake(session.settings.sound);
     recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: figure.id, expected: expected.label, actual: figure.label, isCorrect: false });
     recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "mistake" });
     feedbackTimer = window.setTimeout(() => playSequence("Посмотри ещё раз: танец начнётся спокойно."), feedbackMs);
@@ -126,6 +155,7 @@ function chooseFigure(figure: ShapeDanceFigure) {
   hintedFigureId.value = undefined;
 
   if (selectedIds.value.length < round.value.sequence.length) {
+    playDanceNote(figure);
     feedbackText.value = "Верно. Продолжай следующий шаг.";
     feedbackTimer = window.setTimeout(() => {
       activeFigureId.value = undefined;
@@ -136,7 +166,8 @@ function chooseFigure(figure: ShapeDanceFigure) {
 
   phase.value = "feedback";
   isLocked.value = true;
-  feedbackText.value = "Танец повторён. Фигуры мягко светятся вместе.";
+  feedbackText.value = "Танец повторён. Спокойная пауза перед новым уровнем.";
+  void danceFeedback.playSuccess(session.settings.sound);
   recordSuccess({
     roundId: round.value.roundId,
     targetId,
@@ -147,7 +178,7 @@ function chooseFigure(figure: ShapeDanceFigure) {
   });
 
   if (session.status === "running" && session.step < session.maxSteps) {
-    feedbackTimer = window.setTimeout(() => nextRound(), feedbackMs);
+    feedbackTimer = window.setTimeout(() => nextRound(), roundPauseMs);
   }
 }
 
@@ -165,9 +196,15 @@ function restart() {
 
 watch(() => round.value.roundId, () => playSequence(), { immediate: true });
 
+onMounted(() => {
+  warmSoftPiano(session.settings.sound, [55, 60, 63, 64, 67, 72]);
+  danceFeedback.warm(session.settings.sound);
+});
+
 onUnmounted(() => {
   clearSequenceTimers();
   clearFeedbackTimer();
+  danceFeedback.dispose();
 });
 </script>
 
@@ -177,17 +214,21 @@ onUnmounted(() => {
     <v-container class="shape-dance-container" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
-          <v-card class="pa-4 pa-md-7" color="surface" rounded="xl" elevation="8">
+          <v-card class="shape-dance-card pa-4 pa-md-7" color="surface" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Повтори последовательность</div>
-            <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">Танец фигур</h1>
-            <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-4">{{ feedbackText }}</p>
+            <h1 class="shape-dance-title text-h3 text-md-h2 font-weight-bold text-center mb-2">Танец фигур</h1>
+            <p class="shape-dance-feedback text-h6 text-md-h5 text-medium-emphasis text-center mb-4">{{ feedbackText }}</p>
 
             <v-card class="dance-stage pa-4 pa-md-6 mb-5" color="blue-grey-lighten-5" rounded="xl" variant="flat">
               <div class="dance-stage__figures" aria-label="Фигуры танца">
-                <div v-for="figure in round.choices" :key="`stage-${figure.id}`" :class="['stage-figure', figure.motionClass, { 'stage-figure--active': activeFigureId === figure.id, 'stage-figure--hint': hintedFigureId === figure.id }]">
-                  <v-icon class="stage-figure__icon" :color="figure.iconColor" :icon="figure.icon" />
-                  <div class="figure-label text-h6 text-md-h5 font-weight-bold mt-2">{{ figure.label }}</div>
-                </div>
+                <GameDwellButton v-for="figure in round.choices" :key="figure.id" class="shape-dance-target" :target-id="figureTargetId(figure)" :disabled="session.status !== 'running' || phase !== 'repeat' || isLocked" :dwell-ms="session.settings.dwellMs" :min-height="210" :color="figureColor(figure)" @select="chooseFigure(figure)">
+                  <template #default>
+                    <div :class="['dance-figure', figure.motionClass, { 'dance-figure--active': activeFigureId === figure.id, 'dance-figure--hint': hintedFigureId === figure.id }]">
+                      <v-icon class="dance-figure__icon" :color="activeFigureId === figure.id ? 'white' : figure.iconColor" :icon="figure.icon" />
+                      <div class="figure-label text-h5 text-md-h4 font-weight-bold mt-3">{{ figure.label }}</div>
+                    </div>
+                  </template>
+                </GameDwellButton>
               </div>
             </v-card>
 
@@ -198,18 +239,6 @@ onUnmounted(() => {
               </v-chip>
             </div>
 
-            <v-row dense justify="center">
-              <v-col v-for="figure in round.choices" :key="figure.id" cols="6" sm="3" md="3">
-                <GameDwellButton :target-id="figureTargetId(figure)" :disabled="session.status !== 'running' || phase !== 'repeat' || isLocked" :dwell-ms="session.settings.dwellMs" :min-height="170" :color="figureColor(figure)" @select="chooseFigure(figure)">
-                  <template #default>
-                    <div :class="['choice-figure', figure.motionClass, { 'choice-figure--active': activeFigureId === figure.id }]">
-                      <v-icon class="choice-figure__icon" :color="activeFigureId === figure.id ? 'white' : figure.iconColor" :icon="figure.icon" />
-                      <div class="figure-label text-h5 text-md-h4 font-weight-bold mt-3">{{ figure.label }}</div>
-                    </div>
-                  </template>
-                </GameDwellButton>
-              </v-col>
-            </v-row>
           </v-card>
         </v-col>
       </v-row>
@@ -236,65 +265,73 @@ onUnmounted(() => {
 .dance-stage__figures {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
 }
 
-.stage-figure {
+.dance-stage__figures :deep(.dwell-button) {
+  padding: 1rem !important;
+}
+
+.dance-figure {
   align-items: center;
-  background: rgb(255 255 255 / 72%);
   border-radius: 1.5rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-block-size: clamp(9rem, 17vw, 13.5rem);
-  padding: 1rem;
   transition: box-shadow 220ms ease, transform 220ms ease, background 220ms ease;
 }
 
-.stage-figure--active,
-.stage-figure--hint {
-  background: rgb(var(--v-theme-primary) / 14%);
-  box-shadow: 0 0 0 0.5rem rgb(var(--v-theme-primary) / 18%), 0 1.25rem 2.5rem rgb(var(--v-theme-primary) / 20%);
+.dance-figure--active,
+.dance-figure--hint {
   transform: translateY(-0.75rem) scale(1.05);
 }
 
-.stage-figure--hint {
-  background: rgb(var(--v-theme-warning) / 20%);
-  box-shadow: 0 0 0 0.5rem rgb(var(--v-theme-warning) / 24%);
+.dance-figure--hint .figure-label {
+  color: #5f3700 !important;
 }
 
-.stage-figure__icon,
-.choice-figure__icon {
+.dance-figure__icon {
   filter: drop-shadow(0 0.7rem 0.9rem rgb(69 90 100 / 18%));
   font-size: clamp(4.8rem, 11vw, 8rem);
-}
-
-.choice-figure {
-  transition: transform 220ms ease;
 }
 
 .figure-label {
   color: #1f2a27 !important;
 }
 
-.choice-figure--active {
-  transform: scale(1.06);
-}
-
-.choice-figure--active .figure-label {
+.dance-figure--active .figure-label {
   color: #ffffff !important;
 }
 
 @media (max-height: 920px) {
   .shape-dance-container {
-    padding-block-start: 7.25rem;
+    padding-block-start: 5.75rem;
+  }
+
+  .shape-dance-card {
+    padding-block: 0.9rem !important;
+  }
+
+  .shape-dance-title {
+    font-size: 2rem !important;
+    line-height: 1.05;
+  }
+
+  .shape-dance-feedback {
+    font-size: 1.15rem !important;
+    margin-block-end: 0.75rem !important;
   }
 
   .dance-stage {
-    display: none;
+    margin-block-end: 1rem !important;
+    padding-block: 0.9rem !important;
   }
 
-  .choice-figure__icon {
+  .dance-stage__figures :deep(.dwell-button) {
+    min-block-size: 9.5rem !important;
+  }
+
+  .dance-figure__icon {
     font-size: clamp(3.2rem, 8vw, 5rem);
   }
 
@@ -303,18 +340,15 @@ onUnmounted(() => {
   }
 }
 
-.shape-dance-rise.stage-figure--active,
-.shape-dance-rise.choice-figure--active {
+.shape-dance-rise.dance-figure--active {
   animation: shape-dance-rise 820ms ease-in-out;
 }
 
-.shape-dance-sway.stage-figure--active,
-.shape-dance-sway.choice-figure--active {
+.shape-dance-sway.dance-figure--active {
   animation: shape-dance-sway 820ms ease-in-out;
 }
 
-.shape-dance-turn.stage-figure--active,
-.shape-dance-turn.choice-figure--active {
+.shape-dance-turn.dance-figure--active {
   animation: shape-dance-turn 820ms ease-in-out;
 }
 

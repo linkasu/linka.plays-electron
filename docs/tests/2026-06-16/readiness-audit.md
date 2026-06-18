@@ -1,4 +1,4 @@
-| `continuous-control` | 1 | 19 || `strategy` | 2 | 18 || `language-aac` | 4 | 17 || `sequencing` | 12 | 9 || `numeracy` | 6 | 14 || `visual-search` | 16 | 0 || `gaze-basics` | 36 | 0 || `continuous-control` | 1 | 19 || `strategy` | 2 | 18 || `language-aac` | 4 | 17 || `sequencing` | 11 | 10 || `numeracy` | 6 | 14 || `visual-search` | 16 | 0 || `gaze-basics` | 36 | 0 || `continuous-control` | 1 | 19 || `strategy` | 2 | 18 || `language-aac` | 4 | 17 || `sequencing` | 10 | 11 || `numeracy` | 6 | 14 || `visual-search` | 16 | 0 || `gaze-basics` | 36 | 0 || `continuous-control` | 1 | 19 || `strategy` | 2 | 18 || `language-aac` | 4 | 17 || `sequencing` | 9 | 12 || `numeracy` | 6 | 14 || `visual-search` | 16 | 0 || `gaze-basics` | 36 | 0 || `continuous-control` | 1 | 19 || `strategy` | 2 | 18 || `language-aac` | 4 | 17 || `sequencing` | 8 | 13 || `numeracy` | 6 | 14 || `visual-search` | 16 | 0 || `gaze-basics` | 36 | 0 |# Readiness audit — 2026-06-16
+| `continuous-control` | 1 | 19 || `strategy` | 2 | 18 || `language-aac` | 4 | 17 || `sequencing` | 13 | 8 || `numeracy` | 6 | 14 || `visual-search` | 16 | 0 || `gaze-basics` | 36 | 0 || `continuous-control` | 1 | 19 || `strategy` | 2 | 18 || `language-aac` | 4 | 17 || `sequencing` | 12 | 9 || `numeracy` | 6 | 14 || `visual-search` | 16 | 0 || `gaze-basics` | 36 | 0 || `continuous-control` | 1 | 19 || `strategy` | 2 | 18 || `language-aac` | 4 | 17 || `sequencing` | 11 | 10 || `numeracy` | 6 | 14 || `visual-search` | 16 | 0 || `gaze-basics` | 36 | 0 || `continuous-control` | 1 | 19 || `strategy` | 2 | 18 || `language-aac` | 4 | 17 || `sequencing` | 10 | 11 || `numeracy` | 6 | 14 || `visual-search` | 16 | 0 || `gaze-basics` | 36 | 0 || `continuous-control` | 1 | 19 || `strategy` | 2 | 18 || `language-aac` | 4 | 17 || `sequencing` | 9 | 12 || `numeracy` | 6 | 14 || `visual-search` | 16 | 0 || `gaze-basics` | 36 | 0 || `continuous-control` | 1 | 19 || `strategy` | 2 | 18 || `language-aac` | 4 | 17 || `sequencing` | 8 | 13 || `numeracy` | 6 | 14 || `visual-search` | 16 | 0 || `gaze-basics` | 36 | 0 |# Readiness audit — 2026-06-16
 
 Аудит построен командой:
 
@@ -22,12 +22,12 @@ npm run audit:readiness -- --output=docs/tests/2026-06-16/readiness-audit.json
 | Метрика | Значение |
 |---|---:|
 | Игр в текущем реестре | 154 |
-| Ready | 77 |
-| Development | 77 |
+| Ready | 78 |
+| Development | 76 |
 | `status: "polished"` | 44 |
 | `status: "therapy-ready"` | 110 |
-| `resolvedStabilityStatus: "publish"` | 77 |
-| `resolvedStabilityStatus: "needs-check"` | 77 |
+| `resolvedStabilityStatus: "publish"` | 78 |
+| `resolvedStabilityStatus: "needs-check"` | 76 |
 | `resolvedStabilityStatus: "archived"` | 0 |
 | Отсутствующие routes | 0 |
 | Отсутствующие Vue-компоненты | 0 |
@@ -51,7 +51,6 @@ npm run audit:readiness -- --output=docs/tests/2026-06-16/readiness-audit.json
 
 | Игра | Категория | Stability | Blockers |
 |---|---|---|---|
-| `shape-dance` | `sequencing` | `needs-check` | `stability:needs-check` |
 | `hero-route` | `sequencing` | `needs-check` | `stability:needs-check`, `rules-not-extracted-to-model` |
 | `soup-recipe` | `sequencing` | `needs-check` | `stability:needs-check` |
 | `fix-picture` | `sequencing` | `needs-check` | `stability:needs-check`, `rules-not-extracted-to-model` |
@@ -61,6 +60,7 @@ npm run audit:readiness -- --output=docs/tests/2026-06-16/readiness-audit.json
 | `shelf-sorting` | `sequencing` | `needs-check` | `stability:needs-check` |
 | `orchestra` | `sequencing` | `needs-check` | `stability:needs-check`, `rules-not-extracted-to-model` |
 | `choose-emotion` | `language-aac` | `needs-check` | `stability:needs-check` |
+| `action-who` | `language-aac` | `needs-check` | `stability:needs-check` |
 
 Полный список development-игр и blockers находится в `developmentQueue` внутри `readiness-audit.json`.
 

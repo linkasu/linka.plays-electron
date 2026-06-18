@@ -17,8 +17,8 @@
 ## Главный результат
 
 - Registry/router/component coverage: 154 / 154.
-- Ready: 77 игр.
-- Development: 77 игр.
+- Ready: 78 игр.
+- Development: 76 игр.
 - Полный Electron CDP прогон: 462 проверки, 0 failures.
 - Ручной PNG-review выборки нашёл основной визуальный blocker в `cursor-magnet`; blocker исправлен targeted compact overlay fix.
 - Очередь `model.ts` без `model.test.ts`: закрыта, осталось 0.
