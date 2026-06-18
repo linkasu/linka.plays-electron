@@ -1,12 +1,13 @@
 # LINKa Plays Electron Docs
 
-Эта папка описывает полный перенос игр из `linka.plays-unity` в `linka.plays-electron` без игр `Картинг/Лабиринт` и `Бульк`.
+Эта папка описывает Electron/Vue/Vuetify/Canvas версию LINKa Plays и текущий registry игр из `src/frontend/data/games.ts`.
 
 Документация нужна не как архив идей, а как рабочее ТЗ для разработки: от core mechanics и gaze input до дефектологической логики, метрик, тестирования и полировки.
 
 ## Что входит
 
-- 13 игр из Unity: все найденные игры, кроме `Labyrinth` / `Картинг` и `Bubbles` / `Бульк`.
+- 154 registry-игры из текущей Electron-реализации.
+- Полный индекс игровых документов: `games/README.md`.
 - Общий Electron/Vue/Vuetify/Canvas подход.
 - Общий gaze engine для Tobii и mouse fallback.
 - Общая игровая сессия, адаптивная сложность и метрики.
@@ -15,7 +16,7 @@
 
 ## Что исключено
 
-`Картинг/Лабиринт` и `Бульк` исключены из текущего плана по требованию. Их не нужно проектировать, документировать как игры и включать в roadmap реализации. Если позднее они вернутся, для них нужны отдельные документы.
+`Картинг/Лабиринт` не включён в текущий registry. `Бульк` сохранён только как legacy-документ `games/bubbles.md` и не входит в текущий registry.
 
 ## Порядок чтения
 
@@ -35,22 +36,11 @@
 14. `games/README.md` и файлы игр - конкретные игровые спецификации.
 15. `research/` - источники и практические выводы.
 16. `specs/` - контракты данных для разработки.
+17. `tests/2026-06-16/` - текущий readiness и Electron CDP visual audit для реестра игр.
 
 ## Игры
 
-- `games/butterfly.md` - Бабочки.
-- `games/ducks.md` - Утки.
-- `games/fishes.md` - Рыбки / дно.
-- `games/flowers.md` - Цветы.
-- `games/frog.md` - Жаба.
-- `games/hide-and-seek.md` - Прятки.
-- `games/pyramid.md` - Пирамидка.
-- `games/choose-picture.md` - Выбери картинку.
-- `games/eat-or-not-eat.md` - Съедобное.
-- `games/type-word.md` - Печать слов.
-- `games/count-items.md` - Счёт.
-- `games/math-actions.md` - Математика. Операции.
-- `games/table-tennis.md` - Теннис.
+Все registry-игры имеют документ `docs/games/<id>.md`. Список по категориям, status, stability и ready/development group находится в `games/README.md`.
 
 ## Принцип разработки
 

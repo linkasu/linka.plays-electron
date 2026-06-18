@@ -120,7 +120,7 @@ function restart() {
                 <v-chip color="primary" prepend-icon="mdi-shield-check-outline" size="large" variant="tonal">
                   Безопасных: {{ safeRemaining }}
                 </v-chip>
-                <GameDwellButton :target-id="hintTargetId()" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="88" color="deep-purple-darken-3" @select="requestHint()">
+                <GameDwellButton :target-id="hintTargetId()" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="136" color="deep-purple-darken-3" @select="requestHint()">
                   <template #default>
                     <div class="hint-button-content">
                       <v-icon icon="mdi-map-marker-question-outline" size="30" />
@@ -139,7 +139,7 @@ function restart() {
                 :target-id="cellTargetId(cell.index)"
                 :disabled="isDisabled(cell)"
                 :dwell-ms="session.settings.dwellMs"
-                :min-height="112"
+                  :min-height="136"
                 :color="cellColor(cell)"
                 role="gridcell"
                 @select="chooseCell(cell)"
@@ -217,7 +217,7 @@ function restart() {
   display: grid;
   gap: clamp(0.45rem, 1.4vw, 0.85rem);
   grid-template-columns: repeat(var(--board-size), minmax(4.8rem, 1fr));
-  max-inline-size: min(44rem, 100%);
+  max-inline-size: min(47rem, 100%);
 }
 
 .mine-cell {
@@ -256,6 +256,24 @@ function restart() {
   }
 }
 
+@media (min-height: 681px) and (max-height: 920px) {
+  .game-container {
+    padding-block-start: 4.75rem;
+  }
+
+  .game-container :deep(.v-card) {
+    padding-block: 1rem !important;
+  }
+
+  .game-container .text-overline,
+  .game-container p,
+  .game-container .v-alert,
+  .game-container h1,
+  .game-container .d-flex.flex-column.flex-md-row {
+    display: none !important;
+  }
+}
+
 @media (max-height: 680px) {
   .game-container {
     padding-block-start: 4.75rem;
@@ -272,7 +290,7 @@ function restart() {
   }
 
   .game-container .d-flex.flex-column.flex-md-row {
-    margin-block-end: 0.75rem !important;
+    display: none !important;
   }
 
   .game-container h1 {
@@ -282,11 +300,11 @@ function restart() {
   .board-wrap {
     gap: 0.4rem;
     grid-template-columns: repeat(var(--board-size), minmax(0, 1fr));
-    max-inline-size: min(100%, 36rem);
+    max-inline-size: min(100%, 47rem);
   }
 
   .mine-cell :deep(.dwell-button) {
-    min-block-size: 3.6rem !important;
+    min-block-size: 5.625rem !important;
     padding: 0.35rem !important;
   }
 

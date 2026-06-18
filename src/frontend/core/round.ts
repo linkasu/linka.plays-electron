@@ -1,5 +1,5 @@
 import type { SessionSettings } from "./settings";
-import { shuffleItems } from "../data/wordBank";
+import { shuffleItems } from "./random";
 
 export type ChoiceRound<T> = {
   roundId: string;
@@ -36,6 +36,7 @@ export type BuildChoiceRoundInput<T> = {
   pickTarget: (items: T[], roundIndex: number) => T;
   isSame: (left: T, right: T) => boolean;
   prompt: (target: T, roundIndex: number) => string;
+  random?: () => number;
 };
 
 export function buildChoiceRound<T>(input: BuildChoiceRoundInput<T>): ChoiceRound<T> {
@@ -44,8 +45,8 @@ export function buildChoiceRound<T>(input: BuildChoiceRoundInput<T>): ChoiceRoun
   const requested = Math.max(2, Math.floor(input.choiceCount));
   const choiceCount = Math.min(requested, input.items.length);
   const target = input.pickTarget(input.items, Math.max(1, input.roundIndex));
-  const distractors = shuffleItems(input.items.filter((item) => !input.isSame(item, target))).slice(0, choiceCount - 1);
-  const choices = shuffleItems([target, ...distractors]);
+  const distractors = shuffleItems(input.items.filter((item) => !input.isSame(item, target)), input.random).slice(0, choiceCount - 1);
+  const choices = shuffleItems([target, ...distractors], input.random);
   const correctIndex = choices.findIndex((choice) => input.isSame(choice, target));
 
   return {

@@ -1,0 +1,154 @@
+{
+  "port": 9223,
+  "routes": [
+    "/games/cursor-magnet"
+  ],
+  "checked": 3,
+  "failures": 0,
+  "screenshotDir": "/tmp/linka-plays-cdp-screenshots/2026-06-16-cursor-magnet-after",
+  "summary": {
+    "routeCount": 1,
+    "viewportCount": 3,
+    "checked": 3,
+    "failureRouteCount": 0,
+    "failureViewportCount": 0,
+    "routes": [
+      {
+        "route": "/games/cursor-magnet",
+        "checked": 3,
+        "failures": 0,
+        "errorCount": 0,
+        "horizontalOverflowCount": 0,
+        "hudOverlapCount": 0,
+        "lowContrastTargetCount": 0,
+        "hiddenTargetViewportCount": 0,
+        "zeroVisibleTargetViewportCount": 0,
+        "wasdPartialViewportCount": 0,
+        "maxTargetCount": 0,
+        "minVisibleTargetCount": 0,
+        "minViewportAreaRatio": 0,
+        "minShortSideRatio": 0,
+        "canvasCount": 1
+      }
+    ]
+  },
+  "results": [
+    {
+      "route": "/games/cursor-magnet",
+      "viewport": {
+        "width": 800,
+        "height": 600
+      },
+      "errors": [],
+      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16-cursor-magnet-after/games-cursor-magnet-800x600.png",
+      "metrics": {
+        "url": "http://127.0.0.1:5174/?cdpAudit=1781615622591-0#/games/cursor-magnet",
+        "routeMatches": true,
+        "title": "LINKa plays",
+        "viewport": {
+          "width": 800,
+          "height": 600
+        },
+        "scrollWidth": 800,
+        "scrollHeight": 600,
+        "clientWidth": 800,
+        "clientHeight": 600,
+        "horizontalOverflow": false,
+        "targetCount": 0,
+        "visibleTargetCount": 0,
+        "minViewportAreaRatio": 0,
+        "minShortSideRatio": 0,
+        "hudOverlapCount": 0,
+        "lowContrastTargetCount": 0,
+        "wasdPanelCount": 0,
+        "canvases": [
+          {
+            "width": 800,
+            "height": 600,
+            "backingWidth": 800,
+            "backingHeight": 600
+          }
+        ],
+        "targets": []
+      }
+    },
+    {
+      "route": "/games/cursor-magnet",
+      "viewport": {
+        "width": 1024,
+        "height": 600
+      },
+      "errors": [],
+      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16-cursor-magnet-after/games-cursor-magnet-1024x600.png",
+      "metrics": {
+        "url": "http://127.0.0.1:5174/?cdpAudit=1781615623830-1#/games/cursor-magnet",
+        "routeMatches": true,
+        "title": "LINKa plays",
+        "viewport": {
+          "width": 1024,
+          "height": 600
+        },
+        "scrollWidth": 1024,
+        "scrollHeight": 600,
+        "clientWidth": 1024,
+        "clientHeight": 600,
+        "horizontalOverflow": false,
+        "targetCount": 0,
+        "visibleTargetCount": 0,
+        "minViewportAreaRatio": 0,
+        "minShortSideRatio": 0,
+        "hudOverlapCount": 0,
+        "lowContrastTargetCount": 0,
+        "wasdPanelCount": 0,
+        "canvases": [
+          {
+            "width": 1024,
+            "height": 600,
+            "backingWidth": 1024,
+            "backingHeight": 600
+          }
+        ],
+        "targets": []
+      }
+    },
+    {
+      "route": "/games/cursor-magnet",
+      "viewport": {
+        "width": 1600,
+        "height": 900
+      },
+      "errors": [],
+      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16-cursor-magnet-after/games-cursor-magnet-1600x900.png",
+      "metrics": {
+        "url": "http://127.0.0.1:5174/?cdpAudit=1781615625059-2#/games/cursor-magnet",
+        "routeMatches": true,
+        "title": "LINKa plays",
+        "viewport": {
+          "width": 1600,
+          "height": 900
+        },
+        "scrollWidth": 1600,
+        "scrollHeight": 900,
+        "clientWidth": 1600,
+        "clientHeight": 900,
+        "horizontalOverflow": false,
+        "targetCount": 0,
+        "visibleTargetCount": 0,
+        "minViewportAreaRatio": 0,
+        "minShortSideRatio": 0,
+        "hudOverlapCount": 0,
+        "lowContrastTargetCount": 0,
+        "wasdPanelCount": 0,
+        "canvases": [
+          {
+            "width": 1600,
+            "height": 900,
+            "backingWidth": 1600,
+            "backingHeight": 900
+          }
+        ],
+        "targets": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+# Оркестр-дирижёр
+
+> Registry-backed spec. Документ создан из текущего Electron registry и audit-данных; при продуктовой доработке его нужно расширять вручную.
+
+## Registry
+
+| Поле | Значение |
+|---|---|
+| ID | `orchestra-conductor` |
+| Route | `/games/orchestra-conductor` |
+| Категория | `continuous-control` — Непрерывное управление |
+| Status | `therapy-ready` |
+| Resolved stability | `needs-check` |
+| Readiness group | `development` |
+| Skills | непрерывное управление, слежение |
+| Recommended session | 150 сек |
+| Min target size | 156 px |
+| Default dwell | 600 ms |
+
+## Назначение
+
+undefined
+
+Самостоятельная формулировка для меню: undefined
+
+## Игровой цикл
+
+```text
+показ сцены -> плавное ведение взглядом или мышью -> мягкая реакция объекта -> накопление успеха без резкого давления
+```
+
+## Управление взглядом
+
+- Основной ввод должен быть gaze-first; mouse fallback сохраняется для отладки и занятий без трекера.
+- Минимальный целевой размер из registry: 156 px.
+- Базовый dwell из registry: 600 ms.
+- Последний Electron CDP audit: failures = 0, max targets = 0, min visible targets = 0.
+- Игра выглядит как canvas/fullscreen route: визуальную пригодность нужно подтверждать PNG, а не только DOM targets.
+
+## Дефектологическая ценность
+
+- тренирует плавное слежение и непрерывное управление
+- сохраняет mouse fallback для отладки и занятий без трекера
+- требует визуальной проверки canvas/overlay, а не только DOM
+
+## Метрики и сессия
+
+- Сессия должна использовать общий game session flow и завершаться через результат для взрослого.
+- Важные метрики: успешные выборы, ошибки/отмены, dwell time, подсказки, потеря валидного взгляда.
+- Рекомендуемая длительность занятия: 150 сек.
+
+## Реализация
+
+| Проверка | Состояние |
+|---|---|
+| Route в router | есть |
+| Vue-компонент | `OrchestraConductorGame.vue` |
+| Model | `model.ts` |
+| Model test | `model.test.ts` |
+| Audio module | `audio.ts` |
+| Runtime audit doc | `docs/tests/2026-06-10/orchestra-conductor.md` |
+
+## Готовность
+
+Игра находится в группе `development`, потому что resolved stability не равен `publish`.
+
+Автоматические blockers:
+
+- stability:needs-check
+- missing-game-doc
+
+## QA checklist
+
+- Route открывается в Electron, не только в обычном браузере.
+- На 800×600 и 1024×600 основные цели видны без ручного скролла.
+- HUD, prompt и overlays не перекрывают активные цели.
+- Для canvas/fullscreen игры PNG подтверждает непустую сцену и читаемые active zones.
+- Звук, если есть, остаётся опциональным и не ломает gameplay при ошибке загрузки.
+- Для игр с правилами model tests покрывают правильный ответ, ошибки и завершение раунда.
+
+## Next step
+
+Проверить PNG/canvas overlay в Electron и зафиксировать, что active scene не перекрыта подсказками.

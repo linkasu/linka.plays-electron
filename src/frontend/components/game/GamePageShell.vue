@@ -49,10 +49,12 @@ const shellStyle = computed(() => ({
 .game-page-shell {
   background: var(--page-shell-bg);
   min-block-size: 100vh;
+  min-block-size: 100dvh;
 }
 
 .game-page-shell--full {
   block-size: 100vh;
+  block-size: 100dvh;
   overflow: hidden;
 }
 

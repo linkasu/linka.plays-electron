@@ -1,5 +1,5 @@
 import type { SessionSettings } from "../../core/settings";
-import { shuffleItems } from "../../data/wordBank";
+import { buildChoiceRound, choiceCountByPreset, idEquality, pickByRoundIndex, type ChoiceRound } from "../../core/round";
 
 export type ShapeId = "circle" | "square" | "triangle" | "star";
 
@@ -8,13 +8,7 @@ export type ShapeOption = {
   label: string;
 };
 
-export type ShapesRound = {
-  roundId: string;
-  prompt: string;
-  target: ShapeOption;
-  choices: ShapeOption[];
-  correctIndex: number;
-};
+export type ShapesRound = ChoiceRound<ShapeOption>;
 
 export const shapeOptions: ShapeOption[] = [
   { id: "circle", label: "круг" },
@@ -24,16 +18,13 @@ export const shapeOptions: ShapeOption[] = [
 ];
 
 export function generateShapesRound(settings: SessionSettings, roundIndex = 1): ShapesRound {
-  const choiceCount = settings.preset === "gentle" ? 3 : 4;
-  const target = shapeOptions[(roundIndex - 1) % shapeOptions.length];
-  const distractors = shuffleItems(shapeOptions.filter((shape) => shape.id !== target.id)).slice(0, choiceCount - 1);
-  const choices = shuffleItems([target, ...distractors]);
-
-  return {
-    roundId: `shapes:round:${roundIndex}`,
-    prompt: `Найди ${target.label}`,
-    target,
-    choices,
-    correctIndex: choices.findIndex((choice) => choice.id === target.id)
-  };
+  return buildChoiceRound({
+    idPrefix: "shapes",
+    roundIndex,
+    items: shapeOptions,
+    choiceCount: choiceCountByPreset(settings, roundIndex, { gentle: 3, standard: 4, challenge: 4 }),
+    pickTarget: (items, index) => pickByRoundIndex(items, index),
+    isSame: idEquality,
+    prompt: (target) => `Найди ${target.label}`
+  });
 }

@@ -189,7 +189,7 @@ function restart() {
             </div>
 
             <v-row align="stretch">
-              <v-col cols="12" sm="7" class="pe-sm-4">
+              <v-col cols="12" sm="6" class="pe-sm-4">
                 <v-card class="arkanoid-board pa-3 pa-md-5" color="indigo-lighten-5" rounded="xl" variant="flat">
                   <div class="arkanoid-stage" :style="ballStyle" aria-label="Поле арканоида">
                     <div class="block-grid" role="grid" aria-label="Блоки для мягкого удара">
@@ -218,7 +218,7 @@ function restart() {
                 </v-card>
               </v-col>
 
-              <v-col cols="12" sm="5">
+              <v-col cols="12" sm="6">
                 <v-card class="pa-4 pa-md-5 h-100" color="surface" rounded="xl" variant="outlined">
                   <div class="text-overline text-secondary mb-2">Секторы платформы</div>
                   <div class="sector-grid">
@@ -228,7 +228,7 @@ function restart() {
                       :target-id="sectorTargetId(sector)"
                       :disabled="session.status !== 'running'"
                       :dwell-ms="session.settings.dwellMs"
-                      :min-height="92"
+                      :min-height="136"
                       :color="sectorColor(sector)"
                       @select="chooseSector(sector)"
                     >
@@ -420,7 +420,11 @@ function restart() {
 
   .sector-grid {
     gap: 0.55rem;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sector-grid > :last-child {
+    grid-column: 1 / -1;
   }
 
   .sector-choice :deep(.v-icon) {
@@ -433,7 +437,7 @@ function restart() {
 
   .sector-choice {
     color: #1f2a27;
-    min-block-size: 4.5rem;
+    min-block-size: 8.5rem;
   }
 
   .sector-choice :deep(.v-icon) {

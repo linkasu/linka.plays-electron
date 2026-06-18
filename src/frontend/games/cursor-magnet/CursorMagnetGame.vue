@@ -43,8 +43,8 @@ const progressText = computed(() => `${session.step}/${session.maxSteps}`);
 const helperText = computed(() => {
   if (session.status === "paused") return "Пауза. Предметы спокойно подождут.";
   if (cleanupProgress.value > 0) return "Все предметы на месте. Поле мягко очищается.";
-  if (!pointer.value.valid) return "Можно вести магнит взглядом или мышью. Ошибок здесь нет.";
-  return "Подведи магнит к предмету и плавно перенеси его в светлую цель.";
+  if (!pointer.value.valid) return "Веди магнит взглядом или мышью. Ошибок нет.";
+  return "Подведи магнит к предмету и перенеси его в цель.";
 });
 
 const itemLabels = ["лист", "камень", "ракушка", "облако", "звезда", "перо", "капля", "огонёк"];
@@ -498,13 +498,13 @@ useGameLoop({ context, update, draw });
     />
 
     <v-container class="cursor-magnet-overlay" fluid>
-      <v-row justify="center" no-gutters>
-        <v-col cols="12" md="9" lg="7">
-          <v-card class="pa-4 pa-sm-5 text-center" color="surface" elevation="8" rounded="xl">
-            <div class="text-overline text-primary">continuous control</div>
-            <h1 class="text-h4 text-sm-h3 font-weight-bold mb-2">Курсор-магнит</h1>
-            <p class="text-body-1 text-sm-h6 text-medium-emphasis mb-4">{{ helperText }}</p>
-            <v-chip color="primary" prepend-icon="mdi-magnet-on" rounded="pill" size="large" variant="tonal">
+      <v-row justify="end" no-gutters>
+        <v-col cols="auto">
+          <v-card class="cursor-magnet-help-card pa-3 pa-sm-4" color="surface" elevation="8" rounded="xl">
+            <div class="cursor-magnet-overline text-overline text-primary">continuous control</div>
+            <h1 class="text-h5 text-sm-h4 font-weight-bold mb-1">Курсор-магнит</h1>
+            <p class="text-body-2 text-sm-body-1 text-medium-emphasis mb-2">{{ helperText }}</p>
+            <v-chip class="cursor-magnet-chip" color="primary" prepend-icon="mdi-magnet-on" rounded="pill" size="small" variant="tonal">
               Мягкое притяжение · без ошибок
             </v-chip>
           </v-card>
@@ -540,19 +540,43 @@ useGameLoop({ context, update, draw });
 }
 
 .cursor-magnet-overlay {
-  padding-block-start: 7.5rem;
+  padding-block-start: 4.5rem;
+  padding-inline: 1rem;
   pointer-events: none;
   position: relative;
   z-index: 1;
 }
 
+.cursor-magnet-help-card {
+  max-inline-size: min(24rem, calc(100vw - 2rem));
+}
+
 .cursor-magnet-overlay :deep(.v-card) {
-  opacity: 0.94;
+  opacity: 0.9;
 }
 
 @media (max-width: 720px) {
   .cursor-magnet-overlay {
-    padding-block-start: 6.75rem;
+    padding-block-start: 4.75rem;
+  }
+}
+
+@media (max-height: 640px) {
+  .cursor-magnet-overlay {
+    padding-block-start: 3.75rem;
+  }
+
+  .cursor-magnet-help-card {
+    max-inline-size: min(19rem, calc(100vw - 2rem));
+  }
+
+  .cursor-magnet-help-card h1 {
+    white-space: nowrap;
+  }
+
+  .cursor-magnet-overline,
+  .cursor-magnet-chip {
+    display: none;
   }
 }
 </style>

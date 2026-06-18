@@ -138,14 +138,14 @@ function restart() {
 
             <v-row class="action-row mt-2" dense>
               <v-col cols="12" sm="5">
-                <GameDwellButton :target-id="actionTargetId('clear')" :disabled="session.status !== 'running' || selectedCoins.length === 0" :dwell-ms="session.settings.dwellMs" :min-height="118" color="surface" @select="clearCoins">
+                <GameDwellButton :target-id="actionTargetId('clear')" :disabled="session.status !== 'running' || selectedCoins.length === 0" :dwell-ms="session.settings.dwellMs" :min-height="136" color="surface" @select="clearCoins">
                   <template #default>
                     <div class="text-h5 text-md-h4 font-weight-bold">Очистить</div>
                   </template>
                 </GameDwellButton>
               </v-col>
               <v-col cols="12" sm="7">
-                <GameDwellButton :target-id="actionTargetId('check')" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="118" color="deep-purple-darken-3" @select="checkTotal">
+                <GameDwellButton :target-id="actionTargetId('check')" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="136" color="deep-purple-darken-3" @select="checkTotal">
                   <template #default>
                     <div class="d-flex align-center justify-center ga-3 text-h5 text-md-h4 font-weight-bold">
                       <v-icon icon="mdi-check" size="42" />
@@ -273,11 +273,11 @@ function restart() {
 
 @media (max-height: 44rem) {
   .game-container {
-    padding-block-start: 56px;
+    padding-block-start: 48px;
   }
 
   .coin-card {
-    padding: 1rem !important;
+    padding: 0.875rem !important;
   }
 
   .coin-card h1 {
@@ -304,7 +304,7 @@ function restart() {
   }
 
   .coin-card .v-alert {
-    margin-block-end: 0.75rem !important;
+    margin-block-end: 0.5rem !important;
   }
 
   .coin-button {
@@ -322,7 +322,7 @@ function restart() {
   }
 
   .action-row :deep(.dwell-button) {
-    min-block-size: 4.75rem !important;
+    min-block-size: 5.75rem !important;
   }
 }
 </style>

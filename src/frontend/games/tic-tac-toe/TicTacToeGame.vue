@@ -144,7 +144,7 @@ onUnmounted(() => {
 <template>
   <div class="tic-shell">
     <div class="quiet-controls d-flex align-center ga-2 pa-1">
-      <GameDwellButton :target-id="menuTargetId()" :dwell-ms="session.settings.dwellMs" :min-height="96" color="surface" @select="router.push(resolveMenuRoute())">
+      <GameDwellButton :target-id="menuTargetId()" :dwell-ms="session.settings.dwellMs" :min-height="136" color="surface" @select="router.push(resolveMenuRoute())">
         <template #default>
           <div class="control-button-content">
             <v-icon icon="mdi-arrow-left" size="26" />
@@ -152,7 +152,7 @@ onUnmounted(() => {
           </div>
         </template>
       </GameDwellButton>
-      <GameDwellButton :target-id="pauseTargetId()" :disabled="session.status === 'finished'" :dwell-ms="session.settings.dwellMs" :min-height="96" color="surface" @select="togglePause">
+      <GameDwellButton :target-id="pauseTargetId()" :disabled="session.status === 'finished'" :dwell-ms="session.settings.dwellMs" :min-height="136" color="surface" @select="togglePause">
         <template #default>
           <div class="control-button-content">
             <v-icon :icon="session.status === 'paused' ? 'mdi-play' : 'mdi-pause'" size="26" />
@@ -176,7 +176,7 @@ onUnmounted(() => {
                 <v-chip :color="gazeBlocked ? 'secondary' : 'primary'" size="large" variant="tonal">
                   {{ statusText }}
                 </v-chip>
-                <GameDwellButton :target-id="sleepTargetId()" :disabled="sleepDisabled" :dwell-ms="session.settings.dwellMs" :min-height="96" color="deep-purple-darken-3" @select="toggleThinkMode">
+                <GameDwellButton :target-id="sleepTargetId()" :disabled="sleepDisabled" :dwell-ms="session.settings.dwellMs" :min-height="136" color="deep-purple-darken-3" @select="toggleThinkMode">
                   <template #default>
                     <div class="think-button-content">
                       <v-icon :icon="sleeping ? 'mdi-check-circle' : 'mdi-sleep'" size="32" style="color: #ffffff" />
@@ -194,7 +194,7 @@ onUnmounted(() => {
                 :target-id="cellTargetId(index)"
                 :disabled="session.status !== 'running' || gazeBlocked || Boolean(result) || Boolean(cell)"
                 :dwell-ms="session.settings.dwellMs"
-                :min-height="128"
+                :min-height="136"
                 :color="cell ? 'surface-variant' : 'surface'"
                 @select="chooseCell(index)"
               >

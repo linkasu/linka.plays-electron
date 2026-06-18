@@ -1,0 +1,6766 @@
+{
+  "generatedAt": "2026-06-16T16:24:32.197Z",
+  "registryPath": "src/frontend/data/games.ts",
+  "routerPath": "src/frontend/router/index.ts",
+  "rule": {
+    "ready": "resolvedStabilityStatus === publish",
+    "development": "everything else",
+    "resolvedStabilityStatus": "explicit stabilityStatus, hidden-from-menu as archived, polished as publish, otherwise needs-check"
+  },
+  "summary": {
+    "totalGames": 154,
+    "readinessGroup": {
+      "ready": 67,
+      "development": 87
+    },
+    "status": {
+      "polished": 44,
+      "therapy-ready": 110
+    },
+    "resolvedStabilityStatus": {
+      "publish": 67,
+      "archived": 1,
+      "needs-check": 86
+    },
+    "categoryReadiness": {
+      "gaze-basics": {
+        "ready": 35,
+        "development": 1
+      },
+      "visual-search": {
+        "ready": 15,
+        "development": 1
+      },
+      "numeracy": {
+        "ready": 6,
+        "development": 14
+      },
+      "sequencing": {
+        "ready": 4,
+        "development": 17
+      },
+      "language-aac": {
+        "development": 17,
+        "ready": 4
+      },
+      "strategy": {
+        "development": 18,
+        "ready": 2
+      },
+      "continuous-control": {
+        "development": 19,
+        "ready": 1
+      }
+    },
+    "missingRoutes": 0,
+    "missingVueComponents": 0,
+    "missingGameDocs": 0,
+    "missingRuntimeAuditDocs": 0,
+    "modelWithoutTest": 0,
+    "readyMissingGameDocs": 0,
+    "developmentMissingGameDocs": 0
+  },
+  "developmentQueue": [
+    {
+      "id": "leaves-wind",
+      "title": "Листья на ветру",
+      "category": "gaze-basics",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "archived",
+      "blockers": [
+        "stability:archived"
+      ]
+    },
+    {
+      "id": "what-missing",
+      "title": "Что пропало?",
+      "category": "visual-search",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "dress-character",
+      "title": "Одень персонажа",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check",
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "sandwich",
+      "title": "Бутерброд",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "color-pattern",
+      "title": "Цветовой узор",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "day-routine",
+      "title": "Утро-день-вечер",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "three-frame-story",
+      "title": "История из 3 кадров",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "first-then",
+      "title": "Сначала-потом",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "musical-path",
+      "title": "Музыкальная дорожка",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check",
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "mosaic",
+      "title": "Мозаика",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "shape-dance",
+      "title": "Танец фигур",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "hero-route",
+      "title": "Маршрут героя",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check",
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "soup-recipe",
+      "title": "Рецепт супа",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "fix-picture",
+      "title": "Почини картинку",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check",
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "comic-strip",
+      "title": "Комикс",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "schedule",
+      "title": "Расписание",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "build-bridge",
+      "title": "Строим мост",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check",
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "shelf-sorting",
+      "title": "Сортировка по полкам",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "orchestra",
+      "title": "Оркестр",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check",
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "choose-emotion",
+      "title": "Выбери эмоцию",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "action-who",
+      "title": "Кто что делает?",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "word-categories",
+      "title": "Категории слов",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "i-want",
+      "title": "Я хочу...",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check",
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "want-dont-want",
+      "title": "Хочу / не хочу",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "object-action",
+      "title": "Предмет + действие",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "hurt-good",
+      "title": "Болит / хорошо",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check",
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "where-object",
+      "title": "Где предмет?",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "big-small",
+      "title": "Большой / маленький",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "one-many",
+      "title": "Один / много",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "who-is-this",
+      "title": "Кто это?",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "what-sounds",
+      "title": "Что звучит?",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check",
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "opposites",
+      "title": "Противоположности",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "tell-picture",
+      "title": "Расскажи картинку",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check",
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "what-first",
+      "title": "Что сначала?",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "mini-dialog",
+      "title": "Мини-диалог",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "social-phrases",
+      "title": "Социальные фразы",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check",
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "clock",
+      "title": "Часы",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "calendar",
+      "title": "Календарь",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "coin-counting",
+      "title": "Сложи монетки",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "pizza-fractions",
+      "title": "Доли пиццы",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "scales",
+      "title": "Весы",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "number-line",
+      "title": "Числовая дорожка",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "number-sorting",
+      "title": "Сортировка чисел",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "sudoku-2x2",
+      "title": "Судоку 2x2",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "lines-angles",
+      "title": "Линии и углы",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "simple-graphs",
+      "title": "Простые графики",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "number-bonds",
+      "title": "Состав числа",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "shop",
+      "title": "Магазин",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "coordinates",
+      "title": "Координаты",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "color-shape",
+      "title": "Цвет + форма",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "minesweeper-safe",
+      "title": "Сапёр",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "domino-matching",
+      "title": "Домино: найди сторону",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "calm-2048",
+      "title": "2048 мягкий",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "sliding-puzzle",
+      "title": "Пятнашки 3×3",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "uno-like",
+      "title": "Уно-подобное",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "calm-tetris",
+      "title": "Тетрис спокойный",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "sokoban-large",
+      "title": "Сокобан крупный",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "reversi-light",
+      "title": "Реверси light",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "lines-five",
+      "title": "Lines 5",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "checkers-light",
+      "title": "Шашки light",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "chess-mini",
+      "title": "Chess mini",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "tangram",
+      "title": "Tangram",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "battleship-light",
+      "title": "Морской бой light",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "tanks-no-shooting",
+      "title": "Танчики без стрельбы",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "arkanoid-assist",
+      "title": "Арканоид assist",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "step-pong",
+      "title": "Понг пошаговый",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "calm-snake",
+      "title": "Змейка спокойная",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "pac-path",
+      "title": "Pac-path",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "cursor-magnet",
+      "title": "Курсор-магнит",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "pulsing-target",
+      "title": "Пульсирующая цель",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "boat",
+      "title": "Лодочка",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "gaze-follow-snake",
+      "title": "Змейка gaze-follow",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "gates-path",
+      "title": "Дорожка с воротами",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "smooth-car",
+      "title": "Плавная машинка",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "balloon-ride",
+      "title": "Воздушный шар",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "glider",
+      "title": "Планер",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "line-drawing",
+      "title": "Рисование линией",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "guide-fish",
+      "title": "Рыбка-поводырь",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "rails",
+      "title": "Рельсы",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "balancer",
+      "title": "Балансир",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "catch-wave",
+      "title": "Поймай волну",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "snow-trail",
+      "title": "Снежная тропа",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "robot-vacuum",
+      "title": "Робот-пылесос",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "maze-path",
+      "title": "Лабиринт-дорожка",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "garden-watering",
+      "title": "Садовая лейка",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "space-orbit",
+      "title": "Космическая орбита",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "orchestra-conductor",
+      "title": "Оркестр-дирижёр",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "resolvedStabilityStatus": "needs-check",
+      "blockers": [
+        "stability:needs-check"
+      ]
+    }
+  ],
+  "games": [
+    {
+      "id": "aquarium",
+      "line": 126,
+      "title": "Аквариум",
+      "route": "/games/aquarium",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "smooth-pursuit",
+        "fixation"
+      ],
+      "recommendedSessionSeconds": 88,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1350,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "AquariumGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/aquarium.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/aquarium.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "balloons",
+      "line": 140,
+      "title": "Шарики",
+      "route": "/games/balloons",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 82,
+      "minTargetSizePx": 188,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "BalloonsGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/balloons.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/balloons.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "bells",
+      "line": 154,
+      "title": "Колокольчики",
+      "route": "/games/bells",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "choice",
+        "fixation"
+      ],
+      "recommendedSessionSeconds": 90,
+      "minTargetSizePx": 190,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "BellsGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/bells.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/bells.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "high-five-hands",
+      "line": 168,
+      "title": "Ладошки",
+      "route": "/games/high-five-hands",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 85,
+      "minTargetSizePx": 240,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "HighFiveHandsGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/high-five-hands.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/high-five-hands.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "breathing-flower",
+      "line": 182,
+      "title": "Дышащий цветок",
+      "route": "/games/breathing-flower",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 85,
+      "minTargetSizePx": 220,
+      "defaultDwellMs": 1400,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "BreathingFlowerGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/breathing-flower.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/breathing-flower.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "wake-owl",
+      "line": 196,
+      "title": "Разбуди сову",
+      "route": "/games/wake-owl",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation"
+      ],
+      "recommendedSessionSeconds": 82,
+      "minTargetSizePx": 240,
+      "defaultDwellMs": 1400,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "WakeOwlGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/wake-owl.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/wake-owl.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "clouds",
+      "line": 210,
+      "title": "Облака",
+      "route": "/games/clouds",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 75,
+      "minTargetSizePx": 190,
+      "defaultDwellMs": 1500,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "CloudsGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/clouds.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/clouds.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "leaves-wind",
+      "line": 224,
+      "title": "Листья на ветру",
+      "route": "/games/leaves-wind",
+      "category": "gaze-basics",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "archived",
+      "readinessGroup": "development",
+      "tags": [
+        "hidden-from-menu"
+      ],
+      "skills": [
+        "smooth-pursuit",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 80,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1500,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "LeavesWindGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/leaves-wind.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/leaves-wind.md"
+      },
+      "promotionBlockers": [
+        "stability:archived"
+      ]
+    },
+    {
+      "id": "kite",
+      "line": 239,
+      "title": "Воздушный змей",
+      "route": "/games/kite",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 85,
+      "minTargetSizePx": 190,
+      "defaultDwellMs": 1450,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "KiteGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/kite.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/kite.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "firefly-meadow",
+      "line": 253,
+      "title": "Светлячковая поляна",
+      "route": "/games/firefly-meadow",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 75,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1350,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "FireflyMeadowGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/firefly-meadow.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/firefly-meadow.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "catch-light",
+      "line": 267,
+      "title": "Поймай свет",
+      "route": "/games/catch-light",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 85,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "CatchLightGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/catch-light.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/catch-light.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "starry-sky",
+      "line": 281,
+      "title": "Звёздное небо",
+      "route": "/games/starry-sky",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation",
+        "attention-shift",
+        "sequence"
+      ],
+      "recommendedSessionSeconds": 210,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 1250,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "StarrySkyGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/starry-sky.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/starry-sky.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "magic-dust",
+      "line": 295,
+      "title": "Волшебная пыль",
+      "route": "/games/magic-dust",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 75,
+      "minTargetSizePx": 170,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "MagicDustGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/magic-dust.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/magic-dust.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "light-gallery",
+      "line": 309,
+      "title": "Галерея света",
+      "route": "/games/light-gallery",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 90,
+      "minTargetSizePx": 170,
+      "defaultDwellMs": 1400,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "LightGalleryGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/light-gallery.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/light-gallery.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "soap-circles",
+      "line": 323,
+      "title": "Мыльные круги",
+      "route": "/games/soap-circles",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 85,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "SoapCirclesGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/soap-circles.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/soap-circles.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "northern-lights",
+      "line": 337,
+      "title": "Северное сияние",
+      "route": "/games/northern-lights",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 85,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1400,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "NorthernLightsGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/northern-lights.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/northern-lights.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "sun-rays",
+      "line": 351,
+      "title": "Солнце и лучи",
+      "route": "/games/sun-rays",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation"
+      ],
+      "recommendedSessionSeconds": 80,
+      "minTargetSizePx": 240,
+      "defaultDwellMs": 1400,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "SunRaysGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/sun-rays.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/sun-rays.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "snowflakes",
+      "line": 365,
+      "title": "Снежинки",
+      "route": "/games/snowflakes",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "smooth-pursuit",
+        "fixation"
+      ],
+      "recommendedSessionSeconds": 85,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1400,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "SnowflakesGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/snowflakes.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/snowflakes.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "moon-path",
+      "line": 379,
+      "title": "Лунная дорожка",
+      "route": "/games/moon-path",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 86,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1450,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "MoonPathGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/moon-path.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/moon-path.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "lighthouse",
+      "line": 393,
+      "title": "Маяк",
+      "route": "/games/lighthouse",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation"
+      ],
+      "recommendedSessionSeconds": 95,
+      "minTargetSizePx": 220,
+      "defaultDwellMs": 1400,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "LighthouseGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/lighthouse.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/lighthouse.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "sand-garden",
+      "line": 407,
+      "title": "Песочный сад",
+      "route": "/games/sand-garden",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "smooth-pursuit",
+        "fixation"
+      ],
+      "recommendedSessionSeconds": 84,
+      "minTargetSizePx": 190,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "SandGardenGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/sand-garden.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/sand-garden.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "sea-shells",
+      "line": 421,
+      "title": "Морские ракушки",
+      "route": "/games/sea-shells",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 85,
+      "minTargetSizePx": 200,
+      "defaultDwellMs": 1350,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "SeaShellsGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/sea-shells.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/sea-shells.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "paper-lanterns",
+      "line": 435,
+      "title": "Бумажные фонарики",
+      "route": "/games/paper-lanterns",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 85,
+      "minTargetSizePx": 190,
+      "defaultDwellMs": 1350,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "PaperLanternsGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/paper-lanterns.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/paper-lanterns.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "open-door",
+      "line": 449,
+      "title": "Открой дверцу",
+      "route": "/games/open-door",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 85,
+      "minTargetSizePx": 220,
+      "defaultDwellMs": 1350,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "OpenDoorGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/open-door.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/open-door.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "warm-window",
+      "line": 463,
+      "title": "Тёплое окно",
+      "route": "/games/warm-window",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 80,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1350,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "WarmWindowGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/warm-window.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/warm-window.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "warm-fire",
+      "line": 477,
+      "title": "Тёплый костёр",
+      "route": "/games/warm-fire",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 92,
+      "minTargetSizePx": 210,
+      "defaultDwellMs": 1450,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "WarmFireGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/warm-fire.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/warm-fire.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "big-cards",
+      "line": 491,
+      "title": "Большие карточки",
+      "route": "/games/big-cards",
+      "category": "gaze-basics",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "choice",
+        "fixation"
+      ],
+      "recommendedSessionSeconds": 90,
+      "minTargetSizePx": 220,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "BigCardsGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/big-cards.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/big-cards.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "color-circle",
+      "line": 506,
+      "title": "Цветной круг",
+      "route": "/games/color-circle",
+      "category": "gaze-basics",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "choice",
+        "fixation"
+      ],
+      "recommendedSessionSeconds": 90,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "ColorCircleGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/color-circle.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/color-circle.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "feed-animal",
+      "line": 521,
+      "title": "Покорми зверька",
+      "route": "/games/feed-animal",
+      "category": "gaze-basics",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "choice",
+        "fixation"
+      ],
+      "recommendedSessionSeconds": 90,
+      "minTargetSizePx": 210,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "FeedAnimalGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/feed-animal.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/feed-animal.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "butterfly",
+      "line": 536,
+      "title": "Бабочки",
+      "route": "/games/butterfly",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 60,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 900,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "ButterflyGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/butterfly.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/butterfly.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "flowers",
+      "line": 551,
+      "title": "Цветы",
+      "route": "/games/flowers",
+      "category": "gaze-basics",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation",
+        "attention-shift",
+        "visual-search"
+      ],
+      "recommendedSessionSeconds": 75,
+      "minTargetSizePx": 170,
+      "defaultDwellMs": 1100,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "FlowersGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/flowers.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/flowers.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "quiet-bubbles",
+      "line": 566,
+      "title": "Тихие пузыри",
+      "route": "/games/quiet-bubbles",
+      "category": "gaze-basics",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "fixation",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 75,
+      "minTargetSizePx": 190,
+      "defaultDwellMs": 1200,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "QuietBubblesGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/quiet-bubbles.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/quiet-bubbles.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "ducks",
+      "line": 581,
+      "title": "Утки",
+      "route": "/games/ducks",
+      "category": "gaze-basics",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "visual-search",
+        "fixation",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 60,
+      "minTargetSizePx": 160,
+      "defaultDwellMs": 850,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "DucksGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": true,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/ducks.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/ducks.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "fishes",
+      "line": 596,
+      "title": "Рыбки",
+      "route": "/games/fishes",
+      "category": "gaze-basics",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "smooth-pursuit",
+        "fixation",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 60,
+      "minTargetSizePx": 160,
+      "defaultDwellMs": 850,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "FishesGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": true,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/fishes.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/fishes.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "jellyfish",
+      "line": 611,
+      "title": "Медузы",
+      "route": "/games/jellyfish",
+      "category": "gaze-basics",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "smooth-pursuit",
+        "fixation"
+      ],
+      "recommendedSessionSeconds": 85,
+      "minTargetSizePx": 165,
+      "defaultDwellMs": 1450,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "JellyfishGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/jellyfish.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/jellyfish.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "frog",
+      "line": 626,
+      "title": "Жаба",
+      "route": "/games/frog",
+      "category": "gaze-basics",
+      "status": "polished",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "attention-shift",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 90,
+      "minTargetSizePx": 140,
+      "defaultDwellMs": 900,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "FrogGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": true,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/frog.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/frog.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "hide-and-seek",
+      "line": 641,
+      "title": "Прятки",
+      "route": "/games/hide-and-seek",
+      "category": "visual-search",
+      "status": "polished",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "visual-search",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 130,
+      "defaultDwellMs": 1200,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "HideAndSeekGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/hide-and-seek.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/hide-and-seek.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "who-hiding",
+      "line": 656,
+      "title": "Кто спрятался?",
+      "route": "/games/who-hiding",
+      "category": "visual-search",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "visual-search",
+        "attention-shift",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 170,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "WhoHidingGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/who-hiding.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/who-hiding.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "find-color",
+      "line": 671,
+      "title": "Найди цвет",
+      "route": "/games/find-color",
+      "category": "visual-search",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "visual-search",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1200,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "FindColorGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/find-color.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/find-color.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "find-shape",
+      "line": 685,
+      "title": "Найди форму",
+      "route": "/games/find-shape",
+      "category": "visual-search",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "visual-search",
+        "choice",
+        "classification"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 210,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "FindShapeGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/find-shape.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/find-shape.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "match-same",
+      "line": 700,
+      "title": "Где такой же?",
+      "route": "/games/match-same",
+      "category": "visual-search",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "visual-search",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1200,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "MatchSameGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/match-same.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/match-same.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "what-missing",
+      "line": 714,
+      "title": "Что пропало?",
+      "route": "/games/what-missing",
+      "category": "visual-search",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "visual-search",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 210,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "WhatMissingGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/what-missing.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/what-missing.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "follow-cue",
+      "line": 728,
+      "title": "Следуй за подсказкой",
+      "route": "/games/follow-cue",
+      "category": "visual-search",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "visual-search",
+        "attention-shift",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 200,
+      "defaultDwellMs": 1250,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "FollowCueGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/follow-cue.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/follow-cue.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "find-letter",
+      "line": 743,
+      "title": "Найди букву",
+      "route": "/games/find-letter",
+      "category": "visual-search",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "visual-search",
+        "choice",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 200,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "FindLetterGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/find-letter.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/find-letter.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "find-digit",
+      "line": 758,
+      "title": "Найди цифру",
+      "route": "/games/find-digit",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "counting",
+        "choice",
+        "visual-search"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 200,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "FindDigitGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/find-digit.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/find-digit.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "logic-pairs",
+      "line": 773,
+      "title": "Логические пары",
+      "route": "/games/logic-pairs",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "choice",
+        "classification",
+        "visual-search"
+      ],
+      "recommendedSessionSeconds": 130,
+      "minTargetSizePx": 200,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "LogicPairsGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/logic-pairs.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/logic-pairs.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "shadow-match",
+      "line": 788,
+      "title": "Тень и предмет",
+      "route": "/games/shadow-match",
+      "category": "visual-search",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "visual-search",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 210,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "ShadowMatchGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/shadow-match.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/shadow-match.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "sound-source",
+      "line": 803,
+      "title": "Где звук?",
+      "route": "/games/sound-source",
+      "category": "visual-search",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "visual-search",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 200,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "SoundSourceGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/sound-source.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/sound-source.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "odd-one-out",
+      "line": 818,
+      "title": "Что лишнее?",
+      "route": "/games/odd-one-out",
+      "category": "visual-search",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "classification",
+        "choice",
+        "visual-search"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 200,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "OddOneOutGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/odd-one-out.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/odd-one-out.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "find-emotion",
+      "line": 833,
+      "title": "Найди эмоцию",
+      "route": "/games/find-emotion",
+      "category": "visual-search",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "visual-search",
+        "choice",
+        "aac"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 200,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "FindEmotionGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/find-emotion.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/find-emotion.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "letter-hunt",
+      "line": 848,
+      "title": "Охота на буквы",
+      "route": "/games/letter-hunt",
+      "category": "visual-search",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "visual-search",
+        "attention-shift",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1250,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "LetterHuntGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/letter-hunt.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/letter-hunt.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "find-animal",
+      "line": 863,
+      "title": "Найди животное",
+      "route": "/games/find-animal",
+      "category": "visual-search",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "visual-search",
+        "choice",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 200,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "FindAnimalGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/find-animal.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/find-animal.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "memory-cards",
+      "line": 878,
+      "title": "Пары",
+      "route": "/games/memory-cards",
+      "category": "visual-search",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "visual-search",
+        "choice",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 180,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "MemoryCardsGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/memory-cards.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/memory-cards.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "gaze-maze",
+      "line": 893,
+      "title": "Лабиринт взгляда-указателя",
+      "route": "/games/gaze-maze",
+      "category": "visual-search",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "visual-search",
+        "attention-shift",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 170,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "GazeMazeGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/gaze-maze.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/gaze-maze.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "build-robot",
+      "line": 908,
+      "title": "Собери роботика",
+      "route": "/games/build-robot",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "sequence",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 135,
+      "minTargetSizePx": 170,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "BuildRobotGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/build-robot.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/build-robot.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "pyramid",
+      "line": 923,
+      "title": "Пирамидка",
+      "route": "/games/pyramid",
+      "category": "sequencing",
+      "status": "polished",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "sequence",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 120,
+      "defaultDwellMs": 1200,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "PyramidGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/pyramid.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/pyramid.md"
+      },
+      "promotionBlockers": [
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "dress-character",
+      "line": 938,
+      "title": "Одень персонажа",
+      "route": "/games/dress-character",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "sequence",
+        "choice",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 130,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "DressCharacterGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/dress-character.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/dress-character.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check",
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "train-sequence",
+      "line": 952,
+      "title": "Поезд",
+      "route": "/games/train-sequence",
+      "category": "sequencing",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "sequence",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 1200,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "TrainSequenceGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/train-sequence.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/train-sequence.md"
+      },
+      "promotionBlockers": [
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "sandwich",
+      "line": 966,
+      "title": "Бутерброд",
+      "route": "/games/sandwich",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "sequence",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 130,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "SandwichGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/sandwich.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/sandwich.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "patterns",
+      "line": 980,
+      "title": "Паттерны",
+      "route": "/games/patterns",
+      "category": "sequencing",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "sequence",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 1200,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "PatternsGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/patterns.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/patterns.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "color-pattern",
+      "line": 994,
+      "title": "Цветовой узор",
+      "route": "/games/color-pattern",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "sequence",
+        "choice",
+        "classification"
+      ],
+      "recommendedSessionSeconds": 130,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "ColorPatternGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/color-pattern.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/color-pattern.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "day-routine",
+      "line": 1008,
+      "title": "Утро-день-вечер",
+      "route": "/games/day-routine",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "sequence",
+        "choice",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 130,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "DayRoutineGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/day-routine.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/day-routine.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "three-frame-story",
+      "line": 1022,
+      "title": "История из 3 кадров",
+      "route": "/games/three-frame-story",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "sequence",
+        "choice",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 140,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "ThreeFrameStoryGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/three-frame-story.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/three-frame-story.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "first-then",
+      "line": 1036,
+      "title": "Сначала-потом",
+      "route": "/games/first-then",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "sequence",
+        "choice",
+        "aac"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "FirstThenGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/first-then.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/first-then.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "musical-path",
+      "line": 1050,
+      "title": "Музыкальная дорожка",
+      "route": "/games/musical-path",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "sequence",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 130,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1250,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "MusicalPathGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/musical-path.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/musical-path.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check",
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "mosaic",
+      "line": 1064,
+      "title": "Мозаика",
+      "route": "/games/mosaic",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "sequence",
+        "choice",
+        "classification"
+      ],
+      "recommendedSessionSeconds": 140,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "MosaicGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/mosaic.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/mosaic.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "shape-dance",
+      "line": 1078,
+      "title": "Танец фигур",
+      "route": "/games/shape-dance",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "sequence",
+        "choice",
+        "visual-search"
+      ],
+      "recommendedSessionSeconds": 130,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1250,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "ShapeDanceGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/shape-dance.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/shape-dance.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "hero-route",
+      "line": 1092,
+      "title": "Маршрут героя",
+      "route": "/games/hero-route",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "sequence",
+        "choice",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 135,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "HeroRouteGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/hero-route.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/hero-route.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check",
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "soup-recipe",
+      "line": 1106,
+      "title": "Рецепт супа",
+      "route": "/games/soup-recipe",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "sequence",
+        "choice",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 135,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "SoupRecipeGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/soup-recipe.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/soup-recipe.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "fix-picture",
+      "line": 1120,
+      "title": "Почини картинку",
+      "route": "/games/fix-picture",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "sequence",
+        "choice",
+        "visual-search"
+      ],
+      "recommendedSessionSeconds": 130,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "FixPictureGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/fix-picture.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/fix-picture.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check",
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "comic-strip",
+      "line": 1134,
+      "title": "Комикс",
+      "route": "/games/comic-strip",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "sequence",
+        "choice",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 140,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "ComicStripGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/comic-strip.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/comic-strip.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "schedule",
+      "line": 1148,
+      "title": "Расписание",
+      "route": "/games/schedule",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "sequence",
+        "choice",
+        "aac"
+      ],
+      "recommendedSessionSeconds": 140,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "ScheduleGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/schedule.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/schedule.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "build-bridge",
+      "line": 1162,
+      "title": "Строим мост",
+      "route": "/games/build-bridge",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "sequence",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 135,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "BuildBridgeGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/build-bridge.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/build-bridge.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check",
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "shelf-sorting",
+      "line": 1176,
+      "title": "Сортировка по полкам",
+      "route": "/games/shelf-sorting",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "sequence",
+        "choice",
+        "classification"
+      ],
+      "recommendedSessionSeconds": 135,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "ShelfSortingGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/shelf-sorting.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/shelf-sorting.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "orchestra",
+      "line": 1190,
+      "title": "Оркестр",
+      "route": "/games/orchestra",
+      "category": "sequencing",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "sequence",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 135,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "OrchestraGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/orchestra.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/orchestra.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check",
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "choose-emotion",
+      "line": 1204,
+      "title": "Выбери эмоцию",
+      "route": "/games/choose-emotion",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "aac",
+        "choice",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 220,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "ChooseEmotionGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/choose-emotion.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/choose-emotion.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "choose-picture",
+      "line": 1218,
+      "title": "Выбери картинку",
+      "route": "/games/choose-picture",
+      "category": "language-aac",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "aac",
+        "vocabulary",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1200,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "ChoosePictureGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/choose-picture.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/choose-picture.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "action-who",
+      "line": 1232,
+      "title": "Кто что делает?",
+      "route": "/games/action-who",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "aac",
+        "choice",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "ActionWhoGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/action-who.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/action-who.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "eat-or-not-eat",
+      "line": 1246,
+      "title": "Съедобное",
+      "route": "/games/eat-or-not-eat",
+      "category": "language-aac",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "classification",
+        "aac",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1200,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "EatOrNotEatGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/eat-or-not-eat.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/eat-or-not-eat.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "word-categories",
+      "line": 1260,
+      "title": "Категории слов",
+      "route": "/games/word-categories",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "aac",
+        "choice",
+        "classification",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 125,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "WordCategoriesGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/word-categories.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/word-categories.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "yes-no",
+      "line": 1274,
+      "title": "Да / нет",
+      "route": "/games/yes-no",
+      "category": "language-aac",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "aac",
+        "choice",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "YesNoGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/yes-no.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/yes-no.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "i-want",
+      "line": 1288,
+      "title": "Я хочу...",
+      "route": "/games/i-want",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "aac",
+        "choice",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 220,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "IWantGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/i-want.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/i-want.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check",
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "want-dont-want",
+      "line": 1302,
+      "title": "Хочу / не хочу",
+      "route": "/games/want-dont-want",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "aac",
+        "choice",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 220,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "WantDontWantGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/want-dont-want.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/want-dont-want.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "object-action",
+      "line": 1316,
+      "title": "Предмет + действие",
+      "route": "/games/object-action",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "aac",
+        "choice",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 125,
+      "minTargetSizePx": 190,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "ObjectActionGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/object-action.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/object-action.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "hurt-good",
+      "line": 1330,
+      "title": "Болит / хорошо",
+      "route": "/games/hurt-good",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "aac",
+        "choice",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 220,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "HurtGoodGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/hurt-good.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/hurt-good.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check",
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "where-object",
+      "line": 1344,
+      "title": "Где предмет?",
+      "route": "/games/where-object",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "aac",
+        "choice",
+        "vocabulary",
+        "visual-search"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 190,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "WhereObjectGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/where-object.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/where-object.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "big-small",
+      "line": 1358,
+      "title": "Большой / маленький",
+      "route": "/games/big-small",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "aac",
+        "choice",
+        "classification",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 200,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "BigSmallGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/big-small.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/big-small.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "one-many",
+      "line": 1372,
+      "title": "Один / много",
+      "route": "/games/one-many",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "aac",
+        "choice",
+        "counting",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 200,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "OneManyGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/one-many.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/one-many.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "who-is-this",
+      "line": 1386,
+      "title": "Кто это?",
+      "route": "/games/who-is-this",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "aac",
+        "choice",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 190,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "WhoIsThisGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/who-is-this.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/who-is-this.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "what-sounds",
+      "line": 1400,
+      "title": "Что звучит?",
+      "route": "/games/what-sounds",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "aac",
+        "choice",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 190,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "WhatSoundsGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/what-sounds.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/what-sounds.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check",
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "opposites",
+      "line": 1414,
+      "title": "Противоположности",
+      "route": "/games/opposites",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "aac",
+        "choice",
+        "vocabulary",
+        "classification"
+      ],
+      "recommendedSessionSeconds": 125,
+      "minTargetSizePx": 190,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "OppositesGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/opposites.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/opposites.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "tell-picture",
+      "line": 1428,
+      "title": "Расскажи картинку",
+      "route": "/games/tell-picture",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "aac",
+        "choice",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 135,
+      "minTargetSizePx": 190,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "TellPictureGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/tell-picture.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/tell-picture.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check",
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "what-first",
+      "line": 1442,
+      "title": "Что сначала?",
+      "route": "/games/what-first",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "aac",
+        "choice",
+        "sequence",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 125,
+      "minTargetSizePx": 190,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "WhatFirstGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/what-first.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/what-first.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "mini-dialog",
+      "line": 1456,
+      "title": "Мини-диалог",
+      "route": "/games/mini-dialog",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "aac",
+        "choice",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 135,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1350,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "MiniDialogGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/mini-dialog.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/mini-dialog.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "social-phrases",
+      "line": 1470,
+      "title": "Социальные фразы",
+      "route": "/games/social-phrases",
+      "category": "language-aac",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "aac",
+        "choice",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 125,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "SocialPhrasesGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/social-phrases.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/social-phrases.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check",
+        "rules-not-extracted-to-model"
+      ]
+    },
+    {
+      "id": "type-word",
+      "line": 1484,
+      "title": "Печать слов",
+      "route": "/games/type-word",
+      "category": "language-aac",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "typing",
+        "vocabulary",
+        "sequence"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 96,
+      "defaultDwellMs": 1200,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "TypeWordGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/type-word.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/type-word.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "clock",
+      "line": 1498,
+      "title": "Часы",
+      "route": "/games/clock",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "counting",
+        "choice",
+        "math"
+      ],
+      "recommendedSessionSeconds": 130,
+      "minTargetSizePx": 170,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "ClockGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/clock.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/clock.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "calendar",
+      "line": 1512,
+      "title": "Календарь",
+      "route": "/games/calendar",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "choice",
+        "sequence",
+        "vocabulary"
+      ],
+      "recommendedSessionSeconds": 130,
+      "minTargetSizePx": 190,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "CalendarGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/calendar.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/calendar.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "count-items",
+      "line": 1526,
+      "title": "Счёт",
+      "route": "/games/count-items",
+      "category": "numeracy",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "counting",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 160,
+      "defaultDwellMs": 1200,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "CountItemsGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/count-items.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/count-items.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "coin-counting",
+      "line": 1540,
+      "title": "Сложи монетки",
+      "route": "/games/coin-counting",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "counting",
+        "math",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 140,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "CoinCountingGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/coin-counting.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/coin-counting.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "pizza-fractions",
+      "line": 1554,
+      "title": "Доли пиццы",
+      "route": "/games/pizza-fractions",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "math",
+        "choice",
+        "classification"
+      ],
+      "recommendedSessionSeconds": 130,
+      "minTargetSizePx": 190,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "PizzaFractionsGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/pizza-fractions.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/pizza-fractions.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "greater-less",
+      "line": 1568,
+      "title": "Больше / меньше",
+      "route": "/games/greater-less",
+      "category": "numeracy",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "counting",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 160,
+      "defaultDwellMs": 1200,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "GreaterLessGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/greater-less.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/greater-less.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "scales",
+      "line": 1582,
+      "title": "Весы",
+      "route": "/games/scales",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "counting",
+        "math",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 125,
+      "minTargetSizePx": 170,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "ScalesGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/scales.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/scales.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "number-line",
+      "line": 1596,
+      "title": "Числовая дорожка",
+      "route": "/games/number-line",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "counting",
+        "choice",
+        "sequence"
+      ],
+      "recommendedSessionSeconds": 130,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "NumberLineGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/number-line.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/number-line.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "number-sorting",
+      "line": 1610,
+      "title": "Сортировка чисел",
+      "route": "/games/number-sorting",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "counting",
+        "choice",
+        "sequence"
+      ],
+      "recommendedSessionSeconds": 130,
+      "minTargetSizePx": 190,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "NumberSortingGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/number-sorting.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/number-sorting.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "sudoku-2x2",
+      "line": 1624,
+      "title": "Судоку 2x2",
+      "route": "/games/sudoku-2x2",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "counting",
+        "choice",
+        "math"
+      ],
+      "recommendedSessionSeconds": 130,
+      "minTargetSizePx": 170,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "Sudoku2x2Game.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/sudoku-2x2.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/sudoku-2x2.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "lines-angles",
+      "line": 1638,
+      "title": "Линии и углы",
+      "route": "/games/lines-angles",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "choice",
+        "classification",
+        "visual-search"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "LinesAnglesGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/lines-angles.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/lines-angles.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "simple-graphs",
+      "line": 1652,
+      "title": "Простые графики",
+      "route": "/games/simple-graphs",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "counting",
+        "math",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 130,
+      "minTargetSizePx": 170,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "SimpleGraphsGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/simple-graphs.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/simple-graphs.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "number-bonds",
+      "line": 1666,
+      "title": "Состав числа",
+      "route": "/games/number-bonds",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "counting",
+        "math",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 130,
+      "minTargetSizePx": 170,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "NumberBondsGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/number-bonds.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/number-bonds.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "shop",
+      "line": 1680,
+      "title": "Магазин",
+      "route": "/games/shop",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "counting",
+        "math",
+        "choice"
+      ],
+      "recommendedSessionSeconds": 140,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "ShopGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/shop.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/shop.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "coordinates",
+      "line": 1694,
+      "title": "Координаты",
+      "route": "/games/coordinates",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "visual-search",
+        "choice",
+        "math"
+      ],
+      "recommendedSessionSeconds": 130,
+      "minTargetSizePx": 160,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "CoordinatesGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/coordinates.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/coordinates.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "shapes",
+      "line": 1708,
+      "title": "Формы",
+      "route": "/games/shapes",
+      "category": "numeracy",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "choice",
+        "classification"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1200,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "ShapesGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/shapes.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/shapes.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "color-shape",
+      "line": 1722,
+      "title": "Цвет + форма",
+      "route": "/games/color-shape",
+      "category": "numeracy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "choice",
+        "classification",
+        "visual-search"
+      ],
+      "recommendedSessionSeconds": 125,
+      "minTargetSizePx": 190,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "ColorShapeGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/color-shape.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/color-shape.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "math-actions",
+      "line": 1736,
+      "title": "Математика. Операции",
+      "route": "/games/math-actions",
+      "category": "numeracy",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "math",
+        "typing"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 96,
+      "defaultDwellMs": 1200,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "MathActionsGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/math-actions.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/math-actions.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "minesweeper-safe",
+      "line": 1750,
+      "title": "Сапёр",
+      "route": "/games/minesweeper-safe",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "choice",
+        "visual-search",
+        "sequence"
+      ],
+      "recommendedSessionSeconds": 180,
+      "minTargetSizePx": 112,
+      "defaultDwellMs": 1200,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "MinesweeperSafeGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/minesweeper-safe.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/minesweeper-safe.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "domino-matching",
+      "line": 1764,
+      "title": "Домино: найди сторону",
+      "route": "/games/domino-matching",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "counting",
+        "choice",
+        "classification"
+      ],
+      "recommendedSessionSeconds": 180,
+      "minTargetSizePx": 148,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "DominoMatchingGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/domino-matching.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/domino-matching.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "calm-2048",
+      "line": 1778,
+      "title": "2048 мягкий",
+      "route": "/games/calm-2048",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "choice",
+        "sequence",
+        "counting"
+      ],
+      "recommendedSessionSeconds": 180,
+      "minTargetSizePx": 132,
+      "defaultDwellMs": 1100,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "Calm2048Game.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/calm-2048.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/calm-2048.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "sliding-puzzle",
+      "line": 1792,
+      "title": "Пятнашки 3×3",
+      "route": "/games/sliding-puzzle",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "choice",
+        "sequence",
+        "visual-search"
+      ],
+      "recommendedSessionSeconds": 180,
+      "minTargetSizePx": 132,
+      "defaultDwellMs": 1200,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "SlidingPuzzleGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/sliding-puzzle.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/sliding-puzzle.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "uno-like",
+      "line": 1806,
+      "title": "Уно-подобное",
+      "route": "/games/uno-like",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "choice",
+        "classification",
+        "sequence"
+      ],
+      "recommendedSessionSeconds": 180,
+      "minTargetSizePx": 160,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "UnoLikeGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/uno-like.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/uno-like.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "calm-tetris",
+      "line": 1820,
+      "title": "Тетрис спокойный",
+      "route": "/games/calm-tetris",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "choice",
+        "sequence"
+      ],
+      "recommendedSessionSeconds": 180,
+      "minTargetSizePx": 116,
+      "defaultDwellMs": 1100,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "CalmTetrisGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/calm-tetris.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/calm-tetris.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "sokoban-large",
+      "line": 1834,
+      "title": "Сокобан крупный",
+      "route": "/games/sokoban-large",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "choice",
+        "sequence"
+      ],
+      "recommendedSessionSeconds": 180,
+      "minTargetSizePx": 148,
+      "defaultDwellMs": 1200,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "SokobanLargeGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/sokoban-large.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/sokoban-large.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "tic-tac-toe",
+      "line": 1848,
+      "title": "Крестики-нолики",
+      "route": "/games/tic-tac-toe",
+      "category": "strategy",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "choice",
+        "sequence",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 180,
+      "minTargetSizePx": 128,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "TicTacToeGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/tic-tac-toe.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/tic-tac-toe.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "connect-four",
+      "line": 1862,
+      "title": "4 в ряд",
+      "route": "/games/connect-four",
+      "category": "strategy",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "choice",
+        "sequence",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 180,
+      "minTargetSizePx": 140,
+      "defaultDwellMs": 1450,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "ConnectFourGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/connect-four.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/connect-four.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "reversi-light",
+      "line": 1876,
+      "title": "Реверси light",
+      "route": "/games/reversi-light",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "choice",
+        "sequence",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 180,
+      "minTargetSizePx": 126,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "ReversiLightGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/reversi-light.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/reversi-light.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "lines-five",
+      "line": 1890,
+      "title": "Lines 5",
+      "route": "/games/lines-five",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "choice",
+        "sequence",
+        "visual-search"
+      ],
+      "recommendedSessionSeconds": 180,
+      "minTargetSizePx": 104,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "LinesFiveGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/lines-five.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/lines-five.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "checkers-light",
+      "line": 1904,
+      "title": "Шашки light",
+      "route": "/games/checkers-light",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "choice",
+        "sequence",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 180,
+      "minTargetSizePx": 126,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "CheckersLightGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/checkers-light.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/checkers-light.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "chess-mini",
+      "line": 1918,
+      "title": "Chess mini",
+      "route": "/games/chess-mini",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "choice",
+        "sequence",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 180,
+      "minTargetSizePx": 126,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "ChessMiniGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/chess-mini.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/chess-mini.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "tangram",
+      "line": 1932,
+      "title": "Tangram",
+      "route": "/games/tangram",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "choice",
+        "classification",
+        "visual-search"
+      ],
+      "recommendedSessionSeconds": 180,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "TangramGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/tangram.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/tangram.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "battleship-light",
+      "line": 1946,
+      "title": "Морской бой light",
+      "route": "/games/battleship-light",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "choice",
+        "visual-search"
+      ],
+      "recommendedSessionSeconds": 180,
+      "minTargetSizePx": 130,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "BattleshipLightGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/battleship-light.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/battleship-light.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "tanks-no-shooting",
+      "line": 1960,
+      "title": "Танчики без стрельбы",
+      "route": "/games/tanks-no-shooting",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "choice",
+        "sequence"
+      ],
+      "recommendedSessionSeconds": 180,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "TanksNoShootingGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/tanks-no-shooting.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/tanks-no-shooting.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "arkanoid-assist",
+      "line": 1974,
+      "title": "Арканоид assist",
+      "route": "/games/arkanoid-assist",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "choice",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 180,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 1200,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "ArkanoidAssistGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/arkanoid-assist.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/arkanoid-assist.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "step-pong",
+      "line": 1988,
+      "title": "Понг пошаговый",
+      "route": "/games/step-pong",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "choice",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 180,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 1200,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "StepPongGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/step-pong.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/step-pong.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "calm-snake",
+      "line": 2002,
+      "title": "Змейка спокойная",
+      "route": "/games/calm-snake",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "choice",
+        "sequence",
+        "attention-shift"
+      ],
+      "recommendedSessionSeconds": 165,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 1100,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "CalmSnakeGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/calm-snake.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/calm-snake.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "pac-path",
+      "line": 2016,
+      "title": "Pac-path",
+      "route": "/games/pac-path",
+      "category": "strategy",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "choice",
+        "sequence",
+        "visual-search"
+      ],
+      "recommendedSessionSeconds": 180,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 1300,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "PacPathGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/pac-path.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/pac-path.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "cursor-magnet",
+      "line": 2030,
+      "title": "Курсор-магнит",
+      "route": "/games/cursor-magnet",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "continuous-control",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 150,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 600,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "CursorMagnetGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/cursor-magnet.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/cursor-magnet.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "pulsing-target",
+      "line": 2044,
+      "title": "Пульсирующая цель",
+      "route": "/games/pulsing-target",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "continuous-control",
+        "smooth-pursuit",
+        "fixation"
+      ],
+      "recommendedSessionSeconds": 150,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 900,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "PulsingTargetGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/pulsing-target.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/pulsing-target.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "boat",
+      "line": 2058,
+      "title": "Лодочка",
+      "route": "/games/boat",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "continuous-control",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 135,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 500,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "BoatGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/boat.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/boat.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "gaze-follow-snake",
+      "line": 2072,
+      "title": "Змейка gaze-follow",
+      "route": "/games/gaze-follow-snake",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "continuous-control",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 150,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 600,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "GazeFollowSnakeGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/gaze-follow-snake.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/gaze-follow-snake.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "table-tennis",
+      "line": 2086,
+      "title": "Теннис",
+      "route": "/games/table-tennis",
+      "category": "continuous-control",
+      "status": "polished",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
+      "tags": [],
+      "skills": [
+        "continuous-control",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 90,
+      "minTargetSizePx": 160,
+      "defaultDwellMs": 1000,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "TableTennisGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": true,
+        "hasScene": true,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/table-tennis.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/table-tennis.md"
+      },
+      "promotionBlockers": []
+    },
+    {
+      "id": "gates-path",
+      "line": 2100,
+      "title": "Дорожка с воротами",
+      "route": "/games/gates-path",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "continuous-control",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 150,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 600,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "GatesPathGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/gates-path.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/gates-path.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "smooth-car",
+      "line": 2114,
+      "title": "Плавная машинка",
+      "route": "/games/smooth-car",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "continuous-control",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 150,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 600,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "SmoothCarGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/smooth-car.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/smooth-car.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "balloon-ride",
+      "line": 2128,
+      "title": "Воздушный шар",
+      "route": "/games/balloon-ride",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "continuous-control",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 150,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 600,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "BalloonRideGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/balloon-ride.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/balloon-ride.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "glider",
+      "line": 2142,
+      "title": "Планер",
+      "route": "/games/glider",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "continuous-control",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 150,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 600,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "GliderGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/glider.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/glider.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "line-drawing",
+      "line": 2156,
+      "title": "Рисование линией",
+      "route": "/games/line-drawing",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "continuous-control",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 150,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 600,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "LineDrawingGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/line-drawing.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/line-drawing.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "guide-fish",
+      "line": 2170,
+      "title": "Рыбка-поводырь",
+      "route": "/games/guide-fish",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "continuous-control",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 150,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 600,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "GuideFishGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/guide-fish.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/guide-fish.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "rails",
+      "line": 2184,
+      "title": "Рельсы",
+      "route": "/games/rails",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "continuous-control",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 150,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 700,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "RailsGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/rails.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/rails.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "balancer",
+      "line": 2198,
+      "title": "Балансир",
+      "route": "/games/balancer",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "continuous-control",
+        "smooth-pursuit",
+        "fixation"
+      ],
+      "recommendedSessionSeconds": 150,
+      "minTargetSizePx": 170,
+      "defaultDwellMs": 600,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "BalancerGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/balancer.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/balancer.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "catch-wave",
+      "line": 2212,
+      "title": "Поймай волну",
+      "route": "/games/catch-wave",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "continuous-control",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 150,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 600,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "CatchWaveGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/catch-wave.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/catch-wave.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "snow-trail",
+      "line": 2226,
+      "title": "Снежная тропа",
+      "route": "/games/snow-trail",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "continuous-control",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 150,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 600,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "SnowTrailGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/snow-trail.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/snow-trail.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "robot-vacuum",
+      "line": 2240,
+      "title": "Робот-пылесос",
+      "route": "/games/robot-vacuum",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "continuous-control",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 150,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 600,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "RobotVacuumGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/robot-vacuum.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/robot-vacuum.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "maze-path",
+      "line": 2254,
+      "title": "Лабиринт-дорожка",
+      "route": "/games/maze-path",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "continuous-control",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 180,
+      "defaultDwellMs": 1000,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "MazePathGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/maze-path.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/maze-path.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "garden-watering",
+      "line": 2268,
+      "title": "Садовая лейка",
+      "route": "/games/garden-watering",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "continuous-control",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 120,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 1200,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "GardenWateringGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/garden-watering.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/garden-watering.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "space-orbit",
+      "line": 2282,
+      "title": "Космическая орбита",
+      "route": "/games/space-orbit",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "continuous-control",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 150,
+      "minTargetSizePx": 150,
+      "defaultDwellMs": 600,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "SpaceOrbitGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": false,
+        "hasModelTest": false,
+        "hasAudio": false,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/space-orbit.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/space-orbit.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    },
+    {
+      "id": "orchestra-conductor",
+      "line": 2296,
+      "title": "Оркестр-дирижёр",
+      "route": "/games/orchestra-conductor",
+      "category": "continuous-control",
+      "status": "therapy-ready",
+      "explicitStabilityStatus": null,
+      "resolvedStabilityStatus": "needs-check",
+      "readinessGroup": "development",
+      "tags": [],
+      "skills": [
+        "continuous-control",
+        "smooth-pursuit"
+      ],
+      "recommendedSessionSeconds": 150,
+      "minTargetSizePx": 156,
+      "defaultDwellMs": 600,
+      "signals": {
+        "routeExists": true,
+        "gameDirExists": true,
+        "vueFiles": [
+          "OrchestraConductorGame.vue"
+        ],
+        "hasVueComponent": true,
+        "hasModel": true,
+        "hasModelTest": true,
+        "hasAudio": true,
+        "hasScene": false,
+        "hasGameDoc": true,
+        "gameDocPath": "docs/games/orchestra-conductor.md",
+        "hasRuntimeAuditDoc": true,
+        "runtimeAuditDocPath": "docs/tests/2026-06-10/orchestra-conductor.md"
+      },
+      "promotionBlockers": [
+        "stability:needs-check"
+      ]
+    }
+  ]
+}

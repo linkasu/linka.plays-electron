@@ -1,3 +1,5 @@
+import { sampleItems as sampleCoreItems, shuffleItems as shuffleCoreItems } from "../core/random";
+
 export type WordItem = {
   id: string;
   word: string;
@@ -182,24 +184,11 @@ export function getWordsByLength(min: number, max: number) {
 }
 
 export function sampleItems<T>(items: T[], count: number, exclude: T[] = []) {
-  const excluded = new Set(exclude);
-  const pool = items.filter((item) => !excluded.has(item));
-  const result: T[] = [];
-  while (pool.length && result.length < count) {
-    const index = Math.floor(Math.random() * pool.length);
-    const [item] = pool.splice(index, 1);
-    result.push(item);
-  }
-  return result;
+  return sampleCoreItems(items, count, exclude);
 }
 
 export function shuffleItems<T>(items: T[]) {
-  const result = [...items];
-  for (let index = result.length - 1; index > 0; index--) {
-    const swapIndex = Math.floor(Math.random() * (index + 1));
-    [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
-  }
-  return result;
+  return shuffleCoreItems(items);
 }
 
 export function validateWordBank(items = wordBank) {

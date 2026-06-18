@@ -1,3 +1,3 @@
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 
-export const findDigitFeedback = createStandardGameFeedback();
+export const sandwichFeedback = createStandardGameFeedback();

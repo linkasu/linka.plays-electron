@@ -1,15 +1,11 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useRouter } from "vue-router";
-import GameHud from "../../components/game/GameHud.vue";
-import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameSessionChrome from "../../components/game/GameSessionChrome.vue";
 import GameSquareChoiceGrid, { type GameSquareChoice } from "../../components/game/GameSquareChoiceGrid.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
-import { resolveMenuRoute } from "../../core/menuMode";
 import { formatClockHour, generateClockRound } from "./model";
 
-const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("clock", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 130 },
@@ -73,8 +69,7 @@ function restartGame() {
 </script>
 
 <template>
-  <div class="clock-shell">
-    <GameHud title="Часы" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+  <GameSessionChrome title="Часы" :session="session" :result-visible="resultVisible" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" gradient="linear-gradient(135deg, #fff7e7 0%, #e7f5ff 100%)" padding-top="9.75rem" @pause="pauseSession" @resume="resumeSession" @restart="restartGame">
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11">
@@ -103,19 +98,12 @@ function restartGame() {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Часы" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restartGame" />
-  </div>
+  </GameSessionChrome>
 </template>
 
 <style scoped>
-.clock-shell {
-  background: linear-gradient(135deg, #fff7e7 0%, #e7f5ff 100%);
-  min-block-size: 100vh;
-}
-
 .game-container {
   padding-block-end: 0;
-  padding-block-start: 9.75rem;
 }
 
 .clock-choice {

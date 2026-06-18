@@ -1,44 +1,46 @@
 import { describe, expect, it } from "vitest";
-import { buildSandwichSteps } from "./model";
+import { buildSandwichSteps, isSandwichRecipeCompleteStep, sandwichChoices, sandwichMaxSteps, sandwichRecipes } from "./model";
 
 describe("sandwich model", () => {
-  it("builds the default six-step therapy sequence", () => {
+  it("builds two complete recipe sequences", () => {
     const steps = buildSandwichSteps();
 
-    expect(steps).toHaveLength(6);
-    expect(steps.map((step) => step.kind)).toEqual(["bread", "filling", "top-bread", "bread", "filling", "top-bread"]);
-  });
-
-  it("keeps generated sessions in the supported six to eight step range", () => {
-    expect(buildSandwichSteps(4)).toHaveLength(6);
-    expect(buildSandwichSteps(7)).toHaveLength(7);
-    expect(buildSandwichSteps(12)).toHaveLength(8);
-  });
-
-  it("uses stable telemetry ids and round ids", () => {
-    const steps = buildSandwichSteps(8);
-
-    expect(steps.map((step) => step.id)).toEqual([
-      "sandwich-step-1",
-      "sandwich-step-2",
-      "sandwich-step-3",
-      "sandwich-step-4",
-      "sandwich-step-5",
-      "sandwich-step-6",
-      "sandwich-step-7",
-      "sandwich-step-8"
+    expect(steps).toHaveLength(10);
+    expect(sandwichMaxSteps()).toBe(10);
+    expect(steps.map((step) => step.choice.id)).toEqual([
+      "bottom-bread",
+      "butter",
+      "cheese",
+      "lettuce",
+      "top-bread",
+      "bottom-bread",
+      "butter",
+      "tomato",
+      "cheese",
+      "top-bread"
     ]);
-    expect(steps[4].roundId).toBe("sandwich:round:5");
   });
 
-  it("starts every sandwich with bread before filling and top bread", () => {
-    const steps = buildSandwichSteps(8);
+  it("keeps recipe identity and stable telemetry ids", () => {
+    const steps = buildSandwichSteps();
 
-    for (let index = 0; index < steps.length; index += 1) {
-      const expectedKind = ["bread", "filling", "top-bread"][index % 3];
+    expect(steps[0]).toMatchObject({ id: "sandwich-step-1", roundId: "sandwich:round:1", recipeId: "cheese-salad", recipeIndex: 0, stepIndex: 0 });
+    expect(steps[5]).toMatchObject({ id: "sandwich-step-6", roundId: "sandwich:round:6", recipeId: "tomato-cheese", recipeIndex: 1, stepIndex: 0 });
+  });
 
-      expect(steps[index].kind).toBe(expectedKind);
-      expect(steps[index].sandwichIndex).toBe(Math.floor(index / 3));
+  it("marks only top bread as recipe completion", () => {
+    const steps = buildSandwichSteps();
+
+    expect(steps.map((step) => isSandwichRecipeCompleteStep(step))).toEqual([false, false, false, false, true, false, false, false, false, true]);
+  });
+
+  it("keeps all recipe ingredients available as choices", () => {
+    const choiceIds = new Set(sandwichChoices.map((choice) => choice.id));
+
+    for (const recipe of sandwichRecipes) {
+      expect(recipe.steps.every((step) => choiceIds.has(step.id))).toBe(true);
+      expect(recipe.title).toBeTruthy();
+      expect(recipe.helper).toBeTruthy();
     }
   });
 });

@@ -127,7 +127,7 @@ watch(() => session.status, (status) => {
                 <div class="text-body-1 text-center text-medium-emphasis mt-4">{{ feedbackMessage }}</div>
               </v-card>
               <div class="rings">
-                <GameDwellButton v-for="ring in rings" :key="ring.id" :target-id="ringTargetId(ring)" :disabled="session.status !== 'running' || ring.placed" :dwell-ms="session.settings.dwellMs" :min-height="130" @select="chooseRing(ring)">
+                <GameDwellButton v-for="ring in rings" :key="ring.id" :target-id="ringTargetId(ring)" :disabled="session.status !== 'running' || ring.placed" :dwell-ms="session.settings.dwellMs" :min-height="136" @select="chooseRing(ring)">
                   <template #default>
                     <div class="loose-ring" :style="{ inlineSize: `${ring.size}px`, background: ring.color, opacity: ring.placed ? 0.25 : 1 }" />
                   </template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
+import { computed, onMounted, onUnmounted, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -7,6 +7,7 @@ import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useChoiceRoundFlow } from "../../composables/useChoiceRoundFlow";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { findAnimalFeedback } from "./audio";
@@ -18,22 +19,12 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnMistakes: false
 });
 
-const hintedRoundId = ref<string>();
-const lastMistakeId = ref<string>();
-const pendingSelection = ref(false);
 const promptAudio = useGamePromptAudio({ gameId: "find-animal", soundEnabled: toRef(session.settings, "sound") });
-let feedbackTimer = 0;
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
   startSession,
   generateRound: (roundIndex) => generateFindAnimalRound(session.settings, roundIndex)
-});
-
-const hintedChoiceId = computed(() => hintedRoundId.value === round.value.roundId ? round.value.target.id : undefined);
-const hintText = computed(() => {
-  if (hintedRoundId.value !== round.value.roundId) return "Посмотри на названного зверька и удержи взгляд.";
-  return `Почти получилось. Верный зверёк подсвечен: ${round.value.target.word}.`;
 });
 
 function choiceTargetId(choiceId: string) {
@@ -45,70 +36,54 @@ function choiceMinHeight(choiceCount: number) {
   return "clamp(168px, 25vh, 260px)";
 }
 
-function clearFeedbackTimer() {
-  window.clearTimeout(feedbackTimer);
-  promptAudio.cancelPending();
-  feedbackTimer = 0;
-}
-
-function playTargetPrompt(delayMs = 0) {
-  promptAudio.play(`find-animal.prompt.${round.value.target.id}`, delayMs);
-}
-
-function playResponse(id: string, delayMs = 0) {
-  promptAudio.play(id, delayMs);
-}
-
-function answer(choice: FindAnimalChoice) {
-  if (session.status !== "running" || pendingSelection.value) return;
-
-  const targetId = choiceTargetId(choice.id);
-  const expectedTargetId = choiceTargetId(round.value.target.id);
-  clearFeedbackTimer();
-  if (choice.id === round.value.target.id) {
-    pendingSelection.value = true;
-    void findAnimalFeedback.playSuccess(session.settings.sound);
-    recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: true });
-    hintedRoundId.value = undefined;
-    lastMistakeId.value = undefined;
-    playResponse("find-animal.correct", 980);
-    if (session.status === "running" && session.step < session.maxSteps) {
-      feedbackTimer = window.setTimeout(() => {
-        nextRound();
-        pendingSelection.value = false;
-        playTargetPrompt(350);
-      }, 2600);
-    }
-    return;
+const choiceFlow = useChoiceRoundFlow<FindAnimalChoice>({
+  session,
+  round,
+  nextRound,
+  restartRoundGame,
+  isSameChoice: (left, right) => left.id === right.id,
+  buildAnswerPayload: (choice, currentRound, isCorrect) => ({
+    targetId: choiceTargetId(choice.id),
+    ...(isCorrect ? {} : { expectedTargetId: choiceTargetId(currentRound.target.id) }),
+    expected: currentRound.target.word,
+    actual: choice.word
+  }),
+  buildHintPayload: (currentRound) => ({
+    roundId: currentRound.roundId,
+    targetId: choiceTargetId(currentRound.target.id),
+    reason: "wrong-animal-selected"
+  }),
+  recordSuccess,
+  recordMistake,
+  recordHint,
+  feedback: {
+    playSuccess: () => { void findAnimalFeedback.playSuccess(session.settings.sound); },
+    playMistake: () => { void findAnimalFeedback.playMistake(session.settings.sound); }
+  },
+  prompt: {
+    play: (assetId, delayMs) => promptAudio.play(assetId, delayMs),
+    cancel: promptAudio.cancelPending,
+    promptAssetId: (currentRound) => `find-animal.prompt.${currentRound.target.id}`,
+    successAssetId: "find-animal.correct",
+    mistakeAssetId: "find-animal.mistake"
   }
+});
 
-  pendingSelection.value = true;
-  void findAnimalFeedback.playMistake(session.settings.sound);
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "wrong-animal-selected" });
-  hintedRoundId.value = round.value.roundId;
-  lastMistakeId.value = choice.id;
-  playResponse("find-animal.mistake", 940);
-  playTargetPrompt(2700);
-  feedbackTimer = window.setTimeout(() => {
-    pendingSelection.value = false;
-    lastMistakeId.value = undefined;
-  }, 2200);
-}
+const { hintedRoundId, lastMistakeId, pendingSelection, hintedChoice, answer } = choiceFlow;
+const hintedChoiceId = computed(() => hintedChoice.value?.id);
+const hintText = computed(() => {
+  if (hintedRoundId.value !== round.value.roundId) return "Посмотри на названного зверька и удержи взгляд.";
+  return `Почти получилось. Верный зверёк подсвечен: ${round.value.target.word}.`;
+});
 
 function restart() {
-  clearFeedbackTimer();
-  hintedRoundId.value = undefined;
-  lastMistakeId.value = undefined;
-  pendingSelection.value = false;
-  restartRoundGame();
-  playTargetPrompt(450);
+  choiceFlow.restart();
 }
 
 onMounted(() => {
   findAnimalFeedback.warm(session.settings.sound);
   promptAudio.warm();
-  playTargetPrompt(450);
+  choiceFlow.start();
 });
 
 watch(() => session.settings.sound, (enabled) => {
@@ -116,7 +91,6 @@ watch(() => session.settings.sound, (enabled) => {
 });
 
 onUnmounted(() => {
-  clearFeedbackTimer();
   findAnimalFeedback.dispose();
 });
 </script>

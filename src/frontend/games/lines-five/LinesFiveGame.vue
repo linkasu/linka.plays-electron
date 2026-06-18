@@ -149,7 +149,7 @@ function restart() {
                       :target-id="targetId(cellIndex(row, column))"
                       :disabled="session.status !== 'running'"
                       :dwell-ms="session.settings.dwellMs"
-                      :min-height="104"
+                  :min-height="136"
                       :color="cellColor(cellIndex(row, column), board[cellIndex(row, column)])"
                       role="gridcell"
                       @select="chooseCell(cellIndex(row, column))"
@@ -214,7 +214,7 @@ function restart() {
   display: grid;
   gap: clamp(6px, 1.2vw, 12px);
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  max-inline-size: min(92vw, 590px);
+  max-inline-size: min(92vw, 730px);
 }
 
 .board-grid :deep(.dwell-button) {
@@ -294,6 +294,26 @@ function restart() {
   }
 }
 
+@media (min-height: 681px) and (max-height: 920px) {
+  .game-container {
+    padding-block-start: 4.75rem;
+  }
+
+  .game-container :deep(.v-card) {
+    padding-block: 1rem !important;
+  }
+
+  .game-container .text-overline,
+  .game-container h1,
+  .game-container p,
+  .game-container .v-alert,
+  .game-container .v-btn,
+  .game-container .v-col-md-4,
+  .game-container .d-flex.flex-column.flex-md-row {
+    display: none !important;
+  }
+}
+
 @media (max-height: 680px) {
   .game-container {
     padding-block-start: 4.75rem;
@@ -313,21 +333,21 @@ function restart() {
   }
 
   .game-container .d-flex.flex-column.flex-md-row {
-    margin-block-end: 0.75rem !important;
+    display: none !important;
   }
 
   .board-grid {
     gap: 0.4rem;
-    max-inline-size: min(100%, 33rem);
+    max-inline-size: min(100%, 45rem);
   }
 
   .board-grid :deep(.dwell-button) {
-    min-block-size: 3.65rem !important;
+    min-block-size: 5.625rem !important;
     padding: 0.35rem !important;
   }
 
   .lines-cell-content {
-    min-block-size: 3rem;
+    min-block-size: 4.5rem;
   }
 
   .ball {

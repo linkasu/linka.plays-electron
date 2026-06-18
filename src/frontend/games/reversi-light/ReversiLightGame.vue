@@ -216,7 +216,7 @@ onUnmounted(() => {
                   :target-id="cellTargetId(cellIndex(row, column))"
                   :disabled="!canChooseCell(cellIndex(row, column))"
                   :dwell-ms="session.settings.dwellMs"
-                  :min-height="126"
+                  :min-height="136"
                   :color="cellColor(cellIndex(row, column), markAt(row, column))"
                   @select="chooseCell(cellIndex(row, column))"
                 >
@@ -260,7 +260,7 @@ onUnmounted(() => {
   display: grid;
   gap: clamp(8px, 1.6vw, 14px);
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  max-inline-size: min(92vw, 560px);
+  max-inline-size: min(92vw, 590px);
 }
 
 .board-grid :deep(.dwell-button) {
@@ -348,16 +348,16 @@ onUnmounted(() => {
 
   .board-grid {
     gap: 0.45rem;
-    max-inline-size: min(100%, 28rem);
+    max-inline-size: min(100%, 37rem);
   }
 
   .board-grid :deep(.dwell-button) {
-    min-block-size: 4rem !important;
+    min-block-size: 5.625rem !important;
     padding: 0.35rem !important;
   }
 
   .reversi-cell-content {
-    min-block-size: 3.2rem;
+    min-block-size: 4.5rem;
   }
 
   .piece {

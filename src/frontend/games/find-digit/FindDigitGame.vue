@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -8,8 +8,8 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { findDigitFeedback } from "./audio";
 import { generateFindDigitRound, type FindDigitOption } from "./model";
 
 const router = useRouter();
@@ -26,6 +26,7 @@ const lastMistakeId = ref<string>();
 const successChoiceId = ref<string>();
 const pendingSelection = ref(false);
 const promptAudio = useGamePromptAudio({ gameId: "find-digit", soundEnabled: toRef(session.settings, "sound") });
+const feedback = useStandardGameFeedback(toRef(session.settings, "sound"));
 let feedbackTimer = 0;
 
 const hintText = computed(() => {
@@ -75,7 +76,7 @@ function answer(choice: FindDigitOption) {
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: true });
     mistakesInRound.value = 0;
     lastMistakeId.value = undefined;
-    void findDigitFeedback.playSuccess(session.settings.sound);
+    void feedback.playSuccess();
     playResponse("find-digit.correct", 980);
     if (session.status === "running" && session.step < session.maxSteps) {
       feedbackTimer = window.setTimeout(() => {
@@ -91,7 +92,7 @@ function answer(choice: FindDigitOption) {
   mistakesInRound.value += 1;
   lastMistakeId.value = choice.id;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: false });
-  void findDigitFeedback.playMistake(session.settings.sound);
+  void feedback.playMistake();
   playResponse("find-digit.mistake", 940);
   playTargetPrompt(2700);
   feedbackTimer = window.setTimeout(() => {
@@ -107,18 +108,12 @@ function restart() {
 }
 
 onMounted(() => {
-  findDigitFeedback.warm(session.settings.sound);
   promptAudio.warm();
   playTargetPrompt(450);
 });
 
-watch(() => session.settings.sound, (enabled) => {
-  findDigitFeedback.warm(enabled);
-});
-
 onUnmounted(() => {
   clearTimers();
-  findDigitFeedback.dispose();
 });
 </script>
 

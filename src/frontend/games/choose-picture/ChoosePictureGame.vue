@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, watch } from "vue";
+import { toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -7,12 +7,13 @@ import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { choosePictureFeedback } from "./audio";
 import { generateChoosePictureRound } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("choose-picture", { maxSteps: 8 });
+const feedback = useStandardGameFeedback(toRef(session.settings, "sound"));
 
 const { round, resultVisible, nextRound, restart } = useRoundGame({
   session,
@@ -30,25 +31,13 @@ function choose(choice: (typeof round.value.choices)[number]) {
   const expectedTargetId = choiceTargetId(round.value.target.id);
   if (choice.id === round.value.target.id) {
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: true });
-    void choosePictureFeedback.playSuccess(session.settings.sound);
+    void feedback.playSuccess();
   } else {
     recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: false });
-    void choosePictureFeedback.playMistake(session.settings.sound);
+    void feedback.playMistake();
   }
   if (session.step < session.maxSteps) nextRound();
 }
-
-onMounted(() => {
-  choosePictureFeedback.warm(session.settings.sound);
-});
-
-watch(() => session.settings.sound, (enabled) => {
-  choosePictureFeedback.warm(enabled);
-});
-
-onUnmounted(() => {
-  choosePictureFeedback.dispose();
-});
 </script>
 
 <template>

@@ -143,7 +143,7 @@ function restart() {
                   :target-id="targetId(row * checkersLightSize + column)"
                   :disabled="session.status !== 'running'"
                   :dwell-ms="session.settings.dwellMs"
-                  :min-height="118"
+                  :min-height="136"
                   :color="cellColor(row * checkersLightSize + column, board[row * checkersLightSize + column])"
                   role="gridcell"
                   @select="selectCell(row * checkersLightSize + column)"
@@ -199,7 +199,7 @@ function restart() {
 .board {
   display: grid;
   gap: clamp(0.5rem, 1.5vw, 0.85rem);
-  inline-size: min(100%, 34rem);
+  inline-size: min(100%, 37rem);
 }
 
 .board-row {
@@ -295,7 +295,7 @@ function restart() {
 
   .board {
     gap: 0.45rem;
-    inline-size: min(100%, 28rem);
+    inline-size: min(100%, 37rem);
   }
 
   .board-row {
@@ -303,12 +303,12 @@ function restart() {
   }
 
   .board-cell :deep(.dwell-button) {
-    min-block-size: 4rem !important;
+    min-block-size: 5.625rem !important;
     padding: 0.35rem !important;
   }
 
   .cell-content {
-    min-block-size: 3.2rem;
+    min-block-size: 4.5rem;
   }
 }
 </style>

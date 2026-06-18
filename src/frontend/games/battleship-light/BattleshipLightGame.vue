@@ -123,7 +123,7 @@ function restart() {
                 :target-id="cellTargetId(cell.index)"
                 :disabled="session.status !== 'running' || Boolean(shots[cell.index])"
                 :dwell-ms="session.settings.dwellMs"
-                :min-height="112"
+                  :min-height="136"
                 :color="shots[cell.index] === 'hit' ? 'primary' : shots[cell.index] === 'water' ? 'info' : 'surface'"
                 @select="chooseCell(cell.index)"
               >
@@ -168,7 +168,7 @@ function restart() {
   display: grid;
   gap: clamp(8px, 1.4vw, 16px);
   grid-template-columns: repeat(5, minmax(62px, 1fr));
-  max-inline-size: min(94vw, 720px);
+  max-inline-size: min(94vw, 760px);
 }
 
 .sea-cell {
@@ -178,7 +178,7 @@ function restart() {
   font-weight: 900;
   inline-size: 100%;
   justify-content: center;
-  min-block-size: clamp(72px, 12vw, 116px);
+  min-block-size: clamp(72px, 12vw, 136px);
   transition: background-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
 }
 
@@ -230,21 +230,21 @@ function restart() {
   }
 
   .game-card > .d-flex {
-    margin-block-end: 0.75rem !important;
+    display: none !important;
   }
 
   .sea-grid {
     gap: 0.4rem;
-    max-inline-size: min(100%, 36rem);
+    max-inline-size: min(100%, 47.5rem);
   }
 
   .sea-grid :deep(.dwell-button) {
-    min-block-size: 3.8rem !important;
+    min-block-size: 5.625rem !important;
     padding: 0.35rem !important;
   }
 
   .sea-cell {
-    min-block-size: 3rem;
+    min-block-size: 4.5rem;
   }
 }
 </style>
