@@ -23,6 +23,14 @@ describe("generateThreeFrameStoryRound", () => {
     expect(generateThreeFrameStoryRound(2).expectedFrame).toBe(story.frames[2]);
   });
 
+  it("keeps choices in stable story order during assembly", () => {
+    const story = threeFrameStories[0];
+
+    expect(generateThreeFrameStoryRound(0).choices).toEqual(story.frames);
+    expect(generateThreeFrameStoryRound(1).choices).toEqual(story.frames);
+    expect(generateThreeFrameStoryRound(2).choices).toEqual(story.frames);
+  });
+
   it("keeps already assembled frames before the next expected frame", () => {
     const round = generateThreeFrameStoryRound(2);
 

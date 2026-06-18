@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { createDayRoutineBoard, findDayRoutinePeriod, type DayRoutineItem, type DayRoutinePeriod } from "./model";
+
+const dayRoutineFeedback = createStandardGameFeedback();
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("day-routine", {
   maxSteps: 8,
-  overrides: { sound: false },
+  overrides: { sound: true },
   finishOnMistakes: false
 });
 
@@ -64,6 +67,7 @@ function choose(item: DayRoutineItem) {
 
   if (item.periodId === expectedPeriod.id) {
     placedItemIds.value = [...placedItemIds.value, item.id];
+    void dayRoutineFeedback.playSuccess(session.settings.sound);
     recordSuccess({ roundId, targetId, answerId: item.id, expected: expectedPeriod.label, actual: item.label, isCorrect: true });
 
     const nextPeriod = currentPeriod.value;
@@ -80,6 +84,7 @@ function choose(item: DayRoutineItem) {
   wrongChoiceId.value = item.id;
   highlightedPeriodId.value = expectedPeriod.id;
   feedbackMessage.value = `Почти. ${item.hint} Сейчас нужна картинка про ${expectedPeriod.label}.`;
+  void dayRoutineFeedback.playMistake(session.settings.sound);
   recordMistake({ roundId, targetId, expectedTargetId: `day-routine:period:${expectedPeriod.id}`, answerId: item.id, expected: expectedPeriod.label, actual: actualPeriod?.label ?? item.periodId, isCorrect: false });
   recordHint({ roundId, targetId, hint: feedbackMessage.value });
   feedbackTimer = window.setTimeout(() => {
@@ -103,9 +108,14 @@ function restart() {
   startSession();
 }
 
+onMounted(() => {
+  dayRoutineFeedback.warm(session.settings.sound);
+});
+
 onUnmounted(() => {
   clearFeedbackTimer();
   clearResultTimer();
+  dayRoutineFeedback.dispose();
 });
 
 watch(() => session.status, (status) => {
@@ -129,10 +139,10 @@ watch(() => session.status, (status) => {
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
-          <v-card class="pa-5 pa-md-8" rounded="xl" elevation="8">
+          <v-card class="day-routine-card pa-5 pa-md-8" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Последовательность дня</div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-3">Что бывает {{ currentPeriod?.label ?? "дальше" }}?</h1>
-            <p class="text-body-1 text-medium-emphasis text-center mb-6">{{ feedbackMessage }}</p>
+            <p class="feedback-line text-body-1 text-medium-emphasis text-center mb-6">{{ feedbackMessage }}</p>
 
             <v-row class="period-row mb-6" align="stretch">
               <v-col v-for="period in board.periods" :key="period.id" cols="12" md="4">
@@ -159,8 +169,8 @@ watch(() => session.status, (status) => {
             </v-row>
 
             <v-divider class="mb-5" />
-            <div class="text-h6 font-weight-bold text-center mb-4">Выбери подходящую картинку</div>
-            <v-row justify="center">
+            <div class="choice-title text-h6 font-weight-bold text-center mb-4">Выбери подходящую картинку</div>
+            <v-row class="choice-row" justify="center">
               <v-col v-for="item in remainingChoices" :key="item.id" cols="3" sm="3">
                 <GameDwellButton :target-id="itemTargetId(item)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="130" :color="choiceColor(item)" @select="choose(item)">
                   <template #default>
@@ -217,6 +227,29 @@ watch(() => session.status, (status) => {
   .period-card,
   .game-container .v-divider {
     display: none;
+  }
+}
+
+@media (max-height: 44rem) {
+  .day-routine-card {
+    padding-block: 0.75rem !important;
+  }
+
+  .feedback-line,
+  .choice-title {
+    margin-block-end: 0.75rem !important;
+  }
+
+  .choice-row {
+    margin-block: -0.25rem;
+  }
+
+  .choice-row :deep(.dwell-button) {
+    min-block-size: 5.75rem !important;
+  }
+
+  .choice-emoji {
+    font-size: clamp(2.2rem, 5vw, 3rem);
   }
 }
 </style>

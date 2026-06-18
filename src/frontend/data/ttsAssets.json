@@ -1041,5 +1041,215 @@
     "text": "Почти. Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/find-animal/mistake.mp3"
+  },
+  {
+    "id": "first-then.prompt.first",
+    "game": "first-then",
+    "text": "Выбери, что будет сначала.",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/prompt-first.mp3"
+  },
+  {
+    "id": "first-then.prompt.then",
+    "game": "first-then",
+    "text": "Теперь выбери, что будет потом.",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/prompt-then.mp3"
+  },
+  {
+    "id": "first-then.correct",
+    "game": "first-then",
+    "text": "Верно.",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/correct.mp3"
+  },
+  {
+    "id": "first-then.mistake",
+    "game": "first-then",
+    "text": "Почти. Попробуй ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/mistake.mp3"
+  },
+  {
+    "id": "first-then.correct.first",
+    "game": "first-then",
+    "text": "Верно. Это сначала.",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/correct-first.mp3"
+  },
+  {
+    "id": "first-then.correct.then",
+    "game": "first-then",
+    "text": "Верно. Это потом.",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/correct-then.mp3"
+  },
+  {
+    "id": "first-then.prompt.wash-eat.first",
+    "game": "first-then",
+    "text": "Что сначала: вымыть руки или покушать?",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/prompt-wash-eat-first.mp3"
+  },
+  {
+    "id": "first-then.prompt.wash-eat.then",
+    "game": "first-then",
+    "text": "Что потом: вымыть руки или покушать?",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/prompt-wash-eat-then.mp3"
+  },
+  {
+    "id": "first-then.mistake.wash-eat",
+    "game": "first-then",
+    "text": "Порядок такой: сначала моем руки, потом едим.",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/mistake-wash-eat.mp3"
+  },
+  {
+    "id": "first-then.prompt.shoes-walk.first",
+    "game": "first-then",
+    "text": "Что сначала: надеть обувь или идти гулять?",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/prompt-shoes-walk-first.mp3"
+  },
+  {
+    "id": "first-then.prompt.shoes-walk.then",
+    "game": "first-then",
+    "text": "Что потом: надеть обувь или идти гулять?",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/prompt-shoes-walk-then.mp3"
+  },
+  {
+    "id": "first-then.mistake.shoes-walk",
+    "game": "first-then",
+    "text": "Порядок такой: сначала надеваем обувь, потом идём гулять.",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/mistake-shoes-walk.mp3"
+  },
+  {
+    "id": "first-then.prompt.toothbrush-bed.first",
+    "game": "first-then",
+    "text": "Что сначала: почистить зубы или лечь спать?",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/prompt-toothbrush-bed-first.mp3"
+  },
+  {
+    "id": "first-then.prompt.toothbrush-bed.then",
+    "game": "first-then",
+    "text": "Что потом: почистить зубы или лечь спать?",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/prompt-toothbrush-bed-then.mp3"
+  },
+  {
+    "id": "first-then.mistake.toothbrush-bed",
+    "game": "first-then",
+    "text": "Порядок такой: сначала чистим зубы, потом ложимся спать.",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/mistake-toothbrush-bed.mp3"
+  },
+  {
+    "id": "first-then.prompt.open-read.first",
+    "game": "first-then",
+    "text": "Что сначала: открыть книгу или читать?",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/prompt-open-read-first.mp3"
+  },
+  {
+    "id": "first-then.prompt.open-read.then",
+    "game": "first-then",
+    "text": "Что потом: открыть книгу или читать?",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/prompt-open-read-then.mp3"
+  },
+  {
+    "id": "first-then.mistake.open-read",
+    "game": "first-then",
+    "text": "Порядок такой: сначала открываем книгу, потом читаем.",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/mistake-open-read.mp3"
+  },
+  {
+    "id": "first-then.prompt.pour-drink.first",
+    "game": "first-then",
+    "text": "Что сначала: налить воду или попить?",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/prompt-pour-drink-first.mp3"
+  },
+  {
+    "id": "first-then.prompt.pour-drink.then",
+    "game": "first-then",
+    "text": "Что потом: налить воду или попить?",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/prompt-pour-drink-then.mp3"
+  },
+  {
+    "id": "first-then.mistake.pour-drink",
+    "game": "first-then",
+    "text": "Порядок такой: сначала наливаем воду, потом пьём.",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/mistake-pour-drink.mp3"
+  },
+  {
+    "id": "first-then.prompt.paint-clean.first",
+    "game": "first-then",
+    "text": "Что сначала: порисовать или убрать карандаши?",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/prompt-paint-clean-first.mp3"
+  },
+  {
+    "id": "first-then.prompt.paint-clean.then",
+    "game": "first-then",
+    "text": "Что потом: порисовать или убрать карандаши?",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/prompt-paint-clean-then.mp3"
+  },
+  {
+    "id": "first-then.mistake.paint-clean",
+    "game": "first-then",
+    "text": "Порядок такой: сначала рисуем, потом убираем карандаши.",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/mistake-paint-clean.mp3"
+  },
+  {
+    "id": "first-then.prompt.soap-rinse.first",
+    "game": "first-then",
+    "text": "Что сначала: намылить руки или смыть пену?",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/prompt-soap-rinse-first.mp3"
+  },
+  {
+    "id": "first-then.prompt.soap-rinse.then",
+    "game": "first-then",
+    "text": "Что потом: намылить руки или смыть пену?",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/prompt-soap-rinse-then.mp3"
+  },
+  {
+    "id": "first-then.mistake.soap-rinse",
+    "game": "first-then",
+    "text": "Порядок такой: сначала намыливаем руки, потом смываем пену.",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/mistake-soap-rinse.mp3"
+  },
+  {
+    "id": "first-then.prompt.sit-buckle.first",
+    "game": "first-then",
+    "text": "Что сначала: сесть или пристегнуться?",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/prompt-sit-buckle-first.mp3"
+  },
+  {
+    "id": "first-then.prompt.sit-buckle.then",
+    "game": "first-then",
+    "text": "Что потом: сесть или пристегнуться?",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/prompt-sit-buckle-then.mp3"
+  },
+  {
+    "id": "first-then.mistake.sit-buckle",
+    "game": "first-then",
+    "text": "Порядок такой: сначала садимся, потом пристёгиваемся.",
+    "voice": "jane",
+    "path": "/audio/tts/first-then/mistake-sit-buckle.mp3"
   }
 ]

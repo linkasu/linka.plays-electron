@@ -16,6 +16,9 @@
     "audit:readiness": "node scripts/game-readiness-audit.mjs",
     "audit:electron-cdp": "node scripts/electron-cdp-smoke.mjs",
     "audit:electron-cdp:all": "node scripts/electron-cdp-smoke.mjs --all-games",
+    "review:approve": "node scripts/approve-game.mjs",
+    "review:next": "node scripts/open-next-development-game.mjs",
+    "tts:add": "node scripts/add-tts-phrase.mjs",
     "tts:assets": "node scripts/generate-tts-assets.mjs",
     "electron:build": "npm run build && electron-builder -p never"
   },

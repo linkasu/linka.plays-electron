@@ -64,6 +64,7 @@ When asked to make Electron DevTools stable, implement this minimal sequence:
 
 - Prefer Vuetify components, props, layout primitives, utility classes, and theme tokens over custom CSS.
 - Keep therapeutic game audio optional, quiet, slow, and non-startling. Audio failures must degrade to silence.
+- Add TTS manifest entries through `npm run tts:add -- --game=<game-id> --id=<asset-id> --text=<phrase>`; generate audio separately with `npm run tts:assets -- --game=<game-id>` when TTS endpoint is available.
 - Keep game model logic testable in `model.ts` and verify model changes with nearby `model.test.ts` when present.
 - Preserve mouse fallback when changing gaze behavior.
 

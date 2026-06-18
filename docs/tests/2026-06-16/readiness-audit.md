@@ -1,4 +1,4 @@
-# Readiness audit — 2026-06-16
+| `continuous-control` | 1 | 19 || `strategy` | 2 | 18 || `language-aac` | 4 | 17 || `sequencing` | 10 | 11 || `numeracy` | 6 | 14 || `visual-search` | 16 | 0 || `gaze-basics` | 36 | 0 || `continuous-control` | 1 | 19 || `strategy` | 2 | 18 || `language-aac` | 4 | 17 || `sequencing` | 9 | 12 || `numeracy` | 6 | 14 || `visual-search` | 16 | 0 || `gaze-basics` | 36 | 0 || `continuous-control` | 1 | 19 || `strategy` | 2 | 18 || `language-aac` | 4 | 17 || `sequencing` | 8 | 13 || `numeracy` | 6 | 14 || `visual-search` | 16 | 0 || `gaze-basics` | 36 | 0 |# Readiness audit — 2026-06-16
 
 Аудит построен командой:
 
@@ -22,13 +22,13 @@ npm run audit:readiness -- --output=docs/tests/2026-06-16/readiness-audit.json
 | Метрика | Значение |
 |---|---:|
 | Игр в текущем реестре | 154 |
-| Ready | 67 |
-| Development | 87 |
+| Ready | 75 |
+| Development | 79 |
 | `status: "polished"` | 44 |
 | `status: "therapy-ready"` | 110 |
-| `resolvedStabilityStatus: "publish"` | 67 |
-| `resolvedStabilityStatus: "needs-check"` | 86 |
-| `resolvedStabilityStatus: "archived"` | 1 |
+| `resolvedStabilityStatus: "publish"` | 75 |
+| `resolvedStabilityStatus: "needs-check"` | 79 |
+| `resolvedStabilityStatus: "archived"` | 0 |
 | Отсутствующие routes | 0 |
 | Отсутствующие Vue-компоненты | 0 |
 | Отсутствующие `docs/games/<id>.md` | 0 |
@@ -39,10 +39,10 @@ npm run audit:readiness -- --output=docs/tests/2026-06-16/readiness-audit.json
 
 | Категория | Ready | Development |
 |---|---:|---:|
-| `gaze-basics` | 35 | 1 |
-| `visual-search` | 15 | 1 |
+| `gaze-basics` | 36 | 0 |
+| `visual-search` | 16 | 0 |
 | `numeracy` | 6 | 14 |
-| `sequencing` | 4 | 17 |
+| `sequencing` | 7 | 14 |
 | `language-aac` | 4 | 17 |
 | `strategy` | 2 | 18 |
 | `continuous-control` | 1 | 19 |
@@ -51,16 +51,16 @@ npm run audit:readiness -- --output=docs/tests/2026-06-16/readiness-audit.json
 
 | Игра | Категория | Stability | Blockers |
 |---|---|---|---|
-| `leaves-wind` | `gaze-basics` | `archived` | `stability:archived`, `missing-game-doc` |
-| `what-missing` | `visual-search` | `needs-check` | `stability:needs-check`, `missing-game-doc` |
-| `dress-character` | `sequencing` | `needs-check` | `stability:needs-check`, `missing-game-doc`, `rules-not-extracted-to-model` |
-| `sandwich` | `sequencing` | `needs-check` | `stability:needs-check`, `missing-game-doc` |
-| `day-routine` | `sequencing` | `needs-check` | `stability:needs-check`, `missing-game-doc` |
-| `musical-path` | `sequencing` | `needs-check` | `stability:needs-check`, `missing-game-doc`, `rules-not-extracted-to-model` |
-| `hero-route` | `sequencing` | `needs-check` | `stability:needs-check`, `missing-game-doc`, `rules-not-extracted-to-model` |
-| `build-bridge` | `sequencing` | `needs-check` | `stability:needs-check`, `missing-game-doc`, `rules-not-extracted-to-model` |
-| `choose-emotion` | `language-aac` | `needs-check` | `stability:needs-check`, `missing-game-doc` |
-| `who-is-this` | `language-aac` | `needs-check` | `stability:needs-check`, `missing-game-doc` |
+| `musical-path` | `sequencing` | `needs-check` | `stability:needs-check`, `rules-not-extracted-to-model` |
+| `mosaic` | `sequencing` | `needs-check` | `stability:needs-check` |
+| `shape-dance` | `sequencing` | `needs-check` | `stability:needs-check` |
+| `hero-route` | `sequencing` | `needs-check` | `stability:needs-check`, `rules-not-extracted-to-model` |
+| `soup-recipe` | `sequencing` | `needs-check` | `stability:needs-check` |
+| `fix-picture` | `sequencing` | `needs-check` | `stability:needs-check`, `rules-not-extracted-to-model` |
+| `comic-strip` | `sequencing` | `needs-check` | `stability:needs-check` |
+| `schedule` | `sequencing` | `needs-check` | `stability:needs-check` |
+| `build-bridge` | `sequencing` | `needs-check` | `stability:needs-check`, `rules-not-extracted-to-model` |
+| `shelf-sorting` | `sequencing` | `needs-check` | `stability:needs-check` |
 
 Полный список development-игр и blockers находится в `developmentQueue` внутри `readiness-audit.json`.
 

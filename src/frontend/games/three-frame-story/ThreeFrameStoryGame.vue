@@ -1,16 +1,23 @@
 <script setup lang="ts">
-import { computed, onUnmounted, shallowRef, ref } from "vue";
+import { computed, onMounted, onUnmounted, shallowRef, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { generateThreeFrameStoryRound, type ThreeFrameStoryFrame } from "./model";
 
+const threeFrameStoryFeedback = createStandardGameFeedback();
+
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("three-frame-story", { maxSteps: 6, finishOnMistakes: false });
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("three-frame-story", {
+  maxSteps: 6,
+  overrides: { sound: true },
+  finishOnMistakes: false
+});
 
 const round = shallowRef(generateThreeFrameStoryRound(session.step));
 const feedbackMessage = ref("Выбери первый кадр истории.");
@@ -67,6 +74,7 @@ function choose(choice: ThreeFrameStoryFrame) {
     pendingSelection.value = true;
     successChoiceId.value = choice.id;
     feedbackMessage.value = choice.caption;
+    void threeFrameStoryFeedback.playSuccess(session.settings.sound);
     recordSuccess({
       roundId: round.value.roundId,
       targetId,
@@ -83,6 +91,7 @@ function choose(choice: ThreeFrameStoryFrame) {
   pendingSelection.value = true;
   wrongChoiceId.value = choice.id;
   feedbackMessage.value = `Этот кадр будет позже. Сейчас ищем: ${round.value.expectedFrame.label}.`;
+  void threeFrameStoryFeedback.playMistake(session.settings.sound);
   recordMistake({
     roundId: round.value.roundId,
     targetId,
@@ -113,8 +122,13 @@ function restart() {
   resetFeedback("Выбери первый кадр истории.");
 }
 
+onMounted(() => {
+  threeFrameStoryFeedback.warm(session.settings.sound);
+});
+
 onUnmounted(() => {
   clearFeedbackTimer();
+  threeFrameStoryFeedback.dispose();
 });
 </script>
 

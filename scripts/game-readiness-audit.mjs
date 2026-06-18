@@ -80,7 +80,11 @@ function parseGames(source) {
 }
 
 function parseRouterPaths(source) {
-  return new Set(Array.from(source.matchAll(/path:\s*"([^"]+)"/g)).map((match) => match[1]));
+  const paths = new Set(Array.from(source.matchAll(/path:\s*"([^"]+)"/g)).map((match) => match[1]));
+  if (/const\s+gameRoutes\s*=\s*games\.map/.test(source) && /\.\.\.gameRoutes/.test(source)) {
+    paths.add("__registry_game_routes__");
+  }
+  return paths;
 }
 
 async function latestDocsTestPath(id) {
@@ -109,7 +113,7 @@ async function fileSignals(game, routerPaths) {
   const docsTestPath = await latestDocsTestPath(game.id);
 
   return {
-    routeExists: routerPaths.has(game.route),
+    routeExists: routerPaths.has(game.route) || routerPaths.has("__registry_game_routes__"),
     gameDirExists: hasGameDir,
     vueFiles,
     hasVueComponent: vueFiles.length > 0,

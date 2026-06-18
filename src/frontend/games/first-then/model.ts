@@ -23,6 +23,12 @@ export type FirstThenRound = {
   explanation: string;
 };
 
+export type FirstThenRoundOptions = {
+  pairOrder?: number[];
+  choiceOrder?: string[];
+  random?: () => number;
+};
+
 export const firstThenPairs: FirstThenPair[] = [
   {
     id: "wash-eat",
@@ -70,18 +76,39 @@ export function createFirstThenExplanation(pair: FirstThenPair) {
   return `Порядок такой: ${pair.first.phrase}, ${pair.then.phrase}.`;
 }
 
-export function generateFirstThenRound(roundIndex = 1, phase: FirstThenPhase = "first"): FirstThenRound {
+function shuffleFirstThenItems<T>(items: T[], random = Math.random) {
+  const shuffled = [...items];
+
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(random() * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+
+  return shuffled;
+}
+
+export function createFirstThenPairOrder(random = Math.random) {
+  return shuffleFirstThenItems(firstThenPairs.map((_, index) => index), random);
+}
+
+export function generateFirstThenRound(roundIndex = 1, phase: FirstThenPhase = "first", options: FirstThenRoundOptions = {}): FirstThenRound {
   if (firstThenPairs.length === 0) throw new Error("Недостаточно пар действий для игры Сначала-потом.");
 
-  const pair = firstThenPairs[(roundIndex - 1) % firstThenPairs.length];
+  const pairOrder = options.pairOrder?.length ? options.pairOrder : firstThenPairs.map((_, index) => index);
+  const pairIndex = pairOrder[(roundIndex - 1) % pairOrder.length] ?? 0;
+  const pair = firstThenPairs[pairIndex] ?? firstThenPairs[0];
   const expectedAction = phase === "first" ? pair.first : pair.then;
+  const choices = options.choiceOrder?.length
+    ? [pair.first, pair.then].sort((left, right) => options.choiceOrder!.indexOf(left.id) - options.choiceOrder!.indexOf(right.id))
+    : shuffleFirstThenItems([pair.first, pair.then], options.random);
+
   return {
     roundId: `first-then:round:${roundIndex}:${phase}`,
     pair,
     phase,
     prompt: phase === "first" ? "Что сначала?" : "Что потом?",
     expectedAction,
-    choices: [pair.first, pair.then],
+    choices,
     explanation: createFirstThenExplanation(pair)
   };
 }

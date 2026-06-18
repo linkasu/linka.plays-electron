@@ -1,20 +1,32 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { generateFirstThenRound, type FirstThenAction, type FirstThenPhase, type FirstThenRound } from "./model";
+import { createFirstThenPairOrder, generateFirstThenRound, type FirstThenAction, type FirstThenPhase, type FirstThenRound } from "./model";
+
+const firstThenFeedback = createStandardGameFeedback();
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, finishSession, startSession } = useGameSessionFor("first-then", { maxSteps: 8, finishOnMistakes: false, finishOnMaxSteps: false });
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, finishSession, startSession } = useGameSessionFor("first-then", {
+  maxSteps: 8,
+  overrides: { sound: true },
+  finishOnMistakes: false,
+  finishOnMaxSteps: false
+});
+const promptAudio = useGamePromptAudio({ gameId: "first-then", soundEnabled: toRef(session.settings, "sound") });
 
+const pairOrder = ref(createFirstThenPairOrder());
+const choiceOrdersByPairIndex = ref<Record<number, string[]>>({});
 const pairIndex = ref(1);
 const phase = ref<FirstThenPhase>("first");
-const round = ref<FirstThenRound>(generateFirstThenRound(pairIndex.value, phase.value));
+const round = ref<FirstThenRound>(generateFirstThenRound(pairIndex.value, phase.value, { pairOrder: pairOrder.value, choiceOrder: ensureChoiceOrder(pairIndex.value) }));
 const resultVisible = computed(() => session.status === "finished");
 const feedback = ref("Выбери карточку. Сначала одно действие, потом другое.");
 const isChangingRound = ref(false);
@@ -33,7 +45,17 @@ function choiceTargetId(action: FirstThenAction) {
 function setRound(nextPairIndex: number, nextPhase: FirstThenPhase) {
   pairIndex.value = nextPairIndex;
   phase.value = nextPhase;
-  round.value = generateFirstThenRound(nextPairIndex, nextPhase);
+  round.value = generateFirstThenRound(nextPairIndex, nextPhase, { pairOrder: pairOrder.value, choiceOrder: ensureChoiceOrder(nextPairIndex) });
+}
+
+function ensureChoiceOrder(nextPairIndex: number) {
+  choiceOrdersByPairIndex.value[nextPairIndex] ??= generateFirstThenRound(nextPairIndex, "first", { pairOrder: pairOrder.value }).choices.map((choice) => choice.id);
+  return choiceOrdersByPairIndex.value[nextPairIndex];
+}
+
+function playPhasePrompt(delayMs = 0) {
+  promptAudio.cancelPending();
+  promptAudio.play(`first-then.prompt.${round.value.pair.id}.${phase.value}`, delayMs);
 }
 
 function clearTransitionTimer() {
@@ -51,9 +73,11 @@ function advanceRound() {
   if (phase.value === "first") {
     setRound(pairIndex.value, "then");
     feedback.value = "Теперь выбери, что будет потом.";
+    playPhasePrompt(300);
   } else {
     setRound(pairIndex.value + 1, "first");
     feedback.value = "Новая пара. Что сначала?";
+    playPhasePrompt(300);
   }
 }
 
@@ -67,6 +91,8 @@ function chooseAction(action: FirstThenAction) {
   isChangingRound.value = true;
 
   if (wasCorrect) {
+    void firstThenFeedback.playSuccess(session.settings.sound);
+    promptAudio.play(`first-then.correct.${phase.value}`);
     recordSuccess({
       roundId: round.value.roundId,
       targetId,
@@ -78,6 +104,8 @@ function chooseAction(action: FirstThenAction) {
     });
     feedback.value = phase.value === "first" ? "Верно: это сначала." : "Верно: это потом.";
   } else {
+    void firstThenFeedback.playMistake(session.settings.sound);
+    promptAudio.play(`first-then.mistake.${round.value.pair.id}`);
     recordMistake({
       roundId: round.value.roundId,
       targetId,
@@ -103,14 +131,26 @@ function chooseAction(action: FirstThenAction) {
 
 function restart() {
   clearTransitionTimer();
+  promptAudio.cancelPending();
+  pairOrder.value = createFirstThenPairOrder();
+  choiceOrdersByPairIndex.value = {};
   feedback.value = "Выбери карточку. Сначала одно действие, потом другое.";
   isChangingRound.value = false;
   setRound(1, "first");
   startSession();
+  playPhasePrompt(450);
 }
+
+onMounted(() => {
+  firstThenFeedback.warm(session.settings.sound);
+  promptAudio.warm();
+  playPhasePrompt(450);
+});
 
 onUnmounted(() => {
   clearTransitionTimer();
+  promptAudio.cancelPending();
+  firstThenFeedback.dispose();
 });
 </script>
 
@@ -122,14 +162,14 @@ onUnmounted(() => {
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="9">
-          <v-card class="pa-5 pa-md-8" rounded="xl" elevation="8">
+          <v-card class="first-then-card pa-5 pa-md-8" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Порядок действий</div>
-            <div class="text-center mb-6">
+            <div class="first-then-heading text-center mb-6">
               <h1 class="text-h3 text-md-h2 font-weight-bold mb-2">{{ round.prompt }}</h1>
               <div class="text-h6 text-md-h5 text-medium-emphasis">{{ feedback }}</div>
             </div>
 
-            <v-card class="pa-4 pa-md-5 mb-6" color="indigo-lighten-5" rounded="xl" variant="flat">
+            <v-card class="timeline-card pa-4 pa-md-5 mb-6" color="indigo-lighten-5" rounded="xl" variant="flat">
               <div class="d-flex flex-column flex-md-row align-stretch ga-4">
                 <div v-for="item in timelineItems" :key="item.label" class="timeline-step flex-grow-1 pa-4 rounded-xl" :class="{ 'timeline-step--active': item.active }">
                   <div class="text-overline text-primary mb-1">{{ item.label }}</div>
@@ -141,7 +181,7 @@ onUnmounted(() => {
               </div>
             </v-card>
 
-            <v-chip class="mb-4" color="primary" size="large" variant="tonal">Выбираем: {{ phaseLabel }}</v-chip>
+            <v-chip class="phase-chip mb-4" color="primary" size="large" variant="tonal">Выбираем: {{ phaseLabel }}</v-chip>
             <GameChoiceCardGrid :choices="round.choices" :target-id="choiceTargetId" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="170" :cols="12" :md="6" @select="chooseAction">
               <template #default="{ choice }">
                 <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
@@ -183,8 +223,39 @@ onUnmounted(() => {
 }
 
 @media (max-height: 820px) {
-  .timeline-step {
+  .timeline-card {
     display: none;
+  }
+}
+
+@media (max-height: 44rem) {
+  .first-then-card {
+    padding-block: 0.875rem !important;
+  }
+
+  .first-then-heading {
+    margin-block-end: 0.875rem !important;
+  }
+
+  .first-then-heading h1 {
+    font-size: 2rem !important;
+    line-height: 1.08;
+  }
+
+  .phase-chip {
+    margin-block-end: 0.75rem !important;
+  }
+
+  .choice-emoji {
+    font-size: clamp(2.75rem, 6vw, 3.75rem);
+  }
+
+  .choice-phrase {
+    display: none;
+  }
+
+  .first-then-card :deep(.dwell-button) {
+    min-block-size: 7.5rem !important;
   }
 }
 </style>

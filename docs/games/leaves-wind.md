@@ -10,8 +10,8 @@
 | Route | `/games/leaves-wind` |
 | Категория | `gaze-basics` — Основы взгляда |
 | Status | `therapy-ready` |
-| Resolved stability | `archived` |
-| Readiness group | `development` |
+| Resolved stability | `publish` |
+| Readiness group | `ready` |
 | Skills | слежение, переключение |
 | Recommended session | 80 сек |
 | Min target size | 180 px |
@@ -62,12 +62,11 @@ undefined
 
 ## Готовность
 
-Игра находится в группе `development`, потому что resolved stability не равен `publish`.
+Игра находится в группе `ready`, потому что resolved stability равен `publish`.
 
 Автоматические blockers:
 
-- stability:archived
-- missing-game-doc
+- нет
 
 ## QA checklist
 
@@ -80,4 +79,4 @@ undefined
 
 ## Next step
 
-Оставить скрытой/архивной или принять отдельное решение о возвращении в меню перед polish-работами.
+Оставить в ready-очереди и проверять регрессии через общий Electron CDP audit.

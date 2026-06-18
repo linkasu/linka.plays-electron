@@ -8,7 +8,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { sandwichFeedback } from "./audio";
-import { buildSandwichSteps, getSandwichRecipe, isSandwichRecipeCompleteStep, sandwichChoices, sandwichMaxSteps, type SandwichChoice, type SandwichRecipeStep } from "./model";
+import { buildSandwichSteps, getSandwichRecipe, isSandwichRecipeCompleteStep, sandwichMaxSteps, shuffleSandwichChoices, type SandwichChoice, type SandwichRecipeStep } from "./model";
 
 const recipePauseMs = 1250;
 
@@ -25,6 +25,7 @@ const feedbackMessage = ref("Собираем бутерброд по рецеп
 const hintedChoiceId = ref<string>();
 const wrongChoiceId = ref<string>();
 const successChoiceId = ref<string>();
+const visibleChoices = ref<SandwichChoice[]>(shuffleSandwichChoices());
 const isRecipeResting = ref(false);
 const isInputCoolingDown = ref(false);
 let feedbackTimer = 0;
@@ -70,6 +71,7 @@ function startInputCooldown() {
 
 function resetPlateForNextRecipe() {
   plateSteps.value = [];
+  visibleChoices.value = shuffleSandwichChoices();
   clearTransientFeedback();
   isRecipeResting.value = false;
   feedbackMessage.value = `${currentRecipe.value.title}. ${currentRecipe.value.helper}`;
@@ -129,6 +131,7 @@ function chooseIngredient(choice: SandwichChoice) {
 function restart() {
   clearTimers();
   plateSteps.value = [];
+  visibleChoices.value = shuffleSandwichChoices();
   resultVisible.value = false;
   isRecipeResting.value = false;
   isInputCoolingDown.value = false;
@@ -203,7 +206,7 @@ watch(() => session.status, (status) => {
               </v-card>
 
               <div class="ingredient-grid" aria-label="Ингредиенты для бутерброда">
-                <GameDwellButton v-for="choice in sandwichChoices" :key="choice.id" :class="{ 'needed-choice': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isRecipeResting || isInputCoolingDown" :dwell-ms="session.settings.dwellMs" :min-height="104" :color="choiceColor(choice)" @select="chooseIngredient(choice)">
+                <GameDwellButton v-for="choice in visibleChoices" :key="choice.id" :class="{ 'needed-choice': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isRecipeResting || isInputCoolingDown" :dwell-ms="session.settings.dwellMs" :min-height="104" :color="choiceColor(choice)" @select="chooseIngredient(choice)">
                   <template #default>
                     <div class="ingredient-content">
                       <v-avatar :color="choice.color" size="52">

@@ -1,5 +1,3 @@
-import { shuffleItems } from "../../data/wordBank";
-
 export type ThreeFrameStoryFrame = {
   id: string;
   label: string;
@@ -75,7 +73,7 @@ export function generateThreeFrameStoryRound(completedSteps: number): ThreeFrame
   const story = threeFrameStories[storyIndex];
   const expectedFrame = story.frames[stepInStory];
   const placedFrames = story.frames.slice(0, stepInStory);
-  const choices = shuffleItems(story.frames);
+  const choices = [...story.frames];
 
   return {
     roundId: `three-frame-story:${story.id}:${stepInStory + 1}`,

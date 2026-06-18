@@ -975,6 +975,7 @@ export const games: GameInfo[] = [
     icon: "mdi-food-variant",
     skills: ["sequence", "choice"],
     status: "therapy-ready",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 150,
     defaultDwellMs: 1300
@@ -1003,6 +1004,7 @@ export const games: GameInfo[] = [
     icon: "mdi-palette-swatch",
     skills: ["sequence", "choice", "classification"],
     status: "therapy-ready",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -1017,6 +1019,7 @@ export const games: GameInfo[] = [
     icon: "mdi-weather-sunset",
     skills: ["sequence", "choice", "vocabulary"],
     status: "therapy-ready",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -1031,6 +1034,7 @@ export const games: GameInfo[] = [
     icon: "mdi-filmstrip",
     skills: ["sequence", "choice", "vocabulary"],
     status: "therapy-ready",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 140,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -1045,6 +1049,7 @@ export const games: GameInfo[] = [
     icon: "mdi-order-bool-ascending",
     skills: ["sequence", "choice", "aac"],
     status: "therapy-ready",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1300

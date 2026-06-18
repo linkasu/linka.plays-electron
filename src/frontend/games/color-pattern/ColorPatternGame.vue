@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { generateColorPatternRound, type ColorPatternColor } from "./model";
+
+const colorPatternFeedback = createStandardGameFeedback();
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("color-pattern", {
   maxSteps: 8,
-  overrides: { dwellMs: 1300, sessionSeconds: 130, sound: false },
+  overrides: { dwellMs: 1300, sessionSeconds: 130, sound: true },
   finishOnMistakes: false
 });
 
@@ -74,6 +77,7 @@ function choose(choice: ColorPatternColor) {
     pendingSelection.value = true;
     successChoiceId.value = choice.id;
     feedbackText.value = "Верно. Цветовой ряд продолжается.";
+    void colorPatternFeedback.playSuccess(session.settings.sound);
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.answer.label, actual: choice.label, patternKind: round.value.patternKind, isCorrect: true });
 
     if (session.status === "running" && session.step < session.maxSteps) {
@@ -89,6 +93,7 @@ function choose(choice: ColorPatternColor) {
   wrongChoiceId.value = choice.id;
   highlightPattern.value = true;
   feedbackText.value = "Почти. Ряд мягко подсвечен: посмотри, как цвета повторяются.";
+  void colorPatternFeedback.playMistake(session.settings.sound);
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.answer.label, actual: choice.label, patternKind: round.value.patternKind, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, patternKind: round.value.patternKind, message: "Подсвечена закономерность цветового ряда." });
 
@@ -110,8 +115,13 @@ function restart() {
   restartRoundGame();
 }
 
+onMounted(() => {
+  colorPatternFeedback.warm(session.settings.sound);
+});
+
 onUnmounted(() => {
   clearFeedbackTimer();
+  colorPatternFeedback.dispose();
 });
 </script>
 

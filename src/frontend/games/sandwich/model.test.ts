@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildSandwichSteps, isSandwichRecipeCompleteStep, sandwichChoices, sandwichMaxSteps, sandwichRecipes } from "./model";
+import { buildSandwichSteps, isSandwichRecipeCompleteStep, sandwichChoices, sandwichMaxSteps, sandwichRecipes, shuffleSandwichChoices } from "./model";
 
 describe("sandwich model", () => {
   it("builds two complete recipe sequences", () => {
@@ -42,5 +42,13 @@ describe("sandwich model", () => {
       expect(recipe.title).toBeTruthy();
       expect(recipe.helper).toBeTruthy();
     }
+  });
+
+  it("shuffles button choices without dropping ingredients", () => {
+    const randomValues = [0.91, 0.13, 0.72, 0.28, 0.49];
+    const shuffled = shuffleSandwichChoices(sandwichChoices, () => randomValues.shift() ?? 0);
+
+    expect(shuffled).not.toEqual(sandwichChoices);
+    expect(shuffled.map((choice) => choice.id).sort()).toEqual(sandwichChoices.map((choice) => choice.id).sort());
   });
 });

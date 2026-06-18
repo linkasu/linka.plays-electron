@@ -10,8 +10,8 @@
 | Route | `/games/sandwich` |
 | Категория | `sequencing` — Последовательности |
 | Status | `therapy-ready` |
-| Resolved stability | `needs-check` |
-| Readiness group | `development` |
+| Resolved stability | `publish` |
+| Readiness group | `ready` |
 | Skills | последовательность, выбор |
 | Recommended session | 130 сек |
 | Min target size | 150 px |
@@ -62,12 +62,11 @@ undefined
 
 ## Готовность
 
-Игра находится в группе `development`, потому что resolved stability не равен `publish`.
+Игра находится в группе `ready`, потому что resolved stability равен `publish`.
 
 Автоматические blockers:
 
-- stability:needs-check
-- missing-game-doc
+- нет
 
 ## QA checklist
 
@@ -80,4 +79,4 @@ undefined
 
 ## Next step
 
-Разобрать blockers из readiness-аудита, затем повторить Electron CDP/PNG audit и принять решение о `stabilityStatus: "publish"`.
+Оставить в ready-очереди и проверять регрессии через общий Electron CDP audit.

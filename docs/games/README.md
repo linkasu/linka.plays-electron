@@ -9,7 +9,7 @@
 | `ready` | `resolvedStabilityStatus === "publish"` |
 | `development` | всё кроме `publish`: `needs-check`, `prefixed`, `archived`, скрытые или спорные игры |
 
-Сводка по последнему readiness-аудиту: 154 игры, 67 ready, 87 development. Все registry-игры имеют `docs/games/<id>.md`.
+Сводка по последнему readiness-аудиту: 154 игры, 75 игр, 79 игр. Все registry-игры имеют `docs/games/<id>.md`.
 
 ## Форматы документов
 
@@ -29,7 +29,7 @@
 | Дышащий цветок | `breathing-flower` | [breathing-flower.md](breathing-flower.md) | `polished` | `publish` | `ready` |
 | Разбуди сову | `wake-owl` | [wake-owl.md](wake-owl.md) | `polished` | `publish` | `ready` |
 | Облака | `clouds` | [clouds.md](clouds.md) | `polished` | `publish` | `ready` |
-| Листья на ветру | `leaves-wind` | [leaves-wind.md](leaves-wind.md) | `therapy-ready` | `archived` | `development` |
+| Листья на ветру | `leaves-wind` | [leaves-wind.md](leaves-wind.md) | `therapy-ready` | `publish` | `ready` |
 | Воздушный змей | `kite` | [kite.md](kite.md) | `polished` | `publish` | `ready` |
 | Светлячковая поляна | `firefly-meadow` | [firefly-meadow.md](firefly-meadow.md) | `polished` | `publish` | `ready` |
 | Поймай свет | `catch-light` | [catch-light.md](catch-light.md) | `polished` | `publish` | `ready` |
@@ -68,7 +68,7 @@
 | Найди цвет | `find-color` | [find-color.md](find-color.md) | `polished` | `publish` | `ready` |
 | Найди форму | `find-shape` | [find-shape.md](find-shape.md) | `therapy-ready` | `publish` | `ready` |
 | Где такой же? | `match-same` | [match-same.md](match-same.md) | `polished` | `publish` | `ready` |
-| Что пропало? | `what-missing` | [what-missing.md](what-missing.md) | `therapy-ready` | `needs-check` | `development` |
+| Что пропало? | `what-missing` | [what-missing.md](what-missing.md) | `therapy-ready` | `publish` | `ready` |
 | Следуй за подсказкой | `follow-cue` | [follow-cue.md](follow-cue.md) | `therapy-ready` | `publish` | `ready` |
 | Найди букву | `find-letter` | [find-letter.md](find-letter.md) | `therapy-ready` | `publish` | `ready` |
 | Тень и предмет | `shadow-match` | [shadow-match.md](shadow-match.md) | `therapy-ready` | `publish` | `ready` |
@@ -86,14 +86,14 @@
 |---|---|---|---|---|---|
 | Собери роботика | `build-robot` | [build-robot.md](build-robot.md) | `therapy-ready` | `publish` | `ready` |
 | Пирамидка | `pyramid` | [pyramid.md](pyramid.md) | `polished` | `publish` | `ready` |
-| Одень персонажа | `dress-character` | [dress-character.md](dress-character.md) | `therapy-ready` | `needs-check` | `development` |
+| Одень персонажа | `dress-character` | [dress-character.md](dress-character.md) | `therapy-ready` | `publish` | `ready` |
 | Поезд | `train-sequence` | [train-sequence.md](train-sequence.md) | `polished` | `publish` | `ready` |
-| Бутерброд | `sandwich` | [sandwich.md](sandwich.md) | `therapy-ready` | `needs-check` | `development` |
+| Бутерброд | `sandwich` | [sandwich.md](sandwich.md) | `therapy-ready` | `publish` | `ready` |
 | Паттерны | `patterns` | [patterns.md](patterns.md) | `polished` | `publish` | `ready` |
-| Цветовой узор | `color-pattern` | [color-pattern.md](color-pattern.md) | `therapy-ready` | `needs-check` | `development` |
-| Утро-день-вечер | `day-routine` | [day-routine.md](day-routine.md) | `therapy-ready` | `needs-check` | `development` |
-| История из 3 кадров | `three-frame-story` | [three-frame-story.md](three-frame-story.md) | `therapy-ready` | `needs-check` | `development` |
-| Сначала-потом | `first-then` | [first-then.md](first-then.md) | `therapy-ready` | `needs-check` | `development` |
+| Цветовой узор | `color-pattern` | [color-pattern.md](color-pattern.md) | `therapy-ready` | `publish` | `ready` |
+| Утро-день-вечер | `day-routine` | [day-routine.md](day-routine.md) | `therapy-ready` | `publish` | `ready` |
+| История из 3 кадров | `three-frame-story` | [three-frame-story.md](three-frame-story.md) | `therapy-ready` | `publish` | `ready` |
+| Сначала-потом | `first-then` | [first-then.md](first-then.md) | `therapy-ready` | `publish` | `ready` |
 | Музыкальная дорожка | `musical-path` | [musical-path.md](musical-path.md) | `therapy-ready` | `needs-check` | `development` |
 | Мозаика | `mosaic` | [mosaic.md](mosaic.md) | `therapy-ready` | `needs-check` | `development` |
 | Танец фигур | `shape-dance` | [shape-dance.md](shape-dance.md) | `therapy-ready` | `needs-check` | `development` |

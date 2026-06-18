@@ -139,3 +139,14 @@ export function isSandwichRecipeCompleteStep(step: SandwichRecipeStep, recipes =
 export function getSandwichRecipe(recipeIndex: number, recipes = sandwichRecipes) {
   return recipes[recipeIndex % recipes.length];
 }
+
+export function shuffleSandwichChoices(choices = sandwichChoices, random = Math.random): SandwichChoice[] {
+  const shuffled = [...choices];
+
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(random() * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+
+  return shuffled;
+}
