@@ -63,6 +63,72 @@ export const comicStories: ComicStory[] = [
       { id: "mail-send", caption: "Опустили в ящик", icon: "mdi-mailbox-outline", color: "red-lighten-5", hint: "потом письмо отправляют" },
       { id: "mail-friend", caption: "Друг получил", icon: "mdi-account-heart-outline", color: "green-lighten-5", hint: "в конце друг получает письмо" }
     ]
+  },
+  {
+    id: "bread",
+    title: "Свежий хлеб",
+    prompt: "Собери историю: тесто становится хлебом.",
+    finalMessage: "Хлеб испёкся тёплым и мягким.",
+    frames: [
+      { id: "bread-flour", caption: "Насыпали муку", icon: "mdi-sack-outline", color: "brown-lighten-5", hint: "сначала берут муку" },
+      { id: "bread-oven", caption: "Поставили в печь", icon: "mdi-stove", color: "deep-orange-lighten-5", hint: "потом хлеб печётся" },
+      { id: "bread-ready", caption: "Достали хлеб", icon: "mdi-bread-slice-outline", color: "amber-lighten-5", hint: "в конце хлеб готов" }
+    ]
+  },
+  {
+    id: "snowman",
+    title: "Снеговик",
+    prompt: "Собери историю: снежный ком становится снеговиком.",
+    finalMessage: "Снеговик стоит и улыбается.",
+    frames: [
+      { id: "snowman-snow", caption: "Выпал снег", icon: "mdi-snowflake", color: "light-blue-lighten-5", hint: "сначала появляется снег" },
+      { id: "snowman-roll", caption: "Скатали ком", icon: "mdi-circle-outline", color: "blue-lighten-5", hint: "потом катают снежный ком" },
+      { id: "snowman-ready", caption: "Собрали снеговика", icon: "mdi-snowman", color: "cyan-lighten-5", hint: "в конце получается снеговик" }
+    ]
+  },
+  {
+    id: "house",
+    title: "Домик",
+    prompt: "Собери историю: строим маленький домик.",
+    finalMessage: "Домик готов, внутри спокойно и тепло.",
+    frames: [
+      { id: "house-bricks", caption: "Принесли кирпичи", icon: "mdi-wall", color: "red-lighten-5", hint: "сначала нужны кирпичи" },
+      { id: "house-roof", caption: "Поставили крышу", icon: "mdi-home-roof", color: "orange-lighten-5", hint: "потом ставят крышу" },
+      { id: "house-ready", caption: "Зажгли свет", icon: "mdi-home-heart", color: "yellow-lighten-5", hint: "в конце в доме горит свет" }
+    ]
+  },
+  {
+    id: "gift",
+    title: "Подарок",
+    prompt: "Собери историю: подарок готовят и дарят.",
+    finalMessage: "Подарок подарили с улыбкой.",
+    frames: [
+      { id: "gift-box", caption: "Взяли коробку", icon: "mdi-package-variant-closed", color: "purple-lighten-5", hint: "сначала нужна коробка" },
+      { id: "gift-ribbon", caption: "Завязали бант", icon: "mdi-ribbon", color: "pink-lighten-5", hint: "потом завязывают бант" },
+      { id: "gift-smile", caption: "Подарили другу", icon: "mdi-gift-outline", color: "green-lighten-5", hint: "в конце подарок дарят" }
+    ]
+  },
+  {
+    id: "boat",
+    title: "Кораблик",
+    prompt: "Собери историю: бумажный кораблик плывёт.",
+    finalMessage: "Кораблик спокойно поплыл по воде.",
+    frames: [
+      { id: "boat-paper", caption: "Взяли бумагу", icon: "mdi-file-outline", color: "grey-lighten-4", hint: "сначала берут лист бумаги" },
+      { id: "boat-fold", caption: "Сложили кораблик", icon: "mdi-sail-boat", color: "indigo-lighten-5", hint: "потом складывают кораблик" },
+      { id: "boat-water", caption: "Пустили на воду", icon: "mdi-waves", color: "blue-lighten-5", hint: "в конце кораблик плывёт" }
+    ]
+  },
+  {
+    id: "kitten",
+    title: "Котёнок",
+    prompt: "Собери историю: котёнок находит уютное место.",
+    finalMessage: "Котёнок лёг отдыхать и замурлыкал.",
+    frames: [
+      { id: "kitten-walk", caption: "Котёнок гулял", icon: "mdi-cat", color: "orange-lighten-5", hint: "сначала котёнок гуляет" },
+      { id: "kitten-bowl", caption: "Попил молоко", icon: "mdi-bowl-mix-outline", color: "blue-grey-lighten-5", hint: "потом котёнок пьёт молоко" },
+      { id: "kitten-sleep", caption: "Уснул на коврике", icon: "mdi-sleep", color: "deep-purple-lighten-5", hint: "в конце котёнок отдыхает" }
+    ]
   }
 ];
 

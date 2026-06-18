@@ -1,18 +1,30 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { playSoftPianoMelody, warmSoftPiano } from "../../core/softPiano";
 import { generateComicStripRound, getComicFrameChoices, type ComicFrame } from "./model";
 
 const storyAdvanceMs = 1300;
+const storiesPerSession = 2;
+const comicFeedback = createStandardGameFeedback();
+const storyNotes = [55, 60, 62, 64, 67, 69, 72];
+const storyNoteByFrameIndex = [60, 64, 67];
+const storyFrequencyByFrameIndex = [261.63, 329.63, 392];
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("comic-strip", { maxSteps: 6, finishOnMistakes: false });
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("comic-strip", {
+  maxSteps: 6,
+  overrides: { sound: true },
+  finishOnMaxSteps: false,
+  finishOnMistakes: false
+});
 
 const storyRoundIndex = ref(1);
 const placedFrameIds = ref<string[]>([]);
@@ -20,6 +32,7 @@ const hintedFrameId = ref<string>();
 const lastMistakeFrameId = ref<string>();
 const feedbackText = ref("Выбери первый кадр. Ошибки не страшны: подсказка поможет.");
 const isAdvancingStory = ref(false);
+const completedStories = ref(0);
 let advanceTimer = 0;
 
 const round = computed(() => generateComicStripRound(storyRoundIndex.value));
@@ -55,20 +68,37 @@ function startNextStory() {
   feedbackText.value = "Начинается новая история. Выбери первый кадр.";
 }
 
+function playFrameNote(frameIndex: number) {
+  const safeIndex = Math.max(0, Math.min(storyNoteByFrameIndex.length - 1, frameIndex));
+  void playSoftPianoMelody(session.settings.sound, {
+    notesToLoad: storyNotes,
+    sampled: [{ note: storyNoteByFrameIndex[safeIndex], at: 0, duration: 0.48, velocity: 30 }],
+    fallback: [{ frequency: storyFrequencyByFrameIndex[safeIndex], at: 0, duration: 0.44, peak: 0.034 }],
+    lengthSeconds: 0.52
+  });
+}
+
 function chooseFrame(frame: ComicFrame) {
   if (session.status !== "running" || isAdvancingStory.value || !nextFrame.value) return;
 
+  const expectedFrame = nextFrame.value;
   const targetId = frameTargetId(frame);
-  const expectedTargetId = frameTargetId(nextFrame.value);
-  if (frame.id === nextFrame.value.id) {
+  const expectedTargetId = frameTargetId(expectedFrame);
+  if (frame.id === expectedFrame.id) {
+    const completedFrameIndex = nextFrameIndex.value;
     placedFrameIds.value = [...placedFrameIds.value, frame.id];
     hintedFrameId.value = undefined;
     lastMistakeFrameId.value = undefined;
-    recordSuccess({ roundId: round.value.roundId, targetId, answerId: frame.id, expected: nextFrame.value.caption, actual: frame.caption, isCorrect: true });
+    recordSuccess({ roundId: round.value.roundId, targetId, answerId: frame.id, expected: expectedFrame.caption, actual: frame.caption, isCorrect: true });
+    playFrameNote(completedFrameIndex);
 
     if (placedFrameIds.value.length >= round.value.story.frames.length) {
       feedbackText.value = round.value.story.finalMessage;
-      if (session.status === "running" && session.step < session.maxSteps) {
+      void comicFeedback.playSuccess(session.settings.sound);
+      completedStories.value += 1;
+      if (completedStories.value >= storiesPerSession) {
+        finishSession("max-steps");
+      } else {
         isAdvancingStory.value = true;
         clearAdvanceTimer();
         advanceTimer = window.setTimeout(startNextStory, storyAdvanceMs);
@@ -80,16 +110,18 @@ function chooseFrame(frame: ComicFrame) {
     return;
   }
 
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: frame.id, expected: nextFrame.value.caption, actual: frame.caption, isCorrect: false });
+  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: frame.id, expected: expectedFrame.caption, actual: frame.caption, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "wrong-comic-frame" });
-  hintedFrameId.value = nextFrame.value.id;
+  hintedFrameId.value = expectedFrame.id;
   lastMistakeFrameId.value = frame.id;
   feedbackText.value = "Почти. Попробуй ещё раз: нужный кадр мягко подсвечен.";
+  void comicFeedback.playMistake(session.settings.sound);
 }
 
 function restart() {
   clearAdvanceTimer();
   storyRoundIndex.value = 1;
+  completedStories.value = 0;
   placedFrameIds.value = [];
   hintedFrameId.value = undefined;
   lastMistakeFrameId.value = undefined;
@@ -98,7 +130,15 @@ function restart() {
   startSession();
 }
 
-onUnmounted(clearAdvanceTimer);
+onMounted(() => {
+  warmSoftPiano(session.settings.sound, storyNotes);
+  comicFeedback.warm(session.settings.sound);
+});
+
+onUnmounted(() => {
+  clearAdvanceTimer();
+  comicFeedback.dispose();
+});
 </script>
 
 <template>
@@ -109,11 +149,11 @@ onUnmounted(clearAdvanceTimer);
     <v-container class="comic-strip-container" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
-          <v-card class="pa-4 pa-md-7" color="surface" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Последовательность</div>
-            <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">Комикс</h1>
-            <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-2">{{ round.story.prompt }}</p>
-            <p class="text-body-1 text-md-h6 text-center mb-5">{{ feedbackText }}</p>
+          <v-card class="comic-card pa-4 pa-md-7" color="surface" rounded="xl" elevation="8">
+            <div class="comic-overline text-overline text-secondary text-center mb-2">Последовательность</div>
+            <h1 class="comic-title text-h3 text-md-h2 font-weight-bold text-center mb-2">Комикс</h1>
+            <p class="comic-prompt text-h6 text-md-h5 text-medium-emphasis text-center mb-2">{{ round.story.prompt }}</p>
+            <p class="comic-feedback text-body-1 text-md-h6 text-center mb-5">{{ feedbackText }}</p>
 
             <v-row class="mb-5" dense justify="center">
               <v-col v-for="slotIndex in 3" :key="slotIndex" cols="12" md="4">
@@ -134,7 +174,7 @@ onUnmounted(clearAdvanceTimer);
               </v-col>
             </v-row>
 
-            <v-card class="pa-4 pa-md-5 mb-5" color="blue-lighten-5" rounded="xl" variant="flat">
+            <v-card class="comic-hint-card pa-4 pa-md-5 mb-5" color="blue-lighten-5" rounded="xl" variant="flat">
               <div class="d-flex flex-column flex-md-row align-center justify-space-between ga-3">
                 <div>
                   <div class="text-caption text-medium-emphasis">Следующий шаг</div>
@@ -148,7 +188,7 @@ onUnmounted(clearAdvanceTimer);
 
             <v-row dense justify="center">
               <v-col v-for="frame in choices" :key="frame.id" cols="4" sm="4">
-                <GameDwellButton :target-id="frameTargetId(frame)" :disabled="session.status !== 'running' || isAdvancingStory" :dwell-ms="session.settings.dwellMs" :min-height="130" :color="hintedFrameId === frame.id ? 'primary' : 'surface'" @select="chooseFrame(frame)">
+                <GameDwellButton class="comic-choice" :target-id="frameTargetId(frame)" :disabled="session.status !== 'running' || isAdvancingStory" :dwell-ms="session.settings.dwellMs" :min-height="118" :color="hintedFrameId === frame.id ? 'primary' : 'surface'" @select="chooseFrame(frame)">
                   <template #default>
                     <div :class="['choice-frame', { 'choice-frame--mistake': lastMistakeFrameId === frame.id }]">
                       <v-icon :icon="frame.icon" size="64" />
@@ -198,8 +238,40 @@ onUnmounted(clearAdvanceTimer);
 }
 
 @media (max-height: 44rem) {
+  .comic-card {
+    padding-block: 1.25rem !important;
+  }
+
+  .comic-overline {
+    display: none;
+  }
+
+  .comic-title {
+    font-size: clamp(2.1rem, 6vh, 2.9rem) !important;
+    line-height: 1 !important;
+    margin-block-end: 0.5rem !important;
+  }
+
+  .comic-prompt,
+  .comic-feedback {
+    margin-block-end: 0.35rem !important;
+  }
+
+  .comic-hint-card {
+    margin-block: 1rem !important;
+    padding-block: 0.9rem !important;
+  }
+
   .comic-slot {
     min-block-size: 9.5rem;
+  }
+
+  .comic-choice :deep(.dwell-button) {
+    padding-block: 1rem !important;
+  }
+
+  .choice-frame__note {
+    display: none;
   }
 }
 

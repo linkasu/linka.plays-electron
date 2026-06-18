@@ -3,7 +3,8 @@ import { comicStories, generateComicStripRound, getComicFrameChoices, getComicSt
 
 describe("comic-strip model", () => {
   it("uses three-frame stories", () => {
-    expect(comicStories.length).toBeGreaterThanOrEqual(3);
+    expect(comicStories).toHaveLength(10);
+    expect(new Set(comicStories.map((story) => story.id)).size).toBe(10);
     for (const story of comicStories) {
       expect(story.frames).toHaveLength(3);
       expect(new Set(story.frames.map((frame) => frame.id)).size).toBe(3);

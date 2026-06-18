@@ -1,4 +1,4 @@
-# Readiness audit — 2026-06-16
+| `continuous-control` | 1 | 19 || `strategy` | 2 | 18 || `language-aac` | 4 | 17 || `sequencing` | 15 | 4 || `numeracy` | 6 | 14 || `visual-search` | 16 | 0 || `gaze-basics` | 36 | 0 |# Readiness audit — 2026-06-16
 
 Аудит построен командой:
 
@@ -22,12 +22,12 @@ npm run audit:readiness -- --output=docs/tests/2026-06-16/readiness-audit.json
 | Метрика | Значение |
 |---|---:|
 | Игр в текущем реестре | 152 |
-| Ready | 79 |
-| Development | 73 |
+| Ready | 80 |
+| Development | 72 |
 | `status: "polished"` | 44 |
 | `status: "therapy-ready"` | 108 |
-| `resolvedStabilityStatus: "publish"` | 79 |
-| `resolvedStabilityStatus: "needs-check"` | 73 |
+| `resolvedStabilityStatus: "publish"` | 80 |
+| `resolvedStabilityStatus: "needs-check"` | 72 |
 | `resolvedStabilityStatus: "archived"` | 0 |
 | Отсутствующие routes | 0 |
 | Отсутствующие Vue-компоненты | 0 |
@@ -51,7 +51,6 @@ npm run audit:readiness -- --output=docs/tests/2026-06-16/readiness-audit.json
 
 | Игра | Категория | Stability | Blockers |
 |---|---|---|---|
-| `comic-strip` | `sequencing` | `needs-check` | `stability:needs-check` |
 | `schedule` | `sequencing` | `needs-check` | `stability:needs-check` |
 | `build-bridge` | `sequencing` | `needs-check` | `stability:needs-check`, `rules-not-extracted-to-model` |
 | `shelf-sorting` | `sequencing` | `needs-check` | `stability:needs-check` |
@@ -60,6 +59,8 @@ npm run audit:readiness -- --output=docs/tests/2026-06-16/readiness-audit.json
 | `action-who` | `language-aac` | `needs-check` | `stability:needs-check` |
 | `word-categories` | `language-aac` | `needs-check` | `stability:needs-check` |
 | `i-want` | `language-aac` | `needs-check` | `stability:needs-check`, `rules-not-extracted-to-model` |
+| `want-dont-want` | `language-aac` | `needs-check` | `stability:needs-check` |
+| `object-action` | `language-aac` | `needs-check` | `stability:needs-check` |
 
 Полный список development-игр и blockers находится в `developmentQueue` внутри `readiness-audit.json`.
 
