@@ -9,7 +9,7 @@
 | `ready` | `resolvedStabilityStatus === "publish"` |
 | `development` | всё кроме `publish`: `needs-check`, `prefixed`, `archived`, скрытые или спорные игры |
 
-Сводка по последнему readiness-аудиту: 154 игры, 78 игр, 76 игр. Все registry-игры имеют `docs/games/<id>.md`.
+Сводка по последнему readiness-аудиту: 152 игры, 79 игр, 73 игры. Все registry-игры имеют `docs/games/<id>.md`.
 
 ## Форматы документов
 
@@ -97,9 +97,7 @@
 | Музыкальная дорожка | `musical-path` | [musical-path.md](musical-path.md) | `therapy-ready` | `publish` | `ready` |
 | Мозаика | `mosaic` | [mosaic.md](mosaic.md) | `therapy-ready` | `publish` | `ready` |
 | Танец фигур | `shape-dance` | [shape-dance.md](shape-dance.md) | `therapy-ready` | `publish` | `ready` |
-| Маршрут героя | `hero-route` | [hero-route.md](hero-route.md) | `therapy-ready` | `needs-check` | `development` |
-| Рецепт супа | `soup-recipe` | [soup-recipe.md](soup-recipe.md) | `therapy-ready` | `needs-check` | `development` |
-| Почини картинку | `fix-picture` | [fix-picture.md](fix-picture.md) | `therapy-ready` | `needs-check` | `development` |
+| Рецепт супа | `soup-recipe` | [soup-recipe.md](soup-recipe.md) | `therapy-ready` | `publish` | `ready` |
 | Комикс | `comic-strip` | [comic-strip.md](comic-strip.md) | `therapy-ready` | `needs-check` | `development` |
 | Расписание | `schedule` | [schedule.md](schedule.md) | `therapy-ready` | `needs-check` | `development` |
 | Строим мост | `build-bridge` | [build-bridge.md](build-bridge.md) | `therapy-ready` | `needs-check` | `development` |

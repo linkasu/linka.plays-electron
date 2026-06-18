@@ -34,7 +34,6 @@ JSON с полными метриками: `devtools-full-runtime-after-fixes.js
 | [calm-tetris](./calm-tetris.md) | Тетрис спокойный | strategy | many-cards-below-fold, very-tall-page | 1024x600: targets 4/4, min 116, y 2.42, cardsOut 4<br>800x600: targets 4/4, min 116, y 2.36, cardsOut 4 |
 | [day-routine](./day-routine.md) | Утро-день-вечер | sequencing | no-visible-targets, many-cards-below-fold, very-tall-page | 1024x600: targets 0/8, min 0, y 2.11, cardsOut 1<br>800x600: targets 0/8, min 0, y 2.78, cardsOut 3 |
 | [dress-character](./dress-character.md) | Одень персонажа | sequencing | many-cards-below-fold, no-visible-targets, very-tall-page | 1024x600: targets 1/3, min 180, y 1.74, cardsOut 5<br>800x600: targets 0/3, min 0, y 2.54, cardsOut 5 |
-| [hero-route](./hero-route.md) | Маршрут героя | sequencing | no-visible-targets, many-cards-below-fold, very-tall-page | 1024x600: targets 0/3, min 0, y 1.81, cardsOut 2<br>800x600: targets 0/3, min 0, y 2.72, cardsOut 5 |
 | [sandwich](./sandwich.md) | Бутерброд | sequencing | many-cards-below-fold, no-visible-targets, very-tall-page | 1024x600: targets 2/5, min 169, y 1.74, cardsOut 3<br>800x600: targets 0/5, min 0, y 2.52, cardsOut 7 |
 | [tangram](./tangram.md) | Tangram | strategy | no-visible-targets, many-cards-below-fold | 1024x600: targets 0/4, min 0, y 1.96, cardsOut 6<br>800x600: targets 0/4, min 0, y 1.87, cardsOut 5 |
 | [uno-like](./uno-like.md) | Уно-подобное | strategy | many-cards-below-fold, no-visible-targets, very-tall-page | 1024x600: targets 2/4, min 307, y 1.77, cardsOut 5<br>800x600: targets 0/4, min 0, y 2.42, cardsOut 5 |
@@ -55,7 +54,6 @@ JSON с полными метриками: `devtools-full-runtime-after-fixes.js
 | [choose-emotion](./choose-emotion.md) | Выбери эмоцию | language-aac | many-cards-below-fold | 1024x600: targets 3/3, min 220, y 1.15, cardsOut 4<br>800x600: targets 2/3, min 220, y 1.47, cardsOut 4 |
 | [choose-picture](./choose-picture.md) | Выбери картинку | language-aac | many-cards-below-fold | 1024x600: targets 4/4, min 210, y 1.3, cardsOut 3<br>800x600: targets 4/4, min 210, y 1.27, cardsOut 3 |
 | [domino-matching](./domino-matching.md) | Домино: найди сторону | strategy | many-cards-below-fold | 1024x600: targets 2/4, min 256, y 1.56, cardsOut 5<br>800x600: targets 2/4, min 256, y 1.93, cardsOut 5 |
-| [fix-picture](./fix-picture.md) | Почини картинку | sequencing | many-cards-below-fold, no-visible-targets | 1024x600: targets 1/3, min 160, y 1.68, cardsOut 5<br>800x600: targets 0/3, min 0, y 1.91, cardsOut 2 |
 | [follow-cue](./follow-cue.md) | Следуй за подсказкой | visual-search | many-cards-below-fold | 1024x600: targets 4/4, min 180, y 1.19, cardsOut 3<br>800x600: targets 4/4, min 172, y 1.12, cardsOut 3 |
 | [grid-scanning](./grid-scanning.md) | Сканирование поля | visual-search | many-cards-below-fold | 1024x600: targets 4/4, min 160, y 1.2, cardsOut 3<br>800x600: targets 4/4, min 160, y 1.14, cardsOut 3 |
 | [hurt-good](./hurt-good.md) | Болит / хорошо | language-aac | many-cards-below-fold | 1024x600: targets 2/2, min 250, y 1.21, cardsOut 3<br>800x600: targets 2/2, min 250, y 1.14, cardsOut 3 |

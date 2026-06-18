@@ -150,7 +150,6 @@
 | [first-then](./first-then.md) | Сначала-потом | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
 | [musical-path](./musical-path.md) | Музыкальная дорожка | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Deep CSS override; Скрытие контента на малой высоте; Текстовая подсказка поверх сцены |
 | [shape-dance](./shape-dance.md) | Танец фигур | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow |
-| [hero-route](./hero-route.md) | Маршрут героя | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow |
 | [soup-recipe](./soup-recipe.md) | Рецепт супа | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Ручные пиксельные отступы; Текстовая подсказка поверх сцены |
 | [schedule](./schedule.md) | Расписание | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
 | [build-bridge](./build-bridge.md) | Строим мост | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
@@ -313,9 +312,7 @@
 | [musical-path](./musical-path.md) | Музыкальная дорожка | sequencing | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [mosaic](./mosaic.md) | Мозаика | sequencing | да | средний | средний | средний | Ошибки не завершают сессию |
 | [shape-dance](./shape-dance.md) | Танец фигур | sequencing | да | высокий | средний | высокий | Ошибки не завершают сессию |
-| [hero-route](./hero-route.md) | Маршрут героя | sequencing | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [soup-recipe](./soup-recipe.md) | Рецепт супа | sequencing | да | высокий | средний | высокий | Ошибки не завершают сессию |
-| [fix-picture](./fix-picture.md) | Почини картинку | sequencing | да | средний | средний | средний | Ошибки не завершают сессию |
 | [comic-strip](./comic-strip.md) | Комикс | sequencing | да | средний | средний | средний | Ошибки не завершают сессию |
 | [schedule](./schedule.md) | Расписание | sequencing | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [build-bridge](./build-bridge.md) | Строим мост | sequencing | да | высокий | средний | высокий | Ошибки не завершают сессию |

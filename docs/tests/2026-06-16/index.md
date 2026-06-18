@@ -1,6 +1,6 @@
 # Аудит игр LINKa Plays — 2026-06-16
 
-Этот каталог фиксирует текущий readiness и Electron CDP visual audit для реестра из 154 игр.
+Этот каталог фиксирует текущий readiness и Electron CDP visual audit для реестра из 152 игр.
 
 ## Отчёты
 
@@ -16,10 +16,10 @@
 
 ## Главный результат
 
-- Registry/router/component coverage: 154 / 154.
-- Ready: 78 игр.
-- Development: 76 игр.
-- Полный Electron CDP прогон: 462 проверки, 0 failures.
+- Registry/router/component coverage: 152 / 152.
+- Ready: 79 игр.
+- Development: 73 игры.
+- Полный Electron CDP прогон: 456 проверок, 0 failures.
 - Ручной PNG-review выборки нашёл основной визуальный blocker в `cursor-magnet`; blocker исправлен targeted compact overlay fix.
 - Очередь `model.ts` без `model.test.ts`: закрыта, осталось 0.
 - Очередь strict target-size: закрыта, routes ниже `shortSideRatio < 0.15` осталось 0.

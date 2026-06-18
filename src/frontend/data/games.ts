@@ -1100,20 +1100,6 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1250
   },
   {
-    id: "hero-route",
-    title: "Маршрут героя",
-    description: "Выбирай следующий шаг маршрута героя по крупным картинкам и стрелкам.",
-    selfDescription: "Проведи героя по маршруту.",
-    route: "/games/hero-route",
-    category: "sequencing",
-    icon: "mdi-map-marker-path",
-    skills: ["sequence", "choice", "attention-shift"],
-    status: "therapy-ready",
-    recommendedSessionSeconds: 135,
-    minTargetSizePx: 180,
-    defaultDwellMs: 1300
-  },
-  {
     id: "soup-recipe",
     title: "Рецепт супа",
     description: "Добавляй ингредиенты супа по порядку; неверный выбор только подсветит следующий шаг.",
@@ -1123,21 +1109,8 @@ export const games: GameInfo[] = [
     icon: "mdi-pot-steam-outline",
     skills: ["sequence", "choice", "vocabulary"],
     status: "therapy-ready",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 135,
-    minTargetSizePx: 180,
-    defaultDwellMs: 1300
-  },
-  {
-    id: "fix-picture",
-    title: "Почини картинку",
-    description: "Выбирай недостающую часть или следующий фрагмент, чтобы спокойно восстановить изображение.",
-    selfDescription: "Почини картинку.",
-    route: "/games/fix-picture",
-    category: "sequencing",
-    icon: "mdi-image-edit-outline",
-    skills: ["sequence", "choice", "visual-search"],
-    status: "therapy-ready",
-    recommendedSessionSeconds: 130,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
   },

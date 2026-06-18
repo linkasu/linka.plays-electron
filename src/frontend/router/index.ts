@@ -47,7 +47,6 @@ import FindAnimalGame from "../games/find-animal/FindAnimalGame.vue";
 import FindEmotionGame from "../games/find-emotion/FindEmotionGame.vue";
 import FindDigitGame from "../games/find-digit/FindDigitGame.vue";
 import FindLetterGame from "../games/find-letter/FindLetterGame.vue";
-import FixPictureGame from "../games/fix-picture/FixPictureGame.vue";
 import FireflyMeadowGame from "../games/firefly-meadow/FireflyMeadowGame.vue";
 import FindColorGame from "../games/find-color/FindColorGame.vue";
 import FindShapeGame from "../games/find-shape/FindShapeGame.vue";
@@ -62,7 +61,6 @@ import GazeMazeGame from "../games/gaze-maze/GazeMazeGame.vue";
 import GliderGame from "../games/glider/GliderGame.vue";
 import GreaterLessGame from "../games/greater-less/GreaterLessGame.vue";
 import GuideFishGame from "../games/guide-fish/GuideFishGame.vue";
-import HeroRouteGame from "../games/hero-route/HeroRouteGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import HighFiveHandsGame from "../games/high-five-hands/HighFiveHandsGame.vue";
 import HurtGoodGame from "../games/hurt-good/HurtGoodGame.vue";
@@ -242,9 +240,7 @@ const gameComponentsById: Record<string, Component> = {
   "first-then": FirstThenGame,
   "mosaic": MosaicGame,
   "shape-dance": ShapeDanceGame,
-  "hero-route": HeroRouteGame,
   "soup-recipe": SoupRecipeGame,
-  "fix-picture": FixPictureGame,
   "comic-strip": ComicStripGame,
   "schedule": ScheduleGame,
   "build-bridge": BuildBridgeGame,
