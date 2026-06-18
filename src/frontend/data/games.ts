@@ -1072,14 +1072,15 @@ export const games: GameInfo[] = [
   {
     id: "mosaic",
     title: "Мозаика",
-    description: "Выбирай крупные плитки по подсказке и мягко заполняй простой узор.",
-    selfDescription: "Собери мозаику.",
+    description: "Собирай спокойную картинку из девяти крупных кусочков: активная клетка подсвечена, ошибки только подсказывают.",
+    selfDescription: "Собери картинку из кусочков.",
     route: "/games/mosaic",
     category: "sequencing",
     icon: "mdi-collage",
     skills: ["sequence", "choice", "classification"],
     status: "therapy-ready",
-    recommendedSessionSeconds: 140,
+    stabilityStatus: "publish",
+    recommendedSessionSeconds: 150,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
   },

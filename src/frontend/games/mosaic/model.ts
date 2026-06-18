@@ -1,20 +1,21 @@
 import type { SessionSettings } from "../../core/settings";
+import { mosaicImages, type MosaicImage } from "./images";
 
-export type MosaicShape = "circle" | "square" | "triangle" | "diamond" | "hexagon" | "star";
+export const mosaicGridSize = 3;
+export const mosaicTileCount = mosaicGridSize * mosaicGridSize;
 
 export type MosaicTile = {
   id: string;
+  imageId: string;
+  row: number;
+  col: number;
+  slotIndex: number;
   label: string;
-  colorName: string;
-  shapeName: string;
-  shape: MosaicShape;
-  icon: string;
-  color: string;
-  background: string;
 };
 
 export type MosaicStep = {
   roundId: string;
+  image: MosaicImage;
   slotIndex: number;
   target: MosaicTile;
   choices: MosaicTile[];
@@ -23,60 +24,57 @@ export type MosaicStep = {
   hint: string;
 };
 
-export const mosaicTiles: MosaicTile[] = [
-  { id: "red-circle", label: "красный круг", colorName: "красный", shapeName: "круг", shape: "circle", icon: "mdi-circle", color: "#e53935", background: "#ffebee" },
-  { id: "blue-square", label: "синий квадрат", colorName: "синий", shapeName: "квадрат", shape: "square", icon: "mdi-square-rounded", color: "#1e88e5", background: "#e3f2fd" },
-  { id: "yellow-triangle", label: "жёлтый треугольник", colorName: "жёлтый", shapeName: "треугольник", shape: "triangle", icon: "mdi-triangle", color: "#fbc02d", background: "#fff8e1" },
-  { id: "green-circle", label: "зелёный круг", colorName: "зелёный", shapeName: "круг", shape: "circle", icon: "mdi-circle", color: "#43a047", background: "#e8f5e9" },
-  { id: "red-diamond", label: "красный ромб", colorName: "красный", shapeName: "ромб", shape: "diamond", icon: "mdi-rhombus", color: "#d81b60", background: "#fce4ec" },
-  { id: "blue-hexagon", label: "синий шестиугольник", colorName: "синий", shapeName: "шестиугольник", shape: "hexagon", icon: "mdi-hexagon", color: "#3949ab", background: "#e8eaf6" },
-  { id: "purple-star", label: "фиолетовая звезда", colorName: "фиолетовый", shapeName: "звезда", shape: "star", icon: "mdi-star", color: "#8e24aa", background: "#f3e5f5" },
-  { id: "orange-square", label: "оранжевый квадрат", colorName: "оранжевый", shapeName: "квадрат", shape: "square", icon: "mdi-square-rounded", color: "#fb8c00", background: "#fff3e0" }
-];
-
-const mosaicPatternIds = ["red-circle", "blue-square", "yellow-triangle", "green-circle", "red-diamond", "blue-hexagon", "purple-star", "orange-square"];
-
-export function getMosaicPattern(settings: SessionSettings): MosaicTile[] {
-  const maxSlots = Math.min(settings.maxSteps, mosaicPatternIds.length);
-  return mosaicPatternIds.slice(0, maxSlots).map((id) => tileById(id));
+export function getMosaicImage(imageIndex = 0, images = mosaicImages) {
+  if (!images.length) throw new Error("No mosaic images configured.");
+  return images[((Math.floor(imageIndex) % images.length) + images.length) % images.length];
 }
 
-export function createMosaicStep(settings: SessionSettings, stepIndex: number): MosaicStep {
-  const pattern = getMosaicPattern(settings);
-  const slotIndex = Math.max(0, Math.min(stepIndex, pattern.length - 1));
-  const target = pattern[slotIndex];
+export function createMosaicTiles(image: MosaicImage): MosaicTile[] {
+  return Array.from({ length: mosaicTileCount }, (_, slotIndex) => {
+    const row = Math.floor(slotIndex / mosaicGridSize);
+    const col = slotIndex % mosaicGridSize;
+    return {
+      id: `${image.id}-${row}-${col}`,
+      imageId: image.id,
+      row,
+      col,
+      slotIndex,
+      label: `кусочек ${slotIndex + 1}`
+    };
+  });
+}
+
+export function createMosaicStep(settings: SessionSettings, stepIndex: number, imageIndex = 0): MosaicStep {
+  const image = getMosaicImage(imageIndex);
+  const tiles = createMosaicTiles(image);
+  const slotIndex = Math.max(0, Math.min(Math.floor(stepIndex), tiles.length - 1));
+  const target = tiles[slotIndex];
   const choiceCount = settings.preset === "gentle" ? 3 : 4;
-  const choices = buildChoices(target, choiceCount, slotIndex);
+  const choices = buildMosaicChoices(target, tiles, choiceCount, slotIndex + imageIndex);
 
   return {
-    roundId: `mosaic:round:${slotIndex + 1}`,
+    roundId: `mosaic:${image.id}:slot:${slotIndex + 1}`,
+    image,
     slotIndex,
     target,
     choices,
     correctIndex: choices.findIndex((choice) => choice.id === target.id),
-    prompt: `Найди плитку: ${target.label}.`,
-    hint: `Нужны цвет ${target.colorName} и форма ${target.shapeName}.`
+    prompt: `Найди кусочек ${slotIndex + 1}.`,
+    hint: `Нужен кусочек для клетки ${slotIndex + 1}. Он подсвечен среди вариантов.`
   };
 }
 
-function buildChoices(target: MosaicTile, choiceCount: number, offset: number) {
-  const sameColor = mosaicTiles.find((tile) => tile.id !== target.id && tile.colorName === target.colorName);
-  const sameShape = mosaicTiles.find((tile) => tile.id !== target.id && tile.shape === target.shape);
-  const otherTiles = mosaicTiles.filter((tile) => tile.id !== target.id && tile.id !== sameColor?.id && tile.id !== sameShape?.id);
-  const distractors = [sameColor, sameShape, ...rotate(otherTiles, offset)].filter((tile): tile is MosaicTile => Boolean(tile));
-  const uniqueChoices = [target, ...distractors].filter((tile, index, list) => list.findIndex((item) => item.id === tile.id) === index).slice(0, choiceCount);
+export function isMosaicChoiceCorrect(choice: MosaicTile, target: MosaicTile) {
+  return choice.id === target.id;
+}
 
-  return rotate(uniqueChoices, offset % uniqueChoices.length);
+function buildMosaicChoices(target: MosaicTile, tiles: MosaicTile[], choiceCount: number, offset: number) {
+  const distractors = rotate(tiles.filter((tile) => tile.id !== target.id), offset).slice(0, Math.max(0, choiceCount - 1));
+  return rotate([target, ...distractors], offset % Math.max(1, choiceCount));
 }
 
 function rotate<T>(items: T[], offset: number) {
   if (!items.length) return items;
-  const shift = offset % items.length;
+  const shift = ((Math.floor(offset) % items.length) + items.length) % items.length;
   return [...items.slice(shift), ...items.slice(0, shift)];
-}
-
-function tileById(id: string) {
-  const tile = mosaicTiles.find((item) => item.id === id);
-  if (!tile) throw new Error(`Unknown mosaic tile: ${id}`);
-  return tile;
 }

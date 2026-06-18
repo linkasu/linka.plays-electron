@@ -1,41 +1,61 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
+import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { createMosaicStep, getMosaicPattern, type MosaicTile } from "./model";
+import { mosaicImages } from "./images";
+import { createMosaicStep, createMosaicTiles, isMosaicChoiceCorrect, mosaicTileCount, type MosaicTile } from "./model";
+
+const mosaicFeedback = createStandardGameFeedback();
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("mosaic", {
-  maxSteps: 8,
-  overrides: { sound: false },
+  maxSteps: mosaicTileCount,
+  overrides: { dwellMs: 1300, sessionSeconds: 150, sound: true },
   finishOnMistakes: false
 });
 
-const pattern = getMosaicPattern(session.settings);
+const imageIndex = ref(randomImageIndex());
+const placedTileIds = ref<string[]>([]);
 const resultVisible = ref(false);
 const pendingSelection = ref(false);
 const hintedTileId = ref<string>();
 const wrongTileId = ref<string>();
 const successTileId = ref<string>();
-const feedbackMessage = ref("Выбирай крупные плитки по подсказке, чтобы заполнить узор.");
+const feedbackMessage = ref("Найди кусочек для подсвеченной клетки.");
 let feedbackTimer = 0;
 
-const activeStep = computed(() => createMosaicStep(session.settings, Math.min(session.step, pattern.length - 1)));
-const currentTarget = computed(() => session.step < pattern.length ? activeStep.value.target : undefined);
-const mosaicSlots = computed(() => pattern.map((tile, index) => ({
+const activeStep = computed(() => createMosaicStep(session.settings, Math.min(session.step, mosaicTileCount - 1), imageIndex.value));
+const image = computed(() => activeStep.value.image);
+const tiles = computed(() => createMosaicTiles(image.value));
+const currentTarget = computed(() => session.step < mosaicTileCount ? activeStep.value.target : undefined);
+const mosaicSlots = computed(() => tiles.value.map((tile, index) => ({
   index,
   tile,
-  filled: index < session.step,
+  filled: placedTileIds.value.includes(tile.id),
   next: index === session.step && session.status === "running"
 })));
-const promptText = computed(() => currentTarget.value ? activeStep.value.prompt : "Узор заполнен. Мозаика готова.");
+const promptText = computed(() => currentTarget.value ? activeStep.value.prompt : "Мозаика готова.");
+
+function randomImageIndex() {
+  return Math.floor(Math.random() * Math.max(1, mosaicImages.length));
+}
 
 function tileTargetId(tile: MosaicTile) {
-  return `mosaic:tile:${tile.id}`;
+  return `mosaic:tile:${image.value.id}:${tile.id}`;
+}
+
+function tilePieceStyle(tile: MosaicTile) {
+  return {
+    "--mosaic-image": `url(${image.value.src})`,
+    "--tile-x": `${tile.col * 50}%`,
+    "--tile-y": `${tile.row * 50}%`
+  };
 }
 
 function clearFeedbackTimer() {
@@ -57,16 +77,20 @@ function chooseTile(tile: MosaicTile) {
   const expectedTargetId = tileTargetId(step.target);
   clearFeedbackTimer();
 
-  if (tile.id === step.target.id) {
+  if (isMosaicChoiceCorrect(tile, step.target)) {
     pendingSelection.value = true;
     hintedTileId.value = undefined;
     successTileId.value = tile.id;
-    feedbackMessage.value = `Верно. Плитка «${tile.label}» встала в узор.`;
-    recordSuccess({ roundId: step.roundId, targetId, answerId: tile.id, expected: step.target.label, actual: tile.label, isCorrect: true });
+    placedTileIds.value = [...placedTileIds.value, tile.id];
+    feedbackMessage.value = `Верно. Кусочек ${tile.slotIndex + 1} на месте.`;
+    void mosaicFeedback.playSuccess(session.settings.sound);
+    recordSuccess({ roundId: step.roundId, targetId, answerId: tile.id, expected: step.target.id, actual: tile.id, imageId: image.value.id, slotIndex: step.slotIndex, isCorrect: true });
     feedbackTimer = window.setTimeout(() => {
       clearTransientFeedback();
-      if (session.status === "running") feedbackMessage.value = "Продолжай по подсказке. Следующая клетка ждёт плитку.";
-    }, 550);
+      if (session.status === "running") {
+        feedbackMessage.value = "Продолжай. Следующая клетка ждёт кусочек.";
+      }
+    }, 720);
     return;
   }
 
@@ -74,11 +98,12 @@ function chooseTile(tile: MosaicTile) {
   hintedTileId.value = step.target.id;
   wrongTileId.value = tile.id;
   feedbackMessage.value = `Почти. ${step.hint}`;
-  recordMistake({ roundId: step.roundId, targetId, expectedTargetId, answerId: tile.id, expected: step.target.label, actual: tile.label, isCorrect: false });
-  recordHint({ roundId: step.roundId, targetId: expectedTargetId, reason: "wrong-mosaic-tile", color: step.target.colorName, shape: step.target.shapeName });
+  void mosaicFeedback.playMistake(session.settings.sound);
+  recordMistake({ roundId: step.roundId, targetId, expectedTargetId, answerId: tile.id, expected: step.target.id, actual: tile.id, imageId: image.value.id, slotIndex: step.slotIndex, isCorrect: false });
+  recordHint({ roundId: step.roundId, targetId: expectedTargetId, reason: "wrong-mosaic-piece", slotIndex: step.slotIndex });
   feedbackTimer = window.setTimeout(() => {
     clearTransientFeedback();
-  }, 1100);
+  }, 1250);
 }
 
 function choiceColor(tile: MosaicTile) {
@@ -90,12 +115,14 @@ function choiceColor(tile: MosaicTile) {
 
 function restart() {
   clearFeedbackTimer();
+  imageIndex.value = randomImageIndex();
+  placedTileIds.value = [];
   resultVisible.value = false;
   pendingSelection.value = false;
   hintedTileId.value = undefined;
   wrongTileId.value = undefined;
   successTileId.value = undefined;
-  feedbackMessage.value = "Выбирай крупные плитки по подсказке, чтобы заполнить узор.";
+  feedbackMessage.value = "Найди кусочек для подсвеченной клетки.";
   startSession();
 }
 
@@ -104,154 +131,396 @@ watch(() => session.status, (status) => {
     clearFeedbackTimer();
     feedbackTimer = window.setTimeout(() => {
       resultVisible.value = true;
-    }, 800);
+    }, 900);
     return;
   }
 
   resultVisible.value = false;
 });
 
+onMounted(() => {
+  mosaicFeedback.warm(session.settings.sound);
+});
+
 onUnmounted(() => {
   clearFeedbackTimer();
+  mosaicFeedback.dispose();
 });
 </script>
 
 <template>
-  <div class="mosaic-shell">
-    <GameHud title="Мозаика" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
-    <v-container class="game-container" fluid>
-      <v-row justify="center">
-        <v-col cols="12" lg="11" xl="10">
-          <v-card class="pa-4 pa-md-7" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Собери простой узор</div>
-            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-3">Выбери плитку для мозаики</h1>
-            <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5">{{ feedbackMessage }}</p>
+  <GamePageShell class="mosaic-shell" gradient="linear-gradient(135deg, #eef7ff 0%, #fff7e7 46%, #f2efff 100%)" padding-top="5rem">
+    <template #hud>
+      <GameHud title="Мозаика" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    </template>
 
-            <v-card class="hint-card pa-4 pa-md-5 mb-5" :color="hintedTileId ? 'amber-lighten-5' : 'blue-lighten-5'" rounded="xl" variant="flat">
-              <div class="d-flex flex-column flex-sm-row align-center justify-center ga-4 text-center text-sm-start">
-                <v-avatar v-if="currentTarget" :style="{ backgroundColor: currentTarget.background }" size="88" rounded="xl">
-                  <v-icon class="hint-icon" :icon="currentTarget.icon" :color="currentTarget.color" />
-                </v-avatar>
-                <div>
-                  <div class="text-caption text-medium-emphasis">Подсказка</div>
-                  <div class="text-h5 text-md-h4 font-weight-bold">{{ promptText }}</div>
-                  <div v-if="currentTarget" class="text-body-1 text-medium-emphasis mt-1">Цвет: {{ currentTarget.colorName }}. Форма: {{ currentTarget.shapeName }}.</div>
-                </div>
+    <v-container class="mosaic-container" fluid>
+      <v-row justify="center" no-gutters>
+        <v-col class="mosaic-col" cols="12">
+          <v-card class="mosaic-card pa-3 pa-sm-4" rounded="xl" elevation="8">
+            <div class="mosaic-header">
+              <div>
+                <div class="text-overline text-secondary">Пазл 3 × 3</div>
+                <h1 class="mosaic-title font-weight-bold">{{ image.title }}</h1>
               </div>
-            </v-card>
-
-            <div class="mosaic-grid mb-6" aria-label="Заполняемый узор мозаики">
-              <v-card v-for="slot in mosaicSlots" :key="slot.index" :class="['mosaic-slot', { 'mosaic-slot--next': slot.next, 'mosaic-slot--hint': hintedTileId === slot.tile.id && slot.next }]" :style="slot.filled ? { backgroundColor: slot.tile.background } : undefined" color="blue-grey-lighten-5" rounded="xl" variant="flat">
-                <v-icon v-if="slot.filled" class="slot-icon" :icon="slot.tile.icon" :color="slot.tile.color" />
-                <div v-else-if="slot.next" class="text-center">
-                  <v-icon class="empty-icon" color="primary" icon="mdi-help" />
-                  <div class="text-caption font-weight-bold text-primary">сюда</div>
-                </div>
-                <div v-else class="text-h5 font-weight-bold text-medium-emphasis">{{ slot.index + 1 }}</div>
-              </v-card>
+              <v-chip class="font-weight-bold" color="primary" size="large" variant="tonal">{{ placedTileIds.length }} / {{ session.maxSteps }}</v-chip>
             </div>
+            <p class="mosaic-feedback text-body-1 text-md-h6 text-medium-emphasis mb-3">{{ feedbackMessage }}</p>
 
-            <v-row dense justify="center">
-              <v-col v-for="choice in activeStep.choices" :key="choice.id" cols="6" sm="3">
-                <GameDwellButton :class="{ 'choice-hint': hintedTileId === choice.id }" :target-id="tileTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="190" :color="choiceColor(choice)" @select="chooseTile(choice)">
-                  <template #default>
-                    <v-avatar :style="{ backgroundColor: choice.background }" size="96" rounded="xl">
-                      <v-icon class="choice-icon" :icon="choice.icon" :color="choice.color" />
-                    </v-avatar>
-                    <div class="text-h6 text-md-h5 font-weight-bold mt-3">{{ choice.label }}</div>
-                  </template>
-                </GameDwellButton>
-              </v-col>
-            </v-row>
+            <div class="mosaic-layout">
+              <section class="mosaic-board-wrap" aria-label="Поле мозаики 3 на 3">
+                <div class="mosaic-board">
+                  <v-card v-for="slot in mosaicSlots" :key="slot.tile.id" :class="['mosaic-slot', { 'mosaic-slot--next': slot.next, 'mosaic-slot--hint': hintedTileId === slot.tile.id && slot.next, 'mosaic-slot--filled': slot.filled }]" rounded="lg" variant="flat">
+                    <div v-if="slot.filled" class="mosaic-piece mosaic-piece--placed" :style="tilePieceStyle(slot.tile)" />
+                    <div v-else-if="slot.next" class="mosaic-empty mosaic-empty--next">
+                      <v-icon icon="mdi-help" color="primary" />
+                      <span>сюда</span>
+                    </div>
+                    <div v-else class="mosaic-empty">{{ slot.index + 1 }}</div>
+                  </v-card>
+                </div>
+              </section>
 
-            <v-expand-transition>
-              <v-alert v-if="hintedTileId && currentTarget" class="mt-5 text-h6" color="primary" icon="mdi-palette-swatch-outline" rounded="xl" variant="tonal">
-                Ошибка не страшна. Нужная плитка подсвечена: {{ currentTarget.label }}.
-              </v-alert>
-            </v-expand-transition>
+              <aside class="mosaic-side">
+                <div class="mosaic-guide">
+                  <v-card class="mosaic-prompt pa-3" :color="hintedTileId ? 'amber-lighten-5' : 'blue-lighten-5'" rounded="xl" variant="flat">
+                    <div class="text-caption text-medium-emphasis">Подсказка</div>
+                    <div class="text-h6 font-weight-bold">{{ promptText }}</div>
+                    <div class="text-body-2 text-medium-emphasis">{{ image.prompt }}</div>
+                  </v-card>
+
+                  <v-card class="mosaic-reference pa-3" color="surface" rounded="xl" variant="tonal">
+                    <div class="text-caption text-medium-emphasis mb-2">Образец</div>
+                    <img :src="image.src" :alt="image.title" />
+                  </v-card>
+                </div>
+
+                <div class="mosaic-choices" aria-label="Кусочки для выбора">
+                  <GameDwellButton v-for="choice in activeStep.choices" :key="choice.id" :class="{ 'choice-hint': hintedTileId === choice.id }" :target-id="tileTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="144" :color="choiceColor(choice)" @select="chooseTile(choice)">
+                    <template #default>
+                      <div class="mosaic-piece mosaic-piece--choice" :style="tilePieceStyle(choice)" />
+                      <div class="text-subtitle-2 font-weight-bold mt-1">{{ choice.label }}</div>
+                    </template>
+                  </GameDwellButton>
+                </div>
+
+                <div class="mosaic-attribution text-caption text-medium-emphasis">{{ image.license }} · {{ image.attribution }}</div>
+              </aside>
+            </div>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
     <GameResultDialog :model-value="resultVisible" title="Мозаика" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
-  </div>
+  </GamePageShell>
 </template>
 
 <style scoped>
-.mosaic-shell {
-  background: linear-gradient(135deg, #eef7ff 0%, #fff7e7 46%, #f2efff 100%);
-  min-block-size: 100vh;
+.mosaic-container {
+  padding-block-end: 0.75rem;
 }
 
-.game-container {
-  padding-block-start: 8.75rem;
+.mosaic-col {
+  max-inline-size: min(112rem, calc(100vw - 2rem));
 }
 
-.hint-card {
-  border: 2px solid rgb(var(--v-theme-primary) / 14%);
+.mosaic-card {
+  background: rgb(255 252 246 / 96%);
 }
 
-.mosaic-grid {
+.mosaic-header {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-block-end: 0.25rem;
+}
+
+.mosaic-title {
+  font-size: clamp(1.45rem, 2.4vw, 2.15rem);
+  line-height: 1.05;
+}
+
+.mosaic-feedback {
+  min-block-size: 1.6rem;
+}
+
+.mosaic-layout {
+  align-items: start;
   display: grid;
-  gap: 0.75rem;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.25rem;
+  grid-template-columns: minmax(28rem, min(44vw, 34rem)) minmax(32rem, 1fr);
+}
+
+.mosaic-board-wrap {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-inline-size: 0;
+}
+
+.mosaic-board {
+  aspect-ratio: 1;
+  background: rgb(var(--v-theme-surface));
+  border: 0.45rem solid rgb(255 255 255 / 86%);
+  border-radius: 1.5rem;
+  box-shadow: 0 1.1rem 2.4rem rgb(70 88 120 / 16%);
+  display: grid;
+  gap: 0.35rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  inline-size: min(34rem, calc(100vh - 10rem), 100%);
+  overflow: hidden;
 }
 
 .mosaic-slot {
   align-items: center;
-  aspect-ratio: 1;
+  background: rgb(var(--v-theme-blue-grey-lighten-5));
+  border: 2px solid rgb(var(--v-theme-primary) / 10%);
   display: flex;
   justify-content: center;
-  min-block-size: 6.5rem;
-  transition: box-shadow 180ms ease, transform 180ms ease;
+  min-block-size: 0;
+  min-inline-size: 0;
+  overflow: hidden;
+  position: relative;
 }
 
 .mosaic-slot--next {
-  border: 4px dashed rgb(var(--v-theme-primary) / 46%);
+  box-shadow: inset 0 0 0 0.35rem rgb(var(--v-theme-primary) / 44%);
 }
 
 .mosaic-slot--hint,
 .choice-hint {
-  box-shadow: 0 0 0 0.45rem rgb(var(--v-theme-primary) / 24%);
-  transform: translateY(-0.12rem);
+  filter: drop-shadow(0 0 1rem rgb(var(--v-theme-primary) / 34%));
 }
 
-.hint-icon {
-  font-size: 4.25rem;
+.mosaic-empty {
+  align-items: center;
+  color: rgb(var(--v-theme-on-surface) / 46%);
+  display: flex;
+  flex-direction: column;
+  font-size: 1.35rem;
+  font-weight: 800;
+  gap: 0.25rem;
 }
 
-.slot-icon {
-  filter: drop-shadow(0 0.45rem 0.55rem rgb(0 0 0 / 14%));
-  font-size: clamp(3.5rem, 8vw, 6rem);
+.mosaic-empty--next {
+  color: rgb(var(--v-theme-primary));
 }
 
-.empty-icon {
-  font-size: clamp(2.6rem, 6vw, 4rem);
+.mosaic-piece {
+  background-image: var(--mosaic-image);
+  background-position: var(--tile-x) var(--tile-y);
+  background-size: 300% 300%;
+  border-radius: inherit;
+  inline-size: 100%;
 }
 
-.choice-icon {
-  font-size: 4.9rem;
+.mosaic-piece--placed {
+  block-size: 100%;
 }
 
-@media (max-width: 600px) {
-  .game-container {
-    padding-block-start: 9.75rem;
+.mosaic-side {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-rows: auto auto auto;
+  max-inline-size: none;
+  min-inline-size: 0;
+}
+
+.mosaic-guide {
+  align-items: stretch;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.mosaic-prompt {
+  align-content: center;
+  display: grid;
+}
+
+.mosaic-reference {
+  text-align: center;
+}
+
+.mosaic-reference img {
+  aspect-ratio: 1;
+  border-radius: 1rem;
+  box-shadow: 0 0.5rem 1.2rem rgb(65 79 104 / 14%);
+  display: block;
+  inline-size: clamp(12rem, 18vw, 17rem);
+  object-fit: cover;
+}
+
+.mosaic-choices {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mosaic-choices :deep(.dwell-button) {
+  min-block-size: clamp(8.5rem, 18vh, 11rem) !important;
+  padding: 1rem !important;
+}
+
+.mosaic-piece--choice {
+  aspect-ratio: 1;
+  border: 2px solid rgb(255 255 255 / 82%);
+  border-radius: 1rem;
+  box-shadow: 0 0.5rem 1rem rgb(65 79 104 / 13%);
+  margin-inline: auto;
+  max-inline-size: clamp(5.5rem, 7vw, 7.2rem);
+}
+
+.mosaic-attribution {
+  text-align: center;
+}
+
+@media (max-width: 58rem) and (min-width: 43rem) {
+  .mosaic-card {
+    padding-block: 0.75rem !important;
   }
 
-  .mosaic-grid {
-    gap: 0.55rem;
+  .mosaic-feedback,
+  .mosaic-reference,
+  .mosaic-attribution {
+    display: none;
+  }
+
+  .mosaic-layout {
+    gap: 0.75rem;
+    grid-template-columns: minmax(17rem, 0.86fr) minmax(20rem, 1.14fr);
+  }
+
+  .mosaic-board {
+    inline-size: min(19rem, calc(100vh - 14.5rem), 100%);
+  }
+
+  .mosaic-side {
+    gap: 0.5rem;
+    grid-template-rows: auto 1fr;
+  }
+
+  .mosaic-choices {
+    gap: 0.45rem;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-}
 
-@media (max-height: 920px) {
-  .game-container {
-    padding-block-start: 7.25rem;
+  .mosaic-piece--choice {
+    max-inline-size: 4.5rem;
   }
 
-  .hint-card,
-  .mosaic-grid {
+  .mosaic-choices :deep(.dwell-button) {
+    min-block-size: 6.8rem !important;
+    padding: 0.75rem !important;
+  }
+}
+
+@media (max-width: 42.99rem) {
+  .mosaic-card {
+    padding-block: 0.75rem !important;
+  }
+
+  .mosaic-feedback,
+  .mosaic-reference,
+  .mosaic-attribution {
     display: none;
+  }
+
+  .mosaic-layout {
+    gap: 0.75rem;
+    grid-template-columns: 1fr;
+  }
+
+  .mosaic-board {
+    inline-size: min(19rem, 54vh, 82vw);
+  }
+
+  .mosaic-side {
+    gap: 0.5rem;
+    grid-template-rows: auto 1fr;
+    max-inline-size: none;
+  }
+
+  .mosaic-choices {
+    gap: 0.45rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .mosaic-piece--choice {
+    max-inline-size: 3.75rem;
+  }
+
+  .mosaic-choices :deep(.dwell-button) {
+    min-block-size: 6.75rem !important;
+    padding: 0.75rem !important;
+  }
+}
+
+@media (max-height: 50rem) and (min-width: 58rem) {
+  .mosaic-card {
+    padding-block: 0.75rem !important;
+  }
+
+  .mosaic-feedback {
+    display: none;
+  }
+
+  .mosaic-layout {
+    grid-template-columns: minmax(27rem, min(42vw, 32rem)) minmax(30rem, 1fr);
+  }
+
+  .mosaic-board {
+    inline-size: min(32rem, calc(100vh - 9.5rem), 100%);
+  }
+
+  .mosaic-side {
+    gap: 0.5rem;
+    grid-template-rows: auto auto;
+  }
+
+  .mosaic-attribution {
+    display: none;
+  }
+
+  .mosaic-choices {
+    gap: 0.5rem;
+  }
+
+  .mosaic-choices :deep(.dwell-button) {
+    min-block-size: 8rem !important;
+  }
+
+  .mosaic-piece--choice {
+    max-inline-size: clamp(6rem, 7vw, 7.25rem);
+  }
+
+  .mosaic-guide {
+    gap: 0.75rem;
+  }
+
+  .mosaic-reference img {
+    inline-size: clamp(10rem, 13vw, 11.5rem);
+  }
+}
+
+@media (max-height: 50rem) and (min-width: 58rem) and (max-width: 70rem) {
+  .mosaic-reference,
+  .mosaic-attribution {
+    display: none;
+  }
+
+  .mosaic-layout {
+    grid-template-columns: minmax(21rem, 0.9fr) minmax(28rem, 1.1fr);
+  }
+
+  .mosaic-board {
+    inline-size: min(23rem, calc(100vh - 11rem), 100%);
+  }
+
+  .mosaic-piece--choice {
+    max-inline-size: 5.5rem;
   }
 }
 </style>

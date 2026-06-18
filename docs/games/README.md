@@ -9,7 +9,7 @@
 | `ready` | `resolvedStabilityStatus === "publish"` |
 | `development` | всё кроме `publish`: `needs-check`, `prefixed`, `archived`, скрытые или спорные игры |
 
-Сводка по последнему readiness-аудиту: 154 игры, 76 игр, 78 игр. Все registry-игры имеют `docs/games/<id>.md`.
+Сводка по последнему readiness-аудиту: 154 игры, 77 игр, 77 игр. Все registry-игры имеют `docs/games/<id>.md`.
 
 ## Форматы документов
 
@@ -95,7 +95,7 @@
 | История из 3 кадров | `three-frame-story` | [three-frame-story.md](three-frame-story.md) | `therapy-ready` | `publish` | `ready` |
 | Сначала-потом | `first-then` | [first-then.md](first-then.md) | `therapy-ready` | `publish` | `ready` |
 | Музыкальная дорожка | `musical-path` | [musical-path.md](musical-path.md) | `therapy-ready` | `publish` | `ready` |
-| Мозаика | `mosaic` | [mosaic.md](mosaic.md) | `therapy-ready` | `needs-check` | `development` |
+| Мозаика | `mosaic` | [mosaic.md](mosaic.md) | `therapy-ready` | `publish` | `ready` |
 | Танец фигур | `shape-dance` | [shape-dance.md](shape-dance.md) | `therapy-ready` | `needs-check` | `development` |
 | Маршрут героя | `hero-route` | [hero-route.md](hero-route.md) | `therapy-ready` | `needs-check` | `development` |
 | Рецепт супа | `soup-recipe` | [soup-recipe.md](soup-recipe.md) | `therapy-ready` | `needs-check` | `development` |

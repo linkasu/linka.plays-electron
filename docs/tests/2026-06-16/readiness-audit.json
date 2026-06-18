@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-18T18:35:13.230Z",
+  "generatedAt": "2026-06-18T20:47:05.148Z",
   "registryPath": "src/frontend/data/games.ts",
   "routerPath": "src/frontend/router/index.ts",
   "rule": {
@@ -10,16 +10,16 @@
   "summary": {
     "totalGames": 154,
     "readinessGroup": {
-      "ready": 76,
-      "development": 78
+      "ready": 77,
+      "development": 77
     },
     "status": {
       "polished": 44,
       "therapy-ready": 110
     },
     "resolvedStabilityStatus": {
-      "publish": 76,
-      "needs-check": 78
+      "publish": 77,
+      "needs-check": 77
     },
     "categoryReadiness": {
       "gaze-basics": {
@@ -33,8 +33,8 @@
         "development": 14
       },
       "sequencing": {
-        "ready": 11,
-        "development": 10
+        "ready": 12,
+        "development": 9
       },
       "language-aac": {
         "development": 17,
@@ -58,16 +58,6 @@
     "developmentMissingGameDocs": 0
   },
   "developmentQueue": [
-    {
-      "id": "mosaic",
-      "title": "Мозаика",
-      "category": "sequencing",
-      "status": "therapy-ready",
-      "resolvedStabilityStatus": "needs-check",
-      "blockers": [
-        "stability:needs-check"
-      ]
-    },
     {
       "id": "shape-dance",
       "title": "Танец фигур",
@@ -3218,16 +3208,16 @@
       "route": "/games/mosaic",
       "category": "sequencing",
       "status": "therapy-ready",
-      "explicitStabilityStatus": null,
-      "resolvedStabilityStatus": "needs-check",
-      "readinessGroup": "development",
+      "explicitStabilityStatus": "publish",
+      "resolvedStabilityStatus": "publish",
+      "readinessGroup": "ready",
       "tags": [],
       "skills": [
         "sequence",
         "choice",
         "classification"
       ],
-      "recommendedSessionSeconds": 140,
+      "recommendedSessionSeconds": 150,
       "minTargetSizePx": 180,
       "defaultDwellMs": 1300,
       "signals": {
@@ -3246,13 +3236,11 @@
         "hasRuntimeAuditDoc": true,
         "runtimeAuditDocPath": "docs/tests/2026-06-10/mosaic.md"
       },
-      "promotionBlockers": [
-        "stability:needs-check"
-      ]
+      "promotionBlockers": []
     },
     {
       "id": "shape-dance",
-      "line": 1086,
+      "line": 1087,
       "title": "Танец фигур",
       "route": "/games/shape-dance",
       "category": "sequencing",
@@ -3291,7 +3279,7 @@
     },
     {
       "id": "hero-route",
-      "line": 1100,
+      "line": 1101,
       "title": "Маршрут героя",
       "route": "/games/hero-route",
       "category": "sequencing",
@@ -3331,7 +3319,7 @@
     },
     {
       "id": "soup-recipe",
-      "line": 1114,
+      "line": 1115,
       "title": "Рецепт супа",
       "route": "/games/soup-recipe",
       "category": "sequencing",
@@ -3370,7 +3358,7 @@
     },
     {
       "id": "fix-picture",
-      "line": 1128,
+      "line": 1129,
       "title": "Почини картинку",
       "route": "/games/fix-picture",
       "category": "sequencing",
@@ -3410,7 +3398,7 @@
     },
     {
       "id": "comic-strip",
-      "line": 1142,
+      "line": 1143,
       "title": "Комикс",
       "route": "/games/comic-strip",
       "category": "sequencing",
@@ -3449,7 +3437,7 @@
     },
     {
       "id": "schedule",
-      "line": 1156,
+      "line": 1157,
       "title": "Расписание",
       "route": "/games/schedule",
       "category": "sequencing",
@@ -3488,7 +3476,7 @@
     },
     {
       "id": "build-bridge",
-      "line": 1170,
+      "line": 1171,
       "title": "Строим мост",
       "route": "/games/build-bridge",
       "category": "sequencing",
@@ -3527,7 +3515,7 @@
     },
     {
       "id": "shelf-sorting",
-      "line": 1184,
+      "line": 1185,
       "title": "Сортировка по полкам",
       "route": "/games/shelf-sorting",
       "category": "sequencing",
@@ -3566,7 +3554,7 @@
     },
     {
       "id": "orchestra",
-      "line": 1198,
+      "line": 1199,
       "title": "Оркестр",
       "route": "/games/orchestra",
       "category": "sequencing",
@@ -3605,7 +3593,7 @@
     },
     {
       "id": "choose-emotion",
-      "line": 1212,
+      "line": 1213,
       "title": "Выбери эмоцию",
       "route": "/games/choose-emotion",
       "category": "language-aac",
@@ -3644,7 +3632,7 @@
     },
     {
       "id": "choose-picture",
-      "line": 1226,
+      "line": 1227,
       "title": "Выбери картинку",
       "route": "/games/choose-picture",
       "category": "language-aac",
@@ -3681,7 +3669,7 @@
     },
     {
       "id": "action-who",
-      "line": 1240,
+      "line": 1241,
       "title": "Кто что делает?",
       "route": "/games/action-who",
       "category": "language-aac",
@@ -3720,7 +3708,7 @@
     },
     {
       "id": "eat-or-not-eat",
-      "line": 1254,
+      "line": 1255,
       "title": "Съедобное",
       "route": "/games/eat-or-not-eat",
       "category": "language-aac",
@@ -3757,7 +3745,7 @@
     },
     {
       "id": "word-categories",
-      "line": 1268,
+      "line": 1269,
       "title": "Категории слов",
       "route": "/games/word-categories",
       "category": "language-aac",
@@ -3797,7 +3785,7 @@
     },
     {
       "id": "yes-no",
-      "line": 1282,
+      "line": 1283,
       "title": "Да / нет",
       "route": "/games/yes-no",
       "category": "language-aac",
@@ -3834,7 +3822,7 @@
     },
     {
       "id": "i-want",
-      "line": 1296,
+      "line": 1297,
       "title": "Я хочу...",
       "route": "/games/i-want",
       "category": "language-aac",
@@ -3874,7 +3862,7 @@
     },
     {
       "id": "want-dont-want",
-      "line": 1310,
+      "line": 1311,
       "title": "Хочу / не хочу",
       "route": "/games/want-dont-want",
       "category": "language-aac",
@@ -3913,7 +3901,7 @@
     },
     {
       "id": "object-action",
-      "line": 1324,
+      "line": 1325,
       "title": "Предмет + действие",
       "route": "/games/object-action",
       "category": "language-aac",
@@ -3952,7 +3940,7 @@
     },
     {
       "id": "hurt-good",
-      "line": 1338,
+      "line": 1339,
       "title": "Болит / хорошо",
       "route": "/games/hurt-good",
       "category": "language-aac",
@@ -3992,7 +3980,7 @@
     },
     {
       "id": "where-object",
-      "line": 1352,
+      "line": 1353,
       "title": "Где предмет?",
       "route": "/games/where-object",
       "category": "language-aac",
@@ -4032,7 +4020,7 @@
     },
     {
       "id": "big-small",
-      "line": 1366,
+      "line": 1367,
       "title": "Большой / маленький",
       "route": "/games/big-small",
       "category": "language-aac",
@@ -4072,7 +4060,7 @@
     },
     {
       "id": "one-many",
-      "line": 1380,
+      "line": 1381,
       "title": "Один / много",
       "route": "/games/one-many",
       "category": "language-aac",
@@ -4112,7 +4100,7 @@
     },
     {
       "id": "who-is-this",
-      "line": 1394,
+      "line": 1395,
       "title": "Кто это?",
       "route": "/games/who-is-this",
       "category": "language-aac",
@@ -4151,7 +4139,7 @@
     },
     {
       "id": "what-sounds",
-      "line": 1408,
+      "line": 1409,
       "title": "Что звучит?",
       "route": "/games/what-sounds",
       "category": "language-aac",
@@ -4191,7 +4179,7 @@
     },
     {
       "id": "opposites",
-      "line": 1422,
+      "line": 1423,
       "title": "Противоположности",
       "route": "/games/opposites",
       "category": "language-aac",
@@ -4231,7 +4219,7 @@
     },
     {
       "id": "tell-picture",
-      "line": 1436,
+      "line": 1437,
       "title": "Расскажи картинку",
       "route": "/games/tell-picture",
       "category": "language-aac",
@@ -4271,7 +4259,7 @@
     },
     {
       "id": "what-first",
-      "line": 1450,
+      "line": 1451,
       "title": "Что сначала?",
       "route": "/games/what-first",
       "category": "language-aac",
@@ -4311,7 +4299,7 @@
     },
     {
       "id": "mini-dialog",
-      "line": 1464,
+      "line": 1465,
       "title": "Мини-диалог",
       "route": "/games/mini-dialog",
       "category": "language-aac",
@@ -4350,7 +4338,7 @@
     },
     {
       "id": "social-phrases",
-      "line": 1478,
+      "line": 1479,
       "title": "Социальные фразы",
       "route": "/games/social-phrases",
       "category": "language-aac",
@@ -4390,7 +4378,7 @@
     },
     {
       "id": "type-word",
-      "line": 1492,
+      "line": 1493,
       "title": "Печать слов",
       "route": "/games/type-word",
       "category": "language-aac",
@@ -4427,7 +4415,7 @@
     },
     {
       "id": "clock",
-      "line": 1506,
+      "line": 1507,
       "title": "Часы",
       "route": "/games/clock",
       "category": "numeracy",
@@ -4466,7 +4454,7 @@
     },
     {
       "id": "calendar",
-      "line": 1520,
+      "line": 1521,
       "title": "Календарь",
       "route": "/games/calendar",
       "category": "numeracy",
@@ -4505,7 +4493,7 @@
     },
     {
       "id": "count-items",
-      "line": 1534,
+      "line": 1535,
       "title": "Счёт",
       "route": "/games/count-items",
       "category": "numeracy",
@@ -4541,7 +4529,7 @@
     },
     {
       "id": "coin-counting",
-      "line": 1548,
+      "line": 1549,
       "title": "Сложи монетки",
       "route": "/games/coin-counting",
       "category": "numeracy",
@@ -4580,7 +4568,7 @@
     },
     {
       "id": "pizza-fractions",
-      "line": 1562,
+      "line": 1563,
       "title": "Доли пиццы",
       "route": "/games/pizza-fractions",
       "category": "numeracy",
@@ -4619,7 +4607,7 @@
     },
     {
       "id": "greater-less",
-      "line": 1576,
+      "line": 1577,
       "title": "Больше / меньше",
       "route": "/games/greater-less",
       "category": "numeracy",
@@ -4655,7 +4643,7 @@
     },
     {
       "id": "scales",
-      "line": 1590,
+      "line": 1591,
       "title": "Весы",
       "route": "/games/scales",
       "category": "numeracy",
@@ -4694,7 +4682,7 @@
     },
     {
       "id": "number-line",
-      "line": 1604,
+      "line": 1605,
       "title": "Числовая дорожка",
       "route": "/games/number-line",
       "category": "numeracy",
@@ -4733,7 +4721,7 @@
     },
     {
       "id": "number-sorting",
-      "line": 1618,
+      "line": 1619,
       "title": "Сортировка чисел",
       "route": "/games/number-sorting",
       "category": "numeracy",
@@ -4772,7 +4760,7 @@
     },
     {
       "id": "sudoku-2x2",
-      "line": 1632,
+      "line": 1633,
       "title": "Судоку 2x2",
       "route": "/games/sudoku-2x2",
       "category": "numeracy",
@@ -4811,7 +4799,7 @@
     },
     {
       "id": "lines-angles",
-      "line": 1646,
+      "line": 1647,
       "title": "Линии и углы",
       "route": "/games/lines-angles",
       "category": "numeracy",
@@ -4850,7 +4838,7 @@
     },
     {
       "id": "simple-graphs",
-      "line": 1660,
+      "line": 1661,
       "title": "Простые графики",
       "route": "/games/simple-graphs",
       "category": "numeracy",
@@ -4889,7 +4877,7 @@
     },
     {
       "id": "number-bonds",
-      "line": 1674,
+      "line": 1675,
       "title": "Состав числа",
       "route": "/games/number-bonds",
       "category": "numeracy",
@@ -4928,7 +4916,7 @@
     },
     {
       "id": "shop",
-      "line": 1688,
+      "line": 1689,
       "title": "Магазин",
       "route": "/games/shop",
       "category": "numeracy",
@@ -4967,7 +4955,7 @@
     },
     {
       "id": "coordinates",
-      "line": 1702,
+      "line": 1703,
       "title": "Координаты",
       "route": "/games/coordinates",
       "category": "numeracy",
@@ -5006,7 +4994,7 @@
     },
     {
       "id": "shapes",
-      "line": 1716,
+      "line": 1717,
       "title": "Формы",
       "route": "/games/shapes",
       "category": "numeracy",
@@ -5042,7 +5030,7 @@
     },
     {
       "id": "color-shape",
-      "line": 1730,
+      "line": 1731,
       "title": "Цвет + форма",
       "route": "/games/color-shape",
       "category": "numeracy",
@@ -5081,7 +5069,7 @@
     },
     {
       "id": "math-actions",
-      "line": 1744,
+      "line": 1745,
       "title": "Математика. Операции",
       "route": "/games/math-actions",
       "category": "numeracy",
@@ -5117,7 +5105,7 @@
     },
     {
       "id": "minesweeper-safe",
-      "line": 1758,
+      "line": 1759,
       "title": "Сапёр",
       "route": "/games/minesweeper-safe",
       "category": "strategy",
@@ -5156,7 +5144,7 @@
     },
     {
       "id": "domino-matching",
-      "line": 1772,
+      "line": 1773,
       "title": "Домино: найди сторону",
       "route": "/games/domino-matching",
       "category": "strategy",
@@ -5195,7 +5183,7 @@
     },
     {
       "id": "calm-2048",
-      "line": 1786,
+      "line": 1787,
       "title": "2048 мягкий",
       "route": "/games/calm-2048",
       "category": "strategy",
@@ -5234,7 +5222,7 @@
     },
     {
       "id": "sliding-puzzle",
-      "line": 1800,
+      "line": 1801,
       "title": "Пятнашки 3×3",
       "route": "/games/sliding-puzzle",
       "category": "strategy",
@@ -5273,7 +5261,7 @@
     },
     {
       "id": "uno-like",
-      "line": 1814,
+      "line": 1815,
       "title": "Уно-подобное",
       "route": "/games/uno-like",
       "category": "strategy",
@@ -5312,7 +5300,7 @@
     },
     {
       "id": "calm-tetris",
-      "line": 1828,
+      "line": 1829,
       "title": "Тетрис спокойный",
       "route": "/games/calm-tetris",
       "category": "strategy",
@@ -5350,7 +5338,7 @@
     },
     {
       "id": "sokoban-large",
-      "line": 1842,
+      "line": 1843,
       "title": "Сокобан крупный",
       "route": "/games/sokoban-large",
       "category": "strategy",
@@ -5388,7 +5376,7 @@
     },
     {
       "id": "tic-tac-toe",
-      "line": 1856,
+      "line": 1857,
       "title": "Крестики-нолики",
       "route": "/games/tic-tac-toe",
       "category": "strategy",
@@ -5425,7 +5413,7 @@
     },
     {
       "id": "connect-four",
-      "line": 1870,
+      "line": 1871,
       "title": "4 в ряд",
       "route": "/games/connect-four",
       "category": "strategy",
@@ -5462,7 +5450,7 @@
     },
     {
       "id": "reversi-light",
-      "line": 1884,
+      "line": 1885,
       "title": "Реверси light",
       "route": "/games/reversi-light",
       "category": "strategy",
@@ -5501,7 +5489,7 @@
     },
     {
       "id": "lines-five",
-      "line": 1898,
+      "line": 1899,
       "title": "Lines 5",
       "route": "/games/lines-five",
       "category": "strategy",
@@ -5540,7 +5528,7 @@
     },
     {
       "id": "checkers-light",
-      "line": 1912,
+      "line": 1913,
       "title": "Шашки light",
       "route": "/games/checkers-light",
       "category": "strategy",
@@ -5579,7 +5567,7 @@
     },
     {
       "id": "chess-mini",
-      "line": 1926,
+      "line": 1927,
       "title": "Chess mini",
       "route": "/games/chess-mini",
       "category": "strategy",
@@ -5618,7 +5606,7 @@
     },
     {
       "id": "tangram",
-      "line": 1940,
+      "line": 1941,
       "title": "Tangram",
       "route": "/games/tangram",
       "category": "strategy",
@@ -5657,7 +5645,7 @@
     },
     {
       "id": "battleship-light",
-      "line": 1954,
+      "line": 1955,
       "title": "Морской бой light",
       "route": "/games/battleship-light",
       "category": "strategy",
@@ -5695,7 +5683,7 @@
     },
     {
       "id": "tanks-no-shooting",
-      "line": 1968,
+      "line": 1969,
       "title": "Танчики без стрельбы",
       "route": "/games/tanks-no-shooting",
       "category": "strategy",
@@ -5733,7 +5721,7 @@
     },
     {
       "id": "arkanoid-assist",
-      "line": 1982,
+      "line": 1983,
       "title": "Арканоид assist",
       "route": "/games/arkanoid-assist",
       "category": "strategy",
@@ -5771,7 +5759,7 @@
     },
     {
       "id": "step-pong",
-      "line": 1996,
+      "line": 1997,
       "title": "Понг пошаговый",
       "route": "/games/step-pong",
       "category": "strategy",
@@ -5809,7 +5797,7 @@
     },
     {
       "id": "calm-snake",
-      "line": 2010,
+      "line": 2011,
       "title": "Змейка спокойная",
       "route": "/games/calm-snake",
       "category": "strategy",
@@ -5848,7 +5836,7 @@
     },
     {
       "id": "pac-path",
-      "line": 2024,
+      "line": 2025,
       "title": "Pac-path",
       "route": "/games/pac-path",
       "category": "strategy",
@@ -5887,7 +5875,7 @@
     },
     {
       "id": "cursor-magnet",
-      "line": 2038,
+      "line": 2039,
       "title": "Курсор-магнит",
       "route": "/games/cursor-magnet",
       "category": "continuous-control",
@@ -5925,7 +5913,7 @@
     },
     {
       "id": "pulsing-target",
-      "line": 2052,
+      "line": 2053,
       "title": "Пульсирующая цель",
       "route": "/games/pulsing-target",
       "category": "continuous-control",
@@ -5964,7 +5952,7 @@
     },
     {
       "id": "boat",
-      "line": 2066,
+      "line": 2067,
       "title": "Лодочка",
       "route": "/games/boat",
       "category": "continuous-control",
@@ -6002,7 +5990,7 @@
     },
     {
       "id": "gaze-follow-snake",
-      "line": 2080,
+      "line": 2081,
       "title": "Змейка gaze-follow",
       "route": "/games/gaze-follow-snake",
       "category": "continuous-control",
@@ -6040,7 +6028,7 @@
     },
     {
       "id": "table-tennis",
-      "line": 2094,
+      "line": 2095,
       "title": "Теннис",
       "route": "/games/table-tennis",
       "category": "continuous-control",
@@ -6076,7 +6064,7 @@
     },
     {
       "id": "gates-path",
-      "line": 2108,
+      "line": 2109,
       "title": "Дорожка с воротами",
       "route": "/games/gates-path",
       "category": "continuous-control",
@@ -6114,7 +6102,7 @@
     },
     {
       "id": "smooth-car",
-      "line": 2122,
+      "line": 2123,
       "title": "Плавная машинка",
       "route": "/games/smooth-car",
       "category": "continuous-control",
@@ -6152,7 +6140,7 @@
     },
     {
       "id": "balloon-ride",
-      "line": 2136,
+      "line": 2137,
       "title": "Воздушный шар",
       "route": "/games/balloon-ride",
       "category": "continuous-control",
@@ -6190,7 +6178,7 @@
     },
     {
       "id": "glider",
-      "line": 2150,
+      "line": 2151,
       "title": "Планер",
       "route": "/games/glider",
       "category": "continuous-control",
@@ -6228,7 +6216,7 @@
     },
     {
       "id": "line-drawing",
-      "line": 2164,
+      "line": 2165,
       "title": "Рисование линией",
       "route": "/games/line-drawing",
       "category": "continuous-control",
@@ -6266,7 +6254,7 @@
     },
     {
       "id": "guide-fish",
-      "line": 2178,
+      "line": 2179,
       "title": "Рыбка-поводырь",
       "route": "/games/guide-fish",
       "category": "continuous-control",
@@ -6304,7 +6292,7 @@
     },
     {
       "id": "rails",
-      "line": 2192,
+      "line": 2193,
       "title": "Рельсы",
       "route": "/games/rails",
       "category": "continuous-control",
@@ -6342,7 +6330,7 @@
     },
     {
       "id": "balancer",
-      "line": 2206,
+      "line": 2207,
       "title": "Балансир",
       "route": "/games/balancer",
       "category": "continuous-control",
@@ -6381,7 +6369,7 @@
     },
     {
       "id": "catch-wave",
-      "line": 2220,
+      "line": 2221,
       "title": "Поймай волну",
       "route": "/games/catch-wave",
       "category": "continuous-control",
@@ -6419,7 +6407,7 @@
     },
     {
       "id": "snow-trail",
-      "line": 2234,
+      "line": 2235,
       "title": "Снежная тропа",
       "route": "/games/snow-trail",
       "category": "continuous-control",
@@ -6457,7 +6445,7 @@
     },
     {
       "id": "robot-vacuum",
-      "line": 2248,
+      "line": 2249,
       "title": "Робот-пылесос",
       "route": "/games/robot-vacuum",
       "category": "continuous-control",
@@ -6495,7 +6483,7 @@
     },
     {
       "id": "maze-path",
-      "line": 2262,
+      "line": 2263,
       "title": "Лабиринт-дорожка",
       "route": "/games/maze-path",
       "category": "continuous-control",
@@ -6533,7 +6521,7 @@
     },
     {
       "id": "garden-watering",
-      "line": 2276,
+      "line": 2277,
       "title": "Садовая лейка",
       "route": "/games/garden-watering",
       "category": "continuous-control",
@@ -6571,7 +6559,7 @@
     },
     {
       "id": "space-orbit",
-      "line": 2290,
+      "line": 2291,
       "title": "Космическая орбита",
       "route": "/games/space-orbit",
       "category": "continuous-control",
@@ -6609,7 +6597,7 @@
     },
     {
       "id": "orchestra-conductor",
-      "line": 2304,
+      "line": 2305,
       "title": "Оркестр-дирижёр",
       "route": "/games/orchestra-conductor",
       "category": "continuous-control",
