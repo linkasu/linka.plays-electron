@@ -5633,5 +5633,68 @@
     "text": "Шарик улетел.",
     "voice": "filipp",
     "path": "/audio/tts/balloons/release.mp3"
+  },
+  {
+    "id": "bells.prompt.sun",
+    "game": "bells",
+    "text": "Найди золотой колокольчик.",
+    "voice": "alena",
+    "path": "/audio/tts/bells/prompt-sun.mp3"
+  },
+  {
+    "id": "bells.mistake.sun",
+    "game": "bells",
+    "text": "Почти. Нужен золотой колокольчик.",
+    "voice": "julia",
+    "path": "/audio/tts/bells/mistake-sun.mp3"
+  },
+  {
+    "id": "bells.prompt.sky",
+    "game": "bells",
+    "text": "Найди голубой колокольчик.",
+    "voice": "alena",
+    "path": "/audio/tts/bells/prompt-sky.mp3"
+  },
+  {
+    "id": "bells.mistake.sky",
+    "game": "bells",
+    "text": "Почти. Нужен голубой колокольчик.",
+    "voice": "julia",
+    "path": "/audio/tts/bells/mistake-sky.mp3"
+  },
+  {
+    "id": "bells.prompt.berry",
+    "game": "bells",
+    "text": "Найди розовый колокольчик.",
+    "voice": "alena",
+    "path": "/audio/tts/bells/prompt-berry.mp3"
+  },
+  {
+    "id": "bells.mistake.berry",
+    "game": "bells",
+    "text": "Почти. Нужен розовый колокольчик.",
+    "voice": "julia",
+    "path": "/audio/tts/bells/mistake-berry.mp3"
+  },
+  {
+    "id": "bells.prompt.meadow",
+    "game": "bells",
+    "text": "Найди зелёный колокольчик.",
+    "voice": "alena",
+    "path": "/audio/tts/bells/prompt-meadow.mp3"
+  },
+  {
+    "id": "bells.mistake.meadow",
+    "game": "bells",
+    "text": "Почти. Нужен зелёный колокольчик.",
+    "voice": "julia",
+    "path": "/audio/tts/bells/mistake-meadow.mp3"
+  },
+  {
+    "id": "bells.correct",
+    "game": "bells",
+    "text": "Колокольчик звенит.",
+    "voice": "filipp",
+    "path": "/audio/tts/bells/correct.mp3"
   }
 ]

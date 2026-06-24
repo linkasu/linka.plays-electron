@@ -163,7 +163,7 @@ export const games: GameInfo[] = [
     icon: "mdi-bell-outline",
     skills: ["choice", "fixation"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 90,
     minTargetSizePx: 190,
     defaultDwellMs: 1300

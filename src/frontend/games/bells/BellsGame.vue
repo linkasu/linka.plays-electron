@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref, onUnmounted } from "vue";
+import { onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 
 type BellDefinition = {
@@ -31,14 +33,23 @@ const bellDefinitions: BellDefinition[] = [
 const router = useRouter();
 const selectedBellId = ref("");
 const feedbackText = ref("");
+const isSpeaking = ref(false);
 let feedbackTimer = 0;
-let nextRoundTimer = 0;
+let bellAudio: HTMLAudioElement | undefined;
 
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("bells", {
   maxSteps: 8,
-  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.5, distractors: "none", hints: "high" },
+  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.5, distractors: "none", hints: "high", sound: true },
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({
+  gameId: "bells",
+  soundEnabled,
+  volume: 0.32,
+  warmAssetIds: ["bells.prompt.sun", "bells.correct", "bells.mistake.sun"]
+});
+const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
 function shuffledBells(roundIndex: number) {
   const count = Math.min(4, 2 + Math.floor((roundIndex - 1) / 3));
@@ -72,39 +83,125 @@ function showFeedback(text: string, delay = 900) {
   }, delay);
 }
 
-function selectBell(bell: BellDefinition) {
-  if (session.status !== "running" || selectedBellId.value) return;
+function bellPromptAssetId() {
+  return `bells.prompt.${round.value.target.id}`;
+}
+
+function bellMistakeAssetId() {
+  return `bells.mistake.${round.value.target.id}`;
+}
+
+async function playPrompt(delay = 0) {
+  isSpeaking.value = true;
+  try {
+    await promptAudio.playSequenceAndWait([bellPromptAssetId()], delay);
+  } finally {
+    isSpeaking.value = false;
+  }
+}
+
+function warmBellSound() {
+  if (!soundEnabled.value || bellAudio) return;
+  bellAudio = new Audio("/audio/sfx/bells/soft-bell.ogg");
+  bellAudio.preload = "auto";
+  bellAudio.volume = 0.16;
+  bellAudio.load();
+}
+
+function playBellSoundAndWait() {
+  return new Promise<void>((resolve) => {
+    if (!soundEnabled.value) {
+      resolve();
+      return;
+    }
+
+    try {
+      warmBellSound();
+      if (!bellAudio) {
+        resolve();
+        return;
+      }
+
+      let done = false;
+      const cleanup = () => {
+        if (done) return;
+        done = true;
+        window.clearTimeout(timeout);
+        bellAudio?.removeEventListener("ended", cleanup);
+        bellAudio?.removeEventListener("error", cleanup);
+        resolve();
+      };
+      const timeout = window.setTimeout(cleanup, 2200);
+
+      bellAudio.pause();
+      bellAudio.currentTime = 0;
+      bellAudio.volume = 0.16;
+      bellAudio.addEventListener("ended", cleanup, { once: true });
+      bellAudio.addEventListener("error", cleanup, { once: true });
+      void bellAudio.play().catch(cleanup);
+    } catch {
+      resolve();
+    }
+  });
+}
+
+async function selectBell(bell: BellDefinition) {
+  if (session.status !== "running" || selectedBellId.value || isSpeaking.value) return;
 
   if (bell.id !== round.value.target.id) {
     recordMistake({ roundId: round.value.roundId, selectedId: bell.id, targetId: round.value.target.id });
     showFeedback(`Это ${bell.tone}. Найди ${round.value.target.tone} колокольчик.`, 1300);
+    isSpeaking.value = true;
+    try {
+      void pianoFeedback.playMistake();
+      await promptAudio.playSequenceAndWait([bellMistakeAssetId()], 80);
+    } finally {
+      isSpeaking.value = false;
+    }
     return;
   }
 
   selectedBellId.value = bell.id;
   recordSuccess({ roundId: round.value.roundId, targetId: bell.id, label: bell.label });
   showFeedback("Колокольчик звенит", 1000);
+  isSpeaking.value = true;
 
-  if (session.step < session.maxSteps) {
-    window.clearTimeout(nextRoundTimer);
-    nextRoundTimer = window.setTimeout(() => {
+  try {
+    void pianoFeedback.playSuccess();
+    await playBellSoundAndWait();
+    await promptAudio.playSequenceAndWait(["bells.correct"], 80);
+
+    if (session.status === "running" && session.step < session.maxSteps) {
       selectedBellId.value = "";
       nextRound();
-    }, 950);
+      await playPrompt(180);
+    }
+  } finally {
+    isSpeaking.value = false;
   }
 }
 
 function restart() {
+  promptAudio.cancelPending();
   selectedBellId.value = "";
   feedbackText.value = "";
+  isSpeaking.value = false;
   window.clearTimeout(feedbackTimer);
-  window.clearTimeout(nextRoundTimer);
   restartRound();
+  void playPrompt(240);
 }
 
+onMounted(() => {
+  promptAudio.warm();
+  warmBellSound();
+  void playPrompt(450);
+});
+
 onUnmounted(() => {
+  promptAudio.cancelPending();
   window.clearTimeout(feedbackTimer);
-  window.clearTimeout(nextRoundTimer);
+  bellAudio?.pause();
+  bellAudio = undefined;
 });
 </script>
 
@@ -122,7 +219,7 @@ onUnmounted(() => {
 
             <v-row class="bells-grid" justify="center">
               <v-col v-for="bell in round.cards" :key="`${round.roundId}-${bell.id}`" cols="12" sm="6" lg="3">
-                <GameDwellButton :target-id="`bells:${round.roundId}:${bell.id}`" :disabled="session.status !== 'running' || Boolean(selectedBellId)" :dwell-ms="session.settings.dwellMs" :min-height="260" color="surface" @select="selectBell(bell)">
+                <GameDwellButton :target-id="`bells:${round.roundId}:${bell.id}`" :disabled="session.status !== 'running' || Boolean(selectedBellId) || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="clamp(10rem, 28dvh, 16.25rem)" color="surface" @select="selectBell(bell)">
                   <template #default="{ active, progress }">
                     <div class="bell-card-content" :class="{ 'bell-card-content--active': active, 'bell-card-content--selected': selectedBellId === bell.id }" :style="{ '--bell-accent': bell.accent, '--bell-progress': progress }">
                       <div v-if="active || selectedBellId === bell.id" class="bell-wave" aria-hidden="true" />
@@ -158,7 +255,7 @@ onUnmounted(() => {
 
 .bells-container {
   min-block-size: 100vh;
-  padding-block-start: 120px;
+  padding-block-start: clamp(4.5rem, 13dvh, 7.5rem);
 }
 
 .bells-panel {
@@ -177,7 +274,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-block-size: 218px;
+  min-block-size: clamp(9rem, 24dvh, 13.625rem);
   overflow: hidden;
   position: relative;
 }
@@ -189,10 +286,10 @@ onUnmounted(() => {
 
 .bell-card-content::before {
   background: radial-gradient(circle, color-mix(in srgb, var(--bell-accent) 28%, transparent), transparent 64%);
-  block-size: 190px;
-  border-radius: 999px;
+  block-size: 11.875rem;
+  border-radius: 999rem;
   content: "";
-  inline-size: 190px;
+  inline-size: 11.875rem;
   inset-block-start: 50%;
   inset-inline-start: 50%;
   opacity: 0.42;
@@ -202,7 +299,7 @@ onUnmounted(() => {
 
 .bell-icon {
   color: var(--bell-accent);
-  filter: drop-shadow(0 12px 22px color-mix(in srgb, var(--bell-accent) 28%, transparent));
+  filter: drop-shadow(0 0.75rem 1.375rem color-mix(in srgb, var(--bell-accent) 28%, transparent));
   font-size: clamp(5.2rem, 12vw, 8.5rem);
   position: relative;
   transform-origin: 50% 8%;
@@ -221,10 +318,10 @@ onUnmounted(() => {
 
 .bell-wave {
   animation: bell-wave 1300ms ease-out infinite;
-  border: 4px solid color-mix(in srgb, var(--bell-accent) 52%, transparent);
-  border-radius: 999px;
-  block-size: 132px;
-  inline-size: 132px;
+  border: 0.25rem solid color-mix(in srgb, var(--bell-accent) 52%, transparent);
+  border-radius: 999rem;
+  block-size: 8.25rem;
+  inline-size: 8.25rem;
   inset-block-start: 50%;
   inset-inline-start: 50%;
   opacity: 0;
