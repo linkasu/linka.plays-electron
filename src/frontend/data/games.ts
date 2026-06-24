@@ -358,7 +358,7 @@ export const games: GameInfo[] = [
     icon: "mdi-white-balance-sunny",
     skills: ["fixation"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 80,
     minTargetSizePx: 240,
     defaultDwellMs: 1400

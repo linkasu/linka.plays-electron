@@ -37,7 +37,7 @@
 | Галерея света | `light-gallery` | [light-gallery.md](light-gallery.md) | `polished` | `publish` | `ready` |
 | Мыльные круги | `soap-circles` | [soap-circles.md](soap-circles.md) | `polished` | `publish` | `ready` |
 | Северное сияние | `northern-lights` | [northern-lights.md](northern-lights.md) | `polished` | `publish` | `ready` |
-| Солнце и лучи | `sun-rays` | [sun-rays.md](sun-rays.md) | `polished` | `needs-check` | `development` |
+| Солнце и лучи | `sun-rays` | [sun-rays.md](sun-rays.md) | `polished` | `publish` | `ready` |
 | Снежинки | `snowflakes` | [snowflakes.md](snowflakes.md) | `polished` | `needs-check` | `development` |
 | Лунная дорожка | `moon-path` | [moon-path.md](moon-path.md) | `polished` | `needs-check` | `development` |
 | Маяк | `lighthouse` | [lighthouse.md](lighthouse.md) | `polished` | `needs-check` | `development` |
