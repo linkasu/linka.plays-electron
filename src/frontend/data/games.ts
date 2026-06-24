@@ -133,7 +133,7 @@ export const games: GameInfo[] = [
     icon: "mdi-fishbowl",
     skills: ["smooth-pursuit", "fixation"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 88,
     minTargetSizePx: 180,
     defaultDwellMs: 1350

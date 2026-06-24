@@ -23,121 +23,121 @@
 | Игра | ID | Документ | Status | Stability | Group |
 |---|---|---|---|---|---|
 | Аквариум | `aquarium` | [aquarium.md](aquarium.md) | `polished` | `publish` | `ready` |
-| Шарики | `balloons` | [balloons.md](balloons.md) | `polished` | `publish` | `ready` |
-| Колокольчики | `bells` | [bells.md](bells.md) | `polished` | `publish` | `ready` |
-| Ладошки | `high-five-hands` | [high-five-hands.md](high-five-hands.md) | `polished` | `publish` | `ready` |
-| Дышащий цветок | `breathing-flower` | [breathing-flower.md](breathing-flower.md) | `polished` | `publish` | `ready` |
-| Разбуди сову | `wake-owl` | [wake-owl.md](wake-owl.md) | `polished` | `publish` | `ready` |
-| Облака | `clouds` | [clouds.md](clouds.md) | `polished` | `publish` | `ready` |
-| Листья на ветру | `leaves-wind` | [leaves-wind.md](leaves-wind.md) | `therapy-ready` | `publish` | `ready` |
-| Воздушный змей | `kite` | [kite.md](kite.md) | `polished` | `publish` | `ready` |
-| Светлячковая поляна | `firefly-meadow` | [firefly-meadow.md](firefly-meadow.md) | `polished` | `publish` | `ready` |
-| Поймай свет | `catch-light` | [catch-light.md](catch-light.md) | `polished` | `publish` | `ready` |
-| Звёздное небо | `starry-sky` | [starry-sky.md](starry-sky.md) | `polished` | `publish` | `ready` |
-| Волшебная пыль | `magic-dust` | [magic-dust.md](magic-dust.md) | `polished` | `publish` | `ready` |
-| Галерея света | `light-gallery` | [light-gallery.md](light-gallery.md) | `polished` | `publish` | `ready` |
-| Мыльные круги | `soap-circles` | [soap-circles.md](soap-circles.md) | `polished` | `publish` | `ready` |
-| Северное сияние | `northern-lights` | [northern-lights.md](northern-lights.md) | `polished` | `publish` | `ready` |
-| Солнце и лучи | `sun-rays` | [sun-rays.md](sun-rays.md) | `polished` | `publish` | `ready` |
-| Снежинки | `snowflakes` | [snowflakes.md](snowflakes.md) | `polished` | `publish` | `ready` |
-| Лунная дорожка | `moon-path` | [moon-path.md](moon-path.md) | `polished` | `publish` | `ready` |
-| Маяк | `lighthouse` | [lighthouse.md](lighthouse.md) | `polished` | `publish` | `ready` |
-| Песочный сад | `sand-garden` | [sand-garden.md](sand-garden.md) | `polished` | `publish` | `ready` |
-| Морские ракушки | `sea-shells` | [sea-shells.md](sea-shells.md) | `polished` | `publish` | `ready` |
-| Бумажные фонарики | `paper-lanterns` | [paper-lanterns.md](paper-lanterns.md) | `polished` | `publish` | `ready` |
-| Открой дверцу | `open-door` | [open-door.md](open-door.md) | `polished` | `publish` | `ready` |
-| Тёплое окно | `warm-window` | [warm-window.md](warm-window.md) | `polished` | `publish` | `ready` |
-| Тёплый костёр | `warm-fire` | [warm-fire.md](warm-fire.md) | `polished` | `publish` | `ready` |
-| Большие карточки | `big-cards` | [big-cards.md](big-cards.md) | `therapy-ready` | `publish` | `ready` |
-| Цветной круг | `color-circle` | [color-circle.md](color-circle.md) | `therapy-ready` | `publish` | `ready` |
-| Покорми зверька | `feed-animal` | [feed-animal.md](feed-animal.md) | `therapy-ready` | `publish` | `ready` |
-| Бабочки | `butterfly` | [butterfly.md](butterfly.md) | `polished` | `publish` | `ready` |
-| Цветы | `flowers` | [flowers.md](flowers.md) | `therapy-ready` | `publish` | `ready` |
-| Тихие пузыри | `quiet-bubbles` | [quiet-bubbles.md](quiet-bubbles.md) | `therapy-ready` | `publish` | `ready` |
-| Утки | `ducks` | [ducks.md](ducks.md) | `therapy-ready` | `publish` | `ready` |
-| Рыбки | `fishes` | [fishes.md](fishes.md) | `therapy-ready` | `publish` | `ready` |
-| Медузы | `jellyfish` | [jellyfish.md](jellyfish.md) | `therapy-ready` | `publish` | `ready` |
-| Жаба | `frog` | [frog.md](frog.md) | `polished` | `publish` | `ready` |
+| Шарики | `balloons` | [balloons.md](balloons.md) | `polished` | `needs-check` | `development` |
+| Колокольчики | `bells` | [bells.md](bells.md) | `polished` | `needs-check` | `development` |
+| Ладошки | `high-five-hands` | [high-five-hands.md](high-five-hands.md) | `polished` | `needs-check` | `development` |
+| Дышащий цветок | `breathing-flower` | [breathing-flower.md](breathing-flower.md) | `polished` | `needs-check` | `development` |
+| Разбуди сову | `wake-owl` | [wake-owl.md](wake-owl.md) | `polished` | `needs-check` | `development` |
+| Облака | `clouds` | [clouds.md](clouds.md) | `polished` | `needs-check` | `development` |
+| Листья на ветру | `leaves-wind` | [leaves-wind.md](leaves-wind.md) | `therapy-ready` | `needs-check` | `development` |
+| Воздушный змей | `kite` | [kite.md](kite.md) | `polished` | `needs-check` | `development` |
+| Светлячковая поляна | `firefly-meadow` | [firefly-meadow.md](firefly-meadow.md) | `polished` | `needs-check` | `development` |
+| Поймай свет | `catch-light` | [catch-light.md](catch-light.md) | `polished` | `needs-check` | `development` |
+| Звёздное небо | `starry-sky` | [starry-sky.md](starry-sky.md) | `polished` | `needs-check` | `development` |
+| Волшебная пыль | `magic-dust` | [magic-dust.md](magic-dust.md) | `polished` | `needs-check` | `development` |
+| Галерея света | `light-gallery` | [light-gallery.md](light-gallery.md) | `polished` | `needs-check` | `development` |
+| Мыльные круги | `soap-circles` | [soap-circles.md](soap-circles.md) | `polished` | `needs-check` | `development` |
+| Северное сияние | `northern-lights` | [northern-lights.md](northern-lights.md) | `polished` | `needs-check` | `development` |
+| Солнце и лучи | `sun-rays` | [sun-rays.md](sun-rays.md) | `polished` | `needs-check` | `development` |
+| Снежинки | `snowflakes` | [snowflakes.md](snowflakes.md) | `polished` | `needs-check` | `development` |
+| Лунная дорожка | `moon-path` | [moon-path.md](moon-path.md) | `polished` | `needs-check` | `development` |
+| Маяк | `lighthouse` | [lighthouse.md](lighthouse.md) | `polished` | `needs-check` | `development` |
+| Песочный сад | `sand-garden` | [sand-garden.md](sand-garden.md) | `polished` | `needs-check` | `development` |
+| Морские ракушки | `sea-shells` | [sea-shells.md](sea-shells.md) | `polished` | `needs-check` | `development` |
+| Бумажные фонарики | `paper-lanterns` | [paper-lanterns.md](paper-lanterns.md) | `polished` | `needs-check` | `development` |
+| Открой дверцу | `open-door` | [open-door.md](open-door.md) | `polished` | `needs-check` | `development` |
+| Тёплое окно | `warm-window` | [warm-window.md](warm-window.md) | `polished` | `needs-check` | `development` |
+| Тёплый костёр | `warm-fire` | [warm-fire.md](warm-fire.md) | `polished` | `needs-check` | `development` |
+| Большие карточки | `big-cards` | [big-cards.md](big-cards.md) | `therapy-ready` | `needs-check` | `development` |
+| Цветной круг | `color-circle` | [color-circle.md](color-circle.md) | `therapy-ready` | `needs-check` | `development` |
+| Покорми зверька | `feed-animal` | [feed-animal.md](feed-animal.md) | `therapy-ready` | `needs-check` | `development` |
+| Бабочки | `butterfly` | [butterfly.md](butterfly.md) | `polished` | `needs-check` | `development` |
+| Цветы | `flowers` | [flowers.md](flowers.md) | `therapy-ready` | `needs-check` | `development` |
+| Тихие пузыри | `quiet-bubbles` | [quiet-bubbles.md](quiet-bubbles.md) | `therapy-ready` | `needs-check` | `development` |
+| Утки | `ducks` | [ducks.md](ducks.md) | `therapy-ready` | `needs-check` | `development` |
+| Рыбки | `fishes` | [fishes.md](fishes.md) | `therapy-ready` | `needs-check` | `development` |
+| Медузы | `jellyfish` | [jellyfish.md](jellyfish.md) | `therapy-ready` | `needs-check` | `development` |
+| Жаба | `frog` | [frog.md](frog.md) | `polished` | `needs-check` | `development` |
 
 ### Поиск и внимание
 
 | Игра | ID | Документ | Status | Stability | Group |
 |---|---|---|---|---|---|
-| Прятки | `hide-and-seek` | [hide-and-seek.md](hide-and-seek.md) | `polished` | `publish` | `ready` |
-| Кто спрятался? | `who-hiding` | [who-hiding.md](who-hiding.md) | `therapy-ready` | `publish` | `ready` |
-| Найди цвет | `find-color` | [find-color.md](find-color.md) | `polished` | `publish` | `ready` |
-| Найди форму | `find-shape` | [find-shape.md](find-shape.md) | `therapy-ready` | `publish` | `ready` |
-| Где такой же? | `match-same` | [match-same.md](match-same.md) | `polished` | `publish` | `ready` |
-| Что пропало? | `what-missing` | [what-missing.md](what-missing.md) | `therapy-ready` | `publish` | `ready` |
-| Следуй за подсказкой | `follow-cue` | [follow-cue.md](follow-cue.md) | `therapy-ready` | `publish` | `ready` |
-| Найди букву | `find-letter` | [find-letter.md](find-letter.md) | `therapy-ready` | `publish` | `ready` |
-| Тень и предмет | `shadow-match` | [shadow-match.md](shadow-match.md) | `therapy-ready` | `publish` | `ready` |
-| Где звук? | `sound-source` | [sound-source.md](sound-source.md) | `therapy-ready` | `publish` | `ready` |
-| Что лишнее? | `odd-one-out` | [odd-one-out.md](odd-one-out.md) | `therapy-ready` | `publish` | `ready` |
-| Найди эмоцию | `find-emotion` | [find-emotion.md](find-emotion.md) | `therapy-ready` | `publish` | `ready` |
-| Охота на буквы | `letter-hunt` | [letter-hunt.md](letter-hunt.md) | `therapy-ready` | `publish` | `ready` |
-| Найди животное | `find-animal` | [find-animal.md](find-animal.md) | `therapy-ready` | `publish` | `ready` |
-| Пары | `memory-cards` | [memory-cards.md](memory-cards.md) | `therapy-ready` | `publish` | `ready` |
-| Лабиринт взгляда-указателя | `gaze-maze` | [gaze-maze.md](gaze-maze.md) | `therapy-ready` | `publish` | `ready` |
+| Прятки | `hide-and-seek` | [hide-and-seek.md](hide-and-seek.md) | `polished` | `needs-check` | `development` |
+| Кто спрятался? | `who-hiding` | [who-hiding.md](who-hiding.md) | `therapy-ready` | `needs-check` | `development` |
+| Найди цвет | `find-color` | [find-color.md](find-color.md) | `polished` | `needs-check` | `development` |
+| Найди форму | `find-shape` | [find-shape.md](find-shape.md) | `therapy-ready` | `needs-check` | `development` |
+| Где такой же? | `match-same` | [match-same.md](match-same.md) | `polished` | `needs-check` | `development` |
+| Что пропало? | `what-missing` | [what-missing.md](what-missing.md) | `therapy-ready` | `needs-check` | `development` |
+| Следуй за подсказкой | `follow-cue` | [follow-cue.md](follow-cue.md) | `therapy-ready` | `needs-check` | `development` |
+| Найди букву | `find-letter` | [find-letter.md](find-letter.md) | `therapy-ready` | `needs-check` | `development` |
+| Тень и предмет | `shadow-match` | [shadow-match.md](shadow-match.md) | `therapy-ready` | `needs-check` | `development` |
+| Где звук? | `sound-source` | [sound-source.md](sound-source.md) | `therapy-ready` | `needs-check` | `development` |
+| Что лишнее? | `odd-one-out` | [odd-one-out.md](odd-one-out.md) | `therapy-ready` | `needs-check` | `development` |
+| Найди эмоцию | `find-emotion` | [find-emotion.md](find-emotion.md) | `therapy-ready` | `needs-check` | `development` |
+| Охота на буквы | `letter-hunt` | [letter-hunt.md](letter-hunt.md) | `therapy-ready` | `needs-check` | `development` |
+| Найди животное | `find-animal` | [find-animal.md](find-animal.md) | `therapy-ready` | `needs-check` | `development` |
+| Пары | `memory-cards` | [memory-cards.md](memory-cards.md) | `therapy-ready` | `needs-check` | `development` |
+| Лабиринт взгляда-указателя | `gaze-maze` | [gaze-maze.md](gaze-maze.md) | `therapy-ready` | `needs-check` | `development` |
 
 ### Последовательности
 
 | Игра | ID | Документ | Status | Stability | Group |
 |---|---|---|---|---|---|
-| Собери роботика | `build-robot` | [build-robot.md](build-robot.md) | `therapy-ready` | `publish` | `ready` |
-| Пирамидка | `pyramid` | [pyramid.md](pyramid.md) | `polished` | `publish` | `ready` |
-| Одень персонажа | `dress-character` | [dress-character.md](dress-character.md) | `therapy-ready` | `publish` | `ready` |
-| Поезд | `train-sequence` | [train-sequence.md](train-sequence.md) | `polished` | `publish` | `ready` |
-| Бутерброд | `sandwich` | [sandwich.md](sandwich.md) | `therapy-ready` | `publish` | `ready` |
-| Паттерны | `patterns` | [patterns.md](patterns.md) | `polished` | `publish` | `ready` |
-| Цветовой узор | `color-pattern` | [color-pattern.md](color-pattern.md) | `therapy-ready` | `publish` | `ready` |
-| Утро-день-вечер | `day-routine` | [day-routine.md](day-routine.md) | `therapy-ready` | `publish` | `ready` |
-| История из 3 кадров | `three-frame-story` | [three-frame-story.md](three-frame-story.md) | `therapy-ready` | `publish` | `ready` |
-| Сначала-потом | `first-then` | [first-then.md](first-then.md) | `therapy-ready` | `publish` | `ready` |
-| Музыкальная дорожка | `musical-path` | [musical-path.md](musical-path.md) | `therapy-ready` | `publish` | `ready` |
-| Мозаика | `mosaic` | [mosaic.md](mosaic.md) | `therapy-ready` | `publish` | `ready` |
-| Танец фигур | `shape-dance` | [shape-dance.md](shape-dance.md) | `therapy-ready` | `publish` | `ready` |
-| Рецепт супа | `soup-recipe` | [soup-recipe.md](soup-recipe.md) | `therapy-ready` | `publish` | `ready` |
-| Комикс | `comic-strip` | [comic-strip.md](comic-strip.md) | `therapy-ready` | `publish` | `ready` |
-| Расписание | `schedule` | [schedule.md](schedule.md) | `therapy-ready` | `publish` | `ready` |
-| Строим мост | `build-bridge` | [build-bridge.md](build-bridge.md) | `therapy-ready` | `publish` | `ready` |
-| Сортировка по полкам | `shelf-sorting` | [shelf-sorting.md](shelf-sorting.md) | `therapy-ready` | `publish` | `ready` |
+| Собери роботика | `build-robot` | [build-robot.md](build-robot.md) | `therapy-ready` | `needs-check` | `development` |
+| Пирамидка | `pyramid` | [pyramid.md](pyramid.md) | `polished` | `needs-check` | `development` |
+| Одень персонажа | `dress-character` | [dress-character.md](dress-character.md) | `therapy-ready` | `needs-check` | `development` |
+| Поезд | `train-sequence` | [train-sequence.md](train-sequence.md) | `polished` | `needs-check` | `development` |
+| Бутерброд | `sandwich` | [sandwich.md](sandwich.md) | `therapy-ready` | `needs-check` | `development` |
+| Паттерны | `patterns` | [patterns.md](patterns.md) | `polished` | `needs-check` | `development` |
+| Цветовой узор | `color-pattern` | [color-pattern.md](color-pattern.md) | `therapy-ready` | `needs-check` | `development` |
+| Утро-день-вечер | `day-routine` | [day-routine.md](day-routine.md) | `therapy-ready` | `needs-check` | `development` |
+| История из 3 кадров | `three-frame-story` | [three-frame-story.md](three-frame-story.md) | `therapy-ready` | `needs-check` | `development` |
+| Сначала-потом | `first-then` | [first-then.md](first-then.md) | `therapy-ready` | `needs-check` | `development` |
+| Музыкальная дорожка | `musical-path` | [musical-path.md](musical-path.md) | `therapy-ready` | `needs-check` | `development` |
+| Мозаика | `mosaic` | [mosaic.md](mosaic.md) | `therapy-ready` | `needs-check` | `development` |
+| Танец фигур | `shape-dance` | [shape-dance.md](shape-dance.md) | `therapy-ready` | `needs-check` | `development` |
+| Рецепт супа | `soup-recipe` | [soup-recipe.md](soup-recipe.md) | `therapy-ready` | `needs-check` | `development` |
+| Комикс | `comic-strip` | [comic-strip.md](comic-strip.md) | `therapy-ready` | `needs-check` | `development` |
+| Расписание | `schedule` | [schedule.md](schedule.md) | `therapy-ready` | `needs-check` | `development` |
+| Строим мост | `build-bridge` | [build-bridge.md](build-bridge.md) | `therapy-ready` | `needs-check` | `development` |
+| Сортировка по полкам | `shelf-sorting` | [shelf-sorting.md](shelf-sorting.md) | `therapy-ready` | `needs-check` | `development` |
 | Оркестр | `orchestra` | [orchestra.md](orchestra.md) | `therapy-ready` | `needs-check` | `development` |
 
 ### Слова и AAC
 
 | Игра | ID | Документ | Status | Stability | Group |
 |---|---|---|---|---|---|
-| Выбери эмоцию | `choose-emotion` | [choose-emotion.md](choose-emotion.md) | `therapy-ready` | `publish` | `ready` |
-| Выбери картинку | `choose-picture` | [choose-picture.md](choose-picture.md) | `polished` | `publish` | `ready` |
-| Съедобное | `eat-or-not-eat` | [eat-or-not-eat.md](eat-or-not-eat.md) | `polished` | `publish` | `ready` |
-| Категории слов | `word-categories` | [word-categories.md](word-categories.md) | `therapy-ready` | `publish` | `ready` |
-| Да / нет | `yes-no` | [yes-no.md](yes-no.md) | `polished` | `publish` | `ready` |
-| Я хочу... | `i-want` | [i-want.md](i-want.md) | `therapy-ready` | `publish` | `ready` |
-| Хочу / не хочу | `want-dont-want` | [want-dont-want.md](want-dont-want.md) | `therapy-ready` | `publish` | `ready` |
-| Предмет + действие | `object-action` | [object-action.md](object-action.md) | `therapy-ready` | `publish` | `ready` |
-| Где предмет? | `where-object` | [where-object.md](where-object.md) | `therapy-ready` | `publish` | `ready` |
-| Большой / маленький | `big-small` | [big-small.md](big-small.md) | `therapy-ready` | `publish` | `ready` |
-| Один / много | `one-many` | [one-many.md](one-many.md) | `therapy-ready` | `publish` | `ready` |
-| Кто это? | `who-is-this` | [who-is-this.md](who-is-this.md) | `therapy-ready` | `publish` | `ready` |
-| Противоположности | `opposites` | [opposites.md](opposites.md) | `therapy-ready` | `publish` | `ready` |
-| Что сначала? | `what-first` | [what-first.md](what-first.md) | `therapy-ready` | `publish` | `ready` |
-| Мини-диалог | `mini-dialog` | [mini-dialog.md](mini-dialog.md) | `therapy-ready` | `publish` | `ready` |
-| Социальные фразы | `social-phrases` | [social-phrases.md](social-phrases.md) | `therapy-ready` | `publish` | `ready` |
-| Печать слов | `type-word` | [type-word.md](type-word.md) | `polished` | `publish` | `ready` |
+| Выбери эмоцию | `choose-emotion` | [choose-emotion.md](choose-emotion.md) | `therapy-ready` | `needs-check` | `development` |
+| Выбери картинку | `choose-picture` | [choose-picture.md](choose-picture.md) | `polished` | `needs-check` | `development` |
+| Съедобное | `eat-or-not-eat` | [eat-or-not-eat.md](eat-or-not-eat.md) | `polished` | `needs-check` | `development` |
+| Категории слов | `word-categories` | [word-categories.md](word-categories.md) | `therapy-ready` | `needs-check` | `development` |
+| Да / нет | `yes-no` | [yes-no.md](yes-no.md) | `polished` | `needs-check` | `development` |
+| Я хочу... | `i-want` | [i-want.md](i-want.md) | `therapy-ready` | `needs-check` | `development` |
+| Хочу / не хочу | `want-dont-want` | [want-dont-want.md](want-dont-want.md) | `therapy-ready` | `needs-check` | `development` |
+| Предмет + действие | `object-action` | [object-action.md](object-action.md) | `therapy-ready` | `needs-check` | `development` |
+| Где предмет? | `where-object` | [where-object.md](where-object.md) | `therapy-ready` | `needs-check` | `development` |
+| Большой / маленький | `big-small` | [big-small.md](big-small.md) | `therapy-ready` | `needs-check` | `development` |
+| Один / много | `one-many` | [one-many.md](one-many.md) | `therapy-ready` | `needs-check` | `development` |
+| Кто это? | `who-is-this` | [who-is-this.md](who-is-this.md) | `therapy-ready` | `needs-check` | `development` |
+| Противоположности | `opposites` | [opposites.md](opposites.md) | `therapy-ready` | `needs-check` | `development` |
+| Что сначала? | `what-first` | [what-first.md](what-first.md) | `therapy-ready` | `needs-check` | `development` |
+| Мини-диалог | `mini-dialog` | [mini-dialog.md](mini-dialog.md) | `therapy-ready` | `needs-check` | `development` |
+| Социальные фразы | `social-phrases` | [social-phrases.md](social-phrases.md) | `therapy-ready` | `needs-check` | `development` |
+| Печать слов | `type-word` | [type-word.md](type-word.md) | `polished` | `needs-check` | `development` |
 
 ### Счёт и математика
 
 | Игра | ID | Документ | Status | Stability | Group |
 |---|---|---|---|---|---|
-| Найди цифру | `find-digit` | [find-digit.md](find-digit.md) | `therapy-ready` | `publish` | `ready` |
-| Логические пары | `logic-pairs` | [logic-pairs.md](logic-pairs.md) | `therapy-ready` | `publish` | `ready` |
-| Часы | `clock` | [clock.md](clock.md) | `therapy-ready` | `publish` | `ready` |
-| Календарь | `calendar` | [calendar.md](calendar.md) | `therapy-ready` | `publish` | `ready` |
-| Счёт | `count-items` | [count-items.md](count-items.md) | `polished` | `publish` | `ready` |
+| Найди цифру | `find-digit` | [find-digit.md](find-digit.md) | `therapy-ready` | `needs-check` | `development` |
+| Логические пары | `logic-pairs` | [logic-pairs.md](logic-pairs.md) | `therapy-ready` | `needs-check` | `development` |
+| Часы | `clock` | [clock.md](clock.md) | `therapy-ready` | `needs-check` | `development` |
+| Календарь | `calendar` | [calendar.md](calendar.md) | `therapy-ready` | `needs-check` | `development` |
+| Счёт | `count-items` | [count-items.md](count-items.md) | `polished` | `needs-check` | `development` |
 | Сложи монетки | `coin-counting` | [coin-counting.md](coin-counting.md) | `therapy-ready` | `needs-check` | `development` |
 | Доли пиццы | `pizza-fractions` | [pizza-fractions.md](pizza-fractions.md) | `therapy-ready` | `needs-check` | `development` |
-| Больше / меньше | `greater-less` | [greater-less.md](greater-less.md) | `polished` | `publish` | `ready` |
+| Больше / меньше | `greater-less` | [greater-less.md](greater-less.md) | `polished` | `needs-check` | `development` |
 | Весы | `scales` | [scales.md](scales.md) | `therapy-ready` | `needs-check` | `development` |
 | Числовая дорожка | `number-line` | [number-line.md](number-line.md) | `therapy-ready` | `needs-check` | `development` |
 | Сортировка чисел | `number-sorting` | [number-sorting.md](number-sorting.md) | `therapy-ready` | `needs-check` | `development` |
@@ -147,9 +147,9 @@
 | Состав числа | `number-bonds` | [number-bonds.md](number-bonds.md) | `therapy-ready` | `needs-check` | `development` |
 | Магазин | `shop` | [shop.md](shop.md) | `therapy-ready` | `needs-check` | `development` |
 | Координаты | `coordinates` | [coordinates.md](coordinates.md) | `therapy-ready` | `needs-check` | `development` |
-| Формы | `shapes` | [shapes.md](shapes.md) | `polished` | `publish` | `ready` |
+| Формы | `shapes` | [shapes.md](shapes.md) | `polished` | `needs-check` | `development` |
 | Цвет + форма | `color-shape` | [color-shape.md](color-shape.md) | `therapy-ready` | `needs-check` | `development` |
-| Математика. Операции | `math-actions` | [math-actions.md](math-actions.md) | `polished` | `publish` | `ready` |
+| Математика. Операции | `math-actions` | [math-actions.md](math-actions.md) | `polished` | `needs-check` | `development` |
 
 ### Головоломки
 
@@ -162,8 +162,8 @@
 | Уно-подобное | `uno-like` | [uno-like.md](uno-like.md) | `therapy-ready` | `needs-check` | `development` |
 | Тетрис спокойный | `calm-tetris` | [calm-tetris.md](calm-tetris.md) | `therapy-ready` | `needs-check` | `development` |
 | Сокобан крупный | `sokoban-large` | [sokoban-large.md](sokoban-large.md) | `therapy-ready` | `needs-check` | `development` |
-| Крестики-нолики | `tic-tac-toe` | [tic-tac-toe.md](tic-tac-toe.md) | `polished` | `publish` | `ready` |
-| 4 в ряд | `connect-four` | [connect-four.md](connect-four.md) | `polished` | `publish` | `ready` |
+| Крестики-нолики | `tic-tac-toe` | [tic-tac-toe.md](tic-tac-toe.md) | `polished` | `needs-check` | `development` |
+| 4 в ряд | `connect-four` | [connect-four.md](connect-four.md) | `polished` | `needs-check` | `development` |
 | Реверси light | `reversi-light` | [reversi-light.md](reversi-light.md) | `therapy-ready` | `needs-check` | `development` |
 | Lines 5 | `lines-five` | [lines-five.md](lines-five.md) | `therapy-ready` | `needs-check` | `development` |
 | Шашки light | `checkers-light` | [checkers-light.md](checkers-light.md) | `therapy-ready` | `needs-check` | `development` |
@@ -184,7 +184,7 @@
 | Пульсирующая цель | `pulsing-target` | [pulsing-target.md](pulsing-target.md) | `therapy-ready` | `needs-check` | `development` |
 | Лодочка | `boat` | [boat.md](boat.md) | `therapy-ready` | `needs-check` | `development` |
 | Змейка gaze-follow | `gaze-follow-snake` | [gaze-follow-snake.md](gaze-follow-snake.md) | `therapy-ready` | `needs-check` | `development` |
-| Теннис | `table-tennis` | [table-tennis.md](table-tennis.md) | `polished` | `publish` | `ready` |
+| Теннис | `table-tennis` | [table-tennis.md](table-tennis.md) | `polished` | `needs-check` | `development` |
 | Дорожка с воротами | `gates-path` | [gates-path.md](gates-path.md) | `therapy-ready` | `needs-check` | `development` |
 | Плавная машинка | `smooth-car` | [smooth-car.md](smooth-car.md) | `therapy-ready` | `needs-check` | `development` |
 | Воздушный шар | `balloon-ride` | [balloon-ride.md](balloon-ride.md) | `therapy-ready` | `needs-check` | `development` |

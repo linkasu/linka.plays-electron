@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
 
@@ -34,10 +36,18 @@ const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("balloons", {
   maxSteps: 9,
-  overrides: { preset: "gentle", targetScale: 1.6, motionSpeed: 0.38, distractors: "none", hints: "high" },
+  overrides: { preset: "gentle", targetScale: 1.6, motionSpeed: 0.38, distractors: "none", hints: "high", sound: true },
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({
+  gameId: "balloons",
+  soundEnabled,
+  volume: 0.32,
+  warmAssetIds: ["balloons.prompt", "balloons.release"]
+});
+const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
 const activeBalloon = ref<Balloon>();
 const clouds = reactive<Cloud[]>([]);
@@ -152,6 +162,8 @@ function balloonPoint(balloon: Balloon) {
 function releaseBalloon(balloon: Balloon, now: number) {
   recordEvent("target-click", targetPayload(balloon, now, 1));
   recordSuccess({ targetId: balloon.id, hue: balloon.hue });
+  void pianoFeedback.playSuccess();
+  promptAudio.play("balloons.release", 80);
   balloon.phase = "flying";
   balloon.phaseAge = 0;
   balloon.dwellProgress = 1;
@@ -380,23 +392,28 @@ function tick(now: number) {
 }
 
 function restart() {
+  promptAudio.cancelPending();
   activeBalloon.value = undefined;
   previousBalloonPoint = undefined;
   nextBalloonAt = 0;
   startSession();
   activeBalloon.value = createBalloon(true);
+  promptAudio.play("balloons.prompt", 240);
 }
 
 onMounted(async () => {
   await nextTick();
+  promptAudio.warm();
   resizeCanvas();
   window.addEventListener("resize", resizeCanvas);
   activeBalloon.value = createBalloon(true);
+  promptAudio.play("balloons.prompt", 450);
   lastTime = performance.now();
   frame = requestAnimationFrame(tick);
 });
 
 onUnmounted(() => {
+  promptAudio.cancelPending();
   window.removeEventListener("resize", resizeCanvas);
   cancelAnimationFrame(frame);
 });

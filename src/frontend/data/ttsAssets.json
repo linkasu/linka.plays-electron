@@ -5619,5 +5619,19 @@
     "text": "Получилось больше. Выбери монетку поменьше.",
     "voice": "julia",
     "path": "/audio/tts/coin-counting/mistake-too-much-coin.mp3"
+  },
+  {
+    "id": "balloons.prompt",
+    "game": "balloons",
+    "text": "Смотри на шарик спокойно.",
+    "voice": "alena",
+    "path": "/audio/tts/balloons/prompt.mp3"
+  },
+  {
+    "id": "balloons.release",
+    "game": "balloons",
+    "text": "Шарик улетел.",
+    "voice": "filipp",
+    "path": "/audio/tts/balloons/release.mp3"
   }
 ]
