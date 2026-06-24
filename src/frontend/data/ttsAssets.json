@@ -6004,5 +6004,33 @@
     "text": "Почти. Это другая картинка. Посмотри на подсказку и найди такую же.",
     "voice": "jane",
     "path": "/audio/tts/match-same/mistake.mp3"
+  },
+  {
+    "id": "what-missing.observe",
+    "game": "what-missing",
+    "text": "Запомни три предмета. Смотри спокойно, не спеши. Скоро один предмет пропадёт.",
+    "voice": "jane",
+    "path": "/audio/tts/what-missing/observe.mp3"
+  },
+  {
+    "id": "what-missing.choose",
+    "game": "what-missing",
+    "text": "Что пропало? Посмотри на варианты снизу и выбери предмет, которого больше нет сверху.",
+    "voice": "jane",
+    "path": "/audio/tts/what-missing/choose.mp3"
+  },
+  {
+    "id": "what-missing.correct",
+    "game": "what-missing",
+    "text": "Да, верно. Ты нашёл, что пропало.",
+    "voice": "jane",
+    "path": "/audio/tts/what-missing/correct.mp3"
+  },
+  {
+    "id": "what-missing.mistake",
+    "game": "what-missing",
+    "text": "Почти. Это другой предмет. Посмотри на мягкую подсказку и попробуй ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/what-missing/mistake.mp3"
   }
 ]

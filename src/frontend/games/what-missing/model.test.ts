@@ -11,13 +11,14 @@ describe("what-missing model", () => {
     expect(new Set(ids).size).toBe(3);
   });
 
-  it("uses the displayed items as answer choices", () => {
+  it("uses displayed items plus one decoy as answer choices", () => {
     const round = generateWhatMissingRound(settingsFromPreset("standard"), 2, () => 0.7);
     const displayedIds = new Set(round.displayItems.map((item) => item.id));
     const choiceIds = new Set(round.choices.map((item) => item.id));
 
-    expect(round.choices).toHaveLength(3);
-    expect(choiceIds).toEqual(displayedIds);
+    expect(round.choices).toHaveLength(4);
+    for (const id of displayedIds) expect(choiceIds.has(id)).toBe(true);
+    expect([...choiceIds].filter((id) => !displayedIds.has(id))).toHaveLength(1);
   });
 
   it("points correctIndex to the missing item", () => {

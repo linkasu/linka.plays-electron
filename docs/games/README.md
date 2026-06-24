@@ -67,7 +67,7 @@
 | Найди цвет | `find-color` | [find-color.md](find-color.md) | `polished` | `publish` | `ready` |
 | Найди форму | `find-shape` | [find-shape.md](find-shape.md) | `therapy-ready` | `publish` | `ready` |
 | Где такой же? | `match-same` | [match-same.md](match-same.md) | `polished` | `publish` | `ready` |
-| Что пропало? | `what-missing` | [what-missing.md](what-missing.md) | `therapy-ready` | `needs-check` | `development` |
+| Что пропало? | `what-missing` | [what-missing.md](what-missing.md) | `therapy-ready` | `publish` | `ready` |
 | Следуй за подсказкой | `follow-cue` | [follow-cue.md](follow-cue.md) | `therapy-ready` | `needs-check` | `development` |
 | Найди букву | `find-letter` | [find-letter.md](find-letter.md) | `therapy-ready` | `needs-check` | `development` |
 | Тень и предмет | `shadow-match` | [shadow-match.md](shadow-match.md) | `therapy-ready` | `needs-check` | `development` |

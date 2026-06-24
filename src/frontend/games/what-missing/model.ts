@@ -46,7 +46,9 @@ export function generateWhatMissingRound(_settings: SessionSettings, roundIndex 
   const displayItems = shuffleWhatMissingItems(whatMissingItems, random).slice(0, displayCount);
   const missingIndex = Math.floor(random() * displayItems.length);
   const missingItem = displayItems[missingIndex];
-  const choices = shuffleWhatMissingItems(displayItems, random);
+  const decoyItems = whatMissingItems.filter((item) => !displayItems.some((displayItem) => displayItem.id === item.id));
+  const decoy = decoyItems[Math.floor(random() * decoyItems.length)];
+  const choices = shuffleWhatMissingItems([...displayItems, decoy], random);
 
   return {
     roundId: `what-missing:round:${roundIndex}`,

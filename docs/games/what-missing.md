@@ -57,7 +57,7 @@ undefined
 | Vue-компонент | `WhatMissingGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
-| Audio module | нет |
+| Audio module | `audio.ts` |
 | Runtime audit doc | `docs/tests/2026-06-10/what-missing.md` |
 
 ## Готовность
@@ -75,6 +75,8 @@ undefined
 - HUD, prompt и overlays не перекрывают активные цели.
 - Для canvas/fullscreen игры PNG подтверждает непустую сцену и читаемые active zones.
 - Звук, если есть, остаётся опциональным и не ломает gameplay при ошибке загрузки.
+- TTS проговаривает фазу запоминания, вопрос выбора, мягкий успех и спокойную ошибку с повтором задания.
+- В вариантах ответа есть один лишний ложный предмет, которого не было в верхнем ряду.
 - Для игр с правилами model tests покрывают правильный ответ, ошибки и завершение раунда.
 
 ## Next step

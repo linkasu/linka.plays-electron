@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
@@ -18,8 +19,10 @@ const feedbackMs = 900;
 const router = useRouter();
 const phase = ref<RoundPhase>("observe");
 const isResponding = ref(false);
+const isSpeaking = ref(false);
 const hintedRoundId = ref<string>();
 const feedbackText = ref("Запомни три предмета.");
+const mounted = ref(false);
 let observeTimer = 0;
 let feedbackTimer = 0;
 
@@ -27,6 +30,12 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   maxSteps: 8,
   overrides: { sound: true },
   finishOnMistakes: false
+});
+const promptAudio = useGamePromptAudio({
+  gameId: "what-missing",
+  soundEnabled: toRef(session.settings, "sound"),
+  volume: 0.34,
+  warmAssetIds: ["what-missing.observe", "what-missing.choose", "what-missing.correct", "what-missing.mistake"]
 });
 
 const { round, resultVisible, nextRound: generateNextRound, restart: restartRoundGame } = useRoundGame<WhatMissingRound>({
@@ -44,39 +53,52 @@ function choiceTargetId(choiceId: string) {
 function clearTimers() {
   window.clearTimeout(observeTimer);
   window.clearTimeout(feedbackTimer);
+  promptAudio.cancelPending();
 }
 
 function startObservePhase() {
   clearTimers();
   phase.value = "observe";
   isResponding.value = false;
+  isSpeaking.value = false;
   hintedRoundId.value = undefined;
   feedbackText.value = "Запомни три предмета.";
+  if (mounted.value) void playSequence(["what-missing.observe"], 120);
   observeTimer = window.setTimeout(() => {
     phase.value = "choose";
     feedbackText.value = "Что пропало? Выбери предмет снизу.";
+    void playSequence(["what-missing.choose"], 80);
   }, observeMs);
+}
+
+async function playSequence(assetIds: string[], delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(assetIds, delayMs, 170);
+  isSpeaking.value = false;
 }
 
 function isItemVisible(item: WhatMissingItem) {
   return phase.value === "observe" || item.id !== round.value.missingItem.id;
 }
 
-function answer(choice: WhatMissingItem) {
-  if (session.status !== "running" || phase.value !== "choose" || isResponding.value) return;
+async function answer(choice: WhatMissingItem) {
+  if (session.status !== "running" || phase.value !== "choose" || isResponding.value || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice.id);
   const expectedTargetId = choiceTargetId(round.value.missingItem.id);
   if (choice.id === round.value.missingItem.id) {
     isResponding.value = true;
+    isSpeaking.value = true;
     hintedRoundId.value = undefined;
     feedbackText.value = `Верно, пропал ${choice.label}.`;
     void whatMissingFeedback.playSuccess(session.settings.sound);
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.missingItem.label, actual: choice.label, isCorrect: true });
+    await promptAudio.playSequenceAndWait(["what-missing.correct"], 80);
     feedbackTimer = window.setTimeout(() => {
       isResponding.value = false;
+      isSpeaking.value = false;
       if (session.status === "running" && session.step < session.maxSteps) generateNextRound();
-    }, feedbackMs);
+    }, feedbackMs * 0.25);
     return;
   }
 
@@ -85,17 +107,23 @@ function answer(choice: WhatMissingItem) {
   void whatMissingFeedback.playMistake(session.settings.sound);
   hintedRoundId.value = round.value.roundId;
   feedbackText.value = "Почти. Ничего страшного, попробуй ещё раз.";
+  await playSequence(["what-missing.mistake", "what-missing.choose"], 80);
 }
 
 function restart() {
   clearTimers();
+  isSpeaking.value = false;
+  isResponding.value = false;
   restartRoundGame();
 }
 
 watch(() => round.value.roundId, startObservePhase, { immediate: true });
 
 onMounted(() => {
+  mounted.value = true;
+  promptAudio.warm();
   whatMissingFeedback.warm(session.settings.sound);
+  void playSequence(["what-missing.observe"], 420);
 });
 
 watch(() => session.settings.sound, (enabled) => {
@@ -119,7 +147,7 @@ onUnmounted(() => {
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">Что пропало?</h1>
             <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5">{{ feedbackText }}</p>
 
-            <v-row class="mb-5" dense justify="center">
+            <v-row class="memory-row mb-5" dense justify="center">
               <v-col v-for="item in round.displayItems" :key="item.id" cols="4">
                 <v-card class="memory-slot pa-3 pa-md-5" :color="isItemVisible(item) ? item.color : 'grey-lighten-4'" rounded="xl" elevation="0">
                   <div v-if="isItemVisible(item)" class="slot-content">
@@ -131,11 +159,11 @@ onUnmounted(() => {
               </v-col>
             </v-row>
 
-            <v-divider class="mb-5" />
+            <v-divider class="choice-divider mb-5" />
 
             <v-row dense justify="center">
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="4">
-                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || phase !== 'choose' || isResponding" :dwell-ms="session.settings.dwellMs" :min-height="180" :color="hintedChoiceId === choice.id ? 'deep-purple-darken-3' : 'surface'" @select="answer(choice)">
+              <v-col v-for="choice in round.choices" :key="choice.id" cols="6" sm="3">
+                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || phase !== 'choose' || isResponding || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="11.25rem" :color="hintedChoiceId === choice.id ? 'deep-purple-darken-3' : 'surface'" @select="answer(choice)">
                   <template #default>
                     <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
                     <div class="text-h5 text-md-h4 font-weight-bold mt-2">{{ choice.label }}</div>
@@ -190,19 +218,50 @@ onUnmounted(() => {
 
 @media (max-height: 44rem) {
   .what-missing-container {
-    padding-block-start: 5rem;
+    padding-block-start: 4rem;
+  }
+
+  .what-missing-container :deep(.v-card.pa-4) {
+    padding-block: 0.875rem !important;
+  }
+
+  .what-missing-container .text-overline {
+    display: none;
+  }
+
+  .what-missing-container h1 {
+    font-size: clamp(1.75rem, 4vw, 2.3rem) !important;
+    line-height: 1.05;
+    margin-block-end: 0.35rem !important;
+  }
+
+  .what-missing-container p {
+    font-size: 1rem !important;
+    margin-block-end: 0.75rem !important;
+  }
+
+  .memory-row {
+    margin-block-end: 0.5rem !important;
+  }
+
+  .choice-divider {
+    margin-block-end: 0.5rem !important;
   }
 
   .memory-slot {
-    min-block-size: 9rem;
+    min-block-size: 6.75rem;
   }
 
   .scene-emoji {
-    font-size: clamp(4rem, min(10vw, 14vh), 7rem);
+    font-size: clamp(3.1rem, min(8vw, 10vh), 5rem);
+  }
+
+  .choice-emoji {
+    font-size: clamp(3.25rem, min(7vw, 9vh), 5rem);
   }
 
   .what-missing-container :deep(.dwell-button) {
-    min-block-size: 10rem !important;
+    min-block-size: 8.5rem !important;
   }
 }
 </style>
