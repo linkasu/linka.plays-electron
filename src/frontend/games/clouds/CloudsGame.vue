@@ -6,7 +6,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { disposeCloudsPiano, setCloudsPianoActive, tickCloudsPiano, warmCloudsPiano } from "./audio";
+import { disposeCloudsPiano, playCloudsPianoCue, setCloudsPianoActive, setCloudsPianoIntensity, tickCloudsPiano, warmCloudsPiano } from "./audio";
 
 type Point = { x: number; y: number };
 type CloudPhase = "floating" | "parting" | "clearing" | "hidden";
@@ -188,6 +188,7 @@ function gazeInfluence(cloud: Cloud) {
 function clearCloud(cloud: Cloud, now: number) {
   recordEvent("target-click", targetPayload(cloud, now, 1));
   recordSuccess({ targetId: cloud.id, label: "cloud" });
+  playCloudsPianoCue(session.settings.sound);
   cloud.phase = "clearing";
   cloud.phaseAge = 0;
   cloud.dwellProgress = 1;
@@ -246,6 +247,15 @@ function updateClouds(delta: number, now: number) {
   for (const cloud of clouds) {
     if (cloud.phase === "hidden" && cloud.phaseAge >= hiddenSeconds && session.status === "running") resetCloud(cloud);
   }
+}
+
+function audioIntensity() {
+  const cloudActivity = clouds.reduce((activity, cloud) => {
+    if (cloud.phase === "hidden") return activity;
+    const phaseBoost = cloud.phase === "parting" || cloud.phase === "clearing" ? 0.18 : 0;
+    return Math.max(activity, cloud.openness, cloud.dwellProgress + phaseBoost);
+  }, 0);
+  return Math.min(1, 0.72 + cloudActivity * 0.28);
 }
 
 function drawBackground(context: CanvasRenderingContext2D, now: number) {
@@ -346,6 +356,7 @@ function tick(now: number) {
   lastTime = now;
 
   setCloudsPianoActive(session.settings.sound, session.status === "running");
+  setCloudsPianoIntensity(session.settings.sound, audioIntensity());
   tickCloudsPiano(session.settings.sound);
   if (session.status === "running") updateClouds(delta, now);
   if (ctx) draw(ctx, now);

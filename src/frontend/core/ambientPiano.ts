@@ -49,6 +49,8 @@ export type AmbientPianoConfig = {
   cueStartVelocity?: number;
   cueVelocityStep?: number;
   cueCooldownSeconds?: number;
+  cueQuantizeToLoop?: boolean;
+  cueQuantizeDelaySteps?: number;
   activeGain: number;
   fadeInSeconds: number;
   fadeOutSeconds: number;
@@ -69,6 +71,9 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
   let scheduledUntil = 0;
   let cueUntil = 0;
   let active = false;
+  let intensity = 1;
+  let gainTarget = 0;
+  let loopGridStartAt: number | undefined;
 
   async function ensurePiano(resumeAudio: boolean) {
     if (unavailable) return undefined;
@@ -125,6 +130,7 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
 
   function fadeTo(target: number, seconds: number) {
     if (!audioContext || !outputGain) return;
+    gainTarget = target;
     const gain = outputGain.gain;
     const now = audioContext.currentTime;
     gain.cancelScheduledValues(now);
@@ -137,6 +143,7 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
     if (scheduledUntil > now + config.loopLookaheadSeconds) return;
 
     const startAt = Math.max(now + 0.08, scheduledUntil);
+    loopGridStartAt ??= startAt;
     for (const layer of config.loopLayers ?? []) {
       layer.notes.forEach((note, index) => {
         instrument.start({
@@ -193,8 +200,13 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
     const now = audioContext.currentTime;
     if (now < cueUntil) return;
 
-    const startAt = now + 0.04;
     const step = config.cueStepSeconds ?? 0.15;
+    let startAt = now + 0.04;
+    if (config.cueQuantizeToLoop && loopGridStartAt !== undefined) {
+      const gridStep = Math.max(0.1, config.loopStepSeconds);
+      const nextGridIndex = Math.ceil((startAt - loopGridStartAt) / gridStep) + (config.cueQuantizeDelaySteps ?? 0);
+      startAt = loopGridStartAt + nextGridIndex * gridStep;
+    }
     const startVelocity = config.cueStartVelocity ?? 64;
     const velocityStep = config.cueVelocityStep ?? 2;
     config.cueNotes.forEach((note, index) => {
@@ -227,9 +239,16 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
 
       void ensurePiano(true).then((instrument) => {
         if (!instrument || !active || !enabled) return;
-        fadeTo(config.activeGain, config.fadeInSeconds);
+        fadeTo(config.activeGain * intensity, config.fadeInSeconds);
         scheduleLoop(instrument);
       });
+    },
+    setIntensity(enabled: boolean, nextIntensity: number) {
+      intensity = Math.max(0, Math.min(1, nextIntensity));
+      if (!enabled || !active) return;
+      const nextGainTarget = config.activeGain * intensity;
+      if (Math.abs(nextGainTarget - gainTarget) < 0.02) return;
+      fadeTo(nextGainTarget, 0.55);
     },
     tick(enabled: boolean) {
       if (!enabled || !active || !piano) return;

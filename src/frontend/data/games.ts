@@ -208,7 +208,7 @@ export const games: GameInfo[] = [
     icon: "mdi-cloud",
     skills: ["fixation", "smooth-pursuit"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 75,
     minTargetSizePx: 190,
     defaultDwellMs: 1500
