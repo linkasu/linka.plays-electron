@@ -463,7 +463,7 @@ export const games: GameInfo[] = [
     icon: "mdi-door-open",
     skills: ["fixation", "attention-shift"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 220,
     defaultDwellMs: 1350
