@@ -43,7 +43,7 @@
 | Маяк | `lighthouse` | [lighthouse.md](lighthouse.md) | `polished` | `publish` | `ready` |
 | Песочный сад | `sand-garden` | [sand-garden.md](sand-garden.md) | `polished` | `publish` | `ready` |
 | Морские ракушки | `sea-shells` | [sea-shells.md](sea-shells.md) | `polished` | `publish` | `ready` |
-| Бумажные фонарики | `paper-lanterns` | [paper-lanterns.md](paper-lanterns.md) | `polished` | `needs-check` | `development` |
+| Бумажные фонарики | `paper-lanterns` | [paper-lanterns.md](paper-lanterns.md) | `polished` | `publish` | `ready` |
 | Открой дверцу | `open-door` | [open-door.md](open-door.md) | `polished` | `needs-check` | `development` |
 | Тёплое окно | `warm-window` | [warm-window.md](warm-window.md) | `polished` | `needs-check` | `development` |
 | Тёплый костёр | `warm-fire` | [warm-fire.md](warm-fire.md) | `polished` | `needs-check` | `development` |
