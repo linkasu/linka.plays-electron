@@ -373,7 +373,7 @@ export const games: GameInfo[] = [
     icon: "mdi-snowflake",
     skills: ["smooth-pursuit", "fixation"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 180,
     defaultDwellMs: 1400
