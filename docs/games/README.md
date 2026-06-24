@@ -53,7 +53,7 @@
 | Бабочки | `butterfly` | [butterfly.md](butterfly.md) | `polished` | `publish` | `ready` |
 | Цветы | `flowers` | [flowers.md](flowers.md) | `therapy-ready` | `publish` | `ready` |
 | Тихие пузыри | `quiet-bubbles` | [quiet-bubbles.md](quiet-bubbles.md) | `therapy-ready` | `publish` | `ready` |
-| Утки | `ducks` | [ducks.md](ducks.md) | `therapy-ready` | `needs-check` | `development` |
+| Утки | `ducks` | [ducks.md](ducks.md) | `therapy-ready` | `publish` | `ready` |
 | Рыбки | `fishes` | [fishes.md](fishes.md) | `therapy-ready` | `needs-check` | `development` |
 | Медузы | `jellyfish` | [jellyfish.md](jellyfish.md) | `therapy-ready` | `needs-check` | `development` |
 | Жаба | `frog` | [frog.md](frog.md) | `polished` | `needs-check` | `development` |
