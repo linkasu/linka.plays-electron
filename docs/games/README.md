@@ -49,7 +49,7 @@
 | Тёплый костёр | `warm-fire` | [warm-fire.md](warm-fire.md) | `polished` | `publish` | `ready` |
 | Большие карточки | `big-cards` | [big-cards.md](big-cards.md) | `therapy-ready` | `publish` | `ready` |
 | Цветной круг | `color-circle` | [color-circle.md](color-circle.md) | `therapy-ready` | `publish` | `ready` |
-| Покорми зверька | `feed-animal` | [feed-animal.md](feed-animal.md) | `therapy-ready` | `needs-check` | `development` |
+| Покорми зверька | `feed-animal` | [feed-animal.md](feed-animal.md) | `therapy-ready` | `publish` | `ready` |
 | Бабочки | `butterfly` | [butterfly.md](butterfly.md) | `polished` | `needs-check` | `development` |
 | Цветы | `flowers` | [flowers.md](flowers.md) | `therapy-ready` | `needs-check` | `development` |
 | Тихие пузыри | `quiet-bubbles` | [quiet-bubbles.md](quiet-bubbles.md) | `therapy-ready` | `needs-check` | `development` |
