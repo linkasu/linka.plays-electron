@@ -56,7 +56,7 @@
 | Утки | `ducks` | [ducks.md](ducks.md) | `therapy-ready` | `publish` | `ready` |
 | Рыбки | `fishes` | [fishes.md](fishes.md) | `therapy-ready` | `publish` | `ready` |
 | Медузы | `jellyfish` | [jellyfish.md](jellyfish.md) | `therapy-ready` | `publish` | `ready` |
-| Жаба | `frog` | [frog.md](frog.md) | `polished` | `needs-check` | `development` |
+| Жаба | `frog` | [frog.md](frog.md) | `polished` | `publish` | `ready` |
 
 ### Поиск и внимание
 

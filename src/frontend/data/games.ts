@@ -643,7 +643,7 @@ export const games: GameInfo[] = [
     icon: "mdi-bug",
     skills: ["attention-shift", "choice"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 90,
     minTargetSizePx: 140,
     defaultDwellMs: 900
