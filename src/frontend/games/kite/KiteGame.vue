@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive } from "vue";
+import { computed, onMounted, onUnmounted, reactive } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
@@ -7,6 +7,7 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { disposeKitePiano, setKitePianoActive, setKitePianoIntensity, tickKitePiano, warmKitePiano } from "./audio";
 
 type Point = { x: number; y: number };
 type Cloud = Point & {
@@ -27,7 +28,7 @@ const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("kite", {
   maxSteps: 8,
-  overrides: { preset: "gentle", dwellMs: 1450, sessionSeconds: 85, targetScale: 1.5, motionSpeed: 0.34, distractors: "none", hints: "high", sound: false },
+  overrides: { preset: "gentle", dwellMs: 1450, sessionSeconds: 85, targetScale: 1.5, motionSpeed: 0.34, distractors: "none", hints: "high", sound: true },
   finishOnMistakes: false
 });
 
@@ -101,6 +102,22 @@ function gazeInfluence() {
   if (!pointer.value.valid) return 0;
   const radius = kiteSize() * 0.88;
   return clamp(1 - distance(kite, pointer.value) / radius, 0, 1);
+}
+
+function kiteHeightIntensity() {
+  if (height.value <= 0) return 0;
+  const low = height.value * 0.66;
+  const high = height.value * 0.22;
+  const normalizedHeight = clamp((low - kite.y) / Math.max(1, low - high), 0, 1);
+  return 0.16 + normalizedHeight * 0.84;
+}
+
+function updateKiteMusic() {
+  const enabled = session.settings.sound;
+  const active = session.status === "running";
+  setKitePianoActive(enabled, active);
+  setKitePianoIntensity(enabled, active ? kiteHeightIntensity() : 0);
+  tickKitePiano(enabled);
 }
 
 function targetPayload(now: number, progress: number) {
@@ -360,6 +377,7 @@ function update(rawDelta: number, now: number) {
   updateKite(delta, now);
   updateClouds(delta);
   updateWind(delta);
+  updateKiteMusic();
 }
 
 function restart() {
@@ -369,6 +387,12 @@ function restart() {
 
 onMounted(() => {
   resetScene();
+  warmKitePiano(session.settings.sound);
+});
+
+onUnmounted(() => {
+  setKitePianoActive(false, false);
+  disposeKitePiano();
 });
 
 useGameLoop({ context, update, draw });
@@ -426,10 +450,10 @@ useGameLoop({ context, update, draw });
 }
 
 .kite-hint {
-  inset-block-end: max(18px, env(safe-area-inset-bottom));
-  inset-inline: 18px;
+  inset-block-end: max(1.125rem, env(safe-area-inset-bottom));
+  inset-inline: 1.125rem;
   margin-inline: auto;
-  max-inline-size: 600px;
+  max-inline-size: 37.5rem;
   opacity: 0.8;
   position: absolute;
   z-index: 3;

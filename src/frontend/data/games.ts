@@ -238,7 +238,7 @@ export const games: GameInfo[] = [
     icon: "mdi-kite",
     skills: ["fixation", "smooth-pursuit"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 190,
     defaultDwellMs: 1450
