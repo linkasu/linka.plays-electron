@@ -388,7 +388,7 @@ export const games: GameInfo[] = [
     icon: "mdi-moon-waning-crescent",
     skills: ["fixation", "smooth-pursuit"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 86,
     minTargetSizePx: 180,
     defaultDwellMs: 1450
