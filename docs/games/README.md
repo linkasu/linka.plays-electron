@@ -48,7 +48,7 @@
 | Тёплое окно | `warm-window` | [warm-window.md](warm-window.md) | `polished` | `publish` | `ready` |
 | Тёплый костёр | `warm-fire` | [warm-fire.md](warm-fire.md) | `polished` | `publish` | `ready` |
 | Большие карточки | `big-cards` | [big-cards.md](big-cards.md) | `therapy-ready` | `publish` | `ready` |
-| Цветной круг | `color-circle` | [color-circle.md](color-circle.md) | `therapy-ready` | `needs-check` | `development` |
+| Цветной круг | `color-circle` | [color-circle.md](color-circle.md) | `therapy-ready` | `publish` | `ready` |
 | Покорми зверька | `feed-animal` | [feed-animal.md](feed-animal.md) | `therapy-ready` | `needs-check` | `development` |
 | Бабочки | `butterfly` | [butterfly.md](butterfly.md) | `polished` | `needs-check` | `development` |
 | Цветы | `flowers` | [flowers.md](flowers.md) | `therapy-ready` | `needs-check` | `development` |
