@@ -418,7 +418,7 @@ export const games: GameInfo[] = [
     icon: "mdi-dots-grid",
     skills: ["smooth-pursuit", "fixation"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 84,
     minTargetSizePx: 190,
     defaultDwellMs: 1300
