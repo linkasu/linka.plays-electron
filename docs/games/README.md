@@ -25,7 +25,7 @@
 | Аквариум | `aquarium` | [aquarium.md](aquarium.md) | `polished` | `publish` | `ready` |
 | Шарики | `balloons` | [balloons.md](balloons.md) | `polished` | `publish` | `ready` |
 | Колокольчики | `bells` | [bells.md](bells.md) | `polished` | `publish` | `ready` |
-| Дышащий цветок | `breathing-flower` | [breathing-flower.md](breathing-flower.md) | `polished` | `needs-check` | `development` |
+| Дышащий цветок | `breathing-flower` | [breathing-flower.md](breathing-flower.md) | `polished` | `publish` | `ready` |
 | Разбуди сову | `wake-owl` | [wake-owl.md](wake-owl.md) | `polished` | `needs-check` | `development` |
 | Облака | `clouds` | [clouds.md](clouds.md) | `polished` | `needs-check` | `development` |
 | Листья на ветру | `leaves-wind` | [leaves-wind.md](leaves-wind.md) | `therapy-ready` | `needs-check` | `development` |

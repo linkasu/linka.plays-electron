@@ -178,7 +178,7 @@ export const games: GameInfo[] = [
     icon: "mdi-flower",
     skills: ["fixation", "smooth-pursuit"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 220,
     defaultDwellMs: 1400
