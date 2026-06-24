@@ -47,7 +47,7 @@
 | Открой дверцу | `open-door` | [open-door.md](open-door.md) | `polished` | `publish` | `ready` |
 | Тёплое окно | `warm-window` | [warm-window.md](warm-window.md) | `polished` | `publish` | `ready` |
 | Тёплый костёр | `warm-fire` | [warm-fire.md](warm-fire.md) | `polished` | `publish` | `ready` |
-| Большие карточки | `big-cards` | [big-cards.md](big-cards.md) | `therapy-ready` | `needs-check` | `development` |
+| Большие карточки | `big-cards` | [big-cards.md](big-cards.md) | `therapy-ready` | `publish` | `ready` |
 | Цветной круг | `color-circle` | [color-circle.md](color-circle.md) | `therapy-ready` | `needs-check` | `development` |
 | Покорми зверька | `feed-animal` | [feed-animal.md](feed-animal.md) | `therapy-ready` | `needs-check` | `development` |
 | Бабочки | `butterfly` | [butterfly.md](butterfly.md) | `polished` | `needs-check` | `development` |

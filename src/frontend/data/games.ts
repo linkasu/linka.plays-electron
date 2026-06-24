@@ -508,7 +508,7 @@ export const games: GameInfo[] = [
     icon: "mdi-card-multiple-outline",
     skills: ["choice", "fixation"],
     status: "therapy-ready",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 90,
     minTargetSizePx: 220,
     defaultDwellMs: 1300
