@@ -433,7 +433,7 @@ export const games: GameInfo[] = [
     icon: "mdi-water",
     skills: ["fixation", "attention-shift"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 200,
     defaultDwellMs: 1350

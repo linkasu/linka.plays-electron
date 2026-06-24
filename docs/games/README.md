@@ -42,7 +42,7 @@
 | Лунная дорожка | `moon-path` | [moon-path.md](moon-path.md) | `polished` | `publish` | `ready` |
 | Маяк | `lighthouse` | [lighthouse.md](lighthouse.md) | `polished` | `publish` | `ready` |
 | Песочный сад | `sand-garden` | [sand-garden.md](sand-garden.md) | `polished` | `publish` | `ready` |
-| Морские ракушки | `sea-shells` | [sea-shells.md](sea-shells.md) | `polished` | `needs-check` | `development` |
+| Морские ракушки | `sea-shells` | [sea-shells.md](sea-shells.md) | `polished` | `publish` | `ready` |
 | Бумажные фонарики | `paper-lanterns` | [paper-lanterns.md](paper-lanterns.md) | `polished` | `needs-check` | `development` |
 | Открой дверцу | `open-door` | [open-door.md](open-door.md) | `polished` | `needs-check` | `development` |
 | Тёплое окно | `warm-window` | [warm-window.md](warm-window.md) | `polished` | `needs-check` | `development` |
