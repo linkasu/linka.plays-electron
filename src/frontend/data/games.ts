@@ -703,7 +703,7 @@ export const games: GameInfo[] = [
     icon: "mdi-shape-outline",
     skills: ["visual-search", "choice", "classification"],
     status: "therapy-ready",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 210,
     defaultDwellMs: 1300
