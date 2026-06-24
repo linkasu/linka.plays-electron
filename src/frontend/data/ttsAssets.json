@@ -5696,5 +5696,222 @@
     "text": "Колокольчик звенит.",
     "voice": "filipp",
     "path": "/audio/tts/bells/correct.mp3"
+  },
+  {
+    "id": "who-hiding.intro",
+    "game": "who-hiding",
+    "text": "Сейчас игра в прятки. Кто-то спрятался за кустом. Слушай задание, смотри спокойно, и удержи взгляд на нужном месте. Ошибки не страшны: подсказка поможет.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/intro.mp3"
+  },
+  {
+    "id": "who-hiding.prompt.cat",
+    "game": "who-hiding",
+    "text": "Найди котёнка. Посмотри на кусты спокойно. Когда заметишь котёнка, удержи взгляд на его укрытии.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/prompt-cat.mp3"
+  },
+  {
+    "id": "who-hiding.prompt.owl",
+    "game": "who-hiding",
+    "text": "Найди сову. Сова спряталась за одним из кустов. Смотри медленно, без спешки, и выбери её укрытие.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/prompt-owl.mp3"
+  },
+  {
+    "id": "who-hiding.prompt.duck",
+    "game": "who-hiding",
+    "text": "Найди утёнка. Проверь каждый куст взглядом. Когда увидишь утёнка, спокойно удержи взгляд.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/prompt-duck.mp3"
+  },
+  {
+    "id": "who-hiding.prompt.dog",
+    "game": "who-hiding",
+    "text": "Найди щенка. Он спрятался в зелёной сцене. Смотри на укрытия по очереди и выбери щенка.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/prompt-dog.mp3"
+  },
+  {
+    "id": "who-hiding.prompt.bird",
+    "game": "who-hiding",
+    "text": "Найди птичку. Птичка тихо прячется за кустом. Переводи взгляд мягко и удержи его на нужном кусте.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/prompt-bird.mp3"
+  },
+  {
+    "id": "who-hiding.prompt.bear",
+    "game": "who-hiding",
+    "text": "Найди мишку. Мишка выглядывает из-за фона. Смотри спокойно и выбери, где он спрятался.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/prompt-bear.mp3"
+  },
+  {
+    "id": "who-hiding.prompt.bunny",
+    "game": "who-hiding",
+    "text": "Найди зайку. Зайка спрятался за кустами. Осмотри сцену и удержи взгляд там, где зайка.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/prompt-bunny.mp3"
+  },
+  {
+    "id": "who-hiding.prompt.friend",
+    "game": "who-hiding",
+    "text": "Найди друга. Друг спрятался за одним из кустов. Посмотри внимательно и спокойно выбери укрытие.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/prompt-friend.mp3"
+  },
+  {
+    "id": "who-hiding.correct.cat",
+    "game": "who-hiding",
+    "text": "Да, это котёнок. Ты нашёл котёнка спокойно и внимательно.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/correct-cat.mp3"
+  },
+  {
+    "id": "who-hiding.correct.owl",
+    "game": "who-hiding",
+    "text": "Верно, это сова. Ты заметил сову за кустом.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/correct-owl.mp3"
+  },
+  {
+    "id": "who-hiding.correct.duck",
+    "game": "who-hiding",
+    "text": "Да, это утёнок. Получилось найти утёнка.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/correct-duck.mp3"
+  },
+  {
+    "id": "who-hiding.correct.dog",
+    "game": "who-hiding",
+    "text": "Верно, это щенок. Ты хорошо удержал взгляд.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/correct-dog.mp3"
+  },
+  {
+    "id": "who-hiding.correct.bird",
+    "game": "who-hiding",
+    "text": "Да, это птичка. Ты внимательно нашёл птичку.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/correct-bird.mp3"
+  },
+  {
+    "id": "who-hiding.correct.bear",
+    "game": "who-hiding",
+    "text": "Верно, это мишка. Мишка найден.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/correct-bear.mp3"
+  },
+  {
+    "id": "who-hiding.correct.bunny",
+    "game": "who-hiding",
+    "text": "Да, это зайка. Ты нашёл зайку.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/correct-bunny.mp3"
+  },
+  {
+    "id": "who-hiding.correct.friend",
+    "game": "who-hiding",
+    "text": "Верно, это друг. Ты спокойно нашёл друга.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/correct-friend.mp3"
+  },
+  {
+    "id": "who-hiding.mistake.cat",
+    "game": "who-hiding",
+    "text": "Это не котёнок. Всё хорошо. Давай найдём котёнка: он подсвечен мягкой подсказкой.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/mistake-cat.mp3"
+  },
+  {
+    "id": "who-hiding.mistake.owl",
+    "game": "who-hiding",
+    "text": "Это не сова. Ничего страшного. Посмотри на подсветку и найди сову.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/mistake-owl.mp3"
+  },
+  {
+    "id": "who-hiding.mistake.duck",
+    "game": "who-hiding",
+    "text": "Это не утёнок. Ошибка мягкая. Подсказка покажет, где искать утёнка.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/mistake-duck.mp3"
+  },
+  {
+    "id": "who-hiding.mistake.dog",
+    "game": "who-hiding",
+    "text": "Это не щенок. Всё в порядке. Переведи взгляд к подсказке и найди щенка.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/mistake-dog.mp3"
+  },
+  {
+    "id": "who-hiding.mistake.bird",
+    "game": "who-hiding",
+    "text": "Это не птичка. Спокойно попробуем ещё раз. Птичка подсвечена.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/mistake-bird.mp3"
+  },
+  {
+    "id": "who-hiding.mistake.bear",
+    "game": "who-hiding",
+    "text": "Это не мишка. Ничего страшного. Мишка ждёт за подсвеченным кустом.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/mistake-bear.mp3"
+  },
+  {
+    "id": "who-hiding.mistake.bunny",
+    "game": "who-hiding",
+    "text": "Это не зайка. Всё хорошо. Посмотри туда, где появилась подсказка, и найди зайку.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/mistake-bunny.mp3"
+  },
+  {
+    "id": "who-hiding.mistake.friend",
+    "game": "who-hiding",
+    "text": "Это не друг. Ошибка не страшна. Подсказка поможет найти друга.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/mistake-friend.mp3"
+  },
+  {
+    "id": "who-hiding.cover.round-bush",
+    "game": "who-hiding",
+    "text": "Подсказка: цель спряталась за круглым кустом. Посмотри на круглый куст и удержи взгляд.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/cover-round-bush.mp3"
+  },
+  {
+    "id": "who-hiding.cover.dark-bush",
+    "game": "who-hiding",
+    "text": "Подсказка: цель спряталась за тёмным кустом. Переведи взгляд к тёмному кусту.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/cover-dark-bush.mp3"
+  },
+  {
+    "id": "who-hiding.cover.wide-bush",
+    "game": "who-hiding",
+    "text": "Подсказка: цель спряталась за широким кустом. Найди широкий куст и смотри на него спокойно.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/cover-wide-bush.mp3"
+  },
+  {
+    "id": "who-hiding.cover.flower-bush",
+    "game": "who-hiding",
+    "text": "Подсказка: цель спряталась за цветущим кустом. Посмотри на куст с цветами.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/cover-flower-bush.mp3"
+  },
+  {
+    "id": "who-hiding.cover.soft-bush",
+    "game": "who-hiding",
+    "text": "Подсказка: цель спряталась за мягкими кустами. Выбери мягкие кусты спокойным взглядом.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/cover-soft-bush.mp3"
+  },
+  {
+    "id": "who-hiding.cover.low-bush",
+    "game": "who-hiding",
+    "text": "Подсказка: цель спряталась за низким кустом. Посмотри на низкий куст и удержи взгляд.",
+    "voice": "filipp",
+    "path": "/audio/tts/who-hiding/cover-low-bush.mp3"
   }
 ]

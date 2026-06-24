@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 
 type Character = {
@@ -62,10 +64,23 @@ const layouts = [
 ] as const;
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("who-hiding", { maxSteps: 8, finishOnMistakes: false });
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("who-hiding", {
+  maxSteps: 8,
+  overrides: { sound: true },
+  finishOnMistakes: false
+});
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({
+  gameId: "who-hiding",
+  soundEnabled,
+  volume: 0.34,
+  warmAssetIds: ["who-hiding.intro"]
+});
+const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
 const hintedRoundId = ref<string>();
 const lastMistakeId = ref<string>();
+const isSpeaking = ref(false);
 
 function generateRound(roundIndex: number) {
   const target = characters[(roundIndex - 1) % characters.length];
@@ -112,6 +127,29 @@ function spotTargetId(spot: Spot) {
   return `who-hiding:spot:${spot.id}`;
 }
 
+function promptAssetId() {
+  return `who-hiding.prompt.${round.value.target.id}`;
+}
+
+function correctAssetId() {
+  return `who-hiding.correct.${round.value.target.id}`;
+}
+
+function mistakeAssetId() {
+  return `who-hiding.mistake.${round.value.target.id}`;
+}
+
+function coverAssetId() {
+  return `who-hiding.cover.${round.value.targetSpot.cover.id}`;
+}
+
+async function playRoundPrompt(delayMs = 0, includeIntro = false) {
+  isSpeaking.value = true;
+  const sequence = includeIntro ? ["who-hiding.intro", promptAssetId()] : [promptAssetId()];
+  await promptAudio.playSequenceAndWait(sequence, delayMs, 170);
+  isSpeaking.value = false;
+}
+
 function spotStyle(spot: Spot) {
   return {
     left: `${spot.x}%`,
@@ -120,30 +158,54 @@ function spotStyle(spot: Spot) {
   };
 }
 
-function chooseSpot(spot: Spot) {
-  if (session.status !== "running") return;
+async function chooseSpot(spot: Spot) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const targetId = spotTargetId(spot);
   const expectedTargetId = spotTargetId(round.value.targetSpot);
   if (spot.isTarget) {
+    isSpeaking.value = true;
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: spot.character.id, expected: round.value.target.name, actual: spot.character.name, isCorrect: true });
     hintedRoundId.value = undefined;
     lastMistakeId.value = undefined;
-    if (session.step < session.maxSteps) nextRound();
+    void pianoFeedback.playSuccess();
+    await promptAudio.playSequenceAndWait([correctAssetId()], 80);
+    if (session.status === "running" && session.step < session.maxSteps) {
+      nextRound();
+      await playRoundPrompt(180);
+      return;
+    }
+    isSpeaking.value = false;
     return;
   }
 
+  isSpeaking.value = true;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: spot.character.id, expected: round.value.target.name, actual: spot.character.name, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "wrong-hidden-character" });
   hintedRoundId.value = round.value.roundId;
   lastMistakeId.value = spot.id;
+  void pianoFeedback.playMistake();
+  await promptAudio.playSequenceAndWait([mistakeAssetId(), coverAssetId()], 80, 170);
+  isSpeaking.value = false;
 }
 
 function restart() {
   hintedRoundId.value = undefined;
   lastMistakeId.value = undefined;
+  isSpeaking.value = false;
+  promptAudio.cancelPending();
   restartRoundGame();
+  void playRoundPrompt(220, true);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  void playRoundPrompt(420, true);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -174,7 +236,7 @@ function restart() {
                 :key="spot.id"
                 :class="['hidden-choice', { 'hidden-choice--hint': hintedRoundId === round.roundId && spot.isTarget, 'hidden-choice--mistake': spot.id === lastMistakeId }]"
                 :target-id="spotTargetId(spot)"
-                :disabled="session.status !== 'running'"
+                :disabled="session.status !== 'running' || isSpeaking"
                 :dwell-ms="session.settings.dwellMs"
                 :min-height="spot.size * session.settings.targetScale"
                 :style="spotStyle(spot)"
@@ -479,7 +541,7 @@ function restart() {
   }
 
   .search-scene {
-    block-size: min(24rem, calc(100vh - 13.75rem));
+    block-size: min(21.5rem, calc(100vh - 15rem));
   }
 
   .scene-chip,
