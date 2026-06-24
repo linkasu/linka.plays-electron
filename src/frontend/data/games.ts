@@ -403,7 +403,7 @@ export const games: GameInfo[] = [
     icon: "mdi-lightbulb-on-outline",
     skills: ["fixation"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 95,
     minTargetSizePx: 220,
     defaultDwellMs: 1400

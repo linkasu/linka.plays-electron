@@ -40,7 +40,7 @@
 | Солнце и лучи | `sun-rays` | [sun-rays.md](sun-rays.md) | `polished` | `publish` | `ready` |
 | Снежинки | `snowflakes` | [snowflakes.md](snowflakes.md) | `polished` | `publish` | `ready` |
 | Лунная дорожка | `moon-path` | [moon-path.md](moon-path.md) | `polished` | `publish` | `ready` |
-| Маяк | `lighthouse` | [lighthouse.md](lighthouse.md) | `polished` | `needs-check` | `development` |
+| Маяк | `lighthouse` | [lighthouse.md](lighthouse.md) | `polished` | `publish` | `ready` |
 | Песочный сад | `sand-garden` | [sand-garden.md](sand-garden.md) | `polished` | `needs-check` | `development` |
 | Морские ракушки | `sea-shells` | [sea-shells.md](sea-shells.md) | `polished` | `needs-check` | `development` |
 | Бумажные фонарики | `paper-lanterns` | [paper-lanterns.md](paper-lanterns.md) | `polished` | `needs-check` | `development` |
