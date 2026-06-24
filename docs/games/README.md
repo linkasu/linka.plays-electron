@@ -66,7 +66,7 @@
 | Кто спрятался? | `who-hiding` | [who-hiding.md](who-hiding.md) | `therapy-ready` | `publish` | `ready` |
 | Найди цвет | `find-color` | [find-color.md](find-color.md) | `polished` | `publish` | `ready` |
 | Найди форму | `find-shape` | [find-shape.md](find-shape.md) | `therapy-ready` | `publish` | `ready` |
-| Где такой же? | `match-same` | [match-same.md](match-same.md) | `polished` | `needs-check` | `development` |
+| Где такой же? | `match-same` | [match-same.md](match-same.md) | `polished` | `publish` | `ready` |
 | Что пропало? | `what-missing` | [what-missing.md](what-missing.md) | `therapy-ready` | `needs-check` | `development` |
 | Следуй за подсказкой | `follow-cue` | [follow-cue.md](follow-cue.md) | `therapy-ready` | `needs-check` | `development` |
 | Найди букву | `find-letter` | [find-letter.md](find-letter.md) | `therapy-ready` | `needs-check` | `development` |

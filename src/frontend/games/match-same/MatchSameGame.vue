@@ -1,17 +1,29 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameSessionChrome from "../../components/game/GameSessionChrome.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { generateMatchSameRound, type MatchSameRound } from "./model";
 
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("match-same", {
   maxSteps: 8,
+  overrides: { sound: true },
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({
+  gameId: "match-same",
+  soundEnabled,
+  volume: 0.34,
+  warmAssetIds: ["match-same.prompt", "match-same.correct", "match-same.mistake"]
+});
+const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
 const hintedRoundId = ref<string>();
+const isSpeaking = ref(false);
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
@@ -25,31 +37,61 @@ function choiceTargetId(choiceId: string) {
   return `match-same:choice:${choiceId}`;
 }
 
-function answer(choice: MatchSameRound["choices"][number]) {
-  if (session.status !== "running") return;
+async function playRoundPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["match-same.prompt"], delayMs);
+  isSpeaking.value = false;
+}
+
+async function answer(choice: MatchSameRound["choices"][number]) {
+  if (session.status !== "running" || isSpeaking.value) return;
   const targetId = choiceTargetId(choice.id);
   const expectedTargetId = choiceTargetId(round.value.target.id);
 
   if (choice.id === round.value.target.id) {
+    isSpeaking.value = true;
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: true });
     hintedRoundId.value = undefined;
-    if (session.step < session.maxSteps) nextRound();
+    void pianoFeedback.playSuccess();
+    await promptAudio.playSequenceAndWait(["match-same.correct"], 80);
+    if (session.status === "running" && session.step < session.maxSteps) {
+      nextRound();
+      await playRoundPrompt(180);
+      return;
+    }
+    isSpeaking.value = false;
     return;
   }
 
+  isSpeaking.value = true;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "mistake" });
   hintedRoundId.value = round.value.roundId;
+  void pianoFeedback.playMistake();
+  await promptAudio.playSequenceAndWait(["match-same.mistake", "match-same.prompt"], 80, 170);
+  isSpeaking.value = false;
 }
 
 function restart() {
   hintedRoundId.value = undefined;
+  isSpeaking.value = false;
+  promptAudio.cancelPending();
   restartRoundGame();
+  void playRoundPrompt(220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  void playRoundPrompt(420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
-  <GameSessionChrome title="Где такой же?" :session="session" :result-visible="resultVisible" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" gradient="linear-gradient(135deg, #f4f7ff 0%, #fff0e8 100%)" @pause="pauseSession" @resume="resumeSession" @restart="restart">
+  <GameSessionChrome title="Где такой же?" :session="session" :result-visible="resultVisible" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" gradient="linear-gradient(135deg, #f4f7ff 0%, #fff0e8 100%)" padding-top="5rem" @pause="pauseSession" @resume="resumeSession" @restart="restart">
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11">
@@ -59,7 +101,7 @@ function restart() {
               <div class="sample-emoji emoji-glyph">{{ round.target.emoji }}</div>
             </div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-4 mb-md-6">{{ round.prompt }}</h1>
-            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="190" :highlight-choice="(choice) => hintedChoiceId === choice.id" :color="(choice) => hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="answer">
+            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="clamp(9.5rem, 22vh, 11rem)" :sm="3" :highlight-choice="(choice) => hintedChoiceId === choice.id" :color="(choice) => hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="answer">
               <template #default="{ choice }">
                 <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
                 <div class="text-h6 text-md-h5 font-weight-bold mt-2">{{ choice.word }}</div>
@@ -100,7 +142,20 @@ function restart() {
 
 @media (max-height: 44rem) {
   .sample-card {
-    min-block-size: 8rem;
+    inline-size: min(10rem, 38vw);
+    min-block-size: 6.25rem;
+  }
+
+  .sample-emoji {
+    font-size: clamp(4rem, min(10vw, 12vh), 6rem);
+  }
+
+  .match-card {
+    padding-block: 1rem !important;
+  }
+
+  .match-card .text-overline {
+    display: none;
   }
 }
 </style>

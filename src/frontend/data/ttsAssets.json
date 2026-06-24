@@ -5983,5 +5983,26 @@
     "text": "Почти. Это другой цвет. Посмотри на мягкую подсветку и попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/find-color/mistake.mp3"
+  },
+  {
+    "id": "match-same.prompt",
+    "game": "match-same",
+    "text": "Посмотри на большую картинку. Теперь найди такую же картинку среди карточек и удержи взгляд.",
+    "voice": "jane",
+    "path": "/audio/tts/match-same/prompt.mp3"
+  },
+  {
+    "id": "match-same.correct",
+    "game": "match-same",
+    "text": "Да, это такая же картинка. Получилось.",
+    "voice": "jane",
+    "path": "/audio/tts/match-same/correct.mp3"
+  },
+  {
+    "id": "match-same.mistake",
+    "game": "match-same",
+    "text": "Почти. Это другая картинка. Посмотри на подсказку и найди такую же.",
+    "voice": "jane",
+    "path": "/audio/tts/match-same/mistake.mp3"
   }
 ]
