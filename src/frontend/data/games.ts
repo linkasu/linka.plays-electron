@@ -268,7 +268,7 @@ export const games: GameInfo[] = [
     icon: "mdi-brightness-5",
     skills: ["fixation", "attention-shift"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
