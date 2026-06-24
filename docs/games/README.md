@@ -33,7 +33,7 @@
 | Светлячковая поляна | `firefly-meadow` | [firefly-meadow.md](firefly-meadow.md) | `polished` | `publish` | `ready` |
 | Поймай свет | `catch-light` | [catch-light.md](catch-light.md) | `polished` | `publish` | `ready` |
 | Звёздное небо | `starry-sky` | [starry-sky.md](starry-sky.md) | `polished` | `publish` | `ready` |
-| Волшебная пыль | `magic-dust` | [magic-dust.md](magic-dust.md) | `polished` | `needs-check` | `development` |
+| Волшебная пыль | `magic-dust` | [magic-dust.md](magic-dust.md) | `polished` | `publish` | `ready` |
 | Галерея света | `light-gallery` | [light-gallery.md](light-gallery.md) | `polished` | `needs-check` | `development` |
 | Мыльные круги | `soap-circles` | [soap-circles.md](soap-circles.md) | `polished` | `needs-check` | `development` |
 | Северное сияние | `northern-lights` | [northern-lights.md](northern-lights.md) | `polished` | `needs-check` | `development` |
