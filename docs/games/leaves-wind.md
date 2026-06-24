@@ -57,7 +57,7 @@ undefined
 | Vue-компонент | `LeavesWindGame.vue` |
 | Model | нет отдельной модели |
 | Model test | нет |
-| Audio module | нет |
+| Audio module | `audio.ts` |
 | Runtime audit doc | `docs/tests/2026-06-10/leaves-wind.md` |
 
 ## Готовность

@@ -28,7 +28,7 @@
 | Дышащий цветок | `breathing-flower` | [breathing-flower.md](breathing-flower.md) | `polished` | `publish` | `ready` |
 | Разбуди сову | `wake-owl` | [wake-owl.md](wake-owl.md) | `polished` | `publish` | `ready` |
 | Облака | `clouds` | [clouds.md](clouds.md) | `polished` | `publish` | `ready` |
-| Листья на ветру | `leaves-wind` | [leaves-wind.md](leaves-wind.md) | `therapy-ready` | `needs-check` | `development` |
+| Листья на ветру | `leaves-wind` | [leaves-wind.md](leaves-wind.md) | `therapy-ready` | `publish` | `ready` |
 | Воздушный змей | `kite` | [kite.md](kite.md) | `polished` | `needs-check` | `development` |
 | Светлячковая поляна | `firefly-meadow` | [firefly-meadow.md](firefly-meadow.md) | `polished` | `needs-check` | `development` |
 | Поймай свет | `catch-light` | [catch-light.md](catch-light.md) | `polished` | `needs-check` | `development` |
