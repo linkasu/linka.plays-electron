@@ -23,7 +23,7 @@
 | Игра | ID | Документ | Status | Stability | Group |
 |---|---|---|---|---|---|
 | Аквариум | `aquarium` | [aquarium.md](aquarium.md) | `polished` | `publish` | `ready` |
-| Шарики | `balloons` | [balloons.md](balloons.md) | `polished` | `needs-check` | `development` |
+| Шарики | `balloons` | [balloons.md](balloons.md) | `polished` | `publish` | `ready` |
 | Колокольчики | `bells` | [bells.md](bells.md) | `polished` | `needs-check` | `development` |
 | Ладошки | `high-five-hands` | [high-five-hands.md](high-five-hands.md) | `polished` | `needs-check` | `development` |
 | Дышащий цветок | `breathing-flower` | [breathing-flower.md](breathing-flower.md) | `polished` | `needs-check` | `development` |

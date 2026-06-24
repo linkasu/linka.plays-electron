@@ -148,7 +148,7 @@ export const games: GameInfo[] = [
     icon: "mdi-balloon",
     skills: ["fixation", "attention-shift"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 82,
     minTargetSizePx: 188,
     defaultDwellMs: 1300
