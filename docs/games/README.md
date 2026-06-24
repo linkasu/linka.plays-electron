@@ -62,7 +62,7 @@
 
 | Игра | ID | Документ | Status | Stability | Group |
 |---|---|---|---|---|---|
-| Прятки | `hide-and-seek` | [hide-and-seek.md](hide-and-seek.md) | `polished` | `needs-check` | `development` |
+| Прятки | `hide-and-seek` | [hide-and-seek.md](hide-and-seek.md) | `polished` | `publish` | `ready` |
 | Кто спрятался? | `who-hiding` | [who-hiding.md](who-hiding.md) | `therapy-ready` | `needs-check` | `development` |
 | Найди цвет | `find-color` | [find-color.md](find-color.md) | `polished` | `needs-check` | `development` |
 | Найди форму | `find-shape` | [find-shape.md](find-shape.md) | `therapy-ready` | `needs-check` | `development` |

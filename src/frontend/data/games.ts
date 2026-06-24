@@ -658,7 +658,7 @@ export const games: GameInfo[] = [
     icon: "mdi-magnify",
     skills: ["visual-search", "choice"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 130,
     defaultDwellMs: 1200
