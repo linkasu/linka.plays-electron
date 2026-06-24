@@ -69,7 +69,7 @@
 | Где такой же? | `match-same` | [match-same.md](match-same.md) | `polished` | `publish` | `ready` |
 | Что пропало? | `what-missing` | [what-missing.md](what-missing.md) | `therapy-ready` | `publish` | `ready` |
 | Следуй за подсказкой | `follow-cue` | [follow-cue.md](follow-cue.md) | `therapy-ready` | `publish` | `ready` |
-| Найди букву | `find-letter` | [find-letter.md](find-letter.md) | `therapy-ready` | `needs-check` | `development` |
+| Найди букву | `find-letter` | [find-letter.md](find-letter.md) | `therapy-ready` | `publish` | `ready` |
 | Тень и предмет | `shadow-match` | [shadow-match.md](shadow-match.md) | `therapy-ready` | `needs-check` | `development` |
 | Где звук? | `sound-source` | [sound-source.md](sound-source.md) | `therapy-ready` | `needs-check` | `development` |
 | Что лишнее? | `odd-one-out` | [odd-one-out.md](odd-one-out.md) | `therapy-ready` | `needs-check` | `development` |

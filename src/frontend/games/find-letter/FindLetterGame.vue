@@ -29,6 +29,7 @@ const hintedRoundId = ref<string>();
 const wrongChoiceId = ref<string>();
 const successChoiceId = ref<string>();
 const pendingSelection = ref(false);
+const isSpeaking = ref(false);
 const promptAudio = useGamePromptAudio({ gameId: "find-letter", soundEnabled: toRef(session.settings, "sound") });
 let feedbackTimer = 0;
 
@@ -44,12 +45,10 @@ function clearFeedbackTimer() {
   feedbackTimer = 0;
 }
 
-function playTargetPrompt(delayMs = 0) {
-  promptAudio.play(`find-letter.prompt.${round.value.target.id}`, delayMs);
-}
-
-function playResponse(id: string, delayMs = 0) {
-  promptAudio.play(id, delayMs);
+async function playTargetPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait([`find-letter.prompt.${round.value.target.id}`], delayMs);
+  isSpeaking.value = false;
 }
 
 function resetFeedback() {
@@ -59,10 +58,11 @@ function resetFeedback() {
   wrongChoiceId.value = undefined;
   successChoiceId.value = undefined;
   pendingSelection.value = false;
+  isSpeaking.value = false;
 }
 
-function answer(choice: FindLetterOption) {
-  if (session.status !== "running" || pendingSelection.value) return;
+async function answer(choice: FindLetterOption) {
+  if (session.status !== "running" || pendingSelection.value || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice);
   const expectedTargetId = choiceTargetId(round.value.target);
@@ -74,14 +74,14 @@ function answer(choice: FindLetterOption) {
     feedbackMessage.value = "Верно. Это нужная буква.";
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.letter, actual: choice.letter, isCorrect: true });
     void findLetterFeedback.playSuccess(session.settings.sound);
-    playResponse("find-letter.correct", 980);
+    await promptAudio.playSequenceAndWait(["find-letter.correct"], 80);
 
     if (session.status === "running" && session.step < session.maxSteps) {
       feedbackTimer = window.setTimeout(() => {
         nextRound();
         resetFeedback();
-        playTargetPrompt(350);
-      }, 2600);
+        void playTargetPrompt(180);
+      }, 260);
     }
     return;
   }
@@ -93,12 +93,9 @@ function answer(choice: FindLetterOption) {
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.letter, actual: choice.letter, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "mistake" });
   void findLetterFeedback.playMistake(session.settings.sound);
-  playResponse("find-letter.mistake", 940);
-  playTargetPrompt(2700);
-  feedbackTimer = window.setTimeout(() => {
-    pendingSelection.value = false;
-    wrongChoiceId.value = undefined;
-  }, 2200);
+  await promptAudio.playSequenceAndWait(["find-letter.mistake", `find-letter.prompt.${round.value.target.id}`], 80, 170);
+  pendingSelection.value = false;
+  wrongChoiceId.value = undefined;
 }
 
 function choiceColor(choice: FindLetterOption) {
@@ -117,7 +114,7 @@ function restart() {
 onMounted(() => {
   findLetterFeedback.warm(session.settings.sound);
   promptAudio.warm();
-  playTargetPrompt(450);
+  void playTargetPrompt(450);
 });
 
 watch(() => session.settings.sound, (enabled) => {
@@ -146,7 +143,7 @@ onUnmounted(() => {
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-1">{{ round.prompt }}</h1>
             <p class="text-body-1 text-md-h6 text-medium-emphasis text-center mb-3">{{ feedbackMessage }}</p>
 
-            <GameChoiceCardGrid :choices="round.choices" :target-id="choiceTargetId" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="150" :color="choiceColor" :cols="round.choices.length === 4 ? 3 : 4" :sm="round.choices.length === 4 ? 3 : 4" :md="round.choices.length > 4 ? 4 : round.choices.length === 4 ? 3 : 4" @select="answer">
+            <GameChoiceCardGrid :choices="round.choices" :target-id="choiceTargetId" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="9.375rem" :color="choiceColor" :cols="round.choices.length === 4 ? 3 : 4" :sm="round.choices.length === 4 ? 3 : 4" :md="round.choices.length > 4 ? 4 : round.choices.length === 4 ? 3 : 4" @select="answer">
               <template #default="{ choice }">
                 <div :class="['letter-choice', { 'letter-choice--hinted': hintedChoiceId === choice.id, 'letter-choice--mistake': wrongChoiceId === choice.id }]">
                   {{ choice.letter }}
