@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
@@ -57,10 +58,21 @@ const cueItems: CueItem[] = [
 ];
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("follow-cue", { maxSteps: 8, finishOnMistakes: false });
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("follow-cue", {
+  maxSteps: 8,
+  overrides: { sound: true },
+  finishOnMistakes: false
+});
+const promptAudio = useGamePromptAudio({
+  gameId: "follow-cue",
+  soundEnabled: toRef(session.settings, "sound"),
+  volume: 0.34,
+  warmAssetIds: ["follow-cue.prompt", "follow-cue.correct", "follow-cue.mistake"]
+});
 
 const cueStrength = ref(0);
 const lastMistakeId = ref<string>();
+const isSpeaking = ref(false);
 
 function generateRound(roundIndex: number): CueRound {
   const correctIndex = (roundIndex * 3 + 1) % cueSlots.length;
@@ -109,38 +121,60 @@ function choiceColor(choice: CueChoice) {
   return "surface";
 }
 
-function answer(choice: CueChoice) {
-  if (session.status !== "running") return;
+async function playPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["follow-cue.prompt"], delayMs);
+  isSpeaking.value = false;
+}
+
+async function answer(choice: CueChoice) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice.id);
   const expectedTargetId = choiceTargetId(round.value.target.id);
   if (choice.isTarget) {
+    isSpeaking.value = true;
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.slot.label, actual: choice.slot.label, isCorrect: true });
     cueStrength.value = 0;
     lastMistakeId.value = undefined;
     void playFollowCueSuccessMelody(session.settings.sound);
-    if (session.step < session.maxSteps) nextRound();
+    await promptAudio.playSequenceAndWait(["follow-cue.correct"], 80);
+    if (session.status === "running" && session.step < session.maxSteps) {
+      nextRound();
+      await playPrompt(180);
+      return;
+    }
+    isSpeaking.value = false;
     return;
   }
 
+  isSpeaking.value = true;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.slot.label, actual: choice.slot.label, isCorrect: false });
   cueStrength.value = Math.min(3, cueStrength.value + 1);
   lastMistakeId.value = choice.id;
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "wrong-cue-target", strength: cueStrength.value });
   void playFollowCueMistakeMelody(session.settings.sound);
+  await promptAudio.playSequenceAndWait(["follow-cue.mistake", "follow-cue.prompt"], 80, 170);
+  isSpeaking.value = false;
 }
 
 function restart() {
   cueStrength.value = 0;
   lastMistakeId.value = undefined;
+  isSpeaking.value = false;
+  promptAudio.cancelPending();
   restartRoundGame();
+  void playPrompt(220);
 }
 
 onMounted(() => {
+  promptAudio.warm();
   warmFollowCueAudio(session.settings.sound);
+  void playPrompt(420);
 });
 
 onUnmounted(() => {
+  promptAudio.cancelPending();
   disposeFollowCueAudio();
 });
 </script>
@@ -168,7 +202,7 @@ onUnmounted(() => {
                 :key="choice.id"
                 :class="['cue-target', choice.slot.className, { 'cue-target--hinted': choice.isTarget, 'cue-target--mistake': lastMistakeId === choice.id }]"
                 :target-id="choiceTargetId(choice.id)"
-                :disabled="session.status !== 'running'"
+                :disabled="session.status !== 'running' || isSpeaking"
                 :dwell-ms="session.settings.dwellMs"
                 min-height="clamp(8.5rem, 20vh, 12rem)"
                 :color="choiceColor(choice)"

@@ -6032,5 +6032,26 @@
     "text": "Почти. Это другой предмет. Посмотри на мягкую подсказку и попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/what-missing/mistake.mp3"
+  },
+  {
+    "id": "follow-cue.prompt",
+    "game": "follow-cue",
+    "text": "Следуй за стрелкой. Посмотри, куда показывает подсказка, и выбери эту карточку спокойным взглядом.",
+    "voice": "jane",
+    "path": "/audio/tts/follow-cue/prompt.mp3"
+  },
+  {
+    "id": "follow-cue.correct",
+    "game": "follow-cue",
+    "text": "Да, ты выбрал карточку по подсказке. Получилось.",
+    "voice": "jane",
+    "path": "/audio/tts/follow-cue/correct.mp3"
+  },
+  {
+    "id": "follow-cue.mistake",
+    "game": "follow-cue",
+    "text": "Почти. Это другая карточка. Подсказка станет ярче: следуй за стрелкой.",
+    "voice": "jane",
+    "path": "/audio/tts/follow-cue/mistake.mp3"
   }
 ]
