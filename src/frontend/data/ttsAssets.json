@@ -5913,5 +5913,75 @@
     "text": "Подсказка: цель спряталась за низким кустом. Посмотри на низкий куст и удержи взгляд.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/cover-low-bush.mp3"
+  },
+  {
+    "id": "find-color.prompt.red",
+    "game": "find-color",
+    "text": "Найди красный цвет. Посмотри на карточки и выбери красный круг.",
+    "voice": "jane",
+    "path": "/audio/tts/find-color/prompt-red.mp3"
+  },
+  {
+    "id": "find-color.prompt.blue",
+    "game": "find-color",
+    "text": "Найди синий цвет. Спокойно посмотри на карточки и выбери синий круг.",
+    "voice": "jane",
+    "path": "/audio/tts/find-color/prompt-blue.mp3"
+  },
+  {
+    "id": "find-color.prompt.green",
+    "game": "find-color",
+    "text": "Найди зелёный цвет. Выбери карточку с зелёным кругом.",
+    "voice": "jane",
+    "path": "/audio/tts/find-color/prompt-green.mp3"
+  },
+  {
+    "id": "find-color.prompt.yellow",
+    "game": "find-color",
+    "text": "Найди жёлтый цвет. Посмотри внимательно и выбери жёлтый круг.",
+    "voice": "jane",
+    "path": "/audio/tts/find-color/prompt-yellow.mp3"
+  },
+  {
+    "id": "find-color.prompt.purple",
+    "game": "find-color",
+    "text": "Найди фиолетовый цвет. Удержи взгляд на фиолетовом круге.",
+    "voice": "jane",
+    "path": "/audio/tts/find-color/prompt-purple.mp3"
+  },
+  {
+    "id": "find-color.prompt.orange",
+    "game": "find-color",
+    "text": "Найди оранжевый цвет. Выбери оранжевый круг спокойным взглядом.",
+    "voice": "jane",
+    "path": "/audio/tts/find-color/prompt-orange.mp3"
+  },
+  {
+    "id": "find-color.prompt.teal",
+    "game": "find-color",
+    "text": "Найди бирюзовый цвет. Посмотри на бирюзовый круг и удержи взгляд.",
+    "voice": "jane",
+    "path": "/audio/tts/find-color/prompt-teal.mp3"
+  },
+  {
+    "id": "find-color.prompt.pink",
+    "game": "find-color",
+    "text": "Найди розовый цвет. Выбери розовый круг.",
+    "voice": "jane",
+    "path": "/audio/tts/find-color/prompt-pink.mp3"
+  },
+  {
+    "id": "find-color.correct",
+    "game": "find-color",
+    "text": "Да, это нужный цвет. Получилось.",
+    "voice": "jane",
+    "path": "/audio/tts/find-color/correct.mp3"
+  },
+  {
+    "id": "find-color.mistake",
+    "game": "find-color",
+    "text": "Почти. Это другой цвет. Посмотри на мягкую подсветку и попробуй ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/find-color/mistake.mp3"
   }
 ]
