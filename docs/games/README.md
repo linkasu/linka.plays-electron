@@ -9,7 +9,7 @@
 | `ready` | `resolvedStabilityStatus === "publish"` |
 | `development` | всё кроме `publish`: `needs-check`, `prefixed`, `archived`, скрытые или спорные игры |
 
-Сводка по последнему readiness-аудиту: 148 игр, 94 игры, 54 игры. Все registry-игры имеют `docs/games/<id>.md`.
+Сводка по последнему readiness-аудиту: 147 игр, 3 игры, 144 игры. Все registry-игры имеют `docs/games/<id>.md`.
 
 ## Форматы документов
 
@@ -25,7 +25,6 @@
 | Аквариум | `aquarium` | [aquarium.md](aquarium.md) | `polished` | `publish` | `ready` |
 | Шарики | `balloons` | [balloons.md](balloons.md) | `polished` | `publish` | `ready` |
 | Колокольчики | `bells` | [bells.md](bells.md) | `polished` | `publish` | `ready` |
-| Ладошки | `high-five-hands` | [high-five-hands.md](high-five-hands.md) | `polished` | `needs-check` | `development` |
 | Дышащий цветок | `breathing-flower` | [breathing-flower.md](breathing-flower.md) | `polished` | `needs-check` | `development` |
 | Разбуди сову | `wake-owl` | [wake-owl.md](wake-owl.md) | `polished` | `needs-check` | `development` |
 | Облака | `clouds` | [clouds.md](clouds.md) | `polished` | `needs-check` | `development` |

@@ -61,7 +61,6 @@ import GliderGame from "../games/glider/GliderGame.vue";
 import GreaterLessGame from "../games/greater-less/GreaterLessGame.vue";
 import GuideFishGame from "../games/guide-fish/GuideFishGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
-import HighFiveHandsGame from "../games/high-five-hands/HighFiveHandsGame.vue";
 import IWantGame from "../games/i-want/IWantGame.vue";
 import JellyfishGame from "../games/jellyfish/JellyfishGame.vue";
 import KiteGame from "../games/kite/KiteGame.vue";
@@ -161,7 +160,6 @@ const gameComponentsById: Record<string, Component> = {
   "balloon-ride": BalloonRideGame,
   "balloons": BalloonsGame,
   "bells": BellsGame,
-  "high-five-hands": HighFiveHandsGame,
   "breathing-flower": BreathingFlowerGame,
   "wake-owl": WakeOwlGame,
   "clouds": CloudsGame,

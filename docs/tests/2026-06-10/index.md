@@ -77,7 +77,6 @@
 | [aquarium](./aquarium.md) | Аквариум | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Текстовая подсказка поверх сцены |
 | [balloons](./balloons.md) | Шарики | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
 | [bells](./bells.md) | Колокольчики | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Ручные пиксельные отступы; Текстовая подсказка поверх сцены |
-| [high-five-hands](./high-five-hands.md) | Ладошки | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Ручные пиксельные отступы; Текстовая подсказка поверх сцены |
 | [breathing-flower](./breathing-flower.md) | Дышащий цветок | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Ручные пиксельные отступы; Текстовая подсказка поверх сцены |
 | [wake-owl](./wake-owl.md) | Разбуди сову | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Ручные пиксельные отступы; Inline px sizing; Deep CSS override; Текстовая подсказка поверх сцены |
 | [clouds](./clouds.md) | Облака | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Текстовая подсказка поверх сцены |
@@ -229,7 +228,6 @@
 | [aquarium](./aquarium.md) | Аквариум | gaze-basics | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [balloons](./balloons.md) | Шарики | gaze-basics | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [bells](./bells.md) | Колокольчики | gaze-basics | да | высокий | средний | высокий | Ошибки не завершают сессию |
-| [high-five-hands](./high-five-hands.md) | Ладошки | gaze-basics | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [breathing-flower](./breathing-flower.md) | Дышащий цветок | gaze-basics | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [wake-owl](./wake-owl.md) | Разбуди сову | gaze-basics | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [clouds](./clouds.md) | Облака | gaze-basics | да | высокий | средний | высокий | Ошибки не завершают сессию |
