@@ -478,7 +478,7 @@ export const games: GameInfo[] = [
     icon: "mdi-window-closed",
     skills: ["fixation", "attention-shift"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 80,
     minTargetSizePx: 180,
     defaultDwellMs: 1350
