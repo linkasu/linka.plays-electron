@@ -568,7 +568,7 @@ export const games: GameInfo[] = [
     icon: "mdi-flower",
     skills: ["fixation", "attention-shift", "visual-search"],
     status: "therapy-ready",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 75,
     minTargetSizePx: 170,
     defaultDwellMs: 1100
