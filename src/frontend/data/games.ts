@@ -193,7 +193,7 @@ export const games: GameInfo[] = [
     icon: "mdi-owl",
     skills: ["fixation"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 82,
     minTargetSizePx: 240,
     defaultDwellMs: 1400
