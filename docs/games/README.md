@@ -30,7 +30,7 @@
 | Облака | `clouds` | [clouds.md](clouds.md) | `polished` | `publish` | `ready` |
 | Листья на ветру | `leaves-wind` | [leaves-wind.md](leaves-wind.md) | `therapy-ready` | `publish` | `ready` |
 | Воздушный змей | `kite` | [kite.md](kite.md) | `polished` | `publish` | `ready` |
-| Светлячковая поляна | `firefly-meadow` | [firefly-meadow.md](firefly-meadow.md) | `polished` | `needs-check` | `development` |
+| Светлячковая поляна | `firefly-meadow` | [firefly-meadow.md](firefly-meadow.md) | `polished` | `publish` | `ready` |
 | Поймай свет | `catch-light` | [catch-light.md](catch-light.md) | `polished` | `needs-check` | `development` |
 | Звёздное небо | `starry-sky` | [starry-sky.md](starry-sky.md) | `polished` | `needs-check` | `development` |
 | Волшебная пыль | `magic-dust` | [magic-dust.md](magic-dust.md) | `polished` | `needs-check` | `development` |
