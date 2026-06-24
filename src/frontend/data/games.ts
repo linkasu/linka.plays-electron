@@ -583,7 +583,7 @@ export const games: GameInfo[] = [
     icon: "mdi-water-circle",
     skills: ["fixation", "attention-shift"],
     status: "therapy-ready",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 75,
     minTargetSizePx: 190,
     defaultDwellMs: 1200
