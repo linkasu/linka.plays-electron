@@ -493,7 +493,7 @@ export const games: GameInfo[] = [
     icon: "mdi-fire",
     skills: ["fixation", "smooth-pursuit"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 92,
     minTargetSizePx: 210,
     defaultDwellMs: 1450
