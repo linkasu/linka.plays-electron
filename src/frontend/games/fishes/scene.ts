@@ -12,6 +12,8 @@ export type Fish = Point & {
   dwellProgress: number;
   enteredAt?: number;
   caughtAge: number;
+  hookX?: number;
+  hookY?: number;
 };
 export type Bubble = Point & {
   radius: number;
@@ -277,8 +279,10 @@ function drawBubble(context: CanvasRenderingContext2D, bubble: Bubble) {
 }
 
 function drawFish(context: CanvasRenderingContext2D, fish: Fish) {
-  const alpha = fish.state === "caught" ? Math.max(0, 1 - fish.caughtAge / 0.78) : 1;
+  const alpha = fish.state === "caught" ? Math.max(0, 1 - Math.max(0, fish.caughtAge - 1.05) / 0.38) : 1;
   const size = fish.size;
+
+  if (fish.state === "caught") drawFishingHook(context, fish, alpha);
 
   context.save();
   context.translate(fish.x, fish.y);
@@ -333,6 +337,36 @@ function drawFish(context: CanvasRenderingContext2D, fish: Fish) {
   context.restore();
 
   if (fish.state === "swimming" && fish.dwellProgress > 0) drawCatchProgress(context, fish);
+}
+
+function drawFishingHook(context: CanvasRenderingContext2D, fish: Fish, alpha: number) {
+  const hookX = fish.hookX ?? fish.x;
+  const hookY = fish.hookY ?? -fish.size;
+  const mouthX = fish.x + fish.direction * fish.size * 0.44;
+  const mouthY = fish.y - fish.size * 0.05;
+  const hookSize = fish.size * 0.16;
+
+  context.save();
+  context.globalAlpha = alpha;
+  context.strokeStyle = "rgb(226 244 247 / 68%)";
+  context.lineWidth = Math.max(2, fish.size * 0.024);
+  context.lineCap = "round";
+  context.beginPath();
+  context.moveTo(hookX, Math.min(surfaceY() - fish.size * 0.45, hookY + fish.size * 0.25));
+  context.quadraticCurveTo(hookX + Math.sin(fish.phase) * fish.size * 0.08, (hookY + mouthY) * 0.5, mouthX, mouthY);
+  context.stroke();
+
+  context.strokeStyle = "rgb(255 226 148 / 86%)";
+  context.lineWidth = Math.max(3, fish.size * 0.035);
+  context.beginPath();
+  context.arc(mouthX - fish.direction * hookSize * 0.28, mouthY - hookSize * 0.08, hookSize, -0.15 * Math.PI, 0.92 * Math.PI, fish.direction < 0);
+  context.stroke();
+
+  context.fillStyle = "rgb(255 248 218 / 62%)";
+  context.beginPath();
+  context.arc(mouthX, mouthY, fish.size * 0.055, 0, Math.PI * 2);
+  context.fill();
+  context.restore();
 }
 
 function drawCatchProgress(context: CanvasRenderingContext2D, fish: Fish) {

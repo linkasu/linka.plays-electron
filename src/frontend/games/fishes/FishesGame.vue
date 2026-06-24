@@ -6,7 +6,7 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeFishAudio, playFishMelody, resetFishAudioSession, warmFishAudio } from "./audio";
-import { drawFishScene, fishHitRadius, swimBottom, swimTop, type Bubble, type CatchRipple, type Fish, type Point } from "./scene";
+import { drawFishScene, fishHitRadius, surfaceY, swimBottom, swimTop, type Bubble, type CatchRipple, type Fish, type Point } from "./scene";
 
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
@@ -94,13 +94,15 @@ function resetFish(fish: Fish, index: number, fromEdge = false) {
   fish.x = fromEdge
     ? direction === 1 ? -edgeDelay : window.innerWidth + edgeDelay
     : window.innerWidth * ((index + 1) / (activeFishCount() + 1));
-  fish.speed = randomRange(22, 38) * session.settings.motionSpeed * progressionSpeed() * (0.92 + depthScale * 0.2);
+  fish.speed = randomRange(22, 38) * 4 * session.settings.motionSpeed * progressionSpeed() * (0.92 + depthScale * 0.2);
   fish.phase = randomRange(0, Math.PI * 2);
   fish.hue = [24, 190, 318, 46, 264][index % 5];
   fish.state = "swimming";
   fish.dwellProgress = 0;
   fish.enteredAt = undefined;
   fish.caughtAge = 0;
+  fish.hookX = undefined;
+  fish.hookY = undefined;
 }
 
 function createFish(index: number, fromEdge = false): Fish {
@@ -202,6 +204,8 @@ function catchFish(fish: Fish, now: number) {
   fish.caughtAge = 0;
   fish.dwellProgress = 1;
   fish.enteredAt = undefined;
+  fish.hookX = fish.x;
+  fish.hookY = -fish.size * 1.2;
 }
 
 function updateFishGaze(fish: Fish, now: number) {
@@ -226,16 +230,20 @@ function updateFishes(delta: number, now: number) {
   ensureProgressionFishes();
   for (let index = 0; index < fishes.length; index++) {
     const fish = fishes[index];
+    if (fish.state === "caught") {
+      fish.caughtAge += delta;
+      fish.phase += delta * 3.2;
+      const hookX = fish.hookX ?? fish.x;
+      const hookY = fish.hookY ?? -fish.size * 1.2;
+      fish.x += (hookX - fish.x) * Math.min(1, delta * 2.6);
+      fish.y += (hookY - fish.y) * Math.min(1, delta * 1.7);
+      if (fish.y < -fish.size * 0.85 && session.status === "running") resetFish(fish, index, true);
+      continue;
+    }
+
     fish.x += fish.direction * fish.speed * delta;
     fish.phase += delta * 2.1;
     fish.y = fish.laneY + Math.sin(fish.phase) * fish.size * 0.055;
-
-    if (fish.state === "caught") {
-      fish.caughtAge += delta;
-      fish.y -= delta * fish.size * 0.22;
-      if (fish.caughtAge > 0.78 && session.status === "running") resetFish(fish, index, true);
-      continue;
-    }
 
     if (fish.x < -fish.size * 2 || fish.x > window.innerWidth + fish.size * 2) resetFish(fish, index, true);
     updateFishGaze(fish, now);
