@@ -36,7 +36,7 @@
 | Волшебная пыль | `magic-dust` | [magic-dust.md](magic-dust.md) | `polished` | `publish` | `ready` |
 | Галерея света | `light-gallery` | [light-gallery.md](light-gallery.md) | `polished` | `publish` | `ready` |
 | Мыльные круги | `soap-circles` | [soap-circles.md](soap-circles.md) | `polished` | `publish` | `ready` |
-| Северное сияние | `northern-lights` | [northern-lights.md](northern-lights.md) | `polished` | `needs-check` | `development` |
+| Северное сияние | `northern-lights` | [northern-lights.md](northern-lights.md) | `polished` | `publish` | `ready` |
 | Солнце и лучи | `sun-rays` | [sun-rays.md](sun-rays.md) | `polished` | `needs-check` | `development` |
 | Снежинки | `snowflakes` | [snowflakes.md](snowflakes.md) | `polished` | `needs-check` | `development` |
 | Лунная дорожка | `moon-path` | [moon-path.md](moon-path.md) | `polished` | `needs-check` | `development` |

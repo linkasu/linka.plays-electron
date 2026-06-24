@@ -343,7 +343,7 @@ export const games: GameInfo[] = [
     icon: "mdi-weather-night",
     skills: ["fixation", "smooth-pursuit"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 180,
     defaultDwellMs: 1400
