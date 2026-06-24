@@ -10,8 +10,8 @@
 | Route | `/games/where-object` |
 | Категория | `language-aac` — Слова и AAC |
 | Status | `therapy-ready` |
-| Resolved stability | `needs-check` |
-| Readiness group | `development` |
+| Resolved stability | `publish` |
+| Readiness group | `ready` |
 | Skills | AAC, выбор, словарь, поиск |
 | Recommended session | 120 сек |
 | Min target size | 190 px |
@@ -19,14 +19,14 @@
 
 ## Назначение
 
-undefined
+Тренировка понимания предлогов `на`, `под`, `в` на одной спокойной canvas-сцене.
 
-Самостоятельная формулировка для меню: undefined
+Самостоятельная формулировка для меню: выбери слово, где лежит предмет.
 
 ## Игровой цикл
 
 ```text
-показ ситуации или вопроса -> выбор карточки/слова -> подтверждение смысла -> следующий AAC-раунд
+показ предмета на/под/в полуоткрытом объекте -> выбор предлога -> подсказка или следующий раунд
 ```
 
 ## Управление взглядом
@@ -34,8 +34,8 @@ undefined
 - Основной ввод должен быть gaze-first; mouse fallback сохраняется для отладки и занятий без трекера.
 - Минимальный целевой размер из registry: 190 px.
 - Базовый dwell из registry: 1300 ms.
-- Последний Electron CDP audit: failures = 0, max targets = 4, min visible targets = 4.
-- Минимальная short-side эвристика targets: 0.297.
+- Последний Electron CDP audit: failures = 0, max targets = 3, min visible targets = 3.
+- Минимальная short-side эвристика targets: 0.211.
 
 ## Дефектологическая ценность
 
@@ -57,17 +57,17 @@ undefined
 | Vue-компонент | `WhereObjectGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
+| Scene | `scene.ts` canvas renderer |
 | Audio module | нет |
 | Runtime audit doc | `docs/tests/2026-06-10/where-object.md` |
 
 ## Готовность
 
-Игра находится в группе `development`, потому что resolved stability не равен `publish`.
+Игра находится в группе `ready`, потому что resolved stability равен `publish`.
 
 Автоматические blockers:
 
-- stability:needs-check
-- missing-game-doc
+- нет
 
 ## QA checklist
 
@@ -80,4 +80,4 @@ undefined
 
 ## Next step
 
-Разобрать blockers из readiness-аудита, затем повторить Electron CDP/PNG audit и принять решение о `stabilityStatus: "publish"`.
+Оставить в ready-очереди и проверять регрессии через общий Electron CDP audit.

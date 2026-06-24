@@ -17,10 +17,17 @@ describe("generateOneManyRound", () => {
     expect(choice(round, "many").items.length).toBeGreaterThan(1);
   });
 
-  it("alternates the requested concept", () => {
-    expect(generateOneManyRound(1).target).toBe("one");
-    expect(generateOneManyRound(2).target).toBe("many");
-    expect(generateOneManyRound(3).target).toBe("one");
+  it("uses random source for the requested concept", () => {
+    expect(generateOneManyRound(1, () => 0).target).toBe("many");
+    expect(generateOneManyRound(1, () => 0.99).target).toBe("one");
+  });
+
+  it("includes item identity for telemetry and speech", () => {
+    const round = generateOneManyRound(1, () => 0.99);
+
+    expect(round.itemId).toBeTruthy();
+    expect(round.itemName).toBeTruthy();
+    expect(new Set(round.choices.flatMap((item) => item.items))).toEqual(new Set([round.choices[0].emoji]));
   });
 
   it("keeps left and right choices distinct", () => {

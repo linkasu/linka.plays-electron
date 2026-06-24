@@ -9,7 +9,7 @@
 | `ready` | `resolvedStabilityStatus === "publish"` |
 | `development` | всё кроме `publish`: `needs-check`, `prefixed`, `archived`, скрытые или спорные игры |
 
-Сводка по последнему readiness-аудиту: 152 игры, 79 игр, 73 игры. Все registry-игры имеют `docs/games/<id>.md`.
+Сводка по последнему readiness-аудиту: 148 игр, 94 игры, 54 игры. Все registry-игры имеют `docs/games/<id>.md`.
 
 ## Форматы документов
 
@@ -99,35 +99,31 @@
 | Танец фигур | `shape-dance` | [shape-dance.md](shape-dance.md) | `therapy-ready` | `publish` | `ready` |
 | Рецепт супа | `soup-recipe` | [soup-recipe.md](soup-recipe.md) | `therapy-ready` | `publish` | `ready` |
 | Комикс | `comic-strip` | [comic-strip.md](comic-strip.md) | `therapy-ready` | `publish` | `ready` |
-| Расписание | `schedule` | [schedule.md](schedule.md) | `therapy-ready` | `needs-check` | `development` |
-| Строим мост | `build-bridge` | [build-bridge.md](build-bridge.md) | `therapy-ready` | `needs-check` | `development` |
-| Сортировка по полкам | `shelf-sorting` | [shelf-sorting.md](shelf-sorting.md) | `therapy-ready` | `needs-check` | `development` |
+| Расписание | `schedule` | [schedule.md](schedule.md) | `therapy-ready` | `publish` | `ready` |
+| Строим мост | `build-bridge` | [build-bridge.md](build-bridge.md) | `therapy-ready` | `publish` | `ready` |
+| Сортировка по полкам | `shelf-sorting` | [shelf-sorting.md](shelf-sorting.md) | `therapy-ready` | `publish` | `ready` |
 | Оркестр | `orchestra` | [orchestra.md](orchestra.md) | `therapy-ready` | `needs-check` | `development` |
 
 ### Слова и AAC
 
 | Игра | ID | Документ | Status | Stability | Group |
 |---|---|---|---|---|---|
-| Выбери эмоцию | `choose-emotion` | [choose-emotion.md](choose-emotion.md) | `therapy-ready` | `needs-check` | `development` |
+| Выбери эмоцию | `choose-emotion` | [choose-emotion.md](choose-emotion.md) | `therapy-ready` | `publish` | `ready` |
 | Выбери картинку | `choose-picture` | [choose-picture.md](choose-picture.md) | `polished` | `publish` | `ready` |
-| Кто что делает? | `action-who` | [action-who.md](action-who.md) | `therapy-ready` | `needs-check` | `development` |
 | Съедобное | `eat-or-not-eat` | [eat-or-not-eat.md](eat-or-not-eat.md) | `polished` | `publish` | `ready` |
-| Категории слов | `word-categories` | [word-categories.md](word-categories.md) | `therapy-ready` | `needs-check` | `development` |
+| Категории слов | `word-categories` | [word-categories.md](word-categories.md) | `therapy-ready` | `publish` | `ready` |
 | Да / нет | `yes-no` | [yes-no.md](yes-no.md) | `polished` | `publish` | `ready` |
-| Я хочу... | `i-want` | [i-want.md](i-want.md) | `therapy-ready` | `needs-check` | `development` |
-| Хочу / не хочу | `want-dont-want` | [want-dont-want.md](want-dont-want.md) | `therapy-ready` | `needs-check` | `development` |
-| Предмет + действие | `object-action` | [object-action.md](object-action.md) | `therapy-ready` | `needs-check` | `development` |
-| Болит / хорошо | `hurt-good` | [hurt-good.md](hurt-good.md) | `therapy-ready` | `needs-check` | `development` |
-| Где предмет? | `where-object` | [where-object.md](where-object.md) | `therapy-ready` | `needs-check` | `development` |
-| Большой / маленький | `big-small` | [big-small.md](big-small.md) | `therapy-ready` | `needs-check` | `development` |
-| Один / много | `one-many` | [one-many.md](one-many.md) | `therapy-ready` | `needs-check` | `development` |
-| Кто это? | `who-is-this` | [who-is-this.md](who-is-this.md) | `therapy-ready` | `needs-check` | `development` |
-| Что звучит? | `what-sounds` | [what-sounds.md](what-sounds.md) | `therapy-ready` | `needs-check` | `development` |
-| Противоположности | `opposites` | [opposites.md](opposites.md) | `therapy-ready` | `needs-check` | `development` |
-| Расскажи картинку | `tell-picture` | [tell-picture.md](tell-picture.md) | `therapy-ready` | `needs-check` | `development` |
-| Что сначала? | `what-first` | [what-first.md](what-first.md) | `therapy-ready` | `needs-check` | `development` |
-| Мини-диалог | `mini-dialog` | [mini-dialog.md](mini-dialog.md) | `therapy-ready` | `needs-check` | `development` |
-| Социальные фразы | `social-phrases` | [social-phrases.md](social-phrases.md) | `therapy-ready` | `needs-check` | `development` |
+| Я хочу... | `i-want` | [i-want.md](i-want.md) | `therapy-ready` | `publish` | `ready` |
+| Хочу / не хочу | `want-dont-want` | [want-dont-want.md](want-dont-want.md) | `therapy-ready` | `publish` | `ready` |
+| Предмет + действие | `object-action` | [object-action.md](object-action.md) | `therapy-ready` | `publish` | `ready` |
+| Где предмет? | `where-object` | [where-object.md](where-object.md) | `therapy-ready` | `publish` | `ready` |
+| Большой / маленький | `big-small` | [big-small.md](big-small.md) | `therapy-ready` | `publish` | `ready` |
+| Один / много | `one-many` | [one-many.md](one-many.md) | `therapy-ready` | `publish` | `ready` |
+| Кто это? | `who-is-this` | [who-is-this.md](who-is-this.md) | `therapy-ready` | `publish` | `ready` |
+| Противоположности | `opposites` | [opposites.md](opposites.md) | `therapy-ready` | `publish` | `ready` |
+| Что сначала? | `what-first` | [what-first.md](what-first.md) | `therapy-ready` | `publish` | `ready` |
+| Мини-диалог | `mini-dialog` | [mini-dialog.md](mini-dialog.md) | `therapy-ready` | `publish` | `ready` |
+| Социальные фразы | `social-phrases` | [social-phrases.md](social-phrases.md) | `therapy-ready` | `publish` | `ready` |
 | Печать слов | `type-word` | [type-word.md](type-word.md) | `polished` | `publish` | `ready` |
 
 ### Счёт и математика
@@ -136,8 +132,8 @@
 |---|---|---|---|---|---|
 | Найди цифру | `find-digit` | [find-digit.md](find-digit.md) | `therapy-ready` | `publish` | `ready` |
 | Логические пары | `logic-pairs` | [logic-pairs.md](logic-pairs.md) | `therapy-ready` | `publish` | `ready` |
-| Часы | `clock` | [clock.md](clock.md) | `therapy-ready` | `needs-check` | `development` |
-| Календарь | `calendar` | [calendar.md](calendar.md) | `therapy-ready` | `needs-check` | `development` |
+| Часы | `clock` | [clock.md](clock.md) | `therapy-ready` | `publish` | `ready` |
+| Календарь | `calendar` | [calendar.md](calendar.md) | `therapy-ready` | `publish` | `ready` |
 | Счёт | `count-items` | [count-items.md](count-items.md) | `polished` | `publish` | `ready` |
 | Сложи монетки | `coin-counting` | [coin-counting.md](coin-counting.md) | `therapy-ready` | `needs-check` | `development` |
 | Доли пиццы | `pizza-fractions` | [pizza-fractions.md](pizza-fractions.md) | `therapy-ready` | `needs-check` | `development` |

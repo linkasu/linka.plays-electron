@@ -1,5 +1,5 @@
 import type { SessionSettings } from "../../core/settings";
-import { sampleItems, shuffleItems } from "../../data/wordBank";
+import { sampleItems, shuffleItems } from "../../core/random";
 
 export type WhoIsThisChoice = {
   id: string;
@@ -29,13 +29,13 @@ export const whoIsThisVocabulary: WhoIsThisChoice[] = [
   { id: "grandma", label: "бабушка", accusative: "бабушку", icon: "mdi-human-cane", color: "#c47d3c", setting: "в комнате" }
 ];
 
-export function generateWhoIsThisRound(settings: SessionSettings, roundIndex = 1): WhoIsThisRound {
+export function generateWhoIsThisRound(settings: SessionSettings, roundIndex = 1, random = Math.random): WhoIsThisRound {
   const choiceCount = settings.distractors === "none" ? 3 : 4;
   if (whoIsThisVocabulary.length < choiceCount) throw new Error("Недостаточно слов для игры 'Кто это?'.");
 
-  const target = whoIsThisVocabulary[(roundIndex - 1) % whoIsThisVocabulary.length];
-  const decoys = sampleItems(whoIsThisVocabulary, choiceCount - 1, [target]);
-  const choices = shuffleItems([target, ...decoys]);
+  const target = shuffleItems(whoIsThisVocabulary, random)[(roundIndex - 1) % whoIsThisVocabulary.length];
+  const decoys = sampleItems(whoIsThisVocabulary, choiceCount - 1, [target], random);
+  const choices = shuffleItems([target, ...decoys], random);
 
   return {
     roundId: `who-is-this:round:${roundIndex}`,

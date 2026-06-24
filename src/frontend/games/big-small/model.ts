@@ -1,5 +1,5 @@
 import type { SessionSettings } from "../../core/settings";
-import { shuffleItems } from "../../data/wordBank";
+import { shuffleItems } from "../../core/random";
 
 export type BigSmallSize = "big" | "small";
 
@@ -7,6 +7,7 @@ export type BigSmallObject = {
   id: string;
   label: string;
   emoji: string;
+  sizePhrases: Record<BigSmallSize, string>;
 };
 
 export type BigSmallChoice = BigSmallObject & {
@@ -19,6 +20,7 @@ export type BigSmallRound = {
   roundId: string;
   prompt: string;
   targetSize: BigSmallSize;
+  targetPhrase: string;
   object: BigSmallObject;
   choices: BigSmallChoice[];
   correctIndex: number;
@@ -26,14 +28,14 @@ export type BigSmallRound = {
 };
 
 export const bigSmallObjects: BigSmallObject[] = [
-  { id: "apple", label: "яблоко", emoji: "🍎" },
-  { id: "ball", label: "мяч", emoji: "⚽" },
-  { id: "flower", label: "цветок", emoji: "🌸" },
-  { id: "car", label: "машина", emoji: "🚗" },
-  { id: "duck", label: "утка", emoji: "🦆" },
-  { id: "star", label: "звезда", emoji: "⭐" },
-  { id: "fish", label: "рыбка", emoji: "🐟" },
-  { id: "house", label: "дом", emoji: "🏠" }
+  { id: "apple", label: "яблоко", emoji: "🍎", sizePhrases: { big: "большое яблоко", small: "маленькое яблоко" } },
+  { id: "ball", label: "мяч", emoji: "⚽", sizePhrases: { big: "большой мяч", small: "маленький мяч" } },
+  { id: "flower", label: "цветок", emoji: "🌸", sizePhrases: { big: "большой цветок", small: "маленький цветок" } },
+  { id: "car", label: "машина", emoji: "🚗", sizePhrases: { big: "большая машина", small: "маленькая машина" } },
+  { id: "duck", label: "утка", emoji: "🦆", sizePhrases: { big: "большая утка", small: "маленькая утка" } },
+  { id: "star", label: "звезда", emoji: "⭐", sizePhrases: { big: "большая звезда", small: "маленькая звезда" } },
+  { id: "fish", label: "рыбка", emoji: "🐟", sizePhrases: { big: "большая рыбка", small: "маленькая рыбка" } },
+  { id: "house", label: "дом", emoji: "🏠", sizePhrases: { big: "большой дом", small: "маленький дом" } }
 ];
 
 const sizeLabels: Record<BigSmallSize, string> = {
@@ -41,8 +43,8 @@ const sizeLabels: Record<BigSmallSize, string> = {
   small: "маленький"
 };
 
-function pickObject(roundIndex: number) {
-  return bigSmallObjects[(roundIndex - 1) % bigSmallObjects.length];
+function pickObject(roundIndex: number, random: () => number) {
+  return shuffleItems(bigSmallObjects, random)[(roundIndex - 1) % bigSmallObjects.length];
 }
 
 function buildChoice(object: BigSmallObject, size: BigSmallSize): BigSmallChoice {
@@ -54,16 +56,18 @@ function buildChoice(object: BigSmallObject, size: BigSmallSize): BigSmallChoice
   };
 }
 
-export function generateBigSmallRound(_settings: SessionSettings, roundIndex = 1): BigSmallRound {
-  const object = pickObject(roundIndex);
-  const targetSize: BigSmallSize = roundIndex % 2 === 0 ? "small" : "big";
-  const choices = shuffleItems([buildChoice(object, "big"), buildChoice(object, "small")]);
+export function generateBigSmallRound(_settings: SessionSettings, roundIndex = 1, random = Math.random): BigSmallRound {
+  const object = pickObject(roundIndex, random);
+  const targetSize = shuffleItems<BigSmallSize>(["big", "small"], random)[0];
+  const choices = shuffleItems([buildChoice(object, "big"), buildChoice(object, "small")], random);
   const correctChoiceId = `${object.id}:${targetSize}`;
+  const targetPhrase = object.sizePhrases[targetSize];
 
   return {
     roundId: `big-small:round:${roundIndex}`,
-    prompt: targetSize === "big" ? `Выбери большой предмет: ${object.label}` : `Выбери маленький предмет: ${object.label}`,
+    prompt: `Выбери: ${targetPhrase}`,
     targetSize,
+    targetPhrase,
     object,
     choices,
     correctIndex: choices.findIndex((choice) => choice.choiceId === correctChoiceId),

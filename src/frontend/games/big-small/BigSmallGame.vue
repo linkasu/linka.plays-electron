@@ -1,23 +1,34 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { generateBigSmallRound, type BigSmallChoice, type BigSmallRound } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("big-small", {
   maxSteps: 8,
-  overrides: { dwellMs: 1300, sessionSeconds: 120, sound: false },
+  overrides: { dwellMs: 1300, sessionSeconds: 120, sound: true },
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({
+  gameId: "big-small",
+  soundEnabled,
+  volume: 0.34,
+  warmAssetIds: ["big-small.mistake.big", "big-small.mistake.small"]
+});
+const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
 const hint = ref("");
 const mistakenChoiceId = ref<string>();
+const isSpeaking = ref(false);
 const { round, resultVisible, nextRound, restart } = useRoundGame<BigSmallRound>({
   session,
   startSession,
@@ -28,8 +39,26 @@ function choiceTargetId(choice: BigSmallChoice) {
   return `big-small:choice:${choice.choiceId}`;
 }
 
-function choose(index: number) {
-  if (session.status !== "running") return;
+function promptAssetId() {
+  return `big-small.prompt.${round.value.object.id}.${round.value.targetSize}`;
+}
+
+function correctAssetId() {
+  return `big-small.correct.${round.value.object.id}.${round.value.targetSize}`;
+}
+
+function mistakeAssetId() {
+  return `big-small.mistake.${round.value.targetSize}`;
+}
+
+async function playRoundPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait([promptAssetId()], delayMs);
+  isSpeaking.value = false;
+}
+
+async function choose(index: number) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const choice = round.value.choices[index];
   const targetId = choiceTargetId(choice);
@@ -37,24 +66,48 @@ function choose(index: number) {
   const expectedTargetId = choiceTargetId(expectedChoice);
 
   if (index === round.value.correctIndex) {
+    isSpeaking.value = true;
     hint.value = "";
     mistakenChoiceId.value = undefined;
     recordSuccess({ roundId: round.value.roundId, targetId, prompt: round.value.prompt, objectId: choice.id, expected: round.value.targetSize, actual: choice.size, isCorrect: true });
-    if (session.step < session.maxSteps) nextRound();
+    void pianoFeedback.playSuccess();
+    await promptAudio.playSequenceAndWait([correctAssetId()], 80);
+    if (session.status === "running" && session.step < session.maxSteps) {
+      nextRound();
+      await playRoundPrompt(180);
+      return;
+    }
+    isSpeaking.value = false;
     return;
   }
 
+  isSpeaking.value = true;
   mistakenChoiceId.value = choice.choiceId;
   hint.value = round.value.mistakeHint;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, prompt: round.value.prompt, objectId: choice.id, expected: round.value.targetSize, actual: choice.size, isCorrect: false });
   recordHint({ roundId: round.value.roundId, text: hint.value });
+  void pianoFeedback.playMistake();
+  await promptAudio.playSequenceAndWait([mistakeAssetId()], 80);
+  isSpeaking.value = false;
 }
 
 function restartGame() {
   hint.value = "";
   mistakenChoiceId.value = undefined;
+  isSpeaking.value = false;
+  promptAudio.cancelPending();
   restart();
+  void playRoundPrompt(220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  void playRoundPrompt(420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -71,7 +124,7 @@ function restartGame() {
             </v-alert>
             <v-row class="choice-row" dense>
               <v-col v-for="(choice, index) in round.choices" :key="choice.choiceId" cols="12" sm="6" md="6">
-                <GameDwellButton :class="{ 'choice--mistake': mistakenChoiceId === choice.choiceId }" :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="260" color="surface" @select="choose(index)">
+                <GameDwellButton :class="{ 'choice--mistake': mistakenChoiceId === choice.choiceId }" :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="260" color="surface" @select="choose(index)">
                   <template #default>
                     <div class="choice-size-label text-overline mb-3">{{ choice.sizeLabel }}</div>
                     <div :class="['choice-emoji', 'emoji-glyph', `choice-emoji--${choice.size}`]" aria-hidden="true">{{ choice.emoji }}</div>

@@ -157,20 +157,16 @@
 | [orchestra](./orchestra.md) | Оркестр | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Ручные пиксельные отступы; Текстовая подсказка поверх сцены |
 | [choose-emotion](./choose-emotion.md) | Выбери эмоцию | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow |
 | [choose-picture](./choose-picture.md) | Выбери картинку | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
-| [action-who](./action-who.md) | Кто что делает? | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow |
 | [eat-or-not-eat](./eat-or-not-eat.md) | Съедобное | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
 | [word-categories](./word-categories.md) | Категории слов | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
 | [yes-no](./yes-no.md) | Да / нет | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
 | [i-want](./i-want.md) | Я хочу... | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
 | [want-dont-want](./want-dont-want.md) | Хочу / не хочу | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
 | [object-action](./object-action.md) | Предмет + действие | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
-| [hurt-good](./hurt-good.md) | Болит / хорошо | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
 | [where-object](./where-object.md) | Где предмет? | Использует fixed GameHud; Fullscreen viewport; Overlay поверх поля; Текстовая подсказка поверх сцены |
 | [big-small](./big-small.md) | Большой / маленький | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Deep CSS override; Текстовая подсказка поверх сцены |
 | [one-many](./one-many.md) | Один / много | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Текстовая подсказка поверх сцены |
-| [what-sounds](./what-sounds.md) | Что звучит? | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Ручные пиксельные отступы; Deep CSS override; Текстовая подсказка поверх сцены |
 | [opposites](./opposites.md) | Противоположности | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
-| [tell-picture](./tell-picture.md) | Расскажи картинку | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
 | [what-first](./what-first.md) | Что сначала? | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
 | [mini-dialog](./mini-dialog.md) | Мини-диалог | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
 | [social-phrases](./social-phrases.md) | Социальные фразы | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
@@ -320,21 +316,17 @@
 | [orchestra](./orchestra.md) | Оркестр | sequencing | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [choose-emotion](./choose-emotion.md) | Выбери эмоцию | language-aac | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [choose-picture](./choose-picture.md) | Выбери картинку | language-aac | да | высокий | низкий | высокий | Использует fixed GameHud |
-| [action-who](./action-who.md) | Кто что делает? | language-aac | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [eat-or-not-eat](./eat-or-not-eat.md) | Съедобное | language-aac | да | высокий | низкий | высокий | Использует fixed GameHud |
 | [word-categories](./word-categories.md) | Категории слов | language-aac | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [yes-no](./yes-no.md) | Да / нет | language-aac | да | высокий | средний | высокий | Ошибка превращается в подсказку |
 | [i-want](./i-want.md) | Я хочу... | language-aac | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [want-dont-want](./want-dont-want.md) | Хочу / не хочу | language-aac | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [object-action](./object-action.md) | Предмет + действие | language-aac | да | высокий | средний | высокий | Ошибки не завершают сессию |
-| [hurt-good](./hurt-good.md) | Болит / хорошо | language-aac | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [where-object](./where-object.md) | Где предмет? | language-aac | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [big-small](./big-small.md) | Большой / маленький | language-aac | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [one-many](./one-many.md) | Один / много | language-aac | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [who-is-this](./who-is-this.md) | Кто это? | language-aac | да | средний | средний | средний | Ошибки не завершают сессию |
-| [what-sounds](./what-sounds.md) | Что звучит? | language-aac | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [opposites](./opposites.md) | Противоположности | language-aac | да | высокий | средний | высокий | Ошибки не завершают сессию |
-| [tell-picture](./tell-picture.md) | Расскажи картинку | language-aac | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [what-first](./what-first.md) | Что сначала? | language-aac | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [mini-dialog](./mini-dialog.md) | Мини-диалог | language-aac | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [social-phrases](./social-phrases.md) | Социальные фразы | language-aac | да | высокий | средний | высокий | Ошибки не завершают сессию |

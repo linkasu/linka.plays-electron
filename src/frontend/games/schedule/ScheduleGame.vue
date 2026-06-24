@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { createScheduleCards, dailyScheduleSteps, isExpectedScheduleChoice, nextScheduleStep, scheduleMaxSteps, scheduleTargetId, type ScheduleCard } from "./model";
 
@@ -14,11 +16,14 @@ type ScheduleCardState = ScheduleCard & {
 };
 
 const router = useRouter();
+const scheduleFeedback = createStandardGameFeedback();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("schedule", {
   maxSteps: scheduleMaxSteps,
-  overrides: { sound: false },
-  finishOnMistakes: false
+  overrides: { sound: true },
+  finishOnMistakes: false,
+  finishOnTimeout: false
 });
+const promptAudio = useGamePromptAudio({ gameId: "schedule", soundEnabled: toRef(session.settings, "sound") });
 
 const cards = ref<ScheduleCardState[]>(makeCards());
 const feedbackMessage = ref("Собери день по порядку. Начни с первой карточки утром.");
@@ -52,6 +57,20 @@ function resetSoftHighlights() {
   successChoiceId.value = undefined;
 }
 
+function playStepPrompt(step: ScheduleCard | undefined, delayMs = 0) {
+  if (!step) {
+    promptAudio.play("schedule.complete", delayMs);
+    return;
+  }
+  promptAudio.play(`schedule.prompt.${step.id}`, delayMs);
+}
+
+function playIntroPrompt(delayMs = 0) {
+  promptAudio.cancelPending();
+  promptAudio.play("schedule.intro", delayMs);
+  playStepPrompt(nextStep.value, delayMs + 1200);
+}
+
 function choose(card: ScheduleCardState) {
   if (session.status !== "running" || pendingSelection.value || card.placed) return;
 
@@ -68,6 +87,10 @@ function choose(card: ScheduleCardState) {
     hintedCardId.value = nextScheduleStep(placedIds.value)?.id;
     feedbackMessage.value = nextStep.value ? `Верно: ${card.title}. Следующий шаг — ${nextStep.value.title}.` : "Расписание собрано. День получился понятным.";
     recordSuccess({ roundId: currentRoundId.value, targetId: scheduleTargetId(card), expected: expected.id, actual: card.id, isCorrect: true });
+    void scheduleFeedback.playSuccess(session.settings.sound);
+    promptAudio.cancelPending();
+    promptAudio.play("schedule.correct", 120);
+    playStepPrompt(nextStep.value, 1200);
     feedbackTimer = window.setTimeout(resetSoftHighlights, 650);
     return;
   }
@@ -78,6 +101,10 @@ function choose(card: ScheduleCardState) {
   feedbackMessage.value = `Почти. Сейчас следующий шаг: ${expected.title}. ${expected.hint}`;
   recordMistake({ roundId: currentRoundId.value, targetId: scheduleTargetId(card), expectedTargetId: scheduleTargetId(expected), expected: expected.id, actual: card.id, isCorrect: false });
   recordHint({ roundId: currentRoundId.value, targetId: scheduleTargetId(expected), expected: expected.id, message: expected.hint });
+  void scheduleFeedback.playMistake(session.settings.sound);
+  promptAudio.cancelPending();
+  promptAudio.play("schedule.mistake", 120);
+  playStepPrompt(expected, 1700);
   feedbackTimer = window.setTimeout(() => {
     pendingSelection.value = false;
     wrongChoiceId.value = undefined;
@@ -97,11 +124,21 @@ function restart() {
   feedbackMessage.value = "Собери день по порядку. Начни с первой карточки утром.";
   hintedCardId.value = nextScheduleStep([])?.id;
   resetSoftHighlights();
+  promptAudio.cancelPending();
   startSession();
+  playIntroPrompt(450);
 }
+
+onMounted(() => {
+  scheduleFeedback.warm(session.settings.sound);
+  promptAudio.warm();
+  playIntroPrompt(450);
+});
 
 onUnmounted(() => {
   clearFeedbackTimer();
+  promptAudio.cancelPending();
+  scheduleFeedback.dispose();
 });
 </script>
 
@@ -111,12 +148,15 @@ onUnmounted(() => {
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
-          <v-card class="schedule-card pa-5 pa-md-8" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">AAC-последовательность</div>
-            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-3">Собери расписание дня</h1>
-            <p class="text-body-1 text-medium-emphasis text-center mb-6">{{ feedbackMessage }}</p>
+          <v-card class="schedule-card pa-4 pa-md-6" rounded="xl" elevation="8">
+            <div class="schedule-header text-center">
+              <div class="text-overline text-secondary mb-1">AAC-последовательность</div>
+              <h1 class="schedule-title text-h4 text-md-h3 font-weight-bold">Собери расписание дня</h1>
+              <p class="schedule-prompt text-body-1 text-medium-emphasis">{{ feedbackMessage }}</p>
+            </div>
 
-            <div class="schedule-strip mb-6" aria-label="Расписание дня по порядку">
+            <div class="schedule-strip-title text-caption text-medium-emphasis">Сюда собирается расписание</div>
+            <div class="schedule-strip" aria-label="Собранное расписание дня по порядку">
               <v-card v-for="(step, index) in dailyScheduleSteps" :key="step.id" :class="['schedule-slot', { 'schedule-slot--next': nextStep?.id === step.id, 'schedule-slot--done': isPlaced(step.id) }]" color="blue-grey-lighten-5" rounded="xl" variant="flat">
                 <template v-if="isPlaced(step.id)">
                   <v-icon class="slot-icon" :color="step.color" :icon="step.icon" />
@@ -128,20 +168,8 @@ onUnmounted(() => {
               </v-card>
             </div>
 
-            <v-alert class="next-card mb-6" color="blue-lighten-5" rounded="xl" variant="flat">
-              <div class="text-caption text-medium-emphasis mb-1">Следующая карточка</div>
-              <div v-if="nextStep" class="d-flex flex-wrap align-center ga-3">
-                <v-avatar :color="nextStep.color" size="58"><v-icon color="white" :icon="nextStep.icon" size="34" /></v-avatar>
-                <div>
-                  <div class="text-h5 font-weight-bold">{{ nextStep.title }}</div>
-                  <div class="text-body-1 text-medium-emphasis">AAC: {{ nextStep.aacLabel }}</div>
-                </div>
-              </div>
-              <div v-else class="text-h5 font-weight-bold">Все карточки на месте.</div>
-            </v-alert>
-
-            <v-row class="choice-row" justify="center">
-              <v-col v-for="card in cards" :key="card.id" class="schedule-choice-col" cols="6" md="3">
+            <v-row class="choice-row" justify="center" no-gutters>
+              <v-col v-for="card in cards" :key="card.id" class="schedule-choice-col pa-2" cols="6" sm="3">
                 <GameDwellButton :target-id="scheduleTargetId(card)" :disabled="session.status !== 'running' || pendingSelection || card.placed" :dwell-ms="session.settings.dwellMs" :min-height="176" :color="choiceColor(card)" @select="choose(card)">
                   <template #default>
                     <div :class="['schedule-choice', { 'schedule-choice--placed': card.placed, 'schedule-choice--hint': hintedCardId === card.id && !card.placed }]">
@@ -164,32 +192,65 @@ onUnmounted(() => {
 <style scoped>
 .schedule-shell {
   background: linear-gradient(135deg, #eef7ff 0%, #fff7e6 100%);
-  min-block-size: 100vh;
+  min-block-size: 100dvh;
+  overflow: hidden;
 }
 
 .game-container {
-  padding-block-start: 132px;
+  align-items: center;
+  display: flex;
+  min-block-size: 100dvh;
+  padding: clamp(4.75rem, 9vh, 7rem) clamp(0.75rem, 2vw, 2rem) clamp(0.75rem, 2vh, 1.5rem);
+}
+
+.schedule-card {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.55rem, 1.2vh, 0.95rem);
+  inline-size: 100%;
+  margin-inline: auto;
+  max-block-size: calc(100dvh - clamp(5.5rem, 10vh, 8.5rem));
+  overflow: hidden;
+}
+
+.schedule-header {
+  flex: 0 0 auto;
+}
+
+.schedule-title {
+  line-height: 1.05;
+  margin-block-end: clamp(0.25rem, 0.8vh, 0.55rem);
+}
+
+.schedule-prompt {
+  margin-block-end: 0;
 }
 
 .schedule-strip {
   display: grid;
-  gap: 10px;
+  flex: 0 0 auto;
+  gap: clamp(0.35rem, 0.9vw, 0.8rem);
   grid-template-columns: repeat(8, minmax(0, 1fr));
+}
+
+.schedule-strip-title {
+  flex: 0 0 auto;
+  margin-block-end: calc(-1 * clamp(0.25rem, 0.7vh, 0.45rem));
 }
 
 .schedule-slot {
   align-items: center;
-  border: 3px dashed rgb(var(--v-theme-primary) / 18%);
+  border: 0.1875rem dashed rgb(var(--v-theme-primary) / 18%);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-block-size: 108px;
+  min-block-size: clamp(3.4rem, 7.7vh, 6.75rem);
   transition: box-shadow 180ms ease, transform 180ms ease;
 }
 
 .schedule-slot--next {
-  box-shadow: 0 0 0 5px rgb(var(--v-theme-primary) / 22%);
-  transform: translateY(-2px);
+  box-shadow: 0 0 0 0.3125rem rgb(var(--v-theme-primary) / 22%);
+  transform: translateY(-0.125rem);
 }
 
 .schedule-slot--done {
@@ -198,12 +259,27 @@ onUnmounted(() => {
 }
 
 .slot-icon {
-  font-size: clamp(2.2rem, 4vw, 3.3rem);
+  font-size: clamp(1.7rem, 3.6vh, 3.25rem);
+}
+
+.choice-row {
+  flex: 1 1 auto;
+  margin: -0.5rem;
+  min-block-size: 0;
+}
+
+.schedule-choice-col {
+  display: flex;
+}
+
+.schedule-choice-col :deep(.dwell-hitbox) {
+  display: flex;
+  inline-size: 100%;
 }
 
 .choice-icon {
   filter: drop-shadow(0 8px 10px rgb(0 0 0 / 14%));
-  font-size: clamp(3.2rem, 6vw, 5.3rem);
+  font-size: clamp(2.65rem, 7.2vh, 5.4rem);
 }
 
 .schedule-choice {
@@ -224,15 +300,16 @@ onUnmounted(() => {
   opacity: 0.28;
 }
 
-@media (max-width: 960px) {
-  .schedule-strip {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
+.choice-row :deep(.dwell-button),
+.choice-row :deep(.dwell-hitbox) {
+  min-block-size: clamp(8.75rem, 22.5vh, 15.5rem) !important;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 37.5rem) {
   .game-container {
-    padding-block-start: 156px;
+    align-items: flex-start;
+    overflow: auto;
+    padding-block-start: 6.25rem;
   }
 
   .schedule-strip {
@@ -240,62 +317,37 @@ onUnmounted(() => {
   }
 }
 
-@media (max-height: 680px) {
+@media (max-height: 40.625rem) {
   .game-container {
-    padding-block-start: 104px;
+    padding-block-start: 4.25rem;
   }
 
   .schedule-card {
-    display: flex;
-    flex-direction: column;
-    padding: 1rem !important;
+    gap: 0.45rem;
+    padding: 0.85rem 1rem 1rem !important;
   }
 
-  .schedule-card > .text-overline,
-  .schedule-card > p {
+  .schedule-header .text-overline,
+  .schedule-prompt {
     display: none;
   }
 
-  .schedule-strip {
-    gap: 0.35rem;
-    grid-template-columns: repeat(8, minmax(0, 1fr));
-    margin-block-end: 0.75rem !important;
-    order: 3;
+  .schedule-title {
+    font-size: clamp(1.65rem, 5vh, 2.1rem) !important;
+    margin-block-end: 0;
   }
 
   .schedule-slot {
-    min-block-size: 58px;
+    min-block-size: clamp(3rem, 8vh, 3.4rem);
   }
 
-  .next-card {
-    margin-block-end: 0.75rem !important;
-    order: 2;
-    padding: 0.75rem !important;
-  }
-
-  .choice-row {
-    order: 1;
-  }
-
-  .schedule-choice-col {
-    flex: 0 0 25% !important;
-    max-width: 25% !important;
-  }
-
-  .choice-row :deep(.dwell-button) {
-    padding: 0.75rem !important;
-  }
-
+  .choice-row :deep(.dwell-button),
   .choice-row :deep(.dwell-hitbox) {
-    min-block-size: 7rem !important;
+    min-block-size: clamp(8rem, 22vh, 8.5rem) !important;
   }
 
   .choice-icon {
-    font-size: clamp(2rem, 4vw, 3rem);
-  }
-
-  .schedule-choice-chip {
-    margin-block-start: 0.25rem !important;
+    font-size: clamp(2.35rem, 7vh, 3rem);
   }
 }
 </style>

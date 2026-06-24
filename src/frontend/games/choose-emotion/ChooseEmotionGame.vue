@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
@@ -15,6 +16,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   overrides: { dwellMs: 1300, sessionSeconds: 120 },
   finishOnMistakes: false
 });
+const promptAudio = useGamePromptAudio({ gameId: "choose-emotion", soundEnabled: toRef(session.settings, "sound"), volume: 0.42 });
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
@@ -24,41 +26,82 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
 
 const hintedChoiceId = ref<string>();
 const lastChoiceId = ref<string>();
+const successChoiceId = ref<string>();
+const pendingSelection = ref(false);
+let feedbackTimer = 0;
 
 const helperText = computed(() => {
-  if (!hintedChoiceId.value) return "Выбери эмоцию. Любой выбор помогает понять ситуацию.";
+  if (successChoiceId.value) return "Ответ принят.";
+  if (!hintedChoiceId.value) return "Выбери подходящую эмоцию.";
   return `Мягкая подсказка: попробуй карточку «${round.value.target.label}».`;
 });
+
+function clearFeedbackTimer() {
+  window.clearTimeout(feedbackTimer);
+  feedbackTimer = 0;
+}
+
+function resetFeedback() {
+  clearFeedbackTimer();
+  hintedChoiceId.value = undefined;
+  lastChoiceId.value = undefined;
+  successChoiceId.value = undefined;
+  pendingSelection.value = false;
+}
 
 function choiceTargetId(choiceId: string) {
   return `choose-emotion:choice:${choiceId}`;
 }
 
 function choose(choice: ChooseEmotionOption, index: number) {
-  if (session.status !== "running") return;
+  if (session.status !== "running" || pendingSelection.value) return;
 
   const targetId = choiceTargetId(choice.id);
   const expectedTargetId = choiceTargetId(round.value.target.id);
   lastChoiceId.value = choice.id;
+  clearFeedbackTimer();
 
   if (index === round.value.correctIndex) {
+    pendingSelection.value = true;
+    successChoiceId.value = choice.id;
+    promptAudio.play(`choose-emotion.emotion.${choice.id}`, 80);
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: true });
     hintedChoiceId.value = undefined;
-    lastChoiceId.value = undefined;
-    if (session.step < session.maxSteps) nextRound();
+    if (session.step < session.maxSteps) {
+      feedbackTimer = window.setTimeout(() => {
+        nextRound();
+        resetFeedback();
+      }, 920);
+    }
     return;
   }
 
+  pendingSelection.value = true;
   hintedChoiceId.value = round.value.target.id;
+  promptAudio.play("choose-emotion.mistake", 80);
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "emotion-choice" });
+  feedbackTimer = window.setTimeout(() => {
+    pendingSelection.value = false;
+    lastChoiceId.value = undefined;
+  }, 1250);
 }
 
 function restart() {
-  hintedChoiceId.value = undefined;
-  lastChoiceId.value = undefined;
+  resetFeedback();
   restartRoundGame();
+  promptAudio.play("choose-emotion.intro", 180);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("choose-emotion.intro", 420);
+});
+
+onUnmounted(() => {
+  resetFeedback();
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -76,7 +119,7 @@ function restart() {
 
             <v-row class="choice-grid" justify="center" dense>
               <v-col v-for="(choice, index) in round.choices" :key="choice.id" cols="12" :sm="round.choices.length === 3 ? 4 : 3" :md="round.choices.length === 3 ? 4 : 3">
-                <GameDwellButton :class="{ 'hinted-choice': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="200" :color="hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="choose(choice, index)">
+                <GameDwellButton :class="{ 'hinted-choice': hintedChoiceId === choice.id, 'success-choice': successChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="200" :color="successChoiceId === choice.id ? 'green-lighten-4' : hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="choose(choice, index)">
                   <template #default>
                     <div :class="['emotion-choice', { 'emotion-choice--last': lastChoiceId === choice.id && hintedChoiceId }]">
                       <div class="choice-emoji emoji-glyph" aria-hidden="true">{{ choice.emoji }}</div>
@@ -134,6 +177,11 @@ function restart() {
 
 .hinted-choice {
   filter: drop-shadow(0 0 1.2rem rgb(var(--v-theme-primary) / 34%));
+  transform: scale(1.03);
+}
+
+.success-choice {
+  filter: drop-shadow(0 0 1.1rem rgb(var(--v-theme-success) / 28%));
   transform: scale(1.03);
 }
 

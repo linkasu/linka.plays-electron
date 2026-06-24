@@ -7,7 +7,7 @@ describe("generateCoinCountingRound", () => {
     const settings = settingsFromPreset("standard");
 
     for (let index = 0; index < 100; index += 1) {
-      const round = generateCoinCountingRound(settings, index + 1);
+      const round = generateCoinCountingRound(settings, index + 1, Math.random);
 
       expect(round.roundId).toBe(`coin-counting:round:${index + 1}`);
       expect(round.targetTotal).toBeGreaterThanOrEqual(1);
@@ -20,12 +20,21 @@ describe("generateCoinCountingRound", () => {
     const settings = settingsFromPreset("standard");
 
     for (let index = 0; index < 100; index += 1) {
-      const round = generateCoinCountingRound(settings, index + 1);
+      const round = generateCoinCountingRound(settings, index + 1, Math.random);
 
-      expect(round.coins.map((coin) => coin.value)).toEqual([1, 2, 5]);
+      expect(round.coins.map((coin) => coin.value).sort()).toEqual([1, 2, 5]);
       expect(round.suggestedCoins.reduce((sum, coin) => sum + coin, 0)).toBe(round.targetTotal);
       expect(round.suggestedCoins.every((coin) => [1, 2, 5].includes(coin))).toBe(true);
     }
+  });
+
+  it("uses the provided random source", () => {
+    const settings = settingsFromPreset("standard");
+    const lowRound = generateCoinCountingRound(settings, 1, () => 0);
+    const highRound = generateCoinCountingRound(settings, 1, () => 0.999);
+
+    expect(lowRound.targetTotal).toBe(1);
+    expect(highRound.targetTotal).toBe(10);
   });
 });
 

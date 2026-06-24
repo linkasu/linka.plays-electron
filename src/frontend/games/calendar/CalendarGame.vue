@@ -1,20 +1,30 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { generateCalendarRound, type CalendarChoice } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("calendar", {
   maxSteps: 8,
-  overrides: { dwellMs: 1300, sessionSeconds: 130 },
+  overrides: { dwellMs: 1300, sessionSeconds: 130, sound: true },
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({
+  gameId: "calendar",
+  soundEnabled,
+  volume: 0.34,
+  warmAssetIds: ["calendar.prompt.weekday.monday.today", "calendar.prompt.relative.monday.today"]
+});
+const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
@@ -23,14 +33,29 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
 });
 
 const mistakeChoiceId = ref<string>();
-
-const feedbackText = computed(() => {
-  if (!mistakeChoiceId.value) return round.value.helperText;
-  return `Почти. ${round.value.correctionText} Попробуй ещё раз спокойно.`;
-});
+const feedbackText = ref("Выбери день.");
+const isSpeaking = ref(false);
 
 function choiceTargetId(choice: CalendarChoice) {
   return `calendar:choice:${choice.id}`;
+}
+
+function promptAssetId() {
+  return `calendar.prompt.${round.value.promptId}`;
+}
+
+function correctAssetId() {
+  return `calendar.correct.${round.value.correctChoiceId}`;
+}
+
+function mistakeAssetId() {
+  return `calendar.mistake.${round.value.promptId}`;
+}
+
+async function playRoundPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait([promptAssetId()], delayMs);
+  isSpeaking.value = false;
 }
 
 function choiceColor(choice: CalendarChoice) {
@@ -39,28 +64,56 @@ function choiceColor(choice: CalendarChoice) {
   return choice.color;
 }
 
-function choose(choice: CalendarChoice) {
-  if (session.status !== "running") return;
+async function choose(choice: CalendarChoice) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice);
   const expectedTargetId = `calendar:choice:${round.value.correctChoiceId}`;
 
   if (choice.id === round.value.correctChoiceId) {
+    isSpeaking.value = true;
     mistakeChoiceId.value = undefined;
+    feedbackText.value = "Верно.";
     recordSuccess({ roundId: round.value.roundId, targetId, expected: round.value.correctChoiceId, actual: choice.id, isCorrect: true });
-    if (session.step < session.maxSteps) nextRound();
+    void pianoFeedback.playSuccess();
+    await promptAudio.playSequenceAndWait([correctAssetId()], 80);
+    if (session.status === "running" && session.step < session.maxSteps) {
+      nextRound();
+      feedbackText.value = "Следующий день.";
+      await playRoundPrompt(180);
+      return;
+    }
+    isSpeaking.value = false;
     return;
   }
 
+  isSpeaking.value = true;
   mistakeChoiceId.value = choice.id;
+  feedbackText.value = `Почти. ${round.value.correctionText}`;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, expected: round.value.correctChoiceId, actual: choice.id, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId, text: feedbackText.value });
+  void pianoFeedback.playMistake();
+  await promptAudio.playSequenceAndWait([mistakeAssetId()], 80);
+  isSpeaking.value = false;
 }
 
 function restart() {
+  promptAudio.cancelPending();
   mistakeChoiceId.value = undefined;
+  feedbackText.value = "Выбери день.";
+  isSpeaking.value = false;
   restartRoundGame();
+  void playRoundPrompt(220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  void playRoundPrompt(420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -83,13 +136,12 @@ function restart() {
 
             <v-row class="choice-row" justify="center">
               <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6" :md="round.choices.length === 3 ? 4 : 3">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="190" :color="choiceColor(choice)" @select="choose(choice)">
+                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="190" :color="choiceColor(choice)" @select="choose(choice)">
                   <template #default>
                     <div class="calendar-choice">
                       <v-icon v-if="mistakeChoiceId && choice.id === round.correctChoiceId" class="calendar-choice__check" icon="mdi-check-circle" size="34" />
                       <v-icon :icon="choice.icon" class="calendar-choice__icon mb-3" size="48" />
                       <div class="calendar-choice__label font-weight-black">{{ choice.label }}</div>
-                      <div class="calendar-choice__sublabel text-h6 text-md-h5 text-medium-emphasis font-weight-bold mt-2">{{ choice.sublabel }}</div>
                     </div>
                   </template>
                 </GameDwellButton>
@@ -129,14 +181,15 @@ function restart() {
 }
 
 .calendar-choice__icon,
-.calendar-choice__label,
-.calendar-choice__sublabel {
+.calendar-choice__label {
   color: #17212b !important;
 }
 
 .calendar-choice__label {
-  font-size: clamp(2.2rem, 5.5vw, 4.3rem);
+  font-size: clamp(1.75rem, 3.8vw, 3.7rem);
   line-height: 0.98;
+  max-inline-size: 100%;
+  white-space: nowrap;
 }
 
 .calendar-choice__check {
@@ -151,13 +204,23 @@ function restart() {
   }
 }
 
+@media (min-width: 56.25rem) and (max-width: 75rem) {
+  .choice-row :deep(.dwell-button) {
+    padding-inline: 0.35rem !important;
+  }
+
+  .calendar-choice__label {
+    font-size: 1.3rem;
+  }
+}
+
 @media (max-height: 42rem) and (min-width: 60rem) {
   .game-container {
     padding-block-start: 7.4rem;
   }
 }
 
-@media (max-height: 680px) {
+@media (max-height: 42.5rem) {
   .game-container {
     padding-block-start: 4.75rem;
   }
@@ -189,6 +252,16 @@ function restart() {
 
   .calendar-choice__label {
     font-size: 2.4rem;
+  }
+}
+
+@media (max-height: 42.5rem) and (min-width: 56.25rem) {
+  .choice-row :deep(.dwell-button) {
+    padding-inline: 0.35rem !important;
+  }
+
+  .calendar-choice__label {
+    font-size: 1.3rem;
   }
 }
 </style>

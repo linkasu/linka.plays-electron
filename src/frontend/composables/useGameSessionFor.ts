@@ -7,6 +7,7 @@ export type UseGameSessionForOptions = {
   maxSteps?: number;
   finishOnMaxSteps?: boolean;
   finishOnMistakes?: boolean;
+  finishOnTimeout?: boolean;
 };
 
 export function useGameSessionFor(gameId: string, options: UseGameSessionForOptions = {}) {
@@ -24,6 +25,7 @@ export function useGameSessionFor(gameId: string, options: UseGameSessionForOpti
 
   return useGameSession(gameId, initial, {
     finishOnMaxSteps: options.finishOnMaxSteps,
-    finishOnMistakes: options.finishOnMistakes
+    finishOnMistakes: options.finishOnMistakes,
+    finishOnTimeout: options.finishOnTimeout
   });
 }

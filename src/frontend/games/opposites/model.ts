@@ -1,5 +1,5 @@
 import type { SessionSettings } from "../../core/settings";
-import { shuffleItems } from "../../data/wordBank";
+import { shuffleItems } from "../../core/random";
 
 export type OppositeConcept = {
   id: string;
@@ -44,14 +44,14 @@ function choiceCountFor(settings: SessionSettings) {
   return 4;
 }
 
-export function generateOppositesRound(settings: SessionSettings, roundIndex = 1): OppositesRound {
+export function generateOppositesRound(settings: SessionSettings, roundIndex = 1, random = Math.random): OppositesRound {
   const choiceCount = choiceCountFor(settings);
-  const [pair] = shuffleItems(oppositePairs);
-  const sourceIndex = Math.random() < 0.5 ? 0 : 1;
+  const [pair] = shuffleItems(oppositePairs, random);
+  const sourceIndex = random() < 0.5 ? 0 : 1;
   const source = pair.concepts[sourceIndex];
   const target = pair.concepts[sourceIndex === 0 ? 1 : 0];
-  const distractorPool = shuffleItems(oppositePairs.filter((item) => item.id !== pair.id).flatMap((item) => item.concepts));
-  const choices = shuffleItems([target, ...distractorPool.slice(0, choiceCount - 1)]);
+  const distractorPool = shuffleItems(oppositePairs.filter((item) => item.id !== pair.id).flatMap((item) => item.concepts), random);
+  const choices = shuffleItems([target, ...distractorPool.slice(0, choiceCount - 1)], random);
 
   return {
     roundId: `opposites:round:${roundIndex}`,

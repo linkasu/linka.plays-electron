@@ -20,7 +20,6 @@
 
 | Игра | overflowX | Scroll height | Visible targets | Mostly visible targets | Min visible target | First target top |
 |---|---:|---:|---:|---:|---:|---:|
-| `tell-picture` | false | `688px` | `3/3` | `3` | `220px` | `120px` |
 | `who-is-this` | false | `820px` | `4/4` | `4` | `205px` | `178px` |
 | `simple-graphs` | false | `600px` | `3/3` | `3` | `136px` | `182px` |
 | `number-bonds` | false | `682px` | `4/4` | `4` | `190px` | `176px` |
@@ -30,7 +29,6 @@
 
 | Игра | overflowX | Scroll height | Visible targets | Mostly visible targets | Min visible target | First target top |
 |---|---:|---:|---:|---:|---:|---:|
-| `tell-picture` | false | `645px` | `3/3` | `3` | `220px` | `120px` |
 | `who-is-this` | false | `650px` | `4/4` | `4` | `205px` | `188px` |
 | `simple-graphs` | false | `600px` | `3/3` | `3` | `136px` | `192px` |
 | `number-bonds` | false | `600px` | `4/4` | `4` | `190px` | `186px` |

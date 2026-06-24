@@ -18,17 +18,27 @@ describe("generateBigSmallRound", () => {
     }
   });
 
-  it("alternates the requested size and keeps stable telemetry ids", () => {
+  it("uses random source for requested size and keeps stable telemetry ids", () => {
     const settings = settingsFromPreset("gentle");
-    const first = generateBigSmallRound(settings, 1);
-    const second = generateBigSmallRound(settings, 2);
+    const zeroRandom = () => 0;
+    const first = generateBigSmallRound(settings, 1, zeroRandom);
+    const second = generateBigSmallRound(settings, 2, zeroRandom);
 
     expect(first.roundId).toBe("big-small:round:1");
     expect(second.roundId).toBe("big-small:round:2");
-    expect(first.targetSize).toBe("big");
+    expect(first.object.id).not.toBe(second.object.id);
+    expect(first.targetSize).toBe("small");
     expect(second.targetSize).toBe("small");
-    expect(first.prompt).toContain("большой");
+    expect(first.prompt).toContain(first.targetPhrase);
     expect(second.prompt).toContain("маленький");
+  });
+
+  it("builds grammatically correct target phrases for object labels", () => {
+    const settings = settingsFromPreset("standard");
+    const round = generateBigSmallRound(settings, 1, () => 0);
+
+    expect(round.targetPhrase).toBe(round.object.sizePhrases[round.targetSize]);
+    expect(round.prompt).toBe(`Выбери: ${round.targetPhrase}`);
   });
 
   it("has enough AAC vocabulary objects for an eight-step session", () => {

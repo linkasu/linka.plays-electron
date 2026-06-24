@@ -1,18 +1,29 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, onUnmounted, ref, toRef } from "vue";
 import GameSessionChrome from "../../components/game/GameSessionChrome.vue";
 import GameSquareChoiceGrid, { type GameSquareChoice } from "../../components/game/GameSquareChoiceGrid.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { formatClockHour, generateClockRound } from "./model";
 
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("clock", {
   maxSteps: 8,
-  overrides: { dwellMs: 1300, sessionSeconds: 130 },
+  overrides: { dwellMs: 1300, sessionSeconds: 130, sound: true },
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({
+  gameId: "clock",
+  soundEnabled,
+  volume: 0.34,
+  warmAssetIds: ["clock.prompt.1", "clock.prompt.2", "clock.prompt.3"]
+});
+const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
-const hint = ref("");
+const feedback = ref("Посмотри на короткую стрелку и выбери часы.");
+const isSpeaking = ref(false);
 const { round, resultVisible, nextRound, restart } = useRoundGame({
   session,
   startSession,
@@ -21,6 +32,24 @@ const { round, resultVisible, nextRound, restart } = useRoundGame({
 
 function choiceTargetId(hour: number) {
   return `clock:choice:${hour}`;
+}
+
+function promptAssetId() {
+  return `clock.prompt.${round.value.targetHour}`;
+}
+
+function correctAssetId() {
+  return `clock.correct.${round.value.targetHour}`;
+}
+
+function mistakeAssetId() {
+  return `clock.mistake.${round.value.targetHour}`;
+}
+
+async function playRoundPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait([promptAssetId()], delayMs);
+  isSpeaking.value = false;
 }
 
 function hourAngle(hour: number) {
@@ -40,22 +69,35 @@ function markStyle(mark: number) {
   };
 }
 
-function choose(hour: number) {
-  if (session.status !== "running") return;
+async function choose(hour: number) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const targetId = choiceTargetId(hour);
   const expectedTargetId = choiceTargetId(round.value.targetHour);
 
   if (hour === round.value.targetHour) {
-    hint.value = "";
+    isSpeaking.value = true;
+    feedback.value = "Верно.";
     recordSuccess({ roundId: round.value.roundId, targetId, expected: round.value.targetHour, actual: hour, isCorrect: true });
-    if (session.step < session.maxSteps) nextRound();
+    void pianoFeedback.playSuccess();
+    await promptAudio.playSequenceAndWait([correctAssetId()], 80);
+    if (session.status === "running" && session.step < session.maxSteps) {
+      nextRound();
+      feedback.value = "Следующие часы.";
+      await playRoundPrompt(180);
+      return;
+    }
+    isSpeaking.value = false;
     return;
   }
 
-  hint.value = `Мягкая подсказка: короткая стрелка должна смотреть на ${round.value.targetHour}.`;
+  isSpeaking.value = true;
+  feedback.value = `Почти. Нужны часы ${formatClockHour(round.value.targetHour)}.`;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, expected: round.value.targetHour, actual: hour, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, text: hint.value });
+  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, text: feedback.value });
+  void pianoFeedback.playMistake();
+  await promptAudio.playSequenceAndWait([mistakeAssetId()], 80);
+  isSpeaking.value = false;
 }
 
 function answerChoice(choice: GameSquareChoice) {
@@ -63,23 +105,33 @@ function answerChoice(choice: GameSquareChoice) {
 }
 
 function restartGame() {
-  hint.value = "";
+  promptAudio.cancelPending();
+  feedback.value = "Посмотри на короткую стрелку и выбери часы.";
+  isSpeaking.value = false;
   restart();
+  void playRoundPrompt(220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  void playRoundPrompt(420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
-  <GameSessionChrome title="Часы" :session="session" :result-visible="resultVisible" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" gradient="linear-gradient(135deg, #fff7e7 0%, #e7f5ff 100%)" padding-top="9.75rem" @pause="pauseSession" @resume="resumeSession" @restart="restartGame">
+  <GameSessionChrome title="Часы" :session="session" :result-visible="resultVisible" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" gradient="linear-gradient(135deg, #fff7e7 0%, #e7f5ff 100%)" padding-top="6rem" @pause="pauseSession" @resume="resumeSession" @restart="restartGame">
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11">
           <v-card class="pa-4 pa-md-6" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Полные часы</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
-            <v-alert v-if="hint" class="mb-4 text-body-1 font-weight-bold" color="primary" icon="mdi-lightbulb-outline" rounded="xl" variant="tonal">
-              {{ hint }}
-            </v-alert>
-            <GameSquareChoiceGrid :items="round.choices" grid-offset="23rem" compact-size="8.75rem" :target-id="(choice) => choiceTargetId(Number(choice))" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" @select="answerChoice">
+            <div class="clock-feedback text-h6 text-md-h5 text-center font-weight-bold mb-4">{{ feedback }}</div>
+            <GameSquareChoiceGrid :items="round.choices" grid-offset="18.5rem" compact-size="7.75rem" :target-id="(choice) => choiceTargetId(Number(choice))" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" @select="answerChoice">
               <template #default="{ choice }">
                 <div class="clock-choice" :aria-label="formatClockHour(Number(choice))">
                   <div class="clock-face" aria-hidden="true">
@@ -90,7 +142,6 @@ function restartGame() {
                     <div class="clock-hand clock-hand--minute" />
                     <div class="clock-dot" />
                   </div>
-                  <div class="text-h5 text-md-h4 font-weight-bold mt-3">{{ formatClockHour(Number(choice)) }}</div>
                 </div>
               </template>
             </GameSquareChoiceGrid>
@@ -112,6 +163,10 @@ function restartGame() {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.clock-feedback {
+  color: #263238;
 }
 
 .clock-face {
@@ -165,17 +220,25 @@ function restartGame() {
 
 @media (min-width: 68.75rem) {
   .game-container {
-    padding-block-start: 7.25rem;
+    padding-block-start: 2rem;
   }
 }
 
 @media (max-height: 40rem) {
   .game-container {
-    padding-block-start: 5rem;
+    padding-block-start: 0;
+  }
+
+  .game-container :deep(.v-card) {
+    padding: 1rem !important;
   }
 
   .clock-face {
-    inline-size: min(72%, 7rem);
+    inline-size: min(74%, 6.75rem);
+  }
+
+  .clock-feedback {
+    margin-block-end: 0.75rem !important;
   }
 }
 </style>

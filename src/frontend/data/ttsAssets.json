@@ -1321,5 +1321,4303 @@
     "text": "Дорожка готова. Мелодия завершилась.",
     "voice": "jane",
     "path": "/audio/tts/musical-path/complete.mp3"
+  },
+  {
+    "id": "schedule.intro",
+    "game": "schedule",
+    "text": "Собери день по порядку.",
+    "voice": "jane",
+    "path": "/audio/tts/schedule/intro.mp3"
+  },
+  {
+    "id": "schedule.prompt.wake",
+    "game": "schedule",
+    "text": "Выбери: проснуться.",
+    "voice": "jane",
+    "path": "/audio/tts/schedule/prompt-wake.mp3"
+  },
+  {
+    "id": "schedule.prompt.wash",
+    "game": "schedule",
+    "text": "Теперь выбери: умыться.",
+    "voice": "jane",
+    "path": "/audio/tts/schedule/prompt-wash.mp3"
+  },
+  {
+    "id": "schedule.prompt.breakfast",
+    "game": "schedule",
+    "text": "Теперь выбери: завтрак.",
+    "voice": "jane",
+    "path": "/audio/tts/schedule/prompt-breakfast.mp3"
+  },
+  {
+    "id": "schedule.prompt.dress",
+    "game": "schedule",
+    "text": "Теперь выбери: одеться.",
+    "voice": "jane",
+    "path": "/audio/tts/schedule/prompt-dress.mp3"
+  },
+  {
+    "id": "schedule.prompt.therapy",
+    "game": "schedule",
+    "text": "Теперь выбери: занятие.",
+    "voice": "jane",
+    "path": "/audio/tts/schedule/prompt-therapy.mp3"
+  },
+  {
+    "id": "schedule.prompt.lunch",
+    "game": "schedule",
+    "text": "Теперь выбери: обед.",
+    "voice": "jane",
+    "path": "/audio/tts/schedule/prompt-lunch.mp3"
+  },
+  {
+    "id": "schedule.prompt.play",
+    "game": "schedule",
+    "text": "Теперь выбери: игра.",
+    "voice": "jane",
+    "path": "/audio/tts/schedule/prompt-play.mp3"
+  },
+  {
+    "id": "schedule.prompt.sleep",
+    "game": "schedule",
+    "text": "Теперь выбери: сон.",
+    "voice": "jane",
+    "path": "/audio/tts/schedule/prompt-sleep.mp3"
+  },
+  {
+    "id": "schedule.correct",
+    "game": "schedule",
+    "text": "Верно.",
+    "voice": "jane",
+    "path": "/audio/tts/schedule/correct.mp3"
+  },
+  {
+    "id": "schedule.mistake",
+    "game": "schedule",
+    "text": "Почти. Посмотри на подсказку.",
+    "voice": "jane",
+    "path": "/audio/tts/schedule/mistake.mp3"
+  },
+  {
+    "id": "schedule.complete",
+    "game": "schedule",
+    "text": "Расписание собрано.",
+    "voice": "jane",
+    "path": "/audio/tts/schedule/complete.mp3"
+  },
+  {
+    "id": "shelf-sorting.intro",
+    "game": "shelf-sorting",
+    "text": "Посмотри на предмет и выбери полку.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/intro.mp3"
+  },
+  {
+    "id": "shelf-sorting.correct",
+    "game": "shelf-sorting",
+    "text": "Верно. Предмет на своей полке.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/correct.mp3"
+  },
+  {
+    "id": "shelf-sorting.mistake",
+    "game": "shelf-sorting",
+    "text": "Попробуй другую полку.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/mistake.mp3"
+  },
+  {
+    "id": "choose-emotion.intro",
+    "game": "choose-emotion",
+    "text": "Выбери подходящую эмоцию.",
+    "voice": "jane",
+    "path": "/audio/tts/choose-emotion/intro.mp3"
+  },
+  {
+    "id": "choose-emotion.mistake",
+    "game": "choose-emotion",
+    "text": "Попробуй другую эмоцию.",
+    "voice": "jane",
+    "path": "/audio/tts/choose-emotion/mistake.mp3"
+  },
+  {
+    "id": "choose-emotion.emotion.joy",
+    "game": "choose-emotion",
+    "text": "Радость.",
+    "voice": "jane",
+    "path": "/audio/tts/choose-emotion/emotion-joy.mp3"
+  },
+  {
+    "id": "choose-emotion.emotion.sadness",
+    "game": "choose-emotion",
+    "text": "Грусть.",
+    "voice": "jane",
+    "path": "/audio/tts/choose-emotion/emotion-sadness.mp3"
+  },
+  {
+    "id": "choose-emotion.emotion.anger",
+    "game": "choose-emotion",
+    "text": "Злость.",
+    "voice": "jane",
+    "path": "/audio/tts/choose-emotion/emotion-anger.mp3"
+  },
+  {
+    "id": "choose-emotion.emotion.surprise",
+    "game": "choose-emotion",
+    "text": "Удивление.",
+    "voice": "jane",
+    "path": "/audio/tts/choose-emotion/emotion-surprise.mp3"
+  },
+  {
+    "id": "choose-emotion.emotion.calm",
+    "game": "choose-emotion",
+    "text": "Спокойствие.",
+    "voice": "jane",
+    "path": "/audio/tts/choose-emotion/emotion-calm.mp3"
+  },
+  {
+    "id": "choose-emotion.emotion.fear",
+    "game": "choose-emotion",
+    "text": "Страх.",
+    "voice": "jane",
+    "path": "/audio/tts/choose-emotion/emotion-fear.mp3"
+  },
+  {
+    "id": "choose-emotion.emotion.tired",
+    "game": "choose-emotion",
+    "text": "Усталость.",
+    "voice": "jane",
+    "path": "/audio/tts/choose-emotion/emotion-tired.mp3"
+  },
+  {
+    "id": "choose-emotion.emotion.pride",
+    "game": "choose-emotion",
+    "text": "Гордость.",
+    "voice": "jane",
+    "path": "/audio/tts/choose-emotion/emotion-pride.mp3"
+  },
+  {
+    "id": "word-categories.intro",
+    "game": "word-categories",
+    "text": "Посмотри на предмет и выбери подходящую группу.",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/intro.mp3"
+  },
+  {
+    "id": "word-categories.correct",
+    "game": "word-categories",
+    "text": "Верно. Получилось.",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/correct.mp3"
+  },
+  {
+    "id": "word-categories.mistake",
+    "game": "word-categories",
+    "text": "Почти. Посмотри на подсказку.",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/mistake.mp3"
+  },
+  {
+    "id": "word-categories.item.apple",
+    "game": "word-categories",
+    "text": "яблоко",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-apple.mp3"
+  },
+  {
+    "id": "word-categories.item.banana",
+    "game": "word-categories",
+    "text": "банан",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-banana.mp3"
+  },
+  {
+    "id": "word-categories.item.bread",
+    "game": "word-categories",
+    "text": "хлеб",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-bread.mp3"
+  },
+  {
+    "id": "word-categories.item.cheese",
+    "game": "word-categories",
+    "text": "сыр",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-cheese.mp3"
+  },
+  {
+    "id": "word-categories.item.carrot",
+    "game": "word-categories",
+    "text": "морковь",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-carrot.mp3"
+  },
+  {
+    "id": "word-categories.item.pear",
+    "game": "word-categories",
+    "text": "груша",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-pear.mp3"
+  },
+  {
+    "id": "word-categories.item.orange",
+    "game": "word-categories",
+    "text": "апельсин",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-orange.mp3"
+  },
+  {
+    "id": "word-categories.item.lemon",
+    "game": "word-categories",
+    "text": "лимон",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-lemon.mp3"
+  },
+  {
+    "id": "word-categories.item.grapes",
+    "game": "word-categories",
+    "text": "виноград",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-grapes.mp3"
+  },
+  {
+    "id": "word-categories.item.cherry",
+    "game": "word-categories",
+    "text": "вишня",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-cherry.mp3"
+  },
+  {
+    "id": "word-categories.item.strawberry",
+    "game": "word-categories",
+    "text": "клубника",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-strawberry.mp3"
+  },
+  {
+    "id": "word-categories.item.watermelon",
+    "game": "word-categories",
+    "text": "арбуз",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-watermelon.mp3"
+  },
+  {
+    "id": "word-categories.item.melon",
+    "game": "word-categories",
+    "text": "дыня",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-melon.mp3"
+  },
+  {
+    "id": "word-categories.item.peach",
+    "game": "word-categories",
+    "text": "персик",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-peach.mp3"
+  },
+  {
+    "id": "word-categories.item.plum",
+    "game": "word-categories",
+    "text": "слива",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-plum.mp3"
+  },
+  {
+    "id": "word-categories.item.kiwi",
+    "game": "word-categories",
+    "text": "киви",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-kiwi.mp3"
+  },
+  {
+    "id": "word-categories.item.tomato",
+    "game": "word-categories",
+    "text": "помидор",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-tomato.mp3"
+  },
+  {
+    "id": "word-categories.item.cucumber",
+    "game": "word-categories",
+    "text": "огурец",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-cucumber.mp3"
+  },
+  {
+    "id": "word-categories.item.potato",
+    "game": "word-categories",
+    "text": "картошка",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-potato.mp3"
+  },
+  {
+    "id": "word-categories.item.onion",
+    "game": "word-categories",
+    "text": "лук",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-onion.mp3"
+  },
+  {
+    "id": "word-categories.item.corn",
+    "game": "word-categories",
+    "text": "кукуруза",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-corn.mp3"
+  },
+  {
+    "id": "word-categories.item.pepper",
+    "game": "word-categories",
+    "text": "перец",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-pepper.mp3"
+  },
+  {
+    "id": "word-categories.item.mushroom",
+    "game": "word-categories",
+    "text": "гриб",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-mushroom.mp3"
+  },
+  {
+    "id": "word-categories.item.egg",
+    "game": "word-categories",
+    "text": "яйцо",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-egg.mp3"
+  },
+  {
+    "id": "word-categories.item.milk",
+    "game": "word-categories",
+    "text": "молоко",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-milk.mp3"
+  },
+  {
+    "id": "word-categories.item.juice",
+    "game": "word-categories",
+    "text": "сок",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-juice.mp3"
+  },
+  {
+    "id": "word-categories.item.tea",
+    "game": "word-categories",
+    "text": "чай",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-tea.mp3"
+  },
+  {
+    "id": "word-categories.item.soup",
+    "game": "word-categories",
+    "text": "суп",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-soup.mp3"
+  },
+  {
+    "id": "word-categories.item.rice",
+    "game": "word-categories",
+    "text": "рис",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-rice.mp3"
+  },
+  {
+    "id": "word-categories.item.pasta",
+    "game": "word-categories",
+    "text": "лапша",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-pasta.mp3"
+  },
+  {
+    "id": "word-categories.item.meat",
+    "game": "word-categories",
+    "text": "мясо",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-meat.mp3"
+  },
+  {
+    "id": "word-categories.item.chicken",
+    "game": "word-categories",
+    "text": "курятина",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-chicken.mp3"
+  },
+  {
+    "id": "word-categories.item.cake",
+    "game": "word-categories",
+    "text": "торт",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-cake.mp3"
+  },
+  {
+    "id": "word-categories.item.cookie",
+    "game": "word-categories",
+    "text": "печенье",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-cookie.mp3"
+  },
+  {
+    "id": "word-categories.item.honey",
+    "game": "word-categories",
+    "text": "мёд",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-honey.mp3"
+  },
+  {
+    "id": "word-categories.item.ice_cream",
+    "game": "word-categories",
+    "text": "мороженое",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-ice-cream.mp3"
+  },
+  {
+    "id": "word-categories.item.porridge",
+    "game": "word-categories",
+    "text": "каша",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-porridge.mp3"
+  },
+  {
+    "id": "word-categories.item.yogurt",
+    "game": "word-categories",
+    "text": "йогурт",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-yogurt.mp3"
+  },
+  {
+    "id": "word-categories.item.sausage",
+    "game": "word-categories",
+    "text": "сосиска",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-sausage.mp3"
+  },
+  {
+    "id": "word-categories.item.pizza",
+    "game": "word-categories",
+    "text": "пицца",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-pizza.mp3"
+  },
+  {
+    "id": "word-categories.item.cat",
+    "game": "word-categories",
+    "text": "кот",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-cat.mp3"
+  },
+  {
+    "id": "word-categories.item.dog",
+    "game": "word-categories",
+    "text": "пёс",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-dog.mp3"
+  },
+  {
+    "id": "word-categories.item.fish",
+    "game": "word-categories",
+    "text": "рыба",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-fish.mp3"
+  },
+  {
+    "id": "word-categories.item.duck",
+    "game": "word-categories",
+    "text": "утка",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-duck.mp3"
+  },
+  {
+    "id": "word-categories.item.cow",
+    "game": "word-categories",
+    "text": "корова",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-cow.mp3"
+  },
+  {
+    "id": "word-categories.item.horse",
+    "game": "word-categories",
+    "text": "лошадь",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-horse.mp3"
+  },
+  {
+    "id": "word-categories.item.pig",
+    "game": "word-categories",
+    "text": "свинья",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-pig.mp3"
+  },
+  {
+    "id": "word-categories.item.sheep",
+    "game": "word-categories",
+    "text": "овца",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-sheep.mp3"
+  },
+  {
+    "id": "word-categories.item.goat",
+    "game": "word-categories",
+    "text": "коза",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-goat.mp3"
+  },
+  {
+    "id": "word-categories.item.rabbit",
+    "game": "word-categories",
+    "text": "заяц",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-rabbit.mp3"
+  },
+  {
+    "id": "word-categories.item.fox",
+    "game": "word-categories",
+    "text": "лиса",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-fox.mp3"
+  },
+  {
+    "id": "word-categories.item.bear",
+    "game": "word-categories",
+    "text": "медведь",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-bear.mp3"
+  },
+  {
+    "id": "word-categories.item.wolf",
+    "game": "word-categories",
+    "text": "волк",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-wolf.mp3"
+  },
+  {
+    "id": "word-categories.item.lion",
+    "game": "word-categories",
+    "text": "лев",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-lion.mp3"
+  },
+  {
+    "id": "word-categories.item.tiger",
+    "game": "word-categories",
+    "text": "тигр",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-tiger.mp3"
+  },
+  {
+    "id": "word-categories.item.elephant",
+    "game": "word-categories",
+    "text": "слон",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-elephant.mp3"
+  },
+  {
+    "id": "word-categories.item.giraffe",
+    "game": "word-categories",
+    "text": "жираф",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-giraffe.mp3"
+  },
+  {
+    "id": "word-categories.item.zebra",
+    "game": "word-categories",
+    "text": "зебра",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-zebra.mp3"
+  },
+  {
+    "id": "word-categories.item.monkey",
+    "game": "word-categories",
+    "text": "обезьяна",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-monkey.mp3"
+  },
+  {
+    "id": "word-categories.item.mouse",
+    "game": "word-categories",
+    "text": "мышь",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-mouse.mp3"
+  },
+  {
+    "id": "word-categories.item.frog",
+    "game": "word-categories",
+    "text": "жаба",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-frog.mp3"
+  },
+  {
+    "id": "word-categories.item.bird",
+    "game": "word-categories",
+    "text": "птица",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-bird.mp3"
+  },
+  {
+    "id": "word-categories.item.owl",
+    "game": "word-categories",
+    "text": "сова",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-owl.mp3"
+  },
+  {
+    "id": "word-categories.item.hen",
+    "game": "word-categories",
+    "text": "курица",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-hen.mp3"
+  },
+  {
+    "id": "word-categories.item.turtle",
+    "game": "word-categories",
+    "text": "черепаха",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-turtle.mp3"
+  },
+  {
+    "id": "word-categories.item.dolphin",
+    "game": "word-categories",
+    "text": "дельфин",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-dolphin.mp3"
+  },
+  {
+    "id": "word-categories.item.whale",
+    "game": "word-categories",
+    "text": "кит",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-whale.mp3"
+  },
+  {
+    "id": "word-categories.item.snail",
+    "game": "word-categories",
+    "text": "улитка",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-snail.mp3"
+  },
+  {
+    "id": "word-categories.item.bee",
+    "game": "word-categories",
+    "text": "пчела",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-bee.mp3"
+  },
+  {
+    "id": "word-categories.item.butterfly",
+    "game": "word-categories",
+    "text": "бабочка",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-butterfly.mp3"
+  },
+  {
+    "id": "word-categories.item.car",
+    "game": "word-categories",
+    "text": "машина",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-car.mp3"
+  },
+  {
+    "id": "word-categories.item.bus",
+    "game": "word-categories",
+    "text": "автобус",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-bus.mp3"
+  },
+  {
+    "id": "word-categories.item.train",
+    "game": "word-categories",
+    "text": "поезд",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-train.mp3"
+  },
+  {
+    "id": "word-categories.item.tram",
+    "game": "word-categories",
+    "text": "трамвай",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-tram.mp3"
+  },
+  {
+    "id": "word-categories.item.bicycle",
+    "game": "word-categories",
+    "text": "велосипед",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-bicycle.mp3"
+  },
+  {
+    "id": "word-categories.item.scooter",
+    "game": "word-categories",
+    "text": "самокат",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-scooter.mp3"
+  },
+  {
+    "id": "word-categories.item.boat",
+    "game": "word-categories",
+    "text": "лодка",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-boat.mp3"
+  },
+  {
+    "id": "word-categories.item.ship",
+    "game": "word-categories",
+    "text": "корабль",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-ship.mp3"
+  },
+  {
+    "id": "word-categories.item.plane",
+    "game": "word-categories",
+    "text": "самолёт",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-plane.mp3"
+  },
+  {
+    "id": "word-categories.item.rocket",
+    "game": "word-categories",
+    "text": "ракета",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-rocket.mp3"
+  },
+  {
+    "id": "word-categories.item.shirt",
+    "game": "word-categories",
+    "text": "рубашка",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-shirt.mp3"
+  },
+  {
+    "id": "word-categories.item.pants",
+    "game": "word-categories",
+    "text": "штаны",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-pants.mp3"
+  },
+  {
+    "id": "word-categories.item.dress",
+    "game": "word-categories",
+    "text": "платье",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-dress.mp3"
+  },
+  {
+    "id": "word-categories.item.shoes",
+    "game": "word-categories",
+    "text": "обувь",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-shoes.mp3"
+  },
+  {
+    "id": "word-categories.item.socks",
+    "game": "word-categories",
+    "text": "носки",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-socks.mp3"
+  },
+  {
+    "id": "word-categories.item.coat",
+    "game": "word-categories",
+    "text": "пальто",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-coat.mp3"
+  },
+  {
+    "id": "word-categories.item.cap",
+    "game": "word-categories",
+    "text": "кепка",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-cap.mp3"
+  },
+  {
+    "id": "i-want.intro",
+    "game": "i-want",
+    "text": "Выбери карточку, чтобы сказать: я хочу.",
+    "voice": "jane",
+    "path": "/audio/tts/i-want/intro.mp3"
+  },
+  {
+    "id": "i-want.said",
+    "game": "i-want",
+    "text": "Ты сказал: я хочу.",
+    "voice": "jane",
+    "path": "/audio/tts/i-want/said.mp3"
+  },
+  {
+    "id": "i-want.next",
+    "game": "i-want",
+    "text": "Следующий выбор.",
+    "voice": "jane",
+    "path": "/audio/tts/i-want/next.mp3"
+  },
+  {
+    "id": "i-want.card.water",
+    "game": "i-want",
+    "text": "воду",
+    "voice": "jane",
+    "path": "/audio/tts/i-want/card-water.mp3"
+  },
+  {
+    "id": "i-want.card.apple",
+    "game": "i-want",
+    "text": "яблоко",
+    "voice": "jane",
+    "path": "/audio/tts/i-want/card-apple.mp3"
+  },
+  {
+    "id": "i-want.card.music",
+    "game": "i-want",
+    "text": "музыку",
+    "voice": "jane",
+    "path": "/audio/tts/i-want/card-music.mp3"
+  },
+  {
+    "id": "i-want.card.book",
+    "game": "i-want",
+    "text": "книгу",
+    "voice": "jane",
+    "path": "/audio/tts/i-want/card-book.mp3"
+  },
+  {
+    "id": "i-want.card.ball",
+    "game": "i-want",
+    "text": "мяч",
+    "voice": "jane",
+    "path": "/audio/tts/i-want/card-ball.mp3"
+  },
+  {
+    "id": "i-want.card.draw",
+    "game": "i-want",
+    "text": "рисовать",
+    "voice": "jane",
+    "path": "/audio/tts/i-want/card-draw.mp3"
+  },
+  {
+    "id": "i-want.card.toy",
+    "game": "i-want",
+    "text": "игрушку",
+    "voice": "jane",
+    "path": "/audio/tts/i-want/card-toy.mp3"
+  },
+  {
+    "id": "i-want.card.rest",
+    "game": "i-want",
+    "text": "отдохнуть",
+    "voice": "jane",
+    "path": "/audio/tts/i-want/card-rest.mp3"
+  },
+  {
+    "id": "i-want.card.help",
+    "game": "i-want",
+    "text": "помощь",
+    "voice": "jane",
+    "path": "/audio/tts/i-want/card-help.mp3"
+  },
+  {
+    "id": "i-want.phrase.water",
+    "game": "i-want",
+    "text": "Я хочу воду.",
+    "voice": "jane",
+    "path": "/audio/tts/i-want/phrase-water.mp3"
+  },
+  {
+    "id": "i-want.phrase.apple",
+    "game": "i-want",
+    "text": "Я хочу яблоко.",
+    "voice": "jane",
+    "path": "/audio/tts/i-want/phrase-apple.mp3"
+  },
+  {
+    "id": "i-want.phrase.music",
+    "game": "i-want",
+    "text": "Я хочу музыку.",
+    "voice": "jane",
+    "path": "/audio/tts/i-want/phrase-music.mp3"
+  },
+  {
+    "id": "i-want.phrase.book",
+    "game": "i-want",
+    "text": "Я хочу книгу.",
+    "voice": "jane",
+    "path": "/audio/tts/i-want/phrase-book.mp3"
+  },
+  {
+    "id": "i-want.phrase.ball",
+    "game": "i-want",
+    "text": "Я хочу мяч.",
+    "voice": "jane",
+    "path": "/audio/tts/i-want/phrase-ball.mp3"
+  },
+  {
+    "id": "i-want.phrase.draw",
+    "game": "i-want",
+    "text": "Я хочу рисовать.",
+    "voice": "jane",
+    "path": "/audio/tts/i-want/phrase-draw.mp3"
+  },
+  {
+    "id": "i-want.phrase.toy",
+    "game": "i-want",
+    "text": "Я хочу игрушку.",
+    "voice": "jane",
+    "path": "/audio/tts/i-want/phrase-toy.mp3"
+  },
+  {
+    "id": "i-want.phrase.rest",
+    "game": "i-want",
+    "text": "Я хочу отдохнуть.",
+    "voice": "jane",
+    "path": "/audio/tts/i-want/phrase-rest.mp3"
+  },
+  {
+    "id": "i-want.phrase.help",
+    "game": "i-want",
+    "text": "Я хочу помощь.",
+    "voice": "jane",
+    "path": "/audio/tts/i-want/phrase-help.mp3"
+  },
+  {
+    "id": "want-dont-want.intro",
+    "game": "want-dont-want",
+    "text": "Посмотри на предмет и выбери: хочу или не хочу.",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/intro.mp3"
+  },
+  {
+    "id": "want-dont-want.next",
+    "game": "want-dont-want",
+    "text": "Следующий выбор.",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/next.mp3"
+  },
+  {
+    "id": "want-dont-want.phrase.want.water",
+    "game": "want-dont-want",
+    "text": "Хочу пить воду.",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/phrase-want-water.mp3"
+  },
+  {
+    "id": "want-dont-want.phrase.dont-want.water",
+    "game": "want-dont-want",
+    "text": "Не хочу пить воду.",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/phrase-dont-want-water.mp3"
+  },
+  {
+    "id": "want-dont-want.phrase.want.apple",
+    "game": "want-dont-want",
+    "text": "Хочу есть яблоко.",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/phrase-want-apple.mp3"
+  },
+  {
+    "id": "want-dont-want.phrase.dont-want.apple",
+    "game": "want-dont-want",
+    "text": "Не хочу есть яблоко.",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/phrase-dont-want-apple.mp3"
+  },
+  {
+    "id": "want-dont-want.phrase.want.music",
+    "game": "want-dont-want",
+    "text": "Хочу слушать музыку.",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/phrase-want-music.mp3"
+  },
+  {
+    "id": "want-dont-want.phrase.dont-want.music",
+    "game": "want-dont-want",
+    "text": "Не хочу слушать музыку.",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/phrase-dont-want-music.mp3"
+  },
+  {
+    "id": "want-dont-want.phrase.want.book",
+    "game": "want-dont-want",
+    "text": "Хочу читать книгу.",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/phrase-want-book.mp3"
+  },
+  {
+    "id": "want-dont-want.phrase.dont-want.book",
+    "game": "want-dont-want",
+    "text": "Не хочу читать книгу.",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/phrase-dont-want-book.mp3"
+  },
+  {
+    "id": "want-dont-want.phrase.want.ball",
+    "game": "want-dont-want",
+    "text": "Хочу играть в мяч.",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/phrase-want-ball.mp3"
+  },
+  {
+    "id": "want-dont-want.phrase.dont-want.ball",
+    "game": "want-dont-want",
+    "text": "Не хочу играть в мяч.",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/phrase-dont-want-ball.mp3"
+  },
+  {
+    "id": "want-dont-want.phrase.want.draw",
+    "game": "want-dont-want",
+    "text": "Хочу рисовать.",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/phrase-want-draw.mp3"
+  },
+  {
+    "id": "want-dont-want.phrase.dont-want.draw",
+    "game": "want-dont-want",
+    "text": "Не хочу рисовать.",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/phrase-dont-want-draw.mp3"
+  },
+  {
+    "id": "want-dont-want.phrase.want.toy",
+    "game": "want-dont-want",
+    "text": "Хочу играть с игрушкой.",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/phrase-want-toy.mp3"
+  },
+  {
+    "id": "want-dont-want.phrase.dont-want.toy",
+    "game": "want-dont-want",
+    "text": "Не хочу играть с игрушкой.",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/phrase-dont-want-toy.mp3"
+  },
+  {
+    "id": "want-dont-want.phrase.want.rest",
+    "game": "want-dont-want",
+    "text": "Хочу отдыхать.",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/phrase-want-rest.mp3"
+  },
+  {
+    "id": "want-dont-want.phrase.dont-want.rest",
+    "game": "want-dont-want",
+    "text": "Не хочу отдыхать.",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/phrase-dont-want-rest.mp3"
+  },
+  {
+    "id": "want-dont-want.phrase.want.hug",
+    "game": "want-dont-want",
+    "text": "Хочу обнять.",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/phrase-want-hug.mp3"
+  },
+  {
+    "id": "want-dont-want.phrase.dont-want.hug",
+    "game": "want-dont-want",
+    "text": "Не хочу обнять.",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/phrase-dont-want-hug.mp3"
+  },
+  {
+    "id": "object-action.intro",
+    "game": "object-action",
+    "text": "Выбери действие, которое подходит к предмету.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/intro.mp3"
+  },
+  {
+    "id": "object-action.next",
+    "game": "object-action",
+    "text": "Новая пара.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/next.mp3"
+  },
+  {
+    "id": "object-action.mistake",
+    "game": "object-action",
+    "text": "Почти. Посмотри на правильную пару.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/mistake.mp3"
+  },
+  {
+    "id": "object-action.action.ball-roll",
+    "game": "object-action",
+    "text": "Ты выбрал: катить.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/action-ball-roll.mp3"
+  },
+  {
+    "id": "object-action.phrase.ball-roll",
+    "game": "object-action",
+    "text": "Подходит: мяч катить.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/phrase-ball-roll.mp3"
+  },
+  {
+    "id": "object-action.action.spoon-eat",
+    "game": "object-action",
+    "text": "Ты выбрал: есть.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/action-spoon-eat.mp3"
+  },
+  {
+    "id": "object-action.phrase.spoon-eat",
+    "game": "object-action",
+    "text": "Подходит: ложкой есть.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/phrase-spoon-eat.mp3"
+  },
+  {
+    "id": "object-action.action.cup-drink",
+    "game": "object-action",
+    "text": "Ты выбрал: пить.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/action-cup-drink.mp3"
+  },
+  {
+    "id": "object-action.phrase.cup-drink",
+    "game": "object-action",
+    "text": "Подходит: из чашки пить.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/phrase-cup-drink.mp3"
+  },
+  {
+    "id": "object-action.action.book-read",
+    "game": "object-action",
+    "text": "Ты выбрал: читать.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/action-book-read.mp3"
+  },
+  {
+    "id": "object-action.phrase.book-read",
+    "game": "object-action",
+    "text": "Подходит: книгу читать.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/phrase-book-read.mp3"
+  },
+  {
+    "id": "object-action.action.soap-wash",
+    "game": "object-action",
+    "text": "Ты выбрал: мыть.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/action-soap-wash.mp3"
+  },
+  {
+    "id": "object-action.phrase.soap-wash",
+    "game": "object-action",
+    "text": "Подходит: мылом мыть.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/phrase-soap-wash.mp3"
+  },
+  {
+    "id": "object-action.action.pencil-draw",
+    "game": "object-action",
+    "text": "Ты выбрал: рисовать.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/action-pencil-draw.mp3"
+  },
+  {
+    "id": "object-action.phrase.pencil-draw",
+    "game": "object-action",
+    "text": "Подходит: карандашом рисовать.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/phrase-pencil-draw.mp3"
+  },
+  {
+    "id": "object-action.action.key-open",
+    "game": "object-action",
+    "text": "Ты выбрал: открывать.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/action-key-open.mp3"
+  },
+  {
+    "id": "object-action.phrase.key-open",
+    "game": "object-action",
+    "text": "Подходит: ключом открывать.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/phrase-key-open.mp3"
+  },
+  {
+    "id": "object-action.action.brush-comb",
+    "game": "object-action",
+    "text": "Ты выбрал: расчёсывать.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/action-brush-comb.mp3"
+  },
+  {
+    "id": "object-action.phrase.brush-comb",
+    "game": "object-action",
+    "text": "Подходит: щёткой расчёсывать.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/phrase-brush-comb.mp3"
+  },
+  {
+    "id": "where-object.mistake",
+    "game": "where-object",
+    "text": "Почти. Правильный ответ.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/mistake.mp3"
+  },
+  {
+    "id": "where-object.prompt.ball",
+    "game": "where-object",
+    "text": "Где мяч? Выбери: на, под или в.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/prompt-ball.mp3"
+  },
+  {
+    "id": "where-object.prompt.book",
+    "game": "where-object",
+    "text": "Где книга? Выбери: на, под или в.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/prompt-book.mp3"
+  },
+  {
+    "id": "where-object.prompt.toy",
+    "game": "where-object",
+    "text": "Где игрушка? Выбери: на, под или в.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/prompt-toy.mp3"
+  },
+  {
+    "id": "where-object.prompt.key",
+    "game": "where-object",
+    "text": "Где ключ? Выбери: на, под или в.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/prompt-key.mp3"
+  },
+  {
+    "id": "where-object.prompt.cup",
+    "game": "where-object",
+    "text": "Где чашка? Выбери: на, под или в.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/prompt-cup.mp3"
+  },
+  {
+    "id": "where-object.prompt.spoon",
+    "game": "where-object",
+    "text": "Где ложка? Выбери: на, под или в.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/prompt-spoon.mp3"
+  },
+  {
+    "id": "where-object.prompt.phone",
+    "game": "where-object",
+    "text": "Где телефон? Выбери: на, под или в.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/prompt-phone.mp3"
+  },
+  {
+    "id": "where-object.prompt.brush",
+    "game": "where-object",
+    "text": "Где щётка? Выбери: на, под или в.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/prompt-brush.mp3"
+  },
+  {
+    "id": "where-object.answer.ball.house.on",
+    "game": "where-object",
+    "text": "мяч на домике.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-ball-house-on.mp3"
+  },
+  {
+    "id": "where-object.answer.ball.house.under",
+    "game": "where-object",
+    "text": "мяч под домиком.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-ball-house-under.mp3"
+  },
+  {
+    "id": "where-object.answer.ball.house.in",
+    "game": "where-object",
+    "text": "мяч в домике.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-ball-house-in.mp3"
+  },
+  {
+    "id": "where-object.answer.ball.table.on",
+    "game": "where-object",
+    "text": "мяч на столе.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-ball-table-on.mp3"
+  },
+  {
+    "id": "where-object.answer.ball.table.under",
+    "game": "where-object",
+    "text": "мяч под столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-ball-table-under.mp3"
+  },
+  {
+    "id": "where-object.answer.ball.table.in",
+    "game": "where-object",
+    "text": "мяч в ящике стола.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-ball-table-in.mp3"
+  },
+  {
+    "id": "where-object.answer.ball.bag.on",
+    "game": "where-object",
+    "text": "мяч на сумке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-ball-bag-on.mp3"
+  },
+  {
+    "id": "where-object.answer.ball.bag.under",
+    "game": "where-object",
+    "text": "мяч под сумкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-ball-bag-under.mp3"
+  },
+  {
+    "id": "where-object.answer.ball.bag.in",
+    "game": "where-object",
+    "text": "мяч в сумке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-ball-bag-in.mp3"
+  },
+  {
+    "id": "where-object.answer.ball.box.on",
+    "game": "where-object",
+    "text": "мяч на коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-ball-box-on.mp3"
+  },
+  {
+    "id": "where-object.answer.ball.box.under",
+    "game": "where-object",
+    "text": "мяч под коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-ball-box-under.mp3"
+  },
+  {
+    "id": "where-object.answer.ball.box.in",
+    "game": "where-object",
+    "text": "мяч в коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-ball-box-in.mp3"
+  },
+  {
+    "id": "where-object.answer.book.house.on",
+    "game": "where-object",
+    "text": "книга на домике.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-book-house-on.mp3"
+  },
+  {
+    "id": "where-object.answer.book.house.under",
+    "game": "where-object",
+    "text": "книга под домиком.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-book-house-under.mp3"
+  },
+  {
+    "id": "where-object.answer.book.house.in",
+    "game": "where-object",
+    "text": "книга в домике.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-book-house-in.mp3"
+  },
+  {
+    "id": "where-object.answer.book.table.on",
+    "game": "where-object",
+    "text": "книга на столе.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-book-table-on.mp3"
+  },
+  {
+    "id": "where-object.answer.book.table.under",
+    "game": "where-object",
+    "text": "книга под столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-book-table-under.mp3"
+  },
+  {
+    "id": "where-object.answer.book.table.in",
+    "game": "where-object",
+    "text": "книга в ящике стола.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-book-table-in.mp3"
+  },
+  {
+    "id": "where-object.answer.book.bag.on",
+    "game": "where-object",
+    "text": "книга на сумке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-book-bag-on.mp3"
+  },
+  {
+    "id": "where-object.answer.book.bag.under",
+    "game": "where-object",
+    "text": "книга под сумкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-book-bag-under.mp3"
+  },
+  {
+    "id": "where-object.answer.book.bag.in",
+    "game": "where-object",
+    "text": "книга в сумке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-book-bag-in.mp3"
+  },
+  {
+    "id": "where-object.answer.book.box.on",
+    "game": "where-object",
+    "text": "книга на коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-book-box-on.mp3"
+  },
+  {
+    "id": "where-object.answer.book.box.under",
+    "game": "where-object",
+    "text": "книга под коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-book-box-under.mp3"
+  },
+  {
+    "id": "where-object.answer.book.box.in",
+    "game": "where-object",
+    "text": "книга в коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-book-box-in.mp3"
+  },
+  {
+    "id": "where-object.answer.toy.house.on",
+    "game": "where-object",
+    "text": "игрушка на домике.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-toy-house-on.mp3"
+  },
+  {
+    "id": "where-object.answer.toy.house.under",
+    "game": "where-object",
+    "text": "игрушка под домиком.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-toy-house-under.mp3"
+  },
+  {
+    "id": "where-object.answer.toy.house.in",
+    "game": "where-object",
+    "text": "игрушка в домике.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-toy-house-in.mp3"
+  },
+  {
+    "id": "where-object.answer.toy.table.on",
+    "game": "where-object",
+    "text": "игрушка на столе.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-toy-table-on.mp3"
+  },
+  {
+    "id": "where-object.answer.toy.table.under",
+    "game": "where-object",
+    "text": "игрушка под столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-toy-table-under.mp3"
+  },
+  {
+    "id": "where-object.answer.toy.table.in",
+    "game": "where-object",
+    "text": "игрушка в ящике стола.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-toy-table-in.mp3"
+  },
+  {
+    "id": "where-object.answer.toy.bag.on",
+    "game": "where-object",
+    "text": "игрушка на сумке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-toy-bag-on.mp3"
+  },
+  {
+    "id": "where-object.answer.toy.bag.under",
+    "game": "where-object",
+    "text": "игрушка под сумкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-toy-bag-under.mp3"
+  },
+  {
+    "id": "where-object.answer.toy.bag.in",
+    "game": "where-object",
+    "text": "игрушка в сумке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-toy-bag-in.mp3"
+  },
+  {
+    "id": "where-object.answer.toy.box.on",
+    "game": "where-object",
+    "text": "игрушка на коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-toy-box-on.mp3"
+  },
+  {
+    "id": "where-object.answer.toy.box.under",
+    "game": "where-object",
+    "text": "игрушка под коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-toy-box-under.mp3"
+  },
+  {
+    "id": "where-object.answer.toy.box.in",
+    "game": "where-object",
+    "text": "игрушка в коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-toy-box-in.mp3"
+  },
+  {
+    "id": "where-object.answer.key.house.on",
+    "game": "where-object",
+    "text": "ключ на домике.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-key-house-on.mp3"
+  },
+  {
+    "id": "where-object.answer.key.house.under",
+    "game": "where-object",
+    "text": "ключ под домиком.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-key-house-under.mp3"
+  },
+  {
+    "id": "where-object.answer.key.house.in",
+    "game": "where-object",
+    "text": "ключ в домике.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-key-house-in.mp3"
+  },
+  {
+    "id": "where-object.answer.key.table.on",
+    "game": "where-object",
+    "text": "ключ на столе.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-key-table-on.mp3"
+  },
+  {
+    "id": "where-object.answer.key.table.under",
+    "game": "where-object",
+    "text": "ключ под столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-key-table-under.mp3"
+  },
+  {
+    "id": "where-object.answer.key.table.in",
+    "game": "where-object",
+    "text": "ключ в ящике стола.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-key-table-in.mp3"
+  },
+  {
+    "id": "where-object.answer.key.bag.on",
+    "game": "where-object",
+    "text": "ключ на сумке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-key-bag-on.mp3"
+  },
+  {
+    "id": "where-object.answer.key.bag.under",
+    "game": "where-object",
+    "text": "ключ под сумкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-key-bag-under.mp3"
+  },
+  {
+    "id": "where-object.answer.key.bag.in",
+    "game": "where-object",
+    "text": "ключ в сумке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-key-bag-in.mp3"
+  },
+  {
+    "id": "where-object.answer.key.box.on",
+    "game": "where-object",
+    "text": "ключ на коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-key-box-on.mp3"
+  },
+  {
+    "id": "where-object.answer.key.box.under",
+    "game": "where-object",
+    "text": "ключ под коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-key-box-under.mp3"
+  },
+  {
+    "id": "where-object.answer.key.box.in",
+    "game": "where-object",
+    "text": "ключ в коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-key-box-in.mp3"
+  },
+  {
+    "id": "where-object.answer.cup.house.on",
+    "game": "where-object",
+    "text": "чашка на домике.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-cup-house-on.mp3"
+  },
+  {
+    "id": "where-object.answer.cup.house.under",
+    "game": "where-object",
+    "text": "чашка под домиком.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-cup-house-under.mp3"
+  },
+  {
+    "id": "where-object.answer.cup.house.in",
+    "game": "where-object",
+    "text": "чашка в домике.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-cup-house-in.mp3"
+  },
+  {
+    "id": "where-object.answer.cup.table.on",
+    "game": "where-object",
+    "text": "чашка на столе.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-cup-table-on.mp3"
+  },
+  {
+    "id": "where-object.answer.cup.table.under",
+    "game": "where-object",
+    "text": "чашка под столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-cup-table-under.mp3"
+  },
+  {
+    "id": "where-object.answer.cup.table.in",
+    "game": "where-object",
+    "text": "чашка в ящике стола.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-cup-table-in.mp3"
+  },
+  {
+    "id": "where-object.answer.cup.bag.on",
+    "game": "where-object",
+    "text": "чашка на сумке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-cup-bag-on.mp3"
+  },
+  {
+    "id": "where-object.answer.cup.bag.under",
+    "game": "where-object",
+    "text": "чашка под сумкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-cup-bag-under.mp3"
+  },
+  {
+    "id": "where-object.answer.cup.bag.in",
+    "game": "where-object",
+    "text": "чашка в сумке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-cup-bag-in.mp3"
+  },
+  {
+    "id": "where-object.answer.cup.box.on",
+    "game": "where-object",
+    "text": "чашка на коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-cup-box-on.mp3"
+  },
+  {
+    "id": "where-object.answer.cup.box.under",
+    "game": "where-object",
+    "text": "чашка под коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-cup-box-under.mp3"
+  },
+  {
+    "id": "where-object.answer.cup.box.in",
+    "game": "where-object",
+    "text": "чашка в коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-cup-box-in.mp3"
+  },
+  {
+    "id": "where-object.answer.spoon.house.on",
+    "game": "where-object",
+    "text": "ложка на домике.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-spoon-house-on.mp3"
+  },
+  {
+    "id": "where-object.answer.spoon.house.under",
+    "game": "where-object",
+    "text": "ложка под домиком.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-spoon-house-under.mp3"
+  },
+  {
+    "id": "where-object.answer.spoon.house.in",
+    "game": "where-object",
+    "text": "ложка в домике.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-spoon-house-in.mp3"
+  },
+  {
+    "id": "where-object.answer.spoon.table.on",
+    "game": "where-object",
+    "text": "ложка на столе.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-spoon-table-on.mp3"
+  },
+  {
+    "id": "where-object.answer.spoon.table.under",
+    "game": "where-object",
+    "text": "ложка под столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-spoon-table-under.mp3"
+  },
+  {
+    "id": "where-object.answer.spoon.table.in",
+    "game": "where-object",
+    "text": "ложка в ящике стола.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-spoon-table-in.mp3"
+  },
+  {
+    "id": "where-object.answer.spoon.bag.on",
+    "game": "where-object",
+    "text": "ложка на сумке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-spoon-bag-on.mp3"
+  },
+  {
+    "id": "where-object.answer.spoon.bag.under",
+    "game": "where-object",
+    "text": "ложка под сумкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-spoon-bag-under.mp3"
+  },
+  {
+    "id": "where-object.answer.spoon.bag.in",
+    "game": "where-object",
+    "text": "ложка в сумке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-spoon-bag-in.mp3"
+  },
+  {
+    "id": "where-object.answer.spoon.box.on",
+    "game": "where-object",
+    "text": "ложка на коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-spoon-box-on.mp3"
+  },
+  {
+    "id": "where-object.answer.spoon.box.under",
+    "game": "where-object",
+    "text": "ложка под коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-spoon-box-under.mp3"
+  },
+  {
+    "id": "where-object.answer.spoon.box.in",
+    "game": "where-object",
+    "text": "ложка в коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-spoon-box-in.mp3"
+  },
+  {
+    "id": "where-object.answer.phone.house.on",
+    "game": "where-object",
+    "text": "телефон на домике.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-phone-house-on.mp3"
+  },
+  {
+    "id": "where-object.answer.phone.house.under",
+    "game": "where-object",
+    "text": "телефон под домиком.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-phone-house-under.mp3"
+  },
+  {
+    "id": "where-object.answer.phone.house.in",
+    "game": "where-object",
+    "text": "телефон в домике.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-phone-house-in.mp3"
+  },
+  {
+    "id": "where-object.answer.phone.table.on",
+    "game": "where-object",
+    "text": "телефон на столе.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-phone-table-on.mp3"
+  },
+  {
+    "id": "where-object.answer.phone.table.under",
+    "game": "where-object",
+    "text": "телефон под столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-phone-table-under.mp3"
+  },
+  {
+    "id": "where-object.answer.phone.table.in",
+    "game": "where-object",
+    "text": "телефон в ящике стола.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-phone-table-in.mp3"
+  },
+  {
+    "id": "where-object.answer.phone.bag.on",
+    "game": "where-object",
+    "text": "телефон на сумке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-phone-bag-on.mp3"
+  },
+  {
+    "id": "where-object.answer.phone.bag.under",
+    "game": "where-object",
+    "text": "телефон под сумкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-phone-bag-under.mp3"
+  },
+  {
+    "id": "where-object.answer.phone.bag.in",
+    "game": "where-object",
+    "text": "телефон в сумке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-phone-bag-in.mp3"
+  },
+  {
+    "id": "where-object.answer.phone.box.on",
+    "game": "where-object",
+    "text": "телефон на коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-phone-box-on.mp3"
+  },
+  {
+    "id": "where-object.answer.phone.box.under",
+    "game": "where-object",
+    "text": "телефон под коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-phone-box-under.mp3"
+  },
+  {
+    "id": "where-object.answer.phone.box.in",
+    "game": "where-object",
+    "text": "телефон в коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-phone-box-in.mp3"
+  },
+  {
+    "id": "where-object.answer.brush.house.on",
+    "game": "where-object",
+    "text": "щётка на домике.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-brush-house-on.mp3"
+  },
+  {
+    "id": "where-object.answer.brush.house.under",
+    "game": "where-object",
+    "text": "щётка под домиком.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-brush-house-under.mp3"
+  },
+  {
+    "id": "where-object.answer.brush.house.in",
+    "game": "where-object",
+    "text": "щётка в домике.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-brush-house-in.mp3"
+  },
+  {
+    "id": "where-object.answer.brush.table.on",
+    "game": "where-object",
+    "text": "щётка на столе.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-brush-table-on.mp3"
+  },
+  {
+    "id": "where-object.answer.brush.table.under",
+    "game": "where-object",
+    "text": "щётка под столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-brush-table-under.mp3"
+  },
+  {
+    "id": "where-object.answer.brush.table.in",
+    "game": "where-object",
+    "text": "щётка в ящике стола.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-brush-table-in.mp3"
+  },
+  {
+    "id": "where-object.answer.brush.bag.on",
+    "game": "where-object",
+    "text": "щётка на сумке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-brush-bag-on.mp3"
+  },
+  {
+    "id": "where-object.answer.brush.bag.under",
+    "game": "where-object",
+    "text": "щётка под сумкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-brush-bag-under.mp3"
+  },
+  {
+    "id": "where-object.answer.brush.bag.in",
+    "game": "where-object",
+    "text": "щётка в сумке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-brush-bag-in.mp3"
+  },
+  {
+    "id": "where-object.answer.brush.box.on",
+    "game": "where-object",
+    "text": "щётка на коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-brush-box-on.mp3"
+  },
+  {
+    "id": "where-object.answer.brush.box.under",
+    "game": "where-object",
+    "text": "щётка под коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-brush-box-under.mp3"
+  },
+  {
+    "id": "where-object.answer.brush.box.in",
+    "game": "where-object",
+    "text": "щётка в коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-brush-box-in.mp3"
+  },
+  {
+    "id": "big-small.mistake.big",
+    "game": "big-small",
+    "text": "Почти. Нужен большой предмет.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/mistake-big.mp3"
+  },
+  {
+    "id": "big-small.mistake.small",
+    "game": "big-small",
+    "text": "Почти. Нужен маленький предмет.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/mistake-small.mp3"
+  },
+  {
+    "id": "big-small.prompt.apple.big",
+    "game": "big-small",
+    "text": "Выбери: большое яблоко.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/prompt-apple-big.mp3"
+  },
+  {
+    "id": "big-small.correct.apple.big",
+    "game": "big-small",
+    "text": "Да. Это большое яблоко.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/correct-apple-big.mp3"
+  },
+  {
+    "id": "big-small.prompt.apple.small",
+    "game": "big-small",
+    "text": "Выбери: маленькое яблоко.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/prompt-apple-small.mp3"
+  },
+  {
+    "id": "big-small.correct.apple.small",
+    "game": "big-small",
+    "text": "Да. Это маленькое яблоко.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/correct-apple-small.mp3"
+  },
+  {
+    "id": "big-small.prompt.ball.big",
+    "game": "big-small",
+    "text": "Выбери: большой мяч.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/prompt-ball-big.mp3"
+  },
+  {
+    "id": "big-small.correct.ball.big",
+    "game": "big-small",
+    "text": "Да. Это большой мяч.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/correct-ball-big.mp3"
+  },
+  {
+    "id": "big-small.prompt.ball.small",
+    "game": "big-small",
+    "text": "Выбери: маленький мяч.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/prompt-ball-small.mp3"
+  },
+  {
+    "id": "big-small.correct.ball.small",
+    "game": "big-small",
+    "text": "Да. Это маленький мяч.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/correct-ball-small.mp3"
+  },
+  {
+    "id": "big-small.prompt.flower.big",
+    "game": "big-small",
+    "text": "Выбери: большой цветок.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/prompt-flower-big.mp3"
+  },
+  {
+    "id": "big-small.correct.flower.big",
+    "game": "big-small",
+    "text": "Да. Это большой цветок.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/correct-flower-big.mp3"
+  },
+  {
+    "id": "big-small.prompt.flower.small",
+    "game": "big-small",
+    "text": "Выбери: маленький цветок.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/prompt-flower-small.mp3"
+  },
+  {
+    "id": "big-small.correct.flower.small",
+    "game": "big-small",
+    "text": "Да. Это маленький цветок.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/correct-flower-small.mp3"
+  },
+  {
+    "id": "big-small.prompt.car.big",
+    "game": "big-small",
+    "text": "Выбери: большая машина.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/prompt-car-big.mp3"
+  },
+  {
+    "id": "big-small.correct.car.big",
+    "game": "big-small",
+    "text": "Да. Это большая машина.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/correct-car-big.mp3"
+  },
+  {
+    "id": "big-small.prompt.car.small",
+    "game": "big-small",
+    "text": "Выбери: маленькая машина.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/prompt-car-small.mp3"
+  },
+  {
+    "id": "big-small.correct.car.small",
+    "game": "big-small",
+    "text": "Да. Это маленькая машина.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/correct-car-small.mp3"
+  },
+  {
+    "id": "big-small.prompt.duck.big",
+    "game": "big-small",
+    "text": "Выбери: большая утка.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/prompt-duck-big.mp3"
+  },
+  {
+    "id": "big-small.correct.duck.big",
+    "game": "big-small",
+    "text": "Да. Это большая утка.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/correct-duck-big.mp3"
+  },
+  {
+    "id": "big-small.prompt.duck.small",
+    "game": "big-small",
+    "text": "Выбери: маленькая утка.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/prompt-duck-small.mp3"
+  },
+  {
+    "id": "big-small.correct.duck.small",
+    "game": "big-small",
+    "text": "Да. Это маленькая утка.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/correct-duck-small.mp3"
+  },
+  {
+    "id": "big-small.prompt.star.big",
+    "game": "big-small",
+    "text": "Выбери: большая звезда.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/prompt-star-big.mp3"
+  },
+  {
+    "id": "big-small.correct.star.big",
+    "game": "big-small",
+    "text": "Да. Это большая звезда.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/correct-star-big.mp3"
+  },
+  {
+    "id": "big-small.prompt.star.small",
+    "game": "big-small",
+    "text": "Выбери: маленькая звезда.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/prompt-star-small.mp3"
+  },
+  {
+    "id": "big-small.correct.star.small",
+    "game": "big-small",
+    "text": "Да. Это маленькая звезда.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/correct-star-small.mp3"
+  },
+  {
+    "id": "big-small.prompt.fish.big",
+    "game": "big-small",
+    "text": "Выбери: большая рыбка.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/prompt-fish-big.mp3"
+  },
+  {
+    "id": "big-small.correct.fish.big",
+    "game": "big-small",
+    "text": "Да. Это большая рыбка.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/correct-fish-big.mp3"
+  },
+  {
+    "id": "big-small.prompt.fish.small",
+    "game": "big-small",
+    "text": "Выбери: маленькая рыбка.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/prompt-fish-small.mp3"
+  },
+  {
+    "id": "big-small.correct.fish.small",
+    "game": "big-small",
+    "text": "Да. Это маленькая рыбка.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/correct-fish-small.mp3"
+  },
+  {
+    "id": "big-small.prompt.house.big",
+    "game": "big-small",
+    "text": "Выбери: большой дом.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/prompt-house-big.mp3"
+  },
+  {
+    "id": "big-small.correct.house.big",
+    "game": "big-small",
+    "text": "Да. Это большой дом.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/correct-house-big.mp3"
+  },
+  {
+    "id": "big-small.prompt.house.small",
+    "game": "big-small",
+    "text": "Выбери: маленький дом.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/prompt-house-small.mp3"
+  },
+  {
+    "id": "big-small.correct.house.small",
+    "game": "big-small",
+    "text": "Да. Это маленький дом.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/correct-house-small.mp3"
+  },
+  {
+    "id": "one-many.prompt.one",
+    "game": "one-many",
+    "text": "Где один предмет?",
+    "voice": "jane",
+    "path": "/audio/tts/one-many/prompt-one.mp3"
+  },
+  {
+    "id": "one-many.prompt.many",
+    "game": "one-many",
+    "text": "Где много предметов?",
+    "voice": "jane",
+    "path": "/audio/tts/one-many/prompt-many.mp3"
+  },
+  {
+    "id": "one-many.correct.one",
+    "game": "one-many",
+    "text": "Да, здесь один.",
+    "voice": "jane",
+    "path": "/audio/tts/one-many/correct-one.mp3"
+  },
+  {
+    "id": "one-many.correct.many",
+    "game": "one-many",
+    "text": "Да, здесь много.",
+    "voice": "jane",
+    "path": "/audio/tts/one-many/correct-many.mp3"
+  },
+  {
+    "id": "one-many.mistake.one",
+    "game": "one-many",
+    "text": "Почти. Нужна карточка один.",
+    "voice": "jane",
+    "path": "/audio/tts/one-many/mistake-one.mp3"
+  },
+  {
+    "id": "one-many.mistake.many",
+    "game": "one-many",
+    "text": "Почти. Нужна карточка много.",
+    "voice": "jane",
+    "path": "/audio/tts/one-many/mistake-many.mp3"
+  },
+  {
+    "id": "who-is-this.prompt",
+    "game": "who-is-this",
+    "text": "Кто это на картинке?",
+    "voice": "jane",
+    "path": "/audio/tts/who-is-this/prompt.mp3"
+  },
+  {
+    "id": "who-is-this.correct.mom",
+    "game": "who-is-this",
+    "text": "Да, это мама.",
+    "voice": "jane",
+    "path": "/audio/tts/who-is-this/correct-mom.mp3"
+  },
+  {
+    "id": "who-is-this.mistake.mom",
+    "game": "who-is-this",
+    "text": "Почти. Здесь подходит: мама.",
+    "voice": "jane",
+    "path": "/audio/tts/who-is-this/mistake-mom.mp3"
+  },
+  {
+    "id": "who-is-this.correct.dad",
+    "game": "who-is-this",
+    "text": "Да, это папа.",
+    "voice": "jane",
+    "path": "/audio/tts/who-is-this/correct-dad.mp3"
+  },
+  {
+    "id": "who-is-this.mistake.dad",
+    "game": "who-is-this",
+    "text": "Почти. Здесь подходит: папа.",
+    "voice": "jane",
+    "path": "/audio/tts/who-is-this/mistake-dad.mp3"
+  },
+  {
+    "id": "who-is-this.correct.doctor",
+    "game": "who-is-this",
+    "text": "Да, это врач.",
+    "voice": "jane",
+    "path": "/audio/tts/who-is-this/correct-doctor.mp3"
+  },
+  {
+    "id": "who-is-this.mistake.doctor",
+    "game": "who-is-this",
+    "text": "Почти. Здесь подходит: врач.",
+    "voice": "jane",
+    "path": "/audio/tts/who-is-this/mistake-doctor.mp3"
+  },
+  {
+    "id": "who-is-this.correct.friend",
+    "game": "who-is-this",
+    "text": "Да, это друг.",
+    "voice": "jane",
+    "path": "/audio/tts/who-is-this/correct-friend.mp3"
+  },
+  {
+    "id": "who-is-this.mistake.friend",
+    "game": "who-is-this",
+    "text": "Почти. Здесь подходит: друг.",
+    "voice": "jane",
+    "path": "/audio/tts/who-is-this/mistake-friend.mp3"
+  },
+  {
+    "id": "who-is-this.correct.cat",
+    "game": "who-is-this",
+    "text": "Да, это кот.",
+    "voice": "jane",
+    "path": "/audio/tts/who-is-this/correct-cat.mp3"
+  },
+  {
+    "id": "who-is-this.mistake.cat",
+    "game": "who-is-this",
+    "text": "Почти. Здесь подходит: кот.",
+    "voice": "jane",
+    "path": "/audio/tts/who-is-this/mistake-cat.mp3"
+  },
+  {
+    "id": "who-is-this.correct.dog",
+    "game": "who-is-this",
+    "text": "Да, это пёс.",
+    "voice": "jane",
+    "path": "/audio/tts/who-is-this/correct-dog.mp3"
+  },
+  {
+    "id": "who-is-this.mistake.dog",
+    "game": "who-is-this",
+    "text": "Почти. Здесь подходит: пёс.",
+    "voice": "jane",
+    "path": "/audio/tts/who-is-this/mistake-dog.mp3"
+  },
+  {
+    "id": "who-is-this.correct.teacher",
+    "game": "who-is-this",
+    "text": "Да, это учитель.",
+    "voice": "jane",
+    "path": "/audio/tts/who-is-this/correct-teacher.mp3"
+  },
+  {
+    "id": "who-is-this.mistake.teacher",
+    "game": "who-is-this",
+    "text": "Почти. Здесь подходит: учитель.",
+    "voice": "jane",
+    "path": "/audio/tts/who-is-this/mistake-teacher.mp3"
+  },
+  {
+    "id": "who-is-this.correct.grandma",
+    "game": "who-is-this",
+    "text": "Да, это бабушка.",
+    "voice": "jane",
+    "path": "/audio/tts/who-is-this/correct-grandma.mp3"
+  },
+  {
+    "id": "who-is-this.mistake.grandma",
+    "game": "who-is-this",
+    "text": "Почти. Здесь подходит: бабушка.",
+    "voice": "jane",
+    "path": "/audio/tts/who-is-this/mistake-grandma.mp3"
+  },
+  {
+    "id": "opposites.prompt.hot",
+    "game": "opposites",
+    "text": "Что наоборот к слову горячий?",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-hot.mp3"
+  },
+  {
+    "id": "opposites.correct.hot.cold",
+    "game": "opposites",
+    "text": "Верно. горячий и холодный это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-hot-cold.mp3"
+  },
+  {
+    "id": "opposites.mistake.hot.cold",
+    "game": "opposites",
+    "text": "Почти. Противоположность к слову горячий: холодный.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-hot-cold.mp3"
+  },
+  {
+    "id": "opposites.prompt.cold",
+    "game": "opposites",
+    "text": "Что наоборот к слову холодный?",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-cold.mp3"
+  },
+  {
+    "id": "opposites.correct.cold.hot",
+    "game": "opposites",
+    "text": "Верно. холодный и горячий это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-cold-hot.mp3"
+  },
+  {
+    "id": "opposites.mistake.cold.hot",
+    "game": "opposites",
+    "text": "Почти. Противоположность к слову холодный: горячий.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-cold-hot.mp3"
+  },
+  {
+    "id": "opposites.prompt.big",
+    "game": "opposites",
+    "text": "Что наоборот к слову большой?",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-big.mp3"
+  },
+  {
+    "id": "opposites.correct.big.small",
+    "game": "opposites",
+    "text": "Верно. большой и маленький это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-big-small.mp3"
+  },
+  {
+    "id": "opposites.mistake.big.small",
+    "game": "opposites",
+    "text": "Почти. Противоположность к слову большой: маленький.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-big-small.mp3"
+  },
+  {
+    "id": "opposites.prompt.small",
+    "game": "opposites",
+    "text": "Что наоборот к слову маленький?",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-small.mp3"
+  },
+  {
+    "id": "opposites.correct.small.big",
+    "game": "opposites",
+    "text": "Верно. маленький и большой это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-small-big.mp3"
+  },
+  {
+    "id": "opposites.mistake.small.big",
+    "game": "opposites",
+    "text": "Почти. Противоположность к слову маленький: большой.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-small-big.mp3"
+  },
+  {
+    "id": "opposites.prompt.day",
+    "game": "opposites",
+    "text": "Что наоборот к слову день?",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-day.mp3"
+  },
+  {
+    "id": "opposites.correct.day.night",
+    "game": "opposites",
+    "text": "Верно. день и ночь это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-day-night.mp3"
+  },
+  {
+    "id": "opposites.mistake.day.night",
+    "game": "opposites",
+    "text": "Почти. Противоположность к слову день: ночь.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-day-night.mp3"
+  },
+  {
+    "id": "opposites.prompt.night",
+    "game": "opposites",
+    "text": "Что наоборот к слову ночь?",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-night.mp3"
+  },
+  {
+    "id": "opposites.correct.night.day",
+    "game": "opposites",
+    "text": "Верно. ночь и день это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-night-day.mp3"
+  },
+  {
+    "id": "opposites.mistake.night.day",
+    "game": "opposites",
+    "text": "Почти. Противоположность к слову ночь: день.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-night-day.mp3"
+  },
+  {
+    "id": "opposites.prompt.open",
+    "game": "opposites",
+    "text": "Что наоборот к слову открытый?",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-open.mp3"
+  },
+  {
+    "id": "opposites.correct.open.closed",
+    "game": "opposites",
+    "text": "Верно. открытый и закрытый это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-open-closed.mp3"
+  },
+  {
+    "id": "opposites.mistake.open.closed",
+    "game": "opposites",
+    "text": "Почти. Противоположность к слову открытый: закрытый.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-open-closed.mp3"
+  },
+  {
+    "id": "opposites.prompt.closed",
+    "game": "opposites",
+    "text": "Что наоборот к слову закрытый?",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-closed.mp3"
+  },
+  {
+    "id": "opposites.correct.closed.open",
+    "game": "opposites",
+    "text": "Верно. закрытый и открытый это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-closed-open.mp3"
+  },
+  {
+    "id": "opposites.mistake.closed.open",
+    "game": "opposites",
+    "text": "Почти. Противоположность к слову закрытый: открытый.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-closed-open.mp3"
+  },
+  {
+    "id": "opposites.prompt.up",
+    "game": "opposites",
+    "text": "Что наоборот к слову вверх?",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-up.mp3"
+  },
+  {
+    "id": "opposites.correct.up.down",
+    "game": "opposites",
+    "text": "Верно. вверх и вниз это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-up-down.mp3"
+  },
+  {
+    "id": "opposites.mistake.up.down",
+    "game": "opposites",
+    "text": "Почти. Противоположность к слову вверх: вниз.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-up-down.mp3"
+  },
+  {
+    "id": "opposites.prompt.down",
+    "game": "opposites",
+    "text": "Что наоборот к слову вниз?",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-down.mp3"
+  },
+  {
+    "id": "opposites.correct.down.up",
+    "game": "opposites",
+    "text": "Верно. вниз и вверх это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-down-up.mp3"
+  },
+  {
+    "id": "opposites.mistake.down.up",
+    "game": "opposites",
+    "text": "Почти. Противоположность к слову вниз: вверх.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-down-up.mp3"
+  },
+  {
+    "id": "opposites.prompt.fast",
+    "game": "opposites",
+    "text": "Что наоборот к слову быстрый?",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-fast.mp3"
+  },
+  {
+    "id": "opposites.correct.fast.slow",
+    "game": "opposites",
+    "text": "Верно. быстрый и медленный это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-fast-slow.mp3"
+  },
+  {
+    "id": "opposites.mistake.fast.slow",
+    "game": "opposites",
+    "text": "Почти. Противоположность к слову быстрый: медленный.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-fast-slow.mp3"
+  },
+  {
+    "id": "opposites.prompt.slow",
+    "game": "opposites",
+    "text": "Что наоборот к слову медленный?",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-slow.mp3"
+  },
+  {
+    "id": "opposites.correct.slow.fast",
+    "game": "opposites",
+    "text": "Верно. медленный и быстрый это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-slow-fast.mp3"
+  },
+  {
+    "id": "opposites.mistake.slow.fast",
+    "game": "opposites",
+    "text": "Почти. Противоположность к слову медленный: быстрый.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-slow-fast.mp3"
+  },
+  {
+    "id": "opposites.prompt.full",
+    "game": "opposites",
+    "text": "Что наоборот к слову полный?",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-full.mp3"
+  },
+  {
+    "id": "opposites.correct.full.empty",
+    "game": "opposites",
+    "text": "Верно. полный и пустой это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-full-empty.mp3"
+  },
+  {
+    "id": "opposites.mistake.full.empty",
+    "game": "opposites",
+    "text": "Почти. Противоположность к слову полный: пустой.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-full-empty.mp3"
+  },
+  {
+    "id": "opposites.prompt.empty",
+    "game": "opposites",
+    "text": "Что наоборот к слову пустой?",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-empty.mp3"
+  },
+  {
+    "id": "opposites.correct.empty.full",
+    "game": "opposites",
+    "text": "Верно. пустой и полный это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-empty-full.mp3"
+  },
+  {
+    "id": "opposites.mistake.empty.full",
+    "game": "opposites",
+    "text": "Почти. Противоположность к слову пустой: полный.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-empty-full.mp3"
+  },
+  {
+    "id": "opposites.prompt.happy",
+    "game": "opposites",
+    "text": "Что наоборот к слову весёлый?",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-happy.mp3"
+  },
+  {
+    "id": "opposites.correct.happy.sad",
+    "game": "opposites",
+    "text": "Верно. весёлый и грустный это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-happy-sad.mp3"
+  },
+  {
+    "id": "opposites.mistake.happy.sad",
+    "game": "opposites",
+    "text": "Почти. Противоположность к слову весёлый: грустный.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-happy-sad.mp3"
+  },
+  {
+    "id": "opposites.prompt.sad",
+    "game": "opposites",
+    "text": "Что наоборот к слову грустный?",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-sad.mp3"
+  },
+  {
+    "id": "opposites.correct.sad.happy",
+    "game": "opposites",
+    "text": "Верно. грустный и весёлый это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-sad-happy.mp3"
+  },
+  {
+    "id": "opposites.mistake.sad.happy",
+    "game": "opposites",
+    "text": "Почти. Противоположность к слову грустный: весёлый.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-sad-happy.mp3"
+  },
+  {
+    "id": "what-first.prompt.wash-eat",
+    "game": "what-first",
+    "text": "Перед едой. Что сначала?",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/prompt-wash-eat.mp3"
+  },
+  {
+    "id": "what-first.correct.wash-eat",
+    "game": "what-first",
+    "text": "Верно. Сначала моем руки.",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/correct-wash-eat.mp3"
+  },
+  {
+    "id": "what-first.mistake.wash-eat",
+    "game": "what-first",
+    "text": "Почти. Сначала моем руки, потом едим.",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/mistake-wash-eat.mp3"
+  },
+  {
+    "id": "what-first.prompt.shoes-walk",
+    "game": "what-first",
+    "text": "На прогулку. Что сначала?",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/prompt-shoes-walk.mp3"
+  },
+  {
+    "id": "what-first.correct.shoes-walk",
+    "game": "what-first",
+    "text": "Верно. Сначала надеваем обувь.",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/correct-shoes-walk.mp3"
+  },
+  {
+    "id": "what-first.mistake.shoes-walk",
+    "game": "what-first",
+    "text": "Почти. Сначала надеваем обувь, потом идём гулять.",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/mistake-shoes-walk.mp3"
+  },
+  {
+    "id": "what-first.prompt.brush-sleep",
+    "game": "what-first",
+    "text": "Перед сном. Что сначала?",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/prompt-brush-sleep.mp3"
+  },
+  {
+    "id": "what-first.correct.brush-sleep",
+    "game": "what-first",
+    "text": "Верно. Сначала чистим зубы.",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/correct-brush-sleep.mp3"
+  },
+  {
+    "id": "what-first.mistake.brush-sleep",
+    "game": "what-first",
+    "text": "Почти. Сначала чистим зубы, потом ложимся спать.",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/mistake-brush-sleep.mp3"
+  },
+  {
+    "id": "what-first.prompt.open-read",
+    "game": "what-first",
+    "text": "Книга. Что сначала?",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/prompt-open-read.mp3"
+  },
+  {
+    "id": "what-first.correct.open-read",
+    "game": "what-first",
+    "text": "Верно. Сначала открываем книгу.",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/correct-open-read.mp3"
+  },
+  {
+    "id": "what-first.mistake.open-read",
+    "game": "what-first",
+    "text": "Почти. Сначала открываем книгу, потом читаем.",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/mistake-open-read.mp3"
+  },
+  {
+    "id": "what-first.prompt.pour-drink",
+    "game": "what-first",
+    "text": "Попить воды. Что сначала?",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/prompt-pour-drink.mp3"
+  },
+  {
+    "id": "what-first.correct.pour-drink",
+    "game": "what-first",
+    "text": "Верно. Сначала наливаем воду.",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/correct-pour-drink.mp3"
+  },
+  {
+    "id": "what-first.mistake.pour-drink",
+    "game": "what-first",
+    "text": "Почти. Сначала наливаем воду, потом пьём.",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/mistake-pour-drink.mp3"
+  },
+  {
+    "id": "what-first.prompt.soap-rinse",
+    "game": "what-first",
+    "text": "Моем руки. Что сначала?",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/prompt-soap-rinse.mp3"
+  },
+  {
+    "id": "what-first.correct.soap-rinse",
+    "game": "what-first",
+    "text": "Верно. Сначала намыливаем руки.",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/correct-soap-rinse.mp3"
+  },
+  {
+    "id": "what-first.mistake.soap-rinse",
+    "game": "what-first",
+    "text": "Почти. Сначала намыливаем руки, потом смываем пену.",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/mistake-soap-rinse.mp3"
+  },
+  {
+    "id": "what-first.prompt.sit-buckle",
+    "game": "what-first",
+    "text": "В кресле. Что сначала?",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/prompt-sit-buckle.mp3"
+  },
+  {
+    "id": "what-first.correct.sit-buckle",
+    "game": "what-first",
+    "text": "Верно. Сначала садимся.",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/correct-sit-buckle.mp3"
+  },
+  {
+    "id": "what-first.mistake.sit-buckle",
+    "game": "what-first",
+    "text": "Почти. Сначала садимся, потом пристёгиваемся.",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/mistake-sit-buckle.mp3"
+  },
+  {
+    "id": "what-first.prompt.peel-eat",
+    "game": "what-first",
+    "text": "Банан. Что сначала?",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/prompt-peel-eat.mp3"
+  },
+  {
+    "id": "what-first.correct.peel-eat",
+    "game": "what-first",
+    "text": "Верно. Сначала чистим банан.",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/correct-peel-eat.mp3"
+  },
+  {
+    "id": "what-first.mistake.peel-eat",
+    "game": "what-first",
+    "text": "Почти. Сначала чистим банан, потом кушаем банан.",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/mistake-peel-eat.mp3"
+  },
+  {
+    "id": "mini-dialog.partner.hello",
+    "game": "mini-dialog",
+    "text": "Привет! Я Мира. Я рада тебя видеть.",
+    "voice": "alena",
+    "path": "/audio/tts/mini-dialog/partner-hello.mp3"
+  },
+  {
+    "id": "mini-dialog.correct.hello.hello",
+    "game": "mini-dialog",
+    "text": "Привет, Мира.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/correct-hello-hello.mp3"
+  },
+  {
+    "id": "mini-dialog.mistake.hello.more",
+    "game": "mini-dialog",
+    "text": "Ещё будет позже. Сначала скажем привет.",
+    "voice": "julia",
+    "path": "/audio/tts/mini-dialog/mistake-hello-more.mp3"
+  },
+  {
+    "id": "mini-dialog.mistake.hello.bye",
+    "game": "mini-dialog",
+    "text": "Мы только начали. Пока скажем в конце.",
+    "voice": "julia",
+    "path": "/audio/tts/mini-dialog/mistake-hello-bye.mp3"
+  },
+  {
+    "id": "mini-dialog.partner.feeling",
+    "game": "mini-dialog",
+    "text": "Как у тебя дела?",
+    "voice": "alena",
+    "path": "/audio/tts/mini-dialog/partner-feeling.mp3"
+  },
+  {
+    "id": "mini-dialog.correct.feeling.calm",
+    "game": "mini-dialog",
+    "text": "Мне хорошо.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/correct-feeling-calm.mp3"
+  },
+  {
+    "id": "mini-dialog.mistake.feeling.eat",
+    "game": "mini-dialog",
+    "text": "Еда подождёт. Скажи Мире, как у тебя дела.",
+    "voice": "julia",
+    "path": "/audio/tts/mini-dialog/mistake-feeling-eat.mp3"
+  },
+  {
+    "id": "mini-dialog.mistake.feeling.go",
+    "game": "mini-dialog",
+    "text": "Пойдём позже. Сначала ответим Мире.",
+    "voice": "julia",
+    "path": "/audio/tts/mini-dialog/mistake-feeling-go.mp3"
+  },
+  {
+    "id": "mini-dialog.partner.ready",
+    "game": "mini-dialog",
+    "text": "Хочешь посмотреть картинку?",
+    "voice": "alena",
+    "path": "/audio/tts/mini-dialog/partner-ready.mp3"
+  },
+  {
+    "id": "mini-dialog.correct.ready.ready",
+    "game": "mini-dialog",
+    "text": "Да.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/correct-ready-ready.mp3"
+  },
+  {
+    "id": "mini-dialog.mistake.ready.thanks",
+    "game": "mini-dialog",
+    "text": "Спасибо приятно слышать. А на картинку можно ответить: да.",
+    "voice": "julia",
+    "path": "/audio/tts/mini-dialog/mistake-ready-thanks.mp3"
+  },
+  {
+    "id": "mini-dialog.mistake.ready.sleep",
+    "game": "mini-dialog",
+    "text": "Если устал, можно попросить паузу. Сейчас Мира ждёт ответ про картинку.",
+    "voice": "julia",
+    "path": "/audio/tts/mini-dialog/mistake-ready-sleep.mp3"
+  },
+  {
+    "id": "mini-dialog.partner.picture",
+    "game": "mini-dialog",
+    "text": "Вот солнце. Тебе нравится картинка?",
+    "voice": "alena",
+    "path": "/audio/tts/mini-dialog/partner-picture.mp3"
+  },
+  {
+    "id": "mini-dialog.correct.picture.like",
+    "game": "mini-dialog",
+    "text": "Нравится.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/correct-picture-like.mp3"
+  },
+  {
+    "id": "mini-dialog.mistake.picture.help",
+    "game": "mini-dialog",
+    "text": "Мира рядом. Сначала ответим про картинку.",
+    "voice": "julia",
+    "path": "/audio/tts/mini-dialog/mistake-picture-help.mp3"
+  },
+  {
+    "id": "mini-dialog.mistake.picture.bye",
+    "game": "mini-dialog",
+    "text": "До встречи скажем позже. Сейчас мы смотрим картинку.",
+    "voice": "julia",
+    "path": "/audio/tts/mini-dialog/mistake-picture-bye.mp3"
+  },
+  {
+    "id": "mini-dialog.partner.continue",
+    "game": "mini-dialog",
+    "text": "Продолжим диалог или сделаем паузу? Как хочешь?",
+    "voice": "alena",
+    "path": "/audio/tts/mini-dialog/partner-continue.mp3"
+  },
+  {
+    "id": "mini-dialog.correct.continue.continue",
+    "game": "mini-dialog",
+    "text": "Продолжим.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/correct-continue-continue.mp3"
+  },
+  {
+    "id": "mini-dialog.correct.continue.pause",
+    "game": "mini-dialog",
+    "text": "Пауза.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/correct-continue-pause.mp3"
+  },
+  {
+    "id": "mini-dialog.mistake.continue.hungry",
+    "game": "mini-dialog",
+    "text": "Поняла. Сначала скажем Мире: продолжим или пауза.",
+    "voice": "julia",
+    "path": "/audio/tts/mini-dialog/mistake-continue-hungry.mp3"
+  },
+  {
+    "id": "mini-dialog.partner.more",
+    "game": "mini-dialog",
+    "text": "Спасибо, что отвечаешь. Хочешь ещё один вопрос? Ответь: ещё или хватит.",
+    "voice": "alena",
+    "path": "/audio/tts/mini-dialog/partner-more.mp3"
+  },
+  {
+    "id": "mini-dialog.correct.more.more",
+    "game": "mini-dialog",
+    "text": "Ещё.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/correct-more-more.mp3"
+  },
+  {
+    "id": "mini-dialog.correct.more.enough",
+    "game": "mini-dialog",
+    "text": "Хватит.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/correct-more-enough.mp3"
+  },
+  {
+    "id": "mini-dialog.mistake.more.hello",
+    "game": "mini-dialog",
+    "text": "Привет уже был. Теперь можно сказать: ещё или хватит.",
+    "voice": "julia",
+    "path": "/audio/tts/mini-dialog/mistake-more-hello.mp3"
+  },
+  {
+    "id": "mini-dialog.partner.goodbye",
+    "game": "mini-dialog",
+    "text": "Спасибо за разговор. Пора попрощаться.",
+    "voice": "alena",
+    "path": "/audio/tts/mini-dialog/partner-goodbye.mp3"
+  },
+  {
+    "id": "mini-dialog.correct.goodbye.bye",
+    "game": "mini-dialog",
+    "text": "Пока.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/correct-goodbye-bye.mp3"
+  },
+  {
+    "id": "mini-dialog.correct.goodbye.thanks",
+    "game": "mini-dialog",
+    "text": "Спасибо.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/correct-goodbye-thanks.mp3"
+  },
+  {
+    "id": "mini-dialog.mistake.goodbye.again",
+    "game": "mini-dialog",
+    "text": "Начало уже было. Сейчас пора попрощаться.",
+    "voice": "julia",
+    "path": "/audio/tts/mini-dialog/mistake-goodbye-again.mp3"
+  },
+  {
+    "id": "social-phrases.prompt.morning-adult",
+    "game": "social-phrases",
+    "text": "Утром ты видишь знакомого взрослого. Взрослый улыбается тебе. Поздоровайся.",
+    "voice": "alena",
+    "path": "/audio/tts/social-phrases/prompt-morning-adult.mp3"
+  },
+  {
+    "id": "social-phrases.correct.morning-adult.good-morning",
+    "game": "social-phrases",
+    "text": "Доброе утро!",
+    "voice": "filipp",
+    "path": "/audio/tts/social-phrases/correct-morning-adult-good-morning.mp3"
+  },
+  {
+    "id": "social-phrases.mistake.morning-adult",
+    "game": "social-phrases",
+    "text": "Сначала можно поздороваться.",
+    "voice": "julia",
+    "path": "/audio/tts/social-phrases/mistake-morning-adult.mp3"
+  },
+  {
+    "id": "social-phrases.prompt.thirsty",
+    "game": "social-phrases",
+    "text": "Тебе хочется пить. Рядом стоит стакан с водой. Попроси воду.",
+    "voice": "alena",
+    "path": "/audio/tts/social-phrases/prompt-thirsty.mp3"
+  },
+  {
+    "id": "social-phrases.correct.thirsty.may-i-have-water",
+    "game": "social-phrases",
+    "text": "Дай воды, пожалуйста.",
+    "voice": "filipp",
+    "path": "/audio/tts/social-phrases/correct-thirsty-may-i-have-water.mp3"
+  },
+  {
+    "id": "social-phrases.mistake.thirsty",
+    "game": "social-phrases",
+    "text": "Если хочется пить, лучше попросить воду.",
+    "voice": "julia",
+    "path": "/audio/tts/social-phrases/mistake-thirsty.mp3"
+  },
+  {
+    "id": "social-phrases.prompt.opened-box",
+    "game": "social-phrases",
+    "text": "Тебе помогли открыть коробку. Коробка уже открыта. Поблагодари.",
+    "voice": "alena",
+    "path": "/audio/tts/social-phrases/prompt-opened-box.mp3"
+  },
+  {
+    "id": "social-phrases.correct.opened-box.thank-open",
+    "game": "social-phrases",
+    "text": "Спасибо, что открыл.",
+    "voice": "filipp",
+    "path": "/audio/tts/social-phrases/correct-opened-box-thank-open.mp3"
+  },
+  {
+    "id": "social-phrases.mistake.opened-box",
+    "game": "social-phrases",
+    "text": "Коробку уже открыли. Можно сказать спасибо.",
+    "voice": "julia",
+    "path": "/audio/tts/social-phrases/mistake-opened-box.mp3"
+  },
+  {
+    "id": "social-phrases.prompt.friend-arrives",
+    "game": "social-phrases",
+    "text": "В комнату пришёл друг. Друг смотрит на тебя и машет рукой. Поздоровайся с другом.",
+    "voice": "alena",
+    "path": "/audio/tts/social-phrases/prompt-friend-arrives.mp3"
+  },
+  {
+    "id": "social-phrases.correct.friend-arrives.friend-hi",
+    "game": "social-phrases",
+    "text": "Привет!",
+    "voice": "filipp",
+    "path": "/audio/tts/social-phrases/correct-friend-arrives-friend-hi.mp3"
+  },
+  {
+    "id": "social-phrases.mistake.friend-arrives",
+    "game": "social-phrases",
+    "text": "Друг пришёл и машет. Можно сказать привет.",
+    "voice": "julia",
+    "path": "/audio/tts/social-phrases/mistake-friend-arrives.mp3"
+  },
+  {
+    "id": "social-phrases.prompt.far-card",
+    "game": "social-phrases",
+    "text": "Нужная карточка лежит далеко. Человек рядом может её подать. Попроси карточку.",
+    "voice": "alena",
+    "path": "/audio/tts/social-phrases/prompt-far-card.mp3"
+  },
+  {
+    "id": "social-phrases.correct.far-card.card-please",
+    "game": "social-phrases",
+    "text": "Подай карточку, пожалуйста.",
+    "voice": "filipp",
+    "path": "/audio/tts/social-phrases/correct-far-card-card-please.mp3"
+  },
+  {
+    "id": "social-phrases.mistake.far-card",
+    "game": "social-phrases",
+    "text": "Карточка далеко. Можно попросить её подать.",
+    "voice": "julia",
+    "path": "/audio/tts/social-phrases/mistake-far-card.mp3"
+  },
+  {
+    "id": "social-phrases.prompt.favorite-book",
+    "game": "social-phrases",
+    "text": "Тебе дали любимую книгу. Книга уже у тебя в руках. Скажи спасибо.",
+    "voice": "alena",
+    "path": "/audio/tts/social-phrases/prompt-favorite-book.mp3"
+  },
+  {
+    "id": "social-phrases.correct.favorite-book.thanks-book",
+    "game": "social-phrases",
+    "text": "Спасибо за книгу.",
+    "voice": "filipp",
+    "path": "/audio/tts/social-phrases/correct-favorite-book-thanks-book.mp3"
+  },
+  {
+    "id": "social-phrases.mistake.favorite-book",
+    "game": "social-phrases",
+    "text": "Книгу уже дали. Можно поблагодарить.",
+    "voice": "julia",
+    "path": "/audio/tts/social-phrases/mistake-favorite-book.mp3"
+  },
+  {
+    "id": "social-phrases.prompt.narrow-way",
+    "game": "social-phrases",
+    "text": "Ты хочешь пройти к столу. Проход узкий. Попроси место.",
+    "voice": "alena",
+    "path": "/audio/tts/social-phrases/prompt-narrow-way.mp3"
+  },
+  {
+    "id": "social-phrases.correct.narrow-way.pass-please",
+    "game": "social-phrases",
+    "text": "Можно пройти?",
+    "voice": "filipp",
+    "path": "/audio/tts/social-phrases/correct-narrow-way-pass-please.mp3"
+  },
+  {
+    "id": "social-phrases.mistake.narrow-way",
+    "game": "social-phrases",
+    "text": "Проход узкий. Можно попросить место.",
+    "voice": "julia",
+    "path": "/audio/tts/social-phrases/mistake-narrow-way.mp3"
+  },
+  {
+    "id": "social-phrases.prompt.teacher-start",
+    "game": "social-phrases",
+    "text": "Занятие начинается. Педагог смотрит на тебя. Поздоровайся с педагогом.",
+    "voice": "alena",
+    "path": "/audio/tts/social-phrases/prompt-teacher-start.mp3"
+  },
+  {
+    "id": "social-phrases.correct.teacher-start.teacher-hello",
+    "game": "social-phrases",
+    "text": "Здравствуйте!",
+    "voice": "filipp",
+    "path": "/audio/tts/social-phrases/correct-teacher-start-teacher-hello.mp3"
+  },
+  {
+    "id": "social-phrases.mistake.teacher-start",
+    "game": "social-phrases",
+    "text": "Занятие начинается. Можно поздороваться.",
+    "voice": "julia",
+    "path": "/audio/tts/social-phrases/mistake-teacher-start.mp3"
+  },
+  {
+    "id": "clock.prompt.1",
+    "game": "clock",
+    "text": "Выбери один час.",
+    "voice": "alena",
+    "path": "/audio/tts/clock/prompt-1.mp3"
+  },
+  {
+    "id": "clock.correct.1",
+    "game": "clock",
+    "text": "Да, один час.",
+    "voice": "filipp",
+    "path": "/audio/tts/clock/correct-1.mp3"
+  },
+  {
+    "id": "clock.mistake.1",
+    "game": "clock",
+    "text": "Почти. Нужны часы: один час.",
+    "voice": "julia",
+    "path": "/audio/tts/clock/mistake-1.mp3"
+  },
+  {
+    "id": "clock.prompt.2",
+    "game": "clock",
+    "text": "Выбери 2 часа.",
+    "voice": "alena",
+    "path": "/audio/tts/clock/prompt-2.mp3"
+  },
+  {
+    "id": "clock.correct.2",
+    "game": "clock",
+    "text": "Да, 2 часа.",
+    "voice": "filipp",
+    "path": "/audio/tts/clock/correct-2.mp3"
+  },
+  {
+    "id": "clock.mistake.2",
+    "game": "clock",
+    "text": "Почти. Нужны часы: 2 часа.",
+    "voice": "julia",
+    "path": "/audio/tts/clock/mistake-2.mp3"
+  },
+  {
+    "id": "clock.prompt.3",
+    "game": "clock",
+    "text": "Выбери 3 часа.",
+    "voice": "alena",
+    "path": "/audio/tts/clock/prompt-3.mp3"
+  },
+  {
+    "id": "clock.correct.3",
+    "game": "clock",
+    "text": "Да, 3 часа.",
+    "voice": "filipp",
+    "path": "/audio/tts/clock/correct-3.mp3"
+  },
+  {
+    "id": "clock.mistake.3",
+    "game": "clock",
+    "text": "Почти. Нужны часы: 3 часа.",
+    "voice": "julia",
+    "path": "/audio/tts/clock/mistake-3.mp3"
+  },
+  {
+    "id": "clock.prompt.4",
+    "game": "clock",
+    "text": "Выбери 4 часа.",
+    "voice": "alena",
+    "path": "/audio/tts/clock/prompt-4.mp3"
+  },
+  {
+    "id": "clock.correct.4",
+    "game": "clock",
+    "text": "Да, 4 часа.",
+    "voice": "filipp",
+    "path": "/audio/tts/clock/correct-4.mp3"
+  },
+  {
+    "id": "clock.mistake.4",
+    "game": "clock",
+    "text": "Почти. Нужны часы: 4 часа.",
+    "voice": "julia",
+    "path": "/audio/tts/clock/mistake-4.mp3"
+  },
+  {
+    "id": "clock.prompt.5",
+    "game": "clock",
+    "text": "Выбери 5 часов.",
+    "voice": "alena",
+    "path": "/audio/tts/clock/prompt-5.mp3"
+  },
+  {
+    "id": "clock.correct.5",
+    "game": "clock",
+    "text": "Да, 5 часов.",
+    "voice": "filipp",
+    "path": "/audio/tts/clock/correct-5.mp3"
+  },
+  {
+    "id": "clock.mistake.5",
+    "game": "clock",
+    "text": "Почти. Нужны часы: 5 часов.",
+    "voice": "julia",
+    "path": "/audio/tts/clock/mistake-5.mp3"
+  },
+  {
+    "id": "clock.prompt.6",
+    "game": "clock",
+    "text": "Выбери 6 часов.",
+    "voice": "alena",
+    "path": "/audio/tts/clock/prompt-6.mp3"
+  },
+  {
+    "id": "clock.correct.6",
+    "game": "clock",
+    "text": "Да, 6 часов.",
+    "voice": "filipp",
+    "path": "/audio/tts/clock/correct-6.mp3"
+  },
+  {
+    "id": "clock.mistake.6",
+    "game": "clock",
+    "text": "Почти. Нужны часы: 6 часов.",
+    "voice": "julia",
+    "path": "/audio/tts/clock/mistake-6.mp3"
+  },
+  {
+    "id": "clock.prompt.7",
+    "game": "clock",
+    "text": "Выбери 7 часов.",
+    "voice": "alena",
+    "path": "/audio/tts/clock/prompt-7.mp3"
+  },
+  {
+    "id": "clock.correct.7",
+    "game": "clock",
+    "text": "Да, 7 часов.",
+    "voice": "filipp",
+    "path": "/audio/tts/clock/correct-7.mp3"
+  },
+  {
+    "id": "clock.mistake.7",
+    "game": "clock",
+    "text": "Почти. Нужны часы: 7 часов.",
+    "voice": "julia",
+    "path": "/audio/tts/clock/mistake-7.mp3"
+  },
+  {
+    "id": "clock.prompt.8",
+    "game": "clock",
+    "text": "Выбери 8 часов.",
+    "voice": "alena",
+    "path": "/audio/tts/clock/prompt-8.mp3"
+  },
+  {
+    "id": "clock.correct.8",
+    "game": "clock",
+    "text": "Да, 8 часов.",
+    "voice": "filipp",
+    "path": "/audio/tts/clock/correct-8.mp3"
+  },
+  {
+    "id": "clock.mistake.8",
+    "game": "clock",
+    "text": "Почти. Нужны часы: 8 часов.",
+    "voice": "julia",
+    "path": "/audio/tts/clock/mistake-8.mp3"
+  },
+  {
+    "id": "clock.prompt.9",
+    "game": "clock",
+    "text": "Выбери 9 часов.",
+    "voice": "alena",
+    "path": "/audio/tts/clock/prompt-9.mp3"
+  },
+  {
+    "id": "clock.correct.9",
+    "game": "clock",
+    "text": "Да, 9 часов.",
+    "voice": "filipp",
+    "path": "/audio/tts/clock/correct-9.mp3"
+  },
+  {
+    "id": "clock.mistake.9",
+    "game": "clock",
+    "text": "Почти. Нужны часы: 9 часов.",
+    "voice": "julia",
+    "path": "/audio/tts/clock/mistake-9.mp3"
+  },
+  {
+    "id": "clock.prompt.10",
+    "game": "clock",
+    "text": "Выбери 10 часов.",
+    "voice": "alena",
+    "path": "/audio/tts/clock/prompt-10.mp3"
+  },
+  {
+    "id": "clock.correct.10",
+    "game": "clock",
+    "text": "Да, 10 часов.",
+    "voice": "filipp",
+    "path": "/audio/tts/clock/correct-10.mp3"
+  },
+  {
+    "id": "clock.mistake.10",
+    "game": "clock",
+    "text": "Почти. Нужны часы: 10 часов.",
+    "voice": "julia",
+    "path": "/audio/tts/clock/mistake-10.mp3"
+  },
+  {
+    "id": "clock.prompt.11",
+    "game": "clock",
+    "text": "Выбери 11 часов.",
+    "voice": "alena",
+    "path": "/audio/tts/clock/prompt-11.mp3"
+  },
+  {
+    "id": "clock.correct.11",
+    "game": "clock",
+    "text": "Да, 11 часов.",
+    "voice": "filipp",
+    "path": "/audio/tts/clock/correct-11.mp3"
+  },
+  {
+    "id": "clock.mistake.11",
+    "game": "clock",
+    "text": "Почти. Нужны часы: 11 часов.",
+    "voice": "julia",
+    "path": "/audio/tts/clock/mistake-11.mp3"
+  },
+  {
+    "id": "clock.prompt.12",
+    "game": "clock",
+    "text": "Выбери 12 часов.",
+    "voice": "alena",
+    "path": "/audio/tts/clock/prompt-12.mp3"
+  },
+  {
+    "id": "clock.correct.12",
+    "game": "clock",
+    "text": "Да, 12 часов.",
+    "voice": "filipp",
+    "path": "/audio/tts/clock/correct-12.mp3"
+  },
+  {
+    "id": "clock.mistake.12",
+    "game": "clock",
+    "text": "Почти. Нужны часы: 12 часов.",
+    "voice": "julia",
+    "path": "/audio/tts/clock/mistake-12.mp3"
+  },
+  {
+    "id": "calendar.prompt.weekday.monday.yesterday",
+    "game": "calendar",
+    "text": "Сегодня понедельник. Какой день был вчера?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-weekday-monday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.mistake.weekday.monday.yesterday",
+    "game": "calendar",
+    "text": "Почти. Вчера — это воскресенье.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-weekday-monday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.prompt.relative.monday.yesterday",
+    "game": "calendar",
+    "text": "Сегодня понедельник. Когда воскресенье?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-relative-monday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.mistake.relative.monday.yesterday",
+    "game": "calendar",
+    "text": "Почти. Воскресенье — это вчера.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-relative-monday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.prompt.weekday.monday.today",
+    "game": "calendar",
+    "text": "Сегодня понедельник. Какой день сегодня?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-weekday-monday-today.mp3"
+  },
+  {
+    "id": "calendar.mistake.weekday.monday.today",
+    "game": "calendar",
+    "text": "Почти. Сегодня — это понедельник.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-weekday-monday-today.mp3"
+  },
+  {
+    "id": "calendar.prompt.relative.monday.today",
+    "game": "calendar",
+    "text": "Сегодня понедельник. Когда понедельник?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-relative-monday-today.mp3"
+  },
+  {
+    "id": "calendar.mistake.relative.monday.today",
+    "game": "calendar",
+    "text": "Почти. Понедельник — это сегодня.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-relative-monday-today.mp3"
+  },
+  {
+    "id": "calendar.prompt.weekday.monday.tomorrow",
+    "game": "calendar",
+    "text": "Сегодня понедельник. Какой день будет завтра?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-weekday-monday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.mistake.weekday.monday.tomorrow",
+    "game": "calendar",
+    "text": "Почти. Завтра — это вторник.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-weekday-monday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.prompt.relative.monday.tomorrow",
+    "game": "calendar",
+    "text": "Сегодня понедельник. Когда вторник?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-relative-monday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.mistake.relative.monday.tomorrow",
+    "game": "calendar",
+    "text": "Почти. Вторник — это завтра.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-relative-monday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.prompt.weekday.tuesday.yesterday",
+    "game": "calendar",
+    "text": "Сегодня вторник. Какой день был вчера?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-weekday-tuesday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.mistake.weekday.tuesday.yesterday",
+    "game": "calendar",
+    "text": "Почти. Вчера — это понедельник.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-weekday-tuesday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.prompt.relative.tuesday.yesterday",
+    "game": "calendar",
+    "text": "Сегодня вторник. Когда понедельник?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-relative-tuesday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.mistake.relative.tuesday.yesterday",
+    "game": "calendar",
+    "text": "Почти. Понедельник — это вчера.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-relative-tuesday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.prompt.weekday.tuesday.today",
+    "game": "calendar",
+    "text": "Сегодня вторник. Какой день сегодня?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-weekday-tuesday-today.mp3"
+  },
+  {
+    "id": "calendar.mistake.weekday.tuesday.today",
+    "game": "calendar",
+    "text": "Почти. Сегодня — это вторник.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-weekday-tuesday-today.mp3"
+  },
+  {
+    "id": "calendar.prompt.relative.tuesday.today",
+    "game": "calendar",
+    "text": "Сегодня вторник. Когда вторник?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-relative-tuesday-today.mp3"
+  },
+  {
+    "id": "calendar.mistake.relative.tuesday.today",
+    "game": "calendar",
+    "text": "Почти. Вторник — это сегодня.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-relative-tuesday-today.mp3"
+  },
+  {
+    "id": "calendar.prompt.weekday.tuesday.tomorrow",
+    "game": "calendar",
+    "text": "Сегодня вторник. Какой день будет завтра?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-weekday-tuesday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.mistake.weekday.tuesday.tomorrow",
+    "game": "calendar",
+    "text": "Почти. Завтра — это среда.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-weekday-tuesday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.prompt.relative.tuesday.tomorrow",
+    "game": "calendar",
+    "text": "Сегодня вторник. Когда среда?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-relative-tuesday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.mistake.relative.tuesday.tomorrow",
+    "game": "calendar",
+    "text": "Почти. Среда — это завтра.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-relative-tuesday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.prompt.weekday.wednesday.yesterday",
+    "game": "calendar",
+    "text": "Сегодня среда. Какой день был вчера?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-weekday-wednesday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.mistake.weekday.wednesday.yesterday",
+    "game": "calendar",
+    "text": "Почти. Вчера — это вторник.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-weekday-wednesday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.prompt.relative.wednesday.yesterday",
+    "game": "calendar",
+    "text": "Сегодня среда. Когда вторник?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-relative-wednesday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.mistake.relative.wednesday.yesterday",
+    "game": "calendar",
+    "text": "Почти. Вторник — это вчера.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-relative-wednesday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.prompt.weekday.wednesday.today",
+    "game": "calendar",
+    "text": "Сегодня среда. Какой день сегодня?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-weekday-wednesday-today.mp3"
+  },
+  {
+    "id": "calendar.mistake.weekday.wednesday.today",
+    "game": "calendar",
+    "text": "Почти. Сегодня — это среда.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-weekday-wednesday-today.mp3"
+  },
+  {
+    "id": "calendar.prompt.relative.wednesday.today",
+    "game": "calendar",
+    "text": "Сегодня среда. Когда среда?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-relative-wednesday-today.mp3"
+  },
+  {
+    "id": "calendar.mistake.relative.wednesday.today",
+    "game": "calendar",
+    "text": "Почти. Среда — это сегодня.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-relative-wednesday-today.mp3"
+  },
+  {
+    "id": "calendar.prompt.weekday.wednesday.tomorrow",
+    "game": "calendar",
+    "text": "Сегодня среда. Какой день будет завтра?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-weekday-wednesday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.mistake.weekday.wednesday.tomorrow",
+    "game": "calendar",
+    "text": "Почти. Завтра — это четверг.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-weekday-wednesday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.prompt.relative.wednesday.tomorrow",
+    "game": "calendar",
+    "text": "Сегодня среда. Когда четверг?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-relative-wednesday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.mistake.relative.wednesday.tomorrow",
+    "game": "calendar",
+    "text": "Почти. Четверг — это завтра.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-relative-wednesday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.prompt.weekday.thursday.yesterday",
+    "game": "calendar",
+    "text": "Сегодня четверг. Какой день был вчера?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-weekday-thursday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.mistake.weekday.thursday.yesterday",
+    "game": "calendar",
+    "text": "Почти. Вчера — это среда.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-weekday-thursday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.prompt.relative.thursday.yesterday",
+    "game": "calendar",
+    "text": "Сегодня четверг. Когда среда?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-relative-thursday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.mistake.relative.thursday.yesterday",
+    "game": "calendar",
+    "text": "Почти. Среда — это вчера.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-relative-thursday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.prompt.weekday.thursday.today",
+    "game": "calendar",
+    "text": "Сегодня четверг. Какой день сегодня?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-weekday-thursday-today.mp3"
+  },
+  {
+    "id": "calendar.mistake.weekday.thursday.today",
+    "game": "calendar",
+    "text": "Почти. Сегодня — это четверг.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-weekday-thursday-today.mp3"
+  },
+  {
+    "id": "calendar.prompt.relative.thursday.today",
+    "game": "calendar",
+    "text": "Сегодня четверг. Когда четверг?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-relative-thursday-today.mp3"
+  },
+  {
+    "id": "calendar.mistake.relative.thursday.today",
+    "game": "calendar",
+    "text": "Почти. Четверг — это сегодня.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-relative-thursday-today.mp3"
+  },
+  {
+    "id": "calendar.prompt.weekday.thursday.tomorrow",
+    "game": "calendar",
+    "text": "Сегодня четверг. Какой день будет завтра?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-weekday-thursday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.mistake.weekday.thursday.tomorrow",
+    "game": "calendar",
+    "text": "Почти. Завтра — это пятница.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-weekday-thursday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.prompt.relative.thursday.tomorrow",
+    "game": "calendar",
+    "text": "Сегодня четверг. Когда пятница?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-relative-thursday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.mistake.relative.thursday.tomorrow",
+    "game": "calendar",
+    "text": "Почти. Пятница — это завтра.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-relative-thursday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.prompt.weekday.friday.yesterday",
+    "game": "calendar",
+    "text": "Сегодня пятница. Какой день был вчера?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-weekday-friday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.mistake.weekday.friday.yesterday",
+    "game": "calendar",
+    "text": "Почти. Вчера — это четверг.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-weekday-friday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.prompt.relative.friday.yesterday",
+    "game": "calendar",
+    "text": "Сегодня пятница. Когда четверг?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-relative-friday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.mistake.relative.friday.yesterday",
+    "game": "calendar",
+    "text": "Почти. Четверг — это вчера.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-relative-friday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.prompt.weekday.friday.today",
+    "game": "calendar",
+    "text": "Сегодня пятница. Какой день сегодня?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-weekday-friday-today.mp3"
+  },
+  {
+    "id": "calendar.mistake.weekday.friday.today",
+    "game": "calendar",
+    "text": "Почти. Сегодня — это пятница.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-weekday-friday-today.mp3"
+  },
+  {
+    "id": "calendar.prompt.relative.friday.today",
+    "game": "calendar",
+    "text": "Сегодня пятница. Когда пятница?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-relative-friday-today.mp3"
+  },
+  {
+    "id": "calendar.mistake.relative.friday.today",
+    "game": "calendar",
+    "text": "Почти. Пятница — это сегодня.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-relative-friday-today.mp3"
+  },
+  {
+    "id": "calendar.prompt.weekday.friday.tomorrow",
+    "game": "calendar",
+    "text": "Сегодня пятница. Какой день будет завтра?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-weekday-friday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.mistake.weekday.friday.tomorrow",
+    "game": "calendar",
+    "text": "Почти. Завтра — это суббота.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-weekday-friday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.prompt.relative.friday.tomorrow",
+    "game": "calendar",
+    "text": "Сегодня пятница. Когда суббота?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-relative-friday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.mistake.relative.friday.tomorrow",
+    "game": "calendar",
+    "text": "Почти. Суббота — это завтра.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-relative-friday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.prompt.weekday.saturday.yesterday",
+    "game": "calendar",
+    "text": "Сегодня суббота. Какой день был вчера?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-weekday-saturday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.mistake.weekday.saturday.yesterday",
+    "game": "calendar",
+    "text": "Почти. Вчера — это пятница.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-weekday-saturday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.prompt.relative.saturday.yesterday",
+    "game": "calendar",
+    "text": "Сегодня суббота. Когда пятница?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-relative-saturday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.mistake.relative.saturday.yesterday",
+    "game": "calendar",
+    "text": "Почти. Пятница — это вчера.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-relative-saturday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.prompt.weekday.saturday.today",
+    "game": "calendar",
+    "text": "Сегодня суббота. Какой день сегодня?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-weekday-saturday-today.mp3"
+  },
+  {
+    "id": "calendar.mistake.weekday.saturday.today",
+    "game": "calendar",
+    "text": "Почти. Сегодня — это суббота.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-weekday-saturday-today.mp3"
+  },
+  {
+    "id": "calendar.prompt.relative.saturday.today",
+    "game": "calendar",
+    "text": "Сегодня суббота. Когда суббота?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-relative-saturday-today.mp3"
+  },
+  {
+    "id": "calendar.mistake.relative.saturday.today",
+    "game": "calendar",
+    "text": "Почти. Суббота — это сегодня.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-relative-saturday-today.mp3"
+  },
+  {
+    "id": "calendar.prompt.weekday.saturday.tomorrow",
+    "game": "calendar",
+    "text": "Сегодня суббота. Какой день будет завтра?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-weekday-saturday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.mistake.weekday.saturday.tomorrow",
+    "game": "calendar",
+    "text": "Почти. Завтра — это воскресенье.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-weekday-saturday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.prompt.relative.saturday.tomorrow",
+    "game": "calendar",
+    "text": "Сегодня суббота. Когда воскресенье?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-relative-saturday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.mistake.relative.saturday.tomorrow",
+    "game": "calendar",
+    "text": "Почти. Воскресенье — это завтра.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-relative-saturday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.prompt.weekday.sunday.yesterday",
+    "game": "calendar",
+    "text": "Сегодня воскресенье. Какой день был вчера?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-weekday-sunday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.mistake.weekday.sunday.yesterday",
+    "game": "calendar",
+    "text": "Почти. Вчера — это суббота.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-weekday-sunday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.prompt.relative.sunday.yesterday",
+    "game": "calendar",
+    "text": "Сегодня воскресенье. Когда суббота?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-relative-sunday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.mistake.relative.sunday.yesterday",
+    "game": "calendar",
+    "text": "Почти. Суббота — это вчера.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-relative-sunday-yesterday.mp3"
+  },
+  {
+    "id": "calendar.prompt.weekday.sunday.today",
+    "game": "calendar",
+    "text": "Сегодня воскресенье. Какой день сегодня?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-weekday-sunday-today.mp3"
+  },
+  {
+    "id": "calendar.mistake.weekday.sunday.today",
+    "game": "calendar",
+    "text": "Почти. Сегодня — это воскресенье.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-weekday-sunday-today.mp3"
+  },
+  {
+    "id": "calendar.prompt.relative.sunday.today",
+    "game": "calendar",
+    "text": "Сегодня воскресенье. Когда воскресенье?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-relative-sunday-today.mp3"
+  },
+  {
+    "id": "calendar.mistake.relative.sunday.today",
+    "game": "calendar",
+    "text": "Почти. Воскресенье — это сегодня.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-relative-sunday-today.mp3"
+  },
+  {
+    "id": "calendar.prompt.weekday.sunday.tomorrow",
+    "game": "calendar",
+    "text": "Сегодня воскресенье. Какой день будет завтра?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-weekday-sunday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.mistake.weekday.sunday.tomorrow",
+    "game": "calendar",
+    "text": "Почти. Завтра — это понедельник.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-weekday-sunday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.prompt.relative.sunday.tomorrow",
+    "game": "calendar",
+    "text": "Сегодня воскресенье. Когда понедельник?",
+    "voice": "alena",
+    "path": "/audio/tts/calendar/prompt-relative-sunday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.mistake.relative.sunday.tomorrow",
+    "game": "calendar",
+    "text": "Почти. Понедельник — это завтра.",
+    "voice": "julia",
+    "path": "/audio/tts/calendar/mistake-relative-sunday-tomorrow.mp3"
+  },
+  {
+    "id": "calendar.correct.weekday:monday",
+    "game": "calendar",
+    "text": "Понедельник.",
+    "voice": "filipp",
+    "path": "/audio/tts/calendar/correct-weekday-monday.mp3"
+  },
+  {
+    "id": "calendar.correct.weekday:tuesday",
+    "game": "calendar",
+    "text": "Вторник.",
+    "voice": "filipp",
+    "path": "/audio/tts/calendar/correct-weekday-tuesday.mp3"
+  },
+  {
+    "id": "calendar.correct.weekday:wednesday",
+    "game": "calendar",
+    "text": "Среда.",
+    "voice": "filipp",
+    "path": "/audio/tts/calendar/correct-weekday-wednesday.mp3"
+  },
+  {
+    "id": "calendar.correct.weekday:thursday",
+    "game": "calendar",
+    "text": "Четверг.",
+    "voice": "filipp",
+    "path": "/audio/tts/calendar/correct-weekday-thursday.mp3"
+  },
+  {
+    "id": "calendar.correct.weekday:friday",
+    "game": "calendar",
+    "text": "Пятница.",
+    "voice": "filipp",
+    "path": "/audio/tts/calendar/correct-weekday-friday.mp3"
+  },
+  {
+    "id": "calendar.correct.weekday:saturday",
+    "game": "calendar",
+    "text": "Суббота.",
+    "voice": "filipp",
+    "path": "/audio/tts/calendar/correct-weekday-saturday.mp3"
+  },
+  {
+    "id": "calendar.correct.weekday:sunday",
+    "game": "calendar",
+    "text": "Воскресенье.",
+    "voice": "filipp",
+    "path": "/audio/tts/calendar/correct-weekday-sunday.mp3"
+  },
+  {
+    "id": "calendar.correct.relative:yesterday",
+    "game": "calendar",
+    "text": "Вчера.",
+    "voice": "filipp",
+    "path": "/audio/tts/calendar/correct-relative-yesterday.mp3"
+  },
+  {
+    "id": "calendar.correct.relative:today",
+    "game": "calendar",
+    "text": "Сегодня.",
+    "voice": "filipp",
+    "path": "/audio/tts/calendar/correct-relative-today.mp3"
+  },
+  {
+    "id": "calendar.correct.relative:tomorrow",
+    "game": "calendar",
+    "text": "Завтра.",
+    "voice": "filipp",
+    "path": "/audio/tts/calendar/correct-relative-tomorrow.mp3"
+  },
+  {
+    "id": "coin-counting.prompt.1",
+    "game": "coin-counting",
+    "text": "Собери 1.",
+    "voice": "alena",
+    "path": "/audio/tts/coin-counting/prompt-1.mp3"
+  },
+  {
+    "id": "coin-counting.correct.1",
+    "game": "coin-counting",
+    "text": "Верно. Собрали 1.",
+    "voice": "filipp",
+    "path": "/audio/tts/coin-counting/correct-1.mp3"
+  },
+  {
+    "id": "coin-counting.prompt.2",
+    "game": "coin-counting",
+    "text": "Собери 2.",
+    "voice": "alena",
+    "path": "/audio/tts/coin-counting/prompt-2.mp3"
+  },
+  {
+    "id": "coin-counting.correct.2",
+    "game": "coin-counting",
+    "text": "Верно. Собрали 2.",
+    "voice": "filipp",
+    "path": "/audio/tts/coin-counting/correct-2.mp3"
+  },
+  {
+    "id": "coin-counting.prompt.3",
+    "game": "coin-counting",
+    "text": "Собери 3.",
+    "voice": "alena",
+    "path": "/audio/tts/coin-counting/prompt-3.mp3"
+  },
+  {
+    "id": "coin-counting.correct.3",
+    "game": "coin-counting",
+    "text": "Верно. Собрали 3.",
+    "voice": "filipp",
+    "path": "/audio/tts/coin-counting/correct-3.mp3"
+  },
+  {
+    "id": "coin-counting.prompt.4",
+    "game": "coin-counting",
+    "text": "Собери 4.",
+    "voice": "alena",
+    "path": "/audio/tts/coin-counting/prompt-4.mp3"
+  },
+  {
+    "id": "coin-counting.correct.4",
+    "game": "coin-counting",
+    "text": "Верно. Собрали 4.",
+    "voice": "filipp",
+    "path": "/audio/tts/coin-counting/correct-4.mp3"
+  },
+  {
+    "id": "coin-counting.prompt.5",
+    "game": "coin-counting",
+    "text": "Собери 5.",
+    "voice": "alena",
+    "path": "/audio/tts/coin-counting/prompt-5.mp3"
+  },
+  {
+    "id": "coin-counting.correct.5",
+    "game": "coin-counting",
+    "text": "Верно. Собрали 5.",
+    "voice": "filipp",
+    "path": "/audio/tts/coin-counting/correct-5.mp3"
+  },
+  {
+    "id": "coin-counting.prompt.6",
+    "game": "coin-counting",
+    "text": "Собери 6.",
+    "voice": "alena",
+    "path": "/audio/tts/coin-counting/prompt-6.mp3"
+  },
+  {
+    "id": "coin-counting.correct.6",
+    "game": "coin-counting",
+    "text": "Верно. Собрали 6.",
+    "voice": "filipp",
+    "path": "/audio/tts/coin-counting/correct-6.mp3"
+  },
+  {
+    "id": "coin-counting.prompt.7",
+    "game": "coin-counting",
+    "text": "Собери 7.",
+    "voice": "alena",
+    "path": "/audio/tts/coin-counting/prompt-7.mp3"
+  },
+  {
+    "id": "coin-counting.correct.7",
+    "game": "coin-counting",
+    "text": "Верно. Собрали 7.",
+    "voice": "filipp",
+    "path": "/audio/tts/coin-counting/correct-7.mp3"
+  },
+  {
+    "id": "coin-counting.prompt.8",
+    "game": "coin-counting",
+    "text": "Собери 8.",
+    "voice": "alena",
+    "path": "/audio/tts/coin-counting/prompt-8.mp3"
+  },
+  {
+    "id": "coin-counting.correct.8",
+    "game": "coin-counting",
+    "text": "Верно. Собрали 8.",
+    "voice": "filipp",
+    "path": "/audio/tts/coin-counting/correct-8.mp3"
+  },
+  {
+    "id": "coin-counting.prompt.9",
+    "game": "coin-counting",
+    "text": "Собери 9.",
+    "voice": "alena",
+    "path": "/audio/tts/coin-counting/prompt-9.mp3"
+  },
+  {
+    "id": "coin-counting.correct.9",
+    "game": "coin-counting",
+    "text": "Верно. Собрали 9.",
+    "voice": "filipp",
+    "path": "/audio/tts/coin-counting/correct-9.mp3"
+  },
+  {
+    "id": "coin-counting.prompt.10",
+    "game": "coin-counting",
+    "text": "Собери 10.",
+    "voice": "alena",
+    "path": "/audio/tts/coin-counting/prompt-10.mp3"
+  },
+  {
+    "id": "coin-counting.correct.10",
+    "game": "coin-counting",
+    "text": "Верно. Собрали 10.",
+    "voice": "filipp",
+    "path": "/audio/tts/coin-counting/correct-10.mp3"
+  },
+  {
+    "id": "coin-counting.mistake.not-enough",
+    "game": "coin-counting",
+    "text": "Пока меньше. Добавь ещё монетку.",
+    "voice": "julia",
+    "path": "/audio/tts/coin-counting/mistake-not-enough.mp3"
+  },
+  {
+    "id": "coin-counting.mistake.too-much",
+    "game": "coin-counting",
+    "text": "Получилось больше. Очисти и попробуй снова.",
+    "voice": "julia",
+    "path": "/audio/tts/coin-counting/mistake-too-much.mp3"
+  },
+  {
+    "id": "coin-counting.mistake.too-much-coin",
+    "game": "coin-counting",
+    "text": "Получилось больше. Выбери монетку поменьше.",
+    "voice": "julia",
+    "path": "/audio/tts/coin-counting/mistake-too-much-coin.mp3"
   }
 ]

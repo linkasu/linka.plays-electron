@@ -1,3 +1,5 @@
+import { shuffleItems } from "../../core/random";
+
 export type WhatFirstAction = {
   id: string;
   title: string;
@@ -86,11 +88,11 @@ export function createWhatFirstExplanation(scene: WhatFirstScene) {
   return `Сначала ${scene.first.phrase}, потом ${scene.then.phrase}.`;
 }
 
-export function generateWhatFirstRound(roundIndex = 1): WhatFirstRound {
+export function generateWhatFirstRound(roundIndex = 1, random = Math.random): WhatFirstRound {
   if (whatFirstScenes.length === 0) throw new Error("Недостаточно сцен для игры Что сначала?");
 
-  const scene = whatFirstScenes[(roundIndex - 1) % whatFirstScenes.length];
-  const choices = roundIndex % 2 === 0 ? [scene.then, scene.first] : [scene.first, scene.then];
+  const scene = shuffleItems(whatFirstScenes, random)[(roundIndex - 1) % whatFirstScenes.length];
+  const choices = shuffleItems([scene.first, scene.then], random);
 
   return {
     roundId: `what-first:round:${roundIndex}`,

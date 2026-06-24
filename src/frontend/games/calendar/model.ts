@@ -1,5 +1,5 @@
 import type { SessionSettings } from "../../core/settings";
-import { shuffleItems } from "../../data/wordBank";
+import { shuffleItems } from "../../core/random";
 
 export type CalendarTaskKind = "weekday" | "relative";
 export type CalendarWeekdayId = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
@@ -32,6 +32,7 @@ export type CalendarChoice = {
 export type CalendarRound = {
   roundId: string;
   taskKind: CalendarTaskKind;
+  promptId: string;
   prompt: string;
   contextText: string;
   helperText: string;
@@ -105,33 +106,36 @@ function createRelativeChoice(todayIndex: number, relative: CalendarRelativeDay)
   };
 }
 
-function generateWeekdayChoices(settings: SessionSettings, targetIndex: number) {
+function generateWeekdayChoices(settings: SessionSettings, targetIndex: number, random: () => number) {
   const selected = new Set<number>([wrapWeekdayIndex(targetIndex)]);
   const offsets = [-1, 1, -2, 2, -3, 3];
 
-  for (const offset of offsets) {
+  for (const offset of shuffleItems(offsets, random)) {
     if (selected.size >= choiceCount(settings)) break;
     selected.add(wrapWeekdayIndex(targetIndex + offset));
   }
 
-  return shuffleItems([...selected].map((index, choiceIndex) => createWeekdayChoice(calendarWeekdays[index], choiceIndex)));
+  return shuffleItems([...selected].map((index, choiceIndex) => createWeekdayChoice(calendarWeekdays[index], choiceIndex)), random);
 }
 
-export function generateCalendarRound(settings: SessionSettings, roundIndex = 1): CalendarRound {
-  const todayIndex = wrapWeekdayIndex(roundIndex * 2 + (settings.preset === "gentle" ? 0 : 1));
+export function generateCalendarRound(settings: SessionSettings, roundIndex = 1, random = Math.random): CalendarRound {
+  const startOffset = settings.preset === "gentle" ? 0 : 2;
+  const todayIndex = wrapWeekdayIndex(roundIndex + startOffset - 1);
   const today = calendarWeekdays[todayIndex];
   const targetRelative = calendarRelativeDays[(roundIndex - 1) % calendarRelativeDays.length];
   const targetDay = getWeekdayByOffset(todayIndex, targetRelative.offset);
   const taskKind: CalendarTaskKind = roundIndex % 2 === 0 ? "relative" : "weekday";
+  const promptId = `${taskKind}.${today.id}.${targetRelative.id}`;
 
   if (taskKind === "relative") {
-    const choices = calendarRelativeDays.map((relative) => createRelativeChoice(todayIndex, relative));
+    const choices = shuffleItems(calendarRelativeDays.map((relative) => createRelativeChoice(todayIndex, relative)), random);
     const correctChoiceId = `relative:${targetRelative.id}`;
 
     return {
       roundId: `calendar:round:${roundIndex}`,
       taskKind,
-      prompt: `Сегодня ${today.label.toLowerCase()}. Где ${targetDay.label.toLowerCase()}?`,
+      promptId,
+      prompt: `Сегодня ${today.label.toLowerCase()}. Когда ${targetDay.label.toLowerCase()}?`,
       contextText: `Сегодня: ${today.label}`,
       helperText: "Выбери карточку: вчера, сегодня или завтра.",
       correctionText: `${targetDay.label} — это ${targetRelative.label.toLowerCase()}.`,
@@ -145,12 +149,13 @@ export function generateCalendarRound(settings: SessionSettings, roundIndex = 1)
   }
 
   const targetIndex = wrapWeekdayIndex(todayIndex + targetRelative.offset);
-  const choices = generateWeekdayChoices(settings, targetIndex);
+  const choices = generateWeekdayChoices(settings, targetIndex, random);
   const correctChoiceId = `weekday:${targetDay.id}`;
 
   return {
     roundId: `calendar:round:${roundIndex}`,
     taskKind,
+    promptId,
     prompt: `Сегодня ${today.label.toLowerCase()}. Какой день ${targetRelative.questionText}?`,
     contextText: `Сегодня: ${today.label}`,
     helperText: "Смотри на порядок дней: вчера, сегодня, завтра.",

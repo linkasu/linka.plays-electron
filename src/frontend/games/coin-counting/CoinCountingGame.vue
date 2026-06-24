@@ -1,20 +1,30 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { generateCoinCountingRound, type CoinCountingCoin, type CoinCountingCoinValue } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("coin-counting", {
   maxSteps: 8,
-  overrides: { dwellMs: 1300, sessionSeconds: 140, sound: false },
+  overrides: { dwellMs: 1300, sessionSeconds: 140, sound: true },
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({
+  gameId: "coin-counting",
+  soundEnabled,
+  volume: 0.34,
+  warmAssetIds: ["coin-counting.prompt.1", "coin-counting.mistake.not-enough", "coin-counting.correct.1"]
+});
+const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
@@ -25,6 +35,7 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
 const selectedCoins = ref<CoinCountingCoinValue[]>([]);
 const feedback = ref("Выбирай монетки по одной, потом нажми галочку.");
 const lastMistakeTargetId = ref<string>();
+const isSpeaking = ref(false);
 
 const selectedTotal = computed(() => selectedCoins.value.reduce((sum, coin) => sum + coin, 0));
 const selectedCoinCounts = computed(() => round.value.coins.map((coin) => ({
@@ -38,6 +49,27 @@ function coinTargetId(value: CoinCountingCoinValue) {
 
 function actionTargetId(action: "clear" | "check") {
   return `coin-counting:action:${action}`;
+}
+
+function promptAssetId() {
+  return `coin-counting.prompt.${round.value.targetTotal}`;
+}
+
+function correctAssetId() {
+  return `coin-counting.correct.${round.value.targetTotal}`;
+}
+
+async function playAudioSequence(assetIds: string[], delayMs = 0) {
+  isSpeaking.value = true;
+  try {
+    await promptAudio.playSequenceAndWait(assetIds, delayMs);
+  } finally {
+    isSpeaking.value = false;
+  }
+}
+
+function playRoundPrompt(delayMs = 0) {
+  return playAudioSequence([promptAssetId()], delayMs);
 }
 
 function coinTone(coin: CoinCountingCoin) {
@@ -56,14 +88,16 @@ function recordSoftHint(targetId: string, text: string) {
   recordHint({ roundId: round.value.roundId, targetId, text });
 }
 
-function addCoin(coin: CoinCountingCoin) {
-  if (session.status !== "running") return;
+async function addCoin(coin: CoinCountingCoin) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const targetId = coinTargetId(coin.value);
   const nextTotal = selectedTotal.value + coin.value;
   if (nextTotal > round.value.targetTotal) {
     recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId: actionTargetId("check"), expected: round.value.targetTotal, actual: nextTotal, selectedCoins: [...selectedCoins.value, coin.value], isCorrect: false, reason: "too-much" });
     recordSoftHint(targetId, "Получилось больше. Убери монетки или выбери поменьше.");
+    void pianoFeedback.playMistake();
+    await playAudioSequence(["coin-counting.mistake.too-much-coin"], 80);
     return;
   }
 
@@ -73,30 +107,53 @@ function addCoin(coin: CoinCountingCoin) {
 }
 
 function clearCoins() {
-  if (session.status !== "running" || selectedCoins.value.length === 0) return;
+  if (session.status !== "running" || isSpeaking.value || selectedCoins.value.length === 0) return;
   resetSelection();
 }
 
-function checkTotal() {
-  if (session.status !== "running") return;
+async function checkTotal() {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const targetId = actionTargetId("check");
   const actual = selectedTotal.value;
   if (actual === round.value.targetTotal) {
     recordSuccess({ roundId: round.value.roundId, targetId, expected: round.value.targetTotal, actual, selectedCoins: [...selectedCoins.value], isCorrect: true });
+    feedback.value = "Верно.";
+    lastMistakeTargetId.value = undefined;
+    void pianoFeedback.playSuccess();
+    await playAudioSequence([correctAssetId()], 80);
     resetSelection();
-    if (session.step < session.maxSteps) nextRound();
+    if (session.status === "running" && session.step < session.maxSteps) {
+      nextRound();
+      feedback.value = "Новая сумма.";
+      await playRoundPrompt(180);
+    }
     return;
   }
 
   recordMistake({ roundId: round.value.roundId, targetId, expected: round.value.targetTotal, actual, selectedCoins: [...selectedCoins.value], isCorrect: false, reason: actual < round.value.targetTotal ? "not-enough" : "too-much" });
-  recordSoftHint(targetId, actual < round.value.targetTotal ? "Пока меньше. Добавь ещё монетку." : "Получилось больше. Очисти и попробуй снова.");
+  const mistakeKind = actual < round.value.targetTotal ? "not-enough" : "too-much";
+  recordSoftHint(targetId, mistakeKind === "not-enough" ? "Пока меньше. Добавь ещё монетку." : "Получилось больше. Очисти и попробуй снова.");
+  void pianoFeedback.playMistake();
+  await playAudioSequence([`coin-counting.mistake.${mistakeKind}`], 80);
 }
 
 function restart() {
+  promptAudio.cancelPending();
   resetSelection();
+  isSpeaking.value = false;
   restartRoundGame();
+  void playRoundPrompt(220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  void playRoundPrompt(420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -113,7 +170,6 @@ function restart() {
               <div class="text-overline text-white text-center">Сейчас</div>
               <div class="sum-panel__number text-white">{{ selectedTotal }}</div>
               <div class="selected-coins" aria-label="Выбранные монетки">
-                <span v-if="selectedCoins.length === 0" class="text-white text-h6">Монетки ещё ждут</span>
                 <span v-for="(coin, index) in selectedCoins" :key="`${coin}-${index}`" class="selected-coin">{{ coin }}</span>
               </div>
             </v-sheet>
@@ -124,11 +180,10 @@ function restart() {
 
             <v-row class="coin-row" dense>
               <v-col v-for="coin in selectedCoinCounts" :key="coin.value" cols="12" sm="4">
-                <GameDwellButton :target-id="coinTargetId(coin.value)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="190" color="surface" @select="addCoin(coin)">
+                <GameDwellButton :target-id="coinTargetId(coin.value)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="190" color="surface" @select="addCoin(coin)">
                   <template #default>
                     <div :class="['coin-button', coinTone(coin), { 'coin-button--mistake': lastMistakeTargetId === coinTargetId(coin.value) }]">
                       <div class="coin-button__value">{{ coin.label }}</div>
-                      <div class="coin-label text-body-1">монетка</div>
                       <v-chip v-if="coin.count > 0" class="mt-2 text-white" color="deep-purple-darken-3" size="large" variant="flat">Выбрано: {{ coin.count }}</v-chip>
                     </div>
                   </template>
@@ -138,14 +193,14 @@ function restart() {
 
             <v-row class="action-row mt-2" dense>
               <v-col cols="12" sm="5">
-                <GameDwellButton :target-id="actionTargetId('clear')" :disabled="session.status !== 'running' || selectedCoins.length === 0" :dwell-ms="session.settings.dwellMs" :min-height="136" color="surface" @select="clearCoins">
+                <GameDwellButton :target-id="actionTargetId('clear')" :disabled="session.status !== 'running' || isSpeaking || selectedCoins.length === 0" :dwell-ms="session.settings.dwellMs" :min-height="136" color="surface" @select="clearCoins">
                   <template #default>
                     <div class="text-h5 text-md-h4 font-weight-bold">Очистить</div>
                   </template>
                 </GameDwellButton>
               </v-col>
               <v-col cols="12" sm="7">
-                <GameDwellButton :target-id="actionTargetId('check')" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="136" color="deep-purple-darken-3" @select="checkTotal">
+                <GameDwellButton :target-id="actionTargetId('check')" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="136" color="deep-purple-darken-3" @select="checkTotal">
                   <template #default>
                     <div class="d-flex align-center justify-center ga-3 text-h5 text-md-h4 font-weight-bold">
                       <v-icon icon="mdi-check" size="42" />
@@ -244,10 +299,6 @@ function restart() {
   min-block-size: clamp(5.5rem, min(15vw, 17vh), 8.25rem);
 }
 
-.coin-label {
-  color: #263238;
-}
-
 .coin-button--1 {
   background: linear-gradient(145deg, #fff8d7, #ffe8a1);
 }
@@ -268,6 +319,53 @@ function restart() {
 @media (min-width: 68.75rem) {
   .game-container {
     padding-block-start: 7.25rem;
+  }
+}
+
+@media (min-width: 68.75rem) and (max-height: 58rem) {
+  .game-container {
+    padding-block-start: 4.5rem;
+  }
+
+  .coin-card {
+    padding: 1.5rem !important;
+  }
+
+  .coin-card h1 {
+    font-size: 3.25rem !important;
+    line-height: 1.05;
+    margin-block-end: 1rem !important;
+  }
+
+  .sum-panel {
+    margin-block-end: 1rem !important;
+    padding: 1rem !important;
+  }
+
+  .sum-panel__number {
+    font-size: 5rem;
+  }
+
+  .selected-coins {
+    min-block-size: 2.25rem;
+  }
+
+  .coin-button {
+    min-block-size: 8rem;
+  }
+
+  .coin-button__value {
+    font-size: 4.25rem;
+    inline-size: 6.5rem;
+    min-block-size: 6.5rem;
+  }
+
+  .coin-row :deep(.dwell-button) {
+    min-block-size: 8.5rem !important;
+  }
+
+  .action-row :deep(.dwell-button) {
+    min-block-size: 6.75rem !important;
   }
 }
 
@@ -299,10 +397,6 @@ function restart() {
     min-block-size: 1rem;
   }
 
-  .selected-coins .text-h6 {
-    font-size: 1rem !important;
-  }
-
   .coin-card .v-alert {
     margin-block-end: 0.5rem !important;
   }
@@ -322,7 +416,7 @@ function restart() {
   }
 
   .action-row :deep(.dwell-button) {
-    min-block-size: 5.75rem !important;
+    min-block-size: 5.25rem !important;
   }
 }
 </style>

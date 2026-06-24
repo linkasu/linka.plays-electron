@@ -11,6 +11,8 @@
     "build:renderer": "vite build",
     "build:electron": "tsc -p tsconfig.electron.json",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.electron.json",
+    "lint": "npm run lint:adaptive-layout",
+    "lint:adaptive-layout": "node scripts/lint-adaptive-layout.mjs",
     "preview": "vite preview",
     "test:unit": "vitest run",
     "audit:readiness": "node scripts/game-readiness-audit.mjs",

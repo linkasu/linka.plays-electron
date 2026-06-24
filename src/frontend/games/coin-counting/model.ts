@@ -1,4 +1,5 @@
 import type { SessionSettings } from "../../core/settings";
+import { randomInt, shuffleItems } from "../../core/random";
 
 export type CoinCountingCoinValue = 1 | 2 | 5;
 
@@ -33,13 +34,13 @@ export function buildCoinCountingSuggestion(total: number): CoinCountingCoinValu
   return coins;
 }
 
-export function generateCoinCountingRound(_settings: SessionSettings, roundIndex = 1): CoinCountingRound {
-  const targetTotal = 1 + Math.floor(Math.random() * 10);
+export function generateCoinCountingRound(_settings: SessionSettings, roundIndex = 1, random = Math.random): CoinCountingRound {
+  const targetTotal = randomInt(1, 10, random);
   return {
     roundId: `coin-counting:round:${roundIndex}`,
     prompt: `Собери ${targetTotal}`,
     targetTotal,
-    coins: coinCountingCoins,
+    coins: shuffleItems(coinCountingCoins, random),
     suggestedCoins: buildCoinCountingSuggestion(targetTotal)
   };
 }

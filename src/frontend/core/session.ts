@@ -57,7 +57,7 @@ export type GameSessionTelemetry = {
 
 export const gameSessionTelemetryKey: InjectionKey<GameSessionTelemetry> = Symbol("game-session-telemetry");
 
-export function useGameSession(gameId: string, initialSettings: Partial<SessionSettings> = {}, options: { finishOnMaxSteps?: boolean; finishOnMistakes?: boolean } = {}) {
+export function useGameSession(gameId: string, initialSettings: Partial<SessionSettings> = {}, options: { finishOnMaxSteps?: boolean; finishOnMistakes?: boolean; finishOnTimeout?: boolean } = {}) {
   const settings = createDefaultSettings(initialSettings);
   const { pointer } = useGazePointer();
   const gazeTracker = createGazeMetricsTracker();
@@ -79,7 +79,7 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
   const maxMistakesBeforeFinish = Math.max(6, settings.maxSteps * 3);
   const timer = window.setInterval(() => {
     nowMs.value = Date.now();
-    if (session.status === "running" && activeDurationMs(nowMs.value) >= session.settings.sessionSeconds * 1000) {
+    if (options.finishOnTimeout !== false && session.status === "running" && activeDurationMs(nowMs.value) >= session.settings.sessionSeconds * 1000) {
       finishSession("timeout");
     }
   }, 250);

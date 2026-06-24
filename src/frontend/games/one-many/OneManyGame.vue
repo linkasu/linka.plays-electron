@@ -1,19 +1,30 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { generateOneManyRound, type OneManyAnswer, type OneManyChoice, type OneManyRound } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("one-many", {
   maxSteps: 8,
+  overrides: { sound: true },
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({
+  gameId: "one-many",
+  soundEnabled,
+  volume: 0.34,
+  warmAssetIds: ["one-many.prompt.one", "one-many.prompt.many", "one-many.mistake.one", "one-many.mistake.many"]
+});
+const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
 const { round, resultVisible, nextRound, restart } = useRoundGame<OneManyRound>({
   session,
@@ -22,6 +33,7 @@ const { round, resultVisible, nextRound, restart } = useRoundGame<OneManyRound>(
 });
 
 const feedback = ref("Выбери взглядом: один или много.");
+const isSpeaking = ref(false);
 
 function choiceTargetId(answer: OneManyAnswer) {
   return `one-many:choice:${answer}`;
@@ -31,14 +43,33 @@ function expectedChoice() {
   return round.value.choices.find((choice) => choice.id === round.value.target);
 }
 
-function choose(choice: OneManyChoice) {
-  if (session.status !== "running") return;
+function promptAssetId() {
+  return `one-many.prompt.${round.value.target}`;
+}
+
+function correctAssetId() {
+  return `one-many.correct.${round.value.target}`;
+}
+
+function mistakeAssetId() {
+  return `one-many.mistake.${round.value.target}`;
+}
+
+async function playRoundPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait([promptAssetId()], delayMs);
+  isSpeaking.value = false;
+}
+
+async function choose(choice: OneManyChoice) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice.id);
   const expected = expectedChoice();
   const expectedTargetId = choiceTargetId(round.value.target);
 
   if (choice.id === round.value.target) {
+    isSpeaking.value = true;
     feedback.value = choice.id === "one" ? "Да, здесь один." : "Да, здесь много.";
     recordSuccess({
       roundId: round.value.roundId,
@@ -49,13 +80,19 @@ function choose(choice: OneManyChoice) {
       actual: choice.id,
       isCorrect: true
     });
+    void pianoFeedback.playSuccess();
+    await promptAudio.playSequenceAndWait([correctAssetId()], 80);
     if (session.status === "running" && session.step < session.maxSteps) {
       nextRound();
       feedback.value = "Следующий выбор: один или много.";
+      await playRoundPrompt(180);
+      return;
     }
+    isSpeaking.value = false;
     return;
   }
 
+  isSpeaking.value = true;
   const hint = expected ? `Посмотри на карточку «${expected.shortTitle}».` : "Попробуй другую карточку.";
   feedback.value = `Ничего страшного. ${hint}`;
   recordMistake({
@@ -69,12 +106,27 @@ function choose(choice: OneManyChoice) {
     isCorrect: false
   });
   recordHint({ roundId: round.value.roundId, text: hint });
+  void pianoFeedback.playMistake();
+  await promptAudio.playSequenceAndWait([mistakeAssetId()], 80);
+  isSpeaking.value = false;
 }
 
 function restartGame() {
   feedback.value = "Выбери взглядом: один или много.";
+  isSpeaking.value = false;
+  promptAudio.cancelPending();
   restart();
+  void playRoundPrompt(220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  void playRoundPrompt(420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -90,7 +142,7 @@ function restartGame() {
 
             <v-row class="choice-row" dense>
               <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6" md="6">
-                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="250" color="surface" @select="choose(choice)">
+                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="250" color="surface" @select="choose(choice)">
                   <template #default>
                     <div class="choice-side text-overline mb-3">{{ choice.side === "left" ? "Слева" : "Справа" }}</div>
                     <div class="items" aria-hidden="true">

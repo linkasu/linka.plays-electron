@@ -1,20 +1,30 @@
 <script setup lang="ts">
-import { onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { generateOppositesRound, type OppositeConcept, type OppositesRound } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("opposites", {
   maxSteps: 8,
-  overrides: { dwellMs: 1300, sessionSeconds: 125 },
+  overrides: { dwellMs: 1300, sessionSeconds: 125, sound: true },
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({
+  gameId: "opposites",
+  soundEnabled,
+  volume: 0.34,
+  warmAssetIds: ["opposites.prompt.hot", "opposites.prompt.big", "opposites.prompt.day"]
+});
+const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
 const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame<OppositesRound>({
   session,
@@ -33,6 +43,24 @@ function choiceTargetId(choice: OppositeConcept) {
   return `opposites:choice:${choice.id}`;
 }
 
+function promptAssetId() {
+  return `opposites.prompt.${round.value.source.id}`;
+}
+
+function correctAssetId() {
+  return `opposites.correct.${round.value.source.id}.${round.value.target.id}`;
+}
+
+function mistakeAssetId() {
+  return `opposites.mistake.${round.value.source.id}.${round.value.target.id}`;
+}
+
+async function playRoundPrompt(delayMs = 0) {
+  pendingSelection.value = true;
+  await promptAudio.playSequenceAndWait([promptAssetId()], delayMs);
+  pendingSelection.value = false;
+}
+
 function clearFeedbackTimer() {
   window.clearTimeout(feedbackTimer);
   feedbackTimer = 0;
@@ -47,7 +75,7 @@ function resetFeedback() {
   hintedChoiceId.value = undefined;
 }
 
-function choose(index: number) {
+async function choose(index: number) {
   if (session.status !== "running" || pendingSelection.value) return;
 
   const choice = round.value.choices[index];
@@ -62,13 +90,16 @@ function choose(index: number) {
     hintedChoiceId.value = undefined;
     feedbackMessage.value = `Верно. ${round.value.source.label} и ${choice.label} — противоположности.`;
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: true, pairId: round.value.pairId });
+    void pianoFeedback.playSuccess();
+    await promptAudio.playSequenceAndWait([correctAssetId()], 80);
 
     if (session.status === "running" && session.step < session.maxSteps) {
-      feedbackTimer = window.setTimeout(() => {
-        nextRound();
-        resetFeedback();
-      }, 650);
+      nextRound();
+      resetFeedback();
+      await playRoundPrompt(180);
+      return;
     }
+    pendingSelection.value = false;
     return;
   }
 
@@ -78,11 +109,10 @@ function choose(index: number) {
   feedbackMessage.value = round.value.mistakeHint;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: false, pairId: round.value.pairId });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "mistake", pairId: round.value.pairId });
-
-  feedbackTimer = window.setTimeout(() => {
-    pendingSelection.value = false;
-    wrongChoiceId.value = undefined;
-  }, 1200);
+  void pianoFeedback.playMistake();
+  await promptAudio.playSequenceAndWait([mistakeAssetId()], 80);
+  pendingSelection.value = false;
+  wrongChoiceId.value = undefined;
 }
 
 function choiceColor(choice: OppositeConcept) {
@@ -94,11 +124,19 @@ function choiceColor(choice: OppositeConcept) {
 
 function restart() {
   resetFeedback();
+  promptAudio.cancelPending();
   restartRounds();
+  void playRoundPrompt(220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  void playRoundPrompt(420);
+});
 
 onUnmounted(() => {
   clearFeedbackTimer();
+  promptAudio.cancelPending();
 });
 </script>
 

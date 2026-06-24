@@ -1,19 +1,29 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { generateWordCategoriesRound, type WordCategory, type WordCategoryChoice } from "./model";
+
+const wordCategoriesFeedback = createStandardGameFeedback();
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("word-categories", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 125 },
   finishOnMistakes: false
+});
+const promptAudio = useGamePromptAudio({
+  gameId: "word-categories",
+  soundEnabled: toRef(session.settings, "sound"),
+  volume: 0.34,
+  warmAssetIds: ["word-categories.intro", "word-categories.correct", "word-categories.mistake"]
 });
 
 const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame({
@@ -44,6 +54,21 @@ function choiceLabel(choice: WordCategoryChoice) {
 
 function choiceHint(choice: WordCategoryChoice) {
   return isCategoryChoice(choice) ? choice.hint : "предмет";
+}
+
+function itemAssetId(itemId: string) {
+  return `word-categories.item.${itemId}`;
+}
+
+function playRoundItemPrompt(delayMs = 0) {
+  if (round.value.mode !== "item-to-category") return;
+  promptAudio.play(itemAssetId(round.value.targetItem.id), delayMs);
+}
+
+function playIntroPrompt(delayMs = 0) {
+  const assetIds = ["word-categories.intro"];
+  if (round.value.mode === "item-to-category") assetIds.push(itemAssetId(round.value.targetItem.id));
+  promptAudio.playSequence(assetIds, delayMs);
 }
 
 function choiceColor(choice: WordCategoryChoice) {
@@ -85,13 +110,17 @@ function choose(choice: WordCategoryChoice) {
     pendingSelection.value = true;
     successChoiceId.value = choice.id;
     feedbackMessage.value = `Верно. ${round.value.explanation}`;
+    void wordCategoriesFeedback.playSuccess(session.settings.sound);
+    promptAudio.playSequence(isCategoryChoice(choice) ? ["word-categories.correct"] : ["word-categories.correct", itemAssetId(choice.id)], 80);
     recordSuccess({ roundId: round.value.roundId, targetId, expected: round.value.correctChoiceId, actual: choice.id, mode: round.value.mode, itemId: round.value.targetItem.id, categoryId: round.value.targetCategory.id, isCorrect: true });
 
     if (session.status === "running" && session.step < session.maxSteps) {
       feedbackTimer = window.setTimeout(() => {
         nextRound();
         resetFeedback();
-      }, 650);
+        promptAudio.cancelPending();
+        playRoundItemPrompt(350);
+      }, isCategoryChoice(choice) ? 900 : 2400);
     }
     return;
   }
@@ -100,22 +129,38 @@ function choose(choice: WordCategoryChoice) {
   wrongChoiceId.value = choice.id;
   hintedChoiceId.value = round.value.correctChoiceId;
   feedbackMessage.value = `Почти. ${round.value.explanation} Правильный ответ мягко подсвечен.`;
+  void wordCategoriesFeedback.playMistake(session.settings.sound);
+  promptAudio.playSequence([
+    "word-categories.mistake",
+    ...(isCategoryChoice(choice) ? [] : [itemAssetId(choice.id)]),
+    ...(expectedChoice && !isCategoryChoice(expectedChoice) && expectedChoice.id !== choice.id ? [itemAssetId(expectedChoice.id)] : [])
+  ], 80);
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, expected: round.value.correctChoiceId, actual: choice.id, mode: round.value.mode, itemId: round.value.targetItem.id, categoryId: round.value.targetCategory.id, isCorrect: false });
 
   feedbackTimer = window.setTimeout(() => {
     pendingSelection.value = false;
     wrongChoiceId.value = undefined;
     hintedChoiceId.value = undefined;
-  }, 1200);
+  }, isCategoryChoice(choice) ? 1200 : 1700);
 }
 
 function restart() {
   resetFeedback();
+  promptAudio.cancelPending();
   restartRounds();
+  playIntroPrompt(300);
 }
+
+onMounted(() => {
+  wordCategoriesFeedback.warm(session.settings.sound);
+  promptAudio.warm();
+  playIntroPrompt(420);
+});
 
 onUnmounted(() => {
   clearFeedbackTimer();
+  promptAudio.cancelPending();
+  wordCategoriesFeedback.dispose();
 });
 </script>
 
@@ -125,7 +170,7 @@ onUnmounted(() => {
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="9">
-          <v-card class="pa-5 pa-md-8" rounded="xl" elevation="8">
+          <v-card class="word-game-card pa-5 pa-md-8" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">{{ round.instruction }}</div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
             <p class="word-feedback text-body-1 text-center mb-6">{{ feedbackMessage }}</p>
@@ -213,22 +258,39 @@ onUnmounted(() => {
 
 @media (max-height: 42rem) {
   .game-container {
-    padding-block-start: 116px;
+    padding-block-start: 4.75rem;
+  }
+
+  .word-game-card {
+    padding: 1rem !important;
+  }
+
+  .word-feedback {
+    margin-block-end: 0.75rem !important;
   }
 
   .target-card {
-    margin-block-end: 1rem !important;
-    padding: 1rem !important;
+    margin-block-end: 0.75rem !important;
+    padding: 0.75rem !important;
   }
 
   .target-emoji,
   .choice-emoji {
-    font-size: clamp(3rem, 7vw, 4.5rem);
+    font-size: clamp(2.75rem, 6vw, 3.8rem);
   }
 
   .choice-content,
   .game-container :deep(.dwell-button) {
-    min-block-size: 9.5rem !important;
+    min-block-size: 7rem !important;
+  }
+
+  .choice-content .text-h5 {
+    font-size: 1.25rem !important;
+  }
+
+  .choice-hint {
+    font-size: 0.78rem !important;
+    line-height: 1.15;
   }
 }
 </style>

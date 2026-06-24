@@ -29,7 +29,6 @@ JSON с полными метриками: `devtools-full-runtime-after-fixes.js
 | [step-pong](./step-pong.md) | Понг пошаговый | strategy | no-visible-targets, many-cards-below-fold, very-tall-page | 1024x600: targets 0/3, min 0, y 2.56, cardsOut 6<br>800x600: targets 0/3, min 0, y 2.56, cardsOut 6 |
 | [tanks-no-shooting](./tanks-no-shooting.md) | Танчики без стрельбы | strategy | no-visible-targets, many-cards-below-fold, very-tall-page | 1024x600: targets 0/4, min 0, y 2.55, cardsOut 6<br>800x600: targets 0/4, min 0, y 2.59, cardsOut 6 |
 | [comic-strip](./comic-strip.md) | Комикс | sequencing | no-visible-targets, many-cards-below-fold, very-tall-page | 1024x600: targets 0/3, min 0, y 1.46, cardsOut 4<br>800x600: targets 0/3, min 0, y 2.68, cardsOut 7 |
-| [tell-picture](./tell-picture.md) | Расскажи картинку | language-aac | no-visible-targets, many-cards-below-fold, very-tall-page | 1024x600: targets 0/3, min 0, y 1.86, cardsOut 3<br>800x600: targets 0/3, min 0, y 2.83, cardsOut 5 |
 | [train-sequence](./train-sequence.md) | Поезд | sequencing | no-visible-targets, many-cards-below-fold, very-tall-page | 1024x600: targets 0/5, min 0, y 2.24, cardsOut 7<br>800x600: targets 0/5, min 0, y 2.17, cardsOut 7 |
 | [calm-tetris](./calm-tetris.md) | Тетрис спокойный | strategy | many-cards-below-fold, very-tall-page | 1024x600: targets 4/4, min 116, y 2.42, cardsOut 4<br>800x600: targets 4/4, min 116, y 2.36, cardsOut 4 |
 | [day-routine](./day-routine.md) | Утро-день-вечер | sequencing | no-visible-targets, many-cards-below-fold, very-tall-page | 1024x600: targets 0/8, min 0, y 2.11, cardsOut 1<br>800x600: targets 0/8, min 0, y 2.78, cardsOut 3 |
@@ -56,7 +55,6 @@ JSON с полными метриками: `devtools-full-runtime-after-fixes.js
 | [domino-matching](./domino-matching.md) | Домино: найди сторону | strategy | many-cards-below-fold | 1024x600: targets 2/4, min 256, y 1.56, cardsOut 5<br>800x600: targets 2/4, min 256, y 1.93, cardsOut 5 |
 | [follow-cue](./follow-cue.md) | Следуй за подсказкой | visual-search | many-cards-below-fold | 1024x600: targets 4/4, min 180, y 1.19, cardsOut 3<br>800x600: targets 4/4, min 172, y 1.12, cardsOut 3 |
 | [grid-scanning](./grid-scanning.md) | Сканирование поля | visual-search | many-cards-below-fold | 1024x600: targets 4/4, min 160, y 1.2, cardsOut 3<br>800x600: targets 4/4, min 160, y 1.14, cardsOut 3 |
-| [hurt-good](./hurt-good.md) | Болит / хорошо | language-aac | many-cards-below-fold | 1024x600: targets 2/2, min 250, y 1.21, cardsOut 3<br>800x600: targets 2/2, min 250, y 1.14, cardsOut 3 |
 | [logic-pairs](./logic-pairs.md) | Логические пары | numeracy | many-cards-below-fold | 1024x600: targets 4/4, min 210, y 1.38, cardsOut 3<br>800x600: targets 2/4, min 210, y 1.71, cardsOut 5 |
 | [mosaic](./mosaic.md) | Мозаика | sequencing | no-visible-targets | 1024x600: targets 0/4, min 0, y 1.98, cardsOut 1<br>800x600: targets 0/4, min 0, y 1.78, cardsOut 1 |
 | [number-bonds](./number-bonds.md) | Состав числа | numeracy | no-visible-targets, many-cards-below-fold | 1024x600: targets 0/4, min 0, y 1.4, cardsOut 1<br>800x600: targets 2/4, min 190, y 1.69, cardsOut 5 |
@@ -69,7 +67,6 @@ JSON с полными метриками: `devtools-full-runtime-after-fixes.js
 | [sudoku-2x2](./sudoku-2x2.md) | Судоку 2x2 | numeracy | no-visible-targets, many-cards-below-fold | 800x600: targets 0/2, min 0, y 1.63, cardsOut 3 |
 | [want-dont-want](./want-dont-want.md) | Хочу / не хочу | language-aac | many-cards-below-fold | 1024x600: targets 2/2, min 264, y 1.44, cardsOut 3<br>800x600: targets 1/2, min 264, y 1.81, cardsOut 3 |
 | [what-first](./what-first.md) | Что сначала? | language-aac | many-cards-below-fold | 1024x600: targets 2/2, min 292, y 1.55, cardsOut 3<br>800x600: targets 1/2, min 260, y 1.88, cardsOut 3 |
-| [what-sounds](./what-sounds.md) | Что звучит? | language-aac | many-cards-below-fold | 1024x600: targets 2/2, min 280, y 1.24, cardsOut 3<br>800x600: targets 2/2, min 253, y 1.16, cardsOut 3 |
 | [who-is-this](./who-is-this.md) | Кто это? | language-aac | no-visible-targets, many-cards-below-fold | 800x600: targets 0/4, min 0, y 1.88, cardsOut 6 |
 | [yes-no](./yes-no.md) | Да / нет | language-aac | many-cards-below-fold | 1024x600: targets 2/2, min 220, y 1.17, cardsOut 3<br>800x600: targets 1/2, min 220, y 1.5, cardsOut 3 |
 | [battleship-light](./battleship-light.md) | Морской бой light | strategy | very-tall-page | 1024x600: targets 10/25, min 133, y 2.22, cardsOut 1 |

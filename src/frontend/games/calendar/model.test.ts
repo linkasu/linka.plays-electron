@@ -14,13 +14,14 @@ describe("generateCalendarRound", () => {
     const settings = settingsFromPreset("standard");
 
     for (let index = 1; index <= 8; index += 2) {
-      const round = generateCalendarRound(settings, index);
+      const round = generateCalendarRound(settings, index, () => 0);
 
       expect(round.taskKind).toBe("weekday");
       expect(round.choices).toHaveLength(4);
       expect(round.choices.map((choice) => choice.id)).toContain(round.correctChoiceId);
       expect(round.correctIndex).toBe(round.choices.findIndex((choice) => choice.id === round.correctChoiceId));
       expect(round.correctChoiceId).toBe(`weekday:${round.targetDay.id}`);
+      expect(round.promptId).toBe(`${round.taskKind}.${round.today.id}.${round.targetRelative.id}`);
     }
   });
 
@@ -28,10 +29,10 @@ describe("generateCalendarRound", () => {
     const settings = settingsFromPreset("standard");
 
     for (let index = 2; index <= 8; index += 2) {
-      const round = generateCalendarRound(settings, index);
+      const round = generateCalendarRound(settings, index, () => 0);
 
       expect(round.taskKind).toBe("relative");
-      expect(round.choices.map((choice) => choice.relativeId)).toEqual(calendarRelativeDays.map((day) => day.id));
+      expect(round.choices.map((choice) => choice.relativeId).sort()).toEqual(calendarRelativeDays.map((day) => day.id).sort());
       expect(round.correctChoiceId).toBe(`relative:${round.targetRelative.id}`);
       expect(round.correctIndex).toBe(round.choices.findIndex((choice) => choice.id === round.correctChoiceId));
       expect(round.choices.every((choice) => choice.sublabel)).toBe(true);
@@ -40,11 +41,18 @@ describe("generateCalendarRound", () => {
 
   it("keeps gentle weekday rounds to three large cards", () => {
     const settings = settingsFromPreset("gentle");
-    const round = generateCalendarRound(settings, 1);
+    const round = generateCalendarRound(settings, 1, () => 0);
 
     expect(round.taskKind).toBe("weekday");
     expect(round.choices).toHaveLength(3);
     expect(new Set(round.choices.map((choice) => choice.id)).size).toBe(3);
     expect(round.choices.map((choice) => choice.id)).toContain(round.correctChoiceId);
+  });
+
+  it("cycles prompts without repeating early rounds", () => {
+    const settings = settingsFromPreset("standard");
+    const promptIds = Array.from({ length: 8 }, (_, index) => generateCalendarRound(settings, index + 1, () => 0).promptId);
+
+    expect(new Set(promptIds).size).toBe(promptIds.length);
   });
 });

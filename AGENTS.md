@@ -63,6 +63,8 @@ When asked to make Electron DevTools stable, implement this minimal sequence:
 ## Frontend And Games
 
 - Prefer Vuetify components, props, layout primitives, utility classes, and theme tokens over custom CSS.
+- Hard `px` values are forbidden in frontend layout styles. Prefer viewport-relative units (`vh`, `dvh`, `svh`, `vw`) for window-fit layout, `%` for container fit, `rem` for typography/control scale, and `clamp()`, `min()`, `max()`, or Vuetify layout props for adaptive bounds.
+- Run `npm run lint:adaptive-layout` after frontend layout edits; new hard `px` values must not pass review.
 - Keep therapeutic game audio optional, quiet, slow, and non-startling. Audio failures must degrade to silence.
 - Add TTS manifest entries through `npm run tts:add -- --game=<game-id> --id=<asset-id> --text=<phrase>`; generate audio separately with `npm run tts:assets -- --game=<game-id>` when TTS endpoint is available.
 - Keep game model logic testable in `model.ts` and verify model changes with nearby `model.test.ts` when present.

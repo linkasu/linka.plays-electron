@@ -17,12 +17,15 @@ describe("who-is-this model", () => {
     expect(ids.size).toBe(4);
   });
 
-  it("points correctIndex to the target and cycles vocabulary by round", () => {
-    const round = generateWhoIsThisRound(settingsFromPreset("challenge"), 3);
+  it("points correctIndex to the target and uses the random source", () => {
+    const lowRandomRound = generateWhoIsThisRound(settingsFromPreset("challenge"), 1, () => 0);
+    const highRandomRound = generateWhoIsThisRound(settingsFromPreset("challenge"), 1, () => 0.99);
 
-    expect(round.roundId).toBe("who-is-this:round:3");
-    expect(round.target).toBe(whoIsThisVocabulary[2]);
-    expect(round.choices[round.correctIndex]).toBe(round.target);
-    expect(round.prompt).toContain("Кто это");
+    expect(lowRandomRound.roundId).toBe("who-is-this:round:1");
+    expect(lowRandomRound.choices[lowRandomRound.correctIndex]).toBe(lowRandomRound.target);
+    expect(highRandomRound.choices[highRandomRound.correctIndex]).toBe(highRandomRound.target);
+    expect(lowRandomRound.target.id).not.toBe(highRandomRound.target.id);
+    expect(lowRandomRound.prompt).toContain("Кто это");
+    expect(whoIsThisVocabulary.some((choice) => choice.id === lowRandomRound.target.id)).toBe(true);
   });
 });

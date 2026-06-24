@@ -1,76 +1,52 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-
-type IWantCard = {
-  id: string;
-  label: string;
-  phrase: string;
-  emoji: string;
-  kind: "предмет" | "занятие" | "помощь";
-};
-
-type IWantRound = {
-  roundId: string;
-  prompt: string;
-  cards: IWantCard[];
-};
-
-const cards: IWantCard[] = [
-  { id: "water", label: "Воду", phrase: "воду", emoji: "💧", kind: "предмет" },
-  { id: "apple", label: "Яблоко", phrase: "яблоко", emoji: "🍎", kind: "предмет" },
-  { id: "music", label: "Музыку", phrase: "музыку", emoji: "🎵", kind: "занятие" },
-  { id: "book", label: "Книгу", phrase: "книгу", emoji: "📖", kind: "предмет" },
-  { id: "ball", label: "Мяч", phrase: "мяч", emoji: "🟡", kind: "предмет" },
-  { id: "draw", label: "Рисовать", phrase: "рисовать", emoji: "🖍️", kind: "занятие" },
-  { id: "toy", label: "Игрушку", phrase: "игрушку", emoji: "🧸", kind: "предмет" },
-  { id: "rest", label: "Отдых", phrase: "отдохнуть", emoji: "🌙", kind: "занятие" },
-  { id: "help", label: "Помощь", phrase: "помощь", emoji: "🤝", kind: "помощь" }
-];
+import { buildIWantPhrase, generateIWantRound, iWantCards, type IWantCard, type IWantRound } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSessionFor("i-want", {
   maxSteps: 8,
-  overrides: { dwellMs: 1300, sessionSeconds: 120 },
+  overrides: { dwellMs: 1300, sessionSeconds: 120, targetScale: 1.05 },
   finishOnMistakes: false
+});
+const promptAudio = useGamePromptAudio({
+  gameId: "i-want",
+  soundEnabled: toRef(session.settings, "sound"),
+  volume: 0.34,
+  warmAssetIds: ["i-want.intro", "i-want.next"]
 });
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<IWantRound>({
   session,
   startSession,
-  generateRound
+  generateRound: generateIWantRound
 });
 
 const feedback = ref("Выбери карточку, чтобы сказать: «Я хочу ...».");
 const selectedCardId = ref<string>();
 const isChangingRound = ref(false);
+const cardMinHeight = computed(() => Math.round(184 * session.settings.targetScale));
 const phrase = computed(() => {
-  const selectedCard = cards.find((card) => card.id === selectedCardId.value);
-  return selectedCard ? `Я хочу ${selectedCard.phrase}` : "Я хочу ...";
+  const selectedCard = iWantCards.find((card) => card.id === selectedCardId.value);
+  return buildIWantPhrase(selectedCard);
 });
-
-function generateRound(roundIndex = 1): IWantRound {
-  if (cards.length < 6) throw new Error("Недостаточно карточек для игры Я хочу.");
-
-  const offset = (roundIndex - 1) % cards.length;
-  return {
-    roundId: `i-want:round:${roundIndex}`,
-    prompt: "Что ты хочешь сейчас? Любая карточка подходит.",
-    cards: [...cards.slice(offset), ...cards.slice(0, offset)].slice(0, 6)
-  };
-}
 
 function cardTargetId(card: IWantCard) {
   return `i-want:card:${card.id}`;
 }
 
-function choose(card: IWantCard) {
+function phraseAssetId(card: IWantCard) {
+  return `i-want.phrase.${card.id}`;
+}
+
+async function choose(card: IWantCard) {
   if (session.status !== "running" || isChangingRound.value) return;
 
   const targetId = cardTargetId(card);
@@ -88,17 +64,17 @@ function choose(card: IWantCard) {
     noFail: true
   });
   feedback.value = `Ты сказал: «Я хочу ${card.phrase}». Спасибо, я понял.`;
+  await promptAudio.playSequenceAndWait([phraseAssetId(card)], 80);
 
-  window.setTimeout(() => {
-    if (session.status === "running") {
-      nextRound();
-      selectedCardId.value = undefined;
-      feedback.value = "Следующий выбор. Можно выбрать любую карточку.";
-    } else {
-      feedback.value = "Спасибо. Я услышал твои желания.";
-    }
-    isChangingRound.value = false;
-  }, 1000);
+  if (session.status === "running") {
+    nextRound();
+    selectedCardId.value = undefined;
+    feedback.value = "Следующий выбор. Можно выбрать любую карточку.";
+    await promptAudio.playSequenceAndWait(["i-want.next"], 180);
+  } else {
+    feedback.value = "Спасибо. Я услышал твои желания.";
+  }
+  isChangingRound.value = false;
 }
 
 function restart() {
@@ -106,7 +82,18 @@ function restart() {
   selectedCardId.value = undefined;
   isChangingRound.value = false;
   restartRoundGame();
+  promptAudio.cancelPending();
+  promptAudio.play("i-want.intro", 260);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("i-want.intro", 420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -115,21 +102,23 @@ function restart() {
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="11" xl="10">
-          <v-card class="i-want-card pa-5 pa-md-8" rounded="xl" elevation="8">
+          <v-card class="i-want-card pa-4 pa-md-6" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">AAC: любой выбор засчитывается</div>
-            <div class="text-center mb-5 mb-md-7">
-              <v-chip class="mb-4" color="primary" size="large" variant="tonal">{{ round.prompt }}</v-chip>
-              <h1 class="text-h2 text-md-h1 font-weight-bold mb-3">{{ phrase }}</h1>
-              <div class="text-h6 text-md-h5 text-medium-emphasis">{{ feedback }}</div>
+            <div class="phrase-panel text-center mb-4 mb-md-5">
+              <v-chip class="mb-3" color="primary" size="large" variant="tonal">{{ round.prompt }}</v-chip>
+              <h1 class="text-h3 text-md-h2 font-weight-bold mb-2">{{ phrase }}</h1>
+              <div class="feedback-text text-body-1 text-md-h6 text-medium-emphasis">{{ feedback }}</div>
             </div>
 
-            <v-row>
+            <v-row dense>
               <v-col v-for="card in round.cards" :key="card.id" cols="6" sm="4" md="4">
-                <GameDwellButton :target-id="cardTargetId(card)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="200" :color="selectedCardId === card.id ? 'deep-purple-darken-3' : 'surface'" @select="choose(card)">
+                <GameDwellButton :target-id="cardTargetId(card)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="cardMinHeight" :color="selectedCardId === card.id ? 'deep-purple-darken-3' : 'surface'" @select="choose(card)">
                   <template #default>
-                    <div class="card-emoji emoji-glyph mb-3">{{ card.emoji }}</div>
-                    <div class="text-h4 text-md-h3 font-weight-bold">{{ card.label }}</div>
-                    <div class="card-kind text-body-1 mt-2">{{ card.kind }}</div>
+                    <div class="card-content">
+                      <div class="card-emoji emoji-glyph mb-2" aria-hidden="true">{{ card.emoji }}</div>
+                      <div class="card-label text-h5 text-md-h4 font-weight-bold">{{ card.label }}</div>
+                      <div class="card-kind text-body-2 mt-1">{{ card.kind }}</div>
+                    </div>
                   </template>
                 </GameDwellButton>
               </v-col>
@@ -149,11 +138,20 @@ function restart() {
 }
 
 .game-container {
-  padding-block-start: 132px;
+  padding-block-start: 7rem;
+}
+
+.card-content {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-block-size: 8.5rem;
+  text-align: center;
 }
 
 .card-emoji {
-  font-size: clamp(4rem, 9vw, 6.5rem);
+  font-size: clamp(3.4rem, 7vw, 5.4rem);
   line-height: 1;
 }
 
@@ -163,7 +161,7 @@ function restart() {
 
 @media (max-height: 42rem) {
   .game-container {
-    padding-block-start: 56px;
+    padding-block-start: 4.25rem;
   }
 
   .i-want-card {
@@ -174,27 +172,36 @@ function restart() {
     display: none;
   }
 
-  .i-want-card .text-center {
+  .phrase-panel {
     margin-block-end: 0.75rem !important;
   }
 
   .i-want-card h1 {
-    font-size: 2.6rem !important;
+    font-size: 2rem !important;
     line-height: 1.05;
-    margin-block: 0.5rem !important;
+    margin-block: 0.35rem !important;
+  }
+
+  .feedback-text,
+  .i-want-card :deep(.v-chip) {
+    font-size: 0.9rem !important;
   }
 
   .game-container :deep(.dwell-button) {
-    min-block-size: 7.5rem !important;
+    min-block-size: 6.6rem !important;
+  }
+
+  .card-content {
+    min-block-size: 5.8rem;
   }
 
   .card-emoji {
-    font-size: clamp(2.5rem, 6vw, 3.7rem);
-    margin-block-end: 0.375rem !important;
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin-block-end: 0.2rem !important;
   }
 
-  .card-emoji + .text-h4 {
-    font-size: 1.65rem !important;
+  .card-label {
+    font-size: 1.15rem !important;
     line-height: 1.05;
   }
 

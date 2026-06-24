@@ -1,14 +1,39 @@
 import { BackWatch } from "@linkasu/tobii-electron/main";
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import { join } from "path";
 
 let mainWindow: BrowserWindow | undefined;
+let noTobiiHandlersRegistered = false;
 
 app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required");
 
 const devSession = process.env.LINKA_DEV_SESSION;
 if (devSession) {
   app.setPath("userData", join(app.getPath("userData"), devSession));
+}
+
+function disabledTobiiStatus() {
+  return {
+    state: "unsupported",
+    mode: "unsupported",
+    message: "Tobii отключён для debug-сеанса, используется мышь.",
+    deviceFound: false,
+    updatedAt: Date.now()
+  };
+}
+
+function registerNoTobiiHandlers() {
+  if (noTobiiHandlersRegistered) return;
+  noTobiiHandlersRegistered = true;
+  ipcMain.handle("tobii:status:get", () => disabledTobiiStatus());
+  ipcMain.handle("tobii:calibration:start", () => false);
+  ipcMain.handle("tobii:calibration:add-point", () => false);
+  ipcMain.handle("tobii:calibration:finish", () => false);
+  ipcMain.handle("tobii:calibration:apply-saved", () => false);
+  ipcMain.handle("tobii:service:restart", () => false);
+  ipcMain.on("tobii:renderer-ready", (event) => {
+    event.sender.send("tobii:status", disabledTobiiStatus());
+  });
 }
 
 async function createWindow() {
@@ -26,7 +51,9 @@ async function createWindow() {
   });
 
   mainWindow = win;
-  if (process.env.LINKA_NO_TOBII !== "1") {
+  if (process.env.LINKA_NO_TOBII === "1") {
+    registerNoTobiiHandlers();
+  } else {
     const backWatch = new BackWatch(win, {
       socketName: process.env.LINKA_TOBII_SOCKET_NAME ?? "su.linka.plays.tobiifree",
       showStartupError: false

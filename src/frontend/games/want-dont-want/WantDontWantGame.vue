@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
@@ -14,6 +15,12 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   maxSteps: 9,
   overrides: { preset: "gentle", dwellMs: 1300, sessionSeconds: 120, targetScale: 1.2 },
   finishOnMistakes: false
+});
+const promptAudio = useGamePromptAudio({
+  gameId: "want-dont-want",
+  soundEnabled: toRef(session.settings, "sound"),
+  volume: 0.34,
+  warmAssetIds: ["want-dont-want.intro", "want-dont-want.next"]
 });
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<WantDontWantRound>({
@@ -30,7 +37,11 @@ function answerTargetId(value: WantDontWantAnswer) {
   return `want-dont-want:answer:${value}`;
 }
 
-function answer(value: WantDontWantAnswer) {
+function phraseAssetId(value: WantDontWantAnswer) {
+  return `want-dont-want.phrase.${value}.${round.value.item.id}`;
+}
+
+async function answer(value: WantDontWantAnswer) {
   if (session.status !== "running" || isChangingRound.value) return;
 
   const choice = round.value.choices.find((item) => item.id === value);
@@ -48,23 +59,34 @@ function answer(value: WantDontWantAnswer) {
     isCorrect: true
   });
   feedback.value = `Ты сказал: «${choice.confirmation} ${round.value.item.title}». Спасибо, я понял.`;
+  await promptAudio.playSequenceAndWait([phraseAssetId(value)], 80);
 
-  window.setTimeout(() => {
-    if (session.status === "running" && session.step < session.maxSteps) {
-      nextRound();
-      feedback.value = "Следующий выбор. Можно сказать как тебе подходит.";
-    } else {
-      feedback.value = "Спасибо. Я услышал твой выбор.";
-    }
-    isChangingRound.value = false;
-  }, 1100);
+  if (session.status === "running" && session.step < session.maxSteps) {
+    nextRound();
+    feedback.value = "Следующий выбор. Можно сказать как тебе подходит.";
+    await promptAudio.playSequenceAndWait(["want-dont-want.next"], 180);
+  } else {
+    feedback.value = "Спасибо. Я услышал твой выбор.";
+  }
+  isChangingRound.value = false;
 }
 
 function restart() {
   feedback.value = "Посмотри на ответ, который подходит тебе сейчас.";
   isChangingRound.value = false;
   restartRoundGame();
+  promptAudio.cancelPending();
+  promptAudio.play("want-dont-want.intro", 260);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("want-dont-want.intro", 420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -73,10 +95,10 @@ function restart() {
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="9">
-          <v-card class="want-card pa-5 pa-md-8" rounded="xl" elevation="8">
+          <v-card class="want-card pa-4 pa-md-6" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Любой ответ важен</div>
-            <div class="item-display mb-5 mb-md-7">
-              <v-chip class="mb-4 text-white" color="deep-purple-darken-3" size="large" variant="flat">{{ round.item.kind }}</v-chip>
+            <div class="item-display mb-4 mb-md-5">
+              <v-chip class="mb-3 text-white" color="deep-purple-darken-3" size="large" variant="flat">{{ round.item.kind }}</v-chip>
               <div class="item-emoji emoji-glyph">{{ round.item.emoji }}</div>
               <h1 class="text-h3 text-md-h2 font-weight-bold mb-2">{{ round.item.title }}</h1>
               <div class="want-prompt text-h6 text-md-h5">{{ round.prompt }}</div>
@@ -108,7 +130,7 @@ function restart() {
 }
 
 .game-container {
-  padding-block-start: 132px;
+  padding-block-start: 7rem;
 }
 
 .item-display {
@@ -131,7 +153,7 @@ function restart() {
 
 @media (max-height: 44rem) {
   .game-container {
-    padding-block-start: 56px;
+    padding-block-start: 4.25rem;
   }
 
   .want-card {
@@ -139,20 +161,20 @@ function restart() {
   }
 
   .item-display {
-    margin-block-end: 1rem !important;
+    margin-block-end: 0.75rem !important;
   }
 
   .item-emoji {
-    font-size: clamp(3.5rem, 8vw, 5rem);
+    font-size: clamp(3rem, 7vw, 4.4rem);
   }
 
   .want-card h1 {
-    font-size: 2.5rem !important;
+    font-size: 2.1rem !important;
     line-height: 1.05;
   }
 
   .game-container :deep(.dwell-button) {
-    min-block-size: 11.5rem !important;
+    min-block-size: 9.2rem !important;
   }
 }
 </style>

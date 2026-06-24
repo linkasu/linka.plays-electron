@@ -77,7 +77,7 @@ function removeRegistryBlock(source, gameId) {
   }).replace(/\n\s*,\s*\n\s*,/g, "\n,").replace(/\[\s*,/, "[");
 
   if (!removedGame) throw new Error(`Game not found in registry: ${gameId}`);
-  return { source: nextSource, removedGame };
+  return { source: nextSource.replace(/,\s*\n\s*,\s*\n/g, ",\n"), removedGame };
 }
 
 function removeRouterEntries(source, gameId) {
@@ -89,7 +89,7 @@ function removeRouterEntries(source, gameId) {
 }
 
 function removeGameRows(source, gameId) {
-  const markdownLink = new RegExp(`\\]\(\\./${escapeRegExp(gameId)}\\.md\\)|\\]\(${escapeRegExp(gameId)}\\.md\\)`);
+  const markdownLink = new RegExp(`\\]\\(\\./${escapeRegExp(gameId)}\\.md\\)|\\]\\(${escapeRegExp(gameId)}\\.md\\)`);
   return source
     .split("\n")
     .filter((line) => !line.includes(`| \`${gameId}\` |`) && !markdownLink.test(line))

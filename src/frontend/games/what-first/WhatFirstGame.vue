@@ -1,19 +1,29 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { generateWhatFirstRound, type WhatFirstAction, type WhatFirstRound } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("what-first", {
   maxSteps: 8,
-  overrides: { dwellMs: 1300, sessionSeconds: 125 },
+  overrides: { dwellMs: 1300, sessionSeconds: 125, sound: true },
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({
+  gameId: "what-first",
+  soundEnabled,
+  volume: 0.34,
+  warmAssetIds: ["what-first.prompt.wash-eat", "what-first.prompt.shoes-walk", "what-first.prompt.brush-sleep"]
+});
+const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
 const roundIndex = ref(1);
 const round = ref<WhatFirstRound>(generateWhatFirstRound(roundIndex.value));
@@ -28,6 +38,24 @@ const sceneEmojis = computed(() => round.value.choices.map((choice) => choice.em
 
 function choiceTargetId(action: WhatFirstAction) {
   return `what-first:choice:${round.value.scene.id}:${action.id}`;
+}
+
+function promptAssetId() {
+  return `what-first.prompt.${round.value.scene.id}`;
+}
+
+function correctAssetId() {
+  return `what-first.correct.${round.value.scene.id}`;
+}
+
+function mistakeAssetId() {
+  return `what-first.mistake.${round.value.scene.id}`;
+}
+
+async function playRoundPrompt(delayMs = 0) {
+  isChangingRound.value = true;
+  await promptAudio.playSequenceAndWait([promptAssetId()], delayMs);
+  isChangingRound.value = false;
 }
 
 function clearFeedbackTimer() {
@@ -46,7 +74,7 @@ function setNextRound() {
   feedback.value = "Новая сцена. Что сначала?";
 }
 
-function choose(action: WhatFirstAction) {
+async function choose(action: WhatFirstAction) {
   if (session.status !== "running" || isChangingRound.value) return;
 
   clearFeedbackTimer();
@@ -70,13 +98,19 @@ function choose(action: WhatFirstAction) {
       isCorrect: true
     });
     feedback.value = `Верно: сначала ${action.phrase}.`;
+    void pianoFeedback.playSuccess();
+    await promptAudio.playSequenceAndWait([correctAssetId()], 80);
 
-    feedbackTimer = window.setTimeout(() => {
-      if (session.status === "running") setNextRound();
-      else feedback.value = "Готово. Порядок действий стал понятнее.";
+    if (session.status === "running") {
+      setNextRound();
       resetHighlights();
-      isChangingRound.value = false;
-    }, 850);
+      await playRoundPrompt(180);
+      return;
+    }
+
+    feedback.value = "Готово. Порядок действий стал понятнее.";
+    resetHighlights();
+    isChangingRound.value = false;
     return;
   }
 
@@ -93,12 +127,11 @@ function choose(action: WhatFirstAction) {
   });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, text: round.value.explanation });
   feedback.value = `Почти. ${round.value.explanation}`;
-
-  feedbackTimer = window.setTimeout(() => {
-    wrongChoiceId.value = undefined;
-    feedback.value = "Попробуй ещё раз: что сначала?";
-    isChangingRound.value = false;
-  }, 1400);
+  void pianoFeedback.playMistake();
+  await promptAudio.playSequenceAndWait([mistakeAssetId()], 80);
+  wrongChoiceId.value = undefined;
+  feedback.value = "Попробуй ещё раз: что сначала?";
+  isChangingRound.value = false;
 }
 
 function choiceColor(action: WhatFirstAction) {
@@ -109,16 +142,24 @@ function choiceColor(action: WhatFirstAction) {
 
 function restart() {
   clearFeedbackTimer();
+  promptAudio.cancelPending();
   roundIndex.value = 1;
   round.value = generateWhatFirstRound(roundIndex.value);
   feedback.value = "Выбери первое действие в сцене.";
   resetHighlights();
   isChangingRound.value = false;
   startSession();
+  void playRoundPrompt(220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  void playRoundPrompt(420);
+});
 
 onUnmounted(() => {
   clearFeedbackTimer();
+  promptAudio.cancelPending();
 });
 </script>
 

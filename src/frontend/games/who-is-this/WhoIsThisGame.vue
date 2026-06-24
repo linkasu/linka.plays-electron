@@ -1,22 +1,34 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { generateWhoIsThisRound, type WhoIsThisChoice } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("who-is-this", {
   maxSteps: 8,
+  overrides: { sound: true },
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({
+  gameId: "who-is-this",
+  soundEnabled,
+  volume: 0.34,
+  warmAssetIds: ["who-is-this.prompt"]
+});
+const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
 const hintedRoundId = ref<string>();
 const lastMistakeId = ref<string>();
+const isSpeaking = ref(false);
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
@@ -34,30 +46,68 @@ function choiceTargetId(choiceId: string) {
   return `who-is-this:choice:${choiceId}`;
 }
 
-function choose(choice: WhoIsThisChoice) {
-  if (session.status !== "running") return;
+function correctAssetId() {
+  return `who-is-this.correct.${round.value.target.id}`;
+}
+
+function mistakeAssetId() {
+  return `who-is-this.mistake.${round.value.target.id}`;
+}
+
+async function playRoundPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["who-is-this.prompt"], delayMs);
+  isSpeaking.value = false;
+}
+
+async function choose(choice: WhoIsThisChoice) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice.id);
   const expectedTargetId = choiceTargetId(round.value.target.id);
   if (choice.id === round.value.target.id) {
+    isSpeaking.value = true;
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: true });
     hintedRoundId.value = undefined;
     lastMistakeId.value = undefined;
-    if (session.step < session.maxSteps) nextRound();
+    void pianoFeedback.playSuccess();
+    await promptAudio.playSequenceAndWait([correctAssetId()], 80);
+    if (session.status === "running" && session.step < session.maxSteps) {
+      nextRound();
+      await playRoundPrompt(180);
+      return;
+    }
+    isSpeaking.value = false;
     return;
   }
 
+  isSpeaking.value = true;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, text: `Можно выбрать: ${round.value.target.label}.`, reason: "wrong-person-selected" });
   hintedRoundId.value = round.value.roundId;
   lastMistakeId.value = choice.id;
+  void pianoFeedback.playMistake();
+  await promptAudio.playSequenceAndWait([mistakeAssetId()], 80);
+  isSpeaking.value = false;
 }
 
 function restart() {
   hintedRoundId.value = undefined;
   lastMistakeId.value = undefined;
+  isSpeaking.value = false;
+  promptAudio.cancelPending();
   restartRoundGame();
+  void playRoundPrompt(220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  void playRoundPrompt(420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -87,7 +137,7 @@ function restart() {
               <v-col class="choices-col" cols="12" md="7">
                 <v-row class="choice-grid" dense>
                   <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6">
-                    <GameDwellButton :class="{ 'choice-hint': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="205" :color="hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="choose(choice)">
+                    <GameDwellButton :class="{ 'choice-hint': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="205" :color="hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="choose(choice)">
                       <template #default="{ active, progress }">
                         <div :class="['choice-content', { 'choice-content--mistake': choice.id === lastMistakeId }]">
                           <v-icon class="choice-icon" :color="choice.color" :icon="choice.icon" />

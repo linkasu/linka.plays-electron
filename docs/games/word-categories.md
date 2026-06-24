@@ -10,8 +10,8 @@
 | Route | `/games/word-categories` |
 | Категория | `language-aac` — Слова и AAC |
 | Status | `therapy-ready` |
-| Resolved stability | `needs-check` |
-| Readiness group | `development` |
+| Resolved stability | `publish` |
+| Readiness group | `ready` |
 | Skills | AAC, выбор, классификация, словарь |
 | Recommended session | 125 сек |
 | Min target size | 180 px |
@@ -57,17 +57,16 @@ undefined
 | Vue-компонент | `WordCategoriesGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
-| Audio module | нет |
+| Audio module | стандартный feedback из `core/gameFeedbackAudio.ts` |
 | Runtime audit doc | `docs/tests/2026-06-10/word-categories.md` |
 
 ## Готовность
 
-Игра находится в группе `development`, потому что resolved stability не равен `publish`.
+Игра находится в группе `ready`, потому что resolved stability равен `publish`.
 
 Автоматические blockers:
 
-- stability:needs-check
-- missing-game-doc
+- нет
 
 ## QA checklist
 
@@ -80,4 +79,4 @@ undefined
 
 ## Next step
 
-Разобрать blockers из readiness-аудита, затем повторить Electron CDP/PNG audit и принять решение о `stabilityStatus: "publish"`.
+Оставить в ready-очереди и проверять регрессии через общий Electron CDP audit.

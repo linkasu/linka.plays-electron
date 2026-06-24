@@ -133,6 +133,7 @@ export const games: GameInfo[] = [
     icon: "mdi-fishbowl",
     skills: ["smooth-pursuit", "fixation"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 88,
     minTargetSizePx: 180,
     defaultDwellMs: 1350
@@ -147,6 +148,7 @@ export const games: GameInfo[] = [
     icon: "mdi-balloon",
     skills: ["fixation", "attention-shift"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 82,
     minTargetSizePx: 188,
     defaultDwellMs: 1300
@@ -161,6 +163,7 @@ export const games: GameInfo[] = [
     icon: "mdi-bell-outline",
     skills: ["choice", "fixation"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 90,
     minTargetSizePx: 190,
     defaultDwellMs: 1300
@@ -175,6 +178,7 @@ export const games: GameInfo[] = [
     icon: "mdi-hand-front-right-outline",
     skills: ["fixation", "choice"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 240,
     defaultDwellMs: 1300
@@ -189,6 +193,7 @@ export const games: GameInfo[] = [
     icon: "mdi-flower",
     skills: ["fixation", "smooth-pursuit"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 220,
     defaultDwellMs: 1400
@@ -203,6 +208,7 @@ export const games: GameInfo[] = [
     icon: "mdi-owl",
     skills: ["fixation"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 82,
     minTargetSizePx: 240,
     defaultDwellMs: 1400
@@ -217,6 +223,7 @@ export const games: GameInfo[] = [
     icon: "mdi-cloud",
     skills: ["fixation", "smooth-pursuit"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 75,
     minTargetSizePx: 190,
     defaultDwellMs: 1500
@@ -231,7 +238,7 @@ export const games: GameInfo[] = [
     icon: "mdi-leaf",
     skills: ["smooth-pursuit", "attention-shift"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 80,
     minTargetSizePx: 180,
     defaultDwellMs: 1500
@@ -246,6 +253,7 @@ export const games: GameInfo[] = [
     icon: "mdi-kite",
     skills: ["fixation", "smooth-pursuit"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 190,
     defaultDwellMs: 1450
@@ -260,6 +268,7 @@ export const games: GameInfo[] = [
     icon: "mdi-lightbulb-night",
     skills: ["fixation", "attention-shift"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 75,
     minTargetSizePx: 180,
     defaultDwellMs: 1350
@@ -274,6 +283,7 @@ export const games: GameInfo[] = [
     icon: "mdi-brightness-5",
     skills: ["fixation", "attention-shift"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -288,6 +298,7 @@ export const games: GameInfo[] = [
     icon: "mdi-star",
     skills: ["fixation", "attention-shift", "sequence"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 210,
     minTargetSizePx: 150,
     defaultDwellMs: 1250
@@ -302,6 +313,7 @@ export const games: GameInfo[] = [
     icon: "mdi-creation",
     skills: ["fixation", "attention-shift"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 75,
     minTargetSizePx: 170,
     defaultDwellMs: 1300
@@ -316,6 +328,7 @@ export const games: GameInfo[] = [
     icon: "mdi-image-multiple",
     skills: ["fixation", "attention-shift"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 90,
     minTargetSizePx: 170,
     defaultDwellMs: 1400
@@ -330,6 +343,7 @@ export const games: GameInfo[] = [
     icon: "mdi-water-circle",
     skills: ["fixation", "attention-shift"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -344,6 +358,7 @@ export const games: GameInfo[] = [
     icon: "mdi-weather-night",
     skills: ["fixation", "smooth-pursuit"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 180,
     defaultDwellMs: 1400
@@ -358,6 +373,7 @@ export const games: GameInfo[] = [
     icon: "mdi-white-balance-sunny",
     skills: ["fixation"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 80,
     minTargetSizePx: 240,
     defaultDwellMs: 1400
@@ -372,6 +388,7 @@ export const games: GameInfo[] = [
     icon: "mdi-snowflake",
     skills: ["smooth-pursuit", "fixation"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 180,
     defaultDwellMs: 1400
@@ -386,6 +403,7 @@ export const games: GameInfo[] = [
     icon: "mdi-moon-waning-crescent",
     skills: ["fixation", "smooth-pursuit"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 86,
     minTargetSizePx: 180,
     defaultDwellMs: 1450
@@ -400,6 +418,7 @@ export const games: GameInfo[] = [
     icon: "mdi-lightbulb-on-outline",
     skills: ["fixation"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 95,
     minTargetSizePx: 220,
     defaultDwellMs: 1400
@@ -414,6 +433,7 @@ export const games: GameInfo[] = [
     icon: "mdi-dots-grid",
     skills: ["smooth-pursuit", "fixation"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 84,
     minTargetSizePx: 190,
     defaultDwellMs: 1300
@@ -428,6 +448,7 @@ export const games: GameInfo[] = [
     icon: "mdi-water",
     skills: ["fixation", "attention-shift"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 200,
     defaultDwellMs: 1350
@@ -442,6 +463,7 @@ export const games: GameInfo[] = [
     icon: "mdi-lightbulb-on-outline",
     skills: ["fixation", "attention-shift"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 190,
     defaultDwellMs: 1350
@@ -456,6 +478,7 @@ export const games: GameInfo[] = [
     icon: "mdi-door-open",
     skills: ["fixation", "attention-shift"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 220,
     defaultDwellMs: 1350
@@ -470,6 +493,7 @@ export const games: GameInfo[] = [
     icon: "mdi-window-closed",
     skills: ["fixation", "attention-shift"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 80,
     minTargetSizePx: 180,
     defaultDwellMs: 1350
@@ -484,6 +508,7 @@ export const games: GameInfo[] = [
     icon: "mdi-fire",
     skills: ["fixation", "smooth-pursuit"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 92,
     minTargetSizePx: 210,
     defaultDwellMs: 1450
@@ -498,7 +523,7 @@ export const games: GameInfo[] = [
     icon: "mdi-card-multiple-outline",
     skills: ["choice", "fixation"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 90,
     minTargetSizePx: 220,
     defaultDwellMs: 1300
@@ -513,7 +538,7 @@ export const games: GameInfo[] = [
     icon: "mdi-palette",
     skills: ["choice", "fixation"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 90,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -528,7 +553,7 @@ export const games: GameInfo[] = [
     icon: "mdi-paw",
     skills: ["choice", "fixation"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 90,
     minTargetSizePx: 210,
     defaultDwellMs: 1300
@@ -543,7 +568,7 @@ export const games: GameInfo[] = [
     icon: "mdi-butterfly",
     skills: ["fixation", "attention-shift"],
     status: "polished",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 60,
     minTargetSizePx: 180,
     defaultDwellMs: 900
@@ -558,7 +583,7 @@ export const games: GameInfo[] = [
     icon: "mdi-flower",
     skills: ["fixation", "attention-shift", "visual-search"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 75,
     minTargetSizePx: 170,
     defaultDwellMs: 1100
@@ -573,7 +598,7 @@ export const games: GameInfo[] = [
     icon: "mdi-water-circle",
     skills: ["fixation", "attention-shift"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 75,
     minTargetSizePx: 190,
     defaultDwellMs: 1200
@@ -588,7 +613,7 @@ export const games: GameInfo[] = [
     icon: "mdi-duck",
     skills: ["visual-search", "fixation", "attention-shift"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 60,
     minTargetSizePx: 160,
     defaultDwellMs: 850
@@ -603,7 +628,7 @@ export const games: GameInfo[] = [
     icon: "mdi-fish",
     skills: ["smooth-pursuit", "fixation", "attention-shift"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 60,
     minTargetSizePx: 160,
     defaultDwellMs: 850
@@ -618,7 +643,7 @@ export const games: GameInfo[] = [
     icon: "mdi-fish",
     skills: ["smooth-pursuit", "fixation"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 165,
     defaultDwellMs: 1450
@@ -633,7 +658,7 @@ export const games: GameInfo[] = [
     icon: "mdi-bug",
     skills: ["attention-shift", "choice"],
     status: "polished",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 90,
     minTargetSizePx: 140,
     defaultDwellMs: 900
@@ -648,7 +673,7 @@ export const games: GameInfo[] = [
     icon: "mdi-magnify",
     skills: ["visual-search", "choice"],
     status: "polished",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 130,
     defaultDwellMs: 1200
@@ -663,7 +688,7 @@ export const games: GameInfo[] = [
     icon: "mdi-account-question-outline",
     skills: ["visual-search", "attention-shift", "choice"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 170,
     defaultDwellMs: 1300
@@ -678,6 +703,7 @@ export const games: GameInfo[] = [
     icon: "mdi-palette",
     skills: ["visual-search", "choice"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1200
@@ -692,7 +718,7 @@ export const games: GameInfo[] = [
     icon: "mdi-shape-outline",
     skills: ["visual-search", "choice", "classification"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 210,
     defaultDwellMs: 1300
@@ -707,6 +733,7 @@ export const games: GameInfo[] = [
     icon: "mdi-image-search",
     skills: ["visual-search", "choice"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1200
@@ -721,7 +748,7 @@ export const games: GameInfo[] = [
     icon: "mdi-help-circle-outline",
     skills: ["visual-search", "choice"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 210,
     defaultDwellMs: 1300
@@ -736,7 +763,7 @@ export const games: GameInfo[] = [
     icon: "mdi-arrow-right-bold",
     skills: ["visual-search", "attention-shift", "choice"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 200,
     defaultDwellMs: 1250
@@ -751,7 +778,7 @@ export const games: GameInfo[] = [
     icon: "mdi-alphabetical-variant",
     skills: ["visual-search", "choice", "vocabulary"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 200,
     defaultDwellMs: 1300
@@ -766,7 +793,7 @@ export const games: GameInfo[] = [
     icon: "mdi-numeric",
     skills: ["counting", "choice", "visual-search"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 200,
     defaultDwellMs: 1300
@@ -781,7 +808,7 @@ export const games: GameInfo[] = [
     icon: "mdi-link-variant",
     skills: ["choice", "classification", "visual-search"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 200,
     defaultDwellMs: 1300
@@ -796,7 +823,7 @@ export const games: GameInfo[] = [
     icon: "mdi-image-filter-center-focus",
     skills: ["visual-search", "choice"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 210,
     defaultDwellMs: 1300
@@ -811,7 +838,7 @@ export const games: GameInfo[] = [
     icon: "mdi-volume-high",
     skills: ["visual-search", "choice"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 200,
     defaultDwellMs: 1300
@@ -826,7 +853,7 @@ export const games: GameInfo[] = [
     icon: "mdi-select-compare",
     skills: ["classification", "choice", "visual-search"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 200,
     defaultDwellMs: 1300
@@ -841,7 +868,7 @@ export const games: GameInfo[] = [
     icon: "mdi-emoticon-outline",
     skills: ["visual-search", "choice", "aac"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 200,
     defaultDwellMs: 1300
@@ -856,7 +883,7 @@ export const games: GameInfo[] = [
     icon: "mdi-alphabetical",
     skills: ["visual-search", "attention-shift", "vocabulary"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1250
@@ -871,7 +898,7 @@ export const games: GameInfo[] = [
     icon: "mdi-paw",
     skills: ["visual-search", "choice", "vocabulary"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 200,
     defaultDwellMs: 1300
@@ -886,7 +913,7 @@ export const games: GameInfo[] = [
     icon: "mdi-cards",
     skills: ["visual-search", "choice", "attention-shift"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 150,
     defaultDwellMs: 1300
@@ -901,7 +928,7 @@ export const games: GameInfo[] = [
     icon: "mdi-routes",
     skills: ["visual-search", "attention-shift", "choice"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 170,
     defaultDwellMs: 1300
@@ -916,7 +943,7 @@ export const games: GameInfo[] = [
     icon: "mdi-robot-happy-outline",
     skills: ["sequence", "choice"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 135,
     minTargetSizePx: 170,
     defaultDwellMs: 1300
@@ -931,7 +958,7 @@ export const games: GameInfo[] = [
     icon: "mdi-pyramid",
     skills: ["sequence", "choice"],
     status: "polished",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 120,
     defaultDwellMs: 1200
@@ -946,7 +973,7 @@ export const games: GameInfo[] = [
     icon: "mdi-tshirt-crew",
     skills: ["sequence", "choice", "vocabulary"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -961,6 +988,7 @@ export const games: GameInfo[] = [
     icon: "mdi-train",
     skills: ["sequence", "choice"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 150,
     defaultDwellMs: 1200
@@ -975,7 +1003,7 @@ export const games: GameInfo[] = [
     icon: "mdi-food-variant",
     skills: ["sequence", "choice"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 150,
     defaultDwellMs: 1300
@@ -990,6 +1018,7 @@ export const games: GameInfo[] = [
     icon: "mdi-dots-grid",
     skills: ["sequence", "choice"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 150,
     defaultDwellMs: 1200
@@ -1004,7 +1033,7 @@ export const games: GameInfo[] = [
     icon: "mdi-palette-swatch",
     skills: ["sequence", "choice", "classification"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -1019,7 +1048,7 @@ export const games: GameInfo[] = [
     icon: "mdi-weather-sunset",
     skills: ["sequence", "choice", "vocabulary"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -1034,7 +1063,7 @@ export const games: GameInfo[] = [
     icon: "mdi-filmstrip",
     skills: ["sequence", "choice", "vocabulary"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 140,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -1049,7 +1078,7 @@ export const games: GameInfo[] = [
     icon: "mdi-order-bool-ascending",
     skills: ["sequence", "choice", "aac"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -1064,7 +1093,7 @@ export const games: GameInfo[] = [
     icon: "mdi-music-clef-treble",
     skills: ["sequence", "choice"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 180,
     defaultDwellMs: 1250
@@ -1079,7 +1108,7 @@ export const games: GameInfo[] = [
     icon: "mdi-collage",
     skills: ["sequence", "choice", "classification"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -1094,7 +1123,7 @@ export const games: GameInfo[] = [
     icon: "mdi-shape-outline",
     skills: ["sequence", "choice", "visual-search"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 180,
     defaultDwellMs: 1250
@@ -1109,7 +1138,7 @@ export const games: GameInfo[] = [
     icon: "mdi-pot-steam-outline",
     skills: ["sequence", "choice", "vocabulary"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 135,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -1124,7 +1153,7 @@ export const games: GameInfo[] = [
     icon: "mdi-filmstrip-box-multiple",
     skills: ["sequence", "choice", "vocabulary"],
     status: "therapy-ready",
-    stabilityStatus: "publish",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 140,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -1139,6 +1168,7 @@ export const games: GameInfo[] = [
     icon: "mdi-calendar-clock-outline",
     skills: ["sequence", "choice", "aac"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 140,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -1153,6 +1183,7 @@ export const games: GameInfo[] = [
     icon: "mdi-bridge",
     skills: ["sequence", "choice"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 135,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -1167,20 +1198,22 @@ export const games: GameInfo[] = [
     icon: "mdi-bookshelf",
     skills: ["sequence", "choice", "classification"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 135,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
   },
   {
-    id: "orchestra",
-    title: "Оркестр",
-    description: "Выбирай инструменты по очереди и собирай тихий оркестр; звук можно оставить выключенным.",
-    selfDescription: "Собери оркестр.",
-    route: "/games/orchestra",
+    id: "solfege",
+    title: "Сольфеджио",
+    description: "Найди ноты одной октавы на красивом пианино: клавиши мягко светятся, а тихий звук можно включить отдельно.",
+    selfDescription: "Найди ноты на пианино.",
+    route: "/games/solfege",
     category: "sequencing",
-    icon: "mdi-music-box-outline",
+    icon: "mdi-piano",
     skills: ["sequence", "choice"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 135,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -1195,6 +1228,7 @@ export const games: GameInfo[] = [
     icon: "mdi-emoticon-outline",
     skills: ["aac", "choice", "vocabulary"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 220,
     defaultDwellMs: 1300
@@ -1209,23 +1243,10 @@ export const games: GameInfo[] = [
     icon: "mdi-image-search",
     skills: ["aac", "vocabulary", "choice"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1200
-  },
-  {
-    id: "action-who",
-    title: "Кто что делает?",
-    description: "Выбирай персонажа или картинку действия по вопросу: кто прыгает, спит или ест; ошибка даёт мягкую подсказку.",
-    selfDescription: "Выбери, кто что делает.",
-    route: "/games/action-who",
-    category: "language-aac",
-    icon: "mdi-human-greeting",
-    skills: ["aac", "choice", "vocabulary"],
-    status: "therapy-ready",
-    recommendedSessionSeconds: 120,
-    minTargetSizePx: 180,
-    defaultDwellMs: 1300
   },
   {
     id: "eat-or-not-eat",
@@ -1237,6 +1258,7 @@ export const games: GameInfo[] = [
     icon: "mdi-food-apple",
     skills: ["classification", "aac", "choice"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1200
@@ -1251,6 +1273,7 @@ export const games: GameInfo[] = [
     icon: "mdi-shape-outline",
     skills: ["aac", "choice", "classification", "vocabulary"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 125,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -1265,6 +1288,7 @@ export const games: GameInfo[] = [
     icon: "mdi-check-circle-outline",
     skills: ["aac", "choice", "vocabulary"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -1279,6 +1303,7 @@ export const games: GameInfo[] = [
     icon: "mdi-message-text-outline",
     skills: ["aac", "choice", "vocabulary"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 220,
     defaultDwellMs: 1300
@@ -1293,6 +1318,7 @@ export const games: GameInfo[] = [
     icon: "mdi-hand-heart",
     skills: ["aac", "choice", "vocabulary"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 220,
     defaultDwellMs: 1300
@@ -1307,22 +1333,9 @@ export const games: GameInfo[] = [
     icon: "mdi-check",
     skills: ["aac", "choice", "vocabulary"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 125,
     minTargetSizePx: 190,
-    defaultDwellMs: 1300
-  },
-  {
-    id: "hurt-good",
-    title: "Болит / хорошо",
-    description: "Выбирай состояние или часть тела: хорошо, болит, где болит; любой ответ мягко подтверждается.",
-    selfDescription: "Скажи, как ты себя чувствуешь.",
-    route: "/games/hurt-good",
-    category: "language-aac",
-    icon: "mdi-emoticon-sick-outline",
-    skills: ["aac", "choice", "vocabulary"],
-    status: "therapy-ready",
-    recommendedSessionSeconds: 120,
-    minTargetSizePx: 220,
     defaultDwellMs: 1300
   },
   {
@@ -1335,6 +1348,7 @@ export const games: GameInfo[] = [
     icon: "mdi-map-marker-question-outline",
     skills: ["aac", "choice", "vocabulary", "visual-search"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 190,
     defaultDwellMs: 1300
@@ -1349,6 +1363,7 @@ export const games: GameInfo[] = [
     icon: "mdi-arrow-expand-horizontal",
     skills: ["aac", "choice", "classification", "vocabulary"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 200,
     defaultDwellMs: 1300
@@ -1363,6 +1378,7 @@ export const games: GameInfo[] = [
     icon: "mdi-numeric-1-box-multiple-outline",
     skills: ["aac", "choice", "counting", "vocabulary"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 200,
     defaultDwellMs: 1300
@@ -1377,20 +1393,7 @@ export const games: GameInfo[] = [
     icon: "mdi-account-check-outline",
     skills: ["aac", "choice", "vocabulary"],
     status: "therapy-ready",
-    recommendedSessionSeconds: 120,
-    minTargetSizePx: 190,
-    defaultDwellMs: 1300
-  },
-  {
-    id: "what-sounds",
-    title: "Что звучит?",
-    description: "Выбирай объект по мягкой визуальной звуковой волне; тихий звук можно оставить выключенным.",
-    selfDescription: "Выбери, что звучит.",
-    route: "/games/what-sounds",
-    category: "language-aac",
-    icon: "mdi-volume-high",
-    skills: ["aac", "choice", "vocabulary"],
-    status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 190,
     defaultDwellMs: 1300
@@ -1405,21 +1408,8 @@ export const games: GameInfo[] = [
     icon: "mdi-swap-horizontal",
     skills: ["aac", "choice", "vocabulary", "classification"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 125,
-    minTargetSizePx: 190,
-    defaultDwellMs: 1300
-  },
-  {
-    id: "tell-picture",
-    title: "Расскажи картинку",
-    description: "Выбирай фразы, объекты и действия по картинке, чтобы собрать короткое AAC-высказывание.",
-    selfDescription: "Расскажи про картинку.",
-    route: "/games/tell-picture",
-    category: "language-aac",
-    icon: "mdi-image-text",
-    skills: ["aac", "choice", "vocabulary"],
-    status: "therapy-ready",
-    recommendedSessionSeconds: 135,
     minTargetSizePx: 190,
     defaultDwellMs: 1300
   },
@@ -1433,6 +1423,7 @@ export const games: GameInfo[] = [
     icon: "mdi-order-bool-ascending",
     skills: ["aac", "choice", "sequence", "vocabulary"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 125,
     minTargetSizePx: 190,
     defaultDwellMs: 1300
@@ -1447,6 +1438,7 @@ export const games: GameInfo[] = [
     icon: "mdi-chat-outline",
     skills: ["aac", "choice", "vocabulary"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 135,
     minTargetSizePx: 180,
     defaultDwellMs: 1350
@@ -1461,6 +1453,7 @@ export const games: GameInfo[] = [
     icon: "mdi-check",
     skills: ["aac", "choice", "vocabulary"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 125,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -1475,6 +1468,7 @@ export const games: GameInfo[] = [
     icon: "mdi-keyboard",
     skills: ["typing", "vocabulary", "sequence"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 96,
     defaultDwellMs: 1200
@@ -1489,6 +1483,7 @@ export const games: GameInfo[] = [
     icon: "mdi-clock-outline",
     skills: ["counting", "choice", "math"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 170,
     defaultDwellMs: 1300
@@ -1503,6 +1498,7 @@ export const games: GameInfo[] = [
     icon: "mdi-calendar-check",
     skills: ["choice", "sequence", "vocabulary"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 190,
     defaultDwellMs: 1300
@@ -1517,6 +1513,7 @@ export const games: GameInfo[] = [
     icon: "mdi-counter",
     skills: ["counting", "choice"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 160,
     defaultDwellMs: 1200
@@ -1531,6 +1528,7 @@ export const games: GameInfo[] = [
     icon: "mdi-cash-multiple",
     skills: ["counting", "math", "choice"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 140,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -1545,6 +1543,7 @@ export const games: GameInfo[] = [
     icon: "mdi-pizza",
     skills: ["math", "choice", "classification"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 190,
     defaultDwellMs: 1300
@@ -1559,6 +1558,7 @@ export const games: GameInfo[] = [
     icon: "mdi-compare-horizontal",
     skills: ["counting", "choice"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 160,
     defaultDwellMs: 1200
@@ -1573,6 +1573,7 @@ export const games: GameInfo[] = [
     icon: "mdi-scale-balance",
     skills: ["counting", "math", "choice"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 125,
     minTargetSizePx: 170,
     defaultDwellMs: 1300
@@ -1587,6 +1588,7 @@ export const games: GameInfo[] = [
     icon: "mdi-counter",
     skills: ["counting", "choice", "sequence"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 150,
     defaultDwellMs: 1300
@@ -1601,6 +1603,7 @@ export const games: GameInfo[] = [
     icon: "mdi-counter",
     skills: ["counting", "choice", "sequence"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 190,
     defaultDwellMs: 1300
@@ -1615,6 +1618,7 @@ export const games: GameInfo[] = [
     icon: "mdi-check",
     skills: ["counting", "choice", "math"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 170,
     defaultDwellMs: 1300
@@ -1629,6 +1633,7 @@ export const games: GameInfo[] = [
     icon: "mdi-angle-acute",
     skills: ["choice", "classification", "visual-search"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -1643,6 +1648,7 @@ export const games: GameInfo[] = [
     icon: "mdi-chart-bar",
     skills: ["counting", "math", "choice"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 170,
     defaultDwellMs: 1300
@@ -1657,6 +1663,7 @@ export const games: GameInfo[] = [
     icon: "mdi-check-circle-outline",
     skills: ["counting", "math", "choice"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 170,
     defaultDwellMs: 1300
@@ -1671,6 +1678,7 @@ export const games: GameInfo[] = [
     icon: "mdi-cart-outline",
     skills: ["counting", "math", "choice"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 140,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
@@ -1685,6 +1693,7 @@ export const games: GameInfo[] = [
     icon: "mdi-grid-large",
     skills: ["visual-search", "choice", "math"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 160,
     defaultDwellMs: 1300
@@ -1699,6 +1708,7 @@ export const games: GameInfo[] = [
     icon: "mdi-shape",
     skills: ["choice", "classification"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1200
@@ -1713,6 +1723,7 @@ export const games: GameInfo[] = [
     icon: "mdi-shape-outline",
     skills: ["choice", "classification", "visual-search"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 125,
     minTargetSizePx: 190,
     defaultDwellMs: 1300
@@ -1727,6 +1738,7 @@ export const games: GameInfo[] = [
     icon: "mdi-calculator-variant",
     skills: ["math", "typing"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 96,
     defaultDwellMs: 1200
@@ -1741,6 +1753,7 @@ export const games: GameInfo[] = [
     icon: "mdi-mine",
     skills: ["choice", "visual-search", "sequence"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 112,
     defaultDwellMs: 1200
@@ -1755,6 +1768,7 @@ export const games: GameInfo[] = [
     icon: "mdi-dots-grid",
     skills: ["counting", "choice", "classification"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 148,
     defaultDwellMs: 1300
@@ -1769,6 +1783,7 @@ export const games: GameInfo[] = [
     icon: "mdi-grid-large",
     skills: ["choice", "sequence", "counting"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 132,
     defaultDwellMs: 1100
@@ -1783,6 +1798,7 @@ export const games: GameInfo[] = [
     icon: "mdi-puzzle-outline",
     skills: ["choice", "sequence", "visual-search"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 132,
     defaultDwellMs: 1200
@@ -1797,6 +1813,7 @@ export const games: GameInfo[] = [
     icon: "mdi-cards-playing-outline",
     skills: ["choice", "classification", "sequence"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 160,
     defaultDwellMs: 1300
@@ -1811,6 +1828,7 @@ export const games: GameInfo[] = [
     icon: "mdi-view-grid-plus",
     skills: ["choice", "sequence"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 116,
     defaultDwellMs: 1100
@@ -1825,6 +1843,7 @@ export const games: GameInfo[] = [
     icon: "mdi-package-variant-closed",
     skills: ["choice", "sequence"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 148,
     defaultDwellMs: 1200
@@ -1839,6 +1858,7 @@ export const games: GameInfo[] = [
     icon: "mdi-grid-large",
     skills: ["choice", "sequence", "attention-shift"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 128,
     defaultDwellMs: 1300
@@ -1853,6 +1873,7 @@ export const games: GameInfo[] = [
     icon: "mdi-dots-grid",
     skills: ["choice", "sequence", "attention-shift"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 140,
     defaultDwellMs: 1450
@@ -1867,6 +1888,7 @@ export const games: GameInfo[] = [
     icon: "mdi-circle-double",
     skills: ["choice", "sequence", "attention-shift"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 126,
     defaultDwellMs: 1300
@@ -1881,6 +1903,7 @@ export const games: GameInfo[] = [
     icon: "mdi-vector-line",
     skills: ["choice", "sequence", "visual-search"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 104,
     defaultDwellMs: 1300
@@ -1895,6 +1918,7 @@ export const games: GameInfo[] = [
     icon: "mdi-checkerboard",
     skills: ["choice", "sequence", "attention-shift"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 126,
     defaultDwellMs: 1300
@@ -1909,6 +1933,7 @@ export const games: GameInfo[] = [
     icon: "mdi-chess-knight",
     skills: ["choice", "sequence", "attention-shift"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 126,
     defaultDwellMs: 1300
@@ -1923,6 +1948,7 @@ export const games: GameInfo[] = [
     icon: "mdi-tangram",
     skills: ["choice", "classification", "visual-search"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 150,
     defaultDwellMs: 1300
@@ -1937,6 +1963,7 @@ export const games: GameInfo[] = [
     icon: "mdi-water",
     skills: ["choice", "visual-search"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 130,
     defaultDwellMs: 1300
@@ -1951,6 +1978,7 @@ export const games: GameInfo[] = [
     icon: "mdi-tank",
     skills: ["choice", "sequence"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 150,
     defaultDwellMs: 1300
@@ -1965,6 +1993,7 @@ export const games: GameInfo[] = [
     icon: "mdi-wall",
     skills: ["choice", "attention-shift"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 150,
     defaultDwellMs: 1200
@@ -1979,6 +2008,7 @@ export const games: GameInfo[] = [
     icon: "mdi-table-tennis",
     skills: ["choice", "attention-shift"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 150,
     defaultDwellMs: 1200
@@ -1993,6 +2023,7 @@ export const games: GameInfo[] = [
     icon: "mdi-snake",
     skills: ["choice", "sequence", "attention-shift"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 165,
     minTargetSizePx: 150,
     defaultDwellMs: 1100
@@ -2007,6 +2038,7 @@ export const games: GameInfo[] = [
     icon: "mdi-pac-man",
     skills: ["choice", "sequence", "visual-search"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 150,
     defaultDwellMs: 1300
@@ -2021,6 +2053,7 @@ export const games: GameInfo[] = [
     icon: "mdi-magnet-on",
     skills: ["continuous-control", "smooth-pursuit"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
     defaultDwellMs: 600
@@ -2035,6 +2068,7 @@ export const games: GameInfo[] = [
     icon: "mdi-bullseye",
     skills: ["continuous-control", "smooth-pursuit", "fixation"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
     defaultDwellMs: 900
@@ -2049,6 +2083,7 @@ export const games: GameInfo[] = [
     icon: "mdi-sail-boat",
     skills: ["continuous-control", "smooth-pursuit"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 135,
     minTargetSizePx: 150,
     defaultDwellMs: 500
@@ -2063,6 +2098,7 @@ export const games: GameInfo[] = [
     icon: "mdi-snake",
     skills: ["continuous-control", "smooth-pursuit"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
     defaultDwellMs: 600
@@ -2077,6 +2113,7 @@ export const games: GameInfo[] = [
     icon: "mdi-table-tennis",
     skills: ["continuous-control", "smooth-pursuit"],
     status: "polished",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 90,
     minTargetSizePx: 160,
     defaultDwellMs: 1000
@@ -2091,6 +2128,7 @@ export const games: GameInfo[] = [
     icon: "mdi-gate-open",
     skills: ["continuous-control", "smooth-pursuit"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 180,
     defaultDwellMs: 600
@@ -2105,6 +2143,7 @@ export const games: GameInfo[] = [
     icon: "mdi-car-side",
     skills: ["continuous-control", "smooth-pursuit"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
     defaultDwellMs: 600
@@ -2119,6 +2158,7 @@ export const games: GameInfo[] = [
     icon: "mdi-airballoon",
     skills: ["continuous-control", "smooth-pursuit"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
     defaultDwellMs: 600
@@ -2133,6 +2173,7 @@ export const games: GameInfo[] = [
     icon: "mdi-airplane",
     skills: ["continuous-control", "smooth-pursuit"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
     defaultDwellMs: 600
@@ -2147,6 +2188,7 @@ export const games: GameInfo[] = [
     icon: "mdi-draw-pen",
     skills: ["continuous-control", "smooth-pursuit"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
     defaultDwellMs: 600
@@ -2161,6 +2203,7 @@ export const games: GameInfo[] = [
     icon: "mdi-fish",
     skills: ["continuous-control", "smooth-pursuit"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
     defaultDwellMs: 600
@@ -2175,6 +2218,7 @@ export const games: GameInfo[] = [
     icon: "mdi-train",
     skills: ["continuous-control", "smooth-pursuit"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
     defaultDwellMs: 700
@@ -2189,6 +2233,7 @@ export const games: GameInfo[] = [
     icon: "mdi-scale-balance",
     skills: ["continuous-control", "smooth-pursuit", "fixation"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 170,
     defaultDwellMs: 600
@@ -2203,6 +2248,7 @@ export const games: GameInfo[] = [
     icon: "mdi-waves",
     skills: ["continuous-control", "smooth-pursuit"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
     defaultDwellMs: 600
@@ -2217,6 +2263,7 @@ export const games: GameInfo[] = [
     icon: "mdi-snowflake",
     skills: ["continuous-control", "smooth-pursuit"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
     defaultDwellMs: 600
@@ -2231,6 +2278,7 @@ export const games: GameInfo[] = [
     icon: "mdi-robot-vacuum",
     skills: ["continuous-control", "smooth-pursuit"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
     defaultDwellMs: 600
@@ -2245,6 +2293,7 @@ export const games: GameInfo[] = [
     icon: "mdi-vector-polyline",
     skills: ["continuous-control", "smooth-pursuit"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1000
@@ -2259,6 +2308,7 @@ export const games: GameInfo[] = [
     icon: "mdi-watering-can",
     skills: ["continuous-control", "smooth-pursuit"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 150,
     defaultDwellMs: 1200
@@ -2273,6 +2323,7 @@ export const games: GameInfo[] = [
     icon: "mdi-orbit",
     skills: ["continuous-control", "smooth-pursuit"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
     defaultDwellMs: 600
@@ -2287,6 +2338,7 @@ export const games: GameInfo[] = [
     icon: "mdi-account-music",
     skills: ["continuous-control", "smooth-pursuit"],
     status: "therapy-ready",
+    stabilityStatus: "needs-check",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 156,
     defaultDwellMs: 600

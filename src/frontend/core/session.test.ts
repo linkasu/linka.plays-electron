@@ -107,4 +107,18 @@ describe("useGameSession", () => {
       mounted.unmount();
     }
   });
+
+  it("can keep running after session time elapses", async () => {
+    const mounted = mountSession({ maxSteps: 8, sessionSeconds: 1 }, { finishOnTimeout: false });
+
+    try {
+      vi.advanceTimersByTime(2_000);
+      await nextTick();
+
+      expect(mounted.api.session.status).toBe("running");
+      expect(mounted.api.session.finishReason).toBeUndefined();
+    } finally {
+      mounted.unmount();
+    }
+  });
 });

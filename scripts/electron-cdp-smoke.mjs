@@ -116,12 +116,15 @@ async function evaluateJson(client, expression) {
   return result.result?.value;
 }
 
-async function collectMetrics(client, expectedRoute) {
+async function collectMetrics(client, expectedRoute, minBottomClearanceRem) {
   const expectedHash = `#${expectedRoute}`;
   return evaluateJson(client, `(() => {
     const expectedHash = ${JSON.stringify(expectedHash)};
+    const minBottomClearanceRem = ${JSON.stringify(minBottomClearanceRem)};
     const viewport = { width: window.innerWidth, height: window.innerHeight };
     const scrolling = document.scrollingElement || document.documentElement;
+    const rootFontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    const minBottomClearance = minBottomClearanceRem * rootFontSize;
     function parseRgb(value) {
       const match = value.match(/rgba?\\(([^)]+)\\)/);
       if (!match) return undefined;
@@ -197,6 +200,7 @@ async function collectMetrics(client, expectedRoute) {
         visibleRatio: Number((visibleArea / area).toFixed(3)),
         viewportAreaRatio: Number((visibleArea / viewportArea).toFixed(4)),
         shortSideRatio: Number((Math.min(rect.width, rect.height) / Math.min(viewport.width, viewport.height)).toFixed(3)),
+        bottomClearance: Math.round(viewport.height - rect.bottom),
         firstViewportVisible: visibleArea > 0,
         overlapsHud,
         contrastRatio: targetContrast(el)
@@ -221,8 +225,10 @@ async function collectMetrics(client, expectedRoute) {
       visibleTargetCount: visibleTargets.length,
       minViewportAreaRatio: visibleTargets.length ? Math.min(...visibleTargets.map((target) => target.viewportAreaRatio)) : 0,
       minShortSideRatio: visibleTargets.length ? Math.min(...visibleTargets.map((target) => target.shortSideRatio)) : 0,
+      minBottomClearance: visibleTargets.length ? Math.min(...visibleTargets.map((target) => target.bottomClearance)) : null,
       hudOverlapCount: targetRects.filter((target) => target.overlapsHud).length,
       lowContrastTargetCount: targetRects.filter((target) => target.firstViewportVisible && target.contrastRatio !== null && target.contrastRatio < 4.5).length,
+      bottomCrowdedTargetCount: targetRects.filter((target) => target.firstViewportVisible && target.bottomClearance < minBottomClearance).length,
       wasdPanelCount: document.querySelectorAll('.wasd-panel').length,
       canvases: canvasRects,
       targets: targetRects
@@ -236,6 +242,7 @@ function isFailure(result) {
     || result.metrics.horizontalOverflow
     || result.metrics.hudOverlapCount
     || result.metrics.lowContrastTargetCount
+    || result.metrics.bottomCrowdedTargetCount
     || (result.metrics.wasdPanelCount > 0 && result.metrics.visibleTargetCount < result.metrics.targetCount)
     || (result.metrics.targetCount > 0 && result.metrics.visibleTargetCount === 0);
 }
@@ -255,6 +262,7 @@ function summarizeResults(results) {
       horizontalOverflowCount: 0,
       hudOverlapCount: 0,
       lowContrastTargetCount: 0,
+      bottomCrowdedTargetCount: 0,
       hiddenTargetViewportCount: 0,
       zeroVisibleTargetViewportCount: 0,
       wasdPartialViewportCount: 0,
@@ -262,6 +270,7 @@ function summarizeResults(results) {
       minVisibleTargetCount: null,
       minViewportAreaRatio: null,
       minShortSideRatio: null,
+      minBottomClearance: null,
       canvasCount: 0
     };
     const metrics = result.metrics;
@@ -271,6 +280,7 @@ function summarizeResults(results) {
     current.horizontalOverflowCount += metrics.horizontalOverflow ? 1 : 0;
     current.hudOverlapCount += metrics.hudOverlapCount;
     current.lowContrastTargetCount += metrics.lowContrastTargetCount;
+    current.bottomCrowdedTargetCount += metrics.bottomCrowdedTargetCount;
     current.hiddenTargetViewportCount += metrics.visibleTargetCount < metrics.targetCount ? 1 : 0;
     current.zeroVisibleTargetViewportCount += metrics.targetCount > 0 && metrics.visibleTargetCount === 0 ? 1 : 0;
     current.wasdPartialViewportCount += metrics.wasdPanelCount > 0 && metrics.visibleTargetCount < metrics.targetCount ? 1 : 0;
@@ -278,6 +288,7 @@ function summarizeResults(results) {
     current.minVisibleTargetCount = minOrCurrent(current.minVisibleTargetCount, metrics.visibleTargetCount);
     current.minViewportAreaRatio = minOrCurrent(current.minViewportAreaRatio, metrics.minViewportAreaRatio);
     current.minShortSideRatio = minOrCurrent(current.minShortSideRatio, metrics.minShortSideRatio);
+    current.minBottomClearance = minOrCurrent(current.minBottomClearance, metrics.minBottomClearance);
     current.canvasCount = Math.max(current.canvasCount, metrics.canvases.length);
     byRoute.set(result.route, current);
   }
@@ -295,6 +306,7 @@ function summarizeResults(results) {
 
 async function main() {
   const port = Number(argValue("--port", "9222"));
+  const minBottomClearanceRem = Number(argValue("--min-bottom-clearance-rem", "1.5"));
   const routes = await parseRoutes();
   const screenshotDirValue = argValue("--screenshot-dir", "");
   const screenshotDir = screenshotDirValue ? path.resolve(screenshotDirValue) : "";
@@ -331,7 +343,7 @@ async function main() {
       await wait(250);
       await evaluateJson(client, "window.scrollTo(0, 0); true");
       await wait(900);
-      const metrics = await collectMetrics(client, route);
+      const metrics = await collectMetrics(client, route, minBottomClearanceRem);
       let screenshotPath = null;
       if (screenshotDir) {
         screenshotPath = path.join(screenshotDir, screenshotName(route, viewport));
@@ -351,7 +363,7 @@ async function main() {
 
   const failures = results.filter((result) => isFailure(result));
   const summary = summarizeResults(results);
-  const report = { port, routes, checked: results.length, failures: failures.length, screenshotDir: screenshotDir || null, summary, results };
+  const report = { port, routes, checked: results.length, failures: failures.length, minBottomClearanceRem, screenshotDir: screenshotDir || null, summary, results };
   const json = JSON.stringify(report, null, 2);
 
   const outputPath = argValue("--output", "");

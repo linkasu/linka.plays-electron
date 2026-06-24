@@ -1,373 +1,659 @@
 <script setup lang="ts">
-import { computed, onUnmounted, reactive, ref, watch } from "vue";
-import { useRouter } from "vue-router";
-import GameDwellButton from "../../components/game/GameDwellButton.vue";
+import { computed, reactive, ref } from "vue";
 import GameHud from "../../components/game/GameHud.vue";
-import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
-import { resolveMenuRoute } from "../../core/menuMode";
+import { useCanvasStage, useGameLoop } from "../../core/canvas";
+import { bridgePieceById, bridgePieceTargetId, bridgeSlotTargetId, buildBridgeMaxSteps, buildBridgePieces, buildBridgeSlots, canPlaceBridgePieceAtSlot, nextBridgePieceOfKind, placedPieceIds, type BridgePiece, type BridgePieceKind, type BridgePlacement, type BridgeSlot } from "./model";
 
-type BridgePiece = {
+type Point = { x: number; y: number };
+type Rect = Point & { width: number; height: number };
+type Layout = {
+  panel: Rect;
+  header: Rect;
+  bridge: Rect;
+  cards: Rect;
+  columns: number;
+  rows: number;
+};
+type KindTarget = Rect & { pieceKind: BridgePieceKind; label: string };
+type SlotTarget = Rect & { slot: BridgeSlot };
+type Target = (KindTarget & { kind: "piece-kind" }) | (SlotTarget & { kind: "slot" });
+type BridgeGeometry = {
+  inner: Rect;
+  river: Rect;
+  leftBank: Rect;
+  rightBank: Rect;
+  bankTopY: number;
+  riverBottom: number;
+  deckY: number;
+  deckHeight: number;
+  deckStartX: number;
+  deckEndX: number;
+  deckWidth: number;
+  segmentWidth: number;
+  supportXs: number[];
+};
+type FallingPiece = {
   id: string;
-  order: number;
-  label: string;
-  kind: "support" | "plank";
-  color: string;
-  placed: boolean;
+  piece: BridgePiece;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  vx: number;
+  vy: number;
+  angle: number;
+  angularVelocity: number;
+  age: number;
+  bounces: number;
 };
 
-const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("build-bridge", {
-  maxSteps: 8,
+const { pointer } = useGazePointer();
+const { canvasRef, context, width, height } = useCanvasStage();
+const { session, durationMs, pauseSession, resumeSession, recordEvent, recordSuccess, finishSession } = useGameSessionFor("build-bridge", {
+  maxSteps: buildBridgeMaxSteps,
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
+  finishOnTimeout: false
 });
 
-const pieces = reactive<BridgePiece[]>([]);
-const resultVisible = ref(false);
-const lastMistakeId = ref<string>();
-const feedbackMessage = ref("Начни с опор. Следующая деталь мягко подсвечена.");
-const orderedPieces = computed(() => [...pieces].sort((a, b) => a.order - b.order));
-const placedPieces = computed(() => orderedPieces.value.filter((piece) => piece.placed));
-const nextPiece = computed(() => orderedPieces.value.find((piece) => !piece.placed));
-const currentRoundId = computed(() => `build-bridge:round:${session.step + 1}`);
-let resultTimer = 0;
+const placements = ref<BridgePlacement[]>([]);
+const selectedPieceId = ref<string>();
+const fallingPieces = reactive<FallingPiece[]>([]);
+const message = ref("Сначала выбери: опора или доска. Потом покажи место на мосту.");
+const selectedPiece = computed(() => selectedPieceId.value ? bridgePieceById(selectedPieceId.value) : undefined);
 
-function pieceTargetId(piece: BridgePiece) {
-  return `build-bridge:piece:${piece.id}`;
+let targets: Target[] = [];
+let activeTargetId = "";
+let activeStartedAt = 0;
+let activeProgress = 0;
+let cooldownUntil = 0;
+let fallingSequence = 0;
+
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, value));
 }
 
-function resetPieces() {
-  pieces.splice(0, pieces.length,
-    { id: "support-left", order: 1, label: "левая опора", kind: "support", color: "#8ecae6", placed: false },
-    { id: "support-center", order: 2, label: "средняя опора", kind: "support", color: "#90caf9", placed: false },
-    { id: "support-right", order: 3, label: "правая опора", kind: "support", color: "#80cbc4", placed: false },
-    { id: "plank-one", order: 4, label: "доска 1", kind: "plank", color: "#d7a86e", placed: false },
-    { id: "plank-two", order: 5, label: "доска 2", kind: "plank", color: "#c99055", placed: false },
-    { id: "plank-three", order: 6, label: "доска 3", kind: "plank", color: "#d7a86e", placed: false },
-    { id: "plank-four", order: 7, label: "доска 4", kind: "plank", color: "#c99055", placed: false },
-    { id: "plank-five", order: 8, label: "доска 5", kind: "plank", color: "#d7a86e", placed: false }
-  );
+function roundedRect(ctx: CanvasRenderingContext2D, rect: Rect, radius: number) {
+  const r = Math.min(radius, rect.width / 2, rect.height / 2);
+  ctx.beginPath();
+  ctx.moveTo(rect.x + r, rect.y);
+  ctx.lineTo(rect.x + rect.width - r, rect.y);
+  ctx.quadraticCurveTo(rect.x + rect.width, rect.y, rect.x + rect.width, rect.y + r);
+  ctx.lineTo(rect.x + rect.width, rect.y + rect.height - r);
+  ctx.quadraticCurveTo(rect.x + rect.width, rect.y + rect.height, rect.x + rect.width - r, rect.y + rect.height);
+  ctx.lineTo(rect.x + r, rect.y + rect.height);
+  ctx.quadraticCurveTo(rect.x, rect.y + rect.height, rect.x, rect.y + rect.height - r);
+  ctx.lineTo(rect.x, rect.y + r);
+  ctx.quadraticCurveTo(rect.x, rect.y, rect.x + r, rect.y);
 }
 
-function clearResultTimer() {
-  window.clearTimeout(resultTimer);
-  resultTimer = 0;
+function fillRoundedRect(ctx: CanvasRenderingContext2D, rect: Rect, radius: number, color: string | CanvasGradient) {
+  roundedRect(ctx, rect, radius);
+  ctx.fillStyle = color;
+  ctx.fill();
 }
 
-function scheduleResultDialog() {
-  clearResultTimer();
-  resultTimer = window.setTimeout(() => {
-    resultVisible.value = true;
-  }, 1200);
+function strokeRoundedRect(ctx: CanvasRenderingContext2D, rect: Rect, radius: number, color: string, lineWidth = 2) {
+  roundedRect(ctx, rect, radius);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lineWidth;
+  ctx.stroke();
 }
 
-function choosePiece(piece: BridgePiece) {
-  if (session.status !== "running" || piece.placed) return;
+function drawText(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, options: { size: number; weight?: number; color?: string; align?: CanvasTextAlign; baseline?: CanvasTextBaseline }) {
+  ctx.fillStyle = options.color ?? "#1d2a32";
+  ctx.font = `${options.weight ?? 700} ${options.size}px Roboto, Arial, sans-serif`;
+  ctx.textAlign = options.align ?? "center";
+  ctx.textBaseline = options.baseline ?? "middle";
+  ctx.fillText(text, x, y);
+}
 
-  const expectedPiece = nextPiece.value;
-  const targetId = pieceTargetId(piece);
-  const expectedTargetId = expectedPiece ? pieceTargetId(expectedPiece) : undefined;
-  if (piece.id !== expectedPiece?.id) {
-    feedbackMessage.value = expectedPiece ? `Почти. Сначала нужна деталь: ${expectedPiece.label}. Мост стоит спокойно.` : "Мост уже собран.";
-    lastMistakeId.value = piece.id;
-    recordMistake({ roundId: currentRoundId.value, targetId, expectedTargetId, expected: expectedPiece?.label, actual: piece.label, isCorrect: false });
-    if (expectedTargetId) recordHint({ roundId: currentRoundId.value, targetId: expectedTargetId, reason: "sequence-order" });
+function computeLayout(): Layout {
+  const w = width.value;
+  const h = height.value;
+  const marginX = clamp(w * 0.02, 16, 44);
+  const top = clamp(h * 0.1, 68, 112);
+  const bottom = clamp(h * 0.025, 12, 28);
+  const panel: Rect = { x: marginX, y: top, width: w - marginX * 2, height: h - top - bottom };
+  const gap = clamp(h * 0.014, 8, 18);
+  const headerHeight = h < 680 ? 44 : clamp(h * 0.12, 72, 104);
+  const bridgeHeight = clamp(panel.height * (h < 680 ? 0.3 : 0.36), 156, 320);
+  const header: Rect = { x: panel.x + 20, y: panel.y + 14, width: panel.width - 40, height: headerHeight };
+  const bridge: Rect = { x: panel.x + 24, y: header.y + header.height + gap, width: panel.width - 48, height: bridgeHeight };
+  const cardsY = bridge.y + bridge.height + gap;
+  const cards: Rect = { x: panel.x + 24, y: cardsY, width: panel.width - 48, height: Math.max(180, panel.y + panel.height - cardsY - 18) };
+  return { panel, header, bridge, cards, columns: 4, rows: 2 };
+}
+
+function placedSet() {
+  return new Set(placedPieceIds(placements.value));
+}
+
+function targetPayload(targetId: string, now: number, progress: number, reason?: "left" | "invalid-gaze" | "disabled") {
+  return {
+    targetId,
+    at: Date.now(),
+    dwellMs: session.settings.dwellMs,
+    elapsedMs: activeStartedAt ? now - activeStartedAt : 0,
+    progress,
+    pointer: { ...pointer.value },
+    reason
+  };
+}
+
+function resetDwell(now: number, reason?: "left" | "invalid-gaze" | "disabled") {
+  if (activeTargetId && reason) recordEvent("target-cancel", targetPayload(activeTargetId, now, activeProgress, reason));
+  activeTargetId = "";
+  activeStartedAt = 0;
+  activeProgress = 0;
+}
+
+function hitTestTarget(point: Point) {
+  return targets.find((target) => (
+    point.x >= target.x
+    && point.x <= target.x + target.width
+    && point.y >= target.y
+    && point.y <= target.y + target.height
+  ));
+}
+
+function spawnFallingPiece(piece: BridgePiece, source: Rect) {
+  const centerX = source.x + source.width * 0.5;
+  fallingSequence += 1;
+  fallingPieces.push({
+    id: `falling-${piece.id}-${fallingSequence}`,
+    piece,
+    x: centerX,
+    y: source.y + source.height * 0.48,
+    width: piece.kind === "support" ? Math.min(72, source.width * 0.34) : Math.min(118, source.width * 0.5),
+    height: piece.kind === "support" ? Math.min(104, source.height * 0.56) : Math.min(38, source.height * 0.2),
+    vx: (centerX < width.value * 0.5 ? -1 : 1) * clamp(width.value * 0.12, 80, 180),
+    vy: -clamp(height.value * 0.22, 110, 210),
+    angle: (Math.random() - 0.5) * 0.4,
+    angularVelocity: (Math.random() > 0.5 ? 1 : -1) * (2.1 + Math.random() * 2.6),
+    age: 0,
+    bounces: 0
+  });
+  if (fallingPieces.length > 10) fallingPieces.shift();
+}
+
+function selectPieceKind(target: KindTarget) {
+  const piece = nextBridgePieceOfKind(target.pieceKind, placedPieceIds(placements.value));
+  if (!piece) {
+    message.value = target.pieceKind === "support" ? "Все опоры уже стоят." : "Все доски уже уложены.";
+    return;
+  }
+  const targetId = bridgePieceTargetId(piece);
+  selectedPieceId.value = piece.id;
+  recordEvent("hint", { targetId, action: "piece-kind-selected", pieceKind: target.pieceKind, pieceId: piece.id });
+  message.value = `Теперь выбери место: ${piece.label}.`;
+}
+
+function placeSelectedPiece(target: SlotTarget) {
+  const piece = selectedPiece.value;
+  if (!piece) return;
+
+  const targetId = bridgeSlotTargetId(target.slot);
+  const stable = canPlaceBridgePieceAtSlot(piece.id, target.slot.id, placements.value);
+  if (stable) {
+    placements.value = [...placements.value, { pieceId: piece.id, slotId: target.slot.id }];
+    selectedPieceId.value = undefined;
+    recordSuccess({ targetId, answerId: piece.id, slotId: target.slot.id, action: "placed-piece" });
+    message.value = placements.value.length >= buildBridgeMaxSteps ? "Мост готов. Все детали нашли опору." : "Деталь держится. Выбери следующую деталь.";
+    if (placements.value.length >= buildBridgeMaxSteps && session.status === "running") finishSession("game-complete");
     return;
   }
 
-  piece.placed = true;
-  lastMistakeId.value = undefined;
-  feedbackMessage.value = piece.kind === "support" ? `${piece.label} на месте. Мост становится крепче.` : `${piece.label} легла на мост.`;
-  recordSuccess({ roundId: currentRoundId.value, targetId, answerId: piece.id, expected: piece.label, actual: piece.label, isCorrect: true });
+  spawnFallingPiece(piece, target);
+  selectedPieceId.value = undefined;
+  message.value = `${piece.label} не нашла опору и упала. Выбери деталь снова.`;
+  recordEvent("hint", { targetId, action: "piece-fell", pieceId: piece.id, slotId: target.slot.id, supportedBy: target.slot.supportedBy });
+}
 
-  if (placedPieces.value.length >= pieces.length && session.status === "running") {
-    feedbackMessage.value = "Мост готов. По нему можно спокойно перейти.";
-    finishSession("game-complete");
+function updateDwell(now: number) {
+  if (session.status !== "running" || now < cooldownUntil) return;
+  if (!pointer.value.valid) {
+    resetDwell(now, activeTargetId ? "invalid-gaze" : undefined);
+    return;
+  }
+
+  const target = hitTestTarget(pointer.value);
+  if (!target) {
+    resetDwell(now, activeTargetId ? "left" : undefined);
+    return;
+  }
+
+  const targetId = target.kind === "piece-kind" ? `build-bridge:kind:${target.pieceKind}` : bridgeSlotTargetId(target.slot);
+  if (activeTargetId !== targetId) {
+    resetDwell(now);
+    activeTargetId = targetId;
+    activeStartedAt = now;
+    activeProgress = 0;
+    recordEvent("target-enter", targetPayload(targetId, now, 0));
+  }
+
+  activeProgress = Math.min(1, (now - activeStartedAt) / session.settings.dwellMs);
+  if (activeProgress >= 1) {
+    recordEvent("target-click", targetPayload(targetId, now, 1));
+    if (target.kind === "piece-kind") selectPieceKind(target);
+    else placeSelectedPiece(target);
+    resetDwell(now);
+    cooldownUntil = now + 650;
   }
 }
 
-function restart() {
-  clearResultTimer();
-  resultVisible.value = false;
-  lastMistakeId.value = undefined;
-  feedbackMessage.value = "Начни с опор. Следующая деталь мягко подсвечена.";
-  resetPieces();
-  startSession();
+function updatePhysics(delta: number) {
+  const floor = height.value - clamp(height.value * 0.055, 24, 52);
+  const gravity = clamp(height.value * 1.9, 980, 1900);
+  for (let index = fallingPieces.length - 1; index >= 0; index -= 1) {
+    const body = fallingPieces[index];
+    body.age += delta;
+    body.vy += gravity * delta;
+    body.x += body.vx * delta;
+    body.y += body.vy * delta;
+    body.angle += body.angularVelocity * delta;
+
+    const halfHeight = body.height * 0.5;
+    if (body.y + halfHeight > floor) {
+      body.y = floor - halfHeight;
+      body.vy = -Math.abs(body.vy) * 0.34;
+      body.vx *= 0.72;
+      body.angularVelocity *= 0.58;
+      body.bounces += 1;
+      if (Math.abs(body.vy) < 55) body.vy = 0;
+    }
+
+    if (body.x < -160 || body.x > width.value + 160 || body.age > 5.2) fallingPieces.splice(index, 1);
+  }
 }
 
-resetPieces();
+function update(delta: number, now: number) {
+  if (session.status === "running") updateDwell(now);
+  if (session.status !== "paused") updatePhysics(delta);
+}
 
-onUnmounted(() => {
-  clearResultTimer();
-});
+function drawBackground(ctx: CanvasRenderingContext2D) {
+  const sky = ctx.createLinearGradient(0, 0, width.value, height.value);
+  sky.addColorStop(0, "#dff7fb");
+  sky.addColorStop(0.55, "#fff8df");
+  sky.addColorStop(1, "#eef7f6");
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, width.value, height.value);
+}
 
-watch(() => session.status, (status) => {
-  if (status === "finished") scheduleResultDialog();
-  else {
-    clearResultTimer();
-    resultVisible.value = false;
+function drawHeader(ctx: CanvasRenderingContext2D, layout: Layout) {
+  const centerX = layout.header.x + layout.header.width * 0.5;
+  if (height.value >= 680) drawText(ctx, "ПОСЛЕДОВАТЕЛЬНОСТЬ ДЕТАЛЕЙ", centerX, layout.header.y + 18, { size: 13, weight: 700, color: "#8e76c7" });
+  drawText(ctx, "Построй мост", centerX, layout.header.y + (height.value < 680 ? 22 : 56), { size: clamp(width.value * 0.034, 28, 54), weight: 800, color: "#40524f" });
+  if (height.value >= 680) drawText(ctx, message.value, centerX, layout.header.y + layout.header.height - 16, { size: clamp(width.value * 0.012, 15, 22), weight: 500, color: "#768481" });
+}
+
+function bridgeInnerRect(rect: Rect): Rect {
+  return { x: rect.x + 18, y: rect.y + 18, width: rect.width - 36, height: rect.height - 36 };
+}
+
+function bridgeGeometry(rect: Rect): BridgeGeometry {
+  const inner = bridgeInnerRect(rect);
+  const river: Rect = { x: inner.x, y: inner.y, width: inner.width, height: inner.height };
+  const bankHeight = clamp(inner.height * 0.28, 42, 78);
+  const bankTopY = river.y + river.height - bankHeight;
+  const deckHeight = clamp(inner.height * 0.11, 24, 38);
+  const deckY = bankTopY - clamp(inner.height * 0.32, 54, 90);
+  const deckStartX = river.x + river.width * 0.28;
+  const deckEndX = river.x + river.width * 0.72;
+  const deckWidth = deckEndX - deckStartX;
+  const segmentWidth = deckWidth / 5;
+
+  return {
+    inner,
+    river,
+    leftBank: { x: river.x, y: bankTopY, width: river.width * 0.2, height: bankHeight + 12 },
+    rightBank: { x: river.x + river.width * 0.8, y: bankTopY, width: river.width * 0.2, height: bankHeight + 12 },
+    bankTopY,
+    riverBottom: river.y + river.height - 14,
+    deckY,
+    deckHeight,
+    deckStartX,
+    deckEndX,
+    deckWidth,
+    segmentWidth,
+    supportXs: [deckStartX + segmentWidth, deckStartX + segmentWidth * 2, deckStartX + segmentWidth * 3, deckStartX + segmentWidth * 4]
+  };
+}
+
+function drawWater(ctx: CanvasRenderingContext2D, rect: Rect) {
+  fillRoundedRect(ctx, rect, 24, "#d9f1fb");
+  const geometry = bridgeGeometry(rect);
+  const { river } = geometry;
+  const water = ctx.createLinearGradient(river.x, river.y, river.x + river.width, river.y + river.height);
+  water.addColorStop(0, "#78d5f6");
+  water.addColorStop(1, "#45b8df");
+  fillRoundedRect(ctx, river, 22, water);
+  ctx.save();
+  roundedRect(ctx, river, 22);
+  ctx.clip();
+  ctx.strokeStyle = "rgb(255 255 255 / 34%)";
+  ctx.lineWidth = 8;
+  for (let x = river.x - river.height; x < river.x + river.width; x += 54) {
+    ctx.beginPath();
+    ctx.moveTo(x, river.y + river.height);
+    ctx.lineTo(x + river.height * 0.44, river.y);
+    ctx.stroke();
   }
-});
+  ctx.fillStyle = "rgb(37 108 128 / 16%)";
+  ctx.fillRect(river.x, geometry.riverBottom - 12, river.width, 26);
+  ctx.fillStyle = "#b8d98f";
+  ctx.fillRect(geometry.leftBank.x, geometry.leftBank.y, geometry.leftBank.width, geometry.leftBank.height);
+  ctx.fillRect(geometry.rightBank.x, geometry.rightBank.y, geometry.rightBank.width, geometry.rightBank.height);
+  ctx.fillStyle = "#99c16d";
+  ctx.fillRect(geometry.leftBank.x, geometry.leftBank.y, geometry.leftBank.width, 6);
+  ctx.fillRect(geometry.rightBank.x, geometry.rightBank.y, geometry.rightBank.width, 6);
+  ctx.restore();
+}
+
+function supportOrder(pieceId: string) {
+  if (pieceId === "support-left") return 1;
+  if (pieceId === "support-center") return 2;
+  if (pieceId === "support-right") return 3;
+  return 4;
+}
+
+function slotRect(bridge: Rect, slot: BridgeSlot): Rect {
+  const geometry = bridgeGeometry(bridge);
+  if (slot.kind === "support") {
+    const x = geometry.supportXs[supportOrder(slot.acceptsPieceId) - 1];
+    const supportWidth = clamp(geometry.segmentWidth * 0.34, 42, 72);
+    const topY = geometry.deckY + geometry.deckHeight - 3;
+    return { x: x - supportWidth * 0.5, y: topY, width: supportWidth, height: geometry.riverBottom - topY };
+  }
+
+  const planks = buildBridgeSlots.filter((item) => item.kind === "plank");
+  const index = planks.findIndex((item) => item.id === slot.id);
+  const overlap = clamp(geometry.segmentWidth * 0.02, 2, 5);
+  return {
+    x: geometry.deckStartX + geometry.segmentWidth * index - (index > 0 ? overlap * 0.5 : 0),
+    y: geometry.deckY,
+    width: geometry.segmentWidth + (index > 0 ? overlap * 0.5 : 0) + (index < planks.length - 1 ? overlap * 0.5 : 0),
+    height: geometry.deckHeight
+  };
+}
+
+function slotTargetRect(bridge: Rect, slot: BridgeSlot): Rect {
+  const rect = slotRect(bridge, slot);
+  if (slot.kind === "support") {
+    return {
+      x: rect.x - rect.width * 0.18,
+      y: rect.y - rect.height * 0.08,
+      width: rect.width * 1.36,
+      height: rect.height * 1.16
+    };
+  }
+  const extraX = Math.max(16, rect.width * 0.18);
+  const extraTop = Math.max(44, rect.height * 1.5);
+  const extraBottom = Math.max(48, rect.height * 1.6);
+  return {
+    x: rect.x - extraX,
+    y: rect.y - extraTop,
+    width: rect.width + extraX * 2,
+    height: rect.height + extraTop + extraBottom
+  };
+}
+
+function drawSupport(ctx: CanvasRenderingContext2D, x: number, baseY: number, scale: number, color = "#607d8b") {
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.fillRect(x - scale * 0.42, baseY - scale * 1.4, scale * 0.84, scale * 0.16);
+  for (const offset of [-0.24, 0, 0.24]) fillRoundedRect(ctx, { x: x + offset * scale - scale * 0.055, y: baseY - scale * 1.24, width: scale * 0.11, height: scale * 1.08 }, scale * 0.05, color);
+  ctx.fillRect(x - scale * 0.34, baseY - scale * 0.1, scale * 0.68, scale * 0.12);
+  ctx.restore();
+}
+
+function drawBridgeSupport(ctx: CanvasRenderingContext2D, rect: Rect, color = "#607d8b") {
+  const centerX = rect.x + rect.width * 0.5;
+  const topY = rect.y + 4;
+  const bedY = rect.y + rect.height;
+  const capWidth = rect.width * 1.35;
+  const pillarWidth = Math.max(8, rect.width * 0.13);
+  ctx.save();
+  fillRoundedRect(ctx, { x: centerX - capWidth * 0.5, y: topY - 8, width: capWidth, height: 12 }, 6, "rgb(67 86 92 / 82%)");
+  ctx.fillStyle = color;
+  for (const offset of [-0.24, 0, 0.24]) {
+    fillRoundedRect(ctx, { x: centerX + offset * rect.width - pillarWidth * 0.5, y: topY + 5, width: pillarWidth, height: Math.max(22, bedY - topY - 31) }, 5, color);
+  }
+  fillRoundedRect(ctx, { x: centerX - capWidth * 0.44, y: bedY - 30, width: capWidth * 0.88, height: 12 }, 6, "rgb(67 86 92 / 78%)");
+  fillRoundedRect(ctx, { x: centerX - capWidth * 0.62, y: bedY - 14, width: capWidth * 1.24, height: 18 }, 9, "rgb(82 94 86 / 58%)");
+  ctx.restore();
+}
+
+function drawDeckSegment(ctx: CanvasRenderingContext2D, rect: Rect, color: string) {
+  fillRoundedRect(ctx, rect, Math.min(8, rect.height * 0.24), color);
+  ctx.fillStyle = "rgb(255 255 255 / 10%)";
+  ctx.fillRect(rect.x + 5, rect.y + 4, Math.max(0, rect.width - 10), Math.max(2, rect.height * 0.16));
+  ctx.strokeStyle = "rgb(74 47 37 / 34%)";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+function drawBridgeRamps(ctx: CanvasRenderingContext2D, rect: Rect) {
+  const geometry = bridgeGeometry(rect);
+  const rampColor = "#8a6454";
+  const edgeColor = "rgb(74 47 37 / 45%)";
+  const leftGroundX = geometry.leftBank.x + geometry.leftBank.width - 4;
+  const rightGroundX = geometry.rightBank.x + 4;
+  const leftDeckX = geometry.deckStartX + clamp(geometry.segmentWidth * 0.16, 10, 22);
+  const rightDeckX = geometry.deckEndX - clamp(geometry.segmentWidth * 0.16, 10, 22);
+  const deckBottom = geometry.deckY + geometry.deckHeight;
+
+  ctx.save();
+  ctx.fillStyle = rampColor;
+  ctx.strokeStyle = edgeColor;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(leftGroundX, geometry.bankTopY - 2);
+  ctx.lineTo(leftDeckX, geometry.deckY + 2);
+  ctx.lineTo(leftDeckX, deckBottom - 2);
+  ctx.lineTo(leftGroundX, geometry.bankTopY + geometry.deckHeight - 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(rightDeckX, geometry.deckY + 2);
+  ctx.lineTo(rightGroundX, geometry.bankTopY - 2);
+  ctx.lineTo(rightGroundX, geometry.bankTopY + geometry.deckHeight - 2);
+  ctx.lineTo(rightDeckX, deckBottom - 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawPlank(ctx: CanvasRenderingContext2D, rect: Rect, color: string) {
+  fillRoundedRect(ctx, rect, Math.min(12, rect.height * 0.28), color);
+  ctx.strokeStyle = "rgb(86 56 44 / 28%)";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+}
+
+function drawPlacedBridge(ctx: CanvasRenderingContext2D, rect: Rect) {
+  const sortedPlacements = [...placements.value].sort((a, b) => {
+    const pieceA = bridgePieceById(a.pieceId);
+    const pieceB = bridgePieceById(b.pieceId);
+    if (pieceA?.kind === pieceB?.kind) return 0;
+    return pieceA?.kind === "support" ? -1 : 1;
+  });
+
+  for (const placement of sortedPlacements) {
+    const piece = bridgePieceById(placement.pieceId);
+    const slot = buildBridgeSlots.find((item) => item.id === placement.slotId);
+    if (!piece || !slot) continue;
+    const rectForSlot = slotRect(rect, slot);
+    if (piece.kind === "support") drawBridgeSupport(ctx, rectForSlot, piece.color);
+    else drawDeckSegment(ctx, rectForSlot, piece.color);
+  }
+}
+
+function drawBridgeFootings(ctx: CanvasRenderingContext2D, rect: Rect) {
+  const geometry = bridgeGeometry(rect);
+  for (const slot of buildBridgeSlots.filter((item) => item.kind === "support")) {
+    const ghost = slotRect(rect, slot);
+    const centerX = ghost.x + ghost.width * 0.5;
+    fillRoundedRect(ctx, { x: centerX - ghost.width * 0.62, y: geometry.riverBottom - 18, width: ghost.width * 1.24, height: 20 }, 10, "rgb(70 86 80 / 34%)");
+  }
+}
+
+function drawBridgeSlots(ctx: CanvasRenderingContext2D, rect: Rect) {
+  if (!selectedPiece.value) return;
+  for (const slot of buildBridgeSlots) {
+    const compatibleKind = selectedPiece.value.kind === slot.kind;
+    if (!compatibleKind) continue;
+    if (placements.value.some((placement) => placement.slotId === slot.id)) continue;
+    const slotArea = slotTargetRect(rect, slot);
+    const stable = canPlaceBridgePieceAtSlot(selectedPiece.value.id, slot.id, placements.value);
+    ctx.save();
+    ctx.globalAlpha = stable ? 0.88 : 0.42;
+    fillRoundedRect(ctx, slotArea, slotArea.height * 0.18, stable ? "rgb(27 143 118 / 18%)" : "rgb(141 78 56 / 18%)");
+    strokeRoundedRect(ctx, slotArea, slotArea.height * 0.18, stable ? "#1b8f76" : "#8d6e63", stable ? 4 : 2);
+    if (!stable) {
+      ctx.setLineDash([8, 8]);
+      strokeRoundedRect(ctx, slotArea, slotArea.height * 0.18, "#8d6e63", 2);
+    }
+    ctx.restore();
+    targets.push({ kind: "slot", ...slotArea, slot });
+  }
+}
+
+function drawFinishedMessage(ctx: CanvasRenderingContext2D, rect: Rect) {
+  if (session.status !== "finished") return;
+  const bannerWidth = clamp(rect.width * 0.36, 260, 460);
+  const bannerHeight = clamp(rect.height * 0.22, 54, 74);
+  const banner: Rect = { x: rect.x + rect.width * 0.5 - bannerWidth * 0.5, y: rect.y + 18, width: bannerWidth, height: bannerHeight };
+  fillRoundedRect(ctx, banner, 24, "rgb(238 248 236 / 92%)");
+  strokeRoundedRect(ctx, banner, 24, "rgb(65 118 94 / 25%)", 2);
+  drawText(ctx, "Мост готов", banner.x + banner.width * 0.5, banner.y + banner.height * 0.42, { size: clamp(rect.width * 0.018, 20, 30), weight: 800, color: "#3f5f51" });
+  drawText(ctx, "Все доски нашли опору", banner.x + banner.width * 0.5, banner.y + banner.height * 0.74, { size: clamp(rect.width * 0.011, 13, 17), weight: 600, color: "#5b756d" });
+}
+
+function drawBridgeScene(ctx: CanvasRenderingContext2D, rect: Rect) {
+  drawWater(ctx, rect);
+  drawBridgeFootings(ctx, rect);
+  drawBridgeRamps(ctx, rect);
+  drawPlacedBridge(ctx, rect);
+  drawBridgeSlots(ctx, rect);
+  const bridgeHint = session.status === "finished" ? "Мост собран" : selectedPiece.value ? `Поставь: ${selectedPiece.value.label}` : "Сначала выбери деталь";
+  drawText(ctx, bridgeHint, rect.x + rect.width * 0.5, rect.y + rect.height - 24, { size: clamp(rect.width * 0.018, 13, 20), weight: 600, color: "#5d7775" });
+  drawFinishedMessage(ctx, rect);
+}
+
+function drawPieceIcon(ctx: CanvasRenderingContext2D, piece: BridgePiece, center: Point, scale: number) {
+  if (piece.kind === "support") {
+    drawSupport(ctx, center.x, center.y + scale * 0.62, scale, piece.color);
+    return;
+  }
+  drawPlank(ctx, { x: center.x - scale * 0.58, y: center.y - scale * 0.12, width: scale * 1.16, height: scale * 0.24 }, piece.color);
+}
+
+function drawKindChoiceCard(ctx: CanvasRenderingContext2D, rect: Rect, kind: BridgePieceKind) {
+  const nextPiece = nextBridgePieceOfKind(kind, placedPieceIds(placements.value));
+  const isSelected = selectedPiece.value?.kind === kind;
+  const label = kind === "support" ? "Опора" : "Доска";
+  const radius = clamp(rect.height * 0.12, 16, 28);
+  fillRoundedRect(ctx, rect, radius, isSelected ? "#dff3f0" : "#fffaf1");
+  strokeRoundedRect(ctx, rect, radius, isSelected ? "#1b8f76" : "rgb(86 99 98 / 16%)", isSelected ? 4 : 1.5);
+  if (!nextPiece) {
+    ctx.save();
+    ctx.globalAlpha = 0.32;
+    fillRoundedRect(ctx, rect, radius, "#e3ece9");
+    ctx.restore();
+  }
+
+  const iconScale = clamp(Math.min(rect.width, rect.height) * 0.3, 32, 72);
+  drawPieceIcon(ctx, nextPiece ?? buildBridgePieces.find((piece) => piece.kind === kind)!, { x: rect.x + rect.width * 0.5, y: rect.y + rect.height * 0.35 }, iconScale);
+  drawText(ctx, label, rect.x + rect.width * 0.5, rect.y + rect.height * 0.68, { size: clamp(rect.height * 0.15, 20, 34), weight: 800 });
+  drawText(ctx, nextPiece ? `следующая: ${nextPiece.label}` : "готово", rect.x + rect.width * 0.5, rect.y + rect.height * 0.84, { size: clamp(rect.height * 0.075, 12, 17), weight: 500, color: "#52605d" });
+
+  if (nextPiece && !selectedPiece.value) targets.push({ kind: "piece-kind", ...rect, pieceKind: kind, label });
+}
+
+function drawTargets(ctx: CanvasRenderingContext2D, layout: Layout) {
+  const gap = clamp(Math.min(width.value, height.value) * 0.018, 8, 18);
+  const cellWidth = (layout.cards.width - gap) / 2;
+  drawKindChoiceCard(ctx, { x: layout.cards.x, y: layout.cards.y, width: cellWidth, height: layout.cards.height }, "support");
+  drawKindChoiceCard(ctx, { x: layout.cards.x + cellWidth + gap, y: layout.cards.y, width: cellWidth, height: layout.cards.height }, "plank");
+}
+
+function drawFallingPieces(ctx: CanvasRenderingContext2D) {
+  for (const body of fallingPieces) {
+    ctx.save();
+    ctx.translate(body.x, body.y);
+    ctx.rotate(body.angle);
+    ctx.globalAlpha = clamp(1 - Math.max(0, body.age - 4.1), 0, 1);
+    if (body.piece.kind === "support") drawSupport(ctx, 0, body.height * 0.5, body.width * 0.72, body.piece.color);
+    else drawPlank(ctx, { x: -body.width * 0.5, y: -body.height * 0.5, width: body.width, height: body.height }, body.piece.color);
+    ctx.restore();
+  }
+}
+
+function drawDwellProgress(ctx: CanvasRenderingContext2D) {
+  if (!activeTargetId || !activeProgress) return;
+  const target = targets.find((item) => (item.kind === "piece-kind" ? `build-bridge:kind:${item.pieceKind}` : bridgeSlotTargetId(item.slot)) === activeTargetId);
+  if (!target) return;
+  const radius = Math.min(target.width, target.height) * 0.22;
+  const x = target.x + target.width * 0.5;
+  const y = target.y + target.height * 0.5;
+  ctx.save();
+  ctx.lineWidth = 9;
+  ctx.strokeStyle = "rgb(255 188 89 / 28%)";
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.strokeStyle = "#ffb74d";
+  ctx.beginPath();
+  ctx.arc(x, y, radius, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * activeProgress);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function draw(ctx: CanvasRenderingContext2D) {
+  const layout = computeLayout();
+  targets = [];
+  drawBackground(ctx);
+  fillRoundedRect(ctx, layout.panel, 28, "#fffaf1");
+  ctx.shadowColor = "rgb(42 54 56 / 22%)";
+  ctx.shadowBlur = 20;
+  ctx.shadowOffsetY = 8;
+  strokeRoundedRect(ctx, layout.panel, 28, "rgb(0 0 0 / 6%)", 1);
+  ctx.shadowColor = "transparent";
+  drawHeader(ctx, layout);
+  drawBridgeScene(ctx, layout.bridge);
+  drawTargets(ctx, layout);
+  drawFallingPieces(ctx);
+  drawDwellProgress(ctx);
+}
+
+useGameLoop({ context, update, draw });
 </script>
 
 <template>
   <div class="build-bridge-shell">
+    <canvas ref="canvasRef" class="bridge-canvas" aria-label="Строим мост" />
     <GameHud title="Строим мост" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
-    <v-container class="game-container" fluid>
-      <v-row justify="center">
-        <v-col cols="12" xl="10">
-          <v-card class="pa-4 pa-md-7" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Последовательность деталей</div>
-            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-3">Построй мост по порядку</h1>
-            <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5">{{ feedbackMessage }}</p>
-
-            <div class="play-area">
-              <v-card class="bridge-card pa-4 pa-md-6" color="light-blue-lighten-5" rounded="xl" variant="flat">
-                <div class="bridge-stage" aria-label="Собранный мост">
-                  <div class="river" />
-                  <div class="bank bank--left" />
-                  <div class="bank bank--right" />
-                  <div class="support support--left" :class="{ 'piece-visible': pieces[0]?.placed }" />
-                  <div class="support support--center" :class="{ 'piece-visible': pieces[1]?.placed }" />
-                  <div class="support support--right" :class="{ 'piece-visible': pieces[2]?.placed }" />
-                  <div class="bridge-deck">
-                    <div v-for="piece in orderedPieces.filter((item) => item.kind === 'plank')" :key="`placed-${piece.id}`" class="deck-plank" :class="{ 'piece-visible': piece.placed }" :style="{ background: piece.color }" />
-                  </div>
-                </div>
-                <div class="d-flex flex-wrap align-center justify-center ga-3 mt-4">
-                  <v-chip v-if="nextPiece" color="primary" size="large" variant="tonal">Следующая: {{ nextPiece.label }}</v-chip>
-                  <v-chip v-else color="success" size="large" variant="tonal">Мост готов</v-chip>
-                </div>
-              </v-card>
-
-              <div class="piece-grid" aria-label="Детали моста">
-                <GameDwellButton v-for="piece in orderedPieces" :key="piece.id" :target-id="pieceTargetId(piece)" :disabled="session.status !== 'running' || piece.placed" :dwell-ms="session.settings.dwellMs" :min-height="150" :color="piece.id === nextPiece?.id ? 'teal-lighten-5' : 'surface'" @select="choosePiece(piece)">
-                  <template #default>
-                    <div :class="['choice-piece', { 'choice-piece--next': piece.id === nextPiece?.id, 'choice-piece--mistake': piece.id === lastMistakeId }]">
-                      <v-icon :icon="piece.kind === 'support' ? 'mdi-pillar' : 'mdi-minus-thick'" :color="piece.kind === 'support' ? 'blue-grey-darken-1' : 'brown-darken-1'" size="56" />
-                      <div class="piece-label text-h6 text-md-h5 font-weight-bold mt-2">{{ piece.label }}</div>
-                      <div class="piece-step text-body-2">шаг {{ piece.order }}</div>
-                    </div>
-                  </template>
-                </GameDwellButton>
-              </div>
-            </div>
-
-            <v-expand-transition>
-              <v-alert v-if="lastMistakeId" class="mt-5 text-h6" color="primary" icon="mdi-lightbulb-on-outline" rounded="xl" variant="tonal">
-                Ошибка не ломает мост. Посмотри на подсвеченную следующую деталь.
-              </v-alert>
-            </v-expand-transition>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Строим мост" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
   </div>
 </template>
 
 <style scoped>
 .build-bridge-shell {
-  background: linear-gradient(135deg, #e0f7fa 0%, #fff8e1 54%, #eef7f6 100%);
-  min-block-size: 100vh;
-}
-
-.game-container {
-  padding-block-start: 8.25rem;
-}
-
-.play-area {
-  align-items: stretch;
-  display: grid;
-  gap: 1.5rem;
-  grid-template-columns: minmax(20rem, 1.2fr) minmax(22rem, 1fr);
-}
-
-.bridge-card {
-  min-inline-size: 0;
-}
-
-.bridge-stage {
-  block-size: min(27rem, 46vh);
-  border-radius: 1.5rem;
+  background: #e8f6f4;
+  block-size: 100dvh;
+  inline-size: 100vw;
   overflow: hidden;
-  position: relative;
 }
 
-.river {
-  background: linear-gradient(135deg, #81d4fa 0%, #4fc3f7 50%, #80deea 100%);
+.bridge-canvas {
+  display: block;
   inset: 0;
-  position: absolute;
-}
-
-.river::after {
-  background: repeating-linear-gradient(115deg, rgb(255 255 255 / 26%) 0 0.5rem, transparent 0.5rem 2.8rem);
-  content: "";
-  inset: 0;
-  position: absolute;
-}
-
-.bank {
-  background: linear-gradient(180deg, #c5e1a5 0%, #8bc34a 100%);
-  block-size: 5.5rem;
-  border-radius: 999px;
-  inset-block-end: -2.5rem;
-  position: absolute;
-  inline-size: 38%;
-  z-index: 2;
-}
-
-.bank--left {
-  inset-inline-start: -5%;
-}
-
-.bank--right {
-  inset-inline-end: -5%;
-}
-
-.support {
-  background: linear-gradient(180deg, #b0bec5 0%, #78909c 100%);
-  block-size: 9rem;
-  border: 0.25rem solid rgb(255 255 255 / 42%);
-  border-radius: 1rem 1rem 0.35rem 0.35rem;
-  inline-size: 3.1rem;
-  inset-block-end: 3.1rem;
-  opacity: 0;
-  position: absolute;
-  transform: translateY(1rem);
-  transition: opacity 220ms ease, transform 220ms ease;
-  z-index: 3;
-}
-
-.support--left {
-  inset-inline-start: 22%;
-}
-
-.support--center {
-  inset-inline-start: calc(50% - 1.55rem);
-}
-
-.support--right {
-  inset-inline-end: 22%;
-}
-
-.bridge-deck {
-  display: grid;
-  gap: 0.35rem;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  inline-size: 72%;
-  inset-block-end: 11.7rem;
-  inset-inline-start: 14%;
-  position: absolute;
-  z-index: 4;
-}
-
-.deck-plank {
-  block-size: 3.7rem;
-  border: 0.22rem solid rgb(92 64 51 / 28%);
-  border-radius: 0.8rem;
-  box-shadow: 0 0.7rem 1.1rem rgb(69 90 100 / 18%);
-  opacity: 0;
-  transform: translateY(-0.7rem);
-  transition: opacity 220ms ease, transform 220ms ease;
-}
-
-.piece-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.piece-grid {
-  display: grid;
-  gap: 0.8rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.choice-piece {
-  align-items: center;
-  color: #17212b;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  transition: filter 160ms ease, transform 160ms ease;
-}
-
-.piece-label,
-.piece-step {
-  color: #17212b !important;
-}
-
-.choice-piece--next {
-  filter: drop-shadow(0 0 1rem rgb(var(--v-theme-primary) / 34%));
-  transform: scale(1.03);
-}
-
-.choice-piece--mistake {
-  filter: grayscale(0.3) opacity(0.78);
-  transform: scale(0.97);
-}
-
-@media (max-width: 960px) {
-  .game-container {
-    padding-block-start: 7.5rem;
-  }
-
-  .play-area {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 600px) {
-  .piece-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .bridge-stage {
-    block-size: 19rem;
-  }
-}
-
-@media (max-height: 680px) {
-  .game-container {
-    padding-block-start: 104px;
-  }
-
-  .game-container :deep(.v-card.pa-4) {
-    padding: 1rem !important;
-  }
-
-  .game-container .text-overline,
-  .game-container p {
-    display: none;
-  }
-
-  .play-area {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .piece-grid {
-    gap: 0.6rem;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    order: -1;
-  }
-
-  .piece-grid :deep(.dwell-hitbox) {
-    min-block-size: 6.75rem !important;
-  }
-
-  .piece-grid :deep(.dwell-button) {
-    padding: 0.75rem !important;
-  }
-
-  .bridge-card {
-    padding: 0.75rem !important;
-  }
-
-  .bridge-stage {
-    block-size: 11rem;
-  }
+  position: fixed;
 }
 </style>

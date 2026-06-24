@@ -32,7 +32,6 @@ PNG: `/tmp/linka-plays-cdp-screenshots/2026-06-16`.
 |---|---|---|---|
 | `dress-character` | `games-dress-character-800x600.png` | `pass` | Основные 3 choices видны, персонаж и подсказка читаются. |
 | `soup-recipe` | `games-soup-recipe-800x600.png` | `warn` | Все 8 ингредиентов видны и playable; кастрюля ниже fold, но это вторичная сцена. |
-| `tell-picture` | `games-tell-picture-800x600.png` | `pass` | Стартовые AAC choices видны крупно; нижний блок результата частично ниже fold, но gameplay старт доступен. |
 | `arkanoid-assist` | `games-arkanoid-assist-800x600.png` | `pass` | Сцена и 3 sector controls видны в первом viewport. |
 | `cursor-magnet` | `games-cursor-magnet-800x600.png` | `blocker` до фикса | Большой центральный intro overlay перекрывал сцену и часть целей. |
 | `aquarium` | `games-aquarium-800x600.png` | `pass` | Canvas заполнен, рыбы видны, HUD не закрывает игровую область. |
