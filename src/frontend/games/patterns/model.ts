@@ -1,5 +1,5 @@
 import type { SessionSettings } from "../../core/settings";
-import { shuffleItems } from "../../data/wordBank";
+import { randomInt, shuffleItems } from "../../core/random";
 
 export type PatternKind = "ABAB" | "ABCABC" | "AAB";
 
@@ -30,9 +30,9 @@ const patternItems: PatternItem[] = [
 
 const standardPatternKinds: PatternKind[] = ["ABCABC", "AAB"];
 
-function patternKindFor(settings: SessionSettings): PatternKind {
+function patternKindFor(settings: SessionSettings, random = Math.random): PatternKind {
   if (settings.preset === "gentle") return "ABAB";
-  return standardPatternKinds[Math.floor(Math.random() * standardPatternKinds.length)];
+  return standardPatternKinds[randomInt(0, standardPatternKinds.length - 1, random)];
 }
 
 function buildSequence(patternKind: PatternKind, items: PatternItem[]) {
@@ -41,14 +41,14 @@ function buildSequence(patternKind: PatternKind, items: PatternItem[]) {
   return { sequence: [items[0], items[0], items[1], items[0], items[0]], answer: items[1] };
 }
 
-export function generatePatternRound(settings: SessionSettings, roundIndex = 1): PatternRound {
-  const patternKind = patternKindFor(settings);
+export function generatePatternRound(settings: SessionSettings, roundIndex = 1, random = Math.random): PatternRound {
+  const patternKind = patternKindFor(settings, random);
   const unitSize = patternKind === "ABCABC" ? 3 : 2;
-  const unit = shuffleItems(patternItems).slice(0, unitSize);
+  const unit = shuffleItems(patternItems, random).slice(0, unitSize);
   const { sequence, answer } = buildSequence(patternKind, unit);
   const choiceCount = settings.preset === "gentle" ? 3 : 4;
-  const distractors = shuffleItems(patternItems.filter((item) => item.id !== answer.id)).slice(0, choiceCount - 1);
-  const choices = shuffleItems([answer, ...distractors]);
+  const distractors = shuffleItems(patternItems.filter((item) => item.id !== answer.id), random).slice(0, choiceCount - 1);
+  const choices = shuffleItems([answer, ...distractors], random);
 
   return {
     roundId: `patterns:round:${roundIndex}`,

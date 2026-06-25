@@ -1,18 +1,20 @@
 <script setup lang="ts">
-import { onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { disposePatternsAudio, playPatternsMistakeMelody, playPatternsSuccessMelody, warmPatternsAudio } from "./audio";
 import { generatePatternRound, type PatternItem } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("patterns", {
   maxSteps: 8,
-  overrides: { dwellMs: 1200, sessionSeconds: 120, sound: false }
+  overrides: { dwellMs: 1200, sessionSeconds: 120, sound: true }
 });
 
 const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame({
@@ -22,10 +24,11 @@ const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame
 });
 
 const feedbackMessage = ref("Посмотри на ряд и выбери, что будет дальше.");
-const highlightPattern = ref(false);
 const pendingSelection = ref(false);
+const isSpeaking = ref(false);
 const wrongChoiceId = ref<string>();
 const successChoiceId = ref<string>();
+const promptAudio = useGamePromptAudio({ gameId: "patterns", soundEnabled: toRef(session.settings, "sound") });
 let feedbackTimer = 0;
 
 function choiceTargetId(choice: PatternItem) {
@@ -40,14 +43,20 @@ function clearFeedbackTimer() {
 function resetFeedback() {
   clearFeedbackTimer();
   feedbackMessage.value = "Посмотри на ряд и выбери, что будет дальше.";
-  highlightPattern.value = false;
   pendingSelection.value = false;
+  isSpeaking.value = false;
   wrongChoiceId.value = undefined;
   successChoiceId.value = undefined;
 }
 
-function choose(index: number) {
-  if (session.status !== "running" || pendingSelection.value) return;
+async function playPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["patterns.prompt"], delayMs);
+  isSpeaking.value = false;
+}
+
+async function choose(index: number) {
+  if (session.status !== "running" || pendingSelection.value || isSpeaking.value) return;
 
   const choice = round.value.choices[index];
   const targetId = choiceTargetId(choice);
@@ -60,6 +69,11 @@ function choose(index: number) {
     successChoiceId.value = choice.id;
     feedbackMessage.value = "Верно. Ряд продолжается.";
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.answer.label, actual: choice.label, isCorrect: true });
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    void playPatternsSuccessMelody(session.settings.sound);
+    isSpeaking.value = true;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["patterns.correct", "patterns.complete"] : ["patterns.correct"], 80, 170);
+    isSpeaking.value = false;
 
     if (session.status === "running" && session.step < session.maxSteps) {
       feedbackTimer = window.setTimeout(() => {
@@ -72,13 +86,15 @@ function choose(index: number) {
 
   pendingSelection.value = true;
   wrongChoiceId.value = choice.id;
-  highlightPattern.value = true;
-  feedbackMessage.value = "Почти. Посмотри на повтор в ряду и попробуй ещё раз.";
+  feedbackMessage.value = "Посмотри на повтор в ряду и попробуй ещё раз.";
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.answer.label, actual: choice.label, isCorrect: false });
+  void playPatternsMistakeMelody(session.settings.sound);
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["patterns.mistake"], 80);
+  isSpeaking.value = false;
   feedbackTimer = window.setTimeout(() => {
     pendingSelection.value = false;
     wrongChoiceId.value = undefined;
-    highlightPattern.value = false;
   }, 1000);
 }
 
@@ -90,11 +106,21 @@ function choiceColor(choice: PatternItem) {
 
 function restart() {
   resetFeedback();
+  promptAudio.cancelPending();
   restartRounds();
+  void playPrompt(450);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  warmPatternsAudio(session.settings.sound);
+  void playPrompt(450);
+});
 
 onUnmounted(() => {
   clearFeedbackTimer();
+  promptAudio.cancelPending();
+  disposePatternsAudio();
 });
 </script>
 
@@ -110,19 +136,21 @@ onUnmounted(() => {
             <p class="text-body-1 text-medium-emphasis text-center mb-6">{{ feedbackMessage }}</p>
 
             <div class="pattern-row mb-6" aria-label="Ряд с пустой последней позицией">
-              <v-card v-for="(item, index) in round.sequence" :key="`${round.roundId}:${index}`" :class="['pattern-slot', { 'pattern-slot--hint': highlightPattern }]" color="surface" rounded="xl" variant="flat">
+              <v-card v-for="(item, index) in round.sequence" :key="`${round.roundId}:${index}`" class="pattern-slot" color="surface" rounded="xl" variant="flat">
                 <v-icon class="pattern-icon" :color="item.color" :icon="item.icon" />
               </v-card>
-              <v-card :class="['pattern-slot', 'pattern-slot--blank', { 'pattern-slot--hint': highlightPattern }]" color="blue-grey-lighten-5" rounded="xl" variant="flat">
+              <v-card class="pattern-slot pattern-slot--blank" color="blue-grey-lighten-5" rounded="xl" variant="flat">
                 <v-icon class="blank-icon" color="blue-grey-darken-1" icon="mdi-help" />
               </v-card>
             </div>
 
             <v-row justify="center">
               <v-col v-for="(choice, index) in round.choices" :key="choice.id" cols="6" :sm="round.choices.length === 3 ? 4 : 3" :md="round.choices.length === 3 ? 4 : 3">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="160" :color="choiceColor(choice)" @select="choose(index)">
+                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="10rem" :color="choiceColor(choice)" @select="choose(index)">
                   <template #default>
-                    <v-icon class="choice-icon" :color="choice.color" :icon="choice.icon" />
+                    <div class="choice-content">
+                      <v-icon class="choice-icon" :color="choice.color" :icon="choice.icon" />
+                    </div>
                   </template>
                 </GameDwellButton>
               </v-col>
@@ -142,49 +170,52 @@ onUnmounted(() => {
 }
 
 .game-container {
-  padding-block-start: 132px;
+  padding-block-start: 8.25rem;
 }
 
 .pattern-row {
   display: grid;
-  gap: 14px;
-  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: 0.875rem;
+  grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
 }
 
 .pattern-slot {
   align-items: center;
   display: flex;
   justify-content: center;
-  min-block-size: clamp(116px, 16vw, 178px);
+  min-block-size: clamp(7.25rem, 16vw, 11.125rem);
   transition: box-shadow 180ms ease, transform 180ms ease;
 }
 
 .pattern-slot--blank {
-  border: 4px dashed rgb(var(--v-theme-primary) / 46%);
-}
-
-.pattern-slot--hint {
-  box-shadow: 0 0 0 6px rgb(var(--v-theme-warning) / 34%);
-  transform: translateY(-2px);
+  border: 0.25rem dashed rgb(var(--v-theme-primary) / 46%);
 }
 
 .pattern-icon,
 .choice-icon {
-  filter: drop-shadow(0 8px 10px rgb(0 0 0 / 16%));
+  filter: drop-shadow(0 0.5rem 0.625rem rgb(0 0 0 / 16%));
   font-size: clamp(4.5rem, 9vw, 7.5rem);
+}
+
+.choice-content {
+  align-items: center;
+  block-size: 100%;
+  display: flex;
+  inline-size: 100%;
+  justify-content: center;
 }
 
 .blank-icon {
   font-size: clamp(3.4rem, 7vw, 5.5rem);
 }
 
-@media (max-width: 600px) {
+@media (max-width: 37.5rem) {
   .game-container {
-    padding-block-start: 156px;
+    padding-block-start: 9.75rem;
   }
 
   .pattern-row {
-    gap: 10px;
+    gap: 0.625rem;
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

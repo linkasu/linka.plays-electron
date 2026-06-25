@@ -6592,5 +6592,33 @@
     "text": "Все бутерброды готовы.",
     "voice": "jane",
     "path": "/audio/tts/sandwich/complete.mp3"
+  },
+  {
+    "id": "patterns.prompt",
+    "game": "patterns",
+    "text": "Посмотри на ряд и выбери, что будет дальше.",
+    "voice": "jane",
+    "path": "/audio/tts/patterns/prompt.mp3"
+  },
+  {
+    "id": "patterns.correct",
+    "game": "patterns",
+    "text": "Верно. Ряд продолжается.",
+    "voice": "jane",
+    "path": "/audio/tts/patterns/correct.mp3"
+  },
+  {
+    "id": "patterns.mistake",
+    "game": "patterns",
+    "text": "Посмотри на повтор и попробуй ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/patterns/mistake.mp3"
+  },
+  {
+    "id": "patterns.complete",
+    "game": "patterns",
+    "text": "Все ряды готовы.",
+    "voice": "jane",
+    "path": "/audio/tts/patterns/complete.mp3"
   }
 ]

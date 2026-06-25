@@ -88,7 +88,7 @@
 | Одень персонажа | `dress-character` | [dress-character.md](dress-character.md) | `therapy-ready` | `publish` | `ready` |
 | Поезд | `train-sequence` | [train-sequence.md](train-sequence.md) | `polished` | `publish` | `ready` |
 | Бутерброд | `sandwich` | [sandwich.md](sandwich.md) | `therapy-ready` | `publish` | `ready` |
-| Паттерны | `patterns` | [patterns.md](patterns.md) | `polished` | `needs-check` | `development` |
+| Паттерны | `patterns` | [patterns.md](patterns.md) | `polished` | `publish` | `ready` |
 | Цветовой узор | `color-pattern` | [color-pattern.md](color-pattern.md) | `therapy-ready` | `needs-check` | `development` |
 | Утро-день-вечер | `day-routine` | [day-routine.md](day-routine.md) | `therapy-ready` | `needs-check` | `development` |
 | История из 3 кадров | `three-frame-story` | [three-frame-story.md](three-frame-story.md) | `therapy-ready` | `needs-check` | `development` |
