@@ -6291,5 +6291,40 @@
     "text": "Почти. Посмотри на буквы ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/letter-hunt/mistake.mp3"
+  },
+  {
+    "id": "memory-cards.prompt",
+    "game": "memory-cards",
+    "text": "Открой две карточки и найди пару.",
+    "voice": "jane",
+    "path": "/audio/tts/memory-cards/prompt.mp3"
+  },
+  {
+    "id": "memory-cards.first",
+    "game": "memory-cards",
+    "text": "Теперь найди такую же карточку.",
+    "voice": "jane",
+    "path": "/audio/tts/memory-cards/first.mp3"
+  },
+  {
+    "id": "memory-cards.match",
+    "game": "memory-cards",
+    "text": "Да. Пара найдена.",
+    "voice": "jane",
+    "path": "/audio/tts/memory-cards/match.mp3"
+  },
+  {
+    "id": "memory-cards.mismatch",
+    "game": "memory-cards",
+    "text": "Это разные карточки. Попробуй ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/memory-cards/mismatch.mp3"
+  },
+  {
+    "id": "memory-cards.complete",
+    "game": "memory-cards",
+    "text": "Все пары найдены.",
+    "voice": "jane",
+    "path": "/audio/tts/memory-cards/complete.mp3"
   }
 ]

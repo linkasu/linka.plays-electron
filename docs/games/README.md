@@ -76,7 +76,7 @@
 | Найди эмоцию | `find-emotion` | [find-emotion.md](find-emotion.md) | `therapy-ready` | `publish` | `ready` |
 | Охота на буквы | `letter-hunt` | [letter-hunt.md](letter-hunt.md) | `therapy-ready` | `publish` | `ready` |
 | Найди животное | `find-animal` | [find-animal.md](find-animal.md) | `therapy-ready` | `publish` | `ready` |
-| Пары | `memory-cards` | [memory-cards.md](memory-cards.md) | `therapy-ready` | `needs-check` | `development` |
+| Пары | `memory-cards` | [memory-cards.md](memory-cards.md) | `therapy-ready` | `publish` | `ready` |
 | Лабиринт взгляда-указателя | `gaze-maze` | [gaze-maze.md](gaze-maze.md) | `therapy-ready` | `needs-check` | `development` |
 
 ### Последовательности

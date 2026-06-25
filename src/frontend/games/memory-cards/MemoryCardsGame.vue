@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeMemoryCardsAudio, playMemoryCardsMatchMelody, playMemoryCardsMismatchMelody, warmMemoryCardsAudio } from "./audio";
@@ -28,12 +29,14 @@ const cards = ref(createCardStates(round.value.cards));
 const selectedCardIds = ref<string[]>([]);
 const lastMismatchCardIds = ref<string[]>([]);
 const inputBlocked = ref(false);
+const isSpeaking = ref(false);
 const feedbackMessage = ref("Открой две карточки и найди пару.");
 let closeTimeout = 0;
+const promptAudio = useGamePromptAudio({ gameId: "memory-cards", soundEnabled: toRef(session.settings, "sound") });
 
 const resultVisible = computed(() => session.status === "finished");
 const matchedCount = computed(() => cards.value.filter((card) => card.matched).length / 2);
-const targetCardHeight = computed(() => `clamp(128px, ${Math.round(21 * session.settings.targetScale)}vh, 200px)`);
+const targetCardHeight = computed(() => `clamp(8rem, ${Math.round(20 * session.settings.targetScale)}vh, 12.5rem)`);
 const cardColSpan = computed(() => round.value.columns === 4 ? 3 : 4);
 
 function createCardStates(memoryCards: MemoryCard[]): MemoryCardState[] {
@@ -44,6 +47,17 @@ function clearCloseTimeout() {
   if (!closeTimeout) return;
   window.clearTimeout(closeTimeout);
   closeTimeout = 0;
+}
+
+function clearAudio() {
+  promptAudio.cancelPending();
+  isSpeaking.value = false;
+}
+
+async function playPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["memory-cards.prompt"], delayMs);
+  isSpeaking.value = false;
 }
 
 function cardTargetId(card: MemoryCardState) {
@@ -61,18 +75,27 @@ function cardColor(card: MemoryCardState) {
   return "surface";
 }
 
-function chooseCard(card: MemoryCardState) {
-  if (session.status !== "running" || inputBlocked.value || card.matched || card.revealed) return;
+async function chooseCard(card: MemoryCardState) {
+  if (session.status !== "running" || inputBlocked.value || isSpeaking.value || card.matched || card.revealed) return;
 
   card.revealed = true;
   selectedCardIds.value = [...selectedCardIds.value, card.id];
   feedbackMessage.value = selectedCardIds.value.length === 1 ? "Теперь найди такую же карточку." : "Смотрим, пара ли это.";
 
-  if (selectedCardIds.value.length < 2) return;
+  if (selectedCardIds.value.length < 2) {
+    isSpeaking.value = true;
+    await promptAudio.playSequenceAndWait(["memory-cards.first"], 80);
+    isSpeaking.value = false;
+    return;
+  }
 
   inputBlocked.value = true;
   const [first, second] = selectedCardIds.value.map((cardId) => cards.value.find((item) => item.id === cardId));
-  if (!first || !second) return;
+  if (!first || !second) {
+    selectedCardIds.value = [];
+    inputBlocked.value = false;
+    return;
+  }
 
   if (first.pairId === second.pairId) {
     first.matched = true;
@@ -82,6 +105,9 @@ function chooseCard(card: MemoryCardState) {
     void playMemoryCardsMatchMelody(session.settings.sound);
     recordSuccess({ roundId: round.value.roundId, targetId: cardTargetId(second), pairId: second.pairId, expected: first.label, actual: second.label, isCorrect: true });
     feedbackMessage.value = matchedCount.value === round.value.pairCount ? "Все пары найдены." : "Пара найдена. Продолжаем спокойно.";
+    isSpeaking.value = true;
+    await promptAudio.playSequenceAndWait([matchedCount.value === round.value.pairCount ? "memory-cards.complete" : "memory-cards.match"], 80);
+    isSpeaking.value = false;
     inputBlocked.value = false;
     if (matchedCount.value === round.value.pairCount) finishSession("game-complete");
     return;
@@ -91,19 +117,23 @@ function chooseCard(card: MemoryCardState) {
   void playMemoryCardsMismatchMelody(session.settings.sound);
   recordMistake({ roundId: round.value.roundId, targetId: cardTargetId(second), expectedTargetId: cardTargetId(first), expected: first.label, actual: second.label, isCorrect: false });
   feedbackMessage.value = "Это разные карточки. Они мягко закроются.";
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["memory-cards.mismatch"], 80);
   closeTimeout = window.setTimeout(() => {
     first.revealed = false;
     second.revealed = false;
     selectedCardIds.value = [];
     lastMismatchCardIds.value = [];
     inputBlocked.value = false;
+    isSpeaking.value = false;
     feedbackMessage.value = "Попробуй открыть ещё две карточки.";
     closeTimeout = 0;
-  }, 1200);
+  }, 260);
 }
 
 function restart() {
   clearCloseTimeout();
+  clearAudio();
   roundIndex.value += 1;
   round.value = createMemoryCardsRound(session.settings, roundIndex.value);
   cards.value = createCardStates(round.value.cards);
@@ -112,10 +142,13 @@ function restart() {
   inputBlocked.value = false;
   feedbackMessage.value = "Открой две карточки и найди пару.";
   startSession();
+  void playPrompt(450);
 }
 
 onMounted(() => {
+  promptAudio.warm();
   warmMemoryCardsAudio(session.settings.sound);
+  void playPrompt(450);
 });
 
 watch(() => session.settings.sound, (enabled) => {
@@ -124,6 +157,7 @@ watch(() => session.settings.sound, (enabled) => {
 
 onUnmounted(() => {
   clearCloseTimeout();
+  clearAudio();
   disposeMemoryCardsAudio();
 });
 </script>
@@ -140,7 +174,7 @@ onUnmounted(() => {
             <div class="feedback-line text-body-1 text-medium-emphasis text-center mb-3">{{ feedbackMessage }}</div>
             <v-row class="memory-grid" justify="center">
               <v-col v-for="card in cards" :key="card.id" cols="6" :sm="cardColSpan" :md="cardColSpan">
-                <GameDwellButton :target-id="cardTargetId(card)" :disabled="session.status !== 'running' || inputBlocked || card.matched || card.revealed" :dwell-ms="session.settings.dwellMs" :min-height="targetCardHeight" :color="cardColor(card)" @select="chooseCard(card)">
+                <GameDwellButton :target-id="cardTargetId(card)" :disabled="session.status !== 'running' || inputBlocked || isSpeaking || card.matched || card.revealed" :dwell-ms="session.settings.dwellMs" :min-height="targetCardHeight" :color="cardColor(card)" @select="chooseCard(card)">
                   <template #default>
                     <div class="memory-card-content">
                       <template v-if="isCardOpen(card)">
@@ -148,7 +182,7 @@ onUnmounted(() => {
                         <div class="text-h5 font-weight-bold mt-2">{{ card.label }}</div>
                       </template>
                       <template v-else>
-                        <v-icon icon="mdi-cards" size="76" color="primary" />
+                        <v-icon icon="mdi-cards" size="4.75rem" color="primary" />
                         <div class="sr-only">Закрытая карточка</div>
                       </template>
                     </div>
