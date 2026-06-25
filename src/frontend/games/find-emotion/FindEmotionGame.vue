@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
@@ -14,6 +15,7 @@ import { generateFindEmotionRound, type FindEmotionOption } from "./model";
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("find-emotion", {
   maxSteps: 8,
+  overrides: { sound: true },
   finishOnMistakes: false
 });
 
@@ -25,6 +27,10 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
 
 const mistakesInRound = ref(0);
 const lastMistakeId = ref<string>();
+const pendingSelection = ref(false);
+const isSpeaking = ref(false);
+const promptAudio = useGamePromptAudio({ gameId: "find-emotion", soundEnabled: toRef(session.settings, "sound") });
+let feedbackTimer = 0;
 
 const hintedChoiceId = computed(() => mistakesInRound.value > 0 ? round.value.target.id : undefined);
 const hintText = computed(() => {
@@ -36,35 +42,80 @@ function choiceTargetId(choiceId: string) {
   return `find-emotion:choice:${choiceId}`;
 }
 
-function answer(choice: FindEmotionOption) {
-  if (session.status !== "running") return;
+function clearTimers() {
+  window.clearTimeout(feedbackTimer);
+  promptAudio.cancelPending();
+  feedbackTimer = 0;
+}
+
+function promptAssetId() {
+  return `find-emotion.prompt.${round.value.target.id}`;
+}
+
+async function playPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait([promptAssetId()], delayMs);
+  isSpeaking.value = false;
+}
+
+function resetRoundFeedback() {
+  clearTimers();
+  mistakesInRound.value = 0;
+  lastMistakeId.value = undefined;
+  pendingSelection.value = false;
+  isSpeaking.value = false;
+}
+
+async function answer(choice: FindEmotionOption) {
+  if (session.status !== "running" || pendingSelection.value || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice.id);
   const expectedTargetId = choiceTargetId(round.value.target.id);
+  clearTimers();
   if (choice.id === round.value.target.id) {
+    pendingSelection.value = true;
     void findEmotionFeedback.playSuccess(session.settings.sound);
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: true });
     mistakesInRound.value = 0;
     lastMistakeId.value = undefined;
-    if (session.step < session.maxSteps) nextRound();
+    isSpeaking.value = true;
+    await promptAudio.playSequenceAndWait(["find-emotion.correct"], 80);
+    if (session.status === "running" && session.step < session.maxSteps) {
+      feedbackTimer = window.setTimeout(() => {
+        nextRound();
+        resetRoundFeedback();
+        void playPrompt(180);
+      }, 260);
+    } else {
+      pendingSelection.value = false;
+      isSpeaking.value = false;
+    }
     return;
   }
 
+  pendingSelection.value = true;
   mistakesInRound.value += 1;
   lastMistakeId.value = choice.id;
   void findEmotionFeedback.playMistake(session.settings.sound);
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "mistake" });
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["find-emotion.mistake", promptAssetId()], 80, 170);
+  pendingSelection.value = false;
+  lastMistakeId.value = undefined;
+  isSpeaking.value = false;
 }
 
 function restart() {
-  mistakesInRound.value = 0;
-  lastMistakeId.value = undefined;
+  resetRoundFeedback();
   restartRoundGame();
+  void playPrompt(450);
 }
 
 onMounted(() => {
+  promptAudio.warm();
   findEmotionFeedback.warm(session.settings.sound);
+  void playPrompt(450);
 });
 
 watch(() => session.settings.sound, (enabled) => {
@@ -72,6 +123,7 @@ watch(() => session.settings.sound, (enabled) => {
 });
 
 onUnmounted(() => {
+  clearTimers();
   findEmotionFeedback.dispose();
 });
 </script>
@@ -88,7 +140,7 @@ onUnmounted(() => {
             <div class="text-overline text-secondary text-center mb-2">Смотри на лицо</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
             <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5">{{ hintText }}</p>
-            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="176" :highlight-choice="(choice) => hintedChoiceId === choice.id" :color="(choice) => hintedChoiceId === choice.id ? 'primary' : 'surface'" :cols="4" :md="round.choices.length === 3 ? 4 : 3" @select="answer">
+            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="11rem" :highlight-choice="(choice) => hintedChoiceId === choice.id" :color="(choice) => hintedChoiceId === choice.id ? 'primary' : 'surface'" :cols="4" :md="round.choices.length === 3 ? 4 : 3" @select="answer">
               <template #default="{ choice }">
                 <div :class="['emotion-choice', { 'emotion-choice--mistake': choice.id === lastMistakeId }]">
                   <div class="emotion-emoji emoji-glyph" aria-hidden="true">{{ choice.emoji }}</div>

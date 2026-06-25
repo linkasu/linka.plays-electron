@@ -6151,5 +6151,75 @@
     "text": "Почти. Сравни карточки ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/odd-one-out/mistake.mp3"
+  },
+  {
+    "id": "find-emotion.prompt.joy",
+    "game": "find-emotion",
+    "text": "Найди радость.",
+    "voice": "jane",
+    "path": "/audio/tts/find-emotion/prompt-joy.mp3"
+  },
+  {
+    "id": "find-emotion.prompt.sadness",
+    "game": "find-emotion",
+    "text": "Найди грусть.",
+    "voice": "jane",
+    "path": "/audio/tts/find-emotion/prompt-sadness.mp3"
+  },
+  {
+    "id": "find-emotion.prompt.anger",
+    "game": "find-emotion",
+    "text": "Найди злость.",
+    "voice": "jane",
+    "path": "/audio/tts/find-emotion/prompt-anger.mp3"
+  },
+  {
+    "id": "find-emotion.prompt.surprise",
+    "game": "find-emotion",
+    "text": "Найди удивление.",
+    "voice": "jane",
+    "path": "/audio/tts/find-emotion/prompt-surprise.mp3"
+  },
+  {
+    "id": "find-emotion.prompt.calm",
+    "game": "find-emotion",
+    "text": "Найди спокойствие.",
+    "voice": "jane",
+    "path": "/audio/tts/find-emotion/prompt-calm.mp3"
+  },
+  {
+    "id": "find-emotion.prompt.fear",
+    "game": "find-emotion",
+    "text": "Найди страх.",
+    "voice": "jane",
+    "path": "/audio/tts/find-emotion/prompt-fear.mp3"
+  },
+  {
+    "id": "find-emotion.prompt.sleepy",
+    "game": "find-emotion",
+    "text": "Найди сонливость.",
+    "voice": "jane",
+    "path": "/audio/tts/find-emotion/prompt-sleepy.mp3"
+  },
+  {
+    "id": "find-emotion.prompt.shy",
+    "game": "find-emotion",
+    "text": "Найди смущение.",
+    "voice": "jane",
+    "path": "/audio/tts/find-emotion/prompt-shy.mp3"
+  },
+  {
+    "id": "find-emotion.correct",
+    "game": "find-emotion",
+    "text": "Да. Это нужная эмоция.",
+    "voice": "jane",
+    "path": "/audio/tts/find-emotion/correct.mp3"
+  },
+  {
+    "id": "find-emotion.mistake",
+    "game": "find-emotion",
+    "text": "Почти. Посмотри на лица ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/find-emotion/mistake.mp3"
   }
 ]
