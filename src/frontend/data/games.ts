@@ -928,7 +928,7 @@ export const games: GameInfo[] = [
     icon: "mdi-robot-happy-outline",
     skills: ["sequence", "choice"],
     status: "therapy-ready",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 135,
     minTargetSizePx: 170,
     defaultDwellMs: 1300

@@ -6361,5 +6361,47 @@
     "text": "Лабиринты пройдены.",
     "voice": "jane",
     "path": "/audio/tts/gaze-maze/complete.mp3"
+  },
+  {
+    "id": "build-robot.prompt.head",
+    "game": "build-robot",
+    "text": "Выбери голову.",
+    "voice": "jane",
+    "path": "/audio/tts/build-robot/prompt-head.mp3"
+  },
+  {
+    "id": "build-robot.prompt.body",
+    "game": "build-robot",
+    "text": "Выбери корпус.",
+    "voice": "jane",
+    "path": "/audio/tts/build-robot/prompt-body.mp3"
+  },
+  {
+    "id": "build-robot.prompt.arms",
+    "game": "build-robot",
+    "text": "Выбери руки.",
+    "voice": "jane",
+    "path": "/audio/tts/build-robot/prompt-arms.mp3"
+  },
+  {
+    "id": "build-robot.prompt.legs",
+    "game": "build-robot",
+    "text": "Выбери ноги.",
+    "voice": "jane",
+    "path": "/audio/tts/build-robot/prompt-legs.mp3"
+  },
+  {
+    "id": "build-robot.correct",
+    "game": "build-robot",
+    "text": "Да. Деталь на месте.",
+    "voice": "jane",
+    "path": "/audio/tts/build-robot/correct.mp3"
+  },
+  {
+    "id": "build-robot.mistake",
+    "game": "build-robot",
+    "text": "Почти. Попробуй ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/build-robot/mistake.mp3"
   }
 ]
