@@ -1,13 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { clothingSlots, dressCharacterKitIndex, dressCharacterMaxSteps, dressCharacterWeatherKits, getDressCharacterExpectedItem, getDressCharacterKit, isDressCharacterKitCompleteStep } from "./model";
+import { clothingSlots, dressCharacterKitIndex, dressCharacterMaxSteps, dressCharacterWeatherKits, getDressCharacterExpectedItem, getDressCharacterKit, getDressCharacterTask, isDressCharacterKitCompleteStep } from "./model";
 
 describe("dress-character model", () => {
-  it("keeps three weather kits with hat, jacket and shoes order", () => {
+  it("keeps three weather kits with hat, jacket and shoes tasks", () => {
     expect(dressCharacterWeatherKits.map((kit) => kit.id)).toEqual(["cold", "rain", "sun"]);
     expect(clothingSlots).toEqual(["hat", "jacket", "shoes"]);
     for (const kit of dressCharacterWeatherKits) {
       expect(kit.items.map((item) => item.slot)).toEqual(clothingSlots);
-      expect(kit.items.every((item) => item.label && item.prompt && item.hint && item.color && item.darkColor)).toBe(true);
+      expect(kit.items.every((item) => item.prompt && item.target && item.choices.length === 3)).toBe(true);
+      for (const task of kit.items) {
+        expect(task.choices.every((choice) => choice.slot === task.slot && choice.label && choice.color && choice.darkColor)).toBe(true);
+        expect(task.choices.some((choice) => choice.id === task.target.id)).toBe(true);
+      }
     }
   });
 
@@ -23,6 +27,7 @@ describe("dress-character model", () => {
     expect(getDressCharacterExpectedItem(0).slot).toBe("hat");
     expect(getDressCharacterExpectedItem(1).slot).toBe("jacket");
     expect(getDressCharacterExpectedItem(2).slot).toBe("shoes");
+    expect(getDressCharacterTask(0).choices.map((choice) => choice.label)).toEqual(["Шапка", "Кепка", "Шляпа"]);
   });
 
   it("marks only the shoe step as a completed kit", () => {

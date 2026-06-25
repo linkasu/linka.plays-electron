@@ -85,7 +85,7 @@
 |---|---|---|---|---|---|
 | Собери роботика | `build-robot` | [build-robot.md](build-robot.md) | `therapy-ready` | `publish` | `ready` |
 | Пирамидка | `pyramid` | [pyramid.md](pyramid.md) | `polished` | `publish` | `ready` |
-| Одень персонажа | `dress-character` | [dress-character.md](dress-character.md) | `therapy-ready` | `needs-check` | `development` |
+| Одень персонажа | `dress-character` | [dress-character.md](dress-character.md) | `therapy-ready` | `publish` | `ready` |
 | Поезд | `train-sequence` | [train-sequence.md](train-sequence.md) | `polished` | `needs-check` | `development` |
 | Бутерброд | `sandwich` | [sandwich.md](sandwich.md) | `therapy-ready` | `needs-check` | `development` |
 | Паттерны | `patterns` | [patterns.md](patterns.md) | `polished` | `needs-check` | `development` |

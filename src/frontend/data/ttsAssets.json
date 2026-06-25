@@ -6438,5 +6438,96 @@
     "text": "Посмотрим порядок. Пирамидку собирают от большого кольца к маленькому.",
     "voice": "jane",
     "path": "/audio/tts/pyramid/review.mp3"
+  },
+  {
+    "id": "dress-character.prompt.cold.hat",
+    "game": "dress-character",
+    "text": "Холодно. Что надеть на голову?",
+    "voice": "jane",
+    "path": "/audio/tts/dress-character/prompt-cold-hat.mp3"
+  },
+  {
+    "id": "dress-character.prompt.cold.jacket",
+    "game": "dress-character",
+    "text": "Холодно. Что надеть на тело?",
+    "voice": "jane",
+    "path": "/audio/tts/dress-character/prompt-cold-jacket.mp3"
+  },
+  {
+    "id": "dress-character.prompt.cold.shoes",
+    "game": "dress-character",
+    "text": "Холодно. Что надеть на ноги?",
+    "voice": "jane",
+    "path": "/audio/tts/dress-character/prompt-cold-shoes.mp3"
+  },
+  {
+    "id": "dress-character.prompt.rain.hat",
+    "game": "dress-character",
+    "text": "Идёт дождь. Что надеть на голову?",
+    "voice": "jane",
+    "path": "/audio/tts/dress-character/prompt-rain-hat.mp3"
+  },
+  {
+    "id": "dress-character.prompt.rain.jacket",
+    "game": "dress-character",
+    "text": "Идёт дождь. Что надеть на тело?",
+    "voice": "jane",
+    "path": "/audio/tts/dress-character/prompt-rain-jacket.mp3"
+  },
+  {
+    "id": "dress-character.prompt.rain.shoes",
+    "game": "dress-character",
+    "text": "Идёт дождь. Что надеть на ноги?",
+    "voice": "jane",
+    "path": "/audio/tts/dress-character/prompt-rain-shoes.mp3"
+  },
+  {
+    "id": "dress-character.prompt.sun.hat",
+    "game": "dress-character",
+    "text": "Солнечно. Что надеть на голову?",
+    "voice": "jane",
+    "path": "/audio/tts/dress-character/prompt-sun-hat.mp3"
+  },
+  {
+    "id": "dress-character.prompt.sun.jacket",
+    "game": "dress-character",
+    "text": "Солнечно. Что надеть на тело?",
+    "voice": "jane",
+    "path": "/audio/tts/dress-character/prompt-sun-jacket.mp3"
+  },
+  {
+    "id": "dress-character.prompt.sun.shoes",
+    "game": "dress-character",
+    "text": "Солнечно. Что надеть на ноги?",
+    "voice": "jane",
+    "path": "/audio/tts/dress-character/prompt-sun-shoes.mp3"
+  },
+  {
+    "id": "dress-character.correct",
+    "game": "dress-character",
+    "text": "Хороший выбор.",
+    "voice": "jane",
+    "path": "/audio/tts/dress-character/correct.mp3"
+  },
+  {
+    "id": "dress-character.mistake",
+    "game": "dress-character",
+    "text": "Попробуй ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/dress-character/mistake.mp3"
+  },
+  {
+    "id": "dress-character.kit-complete",
+    "game": "dress-character",
+    "text": "Комплект готов.",
+    "voice": "jane",
+    "path": "/audio/tts/dress-character/kit-complete.mp3"
+  },
+  {
+    "id": "dress-character.complete",
+    "game": "dress-character",
+    "text": "Персонаж готов к прогулке.",
+    "voice": "jane",
+    "path": "/audio/tts/dress-character/complete.mp3"
   }
 ]

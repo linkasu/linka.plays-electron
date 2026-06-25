@@ -3,12 +3,18 @@ export type ClothingSlot = "hat" | "jacket" | "shoes";
 export type DressCharacterWeatherId = "cold" | "rain" | "sun";
 
 export type ClothingItem = {
+  id: string;
   slot: ClothingSlot;
   label: string;
-  prompt: string;
-  hint: string;
   color: string;
   darkColor: string;
+};
+
+export type DressCharacterTask = {
+  slot: ClothingSlot;
+  prompt: string;
+  target: ClothingItem;
+  choices: ClothingItem[];
 };
 
 export type DressCharacterWeatherKit = {
@@ -18,7 +24,7 @@ export type DressCharacterWeatherKit = {
   sceneStart: string;
   sceneEnd: string;
   sceneAccent: string;
-  items: ClothingItem[];
+  items: DressCharacterTask[];
 };
 
 export const clothingSlots: ClothingSlot[] = ["hat", "jacket", "shoes"];
@@ -34,27 +40,33 @@ export const dressCharacterWeatherKits: DressCharacterWeatherKit[] = [
     items: [
       {
         slot: "hat",
-        label: "Шапка",
-        prompt: "Холодно. Сначала найдём тёплую шапку.",
-        hint: "Для холода нужна шапка сверху.",
-        color: "#b39ddb",
-        darkColor: "#4a3d76"
+        prompt: "Холодно. Что надеть на голову?",
+        target: { id: "cold-hat-beanie", slot: "hat", label: "Шапка", color: "#b39ddb", darkColor: "#4a3d76" },
+        choices: [
+          { id: "cold-hat-beanie", slot: "hat", label: "Шапка", color: "#b39ddb", darkColor: "#4a3d76" },
+          { id: "cold-hat-cap", slot: "hat", label: "Кепка", color: "#90caf9", darkColor: "#1e3a8a" },
+          { id: "cold-hat-brim", slot: "hat", label: "Шляпа", color: "#c8a27a", darkColor: "#6d4c41" }
+        ]
       },
       {
         slot: "jacket",
-        label: "Куртка",
-        prompt: "Теперь выбери куртку для холода.",
-        hint: "Куртка закрывает плечи и живот.",
-        color: "#64b5f6",
-        darkColor: "#16446f"
+        prompt: "Холодно. Что надеть на тело?",
+        target: { id: "cold-jacket-coat", slot: "jacket", label: "Куртка", color: "#64b5f6", darkColor: "#16446f" },
+        choices: [
+          { id: "cold-jacket-coat", slot: "jacket", label: "Куртка", color: "#64b5f6", darkColor: "#16446f" },
+          { id: "cold-jacket-vest", slot: "jacket", label: "Жилет", color: "#a5d6a7", darkColor: "#1b5e20" },
+          { id: "cold-jacket-shirt", slot: "jacket", label: "Футболка", color: "#ffcc80", darkColor: "#9a3412" }
+        ]
       },
       {
         slot: "shoes",
-        label: "Ботинки",
-        prompt: "Остались тёплые ботинки.",
-        hint: "Ботинки ждут внизу, у ног.",
-        color: "#4db6ac",
-        darkColor: "#15514d"
+        prompt: "Холодно. Что надеть на ноги?",
+        target: { id: "cold-shoes-boots", slot: "shoes", label: "Ботинки", color: "#4db6ac", darkColor: "#15514d" },
+        choices: [
+          { id: "cold-shoes-boots", slot: "shoes", label: "Ботинки", color: "#4db6ac", darkColor: "#15514d" },
+          { id: "cold-shoes-sandals", slot: "shoes", label: "Сандалии", color: "#f472b6", darkColor: "#9d174d" },
+          { id: "cold-shoes-slippers", slot: "shoes", label: "Тапочки", color: "#ce93d8", darkColor: "#6a1b9a" }
+        ]
       }
     ]
   },
@@ -68,27 +80,33 @@ export const dressCharacterWeatherKits: DressCharacterWeatherKit[] = [
     items: [
       {
         slot: "hat",
-        label: "Капюшон",
-        prompt: "Идёт дождь. Сначала нужен капюшон.",
-        hint: "Капюшон защищает голову от дождя.",
-        color: "#60a5fa",
-        darkColor: "#1d4ed8"
+        prompt: "Идёт дождь. Что надеть на голову?",
+        target: { id: "rain-hat-hood", slot: "hat", label: "Капюшон", color: "#60a5fa", darkColor: "#1d4ed8" },
+        choices: [
+          { id: "rain-hat-hood", slot: "hat", label: "Капюшон", color: "#60a5fa", darkColor: "#1d4ed8" },
+          { id: "rain-hat-panama", slot: "hat", label: "Панама", color: "#facc15", darkColor: "#a16207" },
+          { id: "rain-hat-brim", slot: "hat", label: "Шляпа", color: "#c8a27a", darkColor: "#6d4c41" }
+        ]
       },
       {
         slot: "jacket",
-        label: "Плащ",
-        prompt: "Теперь выбери непромокаемый плащ.",
-        hint: "Плащ надевают на тело в дождь.",
-        color: "#38bdf8",
-        darkColor: "#075985"
+        prompt: "Идёт дождь. Что надеть на тело?",
+        target: { id: "rain-jacket-raincoat", slot: "jacket", label: "Плащ", color: "#38bdf8", darkColor: "#075985" },
+        choices: [
+          { id: "rain-jacket-raincoat", slot: "jacket", label: "Плащ", color: "#38bdf8", darkColor: "#075985" },
+          { id: "rain-jacket-coat", slot: "jacket", label: "Куртка", color: "#64b5f6", darkColor: "#16446f" },
+          { id: "rain-jacket-shirt", slot: "jacket", label: "Футболка", color: "#fb923c", darkColor: "#9a3412" }
+        ]
       },
       {
         slot: "shoes",
-        label: "Сапоги",
-        prompt: "Для луж нужны резиновые сапоги.",
-        hint: "Сапоги надевают на ноги для луж.",
-        color: "#22c55e",
-        darkColor: "#166534"
+        prompt: "Идёт дождь. Что надеть на ноги?",
+        target: { id: "rain-shoes-rainboots", slot: "shoes", label: "Сапоги", color: "#22c55e", darkColor: "#166534" },
+        choices: [
+          { id: "rain-shoes-rainboots", slot: "shoes", label: "Сапоги", color: "#22c55e", darkColor: "#166534" },
+          { id: "rain-shoes-boots", slot: "shoes", label: "Ботинки", color: "#4db6ac", darkColor: "#15514d" },
+          { id: "rain-shoes-sandals", slot: "shoes", label: "Сандалии", color: "#f472b6", darkColor: "#9d174d" }
+        ]
       }
     ]
   },
@@ -102,27 +120,33 @@ export const dressCharacterWeatherKits: DressCharacterWeatherKit[] = [
     items: [
       {
         slot: "hat",
-        label: "Панама",
-        prompt: "Солнечно. Сначала выбери панаму.",
-        hint: "Панама защищает голову от солнца.",
-        color: "#facc15",
-        darkColor: "#a16207"
+        prompt: "Солнечно. Что надеть на голову?",
+        target: { id: "sun-hat-panama", slot: "hat", label: "Панама", color: "#facc15", darkColor: "#a16207" },
+        choices: [
+          { id: "sun-hat-panama", slot: "hat", label: "Панама", color: "#facc15", darkColor: "#a16207" },
+          { id: "sun-hat-beanie", slot: "hat", label: "Шапка", color: "#b39ddb", darkColor: "#4a3d76" },
+          { id: "sun-hat-hood", slot: "hat", label: "Капюшон", color: "#60a5fa", darkColor: "#1d4ed8" }
+        ]
       },
       {
         slot: "jacket",
-        label: "Футболка",
-        prompt: "Теперь нужна лёгкая футболка.",
-        hint: "В тёплую погоду выбираем лёгкую одежду для тела.",
-        color: "#fb923c",
-        darkColor: "#9a3412"
+        prompt: "Солнечно. Что надеть на тело?",
+        target: { id: "sun-jacket-shirt", slot: "jacket", label: "Футболка", color: "#fb923c", darkColor: "#9a3412" },
+        choices: [
+          { id: "sun-jacket-shirt", slot: "jacket", label: "Футболка", color: "#fb923c", darkColor: "#9a3412" },
+          { id: "sun-jacket-coat", slot: "jacket", label: "Куртка", color: "#64b5f6", darkColor: "#16446f" },
+          { id: "sun-jacket-raincoat", slot: "jacket", label: "Плащ", color: "#38bdf8", darkColor: "#075985" }
+        ]
       },
       {
         slot: "shoes",
-        label: "Сандалии",
-        prompt: "Остались сандалии для тёплой прогулки.",
-        hint: "Сандалии надевают на ноги в тёплый день.",
-        color: "#f472b6",
-        darkColor: "#9d174d"
+        prompt: "Солнечно. Что надеть на ноги?",
+        target: { id: "sun-shoes-sandals", slot: "shoes", label: "Сандалии", color: "#f472b6", darkColor: "#9d174d" },
+        choices: [
+          { id: "sun-shoes-sandals", slot: "shoes", label: "Сандалии", color: "#f472b6", darkColor: "#9d174d" },
+          { id: "sun-shoes-boots", slot: "shoes", label: "Ботинки", color: "#4db6ac", darkColor: "#15514d" },
+          { id: "sun-shoes-rainboots", slot: "shoes", label: "Сапоги", color: "#22c55e", darkColor: "#166534" }
+        ]
       }
     ]
   }
@@ -144,8 +168,12 @@ export function getDressCharacterKit(step: number, kits = dressCharacterWeatherK
   return kits[dressCharacterKitIndex(step, kits)];
 }
 
-export function getDressCharacterExpectedItem(step: number, kits = dressCharacterWeatherKits) {
+export function getDressCharacterTask(step: number, kits = dressCharacterWeatherKits) {
   return getDressCharacterKit(step, kits).items[dressCharacterSlotIndex(step)];
+}
+
+export function getDressCharacterExpectedItem(step: number, kits = dressCharacterWeatherKits) {
+  return getDressCharacterTask(step, kits).target;
 }
 
 export function isDressCharacterKitCompleteStep(step: number) {

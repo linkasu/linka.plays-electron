@@ -1,43 +1,46 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeDressCharacterAudio, playDressCharacterHintMelody, playDressCharacterSuccessMelody, warmDressCharacterAudio } from "./audio";
-import { clothingSlots, dressCharacterMaxSteps, getDressCharacterExpectedItem, getDressCharacterKit, isDressCharacterKitCompleteStep, type ClothingItem, type ClothingSlot } from "./model";
+import { clothingSlots, dressCharacterMaxSteps, getDressCharacterExpectedItem, getDressCharacterKit, getDressCharacterTask, isDressCharacterKitCompleteStep, type ClothingItem, type ClothingSlot } from "./model";
 
 const resetDelayMs = 1300;
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("dress-character", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("dress-character", {
   maxSteps: dressCharacterMaxSteps(),
   overrides: { dwellMs: 1300, sessionSeconds: 150, sound: true },
   finishOnMistakes: false
 });
 
 const dressed = reactive<Record<ClothingSlot, boolean>>(Object.fromEntries(clothingSlots.map((slot) => [slot, false])) as Record<ClothingSlot, boolean>);
-const hintedSlot = ref<ClothingSlot>();
-const lastMistakeSlot = ref<ClothingSlot>();
-const feedbackMessage = ref("Слушай мягкую подсказку и выбирай нужную одежду.");
+const lastMistakeChoiceId = ref<string>();
+const feedbackMessage = ref("Смотри на погоду и выбирай подходящую одежду.");
+const resultVisible = ref(false);
+const isSpeaking = ref(false);
+const isFeedbackPlaying = ref(false);
 const isResettingKit = ref(false);
 const isInputCoolingDown = ref(false);
+const promptAudio = useGamePromptAudio({ gameId: "dress-character", soundEnabled: toRef(session.settings, "sound") });
 let resetTimer = 0;
 let inputCooldownTimer = 0;
 
-const resultVisible = computed(() => session.status === "finished");
 const visibleStep = computed(() => isResettingKit.value ? Math.max(0, session.step - 1) : Math.min(session.step, session.maxSteps - 1));
 const currentKit = computed(() => getDressCharacterKit(visibleStep.value));
-const clothingItems = computed(() => currentKit.value.items);
-const currentItem = computed(() => getDressCharacterExpectedItem(visibleStep.value));
+const currentTask = computed(() => getDressCharacterTask(visibleStep.value));
+const clothingItems = computed(() => currentTask.value.choices);
 const completedCycles = computed(() => Math.floor(visibleStep.value / clothingSlots.length));
 const progressText = computed(() => `Шаг ${Math.min(visibleStep.value + 1, session.maxSteps)} из ${session.maxSteps}`);
 const kitStyle = computed(() => {
   const entries = currentKit.value.items.flatMap((item) => [
-    [`--${item.slot}-color`, item.color],
-    [`--${item.slot}-dark`, item.darkColor]
+    [`--${item.slot}-color`, item.target.color],
+    [`--${item.slot}-dark`, item.target.darkColor]
   ]);
   return Object.fromEntries([
     ["--scene-start", currentKit.value.sceneStart],
@@ -48,7 +51,7 @@ const kitStyle = computed(() => {
 });
 
 function choiceTargetId(item: ClothingItem) {
-  return `dress-character:choice:${item.slot}`;
+  return `dress-character:choice:${item.id}`;
 }
 
 function resetClothes() {
@@ -62,48 +65,84 @@ function clearResetTimer() {
   inputCooldownTimer = 0;
 }
 
+function promptAssetId(task = currentTask.value, kit = currentKit.value) {
+  return `dress-character.prompt.${kit.id}.${task.slot}`;
+}
+
+async function playPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait([promptAssetId()], delayMs);
+  isSpeaking.value = false;
+}
+
 function scheduleKitReset() {
   clearResetTimer();
   isResettingKit.value = true;
   feedbackMessage.value = `${currentKit.value.title}: комплект готов. Посмотрим на него и подготовим следующую погоду.`;
   resetTimer = window.setTimeout(() => {
     resetClothes();
-    hintedSlot.value = undefined;
-    lastMistakeSlot.value = undefined;
+    lastMistakeChoiceId.value = undefined;
     isResettingKit.value = false;
     isInputCoolingDown.value = true;
     feedbackMessage.value = `${currentKit.value.title}. ${currentKit.value.helper}`;
+    void playPrompt(150);
     inputCooldownTimer = window.setTimeout(() => {
       isInputCoolingDown.value = false;
     }, 700);
   }, resetDelayMs);
 }
 
-function choose(item: ClothingItem) {
-  if (session.status !== "running" || isResettingKit.value || isInputCoolingDown.value) return;
+async function choose(item: ClothingItem) {
+  if (session.status !== "running" || isResettingKit.value || isInputCoolingDown.value || isFeedbackPlaying.value || isSpeaking.value) return;
 
   const expectedItem = getDressCharacterExpectedItem(session.step);
   const targetId = choiceTargetId(item);
   const expectedTargetId = choiceTargetId(expectedItem);
   const roundId = `dress-character:round:${session.step + 1}`;
 
-  if (item.slot === expectedItem.slot) {
+  if (item.id === expectedItem.id) {
+    isFeedbackPlaying.value = true;
     dressed[item.slot] = true;
-    hintedSlot.value = undefined;
-    lastMistakeSlot.value = undefined;
+    lastMistakeChoiceId.value = undefined;
     feedbackMessage.value = `Да, это ${item.label.toLowerCase()}. Персонажу удобно.`;
-    void playDressCharacterSuccessMelody(session.settings.sound);
     recordSuccess({ roundId, targetId, answerId: item.slot, expected: expectedItem.label, actual: item.label, isCorrect: true });
-    if (session.status === "running" && isDressCharacterKitCompleteStep(session.step - 1)) scheduleKitReset();
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await playDressCharacterSuccessMelody(session.settings.sound);
+    if (finishedAfterSuccess) {
+      isSpeaking.value = true;
+      await promptAudio.playSequenceAndWait(["dress-character.correct", "dress-character.complete"], 80, 170);
+      isSpeaking.value = false;
+      isFeedbackPlaying.value = false;
+      resultVisible.value = true;
+      return;
+    }
+
+    if (session.status === "running" && isDressCharacterKitCompleteStep(session.step - 1)) {
+      isSpeaking.value = true;
+      await promptAudio.playSequenceAndWait(["dress-character.correct", "dress-character.kit-complete"], 80, 170);
+      isSpeaking.value = false;
+      isFeedbackPlaying.value = false;
+      scheduleKitReset();
+      return;
+    }
+
+    isSpeaking.value = true;
+    await promptAudio.playSequenceAndWait(["dress-character.correct", promptAssetId()], 80, 170);
+    isSpeaking.value = false;
+    isFeedbackPlaying.value = false;
     return;
   }
 
-  hintedSlot.value = expectedItem.slot;
-  lastMistakeSlot.value = item.slot;
-  feedbackMessage.value = `Ничего страшного. ${expectedItem.hint}`;
-  void playDressCharacterHintMelody(session.settings.sound);
+  isFeedbackPlaying.value = true;
+  lastMistakeChoiceId.value = item.id;
+  feedbackMessage.value = "Посмотри одежду ещё раз.";
   recordMistake({ roundId, targetId, expectedTargetId, answerId: item.slot, expected: expectedItem.label, actual: item.label, isCorrect: false });
-  recordHint({ roundId, targetId: expectedTargetId, reason: "clothing-sequence" });
+  await playDressCharacterHintMelody(session.settings.sound);
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["dress-character.mistake", promptAssetId(getDressCharacterTask(session.step), getDressCharacterKit(session.step))], 80, 170);
+  isSpeaking.value = false;
+  lastMistakeChoiceId.value = undefined;
+  isFeedbackPlaying.value = false;
 }
 
 function itemStyle(item: ClothingItem) {
@@ -114,29 +153,43 @@ function itemStyle(item: ClothingItem) {
 }
 
 function choiceColor(item: ClothingItem) {
-  if (hintedSlot.value === item.slot) return "primary";
-  if (lastMistakeSlot.value === item.slot) return "deep-orange-darken-2";
+  if (lastMistakeChoiceId.value === item.id) return "deep-orange-darken-2";
   return "blue-grey-darken-4";
 }
 
 function restart() {
   clearResetTimer();
+  promptAudio.cancelPending();
   resetClothes();
-  hintedSlot.value = undefined;
-  lastMistakeSlot.value = undefined;
+  lastMistakeChoiceId.value = undefined;
+  resultVisible.value = false;
+  isSpeaking.value = false;
+  isFeedbackPlaying.value = false;
   isResettingKit.value = false;
   isInputCoolingDown.value = false;
-  feedbackMessage.value = "Слушай мягкую подсказку и выбирай нужную одежду.";
+  feedbackMessage.value = "Смотри на погоду и выбирай подходящую одежду.";
   startSession();
+  void playPrompt(450);
 }
 
 onMounted(() => {
+  promptAudio.warm();
   warmDressCharacterAudio(session.settings.sound);
+  void playPrompt(450);
 });
 
 onUnmounted(() => {
   clearResetTimer();
+  promptAudio.cancelPending();
   disposeDressCharacterAudio();
+});
+
+watch(() => session.status, (status) => {
+  if (status !== "finished") {
+    resultVisible.value = false;
+    return;
+  }
+  if (!isFeedbackPlaying.value && !isSpeaking.value) resultVisible.value = true;
 });
 </script>
 
@@ -149,7 +202,7 @@ onUnmounted(() => {
           <v-card class="dress-card pa-3 pa-md-4" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-1">Гардероб для прогулки</div>
             <h1 class="text-h5 text-md-h4 font-weight-bold text-center mb-1">Одень персонажа</h1>
-            <p class="prompt-line text-body-1 text-md-h6 text-medium-emphasis text-center mb-3">{{ isResettingKit ? currentKit.helper : currentItem.prompt }}</p>
+            <p class="prompt-line text-body-1 text-md-h6 text-medium-emphasis text-center mb-3">{{ isResettingKit ? currentKit.helper : currentTask.prompt }}</p>
 
             <div class="play-area">
               <v-card class="character-card pa-3" rounded="xl" variant="flat" :style="kitStyle">
@@ -160,14 +213,14 @@ onUnmounted(() => {
                 <div class="character-stage" aria-label="Персонаж для одевания">
                   <div class="closet-sparkle closet-sparkle--one" />
                   <div class="closet-sparkle closet-sparkle--two" />
-                  <div :class="['dress-piece dress-piece--hat', { 'dress-piece--visible': dressed.hat, 'dress-piece--hint': hintedSlot === 'hat' }]" />
+                  <div :class="['dress-piece dress-piece--hat', { 'dress-piece--visible': dressed.hat }]" />
                   <div class="person person--head">
                     <span class="person-eye person-eye--left" />
                     <span class="person-eye person-eye--right" />
                     <span class="person-smile" />
                   </div>
                   <div class="person person--neck" />
-                  <div :class="['dress-piece dress-piece--jacket', { 'dress-piece--visible': dressed.jacket, 'dress-piece--hint': hintedSlot === 'jacket' }]">
+                  <div :class="['dress-piece dress-piece--jacket', { 'dress-piece--visible': dressed.jacket }]">
                     <span class="dress-piece__detail dress-piece__detail--one" />
                     <span class="dress-piece__detail dress-piece__detail--two" />
                   </div>
@@ -176,7 +229,7 @@ onUnmounted(() => {
                   <div class="person person--arm person--arm-right" />
                   <div class="person person--leg person--leg-left" />
                   <div class="person person--leg person--leg-right" />
-                  <div :class="['dress-piece dress-piece--shoes', { 'dress-piece--visible': dressed.shoes, 'dress-piece--hint': hintedSlot === 'shoes' }]">
+                  <div :class="['dress-piece dress-piece--shoes', { 'dress-piece--visible': dressed.shoes }]">
                     <span class="dress-piece__detail dress-piece__detail--one" />
                     <span class="dress-piece__detail dress-piece__detail--two" />
                   </div>
@@ -188,10 +241,10 @@ onUnmounted(() => {
               </v-card>
 
               <div class="choice-grid" aria-label="Выбор одежды">
-                <GameDwellButton v-for="item in clothingItems" :key="item.slot" :class="['choice-button', `choice-button--${item.slot}`, { 'choice-button--hinted': hintedSlot === item.slot }]" :style="itemStyle(item)" :target-id="choiceTargetId(item)" :disabled="session.status !== 'running' || isResettingKit || isInputCoolingDown" :dwell-ms="session.settings.dwellMs" :min-height="118" :color="choiceColor(item)" @select="choose(item)">
+                <GameDwellButton v-for="item in clothingItems" :key="item.id" :class="['choice-button', `choice-button--${item.slot}`]" :style="itemStyle(item)" :target-id="choiceTargetId(item)" :disabled="session.status !== 'running' || isResettingKit || isInputCoolingDown || isFeedbackPlaying || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="7.375rem" :color="choiceColor(item)" @select="choose(item)">
                   <template #default>
-                    <div :class="['choice-content', { 'choice-content--mistake': lastMistakeSlot === item.slot }]">
-                      <div :class="['choice-art', `choice-art--${item.slot}`]" aria-hidden="true">
+                    <div :class="['choice-content', { 'choice-content--mistake': lastMistakeChoiceId === item.id }]">
+                      <div :class="['choice-art', `choice-art--${item.slot}`, `choice-art--${item.id}`]" aria-hidden="true">
                         <span class="choice-art__detail choice-art__detail--one" />
                         <span class="choice-art__detail choice-art__detail--two" />
                       </div>
@@ -400,13 +453,8 @@ onUnmounted(() => {
   transition: opacity 180ms ease, transform 180ms ease, filter 180ms ease;
 }
 
-.dress-piece--visible,
-.dress-piece--hint {
+.dress-piece--visible {
   opacity: 1;
-}
-
-.dress-piece--hint {
-  filter: drop-shadow(0 0 1rem rgb(var(--v-theme-primary) / 48%));
 }
 
 .dress-piece--hat {
@@ -574,6 +622,73 @@ onUnmounted(() => {
   inset-inline-start: 41%;
 }
 
+.choice-art--cold-hat-cap::before {
+  block-size: 38%;
+  border-radius: 1.4rem 1.4rem 0.45rem 0.45rem;
+  inline-size: 56%;
+  inset-block-start: 34%;
+  inset-inline-start: 22%;
+}
+
+.choice-art--cold-hat-cap::after {
+  block-size: 15%;
+  border-radius: 999rem;
+  inline-size: 44%;
+  inset-block-start: 61%;
+  inset-inline-start: 42%;
+}
+
+.choice-art--cold-hat-brim::before,
+.choice-art--rain-hat-brim::before {
+  block-size: 32%;
+  border-radius: 1.8rem 1.8rem 0.6rem 0.6rem;
+  inline-size: 42%;
+  inset-block-start: 26%;
+  inset-inline-start: 29%;
+}
+
+.choice-art--cold-hat-brim::after,
+.choice-art--rain-hat-brim::after {
+  block-size: 18%;
+  border-radius: 999rem;
+  inline-size: 86%;
+  inset-block-start: 58%;
+  inset-inline-start: 7%;
+}
+
+.choice-art--rain-hat-hood::before {
+  block-size: 64%;
+  border-radius: 2rem 2rem 0.85rem 0.85rem;
+  inline-size: 62%;
+  inset-block-start: 20%;
+  inset-inline-start: 19%;
+}
+
+.choice-art--rain-hat-hood::after {
+  background: rgb(255 255 255 / 55%);
+  block-size: 38%;
+  border-radius: 999rem;
+  inline-size: 36%;
+  inset-block-start: 32%;
+  inset-inline-start: 32%;
+}
+
+.choice-art--sun-hat-panama::before {
+  block-size: 36%;
+  border-radius: 1.6rem 1.6rem 0.55rem 0.55rem;
+  inline-size: 48%;
+  inset-block-start: 28%;
+  inset-inline-start: 26%;
+}
+
+.choice-art--sun-hat-panama::after {
+  block-size: 17%;
+  border-radius: 999rem;
+  inline-size: 76%;
+  inset-block-start: 61%;
+  inset-inline-start: 12%;
+}
+
 .choice-art--hat .choice-art__detail,
 .choice-art--shoes .choice-art__detail {
   display: none;
@@ -615,6 +730,46 @@ onUnmounted(() => {
   transform: rotate(-15deg);
 }
 
+.choice-art--cold-jacket-vest::before {
+  border-radius: 1.4rem 1.4rem 0.85rem 0.85rem;
+  inline-size: 48%;
+  inset-inline-start: 26%;
+}
+
+.choice-art--cold-jacket-vest .choice-art__detail--one,
+.choice-art--cold-jacket-vest .choice-art__detail--two {
+  display: none;
+}
+
+.choice-art--cold-jacket-shirt::before,
+.choice-art--rain-jacket-shirt::before,
+.choice-art--sun-jacket-shirt::before {
+  block-size: 54%;
+  border-radius: 1.1rem 1.1rem 0.65rem 0.65rem;
+  inline-size: 52%;
+  inset-block-start: 25%;
+  inset-inline-start: 24%;
+}
+
+.choice-art--cold-jacket-shirt .choice-art__detail--one,
+.choice-art--rain-jacket-shirt .choice-art__detail--one,
+.choice-art--sun-jacket-shirt .choice-art__detail--one,
+.choice-art--cold-jacket-shirt .choice-art__detail--two,
+.choice-art--rain-jacket-shirt .choice-art__detail--two,
+.choice-art--sun-jacket-shirt .choice-art__detail--two {
+  block-size: 30%;
+  inset-block-start: 29%;
+}
+
+.choice-art--rain-jacket-raincoat::before,
+.choice-art--sun-jacket-raincoat::before {
+  block-size: 84%;
+  border-radius: 1.4rem 1.4rem 1rem 1rem;
+  inline-size: 60%;
+  inset-block-start: 8%;
+  inset-inline-start: 20%;
+}
+
 .choice-art--shoes::before,
 .choice-art--shoes::after {
   block-size: 42%;
@@ -633,13 +788,38 @@ onUnmounted(() => {
   transform: rotate(7deg);
 }
 
-.choice-content--mistake {
-  opacity: 0.68;
+.choice-art--cold-shoes-sandals::before,
+.choice-art--rain-shoes-sandals::before,
+.choice-art--sun-shoes-sandals::before,
+.choice-art--cold-shoes-sandals::after,
+.choice-art--rain-shoes-sandals::after,
+.choice-art--sun-shoes-sandals::after {
+  block-size: 24%;
+  border-radius: 1rem 1rem 0.45rem 0.45rem;
+  inset-block-start: 56%;
 }
 
-.choice-button--hinted {
-  filter: drop-shadow(0 0 1rem rgb(var(--v-theme-primary) / 38%));
-  transform: scale(1.02);
+.choice-art--cold-shoes-rainboots::before,
+.choice-art--rain-shoes-rainboots::before,
+.choice-art--sun-shoes-rainboots::before,
+.choice-art--cold-shoes-rainboots::after,
+.choice-art--rain-shoes-rainboots::after,
+.choice-art--sun-shoes-rainboots::after {
+  block-size: 68%;
+  border-radius: 0.9rem 0.9rem 0.45rem 0.45rem;
+  inset-block-start: 16%;
+}
+
+.choice-art--cold-shoes-slippers::before,
+.choice-art--cold-shoes-slippers::after {
+  block-size: 28%;
+  border-radius: 999rem;
+  inline-size: 34%;
+  inset-block-start: 54%;
+}
+
+.choice-content--mistake {
+  opacity: 0.68;
 }
 
 @media (max-width: 56rem) {
@@ -668,7 +848,7 @@ onUnmounted(() => {
 
 @media (max-height: 44rem) {
   .game-container {
-    padding-block-start: 4.35rem;
+    padding-block-start: 3.75rem;
   }
 
   .dress-card {
@@ -702,7 +882,8 @@ onUnmounted(() => {
   }
 
   .choice-button :deep(.dwell-button) {
-    min-block-size: 108px !important;
+    min-block-size: 6.75rem !important;
+    padding: 0.35rem !important;
   }
 }
 </style>
