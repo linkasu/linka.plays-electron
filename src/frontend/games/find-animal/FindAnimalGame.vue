@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, toRef, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -7,7 +7,6 @@ import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
-import { useChoiceRoundFlow } from "../../composables/useChoiceRoundFlow";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { findAnimalFeedback } from "./audio";
@@ -16,6 +15,7 @@ import { generateFindAnimalRound, type FindAnimalChoice } from "./model";
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("find-animal", {
   maxSteps: 8,
+  overrides: { sound: true },
   finishOnMistakes: false
 });
 
@@ -27,63 +27,102 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
   generateRound: (roundIndex) => generateFindAnimalRound(session.settings, roundIndex)
 });
 
+const hintedRoundId = ref<string>();
+const lastMistakeId = ref<string>();
+const pendingSelection = ref(false);
+const isSpeaking = ref(false);
+let feedbackTimer = 0;
+
 function choiceTargetId(choiceId: string) {
   return `find-animal:choice:${choiceId}`;
 }
 
 function choiceMinHeight(choiceCount: number) {
-  if (choiceCount <= 3) return "clamp(180px, 28vh, 300px)";
-  return "clamp(168px, 25vh, 260px)";
+  if (choiceCount <= 3) return "clamp(11.25rem, 28vh, 18.75rem)";
+  return "clamp(10.5rem, 25vh, 16.25rem)";
 }
 
-const choiceFlow = useChoiceRoundFlow<FindAnimalChoice>({
-  session,
-  round,
-  nextRound,
-  restartRoundGame,
-  isSameChoice: (left, right) => left.id === right.id,
-  buildAnswerPayload: (choice, currentRound, isCorrect) => ({
-    targetId: choiceTargetId(choice.id),
-    ...(isCorrect ? {} : { expectedTargetId: choiceTargetId(currentRound.target.id) }),
-    expected: currentRound.target.word,
-    actual: choice.word
-  }),
-  buildHintPayload: (currentRound) => ({
-    roundId: currentRound.roundId,
-    targetId: choiceTargetId(currentRound.target.id),
-    reason: "wrong-animal-selected"
-  }),
-  recordSuccess,
-  recordMistake,
-  recordHint,
-  feedback: {
-    playSuccess: () => { void findAnimalFeedback.playSuccess(session.settings.sound); },
-    playMistake: () => { void findAnimalFeedback.playMistake(session.settings.sound); }
-  },
-  prompt: {
-    play: (assetId, delayMs) => promptAudio.play(assetId, delayMs),
-    cancel: promptAudio.cancelPending,
-    promptAssetId: (currentRound) => `find-animal.prompt.${currentRound.target.id}`,
-    successAssetId: "find-animal.correct",
-    mistakeAssetId: "find-animal.mistake"
-  }
-});
-
-const { hintedRoundId, lastMistakeId, pendingSelection, hintedChoice, answer } = choiceFlow;
-const hintedChoiceId = computed(() => hintedChoice.value?.id);
+const hintedChoiceId = computed(() => hintedRoundId.value === round.value.roundId ? round.value.target.id : undefined);
 const hintText = computed(() => {
   if (hintedRoundId.value !== round.value.roundId) return "Посмотри на названного зверька и удержи взгляд.";
-  return `Почти получилось. Верный зверёк подсвечен: ${round.value.target.word}.`;
+  return "Почти получилось. Верный зверёк мягко подсвечен.";
 });
 
+function clearTimers() {
+  window.clearTimeout(feedbackTimer);
+  promptAudio.cancelPending();
+  feedbackTimer = 0;
+}
+
+function promptAssetId() {
+  return `find-animal.prompt.${round.value.target.id}`;
+}
+
+async function playPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait([promptAssetId()], delayMs);
+  isSpeaking.value = false;
+}
+
+function resetRoundFeedback() {
+  clearTimers();
+  hintedRoundId.value = undefined;
+  lastMistakeId.value = undefined;
+  pendingSelection.value = false;
+  isSpeaking.value = false;
+}
+
+async function answer(choice: FindAnimalChoice) {
+  if (session.status !== "running" || pendingSelection.value || isSpeaking.value) return;
+
+  const targetId = choiceTargetId(choice.id);
+  const expectedTargetId = choiceTargetId(round.value.target.id);
+  clearTimers();
+  if (choice.id === round.value.target.id) {
+    pendingSelection.value = true;
+    void findAnimalFeedback.playSuccess(session.settings.sound);
+    recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: true });
+    hintedRoundId.value = undefined;
+    lastMistakeId.value = undefined;
+    isSpeaking.value = true;
+    await promptAudio.playSequenceAndWait(["find-animal.correct"], 80);
+
+    if (session.status === "running" && session.step < session.maxSteps) {
+      feedbackTimer = window.setTimeout(() => {
+        nextRound();
+        resetRoundFeedback();
+        void playPrompt(180);
+      }, 260);
+    } else {
+      pendingSelection.value = false;
+      isSpeaking.value = false;
+    }
+    return;
+  }
+
+  pendingSelection.value = true;
+  hintedRoundId.value = round.value.roundId;
+  lastMistakeId.value = choice.id;
+  void findAnimalFeedback.playMistake(session.settings.sound);
+  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: false });
+  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "wrong-animal-selected" });
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["find-animal.mistake", promptAssetId()], 80, 170);
+  pendingSelection.value = false;
+  lastMistakeId.value = undefined;
+  isSpeaking.value = false;
+}
+
 function restart() {
-  choiceFlow.restart();
+  resetRoundFeedback();
+  restartRoundGame();
+  void playPrompt(450);
 }
 
 onMounted(() => {
   findAnimalFeedback.warm(session.settings.sound);
   promptAudio.warm();
-  choiceFlow.start();
+  void playPrompt(450);
 });
 
 watch(() => session.settings.sound, (enabled) => {
@@ -91,6 +130,7 @@ watch(() => session.settings.sound, (enabled) => {
 });
 
 onUnmounted(() => {
+  clearTimers();
   findAnimalFeedback.dispose();
 });
 </script>
@@ -107,7 +147,7 @@ onUnmounted(() => {
             <div class="text-overline text-secondary text-center mb-1 mb-md-2">Лесная поляна</div>
             <h1 class="text-h4 text-md-h2 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
             <p class="hint-line text-body-1 text-md-h5 text-medium-emphasis text-center mb-3 mb-md-5">{{ hintText }}</p>
-            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="choiceMinHeight(round.choices.length)" :highlight-choice="(choice) => hintedChoiceId === choice.id" :color="(choice) => hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="answer">
+            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="choiceMinHeight(round.choices.length)" :highlight-choice="(choice) => hintedChoiceId === choice.id" :color="(choice) => hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="answer">
               <template #default="{ choice, active, progress }">
                 <div :class="['animal-emoji', 'emoji-glyph', { 'animal-emoji--mistake': choice.id === lastMistakeId }]">{{ choice.emoji }}</div>
                 <div class="animal-label text-h6 text-md-h4 font-weight-bold mt-2">{{ hintedChoiceId === choice.id && active && progress > 0.78 ? `Вот ${choice.word}` : choice.word }}</div>

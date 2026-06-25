@@ -883,7 +883,7 @@ export const games: GameInfo[] = [
     icon: "mdi-paw",
     skills: ["visual-search", "choice", "vocabulary"],
     status: "therapy-ready",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 200,
     defaultDwellMs: 1300
