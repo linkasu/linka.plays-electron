@@ -973,7 +973,7 @@ export const games: GameInfo[] = [
     icon: "mdi-train",
     skills: ["sequence", "choice"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 150,
     defaultDwellMs: 1200

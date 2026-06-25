@@ -6529,5 +6529,33 @@
     "text": "Персонаж готов к прогулке.",
     "voice": "jane",
     "path": "/audio/tts/dress-character/complete.mp3"
+  },
+  {
+    "id": "train-sequence.prompt",
+    "game": "train-sequence",
+    "text": "Собери поезд по номерам от одного к пяти.",
+    "voice": "jane",
+    "path": "/audio/tts/train-sequence/prompt.mp3"
+  },
+  {
+    "id": "train-sequence.correct",
+    "game": "train-sequence",
+    "text": "Вагон прицепился.",
+    "voice": "jane",
+    "path": "/audio/tts/train-sequence/correct.mp3"
+  },
+  {
+    "id": "train-sequence.mistake",
+    "game": "train-sequence",
+    "text": "Вагон прицепился. Продолжай.",
+    "voice": "jane",
+    "path": "/audio/tts/train-sequence/mistake.mp3"
+  },
+  {
+    "id": "train-sequence.complete",
+    "game": "train-sequence",
+    "text": "Поезд собран.",
+    "voice": "jane",
+    "path": "/audio/tts/train-sequence/complete.mp3"
   }
 ]
