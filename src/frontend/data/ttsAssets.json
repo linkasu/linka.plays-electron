@@ -6221,5 +6221,75 @@
     "text": "Почти. Посмотри на лица ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/find-emotion/mistake.mp3"
+  },
+  {
+    "id": "letter-hunt.prompt.a",
+    "game": "letter-hunt",
+    "text": "Поймай букву А.",
+    "voice": "jane",
+    "path": "/audio/tts/letter-hunt/prompt-a.mp3"
+  },
+  {
+    "id": "letter-hunt.prompt.o",
+    "game": "letter-hunt",
+    "text": "Поймай букву О.",
+    "voice": "jane",
+    "path": "/audio/tts/letter-hunt/prompt-o.mp3"
+  },
+  {
+    "id": "letter-hunt.prompt.m",
+    "game": "letter-hunt",
+    "text": "Поймай букву М.",
+    "voice": "jane",
+    "path": "/audio/tts/letter-hunt/prompt-m.mp3"
+  },
+  {
+    "id": "letter-hunt.prompt.s",
+    "game": "letter-hunt",
+    "text": "Поймай букву С.",
+    "voice": "jane",
+    "path": "/audio/tts/letter-hunt/prompt-s.mp3"
+  },
+  {
+    "id": "letter-hunt.prompt.k",
+    "game": "letter-hunt",
+    "text": "Поймай букву К.",
+    "voice": "jane",
+    "path": "/audio/tts/letter-hunt/prompt-k.mp3"
+  },
+  {
+    "id": "letter-hunt.prompt.r",
+    "game": "letter-hunt",
+    "text": "Поймай букву Р.",
+    "voice": "jane",
+    "path": "/audio/tts/letter-hunt/prompt-r.mp3"
+  },
+  {
+    "id": "letter-hunt.prompt.t",
+    "game": "letter-hunt",
+    "text": "Поймай букву Т.",
+    "voice": "jane",
+    "path": "/audio/tts/letter-hunt/prompt-t.mp3"
+  },
+  {
+    "id": "letter-hunt.prompt.l",
+    "game": "letter-hunt",
+    "text": "Поймай букву Л.",
+    "voice": "jane",
+    "path": "/audio/tts/letter-hunt/prompt-l.mp3"
+  },
+  {
+    "id": "letter-hunt.correct",
+    "game": "letter-hunt",
+    "text": "Да. Это нужная буква.",
+    "voice": "jane",
+    "path": "/audio/tts/letter-hunt/correct.mp3"
+  },
+  {
+    "id": "letter-hunt.mistake",
+    "game": "letter-hunt",
+    "text": "Почти. Посмотри на буквы ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/letter-hunt/mistake.mp3"
   }
 ]

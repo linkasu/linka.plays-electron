@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { resolveMenuRoute } from "../../core/menuMode";
@@ -37,28 +38,49 @@ const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, recordMistake, startSession } = useGameSessionFor("letter-hunt", {
   maxSteps: 8,
-  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.44, distractors: "low", hints: "high" },
+  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.44, distractors: "low", hints: "high", sound: true },
   finishOnMistakes: false
 });
 
 const activeLetters = reactive<FloatingLetter[]>([]);
 const clouds = reactive<Cloud[]>([]);
 const targetLetter = ref("А");
-const helperText = ref("Найди нужную букву и спокойно удержи взгляд.");
+const isSpeaking = ref(false);
 const resultVisible = computed(() => session.status === "finished");
 const promptText = computed(() => `Поймай букву ${targetLetter.value}`);
+const promptAudio = useGamePromptAudio({ gameId: "letter-hunt", soundEnabled: toRef(session.settings, "sound") });
 
 const roundLetters = ["А", "О", "М", "С", "К", "Р", "Т", "Л"];
 const distractorLetters = ["А", "О", "М", "С", "К", "Р", "Т", "Л", "Н", "П", "В", "Е", "И", "Б", "Д", "З"];
 const letterHues = [205, 176, 36, 288, 12, 146, 224, 326];
 const mistakeGlowSeconds = 1.05;
 const correctGlowSeconds = 0.85;
+const letterPromptIds: Record<string, string> = {
+  А: "a",
+  О: "o",
+  М: "m",
+  С: "s",
+  К: "k",
+  Р: "r",
+  Т: "t",
+  Л: "l"
+};
 
 let ctx: CanvasRenderingContext2D | undefined;
 let frame = 0;
 let lastTime = performance.now();
 let spawnSerial = 0;
 let nextRoundAt = 0;
+
+function promptAssetId() {
+  return `letter-hunt.prompt.${letterPromptIds[targetLetter.value] ?? "a"}`;
+}
+
+async function playPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait([promptAssetId()], delayMs);
+  isSpeaking.value = false;
+}
 
 function randomRange(min: number, max: number) {
   return min + Math.random() * (max - min);
@@ -158,7 +180,7 @@ function chooseLetterPoint(radius: number, placed: Point[]) {
 
 function makeLetter(letter: string, point: Point, isTarget: boolean): FloatingLetter {
   const radius = letterRadius() * randomRange(0.94, 1.06);
-  const hue = isTarget ? 46 : letterHues[spawnSerial % letterHues.length];
+  const hue = letterHues[spawnSerial % letterHues.length];
   spawnSerial += 1;
 
   return {
@@ -190,7 +212,6 @@ function placeRoundLetters() {
   const choices = roundChoices();
   activeLetters.splice(0);
   targetLetter.value = targetForStep();
-  helperText.value = "Найди нужную букву и спокойно удержи взгляд.";
 
   for (const letter of choices) {
     const radius = letterRadius();
@@ -200,6 +221,12 @@ function placeRoundLetters() {
   }
 
   recordEvent("level-start", { targetLetter: targetLetter.value, choices });
+}
+
+function startNextRound() {
+  nextRoundAt = 0;
+  placeRoundLetters();
+  void playPrompt(180);
 }
 
 function copyPointer() {
@@ -240,7 +267,22 @@ function cancelLetter(letter: FloatingLetter, now: number, reason: "left" | "inv
   letter.dwellProgress = 0;
 }
 
+async function finishCorrectLetter(letter: FloatingLetter) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["letter-hunt.correct"], 80);
+  if (session.status === "running") startNextRound();
+  else isSpeaking.value = false;
+}
+
+async function finishMistakeLetter(letter: FloatingLetter) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["letter-hunt.mistake", promptAssetId()], 80, 170);
+  if (letter.feedback === "mistake") refreshMistakeLetter(letter);
+  isSpeaking.value = false;
+}
+
 function selectLetter(letter: FloatingLetter, now: number) {
+  if (isSpeaking.value) return;
   recordEvent("target-click", targetPayload(letter, now, 1));
   letter.enteredAt = undefined;
   letter.dwellProgress = 1;
@@ -250,8 +292,7 @@ function selectLetter(letter: FloatingLetter, now: number) {
     recordSuccess({ targetId: letter.id, letter: letter.letter });
     letter.feedback = "correct";
     letter.feedbackAge = 0;
-    helperText.value = `Да, это буква ${letter.letter}.`;
-    if (session.status === "running") nextRoundAt = now + correctGlowSeconds * 1000;
+    void finishCorrectLetter(letter);
     return;
   }
 
@@ -260,11 +301,12 @@ function selectLetter(letter: FloatingLetter, now: number) {
   letter.feedback = "mistake";
   letter.feedbackAge = 0;
   letter.dwellProgress = 0;
-  helperText.value = `Это буква ${letter.letter}. Нужна ${targetLetter.value}. Попробуй ещё.`;
+  void finishMistakeLetter(letter);
 }
 
 function closestLetter() {
   if (nextRoundAt > 0) return undefined;
+  if (isSpeaking.value) return undefined;
   if (!pointer.value.valid || session.status !== "running") return undefined;
 
   let closest: FloatingLetter | undefined;
@@ -319,7 +361,7 @@ function updateLetters(delta: number, now: number) {
     for (const letter of activeLetters) {
       if (letter.enteredAt !== undefined) cancelLetter(letter, now, "new-round");
     }
-    placeRoundLetters();
+    startNextRound();
   }
 
   const gazeLetter = closestLetter();
@@ -405,9 +447,8 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
 
 function drawLetter(context: CanvasRenderingContext2D, letter: FloatingLetter) {
   const point = letterPoint(letter);
-  const isTarget = letter.letter === targetLetter.value;
   const feedbackProgress = letter.feedback === "idle" ? 0 : Math.max(0, 1 - letter.feedbackAge / (letter.feedback === "correct" ? correctGlowSeconds : mistakeGlowSeconds));
-  const glowHue = letter.feedback === "mistake" ? 38 : isTarget ? 48 : letter.hue;
+  const glowHue = letter.feedback === "correct" ? 142 : letter.feedback === "mistake" ? 38 : letter.hue;
   const radius = letter.radius * (1 + letter.dwellProgress * 0.04 + feedbackProgress * 0.08);
 
   context.save();
@@ -424,7 +465,7 @@ function drawLetter(context: CanvasRenderingContext2D, letter: FloatingLetter) {
   context.fill();
 
   context.fillStyle = "rgb(255 255 255 / 86%)";
-  context.strokeStyle = letter.feedback === "mistake" ? "rgb(221 154 69 / 64%)" : isTarget ? "rgb(238 188 74 / 58%)" : "rgb(92 126 151 / 34%)";
+  context.strokeStyle = letter.feedback === "correct" ? "rgb(86 166 111 / 64%)" : letter.feedback === "mistake" ? "rgb(221 154 69 / 64%)" : "rgb(92 126 151 / 34%)";
   context.lineWidth = Math.max(3, radius * 0.035);
   context.beginPath();
   context.roundRect(point.x - radius, point.y - radius, radius * 2, radius * 2, radius * 0.38);
@@ -438,7 +479,7 @@ function drawLetter(context: CanvasRenderingContext2D, letter: FloatingLetter) {
   context.fillText(letter.letter, point.x, point.y + radius * 0.04);
 
   if (letter.dwellProgress > 0.01 && letter.feedback === "idle") {
-    context.strokeStyle = `hsla(${isTarget ? 48 : letter.hue}, 92%, 48%, 0.62)`;
+    context.strokeStyle = `hsla(${letter.hue}, 92%, 48%, 0.62)`;
     context.lineWidth = Math.max(4, radius * 0.045);
     context.lineCap = "round";
     context.beginPath();
@@ -467,15 +508,20 @@ function tick(now: number) {
 
 function restart() {
   nextRoundAt = 0;
+  promptAudio.cancelPending();
+  isSpeaking.value = false;
   startSession();
   placeRoundLetters();
+  void playPrompt(450);
 }
 
 onMounted(async () => {
   await nextTick();
+  promptAudio.warm();
   warmLetterHuntAudio(session.settings.sound);
   resizeCanvas();
   placeRoundLetters();
+  void playPrompt(450);
   window.addEventListener("resize", resizeCanvas);
   lastTime = performance.now();
   frame = requestAnimationFrame(tick);
@@ -488,6 +534,7 @@ watch(() => session.settings.sound, (enabled) => {
 onUnmounted(() => {
   window.removeEventListener("resize", resizeCanvas);
   cancelAnimationFrame(frame);
+  promptAudio.cancelPending();
   disposeLetterHuntAudio();
 });
 </script>
@@ -499,7 +546,6 @@ onUnmounted(() => {
     <v-card class="letter-hunt-prompt mx-auto px-5 py-3" color="surface" elevation="6" rounded="xl">
       <div class="text-caption text-medium-emphasis">Охота на буквы</div>
       <div class="text-h5 font-weight-bold">{{ promptText }}</div>
-      <div class="text-body-2 text-medium-emphasis">{{ helperText }}</div>
     </v-card>
 
     <GameHud
