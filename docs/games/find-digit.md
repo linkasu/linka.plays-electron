@@ -57,7 +57,7 @@ undefined
 | Vue-компонент | `FindDigitGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
-| Audio module | `audio.ts` |
+| Audio module | нет |
 | Runtime audit doc | `docs/tests/2026-06-10/find-digit.md` |
 
 ## Готовность
@@ -66,7 +66,7 @@ undefined
 
 Автоматические blockers:
 
-- missing-game-doc
+- нет
 
 ## QA checklist
 
@@ -75,8 +75,9 @@ undefined
 - HUD, prompt и overlays не перекрывают активные цели.
 - Для canvas/fullscreen игры PNG подтверждает непустую сцену и читаемые active zones.
 - Звук, если есть, остаётся опциональным и не ломает gameplay при ошибке загрузки.
+- TTS проговаривает цифру-задание, мягкий успех и спокойную ошибку с повтором нужной цифры.
 - Для игр с правилами model tests покрывают правильный ответ, ошибки и завершение раунда.
 
 ## Next step
 
-Поддерживать CDP/PNG pass при изменениях; при развитии игры расширять этот документ ручными продуктово-дефектологическими деталями.
+Оставить в ready-очереди и проверять регрессии через общий Electron CDP audit.

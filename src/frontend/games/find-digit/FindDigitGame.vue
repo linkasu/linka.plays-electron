@@ -13,7 +13,11 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateFindDigitRound, type FindDigitOption } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("find-digit", { maxSteps: 8, finishOnMistakes: false });
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("find-digit", {
+  maxSteps: 8,
+  overrides: { sound: true },
+  finishOnMistakes: false
+});
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
@@ -25,6 +29,7 @@ const mistakesInRound = ref(0);
 const lastMistakeId = ref<string>();
 const successChoiceId = ref<string>();
 const pendingSelection = ref(false);
+const isSpeaking = ref(false);
 const promptAudio = useGamePromptAudio({ gameId: "find-digit", soundEnabled: toRef(session.settings, "sound") });
 const feedback = useStandardGameFeedback(toRef(session.settings, "sound"));
 let feedbackTimer = 0;
@@ -48,12 +53,10 @@ function clearTimers() {
   feedbackTimer = 0;
 }
 
-function playTargetPrompt(delayMs = 0) {
-  promptAudio.play(`find-digit.prompt.${round.value.target.id}`, delayMs);
-}
-
-function playResponse(id: string, delayMs = 0) {
-  promptAudio.play(id, delayMs);
+async function playTargetPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait([`find-digit.prompt.${round.value.target.id}`], delayMs);
+  isSpeaking.value = false;
 }
 
 function resetRoundFeedback() {
@@ -62,10 +65,11 @@ function resetRoundFeedback() {
   lastMistakeId.value = undefined;
   successChoiceId.value = undefined;
   pendingSelection.value = false;
+  isSpeaking.value = false;
 }
 
-function answer(choice: FindDigitOption) {
-  if (session.status !== "running" || pendingSelection.value) return;
+async function answer(choice: FindDigitOption) {
+  if (session.status !== "running" || pendingSelection.value || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice.id);
   const expectedTargetId = choiceTargetId(round.value.target.id);
@@ -77,13 +81,17 @@ function answer(choice: FindDigitOption) {
     mistakesInRound.value = 0;
     lastMistakeId.value = undefined;
     void feedback.playSuccess();
-    playResponse("find-digit.correct", 980);
+    isSpeaking.value = true;
+    await promptAudio.playSequenceAndWait(["find-digit.correct"], 80);
     if (session.status === "running" && session.step < session.maxSteps) {
       feedbackTimer = window.setTimeout(() => {
         nextRound();
         resetRoundFeedback();
-        playTargetPrompt(350);
-      }, 2600);
+        void playTargetPrompt(180);
+      }, 260);
+    } else {
+      pendingSelection.value = false;
+      isSpeaking.value = false;
     }
     return;
   }
@@ -92,24 +100,24 @@ function answer(choice: FindDigitOption) {
   mistakesInRound.value += 1;
   lastMistakeId.value = choice.id;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: false });
+  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "wrong-digit-selected" });
   void feedback.playMistake();
-  playResponse("find-digit.mistake", 940);
-  playTargetPrompt(2700);
-  feedbackTimer = window.setTimeout(() => {
-    pendingSelection.value = false;
-    lastMistakeId.value = undefined;
-  }, 2200);
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["find-digit.mistake", `find-digit.prompt.${round.value.target.id}`], 80, 170);
+  pendingSelection.value = false;
+  lastMistakeId.value = undefined;
+  isSpeaking.value = false;
 }
 
 function restart() {
   resetRoundFeedback();
   restartRoundGame();
-  playTargetPrompt(450);
+  void playTargetPrompt(450);
 }
 
 onMounted(() => {
   promptAudio.warm();
-  playTargetPrompt(450);
+  void playTargetPrompt(450);
 });
 
 onUnmounted(() => {
@@ -129,7 +137,7 @@ onUnmounted(() => {
             <div class="text-overline text-secondary text-center mb-1">Цифровая полянка</div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-1">{{ round.prompt }}</h1>
             <p class="text-body-1 text-md-h6 text-medium-emphasis text-center mb-3">{{ hintText }}</p>
-            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" min-height="clamp(12rem, 30vh, 18rem)" :cols="round.choices.length === 4 ? 3 : 4" :sm="round.choices.length === 4 ? 3 : 4" :md="round.choices.length > 4 ? 4 : round.choices.length === 4 ? 3 : 4" @select="answer">
+            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="clamp(12rem, 30vh, 18rem)" :cols="round.choices.length === 4 ? 3 : 4" :sm="round.choices.length === 4 ? 3 : 4" :md="round.choices.length > 4 ? 4 : round.choices.length === 4 ? 3 : 4" @select="answer">
               <template #default="{ choice }">
                 <div :class="['digit-scene', digitTone(choice), { 'digit-scene--hinted': mistakesInRound > 0 && choice.id === round.target.id, 'digit-scene--mistake': choice.id === lastMistakeId, 'digit-scene--success': choice.id === successChoiceId }]">
                   <span class="digit-scene__number">{{ choice.label }}</span>

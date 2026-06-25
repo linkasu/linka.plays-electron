@@ -129,7 +129,7 @@
 
 | Игра | ID | Документ | Status | Stability | Group |
 |---|---|---|---|---|---|
-| Найди цифру | `find-digit` | [find-digit.md](find-digit.md) | `therapy-ready` | `needs-check` | `development` |
+| Найди цифру | `find-digit` | [find-digit.md](find-digit.md) | `therapy-ready` | `publish` | `ready` |
 | Логические пары | `logic-pairs` | [logic-pairs.md](logic-pairs.md) | `therapy-ready` | `needs-check` | `development` |
 | Часы | `clock` | [clock.md](clock.md) | `therapy-ready` | `needs-check` | `development` |
 | Календарь | `calendar` | [calendar.md](calendar.md) | `therapy-ready` | `needs-check` | `development` |
