@@ -84,7 +84,7 @@
 | Игра | ID | Документ | Status | Stability | Group |
 |---|---|---|---|---|---|
 | Собери роботика | `build-robot` | [build-robot.md](build-robot.md) | `therapy-ready` | `publish` | `ready` |
-| Пирамидка | `pyramid` | [pyramid.md](pyramid.md) | `polished` | `needs-check` | `development` |
+| Пирамидка | `pyramid` | [pyramid.md](pyramid.md) | `polished` | `publish` | `ready` |
 | Одень персонажа | `dress-character` | [dress-character.md](dress-character.md) | `therapy-ready` | `needs-check` | `development` |
 | Поезд | `train-sequence` | [train-sequence.md](train-sequence.md) | `polished` | `needs-check` | `development` |
 | Бутерброд | `sandwich` | [sandwich.md](sandwich.md) | `therapy-ready` | `needs-check` | `development` |

@@ -57,14 +57,17 @@ export function playTtsAssetAndWait(enabled: boolean, asset: TtsAsset | undefine
 
     return new Promise<void>((resolve) => {
       let settled = false;
+      let fallbackTimer = 0;
       const finish = () => {
         if (settled) return;
         settled = true;
+        window.clearTimeout(fallbackTimer);
         audio.removeEventListener("ended", finish);
         audio.removeEventListener("error", finish);
         audio.removeEventListener("pause", finish);
         resolve();
       };
+      fallbackTimer = window.setTimeout(finish, 6000);
 
       audio.addEventListener("ended", finish);
       audio.addEventListener("error", finish);

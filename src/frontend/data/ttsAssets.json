@@ -6403,5 +6403,40 @@
     "text": "Почти. Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/build-robot/mistake.mp3"
+  },
+  {
+    "id": "pyramid.prompt",
+    "game": "pyramid",
+    "text": "Выбери кольцо и поставь на пирамидку.",
+    "voice": "jane",
+    "path": "/audio/tts/pyramid/prompt.mp3"
+  },
+  {
+    "id": "pyramid.correct",
+    "game": "pyramid",
+    "text": "Кольцо на месте.",
+    "voice": "jane",
+    "path": "/audio/tts/pyramid/correct.mp3"
+  },
+  {
+    "id": "pyramid.mistake",
+    "game": "pyramid",
+    "text": "Кольцо поставлено. Продолжай.",
+    "voice": "jane",
+    "path": "/audio/tts/pyramid/mistake.mp3"
+  },
+  {
+    "id": "pyramid.complete",
+    "game": "pyramid",
+    "text": "Пирамидка собрана.",
+    "voice": "jane",
+    "path": "/audio/tts/pyramid/complete.mp3"
+  },
+  {
+    "id": "pyramid.review",
+    "game": "pyramid",
+    "text": "Посмотрим порядок. Пирамидку собирают от большого кольца к маленькому.",
+    "voice": "jane",
+    "path": "/audio/tts/pyramid/review.mp3"
   }
 ]
