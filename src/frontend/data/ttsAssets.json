@@ -6109,5 +6109,26 @@
     "text": "Почти. Посмотри на тень ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/shadow-match/mistake.mp3"
+  },
+  {
+    "id": "sound-source.prompt",
+    "game": "sound-source",
+    "text": "Послушай тихий звук и выбери, откуда идут волны.",
+    "voice": "jane",
+    "path": "/audio/tts/sound-source/prompt.mp3"
+  },
+  {
+    "id": "sound-source.correct",
+    "game": "sound-source",
+    "text": "Да. Источник звука найден.",
+    "voice": "jane",
+    "path": "/audio/tts/sound-source/correct.mp3"
+  },
+  {
+    "id": "sound-source.mistake",
+    "game": "sound-source",
+    "text": "Почти. Посмотри на волны ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/sound-source/mistake.mp3"
   }
 ]

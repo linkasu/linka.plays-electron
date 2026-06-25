@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 
@@ -24,6 +25,12 @@ type SoundRound = {
   roundId: string;
   target: SoundSource;
   choices: SoundSource[];
+};
+
+type CachedSourceAudio = {
+  audio: HTMLAudioElement;
+  sourceNode?: MediaElementAudioSourceNode;
+  pannerNode?: StereoPannerNode;
 };
 
 const soundSources: SoundSource[] = [
@@ -99,12 +106,15 @@ const soundSources: SoundSource[] = [
 const router = useRouter();
 const selectedSourceId = ref("");
 const lastMistakeSourceId = ref("");
+const pendingAudio = ref(false);
 const feedbackMessage = ref("Найди объект, от которого расходятся мягкие волны.");
 const mistakenSourceIds = new Set<string>();
 let nextRoundTimer = 0;
-let currentAudio: HTMLAudioElement | undefined;
+let audioContext: AudioContext | undefined;
+let currentAudio: CachedSourceAudio | undefined;
 let stopAudioTimer = 0;
-const audioCache = new Map<string, HTMLAudioElement>();
+let playbackToken = 0;
+const audioCache = new Map<string, CachedSourceAudio>();
 
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("sound-source", {
   maxSteps: 8,
@@ -114,7 +124,8 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 
 const round = reactive<SoundRound>(createRound(0));
 const resultVisible = computed(() => session.status === "finished");
-const promptText = computed(() => `Где слышна ${round.target.soundLabel}?`);
+const promptText = computed(() => "Где этот звук?");
+const promptAudio = useGamePromptAudio({ gameId: "sound-source", soundEnabled: toRef(session.settings, "sound") });
 
 function createRound(step: number): SoundRound {
   const count = Math.min(4, 2 + Math.floor(step / 3));
@@ -135,7 +146,7 @@ function setRound(step: number) {
   lastMistakeSourceId.value = "";
   mistakenSourceIds.clear();
   feedbackMessage.value = "Смотри на объект с волнами. Тихий звук включён, а волну видно всегда.";
-  void playSourceCue(round.target, "source");
+  void playRoundPromptAndCue(180);
 }
 
 function sourceTargetId(source: SoundSource) {
@@ -150,82 +161,141 @@ function sourceStyle(source: SoundSource, index: number) {
   };
 }
 
-function chooseSource(source: SoundSource) {
-  if (session.status !== "running" || selectedSourceId.value) return;
+function sourcePan(source: SoundSource) {
+  const index = round.choices.findIndex((choice) => choice.id === source.id);
+  if (index < 0 || round.choices.length < 2) return 0;
+  return ((index / (round.choices.length - 1)) * 2 - 1) * 0.62;
+}
+
+async function chooseSource(source: SoundSource) {
+  if (session.status !== "running" || selectedSourceId.value || pendingAudio.value) return;
+
+  const token = ++playbackToken;
 
   if (source.id !== round.target.id) {
+    pendingAudio.value = true;
     lastMistakeSourceId.value = source.id;
-    feedbackMessage.value = `Почти. Волна идёт от объекта «${round.target.title}». Попробуй ещё раз спокойно.`;
+    feedbackMessage.value = "Почти. Посмотри, откуда расходятся волны, и попробуй ещё раз спокойно.";
     if (!mistakenSourceIds.has(source.id)) {
       mistakenSourceIds.add(source.id);
       recordMistake({ roundId: round.roundId, selectedId: source.id, targetId: round.target.id, expected: round.target.soundLabel });
     }
-    void playSourceCue(round.target, "source");
+    await promptAudio.playSequenceAndWait(["sound-source.mistake"], 80);
+    await playSourceCue(round.target, "source");
+    if (token === playbackToken) {
+      pendingAudio.value = false;
+      lastMistakeSourceId.value = "";
+    }
     return;
   }
 
+  pendingAudio.value = true;
   selectedSourceId.value = source.id;
   feedbackMessage.value = `Да, это «${source.title}». Волна найдена.`;
   recordSuccess({ roundId: round.roundId, targetId: source.id, sound: source.soundLabel });
-  void playSourceCue(source, "success");
+  await playSourceCue(source, "success");
+  await promptAudio.playSequenceAndWait(["sound-source.correct"], 80);
 
-  if (session.status === "running") {
+  if (token === playbackToken && session.status === "running") {
     window.clearTimeout(nextRoundTimer);
-    nextRoundTimer = window.setTimeout(() => setRound(session.step), 1050);
+    nextRoundTimer = window.setTimeout(() => setRound(session.step), 260);
+  } else if (token === playbackToken) {
+    pendingAudio.value = false;
   }
 }
 
+function wait(delayMs: number) {
+  return new Promise<void>((resolve) => {
+    window.setTimeout(resolve, delayMs);
+  });
+}
+
+function createAudioContext() {
+  const AudioContextConstructor = window.AudioContext ?? (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  return AudioContextConstructor ? new AudioContextConstructor() : undefined;
+}
+
+async function connectSourceAudio(entry: CachedSourceAudio, pan: number) {
+  audioContext = audioContext ?? createAudioContext();
+  if (!audioContext) return;
+  if (audioContext.state === "suspended") await audioContext.resume();
+  if (!entry.sourceNode) {
+    entry.sourceNode = audioContext.createMediaElementSource(entry.audio);
+    entry.pannerNode = audioContext.createStereoPanner();
+    entry.sourceNode.connect(entry.pannerNode).connect(audioContext.destination);
+  }
+  if (entry.pannerNode) entry.pannerNode.pan.value = pan;
+}
+
 function getSourceAudio(source: SoundSource) {
-  let audio = audioCache.get(source.soundPath);
-  if (!audio) {
-    audio = new Audio(source.soundPath);
+  let entry = audioCache.get(source.soundPath);
+  if (!entry) {
+    const audio = new Audio(source.soundPath);
     audio.preload = "auto";
     audio.volume = source.volume;
-    audioCache.set(source.soundPath, audio);
+    entry = { audio };
+    audioCache.set(source.soundPath, entry);
   }
-  return audio;
+  return entry;
 }
 
 function warmSourceAudio() {
   if (!session.settings.sound) return;
   for (const source of soundSources) {
     try {
-      getSourceAudio(source).load();
+      getSourceAudio(source).audio.load();
     } catch {
       // Object sounds are supportive only; gameplay continues with visual waves.
     }
   }
 }
 
-function stopCurrentAudio() {
+function stopCurrentAudio(invalidatePlayback = true) {
   window.clearTimeout(stopAudioTimer);
+  if (invalidatePlayback) {
+    playbackToken += 1;
+    pendingAudio.value = false;
+    promptAudio.cancelPending();
+  }
   if (!currentAudio) return;
-  currentAudio.pause();
-  currentAudio.currentTime = 0;
+  currentAudio.audio.pause();
+  currentAudio.audio.currentTime = 0;
 }
 
 async function playSourceCue(source: SoundSource, kind: "source" | "success") {
   if (!session.settings.sound) return;
 
   try {
-    stopCurrentAudio();
-    const audio = getSourceAudio(source);
-    currentAudio = audio;
+    stopCurrentAudio(false);
+    const entry = getSourceAudio(source);
+    const audio = entry.audio;
+    await connectSourceAudio(entry, sourcePan(source));
+    currentAudio = entry;
     audio.currentTime = 0;
     audio.volume = Math.min(0.42, kind === "success" ? source.volume + 0.04 : source.volume);
     await audio.play();
     stopAudioTimer = window.setTimeout(() => {
-      if (currentAudio !== audio) return;
+      if (currentAudio !== entry) return;
       audio.pause();
       audio.currentTime = 0;
     }, source.cueMs);
+    await wait(source.cueMs);
   } catch {
     // Audio is optional: autoplay/load failures must not disable later user-triggered attempts.
   }
 }
 
+async function playRoundPromptAndCue(delayMs = 0) {
+  const token = ++playbackToken;
+  pendingAudio.value = true;
+  await promptAudio.playSequenceAndWait(["sound-source.prompt"], delayMs);
+  await playSourceCue(round.target, "source");
+  if (token === playbackToken) pendingAudio.value = false;
+}
+
 function restart() {
   window.clearTimeout(nextRoundTimer);
+  stopCurrentAudio();
   startSession();
   setRound(0);
 }
@@ -236,12 +306,13 @@ watch(() => session.settings.sound, (enabled) => {
     return;
   }
   warmSourceAudio();
-  void playSourceCue(round.target, "source");
+  void playRoundPromptAndCue(120);
 });
 
 onMounted(() => {
+  promptAudio.warm();
   warmSourceAudio();
-  void playSourceCue(round.target, "source");
+  void playRoundPromptAndCue(450);
 });
 
 onUnmounted(() => {
@@ -277,19 +348,10 @@ onUnmounted(() => {
           <p class="text-body-2 text-md-body-1 text-medium-emphasis mb-0">Выбери один из крупных объектов. Ошибка только подскажет, где искать волну.</p>
         </div>
 
-        <div class="d-flex flex-column flex-sm-row align-center justify-space-between ga-2 mb-3">
+        <div class="d-flex align-center mb-3">
           <v-alert class="flex-grow-1" color="primary" icon="mdi-waves" rounded="xl" variant="tonal">
             {{ feedbackMessage }}
           </v-alert>
-          <v-switch
-            v-model="session.settings.sound"
-            class="sound-source-toggle"
-            color="primary"
-            density="compact"
-            hide-details
-            inset
-            label="Тихий звук"
-          />
         </div>
 
         <div class="sound-source-grid" :class="`sound-source-grid--${round.choices.length}`" role="group" aria-label="Выбор источника звука или визуальной волны">
@@ -298,7 +360,7 @@ onUnmounted(() => {
             :key="sourceTargetId(source)"
             class="sound-source-target"
             :target-id="sourceTargetId(source)"
-            :disabled="session.status !== 'running' || Boolean(selectedSourceId)"
+            :disabled="session.status !== 'running' || Boolean(selectedSourceId) || pendingAudio"
             :dwell-ms="session.settings.dwellMs"
             min-height="clamp(10rem, 28vh, 14rem)"
             color="surface"
@@ -374,10 +436,6 @@ onUnmounted(() => {
 
 .sound-source-panel {
   inline-size: min(1120px, 100%);
-}
-
-.sound-source-toggle {
-  min-inline-size: 154px;
 }
 
 .sound-source-grid {
