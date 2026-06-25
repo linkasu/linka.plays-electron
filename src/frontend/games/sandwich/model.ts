@@ -1,3 +1,5 @@
+import { shuffleItems } from "../../core/random";
+
 export type SandwichChoiceKind = "bread" | "spread" | "filling" | "vegetable" | "top-bread";
 
 export type SandwichChoice = {
@@ -141,12 +143,5 @@ export function getSandwichRecipe(recipeIndex: number, recipes = sandwichRecipes
 }
 
 export function shuffleSandwichChoices(choices = sandwichChoices, random = Math.random): SandwichChoice[] {
-  const shuffled = [...choices];
-
-  for (let index = shuffled.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(random() * (index + 1));
-    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
-  }
-
-  return shuffled;
+  return shuffleItems(choices, random);
 }

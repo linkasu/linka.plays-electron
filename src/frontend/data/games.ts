@@ -988,7 +988,7 @@ export const games: GameInfo[] = [
     icon: "mdi-food-variant",
     skills: ["sequence", "choice"],
     status: "therapy-ready",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 150,
     defaultDwellMs: 1300

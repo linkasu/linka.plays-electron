@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { sandwichFeedback } from "./audio";
@@ -13,7 +14,7 @@ import { buildSandwichSteps, getSandwichRecipe, isSandwichRecipeCompleteStep, sa
 const recipePauseMs = 1250;
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("sandwich", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("sandwich", {
   maxSteps: sandwichMaxSteps(),
   overrides: { dwellMs: 1300, sessionSeconds: 150, sound: true },
   finishOnMistakes: false
@@ -22,12 +23,14 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 const resultVisible = ref(false);
 const plateSteps = ref<SandwichRecipeStep[]>([]);
 const feedbackMessage = ref("Собираем бутерброд по рецепту: хлеб, масло, начинка, овощи и верхний хлеб.");
-const hintedChoiceId = ref<string>();
 const wrongChoiceId = ref<string>();
 const successChoiceId = ref<string>();
 const visibleChoices = ref<SandwichChoice[]>(shuffleSandwichChoices());
+const isSpeaking = ref(false);
+const isFeedbackPlaying = ref(false);
 const isRecipeResting = ref(false);
 const isInputCoolingDown = ref(false);
+const promptAudio = useGamePromptAudio({ gameId: "sandwich", soundEnabled: toRef(session.settings, "sound") });
 let feedbackTimer = 0;
 let recipeTimer = 0;
 let cooldownTimer = 0;
@@ -56,9 +59,14 @@ function clearTimers() {
 function clearTransientFeedback() {
   window.clearTimeout(feedbackTimer);
   feedbackTimer = 0;
-  hintedChoiceId.value = undefined;
   wrongChoiceId.value = undefined;
   successChoiceId.value = undefined;
+}
+
+async function playPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["sandwich.prompt"], delayMs);
+  isSpeaking.value = false;
 }
 
 function startInputCooldown() {
@@ -75,6 +83,7 @@ function resetPlateForNextRecipe() {
   clearTransientFeedback();
   isRecipeResting.value = false;
   feedbackMessage.value = `${currentRecipe.value.title}. ${currentRecipe.value.helper}`;
+  void playPrompt(150);
   startInputCooldown();
 }
 
@@ -89,13 +98,11 @@ function scheduleRecipeReset(completedStep: SandwichRecipeStep) {
 function choiceColor(choice: SandwichChoice) {
   if (wrongChoiceId.value === choice.id) return "orange-lighten-4";
   if (successChoiceId.value === choice.id) return "green-lighten-4";
-  if (hintedChoiceId.value === choice.id) return "amber-lighten-4";
-  if (currentStep.value?.choice.id === choice.id) return "green-lighten-5";
   return "surface";
 }
 
-function chooseIngredient(choice: SandwichChoice) {
-  if (session.status !== "running" || isRecipeResting.value || isInputCoolingDown.value) return;
+async function chooseIngredient(choice: SandwichChoice) {
+  if (session.status !== "running" || isRecipeResting.value || isInputCoolingDown.value || isSpeaking.value || isFeedbackPlaying.value) return;
 
   const expectedStep = steps.value[session.step];
   if (!expectedStep) return;
@@ -105,13 +112,27 @@ function chooseIngredient(choice: SandwichChoice) {
   clearTransientFeedback();
 
   if (choice.id === expectedStep.choice.id) {
+    isFeedbackPlaying.value = true;
     plateSteps.value.push(expectedStep);
     successChoiceId.value = choice.id;
     feedbackMessage.value = `${choice.shortLabel}: слой на месте.`;
-    void sandwichFeedback.playSuccess(session.settings.sound);
     recordSuccess({ roundId: expectedStep.roundId, targetId, expectedTargetId, expected: expectedStep.choice.id, actual: choice.id, recipeId: expectedStep.recipeId, isCorrect: true });
-    if (session.status === "running" && isSandwichRecipeCompleteStep(expectedStep)) scheduleRecipeReset(expectedStep);
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await sandwichFeedback.playSuccess(session.settings.sound);
+    if (finishedAfterSuccess) {
+      await promptAudio.playSequenceAndWait(["sandwich.correct", "sandwich.complete"], 80, 170);
+      isFeedbackPlaying.value = false;
+      resultVisible.value = true;
+      return;
+    }
+    if (session.status === "running" && isSandwichRecipeCompleteStep(expectedStep)) {
+      await promptAudio.playSequenceAndWait(["sandwich.correct", "sandwich.recipe-complete"], 80, 170);
+      isFeedbackPlaying.value = false;
+      scheduleRecipeReset(expectedStep);
+    }
     else {
+      await promptAudio.playSequenceAndWait(["sandwich.correct"], 80);
+      isFeedbackPlaying.value = false;
       feedbackTimer = window.setTimeout(() => {
         successChoiceId.value = undefined;
       }, 650);
@@ -119,37 +140,46 @@ function chooseIngredient(choice: SandwichChoice) {
     return;
   }
 
-  hintedChoiceId.value = expectedStep.choice.id;
+  isFeedbackPlaying.value = true;
   wrongChoiceId.value = choice.id;
-  feedbackMessage.value = `Почти. Сейчас нужен шаг: ${expectedStep.choice.shortLabel}. ${expectedStep.helper}`;
-  void sandwichFeedback.playMistake(session.settings.sound);
+  feedbackMessage.value = "Посмотри рецепт и ингредиенты ещё раз.";
   recordMistake({ roundId: expectedStep.roundId, targetId, expectedTargetId, expected: expectedStep.choice.id, actual: choice.id, recipeId: expectedStep.recipeId, isCorrect: false });
-  recordHint({ roundId: expectedStep.roundId, targetId: expectedTargetId, reason: "wrong-sandwich-step" });
+  await sandwichFeedback.playMistake(session.settings.sound);
+  await promptAudio.playSequenceAndWait(["sandwich.mistake"], 80);
+  isFeedbackPlaying.value = false;
   feedbackTimer = window.setTimeout(clearTransientFeedback, 1200);
 }
 
 function restart() {
   clearTimers();
+  promptAudio.cancelPending();
   plateSteps.value = [];
   visibleChoices.value = shuffleSandwichChoices();
   resultVisible.value = false;
+  isSpeaking.value = false;
+  isFeedbackPlaying.value = false;
   isRecipeResting.value = false;
   isInputCoolingDown.value = false;
   feedbackMessage.value = "Собираем бутерброд по рецепту: хлеб, масло, начинка, овощи и верхний хлеб.";
   startSession();
+  void playPrompt(450);
 }
 
 onMounted(() => {
+  promptAudio.warm();
   sandwichFeedback.warm(session.settings.sound);
+  void playPrompt(450);
 });
 
 onUnmounted(() => {
   clearTimers();
+  promptAudio.cancelPending();
   sandwichFeedback.dispose();
 });
 
 watch(() => session.status, (status) => {
   if (status === "finished") {
+    if (isSpeaking.value || isFeedbackPlaying.value) return;
     clearTimers();
     feedbackTimer = window.setTimeout(() => {
       resultVisible.value = true;
@@ -174,7 +204,7 @@ watch(() => session.status, (status) => {
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-1">Собери бутерброд</h1>
             <p class="intro text-body-1 text-medium-emphasis text-center mb-3">Выбирай ингредиенты по рецепту. Готовый бутерброд немного побудет на тарелке, потом начнём следующий.</p>
 
-            <v-card class="prompt-card pa-3 pa-md-4 mb-3" :color="hintedChoiceId ? 'amber-lighten-5' : 'green-lighten-5'" rounded="xl" variant="flat">
+            <v-card class="prompt-card pa-3 pa-md-4 mb-3" color="green-lighten-5" rounded="xl" variant="flat">
               <div class="d-flex flex-wrap align-center ga-3">
                 <v-avatar :color="currentStep.choice.color" size="54">
                   <v-icon color="white" :icon="currentStep.choice.icon" size="32" />
@@ -206,7 +236,7 @@ watch(() => session.status, (status) => {
               </v-card>
 
               <div class="ingredient-grid" aria-label="Ингредиенты для бутерброда">
-                <GameDwellButton v-for="choice in visibleChoices" :key="choice.id" :class="{ 'needed-choice': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isRecipeResting || isInputCoolingDown" :dwell-ms="session.settings.dwellMs" :min-height="104" :color="choiceColor(choice)" @select="chooseIngredient(choice)">
+                <GameDwellButton v-for="choice in visibleChoices" :key="choice.id" :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isRecipeResting || isInputCoolingDown || isSpeaking || isFeedbackPlaying" :dwell-ms="session.settings.dwellMs" min-height="6.5rem" :color="choiceColor(choice)" @select="chooseIngredient(choice)">
                   <template #default>
                     <div class="ingredient-content">
                       <v-avatar :color="choice.color" size="52">
@@ -247,7 +277,7 @@ watch(() => session.status, (status) => {
 }
 
 .prompt-card {
-  border: 2px solid rgb(var(--v-theme-warning) / 18%);
+  border: 0.125rem solid rgb(var(--v-theme-warning) / 18%);
 }
 
 .play-area {
@@ -281,7 +311,7 @@ watch(() => session.status, (status) => {
   align-items: center;
   background: radial-gradient(ellipse at center, #fff 0 55%, #d7eef4 56% 72%, #b9dce7 73% 100%);
   border-radius: 50%;
-  box-shadow: inset 0 0 0 12px rgb(255 255 255 / 74%), 0 18px 34px rgb(121 85 72 / 18%);
+  box-shadow: inset 0 0 0 0.75rem rgb(255 255 255 / 74%), 0 1.125rem 2.125rem rgb(121 85 72 / 18%);
   display: flex;
   flex-direction: column-reverse;
   inline-size: min(26rem, 96%);
@@ -292,15 +322,15 @@ watch(() => session.status, (status) => {
 }
 
 .empty-plate {
-  border: 3px dashed rgb(var(--v-theme-primary) / 28%);
-  border-radius: 999px;
+  border: 0.1875rem dashed rgb(var(--v-theme-primary) / 28%);
+  border-radius: 999rem;
   padding: 1.1rem 1.5rem;
 }
 
 .sandwich-layer {
   align-items: center;
-  border: 3px solid rgb(93 64 55 / 20%);
-  box-shadow: 0 8px 16px rgb(93 64 55 / 13%);
+  border: 0.1875rem solid rgb(93 64 55 / 20%);
+  box-shadow: 0 0.5rem 1rem rgb(93 64 55 / 13%);
   color: white;
   display: flex;
   font-size: 1rem;
@@ -308,18 +338,18 @@ watch(() => session.status, (status) => {
   justify-content: center;
   margin-block-start: -0.25rem;
   min-block-size: 2.45rem;
-  text-shadow: 0 1px 2px rgb(0 0 0 / 18%);
+  text-shadow: 0 0.0625rem 0.125rem rgb(0 0 0 / 18%);
   transition: transform 180ms ease;
 }
 
 .sandwich-layer--bread,
 .sandwich-layer--top-bread {
-  border-radius: 999px 999px 1.2rem 1.2rem;
+  border-radius: 999rem 999rem 1.2rem 1.2rem;
   inline-size: min(19rem, 90%);
 }
 
 .sandwich-layer--spread {
-  border-radius: 999px;
+  border-radius: 999rem;
   inline-size: min(17rem, 82%);
   min-block-size: 1.4rem;
 }
@@ -341,10 +371,6 @@ watch(() => session.status, (status) => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-
-.needed-choice {
-  filter: drop-shadow(0 0 0.9rem rgb(var(--v-theme-warning) / 38%));
 }
 
 @media (max-width: 60rem) {
@@ -374,6 +400,39 @@ watch(() => session.status, (status) => {
   .plate {
     min-block-size: clamp(10rem, 31dvh, 14rem);
     padding: 1.4rem 1.1rem;
+  }
+
+  .ingredient-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 60rem) and (max-height: 42.5rem) {
+  .sandwich-card {
+    padding-block: 0.75rem !important;
+  }
+
+  .sandwich-card .text-overline,
+  .intro {
+    display: none;
+  }
+
+  .prompt-card {
+    margin-block-end: 0.75rem !important;
+    padding-block: 0.75rem !important;
+  }
+
+  .play-area {
+    grid-template-columns: minmax(16rem, 0.85fr) minmax(20rem, 1.15fr);
+  }
+
+  .plate-stage {
+    block-size: 13rem;
+  }
+
+  .plate {
+    min-block-size: 10rem;
+    padding: 1.2rem 1rem;
   }
 
   .ingredient-grid {

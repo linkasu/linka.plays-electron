@@ -6557,5 +6557,40 @@
     "text": "Поезд собран.",
     "voice": "jane",
     "path": "/audio/tts/train-sequence/complete.mp3"
+  },
+  {
+    "id": "sandwich.prompt",
+    "game": "sandwich",
+    "text": "Собери бутерброд по рецепту.",
+    "voice": "jane",
+    "path": "/audio/tts/sandwich/prompt.mp3"
+  },
+  {
+    "id": "sandwich.correct",
+    "game": "sandwich",
+    "text": "Слой на месте.",
+    "voice": "jane",
+    "path": "/audio/tts/sandwich/correct.mp3"
+  },
+  {
+    "id": "sandwich.mistake",
+    "game": "sandwich",
+    "text": "Посмотри рецепт ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/sandwich/mistake.mp3"
+  },
+  {
+    "id": "sandwich.recipe-complete",
+    "game": "sandwich",
+    "text": "Бутерброд готов.",
+    "voice": "jane",
+    "path": "/audio/tts/sandwich/recipe-complete.mp3"
+  },
+  {
+    "id": "sandwich.complete",
+    "game": "sandwich",
+    "text": "Все бутерброды готовы.",
+    "voice": "jane",
+    "path": "/audio/tts/sandwich/complete.mp3"
   }
 ]
