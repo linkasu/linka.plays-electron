@@ -6326,5 +6326,40 @@
     "text": "Все пары найдены.",
     "voice": "jane",
     "path": "/audio/tts/memory-cards/complete.mp3"
+  },
+  {
+    "id": "gaze-maze.prompt",
+    "game": "gaze-maze",
+    "text": "Веди гномика по соседним конфетам к большому выходу.",
+    "voice": "jane",
+    "path": "/audio/tts/gaze-maze/prompt.mp3"
+  },
+  {
+    "id": "gaze-maze.not-neighbor",
+    "game": "gaze-maze",
+    "text": "Сюда пока далеко. Выбери соседнюю конфету на дорожке.",
+    "voice": "jane",
+    "path": "/audio/tts/gaze-maze/not-neighbor.mp3"
+  },
+  {
+    "id": "gaze-maze.deadend",
+    "game": "gaze-maze",
+    "text": "Это тупик. Можно спокойно вернуться назад.",
+    "voice": "jane",
+    "path": "/audio/tts/gaze-maze/deadend.mp3"
+  },
+  {
+    "id": "gaze-maze.next-level",
+    "game": "gaze-maze",
+    "text": "Новый лабиринт. Иди по соседним конфетам.",
+    "voice": "jane",
+    "path": "/audio/tts/gaze-maze/next-level.mp3"
+  },
+  {
+    "id": "gaze-maze.complete",
+    "game": "gaze-maze",
+    "text": "Лабиринты пройдены.",
+    "voice": "jane",
+    "path": "/audio/tts/gaze-maze/complete.mp3"
   }
 ]

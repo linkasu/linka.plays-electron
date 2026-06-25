@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
@@ -96,7 +97,9 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 const currentLevelIndex = ref(0);
 const currentNodeId = ref(levels[0].startId);
 const feedbackText = ref("Помоги гномику пройти к конфете. Можно идти туда и обратно.");
+const isSpeaking = ref(false);
 const resultVisible = computed(() => session.status === "finished");
+const promptAudio = useGamePromptAudio({ gameId: "gaze-maze", soundEnabled: toRef(session.settings, "sound") });
 
 let ctx: CanvasRenderingContext2D | undefined;
 let frame = 0;
@@ -121,6 +124,12 @@ function nodeById(id: string) {
   const node = currentLevel.value.nodes.find((item) => item.id === id);
   if (!node) throw new Error(`Unknown gaze maze node: ${id}`);
   return node;
+}
+
+async function playTts(assetId: string, delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait([assetId], delayMs);
+  isSpeaking.value = false;
 }
 
 function neighborIds(id: string) {
@@ -208,6 +217,7 @@ function cubicTangent(from: Point, first: Point, second: Point, to: Point, progr
 function setNodeFeedback(node: MazeNode) {
   if (isDeadEnd(node)) {
     feedbackText.value = "Это тупик. Гномик может спокойно вернуться назад.";
+    void playTts("gaze-maze.deadend", 80);
     return;
   }
 
@@ -239,12 +249,14 @@ function completeMove() {
   if (arrivedNode.id === currentLevel.value.exitId) {
     if (currentLevelIndex.value >= levels.length - 1) {
       feedbackText.value = "Гномик нашёл большую конфету. Лабиринты пройдены.";
+      void playTts("gaze-maze.complete", 80);
       finishSession("game-complete");
       return;
     }
     currentLevelIndex.value += 1;
     currentNodeId.value = currentLevel.value.startId;
     feedbackText.value = `Новый уровень: ${currentLevel.value.title}. Иди по соседним конфетам.`;
+    void playTts("gaze-maze.next-level", 80);
     return;
   }
 
@@ -253,7 +265,7 @@ function completeMove() {
 
 function selectNode(node: MazeNode) {
   const now = performance.now();
-  if (session.status !== "running" || node.id === currentNodeId.value || now < cooldownUntil || isMoving(now)) return;
+  if (session.status !== "running" || isSpeaking.value || node.id === currentNodeId.value || now < cooldownUntil || isMoving(now)) return;
   cooldownUntil = now + 650;
   resetDwell();
 
@@ -262,6 +274,7 @@ function selectNode(node: MazeNode) {
     recordMistake({ selectedNodeId: node.id, currentNodeId: currentNodeId.value, levelId: currentLevel.value.id, hintOnly: true });
     recordHint({ targetId: node.id, reason: "not-neighbor", currentNodeId: currentNodeId.value });
     feedbackText.value = "Сюда пока далеко. Выбери соседнюю конфету на дорожке.";
+    void playTts("gaze-maze.not-neighbor", 80);
     return;
   }
 
@@ -285,7 +298,7 @@ function resetDwell() {
 }
 
 function updateDwell(now: number) {
-  if (session.status !== "running" || !pointer.value.valid || now < cooldownUntil || isMoving(now)) {
+  if (session.status !== "running" || isSpeaking.value || !pointer.value.valid || now < cooldownUntil || isMoving(now)) {
     resetDwell();
     return;
   }
@@ -313,6 +326,8 @@ function onCanvasClick(event: MouseEvent) {
 }
 
 function restart() {
+  promptAudio.cancelPending();
+  isSpeaking.value = false;
   currentLevelIndex.value = 0;
   currentNodeId.value = levels[0].startId;
   feedbackText.value = "Помоги гномику пройти к конфете. Можно идти туда и обратно.";
@@ -321,6 +336,7 @@ function restart() {
   pendingMoveNode = undefined;
   resetDwell();
   startSession();
+  void playTts("gaze-maze.prompt", 450);
 }
 
 function drawBackground(context: CanvasRenderingContext2D) {
@@ -526,14 +542,17 @@ function tick(now: number) {
 onMounted(async () => {
   await nextTick();
   resizeCanvas();
+  promptAudio.warm();
   warmGazeMazeAudio(session.settings.sound);
   window.addEventListener("resize", resizeCanvas);
   frame = requestAnimationFrame(tick);
+  void playTts("gaze-maze.prompt", 450);
 });
 
 onUnmounted(() => {
   window.removeEventListener("resize", resizeCanvas);
   cancelAnimationFrame(frame);
+  promptAudio.cancelPending();
   disposeGazeMazeAudio();
 });
 </script>
