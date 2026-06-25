@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch } from "vue";
+import { onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
@@ -12,7 +13,11 @@ import { oddOneOutFeedback } from "./audio";
 import { generateOddOneOutRound, type OddOneOutItem, type OddOneOutRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("odd-one-out", { maxSteps: 8, finishOnMistakes: false });
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("odd-one-out", {
+  maxSteps: 8,
+  overrides: { sound: true },
+  finishOnMistakes: false
+});
 
 const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame<OddOneOutRound>({
   session,
@@ -22,8 +27,10 @@ const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame
 
 const feedbackMessage = ref("Найди карточку, которая не подходит к остальным.");
 const pendingSelection = ref(false);
+const isSpeaking = ref(false);
 const wrongChoiceId = ref<string>();
 const successChoiceId = ref<string>();
+const promptAudio = useGamePromptAudio({ gameId: "odd-one-out", soundEnabled: toRef(session.settings, "sound") });
 let feedbackTimer = 0;
 
 function choiceTargetId(choice: OddOneOutItem) {
@@ -32,19 +39,27 @@ function choiceTargetId(choice: OddOneOutItem) {
 
 function clearFeedbackTimer() {
   window.clearTimeout(feedbackTimer);
+  promptAudio.cancelPending();
   feedbackTimer = 0;
+}
+
+async function playPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["odd-one-out.prompt"], delayMs);
+  isSpeaking.value = false;
 }
 
 function resetFeedback() {
   clearFeedbackTimer();
   feedbackMessage.value = "Найди карточку, которая не подходит к остальным.";
   pendingSelection.value = false;
+  isSpeaking.value = false;
   wrongChoiceId.value = undefined;
   successChoiceId.value = undefined;
 }
 
-function choose(choice: OddOneOutItem) {
-  if (session.status !== "running" || pendingSelection.value) return;
+async function choose(choice: OddOneOutItem) {
+  if (session.status !== "running" || pendingSelection.value || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice);
   const expectedTargetId = choiceTargetId(round.value.oddItem);
@@ -57,12 +72,18 @@ function choose(choice: OddOneOutItem) {
     feedbackMessage.value = `Верно. ${choice.label} из другой группы.`;
     void oddOneOutFeedback.playSuccess(session.settings.sound);
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.oddItem.label, actual: choice.label, isCorrect: true });
+    isSpeaking.value = true;
+    await promptAudio.playSequenceAndWait(["odd-one-out.correct"], 80);
 
     if (session.status === "running" && session.step < session.maxSteps) {
       feedbackTimer = window.setTimeout(() => {
         nextRound();
         resetFeedback();
-      }, 650);
+        void playPrompt(180);
+      }, 260);
+    } else {
+      pendingSelection.value = false;
+      isSpeaking.value = false;
     }
     return;
   }
@@ -73,10 +94,11 @@ function choose(choice: OddOneOutItem) {
   void oddOneOutFeedback.playMistake(session.settings.sound);
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.oddItem.label, actual: choice.label, isCorrect: false, commonCategory: round.value.commonCategory.id });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "mistake", category: round.value.commonCategory.id });
-  feedbackTimer = window.setTimeout(() => {
-    pendingSelection.value = false;
-    wrongChoiceId.value = undefined;
-  }, 1200);
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["odd-one-out.mistake", "odd-one-out.prompt"], 80, 170);
+  pendingSelection.value = false;
+  wrongChoiceId.value = undefined;
+  isSpeaking.value = false;
 }
 
 function choiceColor(choice: OddOneOutItem) {
@@ -88,10 +110,13 @@ function choiceColor(choice: OddOneOutItem) {
 function restart() {
   resetFeedback();
   restartRounds();
+  void playPrompt(450);
 }
 
 onMounted(() => {
+  promptAudio.warm();
   oddOneOutFeedback.warm(session.settings.sound);
+  void playPrompt(450);
 });
 
 watch(() => session.settings.sound, (enabled) => {
@@ -117,7 +142,7 @@ onUnmounted(() => {
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2 mb-md-3">{{ round.prompt }}</h1>
             <p class="odd-feedback text-body-1 text-medium-emphasis text-center mb-3 mb-md-6">{{ feedbackMessage }}</p>
 
-            <GameChoiceCardGrid :choices="round.choices" :target-id="choiceTargetId" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="156" :color="choiceColor" :cols="6" :md="round.choices.length === 4 ? 3 : 4" @select="choose">
+            <GameChoiceCardGrid :choices="round.choices" :target-id="choiceTargetId" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="9.75rem" :color="choiceColor" :cols="6" :md="round.choices.length === 4 ? 3 : 4" @select="choose">
               <template #default="{ choice }">
                 <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
                 <div class="text-h6 text-md-h5 font-weight-bold mt-2">{{ choice.label }}</div>
@@ -133,7 +158,7 @@ onUnmounted(() => {
 
 <style scoped>
 .odd-card {
-  max-block-size: calc(100vh - 98px);
+  max-block-size: calc(100vh - 6.125rem);
 }
 
 .odd-feedback {

@@ -6130,5 +6130,26 @@
     "text": "Почти. Посмотри на волны ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/sound-source/mistake.mp3"
+  },
+  {
+    "id": "odd-one-out.prompt",
+    "game": "odd-one-out",
+    "text": "Найди карточку, которая не подходит к остальным.",
+    "voice": "jane",
+    "path": "/audio/tts/odd-one-out/prompt.mp3"
+  },
+  {
+    "id": "odd-one-out.correct",
+    "game": "odd-one-out",
+    "text": "Да. Это лишняя карточка.",
+    "voice": "jane",
+    "path": "/audio/tts/odd-one-out/correct.mp3"
+  },
+  {
+    "id": "odd-one-out.mistake",
+    "game": "odd-one-out",
+    "text": "Почти. Сравни карточки ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/odd-one-out/mistake.mp3"
   }
 ]

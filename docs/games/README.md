@@ -72,7 +72,7 @@
 | Найди букву | `find-letter` | [find-letter.md](find-letter.md) | `therapy-ready` | `publish` | `ready` |
 | Тень и предмет | `shadow-match` | [shadow-match.md](shadow-match.md) | `therapy-ready` | `publish` | `ready` |
 | Где звук? | `sound-source` | [sound-source.md](sound-source.md) | `therapy-ready` | `publish` | `ready` |
-| Что лишнее? | `odd-one-out` | [odd-one-out.md](odd-one-out.md) | `therapy-ready` | `needs-check` | `development` |
+| Что лишнее? | `odd-one-out` | [odd-one-out.md](odd-one-out.md) | `therapy-ready` | `publish` | `ready` |
 | Найди эмоцию | `find-emotion` | [find-emotion.md](find-emotion.md) | `therapy-ready` | `needs-check` | `development` |
 | Охота на буквы | `letter-hunt` | [letter-hunt.md](letter-hunt.md) | `therapy-ready` | `needs-check` | `development` |
 | Найди животное | `find-animal` | [find-animal.md](find-animal.md) | `therapy-ready` | `needs-check` | `development` |
