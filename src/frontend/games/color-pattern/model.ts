@@ -1,5 +1,5 @@
 import type { SessionSettings } from "../../core/settings";
-import { shuffleItems } from "../../data/wordBank";
+import { shuffleItems } from "../../core/random";
 
 export type ColorPatternKind = "AB" | "ABC" | "ABB";
 
@@ -57,17 +57,17 @@ function buildPattern(patternKind: ColorPatternKind, unit: ColorPatternColor[]) 
   };
 }
 
-export function generateColorPatternRound(settings: SessionSettings, roundIndex = 1): ColorPatternRound {
+export function generateColorPatternRound(settings: SessionSettings, roundIndex = 1, random = Math.random): ColorPatternRound {
   const patternKind = patternKindFor(roundIndex);
   const unitSize = patternKind === "ABC" ? 3 : 2;
   const choiceCount = choiceCountFor(settings);
 
   if (colorPatternColors.length < Math.max(unitSize, choiceCount)) throw new Error("Недостаточно цветов для игры.");
 
-  const unit = shuffleItems(colorPatternColors).slice(0, unitSize);
+  const unit = shuffleItems(colorPatternColors, random).slice(0, unitSize);
   const { sequence, answer } = buildPattern(patternKind, unit);
-  const distractors = shuffleItems(colorPatternColors.filter((color) => color.id !== answer.id)).slice(0, choiceCount - 1);
-  const choices = shuffleItems([answer, ...distractors]);
+  const distractors = shuffleItems(colorPatternColors.filter((color) => color.id !== answer.id), random).slice(0, choiceCount - 1);
+  const choices = shuffleItems([answer, ...distractors], random);
 
   return {
     roundId: `color-pattern:round:${roundIndex}`,

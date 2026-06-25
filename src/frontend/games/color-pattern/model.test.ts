@@ -34,6 +34,15 @@ function expectPatternContinues(round: ColorPatternRound) {
   expect(ids[0]).not.toBe(ids[1]);
 }
 
+function createSequenceRandom(values: number[]) {
+  let index = 0;
+  return () => {
+    const value = values[index % values.length];
+    index += 1;
+    return value;
+  };
+}
+
 describe("generateColorPatternRound", () => {
   it("cycles AB, ABC and ABB patterns by round index", () => {
     const settings = settingsFromPreset("standard");
@@ -72,5 +81,16 @@ describe("generateColorPatternRound", () => {
     const round = generateColorPatternRound(settingsFromPreset("standard"), 8);
 
     expect(round.roundId).toBe("color-pattern:round:8");
+  });
+
+  it("supports injected random for deterministic rounds", () => {
+    const settings = settingsFromPreset("standard");
+    const values = [0.12, 0.78, 0.34, 0.56, 0.91, 0.03, 0.47, 0.69];
+    const first = generateColorPatternRound(settings, 2, createSequenceRandom(values));
+    const second = generateColorPatternRound(settings, 2, createSequenceRandom(values));
+
+    expect(first.sequence.map((color) => color.id)).toEqual(second.sequence.map((color) => color.id));
+    expect(first.answer.id).toBe(second.answer.id);
+    expect(first.choices.map((color) => color.id)).toEqual(second.choices.map((color) => color.id));
   });
 });

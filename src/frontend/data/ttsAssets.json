@@ -6620,5 +6620,33 @@
     "text": "Все ряды готовы.",
     "voice": "jane",
     "path": "/audio/tts/patterns/complete.mp3"
+  },
+  {
+    "id": "color-pattern.prompt",
+    "game": "color-pattern",
+    "text": "Посмотри на цветовой ряд и выбери следующую карточку.",
+    "voice": "jane",
+    "path": "/audio/tts/color-pattern/prompt.mp3"
+  },
+  {
+    "id": "color-pattern.correct",
+    "game": "color-pattern",
+    "text": "Верно. Цветовой ряд продолжается.",
+    "voice": "jane",
+    "path": "/audio/tts/color-pattern/correct.mp3"
+  },
+  {
+    "id": "color-pattern.mistake",
+    "game": "color-pattern",
+    "text": "Посмотри на повтор цветов и попробуй ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/color-pattern/mistake.mp3"
+  },
+  {
+    "id": "color-pattern.complete",
+    "game": "color-pattern",
+    "text": "Готово. Цветовой узор собран.",
+    "voice": "jane",
+    "path": "/audio/tts/color-pattern/complete.mp3"
   }
 ]

@@ -89,7 +89,7 @@
 | Поезд | `train-sequence` | [train-sequence.md](train-sequence.md) | `polished` | `publish` | `ready` |
 | Бутерброд | `sandwich` | [sandwich.md](sandwich.md) | `therapy-ready` | `publish` | `ready` |
 | Паттерны | `patterns` | [patterns.md](patterns.md) | `polished` | `publish` | `ready` |
-| Цветовой узор | `color-pattern` | [color-pattern.md](color-pattern.md) | `therapy-ready` | `needs-check` | `development` |
+| Цветовой узор | `color-pattern` | [color-pattern.md](color-pattern.md) | `therapy-ready` | `publish` | `ready` |
 | Утро-день-вечер | `day-routine` | [day-routine.md](day-routine.md) | `therapy-ready` | `needs-check` | `development` |
 | История из 3 кадров | `three-frame-story` | [three-frame-story.md](three-frame-story.md) | `therapy-ready` | `needs-check` | `development` |
 | Сначала-потом | `first-then` | [first-then.md](first-then.md) | `therapy-ready` | `needs-check` | `development` |

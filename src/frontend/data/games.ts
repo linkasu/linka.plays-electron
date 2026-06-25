@@ -1011,14 +1011,14 @@ export const games: GameInfo[] = [
   {
     id: "color-pattern",
     title: "Цветовой узор",
-    description: "Продолжай цветовой ряд AB, ABC или ABB крупной карточкой; ошибка мягко подсвечивает закономерность.",
+    description: "Продолжай цветовой ряд AB, ABC или ABB крупной карточкой; ошибка даёт мягкую просьбу посмотреть на повтор.",
     selfDescription: "Продолжи цветовой ряд.",
     route: "/games/color-pattern",
     category: "sequencing",
     icon: "mdi-palette-swatch",
     skills: ["sequence", "choice", "classification"],
     status: "therapy-ready",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 180,
     defaultDwellMs: 1300

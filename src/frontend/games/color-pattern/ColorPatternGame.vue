@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
@@ -13,7 +14,7 @@ import { generateColorPatternRound, type ColorPatternColor } from "./model";
 const colorPatternFeedback = createStandardGameFeedback();
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("color-pattern", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("color-pattern", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 130, sound: true },
   finishOnMistakes: false
@@ -26,16 +27,12 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
 });
 
 const feedbackText = ref("Посмотри на цветовой ряд и выбери следующую карточку.");
-const highlightPattern = ref(false);
 const pendingSelection = ref(false);
+const isSpeaking = ref(false);
 const wrongChoiceId = ref<string>();
 const successChoiceId = ref<string>();
+const promptAudio = useGamePromptAudio({ gameId: "color-pattern", soundEnabled: toRef(session.settings, "sound") });
 let feedbackTimer = 0;
-
-const patternHintText = computed(() => {
-  if (!highlightPattern.value) return "";
-  return `Закономерность ${round.value.patternKind}: цвета повторяются в таком порядке.`;
-});
 
 const patternGridStyle = computed(() => ({
   "--pattern-slot-count": String(round.value.sequence.length + 1)
@@ -60,14 +57,20 @@ function clearFeedbackTimer() {
 function resetFeedback() {
   clearFeedbackTimer();
   feedbackText.value = "Посмотри на цветовой ряд и выбери следующую карточку.";
-  highlightPattern.value = false;
   pendingSelection.value = false;
+  isSpeaking.value = false;
   wrongChoiceId.value = undefined;
   successChoiceId.value = undefined;
 }
 
-function choose(choice: ColorPatternColor) {
-  if (session.status !== "running" || pendingSelection.value) return;
+async function playPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["color-pattern.prompt"], delayMs);
+  isSpeaking.value = false;
+}
+
+async function choose(choice: ColorPatternColor) {
+  if (session.status !== "running" || pendingSelection.value || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice);
   const expectedTargetId = choiceTargetId(round.value.answer);
@@ -77,8 +80,12 @@ function choose(choice: ColorPatternColor) {
     pendingSelection.value = true;
     successChoiceId.value = choice.id;
     feedbackText.value = "Верно. Цветовой ряд продолжается.";
-    void colorPatternFeedback.playSuccess(session.settings.sound);
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.answer.label, actual: choice.label, patternKind: round.value.patternKind, isCorrect: true });
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    void colorPatternFeedback.playSuccess(session.settings.sound);
+    isSpeaking.value = true;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["color-pattern.correct", "color-pattern.complete"] : ["color-pattern.correct"], 80, 170);
+    isSpeaking.value = false;
 
     if (session.status === "running" && session.step < session.maxSteps) {
       feedbackTimer = window.setTimeout(() => {
@@ -91,17 +98,17 @@ function choose(choice: ColorPatternColor) {
 
   pendingSelection.value = true;
   wrongChoiceId.value = choice.id;
-  highlightPattern.value = true;
-  feedbackText.value = "Почти. Ряд мягко подсвечен: посмотри, как цвета повторяются.";
-  void colorPatternFeedback.playMistake(session.settings.sound);
+  feedbackText.value = "Посмотри на повтор цветов и попробуй ещё раз.";
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.answer.label, actual: choice.label, patternKind: round.value.patternKind, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, patternKind: round.value.patternKind, message: "Подсвечена закономерность цветового ряда." });
+  void colorPatternFeedback.playMistake(session.settings.sound);
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["color-pattern.mistake"], 80);
+  isSpeaking.value = false;
 
   feedbackTimer = window.setTimeout(() => {
     pendingSelection.value = false;
     wrongChoiceId.value = undefined;
-    highlightPattern.value = false;
-  }, 1200);
+  }, 1000);
 }
 
 function choiceColor(choice: ColorPatternColor) {
@@ -112,15 +119,20 @@ function choiceColor(choice: ColorPatternColor) {
 
 function restart() {
   resetFeedback();
+  promptAudio.cancelPending();
   restartRoundGame();
+  void playPrompt(450);
 }
 
 onMounted(() => {
+  promptAudio.warm();
   colorPatternFeedback.warm(session.settings.sound);
+  void playPrompt(450);
 });
 
 onUnmounted(() => {
   clearFeedbackTimer();
+  promptAudio.cancelPending();
   colorPatternFeedback.dispose();
 });
 </script>
@@ -131,27 +143,26 @@ onUnmounted(() => {
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="9">
-          <v-card class="pa-4 pa-md-7" rounded="xl" elevation="8">
+          <v-card class="pa-4 pa-md-5" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Продолжи ряд</div>
-            <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">Какая карточка следующая?</h1>
+            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">Какая карточка следующая?</h1>
             <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-2">{{ feedbackText }}</p>
-            <v-chip v-if="patternHintText" class="d-flex mx-auto mb-5" color="warning" size="large" variant="tonal">{{ patternHintText }}</v-chip>
-            <div v-else class="mb-5" />
+            <div class="mb-5" />
 
-            <div :class="['pattern-row', { 'pattern-row--hint': highlightPattern }]" :style="patternGridStyle" role="group" aria-label="Цветовой ряд с пустой последней карточкой">
-              <v-card v-for="(color, index) in round.sequence" :key="`${round.roundId}:${index}`" :class="['pattern-slot', { 'pattern-slot--hint': highlightPattern }]" rounded="xl" variant="flat" :style="colorStyle(color)">
+            <div class="pattern-row" :style="patternGridStyle" role="group" aria-label="Цветовой ряд с пустой последней карточкой">
+              <v-card v-for="(color, index) in round.sequence" :key="`${round.roundId}:${index}`" class="pattern-slot" rounded="xl" variant="flat" :style="colorStyle(color)">
                 <span class="text-h6 text-md-h5 font-weight-bold color-label">{{ color.label }}</span>
               </v-card>
-              <v-card :class="['pattern-slot', 'pattern-slot--blank', { 'pattern-slot--hint': highlightPattern }]" color="blue-grey-lighten-5" rounded="xl" variant="flat">
+              <v-card class="pattern-slot pattern-slot--blank" color="blue-grey-lighten-5" rounded="xl" variant="flat">
                 <v-icon class="blank-icon" color="blue-grey-darken-1" icon="mdi-help" />
               </v-card>
             </div>
 
-            <v-divider class="my-5 my-md-6" />
+            <v-divider class="my-4 my-md-5" />
 
             <v-row class="choice-row" justify="center" dense>
               <v-col v-for="choice in round.choices" :key="choice.id" cols="6" :sm="round.choices.length === 3 ? 4 : 3" :md="round.choices.length === 3 ? 4 : 3">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="190" :color="choiceColor(choice)" @select="choose(choice)">
+                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="9rem" :color="choiceColor(choice)" @select="choose(choice)">
                   <template #default>
                     <div class="choice-card" :style="colorStyle(choice)">
                       <span class="text-h4 text-md-h3 font-weight-bold color-label">{{ choice.label }}</span>
@@ -184,12 +195,6 @@ onUnmounted(() => {
   grid-template-columns: repeat(var(--pattern-slot-count), minmax(0, 1fr));
 }
 
-.pattern-row--hint {
-  border-radius: 1.5rem;
-  box-shadow: 0 0 0 0.35rem rgb(var(--v-theme-warning) / 28%);
-  padding: 0.35rem;
-}
-
 .pattern-slot,
 .choice-card {
   align-items: center;
@@ -212,11 +217,6 @@ onUnmounted(() => {
   border: 0.25rem dashed rgb(var(--v-theme-primary) / 44%);
 }
 
-.pattern-slot--hint {
-  box-shadow: 0 0.75rem 1.5rem rgb(var(--v-theme-warning) / 22%);
-  transform: translateY(-0.125rem);
-}
-
 .choice-row {
   row-gap: 0.75rem;
 }
@@ -224,7 +224,7 @@ onUnmounted(() => {
 .choice-card {
   border-radius: 1.5rem;
   block-size: 100%;
-  min-block-size: 11rem;
+  min-block-size: 9rem;
   padding: 1rem;
 }
 
@@ -236,7 +236,7 @@ onUnmounted(() => {
   font-size: clamp(3rem, 7vw, 5rem);
 }
 
-@media (max-width: 700px) {
+@media (max-width: 43.75rem) {
   .game-container {
     padding-block-start: 9.75rem;
   }
@@ -263,7 +263,7 @@ onUnmounted(() => {
   .pattern-slot,
   .choice-card,
   .choice-row :deep(.dwell-button) {
-    min-block-size: 8.5rem !important;
+    min-block-size: 6.5rem !important;
   }
 
   .choice-card .color-label {
