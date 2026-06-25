@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
@@ -12,10 +13,18 @@ import { shadowMatchFeedback } from "./audio";
 import { generateShadowMatchRound, type ShadowMatchItem } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("shadow-match", { maxSteps: 8, finishOnMistakes: false });
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("shadow-match", {
+  maxSteps: 8,
+  overrides: { sound: true },
+  finishOnMistakes: false
+});
 
 const hintedRoundId = ref<string>();
 const lastMistakeId = ref<string>();
+const pendingSelection = ref(false);
+const isSpeaking = ref(false);
+const promptAudio = useGamePromptAudio({ gameId: "shadow-match", soundEnabled: toRef(session.settings, "sound") });
+let feedbackTimer = 0;
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
@@ -33,35 +42,80 @@ function choiceTargetId(choiceId: string) {
   return `shadow-match:choice:${choiceId}`;
 }
 
-function answer(choice: ShadowMatchItem) {
-  if (session.status !== "running") return;
+function promptAssetId() {
+  return "shadow-match.prompt";
+}
+
+function clearTimers() {
+  window.clearTimeout(feedbackTimer);
+  promptAudio.cancelPending();
+  feedbackTimer = 0;
+}
+
+async function playTargetPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait([promptAssetId()], delayMs);
+  isSpeaking.value = false;
+}
+
+function resetRoundFeedback() {
+  clearTimers();
+  hintedRoundId.value = undefined;
+  lastMistakeId.value = undefined;
+  pendingSelection.value = false;
+  isSpeaking.value = false;
+}
+
+async function answer(choice: ShadowMatchItem) {
+  if (session.status !== "running" || pendingSelection.value || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice.id);
   const expectedTargetId = choiceTargetId(round.value.target.id);
+  clearTimers();
   if (choice.id === round.value.target.id) {
+    pendingSelection.value = true;
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: true });
     hintedRoundId.value = undefined;
     lastMistakeId.value = undefined;
     void shadowMatchFeedback.playSuccess(session.settings.sound);
-    if (session.step < session.maxSteps) nextRound();
+    isSpeaking.value = true;
+    await promptAudio.playSequenceAndWait(["shadow-match.correct"], 80);
+    if (session.status === "running" && session.step < session.maxSteps) {
+      feedbackTimer = window.setTimeout(() => {
+        nextRound();
+        resetRoundFeedback();
+        void playTargetPrompt(180);
+      }, 260);
+    } else {
+      pendingSelection.value = false;
+      isSpeaking.value = false;
+    }
     return;
   }
 
+  pendingSelection.value = true;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "shadow-mismatch" });
   hintedRoundId.value = round.value.roundId;
   lastMistakeId.value = choice.id;
   void shadowMatchFeedback.playMistake(session.settings.sound);
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["shadow-match.mistake", promptAssetId()], 80, 170);
+  pendingSelection.value = false;
+  lastMistakeId.value = undefined;
+  isSpeaking.value = false;
 }
 
 function restart() {
-  hintedRoundId.value = undefined;
-  lastMistakeId.value = undefined;
+  resetRoundFeedback();
   restartRoundGame();
+  void playTargetPrompt(450);
 }
 
 onMounted(() => {
+  promptAudio.warm();
   shadowMatchFeedback.warm(session.settings.sound);
+  void playTargetPrompt(450);
 });
 
 watch(() => session.settings.sound, (enabled) => {
@@ -69,6 +123,7 @@ watch(() => session.settings.sound, (enabled) => {
 });
 
 onUnmounted(() => {
+  clearTimers();
   shadowMatchFeedback.dispose();
 });
 </script>
@@ -90,10 +145,12 @@ onUnmounted(() => {
               <v-icon class="shadow-silhouette" :icon="round.target.icon" aria-hidden="true" />
             </v-card>
 
-            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" min-height="clamp(9rem, 24vh, 13rem)" :highlight-choice="(choice) => hintedChoiceId === choice.id" :color="(choice) => hintedChoiceId === choice.id ? 'primary' : 'surface'" :cols="round.choices.length === 4 ? 3 : 4" :sm="round.choices.length === 4 ? 3 : 4" :md="round.choices.length === 3 ? 4 : 3" @select="answer">
+            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="clamp(9rem, 24vh, 13rem)" :highlight-choice="(choice) => hintedChoiceId === choice.id" :color="(choice) => hintedChoiceId === choice.id ? 'primary' : 'surface'" :cols="round.choices.length === 4 ? 3 : 4" :sm="round.choices.length === 4 ? 3 : 4" :md="round.choices.length === 3 ? 4 : 3" @select="answer">
               <template #default="{ choice }">
-                <v-icon :class="['choice-icon', { 'choice-icon--mistake': choice.id === lastMistakeId }]" :icon="choice.icon" :color="choice.color" />
-                <div class="text-h6 text-md-h4 font-weight-bold mt-2">{{ choice.label }}</div>
+                <div class="choice-card">
+                  <v-icon :class="['choice-icon', { 'choice-icon--mistake': choice.id === lastMistakeId }]" :icon="choice.icon" :color="choice.color" />
+                  <div class="choice-label text-h6 text-md-h4 font-weight-bold mt-2">{{ choice.label }}</div>
+                </div>
               </template>
             </GameChoiceCardGrid>
           </v-card>
@@ -133,10 +190,23 @@ onUnmounted(() => {
   transform: scaleX(1.08) skewX(-4deg);
 }
 
+.choice-card {
+  align-items: center;
+  block-size: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
 .choice-icon {
   font-size: clamp(3.8rem, min(8vw, 12vh), 6.5rem);
   line-height: 1;
   transition: filter 160ms ease, transform 160ms ease;
+}
+
+.choice-label {
+  inline-size: 100%;
 }
 
 .choice-icon--mistake {

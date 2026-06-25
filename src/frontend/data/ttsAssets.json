@@ -6088,5 +6088,26 @@
     "text": "Почти. Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/logic-pairs/mistake.mp3"
+  },
+  {
+    "id": "shadow-match.prompt",
+    "game": "shadow-match",
+    "text": "Посмотри на тень и выбери похожий предмет.",
+    "voice": "jane",
+    "path": "/audio/tts/shadow-match/prompt.mp3"
+  },
+  {
+    "id": "shadow-match.correct",
+    "game": "shadow-match",
+    "text": "Да. Это такая тень.",
+    "voice": "jane",
+    "path": "/audio/tts/shadow-match/correct.mp3"
+  },
+  {
+    "id": "shadow-match.mistake",
+    "game": "shadow-match",
+    "text": "Почти. Посмотри на тень ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/shadow-match/mistake.mp3"
   }
 ]

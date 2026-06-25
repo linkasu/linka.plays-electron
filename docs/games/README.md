@@ -70,7 +70,7 @@
 | Что пропало? | `what-missing` | [what-missing.md](what-missing.md) | `therapy-ready` | `publish` | `ready` |
 | Следуй за подсказкой | `follow-cue` | [follow-cue.md](follow-cue.md) | `therapy-ready` | `publish` | `ready` |
 | Найди букву | `find-letter` | [find-letter.md](find-letter.md) | `therapy-ready` | `publish` | `ready` |
-| Тень и предмет | `shadow-match` | [shadow-match.md](shadow-match.md) | `therapy-ready` | `needs-check` | `development` |
+| Тень и предмет | `shadow-match` | [shadow-match.md](shadow-match.md) | `therapy-ready` | `publish` | `ready` |
 | Где звук? | `sound-source` | [sound-source.md](sound-source.md) | `therapy-ready` | `needs-check` | `development` |
 | Что лишнее? | `odd-one-out` | [odd-one-out.md](odd-one-out.md) | `therapy-ready` | `needs-check` | `development` |
 | Найди эмоцию | `find-emotion` | [find-emotion.md](find-emotion.md) | `therapy-ready` | `needs-check` | `development` |
