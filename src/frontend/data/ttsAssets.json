@@ -6053,5 +6053,40 @@
     "text": "Почти. Это другая карточка. Подсказка станет ярче: следуй за стрелкой.",
     "voice": "jane",
     "path": "/audio/tts/follow-cue/mistake.mp3"
+  },
+  {
+    "id": "logic-pairs.prompt.meaning",
+    "game": "logic-pairs",
+    "text": "Что подходит по смыслу? Выбери пару.",
+    "voice": "jane",
+    "path": "/audio/tts/logic-pairs/prompt-meaning.mp3"
+  },
+  {
+    "id": "logic-pairs.prompt.shape",
+    "game": "logic-pairs",
+    "text": "Что подходит по форме? Выбери пару.",
+    "voice": "jane",
+    "path": "/audio/tts/logic-pairs/prompt-shape.mp3"
+  },
+  {
+    "id": "logic-pairs.prompt.number",
+    "game": "logic-pairs",
+    "text": "Что подходит по числу? Выбери пару.",
+    "voice": "jane",
+    "path": "/audio/tts/logic-pairs/prompt-number.mp3"
+  },
+  {
+    "id": "logic-pairs.correct",
+    "game": "logic-pairs",
+    "text": "Да. Это подходящая пара.",
+    "voice": "jane",
+    "path": "/audio/tts/logic-pairs/correct.mp3"
+  },
+  {
+    "id": "logic-pairs.mistake",
+    "game": "logic-pairs",
+    "text": "Почти. Попробуй ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/logic-pairs/mistake.mp3"
   }
 ]

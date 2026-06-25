@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
@@ -12,7 +13,11 @@ import { logicPairsFeedback } from "./audio";
 import { generateLogicPairsRound, type LogicPairCard, type LogicPairsRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("logic-pairs", { maxSteps: 8, finishOnMistakes: false });
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("logic-pairs", {
+  maxSteps: 8,
+  overrides: { sound: true },
+  finishOnMistakes: false
+});
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<LogicPairsRound>({
   session,
@@ -22,6 +27,10 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
 
 const hintedRoundId = ref<string>();
 const lastMistakeId = ref<string>();
+const pendingSelection = ref(false);
+const isSpeaking = ref(false);
+const promptAudio = useGamePromptAudio({ gameId: "logic-pairs", soundEnabled: toRef(session.settings, "sound") });
+let feedbackTimer = 0;
 
 const relationLabel = computed(() => {
   if (round.value.relation === "meaning") return "Смысловая пара";
@@ -38,35 +47,80 @@ function choiceTargetId(choiceId: string) {
   return `logic-pairs:choice:${choiceId}`;
 }
 
-function choose(choice: LogicPairCard) {
-  if (session.status !== "running") return;
+function promptIdForRound() {
+  return `logic-pairs.prompt.${round.value.relation}`;
+}
+
+function clearTimers() {
+  window.clearTimeout(feedbackTimer);
+  promptAudio.cancelPending();
+  feedbackTimer = 0;
+}
+
+async function playPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait([promptIdForRound()], delayMs);
+  isSpeaking.value = false;
+}
+
+function resetRoundFeedback() {
+  clearTimers();
+  hintedRoundId.value = undefined;
+  lastMistakeId.value = undefined;
+  pendingSelection.value = false;
+  isSpeaking.value = false;
+}
+
+async function choose(choice: LogicPairCard) {
+  if (session.status !== "running" || pendingSelection.value || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice.id);
   const expectedTargetId = choiceTargetId(round.value.pair.id);
+  clearTimers();
   if (choice.id === round.value.pair.id) {
+    pendingSelection.value = true;
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.pair.label, actual: choice.label, relation: round.value.relation, isCorrect: true });
     hintedRoundId.value = undefined;
     lastMistakeId.value = undefined;
     void logicPairsFeedback.playSuccess(session.settings.sound);
-    if (session.step < session.maxSteps) nextRound();
+    isSpeaking.value = true;
+    await promptAudio.playSequenceAndWait(["logic-pairs.correct"], 80);
+    if (session.status === "running" && session.step < session.maxSteps) {
+      feedbackTimer = window.setTimeout(() => {
+        nextRound();
+        resetRoundFeedback();
+        void playPrompt(180);
+      }, 260);
+    } else {
+      pendingSelection.value = false;
+      isSpeaking.value = false;
+    }
     return;
   }
 
+  pendingSelection.value = true;
   hintedRoundId.value = round.value.roundId;
   lastMistakeId.value = choice.id;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.pair.label, actual: choice.label, relation: round.value.relation, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, text: round.value.explanation, reason: "wrong-pair-selected" });
   void logicPairsFeedback.playMistake(session.settings.sound);
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["logic-pairs.mistake", promptIdForRound()], 80, 170);
+  pendingSelection.value = false;
+  lastMistakeId.value = undefined;
+  isSpeaking.value = false;
 }
 
 function restart() {
-  hintedRoundId.value = undefined;
-  lastMistakeId.value = undefined;
+  resetRoundFeedback();
   restartRoundGame();
+  void playPrompt(450);
 }
 
 onMounted(() => {
+  promptAudio.warm();
   logicPairsFeedback.warm(session.settings.sound);
+  void playPrompt(450);
 });
 
 watch(() => session.settings.sound, (enabled) => {
@@ -74,6 +128,7 @@ watch(() => session.settings.sound, (enabled) => {
 });
 
 onUnmounted(() => {
+  clearTimers();
   logicPairsFeedback.dispose();
 });
 </script>
@@ -103,7 +158,7 @@ onUnmounted(() => {
               </v-col>
 
               <v-col cols="12" sm="8">
-                <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="210" :highlight-choice="(choice) => hintedRoundId === round.roundId && choice.id === round.pair.id" :color="(choice) => hintedRoundId === round.roundId && choice.id === round.pair.id ? 'primary' : 'surface'" :cols="6" :sm="3" @select="choose">
+                <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="12rem" :highlight-choice="(choice) => hintedRoundId === round.roundId && choice.id === round.pair.id" :color="(choice) => hintedRoundId === round.roundId && choice.id === round.pair.id ? 'primary' : 'surface'" :cols="6" :sm="3" @select="choose">
                   <template #default="{ choice }">
                     <div :class="['choice-card', { 'choice-card--mistake': choice.id === lastMistakeId }]">
                       <div class="choice-card__visual">{{ choice.visual }}</div>
@@ -157,8 +212,9 @@ onUnmounted(() => {
 }
 
 .choice-card__label {
+  font-size: clamp(0.78rem, 1.6vw, 1.25rem);
   line-height: 1.15;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
   text-align: center;
 }
 
