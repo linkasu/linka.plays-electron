@@ -10,8 +10,8 @@
 | Route | `/games/musical-path` |
 | Категория | `sequencing` — Последовательности |
 | Status | `therapy-ready` |
-| Resolved stability | `publish` |
-| Readiness group | `ready` |
+| Resolved stability | `development` |
+| Readiness group | `needs-check` |
 | Skills | последовательность, выбор |
 | Recommended session | 130 сек |
 | Min target size | 180 px |
@@ -19,9 +19,9 @@
 
 ## Назначение
 
-undefined
+Выбирать камешки по порядку на тихой музыкальной дорожке. Ошибка не сбивает прогресс и даёт нейтральную просьбу вернуться к подсвеченному камешку.
 
-Самостоятельная формулировка для меню: undefined
+Самостоятельная формулировка для меню: пройди нотную дорожку.
 
 ## Игровой цикл
 
@@ -55,18 +55,18 @@ undefined
 |---|---|
 | Route в router | есть |
 | Vue-компонент | `MusicalPathGame.vue` |
-| Model | нет отдельной модели |
-| Model test | нет |
-| Audio module | `audio.ts` |
+| Model | `model.ts` |
+| Model test | `model.test.ts` |
+| Audio module | `audio.ts`, TTS через `useGamePromptAudio` |
 | Runtime audit doc | `docs/tests/2026-06-10/musical-path.md` |
 
 ## Готовность
 
-Игра находится в группе `ready`, потому что resolved stability равен `publish`.
+Игра находится в группе `needs-check`, пока проходит batch review.
 
 Автоматические blockers:
 
-- нет
+- `stability:needs-check`
 
 ## QA checklist
 
@@ -79,4 +79,4 @@ undefined
 
 ## Next step
 
-Оставить в ready-очереди и проверять регрессии через общий Electron CDP audit.
+Проверить в Electron CDP на 800×600/1024×600 и визуально подтвердить PNG перед approve.

@@ -24,6 +24,7 @@ const router = useRouter();
 const stones = reactive<MusicalPathStone[]>(createMusicalPathStones());
 const sparks = reactive<Spark[]>([]);
 const feedbackMessage = ref("Начни с подсвеченного камешка 1 и иди по дорожке дальше.");
+const pendingSelection = ref(false);
 const pathPoints = computed(() => stones.map((stone) => `${stone.x},${stone.y}`).join(" "));
 let errorTimer = 0;
 let sparkTimer = 0;
@@ -75,6 +76,7 @@ function resetStones() {
   promptAudio.cancelPending();
   stones.splice(0, stones.length, ...createMusicalPathStones(session.maxSteps));
   sparks.splice(0);
+  pendingSelection.value = false;
   feedbackMessage.value = "Начни с подсвеченного камешка 1 и иди по дорожке дальше.";
 }
 
@@ -98,18 +100,20 @@ function addSpark(stone: MusicalPathStone) {
 
 function showSoftError(stone: MusicalPathStone) {
   stone.softError = true;
-  feedbackMessage.value = `Этот камешек подождёт. Сейчас нужен камешек ${nextStone.value?.order ?? session.step + 1}.`;
+  feedbackMessage.value = "Этот камешек подождёт. Посмотри на подсвеченный камешек и попробуй ещё раз.";
   window.clearTimeout(errorTimer);
   errorTimer = window.setTimeout(() => {
     stone.softError = false;
+    pendingSelection.value = false;
   }, 1100);
 }
 
 function chooseStone(stone: MusicalPathStone) {
-  if (session.status !== "running" || stone.selected) return;
+  if (session.status !== "running" || stone.selected || pendingSelection.value) return;
 
   const expectedStone = nextStone.value;
   const roundId = `musical-path:step:${session.step + 1}`;
+  pendingSelection.value = true;
   if (!isExpectedMusicalPathStone(stone, expectedStone)) {
     recordMistake({
       roundId,
@@ -136,6 +140,10 @@ function chooseStone(stone: MusicalPathStone) {
   } else {
     void playMusicalPathNote(session.settings.sound, stone.order - 1);
     playNextStonePrompt(680);
+    window.clearTimeout(errorTimer);
+    errorTimer = window.setTimeout(() => {
+      pendingSelection.value = false;
+    }, 420);
   }
 }
 
@@ -196,8 +204,8 @@ onUnmounted(() => {
         :style="stoneStyle(stone)"
         :target-id="targetId(stone)"
         :dwell-ms="session.settings.dwellMs"
-        :disabled="session.status !== 'running' || stone.selected"
-        :min-height="178"
+        :disabled="session.status !== 'running' || stone.selected || pendingSelection"
+        min-height="11.125rem"
         color="surface"
         @select="chooseStone(stone)"
       >
@@ -214,7 +222,7 @@ onUnmounted(() => {
       <v-card class="path-instruction pa-4 pa-md-5" color="surface" rounded="xl" elevation="6">
         <div class="text-caption text-medium-emphasis mb-1">Следующий шаг</div>
         <div class="d-flex align-center ga-3">
-          <v-avatar color="primary" size="48">
+          <v-avatar color="primary" size="3rem">
             <span class="text-h5 font-weight-bold">{{ nextStone?.order ?? '✓' }}</span>
           </v-avatar>
           <div>
@@ -242,8 +250,8 @@ onUnmounted(() => {
 <style scoped>
 .musical-path-shell {
   background: linear-gradient(180deg, #f3f8ff 0%, #f7f1ff 48%, #edf8ef 100%);
-  block-size: 100vh;
-  inline-size: 100vw;
+  block-size: 100dvh;
+  inline-size: 100dvw;
   overflow: hidden;
   position: relative;
 }
@@ -289,7 +297,7 @@ onUnmounted(() => {
 }
 
 .path-stone-target {
-  inline-size: clamp(142px, 12vw, 184px);
+  inline-size: clamp(8.875rem, 12vw, 11.5rem);
   inset-block-start: var(--stone-y);
   inset-inline-start: var(--stone-x);
   position: absolute;
@@ -309,12 +317,12 @@ onUnmounted(() => {
 .path-stone {
   aspect-ratio: 1;
   background: radial-gradient(circle at 34% 26%, hsl(var(--stone-hue) 86% 95% / 0.96), hsl(var(--stone-hue) 58% 72% / 0.94) 43%, hsl(var(--stone-hue) 42% 52% / 0.98) 100%);
-  border: 2px solid hsl(var(--stone-hue) 80% 92% / 0.76);
+  border: 0.125rem solid hsl(var(--stone-hue) 80% 92% / 0.76);
   border-radius: 46% 54% 50% 50% / 52% 44% 56% 48%;
-  box-shadow: 0 24px 40px hsl(var(--stone-hue) 40% 32% / 0.18), inset -14px -16px 28px hsl(var(--stone-hue) 36% 34% / 0.22), inset 16px 16px 26px rgb(255 255 255 / 0.34);
+  box-shadow: 0 1.5rem 2.5rem hsl(var(--stone-hue) 40% 32% / 0.18), inset -0.875rem -1rem 1.75rem hsl(var(--stone-hue) 36% 34% / 0.22), inset 1rem 1rem 1.625rem rgb(255 255 255 / 0.34);
   color: rgb(39 52 74 / 86%);
   display: grid;
-  min-block-size: 162px;
+  min-block-size: 10.125rem;
   overflow: hidden;
   place-items: center;
   position: relative;
@@ -323,11 +331,11 @@ onUnmounted(() => {
 
 .path-stone--active,
 .path-stone-target--next .path-stone {
-  transform: translateY(-4px) scale(1.04);
+  transform: translateY(-0.25rem) scale(1.04);
 }
 
 .path-stone-target--next .path-stone {
-  box-shadow: 0 0 0 8px hsl(var(--stone-hue) 82% 78% / 0.2), 0 26px 44px hsl(var(--stone-hue) 40% 32% / 0.2), inset -14px -16px 28px hsl(var(--stone-hue) 36% 34% / 0.2), inset 16px 16px 26px rgb(255 255 255 / 0.36);
+  box-shadow: 0 0 0 0.5rem hsl(var(--stone-hue) 82% 78% / 0.2), 0 1.625rem 2.75rem hsl(var(--stone-hue) 40% 32% / 0.2), inset -0.875rem -1rem 1.75rem hsl(var(--stone-hue) 36% 34% / 0.2), inset 1rem 1rem 1.625rem rgb(255 255 255 / 0.36);
 }
 
 .path-stone--done {
@@ -341,12 +349,12 @@ onUnmounted(() => {
 
 .stone-order {
   background: rgb(255 255 255 / 74%);
-  border-radius: 999px;
+  border-radius: 999rem;
   font-size: 1.5rem;
   font-weight: 800;
   inline-size: 2.6rem;
-  inset-block-start: 14px;
-  inset-inline-start: 14px;
+  inset-block-start: 0.875rem;
+  inset-inline-start: 0.875rem;
   line-height: 2.6rem;
   position: absolute;
   text-align: center;
@@ -361,11 +369,11 @@ onUnmounted(() => {
 
 .stone-note {
   background: rgb(255 255 255 / 66%);
-  border-radius: 999px;
+  border-radius: 999rem;
   font-size: 1.08rem;
   font-weight: 700;
-  inset-block-end: 14px;
-  padding: 4px 14px;
+  inset-block-end: 0.875rem;
+  padding: 0.25rem 0.875rem;
   position: absolute;
   z-index: 2;
 }
@@ -373,8 +381,8 @@ onUnmounted(() => {
 .stone-active-glow {
   background: radial-gradient(circle, rgb(255 255 255 / 92%) 0%, transparent 64%);
   block-size: 78%;
-  border-radius: 999px;
-  filter: blur(5px);
+  border-radius: 999rem;
+  filter: blur(0.3125rem);
   inline-size: 78%;
   position: absolute;
 }
@@ -388,14 +396,14 @@ onUnmounted(() => {
   inset-inline-start: var(--spark-x);
   pointer-events: none;
   position: absolute;
-  text-shadow: 0 8px 22px rgb(255 255 255 / 80%);
+  text-shadow: 0 0.5rem 1.375rem rgb(255 255 255 / 80%);
   transform: translate(-50%, -50%);
   z-index: 1;
 }
 
 .path-instruction {
-  inline-size: min(520px, calc(100vw - 32px));
-  inset-block-end: 28px;
+  inline-size: min(32.5rem, calc(100dvw - 2rem));
+  inset-block-end: 1.75rem;
   inset-inline-start: 50%;
   position: absolute;
   transform: translateX(-50%);
@@ -420,37 +428,37 @@ onUnmounted(() => {
     transform: translateY(0) scale(1);
   }
   45% {
-    transform: translateY(7px) scale(0.98);
+    transform: translateY(0.4375rem) scale(0.98);
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 47.5rem) {
   .path-line {
     display: none;
   }
 
   .path-stone-target {
-    inline-size: clamp(104px, 28vw, 138px);
+    inline-size: clamp(6.5rem, 28vw, 8.625rem);
     inset-block-start: var(--stone-mobile-y);
     inset-inline-start: var(--stone-mobile-x);
   }
 
   .path-stone {
-    min-block-size: clamp(104px, 28vw, 138px);
+    min-block-size: clamp(6.5rem, 28vw, 8.625rem);
   }
 
   .stone-order {
     font-size: 1.1rem;
     inline-size: 2rem;
-    inset-block-start: 8px;
-    inset-inline-start: 8px;
+    inset-block-start: 0.5rem;
+    inset-inline-start: 0.5rem;
     line-height: 2rem;
   }
 
   .stone-note {
     font-size: 0.86rem;
-    inset-block-end: 8px;
-    padding: 2px 10px;
+    inset-block-end: 0.5rem;
+    padding: 0.125rem 0.625rem;
   }
 
   .note-spark {
@@ -459,17 +467,17 @@ onUnmounted(() => {
   }
 
   .path-instruction {
-    inset-block-end: 16px;
+    inset-block-end: 1rem;
   }
 }
 
-@media (min-width: 761px) and (max-width: 900px), (max-height: 700px) {
+@media (min-width: 47.5625rem) and (max-width: 56.25rem), (max-height: 43.75rem) {
   .path-stone-target {
-    inset-block-start: max(var(--stone-y), 210px);
+    inset-block-start: max(var(--stone-y), 13.125rem);
   }
 
   .note-spark {
-    inset-block-start: max(var(--spark-y), 210px);
+    inset-block-start: max(var(--spark-y), 13.125rem);
   }
 }
 </style>
