@@ -29,6 +29,11 @@ export function getMosaicImage(imageIndex = 0, images = mosaicImages) {
   return images[((Math.floor(imageIndex) % images.length) + images.length) % images.length];
 }
 
+export function selectMosaicImageIndex(random = Math.random, images = mosaicImages) {
+  if (!images.length) throw new Error("No mosaic images configured.");
+  return Math.floor(random() * images.length);
+}
+
 export function createMosaicTiles(image: MosaicImage): MosaicTile[] {
   return Array.from({ length: mosaicTileCount }, (_, slotIndex) => {
     const row = Math.floor(slotIndex / mosaicGridSize);

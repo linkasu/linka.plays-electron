@@ -6704,5 +6704,33 @@
     "text": "Готово. История собрана.",
     "voice": "jane",
     "path": "/audio/tts/three-frame-story/complete.mp3"
+  },
+  {
+    "id": "mosaic.prompt",
+    "game": "mosaic",
+    "text": "Найди кусочек для подсвеченной клетки.",
+    "voice": "jane",
+    "path": "/audio/tts/mosaic/prompt.mp3"
+  },
+  {
+    "id": "mosaic.correct",
+    "game": "mosaic",
+    "text": "Верно. Кусочек на месте.",
+    "voice": "jane",
+    "path": "/audio/tts/mosaic/correct.mp3"
+  },
+  {
+    "id": "mosaic.mistake",
+    "game": "mosaic",
+    "text": "Посмотри на подсвеченную клетку и попробуй другой кусочек.",
+    "voice": "jane",
+    "path": "/audio/tts/mosaic/mistake.mp3"
+  },
+  {
+    "id": "mosaic.complete",
+    "game": "mosaic",
+    "text": "Готово. Мозаика собрана.",
+    "voice": "jane",
+    "path": "/audio/tts/mosaic/complete.mp3"
   }
 ]

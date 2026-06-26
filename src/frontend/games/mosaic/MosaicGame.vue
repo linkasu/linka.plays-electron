@@ -1,34 +1,36 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { mosaicImages } from "./images";
-import { createMosaicStep, createMosaicTiles, isMosaicChoiceCorrect, mosaicTileCount, type MosaicTile } from "./model";
+import { createMosaicStep, createMosaicTiles, isMosaicChoiceCorrect, mosaicTileCount, selectMosaicImageIndex, type MosaicTile } from "./model";
 
 const mosaicFeedback = createStandardGameFeedback();
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("mosaic", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("mosaic", {
   maxSteps: mosaicTileCount,
   overrides: { dwellMs: 1300, sessionSeconds: 150, sound: true },
   finishOnMistakes: false
 });
 
-const imageIndex = ref(randomImageIndex());
+const imageIndex = ref(selectMosaicImageIndex());
 const placedTileIds = ref<string[]>([]);
 const resultVisible = ref(false);
 const pendingSelection = ref(false);
-const hintedTileId = ref<string>();
+const isSpeaking = ref(false);
 const wrongTileId = ref<string>();
 const successTileId = ref<string>();
+const promptAudio = useGamePromptAudio({ gameId: "mosaic", soundEnabled: toRef(session.settings, "sound") });
 const feedbackMessage = ref("Найди кусочек для подсвеченной клетки.");
 let feedbackTimer = 0;
+let resultTimer = 0;
 
 const activeStep = computed(() => createMosaicStep(session.settings, Math.min(session.step, mosaicTileCount - 1), imageIndex.value));
 const image = computed(() => activeStep.value.image);
@@ -41,10 +43,6 @@ const mosaicSlots = computed(() => tiles.value.map((tile, index) => ({
   next: index === session.step && session.status === "running"
 })));
 const promptText = computed(() => currentTarget.value ? activeStep.value.prompt : "Мозаика готова.");
-
-function randomImageIndex() {
-  return Math.floor(Math.random() * Math.max(1, mosaicImages.length));
-}
 
 function tileTargetId(tile: MosaicTile) {
   return `mosaic:tile:${image.value.id}:${tile.id}`;
@@ -63,14 +61,33 @@ function clearFeedbackTimer() {
   feedbackTimer = 0;
 }
 
+function clearResultTimer() {
+  window.clearTimeout(resultTimer);
+  resultTimer = 0;
+}
+
 function clearTransientFeedback() {
   pendingSelection.value = false;
+  isSpeaking.value = false;
   wrongTileId.value = undefined;
   successTileId.value = undefined;
 }
 
-function chooseTile(tile: MosaicTile) {
-  if (session.status !== "running" || pendingSelection.value || !currentTarget.value) return;
+async function playPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["mosaic.prompt"], delayMs);
+  isSpeaking.value = false;
+}
+
+function showResultSoon(delayMs = 900) {
+  clearResultTimer();
+  resultTimer = window.setTimeout(() => {
+    resultVisible.value = true;
+  }, delayMs);
+}
+
+async function chooseTile(tile: MosaicTile) {
+  if (session.status !== "running" || pendingSelection.value || isSpeaking.value || !currentTarget.value) return;
 
   const step = activeStep.value;
   const targetId = tileTargetId(tile);
@@ -79,12 +96,15 @@ function chooseTile(tile: MosaicTile) {
 
   if (isMosaicChoiceCorrect(tile, step.target)) {
     pendingSelection.value = true;
-    hintedTileId.value = undefined;
     successTileId.value = tile.id;
     placedTileIds.value = [...placedTileIds.value, tile.id];
     feedbackMessage.value = `Верно. Кусочек ${tile.slotIndex + 1} на месте.`;
-    void mosaicFeedback.playSuccess(session.settings.sound);
     recordSuccess({ roundId: step.roundId, targetId, answerId: tile.id, expected: step.target.id, actual: tile.id, imageId: image.value.id, slotIndex: step.slotIndex, isCorrect: true });
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    void mosaicFeedback.playSuccess(session.settings.sound);
+    isSpeaking.value = true;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["mosaic.correct", "mosaic.complete"] : ["mosaic.correct"], 80, 170);
+    isSpeaking.value = false;
     feedbackTimer = window.setTimeout(() => {
       clearTransientFeedback();
       if (session.status === "running") {
@@ -95,12 +115,13 @@ function chooseTile(tile: MosaicTile) {
   }
 
   pendingSelection.value = true;
-  hintedTileId.value = step.target.id;
   wrongTileId.value = tile.id;
-  feedbackMessage.value = `Почти. ${step.hint}`;
-  void mosaicFeedback.playMistake(session.settings.sound);
+  feedbackMessage.value = "Посмотри на подсвеченную клетку и попробуй другой кусочек.";
   recordMistake({ roundId: step.roundId, targetId, expectedTargetId, answerId: tile.id, expected: step.target.id, actual: tile.id, imageId: image.value.id, slotIndex: step.slotIndex, isCorrect: false });
-  recordHint({ roundId: step.roundId, targetId: expectedTargetId, reason: "wrong-mosaic-piece", slotIndex: step.slotIndex });
+  void mosaicFeedback.playMistake(session.settings.sound);
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["mosaic.mistake"], 80);
+  isSpeaking.value = false;
   feedbackTimer = window.setTimeout(() => {
     clearTransientFeedback();
   }, 1250);
@@ -109,41 +130,49 @@ function chooseTile(tile: MosaicTile) {
 function choiceColor(tile: MosaicTile) {
   if (successTileId.value === tile.id) return "green-lighten-4";
   if (wrongTileId.value === tile.id) return "orange-lighten-4";
-  if (hintedTileId.value === tile.id) return "primary";
   return "surface";
 }
 
 function restart() {
   clearFeedbackTimer();
-  imageIndex.value = randomImageIndex();
+  clearResultTimer();
+  promptAudio.cancelPending();
+  imageIndex.value = selectMosaicImageIndex();
   placedTileIds.value = [];
   resultVisible.value = false;
   pendingSelection.value = false;
-  hintedTileId.value = undefined;
+  isSpeaking.value = false;
   wrongTileId.value = undefined;
   successTileId.value = undefined;
   feedbackMessage.value = "Найди кусочек для подсвеченной клетки.";
   startSession();
+  void playPrompt(450);
 }
 
 watch(() => session.status, (status) => {
   if (status === "finished") {
-    clearFeedbackTimer();
-    feedbackTimer = window.setTimeout(() => {
-      resultVisible.value = true;
-    }, 900);
+    if (!isSpeaking.value) showResultSoon();
     return;
   }
 
+  clearResultTimer();
   resultVisible.value = false;
 });
 
+watch(isSpeaking, (speaking) => {
+  if (!speaking && session.status === "finished" && !resultVisible.value) showResultSoon();
+});
+
 onMounted(() => {
+  promptAudio.warm();
   mosaicFeedback.warm(session.settings.sound);
+  void playPrompt(450);
 });
 
 onUnmounted(() => {
   clearFeedbackTimer();
+  clearResultTimer();
+  promptAudio.cancelPending();
   mosaicFeedback.dispose();
 });
 </script>
@@ -170,7 +199,7 @@ onUnmounted(() => {
             <div class="mosaic-layout">
               <section class="mosaic-board-wrap" aria-label="Поле мозаики 3 на 3">
                 <div class="mosaic-board">
-                  <v-card v-for="slot in mosaicSlots" :key="slot.tile.id" :class="['mosaic-slot', { 'mosaic-slot--next': slot.next, 'mosaic-slot--hint': hintedTileId === slot.tile.id && slot.next, 'mosaic-slot--filled': slot.filled }]" rounded="lg" variant="flat">
+                  <v-card v-for="slot in mosaicSlots" :key="slot.tile.id" :class="['mosaic-slot', { 'mosaic-slot--next': slot.next, 'mosaic-slot--filled': slot.filled }]" rounded="lg" variant="flat">
                     <div v-if="slot.filled" class="mosaic-piece mosaic-piece--placed" :style="tilePieceStyle(slot.tile)" />
                     <div v-else-if="slot.next" class="mosaic-empty mosaic-empty--next">
                       <v-icon icon="mdi-help" color="primary" />
@@ -183,7 +212,7 @@ onUnmounted(() => {
 
               <aside class="mosaic-side">
                 <div class="mosaic-guide">
-                  <v-card class="mosaic-prompt pa-3" :color="hintedTileId ? 'amber-lighten-5' : 'blue-lighten-5'" rounded="xl" variant="flat">
+                  <v-card class="mosaic-prompt pa-3" color="blue-lighten-5" rounded="xl" variant="flat">
                     <div class="text-caption text-medium-emphasis">Подсказка</div>
                     <div class="text-h6 font-weight-bold">{{ promptText }}</div>
                     <div class="text-body-2 text-medium-emphasis">{{ image.prompt }}</div>
@@ -196,7 +225,7 @@ onUnmounted(() => {
                 </div>
 
                 <div class="mosaic-choices" aria-label="Кусочки для выбора">
-                  <GameDwellButton v-for="choice in activeStep.choices" :key="choice.id" :class="{ 'choice-hint': hintedTileId === choice.id }" :target-id="tileTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="144" :color="choiceColor(choice)" @select="chooseTile(choice)">
+                  <GameDwellButton v-for="choice in activeStep.choices" :key="choice.id" :target-id="tileTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="9rem" :color="choiceColor(choice)" @select="chooseTile(choice)">
                     <template #default>
                       <div class="mosaic-piece mosaic-piece--choice" :style="tilePieceStyle(choice)" />
                       <div class="text-subtitle-2 font-weight-bold mt-1">{{ choice.label }}</div>
@@ -276,7 +305,7 @@ onUnmounted(() => {
 .mosaic-slot {
   align-items: center;
   background: rgb(var(--v-theme-blue-grey-lighten-5));
-  border: 2px solid rgb(var(--v-theme-primary) / 10%);
+  border: 0.125rem solid rgb(var(--v-theme-primary) / 10%);
   display: flex;
   justify-content: center;
   min-block-size: 0;
@@ -287,11 +316,6 @@ onUnmounted(() => {
 
 .mosaic-slot--next {
   box-shadow: inset 0 0 0 0.35rem rgb(var(--v-theme-primary) / 44%);
-}
-
-.mosaic-slot--hint,
-.choice-hint {
-  filter: drop-shadow(0 0 1rem rgb(var(--v-theme-primary) / 34%));
 }
 
 .mosaic-empty {
@@ -366,7 +390,7 @@ onUnmounted(() => {
 
 .mosaic-piece--choice {
   aspect-ratio: 1;
-  border: 2px solid rgb(255 255 255 / 82%);
+  border: 0.125rem solid rgb(255 255 255 / 82%);
   border-radius: 1rem;
   box-shadow: 0 0.5rem 1rem rgb(65 79 104 / 13%);
   margin-inline: auto;
@@ -502,6 +526,45 @@ onUnmounted(() => {
 
   .mosaic-reference img {
     inline-size: clamp(10rem, 13vw, 11.5rem);
+  }
+}
+
+@media (max-height: 60rem) and (min-width: 70rem) {
+  .mosaic-card {
+    padding-block: 0.75rem !important;
+  }
+
+  .mosaic-feedback,
+  .mosaic-attribution {
+    display: none;
+  }
+
+  .mosaic-layout {
+    grid-template-columns: minmax(24rem, min(35vw, 28rem)) minmax(28rem, 1fr);
+  }
+
+  .mosaic-board {
+    inline-size: min(28rem, calc(100dvh - 11rem), 100%);
+  }
+
+  .mosaic-side {
+    gap: 0.5rem;
+  }
+
+  .mosaic-choices {
+    gap: 0.5rem;
+  }
+
+  .mosaic-choices :deep(.dwell-button) {
+    min-block-size: 7rem !important;
+  }
+
+  .mosaic-piece--choice {
+    max-inline-size: 5.25rem;
+  }
+
+  .mosaic-reference img {
+    inline-size: clamp(9rem, 11vw, 10.5rem);
   }
 }
 

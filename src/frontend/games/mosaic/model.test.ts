@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { settingsFromPreset } from "../../core/settings";
 import { mosaicImages } from "./images";
-import { createMosaicStep, createMosaicTiles, getMosaicImage, isMosaicChoiceCorrect, mosaicTileCount } from "./model";
+import { createMosaicStep, createMosaicTiles, getMosaicImage, isMosaicChoiceCorrect, mosaicTileCount, selectMosaicImageIndex } from "./model";
 
 describe("mosaic model", () => {
   it("creates a stable 3x3 tile map for an image", () => {
@@ -21,6 +21,11 @@ describe("mosaic model", () => {
     expect(getMosaicImage(0)).toBe(mosaicImages[0]);
     expect(getMosaicImage(mosaicImages.length)).toBe(mosaicImages[0]);
     expect(getMosaicImage(-1)).toBe(mosaicImages[mosaicImages.length - 1]);
+  });
+
+  it("selects an image index with injected random", () => {
+    expect(selectMosaicImageIndex(() => 0)).toBe(0);
+    expect(selectMosaicImageIndex(() => 0.999)).toBe(mosaicImages.length - 1);
   });
 
   it("creates unique choices and includes target piece", () => {
