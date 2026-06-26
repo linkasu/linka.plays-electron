@@ -12,9 +12,10 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateCoinCountingRound, type CoinCountingCoin, type CoinCountingCoinValue } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("coin-counting", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("coin-counting", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 140, sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 const soundEnabled = toRef(session.settings, "sound");
@@ -22,7 +23,7 @@ const promptAudio = useGamePromptAudio({
   gameId: "coin-counting",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: ["coin-counting.prompt.1", "coin-counting.mistake.not-enough", "coin-counting.correct.1"]
+  warmAssetIds: ["coin-counting.prompt.1", "coin-counting.mistake.not-enough", "coin-counting.correct.1", "coin-counting.complete"]
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
@@ -121,8 +122,13 @@ async function checkTotal() {
     feedback.value = "Верно.";
     lastMistakeTargetId.value = undefined;
     void pianoFeedback.playSuccess();
-    await playAudioSequence([correctAssetId()], 80);
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await playAudioSequence(finishedAfterSuccess ? [correctAssetId(), "coin-counting.complete"] : [correctAssetId()], 80);
     resetSelection();
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      return;
+    }
     if (session.status === "running" && session.step < session.maxSteps) {
       nextRound();
       feedback.value = "Новая сумма.";
@@ -371,7 +377,7 @@ onUnmounted(() => {
 
 @media (max-height: 44rem) {
   .game-container {
-    padding-block-start: 48px;
+    padding-block-start: 3rem;
   }
 
   .coin-card {

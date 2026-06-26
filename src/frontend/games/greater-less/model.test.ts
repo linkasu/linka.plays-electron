@@ -46,4 +46,14 @@ describe("generateGreaterLessRound", () => {
     expect(second.prompt).toBe("Где меньше?");
     expect(third.prompt).toBe(first.prompt);
   });
+
+  it("uses injected randomness for counts and emoji", () => {
+    const settings = settingsFromPreset("standard");
+    const first = generateGreaterLessRound(settings, 1, () => 0);
+    const again = generateGreaterLessRound(settings, 1, () => 0);
+
+    expect(again.left.count).toBe(first.left.count);
+    expect(again.right.count).toBe(first.right.count);
+    expect(again.left.emoji).toBe(first.left.emoji);
+  });
 });

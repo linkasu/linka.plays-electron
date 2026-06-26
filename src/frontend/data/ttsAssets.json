@@ -7145,5 +7145,68 @@
     "text": "Готово. Счёт закончен.",
     "voice": "jane",
     "path": "/audio/tts/count-items/complete.mp3"
+  },
+  {
+    "id": "coin-counting.complete",
+    "game": "coin-counting",
+    "text": "Готово. Монетки собраны.",
+    "voice": "jane",
+    "path": "/audio/tts/coin-counting/complete.mp3"
+  },
+  {
+    "id": "pizza-fractions.prompt",
+    "game": "pizza-fractions",
+    "text": "Посмотри на пиццу и выбери нужную долю.",
+    "voice": "jane",
+    "path": "/audio/tts/pizza-fractions/prompt.mp3"
+  },
+  {
+    "id": "pizza-fractions.correct",
+    "game": "pizza-fractions",
+    "text": "Верно.",
+    "voice": "jane",
+    "path": "/audio/tts/pizza-fractions/correct.mp3"
+  },
+  {
+    "id": "pizza-fractions.mistake",
+    "game": "pizza-fractions",
+    "text": "Посмотри на пиццу ещё раз и выбери другую долю.",
+    "voice": "jane",
+    "path": "/audio/tts/pizza-fractions/mistake.mp3"
+  },
+  {
+    "id": "pizza-fractions.complete",
+    "game": "pizza-fractions",
+    "text": "Готово. Доли выбраны.",
+    "voice": "jane",
+    "path": "/audio/tts/pizza-fractions/complete.mp3"
+  },
+  {
+    "id": "greater-less.prompt",
+    "game": "greater-less",
+    "text": "Выбери подходящую группу.",
+    "voice": "jane",
+    "path": "/audio/tts/greater-less/prompt.mp3"
+  },
+  {
+    "id": "greater-less.correct",
+    "game": "greater-less",
+    "text": "Верно.",
+    "voice": "jane",
+    "path": "/audio/tts/greater-less/correct.mp3"
+  },
+  {
+    "id": "greater-less.mistake",
+    "game": "greater-less",
+    "text": "Посмотри на группы ещё раз и выбери другую сторону.",
+    "voice": "jane",
+    "path": "/audio/tts/greater-less/mistake.mp3"
+  },
+  {
+    "id": "greater-less.complete",
+    "game": "greater-less",
+    "text": "Готово. Сравнение закончено.",
+    "voice": "jane",
+    "path": "/audio/tts/greater-less/complete.mp3"
   }
 ]

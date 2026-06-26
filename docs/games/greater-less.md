@@ -10,8 +10,8 @@
 | Route | `/games/greater-less` |
 | Категория | `numeracy` — Счёт и математика |
 | Status | `polished` |
-| Resolved stability | `publish` |
-| Readiness group | `ready` |
+| Resolved stability | `development` |
+| Readiness group | `needs-check` |
 | Skills | счёт, выбор |
 | Recommended session | 120 сек |
 | Min target size | 160 px |
@@ -19,9 +19,9 @@
 
 ## Назначение
 
-undefined
+Сравнить две группы предметов и выбрать, где больше или меньше. Ошибка просит пересмотреть группы без раскрытия правильной стороны.
 
-Самостоятельная формулировка для меню: undefined
+Самостоятельная формулировка для меню: выбери, где больше.
 
 ## Игровой цикл
 
@@ -57,16 +57,16 @@ undefined
 | Vue-компонент | `GreaterLessGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
-| Audio module | нет |
+| Audio module | стандартный feedback, TTS через `useGamePromptAudio` |
 | Runtime audit doc | `docs/tests/2026-06-10/greater-less.md` |
 
 ## Готовность
 
-Игра находится в группе `ready`, потому что resolved stability равен `publish`.
+Игра находится в группе `needs-check`, пока проходит batch review.
 
 Автоматические blockers:
 
-- missing-game-doc
+- `stability:needs-check`
 
 ## QA checklist
 
@@ -79,4 +79,4 @@ undefined
 
 ## Next step
 
-Поддерживать CDP/PNG pass при изменениях; при развитии игры расширять этот документ ручными продуктово-дефектологическими деталями.
+Проверить в Electron CDP на 800×600/1024×600 и визуально подтвердить PNG перед approve.

@@ -36,4 +36,12 @@ describe("generatePizzaFractionsRound", () => {
     ]));
     expect(pizzaFractionChoices.every((choice) => choice.filledSlices >= 1 && choice.filledSlices <= choice.totalSlices)).toBe(true);
   });
+
+  it("uses injected randomness for choice order and stores no answer-revealing hint", () => {
+    const settings = settingsFromPreset("standard");
+    const round = generatePizzaFractionsRound(settings, 1, () => 0);
+
+    expect(generatePizzaFractionsRound(settings, 1, () => 0).choices.map((choice) => choice.id)).toEqual(round.choices.map((choice) => choice.id));
+    expect("mistakeHint" in round).toBe(false);
+  });
 });

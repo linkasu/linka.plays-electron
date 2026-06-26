@@ -1,22 +1,29 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { generatePizzaFractionsRound, type PizzaFractionChoice, type PizzaFractionsRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("pizza-fractions", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("pizza-fractions", {
   maxSteps: 8,
-  overrides: { dwellMs: 1300, sessionSeconds: 130, sound: false },
+  overrides: { dwellMs: 1300, sessionSeconds: 130, sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "pizza-fractions", soundEnabled, warmAssetIds: ["pizza-fractions.prompt", "pizza-fractions.correct", "pizza-fractions.mistake", "pizza-fractions.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const mistakenChoiceId = ref<string>();
+const isSpeaking = ref(false);
 const { round, resultVisible, nextRound, restart } = useRoundGame<PizzaFractionsRound>({
   session,
   startSession,
@@ -25,7 +32,7 @@ const { round, resultVisible, nextRound, restart } = useRoundGame<PizzaFractions
 
 const feedbackText = computed(() => {
   if (!mistakenChoiceId.value) return "Посмотри на пиццу и выбери нужную долю.";
-  return `${round.value.mistakeHint} Она мягко подсвечена.`;
+  return "Посмотри на пиццу ещё раз и выбери другую долю.";
 });
 
 function choiceTargetId(choice: PizzaFractionChoice) {
@@ -36,8 +43,8 @@ function pizzaStyle(choice: PizzaFractionChoice) {
   return { "--pizza-fill": `${(choice.filledSlices / choice.totalSlices) * 100}%` };
 }
 
-function choose(index: number) {
-  if (session.status !== "running") return;
+async function choose(index: number) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const choice = round.value.choices[index];
   const expectedChoice = round.value.choices[round.value.correctIndex];
@@ -47,19 +54,44 @@ function choose(index: number) {
   if (index === round.value.correctIndex) {
     mistakenChoiceId.value = undefined;
     recordSuccess({ roundId: round.value.roundId, targetId, prompt: round.value.prompt, expected: round.value.targetId, actual: choice.id, isCorrect: true });
+    isSpeaking.value = true;
+    void feedbackAudio.playSuccess();
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["pizza-fractions.correct", "pizza-fractions.complete"] : ["pizza-fractions.correct"], 80, 170);
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      isSpeaking.value = false;
+      return;
+    }
     if (session.step < session.maxSteps) nextRound();
+    isSpeaking.value = false;
     return;
   }
 
   mistakenChoiceId.value = choice.id;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, prompt: round.value.prompt, expected: round.value.targetId, actual: choice.id, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, text: round.value.mistakeHint });
+  isSpeaking.value = true;
+  void feedbackAudio.playMistake();
+  await promptAudio.playSequenceAndWait(["pizza-fractions.mistake"], 80);
+  isSpeaking.value = false;
 }
 
 function restartGame() {
+  promptAudio.cancelPending();
   mistakenChoiceId.value = undefined;
+  isSpeaking.value = false;
   restart();
+  promptAudio.play("pizza-fractions.prompt", 220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("pizza-fractions.prompt", 420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -77,9 +109,9 @@ function restartGame() {
 
             <v-row class="choice-row" dense>
               <v-col v-for="(choice, index) in round.choices" :key="choice.id" class="pizza-choice-col" cols="12" md="4">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="270" color="surface" @select="choose(index)">
+                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="270" color="surface" @select="choose(index)">
                   <template #default>
-                    <div :class="['pizza-choice', { 'pizza-choice--correct-hint': mistakenChoiceId && choice.id === round.targetId, 'pizza-choice--mistake': mistakenChoiceId === choice.id }]">
+                    <div :class="['pizza-choice', { 'pizza-choice--mistake': mistakenChoiceId === choice.id }]">
                       <div class="pizza-plate" aria-hidden="true">
                         <div class="pizza" :style="pizzaStyle(choice)">
                           <div class="pizza__cuts" />
@@ -138,11 +170,6 @@ function restartGame() {
 
 .pizza-choice__chip {
   color: #ffffff !important;
-}
-
-.pizza-choice--correct-hint {
-  outline: 0.45rem solid rgb(var(--v-theme-primary));
-  transform: scale(1.02);
 }
 
 .pizza-choice--mistake {
@@ -213,7 +240,7 @@ function restartGame() {
   }
 }
 
-@media (max-height: 680px) {
+@media (max-height: 42.5rem) {
   .game-container {
     padding-block-start: 4.75rem;
   }

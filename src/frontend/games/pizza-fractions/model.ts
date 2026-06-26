@@ -1,5 +1,5 @@
 import type { SessionSettings } from "../../core/settings";
-import { shuffleItems } from "../../data/wordBank";
+import { shuffleItems } from "../../core/random";
 
 export type PizzaFractionId = "whole" | "half" | "quarter";
 
@@ -19,7 +19,6 @@ export type PizzaFractionsRound = {
   targetId: PizzaFractionId;
   choices: PizzaFractionChoice[];
   correctIndex: number;
-  mistakeHint: string;
 };
 
 export const pizzaFractionChoices: PizzaFractionChoice[] = [
@@ -58,17 +57,16 @@ function pickTarget(roundIndex: number) {
   return targetOrder[(Math.max(1, roundIndex) - 1) % targetOrder.length];
 }
 
-export function generatePizzaFractionsRound(_settings: SessionSettings, roundIndex = 1): PizzaFractionsRound {
+export function generatePizzaFractionsRound(_settings: SessionSettings, roundIndex = 1, random = Math.random): PizzaFractionsRound {
   const targetId = pickTarget(roundIndex);
   const target = pizzaFractionChoices.find((choice) => choice.id === targetId) ?? pizzaFractionChoices[0];
-  const choices = shuffleItems(pizzaFractionChoices);
+  const choices = shuffleItems(pizzaFractionChoices, random);
 
   return {
     roundId: `pizza-fractions:round:${roundIndex}`,
     prompt: `Выбери ${target.promptLabel}`,
     targetId,
     choices,
-    correctIndex: choices.findIndex((choice) => choice.id === targetId),
-    mistakeHint: `Почти. Правильная доля: ${target.label.toLowerCase()}.`
+    correctIndex: choices.findIndex((choice) => choice.id === targetId)
   };
 }

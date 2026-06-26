@@ -1,4 +1,5 @@
 import type { SessionSettings } from "../../core/settings";
+import { randomInt } from "../../core/random";
 
 export type GreaterLessSide = "left" | "right";
 export type GreaterLessComparison = "more" | "less";
@@ -21,11 +22,7 @@ export type GreaterLessRound = {
 
 const groupEmojis = ["🍎", "⭐", "🌸", "🐟", "🦋", "🟡"];
 
-function randomInt(min: number, max: number) {
-  return min + Math.floor(Math.random() * (max - min + 1));
-}
-
-function pickDifferentCounts(settings: SessionSettings) {
+function pickDifferentCounts(settings: SessionSettings, random: () => number) {
   const maxCount = settings.preset === "gentle" ? 5 : settings.preset === "challenge" ? 10 : 8;
   const minDifference = settings.preset === "gentle" ? 2 : 1;
   const pairs: Array<[number, number]> = [];
@@ -36,7 +33,7 @@ function pickDifferentCounts(settings: SessionSettings) {
     }
   }
 
-  return pairs[randomInt(0, pairs.length - 1)];
+  return pairs[randomInt(0, pairs.length - 1, random)];
 }
 
 function buildGroup(side: GreaterLessSide, count: number, emoji: string): GreaterLessGroup {
@@ -48,10 +45,10 @@ function buildGroup(side: GreaterLessSide, count: number, emoji: string): Greate
   };
 }
 
-export function generateGreaterLessRound(settings: SessionSettings, roundIndex = 1): GreaterLessRound {
-  const [leftCount, rightCount] = pickDifferentCounts(settings);
+export function generateGreaterLessRound(settings: SessionSettings, roundIndex = 1, random = Math.random): GreaterLessRound {
+  const [leftCount, rightCount] = pickDifferentCounts(settings, random);
   const comparison: GreaterLessComparison = roundIndex % 2 === 0 ? "less" : "more";
-  const emoji = groupEmojis[randomInt(0, groupEmojis.length - 1)];
+  const emoji = groupEmojis[randomInt(0, groupEmojis.length - 1, random)];
   const correctSide: GreaterLessSide = comparison === "more"
     ? leftCount > rightCount ? "left" : "right"
     : leftCount < rightCount ? "left" : "right";
