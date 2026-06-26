@@ -11,9 +11,10 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateShelfSortingRound, type ShelfSortingShelf } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("shelf-sorting", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("shelf-sorting", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 135 },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 const promptAudio = useGamePromptAudio({ gameId: "shelf-sorting", soundEnabled: toRef(session.settings, "sound"), volume: 0.3 });
@@ -26,9 +27,9 @@ const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame
 
 const feedbackMessage = ref("Посмотри на предмет и выбери подходящую полку.");
 const pendingSelection = ref(false);
+const isSpeaking = ref(false);
 const wrongShelfId = ref<string>();
 const successShelfId = ref<string>();
-const hintedShelfId = ref<string>();
 let feedbackTimer = 0;
 
 function shelfTargetId(shelf: ShelfSortingShelf) {
@@ -44,13 +45,13 @@ function resetFeedback() {
   clearFeedbackTimer();
   feedbackMessage.value = "Посмотри на предмет и выбери подходящую полку.";
   pendingSelection.value = false;
+  isSpeaking.value = false;
   wrongShelfId.value = undefined;
   successShelfId.value = undefined;
-  hintedShelfId.value = undefined;
 }
 
-function chooseShelf(shelf: ShelfSortingShelf) {
-  if (session.status !== "running" || pendingSelection.value) return;
+async function chooseShelf(shelf: ShelfSortingShelf) {
+  if (session.status !== "running" || pendingSelection.value || isSpeaking.value) return;
 
   const isCorrect = shelf.id === round.value.correctShelfId;
   const targetId = shelfTargetId(shelf);
@@ -62,9 +63,17 @@ function chooseShelf(shelf: ShelfSortingShelf) {
   if (isCorrect) {
     pendingSelection.value = true;
     successShelfId.value = shelf.id;
-    feedbackMessage.value = `Верно. ${round.value.item.label} лежит на полке «${shelf.title}».`;
-    promptAudio.play("shelf-sorting.correct", 80);
+    feedbackMessage.value = "Верно. Предмет на своей полке.";
     recordSuccess({ roundId: round.value.roundId, targetId, itemId: round.value.item.id, expected: round.value.correctShelfId, actual: shelf.id, isCorrect: true });
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    isSpeaking.value = true;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["shelf-sorting.correct", "shelf-sorting.complete"] : ["shelf-sorting.correct"], 80, 170);
+    isSpeaking.value = false;
+
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      return;
+    }
 
     if (session.status === "running" && session.step < session.maxSteps) {
       feedbackTimer = window.setTimeout(() => {
@@ -77,14 +86,14 @@ function chooseShelf(shelf: ShelfSortingShelf) {
 
   pendingSelection.value = true;
   wrongShelfId.value = shelf.id;
-  hintedShelfId.value = round.value.correctShelfId;
-  feedbackMessage.value = `Не эта полка. Подсказка: ${round.value.hint} Подходящая полка подсвечена.`;
-  promptAudio.play("shelf-sorting.mistake", 80);
+  feedbackMessage.value = "Посмотри на предмет и попробуй выбрать другую полку.";
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, itemId: round.value.item.id, expected: round.value.correctShelfId, actual: shelf.id, isCorrect: false });
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["shelf-sorting.mistake"], 80);
+  isSpeaking.value = false;
   feedbackTimer = window.setTimeout(() => {
     pendingSelection.value = false;
     wrongShelfId.value = undefined;
-    hintedShelfId.value = undefined;
   }, 1300);
 }
 
@@ -96,7 +105,6 @@ function shelfColor(shelf: ShelfSortingShelf) {
 
 function shelfStatus(shelf: ShelfSortingShelf) {
   if (successShelfId.value === shelf.id) return "предмет на полке";
-  if (hintedShelfId.value === shelf.id) return "подходящая полка";
   return shelf.hint;
 }
 
@@ -123,7 +131,7 @@ onUnmounted(() => {
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="9">
-          <v-card class="pa-5 pa-md-8" rounded="xl" elevation="8">
+          <v-card class="shelf-panel pa-5 pa-md-8" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">{{ round.prompt }}</div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-3">Куда положить предмет?</h1>
             <p class="shelf-feedback text-body-1 text-center mb-6">{{ feedbackMessage }}</p>
@@ -141,7 +149,7 @@ onUnmounted(() => {
 
             <v-row justify="center">
               <v-col v-for="shelf in round.shelves" :key="shelf.id" cols="12" sm="4" md="4">
-                <GameDwellButton :class="{ 'shelf-choice--hint': hintedShelfId === shelf.id, 'shelf-choice--wrong': wrongShelfId === shelf.id, 'shelf-choice--success': successShelfId === shelf.id }" :target-id="shelfTargetId(shelf)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="190" :color="shelfColor(shelf)" @select="chooseShelf(shelf)">
+                <GameDwellButton :class="{ 'shelf-choice--wrong': wrongShelfId === shelf.id, 'shelf-choice--success': successShelfId === shelf.id }" :target-id="shelfTargetId(shelf)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="11.875rem" :color="shelfColor(shelf)" @select="chooseShelf(shelf)">
                   <template #default>
                     <div class="shelf-choice-content">
                       <div class="shelf-visual mb-4" aria-hidden="true">
@@ -171,11 +179,11 @@ onUnmounted(() => {
 }
 
 .game-container {
-  padding-block-start: 132px;
+  padding-block-start: 8.25rem;
 }
 
 .item-card {
-  border: 2px solid rgb(var(--v-theme-primary) / 16%);
+  border: 0.125rem solid rgb(var(--v-theme-primary) / 16%);
 }
 
 .shelf-feedback,
@@ -199,7 +207,7 @@ onUnmounted(() => {
   align-items: center;
   display: flex;
   flex-direction: column;
-  min-block-size: 170px;
+  min-block-size: 10.625rem;
   justify-content: center;
   text-align: center;
 }
@@ -214,7 +222,7 @@ onUnmounted(() => {
 }
 
 .shelf-icon {
-  filter: drop-shadow(0 8px 10px rgb(0 0 0 / 14%));
+  filter: drop-shadow(0 0.5rem 0.625rem rgb(0 0 0 / 14%));
   font-size: clamp(4.2rem, 8vw, 6.4rem);
 }
 
@@ -233,10 +241,6 @@ onUnmounted(() => {
   inset-block-start: -0.15rem;
   position: absolute;
   z-index: 1;
-}
-
-.shelf-choice--hint {
-  box-shadow: 0 0 0 0.375rem rgb(var(--v-theme-warning) / 36%);
 }
 
 .shelf-choice--success {
@@ -261,12 +265,34 @@ onUnmounted(() => {
 
 @media (max-height: 44rem) {
   .game-container {
-    padding-block-start: 5rem;
+    padding-block-start: 4.35rem;
+  }
+
+  .shelf-panel {
+    padding: 1rem 1.25rem 0.9rem !important;
+  }
+
+  .shelf-panel .text-overline {
+    display: none;
+  }
+
+  .shelf-panel .text-h4 {
+    font-size: clamp(2rem, 5.2vh, 2.35rem) !important;
+    line-height: 1.05 !important;
+    margin-block-end: 0.6rem !important;
+  }
+
+  .shelf-feedback {
+    margin-block-end: 0.9rem !important;
   }
 
   .item-card {
-    margin-block-end: 1rem !important;
-    padding: 1rem !important;
+    margin-block-end: 0.85rem !important;
+    padding: 0.85rem !important;
+  }
+
+  .item-caption {
+    display: none;
   }
 
   .item-emoji,

@@ -1,4 +1,4 @@
-import { shuffleItems } from "../../data/wordBank";
+import { shuffleItems } from "../../core/random";
 
 export type ShelfSortingRule = "category" | "color";
 
@@ -62,9 +62,9 @@ export function correctShelfIdFor(item: ShelfSortingItem, rule: ShelfSortingRule
   return rule === "category" ? item.categoryShelfId : item.colorShelfId;
 }
 
-export function generateShelfSortingRound(roundIndex = 1): ShelfSortingRound {
+export function generateShelfSortingRound(roundIndex = 1, random = Math.random): ShelfSortingRound {
   const rule: ShelfSortingRule = roundIndex % 2 === 1 ? "category" : "color";
-  const item = shuffleItems(shelfSortingItems)[0];
+  const item = shuffleItems(shelfSortingItems, random)[0];
   const shelves = shelvesForRule(rule);
   const correctShelfId = correctShelfIdFor(item, rule);
 

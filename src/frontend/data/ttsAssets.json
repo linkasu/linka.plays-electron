@@ -1423,7 +1423,7 @@
   {
     "id": "shelf-sorting.mistake",
     "game": "shelf-sorting",
-    "text": "Попробуй другую полку.",
+    "text": "Посмотри на предмет и попробуй выбрать другую полку.",
     "voice": "jane",
     "path": "/audio/tts/shelf-sorting/mistake.mp3"
   },
@@ -6823,5 +6823,12 @@
     "text": "Суп готов. Все ингредиенты добавлены.",
     "voice": "jane",
     "path": "/audio/tts/soup-recipe/complete.mp3"
+  },
+  {
+    "id": "shelf-sorting.complete",
+    "game": "shelf-sorting",
+    "text": "Готово. Предметы разложены по полкам.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/complete.mp3"
   }
 ]

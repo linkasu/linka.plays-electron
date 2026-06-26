@@ -26,4 +26,11 @@ describe("generateShelfSortingRound", () => {
 
     expect(round.roundId).toBe("shelf-sorting:round:8");
   });
+
+  it("uses injected randomness for deterministic item choice", () => {
+    const first = generateShelfSortingRound(1, () => 0).item.id;
+
+    expect(generateShelfSortingRound(1, () => 0).item.id).toBe(first);
+    expect(generateShelfSortingRound(1, () => 0.99).item.id).not.toBe(first);
+  });
 });
