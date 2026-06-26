@@ -6732,5 +6732,33 @@
     "text": "Готово. Мозаика собрана.",
     "voice": "jane",
     "path": "/audio/tts/mosaic/complete.mp3"
+  },
+  {
+    "id": "shape-dance.prompt",
+    "game": "shape-dance",
+    "text": "Теперь повтори танец фигур по порядку.",
+    "voice": "jane",
+    "path": "/audio/tts/shape-dance/prompt.mp3"
+  },
+  {
+    "id": "shape-dance.correct",
+    "game": "shape-dance",
+    "text": "Верно. Танец повторён.",
+    "voice": "jane",
+    "path": "/audio/tts/shape-dance/correct.mp3"
+  },
+  {
+    "id": "shape-dance.mistake",
+    "game": "shape-dance",
+    "text": "Посмотри на танец ещё раз и попробуй повторить спокойно.",
+    "voice": "jane",
+    "path": "/audio/tts/shape-dance/mistake.mp3"
+  },
+  {
+    "id": "shape-dance.complete",
+    "game": "shape-dance",
+    "text": "Готово. Танец фигур завершён.",
+    "voice": "jane",
+    "path": "/audio/tts/shape-dance/complete.mp3"
   }
 ]

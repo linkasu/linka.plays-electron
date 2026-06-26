@@ -1,4 +1,5 @@
 import type { SessionSettings } from "../../core/settings";
+import { shuffleItems } from "../../core/random";
 
 export type ShapeDanceFigure = {
   id: string;
@@ -26,12 +27,7 @@ export const shapeDanceFigures: ShapeDanceFigure[] = [
 ];
 
 export function shuffleShapeDanceItems<T>(items: T[], random = Math.random): T[] {
-  const result = [...items];
-  for (let index = result.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.min(index, Math.floor(random() * (index + 1)));
-    [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
-  }
-  return result;
+  return shuffleItems(items, random);
 }
 
 function sequenceLengthFor(settings: SessionSettings, roundIndex: number) {
