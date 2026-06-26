@@ -1851,7 +1851,7 @@ export const games: GameInfo[] = [
   {
     id: "connect-four",
     title: "4 в ряд",
-    description: "Собирай четыре фишки в ряд против спокойного Deep-Q агента.",
+    description: "Собирай четыре фишки в ряд против спокойного компьютера.",
     selfDescription: "Поставь фишку.",
     route: "/games/connect-four",
     category: "strategy",

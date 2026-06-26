@@ -1,19 +1,25 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { applyMove, cellIndex, chooseAiMove, countPieces, createInitialBoard, findWinner, hasAnyMove, reversiLightSize, validMoves, type ReversiLightBoard, type ReversiLightCell, type ReversiLightWinner } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("reversi-light", {
   maxSteps: 10,
-  overrides: { dwellMs: 1300, sessionSeconds: 180, targetScale: 1.25, sound: false },
+  overrides: { dwellMs: 1300, sessionSeconds: 180, targetScale: 1.25, sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "reversi-light", soundEnabled, warmAssetIds: ["reversi-light.prompt", "reversi-light.correct", "reversi-light.mistake", "reversi-light.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const aiMoveDelayMs = 850;
 const passDelayMs = 700;
@@ -21,6 +27,7 @@ const passDelayMs = 700;
 const board = ref<ReversiLightBoard>(createInitialBoard());
 const result = ref<ReversiLightWinner>();
 const aiThinking = ref(false);
+const isSpeaking = ref(false);
 const flippedCells = ref<number[]>([]);
 const lastMove = ref<number>();
 const feedbackMessage = ref("Твои тёплые фишки ходят на подсвеченные клетки. Неподходящая клетка просто даст подсказку.");
@@ -54,7 +61,7 @@ function isValidPlayerCell(index: number) {
 }
 
 function canChooseCell(index: number) {
-  return session.status === "running" && !aiThinking.value && !result.value && !board.value[index];
+  return session.status === "running" && !aiThinking.value && !isSpeaking.value && !result.value && !board.value[index];
 }
 
 function cellColor(index: number, cell: ReversiLightCell) {
@@ -78,19 +85,24 @@ function pieceClasses(cell: ReversiLightCell) {
   return ["piece", { "piece--player": cell === "player", "piece--ai": cell === "ai" }];
 }
 
-function finishBoard(reason: "max-steps" | "game-complete" = "game-complete") {
+async function finishBoard(reason: "max-steps" | "game-complete" = "game-complete") {
   result.value = findWinner(board.value);
   aiThinking.value = false;
+  isSpeaking.value = true;
   if (result.value === "player") recordSuccess({ result: result.value, board: board.value.join("|"), final: true });
   else if (result.value === "ai") recordMistake({ result: result.value, board: board.value.join("|"), final: true });
   else recordEvent("level-start", { result: result.value, board: board.value.join("|") });
-  if (session.status !== "finished") finishSession(reason);
+  if (result.value === "ai") void feedbackAudio.playMistake();
+  else void feedbackAudio.playSuccess();
+  await promptAudio.playSequenceAndWait(result.value === "player" ? ["reversi-light.correct", "reversi-light.complete"] : result.value === "ai" ? ["reversi-light.mistake", "reversi-light.complete"] : ["reversi-light.complete"], 80, 170);
+  if (session.status !== "finished") finishSession(reason === "max-steps" ? "max-steps" : result.value === "draw" ? "game-draw" : result.value === "player" ? "game-complete" : "game-lost");
+  isSpeaking.value = false;
 }
 
 function afterAiTurn() {
   if (!hasAnyMove(board.value) || board.value.every(Boolean)) {
     feedbackMessage.value = "Поле спокойно завершилось. Смотрим, у кого больше фишек.";
-    finishBoard("game-complete");
+    void finishBoard("game-complete");
     return;
   }
 
@@ -134,40 +146,54 @@ function scheduleAiMove(delayMs = aiMoveDelayMs) {
   aiTimer = window.setTimeout(applyAiMove, delayMs);
 }
 
-function chooseCell(index: number) {
+async function chooseCell(index: number) {
   if (!canChooseCell(index)) return;
 
   const targetId = cellTargetId(index);
   const move = applyMove(board.value, index, "player");
   if (!move) {
-    feedbackMessage.value = "Эта клетка пока не переворачивает фишки. Посмотри на мягко подсвеченные места.";
+    feedbackMessage.value = "Эта клетка пока не переворачивает фишки. Выбери одну из отмеченных клеток.";
     flippedCells.value = [];
     lastMove.value = index;
     recordMistake({ targetId, reason: "invalid-reversi-move", isCorrect: false });
+    isSpeaking.value = true;
+    void feedbackAudio.playMistake();
+    await promptAudio.playSequenceAndWait(["reversi-light.mistake"], 80);
+    isSpeaking.value = false;
     return;
   }
 
+  const finishedAfterSuccess = session.step + 1 >= session.maxSteps;
   board.value = move.board;
   flippedCells.value = move.flipped;
   lastMove.value = index;
   recordSuccess({ targetId, mark: "player", flipped: move.flipped.length, isCorrect: true });
 
-  if (session.step >= session.maxSteps || !hasAnyMove(board.value) || board.value.every(Boolean)) {
+  if (finishedAfterSuccess || !hasAnyMove(board.value) || board.value.every(Boolean)) {
     feedbackMessage.value = "Ходов достаточно. Завершаем спокойную мини-партию.";
-    finishBoard(session.step >= session.maxSteps ? "max-steps" : "game-complete");
+    await finishBoard(finishedAfterSuccess ? "max-steps" : "game-complete");
     return;
   }
 
   if (!validMoves(board.value, "ai").length) {
     feedbackMessage.value = "Луна пропускает ход. Можно выбрать следующую подсветку.";
+    isSpeaking.value = true;
+    void feedbackAudio.playSuccess();
+    await promptAudio.playSequenceAndWait(["reversi-light.correct"], 80);
+    isSpeaking.value = false;
     return;
   }
 
   feedbackMessage.value = "Хороший ход. Луна тихо отвечает.";
+  isSpeaking.value = true;
+  void feedbackAudio.playSuccess();
+  await promptAudio.playSequenceAndWait(["reversi-light.correct"], 80);
+  isSpeaking.value = false;
   scheduleAiMove();
 }
 
 function restart() {
+  promptAudio.cancelPending();
   window.clearTimeout(aiTimer);
   board.value = createInitialBoard();
   result.value = undefined;
@@ -175,10 +201,18 @@ function restart() {
   flippedCells.value = [];
   lastMove.value = undefined;
   feedbackMessage.value = "Новая доска готова. Выбирай подсвеченную клетку без спешки.";
+  isSpeaking.value = false;
   startSession();
+  promptAudio.play("reversi-light.prompt", 220);
 }
 
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("reversi-light.prompt", 420);
+});
+
 onUnmounted(() => {
+  promptAudio.cancelPending();
   window.clearTimeout(aiTimer);
 });
 </script>
@@ -195,7 +229,7 @@ onUnmounted(() => {
               <div>
                 <div class="text-overline text-secondary mb-1">Мини-стратегия 4×4</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Реверси light</h1>
-                <p class="text-body-1 text-medium-emphasis mb-0">Ставь тёплую фишку на подсветку и переворачивай фишки луны.</p>
+                <p class="text-body-1 text-medium-emphasis mb-0">Ставь тёплую фишку на отмеченную клетку и переворачивай фишки луны.</p>
               </div>
               <div class="d-flex flex-wrap ga-2">
                 <v-chip color="primary" size="large" variant="tonal">Твои: {{ counts.player }}</v-chip>
@@ -204,7 +238,7 @@ onUnmounted(() => {
               </div>
             </div>
 
-            <v-alert class="mb-5 text-body-1 font-weight-medium" :color="playerMoves.length ? 'primary' : 'secondary'" icon="mdi-circle-double" rounded="xl" variant="tonal">
+            <v-alert class="mb-5 text-body-1 font-weight-medium" :color="playerMoves.length ? 'primary' : 'secondary'" icon="mdi-circle-double" rounded="xl" role="status" variant="tonal">
               {{ feedbackMessage }}
             </v-alert>
 
@@ -216,7 +250,7 @@ onUnmounted(() => {
                   :target-id="cellTargetId(cellIndex(row, column))"
                   :disabled="!canChooseCell(cellIndex(row, column))"
                   :dwell-ms="session.settings.dwellMs"
-                  :min-height="136"
+                  min-height="clamp(5.25rem, 11.5vh, 8.5rem)"
                   :color="cellColor(cellIndex(row, column), markAt(row, column))"
                   @select="chooseCell(cellIndex(row, column))"
                 >
@@ -231,7 +265,7 @@ onUnmounted(() => {
             </div>
 
             <div class="d-flex flex-column flex-sm-row align-center justify-space-between ga-3 mt-5">
-              <p class="text-body-2 text-medium-emphasis mb-0">Неверная пустая клетка не завершает игру: она только напоминает выбрать подсветку.</p>
+              <p class="text-body-2 text-medium-emphasis mb-0">Другая пустая клетка не завершает игру: она только напоминает выбрать отмеченное место.</p>
               <v-btn color="secondary" prepend-icon="mdi-arrow-left" rounded="xl" size="large" variant="tonal" @click="router.push(resolveMenuRoute())">В меню</v-btn>
             </div>
           </v-card>
@@ -253,38 +287,38 @@ onUnmounted(() => {
 }
 
 .game-container {
-  padding-block-start: 132px;
+  padding-block-start: 8.25rem;
 }
 
 .board-grid {
   display: grid;
-  gap: clamp(8px, 1.6vw, 14px);
+  gap: clamp(0.5rem, 1.6vw, 0.875rem);
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  max-inline-size: min(92vw, 590px);
+  max-inline-size: min(92vw, 55vh, 36.875rem);
 }
 
 .board-grid :deep(.dwell-button) {
-  padding: 10px !important;
+  padding: 0.625rem !important;
 }
 
 .reversi-cell-content {
   align-items: center;
   block-size: 100%;
-  border-radius: 22px;
+  border-radius: 1.375rem;
   display: flex;
   inline-size: 100%;
   justify-content: center;
-  min-block-size: 96px;
+  min-block-size: clamp(4.5rem, 10vh, 6rem);
   position: relative;
 }
 
 .reversi-cell-content--valid {
-  box-shadow: inset 0 0 0 5px rgb(var(--v-theme-primary) / 22%);
+  box-shadow: inset 0 0 0 0.3125rem rgb(var(--v-theme-primary) / 22%);
 }
 
 .reversi-cell-content--last {
-  outline: 4px solid rgb(var(--v-theme-secondary) / 38%);
-  outline-offset: -5px;
+  outline: 0.25rem solid rgb(var(--v-theme-secondary) / 38%);
+  outline-offset: -0.3125rem;
 }
 
 .reversi-cell-content--flipped .piece {
@@ -293,9 +327,9 @@ onUnmounted(() => {
 
 .piece {
   border-radius: 999px;
-  block-size: clamp(52px, 10vw, 86px);
-  box-shadow: 0 12px 24px rgb(45 40 30 / 18%), inset 0 -10px 18px rgb(0 0 0 / 10%);
-  inline-size: clamp(52px, 10vw, 86px);
+  block-size: clamp(3.25rem, 10vw, 5.375rem);
+  box-shadow: 0 0.75rem 1.5rem rgb(45 40 30 / 18%), inset 0 -0.625rem 1.125rem rgb(0 0 0 / 10%);
+  inline-size: clamp(3.25rem, 10vw, 5.375rem);
   transition: transform 180ms ease;
 }
 
@@ -309,23 +343,23 @@ onUnmounted(() => {
 
 .valid-dot {
   background: rgb(var(--v-theme-primary) / 72%);
-  block-size: 22px;
+  block-size: 1.375rem;
   border-radius: 999px;
-  box-shadow: 0 0 0 14px rgb(var(--v-theme-primary) / 13%);
-  inline-size: 22px;
+  box-shadow: 0 0 0 0.875rem rgb(var(--v-theme-primary) / 13%);
+  inline-size: 1.375rem;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 37.5rem) {
   .game-container {
-    padding-block-start: 116px;
+    padding-block-start: 7.25rem;
   }
 
   .reversi-cell-content {
-    min-block-size: 74px;
+    min-block-size: 4.625rem;
   }
 }
 
-@media (max-height: 680px) {
+@media (max-height: 42.5rem) {
   .game-container {
     padding-block-start: 4.75rem;
   }

@@ -7768,5 +7768,61 @@
     "text": "Раунд завершён. Посмотри на результат.",
     "voice": "jane",
     "path": "/audio/tts/tic-tac-toe/complete.mp3"
+  },
+  {
+    "id": "connect-four.prompt",
+    "game": "connect-four",
+    "text": "Выбери колонку для красной фишки.",
+    "voice": "jane",
+    "path": "/audio/tts/connect-four/prompt.mp3"
+  },
+  {
+    "id": "connect-four.correct",
+    "game": "connect-four",
+    "text": "Четыре в ряд собраны. Хороший ход.",
+    "voice": "jane",
+    "path": "/audio/tts/connect-four/correct.mp3"
+  },
+  {
+    "id": "connect-four.mistake",
+    "game": "connect-four",
+    "text": "Компьютер собрал четыре в ряд. Можно попробовать ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/connect-four/mistake.mp3"
+  },
+  {
+    "id": "connect-four.complete",
+    "game": "connect-four",
+    "text": "Раунд завершён. Посмотри на результат.",
+    "voice": "jane",
+    "path": "/audio/tts/connect-four/complete.mp3"
+  },
+  {
+    "id": "reversi-light.prompt",
+    "game": "reversi-light",
+    "text": "Выбери отмеченную клетку для тёплой фишки.",
+    "voice": "jane",
+    "path": "/audio/tts/reversi-light/prompt.mp3"
+  },
+  {
+    "id": "reversi-light.correct",
+    "game": "reversi-light",
+    "text": "Ход засчитан. Фишки перевернулись спокойно.",
+    "voice": "jane",
+    "path": "/audio/tts/reversi-light/correct.mp3"
+  },
+  {
+    "id": "reversi-light.mistake",
+    "game": "reversi-light",
+    "text": "Эта клетка не подходит сейчас. Выбери отмеченное место.",
+    "voice": "jane",
+    "path": "/audio/tts/reversi-light/mistake.mp3"
+  },
+  {
+    "id": "reversi-light.complete",
+    "game": "reversi-light",
+    "text": "Мини-партия завершена. Посмотри на результат.",
+    "voice": "jane",
+    "path": "/audio/tts/reversi-light/complete.mp3"
   }
 ]
