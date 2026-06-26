@@ -2550,7 +2550,7 @@
   {
     "id": "where-object.mistake",
     "game": "where-object",
-    "text": "Почти. Правильный ответ.",
+    "text": "Посмотри на сцену ещё раз и выбери другое слово.",
     "voice": "jane",
     "path": "/audio/tts/where-object/mistake.mp3"
   },
@@ -6872,5 +6872,12 @@
     "text": "Готово. Категории собраны.",
     "voice": "jane",
     "path": "/audio/tts/word-categories/complete.mp3"
+  },
+  {
+    "id": "where-object.complete",
+    "game": "where-object",
+    "text": "Готово. Места названы.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/complete.mp3"
   }
 ]

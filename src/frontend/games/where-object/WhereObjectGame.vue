@@ -14,9 +14,10 @@ import { buildWhereObjectTargets, containsTarget, drawWhereObjectScene, type Whe
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("where-object", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("where-object", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 120, targetScale: 1.2 },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 const soundEnabled = toRef(session.settings, "sound");
@@ -24,12 +25,10 @@ const promptAudio = useGamePromptAudio({
   gameId: "where-object",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: ["where-object.mistake"]
+  warmAssetIds: ["where-object.mistake", "where-object.complete"]
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
-const hintedRoundId = ref<string>();
-const hintedChoiceId = ref<string>();
 const lastMistakeId = ref<string>();
 const isChangingRound = ref(false);
 const canvasTargets = ref<WhereObjectCanvasTarget[]>([]);
@@ -42,11 +41,7 @@ const { round, nextRound, restart: restartRoundGame } = useRoundGame({
 });
 
 const hintText = computed(() => {
-  if (hintedRoundId.value !== round.value.roundId) {
-    return "Посмотри на сцену и выбери слово: на, под или в.";
-  }
-
-  return `Подсказка: правильное слово — «${round.value.targetPreposition.label}».`;
+  return lastMistakeId.value ? "Посмотри на сцену ещё раз и выбери другое слово." : "Посмотри на сцену и выбери слово: на, под или в.";
 });
 
 let ctx: CanvasRenderingContext2D | undefined;
@@ -61,7 +56,7 @@ function resizeCanvas() {
   canvas.style.width = `${window.innerWidth}px`;
   canvas.style.height = `${window.innerHeight}px`;
   ctx = canvas.getContext("2d") ?? undefined;
-  ctx?.setTransform(ratio, 0, 0, ratio, 0, 0);
+    ctx?.setTransform(ratio, 0, 0, ratio, 0, 0);
   resetCanvasTargets();
 }
 
@@ -124,8 +119,6 @@ function cancelTarget(target: WhereObjectCanvasTarget, now: number, reason: "lef
 }
 
 function resetFeedback() {
-  hintedRoundId.value = undefined;
-  hintedChoiceId.value = undefined;
   lastMistakeId.value = undefined;
 }
 
@@ -139,9 +132,6 @@ function answerPreposition(preposition: WhereObjectPreposition, target: WhereObj
   }
 
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: preposition.id, expected: round.value.targetPreposition.label, actual: preposition.label, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "wrong-preposition-selected" });
-  hintedRoundId.value = round.value.roundId;
-  hintedChoiceId.value = round.value.targetPreposition.id;
   lastMistakeId.value = target.id;
   return false;
 }
@@ -165,14 +155,20 @@ async function selectTarget(target: WhereObjectCanvasTarget, now: number) {
 
   for (const item of canvasTargets.value) clearTargetDwell(item);
   if (!correct) {
-    void pianoFeedback.playMistake();
-    await promptAudio.playSequenceAndWait(["where-object.mistake", answerAssetId()], 80);
+  void pianoFeedback.playMistake();
+    await promptAudio.playSequenceAndWait(["where-object.mistake"], 80);
     isChangingRound.value = false;
     return;
   }
 
   void pianoFeedback.playSuccess();
   await promptAudio.playSequenceAndWait([answerAssetId()], 80);
+  if (session.step >= session.maxSteps) {
+    await promptAudio.playSequenceAndWait(["where-object.complete"], 80);
+    finishSession("game-complete");
+    isChangingRound.value = false;
+    return;
+  }
   await advanceAfterCorrect();
 }
 
@@ -209,7 +205,7 @@ function draw(now: number) {
     targets: canvasTargets.value,
     pointer: pointer.value,
     running: session.status === "running" && !isChangingRound.value,
-    hintedId: hintedRoundId.value === round.value.roundId ? hintedChoiceId.value : undefined,
+    hintedId: undefined,
     mistakeId: lastMistakeId.value,
     now
   });

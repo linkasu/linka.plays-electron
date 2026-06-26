@@ -10,8 +10,8 @@
 | Route | `/games/where-object` |
 | Категория | `language-aac` — Слова и AAC |
 | Status | `therapy-ready` |
-| Resolved stability | `publish` |
-| Readiness group | `ready` |
+| Resolved stability | `development` |
+| Readiness group | `needs-check` |
 | Skills | AAC, выбор, словарь, поиск |
 | Recommended session | 120 сек |
 | Min target size | 190 px |
@@ -19,7 +19,7 @@
 
 ## Назначение
 
-Тренировка понимания предлогов `на`, `под`, `в` на одной спокойной canvas-сцене.
+Тренировка понимания предлогов `на`, `под`, `в` на одной спокойной canvas-сцене. Ошибка не озвучивает и не подсвечивает правильный предлог.
 
 Самостоятельная формулировка для меню: выбери слово, где лежит предмет.
 
@@ -58,16 +58,16 @@
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
 | Scene | `scene.ts` canvas renderer |
-| Audio module | нет |
+| Audio module | стандартный feedback, TTS через `useGamePromptAudio` |
 | Runtime audit doc | `docs/tests/2026-06-10/where-object.md` |
 
 ## Готовность
 
-Игра находится в группе `ready`, потому что resolved stability равен `publish`.
+Игра находится в группе `needs-check`, пока проходит batch review.
 
 Автоматические blockers:
 
-- нет
+- `stability:needs-check`
 
 ## QA checklist
 
@@ -80,4 +80,4 @@
 
 ## Next step
 
-Оставить в ready-очереди и проверять регрессии через общий Electron CDP audit.
+Проверить в Electron CDP на 800×600/1024×600 и визуально подтвердить canvas PNG перед approve.
