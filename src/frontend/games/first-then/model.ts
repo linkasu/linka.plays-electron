@@ -76,19 +76,8 @@ export function createFirstThenExplanation(pair: FirstThenPair) {
   return `Порядок такой: ${pair.first.phrase}, ${pair.then.phrase}.`;
 }
 
-function shuffleFirstThenItems<T>(items: T[], random = Math.random) {
-  const shuffled = [...items];
-
-  for (let index = shuffled.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(random() * (index + 1));
-    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
-  }
-
-  return shuffled;
-}
-
 export function createFirstThenPairOrder(random = Math.random) {
-  return shuffleFirstThenItems(firstThenPairs.map((_, index) => index), random);
+  return shuffleItems(firstThenPairs.map((_, index) => index), random);
 }
 
 export function generateFirstThenRound(roundIndex = 1, phase: FirstThenPhase = "first", options: FirstThenRoundOptions = {}): FirstThenRound {
@@ -100,7 +89,7 @@ export function generateFirstThenRound(roundIndex = 1, phase: FirstThenPhase = "
   const expectedAction = phase === "first" ? pair.first : pair.then;
   const choices = options.choiceOrder?.length
     ? [pair.first, pair.then].sort((left, right) => options.choiceOrder!.indexOf(left.id) - options.choiceOrder!.indexOf(right.id))
-    : shuffleFirstThenItems([pair.first, pair.then], options.random);
+    : shuffleItems([pair.first, pair.then], options.random);
 
   return {
     roundId: `first-then:round:${roundIndex}:${phase}`,
@@ -112,3 +101,4 @@ export function generateFirstThenRound(roundIndex = 1, phase: FirstThenPhase = "
     explanation: createFirstThenExplanation(pair)
   };
 }
+import { shuffleItems } from "../../core/random";

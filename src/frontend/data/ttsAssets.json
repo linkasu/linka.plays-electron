@@ -1066,7 +1066,7 @@
   {
     "id": "first-then.mistake",
     "game": "first-then",
-    "text": "Почти. Попробуй ещё раз.",
+    "text": "Посмотри на порядок действий и попробуй выбрать другую карточку.",
     "voice": "jane",
     "path": "/audio/tts/first-then/mistake.mp3"
   },
@@ -1101,7 +1101,7 @@
   {
     "id": "first-then.mistake.wash-eat",
     "game": "first-then",
-    "text": "Порядок такой: сначала моем руки, потом едим.",
+    "text": "Посмотри на порядок действий и попробуй выбрать другую карточку.",
     "voice": "jane",
     "path": "/audio/tts/first-then/mistake-wash-eat.mp3"
   },
@@ -1122,7 +1122,7 @@
   {
     "id": "first-then.mistake.shoes-walk",
     "game": "first-then",
-    "text": "Порядок такой: сначала надеваем обувь, потом идём гулять.",
+    "text": "Посмотри на порядок действий и попробуй выбрать другую карточку.",
     "voice": "jane",
     "path": "/audio/tts/first-then/mistake-shoes-walk.mp3"
   },
@@ -1143,7 +1143,7 @@
   {
     "id": "first-then.mistake.toothbrush-bed",
     "game": "first-then",
-    "text": "Порядок такой: сначала чистим зубы, потом ложимся спать.",
+    "text": "Посмотри на порядок действий и попробуй выбрать другую карточку.",
     "voice": "jane",
     "path": "/audio/tts/first-then/mistake-toothbrush-bed.mp3"
   },
@@ -1164,7 +1164,7 @@
   {
     "id": "first-then.mistake.open-read",
     "game": "first-then",
-    "text": "Порядок такой: сначала открываем книгу, потом читаем.",
+    "text": "Посмотри на порядок действий и попробуй выбрать другую карточку.",
     "voice": "jane",
     "path": "/audio/tts/first-then/mistake-open-read.mp3"
   },
@@ -1185,7 +1185,7 @@
   {
     "id": "first-then.mistake.pour-drink",
     "game": "first-then",
-    "text": "Порядок такой: сначала наливаем воду, потом пьём.",
+    "text": "Посмотри на порядок действий и попробуй выбрать другую карточку.",
     "voice": "jane",
     "path": "/audio/tts/first-then/mistake-pour-drink.mp3"
   },
@@ -1206,7 +1206,7 @@
   {
     "id": "first-then.mistake.paint-clean",
     "game": "first-then",
-    "text": "Порядок такой: сначала рисуем, потом убираем карандаши.",
+    "text": "Посмотри на порядок действий и попробуй выбрать другую карточку.",
     "voice": "jane",
     "path": "/audio/tts/first-then/mistake-paint-clean.mp3"
   },
@@ -1227,7 +1227,7 @@
   {
     "id": "first-then.mistake.soap-rinse",
     "game": "first-then",
-    "text": "Порядок такой: сначала намыливаем руки, потом смываем пену.",
+    "text": "Посмотри на порядок действий и попробуй выбрать другую карточку.",
     "voice": "jane",
     "path": "/audio/tts/first-then/mistake-soap-rinse.mp3"
   },
@@ -1248,7 +1248,7 @@
   {
     "id": "first-then.mistake.sit-buckle",
     "game": "first-then",
-    "text": "Порядок такой: сначала садимся, потом пристёгиваемся.",
+    "text": "Посмотри на порядок действий и попробуй выбрать другую карточку.",
     "voice": "jane",
     "path": "/audio/tts/first-then/mistake-sit-buckle.mp3"
   },
@@ -6676,5 +6676,33 @@
     "text": "Готово. Утро, день и вечер собраны.",
     "voice": "jane",
     "path": "/audio/tts/day-routine/complete.mp3"
+  },
+  {
+    "id": "three-frame-story.prompt",
+    "game": "three-frame-story",
+    "text": "Собери историю из трёх кадров. Выбери, что будет первым.",
+    "voice": "jane",
+    "path": "/audio/tts/three-frame-story/prompt.mp3"
+  },
+  {
+    "id": "three-frame-story.correct",
+    "game": "three-frame-story",
+    "text": "Верно. История продолжается.",
+    "voice": "jane",
+    "path": "/audio/tts/three-frame-story/correct.mp3"
+  },
+  {
+    "id": "three-frame-story.mistake",
+    "game": "three-frame-story",
+    "text": "Посмотри на начало истории и попробуй выбрать другой кадр.",
+    "voice": "jane",
+    "path": "/audio/tts/three-frame-story/mistake.mp3"
+  },
+  {
+    "id": "three-frame-story.complete",
+    "game": "three-frame-story",
+    "text": "Готово. История собрана.",
+    "voice": "jane",
+    "path": "/audio/tts/three-frame-story/complete.mp3"
   }
 ]

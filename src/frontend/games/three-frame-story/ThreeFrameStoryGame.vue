@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, shallowRef, ref } from "vue";
+import { computed, onMounted, onUnmounted, shallowRef, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
@@ -13,7 +14,7 @@ import { generateThreeFrameStoryRound, type ThreeFrameStoryFrame } from "./model
 const threeFrameStoryFeedback = createStandardGameFeedback();
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("three-frame-story", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("three-frame-story", {
   maxSteps: 6,
   overrides: { sound: true },
   finishOnMistakes: false
@@ -22,11 +23,14 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 const round = shallowRef(generateThreeFrameStoryRound(session.step));
 const feedbackMessage = ref("Выбери первый кадр истории.");
 const pendingSelection = ref(false);
+const isSpeaking = ref(false);
 const wrongChoiceId = ref<string>();
 const successChoiceId = ref<string>();
+const promptAudio = useGamePromptAudio({ gameId: "three-frame-story", soundEnabled: toRef(session.settings, "sound") });
 let feedbackTimer = 0;
+let resultTimer = 0;
 
-const resultVisible = computed(() => session.status === "finished");
+const resultVisible = ref(false);
 const assembledFrames = computed(() => {
   if (successChoiceId.value === round.value.expectedFrame.id) return [...round.value.placedFrames, round.value.expectedFrame];
   return round.value.placedFrames;
@@ -41,12 +45,31 @@ function clearFeedbackTimer() {
   feedbackTimer = 0;
 }
 
+function clearResultTimer() {
+  window.clearTimeout(resultTimer);
+  resultTimer = 0;
+}
+
 function resetFeedback(message = "Выбери следующий кадр истории.") {
   clearFeedbackTimer();
   feedbackMessage.value = message;
   pendingSelection.value = false;
+  isSpeaking.value = false;
   wrongChoiceId.value = undefined;
   successChoiceId.value = undefined;
+}
+
+async function playPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["three-frame-story.prompt"], delayMs);
+  isSpeaking.value = false;
+}
+
+function showResultSoon(delayMs = 900) {
+  clearResultTimer();
+  resultTimer = window.setTimeout(() => {
+    resultVisible.value = true;
+  }, delayMs);
 }
 
 function refreshRound() {
@@ -63,8 +86,8 @@ function scheduleNextFrame() {
   }, 700);
 }
 
-function choose(choice: ThreeFrameStoryFrame) {
-  if (session.status !== "running" || pendingSelection.value) return;
+async function choose(choice: ThreeFrameStoryFrame) {
+  if (session.status !== "running" || pendingSelection.value || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice);
   const expectedTargetId = choiceTargetId(round.value.expectedFrame);
@@ -74,7 +97,6 @@ function choose(choice: ThreeFrameStoryFrame) {
     pendingSelection.value = true;
     successChoiceId.value = choice.id;
     feedbackMessage.value = choice.caption;
-    void threeFrameStoryFeedback.playSuccess(session.settings.sound);
     recordSuccess({
       roundId: round.value.roundId,
       targetId,
@@ -84,14 +106,18 @@ function choose(choice: ThreeFrameStoryFrame) {
       storyId: round.value.story.id,
       isCorrect: true
     });
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    void threeFrameStoryFeedback.playSuccess(session.settings.sound);
+    isSpeaking.value = true;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["three-frame-story.correct", "three-frame-story.complete"] : ["three-frame-story.correct"], 80, 170);
+    isSpeaking.value = false;
     if (session.status === "running") scheduleNextFrame();
     return;
   }
 
   pendingSelection.value = true;
   wrongChoiceId.value = choice.id;
-  feedbackMessage.value = `Этот кадр будет позже. Сейчас ищем: ${round.value.expectedFrame.label}.`;
-  void threeFrameStoryFeedback.playMistake(session.settings.sound);
+  feedbackMessage.value = "Посмотри на начало истории и попробуй выбрать другой кадр.";
   recordMistake({
     roundId: round.value.roundId,
     targetId,
@@ -101,7 +127,10 @@ function choose(choice: ThreeFrameStoryFrame) {
     storyId: round.value.story.id,
     isCorrect: false
   });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, expected: round.value.expectedFrame.label });
+  void threeFrameStoryFeedback.playMistake(session.settings.sound);
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["three-frame-story.mistake"], 80);
+  isSpeaking.value = false;
 
   feedbackTimer = window.setTimeout(() => {
     pendingSelection.value = false;
@@ -117,18 +146,39 @@ function choiceColor(choice: ThreeFrameStoryFrame) {
 }
 
 function restart() {
+  clearResultTimer();
+  promptAudio.cancelPending();
+  resultVisible.value = false;
   startSession();
   refreshRound();
   resetFeedback("Выбери первый кадр истории.");
+  void playPrompt(450);
 }
 
 onMounted(() => {
+  promptAudio.warm();
   threeFrameStoryFeedback.warm(session.settings.sound);
+  void playPrompt(450);
 });
 
 onUnmounted(() => {
   clearFeedbackTimer();
+  clearResultTimer();
+  promptAudio.cancelPending();
   threeFrameStoryFeedback.dispose();
+});
+
+watch(() => session.status, (status) => {
+  if (status === "finished") {
+    if (!isSpeaking.value) showResultSoon();
+  } else {
+    clearResultTimer();
+    resultVisible.value = false;
+  }
+});
+
+watch(isSpeaking, (speaking) => {
+  if (!speaking && session.status === "finished" && !resultVisible.value) showResultSoon();
 });
 </script>
 
@@ -169,7 +219,7 @@ onUnmounted(() => {
 
             <v-row justify="center">
               <v-col v-for="choice in round.choices" :key="choice.id" cols="4" sm="4">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="150" :color="choiceColor(choice)" @select="choose(choice)">
+                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="9rem" :color="choiceColor(choice)" @select="choose(choice)">
                   <template #default>
                     <div class="frame-emoji emoji-glyph">{{ choice.emoji }}</div>
                     <div class="text-h5 font-weight-bold mt-3">{{ choice.label }}</div>
@@ -188,17 +238,17 @@ onUnmounted(() => {
 <style scoped>
 .story-slots {
   display: grid;
-  gap: 18px;
+  gap: 1.125rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .story-slot {
   align-items: center;
-  border: 3px solid rgb(var(--v-theme-primary) / 16%);
+  border: 0.1875rem solid rgb(var(--v-theme-primary) / 16%);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-block-size: clamp(170px, 20vw, 240px);
+  min-block-size: clamp(10.625rem, 20vw, 15rem);
   position: relative;
   text-align: center;
 }
@@ -207,15 +257,15 @@ onUnmounted(() => {
   background: rgb(var(--v-theme-surface) / 78%);
   border-radius: 999px;
   font-weight: 800;
-  inset-block-start: 12px;
-  inset-inline-start: 12px;
-  min-inline-size: 34px;
-  padding: 4px 10px;
+  inset-block-start: 0.75rem;
+  inset-inline-start: 0.75rem;
+  min-inline-size: 2.125rem;
+  padding: 0.25rem 0.625rem;
   position: absolute;
 }
 
 .frame-emoji {
-  filter: drop-shadow(0 10px 12px rgb(0 0 0 / 14%));
+  filter: drop-shadow(0 0.625rem 0.75rem rgb(0 0 0 / 14%));
   font-size: clamp(4.5rem, 9vw, 7rem);
   line-height: 1;
 }
@@ -224,13 +274,13 @@ onUnmounted(() => {
   font-size: clamp(3.5rem, 7vw, 5.5rem);
 }
 
-@media (max-width: 700px) {
+@media (max-width: 43.75rem) {
   .story-slots {
-    gap: 10px;
+    gap: 0.625rem;
   }
 }
 
-@media (max-height: 920px) {
+@media (max-height: 57.5rem) {
   .story-slots {
     display: none;
   }
