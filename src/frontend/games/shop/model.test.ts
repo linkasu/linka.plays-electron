@@ -45,6 +45,15 @@ describe("generateShopRound", () => {
       expect(round.suggestedCoins.every((coin) => [1, 2, 5].includes(coin))).toBe(true);
     }
   });
+
+  it("uses injected randomness for target and choices", () => {
+    const settings = settingsFromPreset("standard");
+    const first = generateShopRound(settings, 1, () => 0);
+    const again = generateShopRound(settings, 1, () => 0);
+
+    expect(again.targetItem).toEqual(first.targetItem);
+    expect(again.choices.map((item) => item.id)).toEqual(first.choices.map((item) => item.id));
+  });
 });
 
 describe("buildShopPaymentSuggestion", () => {

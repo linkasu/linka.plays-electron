@@ -7376,5 +7376,89 @@
     "text": "Готово. Графики закончены.",
     "voice": "jane",
     "path": "/audio/tts/simple-graphs/complete.mp3"
+  },
+  {
+    "id": "number-bonds.prompt",
+    "game": "number-bonds",
+    "text": "Выбери недостающую часть.",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/prompt.mp3"
+  },
+  {
+    "id": "number-bonds.correct",
+    "game": "number-bonds",
+    "text": "Верно.",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/correct.mp3"
+  },
+  {
+    "id": "number-bonds.mistake",
+    "game": "number-bonds",
+    "text": "Посмотри на пример ещё раз и выбери другую часть.",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/mistake.mp3"
+  },
+  {
+    "id": "number-bonds.complete",
+    "game": "number-bonds",
+    "text": "Готово. Состав числа закончен.",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/complete.mp3"
+  },
+  {
+    "id": "shop.prompt",
+    "game": "shop",
+    "text": "Выбери товар или собери оплату монетами.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/prompt.mp3"
+  },
+  {
+    "id": "shop.correct",
+    "game": "shop",
+    "text": "Верно.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/correct.mp3"
+  },
+  {
+    "id": "shop.mistake",
+    "game": "shop",
+    "text": "Посмотри ещё раз и выбери другой вариант.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/mistake.mp3"
+  },
+  {
+    "id": "shop.complete",
+    "game": "shop",
+    "text": "Готово. Покупки закончены.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/complete.mp3"
+  },
+  {
+    "id": "coordinates.prompt",
+    "game": "coordinates",
+    "text": "Сначала найди букву сверху, потом цифру слева.",
+    "voice": "jane",
+    "path": "/audio/tts/coordinates/prompt.mp3"
+  },
+  {
+    "id": "coordinates.correct",
+    "game": "coordinates",
+    "text": "Верно.",
+    "voice": "jane",
+    "path": "/audio/tts/coordinates/correct.mp3"
+  },
+  {
+    "id": "coordinates.mistake",
+    "game": "coordinates",
+    "text": "Найди букву и цифру ещё раз, потом выбери другую клетку.",
+    "voice": "jane",
+    "path": "/audio/tts/coordinates/mistake.mp3"
+  },
+  {
+    "id": "coordinates.complete",
+    "game": "coordinates",
+    "text": "Готово. Координаты найдены.",
+    "voice": "jane",
+    "path": "/audio/tts/coordinates/complete.mp3"
   }
 ]

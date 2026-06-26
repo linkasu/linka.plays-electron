@@ -1,23 +1,30 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { coordinateColumns, coordinateRows, generateCoordinatesRound, type CoordinateCell } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("coordinates", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("coordinates", {
   maxSteps: 8,
-  overrides: { dwellMs: 1300, sessionSeconds: 130 },
+  overrides: { dwellMs: 1300, sessionSeconds: 130, sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "coordinates", soundEnabled, warmAssetIds: ["coordinates.prompt", "coordinates.correct", "coordinates.mistake", "coordinates.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const hintedRoundId = ref<string>();
 const lastMistakeCellId = ref<string>();
+const isSpeaking = ref(false);
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
@@ -25,18 +32,17 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
   generateRound: (roundIndex) => generateCoordinatesRound(roundIndex)
 });
 
-const hintedCellId = computed(() => hintedRoundId.value === round.value.roundId ? round.value.cells[round.value.correctIndex].id : undefined);
 const hintText = computed(() => {
   if (hintedRoundId.value !== round.value.roundId) return "Сначала найди букву сверху, потом цифру слева.";
-  return `Ничего страшного. Клетка ${round.value.target} мягко подсвечена.`;
+  return "Ничего страшного. Найди букву и цифру ещё раз, потом выбери другую клетку.";
 });
 
 function cellTargetId(cell: CoordinateCell) {
   return `coordinates:cell:${cell.coordinate}`;
 }
 
-function answer(cell: CoordinateCell) {
-  if (session.status !== "running") return;
+async function answer(cell: CoordinateCell) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const targetId = cellTargetId(cell);
   const expectedCell = round.value.cells[round.value.correctIndex];
@@ -45,21 +51,47 @@ function answer(cell: CoordinateCell) {
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: cell.coordinate, expected: round.value.target, actual: cell.coordinate, isCorrect: true });
     hintedRoundId.value = undefined;
     lastMistakeCellId.value = undefined;
+    isSpeaking.value = true;
+    void feedbackAudio.playSuccess();
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["coordinates.correct", "coordinates.complete"] : ["coordinates.correct"], 80, 170);
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      isSpeaking.value = false;
+      return;
+    }
     if (session.step < session.maxSteps) nextRound();
+    promptAudio.play("coordinates.prompt", 180);
+    isSpeaking.value = false;
     return;
   }
 
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: cell.coordinate, expected: round.value.target, actual: cell.coordinate, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "wrong-coordinate" });
   hintedRoundId.value = round.value.roundId;
   lastMistakeCellId.value = cell.id;
+  isSpeaking.value = true;
+  void feedbackAudio.playMistake();
+  await promptAudio.playSequenceAndWait(["coordinates.mistake"], 80);
+  isSpeaking.value = false;
 }
 
 function restart() {
+  promptAudio.cancelPending();
   hintedRoundId.value = undefined;
   lastMistakeCellId.value = undefined;
+  isSpeaking.value = false;
   restartRoundGame();
+  promptAudio.play("coordinates.prompt", 220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("coordinates.prompt", 420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -84,12 +116,12 @@ function restart() {
                 <GameDwellButton
                   v-for="cell in round.cells.filter((item) => item.row === row)"
                   :key="cell.id"
-                  :class="{ 'target-hint': hintedCellId === cell.id, 'mistake-cell': lastMistakeCellId === cell.id }"
+                  :class="{ 'mistake-cell': lastMistakeCellId === cell.id }"
                   :target-id="cellTargetId(cell)"
-                  :disabled="session.status !== 'running'"
+                  :disabled="session.status !== 'running' || isSpeaking"
                   :dwell-ms="session.settings.dwellMs"
                   min-height="clamp(6.25rem, 16vh, 9.5rem)"
-                  :color="hintedCellId === cell.id ? 'primary' : 'surface'"
+                  color="surface"
                   @select="answer(cell)"
                 >
                   <template #default>
@@ -103,7 +135,7 @@ function restart() {
             </div>
             <v-expand-transition>
               <v-alert v-if="hintedRoundId === round.roundId" class="mt-4 text-h6" color="primary" icon="mdi-grid-large" rounded="xl" variant="tonal">
-                Ошибка не страшна: правильная координата подсвечена, можно попробовать ещё раз.
+                Ошибка не страшна: можно спокойно попробовать ещё раз.
               </v-alert>
             </v-expand-transition>
           </v-card>
@@ -172,13 +204,37 @@ function restart() {
   font-weight: 700;
 }
 
-.target-hint {
-  filter: drop-shadow(0 0 1.15rem rgb(var(--v-theme-primary) / 42%));
-  transform: scale(1.03);
-}
-
 .mistake-cell {
   filter: saturate(0.72) opacity(0.78);
+}
+
+@media (min-width: 68.75rem) and (max-height: 58rem) {
+  .game-container {
+    padding-block-start: 4rem;
+  }
+
+  .coordinates-card {
+    padding-block: 1rem !important;
+  }
+
+  .coordinates-card h1 {
+    font-size: 3.35rem !important;
+    line-height: 1.05;
+  }
+
+  .coordinates-card p {
+    margin-block-end: 0.75rem !important;
+  }
+
+  .axis-label,
+  .corner-label {
+    min-block-size: 3.25rem;
+  }
+
+  .axis-label--row,
+  .coordinate-board :deep(.dwell-button) {
+    min-block-size: 7.25rem !important;
+  }
 }
 
 @media (max-height: 44rem) {

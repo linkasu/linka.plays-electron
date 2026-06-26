@@ -47,4 +47,14 @@ describe("generateNumberBondsRound", () => {
       expect(new Set(round.choices).size).toBe(round.choices.length);
     }
   });
+
+  it("uses injected randomness for parts and choices", () => {
+    const settings = settingsFromPreset("standard");
+    const first = generateNumberBondsRound(settings, 1, () => 0);
+    const again = generateNumberBondsRound(settings, 1, () => 0);
+
+    expect(again.total).toBe(first.total);
+    expect(again.knownPart).toBe(first.knownPart);
+    expect(again.choices).toEqual(first.choices);
+  });
 });

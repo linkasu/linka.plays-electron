@@ -1,5 +1,5 @@
 import type { SessionSettings } from "../../core/settings";
-import { shuffleItems } from "../../data/wordBank";
+import { shuffleItems } from "../../core/random";
 
 export type ShopTaskKind = "choose-item" | "pay-coins";
 
@@ -64,14 +64,14 @@ export function buildShopPaymentSuggestion(total: number): ShopCoinValue[] {
   return coins;
 }
 
-export function generateShopRound(settings: SessionSettings, roundIndex = 1): ShopRound {
+export function generateShopRound(settings: SessionSettings, roundIndex = 1, random = Math.random): ShopRound {
   const taskKind: ShopTaskKind = roundIndex % 2 === 0 ? "pay-coins" : "choose-item";
   const choiceCount = choiceCountFor(settings);
   if (shopItems.length < choiceCount) throw new Error("Недостаточно товаров для магазина.");
 
-  const [targetItem] = shuffleItems(shopItems).slice(0, 1);
-  const distractors = shuffleItems(shopItems.filter((item) => item.price !== targetItem.price)).slice(0, choiceCount - 1);
-  const choices = shuffleItems([targetItem, ...distractors]);
+  const [targetItem] = shuffleItems(shopItems, random).slice(0, 1);
+  const distractors = shuffleItems(shopItems.filter((item) => item.price !== targetItem.price), random).slice(0, choiceCount - 1);
+  const choices = shuffleItems([targetItem, ...distractors], random);
   const targetPrice = targetItem.price;
 
   return {

@@ -1,20 +1,26 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { generateNumberBondsRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("number-bonds", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("number-bonds", {
   maxSteps: 8,
-  overrides: { sound: false },
+  overrides: { sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "number-bonds", soundEnabled, warmAssetIds: ["number-bonds.prompt", "number-bonds.correct", "number-bonds.mistake", "number-bonds.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const { round, resultVisible, nextRound, restart } = useRoundGame({
   session,
@@ -24,41 +30,64 @@ const { round, resultVisible, nextRound, restart } = useRoundGame({
 
 const hint = ref("Выбери недостающую часть.");
 const lastMistakeTargetId = ref<string>();
+const isSpeaking = ref(false);
 const knownDots = computed(() => Array.from({ length: round.value.knownPart }, (_, index) => index));
-const missingDots = computed(() => Array.from({ length: round.value.missingPart }, (_, index) => index));
 
 function choiceTargetId(choice: number) {
   return `number-bonds:choice:${choice}`;
 }
 
-function answer(choice: number) {
-  if (session.status !== "running") return;
+async function answer(choice: number) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice);
   const expectedTargetId = choiceTargetId(round.value.missingPart);
   if (choice === round.value.missingPart) {
     lastMistakeTargetId.value = undefined;
     recordSuccess({ roundId: round.value.roundId, targetId, total: round.value.total, knownPart: round.value.knownPart, expected: round.value.missingPart, actual: choice, isCorrect: true });
-    if (session.step < session.maxSteps) {
-      hint.value = "Выбери недостающую часть.";
-      nextRound();
-    } else {
-      hint.value = "Верно. Части вместе дают нужное число.";
+    hint.value = "Верно.";
+    isSpeaking.value = true;
+    void feedbackAudio.playSuccess();
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["number-bonds.correct", "number-bonds.complete"] : ["number-bonds.correct"], 80, 170);
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      isSpeaking.value = false;
+      return;
     }
+    if (session.step < session.maxSteps) nextRound();
+    hint.value = "Выбери недостающую часть.";
+    promptAudio.play("number-bonds.prompt", 180);
+    isSpeaking.value = false;
     return;
   }
 
-  hint.value = `${round.value.knownPart} и ${choice} вместе дают ${round.value.knownPart + choice}. Нужно ${round.value.total}. Попробуй ещё.`;
+  hint.value = "Посмотри на пример ещё раз и выбери другую часть.";
   lastMistakeTargetId.value = targetId;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, total: round.value.total, knownPart: round.value.knownPart, expected: round.value.missingPart, actual: choice, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId, text: hint.value });
+  isSpeaking.value = true;
+  void feedbackAudio.playMistake();
+  await promptAudio.playSequenceAndWait(["number-bonds.mistake"], 80);
+  isSpeaking.value = false;
 }
 
 function restartGame() {
+  promptAudio.cancelPending();
   hint.value = "Выбери недостающую часть.";
   lastMistakeTargetId.value = undefined;
+  isSpeaking.value = false;
   restart();
+  promptAudio.play("number-bonds.prompt", 220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("number-bonds.prompt", 420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -90,7 +119,7 @@ function restartGame() {
                 <div class="part-card part-card--missing">
                   <div class="text-overline">Добавить</div>
                   <div class="dot-row">
-                    <span v-for="dot in missingDots" :key="`missing-${dot}`" class="bond-dot bond-dot--ghost" />
+                    <span class="bond-dot bond-dot--ghost">?</span>
                   </div>
                 </div>
               </div>
@@ -102,7 +131,7 @@ function restartGame() {
 
             <v-row class="choice-row" dense>
               <v-col v-for="choice in round.choices" :key="choice" cols="12" sm="6" md="3">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="190" color="surface" @select="answer(choice)">
+                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="190" color="surface" @select="answer(choice)">
                   <template #default>
                     <div :class="['choice-card', { 'choice-card--mistake': lastMistakeTargetId === choiceTargetId(choice) }]">
                       <div class="choice-card__number">{{ choice }}</div>
@@ -180,9 +209,14 @@ function restartGame() {
 }
 
 .bond-dot--ghost {
+  align-items: center;
   background: transparent;
   border: 0.18rem dashed rgb(255 255 255 / 78%);
   box-shadow: none;
+  color: #ffffff;
+  display: inline-flex;
+  font-weight: 900;
+  justify-content: center;
 }
 
 .choice-row {
@@ -244,9 +278,9 @@ function restartGame() {
   }
 }
 
-@media (max-height: 680px) {
+@media (max-height: 42.5rem) {
   .game-container {
-    padding-block-start: 104px;
+    padding-block-start: 6.5rem;
   }
 
   .number-bonds-card {
@@ -265,16 +299,6 @@ function restartGame() {
   }
 
   .bond-panel {
-    margin-block-end: 0.75rem !important;
-    order: 2;
-    padding: 0.75rem !important;
-  }
-
-  .bond-equation {
-    font-size: clamp(2.5rem, min(8vw, 9vh), 4.5rem);
-  }
-
-  .part-row {
     display: none;
   }
 }

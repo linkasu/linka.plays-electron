@@ -1,20 +1,26 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { generateShopRound, type ShopCoin, type ShopCoinValue, type ShopItem } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("shop", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("shop", {
   maxSteps: 8,
-  overrides: { dwellMs: 1300, sessionSeconds: 140, sound: false },
+  overrides: { dwellMs: 1300, sessionSeconds: 140, sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "shop", soundEnabled, warmAssetIds: ["shop.prompt", "shop.correct", "shop.mistake", "shop.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
@@ -25,6 +31,7 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
 const selectedCoins = ref<ShopCoinValue[]>([]);
 const feedback = ref("Выбери товар по цене или собери оплату монетами.");
 const lastMistakeTargetId = ref<string>();
+const isSpeaking = ref(false);
 
 const isPaymentRound = computed(() => round.value.taskKind === "pay-coins");
 const selectedTotal = computed(() => selectedCoins.value.reduce((sum, coin) => sum + coin, 0));
@@ -51,42 +58,60 @@ function resetSelection(text = round.value.helperText) {
   lastMistakeTargetId.value = undefined;
 }
 
-function recordSoftHint(targetId: string, text: string) {
+function setSoftHint(targetId: string, text: string) {
   feedback.value = text;
   lastMistakeTargetId.value = targetId;
-  recordHint({ roundId: round.value.roundId, targetId, text });
 }
 
-function advanceRound() {
+async function advanceRound() {
   selectedCoins.value = [];
   lastMistakeTargetId.value = undefined;
+  isSpeaking.value = true;
+  void feedbackAudio.playSuccess();
+  const finishedAfterSuccess = session.step >= session.maxSteps;
+  await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["shop.correct", "shop.complete"] : ["shop.correct"], 80, 170);
+  if (finishedAfterSuccess) {
+    finishSession("game-complete");
+    isSpeaking.value = false;
+    return;
+  }
   if (session.step < session.maxSteps) nextRound();
   feedback.value = round.value.helperText;
+  promptAudio.play("shop.prompt", 180);
+  isSpeaking.value = false;
 }
 
-function chooseItem(item: ShopItem) {
-  if (session.status !== "running" || round.value.taskKind !== "choose-item") return;
+async function chooseItem(item: ShopItem) {
+  if (session.status !== "running" || round.value.taskKind !== "choose-item" || isSpeaking.value) return;
 
   const targetId = itemTargetId(item.id);
   const expectedTargetId = itemTargetId(round.value.targetItem.id);
   if (item.id === round.value.targetItem.id) {
     recordSuccess({ roundId: round.value.roundId, targetId, prompt: round.value.prompt, expected: round.value.targetPrice, actual: item.price, itemId: item.id, isCorrect: true });
-    advanceRound();
+    await advanceRound();
     return;
   }
 
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, prompt: round.value.prompt, expected: round.value.targetPrice, actual: item.price, itemId: item.id, isCorrect: false });
-  recordSoftHint(targetId, `Почти. Нужен ценник ${round.value.targetPrice}. Попробуй ещё раз.`);
+  setSoftHint(targetId, "Посмотри на ценники ещё раз и выбери другой товар.");
+  isSpeaking.value = true;
+  void feedbackAudio.playMistake();
+  await promptAudio.playSequenceAndWait(["shop.mistake"], 80);
+  isSpeaking.value = false;
 }
 
-function addCoin(coin: ShopCoin) {
-  if (session.status !== "running" || !isPaymentRound.value) return;
+async function addCoin(coin: ShopCoin) {
+  if (session.status !== "running" || !isPaymentRound.value || isSpeaking.value) return;
 
   const targetId = coinTargetId(coin.value);
   const nextTotal = selectedTotal.value + coin.value;
   if (nextTotal > round.value.targetPrice) {
     recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId: actionTargetId("check"), expected: round.value.targetPrice, actual: nextTotal, selectedCoins: [...selectedCoins.value, coin.value], isCorrect: false, reason: "too-much" });
-    recordSoftHint(targetId, "Получилось больше цены. Можно очистить и собрать снова.");
+    setSoftHint(targetId, "Получилось больше цены. Можно очистить и собрать снова.");
+    isSpeaking.value = true;
+    void feedbackAudio.playMistake();
+    await promptAudio.playSequenceAndWait(["shop.mistake"], 80);
+    isSpeaking.value = false;
     return;
   }
 
@@ -96,29 +121,45 @@ function addCoin(coin: ShopCoin) {
 }
 
 function clearCoins() {
-  if (session.status !== "running" || selectedCoins.value.length === 0) return;
+  if (session.status !== "running" || isSpeaking.value || selectedCoins.value.length === 0) return;
   resetSelection("Монетки убраны. Собери цену ещё раз.");
 }
 
-function checkPayment() {
-  if (session.status !== "running" || !isPaymentRound.value) return;
+async function checkPayment() {
+  if (session.status !== "running" || !isPaymentRound.value || isSpeaking.value) return;
 
   const targetId = actionTargetId("check");
   const actual = selectedTotal.value;
   if (actual === round.value.targetPrice) {
     recordSuccess({ roundId: round.value.roundId, targetId, prompt: round.value.prompt, expected: round.value.targetPrice, actual, selectedCoins: [...selectedCoins.value], isCorrect: true });
-    advanceRound();
+    await advanceRound();
     return;
   }
 
   recordMistake({ roundId: round.value.roundId, targetId, expected: round.value.targetPrice, actual, selectedCoins: [...selectedCoins.value], isCorrect: false, reason: actual < round.value.targetPrice ? "not-enough" : "too-much" });
-  recordSoftHint(targetId, actual < round.value.targetPrice ? "Пока меньше цены. Добавь ещё монетку." : "Получилось больше цены. Очисти и попробуй снова.");
+  setSoftHint(targetId, actual < round.value.targetPrice ? "Пока меньше цены. Добавь ещё монетку." : "Получилось больше цены. Очисти и попробуй снова.");
+  isSpeaking.value = true;
+  void feedbackAudio.playMistake();
+  await promptAudio.playSequenceAndWait(["shop.mistake"], 80);
+  isSpeaking.value = false;
 }
 
 function restart() {
+  promptAudio.cancelPending();
+  isSpeaking.value = false;
   restartRoundGame();
   resetSelection(round.value.helperText);
+  promptAudio.play("shop.prompt", 220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("shop.prompt", 420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -136,7 +177,7 @@ function restart() {
 
             <v-row v-if="round.taskKind === 'choose-item'" class="choice-row" dense>
               <v-col v-for="item in round.choices" :key="item.id" class="shop-choice-col" cols="12" sm="6" lg="3">
-                <GameDwellButton :target-id="itemTargetId(item.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="230" color="surface" @select="chooseItem(item)">
+                <GameDwellButton :target-id="itemTargetId(item.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="230" color="surface" @select="chooseItem(item)">
                   <template #default>
                     <div :class="['item-card', { 'item-card--mistake': lastMistakeTargetId === itemTargetId(item.id) }]">
                       <div class="item-card__emoji emoji-glyph" aria-hidden="true">{{ item.emoji }}</div>
@@ -168,7 +209,7 @@ function restart() {
 
               <v-row class="coin-row" dense>
                 <v-col v-for="coin in selectedCoinCounts" :key="coin.value" cols="12" sm="4">
-                  <GameDwellButton :target-id="coinTargetId(coin.value)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="170" color="surface" @select="addCoin(coin)">
+                  <GameDwellButton :target-id="coinTargetId(coin.value)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="170" color="surface" @select="addCoin(coin)">
                     <template #default>
                       <div :class="['coin-card', { 'coin-card--mistake': lastMistakeTargetId === coinTargetId(coin.value) }]">
                         <div class="coin-card__value">{{ coin.label }}</div>
@@ -182,14 +223,14 @@ function restart() {
 
               <v-row class="action-row mt-2" dense>
                 <v-col cols="12" sm="5">
-                  <GameDwellButton :target-id="actionTargetId('clear')" :disabled="session.status !== 'running' || selectedCoins.length === 0" :dwell-ms="session.settings.dwellMs" :min-height="112" color="surface" @select="clearCoins">
+                  <GameDwellButton :target-id="actionTargetId('clear')" :disabled="session.status !== 'running' || isSpeaking || selectedCoins.length === 0" :dwell-ms="session.settings.dwellMs" :min-height="112" color="surface" @select="clearCoins">
                     <template #default>
                       <div class="text-h5 text-md-h4 font-weight-bold">Очистить</div>
                     </template>
                   </GameDwellButton>
                 </v-col>
                 <v-col cols="12" sm="7">
-                  <GameDwellButton :target-id="actionTargetId('check')" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="112" color="primary" @select="checkPayment">
+                  <GameDwellButton :target-id="actionTargetId('check')" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="112" color="primary" @select="checkPayment">
                     <template #default>
                       <div class="d-flex align-center justify-center ga-3 text-h5 text-md-h4 font-weight-bold">
                         <v-icon icon="mdi-check" size="42" />
