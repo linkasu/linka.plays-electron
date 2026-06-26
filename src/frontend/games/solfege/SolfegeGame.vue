@@ -19,7 +19,7 @@ const blackKeyLayout = [
 const router = useRouter();
 const audioEnabled = ref(true);
 const noteSequence = ref(generateSolfegeSequence());
-const notePeakGain = 0.8;
+const notePeakGain = 0.16;
 const pendingSelection = ref(false);
 const successNoteId = ref<string>();
 const successStep = ref<number>();
@@ -196,6 +196,11 @@ onMounted(() => {
               <v-btn :aria-label="audioEnabled ? 'Выключить звук' : 'Включить звук'" :icon="audioEnabled ? 'mdi-volume-low' : 'mdi-volume-off'" color="primary" rounded="xl" size="large" variant="tonal" @click="toggleAudio" />
             </div>
 
+            <div class="solfege-instruction text-center mb-3">
+              <h1 class="text-h4 text-md-h3 font-weight-bold">Слушай ноту</h1>
+              <p class="text-body-1 text-medium-emphasis mb-0">Выбери белую клавишу с таким же звуком.</p>
+            </div>
+
             <v-card class="score-card pa-4 pa-md-5 mb-5" color="indigo-lighten-5" rounded="xl" variant="flat">
               <div class="score-staff" aria-label="Прогресс по нотам октавы">
                 <div v-for="line in 5" :key="line" class="staff-line" />
@@ -275,6 +280,7 @@ onMounted(() => {
 .solfege-panel {
   background: rgb(255 252 245 / 94%);
   overflow: hidden;
+  position: relative;
 }
 
 .score-card,
@@ -285,6 +291,14 @@ onMounted(() => {
 .top-controls {
   display: flex;
   justify-content: flex-end;
+  inset-block-start: 0.5rem;
+  inset-inline-end: 0.5rem;
+  position: absolute;
+  z-index: 2;
+}
+
+.solfege-instruction {
+  padding-inline: 4.5rem;
 }
 
 .score-staff {
@@ -470,6 +484,10 @@ onMounted(() => {
     padding: 1rem !important;
   }
 
+  .solfege-instruction p {
+    display: none;
+  }
+
   .piano-frame {
     padding: 16px 12px 12px;
   }
@@ -496,6 +514,53 @@ onMounted(() => {
 
   .score-staff {
     block-size: 150px;
+  }
+}
+
+@media (max-width: 75rem) {
+  .black-keys {
+    display: none;
+  }
+
+  .solfege-panel,
+  .piano-card {
+    padding: 0.5rem !important;
+  }
+
+  .piano-frame {
+    border-radius: 1.25rem;
+    padding: 0.25rem;
+  }
+
+  .white-keyboard {
+    gap: 0.125rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    min-block-size: min(58dvh, 24rem);
+  }
+
+  .white-key {
+    border-radius: 1rem;
+    padding-block-end: 0;
+  }
+
+  .white-key-target :deep(.dwell-progress) {
+    --dwell-size: min(7rem, 70%) !important;
+  }
+}
+
+@media (max-width: 75rem) and (max-height: 47.5rem) {
+  .white-keyboard {
+    min-block-size: 23.5rem;
+  }
+}
+
+@media (min-width: 75.001rem) {
+  .piano-frame {
+    padding-inline: 0.5rem;
+  }
+
+  .white-keyboard {
+    gap: 0;
   }
 }
 </style>
