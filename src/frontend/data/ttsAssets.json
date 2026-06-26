@@ -7460,5 +7460,89 @@
     "text": "Готово. Координаты найдены.",
     "voice": "jane",
     "path": "/audio/tts/coordinates/complete.mp3"
+  },
+  {
+    "id": "shapes.prompt",
+    "game": "shapes",
+    "text": "Выбери подходящую большую карточку.",
+    "voice": "jane",
+    "path": "/audio/tts/shapes/prompt.mp3"
+  },
+  {
+    "id": "shapes.correct",
+    "game": "shapes",
+    "text": "Верно.",
+    "voice": "jane",
+    "path": "/audio/tts/shapes/correct.mp3"
+  },
+  {
+    "id": "shapes.mistake",
+    "game": "shapes",
+    "text": "Посмотри на форму ещё раз и выбери другую карточку.",
+    "voice": "jane",
+    "path": "/audio/tts/shapes/mistake.mp3"
+  },
+  {
+    "id": "shapes.complete",
+    "game": "shapes",
+    "text": "Готово. Формы выбраны.",
+    "voice": "jane",
+    "path": "/audio/tts/shapes/complete.mp3"
+  },
+  {
+    "id": "color-shape.prompt",
+    "game": "color-shape",
+    "text": "Выбери карточку, где совпадают и цвет, и форма.",
+    "voice": "jane",
+    "path": "/audio/tts/color-shape/prompt.mp3"
+  },
+  {
+    "id": "color-shape.correct",
+    "game": "color-shape",
+    "text": "Верно.",
+    "voice": "jane",
+    "path": "/audio/tts/color-shape/correct.mp3"
+  },
+  {
+    "id": "color-shape.mistake",
+    "game": "color-shape",
+    "text": "Проверь цвет и форму ещё раз, потом выбери другую карточку.",
+    "voice": "jane",
+    "path": "/audio/tts/color-shape/mistake.mp3"
+  },
+  {
+    "id": "color-shape.complete",
+    "game": "color-shape",
+    "text": "Готово. Цвет и форма выбраны.",
+    "voice": "jane",
+    "path": "/audio/tts/color-shape/complete.mp3"
+  },
+  {
+    "id": "math-actions.prompt",
+    "game": "math-actions",
+    "text": "Введи ответ и нажми галочку.",
+    "voice": "jane",
+    "path": "/audio/tts/math-actions/prompt.mp3"
+  },
+  {
+    "id": "math-actions.correct",
+    "game": "math-actions",
+    "text": "Верно.",
+    "voice": "jane",
+    "path": "/audio/tts/math-actions/correct.mp3"
+  },
+  {
+    "id": "math-actions.mistake",
+    "game": "math-actions",
+    "text": "Попробуй ещё раз и введи другой ответ.",
+    "voice": "jane",
+    "path": "/audio/tts/math-actions/mistake.mp3"
+  },
+  {
+    "id": "math-actions.complete",
+    "game": "math-actions",
+    "text": "Готово. Примеры закончены.",
+    "voice": "jane",
+    "path": "/audio/tts/math-actions/complete.mp3"
   }
 ]

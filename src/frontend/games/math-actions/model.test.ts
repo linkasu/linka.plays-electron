@@ -88,4 +88,12 @@ describe("generateMathRound", () => {
       }
     }
   });
+
+  it("uses injected randomness for deterministic expressions", () => {
+    const first = generateMathRound(settingsFromPreset("standard"), 1, () => 0);
+    const again = generateMathRound(settingsFromPreset("standard"), 1, () => 0);
+
+    expect(again.expression).toBe(first.expression);
+    expect(again.answerText).toBe(first.answerText);
+  });
 });

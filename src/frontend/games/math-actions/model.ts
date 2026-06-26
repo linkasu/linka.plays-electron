@@ -1,4 +1,5 @@
 import type { SessionSettings } from "../../core/settings";
+import { randomInt } from "../../core/random";
 
 export type MathRound = {
   roundId: string;
@@ -7,17 +8,17 @@ export type MathRound = {
   answerText: string;
 };
 
-export function generateMathRound(settings: SessionSettings, roundIndex = 1): MathRound {
+export function generateMathRound(settings: SessionSettings, roundIndex = 1, random = Math.random): MathRound {
   const max = settings.preset === "gentle" ? 5 : 20;
-  const subtraction = settings.preset !== "gentle" && Math.random() >= 0.5;
+  const subtraction = settings.preset !== "gentle" && random() >= 0.5;
   if (subtraction) {
-    const a = 2 + Math.floor(Math.random() * (max - 1));
-    const b = 1 + Math.floor(Math.random() * (a - 1));
+    const a = randomInt(2, max, random);
+    const b = randomInt(1, a - 1, random);
     const answer = a - b;
     return { roundId: `math-actions:round:${roundIndex}`, expression: `${a} - ${b}`, answer, answerText: String(answer) };
   }
-  const a = 1 + Math.floor(Math.random() * max);
-  const b = 1 + Math.floor(Math.random() * max);
+  const a = randomInt(1, max, random);
+  const b = randomInt(1, max, random);
   const answer = a + b;
   return { roundId: `math-actions:round:${roundIndex}`, expression: `${a} + ${b}`, answer, answerText: String(answer) };
 }

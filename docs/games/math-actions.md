@@ -10,6 +10,8 @@
 
 Показан арифметический пример. Ребёнок вводит ответ через gaze-friendly numpad.
 
+Текущая версия держит ошибку в том же примере, не показывает правильный ответ и озвучивает только мягкий повтор.
+
 ## Игровой цикл
 
 ```text
@@ -52,6 +54,20 @@
 - Генератор сложения и вычитания.
 - Numpad.
 - Проверка ответа.
+
+## Реализация
+
+| Проверка | Состояние |
+|---|---|
+| Route в router | есть |
+| Vue-компонент | `MathActionsGame.vue` |
+| Model | `model.ts` |
+| Model test | `model.test.ts` |
+| Audio module | стандартный feedback, TTS через `useGamePromptAudio` |
+
+## Готовность
+
+Игра требует review-ready проверки через Electron CDP/PNG перед approve.
 
 ## Therapy-ready
 

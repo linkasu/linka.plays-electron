@@ -19,9 +19,9 @@
 
 ## Назначение
 
-undefined
+Найти заданную форму среди крупных карточек. Ошибка оставляет тот же раунд и не называет правильную карточку сверх текущего задания.
 
-Самостоятельная формулировка для меню: undefined
+Самостоятельная формулировка для меню: выбери форму.
 
 ## Игровой цикл
 
@@ -57,7 +57,7 @@ undefined
 | Vue-компонент | `ShapesGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
-| Audio module | нет |
+| Audio module | стандартный feedback, TTS через `useGamePromptAudio` |
 | Runtime audit doc | `docs/tests/2026-06-10/shapes.md` |
 
 ## Готовность
@@ -66,7 +66,7 @@ undefined
 
 Автоматические blockers:
 
-- missing-game-doc
+- нет
 
 ## QA checklist
 

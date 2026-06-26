@@ -1,19 +1,26 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { generateColorShapeRound, getColorShapeMismatch, type ColorShapeItem, type ColorShapeRound, type ColorShapeTrait } from "./model";
+import { generateColorShapeRound, type ColorShapeItem, type ColorShapeRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("color-shape", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("color-shape", {
   maxSteps: 8,
+  overrides: { sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "color-shape", soundEnabled, warmAssetIds: ["color-shape.prompt", "color-shape.correct", "color-shape.mistake", "color-shape.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<ColorShapeRound>({
   session,
@@ -23,33 +30,23 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
 
 const hintedRoundId = ref<string>();
 const lastMistake = ref<ColorShapeItem>();
-
-const mismatchTraits = computed<ColorShapeTrait[]>(() => {
-  if (hintedRoundId.value !== round.value.roundId || !lastMistake.value) return [];
-  return getColorShapeMismatch(lastMistake.value, round.value.target);
-});
+const isSpeaking = ref(false);
 
 const hintText = computed(() => {
-  if (mismatchTraits.value.length === 0) return "Выбери карточку, где совпадают и цвет, и форма.";
-  if (mismatchTraits.value.length === 2) return `Нужны оба признака вместе: ${round.value.target.label}.`;
-  if (mismatchTraits.value[0] === "color") return `Форма подходит. Посмотри на цвет: ${round.value.target.color.label}.`;
-  return `Цвет подходит. Посмотри на форму: ${round.value.target.shape.label}.`;
+  if (hintedRoundId.value !== round.value.roundId) return "Выбери карточку, где совпадают и цвет, и форма.";
+  return "Проверь цвет и форму ещё раз, потом выбери другую карточку.";
 });
 
 function choiceTargetId(choiceId: string) {
   return `color-shape:choice:${choiceId}`;
 }
 
-function isTargetTraitHint(choice: ColorShapeItem, trait: ColorShapeTrait) {
-  return hintedRoundId.value === round.value.roundId && choice.id === round.value.target.id && mismatchTraits.value.includes(trait);
-}
-
 function isMistakeChoice(choice: ColorShapeItem) {
   return hintedRoundId.value === round.value.roundId && choice.id === lastMistake.value?.id;
 }
 
-function answer(choice: ColorShapeItem) {
-  if (session.status !== "running") return;
+async function answer(choice: ColorShapeItem) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice.id);
   const expectedTargetId = choiceTargetId(round.value.target.id);
@@ -57,22 +54,47 @@ function answer(choice: ColorShapeItem) {
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: true });
     hintedRoundId.value = undefined;
     lastMistake.value = undefined;
+    isSpeaking.value = true;
+    void feedbackAudio.playSuccess();
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["color-shape.correct", "color-shape.complete"] : ["color-shape.correct"], 80, 170);
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      isSpeaking.value = false;
+      return;
+    }
     if (session.step < session.maxSteps) nextRound();
+    promptAudio.play("color-shape.prompt", 180);
+    isSpeaking.value = false;
     return;
   }
 
-  const traits = getColorShapeMismatch(choice, round.value.target);
   hintedRoundId.value = round.value.roundId;
   lastMistake.value = choice;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: `wrong-${traits.join("-")}` });
+  isSpeaking.value = true;
+  void feedbackAudio.playMistake();
+  await promptAudio.playSequenceAndWait(["color-shape.mistake"], 80);
+  isSpeaking.value = false;
 }
 
 function restart() {
+  promptAudio.cancelPending();
   hintedRoundId.value = undefined;
   lastMistake.value = undefined;
+  isSpeaking.value = false;
   restartRoundGame();
+  promptAudio.play("color-shape.prompt", 220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("color-shape.prompt", 420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -87,11 +109,11 @@ function restart() {
             <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5" role="status">{{ hintText }}</p>
 
             <v-row class="choice-grid" justify="center" dense>
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6" :md="round.choices.length <= 3 ? 4 : 3">
-                <GameDwellButton :class="{ 'target-hint': hintedRoundId === round.roundId && choice.id === round.target.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="round.choices.length >= 5 ? 215 : 235" @select="answer(choice)">
+              <v-col v-for="choice in round.choices" :key="choice.id" class="color-shape-choice-col" cols="12" sm="6" :md="round.choices.length <= 3 ? 4 : 3">
+                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="round.choices.length >= 5 ? 215 : 235" @select="answer(choice)">
                   <template #default>
-                    <div :class="['object-choice', { 'object-choice--mistake': isMistakeChoice(choice) }]">
-                      <div :class="['shape-panel', { 'shape-panel--hinted': isTargetTraitHint(choice, 'shape') }]">
+                      <div :class="['object-choice', { 'object-choice--mistake': isMistakeChoice(choice) }]">
+                       <div class="shape-panel">
                         <svg class="shape-svg" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
                           <circle v-if="choice.shape.id === 'circle'" cx="60" cy="60" r="42" :fill="choice.color.hex" />
                           <rect v-else-if="choice.shape.id === 'square'" x="22" y="22" width="76" height="76" rx="10" :fill="choice.color.hex" />
@@ -117,7 +139,7 @@ function restart() {
 
             <v-expand-transition>
               <v-alert v-if="hintedRoundId === round.roundId" class="mt-5 text-h6" color="primary" icon="mdi-shape-outline" rounded="xl" variant="tonal">
-                Ошибка не завершает игру. Подсвечен признак, который нужно проверить ещё раз.
+                Ошибка не завершает игру. Можно спокойно попробовать ещё раз.
               </v-alert>
             </v-expand-transition>
           </v-card>
@@ -171,12 +193,6 @@ function restart() {
   transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
-.shape-panel--hinted {
-  border-color: rgb(var(--v-theme-primary));
-  box-shadow: 0 0 0 0.35rem rgb(var(--v-theme-primary) / 16%);
-  transform: scale(1.04);
-}
-
 .shape-svg {
   block-size: clamp(5.5rem, min(14vw, 18vh), 8.75rem);
   filter: drop-shadow(0 0.4rem 0.45rem rgb(15 23 42 / 16%));
@@ -199,23 +215,55 @@ function restart() {
   inline-size: 1rem;
 }
 
-.target-hint {
-  filter: drop-shadow(0 0 1.15rem rgb(var(--v-theme-primary) / 38%));
-  transform: scale(1.03);
-}
-
 @media (max-height: 44rem) {
   .game-container {
     padding-block-start: 5rem;
   }
 
+  .color-shape-card {
+    padding: 1rem !important;
+  }
+
+  .color-shape-card .text-overline,
+  .color-shape-card p,
+  .color-shape-card .v-alert {
+    display: none;
+  }
+
+  .color-shape-card h1 {
+    font-size: 2.45rem !important;
+    line-height: 1.05;
+    margin-block-end: 0.75rem !important;
+  }
+
+  .color-shape-choice-col {
+    flex: 0 0 25% !important;
+    max-inline-size: 25% !important;
+  }
+
   .choice-grid :deep(.dwell-button) {
-    min-block-size: 12rem !important;
+    min-block-size: 8.75rem !important;
+    padding: 0.4rem !important;
   }
 
   .shape-svg {
-    block-size: clamp(4.5rem, min(11vw, 14vh), 6.25rem);
-    inline-size: clamp(4.5rem, min(11vw, 14vh), 6.25rem);
+    block-size: 4rem;
+    inline-size: 4rem;
+  }
+
+  .shape-panel {
+    border-radius: 1.1rem;
+    padding: 0.35rem;
+  }
+
+  .object-choice .text-h5 {
+    font-size: 1.05rem !important;
+    line-height: 1.1;
+    margin-block-start: 0.35rem !important;
+  }
+
+  .trait-row {
+    display: none;
   }
 }
 </style>

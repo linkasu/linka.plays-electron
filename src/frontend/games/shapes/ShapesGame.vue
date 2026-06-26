@@ -1,19 +1,26 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { generateShapesRound, type ShapeId, type ShapeOption, type ShapesRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("shapes", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("shapes", {
   maxSteps: 8,
-  overrides: { dwellMs: 1200, sessionSeconds: 120, sound: false }
+  overrides: { dwellMs: 1200, sessionSeconds: 120, sound: true },
+  finishOnMaxSteps: false,
+  finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "shapes", soundEnabled, warmAssetIds: ["shapes.prompt", "shapes.correct", "shapes.mistake", "shapes.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<ShapesRound>({
   session,
@@ -22,6 +29,8 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
 });
 
 const hintText = ref("");
+const lastMistakeId = ref<ShapeId>();
+const isSpeaking = ref(false);
 
 const shapeView: Record<ShapeId, { color: string; label: string }> = {
   circle: { color: "#0f766e", label: "Круг" },
@@ -34,28 +43,58 @@ function choiceTargetId(choiceId: ShapeId) {
   return `shapes:choice:${choiceId}`;
 }
 
-function choose(choice: ShapeOption, index: number) {
-  if (session.status !== "running") return;
+async function choose(choice: ShapeOption, index: number) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice.id);
   const expectedTargetId = choiceTargetId(round.value.target.id);
 
   if (index === round.value.correctIndex) {
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.id, actual: choice.id, isCorrect: true });
-    hintText.value = "";
+    hintText.value = "Верно.";
+    lastMistakeId.value = undefined;
+    isSpeaking.value = true;
+    void feedbackAudio.playSuccess();
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["shapes.correct", "shapes.complete"] : ["shapes.correct"], 80, 170);
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      isSpeaking.value = false;
+      return;
+    }
     if (session.step < session.maxSteps) nextRound();
+    hintText.value = "";
+    promptAudio.play("shapes.prompt", 180);
+    isSpeaking.value = false;
     return;
   }
 
-  hintText.value = `Почти. Нужна форма: ${shapeView[round.value.target.id].label.toLowerCase()}.`;
+  hintText.value = "Посмотри на форму ещё раз и выбери другую карточку.";
+  lastMistakeId.value = choice.id;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.id, actual: choice.id, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, hint: hintText.value });
+  isSpeaking.value = true;
+  void feedbackAudio.playMistake();
+  await promptAudio.playSequenceAndWait(["shapes.mistake"], 80);
+  isSpeaking.value = false;
 }
 
 function restart() {
+  promptAudio.cancelPending();
   hintText.value = "";
+  lastMistakeId.value = undefined;
+  isSpeaking.value = false;
   restartRoundGame();
+  promptAudio.play("shapes.prompt", 220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("shapes.prompt", 420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -72,9 +111,9 @@ function restart() {
             </v-alert>
             <v-row class="choice-row" justify="center">
               <v-col v-for="(choice, index) in round.choices" :key="choice.id" cols="6" md="3" class="choice-col">
-                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="190" @select="choose(choice, index)">
+                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="190" @select="choose(choice, index)">
                   <template #default>
-                    <div class="shape-wrap" :aria-label="shapeView[choice.id].label">
+                    <div :class="['shape-wrap', { 'shape-wrap--mistake': lastMistakeId === choice.id }]" :aria-label="shapeView[choice.id].label">
                       <svg class="shape-svg" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
                         <circle v-if="choice.id === 'circle'" cx="60" cy="60" r="42" :fill="shapeView[choice.id].color" />
                         <rect v-else-if="choice.id === 'square'" x="22" y="22" width="76" height="76" rx="8" :fill="shapeView[choice.id].color" />
@@ -135,6 +174,10 @@ function restart() {
   justify-content: center;
 }
 
+.shape-wrap--mistake {
+  filter: saturate(0.72) opacity(0.78);
+}
+
 .shape-svg {
   block-size: clamp(5.5rem, min(16vw, 22vh), 9.5rem);
   filter: drop-shadow(0 0.35rem 0.4rem rgb(15 23 42 / 18%));
@@ -154,7 +197,43 @@ function restart() {
 
 @media (max-height: 40rem) {
   .game-container {
-    padding-block-start: 7.25rem;
+    padding-block-start: 5rem;
+  }
+
+  .shapes-card {
+    padding: 1rem !important;
+  }
+
+  .shapes-card .text-overline,
+  .shapes-card .v-alert {
+    display: none;
+  }
+
+  .shapes-card h1 {
+    font-size: 2.55rem !important;
+    line-height: 1.05;
+    margin-block-end: 0.75rem !important;
+  }
+
+  .choice-col {
+    flex: 0 0 25% !important;
+    max-inline-size: 25% !important;
+    min-inline-size: 0;
+  }
+
+  .choice-row :deep(.dwell-button) {
+    min-block-size: 8.25rem !important;
+    padding: 0.45rem !important;
+  }
+
+  .shape-svg {
+    block-size: 4.75rem;
+    inline-size: 4.75rem;
+  }
+
+  .shape-wrap .text-h5 {
+    font-size: 1.2rem !important;
+    line-height: 1.1;
   }
 }
 </style>
