@@ -12,9 +12,10 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateWhoIsThisRound, type WhoIsThisChoice } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("who-is-this", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("who-is-this", {
   maxSteps: 8,
   overrides: { sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 const soundEnabled = toRef(session.settings, "sound");
@@ -22,11 +23,10 @@ const promptAudio = useGamePromptAudio({
   gameId: "who-is-this",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: ["who-is-this.prompt"]
+  warmAssetIds: ["who-is-this.prompt", "who-is-this.mistake", "who-is-this.complete"]
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
-const hintedRoundId = ref<string>();
 const lastMistakeId = ref<string>();
 const isSpeaking = ref(false);
 
@@ -36,10 +36,9 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
   generateRound: (roundIndex) => generateWhoIsThisRound(session.settings, roundIndex)
 });
 
-const hintedChoiceId = computed(() => hintedRoundId.value === round.value.roundId ? round.value.target.id : undefined);
 const feedbackText = computed(() => {
-  if (hintedRoundId.value !== round.value.roundId) return "Посмотри на картинку и выбери подходящее слово.";
-  return `Ничего страшного. Здесь подходит: ${round.value.target.label}.`;
+  if (lastMistakeId.value) return "Посмотри на картинку ещё раз и выбери другое слово.";
+  return "Посмотри на картинку и выбери подходящее слово.";
 });
 
 function choiceTargetId(choiceId: string) {
@@ -48,10 +47,6 @@ function choiceTargetId(choiceId: string) {
 
 function correctAssetId() {
   return `who-is-this.correct.${round.value.target.id}`;
-}
-
-function mistakeAssetId() {
-  return `who-is-this.mistake.${round.value.target.id}`;
 }
 
 async function playRoundPrompt(delayMs = 0) {
@@ -68,10 +63,15 @@ async function choose(choice: WhoIsThisChoice) {
   if (choice.id === round.value.target.id) {
     isSpeaking.value = true;
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: true });
-    hintedRoundId.value = undefined;
     lastMistakeId.value = undefined;
     void pianoFeedback.playSuccess();
-    await promptAudio.playSequenceAndWait([correctAssetId()], 80);
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [correctAssetId(), "who-is-this.complete"] : [correctAssetId()], 80, 170);
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      isSpeaking.value = false;
+      return;
+    }
     if (session.status === "running" && session.step < session.maxSteps) {
       nextRound();
       await playRoundPrompt(180);
@@ -83,16 +83,13 @@ async function choose(choice: WhoIsThisChoice) {
 
   isSpeaking.value = true;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, text: `Можно выбрать: ${round.value.target.label}.`, reason: "wrong-person-selected" });
-  hintedRoundId.value = round.value.roundId;
   lastMistakeId.value = choice.id;
   void pianoFeedback.playMistake();
-  await promptAudio.playSequenceAndWait([mistakeAssetId()], 80);
+  await promptAudio.playSequenceAndWait(["who-is-this.mistake"], 80);
   isSpeaking.value = false;
 }
 
 function restart() {
-  hintedRoundId.value = undefined;
   lastMistakeId.value = undefined;
   isSpeaking.value = false;
   promptAudio.cancelPending();
@@ -120,6 +117,9 @@ onUnmounted(() => {
             <div class="text-overline text-secondary text-center mb-2">AAC-словарь</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
             <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5">{{ feedbackText }}</p>
+            <div class="compact-picture" :style="{ '--person-color': round.target.color }" aria-hidden="true">
+              <v-icon class="compact-picture__icon" :icon="round.target.icon" />
+            </div>
 
             <v-row align="stretch" class="main-row" dense>
               <v-col class="picture-col" cols="12" md="5">
@@ -137,7 +137,7 @@ onUnmounted(() => {
               <v-col class="choices-col" cols="12" md="7">
                 <v-row class="choice-grid" dense>
                   <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6">
-                    <GameDwellButton :class="{ 'choice-hint': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="205" :color="hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="choose(choice)">
+                    <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="12.8125rem" color="surface" @select="choose(choice)">
                       <template #default="{ active, progress }">
                         <div :class="['choice-content', { 'choice-content--mistake': choice.id === lastMistakeId }]">
                           <v-icon class="choice-icon" :color="choice.color" :icon="choice.icon" />
@@ -151,11 +151,6 @@ onUnmounted(() => {
               </v-col>
             </v-row>
 
-            <v-expand-transition>
-              <v-alert v-if="hintedRoundId === round.roundId" class="mt-5 text-h6" color="primary" icon="mdi-check-circle-outline" rounded="xl" variant="tonal">
-                Ошибка мягкая: верный ответ подсвечен. Переведи взгляд на карточку «{{ round.target.label }}».
-              </v-alert>
-            </v-expand-transition>
           </v-card>
         </v-col>
       </v-row>
@@ -188,6 +183,23 @@ onUnmounted(() => {
   justify-content: center;
   min-block-size: 26rem;
   text-align: center;
+}
+
+.compact-picture {
+  align-items: center;
+  background: color-mix(in srgb, var(--person-color) 16%, white 84%);
+  border: 0.25rem solid color-mix(in srgb, var(--person-color) 45%, white 55%);
+  border-radius: 999rem;
+  display: none;
+  inline-size: min(9rem, 24vw);
+  justify-content: center;
+  margin: 0 auto 0.65rem;
+  padding: 0.45rem;
+}
+
+.compact-picture__icon {
+  color: var(--person-color);
+  font-size: clamp(3rem, 9vh, 4.25rem);
 }
 
 .portrait {
@@ -229,11 +241,6 @@ onUnmounted(() => {
   transform: scale(0.96);
 }
 
-.choice-hint {
-  filter: drop-shadow(0 0 1.2rem rgb(var(--v-theme-primary) / 42%));
-  transform: scale(1.03);
-}
-
 @media (max-height: 44rem) {
   .game-container {
     padding-block-start: 7.5rem;
@@ -244,9 +251,9 @@ onUnmounted(() => {
   }
 }
 
-@media (max-height: 680px) {
+@media (max-height: 42.5rem) {
   .game-container {
-    padding-block-start: 104px;
+    padding-block-start: 5rem;
   }
 
   .who-card {
@@ -258,27 +265,40 @@ onUnmounted(() => {
     display: none;
   }
 
-  .choices-col {
-    order: -1;
+  .who-card > h1 {
+    font-size: clamp(1.8rem, 5.4vh, 2.25rem) !important;
+    line-height: 1.05;
+    margin-block-end: 0.55rem !important;
   }
 
-  .picture-card {
-    min-block-size: 10rem;
-    padding: 0.75rem !important;
+  .compact-picture {
+    display: flex;
   }
 
-  .picture-card .v-chip,
-  .picture-card .text-h6 {
+  .main-row {
+    row-gap: 0 !important;
+  }
+
+  .picture-col {
     display: none;
   }
 
-  .portrait {
-    inline-size: min(12rem, 30vw);
-    padding: 0.75rem;
+  .choice-grid {
+    row-gap: 0.35rem;
   }
 
-  .portrait-icon {
-    font-size: clamp(4rem, 9vw, 6rem);
+  .choice-content,
+  .who-card :deep(.dwell-button) {
+    min-block-size: 7.85rem !important;
+  }
+
+  .choice-icon {
+    font-size: clamp(2.9rem, 7.8vh, 4rem);
+  }
+
+  .choice-content .text-h4 {
+    font-size: clamp(1.5rem, 4.8vh, 2rem) !important;
+    margin-block-start: 0.45rem !important;
   }
 }
 </style>

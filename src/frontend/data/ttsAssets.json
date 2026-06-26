@@ -6886,5 +6886,19 @@
     "text": "Готово. Действия выбраны.",
     "voice": "jane",
     "path": "/audio/tts/object-action/complete.mp3"
+  },
+  {
+    "id": "who-is-this.mistake",
+    "game": "who-is-this",
+    "text": "Посмотри на картинку ещё раз и выбери другое слово.",
+    "voice": "jane",
+    "path": "/audio/tts/who-is-this/mistake.mp3"
+  },
+  {
+    "id": "who-is-this.complete",
+    "game": "who-is-this",
+    "text": "Готово. Слова выбраны.",
+    "voice": "jane",
+    "path": "/audio/tts/who-is-this/complete.mp3"
   }
 ]
