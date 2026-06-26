@@ -28,12 +28,11 @@ describe("opposites model", () => {
     expect(round.source.id).not.toBe(round.target.id);
   });
 
-  it("includes the source word and target hint in texts", () => {
+  it("includes the source word without storing an answer-revealing hint", () => {
     const round = generateOppositesRound(settingsFromPreset("standard"), 1, () => 0.5);
 
     expect(round.prompt).toContain(round.source.label);
-    expect(round.mistakeHint).toContain(round.source.label);
-    expect(round.mistakeHint).toContain(round.target.label);
+    expect("mistakeHint" in round).toBe(false);
   });
 
   it("uses the random source for pair and source side", () => {

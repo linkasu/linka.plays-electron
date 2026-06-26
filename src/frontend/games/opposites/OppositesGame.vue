@@ -12,9 +12,10 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateOppositesRound, type OppositeConcept, type OppositesRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("opposites", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("opposites", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 125, sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 const soundEnabled = toRef(session.settings, "sound");
@@ -22,7 +23,7 @@ const promptAudio = useGamePromptAudio({
   gameId: "opposites",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: ["opposites.prompt.hot", "opposites.prompt.big", "opposites.prompt.day"]
+  warmAssetIds: ["opposites.prompt.hot", "opposites.prompt.big", "opposites.prompt.day", "opposites.mistake", "opposites.complete"]
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
@@ -36,7 +37,6 @@ const feedbackMessage = ref("Выбери слово с противополож
 const pendingSelection = ref(false);
 const wrongChoiceId = ref<string>();
 const successChoiceId = ref<string>();
-const hintedChoiceId = ref<string>();
 let feedbackTimer = 0;
 
 function choiceTargetId(choice: OppositeConcept) {
@@ -52,7 +52,7 @@ function correctAssetId() {
 }
 
 function mistakeAssetId() {
-  return `opposites.mistake.${round.value.source.id}.${round.value.target.id}`;
+  return "opposites.mistake";
 }
 
 async function playRoundPrompt(delayMs = 0) {
@@ -72,7 +72,6 @@ function resetFeedback() {
   pendingSelection.value = false;
   wrongChoiceId.value = undefined;
   successChoiceId.value = undefined;
-  hintedChoiceId.value = undefined;
 }
 
 async function choose(index: number) {
@@ -87,11 +86,17 @@ async function choose(index: number) {
   if (index === round.value.correctIndex) {
     pendingSelection.value = true;
     successChoiceId.value = choice.id;
-    hintedChoiceId.value = undefined;
     feedbackMessage.value = `Верно. ${round.value.source.label} и ${choice.label} — противоположности.`;
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: true, pairId: round.value.pairId });
     void pianoFeedback.playSuccess();
-    await promptAudio.playSequenceAndWait([correctAssetId()], 80);
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [correctAssetId(), "opposites.complete"] : [correctAssetId()], 80, 170);
+
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      pendingSelection.value = false;
+      return;
+    }
 
     if (session.status === "running" && session.step < session.maxSteps) {
       nextRound();
@@ -105,10 +110,8 @@ async function choose(index: number) {
 
   pendingSelection.value = true;
   wrongChoiceId.value = choice.id;
-  hintedChoiceId.value = round.value.target.id;
-  feedbackMessage.value = round.value.mistakeHint;
+  feedbackMessage.value = "Посмотри на слово ещё раз и выбери другую карточку.";
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: false, pairId: round.value.pairId });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "mistake", pairId: round.value.pairId });
   void pianoFeedback.playMistake();
   await promptAudio.playSequenceAndWait([mistakeAssetId()], 80);
   pendingSelection.value = false;
@@ -118,7 +121,6 @@ async function choose(index: number) {
 function choiceColor(choice: OppositeConcept) {
   if (successChoiceId.value === choice.id) return "green-lighten-4";
   if (wrongChoiceId.value === choice.id) return "orange-lighten-4";
-  if (hintedChoiceId.value === choice.id) return "primary";
   return "surface";
 }
 
@@ -181,7 +183,7 @@ onUnmounted(() => {
 }
 
 .game-container {
-  padding-block-start: 132px;
+  padding-block-start: 8.25rem;
 }
 
 .source-card {
@@ -204,9 +206,54 @@ onUnmounted(() => {
   line-height: 1;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 37.5rem) {
   .game-container {
-    padding-block-start: 156px;
+    padding-block-start: 9.75rem;
+  }
+}
+
+@media (max-height: 42rem) {
+  .game-container {
+    padding-block-start: 4rem;
+  }
+
+  .game-container :deep(.v-card) {
+    padding: 1rem !important;
+  }
+
+  .game-container :deep(.v-card > .text-overline) {
+    display: none;
+  }
+
+  .game-container h1 {
+    font-size: clamp(1.8rem, 5vh, 2.25rem) !important;
+    line-height: 1.05;
+    margin-block-end: 0.45rem !important;
+  }
+
+  .game-container p {
+    margin-block-end: 0.75rem !important;
+  }
+
+  .source-card {
+    flex-direction: row;
+    gap: 0.75rem;
+    inline-size: min(18rem, 64vw);
+    margin-block-end: 0.75rem !important;
+    min-block-size: 4.75rem;
+    padding: 0.75rem !important;
+  }
+
+  .source-emoji {
+    font-size: clamp(2.5rem, 8vh, 3.75rem);
+  }
+
+  .choice-emoji {
+    font-size: clamp(2.5rem, 8vh, 3.75rem);
+  }
+
+  .game-container :deep(.dwell-button) {
+    min-block-size: 8.5rem !important;
   }
 }
 </style>

@@ -11,9 +11,10 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateWhatFirstRound, type WhatFirstAction, type WhatFirstRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("what-first", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("what-first", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 125, sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 const soundEnabled = toRef(session.settings, "sound");
@@ -21,7 +22,7 @@ const promptAudio = useGamePromptAudio({
   gameId: "what-first",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: ["what-first.prompt.wash-eat", "what-first.prompt.shoes-walk", "what-first.prompt.brush-sleep"]
+  warmAssetIds: ["what-first.prompt.wash-eat", "what-first.prompt.shoes-walk", "what-first.prompt.brush-sleep", "what-first.mistake", "what-first.complete"]
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
@@ -49,7 +50,7 @@ function correctAssetId() {
 }
 
 function mistakeAssetId() {
-  return `what-first.mistake.${round.value.scene.id}`;
+  return "what-first.mistake";
 }
 
 async function playRoundPrompt(delayMs = 0) {
@@ -99,7 +100,16 @@ async function choose(action: WhatFirstAction) {
     });
     feedback.value = `Верно: сначала ${action.phrase}.`;
     void pianoFeedback.playSuccess();
-    await promptAudio.playSequenceAndWait([correctAssetId()], 80);
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [correctAssetId(), "what-first.complete"] : [correctAssetId()], 80, 170);
+
+    if (finishedAfterSuccess) {
+      feedback.value = "Готово. Порядок действий стал понятнее.";
+      finishSession("game-complete");
+      resetHighlights();
+      isChangingRound.value = false;
+      return;
+    }
 
     if (session.status === "running") {
       setNextRound();
@@ -125,8 +135,7 @@ async function choose(action: WhatFirstAction) {
     sceneId: round.value.scene.id,
     isCorrect: false
   });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, text: round.value.explanation });
-  feedback.value = `Почти. ${round.value.explanation}`;
+  feedback.value = "Посмотри на сцену ещё раз и выбери другое действие.";
   void pianoFeedback.playMistake();
   await promptAudio.playSequenceAndWait([mistakeAssetId()], 80);
   wrongChoiceId.value = undefined;
@@ -209,7 +218,7 @@ onUnmounted(() => {
 }
 
 .game-container {
-  padding-block-start: 132px;
+  padding-block-start: 8.25rem;
 }
 
 .scene-emojis {
@@ -227,45 +236,82 @@ onUnmounted(() => {
   line-height: 1;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 37.5rem) {
   .game-container {
-    padding-block-start: 156px;
+    padding-block-start: 9.75rem;
+  }
+}
+
+@media (max-height: 58rem) {
+  .what-first-card .text-center,
+  .what-first-card .v-alert {
+    margin-block-end: 1rem !important;
+  }
+
+  .scene-emojis,
+  .choice-emoji {
+    font-size: clamp(3.5rem, 8vw, 5.5rem);
+  }
+
+  .choice-phrase {
+    display: none;
   }
 }
 
 @media (max-height: 42rem) {
   .game-container {
-    padding-block-start: 56px;
+    padding-block-start: 3.5rem;
   }
 
   .what-first-card {
-    padding: 1rem !important;
+    padding: 0.75rem !important;
+  }
+
+  .what-first-card > .text-overline {
+    display: none;
   }
 
   .what-first-card h1 {
-    font-size: 2.35rem !important;
+    font-size: clamp(1.8rem, 5.4vh, 2.25rem) !important;
     line-height: 1.05;
     margin-block-end: 0.25rem !important;
   }
 
   .what-first-card .text-center {
-    margin-block-end: 0.75rem !important;
+    margin-block-end: 0.45rem !important;
   }
 
   .what-first-card .v-alert {
-    margin-block-end: 0.75rem !important;
+    margin-block-end: 0.45rem !important;
+    padding: 0.55rem !important;
   }
 
   .scene-emojis {
-    font-size: clamp(3rem, 8vw, 4.5rem);
+    display: none;
+  }
+
+  .scene-context,
+  .what-first-card .v-alert .text-h6 {
+    font-size: 1rem !important;
+    line-height: 1.15;
   }
 
   .choice-emoji {
-    font-size: clamp(3.5rem, 8vw, 5.25rem);
+    font-size: clamp(2.5rem, 7vh, 3.75rem);
+  }
+
+  .what-first-card :deep(.dwell-button .text-h3) {
+    font-size: clamp(1.55rem, 5vh, 2rem) !important;
+    line-height: 1.05;
+  }
+
+  .what-first-card :deep(.dwell-button .v-chip),
+  .choice-phrase {
+    display: none;
   }
 
   .game-container :deep(.dwell-button) {
-    min-block-size: 7.75rem !important;
+    min-block-size: 8rem !important;
   }
 }
 </style>

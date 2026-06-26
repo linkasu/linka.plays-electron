@@ -10,8 +10,8 @@
 | Route | `/games/opposites` |
 | Категория | `language-aac` — Слова и AAC |
 | Status | `therapy-ready` |
-| Resolved stability | `publish` |
-| Readiness group | `ready` |
+| Resolved stability | `development` |
+| Readiness group | `needs-check` |
 | Skills | AAC, выбор, словарь, классификация |
 | Recommended session | 125 сек |
 | Min target size | 190 px |
@@ -19,9 +19,9 @@
 
 ## Назначение
 
-undefined
+Выбрать противоположное слово из крупных AAC-карточек. Ошибка не подсвечивает и не озвучивает правильную карточку.
 
-Самостоятельная формулировка для меню: undefined
+Самостоятельная формулировка для меню: найди противоположность.
 
 ## Игровой цикл
 
@@ -57,16 +57,16 @@ undefined
 | Vue-компонент | `OppositesGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
-| Audio module | нет |
+| Audio module | стандартный feedback, TTS через `useGamePromptAudio` |
 | Runtime audit doc | `docs/tests/2026-06-10/opposites.md` |
 
 ## Готовность
 
-Игра находится в группе `ready`, потому что resolved stability равен `publish`.
+Игра находится в группе `needs-check`, пока проходит batch review.
 
 Автоматические blockers:
 
-- нет
+- `stability:needs-check`
 
 ## QA checklist
 
@@ -79,4 +79,4 @@ undefined
 
 ## Next step
 
-Оставить в ready-очереди и проверять регрессии через общий Electron CDP audit.
+Проверить в Electron CDP на 800×600/1024×600 и визуально подтвердить PNG перед approve.

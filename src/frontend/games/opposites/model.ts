@@ -21,7 +21,6 @@ export type OppositesRound = {
   choices: OppositeConcept[];
   correctIndex: number;
   pairId: string;
-  mistakeHint: string;
 };
 
 function concept(id: string, label: string, emoji: string, tone: string): OppositeConcept {
@@ -60,7 +59,6 @@ export function generateOppositesRound(settings: SessionSettings, roundIndex = 1
     target,
     choices,
     correctIndex: choices.indexOf(target),
-    pairId: pair.id,
-    mistakeHint: `Почти. Противоположность к слову «${source.label}» — «${target.label}».`
+    pairId: pair.id
   };
 }

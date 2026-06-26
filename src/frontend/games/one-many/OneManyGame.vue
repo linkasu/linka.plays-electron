@@ -12,9 +12,10 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateOneManyRound, type OneManyAnswer, type OneManyChoice, type OneManyRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("one-many", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("one-many", {
   maxSteps: 8,
   overrides: { sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 const soundEnabled = toRef(session.settings, "sound");
@@ -22,7 +23,7 @@ const promptAudio = useGamePromptAudio({
   gameId: "one-many",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: ["one-many.prompt.one", "one-many.prompt.many", "one-many.mistake.one", "one-many.mistake.many"]
+  warmAssetIds: ["one-many.prompt.one", "one-many.prompt.many", "one-many.mistake", "one-many.complete"]
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
@@ -39,10 +40,6 @@ function choiceTargetId(answer: OneManyAnswer) {
   return `one-many:choice:${answer}`;
 }
 
-function expectedChoice() {
-  return round.value.choices.find((choice) => choice.id === round.value.target);
-}
-
 function promptAssetId() {
   return `one-many.prompt.${round.value.target}`;
 }
@@ -52,7 +49,7 @@ function correctAssetId() {
 }
 
 function mistakeAssetId() {
-  return `one-many.mistake.${round.value.target}`;
+  return "one-many.mistake";
 }
 
 async function playRoundPrompt(delayMs = 0) {
@@ -65,7 +62,6 @@ async function choose(choice: OneManyChoice) {
   if (session.status !== "running" || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice.id);
-  const expected = expectedChoice();
   const expectedTargetId = choiceTargetId(round.value.target);
 
   if (choice.id === round.value.target) {
@@ -81,7 +77,13 @@ async function choose(choice: OneManyChoice) {
       isCorrect: true
     });
     void pianoFeedback.playSuccess();
-    await promptAudio.playSequenceAndWait([correctAssetId()], 80);
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [correctAssetId(), "one-many.complete"] : [correctAssetId()], 80, 170);
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      isSpeaking.value = false;
+      return;
+    }
     if (session.status === "running" && session.step < session.maxSteps) {
       nextRound();
       feedback.value = "Следующий выбор: один или много.";
@@ -93,8 +95,7 @@ async function choose(choice: OneManyChoice) {
   }
 
   isSpeaking.value = true;
-  const hint = expected ? `Посмотри на карточку «${expected.shortTitle}».` : "Попробуй другую карточку.";
-  feedback.value = `Ничего страшного. ${hint}`;
+  feedback.value = "Посмотри на предметы ещё раз и выбери другую карточку.";
   recordMistake({
     roundId: round.value.roundId,
     targetId,
@@ -105,7 +106,6 @@ async function choose(choice: OneManyChoice) {
     actual: choice.id,
     isCorrect: false
   });
-  recordHint({ roundId: round.value.roundId, text: hint });
   void pianoFeedback.playMistake();
   await promptAudio.playSequenceAndWait([mistakeAssetId()], 80);
   isSpeaking.value = false;

@@ -7019,5 +7019,47 @@
     "text": "Спасибо. Я услышал твой выбор.",
     "voice": "jane",
     "path": "/audio/tts/want-dont-want/complete.mp3"
+  },
+  {
+    "id": "one-many.mistake",
+    "game": "one-many",
+    "text": "Посмотри на предметы ещё раз и выбери другую карточку.",
+    "voice": "jane",
+    "path": "/audio/tts/one-many/mistake.mp3"
+  },
+  {
+    "id": "one-many.complete",
+    "game": "one-many",
+    "text": "Готово. Количество выбрано.",
+    "voice": "jane",
+    "path": "/audio/tts/one-many/complete.mp3"
+  },
+  {
+    "id": "opposites.mistake",
+    "game": "opposites",
+    "text": "Посмотри на слово ещё раз и выбери другую карточку.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake.mp3"
+  },
+  {
+    "id": "opposites.complete",
+    "game": "opposites",
+    "text": "Готово. Противоположности выбраны.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/complete.mp3"
+  },
+  {
+    "id": "what-first.mistake",
+    "game": "what-first",
+    "text": "Посмотри на сцену ещё раз и выбери другое действие.",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/mistake.mp3"
+  },
+  {
+    "id": "what-first.complete",
+    "game": "what-first",
+    "text": "Готово. Порядок действий стал понятнее.",
+    "voice": "jane",
+    "path": "/audio/tts/what-first/complete.mp3"
   }
 ]
