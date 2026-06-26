@@ -11,16 +11,17 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { buildIWantPhrase, generateIWantRound, iWantCards, type IWantCard, type IWantRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSessionFor("i-want", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession, finishSession } = useGameSessionFor("i-want", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 120, targetScale: 1.05 },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 const promptAudio = useGamePromptAudio({
   gameId: "i-want",
   soundEnabled: toRef(session.settings, "sound"),
   volume: 0.34,
-  warmAssetIds: ["i-want.intro", "i-want.next"]
+  warmAssetIds: ["i-want.intro", "i-want.next", "i-want.complete"]
 });
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<IWantRound>({
@@ -64,7 +65,15 @@ async function choose(card: IWantCard) {
     noFail: true
   });
   feedback.value = `Ты сказал: «Я хочу ${card.phrase}». Спасибо, я понял.`;
-  await promptAudio.playSequenceAndWait([phraseAssetId(card)], 80);
+  const finishedAfterSuccess = session.step >= session.maxSteps;
+  await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [phraseAssetId(card), "i-want.complete"] : [phraseAssetId(card)], 80, 170);
+
+  if (finishedAfterSuccess) {
+    feedback.value = "Спасибо. Я услышал твои желания.";
+    finishSession("game-complete");
+    isChangingRound.value = false;
+    return;
+  }
 
   if (session.status === "running") {
     nextRound();

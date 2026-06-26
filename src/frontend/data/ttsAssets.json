@@ -6991,5 +6991,33 @@
     "text": "Готово. Ответы выбраны.",
     "voice": "jane",
     "path": "/audio/tts/eat-or-not-eat/complete.mp3"
+  },
+  {
+    "id": "big-small.mistake",
+    "game": "big-small",
+    "text": "Посмотри на размеры ещё раз и выбери другую карточку.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/mistake.mp3"
+  },
+  {
+    "id": "big-small.complete",
+    "game": "big-small",
+    "text": "Готово. Размеры выбраны.",
+    "voice": "jane",
+    "path": "/audio/tts/big-small/complete.mp3"
+  },
+  {
+    "id": "i-want.complete",
+    "game": "i-want",
+    "text": "Спасибо. Я услышал твои желания.",
+    "voice": "jane",
+    "path": "/audio/tts/i-want/complete.mp3"
+  },
+  {
+    "id": "want-dont-want.complete",
+    "game": "want-dont-want",
+    "text": "Спасибо. Я услышал твой выбор.",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/complete.mp3"
   }
 ]

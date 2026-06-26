@@ -11,16 +11,17 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateWantDontWantRound, type WantDontWantAnswer, type WantDontWantRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSessionFor("want-dont-want", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession, finishSession } = useGameSessionFor("want-dont-want", {
   maxSteps: 9,
   overrides: { preset: "gentle", dwellMs: 1300, sessionSeconds: 120, targetScale: 1.2 },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 const promptAudio = useGamePromptAudio({
   gameId: "want-dont-want",
   soundEnabled: toRef(session.settings, "sound"),
   volume: 0.34,
-  warmAssetIds: ["want-dont-want.intro", "want-dont-want.next"]
+  warmAssetIds: ["want-dont-want.intro", "want-dont-want.next", "want-dont-want.complete"]
 });
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<WantDontWantRound>({
@@ -59,7 +60,15 @@ async function answer(value: WantDontWantAnswer) {
     isCorrect: true
   });
   feedback.value = `Ты сказал: «${choice.confirmation} ${round.value.item.title}». Спасибо, я понял.`;
-  await promptAudio.playSequenceAndWait([phraseAssetId(value)], 80);
+  const finishedAfterSuccess = session.step >= session.maxSteps;
+  await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [phraseAssetId(value), "want-dont-want.complete"] : [phraseAssetId(value)], 80, 170);
+
+  if (finishedAfterSuccess) {
+    feedback.value = "Спасибо. Я услышал твой выбор.";
+    finishSession("game-complete");
+    isChangingRound.value = false;
+    return;
+  }
 
   if (session.status === "running" && session.step < session.maxSteps) {
     nextRound();

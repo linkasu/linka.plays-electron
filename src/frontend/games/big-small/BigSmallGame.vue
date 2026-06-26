@@ -12,9 +12,10 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateBigSmallRound, type BigSmallChoice, type BigSmallRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("big-small", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("big-small", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 120, sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 const soundEnabled = toRef(session.settings, "sound");
@@ -22,7 +23,7 @@ const promptAudio = useGamePromptAudio({
   gameId: "big-small",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: ["big-small.mistake.big", "big-small.mistake.small"]
+  warmAssetIds: ["big-small.mistake", "big-small.complete"]
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
@@ -48,7 +49,7 @@ function correctAssetId() {
 }
 
 function mistakeAssetId() {
-  return `big-small.mistake.${round.value.targetSize}`;
+  return "big-small.mistake";
 }
 
 async function playRoundPrompt(delayMs = 0) {
@@ -71,7 +72,13 @@ async function choose(index: number) {
     mistakenChoiceId.value = undefined;
     recordSuccess({ roundId: round.value.roundId, targetId, prompt: round.value.prompt, objectId: choice.id, expected: round.value.targetSize, actual: choice.size, isCorrect: true });
     void pianoFeedback.playSuccess();
-    await promptAudio.playSequenceAndWait([correctAssetId()], 80);
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [correctAssetId(), "big-small.complete"] : [correctAssetId()], 80, 170);
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      isSpeaking.value = false;
+      return;
+    }
     if (session.status === "running" && session.step < session.maxSteps) {
       nextRound();
       await playRoundPrompt(180);
@@ -83,9 +90,8 @@ async function choose(index: number) {
 
   isSpeaking.value = true;
   mistakenChoiceId.value = choice.choiceId;
-  hint.value = round.value.mistakeHint;
+  hint.value = "Посмотри на размеры ещё раз и выбери другую карточку.";
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, prompt: round.value.prompt, objectId: choice.id, expected: round.value.targetSize, actual: choice.size, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, text: hint.value });
   void pianoFeedback.playMistake();
   await promptAudio.playSequenceAndWait([mistakeAssetId()], 80);
   isSpeaking.value = false;

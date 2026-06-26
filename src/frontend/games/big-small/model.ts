@@ -24,7 +24,6 @@ export type BigSmallRound = {
   object: BigSmallObject;
   choices: BigSmallChoice[];
   correctIndex: number;
-  mistakeHint: string;
 };
 
 export const bigSmallObjects: BigSmallObject[] = [
@@ -70,7 +69,6 @@ export function generateBigSmallRound(_settings: SessionSettings, roundIndex = 1
     targetPhrase,
     object,
     choices,
-    correctIndex: choices.findIndex((choice) => choice.choiceId === correctChoiceId),
-    mistakeHint: targetSize === "big" ? "Почти. Нужен большой объект." : "Почти. Нужен маленький объект."
+    correctIndex: choices.findIndex((choice) => choice.choiceId === correctChoiceId)
   };
 }
