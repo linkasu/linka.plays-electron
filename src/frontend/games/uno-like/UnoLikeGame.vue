@@ -1,16 +1,26 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { generateUnoLikeRound, getUnoLikeMatchTraits, isUnoLikePlayable, type UnoLikeCard, type UnoLikeRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("uno-like", { maxSteps: 10, finishOnMistakes: false });
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("uno-like", {
+  maxSteps: 10,
+  overrides: { sound: true },
+  finishOnMaxSteps: false,
+  finishOnMistakes: false
+});
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "uno-like", soundEnabled, warmAssetIds: ["uno-like.prompt", "uno-like.correct", "uno-like.mistake", "uno-like.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<UnoLikeRound>({
   session,
@@ -20,59 +30,73 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
 
 const hintedRoundId = ref<string>();
 const lastMistakeId = ref<string>();
+const isSpeaking = ref(false);
 
-const playableCards = computed(() => round.value.choices.filter((card) => round.value.playableIds.includes(card.id)));
 const helperText = computed(() => {
   if (hintedRoundId.value !== round.value.roundId) return round.value.instruction;
-  return `Почти. Подойдут: ${playableCards.value.map((card) => card.label).join(", ")}. Ошибка не завершает игру.`;
+  return "Почти. Сравни цвет и число открытой карты ещё раз, потом выбери другую карточку.";
 });
 
 function cardTargetId(card: UnoLikeCard) {
   return `uno-like:card:${card.id}`;
 }
 
-function matchLabel(card: UnoLikeCard) {
-  const traits = getUnoLikeMatchTraits(card, round.value.openCard);
-  if (traits.length === 2) return "цвет и число";
-  if (traits[0] === "color") return "цвет";
-  if (traits[0] === "number") return "число";
-  return "другая карта";
-}
-
-function isHinted(card: UnoLikeCard) {
-  return hintedRoundId.value === round.value.roundId && round.value.playableIds.includes(card.id);
-}
-
-function choose(card: UnoLikeCard) {
-  if (session.status !== "running") return;
+async function choose(card: UnoLikeCard) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const targetId = cardTargetId(card);
   if (isUnoLikePlayable(card, round.value.openCard)) {
+    const finishedAfterSuccess = session.step + 1 >= session.maxSteps;
     const matchTraits = getUnoLikeMatchTraits(card, round.value.openCard);
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: card.id, expected: round.value.playableIds, actual: card.label, matchTraits, isCorrect: true });
     hintedRoundId.value = undefined;
     lastMistakeId.value = undefined;
+    isSpeaking.value = true;
+    void feedbackAudio.playSuccess();
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["uno-like.correct", "uno-like.complete"] : ["uno-like.correct"], 80, 170);
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      isSpeaking.value = false;
+      return;
+    }
     if (session.step < session.maxSteps) nextRound();
+    promptAudio.play("uno-like.prompt", 180);
+    isSpeaking.value = false;
     return;
   }
 
   hintedRoundId.value = round.value.roundId;
   lastMistakeId.value = card.id;
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetIds: round.value.playableIds.map((id) => `uno-like:card:${id}`), answerId: card.id, expected: round.value.playableIds, actual: card.label, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetIds: round.value.playableIds.map((id) => `uno-like:card:${id}`), reason: "no-color-or-number-match", text: helperText.value });
+  recordMistake({ roundId: round.value.roundId, targetId, answerId: card.id, actual: card.label, isCorrect: false });
+  recordHint({ roundId: round.value.roundId, targetId, reason: "no-color-or-number-match", text: "Сравнить цвет или число с открытой картой." });
+  isSpeaking.value = true;
+  void feedbackAudio.playMistake();
+  await promptAudio.playSequenceAndWait(["uno-like.mistake"], 80);
+  isSpeaking.value = false;
 }
 
 function cardButtonColor(card: UnoLikeCard) {
-  if (isHinted(card)) return "primary";
   if (lastMistakeId.value === card.id) return "orange-lighten-4";
   return "surface";
 }
 
 function restart() {
+  promptAudio.cancelPending();
   hintedRoundId.value = undefined;
   lastMistakeId.value = undefined;
+  isSpeaking.value = false;
   restartRoundGame();
+  promptAudio.play("uno-like.prompt", 220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("uno-like.prompt", 420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -88,7 +112,7 @@ function restart() {
                 <h1 class="text-h3 text-md-h2 font-weight-bold mb-2">{{ round.prompt }}</h1>
                 <p class="text-h6 text-medium-emphasis mb-0" role="status">{{ helperText }}</p>
               </div>
-              <v-avatar color="primary" rounded="xl" size="78">
+              <v-avatar color="primary" rounded="xl" size="4.875rem">
                 <v-icon icon="mdi-cards-playing-outline" size="48" />
               </v-avatar>
             </div>
@@ -108,7 +132,7 @@ function restart() {
               <v-col cols="12" md="8">
                 <v-row class="choice-grid" dense>
                   <v-col v-for="card in round.choices" :key="card.id" cols="6" sm="3" :lg="round.choices.length >= 5 ? 4 : 6">
-                    <GameDwellButton :class="{ 'target-hint': isHinted(card) }" :target-id="cardTargetId(card)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="170" :color="cardButtonColor(card)" @select="choose(card)">
+                    <GameDwellButton :target-id="cardTargetId(card)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="clamp(8.75rem, 23vh, 10.625rem)" :color="cardButtonColor(card)" @select="choose(card)">
                       <template #default>
                         <div :class="['choice-card', { 'choice-card--mistake': lastMistakeId === card.id }]">
                           <div class="uno-card" :style="{ borderColor: card.color.hex }">
@@ -116,7 +140,6 @@ function restart() {
                             <div class="uno-card__number">{{ card.number }}</div>
                           </div>
                           <div class="choice-label text-body-1 text-md-h6 font-weight-bold mt-2">{{ card.label }}</div>
-                          <div class="match-pill mt-2">{{ matchLabel(card) }}</div>
                         </div>
                       </template>
                     </GameDwellButton>
@@ -127,7 +150,7 @@ function restart() {
 
             <v-expand-transition>
               <v-alert v-if="hintedRoundId === round.roundId" class="mt-5 text-h6" color="primary" icon="mdi-heart-outline" rounded="xl" variant="tonal">
-                Посмотри на цвет и число открытой карты. Подходящие варианты мягко подсвечены.
+                Посмотри на цвет и число открытой карты. Ошибка не страшна: можно спокойно выбрать другую карточку.
               </v-alert>
             </v-expand-transition>
           </v-card>
@@ -183,16 +206,6 @@ function restart() {
   text-align: center;
 }
 
-.match-pill {
-  background: #1b5e20;
-  border-radius: 0.75rem;
-  color: #fff;
-  font-size: 0.82rem;
-  font-weight: 800;
-  line-height: 1.1;
-  padding: 0.35rem 0.55rem;
-}
-
 .uno-card {
   align-items: center;
   aspect-ratio: 0.72;
@@ -228,11 +241,6 @@ function restart() {
   margin-block-end: auto;
 }
 
-.target-hint {
-  filter: drop-shadow(0 0 1.15rem rgb(var(--v-theme-primary) / 42%));
-  transform: scale(1.03);
-}
-
 @media (max-height: 44rem) {
   .game-container {
     padding-block-start: 5rem;
@@ -243,9 +251,9 @@ function restart() {
   }
 }
 
-@media (max-height: 820px) {
+@media (max-height: 51.25rem) {
   .game-container {
-    padding-block-start: 5rem;
+    padding-block-start: 4.25rem;
   }
 
   .open-card-col,

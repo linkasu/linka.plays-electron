@@ -1761,7 +1761,7 @@ export const games: GameInfo[] = [
   {
     id: "calm-2048",
     title: "2048 мягкий",
-    description: "Сдвигай плитки 4×4 и собирай одинаковые числа: если ходов не останется, партия завершится.",
+    description: "Сдвигай плитки 4×4 и собирай одинаковые числа: если ходов не останется, доска завершится.",
     selfDescription: "Собери одинаковые плитки.",
     route: "/games/calm-2048",
     category: "strategy",
@@ -1776,7 +1776,7 @@ export const games: GameInfo[] = [
   {
     id: "sliding-puzzle",
     title: "Пятнашки 3×3",
-    description: "Собирай спокойные пятнашки на поле 3×3: выбирай соседнюю с пустой клеткой плитку, а ошибка мягко подсветит возможные ходы.",
+    description: "Собирай спокойные пятнашки на поле 3×3: выбирай соседнюю с пустой клеткой плитку и проверяй правило без спешки.",
     selfDescription: "Собери пятнашки.",
     route: "/games/sliding-puzzle",
     category: "strategy",
@@ -1791,7 +1791,7 @@ export const games: GameInfo[] = [
   {
     id: "uno-like",
     title: "Уно-подобное",
-    description: "Выбирай карту по цвету или числу к открытой карте: ошибка мягко подскажет подходящие варианты без проигрыша.",
+    description: "Выбирай карту по цвету или числу к открытой карте: ошибка повторит правило без подсветки ответа.",
     selfDescription: "Подбери карту по цвету или числу.",
     route: "/games/uno-like",
     category: "strategy",
@@ -1836,7 +1836,7 @@ export const games: GameInfo[] = [
   {
     id: "tic-tac-toe",
     title: "Крестики-нолики",
-    description: "Играй крестиками против спокойного Deep-Q агента на классическом поле 3×3.",
+    description: "Играй крестиками против спокойного компьютера на классическом поле 3×3.",
     selfDescription: "Сделай ход.",
     route: "/games/tic-tac-toe",
     category: "strategy",

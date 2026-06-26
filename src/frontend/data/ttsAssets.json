@@ -7656,5 +7656,117 @@
     "text": "Пятнашки завершены. Хорошая последовательность ходов.",
     "voice": "jane",
     "path": "/audio/tts/sliding-puzzle/complete.mp3"
+  },
+  {
+    "id": "uno-like.prompt",
+    "game": "uno-like",
+    "text": "Сравни цвет или число с открытой картой.",
+    "voice": "jane",
+    "path": "/audio/tts/uno-like/prompt.mp3"
+  },
+  {
+    "id": "uno-like.correct",
+    "game": "uno-like",
+    "text": "Верно. Карта подходит по правилу.",
+    "voice": "jane",
+    "path": "/audio/tts/uno-like/correct.mp3"
+  },
+  {
+    "id": "uno-like.mistake",
+    "game": "uno-like",
+    "text": "Почти. Сравни цвет и число ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/uno-like/mistake.mp3"
+  },
+  {
+    "id": "uno-like.complete",
+    "game": "uno-like",
+    "text": "Задание завершено. Можно спокойно посмотреть результат.",
+    "voice": "jane",
+    "path": "/audio/tts/uno-like/complete.mp3"
+  },
+  {
+    "id": "calm-tetris.prompt",
+    "game": "calm-tetris",
+    "text": "Поставь фигуру спокойно. Можно сдвинуть, повернуть или опустить.",
+    "voice": "jane",
+    "path": "/audio/tts/calm-tetris/prompt.mp3"
+  },
+  {
+    "id": "calm-tetris.correct",
+    "game": "calm-tetris",
+    "text": "Фигура встала на место. Продолжаем спокойно.",
+    "voice": "jane",
+    "path": "/audio/tts/calm-tetris/correct.mp3"
+  },
+  {
+    "id": "calm-tetris.mistake",
+    "game": "calm-tetris",
+    "text": "Доска остановилась. Можно начать снова без спешки.",
+    "voice": "jane",
+    "path": "/audio/tts/calm-tetris/mistake.mp3"
+  },
+  {
+    "id": "calm-tetris.complete",
+    "game": "calm-tetris",
+    "text": "Тетрис завершён. Сделай паузу и посмотри на результат.",
+    "voice": "jane",
+    "path": "/audio/tts/calm-tetris/complete.mp3"
+  },
+  {
+    "id": "sokoban-large.prompt",
+    "game": "sokoban-large",
+    "text": "Выбери направление. Смотри на героя, ящик и цель.",
+    "voice": "jane",
+    "path": "/audio/tts/sokoban-large/prompt.mp3"
+  },
+  {
+    "id": "sokoban-large.correct",
+    "game": "sokoban-large",
+    "text": "Ход засчитан. Осмотрись и выбери следующий шаг.",
+    "voice": "jane",
+    "path": "/audio/tts/sokoban-large/correct.mp3"
+  },
+  {
+    "id": "sokoban-large.mistake",
+    "game": "sokoban-large",
+    "text": "Этот ход не сработал. Попробуй другое направление.",
+    "voice": "jane",
+    "path": "/audio/tts/sokoban-large/mistake.mp3"
+  },
+  {
+    "id": "sokoban-large.complete",
+    "game": "sokoban-large",
+    "text": "Раунд завершён. Можно спокойно посмотреть результат.",
+    "voice": "jane",
+    "path": "/audio/tts/sokoban-large/complete.mp3"
+  },
+  {
+    "id": "tic-tac-toe.prompt",
+    "game": "tic-tac-toe",
+    "text": "Выбери свободную клетку для крестика.",
+    "voice": "jane",
+    "path": "/audio/tts/tic-tac-toe/prompt.mp3"
+  },
+  {
+    "id": "tic-tac-toe.correct",
+    "game": "tic-tac-toe",
+    "text": "Линия собрана. Хороший ход.",
+    "voice": "jane",
+    "path": "/audio/tts/tic-tac-toe/correct.mp3"
+  },
+  {
+    "id": "tic-tac-toe.mistake",
+    "game": "tic-tac-toe",
+    "text": "Компьютер собрал линию. Можно попробовать ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/tic-tac-toe/mistake.mp3"
+  },
+  {
+    "id": "tic-tac-toe.complete",
+    "game": "tic-tac-toe",
+    "text": "Раунд завершён. Посмотри на результат.",
+    "voice": "jane",
+    "path": "/audio/tts/tic-tac-toe/complete.mp3"
   }
 ]

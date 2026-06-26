@@ -10,8 +10,8 @@
 | Route | `/games/tic-tac-toe` |
 | Категория | `strategy` — Головоломки |
 | Status | `polished` |
-| Resolved stability | `publish` |
-| Readiness group | `ready` |
+| Resolved stability | `needs-check` |
+| Readiness group | `development` |
 | Skills | выбор, последовательность, переключение |
 | Recommended session | 180 сек |
 | Min target size | 128 px |
@@ -19,14 +19,14 @@
 
 ## Назначение
 
-undefined
+Классические крестики-нолики с крупными gaze-целями: ребёнок выбирает клетку для крестика и ждёт спокойный ход компьютера.
 
-Самостоятельная формулировка для меню: undefined
+Самостоятельная формулировка для меню: Поставь крестик в свободную клетку и собери линию.
 
 ## Игровой цикл
 
 ```text
-показ позиции -> выбор хода или управляющего действия -> обновление состояния партии -> следующий ход или итог
+показ поля -> выбор свободной клетки -> короткая пауза, ход компьютера -> победа, остановленный раунд или ничья ждут финальный feedback -> итог
 ```
 
 ## Управление взглядом
@@ -57,16 +57,17 @@ undefined
 | Vue-компонент | `TicTacToeGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
-| Audio module | нет |
+| Audio module | стандартный feedback, TTS через `useGamePromptAudio` |
 | Runtime audit doc | `docs/tests/2026-06-10/tic-tac-toe.md` |
 
 ## Готовность
 
-Игра находится в группе `ready`, потому что resolved stability равен `publish`.
+Игра находится в группе `development`, потому что resolved stability не равен `publish`.
 
 Автоматические blockers:
 
-- missing-game-doc
+- stability:needs-check
+- pending-manual-approval
 
 ## QA checklist
 
@@ -79,4 +80,4 @@ undefined
 
 ## Next step
 
-Поддерживать CDP/PNG pass при изменениях; при развитии игры расширять этот документ ручными продуктово-дефектологическими деталями.
+Провести ручной approve после проверки в Electron CDP и оставить `needs-check` до явного решения ревьюера.
