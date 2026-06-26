@@ -1,19 +1,26 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { generateSudoku2x2Round, sudoku2x2Choices, type Sudoku2x2Choice, type Sudoku2x2Value } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("sudoku-2x2", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("sudoku-2x2", {
   maxSteps: 8,
+  overrides: { sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "sudoku-2x2", soundEnabled, warmAssetIds: ["sudoku-2x2.prompt", "sudoku-2x2.correct", "sudoku-2x2.mistake", "sudoku-2x2.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
@@ -23,10 +30,11 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
 
 const mistakesInRound = ref(0);
 const lastMistakeId = ref<string>();
+const isSpeaking = ref(false);
 
 const feedbackText = computed(() => {
   if (mistakesInRound.value === 0) return "Посмотри на строку и столбик. В каждом месте должны быть 1 и 2.";
-  return `Почти. В пустой клетке нужна ${round.value.correctChoice.colorName} карточка ${round.value.correctChoice.label}.`;
+  return "Посмотри на строку и столбик ещё раз и выбери другую карточку.";
 });
 
 function choiceTargetId(choiceId: string) {
@@ -37,8 +45,8 @@ function cellTone(value: Sudoku2x2Value) {
   return `sudoku-cell--${sudoku2x2Choices.find((choice) => choice.value === value)?.tone ?? "sky"}`;
 }
 
-function answer(choice: Sudoku2x2Choice) {
-  if (session.status !== "running") return;
+async function answer(choice: Sudoku2x2Choice) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice.id);
   const expectedTargetId = choiceTargetId(round.value.correctChoice.id);
@@ -54,7 +62,18 @@ function answer(choice: Sudoku2x2Choice) {
     });
     mistakesInRound.value = 0;
     lastMistakeId.value = undefined;
+    isSpeaking.value = true;
+    void feedbackAudio.playSuccess();
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["sudoku-2x2.correct", "sudoku-2x2.complete"] : ["sudoku-2x2.correct"], 80, 170);
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      isSpeaking.value = false;
+      return;
+    }
     if (session.step < session.maxSteps) nextRound();
+    promptAudio.play("sudoku-2x2.prompt", 180);
+    isSpeaking.value = false;
     return;
   }
 
@@ -70,13 +89,29 @@ function answer(choice: Sudoku2x2Choice) {
     missingCellId: round.value.missingCell.id,
     isCorrect: false
   });
+  isSpeaking.value = true;
+  void feedbackAudio.playMistake();
+  await promptAudio.playSequenceAndWait(["sudoku-2x2.mistake"], 80);
+  isSpeaking.value = false;
 }
 
 function restart() {
+  promptAudio.cancelPending();
   mistakesInRound.value = 0;
   lastMistakeId.value = undefined;
+  isSpeaking.value = false;
   restartRoundGame();
+  promptAudio.play("sudoku-2x2.prompt", 220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("sudoku-2x2.prompt", 420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -94,7 +129,7 @@ function restart() {
 
             <div class="sudoku-layout">
               <div class="sudoku-board" aria-label="Поле судоку 2 на 2">
-                <div v-for="cell in round.board" :key="cell.id" :class="['sudoku-cell', cell.hidden ? 'sudoku-cell--missing' : cellTone(cell.value), { 'sudoku-cell--hinted': cell.hidden && mistakesInRound > 0 }]">
+                <div v-for="cell in round.board" :key="cell.id" :class="['sudoku-cell', cell.hidden ? 'sudoku-cell--missing' : cellTone(cell.value)]">
                   <template v-if="cell.hidden">
                     <v-icon icon="mdi-help" size="54" />
                     <span class="text-h6 font-weight-bold">пусто</span>
@@ -110,9 +145,9 @@ function restart() {
                 <div class="text-h5 text-md-h4 font-weight-bold text-center mb-3">Выбери карточку</div>
                 <v-row dense>
                   <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6">
-                    <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="190" color="surface" @select="answer(choice)">
+                    <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="190" color="surface" @select="answer(choice)">
                       <template #default>
-                        <div :class="['choice-card', `choice-card--${choice.tone}`, { 'choice-card--hinted': mistakesInRound > 0 && choice.id === round.correctChoice.id, 'choice-card--mistake': choice.id === lastMistakeId }]">
+                        <div :class="['choice-card', `choice-card--${choice.tone}`, { 'choice-card--mistake': choice.id === lastMistakeId }]">
                           <span class="choice-card__number">{{ choice.label }}</span>
                           <span class="text-h6 font-weight-bold">{{ choice.colorName }} карточка</span>
                         </div>
@@ -192,12 +227,6 @@ function restart() {
   color: rgb(var(--v-theme-secondary));
 }
 
-.sudoku-cell--hinted,
-.choice-card--hinted {
-  outline: 0.42rem solid rgb(var(--v-theme-primary));
-  transform: scale(1.02);
-}
-
 .choice-card--mistake {
   filter: saturate(0.72) brightness(0.96);
   outline: 0.35rem solid rgb(var(--v-theme-secondary));
@@ -220,9 +249,9 @@ function restart() {
   }
 }
 
-@media (max-height: 680px) {
+@media (max-height: 42.5rem) {
   .game-container {
-    padding-block-start: 104px;
+    padding-block-start: 6.5rem;
   }
 
   .sudoku-card {
@@ -235,13 +264,13 @@ function restart() {
   }
 
   .sudoku-layout {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: minmax(16rem, 0.9fr) minmax(16rem, 1fr);
     gap: 0.75rem;
   }
 
   .choice-panel {
-    order: -1;
+    order: initial;
   }
 
   .sudoku-board {
@@ -255,7 +284,12 @@ function restart() {
 
   .sudoku-cell,
   .choice-card {
-    min-block-size: 8rem;
+    min-block-size: 6.75rem;
+  }
+
+  .sudoku-cell__number,
+  .choice-card__number {
+    font-size: 4rem;
   }
 }
 </style>

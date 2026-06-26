@@ -1,20 +1,26 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { generateLinesAnglesRound, type LinesAnglesOption, type LinesAnglesRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("lines-angles", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("lines-angles", {
   maxSteps: 8,
-  overrides: { dwellMs: 1300, sessionSeconds: 120 },
+  overrides: { dwellMs: 1300, sessionSeconds: 120, sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "lines-angles", soundEnabled, warmAssetIds: ["lines-angles.prompt", "lines-angles.correct", "lines-angles.mistake", "lines-angles.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<LinesAnglesRound>({
   session,
@@ -24,26 +30,23 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
 
 const hintedRoundId = ref<string>();
 const lastMistakeId = ref<string>();
+const isSpeaking = ref(false);
 
 const hintText = computed(() => {
   if (hintedRoundId.value !== round.value.roundId) return "Посмотри на линии и выбери подходящую карточку.";
-  return `Почти. ${round.value.hint} Правильная карточка мягко подсвечена.`;
+  return "Посмотри на линии ещё раз и выбери другую карточку.";
 });
 
 function choiceTargetId(choiceId: string) {
   return `lines-angles:choice:${choiceId}`;
 }
 
-function isTargetHint(choice: LinesAnglesOption) {
-  return hintedRoundId.value === round.value.roundId && choice.id === round.value.target.id;
-}
-
 function isMistake(choice: LinesAnglesOption) {
   return hintedRoundId.value === round.value.roundId && choice.id === lastMistakeId.value;
 }
 
-function answer(choice: LinesAnglesOption) {
-  if (session.status !== "running") return;
+async function answer(choice: LinesAnglesOption) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice.id);
   const expectedTargetId = choiceTargetId(round.value.target.id);
@@ -52,21 +55,47 @@ function answer(choice: LinesAnglesOption) {
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, task: round.value.task.id, expected: round.value.target.label, actual: choice.label, isCorrect: true });
     hintedRoundId.value = undefined;
     lastMistakeId.value = undefined;
+    isSpeaking.value = true;
+    void feedbackAudio.playSuccess();
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["lines-angles.correct", "lines-angles.complete"] : ["lines-angles.correct"], 80, 170);
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      isSpeaking.value = false;
+      return;
+    }
     if (session.step < session.maxSteps) nextRound();
+    promptAudio.play("lines-angles.prompt", 180);
+    isSpeaking.value = false;
     return;
   }
 
   hintedRoundId.value = round.value.roundId;
   lastMistakeId.value = choice.id;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, task: round.value.task.id, expected: round.value.target.label, actual: choice.label, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, text: round.value.hint });
+  isSpeaking.value = true;
+  void feedbackAudio.playMistake();
+  await promptAudio.playSequenceAndWait(["lines-angles.mistake"], 80);
+  isSpeaking.value = false;
 }
 
 function restart() {
+  promptAudio.cancelPending();
   hintedRoundId.value = undefined;
   lastMistakeId.value = undefined;
+  isSpeaking.value = false;
   restartRoundGame();
+  promptAudio.play("lines-angles.prompt", 220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("lines-angles.prompt", 420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -81,10 +110,10 @@ function restart() {
             <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5" role="status">{{ hintText }}</p>
 
             <v-row class="choice-grid" justify="center" dense>
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6" :md="round.choices.length <= 3 ? 4 : round.choices.length === 4 ? 3 : 4">
-                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="225" @select="answer(choice)">
+              <v-col v-for="choice in round.choices" :key="choice.id" class="geometry-choice-col" cols="12" sm="6" :md="round.choices.length <= 3 ? 4 : round.choices.length === 4 ? 3 : 4">
+                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="225" @select="answer(choice)">
                   <template #default>
-                    <div :class="['geometry-card', { 'geometry-card--hinted': isTargetHint(choice), 'geometry-card--mistake': isMistake(choice) }]">
+                    <div :class="['geometry-card', { 'geometry-card--mistake': isMistake(choice) }]">
                       <svg class="geometry-svg" viewBox="0 0 160 120" aria-hidden="true" focusable="false">
                         <line v-if="choice.id === 'straight-vertical'" x1="80" y1="16" x2="80" y2="104" />
                         <line v-else-if="choice.id === 'straight-horizontal'" x1="24" y1="60" x2="136" y2="60" />
@@ -107,7 +136,7 @@ function restart() {
 
             <v-expand-transition>
               <v-alert v-if="hintedRoundId === round.roundId" class="mt-5 text-h6" color="primary" icon="mdi-lightbulb-outline" rounded="xl" variant="tonal">
-                Ошибка не завершает игру. Правильная линия подсвечена, можно попробовать ещё раз.
+                Ошибка не завершает игру. Можно спокойно попробовать ещё раз.
               </v-alert>
             </v-expand-transition>
           </v-card>
@@ -148,12 +177,6 @@ function restart() {
   transition: border-color 160ms ease, filter 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
-.geometry-card--hinted {
-  border-color: rgb(var(--v-theme-primary));
-  box-shadow: 0 0 0 0.35rem rgb(var(--v-theme-primary) / 16%);
-  transform: scale(1.03);
-}
-
 .geometry-card--mistake {
   filter: saturate(0.72) opacity(0.74);
 }
@@ -184,11 +207,51 @@ function restart() {
 
 @media (max-height: 40rem) {
   .game-container {
-    padding-block-start: 7.25rem;
+    padding-block-start: 5rem;
+  }
+
+  .lines-angles-card {
+    padding: 1rem !important;
+  }
+
+  .lines-angles-card .text-overline {
+    display: none;
+  }
+
+  .lines-angles-card h1 {
+    font-size: 2.45rem !important;
+    line-height: 1.05;
+    margin-block-end: 0.35rem !important;
+  }
+
+  .lines-angles-card p {
+    font-size: 1.1rem !important;
+    margin-block-end: 0.75rem !important;
+  }
+
+  .geometry-choice-col {
+    flex: 0 0 25% !important;
+    max-inline-size: 25% !important;
+  }
+
+  .choice-grid :deep(.dwell-button) {
+    min-block-size: 8.5rem !important;
+    padding: 0.4rem !important;
   }
 
   .geometry-svg {
-    block-size: 5.75rem;
+    block-size: 4.5rem;
+  }
+
+  .geometry-card {
+    border-radius: 1.2rem;
+    padding: 0.4rem;
+  }
+
+  .geometry-card .text-h5 {
+    font-size: 1.15rem !important;
+    line-height: 1.1;
+    margin-block-start: 0.35rem !important;
   }
 }
 </style>

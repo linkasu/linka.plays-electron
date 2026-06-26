@@ -19,9 +19,9 @@
 
 ## Назначение
 
-undefined
+Заполнить пустую клетку судоку 2×2 карточкой 1 или 2. Ошибка не раскрывает правильную карточку и не подсвечивает ответ.
 
-Самостоятельная формулировка для меню: undefined
+Самостоятельная формулировка для меню: выбери недостающую клетку.
 
 ## Игровой цикл
 
@@ -57,7 +57,7 @@ undefined
 | Vue-компонент | `Sudoku2x2Game.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
-| Audio module | нет |
+| Audio module | стандартный feedback, TTS через `useGamePromptAudio` |
 | Runtime audit doc | `docs/tests/2026-06-10/sudoku-2x2.md` |
 
 ## Готовность
@@ -67,7 +67,7 @@ undefined
 Автоматические blockers:
 
 - stability:needs-check
-- missing-game-doc
+- нет
 
 ## QA checklist
 
@@ -80,4 +80,4 @@ undefined
 
 ## Next step
 
-Разобрать blockers из readiness-аудита, затем повторить Electron CDP/PNG audit и принять решение о `stabilityStatus: "publish"`.
+Проверить в Electron CDP на 800×600/1024×600 и визуально подтвердить PNG перед approve.

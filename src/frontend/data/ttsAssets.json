@@ -7292,5 +7292,89 @@
     "text": "Готово. Сортировка закончена.",
     "voice": "jane",
     "path": "/audio/tts/number-sorting/complete.mp3"
+  },
+  {
+    "id": "sudoku-2x2.prompt",
+    "game": "sudoku-2x2",
+    "text": "Посмотри на строку и столбик. Выбери карточку.",
+    "voice": "jane",
+    "path": "/audio/tts/sudoku-2x2/prompt.mp3"
+  },
+  {
+    "id": "sudoku-2x2.correct",
+    "game": "sudoku-2x2",
+    "text": "Верно.",
+    "voice": "jane",
+    "path": "/audio/tts/sudoku-2x2/correct.mp3"
+  },
+  {
+    "id": "sudoku-2x2.mistake",
+    "game": "sudoku-2x2",
+    "text": "Посмотри на строку и столбик ещё раз и выбери другую карточку.",
+    "voice": "jane",
+    "path": "/audio/tts/sudoku-2x2/mistake.mp3"
+  },
+  {
+    "id": "sudoku-2x2.complete",
+    "game": "sudoku-2x2",
+    "text": "Готово. Судоку закончено.",
+    "voice": "jane",
+    "path": "/audio/tts/sudoku-2x2/complete.mp3"
+  },
+  {
+    "id": "lines-angles.prompt",
+    "game": "lines-angles",
+    "text": "Посмотри на линии и выбери подходящую карточку.",
+    "voice": "jane",
+    "path": "/audio/tts/lines-angles/prompt.mp3"
+  },
+  {
+    "id": "lines-angles.correct",
+    "game": "lines-angles",
+    "text": "Верно.",
+    "voice": "jane",
+    "path": "/audio/tts/lines-angles/correct.mp3"
+  },
+  {
+    "id": "lines-angles.mistake",
+    "game": "lines-angles",
+    "text": "Посмотри на линии ещё раз и выбери другую карточку.",
+    "voice": "jane",
+    "path": "/audio/tts/lines-angles/mistake.mp3"
+  },
+  {
+    "id": "lines-angles.complete",
+    "game": "lines-angles",
+    "text": "Готово. Линии выбраны.",
+    "voice": "jane",
+    "path": "/audio/tts/lines-angles/complete.mp3"
+  },
+  {
+    "id": "simple-graphs.prompt",
+    "game": "simple-graphs",
+    "text": "Посмотри на график и выбери ответ.",
+    "voice": "jane",
+    "path": "/audio/tts/simple-graphs/prompt.mp3"
+  },
+  {
+    "id": "simple-graphs.correct",
+    "game": "simple-graphs",
+    "text": "Верно.",
+    "voice": "jane",
+    "path": "/audio/tts/simple-graphs/correct.mp3"
+  },
+  {
+    "id": "simple-graphs.mistake",
+    "game": "simple-graphs",
+    "text": "Посмотри на график ещё раз и выбери другой ответ.",
+    "voice": "jane",
+    "path": "/audio/tts/simple-graphs/mistake.mp3"
+  },
+  {
+    "id": "simple-graphs.complete",
+    "game": "simple-graphs",
+    "text": "Готово. Графики закончены.",
+    "voice": "jane",
+    "path": "/audio/tts/simple-graphs/complete.mp3"
   }
 ]

@@ -1,5 +1,5 @@
 import type { SessionSettings } from "../../core/settings";
-import { shuffleItems } from "../../data/wordBank";
+import { shuffleItems } from "../../core/random";
 
 export type SimpleGraphsQuestionKind = "more" | "less" | "count";
 
@@ -22,7 +22,6 @@ export type SimpleGraphsRound = {
   roundId: string;
   prompt: string;
   helperText: string;
-  mistakeHint: string;
   questionKind: SimpleGraphsQuestionKind;
   bars: SimpleGraphsBar[];
   choices: SimpleGraphsChoice[];
@@ -51,25 +50,25 @@ function questionKindFor(roundIndex: number): SimpleGraphsQuestionKind {
   return kinds[(roundIndex - 1) % kinds.length];
 }
 
-function pickValues(settings: SessionSettings) {
-  return shuffleItems(Array.from({ length: maxValueFor(settings) }, (_, index) => index + 1)).slice(0, 3);
+function pickValues(settings: SessionSettings, random: () => number) {
+  return shuffleItems(Array.from({ length: maxValueFor(settings) }, (_, index) => index + 1), random).slice(0, 3);
 }
 
-function buildCountChoices(answer: number, settings: SessionSettings): SimpleGraphsChoice[] {
+function buildCountChoices(answer: number, settings: SessionSettings, random: () => number): SimpleGraphsChoice[] {
   const choiceCount = settings.preset === "gentle" ? 3 : 4;
   const max = maxValueFor(settings);
   const nearby = [answer - 1, answer + 1, answer - 2, answer + 2]
     .filter((value) => value >= 1 && value <= max && value !== answer);
   const values = new Set([answer]);
 
-  for (const value of shuffleItems(nearby)) {
+  for (const value of shuffleItems(nearby, random)) {
     if (values.size < choiceCount) values.add(value);
   }
-  for (const value of shuffleItems(Array.from({ length: max }, (_, index) => index + 1))) {
+  for (const value of shuffleItems(Array.from({ length: max }, (_, index) => index + 1), random)) {
     if (values.size < choiceCount && value !== answer) values.add(value);
   }
 
-  return shuffleItems([...values]).map((value) => ({
+  return shuffleItems([...values], random).map((value) => ({
     choiceId: `count:${value}`,
     label: String(value),
     value
@@ -85,22 +84,21 @@ function buildBarChoices(bars: SimpleGraphsBar[]): SimpleGraphsChoice[] {
   }));
 }
 
-export function generateSimpleGraphsRound(settings: SessionSettings, roundIndex = 1): SimpleGraphsRound {
+export function generateSimpleGraphsRound(settings: SessionSettings, roundIndex = 1, random = Math.random): SimpleGraphsRound {
   const questionKind = questionKindFor(roundIndex);
-  const items = shuffleItems([...graphItems]).slice(0, 3);
-  const values = pickValues(settings);
+  const items = shuffleItems([...graphItems], random).slice(0, 3);
+  const values = pickValues(settings, random);
   const bars = items.map((item, index) => ({ ...item, value: values[index] }));
 
   if (questionKind === "count") {
     const targetBar = bars[(roundIndex - 1) % bars.length];
-    const choices = buildCountChoices(targetBar.value, settings);
+    const choices = buildCountChoices(targetBar.value, settings, random);
     const correctChoiceId = `count:${targetBar.value}`;
 
     return {
       roundId: `simple-graphs:round:${roundIndex}`,
       prompt: `Сколько у столбика "${targetBar.label}"?`,
       helperText: "Найди столбик и выбери его число.",
-      mistakeHint: `Мягко посмотри на столбик "${targetBar.label}": его высота показывает ${targetBar.value}.`,
       questionKind,
       bars,
       choices,
@@ -120,9 +118,6 @@ export function generateSimpleGraphsRound(settings: SessionSettings, roundIndex 
     roundId: `simple-graphs:round:${roundIndex}`,
     prompt: questionKind === "more" ? "Где больше?" : "Где меньше?",
     helperText: questionKind === "more" ? "Выбери самый высокий столбик." : "Выбери самый низкий столбик.",
-    mistakeHint: questionKind === "more"
-      ? `Самый высокий столбик - "${correctBar.label}", там ${correctBar.value}.`
-      : `Самый низкий столбик - "${correctBar.label}", там ${correctBar.value}.`,
     questionKind,
     bars,
     choices,

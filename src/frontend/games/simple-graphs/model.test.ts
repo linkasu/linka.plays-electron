@@ -20,7 +20,7 @@ describe("generateSimpleGraphsRound", () => {
       expect(values.every((value) => value >= 1 && value <= 7)).toBe(true);
       expect(round.correctIndex).toBeGreaterThanOrEqual(0);
       expect(round.correctIndex).toBeLessThan(round.choices.length);
-      expect(round.mistakeHint.length).toBeGreaterThan(10);
+      expect("mistakeHint" in round).toBe(false);
     }
   });
 
@@ -69,5 +69,14 @@ describe("generateSimpleGraphsRound", () => {
       expect(correctChoice(round)?.value).toBe(round.targetBar?.value);
       expect(round.choices.every((choice) => typeof choice.value === "number" && choice.choiceId.startsWith("count:"))).toBe(true);
     }
+  });
+
+  it("uses injected randomness for graph items and values", () => {
+    const settings = settingsFromPreset("standard");
+    const first = generateSimpleGraphsRound(settings, 1, () => 0);
+    const again = generateSimpleGraphsRound(settings, 1, () => 0);
+
+    expect(again.bars.map((bar) => [bar.id, bar.value])).toEqual(first.bars.map((bar) => [bar.id, bar.value]));
+    expect(again.choices.map((choice) => choice.choiceId)).toEqual(first.choices.map((choice) => choice.choiceId));
   });
 });

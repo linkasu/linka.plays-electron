@@ -1,23 +1,30 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { generateSimpleGraphsRound, type SimpleGraphsBar, type SimpleGraphsChoice } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("simple-graphs", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("simple-graphs", {
   maxSteps: 8,
-  overrides: { sound: false },
+  overrides: { sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "simple-graphs", soundEnabled, warmAssetIds: ["simple-graphs.prompt", "simple-graphs.correct", "simple-graphs.mistake", "simple-graphs.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const feedback = ref("");
 const lastMistakeTargetId = ref<string>();
+const isSpeaking = ref(false);
 const { round, resultVisible, nextRound, restart } = useRoundGame({
   session,
   startSession,
@@ -44,8 +51,8 @@ function resetFeedback() {
   lastMistakeTargetId.value = undefined;
 }
 
-function choose(choice: SimpleGraphsChoice) {
-  if (session.status !== "running") return;
+async function choose(choice: SimpleGraphsChoice) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice);
   const expectedTargetId = `simple-graphs:choice:${round.value.correctChoiceId}`;
@@ -53,20 +60,46 @@ function choose(choice: SimpleGraphsChoice) {
   if (choice.choiceId === round.value.correctChoiceId) {
     recordSuccess({ roundId: round.value.roundId, targetId, prompt: round.value.prompt, expected: round.value.correctChoiceId, actual: choice.choiceId, isCorrect: true });
     resetFeedback();
+    isSpeaking.value = true;
+    void feedbackAudio.playSuccess();
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["simple-graphs.correct", "simple-graphs.complete"] : ["simple-graphs.correct"], 80, 170);
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      isSpeaking.value = false;
+      return;
+    }
     if (session.step < session.maxSteps) nextRound();
+    promptAudio.play("simple-graphs.prompt", 180);
+    isSpeaking.value = false;
     return;
   }
 
-  feedback.value = round.value.mistakeHint;
+  feedback.value = "Посмотри на график ещё раз и выбери другой ответ.";
   lastMistakeTargetId.value = targetId;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, prompt: round.value.prompt, expected: round.value.correctChoiceId, actual: choice.choiceId, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, text: feedback.value });
+  isSpeaking.value = true;
+  void feedbackAudio.playMistake();
+  await promptAudio.playSequenceAndWait(["simple-graphs.mistake"], 80);
+  isSpeaking.value = false;
 }
 
 function restartGame() {
+  promptAudio.cancelPending();
   resetFeedback();
+  isSpeaking.value = false;
   restart();
+  promptAudio.play("simple-graphs.prompt", 220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("simple-graphs.prompt", 420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -100,7 +133,7 @@ function restartGame() {
 
             <v-row class="choice-row" dense>
               <v-col v-for="choice in round.choices" :key="choice.choiceId" cols="12" :sm="round.choices.length > 3 ? 6 : 4">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="132" color="surface" @select="choose(choice)">
+                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="132" color="surface" @select="choose(choice)">
                   <template #default>
                     <div :class="['choice-card', { 'choice-card--mistake': lastMistakeTargetId === choiceTargetId(choice) }]">
                       <div class="choice-label font-weight-bold" :class="round.questionKind === 'count' ? 'text-h2' : 'text-h5 text-md-h4'">
@@ -243,6 +276,38 @@ function restartGame() {
   }
 }
 
+@media (min-width: 68.75rem) and (max-height: 58rem) {
+  .game-container {
+    padding-block-start: 4rem;
+  }
+
+  .simple-graphs-card {
+    padding-block: 1rem !important;
+  }
+
+  .simple-graphs-card h1 {
+    font-size: 3.35rem !important;
+    line-height: 1.05;
+  }
+
+  .graph-panel {
+    margin-block-end: 0.75rem !important;
+    padding: 1rem !important;
+  }
+
+  .graph-bars {
+    min-block-size: clamp(12rem, 32vh, 18rem);
+  }
+
+  .graph-track {
+    min-block-size: clamp(8rem, 21vh, 12rem);
+  }
+
+  .choice-row :deep(.dwell-button) {
+    min-block-size: 7.5rem !important;
+  }
+}
+
 @media (max-width: 37.5rem) {
   .graph-bars {
     gap: 0.45rem;
@@ -268,9 +333,9 @@ function restartGame() {
   }
 }
 
-@media (max-height: 680px) {
+@media (max-height: 42.5rem) {
   .game-container {
-    padding-block-start: 104px;
+    padding-block-start: 6.5rem;
   }
 
   .simple-graphs-card {
