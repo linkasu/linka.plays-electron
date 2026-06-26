@@ -1,4 +1,4 @@
-import { shuffleItems } from "../../data/wordBank";
+import { shuffleItems } from "../../core/random";
 
 export type DayRoutinePeriodId = "morning" | "day" | "evening";
 
@@ -64,14 +64,14 @@ export const dayRoutineItems: DayRoutineItem[] = [
   { id: "sleep", label: "спать", emoji: "🛏️", periodId: "evening", hint: "Спать ложатся вечером или ночью." }
 ];
 
-export function createDayRoutineBoard(maxSteps = 8): DayRoutineBoard {
+export function createDayRoutineBoard(maxSteps = 8, random = Math.random): DayRoutineBoard {
   const items = dayRoutineItems.slice(0, maxSteps);
 
   return {
     roundId: "day-routine:board",
     periods: dayRoutinePeriods,
     items,
-    choices: shuffleItems(items)
+    choices: shuffleItems(items, random)
   };
 }
 

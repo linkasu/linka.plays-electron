@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
@@ -13,7 +14,7 @@ import { createDayRoutineBoard, findDayRoutinePeriod, type DayRoutineItem, type 
 const dayRoutineFeedback = createStandardGameFeedback();
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("day-routine", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("day-routine", {
   maxSteps: 8,
   overrides: { sound: true },
   finishOnMistakes: false
@@ -25,6 +26,9 @@ const resultVisible = ref(false);
 const feedbackMessage = ref("Начинаем с утра. Выбери картинку, которая бывает утром.");
 const wrongChoiceId = ref<string>();
 const highlightedPeriodId = ref<DayRoutinePeriod["id"]>("morning");
+const pendingSelection = ref(false);
+const isSpeaking = ref(false);
+const promptAudio = useGamePromptAudio({ gameId: "day-routine", soundEnabled: toRef(session.settings, "sound") });
 let feedbackTimer = 0;
 let resultTimer = 0;
 
@@ -53,10 +57,25 @@ function resetFeedback() {
   clearFeedbackTimer();
   wrongChoiceId.value = undefined;
   highlightedPeriodId.value = currentPeriod.value?.id ?? "morning";
+  pendingSelection.value = false;
+  isSpeaking.value = false;
 }
 
-function choose(item: DayRoutineItem) {
-  if (session.status !== "running") return;
+async function playPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["day-routine.prompt"], delayMs);
+  isSpeaking.value = false;
+}
+
+function showResultSoon(delayMs = 900) {
+  clearResultTimer();
+  resultTimer = window.setTimeout(() => {
+    resultVisible.value = true;
+  }, delayMs);
+}
+
+async function choose(item: DayRoutineItem) {
+  if (session.status !== "running" || pendingSelection.value || isSpeaking.value) return;
 
   const expectedPeriod = currentPeriod.value;
   if (!expectedPeriod) return;
@@ -66,30 +85,42 @@ function choose(item: DayRoutineItem) {
   resetFeedback();
 
   if (item.periodId === expectedPeriod.id) {
+    pendingSelection.value = true;
     placedItemIds.value = [...placedItemIds.value, item.id];
-    void dayRoutineFeedback.playSuccess(session.settings.sound);
+    isSpeaking.value = true;
     recordSuccess({ roundId, targetId, answerId: item.id, expected: expectedPeriod.label, actual: item.label, isCorrect: true });
 
     const nextPeriod = currentPeriod.value;
+    const finishedAfterSuccess = !nextPeriod;
+    void dayRoutineFeedback.playSuccess(session.settings.sound);
     if (session.status === "running" && nextPeriod) {
       feedbackMessage.value = `Верно. Теперь ищем картинки: ${nextPeriod.label}.`;
       highlightedPeriodId.value = nextPeriod.id;
     } else {
       feedbackMessage.value = "Вся последовательность дня собрана: утро, день, вечер.";
     }
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["day-routine.correct", "day-routine.complete"] : ["day-routine.correct"], 80, 170);
+    isSpeaking.value = false;
+    pendingSelection.value = false;
+
+    if (finishedAfterSuccess) showResultSoon();
     return;
   }
 
   const actualPeriod = findDayRoutinePeriod(item.periodId);
+  pendingSelection.value = true;
   wrongChoiceId.value = item.id;
   highlightedPeriodId.value = expectedPeriod.id;
-  feedbackMessage.value = `Почти. ${item.hint} Сейчас нужна картинка про ${expectedPeriod.label}.`;
-  void dayRoutineFeedback.playMistake(session.settings.sound);
+  feedbackMessage.value = "Посмотри на часть дня и попробуй выбрать другую картинку.";
   recordMistake({ roundId, targetId, expectedTargetId: `day-routine:period:${expectedPeriod.id}`, answerId: item.id, expected: expectedPeriod.label, actual: actualPeriod?.label ?? item.periodId, isCorrect: false });
-  recordHint({ roundId, targetId, hint: feedbackMessage.value });
+  void dayRoutineFeedback.playMistake(session.settings.sound);
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["day-routine.mistake"], 80);
+  isSpeaking.value = false;
   feedbackTimer = window.setTimeout(() => {
+    pendingSelection.value = false;
     wrongChoiceId.value = undefined;
-  }, 1400);
+  }, 1000);
 }
 
 function choiceColor(item: DayRoutineItem) {
@@ -100,34 +131,42 @@ function choiceColor(item: DayRoutineItem) {
 function restart() {
   clearFeedbackTimer();
   clearResultTimer();
+  promptAudio.cancelPending();
   placedItemIds.value = [];
   resultVisible.value = false;
   feedbackMessage.value = "Начинаем с утра. Выбери картинку, которая бывает утром.";
   wrongChoiceId.value = undefined;
   highlightedPeriodId.value = "morning";
+  pendingSelection.value = false;
+  isSpeaking.value = false;
   startSession();
+  void playPrompt(450);
 }
 
 onMounted(() => {
+  promptAudio.warm();
   dayRoutineFeedback.warm(session.settings.sound);
+  void playPrompt(450);
 });
 
 onUnmounted(() => {
   clearFeedbackTimer();
   clearResultTimer();
+  promptAudio.cancelPending();
   dayRoutineFeedback.dispose();
 });
 
 watch(() => session.status, (status) => {
   if (status === "finished") {
-    clearResultTimer();
-    resultTimer = window.setTimeout(() => {
-      resultVisible.value = true;
-    }, 900);
+    if (!isSpeaking.value) showResultSoon();
   } else {
     clearResultTimer();
     resultVisible.value = false;
   }
+});
+
+watch(isSpeaking, (speaking) => {
+  if (!speaking && session.status === "finished" && !resultVisible.value) showResultSoon();
 });
 </script>
 
@@ -148,7 +187,7 @@ watch(() => session.status, (status) => {
               <v-col v-for="period in board.periods" :key="period.id" cols="12" md="4">
                 <v-card :class="['period-card', { 'period-card--active': highlightedPeriodId === period.id }]" :color="period.color" rounded="xl" variant="flat">
                   <div class="d-flex align-center ga-3 mb-3">
-                    <v-avatar color="surface" size="56"><v-icon :icon="period.icon" size="34" /></v-avatar>
+                    <v-avatar color="surface" size="3.5rem"><v-icon :icon="period.icon" size="2.125rem" /></v-avatar>
                     <div>
                       <div class="text-h5 font-weight-bold">{{ period.title }}</div>
                       <div class="text-body-2 text-medium-emphasis">{{ period.helper }}</div>
@@ -172,7 +211,7 @@ watch(() => session.status, (status) => {
             <div class="choice-title text-h6 font-weight-bold text-center mb-4">Выбери подходящую картинку</div>
             <v-row class="choice-row" justify="center">
               <v-col v-for="item in remainingChoices" :key="item.id" cols="3" sm="3">
-                <GameDwellButton :target-id="itemTargetId(item)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="130" :color="choiceColor(item)" @select="choose(item)">
+                <GameDwellButton :target-id="itemTargetId(item)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="8rem" :color="choiceColor(item)" @select="choose(item)">
                   <template #default>
                     <div class="choice-emoji emoji-glyph">{{ item.emoji }}</div>
                     <div class="text-subtitle-1 text-md-h6 font-weight-bold mt-2">{{ item.label }}</div>
@@ -191,25 +230,25 @@ watch(() => session.status, (status) => {
 <style scoped>
 .period-card {
   block-size: 100%;
-  border: 2px solid transparent;
-  padding: 18px;
+  border: 0.125rem solid transparent;
+  padding: 1.125rem;
   transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
 
 .period-card--active {
   border-color: rgb(var(--v-theme-primary) / 56%);
-  box-shadow: 0 0 0 6px rgb(var(--v-theme-primary) / 12%);
-  transform: translateY(-2px);
+  box-shadow: 0 0 0 0.375rem rgb(var(--v-theme-primary) / 12%);
+  transform: translateY(-0.125rem);
 }
 
 .placed-grid {
   display: grid;
-  gap: 10px;
-  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: 0.625rem;
+  grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
 }
 
 .empty-slot {
-  min-block-size: 104px;
+  min-block-size: 6.5rem;
 }
 
 .choice-emoji {
@@ -222,11 +261,17 @@ watch(() => session.status, (status) => {
   line-height: 1;
 }
 
-@media (max-height: 920px) {
+@media (max-height: 64rem) {
   .period-row,
   .period-card,
   .game-container .v-divider {
     display: none;
+  }
+}
+
+@media (min-height: 64.001rem) {
+  .game-container {
+    padding-block-end: 2rem;
   }
 }
 

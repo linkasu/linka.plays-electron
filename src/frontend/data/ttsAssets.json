@@ -6648,5 +6648,33 @@
     "text": "Готово. Цветовой узор собран.",
     "voice": "jane",
     "path": "/audio/tts/color-pattern/complete.mp3"
+  },
+  {
+    "id": "day-routine.prompt",
+    "game": "day-routine",
+    "text": "Начинаем с утра. Выбери картинку, которая бывает утром.",
+    "voice": "jane",
+    "path": "/audio/tts/day-routine/prompt.mp3"
+  },
+  {
+    "id": "day-routine.correct",
+    "game": "day-routine",
+    "text": "Верно. Продолжаем собирать день.",
+    "voice": "jane",
+    "path": "/audio/tts/day-routine/correct.mp3"
+  },
+  {
+    "id": "day-routine.mistake",
+    "game": "day-routine",
+    "text": "Посмотри на часть дня и попробуй выбрать другую картинку.",
+    "voice": "jane",
+    "path": "/audio/tts/day-routine/mistake.mp3"
+  },
+  {
+    "id": "day-routine.complete",
+    "game": "day-routine",
+    "text": "Готово. Утро, день и вечер собраны.",
+    "voice": "jane",
+    "path": "/audio/tts/day-routine/complete.mp3"
   }
 ]
