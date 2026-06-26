@@ -1332,56 +1332,56 @@
   {
     "id": "schedule.prompt.wake",
     "game": "schedule",
-    "text": "Выбери: проснуться.",
+    "text": "Выбери следующую карточку дня.",
     "voice": "jane",
     "path": "/audio/tts/schedule/prompt-wake.mp3"
   },
   {
     "id": "schedule.prompt.wash",
     "game": "schedule",
-    "text": "Теперь выбери: умыться.",
+    "text": "Выбери следующую карточку дня.",
     "voice": "jane",
     "path": "/audio/tts/schedule/prompt-wash.mp3"
   },
   {
     "id": "schedule.prompt.breakfast",
     "game": "schedule",
-    "text": "Теперь выбери: завтрак.",
+    "text": "Выбери следующую карточку дня.",
     "voice": "jane",
     "path": "/audio/tts/schedule/prompt-breakfast.mp3"
   },
   {
     "id": "schedule.prompt.dress",
     "game": "schedule",
-    "text": "Теперь выбери: одеться.",
+    "text": "Выбери следующую карточку дня.",
     "voice": "jane",
     "path": "/audio/tts/schedule/prompt-dress.mp3"
   },
   {
     "id": "schedule.prompt.therapy",
     "game": "schedule",
-    "text": "Теперь выбери: занятие.",
+    "text": "Выбери следующую карточку дня.",
     "voice": "jane",
     "path": "/audio/tts/schedule/prompt-therapy.mp3"
   },
   {
     "id": "schedule.prompt.lunch",
     "game": "schedule",
-    "text": "Теперь выбери: обед.",
+    "text": "Выбери следующую карточку дня.",
     "voice": "jane",
     "path": "/audio/tts/schedule/prompt-lunch.mp3"
   },
   {
     "id": "schedule.prompt.play",
     "game": "schedule",
-    "text": "Теперь выбери: игра.",
+    "text": "Выбери следующую карточку дня.",
     "voice": "jane",
     "path": "/audio/tts/schedule/prompt-play.mp3"
   },
   {
     "id": "schedule.prompt.sleep",
     "game": "schedule",
-    "text": "Теперь выбери: сон.",
+    "text": "Выбери следующую карточку дня.",
     "voice": "jane",
     "path": "/audio/tts/schedule/prompt-sleep.mp3"
   },
@@ -1395,7 +1395,7 @@
   {
     "id": "schedule.mistake",
     "game": "schedule",
-    "text": "Почти. Посмотри на подсказку.",
+    "text": "Посмотри на порядок дня и попробуй выбрать другую карточку.",
     "voice": "jane",
     "path": "/audio/tts/schedule/mistake.mp3"
   },
@@ -6760,5 +6760,40 @@
     "text": "Готово. Танец фигур завершён.",
     "voice": "jane",
     "path": "/audio/tts/shape-dance/complete.mp3"
+  },
+  {
+    "id": "schedule.next",
+    "game": "schedule",
+    "text": "Выбери следующую карточку дня.",
+    "voice": "jane",
+    "path": "/audio/tts/schedule/next.mp3"
+  },
+  {
+    "id": "comic-strip.prompt",
+    "game": "comic-strip",
+    "text": "Выбери следующий кадр истории.",
+    "voice": "jane",
+    "path": "/audio/tts/comic-strip/prompt.mp3"
+  },
+  {
+    "id": "comic-strip.correct",
+    "game": "comic-strip",
+    "text": "Верно. История продолжается.",
+    "voice": "jane",
+    "path": "/audio/tts/comic-strip/correct.mp3"
+  },
+  {
+    "id": "comic-strip.mistake",
+    "game": "comic-strip",
+    "text": "Посмотри на историю и попробуй выбрать другой кадр.",
+    "voice": "jane",
+    "path": "/audio/tts/comic-strip/mistake.mp3"
+  },
+  {
+    "id": "comic-strip.complete",
+    "game": "comic-strip",
+    "text": "Готово. Комикс собран.",
+    "voice": "jane",
+    "path": "/audio/tts/comic-strip/complete.mp3"
   }
 ]

@@ -17,7 +17,7 @@ type ScheduleCardState = ScheduleCard & {
 
 const router = useRouter();
 const scheduleFeedback = createStandardGameFeedback();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("schedule", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("schedule", {
   maxSteps: scheduleMaxSteps,
   overrides: { sound: true },
   finishOnMistakes: false,
@@ -30,7 +30,6 @@ const feedbackMessage = ref("Собери день по порядку. Начн
 const pendingSelection = ref(false);
 const wrongChoiceId = ref<string>();
 const successChoiceId = ref<string>();
-const hintedCardId = ref(nextScheduleStep([])?.id);
 let feedbackTimer = 0;
 
 const placedCards = computed(() => cards.value.filter((card) => card.placed).sort((a, b) => (a.placedIndex ?? 0) - (b.placedIndex ?? 0)));
@@ -62,7 +61,7 @@ function playStepPrompt(step: ScheduleCard | undefined, delayMs = 0) {
     promptAudio.play("schedule.complete", delayMs);
     return;
   }
-  promptAudio.play(`schedule.prompt.${step.id}`, delayMs);
+  promptAudio.play("schedule.next", delayMs);
 }
 
 function playIntroPrompt(delayMs = 0) {
@@ -84,8 +83,7 @@ function choose(card: ScheduleCardState) {
     card.placedIndex = placedCards.value.length + 1;
     pendingSelection.value = true;
     successChoiceId.value = card.id;
-    hintedCardId.value = nextScheduleStep(placedIds.value)?.id;
-    feedbackMessage.value = nextStep.value ? `Верно: ${card.title}. Следующий шаг — ${nextStep.value.title}.` : "Расписание собрано. День получился понятным.";
+    feedbackMessage.value = nextStep.value ? "Верно. Теперь выбери следующий шаг дня." : "Расписание собрано. День получился понятным.";
     recordSuccess({ roundId: currentRoundId.value, targetId: scheduleTargetId(card), expected: expected.id, actual: card.id, isCorrect: true });
     void scheduleFeedback.playSuccess(session.settings.sound);
     promptAudio.cancelPending();
@@ -97,14 +95,11 @@ function choose(card: ScheduleCardState) {
 
   pendingSelection.value = true;
   wrongChoiceId.value = card.id;
-  hintedCardId.value = expected.id;
-  feedbackMessage.value = `Почти. Сейчас следующий шаг: ${expected.title}. ${expected.hint}`;
+  feedbackMessage.value = "Посмотри на порядок дня и попробуй выбрать другую карточку.";
   recordMistake({ roundId: currentRoundId.value, targetId: scheduleTargetId(card), expectedTargetId: scheduleTargetId(expected), expected: expected.id, actual: card.id, isCorrect: false });
-  recordHint({ roundId: currentRoundId.value, targetId: scheduleTargetId(expected), expected: expected.id, message: expected.hint });
   void scheduleFeedback.playMistake(session.settings.sound);
   promptAudio.cancelPending();
   promptAudio.play("schedule.mistake", 120);
-  playStepPrompt(expected, 1700);
   feedbackTimer = window.setTimeout(() => {
     pendingSelection.value = false;
     wrongChoiceId.value = undefined;
@@ -114,7 +109,6 @@ function choose(card: ScheduleCardState) {
 function choiceColor(card: ScheduleCardState) {
   if (wrongChoiceId.value === card.id) return "orange-lighten-4";
   if (successChoiceId.value === card.id) return "green-lighten-4";
-  if (hintedCardId.value === card.id) return "blue-lighten-5";
   return "surface";
 }
 
@@ -122,7 +116,6 @@ function restart() {
   clearFeedbackTimer();
   cards.value = makeCards();
   feedbackMessage.value = "Собери день по порядку. Начни с первой карточки утром.";
-  hintedCardId.value = nextScheduleStep([])?.id;
   resetSoftHighlights();
   promptAudio.cancelPending();
   startSession();
@@ -170,9 +163,9 @@ onUnmounted(() => {
 
             <v-row class="choice-row" justify="center" no-gutters>
               <v-col v-for="card in cards" :key="card.id" class="schedule-choice-col pa-2" cols="6" sm="3">
-                <GameDwellButton :target-id="scheduleTargetId(card)" :disabled="session.status !== 'running' || pendingSelection || card.placed" :dwell-ms="session.settings.dwellMs" :min-height="176" :color="choiceColor(card)" @select="choose(card)">
+                <GameDwellButton :target-id="scheduleTargetId(card)" :disabled="session.status !== 'running' || pendingSelection || card.placed" :dwell-ms="session.settings.dwellMs" min-height="11rem" :color="choiceColor(card)" @select="choose(card)">
                   <template #default>
-                    <div :class="['schedule-choice', { 'schedule-choice--placed': card.placed, 'schedule-choice--hint': hintedCardId === card.id && !card.placed }]">
+                    <div :class="['schedule-choice', { 'schedule-choice--placed': card.placed }]">
                       <v-icon class="choice-icon" :color="card.color" :icon="card.icon" />
                       <div class="schedule-choice-title text-h6 font-weight-bold mt-2">{{ card.title }}</div>
                       <v-chip class="schedule-choice-chip mt-3" color="primary" size="large" variant="tonal">{{ card.aacLabel }}</v-chip>
@@ -278,7 +271,7 @@ onUnmounted(() => {
 }
 
 .choice-icon {
-  filter: drop-shadow(0 8px 10px rgb(0 0 0 / 14%));
+  filter: drop-shadow(0 0.5rem 0.625rem rgb(0 0 0 / 14%));
   font-size: clamp(2.65rem, 7.2vh, 5.4rem);
 }
 
@@ -290,10 +283,6 @@ onUnmounted(() => {
 .schedule-choice-title,
 .schedule-choice-chip {
   color: #17212b !important;
-}
-
-.schedule-choice--hint {
-  transform: scale(1.03);
 }
 
 .schedule-choice--placed {
