@@ -6900,5 +6900,61 @@
     "text": "Готово. Слова выбраны.",
     "voice": "jane",
     "path": "/audio/tts/who-is-this/complete.mp3"
+  },
+  {
+    "id": "choose-picture.intro",
+    "game": "choose-picture",
+    "text": "Посмотри на слово и выбери картинку.",
+    "voice": "jane",
+    "path": "/audio/tts/choose-picture/intro.mp3"
+  },
+  {
+    "id": "choose-picture.correct",
+    "game": "choose-picture",
+    "text": "Верно. Это нужная картинка.",
+    "voice": "jane",
+    "path": "/audio/tts/choose-picture/correct.mp3"
+  },
+  {
+    "id": "choose-picture.mistake",
+    "game": "choose-picture",
+    "text": "Посмотри на слово ещё раз и выбери другую картинку.",
+    "voice": "jane",
+    "path": "/audio/tts/choose-picture/mistake.mp3"
+  },
+  {
+    "id": "choose-picture.complete",
+    "game": "choose-picture",
+    "text": "Готово. Картинки выбраны.",
+    "voice": "jane",
+    "path": "/audio/tts/choose-picture/complete.mp3"
+  },
+  {
+    "id": "yes-no.prompt",
+    "game": "yes-no",
+    "text": "Посмотри на картинку и ответь да или нет.",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/prompt.mp3"
+  },
+  {
+    "id": "yes-no.correct",
+    "game": "yes-no",
+    "text": "Верно.",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/correct.mp3"
+  },
+  {
+    "id": "yes-no.mistake",
+    "game": "yes-no",
+    "text": "Посмотри на картинку и вопрос ещё раз. Попробуй выбрать другой ответ.",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/mistake.mp3"
+  },
+  {
+    "id": "yes-no.complete",
+    "game": "yes-no",
+    "text": "Готово. Ответы выбраны.",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/complete.mp3"
   }
 ]

@@ -10,8 +10,8 @@
 | Route | `/games/yes-no` |
 | Категория | `language-aac` — Слова и AAC |
 | Status | `polished` |
-| Resolved stability | `publish` |
-| Readiness group | `ready` |
+| Resolved stability | `development` |
+| Readiness group | `needs-check` |
 | Skills | AAC, выбор, словарь |
 | Recommended session | 120 сек |
 | Min target size | 180 px |
@@ -19,9 +19,9 @@
 
 ## Назначение
 
-undefined
+Ответить `да` или `нет` на вопрос по картинке. Ошибка оставляет тот же вопрос и не раскрывает правильный ответ.
 
-Самостоятельная формулировка для меню: undefined
+Самостоятельная формулировка для меню: ответь да или нет.
 
 ## Игровой цикл
 
@@ -57,16 +57,16 @@ undefined
 | Vue-компонент | `YesNoGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
-| Audio module | нет |
+| Audio module | стандартный feedback, TTS через `useGamePromptAudio` |
 | Runtime audit doc | `docs/tests/2026-06-10/yes-no.md` |
 
 ## Готовность
 
-Игра находится в группе `ready`, потому что resolved stability равен `publish`.
+Игра находится в группе `needs-check`, пока проходит batch review.
 
 Автоматические blockers:
 
-- missing-game-doc
+- `stability:needs-check`
 
 ## QA checklist
 
@@ -79,4 +79,4 @@ undefined
 
 ## Next step
 
-Поддерживать CDP/PNG pass при изменениях; при развитии игры расширять этот документ ручными продуктово-дефектологическими деталями.
+Проверить в Electron CDP на 800×600/1024×600 и визуально подтвердить PNG перед approve.

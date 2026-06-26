@@ -4,7 +4,7 @@ import type { SessionSettings } from "../../core/settings";
 
 export type ChoosePictureRound = ChoiceRound<WordItem>;
 
-export function generateChoosePictureRound(settings: SessionSettings, roundIndex = 1): ChoosePictureRound {
+export function generateChoosePictureRound(settings: SessionSettings, roundIndex = 1, random = Math.random): ChoosePictureRound {
   const words = getAllWords();
   const choiceCount = 4;
   if (words.length < choiceCount) throw new Error("Недостаточно слов для игры.");
@@ -14,8 +14,9 @@ export function generateChoosePictureRound(settings: SessionSettings, roundIndex
     roundIndex,
     items: words,
     choiceCount,
-    pickTarget: (items) => pickRandom(items),
+    pickTarget: (items) => pickRandom(items, random),
     isSame: idEquality,
-    prompt: (target) => `Где ${target.word}?`
+    prompt: (target) => `Где ${target.word}?`,
+    random
   });
 }

@@ -64,9 +64,9 @@ export function pickByRoundIndex<T>(items: T[], roundIndex: number) {
   return items[(safe - 1) % items.length];
 }
 
-export function pickRandom<T>(items: T[]) {
+export function pickRandom<T>(items: T[], random = Math.random) {
   if (items.length === 0) throw new Error("pickRandom: empty items.");
-  return items[Math.floor(Math.random() * items.length)];
+  return items[Math.floor(random() * items.length)];
 }
 
 export function idEquality<T extends { id: string }>(left: T, right: T) {

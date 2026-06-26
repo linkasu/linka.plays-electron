@@ -24,4 +24,12 @@ describe("choose-picture model", () => {
     expect(round.choices[round.correctIndex]).toBe(round.target);
     expect(round.prompt).toContain(round.target.word);
   });
+
+  it("uses injected randomness for deterministic target and choices", () => {
+    const settings = settingsFromPreset("standard");
+    const first = generateChoosePictureRound(settings, 1, () => 0);
+
+    expect(generateChoosePictureRound(settings, 1, () => 0).choices.map((choice) => choice.id)).toEqual(first.choices.map((choice) => choice.id));
+    expect(generateChoosePictureRound(settings, 1, () => 0.99).target.id).not.toBe(first.target.id);
+  });
 });

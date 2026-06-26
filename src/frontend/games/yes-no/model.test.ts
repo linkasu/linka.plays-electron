@@ -31,4 +31,11 @@ describe("generateYesNoRound", () => {
 
     expect(answers).toEqual(new Set(["yes", "no"]));
   });
+
+  it("uses injected randomness for deterministic items", () => {
+    const first = generateYesNoRound(2, () => 0);
+
+    expect(generateYesNoRound(2, () => 0).item.id).toBe(first.item.id);
+    expect(generateYesNoRound(2, () => 0.99).item.id).not.toBe(first.item.id);
+  });
 });
