@@ -55,4 +55,12 @@ describe("number-sorting model", () => {
       expect(values.every((value) => value >= 1 && value <= 18)).toBe(true);
     }
   });
+
+  it("uses injected randomness for card selection", () => {
+    const settings = settingsFromPreset("standard");
+    const first = generateNumberSortingRound(settings, 1, () => 0);
+    const again = generateNumberSortingRound(settings, 1, () => 0);
+
+    expect(cardValues(again)).toEqual(cardValues(first));
+  });
 });

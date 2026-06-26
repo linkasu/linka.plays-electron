@@ -19,9 +19,9 @@
 
 ## Назначение
 
-undefined
+Сравнить две чаши весов и выбрать, какая сторона тяжелее, легче или равны ли стороны. Ошибка не называет правильную сторону.
 
-Самостоятельная формулировка для меню: undefined
+Самостоятельная формулировка для меню: выбери сторону весов.
 
 ## Игровой цикл
 
@@ -57,7 +57,7 @@ undefined
 | Vue-компонент | `ScalesGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
-| Audio module | нет |
+| Audio module | стандартный feedback, TTS через `useGamePromptAudio` |
 | Runtime audit doc | `docs/tests/2026-06-10/scales.md` |
 
 ## Готовность
@@ -67,7 +67,7 @@ undefined
 Автоматические blockers:
 
 - stability:needs-check
-- missing-game-doc
+- нет
 
 ## QA checklist
 
@@ -80,4 +80,4 @@ undefined
 
 ## Next step
 
-Разобрать blockers из readiness-аудита, затем повторить Electron CDP/PNG audit и принять решение о `stabilityStatus: "publish"`.
+Проверить в Electron CDP на 800×600/1024×600 и визуально подтвердить PNG перед approve.

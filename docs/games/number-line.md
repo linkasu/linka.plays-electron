@@ -19,9 +19,9 @@
 
 ## Назначение
 
-undefined
+Найти число или следующее число на дорожке от 1 до 10. Ошибка просит попробовать другой вариант без подсветки правильного числа.
 
-Самостоятельная формулировка для меню: undefined
+Самостоятельная формулировка для меню: выбери число на дорожке.
 
 ## Игровой цикл
 
@@ -57,7 +57,7 @@ undefined
 | Vue-компонент | `NumberLineGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
-| Audio module | нет |
+| Audio module | стандартный feedback, TTS через `useGamePromptAudio` |
 | Runtime audit doc | `docs/tests/2026-06-10/number-line.md` |
 
 ## Готовность
@@ -67,7 +67,7 @@ undefined
 Автоматические blockers:
 
 - stability:needs-check
-- missing-game-doc
+- нет
 
 ## QA checklist
 
@@ -80,4 +80,4 @@ undefined
 
 ## Next step
 
-Разобрать blockers из readiness-аудита, затем повторить Electron CDP/PNG audit и принять решение о `stabilityStatus: "publish"`.
+Проверить в Electron CDP на 800×600/1024×600 и визуально подтвердить PNG перед approve.

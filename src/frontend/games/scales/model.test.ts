@@ -53,4 +53,14 @@ describe("generateScalesRound", () => {
       if (round.left.weight === round.right.weight) expect(round.tiltDeg).toBe(0);
     }
   });
+
+  it("uses injected randomness for pan weights and emoji", () => {
+    const settings = settingsFromPreset("standard");
+    const first = generateScalesRound(settings, 1, () => 0);
+    const again = generateScalesRound(settings, 1, () => 0);
+
+    expect(again.left.weight).toBe(first.left.weight);
+    expect(again.right.weight).toBe(first.right.weight);
+    expect(again.left.emoji).toBe(first.left.emoji);
+  });
 });

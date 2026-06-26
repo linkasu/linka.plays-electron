@@ -1,4 +1,5 @@
 import type { SessionSettings } from "../../core/settings";
+import { shuffleItems } from "../../core/random";
 
 export type NumberSortingDirection = "ascending" | "descending";
 
@@ -17,19 +18,6 @@ export type NumberSortingRound = {
   targetNumber: number;
 };
 
-function randomInt(min: number, max: number) {
-  return min + Math.floor(Math.random() * (max - min + 1));
-}
-
-function shuffleItems<T>(items: T[]) {
-  const result = [...items];
-  for (let index = result.length - 1; index > 0; index -= 1) {
-    const swapIndex = randomInt(0, index);
-    [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
-  }
-  return result;
-}
-
 function numberRange(maxNumber: number) {
   return Array.from({ length: maxNumber }, (_, index) => index + 1);
 }
@@ -40,10 +28,10 @@ function settingsForPreset(settings: SessionSettings) {
   return { cardCount: 5, maxNumber: 12 };
 }
 
-export function generateNumberSortingRound(settings: SessionSettings, roundIndex = 1): NumberSortingRound {
+export function generateNumberSortingRound(settings: SessionSettings, roundIndex = 1, random = Math.random): NumberSortingRound {
   const direction: NumberSortingDirection = roundIndex % 2 === 0 ? "descending" : "ascending";
   const { cardCount, maxNumber } = settingsForPreset(settings);
-  const values = shuffleItems(numberRange(maxNumber)).slice(0, cardCount);
+  const values = shuffleItems(numberRange(maxNumber), random).slice(0, cardCount);
   const correctOrder = [...values].sort((left, right) => direction === "ascending" ? left - right : right - left);
 
   return {

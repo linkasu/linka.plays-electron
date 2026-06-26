@@ -7208,5 +7208,89 @@
     "text": "Готово. Сравнение закончено.",
     "voice": "jane",
     "path": "/audio/tts/greater-less/complete.mp3"
+  },
+  {
+    "id": "scales.prompt",
+    "game": "scales",
+    "text": "Посмотри на весы и выбери ответ.",
+    "voice": "jane",
+    "path": "/audio/tts/scales/prompt.mp3"
+  },
+  {
+    "id": "scales.correct",
+    "game": "scales",
+    "text": "Верно.",
+    "voice": "jane",
+    "path": "/audio/tts/scales/correct.mp3"
+  },
+  {
+    "id": "scales.mistake",
+    "game": "scales",
+    "text": "Посмотри на весы ещё раз и выбери другой ответ.",
+    "voice": "jane",
+    "path": "/audio/tts/scales/mistake.mp3"
+  },
+  {
+    "id": "scales.complete",
+    "game": "scales",
+    "text": "Готово. Весы сравнены.",
+    "voice": "jane",
+    "path": "/audio/tts/scales/complete.mp3"
+  },
+  {
+    "id": "number-line.prompt",
+    "game": "number-line",
+    "text": "Выбери число на дорожке.",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt.mp3"
+  },
+  {
+    "id": "number-line.correct",
+    "game": "number-line",
+    "text": "Верно.",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/correct.mp3"
+  },
+  {
+    "id": "number-line.mistake",
+    "game": "number-line",
+    "text": "Попробуй ещё раз и выбери другое число.",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/mistake.mp3"
+  },
+  {
+    "id": "number-line.complete",
+    "game": "number-line",
+    "text": "Готово. Числовая дорожка закончена.",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/complete.mp3"
+  },
+  {
+    "id": "number-sorting.prompt",
+    "game": "number-sorting",
+    "text": "Выбирай числа в нужном порядке.",
+    "voice": "jane",
+    "path": "/audio/tts/number-sorting/prompt.mp3"
+  },
+  {
+    "id": "number-sorting.correct",
+    "game": "number-sorting",
+    "text": "Верно.",
+    "voice": "jane",
+    "path": "/audio/tts/number-sorting/correct.mp3"
+  },
+  {
+    "id": "number-sorting.mistake",
+    "game": "number-sorting",
+    "text": "Посмотри на порядок ещё раз и выбери другое число.",
+    "voice": "jane",
+    "path": "/audio/tts/number-sorting/mistake.mp3"
+  },
+  {
+    "id": "number-sorting.complete",
+    "game": "number-sorting",
+    "text": "Готово. Сортировка закончена.",
+    "voice": "jane",
+    "path": "/audio/tts/number-sorting/complete.mp3"
   }
 ]

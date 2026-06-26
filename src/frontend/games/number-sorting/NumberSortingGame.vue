@@ -1,20 +1,26 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { generateNumberSortingRound, type NumberSortingCard } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("number-sorting", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("number-sorting", {
   maxSteps: 8,
-  overrides: { dwellMs: 1300, sessionSeconds: 130 },
+  overrides: { dwellMs: 1300, sessionSeconds: 130, sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "number-sorting", soundEnabled, warmAssetIds: ["number-sorting.prompt", "number-sorting.correct", "number-sorting.mistake", "number-sorting.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame({
   session,
@@ -24,16 +30,14 @@ const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame
 
 const selectedNumbers = ref<number[]>([]);
 const wrongNumber = ref<number>();
-const hintedNumber = ref<number>();
 const pendingFeedback = ref(false);
-let feedbackTimer = 0;
 
 const targetNumber = computed(() => round.value.correctOrder[selectedNumbers.value.length] ?? round.value.correctOrder[0]);
 const remainingCount = computed(() => Math.max(0, round.value.correctOrder.length - selectedNumbers.value.length));
 const directionLabel = computed(() => round.value.direction === "ascending" ? "по возрастанию" : "по убыванию");
 const feedbackText = computed(() => {
-  if (wrongNumber.value !== undefined) return `Почти. Следующее число: ${targetNumber.value}.`;
-  if (selectedNumbers.value.length > 0) return `Хорошо. Теперь выбери ${targetNumber.value}.`;
+  if (wrongNumber.value !== undefined) return "Посмотри на порядок ещё раз и выбери другое число.";
+  if (selectedNumbers.value.length > 0) return "Хорошо. Продолжай выбирать числа в нужном порядке.";
   return round.value.helperText;
 });
 
@@ -45,16 +49,9 @@ function isSelected(value: number) {
   return selectedNumbers.value.includes(value);
 }
 
-function clearFeedbackTimer() {
-  window.clearTimeout(feedbackTimer);
-  feedbackTimer = 0;
-}
-
 function clearSoftFeedback() {
-  clearFeedbackTimer();
   pendingFeedback.value = false;
   wrongNumber.value = undefined;
-  hintedNumber.value = undefined;
 }
 
 function resetChoices() {
@@ -62,64 +59,69 @@ function resetChoices() {
   selectedNumbers.value = [];
 }
 
-function choose(card: NumberSortingCard) {
+async function choose(card: NumberSortingCard) {
   if (session.status !== "running" || pendingFeedback.value || isSelected(card.value)) return;
 
   const expectedNumber = targetNumber.value;
   const targetId = cardTargetId(card);
   const expectedTargetId = `number-sorting:choice:${round.value.roundId}:${expectedNumber}`;
 
-  clearFeedbackTimer();
-
   if (card.value === expectedNumber) {
     const nextSelected = [...selectedNumbers.value, card.value];
     wrongNumber.value = undefined;
-    hintedNumber.value = undefined;
     pendingFeedback.value = true;
     selectedNumbers.value = nextSelected;
     recordSuccess({ roundId: round.value.roundId, targetId, prompt: round.value.prompt, direction: round.value.direction, expected: expectedNumber, actual: card.value, sequence: [...nextSelected], isCorrect: true });
+    void feedbackAudio.playSuccess();
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["number-sorting.correct", "number-sorting.complete"] : ["number-sorting.correct"], 80, 170);
 
-    if (session.status !== "running" || session.step >= session.maxSteps) return;
-
-    feedbackTimer = window.setTimeout(() => {
-      if (nextSelected.length >= round.value.correctOrder.length) {
-        nextRound();
-        resetChoices();
-        return;
-      }
-
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
       pendingFeedback.value = false;
-    }, 450);
+      return;
+    }
+
+    if (nextSelected.length >= round.value.correctOrder.length) {
+      nextRound();
+      resetChoices();
+      promptAudio.play("number-sorting.prompt", 180);
+      return;
+    }
+
+    pendingFeedback.value = false;
     return;
   }
 
   wrongNumber.value = card.value;
-  hintedNumber.value = expectedNumber;
   pendingFeedback.value = true;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, prompt: round.value.prompt, direction: round.value.direction, expected: expectedNumber, actual: card.value, sequence: [...selectedNumbers.value], isCorrect: false });
-  recordHint({ roundId: round.value.roundId, text: `Следующее число: ${expectedNumber}` });
-
-  feedbackTimer = window.setTimeout(() => {
-    pendingFeedback.value = false;
-    wrongNumber.value = undefined;
-    hintedNumber.value = undefined;
-  }, 1100);
+  void feedbackAudio.playMistake();
+  await promptAudio.playSequenceAndWait(["number-sorting.mistake"], 80);
+  pendingFeedback.value = false;
+  wrongNumber.value = undefined;
 }
 
 function cardColor(card: NumberSortingCard) {
   if (isSelected(card.value)) return "green-lighten-4";
   if (wrongNumber.value === card.value) return "orange-lighten-4";
-  if (hintedNumber.value === card.value) return "blue-lighten-4";
   return "surface";
 }
 
 function restart() {
+  promptAudio.cancelPending();
   resetChoices();
   restartRounds();
+  promptAudio.play("number-sorting.prompt", 220);
 }
 
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("number-sorting.prompt", 420);
+});
+
 onUnmounted(() => {
-  clearFeedbackTimer();
+  promptAudio.cancelPending();
 });
 </script>
 
@@ -136,8 +138,8 @@ onUnmounted(() => {
 
             <v-sheet class="pa-3 pa-md-4 mb-5" color="blue-grey-lighten-5" rounded="xl">
               <div class="d-flex flex-wrap justify-center align-center ga-2">
-                <v-chip v-for="number in round.correctOrder" :key="number" :color="selectedNumbers.includes(number) ? 'success' : number === targetNumber ? 'primary' : undefined" :variant="selectedNumbers.includes(number) || number === targetNumber ? 'flat' : 'tonal'" size="large">
-                  {{ selectedNumbers.includes(number) ? number : number === targetNumber ? "следующее" : "..." }}
+                <v-chip v-for="number in round.correctOrder" :key="number" :color="selectedNumbers.includes(number) ? 'success' : undefined" :variant="selectedNumbers.includes(number) ? 'flat' : 'tonal'" size="large">
+                  {{ selectedNumbers.includes(number) ? number : "..." }}
                 </v-chip>
               </div>
               <div class="text-body-2 text-medium-emphasis text-center mt-2">Осталось выбрать: {{ remainingCount }}</div>
@@ -145,7 +147,7 @@ onUnmounted(() => {
 
             <v-row class="card-grid" justify="center" dense>
               <v-col v-for="card in round.cards" :key="card.id" cols="12" sm="6" md="4" class="number-card-col">
-                <GameDwellButton :class="{ 'number-choice--wrong': wrongNumber === card.value, 'number-choice--hint': hintedNumber === card.value, 'number-choice--selected': selectedNumbers.includes(card.value) }" :target-id="cardTargetId(card)" :disabled="session.status !== 'running' || pendingFeedback || isSelected(card.value)" :dwell-ms="session.settings.dwellMs" :min-height="210" :color="cardColor(card)" @select="choose(card)">
+                <GameDwellButton :class="{ 'number-choice--wrong': wrongNumber === card.value, 'number-choice--selected': selectedNumbers.includes(card.value) }" :target-id="cardTargetId(card)" :disabled="session.status !== 'running' || pendingFeedback || isSelected(card.value)" :dwell-ms="session.settings.dwellMs" :min-height="210" :color="cardColor(card)" @select="choose(card)">
                   <template #default>
                     <div class="number-card-content">
                       <v-icon v-if="selectedNumbers.includes(card.value)" class="number-card-icon" icon="mdi-check-circle" color="success" size="34" />
@@ -209,11 +211,6 @@ onUnmounted(() => {
   outline-offset: 0.2rem;
 }
 
-.number-choice--hint {
-  outline: 0.42rem solid rgb(var(--v-theme-primary) / 58%);
-  outline-offset: 0.2rem;
-}
-
 .number-choice--selected {
   opacity: 0.82;
 }
@@ -250,7 +247,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-height: 680px) {
+@media (max-height: 42.5rem) {
   .game-container {
     padding-block-start: 4.75rem;
   }

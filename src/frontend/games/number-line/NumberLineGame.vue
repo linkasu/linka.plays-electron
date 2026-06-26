@@ -1,20 +1,26 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { generateNumberLineRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("number-line", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("number-line", {
   maxSteps: 8,
-  overrides: { dwellMs: 1300, sessionSeconds: 130 },
+  overrides: { dwellMs: 1300, sessionSeconds: 130, sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "number-line", soundEnabled, warmAssetIds: ["number-line.prompt", "number-line.correct", "number-line.mistake", "number-line.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
@@ -23,36 +29,64 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
 });
 
 const lastMistakeNumber = ref<number>();
+const isSpeaking = ref(false);
 
 const feedbackText = computed(() => {
   if (lastMistakeNumber.value === undefined) return round.value.helperText;
-  return `Попробуй ещё раз. Нужное число: ${round.value.targetNumber}.`;
+  return "Попробуй ещё раз и выбери другое число.";
 });
 
 function numberTargetId(number: number) {
   return `number-line:choice:${number}`;
 }
 
-function choose(number: number) {
-  if (session.status !== "running") return;
+async function choose(number: number) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const targetId = numberTargetId(number);
   const expectedTargetId = numberTargetId(round.value.targetNumber);
   if (number === round.value.targetNumber) {
     lastMistakeNumber.value = undefined;
     recordSuccess({ roundId: round.value.roundId, targetId, prompt: round.value.prompt, expected: round.value.targetNumber, actual: number, isCorrect: true });
+    isSpeaking.value = true;
+    void feedbackAudio.playSuccess();
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["number-line.correct", "number-line.complete"] : ["number-line.correct"], 80, 170);
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      isSpeaking.value = false;
+      return;
+    }
     if (session.step < session.maxSteps) nextRound();
+    promptAudio.play("number-line.prompt", 180);
+    isSpeaking.value = false;
     return;
   }
 
   lastMistakeNumber.value = number;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, prompt: round.value.prompt, expected: round.value.targetNumber, actual: number, isCorrect: false });
+  isSpeaking.value = true;
+  void feedbackAudio.playMistake();
+  await promptAudio.playSequenceAndWait(["number-line.mistake"], 80);
+  isSpeaking.value = false;
 }
 
 function restart() {
+  promptAudio.cancelPending();
   lastMistakeNumber.value = undefined;
+  isSpeaking.value = false;
   restartRoundGame();
+  promptAudio.play("number-line.prompt", 220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("number-line.prompt", 420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -68,10 +102,9 @@ function restart() {
 
             <div class="number-road" aria-label="Числовая дорожка от 1 до 10">
               <div class="number-road__track" aria-hidden="true" />
-              <GameDwellButton v-for="number in round.numbers" :key="number" :target-id="numberTargetId(number)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="150" color="surface" @select="choose(number)">
+              <GameDwellButton v-for="number in round.numbers" :key="number" :target-id="numberTargetId(number)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="150" color="surface" @select="choose(number)">
                 <template #default>
-                  <div :class="['number-step', { 'number-step--current': number === round.currentNumber, 'number-step--target-hint': lastMistakeNumber !== undefined && number === round.targetNumber, 'number-step--mistake': number === lastMistakeNumber }]">
-                    <v-icon v-if="lastMistakeNumber !== undefined && number === round.targetNumber" class="number-step__check" icon="mdi-check-circle" size="30" />
+                  <div :class="['number-step', { 'number-step--current': number === round.currentNumber, 'number-step--mistake': number === lastMistakeNumber }]">
                     <span class="number-step__label">{{ number }}</span>
                   </div>
                 </template>
@@ -148,11 +181,6 @@ function restart() {
   box-shadow: inset 0 -0.45rem 0 rgb(173 113 15 / 14%);
 }
 
-.number-step--target-hint {
-  outline: 0.42rem solid rgb(var(--v-theme-primary));
-  transform: scale(1.03);
-}
-
 .number-step--mistake {
   filter: saturate(0.68) brightness(0.96);
   outline: 0.35rem solid rgb(var(--v-theme-warning) / 48%);
@@ -185,6 +213,50 @@ function restart() {
 
   .number-step {
     min-block-size: 6.8rem;
+  }
+}
+
+@media (max-height: 42.5rem) {
+  .game-container {
+    padding-block-start: 5rem;
+  }
+
+  .number-line-card {
+    padding: 1rem !important;
+  }
+
+  .number-line-card .text-overline {
+    display: none;
+  }
+
+  .number-line-card h1 {
+    font-size: 2.6rem !important;
+    line-height: 1.05;
+    margin-block-end: 0.35rem !important;
+  }
+
+  .number-line-card p {
+    font-size: 1.1rem !important;
+    margin-block-end: 0.75rem !important;
+  }
+
+  .number-road {
+    gap: 0.5rem;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .number-road :deep(.dwell-button) {
+    min-block-size: 6.6rem !important;
+    padding: 0.4rem !important;
+  }
+
+  .number-step {
+    border-radius: 1.2rem;
+    min-block-size: 5.75rem;
+  }
+
+  .number-step__label {
+    font-size: 3.2rem;
   }
 }
 </style>

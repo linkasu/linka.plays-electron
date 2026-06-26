@@ -1,23 +1,30 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { answerLabel, generateScalesRound, scalesAnswers, type ScalesAnswer, type ScalesSide } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("scales", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("scales", {
   maxSteps: 8,
-  overrides: { dwellMs: 1300, sessionSeconds: 125, sound: false },
+  overrides: { dwellMs: 1300, sessionSeconds: 125, sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "scales", soundEnabled, warmAssetIds: ["scales.prompt", "scales.correct", "scales.mistake", "scales.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
-const feedback = ref("");
+const feedback = ref("Посмотри на весы и выбери ответ.");
 const lastMistakeAnswer = ref<ScalesAnswer>();
+const isSpeaking = ref(false);
 const { round, resultVisible, nextRound, restart } = useRoundGame({
   session,
   startSession,
@@ -37,38 +44,57 @@ function panOffsetStyle(side: ScalesSide) {
   return { transform: down ? "translateY(1.1rem)" : "translateY(-0.8rem)" };
 }
 
-function buildHint() {
-  const correct = answerLabel(round.value.correctAnswer, round.value.question).toLowerCase();
-  if (round.value.correctAnswer === "equal") return "Весы стоят ровно: стороны равны.";
-  return round.value.question === "heavier"
-    ? `Посмотри на чашу ниже: ${correct}.`
-    : `Посмотри на чашу выше: ${correct}.`;
-}
-
-function choose(answer: ScalesAnswer) {
-  if (session.status !== "running") return;
+async function choose(answer: ScalesAnswer) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const targetId = answerTargetId(answer);
   const expectedTargetId = answerTargetId(round.value.correctAnswer);
   if (answer === round.value.correctAnswer) {
-    feedback.value = "";
+    feedback.value = "Верно.";
     lastMistakeAnswer.value = undefined;
     recordSuccess({ roundId: round.value.roundId, targetId, prompt: round.value.prompt, expected: round.value.correctAnswer, actual: answer, leftWeight: round.value.left.weight, rightWeight: round.value.right.weight, isCorrect: true });
+    isSpeaking.value = true;
+    void feedbackAudio.playSuccess();
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["scales.correct", "scales.complete"] : ["scales.correct"], 80, 170);
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      isSpeaking.value = false;
+      return;
+    }
     if (session.step < session.maxSteps) nextRound();
+    feedback.value = "Посмотри на весы и выбери ответ.";
+    promptAudio.play("scales.prompt", 180);
+    isSpeaking.value = false;
     return;
   }
 
-  feedback.value = buildHint();
+  feedback.value = "Посмотри на весы ещё раз и выбери другой ответ.";
   lastMistakeAnswer.value = answer;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, prompt: round.value.prompt, expected: round.value.correctAnswer, actual: answer, leftWeight: round.value.left.weight, rightWeight: round.value.right.weight, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId, text: feedback.value });
+  isSpeaking.value = true;
+  void feedbackAudio.playMistake();
+  await promptAudio.playSequenceAndWait(["scales.mistake"], 80);
+  isSpeaking.value = false;
 }
 
 function restartGame() {
-  feedback.value = "";
+  promptAudio.cancelPending();
+  feedback.value = "Посмотри на весы и выбери ответ.";
   lastMistakeAnswer.value = undefined;
+  isSpeaking.value = false;
   restart();
+  promptAudio.play("scales.prompt", 220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("scales.prompt", 420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -80,7 +106,7 @@ function restartGame() {
           <v-card class="pa-4 pa-md-6" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Сравни весы</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
-            <v-alert v-if="feedback" class="mb-4 text-body-1 font-weight-bold" color="primary" icon="mdi-heart-outline" rounded="xl" variant="tonal">
+            <v-alert class="mb-4 text-body-1 font-weight-bold" color="primary" icon="mdi-heart-outline" rounded="xl" variant="tonal">
               {{ feedback }}
             </v-alert>
 
@@ -108,7 +134,7 @@ function restartGame() {
 
             <v-row class="answer-row" dense>
               <v-col v-for="answer in scalesAnswers" :key="answer" class="scales-answer-col" cols="12" md="4">
-                <GameDwellButton :target-id="answerTargetId(answer)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="158" :color="lastMistakeAnswer === answer ? 'secondary' : 'surface'" @select="choose(answer)">
+                <GameDwellButton :target-id="answerTargetId(answer)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="158" :color="lastMistakeAnswer === answer ? 'secondary' : 'surface'" @select="choose(answer)">
                   <template #default>
                     <div class="d-flex align-center justify-center ga-3 text-h5 text-md-h4 font-weight-bold">
                       <v-icon v-if="answer === 'equal'" icon="mdi-equal" size="38" />
@@ -255,6 +281,34 @@ function restartGame() {
 @media (min-width: 68.75rem) {
   .game-container {
     padding-block-start: 7.25rem;
+  }
+}
+
+@media (min-width: 68.75rem) and (max-height: 58rem) {
+  .game-container {
+    padding-block-start: 4rem;
+  }
+
+  .game-container :deep(.v-card) {
+    padding-block: 1rem !important;
+  }
+
+  .game-container h1 {
+    font-size: 3.4rem !important;
+    line-height: 1.05;
+  }
+
+  .scale-stage {
+    margin-block-end: 0.75rem !important;
+    padding: 1rem !important;
+  }
+
+  .scale-frame {
+    block-size: clamp(15rem, 34vh, 19rem);
+  }
+
+  .answer-row :deep(.dwell-button) {
+    min-block-size: 8.25rem !important;
   }
 }
 

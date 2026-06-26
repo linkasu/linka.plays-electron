@@ -1,4 +1,5 @@
 import type { SessionSettings } from "../../core/settings";
+import { randomInt } from "../../core/random";
 
 export type ScalesSide = "left" | "right";
 export type ScalesQuestion = "heavier" | "lighter";
@@ -25,10 +26,6 @@ export const scalesAnswers: ScalesAnswer[] = ["left", "equal", "right"];
 
 const panEmojis = ["🍎", "⭐", "🟡", "🧸", "🪙", "🌸"];
 
-function randomInt(min: number, max: number) {
-  return min + Math.floor(Math.random() * (max - min + 1));
-}
-
 function maxWeight(settings: SessionSettings) {
   if (settings.preset === "gentle") return 5;
   if (settings.preset === "challenge") return 10;
@@ -39,7 +36,7 @@ function minDifference(settings: SessionSettings) {
   return settings.preset === "gentle" ? 2 : 1;
 }
 
-function pickDifferentWeights(settings: SessionSettings) {
+function pickDifferentWeights(settings: SessionSettings, random: () => number) {
   const pairs: Array<[number, number]> = [];
   const max = maxWeight(settings);
   const minDiff = minDifference(settings);
@@ -50,7 +47,7 @@ function pickDifferentWeights(settings: SessionSettings) {
     }
   }
 
-  return pairs[randomInt(0, pairs.length - 1)];
+  return pairs[randomInt(0, pairs.length - 1, random)];
 }
 
 function buildPan(side: ScalesSide, weight: number, emoji: string): ScalesPan {
@@ -74,16 +71,16 @@ export function answerLabel(answer: ScalesAnswer, question: ScalesQuestion) {
   return question === "heavier" ? `${side} тяжелее` : `${side} легче`;
 }
 
-export function generateScalesRound(settings: SessionSettings, roundIndex = 1): ScalesRound {
+export function generateScalesRound(settings: SessionSettings, roundIndex = 1, random = Math.random): ScalesRound {
   const question: ScalesQuestion = roundIndex % 2 === 0 ? "lighter" : "heavier";
-  const emoji = panEmojis[randomInt(0, panEmojis.length - 1)];
+  const emoji = panEmojis[randomInt(0, panEmojis.length - 1, random)];
   const equalRound = roundIndex % 4 === 0;
   const [leftWeight, rightWeight] = equalRound
     ? (() => {
-      const weight = randomInt(1, maxWeight(settings));
+      const weight = randomInt(1, maxWeight(settings), random);
       return [weight, weight] as [number, number];
     })()
-    : pickDifferentWeights(settings);
+    : pickDifferentWeights(settings, random);
   const correctAnswer = correctScalesAnswer(question, leftWeight, rightWeight);
   const tiltDeg = leftWeight === rightWeight ? 0 : leftWeight > rightWeight ? -7 : 7;
 
