@@ -8,9 +8,10 @@ import { useRoundGame } from "../../composables/useRoundGame";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { formatClockHour, generateClockRound } from "./model";
 
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("clock", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("clock", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 130, sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 const soundEnabled = toRef(session.settings, "sound");
@@ -18,7 +19,7 @@ const promptAudio = useGamePromptAudio({
   gameId: "clock",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: ["clock.prompt.1", "clock.prompt.2", "clock.prompt.3"]
+  warmAssetIds: ["clock.prompt.1", "clock.prompt.2", "clock.prompt.3", "clock.mistake", "clock.complete"]
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
@@ -43,7 +44,7 @@ function correctAssetId() {
 }
 
 function mistakeAssetId() {
-  return `clock.mistake.${round.value.targetHour}`;
+  return "clock.mistake";
 }
 
 async function playRoundPrompt(delayMs = 0) {
@@ -80,7 +81,13 @@ async function choose(hour: number) {
     feedback.value = "Верно.";
     recordSuccess({ roundId: round.value.roundId, targetId, expected: round.value.targetHour, actual: hour, isCorrect: true });
     void pianoFeedback.playSuccess();
-    await promptAudio.playSequenceAndWait([correctAssetId()], 80);
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [correctAssetId(), "clock.complete"] : [correctAssetId()], 80, 170);
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      isSpeaking.value = false;
+      return;
+    }
     if (session.status === "running" && session.step < session.maxSteps) {
       nextRound();
       feedback.value = "Следующие часы.";
@@ -92,9 +99,8 @@ async function choose(hour: number) {
   }
 
   isSpeaking.value = true;
-  feedback.value = `Почти. Нужны часы ${formatClockHour(round.value.targetHour)}.`;
+  feedback.value = "Посмотри на короткую стрелку ещё раз и выбери другие часы.";
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, expected: round.value.targetHour, actual: hour, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, text: feedback.value });
   void pianoFeedback.playMistake();
   await promptAudio.playSequenceAndWait([mistakeAssetId()], 80);
   isSpeaking.value = false;

@@ -1,5 +1,16 @@
 # Счёт
 
+## Registry
+
+| Поле | Значение |
+|---|---|
+| ID | `count-items` |
+| Route | `/games/count-items` |
+| Категория | `numeracy` — Счёт и математика |
+| Status | `polished` |
+| Resolved stability | `development` |
+| Readiness group | `needs-check` |
+
 ## Unity source
 
 - Scene: `Assets/Games/CountItems/CountItems.unity`.
@@ -8,7 +19,7 @@
 
 ## Core mechanic
 
-Показано несколько предметов. Ребёнок выбирает правильное число.
+Показано несколько предметов. Ребёнок выбирает правильное число; ошибка оставляет тот же набор и не раскрывает ответ.
 
 ## Игровой цикл
 
@@ -69,3 +80,7 @@
 - Правильный ответ всегда есть.
 - Варианты не повторяются.
 - Предметы не перекрываются и не уходят под HUD.
+
+## Next step
+
+Проверить в Electron CDP на 800×600/1024×600 и визуально подтвердить PNG перед approve.

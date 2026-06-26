@@ -12,9 +12,10 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateCalendarRound, type CalendarChoice } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("calendar", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("calendar", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 130, sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 const soundEnabled = toRef(session.settings, "sound");
@@ -22,7 +23,7 @@ const promptAudio = useGamePromptAudio({
   gameId: "calendar",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: ["calendar.prompt.weekday.monday.today", "calendar.prompt.relative.monday.today"]
+  warmAssetIds: ["calendar.prompt.weekday.monday.today", "calendar.prompt.relative.monday.today", "calendar.mistake", "calendar.complete"]
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
@@ -49,7 +50,7 @@ function correctAssetId() {
 }
 
 function mistakeAssetId() {
-  return `calendar.mistake.${round.value.promptId}`;
+  return "calendar.mistake";
 }
 
 async function playRoundPrompt(delayMs = 0) {
@@ -60,7 +61,6 @@ async function playRoundPrompt(delayMs = 0) {
 
 function choiceColor(choice: CalendarChoice) {
   if (mistakeChoiceId.value === choice.id) return "orange-lighten-4";
-  if (mistakeChoiceId.value && choice.id === round.value.correctChoiceId) return "green-lighten-4";
   return choice.color;
 }
 
@@ -76,7 +76,13 @@ async function choose(choice: CalendarChoice) {
     feedbackText.value = "Верно.";
     recordSuccess({ roundId: round.value.roundId, targetId, expected: round.value.correctChoiceId, actual: choice.id, isCorrect: true });
     void pianoFeedback.playSuccess();
-    await promptAudio.playSequenceAndWait([correctAssetId()], 80);
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [correctAssetId(), "calendar.complete"] : [correctAssetId()], 80, 170);
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      isSpeaking.value = false;
+      return;
+    }
     if (session.status === "running" && session.step < session.maxSteps) {
       nextRound();
       feedbackText.value = "Следующий день.";
@@ -89,9 +95,8 @@ async function choose(choice: CalendarChoice) {
 
   isSpeaking.value = true;
   mistakeChoiceId.value = choice.id;
-  feedbackText.value = `Почти. ${round.value.correctionText}`;
+  feedbackText.value = "Посмотри на календарь ещё раз и выбери другой день.";
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, expected: round.value.correctChoiceId, actual: choice.id, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId, text: feedbackText.value });
   void pianoFeedback.playMistake();
   await promptAudio.playSequenceAndWait([mistakeAssetId()], 80);
   isSpeaking.value = false;
@@ -139,7 +144,6 @@ onUnmounted(() => {
                 <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="190" :color="choiceColor(choice)" @select="choose(choice)">
                   <template #default>
                     <div class="calendar-choice">
-                      <v-icon v-if="mistakeChoiceId && choice.id === round.correctChoiceId" class="calendar-choice__check" icon="mdi-check-circle" size="34" />
                       <v-icon :icon="choice.icon" class="calendar-choice__icon mb-3" size="48" />
                       <div class="calendar-choice__label font-weight-black">{{ choice.label }}</div>
                     </div>

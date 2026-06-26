@@ -7089,5 +7089,61 @@
     "text": "Спасибо. Социальные фразы потренированы.",
     "voice": "jane",
     "path": "/audio/tts/social-phrases/complete.mp3"
+  },
+  {
+    "id": "clock.mistake",
+    "game": "clock",
+    "text": "Посмотри на короткую стрелку ещё раз и выбери другие часы.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/mistake.mp3"
+  },
+  {
+    "id": "clock.complete",
+    "game": "clock",
+    "text": "Готово. Часы выбраны.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/complete.mp3"
+  },
+  {
+    "id": "calendar.mistake",
+    "game": "calendar",
+    "text": "Посмотри на календарь ещё раз и выбери другой день.",
+    "voice": "jane",
+    "path": "/audio/tts/calendar/mistake.mp3"
+  },
+  {
+    "id": "calendar.complete",
+    "game": "calendar",
+    "text": "Готово. Дни выбраны.",
+    "voice": "jane",
+    "path": "/audio/tts/calendar/complete.mp3"
+  },
+  {
+    "id": "count-items.prompt",
+    "game": "count-items",
+    "text": "Посчитай предметы и выбери число.",
+    "voice": "jane",
+    "path": "/audio/tts/count-items/prompt.mp3"
+  },
+  {
+    "id": "count-items.correct",
+    "game": "count-items",
+    "text": "Верно.",
+    "voice": "jane",
+    "path": "/audio/tts/count-items/correct.mp3"
+  },
+  {
+    "id": "count-items.mistake",
+    "game": "count-items",
+    "text": "Посчитай предметы ещё раз и выбери другое число.",
+    "voice": "jane",
+    "path": "/audio/tts/count-items/mistake.mp3"
+  },
+  {
+    "id": "count-items.complete",
+    "game": "count-items",
+    "text": "Готово. Счёт закончен.",
+    "voice": "jane",
+    "path": "/audio/tts/count-items/complete.mp3"
   }
 ]
