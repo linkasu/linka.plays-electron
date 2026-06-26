@@ -11,7 +11,7 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateMiniDialogRound, getMiniDialogChoice, getMiniDialogNextNodeId, isMiniDialogChoiceCorrect, miniDialogVoiceRoles, type MiniDialogChoice, type MiniDialogNodeId, type MiniDialogRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, finishSession, startSession } = useGameSessionFor("mini-dialog", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, finishSession, startSession } = useGameSessionFor("mini-dialog", {
   maxSteps: 7,
   overrides: { dwellMs: 1350, sessionSeconds: 135, sound: true },
   finishOnMaxSteps: false,
@@ -22,7 +22,7 @@ const promptAudio = useGamePromptAudio({
   gameId: "mini-dialog",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: ["mini-dialog.partner.hello", "mini-dialog.partner.feeling", "mini-dialog.partner.ready"]
+  warmAssetIds: ["mini-dialog.partner.hello", "mini-dialog.partner.feeling", "mini-dialog.partner.ready", "mini-dialog.mistake", "mini-dialog.complete"]
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
@@ -47,8 +47,8 @@ function correctAssetId(choice: MiniDialogChoice) {
   return `mini-dialog.correct.${round.value.nodeId}.${choice.id}`;
 }
 
-function mistakeAssetId(choice: MiniDialogChoice) {
-  return `mini-dialog.mistake.${round.value.nodeId}.${choice.id}`;
+function mistakeAssetId() {
+  return "mini-dialog.mistake";
 }
 
 function resetHighlights() {
@@ -90,10 +90,11 @@ async function choose(choiceId: string) {
       isCorrect: true
     });
     void pianoFeedback.playSuccess();
-    await promptAudio.playSequenceAndWait([correctAssetId(choice)], 80);
-
     const nextNodeId = getMiniDialogNextNodeId(choice);
-    if (!nextNodeId || nextNodeId === "finish" || session.step >= session.maxSteps) {
+    const finishedAfterSuccess = !nextNodeId || nextNodeId === "finish" || session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [correctAssetId(choice), "mini-dialog.complete"] : [correctAssetId(choice)], 80, 170);
+
+    if (finishedAfterSuccess) {
       feedback.value = "Спасибо за диалог.";
       finishSession(nextNodeId === "finish" ? "game-complete" : "max-steps");
       isChangingRound.value = false;
@@ -109,7 +110,7 @@ async function choose(choiceId: string) {
   }
 
   wrongChoiceId.value = choice.id;
-  feedback.value = choice.feedback;
+  feedback.value = "Послушай реплику ещё раз и выбери другой ответ.";
   recordMistake({
     roundId: round.value.roundId,
     nodeId: round.value.nodeId,
@@ -121,9 +122,8 @@ async function choose(choiceId: string) {
     actual: choice.text,
     isCorrect: false
   });
-  recordHint({ roundId: round.value.roundId, nodeId: round.value.nodeId, targetIds: expectedTargetIds, text: choice.feedback, reason: "wrong-dialog-reply" });
   void pianoFeedback.playMistake();
-  await promptAudio.playSequenceAndWait([mistakeAssetId(choice)], 80);
+  await promptAudio.playSequenceAndWait([mistakeAssetId()], 80);
   wrongChoiceId.value = undefined;
   isChangingRound.value = false;
 }
@@ -140,7 +140,7 @@ function restart() {
   roundIndex.value = 1;
   currentNodeId.value = "hello";
   round.value = generateMiniDialogRound(roundIndex.value, Math.random, currentNodeId.value);
-    feedback.value = "Послушай Миру и ответь.";
+  feedback.value = "Послушай Миру и ответь.";
   resetHighlights();
   isChangingRound.value = false;
   startSession();
@@ -288,7 +288,7 @@ onUnmounted(() => {
 
 @media (max-height: 44rem) {
   .game-container {
-    padding-block-start: 3.5rem;
+    padding-block-start: 2.5rem;
   }
 
   .mini-dialog-card {

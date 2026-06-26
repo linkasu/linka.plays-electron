@@ -10,14 +10,17 @@ import { disposeTypeWordAudio, playTypeWordMistakeMelody, playTypeWordSuccessMel
 import { generateTypeWordRound, type TypeWordRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("type-word", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("type-word", {
   maxSteps: 5,
-  overrides: { dwellMs: 1200, sessionSeconds: 120 }
+  overrides: { dwellMs: 1200, sessionSeconds: 120 },
+  finishOnMaxSteps: false,
+  finishOnMistakes: false
 });
 
 let roundIndex = 1;
 const round = ref<TypeWordRound>(generateTypeWordRound(session.settings, roundIndex));
 const currentIndex = ref(0);
+const isChangingWord = ref(false);
 const resultVisible = computed(() => session.status === "finished");
 const currentLetter = computed(() => round.value.letters[currentIndex.value]);
 
@@ -31,24 +34,33 @@ function nextWord() {
   currentIndex.value = 0;
 }
 
-function pressKey(key: string) {
-  if (session.status !== "running") return;
+async function pressKey(key: string) {
+  if (session.status !== "running" || isChangingWord.value) return;
   if (key !== currentLetter.value) {
     recordMistake({ roundId: round.value.roundId, targetId: keyTargetId(key), expectedTargetId: keyTargetId(currentLetter.value), expected: currentLetter.value, actual: key, isCorrect: false });
-    void playTypeWordMistakeMelody(session.settings.sound);
+    isChangingWord.value = true;
+    await playTypeWordMistakeMelody(session.settings.sound);
+    isChangingWord.value = false;
     return;
   }
   if (currentIndex.value === round.value.letters.length - 1) {
     recordSuccess({ roundId: round.value.roundId, targetId: keyTargetId(key), wordId: round.value.item.id, expected: round.value.item.word, actual: round.value.item.word, isCorrect: true });
-    void playTypeWordSuccessMelody(session.settings.sound);
-    if (session.step < session.maxSteps) nextWord();
+    isChangingWord.value = true;
+    await playTypeWordSuccessMelody(session.settings.sound);
+    if (session.step >= session.maxSteps) {
+      finishSession("game-complete");
+      isChangingWord.value = false;
+      return;
+    }
+    nextWord();
+    isChangingWord.value = false;
     return;
   }
   currentIndex.value += 1;
 }
 
 function selectKey(choice: GameSquareChoice) {
-  pressKey(String(choice));
+  void pressKey(String(choice));
 }
 
 function restart() {
@@ -56,6 +68,7 @@ function restart() {
   roundIndex = 1;
   round.value = generateTypeWordRound(session.settings, roundIndex);
   currentIndex.value = 0;
+  isChangingWord.value = false;
 }
 
 onMounted(() => {
@@ -82,7 +95,7 @@ onUnmounted(() => {
                 </span>
               </div>
             </div>
-            <GameSquareChoiceGrid class="type-keyboard" :items="round.keyboardChoices" :target-id="(choice) => keyTargetId(String(choice))" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" @select="selectKey">
+            <GameSquareChoiceGrid class="type-keyboard" :items="round.keyboardChoices" :target-id="(choice) => keyTargetId(String(choice))" :disabled="session.status !== 'running' || isChangingWord" :dwell-ms="session.settings.dwellMs" compact-size="8.5rem" @select="selectKey">
               <template #default="{ choice }">
                 <div class="text-h3 font-weight-bold">{{ choice }}</div>
               </template>

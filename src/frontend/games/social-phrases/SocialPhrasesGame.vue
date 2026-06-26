@@ -9,12 +9,13 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { generateSocialPhraseRound, getSocialPhraseChoice, isSocialPhraseChoiceCorrect, kindLabels, type PhraseKind, type SocialPhraseChoice, type SocialPhraseRound } from "./model";
+import { generateSocialPhraseRound, getSocialPhraseChoice, isSocialPhraseChoiceCorrect, kindLabels, type SocialPhraseChoice, type SocialPhraseRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("social-phrases", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("social-phrases", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 125, sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 const soundEnabled = toRef(session.settings, "sound");
@@ -22,7 +23,7 @@ const promptAudio = useGamePromptAudio({
   gameId: "social-phrases",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: ["social-phrases.prompt.morning-adult", "social-phrases.prompt.thirsty", "social-phrases.prompt.opened-box"]
+  warmAssetIds: ["social-phrases.prompt.morning-adult", "social-phrases.prompt.thirsty", "social-phrases.prompt.opened-box", "social-phrases.mistake", "social-phrases.complete"]
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
@@ -33,7 +34,6 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
 });
 
 const feedback = ref("Выбери подходящую социальную фразу взглядом.");
-const hintedKind = ref<PhraseKind>();
 const selectedChoiceId = ref<string>();
 const isChangingRound = ref(false);
 
@@ -52,7 +52,7 @@ function correctAssetId(choice: SocialPhraseChoice) {
 }
 
 function mistakeAssetId() {
-  return `social-phrases.mistake.${round.value.id}`;
+  return "social-phrases.mistake";
 }
 
 async function playRoundPrompt(delayMs = 0) {
@@ -72,7 +72,6 @@ async function choose(choice: SocialPhraseChoice) {
 
   if (isExpected) {
     isChangingRound.value = true;
-    hintedKind.value = undefined;
     feedback.value = round.value.correctFeedback;
     recordSuccess({
       roundId: round.value.roundId,
@@ -84,7 +83,14 @@ async function choose(choice: SocialPhraseChoice) {
       isCorrect: true
     });
     void pianoFeedback.playSuccess();
-    await promptAudio.playSequenceAndWait([correctAssetId(selectedChoice)], 80);
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [correctAssetId(selectedChoice), "social-phrases.complete"] : [correctAssetId(selectedChoice)], 80, 170);
+    if (finishedAfterSuccess) {
+      feedback.value = "Спасибо. Социальные фразы потренированы.";
+      finishSession("game-complete");
+      isChangingRound.value = false;
+      return;
+    }
     if (session.status === "running") {
       nextRound();
       feedback.value = "Следующая ситуация.";
@@ -97,8 +103,8 @@ async function choose(choice: SocialPhraseChoice) {
     return;
   }
 
-  hintedKind.value = round.value.expectedKind;
-  feedback.value = round.value.mistakeFeedback;
+  isChangingRound.value = true;
+  feedback.value = "Посмотри на ситуацию ещё раз и выбери другую фразу.";
   recordMistake({
     roundId: round.value.roundId,
     targetId,
@@ -110,11 +116,6 @@ async function choose(choice: SocialPhraseChoice) {
     isCorrect: false,
     noFail: true
   });
-  recordHint({
-    roundId: round.value.roundId,
-    targetId: expectedTargetId,
-    text: round.value.mistakeFeedback
-  });
   void pianoFeedback.playMistake();
   await promptAudio.playSequenceAndWait([mistakeAssetId()], 80);
   selectedChoiceId.value = undefined;
@@ -124,7 +125,6 @@ async function choose(choice: SocialPhraseChoice) {
 function restart() {
   promptAudio.cancelPending();
   feedback.value = "Выбери подходящую социальную фразу взглядом.";
-  hintedKind.value = undefined;
   selectedChoiceId.value = undefined;
   isChangingRound.value = false;
   restartRoundGame();
@@ -160,7 +160,7 @@ onUnmounted(() => {
 
             <v-row justify="center">
               <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="4" md="4">
-                <GameDwellButton :class="{ 'hinted-choice': hintedKind === choice.kind, 'selected-choice': selectedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="200" :color="hintedKind === choice.kind ? 'deep-purple-darken-3' : 'surface'" @select="choose(choice)">
+                <GameDwellButton :class="{ 'selected-choice': selectedChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" min-height="12.5rem" color="surface" @select="choose(choice)">
                   <template #default>
                     <div class="choice-emoji emoji-glyph mb-3" aria-hidden="true">{{ choice.emoji }}</div>
                     <div class="choice-kind text-overline mb-2">{{ kindLabels[choice.kind] }}</div>
@@ -184,7 +184,7 @@ onUnmounted(() => {
 }
 
 .game-container {
-  padding-block-start: 132px;
+  padding-block-start: 8.25rem;
 }
 
 .scene-card {
@@ -202,11 +202,6 @@ onUnmounted(() => {
   line-height: 1;
 }
 
-.hinted-choice {
-  filter: drop-shadow(0 0 1.2rem rgb(var(--v-theme-primary) / 34%));
-  transform: scale(1.02);
-}
-
 .selected-choice {
   outline: 0.25rem solid rgb(var(--v-theme-secondary) / 32%);
   outline-offset: 0.2rem;
@@ -214,7 +209,7 @@ onUnmounted(() => {
 
 @media (max-height: 42rem) {
   .game-container {
-    padding-block-start: 56px;
+    padding-block-start: 2.75rem;
   }
 
   .social-phrases-card {

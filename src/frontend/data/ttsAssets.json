@@ -7061,5 +7061,33 @@
     "text": "Готово. Порядок действий стал понятнее.",
     "voice": "jane",
     "path": "/audio/tts/what-first/complete.mp3"
+  },
+  {
+    "id": "mini-dialog.mistake",
+    "game": "mini-dialog",
+    "text": "Послушай реплику ещё раз и выбери другой ответ.",
+    "voice": "jane",
+    "path": "/audio/tts/mini-dialog/mistake.mp3"
+  },
+  {
+    "id": "mini-dialog.complete",
+    "game": "mini-dialog",
+    "text": "Спасибо за диалог.",
+    "voice": "jane",
+    "path": "/audio/tts/mini-dialog/complete.mp3"
+  },
+  {
+    "id": "social-phrases.mistake",
+    "game": "social-phrases",
+    "text": "Посмотри на ситуацию ещё раз и выбери другую фразу.",
+    "voice": "jane",
+    "path": "/audio/tts/social-phrases/mistake.mp3"
+  },
+  {
+    "id": "social-phrases.complete",
+    "game": "social-phrases",
+    "text": "Спасибо. Социальные фразы потренированы.",
+    "voice": "jane",
+    "path": "/audio/tts/social-phrases/complete.mp3"
   }
 ]

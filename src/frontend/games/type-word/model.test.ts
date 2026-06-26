@@ -72,4 +72,12 @@ describe("generateTypeWordRound", () => {
 
     throw new Error("No repeated-letter word was sampled during the test run.");
   });
+
+  it("uses injected randomness without looping on repeated values", () => {
+    const settings = settingsFromPreset("standard");
+    const first = generateTypeWordRound(settings, 1, () => 0);
+
+    expect(generateTypeWordRound(settings, 1, () => 0).keyboardChoices).toEqual(first.keyboardChoices);
+    expectKeyboardIncludesWord(first);
+  });
 });
