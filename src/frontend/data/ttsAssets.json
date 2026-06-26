@@ -6956,5 +6956,40 @@
     "text": "Готово. Ответы выбраны.",
     "voice": "jane",
     "path": "/audio/tts/yes-no/complete.mp3"
+  },
+  {
+    "id": "choose-emotion.complete",
+    "game": "choose-emotion",
+    "text": "Готово. Эмоции выбраны.",
+    "voice": "jane",
+    "path": "/audio/tts/choose-emotion/complete.mp3"
+  },
+  {
+    "id": "eat-or-not-eat.prompt",
+    "game": "eat-or-not-eat",
+    "text": "Выбери, можно ли это есть.",
+    "voice": "jane",
+    "path": "/audio/tts/eat-or-not-eat/prompt.mp3"
+  },
+  {
+    "id": "eat-or-not-eat.correct",
+    "game": "eat-or-not-eat",
+    "text": "Верно.",
+    "voice": "jane",
+    "path": "/audio/tts/eat-or-not-eat/correct.mp3"
+  },
+  {
+    "id": "eat-or-not-eat.mistake",
+    "game": "eat-or-not-eat",
+    "text": "Посмотри на предмет ещё раз и выбери другой ответ.",
+    "voice": "jane",
+    "path": "/audio/tts/eat-or-not-eat/mistake.mp3"
+  },
+  {
+    "id": "eat-or-not-eat.complete",
+    "game": "eat-or-not-eat",
+    "text": "Готово. Ответы выбраны.",
+    "voice": "jane",
+    "path": "/audio/tts/eat-or-not-eat/complete.mp3"
   }
 ]

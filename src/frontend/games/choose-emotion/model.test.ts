@@ -43,4 +43,12 @@ describe("choose-emotion model", () => {
     expect(firstRound.prompt).toBe(chooseEmotionScenarios[0].prompt);
     expect(faceRound.detail).toContain("эмоцию");
   });
+
+  it("uses injected randomness for deterministic choices", () => {
+    const settings = settingsFromPreset("standard");
+    const first = generateChooseEmotionRound(settings, 1, () => 0).choices.map((choice) => choice.id);
+
+    expect(generateChooseEmotionRound(settings, 1, () => 0).choices.map((choice) => choice.id)).toEqual(first);
+    expect(generateChooseEmotionRound(settings, 1, () => 0.99).choices.map((choice) => choice.id)).not.toEqual(first);
+  });
 });

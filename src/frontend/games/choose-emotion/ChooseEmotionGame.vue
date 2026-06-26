@@ -11,9 +11,10 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateChooseEmotionRound, type ChooseEmotionOption } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("choose-emotion", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("choose-emotion", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 120 },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 const promptAudio = useGamePromptAudio({ gameId: "choose-emotion", soundEnabled: toRef(session.settings, "sound"), volume: 0.42 });
@@ -24,16 +25,16 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
   generateRound: (roundIndex) => generateChooseEmotionRound(session.settings, roundIndex)
 });
 
-const hintedChoiceId = ref<string>();
 const lastChoiceId = ref<string>();
 const successChoiceId = ref<string>();
 const pendingSelection = ref(false);
+const isSpeaking = ref(false);
 let feedbackTimer = 0;
 
 const helperText = computed(() => {
   if (successChoiceId.value) return "Ответ принят.";
-  if (!hintedChoiceId.value) return "Выбери подходящую эмоцию.";
-  return `Мягкая подсказка: попробуй карточку «${round.value.target.label}».`;
+  if (lastChoiceId.value) return "Посмотри на ситуацию ещё раз и выбери другую эмоцию.";
+  return "Выбери подходящую эмоцию.";
 });
 
 function clearFeedbackTimer() {
@@ -43,18 +44,18 @@ function clearFeedbackTimer() {
 
 function resetFeedback() {
   clearFeedbackTimer();
-  hintedChoiceId.value = undefined;
   lastChoiceId.value = undefined;
   successChoiceId.value = undefined;
   pendingSelection.value = false;
+  isSpeaking.value = false;
 }
 
 function choiceTargetId(choiceId: string) {
   return `choose-emotion:choice:${choiceId}`;
 }
 
-function choose(choice: ChooseEmotionOption, index: number) {
-  if (session.status !== "running" || pendingSelection.value) return;
+async function choose(choice: ChooseEmotionOption, index: number) {
+  if (session.status !== "running" || pendingSelection.value || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice.id);
   const expectedTargetId = choiceTargetId(round.value.target.id);
@@ -64,9 +65,15 @@ function choose(choice: ChooseEmotionOption, index: number) {
   if (index === round.value.correctIndex) {
     pendingSelection.value = true;
     successChoiceId.value = choice.id;
-    promptAudio.play(`choose-emotion.emotion.${choice.id}`, 80);
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: true });
-    hintedChoiceId.value = undefined;
+    isSpeaking.value = true;
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [`choose-emotion.emotion.${choice.id}`, "choose-emotion.complete"] : [`choose-emotion.emotion.${choice.id}`], 80, 170);
+    isSpeaking.value = false;
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      return;
+    }
     if (session.step < session.maxSteps) {
       feedbackTimer = window.setTimeout(() => {
         nextRound();
@@ -77,13 +84,12 @@ function choose(choice: ChooseEmotionOption, index: number) {
   }
 
   pendingSelection.value = true;
-  hintedChoiceId.value = round.value.target.id;
-  promptAudio.play("choose-emotion.mistake", 80);
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "emotion-choice" });
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["choose-emotion.mistake"], 80);
+  isSpeaking.value = false;
   feedbackTimer = window.setTimeout(() => {
     pendingSelection.value = false;
-    lastChoiceId.value = undefined;
   }, 1250);
 }
 
@@ -119,9 +125,9 @@ onUnmounted(() => {
 
             <v-row class="choice-grid" justify="center" dense>
               <v-col v-for="(choice, index) in round.choices" :key="choice.id" cols="12" :sm="round.choices.length === 3 ? 4 : 3" :md="round.choices.length === 3 ? 4 : 3">
-                <GameDwellButton :class="{ 'hinted-choice': hintedChoiceId === choice.id, 'success-choice': successChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="200" :color="successChoiceId === choice.id ? 'green-lighten-4' : hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="choose(choice, index)">
+                <GameDwellButton :class="{ 'success-choice': successChoiceId === choice.id }" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="12.5rem" :color="successChoiceId === choice.id ? 'green-lighten-4' : 'surface'" @select="choose(choice, index)">
                   <template #default>
-                    <div :class="['emotion-choice', { 'emotion-choice--last': lastChoiceId === choice.id && hintedChoiceId }]">
+                      <div :class="['emotion-choice', { 'emotion-choice--last': lastChoiceId === choice.id }]">
                       <div class="choice-emoji emoji-glyph" aria-hidden="true">{{ choice.emoji }}</div>
                       <div class="text-h4 text-md-h3 font-weight-bold mt-3">{{ choice.label }}</div>
                     </div>
@@ -175,11 +181,6 @@ onUnmounted(() => {
   line-height: 1;
 }
 
-.hinted-choice {
-  filter: drop-shadow(0 0 1.2rem rgb(var(--v-theme-primary) / 34%));
-  transform: scale(1.03);
-}
-
 .success-choice {
   filter: drop-shadow(0 0 1.1rem rgb(var(--v-theme-success) / 28%));
   transform: scale(1.03);
@@ -191,7 +192,7 @@ onUnmounted(() => {
 
 @media (max-height: 42rem) {
   .game-container {
-    padding-block-start: 5rem;
+    padding-block-start: 4rem;
   }
 
   .emotion-choice {

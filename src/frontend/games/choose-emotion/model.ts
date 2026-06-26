@@ -1,5 +1,5 @@
 import type { SessionSettings } from "../../core/settings";
-import { shuffleItems } from "../../data/wordBank";
+import { shuffleItems } from "../../core/random";
 
 export type ChooseEmotionOption = {
   id: string;
@@ -57,7 +57,7 @@ function choiceCountFor(settings: SessionSettings) {
   return 3;
 }
 
-export function generateChooseEmotionRound(settings: SessionSettings, roundIndex = 1): ChooseEmotionRound {
+export function generateChooseEmotionRound(settings: SessionSettings, roundIndex = 1, random = Math.random): ChooseEmotionRound {
   const choiceCount = choiceCountFor(settings);
   if (chooseEmotionOptions.length < choiceCount) throw new Error("Недостаточно эмоций для игры.");
 
@@ -65,8 +65,8 @@ export function generateChooseEmotionRound(settings: SessionSettings, roundIndex
   const target = chooseEmotionOptions.find((emotion) => emotion.id === scenario.targetId);
   if (!target) throw new Error(`Не найдена эмоция для сценария ${scenario.id}.`);
 
-  const distractors = shuffleItems(chooseEmotionOptions.filter((emotion) => emotion.id !== target.id)).slice(0, choiceCount - 1);
-  const choices = shuffleItems([target, ...distractors]);
+  const distractors = shuffleItems(chooseEmotionOptions.filter((emotion) => emotion.id !== target.id), random).slice(0, choiceCount - 1);
+  const choices = shuffleItems([target, ...distractors], random);
 
   return {
     roundId: `choose-emotion:round:${roundIndex}`,

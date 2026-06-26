@@ -1,20 +1,14 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { generateEatOrNotEatRound } from "./model";
 
 describe("generateEatOrNotEatRound", () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   it("keeps round ids stable for telemetry", () => {
     expect(generateEatOrNotEatRound(1).roundId).toBe("eat-or-not-eat:round:1");
     expect(generateEatOrNotEatRound(8).roundId).toBe("eat-or-not-eat:round:8");
   });
 
   it("classifies food words at the random threshold", () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.5);
-
-    const round = generateEatOrNotEatRound(2);
+    const round = generateEatOrNotEatRound(2, () => 0.5);
 
     expect(round.correctAnswer).toBe("food");
     expect(round.item.category).toBe("food");
@@ -23,9 +17,7 @@ describe("generateEatOrNotEatRound", () => {
   });
 
   it("classifies thing words below the random threshold", () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.49);
-
-    const round = generateEatOrNotEatRound(3);
+    const round = generateEatOrNotEatRound(3, () => 0.49);
 
     expect(round.correctAnswer).toBe("thing");
     expect(round.item.category).toBe("thing");
