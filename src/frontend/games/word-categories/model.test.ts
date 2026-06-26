@@ -33,4 +33,11 @@ describe("generateWordCategoriesRound", () => {
   it("keeps round ids stable for telemetry", () => {
     expect(generateWordCategoriesRound(8).roundId).toBe("word-categories:round:8");
   });
+
+  it("uses injected randomness for deterministic choice order", () => {
+    const firstOrder = generateWordCategoriesRound(1, () => 0).choices.map((choice) => choice.id);
+
+    expect(generateWordCategoriesRound(1, () => 0).choices.map((choice) => choice.id)).toEqual(firstOrder);
+    expect(generateWordCategoriesRound(1, () => 0.99).choices.map((choice) => choice.id)).not.toEqual(firstOrder);
+  });
 });

@@ -14,16 +14,17 @@ import { generateWordCategoriesRound, type WordCategory, type WordCategoryChoice
 const wordCategoriesFeedback = createStandardGameFeedback();
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("word-categories", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("word-categories", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 125 },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 const promptAudio = useGamePromptAudio({
   gameId: "word-categories",
   soundEnabled: toRef(session.settings, "sound"),
   volume: 0.34,
-  warmAssetIds: ["word-categories.intro", "word-categories.correct", "word-categories.mistake"]
+  warmAssetIds: ["word-categories.intro", "word-categories.correct", "word-categories.mistake", "word-categories.complete"]
 });
 
 const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame({
@@ -34,9 +35,9 @@ const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame
 
 const feedbackMessage = ref("Посмотри на картинку и выбери ответ без спешки.");
 const pendingSelection = ref(false);
+const isSpeaking = ref(false);
 const wrongChoiceId = ref<string>();
 const successChoiceId = ref<string>();
-const hintedChoiceId = ref<string>();
 let feedbackTimer = 0;
 
 const targetCardTitle = computed(() => round.value.mode === "item-to-category" ? "Предмет" : "Категория");
@@ -91,13 +92,13 @@ function resetFeedback() {
   clearFeedbackTimer();
   feedbackMessage.value = "Посмотри на картинку и выбери ответ без спешки.";
   pendingSelection.value = false;
+  isSpeaking.value = false;
   wrongChoiceId.value = undefined;
   successChoiceId.value = undefined;
-  hintedChoiceId.value = undefined;
 }
 
-function choose(choice: WordCategoryChoice) {
-  if (session.status !== "running" || pendingSelection.value) return;
+async function choose(choice: WordCategoryChoice) {
+  if (session.status !== "running" || pendingSelection.value || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice);
   const expectedChoice = round.value.choices[round.value.correctIndex];
@@ -111,8 +112,17 @@ function choose(choice: WordCategoryChoice) {
     successChoiceId.value = choice.id;
     feedbackMessage.value = `Верно. ${round.value.explanation}`;
     void wordCategoriesFeedback.playSuccess(session.settings.sound);
-    promptAudio.playSequence(isCategoryChoice(choice) ? ["word-categories.correct"] : ["word-categories.correct", itemAssetId(choice.id)], 80);
     recordSuccess({ roundId: round.value.roundId, targetId, expected: round.value.correctChoiceId, actual: choice.id, mode: round.value.mode, itemId: round.value.targetItem.id, categoryId: round.value.targetCategory.id, isCorrect: true });
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    const successAudio = isCategoryChoice(choice) ? ["word-categories.correct"] : ["word-categories.correct", itemAssetId(choice.id)];
+    isSpeaking.value = true;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [...successAudio, "word-categories.complete"] : successAudio, 80, 170);
+    isSpeaking.value = false;
+
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      return;
+    }
 
     if (session.status === "running" && session.step < session.maxSteps) {
       feedbackTimer = window.setTimeout(() => {
@@ -127,20 +137,16 @@ function choose(choice: WordCategoryChoice) {
 
   pendingSelection.value = true;
   wrongChoiceId.value = choice.id;
-  hintedChoiceId.value = round.value.correctChoiceId;
-  feedbackMessage.value = `Почти. ${round.value.explanation} Правильный ответ мягко подсвечен.`;
+  feedbackMessage.value = "Посмотри на картинку и попробуй выбрать другой ответ.";
   void wordCategoriesFeedback.playMistake(session.settings.sound);
-  promptAudio.playSequence([
-    "word-categories.mistake",
-    ...(isCategoryChoice(choice) ? [] : [itemAssetId(choice.id)]),
-    ...(expectedChoice && !isCategoryChoice(expectedChoice) && expectedChoice.id !== choice.id ? [itemAssetId(expectedChoice.id)] : [])
-  ], 80);
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, expected: round.value.correctChoiceId, actual: choice.id, mode: round.value.mode, itemId: round.value.targetItem.id, categoryId: round.value.targetCategory.id, isCorrect: false });
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["word-categories.mistake"], 80);
+  isSpeaking.value = false;
 
   feedbackTimer = window.setTimeout(() => {
     pendingSelection.value = false;
     wrongChoiceId.value = undefined;
-    hintedChoiceId.value = undefined;
   }, isCategoryChoice(choice) ? 1200 : 1700);
 }
 
@@ -188,7 +194,7 @@ onUnmounted(() => {
 
             <v-row justify="center">
               <v-col v-for="choice in round.choices" :key="choice.id" cols="6" sm="3" md="3">
-                <GameDwellButton :class="{ 'choice--hint': hintedChoiceId === choice.id }" :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="190" :color="choiceColor(choice)" @select="choose(choice)">
+                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="11.875rem" :color="choiceColor(choice)" @select="choose(choice)">
                   <template #default>
                     <div class="choice-content">
                       <div class="choice-emoji emoji-glyph" aria-hidden="true">{{ choice.emoji }}</div>
@@ -214,11 +220,11 @@ onUnmounted(() => {
 }
 
 .game-container {
-  padding-block-start: 132px;
+  padding-block-start: 8.25rem;
 }
 
 .target-card {
-  border: 2px solid rgb(var(--v-theme-primary) / 14%);
+  border: 0.125rem solid rgb(var(--v-theme-primary) / 14%);
 }
 
 .word-feedback,
@@ -237,7 +243,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-block-size: 150px;
+  min-block-size: 9.375rem;
   text-align: center;
 }
 
@@ -246,13 +252,9 @@ onUnmounted(() => {
   line-height: 1;
 }
 
-.choice--hint {
-  box-shadow: 0 0 0 6px rgb(var(--v-theme-warning) / 36%);
-}
-
-@media (max-width: 600px) {
+@media (max-width: 37.5rem) {
   .game-container {
-    padding-block-start: 156px;
+    padding-block-start: 9.75rem;
   }
 }
 

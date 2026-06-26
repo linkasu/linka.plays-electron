@@ -1,4 +1,5 @@
-import { getWordsByCategory, shuffleItems, type WordItem } from "../../data/wordBank";
+import { shuffleItems } from "../../core/random";
+import { getWordsByCategory, type WordItem } from "../../data/wordBank";
 
 export type WordCategoriesMode = "item-to-category" | "category-to-item";
 export type WordCategoryId = "food" | "animal" | "transport" | "clothes";
@@ -51,14 +52,14 @@ function pickWord(categoryId: WordCategoryId, roundIndex: number) {
   return words[(roundIndex - 1) % words.length];
 }
 
-function generateItemToCategoryRound(roundIndex: number): WordCategoriesRound {
+function generateItemToCategoryRound(roundIndex: number, random = Math.random): WordCategoriesRound {
   if (categoryWords.length < wordCategories.length) throw new Error("WordCategoriesGame needs category words.");
 
   const targetItem = categoryWords[(roundIndex - 1) % categoryWords.length];
   const targetCategory = getWordCategory(targetItem.category);
   if (!targetCategory) throw new Error(`Unknown word category: ${targetItem.category}`);
 
-  const choices = shuffleItems(wordCategories);
+  const choices = shuffleItems(wordCategories, random);
   const correctChoiceId = targetCategory.id;
 
   return {
@@ -75,14 +76,14 @@ function generateItemToCategoryRound(roundIndex: number): WordCategoriesRound {
   };
 }
 
-function generateCategoryToItemRound(roundIndex: number): WordCategoriesRound {
+function generateCategoryToItemRound(roundIndex: number, random = Math.random): WordCategoriesRound {
   const targetCategory = wordCategories[(roundIndex - 1) % wordCategories.length];
   const targetItem = pickWord(targetCategory.id, roundIndex);
   const distractors = shuffleItems(wordCategories
     .filter((category) => category.id !== targetCategory.id)
-    .map((category, index) => pickWord(category.id, roundIndex + index + 1)))
+    .map((category, index) => pickWord(category.id, roundIndex + index + 1)), random)
     .slice(0, 3);
-  const choices = shuffleItems([targetItem, ...distractors]);
+  const choices = shuffleItems([targetItem, ...distractors], random);
   const correctChoiceId = targetItem.id;
 
   return {
@@ -99,6 +100,6 @@ function generateCategoryToItemRound(roundIndex: number): WordCategoriesRound {
   };
 }
 
-export function generateWordCategoriesRound(roundIndex = 1): WordCategoriesRound {
-  return roundIndex % 2 === 1 ? generateItemToCategoryRound(roundIndex) : generateCategoryToItemRound(roundIndex);
+export function generateWordCategoriesRound(roundIndex = 1, random = Math.random): WordCategoriesRound {
+  return roundIndex % 2 === 1 ? generateItemToCategoryRound(roundIndex, random) : generateCategoryToItemRound(roundIndex, random);
 }

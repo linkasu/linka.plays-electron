@@ -1514,7 +1514,7 @@
   {
     "id": "word-categories.mistake",
     "game": "word-categories",
-    "text": "Почти. Посмотри на подсказку.",
+    "text": "Посмотри на картинку и попробуй выбрать другой ответ.",
     "voice": "jane",
     "path": "/audio/tts/word-categories/mistake.mp3"
   },
@@ -6865,5 +6865,12 @@
     "text": "Мост готов.",
     "voice": "jane",
     "path": "/audio/tts/build-bridge/complete.mp3"
+  },
+  {
+    "id": "word-categories.complete",
+    "game": "word-categories",
+    "text": "Готово. Категории собраны.",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/complete.mp3"
   }
 ]

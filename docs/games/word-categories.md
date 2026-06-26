@@ -10,8 +10,8 @@
 | Route | `/games/word-categories` |
 | Категория | `language-aac` — Слова и AAC |
 | Status | `therapy-ready` |
-| Resolved stability | `publish` |
-| Readiness group | `ready` |
+| Resolved stability | `development` |
+| Readiness group | `needs-check` |
 | Skills | AAC, выбор, классификация, словарь |
 | Recommended session | 125 сек |
 | Min target size | 180 px |
@@ -19,9 +19,9 @@
 
 ## Назначение
 
-undefined
+Выбрать категорию для предмета или предмет для категории. Ошибка не подсвечивает правильный ответ и не озвучивает его.
 
-Самостоятельная формулировка для меню: undefined
+Самостоятельная формулировка для меню: выбери подходящую категорию или предмет.
 
 ## Игровой цикл
 
@@ -57,16 +57,16 @@ undefined
 | Vue-компонент | `WordCategoriesGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
-| Audio module | стандартный feedback из `core/gameFeedbackAudio.ts` |
+| Audio module | стандартный feedback из `core/gameFeedbackAudio.ts`, TTS через `useGamePromptAudio` |
 | Runtime audit doc | `docs/tests/2026-06-10/word-categories.md` |
 
 ## Готовность
 
-Игра находится в группе `ready`, потому что resolved stability равен `publish`.
+Игра находится в группе `needs-check`, пока проходит batch review.
 
 Автоматические blockers:
 
-- нет
+- `stability:needs-check`
 
 ## QA checklist
 
@@ -79,4 +79,4 @@ undefined
 
 ## Next step
 
-Оставить в ready-очереди и проверять регрессии через общий Electron CDP audit.
+Проверить в Electron CDP на 800×600/1024×600 и визуально подтвердить PNG перед approve.
