@@ -12,12 +12,12 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateObjectActionRound, type ObjectActionChoice, type ObjectActionRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, finishSession, startSession } = useGameSessionFor("object-action", { maxSteps: 8, finishOnMistakes: false, finishOnMaxSteps: false });
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, finishSession, startSession } = useGameSessionFor("object-action", { maxSteps: 8, finishOnMistakes: false, finishOnMaxSteps: false });
 const promptAudio = useGamePromptAudio({
   gameId: "object-action",
   soundEnabled: toRef(session.settings, "sound"),
   volume: 0.34,
-  warmAssetIds: ["object-action.intro", "object-action.next", "object-action.mistake"]
+  warmAssetIds: ["object-action.intro", "object-action.next", "object-action.mistake", "object-action.complete"]
 });
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<ObjectActionRound>({
@@ -32,21 +32,6 @@ const choiceMinHeight = computed(() => Math.round(160 * session.settings.targetS
 
 function choiceTargetId(choice: ObjectActionChoice) {
   return `object-action:choice:${round.value.pair.id}:${choice.id}`;
-}
-
-function advanceRound() {
-  if (session.status !== "running") return;
-  if (session.step >= session.maxSteps) {
-    finishSession("max-steps");
-    return;
-  }
-
-  nextRound();
-  feedback.value = "Новая пара. Выбери подходящее действие.";
-}
-
-function actionAssetId(choice: ObjectActionChoice) {
-  return `object-action.action.${choice.id}`;
 }
 
 function phraseAssetId(pairId: string) {
@@ -73,7 +58,19 @@ async function chooseAction(choice: ObjectActionChoice) {
       isCorrect: true
     });
     feedback.value = `Верно: ${round.value.pair.phrase}.`;
-    await promptAudio.playSequenceAndWait([phraseAssetId(round.value.pair.id)], 80);
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [phraseAssetId(round.value.pair.id), "object-action.complete"] : [phraseAssetId(round.value.pair.id)], 80, 170);
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      isChangingRound.value = false;
+      return;
+    }
+
+    if (session.status === "running") {
+      nextRound();
+      feedback.value = "Новая пара. Выбери подходящее действие.";
+      await promptAudio.playSequenceAndWait(["object-action.next"], 180);
+    }
   } else {
     recordMistake({
       roundId: round.value.roundId,
@@ -85,14 +82,10 @@ async function chooseAction(choice: ObjectActionChoice) {
       actual: choice.title,
       isCorrect: false
     });
-    recordHint({ roundId: round.value.roundId, text: round.value.explanation });
-    session.step += 1;
-    feedback.value = `Ничего страшного. ${round.value.explanation}`;
-    await promptAudio.playSequenceAndWait(["object-action.mistake", actionAssetId(choice), phraseAssetId(round.value.pair.id)], 80);
+    feedback.value = "Посмотри на предмет и попробуй выбрать другое действие.";
+    await promptAudio.playSequenceAndWait(["object-action.mistake"], 80);
   }
 
-  advanceRound();
-  if (session.status === "running") await promptAudio.playSequenceAndWait(["object-action.next"], 180);
   isChangingRound.value = false;
 }
 
@@ -171,7 +164,7 @@ onUnmounted(() => {
   text-align: center;
 }
 
-@media (max-height: 820px) {
+@media (max-height: 51.25rem) {
   .object-card {
     display: none;
   }

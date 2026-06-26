@@ -2431,7 +2431,7 @@
   {
     "id": "object-action.mistake",
     "game": "object-action",
-    "text": "Почти. Посмотри на правильную пару.",
+    "text": "Посмотри на предмет и попробуй выбрать другое действие.",
     "voice": "jane",
     "path": "/audio/tts/object-action/mistake.mp3"
   },
@@ -6879,5 +6879,12 @@
     "text": "Готово. Места названы.",
     "voice": "jane",
     "path": "/audio/tts/where-object/complete.mp3"
+  },
+  {
+    "id": "object-action.complete",
+    "game": "object-action",
+    "text": "Готово. Действия выбраны.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/complete.mp3"
   }
 ]
