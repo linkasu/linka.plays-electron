@@ -1,29 +1,34 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { createInitialBoard, isSolved, movableTileIndexes, moveTile, type SlidingPuzzleBoard } from "./model";
+import { createInitialBoard, isSolved, moveTile, type SlidingPuzzleBoard } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("sliding-puzzle", {
   maxSteps: 12,
-  overrides: { preset: "gentle", dwellMs: 1200, sessionSeconds: 180, targetScale: 1.2, sound: false },
+  overrides: { preset: "gentle", dwellMs: 1200, sessionSeconds: 180, targetScale: 1.2, sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "sliding-puzzle", soundEnabled, warmAssetIds: ["sliding-puzzle.prompt", "sliding-puzzle.correct", "sliding-puzzle.mistake", "sliding-puzzle.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const board = ref<SlidingPuzzleBoard>(createInitialBoard());
 const feedbackMessage = ref("Собери картинку: выбирай плитку рядом с пустым местом.");
-const hintedIndexes = ref<number[]>([]);
 const wrongIndex = ref<number>();
 const movedIndex = ref<number>();
+const isSpeaking = ref(false);
 let feedbackTimer = 0;
 
 const resultVisible = computed(() => session.status === "finished");
-const availableMoves = computed(() => movableTileIndexes(board.value));
 const solved = computed(() => isSolved(board.value));
 
 function tileTargetId(tile: number, index: number) {
@@ -36,59 +41,80 @@ function clearFeedbackTimer() {
 }
 
 function clearHints() {
-  hintedIndexes.value = [];
   wrongIndex.value = undefined;
 }
 
-function chooseTile(tile: number, index: number) {
-  if (session.status !== "running" || tile === 0) return;
+async function chooseTile(tile: number, index: number) {
+  if (session.status !== "running" || isSpeaking.value || tile === 0) return;
 
   clearFeedbackTimer();
   const targetId = tileTargetId(tile, index);
   const result = moveTile(board.value, index);
 
   if (!result.moved) {
-    const moves = availableMoves.value;
-    hintedIndexes.value = moves;
     wrongIndex.value = index;
     movedIndex.value = undefined;
-    feedbackMessage.value = "Эта плитка не рядом с пустым местом. Возможные ходы мягко подсвечены.";
-    recordMistake({ targetId, answerId: tile, tileIndex: index, expectedIndexes: moves, isCorrect: false });
-    recordHint({ targetId, reason: "not-adjacent", possibleMoves: moves });
+    feedbackMessage.value = "Эта плитка не рядом с пустым местом. Найди соседа пустой клетки и попробуй другую.";
+    recordMistake({ targetId, answerId: tile, tileIndex: index, isCorrect: false });
+    recordHint({ targetId, reason: "not-adjacent", text: "Найти плитку рядом с пустой клеткой." });
+    isSpeaking.value = true;
+    void feedbackAudio.playMistake();
+    await promptAudio.playSequenceAndWait(["sliding-puzzle.mistake"], 80);
+    isSpeaking.value = false;
     feedbackTimer = window.setTimeout(clearHints, 1600);
     return;
   }
 
+  const finishedAfterSuccess = session.step + 1 >= session.maxSteps;
   board.value = result.board;
   clearHints();
   movedIndex.value = result.toIndex;
-  feedbackMessage.value = solved.value ? "Пятнашки собраны. Отличная спокойная стратегия." : `Плитка ${tile} мягко встала на пустое место. Ищи следующий соседний ход.`;
+  const solvedAfterMove = isSolved(board.value);
+  feedbackMessage.value = solvedAfterMove ? "Пятнашки собраны. Отличная спокойная стратегия." : `Плитка ${tile} мягко встала на пустое место. Ищи следующий соседний ход.`;
   recordSuccess({ targetId, answerId: tile, fromIndex: result.fromIndex, toIndex: result.toIndex, isCorrect: true });
 
-  if (isSolved(board.value)) {
+  isSpeaking.value = true;
+  void feedbackAudio.playSuccess();
+  await promptAudio.playSequenceAndWait(solvedAfterMove || finishedAfterSuccess ? ["sliding-puzzle.correct", "sliding-puzzle.complete"] : ["sliding-puzzle.correct"], 80, 170);
+  if (solvedAfterMove) {
     finishSession("game-complete");
+    isSpeaking.value = false;
     return;
   }
+  if (finishedAfterSuccess) {
+    finishSession("max-steps");
+    isSpeaking.value = false;
+    return;
+  }
+  promptAudio.play("sliding-puzzle.prompt", 180);
+  isSpeaking.value = false;
 }
 
 function tileColor(tile: number, index: number) {
-  if (hintedIndexes.value.includes(index)) return "primary";
   if (wrongIndex.value === index) return "orange-lighten-4";
   if (movedIndex.value === index) return "green-lighten-4";
   return tile % 2 === 0 ? "blue-lighten-5" : "amber-lighten-5";
 }
 
 function restart() {
+  promptAudio.cancelPending();
   clearFeedbackTimer();
   board.value = createInitialBoard();
   feedbackMessage.value = "Собери картинку: выбирай плитку рядом с пустым местом.";
-  hintedIndexes.value = [];
   wrongIndex.value = undefined;
   movedIndex.value = undefined;
+  isSpeaking.value = false;
   startSession();
+  promptAudio.play("sliding-puzzle.prompt", 220);
 }
 
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("sliding-puzzle.prompt", 420);
+});
+
 onUnmounted(() => {
+  promptAudio.cancelPending();
   clearFeedbackTimer();
 });
 </script>
@@ -104,14 +130,14 @@ onUnmounted(() => {
               <div>
                 <div class="text-overline text-secondary mb-1">Спокойная стратегия и зрительный поиск</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Пятнашки 3×3</h1>
-                <p class="text-body-1 text-medium-emphasis mb-0">Выбирай только плитку-соседа пустой клетки. Ошибка не завершает игру, а показывает возможные ходы.</p>
+                <p class="text-body-1 text-medium-emphasis mb-0">Выбирай только плитку-соседа пустой клетки. Ошибка не завершает игру: правило можно спокойно проверить ещё раз.</p>
               </div>
               <v-avatar color="primary" rounded="xl" size="76">
                 <v-icon icon="mdi-puzzle-outline" size="46" />
               </v-avatar>
             </div>
 
-            <v-alert class="mb-5 text-body-1 font-weight-medium" :color="hintedIndexes.length ? 'primary' : solved ? 'success' : 'secondary'" icon="mdi-lightbulb-on-outline" rounded="xl" variant="tonal">
+            <v-alert class="mb-5 text-body-1 font-weight-medium" :color="wrongIndex !== undefined ? 'primary' : solved ? 'success' : 'secondary'" icon="mdi-lightbulb-on-outline" rounded="xl" variant="tonal">
               {{ feedbackMessage }}
             </v-alert>
 
@@ -121,19 +147,18 @@ onUnmounted(() => {
                   <v-icon color="primary" icon="mdi-arrow-expand-all" size="42" />
                   <div class="text-caption font-weight-bold text-primary mt-1">пусто</div>
                 </v-card>
-                <GameDwellButton v-else :class="['tile-button', { 'tile-button--hint': hintedIndexes.includes(index), 'tile-button--wrong': wrongIndex === index }]" :target-id="tileTargetId(tile, index)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="132" :color="tileColor(tile, index)" @select="chooseTile(tile, index)">
+                <GameDwellButton v-else :class="['tile-button', { 'tile-button--wrong': wrongIndex === index }]" :target-id="tileTargetId(tile, index)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="132" :color="tileColor(tile, index)" @select="chooseTile(tile, index)">
                   <template #default>
                     <div class="tile-number">{{ tile }}</div>
-                    <div v-if="availableMoves.includes(index)" class="tile-caption text-caption font-weight-bold mt-1">можно</div>
-                    <div v-else class="tile-caption text-caption mt-1">плитка</div>
+                    <div class="tile-caption text-caption mt-1">плитка</div>
                   </template>
                 </GameDwellButton>
               </div>
             </div>
 
             <v-expand-transition>
-              <v-alert v-if="hintedIndexes.length" class="mt-5 text-h6" color="primary" icon="mdi-hand-pointing-up" rounded="xl" variant="tonal">
-                Выбери одну из подсвеченных плиток рядом с пустой клеткой.
+              <v-alert v-if="wrongIndex !== undefined" class="mt-5 text-h6" color="primary" icon="mdi-hand-pointing-up" rounded="xl" variant="tonal">
+                Найди плитку, которая касается пустого места стороной.
               </v-alert>
             </v-expand-transition>
           </v-card>
@@ -155,14 +180,14 @@ onUnmounted(() => {
 }
 
 .game-container {
-  padding-block-start: 132px;
+  padding-block-start: 7rem;
 }
 
 .puzzle-grid {
   display: grid;
-  gap: clamp(10px, 1.8vw, 18px);
+  gap: clamp(0.625rem, 1.8vw, 1.125rem);
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  max-inline-size: min(90vw, 660px);
+  max-inline-size: min(90vw, 55vh, 41.25rem);
 }
 
 .puzzle-cell,
@@ -174,7 +199,7 @@ onUnmounted(() => {
 .empty-tile {
   align-items: center;
   block-size: 100%;
-  border: 4px dashed rgb(var(--v-theme-primary) / 22%);
+  border: 0.25rem dashed rgb(var(--v-theme-primary) / 22%);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -182,11 +207,6 @@ onUnmounted(() => {
 
 .tile-button {
   block-size: 100%;
-}
-
-.tile-button--hint {
-  filter: drop-shadow(0 0 1.2rem rgb(var(--v-theme-primary) / 42%));
-  transform: scale(1.02);
 }
 
 .tile-button--wrong {
@@ -205,9 +225,9 @@ onUnmounted(() => {
   font-weight: 800;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 37.5rem) {
   .game-container {
-    padding-block-start: 156px;
+    padding-block-start: 9.75rem;
   }
 
   .puzzle-grid {
@@ -215,7 +235,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-height: 680px) {
+@media (max-height: 42.5rem) {
   .game-container {
     padding-block-start: 4.75rem;
   }

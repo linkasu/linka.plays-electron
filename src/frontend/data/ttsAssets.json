@@ -7544,5 +7544,117 @@
     "text": "Готово. Примеры закончены.",
     "voice": "jane",
     "path": "/audio/tts/math-actions/complete.mp3"
+  },
+  {
+    "id": "minesweeper-safe.prompt",
+    "game": "minesweeper-safe",
+    "text": "Открывай клетки спокойно. Числа помогают выбрать безопасный ход.",
+    "voice": "jane",
+    "path": "/audio/tts/minesweeper-safe/prompt.mp3"
+  },
+  {
+    "id": "minesweeper-safe.correct",
+    "game": "minesweeper-safe",
+    "text": "Клетка открыта. Хороший спокойный выбор.",
+    "voice": "jane",
+    "path": "/audio/tts/minesweeper-safe/correct.mp3"
+  },
+  {
+    "id": "minesweeper-safe.mistake",
+    "game": "minesweeper-safe",
+    "text": "Раунд остановлен. Можно начать новую доску без спешки.",
+    "voice": "jane",
+    "path": "/audio/tts/minesweeper-safe/mistake.mp3"
+  },
+  {
+    "id": "minesweeper-safe.complete",
+    "game": "minesweeper-safe",
+    "text": "Задание завершено. Сделай паузу и посмотри на результат.",
+    "voice": "jane",
+    "path": "/audio/tts/minesweeper-safe/complete.mp3"
+  },
+  {
+    "id": "domino-matching.prompt",
+    "game": "domino-matching",
+    "text": "Сравни точки на открытой стороне и выбери подходящее домино.",
+    "voice": "jane",
+    "path": "/audio/tts/domino-matching/prompt.mp3"
+  },
+  {
+    "id": "domino-matching.correct",
+    "game": "domino-matching",
+    "text": "Верно. Количество точек совпало.",
+    "voice": "jane",
+    "path": "/audio/tts/domino-matching/correct.mp3"
+  },
+  {
+    "id": "domino-matching.mistake",
+    "game": "domino-matching",
+    "text": "Почти. Сравни указанную сторону ещё раз и выбери другую карточку.",
+    "voice": "jane",
+    "path": "/audio/tts/domino-matching/mistake.mp3"
+  },
+  {
+    "id": "domino-matching.complete",
+    "game": "domino-matching",
+    "text": "Задание завершено. Отличная спокойная работа.",
+    "voice": "jane",
+    "path": "/audio/tts/domino-matching/complete.mp3"
+  },
+  {
+    "id": "calm-2048.prompt",
+    "game": "calm-2048",
+    "text": "Сдвигай плитки одной кнопкой и ищи одинаковые числа.",
+    "voice": "jane",
+    "path": "/audio/tts/calm-2048/prompt.mp3"
+  },
+  {
+    "id": "calm-2048.correct",
+    "game": "calm-2048",
+    "text": "Ход засчитан. Можно искать следующее слияние.",
+    "voice": "jane",
+    "path": "/audio/tts/calm-2048/correct.mp3"
+  },
+  {
+    "id": "calm-2048.mistake",
+    "game": "calm-2048",
+    "text": "В эту сторону хода нет. Выбери другое направление.",
+    "voice": "jane",
+    "path": "/audio/tts/calm-2048/mistake.mp3"
+  },
+  {
+    "id": "calm-2048.complete",
+    "game": "calm-2048",
+    "text": "Доска завершена. Можно спокойно отдохнуть.",
+    "voice": "jane",
+    "path": "/audio/tts/calm-2048/complete.mp3"
+  },
+  {
+    "id": "sliding-puzzle.prompt",
+    "game": "sliding-puzzle",
+    "text": "Выбирай плитку рядом с пустым местом.",
+    "voice": "jane",
+    "path": "/audio/tts/sliding-puzzle/prompt.mp3"
+  },
+  {
+    "id": "sliding-puzzle.correct",
+    "game": "sliding-puzzle",
+    "text": "Плитка передвинулась. Ищи следующий соседний ход.",
+    "voice": "jane",
+    "path": "/audio/tts/sliding-puzzle/correct.mp3"
+  },
+  {
+    "id": "sliding-puzzle.mistake",
+    "game": "sliding-puzzle",
+    "text": "Эта плитка не рядом с пустым местом. Попробуй другую.",
+    "voice": "jane",
+    "path": "/audio/tts/sliding-puzzle/mistake.mp3"
+  },
+  {
+    "id": "sliding-puzzle.complete",
+    "game": "sliding-puzzle",
+    "text": "Пятнашки завершены. Хорошая последовательность ходов.",
+    "voice": "jane",
+    "path": "/audio/tts/sliding-puzzle/complete.mp3"
   }
 ]

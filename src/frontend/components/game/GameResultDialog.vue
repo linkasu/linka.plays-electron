@@ -24,7 +24,7 @@ const finishReasonLabels: Record<string, string> = {
   "too-many-mistakes": "много сложных попыток",
   manual: "завершено вручную",
   "game-complete": "игра завершена",
-  "game-lost": "партия проиграна",
+  "game-lost": "раунд остановлен",
   "game-draw": "ничья"
 };
 

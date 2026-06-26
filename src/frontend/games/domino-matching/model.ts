@@ -1,5 +1,5 @@
 import type { SessionSettings } from "../../core/settings";
-import { sampleItems, shuffleItems } from "../../data/wordBank";
+import { sampleItems, shuffleItems } from "../../core/random";
 
 export type DominoSide = "left" | "right";
 
@@ -61,19 +61,21 @@ function buildChoice(tile: DominoTile, matchSide: DominoSide): DominoChoice {
   };
 }
 
-export function generateDominoMatchingRound(settings: SessionSettings, roundIndex = 1): DominoMatchingRound {
+export function generateDominoMatchingRound(settings: SessionSettings, roundIndex = 1, random = Math.random): DominoMatchingRound {
   const choiceCount = choiceCountForSettings(settings);
   const target = dominoTiles[(roundIndex - 1) % dominoTiles.length];
   const openSide: DominoSide = roundIndex % 2 === 0 ? "left" : "right";
   const matchSide = oppositeSide(openSide);
   const targetDots = target[openSide];
   const correctCandidates = dominoTiles.filter((tile) => tile.id !== target.id && tile[matchSide] === targetDots);
-  const correct = sampleItems(correctCandidates, 1)[0];
+  const correct = sampleItems(correctCandidates, 1, [], random)[0];
   const distractors = sampleItems(
     dominoTiles.filter((tile) => tile[matchSide] !== targetDots && tile.left !== targetDots && tile.right !== targetDots),
-    choiceCount - 1
+    choiceCount - 1,
+    [],
+    random
   );
-  const choices = shuffleItems([buildChoice(correct, matchSide), ...distractors.map((tile) => buildChoice(tile, matchSide))]);
+  const choices = shuffleItems([buildChoice(correct, matchSide), ...distractors.map((tile) => buildChoice(tile, matchSide))], random);
 
   return {
     roundId: `domino-matching:round:${roundIndex}`,

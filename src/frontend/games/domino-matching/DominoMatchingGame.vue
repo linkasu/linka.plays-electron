@@ -1,20 +1,26 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { generateDominoMatchingRound, type DominoChoice, type DominoSide, type DominoTile } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("domino-matching", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("domino-matching", {
   maxSteps: 10,
-  overrides: { dwellMs: 1300, sessionSeconds: 180 },
+  overrides: { dwellMs: 1300, sessionSeconds: 180, sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "domino-matching", soundEnabled, warmAssetIds: ["domino-matching.prompt", "domino-matching.correct", "domino-matching.mistake", "domino-matching.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
@@ -24,9 +30,10 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
 
 const hintedRoundId = ref<string>();
 const lastMistakeId = ref<string>();
+const isSpeaking = ref(false);
 
 const helperText = computed(() => {
-  if (hintedRoundId.value === round.value.roundId) return `Почти. ${round.value.explanation} Правильная сторона мягко подсвечена.`;
+  if (hintedRoundId.value === round.value.roundId) return "Почти. Сравни открытую сторону с указанной стороной каждой карточки и выбери другую.";
   return round.value.instruction;
 });
 
@@ -46,32 +53,59 @@ function sideName(side: DominoSide) {
   return side === "left" ? "левая" : "правая";
 }
 
-function choose(choice: DominoChoice) {
-  if (session.status !== "running") return;
+async function choose(choice: DominoChoice) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice);
   const expectedTargetId = choiceTargetId(round.value.choices[round.value.correctIndex]);
   const actualDots = choice.tile[choice.matchSide];
 
   if (actualDots === round.value.targetDots) {
+    const finishedAfterSuccess = session.step + 1 >= session.maxSteps;
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.targetDots, actual: actualDots, side: choice.matchSide, isCorrect: true });
     hintedRoundId.value = undefined;
     lastMistakeId.value = undefined;
+    isSpeaking.value = true;
+    void feedbackAudio.playSuccess();
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["domino-matching.correct", "domino-matching.complete"] : ["domino-matching.correct"], 80, 170);
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      isSpeaking.value = false;
+      return;
+    }
     if (session.step < session.maxSteps) nextRound();
+    promptAudio.play("domino-matching.prompt", 180);
+    isSpeaking.value = false;
     return;
   }
 
   hintedRoundId.value = round.value.roundId;
   lastMistakeId.value = choice.id;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.targetDots, actual: actualDots, side: choice.matchSide, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, text: round.value.explanation, reason: "wrong-domino-side" });
+  recordHint({ roundId: round.value.roundId, targetId, text: "Сравнить открытую сторону с указанной стороной вариантов.", reason: "wrong-domino-side" });
+  isSpeaking.value = true;
+  void feedbackAudio.playMistake();
+  await promptAudio.playSequenceAndWait(["domino-matching.mistake"], 80);
+  isSpeaking.value = false;
 }
 
 function restart() {
+  promptAudio.cancelPending();
   hintedRoundId.value = undefined;
   lastMistakeId.value = undefined;
+  isSpeaking.value = false;
   restartRoundGame();
+  promptAudio.play("domino-matching.prompt", 220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("domino-matching.prompt", 420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -107,7 +141,7 @@ function restart() {
 
                 <v-row class="choice-grid" dense>
                   <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6">
-                    <GameDwellButton :class="{ 'target-hint': hintedRoundId === round.roundId && choice.tile[choice.matchSide] === round.targetDots }" :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="210" :color="hintedRoundId === round.roundId && choice.tile[choice.matchSide] === round.targetDots ? 'primary' : 'surface'" @select="choose(choice)">
+                    <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="210" color="surface" @select="choose(choice)">
                       <template #default>
                         <div :class="['choice-card', { 'choice-card--mistake': choice.id === lastMistakeId }]">
                           <div class="choice-card__hint text-overline text-medium-emphasis mb-2">Смотри на {{ sideName(choice.matchSide) }} сторону</div>
@@ -142,7 +176,7 @@ function restart() {
 }
 
 .game-container {
-  padding-block-start: 8.75rem;
+  padding-block-start: 7rem;
 }
 
 .target-panel {
@@ -176,11 +210,6 @@ function restart() {
 .choice-card--mistake {
   filter: saturate(0.72) opacity(0.72);
   transform: scale(0.97);
-}
-
-.target-hint {
-  filter: drop-shadow(0 0 1.25rem rgb(var(--v-theme-primary) / 42%));
-  transform: scale(1.03);
 }
 
 .domino {
@@ -256,7 +285,7 @@ function restart() {
   }
 
   .choice-grid {
-    row-gap: 0.35rem;
+    row-gap: 0.25rem;
   }
 
   .choice-grid :deep(.dwell-button) {

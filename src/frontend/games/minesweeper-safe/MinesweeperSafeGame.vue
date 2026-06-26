@@ -1,30 +1,38 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { createInitialCellStates, findSuggestedSafeIndex, generateMinesweeperSafeBoard, minesweeperSafeChoiceOutcome, type MinesweeperSafeCell } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("minesweeper-safe", {
   maxSteps: 10,
+  overrides: { sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "minesweeper-safe", soundEnabled, warmAssetIds: ["minesweeper-safe.prompt", "minesweeper-safe.correct", "minesweeper-safe.mistake", "minesweeper-safe.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const roundIndex = ref(1);
 const board = ref(generateMinesweeperSafeBoard(session.settings, roundIndex.value));
 const cellStates = ref(createInitialCellStates(board.value));
 const hintedIndex = ref<number>();
 const lastFlaggedIndex = ref<number>();
+const isSpeaking = ref(false);
 
 const resultVisible = computed(() => session.status === "finished");
 const safeRemaining = computed(() => board.value.cells.filter((cell) => !cell.mine && cellStates.value[cell.index] === "hidden").length);
 const helperText = computed(() => {
-  if (lastFlaggedIndex.value !== undefined) return "Это была мина. Партия завершена: в сапёре мина считается проигрышем.";
-  if (hintedIndex.value !== undefined) return "Мягкая подсказка включена: выбери подсвеченную безопасную клетку.";
+  if (lastFlaggedIndex.value !== undefined) return "Раунд остановлен. Можно спокойно начать новую доску.";
+  if (hintedIndex.value !== undefined) return "Мягкая подсказка включена: выбери подсвеченную клетку, если хочешь.";
   return "Открытые числа показывают, сколько мин рядом. Выбирай закрытые клетки, которые выглядят безопасно.";
 });
 
@@ -37,7 +45,7 @@ function hintTargetId() {
 }
 
 function isDisabled(cell: MinesweeperSafeCell) {
-  return session.status !== "running" || cellStates.value[cell.index] !== "hidden";
+  return session.status !== "running" || isSpeaking.value || cellStates.value[cell.index] !== "hidden";
 }
 
 function cellColor(cell: MinesweeperSafeCell) {
@@ -65,14 +73,14 @@ function revealNextBoardIfNeeded() {
 }
 
 function requestHint(reason = "manual") {
-  if (session.status !== "running") return;
+  if (session.status !== "running" || isSpeaking.value) return;
   const suggestion = findSuggestedSafeIndex(board.value.cells, cellStates.value);
   if (suggestion === undefined) return;
   hintedIndex.value = suggestion;
   recordHint({ roundId: board.value.roundId, targetId: cellTargetId(suggestion), reason });
 }
 
-function chooseCell(cell: MinesweeperSafeCell) {
+async function chooseCell(cell: MinesweeperSafeCell) {
   if (isDisabled(cell)) return;
 
   const outcome = minesweeperSafeChoiceOutcome(cell, cellStates.value[cell.index]);
@@ -81,25 +89,52 @@ function chooseCell(cell: MinesweeperSafeCell) {
   if (outcome === "mine") {
     lastFlaggedIndex.value = cell.index;
     recordMistake({ roundId: board.value.roundId, targetId: cellTargetId(cell.index), result: "mine", isCorrect: false });
+    isSpeaking.value = true;
+    void feedbackAudio.playMistake();
+    await promptAudio.playSequenceAndWait(["minesweeper-safe.mistake", "minesweeper-safe.complete"], 80, 170);
     finishSession("game-lost");
+    isSpeaking.value = false;
     return;
   }
 
+  const finishedAfterSuccess = session.step + 1 >= session.maxSteps;
   cellStates.value[cell.index] = "revealed";
   lastFlaggedIndex.value = undefined;
   if (hintedIndex.value === cell.index) hintedIndex.value = undefined;
   recordSuccess({ roundId: board.value.roundId, targetId: cellTargetId(cell.index), adjacentMines: cell.adjacentMines });
+  isSpeaking.value = true;
+  void feedbackAudio.playSuccess();
+  await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["minesweeper-safe.correct", "minesweeper-safe.complete"] : ["minesweeper-safe.correct"], 80, 170);
+  if (finishedAfterSuccess) {
+    finishSession("game-complete");
+    isSpeaking.value = false;
+    return;
+  }
   revealNextBoardIfNeeded();
+  promptAudio.play("minesweeper-safe.prompt", 180);
+  isSpeaking.value = false;
 }
 
 function restart() {
+  promptAudio.cancelPending();
   roundIndex.value = 1;
   board.value = generateMinesweeperSafeBoard(session.settings, roundIndex.value);
   cellStates.value = createInitialCellStates(board.value);
   hintedIndex.value = undefined;
   lastFlaggedIndex.value = undefined;
+  isSpeaking.value = false;
   startSession();
+  promptAudio.play("minesweeper-safe.prompt", 220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("minesweeper-safe.prompt", 420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -120,7 +155,7 @@ function restart() {
                 <v-chip color="primary" prepend-icon="mdi-shield-check-outline" size="large" variant="tonal">
                   Безопасных: {{ safeRemaining }}
                 </v-chip>
-                <GameDwellButton :target-id="hintTargetId()" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="136" color="deep-purple-darken-3" @select="requestHint()">
+                <GameDwellButton :target-id="hintTargetId()" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="136" color="deep-purple-darken-3" @select="requestHint()">
                   <template #default>
                     <div class="hint-button-content">
                       <v-icon icon="mdi-map-marker-question-outline" size="30" />
@@ -139,7 +174,7 @@ function restart() {
                 :target-id="cellTargetId(cell.index)"
                 :disabled="isDisabled(cell)"
                 :dwell-ms="session.settings.dwellMs"
-                  :min-height="136"
+                :min-height="136"
                 :color="cellColor(cell)"
                 role="gridcell"
                 @select="chooseCell(cell)"
@@ -162,7 +197,7 @@ function restart() {
             </div>
 
             <v-alert class="mt-5 text-body-1" color="info" icon="mdi-flag-variant" rounded="xl" variant="tonal">
-              Если выбрать мину, партия завершится. Используй числа и подсказку, чтобы искать безопасные клетки.
+              Если выбрать опасную клетку, раунд остановится. Используй числа и подсказку, чтобы искать безопасные клетки.
             </v-alert>
           </v-card>
         </v-col>
@@ -239,7 +274,7 @@ function restart() {
   line-height: 1;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 45rem) {
   .game-container {
     padding-block-start: 8.75rem;
   }
