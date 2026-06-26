@@ -6830,5 +6830,40 @@
     "text": "Готово. Предметы разложены по полкам.",
     "voice": "jane",
     "path": "/audio/tts/shelf-sorting/complete.mp3"
+  },
+  {
+    "id": "build-bridge.prompt",
+    "game": "build-bridge",
+    "text": "Сначала выбери деталь, потом место на мосту.",
+    "voice": "jane",
+    "path": "/audio/tts/build-bridge/prompt.mp3"
+  },
+  {
+    "id": "build-bridge.place",
+    "game": "build-bridge",
+    "text": "Теперь выбери место на мосту.",
+    "voice": "jane",
+    "path": "/audio/tts/build-bridge/place.mp3"
+  },
+  {
+    "id": "build-bridge.correct",
+    "game": "build-bridge",
+    "text": "Деталь держится.",
+    "voice": "jane",
+    "path": "/audio/tts/build-bridge/correct.mp3"
+  },
+  {
+    "id": "build-bridge.mistake",
+    "game": "build-bridge",
+    "text": "Деталь упала. Выбери деталь снова.",
+    "voice": "jane",
+    "path": "/audio/tts/build-bridge/mistake.mp3"
+  },
+  {
+    "id": "build-bridge.complete",
+    "game": "build-bridge",
+    "text": "Мост готов.",
+    "voice": "jane",
+    "path": "/audio/tts/build-bridge/complete.mp3"
   }
 ]

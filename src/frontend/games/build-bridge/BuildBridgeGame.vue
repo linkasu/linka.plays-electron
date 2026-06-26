@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
+import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
+import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
+import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
+import { resolveMenuRoute } from "../../core/menuMode";
 import { bridgePieceById, bridgePieceTargetId, bridgeSlotTargetId, buildBridgeMaxSteps, buildBridgePieces, buildBridgeSlots, canPlaceBridgePieceAtSlot, nextBridgePieceOfKind, placedPieceIds, type BridgePiece, type BridgePieceKind, type BridgePlacement, type BridgeSlot } from "./model";
 
 type Point = { x: number; y: number };
@@ -49,9 +54,11 @@ type FallingPiece = {
   bounces: number;
 };
 
+const bridgeFeedback = createStandardGameFeedback();
+const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, pauseSession, resumeSession, recordEvent, recordSuccess, finishSession } = useGameSessionFor("build-bridge", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("build-bridge", {
   maxSteps: buildBridgeMaxSteps,
   finishOnMaxSteps: false,
   finishOnMistakes: false,
@@ -62,6 +69,8 @@ const placements = ref<BridgePlacement[]>([]);
 const selectedPieceId = ref<string>();
 const fallingPieces = reactive<FallingPiece[]>([]);
 const message = ref("Сначала выбери: опора или доска. Потом покажи место на мосту.");
+const isSpeaking = ref(false);
+const promptAudio = useGamePromptAudio({ gameId: "build-bridge", soundEnabled: toRef(session.settings, "sound") });
 const selectedPiece = computed(() => selectedPieceId.value ? bridgePieceById(selectedPieceId.value) : undefined);
 
 let targets: Target[] = [];
@@ -150,6 +159,27 @@ function resetDwell(now: number, reason?: "left" | "invalid-gaze" | "disabled") 
   activeProgress = 0;
 }
 
+async function playAudio(assetIds: string[], delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(assetIds, delayMs, 170);
+  isSpeaking.value = false;
+}
+
+function restart() {
+  promptAudio.cancelPending();
+  placements.value = [];
+  selectedPieceId.value = undefined;
+  fallingPieces.splice(0);
+  message.value = "Сначала выбери: опора или доска. Потом покажи место на мосту.";
+  isSpeaking.value = false;
+  activeTargetId = "";
+  activeStartedAt = 0;
+  activeProgress = 0;
+  cooldownUntil = 0;
+  startSession();
+  void playAudio(["build-bridge.prompt"], 450);
+}
+
 function hitTestTarget(point: Point) {
   return targets.find((target) => (
     point.x >= target.x
@@ -188,7 +218,8 @@ function selectPieceKind(target: KindTarget) {
   const targetId = bridgePieceTargetId(piece);
   selectedPieceId.value = piece.id;
   recordEvent("hint", { targetId, action: "piece-kind-selected", pieceKind: target.pieceKind, pieceId: piece.id });
-  message.value = `Теперь выбери место: ${piece.label}.`;
+  message.value = "Теперь выбери место на мосту.";
+  void playAudio(["build-bridge.place"], 80);
 }
 
 function placeSelectedPiece(target: SlotTarget) {
@@ -202,18 +233,29 @@ function placeSelectedPiece(target: SlotTarget) {
     selectedPieceId.value = undefined;
     recordSuccess({ targetId, answerId: piece.id, slotId: target.slot.id, action: "placed-piece" });
     message.value = placements.value.length >= buildBridgeMaxSteps ? "Мост готов. Все детали нашли опору." : "Деталь держится. Выбери следующую деталь.";
-    if (placements.value.length >= buildBridgeMaxSteps && session.status === "running") finishSession("game-complete");
+    void bridgeFeedback.playSuccess(session.settings.sound);
+    if (placements.value.length >= buildBridgeMaxSteps && session.status === "running") {
+      void playAudio(["build-bridge.correct", "build-bridge.complete"], 80).then(() => finishSession("game-complete"));
+    } else {
+      void playAudio(["build-bridge.correct"], 80);
+    }
     return;
   }
 
   spawnFallingPiece(piece, target);
   selectedPieceId.value = undefined;
-  message.value = `${piece.label} не нашла опору и упала. Выбери деталь снова.`;
+  message.value = "Деталь упала. Выбери деталь снова.";
+  void bridgeFeedback.playMistake(session.settings.sound);
+  recordMistake({ targetId, expectedTargetId: bridgePieceTargetId(piece), answerId: piece.id, slotId: target.slot.id, action: "piece-fell", isCorrect: false });
   recordEvent("hint", { targetId, action: "piece-fell", pieceId: piece.id, slotId: target.slot.id, supportedBy: target.slot.supportedBy });
+  void playAudio(["build-bridge.mistake"], 80);
 }
 
 function updateDwell(now: number) {
-  if (session.status !== "running" || now < cooldownUntil) return;
+  if (session.status !== "running" || isSpeaking.value || now < cooldownUntil) {
+    resetDwell(now, activeTargetId ? "disabled" : undefined);
+    return;
+  }
   if (!pointer.value.valid) {
     resetDwell(now, activeTargetId ? "invalid-gaze" : undefined);
     return;
@@ -634,12 +676,24 @@ function draw(ctx: CanvasRenderingContext2D) {
 }
 
 useGameLoop({ context, update, draw });
+
+onMounted(() => {
+  promptAudio.warm();
+  bridgeFeedback.warm(session.settings.sound);
+  void playAudio(["build-bridge.prompt"], 450);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+  bridgeFeedback.dispose();
+});
 </script>
 
 <template>
   <div class="build-bridge-shell">
     <canvas ref="canvasRef" class="bridge-canvas" aria-label="Строим мост" />
     <GameHud title="Строим мост" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameResultDialog :model-value="session.status === 'finished'" title="Строим мост" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
   </div>
 </template>
 

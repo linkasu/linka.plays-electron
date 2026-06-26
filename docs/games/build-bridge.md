@@ -10,8 +10,8 @@
 | Route | `/games/build-bridge` |
 | Категория | `sequencing` — Последовательности |
 | Status | `therapy-ready` |
-| Resolved stability | `publish` |
-| Readiness group | `ready` |
+| Resolved stability | `development` |
+| Readiness group | `needs-check` |
 | Skills | последовательность, выбор |
 | Recommended session | 135 сек |
 | Min target size | 180 px |
@@ -19,9 +19,9 @@
 
 ## Назначение
 
-undefined
+Построить мост по шагам: выбрать тип детали и поставить её на подходящее место. Ошибка не раскрывает правильную позицию, деталь мягко падает и ребёнок выбирает снова.
 
-Самостоятельная формулировка для меню: undefined
+Самостоятельная формулировка для меню: построй мост из деталей.
 
 ## Игровой цикл
 
@@ -55,18 +55,18 @@ undefined
 |---|---|
 | Route в router | есть |
 | Vue-компонент | `BuildBridgeGame.vue` |
-| Model | нет отдельной модели |
-| Model test | нет |
-| Audio module | нет |
+| Model | `model.ts` |
+| Model test | `model.test.ts` |
+| Audio module | стандартный feedback из `core/gameFeedbackAudio.ts`, TTS через `useGamePromptAudio` |
 | Runtime audit doc | `docs/tests/2026-06-10/build-bridge.md` |
 
 ## Готовность
 
-Игра находится в группе `ready`, потому что resolved stability равен `publish`.
+Игра находится в группе `needs-check`, пока проходит batch review.
 
 Автоматические blockers:
 
-- нет
+- `stability:needs-check`
 
 ## QA checklist
 
@@ -79,4 +79,4 @@ undefined
 
 ## Next step
 
-Оставить в ready-очереди и проверять регрессии через общий Electron CDP audit.
+Проверить в Electron CDP на 800×600/1024×600 и визуально подтвердить canvas PNG перед approve.
