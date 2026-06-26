@@ -6795,5 +6795,33 @@
     "text": "Готово. Комикс собран.",
     "voice": "jane",
     "path": "/audio/tts/comic-strip/complete.mp3"
+  },
+  {
+    "id": "soup-recipe.prompt",
+    "game": "soup-recipe",
+    "text": "Добавляй ингредиенты по порядку рецепта.",
+    "voice": "jane",
+    "path": "/audio/tts/soup-recipe/prompt.mp3"
+  },
+  {
+    "id": "soup-recipe.correct",
+    "game": "soup-recipe",
+    "text": "Верно. Продолжай по рецепту.",
+    "voice": "jane",
+    "path": "/audio/tts/soup-recipe/correct.mp3"
+  },
+  {
+    "id": "soup-recipe.mistake",
+    "game": "soup-recipe",
+    "text": "Посмотри на порядок рецепта и попробуй другой ингредиент.",
+    "voice": "jane",
+    "path": "/audio/tts/soup-recipe/mistake.mp3"
+  },
+  {
+    "id": "soup-recipe.complete",
+    "game": "soup-recipe",
+    "text": "Суп готов. Все ингредиенты добавлены.",
+    "voice": "jane",
+    "path": "/audio/tts/soup-recipe/complete.mp3"
   }
 ]

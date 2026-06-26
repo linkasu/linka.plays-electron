@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
@@ -27,7 +28,7 @@ const soupFeedback = createStandardGameFeedback();
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("soup-recipe", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("soup-recipe", {
   maxSteps: 8,
   overrides: { sound: true },
   finishOnMaxSteps: false,
@@ -36,10 +37,12 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 
 const round = createSoupRecipeRound(session.maxSteps);
 const placedIngredientIds = ref<string[]>([]);
-const hintedIngredientId = ref<string>();
 const lastMistakeId = ref<string>();
 const resultVisible = ref(false);
-const feedbackMessage = ref("Добавляй ингредиенты по порядку. Если ошибёшься, суп спокойно подскажет следующий шаг.");
+const pendingSelection = ref(false);
+const isSpeaking = ref(false);
+const feedbackMessage = ref("Добавляй ингредиенты по порядку. Если ошибёшься, попробуй ещё раз спокойно.");
+const promptAudio = useGamePromptAudio({ gameId: "soup-recipe", soundEnabled: toRef(session.settings, "sound") });
 const currentRoundId = computed(() => `soup-recipe:step:${session.step + 1}`);
 const placedIngredients = computed(() => placedIngredientIds.value
   .map((id) => round.ingredients.find((ingredient) => ingredient.id === id))
@@ -114,49 +117,67 @@ function addFlyingIngredient(ingredient: SoupIngredient) {
   });
 }
 
-function chooseIngredient(ingredient: SoupIngredient) {
-  if (session.status !== "running" || placedIngredientIds.value.includes(ingredient.id) || recipeComplete.value) return;
+async function playPrompt(delayMs = 0) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["soup-recipe.prompt"], delayMs);
+  isSpeaking.value = false;
+}
+
+async function chooseIngredient(ingredient: SoupIngredient) {
+  if (session.status !== "running" || pendingSelection.value || isSpeaking.value || placedIngredientIds.value.includes(ingredient.id) || recipeComplete.value) return;
 
   const expectedIngredient = nextIngredient.value;
   const targetId = ingredientTargetId(ingredient);
   const expectedTargetId = expectedIngredient ? ingredientTargetId(expectedIngredient) : undefined;
 
   if (ingredient.id !== expectedIngredient?.id) {
+    pendingSelection.value = true;
     recordMistake({ roundId: currentRoundId.value, targetId, expectedTargetId, expected: expectedIngredient?.id, actual: ingredient.id, isCorrect: false });
-    if (expectedIngredient) recordHint({ roundId: currentRoundId.value, targetId: expectedTargetId, reason: "wrong-ingredient-selected" });
-    hintedIngredientId.value = expectedIngredient?.id;
     lastMistakeId.value = ingredient.id;
-    feedbackMessage.value = expectedIngredient ? `Почти. Следующий ингредиент подсвечен: ${expectedIngredient.label}.` : "Суп уже собран.";
+    feedbackMessage.value = "Посмотри на порядок рецепта и попробуй другой ингредиент.";
     void soupFeedback.playMistake(session.settings.sound);
+    isSpeaking.value = true;
+    await promptAudio.playSequenceAndWait(["soup-recipe.mistake"], 80);
+    isSpeaking.value = false;
+    pendingSelection.value = false;
     return;
   }
 
+  pendingSelection.value = true;
   addFlyingIngredient(ingredient);
   placedIngredientIds.value = [...placedIngredientIds.value, ingredient.id];
-  hintedIngredientId.value = undefined;
   lastMistakeId.value = undefined;
   recordSuccess({ roundId: currentRoundId.value, targetId, expected: ingredient.id, actual: ingredient.id, isCorrect: true });
   void soupFeedback.playSuccess(session.settings.sound);
 
   if (recipeComplete.value && session.status === "running") {
     feedbackMessage.value = "Суп готов. Все ингредиенты добавлены по рецепту.";
+    isSpeaking.value = true;
+    await promptAudio.playSequenceAndWait(["soup-recipe.correct", "soup-recipe.complete"], 80, 170);
+    isSpeaking.value = false;
     finishSession("game-complete");
     return;
   }
 
-  const next = nextIngredient.value;
-  feedbackMessage.value = next ? `Верно. Теперь добавь: ${next.label}.` : "Суп готов.";
+  feedbackMessage.value = "Верно. Продолжай по рецепту.";
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(["soup-recipe.correct"], 80);
+  isSpeaking.value = false;
+  pendingSelection.value = false;
 }
 
 function restart() {
   clearResultTimer();
+  promptAudio.cancelPending();
   resultVisible.value = false;
   placedIngredientIds.value = [];
-  hintedIngredientId.value = undefined;
   lastMistakeId.value = undefined;
+  pendingSelection.value = false;
+  isSpeaking.value = false;
   flyingIngredients.splice(0);
-  feedbackMessage.value = "Добавляй ингредиенты по порядку. Если ошибёшься, суп спокойно подскажет следующий шаг.";
+  feedbackMessage.value = "Добавляй ингредиенты по порядку. Если ошибёшься, попробуй ещё раз спокойно.";
   startSession();
+  void playPrompt(450);
 }
 
 function computeLayout(canvasWidth: number, canvasHeight: number) {
@@ -667,7 +688,6 @@ function drawIngredientSlots(ctx: CanvasRenderingContext2D, slots: IngredientSlo
 
   for (const slot of slots) {
     const placed = placedIngredientIds.value.includes(slot.ingredient.id);
-    const hinted = hintedIngredientId.value === slot.ingredient.id;
     const mistaken = lastMistakeId.value === slot.ingredient.id;
     const focused = pointer.value.valid
       && pointer.value.x >= slot.rect.x
@@ -686,9 +706,9 @@ function drawIngredientSlots(ctx: CanvasRenderingContext2D, slots: IngredientSlo
     ctx.restore();
 
     ctx.save();
-    if (hinted || focused) {
-      ctx.shadowBlur = hinted ? 34 : 20;
-      ctx.shadowColor = hinted ? "rgba(25, 118, 210, 0.46)" : "rgba(255, 229, 127, 0.46)";
+    if (focused) {
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = "rgba(255, 229, 127, 0.46)";
     }
     ctx.globalAlpha = placed ? 0.42 : 1;
     const plate = ctx.createRadialGradient(slot.center.x - bowlRadius * 0.28, bowlY - bowlRadius * 0.24, 0, slot.center.x, bowlY, bowlRadius * 1.18);
@@ -699,8 +719,8 @@ function drawIngredientSlots(ctx: CanvasRenderingContext2D, slots: IngredientSlo
     ctx.beginPath();
     ctx.ellipse(slot.center.x, bowlY, bowlRadius * 1.08, bowlRadius * 0.72, 0, 0, Math.PI * 2);
     ctx.fill();
-    ctx.strokeStyle = hinted ? "rgba(25, 118, 210, 0.72)" : "rgba(84, 53, 31, 0.22)";
-    ctx.lineWidth = hinted ? 5 : 2.5;
+    ctx.strokeStyle = "rgba(84, 53, 31, 0.22)";
+    ctx.lineWidth = 2.5;
     ctx.stroke();
     ctx.restore();
 
@@ -918,20 +938,29 @@ function draw(ctx: CanvasRenderingContext2D, _delta: number, now: number) {
 useGameLoop({ context, draw });
 
 onMounted(() => {
+  promptAudio.warm();
   soupFeedback.warm(session.settings.sound);
+  void playPrompt(450);
 });
 
 onUnmounted(() => {
   clearResultTimer();
+  promptAudio.cancelPending();
   soupFeedback.dispose();
 });
 
 watch(() => session.status, (status) => {
-  if (status === "finished") scheduleResultDialog();
+  if (status === "finished") {
+    if (!isSpeaking.value) scheduleResultDialog();
+  }
   else {
     clearResultTimer();
     resultVisible.value = false;
   }
+});
+
+watch(isSpeaking, (speaking) => {
+  if (!speaking && session.status === "finished" && !resultVisible.value) scheduleResultDialog();
 });
 </script>
 
@@ -940,7 +969,7 @@ watch(() => session.status, (status) => {
     <GameHud title="Рецепт супа" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
     <canvas ref="canvasRef" class="soup-canvas" aria-label="Рецепт супа" />
     <div class="soup-target-layer" aria-label="Ингредиенты для супа">
-      <GameDwellButton v-for="slot in ingredientSlots" :key="slot.ingredient.id" class="soup-target" :style="targetStyle(slot.rect)" :target-id="ingredientTargetId(slot.ingredient)" :disabled="session.status !== 'running' || placedIngredientIds.includes(slot.ingredient.id)" :dwell-ms="session.settings.dwellMs" :min-height="Math.max(96, slot.rect.height)" color="transparent" @select="chooseIngredient(slot.ingredient)">
+      <GameDwellButton v-for="slot in ingredientSlots" :key="slot.ingredient.id" class="soup-target" :style="targetStyle(slot.rect)" :target-id="ingredientTargetId(slot.ingredient)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking || placedIngredientIds.includes(slot.ingredient.id)" :dwell-ms="session.settings.dwellMs" :min-height="Math.max(96, slot.rect.height)" color="transparent" @select="chooseIngredient(slot.ingredient)">
         <span class="sr-only">{{ slot.ingredient.label }}</span>
       </GameDwellButton>
     </div>
