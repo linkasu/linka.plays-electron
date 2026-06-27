@@ -1896,7 +1896,7 @@ export const games: GameInfo[] = [
   {
     id: "checkers-light",
     title: "Шашки light",
-    description: "Играй в упрощённые шашки 4x4: возможные ходы подсвечены, а отсутствие ходов завершает партию.",
+    description: "Играй в упрощённые шашки 4x4: возможные ходы отмечены, а отсутствие ходов завершает раунд.",
     selfDescription: "Выбери ход шашкой.",
     route: "/games/checkers-light",
     category: "strategy",

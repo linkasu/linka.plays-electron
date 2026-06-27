@@ -7824,5 +7824,61 @@
     "text": "Мини-партия завершена. Посмотри на результат.",
     "voice": "jane",
     "path": "/audio/tts/reversi-light/complete.mp3"
+  },
+  {
+    "id": "lines-five.prompt",
+    "game": "lines-five",
+    "text": "Выбери пустую клетку для следующего шарика.",
+    "voice": "jane",
+    "path": "/audio/tts/lines-five/prompt.mp3"
+  },
+  {
+    "id": "lines-five.correct",
+    "game": "lines-five",
+    "text": "Шарик поставлен. Продолжаем спокойно.",
+    "voice": "jane",
+    "path": "/audio/tts/lines-five/correct.mp3"
+  },
+  {
+    "id": "lines-five.mistake",
+    "game": "lines-five",
+    "text": "Эта клетка занята. Выбери пустое место.",
+    "voice": "jane",
+    "path": "/audio/tts/lines-five/mistake.mp3"
+  },
+  {
+    "id": "lines-five.complete",
+    "game": "lines-five",
+    "text": "Раунд завершён. Посмотри на результат.",
+    "voice": "jane",
+    "path": "/audio/tts/lines-five/complete.mp3"
+  },
+  {
+    "id": "checkers-light.prompt",
+    "game": "checkers-light",
+    "text": "Выбери шашку, затем отмеченную клетку.",
+    "voice": "jane",
+    "path": "/audio/tts/checkers-light/prompt.mp3"
+  },
+  {
+    "id": "checkers-light.correct",
+    "game": "checkers-light",
+    "text": "Ход засчитан. Можно выбрать следующую шашку.",
+    "voice": "jane",
+    "path": "/audio/tts/checkers-light/correct.mp3"
+  },
+  {
+    "id": "checkers-light.mistake",
+    "game": "checkers-light",
+    "text": "Эта клетка не подходит сейчас. Выбери другую.",
+    "voice": "jane",
+    "path": "/audio/tts/checkers-light/mistake.mp3"
+  },
+  {
+    "id": "checkers-light.complete",
+    "game": "checkers-light",
+    "text": "Раунд завершён. Посмотри на результат.",
+    "voice": "jane",
+    "path": "/audio/tts/checkers-light/complete.mp3"
   }
 ]

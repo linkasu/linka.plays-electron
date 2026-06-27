@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
   applyCheckersLightMove,
@@ -19,14 +21,20 @@ import {
 } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession, finishSession } = useGameSessionFor("checkers-light", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("checkers-light", {
   maxSteps: 10,
-  overrides: { targetScale: 1.15 },
+  overrides: { targetScale: 1.15, sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "checkers-light", soundEnabled, warmAssetIds: ["checkers-light.prompt", "checkers-light.correct", "checkers-light.mistake", "checkers-light.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const board = ref(createInitialCheckersLightBoard());
 const selectedIndex = ref<number>();
+const isSpeaking = ref(false);
+const feedbackMessage = ref("Выбери шашку, затем одну из отмеченных клеток. Если ходов не осталось, раунд завершится.");
 const rows = Array.from({ length: checkersLightSize }, (_, row) => row);
 const columns = Array.from({ length: checkersLightSize }, (_, column) => column);
 
@@ -65,29 +73,45 @@ function cellColor(index: number, piece: CheckersLightCell) {
   return isDarkCell(index) ? "brown-lighten-5" : "blue-grey-lighten-5";
 }
 
-function selectCell(index: number) {
-  if (session.status !== "running") return;
+async function playMistakeFeedback(targetId: string, reason: string) {
+  recordMistake({ targetId, reason, isCorrect: false });
+  isSpeaking.value = true;
+  void feedbackAudio.playMistake();
+  await promptAudio.playSequenceAndWait(["checkers-light.mistake"], 80);
+  isSpeaking.value = false;
+}
+
+async function selectCell(index: number) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const piece = board.value[index];
   if (selectedIndex.value === undefined) {
-    if (piece && isMovablePiece(index)) selectedIndex.value = index;
+    if (piece && isMovablePiece(index)) {
+      selectedIndex.value = index;
+      feedbackMessage.value = "Шашка выбрана. Теперь выбери отмеченную клетку для хода.";
+      return;
+    }
+    feedbackMessage.value = "Эта клетка сейчас не выбирается. Найди шашку, у которой есть ход.";
+    await playMistakeFeedback(targetId(index), "not-movable-piece");
     return;
   }
 
   if (isMoveTarget(index)) {
-    moveSelectedPiece(index);
+    await moveSelectedPiece(index);
     return;
   }
 
   if (piece && isMovablePiece(index)) {
     selectedIndex.value = index;
+    feedbackMessage.value = "Выбрана другая шашка. Теперь выбери отмеченную клетку.";
     return;
   }
 
-  selectedIndex.value = undefined;
+  feedbackMessage.value = "Эта клетка не подходит для выбранной шашки. Можно выбрать отмеченное место или другую шашку.";
+  await playMistakeFeedback(targetId(index), "invalid-checkers-target");
 }
 
-function moveSelectedPiece(toIndex: number) {
+async function moveSelectedPiece(toIndex: number) {
   const fromIndex = selectedIndex.value;
   if (fromIndex === undefined) return;
 
@@ -97,6 +121,7 @@ function moveSelectedPiece(toIndex: number) {
 
   board.value = nextBoard;
   selectedIndex.value = undefined;
+  const finishedAfterSuccess = session.step + 1 >= session.maxSteps;
   recordSuccess({
     pieceId: piece.id,
     side: piece.side,
@@ -105,16 +130,44 @@ function moveSelectedPiece(toIndex: number) {
   });
 
   if (checkersLightOutcome(nextBoard) === "loss") {
+    feedbackMessage.value = "Ходов больше нет. Раунд завершён, можно начать снова.";
+    isSpeaking.value = true;
+    void feedbackAudio.playSuccess();
+    await promptAudio.playSequenceAndWait(["checkers-light.correct", "checkers-light.complete"], 80, 170);
     finishSession("game-lost");
+    isSpeaking.value = false;
+    return;
   }
+
+  feedbackMessage.value = "Ход засчитан. Можно выбрать следующую доступную шашку.";
+  isSpeaking.value = true;
+  void feedbackAudio.playSuccess();
+  await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["checkers-light.correct", "checkers-light.complete"] : ["checkers-light.correct"], 80, 170);
+  if (finishedAfterSuccess) {
+    finishSession("game-complete");
+  }
+  isSpeaking.value = false;
 }
 
 function restart() {
+  promptAudio.cancelPending();
   board.value = createInitialCheckersLightBoard();
   selectedIndex.value = undefined;
+  isSpeaking.value = false;
+  feedbackMessage.value = "Новая доска готова. Выбирай шашку без спешки.";
   startSession();
+  promptAudio.play("checkers-light.prompt", 220);
   recordEvent("level-start", { board: "checkers-light" });
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("checkers-light.prompt", 420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -128,7 +181,7 @@ function restart() {
             <div class="text-overline text-secondary text-center mb-2">Спокойная стратегия 4×4</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">Шашки light</h1>
             <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-4">
-              Выбери шашку, затем одну из подсвеченных клеток. Если ходов не осталось, партия завершится.
+              Выбери шашку, затем одну из отмеченных клеток. Если ходов не осталось, раунд завершится.
             </p>
             <v-chip class="d-flex mx-auto mb-5 status-chip" color="primary" size="large" variant="tonal">
               {{ statusText }}
@@ -141,9 +194,9 @@ function restart() {
                   :key="column"
                   :class="['board-cell', { 'board-cell--dark': isDarkCell(row * checkersLightSize + column), 'board-cell--target': isMoveTarget(row * checkersLightSize + column), 'board-cell--selected': isSelected(row * checkersLightSize + column) }]"
                   :target-id="targetId(row * checkersLightSize + column)"
-                  :disabled="session.status !== 'running'"
+                  :disabled="session.status !== 'running' || isSpeaking"
                   :dwell-ms="session.settings.dwellMs"
-                  :min-height="136"
+                  min-height="clamp(4.5rem, 9vh, 8.5rem)"
                   :color="cellColor(row * checkersLightSize + column, board[row * checkersLightSize + column])"
                   role="gridcell"
                   @select="selectCell(row * checkersLightSize + column)"
@@ -151,11 +204,11 @@ function restart() {
                   <template #default>
                     <div class="cell-content">
                       <div v-if="board[row * checkersLightSize + column]" :class="['piece', `piece--${board[row * checkersLightSize + column]?.side}`]">
-                        <v-icon icon="mdi-circle" size="58" />
+                        <v-icon icon="mdi-circle" size="3.625rem" />
                         <span class="piece-label">{{ pieceLabel(board[row * checkersLightSize + column]) }}</span>
                       </div>
                       <div v-else-if="isMoveTarget(row * checkersLightSize + column)" class="move-cue">
-                        <v-icon icon="mdi-check" size="44" />
+                        <v-icon icon="mdi-check" size="2.75rem" />
                         <span>ход</span>
                       </div>
                       <div v-else class="cell-coordinate text-caption">
@@ -167,8 +220,8 @@ function restart() {
               </div>
             </div>
 
-            <v-alert class="mt-5 text-body-1" color="success" icon="mdi-checkerboard" rounded="xl" variant="tonal">
-              Возможные ходы подсвечены зелёным. Можно спокойно сменить выбор или снять его взглядом с пустой клетки.
+            <v-alert class="mt-5 text-body-1" color="success" icon="mdi-checkerboard" rounded="xl" role="status" variant="tonal">
+              {{ feedbackMessage }}
             </v-alert>
           </v-card>
         </v-col>
@@ -198,19 +251,19 @@ function restart() {
 
 .board {
   display: grid;
-  gap: clamp(0.5rem, 1.5vw, 0.85rem);
+  gap: clamp(0.4rem, 1.2vw, 0.75rem);
   inline-size: min(100%, 37rem);
 }
 
 .board-row {
   display: grid;
-  gap: clamp(0.5rem, 1.5vw, 0.85rem);
+  gap: clamp(0.4rem, 1.2vw, 0.75rem);
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .board-cell :deep(.dwell-button) {
   border: 0.18rem solid rgb(var(--v-theme-outline-variant));
-  padding: clamp(0.65rem, 2vw, 1rem) !important;
+  padding: clamp(0.35rem, 1.2vw, 0.75rem) !important;
 }
 
 .board-cell--dark :deep(.dwell-button) {
@@ -229,7 +282,7 @@ function restart() {
   align-items: center;
   display: flex;
   justify-content: center;
-  min-block-size: clamp(4.5rem, 12vw, 6.5rem);
+  min-block-size: clamp(3.25rem, 7.5vh, 5.5rem);
 }
 
 .cell-coordinate {
@@ -259,6 +312,18 @@ function restart() {
   line-height: 1.1;
 }
 
+.board-cell--selected :deep(.piece-label),
+.board-cell--selected .cell-coordinate,
+.board-cell--selected :deep(.move-cue) {
+  color: #ffffff !important;
+}
+
+.board-cell--target :deep(.piece-label),
+.board-cell--target .cell-coordinate,
+.board-cell--target :deep(.move-cue) {
+  color: #0d2a17 !important;
+}
+
 .move-cue {
   color: #17212b;
 }
@@ -273,7 +338,7 @@ function restart() {
   }
 }
 
-@media (max-height: 680px) {
+@media (max-height: 42.5rem) {
   .game-container {
     padding-block-start: 4.75rem;
   }
