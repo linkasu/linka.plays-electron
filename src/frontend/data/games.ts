@@ -216,7 +216,7 @@ export const games: GameInfo[] = [
   {
     id: "leaves-wind",
     title: "Листья на ветру",
-    description: "Веди взглядом спокойный поток ветра: листья плавно подхватывают движение без проигрыша.",
+    description: "Веди взглядом спокойный поток ветра: листья плавно подхватывают движение.",
     selfDescription: "Проведи листья ветром.",
     route: "/games/leaves-wind",
     category: "gaze-basics",
@@ -231,7 +231,7 @@ export const games: GameInfo[] = [
   {
     id: "kite",
     title: "Воздушный змей",
-    description: "Смотри на крупного змея: спокойный взгляд мягко удерживает его в воздухе и поднимает выше без ошибок.",
+    description: "Смотри на крупного змея: спокойный взгляд мягко удерживает его в воздухе и поднимает выше.",
     selfDescription: "Подними змея взглядом.",
     route: "/games/kite",
     category: "gaze-basics",
@@ -291,7 +291,7 @@ export const games: GameInfo[] = [
   {
     id: "magic-dust",
     title: "Волшебная пыль",
-    description: "Смотри спокойно: вокруг взгляда появляются мягкие искры и постепенно исчезают без ошибок.",
+    description: "Смотри спокойно: вокруг взгляда появляются мягкие искры и постепенно исчезают.",
     selfDescription: "Зажги волшебную пыль взглядом.",
     route: "/games/magic-dust",
     category: "gaze-basics",
@@ -621,7 +621,7 @@ export const games: GameInfo[] = [
   {
     id: "jellyfish",
     title: "Медузы",
-    description: "Следи за медленными светящимися медузами в спокойной воде без проигрыша.",
+    description: "Следи за медленными светящимися медузами в спокойной воде.",
     selfDescription: "Следи за медузой взглядом.",
     route: "/games/jellyfish",
     category: "gaze-basics",
