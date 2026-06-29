@@ -666,7 +666,7 @@ export const games: GameInfo[] = [
   {
     id: "who-hiding",
     title: "Кто спрятался?",
-    description: "Найди частично скрытого персонажа в спокойной фигура-фон сцене; неверный выбор мягко даёт подсказку.",
+    description: "Найди частично скрытого персонажа в спокойной фигура-фон сцене; мягкая подсказка помогает при повторном выборе.",
     selfDescription: "Найди, кто спрятался.",
     route: "/games/who-hiding",
     category: "visual-search",
@@ -696,7 +696,7 @@ export const games: GameInfo[] = [
   {
     id: "find-shape",
     title: "Найди форму",
-    description: "Найди заданную форму среди крупных карточек: при ошибке нужная форма мягко подсвечивается.",
+    description: "Найди заданную форму среди крупных карточек: подсказка мягко помогает заметить нужную форму.",
     selfDescription: "Найди нужную форму.",
     route: "/games/find-shape",
     category: "visual-search",
@@ -876,7 +876,7 @@ export const games: GameInfo[] = [
   {
     id: "find-animal",
     title: "Найди животное",
-    description: "Найди названное животное среди крупных карточек; ошибка даст спокойную подсказку.",
+    description: "Найди названное животное среди крупных карточек; спокойная подсказка помогает при повторном выборе.",
     selfDescription: "Найди животное.",
     route: "/games/find-animal",
     category: "visual-search",
