@@ -1911,7 +1911,7 @@ export const games: GameInfo[] = [
   {
     id: "chess-mini",
     title: "Chess mini",
-    description: "Решай спокойные шахматные мини-задачи 4×4: выбери допустимый ход фигуры, а неверный выбор мягко покажет подсказку.",
+    description: "Решай спокойные шахматные мини-задачи 4×4: выбери допустимый ход фигуры, ошибка не завершает игру.",
     selfDescription: "Выбери шахматный ход.",
     route: "/games/chess-mini",
     category: "strategy",
@@ -1926,7 +1926,7 @@ export const games: GameInfo[] = [
   {
     id: "tangram",
     title: "Tangram",
-    description: "Выбирай подходящую крупную фигуру для силуэта танграма, а ошибка мягко подсветит правильную деталь.",
+    description: "Выбирай подходящую крупную фигуру для силуэта танграма, ошибка не завершает раунд.",
     selfDescription: "Подбери фигуру танграма.",
     route: "/games/tangram",
     category: "strategy",

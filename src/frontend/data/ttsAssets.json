@@ -7880,5 +7880,61 @@
     "text": "Раунд завершён. Посмотри на результат.",
     "voice": "jane",
     "path": "/audio/tts/checkers-light/complete.mp3"
+  },
+  {
+    "id": "chess-mini.prompt",
+    "game": "chess-mini",
+    "text": "Посмотри на фигуру и выбери одну из её клеток.",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/prompt.mp3"
+  },
+  {
+    "id": "chess-mini.correct",
+    "game": "chess-mini",
+    "text": "Принимаю ход.",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/correct.mp3"
+  },
+  {
+    "id": "chess-mini.mistake",
+    "game": "chess-mini",
+    "text": "Эта клетка не подходит. Можно выбрать другую.",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/mistake.mp3"
+  },
+  {
+    "id": "chess-mini.complete",
+    "game": "chess-mini",
+    "text": "Раунд завершён.",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/complete.mp3"
+  },
+  {
+    "id": "tangram.prompt",
+    "game": "tangram",
+    "text": "Посмотри на серый силуэт и выбери похожую фигуру.",
+    "voice": "jane",
+    "path": "/audio/tts/tangram/prompt.mp3"
+  },
+  {
+    "id": "tangram.correct",
+    "game": "tangram",
+    "text": "Совпало.",
+    "voice": "jane",
+    "path": "/audio/tts/tangram/correct.mp3"
+  },
+  {
+    "id": "tangram.mistake",
+    "game": "tangram",
+    "text": "Не совпало. Попробуй другую фигуру.",
+    "voice": "jane",
+    "path": "/audio/tts/tangram/mistake.mp3"
+  },
+  {
+    "id": "tangram.complete",
+    "game": "tangram",
+    "text": "Раунд завершён.",
+    "voice": "jane",
+    "path": "/audio/tts/tangram/complete.mp3"
   }
 ]

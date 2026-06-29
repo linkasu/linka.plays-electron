@@ -1,19 +1,30 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { generateTangramRound, type TangramFigure, type TangramPiece, type TangramRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("tangram", { maxSteps: 8, finishOnMistakes: false });
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("tangram", {
+  maxSteps: 8,
+  overrides: { sound: true },
+  finishOnMaxSteps: false,
+  finishOnMistakes: false
+});
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "tangram", soundEnabled, warmAssetIds: ["tangram.prompt", "tangram.correct", "tangram.mistake", "tangram.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
-const hintedRoundId = ref<string>();
 const lastMistakeId = ref<string>();
+const isSpeaking = ref(false);
+let mistakeTimer = 0;
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<TangramRound>({
   session,
@@ -21,9 +32,8 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
   generateRound: (roundIndex) => generateTangramRound(session.settings, roundIndex)
 });
 
-const hintedChoiceId = computed(() => hintedRoundId.value === round.value.roundId ? round.value.target.id : undefined);
 const feedbackText = computed(() => {
-  if (hintedRoundId.value === round.value.roundId) return `Почти. Подсказка: ${round.value.target.hint}. Правильная фигура мягко подсвечена.`;
+  if (lastMistakeId.value) return "Не совпало. Посмотри на силуэт ещё раз и выбери другую фигуру.";
   return "Посмотри на серый силуэт и выбери такой же рисунок из крупных фигур.";
 });
 
@@ -35,8 +45,17 @@ function pieceFill(piece: TangramPiece, silhouette = false) {
   return silhouette ? "currentColor" : piece.color;
 }
 
-function answer(choice: TangramFigure) {
-  if (session.status !== "running") return;
+function clearMistakeMark() {
+  lastMistakeId.value = undefined;
+}
+
+function scheduleMistakeClear() {
+  window.clearTimeout(mistakeTimer);
+  mistakeTimer = window.setTimeout(clearMistakeMark, 1600);
+}
+
+async function answer(choice: TangramFigure) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   const targetId = choiceTargetId(choice.id);
   const expectedTargetId = choiceTargetId(round.value.target.id);
@@ -50,9 +69,18 @@ function answer(choice: TangramFigure) {
       category: round.value.target.category,
       isCorrect: true
     });
-    hintedRoundId.value = undefined;
-    lastMistakeId.value = undefined;
+    clearMistakeMark();
+    const finishedAfterSuccess = session.step + 1 >= session.maxSteps;
+    isSpeaking.value = true;
+    void feedbackAudio.playSuccess();
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["tangram.correct", "tangram.complete"] : ["tangram.correct"], 80, 170);
+    if (finishedAfterSuccess) {
+      finishSession("game-complete");
+      isSpeaking.value = false;
+      return;
+    }
     if (session.status === "running" && session.step < session.maxSteps) nextRound();
+    isSpeaking.value = false;
     return;
   }
 
@@ -66,16 +94,37 @@ function answer(choice: TangramFigure) {
     category: round.value.target.category,
     isCorrect: false
   });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "silhouette-mismatch" });
-  hintedRoundId.value = round.value.roundId;
   lastMistakeId.value = choice.id;
+  isSpeaking.value = true;
+  void feedbackAudio.playMistake();
+  await promptAudio.playSequenceAndWait(["tangram.mistake"], 80);
+  isSpeaking.value = false;
+  scheduleMistakeClear();
 }
 
 function restart() {
-  hintedRoundId.value = undefined;
+  window.clearTimeout(mistakeTimer);
+  mistakeTimer = 0;
+  promptAudio.cancelPending();
   lastMistakeId.value = undefined;
+  isSpeaking.value = false;
   restartRoundGame();
+  promptAudio.play("tangram.prompt", 220);
 }
+
+watch(() => round.value.roundId, () => {
+  lastMistakeId.value = undefined;
+});
+
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("tangram.prompt", 420);
+});
+
+onUnmounted(() => {
+  window.clearTimeout(mistakeTimer);
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -97,7 +146,7 @@ function restart() {
 
             <v-row class="choice-grid" dense justify="center">
               <v-col v-for="choice in round.choices" :key="choice.id" cols="6" sm="3" :lg="round.choices.length === 3 ? 4 : 3">
-                <GameDwellButton :class="[{ 'target-hint': hintedChoiceId === choice.id, 'choice-mistake': lastMistakeId === choice.id }]" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="170" :color="hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="answer(choice)">
+                <GameDwellButton :class="[{ 'choice-mistake': lastMistakeId === choice.id }]" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="clamp(7rem, 18vh, 10.625rem)" color="surface" @select="answer(choice)">
                   <template #default>
                     <svg class="choice-figure" viewBox="0 0 100 100" role="img" :aria-label="choice.label">
                       <polygon v-for="(piece, index) in choice.pieces" :key="`${choice.id}-${index}`" :points="piece.points" :fill="pieceFill(piece)" />
@@ -110,8 +159,8 @@ function restart() {
             </v-row>
 
             <v-expand-transition>
-              <v-alert v-if="hintedRoundId === round.roundId" class="mt-5 text-h6" color="primary" icon="mdi-lightbulb-on-outline" rounded="xl" variant="tonal">
-                Ошибка не страшна: правильный танграм подсвечен, можно спокойно выбрать ещё раз.
+              <v-alert v-if="lastMistakeId" class="mt-5 text-h6" color="warning" icon="mdi-emoticon-neutral-outline" rounded="xl" variant="tonal">
+                Не страшно: посмотри ещё раз на силуэт и выбери другую фигуру.
               </v-alert>
             </v-expand-transition>
           </v-card>
@@ -138,7 +187,7 @@ function restart() {
 
 .silhouette-card {
   align-items: center;
-  border: 2px solid rgb(var(--v-theme-primary) / 10%);
+  border: 0.125rem solid rgb(var(--v-theme-primary) / 10%);
   display: flex;
   inline-size: min(22rem, 68vw);
   justify-content: center;
@@ -168,11 +217,6 @@ function restart() {
   color: #1f2a27 !important;
 }
 
-.target-hint {
-  filter: drop-shadow(0 0 1.2rem rgb(var(--v-theme-primary) / 44%));
-  transform: scale(1.03);
-}
-
 .choice-mistake .choice-figure {
   filter: grayscale(0.36) opacity(0.72);
   transform: scale(0.96);
@@ -200,7 +244,7 @@ function restart() {
   }
 }
 
-@media (max-height: 920px) {
+@media (max-height: 57.5rem) {
   .tangram-container {
     padding-block-start: 7.25rem;
   }
