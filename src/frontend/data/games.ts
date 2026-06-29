@@ -516,7 +516,7 @@ export const games: GameInfo[] = [
   {
     id: "color-circle",
     title: "Цветной круг",
-    description: "Выбери названный цвет на большом круге из секторов; ошибка даёт мягкую подсказку и следующий круг.",
+    description: "Выбери названный цвет на большом круге из секторов; мягкая подсказка помогает перейти к следующему кругу.",
     selfDescription: "Выбери цвет в круге.",
     route: "/games/color-circle",
     category: "gaze-basics",
@@ -531,7 +531,7 @@ export const games: GameInfo[] = [
   {
     id: "feed-animal",
     title: "Покорми зверька",
-    description: "Выбери подходящую еду для зверька: правильный ответ кормит, неправильный мягко показывает подсказку.",
+    description: "Выбери подходящую еду для зверька: удачный выбор кормит, а мягкая подсказка помогает повторить попытку.",
     selfDescription: "Выбери, что ест зверёк.",
     route: "/games/feed-animal",
     category: "gaze-basics",
@@ -771,7 +771,7 @@ export const games: GameInfo[] = [
   {
     id: "find-digit",
     title: "Найди цифру",
-    description: "Найди заданную цифру среди крупных спокойных карточек; после промаха нужная цифра мягко подсвечивается.",
+    description: "Найди заданную цифру среди крупных спокойных карточек; мягкая подсказка помогает заметить нужную цифру.",
     selfDescription: "Найди цифру.",
     route: "/games/find-digit",
     category: "numeracy",
@@ -786,7 +786,7 @@ export const games: GameInfo[] = [
   {
     id: "logic-pairs",
     title: "Логические пары",
-    description: "Подбери пару по смыслу, форме или числу: ключ к замку, форма к форме, цифра к точкам; ошибка только мягко подсветит ответ.",
+    description: "Подбери пару по смыслу, форме или числу: ключ к замку, форма к форме, цифра к точкам; подсказка помогает заметить связь.",
     selfDescription: "Найди подходящую пару.",
     route: "/games/logic-pairs",
     category: "numeracy",
@@ -801,7 +801,7 @@ export const games: GameInfo[] = [
   {
     id: "shadow-match",
     title: "Тень и предмет",
-    description: "Подбери крупный предмет к мягкому силуэту; ошибка только подсветит правильный выбор.",
+    description: "Подбери крупный предмет к мягкому силуэту; подсказка помогает сравнить форму и предмет.",
     selfDescription: "Найди предмет по тени.",
     route: "/games/shadow-match",
     category: "visual-search",
