@@ -56,6 +56,7 @@ const resultVisible = computed(() => session.status === "finished");
 const targetHues = [42, 56, 194, 284, 318];
 let previousTargetPoint: Point | undefined;
 let finishAfter = 0;
+let finishDelayRemainingMs = 0;
 let targetSequence = 0;
 
 function randomRange(min: number, max: number) {
@@ -184,6 +185,7 @@ function resetScene() {
   sparks.splice(0);
   previousTargetPoint = undefined;
   finishAfter = 0;
+  finishDelayRemainingMs = 0;
   targetSequence = 0;
   const center = clampToRoom({ x: width.value * 0.5, y: height.value * 0.56 });
   robot.x = center.x;
@@ -209,10 +211,11 @@ function updateRobot(delta: number) {
   robot.y = clampedRobot.y;
   const travel = distance(previous, robot);
   if (travel > 0.15) robot.angle = Math.atan2(robot.y - previous.y, robot.x - previous.x);
-  robot.phase += delta * (session.settings.reduceMotion ? 1.1 : 2.4);
+  robot.phase += session.settings.reduceMotion ? 0 : delta * 2.4;
 }
 
 function addCleanupBurst(point: Point, hue: number, count = 14) {
+  if (session.settings.reduceMotion) return;
   for (let index = 0; index < count; index += 1) {
     const angle = Math.PI * 2 * index / count + randomRange(-0.18, 0.18);
     const speed = randomRange(42, 108) * session.settings.motionSpeed;
@@ -247,6 +250,7 @@ function collectTarget(target: DustTarget, now: number) {
 
   if (session.step >= session.maxSteps && finishAfter === 0) {
     finishAfter = now + 1700;
+    finishDelayRemainingMs = 1700;
   } else {
     refillTargets();
   }
@@ -308,7 +312,10 @@ function update(rawDelta: number, now: number) {
     updateTargets(delta, now);
     updateSparks(delta);
     robot.glow += (0 - robot.glow) * Math.min(1, delta * 2.8);
-    if (finishAfter > 0 && now >= finishAfter) finishSession("max-steps");
+    if (finishDelayRemainingMs > 0) {
+      finishDelayRemainingMs = Math.max(0, finishDelayRemainingMs - delta * 1000);
+      if (finishDelayRemainingMs === 0) finishSession("max-steps");
+    }
   }
 }
 
@@ -356,7 +363,8 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   ctx.save();
   ctx.globalAlpha = 0.38;
   ctx.fillStyle = "#ffffff";
-  const sunX = width.value * 0.78 + Math.sin(now * 0.00012) * 10;
+  const visualNow = session.settings.reduceMotion ? 0 : now;
+  const sunX = width.value * 0.78 + Math.sin(visualNow * 0.00012) * 10;
   ctx.beginPath();
   ctx.arc(sunX, height.value * 0.18, 46, 0, Math.PI * 2);
   ctx.fill();
@@ -377,7 +385,7 @@ function drawRoomDust(ctx: CanvasRenderingContext2D) {
 
 function drawTarget(ctx: CanvasRenderingContext2D, target: DustTarget) {
   const point = targetPixels(target);
-  const pulse = 0.5 + Math.sin(target.age * 2.2) * 0.5;
+  const pulse = session.settings.reduceMotion ? 0.5 : 0.5 + Math.sin(target.age * 2.2) * 0.5;
   const radius = target.radius * (1 + target.dwellProgress * 0.28 + pulse * 0.08);
 
   ctx.save();
@@ -437,8 +445,8 @@ function drawStar(ctx: CanvasRenderingContext2D, x: number, y: number, radius: n
 
 function drawRobot(ctx: CanvasRenderingContext2D) {
   const radius = robotRadius();
-  const bob = Math.sin(robot.phase) * radius * 0.025;
-  const sweep = Math.sin(robot.phase * 2.1) * radius * 0.28;
+  const bob = session.settings.reduceMotion ? 0 : Math.sin(robot.phase) * radius * 0.025;
+  const sweep = session.settings.reduceMotion ? 0 : Math.sin(robot.phase * 2.1) * radius * 0.28;
 
   ctx.save();
   ctx.translate(robot.x, robot.y + bob);
@@ -502,7 +510,8 @@ function drawSpark(ctx: CanvasRenderingContext2D, spark: CleanupSpark) {
 }
 
 function draw(ctx: CanvasRenderingContext2D, _delta: number, now: number) {
-  drawBackground(ctx, now);
+  const visualNow = session.settings.reduceMotion ? 0 : now;
+  drawBackground(ctx, visualNow);
   drawRoomDust(ctx);
   for (const target of targets) drawTarget(ctx, target);
   for (const spark of sparks) drawSpark(ctx, spark);
@@ -551,8 +560,8 @@ useGameLoop({ context, update, draw });
 <style scoped>
 .robot-vacuum-shell {
   background: #eef6ff;
-  block-size: 100vh;
-  inline-size: 100vw;
+  block-size: 100dvh;
+  inline-size: 100dvw;
   overflow: hidden;
   position: relative;
 }

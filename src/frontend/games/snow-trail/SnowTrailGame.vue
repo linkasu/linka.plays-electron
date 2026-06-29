@@ -14,9 +14,10 @@ type SnowSpark = Point & { age: number; life: number; size: number; drift: numbe
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordHint, recordSuccess, startSession } = useGameSessionFor("snow-trail", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordHint, recordSuccess, startSession } = useGameSessionFor("snow-trail", {
   maxSteps: 8,
   overrides: { preset: "gentle", dwellMs: 600, targetScale: 1.45, motionSpeed: 0.48, distractors: "none", hints: "high" },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 
@@ -31,7 +32,7 @@ const guidanceText = computed(() => {
   if (snow.cleanup > 0) return "Тропа мягко заметает следы. Маршрут завершён.";
   if (!pointer.value.valid) return "Можно вести санки взглядом или мышью по широкой снежной тропе.";
   if (snow.guide > 0.45) return "Вернись к свету на тропе и веди санки дальше.";
-  return "Веди мягкий свет санок через снежные checkpoint без штрафов.";
+  return "Веди мягкий свет санок через снежные отметки.";
 });
 
 let ctx: CanvasRenderingContext2D | undefined;
@@ -40,6 +41,8 @@ let lastTime = performance.now();
 let tracking = false;
 let lastHintAt = 0;
 let cleanupStartedAt = 0;
+let cleanupElapsedMs = 0;
+let gameTimeMs = 0;
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
@@ -55,15 +58,15 @@ function resizeCanvas() {
   const ratio = window.devicePixelRatio || 1;
   canvas.width = Math.round(window.innerWidth * ratio);
   canvas.height = Math.round(window.innerHeight * ratio);
-  canvas.style.width = `${window.innerWidth}px`;
-  canvas.style.height = `${window.innerHeight}px`;
+  canvas.style.width = "100dvw";
+  canvas.style.height = "100dvh";
   ctx = canvas.getContext("2d") ?? undefined;
   ctx?.setTransform(ratio, 0, 0, ratio, 0, 0);
 }
 
 function trailWidth() {
   const viewportLimit = Math.min(window.innerWidth, window.innerHeight) * 0.18;
-  return Math.min(168, Math.max(108, Math.min(viewportLimit, 96 * session.settings.targetScale)));
+  return Math.min(172, Math.max(150, Math.min(viewportLimit, 104 * session.settings.targetScale)));
 }
 
 function trailPoints(): Point[] {
@@ -185,6 +188,7 @@ function updateTracking(nearTrail: boolean, projection: Projection | undefined) 
 }
 
 function addSnowSpark(point: Point, count = 8) {
+  if (session.settings.reduceMotion) return;
   for (let index = 0; index < count; index += 1) {
     sparks.push({
       x: point.x + (Math.random() - 0.5) * trailWidth() * 0.36,
@@ -200,6 +204,7 @@ function addSnowSpark(point: Point, count = 8) {
 
 function startCleanup(now: number) {
   cleanupStartedAt = now;
+  cleanupElapsedMs = 0;
   snow.cleanup = 0.001;
   addSnowSpark(pointAtPathProgress(trailPoints(), 1), 18);
 }
@@ -227,16 +232,19 @@ function updateSparks(delta: number) {
   }
 }
 
-function updateCleanup(now: number) {
+function updateCleanup(delta: number) {
   if (cleanupStartedAt === 0) return;
-  snow.cleanup = clamp((now - cleanupStartedAt) / 1500, 0, 1);
+  cleanupElapsedMs += delta * 1000;
+  snow.cleanup = clamp(cleanupElapsedMs / 1500, 0, 1);
+  if (snow.cleanup >= 1) finishSession("max-steps");
 }
 
 function update(delta: number, now: number) {
-  snow.pulse += delta;
+  if (!session.settings.reduceMotion) gameTimeMs += delta * 1000;
+  snow.pulse += session.settings.reduceMotion ? 0 : delta;
   visualProgress.value += (progress.value - visualProgress.value) * Math.min(1, delta * 5.2);
   updateSparks(delta);
-  updateCleanup(now);
+  updateCleanup(delta);
 
   if (session.status !== "running") return;
 
@@ -324,8 +332,9 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
   context.save();
   context.fillStyle = "rgb(255 255 255 / 58%)";
   for (let index = 0; index < 44; index += 1) {
-    const x = (index * 97 + now * 0.006 * (index % 4 + 1)) % (window.innerWidth + 40) - 20;
-    const y = (index * 53 + now * 0.012 * (index % 3 + 1)) % (window.innerHeight + 40) - 20;
+    const visualNow = session.settings.reduceMotion ? 0 : now;
+    const x = (index * 97 + visualNow * 0.006 * (index % 4 + 1)) % (window.innerWidth + 40) - 20;
+    const y = (index * 53 + visualNow * 0.012 * (index % 3 + 1)) % (window.innerHeight + 40) - 20;
     const size = 1.5 + index % 4;
     context.beginPath();
     context.arc(x, y, size, 0, Math.PI * 2);
@@ -375,7 +384,7 @@ function drawCheckpoints(context: CanvasRenderingContext2D, points: Point[]) {
     const point = pointAtPathProgress(points, ratio);
     const done = session.step > index;
     const next = session.step === index && session.status === "running";
-    const pulse = next ? 1 + Math.sin(snow.pulse * 4) * 0.07 : 1;
+    const pulse = next && !session.settings.reduceMotion ? 1 + Math.sin(snow.pulse * 4) * 0.07 : 1;
     const radius = width * (done ? 0.18 : 0.15) * pulse;
 
     context.save();
@@ -477,7 +486,7 @@ function drawLabels(context: CanvasRenderingContext2D, points: Point[]) {
 
 function draw(context: CanvasRenderingContext2D, now: number) {
   const points = trailPoints();
-  drawBackground(context, now);
+  drawBackground(context, gameTimeMs);
   drawTrail(context, points);
   drawCheckpoints(context, points);
   drawSparks(context);
@@ -499,6 +508,8 @@ function resetTrail() {
   snow.confidence = 0;
   snow.guide = 0;
   snow.cleanup = 0;
+  cleanupElapsedMs = 0;
+  gameTimeMs = 0;
   sparks.splice(0);
   cleanupStartedAt = 0;
   lastHintAt = 0;
@@ -545,8 +556,8 @@ onUnmounted(() => {
     <v-card class="snow-trail-guidance pa-4" color="surface" rounded="xl" variant="flat">
       <div class="text-overline text-info mb-1">Плавное управление</div>
       <div class="text-body-1 font-weight-medium">{{ guidanceText }}</div>
-      <v-progress-linear class="mt-3" :model-value="progressPercent" color="info" height="8" rounded />
-      <div class="text-caption text-medium-emphasis mt-2">Checkpoint: {{ session.step }} / {{ session.maxSteps }}</div>
+      <v-progress-linear class="mt-3" :model-value="progressPercent" color="info" height="0.5rem" rounded />
+      <div class="text-caption text-medium-emphasis mt-2">Отметки: {{ session.step }} / {{ session.maxSteps }}</div>
     </v-card>
 
     <GameResultDialog
@@ -566,8 +577,8 @@ onUnmounted(() => {
 <style scoped>
 .snow-trail-shell {
   background: #edf8ff;
-  block-size: 100vh;
-  inline-size: 100vw;
+  block-size: 100dvh;
+  inline-size: 100dvw;
   overflow: hidden;
   position: relative;
 }
@@ -579,20 +590,20 @@ onUnmounted(() => {
 }
 
 .snow-trail-guidance {
-  box-shadow: 0 18px 48px rgb(74 116 150 / 14%);
-  inline-size: min(440px, calc(100vw - 32px));
-  inset-block-start: clamp(104px, 14vh, 148px);
-  inset-inline-end: max(16px, env(safe-area-inset-right));
+  box-shadow: 0 1.125rem 3rem rgb(74 116 150 / 14%);
+  inline-size: min(27.5rem, calc(100dvw - 2rem));
+  inset-block-start: clamp(6.5rem, 14vh, 9.25rem);
+  inset-inline-end: max(1rem, env(safe-area-inset-right));
   opacity: 0.92;
   position: absolute;
   z-index: 4;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 45rem) {
   .snow-trail-guidance {
     inset-block-start: auto;
-    inset-block-end: max(16px, env(safe-area-inset-bottom));
-    inset-inline: 16px;
+    inset-block-end: max(1rem, env(safe-area-inset-bottom));
+    inset-inline: 1rem;
     inline-size: auto;
   }
 }

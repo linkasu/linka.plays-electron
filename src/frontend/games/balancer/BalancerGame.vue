@@ -130,6 +130,7 @@ function targetPayload(progress: number, now: number, reason?: "left" | "invalid
 }
 
 function addCompletionSparks() {
+  if (session.settings.reduceMotion) return;
   for (let index = 0; index < 22; index += 1) {
     const angle = randomRange(0, Math.PI * 2);
     const speed = randomRange(28, 92);
@@ -208,9 +209,9 @@ function updateSparks(delta: number) {
 
 function update(delta: number, now: number) {
   syncGeometry();
-  zone.phase += delta * 0.9;
-  updateSparks(delta);
   if (session.status !== "running") return;
+  zone.phase += session.settings.reduceMotion ? 0 : delta * 0.9;
+  updateSparks(delta);
   updateOrb(delta);
   updateBalance(delta, now);
 }
@@ -362,8 +363,8 @@ onMounted(() => {
       <div class="text-overline text-teal-darken-2">continuous control</div>
       <h1 class="text-h4 text-sm-h3 font-weight-bold">Балансир</h1>
       <p class="text-body-1 text-sm-h6 text-medium-emphasis mb-3">{{ guideText }}</p>
-      <v-progress-linear :model-value="progressPercent" color="teal" height="10" rounded />
-      <div class="text-caption text-medium-emphasis mt-2">Выход из зоны не ошибка: прогресс просто ждёт возвращения.</div>
+      <v-progress-linear :model-value="progressPercent" color="teal" height="0.625rem" rounded />
+      <div class="text-caption text-medium-emphasis mt-2">Прогресс сохраняется и ждёт возвращения в зону.</div>
     </v-card>
 
     <div class="quiet-controls d-flex align-center ga-1 pa-1">
@@ -385,8 +386,8 @@ onMounted(() => {
 
 <style scoped>
 .balancer-shell {
-  block-size: 100vh;
-  inline-size: 100vw;
+  block-size: 100dvh;
+  inline-size: 100dvw;
   overflow: hidden;
   position: relative;
 }
@@ -398,8 +399,8 @@ onMounted(() => {
 }
 
 .balancer-card {
-  inline-size: min(620px, calc(100vw - 32px));
-  inset-block-start: max(104px, calc(env(safe-area-inset-top) + 84px));
+  inline-size: min(38.75rem, calc(100dvw - 2rem));
+  inset-block-start: max(6.5rem, calc(env(safe-area-inset-top) + 5.25rem));
   inset-inline-start: 50%;
   opacity: 0.92;
   position: absolute;
@@ -410,11 +411,11 @@ onMounted(() => {
 
 .quiet-controls {
   background: rgb(255 255 255 / 36%);
-  border: 1px solid rgb(255 255 255 / 42%);
-  border-radius: 18px;
-  box-shadow: 0 10px 28px rgb(64 128 136 / 12%);
-  inset-block-start: max(16px, env(safe-area-inset-top));
-  inset-inline-start: max(16px, env(safe-area-inset-left));
+  border: 0.0625rem solid rgb(255 255 255 / 42%);
+  border-radius: 1.125rem;
+  box-shadow: 0 0.625rem 1.75rem rgb(64 128 136 / 12%);
+  inset-block-start: max(1rem, env(safe-area-inset-top));
+  inset-inline-start: max(1rem, env(safe-area-inset-left));
   opacity: 0.58;
   position: absolute;
   transition: opacity 160ms ease;
@@ -426,10 +427,10 @@ onMounted(() => {
   opacity: 0.95;
 }
 
-@media (max-width: 680px) {
+@media (max-width: 42.5rem) {
   .balancer-card {
     inset-block-start: auto;
-    inset-block-end: max(16px, env(safe-area-inset-bottom));
+    inset-block-end: max(1rem, env(safe-area-inset-bottom));
   }
 }
 </style>

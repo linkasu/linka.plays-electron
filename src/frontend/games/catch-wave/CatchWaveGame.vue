@@ -64,11 +64,18 @@ const marker = reactive<WaveMarker>({ id: "wave-marker-0", x: window.innerWidth 
 const trails = reactive<FoamTrail[]>([]);
 const cleanupRings = reactive<CleanupRing[]>([]);
 const resultVisible = computed(() => session.status === "finished");
+const guidanceText = computed(() => {
+  if (session.status === "paused") return "Пауза. Волна спокойно ждёт продолжения.";
+  if (cleanupUntil > 0) return "Маркеры собраны. Волна мягко успокаивается.";
+  if (!pointer.value.valid) return "Можно вести серфера взглядом или мышью к светлым маркерам.";
+  return "Следуй за мягкой волной и удерживай взгляд в светлом маркере.";
+});
 
 let markerSequence = 0;
 let trailTimer = 0;
 let nextMarkerAt = 0;
 let cleanupUntil = 0;
+let cleanupRemainingMs = 0;
 
 function randomRange(min: number, max: number) {
   return min + Math.random() * (max - min);
@@ -107,8 +114,9 @@ function surferSize() {
 function waveY(x: number, now: number) {
   const area = playArea();
   const amplitude = Math.min(64, Math.max(28, height.value * 0.065));
-  const slow = Math.sin(x * 0.006 + now * 0.00045) * amplitude;
-  const broad = Math.sin(x * 0.0028 - now * 0.00018) * amplitude * 0.42;
+  const visualNow = session.settings.reduceMotion ? 0 : now;
+  const slow = Math.sin(x * 0.006 + visualNow * 0.00045) * amplitude;
+  const broad = Math.sin(x * 0.0028 - visualNow * 0.00018) * amplitude * 0.42;
   return clamp(area.centerY + slow + broad, area.top + marker.radius * 0.35, area.bottom - marker.radius * 0.35);
 }
 
@@ -184,8 +192,9 @@ function updateSurfer(delta: number) {
   surfer.x += (clampedX - surfer.x) * Math.min(1, delta * smoothing);
   surfer.y += (clampedY - surfer.y) * Math.min(1, delta * smoothing);
   surfer.lean += (clamp((surfer.y - previousY) * 0.035, -0.35, 0.35) - surfer.lean) * Math.min(1, delta * 5.2);
-  surfer.phase += delta * (session.settings.reduceMotion ? 0.9 : 1.8);
+  surfer.phase += session.settings.reduceMotion ? 0 : delta * 1.8;
 
+  if (session.settings.reduceMotion) return;
   trailTimer += delta;
   const trailInterval = session.settings.reduceMotion ? 0.26 : 0.11 / session.settings.motionSpeed;
   while (trailTimer >= trailInterval) {
@@ -204,6 +213,7 @@ function completeMarker(now: number) {
 
   if (session.step >= session.maxSteps) {
     cleanupUntil = now + 2200;
+    cleanupRemainingMs = 2200;
     nextMarkerAt = 0;
     for (let index = 0; index < 6; index += 1) {
       addCleanupRing(surfer.x + randomRange(-150, 170), surfer.y + randomRange(-90, 90), randomRange(58, 116));
@@ -229,7 +239,7 @@ function updateMarker(delta: number, now: number) {
   }
 
   const speed = Math.max(32, 58 * session.settings.motionSpeed);
-  marker.phase += delta * 1.4;
+  marker.phase += session.settings.reduceMotion ? 0 : delta * 1.4;
   marker.x -= speed * delta;
   marker.y = waveY(marker.x, now) + Math.sin(marker.phase) * 4;
 
@@ -238,7 +248,7 @@ function updateMarker(delta: number, now: number) {
   const progress = Math.max(0, 1 - gap / enterDistance);
   surfer.glow += (progress - surfer.glow) * Math.min(1, delta * 4.8);
 
-  if (gap <= enterDistance) {
+  if (pointer.value.valid && gap <= enterDistance) {
     if (marker.enteredAt === undefined) {
       marker.enteredAt = now;
       recordEvent("target-enter", targetPayload(progress, now));
@@ -272,8 +282,13 @@ function updateCleanup(delta: number, now: number) {
     if (ring.age >= ring.life) cleanupRings.splice(index, 1);
   }
 
-  if (cleanupUntil > 0 && now >= cleanupUntil) {
+  if (cleanupRemainingMs > 0) {
+    cleanupRemainingMs = Math.max(0, cleanupRemainingMs - delta * 1000);
+  }
+
+  if (cleanupUntil > 0 && cleanupRemainingMs === 0) {
     cleanupUntil = 0;
+    cleanupRemainingMs = 0;
     finishSession("max-steps");
   }
 }
@@ -349,7 +364,7 @@ function drawTrail(ctx: CanvasRenderingContext2D, trail: FoamTrail) {
 function drawMarker(ctx: CanvasRenderingContext2D) {
   if (marker.collected || session.step >= session.maxSteps) return;
   const dwellProgress = Math.min(1, marker.dwellSeconds * 1000 / session.settings.dwellMs);
-  const pulse = 1 + Math.sin(marker.phase * 2) * 0.035;
+  const pulse = session.settings.reduceMotion ? 1 : 1 + Math.sin(marker.phase * 2) * 0.035;
   const radius = marker.radius * pulse;
 
   const glow = ctx.createRadialGradient(marker.x, marker.y, radius * 0.2, marker.x, marker.y, radius * 1.12);
@@ -380,8 +395,8 @@ function drawMarker(ctx: CanvasRenderingContext2D) {
 
 function drawSurfer(ctx: CanvasRenderingContext2D) {
   const size = surferSize();
-  const bobY = surfer.y + Math.sin(surfer.phase) * size * 0.035;
-  const boardAngle = surfer.lean + Math.sin(surfer.phase * 0.7) * 0.025;
+  const bobY = surfer.y + (session.settings.reduceMotion ? 0 : Math.sin(surfer.phase) * size * 0.035);
+  const boardAngle = surfer.lean + (session.settings.reduceMotion ? 0 : Math.sin(surfer.phase * 0.7) * 0.025);
   const glowRadius = size * (0.96 + surfer.glow * 0.34);
   const glow = ctx.createRadialGradient(surfer.x, bobY, size * 0.18, surfer.x, bobY, glowRadius);
   glow.addColorStop(0, `rgb(255 245 176 / ${0.16 + surfer.glow * 0.26})`);
@@ -436,8 +451,9 @@ function drawCleanupRing(ctx: CanvasRenderingContext2D, ring: CleanupRing) {
 }
 
 function draw(ctx: CanvasRenderingContext2D, _delta: number, now: number) {
-  drawBackground(ctx, now);
-  drawWaveLines(ctx, now);
+  const visualNow = session.settings.reduceMotion ? 0 : now;
+  drawBackground(ctx, visualNow);
+  drawWaveLines(ctx, visualNow);
   for (const trail of trails) drawTrail(ctx, trail);
   drawMarker(ctx);
   for (const ring of cleanupRings) drawCleanupRing(ctx, ring);
@@ -450,6 +466,7 @@ function restart() {
   cleanupRings.splice(0);
   nextMarkerAt = 0;
   cleanupUntil = 0;
+  cleanupRemainingMs = 0;
   surfer.x = width.value * 0.32;
   surfer.y = playArea().centerY;
   surfer.glow = 0;
@@ -480,6 +497,16 @@ useGameLoop({ context, update, draw });
       @resume="resumeSession"
     />
 
+    <v-card class="catch-wave-hint px-4 py-3" color="surface" rounded="xl" variant="flat">
+      <div class="d-flex align-center ga-3">
+        <v-icon icon="mdi-waves" color="info" size="2rem" />
+        <div>
+          <div class="text-body-2 font-weight-medium">{{ guidanceText }}</div>
+          <div class="text-caption text-medium-emphasis">Мягкая волна, крупные маркеры, спокойное удержание взгляда.</div>
+        </div>
+      </div>
+    </v-card>
+
     <GameResultDialog
       :model-value="resultVisible"
       title="Поймай волну"
@@ -497,10 +524,20 @@ useGameLoop({ context, update, draw });
 <style scoped>
 .catch-wave-shell {
   background: #8ddcf0;
-  block-size: 100vh;
-  inline-size: 100vw;
+  block-size: 100dvh;
+  inline-size: 100dvw;
   overflow: hidden;
   position: relative;
+}
+
+.catch-wave-hint {
+  inset-block-end: max(1.125rem, env(safe-area-inset-bottom));
+  inset-inline: 1.125rem;
+  margin-inline: auto;
+  max-inline-size: 42rem;
+  opacity: 0.94;
+  position: absolute;
+  z-index: 3;
 }
 
 .catch-wave-canvas {

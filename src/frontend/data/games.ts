@@ -2211,7 +2211,7 @@ export const games: GameInfo[] = [
   {
     id: "balancer",
     title: "Балансир",
-    description: "Удерживай мягкий шар в широкой зоне баланса взглядом: выход из зоны не ошибка, прогресс просто ждёт.",
+    description: "Удерживай мягкий шар в широкой зоне баланса взглядом: прогресс сохраняется и ждёт возвращения в зону.",
     selfDescription: "Удержи шар в зоне.",
     route: "/games/balancer",
     category: "continuous-control",
@@ -2226,7 +2226,7 @@ export const games: GameInfo[] = [
   {
     id: "catch-wave",
     title: "Поймай волну",
-    description: "Следуй взглядом за мягкой волной и собирай крупные маркеры без падений и штрафов.",
+    description: "Следуй взглядом за мягкой волной и собирай крупные светлые маркеры в спокойном темпе.",
     selfDescription: "Поймай волну взглядом.",
     route: "/games/catch-wave",
     category: "continuous-control",
@@ -2241,7 +2241,7 @@ export const games: GameInfo[] = [
   {
     id: "snow-trail",
     title: "Снежная тропа",
-    description: "Веди санки или мягкий свет по снежной тропе через checkpoints без штрафов.",
+    description: "Веди санки или мягкий свет по снежной тропе через мягкие отметки.",
     selfDescription: "Проведи свет по снегу.",
     route: "/games/snow-trail",
     category: "continuous-control",
@@ -2256,7 +2256,7 @@ export const games: GameInfo[] = [
   {
     id: "robot-vacuum",
     title: "Робот-пылесос",
-    description: "Веди робота взглядом и собирай пылинки по комнате; столкновения игнорируются.",
+    description: "Веди робота взглядом и собирай пылинки по комнате в любом порядке.",
     selfDescription: "Помоги роботу убраться.",
     route: "/games/robot-vacuum",
     category: "continuous-control",
