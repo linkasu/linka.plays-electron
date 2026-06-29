@@ -61,13 +61,14 @@ const resultVisible = computed(() => session.status === "finished");
 const guidanceText = computed(() => {
   if (session.status === "paused") return "Пауза. Планер спокойно ждёт продолжения.";
   if (cleanupProgress.value > 0) return "Маршрут завершён: планер мягко уходит в чистое небо.";
-  if (!pointer.value.valid) return "Можно вести планер взглядом или мышью. Он не падает и ждёт спокойно.";
+  if (!pointer.value.valid) return "Можно вести планер взглядом или мышью. Он спокойно держит высоту.";
   return "Веди планер взглядом через широкие воздушные ворота.";
 });
 
 let gateSequence = 0;
 let trailTimer = 0;
 let cleanupStartedAt = 0;
+let cleanupElapsedMs = 0;
 
 function randomRange(min: number, max: number) {
   return min + Math.random() * (max - min);
@@ -155,6 +156,7 @@ function createCloud(index: number): Cloud {
 
 function resetScene() {
   cleanupStartedAt = 0;
+  cleanupElapsedMs = 0;
   cleanupProgress.value = 0;
   trailTimer = 0;
   gateSequence = 0;
@@ -175,6 +177,7 @@ function resetScene() {
 function startCleanup(now: number) {
   if (cleanupStartedAt > 0) return;
   cleanupStartedAt = now;
+  cleanupElapsedMs = 0;
   cleanupProgress.value = 0.001;
   recordEvent("target-cancel", targetPayload(1, now, "cleanup"));
 }
@@ -279,7 +282,8 @@ function updateTrails(delta: number) {
 }
 
 function updateCleanup(delta: number, now: number) {
-  cleanupProgress.value = clamp((now - cleanupStartedAt) / 1450, 0, 1);
+  cleanupElapsedMs += delta * 1000;
+  cleanupProgress.value = clamp(cleanupElapsedMs / 1450, 0, 1);
   glider.x += delta * (220 + cleanupProgress.value * 180);
   glider.y -= delta * 44;
   glider.tilt += (-0.18 - glider.tilt) * Math.min(1, delta * 3.6);
@@ -503,12 +507,12 @@ useGameLoop({ context, update, draw });
   <div class="glider-shell">
     <canvas ref="canvasRef" class="glider-canvas" />
 
-    <v-card class="glider-hint px-4 py-3" color="surface" rounded="xl" variant="tonal">
+    <v-card class="glider-hint px-4 py-3" color="surface" rounded="xl" variant="flat">
       <div class="d-flex align-center ga-3">
         <v-icon icon="mdi-airplane" color="primary" size="32" />
         <div>
           <div class="text-body-2 font-weight-medium">{{ guidanceText }}</div>
-          <div class="text-caption text-medium-emphasis">Широкие ворота, мягкое движение, без падений и штрафов.</div>
+          <div class="text-caption text-medium-emphasis">Широкие ворота, мягкое движение, спокойная корректировка.</div>
         </div>
       </div>
     </v-card>
@@ -543,8 +547,8 @@ useGameLoop({ context, update, draw });
 <style scoped>
 .glider-shell {
   background: #dff6ff;
-  block-size: 100vh;
-  inline-size: 100vw;
+  block-size: 100dvh;
+  inline-size: 100dvw;
   overflow: hidden;
   position: relative;
 }
@@ -556,11 +560,11 @@ useGameLoop({ context, update, draw });
 }
 
 .glider-hint {
-  inset-block-end: max(18px, env(safe-area-inset-bottom));
-  inset-inline: 18px;
+  inset-block-end: max(1.125rem, env(safe-area-inset-bottom));
+  inset-inline: 1.125rem;
   margin-inline: auto;
-  max-inline-size: 640px;
-  opacity: 0.84;
+  max-inline-size: 40rem;
+  opacity: 0.94;
   position: absolute;
   z-index: 3;
 }

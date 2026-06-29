@@ -203,13 +203,14 @@ function updateTarget(delta: number, now: number) {
   if (!current) return;
 
   current.radius = targetRadius();
-  current.phase += delta * 1.6;
-  const gap = distance(fish, current);
+  current.phase += session.settings.reduceMotion ? 0 : delta * 1.6;
+  const fishGap = distance(fish, current);
+  const pointerGap = pointer.value.valid ? distance(pointer.value, current) : Number.POSITIVE_INFINITY;
   const activeRadius = current.radius * 0.9;
   const nearRadius = current.radius * 1.52;
-  const near = gap <= nearRadius;
-  const active = pointer.value.valid && gap <= activeRadius;
-  const progress = clamp(1 - gap / nearRadius, 0, 1);
+  const near = pointer.value.valid && pointerGap <= nearRadius;
+  const active = pointer.value.valid && pointerGap <= activeRadius && fishGap <= nearRadius;
+  const progress = clamp(1 - Math.max(pointerGap, fishGap * 0.5) / nearRadius, 0, 1);
   fish.glow += (progress - fish.glow) * Math.min(1, delta * 4.8);
 
   if (near && !current.entered) {
@@ -224,7 +225,7 @@ function updateTarget(delta: number, now: number) {
     current.enteredAt = undefined;
   }
 
-  current.dwellSeconds = active ? current.dwellSeconds + delta : Math.max(0, current.dwellSeconds - delta * 0.55);
+  current.dwellSeconds = active ? current.dwellSeconds + delta : Math.max(0, current.dwellSeconds - delta * (pointer.value.valid ? 0.55 : 1.4));
   if (!pointer.value.valid && now - lastHintAt > 4200) {
     lastHintAt = now;
     recordHint({ kind: "guide-fish-follow", targetId: current.id, step: session.step + 1 });
@@ -465,8 +466,9 @@ function drawOverlay(ctx: CanvasRenderingContext2D) {
 }
 
 function draw(ctx: CanvasRenderingContext2D, _delta: number, now: number) {
-  drawBackground(ctx, now);
-  drawSeaPlants(ctx, now);
+  const visualNow = session.settings.reduceMotion ? 0 : now;
+  drawBackground(ctx, visualNow);
+  drawSeaPlants(ctx, visualNow);
   drawTarget(ctx);
   drawCleanupBubbles(ctx);
   drawFish(ctx);
@@ -514,8 +516,8 @@ useGameLoop({ context, update, draw });
 <style scoped>
 .guide-fish-shell {
   background: #75c9e1;
-  block-size: 100vh;
-  inline-size: 100vw;
+  block-size: 100dvh;
+  inline-size: 100dvw;
   overflow: hidden;
   position: relative;
 }

@@ -57,9 +57,9 @@ const stationDwellPercent = computed(() => Math.round(Math.min(1, train.dwellMs 
 const guidanceText = computed(() => {
   if (!selectedTrain.value) return "Выбери поезд взглядом, затем веди его по плавным рельсам.";
   if (session.status === "paused") return "Пауза. Поезд спокойно ждёт на рельсах.";
-  if (!pointer.value.valid) return "Можно вести поезд взглядом или мышью. Рельсы ждут без штрафов.";
+  if (!pointer.value.valid) return "Можно вести поезд взглядом или мышью. Рельсы спокойно ждут.";
   if (train.dwellMs > 0) return `Станция ${activeStation.value}: удержи взгляд ещё немного, ${stationDwellPercent.value}%.`;
-  if (train.hint > 0.35) return "Верни взгляд к светлым рельсам или ближайшей станции. Схода с рельс нет.";
+  if (train.hint > 0.35) return "Верни взгляд к светлым рельсам или ближайшей станции. Поезд спокойно остаётся на пути.";
   return `Веди ${selectedTrain.value.label} к станции ${activeStation.value}.`;
 });
 
@@ -302,7 +302,7 @@ function updateStation(delta: number, now: number, samples: RailSample[]) {
 }
 
 function update(delta: number, now: number) {
-  train.phase += delta * (session.settings.reduceMotion ? 0.7 : 1.25);
+  train.phase += session.settings.reduceMotion ? 0 : delta * 1.25;
   train.visualRatio += (train.ratio - train.visualRatio) * Math.min(1, delta * 5.4);
 
   if (session.status !== "running" || !selectedTrain.value) return;
@@ -529,7 +529,8 @@ function drawHint(context: CanvasRenderingContext2D, samples: RailSample[]) {
 
 function draw(context: CanvasRenderingContext2D, _delta: number, now: number) {
   const samples = railSamples();
-  drawBackground(context, now);
+  const visualNow = session.settings.reduceMotion ? 0 : now;
+  drawBackground(context, visualNow);
   drawRails(context, samples);
   drawStations(context, samples);
   drawHint(context, samples);
@@ -548,7 +549,7 @@ useGameLoop({ context, update, draw });
     <v-card class="rails-guidance pa-4" color="surface" rounded="xl" variant="flat">
       <div class="text-overline text-primary mb-1">Плавное ведение</div>
       <div class="text-body-1 font-weight-medium">{{ guidanceText }}</div>
-      <v-progress-linear class="mt-3" :model-value="progressPercent" color="primary" height="8" rounded />
+      <v-progress-linear class="mt-3" :model-value="progressPercent" color="primary" height="0.5rem" rounded />
       <div class="text-caption text-medium-emphasis mt-2">Прогресс: {{ progressPercent }}% · станция {{ activeStation }} из {{ session.maxSteps }}</div>
     </v-card>
 
@@ -557,14 +558,14 @@ useGameLoop({ context, update, draw });
         <div class="text-overline text-secondary text-center mb-2">Выбор поезда</div>
         <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">Рельсы</h1>
         <p class="text-body-1 text-md-h6 text-medium-emphasis text-center mb-5">
-          Выбери поезд взглядом. Потом веди его по светлым рельсам через станции. Схода и проигрыша нет.
+          Выбери поезд взглядом. Потом веди его по светлым рельсам через станции. Поезд спокойно остаётся на пути.
         </p>
 
         <v-row>
           <v-col v-for="choice in trainChoices" :key="choice.id" cols="12" sm="4">
-            <GameDwellButton :target-id="`rails:train:${choice.id}`" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" :min-height="170" color="surface" @select="chooseTrain(choice)">
+            <GameDwellButton :target-id="`rails:train:${choice.id}`" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" min-height="10.625rem" color="surface" @select="chooseTrain(choice)">
               <template #default="{ active, progress }">
-                <v-icon :icon="choice.icon" size="54" :style="{ color: choice.body }" />
+                <v-icon :icon="choice.icon" size="3.375rem" :style="{ color: active ? '#ffffff' : choice.body }" />
                 <div class="train-choice-title text-h6 font-weight-bold mt-3">{{ choice.title }}</div>
                 <div class="train-choice-caption text-body-2 mt-1">{{ active ? `${Math.round(progress * 100)}%` : choice.label }}</div>
               </template>
@@ -581,8 +582,8 @@ useGameLoop({ context, update, draw });
 <style scoped>
 .rails-shell {
   background: #eef8ff;
-  block-size: 100vh;
-  inline-size: 100vw;
+  block-size: 100dvh;
+  inline-size: 100dvw;
   overflow: hidden;
   position: relative;
 }
@@ -594,10 +595,10 @@ useGameLoop({ context, update, draw });
 }
 
 .rails-guidance {
-  box-shadow: 0 16px 44px rgb(83 113 138 / 14%);
-  inline-size: min(440px, calc(100vw - 32px));
-  inset-block-start: clamp(104px, 14vh, 148px);
-  inset-inline-end: max(16px, env(safe-area-inset-right));
+  box-shadow: 0 1rem 2.75rem rgb(83 113 138 / 14%);
+  inline-size: min(27.5rem, calc(100dvw - 2rem));
+  inset-block-start: clamp(6.5rem, 14vh, 9.25rem);
+  inset-inline-end: max(1rem, env(safe-area-inset-right));
   opacity: 0.94;
   position: absolute;
   z-index: 4;
@@ -610,7 +611,7 @@ useGameLoop({ context, update, draw });
 }
 
 .rails-picker-card {
-  inline-size: min(920px, calc(100vw - 32px));
+  inline-size: min(57.5rem, calc(100dvw - 2rem));
 }
 
 .train-choice-title,
@@ -618,11 +619,16 @@ useGameLoop({ context, update, draw });
   color: #17212b !important;
 }
 
-@media (max-width: 720px) {
+.rails-picker-card :deep(.dwell-button--active) .train-choice-title,
+.rails-picker-card :deep(.dwell-button--active) .train-choice-caption {
+  color: #ffffff !important;
+}
+
+@media (max-width: 45rem) {
   .rails-guidance {
     inset-block-start: auto;
-    inset-block-end: max(16px, env(safe-area-inset-bottom));
-    inset-inline: 16px;
+    inset-block-end: max(1rem, env(safe-area-inset-bottom));
+    inset-inline: 1rem;
     inline-size: auto;
   }
 }

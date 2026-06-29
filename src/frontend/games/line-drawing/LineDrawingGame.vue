@@ -26,7 +26,7 @@ const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("line-drawing", {
   maxSteps: 8,
-  overrides: { preset: "gentle", dwellMs: 600, targetScale: 1.5, motionSpeed: 0.52, distractors: "none", hints: "high" },
+  overrides: { preset: "gentle", dwellMs: 600, targetScale: 1.5, motionSpeed: 0.52, distractors: "none", hints: "high", sound: false },
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });
@@ -45,7 +45,7 @@ const guidanceText = computed(() => {
 });
 
 const dotHues = [205, 184, 162, 128, 45, 25, 315, 266];
-let finishAfter = 0;
+let finishDelayRemainingMs = 0;
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
@@ -131,7 +131,7 @@ function createDots() {
 
 function resetDrawing() {
   trail.splice(0);
-  finishAfter = 0;
+  finishDelayRemainingMs = 0;
   brush.x = width.value * 0.5;
   brush.y = height.value * 0.54;
   createDots();
@@ -162,7 +162,9 @@ function completeDot(dot: DrawingDot, now: number) {
   recordEvent("target-click", targetPayload(dot, now, 1));
   recordSuccess({ targetId: dot.id, checkpoint: dot.index + 1 });
 
-  if (session.step >= session.maxSteps && finishAfter === 0) finishAfter = now + 1200;
+  if (session.step >= session.maxSteps && finishDelayRemainingMs === 0) {
+    finishDelayRemainingMs = 1200;
+  }
 }
 
 function cancelDot(dot: DrawingDot, now: number, reason: "left" | "invalid-gaze") {
@@ -193,7 +195,10 @@ function updateDots(delta: number, now: number) {
     if (dot.dwellProgress >= 1) completeDot(dot, now);
   }
 
-  if (finishAfter > 0 && now >= finishAfter) finishSession("max-steps");
+  if (finishDelayRemainingMs > 0) {
+    finishDelayRemainingMs = Math.max(0, finishDelayRemainingMs - delta * 1000);
+    if (finishDelayRemainingMs === 0) finishSession("max-steps");
+  }
 }
 
 function update(rawDelta: number, now: number) {
@@ -374,7 +379,7 @@ onMounted(() => {
 onUnmounted(() => {
   trail.splice(0);
   dots.splice(0);
-  finishAfter = 0;
+  finishDelayRemainingMs = 0;
 });
 
 useGameLoop({ context, update, draw });
@@ -400,7 +405,7 @@ useGameLoop({ context, update, draw });
     <v-card class="line-drawing-guidance pa-4" color="surface" rounded="xl" variant="flat">
       <div class="text-overline text-primary mb-1">Плавное рисование</div>
       <div class="text-body-1 font-weight-medium">{{ guidanceText }}</div>
-      <v-progress-linear class="mt-3" :model-value="progressPercent" color="primary" height="8" rounded />
+      <v-progress-linear class="mt-3" :model-value="progressPercent" color="primary" height="0.5rem" rounded />
       <div class="text-caption text-medium-emphasis mt-2">Пройдено точек: {{ session.step }} / {{ session.maxSteps }}</div>
     </v-card>
 
@@ -421,8 +426,8 @@ useGameLoop({ context, update, draw });
 <style scoped>
 .line-drawing-shell {
   background: #f7fbff;
-  block-size: 100vh;
-  inline-size: 100vw;
+  block-size: 100dvh;
+  inline-size: 100dvw;
   overflow: hidden;
   position: relative;
 }
@@ -434,20 +439,20 @@ useGameLoop({ context, update, draw });
 }
 
 .line-drawing-guidance {
-  box-shadow: 0 16px 44px rgb(91 121 154 / 14%);
-  inline-size: min(430px, calc(100vw - 32px));
-  inset-block-start: clamp(104px, 14vh, 148px);
-  inset-inline-end: max(16px, env(safe-area-inset-right));
+  box-shadow: 0 1rem 2.75rem rgb(91 121 154 / 14%);
+  inline-size: min(26.875rem, calc(100dvw - 2rem));
+  inset-block-start: clamp(6.5rem, 14vh, 9.25rem);
+  inset-inline-end: max(1rem, env(safe-area-inset-right));
   opacity: 0.92;
   position: absolute;
   z-index: 4;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 45rem) {
   .line-drawing-guidance {
     inset-block-start: auto;
-    inset-block-end: max(16px, env(safe-area-inset-bottom));
-    inset-inline: 16px;
+    inset-block-end: max(1rem, env(safe-area-inset-bottom));
+    inset-inline: 1rem;
     inline-size: auto;
   }
 }

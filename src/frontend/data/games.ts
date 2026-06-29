@@ -2151,7 +2151,7 @@ export const games: GameInfo[] = [
   {
     id: "glider",
     title: "Планер",
-    description: "Веди планер взглядом через широкие воздушные ворота: он не падает, а мягко ждёт корректировки.",
+    description: "Веди планер взглядом через широкие воздушные ворота: он спокойно держит высоту и мягко ждёт корректировки.",
     selfDescription: "Проведи планер.",
     route: "/games/glider",
     category: "continuous-control",
@@ -2181,7 +2181,7 @@ export const games: GameInfo[] = [
   {
     id: "guide-fish",
     title: "Рыбка-поводырь",
-    description: "Веди рыбку взглядом к жемчужинам и рифам без опасностей, штрафов и проигрыша.",
+    description: "Веди рыбку взглядом к жемчужинам и рифам в спокойном темпе.",
     selfDescription: "Проведи рыбку.",
     route: "/games/guide-fish",
     category: "continuous-control",
@@ -2196,7 +2196,7 @@ export const games: GameInfo[] = [
   {
     id: "rails",
     title: "Рельсы",
-    description: "Веди поезд по плавным рельсам через станции: схода с пути и проигрыша нет.",
+    description: "Веди поезд по плавным рельсам через станции: он спокойно остаётся на пути.",
     selfDescription: "Проведи поезд по рельсам.",
     route: "/games/rails",
     category: "continuous-control",
