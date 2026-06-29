@@ -7936,5 +7936,61 @@
     "text": "Раунд завершён.",
     "voice": "jane",
     "path": "/audio/tts/tangram/complete.mp3"
+  },
+  {
+    "id": "battleship-light.prompt",
+    "game": "battleship-light",
+    "text": "Выбери крупную клетку, чтобы найти кораблик.",
+    "voice": "jane",
+    "path": "/audio/tts/battleship-light/prompt.mp3"
+  },
+  {
+    "id": "battleship-light.correct",
+    "game": "battleship-light",
+    "text": "Попадание.",
+    "voice": "jane",
+    "path": "/audio/tts/battleship-light/correct.mp3"
+  },
+  {
+    "id": "battleship-light.mistake",
+    "game": "battleship-light",
+    "text": "Вода, ищем дальше.",
+    "voice": "jane",
+    "path": "/audio/tts/battleship-light/mistake.mp3"
+  },
+  {
+    "id": "battleship-light.complete",
+    "game": "battleship-light",
+    "text": "Раунд завершён.",
+    "voice": "jane",
+    "path": "/audio/tts/battleship-light/complete.mp3"
+  },
+  {
+    "id": "tanks-no-shooting.prompt",
+    "game": "tanks-no-shooting",
+    "text": "Выбирай направление и веди танк по тихой дороге.",
+    "voice": "jane",
+    "path": "/audio/tts/tanks-no-shooting/prompt.mp3"
+  },
+  {
+    "id": "tanks-no-shooting.correct",
+    "game": "tanks-no-shooting",
+    "text": "Верный поворот.",
+    "voice": "jane",
+    "path": "/audio/tts/tanks-no-shooting/correct.mp3"
+  },
+  {
+    "id": "tanks-no-shooting.mistake",
+    "game": "tanks-no-shooting",
+    "text": "Попробуй другое направление.",
+    "voice": "jane",
+    "path": "/audio/tts/tanks-no-shooting/mistake.mp3"
+  },
+  {
+    "id": "tanks-no-shooting.complete",
+    "game": "tanks-no-shooting",
+    "text": "Маршрут завершён.",
+    "voice": "jane",
+    "path": "/audio/tts/tanks-no-shooting/complete.mp3"
   }
 ]

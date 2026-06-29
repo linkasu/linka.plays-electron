@@ -1,25 +1,32 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { applyBattleshipLightShot, battleshipLightOutcome, coordinateLabel, countShots, createBattleshipLightBoard, totalShipCells, type BattleshipLightCell, type BattleshipLightShots } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("battleship-light", {
   maxSteps: 10,
-  overrides: { targetScale: 1.3, sound: false },
+  overrides: { targetScale: 1.3, sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "battleship-light", soundEnabled, warmAssetIds: ["battleship-light.prompt", "battleship-light.correct", "battleship-light.mistake", "battleship-light.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const board = createBattleshipLightBoard();
 const shots = ref<BattleshipLightShots>({});
 const feedbackMessage = ref("Выбери любую крупную клетку моря. Попадание покажет лодочку, вода даст мягкую волну.");
 const lastShotIndex = ref<number>();
 const gameOutcome = ref<"playing" | "win" | "loss">("playing");
+const isSpeaking = ref(false);
 
 const resultVisible = computed(() => session.status === "finished");
 const shotCount = computed(() => countShots(shots.value));
@@ -32,7 +39,7 @@ const hudStep = computed(() => Math.min(session.maxSteps, shotCount.value));
 const statusText = computed(() => {
   if (session.status === "paused") return "Пауза";
   if (session.status === "finished" && remainingShipCells.value === 0) return "Все кораблики найдены";
-  if (session.status === "finished" && gameOutcome.value === "loss") return "Не все кораблики найдены";
+  if (session.status === "finished" && gameOutcome.value === "loss") return "Раунд завершён";
   if (session.status === "finished") return "Раунд завершён";
   if (lastShotIndex.value === undefined) return "Выбери клетку";
   return shots.value[lastShotIndex.value] === "hit" ? "Мягкое попадание" : "Вода, продолжаем";
@@ -54,8 +61,8 @@ function cellClasses(cell: BattleshipLightCell) {
   ];
 }
 
-function chooseCell(index: number) {
-  if (session.status !== "running" || shots.value[index]) return;
+async function chooseCell(index: number) {
+  if (session.status !== "running" || shots.value[index] || isSpeaking.value) return;
 
   const targetId = cellTargetId(index);
   const coordinate = coordinateLabel(index);
@@ -64,31 +71,54 @@ function chooseCell(index: number) {
   lastShotIndex.value = index;
   recordEvent("target-click", { targetId, coordinate, result: shot.result });
 
-  if (shot.result === "hit") {
+  const isHit = shot.result === "hit";
+  if (isHit) {
     feedbackMessage.value = `Попадание на ${coordinate}. Кораблик спокойно подсветился.`;
     recordSuccess({ targetId, coordinate, result: "hit", isCorrect: true });
   } else {
-    feedbackMessage.value = `На ${coordinate} вода. Это промах: ход потрачен, ищем дальше.`;
+    feedbackMessage.value = `На ${coordinate} вода. Ход потрачен, ищем дальше.`;
     recordMistake({ targetId, coordinate, result: "water", isCorrect: false });
   }
 
   gameOutcome.value = battleshipLightOutcome(shot, session.maxSteps);
+  const willFinish = gameOutcome.value !== "playing";
+
+  isSpeaking.value = true;
+  void (isHit ? feedbackAudio.playSuccess() : feedbackAudio.playMistake());
+  const cues = isHit
+    ? (willFinish ? ["battleship-light.correct", "battleship-light.complete"] : ["battleship-light.correct"])
+    : (willFinish ? ["battleship-light.mistake", "battleship-light.complete"] : ["battleship-light.mistake"]);
+  await promptAudio.playSequenceAndWait(cues, 80, 170);
+
   if (gameOutcome.value === "win") {
-    feedbackMessage.value = "Все кораблики найдены до конца хода. Победа.";
+    feedbackMessage.value = "Все кораблики найдены.";
     finishSession("game-complete");
   } else if (gameOutcome.value === "loss") {
-    feedbackMessage.value = "Ходы закончились, а часть корабликов осталась в море. Партия проиграна.";
+    feedbackMessage.value = "Ходы закончились. Раунд остановлен, можно начать заново.";
     finishSession("game-lost");
   }
+  isSpeaking.value = false;
 }
 
 function restart() {
+  promptAudio.cancelPending();
   shots.value = {};
   lastShotIndex.value = undefined;
   gameOutcome.value = "playing";
+  isSpeaking.value = false;
   feedbackMessage.value = "Новое спокойное море готово. Выбери любую крупную клетку.";
   startSession();
+  promptAudio.play("battleship-light.prompt", 220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("battleship-light.prompt", 420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -123,7 +153,7 @@ function restart() {
                 :target-id="cellTargetId(cell.index)"
                 :disabled="session.status !== 'running' || Boolean(shots[cell.index])"
                 :dwell-ms="session.settings.dwellMs"
-                  :min-height="136"
+                  min-height="7rem"
                 :color="shots[cell.index] === 'hit' ? 'primary' : shots[cell.index] === 'water' ? 'info' : 'surface'"
                 @select="chooseCell(cell.index)"
               >
@@ -173,12 +203,14 @@ function restart() {
 
 .sea-cell {
   align-items: center;
-  border-radius: 24px;
+  background: linear-gradient(145deg, rgb(var(--v-theme-primary) / 6%), rgb(var(--v-theme-info) / 6%));
+  border-radius: 1.5rem;
+  box-shadow: inset 0 0 0 0.15rem rgb(var(--v-theme-primary) / 22%);
   display: flex;
   font-weight: 900;
   inline-size: 100%;
   justify-content: center;
-  min-block-size: clamp(72px, 12vw, 136px);
+  min-block-size: clamp(4.5rem, 9vw, 7rem);
   transition: background-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
 }
 
@@ -212,13 +244,13 @@ function restart() {
   }
 }
 
-@media (max-height: 680px) {
+@media (max-height: 56.25rem) {
   .game-container {
-    padding-block-start: 4.75rem;
+    padding-block-start: 5.5rem;
   }
 
   .game-card {
-    padding-block: 1rem !important;
+    padding-block: 1.1rem !important;
   }
 
   .game-card .text-overline,
@@ -234,17 +266,31 @@ function restart() {
   }
 
   .sea-grid {
-    gap: 0.4rem;
-    max-inline-size: min(100%, 47.5rem);
+    gap: 0.5rem;
+    max-inline-size: min(100%, 50rem);
   }
 
   .sea-grid :deep(.dwell-button) {
-    min-block-size: 5.625rem !important;
-    padding: 0.35rem !important;
+    min-block-size: 5.25rem !important;
+    padding: 0.4rem !important;
   }
 
   .sea-cell {
     min-block-size: 4.5rem;
+  }
+}
+
+@media (max-height: 42.5rem) {
+  .game-container {
+    padding-block-start: 4.5rem;
+  }
+
+  .sea-grid :deep(.dwell-button) {
+    min-block-size: 4.5rem !important;
+  }
+
+  .sea-cell {
+    min-block-size: 3.75rem;
   }
 }
 </style>

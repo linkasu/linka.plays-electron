@@ -57,7 +57,7 @@ undefined
 | Vue-компонент | `BattleshipLightGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
-| Audio module | нет |
+| Audio module | стандартный feedback, TTS через `useGamePromptAudio` |
 | Runtime audit doc | `docs/tests/2026-06-10/battleship-light.md` |
 
 ## Готовность

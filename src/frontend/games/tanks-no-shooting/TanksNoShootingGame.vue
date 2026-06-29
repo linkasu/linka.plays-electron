@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import GameWasdPanel, { type GameWasdControl } from "../../components/game/GameWasdPanel.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { tanksNoShootingChoiceOutcome } from "./model";
 
@@ -58,10 +60,10 @@ const routeSteps: TankRouteStep[] = [
 ];
 
 const directionControls: DirectionControl[] = [
-  { direction: "up", key: "w", label: "Вверх", icon: "mdi-arrow-up-bold", color: "surface" },
-  { direction: "left", key: "a", label: "Влево", icon: "mdi-arrow-left-bold", color: "surface" },
-  { direction: "down", key: "s", label: "Вниз", icon: "mdi-arrow-down-bold", color: "surface" },
-  { direction: "right", key: "d", label: "Вправо", icon: "mdi-arrow-right-bold", color: "surface" }
+  { direction: "up", key: "w", label: "Вверх", icon: "mdi-arrow-up-bold", color: "indigo-lighten-5" },
+  { direction: "left", key: "a", label: "Влево", icon: "mdi-arrow-left-bold", color: "indigo-lighten-5" },
+  { direction: "down", key: "s", label: "Вниз", icon: "mdi-arrow-down-bold", color: "indigo-lighten-5" },
+  { direction: "right", key: "d", label: "Вправо", icon: "mdi-arrow-right-bold", color: "indigo-lighten-5" }
 ];
 
 const directionDegrees: Record<Direction, number> = {
@@ -74,15 +76,20 @@ const directionDegrees: Record<Direction, number> = {
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("tanks-no-shooting", {
   maxSteps: 10,
-  overrides: { sound: false },
+  overrides: { sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "tanks-no-shooting", soundEnabled, warmAssetIds: ["tanks-no-shooting.prompt", "tanks-no-shooting.correct", "tanks-no-shooting.mistake", "tanks-no-shooting.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const feedbackText = ref("Выбери безопасное направление. Танк едет спокойно, без стрельбы и взрывов.");
 const pendingChoice = ref(false);
 const successDirection = ref<Direction>();
 const wrongDirection = ref<Direction>();
 const hintedDirection = ref<Direction>();
+const isSpeaking = ref(false);
 let feedbackTimer = 0;
 
 const rows = computed(() => Array.from({ length: gridSize }, (_, row) => row));
@@ -159,7 +166,7 @@ function cellClasses(row: number, column: number) {
 function directionButtonColor(control: DirectionControl) {
   if (successDirection.value === control.direction) return "green-lighten-4";
   if (wrongDirection.value === control.direction) return "orange-lighten-4";
-  if (hintedDirection.value === control.direction || control.direction === expectedStep.value.direction) return "teal-lighten-5";
+  if (hintedDirection.value === control.direction) return "teal-lighten-5";
   return control.color;
 }
 
@@ -171,8 +178,8 @@ function resetChoiceState() {
   hintedDirection.value = undefined;
 }
 
-function chooseDirection(control: DirectionControl) {
-  if (session.status !== "running" || pendingChoice.value) return;
+async function chooseDirection(control: DirectionControl) {
+  if (session.status !== "running" || pendingChoice.value || isSpeaking.value) return;
 
   const expected = expectedStep.value;
   const targetId = directionTargetId(control.direction);
@@ -182,10 +189,11 @@ function chooseDirection(control: DirectionControl) {
   if (control.direction === expected.direction) {
     const willFinish = session.step + 1 >= session.maxSteps;
     pendingChoice.value = true;
+    isSpeaking.value = true;
     successDirection.value = control.direction;
     feedbackText.value = willFinish
       ? "Маршрут пройден. Танк спокойно заехал в гараж."
-      : `Верно: ${control.label.toLowerCase()}. Танк едет ${expected.cue}.`;
+      : `Верный поворот. Танк едет ${expected.cue}.`;
     recordSuccess({
       targetId,
       expectedTargetId,
@@ -194,22 +202,35 @@ function chooseDirection(control: DirectionControl) {
       isCorrect: true
     });
 
+    void feedbackAudio.playSuccess();
+    const cues = willFinish
+      ? ["tanks-no-shooting.correct", "tanks-no-shooting.complete"]
+      : ["tanks-no-shooting.correct"];
+    await promptAudio.playSequenceAndWait(cues, 80, 170);
+
+    if (willFinish) {
+      finishSession("game-complete");
+      isSpeaking.value = false;
+      return;
+    }
+
     if (session.status === "running") {
       feedbackTimer = window.setTimeout(() => {
         resetChoiceState();
-        feedbackText.value = `Следующий безопасный ход: ${expectedStep.value.label.toLowerCase()}.`;
-      }, 700);
+        feedbackText.value = "Выбери следующее безопасное направление.";
+      }, 350);
     }
+    isSpeaking.value = false;
     return;
   }
 
   const outcome = tanksNoShootingChoiceOutcome(control.direction, expected.direction, session.mistakes + 1);
   pendingChoice.value = true;
+  isSpeaking.value = true;
   wrongDirection.value = control.direction;
-  hintedDirection.value = expected.direction;
   feedbackText.value = outcome === "loss"
-    ? "Третье неверное направление: танк съехал с маршрута, партия проиграна."
-    : `Это направление сейчас не самое спокойное. Мягкая подсказка: выбери ${expected.label.toLowerCase()}.`;
+    ? "Маршрут прерван, можно начать заново."
+    : "Это направление сейчас не подходит, попробуй другое.";
   recordMistake({
     targetId,
     expectedTargetId,
@@ -219,16 +240,26 @@ function chooseDirection(control: DirectionControl) {
     outcome,
     isCorrect: false
   });
+
+  void feedbackAudio.playMistake();
+  const cues = outcome === "loss"
+    ? ["tanks-no-shooting.mistake", "tanks-no-shooting.complete"]
+    : ["tanks-no-shooting.mistake"];
+  await promptAudio.playSequenceAndWait(cues, 80, 170);
+
   if (outcome === "loss") {
     finishSession("game-lost");
+    isSpeaking.value = false;
     return;
   }
   recordHint({ targetId: expectedTargetId, reason: "safe-tank-route", expectedDirection: expected.direction, selectedDirection: control.direction });
+  hintedDirection.value = expected.direction;
 
   feedbackTimer = window.setTimeout(() => {
     pendingChoice.value = false;
     wrongDirection.value = undefined;
-  }, 1000);
+  }, 500);
+  isSpeaking.value = false;
 }
 
 function chooseDirectionButton(control: GameWasdControl) {
@@ -237,12 +268,21 @@ function chooseDirectionButton(control: GameWasdControl) {
 }
 
 function restart() {
+  promptAudio.cancelPending();
   resetChoiceState();
+  isSpeaking.value = false;
   feedbackText.value = "Выбери безопасное направление. Танк едет спокойно, без стрельбы и взрывов.";
   startSession();
+  promptAudio.play("tanks-no-shooting.prompt", 220);
 }
 
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("tanks-no-shooting.prompt", 420);
+});
+
 onUnmounted(() => {
+  promptAudio.cancelPending();
   clearFeedbackTimer();
 });
 </script>
@@ -422,9 +462,29 @@ onUnmounted(() => {
   }
 }
 
-@media (max-height: 680px) {
+@media (max-height: 42.5rem) {
   .compact-feedback {
     display: none;
+  }
+
+  .tanks-container {
+    padding-block-start: 5.5rem;
+  }
+
+  .text-overline,
+  h1,
+  .text-h6.text-md-h5,
+  .tank-map-card .v-progress-linear + .text-body-2,
+  .v-alert {
+    display: none !important;
+  }
+
+  .direction-card {
+    min-block-size: 5rem;
+  }
+
+  .tank-grid {
+    max-inline-size: min(58vh, 24rem);
   }
 }
 </style>

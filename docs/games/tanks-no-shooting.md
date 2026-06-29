@@ -57,7 +57,7 @@ undefined
 | Vue-компонент | `TanksNoShootingGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
-| Audio module | нет |
+| Audio module | стандартный feedback, TTS через `useGamePromptAudio` |
 | Runtime audit doc | `docs/tests/2026-06-10/tanks-no-shooting.md` |
 
 ## Готовность
