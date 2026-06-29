@@ -126,7 +126,7 @@ export const games: GameInfo[] = [
   {
     id: "aquarium",
     title: "Аквариум",
-    description: "Смотри в спокойный аквариум: рыбки мягко подплывают к взгляду и получают тихий корм без ошибок.",
+    description: "Смотри в спокойный аквариум: рыбки мягко подплывают к взгляду и получают тихий корм.",
     selfDescription: "Покорми рыбок взглядом.",
     route: "/games/aquarium",
     category: "gaze-basics",
