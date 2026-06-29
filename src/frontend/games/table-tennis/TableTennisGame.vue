@@ -166,7 +166,7 @@ function hitBall(now: number) {
 function missBall(now: number) {
   cancelApproach(now, pointer.value.valid ? "left" : "invalid-gaze", ball.contactProgress);
   streak.value = 0;
-  recordMistake({ targetId: ball.approachId ?? ball.id, softReset: true });
+  if (pointer.value.valid) recordMistake({ targetId: ball.approachId ?? ball.id, softReset: true });
   addBurst("miss", Math.max(42, paddle.x - ball.radius), ball.y, ball.radius * 2.2);
   resetBall(-1);
 }
@@ -181,7 +181,7 @@ function updatePaddle(delta: number) {
 
 function updatePartner(delta: number) {
   const area = playArea();
-  const targetY = ball.vx > 0 ? ball.y : area.centerY + Math.sin(ball.phase) * 18;
+  const targetY = ball.vx > 0 ? ball.y : area.centerY + (session.settings.reduceMotion ? 0 : Math.sin(ball.phase) * 18);
   partnerY.value += (targetY - partnerY.value) * Math.min(1, delta * 3.2);
   partnerY.value = Math.max(area.top + paddle.height * 0.26, Math.min(area.bottom - paddle.height * 0.26, partnerY.value));
 }
@@ -202,7 +202,7 @@ function updateContact(now: number) {
 
 function updateBall(delta: number, now: number) {
   const area = playArea();
-  ball.phase += delta * (session.settings.reduceMotion ? 1.2 : 3.4);
+  ball.phase += session.settings.reduceMotion ? 0 : delta * 3.4;
   ball.x += ball.vx * delta;
   ball.y += ball.vy * delta;
   addTrail(delta);
@@ -270,7 +270,8 @@ function draw(ctx: CanvasRenderingContext2D, _delta: number, now: number) {
     durationMs: durationMs.value,
     sessionSeconds: session.settings.sessionSeconds,
     score: session.score,
-    streak: streak.value
+    streak: streak.value,
+    reduceMotion: session.settings.reduceMotion
   });
 }
 
@@ -323,8 +324,8 @@ onUnmounted(() => {
 <style scoped>
 .tennis-shell {
   background: #b9ebff;
-  block-size: 100vh;
-  inline-size: 100vw;
+  block-size: 100dvh;
+  inline-size: 100dvw;
   overflow: hidden;
   position: relative;
 }
@@ -337,11 +338,11 @@ onUnmounted(() => {
 
 .quiet-controls {
   background: rgb(255 255 255 / 34%);
-  border: 1px solid rgb(255 255 255 / 34%);
-  border-radius: 18px;
-  box-shadow: 0 10px 28px rgb(60 116 136 / 12%);
-  inset-block-start: max(16px, env(safe-area-inset-top));
-  inset-inline-start: max(16px, env(safe-area-inset-left));
+  border: 0.0625rem solid rgb(255 255 255 / 34%);
+  border-radius: 1.125rem;
+  box-shadow: 0 0.625rem 1.75rem rgb(60 116 136 / 12%);
+  inset-block-start: max(1rem, env(safe-area-inset-top));
+  inset-inline-start: max(1rem, env(safe-area-inset-left));
   opacity: 0.5;
   position: absolute;
   transition: opacity 160ms ease;

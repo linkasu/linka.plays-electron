@@ -40,7 +40,7 @@ const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("balloon-ride", {
   maxSteps: 8,
-  overrides: { preset: "gentle", dwellMs: 600, targetScale: 1.45, motionSpeed: 0.52, distractors: "none", hints: "high" },
+  overrides: { preset: "gentle", dwellMs: 600, targetScale: 1.45, motionSpeed: 0.52, distractors: "none", hints: "high", sound: false },
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });
@@ -168,10 +168,7 @@ function restart() {
 
 function updateBalloon(delta: number) {
   const size = balloonSize();
-  const fallback = {
-    x: width.value * 0.34 + Math.sin(balloon.phase * 0.42) * 28,
-    y: (playTop() + playBottom()) / 2 + Math.cos(balloon.phase * 0.38) * 34
-  };
+  const fallback = { x: balloon.x, y: balloon.y };
   const target = pointer.value.valid ? pointer.value : fallback;
   const targetX = finishAfter > 0 ? width.value * 0.52 : target.x;
   const targetY = finishAfter > 0 ? Math.max(playTop() * 0.55, balloon.y - height.value * 0.2) : target.y;
@@ -184,7 +181,7 @@ function updateBalloon(delta: number) {
 
   balloon.x += clamp(stepX, -maxStep, maxStep);
   balloon.y += clamp(stepY, -maxStep, maxStep);
-  balloon.phase += delta * (session.settings.reduceMotion ? 0.8 : 1.8);
+  balloon.phase += session.settings.reduceMotion ? 0 : delta * 1.8;
   balloon.lift += ((finishAfter > 0 ? 1 : 0) - balloon.lift) * Math.min(1, delta * 1.4);
 }
 
@@ -192,14 +189,14 @@ function updateRing(delta: number, now: number) {
   if (finishAfter > 0) return;
 
   ring.x -= ring.speed * delta;
-  ring.phase += delta * 1.4;
-  ring.y = clamp(ring.y + Math.sin(ring.phase) * delta * 7, playTop() + ring.radius * 0.08, playBottom() - ring.radius * 0.08);
+  ring.phase += session.settings.reduceMotion ? 0 : delta * 1.4;
+  ring.y = clamp(ring.y + (session.settings.reduceMotion ? 0 : Math.sin(ring.phase) * delta * 7), playTop() + ring.radius * 0.08, playBottom() - ring.radius * 0.08);
 
   const gap = distance(balloon, ring);
   const outerRadius = ring.radius * 0.88;
-  const passRadius = ring.radius * 0.44;
-  const inside = gap <= passRadius;
-  const near = gap <= outerRadius;
+  const passRadius = Math.max(75, ring.radius * 0.44);
+  const inside = pointer.value.valid && gap <= passRadius;
+  const near = pointer.value.valid && gap <= outerRadius;
   const progress = clamp(ring.dwellMs / session.settings.dwellMs, 0, 1);
 
   balloon.glow += ((near ? 1 - gap / outerRadius : 0) - balloon.glow) * Math.min(1, delta * 4);
@@ -243,7 +240,7 @@ function updateRing(delta: number, now: number) {
 function updateClouds(delta: number) {
   for (const cloud of clouds) {
     cloud.x -= cloud.speed * session.settings.motionSpeed * delta;
-    cloud.phase += delta * 0.52;
+    cloud.phase += session.settings.reduceMotion ? 0 : delta * 0.52;
     if (cloud.x < -cloud.size * 2) {
       cloud.x = width.value + cloud.size * 2 + randomRange(0, 120);
       cloud.y = randomRange(height.value * 0.12, height.value * 0.58);
@@ -255,7 +252,7 @@ function updateSparkles(delta: number) {
   for (let index = sparkles.length - 1; index >= 0; index -= 1) {
     const sparkle = sparkles[index];
     sparkle.age += delta;
-    sparkle.y -= delta * 18;
+    sparkle.y -= session.settings.reduceMotion ? 0 : delta * 18;
     if (sparkle.age >= sparkle.life) sparkles.splice(index, 1);
   }
 }
@@ -288,7 +285,7 @@ function drawBackground(ctx: CanvasRenderingContext2D) {
 }
 
 function drawSoftCloud(ctx: CanvasRenderingContext2D, cloud: Cloud) {
-  const bob = Math.sin(cloud.phase) * cloud.size * 0.05;
+  const bob = session.settings.reduceMotion ? 0 : Math.sin(cloud.phase) * cloud.size * 0.05;
   ctx.save();
   ctx.globalAlpha = cloud.alpha;
   ctx.fillStyle = "#ffffff";
@@ -306,7 +303,7 @@ function drawRing(ctx: CanvasRenderingContext2D) {
   const progress = clamp(ring.dwellMs / session.settings.dwellMs, 0, 1);
   ctx.save();
   ctx.translate(ring.x, ring.y);
-  ctx.rotate(Math.sin(ring.phase * 0.32) * 0.04);
+  ctx.rotate(session.settings.reduceMotion ? 0 : Math.sin(ring.phase * 0.32) * 0.04);
 
   const glow = ctx.createRadialGradient(0, 0, ring.radius * 0.22, 0, 0, ring.radius * 1.18);
   glow.addColorStop(0, `rgb(255 255 255 / ${0.08 + progress * 0.18})`);
@@ -318,7 +315,7 @@ function drawRing(ctx: CanvasRenderingContext2D) {
   ctx.fill();
 
   for (let index = 0; index < 13; index += 1) {
-    const angle = index / 13 * Math.PI * 2 + ring.phase * 0.08;
+    const angle = index / 13 * Math.PI * 2 + (session.settings.reduceMotion ? 0 : ring.phase * 0.08);
     const puffRadius = ring.radius * (0.18 + (index % 3) * 0.018);
     const centerRadius = ring.radius * 0.72;
     ctx.fillStyle = index % 2 === 0 ? "rgb(255 255 255 / 82%)" : "rgb(226 244 250 / 76%)";
@@ -348,7 +345,7 @@ function drawRing(ctx: CanvasRenderingContext2D) {
 
 function drawBalloon(ctx: CanvasRenderingContext2D) {
   const size = balloonSize();
-  const bob = Math.sin(balloon.phase * 1.3) * size * 0.035 - balloon.lift * size * 0.18;
+  const bob = (session.settings.reduceMotion ? 0 : Math.sin(balloon.phase * 1.3) * size * 0.035) - balloon.lift * size * 0.18;
   const x = balloon.x;
   const y = balloon.y + bob;
 
@@ -467,8 +464,8 @@ useGameLoop({ context, update, draw });
 <style scoped>
 .balloon-ride-shell {
   background: #d6f2ff;
-  block-size: 100vh;
-  inline-size: 100vw;
+  block-size: 100dvh;
+  inline-size: 100dvw;
   overflow: hidden;
   position: relative;
 }

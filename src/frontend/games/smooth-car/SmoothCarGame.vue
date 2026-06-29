@@ -44,9 +44,9 @@ const roadMarks = reactive<RoadMark[]>([]);
 const resultVisible = computed(() => session.status === "finished");
 const guidanceText = computed(() => {
   if (session.status === "paused") return "Пауза. Машинка спокойно ждёт на широкой дороге.";
-  if (!pointer.value.valid) return "Можно вести машинку взглядом или мышью. Дорога широкая, ошибок нет.";
-  if (car.dwellProgress > 0) return "Удерживай машинку в светлом круге, checkpoint почти пройден.";
-  return "Веди машинку взглядом к следующему светлому checkpoint.";
+  if (!pointer.value.valid) return "Можно вести машинку взглядом или мышью. Дорога широкая и спокойно ждёт.";
+  if (car.dwellProgress > 0) return "Удерживай машинку в светлом круге, ворота почти пройдены.";
+  return "Веди машинку взглядом к следующему светлому кругу.";
 });
 
 let checkpointSequence = 0;
@@ -161,7 +161,7 @@ function resetScene() {
 }
 
 function updateCar(delta: number) {
-  const fallback = { x: checkpoint.x, y: checkpoint.y };
+  const fallback = { x: car.x, y: car.y };
   const target = clampToRoad(pointer.value.valid ? pointer.value : fallback);
   const dx = target.x - car.x;
   const dy = target.y - car.y;
@@ -174,7 +174,7 @@ function updateCar(delta: number) {
   car.y += moveY;
   car.y = clampToRoad(car).y;
   if (Math.abs(moveX) + Math.abs(moveY) > 0.02) car.angle += (Math.atan2(moveY, Math.max(12, moveX)) - car.angle) * Math.min(1, delta * 5.5);
-  car.wheelPhase += distance({ x: 0, y: 0 }, { x: moveX, y: moveY }) * 0.1;
+  car.wheelPhase += session.settings.reduceMotion ? 0 : distance({ x: 0, y: 0 }, { x: moveX, y: moveY }) * 0.1;
   car.glow = Math.max(0, car.glow - delta * 1.4);
 }
 
@@ -187,14 +187,14 @@ function completeCheckpoint(now: number) {
 
 function updateCheckpoint(delta: number, now: number) {
   checkpoint.radius = checkpointRadius();
-  checkpoint.phase += delta * 1.9;
+  checkpoint.phase += session.settings.reduceMotion ? 0 : delta * 1.9;
 
   const gap = distance(car, checkpoint);
   const enterDistance = checkpoint.radius * 1.08;
   const holdDistance = checkpoint.radius * 0.66;
   const progress = clamp(1 - gap / enterDistance, 0, 1);
-  const closeEnough = gap <= enterDistance;
-  const holding = gap <= holdDistance;
+  const closeEnough = pointer.value.valid && gap <= enterDistance;
+  const holding = pointer.value.valid && gap <= holdDistance;
 
   if (closeEnough && !checkpoint.entered) {
     checkpoint.entered = true;
@@ -241,8 +241,9 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   for (let index = 0; index < 7; index += 1) {
     const x = width.value * ((index * 0.19 + 0.08) % 1);
     const y = height.value * (0.2 + (index % 4) * 0.18);
+    const visualNow = session.settings.reduceMotion ? 0 : now;
     ctx.beginPath();
-    ctx.ellipse(x, y + Math.sin(now * 0.0002 + index) * 5, 86 + index * 8, 22 + index * 2, 0, 0, Math.PI * 2);
+    ctx.ellipse(x, y + Math.sin(visualNow * 0.0002 + index) * 5, 86 + index * 8, 22 + index * 2, 0, 0, Math.PI * 2);
     ctx.fill();
   }
 }
@@ -291,7 +292,7 @@ function drawRoad(ctx: CanvasRenderingContext2D) {
 }
 
 function drawCheckpoint(ctx: CanvasRenderingContext2D) {
-  const pulse = 1 + Math.sin(checkpoint.phase) * 0.04;
+  const pulse = session.settings.reduceMotion ? 1 : 1 + Math.sin(checkpoint.phase) * 0.04;
   const radius = checkpoint.radius * pulse;
   const glow = ctx.createRadialGradient(checkpoint.x, checkpoint.y, radius * 0.12, checkpoint.x, checkpoint.y, radius * 1.12);
   glow.addColorStop(0, "rgb(255 255 255 / 48%)");
@@ -400,9 +401,9 @@ useGameLoop({ context, update, draw });
   <div class="smooth-car-shell">
     <canvas ref="canvasRef" class="smooth-car-canvas" />
 
-    <v-card class="smooth-car-hint px-4 py-3" color="surface" rounded="xl" variant="tonal">
+    <v-card class="smooth-car-hint px-4 py-3" color="surface" rounded="xl" variant="flat">
       <div class="text-body-2 font-weight-medium">{{ guidanceText }}</div>
-      <div class="text-caption text-medium-emphasis">Без столкновений и проигрыша: если взгляд ушёл, машинка просто едет мягче.</div>
+      <div class="text-caption text-medium-emphasis">Если взгляд ушёл, машинка спокойно ждёт возвращения.</div>
     </v-card>
 
     <GameHud
@@ -435,8 +436,8 @@ useGameLoop({ context, update, draw });
 <style scoped>
 .smooth-car-shell {
   background: #dff7ff;
-  block-size: 100vh;
-  inline-size: 100vw;
+  block-size: 100dvh;
+  inline-size: 100dvw;
   overflow: hidden;
   position: relative;
 }
@@ -448,11 +449,11 @@ useGameLoop({ context, update, draw });
 }
 
 .smooth-car-hint {
-  inset-block-end: max(18px, env(safe-area-inset-bottom));
-  inset-inline: 18px;
+  inset-block-end: max(1.125rem, env(safe-area-inset-bottom));
+  inset-inline: 1.125rem;
   margin-inline: auto;
-  max-inline-size: 660px;
-  opacity: 0.88;
+  max-inline-size: 41.25rem;
+  opacity: 0.95;
   position: absolute;
   z-index: 3;
 }

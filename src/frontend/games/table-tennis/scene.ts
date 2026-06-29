@@ -42,6 +42,7 @@ export type TennisSceneOptions = {
   sessionSeconds: number;
   score: number;
   streak: number;
+  reduceMotion: boolean;
 };
 
 export function tennisCourtTop() {
@@ -84,7 +85,7 @@ function drawCloud(context: CanvasRenderingContext2D, x: number, y: number, size
   context.restore();
 }
 
-function drawBackground(context: CanvasRenderingContext2D, now: number) {
+function drawBackground(context: CanvasRenderingContext2D, now: number, reduceMotion: boolean) {
   const sky = context.createLinearGradient(0, 0, 0, window.innerHeight);
   sky.addColorStop(0, "#b9ebff");
   sky.addColorStop(0.56, "#eaf8ff");
@@ -92,7 +93,7 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
   context.fillStyle = sky;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-  const sway = Math.sin(now / 2600) * 12;
+  const sway = reduceMotion ? 0 : Math.sin(now / 2600) * 12;
   drawCloud(context, window.innerWidth * 0.18 + sway, window.innerHeight * 0.14, Math.min(132, window.innerWidth * 0.11), 0.62);
   drawCloud(context, window.innerWidth * 0.74 - sway * 0.8, window.innerHeight * 0.12, Math.min(156, window.innerWidth * 0.13), 0.5);
 
@@ -254,12 +255,12 @@ function drawBurst(context: CanvasRenderingContext2D, burst: TennisBurst) {
   context.strokeStyle = `rgb(${color} / 62%)`;
   context.lineWidth = 4;
   context.beginPath();
-  context.arc(burst.x, burst.y, burst.radius * (0.4 + progress * 0.9), 0, Math.PI * 2);
+  context.arc(burst.x, burst.y, burst.radius * (0.4 + (progress * (context.canvas.dataset.reduceMotion === "true" ? 0.18 : 0.9))), 0, Math.PI * 2);
   context.stroke();
 
   context.fillStyle = `rgb(${color} / 34%)`;
   for (let index = 0; index < 6; index++) {
-    const angle = index / 6 * Math.PI * 2 + progress * 0.7;
+    const angle = index / 6 * Math.PI * 2 + progress * (context.canvas.dataset.reduceMotion === "true" ? 0 : 0.7);
     context.beginPath();
     context.arc(burst.x + Math.cos(angle) * burst.radius * progress, burst.y + Math.sin(angle) * burst.radius * progress, Math.max(3, burst.radius * 0.1 * (1 - progress)), 0, Math.PI * 2);
     context.fill();
@@ -281,8 +282,9 @@ function drawPointerHint(context: CanvasRenderingContext2D, options: TennisScene
 }
 
 export function drawTennisScene(context: CanvasRenderingContext2D, options: TennisSceneOptions) {
+  context.canvas.dataset.reduceMotion = String(options.reduceMotion);
   context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-  drawBackground(context, options.now);
+  drawBackground(context, options.now, options.reduceMotion);
   drawCourt(context);
 
   for (const trail of options.trails) drawTrail(context, trail);

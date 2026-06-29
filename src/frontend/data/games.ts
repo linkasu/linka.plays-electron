@@ -2106,7 +2106,7 @@ export const games: GameInfo[] = [
   {
     id: "gates-path",
     title: "Дорожка с воротами",
-    description: "Веди мягкий свет по дорожке через широкие ворота: промах не ошибка, только спокойная подсказка вернуться.",
+    description: "Веди мягкий свет по дорожке через широкие ворота, с мягкой подсказкой вернуться к маршруту.",
     selfDescription: "Проведи свет через ворота.",
     route: "/games/gates-path",
     category: "continuous-control",
@@ -2121,7 +2121,7 @@ export const games: GameInfo[] = [
   {
     id: "smooth-car",
     title: "Плавная машинка",
-    description: "Веди машинку взглядом по широкой дороге к checkpoints без столкновений, штрафов и проигрыша.",
+    description: "Веди машинку взглядом по широкой дороге к мягким светлым кругам.",
     selfDescription: "Веди машинку по дороге.",
     route: "/games/smooth-car",
     category: "continuous-control",
@@ -2136,7 +2136,7 @@ export const games: GameInfo[] = [
   {
     id: "balloon-ride",
     title: "Воздушный шар",
-    description: "Веди воздушный шар взглядом через мягкие облачные кольца без падений и резких ошибок.",
+    description: "Веди воздушный шар взглядом через мягкие облачные кольца спокойно и плавно.",
     selfDescription: "Проведи шар через облака.",
     route: "/games/balloon-ride",
     category: "continuous-control",

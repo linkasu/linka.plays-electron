@@ -187,6 +187,7 @@ function targetPayload(index: number, now: number, projection?: Projection, reas
 }
 
 function createSparkles(point: Point, count: number) {
+  if (session.settings.reduceMotion) return;
   for (let index = 0; index < count; index += 1) {
     sparkles.push({
       x: point.x + randomRange(-pathWidth() * 0.24, pathWidth() * 0.24),
@@ -287,9 +288,9 @@ function updateFinish(delta: number, now: number) {
 }
 
 function update(delta: number, now: number) {
-  light.phase += delta * (session.settings.reduceMotion ? 1.2 : 2.6);
+  light.phase += session.settings.reduceMotion ? 0 : delta * 2.6;
   visualProgress.value += (progress.value - visualProgress.value) * Math.min(1, delta * 5.2);
-  updateSparkles(delta);
+  if (!session.settings.reduceMotion) updateSparkles(delta);
 
   if (session.status !== "running") return;
 
@@ -302,7 +303,7 @@ function update(delta: number, now: number) {
   updateFinish(delta, now);
 
   const nearPath = Boolean(projection && projection.distance <= pathWidth() * 1.22);
-  if (!nearPath && now - lastHintAt > 3400) {
+  if (pointer.value.valid && !nearPath && now - lastHintAt > 3400) {
     lastHintAt = now;
     recordHint({ kind: "soft-gate-correction", pathProgress: progress.value, pointer: copyPointer(), distanceToPath: projection?.distance });
   }
@@ -319,7 +320,8 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   ctx.save();
   ctx.globalAlpha = 0.26;
   for (let index = 0; index < 6; index += 1) {
-    const x = width.value * (0.08 + index * 0.18) + Math.sin(now * 0.00013 + index) * 30;
+    const visualNow = session.settings.reduceMotion ? 0 : now;
+    const x = width.value * (0.08 + index * 0.18) + Math.sin(visualNow * 0.00013 + index) * 30;
     const y = height.value * (0.2 + index % 3 * 0.17);
     const glow = ctx.createRadialGradient(x, y, 0, x, y, Math.max(width.value, height.value) * 0.24);
     glow.addColorStop(0, index % 2 === 0 ? "rgb(255 255 255 / 72%)" : "rgb(201 235 231 / 54%)");
@@ -432,7 +434,7 @@ function drawGate(ctx: CanvasRenderingContext2D, points: Point[], index: number)
 function drawLight(ctx: CanvasRenderingContext2D, points: Point[]) {
   const point = pointAtPathProgress(points, visualProgress.value);
   const laneWidth = pathWidth();
-  const pulse = Math.sin(light.phase * 3) * 0.06;
+  const pulse = session.settings.reduceMotion ? 0 : Math.sin(light.phase * 3) * 0.06;
   const radius = laneWidth * (0.22 + pulse + light.confidence * 0.04 + light.finish * 0.08);
 
   ctx.save();
@@ -532,12 +534,12 @@ useGameLoop({
   <div class="gates-path-shell">
     <canvas ref="canvasRef" class="gates-path-canvas" />
 
-    <GameHud title="Дорожка с воротами" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud title="Дорожка с воротами" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
 
     <v-card class="gates-path-guidance pa-4" color="surface" rounded="xl" variant="flat">
       <div class="text-overline text-primary mb-1">Непрерывное управление</div>
       <div class="text-body-1 font-weight-medium">{{ guidanceText }}</div>
-      <v-progress-linear class="mt-3" :model-value="progressPercent" color="primary" height="8" rounded />
+      <v-progress-linear class="mt-3" :model-value="progressPercent" color="primary" height="0.5rem" rounded />
       <div class="text-caption text-medium-emphasis mt-2">Ворота: {{ session.step }} / {{ session.maxSteps }}</div>
     </v-card>
 
@@ -548,8 +550,8 @@ useGameLoop({
 <style scoped>
 .gates-path-shell {
   background: #eef8ff;
-  block-size: 100vh;
-  inline-size: 100vw;
+  block-size: 100dvh;
+  inline-size: 100dvw;
   overflow: hidden;
   position: relative;
 }
@@ -561,20 +563,20 @@ useGameLoop({
 }
 
 .gates-path-guidance {
-  box-shadow: 0 16px 44px rgb(75 117 143 / 14%);
-  inline-size: min(430px, calc(100vw - 32px));
-  inset-block-start: clamp(104px, 14vh, 148px);
-  inset-inline-end: max(16px, env(safe-area-inset-right));
+  box-shadow: 0 1rem 2.75rem rgb(75 117 143 / 14%);
+  inline-size: min(26.875rem, calc(100dvw - 2rem));
+  inset-block-start: clamp(6.5rem, 14vh, 9.25rem);
+  inset-inline-end: max(1rem, env(safe-area-inset-right));
   opacity: 0.92;
   position: absolute;
   z-index: 4;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 45rem) {
   .gates-path-guidance {
     inset-block-start: auto;
-    inset-block-end: max(16px, env(safe-area-inset-bottom));
-    inset-inline: 16px;
+    inset-block-end: max(1rem, env(safe-area-inset-bottom));
+    inset-inline: 1rem;
     inline-size: auto;
   }
 }
