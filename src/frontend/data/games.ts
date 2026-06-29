@@ -141,7 +141,7 @@ export const games: GameInfo[] = [
   {
     id: "balloons",
     title: "Шарики",
-    description: "Смотри на крупный шарик и удерживай взгляд: он мягко улетит вверх без ошибок и спешки.",
+    description: "Смотри на крупный шарик и удерживай взгляд: он мягко улетит вверх спокойно и без спешки.",
     selfDescription: "Отпусти шарик взглядом.",
     route: "/games/balloons",
     category: "gaze-basics",
@@ -261,7 +261,7 @@ export const games: GameInfo[] = [
   {
     id: "catch-light",
     title: "Поймай свет",
-    description: "Смотри на мягкую световую цель: удержи взгляд, и свет спокойно переедет в новую зону без ошибок.",
+    description: "Смотри на мягкую световую цель: удержи взгляд, и свет спокойно переедет в новую зону.",
     selfDescription: "Поймай свет взглядом.",
     route: "/games/catch-light",
     category: "gaze-basics",
