@@ -43,7 +43,7 @@ const progressText = computed(() => `${session.step}/${session.maxSteps}`);
 const helperText = computed(() => {
   if (session.status === "paused") return "Пауза. Предметы спокойно подождут.";
   if (cleanupProgress.value > 0) return "Все предметы на месте. Поле мягко очищается.";
-  if (!pointer.value.valid) return "Веди магнит взглядом или мышью. Ошибок нет.";
+  if (!pointer.value.valid) return "Веди магнит взглядом или мышью. Можно пробовать спокойно.";
   return "Подведи магнит к предмету и перенеси его в цель.";
 });
 
@@ -51,6 +51,7 @@ const itemLabels = ["лист", "камень", "ракушка", "облако"
 const itemHues = [132, 202, 32, 178, 48, 286, 214, 12];
 const cleanupDurationMs = 1550;
 let finishAfter = 0;
+let cleanupRemainingMs = 0;
 let lastHintAt = 0;
 
 function clamp(value: number, min: number, max: number) {
@@ -138,6 +139,7 @@ function createItems() {
   const radius = itemRadius();
   items.splice(0);
   finishAfter = 0;
+  cleanupRemainingMs = 0;
   cleanupProgress.value = 0;
 
   layoutPoints().forEach((point, index) => {
@@ -175,7 +177,7 @@ function capVelocity(item: MagnetItem) {
 }
 
 function updateMagnet(delta: number) {
-  magnet.pulse += delta;
+  magnet.pulse += session.settings.reduceMotion ? 0 : delta;
   const target = clampToStage(pointer.value.valid ? pointer.value : { x: width.value * 0.5, y: height.value * 0.52 });
   const smoothing = pointer.value.valid ? 7.2 : 1.4;
   magnet.x += (target.x - magnet.x) * Math.min(1, delta * smoothing);
@@ -196,13 +198,14 @@ function captureItem(item: MagnetItem, now: number) {
   if (nextStep >= session.maxSteps && finishAfter === 0) {
     cleanupProgress.value = 0.001;
     finishAfter = now + cleanupDurationMs;
+    cleanupRemainingMs = cleanupDurationMs;
   }
 }
 
 function updateCapturedItem(item: MagnetItem, delta: number, index: number) {
   const goal = goalPoint();
   item.captureAge += delta;
-  const angle = index * 0.72 + item.captureAge * 0.42;
+  const angle = index * 0.72 + (session.settings.reduceMotion ? 0 : item.captureAge * 0.42);
   const orbit = Math.min(goalRadius() * 0.38, 18 + item.captureAge * 8);
   const target = {
     x: goal.x + Math.cos(angle) * orbit,
@@ -261,9 +264,9 @@ function updateFreeItem(item: MagnetItem, delta: number, now: number) {
 }
 
 function update(delta: number, now: number) {
-  updateMagnet(delta);
-
   if (session.status !== "running") return;
+
+  updateMagnet(delta);
 
   if (!pointer.value.valid && now - lastHintAt > 3400) {
     lastHintAt = now;
@@ -271,9 +274,10 @@ function update(delta: number, now: number) {
   }
 
   if (finishAfter > 0) {
-    cleanupProgress.value = clamp(1 - (finishAfter - now) / cleanupDurationMs, 0.001, 1);
+    cleanupRemainingMs = Math.max(0, cleanupRemainingMs - delta * 1000);
+    cleanupProgress.value = clamp(1 - cleanupRemainingMs / cleanupDurationMs, 0.001, 1);
     items.forEach((item, index) => updateCapturedItem(item, delta, index));
-    if (now >= finishAfter) finishSession("max-steps");
+    if (cleanupRemainingMs === 0) finishSession("max-steps");
     return;
   }
 
@@ -294,7 +298,8 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   ctx.save();
   ctx.globalAlpha = 0.42;
   for (let index = 0; index < 5; index += 1) {
-    const x = width.value * (0.1 + index * 0.22) + Math.sin(now * 0.00012 + index) * 28;
+    const visualNow = session.settings.reduceMotion ? 0 : now;
+    const x = width.value * (0.1 + index * 0.22) + Math.sin(visualNow * 0.00012 + index) * 28;
     const y = height.value * (0.18 + index % 2 * 0.13);
     ctx.fillStyle = "#ffffff";
     ctx.beginPath();
@@ -316,7 +321,7 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
 function drawGoal(ctx: CanvasRenderingContext2D, now: number) {
   const goal = goalPoint();
   const radius = goalRadius();
-  const pulse = 1 + Math.sin(now * 0.002) * 0.025;
+  const pulse = session.settings.reduceMotion ? 1 : 1 + Math.sin(now * 0.002) * 0.025;
   const ready = cleanupProgress.value > 0 ? cleanupProgress.value : session.step / session.maxSteps;
 
   ctx.save();
@@ -401,7 +406,7 @@ function drawItem(ctx: CanvasRenderingContext2D, item: MagnetItem) {
 function drawMagnet(ctx: CanvasRenderingContext2D, now: number) {
   const radius = influenceRadius();
   const active = pointer.value.valid && session.status === "running" && cleanupProgress.value === 0;
-  const wave = Math.sin(now * 0.004) * 0.04;
+  const wave = session.settings.reduceMotion ? 0 : Math.sin(now * 0.004) * 0.04;
 
   ctx.save();
   ctx.translate(magnet.x, magnet.y);
@@ -505,7 +510,7 @@ useGameLoop({ context, update, draw });
             <h1 class="text-h5 text-sm-h4 font-weight-bold mb-1">Курсор-магнит</h1>
             <p class="text-body-2 text-sm-body-1 text-medium-emphasis mb-2">{{ helperText }}</p>
             <v-chip class="cursor-magnet-chip" color="primary" prepend-icon="mdi-magnet-on" rounded="pill" size="small" variant="tonal">
-              Мягкое притяжение · без ошибок
+              Мягкое притяжение · можно пробовать снова
             </v-chip>
           </v-card>
         </v-col>
@@ -528,7 +533,7 @@ useGameLoop({ context, update, draw });
 
 <style scoped>
 .cursor-magnet-shell {
-  min-block-size: 100vh;
+  min-block-size: 100dvh;
   overflow: hidden;
   position: relative;
 }
@@ -548,26 +553,26 @@ useGameLoop({ context, update, draw });
 }
 
 .cursor-magnet-help-card {
-  max-inline-size: min(24rem, calc(100vw - 2rem));
+  max-inline-size: min(24rem, calc(100dvw - 2rem));
 }
 
 .cursor-magnet-overlay :deep(.v-card) {
   opacity: 0.9;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 45rem) {
   .cursor-magnet-overlay {
     padding-block-start: 4.75rem;
   }
 }
 
-@media (max-height: 640px) {
+@media (max-height: 40rem) {
   .cursor-magnet-overlay {
     padding-block-start: 3.75rem;
   }
 
   .cursor-magnet-help-card {
-    max-inline-size: min(19rem, calc(100vw - 2rem));
+    max-inline-size: min(19rem, calc(100dvw - 2rem));
   }
 
   .cursor-magnet-help-card h1 {

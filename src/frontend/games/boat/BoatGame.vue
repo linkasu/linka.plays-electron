@@ -73,8 +73,8 @@ function resizeCanvas() {
   const ratio = window.devicePixelRatio || 1;
   canvas.width = Math.round(window.innerWidth * ratio);
   canvas.height = Math.round(window.innerHeight * ratio);
-  canvas.style.width = `${window.innerWidth}px`;
-  canvas.style.height = `${window.innerHeight}px`;
+  canvas.style.width = "100dvw";
+  canvas.style.height = "100dvh";
   ctx = canvas.getContext("2d") ?? undefined;
   ctx?.setTransform(ratio, 0, 0, ratio, 0, 0);
   syncGeometry();
@@ -192,19 +192,20 @@ function restart() {
 }
 
 function updateBoat(delta: number) {
-  const targetY = pointer.value.valid ? pointer.value.y : riverCenterY() + Math.sin(boat.phase * 0.48) * 18;
+  const idleWave = session.settings.reduceMotion ? 0 : Math.sin(boat.phase * 0.48) * 18;
+  const targetY = pointer.value.valid ? pointer.value.y : riverCenterY() + idleWave;
   const clampedTarget = clamp(targetY, riverTop() + boatSize() * 0.55, riverBottom() - boatSize() * 0.55);
   const diff = clampedTarget - boat.y;
   const easedStep = diff * Math.min(1, delta * 2.35);
   const maxStep = delta * 260;
   boat.y += clamp(easedStep, -maxStep, maxStep);
-  boat.phase += delta * (session.settings.reduceMotion ? 1.1 : 2.2);
+  boat.phase += session.settings.reduceMotion ? 0 : delta * 2.2;
 }
 
 function updateCheckpoint(delta: number, now: number) {
   checkpoint.x -= checkpoint.speed * delta;
-  checkpoint.phase += delta * 1.6;
-  checkpoint.y += Math.sin(checkpoint.phase) * delta * 6;
+  checkpoint.phase += session.settings.reduceMotion ? 0 : delta * 1.6;
+  checkpoint.y += session.settings.reduceMotion ? 0 : Math.sin(checkpoint.phase) * delta * 6;
   checkpoint.y = clamp(checkpoint.y, riverTop() + checkpoint.radius * 0.5, riverBottom() - checkpoint.radius * 0.5);
 
   const boatPosition = boatPoint();
@@ -214,13 +215,13 @@ function updateCheckpoint(delta: number, now: number) {
   const progress = Math.max(0, 1 - gap / enterDistance);
   boat.glow += (progress - boat.glow) * Math.min(1, delta * 4.2);
 
-  if (!checkpoint.entered && gap <= enterDistance) {
+  if (pointer.value.valid && !checkpoint.entered && gap <= enterDistance) {
     checkpoint.entered = true;
     checkpoint.enteredAt = now;
     recordEvent("target-enter", targetPayload(progress, now));
   }
 
-  if (gap <= successDistance) {
+  if (pointer.value.valid && gap <= successDistance) {
     recordEvent("target-click", targetPayload(1, now));
     recordSuccess({ targetId: checkpoint.id, checkpoint: session.step + 1 });
     addRipple(checkpoint.x, checkpoint.y, checkpoint.radius * 0.72);
@@ -237,7 +238,7 @@ function updateCheckpoint(delta: number, now: number) {
 function updateDecorations(delta: number) {
   for (const decoration of decorations) {
     decoration.x -= decoration.speed * session.settings.motionSpeed * delta;
-    decoration.phase += delta * 1.3;
+    decoration.phase += session.settings.reduceMotion ? 0 : delta * 1.3;
     if (decoration.x < -decoration.size * 2) {
       decoration.x = window.innerWidth + randomRange(40, 260);
       decoration.y = safeRiverY(decoration.size);
@@ -300,7 +301,7 @@ function drawRiver(context: CanvasRenderingContext2D) {
 }
 
 function drawDecoration(context: CanvasRenderingContext2D, decoration: Decoration) {
-  const bobY = decoration.y + Math.sin(decoration.phase) * decoration.size * 0.04;
+  const bobY = decoration.y + (session.settings.reduceMotion ? 0 : Math.sin(decoration.phase) * decoration.size * 0.04);
   if (decoration.kind === "island") {
     context.fillStyle = "rgb(212 183 121 / 72%)";
     context.beginPath();
@@ -338,7 +339,7 @@ function drawDecoration(context: CanvasRenderingContext2D, decoration: Decoratio
 }
 
 function drawCheckpoint(context: CanvasRenderingContext2D) {
-  const pulse = 1 + Math.sin(checkpoint.phase * 2) * 0.035;
+  const pulse = session.settings.reduceMotion ? 1 : 1 + Math.sin(checkpoint.phase * 2) * 0.035;
   const radius = checkpoint.radius * pulse;
   const gradient = context.createRadialGradient(checkpoint.x, checkpoint.y, radius * 0.18, checkpoint.x, checkpoint.y, radius);
   gradient.addColorStop(0, "rgb(255 255 255 / 42%)");
@@ -487,8 +488,8 @@ onUnmounted(() => {
 <style scoped>
 .boat-shell {
   background: #e5f3dd;
-  block-size: 100vh;
-  inline-size: 100vw;
+  block-size: 100dvh;
+  inline-size: 100dvw;
   overflow: hidden;
   position: relative;
 }

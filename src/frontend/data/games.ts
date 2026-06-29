@@ -2031,7 +2031,7 @@ export const games: GameInfo[] = [
   {
     id: "cursor-magnet",
     title: "Курсор-магнит",
-    description: "Веди магнитный курсор взглядом: спокойные предметы мягко притягиваются к светлой цели без ошибок.",
+    description: "Веди магнитный курсор взглядом: спокойные предметы мягко притягиваются к светлой цели.",
     selfDescription: "Притяни предметы к цели.",
     route: "/games/cursor-magnet",
     category: "continuous-control",
@@ -2046,7 +2046,7 @@ export const games: GameInfo[] = [
   {
     id: "pulsing-target",
     title: "Пульсирующая цель",
-    description: "Удерживай взгляд в большой пульсирующей зоне: цель движется мягко, замедляется при уходе и не наказывает за паузы.",
+    description: "Удерживай взгляд в большой пульсирующей зоне: цель движется мягко, а прогресс сохраняется спокойно.",
     selfDescription: "Удержи взгляд на цели.",
     route: "/games/pulsing-target",
     category: "continuous-control",
@@ -2061,7 +2061,7 @@ export const games: GameInfo[] = [
   {
     id: "boat",
     title: "Лодочка",
-    description: "Веди лодочку взглядом по спокойной реке и проходи мягкие checkpoints без столкновений и штрафов.",
+    description: "Веди лодочку взглядом по спокойной реке и проходи мягкие светлые ворота.",
     selfDescription: "Веди лодочку по реке.",
     route: "/games/boat",
     category: "continuous-control",
@@ -2075,8 +2075,8 @@ export const games: GameInfo[] = [
   },
   {
     id: "gaze-follow-snake",
-    title: "Змейка gaze-follow",
-    description: "Веди мягкую змейку взглядом к большим листьям: столкновения не проигрыш, движение спокойное и непрерывное.",
+    title: "Змейка за взглядом",
+    description: "Веди мягкую змейку взглядом к большим листьям, спокойно и непрерывно.",
     selfDescription: "Веди змейку к листьям.",
     route: "/games/gaze-follow-snake",
     category: "continuous-control",

@@ -221,7 +221,8 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   ctx.save();
   ctx.globalAlpha = 0.26;
   for (let index = 0; index < 6; index += 1) {
-    const x = width.value * (0.08 + index * 0.19) + Math.sin(now * 0.00012 + index) * 32;
+    const visualNow = session.settings.reduceMotion ? 0 : now;
+    const x = width.value * (0.08 + index * 0.19) + Math.sin(visualNow * 0.00012 + index) * 32;
     const y = height.value * (0.18 + (index % 3) * 0.12);
     ctx.fillStyle = index % 2 === 0 ? "#d9f0ff" : "#e1f6e8";
     ctx.beginPath();
@@ -252,11 +253,11 @@ function drawCompletionRings(ctx: CanvasRenderingContext2D) {
     if (ring.age < 0) continue;
     const ratio = ring.age / ring.life;
     ctx.save();
-    ctx.globalAlpha = Math.max(0, 1 - ratio) * 0.58;
+    ctx.globalAlpha = Math.max(0, 1 - ratio) * (session.settings.reduceMotion ? 0.28 : 0.58);
     ctx.strokeStyle = `hsl(${ring.hue} 78% 58%)`;
     ctx.lineWidth = 5;
     ctx.beginPath();
-    ctx.arc(ring.x, ring.y, ring.radius * (1 + ratio * 1.55), 0, Math.PI * 2);
+    ctx.arc(ring.x, ring.y, ring.radius * (session.settings.reduceMotion ? 1.12 : 1 + ratio * 1.55), 0, Math.PI * 2);
     ctx.stroke();
     ctx.restore();
   }
@@ -383,7 +384,7 @@ useGameLoop({ context, update, draw });
       <div class="text-overline text-cyan-darken-3">continuous dwell</div>
       <h1 class="text-h4 text-sm-h3 font-weight-bold mb-2">Пульсирующая цель</h1>
       <p class="text-body-1 text-sm-h6 text-medium-emphasis mb-4">{{ helperText }}</p>
-      <v-progress-linear :model-value="progressPercent" color="cyan-darken-2" height="10" rounded />
+      <v-progress-linear :model-value="progressPercent" color="cyan-darken-2" height="0.625rem" rounded />
       <div class="d-flex flex-wrap justify-center ga-2 mt-3">
         <v-chip color="cyan-darken-2" prepend-icon="mdi-bullseye" rounded="pill" variant="tonal">
           Большая мягкая зона
@@ -411,8 +412,8 @@ useGameLoop({ context, update, draw });
 <style scoped>
 .pulsing-target-shell {
   background: #eef8ff;
-  block-size: 100vh;
-  inline-size: 100vw;
+  block-size: 100dvh;
+  inline-size: 100dvw;
   overflow: hidden;
   position: relative;
 }
@@ -424,8 +425,8 @@ useGameLoop({ context, update, draw });
 }
 
 .pulsing-target-card {
-  inline-size: min(620px, calc(100vw - 32px));
-  inset-block-start: max(104px, calc(env(safe-area-inset-top) + 84px));
+  inline-size: min(38.75rem, calc(100dvw - 2rem));
+  inset-block-start: max(6.5rem, calc(env(safe-area-inset-top) + 5.25rem));
   inset-inline-start: 50%;
   opacity: 0.93;
   position: absolute;
@@ -434,10 +435,21 @@ useGameLoop({ context, update, draw });
   z-index: 2;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 45rem) {
   .pulsing-target-card {
     inset-block-start: auto;
-    inset-block-end: max(16px, env(safe-area-inset-bottom));
+    inset-block-end: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-height: 40rem) {
+  .pulsing-target-card {
+    inline-size: min(31rem, calc(100dvw - 2rem));
+  }
+
+  .pulsing-target-card h1,
+  .pulsing-target-card :deep(.v-chip) {
+    display: none;
   }
 }
 </style>
