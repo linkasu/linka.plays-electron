@@ -55,4 +55,16 @@ describe("orchestra-conductor model", () => {
     expect(nextReachedBeat(0.49, 4)).toBe(4);
     expect(nextReachedBeat(1, 9)).toBeUndefined();
   });
+
+  it("keeps the conductor arc usable in a compact viewport", () => {
+    const points = createOrchestraArcPoints(800, 600);
+    const first = points[0];
+    const middle = pointAtArcProgress(points, 0.5);
+    const last = points[points.length - 1];
+
+    expect(first.x).toBeGreaterThanOrEqual(54);
+    expect(last.x).toBeLessThanOrEqual(746);
+    expect(middle.y).toBeGreaterThanOrEqual(132);
+    expect(first.y).toBeLessThanOrEqual(488);
+  });
 });

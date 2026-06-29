@@ -174,17 +174,13 @@ function restart() {
 }
 
 function updateCraft(delta: number) {
-  if (pointer.value.valid) {
-    orbit.targetAngle = pointerAngle();
-  } else if (!session.settings.reduceMotion) {
-    orbit.targetAngle = wrapAngle(orbit.targetAngle + delta * 0.16 * session.settings.motionSpeed);
-  }
+  if (pointer.value.valid) orbit.targetAngle = pointerAngle();
 
   const diff = angleDifference(orbit.craftAngle, orbit.targetAngle);
   const easedStep = diff * Math.min(1, delta * 2.9);
   const maxStep = delta * 1.45 * session.settings.motionSpeed;
   orbit.craftAngle = wrapAngle(orbit.craftAngle + clamp(easedStep, -maxStep, maxStep));
-  orbit.pulse += delta * (session.settings.reduceMotion ? 0.65 : 1.8);
+  orbit.pulse += session.settings.reduceMotion ? 0 : delta * 1.8;
 }
 
 function completeStar() {
@@ -206,11 +202,11 @@ function completeStar() {
 }
 
 function updateStar(delta: number) {
-  star.pulse += delta * (session.settings.reduceMotion ? 0.8 : 2.4);
+  star.pulse += session.settings.reduceMotion ? 0 : delta * 2.4;
   const angularGap = Math.abs(angleDifference(orbit.craftAngle, star.angle));
   const collectRadius = 0.25 + (star.radius / Math.max(orbitRadiusX(), orbitRadiusY())) * 0.55;
   const progress = Math.max(0, 1 - angularGap / collectRadius);
-  const closeEnough = angularGap <= collectRadius;
+  const closeEnough = pointer.value.valid && angularGap <= collectRadius;
 
   if (closeEnough) {
     star.heldMs = Math.min(session.settings.dwellMs, star.heldMs + delta * 1000);
@@ -358,7 +354,7 @@ function drawRocket(ctx: CanvasRenderingContext2D) {
   const position = pointOnOrbit(orbit.craftAngle);
   const tangent = orbit.craftAngle + Math.PI / 2;
   const size = craftSize();
-  const glow = 0.7 + Math.sin(orbit.pulse) * 0.08;
+  const glow = 0.7 + (session.settings.reduceMotion ? 0 : Math.sin(orbit.pulse) * 0.08);
 
   ctx.save();
   ctx.translate(position.x, position.y);
@@ -443,7 +439,7 @@ useGameLoop({ context, update, draw });
     <v-card class="space-orbit-guidance pa-4" color="surface" rounded="xl" variant="flat">
       <div class="text-overline text-primary mb-1">Плавное ведение</div>
       <div class="text-body-1 font-weight-medium">{{ guidanceText }}</div>
-      <v-progress-linear class="mt-3" :model-value="holdProgress" color="amber" height="8" rounded />
+      <v-progress-linear class="mt-3" :model-value="holdProgress" color="amber" height="0.5rem" rounded />
       <div class="text-caption text-medium-emphasis mt-2">Звёзд собрано: {{ session.step }} / {{ session.maxSteps }}</div>
     </v-card>
 
@@ -464,8 +460,8 @@ useGameLoop({ context, update, draw });
 <style scoped>
 .space-orbit-shell {
   background: #081531;
-  block-size: 100vh;
-  inline-size: 100vw;
+  block-size: 100dvh;
+  inline-size: 100dvw;
   overflow: hidden;
   position: relative;
 }
@@ -477,20 +473,20 @@ useGameLoop({ context, update, draw });
 }
 
 .space-orbit-guidance {
-  box-shadow: 0 18px 48px rgb(5 12 31 / 28%);
-  inline-size: min(430px, calc(100vw - 32px));
-  inset-block-start: clamp(104px, 14vh, 148px);
-  inset-inline-end: max(16px, env(safe-area-inset-right));
+  box-shadow: 0 1.125rem 3rem rgb(5 12 31 / 28%);
+  inline-size: min(26.875rem, calc(100dvw - 2rem));
+  inset-block-start: clamp(6.5rem, 14vh, 9.25rem);
+  inset-inline-end: max(1rem, env(safe-area-inset-right));
   opacity: 0.92;
   position: absolute;
   z-index: 4;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 45rem) {
   .space-orbit-guidance {
     inset-block-start: auto;
-    inset-block-end: max(16px, env(safe-area-inset-bottom));
-    inset-inline: 16px;
+    inset-block-end: max(1rem, env(safe-area-inset-bottom));
+    inset-inline: 1rem;
     inline-size: auto;
   }
 }

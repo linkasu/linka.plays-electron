@@ -38,4 +38,21 @@ describe("garden-watering model", () => {
     expect(next.completed).toBe(true);
     expect(next.bloomPulse).toBe(1);
   });
+
+  it("ignores invalid radius and negative time", () => {
+    expect(wateringStrength(10, 0)).toBe(0);
+    const next = advanceFlowerGrowth(seed, { deltaSeconds: -1, distancePx: 0, waterRadiusPx: 100 });
+
+    expect(next.growth).toBe(0);
+    expect(next.wateredSeconds).toBe(0);
+  });
+
+  it("does not keep watering completed flowers", () => {
+    const next = advanceFlowerGrowth({ growth: 1, wateredSeconds: 2, completed: true, bloomPulse: 0.5 }, { deltaSeconds: 1, distancePx: 0, waterRadiusPx: 100 });
+
+    expect(next.growth).toBe(1);
+    expect(next.wateredSeconds).toBe(2);
+    expect(next.completed).toBe(true);
+    expect(next.bloomPulse).toBe(0);
+  });
 });

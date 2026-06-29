@@ -61,7 +61,7 @@ const progress = ref(0);
 const visualProgress = ref(0);
 const batonRatio = ref(0);
 const audioEnabled = ref(false);
-const feedbackMessage = ref("Веди палочку взглядом по широкой дуге. Оркестр вступает мягко на больших beat-зонах.");
+const feedbackMessage = ref("Веди палочку взглядом по широкой дуге. Оркестр вступает мягко на больших музыкальных зонах.");
 const conductor = reactive({ pulse: 0, confidence: 0, guide: 0, glow: 0 });
 const sectionEnergy = reactive(sections.map(() => 0));
 const responses = reactive<BeatResponse[]>([]);
@@ -107,7 +107,7 @@ function targetPayload(targetId: string, arcProgress: number, projection?: ArcPr
     targetId,
     at: Date.now(),
     dwellMs: session.settings.dwellMs,
-    elapsedMs: session.settings.dwellMs,
+    elapsedMs: 0,
     progress: arcProgress,
     arcProgress,
     pointer: copyPointer(),
@@ -215,7 +215,7 @@ function updateConductor(delta: number, now: number) {
 
 function update(rawDelta: number, now: number) {
   const delta = session.status === "paused" ? 0 : rawDelta;
-  conductor.pulse += delta;
+  conductor.pulse += session.settings.reduceMotion ? 0 : delta;
   visualProgress.value += (progress.value - visualProgress.value) * Math.min(1, delta * 4.8);
   updateResponses(delta);
 
@@ -302,7 +302,7 @@ function drawOrchestra(ctx: CanvasRenderingContext2D) {
     const y = baseY - Math.sin(t * Math.PI) * Math.max(42, height.value * 0.07);
     const complete = session.step > index;
     const energy = Math.max(sectionEnergy[index], complete ? 0.32 : 0);
-    const radius = seatRadius * (1 + energy * 0.14);
+    const radius = seatRadius * (1 + (session.settings.reduceMotion ? 0 : energy * 0.14));
 
     ctx.fillStyle = `hsl(${section.hue} 78% ${complete ? 82 : 90}% / ${complete ? 0.86 : 0.58})`;
     ctx.strokeStyle = `hsl(${section.hue} 70% 48% / ${complete ? 0.56 : 0.22})`;
@@ -363,7 +363,7 @@ function drawBeatZones(ctx: CanvasRenderingContext2D, points: Point[]) {
     const point = pointAtArcProgress(points, beatProgress(beat, session.maxSteps));
     const done = session.step >= beat;
     const next = session.step + 1 === beat && session.status === "running";
-    const pulse = next ? 1 + Math.sin(conductor.pulse * 3.2) * 0.06 : 1;
+    const pulse = next && !session.settings.reduceMotion ? 1 + Math.sin(conductor.pulse * 3.2) * 0.06 : 1;
     const radius = radiusBase * (done ? 0.86 : 0.74) * pulse;
 
     ctx.fillStyle = done ? `hsl(${section.hue} 86% 86% / 0.9)` : "rgb(255 255 255 / 64%)";
@@ -390,7 +390,7 @@ function drawResponses(ctx: CanvasRenderingContext2D) {
   for (const response of responses) {
     const ratio = response.age / response.life;
     const alpha = Math.max(0, 1 - ratio);
-    const radius = beatRadius() * (0.8 + ratio * 1.6);
+    const radius = beatRadius() * (session.settings.reduceMotion ? 0.9 : 0.8 + ratio * 1.6);
 
     ctx.strokeStyle = `hsl(${response.hue} 86% 58% / ${0.34 * alpha})`;
     ctx.lineWidth = Math.max(3, beatRadius() * 0.06);
@@ -480,7 +480,7 @@ function resetConductor() {
   responses.splice(0);
   trackingArc = false;
   lastHintAt = 0;
-  feedbackMessage.value = "Веди палочку взглядом по широкой дуге. Оркестр вступает мягко на больших beat-зонах.";
+  feedbackMessage.value = "Веди палочку взглядом по широкой дуге. Оркестр вступает мягко на больших музыкальных зонах.";
 }
 
 function restart() {
@@ -507,7 +507,7 @@ onUnmounted(() => {
 
 <template>
   <div class="orchestra-conductor-shell">
-    <canvas ref="canvasRef" class="orchestra-conductor-canvas" aria-label="Оркестр-дирижёр: веди палочку по широкой дуге и проходи beat-зоны" />
+    <canvas ref="canvasRef" class="orchestra-conductor-canvas" aria-label="Оркестр-дирижёр: веди палочку по широкой дуге и проходи музыкальные зоны" />
 
     <GameHud
       title="Оркестр-дирижёр"
@@ -539,9 +539,9 @@ onUnmounted(() => {
           {{ audioEnabled ? "Тихий звук" : "Без звука" }}
         </v-btn>
       </div>
-      <v-progress-linear :model-value="progressPercent" color="primary" height="8" rounded />
-      <div class="text-caption text-medium-emphasis mt-2">Beat: {{ session.step }} / {{ session.maxSteps }}</div>
-      <v-alert class="mt-3" color="primary" icon="mdi-music-clef-treble" rounded="xl" variant="tonal">
+      <v-progress-linear :model-value="progressPercent" color="primary" height="0.5rem" rounded />
+      <div class="text-caption text-medium-emphasis mt-2">Музыкальные зоны: {{ session.step }} / {{ session.maxSteps }}</div>
+      <v-alert class="conductor-feedback mt-3" color="primary" icon="mdi-music-clef-treble" rounded="xl" variant="tonal">
         {{ feedbackMessage }}
       </v-alert>
     </v-card>
@@ -563,8 +563,8 @@ onUnmounted(() => {
 <style scoped>
 .orchestra-conductor-shell {
   background: #f7f2ff;
-  block-size: 100vh;
-  inline-size: 100vw;
+  block-size: 100dvh;
+  inline-size: 100dvw;
   overflow: hidden;
   position: relative;
 }
@@ -576,21 +576,32 @@ onUnmounted(() => {
 }
 
 .conductor-guidance {
-  box-shadow: 0 18px 48px rgb(92 78 138 / 14%);
-  inline-size: min(500px, calc(100vw - 32px));
-  inset-block-start: clamp(104px, 14vh, 148px);
-  inset-inline-end: max(16px, env(safe-area-inset-right));
+  box-shadow: 0 1.125rem 3rem rgb(92 78 138 / 14%);
+  inline-size: min(31.25rem, calc(100dvw - 2rem));
+  inset-block-start: clamp(6.5rem, 14vh, 9.25rem);
+  inset-inline-end: max(1rem, env(safe-area-inset-right));
   opacity: 0.94;
   position: absolute;
   z-index: 4;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 45rem) {
   .conductor-guidance {
     inset-block-start: auto;
-    inset-block-end: max(16px, env(safe-area-inset-bottom));
-    inset-inline: 16px;
+    inset-block-end: max(1rem, env(safe-area-inset-bottom));
+    inset-inline: 1rem;
     inline-size: auto;
+  }
+}
+
+@media (max-height: 42.5rem) {
+  .conductor-guidance {
+    inline-size: min(27rem, calc(100dvw - 2rem));
+    inset-block-start: max(4rem, calc(env(safe-area-inset-top) + 3.25rem));
+  }
+
+  .conductor-feedback {
+    display: none;
   }
 }
 </style>

@@ -2271,7 +2271,7 @@ export const games: GameInfo[] = [
   {
     id: "maze-path",
     title: "Лабиринт-дорожка",
-    description: "Веди мягкий свет по широкой дорожке к финишу без сбросов и резких ошибок.",
+    description: "Веди мягкий свет по широкой дорожке к финишу в спокойном темпе.",
     selfDescription: "Веди свет по дорожке.",
     route: "/games/maze-path",
     category: "continuous-control",
@@ -2301,7 +2301,7 @@ export const games: GameInfo[] = [
   {
     id: "space-orbit",
     title: "Космическая орбита",
-    description: "Веди ракету взглядом по мягкой орбите и спокойно собирай звёзды без взрывов и штрафов.",
+    description: "Веди ракету взглядом по мягкой орбите и спокойно собирай светлые звёзды.",
     selfDescription: "Собери звёзды на орбите.",
     route: "/games/space-orbit",
     category: "continuous-control",
@@ -2316,7 +2316,7 @@ export const games: GameInfo[] = [
   {
     id: "orchestra-conductor",
     title: "Оркестр-дирижёр",
-    description: "Веди дирижёрскую палочку взглядом по широкой дуге: крупные beat-зоны мягко добавляют оркестр без ошибок и наказаний.",
+    description: "Веди дирижёрскую палочку взглядом по широкой дуге: крупные музыкальные зоны мягко добавляют оркестр.",
     selfDescription: "Проведи палочку по дуге.",
     route: "/games/orchestra-conductor",
     category: "continuous-control",

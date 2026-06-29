@@ -36,8 +36,9 @@ let ctx: CanvasRenderingContext2D | undefined;
 let frame = 0;
 let lastTime = performance.now();
 let lastHintAt = 0;
-let finishAfter = 0;
+let finishDelayRemainingMs = 0;
 let tracking = false;
+let gameTimeMs = 0;
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
@@ -53,8 +54,8 @@ function resizeCanvas() {
   const ratio = window.devicePixelRatio || 1;
   canvas.width = Math.round(window.innerWidth * ratio);
   canvas.height = Math.round(window.innerHeight * ratio);
-  canvas.style.width = `${window.innerWidth}px`;
-  canvas.style.height = `${window.innerHeight}px`;
+  canvas.style.width = "100dvw";
+  canvas.style.height = "100dvh";
   ctx = canvas.getContext("2d") ?? undefined;
   ctx?.setTransform(ratio, 0, 0, ratio, 0, 0);
 }
@@ -203,13 +204,18 @@ function updateCheckpoints(now: number) {
     recordSuccess({ targetId, checkpoint, pathProgress: progress.value });
   }
 
-  if (session.step >= session.maxSteps && progress.value >= 0.995 && finishAfter === 0) finishAfter = now + 650;
-  if (finishAfter > 0 && now >= finishAfter) finishSession("game-complete");
+  if (session.step >= session.maxSteps && progress.value >= 0.995 && finishDelayRemainingMs === 0) finishDelayRemainingMs = 650;
 }
 
 function update(delta: number, now: number) {
-  light.pulse += delta;
+  if (!session.settings.reduceMotion) gameTimeMs += delta * 1000;
+  light.pulse += session.settings.reduceMotion ? 0 : delta;
   visualProgress.value += (progress.value - visualProgress.value) * Math.min(1, delta * 5.5);
+
+  if (finishDelayRemainingMs > 0) {
+    finishDelayRemainingMs = Math.max(0, finishDelayRemainingMs - delta * 1000);
+    if (finishDelayRemainingMs === 0) finishSession("game-complete");
+  }
 
   if (session.status !== "running") return;
 
@@ -252,7 +258,8 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
   context.globalAlpha = 0.34;
   for (let index = 0; index < 5; index++) {
     const x = window.innerWidth * (0.12 + index * 0.22);
-    const y = window.innerHeight * (0.22 + Math.sin(now * 0.00012 + index) * 0.025 + (index % 2) * 0.18);
+    const visualNow = session.settings.reduceMotion ? 0 : now;
+    const y = window.innerHeight * (0.22 + Math.sin(visualNow * 0.00012 + index) * 0.025 + (index % 2) * 0.18);
     const glow = context.createRadialGradient(x, y, 0, x, y, Math.max(window.innerWidth, window.innerHeight) * 0.28);
     glow.addColorStop(0, index % 2 === 0 ? "rgb(255 255 255 / 62%)" : "rgb(207 231 244 / 48%)");
     glow.addColorStop(1, "rgb(255 255 255 / 0%)");
@@ -362,9 +369,9 @@ function drawCheckpoints(context: CanvasRenderingContext2D, points: Point[]) {
 function drawLight(context: CanvasRenderingContext2D, points: Point[]) {
   const laneWidth = pathWidth();
   const point = pointAtPathProgress(points, visualProgress.value);
-  const pulse = Math.sin(light.pulse * 3.2) * 0.08;
+  const pulse = session.settings.reduceMotion ? 0 : Math.sin(light.pulse * 3.2) * 0.08;
   const radius = laneWidth * (0.24 + pulse + light.confidence * 0.05);
-  const hintRadius = laneWidth * (0.74 + Math.sin(light.pulse * 2.1) * 0.04);
+  const hintRadius = laneWidth * (0.74 + (session.settings.reduceMotion ? 0 : Math.sin(light.pulse * 2.1) * 0.04));
 
   context.save();
   if (light.hint > 0.05) {
@@ -411,7 +418,7 @@ function drawLabels(context: CanvasRenderingContext2D, points: Point[]) {
 
 function draw(context: CanvasRenderingContext2D, now: number) {
   const points = pathPoints();
-  drawBackground(context, now);
+  drawBackground(context, gameTimeMs);
   drawPath(context, points);
   drawCheckpoints(context, points);
   drawLight(context, points);
@@ -432,7 +439,8 @@ function resetPath() {
   light.confidence = 0;
   light.hint = 0;
   lastHintAt = 0;
-  finishAfter = 0;
+  finishDelayRemainingMs = 0;
+  gameTimeMs = 0;
   tracking = false;
 }
 
@@ -465,7 +473,7 @@ onUnmounted(() => {
     <v-card class="maze-path-guidance pa-4" color="surface" rounded="xl" variant="flat">
       <div class="text-overline text-primary mb-1">Плавное ведение</div>
       <div class="text-body-1 font-weight-medium">{{ guidanceText }}</div>
-      <v-progress-linear class="mt-3" :model-value="progressPercent" color="primary" height="8" rounded />
+      <v-progress-linear class="mt-3" :model-value="progressPercent" color="primary" height="0.5rem" rounded />
       <div class="text-caption text-medium-emphasis mt-2">Прогресс: {{ progressPercent }}%</div>
     </v-card>
 
@@ -476,8 +484,8 @@ onUnmounted(() => {
 <style scoped>
 .maze-path-shell {
   background: #f1fbff;
-  block-size: 100vh;
-  inline-size: 100vw;
+  block-size: 100dvh;
+  inline-size: 100dvw;
   overflow: hidden;
   position: relative;
 }
@@ -489,20 +497,20 @@ onUnmounted(() => {
 }
 
 .maze-path-guidance {
-  box-shadow: 0 16px 44px rgb(75 117 143 / 14%);
-  inline-size: min(420px, calc(100vw - 32px));
-  inset-block-start: clamp(104px, 14vh, 148px);
-  inset-inline-end: max(16px, env(safe-area-inset-right));
+  box-shadow: 0 1rem 2.75rem rgb(75 117 143 / 14%);
+  inline-size: min(26.25rem, calc(100dvw - 2rem));
+  inset-block-start: clamp(6.5rem, 14vh, 9.25rem);
+  inset-inline-end: max(1rem, env(safe-area-inset-right));
   opacity: 0.9;
   position: absolute;
   z-index: 4;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 45rem) {
   .maze-path-guidance {
     inset-block-start: auto;
-    inset-block-end: max(16px, env(safe-area-inset-bottom));
-    inset-inline: 16px;
+    inset-block-end: max(1rem, env(safe-area-inset-bottom));
+    inset-inline: 1rem;
     inline-size: auto;
   }
 }

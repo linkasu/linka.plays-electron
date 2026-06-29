@@ -59,6 +59,7 @@ const flowerLayout = [
 ];
 let dropTimer = 0;
 let finishAfter = 0;
+let finishDelayRemainingMs = 0;
 
 function randomRange(min: number, max: number) {
   return min + Math.random() * (max - min);
@@ -112,6 +113,7 @@ function createFlowers() {
   flowers.splice(0);
   drops.splice(0);
   finishAfter = 0;
+  finishDelayRemainingMs = 0;
 
   for (let index = 0; index < session.maxSteps; index += 1) {
     const layout = flowerLayout[index % flowerLayout.length];
@@ -179,6 +181,7 @@ function completeFlower(flower: GardenFlower, now: number) {
 
   if (flowers.every((candidate) => candidate.completed) && finishAfter === 0) {
     finishAfter = now + 1800;
+    finishDelayRemainingMs = 1800;
   }
 }
 
@@ -206,10 +209,14 @@ function updateFlowers(delta: number, now: number) {
     if (!wasCompleted && flower.completed) completeFlower(flower, now);
   }
 
-  if (finishAfter > 0 && now >= finishAfter) finishSession("max-steps");
+  if (finishDelayRemainingMs > 0) {
+    finishDelayRemainingMs = Math.max(0, finishDelayRemainingMs - delta * 1000);
+    if (finishDelayRemainingMs === 0) finishSession("max-steps");
+  }
 }
 
 function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
+  const visualNow = session.settings.reduceMotion ? 0 : now;
   const sky = ctx.createLinearGradient(0, 0, 0, height.value * 0.72);
   sky.addColorStop(0, "#cdeeff");
   sky.addColorStop(0.58, "#ecf8ff");
@@ -220,7 +227,7 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   ctx.save();
   ctx.globalAlpha = 0.36;
   for (let index = 0; index < 4; index += 1) {
-    const cloudX = (width.value * (0.18 + index * 0.22) + Math.sin(now * 0.00008 + index) * 34) % (width.value + 180);
+    const cloudX = (width.value * (0.18 + index * 0.22) + Math.sin(visualNow * 0.00008 + index) * 34) % (width.value + 180);
     const cloudY = height.value * (0.14 + index % 2 * 0.09);
     ctx.fillStyle = "#ffffff";
     ctx.beginPath();
@@ -292,7 +299,7 @@ function drawFlower(ctx: CanvasRenderingContext2D, flower: GardenFlower) {
     ctx.save();
     ctx.translate(base.x + side * flower.radius * 0.04, base.y + flower.radius * (0.42 - flower.growth * 0.24));
     ctx.scale(side, 1);
-    ctx.rotate(-0.48 + Math.sin(flower.age * 1.2) * 0.04);
+    ctx.rotate(-0.48 + (session.settings.reduceMotion ? 0 : Math.sin(flower.age * 1.2) * 0.04));
     ctx.beginPath();
     ctx.moveTo(0, 0);
     ctx.quadraticCurveTo(flower.radius * 0.3, -flower.radius * 0.16, flower.radius * (0.5 + flower.growth * 0.14), 0);
@@ -315,7 +322,7 @@ function drawFlower(ctx: CanvasRenderingContext2D, flower: GardenFlower) {
   const petalDistance = flower.radius * (0.08 + bloom * 0.28 + pulse * 0.035);
   const petalRadius = flower.radius * (0.16 + bloom * 0.19 + pulse * 0.03);
   for (let index = 0; index < flower.petals; index += 1) {
-    const angle = index / flower.petals * Math.PI * 2 + Math.sin(flower.age * 0.45) * 0.025;
+    const angle = index / flower.petals * Math.PI * 2 + (session.settings.reduceMotion ? 0 : Math.sin(flower.age * 0.45) * 0.025);
     ctx.save();
     ctx.rotate(angle);
     const gradient = ctx.createRadialGradient(0, -petalDistance, 1, 0, -petalDistance, petalRadius * 1.45);
@@ -352,39 +359,40 @@ function drawDrop(ctx: CanvasRenderingContext2D, drop: WaterDrop) {
 function drawWateringCan(ctx: CanvasRenderingContext2D) {
   const x = wateringCan.x;
   const y = wateringCan.y;
+  const scale = Math.min(1, Math.max(0.72, Math.min(width.value, height.value) / 600));
   ctx.save();
   ctx.globalAlpha = pointer.value.valid ? 0.9 : 0.45;
 
   ctx.strokeStyle = "#4d8f9a";
-  ctx.lineWidth = 13;
+  ctx.lineWidth = 13 * scale;
   ctx.lineCap = "round";
   ctx.beginPath();
-  ctx.moveTo(x - 70, y - 32);
-  ctx.quadraticCurveTo(x - 34, y - 28, x - 4, y - 2);
+  ctx.moveTo(x - 70 * scale, y - 32 * scale);
+  ctx.quadraticCurveTo(x - 34 * scale, y - 28 * scale, x - 4 * scale, y - 2 * scale);
   ctx.stroke();
 
-  const body = ctx.createLinearGradient(x - 118, y - 78, x - 36, y - 4);
+  const body = ctx.createLinearGradient(x - 118 * scale, y - 78 * scale, x - 36 * scale, y - 4 * scale);
   body.addColorStop(0, "#b7d8d0");
   body.addColorStop(1, "#76adab");
   ctx.fillStyle = body;
   ctx.beginPath();
-  ctx.ellipse(x - 92, y - 42, 42, 31, -0.12, 0, Math.PI * 2);
+  ctx.ellipse(x - 92 * scale, y - 42 * scale, 42 * scale, 31 * scale, -0.12, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.strokeStyle = "#5f9b99";
-  ctx.lineWidth = 8;
+  ctx.lineWidth = 8 * scale;
   ctx.beginPath();
-  ctx.arc(x - 126, y - 42, 24, Math.PI * 0.62, Math.PI * 1.38);
+  ctx.arc(x - 126 * scale, y - 42 * scale, 24 * scale, Math.PI * 0.62, Math.PI * 1.38);
   ctx.stroke();
 
   ctx.fillStyle = "#d8ece7";
   ctx.beginPath();
-  ctx.ellipse(x - 92, y - 72, 24, 8, 0, 0, Math.PI * 2);
+  ctx.ellipse(x - 92 * scale, y - 72 * scale, 24 * scale, 8 * scale, 0, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = "rgb(255 255 255 / 42%)";
   ctx.beginPath();
-  ctx.ellipse(x - 102, y - 52, 12, 7, -0.4, 0, Math.PI * 2);
+  ctx.ellipse(x - 102 * scale, y - 52 * scale, 12 * scale, 7 * scale, -0.4, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 }
@@ -451,8 +459,8 @@ useGameLoop({ context, update, draw });
 <style scoped>
 .garden-watering-shell {
   background: #cdeeff;
-  block-size: 100vh;
-  inline-size: 100vw;
+  block-size: 100dvh;
+  inline-size: 100dvw;
   overflow: hidden;
   position: relative;
 }
