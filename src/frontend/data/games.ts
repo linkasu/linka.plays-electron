@@ -1971,7 +1971,7 @@ export const games: GameInfo[] = [
   {
     id: "arkanoid-assist",
     title: "Арканоид assist",
-    description: "Выбирай сектор мягкого удара по блоку: третий промах теряет мяч и завершает партию.",
+    description: "Выбирай сектор мягкого удара по блоку: после трёх сложных выборов раунд спокойно завершается.",
     selfDescription: "Выбери сектор удара.",
     route: "/games/arkanoid-assist",
     category: "strategy",
@@ -1986,7 +1986,7 @@ export const games: GameInfo[] = [
   {
     id: "step-pong",
     title: "Понг пошаговый",
-    description: "Выбирай позицию ракетки перед мягким ударом: третий промах пропускает мяч и завершает партию.",
+    description: "Выбирай позицию ракетки перед мягким ударом: после трёх сложных выборов раунд спокойно завершается.",
     selfDescription: "Поставь ракетку.",
     route: "/games/step-pong",
     category: "strategy",
@@ -2001,7 +2001,7 @@ export const games: GameInfo[] = [
   {
     id: "calm-snake",
     title: "Змейка спокойная",
-    description: "Веди медленную змейку по мягкой сетке: край или столкновение завершают партию.",
+    description: "Веди медленную змейку по мягкой сетке: если рядом край или хвостик, змейка замедляется и ищет свободный путь.",
     selfDescription: "Помоги змейке найти листочки.",
     route: "/games/calm-snake",
     category: "strategy",
@@ -2016,7 +2016,7 @@ export const games: GameInfo[] = [
   {
     id: "pac-path",
     title: "Pac-path",
-    description: "Выбирай следующий безопасный waypoint на лабиринтной дорожке: третий detour завершает партию.",
+    description: "Выбирай следующую безопасную точку на лабиринтной дорожке: третий обход завершает раунд.",
     selfDescription: "Выбери безопасную крошку.",
     route: "/games/pac-path",
     category: "strategy",

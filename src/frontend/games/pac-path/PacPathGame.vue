@@ -1,24 +1,31 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { createPacPathRound, isPacPathSafeChoice, pacPathChoiceOutcome, pacPathMaxSteps, pacPathWaypoints, type PacPathChoice, type PacPathWaypoint } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("pac-path", {
   maxSteps: pacPathMaxSteps,
-  overrides: { targetScale: 1.35, sound: false },
+  overrides: { targetScale: 1.35, sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "pac-path", soundEnabled, warmAssetIds: ["pac-path.prompt", "pac-path.correct", "pac-path.mistake", "pac-path.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
-const feedbackText = ref("Выбери следующий безопасный waypoint на светлой дорожке. Три detour завершают партию.");
+const feedbackText = ref("Выбери следующую безопасную точку на светлой дорожке. Три обхода завершают раунд.");
 const hintedChoiceId = ref<string>();
 const wrongChoiceId = ref<string>();
 const pendingChoice = ref(false);
+const isSpeaking = ref(false);
 let feedbackTimer = 0;
 
 const round = computed(() => createPacPathRound(session.step));
@@ -53,7 +60,7 @@ function isCompleted(waypoint: PacPathWaypoint) {
 function choiceColor(choice: PacPathChoice) {
   if (choice.id === hintedChoiceId.value) return "yellow-lighten-4";
   if (choice.id === wrongChoiceId.value) return "blue-grey-lighten-4";
-  return choice.safe ? "amber-lighten-4" : "surface";
+  return "surface";
 }
 
 function resetChoiceState() {
@@ -63,8 +70,8 @@ function resetChoiceState() {
   pendingChoice.value = false;
 }
 
-function chooseWaypoint(choice: PacPathChoice) {
-  if (session.status !== "running" || pendingChoice.value) return;
+async function chooseWaypoint(choice: PacPathChoice) {
+  if (session.status !== "running" || pendingChoice.value || isSpeaking.value) return;
 
   const currentRound = round.value;
   const selectedTargetId = choiceTargetId(choice);
@@ -75,8 +82,8 @@ function chooseWaypoint(choice: PacPathChoice) {
     pendingChoice.value = true;
     hintedChoiceId.value = undefined;
     feedbackText.value = session.step + 1 >= session.maxSteps
-      ? "Pac-path готов: все safe-waypoint выбраны спокойно."
-      : `Верно: ${choice.label.toLowerCase()}. Теперь ищем следующий безопасный waypoint.`;
+      ? "Путь готов: все безопасные точки выбраны спокойно."
+      : `Верно. ${choice.label.toLowerCase()} подходит для дорожки.`;
     recordSuccess({
       roundId: currentRound.roundId,
       targetId: selectedTargetId,
@@ -85,23 +92,35 @@ function chooseWaypoint(choice: PacPathChoice) {
       waypointOrder: choice.order,
       isCorrect: true
     });
+    const willFinish = session.step >= session.maxSteps;
+    isSpeaking.value = true;
+    void feedbackAudio.playSuccess();
+    await promptAudio.playSequenceAndWait(willFinish ? ["pac-path.correct", "pac-path.complete"] : ["pac-path.correct"], 80, 170);
+
+    if (willFinish) {
+      finishSession("game-complete");
+      isSpeaking.value = false;
+      return;
+    }
 
     if (session.status === "running") {
       feedbackTimer = window.setTimeout(() => {
         resetChoiceState();
-        feedbackText.value = `Следующий безопасный waypoint: ${round.value.expected.label.toLowerCase()}.`;
-      }, 700);
+        feedbackText.value = "Выбери следующую безопасную точку на светлой дорожке.";
+      }, 350);
     }
+    isSpeaking.value = false;
     return;
   }
 
   const outcome = pacPathChoiceOutcome(choice, currentRound, session.mistakes + 1);
   pendingChoice.value = true;
+  isSpeaking.value = true;
   wrongChoiceId.value = choice.id;
-  hintedChoiceId.value = currentRound.expected.id;
+  hintedChoiceId.value = undefined;
   feedbackText.value = outcome === "loss"
-    ? `${choice.label} оказался третьим detour. Партия завершена.`
-    : `${choice.label} — detour. Сейчас безопаснее ${currentRound.expected.label.toLowerCase()}. Попробуй ещё раз.`;
+    ? `${choice.label} оказался третьим обходом. Раунд завершён, можно начать заново.`
+    : `${choice.label} сейчас не ведёт дальше. Попробуй другую точку.`;
   recordMistake({
     roundId: currentRound.roundId,
     targetId: selectedTargetId,
@@ -119,24 +138,38 @@ function chooseWaypoint(choice: PacPathChoice) {
     expectedWaypointId: currentRound.expected.id
   });
 
+  void feedbackAudio.playMistake();
+  await promptAudio.playSequenceAndWait(outcome === "loss" ? ["pac-path.mistake", "pac-path.complete"] : ["pac-path.mistake"], 80, 170);
+
   if (outcome === "loss") {
     finishSession("game-lost");
+    isSpeaking.value = false;
     return;
   }
 
   feedbackTimer = window.setTimeout(() => {
     pendingChoice.value = false;
     wrongChoiceId.value = undefined;
-  }, 1100);
+  }, 500);
+  isSpeaking.value = false;
 }
 
 function restart() {
+  promptAudio.cancelPending();
   resetChoiceState();
-  feedbackText.value = "Выбери следующий безопасный waypoint на светлой дорожке. Три detour завершают партию.";
+  isSpeaking.value = false;
+  feedbackText.value = "Выбери следующую безопасную точку на светлой дорожке. Три обхода завершают раунд.";
   startSession();
+  promptAudio.play("pac-path.prompt", 220);
 }
 
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("pac-path.prompt", 420);
+});
+
 onUnmounted(() => {
+  promptAudio.cancelPending();
   clearFeedbackTimer();
 });
 </script>
@@ -149,10 +182,10 @@ onUnmounted(() => {
       <v-row justify="center">
         <v-col cols="12" xl="10">
           <v-card class="pac-path-panel pa-4 pa-md-6" color="surface" rounded="xl" elevation="8">
-            <div class="text-overline text-primary text-center mb-2">Strategy · choice sequence · visual-search</div>
+            <div class="text-overline text-primary text-center mb-2">Strategy · choice sequence · visual search</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">Pac-path</h1>
             <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5">
-              Выбирай следующий безопасный waypoint на лабиринтной дорожке. Detour тратит попытку, третий detour завершает партию.
+              Выбирай следующую безопасную точку на лабиринтной дорожке. Обход тратит попытку, третий обход завершает раунд.
             </p>
 
             <v-alert class="mb-5 text-h6" :color="hintedChoiceId ? 'warning' : 'secondary'" :icon="hintedChoiceId ? 'mdi-lightbulb-on-outline' : 'mdi-pac-man'" rounded="xl" variant="tonal">
@@ -175,7 +208,7 @@ onUnmounted(() => {
                 v-for="waypoint in pacPathWaypoints.slice(1)"
                 :key="`dot-${waypoint.id}`"
                 class="pac-path-dot"
-                :class="{ 'pac-path-dot--done': isCompleted(waypoint), 'pac-path-dot--next': waypoint.id === round.expected.id }"
+                :class="{ 'pac-path-dot--done': isCompleted(waypoint), 'pac-path-dot--next': waypoint.id === hintedChoiceId }"
                 :style="waypointStyle(waypoint)"
                 aria-hidden="true"
               >
@@ -187,15 +220,14 @@ onUnmounted(() => {
                 :key="choice.id"
                 class="pac-path-choice"
                 :class="{
-                  'pac-path-choice--safe': choice.safe,
                   'pac-path-choice--hint': choice.id === hintedChoiceId,
                   'pac-path-choice--wrong': choice.id === wrongChoiceId
                 }"
                 :style="waypointStyle(choice)"
                 :target-id="choiceTargetId(choice)"
-                :disabled="session.status !== 'running' || pendingChoice"
+                :disabled="session.status !== 'running' || pendingChoice || isSpeaking"
                 :dwell-ms="session.settings.dwellMs"
-                :min-height="118"
+                min-height="7.375rem"
                 :color="choiceColor(choice)"
                 @select="chooseWaypoint(choice)"
               >
@@ -223,8 +255,8 @@ onUnmounted(() => {
               </v-col>
               <v-col cols="12" md="4">
                 <div class="text-caption text-medium-emphasis mb-2">Прогресс Pac-path</div>
-                <v-progress-linear :model-value="progressPercent" color="primary" height="14" rounded />
-                <div class="text-body-2 text-medium-emphasis mt-2">{{ progressPercent }}% · сейчас: {{ round.expected.label }}</div>
+                <v-progress-linear :model-value="progressPercent" color="primary" height="0.875rem" rounded />
+                <div class="text-body-2 text-medium-emphasis mt-2">{{ progressPercent }}% · ищем следующую точку</div>
               </v-col>
             </v-row>
           </v-card>
@@ -256,9 +288,9 @@ onUnmounted(() => {
   background: linear-gradient(145deg, #1f2b4a 0%, #263a63 54%, #193653 100%);
   border: 0.75rem solid rgb(255 255 255 / 78%);
   border-radius: 2rem;
+  block-size: clamp(24rem, 52vh, 31rem);
   box-shadow: inset 0 0 0 0.125rem rgb(255 255 255 / 14%), 0 1.5rem 4rem rgb(31 43 74 / 22%);
   inline-size: min(100%, 70rem);
-  min-block-size: 30rem;
   overflow: hidden;
   position: relative;
 }
@@ -345,10 +377,6 @@ onUnmounted(() => {
   box-shadow: 0 1rem 2.4rem rgb(4 12 28 / 28%);
 }
 
-.pac-path-choice--safe :deep(.dwell-button) {
-  border-color: rgb(255 224 130 / 92%);
-}
-
 .pac-path-choice--hint {
   filter: drop-shadow(0 0 1.45rem rgb(255 224 130 / 82%));
 }
@@ -381,14 +409,14 @@ onUnmounted(() => {
   margin-block-start: 0.25rem;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 45rem) {
   .pac-path-container {
     padding-block-start: 7rem;
   }
 
   .pac-path-stage {
     aspect-ratio: 5 / 8;
-    min-block-size: 40rem;
+    block-size: 40rem;
   }
 
   .pac-path-start,
@@ -407,13 +435,13 @@ onUnmounted(() => {
   }
 }
 
-@media (min-width: 721px) and (max-width: 900px), (max-height: 700px) {
+@media (min-width: 45.0625rem) and (max-width: 56.25rem), (max-height: 43.75rem) {
   .pac-path-container {
     padding-block-start: 7rem;
   }
 
   .pac-path-stage {
-    min-block-size: auto;
+    block-size: clamp(24rem, 58vh, 30rem);
   }
 
   .pac-path-choice {
@@ -421,7 +449,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-height: 680px) {
+@media (max-height: 42.5rem) {
   .pac-path-container {
     padding-block-start: 4.75rem;
   }
@@ -440,7 +468,7 @@ onUnmounted(() => {
 
   .pac-path-stage {
     aspect-ratio: 16 / 9;
-    min-block-size: 24rem;
+    block-size: 24rem;
   }
 
   .pac-path-choice {

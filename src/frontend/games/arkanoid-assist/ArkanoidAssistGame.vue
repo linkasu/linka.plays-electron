@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { arkanoidAssistChoiceOutcome } from "./model";
 
@@ -66,9 +68,13 @@ const targetSequence = blockRows.flat();
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("arkanoid-assist", {
   maxSteps: 10,
-  overrides: { targetScale: 1.25, motionSpeed: 0.6 },
+  overrides: { targetScale: 1.25, motionSpeed: 0.6, sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "arkanoid-assist", soundEnabled, warmAssetIds: ["arkanoid-assist.prompt", "arkanoid-assist.correct", "arkanoid-assist.mistake", "arkanoid-assist.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const clearedBlockIds = ref(new Set<string>());
 const selectedSectorId = ref<PlatformSectorId>("center");
@@ -76,6 +82,7 @@ const lastMistakeSectorId = ref<PlatformSectorId>();
 const lastHitBlockId = ref<string>();
 const hintStrength = ref(0);
 const feedbackMessage = ref("Посмотри на подсвеченный блок и выбери сектор платформы для мягкого удара.");
+const isSpeaking = ref(false);
 
 function generateRound(roundIndex: number): ArkanoidRound {
   const targetBlock = targetSequence[(roundIndex - 1) % targetSequence.length];
@@ -120,8 +127,8 @@ function blockClasses(block: ArkanoidBlock) {
   };
 }
 
-function chooseSector(sector: PlatformSector) {
-  if (session.status !== "running") return;
+async function chooseSector(sector: PlatformSector) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   selectedSectorId.value = sector.id;
   const targetId = sectorTargetId(sector);
@@ -132,14 +139,19 @@ function chooseSector(sector: PlatformSector) {
     lastHitBlockId.value = undefined;
     hintStrength.value = Math.min(3, hintStrength.value + 1);
     feedbackMessage.value = outcome === "loss"
-      ? "Третий неверный сектор: мяч потерян, партия проиграна."
+      ? "Третий сложный выбор: мяч остановился. Раунд завершён, можно начать заново."
       : "Мяч мягко вернулся на платформу. Попробуй сектор, который ведёт к подсвеченному блоку.";
     recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, expected: round.value.requiredSector.label, actual: sector.label, outcome, isCorrect: false });
+    isSpeaking.value = true;
+    void feedbackAudio.playMistake();
+    await promptAudio.playSequenceAndWait(outcome === "loss" ? ["arkanoid-assist.mistake", "arkanoid-assist.complete"] : ["arkanoid-assist.mistake"], 80, 170);
     if (outcome === "loss") {
       finishSession("game-lost");
+      isSpeaking.value = false;
       return;
     }
     recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "arkanoid-sector", strength: hintStrength.value });
+    isSpeaking.value = false;
     return;
   }
 
@@ -147,9 +159,19 @@ function chooseSector(sector: PlatformSector) {
   lastMistakeSectorId.value = undefined;
   lastHitBlockId.value = round.value.targetBlock.id;
   hintStrength.value = 0;
-  feedbackMessage.value = `Отлично. ${sector.hint} спокойно коснулся блока.`;
+  feedbackMessage.value = `Верно. ${sector.hint} спокойно коснулся блока.`;
   recordSuccess({ roundId: round.value.roundId, targetId, answerId: sector.id, blockId: round.value.targetBlock.id, expected: round.value.requiredSector.label, actual: sector.label, isCorrect: true });
+  const willFinish = session.step >= session.maxSteps;
+  isSpeaking.value = true;
+  void feedbackAudio.playSuccess();
+  await promptAudio.playSequenceAndWait(willFinish ? ["arkanoid-assist.correct", "arkanoid-assist.complete"] : ["arkanoid-assist.correct"], 80, 170);
+  if (willFinish) {
+    finishSession("game-complete");
+    isSpeaking.value = false;
+    return;
+  }
   if (session.status === "running") nextRound();
+  isSpeaking.value = false;
 }
 
 function sectorColor(sector: PlatformSector) {
@@ -159,14 +181,26 @@ function sectorColor(sector: PlatformSector) {
 }
 
 function restart() {
+  promptAudio.cancelPending();
   clearedBlockIds.value = new Set();
   selectedSectorId.value = "center";
   lastMistakeSectorId.value = undefined;
   lastHitBlockId.value = undefined;
   hintStrength.value = 0;
+  isSpeaking.value = false;
   feedbackMessage.value = "Посмотри на подсвеченный блок и выбери сектор платформы для мягкого удара.";
   restartRoundGame();
+  promptAudio.play("arkanoid-assist.prompt", 220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("arkanoid-assist.prompt", 420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -226,9 +260,9 @@ function restart() {
                       v-for="sector in sectors"
                       :key="sector.id"
                       :target-id="sectorTargetId(sector)"
-                      :disabled="session.status !== 'running'"
+                      :disabled="session.status !== 'running' || isSpeaking"
                       :dwell-ms="session.settings.dwellMs"
-                      :min-height="136"
+                      min-height="8.5rem"
                       :color="sectorColor(sector)"
                       @select="chooseSector(sector)"
                     >
@@ -243,7 +277,7 @@ function restart() {
                   </div>
 
                   <v-alert class="game-note mt-4 text-body-1" color="info" icon="mdi-hand-heart-outline" rounded="xl" variant="tonal">
-                    Если сектор не подошёл, это промах. Третий промах теряет мяч и завершает партию.
+                    Если сектор не подошёл, это промах. После трёх сложных выборов раунд спокойно завершается.
                   </v-alert>
                 </v-card>
               </v-col>
@@ -399,13 +433,13 @@ function restart() {
   filter: drop-shadow(0 0 0.8rem rgb(var(--v-theme-primary) / 24%));
 }
 
-@media (max-width: 960px) {
+@media (max-width: 60rem) {
   .game-container {
     padding-block-start: 9.5rem;
   }
 }
 
-@media (min-width: 700px) and (max-height: 920px) {
+@media (min-width: 43.75rem) and (max-height: 57.5rem) {
   .game-container {
     padding-block-start: 7.25rem;
   }
@@ -423,6 +457,11 @@ function restart() {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .sector-grid :deep(.dwell-button) {
+    min-block-size: 6.5rem !important;
+    padding: 0.75rem !important;
+  }
+
   .sector-grid > :last-child {
     grid-column: 1 / -1;
   }
@@ -437,7 +476,7 @@ function restart() {
 
   .sector-choice {
     color: #1f2a27;
-    min-block-size: 8.5rem;
+    min-block-size: 5.75rem;
   }
 
   .sector-choice :deep(.v-icon) {
@@ -461,7 +500,7 @@ function restart() {
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 37.5rem) {
   .game-container {
     padding-block-start: 11rem;
   }

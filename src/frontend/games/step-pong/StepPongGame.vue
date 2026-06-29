@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { stepPongChoiceOutcome } from "./model";
 
@@ -38,15 +40,20 @@ const returnSequence: PaddleLaneId[] = ["top", "middle", "middle", "bottom", "to
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("step-pong", {
   maxSteps: 10,
-  overrides: { targetScale: 1.2, motionSpeed: 0.55 },
+  overrides: { targetScale: 1.2, motionSpeed: 0.55, sound: true },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({ gameId: "step-pong", soundEnabled, warmAssetIds: ["step-pong.prompt", "step-pong.correct", "step-pong.mistake", "step-pong.complete"] });
+const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const selectedLaneId = ref<PaddleLaneId>("middle");
 const lastMistakeLaneId = ref<PaddleLaneId>();
 const lastSuccessLaneId = ref<PaddleLaneId>();
 const hintStrength = ref(0);
 const feedbackText = ref("Посмотри, откуда летит мяч, и выбери позицию ракетки для мягкого удара.");
+const isSpeaking = ref(false);
 
 function laneById(id: PaddleLaneId) {
   return lanes.find((lane) => lane.id === id) ?? lanes[1];
@@ -82,8 +89,8 @@ function laneTargetId(lane: PaddleLane) {
   return `step-pong:lane:${lane.id}`;
 }
 
-function chooseLane(lane: PaddleLane) {
-  if (session.status !== "running") return;
+async function chooseLane(lane: PaddleLane) {
+  if (session.status !== "running" || isSpeaking.value) return;
 
   selectedLaneId.value = lane.id;
   const targetId = laneTargetId(lane);
@@ -95,7 +102,7 @@ function chooseLane(lane: PaddleLane) {
     lastSuccessLaneId.value = undefined;
     hintStrength.value = Math.min(3, hintStrength.value + 1);
     feedbackText.value = outcome === "loss"
-      ? "Третья неверная позиция: мяч пропущен, партия проиграна."
+      ? "Третья сложная позиция: мяч остановился. Раунд завершён, можно начать заново."
       : "Мяч мягко остался в игре. Подсказка показывает, куда поставить ракетку.";
     recordMistake({
       roundId: round.value.roundId,
@@ -106,18 +113,23 @@ function chooseLane(lane: PaddleLane) {
       outcome,
       isCorrect: false
     });
+    isSpeaking.value = true;
+    void feedbackAudio.playMistake();
+    await promptAudio.playSequenceAndWait(outcome === "loss" ? ["step-pong.mistake", "step-pong.complete"] : ["step-pong.mistake"], 80, 170);
     if (outcome === "loss") {
       finishSession("game-lost");
+      isSpeaking.value = false;
       return;
     }
     recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "step-pong-lane", strength: hintStrength.value });
+    isSpeaking.value = false;
     return;
   }
 
   lastMistakeLaneId.value = undefined;
   lastSuccessLaneId.value = lane.id;
   hintStrength.value = 0;
-  feedbackText.value = `Верно: ${lane.hint}. Мяч спокойно отбит к партнёру.`;
+  feedbackText.value = `Верно. ${lane.hint}. Мяч спокойно отбит к партнёру.`;
   recordSuccess({
     roundId: round.value.roundId,
     targetId,
@@ -127,7 +139,17 @@ function chooseLane(lane: PaddleLane) {
     actual: lane.label,
     isCorrect: true
   });
+  const willFinish = session.step >= session.maxSteps;
+  isSpeaking.value = true;
+  void feedbackAudio.playSuccess();
+  await promptAudio.playSequenceAndWait(willFinish ? ["step-pong.correct", "step-pong.complete"] : ["step-pong.correct"], 80, 170);
+  if (willFinish) {
+    finishSession("game-complete");
+    isSpeaking.value = false;
+    return;
+  }
   if (session.status === "running") nextRound();
+  isSpeaking.value = false;
 }
 
 function laneColor(lane: PaddleLane) {
@@ -138,13 +160,25 @@ function laneColor(lane: PaddleLane) {
 }
 
 function restart() {
+  promptAudio.cancelPending();
   selectedLaneId.value = "middle";
   lastMistakeLaneId.value = undefined;
   lastSuccessLaneId.value = undefined;
   hintStrength.value = 0;
+  isSpeaking.value = false;
   feedbackText.value = "Посмотри, откуда летит мяч, и выбери позицию ракетки для мягкого удара.";
   restartRoundGame();
+  promptAudio.play("step-pong.prompt", 220);
 }
+
+onMounted(() => {
+  promptAudio.warm();
+  promptAudio.play("step-pong.prompt", 420);
+});
+
+onUnmounted(() => {
+  promptAudio.cancelPending();
+});
 </script>
 
 <template>
@@ -195,9 +229,9 @@ function restart() {
                       v-for="lane in lanes"
                       :key="lane.id"
                       :target-id="laneTargetId(lane)"
-                      :disabled="session.status !== 'running'"
+                      :disabled="session.status !== 'running' || isSpeaking"
                       :dwell-ms="session.settings.dwellMs"
-                      :min-height="136"
+                      min-height="8.5rem"
                       :color="laneColor(lane)"
                       @select="chooseLane(lane)"
                     >
@@ -212,7 +246,7 @@ function restart() {
                   </div>
 
                   <v-alert class="game-note mt-4 text-body-1" color="info" icon="mdi-hand-heart-outline" rounded="xl" variant="tonal">
-                    Если позиция не подошла, это промах. Третий промах пропускает мяч и завершает партию.
+                    Если позиция не подошла, это промах. После трёх сложных выборов раунд спокойно завершается.
                   </v-alert>
                 </v-card>
               </v-col>
@@ -368,13 +402,13 @@ function restart() {
   filter: drop-shadow(0 0 0.8rem rgb(var(--v-theme-primary) / 24%));
 }
 
-@media (max-width: 960px) {
+@media (max-width: 60rem) {
   .game-container {
     padding-block-start: 9.5rem;
   }
 }
 
-@media (min-width: 700px) and (max-height: 920px) {
+@media (min-width: 43.75rem) and (max-height: 57.5rem) {
   .game-container {
     padding-block-start: 7.25rem;
   }
@@ -392,6 +426,11 @@ function restart() {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .lane-grid :deep(.dwell-button) {
+    min-block-size: 6.5rem !important;
+    padding: 0.75rem !important;
+  }
+
   .lane-grid > :last-child {
     grid-column: 1 / -1;
   }
@@ -406,7 +445,7 @@ function restart() {
 
   .lane-choice {
     color: #1f2a27;
-    min-block-size: 8.5rem;
+    min-block-size: 5.75rem;
   }
 
   .lane-choice :deep(.v-icon) {
@@ -430,7 +469,7 @@ function restart() {
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 37.5rem) {
   .game-container {
     padding-block-start: 11rem;
   }

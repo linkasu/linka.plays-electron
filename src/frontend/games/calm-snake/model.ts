@@ -82,7 +82,7 @@ export function pointsEqual(a: SnakePoint, b: SnakePoint) {
 }
 
 export function calmSnakeOutcome(result: CalmSnakeStepResult): CalmSnakeOutcome {
-  return result.event === "blocked-wall" || result.event === "blocked-self" ? "loss" : "playing";
+  return !result.moved && (result.event === "blocked-wall" || result.event === "blocked-self") ? "loss" : "playing";
 }
 
 function applyMove(state: CalmSnakeState, direction: SnakeDirection, event: CalmSnakeStepEvent): CalmSnakeStepResult {

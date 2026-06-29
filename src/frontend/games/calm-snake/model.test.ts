@@ -50,11 +50,12 @@ describe("calm snake model", () => {
     expect(stepSnake(current, "left").state.snake[0]).toEqual({ row: 2, column: 3 });
   });
 
-  it("reports loss when a step reaches a wall", () => {
+  it("uses a gentle fallback when the next step reaches a wall", () => {
     const result = stepSnake(state({ snake: [{ row: 0, column: 4 }, { row: 0, column: 3 }], direction: "right" }));
 
     expect(result.event).toBe("blocked-wall");
-    expect(calmSnakeOutcome(result)).toBe("loss");
+    expect(result.moved).toBe(true);
+    expect(calmSnakeOutcome(result)).toBe("playing");
   });
 
   it("stops safely when no fallback move is available", () => {
@@ -75,6 +76,7 @@ describe("calm snake model", () => {
     expect(result.event).toBe("blocked-wall");
     expect(result.moved).toBe(false);
     expect(result.state.snake).toEqual(current.snake);
+    expect(calmSnakeOutcome(result)).toBe("loss");
   });
 
   it("calculates the next head without mutating input", () => {

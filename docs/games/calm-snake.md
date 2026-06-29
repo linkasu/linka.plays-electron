@@ -19,9 +19,9 @@
 
 ## Назначение
 
-undefined
+Ребёнок выбирает направление для медленной змейки. Если впереди край или хвостик, модель сначала ищет мягкий обход; раунд завершается только когда свободного хода нет.
 
-Самостоятельная формулировка для меню: undefined
+Самостоятельная формулировка для меню: помоги змейке найти листочки.
 
 ## Игровой цикл
 
@@ -57,7 +57,7 @@ undefined
 | Vue-компонент | `CalmSnakeGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
-| Audio module | нет |
+| Audio module | стандартный feedback, TTS через `useGamePromptAudio` |
 | Runtime audit doc | `docs/tests/2026-06-10/calm-snake.md` |
 
 ## Готовность
@@ -67,7 +67,7 @@ undefined
 Автоматические blockers:
 
 - stability:needs-check
-- missing-game-doc
+- игра ожидает ручной review перед публикацией
 
 ## QA checklist
 
@@ -80,4 +80,4 @@ undefined
 
 ## Next step
 
-Принять product decision: оставить как strategy с честным outcome или явно позиционировать как trainer; затем обновить модель, тесты и статус.
+Проверить игру в реальном Electron-окне и после ручного review решить, готова ли она к `publish`.

@@ -19,9 +19,9 @@
 
 ## Назначение
 
-undefined
+Ребёнок выбирает следующую точку на спокойной лабиринтной дорожке. Правильная точка не подсвечивается заранее; после обхода ребёнок получает нейтральный feedback без раскрытия ответа.
 
-Самостоятельная формулировка для меню: undefined
+Самостоятельная формулировка для меню: выбери безопасную точку.
 
 ## Игровой цикл
 
@@ -57,7 +57,7 @@ undefined
 | Vue-компонент | `PacPathGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
-| Audio module | нет |
+| Audio module | стандартный feedback, TTS через `useGamePromptAudio` |
 | Runtime audit doc | `docs/tests/2026-06-10/pac-path.md` |
 
 ## Готовность
@@ -67,7 +67,7 @@ undefined
 Автоматические blockers:
 
 - stability:needs-check
-- missing-game-doc
+- игра ожидает ручной review перед публикацией
 
 ## QA checklist
 
@@ -80,4 +80,4 @@ undefined
 
 ## Next step
 
-Принять product decision: оставить как strategy с честным outcome или явно позиционировать как trainer; затем обновить модель, тесты и статус.
+Проверить игру в реальном Electron-окне и после ручного review решить, готова ли она к `publish`.

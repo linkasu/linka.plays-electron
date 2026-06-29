@@ -7992,5 +7992,117 @@
     "text": "Маршрут завершён.",
     "voice": "jane",
     "path": "/audio/tts/tanks-no-shooting/complete.mp3"
+  },
+  {
+    "id": "arkanoid-assist.prompt",
+    "game": "arkanoid-assist",
+    "text": "Выбери сектор платформы для мягкого удара по подсвеченному блоку.",
+    "voice": "jane",
+    "path": "/audio/tts/arkanoid-assist/prompt.mp3"
+  },
+  {
+    "id": "arkanoid-assist.correct",
+    "game": "arkanoid-assist",
+    "text": "Верный сектор.",
+    "voice": "jane",
+    "path": "/audio/tts/arkanoid-assist/correct.mp3"
+  },
+  {
+    "id": "arkanoid-assist.mistake",
+    "game": "arkanoid-assist",
+    "text": "Мяч вернулся, попробуй другой сектор.",
+    "voice": "jane",
+    "path": "/audio/tts/arkanoid-assist/mistake.mp3"
+  },
+  {
+    "id": "arkanoid-assist.complete",
+    "game": "arkanoid-assist",
+    "text": "Раунд завершён.",
+    "voice": "jane",
+    "path": "/audio/tts/arkanoid-assist/complete.mp3"
+  },
+  {
+    "id": "step-pong.prompt",
+    "game": "step-pong",
+    "text": "Выбери позицию ракетки для спокойного удара.",
+    "voice": "jane",
+    "path": "/audio/tts/step-pong/prompt.mp3"
+  },
+  {
+    "id": "step-pong.correct",
+    "game": "step-pong",
+    "text": "Верная позиция.",
+    "voice": "jane",
+    "path": "/audio/tts/step-pong/correct.mp3"
+  },
+  {
+    "id": "step-pong.mistake",
+    "game": "step-pong",
+    "text": "Мяч остался в игре, попробуй другую позицию.",
+    "voice": "jane",
+    "path": "/audio/tts/step-pong/mistake.mp3"
+  },
+  {
+    "id": "step-pong.complete",
+    "game": "step-pong",
+    "text": "Раунд завершён.",
+    "voice": "jane",
+    "path": "/audio/tts/step-pong/complete.mp3"
+  },
+  {
+    "id": "calm-snake.prompt",
+    "game": "calm-snake",
+    "text": "Выбери направление, змейка движется медленно.",
+    "voice": "jane",
+    "path": "/audio/tts/calm-snake/prompt.mp3"
+  },
+  {
+    "id": "calm-snake.correct",
+    "game": "calm-snake",
+    "text": "Листочек найден.",
+    "voice": "jane",
+    "path": "/audio/tts/calm-snake/correct.mp3"
+  },
+  {
+    "id": "calm-snake.mistake",
+    "game": "calm-snake",
+    "text": "Путь закрыт.",
+    "voice": "jane",
+    "path": "/audio/tts/calm-snake/mistake.mp3"
+  },
+  {
+    "id": "calm-snake.complete",
+    "game": "calm-snake",
+    "text": "Раунд завершён.",
+    "voice": "jane",
+    "path": "/audio/tts/calm-snake/complete.mp3"
+  },
+  {
+    "id": "pac-path.prompt",
+    "game": "pac-path",
+    "text": "Выбери следующую безопасную точку на дорожке.",
+    "voice": "jane",
+    "path": "/audio/tts/pac-path/prompt.mp3"
+  },
+  {
+    "id": "pac-path.correct",
+    "game": "pac-path",
+    "text": "Точка подходит.",
+    "voice": "jane",
+    "path": "/audio/tts/pac-path/correct.mp3"
+  },
+  {
+    "id": "pac-path.mistake",
+    "game": "pac-path",
+    "text": "Попробуй другую точку.",
+    "voice": "jane",
+    "path": "/audio/tts/pac-path/mistake.mp3"
+  },
+  {
+    "id": "pac-path.complete",
+    "game": "pac-path",
+    "text": "Раунд завершён.",
+    "voice": "jane",
+    "path": "/audio/tts/pac-path/complete.mp3"
   }
 ]
