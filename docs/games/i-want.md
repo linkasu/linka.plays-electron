@@ -10,8 +10,8 @@
 | Route | `/games/i-want` |
 | Категория | `language-aac` — Слова и AAC |
 | Status | `therapy-ready` |
-| Resolved stability | `development` |
-| Readiness group | `needs-check` |
+| Resolved stability | `publish` |
+| Readiness group | `ready` |
 | Skills | AAC, выбор, словарь |
 | Recommended session | 120 сек |
 | Min target size | 220 px |
@@ -57,7 +57,7 @@ AAC-игра со свободным выбором: ребёнок выбира
 | Vue-компонент | `IWantGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
-| Audio module | TTS через `useGamePromptAudio` |
+| Audio module | нет |
 | Runtime audit doc | `docs/tests/2026-06-10/i-want.md` |
 
 ## Готовность
@@ -66,7 +66,7 @@ AAC-игра со свободным выбором: ребёнок выбира
 
 Автоматические blockers:
 
-- `stability:needs-check`
+- нет
 
 ## QA checklist
 
@@ -79,4 +79,4 @@ AAC-игра со свободным выбором: ребёнок выбира
 
 ## Next step
 
-Проверить в Electron CDP на 800×600/1024×600 и визуально подтвердить PNG перед approve.
+Оставить в ready-очереди и проверять регрессии через общий Electron CDP audit.
