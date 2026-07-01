@@ -1048,7 +1048,7 @@ export const games: GameInfo[] = [
     icon: "mdi-filmstrip",
     skills: ["sequence", "choice", "vocabulary"],
     status: "therapy-ready",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 140,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
