@@ -1528,7 +1528,7 @@ export const games: GameInfo[] = [
     icon: "mdi-pizza",
     skills: ["math", "choice", "classification"],
     status: "therapy-ready",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 190,
     defaultDwellMs: 1300
