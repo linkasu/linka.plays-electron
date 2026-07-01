@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createObjectActionExplanation, generateObjectActionRound, objectActionPairs } from "./model";
+import { createObjectActionExplanation, generateObjectActionRound, isObjectActionCorrect, objectActionPairs, phraseForAction } from "./model";
 
 describe("object-action model", () => {
   it("creates four action choices with the matching action", () => {
@@ -7,7 +7,8 @@ describe("object-action model", () => {
 
     expect(round.roundId).toBe("object-action:round:1");
     expect(round.choices).toHaveLength(4);
-    expect(round.choices).toContainEqual(round.correctChoice);
+    expect(round.correctChoices.length).toBeGreaterThan(0);
+    for (const correctChoice of round.correctChoices) expect(round.choices).toContainEqual(correctChoice);
   });
 
   it("cycles through object action pairs", () => {
@@ -26,6 +27,36 @@ describe("object-action model", () => {
   it("explains the correct pair softly", () => {
     const explanation = createObjectActionExplanation(objectActionPairs[1]);
 
-    expect(explanation).toContain(objectActionPairs[1].phrase);
+    expect(explanation).toContain(phraseForAction(objectActionPairs[1], objectActionPairs[1].validActionIds[0]));
+  });
+
+  it("allows opening and reading a book", () => {
+    const round = generateObjectActionRound(4);
+    const titles = round.correctChoices.map((choice) => choice.title).sort();
+
+    expect(round.pair.id).toBe("book");
+    expect(titles).toEqual(["открывать", "читать"]);
+    expect(isObjectActionCorrect(round.pair, { id: "open", title: "открывать", emoji: "🚪" })).toBe(true);
+    expect(isObjectActionCorrect(round.pair, { id: "read", title: "читать", emoji: "👀" })).toBe(true);
+  });
+
+  it("allows washing and drinking from a cup", () => {
+    const round = generateObjectActionRound(3);
+    const titles = round.correctChoices.map((choice) => choice.title).sort();
+
+    expect(round.pair.id).toBe("cup");
+    expect(titles).toEqual(["мыть", "пить"]);
+    expect(isObjectActionCorrect(round.pair, { id: "wash", title: "мыть", emoji: "🫧" })).toBe(true);
+    expect(isObjectActionCorrect(round.pair, { id: "drink", title: "пить", emoji: "💧" })).toBe(true);
+  });
+
+  it("allows eating with and washing a spoon", () => {
+    const round = generateObjectActionRound(2);
+    const titles = round.correctChoices.map((choice) => choice.title).sort();
+
+    expect(round.pair.id).toBe("spoon");
+    expect(titles).toEqual(["есть", "мыть"]);
+    expect(isObjectActionCorrect(round.pair, { id: "eat", title: "есть", emoji: "🍽️" })).toBe(true);
+    expect(isObjectActionCorrect(round.pair, { id: "wash", title: "мыть", emoji: "🫧" })).toBe(true);
   });
 });

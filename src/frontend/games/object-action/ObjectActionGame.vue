@@ -9,7 +9,7 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { generateObjectActionRound, type ObjectActionChoice, type ObjectActionRound } from "./model";
+import { generateObjectActionRound, isObjectActionCorrect, phraseForAction, type ObjectActionChoice, type ObjectActionRound } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, finishSession, startSession } = useGameSessionFor("object-action", { maxSteps: 8, finishOnMistakes: false, finishOnMaxSteps: false });
@@ -34,17 +34,17 @@ function choiceTargetId(choice: ObjectActionChoice) {
   return `object-action:choice:${round.value.pair.id}:${choice.id}`;
 }
 
-function phraseAssetId(pairId: string) {
-  return `object-action.phrase.${pairId}`;
+function phraseAssetId(pairId: string, actionId: string) {
+  return `object-action.phrase.${pairId}-${actionId}`;
 }
 
 async function chooseAction(choice: ObjectActionChoice) {
   if (session.status !== "running" || isChangingRound.value) return;
 
-  const expectedChoice = round.value.correctChoice;
   const targetId = choiceTargetId(choice);
-  const expectedTargetId = choiceTargetId(expectedChoice);
-  const wasCorrect = choice.id === expectedChoice.id;
+  const expectedChoice = round.value.correctChoices[0];
+  const expectedTargetId = expectedChoice ? choiceTargetId(expectedChoice) : targetId;
+  const wasCorrect = isObjectActionCorrect(round.value.pair, choice);
   isChangingRound.value = true;
 
   if (wasCorrect) {
@@ -53,13 +53,13 @@ async function chooseAction(choice: ObjectActionChoice) {
       targetId,
       answerId: choice.id,
       objectId: round.value.pair.id,
-      expected: expectedChoice.title,
+      expected: round.value.correctChoices.map((item) => item.title).join(" / "),
       actual: choice.title,
       isCorrect: true
     });
-    feedback.value = `Верно: ${round.value.pair.phrase}.`;
+    feedback.value = `Подходит: ${phraseForAction(round.value.pair, choice.id)}.`;
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [phraseAssetId(round.value.pair.id), "object-action.complete"] : [phraseAssetId(round.value.pair.id)], 80, 170);
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [phraseAssetId(round.value.pair.id, choice.id), "object-action.complete"] : [phraseAssetId(round.value.pair.id, choice.id)], 80, 170);
     if (finishedAfterSuccess) {
       finishSession("game-complete");
       isChangingRound.value = false;
@@ -78,7 +78,7 @@ async function chooseAction(choice: ObjectActionChoice) {
       expectedTargetId,
       answerId: choice.id,
       objectId: round.value.pair.id,
-      expected: expectedChoice.title,
+      expected: round.value.correctChoices.map((item) => item.title).join(" / "),
       actual: choice.title,
       isCorrect: false
     });

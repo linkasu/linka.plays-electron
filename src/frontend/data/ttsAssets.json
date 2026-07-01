@@ -2417,7 +2417,7 @@
   {
     "id": "object-action.intro",
     "game": "object-action",
-    "text": "Выбери действие, которое подходит к предмету.",
+    "text": "Выбери действие, которое подходит к предмету. Иногда подходит несколько действий.",
     "voice": "jane",
     "path": "/audio/tts/object-action/intro.mp3"
   },
@@ -8104,5 +8104,26 @@
     "text": "Раунд завершён.",
     "voice": "jane",
     "path": "/audio/tts/pac-path/complete.mp3"
+  },
+  {
+    "id": "object-action.phrase.cup-wash",
+    "game": "object-action",
+    "text": "Подходит: чашку мыть.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/phrase-cup-wash.mp3"
+  },
+  {
+    "id": "object-action.phrase.spoon-wash",
+    "game": "object-action",
+    "text": "Подходит: ложку мыть.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/phrase-spoon-wash.mp3"
+  },
+  {
+    "id": "object-action.phrase.book-open",
+    "game": "object-action",
+    "text": "Подходит: книгу открывать.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/phrase-book-open.mp3"
   }
 ]
