@@ -10,8 +10,8 @@
 | Route | `/games/calendar` |
 | Категория | `numeracy` — Счёт и математика |
 | Status | `therapy-ready` |
-| Resolved stability | `development` |
-| Readiness group | `needs-check` |
+| Resolved stability | `publish` |
+| Readiness group | `ready` |
 | Skills | выбор, последовательность, словарь |
 | Recommended session | 130 сек |
 | Min target size | 190 px |
@@ -57,7 +57,7 @@
 | Vue-компонент | `CalendarGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
-| Audio module | стандартный feedback, TTS через `useGamePromptAudio` |
+| Audio module | нет |
 | Runtime audit doc | `docs/tests/2026-06-10/calendar.md` |
 
 ## Готовность
@@ -66,7 +66,7 @@
 
 Автоматические blockers:
 
-- `stability:needs-check`
+- нет
 
 ## QA checklist
 
@@ -79,4 +79,4 @@
 
 ## Next step
 
-Проверить в Electron CDP на 800×600/1024×600 и визуально подтвердить PNG перед approve.
+Оставить в ready-очереди и проверять регрессии через общий Electron CDP audit.

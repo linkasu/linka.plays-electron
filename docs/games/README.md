@@ -132,7 +132,7 @@
 | Найди цифру | `find-digit` | [find-digit.md](find-digit.md) | `therapy-ready` | `publish` | `ready` |
 | Логические пары | `logic-pairs` | [logic-pairs.md](logic-pairs.md) | `therapy-ready` | `publish` | `ready` |
 | Часы | `clock` | [clock.md](clock.md) | `therapy-ready` | `publish` | `ready` |
-| Календарь | `calendar` | [calendar.md](calendar.md) | `therapy-ready` | `needs-check` | `development` |
+| Календарь | `calendar` | [calendar.md](calendar.md) | `therapy-ready` | `publish` | `ready` |
 | Счёт | `count-items` | [count-items.md](count-items.md) | `polished` | `needs-check` | `development` |
 | Сложи монетки | `coin-counting` | [coin-counting.md](coin-counting.md) | `therapy-ready` | `needs-check` | `development` |
 | Доли пиццы | `pizza-fractions` | [pizza-fractions.md](pizza-fractions.md) | `therapy-ready` | `needs-check` | `development` |
