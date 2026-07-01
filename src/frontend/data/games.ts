@@ -1513,7 +1513,7 @@ export const games: GameInfo[] = [
     icon: "mdi-cash-multiple",
     skills: ["counting", "math", "choice"],
     status: "therapy-ready",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 140,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
