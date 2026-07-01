@@ -1183,7 +1183,7 @@ export const games: GameInfo[] = [
     icon: "mdi-bookshelf",
     skills: ["sequence", "choice", "classification"],
     status: "therapy-ready",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 135,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
