@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import GameSquareChoiceGrid, { type GameSquareChoice } from "../../components/game/GameSquareChoiceGrid.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeTypeWordAudio, playTypeWordMistakeMelody, playTypeWordSuccessMelody, warmTypeWordAudio } from "./audio";
@@ -15,6 +16,12 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   overrides: { dwellMs: 1200, sessionSeconds: 120 },
   finishOnMaxSteps: false,
   finishOnMistakes: false
+});
+const promptAudio = useGamePromptAudio({
+  gameId: "type-word",
+  soundEnabled: toRef(session.settings, "sound"),
+  volume: 0.34,
+  warmAssetIds: ["type-word.prompt", "type-word.correct", "type-word.mistake", "type-word.complete"]
 });
 
 let roundIndex = 1;
@@ -40,6 +47,7 @@ async function pressKey(key: string) {
     recordMistake({ roundId: round.value.roundId, targetId: keyTargetId(key), expectedTargetId: keyTargetId(currentLetter.value), expected: currentLetter.value, actual: key, isCorrect: false });
     isChangingWord.value = true;
     await playTypeWordMistakeMelody(session.settings.sound);
+    await promptAudio.playSequenceAndWait(["type-word.mistake"], 80);
     isChangingWord.value = false;
     return;
   }
@@ -47,7 +55,9 @@ async function pressKey(key: string) {
     recordSuccess({ roundId: round.value.roundId, targetId: keyTargetId(key), wordId: round.value.item.id, expected: round.value.item.word, actual: round.value.item.word, isCorrect: true });
     isChangingWord.value = true;
     await playTypeWordSuccessMelody(session.settings.sound);
-    if (session.step >= session.maxSteps) {
+    const finishedAfterSuccess = session.step >= session.maxSteps;
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["type-word.correct", "type-word.complete"] : ["type-word.correct"], 80, 160);
+    if (finishedAfterSuccess) {
       finishSession("game-complete");
       isChangingWord.value = false;
       return;
@@ -69,13 +79,18 @@ function restart() {
   round.value = generateTypeWordRound(session.settings, roundIndex);
   currentIndex.value = 0;
   isChangingWord.value = false;
+  promptAudio.cancelPending();
+  promptAudio.play("type-word.prompt", 260);
 }
 
 onMounted(() => {
   warmTypeWordAudio(session.settings.sound);
+  promptAudio.warm();
+  promptAudio.play("type-word.prompt", 420);
 });
 
 onUnmounted(() => {
+  promptAudio.cancelPending();
   disposeTypeWordAudio();
 });
 </script>
@@ -153,6 +168,10 @@ onUnmounted(() => {
 
 .type-keyboard {
   --choice-grid-offset: 17.75rem;
+}
+
+.type-keyboard :deep(.dwell-button--active) {
+  color: #102c2b;
 }
 
 @media (min-width: 68.75rem) {

@@ -8125,5 +8125,33 @@
     "text": "Подходит: книгу открывать.",
     "voice": "jane",
     "path": "/audio/tts/object-action/phrase-book-open.mp3"
+  },
+  {
+    "id": "type-word.prompt",
+    "game": "type-word",
+    "text": "Собери слово по буквам. Выбирай подсвеченную букву.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/prompt.mp3"
+  },
+  {
+    "id": "type-word.correct",
+    "game": "type-word",
+    "text": "Слово получилось.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/correct.mp3"
+  },
+  {
+    "id": "type-word.mistake",
+    "game": "type-word",
+    "text": "Попробуй другую букву.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/mistake.mp3"
+  },
+  {
+    "id": "type-word.complete",
+    "game": "type-word",
+    "text": "Готово. Все слова собраны.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/complete.mp3"
   }
 ]
