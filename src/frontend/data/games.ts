@@ -1498,7 +1498,7 @@ export const games: GameInfo[] = [
     icon: "mdi-counter",
     skills: ["counting", "choice"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 160,
     defaultDwellMs: 1200
