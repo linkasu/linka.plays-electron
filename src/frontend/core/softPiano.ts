@@ -24,6 +24,9 @@ export type SoftPianoMelody = {
 };
 
 const defaultNotesToLoad = [60, 64, 67, 72];
+const maxPianoOutputGain = 1;
+const maxPianoVolume = 100;
+const maxFallbackGain = 1;
 let audioContext: AudioContext | undefined;
 let piano: SoftPiano | undefined;
 let loading: Promise<SoftPiano | undefined> | undefined;
@@ -81,12 +84,12 @@ async function ensurePiano(resumeAudio: boolean, notesToLoad = defaultNotesToLoa
       if (!context) return undefined;
 
       const output = context.createGain();
-      output.gain.value = 0.72;
+      output.gain.value = maxPianoOutputGain;
       output.connect(context.destination);
 
       const nextPiano = SplendidGrandPiano(context, {
         destination: output,
-        volume: 76,
+        volume: maxPianoVolume,
         velocity: 62,
         decayTime: 1.8,
         notesToLoad: {
@@ -123,7 +126,7 @@ function melodyLength(melody: SoftPianoMelody) {
 
 function playFallbackMelody(context: AudioContext, startAt: number, notes: SoftPianoFallbackNote[]) {
   fallbackGain = fallbackGain ?? context.createGain();
-  fallbackGain.gain.value = 0.9;
+  fallbackGain.gain.value = maxFallbackGain;
   fallbackGain.connect(context.destination);
 
   for (const note of notes) {
