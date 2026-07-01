@@ -140,7 +140,7 @@
 | Весы | `scales` | [scales.md](scales.md) | `therapy-ready` | `publish` | `ready` |
 | Числовая дорожка | `number-line` | [number-line.md](number-line.md) | `therapy-ready` | `publish` | `ready` |
 | Сортировка чисел | `number-sorting` | [number-sorting.md](number-sorting.md) | `therapy-ready` | `publish` | `ready` |
-| Судоку 2x2 | `sudoku-2x2` | [sudoku-2x2.md](sudoku-2x2.md) | `therapy-ready` | `needs-check` | `development` |
+| Судоку 2x2 | `sudoku-2x2` | [sudoku-2x2.md](sudoku-2x2.md) | `therapy-ready` | `publish` | `ready` |
 | Линии и углы | `lines-angles` | [lines-angles.md](lines-angles.md) | `therapy-ready` | `needs-check` | `development` |
 | Простые графики | `simple-graphs` | [simple-graphs.md](simple-graphs.md) | `therapy-ready` | `needs-check` | `development` |
 | Состав числа | `number-bonds` | [number-bonds.md](number-bonds.md) | `therapy-ready` | `needs-check` | `development` |

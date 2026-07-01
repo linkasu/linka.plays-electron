@@ -1603,7 +1603,7 @@ export const games: GameInfo[] = [
     icon: "mdi-check",
     skills: ["counting", "choice", "math"],
     status: "therapy-ready",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 170,
     defaultDwellMs: 1300
