@@ -330,85 +330,125 @@ onUnmounted(() => {
 
 @media (min-width: 68.75rem) and (max-height: 58rem) {
   .game-container {
-    padding-block-start: 4.5rem;
+    padding-block-start: 3.75rem;
   }
 
   .coin-card {
-    padding: 1.5rem !important;
-  }
-
-  .coin-card h1 {
-    font-size: 3.25rem !important;
-    line-height: 1.05;
-    margin-block-end: 1rem !important;
-  }
-
-  .sum-panel {
-    margin-block-end: 1rem !important;
     padding: 1rem !important;
   }
 
+  .coin-card > .text-overline {
+    margin-block-end: 0 !important;
+  }
+
+  .coin-card h1 {
+    font-size: 2.75rem !important;
+    line-height: 1.05;
+    margin-block-end: 0.5rem !important;
+  }
+
+  .sum-panel {
+    margin-block-end: 0.625rem !important;
+    padding: 0.625rem !important;
+  }
+
+  .sum-panel .text-overline {
+    line-height: 1.1;
+  }
+
   .sum-panel__number {
-    font-size: 5rem;
+    font-size: 3.6rem;
   }
 
   .selected-coins {
-    min-block-size: 2.25rem;
+    min-block-size: 1.5rem;
+  }
+
+  .coin-card .v-alert {
+    margin-block-end: 0.5rem !important;
+    padding-block: 0.625rem !important;
+  }
+
+  .coin-row,
+  .action-row {
+    row-gap: 0.625rem;
+  }
+
+  .action-row {
+    margin-block-start: 0.625rem !important;
   }
 
   .coin-button {
-    min-block-size: 8rem;
+    min-block-size: 6.75rem;
   }
 
   .coin-button__value {
-    font-size: 4.25rem;
-    inline-size: 6.5rem;
-    min-block-size: 6.5rem;
+    font-size: 3.4rem;
+    inline-size: 5.25rem;
+    min-block-size: 5.25rem;
   }
 
   .coin-row :deep(.dwell-button) {
-    min-block-size: 8.5rem !important;
+    min-block-size: 7.25rem !important;
   }
 
   .action-row :deep(.dwell-button) {
-    min-block-size: 6.75rem !important;
+    min-block-size: 5.25rem !important;
   }
 }
 
 @media (max-height: 44rem) {
   .game-container {
-    padding-block-start: 3rem;
+    padding-block-start: 2.75rem;
   }
 
   .coin-card {
-    padding: 0.875rem !important;
-  }
-
-  .coin-card h1 {
-    font-size: 2.2rem !important;
-    line-height: 1.05;
-    margin-block-end: 0.5rem !important;
-  }
-
-  .sum-panel {
-    margin-block-end: 0.75rem !important;
     padding: 0.75rem !important;
   }
 
+  .coin-card > .text-overline {
+    margin-block-end: 0 !important;
+  }
+
+  .coin-card h1 {
+    font-size: 2rem !important;
+    line-height: 1.05;
+    margin-block-end: 0.375rem !important;
+  }
+
+  .sum-panel {
+    margin-block-end: 0.5rem !important;
+    padding: 0.5rem !important;
+  }
+
+  .sum-panel .text-overline {
+    line-height: 1.1;
+  }
+
   .sum-panel__number {
-    font-size: 2.9rem;
+    font-size: 2.45rem;
   }
 
   .selected-coins {
-    min-block-size: 1rem;
+    min-block-size: 0.5rem;
   }
 
   .coin-card .v-alert {
-    margin-block-end: 0.5rem !important;
+    margin-block-end: 0.375rem !important;
+    padding-block: 0.5rem !important;
+  }
+
+  .coin-row,
+  .action-row {
+    row-gap: 0.5rem;
+  }
+
+  .action-row {
+    margin-block-start: 0.5rem !important;
   }
 
   .coin-button {
-    min-block-size: 6rem;
+    min-block-size: 5.5rem;
   }
 
   .coin-button__value {
@@ -418,11 +458,11 @@ onUnmounted(() => {
   }
 
   .coin-row :deep(.dwell-button) {
-    min-block-size: 6.25rem !important;
+    min-block-size: 5.75rem !important;
   }
 
   .action-row :deep(.dwell-button) {
-    min-block-size: 5.25rem !important;
+    min-block-size: 4.75rem !important;
   }
 }
 </style>
