@@ -117,7 +117,7 @@
 | Предмет + действие | `object-action` | [object-action.md](object-action.md) | `therapy-ready` | `publish` | `ready` |
 | Где предмет? | `where-object` | [where-object.md](where-object.md) | `therapy-ready` | `publish` | `ready` |
 | Большой / маленький | `big-small` | [big-small.md](big-small.md) | `therapy-ready` | `publish` | `ready` |
-| Один / много | `one-many` | [one-many.md](one-many.md) | `therapy-ready` | `needs-check` | `development` |
+| Один / много | `one-many` | [one-many.md](one-many.md) | `therapy-ready` | `publish` | `ready` |
 | Кто это? | `who-is-this` | [who-is-this.md](who-is-this.md) | `therapy-ready` | `needs-check` | `development` |
 | Противоположности | `opposites` | [opposites.md](opposites.md) | `therapy-ready` | `needs-check` | `development` |
 | Что сначала? | `what-first` | [what-first.md](what-first.md) | `therapy-ready` | `needs-check` | `development` |
