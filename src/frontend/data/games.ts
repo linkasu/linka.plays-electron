@@ -1093,7 +1093,7 @@ export const games: GameInfo[] = [
     icon: "mdi-collage",
     skills: ["sequence", "choice", "classification"],
     status: "therapy-ready",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 180,
     defaultDwellMs: 1300

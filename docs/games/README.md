@@ -94,7 +94,7 @@
 | История из 3 кадров | `three-frame-story` | [three-frame-story.md](three-frame-story.md) | `therapy-ready` | `publish` | `ready` |
 | Сначала-потом | `first-then` | [first-then.md](first-then.md) | `therapy-ready` | `publish` | `ready` |
 | Музыкальная дорожка | `musical-path` | [musical-path.md](musical-path.md) | `therapy-ready` | `publish` | `ready` |
-| Мозаика | `mosaic` | [mosaic.md](mosaic.md) | `therapy-ready` | `needs-check` | `development` |
+| Мозаика | `mosaic` | [mosaic.md](mosaic.md) | `therapy-ready` | `publish` | `ready` |
 | Танец фигур | `shape-dance` | [shape-dance.md](shape-dance.md) | `therapy-ready` | `needs-check` | `development` |
 | Рецепт супа | `soup-recipe` | [soup-recipe.md](soup-recipe.md) | `therapy-ready` | `needs-check` | `development` |
 | Комикс | `comic-strip` | [comic-strip.md](comic-strip.md) | `therapy-ready` | `needs-check` | `development` |
