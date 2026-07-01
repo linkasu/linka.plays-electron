@@ -110,7 +110,7 @@
 | Выбери эмоцию | `choose-emotion` | [choose-emotion.md](choose-emotion.md) | `therapy-ready` | `publish` | `ready` |
 | Выбери картинку | `choose-picture` | [choose-picture.md](choose-picture.md) | `polished` | `publish` | `ready` |
 | Съедобное | `eat-or-not-eat` | [eat-or-not-eat.md](eat-or-not-eat.md) | `polished` | `publish` | `ready` |
-| Категории слов | `word-categories` | [word-categories.md](word-categories.md) | `therapy-ready` | `needs-check` | `development` |
+| Категории слов | `word-categories` | [word-categories.md](word-categories.md) | `therapy-ready` | `publish` | `ready` |
 | Да / нет | `yes-no` | [yes-no.md](yes-no.md) | `polished` | `needs-check` | `development` |
 | Я хочу... | `i-want` | [i-want.md](i-want.md) | `therapy-ready` | `needs-check` | `development` |
 | Хочу / не хочу | `want-dont-want` | [want-dont-want.md](want-dont-want.md) | `therapy-ready` | `needs-check` | `development` |
