@@ -1408,7 +1408,7 @@ export const games: GameInfo[] = [
     icon: "mdi-order-bool-ascending",
     skills: ["aac", "choice", "sequence", "vocabulary"],
     status: "therapy-ready",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 125,
     minTargetSizePx: 190,
     defaultDwellMs: 1300
