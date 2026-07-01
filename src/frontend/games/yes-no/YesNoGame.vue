@@ -17,11 +17,18 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 const soundEnabled = toRef(session.settings, "sound");
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 const promptAudio = useGamePromptAudio({ gameId: "yes-no", soundEnabled, warmAssetIds: ["yes-no.prompt", "yes-no.correct", "yes-no.mistake", "yes-no.complete"] });
+const recentAnswers = ref<YesNoAnswer[]>([]);
+
+function generateRound(roundIndex: number) {
+  const nextRound = generateYesNoRound(roundIndex, { recentAnswers: recentAnswers.value });
+  recentAnswers.value = [...recentAnswers.value, nextRound.answer].slice(-2);
+  return nextRound;
+}
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<YesNoRound>({
   session,
   startSession,
-  generateRound: generateYesNoRound
+  generateRound
 });
 
 const feedback = ref("Выбери ответ взглядом.");
@@ -65,6 +72,7 @@ async function answer(value: YesNoAnswer) {
 function restart() {
   feedback.value = "Выбери ответ взглядом.";
   isChangingRound.value = false;
+  recentAnswers.value = [];
   promptAudio.cancelPending();
   restartRoundGame();
   promptAudio.play("yes-no.prompt", 220);
