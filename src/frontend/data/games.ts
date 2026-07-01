@@ -1573,7 +1573,7 @@ export const games: GameInfo[] = [
     icon: "mdi-counter",
     skills: ["counting", "choice", "sequence"],
     status: "therapy-ready",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 150,
     defaultDwellMs: 1300

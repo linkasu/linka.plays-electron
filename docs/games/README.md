@@ -138,7 +138,7 @@
 | Доли пиццы | `pizza-fractions` | [pizza-fractions.md](pizza-fractions.md) | `therapy-ready` | `publish` | `ready` |
 | Больше / меньше | `greater-less` | [greater-less.md](greater-less.md) | `polished` | `publish` | `ready` |
 | Весы | `scales` | [scales.md](scales.md) | `therapy-ready` | `publish` | `ready` |
-| Числовая дорожка | `number-line` | [number-line.md](number-line.md) | `therapy-ready` | `needs-check` | `development` |
+| Числовая дорожка | `number-line` | [number-line.md](number-line.md) | `therapy-ready` | `publish` | `ready` |
 | Сортировка чисел | `number-sorting` | [number-sorting.md](number-sorting.md) | `therapy-ready` | `needs-check` | `development` |
 | Судоку 2x2 | `sudoku-2x2` | [sudoku-2x2.md](sudoku-2x2.md) | `therapy-ready` | `needs-check` | `development` |
 | Линии и углы | `lines-angles` | [lines-angles.md](lines-angles.md) | `therapy-ready` | `needs-check` | `development` |

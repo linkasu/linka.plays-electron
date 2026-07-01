@@ -10,8 +10,8 @@
 | Route | `/games/number-line` |
 | Категория | `numeracy` — Счёт и математика |
 | Status | `therapy-ready` |
-| Resolved stability | `needs-check` |
-| Readiness group | `development` |
+| Resolved stability | `publish` |
+| Readiness group | `ready` |
 | Skills | счёт, выбор, последовательность |
 | Recommended session | 130 сек |
 | Min target size | 150 px |
@@ -57,16 +57,15 @@
 | Vue-компонент | `NumberLineGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
-| Audio module | стандартный feedback, TTS через `useGamePromptAudio` |
+| Audio module | нет |
 | Runtime audit doc | `docs/tests/2026-06-10/number-line.md` |
 
 ## Готовность
 
-Игра находится в группе `development`, потому что resolved stability не равен `publish`.
+Игра находится в группе `ready`, потому что resolved stability равен `publish`.
 
 Автоматические blockers:
 
-- stability:needs-check
 - нет
 
 ## QA checklist
@@ -80,4 +79,4 @@
 
 ## Next step
 
-Проверить в Electron CDP на 800×600/1024×600 и визуально подтвердить PNG перед approve.
+Оставить в ready-очереди и проверять регрессии через общий Electron CDP audit.
