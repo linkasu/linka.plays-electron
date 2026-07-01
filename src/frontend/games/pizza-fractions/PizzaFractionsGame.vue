@@ -19,7 +19,11 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnMistakes: false
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "pizza-fractions", soundEnabled, warmAssetIds: ["pizza-fractions.prompt", "pizza-fractions.correct", "pizza-fractions.mistake", "pizza-fractions.complete"] });
+const promptAudio = useGamePromptAudio({
+  gameId: "pizza-fractions",
+  soundEnabled,
+  warmAssetIds: ["pizza-fractions.prompt.half", "pizza-fractions.prompt.quarter", "pizza-fractions.prompt.whole", "pizza-fractions.correct", "pizza-fractions.mistake", "pizza-fractions.complete"]
+});
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const mistakenChoiceId = ref<string>();
@@ -35,12 +39,29 @@ const feedbackText = computed(() => {
   return "Посмотри на пиццу ещё раз и выбери другую долю.";
 });
 
+const pizzaSlices = [
+  { id: "top-left", path: "M50 50 L50 8 A42 42 0 0 0 8 50 Z" },
+  { id: "top-right", path: "M50 50 L92 50 A42 42 0 0 0 50 8 Z" },
+  { id: "bottom-right", path: "M50 50 L50 92 A42 42 0 0 0 92 50 Z" },
+  { id: "bottom-left", path: "M50 50 L8 50 A42 42 0 0 0 50 92 Z" }
+] as const;
+
+const filledSliceIds: Record<PizzaFractionChoice["id"], Set<string>> = {
+  whole: new Set(pizzaSlices.map((slice) => slice.id)),
+  half: new Set(["top-left", "bottom-left"]),
+  quarter: new Set(["top-right"])
+};
+
 function choiceTargetId(choice: PizzaFractionChoice) {
   return `pizza-fractions:choice:${choice.id}`;
 }
 
-function pizzaStyle(choice: PizzaFractionChoice) {
-  return { "--pizza-fill": `${(choice.filledSlices / choice.totalSlices) * 100}%` };
+function isSliceFilled(choice: PizzaFractionChoice, sliceId: string) {
+  return filledSliceIds[choice.id].has(sliceId);
+}
+
+function promptAssetId() {
+  return `pizza-fractions.prompt.${round.value.targetId}`;
 }
 
 async function choose(index: number) {
@@ -63,7 +84,10 @@ async function choose(index: number) {
       isSpeaking.value = false;
       return;
     }
-    if (session.step < session.maxSteps) nextRound();
+    if (session.step < session.maxSteps) {
+      nextRound();
+      await promptAudio.playSequenceAndWait([promptAssetId()], 180);
+    }
     isSpeaking.value = false;
     return;
   }
@@ -81,12 +105,12 @@ function restartGame() {
   mistakenChoiceId.value = undefined;
   isSpeaking.value = false;
   restart();
-  promptAudio.play("pizza-fractions.prompt", 220);
+  promptAudio.play(promptAssetId(), 220);
 }
 
 onMounted(() => {
   promptAudio.warm();
-  promptAudio.play("pizza-fractions.prompt", 420);
+  promptAudio.play(promptAssetId(), 420);
 });
 
 onUnmounted(() => {
@@ -112,11 +136,17 @@ onUnmounted(() => {
                 <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="270" color="surface" @select="choose(index)">
                   <template #default>
                     <div :class="['pizza-choice', { 'pizza-choice--mistake': mistakenChoiceId === choice.id }]">
-                      <div class="pizza-plate" aria-hidden="true">
-                        <div class="pizza" :style="pizzaStyle(choice)">
-                          <div class="pizza__cuts" />
-                        </div>
-                      </div>
+                      <svg class="pizza-plate" viewBox="0 0 100 100" role="img" :aria-label="`Пицца: ${choice.label}`">
+                        <circle class="pizza-plate__shadow" cx="50" cy="50" r="46" />
+                        <circle class="pizza-plate__crust" cx="50" cy="50" r="44" />
+                        <g class="pizza-plate__slices">
+                          <path v-for="slice in pizzaSlices" :key="slice.id" :class="['pizza-plate__slice', { 'pizza-plate__slice--filled': isSliceFilled(choice, slice.id) }]" :d="slice.path" />
+                        </g>
+                        <path class="pizza-plate__cut" d="M50 8 V92" />
+                        <path class="pizza-plate__cut" d="M8 50 H92" />
+                        <circle class="pizza-plate__center" cx="50" cy="50" r="3.2" />
+                        <circle v-if="choice.id !== 'whole'" class="pizza-plate__focus" cx="50" cy="50" r="42" />
+                      </svg>
                       <div class="pizza-choice__label text-h4 text-md-h3 font-weight-bold mt-4">{{ choice.label }}</div>
                       <v-chip class="pizza-choice__chip mt-2" color="deep-purple-darken-3" size="large" variant="flat">{{ choice.shortLabel }}</v-chip>
                       <div class="pizza-choice__helper text-body-1 text-medium-emphasis mt-3">{{ choice.helperText }}</div>
@@ -177,40 +207,57 @@ onUnmounted(() => {
   outline: 0.35rem solid rgb(var(--v-theme-warning) / 44%);
 }
 
+.choice-row :deep(.dwell-button--active) {
+  background: #315f57 !important;
+}
+
+.choice-row :deep(.dwell-button--active) .pizza-choice__label,
+.choice-row :deep(.dwell-button--active) .pizza-choice__helper {
+  color: #ffffff !important;
+}
+
 .pizza-plate {
-  align-items: center;
-  background: #fffdf7;
-  border-radius: 999px;
-  box-shadow: inset 0 -0.45rem 0 rgb(139 93 34 / 8%), 0 0.55rem 1.4rem rgb(91 57 11 / 12%);
-  display: flex;
+  display: block;
+  filter: drop-shadow(0 0.55rem 0.9rem rgb(91 57 11 / 14%));
   inline-size: clamp(8.5rem, min(18vw, 23vh), 13.5rem);
-  justify-content: center;
-  min-block-size: clamp(8.5rem, min(18vw, 23vh), 13.5rem);
+  block-size: clamp(8.5rem, min(18vw, 23vh), 13.5rem);
 }
 
-.pizza {
-  background: conic-gradient(#f4bb55 0 var(--pizza-fill), #fff6db var(--pizza-fill) 100%);
-  border: 0.55rem solid #d88939;
-  border-radius: 999px;
-  box-shadow: inset -0.35rem -0.45rem 0 rgb(130 75 24 / 12%);
-  inline-size: 84%;
-  min-block-size: 84%;
-  overflow: hidden;
-  position: relative;
+.pizza-plate__shadow {
+  fill: #fffdf7;
 }
 
-.pizza::before {
-  background: radial-gradient(circle at 28% 34%, #d94d3d 0 5%, transparent 5.6%), radial-gradient(circle at 63% 27%, #d94d3d 0 5%, transparent 5.6%), radial-gradient(circle at 58% 66%, #d94d3d 0 5%, transparent 5.6%), radial-gradient(circle at 32% 69%, #6faa4d 0 4%, transparent 4.6%);
-  content: "";
-  inset: 0;
-  opacity: 0.9;
-  position: absolute;
+.pizza-plate__crust {
+  fill: #d88939;
 }
 
-.pizza__cuts {
-  background: linear-gradient(90deg, transparent calc(50% - 0.08rem), rgb(135 83 28 / 32%) 50%, transparent calc(50% + 0.08rem)), linear-gradient(0deg, transparent calc(50% - 0.08rem), rgb(135 83 28 / 32%) 50%, transparent calc(50% + 0.08rem));
-  inset: 0;
-  position: absolute;
+.pizza-plate__slice {
+  fill: #fff6db;
+  stroke: #9f6524;
+  stroke-linejoin: round;
+  stroke-width: 1.4;
+}
+
+.pizza-plate__slice--filled {
+  fill: #f5bf52;
+}
+
+.pizza-plate__cut {
+  fill: none;
+  stroke: #7b4b1c;
+  stroke-linecap: round;
+  stroke-width: 2.4;
+}
+
+.pizza-plate__center {
+  fill: #7b4b1c;
+}
+
+.pizza-plate__focus {
+  fill: none;
+  stroke: rgb(var(--v-theme-secondary));
+  stroke-dasharray: 4 4;
+  stroke-width: 2.4;
 }
 
 .sr-only {

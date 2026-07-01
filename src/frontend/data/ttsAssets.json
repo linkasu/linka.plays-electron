@@ -8153,5 +8153,26 @@
     "text": "Готово. Все слова собраны.",
     "voice": "jane",
     "path": "/audio/tts/type-word/complete.mp3"
+  },
+  {
+    "id": "pizza-fractions.prompt.half",
+    "game": "pizza-fractions",
+    "text": "Выбери половину пиццы.",
+    "voice": "jane",
+    "path": "/audio/tts/pizza-fractions/prompt-half.mp3"
+  },
+  {
+    "id": "pizza-fractions.prompt.quarter",
+    "game": "pizza-fractions",
+    "text": "Выбери четверть пиццы.",
+    "voice": "jane",
+    "path": "/audio/tts/pizza-fractions/prompt-quarter.mp3"
+  },
+  {
+    "id": "pizza-fractions.prompt.whole",
+    "game": "pizza-fractions",
+    "text": "Выбери целую пиццу.",
+    "voice": "jane",
+    "path": "/audio/tts/pizza-fractions/prompt-whole.mp3"
   }
 ]
