@@ -1123,7 +1123,7 @@ export const games: GameInfo[] = [
     icon: "mdi-pot-steam-outline",
     skills: ["sequence", "choice", "vocabulary"],
     status: "therapy-ready",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 135,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
