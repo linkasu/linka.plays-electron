@@ -44,13 +44,15 @@ const mosaicSlots = computed(() => tiles.value.map((tile, index) => ({
   next: index === session.step && session.status === "running"
 })));
 const promptText = computed(() => currentTarget.value ? activeStep.value.prompt : "Мозаика готова.");
+const boardInteractionLocked = computed(() => session.status !== "running" || pendingSelection.value || isSpeaking.value || previewVisible.value);
+const previewOpenLocked = computed(() => session.status !== "running" || pendingSelection.value || isSpeaking.value || previewVisible.value);
 
 function tileTargetId(tile: MosaicTile) {
   return `mosaic:tile:${image.value.id}:${tile.id}`;
 }
 
 function openPreview() {
-  if (pendingSelection.value || isSpeaking.value) return;
+  if (previewOpenLocked.value) return;
   previewVisible.value = true;
 }
 
@@ -97,7 +99,7 @@ function showResultSoon(delayMs = 900) {
 }
 
 async function chooseTile(tile: MosaicTile) {
-  if (session.status !== "running" || pendingSelection.value || isSpeaking.value || !currentTarget.value) return;
+  if (boardInteractionLocked.value || !currentTarget.value) return;
 
   const step = activeStep.value;
   const targetId = tileTargetId(tile);
@@ -229,7 +231,7 @@ onUnmounted(() => {
                     <div class="text-body-2 text-medium-emphasis">{{ image.prompt }}</div>
                   </v-card>
 
-                  <GameDwellButton target-id="mosaic:preview:open" :disabled="pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="5.5rem" color="purple-lighten-5" @select="openPreview">
+                  <GameDwellButton target-id="mosaic:preview:open" :disabled="previewOpenLocked" :dwell-ms="session.settings.dwellMs" min-height="5.5rem" color="purple-lighten-5" @select="openPreview">
                     <template #default>
                       <div class="mosaic-preview-button-image">
                         <img :src="image.src" :alt="`Образец: ${image.title}`" />
@@ -240,7 +242,7 @@ onUnmounted(() => {
                 </div>
 
                 <div class="mosaic-choices" aria-label="Кусочки для выбора">
-                  <GameDwellButton v-for="choice in activeStep.choices" :key="choice.id" :target-id="tileTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="9rem" :color="choiceColor(choice)" @select="chooseTile(choice)">
+                  <GameDwellButton v-for="choice in activeStep.choices" :key="choice.id" :target-id="tileTargetId(choice)" :disabled="boardInteractionLocked" :dwell-ms="session.settings.dwellMs" min-height="9rem" :color="choiceColor(choice)" @select="chooseTile(choice)">
                     <template #default>
                       <div class="mosaic-piece mosaic-piece--choice" :style="tilePieceStyle(choice)" />
                       <div class="text-subtitle-2 font-weight-bold mt-1">{{ choice.label }}</div>
