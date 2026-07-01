@@ -1243,7 +1243,7 @@ export const games: GameInfo[] = [
     icon: "mdi-food-apple",
     skills: ["classification", "aac", "choice"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1200
