@@ -1,6 +1,6 @@
 import type { SessionSettings } from "../../core/settings";
 
-export type NumberLineTaskKind = "find" | "next";
+export type NumberLineTaskKind = "find" | "next" | "previous";
 
 export type NumberLineRound = {
   roundId: string;
@@ -19,7 +19,8 @@ function wrappedNumber(seed: number, max: number) {
 }
 
 export function generateNumberLineRound(settings: SessionSettings, roundIndex = 1): NumberLineRound {
-  const taskKind: NumberLineTaskKind = roundIndex % 2 === 0 ? "next" : "find";
+  const taskOrder: NumberLineTaskKind[] = ["find", "next", "previous"];
+  const taskKind = taskOrder[(Math.max(1, roundIndex) - 1) % taskOrder.length];
   const gentleOffset = settings.preset === "gentle" ? 1 : 0;
 
   if (taskKind === "next") {
@@ -31,6 +32,21 @@ export function generateNumberLineRound(settings: SessionSettings, roundIndex = 
       taskKind,
       prompt: `Что идёт после ${currentNumber}?`,
       helperText: "Выбери следующее число на дорожке.",
+      numbers: numberLineNumbers,
+      currentNumber,
+      targetNumber
+    };
+  }
+
+  if (taskKind === "previous") {
+    const currentNumber = wrappedNumber(roundIndex * 2 + gentleOffset, 9) + 1;
+    const targetNumber = currentNumber - 1;
+
+    return {
+      roundId: `number-line:round:${roundIndex}`,
+      taskKind,
+      prompt: `Что идёт перед ${currentNumber}?`,
+      helperText: "Выбери предыдущее число на дорожке.",
       numbers: numberLineNumbers,
       currentNumber,
       targetNumber

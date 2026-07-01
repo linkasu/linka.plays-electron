@@ -19,7 +19,9 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnMistakes: false
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "number-line", soundEnabled, warmAssetIds: ["number-line.prompt", "number-line.correct", "number-line.mistake", "number-line.complete"] });
+const numberLineTaskAssetIds = ["number-line.task.find", "number-line.task.next", "number-line.task.previous"];
+const numberLineNumberAssetIds = Array.from({ length: 10 }, (_, index) => `number-line.number.${index + 1}`);
+const promptAudio = useGamePromptAudio({ gameId: "number-line", soundEnabled, warmAssetIds: [...numberLineTaskAssetIds, ...numberLineNumberAssetIds, "number-line.correct", "number-line.mistake", "number-line.complete"] });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
@@ -40,6 +42,15 @@ function numberTargetId(number: number) {
   return `number-line:choice:${number}`;
 }
 
+function promptAssetIds() {
+  const taskNumber = round.value.taskKind === "find" ? round.value.targetNumber : round.value.currentNumber ?? round.value.targetNumber;
+  return [`number-line.task.${round.value.taskKind}`, `number-line.number.${taskNumber}`];
+}
+
+function playRoundPrompt(delayMs = 0) {
+  return promptAudio.playSequenceAndWait(promptAssetIds(), delayMs, 90);
+}
+
 async function choose(number: number) {
   if (session.status !== "running" || isSpeaking.value) return;
 
@@ -57,8 +68,10 @@ async function choose(number: number) {
       isSpeaking.value = false;
       return;
     }
-    if (session.step < session.maxSteps) nextRound();
-    promptAudio.play("number-line.prompt", 180);
+    if (session.step < session.maxSteps) {
+      nextRound();
+      await playRoundPrompt(180);
+    }
     isSpeaking.value = false;
     return;
   }
@@ -76,12 +89,12 @@ function restart() {
   lastMistakeNumber.value = undefined;
   isSpeaking.value = false;
   restartRoundGame();
-  promptAudio.play("number-line.prompt", 220);
+  void playRoundPrompt(220);
 }
 
 onMounted(() => {
   promptAudio.warm();
-  promptAudio.play("number-line.prompt", 420);
+  void playRoundPrompt(420);
 });
 
 onUnmounted(() => {

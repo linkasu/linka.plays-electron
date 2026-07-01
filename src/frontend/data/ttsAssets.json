@@ -8174,5 +8174,96 @@
     "text": "Выбери целую пиццу.",
     "voice": "jane",
     "path": "/audio/tts/pizza-fractions/prompt-whole.mp3"
+  },
+  {
+    "id": "number-line.task.find",
+    "game": "number-line",
+    "text": "Найди число",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/task-find.mp3"
+  },
+  {
+    "id": "number-line.task.next",
+    "game": "number-line",
+    "text": "Что идёт после",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/task-next.mp3"
+  },
+  {
+    "id": "number-line.task.previous",
+    "game": "number-line",
+    "text": "Что идёт перед",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/task-previous.mp3"
+  },
+  {
+    "id": "number-line.number.1",
+    "game": "number-line",
+    "text": "один",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/number-1.mp3"
+  },
+  {
+    "id": "number-line.number.2",
+    "game": "number-line",
+    "text": "два",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/number-2.mp3"
+  },
+  {
+    "id": "number-line.number.3",
+    "game": "number-line",
+    "text": "три",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/number-3.mp3"
+  },
+  {
+    "id": "number-line.number.4",
+    "game": "number-line",
+    "text": "четыре",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/number-4.mp3"
+  },
+  {
+    "id": "number-line.number.5",
+    "game": "number-line",
+    "text": "пять",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/number-5.mp3"
+  },
+  {
+    "id": "number-line.number.6",
+    "game": "number-line",
+    "text": "шесть",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/number-6.mp3"
+  },
+  {
+    "id": "number-line.number.7",
+    "game": "number-line",
+    "text": "семь",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/number-7.mp3"
+  },
+  {
+    "id": "number-line.number.8",
+    "game": "number-line",
+    "text": "восемь",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/number-8.mp3"
+  },
+  {
+    "id": "number-line.number.9",
+    "game": "number-line",
+    "text": "девять",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/number-9.mp3"
+  },
+  {
+    "id": "number-line.number.10",
+    "game": "number-line",
+    "text": "десять",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/number-10.mp3"
   }
 ]

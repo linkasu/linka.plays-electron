@@ -31,6 +31,24 @@ describe("number-line model", () => {
     expect(round.numbers).toContain(round.targetNumber);
   });
 
+  it("creates previous-number rounds where target comes before current", () => {
+    const round = generateNumberLineRound(settingsFromPreset("standard"), 3);
+
+    expect(round.roundId).toBe("number-line:round:3");
+    expect(round.taskKind).toBe("previous");
+    expect(round.currentNumber).toBeGreaterThanOrEqual(2);
+    expect(round.currentNumber).toBeLessThanOrEqual(10);
+    expect(round.targetNumber).toBe((round.currentNumber ?? 0) - 1);
+    expect(round.numbers).toContain(round.targetNumber);
+    expect(round.prompt).toBe(`Что идёт перед ${round.currentNumber}?`);
+  });
+
+  it("cycles find, next and previous tasks", () => {
+    const settings = settingsFromPreset("standard");
+
+    expect(Array.from({ length: 6 }, (_, index) => generateNumberLineRound(settings, index + 1).taskKind)).toEqual(["find", "next", "previous", "find", "next", "previous"]);
+  });
+
   it("keeps generated targets within the 1-10 road", () => {
     const settings = settingsFromPreset("challenge");
 
