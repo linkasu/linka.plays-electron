@@ -23,6 +23,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 const imageIndex = ref(selectMosaicImageIndex());
 const placedTileIds = ref<string[]>([]);
 const resultVisible = ref(false);
+const previewVisible = ref(false);
 const pendingSelection = ref(false);
 const isSpeaking = ref(false);
 const wrongTileId = ref<string>();
@@ -46,6 +47,15 @@ const promptText = computed(() => currentTarget.value ? activeStep.value.prompt 
 
 function tileTargetId(tile: MosaicTile) {
   return `mosaic:tile:${image.value.id}:${tile.id}`;
+}
+
+function openPreview() {
+  if (pendingSelection.value || isSpeaking.value) return;
+  previewVisible.value = true;
+}
+
+function closePreview() {
+  previewVisible.value = false;
 }
 
 function tilePieceStyle(tile: MosaicTile) {
@@ -140,6 +150,7 @@ function restart() {
   imageIndex.value = selectMosaicImageIndex();
   placedTileIds.value = [];
   resultVisible.value = false;
+  previewVisible.value = false;
   pendingSelection.value = false;
   isSpeaking.value = false;
   wrongTileId.value = undefined;
@@ -218,10 +229,14 @@ onUnmounted(() => {
                     <div class="text-body-2 text-medium-emphasis">{{ image.prompt }}</div>
                   </v-card>
 
-                  <v-card class="mosaic-reference pa-3" color="surface" rounded="xl" variant="tonal">
-                    <div class="text-caption text-medium-emphasis mb-2">Образец</div>
-                    <img :src="image.src" :alt="image.title" />
-                  </v-card>
+                  <GameDwellButton target-id="mosaic:preview:open" :disabled="pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="5.5rem" color="purple-lighten-5" @select="openPreview">
+                    <template #default>
+                      <div class="mosaic-preview-button-image">
+                        <img :src="image.src" :alt="`Образец: ${image.title}`" />
+                      </div>
+                      <div class="text-subtitle-2 font-weight-bold mt-1">Открыть образец</div>
+                    </template>
+                  </GameDwellButton>
                 </div>
 
                 <div class="mosaic-choices" aria-label="Кусочки для выбора">
@@ -240,6 +255,24 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
+    <v-dialog v-model="previewVisible" max-width="42rem" persistent>
+      <v-card class="mosaic-preview pa-4" rounded="xl">
+        <div class="d-flex align-center justify-space-between ga-3 mb-3">
+          <div>
+            <div class="text-overline text-secondary">Образец</div>
+            <h2 class="text-h5 font-weight-bold">{{ image.title }}</h2>
+          </div>
+          <GameDwellButton target-id="mosaic:preview:close" :dwell-ms="session.settings.dwellMs" min-height="4.5rem" color="blue-grey-lighten-5" @select="closePreview">
+            <template #default>
+              <v-icon icon="mdi-close" size="30" />
+              <div class="text-subtitle-2 font-weight-bold mt-1">Закрыть</div>
+            </template>
+          </GameDwellButton>
+        </div>
+        <img class="mosaic-preview-image" :src="image.src" :alt="`Образец: ${image.title}`" />
+        <p class="text-body-2 text-medium-emphasis mt-3 mb-0">Посмотри на целую картинку, потом закрой образец и выбери следующий кусочек.</p>
+      </v-card>
+    </v-dialog>
     <GameResultDialog :model-value="resultVisible" title="Мозаика" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
   </GamePageShell>
 </template>
@@ -356,7 +389,7 @@ onUnmounted(() => {
   align-items: stretch;
   display: grid;
   gap: 1rem;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(12rem, 0.52fr);
 }
 
 .mosaic-prompt {
@@ -364,16 +397,22 @@ onUnmounted(() => {
   display: grid;
 }
 
-.mosaic-reference {
-  text-align: center;
+.mosaic-preview-button-image img {
+  aspect-ratio: 1;
+  border-radius: 0.85rem;
+  box-shadow: 0 0.45rem 1rem rgb(65 79 104 / 16%);
+  display: block;
+  inline-size: clamp(3rem, 5vw, 4.2rem);
+  margin-inline: auto;
+  object-fit: cover;
 }
 
-.mosaic-reference img {
+.mosaic-preview-image {
   aspect-ratio: 1;
   border-radius: 1rem;
-  box-shadow: 0 0.5rem 1.2rem rgb(65 79 104 / 14%);
   display: block;
-  inline-size: clamp(12rem, 18vw, 17rem);
+  inline-size: min(100%, 34rem);
+  margin-inline: auto;
   object-fit: cover;
 }
 
@@ -407,7 +446,6 @@ onUnmounted(() => {
   }
 
   .mosaic-feedback,
-  .mosaic-reference,
   .mosaic-attribution {
     display: none;
   }
@@ -415,6 +453,10 @@ onUnmounted(() => {
   .mosaic-layout {
     gap: 0.75rem;
     grid-template-columns: minmax(17rem, 0.86fr) minmax(20rem, 1.14fr);
+  }
+
+  .mosaic-guide {
+    grid-template-columns: minmax(0, 1fr) minmax(9rem, 0.62fr);
   }
 
   .mosaic-board {
@@ -447,13 +489,16 @@ onUnmounted(() => {
   }
 
   .mosaic-feedback,
-  .mosaic-reference,
   .mosaic-attribution {
     display: none;
   }
 
   .mosaic-layout {
     gap: 0.75rem;
+    grid-template-columns: 1fr;
+  }
+
+  .mosaic-guide {
     grid-template-columns: 1fr;
   }
 
@@ -522,10 +567,7 @@ onUnmounted(() => {
 
   .mosaic-guide {
     gap: 0.75rem;
-  }
-
-  .mosaic-reference img {
-    inline-size: clamp(10rem, 13vw, 11.5rem);
+    grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.58fr);
   }
 }
 
@@ -563,13 +605,12 @@ onUnmounted(() => {
     max-inline-size: 5.25rem;
   }
 
-  .mosaic-reference img {
-    inline-size: clamp(9rem, 11vw, 10.5rem);
+  .mosaic-preview-button-image img {
+    inline-size: clamp(2.8rem, 4vw, 3.8rem);
   }
 }
 
 @media (max-height: 50rem) and (min-width: 58rem) and (max-width: 70rem) {
-  .mosaic-reference,
   .mosaic-attribution {
     display: none;
   }
