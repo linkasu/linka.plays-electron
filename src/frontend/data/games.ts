@@ -1228,7 +1228,7 @@ export const games: GameInfo[] = [
     icon: "mdi-image-search",
     skills: ["aac", "vocabulary", "choice"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1200
