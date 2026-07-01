@@ -8,8 +8,8 @@
 | Route | `/games/solfege` |
 | Категория | `sequencing` — Последовательности |
 | Status | `therapy-ready` |
-| Resolved stability | `development` |
-| Readiness group | `needs-check` |
+| Resolved stability | `publish` |
+| Readiness group | `ready` |
 | Skills | последовательность, выбор |
 | Recommended session | 135 сек |
 | Min target size | 180 px |
@@ -58,7 +58,7 @@
 | Vue-компонент | `SolfegeGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
-| Audio module | короткий WebAudio tone внутри `SolfegeGame.vue`; TTS не используется, чтобы не перекрывать ноту |
+| Audio module | нет |
 
 ## QA checklist
 
