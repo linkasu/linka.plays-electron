@@ -25,23 +25,28 @@ const feedbackAudio = useStandardGameFeedback(soundEnabled);
 const feedback = ref("Посмотри на весы и выбери ответ.");
 const lastMistakeAnswer = ref<ScalesAnswer>();
 const isSpeaking = ref(false);
+const answerMinHeight = "clamp(6.25rem, 11vh, 9rem)";
 const { round, resultVisible, nextRound, restart } = useRoundGame({
   session,
   startSession,
   generateRound: (roundIndex) => generateScalesRound(session.settings, roundIndex)
 });
 
-const beamStyle = computed(() => ({ transform: `rotate(${round.value.tiltDeg}deg)` }));
+const frameStyle = computed(() => ({
+  "--scale-tilt": `${round.value.tiltDeg}deg`,
+  "--left-pan-y": panOffset("left"),
+  "--right-pan-y": panOffset("right")
+}));
 
 function answerTargetId(answer: ScalesAnswer) {
   return `scales:choice:${answer}`;
 }
 
-function panOffsetStyle(side: ScalesSide) {
+function panOffset(side: ScalesSide) {
   const diff = round.value.left.weight - round.value.right.weight;
-  if (diff === 0) return { transform: "translateY(0)" };
+  if (diff === 0) return "0rem";
   const down = side === "left" ? diff > 0 : diff < 0;
-  return { transform: down ? "translateY(1.1rem)" : "translateY(-0.8rem)" };
+  return down ? "0.9rem" : "-0.7rem";
 }
 
 async function choose(answer: ScalesAnswer) {
@@ -103,7 +108,7 @@ onUnmounted(() => {
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11" xl="10">
-          <v-card class="pa-4 pa-md-6" rounded="xl" elevation="8">
+          <v-card class="scales-card pa-4 pa-md-6" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Сравни весы</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
             <v-alert class="mb-4 text-body-1 font-weight-bold" color="primary" icon="mdi-heart-outline" rounded="xl" variant="tonal">
@@ -111,16 +116,21 @@ onUnmounted(() => {
             </v-alert>
 
             <v-sheet class="scale-stage pa-4 pa-md-6 mb-4" color="blue-lighten-5" rounded="xl">
-              <div class="scale-frame" aria-hidden="true">
+              <div :key="round.roundId" class="scale-frame" :style="frameStyle" aria-hidden="true">
                 <div class="scale-top">
                   <v-icon icon="mdi-scale-balance" size="46" color="primary" />
                 </div>
-                <div class="scale-beam" :style="beamStyle">
-                  <div class="scale-pan scale-pan--left" :style="panOffsetStyle('left')">
+                <div class="scale-beam" />
+                <div class="scale-pan-wrap scale-pan-wrap--left">
+                  <div class="scale-cord" />
+                  <div class="scale-pan scale-pan--left">
                     <span v-for="(item, index) in round.left.items" :key="`left-${index}`" class="pan-item emoji-glyph">{{ item }}</span>
                   </div>
-                  <div class="scale-pivot" />
-                  <div class="scale-pan scale-pan--right" :style="panOffsetStyle('right')">
+                </div>
+                <div class="scale-pivot" />
+                <div class="scale-pan-wrap scale-pan-wrap--right">
+                  <div class="scale-cord" />
+                  <div class="scale-pan scale-pan--right">
                     <span v-for="(item, index) in round.right.items" :key="`right-${index}`" class="pan-item emoji-glyph">{{ item }}</span>
                   </div>
                 </div>
@@ -134,7 +144,7 @@ onUnmounted(() => {
 
             <v-row class="answer-row" dense>
               <v-col v-for="answer in scalesAnswers" :key="answer" class="scales-answer-col" cols="12" md="4">
-                <GameDwellButton :target-id="answerTargetId(answer)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="158" :color="lastMistakeAnswer === answer ? 'secondary' : 'surface'" @select="choose(answer)">
+                <GameDwellButton :target-id="answerTargetId(answer)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="answerMinHeight" :color="lastMistakeAnswer === answer ? 'secondary' : 'surface'" @select="choose(answer)">
                   <template #default>
                     <div class="d-flex align-center justify-center ga-3 text-h5 text-md-h4 font-weight-bold">
                       <v-icon v-if="answer === 'equal'" icon="mdi-equal" size="38" />
@@ -161,15 +171,21 @@ onUnmounted(() => {
 
 .game-container {
   padding-block-end: 0;
-  padding-block-start: 9.75rem;
+  padding-block-start: clamp(3rem, 8vh, 9.75rem);
+}
+
+.scales-card {
+  padding: clamp(0.875rem, 2.2vh, 1.5rem) !important;
 }
 
 .scale-stage {
+  margin-block-end: clamp(0.75rem, 1.6vh, 1rem) !important;
   overflow: hidden;
+  padding: clamp(0.75rem, 2vh, 1.5rem) !important;
 }
 
 .scale-frame {
-  block-size: clamp(17rem, 42vh, 25rem);
+  block-size: clamp(14.5rem, 38vh, 22rem);
   margin-inline: auto;
   max-inline-size: 58rem;
   position: relative;
@@ -183,34 +199,60 @@ onUnmounted(() => {
 }
 
 .scale-beam {
-  align-items: flex-start;
-  display: grid;
-  gap: clamp(0.5rem, 2vw, 1.25rem);
-  grid-template-columns: 1fr 2.8rem 1fr;
-  inset-block-start: 3.75rem;
-  inset-inline: 3%;
-  position: absolute;
-  transform-origin: 50% 50%;
-  transition: transform 260ms ease;
-}
-
-.scale-beam::before {
   background: rgb(var(--v-theme-primary));
   block-size: 0.55rem;
   border-radius: 999px;
-  content: "";
-  inset-block-start: 2.25rem;
-  inset-inline: 0;
+  inline-size: min(82%, 48rem);
+  inset-block-start: clamp(4.1rem, 10vh, 5.5rem);
+  inset-inline-start: 50%;
   position: absolute;
+  transform-origin: 50% 50%;
+  transform: translateX(-50%) rotate(var(--scale-tilt));
+  animation: scale-beam-settle 760ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .scale-pivot {
   background: rgb(var(--v-theme-primary));
-  block-size: 5rem;
+  block-size: clamp(4rem, 11vh, 6rem);
   border-radius: 999px 999px 0 0;
-  inline-size: 2.8rem;
-  justify-self: center;
+  inline-size: clamp(2.3rem, 5vw, 3.1rem);
+  inset-block-start: clamp(4.25rem, 10vh, 5.75rem);
+  inset-inline-start: 50%;
+  position: absolute;
+  transform: translateX(-50%);
   z-index: 1;
+}
+
+.scale-pan-wrap {
+  inline-size: min(39%, 20.5rem);
+  position: absolute;
+  z-index: 2;
+}
+
+.scale-pan-wrap--left {
+  --pan-y: var(--left-pan-y);
+
+  inset-block-start: clamp(5rem, 12vh, 7rem);
+  inset-inline-start: 2%;
+  transform: translateY(var(--pan-y));
+  animation: scale-pan-settle 760ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.scale-pan-wrap--right {
+  --pan-y: var(--right-pan-y);
+
+  inset-block-start: clamp(5rem, 12vh, 7rem);
+  inset-inline-end: 2%;
+  transform: translateY(var(--pan-y));
+  animation: scale-pan-settle 760ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.scale-cord {
+  background: rgb(var(--v-theme-primary) / 72%);
+  block-size: clamp(1.25rem, 3.2vh, 2.25rem);
+  border-radius: 999rem;
+  inline-size: 0.3rem;
+  margin-inline: auto;
 }
 
 .scale-pan {
@@ -223,31 +265,31 @@ onUnmounted(() => {
   flex-wrap: wrap;
   gap: 0.35rem;
   justify-content: center;
-  min-block-size: clamp(8.5rem, 20vh, 12rem);
+  min-block-size: clamp(6rem, 15vh, 10rem);
   padding: 0.75rem;
-  transition: transform 260ms ease;
   z-index: 1;
 }
 
 .scale-pan--left {
-  transform-origin: 90% 0;
+  border-start-end-radius: 0.85rem;
 }
 
 .scale-pan--right {
-  transform-origin: 10% 0;
+  border-start-start-radius: 0.85rem;
 }
 
 .pan-item {
-  font-size: clamp(2rem, min(5vw, 6vh), 3.6rem);
+  animation: pan-item-pop 520ms ease both;
+  font-size: clamp(1.8rem, min(4.8vw, 5.5vh), 3.4rem);
   line-height: 1;
 }
 
 .scale-stand {
   background: rgb(var(--v-theme-primary));
-  block-size: 58%;
+  block-size: 56%;
   border-radius: 999px;
   inline-size: 1.3rem;
-  inset-block-end: 1.8rem;
+  inset-block-end: 1.55rem;
   inset-inline-start: 50%;
   position: absolute;
   transform: translateX(-50%);
@@ -265,89 +307,77 @@ onUnmounted(() => {
 }
 
 .answer-row {
-  row-gap: 0.75rem;
+  row-gap: clamp(0.5rem, 1.4vh, 0.75rem);
+}
+
+@keyframes scale-beam-settle {
+  0% {
+    transform: translateX(-50%) rotate(calc(var(--scale-tilt) * -0.35));
+  }
+
+  62% {
+    transform: translateX(-50%) rotate(calc(var(--scale-tilt) * 1.14));
+  }
+
+  100% {
+    transform: translateX(-50%) rotate(var(--scale-tilt));
+  }
+}
+
+@keyframes scale-pan-settle {
+  0% {
+    transform: translateY(0);
+  }
+
+  62% {
+    transform: translateY(calc(var(--pan-y) * 1.14));
+  }
+
+  100% {
+    transform: translateY(var(--pan-y));
+  }
+}
+
+@keyframes pan-item-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .sr-only {
-  block-size: 1px;
+  block-size: 0.0625rem;
   clip: rect(0 0 0 0);
   clip-path: inset(50%);
-  inline-size: 1px;
+  inline-size: 0.0625rem;
   overflow: hidden;
   position: absolute;
   white-space: nowrap;
 }
 
-@media (min-width: 68.75rem) {
-  .game-container {
-    padding-block-start: 7.25rem;
-  }
-}
-
-@media (min-width: 68.75rem) and (max-height: 58rem) {
-  .game-container {
-    padding-block-start: 4rem;
-  }
-
-  .game-container :deep(.v-card) {
-    padding-block: 1rem !important;
-  }
-
-  .game-container h1 {
-    font-size: 3.4rem !important;
-    line-height: 1.05;
-  }
-
-  .scale-stage {
-    margin-block-end: 0.75rem !important;
-    padding: 1rem !important;
-  }
-
-  .scale-frame {
-    block-size: clamp(15rem, 34vh, 19rem);
-  }
-
-  .answer-row :deep(.dwell-button) {
-    min-block-size: 8.25rem !important;
-  }
-}
-
 @media (max-height: 42rem) {
-  .game-container {
-    padding-block-start: 4.75rem;
-  }
-
-  .game-container :deep(.v-card) {
-    padding-block: 1rem !important;
-  }
-
   .game-container .text-overline,
   .game-container h1,
   .game-container .v-alert {
     display: none;
   }
 
-  .scale-stage {
-    margin-block-end: 0.75rem !important;
-    padding: 0.75rem !important;
-  }
-
-  .scale-frame {
-    block-size: 13rem;
-  }
-
-  .scale-pan {
-    min-block-size: 6.5rem;
-  }
-
   .scales-answer-col {
     flex: 0 0 33.3333% !important;
     max-inline-size: 33.3333% !important;
   }
+}
 
-  .answer-row :deep(.dwell-button) {
-    min-block-size: 6.25rem !important;
-    padding: 0.5rem !important;
+@media (prefers-reduced-motion: reduce) {
+  .scale-beam,
+  .scale-pan-wrap,
+  .pan-item {
+    animation: none;
   }
 }
 </style>
