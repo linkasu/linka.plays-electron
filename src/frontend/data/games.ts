@@ -1273,7 +1273,7 @@ export const games: GameInfo[] = [
     icon: "mdi-check-circle-outline",
     skills: ["aac", "choice", "vocabulary"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1300
