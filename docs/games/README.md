@@ -113,7 +113,7 @@
 | Категории слов | `word-categories` | [word-categories.md](word-categories.md) | `therapy-ready` | `publish` | `ready` |
 | Да / нет | `yes-no` | [yes-no.md](yes-no.md) | `polished` | `publish` | `ready` |
 | Я хочу... | `i-want` | [i-want.md](i-want.md) | `therapy-ready` | `publish` | `ready` |
-| Хочу / не хочу | `want-dont-want` | [want-dont-want.md](want-dont-want.md) | `therapy-ready` | `needs-check` | `development` |
+| Хочу / не хочу | `want-dont-want` | [want-dont-want.md](want-dont-want.md) | `therapy-ready` | `publish` | `ready` |
 | Предмет + действие | `object-action` | [object-action.md](object-action.md) | `therapy-ready` | `needs-check` | `development` |
 | Где предмет? | `where-object` | [where-object.md](where-object.md) | `therapy-ready` | `needs-check` | `development` |
 | Большой / маленький | `big-small` | [big-small.md](big-small.md) | `therapy-ready` | `needs-check` | `development` |
