@@ -1153,7 +1153,7 @@ export const games: GameInfo[] = [
     icon: "mdi-calendar-clock-outline",
     skills: ["sequence", "choice", "aac"],
     status: "therapy-ready",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 140,
     minTargetSizePx: 180,
     defaultDwellMs: 1300

@@ -98,7 +98,7 @@
 | Танец фигур | `shape-dance` | [shape-dance.md](shape-dance.md) | `therapy-ready` | `publish` | `ready` |
 | Рецепт супа | `soup-recipe` | [soup-recipe.md](soup-recipe.md) | `therapy-ready` | `publish` | `ready` |
 | Комикс | `comic-strip` | [comic-strip.md](comic-strip.md) | `therapy-ready` | `publish` | `ready` |
-| Расписание | `schedule` | [schedule.md](schedule.md) | `therapy-ready` | `needs-check` | `development` |
+| Расписание | `schedule` | [schedule.md](schedule.md) | `therapy-ready` | `publish` | `ready` |
 | Строим мост | `build-bridge` | [build-bridge.md](build-bridge.md) | `therapy-ready` | `needs-check` | `development` |
 | Сортировка по полкам | `shelf-sorting` | [shelf-sorting.md](shelf-sorting.md) | `therapy-ready` | `needs-check` | `development` |
 | Оркестр | `orchestra` | [orchestra.md](orchestra.md) | `therapy-ready` | `needs-check` | `development` |
