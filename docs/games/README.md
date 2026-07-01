@@ -107,7 +107,7 @@
 
 | Игра | ID | Документ | Status | Stability | Group |
 |---|---|---|---|---|---|
-| Выбери эмоцию | `choose-emotion` | [choose-emotion.md](choose-emotion.md) | `therapy-ready` | `needs-check` | `development` |
+| Выбери эмоцию | `choose-emotion` | [choose-emotion.md](choose-emotion.md) | `therapy-ready` | `publish` | `ready` |
 | Выбери картинку | `choose-picture` | [choose-picture.md](choose-picture.md) | `polished` | `needs-check` | `development` |
 | Съедобное | `eat-or-not-eat` | [eat-or-not-eat.md](eat-or-not-eat.md) | `polished` | `needs-check` | `development` |
 | Категории слов | `word-categories` | [word-categories.md](word-categories.md) | `therapy-ready` | `needs-check` | `development` |

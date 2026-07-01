@@ -1213,7 +1213,7 @@ export const games: GameInfo[] = [
     icon: "mdi-emoticon-outline",
     skills: ["aac", "choice", "vocabulary"],
     status: "therapy-ready",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 220,
     defaultDwellMs: 1300
