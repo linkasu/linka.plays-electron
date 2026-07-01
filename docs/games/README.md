@@ -119,7 +119,7 @@
 | Большой / маленький | `big-small` | [big-small.md](big-small.md) | `therapy-ready` | `publish` | `ready` |
 | Один / много | `one-many` | [one-many.md](one-many.md) | `therapy-ready` | `publish` | `ready` |
 | Кто это? | `who-is-this` | [who-is-this.md](who-is-this.md) | `therapy-ready` | `publish` | `ready` |
-| Противоположности | `opposites` | [opposites.md](opposites.md) | `therapy-ready` | `needs-check` | `development` |
+| Противоположности | `opposites` | [opposites.md](opposites.md) | `therapy-ready` | `publish` | `ready` |
 | Что сначала? | `what-first` | [what-first.md](what-first.md) | `therapy-ready` | `needs-check` | `development` |
 | Мини-диалог | `mini-dialog` | [mini-dialog.md](mini-dialog.md) | `therapy-ready` | `needs-check` | `development` |
 | Социальные фразы | `social-phrases` | [social-phrases.md](social-phrases.md) | `therapy-ready` | `needs-check` | `development` |
