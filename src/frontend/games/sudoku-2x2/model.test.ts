@@ -1,46 +1,55 @@
 import { describe, expect, it } from "vitest";
-import { generateSudoku2x2Round, type Sudoku2x2Cell, type Sudoku2x2Value } from "./model";
+import { generateSudoku2x2Round, type Sudoku2x2Cell } from "./model";
 
-function filledValues(board: Sudoku2x2Cell[]) {
-  return board.map((cell) => cell.value);
+function expectedValues(size: number) {
+  return Array.from({ length: size }, (_, index) => index + 1);
 }
 
-function expectPair(values: Sudoku2x2Value[]) {
-  expect([...values].sort()).toEqual([1, 2]);
+function valuesAt(cells: Sudoku2x2Cell[], size: number, selector: (cell: Sudoku2x2Cell) => boolean) {
+  return cells.filter(selector).map((cell) => cell.value).sort((a, b) => a - b);
 }
 
 describe("generateSudoku2x2Round", () => {
-  it("creates a 2x2 board with exactly one hidden cell", () => {
-    const round = generateSudoku2x2Round(1);
+  it("progresses from 2x2 to 5x5 during the default eight-step session", () => {
+    const sizes = Array.from({ length: 8 }, (_, index) => generateSudoku2x2Round(index + 1).size);
 
-    expect(round.roundId).toBe("sudoku-2x2:round:1");
-    expect(round.board).toHaveLength(4);
-    expect(round.board.filter((cell) => cell.hidden)).toEqual([round.missingCell]);
+    expect(sizes).toEqual([2, 2, 3, 3, 4, 4, 5, 5]);
   });
 
-  it("keeps every completed row and column as 1 and 2", () => {
+  it("creates exactly one hidden cell on every board size", () => {
     for (let index = 1; index <= 8; index += 1) {
-      const values = filledValues(generateSudoku2x2Round(index).board);
+      const round = generateSudoku2x2Round(index);
 
-      expectPair([values[0], values[1]]);
-      expectPair([values[2], values[3]]);
-      expectPair([values[0], values[2]]);
-      expectPair([values[1], values[3]]);
+      expect(round.roundId).toBe(`sudoku-2x2:round:${index}`);
+      expect(round.board).toHaveLength(round.size * round.size);
+      expect(round.board.filter((cell) => cell.hidden)).toEqual([round.missingCell]);
     }
   });
 
-  it("offers the correct missing card and points correctIndex to it", () => {
-    const round = generateSudoku2x2Round(4);
+  it("keeps every completed row and column as 1..N", () => {
+    for (let index = 1; index <= 8; index += 1) {
+      const round = generateSudoku2x2Round(index);
+      const expected = expectedValues(round.size);
 
-    expect(round.choices).toHaveLength(2);
-    expect(round.choices).toContain(round.correctChoice);
-    expect(round.correctChoice.value).toBe(round.missingCell.value);
-    expect(round.choices[round.correctIndex]).toBe(round.correctChoice);
+      for (let row = 0; row < round.size; row += 1) {
+        expect(valuesAt(round.board, round.size, (cell) => cell.row === row)).toEqual(expected);
+      }
+
+      for (let col = 0; col < round.size; col += 1) {
+        expect(valuesAt(round.board, round.size, (cell) => cell.col === col)).toEqual(expected);
+      }
+    }
   });
 
-  it("cycles hidden cells during the default eight-step session", () => {
-    const hiddenIds = Array.from({ length: 8 }, (_, index) => generateSudoku2x2Round(index + 1).missingCell.id);
+  it("offers one choice per value in the current board size", () => {
+    for (let index = 1; index <= 8; index += 1) {
+      const round = generateSudoku2x2Round(index);
 
-    expect(new Set(hiddenIds)).toEqual(new Set(["cell-0", "cell-1", "cell-2", "cell-3"]));
+      expect(round.choices).toHaveLength(round.size);
+      expect(round.choices.map((choice) => choice.value).sort((a, b) => a - b)).toEqual(expectedValues(round.size));
+      expect(round.choices).toContain(round.correctChoice);
+      expect(round.correctChoice.value).toBe(round.missingCell.value);
+      expect(round.choices[round.correctIndex]).toBe(round.correctChoice);
+    }
   });
 });

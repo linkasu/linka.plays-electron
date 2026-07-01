@@ -1,9 +1,11 @@
-export type Sudoku2x2Value = 1 | 2;
+export type Sudoku2x2Value = 1 | 2 | 3 | 4 | 5;
+
+export type Sudoku2x2Size = 2 | 3 | 4 | 5;
 
 export type Sudoku2x2Cell = {
   id: string;
-  row: 0 | 1;
-  col: 0 | 1;
+  row: number;
+  col: number;
   value: Sudoku2x2Value;
   hidden: boolean;
 };
@@ -13,12 +15,13 @@ export type Sudoku2x2Choice = {
   value: Sudoku2x2Value;
   label: string;
   colorName: string;
-  tone: "sky" | "sun";
+  tone: "sky" | "sun" | "mint" | "rose" | "violet";
 };
 
 export type Sudoku2x2Round = {
   roundId: string;
   prompt: string;
+  size: Sudoku2x2Size;
   board: Sudoku2x2Cell[];
   missingCell: Sudoku2x2Cell;
   choices: Sudoku2x2Choice[];
@@ -28,21 +31,14 @@ export type Sudoku2x2Round = {
 
 export const sudoku2x2Choices: Sudoku2x2Choice[] = [
   { id: "card-1", value: 1, label: "1", colorName: "синяя", tone: "sky" },
-  { id: "card-2", value: 2, label: "2", colorName: "жёлтая", tone: "sun" }
+  { id: "card-2", value: 2, label: "2", colorName: "жёлтая", tone: "sun" },
+  { id: "card-3", value: 3, label: "3", colorName: "зелёная", tone: "mint" },
+  { id: "card-4", value: 4, label: "4", colorName: "розовая", tone: "rose" },
+  { id: "card-5", value: 5, label: "5", colorName: "фиолетовая", tone: "violet" }
 ];
 
-const solvedBoards: Sudoku2x2Value[][] = [
-  [1, 2, 2, 1],
-  [2, 1, 1, 2]
-];
-
-const hiddenCellOrder = [0, 3, 1, 2, 2, 1, 3, 0] as const;
-
-function cellPosition(index: number) {
-  return {
-    row: Math.floor(index / 2) as 0 | 1,
-    col: (index % 2) as 0 | 1
-  };
+function boardSizeForRound(roundIndex: number): Sudoku2x2Size {
+  return Math.min(5, 2 + Math.floor((roundIndex - 1) / 2)) as Sudoku2x2Size;
 }
 
 function choiceFor(value: Sudoku2x2Value) {
@@ -51,24 +47,47 @@ function choiceFor(value: Sudoku2x2Value) {
   return choice;
 }
 
+function choicesForSize(size: Sudoku2x2Size, roundIndex: number) {
+  const choices = sudoku2x2Choices.slice(0, size);
+  return roundIndex % 2 === 0 ? [...choices].reverse() : choices;
+}
+
+function cellValue(size: Sudoku2x2Size, row: number, col: number, roundIndex: number): Sudoku2x2Value {
+  const offset = (roundIndex - 1) % size;
+  return (((row + col + offset) % size) + 1) as Sudoku2x2Value;
+}
+
+function hiddenIndexFor(size: Sudoku2x2Size, roundIndex: number) {
+  return ((roundIndex - 1) * 3) % (size * size);
+}
+
 export function generateSudoku2x2Round(roundIndex = 1): Sudoku2x2Round {
   const safeRoundIndex = Math.max(1, Math.trunc(roundIndex));
-  const values = solvedBoards[(safeRoundIndex - 1) % solvedBoards.length];
-  const hiddenIndex = hiddenCellOrder[(safeRoundIndex - 1) % hiddenCellOrder.length];
+  const size = boardSizeForRound(safeRoundIndex);
+  const hiddenIndex = hiddenIndexFor(size, safeRoundIndex);
 
-  const board = values.map((value, index) => ({
-    id: `cell-${index}`,
-    ...cellPosition(index),
-    value,
-    hidden: index === hiddenIndex
-  }));
+  const board = Array.from({ length: size * size }, (_, index) => {
+    const row = Math.floor(index / size);
+    const col = index % size;
+
+    return {
+      id: `cell-${index}`,
+      row,
+      col,
+      value: cellValue(size, row, col, safeRoundIndex),
+      hidden: index === hiddenIndex
+    };
+  });
   const missingCell = board[hiddenIndex];
+  if (!missingCell) throw new Error("Не удалось выбрать пустую клетку судоку.");
+
   const correctChoice = choiceFor(missingCell.value);
-  const choices = safeRoundIndex % 2 === 0 ? [...sudoku2x2Choices].reverse() : [...sudoku2x2Choices];
+  const choices = choicesForSize(size, safeRoundIndex);
 
   return {
     roundId: `sudoku-2x2:round:${safeRoundIndex}`,
-    prompt: "Какая карточка нужна в пустой клетке?",
+    prompt: `Судоку ${size}×${size}: какая карточка нужна в пустой клетке?`,
+    size,
     board,
     missingCell,
     choices,

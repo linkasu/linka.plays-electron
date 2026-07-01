@@ -31,9 +31,14 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
 const mistakesInRound = ref(0);
 const lastMistakeId = ref<string>();
 const isSpeaking = ref(false);
+const boardStyle = computed(() => ({
+  "--sudoku-size": round.value.size.toString(),
+  "--sudoku-cell-vh": round.value.size >= 5 ? "8vh" : round.value.size >= 4 ? "9vh" : round.value.size >= 3 ? "11vh" : "14vh"
+}));
+const choiceMinHeight = computed(() => round.value.size >= 4 ? "clamp(5.5rem, 13vh, 8.5rem)" : "clamp(7rem, 18vh, 11rem)");
 
 const feedbackText = computed(() => {
-  if (mistakesInRound.value === 0) return "Посмотри на строку и столбик. В каждом месте должны быть 1 и 2.";
+  if (mistakesInRound.value === 0) return `Посмотри на строку и столбик. В каждом должны быть числа от 1 до ${round.value.size}.`;
   return "Посмотри на строку и столбик ещё раз и выбери другую карточку.";
 });
 
@@ -116,19 +121,19 @@ onUnmounted(() => {
 
 <template>
   <div class="sudoku-shell">
-    <GameHud title="Судоку 2x2" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud title="Судоку" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="10" xl="8">
           <v-card class="sudoku-card pa-4 pa-md-7" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Маленькое судоку</div>
+            <div class="text-overline text-secondary text-center mb-2">Судоку {{ round.size }}×{{ round.size }}</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
             <v-alert class="mb-5 text-body-1 text-md-h6 font-weight-bold" :color="mistakesInRound > 0 ? 'secondary' : 'primary'" :icon="mistakesInRound > 0 ? 'mdi-heart-outline' : 'mdi-check'" rounded="xl" variant="tonal">
               {{ feedbackText }}
             </v-alert>
 
             <div class="sudoku-layout">
-              <div class="sudoku-board" aria-label="Поле судоку 2 на 2">
+              <div class="sudoku-board" :style="boardStyle" :aria-label="`Поле судоку ${round.size} на ${round.size}`">
                 <div v-for="cell in round.board" :key="cell.id" :class="['sudoku-cell', cell.hidden ? 'sudoku-cell--missing' : cellTone(cell.value)]">
                   <template v-if="cell.hidden">
                     <v-icon icon="mdi-help" size="54" />
@@ -136,32 +141,30 @@ onUnmounted(() => {
                   </template>
                   <template v-else>
                     <span class="sudoku-cell__number">{{ cell.value }}</span>
-                    <span class="text-body-1 font-weight-bold">{{ cell.value === 1 ? 'синяя' : 'жёлтая' }}</span>
+                    <span class="sudoku-cell__caption text-body-2 font-weight-bold">{{ sudoku2x2Choices.find((choice) => choice.value === cell.value)?.colorName }}</span>
                   </template>
                 </div>
               </div>
 
               <div class="choice-panel">
                 <div class="text-h5 text-md-h4 font-weight-bold text-center mb-3">Выбери карточку</div>
-                <v-row dense>
-                  <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6">
-                    <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="190" color="surface" @select="answer(choice)">
-                      <template #default>
-                        <div :class="['choice-card', `choice-card--${choice.tone}`, { 'choice-card--mistake': choice.id === lastMistakeId }]">
-                          <span class="choice-card__number">{{ choice.label }}</span>
-                          <span class="text-h6 font-weight-bold">{{ choice.colorName }} карточка</span>
-                        </div>
-                      </template>
-                    </GameDwellButton>
-                  </v-col>
-                </v-row>
+                <div class="choice-grid">
+                  <GameDwellButton v-for="choice in round.choices" :key="choice.id" :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="choiceMinHeight" color="surface" @select="answer(choice)">
+                    <template #default>
+                      <div :class="['choice-card', `choice-card--${choice.tone}`, { 'choice-card--mistake': choice.id === lastMistakeId }]">
+                        <span class="choice-card__number">{{ choice.label }}</span>
+                        <span class="choice-card__caption text-body-1 text-md-h6 font-weight-bold">{{ choice.colorName }} карточка</span>
+                      </div>
+                    </template>
+                  </GameDwellButton>
+                </div>
               </div>
             </div>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Судоку 2x2" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog :model-value="resultVisible" title="Судоку" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
   </div>
 </template>
 
@@ -172,14 +175,23 @@ onUnmounted(() => {
 }
 
 .game-container {
-  padding-block-start: 8.75rem;
+  padding-block-start: clamp(5rem, 8vh, 8.75rem);
+}
+
+.sudoku-card {
+  padding: clamp(0.875rem, 2.4vh, 1.75rem) !important;
+}
+
+.sudoku-card > h1 {
+  font-size: clamp(1.8rem, 5.6vh, 3.6rem) !important;
+  line-height: 1.05;
 }
 
 .sudoku-layout {
-  align-items: stretch;
+  align-items: center;
   display: grid;
-  gap: 1.25rem;
-  grid-template-columns: minmax(18rem, 0.92fr) minmax(18rem, 1fr);
+  gap: clamp(0.75rem, 2vw, 1.25rem);
+  grid-template-columns: minmax(17rem, 0.85fr) minmax(18rem, 1fr);
 }
 
 .sudoku-board {
@@ -187,9 +199,14 @@ onUnmounted(() => {
   border: 0.35rem solid rgb(var(--v-theme-primary));
   border-radius: 2rem;
   display: grid;
-  gap: 0.55rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  padding: 0.7rem;
+  gap: clamp(0.25rem, 0.8vh, 0.55rem);
+  grid-template-columns: repeat(var(--sudoku-size), minmax(0, var(--sudoku-cell-size)));
+  inline-size: max-content;
+  justify-content: center;
+  margin-inline: auto;
+  max-inline-size: 100%;
+  padding: clamp(0.45rem, 1.1vh, 0.7rem);
+  --sudoku-cell-size: clamp(3.2rem, min(var(--sudoku-cell-vh), calc(40vw / var(--sudoku-size))), 8rem);
 }
 
 .sudoku-cell,
@@ -201,15 +218,35 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-block-size: 10.5rem;
+  min-block-size: var(--sudoku-cell-size, clamp(5.5rem, 13vh, 10.5rem));
   transition: filter 160ms ease, outline 160ms ease, transform 160ms ease;
+}
+
+.choice-grid {
+  display: grid;
+  gap: clamp(0.5rem, 1.2vh, 0.75rem);
+  grid-template-columns: repeat(auto-fit, minmax(clamp(5.75rem, 13vw, 9rem), 1fr));
+}
+
+.choice-card {
+  min-block-size: 100%;
 }
 
 .sudoku-cell__number,
 .choice-card__number {
-  font-size: clamp(4.5rem, min(13vw, 16vh), 8rem);
+  font-size: clamp(2.35rem, min(9vw, 11vh), 6.5rem);
   font-weight: 900;
   line-height: 0.95;
+}
+
+.sudoku-cell__caption,
+.choice-card__caption {
+  line-height: 1.1;
+  text-align: center;
+}
+
+.sudoku-cell__caption {
+  display: none;
 }
 
 .sudoku-cell--sky,
@@ -220,6 +257,21 @@ onUnmounted(() => {
 .sudoku-cell--sun,
 .choice-card--sun {
   background: linear-gradient(145deg, #fff1bd, #ffd36f);
+}
+
+.sudoku-cell--mint,
+.choice-card--mint {
+  background: linear-gradient(145deg, #dff8ec, #8fd9b6);
+}
+
+.sudoku-cell--rose,
+.choice-card--rose {
+  background: linear-gradient(145deg, #ffe3ee, #ff9fc1);
+}
+
+.sudoku-cell--violet,
+.choice-card--violet {
+  background: linear-gradient(145deg, #efe4ff, #baa1ff);
 }
 
 .sudoku-cell--missing {
@@ -236,16 +288,15 @@ onUnmounted(() => {
   .sudoku-layout {
     grid-template-columns: 1fr;
   }
+
+  .sudoku-board {
+    --sudoku-cell-size: clamp(3.2rem, min(var(--sudoku-cell-vh), calc(78vw / var(--sudoku-size))), 7rem);
+  }
 }
 
 @media (max-height: 44rem) {
-  .game-container {
-    padding-block-start: 7.75rem;
-  }
-
-  .sudoku-cell,
-  .choice-card {
-    min-block-size: 8.75rem;
+  .sudoku-card > h1 {
+    margin-block-end: 0.5rem !important;
   }
 }
 
@@ -254,42 +305,26 @@ onUnmounted(() => {
     padding-block-start: 6.5rem;
   }
 
-  .sudoku-card {
-    padding: 1rem !important;
-  }
-
   .sudoku-card > .text-overline,
   .sudoku-card > .v-alert {
     display: none;
   }
 
   .sudoku-layout {
-    display: grid;
-    grid-template-columns: minmax(16rem, 0.9fr) minmax(16rem, 1fr);
     gap: 0.75rem;
   }
 
-  .choice-panel {
-    order: initial;
-  }
-
   .sudoku-board {
-    gap: 0.35rem;
-    padding: 0.45rem;
+    --sudoku-cell-size: clamp(2.65rem, min(var(--sudoku-cell-vh), calc(40vw / var(--sudoku-size))), 5.4rem);
   }
 
   .choice-panel .text-h5 {
     display: none;
   }
 
-  .sudoku-cell,
-  .choice-card {
-    min-block-size: 6.75rem;
-  }
-
   .sudoku-cell__number,
   .choice-card__number {
-    font-size: 4rem;
+    font-size: clamp(2rem, 7vh, 4rem);
   }
 }
 </style>
