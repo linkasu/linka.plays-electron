@@ -8,8 +8,8 @@
 | Route | `/games/type-word` |
 | Категория | `language-aac` — Слова и AAC |
 | Status | `polished` |
-| Resolved stability | `development` |
-| Readiness group | `needs-check` |
+| Resolved stability | `publish` |
+| Readiness group | `ready` |
 
 ## Unity source
 
@@ -89,4 +89,4 @@ Unity добавляет случайные буквы до 5 клавиш. В E
 
 ## Next step
 
-Проверить в Electron CDP на 800×600/1024×600 и визуально подтвердить PNG перед approve.
+Оставить в ready-очереди и проверять регрессии через общий Electron CDP audit.

@@ -123,7 +123,7 @@
 | Что сначала? | `what-first` | [what-first.md](what-first.md) | `therapy-ready` | `publish` | `ready` |
 | Мини-диалог | `mini-dialog` | [mini-dialog.md](mini-dialog.md) | `therapy-ready` | `publish` | `ready` |
 | Социальные фразы | `social-phrases` | [social-phrases.md](social-phrases.md) | `therapy-ready` | `publish` | `ready` |
-| Печать слов | `type-word` | [type-word.md](type-word.md) | `polished` | `needs-check` | `development` |
+| Печать слов | `type-word` | [type-word.md](type-word.md) | `polished` | `publish` | `ready` |
 
 ### Счёт и математика
 
