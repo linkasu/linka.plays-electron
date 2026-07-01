@@ -1333,7 +1333,7 @@ export const games: GameInfo[] = [
     icon: "mdi-map-marker-question-outline",
     skills: ["aac", "choice", "vocabulary", "visual-search"],
     status: "therapy-ready",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 190,
     defaultDwellMs: 1300
