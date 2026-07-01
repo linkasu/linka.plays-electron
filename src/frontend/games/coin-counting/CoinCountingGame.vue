@@ -43,6 +43,8 @@ const selectedCoinCounts = computed(() => round.value.coins.map((coin) => ({
   ...coin,
   count: selectedCoins.value.filter((selected) => selected === coin.value).length
 })));
+const coinButtonMinHeight = "clamp(5.75rem, 14vh, 9.25rem)";
+const actionButtonMinHeight = "clamp(4.75rem, 9vh, 6.75rem)";
 
 function coinTargetId(value: CoinCountingCoinValue) {
   return `coin-counting:coin:${value}`;
@@ -186,7 +188,7 @@ onUnmounted(() => {
 
             <v-row class="coin-row" dense>
               <v-col v-for="coin in selectedCoinCounts" :key="coin.value" cols="12" sm="4">
-                <GameDwellButton :target-id="coinTargetId(coin.value)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="190" color="surface" @select="addCoin(coin)">
+                <GameDwellButton :target-id="coinTargetId(coin.value)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="coinButtonMinHeight" color="surface" @select="addCoin(coin)">
                   <template #default>
                     <div :class="['coin-button', coinTone(coin), { 'coin-button--mistake': lastMistakeTargetId === coinTargetId(coin.value) }]">
                       <div class="coin-button__value">{{ coin.label }}</div>
@@ -199,14 +201,14 @@ onUnmounted(() => {
 
             <v-row class="action-row mt-2" dense>
               <v-col cols="12" sm="5">
-                <GameDwellButton :target-id="actionTargetId('clear')" :disabled="session.status !== 'running' || isSpeaking || selectedCoins.length === 0" :dwell-ms="session.settings.dwellMs" :min-height="136" color="surface" @select="clearCoins">
+                <GameDwellButton :target-id="actionTargetId('clear')" :disabled="session.status !== 'running' || isSpeaking || selectedCoins.length === 0" :dwell-ms="session.settings.dwellMs" :min-height="actionButtonMinHeight" color="surface" @select="clearCoins">
                   <template #default>
                     <div class="text-h5 text-md-h4 font-weight-bold">Очистить</div>
                   </template>
                 </GameDwellButton>
               </v-col>
               <v-col cols="12" sm="7">
-                <GameDwellButton :target-id="actionTargetId('check')" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="136" color="deep-purple-darken-3" @select="checkTotal">
+                <GameDwellButton :target-id="actionTargetId('check')" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="actionButtonMinHeight" color="deep-purple-darken-3" @select="checkTotal">
                   <template #default>
                     <div class="d-flex align-center justify-center ga-3 text-h5 text-md-h4 font-weight-bold">
                       <v-icon icon="mdi-check" size="42" />
@@ -232,19 +234,36 @@ onUnmounted(() => {
 
 .game-container {
   padding-block-end: 0;
-  padding-block-start: 9.75rem;
+  padding-block-start: clamp(2.75rem, 8vh, 9.75rem);
 }
 
 .coin-card {
   overflow: hidden;
+  padding: clamp(0.75rem, 2vh, 1.5rem) !important;
+}
+
+.coin-card > .text-overline {
+  margin-block-end: clamp(0rem, 0.5vh, 0.5rem) !important;
+}
+
+.coin-card h1 {
+  font-size: clamp(2rem, 5.2vh, 4rem) !important;
+  line-height: 1.05;
+  margin-block-end: clamp(0.375rem, 1.2vh, 1rem) !important;
 }
 
 .sum-panel {
+  margin-block-end: clamp(0.5rem, 1.2vh, 1rem) !important;
+  padding: clamp(0.5rem, 1.4vh, 1rem) !important;
   box-shadow: inset 0 -0.5rem 2rem rgb(255 255 255 / 18%);
 }
 
+.sum-panel .text-overline {
+  line-height: 1.1;
+}
+
 .sum-panel__number {
-  font-size: clamp(4rem, min(14vw, 17vh), 8.5rem);
+  font-size: clamp(2.45rem, 7vh, 5.5rem);
   font-weight: 900;
   line-height: 0.95;
   text-align: center;
@@ -256,7 +275,7 @@ onUnmounted(() => {
   flex-wrap: wrap;
   gap: 0.5rem;
   justify-content: center;
-  min-block-size: 3.25rem;
+  min-block-size: clamp(0.5rem, 3vh, 3.25rem);
 }
 
 .selected-coin {
@@ -275,7 +294,16 @@ onUnmounted(() => {
 
 .coin-row,
 .action-row {
-  row-gap: 0.75rem;
+  row-gap: clamp(0.5rem, 1.4vh, 0.75rem);
+}
+
+.action-row {
+  margin-block-start: clamp(0.5rem, 1.4vh, 0.75rem) !important;
+}
+
+.coin-card .v-alert {
+  margin-block-end: clamp(0.375rem, 1.2vh, 1rem) !important;
+  padding-block: clamp(0.5rem, 1.2vh, 1rem) !important;
 }
 
 .coin-button {
@@ -287,7 +315,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-block-size: 9.5rem;
+  min-block-size: clamp(5.5rem, 13vh, 9.5rem);
   transition: filter 160ms ease, outline 160ms ease, transform 160ms ease;
 }
 
@@ -297,12 +325,12 @@ onUnmounted(() => {
   border-radius: 999px;
   box-shadow: inset -0.35rem -0.45rem 0 rgb(120 78 0 / 16%);
   display: inline-flex;
-  font-size: clamp(3.25rem, min(10vw, 12vh), 5.75rem);
+  font-size: clamp(2.6rem, 8vh, 5.75rem);
   font-weight: 900;
-  inline-size: clamp(5.5rem, min(15vw, 17vh), 8.25rem);
+  inline-size: clamp(3.6rem, 10vh, 8.25rem);
   justify-content: center;
   line-height: 1;
-  min-block-size: clamp(5.5rem, min(15vw, 17vh), 8.25rem);
+  min-block-size: clamp(3.6rem, 10vh, 8.25rem);
 }
 
 .coin-button--1 {
@@ -322,147 +350,4 @@ onUnmounted(() => {
   outline: 0.35rem solid rgb(var(--v-theme-secondary));
 }
 
-@media (min-width: 68.75rem) {
-  .game-container {
-    padding-block-start: 7.25rem;
-  }
-}
-
-@media (min-width: 68.75rem) and (max-height: 58rem) {
-  .game-container {
-    padding-block-start: 3.75rem;
-  }
-
-  .coin-card {
-    padding: 1rem !important;
-  }
-
-  .coin-card > .text-overline {
-    margin-block-end: 0 !important;
-  }
-
-  .coin-card h1 {
-    font-size: 2.75rem !important;
-    line-height: 1.05;
-    margin-block-end: 0.5rem !important;
-  }
-
-  .sum-panel {
-    margin-block-end: 0.625rem !important;
-    padding: 0.625rem !important;
-  }
-
-  .sum-panel .text-overline {
-    line-height: 1.1;
-  }
-
-  .sum-panel__number {
-    font-size: 3.6rem;
-  }
-
-  .selected-coins {
-    min-block-size: 1.5rem;
-  }
-
-  .coin-card .v-alert {
-    margin-block-end: 0.5rem !important;
-    padding-block: 0.625rem !important;
-  }
-
-  .coin-row,
-  .action-row {
-    row-gap: 0.625rem;
-  }
-
-  .action-row {
-    margin-block-start: 0.625rem !important;
-  }
-
-  .coin-button {
-    min-block-size: 6.75rem;
-  }
-
-  .coin-button__value {
-    font-size: 3.4rem;
-    inline-size: 5.25rem;
-    min-block-size: 5.25rem;
-  }
-
-  .coin-row :deep(.dwell-button) {
-    min-block-size: 7.25rem !important;
-  }
-
-  .action-row :deep(.dwell-button) {
-    min-block-size: 5.25rem !important;
-  }
-}
-
-@media (max-height: 44rem) {
-  .game-container {
-    padding-block-start: 2.75rem;
-  }
-
-  .coin-card {
-    padding: 0.75rem !important;
-  }
-
-  .coin-card > .text-overline {
-    margin-block-end: 0 !important;
-  }
-
-  .coin-card h1 {
-    font-size: 2rem !important;
-    line-height: 1.05;
-    margin-block-end: 0.375rem !important;
-  }
-
-  .sum-panel {
-    margin-block-end: 0.5rem !important;
-    padding: 0.5rem !important;
-  }
-
-  .sum-panel .text-overline {
-    line-height: 1.1;
-  }
-
-  .sum-panel__number {
-    font-size: 2.45rem;
-  }
-
-  .selected-coins {
-    min-block-size: 0.5rem;
-  }
-
-  .coin-card .v-alert {
-    margin-block-end: 0.375rem !important;
-    padding-block: 0.5rem !important;
-  }
-
-  .coin-row,
-  .action-row {
-    row-gap: 0.5rem;
-  }
-
-  .action-row {
-    margin-block-start: 0.5rem !important;
-  }
-
-  .coin-button {
-    min-block-size: 5.5rem;
-  }
-
-  .coin-button__value {
-    font-size: 2.6rem;
-    inline-size: 3.6rem;
-    min-block-size: 3.6rem;
-  }
-
-  .coin-row :deep(.dwell-button) {
-    min-block-size: 5.75rem !important;
-  }
-
-  .action-row :deep(.dwell-button) {
-    min-block-size: 4.75rem !important;
-  }
-}
 </style>
