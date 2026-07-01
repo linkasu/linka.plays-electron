@@ -1,3 +1,5 @@
+import { shuffleItems } from "../../core/random";
+
 export type ThreeFrameStoryFrame = {
   id: string;
   label: string;
@@ -23,13 +25,19 @@ export type ThreeFrameStoryRound = {
   correctIndex: number;
 };
 
+export type ThreeFrameStoryRoundOptions = {
+  random?: () => number;
+  choiceOrder?: string[];
+  storyOrder?: number[];
+};
+
 export const threeFrameStories: ThreeFrameStory[] = [
   {
     id: "plant-flower",
     title: "Цветок растёт",
     prompt: "Собери историю: как появляется цветок?",
     frames: [
-      { id: "seed", label: "семечко", caption: "Сначала кладём семечко в землю.", emoji: "🌱", color: "green-lighten-5" },
+      { id: "seed", label: "семечко", caption: "Сначала кладём семечко в землю.", emoji: "🌰", color: "green-lighten-5" },
       { id: "watering", label: "полив", caption: "Потом мягко поливаем росток.", emoji: "💧", color: "light-blue-lighten-5" },
       { id: "flower", label: "цветок", caption: "В конце раскрывается цветок.", emoji: "🌸", color: "pink-lighten-5" }
     ]
@@ -66,14 +74,17 @@ export const threeFrameStories: ThreeFrameStory[] = [
   }
 ];
 
-export function generateThreeFrameStoryRound(completedSteps: number): ThreeFrameStoryRound {
+export function generateThreeFrameStoryRound(completedSteps: number, options: ThreeFrameStoryRoundOptions = {}): ThreeFrameStoryRound {
   const safeCompletedSteps = Math.max(0, completedSteps);
-  const storyIndex = Math.floor(safeCompletedSteps / 3) % threeFrameStories.length;
+  const storyCycleIndex = Math.floor(safeCompletedSteps / 3) % threeFrameStories.length;
+  const storyIndex = options.storyOrder?.[storyCycleIndex] ?? storyCycleIndex;
   const stepInStory = safeCompletedSteps % 3;
   const story = threeFrameStories[storyIndex];
   const expectedFrame = story.frames[stepInStory];
   const placedFrames = story.frames.slice(0, stepInStory);
-  const choices = [...story.frames];
+  const choices = options.choiceOrder
+    ? [...story.frames].sort((left, right) => options.choiceOrder!.indexOf(left.id) - options.choiceOrder!.indexOf(right.id))
+    : shuffleItems(story.frames, options.random);
 
   return {
     roundId: `three-frame-story:${story.id}:${stepInStory + 1}`,

@@ -23,12 +23,28 @@ describe("generateThreeFrameStoryRound", () => {
     expect(generateThreeFrameStoryRound(2).expectedFrame).toBe(story.frames[2]);
   });
 
-  it("keeps choices in stable story order during assembly", () => {
+  it("shuffles choices with an injectable random source", () => {
     const story = threeFrameStories[0];
+    const random = () => 0;
 
-    expect(generateThreeFrameStoryRound(0).choices).toEqual(story.frames);
-    expect(generateThreeFrameStoryRound(1).choices).toEqual(story.frames);
-    expect(generateThreeFrameStoryRound(2).choices).toEqual(story.frames);
+    expect(generateThreeFrameStoryRound(0, { random }).choices.map((frame) => frame.id)).toEqual(["watering", "flower", "seed"]);
+    expect(generateThreeFrameStoryRound(0, { random }).correctIndex).toBe(2);
+    expect(story.frames[0].emoji).toBe("🌰");
+  });
+
+  it("uses the provided story order", () => {
+    const round = generateThreeFrameStoryRound(0, { storyOrder: [2, 1, 0, 3] });
+
+    expect(round.story).toBe(threeFrameStories[2]);
+    expect(round.expectedFrame).toBe(threeFrameStories[2].frames[0]);
+  });
+
+  it("keeps the provided choice order across story steps", () => {
+    const choiceOrder = ["flower", "seed", "watering"];
+
+    expect(generateThreeFrameStoryRound(0, { choiceOrder }).choices.map((frame) => frame.id)).toEqual(choiceOrder);
+    expect(generateThreeFrameStoryRound(1, { choiceOrder }).choices.map((frame) => frame.id)).toEqual(choiceOrder);
+    expect(generateThreeFrameStoryRound(2, { choiceOrder }).choices.map((frame) => frame.id)).toEqual(choiceOrder);
   });
 
   it("keeps already assembled frames before the next expected frame", () => {

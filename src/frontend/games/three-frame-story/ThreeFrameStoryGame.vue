@@ -9,7 +9,8 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { generateThreeFrameStoryRound, type ThreeFrameStoryFrame } from "./model";
+import { shuffleItems } from "../../core/random";
+import { generateThreeFrameStoryRound, threeFrameStories, type ThreeFrameStoryFrame } from "./model";
 
 const threeFrameStoryFeedback = createStandardGameFeedback();
 
@@ -20,7 +21,30 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnMistakes: false
 });
 
-const round = shallowRef(generateThreeFrameStoryRound(session.step));
+function createThreeFrameStoryOrder() {
+  return shuffleItems(threeFrameStories.map((_, index) => index));
+}
+
+const storyOrder = shallowRef(createThreeFrameStoryOrder());
+const choiceOrders = shallowRef<Record<string, string[]>>({});
+
+function storyForStep(completedSteps: number) {
+  const storyCycleIndex = Math.floor(Math.max(0, completedSteps) / 3) % threeFrameStories.length;
+  return threeFrameStories[storyOrder.value[storyCycleIndex] ?? storyCycleIndex];
+}
+
+function choiceOrderForStep(completedSteps: number) {
+  const story = storyForStep(completedSteps);
+  if (!choiceOrders.value[story.id]) {
+    choiceOrders.value = {
+      ...choiceOrders.value,
+      [story.id]: shuffleItems(story.frames).map((frame) => frame.id)
+    };
+  }
+  return choiceOrders.value[story.id];
+}
+
+const round = shallowRef(generateThreeFrameStoryRound(session.step, { choiceOrder: choiceOrderForStep(session.step), storyOrder: storyOrder.value }));
 const feedbackMessage = ref("Выбери первый кадр истории.");
 const pendingSelection = ref(false);
 const isSpeaking = ref(false);
@@ -73,7 +97,7 @@ function showResultSoon(delayMs = 900) {
 }
 
 function refreshRound() {
-  round.value = generateThreeFrameStoryRound(session.step);
+  round.value = generateThreeFrameStoryRound(session.step, { choiceOrder: choiceOrderForStep(session.step), storyOrder: storyOrder.value });
 }
 
 function scheduleNextFrame() {
@@ -149,6 +173,8 @@ function restart() {
   clearResultTimer();
   promptAudio.cancelPending();
   resultVisible.value = false;
+  storyOrder.value = createThreeFrameStoryOrder();
+  choiceOrders.value = {};
   startSession();
   refreshRound();
   resetFeedback("Выбери первый кадр истории.");
