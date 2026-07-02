@@ -19,7 +19,8 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnMistakes: false
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "lines-angles", soundEnabled, warmAssetIds: ["lines-angles.prompt", "lines-angles.correct", "lines-angles.mistake", "lines-angles.complete"] });
+const linesAnglesTaskAssetIds = ["lines-angles.task.straight", "lines-angles.task.curved", "lines-angles.task.angle", "lines-angles.task.no-angle", "lines-angles.task.vertical", "lines-angles.task.horizontal"];
+const promptAudio = useGamePromptAudio({ gameId: "lines-angles", soundEnabled, warmAssetIds: [...linesAnglesTaskAssetIds, "lines-angles.correct", "lines-angles.mistake", "lines-angles.complete"] });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<LinesAnglesRound>({
@@ -39,6 +40,14 @@ const hintText = computed(() => {
 
 function choiceTargetId(choiceId: string) {
   return `lines-angles:choice:${choiceId}`;
+}
+
+function promptAssetId() {
+  return `lines-angles.task.${round.value.task.id}`;
+}
+
+function playRoundPrompt(delayMs = 0) {
+  return promptAudio.playSequenceAndWait([promptAssetId()], delayMs);
 }
 
 function isMistake(choice: LinesAnglesOption) {
@@ -64,8 +73,10 @@ async function answer(choice: LinesAnglesOption) {
       isSpeaking.value = false;
       return;
     }
-    if (session.step < session.maxSteps) nextRound();
-    promptAudio.play("lines-angles.prompt", 180);
+    if (session.step < session.maxSteps) {
+      nextRound();
+      await playRoundPrompt(180);
+    }
     isSpeaking.value = false;
     return;
   }
@@ -85,12 +96,12 @@ function restart() {
   lastMistakeId.value = undefined;
   isSpeaking.value = false;
   restartRoundGame();
-  promptAudio.play("lines-angles.prompt", 220);
+  void playRoundPrompt(220);
 }
 
 onMounted(() => {
   promptAudio.warm();
-  promptAudio.play("lines-angles.prompt", 420);
+  void playRoundPrompt(420);
 });
 
 onUnmounted(() => {
@@ -111,7 +122,7 @@ onUnmounted(() => {
 
             <v-row class="choice-grid" justify="center" dense>
               <v-col v-for="choice in round.choices" :key="choice.id" class="geometry-choice-col" cols="12" sm="6" :md="round.choices.length <= 3 ? 4 : round.choices.length === 4 ? 3 : 4">
-                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="225" @select="answer(choice)">
+                <GameDwellButton :target-id="choiceTargetId(choice.id)" :aria-label="choice.label" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="225" @select="answer(choice)">
                   <template #default>
                     <div :class="['geometry-card', { 'geometry-card--mistake': isMistake(choice) }]">
                       <svg class="geometry-svg" viewBox="0 0 160 120" aria-hidden="true" focusable="false">
@@ -127,7 +138,6 @@ onUnmounted(() => {
                         <path v-else-if="choice.id === 'wide-angle'" d="M24 82 L80 40 L136 82" />
                         <path v-else d="M22 38 L58 82 L94 38 L138 82" />
                       </svg>
-                      <div class="text-h5 text-md-h4 font-weight-bold mt-3">{{ choice.label }}</div>
                     </div>
                   </template>
                 </GameDwellButton>
@@ -248,10 +258,5 @@ onUnmounted(() => {
     padding: 0.4rem;
   }
 
-  .geometry-card .text-h5 {
-    font-size: 1.15rem !important;
-    line-height: 1.1;
-    margin-block-start: 0.35rem !important;
-  }
 }
 </style>

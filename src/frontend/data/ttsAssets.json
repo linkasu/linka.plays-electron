@@ -8265,5 +8265,47 @@
     "text": "десять",
     "voice": "jane",
     "path": "/audio/tts/number-line/number-10.mp3"
+  },
+  {
+    "id": "lines-angles.task.straight",
+    "game": "lines-angles",
+    "text": "Выбери прямую линию.",
+    "voice": "jane",
+    "path": "/audio/tts/lines-angles/task-straight.mp3"
+  },
+  {
+    "id": "lines-angles.task.curved",
+    "game": "lines-angles",
+    "text": "Выбери кривую линию.",
+    "voice": "jane",
+    "path": "/audio/tts/lines-angles/task-curved.mp3"
+  },
+  {
+    "id": "lines-angles.task.angle",
+    "game": "lines-angles",
+    "text": "Выбери карточку, где есть угол.",
+    "voice": "jane",
+    "path": "/audio/tts/lines-angles/task-angle.mp3"
+  },
+  {
+    "id": "lines-angles.task.no-angle",
+    "game": "lines-angles",
+    "text": "Выбери карточку без угла.",
+    "voice": "jane",
+    "path": "/audio/tts/lines-angles/task-no-angle.mp3"
+  },
+  {
+    "id": "lines-angles.task.vertical",
+    "game": "lines-angles",
+    "text": "Выбери вертикальную линию.",
+    "voice": "jane",
+    "path": "/audio/tts/lines-angles/task-vertical.mp3"
+  },
+  {
+    "id": "lines-angles.task.horizontal",
+    "game": "lines-angles",
+    "text": "Выбери горизонтальную линию.",
+    "voice": "jane",
+    "path": "/audio/tts/lines-angles/task-horizontal.mp3"
   }
 ]
