@@ -8447,5 +8447,173 @@
     "text": "десять",
     "voice": "jane",
     "path": "/audio/tts/number-bonds/number-10.mp3"
+  },
+  {
+    "id": "shop.wallet.10",
+    "game": "shop",
+    "text": "У тебя десять монет.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/wallet-10.mp3"
+  },
+  {
+    "id": "shop.buy",
+    "game": "shop",
+    "text": "Купи",
+    "voice": "jane",
+    "path": "/audio/tts/shop/buy.mp3"
+  },
+  {
+    "id": "shop.and",
+    "game": "shop",
+    "text": "и",
+    "voice": "jane",
+    "path": "/audio/tts/shop/and.mp3"
+  },
+  {
+    "id": "shop.pay",
+    "game": "shop",
+    "text": "Оплати",
+    "voice": "jane",
+    "path": "/audio/tts/shop/pay.mp3"
+  },
+  {
+    "id": "shop.price",
+    "game": "shop",
+    "text": "цена",
+    "voice": "jane",
+    "path": "/audio/tts/shop/price.mp3"
+  },
+  {
+    "id": "shop.item.apple",
+    "game": "shop",
+    "text": "яблоко",
+    "voice": "jane",
+    "path": "/audio/tts/shop/item-apple.mp3"
+  },
+  {
+    "id": "shop.item.juice",
+    "game": "shop",
+    "text": "сок",
+    "voice": "jane",
+    "path": "/audio/tts/shop/item-juice.mp3"
+  },
+  {
+    "id": "shop.item.bread",
+    "game": "shop",
+    "text": "хлеб",
+    "voice": "jane",
+    "path": "/audio/tts/shop/item-bread.mp3"
+  },
+  {
+    "id": "shop.item.milk",
+    "game": "shop",
+    "text": "молоко",
+    "voice": "jane",
+    "path": "/audio/tts/shop/item-milk.mp3"
+  },
+  {
+    "id": "shop.item.banana",
+    "game": "shop",
+    "text": "банан",
+    "voice": "jane",
+    "path": "/audio/tts/shop/item-banana.mp3"
+  },
+  {
+    "id": "shop.item.cookie",
+    "game": "shop",
+    "text": "печенье",
+    "voice": "jane",
+    "path": "/audio/tts/shop/item-cookie.mp3"
+  },
+  {
+    "id": "shop.item.cheese",
+    "game": "shop",
+    "text": "сыр",
+    "voice": "jane",
+    "path": "/audio/tts/shop/item-cheese.mp3"
+  },
+  {
+    "id": "shop.item.berries",
+    "game": "shop",
+    "text": "ягоды",
+    "voice": "jane",
+    "path": "/audio/tts/shop/item-berries.mp3"
+  },
+  {
+    "id": "shop.item.cake",
+    "game": "shop",
+    "text": "кекс",
+    "voice": "jane",
+    "path": "/audio/tts/shop/item-cake.mp3"
+  },
+  {
+    "id": "shop.number.1",
+    "game": "shop",
+    "text": "один",
+    "voice": "jane",
+    "path": "/audio/tts/shop/number-1.mp3"
+  },
+  {
+    "id": "shop.number.2",
+    "game": "shop",
+    "text": "два",
+    "voice": "jane",
+    "path": "/audio/tts/shop/number-2.mp3"
+  },
+  {
+    "id": "shop.number.3",
+    "game": "shop",
+    "text": "три",
+    "voice": "jane",
+    "path": "/audio/tts/shop/number-3.mp3"
+  },
+  {
+    "id": "shop.number.4",
+    "game": "shop",
+    "text": "четыре",
+    "voice": "jane",
+    "path": "/audio/tts/shop/number-4.mp3"
+  },
+  {
+    "id": "shop.number.5",
+    "game": "shop",
+    "text": "пять",
+    "voice": "jane",
+    "path": "/audio/tts/shop/number-5.mp3"
+  },
+  {
+    "id": "shop.number.6",
+    "game": "shop",
+    "text": "шесть",
+    "voice": "jane",
+    "path": "/audio/tts/shop/number-6.mp3"
+  },
+  {
+    "id": "shop.number.7",
+    "game": "shop",
+    "text": "семь",
+    "voice": "jane",
+    "path": "/audio/tts/shop/number-7.mp3"
+  },
+  {
+    "id": "shop.number.8",
+    "game": "shop",
+    "text": "восемь",
+    "voice": "jane",
+    "path": "/audio/tts/shop/number-8.mp3"
+  },
+  {
+    "id": "shop.number.9",
+    "game": "shop",
+    "text": "девять",
+    "voice": "jane",
+    "path": "/audio/tts/shop/number-9.mp3"
+  },
+  {
+    "id": "shop.number.10",
+    "game": "shop",
+    "text": "десять",
+    "voice": "jane",
+    "path": "/audio/tts/shop/number-10.mp3"
   }
 ]

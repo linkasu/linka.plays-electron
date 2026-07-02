@@ -9,7 +9,7 @@ import { useRoundGame } from "../../composables/useRoundGame";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { generateShopRound, type ShopCoin, type ShopCoinValue, type ShopItem } from "./model";
+import { generateShopRound, validateShopShoppingCart, type ShopCoin, type ShopCoinValue, type ShopItem } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("shop", {
@@ -19,7 +19,9 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnMistakes: false
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "shop", soundEnabled, warmAssetIds: ["shop.prompt", "shop.correct", "shop.mistake", "shop.complete"] });
+const shopItemAssetIds = ["shop.item.apple", "shop.item.juice", "shop.item.bread", "shop.item.milk", "shop.item.banana", "shop.item.cookie", "shop.item.cheese", "shop.item.berries", "shop.item.cake"];
+const shopNumberAssetIds = Array.from({ length: 10 }, (_, index) => `shop.number.${index + 1}`);
+const promptAudio = useGamePromptAudio({ gameId: "shop", soundEnabled, warmAssetIds: ["shop.wallet.10", "shop.buy", "shop.and", "shop.pay", "shop.price", ...shopItemAssetIds, ...shopNumberAssetIds, "shop.correct", "shop.mistake", "shop.complete"] });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
@@ -29,12 +31,21 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
 });
 
 const selectedCoins = ref<ShopCoinValue[]>([]);
+const selectedItemIds = ref<string[]>([]);
 const feedback = ref("Выбери товар по цене или собери оплату монетами.");
 const lastMistakeTargetId = ref<string>();
 const isSpeaking = ref(false);
 
 const isPaymentRound = computed(() => round.value.taskKind === "pay-coins");
+const isShoppingListRound = computed(() => round.value.taskKind === "shopping-list");
 const selectedTotal = computed(() => selectedCoins.value.reduce((sum, coin) => sum + coin, 0));
+const selectedShoppingItems = computed(() => selectedItemIds.value
+  .map((id) => round.value.choices.find((item) => item.id === id))
+  .filter((item): item is ShopItem => Boolean(item)));
+const targetListText = computed(() => round.value.targetItems.map((item) => item.label).join(" и "));
+const shoppingTotal = computed(() => selectedShoppingItems.value.reduce((sum, item) => sum + item.price, 0));
+const targetItemIds = computed(() => new Set(round.value.correctItemIds));
+const shoppingReady = computed(() => validateShopShoppingCart(round.value, selectedItemIds.value));
 const selectedCoinCounts = computed(() => round.value.coins.map((coin) => ({
   ...coin,
   count: selectedCoins.value.filter((selected) => selected === coin.value).length
@@ -52,8 +63,24 @@ function actionTargetId(action: "clear" | "check") {
   return `shop:action:${action}`;
 }
 
+function shoppingActionTargetId() {
+  return "shop:action:buy";
+}
+
+function promptAssetIds() {
+  if (round.value.taskKind === "shopping-list") {
+    return ["shop.wallet.10", "shop.buy", `shop.item.${round.value.targetItems[0].id}`, "shop.and", `shop.item.${round.value.targetItems[1].id}`];
+  }
+  return ["shop.pay", `shop.item.${round.value.targetItem.id}`, "shop.price", `shop.number.${round.value.targetPrice}`];
+}
+
+function playRoundPrompt(delayMs = 0) {
+  return promptAudio.playSequenceAndWait(promptAssetIds(), delayMs, 90);
+}
+
 function resetSelection(text = round.value.helperText) {
   selectedCoins.value = [];
+  selectedItemIds.value = [];
   feedback.value = text;
   lastMistakeTargetId.value = undefined;
 }
@@ -65,6 +92,7 @@ function setSoftHint(targetId: string, text: string) {
 
 async function advanceRound() {
   selectedCoins.value = [];
+  selectedItemIds.value = [];
   lastMistakeTargetId.value = undefined;
   isSpeaking.value = true;
   void feedbackAudio.playSuccess();
@@ -77,23 +105,48 @@ async function advanceRound() {
   }
   if (session.step < session.maxSteps) nextRound();
   feedback.value = round.value.helperText;
-  promptAudio.play("shop.prompt", 180);
+  await playRoundPrompt(180);
   isSpeaking.value = false;
 }
 
-async function chooseItem(item: ShopItem) {
-  if (session.status !== "running" || round.value.taskKind !== "choose-item" || isSpeaking.value) return;
+async function toggleShoppingItem(item: ShopItem) {
+  if (session.status !== "running" || !isShoppingListRound.value || isSpeaking.value) return;
 
   const targetId = itemTargetId(item.id);
-  const expectedTargetId = itemTargetId(round.value.targetItem.id);
-  if (item.id === round.value.targetItem.id) {
-    recordSuccess({ roundId: round.value.roundId, targetId, prompt: round.value.prompt, expected: round.value.targetPrice, actual: item.price, itemId: item.id, isCorrect: true });
+  if (selectedItemIds.value.includes(item.id)) {
+    selectedItemIds.value = selectedItemIds.value.filter((id) => id !== item.id);
+    feedback.value = round.value.helperText;
+    lastMistakeTargetId.value = undefined;
+    return;
+  }
+
+  if (!targetItemIds.value.has(item.id)) {
+    recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId: shoppingActionTargetId(), prompt: round.value.prompt, expected: round.value.correctItemIds, actual: [...selectedItemIds.value, item.id], itemId: item.id, isCorrect: false, reason: "not-in-list" });
+    setSoftHint(targetId, "Этот товар не из списка. Выбери товары из задания.");
+    isSpeaking.value = true;
+    void feedbackAudio.playMistake();
+    await promptAudio.playSequenceAndWait(["shop.mistake"], 80);
+    isSpeaking.value = false;
+    return;
+  }
+
+  selectedItemIds.value = [...selectedItemIds.value, item.id];
+  feedback.value = shoppingReady.value ? "Корзина готова. Нажми Купить." : round.value.helperText;
+  lastMistakeTargetId.value = undefined;
+}
+
+async function buyShoppingList() {
+  if (session.status !== "running" || !isShoppingListRound.value || isSpeaking.value) return;
+
+  const targetId = shoppingActionTargetId();
+  if (shoppingReady.value) {
+    recordSuccess({ roundId: round.value.roundId, targetId, prompt: round.value.prompt, expected: round.value.correctItemIds, actual: selectedItemIds.value, total: shoppingTotal.value, walletTotal: round.value.walletTotal, isCorrect: true });
     await advanceRound();
     return;
   }
 
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, prompt: round.value.prompt, expected: round.value.targetPrice, actual: item.price, itemId: item.id, isCorrect: false });
-  setSoftHint(targetId, "Посмотри на ценники ещё раз и выбери другой товар.");
+  recordMistake({ roundId: round.value.roundId, targetId, prompt: round.value.prompt, expected: round.value.correctItemIds, actual: selectedItemIds.value, total: shoppingTotal.value, walletTotal: round.value.walletTotal, isCorrect: false, reason: shoppingTotal.value > round.value.walletTotal ? "too-much" : "list-mismatch" });
+  setSoftHint(targetId, shoppingTotal.value > round.value.walletTotal ? "Не хватает монет. Убери один товар." : "Выбери все товары из списка, потом нажми Купить.");
   isSpeaking.value = true;
   void feedbackAudio.playMistake();
   await promptAudio.playSequenceAndWait(["shop.mistake"], 80);
@@ -149,12 +202,12 @@ function restart() {
   isSpeaking.value = false;
   restartRoundGame();
   resetSelection(round.value.helperText);
-  promptAudio.play("shop.prompt", 220);
+  void playRoundPrompt(220);
 }
 
 onMounted(() => {
   promptAudio.warm();
-  promptAudio.play("shop.prompt", 420);
+  void playRoundPrompt(420);
 });
 
 onUnmounted(() => {
@@ -175,21 +228,40 @@ onUnmounted(() => {
               {{ feedback || round.helperText }}
             </v-alert>
 
-            <v-row v-if="round.taskKind === 'choose-item'" class="choice-row" dense>
-              <v-col v-for="item in round.choices" :key="item.id" class="shop-choice-col" cols="12" sm="6" lg="3">
-                <GameDwellButton :target-id="itemTargetId(item.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="230" color="surface" @select="chooseItem(item)">
+            <template v-if="round.taskKind === 'shopping-list'">
+              <v-row class="choice-row" dense>
+                <v-col v-for="item in round.choices" :key="item.id" class="shop-choice-col" cols="12" sm="6" lg="3">
+                  <GameDwellButton :target-id="itemTargetId(item.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="230" color="surface" @select="toggleShoppingItem(item)">
+                    <template #default>
+                      <div :class="['item-card', { 'item-card--selected': selectedItemIds.includes(item.id), 'item-card--mistake': lastMistakeTargetId === itemTargetId(item.id) }]">
+                        <div class="item-card__emoji emoji-glyph" aria-hidden="true">{{ item.emoji }}</div>
+                        <div class="item-card__label text-h5 text-md-h4 font-weight-bold text-center">{{ item.label }}</div>
+                        <v-chip class="item-card__price mt-3" color="deep-purple-darken-3" size="x-large" variant="flat">
+                          {{ item.price }} мон.
+                        </v-chip>
+                        <v-chip v-if="selectedItemIds.includes(item.id)" class="mt-2" color="success" size="large" variant="tonal">В корзине</v-chip>
+                      </div>
+                    </template>
+                  </GameDwellButton>
+                </v-col>
+              </v-row>
+
+              <v-sheet class="basket-panel pa-3 pa-md-4 mt-3" color="surface" rounded="xl" border>
+                <div class="basket-panel__summary">
+                  <div class="text-h6 text-md-h5 font-weight-bold">Нужно: {{ targetListText }}</div>
+                  <div class="text-h6 text-md-h5 font-weight-bold">Корзина: {{ shoppingTotal }} / {{ round.walletTotal }} мон.</div>
+                  <div class="text-body-1 text-medium-emphasis">{{ selectedShoppingItems.length ? selectedShoppingItems.map((item) => item.label).join(', ') : 'Выбери товары из списка' }}</div>
+                </div>
+                <GameDwellButton :target-id="shoppingActionTargetId()" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="6rem" color="deep-purple-darken-3" @select="buyShoppingList">
                   <template #default>
-                    <div :class="['item-card', { 'item-card--mistake': lastMistakeTargetId === itemTargetId(item.id) }]">
-                      <div class="item-card__emoji emoji-glyph" aria-hidden="true">{{ item.emoji }}</div>
-                      <div class="item-card__label text-h5 text-md-h4 font-weight-bold text-center">{{ item.label }}</div>
-                      <v-chip class="item-card__price mt-3" color="deep-purple-darken-3" size="x-large" variant="flat">
-                        {{ item.price }} мон.
-                      </v-chip>
+                    <div class="d-flex align-center justify-center ga-3 text-h5 text-md-h4 font-weight-bold">
+                      <v-icon icon="mdi-cart-check" size="38" />
+                      Купить
                     </div>
                   </template>
                 </GameDwellButton>
-              </v-col>
-            </v-row>
+              </v-sheet>
+            </template>
 
             <template v-else>
               <v-sheet class="receipt-panel pa-4 mb-4" color="primary" rounded="xl">
@@ -297,6 +369,11 @@ onUnmounted(() => {
   color: #ffffff !important;
 }
 
+.item-card--selected {
+  outline: 0.35rem solid rgb(var(--v-theme-success));
+  transform: scale(0.98);
+}
+
 .item-card__emoji {
   font-size: clamp(4rem, min(9vw, 12vh), 6.5rem);
   line-height: 1;
@@ -305,6 +382,17 @@ onUnmounted(() => {
 
 .receipt-panel {
   box-shadow: inset 0 -0.5rem 2rem rgb(255 255 255 / 18%);
+}
+
+.basket-panel {
+  align-items: center;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) minmax(14rem, 24rem);
+}
+
+.basket-panel__summary {
+  min-inline-size: 0;
 }
 
 .receipt-panel__item {
@@ -386,6 +474,10 @@ onUnmounted(() => {
   .game-container {
     padding-block-start: 11rem;
   }
+
+  .basket-panel {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-height: 44rem) {
@@ -411,6 +503,13 @@ onUnmounted(() => {
   .choice-row :deep(.dwell-button) {
     min-block-size: 10rem !important;
     padding: 0.5rem !important;
+  }
+
+  .basket-panel {
+    gap: 0.5rem;
+    grid-template-columns: minmax(0, 1fr) minmax(12rem, 18rem);
+    margin-block-start: 0.5rem !important;
+    padding-block: 0.5rem !important;
   }
 
   .item-card,

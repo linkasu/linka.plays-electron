@@ -1,7 +1,7 @@
 import type { SessionSettings } from "../../core/settings";
 import { shuffleItems } from "../../core/random";
 
-export type ShopTaskKind = "choose-item" | "pay-coins";
+export type ShopTaskKind = "shopping-list" | "pay-coins";
 
 export type ShopCoinValue = 1 | 2 | 5;
 
@@ -23,9 +23,12 @@ export type ShopRound = {
   prompt: string;
   helperText: string;
   targetItem: ShopItem;
+  targetItems: ShopItem[];
   targetPrice: number;
+  walletTotal: number;
   choices: ShopItem[];
   correctIndex: number;
+  correctItemIds: string[];
   coins: ShopCoin[];
   suggestedCoins: ShopCoinValue[];
 };
@@ -52,6 +55,25 @@ function choiceCountFor(settings: SessionSettings) {
   return settings.preset === "gentle" ? 3 : 4;
 }
 
+function shoppingWalletFor(settings: SessionSettings) {
+  return settings.preset === "gentle" ? 6 : 10;
+}
+
+function sumItems(items: ShopItem[]) {
+  return items.reduce((sum, item) => sum + item.price, 0);
+}
+
+function buildShoppingPairs(walletTotal: number) {
+  const pairs: ShopItem[][] = [];
+  for (let firstIndex = 0; firstIndex < shopItems.length; firstIndex += 1) {
+    for (let secondIndex = firstIndex + 1; secondIndex < shopItems.length; secondIndex += 1) {
+      const pair = [shopItems[firstIndex], shopItems[secondIndex]];
+      if (sumItems(pair) <= walletTotal) pairs.push(pair);
+    }
+  }
+  return pairs;
+}
+
 export function buildShopPaymentSuggestion(total: number): ShopCoinValue[] {
   const coins: ShopCoinValue[] = [];
   let rest = Math.max(2, Math.min(10, Math.floor(total)));
@@ -64,10 +86,46 @@ export function buildShopPaymentSuggestion(total: number): ShopCoinValue[] {
   return coins;
 }
 
+export function validateShopShoppingCart(round: ShopRound, selectedItemIds: string[]) {
+  const selectedItems = selectedItemIds
+    .map((id) => shopItems.find((item) => item.id === id))
+    .filter((item): item is ShopItem => Boolean(item));
+  const selectedSet = new Set(selectedItemIds);
+  const targetSet = new Set(round.correctItemIds);
+  const matchesTargets = selectedSet.size === targetSet.size && [...targetSet].every((id) => selectedSet.has(id));
+  return matchesTargets && sumItems(selectedItems) <= round.walletTotal;
+}
+
 export function generateShopRound(settings: SessionSettings, roundIndex = 1, random = Math.random): ShopRound {
-  const taskKind: ShopTaskKind = roundIndex % 2 === 0 ? "pay-coins" : "choose-item";
+  const taskKind: ShopTaskKind = roundIndex % 2 === 0 ? "pay-coins" : "shopping-list";
   const choiceCount = choiceCountFor(settings);
   if (shopItems.length < choiceCount) throw new Error("Недостаточно товаров для магазина.");
+
+  if (taskKind === "shopping-list") {
+    const walletTotal = shoppingWalletFor(settings);
+    const [targetItems] = shuffleItems(buildShoppingPairs(walletTotal), random);
+    if (!targetItems) throw new Error("Недостаточно товаров для списка покупок.");
+    const targetIds = new Set(targetItems.map((item) => item.id));
+    const distractors = shuffleItems(shopItems.filter((item) => !targetIds.has(item.id)), random).slice(0, choiceCount - targetItems.length);
+    const choices = shuffleItems([...targetItems, ...distractors], random);
+    const targetPrice = sumItems(targetItems);
+
+    return {
+      roundId: `shop:round:${roundIndex}`,
+      taskKind,
+      prompt: `У тебя ${walletTotal} монет. Купи ${targetItems.map((item) => item.label).join(" и ")}.`,
+      helperText: `Выбери оба товара из списка. Нужно потратить ${targetPrice} из ${walletTotal} монет.`,
+      targetItem: targetItems[0],
+      targetItems,
+      targetPrice,
+      walletTotal,
+      choices,
+      correctIndex: choices.findIndex((item) => item.id === targetItems[0].id),
+      correctItemIds: targetItems.map((item) => item.id),
+      coins: shopCoins,
+      suggestedCoins: buildShopPaymentSuggestion(targetPrice)
+    };
+  }
 
   const [targetItem] = shuffleItems(shopItems, random).slice(0, 1);
   const distractors = shuffleItems(shopItems.filter((item) => item.price !== targetItem.price), random).slice(0, choiceCount - 1);
@@ -77,12 +135,15 @@ export function generateShopRound(settings: SessionSettings, roundIndex = 1, ran
   return {
     roundId: `shop:round:${roundIndex}`,
     taskKind,
-    prompt: taskKind === "choose-item" ? `Выбери товар за ${targetPrice}` : `Оплати ${targetItem.label}: ${targetPrice}`,
-    helperText: taskKind === "choose-item" ? "Смотри на ценники и выбери нужный товар." : "Собери цену монетами и нажми галочку.",
+    prompt: `Оплати ${targetItem.label}: ${targetPrice}`,
+    helperText: "Собери цену монетами и нажми галочку.",
     targetItem,
+    targetItems: [targetItem],
     targetPrice,
+    walletTotal: targetPrice,
     choices,
     correctIndex: choices.findIndex((item) => item.id === targetItem.id),
+    correctItemIds: [targetItem.id],
     coins: shopCoins,
     suggestedCoins: buildShopPaymentSuggestion(targetPrice)
   };
