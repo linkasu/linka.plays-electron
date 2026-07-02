@@ -8363,5 +8363,89 @@
     "text": "Сколько у столбика машинки?",
     "voice": "jane",
     "path": "/audio/tts/simple-graphs/question-count-cars.mp3"
+  },
+  {
+    "id": "number-bonds.question.add-to",
+    "game": "number-bonds",
+    "text": "Сколько добавить к",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/question-add-to.mp3"
+  },
+  {
+    "id": "number-bonds.question.to-make",
+    "game": "number-bonds",
+    "text": "чтобы было",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/question-to-make.mp3"
+  },
+  {
+    "id": "number-bonds.number.1",
+    "game": "number-bonds",
+    "text": "один",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/number-1.mp3"
+  },
+  {
+    "id": "number-bonds.number.2",
+    "game": "number-bonds",
+    "text": "два",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/number-2.mp3"
+  },
+  {
+    "id": "number-bonds.number.3",
+    "game": "number-bonds",
+    "text": "три",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/number-3.mp3"
+  },
+  {
+    "id": "number-bonds.number.4",
+    "game": "number-bonds",
+    "text": "четыре",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/number-4.mp3"
+  },
+  {
+    "id": "number-bonds.number.5",
+    "game": "number-bonds",
+    "text": "пять",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/number-5.mp3"
+  },
+  {
+    "id": "number-bonds.number.6",
+    "game": "number-bonds",
+    "text": "шесть",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/number-6.mp3"
+  },
+  {
+    "id": "number-bonds.number.7",
+    "game": "number-bonds",
+    "text": "семь",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/number-7.mp3"
+  },
+  {
+    "id": "number-bonds.number.8",
+    "game": "number-bonds",
+    "text": "восемь",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/number-8.mp3"
+  },
+  {
+    "id": "number-bonds.number.9",
+    "game": "number-bonds",
+    "text": "девять",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/number-9.mp3"
+  },
+  {
+    "id": "number-bonds.number.10",
+    "game": "number-bonds",
+    "text": "десять",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/number-10.mp3"
   }
 ]

@@ -19,7 +19,9 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnMistakes: false
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "number-bonds", soundEnabled, warmAssetIds: ["number-bonds.prompt", "number-bonds.correct", "number-bonds.mistake", "number-bonds.complete"] });
+const numberBondsQuestionAssetIds = ["number-bonds.question.add-to", "number-bonds.question.to-make"];
+const numberBondsNumberAssetIds = Array.from({ length: 10 }, (_, index) => `number-bonds.number.${index + 1}`);
+const promptAudio = useGamePromptAudio({ gameId: "number-bonds", soundEnabled, warmAssetIds: [...numberBondsQuestionAssetIds, ...numberBondsNumberAssetIds, "number-bonds.correct", "number-bonds.mistake", "number-bonds.complete"] });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const { round, resultVisible, nextRound, restart } = useRoundGame({
@@ -35,6 +37,14 @@ const knownDots = computed(() => Array.from({ length: round.value.knownPart }, (
 
 function choiceTargetId(choice: number) {
   return `number-bonds:choice:${choice}`;
+}
+
+function promptAssetIds() {
+  return ["number-bonds.question.add-to", `number-bonds.number.${round.value.knownPart}`, "number-bonds.question.to-make", `number-bonds.number.${round.value.total}`];
+}
+
+function playRoundPrompt(delayMs = 0) {
+  return promptAudio.playSequenceAndWait(promptAssetIds(), delayMs, 90);
 }
 
 async function answer(choice: number) {
@@ -55,9 +65,11 @@ async function answer(choice: number) {
       isSpeaking.value = false;
       return;
     }
-    if (session.step < session.maxSteps) nextRound();
+    if (session.step < session.maxSteps) {
+      nextRound();
+      await playRoundPrompt(180);
+    }
     hint.value = "Выбери недостающую часть.";
-    promptAudio.play("number-bonds.prompt", 180);
     isSpeaking.value = false;
     return;
   }
@@ -77,12 +89,12 @@ function restartGame() {
   lastMistakeTargetId.value = undefined;
   isSpeaking.value = false;
   restart();
-  promptAudio.play("number-bonds.prompt", 220);
+  void playRoundPrompt(220);
 }
 
 onMounted(() => {
   promptAudio.warm();
-  promptAudio.play("number-bonds.prompt", 420);
+  void playRoundPrompt(420);
 });
 
 onUnmounted(() => {
