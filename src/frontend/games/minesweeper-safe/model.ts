@@ -78,12 +78,12 @@ export function areAllMinesFlagged(cells: MinesweeperSafeCell[], states: Mineswe
   return cells.every((cell) => cell.mine ? states[cell.index] === "flagged" : states[cell.index] !== "flagged");
 }
 
-export function generateMinesweeperSafeBoard(settings: SessionSettings, roundIndex = 1): MinesweeperSafeBoard {
+export function generateMinesweeperSafeBoard(settings: SessionSettings, roundIndex = 1, random = Math.random): MinesweeperSafeBoard {
   const shape = boardShapeFor(settings);
   const totalCells = shape.size * shape.size;
   const center = Math.floor(totalCells / 2);
   const reserved = new Set([center, center - 1, center + 1, center - shape.size, center + shape.size].filter((index) => index >= 0 && index < totalCells));
-  const mineIndexes = new Set(shuffleIndexes(totalCells, roundIndex, shape.size).filter((index) => !reserved.has(index)).slice(0, shape.mines));
+  const mineIndexes = new Set(shuffleIndexes(totalCells, random).filter((index) => !reserved.has(index)).slice(0, shape.mines));
   const cells = Array.from({ length: totalCells }, (_, index) => {
     const row = Math.floor(index / shape.size);
     const col = index % shape.size;
@@ -112,14 +112,8 @@ export function generateMinesweeperSafeBoard(settings: SessionSettings, roundInd
   };
 }
 
-function shuffleIndexes(totalCells: number, roundIndex: number, size: number) {
+function shuffleIndexes(totalCells: number, random: () => number) {
   const indexes = Array.from({ length: totalCells }, (_, index) => index);
-  let seed = 5821 + roundIndex * 7919 + size * 131;
-
-  function random() {
-    seed = seed * 1664525 + 1013904223 >>> 0;
-    return seed / 0x100000000;
-  }
 
   for (let index = indexes.length - 1; index > 0; index -= 1) {
     const swapIndex = Math.floor(random() * (index + 1));

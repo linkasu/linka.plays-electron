@@ -3,8 +3,10 @@ import { settingsFromPreset } from "../../core/settings";
 import { adjacentIndexes, areAllMinesFlagged, createInitialCellStates, findSuggestedSafeIndex, generateMinesweeperSafeBoard, minesweeperSafeChoiceOutcome } from "./model";
 
 describe("minesweeper-safe model", () => {
+  const deterministicRandom = () => 0.42;
+
   it("creates a standard board with five mines and safe opening clues", () => {
-    const board = generateMinesweeperSafeBoard(settingsFromPreset("standard"), 2);
+    const board = generateMinesweeperSafeBoard(settingsFromPreset("standard"), 2, deterministicRandom);
 
     expect(board.roundId).toBe("minesweeper-safe:round:2");
     expect(board.size).toBe(5);
@@ -15,8 +17,8 @@ describe("minesweeper-safe model", () => {
   });
 
   it("changes board density by preset", () => {
-    const gentle = generateMinesweeperSafeBoard(settingsFromPreset("gentle"));
-    const challenge = generateMinesweeperSafeBoard(settingsFromPreset("challenge"));
+    const gentle = generateMinesweeperSafeBoard(settingsFromPreset("gentle"), 1, deterministicRandom);
+    const challenge = generateMinesweeperSafeBoard(settingsFromPreset("challenge"), 1, deterministicRandom);
 
     expect(gentle.size).toBe(4);
     expect(gentle.mineCount).toBe(3);
@@ -25,7 +27,7 @@ describe("minesweeper-safe model", () => {
   });
 
   it("stores correct adjacent mine counts", () => {
-    const board = generateMinesweeperSafeBoard(settingsFromPreset("standard"), 5);
+    const board = generateMinesweeperSafeBoard(settingsFromPreset("standard"), 5, deterministicRandom);
     const mines = new Set(board.cells.filter((cell) => cell.mine).map((cell) => cell.index));
 
     for (const cell of board.cells) {
@@ -34,7 +36,7 @@ describe("minesweeper-safe model", () => {
   });
 
   it("suggests a hidden safe cell", () => {
-    const board = generateMinesweeperSafeBoard(settingsFromPreset("standard"), 7);
+    const board = generateMinesweeperSafeBoard(settingsFromPreset("standard"), 7, deterministicRandom);
     const states = createInitialCellStates(board);
     const suggestion = findSuggestedSafeIndex(board.cells, states);
 
@@ -44,7 +46,7 @@ describe("minesweeper-safe model", () => {
   });
 
   it("treats selecting a mine as a losing choice", () => {
-    const board = generateMinesweeperSafeBoard(settingsFromPreset("standard"), 7);
+    const board = generateMinesweeperSafeBoard(settingsFromPreset("standard"), 7, deterministicRandom);
     const states = createInitialCellStates(board);
     const mine = board.cells.find((cell) => cell.mine);
     const safe = board.cells.find((cell) => !cell.mine && states[cell.index] === "hidden");
@@ -57,7 +59,7 @@ describe("minesweeper-safe model", () => {
   });
 
   it("detects victory when all mines are flagged and no safe cell is flagged", () => {
-    const board = generateMinesweeperSafeBoard(settingsFromPreset("standard"), 7);
+    const board = generateMinesweeperSafeBoard(settingsFromPreset("standard"), 7, deterministicRandom);
     const states = createInitialCellStates(board);
     const mines = board.cells.filter((cell) => cell.mine);
     const safe = board.cells.find((cell) => !cell.mine && states[cell.index] === "hidden");
@@ -67,5 +69,13 @@ describe("minesweeper-safe model", () => {
 
     if (safe) states[safe.index] = "flagged";
     expect(areAllMinesFlagged(board.cells, states)).toBe(false);
+  });
+
+  it("uses injected randomness for mine placement", () => {
+    const settings = settingsFromPreset("standard");
+    const first = generateMinesweeperSafeBoard(settings, 1, () => 0.1);
+    const second = generateMinesweeperSafeBoard(settings, 1, () => 0.9);
+
+    expect(first.cells.filter((cell) => cell.mine).map((cell) => cell.index)).not.toEqual(second.cells.filter((cell) => cell.mine).map((cell) => cell.index));
   });
 });
