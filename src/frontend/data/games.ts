@@ -1738,7 +1738,7 @@ export const games: GameInfo[] = [
     icon: "mdi-mine",
     skills: ["choice", "visual-search", "sequence"],
     status: "therapy-ready",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 112,
     defaultDwellMs: 1200

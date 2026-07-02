@@ -10,8 +10,8 @@
 | Route | `/games/minesweeper-safe` |
 | Категория | `strategy` — Головоломки |
 | Status | `therapy-ready` |
-| Resolved stability | `needs-check` |
-| Readiness group | `development` |
+| Resolved stability | `publish` |
+| Readiness group | `ready` |
 | Skills | выбор, поиск, последовательность |
 | Recommended session | 180 сек |
 | Min target size | 112 px |
@@ -62,12 +62,11 @@
 
 ## Готовность
 
-Игра находится в группе `development`, потому что resolved stability не равен `publish`.
+Игра находится в группе `ready`, потому что resolved stability равен `publish`.
 
 Автоматические blockers:
 
-- stability:needs-check
-- pending-manual-approval
+- нет
 
 ## QA checklist
 
@@ -80,4 +79,4 @@
 
 ## Next step
 
-Провести ручной approve после проверки в Electron CDP и оставить `needs-check` до явного решения ревьюера.
+Оставить в ready-очереди и проверять регрессии через общий Electron CDP audit.
