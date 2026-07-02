@@ -8643,5 +8643,117 @@
     "text": "Найди звезду.",
     "voice": "jane",
     "path": "/audio/tts/shapes/prompt-star.mp3"
+  },
+  {
+    "id": "color-shape.prompt.red-circle",
+    "game": "color-shape",
+    "text": "Найди красный круг.",
+    "voice": "jane",
+    "path": "/audio/tts/color-shape/prompt-red-circle.mp3"
+  },
+  {
+    "id": "color-shape.prompt.red-square",
+    "game": "color-shape",
+    "text": "Найди красный квадрат.",
+    "voice": "jane",
+    "path": "/audio/tts/color-shape/prompt-red-square.mp3"
+  },
+  {
+    "id": "color-shape.prompt.red-triangle",
+    "game": "color-shape",
+    "text": "Найди красный треугольник.",
+    "voice": "jane",
+    "path": "/audio/tts/color-shape/prompt-red-triangle.mp3"
+  },
+  {
+    "id": "color-shape.prompt.red-star",
+    "game": "color-shape",
+    "text": "Найди красную звезду.",
+    "voice": "jane",
+    "path": "/audio/tts/color-shape/prompt-red-star.mp3"
+  },
+  {
+    "id": "color-shape.prompt.blue-circle",
+    "game": "color-shape",
+    "text": "Найди синий круг.",
+    "voice": "jane",
+    "path": "/audio/tts/color-shape/prompt-blue-circle.mp3"
+  },
+  {
+    "id": "color-shape.prompt.blue-square",
+    "game": "color-shape",
+    "text": "Найди синий квадрат.",
+    "voice": "jane",
+    "path": "/audio/tts/color-shape/prompt-blue-square.mp3"
+  },
+  {
+    "id": "color-shape.prompt.blue-triangle",
+    "game": "color-shape",
+    "text": "Найди синий треугольник.",
+    "voice": "jane",
+    "path": "/audio/tts/color-shape/prompt-blue-triangle.mp3"
+  },
+  {
+    "id": "color-shape.prompt.blue-star",
+    "game": "color-shape",
+    "text": "Найди синюю звезду.",
+    "voice": "jane",
+    "path": "/audio/tts/color-shape/prompt-blue-star.mp3"
+  },
+  {
+    "id": "color-shape.prompt.green-circle",
+    "game": "color-shape",
+    "text": "Найди зелёный круг.",
+    "voice": "jane",
+    "path": "/audio/tts/color-shape/prompt-green-circle.mp3"
+  },
+  {
+    "id": "color-shape.prompt.green-square",
+    "game": "color-shape",
+    "text": "Найди зелёный квадрат.",
+    "voice": "jane",
+    "path": "/audio/tts/color-shape/prompt-green-square.mp3"
+  },
+  {
+    "id": "color-shape.prompt.green-triangle",
+    "game": "color-shape",
+    "text": "Найди зелёный треугольник.",
+    "voice": "jane",
+    "path": "/audio/tts/color-shape/prompt-green-triangle.mp3"
+  },
+  {
+    "id": "color-shape.prompt.green-star",
+    "game": "color-shape",
+    "text": "Найди зелёную звезду.",
+    "voice": "jane",
+    "path": "/audio/tts/color-shape/prompt-green-star.mp3"
+  },
+  {
+    "id": "color-shape.prompt.yellow-circle",
+    "game": "color-shape",
+    "text": "Найди жёлтый круг.",
+    "voice": "jane",
+    "path": "/audio/tts/color-shape/prompt-yellow-circle.mp3"
+  },
+  {
+    "id": "color-shape.prompt.yellow-square",
+    "game": "color-shape",
+    "text": "Найди жёлтый квадрат.",
+    "voice": "jane",
+    "path": "/audio/tts/color-shape/prompt-yellow-square.mp3"
+  },
+  {
+    "id": "color-shape.prompt.yellow-triangle",
+    "game": "color-shape",
+    "text": "Найди жёлтый треугольник.",
+    "voice": "jane",
+    "path": "/audio/tts/color-shape/prompt-yellow-triangle.mp3"
+  },
+  {
+    "id": "color-shape.prompt.yellow-star",
+    "game": "color-shape",
+    "text": "Найди жёлтую звезду.",
+    "voice": "jane",
+    "path": "/audio/tts/color-shape/prompt-yellow-star.mp3"
   }
 ]

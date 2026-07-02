@@ -19,7 +19,25 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnMistakes: false
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "color-shape", soundEnabled, warmAssetIds: ["color-shape.prompt", "color-shape.correct", "color-shape.mistake", "color-shape.complete"] });
+const colorShapePromptAssetIds = [
+  "color-shape.prompt.red-circle",
+  "color-shape.prompt.red-square",
+  "color-shape.prompt.red-triangle",
+  "color-shape.prompt.red-star",
+  "color-shape.prompt.blue-circle",
+  "color-shape.prompt.blue-square",
+  "color-shape.prompt.blue-triangle",
+  "color-shape.prompt.blue-star",
+  "color-shape.prompt.green-circle",
+  "color-shape.prompt.green-square",
+  "color-shape.prompt.green-triangle",
+  "color-shape.prompt.green-star",
+  "color-shape.prompt.yellow-circle",
+  "color-shape.prompt.yellow-square",
+  "color-shape.prompt.yellow-triangle",
+  "color-shape.prompt.yellow-star"
+];
+const promptAudio = useGamePromptAudio({ gameId: "color-shape", soundEnabled, warmAssetIds: [...colorShapePromptAssetIds, "color-shape.correct", "color-shape.mistake", "color-shape.complete"] });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<ColorShapeRound>({
@@ -39,6 +57,14 @@ const hintText = computed(() => {
 
 function choiceTargetId(choiceId: string) {
   return `color-shape:choice:${choiceId}`;
+}
+
+function promptAssetId() {
+  return `color-shape.prompt.${round.value.target.id}`;
+}
+
+function playRoundPrompt(delayMs = 0) {
+  return promptAudio.playSequenceAndWait([promptAssetId()], delayMs);
 }
 
 function isMistakeChoice(choice: ColorShapeItem) {
@@ -63,8 +89,10 @@ async function answer(choice: ColorShapeItem) {
       isSpeaking.value = false;
       return;
     }
-    if (session.step < session.maxSteps) nextRound();
-    promptAudio.play("color-shape.prompt", 180);
+    if (session.step < session.maxSteps) {
+      nextRound();
+      await playRoundPrompt(180);
+    }
     isSpeaking.value = false;
     return;
   }
@@ -84,12 +112,12 @@ function restart() {
   lastMistake.value = undefined;
   isSpeaking.value = false;
   restartRoundGame();
-  promptAudio.play("color-shape.prompt", 220);
+  void playRoundPrompt(220);
 }
 
 onMounted(() => {
   promptAudio.warm();
-  promptAudio.play("color-shape.prompt", 420);
+  void playRoundPrompt(420);
 });
 
 onUnmounted(() => {
