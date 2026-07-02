@@ -221,7 +221,7 @@ onUnmounted(() => {
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" xl="11">
-          <v-card class="shop-card pa-4 pa-md-6" rounded="xl" elevation="8">
+          <v-card :class="['shop-card pa-4 pa-md-6', { 'shop-card--payment': isPaymentRound }]" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Магазин с крупными ценниками</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
             <v-alert class="mb-4 text-body-1 font-weight-bold" :color="lastMistakeTargetId ? 'secondary' : 'primary'" :icon="lastMistakeTargetId ? 'mdi-heart-outline' : 'mdi-lightbulb-outline'" rounded="xl" variant="tonal">
@@ -281,7 +281,7 @@ onUnmounted(() => {
 
               <v-row class="coin-row" dense>
                 <v-col v-for="coin in selectedCoinCounts" :key="coin.value" cols="12" sm="4">
-                  <GameDwellButton :target-id="coinTargetId(coin.value)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="170" color="surface" @select="addCoin(coin)">
+                  <GameDwellButton :target-id="coinTargetId(coin.value)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="clamp(7rem, 17vh, 10.5rem)" color="surface" @select="addCoin(coin)">
                     <template #default>
                       <div :class="['coin-card', { 'coin-card--mistake': lastMistakeTargetId === coinTargetId(coin.value) }]">
                         <div class="coin-card__value">{{ coin.label }}</div>
@@ -295,14 +295,14 @@ onUnmounted(() => {
 
               <v-row class="action-row mt-2" dense>
                 <v-col cols="12" sm="5">
-                  <GameDwellButton :target-id="actionTargetId('clear')" :disabled="session.status !== 'running' || isSpeaking || selectedCoins.length === 0" :dwell-ms="session.settings.dwellMs" :min-height="112" color="surface" @select="clearCoins">
+                  <GameDwellButton :target-id="actionTargetId('clear')" :disabled="session.status !== 'running' || isSpeaking || selectedCoins.length === 0" :dwell-ms="session.settings.dwellMs" min-height="clamp(4.5rem, 10vh, 7rem)" color="surface" @select="clearCoins">
                     <template #default>
                       <div class="text-h5 text-md-h4 font-weight-bold">Очистить</div>
                     </template>
                   </GameDwellButton>
                 </v-col>
                 <v-col cols="12" sm="7">
-                  <GameDwellButton :target-id="actionTargetId('check')" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="112" color="primary" @select="checkPayment">
+                  <GameDwellButton :target-id="actionTargetId('check')" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="clamp(4.5rem, 10vh, 7rem)" color="primary" @select="checkPayment">
                     <template #default>
                       <div class="d-flex align-center justify-center ga-3 text-h5 text-md-h4 font-weight-bold">
                         <v-icon icon="mdi-check" size="42" />
@@ -334,6 +334,21 @@ onUnmounted(() => {
 
 .shop-card {
   overflow: hidden;
+}
+
+.shop-card--payment {
+  display: flex;
+  flex-direction: column;
+}
+
+.shop-card--payment h1 {
+  font-size: clamp(2.5rem, min(6vw, 7vh), 4.75rem) !important;
+  line-height: 1.02;
+  margin-block-end: clamp(0.5rem, 1vh, 1rem) !important;
+}
+
+.shop-card--payment .v-alert {
+  margin-block-end: clamp(0.5rem, 1.1vh, 1rem) !important;
 }
 
 .choice-row,
@@ -384,6 +399,11 @@ onUnmounted(() => {
   box-shadow: inset 0 -0.5rem 2rem rgb(255 255 255 / 18%);
 }
 
+.shop-card--payment .receipt-panel {
+  margin-block-end: clamp(0.5rem, 1.2vh, 1rem) !important;
+  padding-block: clamp(0.75rem, 1.8vh, 1rem) !important;
+}
+
 .basket-panel {
   align-items: center;
   display: grid;
@@ -408,12 +428,21 @@ onUnmounted(() => {
   line-height: 1;
 }
 
+.shop-card--payment .receipt-panel__emoji {
+  font-size: clamp(2.5rem, min(5vw, 7vh), 4rem);
+}
+
 .receipt-panel__price {
   font-size: clamp(3.75rem, min(12vw, 15vh), 7.5rem);
   font-weight: 900;
   line-height: 0.95;
   margin-block: 0.5rem;
   text-align: center;
+}
+
+.shop-card--payment .receipt-panel__price {
+  font-size: clamp(3rem, min(8vw, 10vh), 5.25rem);
+  margin-block: clamp(0.2rem, 0.8vh, 0.5rem);
 }
 
 .selected-coins {
@@ -423,6 +452,10 @@ onUnmounted(() => {
   gap: 0.5rem;
   justify-content: center;
   min-block-size: 3.25rem;
+}
+
+.shop-card--payment .selected-coins {
+  min-block-size: clamp(2.25rem, 5vh, 3rem);
 }
 
 .selected-coin {
@@ -437,6 +470,12 @@ onUnmounted(() => {
   inline-size: 3.25rem;
   justify-content: center;
   min-block-size: 3.25rem;
+}
+
+.shop-card--payment .selected-coin {
+  font-size: clamp(1.25rem, 3vh, 1.75rem);
+  inline-size: clamp(2.25rem, 5vh, 3rem);
+  min-block-size: clamp(2.25rem, 5vh, 3rem);
 }
 
 .coin-card {
@@ -456,6 +495,12 @@ onUnmounted(() => {
   justify-content: center;
   line-height: 1;
   min-block-size: clamp(5.25rem, min(14vw, 16vh), 7.75rem);
+}
+
+.shop-card--payment .coin-card__value {
+  font-size: clamp(2.75rem, min(7vw, 9vh), 4.75rem);
+  inline-size: clamp(4.5rem, min(10vw, 12vh), 6.25rem);
+  min-block-size: clamp(4.5rem, min(10vw, 12vh), 6.25rem);
 }
 
 .item-card--mistake,
