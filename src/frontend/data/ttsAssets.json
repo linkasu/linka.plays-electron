@@ -8615,5 +8615,33 @@
     "text": "десять",
     "voice": "jane",
     "path": "/audio/tts/shop/number-10.mp3"
+  },
+  {
+    "id": "shapes.prompt.circle",
+    "game": "shapes",
+    "text": "Найди круг.",
+    "voice": "jane",
+    "path": "/audio/tts/shapes/prompt-circle.mp3"
+  },
+  {
+    "id": "shapes.prompt.square",
+    "game": "shapes",
+    "text": "Найди квадрат.",
+    "voice": "jane",
+    "path": "/audio/tts/shapes/prompt-square.mp3"
+  },
+  {
+    "id": "shapes.prompt.triangle",
+    "game": "shapes",
+    "text": "Найди треугольник.",
+    "voice": "jane",
+    "path": "/audio/tts/shapes/prompt-triangle.mp3"
+  },
+  {
+    "id": "shapes.prompt.star",
+    "game": "shapes",
+    "text": "Найди звезду.",
+    "voice": "jane",
+    "path": "/audio/tts/shapes/prompt-star.mp3"
   }
 ]

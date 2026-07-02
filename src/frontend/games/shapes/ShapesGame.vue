@@ -19,7 +19,8 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnMistakes: false
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "shapes", soundEnabled, warmAssetIds: ["shapes.prompt", "shapes.correct", "shapes.mistake", "shapes.complete"] });
+const shapePromptAssetIds = ["shapes.prompt.circle", "shapes.prompt.square", "shapes.prompt.triangle", "shapes.prompt.star"];
+const promptAudio = useGamePromptAudio({ gameId: "shapes", soundEnabled, warmAssetIds: [...shapePromptAssetIds, "shapes.correct", "shapes.mistake", "shapes.complete"] });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<ShapesRound>({
@@ -43,6 +44,14 @@ function choiceTargetId(choiceId: ShapeId) {
   return `shapes:choice:${choiceId}`;
 }
 
+function promptAssetId() {
+  return `shapes.prompt.${round.value.target.id}`;
+}
+
+function playRoundPrompt(delayMs = 0) {
+  return promptAudio.playSequenceAndWait([promptAssetId()], delayMs);
+}
+
 async function choose(choice: ShapeOption, index: number) {
   if (session.status !== "running" || isSpeaking.value) return;
 
@@ -62,9 +71,11 @@ async function choose(choice: ShapeOption, index: number) {
       isSpeaking.value = false;
       return;
     }
-    if (session.step < session.maxSteps) nextRound();
+    if (session.step < session.maxSteps) {
+      nextRound();
+      await playRoundPrompt(180);
+    }
     hintText.value = "";
-    promptAudio.play("shapes.prompt", 180);
     isSpeaking.value = false;
     return;
   }
@@ -84,12 +95,12 @@ function restart() {
   lastMistakeId.value = undefined;
   isSpeaking.value = false;
   restartRoundGame();
-  promptAudio.play("shapes.prompt", 220);
+  void playRoundPrompt(220);
 }
 
 onMounted(() => {
   promptAudio.warm();
-  promptAudio.play("shapes.prompt", 420);
+  void playRoundPrompt(420);
 });
 
 onUnmounted(() => {
