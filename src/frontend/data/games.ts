@@ -1693,7 +1693,7 @@ export const games: GameInfo[] = [
     icon: "mdi-shape",
     skills: ["choice", "classification"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
     defaultDwellMs: 1200
