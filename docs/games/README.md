@@ -143,7 +143,7 @@
 | Судоку 2x2 | `sudoku-2x2` | [sudoku-2x2.md](sudoku-2x2.md) | `therapy-ready` | `publish` | `ready` |
 | Линии и углы | `lines-angles` | [lines-angles.md](lines-angles.md) | `therapy-ready` | `publish` | `ready` |
 | Простые графики | `simple-graphs` | [simple-graphs.md](simple-graphs.md) | `therapy-ready` | `publish` | `ready` |
-| Состав числа | `number-bonds` | [number-bonds.md](number-bonds.md) | `therapy-ready` | `needs-check` | `development` |
+| Состав числа | `number-bonds` | [number-bonds.md](number-bonds.md) | `therapy-ready` | `publish` | `ready` |
 | Магазин | `shop` | [shop.md](shop.md) | `therapy-ready` | `needs-check` | `development` |
 | Координаты | `coordinates` | [coordinates.md](coordinates.md) | `therapy-ready` | `needs-check` | `development` |
 | Формы | `shapes` | [shapes.md](shapes.md) | `polished` | `needs-check` | `development` |
