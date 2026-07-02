@@ -74,6 +74,10 @@ export function minesweeperSafeChoiceOutcome(cell: MinesweeperSafeCell, state: M
   return cell.mine ? "mine" : "safe";
 }
 
+export function areAllMinesFlagged(cells: MinesweeperSafeCell[], states: MinesweeperSafeCellState[]) {
+  return cells.every((cell) => cell.mine ? states[cell.index] === "flagged" : states[cell.index] !== "flagged");
+}
+
 export function generateMinesweeperSafeBoard(settings: SessionSettings, roundIndex = 1): MinesweeperSafeBoard {
   const shape = boardShapeFor(settings);
   const totalCells = shape.size * shape.size;

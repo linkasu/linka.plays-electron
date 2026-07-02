@@ -8,7 +8,7 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { createInitialCellStates, findSuggestedSafeIndex, generateMinesweeperSafeBoard, minesweeperSafeChoiceOutcome, type MinesweeperSafeCell } from "./model";
+import { areAllMinesFlagged, createInitialCellStates, findSuggestedSafeIndex, generateMinesweeperSafeBoard, minesweeperSafeChoiceOutcome, type MinesweeperSafeCell } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("minesweeper-safe", {
@@ -18,7 +18,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnMistakes: false
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "minesweeper-safe", soundEnabled, warmAssetIds: ["minesweeper-safe.prompt", "minesweeper-safe.correct", "minesweeper-safe.mistake", "minesweeper-safe.complete"] });
+const promptAudio = useGamePromptAudio({ gameId: "minesweeper-safe", soundEnabled, warmAssetIds: ["minesweeper-safe.prompt"] });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const roundIndex = ref(1);
@@ -26,12 +26,15 @@ const board = ref(generateMinesweeperSafeBoard(session.settings, roundIndex.valu
 const cellStates = ref(createInitialCellStates(board.value));
 const hintedIndex = ref<number>();
 const lastFlaggedIndex = ref<number>();
+const bombMode = ref(false);
 const isSpeaking = ref(false);
 
 const resultVisible = computed(() => session.status === "finished");
 const safeRemaining = computed(() => board.value.cells.filter((cell) => !cell.mine && cellStates.value[cell.index] === "hidden").length);
+const flaggedCount = computed(() => cellStates.value.filter((state) => state === "flagged").length);
 const helperText = computed(() => {
-  if (lastFlaggedIndex.value !== undefined) return "Раунд остановлен. Можно спокойно начать новую доску.";
+  if (lastFlaggedIndex.value !== undefined) return "Флажок стоит на клетке. Пометь все бомбы, чтобы победить.";
+  if (bombMode.value) return "Режим бомбы: выбери закрытую клетку, чтобы поставить или снять флажок.";
   if (hintedIndex.value !== undefined) return "Мягкая подсказка включена: выбери подсвеченную клетку, если хочешь.";
   return "Открытые числа показывают, сколько мин рядом. Выбирай закрытые клетки, которые выглядят безопасно.";
 });
@@ -44,8 +47,12 @@ function hintTargetId() {
   return "minesweeper-safe:hint";
 }
 
+function bombTargetId() {
+  return "minesweeper-safe:bomb";
+}
+
 function isDisabled(cell: MinesweeperSafeCell) {
-  return session.status !== "running" || isSpeaking.value || cellStates.value[cell.index] !== "hidden";
+  return session.status !== "running" || isSpeaking.value || cellStates.value[cell.index] === "revealed";
 }
 
 function cellColor(cell: MinesweeperSafeCell) {
@@ -70,6 +77,16 @@ function revealNextBoardIfNeeded() {
   cellStates.value = createInitialCellStates(board.value);
   hintedIndex.value = undefined;
   lastFlaggedIndex.value = undefined;
+  bombMode.value = false;
+}
+
+async function completeBoardIfMinesFlagged() {
+  if (!areAllMinesFlagged(board.value.cells, cellStates.value)) return false;
+
+  recordSuccess({ roundId: board.value.roundId, targetId: bombTargetId(), result: "all-mines-flagged" });
+  void feedbackAudio.playSuccess();
+  finishSession("game-complete");
+  return true;
 }
 
 function requestHint(reason = "manual") {
@@ -80,8 +97,25 @@ function requestHint(reason = "manual") {
   recordHint({ roundId: board.value.roundId, targetId: cellTargetId(suggestion), reason });
 }
 
+function toggleBombMode() {
+  if (session.status !== "running" || isSpeaking.value) return;
+  bombMode.value = !bombMode.value;
+}
+
 async function chooseCell(cell: MinesweeperSafeCell) {
   if (isDisabled(cell)) return;
+
+  if (bombMode.value) {
+    const nextState = cellStates.value[cell.index] === "flagged" ? "hidden" : "flagged";
+    cellStates.value[cell.index] = nextState;
+    hintedIndex.value = undefined;
+    lastFlaggedIndex.value = nextState === "flagged" ? cell.index : undefined;
+    if (nextState === "flagged") recordHint({ roundId: board.value.roundId, targetId: cellTargetId(cell.index), reason: "bomb-flag" });
+    await completeBoardIfMinesFlagged();
+    return;
+  }
+
+  if (cellStates.value[cell.index] === "flagged") return;
 
   const outcome = minesweeperSafeChoiceOutcome(cell, cellStates.value[cell.index]);
   if (outcome === "ignored") return;
@@ -89,11 +123,8 @@ async function chooseCell(cell: MinesweeperSafeCell) {
   if (outcome === "mine") {
     lastFlaggedIndex.value = cell.index;
     recordMistake({ roundId: board.value.roundId, targetId: cellTargetId(cell.index), result: "mine", isCorrect: false });
-    isSpeaking.value = true;
     void feedbackAudio.playMistake();
-    await promptAudio.playSequenceAndWait(["minesweeper-safe.mistake", "minesweeper-safe.complete"], 80, 170);
     finishSession("game-lost");
-    isSpeaking.value = false;
     return;
   }
 
@@ -102,17 +133,12 @@ async function chooseCell(cell: MinesweeperSafeCell) {
   lastFlaggedIndex.value = undefined;
   if (hintedIndex.value === cell.index) hintedIndex.value = undefined;
   recordSuccess({ roundId: board.value.roundId, targetId: cellTargetId(cell.index), adjacentMines: cell.adjacentMines });
-  isSpeaking.value = true;
   void feedbackAudio.playSuccess();
-  await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["minesweeper-safe.correct", "minesweeper-safe.complete"] : ["minesweeper-safe.correct"], 80, 170);
   if (finishedAfterSuccess) {
     finishSession("game-complete");
-    isSpeaking.value = false;
     return;
   }
   revealNextBoardIfNeeded();
-  promptAudio.play("minesweeper-safe.prompt", 180);
-  isSpeaking.value = false;
 }
 
 function restart() {
@@ -122,6 +148,7 @@ function restart() {
   cellStates.value = createInitialCellStates(board.value);
   hintedIndex.value = undefined;
   lastFlaggedIndex.value = undefined;
+  bombMode.value = false;
   isSpeaking.value = false;
   startSession();
   promptAudio.play("minesweeper-safe.prompt", 220);
@@ -144,17 +171,28 @@ onUnmounted(() => {
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="8">
-          <v-card class="pa-4 pa-md-7" rounded="xl" elevation="10">
-            <div class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-5">
-              <div>
+          <v-card class="minesweeper-card pa-4 pa-md-7" rounded="xl" elevation="10">
+            <div class="board-header d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-5">
+              <div class="intro-copy">
                 <div class="text-overline text-secondary mb-1">Спокойная стратегия</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Сапёр</h1>
                 <p class="text-body-1 text-md-h6 text-medium-emphasis mb-0">{{ helperText }}</p>
               </div>
-              <div class="d-flex flex-column flex-sm-row align-stretch align-sm-center ga-3">
+              <div class="header-actions d-flex flex-column flex-sm-row align-stretch align-sm-center ga-3">
                 <v-chip color="primary" prepend-icon="mdi-shield-check-outline" size="large" variant="tonal">
                   Безопасных: {{ safeRemaining }}
                 </v-chip>
+                <v-chip color="warning" prepend-icon="mdi-bomb" size="large" variant="tonal">
+                  Бомб: {{ flaggedCount }} / {{ board.mineCount }}
+                </v-chip>
+                <GameDwellButton :target-id="bombTargetId()" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="112" :color="bombMode ? 'warning' : 'surface'" @select="toggleBombMode">
+                  <template #default>
+                    <div class="hint-button-content">
+                      <v-icon icon="mdi-bomb" size="30" />
+                      <span>{{ bombMode ? 'Бомба: вкл' : 'Бомба' }}</span>
+                    </div>
+                  </template>
+                </GameDwellButton>
                 <GameDwellButton :target-id="hintTargetId()" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="136" color="deep-purple-darken-3" @select="requestHint()">
                   <template #default>
                     <div class="hint-button-content">
@@ -174,7 +212,7 @@ onUnmounted(() => {
                 :target-id="cellTargetId(cell.index)"
                 :disabled="isDisabled(cell)"
                 :dwell-ms="session.settings.dwellMs"
-                :min-height="136"
+                min-height="clamp(4.5rem, 12vh, 8.5rem)"
                 :color="cellColor(cell)"
                 role="gridcell"
                 @select="chooseCell(cell)"
@@ -218,7 +256,12 @@ onUnmounted(() => {
 }
 
 .game-container {
-  padding-block-start: 7rem;
+  padding-block: clamp(4.75rem, 9vh, 7rem) clamp(2rem, 5vh, 4rem) !important;
+}
+
+.minesweeper-card {
+  max-block-size: calc(100vh - clamp(6.75rem, 14vh, 11rem));
+  overflow: hidden;
 }
 
 .hint-button-content,
@@ -250,9 +293,11 @@ onUnmounted(() => {
 
 .board-wrap {
   display: grid;
-  gap: clamp(0.45rem, 1.4vw, 0.85rem);
-  grid-template-columns: repeat(var(--board-size), minmax(4.8rem, 1fr));
-  max-inline-size: min(47rem, 100%);
+  gap: clamp(0.25rem, 1vh, 0.85rem);
+  grid-auto-rows: minmax(0, 1fr);
+  grid-template-columns: repeat(var(--board-size), minmax(0, 1fr));
+  inline-size: min(100%, calc(100vh - clamp(11rem, 22vh, 18rem)));
+  max-inline-size: 47rem;
 }
 
 .mine-cell {
@@ -293,25 +338,47 @@ onUnmounted(() => {
 
 @media (min-height: 681px) and (max-height: 920px) {
   .game-container {
-    padding-block-start: 4.75rem;
+    padding-block: 4.75rem 4vh !important;
   }
 
   .game-container :deep(.v-card) {
     padding-block: 1rem !important;
   }
 
-  .game-container .text-overline,
-  .game-container p,
-  .game-container .v-alert,
-  .game-container h1,
-  .game-container .d-flex.flex-column.flex-md-row {
+  .game-container .intro-copy,
+  .game-container .v-alert {
     display: none !important;
+  }
+
+  .board-header {
+    justify-content: center !important;
+    margin-block-end: clamp(0.5rem, 1.2vh, 1rem) !important;
+  }
+
+  .header-actions {
+    flex-direction: row !important;
+  }
+
+  .header-actions :deep(.dwell-button) {
+    min-block-size: clamp(4.75rem, 9vh, 6.5rem) !important;
+    padding: 0.45rem !important;
+  }
+
+  .board-wrap {
+    gap: 0.8vh;
+    inline-size: min(100%, 67vh);
+    max-inline-size: none;
+  }
+
+  .mine-cell :deep(.dwell-button) {
+    min-block-size: min(11.2vh, 5.75rem) !important;
+    padding: 0.35rem !important;
   }
 }
 
 @media (max-height: 680px) {
   .game-container {
-    padding-block-start: 4.75rem;
+    padding-block: 4.75rem 4vh !important;
   }
 
   .game-container :deep(.v-card) {
@@ -324,23 +391,38 @@ onUnmounted(() => {
     display: none;
   }
 
-  .game-container .d-flex.flex-column.flex-md-row {
+  .game-container .intro-copy {
     display: none !important;
   }
 
-  .game-container h1 {
+  .board-header {
+    justify-content: center !important;
+    margin-block-end: 0.5rem !important;
+  }
+
+  .header-actions {
+    flex-direction: row !important;
+  }
+
+  .header-actions .v-chip {
     display: none;
   }
 
+  .header-actions :deep(.dwell-button) {
+    min-block-size: 4.5rem !important;
+    padding: 0.35rem !important;
+  }
+
   .board-wrap {
-    gap: 0.4rem;
+    gap: 0.6vh;
     grid-template-columns: repeat(var(--board-size), minmax(0, 1fr));
-    max-inline-size: min(100%, 47rem);
+    inline-size: min(100%, 65vh);
+    max-inline-size: none;
   }
 
   .mine-cell :deep(.dwell-button) {
-    min-block-size: 5.625rem !important;
-    padding: 0.35rem !important;
+    min-block-size: 9.5vh !important;
+    padding: 0.3rem !important;
   }
 
   .hidden-cell,

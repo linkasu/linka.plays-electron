@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { settingsFromPreset } from "../../core/settings";
-import { adjacentIndexes, createInitialCellStates, findSuggestedSafeIndex, generateMinesweeperSafeBoard, minesweeperSafeChoiceOutcome } from "./model";
+import { adjacentIndexes, areAllMinesFlagged, createInitialCellStates, findSuggestedSafeIndex, generateMinesweeperSafeBoard, minesweeperSafeChoiceOutcome } from "./model";
 
 describe("minesweeper-safe model", () => {
   it("creates a standard board with five mines and safe opening clues", () => {
@@ -54,5 +54,18 @@ describe("minesweeper-safe model", () => {
     expect(minesweeperSafeChoiceOutcome(mine!, states[mine!.index])).toBe("mine");
     expect(minesweeperSafeChoiceOutcome(safe!, states[safe!.index])).toBe("safe");
     expect(minesweeperSafeChoiceOutcome(board.cells[board.initialRevealed[0]], "revealed")).toBe("ignored");
+  });
+
+  it("detects victory when all mines are flagged and no safe cell is flagged", () => {
+    const board = generateMinesweeperSafeBoard(settingsFromPreset("standard"), 7);
+    const states = createInitialCellStates(board);
+    const mines = board.cells.filter((cell) => cell.mine);
+    const safe = board.cells.find((cell) => !cell.mine && states[cell.index] === "hidden");
+
+    for (const mine of mines) states[mine.index] = "flagged";
+    expect(areAllMinesFlagged(board.cells, states)).toBe(true);
+
+    if (safe) states[safe.index] = "flagged";
+    expect(areAllMinesFlagged(board.cells, states)).toBe(false);
   });
 });
