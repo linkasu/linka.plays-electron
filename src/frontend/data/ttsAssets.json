@@ -8307,5 +8307,61 @@
     "text": "Выбери горизонтальную линию.",
     "voice": "jane",
     "path": "/audio/tts/lines-angles/task-horizontal.mp3"
+  },
+  {
+    "id": "simple-graphs.question.more",
+    "game": "simple-graphs",
+    "text": "Где больше?",
+    "voice": "jane",
+    "path": "/audio/tts/simple-graphs/question-more.mp3"
+  },
+  {
+    "id": "simple-graphs.question.less",
+    "game": "simple-graphs",
+    "text": "Где меньше?",
+    "voice": "jane",
+    "path": "/audio/tts/simple-graphs/question-less.mp3"
+  },
+  {
+    "id": "simple-graphs.question.count.apples",
+    "game": "simple-graphs",
+    "text": "Сколько у столбика яблоки?",
+    "voice": "jane",
+    "path": "/audio/tts/simple-graphs/question-count-apples.mp3"
+  },
+  {
+    "id": "simple-graphs.question.count.stars",
+    "game": "simple-graphs",
+    "text": "Сколько у столбика звёзды?",
+    "voice": "jane",
+    "path": "/audio/tts/simple-graphs/question-count-stars.mp3"
+  },
+  {
+    "id": "simple-graphs.question.count.fish",
+    "game": "simple-graphs",
+    "text": "Сколько у столбика рыбки?",
+    "voice": "jane",
+    "path": "/audio/tts/simple-graphs/question-count-fish.mp3"
+  },
+  {
+    "id": "simple-graphs.question.count.flowers",
+    "game": "simple-graphs",
+    "text": "Сколько у столбика цветы?",
+    "voice": "jane",
+    "path": "/audio/tts/simple-graphs/question-count-flowers.mp3"
+  },
+  {
+    "id": "simple-graphs.question.count.ducks",
+    "game": "simple-graphs",
+    "text": "Сколько у столбика утки?",
+    "voice": "jane",
+    "path": "/audio/tts/simple-graphs/question-count-ducks.mp3"
+  },
+  {
+    "id": "simple-graphs.question.count.cars",
+    "game": "simple-graphs",
+    "text": "Сколько у столбика машинки?",
+    "voice": "jane",
+    "path": "/audio/tts/simple-graphs/question-count-cars.mp3"
   }
 ]

@@ -19,7 +19,17 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnMistakes: false
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "simple-graphs", soundEnabled, warmAssetIds: ["simple-graphs.prompt", "simple-graphs.correct", "simple-graphs.mistake", "simple-graphs.complete"] });
+const simpleGraphsQuestionAssetIds = [
+  "simple-graphs.question.more",
+  "simple-graphs.question.less",
+  "simple-graphs.question.count.apples",
+  "simple-graphs.question.count.stars",
+  "simple-graphs.question.count.fish",
+  "simple-graphs.question.count.flowers",
+  "simple-graphs.question.count.ducks",
+  "simple-graphs.question.count.cars"
+];
+const promptAudio = useGamePromptAudio({ gameId: "simple-graphs", soundEnabled, warmAssetIds: [...simpleGraphsQuestionAssetIds, "simple-graphs.correct", "simple-graphs.mistake", "simple-graphs.complete"] });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const feedback = ref("");
@@ -36,6 +46,15 @@ const feedbackText = computed(() => feedback.value || round.value.helperText);
 
 function choiceTargetId(choice: SimpleGraphsChoice) {
   return `simple-graphs:choice:${choice.choiceId}`;
+}
+
+function promptAssetId() {
+  if (round.value.questionKind === "count" && round.value.targetBar) return `simple-graphs.question.count.${round.value.targetBar.id}`;
+  return `simple-graphs.question.${round.value.questionKind}`;
+}
+
+function playRoundPrompt(delayMs = 0) {
+  return promptAudio.playSequenceAndWait([promptAssetId()], delayMs);
 }
 
 function barStyle(bar: SimpleGraphsBar) {
@@ -69,8 +88,10 @@ async function choose(choice: SimpleGraphsChoice) {
       isSpeaking.value = false;
       return;
     }
-    if (session.step < session.maxSteps) nextRound();
-    promptAudio.play("simple-graphs.prompt", 180);
+    if (session.step < session.maxSteps) {
+      nextRound();
+      await playRoundPrompt(180);
+    }
     isSpeaking.value = false;
     return;
   }
@@ -89,12 +110,12 @@ function restartGame() {
   resetFeedback();
   isSpeaking.value = false;
   restart();
-  promptAudio.play("simple-graphs.prompt", 220);
+  void playRoundPrompt(220);
 }
 
 onMounted(() => {
   promptAudio.warm();
-  promptAudio.play("simple-graphs.prompt", 420);
+  void playRoundPrompt(420);
 });
 
 onUnmounted(() => {
