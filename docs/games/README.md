@@ -148,7 +148,7 @@
 | Координаты | `coordinates` | [coordinates.md](coordinates.md) | `therapy-ready` | `publish` | `ready` |
 | Формы | `shapes` | [shapes.md](shapes.md) | `polished` | `publish` | `ready` |
 | Цвет + форма | `color-shape` | [color-shape.md](color-shape.md) | `therapy-ready` | `publish` | `ready` |
-| Математика. Операции | `math-actions` | [math-actions.md](math-actions.md) | `polished` | `needs-check` | `development` |
+| Математика. Операции | `math-actions` | [math-actions.md](math-actions.md) | `polished` | `publish` | `ready` |
 
 ### Головоломки
 

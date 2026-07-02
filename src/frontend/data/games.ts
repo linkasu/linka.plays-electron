@@ -1723,7 +1723,7 @@ export const games: GameInfo[] = [
     icon: "mdi-calculator-variant",
     skills: ["math", "typing"],
     status: "polished",
-    stabilityStatus: "needs-check",
+    stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 96,
     defaultDwellMs: 1200
