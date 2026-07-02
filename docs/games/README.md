@@ -144,7 +144,7 @@
 | Линии и углы | `lines-angles` | [lines-angles.md](lines-angles.md) | `therapy-ready` | `publish` | `ready` |
 | Простые графики | `simple-graphs` | [simple-graphs.md](simple-graphs.md) | `therapy-ready` | `publish` | `ready` |
 | Состав числа | `number-bonds` | [number-bonds.md](number-bonds.md) | `therapy-ready` | `publish` | `ready` |
-| Магазин | `shop` | [shop.md](shop.md) | `therapy-ready` | `needs-check` | `development` |
+| Магазин | `shop` | [shop.md](shop.md) | `therapy-ready` | `publish` | `ready` |
 | Координаты | `coordinates` | [coordinates.md](coordinates.md) | `therapy-ready` | `needs-check` | `development` |
 | Формы | `shapes` | [shapes.md](shapes.md) | `polished` | `needs-check` | `development` |
 | Цвет + форма | `color-shape` | [color-shape.md](color-shape.md) | `therapy-ready` | `needs-check` | `development` |
