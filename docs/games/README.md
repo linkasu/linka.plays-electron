@@ -155,7 +155,7 @@
 | Игра | ID | Документ | Status | Stability | Group |
 |---|---|---|---|---|---|
 | Сапёр | `minesweeper-safe` | [minesweeper-safe.md](minesweeper-safe.md) | `therapy-ready` | `publish` | `ready` |
-| Домино: найди сторону | `domino-matching` | [domino-matching.md](domino-matching.md) | `therapy-ready` | `needs-check` | `development` |
+| Домино | `domino-matching` | [domino-matching.md](domino-matching.md) | `therapy-ready` | `needs-check` | `development` |
 | 2048 мягкий | `calm-2048` | [calm-2048.md](calm-2048.md) | `therapy-ready` | `needs-check` | `development` |
 | Пятнашки 3×3 | `sliding-puzzle` | [sliding-puzzle.md](sliding-puzzle.md) | `therapy-ready` | `needs-check` | `development` |
 | Уно-подобное | `uno-like` | [uno-like.md](uno-like.md) | `therapy-ready` | `needs-check` | `development` |

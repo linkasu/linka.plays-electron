@@ -5,11 +5,10 @@ import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
-import { useRoundGame } from "../../composables/useRoundGame";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { generateDominoMatchingRound, type DominoChoice, type DominoSide, type DominoTile } from "./model";
+import { drawPlayerTile, getOpenEnds, getPlayablePlacements, hasPlayableMove, playPlayerTile, startDominoGame, type DominoGameState, type DominoPlacement, type DominoSide, type DominoTile, type PlacedDominoTile } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("domino-matching", {
@@ -22,79 +21,120 @@ const soundEnabled = toRef(session.settings, "sound");
 const promptAudio = useGamePromptAudio({ gameId: "domino-matching", soundEnabled, warmAssetIds: ["domino-matching.prompt", "domino-matching.correct", "domino-matching.mistake", "domino-matching.complete"] });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
-const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
-  session,
-  startSession,
-  generateRound: (roundIndex) => generateDominoMatchingRound(session.settings, roundIndex)
-});
-
-const hintedRoundId = ref<string>();
+const game = ref<DominoGameState>(startDominoGame(session.settings));
+const selectedTileId = ref<string>();
 const lastMistakeId = ref<string>();
+const resultVisible = computed(() => session.status === "finished");
 const isSpeaking = ref(false);
+const openEnds = computed(() => getOpenEnds(game.value));
+const playerHasMove = computed(() => hasPlayableMove(game.value.playerHand, game.value));
+const canUseDrawAction = computed(() => !playerHasMove.value && !selectedTile.value);
+const selectedTile = computed(() => game.value.playerHand.find((tile) => tile.id === selectedTileId.value));
+const selectedPlacements = computed(() => selectedTile.value ? getPlayablePlacements(selectedTile.value, game.value) : []);
 
 const helperText = computed(() => {
-  if (hintedRoundId.value === round.value.roundId) return "Почти. Сравни открытую сторону с указанной стороной каждой карточки и выбери другую.";
-  return round.value.instruction;
+  if (selectedTile.value) return "Эта костяшка подходит с двух сторон. Выбери левый или правый край.";
+  if (!playerHasMove.value) return game.value.boneyard.length ? "Подходящих костяшек нет. Можно взять из базара." : "Ходов нет и базар пуст. Партия закончится.";
+  return `Открытые числа: ${openEnds.value.leftEnd} слева и ${openEnds.value.rightEnd} справа. Выбери подходящую костяшку.`;
 });
 
-function choiceTargetId(choice: DominoChoice) {
-  return `domino-matching:choice:${choice.id}`;
+function tileTargetId(tile: DominoTile) {
+  return `domino-matching:tile:${tile.id}`;
+}
+
+function sideTargetId(side: DominoSide) {
+  return `domino-matching:side:${side}`;
 }
 
 function dotArray(count: number) {
   return Array.from({ length: count }, (_, index) => index);
 }
 
-function sideValue(tile: DominoTile, side: DominoSide) {
-  return tile[side];
+function tileLabel(tile: DominoTile) {
+  return `${tile.left}:${tile.right}`;
 }
 
-function sideName(side: DominoSide) {
-  return side === "left" ? "левая" : "правая";
+function placementFor(side: DominoSide) {
+  return selectedPlacements.value.find((placement) => placement.side === side);
 }
 
-async function choose(choice: DominoChoice) {
+async function speakResult(assetIds: string[]) {
+  isSpeaking.value = true;
+  await promptAudio.playSequenceAndWait(assetIds, 80, 170);
+  isSpeaking.value = false;
+}
+
+async function afterSuccessfulMove(previousState: DominoGameState, resultState: DominoGameState, targetId: string, answerId: string) {
+  const botAction = resultState.lastBotAction;
+  const completed = resultState.status !== "playing" || session.step + 1 >= session.maxSteps;
+  recordSuccess({ targetId, answerId, leftEnd: openEnds.value.leftEnd, rightEnd: openEnds.value.rightEnd, botAction, status: resultState.status });
+  selectedTileId.value = undefined;
+  lastMistakeId.value = undefined;
+  void feedbackAudio.playSuccess();
+  game.value = resultState;
+  await speakResult(completed ? ["domino-matching.correct", "domino-matching.complete"] : ["domino-matching.correct"]);
+  if (completed) finishSession(resultState.status === "playing" ? "max-steps" : "game-complete");
+  if (botAction && previousState.lastBotAction !== botAction) recordHint({ text: botAction, reason: "bot-turn" });
+}
+
+async function chooseTile(tile: DominoTile) {
   if (session.status !== "running" || isSpeaking.value) return;
+  const placements = getPlayablePlacements(tile, game.value);
 
-  const targetId = choiceTargetId(choice);
-  const expectedTargetId = choiceTargetId(round.value.choices[round.value.correctIndex]);
-  const actualDots = choice.tile[choice.matchSide];
-
-  if (actualDots === round.value.targetDots) {
-    const finishedAfterSuccess = session.step + 1 >= session.maxSteps;
-    recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.targetDots, actual: actualDots, side: choice.matchSide, isCorrect: true });
-    hintedRoundId.value = undefined;
-    lastMistakeId.value = undefined;
-    isSpeaking.value = true;
-    void feedbackAudio.playSuccess();
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["domino-matching.correct", "domino-matching.complete"] : ["domino-matching.correct"], 80, 170);
-    if (finishedAfterSuccess) {
-      finishSession("game-complete");
-      isSpeaking.value = false;
-      return;
-    }
-    if (session.step < session.maxSteps) nextRound();
-    promptAudio.play("domino-matching.prompt", 180);
-    isSpeaking.value = false;
+  if (!placements.length) {
+    lastMistakeId.value = tile.id;
+    selectedTileId.value = undefined;
+    recordMistake({ targetId: tileTargetId(tile), answerId: tile.id, leftEnd: openEnds.value.leftEnd, rightEnd: openEnds.value.rightEnd, isCorrect: false });
+    recordHint({ targetId: tileTargetId(tile), text: "Сравни числа на костяшке с открытыми краями цепочки.", reason: "wrong-domino-tile" });
+    void feedbackAudio.playMistake();
+    await speakResult(["domino-matching.mistake"]);
     return;
   }
 
-  hintedRoundId.value = round.value.roundId;
-  lastMistakeId.value = choice.id;
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.targetDots, actual: actualDots, side: choice.matchSide, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId, text: "Сравнить открытую сторону с указанной стороной вариантов.", reason: "wrong-domino-side" });
-  isSpeaking.value = true;
-  void feedbackAudio.playMistake();
-  await promptAudio.playSequenceAndWait(["domino-matching.mistake"], 80);
-  isSpeaking.value = false;
+  if (placements.length > 1) {
+    selectedTileId.value = tile.id;
+    lastMistakeId.value = undefined;
+    promptAudio.play("domino-matching.prompt", 120);
+    return;
+  }
+
+  const previousState = game.value;
+  const result = playPlayerTile(game.value, tile.id, placements[0].side);
+  if (result.ok) await afterSuccessfulMove(previousState, result.state, tileTargetId(tile), tile.id);
+}
+
+async function chooseSide(side: DominoSide) {
+  if (session.status !== "running" || isSpeaking.value || !selectedTile.value) return;
+  const placement = placementFor(side);
+  if (!placement) return;
+
+  const previousState = game.value;
+  const result = playPlayerTile(game.value, selectedTile.value.id, side);
+  if (result.ok) await afterSuccessfulMove(previousState, result.state, sideTargetId(side), `${selectedTile.value.id}:${side}`);
+}
+
+async function drawTile() {
+  if (session.status !== "running" || isSpeaking.value || playerHasMove.value) return;
+  const result = drawPlayerTile(game.value);
+  if (!result.ok) {
+    finishSession("game-complete");
+    return;
+  }
+
+  game.value = result.state;
+  selectedTileId.value = undefined;
+  lastMistakeId.value = undefined;
+  recordHint({ targetId: "domino-matching:draw", text: "Игрок взял костяшку из базара.", reason: "draw-domino" });
+  promptAudio.play("domino-matching.prompt", 120);
 }
 
 function restart() {
   promptAudio.cancelPending();
-  hintedRoundId.value = undefined;
+  selectedTileId.value = undefined;
   lastMistakeId.value = undefined;
   isSpeaking.value = false;
-  restartRoundGame();
+  game.value = startDominoGame(session.settings);
+  startSession();
   promptAudio.play("domino-matching.prompt", 220);
 }
 
@@ -110,202 +150,251 @@ onUnmounted(() => {
 
 <template>
   <div class="domino-shell">
-    <GameHud title="Домино: найди сторону" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud title="Домино" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
-        <v-col cols="12" lg="11" xl="10">
-          <v-card class="pa-4 pa-md-6" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Strategy · counting · classification</div>
-            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-4">{{ round.prompt }}</h1>
+        <v-col cols="12" xl="11">
+          <v-card class="domino-card pa-3 pa-md-4" rounded="xl" elevation="8">
+            <div class="text-overline text-secondary text-center mb-1">Strategy · counting · turn taking</div>
+            <h1 class="text-h5 text-md-h4 font-weight-bold text-center mb-2">Собери цепочку домино</h1>
 
-            <v-row class="align-stretch" dense>
-              <v-col cols="12" md="4">
-                <v-sheet class="target-panel pa-4" color="primary" rounded="xl">
-                  <div class="text-overline text-white text-center mb-3">Открытая сторона: {{ sideName(round.openSide) }}</div>
-                  <div class="domino domino--target" aria-label="Домино, к которому нужно подобрать пару">
-                    <div :class="['domino__half', { 'domino__half--open': round.openSide === 'left' }]">
-                      <span v-for="dot in dotArray(round.target.left)" :key="`target-left-${dot}`" class="domino__dot" />
-                    </div>
-                    <div :class="['domino__half', { 'domino__half--open': round.openSide === 'right' }]">
-                      <span v-for="dot in dotArray(round.target.right)" :key="`target-right-${dot}`" class="domino__dot" />
-                    </div>
+            <v-alert class="instruction mb-3 text-body-1 text-md-h6 font-weight-bold" color="primary" icon="mdi-dots-grid" rounded="xl" variant="tonal">
+              {{ helperText }}
+            </v-alert>
+
+            <div class="status-row mb-3">
+              <v-chip color="primary" variant="tonal" size="large">Слева: {{ openEnds.leftEnd }}</v-chip>
+              <v-chip color="secondary" variant="tonal" size="large">Базар: {{ game.boneyard.length }}</v-chip>
+              <v-chip color="deep-purple" variant="tonal" size="large">У бота: {{ game.botHand.length }}</v-chip>
+              <v-chip v-if="game.lastBotAction" color="teal" variant="tonal" size="large">{{ game.lastBotAction }}</v-chip>
+              <v-chip color="primary" variant="tonal" size="large">Справа: {{ openEnds.rightEnd }}</v-chip>
+            </div>
+
+            <section class="board-zone mb-3" aria-label="Цепочка домино на столе">
+              <div class="board-line">
+                <div v-for="placed in game.board" :key="`${placed.owner}-${placed.tile.id}-${placed.left}-${placed.right}`" :class="['domino', `domino--${placed.owner}`]" :aria-label="`Костяшка ${placed.left}:${placed.right}`">
+                  <div class="domino__half">
+                    <span v-for="dot in dotArray(placed.left)" :key="`${placed.tile.id}-placed-left-${dot}`" class="domino__dot" />
                   </div>
-                  <div class="text-h5 text-md-h4 font-weight-bold text-white text-center mt-4">{{ round.targetDots }} точек</div>
-                </v-sheet>
+                  <div class="domino__half">
+                    <span v-for="dot in dotArray(placed.right)" :key="`${placed.tile.id}-placed-right-${dot}`" class="domino__dot" />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <v-row v-if="selectedTile" class="side-row mb-3" dense>
+              <v-col v-for="side in (['left', 'right'] as DominoSide[])" :key="side" cols="6">
+                <GameDwellButton :target-id="sideTargetId(side)" :disabled="session.status !== 'running' || isSpeaking || !placementFor(side)" :dwell-ms="session.settings.dwellMs" color="secondary" @select="chooseSide(side)">
+                  <template #default>
+                    <div class="side-choice">
+                      <div class="text-h6 font-weight-bold">{{ side === 'left' ? 'Слева' : 'Справа' }}</div>
+                      <div class="text-body-1">Поставить {{ tileLabel(selectedTile) }}</div>
+                    </div>
+                  </template>
+                </GameDwellButton>
               </v-col>
+            </v-row>
 
-              <v-col cols="12" md="8">
-                <v-alert class="mb-4 text-body-1 text-md-h6 font-weight-bold" :color="hintedRoundId === round.roundId ? 'secondary' : 'primary'" :icon="hintedRoundId === round.roundId ? 'mdi-heart-outline' : 'mdi-dots-grid'" rounded="xl" variant="tonal">
-                  {{ helperText }}
-                </v-alert>
-
-                <v-row class="choice-grid" dense>
-                  <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6">
-                    <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="210" color="surface" @select="choose(choice)">
-                      <template #default>
-                        <div :class="['choice-card', { 'choice-card--mistake': choice.id === lastMistakeId }]">
-                          <div class="choice-card__hint text-overline text-medium-emphasis mb-2">Смотри на {{ sideName(choice.matchSide) }} сторону</div>
-                          <div class="domino" :aria-label="`Домино ${choice.tile.left} и ${choice.tile.right}`">
-                            <div :class="['domino__half', { 'domino__half--match': choice.matchSide === 'left' }]">
-                              <span v-for="dot in dotArray(choice.tile.left)" :key="`${choice.id}-left-${dot}`" class="domino__dot" />
-                            </div>
-                            <div :class="['domino__half', { 'domino__half--match': choice.matchSide === 'right' }]">
-                              <span v-for="dot in dotArray(choice.tile.right)" :key="`${choice.id}-right-${dot}`" class="domino__dot" />
-                            </div>
-                          </div>
-                          <div class="choice-card__value text-h6 font-weight-bold mt-3">{{ sideValue(choice.tile, choice.matchSide) }} точек</div>
+            <div class="hand-title text-h6 font-weight-bold mb-2">Твои костяшки</div>
+            <v-row class="hand-row" dense>
+              <v-col v-for="tile in game.playerHand" :key="tile.id" cols="6" sm="4" md="3" lg="2">
+                <GameDwellButton :target-id="tileTargetId(tile)" :disabled="session.status !== 'running' || isSpeaking || Boolean(selectedTile)" :dwell-ms="session.settings.dwellMs" color="surface" @select="chooseTile(tile)">
+                  <template #default>
+                    <div :class="['hand-card', { 'hand-card--selected': tile.id === selectedTileId, 'hand-card--mistake': tile.id === lastMistakeId, 'hand-card--playable': getPlayablePlacements(tile, game).length > 0 }]">
+                      <div class="domino domino--hand" :aria-label="`Костяшка ${tile.left}:${tile.right}`">
+                        <div class="domino__half">
+                          <span v-for="dot in dotArray(tile.left)" :key="`${tile.id}-left-${dot}`" class="domino__dot" />
                         </div>
-                      </template>
-                    </GameDwellButton>
-                  </v-col>
-                </v-row>
+                        <div class="domino__half">
+                          <span v-for="dot in dotArray(tile.right)" :key="`${tile.id}-right-${dot}`" class="domino__dot" />
+                        </div>
+                      </div>
+                      <div class="text-body-1 font-weight-bold mt-1">{{ tileLabel(tile) }}</div>
+                    </div>
+                  </template>
+                </GameDwellButton>
+              </v-col>
+              <v-col cols="6" sm="4" md="3" lg="2">
+                <GameDwellButton v-if="canUseDrawAction" target-id="domino-matching:draw" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" color="surface" @select="drawTile">
+                  <template #default>
+                    <div class="draw-card">
+                      <v-icon size="x-large">mdi-tray-arrow-down</v-icon>
+                      <div class="text-h6 font-weight-bold">{{ game.boneyard.length ? 'Взять' : 'Итог' }}</div>
+                      <div class="text-body-2">{{ game.boneyard.length ? 'из базара' : 'ходов нет' }}</div>
+                    </div>
+                  </template>
+                </GameDwellButton>
+                <v-sheet v-else class="draw-card draw-card--idle" rounded="xl" color="grey-lighten-4">
+                  <v-icon size="x-large">mdi-check-circle-outline</v-icon>
+                  <div class="text-h6 font-weight-bold">Ход есть</div>
+                  <div class="text-body-2">базар пока закрыт</div>
+                </v-sheet>
               </v-col>
             </v-row>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Домино: найди сторону" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog :model-value="resultVisible" title="Домино" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
   </div>
 </template>
 
 <style scoped>
 .domino-shell {
   background: linear-gradient(135deg, #f2f7ff 0%, #fff6df 52%, #eef8ee 100%);
-  min-block-size: 100vh;
+  min-block-size: 100dvh;
 }
 
 .game-container {
-  padding-block-start: 7rem;
+  padding-block: clamp(4.8rem, 11vh, 6.8rem) clamp(1rem, 3vh, 2rem);
 }
 
-.target-panel {
-  align-items: center;
-  block-size: 100%;
-  box-shadow: inset 0 -0.5rem 2rem rgb(255 255 255 / 18%);
+.domino-card {
+  max-block-size: calc(100dvh - clamp(6rem, 14vh, 8rem));
+  overflow: hidden;
+}
+
+.instruction {
+  padding-block: clamp(0.55rem, 1.4vh, 0.9rem);
+}
+
+.status-row {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  gap: clamp(0.35rem, 1vh, 0.7rem);
   justify-content: center;
-  min-block-size: 23rem;
 }
 
-.choice-grid {
-  row-gap: 1rem;
+.board-zone {
+  background: rgb(var(--v-theme-primary) / 8%);
+  border-radius: 1.2rem;
+  max-block-size: clamp(9rem, 28vh, 16rem);
+  overflow: auto;
+  padding: clamp(0.6rem, 1.8vh, 1rem);
 }
 
-.choice-card {
+.board-line {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(0.45rem, 1.2vh, 0.75rem);
+  justify-content: center;
+}
+
+.side-row :deep(.dwell-button),
+.hand-row :deep(.dwell-button) {
+  min-block-size: clamp(4.8rem, 12vh, 7.2rem) !important;
+  padding: clamp(0.35rem, 1vh, 0.7rem) !important;
+}
+
+.hand-row {
+  max-block-size: clamp(9rem, 31vh, 18rem);
+  overflow: auto;
+}
+
+.hand-card,
+.draw-card,
+.side-choice {
   align-items: center;
   color: #17212b;
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.draw-card--idle {
+  block-size: clamp(4.8rem, 12vh, 7.2rem);
+  color: #17212b;
+}
+
+.hand-card {
   transition: filter 160ms ease, transform 160ms ease;
 }
 
-.choice-card__hint,
-.choice-card__value {
-  color: #17212b !important;
+.hand-card--playable .domino {
+  box-shadow: 0 0 0 0.24rem rgb(var(--v-theme-primary) / 52%), 0 0.55rem 1.2rem rgb(61 41 23 / 16%);
 }
 
-.choice-card--mistake {
+.hand-card--selected .domino {
+  box-shadow: 0 0 0 0.28rem rgb(var(--v-theme-secondary)), 0 0.55rem 1.2rem rgb(61 41 23 / 16%);
+}
+
+.hand-card--mistake {
   filter: saturate(0.72) opacity(0.72);
   transform: scale(0.97);
 }
 
 .domino {
   background: #fffaf0;
-  border: 0.25rem solid #46372d;
-  border-radius: 1.25rem;
-  box-shadow: 0 0.75rem 1.5rem rgb(61 41 23 / 16%);
+  border: 0.2rem solid #46372d;
+  border-radius: 1rem;
+  box-shadow: 0 0.55rem 1.2rem rgb(61 41 23 / 16%);
   display: grid;
-  gap: 0;
-  grid-template-columns: repeat(2, minmax(5.4rem, 1fr));
-  inline-size: min(100%, 15rem);
-  min-block-size: 8.25rem;
+  grid-template-columns: repeat(2, minmax(2.4rem, 1fr));
+  inline-size: clamp(5.7rem, 10.5vh, 8.2rem);
+  min-block-size: clamp(3.6rem, 7.8vh, 5.7rem);
   overflow: hidden;
 }
 
-.domino--target {
-  inline-size: min(100%, 17rem);
-  min-block-size: 9.5rem;
+.domino--hand {
+  inline-size: clamp(5.2rem, 9.5vh, 7.5rem);
+  min-block-size: clamp(3.4rem, 7.2vh, 5.2rem);
+}
+
+.domino--player {
+  background: #fff1bf;
+}
+
+.domino--bot {
+  background: #e7f7f1;
 }
 
 .domino__half {
   align-content: center;
-  border-inline-end: 0.18rem solid #6d5a4a;
+  border-inline-end: 0.14rem solid #6d5a4a;
   display: grid;
-  gap: 0.42rem;
+  gap: clamp(0.15rem, 0.45vh, 0.28rem);
   grid-template-columns: repeat(3, 1fr);
   justify-items: center;
-  padding: 1rem;
+  padding: clamp(0.38rem, 1vh, 0.65rem);
 }
 
 .domino__half:last-child {
   border-inline-end: 0;
 }
 
-.domino__half--open,
-.domino__half--match {
-  background: #fff1bf;
-}
-
-.domino__half--open {
-  box-shadow: inset 0 0 0 0.35rem rgb(var(--v-theme-secondary));
-}
-
-.domino__half--match {
-  box-shadow: inset 0 0 0 0.28rem rgb(var(--v-theme-primary));
-}
-
 .domino__dot {
   background: #332923;
-  border-radius: 999px;
-  inline-size: clamp(0.75rem, 2.4vw, 1.15rem);
-  min-block-size: clamp(0.75rem, 2.4vw, 1.15rem);
+  border-radius: 999rem;
+  inline-size: clamp(0.45rem, 1.25vh, 0.8rem);
+  min-block-size: clamp(0.45rem, 1.25vh, 0.8rem);
 }
 
 @media (max-height: 44rem) {
   .game-container {
-    padding-block-start: 4.75rem;
+    padding-block: 4.5rem 0.7rem;
   }
 
-  .game-container :deep(.v-card) {
-    padding-block: 1rem !important;
+  .domino-card {
+    max-block-size: calc(100dvh - 5.2rem);
   }
 
   .game-container h1,
-  .game-container .text-overline,
-  .game-container .v-alert {
+  .game-container .text-overline {
     display: none;
   }
 
-  .target-panel {
-    min-block-size: 10rem;
-    padding: 1rem !important;
+  .instruction {
+    margin-block-end: 0.45rem !important;
   }
 
-  .choice-grid {
-    row-gap: 0.25rem;
+  .board-zone {
+    max-block-size: 24vh;
   }
 
-  .choice-grid :deep(.dwell-button) {
-    min-block-size: 7rem !important;
-    padding: 0.5rem !important;
-  }
-
-  .domino {
-    grid-template-columns: repeat(2, minmax(3.5rem, 1fr));
-    inline-size: min(100%, 10rem);
-    min-block-size: 5.25rem;
-  }
-
-  .domino--target {
-    inline-size: min(100%, 12rem);
-    min-block-size: 6rem;
-  }
-
-  .domino__half {
-    padding: 0.55rem;
+  .hand-row {
+    max-block-size: 34vh;
   }
 }
 </style>
