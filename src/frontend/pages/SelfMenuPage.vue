@@ -10,7 +10,32 @@ const router = useRouter();
 const releaseGames = games.filter((game) => resolveGameStabilityStatus(game) === "publish");
 const gameGroups = groupGamesByCategory(releaseGames, { excludeArchived: true });
 const selectedCategory = ref<GameCategoryId | null>(null);
+const pageIndex = ref(0);
+const pageSize = 4;
 const selectedGroup = computed(() => gameGroups.find((group) => group.category === selectedCategory.value));
+const activeItems = computed(() => selectedGroup.value?.games ?? gameGroups);
+const pageCount = computed(() => Math.max(1, Math.ceil(activeItems.value.length / pageSize)));
+const visibleGroups = computed(() => gameGroups.slice(pageIndex.value * pageSize, pageIndex.value * pageSize + pageSize));
+const visibleGames = computed(() => selectedGroup.value?.games.slice(pageIndex.value * pageSize, pageIndex.value * pageSize + pageSize) ?? []);
+const pageLabel = computed(() => `Страница ${pageIndex.value + 1} / ${pageCount.value}`);
+
+function selectCategory(category: GameCategoryId) {
+  selectedCategory.value = category;
+  pageIndex.value = 0;
+}
+
+function showCategories() {
+  selectedCategory.value = null;
+  pageIndex.value = 0;
+}
+
+function previousPage() {
+  pageIndex.value = Math.max(0, pageIndex.value - 1);
+}
+
+function nextPage() {
+  pageIndex.value = Math.min(pageCount.value - 1, pageIndex.value + 1);
+}
 
 function openGame(game: GameInfo) {
   rememberMenuMode("self");
@@ -27,22 +52,20 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-container class="gallery-menu py-10" fluid>
-    <v-row justify="center">
-      <v-col cols="12" lg="10" xl="8">
-        <v-card class="gallery-card pa-6 pa-md-10" rounded="xl" elevation="8">
-          <div class="d-flex flex-column flex-md-row align-md-start justify-space-between ga-6 mb-8">
+  <v-container class="gallery-menu pa-4 pa-md-6" fluid>
+    <v-row class="h-100" justify="center" align="center">
+      <v-col cols="12" lg="11" xl="10">
+        <v-card class="gallery-card pa-5 pa-md-7" rounded="xl" elevation="8">
+          <div class="d-flex flex-column flex-md-row align-md-start justify-space-between ga-4 mb-4">
             <div>
               <div class="text-overline text-secondary mb-2">Самостоятельный режим</div>
-              <h1 class="text-h3 text-md-h2 font-weight-bold mb-3">Выбери папку</h1>
-              <p class="text-h6 text-medium-emphasis mb-0">
-                Сначала выбери большую папку, потом игру. Удерживай взгляд на большой карточке.
-              </p>
+              <h1 class="text-h3 text-md-h2 font-weight-bold mb-2">{{ selectedGroup ? selectedGroup.selfLabel : "Выбери папку" }}</h1>
+              <p class="text-body-1 text-medium-emphasis mb-0">{{ selectedGroup ? selectedGroup.selfDescription : "Большие карточки, выбор взглядом и страницы без скролла." }}</p>
             </div>
             <TobiiStatusBadge />
           </div>
 
-          <div class="d-flex flex-wrap ga-3 mb-8" aria-label="Действия взрослого">
+          <div class="d-flex flex-wrap ga-3 mb-4" aria-label="Действия взрослого">
             <v-btn color="secondary" prepend-icon="mdi-eye-settings" size="large" to="/tobii-calibration" variant="tonal">
               Проверить взгляд
             </v-btn>
@@ -55,26 +78,25 @@ onMounted(() => {
           </div>
 
           <v-row v-if="!selectedGroup" align="stretch">
-            <v-col v-for="group in gameGroups" :key="group.category" cols="12" md="6" xl="4">
+            <v-col v-for="group in visibleGroups" :key="group.category" cols="12" sm="6">
               <GameDwellButton
                 class="self-folder-card h-100"
                 :target-id="`self-folder-${group.category}`"
                 :dwell-ms="1500"
-                min-height="clamp(13rem, 28vh, 19rem)"
+                min-height="clamp(7.5rem, 17dvh, 10rem)"
                 color="surface"
-                @select="selectedCategory = group.category"
+                @select="selectCategory(group.category)"
               >
                 <template #default>
-                  <div class="d-flex flex-column align-start h-100 text-on-surface">
-                    <v-avatar class="mb-5" color="primary" size="88">
-                      <v-icon icon="mdi-folder-heart-outline" size="52" />
+                  <div class="d-flex align-center h-100 ga-4 text-left text-on-surface">
+                    <v-avatar color="primary" size="72">
+                      <v-icon icon="mdi-folder-heart-outline" size="40" />
                     </v-avatar>
-                    <h3 class="text-h4 font-weight-bold text-high-emphasis mb-3">{{ group.selfLabel }}</h3>
-                    <p class="text-h6 text-medium-emphasis mb-4">{{ group.selfDescription }}</p>
-                    <v-spacer />
-                    <v-chip color="secondary" size="large" variant="tonal">
-                      {{ group.games.length }} игр
-                    </v-chip>
+                    <div class="d-flex flex-column min-w-0">
+                      <h3 class="text-h4 font-weight-bold text-high-emphasis mb-2">{{ group.selfLabel }}</h3>
+                      <p class="text-body-1 text-medium-emphasis mb-2">{{ group.selfDescription }}</p>
+                      <v-chip class="align-self-start" color="secondary" size="small" variant="tonal">{{ group.games.length }} игр</v-chip>
+                    </div>
                   </div>
                 </template>
               </GameDwellButton>
@@ -82,43 +104,33 @@ onMounted(() => {
           </v-row>
 
           <section v-else aria-label="Игры в папке">
-            <div class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-6">
-              <div>
-                <div class="text-overline text-secondary mb-1">Папка</div>
-                <h2 class="text-h3 font-weight-bold mb-2">{{ selectedGroup.selfLabel }}</h2>
-                <p class="text-h6 text-medium-emphasis mb-0">{{ selectedGroup.selfDescription }}</p>
-              </div>
-              <GameDwellButton target-id="self-all-folders" :dwell-ms="1300" min-height="clamp(5rem, 10vh, 7rem)" color="secondary" @select="selectedCategory = null">
-                <template #default>
-                  <div class="d-flex align-center justify-center ga-3 text-white">
-                    <v-icon icon="mdi-folder-multiple-outline" size="40" />
-                    <span class="text-h5 font-weight-bold">Все папки</span>
-                  </div>
-                </template>
-              </GameDwellButton>
+            <div class="d-flex align-center justify-space-between ga-4 mb-3">
+              <div class="text-overline text-secondary">Игры в папке</div>
+              <v-chip color="info" size="large" variant="tonal">{{ pageLabel }}</v-chip>
             </div>
 
-            <v-row align="stretch">
-              <v-col v-for="game in selectedGroup.games" :key="game.id" cols="12" md="6" xl="4">
+            <v-row align="stretch" dense>
+              <v-col v-for="game in visibleGames" :key="game.id" cols="12" sm="6">
                 <GameDwellButton
                   class="self-game-card h-100"
                   :target-id="`self-game-${game.id}`"
                   :dwell-ms="menuDwellMs(game)"
-                  min-height="clamp(13rem, 27vh, 18rem)"
+                  min-height="clamp(7.5rem, 17dvh, 10rem)"
                   color="surface"
                   @select="openGame(game)"
                 >
                   <template #default>
-                    <div class="d-flex flex-column align-start h-100 text-on-surface">
-                      <v-avatar class="mb-5" color="primary" size="88">
-                        <v-icon :icon="game.icon" size="52" />
+                    <div class="d-flex align-center h-100 ga-4 text-left text-on-surface">
+                      <v-avatar color="primary" size="72">
+                        <v-icon :icon="game.icon" size="40" />
                       </v-avatar>
-                      <h3 class="text-h4 font-weight-bold text-high-emphasis mb-3">{{ game.title }}</h3>
-                      <p class="text-h6 text-medium-emphasis mb-6">{{ game.selfDescription }}</p>
-                      <v-spacer />
-                      <div class="d-flex align-center ga-2 text-primary font-weight-bold text-h6">
-                        <span>Играть</span>
-                        <v-icon icon="mdi-arrow-right" />
+                      <div class="d-flex flex-column min-w-0">
+                        <h3 class="text-h4 font-weight-bold text-high-emphasis mb-2">{{ game.title }}</h3>
+                        <p class="text-body-1 text-medium-emphasis mb-2">{{ game.selfDescription }}</p>
+                        <div class="d-flex align-center ga-2 text-primary font-weight-bold text-body-1">
+                          <span>Играть</span>
+                          <v-icon icon="mdi-arrow-right" />
+                        </div>
                       </div>
                     </div>
                   </template>
@@ -126,6 +138,44 @@ onMounted(() => {
               </v-col>
             </v-row>
           </section>
+
+          <div class="d-flex align-center justify-space-between ga-4 mt-3 mb-2">
+            <v-chip v-if="!selectedGroup" color="info" size="large" variant="tonal">{{ pageLabel }}</v-chip>
+            <v-spacer v-else />
+          </div>
+
+          <v-row align="stretch" dense>
+            <v-col cols="4">
+              <GameDwellButton target-id="self-prev" :disabled="pageIndex === 0" :dwell-ms="1200" min-height="clamp(4rem, 8dvh, 5rem)" color="secondary" @select="previousPage">
+                <template #default>
+                  <div class="d-flex align-center justify-center ga-2 text-white text-h6 font-weight-bold">
+                    <v-icon icon="mdi-arrow-left" />
+                    <span>Назад</span>
+                  </div>
+                </template>
+              </GameDwellButton>
+            </v-col>
+            <v-col cols="4">
+              <GameDwellButton target-id="self-folders" :disabled="!selectedGroup" :dwell-ms="1200" min-height="clamp(4rem, 8dvh, 5rem)" color="surface" @select="showCategories">
+                <template #default>
+                  <div class="d-flex align-center justify-center ga-2 text-primary text-h6 font-weight-bold">
+                    <v-icon icon="mdi-folder-multiple-outline" />
+                    <span>Папки</span>
+                  </div>
+                </template>
+              </GameDwellButton>
+            </v-col>
+            <v-col cols="4">
+              <GameDwellButton target-id="self-next" :disabled="pageIndex >= pageCount - 1" :dwell-ms="1200" min-height="clamp(4rem, 8dvh, 5rem)" color="primary" @select="nextPage">
+                <template #default>
+                  <div class="d-flex align-center justify-center ga-2 text-white text-h6 font-weight-bold">
+                    <span>Дальше</span>
+                    <v-icon icon="mdi-arrow-right" />
+                  </div>
+                </template>
+              </GameDwellButton>
+            </v-col>
+          </v-row>
         </v-card>
       </v-col>
     </v-row>
@@ -138,7 +188,8 @@ onMounted(() => {
     radial-gradient(circle at 12% 12%, rgb(216 154 114 / 20%), transparent 30rem),
     radial-gradient(circle at 88% 22%, rgb(139 123 184 / 17%), transparent 28rem),
     rgb(var(--v-theme-background));
-  min-block-size: 100vh;
+  block-size: 100dvh;
+  overflow: hidden;
 }
 
 .gallery-card,
