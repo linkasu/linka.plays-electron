@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { resolveMenuMode } from "../../core/menuMode";
+import GameDwellButton from "./GameDwellButton.vue";
 
 const props = defineProps<{
   modelValue: boolean;
@@ -29,6 +31,7 @@ const finishReasonLabels: Record<string, string> = {
 };
 
 const finishReason = computed(() => props.metrics?.finishReason);
+const isSelfMode = computed(() => resolveMenuMode() === "self");
 const resultMessage = computed(() => {
   if (finishReason.value === "game-lost") return "Партия завершена. Можно попробовать ещё раз.";
   if (finishReason.value === "game-draw") return "Партия завершилась вничью.";
@@ -54,11 +57,11 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <v-dialog :model-value="props.modelValue" max-width="560" persistent transition="fade-transition" @update:model-value="emit('update:modelValue', $event)">
-    <v-card class="pa-2" rounded="xl">
-      <v-card-title class="text-h4 font-weight-bold">{{ title }}</v-card-title>
+  <v-dialog :model-value="props.modelValue" max-width="56rem" persistent transition="fade-transition" @update:model-value="emit('update:modelValue', $event)">
+    <v-card class="pa-4 pa-md-6" rounded="xl">
+      <v-card-title class="text-h4 text-md-h3 font-weight-bold text-center pb-2">{{ title }}</v-card-title>
       <v-card-text>
-        <p class="text-h6 mb-4">{{ resultMessage }}</p>
+        <p class="text-h5 text-center mb-6">{{ resultMessage }}</p>
         <v-row>
           <v-col cols="6">
             <v-card color="primary" variant="tonal" rounded="lg" class="pa-4">
@@ -76,7 +79,7 @@ const emit = defineEmits<{
         <v-alert class="mt-4" color="info" variant="tonal">
           Длительность: {{ Math.round(durationMs / 1000) }} сек. {{ recommendation }}
         </v-alert>
-        <v-card v-if="metrics" class="mt-4 pa-4" color="surface" rounded="lg" variant="tonal">
+        <v-card v-if="metrics && !isSelfMode" class="mt-4 pa-4" color="surface" rounded="lg" variant="tonal">
           <div class="text-subtitle-2 font-weight-bold mb-3">Наблюдения для взрослого</div>
           <v-row dense>
             <v-col cols="12" sm="6">
@@ -105,12 +108,37 @@ const emit = defineEmits<{
             </v-col>
           </v-row>
         </v-card>
+        <v-row class="mt-6 result-actions" align="stretch" dense>
+          <v-col cols="12" sm="6">
+            <GameDwellButton target-id="result-restart" :dwell-ms="1200" min-height="clamp(8rem, 18vh, 12rem)" color="primary" @select="emit('restart')">
+              <template #default>
+                <div class="d-flex flex-column align-center justify-center ga-3 text-white">
+                  <v-icon icon="mdi-refresh" size="56" />
+                  <div class="text-h4 font-weight-bold">Ещё раз</div>
+                  <div class="text-body-1">Повторить эту игру</div>
+                </div>
+              </template>
+            </GameDwellButton>
+          </v-col>
+          <v-col cols="12" sm="6">
+            <GameDwellButton target-id="result-menu" :dwell-ms="1400" min-height="clamp(8rem, 18vh, 12rem)" color="secondary" @select="emit('menu')">
+              <template #default>
+                <div class="d-flex flex-column align-center justify-center ga-3 text-white">
+                  <v-icon icon="mdi-view-grid-outline" size="56" />
+                  <div class="text-h4 font-weight-bold">В меню</div>
+                  <div class="text-body-1">Выбрать другую игру</div>
+                </div>
+              </template>
+            </GameDwellButton>
+          </v-col>
+        </v-row>
       </v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn color="secondary" variant="tonal" @click="emit('menu')">В меню</v-btn>
-        <v-btn color="primary" variant="flat" @click="emit('restart')">Ещё раз</v-btn>
-      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
+
+<style scoped>
+.result-actions :deep(.dwell-hitbox) {
+  block-size: 100%;
+}
+</style>

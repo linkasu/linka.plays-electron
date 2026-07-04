@@ -7,8 +7,13 @@ export const menuRoutes: Record<MenuMode, string> = {
   self: "/menu/self"
 };
 
-function isMenuMode(value: string | null): value is MenuMode {
+export function isMenuMode(value: unknown): value is MenuMode {
   return value === "specialist" || value === "self";
+}
+
+export function firstMenuMode(value: unknown): MenuMode | undefined {
+  if (Array.isArray(value)) return firstMenuMode(value[0]);
+  return isMenuMode(value) ? value : undefined;
 }
 
 export function rememberMenuMode(mode: MenuMode) {

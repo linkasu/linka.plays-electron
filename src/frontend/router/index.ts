@@ -142,6 +142,7 @@ import SelfMenuPage from "../pages/SelfMenuPage.vue";
 import StartPage from "../pages/StartPage.vue";
 import TobiiCalibrationPage from "../pages/TobiiCalibrationPage.vue";
 import { games } from "../data/games";
+import { firstMenuMode, rememberMenuMode } from "../core/menuMode";
 
 const gameComponentsById: Record<string, Component> = {
   "aquarium": AquariumGame,
@@ -288,7 +289,7 @@ const gameRoutes = games.map((game) => ({
   component: gameComponentsById[game.id] ?? PlannedGamePage
 }));
 
-export default createRouter({
+const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     { path: "/", name: "start", component: StartPage },
@@ -299,3 +300,10 @@ export default createRouter({
     { path: "/games/:gameId", name: "planned-game", component: PlannedGamePage }
   ]
 });
+
+router.beforeEach((to) => {
+  const mode = firstMenuMode(to.query.from);
+  if (mode) rememberMenuMode(mode);
+});
+
+export default router;

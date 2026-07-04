@@ -2,11 +2,15 @@
 import { computed, onMounted, ref } from "vue";
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
 import { rememberMenuMode } from "../core/menuMode";
-import { gameSkillLabels, gameStatusLabels, groupGamesByCategory, type GameCategoryId } from "../data/games";
+import { gameSkillLabels, gameStatusLabels, groupGamesByCategory, type GameCategoryId, type GameInfo } from "../data/games";
 
 const gameGroups = groupGamesByCategory();
 const selectedCategory = ref<GameCategoryId | null>(null);
 const selectedGroup = computed(() => gameGroups.find((group) => group.category === selectedCategory.value));
+
+function gameRoute(game: GameInfo) {
+  return { path: game.route, query: { from: "specialist" } };
+}
 
 onMounted(() => {
   rememberMenuMode("specialist");
@@ -120,7 +124,7 @@ onMounted(() => {
                   </v-card-text>
                   <v-card-actions>
                     <v-btn
-                      :to="game.route"
+                      :to="gameRoute(game)"
                       :color="game.status === 'planned' ? 'secondary' : 'primary'"
                       size="large"
                       variant="flat"

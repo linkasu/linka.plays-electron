@@ -134,6 +134,13 @@ function tick(now: number) {
   if (!disposed) frame = requestAnimationFrame(tick);
 }
 
+function selectByPointerClick() {
+  if (props.disabled) return;
+  const payload = makePayload(performance.now(), 1);
+  record("target-click", payload);
+  emit("select", payload);
+}
+
 onMounted(() => {
   frame = requestAnimationFrame(tick);
 });
@@ -154,6 +161,7 @@ onUnmounted(() => {
       class="pa-5 text-center d-flex flex-column justify-center"
       rounded="xl"
       variant="elevated"
+      @click="selectByPointerClick"
     >
       <slot :active="active" :progress="progress" />
       <div v-if="active" class="dwell-progress" :style="progressStyle" aria-hidden="true" />
