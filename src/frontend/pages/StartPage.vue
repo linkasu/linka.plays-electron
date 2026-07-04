@@ -1,54 +1,68 @@
 <script setup lang="ts">
+import { useRouter } from "vue-router";
+import GameDwellButton from "../components/game/GameDwellButton.vue";
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
-import { rememberMenuMode } from "../core/menuMode";
+import { rememberMenuMode, type MenuMode } from "../core/menuMode";
+
+const router = useRouter();
+
+function openMode(mode: MenuMode) {
+  rememberMenuMode(mode);
+  router.push(mode === "self" ? "/menu/self" : "/menu/specialist");
+}
 </script>
 
 <template>
-  <v-container class="gallery-menu py-10" fluid>
-    <v-row justify="center">
-      <v-col cols="12" lg="10" xl="8">
-        <v-card class="gallery-card pa-6 pa-md-10" rounded="xl" elevation="8">
-          <div class="d-flex flex-column flex-md-row align-md-start justify-space-between ga-6 mb-10">
+  <v-container class="gallery-menu pa-4 pa-md-6" fluid>
+    <v-row class="h-100" justify="center" align="center">
+      <v-col cols="12" lg="11" xl="10">
+        <v-card class="gallery-card pa-5 pa-md-8" rounded="xl" elevation="8">
+          <div class="d-flex flex-column flex-md-row align-md-start justify-space-between ga-4 mb-6">
             <div>
               <div class="text-overline text-secondary mb-2">LINKa plays</div>
-              <h1 class="text-h3 text-md-h2 font-weight-bold mb-4"> игры для взгляда</h1>
-              <p class="text-h6 text-medium-emphasis mb-0">
-                 задания помогают тренировать фиксацию, выбор, внимание, слова и счёт. Выберите режим,
-                проверьте взгляд и откройте подходящую игру.
-              </p>
+              <h1 class="text-h3 text-md-h2 font-weight-bold mb-3">Игры для взгляда</h1>
+              <p class="text-h6 text-medium-emphasis mb-0">Выберите режим крупной карточкой. Взгляд удерживается до заполнения круга.</p>
             </div>
             <TobiiStatusBadge />
           </div>
 
-          <v-row class="mb-8" align="stretch">
+          <v-row class="mb-5" align="stretch">
             <v-col cols="12" md="6">
-              <v-card class="mode-card h-100 pa-5" color="surface" rounded="xl" variant="tonal">
-                <v-avatar class="mb-5" color="primary" size="72">
-                  <v-icon icon="mdi-clipboard-text-outline" size="40" />
-                </v-avatar>
-                <h2 class="text-h4 font-weight-bold mb-3">Специалист</h2>
-                <p class="text-body-1 text-medium-emphasis mb-6">
-                  Подробный каталог: навыки, длительность, статус готовности и параметры занятия для взрослого.
-                </p>
-                <v-btn block color="primary" size="x-large" to="/menu/specialist" variant="flat" @click="rememberMenuMode('specialist')">
-                  Открыть режим специалиста
-                </v-btn>
-              </v-card>
+              <GameDwellButton target-id="start-specialist" :dwell-ms="1300" min-height="clamp(14rem, 36dvh, 22rem)" color="surface" @select="openMode('specialist')">
+                <template #default>
+                  <div class="d-flex flex-column align-start h-100 text-on-surface">
+                    <v-avatar class="mb-5" color="primary" size="72">
+                      <v-icon icon="mdi-clipboard-text-outline" size="40" />
+                    </v-avatar>
+                    <h2 class="text-h4 font-weight-bold mb-3">Специалист</h2>
+                    <p class="text-h6 text-medium-emphasis mb-4">Каталог по целям занятия, параметрам и готовности игр.</p>
+                    <v-spacer />
+                    <div class="d-flex align-center ga-2 text-primary font-weight-bold text-h6">
+                      <span>Открыть каталог</span>
+                      <v-icon icon="mdi-arrow-right" />
+                    </div>
+                  </div>
+                </template>
+              </GameDwellButton>
             </v-col>
 
             <v-col cols="12" md="6">
-              <v-card class="mode-card h-100 pa-5" color="secondary" rounded="xl" variant="tonal">
-                <v-avatar class="mb-5" color="secondary" size="72" variant="flat">
-                  <v-icon icon="mdi-eye-outline" size="40" />
-                </v-avatar>
-                <h2 class="text-h4 font-weight-bold mb-3">Самостоятельно</h2>
-                <p class="text-body-1 text-medium-emphasis mb-6">
-                  Крупные карточки, меньше текста и больше пространства для выбора взглядом.
-                </p>
-                <v-btn block color="secondary" size="x-large" to="/menu/self" variant="flat" @click="rememberMenuMode('self')">
-                  Играть самостоятельно
-                </v-btn>
-              </v-card>
+              <GameDwellButton target-id="start-self" :dwell-ms="1500" min-height="clamp(14rem, 36dvh, 22rem)" color="secondary" @select="openMode('self')">
+                <template #default>
+                  <div class="d-flex flex-column align-start h-100 text-white">
+                    <v-avatar class="mb-5" color="secondary" size="72" variant="flat">
+                      <v-icon icon="mdi-eye-outline" size="40" />
+                    </v-avatar>
+                    <h2 class="text-h4 font-weight-bold mb-3">Самостоятельно</h2>
+                    <p class="text-h6 mb-4">Большие карточки, меньше текста, выбор взглядом без скролла.</p>
+                    <v-spacer />
+                    <div class="d-flex align-center ga-2 font-weight-bold text-h6">
+                      <span>Играть</span>
+                      <v-icon icon="mdi-arrow-right" />
+                    </div>
+                  </div>
+                </template>
+              </GameDwellButton>
             </v-col>
           </v-row>
 
@@ -69,11 +83,12 @@ import { rememberMenuMode } from "../core/menuMode";
     radial-gradient(circle at 12% 8%, rgb(216 154 114 / 22%), transparent 28rem),
     radial-gradient(circle at 88% 14%, rgb(139 123 184 / 18%), transparent 26rem),
     rgb(var(--v-theme-background));
-  min-block-size: 100vh;
+  block-size: 100dvh;
+  overflow: hidden;
 }
 
 .gallery-card,
-.mode-card {
-  border: 1px solid rgb(93 127 120 / 16%);
+:deep(.dwell-button) {
+  border: 0.0625rem solid rgb(93 127 120 / 16%);
 }
 </style>
