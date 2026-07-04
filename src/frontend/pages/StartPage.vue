@@ -21,29 +21,25 @@ function openMode(mode: MenuMode) {
             <div>
               <div class="text-overline text-secondary mb-2">LINKa plays</div>
               <h1 class="text-h3 text-md-h2 font-weight-bold mb-3">Игры для взгляда</h1>
-              <p class="text-h6 text-medium-emphasis mb-0">Выберите режим крупной карточкой. Взгляд удерживается до заполнения круга.</p>
+              <p class="text-h6 text-medium-emphasis mb-0">Специалист выбирает рукой. Самостоятельный режим выбирается взглядом.</p>
             </div>
             <TobiiStatusBadge />
           </div>
 
           <v-row class="mb-5" align="stretch">
             <v-col cols="12" md="6">
-              <GameDwellButton target-id="start-specialist" :dwell-ms="1300" min-height="clamp(14rem, 36dvh, 22rem)" color="surface" @select="openMode('specialist')">
-                <template #default>
-                  <div class="d-flex flex-column align-start h-100 text-on-surface">
-                    <v-avatar class="mb-5" color="primary" size="72">
-                      <v-icon icon="mdi-clipboard-text-outline" size="40" />
-                    </v-avatar>
-                    <h2 class="text-h4 font-weight-bold mb-3">Специалист</h2>
-                    <p class="text-h6 text-medium-emphasis mb-4">Каталог по целям занятия, параметрам и готовности игр.</p>
-                    <v-spacer />
-                    <div class="d-flex align-center ga-2 text-primary font-weight-bold text-h6">
-                      <span>Открыть каталог</span>
-                      <v-icon icon="mdi-arrow-right" />
-                    </div>
-                  </div>
-                </template>
-              </GameDwellButton>
+              <v-card class="mode-card h-100 pa-5 d-flex flex-column" color="surface" min-height="clamp(14rem, 36dvh, 22rem)" rounded="xl" variant="tonal" @click="openMode('specialist')">
+                <v-avatar class="mb-5" color="primary" size="72">
+                  <v-icon icon="mdi-clipboard-text-outline" size="40" />
+                </v-avatar>
+                <h2 class="text-h4 font-weight-bold mb-3">Специалист</h2>
+                <p class="text-h6 text-medium-emphasis mb-4">Каталог по целям занятия, параметрам и готовности игр. Открывается рукой.</p>
+                <v-spacer />
+                <div class="d-flex align-center ga-2 text-primary font-weight-bold text-h6">
+                  <span>Открыть каталог</span>
+                  <v-icon icon="mdi-arrow-right" />
+                </div>
+              </v-card>
             </v-col>
 
             <v-col cols="12" md="6">
@@ -88,7 +84,12 @@ function openMode(mode: MenuMode) {
 }
 
 .gallery-card,
+.mode-card,
 :deep(.dwell-button) {
   border: 0.0625rem solid rgb(93 127 120 / 16%);
+}
+
+.mode-card {
+  cursor: pointer;
 }
 </style>
