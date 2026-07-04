@@ -1,148 +1,95 @@
-export type ChessMiniPiece = "rook" | "bishop" | "knight" | "queen" | "king";
+export const chessBoardSize = 8;
+export const chessCellCount = chessBoardSize * chessBoardSize;
+export const chessInitialFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-export type ChessMiniTask = {
-  id: string;
-  piece: ChessMiniPiece;
-  from: number;
-  blockers: number[];
-  prompt: string;
+export type ChessSide = "white" | "black";
+export type ChessStatus = "playing" | "white-win" | "black-win" | "draw";
+export type ChessPiece = "P" | "N" | "B" | "R" | "Q" | "K" | "p" | "n" | "b" | "r" | "q" | "k" | ".";
+
+export type ChessCell = {
+  index: number;
+  row: number;
+  column: number;
+  label: string;
+  piece: ChessPiece;
 };
 
-export const chessMiniSize = 4;
-export const chessMiniCellCount = chessMiniSize * chessMiniSize;
-
-const taskDefinitions: ChessMiniTask[] = [
-  {
-    id: "rook-lane",
-    piece: "rook",
-    from: cellIndex(1, 1),
-    blockers: [cellIndex(1, 3), cellIndex(3, 1)],
-    prompt: "Ладья ходит прямо по строке или столбцу. Выбери клетку без преграды."
-  },
-  {
-    id: "bishop-diagonal",
-    piece: "bishop",
-    from: cellIndex(0, 2),
-    blockers: [cellIndex(2, 0)],
-    prompt: "Слон идёт по диагонали. Найди спокойный диагональный ход."
-  },
-  {
-    id: "knight-corner",
-    piece: "knight",
-    from: cellIndex(0, 0),
-    blockers: [cellIndex(1, 2)],
-    prompt: "Конь прыгает буквой Г и может перепрыгнуть через преграды."
-  },
-  {
-    id: "king-center",
-    piece: "king",
-    from: cellIndex(2, 2),
-    blockers: [cellIndex(1, 1), cellIndex(3, 3)],
-    prompt: "Король делает один шаг рядом с собой. Выбери соседнюю свободную клетку."
-  },
-  {
-    id: "queen-choice",
-    piece: "queen",
-    from: cellIndex(2, 1),
-    blockers: [cellIndex(0, 1), cellIndex(2, 3)],
-    prompt: "Ферзь умеет ходить прямо и по диагонали. Найди допустимое место."
-  },
-  {
-    id: "rook-edge",
-    piece: "rook",
-    from: cellIndex(3, 0),
-    blockers: [cellIndex(1, 0), cellIndex(3, 2)],
-    prompt: "Ладья на краю поля тоже ходит только по прямой линии."
-  },
-  {
-    id: "bishop-calm",
-    piece: "bishop",
-    from: cellIndex(3, 3),
-    blockers: [cellIndex(1, 1)],
-    prompt: "Слону нужна чистая диагональ. Выбери клетку до преграды."
-  },
-  {
-    id: "knight-shift",
-    piece: "knight",
-    from: cellIndex(2, 1),
-    blockers: [cellIndex(0, 2), cellIndex(2, 2)],
-    prompt: "Конь снова прыгает буквой Г. Переключи внимание на далёкую клетку."
-  }
-];
-
-export function createChessMiniTasks() {
-  return taskDefinitions.map((task) => ({ ...task, blockers: [...task.blockers] }));
-}
+export const chessPieceMeta: Record<Exclude<ChessPiece, ".">, { label: string; icon: string; side: ChessSide }> = {
+  P: { label: "Пешка", icon: "mdi-chess-pawn", side: "white" },
+  N: { label: "Конь", icon: "mdi-chess-knight", side: "white" },
+  B: { label: "Слон", icon: "mdi-chess-bishop", side: "white" },
+  R: { label: "Ладья", icon: "mdi-chess-rook", side: "white" },
+  Q: { label: "Ферзь", icon: "mdi-chess-queen", side: "white" },
+  K: { label: "Король", icon: "mdi-chess-king", side: "white" },
+  p: { label: "Пешка", icon: "mdi-chess-pawn", side: "black" },
+  n: { label: "Конь", icon: "mdi-chess-knight", side: "black" },
+  b: { label: "Слон", icon: "mdi-chess-bishop", side: "black" },
+  r: { label: "Ладья", icon: "mdi-chess-rook", side: "black" },
+  q: { label: "Ферзь", icon: "mdi-chess-queen", side: "black" },
+  k: { label: "Король", icon: "mdi-chess-king", side: "black" }
+};
 
 export function cellIndex(row: number, column: number) {
-  return row * chessMiniSize + column;
+  return row * chessBoardSize + column;
 }
 
 export function cellPosition(index: number) {
   return {
-    row: Math.floor(index / chessMiniSize),
-    column: index % chessMiniSize
+    row: Math.floor(index / chessBoardSize),
+    column: index % chessBoardSize
   };
 }
 
 export function squareLabel(index: number) {
   const { row, column } = cellPosition(index);
-  return `${String.fromCharCode(65 + column)}${chessMiniSize - row}`;
+  return `${String.fromCharCode(65 + column)}${chessBoardSize - row}`;
 }
 
-export function legalMoves(task: ChessMiniTask) {
-  return Array.from({ length: chessMiniCellCount }, (_, index) => index).filter((index) => isLegalMove(task, index));
+export function fenSideToMove(fen: string): ChessSide {
+  return fen.split(" ")[1] === "b" ? "black" : "white";
 }
 
-export function isLegalMove(task: ChessMiniTask, toIndex: number) {
-  if (!canLandOn(task, toIndex)) return false;
+export function parseFenBoard(fen: string): ChessPiece[] {
+  const placement = fen.split(" ")[0] ?? "";
+  const cells: ChessPiece[] = [];
 
-  const from = cellPosition(task.from);
-  const to = cellPosition(toIndex);
-  const rowDelta = to.row - from.row;
-  const columnDelta = to.column - from.column;
-  const absRow = Math.abs(rowDelta);
-  const absColumn = Math.abs(columnDelta);
-
-  if (task.piece === "king") return Math.max(absRow, absColumn) === 1;
-  if (task.piece === "knight") return (absRow === 2 && absColumn === 1) || (absRow === 1 && absColumn === 2);
-  if (task.piece === "rook") return isClearRookMove(task, rowDelta, columnDelta, toIndex);
-  if (task.piece === "bishop") return isClearBishopMove(task, rowDelta, columnDelta, toIndex);
-  return isClearRookMove(task, rowDelta, columnDelta, toIndex) || isClearBishopMove(task, rowDelta, columnDelta, toIndex);
-}
-
-function canLandOn(task: ChessMiniTask, index: number) {
-  return index >= 0 && index < chessMiniCellCount && index !== task.from && !task.blockers.includes(index);
-}
-
-function isClearRookMove(task: ChessMiniTask, rowDelta: number, columnDelta: number, toIndex: number) {
-  if (rowDelta !== 0 && columnDelta !== 0) return false;
-  return isPathClear(task, Math.sign(rowDelta), Math.sign(columnDelta), toIndex);
-}
-
-function isClearBishopMove(task: ChessMiniTask, rowDelta: number, columnDelta: number, toIndex: number) {
-  if (Math.abs(rowDelta) !== Math.abs(columnDelta)) return false;
-  return isPathClear(task, Math.sign(rowDelta), Math.sign(columnDelta), toIndex);
-}
-
-function isPathClear(task: ChessMiniTask, rowStep: number, columnStep: number, toIndex: number) {
-  if (rowStep === 0 && columnStep === 0) return false;
-
-  const from = cellPosition(task.from);
-  let row = from.row + rowStep;
-  let column = from.column + columnStep;
-
-  while (isInside(row, column)) {
-    const index = cellIndex(row, column);
-    if (index === toIndex) return true;
-    if (task.blockers.includes(index)) return false;
-    row += rowStep;
-    column += columnStep;
+  for (const token of placement) {
+    if (token === "/") continue;
+    if (/^[1-8]$/.test(token)) {
+      cells.push(...Array.from({ length: Number(token) }, () => "." as ChessPiece));
+      continue;
+    }
+    cells.push(token as ChessPiece);
   }
 
-  return false;
+  return Array.from({ length: chessCellCount }, (_, index) => cells[index] ?? ".");
 }
 
-function isInside(row: number, column: number) {
-  return row >= 0 && row < chessMiniSize && column >= 0 && column < chessMiniSize;
+export function boardCells(fen: string): ChessCell[] {
+  const pieces = parseFenBoard(fen);
+  return Array.from({ length: chessCellCount }, (_, index) => {
+    const { row, column } = cellPosition(index);
+    return { index, row, column, label: squareLabel(index), piece: pieces[index] };
+  });
+}
+
+export function isWhitePiece(piece: ChessPiece) {
+  return piece !== "." && piece === piece.toUpperCase();
+}
+
+export function isBlackPiece(piece: ChessPiece) {
+  return piece !== "." && piece === piece.toLowerCase();
+}
+
+export function pieceSide(piece: ChessPiece): ChessSide | undefined {
+  if (isWhitePiece(piece)) return "white";
+  if (isBlackPiece(piece)) return "black";
+  return undefined;
+}
+
+export function statusLabel(status: ChessStatus, check: boolean) {
+  if (status === "white-win") return "Мат. Белые выиграли.";
+  if (status === "black-win") return "Мат. Чёрные выиграли.";
+  if (status === "draw") return "Ничья.";
+  return check ? "Шах. Найди безопасный ход." : "Партия идёт.";
 }

@@ -1,11 +1,13 @@
 import { BackWatch } from "@linkasu/tobii-electron/main";
 import { app, BrowserWindow, ipcMain } from "electron";
 import { join } from "path";
+import { registerConnectFourAiHandlers } from "./connectFourAi";
 
 let mainWindow: BrowserWindow | undefined;
 let noTobiiHandlersRegistered = false;
 
 app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required");
+registerConnectFourAiHandlers();
 
 const devSession = process.env.LINKA_DEV_SESSION;
 if (devSession) {

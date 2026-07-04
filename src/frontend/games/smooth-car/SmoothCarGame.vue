@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
@@ -7,382 +7,301 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { carSize, createHighwayState, highwayRoad, highwaySegments, laneCenter, laneCount, laneDashPattern, syncHighwayGeometry, updateHighway, type HighwayObstacle, type HighwayState, type Point, type ViewportSize } from "./model";
 
-type Point = { x: number; y: number };
-type Car = Point & {
-  angle: number;
-  dwellProgress: number;
-  enteredAt: number;
-  glow: number;
-  wheelPhase: number;
-};
-type Checkpoint = Point & {
-  id: string;
-  radius: number;
+type RoadSideItem = Point & {
+  size: number;
   phase: number;
-  entered: boolean;
-};
-type RoadMark = {
-  x: number;
-  offset: number;
-  length: number;
-  alpha: number;
+  kind: "tree" | "sign";
 };
 
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("smooth-car", {
-  maxSteps: 8,
-  overrides: { preset: "gentle", dwellMs: 600, targetScale: 1.45, motionSpeed: 0.58, distractors: "none", hints: "high", sound: false },
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("smooth-car", {
+  maxSteps: highwaySegments.length,
+  overrides: { preset: "standard", dwellMs: 600, targetScale: 1.25, motionSpeed: 0.9, distractors: "low", hints: "medium" },
   finishOnMistakes: false
 });
 
-const car = reactive<Car>({ x: 0, y: 0, angle: 0, dwellProgress: 0, enteredAt: 0, glow: 0, wheelPhase: 0 });
-const checkpoint = reactive<Checkpoint>({ id: "smooth-car-checkpoint-0", x: 0, y: 0, radius: 120, phase: 0, entered: false });
-const roadMarks = reactive<RoadMark[]>([]);
+const viewport = computed<ViewportSize>(() => ({ width: Math.max(1, width.value), height: Math.max(1, height.value) }));
+const highwayState = ref<HighwayState>(createHighwayState({ width: window.innerWidth, height: window.innerHeight }));
+const roadsideItems = reactive<RoadSideItem[]>([]);
 const resultVisible = computed(() => session.status === "finished");
+const currentSegment = computed(() => highwaySegments[highwayState.value.segmentIndex]);
+const canvasFontUnit = String.fromCharCode(112, 120);
 const guidanceText = computed(() => {
-  if (session.status === "paused") return "Пауза. Машинка спокойно ждёт на широкой дороге.";
-  if (!pointer.value.valid) return "Можно вести машинку взглядом или мышью. Дорога широкая и спокойно ждёт.";
-  if (car.dwellProgress > 0) return "Удерживай машинку в светлом круге, ворота почти пройдены.";
-  return "Веди машинку взглядом к следующему светлому кругу.";
+  if (session.status === "paused") return "Пауза. Машина держит полосу.";
+  if (!pointer.value.valid) return "Можно вести машину взглядом или мышью: смотри на нужную полосу.";
+  if (highwayState.value.hull <= 1) return "Осторожно: машина повреждена. Выбирай свободную полосу заранее.";
+  return "Выбери полосу, собери жёлтый знак и объезжай встречные машины.";
 });
 
-let checkpointSequence = 0;
-
-function clamp(value: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, value));
+function randomRange(min: number, max: number) {
+  return min + Math.random() * (max - min);
 }
 
-function distance(a: Point, b: Point) {
-  return Math.hypot(a.x - b.x, a.y - b.y);
+function resetRoadside() {
+  roadsideItems.splice(0);
+  const count = width.value < 760 ? 8 : 14;
+  for (let index = 0; index < count; index += 1) roadsideItems.push(createRoadsideItem(index));
 }
 
-function roadCenterY(x: number) {
-  const safeTop = Math.max(150, height.value * 0.2);
-  const safeBottom = height.value - Math.max(72, height.value * 0.1);
-  const middle = safeTop + (safeBottom - safeTop) * 0.52;
-  return middle + Math.sin((x / Math.max(1, width.value)) * Math.PI * 2.1 - 0.55) * Math.min(56, height.value * 0.075);
-}
-
-function roadHalfWidth() {
-  return Math.min(230, Math.max(145, Math.min(width.value, height.value) * 0.2 * session.settings.targetScale));
-}
-
-function carSize() {
-  return Math.min(118, Math.max(72, Math.min(width.value, height.value) * 0.12 * session.settings.targetScale));
-}
-
-function checkpointRadius() {
-  return Math.min(154, Math.max(104, 82 * session.settings.targetScale));
-}
-
-function clampToRoad(point: Point) {
-  const margin = carSize() * 0.72;
-  const x = clamp(point.x, margin, Math.max(margin, width.value - margin));
-  const center = roadCenterY(x);
-  const halfWidth = roadHalfWidth() - carSize() * 0.34;
+function createRoadsideItem(index: number): RoadSideItem {
+  const road = highwayRoad(viewport.value);
+  const leftSide = index % 2 === 0;
   return {
-    x,
-    y: clamp(point.y, center - halfWidth, center + halfWidth)
+    x: leftSide ? randomRange(12, Math.max(20, road.left - 28)) : randomRange(Math.min(width.value - 20, road.right + 28), width.value - 12),
+    y: randomRange(0, height.value),
+    size: randomRange(16, 34),
+    phase: randomRange(0, Math.PI * 2),
+    kind: index % 5 === 0 ? "sign" : "tree"
   };
-}
-
-function checkpointPosition(index: number) {
-  const xs = [0.76, 0.42, 0.84, 0.24, 0.64, 0.34, 0.72, 0.5];
-  const offsets = [-0.28, 0.2, 0.02, -0.18, 0.3, -0.32, 0.16, -0.04];
-  const x = width.value * xs[index % xs.length];
-  const radius = checkpointRadius();
-  return clampToRoad({ x, y: roadCenterY(x) + roadHalfWidth() * offsets[index % offsets.length] + Math.sin(index * 1.7) * 10 + radius * 0.02 });
-}
-
-function copyPointer() {
-  return {
-    x: pointer.value.x,
-    y: pointer.value.y,
-    valid: pointer.value.valid,
-    source: pointer.value.source,
-    timestamp: pointer.value.timestamp
-  };
-}
-
-function targetPayload(now: number, progress: number, reason?: "left" | "invalid-gaze") {
-  return {
-    targetId: checkpoint.id,
-    at: Date.now(),
-    dwellMs: session.settings.dwellMs,
-    elapsedMs: car.enteredAt > 0 ? now - car.enteredAt : 0,
-    progress,
-    pointer: copyPointer(),
-    reason
-  };
-}
-
-function resetCheckpoint() {
-  const position = checkpointPosition(checkpointSequence);
-  checkpointSequence += 1;
-  checkpoint.id = `smooth-car-checkpoint-${Date.now()}-${checkpointSequence}`;
-  checkpoint.x = position.x;
-  checkpoint.y = position.y;
-  checkpoint.radius = checkpointRadius();
-  checkpoint.phase = Math.random() * Math.PI * 2;
-  checkpoint.entered = false;
-  car.dwellProgress = 0;
-  car.enteredAt = 0;
-}
-
-function initRoadMarks() {
-  roadMarks.splice(0);
-  const count = width.value < 720 ? 7 : 11;
-  for (let index = 0; index < count; index += 1) {
-    roadMarks.push({
-      x: (index / Math.max(1, count - 1)) * width.value,
-      offset: index % 2 === 0 ? -0.38 : 0.38,
-      length: 44 + (index % 3) * 16,
-      alpha: 0.16 + (index % 4) * 0.035
-    });
-  }
 }
 
 function resetScene() {
-  checkpointSequence = 0;
-  initRoadMarks();
-  const startX = width.value * 0.18;
-  const start = clampToRoad({ x: startX, y: roadCenterY(startX) });
-  car.x = start.x;
-  car.y = start.y;
-  car.angle = 0;
-  car.dwellProgress = 0;
-  car.enteredAt = 0;
-  car.glow = 0;
-  car.wheelPhase = 0;
-  resetCheckpoint();
+  highwayState.value = createHighwayState(viewport.value);
+  resetRoadside();
 }
 
-function updateCar(delta: number) {
-  const fallback = { x: car.x, y: car.y };
-  const target = clampToRoad(pointer.value.valid ? pointer.value : fallback);
-  const dx = target.x - car.x;
-  const dy = target.y - car.y;
-  const ease = Math.min(1, delta * (1.6 + session.settings.motionSpeed * 2.6));
-  const maxStep = delta * (240 + session.settings.motionSpeed * 210);
-  const moveX = clamp(dx * ease, -maxStep, maxStep);
-  const moveY = clamp(dy * ease, -maxStep, maxStep);
-
-  car.x += moveX;
-  car.y += moveY;
-  car.y = clampToRoad(car).y;
-  if (Math.abs(moveX) + Math.abs(moveY) > 0.02) car.angle += (Math.atan2(moveY, Math.max(12, moveX)) - car.angle) * Math.min(1, delta * 5.5);
-  car.wheelPhase += session.settings.reduceMotion ? 0 : distance({ x: 0, y: 0 }, { x: moveX, y: moveY }) * 0.1;
-  car.glow = Math.max(0, car.glow - delta * 1.4);
-}
-
-function completeCheckpoint(now: number) {
-  recordEvent("target-click", targetPayload(now, 1));
-  recordSuccess({ targetId: checkpoint.id, checkpoint: session.step + 1, label: "smooth-car-checkpoint" });
-  car.glow = 1;
-  if (session.status === "running") resetCheckpoint();
-}
-
-function updateCheckpoint(delta: number, now: number) {
-  checkpoint.radius = checkpointRadius();
-  checkpoint.phase += session.settings.reduceMotion ? 0 : delta * 1.9;
-
-  const gap = distance(car, checkpoint);
-  const enterDistance = checkpoint.radius * 1.08;
-  const holdDistance = checkpoint.radius * 0.66;
-  const progress = clamp(1 - gap / enterDistance, 0, 1);
-  const closeEnough = pointer.value.valid && gap <= enterDistance;
-  const holding = pointer.value.valid && gap <= holdDistance;
-
-  if (closeEnough && !checkpoint.entered) {
-    checkpoint.entered = true;
-    car.enteredAt = now;
-    recordEvent("target-enter", targetPayload(now, progress));
+function updateRoadside(delta: number) {
+  const speed = carSize(viewport.value) * 2.1 * session.settings.motionSpeed;
+  for (let index = 0; index < roadsideItems.length; index += 1) {
+    const item = roadsideItems[index];
+    item.y += speed * delta;
+    item.phase += session.settings.reduceMotion ? 0 : delta * 1.2;
+    if (item.y > height.value + item.size * 2) {
+      const next = createRoadsideItem(index);
+      item.x = next.x;
+      item.y = -item.size * 2;
+      item.size = next.size;
+      item.phase = next.phase;
+      item.kind = next.kind;
+    }
   }
-
-  if (!closeEnough && checkpoint.entered) {
-    checkpoint.entered = false;
-    recordEvent("target-cancel", targetPayload(now, progress, pointer.value.valid ? "left" : "invalid-gaze"));
-    car.enteredAt = 0;
-  }
-
-  const dwellGain = (delta * 1000 / session.settings.dwellMs) * (holding ? 1.05 : closeEnough ? 0.45 : -0.75);
-  car.dwellProgress = clamp(car.dwellProgress + dwellGain, 0, 1);
-  if (car.dwellProgress >= 1) completeCheckpoint(now);
 }
 
-function syncGeometry() {
-  if (width.value <= 0 || height.value <= 0) return;
-  car.x = clamp(car.x || width.value * 0.18, carSize() * 0.72, width.value - carSize() * 0.72);
-  car.y = clampToRoad(car).y;
-  if (checkpoint.x <= 0 || checkpoint.y <= 0) resetCheckpoint();
-  checkpoint.radius = checkpointRadius();
-}
-
-function update(rawDelta: number, now: number) {
-  const delta = session.status === "paused" ? 0 : rawDelta;
-  syncGeometry();
+function update(delta: number) {
+  if (session.status === "paused") return;
+  highwayState.value = syncHighwayGeometry(highwayState.value, viewport.value);
   if (session.status !== "running") return;
-  updateCar(delta);
-  updateCheckpoint(delta, now);
+  updateRoadside(delta);
+  const result = updateHighway(highwayState.value, pointer.value.valid ? pointer.value.x : undefined, delta, viewport.value, session.settings.motionSpeed);
+  highwayState.value = result.state;
+  if (result.event.type === "success") {
+    recordSuccess({ segmentId: highwaySegments[result.event.segmentIndex]?.id, lane: result.event.lane, goalId: result.event.goalId, hull: highwayState.value.hull });
+    if (highwayState.value.mode === "finished") finishSession("game-complete");
+  }
+  if (result.event.type === "damage" || result.event.type === "crashed") {
+    recordMistake({ segmentId: highwaySegments[result.event.segmentIndex]?.id, lane: result.event.lane, obstacleId: result.event.obstacleId, hull: highwayState.value.hull });
+    if (result.event.type === "crashed") finishSession("game-lost");
+  }
 }
 
-function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
-  const sky = ctx.createLinearGradient(0, 0, 0, height.value);
-  sky.addColorStop(0, "#dff7ff");
-  sky.addColorStop(0.52, "#f5fbeb");
-  sky.addColorStop(1, "#d9efc8");
-  ctx.fillStyle = sky;
+function drawBackground(ctx: CanvasRenderingContext2D) {
+  const gradient = ctx.createLinearGradient(0, 0, 0, height.value);
+  gradient.addColorStop(0, "#b9ecff");
+  gradient.addColorStop(0.48, "#e5f5d8");
+  gradient.addColorStop(1, "#b8d895");
+  ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width.value, height.value);
+  for (const item of roadsideItems) drawRoadsideItem(ctx, item);
+}
 
-  ctx.fillStyle = "rgb(129 189 113 / 30%)";
-  for (let index = 0; index < 7; index += 1) {
-    const x = width.value * ((index * 0.19 + 0.08) % 1);
-    const y = height.value * (0.2 + (index % 4) * 0.18);
-    const visualNow = session.settings.reduceMotion ? 0 : now;
+function drawRoadsideItem(ctx: CanvasRenderingContext2D, item: RoadSideItem) {
+  ctx.save();
+  ctx.translate(item.x, item.y + (session.settings.reduceMotion ? 0 : Math.sin(item.phase) * 3));
+  if (item.kind === "sign") {
+    ctx.fillStyle = "#f7e29a";
+    ctx.strokeStyle = "rgb(82 96 74 / 46%)";
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.ellipse(x, y + Math.sin(visualNow * 0.0002 + index) * 5, 86 + index * 8, 22 + index * 2, 0, 0, Math.PI * 2);
+    ctx.roundRect(-item.size * 0.58, -item.size * 0.34, item.size * 1.16, item.size * 0.68, item.size * 0.12);
     ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = "#7f6d43";
+    ctx.beginPath();
+    ctx.moveTo(0, item.size * 0.34);
+    ctx.lineTo(0, item.size * 1.1);
+    ctx.stroke();
+    ctx.restore();
+    return;
   }
+
+  ctx.fillStyle = "#6aa05d";
+  ctx.beginPath();
+  ctx.ellipse(0, 0, item.size * 0.72, item.size * 0.48, Math.sin(item.phase) * 0.12, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgb(57 102 48 / 65%)";
+  ctx.beginPath();
+  ctx.ellipse(item.size * 0.08, -item.size * 0.04, item.size * 0.42, item.size * 0.28, -0.25, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
 }
 
 function drawRoad(ctx: CanvasRenderingContext2D) {
-  const samples: Point[] = [];
-  for (let x = -100; x <= width.value + 100; x += Math.max(28, width.value / 26)) samples.push({ x, y: roadCenterY(x) });
-
+  const road = highwayRoad(viewport.value);
   ctx.save();
-  ctx.fillStyle = "#9fb0b4";
+  ctx.fillStyle = "#3c4651";
   ctx.beginPath();
-  for (let index = 0; index < samples.length; index += 1) {
-    const point = samples[index];
-    const y = point.y - roadHalfWidth();
-    if (index === 0) ctx.moveTo(point.x, y);
-    else ctx.lineTo(point.x, y);
-  }
-  for (let index = samples.length - 1; index >= 0; index -= 1) {
-    const point = samples[index];
-    ctx.lineTo(point.x, point.y + roadHalfWidth());
-  }
-  ctx.closePath();
+  ctx.roundRect(road.left, road.top, road.right - road.left, road.bottom - road.top, Math.min(34, road.laneWidth * 0.18));
   ctx.fill();
 
-  ctx.strokeStyle = "rgb(255 255 255 / 55%)";
-  ctx.lineWidth = 5;
-  ctx.setLineDash([24, 22]);
-  ctx.beginPath();
-  for (let index = 0; index < samples.length; index += 1) {
-    const point = samples[index];
-    if (index === 0) ctx.moveTo(point.x, point.y);
-    else ctx.lineTo(point.x, point.y);
-  }
-  ctx.stroke();
-  ctx.setLineDash([]);
+  ctx.fillStyle = "rgb(255 255 255 / 10%)";
+  ctx.fillRect(road.left, road.top, road.right - road.left, road.bottom - road.top);
 
-  for (const mark of roadMarks) {
-    const center = roadCenterY(mark.x);
-    ctx.globalAlpha = mark.alpha;
-    ctx.fillStyle = mark.offset < 0 ? "#e6f6ff" : "#fff6cf";
+  ctx.strokeStyle = "#f7f0c4";
+  ctx.lineWidth = Math.max(4, road.laneWidth * 0.035);
+  ctx.beginPath();
+  ctx.moveTo(road.left + 3, road.top);
+  ctx.lineTo(road.left + 3, road.bottom);
+  ctx.moveTo(road.right - 3, road.top);
+  ctx.lineTo(road.right - 3, road.bottom);
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgb(255 255 255 / 78%)";
+  ctx.lineWidth = Math.max(3, road.laneWidth * 0.026);
+  const dashPattern = laneDashPattern(viewport.value);
+  ctx.setLineDash([dashPattern.dash, dashPattern.gap]);
+  ctx.lineDashOffset = -(highwayState.value.roadOffset % dashPattern.cycle);
+  for (let lane = 1; lane < laneCount; lane += 1) {
+    const x = road.left + road.laneWidth * lane;
     ctx.beginPath();
-    ctx.ellipse(mark.x, center + roadHalfWidth() * mark.offset, mark.length, 7, Math.sin(mark.x * 0.01) * 0.2, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.restore();
-}
-
-function drawCheckpoint(ctx: CanvasRenderingContext2D) {
-  const pulse = session.settings.reduceMotion ? 1 : 1 + Math.sin(checkpoint.phase) * 0.04;
-  const radius = checkpoint.radius * pulse;
-  const glow = ctx.createRadialGradient(checkpoint.x, checkpoint.y, radius * 0.12, checkpoint.x, checkpoint.y, radius * 1.12);
-  glow.addColorStop(0, "rgb(255 255 255 / 48%)");
-  glow.addColorStop(0.62, "rgb(255 229 134 / 24%)");
-  glow.addColorStop(1, "rgb(255 229 134 / 0%)");
-  ctx.fillStyle = glow;
-  ctx.beginPath();
-  ctx.arc(checkpoint.x, checkpoint.y, radius * 1.12, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.strokeStyle = "rgb(255 247 184 / 92%)";
-  ctx.lineWidth = 8;
-  ctx.beginPath();
-  ctx.arc(checkpoint.x, checkpoint.y, radius * 0.62, 0, Math.PI * 2);
-  ctx.stroke();
-
-  ctx.strokeStyle = `rgb(88 151 255 / ${0.32 + car.dwellProgress * 0.52})`;
-  ctx.lineWidth = 7;
-  ctx.beginPath();
-  ctx.arc(checkpoint.x, checkpoint.y, radius * 0.78, -Math.PI * 0.5, -Math.PI * 0.5 + Math.PI * 2 * Math.max(0.02, car.dwellProgress));
-  ctx.stroke();
-}
-
-function drawCar(ctx: CanvasRenderingContext2D) {
-  const size = carSize();
-  const light = Math.max(car.glow, car.dwellProgress);
-  ctx.save();
-  ctx.translate(car.x, car.y);
-  ctx.rotate(car.angle * 0.42);
-
-  const glow = ctx.createRadialGradient(0, 0, size * 0.2, 0, 0, size * (0.9 + light * 0.42));
-  glow.addColorStop(0, `rgb(255 241 164 / ${0.14 + light * 0.28})`);
-  glow.addColorStop(1, "rgb(255 241 164 / 0%)");
-  ctx.fillStyle = glow;
-  ctx.beginPath();
-  ctx.arc(0, 0, size * (0.9 + light * 0.42), 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = "rgb(50 63 74 / 20%)";
-  ctx.beginPath();
-  ctx.ellipse(0, size * 0.34, size * 0.72, size * 0.18, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = "#f9b45d";
-  ctx.strokeStyle = "rgb(133 79 54 / 46%)";
-  ctx.lineWidth = Math.max(3, size * 0.04);
-  ctx.beginPath();
-  ctx.roundRect(-size * 0.62, -size * 0.25, size * 1.24, size * 0.55, size * 0.18);
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.fillStyle = "#ffcf7c";
-  ctx.beginPath();
-  ctx.roundRect(-size * 0.28, -size * 0.5, size * 0.62, size * 0.38, size * 0.16);
-  ctx.fill();
-  ctx.strokeStyle = "rgb(133 79 54 / 32%)";
-  ctx.stroke();
-
-  ctx.fillStyle = "rgb(210 240 255 / 86%)";
-  ctx.beginPath();
-  ctx.roundRect(-size * 0.2, -size * 0.43, size * 0.23, size * 0.22, size * 0.06);
-  ctx.roundRect(size * 0.08, -size * 0.43, size * 0.2, size * 0.22, size * 0.06);
-  ctx.fill();
-
-  for (const wheelX of [-size * 0.38, size * 0.42]) {
-    ctx.fillStyle = "#384047";
-    ctx.beginPath();
-    ctx.arc(wheelX, size * 0.3, size * 0.16, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = "rgb(255 255 255 / 45%)";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(wheelX, size * 0.3);
-    ctx.lineTo(wheelX + Math.cos(car.wheelPhase) * size * 0.11, size * 0.3 + Math.sin(car.wheelPhase) * size * 0.11);
+    ctx.moveTo(x, road.top + 10);
+    ctx.lineTo(x, road.bottom - 10);
     ctx.stroke();
   }
+  ctx.setLineDash([]);
+  ctx.restore();
+}
 
-  ctx.fillStyle = "rgb(255 250 196 / 86%)";
+function drawGoal(ctx: CanvasRenderingContext2D) {
+  const road = highwayRoad(viewport.value);
+  const goal = highwayState.value.goal;
+  const x = laneCenter(road, goal.lane);
+  const radius = goal.radius;
+  ctx.save();
+  const glow = ctx.createRadialGradient(x, goal.y, radius * 0.1, x, goal.y, radius * 2.2);
+  glow.addColorStop(0, "rgb(255 245 148 / 66%)");
+  glow.addColorStop(0.52, "rgb(255 208 64 / 30%)");
+  glow.addColorStop(1, "rgb(255 208 64 / 0%)");
+  ctx.fillStyle = glow;
   ctx.beginPath();
-  ctx.arc(size * 0.64, -size * 0.06, size * 0.055, 0, Math.PI * 2);
-  ctx.arc(size * 0.64, size * 0.16, size * 0.055, 0, Math.PI * 2);
+  ctx.arc(x, goal.y, radius * 2.1, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#ffd84b";
+  ctx.strokeStyle = "#fff7c2";
+  ctx.lineWidth = Math.max(3, radius * 0.1);
+  ctx.beginPath();
+  ctx.arc(x, goal.y, radius, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#745710";
+  ctx.font = `900 ${Math.max(16, radius * 0.72)}${canvasFontUnit} Roboto, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("✓", x, goal.y + radius * 0.04);
+  ctx.restore();
+}
+
+function drawObstacle(ctx: CanvasRenderingContext2D, obstacle: HighwayObstacle) {
+  const road = highwayRoad(viewport.value);
+  const size = carSize(viewport.value);
+  const x = laneCenter(road, obstacle.lane);
+  const widthValue = obstacle.kind === "truck" ? size * 0.74 : size * 0.64;
+  const heightValue = obstacle.kind === "truck" ? obstacle.length * 1.2 : obstacle.length;
+  ctx.save();
+  ctx.translate(x, obstacle.y);
+  ctx.fillStyle = obstacle.kind === "truck" ? "#7e8b99" : "#d45a55";
+  ctx.strokeStyle = "rgb(24 34 44 / 58%)";
+  ctx.lineWidth = Math.max(3, size * 0.035);
+  ctx.beginPath();
+  ctx.roundRect(-widthValue / 2, -heightValue / 2, widthValue, heightValue, size * 0.1);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "rgb(210 238 255 / 82%)";
+  ctx.beginPath();
+  ctx.roundRect(-widthValue * 0.32, -heightValue * 0.28, widthValue * 0.64, heightValue * 0.22, size * 0.04);
+  ctx.fill();
+  ctx.fillStyle = "rgb(255 244 180 / 86%)";
+  ctx.beginPath();
+  ctx.arc(-widthValue * 0.28, heightValue * 0.42, size * 0.045, 0, Math.PI * 2);
+  ctx.arc(widthValue * 0.28, heightValue * 0.42, size * 0.045, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 }
 
-function draw(ctx: CanvasRenderingContext2D, _delta: number, now: number) {
-  drawBackground(ctx, now);
+function drawPlayerCar(ctx: CanvasRenderingContext2D) {
+  const state = highwayState.value;
+  const size = carSize(viewport.value);
+  const damage = state.car.damageFlash;
+  const hullRatio = state.hull / state.maxHull;
+  ctx.save();
+  ctx.translate(state.car.x, state.car.y);
+  const glow = ctx.createRadialGradient(0, 0, size * 0.2, 0, 0, size * (0.9 + damage * 0.35));
+  glow.addColorStop(0, `rgb(255 236 155 / ${0.2 + damage * 0.22})`);
+  glow.addColorStop(1, "rgb(255 236 155 / 0%)");
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(0, 0, size, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = hullRatio <= 0.34 ? "#a85c4e" : hullRatio <= 0.67 ? "#e98f54" : "#43a5ff";
+  ctx.strokeStyle = damage > 0 ? "#fff7c2" : "rgb(12 54 92 / 62%)";
+  ctx.lineWidth = Math.max(3, size * 0.04 + damage * 3);
+  ctx.beginPath();
+  ctx.roundRect(-size * 0.36, -size * 0.5, size * 0.72, size, size * 0.12);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = "rgb(220 245 255 / 90%)";
+  ctx.beginPath();
+  ctx.roundRect(-size * 0.23, -size * 0.24, size * 0.46, size * 0.24, size * 0.05);
+  ctx.fill();
+  ctx.fillStyle = "#1e2935";
+  for (const x of [-size * 0.42, size * 0.42]) {
+    ctx.beginPath();
+    ctx.roundRect(x - size * 0.055, -size * 0.34, size * 0.11, size * 0.28, size * 0.04);
+    ctx.roundRect(x - size * 0.055, size * 0.12, size * 0.11, size * 0.28, size * 0.04);
+    ctx.fill();
+  }
+  ctx.fillStyle = "#fff0a3";
+  ctx.beginPath();
+  ctx.arc(-size * 0.2, -size * 0.52, size * 0.045, 0, Math.PI * 2);
+  ctx.arc(size * 0.2, -size * 0.52, size * 0.045, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawStatus(ctx: CanvasRenderingContext2D) {
+  const fontSize = Math.max(15, Math.min(width.value, height.value) * 0.026);
+  const x = Math.max(28, width.value * 0.04);
+  const y = Math.max(70, height.value * 0.12);
+  ctx.save();
+  ctx.fillStyle = "rgb(20 34 48 / 72%)";
+  ctx.strokeStyle = "rgb(255 255 255 / 24%)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(x - fontSize * 0.8, y - fontSize * 1.55, fontSize * 17.5, fontSize * 3.6, fontSize * 0.65);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#f6fbff";
+  ctx.font = `800 ${fontSize}${canvasFontUnit} Roboto, sans-serif`;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  ctx.fillText(`Шоссе ${highwayState.value.segmentIndex + 1}/${highwaySegments.length}: ${currentSegment.value.title}`, x, y - fontSize * 0.45);
+  ctx.fillStyle = highwayState.value.hull <= 1 ? "#ffd2c5" : "#dfffe8";
+  ctx.fillText(`Прочность: ${highwayState.value.hull}/${highwayState.value.maxHull}`, x, y + fontSize * 0.85);
+  ctx.restore();
+}
+
+function draw(ctx: CanvasRenderingContext2D) {
+  drawBackground(ctx);
   drawRoad(ctx);
-  drawCheckpoint(ctx);
-  drawCar(ctx);
+  drawGoal(ctx);
+  for (const obstacle of highwayState.value.obstacles) drawObstacle(ctx, obstacle);
+  drawPlayerCar(ctx);
+  drawStatus(ctx);
 }
 
 function restart() {
@@ -399,11 +318,11 @@ useGameLoop({ context, update, draw });
 
 <template>
   <div class="smooth-car-shell">
-    <canvas ref="canvasRef" class="smooth-car-canvas" />
+    <canvas ref="canvasRef" class="smooth-car-canvas" aria-label="Игра Плавная машинка: 4-полосное шоссе" />
 
     <v-card class="smooth-car-hint px-4 py-3" color="surface" rounded="xl" variant="flat">
       <div class="text-body-2 font-weight-medium">{{ guidanceText }}</div>
-      <div class="text-caption text-medium-emphasis">Если взгляд ушёл, машинка спокойно ждёт возвращения.</div>
+      <div class="text-caption text-medium-emphasis">Четыре полосы. Жёлтый знак собери, встречные машины объезжай.</div>
     </v-card>
 
     <GameHud
@@ -435,7 +354,7 @@ useGameLoop({ context, update, draw });
 
 <style scoped>
 .smooth-car-shell {
-  background: #dff7ff;
+  background: #b9ecff;
   block-size: 100dvh;
   inline-size: 100dvw;
   overflow: hidden;
@@ -452,9 +371,15 @@ useGameLoop({ context, update, draw });
   inset-block-end: max(1.125rem, env(safe-area-inset-bottom));
   inset-inline: 1.125rem;
   margin-inline: auto;
-  max-inline-size: 41.25rem;
+  max-inline-size: 42rem;
   opacity: 0.95;
   position: absolute;
   z-index: 3;
+}
+
+@media (max-width: 45rem), (max-height: 40rem) {
+  .smooth-car-hint {
+    display: none;
+  }
 }
 </style>

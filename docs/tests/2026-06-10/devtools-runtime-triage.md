@@ -33,7 +33,6 @@
 | Приоритет | Игра | Флаг | Доказательство | Минимальный следующий шаг |
 |---|---|---|---|---|
 | P0 | `gaze-maze` | Horizontal overflow на `800x600` | `overflowX=true`, `targets=5/7`, stage `aspect-ratio: 16/9` + `min-block-size: 28rem` | Исправлено после triage; см. `devtools-after-overflow-fix.md` |
-| P0 | `pac-path` | Horizontal overflow на `800x600` | `overflowX=true`, `targets=2/4`, stage `aspect-ratio: 16/9` + `min-block-size: 30rem` | Исправлено после triage; см. `devtools-after-overflow-fix.md` |
 | P0 | `hide-and-seek` | HUD/target overlap на `800x600` | 1 target пересекал fixed HUD; дополнительная проверка показала prompt/target overlap | Исправлено после triage; см. `devtools-after-overlap-fix.md` |
 | P0 | `musical-path` | HUD/target overlap на `800x600` | верхний stone target стартовал в зоне HUD из-за процентов от всего viewport | Исправлено после triage; см. `devtools-after-overlap-fix.md` |
 | P0 | `rails` | HUD/target overlap на `800x600` | стартовый выбор поезда складывался вертикально под wrapped HUD | Исправлено после triage; см. `devtools-after-overlap-fix.md` |

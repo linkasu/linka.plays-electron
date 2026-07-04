@@ -54,6 +54,7 @@ const lastSuccessLaneId = ref<PaddleLaneId>();
 const hintStrength = ref(0);
 const feedbackText = ref("Посмотри, откуда летит мяч, и выбери позицию ракетки для мягкого удара.");
 const isSpeaking = ref(false);
+const animationMode = ref<"incoming" | "return" | "miss">("incoming");
 
 function laneById(id: PaddleLaneId) {
   return lanes.find((lane) => lane.id === id) ?? lanes[1];
@@ -98,6 +99,7 @@ async function chooseLane(lane: PaddleLane) {
 
   if (lane.id !== round.value.incomingLane.id) {
     const outcome = stepPongChoiceOutcome(false, session.mistakes + 1);
+    animationMode.value = "miss";
     lastMistakeLaneId.value = lane.id;
     lastSuccessLaneId.value = undefined;
     hintStrength.value = Math.min(3, hintStrength.value + 1);
@@ -122,10 +124,12 @@ async function chooseLane(lane: PaddleLane) {
       return;
     }
     recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "step-pong-lane", strength: hintStrength.value });
+    animationMode.value = "incoming";
     isSpeaking.value = false;
     return;
   }
 
+  animationMode.value = "return";
   lastMistakeLaneId.value = undefined;
   lastSuccessLaneId.value = lane.id;
   hintStrength.value = 0;
@@ -145,10 +149,12 @@ async function chooseLane(lane: PaddleLane) {
   await promptAudio.playSequenceAndWait(willFinish ? ["step-pong.correct", "step-pong.complete"] : ["step-pong.correct"], 80, 170);
   if (willFinish) {
     finishSession("game-complete");
+    animationMode.value = "incoming";
     isSpeaking.value = false;
     return;
   }
   if (session.status === "running") nextRound();
+  animationMode.value = "incoming";
   isSpeaking.value = false;
 }
 
@@ -165,6 +171,7 @@ function restart() {
   lastMistakeLaneId.value = undefined;
   lastSuccessLaneId.value = undefined;
   hintStrength.value = 0;
+  animationMode.value = "incoming";
   isSpeaking.value = false;
   feedbackText.value = "Посмотри, откуда летит мяч, и выбери позицию ракетки для мягкого удара.";
   restartRoundGame();
@@ -203,7 +210,7 @@ onUnmounted(() => {
             <v-row align="stretch">
               <v-col cols="12" sm="6" class="pe-sm-4">
                 <v-card class="pong-board pa-3 pa-md-5" color="cyan-lighten-5" rounded="xl" variant="flat">
-                  <div class="pong-stage" :style="ballStyle" aria-label="Поле пошагового понга">
+                  <div class="pong-stage" :class="`pong-stage--${animationMode}`" :style="ballStyle" aria-label="Поле пошагового понга">
                     <div class="partner-paddle" aria-hidden="true" />
                     <div class="net" aria-hidden="true" />
 
@@ -358,6 +365,7 @@ onUnmounted(() => {
 
 .incoming-path {
   background: linear-gradient(90deg, rgb(var(--v-theme-primary) / 0%), rgb(var(--v-theme-primary) / 42%));
+  animation: path-pulse 1.8s ease-in-out infinite;
   inline-size: 62%;
   inset-block-start: var(--ball-y);
   inset-inline-start: 22%;
@@ -372,7 +380,12 @@ onUnmounted(() => {
   opacity: 0.62;
 }
 
+.pong-stage--return .return-path {
+  animation: return-path-flash 900ms ease-out;
+}
+
 .pong-ball {
+  animation: ball-incoming 1.8s ease-in-out infinite;
   background: radial-gradient(circle at 35% 30%, #ffffff 0 18%, #ffd54f 20% 64%, #fb8c00 100%);
   block-size: clamp(2.8rem, 6vw, 4rem);
   border-radius: 999px;
@@ -384,6 +397,97 @@ onUnmounted(() => {
   transform: translate(50%, -50%);
   transition: inset-block-start 260ms ease;
   z-index: 4;
+}
+
+.pong-stage--return .pong-ball {
+  animation: ball-return 900ms cubic-bezier(0.2, 0.76, 0.22, 1) both;
+}
+
+.pong-stage--miss .pong-ball {
+  animation: ball-miss 850ms ease-in both;
+}
+
+.pong-stage--return .player-paddle {
+  animation: paddle-hit 520ms ease-out;
+}
+
+@keyframes ball-incoming {
+  0% {
+    inset-inline-end: 78%;
+    opacity: 0.55;
+    transform: translate(50%, -50%) scale(0.82);
+  }
+  62% {
+    inset-inline-end: 17%;
+    opacity: 1;
+    transform: translate(50%, -50%) scale(1);
+  }
+  100% {
+    inset-inline-end: 17%;
+    opacity: 0.96;
+    transform: translate(50%, -50%) scale(1);
+  }
+}
+
+@keyframes ball-return {
+  0% {
+    inset-block-start: var(--ball-y);
+    inset-inline-end: 17%;
+    opacity: 1;
+    transform: translate(50%, -50%) scale(1.08);
+  }
+  100% {
+    inset-block-start: var(--return-y);
+    inset-inline-end: 78%;
+    opacity: 0.9;
+    transform: translate(50%, -50%) scale(0.86);
+  }
+}
+
+@keyframes ball-miss {
+  0% {
+    inset-inline-end: 17%;
+    opacity: 1;
+    transform: translate(50%, -50%) scale(1);
+  }
+  100% {
+    inset-inline-end: 5%;
+    opacity: 0.28;
+    transform: translate(50%, 130%) scale(0.82);
+  }
+}
+
+@keyframes path-pulse {
+  0%, 100% {
+    opacity: 0.35;
+  }
+  48% {
+    opacity: 0.95;
+  }
+}
+
+@keyframes return-path-flash {
+  0% {
+    opacity: 0.18;
+    transform: scaleX(0.35);
+  }
+  55% {
+    opacity: 0.95;
+    transform: scaleX(1);
+  }
+  100% {
+    opacity: 0.38;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes paddle-hit {
+  0%, 100% {
+    transform: translateY(-50%) scaleX(1);
+  }
+  45% {
+    transform: translateY(-50%) scaleX(1.32);
+  }
 }
 
 .lane-grid {

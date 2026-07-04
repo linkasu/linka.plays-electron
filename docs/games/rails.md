@@ -10,8 +10,8 @@
 | Route | `/games/rails` |
 | Категория | `continuous-control` — Непрерывное управление |
 | Status | `therapy-ready` |
-| Resolved stability | `needs-check` |
-| Readiness group | `development` |
+| Resolved stability | `publish` |
+| Readiness group | `ready` |
 | Skills | непрерывное управление, слежение |
 | Recommended session | 150 сек |
 | Min target size | 150 px |
@@ -62,12 +62,11 @@
 
 ## Готовность
 
-Игра находится в группе `development`, потому что resolved stability не равен `publish`.
+Игра находится в группе `ready`, потому что resolved stability равен `publish`.
 
 Автоматические blockers:
 
-- stability:needs-check
-- игра ожидает ручной review перед публикацией
+- нет
 
 ## QA checklist
 
@@ -80,4 +79,4 @@
 
 ## Next step
 
-Проверить PNG/canvas overlay в Electron и зафиксировать, что active scene не перекрыта подсказками.
+Оставить в ready-очереди и проверять регрессии через общий Electron CDP audit.

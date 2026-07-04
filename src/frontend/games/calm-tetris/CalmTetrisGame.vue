@@ -50,9 +50,12 @@ const pieceIndex = ref(0);
 const currentPlacement = ref(createSpawnPlacement(createPiece(pieceSequence[0])));
 const feedbackMessage = ref("Выбери колонку шагами, поверни фигуру и спокойно поставь её вниз.");
 const isSpeaking = ref(false);
+const isDropping = ref(false);
+const dropRows = ref(0);
+const dropAnimationMs = 360;
 const resultVisible = computed(() => session.status === "finished");
 const ghostPlacement = computed(() => getGhostPlacement(board.value, currentPlacement.value));
-const canPlay = computed(() => session.status === "running" && !isSpeaking.value);
+const canPlay = computed(() => session.status === "running" && !isSpeaking.value && !isDropping.value);
 const canMoveLeft = computed(() => canPlay.value && isValidPlacement(board.value, movePlacement(currentPlacement.value, 0, -1)));
 const canMoveRight = computed(() => canPlay.value && isValidPlacement(board.value, movePlacement(currentPlacement.value, 0, 1)));
 const validRotation = computed(() => findValidRotation(currentPlacement.value));
@@ -87,6 +90,7 @@ function cellClasses(row: number, column: number) {
   return {
     "board-cell--locked": Boolean(locked),
     "board-cell--current": currentCellKeys.value.has(key),
+    "board-cell--falling": isDropping.value && currentCellKeys.value.has(key),
     "board-cell--ghost": !currentCellKeys.value.has(key) && ghostCellKeys.value.has(key)
   };
 }
@@ -99,7 +103,11 @@ function cellStyle(row: number, column: number) {
     : locked
       ? pieceColors[locked]
       : "transparent";
-  return { "--cell-color": color };
+  return { "--cell-color": color, "--drop-rows": dropRows.value, "--drop-duration": `${dropAnimationMs}ms` };
+}
+
+function wait(ms: number) {
+  return new Promise<void>((resolve) => window.setTimeout(resolve, ms));
 }
 
 function findValidRotation(placement: CalmTetrisPlacement) {
@@ -148,7 +156,15 @@ async function nextPiece() {
 
 async function dropCurrent() {
   if (!canPlay.value || !ghostPlacement.value) return;
-  const result = lockPiece(board.value, ghostPlacement.value);
+  const targetPlacement = ghostPlacement.value;
+  dropRows.value = Math.max(0, targetPlacement.row - currentPlacement.value.row);
+  isDropping.value = true;
+  feedbackMessage.value = "Фигура спокойно опускается вниз.";
+  await wait(dropAnimationMs);
+
+  const result = lockPiece(board.value, targetPlacement);
+  isDropping.value = false;
+  dropRows.value = 0;
   if (!result) return;
 
   const finishedAfterSuccess = session.step + 1 >= session.maxSteps;
@@ -185,6 +201,8 @@ function restart() {
   currentPlacement.value = createSpawnPlacement(createPiece(pieceSequence[0]));
   feedbackMessage.value = "Выбери колонку шагами, поверни фигуру и спокойно поставь её вниз.";
   isSpeaking.value = false;
+  isDropping.value = false;
+  dropRows.value = 0;
   startSession();
   promptAudio.play("calm-tetris.prompt", 220);
 }
@@ -289,12 +307,12 @@ onUnmounted(() => {
 }
 
 .board {
-  background: rgb(var(--v-theme-surface) / 78%);
-  border: 0.0625rem solid rgb(var(--v-theme-outline-variant));
+  background: rgb(232 238 247 / 86%);
+  border: 0.12rem solid rgb(var(--v-theme-primary) / 20%);
   border-radius: 1.5rem;
   display: grid;
   gap: 0.3125rem;
-  inline-size: min(100%, 36vh, 26.25rem);
+  inline-size: min(100%, 56vh, 30rem);
   padding: clamp(0.625rem, 2vw, 1.125rem);
 }
 
@@ -306,10 +324,10 @@ onUnmounted(() => {
 
 .board-cell {
   aspect-ratio: 1;
-  background: rgb(var(--v-theme-surface-variant) / 38%);
+  background: rgb(255 255 255 / 72%);
   border: 0.125rem solid transparent;
   border-radius: clamp(0.5rem, 1.3vw, 0.9375rem);
-  box-shadow: inset 0 0 0 0.0625rem rgb(var(--v-theme-outline-variant) / 40%);
+  box-shadow: inset 0 0 0 0.08rem rgb(var(--v-theme-primary) / 10%);
 }
 
 .board-cell--locked,
@@ -319,13 +337,30 @@ onUnmounted(() => {
 }
 
 .board-cell--current {
-  outline: 0.1875rem solid rgb(var(--v-theme-primary) / 32%);
+  outline: 0.2rem solid rgb(var(--v-theme-primary) / 42%);
+}
+
+.board-cell--falling {
+  animation: tetris-fall var(--drop-duration) cubic-bezier(0.22, 0.9, 0.24, 1) forwards;
+  position: relative;
+  z-index: 2;
 }
 
 .board-cell--ghost {
-  background: rgb(var(--v-theme-surface) / 46%);
+  background: rgb(255 255 255 / 78%);
   border-color: var(--cell-color);
   border-style: dashed;
+  border-width: 0.16rem;
+}
+
+@keyframes tetris-fall {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(calc(var(--drop-rows) * (100% + 0.3125rem)));
+  }
 }
 
 .side-panel {
@@ -390,7 +425,7 @@ onUnmounted(() => {
   }
 
   .board {
-    inline-size: min(100%, 32vh, 20rem);
+    inline-size: min(100%, 48vh, 24rem);
   }
 }
 </style>

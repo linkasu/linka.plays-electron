@@ -10,8 +10,8 @@
 | Route | `/games/domino-matching` |
 | Категория | `strategy` — Головоломки |
 | Status | `therapy-ready` |
-| Resolved stability | `needs-check` |
-| Readiness group | `development` |
+| Resolved stability | `publish` |
+| Readiness group | `ready` |
 | Skills | счёт, выбор, последовательность |
 | Recommended session | 180 сек |
 | Min target size | 148 px |
@@ -67,17 +67,16 @@
 | Vue-компонент | `DominoMatchingGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
-| Audio module | стандартный feedback, TTS через `useGamePromptAudio` |
+| Audio module | нет |
 | Runtime audit doc | `docs/tests/2026-06-10/domino-matching.md` |
 
 ## Готовность
 
-Игра находится в группе `development`, потому что resolved stability не равен `publish`.
+Игра находится в группе `ready`, потому что resolved stability равен `publish`.
 
 Автоматические blockers:
 
-- stability:needs-check
-- pending-manual-approval
+- нет
 
 ## QA checklist
 
@@ -90,4 +89,4 @@
 
 ## Next step
 
-Провести ручной approve после проверки в Electron CDP и оставить `needs-check` до явного решения ревьюера.
+Оставить в ready-очереди и проверять регрессии через общий Electron CDP audit.

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
@@ -7,6 +7,7 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { disposeGazeFollowSnakeAudio, playGazeFollowSnakeLeafCue, setGazeFollowSnakeMusicActive, tickGazeFollowSnakeMusic, warmGazeFollowSnakeAudio } from "./audio";
 
 type Point = { x: number; y: number };
 
@@ -44,9 +45,10 @@ const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("gaze-follow-snake", {
   maxSteps: 8,
-  overrides: { preset: "gentle", dwellMs: 600, targetScale: 1.45, motionSpeed: 0.52, distractors: "none", hints: "high", sound: false },
+  overrides: { preset: "gentle", dwellMs: 600, targetScale: 1.45, motionSpeed: 0.52, distractors: "none", hints: "high" },
   finishOnMistakes: false
 });
+const soundEnabled = toRef(session.settings, "sound");
 
 const segments = reactive<Segment[]>([]);
 const meadowLeaves = reactive<MeadowLeaf[]>([]);
@@ -197,6 +199,7 @@ function completeLeaf(now: number) {
   recordEvent("target-click", targetPayload(now, 1));
   recordSuccess({ targetId: leaf.id, label: "leaf", mode: "smooth-follow" });
   addSparkles(leaf.x, leaf.y);
+  playGazeFollowSnakeLeafCue(soundEnabled.value);
   if (session.status === "running") placeTargetLeaf();
 }
 
@@ -286,6 +289,7 @@ function updateSparkles(delta: number) {
 }
 
 function update(delta: number, now: number) {
+  tickGazeFollowSnakeMusic(soundEnabled.value);
   if (session.status === "paused") return;
   leaf.pulse += session.settings.reduceMotion ? 0 : delta * 2.2;
   updateMeadow(delta);
@@ -419,10 +423,21 @@ function draw(ctx: CanvasRenderingContext2D, _delta: number, now: number) {
 function restart() {
   resetScene();
   startSession();
+  setGazeFollowSnakeMusicActive(soundEnabled.value, true);
 }
+
+watch(() => [session.status, soundEnabled.value] as const, ([status, enabled]) => {
+  setGazeFollowSnakeMusicActive(enabled, status === "running");
+}, { immediate: true });
 
 onMounted(() => {
   resetScene();
+  warmGazeFollowSnakeAudio(soundEnabled.value);
+  setGazeFollowSnakeMusicActive(soundEnabled.value, session.status === "running");
+});
+
+onUnmounted(() => {
+  disposeGazeFollowSnakeAudio();
 });
 
 useGameLoop({ context, update, draw });

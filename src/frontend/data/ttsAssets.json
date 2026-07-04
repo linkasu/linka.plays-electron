@@ -7800,7 +7800,7 @@
   {
     "id": "reversi-light.prompt",
     "game": "reversi-light",
-    "text": "Выбери отмеченную клетку для тёплой фишки.",
+    "text": "Правила реверси. Ставь тёплую фишку только на подсвеченную клетку. Если между твоей фишкой и новой фишкой есть фишки луны, они перевернутся. Потом луна отвечает своим ходом.",
     "voice": "jane",
     "path": "/audio/tts/reversi-light/prompt.mp3"
   },
@@ -7828,9 +7828,9 @@
   {
     "id": "lines-five.prompt",
     "game": "lines-five",
-    "text": "Выбери пустую клетку для следующего шарика.",
+    "text": "Цель Lines 5 — набрать больше очков и не дать полю заполниться. Сначала выбери шарик, потом свободную подсвеченную клетку, до которой есть путь. Собери пять одинаковых шаров в линию, чтобы они исчезли. Если линия не собрана, появятся три новых шара.",
     "voice": "jane",
-    "path": "/audio/tts/lines-five/prompt.mp3"
+    "path": "/audio/tts/lines-five/prompt-rules.mp3"
   },
   {
     "id": "lines-five.correct",
@@ -7856,9 +7856,9 @@
   {
     "id": "checkers-light.prompt",
     "game": "checkers-light",
-    "text": "Выбери шашку, затем отмеченную клетку.",
+    "text": "Цель шашек — оставить синего соперника без ходов или без шашек. Ходи золотыми по диагонали. Если можно бить, взятие обязательно. После взятия иногда нужно продолжить той же шашкой. Дамка ходит по диагонали на дальние клетки. После твоего хода синий отвечает сам.",
     "voice": "jane",
-    "path": "/audio/tts/checkers-light/prompt.mp3"
+    "path": "/audio/tts/checkers-light/intro-rules.mp3"
   },
   {
     "id": "checkers-light.correct",
@@ -7884,9 +7884,9 @@
   {
     "id": "chess-mini.prompt",
     "game": "chess-mini",
-    "text": "Посмотри на фигуру и выбери одну из её клеток.",
+    "text": "Шахматы. Ты играешь белыми. Выбери белую фигуру, затем подсвеченный легальный ход. Чёрные ответят сами.",
     "voice": "jane",
-    "path": "/audio/tts/chess-mini/prompt.mp3"
+    "path": "/audio/tts/chess-mini/intro-rules.mp3"
   },
   {
     "id": "chess-mini.correct",
@@ -7905,7 +7905,7 @@
   {
     "id": "chess-mini.complete",
     "game": "chess-mini",
-    "text": "Раунд завершён.",
+    "text": "Партия завершена. Посмотри на результат.",
     "voice": "jane",
     "path": "/audio/tts/chess-mini/complete.mp3"
   },
@@ -7940,9 +7940,9 @@
   {
     "id": "battleship-light.prompt",
     "game": "battleship-light",
-    "text": "Выбери крупную клетку, чтобы найти кораблик.",
+    "text": "Морской бой. Сначала расставь свои корабли по секторам. Потом выбирай сектор поля соперника и клетку для залпа.",
     "voice": "jane",
-    "path": "/audio/tts/battleship-light/prompt.mp3"
+    "path": "/audio/tts/battleship-light/intro-rules.mp3"
   },
   {
     "id": "battleship-light.correct",
@@ -7961,7 +7961,7 @@
   {
     "id": "battleship-light.complete",
     "game": "battleship-light",
-    "text": "Раунд завершён.",
+    "text": "Партия завершена. Посмотри на результат.",
     "voice": "jane",
     "path": "/audio/tts/battleship-light/complete.mp3"
   },
@@ -8755,5 +8755,75 @@
     "text": "Найди жёлтую звезду.",
     "voice": "jane",
     "path": "/audio/tts/color-shape/prompt-yellow-star.mp3"
+  },
+  {
+    "id": "sokoban-large.intro",
+    "game": "sokoban-large",
+    "text": "Перед тобой настоящий сокобан. Ходи по свободным клеткам и толкай ящик к цели. Если путь закрыт, выбери другой ход.",
+    "voice": "jane",
+    "path": "/audio/tts/sokoban-large/intro.mp3"
+  },
+  {
+    "id": "cursor-magnet.intro",
+    "game": "cursor-magnet",
+    "text": "Магнитная лаборатория. Капсула положительная. Противоположные заряды притягиваются: отрицательный тянет капсулу к себе. Одинаковые заряды отталкиваются: положительный толкает капсулу прочь. Настрой знаки и силу, затем нажми Пуск.",
+    "voice": "jane",
+    "path": "/audio/tts/cursor-magnet/intro.mp3"
+  },
+  {
+    "id": "cursor-magnet.task.pull-gate",
+    "game": "cursor-magnet",
+    "text": "Контур один: притяжение. Доведи капсулу до реактора. Подбери знак и силу станции, затем проверь схему.",
+    "voice": "jane",
+    "path": "/audio/tts/cursor-magnet/task-pull-gate.mp3"
+  },
+  {
+    "id": "cursor-magnet.task.repulse-turn",
+    "game": "cursor-magnet",
+    "text": "Контур два: поворот. Капсула должна обойти препятствие и попасть в реактор. Используй правило притяжения и отталкивания.",
+    "voice": "jane",
+    "path": "/audio/tts/cursor-magnet/task-repulse-turn.mp3"
+  },
+  {
+    "id": "cursor-magnet.task.s-curve",
+    "game": "cursor-magnet",
+    "text": "Контур три: извилистый коридор. Проведи капсулу между перегородками. Подумай, какие поля помогают, а какие мешают.",
+    "voice": "jane",
+    "path": "/audio/tts/cursor-magnet/task-s-curve.mp3"
+  },
+  {
+    "id": "cursor-magnet.task.quiet-trap",
+    "game": "cursor-magnet",
+    "text": "Контур четыре: зона помех. Найди спокойную траекторию между стенами и проверь схему запуском.",
+    "voice": "jane",
+    "path": "/audio/tts/cursor-magnet/task-quiet-trap.mp3"
+  },
+  {
+    "id": "cursor-magnet.task.upper-gate",
+    "game": "cursor-magnet",
+    "text": "Контур пять: верхний шлюз. Нужно поднять капсулу к проходу и довести её до реактора. Подбери настройки сам.",
+    "voice": "jane",
+    "path": "/audio/tts/cursor-magnet/task-upper-gate.mp3"
+  },
+  {
+    "id": "cursor-magnet.task.narrow-channel",
+    "game": "cursor-magnet",
+    "text": "Контур шесть: узкий канал. Проведи капсулу по коридору так, чтобы она не задела стены.",
+    "voice": "jane",
+    "path": "/audio/tts/cursor-magnet/task-narrow-channel.mp3"
+  },
+  {
+    "id": "cursor-magnet.task.core-bypass",
+    "game": "cursor-magnet",
+    "text": "Контур семь: обход ядра. Капсула должна пройти вокруг опасной зоны и попасть в реактор.",
+    "voice": "jane",
+    "path": "/audio/tts/cursor-magnet/task-core-bypass.mp3"
+  },
+  {
+    "id": "cursor-magnet.task.final-reactor",
+    "game": "cursor-magnet",
+    "text": "Финальный контур. Здесь несколько полей влияют на путь сразу. Подбери знаки и силу, затем проверь траекторию.",
+    "voice": "jane",
+    "path": "/audio/tts/cursor-magnet/task-final-reactor.mp3"
   }
 ]

@@ -9,7 +9,7 @@
 | `ready` | `resolvedStabilityStatus === "publish"` |
 | `development` | всё кроме `publish`: `needs-check`, `prefixed`, `archived`, скрытые или спорные игры |
 
-Сводка по последнему readiness-аудиту: 147 игр, 3 игры, 144 игры. Все registry-игры имеют `docs/games/<id>.md`.
+Сводка по последнему readiness-аудиту: 136 игр, 136 игр, 0 игр. Все registry-игры имеют `docs/games/<id>.md`.
 
 ## Форматы документов
 
@@ -155,50 +155,39 @@
 | Игра | ID | Документ | Status | Stability | Group |
 |---|---|---|---|---|---|
 | Сапёр | `minesweeper-safe` | [minesweeper-safe.md](minesweeper-safe.md) | `therapy-ready` | `publish` | `ready` |
-| Домино | `domino-matching` | [domino-matching.md](domino-matching.md) | `therapy-ready` | `needs-check` | `development` |
-| 2048 мягкий | `calm-2048` | [calm-2048.md](calm-2048.md) | `therapy-ready` | `needs-check` | `development` |
-| Пятнашки 3×3 | `sliding-puzzle` | [sliding-puzzle.md](sliding-puzzle.md) | `therapy-ready` | `needs-check` | `development` |
-| Уно-подобное | `uno-like` | [uno-like.md](uno-like.md) | `therapy-ready` | `needs-check` | `development` |
-| Тетрис спокойный | `calm-tetris` | [calm-tetris.md](calm-tetris.md) | `therapy-ready` | `needs-check` | `development` |
-| Сокобан крупный | `sokoban-large` | [sokoban-large.md](sokoban-large.md) | `therapy-ready` | `needs-check` | `development` |
-| Крестики-нолики | `tic-tac-toe` | [tic-tac-toe.md](tic-tac-toe.md) | `polished` | `needs-check` | `development` |
-| 4 в ряд | `connect-four` | [connect-four.md](connect-four.md) | `polished` | `needs-check` | `development` |
-| Реверси light | `reversi-light` | [reversi-light.md](reversi-light.md) | `therapy-ready` | `needs-check` | `development` |
-| Lines 5 | `lines-five` | [lines-five.md](lines-five.md) | `therapy-ready` | `needs-check` | `development` |
-| Шашки light | `checkers-light` | [checkers-light.md](checkers-light.md) | `therapy-ready` | `needs-check` | `development` |
-| Chess mini | `chess-mini` | [chess-mini.md](chess-mini.md) | `therapy-ready` | `needs-check` | `development` |
-| Tangram | `tangram` | [tangram.md](tangram.md) | `therapy-ready` | `needs-check` | `development` |
-| Морской бой light | `battleship-light` | [battleship-light.md](battleship-light.md) | `therapy-ready` | `needs-check` | `development` |
-| Танчики без стрельбы | `tanks-no-shooting` | [tanks-no-shooting.md](tanks-no-shooting.md) | `therapy-ready` | `needs-check` | `development` |
-| Арканоид assist | `arkanoid-assist` | [arkanoid-assist.md](arkanoid-assist.md) | `therapy-ready` | `needs-check` | `development` |
-| Понг пошаговый | `step-pong` | [step-pong.md](step-pong.md) | `therapy-ready` | `needs-check` | `development` |
-| Змейка спокойная | `calm-snake` | [calm-snake.md](calm-snake.md) | `therapy-ready` | `needs-check` | `development` |
-| Pac-path | `pac-path` | [pac-path.md](pac-path.md) | `therapy-ready` | `needs-check` | `development` |
+| Домино | `domino-matching` | [domino-matching.md](domino-matching.md) | `therapy-ready` | `publish` | `ready` |
+| 2048 мягкий | `calm-2048` | [calm-2048.md](calm-2048.md) | `therapy-ready` | `publish` | `ready` |
+| Пятнашки 3×3 | `sliding-puzzle` | [sliding-puzzle.md](sliding-puzzle.md) | `therapy-ready` | `publish` | `ready` |
+| Уно-подобное | `uno-like` | [uno-like.md](uno-like.md) | `therapy-ready` | `publish` | `ready` |
+| Тетрис спокойный | `calm-tetris` | [calm-tetris.md](calm-tetris.md) | `therapy-ready` | `publish` | `ready` |
+| Сокобан крупный | `sokoban-large` | [sokoban-large.md](sokoban-large.md) | `therapy-ready` | `publish` | `ready` |
+| Крестики-нолики | `tic-tac-toe` | [tic-tac-toe.md](tic-tac-toe.md) | `polished` | `publish` | `ready` |
+| 4 в ряд | `connect-four` | [connect-four.md](connect-four.md) | `polished` | `publish` | `ready` |
+| Реверси light | `reversi-light` | [reversi-light.md](reversi-light.md) | `therapy-ready` | `publish` | `ready` |
+| Lines 5 | `lines-five` | [lines-five.md](lines-five.md) | `therapy-ready` | `publish` | `ready` |
+| Шашки light | `checkers-light` | [checkers-light.md](checkers-light.md) | `therapy-ready` | `publish` | `ready` |
+| Chess mini | `chess-mini` | [chess-mini.md](chess-mini.md) | `therapy-ready` | `publish` | `ready` |
+| Морской бой light | `battleship-light` | [battleship-light.md](battleship-light.md) | `therapy-ready` | `publish` | `ready` |
+| Понг пошаговый | `step-pong` | [step-pong.md](step-pong.md) | `therapy-ready` | `publish` | `ready` |
+| Змейка спокойная | `calm-snake` | [calm-snake.md](calm-snake.md) | `therapy-ready` | `publish` | `ready` |
 
 ### Непрерывное управление
 
 | Игра | ID | Документ | Status | Stability | Group |
 |---|---|---|---|---|---|
-| Курсор-магнит | `cursor-magnet` | [cursor-magnet.md](cursor-magnet.md) | `therapy-ready` | `needs-check` | `development` |
-| Пульсирующая цель | `pulsing-target` | [pulsing-target.md](pulsing-target.md) | `therapy-ready` | `needs-check` | `development` |
-| Лодочка | `boat` | [boat.md](boat.md) | `therapy-ready` | `needs-check` | `development` |
-| Змейка gaze-follow | `gaze-follow-snake` | [gaze-follow-snake.md](gaze-follow-snake.md) | `therapy-ready` | `needs-check` | `development` |
-| Теннис | `table-tennis` | [table-tennis.md](table-tennis.md) | `polished` | `needs-check` | `development` |
-| Дорожка с воротами | `gates-path` | [gates-path.md](gates-path.md) | `therapy-ready` | `needs-check` | `development` |
-| Плавная машинка | `smooth-car` | [smooth-car.md](smooth-car.md) | `therapy-ready` | `needs-check` | `development` |
-| Воздушный шар | `balloon-ride` | [balloon-ride.md](balloon-ride.md) | `therapy-ready` | `needs-check` | `development` |
-| Планер | `glider` | [glider.md](glider.md) | `therapy-ready` | `needs-check` | `development` |
-| Рисование линией | `line-drawing` | [line-drawing.md](line-drawing.md) | `therapy-ready` | `needs-check` | `development` |
-| Рыбка-поводырь | `guide-fish` | [guide-fish.md](guide-fish.md) | `therapy-ready` | `needs-check` | `development` |
-| Рельсы | `rails` | [rails.md](rails.md) | `therapy-ready` | `needs-check` | `development` |
-| Балансир | `balancer` | [balancer.md](balancer.md) | `therapy-ready` | `needs-check` | `development` |
-| Поймай волну | `catch-wave` | [catch-wave.md](catch-wave.md) | `therapy-ready` | `needs-check` | `development` |
-| Снежная тропа | `snow-trail` | [snow-trail.md](snow-trail.md) | `therapy-ready` | `needs-check` | `development` |
-| Робот-пылесос | `robot-vacuum` | [robot-vacuum.md](robot-vacuum.md) | `therapy-ready` | `needs-check` | `development` |
-| Лабиринт-дорожка | `maze-path` | [maze-path.md](maze-path.md) | `therapy-ready` | `needs-check` | `development` |
-| Садовая лейка | `garden-watering` | [garden-watering.md](garden-watering.md) | `therapy-ready` | `needs-check` | `development` |
-| Космическая орбита | `space-orbit` | [space-orbit.md](space-orbit.md) | `therapy-ready` | `needs-check` | `development` |
-| Оркестр-дирижёр | `orchestra-conductor` | [orchestra-conductor.md](orchestra-conductor.md) | `therapy-ready` | `needs-check` | `development` |
+| Курсор-магнит | `cursor-magnet` | [cursor-magnet.md](cursor-magnet.md) | `therapy-ready` | `publish` | `ready` |
+| Лодочка | `boat` | [boat.md](boat.md) | `therapy-ready` | `publish` | `ready` |
+| Змейка gaze-follow | `gaze-follow-snake` | [gaze-follow-snake.md](gaze-follow-snake.md) | `therapy-ready` | `publish` | `ready` |
+| Теннис | `table-tennis` | [table-tennis.md](table-tennis.md) | `polished` | `publish` | `ready` |
+| Плавная машинка | `smooth-car` | [smooth-car.md](smooth-car.md) | `therapy-ready` | `publish` | `ready` |
+| Планер | `glider` | [glider.md](glider.md) | `therapy-ready` | `publish` | `ready` |
+| Рисование линией | `line-drawing` | [line-drawing.md](line-drawing.md) | `therapy-ready` | `publish` | `ready` |
+| Рельсы | `rails` | [rails.md](rails.md) | `therapy-ready` | `publish` | `ready` |
+| Балансир | `balancer` | [balancer.md](balancer.md) | `therapy-ready` | `publish` | `ready` |
+| Снежная тропа | `snow-trail` | [snow-trail.md](snow-trail.md) | `therapy-ready` | `publish` | `ready` |
+| Робот-пылесос | `robot-vacuum` | [robot-vacuum.md](robot-vacuum.md) | `therapy-ready` | `publish` | `ready` |
+| Садовая лейка | `garden-watering` | [garden-watering.md](garden-watering.md) | `therapy-ready` | `publish` | `ready` |
+| Космическая орбита | `space-orbit` | [space-orbit.md](space-orbit.md) | `therapy-ready` | `publish` | `ready` |
 
 ## Legacy / excluded docs
 

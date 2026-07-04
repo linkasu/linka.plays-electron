@@ -10,8 +10,8 @@
 | Route | `/games/gaze-follow-snake` |
 | Категория | `continuous-control` — Непрерывное управление |
 | Status | `therapy-ready` |
-| Resolved stability | `needs-check` |
-| Readiness group | `development` |
+| Resolved stability | `publish` |
+| Readiness group | `ready` |
 | Skills | непрерывное управление, слежение |
 | Recommended session | 150 сек |
 | Min target size | 150 px |
@@ -43,6 +43,13 @@
 - сохраняет mouse fallback для отладки и занятий без трекера
 - требует визуальной проверки canvas/overlay, а не только DOM
 
+## Аудио
+
+- Добавлен тихий meadow-like ambient piano loop через `createAmbientPiano`.
+- Музыка включается только при включённой настройке `sound` и затухает на паузе/завершении.
+- Подбор листа даёт короткий мягкий cue.
+- Ошибки загрузки или autoplay деградируют в тишину и не ломают gameplay.
+
 ## Метрики и сессия
 
 - Сессия должна использовать общий game session flow и завершаться через результат для взрослого.
@@ -57,17 +64,16 @@
 | Vue-компонент | `GazeFollowSnakeGame.vue` |
 | Model | нет отдельной модели |
 | Model test | нет |
-| Audio module | нет |
+| Audio module | `audio.ts` |
 | Runtime audit doc | `docs/tests/2026-06-10/gaze-follow-snake.md` |
 
 ## Готовность
 
-Игра находится в группе `development`, потому что resolved stability не равен `publish`.
+Игра находится в группе `ready`, потому что resolved stability равен `publish`.
 
 Автоматические blockers:
 
-- stability:needs-check
-- игра ожидает ручной review перед публикацией
+- нет
 
 ## QA checklist
 
@@ -80,4 +86,4 @@
 
 ## Next step
 
-Проверить PNG/canvas overlay в Electron и зафиксировать, что active scene не перекрыта подсказками.
+Оставить в ready-очереди и проверять регрессии через общий Electron CDP audit.

@@ -10,8 +10,8 @@
 | Route | `/games/calm-snake` |
 | Категория | `strategy` — Головоломки |
 | Status | `therapy-ready` |
-| Resolved stability | `needs-check` |
-| Readiness group | `development` |
+| Resolved stability | `publish` |
+| Readiness group | `ready` |
 | Skills | выбор, последовательность, переключение |
 | Recommended session | 165 сек |
 | Min target size | 150 px |
@@ -57,17 +57,16 @@
 | Vue-компонент | `CalmSnakeGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
-| Audio module | стандартный feedback, TTS через `useGamePromptAudio` |
+| Audio module | нет |
 | Runtime audit doc | `docs/tests/2026-06-10/calm-snake.md` |
 
 ## Готовность
 
-Игра находится в группе `development`, потому что resolved stability не равен `publish`.
+Игра находится в группе `ready`, потому что resolved stability равен `publish`.
 
 Автоматические blockers:
 
-- stability:needs-check
-- игра ожидает ручной review перед публикацией
+- нет
 
 ## QA checklist
 
@@ -80,4 +79,4 @@
 
 ## Next step
 
-Проверить игру в реальном Electron-окне и после ручного review решить, готова ли она к `publish`.
+Оставить в ready-очереди и проверять регрессии через общий Electron CDP audit.

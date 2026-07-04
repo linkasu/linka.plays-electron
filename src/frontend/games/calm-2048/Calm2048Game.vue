@@ -174,8 +174,8 @@ onUnmounted(() => {
               {{ feedbackMessage }}
             </v-alert>
 
-            <v-row class="align-center" dense>
-              <v-col cols="12" md="7" class="order-2 order-md-1">
+            <v-row class="play-area align-center" dense>
+              <v-col cols="12" md="7" class="board-column order-2 order-md-1">
                 <div class="board-grid mx-auto" role="grid" aria-label="Поле 2048 четыре на четыре">
                   <v-card v-for="(value, index) in board" :key="index" :class="['tile-card', { 'tile-card--new': lastSpawnedIndex === index }]" :color="tileColor(value)" rounded="xl" variant="flat">
                     <div class="tile-value">{{ value || "" }}</div>
@@ -183,7 +183,7 @@ onUnmounted(() => {
                 </div>
               </v-col>
 
-              <v-col cols="12" md="5" class="order-1 order-md-2">
+              <v-col cols="12" md="5" class="controls-column order-1 order-md-2">
                 <GameWasdPanel :controls="directionButtons" :disabled="session.status !== 'running' || isSpeaking || !hasMoves" :dwell-ms="session.settings.dwellMs" aria-label="Направления 2048" @select="chooseDirectionButton" />
 
                 <v-divider class="my-4" />
@@ -238,7 +238,7 @@ onUnmounted(() => {
   display: grid;
   gap: clamp(0.5rem, 1.5vw, 0.875rem);
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  max-inline-size: min(92vw, 35rem);
+  max-inline-size: min(92vw, 35rem, 52vh);
 }
 
 .tile-card {
@@ -295,9 +295,46 @@ onUnmounted(() => {
     margin-block: 0.5rem !important;
   }
 
+  .play-area {
+    align-items: center;
+    display: grid !important;
+    gap: clamp(0.8rem, 2vw, 1.4rem);
+    grid-template-columns: minmax(0, 0.92fr) minmax(17rem, 0.72fr);
+  }
+
+  .board-column,
+  .controls-column {
+    flex: initial;
+    inline-size: auto;
+    max-inline-size: none;
+    padding-block: 0 !important;
+  }
+
   .board-grid {
     gap: 0.35rem;
-    max-inline-size: min(54vh, 20rem);
+    max-inline-size: min(45vh, 18rem);
+  }
+
+  .controls-column :deep(.wasd-panel) {
+    inline-size: min(100%, 48vh);
+  }
+
+  .controls-column :deep(.dwell-button) {
+    padding: 0.45rem !important;
+  }
+
+  .direction-button-content {
+    gap: 0.25rem;
+  }
+}
+
+@media (max-height: 42.5rem) and (max-width: 52rem) {
+  .play-area {
+    grid-template-columns: minmax(0, 0.82fr) minmax(15rem, 0.72fr);
+  }
+
+  .board-grid {
+    max-inline-size: min(42vh, 16rem);
   }
 }
 </style>

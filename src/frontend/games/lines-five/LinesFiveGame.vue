@@ -8,17 +8,18 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { cellIndex, columnOf, countColors, createInitialLinesFiveBoard, linesFiveOutcome, linesFiveSize, nextColorForStep, placeBall, rowOf, type LinesFiveCell, type LinesFiveColor } from "./model";
+import { cellIndex, chooseLinesFiveCell, columnOf, countColors, createInitialLinesFiveState, linesFiveSize, reachableDestinationIndexes, rowOf, type LinesFiveCell, type LinesFiveColor } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordHint, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("lines-five", {
-  maxSteps: 10,
+  maxSteps: 999,
   overrides: { targetScale: 1.18, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
+  finishOnTimeout: false
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "lines-five", soundEnabled, warmAssetIds: ["lines-five.prompt", "lines-five.correct", "lines-five.mistake", "lines-five.complete"] });
+const promptAudio = useGamePromptAudio({ gameId: "lines-five", soundEnabled, warmAssetIds: ["lines-five.prompt", "lines-five.complete"] });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const colorLabels: Record<LinesFiveColor, string> = {
@@ -28,15 +29,19 @@ const colorLabels: Record<LinesFiveColor, string> = {
   berry: "ягодный"
 };
 
-const board = ref(createInitialLinesFiveBoard());
-const lastPlacedIndex = ref<number>();
+const gameState = ref(createInitialLinesFiveState());
+const lastMovedFrom = ref<number>();
+const lastMovedTo = ref<number>();
 const clearedIndexes = ref<number[]>([]);
-const isSpeaking = ref(false);
-const feedbackMessage = ref("Поставь голубой шарик так, чтобы собрать линию из трёх и мягко убрать её.");
+const spawnedIndexes = ref<number[]>([]);
+const pathIndexes = ref<number[]>([]);
+const feedbackMessage = ref("Выбери шарик, затем свободную клетку, до которой есть путь. Собирай линию из пяти одинаковых шаров.");
 
 const rows = Array.from({ length: linesFiveSize }, (_, row) => row);
 const columns = Array.from({ length: linesFiveSize }, (_, column) => column);
-const nextColor = computed(() => nextColorForStep(session.step));
+const board = computed(() => gameState.value.board);
+const selectedIndex = computed(() => gameState.value.selectedIndex);
+const reachableIndexes = computed(() => selectedIndex.value === undefined ? [] : reachableDestinationIndexes(board.value, selectedIndex.value));
 const counts = computed(() => countColors(board.value));
 const resultVisible = computed(() => session.status === "finished");
 
@@ -45,6 +50,8 @@ function targetId(index: number) {
 }
 
 function cellColor(index: number, cell: LinesFiveCell) {
+  if (selectedIndex.value === index) return "secondary";
+  if (reachableIndexes.value.includes(index)) return "primary";
   if (cell) return "surface";
   return "blue-grey-lighten-5";
 }
@@ -54,80 +61,93 @@ function cellClasses(index: number, cell: LinesFiveCell) {
     "lines-cell-content",
     cell ? `lines-cell-content--${cell}` : "",
     {
-      "lines-cell-content--last": lastPlacedIndex.value === index,
-      "lines-cell-content--cleared": clearedIndexes.value.includes(index)
+      "lines-cell-content--selected": selectedIndex.value === index,
+      "lines-cell-content--last": lastMovedTo.value === index || lastMovedFrom.value === index,
+      "lines-cell-content--reachable": reachableIndexes.value.includes(index),
+      "lines-cell-content--path": pathIndexes.value.includes(index),
+      "lines-cell-content--cleared": clearedIndexes.value.includes(index),
+      "lines-cell-content--spawned": spawnedIndexes.value.includes(index)
     }
   ];
 }
 
-async function chooseCell(index: number) {
-  if (session.status !== "running" || isSpeaking.value) return;
+async function finishGame() {
+  void feedbackAudio.playMistake();
+  await promptAudio.playSequenceAndWait(["lines-five.complete"], 80, 170);
+  if (session.status !== "finished") finishSession("game-lost");
+}
+
+function chooseCell(index: number) {
+  if (session.status !== "running") return;
 
   const target = targetId(index);
-  const result = placeBall(board.value, index, nextColor.value);
-  if (!result) {
-    clearedIndexes.value = [];
-    lastPlacedIndex.value = index;
-    feedbackMessage.value = "Эта клетка уже занята. Выбери любую пустую клетку и продолжай спокойно.";
-    recordMistake({ targetId: target, row: rowOf(index), column: columnOf(index), reason: "occupied-cell", isCorrect: false });
-    recordHint({ targetId: target, text: "Выбрать пустую клетку для следующего шарика." });
-    isSpeaking.value = true;
-    void feedbackAudio.playMistake();
-    await promptAudio.playSequenceAndWait(["lines-five.mistake"], 80);
-    isSpeaking.value = false;
+  const result = chooseLinesFiveCell(gameState.value, index);
+  gameState.value = result.state;
+  clearedIndexes.value = result.cleared;
+  spawnedIndexes.value = result.spawned;
+  pathIndexes.value = result.path;
+  lastMovedFrom.value = result.movedFrom;
+  lastMovedTo.value = result.movedTo;
+
+  if (result.event === "selected") {
+    feedbackMessage.value = `Шарик выбран. Теперь выбери подсвеченную свободную клетку для перемещения.`;
+    recordHint({ targetId: target, text: "Выбран шарик для перемещения." });
     return;
   }
 
-  const finishedAfterSuccess = session.step + 1 >= session.maxSteps;
-  board.value = result.board;
-  lastPlacedIndex.value = result.placedIndex;
-  clearedIndexes.value = result.cleared;
+  if (result.event === "invalid") {
+    feedbackMessage.value = selectedIndex.value === undefined
+      ? "Сначала выбери шарик, который нужно передвинуть."
+      : "До этой клетки нет свободного пути. Выбери подсвеченную клетку или другой шарик.";
+    recordMistake({ targetId: target, row: rowOf(index), column: columnOf(index), reason: "invalid-lines-move", isCorrect: false });
+    void feedbackAudio.playMistake();
+    return;
+  }
+
   recordSuccess({
     targetId: target,
     row: rowOf(index),
     column: columnOf(index),
-    color: nextColor.value,
+    movedFrom: result.movedFrom,
+    movedTo: result.movedTo,
     cleared: result.cleared.length,
-    lines: result.completedLines.length,
+    spawned: result.spawned.length,
+    score: result.state.score,
     isCorrect: true
   });
 
-  if (result.cleared.length) {
-    feedbackMessage.value = `Отлично: линия из ${result.cleared.length} шариков мягко исчезла. Готовим следующий шарик.`;
-    isSpeaking.value = true;
+  if (result.event === "cleared") {
+    feedbackMessage.value = `Линия из пяти собрана: убрано ${result.cleared.length} шаров. Новые шары не появились.`;
     void feedbackAudio.playSuccess();
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["lines-five.correct", "lines-five.complete"] : ["lines-five.correct"], 80, 170);
-    if (finishedAfterSuccess) finishSession("game-complete");
-    isSpeaking.value = false;
     return;
   }
 
-  if (linesFiveOutcome(board.value) === "loss") {
+  if (result.event === "spawn-cleared") {
+    feedbackMessage.value = `Ход сделан. Новые шары собрали линию: убрано ${result.cleared.length}.`;
+    void feedbackAudio.playSuccess();
+    return;
+  }
+
+  if (result.event === "loss") {
     feedbackMessage.value = "Поле заполнилось. Раунд завершён, можно попробовать снова.";
     recordMistake({ targetId: target, row: rowOf(index), column: columnOf(index), reason: "board-full", isCorrect: false });
-    isSpeaking.value = true;
-    void feedbackAudio.playMistake();
-    await promptAudio.playSequenceAndWait(["lines-five.mistake", "lines-five.complete"], 80, 170);
-    finishSession("game-lost");
-    isSpeaking.value = false;
+    void finishGame();
     return;
   }
 
-  feedbackMessage.value = "Шарик встал на место. Осмотрись и выбери следующую пустую клетку.";
-  isSpeaking.value = true;
+  feedbackMessage.value = `Шарик передвинут. Появились ${result.spawned.length} новых шара. Продолжай собирать линию из пяти.`;
   void feedbackAudio.playSuccess();
-  await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["lines-five.correct", "lines-five.complete"] : ["lines-five.correct"], 80, 170);
-  if (finishedAfterSuccess) finishSession("game-complete");
-  isSpeaking.value = false;
 }
 
 function restart() {
   promptAudio.cancelPending();
-  board.value = createInitialLinesFiveBoard();
-  lastPlacedIndex.value = undefined;
+  gameState.value = createInitialLinesFiveState();
+  lastMovedFrom.value = undefined;
+  lastMovedTo.value = undefined;
   clearedIndexes.value = [];
-  isSpeaking.value = false;
-  feedbackMessage.value = "Новая маленькая доска готова. Собирай линии из трёх, четырёх или пяти шариков.";
+  spawnedIndexes.value = [];
+  pathIndexes.value = [];
+  feedbackMessage.value = "Новая доска готова. Выбери шарик, затем подсвеченную клетку для перемещения.";
   startSession();
   promptAudio.play("lines-five.prompt", 220);
 }
@@ -144,7 +164,7 @@ onUnmounted(() => {
 
 <template>
   <div class="lines-five-shell">
-    <GameHud title="Lines 5" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud title="Lines 5" :step="session.step" :max-steps="session.maxSteps" :score="gameState.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" :show-progress="false" :show-timer="false" @pause="pauseSession" @resume="resumeSession" />
 
     <v-container class="game-container" fluid>
       <v-row justify="center">
@@ -152,13 +172,13 @@ onUnmounted(() => {
           <v-card class="pa-4 pa-md-6" color="rgba(255, 255, 255, 0.94)" rounded="xl" elevation="10">
             <div class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-5">
               <div>
-                <div class="text-overline text-secondary mb-1">Мини-стратегия 5×5</div>
+                <div class="text-overline text-secondary mb-1">Полноценная стратегия Lines 5</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Lines 5</h1>
-                <p class="text-body-1 text-medium-emphasis mb-0">Ставь шарики и собирай линии из 3–5 одинаковых цветов. Если поле заполнится без линии, раунд завершится.</p>
+                <p class="text-body-1 text-medium-emphasis mb-0">Выбери шарик, передвинь его по свободному пути и собирай линии из пяти одинаковых цветов.</p>
               </div>
               <div class="d-flex flex-wrap ga-2">
-                <v-chip color="primary" size="large" variant="tonal">Следующий: {{ colorLabels[nextColor] }}</v-chip>
-                <v-chip color="secondary" size="large" variant="tonal">Ходов: {{ session.score }} / {{ session.maxSteps }}</v-chip>
+                <v-chip color="primary" size="large" variant="tonal">Очки: {{ gameState.score }}</v-chip>
+                <v-chip color="secondary" size="large" variant="tonal">Ходов: {{ gameState.moveCount }}</v-chip>
               </div>
             </div>
 
@@ -167,16 +187,16 @@ onUnmounted(() => {
             </v-alert>
 
             <v-row class="align-center" dense>
-              <v-col cols="12" md="8">
-                <div class="board-grid mx-auto" role="grid" aria-label="Поле Lines Five пять на пять">
+              <v-col cols="12" md="8" class="board-column">
+                <div class="board-grid mx-auto" role="grid" aria-label="Поле Lines Five шесть на шесть">
                   <template v-for="row in rows" :key="row">
                     <GameDwellButton
                       v-for="column in columns"
                       :key="`${row}-${column}`"
                       :target-id="targetId(cellIndex(row, column))"
-                      :disabled="session.status !== 'running' || isSpeaking"
+                      :disabled="session.status !== 'running' || gameState.status !== 'playing'"
                       :dwell-ms="session.settings.dwellMs"
-                      min-height="8.5rem"
+                      min-height="clamp(3.75rem, 8.5vh, 6rem)"
                       :color="cellColor(cellIndex(row, column), board[cellIndex(row, column)])"
                       role="gridcell"
                       @select="chooseCell(cellIndex(row, column))"
@@ -184,6 +204,7 @@ onUnmounted(() => {
                       <template #default>
                         <div :class="cellClasses(cellIndex(row, column), board[cellIndex(row, column)])">
                           <div v-if="board[cellIndex(row, column)]" :class="['ball', `ball--${board[cellIndex(row, column)]}`]" />
+                          <v-icon v-else-if="reachableIndexes.includes(cellIndex(row, column))" class="reachable-icon" icon="mdi-arrow-expand" />
                         </div>
                       </template>
                     </GameDwellButton>
@@ -191,11 +212,11 @@ onUnmounted(() => {
                 </div>
               </v-col>
 
-              <v-col cols="12" md="4">
-                <v-card class="pa-4" color="surface" rounded="xl" variant="tonal">
-                  <div class="text-h6 font-weight-bold mb-3">На поле</div>
+              <v-col cols="12" md="4" class="side-column">
+                <v-card class="side-info-card pa-4" color="blue-grey-lighten-5" rounded="xl" variant="flat">
+                  <div class="text-h6 font-weight-bold mb-3 text-blue-grey-darken-4">На поле</div>
                   <v-list bg-color="transparent" density="compact">
-                    <v-list-item v-for="color in ['sky', 'sun', 'leaf', 'berry']" :key="color" :title="colorLabels[color as LinesFiveColor]" :subtitle="`${counts[color as LinesFiveColor]} шар.`">
+                    <v-list-item v-for="color in ['sky', 'sun', 'leaf', 'berry']" :key="color" class="side-list-item" :title="colorLabels[color as LinesFiveColor]" :subtitle="`${counts[color as LinesFiveColor]} шар.`">
                       <template #prepend>
                         <span :class="['mini-ball', `ball--${color}`]" />
                       </template>
@@ -203,8 +224,15 @@ onUnmounted(() => {
                   </v-list>
                 </v-card>
 
-                <v-alert class="mt-4 text-body-2" color="info" icon="mdi-heart-outline" rounded="xl" variant="tonal">
-                  Если выбрать занятую клетку, игра напомнит выбрать пустое место. Если заполнить всё поле без линии, раунд завершится.
+                <v-card class="side-info-card pa-4 mt-4" color="blue-grey-lighten-5" rounded="xl" variant="flat">
+                  <div class="text-h6 font-weight-bold mb-3 text-blue-grey-darken-4">Следующие</div>
+                  <div class="d-flex ga-3 align-center">
+                    <span v-for="(color, index) in gameState.nextBalls" :key="`${color}-${index}`" :class="['mini-ball', `ball--${color}`]" />
+                  </div>
+                </v-card>
+
+                <v-alert class="side-rule-alert mt-4 text-body-2" color="info" icon="mdi-heart-outline" rounded="xl" variant="flat">
+                  Если ход не собрал линию, появятся три новых шара. Линия из пяти освобождает клетки.
                 </v-alert>
               </v-col>
             </v-row>
@@ -236,9 +264,9 @@ onUnmounted(() => {
 
 .board-grid {
   display: grid;
-  gap: clamp(0.375rem, 1.2vw, 0.75rem);
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  max-inline-size: min(92vw, 45.625rem);
+  gap: clamp(0.3rem, 0.9vw, 0.625rem);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  max-inline-size: min(92vw, 42rem, 72vh);
 }
 
 .board-grid :deep(.dwell-button) {
@@ -252,8 +280,21 @@ onUnmounted(() => {
   display: flex;
   inline-size: 100%;
   justify-content: center;
-  min-block-size: 4.75rem;
+  min-block-size: clamp(3.4rem, 7.4vh, 5rem);
   transition: outline 160ms ease, transform 160ms ease;
+}
+
+.lines-cell-content--selected {
+  outline: 0.3rem solid rgb(var(--v-theme-secondary) / 60%);
+  outline-offset: -0.35rem;
+}
+
+.lines-cell-content--reachable {
+  box-shadow: inset 0 0 0 0.25rem rgb(var(--v-theme-primary) / 28%);
+}
+
+.lines-cell-content--path {
+  background: rgb(var(--v-theme-primary) / 10%);
 }
 
 .lines-cell-content--last {
@@ -265,6 +306,17 @@ onUnmounted(() => {
   transform: scale(1.04);
 }
 
+.lines-cell-content--spawned {
+  outline: 0.22rem dashed rgb(var(--v-theme-primary) / 32%);
+  outline-offset: -0.28rem;
+}
+
+.reachable-icon {
+  color: rgb(var(--v-theme-primary));
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  opacity: 0.72;
+}
+
 .ball,
 .mini-ball {
   border-radius: 999px;
@@ -273,13 +325,37 @@ onUnmounted(() => {
 }
 
 .ball {
-  block-size: clamp(2.75rem, 8vw, 4.5rem);
-  inline-size: clamp(2.75rem, 8vw, 4.5rem);
+  block-size: clamp(2.3rem, 5.8vw, 3.9rem);
+  inline-size: clamp(2.3rem, 5.8vw, 3.9rem);
 }
 
 .mini-ball {
   block-size: 1.75rem;
   inline-size: 1.75rem;
+}
+
+.side-info-card {
+  background: rgb(236 243 246) !important;
+  color: rgb(47 79 79) !important;
+}
+
+.side-list-item {
+  color: rgb(47 79 79) !important;
+}
+
+.side-list-item :deep(.v-list-item-title) {
+  color: rgb(38 68 68) !important;
+  font-weight: 800;
+}
+
+.side-list-item :deep(.v-list-item-subtitle) {
+  color: rgb(76 103 103) !important;
+  opacity: 1;
+}
+
+.side-rule-alert {
+  background: rgb(227 238 244) !important;
+  color: rgb(68 100 122) !important;
 }
 
 .ball--sky {
@@ -304,27 +380,50 @@ onUnmounted(() => {
   }
 
   .lines-cell-content {
-    min-block-size: 3.625rem;
+    min-block-size: 3.25rem;
   }
 }
 
-@media (min-height: 681px) and (max-height: 920px) {
+@media (min-height: 42.5625rem) and (max-height: 68rem) {
   .game-container {
-    padding-block-start: 4.75rem;
+    padding-block-start: 4.25rem;
   }
 
   .game-container :deep(.v-card) {
-    padding-block: 1rem !important;
+    padding-block: 0.9rem !important;
   }
 
   .game-container .text-overline,
   .game-container h1,
   .game-container p,
-  .game-container .v-alert,
-  .game-container .v-btn,
-  .game-container .v-col-md-4,
-  .game-container .d-flex.flex-column.flex-md-row {
+  .game-container .v-btn {
     display: none !important;
+  }
+
+  .game-container .d-flex.flex-column.flex-md-row {
+    margin-block-end: 0.8rem !important;
+  }
+
+  .game-container .v-alert {
+    margin-block-end: 0.8rem !important;
+    padding-block: 0.65rem !important;
+  }
+
+  .board-grid {
+    max-inline-size: min(100%, 36rem, 58vh);
+  }
+
+  .board-grid :deep(.dwell-button) {
+    min-block-size: clamp(3.6rem, 8vh, 5rem) !important;
+  }
+
+  .lines-cell-content {
+    min-block-size: clamp(3.4rem, 7.4vh, 4.75rem);
+  }
+
+  .ball {
+    block-size: clamp(2.2rem, 4.8vh, 3.4rem);
+    inline-size: clamp(2.2rem, 4.8vh, 3.4rem);
   }
 }
 
@@ -342,8 +441,13 @@ onUnmounted(() => {
   .game-container p,
   .game-container .v-alert,
   .game-container .v-btn,
-  .game-container .v-col-md-4 {
+  .side-column {
     display: none;
+  }
+
+  .board-column {
+    flex-basis: 100%;
+    max-inline-size: 100%;
   }
 
   .game-container .d-flex.flex-column.flex-md-row {
@@ -351,22 +455,22 @@ onUnmounted(() => {
   }
 
   .board-grid {
-    gap: 0.4rem;
-    max-inline-size: min(100%, 45rem);
+    gap: 0.28rem;
+    max-inline-size: min(100%, 34rem, 64vh);
   }
 
   .board-grid :deep(.dwell-button) {
-    min-block-size: 5.625rem !important;
+    min-block-size: 3.55rem !important;
     padding: 0.35rem !important;
   }
 
   .lines-cell-content {
-    min-block-size: 4.5rem;
+    min-block-size: 3.35rem;
   }
 
   .ball {
-    block-size: 2.75rem;
-    inline-size: 2.75rem;
+    block-size: 2.3rem;
+    inline-size: 2.3rem;
   }
 }
 </style>

@@ -18,16 +18,17 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnMistakes: false
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "reversi-light", soundEnabled, warmAssetIds: ["reversi-light.prompt", "reversi-light.correct", "reversi-light.mistake", "reversi-light.complete"] });
+const promptAudio = useGamePromptAudio({ gameId: "reversi-light", soundEnabled, warmAssetIds: ["reversi-light.prompt", "reversi-light.complete"] });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const aiMoveDelayMs = 850;
 const passDelayMs = 700;
+const aiSearchDepth = 12;
+const aiSearchTimeLimitMs = 800;
 
 const board = ref<ReversiLightBoard>(createInitialBoard());
 const result = ref<ReversiLightWinner>();
 const aiThinking = ref(false);
-const isSpeaking = ref(false);
 const flippedCells = ref<number[]>([]);
 const lastMove = ref<number>();
 const feedbackMessage = ref("Твои тёплые фишки ходят на подсвеченные клетки. Неподходящая клетка просто даст подсказку.");
@@ -37,6 +38,7 @@ const counts = computed(() => countPieces(board.value));
 const rows = Array.from({ length: reversiLightSize }, (_, row) => row);
 const columns = Array.from({ length: reversiLightSize }, (_, column) => column);
 let aiTimer = 0;
+let aiRequestId = 0;
 
 const statusText = computed(() => {
   if (result.value === "player") return "У тебя больше фишек";
@@ -61,7 +63,30 @@ function isValidPlayerCell(index: number) {
 }
 
 function canChooseCell(index: number) {
-  return session.status === "running" && !aiThinking.value && !isSpeaking.value && !result.value && !board.value[index];
+  return session.status === "running" && !aiThinking.value && !result.value && !board.value[index];
+}
+
+function isSessionPaused() {
+  return (session.status as string) === "paused";
+}
+
+function encodeBoardForAi(nextBoard: ReversiLightBoard) {
+  return nextBoard.map((cell) => cell === "player" ? "R" : cell === "ai" ? "Y" : ".").join("");
+}
+
+async function chooseNativeAiMove(snapshot: ReversiLightBoard) {
+  const nativeResult = await window.linkaAi?.reversiLightBestMove({
+    board: encodeBoardForAi(snapshot),
+    player: "Y",
+    depth: aiSearchDepth,
+    timeLimitMs: aiSearchTimeLimitMs
+  });
+
+  if (nativeResult?.ok && typeof nativeResult.move === "number" && validMoves(snapshot, "ai").includes(nativeResult.move)) {
+    return { move: nativeResult.move, source: nativeResult.source, depth: nativeResult.depth, nodes: nativeResult.nodes, elapsedMs: nativeResult.elapsedMs };
+  }
+
+  return { move: chooseAiMove(snapshot), source: "fallback" as const };
 }
 
 function cellColor(index: number, cell: ReversiLightCell) {
@@ -88,15 +113,13 @@ function pieceClasses(cell: ReversiLightCell) {
 async function finishBoard(reason: "max-steps" | "game-complete" = "game-complete") {
   result.value = findWinner(board.value);
   aiThinking.value = false;
-  isSpeaking.value = true;
   if (result.value === "player") recordSuccess({ result: result.value, board: board.value.join("|"), final: true });
   else if (result.value === "ai") recordMistake({ result: result.value, board: board.value.join("|"), final: true });
   else recordEvent("level-start", { result: result.value, board: board.value.join("|") });
   if (result.value === "ai") void feedbackAudio.playMistake();
   else void feedbackAudio.playSuccess();
-  await promptAudio.playSequenceAndWait(result.value === "player" ? ["reversi-light.correct", "reversi-light.complete"] : result.value === "ai" ? ["reversi-light.mistake", "reversi-light.complete"] : ["reversi-light.complete"], 80, 170);
+  await promptAudio.playSequenceAndWait(["reversi-light.complete"], 80, 170);
   if (session.status !== "finished") finishSession(reason === "max-steps" ? "max-steps" : result.value === "draw" ? "game-draw" : result.value === "player" ? "game-complete" : "game-lost");
-  isSpeaking.value = false;
 }
 
 function afterAiTurn() {
@@ -115,8 +138,19 @@ function afterAiTurn() {
   feedbackMessage.value = "Теперь снова твой ход. Подсвеченные клетки перевернут соседние фишки.";
 }
 
-function applyAiMove() {
-  if (session.status === "paused") {
+async function applyAiMove() {
+  if (isSessionPaused()) {
+    aiTimer = window.setTimeout(applyAiMove, 250);
+    return;
+  }
+
+  if (session.status !== "running" || result.value) return;
+
+  const requestId = ++aiRequestId;
+  const snapshot = [...board.value] as ReversiLightBoard;
+  const aiMoveChoice = await chooseNativeAiMove(snapshot);
+  if (requestId !== aiRequestId) return;
+  if (isSessionPaused()) {
     aiTimer = window.setTimeout(applyAiMove, 250);
     return;
   }
@@ -124,7 +158,7 @@ function applyAiMove() {
   aiThinking.value = false;
   if (session.status !== "running" || result.value) return;
 
-  const move = chooseAiMove(board.value);
+  const move = typeof aiMoveChoice.move === "number" && validMoves(board.value, "ai").includes(aiMoveChoice.move) ? aiMoveChoice.move : chooseAiMove(board.value);
   if (move === undefined) {
     feedbackMessage.value = "Луна пропускает ход. Выбирай подсвеченную клетку.";
     afterAiTurn();
@@ -136,7 +170,7 @@ function applyAiMove() {
   board.value = aiMove.board;
   flippedCells.value = aiMove.flipped;
   lastMove.value = move;
-  recordEvent("target-click", { targetId: cellTargetId(move), actor: "ai", mark: "ai", flipped: aiMove.flipped.length });
+  recordEvent("target-click", { targetId: cellTargetId(move), actor: "ai", mark: "ai", flipped: aiMove.flipped.length, ai: aiMoveChoice });
   afterAiTurn();
 }
 
@@ -156,10 +190,7 @@ async function chooseCell(index: number) {
     flippedCells.value = [];
     lastMove.value = index;
     recordMistake({ targetId, reason: "invalid-reversi-move", isCorrect: false });
-    isSpeaking.value = true;
     void feedbackAudio.playMistake();
-    await promptAudio.playSequenceAndWait(["reversi-light.mistake"], 80);
-    isSpeaking.value = false;
     return;
   }
 
@@ -177,23 +208,19 @@ async function chooseCell(index: number) {
 
   if (!validMoves(board.value, "ai").length) {
     feedbackMessage.value = "Луна пропускает ход. Можно выбрать следующую подсветку.";
-    isSpeaking.value = true;
     void feedbackAudio.playSuccess();
-    await promptAudio.playSequenceAndWait(["reversi-light.correct"], 80);
-    isSpeaking.value = false;
     return;
   }
 
   feedbackMessage.value = "Хороший ход. Луна тихо отвечает.";
-  isSpeaking.value = true;
   void feedbackAudio.playSuccess();
-  await promptAudio.playSequenceAndWait(["reversi-light.correct"], 80);
-  isSpeaking.value = false;
+  aiRequestId += 1;
   scheduleAiMove();
 }
 
 function restart() {
   promptAudio.cancelPending();
+  aiRequestId += 1;
   window.clearTimeout(aiTimer);
   board.value = createInitialBoard();
   result.value = undefined;
@@ -201,7 +228,6 @@ function restart() {
   flippedCells.value = [];
   lastMove.value = undefined;
   feedbackMessage.value = "Новая доска готова. Выбирай подсвеченную клетку без спешки.";
-  isSpeaking.value = false;
   startSession();
   promptAudio.play("reversi-light.prompt", 220);
 }
@@ -213,6 +239,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   promptAudio.cancelPending();
+  aiRequestId += 1;
   window.clearTimeout(aiTimer);
 });
 </script>

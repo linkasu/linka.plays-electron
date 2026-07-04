@@ -11,22 +11,23 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import {
   applySokobanLargeMove,
   createSokobanLargeState,
+  hasSokobanLargeWall,
   isSokobanLargeComplete,
   pointsEqual,
-  sokobanLargeChoiceOutcome,
   type SokobanLargeDirection,
   type SokobanLargePoint
 } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("sokoban-large", {
-  maxSteps: 12,
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("sokoban-large", {
+  maxSteps: 40,
   overrides: { targetScale: 1.2, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
+  finishOnTimeout: false
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "sokoban-large", soundEnabled, warmAssetIds: ["sokoban-large.prompt", "sokoban-large.correct", "sokoban-large.mistake", "sokoban-large.complete"] });
+const promptAudio = useGamePromptAudio({ gameId: "sokoban-large", soundEnabled, warmAssetIds: ["sokoban-large.intro", "sokoban-large.complete"] });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const directionControls: { direction: SokobanLargeDirection; key: "w" | "a" | "s" | "d"; label: string; icon: string }[] = [
@@ -41,14 +42,16 @@ const feedbackMessage = ref("Выбери ход. Если направлени�
 const wrongDirection = ref<SokobanLargeDirection>();
 const successDirection = ref<SokobanLargeDirection>();
 const pendingChoice = ref(false);
-const isSpeaking = ref(false);
+const roundComplete = ref(false);
 let feedbackTimer = 0;
+let roundTimer = 0;
+const nextRoundDelayMs = 3000;
 
 const rows = computed(() => Array.from({ length: boardState.value.height }, (_, row) => row));
 const columns = computed(() => Array.from({ length: boardState.value.width }, (_, column) => column));
 const resultVisible = computed(() => session.status === "finished");
 const complete = computed(() => isSokobanLargeComplete(boardState.value));
-const progressPercent = computed(() => Math.round((boardState.value.stepIndex / session.maxSteps) * 100));
+const progressPercent = computed(() => Math.min(100, Math.round((boardState.value.stepIndex / Math.max(1, boardState.value.solution.length)) * 100)));
 const directionButtons = computed<GameWasdControl[]>(() => directionControls.map((control) => ({
   id: control.direction,
   key: control.key,
@@ -71,15 +74,28 @@ function clearFeedbackTimer() {
   feedbackTimer = 0;
 }
 
+function clearRoundTimer() {
+  window.clearTimeout(roundTimer);
+  roundTimer = 0;
+}
+
 function resetChoiceState() {
   clearFeedbackTimer();
+  clearRoundTimer();
   pendingChoice.value = false;
+  roundComplete.value = false;
   wrongDirection.value = undefined;
   successDirection.value = undefined;
 }
 
+function startNextRound() {
+  resetChoiceState();
+  boardState.value = createSokobanLargeState(boardState.value.roundIndex + 1);
+  feedbackMessage.value = "Новый склад готов. Осмотрись: стены, герой, ящик и цель изменились.";
+}
+
 async function chooseDirection(direction: SokobanLargeDirection) {
-  if (session.status !== "running" || pendingChoice.value || isSpeaking.value || complete.value) return;
+  if (session.status !== "running" || pendingChoice.value || roundComplete.value || complete.value) return;
 
   const targetId = directionTargetId(direction);
   const before = boardState.value;
@@ -87,30 +103,16 @@ async function chooseDirection(direction: SokobanLargeDirection) {
   clearFeedbackTimer();
 
   if (!result.moved) {
-    const outcome = sokobanLargeChoiceOutcome(result, session.mistakes + 1);
     wrongDirection.value = direction;
-    pendingChoice.value = true;
-    feedbackMessage.value = outcome === "loss"
-      ? "Раунд остановлен. Можно начать заново и спокойно проверить маршрут."
-      : "Этот ход не двигает ящик. Посмотри на героя, ящик и цель, затем выбери другое направление.";
-    recordMistake({ targetId, direction, reason: result.event, outcome, isCorrect: false });
-    isSpeaking.value = true;
+    feedbackMessage.value = "Туда нельзя пройти или толкнуть ящик. Осмотрись и выбери другой ход.";
+    recordMistake({ targetId, direction, reason: result.event, isCorrect: false });
     void feedbackAudio.playMistake();
-    await promptAudio.playSequenceAndWait(outcome === "loss" ? ["sokoban-large.mistake", "sokoban-large.complete"] : ["sokoban-large.mistake"], 80, 170);
-    if (outcome === "loss") {
-      finishSession("game-lost");
-      isSpeaking.value = false;
-      return;
-    }
-    isSpeaking.value = false;
-    pendingChoice.value = false;
     feedbackTimer = window.setTimeout(() => {
       wrongDirection.value = undefined;
     }, 1100);
     return;
   }
 
-  const finishedAfterSuccess = session.step + 1 >= session.maxSteps;
   boardState.value = result.state;
   successDirection.value = direction;
   wrongDirection.value = undefined;
@@ -126,27 +128,18 @@ async function chooseDirection(direction: SokobanLargeDirection) {
   });
 
   if (result.event === "complete") {
-    feedbackMessage.value = "Готово: ящик спокойно встал на цель.";
-    isSpeaking.value = true;
+    roundComplete.value = true;
+    feedbackMessage.value = "Готово: ящик спокойно встал на цель. Через несколько секунд появится новый склад.";
     void feedbackAudio.playSuccess();
-    await promptAudio.playSequenceAndWait(["sokoban-large.correct", "sokoban-large.complete"], 80, 170);
-    finishSession("game-complete");
-    isSpeaking.value = false;
+    promptAudio.play("sokoban-large.complete", 80);
+    roundTimer = window.setTimeout(startNextRound, nextRoundDelayMs);
     return;
   }
 
   feedbackMessage.value = result.pushed
     ? "Ящик сдвинулся ближе к цели. Выбери следующий ход."
     : "Герой занял место для толкания. Осмотрись и выбери следующий ход.";
-  isSpeaking.value = true;
   void feedbackAudio.playSuccess();
-  await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["sokoban-large.correct", "sokoban-large.complete"] : ["sokoban-large.correct"], 80, 170);
-  if (finishedAfterSuccess) {
-    finishSession("game-complete");
-    isSpeaking.value = false;
-    return;
-  }
-  isSpeaking.value = false;
   pendingChoice.value = false;
   feedbackTimer = window.setTimeout(() => {
     successDirection.value = undefined;
@@ -162,10 +155,13 @@ function restart() {
   promptAudio.cancelPending();
   boardState.value = createSokobanLargeState();
   resetChoiceState();
-  isSpeaking.value = false;
   feedbackMessage.value = "Новая доска готова. Выбери направление, чтобы довести ящик до цели.";
   startSession();
-  promptAudio.play("sokoban-large.prompt", 220);
+  promptAudio.play("sokoban-large.intro", 220);
+}
+
+function hasWall(row: number, column: number) {
+  return hasSokobanLargeWall(boardState.value, { row, column });
 }
 
 function hasPlayer(row: number, column: number) {
@@ -185,6 +181,7 @@ function cellClasses(row: number, column: number) {
     "sokoban-cell",
     {
       "sokoban-cell--goal": hasGoal(row, column),
+      "sokoban-cell--wall": hasWall(row, column),
       "sokoban-cell--box": hasBox(row, column),
       "sokoban-cell--player": hasPlayer(row, column)
     }
@@ -193,23 +190,24 @@ function cellClasses(row: number, column: number) {
 
 onMounted(() => {
   promptAudio.warm();
-  promptAudio.play("sokoban-large.prompt", 420);
+  promptAudio.play("sokoban-large.intro", 420);
 });
 
 onUnmounted(() => {
   promptAudio.cancelPending();
   clearFeedbackTimer();
+  clearRoundTimer();
 });
 </script>
 
 <template>
   <div class="sokoban-large-shell">
-    <GameHud title="Сокобан крупный" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud title="Сокобан крупный" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" :show-progress="false" :show-timer="false" @pause="pauseSession" @resume="resumeSession" />
 
     <v-container class="sokoban-large-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="11" xl="10">
-          <v-card class="pa-4 pa-md-6" color="rgba(255, 255, 255, 0.94)" rounded="xl" elevation="8">
+          <v-card class="sokoban-card pa-4 pa-md-6" color="rgba(255, 255, 255, 0.94)" rounded="xl" elevation="8">
             <div class="d-flex flex-column flex-lg-row align-lg-center justify-space-between ga-4 mb-5">
               <div>
                 <div class="text-overline text-primary mb-1">Спокойная стратегия на крупной сетке</div>
@@ -217,7 +215,7 @@ onUnmounted(() => {
                 <p class="text-body-1 text-medium-emphasis mb-0">Выбирай направление взгляда. Если ход не сработал, осмотрись и попробуй другой.</p>
               </div>
               <div class="d-flex flex-wrap ga-2">
-                <v-chip color="primary" size="large" variant="tonal">Ход {{ boardState.stepIndex }} / {{ session.maxSteps }}</v-chip>
+                <v-chip color="primary" size="large" variant="tonal">Раунд {{ boardState.roundIndex + 1 }} · ход {{ boardState.stepIndex }} / {{ boardState.solution.length }}</v-chip>
                 <v-chip color="secondary" size="large" variant="tonal">Цель: верхний правый угол</v-chip>
               </div>
             </div>
@@ -226,11 +224,12 @@ onUnmounted(() => {
               {{ feedbackMessage }}
             </v-alert>
 
-            <v-row class="align-center" dense>
-              <v-col cols="12" md="7" class="order-2 order-md-1">
+            <v-row class="play-area align-center" dense>
+              <v-col cols="12" md="7" class="board-column order-2 order-md-1">
                 <div class="sokoban-board mx-auto" role="grid" aria-label="Поле сокобана пять на пять">
-                  <div v-for="row in rows" :key="row" class="sokoban-row" role="row">
+                  <div v-for="row in rows" :key="row" class="sokoban-row" role="row" :style="{ gridTemplateColumns: `repeat(${boardState.width}, minmax(0, 1fr))` }">
                     <div v-for="column in columns" :key="column" :class="cellClasses(row, column)" role="gridcell" :aria-label="pointTargetId({ row, column })">
+                      <v-icon v-if="hasWall(row, column)" class="wall-icon" icon="mdi-wall" />
                       <v-icon v-if="hasGoal(row, column)" class="goal-icon" icon="mdi-bullseye" />
                       <v-icon v-if="hasBox(row, column)" class="box-icon" icon="mdi-package-variant-closed" />
                       <v-icon v-if="hasPlayer(row, column)" class="player-icon" icon="mdi-account" />
@@ -238,12 +237,12 @@ onUnmounted(() => {
                   </div>
                 </div>
 
-                <v-progress-linear class="mt-5" :model-value="progressPercent" color="primary" height="14" rounded />
+                <v-progress-linear class="board-progress mt-5" :model-value="progressPercent" color="primary" height="14" rounded />
               </v-col>
 
-              <v-col cols="12" md="5" class="order-1 order-md-2">
+              <v-col cols="12" md="5" class="controls-column order-1 order-md-2">
                 <div class="text-h6 font-weight-bold text-center mb-3">Выбери следующий ход</div>
-                <GameWasdPanel :controls="directionButtons" :disabled="session.status !== 'running' || pendingChoice || isSpeaking || complete" :dwell-ms="session.settings.dwellMs" aria-label="Направления сокобана" @select="chooseDirectionButton">
+                <GameWasdPanel :controls="directionButtons" :disabled="session.status !== 'running' || pendingChoice || roundComplete || complete" :dwell-ms="session.settings.dwellMs" aria-label="Направления сокобана" @select="chooseDirectionButton">
                   <template #control="{ control, active, progress }">
                     <div class="direction-content">
                       <span class="direction-key">{{ control.key.toUpperCase() }}</span>
@@ -255,7 +254,7 @@ onUnmounted(() => {
                   </template>
                 </GameWasdPanel>
 
-                <v-alert class="mt-4" color="info" rounded="xl" variant="tonal">
+                <v-alert class="direction-hint mt-4" color="info" rounded="xl" variant="tonal">
                   Смотри на свободные клетки вокруг героя и ящика. Ход можно спокойно проверить.
                 </v-alert>
               </v-col>
@@ -282,20 +281,24 @@ onUnmounted(() => {
   padding-block-start: 8.25rem;
 }
 
+.sokoban-card {
+  margin-inline: auto;
+}
+
 .sokoban-board {
   background: rgb(var(--v-theme-primary) / 14%);
   border: 0.5rem solid rgb(var(--v-theme-primary) / 18%);
   border-radius: 1.875rem;
   display: grid;
   gap: clamp(0.5rem, 1.3vw, 0.875rem);
-  max-inline-size: min(92vw, 38.75rem);
+  max-inline-size: min(92vw, 38.75rem, 56vh);
   padding: clamp(0.625rem, 1.6vw, 1rem);
 }
 
 .sokoban-row {
   display: grid;
   gap: clamp(0.5rem, 1.3vw, 0.875rem);
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
 .sokoban-cell {
@@ -313,6 +316,11 @@ onUnmounted(() => {
   background: #fff7d6;
 }
 
+.sokoban-cell--wall {
+  background: #d9e2d3;
+  box-shadow: inset 0 0 0 0.16rem rgb(92 116 84 / 18%);
+}
+
 .sokoban-cell--box {
   background: #ffe0b2;
   box-shadow: 0 0 0 0.3125rem rgb(var(--v-theme-secondary) / 20%);
@@ -327,6 +335,11 @@ onUnmounted(() => {
   font-size: clamp(2rem, 5vw, 4.4rem);
   opacity: 0.86;
   position: absolute;
+}
+
+.wall-icon {
+  color: rgb(var(--v-theme-primary) / 64%);
+  font-size: clamp(1.5rem, 3.8vw, 3.2rem);
 }
 
 .box-icon,
@@ -368,6 +381,42 @@ onUnmounted(() => {
   }
 }
 
+@media (max-height: 58rem) {
+  .sokoban-large-container {
+    padding-block-start: 5.5rem;
+  }
+
+  .sokoban-card {
+    padding-block: 1.25rem !important;
+  }
+
+  .sokoban-card > .d-flex.flex-column.flex-lg-row {
+    margin-block-end: 1rem !important;
+  }
+
+  .compact-feedback {
+    margin-block-end: 1rem !important;
+  }
+
+  .direction-hint {
+    display: none;
+  }
+
+  .board-progress {
+    margin-block-start: 0.8rem !important;
+  }
+
+  .sokoban-board {
+    gap: clamp(0.4rem, 0.9vw, 0.65rem);
+    max-inline-size: min(92vw, 38.75rem, 45vh);
+    padding: clamp(0.5rem, 1.1vw, 0.75rem);
+  }
+
+  .sokoban-row {
+    gap: clamp(0.4rem, 0.9vw, 0.65rem);
+  }
+}
+
 @media (max-height: 42.5rem) {
   .sokoban-large-container {
     padding-block-start: 4.75rem;
@@ -382,9 +431,37 @@ onUnmounted(() => {
     display: none !important;
   }
 
+  .play-area {
+    align-items: center;
+    display: grid !important;
+    gap: clamp(0.8rem, 2vw, 1.4rem);
+    grid-template-columns: minmax(0, 0.92fr) minmax(16rem, 0.72fr);
+  }
+
+  .board-column,
+  .controls-column {
+    flex: initial;
+    inline-size: auto;
+    max-inline-size: none;
+    padding-block: 0 !important;
+  }
+
+  .controls-column :deep(.wasd-panel) {
+    inline-size: min(100%, 50vh);
+  }
+
+  .controls-column :deep(.dwell-button) {
+    padding: 0.45rem !important;
+  }
+
+  .direction-hint,
+  .board-progress {
+    display: none;
+  }
+
   .sokoban-board {
     gap: 0.4rem;
-    max-inline-size: min(100%, 42vh, 26rem);
+    max-inline-size: min(100%, 50vh, 25rem);
     padding: 0.5rem;
   }
 
@@ -394,6 +471,16 @@ onUnmounted(() => {
 
   .compact-feedback {
     display: none;
+  }
+}
+
+@media (max-height: 42.5rem) and (max-width: 52rem) {
+  .play-area {
+    grid-template-columns: minmax(0, 0.8fr) minmax(15rem, 0.72fr);
+  }
+
+  .sokoban-board {
+    max-inline-size: min(100%, 46vh, 22rem);
   }
 }
 </style>

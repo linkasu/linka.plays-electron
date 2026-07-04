@@ -25,16 +25,13 @@ JSON с полными метриками: `devtools-full-runtime-after-fixes.js
 
 | Игра | Название | Категория | Runtime-флаги | Метрики |
 |---|---|---|---|---|
-| [arkanoid-assist](./arkanoid-assist.md) | Арканоид assist | strategy | no-visible-targets, many-cards-below-fold, very-tall-page | 1024x600: targets 0/3, min 0, y 2.57, cardsOut 6<br>800x600: targets 0/3, min 0, y 2.57, cardsOut 6 |
 | [step-pong](./step-pong.md) | Понг пошаговый | strategy | no-visible-targets, many-cards-below-fold, very-tall-page | 1024x600: targets 0/3, min 0, y 2.56, cardsOut 6<br>800x600: targets 0/3, min 0, y 2.56, cardsOut 6 |
-| [tanks-no-shooting](./tanks-no-shooting.md) | Танчики без стрельбы | strategy | no-visible-targets, many-cards-below-fold, very-tall-page | 1024x600: targets 0/4, min 0, y 2.55, cardsOut 6<br>800x600: targets 0/4, min 0, y 2.59, cardsOut 6 |
 | [comic-strip](./comic-strip.md) | Комикс | sequencing | no-visible-targets, many-cards-below-fold, very-tall-page | 1024x600: targets 0/3, min 0, y 1.46, cardsOut 4<br>800x600: targets 0/3, min 0, y 2.68, cardsOut 7 |
 | [train-sequence](./train-sequence.md) | Поезд | sequencing | no-visible-targets, many-cards-below-fold, very-tall-page | 1024x600: targets 0/5, min 0, y 2.24, cardsOut 7<br>800x600: targets 0/5, min 0, y 2.17, cardsOut 7 |
 | [calm-tetris](./calm-tetris.md) | Тетрис спокойный | strategy | many-cards-below-fold, very-tall-page | 1024x600: targets 4/4, min 116, y 2.42, cardsOut 4<br>800x600: targets 4/4, min 116, y 2.36, cardsOut 4 |
 | [day-routine](./day-routine.md) | Утро-день-вечер | sequencing | no-visible-targets, many-cards-below-fold, very-tall-page | 1024x600: targets 0/8, min 0, y 2.11, cardsOut 1<br>800x600: targets 0/8, min 0, y 2.78, cardsOut 3 |
 | [dress-character](./dress-character.md) | Одень персонажа | sequencing | many-cards-below-fold, no-visible-targets, very-tall-page | 1024x600: targets 1/3, min 180, y 1.74, cardsOut 5<br>800x600: targets 0/3, min 0, y 2.54, cardsOut 5 |
 | [sandwich](./sandwich.md) | Бутерброд | sequencing | many-cards-below-fold, no-visible-targets, very-tall-page | 1024x600: targets 2/5, min 169, y 1.74, cardsOut 3<br>800x600: targets 0/5, min 0, y 2.52, cardsOut 7 |
-| [tangram](./tangram.md) | Tangram | strategy | no-visible-targets, many-cards-below-fold | 1024x600: targets 0/4, min 0, y 1.96, cardsOut 6<br>800x600: targets 0/4, min 0, y 1.87, cardsOut 5 |
 | [uno-like](./uno-like.md) | Уно-подобное | strategy | many-cards-below-fold, no-visible-targets, very-tall-page | 1024x600: targets 2/4, min 307, y 1.77, cardsOut 5<br>800x600: targets 0/4, min 0, y 2.42, cardsOut 5 |
 | [build-bridge](./build-bridge.md) | Строим мост | sequencing | no-visible-targets, many-cards-below-fold, very-tall-page | 800x600: targets 0/8, min 0, y 2.27, cardsOut 10 |
 | [feed-animal](./feed-animal.md) | Покорми зверька | gaze-basics | no-visible-targets, many-cards-below-fold | 1024x600: targets 0/1, min 0, y 1.62, cardsOut 3<br>800x600: targets 0/1, min 0, y 1.44, cardsOut 2 |

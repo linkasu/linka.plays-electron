@@ -7,6 +7,7 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { applyGliderDamage, classifyGatePass, gliderDifficulty } from "./model";
 
 type Point = { x: number; y: number };
 
@@ -45,9 +46,9 @@ type Trail = Point & {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("glider", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, recordMistake, startSession } = useGameSessionFor("glider", {
   maxSteps: 8,
-  overrides: { preset: "gentle", dwellMs: 600, targetScale: 1.45, motionSpeed: 0.62, distractors: "none", hints: "high", sound: false },
+  overrides: { preset: "standard", dwellMs: 600, targetScale: 1.2, motionSpeed: 0.9, distractors: "low", hints: "medium" },
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });
@@ -57,12 +58,16 @@ const gate = reactive<Gate>({ id: "gate-0", x: window.innerWidth * 0.82, y: wind
 const clouds = reactive<Cloud[]>([]);
 const trails = reactive<Trail[]>([]);
 const cleanupProgress = ref(0);
+const hull = ref(3);
+const maxHull = 3;
+const damageFlash = ref(0);
 const resultVisible = computed(() => session.status === "finished");
 const guidanceText = computed(() => {
   if (session.status === "paused") return "Пауза. Планер спокойно ждёт продолжения.";
   if (cleanupProgress.value > 0) return "Маршрут завершён: планер мягко уходит в чистое небо.";
-  if (!pointer.value.valid) return "Можно вести планер взглядом или мышью. Он спокойно держит высоту.";
-  return "Веди планер взглядом через широкие воздушные ворота.";
+  if (hull.value <= 1) return "Остался один шанс. Держи планер точно в просвете.";
+  if (!pointer.value.valid) return "Можно вести планер взглядом или мышью. Без управления планер держит курс хуже.";
+  return "Веди планер точно через воздушные ворота: промах повреждает крыло.";
 });
 
 let gateSequence = 0;
@@ -93,11 +98,13 @@ function gliderSize() {
 
 function gateGap() {
   const safeHeight = playBottom() - playTop();
-  return Math.min(safeHeight * 0.72, Math.max(220, 182 * session.settings.targetScale));
+  const difficulty = gliderDifficulty(session.step, session.maxSteps);
+  return Math.min(safeHeight * 0.56, Math.max(138, 178 * session.settings.targetScale * difficulty.gapScale));
 }
 
 function gateSpeed() {
-  return randomRange(132, 154) * session.settings.motionSpeed;
+  const difficulty = gliderDifficulty(session.step, session.maxSteps);
+  return randomRange(168, 204) * session.settings.motionSpeed * difficulty.speedScale;
 }
 
 function safeGateY(gap = gateGap()) {
@@ -158,6 +165,8 @@ function resetScene() {
   cleanupStartedAt = 0;
   cleanupElapsedMs = 0;
   cleanupProgress.value = 0;
+  hull.value = maxHull;
+  damageFlash.value = 0;
   trailTimer = 0;
   gateSequence = 0;
   trails.splice(0);
@@ -196,6 +205,20 @@ function completeGate(now: number) {
   resetGate(true);
 }
 
+function damageGlider(now: number, reason: "miss") {
+  const nextHull = applyGliderDamage(hull.value);
+  hull.value = nextHull;
+  damageFlash.value = 1;
+  glider.glow = 0.7;
+  recordMistake({ targetId: gate.id, reason, hull: nextHull, gate: session.step + 1, glider: { x: glider.x, y: glider.y }, gateCenter: { x: gate.x, y: gate.y } });
+  recordEvent("target-cancel", targetPayload(0, now, "left"));
+  if (nextHull <= 0) {
+    finishSession("game-lost");
+    return;
+  }
+  resetGate(true);
+}
+
 function updateGlider(delta: number, now: number) {
   glider.phase += delta * (session.settings.reduceMotion ? 1.1 : 2.4);
   const size = gliderSize();
@@ -204,12 +227,12 @@ function updateGlider(delta: number, now: number) {
     y: (playTop() + playBottom()) * 0.5 + Math.sin(now * 0.00024) * height.value * 0.08
   };
   const target = pointer.value.valid ? pointer.value : fallback;
-  const targetX = clamp(target.x, width.value * 0.12, width.value * 0.7);
+  const targetX = clamp(target.x, width.value * 0.12, width.value * 0.62);
   const targetY = clamp(target.y, playTop() + size * 0.45, playBottom() - size * 0.45);
   const previousX = glider.x;
   const previousY = glider.y;
-  const easing = Math.min(1, delta * 2.35 * session.settings.motionSpeed + delta * 0.74);
-  const maxStep = delta * 430;
+  const easing = Math.min(1, delta * 1.8 * session.settings.motionSpeed + delta * 0.48);
+  const maxStep = delta * 360;
 
   glider.x += clamp((targetX - glider.x) * easing, -maxStep, maxStep);
   glider.y += clamp((targetY - glider.y) * easing, -maxStep, maxStep);
@@ -217,6 +240,7 @@ function updateGlider(delta: number, now: number) {
   glider.vy = (glider.y - previousY) / Math.max(delta, 0.016);
   glider.tilt += (clamp(glider.vy / 420, -0.42, 0.42) - glider.tilt) * Math.min(1, delta * 4.8);
   glider.glow += (0 - glider.glow) * Math.min(1, delta * 1.6);
+  damageFlash.value = Math.max(0, damageFlash.value - delta * 1.7);
 }
 
 function updateGate(delta: number, now: number) {
@@ -226,7 +250,7 @@ function updateGate(delta: number, now: number) {
   gate.y = clamp(gate.y, playTop() + gate.gap * 0.42, playBottom() - gate.gap * 0.42);
 
   const horizontalDistance = Math.abs(gate.x - glider.x);
-  const verticalDistance = Math.abs(gate.y - glider.y);
+  const difficulty = gliderDifficulty(session.step, session.maxSteps);
   const entryRange = gate.width * 1.55;
   const gateProgress = clamp(1 - horizontalDistance / Math.max(1, entryRange), 0, 1);
 
@@ -236,20 +260,20 @@ function updateGate(delta: number, now: number) {
     recordEvent("target-enter", targetPayload(gateProgress, now));
   }
 
-  if (!gate.passed && gate.x <= glider.x && horizontalDistance <= gate.width * 0.72 && verticalDistance <= gate.gap * 0.46) {
+  const outcome = classifyGatePass(gate.x, gate.width, gate.y, gate.gap, glider.x, glider.y, difficulty.passRatio);
+  if (!gate.passed && outcome === "pass") {
     completeGate(now);
     return;
   }
 
-  if (gate.x < glider.x - gate.width * 1.8) {
-    if (gate.entered) recordEvent("target-cancel", targetPayload(gateProgress, now, "left"));
-    resetGate(true);
+  if (outcome === "miss") {
+    damageGlider(now, "miss");
   }
 }
 
 function updateClouds(delta: number) {
   for (const cloud of clouds) {
-    cloud.x -= cloud.speed * delta * session.settings.motionSpeed;
+    cloud.x -= cloud.speed * delta * session.settings.motionSpeed * 1.45;
     cloud.phase += delta * 0.35;
     if (cloud.x < -cloud.size * 2.6) {
       cloud.x = width.value + cloud.size * randomRange(0.8, 2.2);
@@ -375,7 +399,7 @@ function drawGate(ctx: CanvasRenderingContext2D) {
 
   ctx.save();
   ctx.lineCap = "round";
-  ctx.strokeStyle = "rgb(255 255 255 / 82%)";
+  ctx.strokeStyle = hull.value <= 1 ? "rgb(255 224 205 / 88%)" : "rgb(255 255 255 / 82%)";
   ctx.lineWidth = Math.max(9, columnWidth * 0.15);
   ctx.beginPath();
   ctx.moveTo(gate.x, playTop() + 8);
@@ -409,7 +433,8 @@ function drawGlider(ctx: CanvasRenderingContext2D) {
   const size = gliderSize();
   const bobY = Math.sin(glider.phase) * size * 0.035;
   ctx.save();
-  ctx.translate(glider.x, glider.y + bobY);
+  const shake = damageFlash.value > 0 && !session.settings.reduceMotion ? Math.sin(performance.now() * 0.05) * size * 0.04 : 0;
+  ctx.translate(glider.x + shake, glider.y + bobY);
   ctx.rotate(glider.tilt);
 
   const shadow = ctx.createRadialGradient(-size * 0.08, size * 0.28, size * 0.08, -size * 0.08, size * 0.28, size * 0.76);
@@ -421,9 +446,9 @@ function drawGlider(ctx: CanvasRenderingContext2D) {
   ctx.fill();
 
   const body = ctx.createLinearGradient(-size * 0.62, -size * 0.32, size * 0.74, size * 0.28);
-  body.addColorStop(0, "#f7fbff");
-  body.addColorStop(0.52, "#cfeaf8");
-  body.addColorStop(1, "#7cb8d4");
+  body.addColorStop(0, hull.value <= 1 ? "#ffe8dc" : "#f7fbff");
+  body.addColorStop(0.52, hull.value <= 1 ? "#efb8aa" : "#cfeaf8");
+  body.addColorStop(1, hull.value <= 1 ? "#bf6d67" : "#7cb8d4");
   ctx.fillStyle = body;
   ctx.strokeStyle = "rgb(73 129 158 / 52%)";
   ctx.lineWidth = Math.max(2, size * 0.025);
@@ -454,14 +479,36 @@ function drawGlider(ctx: CanvasRenderingContext2D) {
   ctx.stroke();
 
   if (glider.glow > 0.03) {
-    ctx.globalAlpha = glider.glow * 0.42;
-    ctx.strokeStyle = "#ffffff";
+    ctx.globalAlpha = Math.min(0.7, glider.glow * 0.42 + damageFlash.value * 0.32);
+    ctx.strokeStyle = damageFlash.value > 0 ? "#ffe2c6" : "#ffffff";
     ctx.lineWidth = size * 0.11;
     ctx.beginPath();
     ctx.arc(0, 0, size * 0.68, 0, Math.PI * 2);
     ctx.stroke();
   }
 
+  ctx.restore();
+}
+
+function drawStatus(ctx: CanvasRenderingContext2D) {
+  const fontSize = Math.max(15, Math.min(width.value, height.value) * 0.026);
+  const x = Math.max(28, width.value * 0.04);
+  const y = Math.max(78, height.value * 0.13);
+  ctx.save();
+  ctx.fillStyle = "rgb(34 55 74 / 72%)";
+  ctx.strokeStyle = "rgb(255 255 255 / 28%)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(x - fontSize * 0.8, y - fontSize * 1.45, fontSize * 15.2, fontSize * 3.4, fontSize * 0.65);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#f8fbff";
+  ctx.font = `800 ${fontSize}${String.fromCharCode(112, 120)} Roboto, sans-serif`;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  ctx.fillText(`Маршрут ${session.step + 1}/${session.maxSteps}`, x, y - fontSize * 0.42);
+  ctx.fillStyle = hull.value <= 1 ? "#ffd6c7" : "#e6fff4";
+  ctx.fillText(`Крыло: ${hull.value}/${maxHull}`, x, y + fontSize * 0.82);
   ctx.restore();
 }
 
@@ -488,6 +535,7 @@ function draw(ctx: CanvasRenderingContext2D, _delta: number, now: number) {
   drawGate(ctx);
   for (const trail of trails) drawTrail(ctx, trail);
   drawGlider(ctx);
+  drawStatus(ctx);
   drawCleanup(ctx);
 }
 
@@ -512,7 +560,7 @@ useGameLoop({ context, update, draw });
         <v-icon icon="mdi-airplane" color="primary" size="32" />
         <div>
           <div class="text-body-2 font-weight-medium">{{ guidanceText }}</div>
-          <div class="text-caption text-medium-emphasis">Широкие ворота, мягкое движение, спокойная корректировка.</div>
+          <div class="text-caption text-medium-emphasis">Ворота уже, скорость выше, промах повреждает крыло.</div>
         </div>
       </div>
     </v-card>

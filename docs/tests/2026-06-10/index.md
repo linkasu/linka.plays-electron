@@ -62,13 +62,9 @@
 | [lines-five](./lines-five.md) | Lines 5 | Поле при заполнении очищается без проигрыша, подсказочные ходы видны постоянно. | Полное поле без линии должно давать loss; suggestedMoves показывать только после запроса/ошибки. |
 | [checkers-light](./checkers-light.md) | Шашки light | Нет полноценной партии: нет сторон/взятия/победы, при отсутствии ходов доска сбрасывается. | Убрать автосброс и завершать партию результатом; затем добавить хотя бы простые взятия. |
 | [chess-mini](./chess-mini.md) | Chess mini | Это тренажер допустимых ходов, а не шахматная партия; неверный ход показывает все допустимые клетки. | Либо переименовать/перекатегоризировать как тренажер ходов, либо добавить failed task после N ошибок. |
-| [tangram](./tangram.md) | Tangram | Это visual matching-тренажер: ошибка подсвечивает правильный танграм, провала нет. | Перенести из strategy/позиционировать как shape trainer или добавить N ошибок = failed round. |
 | [battleship-light](./battleship-light.md) | Морской бой light | Морской бой завершает лимит ходов как обычный max-steps даже если корабли не найдены; в описании закреплено «без поражения». | Добавить outcome победа/поражение: все корабли найдены = win, лимит ходов при оставшихся кораблях = loss; обновить model.test.ts и финальный текст. |
-| [tanks-no-shooting](./tanks-no-shooting.md) | Танчики без стрельбы | Без model.ts; неверное направление не двигает танк, сразу подсвечивает правильное, поражения нет. | Вынести маршрутную модель; неверный ход должен иметь последствие/лимит ошибок; finish route = win, лимит = loss. |
-| [arkanoid-assist](./arkanoid-assist.md) | Арканоид assist | Неверный сектор не теряет мяч: softReturn и подсказка делают арканоид беспроигрышным. | Добавить lives/balls: wrong sector = минус жизнь, lives=0 = loss, все блоки = win. |
 | [step-pong](./step-pong.md) | Понг пошаговый | Мяч не теряется: неправильная позиция только включает подсказку. | wrong lane = missed ball/минус жизнь, lives=0 = loss, серия отбиваний = win. |
 | [calm-snake](./calm-snake.md) | Змейка спокойная | Модель специально избегает смерти у стены через gentleFallbackDirections. | Добавить strict/default outcome: столкновение со стеной/собой = loss; текущий fallback оставить только assisted-mode. |
-| [pac-path](./pac-path.md) | Pac-path | Detour только подсвечивает правильный waypoint; нет погони/опасности/тупика. | Detour должен иметь последствие: потеря жизни/возврат/поражение после лимита; подсказка не авто. |
 
 ## Высокий UI-риск
 
@@ -194,32 +190,22 @@
 | [lines-five](./lines-five.md) | Lines 5 | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы; Deep CSS override |
 | [checkers-light](./checkers-light.md) | Шашки light | Использует fixed GameHud; Fullscreen viewport; Deep CSS override |
 | [chess-mini](./chess-mini.md) | Chess mini | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы; Текстовая подсказка поверх сцены |
-| [tangram](./tangram.md) | Tangram | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow |
 | [battleship-light](./battleship-light.md) | Морской бой light | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
-| [arkanoid-assist](./arkanoid-assist.md) | Арканоид assist | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
 | [step-pong](./step-pong.md) | Понг пошаговый | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
 | [calm-snake](./calm-snake.md) | Змейка спокойная | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
-| [pac-path](./pac-path.md) | Pac-path | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Deep CSS override; Скрытие контента на малой высоте; Текстовая подсказка поверх сцены |
 | [cursor-magnet](./cursor-magnet.md) | Курсор-магнит | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Deep CSS override; Текстовая подсказка поверх сцены |
-| [pulsing-target](./pulsing-target.md) | Пульсирующая цель | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
 | [boat](./boat.md) | Лодочка | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Текстовая подсказка поверх сцены |
 | [gaze-follow-snake](./gaze-follow-snake.md) | Змейка gaze-follow | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
 | [table-tennis](./table-tennis.md) | Теннис | Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
-| [gates-path](./gates-path.md) | Дорожка с воротами | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
 | [smooth-car](./smooth-car.md) | Плавная машинка | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
-| [balloon-ride](./balloon-ride.md) | Воздушный шар | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Текстовая подсказка поверх сцены |
 | [glider](./glider.md) | Планер | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
 | [line-drawing](./line-drawing.md) | Рисование линией | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
-| [guide-fish](./guide-fish.md) | Рыбка-поводырь | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Текстовая подсказка поверх сцены |
 | [rails](./rails.md) | Рельсы | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
 | [balancer](./balancer.md) | Балансир | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
-| [catch-wave](./catch-wave.md) | Поймай волну | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Текстовая подсказка поверх сцены |
 | [snow-trail](./snow-trail.md) | Снежная тропа | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
 | [robot-vacuum](./robot-vacuum.md) | Робот-пылесос | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Текстовая подсказка поверх сцены |
-| [maze-path](./maze-path.md) | Лабиринт-дорожка | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
 | [garden-watering](./garden-watering.md) | Садовая лейка | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Текстовая подсказка поверх сцены |
 | [space-orbit](./space-orbit.md) | Космическая орбита | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
-| [orchestra-conductor](./orchestra-conductor.md) | Оркестр-дирижёр | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
 
 ## Общая таблица
 
@@ -360,30 +346,19 @@
 | [lines-five](./lines-five.md) | Lines 5 | strategy | да | высокий | высокий | высокий | Поле при заполнении очищается без проигрыша, подсказочные ходы видны постоянно. |
 | [checkers-light](./checkers-light.md) | Шашки light | strategy | да | высокий | высокий | высокий | Нет полноценной партии: нет сторон/взятия/победы, при отсутствии ходов доска сбрасывается. |
 | [chess-mini](./chess-mini.md) | Chess mini | strategy | да | высокий | высокий | высокий | Это тренажер допустимых ходов, а не шахматная партия; неверный ход показывает все допустимые клетки. |
-| [tangram](./tangram.md) | Tangram | strategy | да | высокий | высокий | высокий | Это visual matching-тренажер: ошибка подсвечивает правильный танграм, провала нет. |
 | [battleship-light](./battleship-light.md) | Морской бой light | strategy | да | высокий | высокий | высокий | Морской бой завершает лимит ходов как обычный max-steps даже если корабли не найдены; в описании закреплено «без поражения». |
-| [tanks-no-shooting](./tanks-no-shooting.md) | Танчики без стрельбы | strategy | да | средний | высокий | высокий | Без model.ts; неверное направление не двигает танк, сразу подсвечивает правильное, поражения нет. |
-| [arkanoid-assist](./arkanoid-assist.md) | Арканоид assist | strategy | да | высокий | высокий | высокий | Неверный сектор не теряет мяч: softReturn и подсказка делают арканоид беспроигрышным. |
 | [step-pong](./step-pong.md) | Понг пошаговый | strategy | да | высокий | высокий | высокий | Мяч не теряется: неправильная позиция только включает подсказку. |
 | [calm-snake](./calm-snake.md) | Змейка спокойная | strategy | да | высокий | высокий | высокий | Модель специально избегает смерти у стены через gentleFallbackDirections. |
-| [pac-path](./pac-path.md) | Pac-path | strategy | да | высокий | высокий | высокий | Detour только подсвечивает правильный waypoint; нет погони/опасности/тупика. |
 | [cursor-magnet](./cursor-magnet.md) | Курсор-магнит | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
-| [pulsing-target](./pulsing-target.md) | Пульсирующая цель | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [boat](./boat.md) | Лодочка | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [gaze-follow-snake](./gaze-follow-snake.md) | Змейка gaze-follow | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [table-tennis](./table-tennis.md) | Теннис | continuous-control | да | высокий | средний | высокий | Ошибка превращается в подсказку |
-| [gates-path](./gates-path.md) | Дорожка с воротами | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [smooth-car](./smooth-car.md) | Плавная машинка | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
-| [balloon-ride](./balloon-ride.md) | Воздушный шар | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [glider](./glider.md) | Планер | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [line-drawing](./line-drawing.md) | Рисование линией | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
-| [guide-fish](./guide-fish.md) | Рыбка-поводырь | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [rails](./rails.md) | Рельсы | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [balancer](./balancer.md) | Балансир | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
-| [catch-wave](./catch-wave.md) | Поймай волну | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [snow-trail](./snow-trail.md) | Снежная тропа | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [robot-vacuum](./robot-vacuum.md) | Робот-пылесос | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
-| [maze-path](./maze-path.md) | Лабиринт-дорожка | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [garden-watering](./garden-watering.md) | Садовая лейка | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [space-orbit](./space-orbit.md) | Космическая орбита | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
-| [orchestra-conductor](./orchestra-conductor.md) | Оркестр-дирижёр | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |

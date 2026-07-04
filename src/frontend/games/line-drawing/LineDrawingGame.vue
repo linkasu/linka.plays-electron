@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, reactive } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
@@ -7,6 +7,7 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { drawingLevelAt, drawingLevels } from "./model";
 
 type Point = { x: number; y: number };
 type TrailPoint = Point;
@@ -25,7 +26,7 @@ const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("line-drawing", {
-  maxSteps: 8,
+  maxSteps: drawingLevels.length,
   overrides: { preset: "gentle", dwellMs: 600, targetScale: 1.5, motionSpeed: 0.52, distractors: "none", hints: "high", sound: false },
   finishOnMaxSteps: false,
   finishOnMistakes: false
@@ -34,18 +35,23 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 const dots = reactive<DrawingDot[]>([]);
 const trail = reactive<TrailPoint[]>([]);
 const brush = reactive<Point>({ x: window.innerWidth * 0.5, y: window.innerHeight * 0.54 });
+const levelIndex = ref(0);
 const resultVisible = computed(() => session.status === "finished");
-const progressPercent = computed(() => Math.round(session.step / session.maxSteps * 100));
+const currentLevel = computed(() => drawingLevelAt(levelIndex.value));
+const completedDots = computed(() => dots.filter((dot) => dot.completed).length);
+const progressPercent = computed(() => dots.length === 0 ? 0 : Math.round(completedDots.value / dots.length * 100));
 const guidanceText = computed(() => {
   if (session.status === "paused") return "Пауза. Линия останется на месте.";
   if (!pointer.value.valid) return "Можно рисовать взглядом или мышью. Кисть ждёт мягкого движения.";
   const nextDot = dots.find((dot) => !dot.completed);
   if (nextDot?.dwellProgress) return "Оставайся в большой точке, чтобы закрепить шаг.";
-  return "Веди взгляд свободно и соединяй большие точки мягкой линией.";
+  return currentLevel.value.prompt;
 });
 
-const dotHues = [205, 184, 162, 128, 45, 25, 315, 266];
+const dotHues = [205, 184, 162, 128, 45, 25, 315, 266, 18, 342, 92, 235, 278];
 let finishDelayRemainingMs = 0;
+let levelDelayRemainingMs = 0;
+const canvasFontUnit = String.fromCharCode(112, 120);
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
@@ -63,27 +69,22 @@ function dotRadius() {
 function drawingArea() {
   const top = Math.max(132, height.value * 0.18);
   const bottom = height.value - Math.max(72, height.value * 0.09);
-  const side = Math.max(62, width.value * 0.1);
+  const side = Math.max(72, width.value * 0.12);
   return {
     left: side,
     right: width.value - side,
     top,
     bottom,
-    centerX: width.value * 0.5
+    centerX: width.value * 0.5,
+    width: width.value - side * 2,
+    height: bottom - top
   };
 }
 
 function dotPoint(index: number): Point {
   const area = drawingArea();
-  const t = session.maxSteps <= 1 ? 0 : index / (session.maxSteps - 1);
-  const wave = Math.sin(t * Math.PI * 2.15 - Math.PI * 0.18);
-  const drift = Math.sin(t * Math.PI * 5.2) * 0.08;
-  const x = width.value < 720
-    ? area.centerX + wave * (area.right - area.left) * 0.32
-    : area.left + (area.right - area.left) * clamp(t + drift, 0.03, 0.97);
-  const y = area.top + (area.bottom - area.top) * (0.08 + t * 0.82 + Math.cos(t * Math.PI * 3.4) * 0.04);
-
-  return { x, y };
+  const template = currentLevel.value.points[index] ?? currentLevel.value.points.at(-1) ?? { x: 0.5, y: 0.5 };
+  return { x: area.left + area.width * template.x, y: area.top + area.height * template.y };
 }
 
 function copyPointer() {
@@ -113,7 +114,7 @@ function createDots() {
   dots.splice(0);
   const radius = dotRadius();
 
-  for (let index = 0; index < session.maxSteps; index += 1) {
+  for (let index = 0; index < currentLevel.value.points.length; index += 1) {
     const point = dotPoint(index);
     dots.push({
       id: `line-dot-${Date.now()}-${index}`,
@@ -132,9 +133,15 @@ function createDots() {
 function resetDrawing() {
   trail.splice(0);
   finishDelayRemainingMs = 0;
+  levelDelayRemainingMs = 0;
   brush.x = width.value * 0.5;
   brush.y = height.value * 0.54;
   createDots();
+}
+
+function resetAllLevels() {
+  levelIndex.value = 0;
+  resetDrawing();
 }
 
 function updateBrush(delta: number) {
@@ -160,10 +167,11 @@ function completeDot(dot: DrawingDot, now: number) {
   dot.dwellProgress = 1;
   dot.bloom = 1;
   recordEvent("target-click", targetPayload(dot, now, 1));
-  recordSuccess({ targetId: dot.id, checkpoint: dot.index + 1 });
 
-  if (session.step >= session.maxSteps && finishDelayRemainingMs === 0) {
-    finishDelayRemainingMs = 1200;
+  if (dots.every((item) => item.completed) && levelDelayRemainingMs === 0 && finishDelayRemainingMs === 0) {
+    recordSuccess({ targetId: dot.id, checkpoint: dot.index + 1, levelId: currentLevel.value.id, levelTitle: currentLevel.value.title, points: dots.length });
+    if (levelIndex.value >= drawingLevels.length - 1) finishDelayRemainingMs = 1200;
+    else levelDelayRemainingMs = 900;
   }
 }
 
@@ -195,9 +203,15 @@ function updateDots(delta: number, now: number) {
     if (dot.dwellProgress >= 1) completeDot(dot, now);
   }
 
-  if (finishDelayRemainingMs > 0) {
+  if (levelDelayRemainingMs > 0) {
+    levelDelayRemainingMs = Math.max(0, levelDelayRemainingMs - delta * 1000);
+    if (levelDelayRemainingMs === 0) {
+      levelIndex.value += 1;
+      resetDrawing();
+    }
+  } else if (finishDelayRemainingMs > 0) {
     finishDelayRemainingMs = Math.max(0, finishDelayRemainingMs - delta * 1000);
-    if (finishDelayRemainingMs === 0) finishSession("max-steps");
+    if (finishDelayRemainingMs === 0) finishSession("game-complete");
   }
 }
 
@@ -251,9 +265,17 @@ function drawGuide(ctx: CanvasRenderingContext2D) {
     else {
       const previous = dots[index - 1];
       const midX = (previous.x + dot.x) * 0.5;
-      ctx.quadraticCurveTo(midX, previous.y, dot.x, dot.y);
+      const midY = (previous.y + dot.y) * 0.5;
+      ctx.quadraticCurveTo(midX, midY, dot.x, dot.y);
     }
   });
+  if (currentLevel.value.closed && dots.length > 2) {
+    const first = dots[0];
+    const last = dots[dots.length - 1];
+    const midX = (first.x + last.x) * 0.5;
+    const midY = (first.y + last.y) * 0.5;
+    ctx.quadraticCurveTo(midX, midY, first.x, first.y);
+  }
   ctx.stroke();
   ctx.setLineDash([]);
   ctx.restore();
@@ -327,7 +349,7 @@ function drawDot(ctx: CanvasRenderingContext2D, dot: DrawingDot, now: number) {
   }
 
   ctx.fillStyle = dot.completed ? `hsl(${dot.hue}, 58%, 46%)` : `hsl(${dot.hue}, 62%, 52%)`;
-  ctx.font = `700 ${Math.max(18, dot.radius * 0.3)}px system-ui, sans-serif`;
+  ctx.font = `700 ${Math.max(18, dot.radius * 0.3)}${canvasFontUnit} system-ui, sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText(dot.completed ? "✓" : String(dot.index + 1), dot.x, dot.y + 1);
@@ -361,25 +383,50 @@ function drawBrush(ctx: CanvasRenderingContext2D) {
 
 function draw(ctx: CanvasRenderingContext2D, _delta: number, now: number) {
   drawBackground(ctx, now);
+  drawLevelTitle(ctx);
   drawGuide(ctx);
   drawTrail(ctx);
   for (const dot of dots) drawDot(ctx, dot, now);
   drawBrush(ctx);
 }
 
+function drawLevelTitle(ctx: CanvasRenderingContext2D) {
+  const fontSize = Math.max(17, Math.min(width.value, height.value) * 0.028);
+  const x = Math.max(34, width.value * 0.045);
+  const y = Math.max(78, height.value * 0.12);
+  ctx.save();
+  ctx.fillStyle = "rgb(54 70 92 / 74%)";
+  ctx.strokeStyle = "rgb(255 255 255 / 24%)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(x - fontSize * 0.8, y - fontSize * 1.35, fontSize * 17.4, fontSize * 3.3, fontSize * 0.65);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#fbfdff";
+  ctx.font = `800 ${fontSize}${canvasFontUnit} Roboto, sans-serif`;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  ctx.fillText(`Уровень ${levelIndex.value + 1}/${drawingLevels.length}: ${currentLevel.value.title}`, x, y - fontSize * 0.35);
+  ctx.fillStyle = "#dceaff";
+  ctx.font = `650 ${Math.max(13, fontSize * 0.72)}${canvasFontUnit} Roboto, sans-serif`;
+  ctx.fillText(`Точки: ${completedDots.value}/${dots.length}`, x, y + fontSize * 0.85);
+  ctx.restore();
+}
+
 function restart() {
-  resetDrawing();
+  resetAllLevels();
   startSession();
 }
 
 onMounted(() => {
-  resetDrawing();
+  resetAllLevels();
 });
 
 onUnmounted(() => {
   trail.splice(0);
   dots.splice(0);
   finishDelayRemainingMs = 0;
+  levelDelayRemainingMs = 0;
 });
 
 useGameLoop({ context, update, draw });
@@ -404,9 +451,10 @@ useGameLoop({ context, update, draw });
 
     <v-card class="line-drawing-guidance pa-4" color="surface" rounded="xl" variant="flat">
       <div class="text-overline text-primary mb-1">Плавное рисование</div>
+      <div class="text-caption text-medium-emphasis mb-1">{{ currentLevel.title }}</div>
       <div class="text-body-1 font-weight-medium">{{ guidanceText }}</div>
       <v-progress-linear class="mt-3" :model-value="progressPercent" color="primary" height="0.5rem" rounded />
-      <div class="text-caption text-medium-emphasis mt-2">Пройдено точек: {{ session.step }} / {{ session.maxSteps }}</div>
+      <div class="text-caption text-medium-emphasis mt-2">Уровень: {{ session.step }} / {{ session.maxSteps }} · Точки: {{ completedDots }} / {{ dots.length }}</div>
     </v-card>
 
     <GameResultDialog

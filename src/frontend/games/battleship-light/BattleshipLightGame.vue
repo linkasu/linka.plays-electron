@@ -8,107 +8,284 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { applyBattleshipLightShot, battleshipLightOutcome, coordinateLabel, countShots, createBattleshipLightBoard, totalShipCells, type BattleshipLightCell, type BattleshipLightShots } from "./model";
+import {
+  allShipsSunk,
+  autoPlaceFleet,
+  battleshipCellCount,
+  battleshipSectors,
+  battleshipShips,
+  canPlaceShip,
+  cellIndex,
+  cellPosition,
+  chooseAiShot,
+  coordinateLabel,
+  countShots,
+  fireAt,
+  findShipAt,
+  getSectorCells,
+  nextShipToPlace,
+  occupiedCells,
+  placeShip,
+  type BattleshipOrientation,
+  type BattleshipPhase,
+  type BattleshipSectorId,
+  type BattleshipShip,
+  type BattleshipShot,
+  type BattleshipShots,
+  type BattleshipWinner
+} from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("battleship-light", {
-  maxSteps: 10,
-  overrides: { targetScale: 1.3, sound: true },
+  maxSteps: 100,
+  overrides: { targetScale: 1.2, sound: true, sessionSeconds: 86400 },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
+  finishOnTimeout: false
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "battleship-light", soundEnabled, warmAssetIds: ["battleship-light.prompt", "battleship-light.correct", "battleship-light.mistake", "battleship-light.complete"] });
+const promptAudio = useGamePromptAudio({ gameId: "battleship-light", soundEnabled, warmAssetIds: ["battleship-light.prompt", "battleship-light.complete"] });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
-const board = createBattleshipLightBoard();
-const shots = ref<BattleshipLightShots>({});
-const feedbackMessage = ref("Выбери любую крупную клетку моря. Попадание покажет лодочку, вода даст мягкую волну.");
-const lastShotIndex = ref<number>();
-const gameOutcome = ref<"playing" | "win" | "loss">("playing");
-const isSpeaking = ref(false);
+const phase = ref<BattleshipPhase>("setup");
+const playerFleet = ref<BattleshipShip[]>([]);
+const enemyFleet = ref<BattleshipShip[]>(autoPlaceFleet(2026).fleet);
+const playerShots = ref<BattleshipShots>({});
+const enemyShots = ref<BattleshipShots>({});
+const orientation = ref<BattleshipOrientation>("horizontal");
+const selectedSector = ref<BattleshipSectorId>("nw");
+const aiSeed = ref(73);
+const winner = ref<BattleshipWinner>();
+const lastPlayerShot = ref<number>();
+const lastAiShot = ref<number>();
+const pending = ref(false);
+const feedbackMessage = ref("Расставь свой флот. Выбери сектор и крупную клетку для текущего корабля.");
+
+let aiTimer = 0;
 
 const resultVisible = computed(() => session.status === "finished");
-const shotCount = computed(() => countShots(shots.value));
-const hitCount = computed(() => countShots(shots.value, "hit"));
-const waterCount = computed(() => countShots(shots.value, "water"));
-const shipCellCount = totalShipCells(board);
-const remainingShipCells = computed(() => Math.max(0, shipCellCount - hitCount.value));
-const hudStep = computed(() => Math.min(session.maxSteps, shotCount.value));
+const currentShip = computed(() => nextShipToPlace(playerFleet.value));
+const setupComplete = computed(() => playerFleet.value.length === battleshipShips.length);
+const activeCells = computed(() => getSectorCells(selectedSector.value));
+const fullBoardCells = Array.from({ length: battleshipCellCount }, (_, index) => index);
+const playerOccupied = computed(() => occupiedCells(playerFleet.value));
+const hudStep = computed(() => countShots(playerShots.value));
+const playerHits = computed(() => countShots(playerShots.value, "hit") + countShots(playerShots.value, "sunk"));
+const playerMisses = computed(() => countShots(playerShots.value, "miss"));
+const enemyHits = computed(() => countShots(enemyShots.value, "hit") + countShots(enemyShots.value, "sunk"));
+const enemyMisses = computed(() => countShots(enemyShots.value, "miss"));
 
 const statusText = computed(() => {
-  if (session.status === "paused") return "Пауза";
-  if (session.status === "finished" && remainingShipCells.value === 0) return "Все кораблики найдены";
-  if (session.status === "finished" && gameOutcome.value === "loss") return "Раунд завершён";
-  if (session.status === "finished") return "Раунд завершён";
-  if (lastShotIndex.value === undefined) return "Выбери клетку";
-  return shots.value[lastShotIndex.value] === "hit" ? "Мягкое попадание" : "Вода, продолжаем";
+  if (phase.value === "setup") return setupComplete.value ? "Флот готов" : `Расстановка ${playerFleet.value.length} / ${battleshipShips.length}`;
+  if (phase.value === "player-turn") return "Твой залп";
+  if (phase.value === "ai-turn") return "Ответ соперника";
+  return winner.value === "player" ? "Победа" : "Поражение";
 });
 
+function clearAiTimer() {
+  window.clearTimeout(aiTimer);
+  aiTimer = 0;
+}
+
 function cellTargetId(index: number) {
-  return `battleship-light:cell:${index}`;
+  return `battleship-light:${phase.value}:cell:${index}`;
 }
 
-function cellClasses(cell: BattleshipLightCell) {
-  const shot = shots.value[cell.index];
-  return [
-    "sea-cell",
-    {
-      "sea-cell--hit": shot === "hit",
-      "sea-cell--water": shot === "water",
-      "sea-cell--last": lastShotIndex.value === cell.index
-    }
-  ];
+function sectorTargetId(id: BattleshipSectorId) {
+  return `battleship-light:sector:${id}`;
 }
 
-async function chooseCell(index: number) {
-  if (session.status !== "running" || shots.value[index] || isSpeaking.value) return;
+function sectorLabel(id: BattleshipSectorId) {
+  return battleshipSectors.find((sector) => sector.id === id)?.label ?? id;
+}
 
-  const targetId = cellTargetId(index);
-  const coordinate = coordinateLabel(index);
-  const shot = applyBattleshipLightShot(board, shots.value, index);
-  shots.value = shot.shots;
-  lastShotIndex.value = index;
-  recordEvent("target-click", { targetId, coordinate, result: shot.result });
+function shotIcon(shot?: BattleshipShot) {
+  if (shot === "miss") return "mdi-water";
+  if (shot === "hit") return "mdi-fire";
+  if (shot === "sunk") return "mdi-ferry";
+  return undefined;
+}
 
-  const isHit = shot.result === "hit";
-  if (isHit) {
-    feedbackMessage.value = `Попадание на ${coordinate}. Кораблик спокойно подсветился.`;
-    recordSuccess({ targetId, coordinate, result: "hit", isCorrect: true });
-  } else {
-    feedbackMessage.value = `На ${coordinate} вода. Ход потрачен, ищем дальше.`;
-    recordMistake({ targetId, coordinate, result: "water", isCorrect: false });
+function shotColor(shot?: BattleshipShot) {
+  if (shot === "miss") return "info";
+  if (shot === "hit") return "warning";
+  if (shot === "sunk") return "primary";
+  return "surface";
+}
+
+function activeCellColor(index: number) {
+  if (phase.value === "setup") {
+    const valid = currentShip.value ? canPlaceShip(playerFleet.value, currentShip.value, index, orientation.value) : false;
+    if (playerOccupied.value.has(index)) return "primary";
+    return valid ? "green-lighten-5" : "surface";
   }
 
-  gameOutcome.value = battleshipLightOutcome(shot, session.maxSteps);
-  const willFinish = gameOutcome.value !== "playing";
+  return shotColor(playerShots.value[index]);
+}
 
-  isSpeaking.value = true;
-  void (isHit ? feedbackAudio.playSuccess() : feedbackAudio.playMistake());
-  const cues = isHit
-    ? (willFinish ? ["battleship-light.correct", "battleship-light.complete"] : ["battleship-light.correct"])
-    : (willFinish ? ["battleship-light.mistake", "battleship-light.complete"] : ["battleship-light.mistake"]);
-  await promptAudio.playSequenceAndWait(cues, 80, 170);
+function overviewClass(index: number, owner: "player" | "enemy") {
+  const shots = owner === "player" ? enemyShots.value : playerShots.value;
+  const ship = owner === "player" ? playerOccupied.value.has(index) : false;
+  return {
+    "overview-cell--ship": ship,
+    "overview-cell--miss": shots[index] === "miss",
+    "overview-cell--hit": shots[index] === "hit",
+    "overview-cell--sunk": shots[index] === "sunk",
+    "overview-cell--last": index === (owner === "player" ? lastAiShot.value : lastPlayerShot.value)
+  };
+}
 
-  if (gameOutcome.value === "win") {
-    feedbackMessage.value = "Все кораблики найдены.";
-    finishSession("game-complete");
-  } else if (gameOutcome.value === "loss") {
-    feedbackMessage.value = "Ходы закончились. Раунд остановлен, можно начать заново.";
-    finishSession("game-lost");
+function rotate() {
+  orientation.value = orientation.value === "horizontal" ? "vertical" : "horizontal";
+}
+
+function selectSector(id: BattleshipSectorId) {
+  if (pending.value || phase.value === "ai-turn" || phase.value === "finished") return;
+  selectedSector.value = id;
+}
+
+function autoSetup() {
+  if (phase.value !== "setup") return;
+  playerFleet.value = autoPlaceFleet(99).fleet;
+  feedbackMessage.value = "Флот расставлен автоматически. Можно начинать бой.";
+}
+
+function startBattle() {
+  if (!setupComplete.value) {
+    feedbackMessage.value = "Сначала расставь все корабли или выбери авторасстановку.";
+    return;
   }
-  isSpeaking.value = false;
+  phase.value = "player-turn";
+  selectedSector.value = "nw";
+  feedbackMessage.value = "Бой начался. Выбери клетку на поле соперника для залпа.";
+}
+
+function finishGame(nextWinner: BattleshipWinner) {
+  winner.value = nextWinner;
+  phase.value = "finished";
+  feedbackMessage.value = nextWinner === "player" ? "Все корабли соперника потоплены." : "Соперник потопил твой флот.";
+  finishSession(nextWinner === "player" ? "game-complete" : "game-lost");
+  promptAudio.play("battleship-light.complete", 180);
+}
+
+function handleSetupCell(index: number) {
+  const ship = currentShip.value;
+  if (!ship) return;
+  const nextFleet = placeShip(playerFleet.value, ship, index, orientation.value);
+  if (!nextFleet) {
+    feedbackMessage.value = `${coordinateLabel(index)} не подходит: корабли не должны касаться и выходить за поле.`;
+    void feedbackAudio.playMistake();
+    return;
+  }
+
+  playerFleet.value = nextFleet;
+  const nextShip = nextShipToPlace(nextFleet);
+  feedbackMessage.value = nextShip ? `${ship.name} поставлен. Теперь поставь ${nextShip.name} длиной ${nextShip.length}.` : "Флот готов. Нажми начать бой.";
+  void feedbackAudio.playSuccess();
+}
+
+function handlePlayerShot(index: number) {
+  if (playerShots.value[index]) {
+    feedbackMessage.value = `${coordinateLabel(index)} уже проверена. Выбери другую клетку.`;
+    return;
+  }
+
+  const result = fireAt(enemyFleet.value, playerShots.value, index, "player");
+  if (!result.ok || !result.result) return;
+
+  playerShots.value = result.shots;
+  lastPlayerShot.value = index;
+  recordEvent("target-click", { targetId: cellTargetId(index), coordinate: coordinateLabel(index), result: result.result });
+
+  if (result.result === "miss") {
+    recordMistake({ coordinate: coordinateLabel(index), result: "miss", isCorrect: false });
+    feedbackMessage.value = `${coordinateLabel(index)}: вода. Теперь отвечает соперник.`;
+    void feedbackAudio.playMistake();
+    phase.value = "ai-turn";
+    scheduleAiTurn();
+    return;
+  }
+
+  recordSuccess({ coordinate: coordinateLabel(index), result: result.result, isCorrect: true });
+  feedbackMessage.value = result.result === "sunk" ? `${coordinateLabel(index)}: корабль потоплен. Стреляй ещё.` : `${coordinateLabel(index)}: попадание. Стреляй ещё.`;
+  void feedbackAudio.playSuccess();
+  if (result.winner) finishGame(result.winner);
+}
+
+function scheduleAiTurn() {
+  clearAiTimer();
+  pending.value = true;
+  aiTimer = window.setTimeout(runAiTurn, 850);
+}
+
+function runAiTurn() {
+  if (phase.value !== "ai-turn" || session.status !== "running") return;
+
+  const choice = chooseAiShot(playerFleet.value, enemyShots.value, aiSeed.value);
+  aiSeed.value = choice.nextSeed;
+  const result = fireAt(playerFleet.value, enemyShots.value, choice.index, "ai");
+  if (!result.ok || !result.result) return;
+
+  enemyShots.value = result.shots;
+  lastAiShot.value = choice.index;
+  pending.value = false;
+
+  if (result.result === "miss") {
+    phase.value = "player-turn";
+    feedbackMessage.value = `Соперник стрелял в ${coordinateLabel(choice.index)}: вода. Твой ход.`;
+    return;
+  }
+
+  feedbackMessage.value = result.result === "sunk" ? `Соперник стрелял в ${coordinateLabel(choice.index)} и потопил корабль.` : `Соперник попал в ${coordinateLabel(choice.index)}.`;
+  if (result.winner) {
+    finishGame(result.winner);
+    return;
+  }
+  scheduleAiTurn();
+}
+
+function chooseCell(index: number) {
+  if (session.status !== "running" || pending.value || phase.value === "finished") return;
+  if (phase.value === "setup") handleSetupCell(index);
+  if (phase.value === "player-turn") handlePlayerShot(index);
 }
 
 function restart() {
+  clearAiTimer();
   promptAudio.cancelPending();
-  shots.value = {};
-  lastShotIndex.value = undefined;
-  gameOutcome.value = "playing";
-  isSpeaking.value = false;
-  feedbackMessage.value = "Новое спокойное море готово. Выбери любую крупную клетку.";
+  phase.value = "setup";
+  playerFleet.value = [];
+  enemyFleet.value = autoPlaceFleet(2026).fleet;
+  playerShots.value = {};
+  enemyShots.value = {};
+  orientation.value = "horizontal";
+  selectedSector.value = "nw";
+  aiSeed.value = 73;
+  winner.value = undefined;
+  lastPlayerShot.value = undefined;
+  lastAiShot.value = undefined;
+  pending.value = false;
+  feedbackMessage.value = "Расставь свой флот. Выбери сектор и крупную клетку для текущего корабля.";
   startSession();
   promptAudio.play("battleship-light.prompt", 220);
+}
+
+function activeCellText(index: number) {
+  if (phase.value === "setup") {
+    if (playerOccupied.value.has(index)) return findShipAt(playerFleet.value, index)?.length ?? "";
+    return coordinateLabel(index);
+  }
+  return coordinateLabel(index);
+}
+
+function battleCellColor(index: number) {
+  return shotColor(playerShots.value[index]);
+}
+
+function setupOverviewClass(index: number) {
+  return {
+    "setup-overview-cell--ship": playerOccupied.value.has(index)
+  };
 }
 
 onMounted(() => {
@@ -117,63 +294,137 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  clearAiTimer();
   promptAudio.cancelPending();
 });
 </script>
 
 <template>
   <div class="battleship-shell">
-    <GameHud title="Морской бой light" :step="hudStep" :max-steps="session.maxSteps" :score="hitCount" :mistakes="waterCount" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud title="Морской бой" :step="hudStep" :max-steps="session.maxSteps" :score="playerHits" :mistakes="playerMisses" :duration-ms="durationMs" :paused="session.status === 'paused'" :show-progress="false" :show-timer="false" @pause="pauseSession" @resume="resumeSession" />
 
     <v-container class="game-container" fluid>
       <v-row justify="center">
-        <v-col cols="12" lg="11" xl="9">
-          <v-card class="game-card pa-4 pa-md-6" color="rgba(255, 255, 255, 0.94)" rounded="xl" elevation="8">
-            <div class="d-flex flex-column flex-lg-row align-lg-center justify-space-between ga-4 mb-5">
-              <div>
-                <div class="text-overline text-secondary mb-1">Спокойная стратегия</div>
-                <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Морской бой light</h1>
-                <p class="text-body-1 text-medium-emphasis mb-0">Смотри на крупную клетку моря. Попадание помогает победить, вода тратит ход.</p>
-              </div>
-              <div class="d-flex flex-wrap ga-2">
-                <v-chip color="primary" size="large" variant="tonal" prepend-icon="mdi-radar">{{ statusText }}</v-chip>
-                <v-chip color="secondary" size="large" variant="tonal">Корабликов: {{ remainingShipCells }}</v-chip>
-                <v-chip color="info" size="large" variant="tonal">Ходы: {{ hudStep }} / {{ session.maxSteps }}</v-chip>
-              </div>
-            </div>
+        <v-col cols="12" xl="11">
+          <v-card class="game-card pa-3 pa-md-4" color="rgba(255, 255, 255, 0.95)" rounded="xl" elevation="10">
+            <div class="game-layout" :class="{ 'game-layout--setup': phase === 'setup' }">
+              <section class="control-panel">
+                <div>
+                  <div class="text-overline text-secondary mb-1">Полный морской бой 10×10</div>
+                  <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Морской бой</h1>
+                  <p class="text-body-1 text-medium-emphasis mb-0">Сначала расставь корабли, затем стреляй по полю соперника. Для взгляда поле делится на крупные сектора.</p>
+                </div>
 
-            <v-alert class="mb-5 text-body-1 font-weight-medium" color="primary" icon="mdi-water" rounded="xl" variant="tonal">
-              {{ feedbackMessage }}
-            </v-alert>
+                <v-alert class="text-body-1 font-weight-medium" color="primary" icon="mdi-ferry" rounded="xl" variant="tonal">
+                  {{ feedbackMessage }} {{ statusText }}
+                </v-alert>
 
-            <div class="sea-grid mx-auto" role="grid" aria-label="Поле Морской бой light пять на пять">
-              <GameDwellButton
-                v-for="cell in board"
-                :key="cell.index"
-                :target-id="cellTargetId(cell.index)"
-                :disabled="session.status !== 'running' || Boolean(shots[cell.index])"
-                :dwell-ms="session.settings.dwellMs"
-                  min-height="7rem"
-                :color="shots[cell.index] === 'hit' ? 'primary' : shots[cell.index] === 'water' ? 'info' : 'surface'"
-                @select="chooseCell(cell.index)"
-              >
-                <template #default>
-                  <div :class="cellClasses(cell)">
-                    <v-icon v-if="shots[cell.index] === 'hit'" icon="mdi-ferry" size="40" />
-                    <v-icon v-else-if="shots[cell.index] === 'water'" icon="mdi-water" size="38" />
-                    <span v-else class="coordinate-label">{{ coordinateLabel(cell.index) }}</span>
+                <div class="d-flex flex-wrap ga-2">
+                  <v-chip color="primary" size="large" variant="flat">{{ statusText }}</v-chip>
+                  <v-chip v-if="phase === 'setup' && currentShip" color="secondary" size="large" variant="tonal">{{ currentShip.name }}: {{ currentShip.length }}</v-chip>
+                  <v-chip v-if="phase !== 'setup'" color="success" size="large" variant="tonal">Попадания: {{ playerHits }}</v-chip>
+                  <v-chip v-if="phase !== 'setup'" color="warning" size="large" variant="tonal">По нам: {{ enemyHits }}</v-chip>
+                </div>
+
+                <div v-if="phase === 'setup'" class="text-body-2 text-medium-emphasis">Кнопки управления находятся справа от поля и тоже выбираются взглядом.</div>
+                <div v-else class="d-flex flex-wrap ga-2">
+                  <v-btn color="primary" prepend-icon="mdi-restart" rounded="xl" size="large" variant="tonal" @click="restart">Новая партия</v-btn>
+                </div>
+              </section>
+
+              <section class="active-panel">
+                <div class="text-subtitle-1 font-weight-bold mb-2">{{ phase === 'setup' ? 'Расстановка: всё поле' : 'Стрельба: поле соперника целиком' }}</div>
+                <div v-if="phase === 'setup'" class="setup-field-row">
+                  <div class="setup-overview-grid" role="grid" aria-label="Поле игрока десять на десять">
+                    <GameDwellButton v-for="index in fullBoardCells" :key="`setup-full-${index}`" :target-id="cellTargetId(index)" :disabled="phase !== 'setup'" :dwell-ms="session.settings.dwellMs" min-height="clamp(2.05rem, 5.8dvh, 4rem)" :color="activeCellColor(index)" @select="chooseCell(index)">
+                      <template #default>
+                        <div class="setup-overview-cell" :class="setupOverviewClass(index)">
+                          <span class="setup-overview-label">{{ coordinateLabel(index) }}</span>
+                          <v-icon v-if="playerOccupied.has(index)" icon="mdi-ferry" size="clamp(1rem, 2.8dvh, 1.8rem)" />
+                        </div>
+                      </template>
+                    </GameDwellButton>
                   </div>
-                </template>
-              </GameDwellButton>
-            </div>
 
-            <div class="text-body-1 text-medium-emphasis text-center mt-5">Можно выбирать любые клетки, но за {{ session.maxSteps }} ходов нужно найти все кораблики.</div>
+                  <div class="setup-gaze-actions" aria-label="Управление расстановкой">
+                    <GameDwellButton v-if="!setupComplete" target-id="battleship-light:action:rotate" :dwell-ms="session.settings.dwellMs" min-height="clamp(4.25rem, 10dvh, 6rem)" color="blue-grey-darken-2" @select="rotate">
+                      <template #default>
+                        <div class="action-button-content">
+                          <v-icon icon="mdi-rotate-3d-variant" size="clamp(1.6rem, 4dvh, 2.4rem)" />
+                          <span>Повернуть</span>
+                          <small>{{ orientation === 'horizontal' ? 'сейчас гор.' : 'сейчас верт.' }}</small>
+                        </div>
+                      </template>
+                    </GameDwellButton>
+
+                    <GameDwellButton v-if="!setupComplete" target-id="battleship-light:action:auto-setup" :dwell-ms="session.settings.dwellMs" min-height="clamp(4.25rem, 10dvh, 6rem)" color="teal-darken-3" @select="autoSetup">
+                      <template #default>
+                        <div class="action-button-content">
+                          <v-icon icon="mdi-auto-fix" size="clamp(1.6rem, 4dvh, 2.4rem)" />
+                          <span>Авто</span>
+                        </div>
+                      </template>
+                    </GameDwellButton>
+
+                    <GameDwellButton v-if="setupComplete" target-id="battleship-light:action:start-battle" :dwell-ms="session.settings.dwellMs" min-height="clamp(5rem, 12dvh, 7rem)" color="success" @select="startBattle">
+                      <template #default>
+                        <div class="action-button-content action-button-content--start">
+                          <v-icon icon="mdi-play" size="clamp(1.8rem, 4.5dvh, 2.8rem)" />
+                          <span>Начать бой</span>
+                        </div>
+                      </template>
+                    </GameDwellButton>
+
+                    <GameDwellButton target-id="battleship-light:action:restart" :dwell-ms="session.settings.dwellMs" min-height="clamp(4rem, 9dvh, 5.5rem)" color="blue-grey-darken-2" @select="restart">
+                      <template #default>
+                        <div class="action-button-content">
+                          <v-icon icon="mdi-restart" size="clamp(1.5rem, 3.8dvh, 2.3rem)" />
+                          <span>Заново</span>
+                        </div>
+                      </template>
+                    </GameDwellButton>
+                  </div>
+                </div>
+                <div v-else class="battle-board-grid" role="grid" aria-label="Поле соперника десять на десять">
+                  <GameDwellButton v-for="index in fullBoardCells" :key="`${phase}-enemy-${index}`" :target-id="cellTargetId(index)" :disabled="phase === 'ai-turn' || phase === 'finished' || Boolean(playerShots[index])" :dwell-ms="session.settings.dwellMs" min-height="clamp(2.05rem, 5.8dvh, 4rem)" :color="battleCellColor(index)" @select="chooseCell(index)">
+                    <template #default>
+                      <div class="battle-cell">
+                        <span class="setup-overview-label">{{ coordinateLabel(index) }}</span>
+                        <v-icon v-if="shotIcon(playerShots[index])" :icon="shotIcon(playerShots[index])" size="clamp(1rem, 2.8dvh, 1.8rem)" />
+                      </div>
+                    </template>
+                  </GameDwellButton>
+                </div>
+              </section>
+
+              <section v-if="phase !== 'setup'" class="boards-panel">
+                <div class="overview-card">
+                  <div class="text-subtitle-2 font-weight-bold mb-2">Твой флот</div>
+                  <div class="overview-grid" aria-label="Твоё поле">
+                    <div v-for="index in battleshipCellCount" :key="`player-${index}`" class="overview-cell" :class="overviewClass(index - 1, 'player')">
+                      <v-icon v-if="enemyShots[index - 1] === 'hit' || enemyShots[index - 1] === 'sunk'" icon="mdi-fire" size="0.9rem" />
+                    </div>
+                  </div>
+                  <div class="text-caption text-medium-emphasis mt-2">Выстрелы соперника: {{ enemyHits + enemyMisses }}</div>
+                </div>
+
+                <div class="overview-card">
+                  <div class="text-subtitle-2 font-weight-bold mb-2">Поле соперника</div>
+                  <div class="overview-grid" aria-label="Поле соперника">
+                    <div v-for="index in battleshipCellCount" :key="`enemy-${index}`" class="overview-cell" :class="overviewClass(index - 1, 'enemy')">
+                      <v-icon v-if="playerShots[index - 1] === 'hit' || playerShots[index - 1] === 'sunk'" icon="mdi-fire" size="0.9rem" />
+                    </div>
+                  </div>
+                  <div class="text-caption text-medium-emphasis mt-2">Твои залпы: {{ playerHits + playerMisses }}</div>
+                </div>
+              </section>
+            </div>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
 
-    <GameResultDialog :model-value="resultVisible" title="Морской бой light" :score="hitCount" :mistakes="waterCount" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog :model-value="resultVisible" title="Морской бой" :score="playerHits" :mistakes="playerMisses" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
   </div>
 </template>
 
@@ -187,96 +438,279 @@ onUnmounted(() => {
 }
 
 .game-container {
-  padding-block-start: 112px;
+  padding-block-start: clamp(5.2rem, 11dvh, 7rem);
 }
 
 .game-card {
-  backdrop-filter: blur(10px);
+  max-block-size: calc(100dvh - clamp(6rem, 12dvh, 7.8rem));
+  overflow: hidden;
 }
 
-.sea-grid {
+.game-layout {
   display: grid;
-  gap: clamp(8px, 1.4vw, 16px);
-  grid-template-columns: repeat(5, minmax(62px, 1fr));
-  max-inline-size: min(94vw, 760px);
+  gap: clamp(0.8rem, 1.8vw, 1.5rem);
+  grid-template-columns: minmax(16rem, 0.8fr) minmax(18rem, 1fr) minmax(12rem, 0.55fr);
 }
 
-.sea-cell {
-  align-items: center;
-  background: linear-gradient(145deg, rgb(var(--v-theme-primary) / 6%), rgb(var(--v-theme-info) / 6%));
-  border-radius: 1.5rem;
-  box-shadow: inset 0 0 0 0.15rem rgb(var(--v-theme-primary) / 22%);
+.game-layout--setup {
+  grid-template-columns: minmax(15rem, 0.6fr) minmax(30rem, 1.4fr);
+}
+
+.control-panel,
+.active-panel,
+.boards-panel,
+.overview-card {
+  min-inline-size: 0;
+}
+
+.control-panel {
   display: flex;
+  flex-direction: column;
+  gap: clamp(0.65rem, 1.4dvh, 1rem);
+}
+
+.sector-grid {
+  display: grid;
+  gap: clamp(0.35rem, 0.8vw, 0.7rem);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.active-grid {
+  display: grid;
+  gap: clamp(0.25rem, 0.65vw, 0.55rem);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.setup-field-row {
+  align-items: start;
+  display: grid;
+  gap: clamp(0.7rem, 1.3vw, 1rem);
+  grid-template-columns: minmax(0, 1fr) minmax(9.5rem, 0.34fr);
+}
+
+.setup-overview-grid {
+  display: grid;
+  gap: clamp(0.1rem, 0.28vw, 0.24rem);
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  inline-size: min(100%, 40rem, 78dvh);
+  max-inline-size: min(100%, 40rem, 78dvh);
+}
+
+.battle-board-grid {
+  display: grid;
+  gap: clamp(0.1rem, 0.28vw, 0.24rem);
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  inline-size: min(100%, 40rem, 78dvh);
+  max-inline-size: min(100%, 40rem, 78dvh);
+}
+
+.setup-overview-grid > * {
+  min-inline-size: 0;
+}
+
+.battle-board-grid > * {
+  min-inline-size: 0;
+}
+
+.setup-overview-grid :deep(.dwell-button) {
+  border-radius: clamp(0.28rem, 0.8dvh, 0.6rem) !important;
+  padding: 0 !important;
+}
+
+.setup-gaze-actions {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.45rem, 1dvh, 0.75rem);
+}
+
+.setup-gaze-actions :deep(.dwell-button) {
+  padding: clamp(0.35rem, 0.9dvh, 0.7rem) !important;
+}
+
+.action-button-content {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  font-size: clamp(0.82rem, 1.8dvh, 1.05rem);
   font-weight: 900;
-  inline-size: 100%;
+  gap: 0.3rem;
   justify-content: center;
-  min-block-size: clamp(4.5rem, 9vw, 7rem);
-  transition: background-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+  line-height: 1.12;
+  min-block-size: 100%;
+  text-align: center;
 }
 
-.sea-cell--hit {
-  background: linear-gradient(145deg, rgb(var(--v-theme-primary) / 24%), rgb(var(--v-theme-secondary) / 16%));
-  box-shadow: inset 0 0 0 5px rgb(var(--v-theme-primary) / 24%);
+.action-button-content small {
+  font-size: 0.72em;
+  font-weight: 800;
+  opacity: 0.9;
 }
 
-.sea-cell--water {
-  background: linear-gradient(145deg, rgb(var(--v-theme-info) / 18%), rgb(255 255 255 / 42%));
-  box-shadow: inset 0 0 0 4px rgb(var(--v-theme-info) / 18%);
+.action-button-content--start {
+  font-size: clamp(1rem, 2.2dvh, 1.35rem);
 }
 
-.sea-cell--last {
-  transform: scale(1.015);
+.battle-board-grid :deep(.dwell-button) {
+  border-radius: clamp(0.28rem, 0.8dvh, 0.6rem) !important;
+  padding: 0 !important;
+}
+
+.setup-overview-cell {
+  align-items: center;
+  aspect-ratio: 1;
+  background: #e4f1ee;
+  border-radius: clamp(0.28rem, 0.8dvh, 0.6rem);
+  box-shadow: inset 0 0 0 0.08rem rgb(var(--v-theme-primary) / 34%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-block-size: 100%;
+  inline-size: 100%;
+  min-inline-size: 0;
+  position: relative;
+}
+
+.battle-cell {
+  align-items: center;
+  aspect-ratio: 1;
+  border-radius: clamp(0.28rem, 0.8dvh, 0.6rem);
+  box-shadow: inset 0 0 0 0.08rem rgb(var(--v-theme-primary) / 18%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-block-size: 100%;
+  inline-size: 100%;
+  min-inline-size: 0;
+  position: relative;
+}
+
+.setup-overview-cell--ship {
+  background: #426960;
+  box-shadow: inset 0 0 0 0.14rem #ffffff, 0 0.14rem 0.36rem rgb(0 0 0 / 20%);
+  color: rgb(var(--v-theme-on-primary));
+}
+
+.setup-overview-label {
+  font-size: clamp(0.42rem, 1.05dvh, 0.68rem);
+  font-weight: 900;
+  inset-block-start: 0.12rem;
+  inset-inline-start: 0.16rem;
+  position: absolute;
+}
+
+.active-grid :deep(.dwell-button),
+.sector-grid :deep(.dwell-button) {
+  padding: clamp(0.2rem, 0.5dvh, 0.45rem) !important;
+}
+
+.active-cell {
+  align-items: center;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-block-size: 100%;
 }
 
 .coordinate-label {
-  color: rgb(var(--v-theme-on-surface) / 72%);
-  font-size: clamp(1rem, 2vw, 1.35rem);
-  letter-spacing: 0.08em;
+  color: rgb(var(--v-theme-on-surface) / 76%);
+  font-size: clamp(0.72rem, 1.6dvh, 1.05rem);
+  font-weight: 900;
+  letter-spacing: 0.04em;
 }
 
-@media (max-width: 600px) {
-  .game-container {
-    padding-block-start: 140px;
-  }
-
-  .sea-grid {
-    gap: 7px;
-  }
+.boards-panel {
+  display: grid;
+  gap: clamp(0.7rem, 1.5dvh, 1rem);
 }
 
-@media (max-height: 56.25rem) {
-  .game-container {
-    padding-block-start: 5.5rem;
-  }
+.overview-card {
+  background: rgb(var(--v-theme-surface) / 70%);
+  border-radius: 1.2rem;
+  padding: clamp(0.55rem, 1.2dvh, 0.85rem);
+}
 
+.overview-grid {
+  display: grid;
+  gap: 0.12rem;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+}
+
+.overview-cell {
+  align-items: center;
+  aspect-ratio: 1;
+  background: rgb(var(--v-theme-info) / 10%);
+  border-radius: 0.18rem;
+  display: flex;
+  justify-content: center;
+}
+
+.overview-cell--ship {
+  background: rgb(var(--v-theme-primary) / 34%);
+}
+
+.overview-cell--miss {
+  background: rgb(var(--v-theme-info) / 36%);
+}
+
+.overview-cell--hit {
+  background: rgb(var(--v-theme-warning) / 50%);
+}
+
+.overview-cell--sunk {
+  background: rgb(var(--v-theme-primary) / 70%);
+}
+
+.overview-cell--last {
+  box-shadow: 0 0 0 0.12rem rgb(var(--v-theme-warning));
+}
+
+@media (max-width: 75rem) {
   .game-card {
-    padding-block: 1.1rem !important;
+    max-block-size: none;
+    overflow: visible;
   }
 
-  .game-card .text-overline,
+  .game-layout {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .game-layout--setup {
+    grid-template-columns: minmax(14rem, 0.55fr) minmax(22rem, 1fr);
+  }
+
+  .boards-panel {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 48rem) {
+  .game-layout,
+  .game-layout--setup,
+  .boards-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .setup-field-row {
+    grid-template-columns: 1fr;
+  }
+
+  .setup-gaze-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-height: 42.5rem) and (min-width: 75.01rem) {
   .game-card h1,
   .game-card p,
-  .game-card .v-alert,
-  .game-card > .text-body-1 {
+  .game-card .text-overline {
     display: none;
   }
 
-  .game-card > .d-flex {
-    display: none !important;
-  }
-
-  .sea-grid {
-    gap: 0.5rem;
-    max-inline-size: min(100%, 50rem);
-  }
-
-  .sea-grid :deep(.dwell-button) {
-    min-block-size: 5.25rem !important;
-    padding: 0.4rem !important;
-  }
-
-  .sea-cell {
-    min-block-size: 4.5rem;
+  .game-layout {
+    grid-template-columns: minmax(14rem, 0.7fr) minmax(17rem, 1fr) minmax(11rem, 0.5fr);
   }
 }
 
@@ -285,12 +719,62 @@ onUnmounted(() => {
     padding-block-start: 4.5rem;
   }
 
-  .sea-grid :deep(.dwell-button) {
-    min-block-size: 4.5rem !important;
+  .game-card {
+    padding: 0.75rem !important;
   }
 
-  .sea-cell {
-    min-block-size: 3.75rem;
+  .game-card h1,
+  .game-card p,
+  .game-card .text-overline,
+  .boards-panel {
+    display: none;
+  }
+
+  .game-layout {
+    gap: 0.7rem;
+    grid-template-columns: minmax(16rem, 0.85fr) minmax(18rem, 1fr);
+  }
+
+  .game-layout--setup {
+    grid-template-columns: minmax(13rem, 0.5fr) minmax(25rem, 1fr);
+  }
+
+  .setup-field-row {
+    grid-template-columns: minmax(0, 1fr) minmax(8rem, 0.3fr);
+  }
+
+  .setup-gaze-actions :deep(.dwell-button) {
+    min-block-size: clamp(3.2rem, 8dvh, 4.6rem) !important;
+  }
+
+  .control-panel {
+    gap: 0.45rem;
+  }
+
+  .control-panel :deep(.v-alert) {
+    display: none;
+  }
+
+  .active-grid {
+    max-inline-size: min(100%, 25rem);
+  }
+
+  .setup-overview-grid {
+    inline-size: min(100%, 29rem, 72dvh);
+    max-inline-size: min(100%, 29rem, 72dvh);
+  }
+
+  .battle-board-grid {
+    inline-size: min(100%, 29rem, 72dvh);
+    max-inline-size: min(100%, 29rem, 72dvh);
+  }
+
+  .active-grid :deep(.dwell-button) {
+    min-block-size: clamp(2.45rem, 7dvh, 4rem) !important;
+  }
+
+  .sector-grid :deep(.dwell-button) {
+    min-block-size: clamp(2.45rem, 6.4dvh, 3.6rem) !important;
   }
 }
 </style>

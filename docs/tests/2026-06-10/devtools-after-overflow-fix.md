@@ -13,9 +13,7 @@
 | Игра | Viewport | overflowX | scroll/client width | Stage | Targets visible | Min visible target |
 |---|---|---:|---:|---|---:|---:|
 | `gaze-maze` | `800x600` | false | `800/800` | `736x414`, left `32`, right `768` | `5/7` | `105px` |
-| `pac-path` | `800x600` | false | `800/800` | `736x414`, left `32`, right `768` | `2/4` | `144px` |
 | `gaze-maze` | `1024x600` | false | `1024/1024` | `944x531`, left `40`, right `984` | `3/7` | `120px` |
-| `pac-path` | `1024x600` | false | `1024/1024` | `944x531`, left `40`, right `984` | `1/4` | `160px` |
 
 ## Verification
 

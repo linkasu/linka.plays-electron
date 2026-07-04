@@ -15,7 +15,8 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   maxSteps: 24,
   overrides: { motionSpeed: 0.65, targetScale: 1.25, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
+  finishOnTimeout: false
 });
 const soundEnabled = toRef(session.settings, "sound");
 const promptAudio = useGamePromptAudio({ gameId: "calm-snake", soundEnabled, warmAssetIds: ["calm-snake.prompt", "calm-snake.correct", "calm-snake.mistake", "calm-snake.complete"] });
@@ -95,11 +96,9 @@ async function handleStepEvent(event: CalmSnakeStepEvent, moved: boolean) {
     leavesEaten.value += 1;
     feedbackMessage.value = "Листочек найден. Змейка стала чуть длиннее.";
     recordSuccess({ event, leavesEaten: leavesEaten.value, snakeLength: boardState.value.snake.length });
-    const willFinish = session.step >= session.maxSteps;
     isSpeaking.value = true;
     void feedbackAudio.playSuccess();
-    await promptAudio.playSequenceAndWait(willFinish ? ["calm-snake.correct", "calm-snake.complete"] : ["calm-snake.correct"], 80, 170);
-    if (willFinish) finishSession("game-complete");
+    await promptAudio.playSequenceAndWait(["calm-snake.correct"], 80, 170);
     isSpeaking.value = false;
     return;
   }
@@ -107,12 +106,6 @@ async function handleStepEvent(event: CalmSnakeStepEvent, moved: boolean) {
   if (event === "moved") {
     feedbackMessage.value = "Движемся медленно. Можно выбрать новый путь.";
     recordSuccess({ event, head: boardState.value.snake[0] });
-    if (session.step >= session.maxSteps) {
-      isSpeaking.value = true;
-      await promptAudio.playSequenceAndWait(["calm-snake.complete"], 80, 170);
-      finishSession("game-complete");
-      isSpeaking.value = false;
-    }
     return;
   }
 
@@ -185,39 +178,34 @@ onUnmounted(() => {
 
 <template>
   <div class="calm-snake-shell">
-    <GameHud title="Змейка спокойная" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseGame" @resume="resumeGame" />
+    <GameHud title="Змейка спокойная" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :paused="session.status === 'paused'" :show-progress="false" :show-timer="false" @pause="pauseGame" @resume="resumeGame" />
 
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
-          <v-card class="pa-4 pa-md-6" color="surface" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Медленный маршрут</div>
-            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">Помоги змейке найти листочки</h1>
-            <p class="text-body-1 text-medium-emphasis text-center mb-4">{{ feedbackMessage }}</p>
+          <v-card class="snake-card pa-4 pa-md-6" rounded="xl" elevation="10">
+            <div class="text-overline text-success-darken-3 text-center mb-2">Медленный маршрут без таймера</div>
+            <h1 class="snake-title text-h4 text-md-h3 font-weight-bold text-center mb-2">Помоги змейке найти листочки</h1>
+            <p class="snake-message text-body-1 text-center mb-4">{{ feedbackMessage }}</p>
 
-            <v-row align="center" justify="center" class="ga-2">
-              <v-col cols="12" md="7" class="order-2">
-                <div class="snake-board mx-auto" role="grid" aria-label="Поле спокойной змейки">
-                  <div v-for="row in rows" :key="row" class="snake-row" role="row">
-                    <div v-for="column in columns" :key="column" :class="cellClasses(row, column)" role="gridcell">
-                      <v-icon v-if="isFood(row, column)" icon="mdi-leaf" color="green-darken-1" size="1.75rem" />
-                    </div>
+            <div class="snake-layout">
+              <div class="snake-board" role="grid" aria-label="Поле спокойной змейки">
+                <div v-for="row in rows" :key="row" class="snake-row" role="row">
+                  <div v-for="column in columns" :key="column" :class="cellClasses(row, column)" role="gridcell">
+                    <v-icon v-if="isFood(row, column)" icon="mdi-leaf" color="green-darken-1" size="clamp(1.1rem, 3dvh, 1.75rem)" />
                   </div>
                 </div>
-              </v-col>
+              </div>
 
-              <v-col cols="12" md="5" class="order-1">
-                <GameWasdPanel :controls="directionButtons" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" aria-label="Направления змейки" @select="chooseDirectionButton" />
-              </v-col>
-            </v-row>
-
-            <v-row class="mt-4" justify="center">
-              <v-col cols="12" md="8">
-                <v-alert color="info" rounded="xl" variant="tonal">
-                  Листочки: {{ leavesEaten }}. Если рядом край или хвостик, змейка мягко замедляется и ищет свободный путь.
-                </v-alert>
-              </v-col>
-            </v-row>
+              <div class="snake-controls-panel">
+                <div class="text-subtitle-1 font-weight-bold text-center mb-3">Поверни змейку</div>
+                <GameWasdPanel class="snake-controls" :controls="directionButtons" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="clamp(4.2rem, 12dvh, 7rem)" aria-label="Направления змейки" :show-key-caps="false" @select="chooseDirectionButton" />
+                <div class="snake-status mt-3">
+                  <v-icon icon="mdi-leaf" size="1.25rem" />
+                  <span>Листочки: {{ leavesEaten }}</span>
+                </div>
+              </div>
+            </div>
           </v-card>
         </v-col>
       </v-row>
@@ -229,53 +217,142 @@ onUnmounted(() => {
 
 <style scoped>
 .calm-snake-shell {
-  background: linear-gradient(135deg, #eaf7ef 0%, #edf6ff 52%, #fff8e6 100%);
+  background:
+    radial-gradient(circle at 12% 18%, rgb(255 246 198 / 84%) 0 12rem, transparent 20rem),
+    radial-gradient(circle at 88% 12%, rgb(125 210 157 / 46%) 0 10rem, transparent 18rem),
+    linear-gradient(135deg, #d8f0dd 0%, #e8f4ff 52%, #fff2c7 100%);
   min-block-size: 100vh;
 }
 
 .game-container {
-  padding-block-start: 8.25rem;
+  padding-block-start: clamp(4.5rem, 7.5dvh, 5.5rem);
+}
+
+.snake-layout {
+  align-items: center;
+  display: grid;
+  gap: clamp(1rem, 2.8vw, 2rem);
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.72fr);
+  justify-items: center;
+}
+
+.snake-card {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 95%), rgb(236 248 232 / 95%)),
+    rgb(var(--v-theme-surface));
+  border: 0.12rem solid rgb(21 94 60 / 24%);
+  box-shadow: 0 1.2rem 3rem rgb(23 85 50 / 20%);
+}
+
+.snake-title {
+  color: #113f2a;
+  letter-spacing: -0.025em;
+}
+
+.snake-message {
+  color: #234336;
+  font-weight: 650;
+}
+
+.snake-controls-panel {
+  background: linear-gradient(180deg, rgb(255 255 255 / 86%), rgb(217 239 216 / 92%));
+  border: 0.12rem solid rgb(21 94 60 / 20%);
+  border-radius: clamp(1rem, 2.8dvh, 1.6rem);
+  box-shadow: 0 0.85rem 1.7rem rgb(36 86 54 / 14%);
+  color: #153d2a;
+  inline-size: min(100%, 32rem, 56dvh);
+  padding: clamp(0.7rem, 1.8dvh, 1.1rem);
+}
+
+.snake-status {
+  align-items: center;
+  background: #1f6f43;
+  border-radius: 999rem;
+  color: #ffffff;
+  display: flex;
+  font-weight: 800;
+  gap: 0.45rem;
+  justify-content: center;
+  letter-spacing: 0.01em;
+  padding-block: 0.5rem;
+  padding-inline: 0.9rem;
+}
+
+.snake-controls {
+  inline-size: min(100%, 29rem, 50dvh);
+}
+
+.snake-controls :deep(.dwell-button) {
+  background: linear-gradient(160deg, #ffffff 0%, #dff5df 100%) !important;
+  border: 0.12rem solid rgb(23 99 57 / 34%);
+  box-shadow: 0 0.55rem 1rem rgb(29 84 50 / 16%);
+}
+
+.snake-controls :deep(.dwell-button--active) {
+  background: linear-gradient(160deg, #2f8d4c 0%, #145b35 100%) !important;
+  border-color: rgb(255 255 255 / 82%);
+}
+
+.snake-controls :deep(.dwell-button--active .wasd-panel__content),
+.snake-controls :deep(.dwell-button--active .wasd-panel__content span),
+.snake-controls :deep(.dwell-button--active .wasd-panel__icon) {
+  color: #ffffff !important;
 }
 
 .snake-board {
-  background: rgb(var(--v-theme-surface));
-  border: 0.5rem solid rgb(var(--v-theme-primary) / 18%);
-  border-radius: 1.75rem;
-  box-shadow: inset 0 0 0 0.125rem rgb(var(--v-theme-secondary) / 18%);
+  background:
+    linear-gradient(135deg, rgb(17 83 52 / 96%), rgb(36 123 68 / 92%)),
+    rgb(var(--v-theme-surface));
+  border: clamp(0.28rem, 0.9dvh, 0.5rem) solid #ffffff;
+  border-radius: clamp(0.9rem, 2.8dvh, 1.75rem);
+  box-shadow: 0 1rem 2.4rem rgb(19 79 45 / 25%), inset 0 0 0 0.125rem rgb(255 255 255 / 35%);
   display: grid;
-  gap: 0.375rem;
-  max-inline-size: min(72vh, 38.75rem);
-  padding: 0.75rem;
+  gap: clamp(0.16rem, 0.55dvh, 0.375rem);
+  inline-size: min(100%, 72dvh, 39rem);
+  padding: clamp(0.32rem, 1.1dvh, 0.75rem);
 }
 
 .snake-row {
   display: grid;
-  gap: 0.375rem;
+  gap: clamp(0.16rem, 0.55dvh, 0.375rem);
   grid-template-columns: repeat(9, minmax(0, 1fr));
 }
 
 .snake-cell {
   align-items: center;
   aspect-ratio: 1;
-  background: #f2f8ec;
-  border-radius: 0.875rem;
+  background: linear-gradient(145deg, #f8fff0 0%, #dcedc8 100%);
+  border-radius: clamp(0.38rem, 1.4dvh, 0.875rem);
   display: flex;
   justify-content: center;
+  position: relative;
   transition: background-color 220ms ease, transform 220ms ease;
 }
 
 .snake-cell--body {
-  background: #9bd18d;
+  background: linear-gradient(145deg, #75c96e 0%, #2f9148 100%);
+  box-shadow: inset 0 0 0 0.12rem rgb(255 255 255 / 34%);
 }
 
 .snake-cell--head {
-  background: #4caf50;
-  box-shadow: 0 0.375rem 1.125rem rgb(76 175 80 / 24%);
+  background: linear-gradient(145deg, #38b957 0%, #11652f 100%);
+  box-shadow: 0 0.45rem 1.25rem rgb(17 101 47 / 34%), inset 0 0 0 0.16rem rgb(255 255 255 / 42%);
   transform: scale(1.04);
 }
 
+.snake-cell--head::after {
+  background: radial-gradient(circle, #ffffff 0 18%, transparent 20% 100%), radial-gradient(circle, #ffffff 0 18%, transparent 20% 100%);
+  background-position: 34% 38%, 66% 38%;
+  background-repeat: no-repeat;
+  background-size: 32% 32%;
+  content: "";
+  inset: 0;
+  position: absolute;
+}
+
 .snake-cell--food {
-  background: #fff6d7;
+  background: linear-gradient(145deg, #fff3b0 0%, #ffcc4d 100%);
+  box-shadow: inset 0 0 0 0.14rem rgb(121 83 0 / 20%);
 }
 
 .direction-content {
@@ -302,27 +379,39 @@ onUnmounted(() => {
   }
 }
 
+@media (max-width: 50rem) {
+  .snake-layout {
+    gap: clamp(0.75rem, 2dvh, 1.25rem);
+    grid-template-columns: minmax(0, 1fr) minmax(12rem, 0.85fr);
+  }
+
+  .snake-controls {
+    inline-size: min(100%, 26rem, 45dvh);
+  }
+}
+
 @media (max-height: 42.5rem) {
   .game-container {
-    padding-block-start: 5rem;
+    padding-block-start: 4.75rem;
   }
 
   .text-overline,
   h1,
-  .v-card > p,
-  .v-alert {
+  .v-card > p {
     display: none !important;
   }
 
   .snake-board {
-    border-width: 0.35rem;
-    gap: 0.25rem;
-    max-inline-size: min(43vh, 24rem);
-    padding: 0.45rem;
+    inline-size: min(100%, 72dvh, 31rem);
   }
 
-  .snake-row {
-    gap: 0.25rem;
+  .snake-controls {
+    inline-size: min(100%, 30rem, 48dvh);
+  }
+
+  .snake-layout {
+    gap: clamp(0.75rem, 2vw, 1.25rem);
+    grid-template-columns: minmax(0, 1fr) minmax(13rem, 0.72fr);
   }
 }
 </style>

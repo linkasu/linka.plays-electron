@@ -25,9 +25,10 @@ import {
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("connect-four", {
   maxSteps: 1,
-  overrides: { dwellMs: 1450, sessionSeconds: 86400, targetScale: 1.35, sound: true },
+  overrides: { dwellMs: 1450, targetScale: 1.35, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
+  finishOnTimeout: false
 });
 const soundEnabled = toRef(session.settings, "sound");
 const promptAudio = useGamePromptAudio({ gameId: "connect-four", soundEnabled, warmAssetIds: ["connect-four.prompt", "connect-four.correct", "connect-four.mistake", "connect-four.complete"] });
@@ -35,6 +36,8 @@ const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const aiMoveDelayMs = 950;
 const playerTurnDelayMs = 900;
+const aiSearchDepth = 16;
+const aiSearchTimeLimitMs = 5000;
 
 const board = ref<ConnectFourBoard>(createEmptyBoard());
 const result = ref<ConnectFourWinner>();
@@ -47,6 +50,7 @@ const line = computed(() => winningLine(board.value));
 const gazeBlocked = computed(() => aiThinking.value || playerTurnBlocked.value || sleeping.value || finalizing.value);
 const sleepDisabled = computed(() => session.status !== "running" || aiThinking.value || finalizing.value || Boolean(result.value));
 let aiTimer = 0;
+let aiRequestId = 0;
 
 const rows = Array.from({ length: connectFourRows }, (_, row) => row);
 const columns = Array.from({ length: connectFourColumns }, (_, column) => column);
@@ -104,6 +108,30 @@ function canChooseColumn(column: number) {
   return session.status === "running" && !gazeBlocked.value && !result.value && availableColumns(board.value).includes(column);
 }
 
+function isSessionPaused() {
+  return (session.status as string) === "paused";
+}
+
+function encodeBoardForAi(nextBoard: ConnectFourBoard) {
+  return nextBoard.map((cell) => cell || ".").join("");
+}
+
+async function chooseAiColumn(snapshot: ConnectFourBoard) {
+  const nativeResult = await window.linkaAi?.connectFourBestMove({
+    board: encodeBoardForAi(snapshot),
+    player: "Y",
+    depth: aiSearchDepth,
+    timeLimitMs: aiSearchTimeLimitMs,
+    threads: 0
+  });
+
+  if (nativeResult?.ok && typeof nativeResult.column === "number" && availableColumns(snapshot).includes(nativeResult.column)) {
+    return { column: nativeResult.column, source: nativeResult.source, depth: nativeResult.depth, nodes: nativeResult.nodes, elapsedMs: nativeResult.elapsedMs };
+  }
+
+  return { column: chooseDeepQMove(snapshot), source: "fallback" as const };
+}
+
 async function finishRound(nextResult: ConnectFourWinner) {
   result.value = nextResult;
   aiThinking.value = false;
@@ -134,18 +162,28 @@ function blockPlayerTurn() {
   }, playerTurnDelayMs);
 }
 
-function applyAiMove() {
-  if (session.status === "paused") {
+async function applyAiMove() {
+  if (isSessionPaused()) {
+    aiTimer = window.setTimeout(applyAiMove, 250);
+    return;
+  }
+
+  if (session.status !== "running" || result.value) return;
+  const requestId = ++aiRequestId;
+  const snapshot = [...board.value] as ConnectFourBoard;
+  const aiMove = await chooseAiColumn(snapshot);
+  if (requestId !== aiRequestId) return;
+  if (isSessionPaused()) {
     aiTimer = window.setTimeout(applyAiMove, 250);
     return;
   }
 
   aiThinking.value = false;
   if (session.status !== "running" || result.value) return;
-  const column = chooseDeepQMove(board.value);
+  const column = typeof aiMove.column === "number" && availableColumns(board.value).includes(aiMove.column) ? aiMove.column : chooseDeepQMove(board.value);
   if (column === undefined) return;
   const index = dropDisc(board.value, column, "Y");
-  recordEvent("target-click", { targetId: columnTargetId(column), actor: "deep-q", mark: "Y", column, index });
+  recordEvent("target-click", { targetId: columnTargetId(column), actor: "deep-q", mark: "Y", column, index, ai: aiMove });
   const winner = findWinner(board.value);
   if (winner) void finishRound(winner);
   else blockPlayerTurn();
@@ -162,6 +200,7 @@ function chooseColumn(column: number) {
     return;
   }
 
+  aiRequestId += 1;
   aiThinking.value = true;
   window.clearTimeout(aiTimer);
   aiTimer = window.setTimeout(applyAiMove, aiMoveDelayMs);
@@ -180,6 +219,7 @@ function togglePause() {
 
 function restart() {
   promptAudio.cancelPending();
+  aiRequestId += 1;
   window.clearTimeout(aiTimer);
   board.value = createEmptyBoard();
   result.value = undefined;
@@ -198,6 +238,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   promptAudio.cancelPending();
+  aiRequestId += 1;
   window.clearTimeout(aiTimer);
 });
 </script>

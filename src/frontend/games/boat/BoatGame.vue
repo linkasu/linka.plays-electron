@@ -1,30 +1,13 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-
-type Point = {
-  x: number;
-  y: number;
-};
-
-type Boat = Point & {
-  phase: number;
-  glow: number;
-};
-
-type Checkpoint = Point & {
-  id: string;
-  radius: number;
-  speed: number;
-  phase: number;
-  entered: boolean;
-  enteredAt?: number;
-};
+import { disposeBoatAudio, playBoatDamageCue, playBoatSuccessCue, setBoatMusicActive, tickBoatMusic, warmBoatAudio } from "./audio";
+import { boatPoint, boatRouteSegments, boatScrollSpeed, boatVisualSize, createBoatGameState, riverGeometry, syncBoatGeometry, updateBoatGame, type BoatGameState, type BoatHazard, type Point, type ViewportSize } from "./model";
 
 type Decoration = Point & {
   kind: "island" | "buoy" | "reeds";
@@ -42,125 +25,46 @@ type Ripple = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("boat", {
-  maxSteps: 7,
-  overrides: { preset: "gentle", dwellMs: 500, sessionSeconds: 135, targetScale: 1.35, motionSpeed: 0.62, distractors: "none", hints: "high" },
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("boat", {
+  maxSteps: boatRouteSegments.length,
+  overrides: { preset: "standard", dwellMs: 500, sessionSeconds: 135, targetScale: 1.2, motionSpeed: 0.78, distractors: "low", hints: "medium" },
   finishOnMistakes: false
 });
 
-const boat = reactive<Boat>({ x: window.innerWidth * 0.26, y: window.innerHeight * 0.56, phase: 0, glow: 0 });
-const checkpoint = reactive<Checkpoint>({ id: "checkpoint-0", x: window.innerWidth * 0.78, y: window.innerHeight * 0.5, radius: 120, speed: 48, phase: 0, entered: false });
+const soundEnabled = toRef(session.settings, "sound");
+const viewport = ref<ViewportSize>({ width: window.innerWidth, height: window.innerHeight });
+const boatState = ref<BoatGameState>(createBoatGameState(viewport.value, session.settings.targetScale));
 const decorations = reactive<Decoration[]>([]);
 const ripples = reactive<Ripple[]>([]);
 const resultVisible = computed(() => session.status === "finished");
+const currentRoute = computed(() => boatRouteSegments[boatState.value.routeIndex]);
 
 let ctx: CanvasRenderingContext2D | undefined;
 let frame = 0;
 let lastTime = performance.now();
-let checkpointSequence = 0;
+let sceneryOffset = 0;
 
 function randomRange(min: number, max: number) {
   return min + Math.random() * (max - min);
-}
-
-function clamp(value: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, value));
 }
 
 function resizeCanvas() {
   const canvas = canvasRef.value;
   if (!canvas) return;
   const ratio = window.devicePixelRatio || 1;
-  canvas.width = Math.round(window.innerWidth * ratio);
-  canvas.height = Math.round(window.innerHeight * ratio);
+  viewport.value = { width: window.innerWidth, height: window.innerHeight };
+  canvas.width = Math.round(viewport.value.width * ratio);
+  canvas.height = Math.round(viewport.value.height * ratio);
   canvas.style.width = "100dvw";
   canvas.style.height = "100dvh";
   ctx = canvas.getContext("2d") ?? undefined;
   ctx?.setTransform(ratio, 0, 0, ratio, 0, 0);
-  syncGeometry();
+  boatState.value = syncBoatGeometry(boatState.value, viewport.value, session.settings.targetScale);
 }
 
-function riverTop() {
-  return Math.max(126, window.innerHeight * 0.19);
-}
-
-function riverBottom() {
-  return window.innerHeight - Math.max(62, window.innerHeight * 0.09);
-}
-
-function riverCenterY() {
-  return riverTop() + (riverBottom() - riverTop()) / 2;
-}
-
-function boatSize() {
-  const viewportLimit = Math.min(window.innerWidth, window.innerHeight) * 0.17;
-  return Math.min(132, Math.max(78, Math.min(viewportLimit, 82 * session.settings.targetScale)));
-}
-
-function checkpointRadius() {
-  return Math.min(148, Math.max(96, 84 * session.settings.targetScale));
-}
-
-function boatPoint() {
-  return { x: boat.x, y: boat.y + Math.sin(boat.phase) * boatSize() * 0.035 };
-}
-
-function safeRiverY(size = boatSize()) {
-  return clamp(randomRange(riverTop() + size * 0.68, riverBottom() - size * 0.68), riverTop() + size * 0.52, riverBottom() - size * 0.52);
-}
-
-function syncGeometry() {
-  boat.x = clamp(window.innerWidth * 0.26, 120, Math.max(140, window.innerWidth * 0.34));
-  boat.y = clamp(boat.y, riverTop() + boatSize() * 0.55, riverBottom() - boatSize() * 0.55);
-  checkpoint.radius = checkpointRadius();
-  checkpoint.y = clamp(checkpoint.y, riverTop() + checkpoint.radius * 0.5, riverBottom() - checkpoint.radius * 0.5);
-}
-
-function copyPointer() {
-  return {
-    x: pointer.value.x,
-    y: pointer.value.y,
-    valid: pointer.value.valid,
-    source: pointer.value.source,
-    timestamp: pointer.value.timestamp
-  };
-}
-
-function targetPayload(progress: number, now: number, reason?: "left" | "invalid-gaze") {
-  return {
-    targetId: checkpoint.id,
-    at: Date.now(),
-    dwellMs: 0,
-    elapsedMs: checkpoint.enteredAt === undefined ? 0 : now - checkpoint.enteredAt,
-    progress,
-    pointer: copyPointer(),
-    reason
-  };
-}
-
-function distance(a: Point, b: Point) {
-  return Math.hypot(a.x - b.x, a.y - b.y);
-}
-
-function checkpointSpeed() {
-  return randomRange(68, 82) * session.settings.motionSpeed;
-}
-
-function resetCheckpoint(fromRight = true) {
-  checkpointSequence += 1;
-  checkpoint.id = `checkpoint-${Date.now()}-${checkpointSequence}`;
-  checkpoint.radius = checkpointRadius();
-  checkpoint.x = fromRight ? window.innerWidth + checkpoint.radius + randomRange(80, 190) : window.innerWidth * randomRange(0.64, 0.82);
-  checkpoint.y = safeRiverY(checkpoint.radius);
-  checkpoint.speed = checkpointSpeed();
-  checkpoint.phase = randomRange(0, Math.PI * 2);
-  checkpoint.entered = false;
-  checkpoint.enteredAt = undefined;
-}
-
-function addRipple(x: number, y: number, radius: number) {
-  ripples.push({ x, y, radius, age: 0, life: 1.35 });
-  if (ripples.length > 10) ripples.shift();
+function safeRiverY(size: number) {
+  const river = riverGeometry(viewport.value);
+  return randomRange(river.top + size * 0.68, river.bottom - size * 0.68);
 }
 
 function createDecoration(index: number): Decoration {
@@ -169,145 +73,142 @@ function createDecoration(index: number): Decoration {
   return {
     kind,
     size,
-    x: randomRange(0, window.innerWidth),
+    x: randomRange(0, viewport.value.width),
     y: safeRiverY(size),
-    speed: randomRange(18, 34),
+    speed: randomRange(96, 126),
     phase: randomRange(0, Math.PI * 2)
   };
 }
 
 function initDecorations() {
   decorations.splice(0);
-  const count = window.innerWidth < 760 ? 8 : 12;
-  for (let index = 0; index < count; index++) decorations.push(createDecoration(index));
+  const count = viewport.value.width < 760 ? 8 : 12;
+  for (let index = 0; index < count; index += 1) decorations.push(createDecoration(index));
+}
+
+function addRipple(x: number, y: number, radius: number) {
+  ripples.push({ x, y, radius, age: 0, life: 1.35 });
+  if (ripples.length > 12) ripples.shift();
 }
 
 function restart() {
   startSession();
   ripples.splice(0);
-  checkpointSequence = 0;
-  boat.y = riverCenterY();
-  resetCheckpoint(false);
+  boatState.value = createBoatGameState(viewport.value, session.settings.targetScale);
   initDecorations();
-}
-
-function updateBoat(delta: number) {
-  const idleWave = session.settings.reduceMotion ? 0 : Math.sin(boat.phase * 0.48) * 18;
-  const targetY = pointer.value.valid ? pointer.value.y : riverCenterY() + idleWave;
-  const clampedTarget = clamp(targetY, riverTop() + boatSize() * 0.55, riverBottom() - boatSize() * 0.55);
-  const diff = clampedTarget - boat.y;
-  const easedStep = diff * Math.min(1, delta * 2.35);
-  const maxStep = delta * 260;
-  boat.y += clamp(easedStep, -maxStep, maxStep);
-  boat.phase += session.settings.reduceMotion ? 0 : delta * 2.2;
-}
-
-function updateCheckpoint(delta: number, now: number) {
-  checkpoint.x -= checkpoint.speed * delta;
-  checkpoint.phase += session.settings.reduceMotion ? 0 : delta * 1.6;
-  checkpoint.y += session.settings.reduceMotion ? 0 : Math.sin(checkpoint.phase) * delta * 6;
-  checkpoint.y = clamp(checkpoint.y, riverTop() + checkpoint.radius * 0.5, riverBottom() - checkpoint.radius * 0.5);
-
-  const boatPosition = boatPoint();
-  const gap = distance(boatPosition, checkpoint);
-  const enterDistance = checkpoint.radius * 1.34;
-  const successDistance = checkpoint.radius * 0.78;
-  const progress = Math.max(0, 1 - gap / enterDistance);
-  boat.glow += (progress - boat.glow) * Math.min(1, delta * 4.2);
-
-  if (pointer.value.valid && !checkpoint.entered && gap <= enterDistance) {
-    checkpoint.entered = true;
-    checkpoint.enteredAt = now;
-    recordEvent("target-enter", targetPayload(progress, now));
-  }
-
-  if (pointer.value.valid && gap <= successDistance) {
-    recordEvent("target-click", targetPayload(1, now));
-    recordSuccess({ targetId: checkpoint.id, checkpoint: session.step + 1 });
-    addRipple(checkpoint.x, checkpoint.y, checkpoint.radius * 0.72);
-    if (session.status === "running") resetCheckpoint(true);
-    return;
-  }
-
-  if (checkpoint.x < boat.x - checkpoint.radius * 1.8) {
-    if (checkpoint.entered) recordEvent("target-cancel", targetPayload(progress, now, pointer.value.valid ? "left" : "invalid-gaze"));
-    resetCheckpoint(true);
-  }
+  setBoatMusicActive(soundEnabled.value, true);
 }
 
 function updateDecorations(delta: number) {
+  const currentSpeed = boatScrollSpeed(session.settings.motionSpeed);
   for (const decoration of decorations) {
     decoration.x -= decoration.speed * session.settings.motionSpeed * delta;
     decoration.phase += session.settings.reduceMotion ? 0 : delta * 1.3;
     if (decoration.x < -decoration.size * 2) {
-      decoration.x = window.innerWidth + randomRange(40, 260);
+      decoration.x = viewport.value.width + currentSpeed * randomRange(0.4, 1.5);
       decoration.y = safeRiverY(decoration.size);
     }
   }
 }
 
 function updateRipples(delta: number) {
-  for (let index = ripples.length - 1; index >= 0; index--) {
+  for (let index = ripples.length - 1; index >= 0; index -= 1) {
     const ripple = ripples[index];
     ripple.age += delta;
     if (ripple.age >= ripple.life) ripples.splice(index, 1);
   }
 }
 
-function update(delta: number, now: number) {
-  syncGeometry();
+function update(delta: number) {
+  tickBoatMusic(soundEnabled.value);
   if (session.status !== "running") return;
-  updateBoat(delta);
-  updateCheckpoint(delta, now);
+  sceneryOffset = (sceneryOffset + boatScrollSpeed(session.settings.motionSpeed) * delta) % Math.max(1, viewport.value.width);
+
+  const previousGate = boatState.value.gate;
+  const result = updateBoatGame(boatState.value, pointer.value.valid ? pointer.value.y : undefined, delta, viewport.value, session.settings.motionSpeed, session.settings.targetScale, session.settings.reduceMotion);
+  boatState.value = result.state;
+
+  if (result.event.type === "success") {
+    recordSuccess({ routeId: boatRouteSegments[result.event.routeIndex]?.id, gateId: result.event.gateId, hull: boatState.value.hull });
+    addRipple(previousGate.x, previousGate.y, previousGate.radius * 0.72);
+    playBoatSuccessCue(soundEnabled.value);
+    if (boatState.value.mode === "finished") finishSession("game-complete");
+  }
+
+  if (result.event.type === "damage" || result.event.type === "crashed") {
+    recordMistake({ routeId: boatRouteSegments[result.event.routeIndex]?.id, hazardId: result.event.hazardId, reason: result.event.reason, hull: boatState.value.hull });
+    void playBoatDamageCue(soundEnabled.value);
+    if (result.event.type === "crashed") finishSession("game-lost");
+  }
+
   updateDecorations(delta);
   updateRipples(delta);
 }
 
 function drawRiver(context: CanvasRenderingContext2D) {
-  const width = window.innerWidth;
-  const height = window.innerHeight;
-  const top = riverTop();
-  const bottom = riverBottom();
-  const riverGradient = context.createLinearGradient(0, top, 0, bottom);
-  riverGradient.addColorStop(0, "#a7dff2");
-  riverGradient.addColorStop(0.48, "#5ab5d1");
-  riverGradient.addColorStop(1, "#2f88b2");
+  const { width, height } = viewport.value;
+  const river = riverGeometry(viewport.value);
+  const riverGradient = context.createLinearGradient(0, river.top, 0, river.bottom);
+  riverGradient.addColorStop(0, "#8bc7dc");
+  riverGradient.addColorStop(0.45, "#3c9fc3");
+  riverGradient.addColorStop(1, "#176f9d");
 
-  context.fillStyle = "#e5f3dd";
+  context.fillStyle = "#d9ead0";
   context.fillRect(0, 0, width, height);
-  context.fillStyle = "#d1e9be";
-  context.fillRect(0, 0, width, top + 18);
-  context.fillStyle = "#c8e1b3";
-  context.fillRect(0, bottom - 10, width, height - bottom + 10);
+  context.fillStyle = "#bad59d";
+  context.fillRect(0, 0, width, river.top + 18);
+  context.fillStyle = "#aeca91";
+  context.fillRect(0, river.bottom - 10, width, height - river.bottom + 10);
 
   context.beginPath();
-  context.moveTo(0, top + 18);
-  context.bezierCurveTo(width * 0.24, top - 14, width * 0.62, top + 28, width, top + 8);
-  context.lineTo(width, bottom - 10);
-  context.bezierCurveTo(width * 0.7, bottom + 28, width * 0.26, bottom - 34, 0, bottom + 6);
+  context.moveTo(0, river.top + 18);
+  context.bezierCurveTo(width * 0.24, river.top - 14, width * 0.62, river.top + 28, width, river.top + 8);
+  context.lineTo(width, river.bottom - 10);
+  context.bezierCurveTo(width * 0.7, river.bottom + 28, width * 0.26, river.bottom - 34, 0, river.bottom + 6);
   context.closePath();
   context.fillStyle = riverGradient;
   context.fill();
 
-  context.strokeStyle = "rgb(255 255 255 / 30%)";
+  context.strokeStyle = "rgb(255 255 255 / 28%)";
   context.lineWidth = 2;
-  for (let index = 0; index < 5; index++) {
-    const y = top + (bottom - top) * (0.18 + index * 0.16);
+  for (let index = 0; index < 6; index += 1) {
+    const y = river.top + (river.bottom - river.top) * (0.12 + index * 0.15);
+    const offset = sceneryOffset % (width * 0.28);
     context.beginPath();
-    context.moveTo(0, y);
-    context.bezierCurveTo(width * 0.28, y - 12, width * 0.54, y + 14, width, y - 5);
+    context.moveTo(-width * 0.28 - offset, y);
+    for (let x = -width * 0.28 - offset; x <= width + width * 0.28; x += width * 0.28) {
+      context.bezierCurveTo(x + width * 0.08, y - 12, x + width * 0.18, y + 14, x + width * 0.28, y - 5);
+    }
     context.stroke();
   }
+
+  drawMovingBankMarks(context, river.top + 18, true);
+  drawMovingBankMarks(context, river.bottom - 10, false);
+}
+
+function drawMovingBankMarks(context: CanvasRenderingContext2D, y: number, topBank: boolean) {
+  const width = viewport.value.width;
+  const spacing = Math.max(82, width * 0.095);
+  const offset = sceneryOffset % spacing;
+  context.save();
+  context.fillStyle = topBank ? "rgb(95 139 75 / 38%)" : "rgb(76 126 68 / 40%)";
+  for (let x = -spacing - offset; x < width + spacing; x += spacing) {
+    const markY = y + (topBank ? -10 : 10) + Math.sin((x + sceneryOffset) * 0.018) * 7;
+    context.beginPath();
+    context.ellipse(x, markY, spacing * 0.22, 5, 0.08, 0, Math.PI * 2);
+    context.fill();
+  }
+  context.restore();
 }
 
 function drawDecoration(context: CanvasRenderingContext2D, decoration: Decoration) {
   const bobY = decoration.y + (session.settings.reduceMotion ? 0 : Math.sin(decoration.phase) * decoration.size * 0.04);
   if (decoration.kind === "island") {
-    context.fillStyle = "rgb(212 183 121 / 72%)";
+    context.fillStyle = "rgb(197 166 101 / 72%)";
     context.beginPath();
     context.ellipse(decoration.x, bobY, decoration.size * 0.68, decoration.size * 0.34, -0.08, 0, Math.PI * 2);
     context.fill();
-    context.fillStyle = "rgb(87 145 82 / 74%)";
+    context.fillStyle = "rgb(69 122 76 / 78%)";
     context.beginPath();
     context.ellipse(decoration.x - decoration.size * 0.12, bobY - decoration.size * 0.12, decoration.size * 0.42, decoration.size * 0.2, 0.12, 0, Math.PI * 2);
     context.fill();
@@ -315,9 +216,9 @@ function drawDecoration(context: CanvasRenderingContext2D, decoration: Decoratio
   }
 
   if (decoration.kind === "reeds") {
-    context.strokeStyle = "rgb(62 121 88 / 72%)";
+    context.strokeStyle = "rgb(44 99 72 / 76%)";
     context.lineWidth = 4;
-    for (let index = -1; index <= 1; index++) {
+    for (let index = -1; index <= 1; index += 1) {
       context.beginPath();
       context.moveTo(decoration.x + index * decoration.size * 0.16, bobY + decoration.size * 0.28);
       context.quadraticCurveTo(decoration.x + index * decoration.size * 0.08, bobY, decoration.x + index * decoration.size * 0.2, bobY - decoration.size * 0.38);
@@ -330,7 +231,7 @@ function drawDecoration(context: CanvasRenderingContext2D, decoration: Decoratio
   context.beginPath();
   context.arc(decoration.x, bobY, decoration.size * 0.46, 0, Math.PI * 2);
   context.fill();
-  context.strokeStyle = "rgb(218 104 91 / 82%)";
+  context.strokeStyle = "rgb(202 77 67 / 86%)";
   context.lineWidth = 5;
   context.beginPath();
   context.moveTo(decoration.x - decoration.size * 0.38, bobY);
@@ -338,75 +239,140 @@ function drawDecoration(context: CanvasRenderingContext2D, decoration: Decoratio
   context.stroke();
 }
 
-function drawCheckpoint(context: CanvasRenderingContext2D) {
-  const pulse = session.settings.reduceMotion ? 1 : 1 + Math.sin(checkpoint.phase * 2) * 0.035;
-  const radius = checkpoint.radius * pulse;
-  const gradient = context.createRadialGradient(checkpoint.x, checkpoint.y, radius * 0.18, checkpoint.x, checkpoint.y, radius);
+function drawStoneGate(context: CanvasRenderingContext2D, hazard: BoatHazard) {
+  const river = riverGeometry(viewport.value);
+  const left = hazard.x - hazard.width / 2;
+  const gapTop = hazard.gapY - hazard.gapHeight / 2;
+  const gapBottom = hazard.gapY + hazard.gapHeight / 2;
+  const topHeight = Math.max(0, gapTop - river.top);
+  const bottomHeight = Math.max(0, river.bottom - gapBottom);
+  context.save();
+  drawStoneColumn(context, left, river.top, hazard.width, topHeight, false, hazard.phase);
+  drawStoneColumn(context, left, gapBottom, hazard.width, bottomHeight, true, hazard.phase + 1.3);
+
+  context.strokeStyle = "rgb(255 248 176 / 88%)";
+  context.lineWidth = 5;
+  context.setLineDash([12, 10]);
+  context.beginPath();
+  context.roundRect(left + hazard.width * 0.14, gapTop + hazard.gapHeight * 0.08, hazard.width * 0.72, hazard.gapHeight * 0.84, Math.min(hazard.width, hazard.gapHeight) * 0.18);
+  context.stroke();
+  context.setLineDash([]);
+  context.restore();
+}
+
+function drawStoneColumn(context: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, fromBottom: boolean, phase: number) {
+  if (height <= 0) return;
+  const radius = Math.min(width, height) * 0.16;
+  const gradient = context.createLinearGradient(x, y, x + width, y + height);
+  gradient.addColorStop(0, "#6d7680");
+  gradient.addColorStop(0.52, "#4d5964");
+  gradient.addColorStop(1, "#303b45");
+  context.fillStyle = gradient;
+  context.strokeStyle = "rgb(28 39 49 / 78%)";
+  context.lineWidth = Math.max(3, width * 0.04);
+  context.beginPath();
+  context.roundRect(x, y, width, height, radius);
+  context.fill();
+  context.stroke();
+
+  context.fillStyle = "rgb(255 255 255 / 12%)";
+  for (let index = 0; index < 5; index += 1) {
+    const stoneX = x + width * (0.24 + (index % 2) * 0.34);
+    const stoneY = fromBottom ? y + height * (0.16 + index * 0.16) : y + height * (0.84 - index * 0.16);
+    context.beginPath();
+    context.ellipse(stoneX + Math.sin(phase + index) * width * 0.04, stoneY, width * 0.17, Math.max(8, width * 0.06), -0.25, 0, Math.PI * 2);
+    context.fill();
+  }
+}
+
+function drawHazards(context: CanvasRenderingContext2D) {
+  for (const hazard of boatState.value.hazards) {
+    drawStoneGate(context, hazard);
+  }
+}
+
+function drawGate(context: CanvasRenderingContext2D) {
+  const gate = boatState.value.gate;
+  const pulse = session.settings.reduceMotion ? 1 : 1 + Math.sin(gate.phase * 2) * 0.035;
+  const radius = gate.radius * pulse;
+  const gradient = context.createRadialGradient(gate.x, gate.y, radius * 0.18, gate.x, gate.y, radius);
   gradient.addColorStop(0, "rgb(255 255 255 / 42%)");
   gradient.addColorStop(0.62, "rgb(255 244 167 / 20%)");
   gradient.addColorStop(1, "rgb(255 244 167 / 0%)");
   context.fillStyle = gradient;
   context.beginPath();
-  context.arc(checkpoint.x, checkpoint.y, radius, 0, Math.PI * 2);
+  context.arc(gate.x, gate.y, radius, 0, Math.PI * 2);
   context.fill();
 
   context.strokeStyle = "rgb(255 250 196 / 92%)";
   context.lineWidth = 7;
   context.setLineDash([14, 12]);
   context.beginPath();
-  context.arc(checkpoint.x, checkpoint.y, radius * 0.74, 0, Math.PI * 2);
+  context.arc(gate.x, gate.y, radius * 0.74, 0, Math.PI * 2);
   context.stroke();
   context.setLineDash([]);
-
-  context.fillStyle = "rgb(255 255 255 / 88%)";
-  context.beginPath();
-  context.arc(checkpoint.x - radius * 0.48, checkpoint.y, 13, 0, Math.PI * 2);
-  context.arc(checkpoint.x + radius * 0.48, checkpoint.y, 13, 0, Math.PI * 2);
-  context.fill();
 }
 
 function drawBoat(context: CanvasRenderingContext2D) {
-  const size = boatSize();
-  const position = boatPoint();
-  const glowRadius = size * (0.86 + boat.glow * 0.42);
-  const glow = context.createRadialGradient(position.x, position.y, size * 0.24, position.x, position.y, glowRadius);
-  glow.addColorStop(0, `rgb(255 246 182 / ${0.18 + boat.glow * 0.24})`);
+  const size = boatVisualSize(viewport.value, session.settings.targetScale);
+  const position = boatPoint(boatState.value, session.settings.targetScale, viewport.value);
+  const shake = boatState.value.shakeSeconds > 0 && !session.settings.reduceMotion ? Math.sin(performance.now() * 0.045) * size * 0.05 : 0;
+  const x = position.x + shake;
+  const glowRadius = size * (0.86 + boatState.value.boat.glow * 0.42);
+  const damage = boatState.value.boat.damageFlash;
+  const hullRatio = boatState.value.hull / boatState.value.maxHull;
+
+  const glow = context.createRadialGradient(x, position.y, size * 0.24, x, position.y, glowRadius);
+  glow.addColorStop(0, `rgb(255 246 182 / ${0.18 + boatState.value.boat.glow * 0.24 + damage * 0.18})`);
   glow.addColorStop(1, "rgb(255 246 182 / 0%)");
   context.fillStyle = glow;
   context.beginPath();
-  context.arc(position.x, position.y, glowRadius, 0, Math.PI * 2);
+  context.arc(x, position.y, glowRadius, 0, Math.PI * 2);
   context.fill();
 
-  context.fillStyle = "rgb(58 101 129 / 26%)";
+  context.fillStyle = "rgb(42 72 91 / 30%)";
   context.beginPath();
-  context.ellipse(position.x - size * 0.06, position.y + size * 0.36, size * 0.68, size * 0.16, 0, 0, Math.PI * 2);
+  context.ellipse(x - size * 0.06, position.y + size * 0.36, size * 0.68, size * 0.16, 0, 0, Math.PI * 2);
   context.fill();
 
-  context.fillStyle = "#f4a35f";
+  context.fillStyle = hullRatio <= 0.34 ? "#9b5a41" : hullRatio <= 0.67 ? "#d27c50" : "#f4a35f";
   context.beginPath();
-  context.moveTo(position.x - size * 0.68, position.y + size * 0.14);
-  context.quadraticCurveTo(position.x, position.y + size * 0.52, position.x + size * 0.68, position.y + size * 0.14);
-  context.quadraticCurveTo(position.x + size * 0.42, position.y + size * 0.44, position.x - size * 0.42, position.y + size * 0.44);
+  context.moveTo(x - size * 0.68, position.y + size * 0.14);
+  context.quadraticCurveTo(x, position.y + size * 0.52, x + size * 0.68, position.y + size * 0.14);
+  context.quadraticCurveTo(x + size * 0.42, position.y + size * 0.44, x - size * 0.42, position.y + size * 0.44);
   context.closePath();
   context.fill();
-  context.strokeStyle = "rgb(126 76 47 / 42%)";
-  context.lineWidth = 3;
+  context.strokeStyle = damage > 0 ? "rgb(255 250 220 / 82%)" : "rgb(95 55 39 / 52%)";
+  context.lineWidth = 3 + damage * 3;
   context.stroke();
 
-  context.strokeStyle = "#7a5b45";
+  if (boatState.value.hull < boatState.value.maxHull) {
+    context.strokeStyle = "rgb(86 46 34 / 78%)";
+    context.lineWidth = 3;
+    for (let crack = 0; crack < boatState.value.maxHull - boatState.value.hull; crack += 1) {
+      const startX = x - size * (0.24 - crack * 0.22);
+      context.beginPath();
+      context.moveTo(startX, position.y + size * 0.22);
+      context.lineTo(startX + size * 0.08, position.y + size * 0.31);
+      context.lineTo(startX + size * 0.02, position.y + size * 0.4);
+      context.stroke();
+    }
+  }
+
+  context.strokeStyle = "#6d503c";
   context.lineWidth = 5;
   context.beginPath();
-  context.moveTo(position.x - size * 0.04, position.y + size * 0.16);
-  context.lineTo(position.x - size * 0.04, position.y - size * 0.58);
+  context.moveTo(x - size * 0.04, position.y + size * 0.16);
+  context.lineTo(x - size * 0.04, position.y - size * 0.58);
   context.stroke();
 
-  context.fillStyle = "#fff7d6";
+  context.fillStyle = boatState.value.mode === "crashed" ? "#d8d0bd" : "#fff7d6";
   context.beginPath();
-  context.moveTo(position.x, position.y - size * 0.56);
-  context.quadraticCurveTo(position.x + size * 0.54, position.y - size * 0.22, position.x, position.y + size * 0.08);
+  context.moveTo(x, position.y - size * 0.56);
+  context.quadraticCurveTo(x + size * 0.54, position.y - size * 0.22, x, position.y + size * 0.08);
   context.closePath();
   context.fill();
-  context.strokeStyle = "rgb(130 116 82 / 24%)";
+  context.strokeStyle = "rgb(87 80 64 / 32%)";
   context.lineWidth = 2;
   context.stroke();
 }
@@ -422,27 +388,57 @@ function drawRipples(context: CanvasRenderingContext2D) {
   }
 }
 
+function drawStatus(context: CanvasRenderingContext2D) {
+  const size = Math.max(16, Math.min(viewport.value.width, viewport.value.height) * 0.026);
+  const x = Math.max(36, viewport.value.width * 0.045);
+  const y = Math.max(76, viewport.value.height * 0.13);
+  context.save();
+  context.fillStyle = "rgb(13 36 54 / 68%)";
+  context.strokeStyle = "rgb(255 255 255 / 26%)";
+  context.lineWidth = 2;
+  context.beginPath();
+  context.roundRect(x - size * 0.8, y - size * 1.4, size * 15.2, size * 3.4, size * 0.65);
+  context.fill();
+  context.stroke();
+
+  context.fillStyle = "#f4fbff";
+  context.font = `800 ${size}px Roboto, sans-serif`;
+  context.textAlign = "left";
+  context.textBaseline = "middle";
+  context.fillText(`Маршрут ${boatState.value.routeIndex + 1}/${boatRouteSegments.length}: ${currentRoute.value.title}`, x, y - size * 0.45);
+  context.fillStyle = boatState.value.hull <= 1 ? "#ffd2c5" : "#e5ffe8";
+  context.fillText(`Прочность: ${boatState.value.hull}/${boatState.value.maxHull}`, x, y + size * 0.82);
+  context.restore();
+}
+
 function draw(context: CanvasRenderingContext2D) {
   drawRiver(context);
   for (const decoration of decorations) drawDecoration(context, decoration);
-  drawCheckpoint(context);
+  drawHazards(context);
+  drawGate(context);
   drawRipples(context);
   drawBoat(context);
+  drawStatus(context);
 }
 
 function tick(now: number) {
   const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
-  update(delta, now);
+  update(delta);
   if (ctx) draw(ctx);
   frame = requestAnimationFrame(tick);
 }
+
+watch(() => [session.status, soundEnabled.value] as const, ([status, enabled]) => {
+  setBoatMusicActive(enabled, status === "running");
+}, { immediate: true });
 
 onMounted(async () => {
   await nextTick();
   resizeCanvas();
   initDecorations();
-  resetCheckpoint(false);
+  warmBoatAudio(soundEnabled.value);
+  setBoatMusicActive(soundEnabled.value, session.status === "running");
   window.addEventListener("resize", resizeCanvas);
   lastTime = performance.now();
   frame = requestAnimationFrame(tick);
@@ -451,12 +447,13 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener("resize", resizeCanvas);
   cancelAnimationFrame(frame);
+  disposeBoatAudio();
 });
 </script>
 
 <template>
   <div class="boat-shell">
-    <canvas ref="canvasRef" class="boat-canvas" />
+    <canvas ref="canvasRef" class="boat-canvas" aria-label="Игра Лодочка: проведи лодку через пороги" />
 
     <GameHud
       title="Лодочка"
@@ -487,7 +484,7 @@ onUnmounted(() => {
 
 <style scoped>
 .boat-shell {
-  background: #e5f3dd;
+  background: #d9ead0;
   block-size: 100dvh;
   inline-size: 100dvw;
   overflow: hidden;

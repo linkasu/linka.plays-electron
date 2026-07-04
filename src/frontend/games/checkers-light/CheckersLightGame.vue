@@ -10,40 +10,65 @@ import { useStandardGameFeedback } from "../../composables/useStandardGameFeedba
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
   applyCheckersLightMove,
+  cellIndex,
   cellPosition,
   checkersLightSize,
-  checkersLightOutcome,
-  createInitialCheckersLightBoard,
+  chooseCheckersLightAiMove,
+  chooseCheckersLightCell,
+  countCheckersLightPieces,
+  createInitialCheckersLightState,
+  encodeCheckersLightBoard,
+  getLegalMoves,
   getMovablePieceIndexes,
+  getMoveForTarget,
   getMoveTargets,
   isDarkCell,
-  type CheckersLightCell
+  type CheckersLightCell,
+  type CheckersLightMove,
+  type CheckersLightPieceSide
 } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("checkers-light", {
-  maxSteps: 10,
-  overrides: { targetScale: 1.15, sound: true },
+  maxSteps: 999,
+  overrides: { targetScale: 1.08, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
+  finishOnTimeout: false
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "checkers-light", soundEnabled, warmAssetIds: ["checkers-light.prompt", "checkers-light.correct", "checkers-light.mistake", "checkers-light.complete"] });
+const promptAudio = useGamePromptAudio({ gameId: "checkers-light", soundEnabled, warmAssetIds: ["checkers-light.prompt", "checkers-light.complete"] });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
-const board = ref(createInitialCheckersLightBoard());
-const selectedIndex = ref<number>();
-const isSpeaking = ref(false);
-const feedbackMessage = ref("Выбери шашку, затем одну из отмеченных клеток. Если ходов не осталось, раунд завершится.");
+const aiSearchDepth = 6;
+const aiSearchTimeLimitMs = 1200;
+const aiMoveDelayMs = 650;
+
+const gameState = ref(createInitialCheckersLightState());
+const aiThinking = ref(false);
+const lastMove = ref<CheckersLightMove>();
+const lastCapturedIndex = ref<number>();
+const feedbackMessage = ref("Цель — оставить синего врага без ходов или без шашек. Если есть взятие, его нужно выполнить.");
+let aiTimer = 0;
+let aiRequestId = 0;
+
 const rows = Array.from({ length: checkersLightSize }, (_, row) => row);
 const columns = Array.from({ length: checkersLightSize }, (_, column) => column);
-
-const moveTargets = computed(() => selectedIndex.value === undefined ? [] : getMoveTargets(board.value, selectedIndex.value));
-const movablePieceIndexes = computed(() => getMovablePieceIndexes(board.value));
+const board = computed(() => gameState.value.board);
+const legalMoves = computed(() => getLegalMoves(gameState.value));
+const moveTargets = computed(() => gameState.value.selectedIndex === undefined ? [] : getMoveTargets(gameState.value, gameState.value.selectedIndex));
+const movablePieceIndexes = computed(() => getMovablePieceIndexes(gameState.value));
+const counts = computed(() => countCheckersLightPieces(board.value));
 const resultVisible = computed(() => session.status === "finished");
-const statusText = computed(() => selectedIndex.value === undefined
-  ? "Выбери любую доступную шашку"
-  : "Теперь выбери подсвеченную клетку");
+const statusText = computed(() => {
+  if (gameState.value.status === "gold-win") return "Победа: у синего нет хода";
+  if (gameState.value.status === "blue-win") return "Синий выиграл партию";
+  if (aiThinking.value) return "Синий думает над ходом";
+  if (gameState.value.turn === "blue") return "Синий ходит";
+  if (gameState.value.forcedFromIndex !== undefined) return "Продолжи обязательное взятие";
+  if (legalMoves.value.some((move) => move.capture)) return "Нужно выбрать шашку, которая бьёт";
+  return gameState.value.selectedIndex === undefined ? "Выбери золотую шашку" : "Выбери подсвеченную клетку";
+});
 
 function targetId(index: number) {
   return `checkers-light:cell:${index}`;
@@ -51,11 +76,12 @@ function targetId(index: number) {
 
 function pieceLabel(piece: CheckersLightCell) {
   if (!piece) return "";
-  return piece.side === "gold" ? "Светлая шашка" : "Синяя шашка";
+  const side = piece.side === "gold" ? "Золотая" : "Синяя";
+  return piece.king ? `${side} дамка` : `${side} шашка`;
 }
 
 function isSelected(index: number) {
-  return selectedIndex.value === index;
+  return gameState.value.selectedIndex === index;
 }
 
 function isMoveTarget(index: number) {
@@ -67,97 +93,137 @@ function isMovablePiece(index: number) {
 }
 
 function cellColor(index: number, piece: CheckersLightCell) {
-  if (isSelected(index)) return "primary";
+  if (isSelected(index)) return "secondary";
   if (isMoveTarget(index)) return "success";
   if (piece) return "surface";
-  return isDarkCell(index) ? "brown-lighten-5" : "blue-grey-lighten-5";
+  return isDarkCell(index) ? "brown-lighten-4" : "blue-grey-lighten-5";
 }
 
-async function playMistakeFeedback(targetId: string, reason: string) {
-  recordMistake({ targetId, reason, isCorrect: false });
-  isSpeaking.value = true;
-  void feedbackAudio.playMistake();
-  await promptAudio.playSequenceAndWait(["checkers-light.mistake"], 80);
-  isSpeaking.value = false;
-}
-
-async function selectCell(index: number) {
-  if (session.status !== "running" || isSpeaking.value) return;
-
-  const piece = board.value[index];
-  if (selectedIndex.value === undefined) {
-    if (piece && isMovablePiece(index)) {
-      selectedIndex.value = index;
-      feedbackMessage.value = "Шашка выбрана. Теперь выбери отмеченную клетку для хода.";
-      return;
+function cellClasses(index: number) {
+  return [
+    "cell-content",
+    {
+      "cell-content--dark": isDarkCell(index),
+      "cell-content--selected": isSelected(index),
+      "cell-content--target": isMoveTarget(index),
+      "cell-content--movable": isMovablePiece(index),
+      "cell-content--last": lastMove.value?.fromIndex === index || lastMove.value?.toIndex === index,
+      "cell-content--captured": lastCapturedIndex.value === index
     }
-    feedbackMessage.value = "Эта клетка сейчас не выбирается. Найди шашку, у которой есть ход.";
-    await playMistakeFeedback(targetId(index), "not-movable-piece");
-    return;
-  }
-
-  if (isMoveTarget(index)) {
-    await moveSelectedPiece(index);
-    return;
-  }
-
-  if (piece && isMovablePiece(index)) {
-    selectedIndex.value = index;
-    feedbackMessage.value = "Выбрана другая шашка. Теперь выбери отмеченную клетку.";
-    return;
-  }
-
-  feedbackMessage.value = "Эта клетка не подходит для выбранной шашки. Можно выбрать отмеченное место или другую шашку.";
-  await playMistakeFeedback(targetId(index), "invalid-checkers-target");
+  ];
 }
 
-async function moveSelectedPiece(toIndex: number) {
-  const fromIndex = selectedIndex.value;
-  if (fromIndex === undefined) return;
+function finishIfNeeded(sideJustMoved: CheckersLightPieceSide) {
+  if (gameState.value.status === "playing") return false;
+  const goldWon = gameState.value.status === "gold-win";
+  feedbackMessage.value = goldWon ? "Партия выиграна: у синего больше нет хода." : "Партия завершена: у золотых больше нет хода.";
+  if (goldWon) void feedbackAudio.playSuccess();
+  else void feedbackAudio.playMistake();
+  promptAudio.play("checkers-light.complete", 120);
+  finishSession(goldWon ? "game-complete" : sideJustMoved === "blue" ? "game-lost" : "game-complete");
+  return true;
+}
 
-  const piece = board.value[fromIndex];
-  const nextBoard = applyCheckersLightMove(board.value, fromIndex, toIndex);
-  if (!nextBoard || !piece) return;
+function applyMove(move: CheckersLightMove, actor: CheckersLightPieceSide, source: Record<string, unknown> = {}) {
+  const result = applyCheckersLightMove(gameState.value, move.fromIndex, move.toIndex);
+  if (!result || Array.isArray(result)) return false;
+  gameState.value = result.state;
+  lastMove.value = move;
+  lastCapturedIndex.value = move.capturedIndex;
+  const target = targetId(move.toIndex);
+  if (actor === "gold") {
+    recordSuccess({ targetId: target, side: actor, fromIndex: move.fromIndex, toIndex: move.toIndex, capture: move.capture, king: board.value[move.toIndex]?.king, isCorrect: true });
+  } else {
+    recordEvent("target-click", { targetId: target, side: actor, fromIndex: move.fromIndex, toIndex: move.toIndex, capture: move.capture, ...source });
+  }
 
-  board.value = nextBoard;
-  selectedIndex.value = undefined;
-  const finishedAfterSuccess = session.step + 1 >= session.maxSteps;
-  recordSuccess({
-    pieceId: piece.id,
-    side: piece.side,
-    fromIndex,
-    toIndex
+  if (result.mustContinue) {
+    feedbackMessage.value = actor === "gold" ? "Есть продолжение взятия. Этой же шашкой нужно бить дальше." : "Синий продолжает цепочку взятия.";
+    return true;
+  }
+
+  if (finishIfNeeded(actor)) return true;
+  feedbackMessage.value = actor === "gold" ? "Ход принят. Синий отвечает." : "Синий сделал ход. Теперь ход золотых.";
+  return true;
+}
+
+async function chooseNativeAiMove() {
+  const nativeResult = await window.linkaAi?.checkersLightBestMove({
+    board: encodeCheckersLightBoard(gameState.value.board),
+    side: "blue",
+    depth: aiSearchDepth,
+    timeLimitMs: aiSearchTimeLimitMs,
+    forcedFrom: gameState.value.forcedFromIndex ?? -1
   });
+  const legal = getLegalMoves(gameState.value, "blue");
+  if (nativeResult?.ok && typeof nativeResult.fromIndex === "number" && typeof nativeResult.toIndex === "number") {
+    const move = legal.find((candidate) => candidate.fromIndex === nativeResult.fromIndex && candidate.toIndex === nativeResult.toIndex);
+    if (move) return { move, source: { aiSource: nativeResult.source, aiDepth: nativeResult.depth, aiElapsedMs: nativeResult.elapsedMs } };
+  }
+  return { move: chooseCheckersLightAiMove(gameState.value, 5), source: { aiSource: "fallback" } };
+}
 
-  if (checkersLightOutcome(nextBoard) === "loss") {
-    feedbackMessage.value = "Ходов больше нет. Раунд завершён, можно начать снова.";
-    isSpeaking.value = true;
-    void feedbackAudio.playSuccess();
-    await promptAudio.playSequenceAndWait(["checkers-light.correct", "checkers-light.complete"], 80, 170);
-    finishSession("game-lost");
-    isSpeaking.value = false;
+async function applyAiTurn() {
+  if (session.status !== "running" || gameState.value.turn !== "blue" || gameState.value.status !== "playing") return;
+  const requestId = ++aiRequestId;
+  aiThinking.value = true;
+  const aiChoice = await chooseNativeAiMove();
+  if (requestId !== aiRequestId) return;
+  aiThinking.value = false;
+  if (!aiChoice.move) {
+    gameState.value = { ...gameState.value, status: "gold-win" };
+    finishIfNeeded("gold");
+    return;
+  }
+  applyMove(aiChoice.move, "blue", aiChoice.source);
+  if (gameState.value.turn === "blue" && gameState.value.status === "playing") scheduleAiMove(350);
+}
+
+function scheduleAiMove(delayMs = aiMoveDelayMs) {
+  window.clearTimeout(aiTimer);
+  aiTimer = window.setTimeout(() => void applyAiTurn(), delayMs);
+}
+
+function selectCell(index: number) {
+  if (session.status !== "running" || aiThinking.value || gameState.value.turn !== "gold") return;
+  const result = chooseCheckersLightCell(gameState.value, index);
+  if (result.event === "selected") {
+    gameState.value = result.state;
+    feedbackMessage.value = legalMoves.value.some((move) => move.capture) ? "Выбрана бьющая шашка. Выбери подсвеченную клетку взятия." : "Шашка выбрана. Выбери подсвеченную клетку.";
+    return;
+  }
+  if (result.event === "invalid" || !result.result?.move) {
+    const reason = gameState.value.forcedFromIndex !== undefined ? "must-continue-capture" : "invalid-checkers-move";
+    feedbackMessage.value = gameState.value.forcedFromIndex !== undefined ? "Нужно продолжить взятие этой же шашкой." : "Выбери доступную золотую шашку или подсвеченную клетку.";
+    recordMistake({ targetId: targetId(index), reason, isCorrect: false });
+    void feedbackAudio.playMistake();
     return;
   }
 
-  feedbackMessage.value = "Ход засчитан. Можно выбрать следующую доступную шашку.";
-  isSpeaking.value = true;
+  gameState.value = result.state;
+  lastMove.value = result.result.move;
+  lastCapturedIndex.value = result.result.move.capturedIndex;
+  recordSuccess({ targetId: targetId(index), side: "gold", fromIndex: result.result.move.fromIndex, toIndex: result.result.move.toIndex, capture: result.result.move.capture, king: board.value[index]?.king, isCorrect: true });
   void feedbackAudio.playSuccess();
-  await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["checkers-light.correct", "checkers-light.complete"] : ["checkers-light.correct"], 80, 170);
-  if (finishedAfterSuccess) {
-    finishSession("game-complete");
+  if (result.result.mustContinue) {
+    feedbackMessage.value = "Есть ещё одно взятие. Продолжи этой же шашкой.";
+    return;
   }
-  isSpeaking.value = false;
+  if (!finishIfNeeded("gold")) scheduleAiMove();
 }
 
 function restart() {
   promptAudio.cancelPending();
-  board.value = createInitialCheckersLightBoard();
-  selectedIndex.value = undefined;
-  isSpeaking.value = false;
-  feedbackMessage.value = "Новая доска готова. Выбирай шашку без спешки.";
+  window.clearTimeout(aiTimer);
+  aiRequestId += 1;
+  gameState.value = createInitialCheckersLightState();
+  aiThinking.value = false;
+  lastMove.value = undefined;
+  lastCapturedIndex.value = undefined;
+  feedbackMessage.value = "Новая партия готова. Золотые ходят первыми. Взятие обязательно.";
   startSession();
   promptAudio.play("checkers-light.prompt", 220);
-  recordEvent("level-start", { board: "checkers-light" });
+  recordEvent("level-start", { board: "checkers-light-full" });
 }
 
 onMounted(() => {
@@ -167,68 +233,78 @@ onMounted(() => {
 
 onUnmounted(() => {
   promptAudio.cancelPending();
+  window.clearTimeout(aiTimer);
+  aiRequestId += 1;
 });
 </script>
 
 <template>
   <div class="checkers-shell">
-    <GameHud title="Шашки light" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud title="Шашки" :step="gameState.moveCount" :max-steps="session.maxSteps" :score="counts.gold" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" :show-progress="false" :show-timer="false" @pause="pauseSession" @resume="resumeSession" />
 
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
-        <v-col cols="12" md="10" lg="8" xl="6">
-          <v-card class="pa-4 pa-md-7" rounded="xl" elevation="10">
-            <div class="text-overline text-secondary text-center mb-2">Спокойная стратегия 4×4</div>
-            <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">Шашки light</h1>
-            <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-4">
-              Выбери шашку, затем одну из отмеченных клеток. Если ходов не осталось, раунд завершится.
-            </p>
-            <v-chip class="d-flex mx-auto mb-5 status-chip" color="primary" size="large" variant="tonal">
-              {{ statusText }}
-            </v-chip>
+        <v-col cols="12" lg="11" xl="10">
+          <v-card class="game-card pa-4 pa-md-5" rounded="xl" elevation="10">
+            <div class="game-header d-flex flex-column flex-lg-row align-lg-center justify-space-between ga-3 mb-4">
+              <div>
+                <div class="text-overline text-secondary mb-1">Русские шашки 8×8</div>
+                <h1 class="text-h4 text-md-h3 font-weight-bold mb-1">Шашки</h1>
+                <p class="text-body-1 text-medium-emphasis mb-0">Ходи золотыми шашками. Взятие обязательно, дамки ходят по диагонали на дальние клетки.</p>
+              </div>
+              <div class="d-flex flex-wrap ga-2">
+                <v-chip color="amber" size="large" variant="tonal">Золотые: {{ counts.gold }}</v-chip>
+                <v-chip color="blue" size="large" variant="tonal">Синие: {{ counts.blue }}</v-chip>
+                <v-chip :color="gameState.turn === 'gold' ? 'primary' : 'secondary'" size="large" variant="flat">{{ statusText }}</v-chip>
+              </div>
+            </div>
 
-            <div class="board mx-auto" role="grid" aria-label="Поле упрощённых шашек 4 на 4">
-              <div v-for="row in rows" :key="row" class="board-row" role="row">
+            <v-alert class="feedback-alert mb-4 text-body-1 font-weight-medium" color="primary" icon="mdi-checkerboard" rounded="xl" role="status" variant="tonal">
+              {{ feedbackMessage }}
+            </v-alert>
+
+            <div class="board mx-auto" role="grid" aria-label="Поле русских шашек восемь на восемь">
+              <template v-for="row in rows" :key="row">
                 <GameDwellButton
                   v-for="column in columns"
-                  :key="column"
-                  :class="['board-cell', { 'board-cell--dark': isDarkCell(row * checkersLightSize + column), 'board-cell--target': isMoveTarget(row * checkersLightSize + column), 'board-cell--selected': isSelected(row * checkersLightSize + column) }]"
-                  :target-id="targetId(row * checkersLightSize + column)"
-                  :disabled="session.status !== 'running' || isSpeaking"
+                  :key="`${row}-${column}`"
+                  :class="['board-cell', { 'board-cell--dark': isDarkCell(cellIndex(row, column)) }]"
+                  :target-id="targetId(cellIndex(row, column))"
+                  :disabled="session.status !== 'running' || aiThinking || gameState.status !== 'playing'"
                   :dwell-ms="session.settings.dwellMs"
-                  min-height="clamp(4.5rem, 9vh, 8.5rem)"
-                  :color="cellColor(row * checkersLightSize + column, board[row * checkersLightSize + column])"
+                  min-height="clamp(3rem, 8vh, 5rem)"
+                  :color="cellColor(cellIndex(row, column), board[cellIndex(row, column)])"
                   role="gridcell"
-                  @select="selectCell(row * checkersLightSize + column)"
+                  @select="selectCell(cellIndex(row, column))"
                 >
                   <template #default>
-                    <div class="cell-content">
-                      <div v-if="board[row * checkersLightSize + column]" :class="['piece', `piece--${board[row * checkersLightSize + column]?.side}`]">
-                        <v-icon icon="mdi-circle" size="3.625rem" />
-                        <span class="piece-label">{{ pieceLabel(board[row * checkersLightSize + column]) }}</span>
+                    <div :class="cellClasses(cellIndex(row, column))">
+                      <div v-if="board[cellIndex(row, column)]" :class="['piece', `piece--${board[cellIndex(row, column)]?.side}`, { 'piece--king': board[cellIndex(row, column)]?.king }]">
+                        <v-icon :icon="board[cellIndex(row, column)]?.king ? 'mdi-crown-circle' : 'mdi-circle'" />
+                        <span class="piece-label">{{ board[cellIndex(row, column)]?.king ? 'дамка' : pieceLabel(board[cellIndex(row, column)]).split(' ')[1] }}</span>
                       </div>
-                      <div v-else-if="isMoveTarget(row * checkersLightSize + column)" class="move-cue">
-                        <v-icon icon="mdi-check" size="2.75rem" />
-                        <span>ход</span>
+                      <div v-else-if="isMoveTarget(cellIndex(row, column))" class="move-cue">
+                        <v-icon :icon="getMoveForTarget(gameState, gameState.selectedIndex ?? -1, cellIndex(row, column))?.capture ? 'mdi-close-circle' : 'mdi-check-circle'" />
                       </div>
+                      <div v-else-if="!isDarkCell(cellIndex(row, column))" class="light-cell" />
                       <div v-else class="cell-coordinate text-caption">
-                        {{ cellPosition(row * checkersLightSize + column).row + 1 }}{{ cellPosition(row * checkersLightSize + column).column + 1 }}
+                        {{ cellPosition(cellIndex(row, column)).row + 1 }}{{ cellPosition(cellIndex(row, column)).column + 1 }}
                       </div>
                     </div>
                   </template>
                 </GameDwellButton>
-              </div>
+              </template>
             </div>
 
-            <v-alert class="mt-5 text-body-1" color="success" icon="mdi-checkerboard" rounded="xl" role="status" variant="tonal">
-              {{ feedbackMessage }}
-            </v-alert>
+            <div class="d-flex justify-end mt-4">
+              <v-btn color="secondary" prepend-icon="mdi-arrow-left" rounded="xl" size="large" variant="tonal" @click="router.push(resolveMenuRoute())">В меню</v-btn>
+            </div>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
 
-    <GameResultDialog :model-value="resultVisible" title="Шашки light" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog :model-value="resultVisible" title="Шашки" :score="counts.gold" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
   </div>
 </template>
 
@@ -242,51 +318,67 @@ onUnmounted(() => {
 }
 
 .game-container {
-  padding-block-start: 8.75rem;
+  padding-block-start: 7rem;
 }
 
-.status-chip {
-  inline-size: fit-content;
+.game-card {
+  margin-inline: auto;
 }
 
 .board {
   display: grid;
-  gap: clamp(0.4rem, 1.2vw, 0.75rem);
-  inline-size: min(100%, 37rem);
-}
-
-.board-row {
-  display: grid;
-  gap: clamp(0.4rem, 1.2vw, 0.75rem);
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.22rem, 0.55vw, 0.45rem);
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  inline-size: min(94vw, 42rem, 68vh);
 }
 
 .board-cell :deep(.dwell-button) {
-  border: 0.18rem solid rgb(var(--v-theme-outline-variant));
-  padding: clamp(0.35rem, 1.2vw, 0.75rem) !important;
+  border: 0.12rem solid rgb(var(--v-theme-outline-variant));
+  padding: clamp(0.18rem, 0.55vw, 0.45rem) !important;
 }
 
 .board-cell--dark :deep(.dwell-button) {
   border-color: rgb(var(--v-theme-primary) / 34%);
 }
 
-.board-cell--target :deep(.dwell-button) {
-  box-shadow: 0 0 0 0.35rem rgb(var(--v-theme-success) / 20%);
-}
-
-.board-cell--selected :deep(.dwell-button) {
-  box-shadow: 0 0 0 0.35rem rgb(var(--v-theme-primary) / 28%);
-}
-
 .cell-content {
   align-items: center;
+  block-size: 100%;
+  border-radius: 0.95rem;
   display: flex;
+  inline-size: 100%;
   justify-content: center;
-  min-block-size: clamp(3.25rem, 7.5vh, 5.5rem);
+  min-block-size: clamp(2.6rem, 6.3vh, 4.1rem);
+  position: relative;
 }
 
-.cell-coordinate {
-  color: #17212b !important;
+.cell-content--selected {
+  outline: 0.22rem solid rgb(var(--v-theme-secondary) / 64%);
+  outline-offset: -0.28rem;
+}
+
+.cell-content--target {
+  box-shadow: inset 0 0 0 0.22rem rgb(var(--v-theme-success) / 38%);
+}
+
+.cell-content--movable::after {
+  background: rgb(var(--v-theme-primary));
+  block-size: 0.5rem;
+  border-radius: 999rem;
+  content: "";
+  inline-size: 0.5rem;
+  inset-block-start: 0.35rem;
+  inset-inline-end: 0.35rem;
+  position: absolute;
+}
+
+.cell-content--last {
+  outline: 0.2rem dashed rgb(var(--v-theme-primary) / 48%);
+  outline-offset: -0.25rem;
+}
+
+.cell-content--captured {
+  background: rgb(var(--v-theme-error) / 12%);
 }
 
 .piece,
@@ -295,7 +387,12 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   font-weight: 800;
-  gap: 0.25rem;
+  gap: 0.1rem;
+}
+
+.piece :deep(.v-icon),
+.move-cue :deep(.v-icon) {
+  font-size: clamp(2rem, 4.8vw, 3.35rem);
 }
 
 .piece--gold {
@@ -306,74 +403,85 @@ onUnmounted(() => {
   color: #1976d2;
 }
 
+.piece--king {
+  filter: drop-shadow(0 0 0.45rem rgb(255 193 7 / 42%));
+}
+
 .piece-label {
   color: #17212b !important;
-  font-size: clamp(0.7rem, 1.8vw, 0.9rem);
-  line-height: 1.1;
-}
-
-.board-cell--selected :deep(.piece-label),
-.board-cell--selected .cell-coordinate,
-.board-cell--selected :deep(.move-cue) {
-  color: #ffffff !important;
-}
-
-.board-cell--target :deep(.piece-label),
-.board-cell--target .cell-coordinate,
-.board-cell--target :deep(.move-cue) {
-  color: #0d2a17 !important;
+  font-size: clamp(0.58rem, 1.25vw, 0.78rem);
+  line-height: 1;
 }
 
 .move-cue {
-  color: #17212b;
+  color: #0d2a17;
 }
 
-@media (max-height: 44rem) {
+.cell-coordinate {
+  color: #17212b !important;
+  opacity: 0.52;
+}
+
+.light-cell {
+  opacity: 0.24;
+}
+
+@media (max-height: 68rem) {
   .game-container {
-    padding-block-start: 7.5rem;
+    padding-block-start: 4.5rem;
   }
 
-  .cell-content {
-    min-block-size: 3.8rem;
+  .game-card {
+    padding-block: 1rem !important;
+  }
+
+  .game-header {
+    margin-block-end: 0.8rem !important;
+  }
+
+  .game-header .text-overline,
+  .game-header p,
+  .feedback-alert,
+  .game-card .v-btn {
+    display: none !important;
+  }
+
+  .board {
+    inline-size: min(94vw, 39rem, 70vh);
   }
 }
 
 @media (max-height: 42.5rem) {
   .game-container {
-    padding-block-start: 4.75rem;
+    padding-block-start: 4.25rem;
   }
 
-  .game-container :deep(.v-card) {
-    padding-block: 1rem !important;
-  }
-
-  .game-container .text-overline,
-  .game-container h1,
-  .game-container p,
-  .game-container .v-alert {
-    display: none;
-  }
-
-  .status-chip {
-    margin-block-end: 0.75rem !important;
+  .game-header {
+    display: none !important;
   }
 
   .board {
-    gap: 0.45rem;
-    inline-size: min(100%, 37rem);
-  }
-
-  .board-row {
-    gap: 0.45rem;
+    gap: 0.18rem;
+    inline-size: min(94vw, 29rem, 58vh);
   }
 
   .board-cell :deep(.dwell-button) {
-    min-block-size: 5.625rem !important;
-    padding: 0.35rem !important;
+    min-block-size: 2.65rem !important;
+    padding: 0.2rem !important;
   }
 
   .cell-content {
-    min-block-size: 4.5rem;
+    min-block-size: 2.35rem;
+  }
+
+  .piece-label,
+  .cell-coordinate {
+    display: none;
+  }
+
+  .piece :deep(.v-icon),
+  .move-cue :deep(.v-icon) {
+    font-size: 1.95rem;
   }
 }
 </style>

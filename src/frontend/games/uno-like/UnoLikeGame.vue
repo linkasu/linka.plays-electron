@@ -112,7 +112,7 @@ onUnmounted(() => {
                 <h1 class="text-h3 text-md-h2 font-weight-bold mb-2">{{ round.prompt }}</h1>
                 <p class="text-h6 text-medium-emphasis mb-0" role="status">{{ helperText }}</p>
               </div>
-              <v-avatar color="primary" rounded="xl" size="4.875rem">
+              <v-avatar class="game-symbol" color="primary" rounded="xl" size="4.875rem">
                 <v-icon icon="mdi-cards-playing-outline" size="48" />
               </v-avatar>
             </div>
@@ -132,7 +132,7 @@ onUnmounted(() => {
               <v-col cols="12" md="8">
                 <v-row class="choice-grid" dense>
                   <v-col v-for="card in round.choices" :key="card.id" cols="6" sm="3" :lg="round.choices.length >= 5 ? 4 : 6">
-                    <GameDwellButton :target-id="cardTargetId(card)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="clamp(8.75rem, 23vh, 10.625rem)" :color="cardButtonColor(card)" @select="choose(card)">
+                    <GameDwellButton :target-id="cardTargetId(card)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="clamp(7.5rem, 18vh, 9.5rem)" :color="cardButtonColor(card)" @select="choose(card)">
                       <template #default>
                         <div :class="['choice-card', { 'choice-card--mistake': lastMistakeId === card.id }]">
                           <div class="uno-card" :style="{ borderColor: card.color.hex }">
@@ -171,7 +171,7 @@ onUnmounted(() => {
 }
 
 .game-container {
-  padding-block-start: 5rem;
+  padding-block: 5rem 3.8rem;
 }
 
 .open-card-panel {
@@ -215,13 +215,13 @@ onUnmounted(() => {
   box-shadow: 0 0.55rem 1.2rem rgb(15 23 42 / 18%);
   display: flex;
   flex-direction: column;
-  inline-size: clamp(7rem, min(18vw, 22vh), 10rem);
+  inline-size: clamp(6.2rem, min(16vw, 18vh), 9rem);
   justify-content: center;
   overflow: hidden;
 }
 
 .uno-card--open {
-  inline-size: clamp(8rem, min(22vw, 26vh), 12rem);
+  inline-size: clamp(7.2rem, min(18vw, 22vh), 10.5rem);
 }
 
 .uno-card__stripe {
@@ -234,7 +234,7 @@ onUnmounted(() => {
 
 .uno-card__number {
   color: rgb(var(--v-theme-on-surface));
-  font-size: clamp(4rem, min(13vw, 15vh), 7rem);
+  font-size: clamp(3.4rem, min(10vw, 12vh), 6rem);
   font-weight: 950;
   line-height: 1;
   margin-block-start: auto;
@@ -243,7 +243,7 @@ onUnmounted(() => {
 
 @media (max-height: 44rem) {
   .game-container {
-    padding-block-start: 5rem;
+    padding-block: 5rem 3.8rem;
   }
 
   .open-card-panel {
@@ -253,7 +253,7 @@ onUnmounted(() => {
 
 @media (max-height: 51.25rem) {
   .game-container {
-    padding-block-start: 4.25rem;
+    padding-block: 4.25rem 3.8rem;
   }
 
   .open-card-col,
@@ -261,8 +261,35 @@ onUnmounted(() => {
     display: none;
   }
 
+  .game-symbol {
+    display: none;
+  }
+
+  .game-container h1 {
+    font-size: clamp(2.4rem, 7vw, 3.6rem) !important;
+    line-height: 1.02;
+  }
+
+  .game-container p[role="status"] {
+    font-size: clamp(1rem, 2.4vw, 1.18rem) !important;
+  }
+
+  .choice-grid :deep(.dwell-button) {
+    padding: clamp(0.45rem, 1.2vh, 0.7rem) !important;
+  }
+
   .uno-card {
-    inline-size: clamp(5rem, 12vw, 7rem);
+    border-width: 0.34rem;
+    inline-size: clamp(4.45rem, 10.5vw, 6.1rem);
+  }
+
+  .uno-card__stripe {
+    font-size: clamp(0.72rem, 1.8vw, 0.95rem);
+    padding-block: 0.28rem;
+  }
+
+  .uno-card__number {
+    font-size: clamp(2.8rem, 8vw, 4.6rem);
   }
 }
 </style>

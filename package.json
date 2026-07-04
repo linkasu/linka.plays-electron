@@ -8,6 +8,7 @@
     "dev": "npm run build:electron && concurrently -k \"vite --host 127.0.0.1\" \"wait-on tcp:5173 && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5173 electron dist-electron/main.js\"",
     "electron:serve": "npm run dev",
     "build": "npm run build:renderer && npm run build:electron",
+    "build:native": "node-gyp rebuild",
     "build:renderer": "vite build",
     "build:electron": "tsc -p tsconfig.electron.json",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.electron.json",
@@ -23,7 +24,7 @@
     "review:next": "node scripts/open-next-development-game.mjs",
     "tts:add": "node scripts/add-tts-phrase.mjs",
     "tts:assets": "node scripts/generate-tts-assets.mjs",
-    "electron:build": "npm run build && electron-builder -p never"
+    "electron:build": "npm run build:native && npm run build && electron-builder -p never"
   },
   "dependencies": {
     "@linkasu/tobii-electron": "https://github.com/linkasu/linka-tobii-electron/releases/download/v0.2.10/linkasu-tobii-electron-0.2.10.tgz",
@@ -89,6 +90,10 @@
         "from": "./node_modules/@linkasu/tobii-electron/extraResources/bin/",
         "to": "extraResources/bin",
         "filter": ["EyeLog.exe", "*.dll", "*.config"]
+      },
+      {
+        "from": "./build/Release/connect_four_ai.node",
+        "to": "native/connect_four_ai.node"
       }
     ]
   }

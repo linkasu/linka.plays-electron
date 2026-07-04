@@ -1,9 +1,7 @@
 import type { Component } from "vue";
 import { createRouter, createWebHashHistory } from "vue-router";
 import AquariumGame from "../games/aquarium/AquariumGame.vue";
-import ArkanoidAssistGame from "../games/arkanoid-assist/ArkanoidAssistGame.vue";
 import BalancerGame from "../games/balancer/BalancerGame.vue";
-import BalloonRideGame from "../games/balloon-ride/BalloonRideGame.vue";
 import BalloonsGame from "../games/balloons/BalloonsGame.vue";
 import BattleshipLightGame from "../games/battleship-light/BattleshipLightGame.vue";
 import BellsGame from "../games/bells/BellsGame.vue";
@@ -21,7 +19,6 @@ import ChessMiniGame from "../games/chess-mini/ChessMiniGame.vue";
 import CalmTetrisGame from "../games/calm-tetris/CalmTetrisGame.vue";
 import CalmSnakeGame from "../games/calm-snake/CalmSnakeGame.vue";
 import CatchLightGame from "../games/catch-light/CatchLightGame.vue";
-import CatchWaveGame from "../games/catch-wave/CatchWaveGame.vue";
 import CheckersLightGame from "../games/checkers-light/CheckersLightGame.vue";
 import ChooseEmotionGame from "../games/choose-emotion/ChooseEmotionGame.vue";
 import CloudsGame from "../games/clouds/CloudsGame.vue";
@@ -54,12 +51,10 @@ import FollowCueGame from "../games/follow-cue/FollowCueGame.vue";
 import FlowersGame from "../games/flowers/FlowersGame.vue";
 import FrogGame from "../games/frog/FrogGame.vue";
 import GardenWateringGame from "../games/garden-watering/GardenWateringGame.vue";
-import GatesPathGame from "../games/gates-path/GatesPathGame.vue";
 import GazeFollowSnakeGame from "../games/gaze-follow-snake/GazeFollowSnakeGame.vue";
 import GazeMazeGame from "../games/gaze-maze/GazeMazeGame.vue";
 import GliderGame from "../games/glider/GliderGame.vue";
 import GreaterLessGame from "../games/greater-less/GreaterLessGame.vue";
-import GuideFishGame from "../games/guide-fish/GuideFishGame.vue";
 import HideAndSeekGame from "../games/hide-and-seek/HideAndSeekGame.vue";
 import IWantGame from "../games/i-want/IWantGame.vue";
 import JellyfishGame from "../games/jellyfish/JellyfishGame.vue";
@@ -77,7 +72,6 @@ import MatchSameGame from "../games/match-same/MatchSameGame.vue";
 import MathActionsGame from "../games/math-actions/MathActionsGame.vue";
 import MiniDialogGame from "../games/mini-dialog/MiniDialogGame.vue";
 import MinesweeperSafeGame from "../games/minesweeper-safe/MinesweeperSafeGame.vue";
-import MazePathGame from "../games/maze-path/MazePathGame.vue";
 import MosaicGame from "../games/mosaic/MosaicGame.vue";
 import MusicalPathGame from "../games/musical-path/MusicalPathGame.vue";
 import MoonPathGame from "../games/moon-path/MoonPathGame.vue";
@@ -87,16 +81,13 @@ import NumberLineGame from "../games/number-line/NumberLineGame.vue";
 import NumberSortingGame from "../games/number-sorting/NumberSortingGame.vue";
 import OpenDoorGame from "../games/open-door/OpenDoorGame.vue";
 import ObjectActionGame from "../games/object-action/ObjectActionGame.vue";
-import OrchestraConductorGame from "../games/orchestra-conductor/OrchestraConductorGame.vue";
 import OneManyGame from "../games/one-many/OneManyGame.vue";
 import OddOneOutGame from "../games/odd-one-out/OddOneOutGame.vue";
 import OppositesGame from "../games/opposites/OppositesGame.vue";
-import PacPathGame from "../games/pac-path/PacPathGame.vue";
 import PatternsGame from "../games/patterns/PatternsGame.vue";
 import MemoryCardsGame from "../games/memory-cards/MemoryCardsGame.vue";
 import PaperLanternsGame from "../games/paper-lanterns/PaperLanternsGame.vue";
 import PizzaFractionsGame from "../games/pizza-fractions/PizzaFractionsGame.vue";
-import PulsingTargetGame from "../games/pulsing-target/PulsingTargetGame.vue";
 import PyramidGame from "../games/pyramid/PyramidGame.vue";
 import QuietBubblesGame from "../games/quiet-bubbles/QuietBubblesGame.vue";
 import RailsGame from "../games/rails/RailsGame.vue";
@@ -129,8 +120,6 @@ import StepPongGame from "../games/step-pong/StepPongGame.vue";
 import Sudoku2x2Game from "../games/sudoku-2x2/Sudoku2x2Game.vue";
 import SunRaysGame from "../games/sun-rays/SunRaysGame.vue";
 import TableTennisGame from "../games/table-tennis/TableTennisGame.vue";
-import TangramGame from "../games/tangram/TangramGame.vue";
-import TanksNoShootingGame from "../games/tanks-no-shooting/TanksNoShootingGame.vue";
 import ThreeFrameStoryGame from "../games/three-frame-story/ThreeFrameStoryGame.vue";
 import TicTacToeGame from "../games/tic-tac-toe/TicTacToeGame.vue";
 import TrainSequenceGame from "../games/train-sequence/TrainSequenceGame.vue";
@@ -156,8 +145,6 @@ import { games } from "../data/games";
 
 const gameComponentsById: Record<string, Component> = {
   "aquarium": AquariumGame,
-  "arkanoid-assist": ArkanoidAssistGame,
-  "balloon-ride": BalloonRideGame,
   "balloons": BalloonsGame,
   "bells": BellsGame,
   "breathing-flower": BreathingFlowerGame,
@@ -272,14 +259,11 @@ const gameComponentsById: Record<string, Component> = {
   "tic-tac-toe": TicTacToeGame,
   "reversi-light": ReversiLightGame,
   "lines-five": LinesFiveGame,
-  "tangram": TangramGame,
   "chess-mini": ChessMiniGame,
   "calm-snake": CalmSnakeGame,
-  "pac-path": PacPathGame,
   "connect-four": ConnectFourGame,
   "checkers-light": CheckersLightGame,
   "battleship-light": BattleshipLightGame,
-  "tanks-no-shooting": TanksNoShootingGame,
   "step-pong": StepPongGame,
   "boat": BoatGame,
   "gaze-follow-snake": GazeFollowSnakeGame,
@@ -289,18 +273,12 @@ const gameComponentsById: Record<string, Component> = {
   "table-tennis": TableTennisGame,
   "line-drawing": LineDrawingGame,
   "cursor-magnet": CursorMagnetGame,
-  "pulsing-target": PulsingTargetGame,
-  "gates-path": GatesPathGame,
-  "guide-fish": GuideFishGame,
   "rails": RailsGame,
   "balancer": BalancerGame,
-  "catch-wave": CatchWaveGame,
   "snow-trail": SnowTrailGame,
   "robot-vacuum": RobotVacuumGame,
-  "maze-path": MazePathGame,
   "garden-watering": GardenWateringGame,
   "space-orbit": SpaceOrbitGame,
-  "orchestra-conductor": OrchestraConductorGame,
   "gaze-maze": GazeMazeGame
 };
 
