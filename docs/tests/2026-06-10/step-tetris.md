@@ -1,4 +1,4 @@
-# Тетрис спокойный (calm-tetris)
+# Тетрис спокойный (step-tetris)
 
 Дата аудита: 2026-06-10
 
@@ -8,9 +8,9 @@
 |---|---|
 | Категория | Спокойные настольные игры |
 | Статус | therapy-ready |
-| Маршрут | /games/calm-tetris |
+| Маршрут | /games/step-tetris |
 | Реализован в router | да |
-| Папка игры | src/frontend/games/calm-tetris |
+| Папка игры | src/frontend/games/step-tetris |
 | Навыки | choice, sequence |
 | Рекомендованная сессия | 180 сек |
 | Минимальная цель | 116 px |
@@ -24,9 +24,9 @@ Self-menu: Поставь фигуру на место.
 
 ## Проверенные файлы
 
-- src/frontend/games/calm-tetris/CalmTetrisGame.vue
-- src/frontend/games/calm-tetris/model.ts
-- src/frontend/games/calm-tetris/model.test.ts
+- src/frontend/games/step-tetris/StepTetrisGame.vue
+- src/frontend/games/step-tetris/model.ts
+- src/frontend/games/step-tetris/model.test.ts
 
 ## Сводка риска
 

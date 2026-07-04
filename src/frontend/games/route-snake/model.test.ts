@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { calmSnakeOutcome, createCalmSnakeState, nextSnakeHead, pointsEqual, setSnakeDirection, stepSnake, type CalmSnakeState } from "./model";
+import { routeSnakeOutcome, createRouteSnakeState, nextSnakeHead, pointsEqual, setSnakeDirection, stepSnake, type RouteSnakeState } from "./model";
 
-function state(overrides: Partial<CalmSnakeState>): CalmSnakeState {
+function state(overrides: Partial<RouteSnakeState>): RouteSnakeState {
   return {
     width: 5,
     height: 5,
@@ -15,7 +15,7 @@ function state(overrides: Partial<CalmSnakeState>): CalmSnakeState {
 
 describe("calm snake model", () => {
   it("creates a centered snake with food inside the board", () => {
-    const created = createCalmSnakeState(9, 9);
+    const created = createRouteSnakeState(9, 9);
 
     expect(created.snake).toHaveLength(3);
     expect(created.direction).toBe("right");
@@ -55,7 +55,7 @@ describe("calm snake model", () => {
 
     expect(result.event).toBe("blocked-wall");
     expect(result.moved).toBe(true);
-    expect(calmSnakeOutcome(result)).toBe("playing");
+    expect(routeSnakeOutcome(result)).toBe("playing");
   });
 
   it("stops safely when no fallback move is available", () => {
@@ -76,7 +76,7 @@ describe("calm snake model", () => {
     expect(result.event).toBe("blocked-wall");
     expect(result.moved).toBe(false);
     expect(result.state.snake).toEqual(current.snake);
-    expect(calmSnakeOutcome(result)).toBe("loss");
+    expect(routeSnakeOutcome(result)).toBe("loss");
   });
 
   it("calculates the next head without mutating input", () => {

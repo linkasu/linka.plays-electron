@@ -52,7 +52,7 @@
 | Покорми зверька | `feed-animal` | [feed-animal.md](feed-animal.md) | `therapy-ready` | `publish` | `ready` |
 | Бабочки | `butterfly` | [butterfly.md](butterfly.md) | `polished` | `publish` | `ready` |
 | Цветы | `flowers` | [flowers.md](flowers.md) | `therapy-ready` | `publish` | `ready` |
-| Тихие пузыри | `quiet-bubbles` | [quiet-bubbles.md](quiet-bubbles.md) | `therapy-ready` | `publish` | `ready` |
+| Тихие пузыри | `bubble-pop` | [bubble-pop.md](bubble-pop.md) | `therapy-ready` | `publish` | `ready` |
 | Утки | `ducks` | [ducks.md](ducks.md) | `therapy-ready` | `publish` | `ready` |
 | Рыбки | `fishes` | [fishes.md](fishes.md) | `therapy-ready` | `publish` | `ready` |
 | Медузы | `jellyfish` | [jellyfish.md](jellyfish.md) | `therapy-ready` | `publish` | `ready` |
@@ -156,10 +156,10 @@
 |---|---|---|---|---|---|
 | Сапёр | `minesweeper-safe` | [minesweeper-safe.md](minesweeper-safe.md) | `therapy-ready` | `publish` | `ready` |
 | Домино | `domino-matching` | [domino-matching.md](domino-matching.md) | `therapy-ready` | `publish` | `ready` |
-| 2048 мягкий | `calm-2048` | [calm-2048.md](calm-2048.md) | `therapy-ready` | `publish` | `ready` |
+| 2048 мягкий | `number-2048` | [number-2048.md](number-2048.md) | `therapy-ready` | `publish` | `ready` |
 | Пятнашки 3×3 | `sliding-puzzle` | [sliding-puzzle.md](sliding-puzzle.md) | `therapy-ready` | `publish` | `ready` |
 | Уно-подобное | `uno-like` | [uno-like.md](uno-like.md) | `therapy-ready` | `publish` | `ready` |
-| Тетрис спокойный | `calm-tetris` | [calm-tetris.md](calm-tetris.md) | `therapy-ready` | `publish` | `ready` |
+| Тетрис спокойный | `step-tetris` | [step-tetris.md](step-tetris.md) | `therapy-ready` | `publish` | `ready` |
 | Сокобан крупный | `sokoban-large` | [sokoban-large.md](sokoban-large.md) | `therapy-ready` | `publish` | `ready` |
 | Крестики-нолики | `tic-tac-toe` | [tic-tac-toe.md](tic-tac-toe.md) | `polished` | `publish` | `ready` |
 | 4 в ряд | `connect-four` | [connect-four.md](connect-four.md) | `polished` | `publish` | `ready` |
@@ -169,7 +169,7 @@
 | Chess mini | `chess-mini` | [chess-mini.md](chess-mini.md) | `therapy-ready` | `publish` | `ready` |
 | Морской бой light | `battleship-light` | [battleship-light.md](battleship-light.md) | `therapy-ready` | `publish` | `ready` |
 | Понг пошаговый | `step-pong` | [step-pong.md](step-pong.md) | `therapy-ready` | `publish` | `ready` |
-| Змейка спокойная | `calm-snake` | [calm-snake.md](calm-snake.md) | `therapy-ready` | `publish` | `ready` |
+| Змейка спокойная | `route-snake` | [route-snake.md](route-snake.md) | `therapy-ready` | `publish` | `ready` |
 
 ### Непрерывное управление
 
@@ -179,7 +179,7 @@
 | Лодочка | `boat` | [boat.md](boat.md) | `therapy-ready` | `publish` | `ready` |
 | Змейка gaze-follow | `gaze-follow-snake` | [gaze-follow-snake.md](gaze-follow-snake.md) | `therapy-ready` | `publish` | `ready` |
 | Теннис | `table-tennis` | [table-tennis.md](table-tennis.md) | `polished` | `publish` | `ready` |
-| Плавная машинка | `smooth-car` | [smooth-car.md](smooth-car.md) | `therapy-ready` | `publish` | `ready` |
+| Плавная машинка | `road-car` | [road-car.md](road-car.md) | `therapy-ready` | `publish` | `ready` |
 | Планер | `glider` | [glider.md](glider.md) | `therapy-ready` | `publish` | `ready` |
 | Рисование линией | `line-drawing` | [line-drawing.md](line-drawing.md) | `therapy-ready` | `publish` | `ready` |
 | Рельсы | `rails` | [rails.md](rails.md) | `therapy-ready` | `publish` | `ready` |

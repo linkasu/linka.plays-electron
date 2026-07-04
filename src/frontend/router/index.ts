@@ -13,11 +13,11 @@ import BuildBridgeGame from "../games/build-bridge/BuildBridgeGame.vue";
 import BuildRobotGame from "../games/build-robot/BuildRobotGame.vue";
 import ButterflyGame from "../games/butterfly/ButterflyGame.vue";
 import CalendarGame from "../games/calendar/CalendarGame.vue";
-import Calm2048Game from "../games/calm-2048/Calm2048Game.vue";
+import Number2048Game from "../games/number-2048/Number2048Game.vue";
 import ChoosePictureGame from "../games/choose-picture/ChoosePictureGame.vue";
 import ChessMiniGame from "../games/chess-mini/ChessMiniGame.vue";
-import CalmTetrisGame from "../games/calm-tetris/CalmTetrisGame.vue";
-import CalmSnakeGame from "../games/calm-snake/CalmSnakeGame.vue";
+import StepTetrisGame from "../games/step-tetris/StepTetrisGame.vue";
+import RouteSnakeGame from "../games/route-snake/RouteSnakeGame.vue";
 import CatchLightGame from "../games/catch-light/CatchLightGame.vue";
 import CheckersLightGame from "../games/checkers-light/CheckersLightGame.vue";
 import ChooseEmotionGame from "../games/choose-emotion/ChooseEmotionGame.vue";
@@ -89,7 +89,7 @@ import MemoryCardsGame from "../games/memory-cards/MemoryCardsGame.vue";
 import PaperLanternsGame from "../games/paper-lanterns/PaperLanternsGame.vue";
 import PizzaFractionsGame from "../games/pizza-fractions/PizzaFractionsGame.vue";
 import PyramidGame from "../games/pyramid/PyramidGame.vue";
-import QuietBubblesGame from "../games/quiet-bubbles/QuietBubblesGame.vue";
+import BubblePopGame from "../games/bubble-pop/BubblePopGame.vue";
 import RailsGame from "../games/rails/RailsGame.vue";
 import ReversiLightGame from "../games/reversi-light/ReversiLightGame.vue";
 import RobotVacuumGame from "../games/robot-vacuum/RobotVacuumGame.vue";
@@ -105,7 +105,7 @@ import ShopGame from "../games/shop/ShopGame.vue";
 import ShelfSortingGame from "../games/shelf-sorting/ShelfSortingGame.vue";
 import SimpleGraphsGame from "../games/simple-graphs/SimpleGraphsGame.vue";
 import SlidingPuzzleGame from "../games/sliding-puzzle/SlidingPuzzleGame.vue";
-import SmoothCarGame from "../games/smooth-car/SmoothCarGame.vue";
+import RoadCarGame from "../games/road-car/RoadCarGame.vue";
 import SoapCirclesGame from "../games/soap-circles/SoapCirclesGame.vue";
 import SoundSourceGame from "../games/sound-source/SoundSourceGame.vue";
 import SpaceOrbitGame from "../games/space-orbit/SpaceOrbitGame.vue";
@@ -175,7 +175,7 @@ const gameComponentsById: Record<string, Component> = {
   "color-circle": ColorCircleGame,
   "butterfly": ButterflyGame,
   "flowers": FlowersGame,
-  "quiet-bubbles": QuietBubblesGame,
+  "bubble-pop": BubblePopGame,
   "ducks": DucksGame,
   "calendar": CalendarGame,
   "clock": ClockGame,
@@ -251,23 +251,23 @@ const gameComponentsById: Record<string, Component> = {
   "shapes": ShapesGame,
   "domino-matching": DominoMatchingGame,
   "minesweeper-safe": MinesweeperSafeGame,
-  "calm-2048": Calm2048Game,
+  "number-2048": Number2048Game,
   "sliding-puzzle": SlidingPuzzleGame,
   "uno-like": UnoLikeGame,
-  "calm-tetris": CalmTetrisGame,
+  "step-tetris": StepTetrisGame,
   "sokoban-large": SokobanLargeGame,
   "tic-tac-toe": TicTacToeGame,
   "reversi-light": ReversiLightGame,
   "lines-five": LinesFiveGame,
   "chess-mini": ChessMiniGame,
-  "calm-snake": CalmSnakeGame,
+  "route-snake": RouteSnakeGame,
   "connect-four": ConnectFourGame,
   "checkers-light": CheckersLightGame,
   "battleship-light": BattleshipLightGame,
   "step-pong": StepPongGame,
   "boat": BoatGame,
   "gaze-follow-snake": GazeFollowSnakeGame,
-  "smooth-car": SmoothCarGame,
+  "road-car": RoadCarGame,
   "glider": GliderGame,
   "frog": FrogGame,
   "table-tennis": TableTennisGame,

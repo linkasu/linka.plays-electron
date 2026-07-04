@@ -91,7 +91,7 @@ export const magneticLevels: MagneticLevel[] = [
     ]
   },
   {
-    id: "quiet-trap",
+    id: "interference-zone",
     title: "Зона помех",
     brief: "Проведи капсулу между двумя стенами: выключи лишние поля и оставь отрицательный заряд у реактора.",
     start: { x: 0.17, y: 0.48 },

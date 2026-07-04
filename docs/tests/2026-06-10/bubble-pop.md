@@ -1,4 +1,4 @@
-# Тихие пузыри (quiet-bubbles)
+# Тихие пузыри (bubble-pop)
 
 Дата аудита: 2026-06-10
 
@@ -8,9 +8,9 @@
 |---|---|
 | Категория | Основы взгляда |
 | Статус | therapy-ready |
-| Маршрут | /games/quiet-bubbles |
+| Маршрут | /games/bubble-pop |
 | Реализован в router | да |
-| Папка игры | src/frontend/games/quiet-bubbles |
+| Папка игры | src/frontend/games/bubble-pop |
 | Навыки | fixation, attention-shift |
 | Рекомендованная сессия | 75 сек |
 | Минимальная цель | 190 px |
@@ -24,7 +24,7 @@ Self-menu: Лопни пузыри взглядом.
 
 ## Проверенные файлы
 
-- src/frontend/games/quiet-bubbles/QuietBubblesGame.vue
+- src/frontend/games/bubble-pop/BubblePopGame.vue
 
 ## Сводка риска
 

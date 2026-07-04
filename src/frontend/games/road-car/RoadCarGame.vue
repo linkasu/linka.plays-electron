@@ -18,7 +18,7 @@ type RoadSideItem = Point & {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("smooth-car", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("road-car", {
   maxSteps: highwaySegments.length,
   overrides: { preset: "standard", dwellMs: 600, targetScale: 1.25, motionSpeed: 0.9, distractors: "low", hints: "medium" },
   finishOnMistakes: false
@@ -317,10 +317,10 @@ useGameLoop({ context, update, draw });
 </script>
 
 <template>
-  <div class="smooth-car-shell">
-    <canvas ref="canvasRef" class="smooth-car-canvas" aria-label="Игра Плавная машинка: 4-полосное шоссе" />
+  <div class="road-car-shell">
+    <canvas ref="canvasRef" class="road-car-canvas" aria-label="Игра Плавная машинка: 4-полосное шоссе" />
 
-    <v-card class="smooth-car-hint px-4 py-3" color="surface" rounded="xl" variant="flat">
+    <v-card class="road-car-hint px-4 py-3" color="surface" rounded="xl" variant="flat">
       <div class="text-body-2 font-weight-medium">{{ guidanceText }}</div>
       <div class="text-caption text-medium-emphasis">Четыре полосы. Жёлтый знак собери, встречные машины объезжай.</div>
     </v-card>
@@ -353,7 +353,7 @@ useGameLoop({ context, update, draw });
 </template>
 
 <style scoped>
-.smooth-car-shell {
+.road-car-shell {
   background: #b9ecff;
   block-size: 100dvh;
   inline-size: 100dvw;
@@ -361,13 +361,13 @@ useGameLoop({ context, update, draw });
   position: relative;
 }
 
-.smooth-car-canvas {
+.road-car-canvas {
   display: block;
   inset: 0;
   position: absolute;
 }
 
-.smooth-car-hint {
+.road-car-hint {
   inset-block-end: max(1.125rem, env(safe-area-inset-bottom));
   inset-inline: 1.125rem;
   margin-inline: auto;
@@ -378,7 +378,7 @@ useGameLoop({ context, update, draw });
 }
 
 @media (max-width: 45rem), (max-height: 40rem) {
-  .smooth-car-hint {
+  .road-car-hint {
     display: none;
   }
 }

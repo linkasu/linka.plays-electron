@@ -32,7 +32,7 @@
     "/games/feed-animal",
     "/games/butterfly",
     "/games/flowers",
-    "/games/quiet-bubbles",
+    "/games/bubble-pop",
     "/games/ducks",
     "/games/fishes",
     "/games/jellyfish",
@@ -117,10 +117,10 @@
     "/games/math-actions",
     "/games/minesweeper-safe",
     "/games/domino-matching",
-    "/games/calm-2048",
+    "/games/number-2048",
     "/games/sliding-puzzle",
     "/games/uno-like",
-    "/games/calm-tetris",
+    "/games/step-tetris",
     "/games/sokoban-large",
     "/games/tic-tac-toe",
     "/games/connect-four",
@@ -133,7 +133,7 @@
     "/games/tanks-no-shooting",
     "/games/arkanoid-assist",
     "/games/step-pong",
-    "/games/calm-snake",
+    "/games/route-snake",
     "/games/pac-path",
     "/games/cursor-magnet",
     "/games/pulsing-target",
@@ -141,7 +141,7 @@
     "/games/gaze-follow-snake",
     "/games/table-tennis",
     "/games/gates-path",
-    "/games/smooth-car",
+    "/games/road-car",
     "/games/balloon-ride",
     "/games/glider",
     "/games/line-drawing",
@@ -694,7 +694,7 @@
         "canvasCount": 1
       },
       {
-        "route": "/games/quiet-bubbles",
+        "route": "/games/bubble-pop",
         "checked": 3,
         "failures": 0,
         "errorCount": 0,
@@ -2139,7 +2139,7 @@
         "canvasCount": 0
       },
       {
-        "route": "/games/calm-2048",
+        "route": "/games/number-2048",
         "checked": 3,
         "failures": 0,
         "errorCount": 0,
@@ -2190,7 +2190,7 @@
         "canvasCount": 0
       },
       {
-        "route": "/games/calm-tetris",
+        "route": "/games/step-tetris",
         "checked": 3,
         "failures": 0,
         "errorCount": 0,
@@ -2411,7 +2411,7 @@
         "canvasCount": 0
       },
       {
-        "route": "/games/calm-snake",
+        "route": "/games/route-snake",
         "checked": 3,
         "failures": 0,
         "errorCount": 0,
@@ -2547,7 +2547,7 @@
         "canvasCount": 1
       },
       {
-        "route": "/games/smooth-car",
+        "route": "/games/road-car",
         "checked": 3,
         "failures": 0,
         "errorCount": 0,
@@ -7603,15 +7603,15 @@
       }
     },
     {
-      "route": "/games/quiet-bubbles",
+      "route": "/games/bubble-pop",
       "viewport": {
         "width": 800,
         "height": 600
       },
       "errors": [],
-      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-quiet-bubbles-800x600.png",
+      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-bubble-pop-800x600.png",
       "metrics": {
-        "url": "http://127.0.0.1:5174/?cdpAudit=1781618353309-93#/games/quiet-bubbles",
+        "url": "http://127.0.0.1:5174/?cdpAudit=1781618353309-93#/games/bubble-pop",
         "routeMatches": true,
         "title": "LINKa plays",
         "viewport": {
@@ -7642,15 +7642,15 @@
       }
     },
     {
-      "route": "/games/quiet-bubbles",
+      "route": "/games/bubble-pop",
       "viewport": {
         "width": 1024,
         "height": 600
       },
       "errors": [],
-      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-quiet-bubbles-1024x600.png",
+      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-bubble-pop-1024x600.png",
       "metrics": {
-        "url": "http://127.0.0.1:5174/?cdpAudit=1781618354561-94#/games/quiet-bubbles",
+        "url": "http://127.0.0.1:5174/?cdpAudit=1781618354561-94#/games/bubble-pop",
         "routeMatches": true,
         "title": "LINKa plays",
         "viewport": {
@@ -7681,15 +7681,15 @@
       }
     },
     {
-      "route": "/games/quiet-bubbles",
+      "route": "/games/bubble-pop",
       "viewport": {
         "width": 1600,
         "height": 900
       },
       "errors": [],
-      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-quiet-bubbles-1600x900.png",
+      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-bubble-pop-1600x900.png",
       "metrics": {
-        "url": "http://127.0.0.1:5174/?cdpAudit=1781618355812-95#/games/quiet-bubbles",
+        "url": "http://127.0.0.1:5174/?cdpAudit=1781618355812-95#/games/bubble-pop",
         "routeMatches": true,
         "title": "LINKa plays",
         "viewport": {
@@ -29495,15 +29495,15 @@
       }
     },
     {
-      "route": "/games/calm-2048",
+      "route": "/games/number-2048",
       "viewport": {
         "width": 800,
         "height": 600
       },
       "errors": [],
-      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-calm-2048-800x600.png",
+      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-number-2048-800x600.png",
       "metrics": {
-        "url": "http://127.0.0.1:5174/?cdpAudit=1781618662598-348#/games/calm-2048",
+        "url": "http://127.0.0.1:5174/?cdpAudit=1781618662598-348#/games/number-2048",
         "routeMatches": true,
         "title": "LINKa plays",
         "viewport": {
@@ -29580,15 +29580,15 @@
       }
     },
     {
-      "route": "/games/calm-2048",
+      "route": "/games/number-2048",
       "viewport": {
         "width": 1024,
         "height": 600
       },
       "errors": [],
-      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-calm-2048-1024x600.png",
+      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-number-2048-1024x600.png",
       "metrics": {
-        "url": "http://127.0.0.1:5174/?cdpAudit=1781618663832-349#/games/calm-2048",
+        "url": "http://127.0.0.1:5174/?cdpAudit=1781618663832-349#/games/number-2048",
         "routeMatches": true,
         "title": "LINKa plays",
         "viewport": {
@@ -29665,15 +29665,15 @@
       }
     },
     {
-      "route": "/games/calm-2048",
+      "route": "/games/number-2048",
       "viewport": {
         "width": 1600,
         "height": 900
       },
       "errors": [],
-      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-calm-2048-1600x900.png",
+      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-number-2048-1600x900.png",
       "metrics": {
-        "url": "http://127.0.0.1:5174/?cdpAudit=1781618665097-350#/games/calm-2048",
+        "url": "http://127.0.0.1:5174/?cdpAudit=1781618665097-350#/games/number-2048",
         "routeMatches": true,
         "title": "LINKa plays",
         "viewport": {
@@ -30416,15 +30416,15 @@
       }
     },
     {
-      "route": "/games/calm-tetris",
+      "route": "/games/step-tetris",
       "viewport": {
         "width": 800,
         "height": 600
       },
       "errors": [],
-      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-calm-tetris-800x600.png",
+      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-step-tetris-800x600.png",
       "metrics": {
-        "url": "http://127.0.0.1:5174/?cdpAudit=1781618673824-357#/games/calm-tetris",
+        "url": "http://127.0.0.1:5174/?cdpAudit=1781618673824-357#/games/step-tetris",
         "routeMatches": true,
         "title": "LINKa plays",
         "viewport": {
@@ -30501,15 +30501,15 @@
       }
     },
     {
-      "route": "/games/calm-tetris",
+      "route": "/games/step-tetris",
       "viewport": {
         "width": 1024,
         "height": 600
       },
       "errors": [],
-      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-calm-tetris-1024x600.png",
+      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-step-tetris-1024x600.png",
       "metrics": {
-        "url": "http://127.0.0.1:5174/?cdpAudit=1781618675030-358#/games/calm-tetris",
+        "url": "http://127.0.0.1:5174/?cdpAudit=1781618675030-358#/games/step-tetris",
         "routeMatches": true,
         "title": "LINKa plays",
         "viewport": {
@@ -30586,15 +30586,15 @@
       }
     },
     {
-      "route": "/games/calm-tetris",
+      "route": "/games/step-tetris",
       "viewport": {
         "width": 1600,
         "height": 900
       },
       "errors": [],
-      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-calm-tetris-1600x900.png",
+      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-step-tetris-1600x900.png",
       "metrics": {
-        "url": "http://127.0.0.1:5174/?cdpAudit=1781618676235-359#/games/calm-tetris",
+        "url": "http://127.0.0.1:5174/?cdpAudit=1781618676235-359#/games/step-tetris",
         "routeMatches": true,
         "title": "LINKa plays",
         "viewport": {
@@ -37241,15 +37241,15 @@
       }
     },
     {
-      "route": "/games/calm-snake",
+      "route": "/games/route-snake",
       "viewport": {
         "width": 800,
         "height": 600
       },
       "errors": [],
-      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-calm-snake-800x600.png",
+      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-route-snake-800x600.png",
       "metrics": {
-        "url": "http://127.0.0.1:5174/?cdpAudit=1781618721336-396#/games/calm-snake",
+        "url": "http://127.0.0.1:5174/?cdpAudit=1781618721336-396#/games/route-snake",
         "routeMatches": true,
         "title": "LINKa plays",
         "viewport": {
@@ -37326,15 +37326,15 @@
       }
     },
     {
-      "route": "/games/calm-snake",
+      "route": "/games/route-snake",
       "viewport": {
         "width": 1024,
         "height": 600
       },
       "errors": [],
-      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-calm-snake-1024x600.png",
+      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-route-snake-1024x600.png",
       "metrics": {
-        "url": "http://127.0.0.1:5174/?cdpAudit=1781618722530-397#/games/calm-snake",
+        "url": "http://127.0.0.1:5174/?cdpAudit=1781618722530-397#/games/route-snake",
         "routeMatches": true,
         "title": "LINKa plays",
         "viewport": {
@@ -37411,15 +37411,15 @@
       }
     },
     {
-      "route": "/games/calm-snake",
+      "route": "/games/route-snake",
       "viewport": {
         "width": 1600,
         "height": 900
       },
       "errors": [],
-      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-calm-snake-1600x900.png",
+      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-route-snake-1600x900.png",
       "metrics": {
-        "url": "http://127.0.0.1:5174/?cdpAudit=1781618723720-398#/games/calm-snake",
+        "url": "http://127.0.0.1:5174/?cdpAudit=1781618723720-398#/games/route-snake",
         "routeMatches": true,
         "title": "LINKa plays",
         "viewport": {
@@ -38453,15 +38453,15 @@
       }
     },
     {
-      "route": "/games/smooth-car",
+      "route": "/games/road-car",
       "viewport": {
         "width": 800,
         "height": 600
       },
       "errors": [],
-      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-smooth-car-800x600.png",
+      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-road-car-800x600.png",
       "metrics": {
-        "url": "http://127.0.0.1:5174/?cdpAudit=1781618750599-420#/games/smooth-car",
+        "url": "http://127.0.0.1:5174/?cdpAudit=1781618750599-420#/games/road-car",
         "routeMatches": true,
         "title": "LINKa plays",
         "viewport": {
@@ -38492,15 +38492,15 @@
       }
     },
     {
-      "route": "/games/smooth-car",
+      "route": "/games/road-car",
       "viewport": {
         "width": 1024,
         "height": 600
       },
       "errors": [],
-      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-smooth-car-1024x600.png",
+      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-road-car-1024x600.png",
       "metrics": {
-        "url": "http://127.0.0.1:5174/?cdpAudit=1781618751793-421#/games/smooth-car",
+        "url": "http://127.0.0.1:5174/?cdpAudit=1781618751793-421#/games/road-car",
         "routeMatches": true,
         "title": "LINKa plays",
         "viewport": {
@@ -38531,15 +38531,15 @@
       }
     },
     {
-      "route": "/games/smooth-car",
+      "route": "/games/road-car",
       "viewport": {
         "width": 1600,
         "height": 900
       },
       "errors": [],
-      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-smooth-car-1600x900.png",
+      "screenshotPath": "/tmp/linka-plays-cdp-screenshots/2026-06-16/games-road-car-1600x900.png",
       "metrics": {
-        "url": "http://127.0.0.1:5174/?cdpAudit=1781618753006-422#/games/smooth-car",
+        "url": "http://127.0.0.1:5174/?cdpAudit=1781618753006-422#/games/road-car",
         "routeMatches": true,
         "title": "LINKa plays",
         "viewport": {

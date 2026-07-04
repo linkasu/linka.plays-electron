@@ -4,8 +4,8 @@
 
 | Поле | Значение |
 |---|---|
-| ID | `smooth-car` |
-| Route | `/games/smooth-car` |
+| ID | `road-car` |
+| Route | `/games/road-car` |
 | Категория | `continuous-control` — Непрерывное управление |
 | Status | `therapy-ready` |
 | Resolved stability | `publish` |
@@ -47,11 +47,11 @@
 | Проверка | Состояние |
 |---|---|
 | Route в router | есть |
-| Vue-компонент | `SmoothCarGame.vue` |
+| Vue-компонент | `RoadCarGame.vue` |
 | Model | `model.ts` |
 | Model test | `model.test.ts` |
 | Audio module | нет |
-| Runtime audit doc | `docs/tests/2026-06-10/smooth-car.md` |
+| Runtime audit doc | `docs/tests/2026-06-10/road-car.md` |
 
 ## QA checklist
 

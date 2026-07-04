@@ -304,7 +304,7 @@ game/<slug>
 | Ветка | Игра | Почему можно параллельно |
 |---|---|---|
 | `game/firefly-meadow` | Светлячковая поляна | isolated ambient canvas |
-| `game/quiet-bubbles` | Тихие пузыри | isolated ambient canvas |
+| `game/bubble-pop` | Тихие пузыри | isolated ambient canvas |
 | `game/big-button` | Большая кнопка | isolated simple dwell component |
 | `game/yes-no` | Да / нет | isolated AAC choice game |
 | `game/find-color` | Найди цвет | isolated visual search model |

@@ -26,13 +26,13 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 
 const reveals: DoorReveal[] = [
   { icon: "mdi-lightbulb-on", label: "тёплый свет", glow: "#ffe5a3", ttsId: "open-door.warm-light" },
-  { icon: "mdi-heart", label: "мягкое сердце", glow: "#ffc2d6", ttsId: "open-door.soft-heart" },
-  { icon: "mdi-flower", label: "тихий цветок", glow: "#c9f4c7", ttsId: "open-door.quiet-flower" },
-  { icon: "mdi-star", label: "спокойная звезда", glow: "#f9e7ff", ttsId: "open-door.calm-star" },
+  { icon: "mdi-heart", label: "мягкое сердце", glow: "#ffc2d6", ttsId: "open-door.pink-heart" },
+  { icon: "mdi-flower", label: "тихий цветок", glow: "#c9f4c7", ttsId: "open-door.green-flower" },
+  { icon: "mdi-star", label: "спокойная звезда", glow: "#f9e7ff", ttsId: "open-door.violet-star" },
   { icon: "mdi-weather-sunny", label: "лучик солнца", glow: "#ffdf8a", ttsId: "open-door.sun-ray" },
-  { icon: "mdi-cloud", label: "пушистое облако", glow: "#d7ecff", ttsId: "open-door.soft-cloud" },
-  { icon: "mdi-music-note", label: "тихая нота", glow: "#d8d1ff", ttsId: "open-door.quiet-note" },
-  { icon: "mdi-creation", label: "мягкая искра", glow: "#ffe7bd", ttsId: "open-door.soft-spark" }
+  { icon: "mdi-cloud", label: "пушистое облако", glow: "#d7ecff", ttsId: "open-door.fluffy-cloud" },
+  { icon: "mdi-music-note", label: "тихая нота", glow: "#d8d1ff", ttsId: "open-door.music-note" },
+  { icon: "mdi-creation", label: "мягкая искра", glow: "#ffe7bd", ttsId: "open-door.gold-spark" }
 ];
 
 const doorOpen = ref(false);

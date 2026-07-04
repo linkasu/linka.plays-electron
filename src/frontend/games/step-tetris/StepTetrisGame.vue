@@ -9,10 +9,10 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
-  calmTetrisColumns,
-  calmTetrisPieceIds,
-  calmTetrisRows,
-  calmTetrisSpawnOutcome,
+  stepTetrisColumns,
+  stepTetrisPieceIds,
+  stepTetrisRows,
+  stepTetrisSpawnOutcome,
   cellIndex,
   createEmptyBoard,
   createPiece,
@@ -23,29 +23,29 @@ import {
   movePlacement,
   placementCells,
   rotatePlacement,
-  type CalmTetrisBoard,
-  type CalmTetrisCell,
-  type CalmTetrisPieceId,
-  type CalmTetrisPlacement
+  type StepTetrisBoard,
+  type StepTetrisCell,
+  type StepTetrisPieceId,
+  type StepTetrisPlacement
 } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("calm-tetris", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("step-tetris", {
   maxSteps: 24,
   overrides: { targetScale: 1.25, sound: true },
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "calm-tetris", soundEnabled, warmAssetIds: ["calm-tetris.prompt", "calm-tetris.correct", "calm-tetris.mistake", "calm-tetris.complete"] });
+const promptAudio = useGamePromptAudio({ gameId: "step-tetris", soundEnabled, warmAssetIds: ["step-tetris.prompt", "step-tetris.correct", "step-tetris.mistake", "step-tetris.complete"] });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
-const pieceSequence: CalmTetrisPieceId[] = ["o", "t", "i", "l", "s", "t", "o", "l", "s", "i"];
-const rows = Array.from({ length: calmTetrisRows }, (_, row) => row);
-const columns = Array.from({ length: calmTetrisColumns }, (_, column) => column);
-const pieceColors = Object.fromEntries(calmTetrisPieceIds.map((id) => [id, createPiece(id).color])) as Record<CalmTetrisPieceId, string>;
+const pieceSequence: StepTetrisPieceId[] = ["o", "t", "i", "l", "s", "t", "o", "l", "s", "i"];
+const rows = Array.from({ length: stepTetrisRows }, (_, row) => row);
+const columns = Array.from({ length: stepTetrisColumns }, (_, column) => column);
+const pieceColors = Object.fromEntries(stepTetrisPieceIds.map((id) => [id, createPiece(id).color])) as Record<StepTetrisPieceId, string>;
 
-const board = ref<CalmTetrisBoard>(createEmptyBoard());
+const board = ref<StepTetrisBoard>(createEmptyBoard());
 const pieceIndex = ref(0);
 const currentPlacement = ref(createSpawnPlacement(createPiece(pieceSequence[0])));
 const feedbackMessage = ref("Выбери колонку шагами, поверни фигуру и спокойно поставь её вниз.");
@@ -70,7 +70,7 @@ const actionButtons = computed<GameWasdControl[]>(() => [
 ]);
 
 function cellTargetId(action: string) {
-  return `calm-tetris:${action}`;
+  return `step-tetris:${action}`;
 }
 
 function cellKey(row: number, column: number) {
@@ -110,7 +110,7 @@ function wait(ms: number) {
   return new Promise<void>((resolve) => window.setTimeout(resolve, ms));
 }
 
-function findValidRotation(placement: CalmTetrisPlacement) {
+function findValidRotation(placement: StepTetrisPlacement) {
   const rotated = rotatePlacement(placement);
   for (const columnOffset of [0, -1, 1, -2, 2]) {
     const next = movePlacement(rotated, 0, columnOffset);
@@ -119,7 +119,7 @@ function findValidRotation(placement: CalmTetrisPlacement) {
   return undefined;
 }
 
-function setCurrentPlacement(nextPlacement: CalmTetrisPlacement, message: string) {
+function setCurrentPlacement(nextPlacement: StepTetrisPlacement, message: string) {
   currentPlacement.value = nextPlacement;
   feedbackMessage.value = message;
 }
@@ -141,7 +141,7 @@ async function nextPiece() {
   const piece = createPiece(pieceSequence[pieceIndex.value % pieceSequence.length]);
   const placement = createSpawnPlacement(piece);
 
-  if (calmTetrisSpawnOutcome(board.value, piece) === "playing") {
+  if (stepTetrisSpawnOutcome(board.value, piece) === "playing") {
     currentPlacement.value = placement;
     return;
   }
@@ -150,7 +150,7 @@ async function nextPiece() {
   feedbackMessage.value = "Наверху стало тесно. Доска завершена, можно начать снова.";
   recordMistake({ kind: "top-out", piece: piece.id, isCorrect: false });
   void feedbackAudio.playMistake();
-  await promptAudio.playSequenceAndWait(["calm-tetris.mistake", "calm-tetris.complete"], 80, 170);
+  await promptAudio.playSequenceAndWait(["step-tetris.mistake", "step-tetris.complete"], 80, 170);
   finishSession("game-lost");
 }
 
@@ -177,7 +177,7 @@ async function dropCurrent() {
     : "Фигура спокойно легла на место.";
 
   void feedbackAudio.playSuccess();
-  await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["calm-tetris.correct", "calm-tetris.complete"] : ["calm-tetris.correct"], 80, 170);
+  await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["step-tetris.correct", "step-tetris.complete"] : ["step-tetris.correct"], 80, 170);
   if (finishedAfterSuccess) {
     finishSession("game-complete");
     isSpeaking.value = false;
@@ -204,12 +204,12 @@ function restart() {
   isDropping.value = false;
   dropRows.value = 0;
   startSession();
-  promptAudio.play("calm-tetris.prompt", 220);
+  promptAudio.play("step-tetris.prompt", 220);
 }
 
 onMounted(() => {
   promptAudio.warm();
-  promptAudio.play("calm-tetris.prompt", 420);
+  promptAudio.play("step-tetris.prompt", 420);
 });
 
 onUnmounted(() => {
@@ -218,7 +218,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="calm-tetris-shell">
+  <div class="step-tetris-shell">
     <GameHud title="Тетрис спокойный" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
 
     <v-container class="game-container" fluid>
@@ -278,7 +278,7 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.calm-tetris-shell {
+.step-tetris-shell {
   background:
     radial-gradient(circle at 18% 18%, rgb(178 223 219 / 58%), transparent 26%),
     radial-gradient(circle at 86% 20%, rgb(209 196 233 / 56%), transparent 28%),

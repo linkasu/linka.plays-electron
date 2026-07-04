@@ -8,10 +8,10 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { calmSnakeOutcome, createCalmSnakeState, setSnakeDirection, stepSnake, type CalmSnakeStepEvent, type SnakeDirection, type SnakePoint } from "./model";
+import { routeSnakeOutcome, createRouteSnakeState, setSnakeDirection, stepSnake, type RouteSnakeStepEvent, type SnakeDirection, type SnakePoint } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("calm-snake", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("route-snake", {
   maxSteps: 24,
   overrides: { motionSpeed: 0.65, targetScale: 1.25, sound: true },
   finishOnMaxSteps: false,
@@ -19,10 +19,10 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnTimeout: false
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "calm-snake", soundEnabled, warmAssetIds: ["calm-snake.prompt", "calm-snake.correct", "calm-snake.mistake", "calm-snake.complete"] });
+const promptAudio = useGamePromptAudio({ gameId: "route-snake", soundEnabled, warmAssetIds: ["route-snake.prompt", "route-snake.correct", "route-snake.mistake", "route-snake.complete"] });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
-const boardState = ref(createCalmSnakeState());
+const boardState = ref(createRouteSnakeState());
 const feedbackMessage = ref("Выбери направление. Змейка движется сама и спокойно ищет листочек.");
 const leavesEaten = ref(0);
 const slowUntil = ref(0);
@@ -50,7 +50,7 @@ const directionButtons = computed<GameWasdControl[]>(() => directionControls.map
 })));
 
 function directionTargetId(direction: SnakeDirection) {
-  return `calm-snake:direction:${direction}`;
+  return `route-snake:direction:${direction}`;
 }
 
 function chooseDirection(direction: SnakeDirection) {
@@ -76,14 +76,14 @@ async function tick() {
   lastStepAt = now;
   const result = stepSnake(boardState.value);
   boardState.value = result.state;
-  if (calmSnakeOutcome(result) === "loss") {
+  if (routeSnakeOutcome(result) === "loss") {
     feedbackMessage.value = result.event === "blocked-wall"
       ? "Змейка упёрлась в край поля. Раунд завершён, можно начать заново."
       : "Змейка встретила хвостик. Раунд завершён, можно начать заново.";
     recordMistake({ event: result.event, moved: result.moved, direction: boardState.value.direction, isCorrect: false });
     isSpeaking.value = true;
     void feedbackAudio.playMistake();
-    await promptAudio.playSequenceAndWait(["calm-snake.mistake", "calm-snake.complete"], 80, 170);
+    await promptAudio.playSequenceAndWait(["route-snake.mistake", "route-snake.complete"], 80, 170);
     finishSession("game-lost");
     isSpeaking.value = false;
     return;
@@ -91,14 +91,14 @@ async function tick() {
   await handleStepEvent(result.event, result.moved);
 }
 
-async function handleStepEvent(event: CalmSnakeStepEvent, moved: boolean) {
+async function handleStepEvent(event: RouteSnakeStepEvent, moved: boolean) {
   if (event === "ate-food") {
     leavesEaten.value += 1;
     feedbackMessage.value = "Листочек найден. Змейка стала чуть длиннее.";
     recordSuccess({ event, leavesEaten: leavesEaten.value, snakeLength: boardState.value.snake.length });
     isSpeaking.value = true;
     void feedbackAudio.playSuccess();
-    await promptAudio.playSequenceAndWait(["calm-snake.correct"], 80, 170);
+    await promptAudio.playSequenceAndWait(["route-snake.correct"], 80, 170);
     isSpeaking.value = false;
     return;
   }
@@ -146,14 +146,14 @@ function pointMatches(point: SnakePoint, row: number, column: number) {
 
 function restart() {
   promptAudio.cancelPending();
-  boardState.value = createCalmSnakeState();
+  boardState.value = createRouteSnakeState();
   feedbackMessage.value = "Выбери направление. Змейка движется сама и спокойно ищет листочек.";
   leavesEaten.value = 0;
   slowUntil.value = 0;
   isSpeaking.value = false;
   lastStepAt = performance.now();
   startSession();
-  promptAudio.play("calm-snake.prompt", 220);
+  promptAudio.play("route-snake.prompt", 220);
 }
 
 function pauseGame() {
@@ -167,7 +167,7 @@ function resumeGame() {
 
 onMounted(() => {
   promptAudio.warm();
-  promptAudio.play("calm-snake.prompt", 420);
+  promptAudio.play("route-snake.prompt", 420);
 });
 
 onUnmounted(() => {
@@ -177,7 +177,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="calm-snake-shell">
+  <div class="route-snake-shell">
     <GameHud title="Змейка спокойная" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :paused="session.status === 'paused'" :show-progress="false" :show-timer="false" @pause="pauseGame" @resume="resumeGame" />
 
     <v-container class="game-container" fluid>
@@ -216,7 +216,7 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.calm-snake-shell {
+.route-snake-shell {
   background:
     radial-gradient(circle at 12% 18%, rgb(255 246 198 / 84%) 0 12rem, transparent 20rem),
     radial-gradient(circle at 88% 12%, rgb(125 210 157 / 46%) 0 10rem, transparent 18rem),

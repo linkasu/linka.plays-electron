@@ -20,7 +20,7 @@
 | `firefly-meadow` | Canvas render подтвержден, не blank |
 | `butterfly` | Canvas render подтвержден, не blank |
 | `flowers` | Canvas render подтвержден, не blank |
-| `quiet-bubbles` | Canvas render подтвержден, не blank |
+| `bubble-pop` | Canvas render подтвержден, не blank |
 | `ducks` | Canvas render подтвержден, не blank |
 | `fishes` | Canvas render подтвержден, не blank |
 | `frog` | Canvas render подтвержден, не blank |
@@ -47,7 +47,7 @@
 |---|---|---|---|
 | Sequencing карточки | `train-sequence`, `day-routine`, `comic-strip`, `soup-recipe`, `schedule`, `build-bridge`, `sandwich`, `dress-character` | fixed HUD + ручной `padding-block-start` + большой preview/slots/stage перед `GameDwellButton` | Ввести compact-card layout для `max-height:680px`: choices выше, preview ниже/сбоку, stage ограничен по высоте |
 | Language/numeracy карточки | `tell-picture`, `who-is-this`, `simple-graphs`, `number-bonds`, `sudoku-2x2` | крупные scene/prompt blocks перед choices; breakpoint зависит от ширины, а баг от высоты | Добавить height-aware compact mode и проверять первые visible targets на `800x600` |
-| Strategy trainers | `arkanoid-assist`, `step-pong`, `tanks-no-shooting`, `sokoban-large`, `calm-snake`, `uno-like`, `tangram` | основная сцена/подсказка стоит над controls на compact layout | Для strategy pages применить тот же controls-above-fold паттерн, который уже сделан для `calm-2048`/`calm-tetris` |
+| Strategy trainers | `arkanoid-assist`, `step-pong`, `tanks-no-shooting`, `sokoban-large`, `route-snake`, `uno-like`, `tangram` | основная сцена/подсказка стоит над controls на compact layout | Для strategy pages применить тот же controls-above-fold паттерн, который уже сделан для `number-2048`/`step-tetris` |
 
 ## Что не считать багом без продуктового решения
 

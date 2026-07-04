@@ -42,25 +42,25 @@
     "path": "/audio/tts/open-door/warm-light.mp3"
   },
   {
-    "id": "open-door.soft-heart",
+    "id": "open-door.pink-heart",
     "game": "open-door",
     "text": "Мягкое сердце.",
     "voice": "jane",
-    "path": "/audio/tts/open-door/soft-heart.mp3"
+    "path": "/audio/tts/open-door/pink-heart.mp3"
   },
   {
-    "id": "open-door.quiet-flower",
+    "id": "open-door.green-flower",
     "game": "open-door",
     "text": "Тихий цветок.",
     "voice": "jane",
-    "path": "/audio/tts/open-door/quiet-flower.mp3"
+    "path": "/audio/tts/open-door/green-flower.mp3"
   },
   {
-    "id": "open-door.calm-star",
+    "id": "open-door.violet-star",
     "game": "open-door",
     "text": "Спокойная звезда.",
     "voice": "jane",
-    "path": "/audio/tts/open-door/calm-star.mp3"
+    "path": "/audio/tts/open-door/violet-star.mp3"
   },
   {
     "id": "open-door.sun-ray",
@@ -70,25 +70,25 @@
     "path": "/audio/tts/open-door/sun-ray.mp3"
   },
   {
-    "id": "open-door.soft-cloud",
+    "id": "open-door.fluffy-cloud",
     "game": "open-door",
     "text": "Пушистое облако.",
     "voice": "jane",
-    "path": "/audio/tts/open-door/soft-cloud.mp3"
+    "path": "/audio/tts/open-door/fluffy-cloud.mp3"
   },
   {
-    "id": "open-door.quiet-note",
+    "id": "open-door.music-note",
     "game": "open-door",
     "text": "Тихая нота.",
     "voice": "jane",
-    "path": "/audio/tts/open-door/quiet-note.mp3"
+    "path": "/audio/tts/open-door/music-note.mp3"
   },
   {
-    "id": "open-door.soft-spark",
+    "id": "open-door.gold-spark",
     "game": "open-door",
     "text": "Мягкая искра.",
     "voice": "jane",
-    "path": "/audio/tts/open-door/soft-spark.mp3"
+    "path": "/audio/tts/open-door/gold-spark.mp3"
   },
   {
     "id": "warm-window.intro",
@@ -5901,11 +5901,11 @@
     "path": "/audio/tts/who-hiding/cover-flower-bush.mp3"
   },
   {
-    "id": "who-hiding.cover.soft-bush",
+    "id": "who-hiding.cover.dense-bush",
     "game": "who-hiding",
     "text": "Подсказка: цель спряталась за мягкими кустами. Выбери мягкие кусты спокойным взглядом.",
     "voice": "filipp",
-    "path": "/audio/tts/who-hiding/cover-soft-bush.mp3"
+    "path": "/audio/tts/who-hiding/cover-dense-bush.mp3"
   },
   {
     "id": "who-hiding.cover.low-bush",
@@ -7602,32 +7602,32 @@
     "path": "/audio/tts/domino-matching/complete.mp3"
   },
   {
-    "id": "calm-2048.prompt",
-    "game": "calm-2048",
+    "id": "number-2048.prompt",
+    "game": "number-2048",
     "text": "Сдвигай плитки одной кнопкой и ищи одинаковые числа.",
     "voice": "jane",
-    "path": "/audio/tts/calm-2048/prompt.mp3"
+    "path": "/audio/tts/number-2048/prompt.mp3"
   },
   {
-    "id": "calm-2048.correct",
-    "game": "calm-2048",
+    "id": "number-2048.correct",
+    "game": "number-2048",
     "text": "Ход засчитан. Можно искать следующее слияние.",
     "voice": "jane",
-    "path": "/audio/tts/calm-2048/correct.mp3"
+    "path": "/audio/tts/number-2048/correct.mp3"
   },
   {
-    "id": "calm-2048.mistake",
-    "game": "calm-2048",
+    "id": "number-2048.mistake",
+    "game": "number-2048",
     "text": "В эту сторону хода нет. Выбери другое направление.",
     "voice": "jane",
-    "path": "/audio/tts/calm-2048/mistake.mp3"
+    "path": "/audio/tts/number-2048/mistake.mp3"
   },
   {
-    "id": "calm-2048.complete",
-    "game": "calm-2048",
+    "id": "number-2048.complete",
+    "game": "number-2048",
     "text": "Доска завершена. Можно спокойно отдохнуть.",
     "voice": "jane",
-    "path": "/audio/tts/calm-2048/complete.mp3"
+    "path": "/audio/tts/number-2048/complete.mp3"
   },
   {
     "id": "sliding-puzzle.prompt",
@@ -7686,32 +7686,32 @@
     "path": "/audio/tts/uno-like/complete.mp3"
   },
   {
-    "id": "calm-tetris.prompt",
-    "game": "calm-tetris",
+    "id": "step-tetris.prompt",
+    "game": "step-tetris",
     "text": "Поставь фигуру спокойно. Можно сдвинуть, повернуть или опустить.",
     "voice": "jane",
-    "path": "/audio/tts/calm-tetris/prompt.mp3"
+    "path": "/audio/tts/step-tetris/prompt.mp3"
   },
   {
-    "id": "calm-tetris.correct",
-    "game": "calm-tetris",
+    "id": "step-tetris.correct",
+    "game": "step-tetris",
     "text": "Фигура встала на место. Продолжаем спокойно.",
     "voice": "jane",
-    "path": "/audio/tts/calm-tetris/correct.mp3"
+    "path": "/audio/tts/step-tetris/correct.mp3"
   },
   {
-    "id": "calm-tetris.mistake",
-    "game": "calm-tetris",
+    "id": "step-tetris.mistake",
+    "game": "step-tetris",
     "text": "Доска остановилась. Можно начать снова без спешки.",
     "voice": "jane",
-    "path": "/audio/tts/calm-tetris/mistake.mp3"
+    "path": "/audio/tts/step-tetris/mistake.mp3"
   },
   {
-    "id": "calm-tetris.complete",
-    "game": "calm-tetris",
+    "id": "step-tetris.complete",
+    "game": "step-tetris",
     "text": "Тетрис завершён. Сделай паузу и посмотри на результат.",
     "voice": "jane",
-    "path": "/audio/tts/calm-tetris/complete.mp3"
+    "path": "/audio/tts/step-tetris/complete.mp3"
   },
   {
     "id": "sokoban-large.prompt",
@@ -8050,32 +8050,32 @@
     "path": "/audio/tts/step-pong/complete.mp3"
   },
   {
-    "id": "calm-snake.prompt",
-    "game": "calm-snake",
+    "id": "route-snake.prompt",
+    "game": "route-snake",
     "text": "Выбери направление, змейка движется медленно.",
     "voice": "jane",
-    "path": "/audio/tts/calm-snake/prompt.mp3"
+    "path": "/audio/tts/route-snake/prompt.mp3"
   },
   {
-    "id": "calm-snake.correct",
-    "game": "calm-snake",
+    "id": "route-snake.correct",
+    "game": "route-snake",
     "text": "Листочек найден.",
     "voice": "jane",
-    "path": "/audio/tts/calm-snake/correct.mp3"
+    "path": "/audio/tts/route-snake/correct.mp3"
   },
   {
-    "id": "calm-snake.mistake",
-    "game": "calm-snake",
+    "id": "route-snake.mistake",
+    "game": "route-snake",
     "text": "Путь закрыт.",
     "voice": "jane",
-    "path": "/audio/tts/calm-snake/mistake.mp3"
+    "path": "/audio/tts/route-snake/mistake.mp3"
   },
   {
-    "id": "calm-snake.complete",
-    "game": "calm-snake",
+    "id": "route-snake.complete",
+    "game": "route-snake",
     "text": "Раунд завершён.",
     "voice": "jane",
-    "path": "/audio/tts/calm-snake/complete.mp3"
+    "path": "/audio/tts/route-snake/complete.mp3"
   },
   {
     "id": "pac-path.prompt",
@@ -8792,11 +8792,11 @@
     "path": "/audio/tts/cursor-magnet/task-s-curve.mp3"
   },
   {
-    "id": "cursor-magnet.task.quiet-trap",
+    "id": "cursor-magnet.task.interference-zone",
     "game": "cursor-magnet",
     "text": "Контур четыре: зона помех. Найди спокойную траекторию между стенами и проверь схему запуском.",
     "voice": "jane",
-    "path": "/audio/tts/cursor-magnet/task-quiet-trap.mp3"
+    "path": "/audio/tts/cursor-magnet/task-interference-zone.mp3"
   },
   {
     "id": "cursor-magnet.task.upper-gate",

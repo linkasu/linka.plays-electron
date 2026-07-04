@@ -2,18 +2,18 @@ import { createTherapeuticMelodyPlayer } from "../../core/therapeuticMelodyPlaye
 
 const player = createTherapeuticMelodyPlayer();
 
-export function resetQuietBubblesAudioSession() {
+export function resetBubblePopAudioSession() {
   player.reset();
 }
 
-export function warmQuietBubblesAudio(enabled: boolean) {
+export function warmBubblePopAudio(enabled: boolean) {
   player.warm(enabled);
 }
 
-export function playQuietBubbleMelody(enabled: boolean) {
+export function playBubblePopMelody(enabled: boolean) {
   return player.play(enabled);
 }
 
-export function disposeQuietBubblesAudio() {
+export function disposeBubblePopAudio() {
   player.dispose();
 }

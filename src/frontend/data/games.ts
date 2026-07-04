@@ -574,11 +574,11 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1100
   },
   {
-    id: "quiet-bubbles",
+    id: "bubble-pop",
     title: "Тихие пузыри",
     description: "Лопай крупные пузыри взглядом на спокойном пастельном фоне.",
     selfDescription: "Лопни пузыри взглядом.",
-    route: "/games/quiet-bubbles",
+    route: "/games/bubble-pop",
     category: "gaze-basics",
     icon: "mdi-water-circle",
     skills: ["fixation", "attention-shift"],
@@ -1759,11 +1759,11 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
-    id: "calm-2048",
+    id: "number-2048",
     title: "2048 мягкий",
     description: "Сдвигай плитки 4×4 и собирай одинаковые числа: если ходов не останется, доска завершится.",
     selfDescription: "Собери одинаковые плитки.",
-    route: "/games/calm-2048",
+    route: "/games/number-2048",
     category: "strategy",
     icon: "mdi-grid-large",
     skills: ["choice", "sequence", "counting"],
@@ -1804,11 +1804,11 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1300
   },
   {
-    id: "calm-tetris",
+    id: "step-tetris",
     title: "Тетрис спокойный",
     description: "Ставь фигуры пошагово: выбери колонку, поверни и мягко опусти без спешки.",
     selfDescription: "Поставь фигуру на место.",
-    route: "/games/calm-tetris",
+    route: "/games/step-tetris",
     category: "strategy",
     icon: "mdi-view-grid-plus",
     skills: ["choice", "sequence"],
@@ -1954,11 +1954,11 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1200
   },
   {
-    id: "calm-snake",
+    id: "route-snake",
     title: "Змейка спокойная",
     description: "Веди медленную змейку по мягкой сетке: если рядом край или хвостик, змейка замедляется и ищет свободный путь.",
     selfDescription: "Помоги змейке найти листочки.",
-    route: "/games/calm-snake",
+    route: "/games/route-snake",
     category: "strategy",
     icon: "mdi-snake",
     skills: ["choice", "sequence", "attention-shift"],
@@ -2029,11 +2029,11 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1000
   },
   {
-    id: "smooth-car",
+    id: "road-car",
     title: "Плавная машинка",
     description: "Веди машинку взглядом по широкой дороге к мягким светлым кругам.",
     selfDescription: "Веди машинку по дороге.",
-    route: "/games/smooth-car",
+    route: "/games/road-car",
     category: "continuous-control",
     icon: "mdi-car-side",
     skills: ["continuous-control", "smooth-pursuit"],

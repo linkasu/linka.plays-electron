@@ -1,34 +1,34 @@
-export type CalmTetrisPieceId = "i" | "o" | "t" | "l" | "s";
-export type CalmTetrisCell = CalmTetrisPieceId | "";
-export type CalmTetrisBoard = CalmTetrisCell[];
+export type StepTetrisPieceId = "i" | "o" | "t" | "l" | "s";
+export type StepTetrisCell = StepTetrisPieceId | "";
+export type StepTetrisBoard = StepTetrisCell[];
 
-export type CalmTetrisPoint = {
+export type StepTetrisPoint = {
   row: number;
   column: number;
 };
 
-export type CalmTetrisPiece = {
-  id: CalmTetrisPieceId;
+export type StepTetrisPiece = {
+  id: StepTetrisPieceId;
   label: string;
   color: string;
-  cells: CalmTetrisPoint[];
+  cells: StepTetrisPoint[];
   rotation: number;
 };
 
-export type CalmTetrisPlacement = {
-  piece: CalmTetrisPiece;
+export type StepTetrisPlacement = {
+  piece: StepTetrisPiece;
   row: number;
   column: number;
 };
 
-export type CalmTetrisSpawnOutcome = "playing" | "loss";
+export type StepTetrisSpawnOutcome = "playing" | "loss";
 
-export const calmTetrisColumns = 10;
-export const calmTetrisRows = 12;
-export const calmTetrisCells = calmTetrisColumns * calmTetrisRows;
-export const calmTetrisTopRecoveryRows = 4;
+export const stepTetrisColumns = 10;
+export const stepTetrisRows = 12;
+export const stepTetrisCells = stepTetrisColumns * stepTetrisRows;
+export const stepTetrisTopRecoveryRows = 4;
 
-const pieceDefinitions: Record<CalmTetrisPieceId, Omit<CalmTetrisPiece, "cells" | "rotation"> & { cells: CalmTetrisPoint[] }> = {
+const pieceDefinitions: Record<StepTetrisPieceId, Omit<StepTetrisPiece, "cells" | "rotation"> & { cells: StepTetrisPoint[] }> = {
   i: {
     id: "i",
     label: "Палочка",
@@ -86,21 +86,21 @@ const pieceDefinitions: Record<CalmTetrisPieceId, Omit<CalmTetrisPiece, "cells" 
   }
 };
 
-export const calmTetrisPieceIds = Object.keys(pieceDefinitions) as CalmTetrisPieceId[];
+export const stepTetrisPieceIds = Object.keys(pieceDefinitions) as StepTetrisPieceId[];
 
-export function createEmptyBoard(): CalmTetrisBoard {
-  return Array<CalmTetrisCell>(calmTetrisCells).fill("");
+export function createEmptyBoard(): StepTetrisBoard {
+  return Array<StepTetrisCell>(stepTetrisCells).fill("");
 }
 
 export function cellIndex(row: number, column: number) {
-  return row * calmTetrisColumns + column;
+  return row * stepTetrisColumns + column;
 }
 
 export function isInside(row: number, column: number) {
-  return row >= 0 && row < calmTetrisRows && column >= 0 && column < calmTetrisColumns;
+  return row >= 0 && row < stepTetrisRows && column >= 0 && column < stepTetrisColumns;
 }
 
-export function normalizeShape(cells: CalmTetrisPoint[]) {
+export function normalizeShape(cells: StepTetrisPoint[]) {
   const minRow = Math.min(...cells.map((cell) => cell.row));
   const minColumn = Math.min(...cells.map((cell) => cell.column));
   return cells
@@ -108,11 +108,11 @@ export function normalizeShape(cells: CalmTetrisPoint[]) {
     .sort((a, b) => a.row - b.row || a.column - b.column);
 }
 
-export function rotateShape(cells: CalmTetrisPoint[]) {
+export function rotateShape(cells: StepTetrisPoint[]) {
   return normalizeShape(cells.map((cell) => ({ row: cell.column, column: -cell.row })));
 }
 
-export function createPiece(id: CalmTetrisPieceId, rotation = 0): CalmTetrisPiece {
+export function createPiece(id: StepTetrisPieceId, rotation = 0): StepTetrisPiece {
   const definition = pieceDefinitions[id];
   let cells = normalizeShape(definition.cells);
   const turns = ((rotation % 4) + 4) % 4;
@@ -127,7 +127,7 @@ export function createPiece(id: CalmTetrisPieceId, rotation = 0): CalmTetrisPiec
   };
 }
 
-export function pieceBounds(piece: CalmTetrisPiece) {
+export function pieceBounds(piece: StepTetrisPiece) {
   const rows = piece.cells.map((cell) => cell.row);
   const columns = piece.cells.map((cell) => cell.column);
   return {
@@ -140,27 +140,27 @@ export function pieceBounds(piece: CalmTetrisPiece) {
   };
 }
 
-export function createSpawnPlacement(piece: CalmTetrisPiece): CalmTetrisPlacement {
+export function createSpawnPlacement(piece: StepTetrisPiece): StepTetrisPlacement {
   const bounds = pieceBounds(piece);
   return {
     piece,
     row: 0,
-    column: Math.floor((calmTetrisColumns - bounds.width) / 2)
+    column: Math.floor((stepTetrisColumns - bounds.width) / 2)
   };
 }
 
-export function placementCells(placement: CalmTetrisPlacement) {
+export function placementCells(placement: StepTetrisPlacement) {
   return placement.piece.cells.map((cell) => ({
     row: placement.row + cell.row,
     column: placement.column + cell.column
   }));
 }
 
-export function isValidPlacement(board: CalmTetrisBoard, placement: CalmTetrisPlacement) {
+export function isValidPlacement(board: StepTetrisBoard, placement: StepTetrisPlacement) {
   return placementCells(placement).every((cell) => isInside(cell.row, cell.column) && !board[cellIndex(cell.row, cell.column)]);
 }
 
-export function movePlacement(placement: CalmTetrisPlacement, rowOffset: number, columnOffset: number): CalmTetrisPlacement {
+export function movePlacement(placement: StepTetrisPlacement, rowOffset: number, columnOffset: number): StepTetrisPlacement {
   return {
     ...placement,
     row: placement.row + rowOffset,
@@ -168,14 +168,14 @@ export function movePlacement(placement: CalmTetrisPlacement, rowOffset: number,
   };
 }
 
-export function rotatePlacement(placement: CalmTetrisPlacement): CalmTetrisPlacement {
+export function rotatePlacement(placement: StepTetrisPlacement): StepTetrisPlacement {
   return {
     ...placement,
     piece: createPiece(placement.piece.id, placement.piece.rotation + 1)
   };
 }
 
-export function getDropRow(board: CalmTetrisBoard, placement: CalmTetrisPlacement) {
+export function getDropRow(board: StepTetrisBoard, placement: StepTetrisPlacement) {
   if (!isValidPlacement(board, placement)) return undefined;
 
   let row = placement.row;
@@ -183,30 +183,30 @@ export function getDropRow(board: CalmTetrisBoard, placement: CalmTetrisPlacemen
   return row;
 }
 
-export function getGhostPlacement(board: CalmTetrisBoard, placement: CalmTetrisPlacement): CalmTetrisPlacement | undefined {
+export function getGhostPlacement(board: StepTetrisBoard, placement: StepTetrisPlacement): StepTetrisPlacement | undefined {
   const row = getDropRow(board, placement);
   return row === undefined ? undefined : { ...placement, row };
 }
 
-export function clearFullLines(board: CalmTetrisBoard) {
-  const rows: CalmTetrisCell[][] = [];
+export function clearFullLines(board: StepTetrisBoard) {
+  const rows: StepTetrisCell[][] = [];
   let clearedLines = 0;
 
-  for (let row = 0; row < calmTetrisRows; row++) {
+  for (let row = 0; row < stepTetrisRows; row++) {
     const start = cellIndex(row, 0);
-    const nextRow = board.slice(start, start + calmTetrisColumns);
+    const nextRow = board.slice(start, start + stepTetrisColumns);
     if (nextRow.every(Boolean)) clearedLines += 1;
     else rows.push(nextRow);
   }
 
-  const emptyRows = Array.from({ length: clearedLines }, () => Array<CalmTetrisCell>(calmTetrisColumns).fill(""));
+  const emptyRows = Array.from({ length: clearedLines }, () => Array<StepTetrisCell>(stepTetrisColumns).fill(""));
   return {
     board: [...emptyRows, ...rows].flat(),
     clearedLines
   };
 }
 
-export function lockPiece(board: CalmTetrisBoard, placement: CalmTetrisPlacement) {
+export function lockPiece(board: StepTetrisBoard, placement: StepTetrisPlacement) {
   if (!isValidPlacement(board, placement)) return undefined;
 
   const nextBoard = [...board];
@@ -219,18 +219,18 @@ export function lockPiece(board: CalmTetrisBoard, placement: CalmTetrisPlacement
   };
 }
 
-export function clearTopRows(board: CalmTetrisBoard, rows = calmTetrisTopRecoveryRows): CalmTetrisBoard {
+export function clearTopRows(board: StepTetrisBoard, rows = stepTetrisTopRecoveryRows): StepTetrisBoard {
   const nextBoard = [...board];
-  for (let row = 0; row < Math.min(rows, calmTetrisRows); row++) {
-    for (let column = 0; column < calmTetrisColumns; column++) nextBoard[cellIndex(row, column)] = "";
+  for (let row = 0; row < Math.min(rows, stepTetrisRows); row++) {
+    for (let column = 0; column < stepTetrisColumns; column++) nextBoard[cellIndex(row, column)] = "";
   }
   return nextBoard;
 }
 
-export function canSpawnPiece(board: CalmTetrisBoard, piece: CalmTetrisPiece) {
+export function canSpawnPiece(board: StepTetrisBoard, piece: StepTetrisPiece) {
   return isValidPlacement(board, createSpawnPlacement(piece));
 }
 
-export function calmTetrisSpawnOutcome(board: CalmTetrisBoard, piece: CalmTetrisPiece): CalmTetrisSpawnOutcome {
+export function stepTetrisSpawnOutcome(board: StepTetrisBoard, piece: StepTetrisPiece): StepTetrisSpawnOutcome {
   return canSpawnPiece(board, piece) ? "playing" : "loss";
 }

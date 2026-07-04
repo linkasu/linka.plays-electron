@@ -8,17 +8,17 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { calm2048Outcome, canMove, createInitialBoard, highestTile, moveBoard, spawnTile, type Calm2048Board, type Calm2048Direction } from "./model";
+import { number2048Outcome, canMove, createInitialBoard, highestTile, moveBoard, spawnTile, type Number2048Board, type Number2048Direction } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("calm-2048", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("number-2048", {
   maxSteps: 32,
   overrides: { preset: "gentle", targetScale: 1.15, sound: true },
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "calm-2048", soundEnabled, warmAssetIds: ["calm-2048.prompt", "calm-2048.correct", "calm-2048.mistake", "calm-2048.complete"] });
+const promptAudio = useGamePromptAudio({ gameId: "number-2048", soundEnabled, warmAssetIds: ["number-2048.prompt", "number-2048.correct", "number-2048.mistake", "number-2048.complete"] });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const directions = [
@@ -28,8 +28,8 @@ const directions = [
   { direction: "right", key: "d", label: "Вправо", icon: "mdi-arrow-right-bold" }
 ] as const;
 
-const board = ref<Calm2048Board>(createInitialBoard());
-const previousBoard = ref<Calm2048Board>();
+const board = ref<Number2048Board>(createInitialBoard());
+const previousBoard = ref<Number2048Board>();
 const feedbackMessage = ref("Собирай одинаковые плитки без спешки. Каждый удачный сдвиг засчитывается.");
 const lastSpawnedIndex = ref<number>();
 const isSpeaking = ref(false);
@@ -47,15 +47,15 @@ const directionButtons = computed<GameWasdControl[]>(() => directions.map((item)
   color: canMove(board.value, item.direction) ? "surface" : "blue-grey-lighten-5"
 })));
 
-function directionTargetId(direction: Calm2048Direction) {
-  return `calm-2048:direction:${direction}`;
+function directionTargetId(direction: Number2048Direction) {
+  return `number-2048:direction:${direction}`;
 }
 
 function actionTargetId(action: string) {
-  return `calm-2048:action:${action}`;
+  return `number-2048:action:${action}`;
 }
 
-async function chooseDirection(direction: Calm2048Direction) {
+async function chooseDirection(direction: Number2048Direction) {
   if (session.status !== "running" || isSpeaking.value || !hasMoves.value) return;
 
   const beforeMove = [...board.value];
@@ -67,7 +67,7 @@ async function chooseDirection(direction: Calm2048Direction) {
     recordMistake({ targetId, direction, reason: "blocked", isCorrect: false });
     isSpeaking.value = true;
     void feedbackAudio.playMistake();
-    await promptAudio.playSequenceAndWait(["calm-2048.mistake"], 80);
+    await promptAudio.playSequenceAndWait(["number-2048.mistake"], 80);
     isSpeaking.value = false;
     return;
   }
@@ -79,32 +79,32 @@ async function chooseDirection(direction: Calm2048Direction) {
   lastSpawnedIndex.value = spawn.spawnedIndex;
   recordSuccess({ targetId, direction, merged: move.merged, scoreGain: move.scoreGain, highestTile: highestTile(board.value), isCorrect: true });
 
-  if (calm2048Outcome(board.value) === "loss") {
+  if (number2048Outcome(board.value) === "loss") {
     feedbackMessage.value = "Ходов больше нет. Доска завершена, можно начать новую спокойно.";
     isSpeaking.value = true;
     void feedbackAudio.playSuccess();
-    await promptAudio.playSequenceAndWait(["calm-2048.correct", "calm-2048.complete"], 80, 170);
+    await promptAudio.playSequenceAndWait(["number-2048.correct", "number-2048.complete"], 80, 170);
     finishSession("game-lost");
     isSpeaking.value = false;
   } else if (move.merged) {
     feedbackMessage.value = `Есть слияние: +${move.scoreGain}. Продолжаем спокойно.`;
     isSpeaking.value = true;
     void feedbackAudio.playSuccess();
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["calm-2048.correct", "calm-2048.complete"] : ["calm-2048.correct"], 80, 170);
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["number-2048.correct", "number-2048.complete"] : ["number-2048.correct"], 80, 170);
     if (finishedAfterSuccess) finishSession("game-complete");
     isSpeaking.value = false;
   } else {
     feedbackMessage.value = "Плитки мягко сдвинулись. Можно искать следующее слияние.";
     isSpeaking.value = true;
     void feedbackAudio.playSuccess();
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["calm-2048.correct", "calm-2048.complete"] : ["calm-2048.correct"], 80, 170);
+    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["number-2048.correct", "number-2048.complete"] : ["number-2048.correct"], 80, 170);
     if (finishedAfterSuccess) finishSession("game-complete");
     isSpeaking.value = false;
   }
 }
 
 function chooseDirectionButton(control: GameWasdControl) {
-  chooseDirection(control.id as Calm2048Direction);
+  chooseDirection(control.id as Number2048Direction);
 }
 
 function undoMove() {
@@ -124,7 +124,7 @@ function restart() {
   isSpeaking.value = false;
   feedbackMessage.value = "Новая доска готова. Сдвигай плитки и собирай мягкие слияния.";
   startSession();
-  promptAudio.play("calm-2048.prompt", 220);
+  promptAudio.play("number-2048.prompt", 220);
 }
 
 function tileColor(value: number) {
@@ -143,7 +143,7 @@ function tileColor(value: number) {
 
 onMounted(() => {
   promptAudio.warm();
-  promptAudio.play("calm-2048.prompt", 420);
+  promptAudio.play("number-2048.prompt", 420);
 });
 
 onUnmounted(() => {
@@ -152,7 +152,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="calm-2048-shell">
+  <div class="number-2048-shell">
     <GameHud title="2048 мягкий" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
     <v-container class="game-container" fluid>
       <v-row justify="center">
@@ -222,7 +222,7 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.calm-2048-shell {
+.number-2048-shell {
   background:
     radial-gradient(circle at 18% 18%, rgb(200 230 201 / 64%), transparent 30%),
     radial-gradient(circle at 84% 20%, rgb(187 222 251 / 58%), transparent 28%),

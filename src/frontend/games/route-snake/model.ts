@@ -5,23 +5,23 @@ export type SnakePoint = {
   column: number;
 };
 
-export type CalmSnakeStepEvent = "moved" | "ate-food" | "blocked-wall" | "blocked-self";
+export type RouteSnakeStepEvent = "moved" | "ate-food" | "blocked-wall" | "blocked-self";
 
-export type CalmSnakeState = {
+export type RouteSnakeState = {
   width: number;
   height: number;
   snake: SnakePoint[];
   direction: SnakeDirection;
   food: SnakePoint;
-  lastEvent: CalmSnakeStepEvent;
+  lastEvent: RouteSnakeStepEvent;
 };
 
-export type CalmSnakeStepResult = {
-  state: CalmSnakeState;
-  event: CalmSnakeStepEvent;
+export type RouteSnakeStepResult = {
+  state: RouteSnakeState;
+  event: RouteSnakeStepEvent;
   moved: boolean;
 };
-export type CalmSnakeOutcome = "playing" | "loss";
+export type RouteSnakeOutcome = "playing" | "loss";
 
 const directionDeltas: Record<SnakeDirection, SnakePoint> = {
   up: { row: -1, column: 0 },
@@ -32,7 +32,7 @@ const directionDeltas: Record<SnakeDirection, SnakePoint> = {
 
 const directions: SnakeDirection[] = ["up", "right", "down", "left"];
 
-export function createCalmSnakeState(width = 9, height = 9): CalmSnakeState {
+export function createRouteSnakeState(width = 9, height = 9): RouteSnakeState {
   const centerRow = Math.floor(height / 2);
   const centerColumn = Math.floor(width / 2);
   const snake = [
@@ -51,7 +51,7 @@ export function createCalmSnakeState(width = 9, height = 9): CalmSnakeState {
   };
 }
 
-export function setSnakeDirection(state: CalmSnakeState, direction: SnakeDirection): CalmSnakeState {
+export function setSnakeDirection(state: RouteSnakeState, direction: SnakeDirection): RouteSnakeState {
   if (state.snake.length > 1 && isOpposite(state.direction, direction)) return state;
   return { ...state, direction };
 }
@@ -61,7 +61,7 @@ export function nextSnakeHead(head: SnakePoint, direction: SnakeDirection): Snak
   return { row: head.row + delta.row, column: head.column + delta.column };
 }
 
-export function stepSnake(state: CalmSnakeState, requestedDirection = state.direction): CalmSnakeStepResult {
+export function stepSnake(state: RouteSnakeState, requestedDirection = state.direction): RouteSnakeStepResult {
   const direction = state.snake.length > 1 && isOpposite(state.direction, requestedDirection) ? state.direction : requestedDirection;
   const firstTry = evaluateMove(state, direction);
   if (firstTry.safe) return applyMove(state, direction, "moved");
@@ -81,11 +81,11 @@ export function pointsEqual(a: SnakePoint, b: SnakePoint) {
   return a.row === b.row && a.column === b.column;
 }
 
-export function calmSnakeOutcome(result: CalmSnakeStepResult): CalmSnakeOutcome {
+export function routeSnakeOutcome(result: RouteSnakeStepResult): RouteSnakeOutcome {
   return !result.moved && (result.event === "blocked-wall" || result.event === "blocked-self") ? "loss" : "playing";
 }
 
-function applyMove(state: CalmSnakeState, direction: SnakeDirection, event: CalmSnakeStepEvent): CalmSnakeStepResult {
+function applyMove(state: RouteSnakeState, direction: SnakeDirection, event: RouteSnakeStepEvent): RouteSnakeStepResult {
   const head = nextSnakeHead(state.snake[0], direction);
   const ateFood = pointsEqual(head, state.food);
   const nextSnake = ateFood ? [head, ...state.snake] : [head, ...state.snake.slice(0, -1)];
@@ -101,7 +101,7 @@ function applyMove(state: CalmSnakeState, direction: SnakeDirection, event: Calm
   return { state: nextState, event: nextEvent, moved: true };
 }
 
-function evaluateMove(state: CalmSnakeState, direction: SnakeDirection) {
+function evaluateMove(state: RouteSnakeState, direction: SnakeDirection) {
   const head = nextSnakeHead(state.snake[0], direction);
   if (head.row < 0 || head.row >= state.height || head.column < 0 || head.column >= state.width) return { safe: false, reason: "wall" as const };
 

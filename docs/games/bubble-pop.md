@@ -6,8 +6,8 @@
 
 | Поле | Значение |
 |---|---|
-| ID | `quiet-bubbles` |
-| Route | `/games/quiet-bubbles` |
+| ID | `bubble-pop` |
+| Route | `/games/bubble-pop` |
 | Категория | `gaze-basics` — Основы взгляда |
 | Status | `therapy-ready` |
 | Resolved stability | `publish` |
@@ -54,11 +54,11 @@
 | Проверка | Состояние |
 |---|---|
 | Route в router | есть |
-| Vue-компонент | `QuietBubblesGame.vue` |
+| Vue-компонент | `BubblePopGame.vue` |
 | Model | нет отдельной модели |
 | Model test | нет |
 | Audio module | `audio.ts` |
-| Runtime audit doc | `docs/tests/2026-06-10/quiet-bubbles.md` |
+| Runtime audit doc | `docs/tests/2026-06-10/bubble-pop.md` |
 
 ## Готовность
 

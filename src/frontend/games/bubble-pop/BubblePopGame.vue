@@ -6,11 +6,11 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
-import { disposeQuietBubblesAudio, playQuietBubbleMelody, resetQuietBubblesAudioSession, warmQuietBubblesAudio } from "./audio";
+import { disposeBubblePopAudio, playBubblePopMelody, resetBubblePopAudioSession, warmBubblePopAudio } from "./audio";
 
 type Point = { x: number; y: number };
 type BubblePhase = "floating" | "gazing" | "popping";
-type QuietBubble = Point & {
+type BubblePop = Point & {
   id: string;
   radius: number;
   hue: number;
@@ -33,13 +33,13 @@ type Ripple = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("quiet-bubbles", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("bubble-pop", {
   maxSteps: 10,
   overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.42, distractors: "none", hints: "high" },
   finishOnMaxSteps: false
 });
 
-const bubbles = reactive<QuietBubble[]>([]);
+const bubbles = reactive<BubblePop[]>([]);
 const ripples = reactive<Ripple[]>([]);
 const resultVisible = computed(() => session.status === "finished");
 
@@ -80,7 +80,7 @@ function distance(a: Point, b: Point) {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-function bubblePoint(bubble: QuietBubble) {
+function bubblePoint(bubble: BubblePop) {
   const point = percentToPixels(bubble);
   return {
     x: point.x + Math.sin(bubble.age * 0.55 + bubble.wobble) * bubble.radius * 0.12,
@@ -138,11 +138,11 @@ function bubbleClearance(point: Point, radius: number) {
   return clearance;
 }
 
-function requiredBubbleGap(first: QuietBubble, second: QuietBubble) {
+function requiredBubbleGap(first: BubblePop, second: BubblePop) {
   return first.radius + second.radius + Math.max(24, Math.min(first.radius, second.radius) * 0.16);
 }
 
-function clampBubblePosition(bubble: QuietBubble) {
+function clampBubblePosition(bubble: BubblePop) {
   const xMargin = (bubble.radius / Math.max(1, window.innerWidth)) * 100 + 2;
   const yMargin = (bubble.radius / Math.max(1, window.innerHeight)) * 100 + 4;
   bubble.x = Math.max(xMargin, Math.min(100 - xMargin, bubble.x));
@@ -181,7 +181,7 @@ function randomHue() {
   return bubbleHues[Math.floor(Math.random() * bubbleHues.length)];
 }
 
-function createBubble(first = false): QuietBubble {
+function createBubble(first = false): BubblePop {
   const radius = bubbleRadius() * randomRange(0.94, 1.08);
   const point = chooseBubblePoint(radius, first);
   previousBubblePoint = point;
@@ -212,7 +212,7 @@ function copyPointer() {
   };
 }
 
-function targetPayload(bubble: QuietBubble, now: number, progress: number, reason?: "left" | "invalid-gaze") {
+function targetPayload(bubble: BubblePop, now: number, progress: number, reason?: "left" | "invalid-gaze") {
   return {
     targetId: bubble.id,
     at: Date.now(),
@@ -224,7 +224,7 @@ function targetPayload(bubble: QuietBubble, now: number, progress: number, reaso
   };
 }
 
-function addRipple(bubble: QuietBubble) {
+function addRipple(bubble: BubblePop) {
   const point = bubblePoint(bubble);
   ripples.push({
     x: point.x,
@@ -237,7 +237,7 @@ function addRipple(bubble: QuietBubble) {
   if (ripples.length > 10) ripples.shift();
 }
 
-function cancelBubble(bubble: QuietBubble, now: number, reason: "left" | "invalid-gaze") {
+function cancelBubble(bubble: BubblePop, now: number, reason: "left" | "invalid-gaze") {
   recordEvent("target-cancel", targetPayload(bubble, now, bubble.dwellProgress, reason));
   bubble.enteredAt = undefined;
   bubble.dwellProgress = 0;
@@ -247,10 +247,10 @@ function cancelBubble(bubble: QuietBubble, now: number, reason: "left" | "invali
   }
 }
 
-function popBubble(bubble: QuietBubble, now: number) {
+function popBubble(bubble: BubblePop, now: number) {
   recordEvent("target-click", targetPayload(bubble, now, 1));
   recordSuccess({ targetId: bubble.id, hue: bubble.hue });
-  void playQuietBubbleMelody(session.settings.sound);
+  void playBubblePopMelody(session.settings.sound);
   addRipple(bubble);
   bubble.phase = "popping";
   bubble.phaseAge = 0;
@@ -261,7 +261,7 @@ function popBubble(bubble: QuietBubble, now: number) {
 function closestGazeBubble() {
   if (!pointer.value.valid || session.step >= session.maxSteps) return undefined;
 
-  let closest: QuietBubble | undefined;
+  let closest: BubblePop | undefined;
   let closestDistance = Number.POSITIVE_INFINITY;
   for (const bubble of bubbles) {
     if (bubble.phase === "popping") continue;
@@ -276,7 +276,7 @@ function closestGazeBubble() {
   return closest;
 }
 
-function updateBubbleGaze(bubble: QuietBubble, now: number, gazeBubble?: QuietBubble) {
+function updateBubbleGaze(bubble: BubblePop, now: number, gazeBubble?: BubblePop) {
   if (bubble.phase === "popping" || session.status !== "running") return;
   const inside = gazeBubble === bubble;
 
@@ -308,7 +308,7 @@ function ensureBubbles() {
   }
 }
 
-function resetFloatingBubble(bubble: QuietBubble) {
+function resetFloatingBubble(bubble: BubblePop) {
   const radius = bubbleRadius() * randomRange(0.94, 1.08);
   const point = chooseBubblePoint(radius, false);
   bubble.x = point.x;
@@ -399,7 +399,7 @@ function drawRipple(context: CanvasRenderingContext2D, ripple: Ripple) {
   context.restore();
 }
 
-function drawBubble(context: CanvasRenderingContext2D, bubble: QuietBubble) {
+function drawBubble(context: CanvasRenderingContext2D, bubble: BubblePop) {
   const point = bubblePoint(bubble);
   const pop = bubble.phase === "popping" ? Math.min(1, bubble.phaseAge / popSeconds) : 0;
   const floatPulse = Math.sin(bubble.age * 0.9 + bubble.wobble) * 0.025;
@@ -494,7 +494,7 @@ function initBubbles() {
   bubbles.splice(0);
   ripples.splice(0);
   previousBubblePoint = undefined;
-  resetQuietBubblesAudioSession();
+  resetBubblePopAudioSession();
   for (let index = 0; index < desiredBubbleCount(); index++) bubbles.push(createBubble(index === 0));
   separateBubbles();
 }
@@ -509,7 +509,7 @@ onMounted(async () => {
   resizeCanvas();
   initBubbles();
   window.addEventListener("resize", resizeCanvas);
-  warmQuietBubblesAudio(session.settings.sound);
+  warmBubblePopAudio(session.settings.sound);
   lastTime = performance.now();
   frame = requestAnimationFrame(tick);
 });
@@ -517,13 +517,13 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener("resize", resizeCanvas);
   cancelAnimationFrame(frame);
-  disposeQuietBubblesAudio();
+  disposeBubblePopAudio();
 });
 </script>
 
 <template>
-  <div class="quiet-bubbles-shell">
-    <canvas ref="canvasRef" class="quiet-bubbles-canvas" />
+  <div class="bubble-pop-shell">
+    <canvas ref="canvasRef" class="bubble-pop-canvas" />
 
     <div class="quiet-controls d-flex align-center ga-1 pa-1">
       <v-btn aria-label="В меню" color="primary" density="comfortable" icon="mdi-arrow-left" size="small" variant="flat" @click="router.push(resolveMenuRoute())" />
@@ -553,7 +553,7 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.quiet-bubbles-shell {
+.bubble-pop-shell {
   background: #d7f0ff;
   block-size: 100vh;
   inline-size: 100vw;
@@ -561,7 +561,7 @@ onUnmounted(() => {
   position: relative;
 }
 
-.quiet-bubbles-canvas {
+.bubble-pop-canvas {
   display: block;
   inset: 0;
   position: absolute;

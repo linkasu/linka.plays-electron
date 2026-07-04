@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
-  calmTetrisCells,
-  calmTetrisColumns,
-  calmTetrisRows,
-  calmTetrisSpawnOutcome,
+  stepTetrisCells,
+  stepTetrisColumns,
+  stepTetrisRows,
+  stepTetrisSpawnOutcome,
   canSpawnPiece,
   cellIndex,
   clearFullLines,
@@ -17,13 +17,13 @@ import {
   rotateShape
 } from "./model";
 
-describe("calm-tetris model", () => {
+describe("step-tetris model", () => {
   it("creates a compact empty board", () => {
     const board = createEmptyBoard();
 
-    expect(board).toHaveLength(calmTetrisCells);
-    expect(calmTetrisColumns).toBe(10);
-    expect(calmTetrisRows).toBe(12);
+    expect(board).toHaveLength(stepTetrisCells);
+    expect(stepTetrisColumns).toBe(10);
+    expect(stepTetrisRows).toBe(12);
     expect(board.every((cell) => cell === "")).toBe(true);
   });
 
@@ -55,32 +55,32 @@ describe("calm-tetris model", () => {
   it("finds the ghost drop row above existing blocks", () => {
     const board = createEmptyBoard();
     const piece = createPiece("o");
-    board[cellIndex(calmTetrisRows - 1, 4)] = "i";
+    board[cellIndex(stepTetrisRows - 1, 4)] = "i";
 
     const placement = { piece, row: 0, column: 4 };
-    expect(getDropRow(board, placement)).toBe(calmTetrisRows - 3);
-    expect(getGhostPlacement(board, placement)).toEqual({ ...placement, row: calmTetrisRows - 3 });
+    expect(getDropRow(board, placement)).toBe(stepTetrisRows - 3);
+    expect(getGhostPlacement(board, placement)).toEqual({ ...placement, row: stepTetrisRows - 3 });
   });
 
   it("locks a piece without mutating the original board", () => {
     const board = createEmptyBoard();
-    const placement = { piece: createPiece("o"), row: calmTetrisRows - 2, column: 0 };
+    const placement = { piece: createPiece("o"), row: stepTetrisRows - 2, column: 0 };
     const result = lockPiece(board, placement);
 
     expect(result?.clearedLines).toBe(0);
-    expect(result?.board[cellIndex(calmTetrisRows - 1, 1)]).toBe("o");
-    expect(board[cellIndex(calmTetrisRows - 1, 1)]).toBe("");
+    expect(result?.board[cellIndex(stepTetrisRows - 1, 1)]).toBe("o");
+    expect(board[cellIndex(stepTetrisRows - 1, 1)]).toBe("");
   });
 
   it("clears full lines and keeps board height", () => {
     const board = createEmptyBoard();
-    for (let column = 0; column < calmTetrisColumns; column++) board[cellIndex(calmTetrisRows - 1, column)] = "i";
-    board[cellIndex(calmTetrisRows - 2, 0)] = "t";
+    for (let column = 0; column < stepTetrisColumns; column++) board[cellIndex(stepTetrisRows - 1, column)] = "i";
+    board[cellIndex(stepTetrisRows - 2, 0)] = "t";
 
     const result = clearFullLines(board);
     expect(result.clearedLines).toBe(1);
-    expect(result.board).toHaveLength(calmTetrisCells);
-    expect(result.board[cellIndex(calmTetrisRows - 1, 0)]).toBe("t");
+    expect(result.board).toHaveLength(stepTetrisCells);
+    expect(result.board[cellIndex(stepTetrisRows - 1, 0)]).toBe("t");
     expect(result.board[cellIndex(0, 0)]).toBe("");
   });
 
@@ -91,7 +91,7 @@ describe("calm-tetris model", () => {
     board[cellIndex(0, spawn.column)] = "s";
 
     expect(canSpawnPiece(board, piece)).toBe(false);
-    expect(calmTetrisSpawnOutcome(board, piece)).toBe("loss");
-    expect(calmTetrisSpawnOutcome(createEmptyBoard(), piece)).toBe("playing");
+    expect(stepTetrisSpawnOutcome(board, piece)).toBe("loss");
+    expect(stepTetrisSpawnOutcome(createEmptyBoard(), piece)).toBe("playing");
   });
 });

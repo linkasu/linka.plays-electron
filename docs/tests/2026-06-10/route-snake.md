@@ -1,4 +1,4 @@
-# Змейка спокойная (calm-snake)
+# Змейка спокойная (route-snake)
 
 Дата аудита: 2026-06-10
 
@@ -8,9 +8,9 @@
 |---|---|
 | Категория | Спокойные настольные игры |
 | Статус | therapy-ready |
-| Маршрут | /games/calm-snake |
+| Маршрут | /games/route-snake |
 | Реализован в router | да |
-| Папка игры | src/frontend/games/calm-snake |
+| Папка игры | src/frontend/games/route-snake |
 | Навыки | choice, sequence, attention-shift |
 | Рекомендованная сессия | 165 сек |
 | Минимальная цель | 150 px |
@@ -24,9 +24,9 @@ Self-menu: Помоги змейке найти листочки.
 
 ## Проверенные файлы
 
-- src/frontend/games/calm-snake/CalmSnakeGame.vue
-- src/frontend/games/calm-snake/model.ts
-- src/frontend/games/calm-snake/model.test.ts
+- src/frontend/games/route-snake/RouteSnakeGame.vue
+- src/frontend/games/route-snake/model.ts
+- src/frontend/games/route-snake/model.test.ts
 
 ## Сводка риска
 
