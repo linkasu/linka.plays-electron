@@ -1,15 +1,48 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import GameDwellButton from "../components/game/GameDwellButton.vue";
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
 import { rememberMenuMode } from "../core/menuMode";
-import { gameSkillLabels, gameStatusLabels, groupGamesByCategory, type GameCategoryId, type GameInfo } from "../data/games";
+import { gameStatusLabels, groupGamesByCategory, type GameCategoryId, type GameInfo } from "../data/games";
 
+const router = useRouter();
 const gameGroups = groupGamesByCategory();
 const selectedCategory = ref<GameCategoryId | null>(null);
+const pageIndex = ref(0);
+const pageSize = 4;
 const selectedGroup = computed(() => gameGroups.find((group) => group.category === selectedCategory.value));
+const activeItems = computed(() => selectedGroup.value?.games ?? gameGroups);
+const pageCount = computed(() => Math.max(1, Math.ceil(activeItems.value.length / pageSize)));
+const visibleGroups = computed(() => gameGroups.slice(pageIndex.value * pageSize, pageIndex.value * pageSize + pageSize));
+const visibleGames = computed(() => selectedGroup.value?.games.slice(pageIndex.value * pageSize, pageIndex.value * pageSize + pageSize) ?? []);
+const pageLabel = computed(() => `Страница ${pageIndex.value + 1} / ${pageCount.value}`);
 
 function gameRoute(game: GameInfo) {
   return { path: game.route, query: { from: "specialist" } };
+}
+
+function selectCategory(category: GameCategoryId) {
+  selectedCategory.value = category;
+  pageIndex.value = 0;
+}
+
+function showCategories() {
+  selectedCategory.value = null;
+  pageIndex.value = 0;
+}
+
+function previousPage() {
+  pageIndex.value = Math.max(0, pageIndex.value - 1);
+}
+
+function nextPage() {
+  pageIndex.value = Math.min(pageCount.value - 1, pageIndex.value + 1);
+}
+
+function openGame(game: GameInfo) {
+  rememberMenuMode("specialist");
+  router.push(gameRoute(game));
 }
 
 onMounted(() => {
@@ -18,22 +51,20 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-container class="gallery-menu py-10" fluid>
-    <v-row justify="center">
-      <v-col cols="12" lg="10" xl="8">
-        <v-card class="gallery-card pa-6 pa-md-10" rounded="xl" elevation="8">
-          <div class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-6 mb-8">
+  <v-container class="gallery-menu pa-4 pa-md-6" fluid>
+    <v-row class="h-100" justify="center" align="center">
+      <v-col cols="12" lg="11" xl="10">
+        <v-card class="gallery-card pa-5 pa-md-7" rounded="xl" elevation="8">
+          <div class="d-flex flex-column flex-md-row align-md-start justify-space-between ga-4 mb-4">
             <div>
               <div class="text-overline text-secondary mb-2">Режим специалиста</div>
-              <h1 class="text-h3 text-md-h2 font-weight-bold mb-3">Игры для занятия</h1>
-              <p class="text-h6 text-medium-emphasis mb-0">
-                Сначала откройте папку по цели занятия, затем выберите игру. Навыки, длительность и параметры показаны в карточке.
-              </p>
+              <h1 class="text-h3 text-md-h2 font-weight-bold mb-2">Игры для занятия</h1>
+              <p class="text-body-1 text-medium-emphasis mb-0">Каталог разбит на страницы: крупные цели, без скролла, с ключевыми параметрами занятия.</p>
             </div>
             <TobiiStatusBadge />
           </div>
 
-          <div class="d-flex flex-wrap ga-3 mb-8">
+          <div class="d-flex flex-wrap ga-3 mb-5">
             <v-btn color="secondary" prepend-icon="mdi-eye-settings" size="large" to="/tobii-calibration" variant="flat">
               Калибровка Tobii
             </v-btn>
@@ -46,97 +77,112 @@ onMounted(() => {
           </div>
 
           <section v-if="!selectedGroup" aria-label="Папки игр">
-            <h2 class="text-h4 font-weight-bold mb-4">Папки игр</h2>
-            <v-row>
-              <v-col v-for="group in gameGroups" :key="group.category" cols="12" md="6" lg="4">
-                <v-card
-                  class="gallery-folder-card h-100 bg-surface text-on-surface"
-                  rounded="xl"
-                  variant="outlined"
-                  @click="selectedCategory = group.category"
+            <div class="d-flex align-center justify-space-between ga-4 mb-4">
+              <h2 class="text-h4 font-weight-bold mb-0">Папки игр</h2>
+              <v-chip color="info" size="large" variant="tonal">{{ pageLabel }}</v-chip>
+            </div>
+            <v-row align="stretch" dense>
+              <v-col v-for="group in visibleGroups" :key="group.category" cols="12" sm="6">
+                <GameDwellButton
+                  class="menu-card h-100"
+                  :target-id="`specialist-folder-${group.category}`"
+                  :dwell-ms="1300"
+                  min-height="clamp(9rem, 20dvh, 12rem)"
+                  color="surface"
+                  @select="selectCategory(group.category)"
                 >
-                  <v-card-item>
-                    <template #prepend>
-                      <v-avatar color="primary" size="56">
+                  <template #default>
+                    <div class="d-flex h-100 ga-4 text-left text-on-surface">
+                      <v-avatar color="primary" size="64">
                         <v-icon icon="mdi-folder-heart-outline" size="32" />
                       </v-avatar>
-                    </template>
-                    <v-card-title class="text-high-emphasis">{{ group.label }}</v-card-title>
-                    <v-card-subtitle class="text-medium-emphasis">{{ group.games.length }} игр</v-card-subtitle>
-                  </v-card-item>
-                  <v-card-text>
-                    <p class="text-body-1 text-medium-emphasis mb-0">{{ group.description }}</p>
-                  </v-card-text>
-                  <v-card-actions>
-                    <v-btn color="primary" size="large" variant="flat" @click.stop="selectedCategory = group.category">
-                      Открыть папку
-                      <v-icon end icon="mdi-folder-open-outline" />
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
+                      <div class="d-flex flex-column min-w-0">
+                        <h3 class="text-h5 font-weight-bold text-high-emphasis mb-2">{{ group.label }}</h3>
+                        <p class="text-body-1 text-medium-emphasis mb-3">{{ group.description }}</p>
+                        <v-spacer />
+                        <v-chip class="align-self-start" color="secondary" size="small" variant="tonal">{{ group.games.length }} игр</v-chip>
+                      </div>
+                    </div>
+                  </template>
+                </GameDwellButton>
               </v-col>
             </v-row>
           </section>
 
           <section v-else aria-label="Игры в папке">
-            <div class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-6">
+            <div class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-4">
               <div>
                 <div class="text-overline text-secondary mb-1">Папка</div>
                 <h2 class="text-h4 font-weight-bold mb-2">{{ selectedGroup.label }}</h2>
                 <p class="text-body-1 text-medium-emphasis mb-0">{{ selectedGroup.description }}</p>
               </div>
-              <v-btn color="secondary" prepend-icon="mdi-folder-multiple-outline" size="large" variant="tonal" @click="selectedCategory = null">
-                Все папки
-              </v-btn>
+              <v-chip color="info" size="large" variant="tonal">{{ pageLabel }}</v-chip>
             </div>
 
-            <v-row>
-              <v-col v-for="game in selectedGroup.games" :key="game.id" cols="12" md="6" lg="4">
-                <v-card class="gallery-game-card h-100 bg-surface text-on-surface" rounded="xl" variant="outlined">
-                  <v-card-item>
-                    <template #prepend>
-                      <v-avatar color="primary" size="56">
+            <v-row align="stretch" dense>
+              <v-col v-for="game in visibleGames" :key="game.id" cols="12" sm="6">
+                <GameDwellButton
+                  class="menu-card h-100"
+                  :target-id="`specialist-game-${game.id}`"
+                  :dwell-ms="Math.max(1100, game.defaultDwellMs)"
+                  min-height="clamp(9rem, 20dvh, 12rem)"
+                  color="surface"
+                  @select="openGame(game)"
+                >
+                  <template #default>
+                    <div class="d-flex h-100 ga-4 text-left text-on-surface">
+                      <v-avatar color="primary" size="64">
                         <v-icon :icon="game.icon" size="32" />
                       </v-avatar>
-                    </template>
-                    <v-card-title class="text-high-emphasis">{{ game.title }}</v-card-title>
-                    <v-card-subtitle class="text-medium-emphasis">{{ selectedGroup.label }}</v-card-subtitle>
-                  </v-card-item>
-                  <v-card-text>
-                    <p class="text-body-1 text-medium-emphasis mb-4">{{ game.description }}</p>
-                    <div class="d-flex flex-wrap ga-2">
-                      <v-chip :color="game.status === 'planned' ? 'default' : 'primary'" size="small" variant="tonal">
-                        {{ gameStatusLabels[game.status] }}
-                      </v-chip>
-                      <v-chip v-for="skill in game.skills" :key="skill" color="secondary" size="small" variant="tonal">
-                        {{ gameSkillLabels[skill] }}
-                      </v-chip>
-                      <v-chip color="info" prepend-icon="mdi-timer-outline" size="small" variant="tonal">
-                        {{ game.recommendedSessionSeconds }} сек
-                      </v-chip>
-                      <v-chip color="info" prepend-icon="mdi-target" size="small" variant="tonal">
-                        цель {{ game.minTargetSizePx }} px
-                      </v-chip>
-                      <v-chip color="info" prepend-icon="mdi-clock-outline" size="small" variant="tonal">
-                        dwell {{ game.defaultDwellMs }} мс
-                      </v-chip>
+                      <div class="d-flex flex-column min-w-0">
+                        <h3 class="text-h5 font-weight-bold text-high-emphasis mb-2">{{ game.title }}</h3>
+                        <p class="text-body-2 text-medium-emphasis mb-3">{{ game.description }}</p>
+                        <v-spacer />
+                        <div class="d-flex flex-wrap ga-2">
+                          <v-chip :color="game.status === 'planned' ? 'default' : 'primary'" size="small" variant="tonal">{{ gameStatusLabels[game.status] }}</v-chip>
+                          <v-chip color="info" prepend-icon="mdi-timer-outline" size="small" variant="tonal">{{ game.recommendedSessionSeconds }} сек</v-chip>
+                          <v-chip color="info" prepend-icon="mdi-clock-outline" size="small" variant="tonal">{{ game.defaultDwellMs }} мс</v-chip>
+                        </div>
+                      </div>
                     </div>
-                  </v-card-text>
-                  <v-card-actions>
-                    <v-btn
-                      :to="gameRoute(game)"
-                      :color="game.status === 'planned' ? 'secondary' : 'primary'"
-                      size="large"
-                      variant="flat"
-                    >
-                      {{ game.status === "planned" ? "Открыть план" : "Играть" }}
-                      <v-icon end icon="mdi-arrow-right" />
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
+                  </template>
+                </GameDwellButton>
               </v-col>
             </v-row>
           </section>
+
+          <v-row class="mt-4" align="stretch" dense>
+            <v-col cols="4">
+              <GameDwellButton target-id="specialist-prev" :disabled="pageIndex === 0" :dwell-ms="1100" min-height="clamp(4.75rem, 10dvh, 6rem)" color="secondary" @select="previousPage">
+                <template #default>
+                  <div class="d-flex align-center justify-center ga-2 text-white text-h6 font-weight-bold">
+                    <v-icon icon="mdi-arrow-left" />
+                    <span>Назад</span>
+                  </div>
+                </template>
+              </GameDwellButton>
+            </v-col>
+            <v-col cols="4">
+              <GameDwellButton target-id="specialist-folders" :disabled="!selectedGroup" :dwell-ms="1100" min-height="clamp(4.75rem, 10dvh, 6rem)" color="surface" @select="showCategories">
+                <template #default>
+                  <div class="d-flex align-center justify-center ga-2 text-primary text-h6 font-weight-bold">
+                    <v-icon icon="mdi-folder-multiple-outline" />
+                    <span>Папки</span>
+                  </div>
+                </template>
+              </GameDwellButton>
+            </v-col>
+            <v-col cols="4">
+              <GameDwellButton target-id="specialist-next" :disabled="pageIndex >= pageCount - 1" :dwell-ms="1100" min-height="clamp(4.75rem, 10dvh, 6rem)" color="primary" @select="nextPage">
+                <template #default>
+                  <div class="d-flex align-center justify-center ga-2 text-white text-h6 font-weight-bold">
+                    <span>Дальше</span>
+                    <v-icon icon="mdi-arrow-right" />
+                  </div>
+                </template>
+              </GameDwellButton>
+            </v-col>
+          </v-row>
         </v-card>
       </v-col>
     </v-row>
@@ -149,16 +195,17 @@ onMounted(() => {
     radial-gradient(circle at 10% 10%, rgb(216 154 114 / 18%), transparent 28rem),
     radial-gradient(circle at 90% 18%, rgb(111 143 168 / 18%), transparent 28rem),
     rgb(var(--v-theme-background));
-  min-block-size: 100vh;
+  block-size: 100dvh;
+  overflow: hidden;
 }
 
 .gallery-card,
-.gallery-folder-card,
-.gallery-game-card {
-  border: 1px solid rgb(93 127 120 / 15%);
+.menu-card :deep(.dwell-button) {
+  border: 0.0625rem solid rgb(93 127 120 / 15%);
 }
 
-.gallery-folder-card {
-  cursor: pointer;
+.menu-card {
+  block-size: 100%;
+  display: block;
 }
 </style>
