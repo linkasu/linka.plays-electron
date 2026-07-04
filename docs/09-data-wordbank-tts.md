@@ -16,11 +16,11 @@ Unity использует `Assets/Resources/WordsBank` и `WordSObject` с по
 
 ```ts
 type WordItem = {
-  id: string;
-  word: string;
-  emoji: string;
-  category: string;
-  audioSrc?: string;
+ id: string;
+ word: string;
+ emoji: string;
+ category: string;
+ audioSrc?: string;
 };
 ```
 
@@ -57,9 +57,9 @@ TTS не должен блокировать игру. Аудио должно:
 curl "https://tts.linka.su/voices"
 curl "https://tts.linka.su/tts?text=Привет&voice=jane" --output sample.mp3
 curl -X POST "https://tts.linka.su/tts" \
-  -H "Content-Type: application/json" \
-  --data '{"text":"Привет","voice":"jane"}' \
-  --output sample.mp3
+ -H "Content-Type: application/json" \
+ --data '{"text":"Привет","voice":"jane"}' \
+ --output sample.mp3
 ```
 
 Локальный сервис из `../tts-echo-docker` обычно поднимается на `http://localhost:3000` через Docker Compose. Для прямого `go run` default может быть `http://localhost:8080`.
@@ -78,13 +78,13 @@ curl -X POST "https://tts.linka.su/tts" \
 
 ```json
 [
-  {
-    "id": "high-five-hands.intro",
-    "game": "high-five-hands",
-    "text": "Посмотри на ладошку.",
-    "voice": "jane",
-    "path": "/audio/tts/high-five-hands/intro.mp3"
-  }
+ {
+ "id": "high-five-hands.intro",
+ "game": "high-five-hands",
+ "text": "Посмотри на ладошку.",
+ "voice": "jane",
+ "path": "/audio/tts/high-five-hands/intro.mp3"
+ }
 ]
 ```
 
@@ -111,10 +111,10 @@ Runtime-подключение:
 - Игры импортируют `ttsAssets.json` и выбирают фразы по `game`/`id`.
 - Для проигрывания используется `src/frontend/core/ttsAudio.ts`.
 - `warmTtsAssets()` предзагружает mp3 только если `session.settings.sound === true`.
-- `playTtsAsset()` ставит звук тихо и ловит ошибки autoplay/загрузки.
+- `playTtsAsset()` ставит звук и ловит ошибки autoplay/загрузки.
 - Если файла нет, сеть недоступна или браузер запретил звук, игра продолжается без речи.
 
-Для терапевтических игр TTS-фразы должны быть короткими, спокойными, без резких повторов и без обязательной зависимости геймплея от звука.
+Для терапевтических игр TTS-фразы должны быть короткими,, без резких повторов и без обязательной зависимости геймплея от звука.
 
 ## Валидация данных
 

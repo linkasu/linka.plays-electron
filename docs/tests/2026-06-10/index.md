@@ -55,16 +55,16 @@
 |---|---|---|---|
 | [minesweeper-safe](./minesweeper-safe.md) | Сапёр без взрыва | Мина не взрывается: выбор мины превращается в флаг и автоподсказку, сапер становится беспроигрышным. | Выбор мины должен завершать партию поражением или расходовать ограниченную жизнь; автоподсказку после мины убрать из default. |
 | [domino-matching](./domino-matching.md) | Домино: найди сторону | Настольная игра реализована как обучающий выбор: неверный ответ подсвечивает правильную сторону, поражения нет. | Если оставлять в strategy, добавить ограничение ошибок; иначе перекатегоризировать как numeracy/classification trainer. |
-| [number-2048](./number-2048.md) | 2048 мягкий | canMove=false уже определяется, но Vue говорит «это не проигрыш» и предлагает undo/new board. | Когда ходов нет, завершать партию как loss/no-moves; undo оставить только как assisted-mode. |
+| [number-2048](./number-2048.md) | 2048 | canMove=false уже определяется, но Vue говорит «это не проигрыш» и предлагает undo/new board. | Когда ходов нет, завершать партию как loss/no-moves; undo оставить только как assisted-mode. |
 | [uno-like](./uno-like.md) | Уно-подобное | Нет руки, колоды, оппонента и штрафа; неверная карта раскрывает подходящие карты. | Wrong card = штраф/добор/попытка; после лимита = loss, либо переименовать как тренажер соответствия. |
-| [step-tetris](./step-tetris.md) | Тетрис спокойный | Top-out невозможен: spawn в занятый верх чистит строки или сбрасывает доску. | canSpawnPiece=false должен завершать игру как top-out loss; clearTopRows только в assisted-mode. |
+| [step-tetris](./step-tetris.md) | Тетрис | Top-out невозможен: spawn в занятый верх чистит строки или сбрасывает доску. | canSpawnPiece=false должен завершать игру как top-out loss; clearTopRows только в assisted-mode. |
 | [sokoban-large](./sokoban-large.md) | Сокобан крупный | Это следование предзаданному плану: неверный ход не применяется и возвращает подсказку, deadlock невозможен. | Разрешить все валидные движения, подсказку сделать отдельной, добавить step-limit/deadlock loss. |
 | [lines-five](./lines-five.md) | Lines 5 | Поле при заполнении очищается без проигрыша, подсказочные ходы видны постоянно. | Полное поле без линии должно давать loss; suggestedMoves показывать только после запроса/ошибки. |
 | [checkers-light](./checkers-light.md) | Шашки light | Нет полноценной партии: нет сторон/взятия/победы, при отсутствии ходов доска сбрасывается. | Убрать автосброс и завершать партию результатом; затем добавить хотя бы простые взятия. |
 | [chess-mini](./chess-mini.md) | Chess mini | Это тренажер допустимых ходов, а не шахматная партия; неверный ход показывает все допустимые клетки. | Либо переименовать/перекатегоризировать как тренажер ходов, либо добавить failed task после N ошибок. |
 | [battleship-light](./battleship-light.md) | Морской бой light | Морской бой завершает лимит ходов как обычный max-steps даже если корабли не найдены; в описании закреплено «без поражения». | Добавить outcome победа/поражение: все корабли найдены = win, лимит ходов при оставшихся кораблях = loss; обновить model.test.ts и финальный текст. |
 | [step-pong](./step-pong.md) | Понг пошаговый | Мяч не теряется: неправильная позиция только включает подсказку. | wrong lane = missed ball/минус жизнь, lives=0 = loss, серия отбиваний = win. |
-| [route-snake](./route-snake.md) | Змейка спокойная | Модель специально избегает смерти у стены через gentleFallbackDirections. | Добавить strict/default outcome: столкновение со стеной/собой = loss; текущий fallback оставить только assisted-mode. |
+| [route-snake](./route-snake.md) | Змейка | Модель специально избегает смерти у стены через gentleFallbackDirections. | Добавить strict/default outcome: столкновение со стеной/собой = loss; текущий fallback оставить только assisted-mode. |
 
 ## Высокий UI-риск
 
@@ -107,7 +107,7 @@
 | [feed-animal](./feed-animal.md) | Покорми зверька | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Ручные пиксельные отступы |
 | [butterfly](./butterfly.md) | Бабочки | Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
 | [flowers](./flowers.md) | Цветы | Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
-| [bubble-pop](./bubble-pop.md) | Тихие пузыри | Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
+| [bubble-pop](./bubble-pop.md) | Пузыри | Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
 | [rain-garden](./rain-garden.md) | Сад дождя | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Текстовая подсказка поверх сцены |
 | [ducks](./ducks.md) | Утки | Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
 | [fishes](./fishes.md) | Рыбки | Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
@@ -179,10 +179,10 @@
 | [coordinates](./coordinates.md) | Координаты | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow |
 | [color-shape](./color-shape.md) | Цвет + форма | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow |
 | [domino-matching](./domino-matching.md) | Домино: найди сторону | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow |
-| [number-2048](./number-2048.md) | 2048 мягкий | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
+| [number-2048](./number-2048.md) | 2048 | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
 | [sliding-puzzle](./sliding-puzzle.md) | Пятнашки 3×3 | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
 | [uno-like](./uno-like.md) | Уно-подобное | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow |
-| [step-tetris](./step-tetris.md) | Тетрис спокойный | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
+| [step-tetris](./step-tetris.md) | Тетрис | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
 | [sokoban-large](./sokoban-large.md) | Сокобан крупный | Использует fixed GameHud; Fullscreen viewport; Overlay поверх поля; Ручные пиксельные отступы; Текстовая подсказка поверх сцены |
 | [tic-tac-toe](./tic-tac-toe.md) | Крестики-нолики | Fullscreen viewport; Overlay поверх поля; Ручные пиксельные отступы; Deep CSS override; Текстовая подсказка поверх сцены |
 | [connect-four](./connect-four.md) | 4 в ряд | Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Ручные пиксельные отступы; Deep CSS override; Скрытие контента на малой высоте; Текстовая подсказка поверх сцены |
@@ -192,12 +192,12 @@
 | [chess-mini](./chess-mini.md) | Chess mini | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы; Текстовая подсказка поверх сцены |
 | [battleship-light](./battleship-light.md) | Морской бой light | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
 | [step-pong](./step-pong.md) | Понг пошаговый | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
-| [route-snake](./route-snake.md) | Змейка спокойная | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
+| [route-snake](./route-snake.md) | Змейка | Использует fixed GameHud; Fullscreen viewport; Ручные пиксельные отступы |
 | [cursor-magnet](./cursor-magnet.md) | Курсор-магнит | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Deep CSS override; Текстовая подсказка поверх сцены |
 | [boat](./boat.md) | Лодочка | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Текстовая подсказка поверх сцены |
 | [gaze-follow-snake](./gaze-follow-snake.md) | Змейка gaze-follow | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
 | [table-tennis](./table-tennis.md) | Теннис | Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
-| [road-car](./road-car.md) | Плавная машинка | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
+| [road-car](./road-car.md) | Машинка на дороге | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
 | [glider](./glider.md) | Планер | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
 | [line-drawing](./line-drawing.md) | Рисование линией | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
 | [rails](./rails.md) | Рельсы | Использует fixed GameHud; Fullscreen viewport; Обрезание overflow; Overlay поверх поля; Текстовая подсказка поверх сцены |
@@ -249,7 +249,7 @@
 | [feed-animal](./feed-animal.md) | Покорми зверька | gaze-basics | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [butterfly](./butterfly.md) | Бабочки | gaze-basics | да | высокий | средний | высокий | Ошибка превращается в подсказку |
 | [flowers](./flowers.md) | Цветы | gaze-basics | да | высокий | средний | высокий | Ошибка превращается в подсказку |
-| [bubble-pop](./bubble-pop.md) | Тихие пузыри | gaze-basics | да | высокий | средний | высокий | Ошибка превращается в подсказку |
+| [bubble-pop](./bubble-pop.md) | Пузыри | gaze-basics | да | высокий | средний | высокий | Ошибка превращается в подсказку |
 | [rain-garden](./rain-garden.md) | Сад дождя | gaze-basics | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [ducks](./ducks.md) | Утки | gaze-basics | да | высокий | средний | высокий | Ошибка превращается в подсказку |
 | [fishes](./fishes.md) | Рыбки | gaze-basics | да | высокий | средний | высокий | Ошибка превращается в подсказку |
@@ -335,10 +335,10 @@
 | [math-actions](./math-actions.md) | Математика. Операции | numeracy | да | средний | средний | средний | Есть safe/reset/fallback механизм |
 | [minesweeper-safe](./minesweeper-safe.md) | Сапёр без взрыва | strategy | да | средний | высокий | высокий | Мина не взрывается: выбор мины превращается в флаг и автоподсказку, сапер становится беспроигрышным. |
 | [domino-matching](./domino-matching.md) | Домино: найди сторону | strategy | да | высокий | высокий | высокий | Настольная игра реализована как обучающий выбор: неверный ответ подсвечивает правильную сторону, поражения нет. |
-| [number-2048](./number-2048.md) | 2048 мягкий | strategy | да | высокий | высокий | высокий | canMove=false уже определяется, но Vue говорит «это не проигрыш» и предлагает undo/new board. |
+| [number-2048](./number-2048.md) | 2048 | strategy | да | высокий | высокий | высокий | canMove=false уже определяется, но Vue говорит «это не проигрыш» и предлагает undo/new board. |
 | [sliding-puzzle](./sliding-puzzle.md) | Пятнашки 3×3 | strategy | да | высокий | средний | высокий | При исчерпании шагов нерешенная головоломка не оформлена как проигрыш; возможные ходы подсвечиваются постоянно. |
 | [uno-like](./uno-like.md) | Уно-подобное | strategy | да | высокий | высокий | высокий | Нет руки, колоды, оппонента и штрафа; неверная карта раскрывает подходящие карты. |
-| [step-tetris](./step-tetris.md) | Тетрис спокойный | strategy | да | высокий | высокий | высокий | Top-out невозможен: spawn в занятый верх чистит строки или сбрасывает доску. |
+| [step-tetris](./step-tetris.md) | Тетрис | strategy | да | высокий | высокий | высокий | Top-out невозможен: spawn в занятый верх чистит строки или сбрасывает доску. |
 | [sokoban-large](./sokoban-large.md) | Сокобан крупный | strategy | да | высокий | высокий | высокий | Это следование предзаданному плану: неверный ход не применяется и возвращает подсказку, deadlock невозможен. |
 | [tic-tac-toe](./tic-tac-toe.md) | Крестики-нолики | strategy | да | высокий | средний | высокий | Поражение и ничья есть; риск только UX с maxSteps=1. |
 | [connect-four](./connect-four.md) | 4 в ряд | strategy | да | высокий | средний | высокий | Поражение AI/player и ничья есть; риск только UX: HUD показывает maxSteps=1 как технический костыль. |
@@ -348,12 +348,12 @@
 | [chess-mini](./chess-mini.md) | Chess mini | strategy | да | высокий | высокий | высокий | Это тренажер допустимых ходов, а не шахматная партия; неверный ход показывает все допустимые клетки. |
 | [battleship-light](./battleship-light.md) | Морской бой light | strategy | да | высокий | высокий | высокий | Морской бой завершает лимит ходов как обычный max-steps даже если корабли не найдены; в описании закреплено «без поражения». |
 | [step-pong](./step-pong.md) | Понг пошаговый | strategy | да | высокий | высокий | высокий | Мяч не теряется: неправильная позиция только включает подсказку. |
-| [route-snake](./route-snake.md) | Змейка спокойная | strategy | да | высокий | высокий | высокий | Модель специально избегает смерти у стены через gentleFallbackDirections. |
+| [route-snake](./route-snake.md) | Змейка | strategy | да | высокий | высокий | высокий | Модель специально избегает смерти у стены через gentleFallbackDirections. |
 | [cursor-magnet](./cursor-magnet.md) | Курсор-магнит | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [boat](./boat.md) | Лодочка | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [gaze-follow-snake](./gaze-follow-snake.md) | Змейка gaze-follow | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [table-tennis](./table-tennis.md) | Теннис | continuous-control | да | высокий | средний | высокий | Ошибка превращается в подсказку |
-| [road-car](./road-car.md) | Плавная машинка | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
+| [road-car](./road-car.md) | Машинка на дороге | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [glider](./glider.md) | Планер | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [line-drawing](./line-drawing.md) | Рисование линией | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |
 | [rails](./rails.md) | Рельсы | continuous-control | да | высокий | средний | высокий | Ошибки не завершают сессию |

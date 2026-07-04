@@ -37,7 +37,7 @@
 
 ## Уровни сложности
 
-- Gentle: большая ракетка, медленный мяч, soft wall assists.
+- Gentle: большая ракетка, мяч, soft wall assists.
 - Standard: обычная ракетка, умеренная скорость.
 - Challenge: меньше assist, быстрее мяч, длиннее rally.
 

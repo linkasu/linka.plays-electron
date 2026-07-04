@@ -14,16 +14,16 @@ idle -> starting -> running -> paused -> running -> finishing -> finished
 
 ```ts
 type GameSession = {
-  gameId: string;
-  startedAt: number;
-  finishedAt?: number;
-  status: "idle" | "running" | "paused" | "finished";
-  step: number;
-  maxSteps: number;
-  score: number;
-  mistakes: number;
-  hintsUsed: number;
-  settings: SessionSettings;
+ gameId: string;
+ startedAt: number;
+ finishedAt?: number;
+ status: "idle" | "running" | "paused" | "finished";
+ step: number;
+ maxSteps: number;
+ score: number;
+ mistakes: number;
+ hintsUsed: number;
+ settings: SessionSettings;
 };
 ```
 

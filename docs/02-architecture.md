@@ -17,19 +17,19 @@
 
 ```text
 src/frontend/
-  core/
-    gaze/
-    session/
-    metrics/
-    adaptive/
-  data/
-    games.ts
-    wordBank.ts
-  games/
-    butterfly/
-    ...
-  pages/
-  components/
+ core/
+ gaze/
+ session/
+ metrics/
+ adaptive/
+ data/
+ games.ts
+ wordBank.ts
+ games/
+ butterfly/
+...
+ pages/
+ components/
 ```
 
 ## Game module
@@ -38,8 +38,8 @@ src/frontend/
 
 ```text
 src/frontend/games/<game-id>/
-  <GameName>Game.vue
-  model.ts
+ <GameName>Game.vue
+ model.ts
 ```
 
 Если игра простая, `model.ts` может содержать только генератор уровней и типы. Если игра canvas-heavy, туда выносится чистая логика без DOM.

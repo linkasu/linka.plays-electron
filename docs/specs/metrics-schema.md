@@ -4,20 +4,20 @@
 
 ```ts
 type SessionMetrics = {
-  sessionId: string;
-  gameId: string;
-  durationMs: number;
-  stepsCompleted: number;
-  maxSteps: number;
-  successes: number;
-  mistakes: number;
-  hintsUsed: number;
-  validGazeRatio: number;
-  meanDwellMs?: number;
-  medianDwellMs?: number;
-  targetCancels: number;
-  gazeLostCount: number;
-  difficultyChanges: number;
+ sessionId: string;
+ gameId: string;
+ durationMs: number;
+ stepsCompleted: number;
+ maxSteps: number;
+ successes: number;
+ mistakes: number;
+ hintsUsed: number;
+ validGazeRatio: number;
+ meanDwellMs?: number;
+ medianDwellMs?: number;
+ targetCancels: number;
+ gazeLostCount: number;
+ difficultyChanges: number;
 };
 ```
 

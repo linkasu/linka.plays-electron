@@ -28,7 +28,7 @@ JSON с полными метриками: `devtools-full-runtime-after-fixes.js
 | [step-pong](./step-pong.md) | Понг пошаговый | strategy | no-visible-targets, many-cards-below-fold, very-tall-page | 1024x600: targets 0/3, min 0, y 2.56, cardsOut 6<br>800x600: targets 0/3, min 0, y 2.56, cardsOut 6 |
 | [comic-strip](./comic-strip.md) | Комикс | sequencing | no-visible-targets, many-cards-below-fold, very-tall-page | 1024x600: targets 0/3, min 0, y 1.46, cardsOut 4<br>800x600: targets 0/3, min 0, y 2.68, cardsOut 7 |
 | [train-sequence](./train-sequence.md) | Поезд | sequencing | no-visible-targets, many-cards-below-fold, very-tall-page | 1024x600: targets 0/5, min 0, y 2.24, cardsOut 7<br>800x600: targets 0/5, min 0, y 2.17, cardsOut 7 |
-| [step-tetris](./step-tetris.md) | Тетрис спокойный | strategy | many-cards-below-fold, very-tall-page | 1024x600: targets 4/4, min 116, y 2.42, cardsOut 4<br>800x600: targets 4/4, min 116, y 2.36, cardsOut 4 |
+| [step-tetris](./step-tetris.md) | Тетрис | strategy | many-cards-below-fold, very-tall-page | 1024x600: targets 4/4, min 116, y 2.42, cardsOut 4<br>800x600: targets 4/4, min 116, y 2.36, cardsOut 4 |
 | [day-routine](./day-routine.md) | Утро-день-вечер | sequencing | no-visible-targets, many-cards-below-fold, very-tall-page | 1024x600: targets 0/8, min 0, y 2.11, cardsOut 1<br>800x600: targets 0/8, min 0, y 2.78, cardsOut 3 |
 | [dress-character](./dress-character.md) | Одень персонажа | sequencing | many-cards-below-fold, no-visible-targets, very-tall-page | 1024x600: targets 1/3, min 180, y 1.74, cardsOut 5<br>800x600: targets 0/3, min 0, y 2.54, cardsOut 5 |
 | [sandwich](./sandwich.md) | Бутерброд | sequencing | many-cards-below-fold, no-visible-targets, very-tall-page | 1024x600: targets 2/5, min 169, y 1.74, cardsOut 3<br>800x600: targets 0/5, min 0, y 2.52, cardsOut 7 |
@@ -45,8 +45,8 @@ JSON с полными метриками: `devtools-full-runtime-after-fixes.js
 | [three-frame-story](./three-frame-story.md) | История из 3 кадров | sequencing | no-visible-targets, many-cards-below-fold, very-tall-page | 1024x600: targets 0/3, min 0, y 1.54, cardsOut 1<br>800x600: targets 1/3, min 230, y 2.25, cardsOut 4 |
 | [tower](./tower.md) | Башня | sequencing | many-cards-below-fold, no-visible-targets | 1024x600: targets 3/5, min 136, y 1.78, cardsOut 5<br>800x600: targets 0/5, min 0, y 2.05, cardsOut 7 |
 | [build-robot](./build-robot.md) | Собери роботика | sequencing | no-visible-targets, many-cards-below-fold | 800x600: targets 0/4, min 0, y 2, cardsOut 7 |
-| [number-2048](./number-2048.md) | 2048 мягкий | strategy | many-cards-below-fold, very-tall-page | 800x600: targets 4/6, min 132, y 2.35, cardsOut 3 |
-| [route-snake](./route-snake.md) | Змейка спокойная | strategy | no-visible-targets, many-cards-below-fold | 800x600: targets 0/4, min 0, y 1.99, cardsOut 5 |
+| [number-2048](./number-2048.md) | 2048 | strategy | many-cards-below-fold, very-tall-page | 800x600: targets 4/6, min 132, y 2.35, cardsOut 3 |
+| [route-snake](./route-snake.md) | Змейка | strategy | no-visible-targets, many-cards-below-fold | 800x600: targets 0/4, min 0, y 1.99, cardsOut 5 |
 | [choose-emotion](./choose-emotion.md) | Выбери эмоцию | language-aac | many-cards-below-fold | 1024x600: targets 3/3, min 220, y 1.15, cardsOut 4<br>800x600: targets 2/3, min 220, y 1.47, cardsOut 4 |
 | [choose-picture](./choose-picture.md) | Выбери картинку | language-aac | many-cards-below-fold | 1024x600: targets 4/4, min 210, y 1.3, cardsOut 3<br>800x600: targets 4/4, min 210, y 1.27, cardsOut 3 |
 | [domino-matching](./domino-matching.md) | Домино: найди сторону | strategy | many-cards-below-fold | 1024x600: targets 2/4, min 256, y 1.56, cardsOut 5<br>800x600: targets 2/4, min 256, y 1.93, cardsOut 5 |

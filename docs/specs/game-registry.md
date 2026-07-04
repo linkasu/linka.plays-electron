@@ -10,20 +10,20 @@
 
 ```ts
 type GameInfo = {
-  id: string;
-  title: string;
-  description: string;
-  selfDescription: string;
-  route: string;
-  category: GameCategoryId;
-  icon: string;
-  skills: GameSkill[];
-  status: GameStatus;
-  stabilityStatus?: GameStabilityStatus;
-  tags?: GameTag[];
-  recommendedSessionSeconds: number;
-  minTargetSizePx: number;
-  defaultDwellMs: number;
+ id: string;
+ title: string;
+ description: string;
+ selfDescription: string;
+ route: string;
+ category: GameCategoryId;
+ icon: string;
+ skills: GameSkill[];
+ status: GameStatus;
+ stabilityStatus?: GameStabilityStatus;
+ tags?: GameTag[];
+ recommendedSessionSeconds: number;
+ minTargetSizePx: number;
+ defaultDwellMs: number;
 };
 ```
 
@@ -51,13 +51,13 @@ type GameTag = "hidden-from-menu";
 
 | ID | Назначение |
 |---|---|
-| `gaze-basics` | первые спокойные игры для фиксации, переключения и мягкого попадания взглядом |
+| `gaze-basics` | первые игры для фиксации, переключения и попадания взглядом |
 | `visual-search` | поиск объектов, внимание и удержание цели |
 | `sequencing` | порядок действий, сборка и очередность шагов |
 | `language-aac` | картинки, слова, AAC и смысловые категории |
 | `numeracy` | количество, числа и простая математика |
 | `strategy` | головоломки, настольные и пошаговые задачи |
-| `continuous-control` | плавное слежение и непрерывное управление взглядом |
+| `continuous-control` | слежение взглядом и непрерывное управление взглядом |
 
 ## Ready/development gate
 
@@ -67,9 +67,9 @@ Ready определяется не только `status: "polished"`. Для п
 
 ```ts
 function resolveGameStabilityStatus(game: GameInfo): GameStabilityStatus {
-  if (game.stabilityStatus) return game.stabilityStatus;
-  if (game.tags?.includes("hidden-from-menu")) return "archived";
-  return game.status === "polished" ? "publish" : "needs-check";
+ if (game.stabilityStatus) return game.stabilityStatus;
+ if (game.tags?.includes("hidden-from-menu")) return "archived";
+ return game.status === "polished" ? "publish": "needs-check";
 }
 ```
 

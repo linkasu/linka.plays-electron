@@ -67,7 +67,7 @@
 
 - Настройка категорий.
 - Режим обучения с подсказкой.
-- Тихая optional TTS-инструкция, feedback и завершение через `useGamePromptAudio`.
+- optional TTS-инструкция, feedback и завершение через `useGamePromptAudio`.
 
 ## Polished
 

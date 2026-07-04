@@ -10,7 +10,7 @@ Catalano G, Abbondio S, Nicotra R, Berselli V, Guarischi M, Vezzali V, Signorini
 
 Shaikh MF, Higley C, Campanile C, Francis R, Panja E, Santacaterina S, Pratesi G, Piaggio D. `Serious gaming and eye-tracking for the screening, monitoring, and diagnosis of neurodevelopmental disorders in children: a systematic literature review`. Frontiers in Bioengineering and Biotechnology, 2025/2026. DOI: `10.3389/fbioe.2025.1672718`.
 
-Практический вывод: serious games должны иметь повторяемые задания, контролируемые стимулы и аккуратные метрики. Не смешивать развлечение с недоказанной диагностикой.
+Практический вывод: serious games должны иметь повторяемые задания, контролируемые стимулы и корректные метрики. Не смешивать развлечение с недоказанной диагностикой.
 
 ## Cerebral palsy and receptive vocabulary
 
@@ -40,13 +40,13 @@ Diotaiuti P, Di Siena F, Vitiello S, Zanon A, Di Tore PA, Mancone S. `Eye-Tracki
 
 Yoon CD, Meadan H, Shic F. `Towards the ecological automated measurement of joint attention: Development of an interactive eye-tracking battery for joint attention in children with and without autism`. Behavior Research Methods, 2026. DOI: `10.3758/s13428-026-03017-w`.
 
-Практический вывод: игры могут мягко тренировать совместное внимание: персонаж смотрит/движется к объекту, ребёнок следует, потом выбирает.
+Практический вывод: игры могут тренировать совместное внимание: персонаж смотрит/движется к объекту, ребёнок следует, потом выбирает.
 
 ## Eye contact and autism games
 
 Saleh S, AlAli R. `The Effectiveness of an Augmented Reality-Based Early Intervention Program Using Interactive Games to Enhance Eye Contact as a Nonverbal Communication Skill in Children with Autism`. Journal of Intelligence, 2026. DOI: `10.3390/jintelligence14040064`.
 
-Практический вывод: социальные элементы должны быть мягкими. Не заставлять ребёнка смотреть в глаза как наказание или обязательную норму.
+Практический вывод: социальные элементы должны быть. Не заставлять ребёнка смотреть в глаза как наказание или обязательную норму.
 
 ## HCI eye tracking
 

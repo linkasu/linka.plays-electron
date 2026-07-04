@@ -4,18 +4,18 @@
 
 ```ts
 type SessionSettings = {
-  preset: "gentle" | "standard" | "challenge" | "custom";
-  sessionSeconds: number;
-  maxSteps: number;
-  dwellMs: number;
-  targetScale: number;
-  motionSpeed: number;
-  distractors: "none" | "low" | "medium";
-  hints: "high" | "medium" | "low" | "off";
-  sound: boolean;
-  highContrast: boolean;
-  reduceMotion: boolean;
-  targetMagnet: boolean;
+ preset: "gentle" | "standard" | "challenge" | "custom";
+ sessionSeconds: number;
+ maxSteps: number;
+ dwellMs: number;
+ targetScale: number;
+ motionSpeed: number;
+ distractors: "none" | "low" | "medium";
+ hints: "high" | "medium" | "low" | "off";
+ sound: boolean;
+ highContrast: boolean;
+ reduceMotion: boolean;
+ targetMagnet: boolean;
 };
 ```
 
