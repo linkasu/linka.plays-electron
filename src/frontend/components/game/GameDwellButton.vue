@@ -42,8 +42,7 @@ let cooldownUntil = 0;
 const hitPaddingPx = 18;
 
 const progressStyle = computed(() => ({
-  "--dwell-progress-value": `${Math.round(progress.value * 100)}%`,
-  "--dwell-size": typeof props.minHeight === "number" ? `${Math.max(3, Math.min(props.minHeight * 0.0225, 4.5))}rem` : "clamp(3rem, 7dvh, 4.5rem)"
+  "--dwell-progress-scale": progress.value.toFixed(3)
 }));
 const minBlockSize = computed(() => typeof props.minHeight === "number" ? `${props.minHeight}px` : props.minHeight);
 
@@ -188,17 +187,28 @@ onUnmounted(() => {
 }
 
 .dwell-progress {
-  background:
-    radial-gradient(circle, rgb(var(--v-theme-surface)) 0 56%, transparent 57%),
-    conic-gradient(rgb(var(--v-theme-secondary)) var(--dwell-progress-value), rgb(var(--v-theme-surface-variant) / 42%) 0);
-  block-size: var(--dwell-size);
-  border-radius: 999px;
-  box-shadow: 0 0 0 0.35rem rgb(var(--v-theme-secondary) / 14%);
-  inline-size: var(--dwell-size);
-  inset-block-start: clamp(0.75rem, 1.6dvh, 1rem);
-  inset-inline-end: clamp(0.75rem, 1.6dvh, 1rem);
+  background: rgb(var(--v-theme-surface-variant) / 42%);
+  block-size: clamp(0.45rem, 1.1dvh, 0.7rem);
+  border-radius: 999rem;
+  box-shadow: 0 0 0 0.16rem rgb(var(--v-theme-secondary) / 18%);
+  inline-size: calc(100% - clamp(2rem, 4dvh, 3rem));
+  inset-block-end: clamp(0.7rem, 1.4dvh, 0.95rem);
+  inset-inline-start: clamp(1rem, 2dvh, 1.5rem);
+  overflow: hidden;
   pointer-events: none;
   position: absolute;
   z-index: 2;
+}
+
+.dwell-progress::after {
+  background: linear-gradient(90deg, rgb(var(--v-theme-secondary)), rgb(var(--v-theme-primary)));
+  block-size: 100%;
+  border-radius: inherit;
+  content: "";
+  inline-size: 100%;
+  inset: 0;
+  position: absolute;
+  transform: scaleX(var(--dwell-progress-scale));
+  transform-origin: left center;
 }
 </style>
