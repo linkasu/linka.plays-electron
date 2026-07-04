@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import GameDwellButton from "../components/game/GameDwellButton.vue";
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
 import { rememberMenuMode } from "../core/menuMode";
 import { gameStatusLabels, groupGamesByCategory, type GameCategoryId, type GameInfo } from "../data/games";
@@ -83,28 +82,25 @@ onMounted(() => {
             </div>
             <v-row align="stretch" dense>
               <v-col v-for="group in visibleGroups" :key="group.category" cols="12" sm="6">
-                <GameDwellButton
-                  class="menu-card h-100"
-                  :target-id="`specialist-folder-${group.category}`"
-                  :dwell-ms="1300"
+                <v-card
+                  class="menu-card h-100 pa-5 d-flex bg-surface text-on-surface"
                   min-height="clamp(9rem, 20dvh, 12rem)"
-                  color="surface"
-                  @select="selectCategory(group.category)"
+                  rounded="xl"
+                  variant="outlined"
+                  @click="selectCategory(group.category)"
                 >
-                  <template #default>
-                    <div class="d-flex h-100 ga-4 text-left text-on-surface">
-                      <v-avatar color="primary" size="64">
-                        <v-icon icon="mdi-folder-heart-outline" size="32" />
-                      </v-avatar>
-                      <div class="d-flex flex-column min-w-0">
-                        <h3 class="text-h5 font-weight-bold text-high-emphasis mb-2">{{ group.label }}</h3>
-                        <p class="text-body-1 text-medium-emphasis mb-3">{{ group.description }}</p>
-                        <v-spacer />
-                        <v-chip class="align-self-start" color="secondary" size="small" variant="tonal">{{ group.games.length }} игр</v-chip>
-                      </div>
+                  <div class="d-flex h-100 ga-4 text-left text-on-surface">
+                    <v-avatar color="primary" size="64">
+                      <v-icon icon="mdi-folder-heart-outline" size="32" />
+                    </v-avatar>
+                    <div class="d-flex flex-column min-w-0">
+                      <h3 class="text-h5 font-weight-bold text-high-emphasis mb-2">{{ group.label }}</h3>
+                      <p class="text-body-1 text-medium-emphasis mb-3">{{ group.description }}</p>
+                      <v-spacer />
+                      <v-chip class="align-self-start" color="secondary" size="small" variant="tonal">{{ group.games.length }} игр</v-chip>
                     </div>
-                  </template>
-                </GameDwellButton>
+                  </div>
+                </v-card>
               </v-col>
             </v-row>
           </section>
@@ -121,66 +117,48 @@ onMounted(() => {
 
             <v-row align="stretch" dense>
               <v-col v-for="game in visibleGames" :key="game.id" cols="12" sm="6">
-                <GameDwellButton
-                  class="menu-card h-100"
-                  :target-id="`specialist-game-${game.id}`"
-                  :dwell-ms="Math.max(1100, game.defaultDwellMs)"
+                <v-card
+                  class="menu-card h-100 pa-5 d-flex bg-surface text-on-surface"
                   min-height="clamp(9rem, 20dvh, 12rem)"
-                  color="surface"
-                  @select="openGame(game)"
+                  rounded="xl"
+                  variant="outlined"
+                  @click="openGame(game)"
                 >
-                  <template #default>
-                    <div class="d-flex h-100 ga-4 text-left text-on-surface">
-                      <v-avatar color="primary" size="64">
-                        <v-icon :icon="game.icon" size="32" />
-                      </v-avatar>
-                      <div class="d-flex flex-column min-w-0">
-                        <h3 class="text-h5 font-weight-bold text-high-emphasis mb-2">{{ game.title }}</h3>
-                        <p class="text-body-2 text-medium-emphasis mb-3">{{ game.description }}</p>
-                        <v-spacer />
-                        <div class="d-flex flex-wrap ga-2">
-                          <v-chip :color="game.status === 'planned' ? 'default' : 'primary'" size="small" variant="tonal">{{ gameStatusLabels[game.status] }}</v-chip>
-                          <v-chip color="info" prepend-icon="mdi-timer-outline" size="small" variant="tonal">{{ game.recommendedSessionSeconds }} сек</v-chip>
-                          <v-chip color="info" prepend-icon="mdi-clock-outline" size="small" variant="tonal">{{ game.defaultDwellMs }} мс</v-chip>
-                        </div>
+                  <div class="d-flex h-100 ga-4 text-left text-on-surface">
+                    <v-avatar color="primary" size="64">
+                      <v-icon :icon="game.icon" size="32" />
+                    </v-avatar>
+                    <div class="d-flex flex-column min-w-0">
+                      <h3 class="text-h5 font-weight-bold text-high-emphasis mb-2">{{ game.title }}</h3>
+                      <p class="text-body-2 text-medium-emphasis mb-3">{{ game.description }}</p>
+                      <v-spacer />
+                      <div class="d-flex flex-wrap ga-2">
+                        <v-chip :color="game.status === 'planned' ? 'default' : 'primary'" size="small" variant="tonal">{{ gameStatusLabels[game.status] }}</v-chip>
+                        <v-chip color="info" prepend-icon="mdi-timer-outline" size="small" variant="tonal">{{ game.recommendedSessionSeconds }} сек</v-chip>
+                        <v-chip color="info" prepend-icon="mdi-clock-outline" size="small" variant="tonal">{{ game.defaultDwellMs }} мс</v-chip>
                       </div>
                     </div>
-                  </template>
-                </GameDwellButton>
+                  </div>
+                </v-card>
               </v-col>
             </v-row>
           </section>
 
           <v-row class="mt-4" align="stretch" dense>
             <v-col cols="4">
-              <GameDwellButton target-id="specialist-prev" :disabled="pageIndex === 0" :dwell-ms="1100" min-height="clamp(4.75rem, 10dvh, 6rem)" color="secondary" @select="previousPage">
-                <template #default>
-                  <div class="d-flex align-center justify-center ga-2 text-white text-h6 font-weight-bold">
-                    <v-icon icon="mdi-arrow-left" />
-                    <span>Назад</span>
-                  </div>
-                </template>
-              </GameDwellButton>
+              <v-btn block class="nav-action" color="secondary" :disabled="pageIndex === 0" prepend-icon="mdi-arrow-left" size="large" variant="flat" @click="previousPage">
+                Назад
+              </v-btn>
             </v-col>
             <v-col cols="4">
-              <GameDwellButton target-id="specialist-folders" :disabled="!selectedGroup" :dwell-ms="1100" min-height="clamp(4.75rem, 10dvh, 6rem)" color="surface" @select="showCategories">
-                <template #default>
-                  <div class="d-flex align-center justify-center ga-2 text-primary text-h6 font-weight-bold">
-                    <v-icon icon="mdi-folder-multiple-outline" />
-                    <span>Папки</span>
-                  </div>
-                </template>
-              </GameDwellButton>
+              <v-btn block class="nav-action" color="surface" :disabled="!selectedGroup" prepend-icon="mdi-folder-multiple-outline" size="large" variant="flat" @click="showCategories">
+                Папки
+              </v-btn>
             </v-col>
             <v-col cols="4">
-              <GameDwellButton target-id="specialist-next" :disabled="pageIndex >= pageCount - 1" :dwell-ms="1100" min-height="clamp(4.75rem, 10dvh, 6rem)" color="primary" @select="nextPage">
-                <template #default>
-                  <div class="d-flex align-center justify-center ga-2 text-white text-h6 font-weight-bold">
-                    <span>Дальше</span>
-                    <v-icon icon="mdi-arrow-right" />
-                  </div>
-                </template>
-              </GameDwellButton>
+              <v-btn block append-icon="mdi-arrow-right" class="nav-action" color="primary" :disabled="pageIndex >= pageCount - 1" size="large" variant="flat" @click="nextPage">
+                Дальше
+              </v-btn>
             </v-col>
           </v-row>
         </v-card>
@@ -200,12 +178,16 @@ onMounted(() => {
 }
 
 .gallery-card,
-.menu-card :deep(.dwell-button) {
+.menu-card {
   border: 0.0625rem solid rgb(93 127 120 / 15%);
 }
 
 .menu-card {
   block-size: 100%;
-  display: block;
+  cursor: pointer;
+}
+
+.nav-action {
+  min-block-size: clamp(4.75rem, 10dvh, 6rem);
 }
 </style>
