@@ -69,7 +69,10 @@
     },
     "icon": "resources/electron/icon",
     "publish": [
-      "github"
+      {
+        "provider": "github",
+        "releaseType": "release"
+      }
     ],
     "artifactName": "${name}-${version}-${os}-${arch}.${ext}",
     "mac": {
