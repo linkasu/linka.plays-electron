@@ -36,7 +36,7 @@ let feedbackTimer = 0;
 
 const hintText = computed(() => {
   if (mistakesInRound.value <= 0) return "Посмотри на карточки и выбери такую же цифру.";
-  return `Ничего страшного. Цифра ${round.value.target.label} мягко подсвечена.`;
+  return `Ничего страшного. Цифра ${round.value.target.label} подсвечена.`;
 });
 
 function choiceTargetId(choiceId: string) {
@@ -229,15 +229,15 @@ onUnmounted(() => {
 }
 
 @media (max-height: 42rem) {
-  .game-container {
+ .game-container {
     padding-block: 4.5rem 1.25rem;
   }
 
-  .digit-scene {
+ .digit-scene {
     min-block-size: 7.25rem;
   }
 
-  .digit-scene__number {
+ .digit-scene__number {
     font-size: clamp(4.4rem, min(11vw, 14vh), 7rem);
   }
 }

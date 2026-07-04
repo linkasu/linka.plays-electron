@@ -89,7 +89,7 @@ async function answer(choice: FindLetterOption) {
   pendingSelection.value = true;
   wrongChoiceId.value = choice.id;
   hintedRoundId.value = round.value.roundId;
-  feedbackMessage.value = `Почти. Ищи букву ${round.value.target.letter}; она подсвечена мягкой рамкой.`;
+  feedbackMessage.value = `Почти. Ищи букву ${round.value.target.letter}; она подсвечена рамкой.`;
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.letter, actual: choice.letter, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "mistake" });
   void findLetterFeedback.playMistake(session.settings.sound);
@@ -203,7 +203,7 @@ onUnmounted(() => {
 }
 
 @media (max-height: 43rem) {
-  .target-letter-card {
+ .target-letter-card {
     min-block-size: 6.25rem;
   }
 }

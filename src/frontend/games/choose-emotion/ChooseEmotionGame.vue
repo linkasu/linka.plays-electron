@@ -191,15 +191,15 @@ onUnmounted(() => {
 }
 
 @media (max-height: 42rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4rem;
   }
 
-  .emotion-choice {
+ .emotion-choice {
     min-block-size: 8.5rem;
   }
 
-  .choice-grid :deep(.dwell-button) {
+ .choice-grid :deep(.dwell-button) {
     min-block-size: 8.5rem !important;
   }
 }

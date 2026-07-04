@@ -45,7 +45,7 @@ const statusText = computed(() => {
   if (result.value === "ai") return "У луны больше фишек";
   if (result.value === "draw") return "Ровная партия";
   if (session.status === "paused") return "Пауза";
-  if (aiThinking.value) return "Луна делает тихий ход";
+  if (aiThinking.value) return "Луна делает ход";
   if (!playerMoves.value.length) return "Сейчас ход пропускается";
   return "Выбери подсвеченную клетку";
 });
@@ -124,13 +124,13 @@ async function finishBoard(reason: "max-steps" | "game-complete" = "game-complet
 
 function afterAiTurn() {
   if (!hasAnyMove(board.value) || board.value.every(Boolean)) {
-    feedbackMessage.value = "Поле спокойно завершилось. Смотрим, у кого больше фишек.";
+    feedbackMessage.value = "Поле завершилось. Смотрим, у кого больше фишек.";
     void finishBoard("game-complete");
     return;
   }
 
   if (!playerMoves.value.length && validMoves(board.value, "ai").length) {
-    feedbackMessage.value = "Сейчас нет тёплого хода. Луна мягко ходит ещё раз.";
+    feedbackMessage.value = "Сейчас нет подходящего хода. Луна ходит ещё раз.";
     scheduleAiMove(passDelayMs);
     return;
   }
@@ -201,7 +201,7 @@ async function chooseCell(index: number) {
   recordSuccess({ targetId, mark: "player", flipped: move.flipped.length, isCorrect: true });
 
   if (finishedAfterSuccess || !hasAnyMove(board.value) || board.value.every(Boolean)) {
-    feedbackMessage.value = "Ходов достаточно. Завершаем спокойную мини-партию.";
+    feedbackMessage.value = "Ходов достаточно. Завершаем мини-партию.";
     await finishBoard(finishedAfterSuccess ? "max-steps" : "game-complete");
     return;
   }
@@ -212,7 +212,7 @@ async function chooseCell(index: number) {
     return;
   }
 
-  feedbackMessage.value = "Хороший ход. Луна тихо отвечает.";
+  feedbackMessage.value = "Хороший ход. Луна отвечает.";
   void feedbackAudio.playSuccess();
   aiRequestId += 1;
   scheduleAiMove();
@@ -227,7 +227,7 @@ function restart() {
   aiThinking.value = false;
   flippedCells.value = [];
   lastMove.value = undefined;
-  feedbackMessage.value = "Новая доска готова. Выбирай подсвеченную клетку без спешки.";
+  feedbackMessage.value = "Новая доска готова. Выбирай подсвеченную клетку.";
   startSession();
   promptAudio.play("reversi-light.prompt", 220);
 }
@@ -348,7 +348,7 @@ onUnmounted(() => {
   outline-offset: -0.3125rem;
 }
 
-.reversi-cell-content--flipped .piece {
+.reversi-cell-content--flipped.piece {
   transform: scale(1.06);
 }
 
@@ -377,51 +377,51 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 7.25rem;
   }
 
-  .reversi-cell-content {
+ .reversi-cell-content {
     min-block-size: 4.625rem;
   }
 }
 
 @media (max-height: 42.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4.75rem;
   }
 
-  .game-container :deep(.v-card) {
+ .game-container :deep(.v-card) {
     padding-block: 1rem !important;
   }
 
-  .game-container .text-overline,
-  .game-container h1,
-  .game-container p,
-  .game-container .v-alert,
-  .game-container .v-btn {
+ .game-container .text-overline,
+ .game-container h1,
+ .game-container p,
+ .game-container .v-alert,
+ .game-container .v-btn {
     display: none;
   }
 
-  .game-container .d-flex.flex-column.flex-md-row {
+ .game-container.d-flex.flex-column.flex-md-row {
     margin-block-end: 0.75rem !important;
   }
 
-  .board-grid {
+ .board-grid {
     gap: 0.45rem;
     max-inline-size: min(100%, 37rem);
   }
 
-  .board-grid :deep(.dwell-button) {
+ .board-grid :deep(.dwell-button) {
     min-block-size: 5.625rem !important;
     padding: 0.35rem !important;
   }
 
-  .reversi-cell-content {
+ .reversi-cell-content {
     min-block-size: 4.5rem;
   }
 
-  .piece {
+ .piece {
     block-size: 2.7rem;
     inline-size: 2.7rem;
   }

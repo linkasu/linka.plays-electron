@@ -216,72 +216,72 @@ onUnmounted(() => {
 }
 
 @media (max-width: 79.9375rem) {
-  .number-card-col {
+ .number-card-col {
     flex-basis: 33.3333%;
     max-inline-size: 33.3333%;
   }
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 11rem;
   }
 
-  .number-card-col {
+ .number-card-col {
     flex-basis: 50%;
     max-inline-size: 50%;
   }
 
-  .number-card-content {
+ .number-card-content {
     min-block-size: 8rem;
   }
 }
 
 @media (max-height: 43rem) and (min-width: 60rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 7.25rem;
   }
 
-  .number-card-content {
+ .number-card-content {
     min-block-size: 7rem;
   }
 }
 
 @media (max-height: 42.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4.75rem;
   }
 
-  .game-container :deep(.v-card) {
+ .game-container :deep(.v-card) {
     padding-block: 1rem !important;
   }
 
-  .game-container .text-overline,
-  .game-container h1,
-  .game-container p {
+ .game-container .text-overline,
+ .game-container h1,
+ .game-container p {
     display: none;
   }
 
-  .game-container .v-sheet {
+ .game-container.v-sheet {
     margin-block-end: 0.75rem !important;
     padding: 0.75rem !important;
   }
 
-  .number-card-col {
+ .number-card-col {
     flex-basis: 20% !important;
     max-inline-size: 20% !important;
   }
 
-  .card-grid :deep(.dwell-button) {
+ .card-grid :deep(.dwell-button) {
     min-block-size: 8rem !important;
     padding: 0.5rem !important;
   }
 
-  .number-card-content {
+ .number-card-content {
     min-block-size: 6.5rem;
   }
 
-  .number-card-value {
+ .number-card-value {
     font-size: 4.2rem;
   }
 }

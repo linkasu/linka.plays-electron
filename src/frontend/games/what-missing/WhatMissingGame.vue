@@ -217,50 +217,50 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
-  .what-missing-container {
+ .what-missing-container {
     padding-block-start: 4rem;
   }
 
-  .what-missing-container :deep(.v-card.pa-4) {
+ .what-missing-container :deep(.v-card.pa-4) {
     padding-block: 0.875rem !important;
   }
 
-  .what-missing-container .text-overline {
+ .what-missing-container .text-overline {
     display: none;
   }
 
-  .what-missing-container h1 {
+ .what-missing-container h1 {
     font-size: clamp(1.75rem, 4vw, 2.3rem) !important;
     line-height: 1.05;
     margin-block-end: 0.35rem !important;
   }
 
-  .what-missing-container p {
+ .what-missing-container p {
     font-size: 1rem !important;
     margin-block-end: 0.75rem !important;
   }
 
-  .memory-row {
+ .memory-row {
     margin-block-end: 0.5rem !important;
   }
 
-  .choice-divider {
+ .choice-divider {
     margin-block-end: 0.5rem !important;
   }
 
-  .memory-slot {
+ .memory-slot {
     min-block-size: 6.75rem;
   }
 
-  .scene-emoji {
+ .scene-emoji {
     font-size: clamp(3.1rem, min(8vw, 10vh), 5rem);
   }
 
-  .choice-emoji {
+ .choice-emoji {
     font-size: clamp(3.25rem, min(7vw, 9vh), 5rem);
   }
 
-  .what-missing-container :deep(.dwell-button) {
+ .what-missing-container :deep(.dwell-button) {
     min-block-size: 8.5rem !important;
   }
 }

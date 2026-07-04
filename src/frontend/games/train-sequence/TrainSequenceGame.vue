@@ -70,7 +70,7 @@ async function chooseWagon(wagon: TrainWagon) {
     recordSuccess({ roundId, targetId: wagonTargetId(outcome.selectedWagon), expected: outcome.selectedWagon.id, actual: outcome.selectedWagon.id, isCorrect: true });
     void playTrainSequenceSuccessMelody(session.settings.sound);
   } else {
-    feedbackMessage.value = "Вагон тоже прицепился. Продолжим собирать поезд спокойно.";
+    feedbackMessage.value = "Вагон тоже прицепился. Продолжим собирать поезд.";
     recordMistake({ roundId, targetId: wagonTargetId(outcome.selectedWagon), expectedTargetId: outcome.expectedWagon ? wagonTargetId(outcome.expectedWagon) : undefined, expected: outcome.expectedWagon?.id, actual: outcome.selectedWagon.id, isCorrect: false });
     if (session.status === "running") session.step += 1;
     void playTrainSequenceMistakeMelody(session.settings.sound);
@@ -79,7 +79,7 @@ async function chooseWagon(wagon: TrainWagon) {
   isSpeaking.value = true;
 
   if (outcome.isComplete && session.status === "running") {
-    feedbackMessage.value = "Поезд собран. Он мягко отправляется в путь.";
+    feedbackMessage.value = "Поезд собран. Он отправляется в путь.";
     trainDeparting.value = true;
     finishSession("game-complete");
     void playTrainSequenceCompleteMelody(session.settings.sound);
@@ -346,84 +346,84 @@ watch(() => session.status, (status) => {
 }
 
 @media (max-width: 68.75rem) {
-  .play-area {
+ .play-area {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 6.5rem;
   }
 
-  .train-track {
+ .train-track {
     gap: 0.5rem;
     transform-origin: left bottom;
   }
 
-  .locomotive {
+ .locomotive {
     inline-size: 8.625rem;
   }
 
-  .track-wagon {
+ .track-wagon {
     inline-size: 6.625rem;
   }
 
-  .wagon-grid {
+ .wagon-grid {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-height: 42.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 6.5rem;
   }
 
-  .game-container :deep(.v-card.pa-5) {
+ .game-container :deep(.v-card.pa-5) {
     padding: 1rem !important;
   }
 
-  .game-container p,
-  .track-card .text-body-1 {
+ .game-container p,
+ .track-card .text-body-1 {
     display: none;
   }
 
-  .hint-card {
+ .hint-card {
     margin-block-end: 0.75rem !important;
     padding: 0.5rem 0.75rem !important;
   }
 
-  .hint-card :deep(.v-avatar) {
+ .hint-card :deep(.v-avatar) {
     block-size: 2.25rem !important;
     inline-size: 2.25rem !important;
   }
 
-  .hint-card .text-h6 {
+ .hint-card .text-h6 {
     font-size: 1rem !important;
   }
 
-  .play-area {
+ .play-area {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
   }
 
-  .wagon-grid {
+ .wagon-grid {
     gap: 0.6rem;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     order: -1;
   }
 
-  .track-card {
+ .track-card {
     padding: 0.75rem !important;
   }
 
-  .train-track {
+ .train-track {
     min-block-size: 9.375rem;
     padding-block-start: 2rem;
   }
 
-  .loose-wagon {
+ .loose-wagon {
     block-size: 3.375rem;
   }
 }

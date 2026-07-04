@@ -145,26 +145,26 @@ onUnmounted(() => {
 }
 
 @media (min-width: 68.75rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 7.25rem;
   }
 }
 
 @media (max-height: 40rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 7.25rem;
   }
 
-  .count-card {
+ .count-card {
     padding: 1rem !important;
   }
 
-  .count-prompt,
-  .items-grid {
+ .count-prompt,
+ .items-grid {
     margin-block-end: 0.75rem !important;
   }
 
-  .item-emoji {
+ .item-emoji {
     font-size: clamp(2.1rem, min(5vw, 7vh), 3.6rem);
   }
 }

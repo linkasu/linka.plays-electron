@@ -188,7 +188,7 @@ function failureText(reason: MagneticLabState["failureReason"]) {
 
 function strengthText(strength: MagnetConfig["strength"]) {
   if (strength === 0) return "выкл";
-  if (strength === 1) return "мягкая";
+  if (strength === 1) return "";
   return "сильная";
 }
 
@@ -569,34 +569,34 @@ useGameLoop({ context, update, draw });
 }
 
 @media (max-width: 53.75rem), (max-height: 40.625rem) {
-  .magnetic-lab-panel {
+ .magnetic-lab-panel {
     inline-size: min(23rem, 40dvw);
     inset-block-start: 4.6rem;
   }
 
-  .magnetic-card h1,
-  .magnetic-card .text-overline {
+ .magnetic-card h1,
+ .magnetic-card .text-overline {
     display: none;
   }
 
-  .magnetic-card {
+ .magnetic-card {
     padding: 0.75rem !important;
   }
 
-  .magnetic-card p {
+ .magnetic-card p {
     font-size: 0.82rem;
     margin-block-end: 0.55rem !important;
   }
 
-  .magnetic-card .hint-text {
+ .magnetic-card.hint-text {
     display: none;
   }
 
-  .magnetic-lab-panel :deep(.dwell-button) {
+ .magnetic-lab-panel :deep(.dwell-button) {
     padding: 0.65rem !important;
   }
 
-  .magnet-list {
+ .magnet-list {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

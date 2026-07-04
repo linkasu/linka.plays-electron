@@ -37,7 +37,7 @@ const panels = reactive<LightPanel[]>([
   {
     id: "light-gallery:panel:morning",
     title: "Утро",
-    caption: "мягкий рассвет",
+    caption: " рассвет",
     icon: "mdi-weather-sunset-up",
     gradient: "linear-gradient(135deg, #fff1c8 0%, #ffd2b8 45%, #adc7ff 100%)",
     mood: {
@@ -54,7 +54,7 @@ const panels = reactive<LightPanel[]>([
   {
     id: "light-gallery:panel:pond",
     title: "Пруд",
-    caption: "тихая вода",
+    caption: " вода",
     icon: "mdi-waves",
     gradient: "linear-gradient(135deg, #d7fff4 0%, #9ed8dd 48%, #668fc4 100%)",
     mood: {
@@ -88,7 +88,7 @@ const panels = reactive<LightPanel[]>([
   {
     id: "light-gallery:panel:moon",
     title: "Луна",
-    caption: "спокойная ночь",
+    caption: " ночь",
     icon: "mdi-moon-waning-crescent",
     gradient: "linear-gradient(135deg, #e9eeff 0%, #b9c4ee 48%, #6b79b8 100%)",
     mood: {
@@ -139,7 +139,7 @@ const panels = reactive<LightPanel[]>([
   {
     id: "light-gallery:panel:lantern",
     title: "Фонарь",
-    caption: "тихое тепло",
+    caption: " тепло",
     icon: "mdi-lamps-outline",
     gradient: "linear-gradient(135deg, #fff5c2 0%, #ffc875 48%, #c88b64 100%)",
     mood: {
@@ -156,7 +156,7 @@ const panels = reactive<LightPanel[]>([
   {
     id: "light-gallery:panel:stars",
     title: "Звёзды",
-    caption: "мягкое мерцание",
+    caption: " мерцание",
     icon: "mdi-star-four-points-outline",
     gradient: "linear-gradient(135deg, #f5edff 0%, #bca8f4 46%, #6c63a8 100%)",
     mood: {
@@ -271,7 +271,7 @@ onUnmounted(() => {
                   <v-icon :icon="panel.icon" class="light-gallery-panel-icon" />
                 </div>
                 <div class="light-gallery-panel-title text-subtitle-1 text-sm-h6 font-weight-bold">{{ panel.title }}</div>
-                <div class="light-gallery-panel-caption text-caption">{{ panel.revealed ? panel.caption : active && progress > 0.72 ? 'Проявляется' : 'Смотри спокойно' }}</div>
+                <div class="light-gallery-panel-caption text-caption">{{ panel.revealed ? panel.caption : active && progress > 0.72 ? 'Проявляется' : 'Смотри ' }}</div>
               </div>
             </template>
           </GameDwellButton>
@@ -401,10 +401,10 @@ onUnmounted(() => {
   color: #19213b;
 }
 
-.light-gallery-panel--active .light-gallery-panel-title,
-.light-gallery-panel--active .light-gallery-panel-caption,
-.light-gallery-panel--revealed .light-gallery-panel-title,
-.light-gallery-panel--revealed .light-gallery-panel-caption {
+.light-gallery-panel--active.light-gallery-panel-title,
+.light-gallery-panel--active.light-gallery-panel-caption,
+.light-gallery-panel--revealed.light-gallery-panel-title,
+.light-gallery-panel--revealed.light-gallery-panel-caption {
   color: #19213b !important;
 }
 
@@ -433,50 +433,50 @@ onUnmounted(() => {
 }
 
 @media (max-width: 860px) {
-  .light-gallery-grid {
+ .light-gallery-grid {
     grid-template-columns: repeat(2, minmax(136px, 1fr));
   }
 }
 
 @media (max-height: 720px) {
-  .light-gallery-container {
+ .light-gallery-container {
     padding-block-start: 5.75rem;
   }
 
-  .light-gallery-copy,
-  .light-gallery-progress {
+ .light-gallery-copy,
+ .light-gallery-progress {
     display: none;
   }
 
-  .light-gallery-grid {
+ .light-gallery-grid {
     gap: 0.75rem;
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
-  .light-gallery-target {
+ .light-gallery-target {
     min-block-size: 7rem;
   }
 
-  .light-gallery-panel-art {
+ .light-gallery-panel-art {
     block-size: 3.25rem;
     inline-size: 3.25rem;
   }
 
-  .light-gallery-panel-icon {
+ .light-gallery-panel-icon {
     font-size: 1.9rem;
   }
 
-  .light-gallery-panel-caption {
+ .light-gallery-panel-caption {
     display: none;
   }
 }
 
 @media (max-width: 520px) {
-  .light-gallery-container {
+ .light-gallery-container {
     padding-block-start: 104px;
   }
 
-  .light-gallery-grid {
+ .light-gallery-grid {
     grid-template-columns: 1fr;
   }
 }

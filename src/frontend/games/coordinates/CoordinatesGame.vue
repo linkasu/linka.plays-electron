@@ -135,7 +135,7 @@ onUnmounted(() => {
             </div>
             <v-expand-transition>
               <v-alert v-if="hintedRoundId === round.roundId" class="mt-4 text-h6" color="primary" icon="mdi-grid-large" rounded="xl" variant="tonal">
-                Ошибка не страшна: можно спокойно попробовать ещё раз.
+                Ошибка не страшна: можно попробовать ещё раз.
               </v-alert>
             </v-expand-transition>
           </v-card>
@@ -209,65 +209,65 @@ onUnmounted(() => {
 }
 
 @media (min-width: 68.75rem) and (max-height: 58rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4rem;
   }
 
-  .coordinates-card {
+ .coordinates-card {
     padding-block: 1rem !important;
   }
 
-  .coordinates-card h1 {
+ .coordinates-card h1 {
     font-size: 3.35rem !important;
     line-height: 1.05;
   }
 
-  .coordinates-card p {
+ .coordinates-card p {
     margin-block-end: 0.75rem !important;
   }
 
-  .axis-label,
-  .corner-label {
+ .axis-label,
+ .corner-label {
     min-block-size: 3.25rem;
   }
 
-  .axis-label--row,
-  .coordinate-board :deep(.dwell-button) {
+ .axis-label--row,
+ .coordinate-board :deep(.dwell-button) {
     min-block-size: 7.25rem !important;
   }
 }
 
 @media (max-height: 44rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4.75rem;
   }
 
-  .coordinates-card {
+ .coordinates-card {
     padding-block: 1rem !important;
   }
 
-  .coordinates-card .text-overline,
-  .coordinates-card h1,
-  .coordinates-card p,
-  .coordinates-card .v-alert {
+ .coordinates-card .text-overline,
+ .coordinates-card h1,
+ .coordinates-card p,
+ .coordinates-card .v-alert {
     display: none;
   }
 
-  .axis-label,
-  .corner-label {
+ .axis-label,
+ .corner-label {
     min-block-size: 3rem;
   }
 
-  .axis-label--row,
-  .coordinate-board :deep(.dwell-button) {
+ .axis-label--row,
+ .coordinate-board :deep(.dwell-button) {
     min-block-size: 4rem !important;
   }
 
-  .coordinate-board {
+ .coordinate-board {
     gap: 0.35rem;
   }
 
-  .coordinate-cell__value {
+ .coordinate-cell__value {
     font-size: 2.6rem;
   }
 }

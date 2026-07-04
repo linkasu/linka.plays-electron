@@ -6,7 +6,7 @@ const viewport: ViewportSize = { width: 1000, height: 700 };
 function withPassedStones(state: BoatGameState): BoatGameState {
   const hazard = state.hazards[0];
   return {
-    ...state,
+   ...state,
     boat: { ...state.boat, y: hazard.gapY },
     gate: { ...state.gate, x: state.boat.x - hazard.width },
     hazards: [{ ...hazard, x: state.boat.x - hazard.width }]
@@ -16,7 +16,7 @@ function withPassedStones(state: BoatGameState): BoatGameState {
 function withStonesAtBoat(state: BoatGameState, insideGap: boolean): BoatGameState {
   const hazard = state.hazards[0];
   return {
-    ...state,
+   ...state,
     boat: { ...state.boat, y: insideGap ? hazard.gapY : hazard.gapY - hazard.gapHeight / 2 - 40 },
     gate: { ...state.gate, x: state.boat.x, y: hazard.gapY },
     hazards: [{ ...hazard, x: state.boat.x }]

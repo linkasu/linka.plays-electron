@@ -41,7 +41,7 @@ const shapeView: Record<FindShapeId, { title: string; color: string }> = {
 
 const hintText = computed(() => {
   if (hintedRoundId.value !== round.value.roundId) return feedbackText.value;
-  return `Почти. Нужна форма: ${round.value.target.label}. Посмотри на мягкую подсветку.`;
+  return `Почти. Нужна форма: ${round.value.target.label}. Посмотри на подсветку.`;
 });
 
 function clearTtsTimers() {
@@ -127,7 +127,7 @@ onUnmounted(() => {
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="10" xl="9">
           <v-card class="find-shape-card pa-4 pa-md-7" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Спокойный выбор формы</div>
+            <div class="text-overline text-secondary text-center mb-2"> выбор формы</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
             <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5" role="status">{{ hintText }}</p>
             <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || advancing" :dwell-ms="session.settings.dwellMs" :min-height="round.choices.length >= 5 ? 210 : 235" :highlight-choice="(choice) => hintedRoundId === round.roundId && choice.id === round.target.id" @select="choose">

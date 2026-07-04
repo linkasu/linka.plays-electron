@@ -210,27 +210,27 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 9.75rem;
   }
 
-  .pattern-row {
+ .pattern-row {
     gap: 0.625rem;
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (max-height: 44rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 5rem;
   }
 
-  .pattern-row {
+ .pattern-row {
     margin-block-end: 1rem !important;
   }
 
-  .pattern-slot,
-  .game-container :deep(.dwell-button) {
+ .pattern-slot,
+ .game-container :deep(.dwell-button) {
     min-block-size: 8.5rem !important;
   }
 }

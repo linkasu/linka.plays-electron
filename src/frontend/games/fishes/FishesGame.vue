@@ -330,7 +330,7 @@ onUnmounted(() => {
   <div class="fishes-shell">
     <canvas ref="canvasRef" class="fishes-canvas" />
 
-    <div class="quiet-controls d-flex align-center ga-2 pa-1">
+    <div class="compact-controls d-flex align-center ga-2 pa-1">
       <v-btn aria-label="В меню" class="exit-button" color="surface" density="comfortable" prepend-icon="mdi-arrow-left" size="small" variant="tonal" @click="router.push(resolveMenuRoute())">
         В меню
       </v-btn>
@@ -374,7 +374,7 @@ onUnmounted(() => {
   position: absolute;
 }
 
-.quiet-controls {
+.compact-controls {
   background: rgb(5 33 56 / 58%);
   border: 1px solid rgb(219 250 255 / 22%);
   border-radius: 20px;
@@ -391,8 +391,8 @@ onUnmounted(() => {
   min-inline-size: 86px;
 }
 
-.quiet-controls:focus-within,
-.quiet-controls:hover {
+.compact-controls:focus-within,
+.compact-controls:hover {
   opacity: 0.95;
 }
 </style>

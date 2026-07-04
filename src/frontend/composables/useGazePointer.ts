@@ -24,7 +24,7 @@ function clampToViewport(point: { x: number; y: number }) {
 function setPointer(nextPoint: GazePoint) {
   const next = clampToViewport(nextPoint);
   pointer.value = {
-    ...nextPoint,
+   ...nextPoint,
     x: next.x,
     y: next.y,
     timestamp: nextPoint.timestamp ?? Date.now()

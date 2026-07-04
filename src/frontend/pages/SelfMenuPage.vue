@@ -23,7 +23,7 @@ onMounted(() => {
               <div class="text-overline text-secondary mb-2">Самостоятельный режим</div>
               <h1 class="text-h3 text-md-h2 font-weight-bold mb-3">Выбери папку</h1>
               <p class="text-h6 text-medium-emphasis mb-0">
-                Сначала выбери большую папку, потом игру. Можно играть спокойно, без спешки.
+                Сначала выбери большую папку, потом игру. Можно играть,.
               </p>
             </div>
             <TobiiStatusBadge />

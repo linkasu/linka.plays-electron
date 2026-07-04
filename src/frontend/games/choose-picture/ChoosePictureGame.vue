@@ -110,37 +110,37 @@ onUnmounted(() => {
 }
 
 @media (max-height: 42rem) {
-  .choose-picture-card {
+ .choose-picture-card {
     padding: 1rem !important;
   }
 
-  .choose-picture-card > .text-overline {
+ .choose-picture-card >.text-overline {
     display: none;
   }
 
-  .choose-picture-card h1 {
+ .choose-picture-card h1 {
     font-size: clamp(2rem, 6vh, 2.45rem) !important;
     line-height: 1.05;
   }
 
-  .choose-picture-card p {
+ .choose-picture-card p {
     font-size: 1rem !important;
     margin-block-end: 0.85rem !important;
   }
 
-  .choice-emoji {
+ .choice-emoji {
     font-size: clamp(2.9rem, 9vh, 4rem);
   }
 
-  .game-container :deep(.game-choice-grid) {
+ .game-container :deep(.game-choice-grid) {
     row-gap: 0.35rem;
   }
 
-  .game-container :deep(.dwell-button) {
+ .game-container :deep(.dwell-button) {
     min-block-size: 8rem !important;
   }
 
-  .game-container :deep(.dwell-button .text-h5) {
+ .game-container :deep(.dwell-button .text-h5) {
     font-size: clamp(1.35rem, 4.5vh, 1.8rem) !important;
   }
 }

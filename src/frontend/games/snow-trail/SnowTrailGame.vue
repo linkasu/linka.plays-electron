@@ -28,11 +28,11 @@ const sparks = reactive<SnowSpark[]>([]);
 const resultVisible = computed(() => session.status === "finished");
 const progressPercent = computed(() => Math.round(visualProgress.value * 100));
 const guidanceText = computed(() => {
-  if (session.status === "paused") return "Пауза. Санки подождут на мягком снегу.";
-  if (snow.cleanup > 0) return "Тропа мягко заметает следы. Маршрут завершён.";
+  if (session.status === "paused") return "Пауза. Санки подождут на снегу.";
+  if (snow.cleanup > 0) return "Тропа заметает следы. Маршрут завершён.";
   if (!pointer.value.valid) return "Можно вести санки взглядом или мышью по широкой снежной тропе.";
   if (snow.guide > 0.45) return "Вернись к свету на тропе и веди санки дальше.";
-  return "Веди мягкий свет санок через снежные отметки.";
+  return "Веди свет санок через снежные отметки.";
 });
 
 let ctx: CanvasRenderingContext2D | undefined;
@@ -554,7 +554,7 @@ onUnmounted(() => {
     />
 
     <v-card class="snow-trail-guidance pa-4" color="surface" rounded="xl" variant="flat">
-      <div class="text-overline text-info mb-1">Плавное управление</div>
+      <div class="text-overline text-info mb-1">Управление взглядом</div>
       <div class="text-body-1 font-weight-medium">{{ guidanceText }}</div>
       <v-progress-linear class="mt-3" :model-value="progressPercent" color="info" height="0.5rem" rounded />
       <div class="text-caption text-medium-emphasis mt-2">Отметки: {{ session.step }} / {{ session.maxSteps }}</div>
@@ -600,7 +600,7 @@ onUnmounted(() => {
 }
 
 @media (max-width: 45rem) {
-  .snow-trail-guidance {
+ .snow-trail-guidance {
     inset-block-start: auto;
     inset-block-end: max(1rem, env(safe-area-inset-bottom));
     inset-inline: 1rem;

@@ -205,11 +205,11 @@ function getQuietMoves(board: CheckersLightBoard, fromIndex: number): CheckersLi
 
   const forward = piece.side === "gold" ? -1 : 1;
   return [-1, 1]
-    .map((columnStep) => [row + forward, column + columnStep] as const)
-    .filter(([nextRow, nextColumn]) => isInside(nextRow, nextColumn))
-    .map(([nextRow, nextColumn]) => cellIndex(nextRow, nextColumn))
-    .filter((nextIndex) => isDarkCell(nextIndex) && !board[nextIndex])
-    .map((toIndex) => ({ fromIndex, toIndex, capture: false }));
+   .map((columnStep) => [row + forward, column + columnStep] as const)
+   .filter(([nextRow, nextColumn]) => isInside(nextRow, nextColumn))
+   .map(([nextRow, nextColumn]) => cellIndex(nextRow, nextColumn))
+   .filter((nextIndex) => isDarkCell(nextIndex) && !board[nextIndex])
+   .map((toIndex) => ({ fromIndex, toIndex, capture: false }));
 }
 
 function getCaptureMoves(board: CheckersLightBoard, fromIndex: number): CheckersLightMove[] {

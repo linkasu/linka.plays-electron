@@ -375,100 +375,100 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 9.75rem;
   }
 
-  .lines-cell-content {
+ .lines-cell-content {
     min-block-size: 3.25rem;
   }
 }
 
 @media (min-height: 42.5625rem) and (max-height: 68rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4.25rem;
   }
 
-  .game-container :deep(.v-card) {
+ .game-container :deep(.v-card) {
     padding-block: 0.9rem !important;
   }
 
-  .game-container .text-overline,
-  .game-container h1,
-  .game-container p,
-  .game-container .v-btn {
+ .game-container .text-overline,
+ .game-container h1,
+ .game-container p,
+ .game-container .v-btn {
     display: none !important;
   }
 
-  .game-container .d-flex.flex-column.flex-md-row {
+ .game-container.d-flex.flex-column.flex-md-row {
     margin-block-end: 0.8rem !important;
   }
 
-  .game-container .v-alert {
+ .game-container .v-alert {
     margin-block-end: 0.8rem !important;
     padding-block: 0.65rem !important;
   }
 
-  .board-grid {
+ .board-grid {
     max-inline-size: min(100%, 36rem, 58vh);
   }
 
-  .board-grid :deep(.dwell-button) {
+ .board-grid :deep(.dwell-button) {
     min-block-size: clamp(3.6rem, 8vh, 5rem) !important;
   }
 
-  .lines-cell-content {
+ .lines-cell-content {
     min-block-size: clamp(3.4rem, 7.4vh, 4.75rem);
   }
 
-  .ball {
+ .ball {
     block-size: clamp(2.2rem, 4.8vh, 3.4rem);
     inline-size: clamp(2.2rem, 4.8vh, 3.4rem);
   }
 }
 
 @media (max-height: 42.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4.75rem;
   }
 
-  .game-container :deep(.v-card) {
+ .game-container :deep(.v-card) {
     padding-block: 1rem !important;
   }
 
-  .game-container .text-overline,
-  .game-container h1,
-  .game-container p,
-  .game-container .v-alert,
-  .game-container .v-btn,
-  .side-column {
+ .game-container .text-overline,
+ .game-container h1,
+ .game-container p,
+ .game-container .v-alert,
+ .game-container .v-btn,
+ .side-column {
     display: none;
   }
 
-  .board-column {
+ .board-column {
     flex-basis: 100%;
     max-inline-size: 100%;
   }
 
-  .game-container .d-flex.flex-column.flex-md-row {
+ .game-container.d-flex.flex-column.flex-md-row {
     display: none !important;
   }
 
-  .board-grid {
+ .board-grid {
     gap: 0.28rem;
     max-inline-size: min(100%, 34rem, 64vh);
   }
 
-  .board-grid :deep(.dwell-button) {
+ .board-grid :deep(.dwell-button) {
     min-block-size: 3.55rem !important;
     padding: 0.35rem !important;
   }
 
-  .lines-cell-content {
+ .lines-cell-content {
     min-block-size: 3.35rem;
   }
 
-  .ball {
+ .ball {
     block-size: 2.3rem;
     inline-size: 2.3rem;
   }

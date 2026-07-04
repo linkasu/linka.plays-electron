@@ -237,41 +237,41 @@ onUnmounted(() => {
 }
 
 @media (max-width: 43.75rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 9.75rem;
   }
 
-  .pattern-row {
+ .pattern-row {
     gap: 0.5rem;
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .pattern-slot {
+ .pattern-slot {
     min-block-size: 5.75rem;
   }
 }
 
 @media (max-height: 44rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 5rem;
   }
 
-  .pattern-row {
+ .pattern-row {
     gap: 0.5rem;
   }
 
-  .pattern-slot,
-  .choice-card,
-  .choice-row :deep(.dwell-button) {
+ .pattern-slot,
+ .choice-card,
+ .choice-row :deep(.dwell-button) {
     min-block-size: 6.5rem !important;
   }
 
-  .choice-card .color-label {
+ .choice-card.color-label {
     font-size: 1.25rem !important;
     line-height: 1.05;
   }
 
-  .pattern-slot .color-label {
+ .pattern-slot.color-label {
     font-size: 1.5rem !important;
     line-height: 1.1;
   }

@@ -9,8 +9,8 @@ export type LinesAnglesShapeId =
   | "straight-diagonal"
   | "curved-vertical"
   | "curved-horizontal"
-  | "smooth-wave"
-  | "soft-arc"
+  | "wave-curve"
+  | "round-arc"
   | "right-angle"
   | "open-angle"
   | "wide-angle"
@@ -48,8 +48,8 @@ export const linesAnglesOptions: LinesAnglesOption[] = [
   { id: "straight-diagonal", label: "Наклонная прямая", lineKind: "straight", hasAngle: false, orientation: "diagonal" },
   { id: "curved-vertical", label: "Вертикальная кривая", lineKind: "curved", hasAngle: false, orientation: "vertical" },
   { id: "curved-horizontal", label: "Горизонтальная кривая", lineKind: "curved", hasAngle: false, orientation: "horizontal" },
-  { id: "smooth-wave", label: "Плавная волна", lineKind: "curved", hasAngle: false, orientation: "horizontal" },
-  { id: "soft-arc", label: "Мягкая дуга", lineKind: "curved", hasAngle: false, orientation: "mixed" },
+  { id: "wave-curve", label: "Волна", lineKind: "curved", hasAngle: false, orientation: "horizontal" },
+  { id: "round-arc", label: "Дуга", lineKind: "curved", hasAngle: false, orientation: "mixed" },
   { id: "right-angle", label: "Прямой угол", lineKind: "angular", hasAngle: true, orientation: "mixed" },
   { id: "open-angle", label: "Острый угол", lineKind: "angular", hasAngle: true, orientation: "mixed" },
   { id: "wide-angle", label: "Широкий угол", lineKind: "angular", hasAngle: true, orientation: "mixed" },
@@ -62,13 +62,13 @@ export const linesAnglesTasks: LinesAnglesTask[] = [
     prompt: "Где прямая линия?",
     hint: "Прямая линия не изгибается.",
     targetIds: ["straight-vertical", "straight-horizontal", "straight-diagonal"],
-    distractorIds: ["curved-vertical", "curved-horizontal", "smooth-wave", "soft-arc"]
+    distractorIds: ["curved-vertical", "curved-horizontal", "wave-curve", "round-arc"]
   },
   {
     id: "curved",
     prompt: "Где кривая линия?",
-    hint: "Кривая линия мягко изгибается.",
-    targetIds: ["curved-vertical", "curved-horizontal", "smooth-wave", "soft-arc"],
+    hint: "Кривая линия изгибается.",
+    targetIds: ["curved-vertical", "curved-horizontal", "wave-curve", "round-arc"],
     distractorIds: ["straight-vertical", "straight-horizontal", "straight-diagonal", "right-angle"]
   },
   {
@@ -76,13 +76,13 @@ export const linesAnglesTasks: LinesAnglesTask[] = [
     prompt: "Где есть угол?",
     hint: "Угол появляется там, где две линии встречаются.",
     targetIds: ["right-angle", "open-angle", "wide-angle", "zigzag"],
-    distractorIds: ["straight-horizontal", "curved-horizontal", "smooth-wave", "soft-arc"]
+    distractorIds: ["straight-horizontal", "curved-horizontal", "wave-curve", "round-arc"]
   },
   {
     id: "no-angle",
     prompt: "Где без угла?",
     hint: "Без угла значит без резкого поворота.",
-    targetIds: ["straight-vertical", "straight-horizontal", "curved-horizontal", "soft-arc"],
+    targetIds: ["straight-vertical", "straight-horizontal", "curved-horizontal", "round-arc"],
     distractorIds: ["right-angle", "open-angle", "wide-angle", "zigzag"]
   },
   {
@@ -90,13 +90,13 @@ export const linesAnglesTasks: LinesAnglesTask[] = [
     prompt: "Где вертикально?",
     hint: "Вертикальная линия идёт сверху вниз.",
     targetIds: ["straight-vertical", "curved-vertical"],
-    distractorIds: ["straight-horizontal", "curved-horizontal", "smooth-wave", "straight-diagonal"]
+    distractorIds: ["straight-horizontal", "curved-horizontal", "wave-curve", "straight-diagonal"]
   },
   {
     id: "horizontal",
     prompt: "Где горизонтально?",
     hint: "Горизонтальная линия идёт слева направо.",
-    targetIds: ["straight-horizontal", "curved-horizontal", "smooth-wave"],
+    targetIds: ["straight-horizontal", "curved-horizontal", "wave-curve"],
     distractorIds: ["straight-vertical", "curved-vertical", "straight-diagonal", "right-angle"]
   }
 ];

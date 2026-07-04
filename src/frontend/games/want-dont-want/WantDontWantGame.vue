@@ -161,28 +161,28 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4.25rem;
   }
 
-  .want-card {
+ .want-card {
     padding: 1rem !important;
   }
 
-  .item-display {
+ .item-display {
     margin-block-end: 0.75rem !important;
   }
 
-  .item-emoji {
+ .item-emoji {
     font-size: clamp(3rem, 7vw, 4.4rem);
   }
 
-  .want-card h1 {
+ .want-card h1 {
     font-size: 2.1rem !important;
     line-height: 1.05;
   }
 
-  .game-container :deep(.dwell-button) {
+ .game-container :deep(.dwell-button) {
     min-block-size: 9.2rem !important;
   }
 }

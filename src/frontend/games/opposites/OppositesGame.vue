@@ -207,35 +207,35 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 9.75rem;
   }
 }
 
 @media (max-height: 42rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4rem;
   }
 
-  .game-container :deep(.v-card) {
+ .game-container :deep(.v-card) {
     padding: 1rem !important;
   }
 
-  .game-container :deep(.v-card > .text-overline) {
+ .game-container :deep(.v-card >.text-overline) {
     display: none;
   }
 
-  .game-container h1 {
+ .game-container h1 {
     font-size: clamp(1.8rem, 5vh, 2.25rem) !important;
     line-height: 1.05;
     margin-block-end: 0.45rem !important;
   }
 
-  .game-container p {
+ .game-container p {
     margin-block-end: 0.75rem !important;
   }
 
-  .source-card {
+ .source-card {
     flex-direction: row;
     gap: 0.75rem;
     inline-size: min(18rem, 64vw);
@@ -244,15 +244,15 @@ onUnmounted(() => {
     padding: 0.75rem !important;
   }
 
-  .source-emoji {
+ .source-emoji {
     font-size: clamp(2.5rem, 8vh, 3.75rem);
   }
 
-  .choice-emoji {
+ .choice-emoji {
     font-size: clamp(2.5rem, 8vh, 3.75rem);
   }
 
-  .game-container :deep(.dwell-button) {
+ .game-container :deep(.dwell-button) {
     min-block-size: 8.5rem !important;
   }
 }

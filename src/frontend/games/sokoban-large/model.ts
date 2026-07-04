@@ -62,7 +62,7 @@ export function createSokobanLargeState(roundIndex = 0, random: () => number = c
   if (generated) return generated;
 
   return {
-    ...cloneBaseState(fallbackState),
+   ...cloneBaseState(fallbackState),
     stepIndex: 0,
     roundIndex,
     solution: [...fallbackSolution]
@@ -148,7 +148,7 @@ export function applySokobanLargeMove(state: SokobanLargeState, direction: Sokob
   }
 
   const nextState = {
-    ...cloneState(state),
+   ...cloneState(state),
     player: nextPlayer,
     box: nextBox,
     stepIndex: state.stepIndex + 1
@@ -245,7 +245,7 @@ function createRoundRandom(roundIndex: number) {
 
 function cloneBaseState(state: Omit<SokobanLargeState, "roundIndex" | "solution" | "stepIndex">) {
   return {
-    ...state,
+   ...state,
     walls: state.walls.map((wall) => ({ ...wall })),
     player: { ...state.player },
     box: { ...state.box },
@@ -255,7 +255,7 @@ function cloneBaseState(state: Omit<SokobanLargeState, "roundIndex" | "solution"
 
 function cloneState(state: SokobanLargeState): SokobanLargeState {
   return {
-    ...state,
+   ...state,
     walls: state.walls.map((wall) => ({ ...wall })),
     player: { ...state.player },
     box: { ...state.box },

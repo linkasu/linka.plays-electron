@@ -131,8 +131,8 @@ onUnmounted(() => {
                         <line v-else-if="choice.id === 'straight-diagonal'" x1="34" y1="94" x2="126" y2="26" />
                         <path v-else-if="choice.id === 'curved-vertical'" d="M88 14 C44 34 116 58 72 106" />
                         <path v-else-if="choice.id === 'curved-horizontal'" d="M22 68 C48 20 106 104 138 52" />
-                        <path v-else-if="choice.id === 'smooth-wave'" d="M18 62 C42 28 62 96 84 62 S124 28 144 62" />
-                        <path v-else-if="choice.id === 'soft-arc'" d="M42 90 C50 28 112 28 120 90" />
+                        <path v-else-if="choice.id === 'wave-curve'" d="M18 62 C42 28 62 96 84 62 S124 28 144 62" />
+                        <path v-else-if="choice.id === 'round-arc'" d="M42 90 C50 28 112 28 120 90" />
                         <path v-else-if="choice.id === 'right-angle'" d="M50 24 L50 82 L116 82" />
                         <path v-else-if="choice.id === 'open-angle'" d="M40 92 L80 28 L122 92" />
                         <path v-else-if="choice.id === 'wide-angle'" d="M24 82 L80 40 L136 82" />
@@ -146,7 +146,7 @@ onUnmounted(() => {
 
             <v-expand-transition>
               <v-alert v-if="hintedRoundId === round.roundId" class="mt-5 text-h6" color="primary" icon="mdi-lightbulb-outline" rounded="xl" variant="tonal">
-                Ошибка не завершает игру. Можно спокойно попробовать ещё раз.
+                Ошибка не завершает игру. Можно попробовать ещё раз.
               </v-alert>
             </v-expand-transition>
           </v-card>
@@ -206,54 +206,54 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 7.75rem;
   }
 
-  .geometry-svg {
+ .geometry-svg {
     block-size: 6.5rem;
   }
 }
 
 @media (max-height: 40rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 5rem;
   }
 
-  .lines-angles-card {
+ .lines-angles-card {
     padding: 1rem !important;
   }
 
-  .lines-angles-card .text-overline {
+ .lines-angles-card .text-overline {
     display: none;
   }
 
-  .lines-angles-card h1 {
+ .lines-angles-card h1 {
     font-size: 2.45rem !important;
     line-height: 1.05;
     margin-block-end: 0.35rem !important;
   }
 
-  .lines-angles-card p {
+ .lines-angles-card p {
     font-size: 1.1rem !important;
     margin-block-end: 0.75rem !important;
   }
 
-  .geometry-choice-col {
+ .geometry-choice-col {
     flex: 0 0 25% !important;
     max-inline-size: 25% !important;
   }
 
-  .choice-grid :deep(.dwell-button) {
+ .choice-grid :deep(.dwell-button) {
     min-block-size: 8.5rem !important;
     padding: 0.4rem !important;
   }
 
-  .geometry-svg {
+ .geometry-svg {
     block-size: 4.5rem;
   }
 
-  .geometry-card {
+ .geometry-card {
     border-radius: 1.2rem;
     padding: 0.4rem;
   }

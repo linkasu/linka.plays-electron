@@ -38,9 +38,9 @@ describe("generateMathRound", () => {
 
   it("standard addition rounds compute the answer from the expression", () => {
     vi.spyOn(Math, "random")
-      .mockReturnValueOnce(0.49)
-      .mockReturnValueOnce(0)
-      .mockReturnValueOnce(0.95);
+     .mockReturnValueOnce(0.49)
+     .mockReturnValueOnce(0)
+     .mockReturnValueOnce(0.95);
 
     const round = generateMathRound(settingsFromPreset("standard"), 2);
     const { a, operator, b } = parseExpression(round.expression);
@@ -54,9 +54,9 @@ describe("generateMathRound", () => {
 
   it("standard subtraction rounds start at the random threshold", () => {
     vi.spyOn(Math, "random")
-      .mockReturnValueOnce(0.5)
-      .mockReturnValueOnce(0)
-      .mockReturnValueOnce(0);
+     .mockReturnValueOnce(0.5)
+     .mockReturnValueOnce(0)
+     .mockReturnValueOnce(0);
 
     const round = generateMathRound(settingsFromPreset("standard"), 3);
     const { a, operator, b } = parseExpression(round.expression);

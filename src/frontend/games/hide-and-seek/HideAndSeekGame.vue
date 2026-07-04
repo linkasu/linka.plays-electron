@@ -55,7 +55,7 @@ const isAdvancing = ref(false);
 const resultVisible = computed(() => session.status === "finished");
 const currentRound = computed(() => rounds.value[pageIndex.value]);
 const currentObject = computed(() => currentRound.value?.target);
-const feedbackMessage = ref("Смотри спокойно и выбирай того, кого просим.");
+const feedbackMessage = ref("Смотри и выбирай того, кого просим.");
 const lastMistakeObjectId = ref<string>();
 const mistakenObjectIdsForCurrentTarget = new Set<string>();
 let nextRoundTimer = 0;
@@ -169,7 +169,7 @@ function chooseObject(object: HiddenObject) {
     pageIndex.value = Math.min(pageIndex.value + 1, rounds.value.length - 1);
     lastMistakeObjectId.value = undefined;
     mistakenObjectIdsForCurrentTarget.clear();
-    feedbackMessage.value = "Смотри спокойно и выбирай того, кого просим.";
+    feedbackMessage.value = "Смотри и выбирай того, кого просим.";
     isAdvancing.value = false;
     playPrompt(180);
   }, 1900);
@@ -185,7 +185,7 @@ function restart() {
   lastMistakeObjectId.value = undefined;
   mistakenObjectIdsForCurrentTarget.clear();
   resetHideAndSeekAudioSession();
-  feedbackMessage.value = "Смотри спокойно и выбирай того, кого просим.";
+  feedbackMessage.value = "Смотри и выбирай того, кого просим.";
   startSession();
   playPrompt(220);
 }
@@ -275,7 +275,7 @@ onUnmounted(() => {
 }
 
 @media (max-height: 700px) {
-  .prompt {
+ .prompt {
     inline-size: min(480px, calc(100vw - 32px));
     left: 50%;
     max-inline-size: min(480px, calc(100vw - 32px));
@@ -284,16 +284,16 @@ onUnmounted(() => {
     transform: translateX(-50%);
   }
 
-  .prompt-sample {
+ .prompt-sample {
     display: none;
   }
 
-  .prompt .text-overline,
-  .prompt .text-body-1 {
+ .prompt .text-overline,
+ .prompt .text-body-1 {
     display: none;
   }
 
-  .prompt .text-h3 {
+ .prompt .text-h3 {
     font-size: 1.35rem !important;
     line-height: 1.15;
   }

@@ -48,7 +48,7 @@ function pickObject(roundIndex: number, random: () => number) {
 
 function buildChoice(object: BigSmallObject, size: BigSmallSize): BigSmallChoice {
   return {
-    ...object,
+   ...object,
     choiceId: `${object.id}:${size}`,
     size,
     sizeLabel: sizeLabels[size]

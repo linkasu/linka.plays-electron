@@ -199,9 +199,9 @@ export function autoPlaceFleet(seed = 42) {
 export function chooseAiShot(fleet: BattleshipShip[], shots: BattleshipShots, seed = 7): BattleshipAiChoice {
   const openCells = Array.from({ length: battleshipCellCount }, (_, index) => index).filter((index) => !shots[index]);
   const targetCells = Object.entries(shots)
-    .filter(([, shot]) => shot === "hit")
-    .flatMap(([index]) => neighborCells(Number(index)))
-    .filter((index) => !shots[index]);
+   .filter(([, shot]) => shot === "hit")
+   .flatMap(([index]) => neighborCells(Number(index)))
+   .filter((index) => !shots[index]);
   const uniqueTargets = Array.from(new Set(targetCells));
   const candidates = uniqueTargets.length > 0 ? uniqueTargets : openCells;
   const roll = randomInt(seed, candidates.length);

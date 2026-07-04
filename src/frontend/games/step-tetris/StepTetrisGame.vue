@@ -48,7 +48,7 @@ const pieceColors = Object.fromEntries(stepTetrisPieceIds.map((id) => [id, creat
 const board = ref<StepTetrisBoard>(createEmptyBoard());
 const pieceIndex = ref(0);
 const currentPlacement = ref(createSpawnPlacement(createPiece(pieceSequence[0])));
-const feedbackMessage = ref("Выбери колонку шагами, поверни фигуру и спокойно поставь её вниз.");
+const feedbackMessage = ref("Выбери колонку шагами, поверни фигуру и поставь её вниз.");
 const isSpeaking = ref(false);
 const isDropping = ref(false);
 const dropRows = ref(0);
@@ -159,7 +159,7 @@ async function dropCurrent() {
   const targetPlacement = ghostPlacement.value;
   dropRows.value = Math.max(0, targetPlacement.row - currentPlacement.value.row);
   isDropping.value = true;
-  feedbackMessage.value = "Фигура спокойно опускается вниз.";
+  feedbackMessage.value = "Фигура опускается вниз.";
   await wait(dropAnimationMs);
 
   const result = lockPiece(board.value, targetPlacement);
@@ -173,8 +173,8 @@ async function dropCurrent() {
   recordSuccess({ piece: currentPlacement.value.piece.id, clearedLines: result.clearedLines });
   recordEvent("level-start", { kind: "piece-locked", piece: currentPlacement.value.piece.id, clearedLines: result.clearedLines });
   feedbackMessage.value = result.clearedLines > 0
-    ? `Линии мягко исчезли: ${result.clearedLines}.`
-    : "Фигура спокойно легла на место.";
+    ? `Линии исчезли: ${result.clearedLines}.`
+    : "Фигура легла на место.";
 
   void feedbackAudio.playSuccess();
   await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["step-tetris.correct", "step-tetris.complete"] : ["step-tetris.correct"], 80, 170);
@@ -199,7 +199,7 @@ function restart() {
   board.value = createEmptyBoard();
   pieceIndex.value = 0;
   currentPlacement.value = createSpawnPlacement(createPiece(pieceSequence[0]));
-  feedbackMessage.value = "Выбери колонку шагами, поверни фигуру и спокойно поставь её вниз.";
+  feedbackMessage.value = "Выбери колонку шагами, поверни фигуру и поставь её вниз.";
   isSpeaking.value = false;
   isDropping.value = false;
   dropRows.value = 0;
@@ -219,7 +219,7 @@ onUnmounted(() => {
 
 <template>
   <div class="step-tetris-shell">
-    <GameHud title="Тетрис спокойный" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud title="Тетрис" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
 
     <v-container class="game-container" fluid>
       <v-row justify="center">
@@ -228,7 +228,7 @@ onUnmounted(() => {
             <div class="d-flex flex-column flex-lg-row align-lg-center justify-space-between ga-4 mb-5">
               <div>
                 <div class="text-overline text-secondary mb-1">Пошаговая стратегия без таймера падения</div>
-                <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Тетрис спокойный</h1>
+                <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Тетрис</h1>
                 <p class="text-body-1 text-medium-emphasis mb-0">Двигай фигуру по одному шагу. Полупрозрачная фигура помогает увидеть место падения.</p>
               </div>
               <v-chip color="primary" size="large" variant="tonal">
@@ -238,7 +238,7 @@ onUnmounted(() => {
 
             <div class="tetris-layout">
               <div class="board-panel">
-                <div class="board mx-auto" role="grid" aria-label="Поле спокойного тетриса">
+                <div class="board mx-auto" role="grid" aria-label="Поле тетриса">
                   <div v-for="row in rows" :key="row" class="board-row" role="row">
                     <div
                       v-for="column in columns"
@@ -273,7 +273,7 @@ onUnmounted(() => {
       </v-row>
     </v-container>
 
-    <GameResultDialog :model-value="resultVisible" title="Тетрис спокойный" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog :model-value="resultVisible" title="Тетрис" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
   </div>
 </template>
 
@@ -393,38 +393,38 @@ onUnmounted(() => {
 }
 
 @media (max-width: 45rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 8.75rem;
   }
 
-  .tetris-layout {
+ .tetris-layout {
     grid-template-columns: 1fr;
   }
 
-  .controls-panel {
+ .controls-panel {
     order: -1;
   }
 
 }
 
 @media (max-height: 42.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4.75rem;
   }
 
-  .game-card {
+ .game-card {
     padding-block: 1rem !important;
   }
 
-  .game-card > .d-flex.flex-column.flex-lg-row {
+ .game-card >.d-flex.flex-column.flex-lg-row {
     display: none !important;
   }
 
-  .tetris-layout {
+ .tetris-layout {
     gap: 0.75rem;
   }
 
-  .board {
+ .board {
     inline-size: min(100%, 48vh, 24rem);
   }
 }

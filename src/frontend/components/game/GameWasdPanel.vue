@@ -62,7 +62,7 @@ const emit = defineEmits<{
   display: grid;
   gap: clamp(0.75rem, 2.8%, 1.25rem);
   grid-template-areas:
-    ". w ."
+    ". w."
     "a s d";
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: repeat(2, minmax(0, 1fr));

@@ -42,7 +42,7 @@ export const chooseEmotionScenarios: ChooseEmotionScenario[] = [
   { id: "loud-noise", prompt: "За окном внезапно громко хлопнуло.", detail: "Что чувствует ребёнок?", cueEmoji: "⚡", targetId: "fear" },
   { id: "tower-fell", prompt: "Башня упала, хотя Миша старался.", detail: "Что он может чувствовать?", cueEmoji: "🧱", targetId: "anger" },
   { id: "new-puppy", prompt: "На пороге появился маленький щенок.", detail: "Что чувствует лицо?", cueEmoji: "😮", targetId: "surprise" },
-  { id: "quiet-blanket", prompt: "Аня сидит под мягким пледом и слушает дождь.", detail: "Что она чувствует?", cueEmoji: "☔", targetId: "calm" },
+  { id: "rain-blanket", prompt: "Аня сидит под пледом и слушает дождь.", detail: "Что она чувствует?", cueEmoji: "☔", targetId: "calm" },
   { id: "long-walk", prompt: "После длинной прогулки Паша зевает.", detail: "Что он чувствует?", cueEmoji: "🥱", targetId: "tired" },
   { id: "finished-drawing", prompt: "Ника сама закончила красивый рисунок.", detail: "Что она чувствует?", cueEmoji: "🖍️", targetId: "pride" },
   { id: "happy-face", prompt: "Посмотри на лицо.", detail: "Какую эмоцию оно показывает?", cueEmoji: "😊", targetId: "joy" },

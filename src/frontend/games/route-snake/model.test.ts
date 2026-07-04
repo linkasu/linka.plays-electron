@@ -9,7 +9,7 @@ function state(overrides: Partial<RouteSnakeState>): RouteSnakeState {
     direction: "right",
     food: { row: 0, column: 0 },
     lastEvent: "moved",
-    ...overrides
+   ...overrides
   };
 }
 

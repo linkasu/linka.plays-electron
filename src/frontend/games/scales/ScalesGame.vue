@@ -361,22 +361,22 @@ onUnmounted(() => {
 }
 
 @media (max-height: 42rem) {
-  .game-container .text-overline,
-  .game-container h1,
-  .game-container .v-alert {
+ .game-container .text-overline,
+ .game-container h1,
+ .game-container .v-alert {
     display: none;
   }
 
-  .scales-answer-col {
+ .scales-answer-col {
     flex: 0 0 33.3333% !important;
     max-inline-size: 33.3333% !important;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .scale-beam,
-  .scale-pan-wrap,
-  .pan-item {
+ .scale-beam,
+ .scale-pan-wrap,
+ .pan-item {
     animation: none;
   }
 }

@@ -57,13 +57,13 @@ export const gameCategories: Record<GameCategoryId, string> = {
 };
 
 export const gameCategoryDescriptions: Record<GameCategoryId, string> = {
-  "gaze-basics": "Первые спокойные игры для фиксации, переключения и мягкого попадания взглядом.",
-  "visual-search": "Задания, где нужно найти объект, удержать цель и не спешить.",
+  "gaze-basics": "Первые игры для фиксации, переключения и попадания взглядом.",
+  "visual-search": "Задания, где нужно найти объект и удержать цель.",
   sequencing: "Игры с порядком действий, сборкой и понятной очередностью шагов.",
   "language-aac": "Выбор картинок, слов и смысловых категорий для коммуникации.",
   numeracy: "Количество, числа и простые арифметические действия крупными целями.",
   strategy: "Головоломки, настольные и пошаговые игры для тех, кто хочет настоящую задачу без таймера и давления.",
-  "continuous-control": "Плавное слежение и мягкое управление движением взглядом."
+  "continuous-control": "Ведение движения взглядом."
 };
 
 export const selfMenuCategoryLabels: Record<GameCategoryId, string> = {
@@ -77,7 +77,7 @@ export const selfMenuCategoryLabels: Record<GameCategoryId, string> = {
 };
 
 export const selfMenuCategoryDescriptions: Record<GameCategoryId, string> = {
-  "gaze-basics": "Смотри спокойно, цель откликнется.",
+  "gaze-basics": "Смотри на цель, она откликнется.",
   "visual-search": "Найди, кто спрятался.",
   sequencing: "Выбирай по порядку.",
   "language-aac": "Выбери картинку или слово.",
@@ -126,7 +126,7 @@ export const games: GameInfo[] = [
   {
     id: "aquarium",
     title: "Аквариум",
-    description: "Смотри в спокойный аквариум: рыбки мягко подплывают к взгляду и получают тихий корм.",
+    description: "Смотри в аквариум: рыбки подплывают к взгляду и получают корм.",
     selfDescription: "Покорми рыбок взглядом.",
     route: "/games/aquarium",
     category: "gaze-basics",
@@ -141,7 +141,7 @@ export const games: GameInfo[] = [
   {
     id: "balloons",
     title: "Шарики",
-    description: "Смотри на крупный шарик и удерживай взгляд: он мягко улетит вверх спокойно и без спешки.",
+    description: "Смотри на крупный шарик и удерживай взгляд: он улетит вверх.",
     selfDescription: "Отпусти шарик взглядом.",
     route: "/games/balloons",
     category: "gaze-basics",
@@ -171,7 +171,7 @@ export const games: GameInfo[] = [
   {
     id: "breathing-flower",
     title: "Дышащий цветок",
-    description: "Смотри спокойно в центр цветка, и он будет мягко раскрываться и закрываться.",
+    description: "Смотри в центр цветка, и он будет раскрываться и закрываться.",
     selfDescription: "Подыши вместе с цветком.",
     route: "/games/breathing-flower",
     category: "gaze-basics",
@@ -186,7 +186,7 @@ export const games: GameInfo[] = [
   {
     id: "wake-owl",
     title: "Разбуди сову",
-    description: "Смотри на большую сонную сову: она мягко открывает глаза и моргает от спокойной фиксации.",
+    description: "Смотри на большую сонную сову: она открывает глаза и моргает от фиксации.",
     selfDescription: "Разбуди сову взглядом.",
     route: "/games/wake-owl",
     category: "gaze-basics",
@@ -201,7 +201,7 @@ export const games: GameInfo[] = [
   {
     id: "clouds",
     title: "Облака",
-    description: "Смотри на мягкие облака: они медленно меняют форму и расступаются рядом со взглядом.",
+    description: "Смотри на облака: они постепенно меняют форму и расступаются рядом со взглядом.",
     selfDescription: "Раздвинь облака взглядом.",
     route: "/games/clouds",
     category: "gaze-basics",
@@ -216,7 +216,7 @@ export const games: GameInfo[] = [
   {
     id: "leaves-wind",
     title: "Листья на ветру",
-    description: "Веди взглядом спокойный поток ветра: листья плавно подхватывают движение.",
+    description: "Веди взглядом поток ветра: листья подхватывают движение.",
     selfDescription: "Проведи листья ветром.",
     route: "/games/leaves-wind",
     category: "gaze-basics",
@@ -231,7 +231,7 @@ export const games: GameInfo[] = [
   {
     id: "kite",
     title: "Воздушный змей",
-    description: "Смотри на крупного змея: спокойный взгляд мягко удерживает его в воздухе и поднимает выше.",
+    description: "Смотри на крупного змея: взгляд удерживает его в воздухе и поднимает выше.",
     selfDescription: "Подними змея взглядом.",
     route: "/games/kite",
     category: "gaze-basics",
@@ -246,7 +246,7 @@ export const games: GameInfo[] = [
   {
     id: "firefly-meadow",
     title: "Светлячковая поляна",
-    description: "Смотри на тихую поляну и мягко зажигай светлячков взглядом.",
+    description: "Смотри на поляну и зажигай светлячков взглядом.",
     selfDescription: "Зажги светлячков взглядом.",
     route: "/games/firefly-meadow",
     category: "gaze-basics",
@@ -261,7 +261,7 @@ export const games: GameInfo[] = [
   {
     id: "catch-light",
     title: "Поймай свет",
-    description: "Смотри на мягкую световую цель: удержи взгляд, и свет спокойно переедет в новую зону.",
+    description: "Смотри на световую цель: удержи взгляд, и свет переедет в новую зону.",
     selfDescription: "Поймай свет взглядом.",
     route: "/games/catch-light",
     category: "gaze-basics",
@@ -291,7 +291,7 @@ export const games: GameInfo[] = [
   {
     id: "magic-dust",
     title: "Волшебная пыль",
-    description: "Смотри спокойно: вокруг взгляда появляются мягкие искры и постепенно исчезают.",
+    description: "Смотри на экран: вокруг взгляда появляются искры и постепенно исчезают.",
     selfDescription: "Зажги волшебную пыль взглядом.",
     route: "/games/magic-dust",
     category: "gaze-basics",
@@ -306,7 +306,7 @@ export const games: GameInfo[] = [
   {
     id: "light-gallery",
     title: "Галерея света",
-    description: "Смотри на спокойные панели: взгляд мягко проявляет картины и повышает контраст.",
+    description: "Смотри на панели: взгляд проявляет картины и повышает контраст.",
     selfDescription: "Прояви картины взглядом.",
     route: "/games/light-gallery",
     category: "gaze-basics",
@@ -321,7 +321,7 @@ export const games: GameInfo[] = [
   {
     id: "soap-circles",
     title: "Мыльные круги",
-    description: "Смотри на крупные мыльные круги: выбранный круг мягко расширяется и растворяется.",
+    description: "Смотри на крупные мыльные круги: выбранный круг расширяется и растворяется.",
     selfDescription: "Раствори мыльный круг взглядом.",
     route: "/games/soap-circles",
     category: "gaze-basics",
@@ -336,7 +336,7 @@ export const games: GameInfo[] = [
   {
     id: "northern-lights",
     title: "Северное сияние",
-    description: "Смотри на ночное небо и мягко рисуй световые полосы взглядом.",
+    description: "Смотри на ночное небо и рисуй световые полосы взглядом.",
     selfDescription: "Рисуй сияние взглядом.",
     route: "/games/northern-lights",
     category: "gaze-basics",
@@ -351,7 +351,7 @@ export const games: GameInfo[] = [
   {
     id: "sun-rays",
     title: "Солнце и лучи",
-    description: "Смотри на большое солнце: лучи постепенно раскрываются, а при уходе взгляда солнце спокойно ждёт.",
+    description: "Смотри на большое солнце: лучи постепенно раскрываются, а при уходе взгляда солнце ждёт.",
     selfDescription: "Открой лучи солнца.",
     route: "/games/sun-rays",
     category: "gaze-basics",
@@ -366,7 +366,7 @@ export const games: GameInfo[] = [
   {
     id: "snowflakes",
     title: "Снежинки",
-    description: "Смотри на медленно падающие снежинки: рядом со взглядом они мягко светятся и тают.",
+    description: "Смотри на постепенно падающие снежинки: рядом со взглядом они светятся и тают.",
     selfDescription: "Растопи снежинки взглядом.",
     route: "/games/snowflakes",
     category: "gaze-basics",
@@ -381,7 +381,7 @@ export const games: GameInfo[] = [
   {
     id: "moon-path",
     title: "Лунная дорожка",
-    description: "Подсвечивай взглядом лунную дорожку на воде: мягкое сканирование в своём темпе.",
+    description: "Подсвечивай взглядом лунную дорожку на воде: сканирование в своём темпе.",
     selfDescription: "Зажги лунную дорожку взглядом.",
     route: "/games/moon-path",
     category: "gaze-basics",
@@ -396,7 +396,7 @@ export const games: GameInfo[] = [
   {
     id: "lighthouse",
     title: "Маяк",
-    description: "Смотри на маяк: луч мягко притягивает лодочки к гавани.",
+    description: "Смотри на маяк: луч притягивает лодочки к гавани.",
     selfDescription: "Приведи лодочки к маяку.",
     route: "/games/lighthouse",
     category: "gaze-basics",
@@ -411,7 +411,7 @@ export const games: GameInfo[] = [
   {
     id: "sand-garden",
     title: "Песочный сад",
-    description: "Веди взглядом мягкие борозды по тёплому песку: следы появляются спокойно и постепенно исчезают.",
+    description: "Веди взглядом борозды по тёплому песку: следы появляются и постепенно исчезают.",
     selfDescription: "Рисуй следы на песке взглядом.",
     route: "/games/sand-garden",
     category: "gaze-basics",
@@ -426,7 +426,7 @@ export const games: GameInfo[] = [
   {
     id: "sea-shells",
     title: "Морские ракушки",
-    description: "Открывай крупные морские ракушки взглядом: внутри появляется мягкий свет и жемчужина.",
+    description: "Открывай крупные морские ракушки взглядом: внутри появляется свет и жемчужина.",
     selfDescription: "Открой ракушку взглядом.",
     route: "/games/sea-shells",
     category: "gaze-basics",
@@ -441,7 +441,7 @@ export const games: GameInfo[] = [
   {
     id: "paper-lanterns",
     title: "Бумажные фонарики",
-    description: "Зажигай крупные бумажные фонарики взглядом и смотри, как они мягко улетают вверх.",
+    description: "Зажигай крупные бумажные фонарики взглядом и смотри, как они улетают вверх.",
     selfDescription: "Зажги фонарик взглядом.",
     route: "/games/paper-lanterns",
     category: "gaze-basics",
@@ -456,7 +456,7 @@ export const games: GameInfo[] = [
   {
     id: "open-door",
     title: "Открой дверцу",
-    description: "Смотри на крупную дверцу: она широко открывается и показывает тихий свет или добрый предмет.",
+    description: "Смотри на крупную дверцу: она широко открывается и показывает свет или добрый предмет.",
     selfDescription: "Открой дверцу взглядом.",
     route: "/games/open-door",
     category: "gaze-basics",
@@ -471,7 +471,7 @@ export const games: GameInfo[] = [
   {
     id: "warm-window",
     title: "Тёплое окно",
-    description: "Смотри на спокойный дом: в тёплых окнах появляются добрые зверьки.",
+    description: "Смотри на дом: в тёплых окнах появляются добрые зверьки.",
     selfDescription: "Зажги окна взглядом.",
     route: "/games/warm-window",
     category: "gaze-basics",
@@ -486,7 +486,7 @@ export const games: GameInfo[] = [
   {
     id: "warm-fire",
     title: "Тёплый костёр",
-    description: "Смотри на маленький огонёк: взгляд мягко разжигает пламя, искры, музыку и плавные цветные узоры без вспышек.",
+    description: "Смотри на маленький огонёк: взгляд разжигает пламя, искры, музыку и цветные узоры без вспышек.",
     selfDescription: "Согрей костёр взглядом.",
     route: "/games/warm-fire",
     category: "gaze-basics",
@@ -501,7 +501,7 @@ export const games: GameInfo[] = [
   {
     id: "big-cards",
     title: "Большие карточки",
-    description: "Выбирай одну из 2-4 крупных картинок по мягкой подсказке: любой выбор даёт спокойный отклик без ошибки.",
+    description: "Выбирай одну из 2-4 крупных картинок по подсказке: любой выбор даёт отклик без ошибки.",
     selfDescription: "Выбери большую карточку.",
     route: "/games/big-cards",
     category: "gaze-basics",
@@ -516,7 +516,7 @@ export const games: GameInfo[] = [
   {
     id: "color-circle",
     title: "Цветной круг",
-    description: "Выбери названный цвет на большом круге из секторов; мягкая подсказка помогает перейти к следующему кругу.",
+    description: "Выбери названный цвет на большом круге из секторов; подсказка помогает перейти к следующему кругу.",
     selfDescription: "Выбери цвет в круге.",
     route: "/games/color-circle",
     category: "gaze-basics",
@@ -531,7 +531,7 @@ export const games: GameInfo[] = [
   {
     id: "feed-animal",
     title: "Покорми зверька",
-    description: "Выбери подходящую еду для зверька: удачный выбор кормит, а мягкая подсказка помогает повторить попытку.",
+    description: "Выбери подходящую еду для зверька: удачный выбор кормит, а подсказка помогает повторить попытку.",
     selfDescription: "Выбери, что ест зверёк.",
     route: "/games/feed-animal",
     category: "gaze-basics",
@@ -546,7 +546,7 @@ export const games: GameInfo[] = [
   {
     id: "butterfly",
     title: "Бабочки",
-    description: "Смотри на мягкие световые пятна и буди бабочек взглядом.",
+    description: "Смотри на световые пятна и буди бабочек взглядом.",
     selfDescription: "Разбуди бабочек взглядом.",
     route: "/games/butterfly",
     category: "gaze-basics",
@@ -561,7 +561,7 @@ export const games: GameInfo[] = [
   {
     id: "flowers",
     title: "Цветы",
-    description: "Находи новый росток на лугу и мягко выращивай цветок взглядом.",
+    description: "Находи новый росток на лугу и выращивай цветок взглядом.",
     selfDescription: "Вырасти цветок.",
     route: "/games/flowers",
     category: "gaze-basics",
@@ -575,8 +575,8 @@ export const games: GameInfo[] = [
   },
   {
     id: "bubble-pop",
-    title: "Тихие пузыри",
-    description: "Лопай крупные пузыри взглядом на спокойном пастельном фоне.",
+    title: "Пузыри",
+    description: "Лопай крупные пузыри взглядом на пастельном фоне.",
     selfDescription: "Лопни пузыри взглядом.",
     route: "/games/bubble-pop",
     category: "gaze-basics",
@@ -591,7 +591,7 @@ export const games: GameInfo[] = [
   {
     id: "ducks",
     title: "Утки",
-    description: "Следи за утками на волнах и мягко попадай по ним взглядом.",
+    description: "Следи за утками на волнах и попадай по ним взглядом.",
     selfDescription: "Найди утку на воде.",
     route: "/games/ducks",
     category: "gaze-basics",
@@ -606,7 +606,7 @@ export const games: GameInfo[] = [
   {
     id: "fishes",
     title: "Рыбки",
-    description: "Лови спокойных рыбок взглядом в мягком подводном мире.",
+    description: "Лови рыбок взглядом в подводном мире.",
     selfDescription: "Поймай рыбку взглядом.",
     route: "/games/fishes",
     category: "gaze-basics",
@@ -621,7 +621,7 @@ export const games: GameInfo[] = [
   {
     id: "jellyfish",
     title: "Медузы",
-    description: "Следи за медленными светящимися медузами в спокойной воде.",
+    description: "Следи за светящимися медузами в воде.",
     selfDescription: "Следи за медузой взглядом.",
     route: "/games/jellyfish",
     category: "gaze-basics",
@@ -636,7 +636,7 @@ export const games: GameInfo[] = [
   {
     id: "frog",
     title: "Жаба",
-    description: "Помоги жабе ловить светлячков взглядом без спешки и стресса.",
+    description: "Помоги жабе ловить светлячков взглядом.",
     selfDescription: "Помоги жабе поймать огонёк.",
     route: "/games/frog",
     category: "gaze-basics",
@@ -651,7 +651,7 @@ export const games: GameInfo[] = [
   {
     id: "hide-and-seek",
     title: "Прятки",
-    description: "Ищи спрятанных персонажей на спокойных иллюстрациях.",
+    description: "Ищи спрятанных персонажей на иллюстрациях.",
     selfDescription: "Найди спрятанного друга.",
     route: "/games/hide-and-seek",
     category: "visual-search",
@@ -666,7 +666,7 @@ export const games: GameInfo[] = [
   {
     id: "who-hiding",
     title: "Кто спрятался?",
-    description: "Найди частично скрытого персонажа в спокойной фигура-фон сцене; мягкая подсказка помогает при повторном выборе.",
+    description: "Найди частично скрытого персонажа в фигура-фон сцене; подсказка помогает при повторном выборе.",
     selfDescription: "Найди, кто спрятался.",
     route: "/games/who-hiding",
     category: "visual-search",
@@ -696,7 +696,7 @@ export const games: GameInfo[] = [
   {
     id: "find-shape",
     title: "Найди форму",
-    description: "Найди заданную форму среди крупных карточек: подсказка мягко помогает заметить нужную форму.",
+    description: "Найди заданную форму среди крупных карточек: подсказка помогает заметить нужную форму.",
     selfDescription: "Найди нужную форму.",
     route: "/games/find-shape",
     category: "visual-search",
@@ -726,7 +726,7 @@ export const games: GameInfo[] = [
   {
     id: "what-missing",
     title: "Что пропало?",
-    description: "Посмотри на три крупных предмета, запомни их и выбери, какой предмет мягко исчез.",
+    description: "Посмотри на три крупных предмета, запомни их и выбери, какой предмет исчез.",
     selfDescription: "Найди, что пропало.",
     route: "/games/what-missing",
     category: "visual-search",
@@ -741,7 +741,7 @@ export const games: GameInfo[] = [
   {
     id: "follow-cue",
     title: "Следуй за подсказкой",
-    description: "Мягкая стрелка и световая подсказка ведут к следующей крупной цели; при необходимости подсказка становится заметнее.",
+    description: " стрелка и световая подсказка ведут к следующей крупной цели; при необходимости подсказка становится заметнее.",
     selfDescription: "Следуй за стрелкой.",
     route: "/games/follow-cue",
     category: "visual-search",
@@ -756,7 +756,7 @@ export const games: GameInfo[] = [
   {
     id: "find-letter",
     title: "Найди букву",
-    description: "Выбери заданную крупную букву среди нескольких спокойных вариантов.",
+    description: "Выбери заданную крупную букву среди нескольких вариантов.",
     selfDescription: "Найди букву.",
     route: "/games/find-letter",
     category: "visual-search",
@@ -771,7 +771,7 @@ export const games: GameInfo[] = [
   {
     id: "find-digit",
     title: "Найди цифру",
-    description: "Найди заданную цифру среди крупных спокойных карточек; мягкая подсказка помогает заметить нужную цифру.",
+    description: "Найди заданную цифру среди крупных карточек; подсказка помогает заметить нужную цифру.",
     selfDescription: "Найди цифру.",
     route: "/games/find-digit",
     category: "numeracy",
@@ -801,7 +801,7 @@ export const games: GameInfo[] = [
   {
     id: "shadow-match",
     title: "Тень и предмет",
-    description: "Подбери крупный предмет к мягкому силуэту; подсказка помогает сравнить форму и предмет.",
+    description: "Подбери крупный предмет к силуэту; подсказка помогает сравнить форму и предмет.",
     selfDescription: "Найди предмет по тени.",
     route: "/games/shadow-match",
     category: "visual-search",
@@ -816,7 +816,7 @@ export const games: GameInfo[] = [
   {
     id: "sound-source",
     title: "Где звук?",
-    description: "Найди источник мягкой визуальной волны; тихий звук можно включить, а сбой аудио станет тишиной.",
+    description: "Найди источник визуальной волны; звук можно включить, а сбой аудио станет тишиной.",
     selfDescription: "Найди, откуда звук.",
     route: "/games/sound-source",
     category: "visual-search",
@@ -831,7 +831,7 @@ export const games: GameInfo[] = [
   {
     id: "odd-one-out",
     title: "Что лишнее?",
-    description: "Выбери предмет, который отличается от общей группы; подсказка мягко объяснит категорию.",
+    description: "Выбери предмет, который отличается от общей группы; подсказка объяснит категорию.",
     selfDescription: "Найди лишний предмет.",
     route: "/games/odd-one-out",
     category: "visual-search",
@@ -846,7 +846,7 @@ export const games: GameInfo[] = [
   {
     id: "find-emotion",
     title: "Найди эмоцию",
-    description: "Выбери лицо или смайлик с заданной эмоцией среди крупных спокойных карточек.",
+    description: "Выбери лицо или смайлик с заданной эмоцией среди крупных карточек.",
     selfDescription: "Найди эмоцию.",
     route: "/games/find-emotion",
     category: "visual-search",
@@ -861,7 +861,7 @@ export const games: GameInfo[] = [
   {
     id: "letter-hunt",
     title: "Охота на буквы",
-    description: "Поймай заданную букву взглядом в спокойной сцене с медленно плывущими символами.",
+    description: "Поймай заданную букву взглядом в сцене с постепенно плывущими символами.",
     selfDescription: "Поймай букву взглядом.",
     route: "/games/letter-hunt",
     category: "visual-search",
@@ -876,7 +876,7 @@ export const games: GameInfo[] = [
   {
     id: "find-animal",
     title: "Найди животное",
-    description: "Найди названное животное среди крупных карточек; спокойная подсказка помогает при повторном выборе.",
+    description: "Найди названное животное среди крупных карточек; подсказка помогает при повторном выборе.",
     selfDescription: "Найди животное.",
     route: "/games/find-animal",
     category: "visual-search",
@@ -891,7 +891,7 @@ export const games: GameInfo[] = [
   {
     id: "memory-cards",
     title: "Пары",
-    description: "Открывай две карточки и находи одинаковые пары без спешки.",
+    description: "Открывай две карточки и находи одинаковые пары.",
     selfDescription: "Найди одинаковые карточки.",
     route: "/games/memory-cards",
     category: "visual-search",
@@ -906,7 +906,7 @@ export const games: GameInfo[] = [
   {
     id: "gaze-maze",
     title: "Лабиринт взгляда-указателя",
-    description: "Выбирай следующую мягкую точку или выход в широком лабиринте взглядом; подсказка помогает вернуться к маршруту.",
+    description: "Выбирай следующую точку или выход в широком лабиринте взглядом; подсказка помогает вернуться к маршруту.",
     selfDescription: "Найди выход взглядом.",
     route: "/games/gaze-maze",
     category: "visual-search",
@@ -921,7 +921,7 @@ export const games: GameInfo[] = [
   {
     id: "build-robot",
     title: "Собери роботика",
-    description: "Выбирай детали робота по шагам: голова, корпус, руки и ноги; мягкая подсказка помогает найти нужную деталь.",
+    description: "Выбирай детали робота по шагам: голова, корпус, руки и ноги; подсказка помогает найти нужную деталь.",
     selfDescription: "Собери роботика по порядку.",
     route: "/games/build-robot",
     category: "sequencing",
@@ -951,7 +951,7 @@ export const games: GameInfo[] = [
   {
     id: "dress-character",
     title: "Одень персонажа",
-    description: "Выбирай одежду по мягкой подсказке: шапку, куртку и обувь в спокойной последовательности.",
+    description: "Выбирай одежду по подсказке: шапку, куртку и обувь в последовательности.",
     selfDescription: "Одень персонажа по подсказке.",
     route: "/games/dress-character",
     category: "sequencing",
@@ -981,7 +981,7 @@ export const games: GameInfo[] = [
   {
     id: "sandwich",
     title: "Бутерброд",
-    description: "Собирай бутерброд по спокойной последовательности: хлеб, начинка, верхний хлеб.",
+    description: "Собирай бутерброд по последовательности: хлеб, начинка, верхний хлеб.",
     selfDescription: "Собери бутерброд по порядку.",
     route: "/games/sandwich",
     category: "sequencing",
@@ -1011,7 +1011,7 @@ export const games: GameInfo[] = [
   {
     id: "color-pattern",
     title: "Цветовой узор",
-    description: "Продолжай цветовой ряд AB, ABC или ABB крупной карточкой; ошибка даёт мягкую просьбу посмотреть на повтор.",
+    description: "Продолжай цветовой ряд AB, ABC или ABB крупной карточкой; ошибка даёт просьбу посмотреть на повтор.",
     selfDescription: "Продолжи цветовой ряд.",
     route: "/games/color-pattern",
     category: "sequencing",
@@ -1026,7 +1026,7 @@ export const games: GameInfo[] = [
   {
     id: "day-routine",
     title: "Утро-день-вечер",
-    description: "Выбирай картинки по времени дня: утро, день и вечер, с мягкой подсказкой при ошибке.",
+    description: "Выбирай картинки по времени дня: утро, день и вечер, с подсказкой при ошибке.",
     selfDescription: "Разложи день по порядку.",
     route: "/games/day-routine",
     category: "sequencing",
@@ -1041,7 +1041,7 @@ export const games: GameInfo[] = [
   {
     id: "three-frame-story",
     title: "История из 3 кадров",
-    description: "Выбирай следующий кадр и спокойно собирай короткую историю из трёх картинок.",
+    description: "Выбирай следующий кадр и собирай короткую историю из трёх картинок.",
     selfDescription: "Собери историю.",
     route: "/games/three-frame-story",
     category: "sequencing",
@@ -1071,7 +1071,7 @@ export const games: GameInfo[] = [
   {
     id: "musical-path",
     title: "Музыкальная дорожка",
-    description: "Выбирай ноты-камешки по порядку на тихой дорожке; звук можно оставить выключенным.",
+    description: "Выбирай ноты-камешки по порядку на дорожке; звук можно оставить выключенным.",
     selfDescription: "Пройди нотную дорожку.",
     route: "/games/musical-path",
     category: "sequencing",
@@ -1086,7 +1086,7 @@ export const games: GameInfo[] = [
   {
     id: "mosaic",
     title: "Мозаика",
-    description: "Собирай спокойную картинку из девяти крупных кусочков: активная клетка подсвечена, ошибки только подсказывают.",
+    description: "Собирай картинку из девяти крупных кусочков: активная клетка подсвечена, ошибки только подсказывают.",
     selfDescription: "Собери картинку из кусочков.",
     route: "/games/mosaic",
     category: "sequencing",
@@ -1101,7 +1101,7 @@ export const games: GameInfo[] = [
   {
     id: "shape-dance",
     title: "Танец фигур",
-    description: "Повтори спокойную последовательность крупных фигур после мягкого показа.",
+    description: "Повтори последовательность крупных фигур после показа.",
     selfDescription: "Повтори танец фигур.",
     route: "/games/shape-dance",
     category: "sequencing",
@@ -1131,7 +1131,7 @@ export const games: GameInfo[] = [
   {
     id: "comic-strip",
     title: "Комикс",
-    description: "Собери короткий комикс из трёх кадров, выбирая следующий кадр без спешки.",
+    description: "Собери короткий комикс из трёх кадров, выбирая следующий кадр.",
     selfDescription: "Собери комикс.",
     route: "/games/comic-strip",
     category: "sequencing",
@@ -1146,7 +1146,7 @@ export const games: GameInfo[] = [
   {
     id: "schedule",
     title: "Расписание",
-    description: "Собери дневное расписание из крупных AAC-карточек в спокойном порядке.",
+    description: "Собери дневное расписание из крупных AAC-карточек в порядке.",
     selfDescription: "Собери расписание.",
     route: "/games/schedule",
     category: "sequencing",
@@ -1176,7 +1176,7 @@ export const games: GameInfo[] = [
   {
     id: "shelf-sorting",
     title: "Сортировка по полкам",
-    description: "Выбирай подходящую полку для предмета по категории или цвету, с мягкой подсказкой.",
+    description: "Выбирай подходящую полку для предмета по категории или цвету, с подсказкой.",
     selfDescription: "Разложи по полкам.",
     route: "/games/shelf-sorting",
     category: "sequencing",
@@ -1191,7 +1191,7 @@ export const games: GameInfo[] = [
   {
     id: "solfege",
     title: "Сольфеджио",
-    description: "Найди ноты одной октавы на красивом пианино: клавиши мягко светятся, а тихий звук можно включить отдельно.",
+    description: "Найди ноты одной октавы на красивом пианино: клавиши светятся, а звук можно включить отдельно.",
     selfDescription: "Найди ноты на пианино.",
     route: "/games/solfege",
     category: "sequencing",
@@ -1206,7 +1206,7 @@ export const games: GameInfo[] = [
   {
     id: "choose-emotion",
     title: "Выбери эмоцию",
-    description: "Выбирай эмоцию для ситуации или лица среди крупных AAC-карточек; неверный выбор только мягко подсказывает.",
+    description: "Выбирай эмоцию для ситуации или лица среди крупных AAC-карточек; неверный выбор только подсказывает.",
     selfDescription: "Выбери эмоцию.",
     route: "/games/choose-emotion",
     category: "language-aac",
@@ -1251,7 +1251,7 @@ export const games: GameInfo[] = [
   {
     id: "word-categories",
     title: "Категории слов",
-    description: "Выбирай категорию для предмета или предмет для заданной категории с мягкой подсказкой после ошибки.",
+    description: "Выбирай категорию для предмета или предмет для заданной категории с подсказкой после ошибки.",
     selfDescription: "Выбери группу или предмет.",
     route: "/games/word-categories",
     category: "language-aac",
@@ -1281,7 +1281,7 @@ export const games: GameInfo[] = [
   {
     id: "i-want",
     title: "Я хочу...",
-    description: "Выбирай карточку желания или предмета и составляй фразу «Я хочу ...»; любой выбор засчитывается как коммуникация.",
+    description: "Выбирай карточку желания или предмета и составляй фразу «Я хочу...»; любой выбор засчитывается как коммуникация.",
     selfDescription: "Скажи, что хочешь.",
     route: "/games/i-want",
     category: "language-aac",
@@ -1296,7 +1296,7 @@ export const games: GameInfo[] = [
   {
     id: "want-dont-want",
     title: "Хочу / не хочу",
-    description: "Выбирай, хочешь ли мягкий предмет или занятие: любой ответ считается важной коммуникацией.",
+    description: "Выбирай, хочешь ли предмет или занятие: любой ответ считается важной коммуникацией.",
     selfDescription: "Скажи, хочешь или не хочешь.",
     route: "/games/want-dont-want",
     category: "language-aac",
@@ -1326,7 +1326,7 @@ export const games: GameInfo[] = [
   {
     id: "where-object",
     title: "Где предмет?",
-    description: "Выбирай место предмета или понятный предлог: на, под, в, рядом, с мягкой подсказкой при ошибке.",
+    description: "Выбирай место предмета или понятный предлог: на, под, в, рядом, с подсказкой при ошибке.",
     selfDescription: "Найди, где предмет.",
     route: "/games/where-object",
     category: "language-aac",
@@ -1371,7 +1371,7 @@ export const games: GameInfo[] = [
   {
     id: "who-is-this",
     title: "Кто это?",
-    description: "Выбирай, кто на картинке: близкий человек, помощник, друг или животное; ошибка мягко подсказывает.",
+    description: "Выбирай, кто на картинке: близкий человек, помощник, друг или животное; ошибка подсказывает.",
     selfDescription: "Выбери, кто это.",
     route: "/games/who-is-this",
     category: "language-aac",
@@ -1401,7 +1401,7 @@ export const games: GameInfo[] = [
   {
     id: "what-first",
     title: "Что сначала?",
-    description: "Выбери первое действие в короткой сцене, а подсказка спокойно объяснит порядок.",
+    description: "Выбери первое действие в короткой сцене, а подсказка объяснит порядок.",
     selfDescription: "Выбери, что сначала.",
     route: "/games/what-first",
     category: "language-aac",
@@ -1416,7 +1416,7 @@ export const games: GameInfo[] = [
   {
     id: "mini-dialog",
     title: "Мини-диалог",
-    description: "Выбирай мягкие реплики для короткого AAC-диалога без неправильных ответов.",
+    description: "Выбирай реплики для короткого AAC-диалога без неправильных ответов.",
     selfDescription: "Ответь партнёру.",
     route: "/games/mini-dialog",
     category: "language-aac",
@@ -1431,7 +1431,7 @@ export const games: GameInfo[] = [
   {
     id: "social-phrases",
     title: "Социальные фразы",
-    description: "Выбирай подходящую AAC-фразу для приветствия, просьбы или благодарности; подсказки мягкие, без поражения.",
+    description: "Выбирай подходящую AAC-фразу для приветствия, просьбы или благодарности; подсказки, без поражения.",
     selfDescription: "Выбери нужную фразу.",
     route: "/games/social-phrases",
     category: "language-aac",
@@ -1461,7 +1461,7 @@ export const games: GameInfo[] = [
   {
     id: "clock",
     title: "Часы",
-    description: "Выбери время на крупных циферблатах: полные часы, спокойная подсказка при ошибке и без резкого завершения.",
+    description: "Выбери время на крупных циферблатах: полные часы, подсказка при ошибке и без резкого завершения.",
     selfDescription: "Выбери время на часах.",
     route: "/games/clock",
     category: "numeracy",
@@ -1476,7 +1476,7 @@ export const games: GameInfo[] = [
   {
     id: "calendar",
     title: "Календарь",
-    description: "Выбирай день недели или карточку вчера-сегодня-завтра: крупные варианты, мягкая подсказка при ошибке и спокойный темп.",
+    description: "Выбирай день недели или карточку вчера-сегодня-завтра: крупные варианты, подсказка при ошибке и темп.",
     selfDescription: "Выбери день в календаре.",
     route: "/games/calendar",
     category: "numeracy",
@@ -1506,7 +1506,7 @@ export const games: GameInfo[] = [
   {
     id: "coin-counting",
     title: "Сложи монетки",
-    description: "Выбирай крупные монетки 1, 2 и 5, спокойно собирая заданную сумму от 1 до 10.",
+    description: "Выбирай крупные монетки 1, 2 и 5, собирая заданную сумму от 1 до 10.",
     selfDescription: "Сложи монетки.",
     route: "/games/coin-counting",
     category: "numeracy",
@@ -1521,7 +1521,7 @@ export const games: GameInfo[] = [
   {
     id: "pizza-fractions",
     title: "Доли пиццы",
-    description: "Выбирай половину, четверть или целую пиццу на крупных карточках; ошибка мягко подсвечивает правильную долю.",
+    description: "Выбирай половину, четверть или целую пиццу на крупных карточках; ошибка подсвечивает правильную долю.",
     selfDescription: "Выбери долю пиццы.",
     route: "/games/pizza-fractions",
     category: "numeracy",
@@ -1551,7 +1551,7 @@ export const games: GameInfo[] = [
   {
     id: "scales",
     title: "Весы",
-    description: "Смотри на картинку весов и выбирай, какая сторона тяжелее, легче или равна; ошибка даёт мягкую подсказку.",
+    description: "Смотри на картинку весов и выбирай, какая сторона тяжелее, легче или равна; ошибка даёт подсказку.",
     selfDescription: "Выбери сторону весов.",
     route: "/games/scales",
     category: "numeracy",
@@ -1581,7 +1581,7 @@ export const games: GameInfo[] = [
   {
     id: "number-sorting",
     title: "Сортировка чисел",
-    description: "Выбирай следующее число по возрастанию или убыванию из крупных карточек; ошибка мягко подсвечивает подсказку.",
+    description: "Выбирай следующее число по возрастанию или убыванию из крупных карточек; ошибка подсвечивает подсказку.",
     selfDescription: "Выбери следующее число.",
     route: "/games/number-sorting",
     category: "numeracy",
@@ -1596,7 +1596,7 @@ export const games: GameInfo[] = [
   {
     id: "sudoku-2x2",
     title: "Судоку 2x2",
-    description: "Заполни простую сетку 2x2 недостающим числом или цветом, а ошибка мягко объяснит выбор.",
+    description: "Заполни простую сетку 2x2 недостающим числом или цветом, а ошибка объяснит выбор.",
     selfDescription: "Выбери недостающую клетку.",
     route: "/games/sudoku-2x2",
     category: "numeracy",
@@ -1641,7 +1641,7 @@ export const games: GameInfo[] = [
   {
     id: "number-bonds",
     title: "Состав числа",
-    description: "Выбирай недостающую часть состава числа до 5 или 10 на крупных спокойных карточках.",
+    description: "Выбирай недостающую часть состава числа до 5 или 10 на крупных карточках.",
     selfDescription: "Найди часть числа.",
     route: "/games/number-bonds",
     category: "numeracy",
@@ -1656,7 +1656,7 @@ export const games: GameInfo[] = [
   {
     id: "shop",
     title: "Магазин",
-    description: "Выбирай товар по цене или спокойно собирай оплату крупными монетами.",
+    description: "Выбирай товар по цене или собирай оплату крупными монетами.",
     selfDescription: "Купи товар в магазине.",
     route: "/games/shop",
     category: "numeracy",
@@ -1671,7 +1671,7 @@ export const games: GameInfo[] = [
   {
     id: "coordinates",
     title: "Координаты",
-    description: "Выбирай клетку по координате A1, B2 или C3 в крупной спокойной сетке.",
+    description: "Выбирай клетку по координате A1, B2 или C3 в крупной сетке.",
     selfDescription: "Найди клетку по координате.",
     route: "/games/coordinates",
     category: "numeracy",
@@ -1701,7 +1701,7 @@ export const games: GameInfo[] = [
   {
     id: "color-shape",
     title: "Цвет + форма",
-    description: "Выбери объект по двум признакам, например красный круг: ошибка мягко подсветит цвет или форму.",
+    description: "Выбери объект по двум признакам, например красный круг: ошибка подсветит цвет или форму.",
     selfDescription: "Найди цветную форму.",
     route: "/games/color-shape",
     category: "numeracy",
@@ -1731,7 +1731,7 @@ export const games: GameInfo[] = [
   {
     id: "minesweeper-safe",
     title: "Сапёр",
-    description: "Выбирай безопасные клетки по числам-подсказкам: мина завершает партию, поэтому ищи аккуратно.",
+    description: "Выбирай безопасные клетки по числам-подсказкам: мина завершает партию, поэтому ищи.",
     selfDescription: "Найди безопасную клетку.",
     route: "/games/minesweeper-safe",
     category: "strategy",
@@ -1746,7 +1746,7 @@ export const games: GameInfo[] = [
   {
     id: "domino-matching",
     title: "Домино",
-    description: "Ставь костяшки к открытым числам, бери из базара, если хода нет, и играй спокойную партию с ботом.",
+    description: "Ставь костяшки к открытым числам, бери из базара, если хода нет, и играй партию с ботом.",
     selfDescription: "Собери цепочку домино.",
     route: "/games/domino-matching",
     category: "strategy",
@@ -1760,7 +1760,7 @@ export const games: GameInfo[] = [
   },
   {
     id: "number-2048",
-    title: "2048 мягкий",
+    title: "2048",
     description: "Сдвигай плитки 4×4 и собирай одинаковые числа: если ходов не останется, доска завершится.",
     selfDescription: "Собери одинаковые плитки.",
     route: "/games/number-2048",
@@ -1776,7 +1776,7 @@ export const games: GameInfo[] = [
   {
     id: "sliding-puzzle",
     title: "Пятнашки 3×3",
-    description: "Собирай спокойные пятнашки на поле 3×3: выбирай соседнюю с пустой клеткой плитку и проверяй правило без спешки.",
+    description: "Собирай пятнашки на поле 3×3: выбирай соседнюю с пустой клеткой плитку и проверяй правило.",
     selfDescription: "Собери пятнашки.",
     route: "/games/sliding-puzzle",
     category: "strategy",
@@ -1805,8 +1805,8 @@ export const games: GameInfo[] = [
   },
   {
     id: "step-tetris",
-    title: "Тетрис спокойный",
-    description: "Ставь фигуры пошагово: выбери колонку, поверни и мягко опусти без спешки.",
+    title: "Тетрис",
+    description: "Ставь фигуры пошагово: выбери колонку, поверни и опусти.",
     selfDescription: "Поставь фигуру на место.",
     route: "/games/step-tetris",
     category: "strategy",
@@ -1836,7 +1836,7 @@ export const games: GameInfo[] = [
   {
     id: "tic-tac-toe",
     title: "Крестики-нолики",
-    description: "Играй крестиками против спокойного компьютера на классическом поле 3×3.",
+    description: "Играй крестиками против компьютера на классическом поле 3×3.",
     selfDescription: "Сделай ход.",
     route: "/games/tic-tac-toe",
     category: "strategy",
@@ -1851,7 +1851,7 @@ export const games: GameInfo[] = [
   {
     id: "connect-four",
     title: "4 в ряд",
-    description: "Собирай четыре фишки в ряд против спокойного компьютера.",
+    description: "Собирай четыре фишки в ряд против компьютера.",
     selfDescription: "Поставь фишку.",
     route: "/games/connect-four",
     category: "strategy",
@@ -1866,7 +1866,7 @@ export const games: GameInfo[] = [
   {
     id: "reversi-light",
     title: "Реверси light",
-    description: "Играй в мини-реверси 4×4: выбирай подсвеченные ходы и спокойно переворачивай фишки.",
+    description: "Играй в мини-реверси 4×4: выбирай подсвеченные ходы и переворачивай фишки.",
     selfDescription: "Выбери подсвеченный ход.",
     route: "/games/reversi-light",
     category: "strategy",
@@ -1941,7 +1941,7 @@ export const games: GameInfo[] = [
   {
     id: "step-pong",
     title: "Понг пошаговый",
-    description: "Выбирай позицию ракетки перед мягким ударом: после трёх сложных выборов раунд спокойно завершается.",
+    description: "Выбирай позицию ракетки перед ударом: после трёх сложных выборов раунд завершается.",
     selfDescription: "Поставь ракетку.",
     route: "/games/step-pong",
     category: "strategy",
@@ -1955,8 +1955,8 @@ export const games: GameInfo[] = [
   },
   {
     id: "route-snake",
-    title: "Змейка спокойная",
-    description: "Веди медленную змейку по мягкой сетке: если рядом край или хвостик, змейка замедляется и ищет свободный путь.",
+    title: "Змейка",
+    description: "Веди змейку по сетке: если рядом край или хвостик, змейка замедляется и ищет свободный путь.",
     selfDescription: "Помоги змейке найти листочки.",
     route: "/games/route-snake",
     category: "strategy",
@@ -1986,7 +1986,7 @@ export const games: GameInfo[] = [
   {
     id: "boat",
     title: "Лодочка",
-    description: "Веди лодочку взглядом по спокойной реке и проходи мягкие светлые ворота.",
+    description: "Веди лодочку взглядом по реке и проходи светлые ворота.",
     selfDescription: "Веди лодочку по реке.",
     route: "/games/boat",
     category: "continuous-control",
@@ -2001,7 +2001,7 @@ export const games: GameInfo[] = [
   {
     id: "gaze-follow-snake",
     title: "Змейка за взглядом",
-    description: "Веди мягкую змейку взглядом к большим листьям, спокойно и непрерывно.",
+    description: "Веди змейку взглядом к большим листьям непрерывным движением.",
     selfDescription: "Веди змейку к листьям.",
     route: "/games/gaze-follow-snake",
     category: "continuous-control",
@@ -2016,7 +2016,7 @@ export const games: GameInfo[] = [
   {
     id: "table-tennis",
     title: "Теннис",
-    description: "Веди мягкую ракетку взглядом и вместе с партнёром спокойно держи мяч в игре.",
+    description: "Веди ракетку взглядом и вместе с партнёром держи мяч в игре.",
     selfDescription: "Веди ракетку.",
     route: "/games/table-tennis",
     category: "continuous-control",
@@ -2030,8 +2030,8 @@ export const games: GameInfo[] = [
   },
   {
     id: "road-car",
-    title: "Плавная машинка",
-    description: "Веди машинку взглядом по широкой дороге к мягким светлым кругам.",
+    title: "Машинка на дороге",
+    description: "Веди машинку взглядом по широкой дороге к светлым кругам.",
     selfDescription: "Веди машинку по дороге.",
     route: "/games/road-car",
     category: "continuous-control",
@@ -2046,7 +2046,7 @@ export const games: GameInfo[] = [
   {
     id: "glider",
     title: "Планер",
-    description: "Веди планер взглядом через широкие воздушные ворота: он спокойно держит высоту и мягко ждёт корректировки.",
+    description: "Веди планер взглядом через широкие воздушные ворота: он держит высоту и ждёт корректировки.",
     selfDescription: "Проведи планер.",
     route: "/games/glider",
     category: "continuous-control",
@@ -2061,7 +2061,7 @@ export const games: GameInfo[] = [
   {
     id: "line-drawing",
     title: "Рисование линией",
-    description: "Рисуй мягкую линию взглядом и проходи крупные точки в спокойном темпе.",
+    description: "Рисуй линию взглядом и проходи крупные точки в своём темпе.",
     selfDescription: "Нарисуй линию взглядом.",
     route: "/games/line-drawing",
     category: "continuous-control",
@@ -2076,7 +2076,7 @@ export const games: GameInfo[] = [
   {
     id: "rails",
     title: "Рельсы",
-    description: "Веди поезд по плавным рельсам через станции: он спокойно остаётся на пути.",
+    description: "Веди поезд по изогнутым рельсам через станции: он остаётся на пути.",
     selfDescription: "Проведи поезд по рельсам.",
     route: "/games/rails",
     category: "continuous-control",
@@ -2091,7 +2091,7 @@ export const games: GameInfo[] = [
   {
     id: "balancer",
     title: "Балансир",
-    description: "Удерживай мягкий шар в широкой зоне баланса взглядом: прогресс сохраняется и ждёт возвращения в зону.",
+    description: "Удерживай шар в широкой зоне баланса взглядом: прогресс сохраняется и ждёт возвращения в зону.",
     selfDescription: "Удержи шар в зоне.",
     route: "/games/balancer",
     category: "continuous-control",
@@ -2106,7 +2106,7 @@ export const games: GameInfo[] = [
   {
     id: "snow-trail",
     title: "Снежная тропа",
-    description: "Веди санки или мягкий свет по снежной тропе через мягкие отметки.",
+    description: "Веди санки или свет по снежной тропе через отметки.",
     selfDescription: "Проведи свет по снегу.",
     route: "/games/snow-trail",
     category: "continuous-control",
@@ -2136,7 +2136,7 @@ export const games: GameInfo[] = [
   {
     id: "garden-watering",
     title: "Садовая лейка",
-    description: "Веди лейку взглядом и мягко поливай цветы в любом порядке.",
+    description: "Веди лейку взглядом и поливай цветы в любом порядке.",
     selfDescription: "Полей цветы взглядом.",
     route: "/games/garden-watering",
     category: "continuous-control",
@@ -2151,7 +2151,7 @@ export const games: GameInfo[] = [
   {
     id: "space-orbit",
     title: "Космическая орбита",
-    description: "Веди ракету взглядом по мягкой орбите и спокойно собирай светлые звёзды.",
+    description: "Веди ракету взглядом по орбите и собирай светлые звёзды.",
     selfDescription: "Собери звёзды на орбите.",
     route: "/games/space-orbit",
     category: "continuous-control",
@@ -2172,7 +2172,7 @@ export type GroupGamesByCategoryOptions = {
 
 export function groupGamesByCategory(inputGames: GameInfo[] = games, options: GroupGamesByCategoryOptions = {}) {
   return gameCategoryOrder
-    .map((category) => ({
+   .map((category) => ({
       category,
       label: gameCategories[category],
       description: gameCategoryDescriptions[category],
@@ -2182,7 +2182,7 @@ export function groupGamesByCategory(inputGames: GameInfo[] = games, options: Gr
         && !game.tags?.includes("hidden-from-menu")
         && (!options.excludeArchived || resolveGameStabilityStatus(game) !== "archived"))
     }))
-    .filter((group) => group.games.length > 0);
+   .filter((group) => group.games.length > 0);
 }
 
 export function findGame(gameId: string | string[]) {

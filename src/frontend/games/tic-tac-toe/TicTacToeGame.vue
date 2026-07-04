@@ -36,7 +36,7 @@ const sleepDisabled = computed(() => session.status !== "running" || aiThinking.
 let aiTimer = 0;
 
 const statusText = computed(() => {
-  if (sleeping.value) return "Спокойно думаем над ходом";
+  if (sleeping.value) return " думаем над ходом";
   if (aiThinking.value) return "Компьютер думает над ходом";
   if (playerTurnBlocked.value) return "Пауза перед твоим ходом";
   if (result.value === "X") return "Ты собрал линию";
@@ -166,7 +166,7 @@ onUnmounted(() => {
 
 <template>
   <div class="tic-shell">
-    <div class="quiet-controls d-flex align-center ga-2 pa-1">
+    <div class="compact-controls d-flex align-center ga-2 pa-1">
       <GameDwellButton :target-id="menuTargetId()" :disabled="finalizing" :dwell-ms="session.settings.dwellMs" min-height="8.5rem" color="surface" @select="router.push(resolveMenuRoute())">
         <template #default>
           <div class="control-button-content">
@@ -248,18 +248,18 @@ onUnmounted(() => {
   min-block-size: 100vh;
 }
 
-.quiet-controls {
+.compact-controls {
   inset-block-start: max(0.75rem, env(safe-area-inset-top));
   inset-inline-start: max(0.75rem, env(safe-area-inset-left));
   position: fixed;
   z-index: 10;
 }
 
-.quiet-controls :deep(.dwell-hitbox) {
+.compact-controls :deep(.dwell-hitbox) {
   inline-size: 9.375rem;
 }
 
-.quiet-controls :deep(.dwell-button) {
+.compact-controls :deep(.dwell-button) {
   padding: 0.625rem !important;
 }
 
@@ -286,7 +286,7 @@ onUnmounted(() => {
   min-inline-size: 0;
 }
 
-.game-container :deep(.d-flex > .dwell-hitbox) {
+.game-container :deep(.d-flex >.dwell-hitbox) {
   inline-size: min(100%, 260px);
 }
 
@@ -325,45 +325,45 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 7rem;
   }
 }
 
 @media (max-height: 42.5rem) {
-  .quiet-controls :deep(.dwell-hitbox) {
+ .compact-controls :deep(.dwell-hitbox) {
     inline-size: 7.5rem;
   }
 
-  .quiet-controls :deep(.dwell-button) {
+ .compact-controls :deep(.dwell-button) {
     min-block-size: 6rem !important;
   }
 
-  .game-container {
+ .game-container {
     padding-block-start: 4.75rem;
   }
 
-  .game-container :deep(.v-card) {
+ .game-container :deep(.v-card) {
     padding-block: 1rem !important;
   }
 
-  .game-container .text-overline,
-  .game-container h1,
-  .game-container p,
-  .game-container > .v-row .text-body-1.text-medium-emphasis {
+ .game-container .text-overline,
+ .game-container h1,
+ .game-container p,
+ .game-container > .v-row .text-body-1 .text-medium-emphasis {
     display: none;
   }
 
-  .game-container .d-flex.flex-column.flex-md-row {
+ .game-container.d-flex.flex-column.flex-md-row {
     display: none !important;
   }
 
-  .board-grid {
+ .board-grid {
     gap: 0.55rem;
     max-inline-size: 20rem;
   }
 
-  .board-grid :deep(.dwell-button) {
+ .board-grid :deep(.dwell-button) {
     min-block-size: 5rem !important;
     padding: 0.5rem !important;
   }

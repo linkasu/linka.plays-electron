@@ -150,7 +150,7 @@ export function chooseLinesFiveCell(state: LinesFiveState, index: number): Lines
   if (movedCleared.length) {
     const board = clearIndexes(movedBoard, movedCleared);
     const nextState = {
-      ...cloneState(state),
+     ...cloneState(state),
       board,
       selectedIndex: undefined,
       score: state.score + movedCleared.length,
@@ -166,7 +166,7 @@ export function chooseLinesFiveCell(state: LinesFiveState, index: number): Lines
   const board = spawnCleared.length ? clearIndexes(spawned.board, spawnCleared) : spawned.board;
   const nextStatus = linesFiveOutcome(board);
   const nextState = {
-    ...cloneState(state),
+   ...cloneState(state),
     board,
     selectedIndex: undefined,
     nextBalls: nextQueue(spawned.seed),
@@ -301,9 +301,9 @@ function neighbors(index: number) {
   const row = rowOf(index);
   const column = columnOf(index);
   return neighborSteps
-    .map(([rowStep, columnStep]) => [row + rowStep, column + columnStep] as const)
-    .filter(([nextRow, nextColumn]) => isInside(nextRow, nextColumn))
-    .map(([nextRow, nextColumn]) => cellIndex(nextRow, nextColumn));
+   .map(([rowStep, columnStep]) => [row + rowStep, column + columnStep] as const)
+   .filter(([nextRow, nextColumn]) => isInside(nextRow, nextColumn))
+   .map(([nextRow, nextColumn]) => cellIndex(nextRow, nextColumn));
 }
 
 function reconstructPath(previous: Map<number, number>, fromIndex: number, toIndex: number) {
@@ -334,7 +334,7 @@ function invalidResult(state: LinesFiveState): LinesFiveMoveResult {
 
 function cloneState(state: LinesFiveState): LinesFiveState {
   return {
-    ...state,
+   ...state,
     board: [...state.board],
     nextBalls: [...state.nextBalls]
   };

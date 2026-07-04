@@ -6,7 +6,7 @@ const viewport: ViewportSize = { width: 1000, height: 700 };
 function withGoalAtCar(state: HighwayState): HighwayState {
   const road = highwayRoad(viewport);
   return {
-    ...state,
+   ...state,
     car: { ...state.car, x: laneCenter(road, state.goal.lane), targetLane: state.goal.lane, lane: state.goal.lane },
     goal: { ...state.goal, y: state.car.y },
     obstacles: []
@@ -16,7 +16,7 @@ function withGoalAtCar(state: HighwayState): HighwayState {
 function withObstacleAtCar(state: HighwayState): HighwayState {
   const road = highwayRoad(viewport);
   return {
-    ...state,
+   ...state,
     car: { ...state.car, x: laneCenter(road, 1), lane: 1, targetLane: 1 },
     obstacles: [{ id: "test-car", lane: 1, y: state.car.y, length: carSize(viewport), kind: "car" }]
   };

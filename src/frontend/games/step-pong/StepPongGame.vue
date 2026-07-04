@@ -52,7 +52,7 @@ const selectedLaneId = ref<PaddleLaneId>("middle");
 const lastMistakeLaneId = ref<PaddleLaneId>();
 const lastSuccessLaneId = ref<PaddleLaneId>();
 const hintStrength = ref(0);
-const feedbackText = ref("Посмотри, откуда летит мяч, и выбери позицию ракетки для мягкого удара.");
+const feedbackText = ref("Посмотри, откуда летит мяч, и выбери позицию ракетки для удара.");
 const isSpeaking = ref(false);
 const animationMode = ref<"incoming" | "return" | "miss">("incoming");
 
@@ -105,7 +105,7 @@ async function chooseLane(lane: PaddleLane) {
     hintStrength.value = Math.min(3, hintStrength.value + 1);
     feedbackText.value = outcome === "loss"
       ? "Третья сложная позиция: мяч остановился. Раунд завершён, можно начать заново."
-      : "Мяч мягко остался в игре. Подсказка показывает, куда поставить ракетку.";
+      : "Мяч остался в игре. Подсказка показывает, куда поставить ракетку.";
     recordMistake({
       roundId: round.value.roundId,
       targetId,
@@ -133,7 +133,7 @@ async function chooseLane(lane: PaddleLane) {
   lastMistakeLaneId.value = undefined;
   lastSuccessLaneId.value = lane.id;
   hintStrength.value = 0;
-  feedbackText.value = `Верно. ${lane.hint}. Мяч спокойно отбит к партнёру.`;
+  feedbackText.value = `Верно. ${lane.hint}. Мяч отбит к партнёру.`;
   recordSuccess({
     roundId: round.value.roundId,
     targetId,
@@ -173,7 +173,7 @@ function restart() {
   hintStrength.value = 0;
   animationMode.value = "incoming";
   isSpeaking.value = false;
-  feedbackText.value = "Посмотри, откуда летит мяч, и выбери позицию ракетки для мягкого удара.";
+  feedbackText.value = "Посмотри, откуда летит мяч, и выбери позицию ракетки для удара.";
   restartRoundGame();
   promptAudio.play("step-pong.prompt", 220);
 }
@@ -198,7 +198,7 @@ onUnmounted(() => {
           <v-card class="pa-4 pa-md-6" rounded="xl" elevation="8">
             <div class="game-header d-flex flex-column flex-lg-row align-lg-center justify-space-between ga-4 mb-5">
               <div>
-                <div class="text-overline text-secondary mb-1">Strategy/control: спокойный выбор позиции</div>
+                <div class="text-overline text-secondary mb-1">Strategy/control: выбор позиции</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Поставь ракетку перед ударом</h1>
                 <p class="game-feedback text-body-1 text-md-h6 text-medium-emphasis mb-0">{{ feedbackText }}</p>
               </div>
@@ -253,7 +253,7 @@ onUnmounted(() => {
                   </div>
 
                   <v-alert class="game-note mt-4 text-body-1" color="info" icon="mdi-hand-heart-outline" rounded="xl" variant="tonal">
-                    Если позиция не подошла, это промах. После трёх сложных выборов раунд спокойно завершается.
+                    Если позиция не подошла, это промах. После трёх сложных выборов раунд завершается.
                   </v-alert>
                 </v-card>
               </v-col>
@@ -380,7 +380,7 @@ onUnmounted(() => {
   opacity: 0.62;
 }
 
-.pong-stage--return .return-path {
+.pong-stage--return.return-path {
   animation: return-path-flash 900ms ease-out;
 }
 
@@ -399,15 +399,15 @@ onUnmounted(() => {
   z-index: 4;
 }
 
-.pong-stage--return .pong-ball {
+.pong-stage--return.pong-ball {
   animation: ball-return 900ms cubic-bezier(0.2, 0.76, 0.22, 1) both;
 }
 
-.pong-stage--miss .pong-ball {
+.pong-stage--miss.pong-ball {
   animation: ball-miss 850ms ease-in both;
 }
 
-.pong-stage--return .player-paddle {
+.pong-stage--return.player-paddle {
   animation: paddle-hit 520ms ease-out;
 }
 
@@ -507,82 +507,82 @@ onUnmounted(() => {
 }
 
 @media (max-width: 60rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 9.5rem;
   }
 }
 
 @media (min-width: 43.75rem) and (max-height: 57.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 7.25rem;
   }
 
-  .pong-board {
+ .pong-board {
     min-block-size: clamp(20rem, 50vh, 28rem);
   }
 
-  .pong-stage {
+ .pong-stage {
     block-size: clamp(18rem, 44vh, 25rem);
   }
 
-  .lane-grid {
+ .lane-grid {
     gap: 0.55rem;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .lane-grid :deep(.dwell-button) {
+ .lane-grid :deep(.dwell-button) {
     min-block-size: 6.5rem !important;
     padding: 0.75rem !important;
   }
 
-  .lane-grid > :last-child {
+ .lane-grid > :last-child {
     grid-column: 1 / -1;
   }
 
-  .lane-choice :deep(.v-icon) {
+ .lane-choice :deep(.v-icon) {
     font-size: 2.25rem !important;
   }
 
-  .lane-choice .text-body-2 {
+ .lane-choice .text-body-2 {
     display: none;
   }
 
-  .lane-choice {
+ .lane-choice {
     color: #1f2a27;
     min-block-size: 5.75rem;
   }
 
-  .lane-choice :deep(.v-icon) {
+ .lane-choice :deep(.v-icon) {
     color: #1f2a27 !important;
   }
 
-  .lane-choice__label,
-  .lane-choice__hint {
+ .lane-choice__label,
+ .lane-choice__hint {
     color: #1f2a27 !important;
   }
 
-  .game-feedback,
-  .game-helper,
-  .game-note,
-  .text-overline {
+ .game-feedback,
+ .game-helper,
+ .game-note,
+ .text-overline {
     display: none;
   }
 
-  .game-header {
+ .game-header {
     margin-block-end: 0.75rem !important;
   }
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 11rem;
   }
 
-  .pong-board {
+ .pong-board {
     min-block-size: 27rem;
   }
 
-  .pong-stage {
+ .pong-stage {
     block-size: 25rem;
   }
 }

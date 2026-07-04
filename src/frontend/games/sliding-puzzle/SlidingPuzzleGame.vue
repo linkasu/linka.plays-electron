@@ -70,7 +70,7 @@ async function chooseTile(tile: number, index: number) {
   clearHints();
   movedIndex.value = result.toIndex;
   const solvedAfterMove = isSolved(board.value);
-  feedbackMessage.value = solvedAfterMove ? "Пятнашки собраны. Отличная спокойная стратегия." : `Плитка ${tile} мягко встала на пустое место. Ищи следующий соседний ход.`;
+  feedbackMessage.value = solvedAfterMove ? "Пятнашки собраны. Отличная стратегия." : `Плитка ${tile} встала на пустое место. Ищи следующий соседний ход.`;
   recordSuccess({ targetId, answerId: tile, fromIndex: result.fromIndex, toIndex: result.toIndex, isCorrect: true });
 
   isSpeaking.value = true;
@@ -128,9 +128,9 @@ onUnmounted(() => {
           <v-card class="pa-4 pa-md-7" color="rgba(255, 255, 255, 0.94)" rounded="xl" elevation="8">
             <div class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-5">
               <div>
-                <div class="text-overline text-secondary mb-1">Спокойная стратегия и зрительный поиск</div>
+                <div class="text-overline text-secondary mb-1"> стратегия и зрительный поиск</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Пятнашки 3×3</h1>
-                <p class="text-body-1 text-medium-emphasis mb-0">Выбирай только плитку-соседа пустой клетки. Ошибка не завершает игру: правило можно спокойно проверить ещё раз.</p>
+                <p class="text-body-1 text-medium-emphasis mb-0">Выбирай только плитку-соседа пустой клетки. Ошибка не завершает игру: правило можно проверить ещё раз.</p>
               </div>
               <v-avatar color="primary" rounded="xl" size="76">
                 <v-icon icon="mdi-puzzle-outline" size="46" />
@@ -226,47 +226,47 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 9.75rem;
   }
 
-  .puzzle-grid {
+ .puzzle-grid {
     gap: 0.55rem;
   }
 }
 
 @media (max-height: 42.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4.75rem;
   }
 
-  .game-container :deep(.v-card) {
+ .game-container :deep(.v-card) {
     padding-block: 1rem !important;
   }
 
-  .game-container .text-overline,
-  .game-container h1,
-  .game-container p,
-  .game-container .v-avatar,
-  .game-container .v-alert {
+ .game-container .text-overline,
+ .game-container h1,
+ .game-container p,
+ .game-container.v-avatar,
+ .game-container .v-alert {
     display: none;
   }
 
-  .game-container .d-flex.flex-column.flex-md-row {
+ .game-container.d-flex.flex-column.flex-md-row {
     margin-block-end: 0.75rem !important;
   }
 
-  .puzzle-grid {
+ .puzzle-grid {
     gap: 0.45rem;
     max-inline-size: min(100%, 28rem);
   }
 
-  .puzzle-grid :deep(.dwell-button) {
+ .puzzle-grid :deep(.dwell-button) {
     min-block-size: 4rem !important;
     padding: 0.4rem !important;
   }
 
-  .tile-number {
+ .tile-number {
     font-size: 3.1rem;
   }
 }

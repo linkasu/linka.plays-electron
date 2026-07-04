@@ -16,7 +16,7 @@ export function useGameSessionFor(gameId: string, options: UseGameSessionForOpti
     sessionSeconds: info?.recommendedSessionSeconds,
     dwellMs: info?.defaultDwellMs,
     maxSteps: options.maxSteps,
-    ...(options.overrides ?? {})
+   ...(options.overrides ?? {})
   };
 
   for (const key of Object.keys(initial) as (keyof SessionSettings)[]) {

@@ -42,7 +42,7 @@ const completedDots = computed(() => dots.filter((dot) => dot.completed).length)
 const progressPercent = computed(() => dots.length === 0 ? 0 : Math.round(completedDots.value / dots.length * 100));
 const guidanceText = computed(() => {
   if (session.status === "paused") return "Пауза. Линия останется на месте.";
-  if (!pointer.value.valid) return "Можно рисовать взглядом или мышью. Кисть ждёт мягкого движения.";
+  if (!pointer.value.valid) return "Можно рисовать взглядом или мышью. Кисть ждёт движения.";
   const nextDot = dots.find((dot) => !dot.completed);
   if (nextDot?.dwellProgress) return "Оставайся в большой точке, чтобы закрепить шаг.";
   return currentLevel.value.prompt;
@@ -450,7 +450,7 @@ useGameLoop({ context, update, draw });
     />
 
     <v-card class="line-drawing-guidance pa-4" color="surface" rounded="xl" variant="flat">
-      <div class="text-overline text-primary mb-1">Плавное рисование</div>
+      <div class="text-overline text-primary mb-1">Рисование взглядом</div>
       <div class="text-caption text-medium-emphasis mb-1">{{ currentLevel.title }}</div>
       <div class="text-body-1 font-weight-medium">{{ guidanceText }}</div>
       <v-progress-linear class="mt-3" :model-value="progressPercent" color="primary" height="0.5rem" rounded />
@@ -497,7 +497,7 @@ useGameLoop({ context, update, draw });
 }
 
 @media (max-width: 45rem) {
-  .line-drawing-guidance {
+ .line-drawing-guidance {
     inset-block-start: auto;
     inset-block-end: max(1rem, env(safe-area-inset-bottom));
     inset-inline: 1rem;

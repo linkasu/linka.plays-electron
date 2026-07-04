@@ -243,32 +243,32 @@ onUnmounted(() => {
 }
 
 @media (max-height: 920px) {
-  .feed-animal-overline {
+ .feed-animal-overline {
     display: none;
   }
 
-  .feed-animal-feedback {
+ .feed-animal-feedback {
     margin-block-end: 1rem !important;
   }
 
-  .feed-animal-card {
+ .feed-animal-card {
     padding-block: 1rem !important;
   }
 
-  .animal-card {
+ .animal-card {
     margin-block-end: 1rem !important;
     padding-block: 0.75rem !important;
   }
 
-  .animal-emoji {
+ .animal-emoji {
     font-size: clamp(4rem, min(8vw, 11vh), 5.75rem);
   }
 
-  .animal-title {
+ .animal-title {
     font-size: clamp(1.5rem, 3vw, 2rem) !important;
   }
 
-  .animal-chip {
+ .animal-chip {
     font-size: 0.95rem !important;
   }
 }

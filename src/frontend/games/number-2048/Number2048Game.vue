@@ -30,7 +30,7 @@ const directions = [
 
 const board = ref<Number2048Board>(createInitialBoard());
 const previousBoard = ref<Number2048Board>();
-const feedbackMessage = ref("Собирай одинаковые плитки без спешки. Каждый удачный сдвиг засчитывается.");
+const feedbackMessage = ref("Собирай одинаковые плитки. Каждый удачный сдвиг засчитывается.");
 const lastSpawnedIndex = ref<number>();
 const isSpeaking = ref(false);
 
@@ -63,7 +63,7 @@ async function chooseDirection(direction: Number2048Direction) {
   const targetId = directionTargetId(direction);
 
   if (!move.moved) {
-    feedbackMessage.value = "В эту сторону плитки уже спокойно стоят. Попробуй другое направление.";
+    feedbackMessage.value = "В эту сторону плитки уже стоят. Попробуй другое направление.";
     recordMistake({ targetId, direction, reason: "blocked", isCorrect: false });
     isSpeaking.value = true;
     void feedbackAudio.playMistake();
@@ -80,21 +80,21 @@ async function chooseDirection(direction: Number2048Direction) {
   recordSuccess({ targetId, direction, merged: move.merged, scoreGain: move.scoreGain, highestTile: highestTile(board.value), isCorrect: true });
 
   if (number2048Outcome(board.value) === "loss") {
-    feedbackMessage.value = "Ходов больше нет. Доска завершена, можно начать новую спокойно.";
+    feedbackMessage.value = "Ходов больше нет. Доска завершена, можно начать новую.";
     isSpeaking.value = true;
     void feedbackAudio.playSuccess();
     await promptAudio.playSequenceAndWait(["number-2048.correct", "number-2048.complete"], 80, 170);
     finishSession("game-lost");
     isSpeaking.value = false;
   } else if (move.merged) {
-    feedbackMessage.value = `Есть слияние: +${move.scoreGain}. Продолжаем спокойно.`;
+    feedbackMessage.value = `Есть слияние: +${move.scoreGain}. Продолжаем.`;
     isSpeaking.value = true;
     void feedbackAudio.playSuccess();
     await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["number-2048.correct", "number-2048.complete"] : ["number-2048.correct"], 80, 170);
     if (finishedAfterSuccess) finishSession("game-complete");
     isSpeaking.value = false;
   } else {
-    feedbackMessage.value = "Плитки мягко сдвинулись. Можно искать следующее слияние.";
+    feedbackMessage.value = "Плитки сдвинулись. Можно искать следующее слияние.";
     isSpeaking.value = true;
     void feedbackAudio.playSuccess();
     await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["number-2048.correct", "number-2048.complete"] : ["number-2048.correct"], 80, 170);
@@ -112,7 +112,7 @@ function undoMove() {
   board.value = previousBoard.value;
   previousBoard.value = undefined;
   lastSpawnedIndex.value = undefined;
-  feedbackMessage.value = "Вернули предыдущую доску. Можно выбрать другой спокойный ход.";
+  feedbackMessage.value = "Вернули предыдущую доску. Можно выбрать другой ход.";
   recordEvent("hint", { kind: "undo" });
 }
 
@@ -122,7 +122,7 @@ function restart() {
   previousBoard.value = undefined;
   lastSpawnedIndex.value = undefined;
   isSpeaking.value = false;
-  feedbackMessage.value = "Новая доска готова. Сдвигай плитки и собирай мягкие слияния.";
+  feedbackMessage.value = "Новая доска готова. Сдвигай плитки и собирай слияния.";
   startSession();
   promptAudio.play("number-2048.prompt", 220);
 }
@@ -153,14 +153,14 @@ onUnmounted(() => {
 
 <template>
   <div class="number-2048-shell">
-    <GameHud title="2048 мягкий" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud title="2048" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="11" xl="10">
           <v-card class="pa-4 pa-md-6" color="rgba(255, 255, 255, 0.92)" rounded="xl" elevation="8">
             <div class="d-flex flex-column flex-lg-row align-lg-center justify-space-between ga-4 mb-5">
               <div>
-                <div class="text-overline text-secondary mb-1">Спокойная стратегия</div>
+                <div class="text-overline text-secondary mb-1"> стратегия</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Собирай одинаковые плитки</h1>
                 <p class="text-body-1 text-medium-emphasis mb-0">Двигай всё поле одной крупной кнопкой. Если ходов не останется, доска завершится.</p>
               </div>
@@ -217,7 +217,7 @@ onUnmounted(() => {
       </v-row>
     </v-container>
 
-    <GameResultDialog :model-value="resultVisible" title="2048 мягкий" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog :model-value="resultVisible" title="2048" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
   </div>
 </template>
 
@@ -272,68 +272,68 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 8.75rem;
   }
 }
 
 @media (max-height: 42.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4.75rem;
   }
 
-  .game-container :deep(.v-card) {
+ .game-container :deep(.v-card) {
     padding-block: 1rem !important;
   }
 
-  .game-container .d-flex.flex-column.flex-lg-row,
-  .compact-feedback {
+ .game-container.d-flex.flex-column.flex-lg-row,
+ .compact-feedback {
     display: none !important;
   }
 
-  .game-container .v-divider {
+ .game-container .v-divider {
     margin-block: 0.5rem !important;
   }
 
-  .play-area {
+ .play-area {
     align-items: center;
     display: grid !important;
     gap: clamp(0.8rem, 2vw, 1.4rem);
     grid-template-columns: minmax(0, 0.92fr) minmax(17rem, 0.72fr);
   }
 
-  .board-column,
-  .controls-column {
+ .board-column,
+ .controls-column {
     flex: initial;
     inline-size: auto;
     max-inline-size: none;
     padding-block: 0 !important;
   }
 
-  .board-grid {
+ .board-grid {
     gap: 0.35rem;
     max-inline-size: min(45vh, 18rem);
   }
 
-  .controls-column :deep(.wasd-panel) {
+ .controls-column :deep(.wasd-panel) {
     inline-size: min(100%, 48vh);
   }
 
-  .controls-column :deep(.dwell-button) {
+ .controls-column :deep(.dwell-button) {
     padding: 0.45rem !important;
   }
 
-  .direction-button-content {
+ .direction-button-content {
     gap: 0.25rem;
   }
 }
 
 @media (max-height: 42.5rem) and (max-width: 52rem) {
-  .play-area {
+ .play-area {
     grid-template-columns: minmax(0, 0.82fr) minmax(15rem, 0.72fr);
   }
 
-  .board-grid {
+ .board-grid {
     max-inline-size: min(42vh, 16rem);
   }
 }

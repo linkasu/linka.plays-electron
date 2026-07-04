@@ -136,7 +136,7 @@ export function syncHighwayGeometry(state: HighwayState, viewport: ViewportSize)
   const road = highwayRoad(viewport);
   const nextLane = clamp(state.car.targetLane, 0, laneCount - 1);
   return {
-    ...state,
+   ...state,
     car: { ...state.car, lane: clamp(state.car.lane, 0, laneCount - 1), targetLane: nextLane, y: road.bottom - carSize(viewport) * 0.72 },
     goal: { ...state.goal, lane: clamp(state.goal.lane, 0, laneCount - 1) },
     obstacles: state.obstacles.map((obstacle) => ({ ...obstacle, lane: clamp(obstacle.lane, 0, laneCount - 1) }))
@@ -173,7 +173,7 @@ function spawnSegment(state: HighwayState, viewport: ViewportSize, segmentIndex:
   const size = carSize(viewport);
   const startY = road.top - size * 1.2;
   return {
-    ...state,
+   ...state,
     segmentIndex,
     goal: { id: `goal-${segment.id}`, lane: segment.goalLane, y: startY - size * 1.55, radius: size * 0.34 },
     obstacles: segment.obstacleLanes.map((lane, index) => ({ id: `obstacle-${segment.id}-${index}`, lane, y: startY - index * size * 1.18, length: size * (lane === segment.goalLane ? 1.1 : 1.24), kind: index % 3 === 0 ? "truck" : "car" })),
@@ -189,10 +189,10 @@ function moveCar(state: HighwayState, viewport: ViewportSize, delta: number, mot
   const moveX = clamp(dx, -maxStep, maxStep);
   const lane = laneFromX(road, state.car.x + moveX);
   return {
-    ...state,
+   ...state,
     invulnerableSeconds: Math.max(0, state.invulnerableSeconds - delta),
     car: {
-      ...state.car,
+     ...state.car,
       lane,
       x: state.car.x + moveX,
       damageFlash: Math.max(0, state.car.damageFlash - delta * 1.8),
@@ -206,7 +206,7 @@ function scrollWorld(state: HighwayState, viewport: ViewportSize, delta: number,
   const speed = carSize(viewport) * (1.55 + segment.speed * 1.05) * motionSpeed;
   const dashCycle = laneDashPattern(viewport).cycle;
   return {
-    ...state,
+   ...state,
     roadOffset: (state.roadOffset + speed * delta) % Math.max(1, dashCycle),
     goal: { ...state.goal, y: state.goal.y + speed * delta },
     obstacles: state.obstacles.map((obstacle) => ({ ...obstacle, y: obstacle.y + speed * delta }))
@@ -237,7 +237,7 @@ function applyDamage(state: HighwayState, obstacle: HighwayObstacle, viewport: V
   const road = highwayRoad(viewport);
   const escapeLane = nearestFreeLane(obstacle.lane, state.obstacles.map((item) => item.lane));
   const next = {
-    ...state,
+   ...state,
     hull: nextHull,
     invulnerableSeconds: 0.95,
     car: { ...state.car, targetLane: escapeLane, x: laneCenter(road, escapeLane), lane: escapeLane, damageFlash: 1 },

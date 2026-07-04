@@ -44,21 +44,21 @@
   {
     "id": "open-door.pink-heart",
     "game": "open-door",
-    "text": "Мягкое сердце.",
+    "text": " сердце.",
     "voice": "jane",
     "path": "/audio/tts/open-door/pink-heart.mp3"
   },
   {
     "id": "open-door.green-flower",
     "game": "open-door",
-    "text": "Тихий цветок.",
+    "text": " цветок.",
     "voice": "jane",
     "path": "/audio/tts/open-door/green-flower.mp3"
   },
   {
     "id": "open-door.violet-star",
     "game": "open-door",
-    "text": "Спокойная звезда.",
+    "text": " звезда.",
     "voice": "jane",
     "path": "/audio/tts/open-door/violet-star.mp3"
   },
@@ -79,14 +79,14 @@
   {
     "id": "open-door.music-note",
     "game": "open-door",
-    "text": "Тихая нота.",
+    "text": " нота.",
     "voice": "jane",
     "path": "/audio/tts/open-door/music-note.mp3"
   },
   {
     "id": "open-door.gold-spark",
     "game": "open-door",
-    "text": "Мягкая искра.",
+    "text": " искра.",
     "voice": "jane",
     "path": "/audio/tts/open-door/gold-spark.mp3"
   },
@@ -5623,7 +5623,7 @@
   {
     "id": "balloons.prompt",
     "game": "balloons",
-    "text": "Смотри на шарик спокойно.",
+    "text": "Смотри на шарик.",
     "voice": "alena",
     "path": "/audio/tts/balloons/prompt.mp3"
   },
@@ -5700,28 +5700,28 @@
   {
     "id": "who-hiding.intro",
     "game": "who-hiding",
-    "text": "Сейчас игра в прятки. Кто-то спрятался за кустом. Слушай задание, смотри спокойно, и удержи взгляд на нужном месте. Ошибки не страшны: подсказка поможет.",
+    "text": "Сейчас игра в прятки. Кто-то спрятался за кустом. Слушай задание и удержи взгляд на нужном месте. Ошибки не страшны: подсказка поможет.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/intro.mp3"
   },
   {
     "id": "who-hiding.prompt.cat",
     "game": "who-hiding",
-    "text": "Найди котёнка. Посмотри на кусты спокойно. Когда заметишь котёнка, удержи взгляд на его укрытии.",
+    "text": "Найди котёнка. Посмотри на кусты. Когда заметишь котёнка, удержи взгляд на его укрытии.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/prompt-cat.mp3"
   },
   {
     "id": "who-hiding.prompt.owl",
     "game": "who-hiding",
-    "text": "Найди сову. Сова спряталась за одним из кустов. Смотри медленно, без спешки, и выбери её укрытие.",
+    "text": "Найди сову. Сова спряталась за одним из кустов. Осмотри кусты и выбери её укрытие.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/prompt-owl.mp3"
   },
   {
     "id": "who-hiding.prompt.duck",
     "game": "who-hiding",
-    "text": "Найди утёнка. Проверь каждый куст взглядом. Когда увидишь утёнка, спокойно удержи взгляд.",
+    "text": "Найди утёнка. Проверь каждый куст взглядом. Когда увидишь утёнка, удержи взгляд.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/prompt-duck.mp3"
   },
@@ -5735,14 +5735,14 @@
   {
     "id": "who-hiding.prompt.bird",
     "game": "who-hiding",
-    "text": "Найди птичку. Птичка тихо прячется за кустом. Переводи взгляд мягко и удержи его на нужном кусте.",
+    "text": "Найди птичку. Птичка прячется за кустом. Переводи взгляд и удержи его на нужном кусте.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/prompt-bird.mp3"
   },
   {
     "id": "who-hiding.prompt.bear",
     "game": "who-hiding",
-    "text": "Найди мишку. Мишка выглядывает из-за фона. Смотри спокойно и выбери, где он спрятался.",
+    "text": "Найди мишку. Мишка выглядывает из-за фона. Смотри и выбери, где он спрятался.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/prompt-bear.mp3"
   },
@@ -5756,14 +5756,14 @@
   {
     "id": "who-hiding.prompt.friend",
     "game": "who-hiding",
-    "text": "Найди друга. Друг спрятался за одним из кустов. Посмотри внимательно и спокойно выбери укрытие.",
+    "text": "Найди друга. Друг спрятался за одним из кустов. Посмотри внимательно и выбери укрытие.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/prompt-friend.mp3"
   },
   {
     "id": "who-hiding.correct.cat",
     "game": "who-hiding",
-    "text": "Да, это котёнок. Ты нашёл котёнка спокойно и внимательно.",
+    "text": "Да, это котёнок. Ты внимательно нашёл котёнка.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/correct-cat.mp3"
   },
@@ -5812,14 +5812,14 @@
   {
     "id": "who-hiding.correct.friend",
     "game": "who-hiding",
-    "text": "Верно, это друг. Ты спокойно нашёл друга.",
+    "text": "Верно, это друг. Ты нашёл друга.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/correct-friend.mp3"
   },
   {
     "id": "who-hiding.mistake.cat",
     "game": "who-hiding",
-    "text": "Это не котёнок. Всё хорошо. Давай найдём котёнка: он подсвечен мягкой подсказкой.",
+    "text": "Это не котёнок. Всё хорошо. Давай найдём котёнка: он подсвечен подсказкой.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/mistake-cat.mp3"
   },
@@ -5833,7 +5833,7 @@
   {
     "id": "who-hiding.mistake.duck",
     "game": "who-hiding",
-    "text": "Это не утёнок. Ошибка мягкая. Подсказка покажет, где искать утёнка.",
+    "text": "Это не утёнок. Подсказка покажет, где искать утёнка.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/mistake-duck.mp3"
   },
@@ -5847,7 +5847,7 @@
   {
     "id": "who-hiding.mistake.bird",
     "game": "who-hiding",
-    "text": "Это не птичка. Спокойно попробуем ещё раз. Птичка подсвечена.",
+    "text": "Это не птичка. Попробуем ещё раз. Птичка подсвечена.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/mistake-bird.mp3"
   },
@@ -5889,7 +5889,7 @@
   {
     "id": "who-hiding.cover.wide-bush",
     "game": "who-hiding",
-    "text": "Подсказка: цель спряталась за широким кустом. Найди широкий куст и смотри на него спокойно.",
+    "text": "Подсказка: цель спряталась за широким кустом. Найди широкий куст и удержи взгляд на нём.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/cover-wide-bush.mp3"
   },
@@ -5903,7 +5903,7 @@
   {
     "id": "who-hiding.cover.dense-bush",
     "game": "who-hiding",
-    "text": "Подсказка: цель спряталась за мягкими кустами. Выбери мягкие кусты спокойным взглядом.",
+    "text": "Подсказка: цель спряталась за кустами. Выбери кусты взглядом.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/cover-dense-bush.mp3"
   },
@@ -5924,7 +5924,7 @@
   {
     "id": "find-color.prompt.blue",
     "game": "find-color",
-    "text": "Найди синий цвет. Спокойно посмотри на карточки и выбери синий круг.",
+    "text": "Найди синий цвет. посмотри на карточки и выбери синий круг.",
     "voice": "jane",
     "path": "/audio/tts/find-color/prompt-blue.mp3"
   },
@@ -5952,7 +5952,7 @@
   {
     "id": "find-color.prompt.orange",
     "game": "find-color",
-    "text": "Найди оранжевый цвет. Выбери оранжевый круг спокойным взглядом.",
+    "text": "Найди оранжевый цвет. Выбери оранжевый круг взглядом.",
     "voice": "jane",
     "path": "/audio/tts/find-color/prompt-orange.mp3"
   },
@@ -5980,7 +5980,7 @@
   {
     "id": "find-color.mistake",
     "game": "find-color",
-    "text": "Почти. Это другой цвет. Посмотри на мягкую подсветку и попробуй ещё раз.",
+    "text": "Почти. Это другой цвет. Посмотри на подсветку и попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/find-color/mistake.mp3"
   },
@@ -6008,7 +6008,7 @@
   {
     "id": "what-missing.observe",
     "game": "what-missing",
-    "text": "Запомни три предмета. Смотри спокойно, не спеши. Скоро один предмет пропадёт.",
+    "text": "Запомни три предмета. Смотри,. Скоро один предмет пропадёт.",
     "voice": "jane",
     "path": "/audio/tts/what-missing/observe.mp3"
   },
@@ -6029,14 +6029,14 @@
   {
     "id": "what-missing.mistake",
     "game": "what-missing",
-    "text": "Почти. Это другой предмет. Посмотри на мягкую подсказку и попробуй ещё раз.",
+    "text": "Почти. Это другой предмет. Посмотри на подсказку и попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/what-missing/mistake.mp3"
   },
   {
     "id": "follow-cue.prompt",
     "game": "follow-cue",
-    "text": "Следуй за стрелкой. Посмотри, куда показывает подсказка, и выбери эту карточку спокойным взглядом.",
+    "text": "Следуй за стрелкой. Посмотри, куда показывает подсказка, и выбери эту карточку взглядом.",
     "voice": "jane",
     "path": "/audio/tts/follow-cue/prompt.mp3"
   },
@@ -6113,7 +6113,7 @@
   {
     "id": "sound-source.prompt",
     "game": "sound-source",
-    "text": "Послушай тихий звук и выбери, откуда идут волны.",
+    "text": "Послушай звук и выбери, откуда идут волны.",
     "voice": "jane",
     "path": "/audio/tts/sound-source/prompt.mp3"
   },
@@ -6344,7 +6344,7 @@
   {
     "id": "gaze-maze.deadend",
     "game": "gaze-maze",
-    "text": "Это тупик. Можно спокойно вернуться назад.",
+    "text": "Это тупик. Можно вернуться назад.",
     "voice": "jane",
     "path": "/audio/tts/gaze-maze/deadend.mp3"
   },
@@ -6750,7 +6750,7 @@
   {
     "id": "shape-dance.mistake",
     "game": "shape-dance",
-    "text": "Посмотри на танец ещё раз и попробуй повторить спокойно.",
+    "text": "Посмотри на танец ещё раз и попробуй повторить.",
     "voice": "jane",
     "path": "/audio/tts/shape-dance/mistake.mp3"
   },
@@ -7548,21 +7548,21 @@
   {
     "id": "minesweeper-safe.prompt",
     "game": "minesweeper-safe",
-    "text": "Открывай клетки спокойно. Числа помогают выбрать безопасный ход.",
+    "text": "Открывай клетки. Числа помогают выбрать безопасный ход.",
     "voice": "jane",
     "path": "/audio/tts/minesweeper-safe/prompt.mp3"
   },
   {
     "id": "minesweeper-safe.correct",
     "game": "minesweeper-safe",
-    "text": "Клетка открыта. Хороший спокойный выбор.",
+    "text": "Клетка открыта. Хороший выбор.",
     "voice": "jane",
     "path": "/audio/tts/minesweeper-safe/correct.mp3"
   },
   {
     "id": "minesweeper-safe.mistake",
     "game": "minesweeper-safe",
-    "text": "Раунд остановлен. Можно начать новую доску без спешки.",
+    "text": "Раунд остановлен. Можно начать новую доску.",
     "voice": "jane",
     "path": "/audio/tts/minesweeper-safe/mistake.mp3"
   },
@@ -7597,7 +7597,7 @@
   {
     "id": "domino-matching.complete",
     "game": "domino-matching",
-    "text": "Задание завершено. Отличная спокойная работа.",
+    "text": "Задание завершено. Отличная работа.",
     "voice": "jane",
     "path": "/audio/tts/domino-matching/complete.mp3"
   },
@@ -7625,7 +7625,7 @@
   {
     "id": "number-2048.complete",
     "game": "number-2048",
-    "text": "Доска завершена. Можно спокойно отдохнуть.",
+    "text": "Доска завершена. Можно отдохнуть.",
     "voice": "jane",
     "path": "/audio/tts/number-2048/complete.mp3"
   },
@@ -7681,28 +7681,28 @@
   {
     "id": "uno-like.complete",
     "game": "uno-like",
-    "text": "Задание завершено. Можно спокойно посмотреть результат.",
+    "text": "Задание завершено. Можно посмотреть результат.",
     "voice": "jane",
     "path": "/audio/tts/uno-like/complete.mp3"
   },
   {
     "id": "step-tetris.prompt",
     "game": "step-tetris",
-    "text": "Поставь фигуру спокойно. Можно сдвинуть, повернуть или опустить.",
+    "text": "Поставь фигуру. Можно сдвинуть, повернуть или опустить.",
     "voice": "jane",
     "path": "/audio/tts/step-tetris/prompt.mp3"
   },
   {
     "id": "step-tetris.correct",
     "game": "step-tetris",
-    "text": "Фигура встала на место. Продолжаем спокойно.",
+    "text": "Фигура встала на место. Продолжаем.",
     "voice": "jane",
     "path": "/audio/tts/step-tetris/correct.mp3"
   },
   {
     "id": "step-tetris.mistake",
     "game": "step-tetris",
-    "text": "Доска остановилась. Можно начать снова без спешки.",
+    "text": "Доска остановилась. Можно начать снова.",
     "voice": "jane",
     "path": "/audio/tts/step-tetris/mistake.mp3"
   },
@@ -7737,7 +7737,7 @@
   {
     "id": "sokoban-large.complete",
     "game": "sokoban-large",
-    "text": "Раунд завершён. Можно спокойно посмотреть результат.",
+    "text": "Раунд завершён. Можно посмотреть результат.",
     "voice": "jane",
     "path": "/audio/tts/sokoban-large/complete.mp3"
   },
@@ -7807,7 +7807,7 @@
   {
     "id": "reversi-light.correct",
     "game": "reversi-light",
-    "text": "Ход засчитан. Фишки перевернулись спокойно.",
+    "text": "Ход засчитан. Фишки перевернулись.",
     "voice": "jane",
     "path": "/audio/tts/reversi-light/correct.mp3"
   },
@@ -7835,7 +7835,7 @@
   {
     "id": "lines-five.correct",
     "game": "lines-five",
-    "text": "Шарик поставлен. Продолжаем спокойно.",
+    "text": "Шарик поставлен. Продолжаем.",
     "voice": "jane",
     "path": "/audio/tts/lines-five/correct.mp3"
   },
@@ -7968,7 +7968,7 @@
   {
     "id": "tanks-no-shooting.prompt",
     "game": "tanks-no-shooting",
-    "text": "Выбирай направление и веди танк по тихой дороге.",
+    "text": "Выбирай направление и веди танк по дороге.",
     "voice": "jane",
     "path": "/audio/tts/tanks-no-shooting/prompt.mp3"
   },
@@ -7996,7 +7996,7 @@
   {
     "id": "arkanoid-assist.prompt",
     "game": "arkanoid-assist",
-    "text": "Выбери сектор платформы для мягкого удара по подсвеченному блоку.",
+    "text": "Выбери сектор платформы для удара по подсвеченному блоку.",
     "voice": "jane",
     "path": "/audio/tts/arkanoid-assist/prompt.mp3"
   },
@@ -8024,7 +8024,7 @@
   {
     "id": "step-pong.prompt",
     "game": "step-pong",
-    "text": "Выбери позицию ракетки для спокойного удара.",
+    "text": "Выбери позицию ракетки для удара.",
     "voice": "jane",
     "path": "/audio/tts/step-pong/prompt.mp3"
   },
@@ -8052,7 +8052,7 @@
   {
     "id": "route-snake.prompt",
     "game": "route-snake",
-    "text": "Выбери направление, змейка движется медленно.",
+    "text": "Выбери направление, змейка движется постепенно.",
     "voice": "jane",
     "path": "/audio/tts/route-snake/prompt.mp3"
   },
@@ -8794,7 +8794,7 @@
   {
     "id": "cursor-magnet.task.interference-zone",
     "game": "cursor-magnet",
-    "text": "Контур четыре: зона помех. Найди спокойную траекторию между стенами и проверь схему запуском.",
+    "text": "Контур четыре: зона помех. Найди траекторию между стенами и проверь схему запуском.",
     "voice": "jane",
     "path": "/audio/tts/cursor-magnet/task-interference-zone.mp3"
   },

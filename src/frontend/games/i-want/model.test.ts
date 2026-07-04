@@ -18,6 +18,6 @@ describe("i-want model", () => {
 
   it("builds spoken AAC phrases", () => {
     expect(buildIWantPhrase(iWantCards[0])).toBe("Я хочу воду");
-    expect(buildIWantPhrase(undefined)).toBe("Я хочу ...");
+    expect(buildIWantPhrase(undefined)).toBe("Я хочу...");
   });
 });

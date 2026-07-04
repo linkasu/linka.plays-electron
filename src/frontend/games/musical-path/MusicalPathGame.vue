@@ -131,7 +131,7 @@ function chooseStone(stone: MusicalPathStone) {
 
   stone.selected = true;
   addSpark(stone);
-  feedbackMessage.value = stone.order === session.maxSteps ? "Дорожка собрана. Мелодия завершилась мягко." : `Верно: ${stone.note}. Теперь камешек ${stone.order + 1}.`;
+  feedbackMessage.value = stone.order === session.maxSteps ? "Дорожка собрана. Мелодия завершилась." : `Верно: ${stone.note}. Теперь камешек ${stone.order + 1}.`;
   recordSuccess({ roundId, targetId: targetId(stone), note: stone.note, order: stone.order, isCorrect: true });
 
   if (stone.order >= session.maxSteps) {
@@ -330,11 +330,11 @@ onUnmounted(() => {
 }
 
 .path-stone--active,
-.path-stone-target--next .path-stone {
+.path-stone-target--next.path-stone {
   transform: translateY(-0.25rem) scale(1.04);
 }
 
-.path-stone-target--next .path-stone {
+.path-stone-target--next.path-stone {
   box-shadow: 0 0 0 0.5rem hsl(var(--stone-hue) 82% 78% / 0.2), 0 1.625rem 2.75rem hsl(var(--stone-hue) 40% 32% / 0.2), inset -0.875rem -1rem 1.75rem hsl(var(--stone-hue) 36% 34% / 0.2), inset 1rem 1rem 1.625rem rgb(255 255 255 / 0.36);
 }
 
@@ -343,7 +343,7 @@ onUnmounted(() => {
   opacity: 0.72;
 }
 
-.path-stone-target--soft-error .path-stone {
+.path-stone-target--soft-error.path-stone {
   animation: soft-error 760ms ease;
 }
 
@@ -433,21 +433,21 @@ onUnmounted(() => {
 }
 
 @media (max-width: 47.5rem) {
-  .path-line {
+ .path-line {
     display: none;
   }
 
-  .path-stone-target {
+ .path-stone-target {
     inline-size: clamp(6.5rem, 28vw, 8.625rem);
     inset-block-start: var(--stone-mobile-y);
     inset-inline-start: var(--stone-mobile-x);
   }
 
-  .path-stone {
+ .path-stone {
     min-block-size: clamp(6.5rem, 28vw, 8.625rem);
   }
 
-  .stone-order {
+ .stone-order {
     font-size: 1.1rem;
     inline-size: 2rem;
     inset-block-start: 0.5rem;
@@ -455,28 +455,28 @@ onUnmounted(() => {
     line-height: 2rem;
   }
 
-  .stone-note {
+ .stone-note {
     font-size: 0.86rem;
     inset-block-end: 0.5rem;
     padding: 0.125rem 0.625rem;
   }
 
-  .note-spark {
+ .note-spark {
     inset-block-start: var(--spark-mobile-y);
     inset-inline-start: var(--spark-mobile-x);
   }
 
-  .path-instruction {
+ .path-instruction {
     inset-block-end: 1rem;
   }
 }
 
 @media (min-width: 47.5625rem) and (max-width: 56.25rem), (max-height: 43.75rem) {
-  .path-stone-target {
+ .path-stone-target {
     inset-block-start: max(var(--stone-y), 13.125rem);
   }
 
-  .note-spark {
+ .note-spark {
     inset-block-start: max(var(--spark-y), 13.125rem);
   }
 }

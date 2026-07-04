@@ -39,7 +39,7 @@ const isSpeaking = ref(false);
 
 const hintText = computed(() => {
   if (mistakesInRound.value <= 0) return "Выбери карточку нужного цвета.";
-  return `Ищи ${round.value.target.label} круг. Он подсвечен мягкой рамкой.`;
+  return `Ищи ${round.value.target.label} круг. Он подсвечен рамкой.`;
 });
 
 function choiceTargetId(choiceId: string) {
@@ -186,7 +186,7 @@ onUnmounted(() => {
 }
 
 @media (max-height: 42rem) {
-  .color-choice {
+ .color-choice {
     gap: 0.5rem;
   }
 }

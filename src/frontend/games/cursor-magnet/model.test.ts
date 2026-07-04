@@ -12,7 +12,7 @@ function run(state: MagneticLabState, seconds: number) {
 function configuredLevel(levelIndex: number, config: { pole: MagneticPole; strength: 0 | 1 | 2 }[]) {
   const state = createMagneticLabState(levelIndex);
   return {
-    ...state,
+   ...state,
     magnets: state.magnets.map((magnet, index) => ({ ...magnet, ...config[index] }))
   };
 }

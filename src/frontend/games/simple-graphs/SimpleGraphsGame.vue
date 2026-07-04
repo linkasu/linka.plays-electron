@@ -253,12 +253,12 @@ onUnmounted(() => {
   text-align: center;
 }
 
-.graph-label .emoji-glyph {
+.graph-label.emoji-glyph {
   font-size: clamp(2.3rem, 6vw, 3.75rem);
   line-height: 1;
 }
 
-.graph-item--target .graph-track {
+.graph-item--target.graph-track {
   outline: 0.35rem solid rgb(var(--v-theme-secondary) / 58%);
 }
 
@@ -292,99 +292,99 @@ onUnmounted(() => {
 }
 
 @media (min-width: 68.75rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 7.25rem;
   }
 }
 
 @media (min-width: 68.75rem) and (max-height: 58rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4rem;
   }
 
-  .simple-graphs-card {
+ .simple-graphs-card {
     padding-block: 1rem !important;
   }
 
-  .simple-graphs-card h1 {
+ .simple-graphs-card h1 {
     font-size: 3.35rem !important;
     line-height: 1.05;
   }
 
-  .graph-panel {
+ .graph-panel {
     margin-block-end: 0.75rem !important;
     padding: 1rem !important;
   }
 
-  .graph-bars {
+ .graph-bars {
     min-block-size: clamp(12rem, 32vh, 18rem);
   }
 
-  .graph-track {
+ .graph-track {
     min-block-size: clamp(8rem, 21vh, 12rem);
   }
 
-  .choice-row :deep(.dwell-button) {
+ .choice-row :deep(.dwell-button) {
     min-block-size: 7.5rem !important;
   }
 }
 
 @media (max-width: 37.5rem) {
-  .graph-bars {
+ .graph-bars {
     gap: 0.45rem;
   }
 
-  .graph-track {
+ .graph-track {
     min-block-size: 10rem;
     padding: 0.35rem;
   }
 }
 
 @media (max-height: 44rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 8.75rem;
   }
 
-  .graph-bars {
+ .graph-bars {
     min-block-size: 13rem;
   }
 
-  .graph-track {
+ .graph-track {
     min-block-size: 8rem;
   }
 }
 
 @media (max-height: 42.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 6.5rem;
   }
 
-  .simple-graphs-card {
+ .simple-graphs-card {
     display: flex;
     flex-direction: column;
     padding: 1rem !important;
   }
 
-  .simple-graphs-card > .text-overline,
-  .simple-graphs-card > .v-alert {
+ .simple-graphs-card >.text-overline,
+ .simple-graphs-card > .v-alert {
     display: none;
   }
 
-  .choice-row {
+ .choice-row {
     order: 1;
   }
 
-  .graph-panel {
+ .graph-panel {
     margin-block-end: 0.75rem !important;
     order: 2;
     padding: 0.75rem !important;
   }
 
-  .graph-bars {
+ .graph-bars {
     min-block-size: 8rem;
   }
 
-  .graph-track {
+ .graph-track {
     min-block-size: 5.5rem;
   }
 }

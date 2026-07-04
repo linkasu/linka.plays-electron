@@ -80,9 +80,9 @@ function generateCategoryToItemRound(roundIndex: number, random = Math.random): 
   const targetCategory = wordCategories[(roundIndex - 1) % wordCategories.length];
   const targetItem = pickWord(targetCategory.id, roundIndex);
   const distractors = shuffleItems(wordCategories
-    .filter((category) => category.id !== targetCategory.id)
-    .map((category, index) => pickWord(category.id, roundIndex + index + 1)), random)
-    .slice(0, 3);
+   .filter((category) => category.id !== targetCategory.id)
+   .map((category, index) => pickWord(category.id, roundIndex + index + 1)), random)
+   .slice(0, 3);
   const choices = shuffleItems([targetItem, ...distractors], random);
   const correctChoiceId = targetItem.id;
 

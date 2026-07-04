@@ -306,8 +306,8 @@ onUnmounted(() => {
   z-index: 1;
 }
 
-.bell-card-content--active .bell-icon,
-.bell-card-content--selected .bell-icon {
+.bell-card-content--active.bell-icon,
+.bell-card-content--selected.bell-icon {
   animation: bell-swing 1150ms ease-in-out infinite;
 }
 

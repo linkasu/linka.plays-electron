@@ -37,7 +37,7 @@ function choiceOrderForStep(completedSteps: number) {
   const story = storyForStep(completedSteps);
   if (!choiceOrders.value[story.id]) {
     choiceOrders.value = {
-      ...choiceOrders.value,
+     ...choiceOrders.value,
       [story.id]: shuffleItems(story.frames).map((frame) => frame.id)
     };
   }
@@ -159,7 +159,7 @@ async function choose(choice: ThreeFrameStoryFrame) {
   feedbackTimer = window.setTimeout(() => {
     pendingSelection.value = false;
     wrongChoiceId.value = undefined;
-    feedbackMessage.value = "Попробуй ещё раз спокойно.";
+    feedbackMessage.value = "Попробуй ещё раз.";
   }, 950);
 }
 
@@ -301,13 +301,13 @@ watch(isSpeaking, (speaking) => {
 }
 
 @media (max-width: 43.75rem) {
-  .story-slots {
+ .story-slots {
     gap: 0.625rem;
   }
 }
 
 @media (max-height: 57.5rem) {
-  .story-slots {
+ .story-slots {
     display: none;
   }
 }

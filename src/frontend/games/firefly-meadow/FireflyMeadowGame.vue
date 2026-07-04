@@ -364,7 +364,7 @@ onUnmounted(() => {
   <div class="firefly-meadow-shell">
     <canvas ref="canvasRef" class="firefly-meadow-canvas" />
 
-    <div class="quiet-controls d-flex align-center ga-1 pa-1">
+    <div class="compact-controls d-flex align-center ga-1 pa-1">
       <v-btn aria-label="В меню" color="surface" density="comfortable" icon="mdi-arrow-left" size="small" variant="text" @click="router.push(resolveMenuRoute())" />
       <v-btn
         :aria-label="session.status === 'paused' ? 'Продолжить' : 'Пауза'"
@@ -406,7 +406,7 @@ onUnmounted(() => {
   position: absolute;
 }
 
-.quiet-controls {
+.compact-controls {
   background: rgb(4 8 18 / 24%);
   border-radius: 18px;
   inset-block-start: 16px;
@@ -417,8 +417,8 @@ onUnmounted(() => {
   z-index: 2;
 }
 
-.quiet-controls:focus-within,
-.quiet-controls:hover {
+.compact-controls:focus-within,
+.compact-controls:hover {
   opacity: 0.92;
 }
 </style>

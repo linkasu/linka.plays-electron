@@ -304,7 +304,7 @@ onUnmounted(() => {
   <div class="tennis-shell">
     <canvas ref="canvasRef" class="tennis-canvas" />
 
-    <div class="quiet-controls d-flex align-center ga-1 pa-1">
+    <div class="compact-controls d-flex align-center ga-1 pa-1">
       <v-btn aria-label="В меню" color="surface" density="comfortable" icon="mdi-arrow-left" size="small" variant="text" @click="router.push(resolveMenuRoute())" />
       <v-btn
         :aria-label="session.status === 'paused' ? 'Продолжить' : 'Пауза'"
@@ -336,7 +336,7 @@ onUnmounted(() => {
   position: absolute;
 }
 
-.quiet-controls {
+.compact-controls {
   background: rgb(255 255 255 / 34%);
   border: 0.0625rem solid rgb(255 255 255 / 34%);
   border-radius: 1.125rem;
@@ -349,8 +349,8 @@ onUnmounted(() => {
   z-index: 2;
 }
 
-.quiet-controls:focus-within,
-.quiet-controls:hover {
+.compact-controls:focus-within,
+.compact-controls:hover {
   opacity: 0.95;
 }
 </style>

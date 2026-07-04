@@ -63,7 +63,7 @@ const shellStyle = computed(() => ({
 }
 
 @media (max-height: 42rem) {
-  .game-page-shell__content {
+ .game-page-shell__content {
     padding-block-start: calc(var(--page-shell-padding-top) - 1.25rem);
   }
 }

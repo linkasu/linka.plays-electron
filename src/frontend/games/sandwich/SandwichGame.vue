@@ -41,7 +41,7 @@ const currentStep = computed(() => steps.value[visibleStepIndex.value]);
 const currentRecipe = computed(() => getSandwichRecipe(currentStep.value.recipeIndex));
 const completedSandwiches = computed(() => Math.floor(session.step / currentRecipe.value.steps.length));
 const plateLayers = computed(() => plateSteps.value.map((step, index) => ({ ...step, layerKey: `${step.id}:${index}` })));
-const currentPrompt = computed(() => currentStep.value?.instruction ?? "Бутерброды готовы. Спасибо за спокойную сборку.");
+const currentPrompt = computed(() => currentStep.value?.instruction ?? "Бутерброды готовы. Спасибо за сборку.");
 
 function choiceTargetId(choice: SandwichChoice) {
   return `sandwich:choice:${choice.id}`;
@@ -374,74 +374,74 @@ watch(() => session.status, (status) => {
 }
 
 @media (max-width: 60rem) {
-  .play-area {
+ .play-area {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-height: 48rem) and (min-width: 56rem) {
-  .sandwich-card {
+ .sandwich-card {
     padding-block: 0.75rem !important;
   }
 
-  .sandwich-card .text-overline,
-  .intro {
+ .sandwich-card .text-overline,
+ .intro {
     display: none;
   }
 
-  .play-area {
+ .play-area {
     grid-template-columns: minmax(18rem, 0.85fr) minmax(26rem, 1.15fr);
   }
 
-  .plate-stage {
+ .plate-stage {
     block-size: clamp(13rem, 42dvh, 18rem);
   }
 
-  .plate {
+ .plate {
     min-block-size: clamp(10rem, 31dvh, 14rem);
     padding: 1.4rem 1.1rem;
   }
 
-  .ingredient-grid {
+ .ingredient-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 60rem) and (max-height: 42.5rem) {
-  .sandwich-card {
+ .sandwich-card {
     padding-block: 0.75rem !important;
   }
 
-  .sandwich-card .text-overline,
-  .intro {
+ .sandwich-card .text-overline,
+ .intro {
     display: none;
   }
 
-  .prompt-card {
+ .prompt-card {
     margin-block-end: 0.75rem !important;
     padding-block: 0.75rem !important;
   }
 
-  .play-area {
+ .play-area {
     grid-template-columns: minmax(16rem, 0.85fr) minmax(20rem, 1.15fr);
   }
 
-  .plate-stage {
+ .plate-stage {
     block-size: 13rem;
   }
 
-  .plate {
+ .plate {
     min-block-size: 10rem;
     padding: 1.2rem 1rem;
   }
 
-  .ingredient-grid {
+ .ingredient-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 37.5rem) {
-  .ingredient-grid {
+ .ingredient-grid {
     grid-template-columns: 1fr;
   }
 }

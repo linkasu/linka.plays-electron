@@ -24,7 +24,7 @@ export const comicStories: ComicStory[] = [
     id: "seed",
     title: "Росток",
     prompt: "Собери историю: семечко становится цветком.",
-    finalMessage: "Цветок вырос спокойно и красиво.",
+    finalMessage: "Цветок вырос и красиво.",
     frames: [
       { id: "seed-plant", caption: "Посадили семечко", icon: "mdi-seed-outline", color: "brown-lighten-5", hint: "сначала появляется семечко" },
       { id: "seed-water", caption: "Полили землю", icon: "mdi-watering-can-outline", color: "blue-lighten-5", hint: "потом семечко поливают" },
@@ -35,7 +35,7 @@ export const comicStories: ComicStory[] = [
     id: "tea",
     title: "Тёплый чай",
     prompt: "Собери историю: чашка ждёт тёплый чай.",
-    finalMessage: "Чай готов, можно сделать спокойный глоток.",
+    finalMessage: "Чай готов, можно сделать глоток.",
     frames: [
       { id: "tea-cup", caption: "Поставили чашку", icon: "mdi-cup-outline", color: "teal-lighten-5", hint: "сначала ставят пустую чашку" },
       { id: "tea-kettle", caption: "Налили чай", icon: "mdi-kettle-outline", color: "amber-lighten-5", hint: "потом наливают тёплый чай" },
@@ -49,7 +49,7 @@ export const comicStories: ComicStory[] = [
     finalMessage: "После дождя небо стало ярким.",
     frames: [
       { id: "rainbow-cloud", caption: "Набежала тучка", icon: "mdi-weather-cloudy", color: "blue-grey-lighten-5", hint: "сначала небо закрывает тучка" },
-      { id: "rainbow-rain", caption: "Пошёл дождик", icon: "mdi-weather-pouring", color: "light-blue-lighten-5", hint: "потом идёт мягкий дождик" },
+      { id: "rainbow-rain", caption: "Пошёл дождик", icon: "mdi-weather-pouring", color: "light-blue-lighten-5", hint: "потом идёт дождик" },
       { id: "rainbow-sun", caption: "Засияла радуга", icon: "mdi-weather-rainy", color: "purple-lighten-5", hint: "в конце появляется радуга" }
     ]
   },
@@ -68,7 +68,7 @@ export const comicStories: ComicStory[] = [
     id: "bread",
     title: "Свежий хлеб",
     prompt: "Собери историю: тесто становится хлебом.",
-    finalMessage: "Хлеб испёкся тёплым и мягким.",
+    finalMessage: "Хлеб испёкся тёплым и.",
     frames: [
       { id: "bread-flour", caption: "Насыпали муку", icon: "mdi-sack-outline", color: "brown-lighten-5", hint: "сначала берут муку" },
       { id: "bread-oven", caption: "Поставили в печь", icon: "mdi-stove", color: "deep-orange-lighten-5", hint: "потом хлеб печётся" },
@@ -90,7 +90,7 @@ export const comicStories: ComicStory[] = [
     id: "house",
     title: "Домик",
     prompt: "Собери историю: строим маленький домик.",
-    finalMessage: "Домик готов, внутри спокойно и тепло.",
+    finalMessage: "Домик готов, внутри и тепло.",
     frames: [
       { id: "house-bricks", caption: "Принесли кирпичи", icon: "mdi-wall", color: "red-lighten-5", hint: "сначала нужны кирпичи" },
       { id: "house-roof", caption: "Поставили крышу", icon: "mdi-home-roof", color: "orange-lighten-5", hint: "потом ставят крышу" },
@@ -112,7 +112,7 @@ export const comicStories: ComicStory[] = [
     id: "boat",
     title: "Кораблик",
     prompt: "Собери историю: бумажный кораблик плывёт.",
-    finalMessage: "Кораблик спокойно поплыл по воде.",
+    finalMessage: "Кораблик поплыл по воде.",
     frames: [
       { id: "boat-paper", caption: "Взяли бумагу", icon: "mdi-file-outline", color: "grey-lighten-4", hint: "сначала берут лист бумаги" },
       { id: "boat-fold", caption: "Сложили кораблик", icon: "mdi-sail-boat", color: "indigo-lighten-5", hint: "потом складывают кораблик" },

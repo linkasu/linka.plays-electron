@@ -215,11 +215,11 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
-  .game-container {
+ .game-container {
     padding-block-end: 1.25rem;
   }
 
-  .shadow-sample {
+ .shadow-sample {
     min-block-size: 6.5rem;
   }
 }

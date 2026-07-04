@@ -45,7 +45,7 @@ function choiceMinHeight(choiceCount: number) {
 const hintedChoiceId = computed(() => hintedRoundId.value === round.value.roundId ? round.value.target.id : undefined);
 const hintText = computed(() => {
   if (hintedRoundId.value !== round.value.roundId) return "Посмотри на названного зверька и удержи взгляд.";
-  return "Почти получилось. Верный зверёк мягко подсвечен.";
+  return "Почти получилось. Верный зверёк подсвечен.";
 });
 
 function clearTimers() {
@@ -200,12 +200,12 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
-  .game-container {
+ .game-container {
     justify-content: flex-start;
     padding-block-start: 5.25rem;
   }
 
-  .game-row {
+ .game-row {
     align-items: flex-start;
   }
 }

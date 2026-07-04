@@ -264,53 +264,53 @@ onUnmounted(() => {
 }
 
 @media (min-width: 68.75rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 7.25rem;
   }
 }
 
 @media (max-width: 37.5rem) {
-  .part-row {
+ .part-row {
     align-items: center;
     flex-direction: column;
   }
 
-  .part-card {
+ .part-card {
     inline-size: 100%;
   }
 }
 
 @media (max-height: 40rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 9.25rem;
   }
 
-  .bond-equation {
+ .bond-equation {
     font-size: clamp(2.75rem, min(9vw, 10vh), 5.25rem);
   }
 }
 
 @media (max-height: 42.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 6.5rem;
   }
 
-  .number-bonds-card {
+ .number-bonds-card {
     display: flex;
     flex-direction: column;
     padding: 1rem !important;
   }
 
-  .number-bonds-card > .text-overline,
-  .number-bonds-card > .v-alert {
+ .number-bonds-card >.text-overline,
+ .number-bonds-card > .v-alert {
     display: none;
   }
 
-  .choice-row {
+ .choice-row {
     order: 1;
   }
 
-  .bond-panel {
+ .bond-panel {
     display: none;
   }
 }

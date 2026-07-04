@@ -49,7 +49,7 @@ const soundSources: SoundSource[] = [
   {
     id: "bell",
     title: "Колокольчик",
-    soundLabel: "тихий звон",
+    soundLabel: " звон",
     icon: "mdi-bell-outline",
     accent: "#f0b64a",
     wash: "#fff1c8",
@@ -71,7 +71,7 @@ const soundSources: SoundSource[] = [
   {
     id: "stream",
     title: "Ручей",
-    soundLabel: "мягкая вода",
+    soundLabel: " вода",
     icon: "mdi-water",
     accent: "#6b9dec",
     wash: "#e5f0ff",
@@ -107,7 +107,7 @@ const router = useRouter();
 const selectedSourceId = ref("");
 const lastMistakeSourceId = ref("");
 const pendingAudio = ref(false);
-const feedbackMessage = ref("Найди объект, от которого расходятся мягкие волны.");
+const feedbackMessage = ref("Найди объект, от которого расходятся волны.");
 const mistakenSourceIds = new Set<string>();
 let nextRoundTimer = 0;
 let audioContext: AudioContext | undefined;
@@ -145,7 +145,7 @@ function setRound(step: number) {
   selectedSourceId.value = "";
   lastMistakeSourceId.value = "";
   mistakenSourceIds.clear();
-  feedbackMessage.value = "Смотри на объект с волнами. Тихий звук включён, а волну видно всегда.";
+  feedbackMessage.value = "Смотри на объект с волнами. звук включён, а волну видно всегда.";
   void playRoundPromptAndCue(180);
 }
 
@@ -175,7 +175,7 @@ async function chooseSource(source: SoundSource) {
   if (source.id !== round.target.id) {
     pendingAudio.value = true;
     lastMistakeSourceId.value = source.id;
-    feedbackMessage.value = "Почти. Посмотри, откуда расходятся волны, и попробуй ещё раз спокойно.";
+    feedbackMessage.value = "Почти. Посмотри, откуда расходятся волны, и попробуй ещё раз.";
     if (!mistakenSourceIds.has(source.id)) {
       mistakenSourceIds.add(source.id);
       recordMistake({ roundId: round.roundId, selectedId: source.id, targetId: round.target.id, expected: round.target.soundLabel });
@@ -342,7 +342,7 @@ onUnmounted(() => {
     <v-container class="sound-source-container d-flex align-center justify-center" fluid>
       <v-card class="sound-source-panel pa-3 pa-sm-4 pa-md-6" color="surface" rounded="xl" elevation="8">
         <div class="text-center mb-3">
-          <div class="text-overline text-primary">тихий звук и визуальная волна</div>
+          <div class="text-overline text-primary"> звук и визуальная волна</div>
           <h1 class="text-h4 text-md-h2 font-weight-bold mb-1">Где звук?</h1>
           <p class="text-body-1 text-md-h6 text-medium-emphasis mb-1">{{ promptText }}</p>
           <p class="text-body-2 text-md-body-1 text-medium-emphasis mb-0">Выбери один из крупных объектов. Ошибка только подскажет, где искать волну.</p>
@@ -480,7 +480,7 @@ onUnmounted(() => {
   filter: saturate(0.74);
 }
 
-.source-card > :not(.source-waves, .source-glow) {
+.source-card > :not(.source-waves,.source-glow) {
   position: relative;
   z-index: 1;
 }
@@ -553,23 +553,23 @@ onUnmounted(() => {
 }
 
 @media (max-width: 900px) {
-  .sound-source-grid,
-  .sound-source-grid--2,
-  .sound-source-grid--3,
-  .sound-source-grid--4 {
+ .sound-source-grid,
+ .sound-source-grid--2,
+ .sound-source-grid--3,
+ .sound-source-grid--4 {
     grid-template-columns: repeat(2, minmax(150px, 1fr));
   }
 }
 
 @media (max-width: 560px) {
-  .sound-source-container {
+ .sound-source-container {
     padding-block: 6.5rem 1rem;
   }
 
-  .sound-source-grid,
-  .sound-source-grid--2,
-  .sound-source-grid--3,
-  .sound-source-grid--4 {
+ .sound-source-grid,
+ .sound-source-grid--2,
+ .sound-source-grid--3,
+ .sound-source-grid--4 {
     grid-template-columns: 1fr;
   }
 }

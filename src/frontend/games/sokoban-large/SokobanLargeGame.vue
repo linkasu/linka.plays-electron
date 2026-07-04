@@ -129,7 +129,7 @@ async function chooseDirection(direction: SokobanLargeDirection) {
 
   if (result.event === "complete") {
     roundComplete.value = true;
-    feedbackMessage.value = "Готово: ящик спокойно встал на цель. Через несколько секунд появится новый склад.";
+    feedbackMessage.value = "Готово: ящик встал на цель. Через несколько секунд появится новый склад.";
     void feedbackAudio.playSuccess();
     promptAudio.play("sokoban-large.complete", 80);
     roundTimer = window.setTimeout(startNextRound, nextRoundDelayMs);
@@ -143,7 +143,7 @@ async function chooseDirection(direction: SokobanLargeDirection) {
   pendingChoice.value = false;
   feedbackTimer = window.setTimeout(() => {
     successDirection.value = undefined;
-    feedbackMessage.value = "Продолжай спокойно: смотри на героя, ящик и цель.";
+    feedbackMessage.value = "Продолжай : смотри на героя, ящик и цель.";
   }, 650);
 }
 
@@ -210,7 +210,7 @@ onUnmounted(() => {
           <v-card class="sokoban-card pa-4 pa-md-6" color="rgba(255, 255, 255, 0.94)" rounded="xl" elevation="8">
             <div class="d-flex flex-column flex-lg-row align-lg-center justify-space-between ga-4 mb-5">
               <div>
-                <div class="text-overline text-primary mb-1">Спокойная стратегия на крупной сетке</div>
+                <div class="text-overline text-primary mb-1"> стратегия на крупной сетке</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Доведи ящик до цели</h1>
                 <p class="text-body-1 text-medium-emphasis mb-0">Выбирай направление взгляда. Если ход не сработал, осмотрись и попробуй другой.</p>
               </div>
@@ -255,7 +255,7 @@ onUnmounted(() => {
                 </GameWasdPanel>
 
                 <v-alert class="direction-hint mt-4" color="info" rounded="xl" variant="tonal">
-                  Смотри на свободные клетки вокруг героя и ящика. Ход можно спокойно проверить.
+                  Смотри на свободные клетки вокруг героя и ящика. Ход можно проверить.
                 </v-alert>
               </v-col>
             </v-row>
@@ -376,110 +376,110 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
-  .sokoban-large-container {
+ .sokoban-large-container {
     padding-block-start: 10.25rem;
   }
 }
 
 @media (max-height: 58rem) {
-  .sokoban-large-container {
+ .sokoban-large-container {
     padding-block-start: 5.5rem;
   }
 
-  .sokoban-card {
+ .sokoban-card {
     padding-block: 1.25rem !important;
   }
 
-  .sokoban-card > .d-flex.flex-column.flex-lg-row {
+ .sokoban-card >.d-flex.flex-column.flex-lg-row {
     margin-block-end: 1rem !important;
   }
 
-  .compact-feedback {
+ .compact-feedback {
     margin-block-end: 1rem !important;
   }
 
-  .direction-hint {
+ .direction-hint {
     display: none;
   }
 
-  .board-progress {
+ .board-progress {
     margin-block-start: 0.8rem !important;
   }
 
-  .sokoban-board {
+ .sokoban-board {
     gap: clamp(0.4rem, 0.9vw, 0.65rem);
     max-inline-size: min(92vw, 38.75rem, 45vh);
     padding: clamp(0.5rem, 1.1vw, 0.75rem);
   }
 
-  .sokoban-row {
+ .sokoban-row {
     gap: clamp(0.4rem, 0.9vw, 0.65rem);
   }
 }
 
 @media (max-height: 42.5rem) {
-  .sokoban-large-container {
+ .sokoban-large-container {
     padding-block-start: 4.75rem;
   }
 
-  .sokoban-large-container :deep(.v-card) {
+ .sokoban-large-container :deep(.v-card) {
     padding-block: 1rem !important;
   }
 
-  .sokoban-large-container .d-flex.flex-column.flex-lg-row,
-  .sokoban-large-container .text-h6 {
+ .sokoban-large-container.d-flex.flex-column.flex-lg-row,
+ .sokoban-large-container .text-h6 {
     display: none !important;
   }
 
-  .play-area {
+ .play-area {
     align-items: center;
     display: grid !important;
     gap: clamp(0.8rem, 2vw, 1.4rem);
     grid-template-columns: minmax(0, 0.92fr) minmax(16rem, 0.72fr);
   }
 
-  .board-column,
-  .controls-column {
+ .board-column,
+ .controls-column {
     flex: initial;
     inline-size: auto;
     max-inline-size: none;
     padding-block: 0 !important;
   }
 
-  .controls-column :deep(.wasd-panel) {
+ .controls-column :deep(.wasd-panel) {
     inline-size: min(100%, 50vh);
   }
 
-  .controls-column :deep(.dwell-button) {
+ .controls-column :deep(.dwell-button) {
     padding: 0.45rem !important;
   }
 
-  .direction-hint,
-  .board-progress {
+ .direction-hint,
+ .board-progress {
     display: none;
   }
 
-  .sokoban-board {
+ .sokoban-board {
     gap: 0.4rem;
     max-inline-size: min(100%, 50vh, 25rem);
     padding: 0.5rem;
   }
 
-  .sokoban-row {
+ .sokoban-row {
     gap: 0.4rem;
   }
 
-  .compact-feedback {
+ .compact-feedback {
     display: none;
   }
 }
 
 @media (max-height: 42.5rem) and (max-width: 52rem) {
-  .play-area {
+ .play-area {
     grid-template-columns: minmax(0, 0.8fr) minmax(15rem, 0.72fr);
   }
 
-  .sokoban-board {
+ .sokoban-board {
     max-inline-size: min(100%, 46vh, 22rem);
   }
 }

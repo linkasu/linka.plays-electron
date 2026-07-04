@@ -62,11 +62,11 @@ export function findSuggestedSafeIndex(cells: MinesweeperSafeCell[], states: Min
   const hiddenSafe = cells.filter((cell) => !cell.mine && states[cell.index] === "hidden");
 
   return hiddenSafe
-    .map((cell) => ({
+   .map((cell) => ({
       cell,
       revealedNeighbors: adjacentIndexes(cell.index, Math.trunc(Math.sqrt(cells.length))).filter((index) => revealed.has(index)).length
     }))
-    .sort((a, b) => b.revealedNeighbors - a.revealedNeighbors || a.cell.adjacentMines - b.cell.adjacentMines || a.cell.index - b.cell.index)[0]?.cell.index;
+   .sort((a, b) => b.revealedNeighbors - a.revealedNeighbors || a.cell.adjacentMines - b.cell.adjacentMines || a.cell.index - b.cell.index)[0]?.cell.index;
 }
 
 export function minesweeperSafeChoiceOutcome(cell: MinesweeperSafeCell, state: MinesweeperSafeCellState): MinesweeperSafeChoiceOutcome {
@@ -93,15 +93,15 @@ export function generateMinesweeperSafeBoard(settings: SessionSettings, roundInd
     return { index, row, col, mine, adjacentMines };
   });
   const initialRevealed = cells
-    .filter((cell) => !cell.mine)
-    .sort((a, b) => {
+   .filter((cell) => !cell.mine)
+   .sort((a, b) => {
       const centerDistanceA = Math.abs(a.row - Math.floor(shape.size / 2)) + Math.abs(a.col - Math.floor(shape.size / 2));
       const centerDistanceB = Math.abs(b.row - Math.floor(shape.size / 2)) + Math.abs(b.col - Math.floor(shape.size / 2));
       return b.adjacentMines - a.adjacentMines || centerDistanceA - centerDistanceB || a.index - b.index;
     })
-    .slice(0, shape.initialClues)
-    .map((cell) => cell.index)
-    .sort((a, b) => a - b);
+   .slice(0, shape.initialClues)
+   .map((cell) => cell.index)
+   .sort((a, b) => a - b);
 
   return {
     roundId: `minesweeper-safe:round:${roundIndex}`,

@@ -40,7 +40,7 @@ const isSpeaking = ref(false);
 
 const selectedTotal = computed(() => selectedCoins.value.reduce((sum, coin) => sum + coin, 0));
 const selectedCoinCounts = computed(() => round.value.coins.map((coin) => ({
-  ...coin,
+ ...coin,
   count: selectedCoins.value.filter((selected) => selected === coin.value).length
 })));
 const coinButtonMinHeight = "clamp(5.75rem, 14vh, 9.25rem)";
@@ -171,7 +171,7 @@ onUnmounted(() => {
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11" xl="10">
           <v-card class="coin-card pa-4 pa-md-6" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Спокойно собери сумму</div>
+            <div class="text-overline text-secondary text-center mb-2"> собери сумму</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
 
             <v-sheet class="sum-panel pa-4 mb-4" color="primary" rounded="xl">
@@ -242,7 +242,7 @@ onUnmounted(() => {
   padding: clamp(0.75rem, 2vh, 1.5rem) !important;
 }
 
-.coin-card > .text-overline {
+.coin-card >.text-overline {
   margin-block-end: clamp(0rem, 0.5vh, 0.5rem) !important;
 }
 

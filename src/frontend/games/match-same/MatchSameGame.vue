@@ -141,20 +141,20 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
-  .sample-card {
+ .sample-card {
     inline-size: min(10rem, 38vw);
     min-block-size: 6.25rem;
   }
 
-  .sample-emoji {
+ .sample-emoji {
     font-size: clamp(4rem, min(10vw, 12vh), 6rem);
   }
 
-  .match-card {
+ .match-card {
     padding-block: 1rem !important;
   }
 
-  .match-card .text-overline {
+ .match-card .text-overline {
     display: none;
   }
 }

@@ -602,7 +602,7 @@ onUnmounted(() => {
 }
 
 @media (max-width: 700px) {
-  .letter-hunt-prompt {
+ .letter-hunt-prompt {
     top: 152px;
   }
 }

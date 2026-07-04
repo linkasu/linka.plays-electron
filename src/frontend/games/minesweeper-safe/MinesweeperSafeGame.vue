@@ -35,7 +35,7 @@ const flaggedCount = computed(() => cellStates.value.filter((state) => state ===
 const helperText = computed(() => {
   if (lastFlaggedIndex.value !== undefined) return "Флажок стоит на клетке. Пометь все бомбы, чтобы победить.";
   if (bombMode.value) return "Режим бомбы: выбери закрытую клетку, чтобы поставить или снять флажок.";
-  if (hintedIndex.value !== undefined) return "Мягкая подсказка включена: выбери подсвеченную клетку, если хочешь.";
+  if (hintedIndex.value !== undefined) return " подсказка включена: выбери подсвеченную клетку, если хочешь.";
   return "Открытые числа показывают, сколько мин рядом. Выбирай закрытые клетки, которые выглядят безопасно.";
 });
 
@@ -174,7 +174,7 @@ onUnmounted(() => {
           <v-card class="minesweeper-card pa-4 pa-md-7" rounded="xl" elevation="10">
             <div class="board-header d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-5">
               <div class="intro-copy">
-                <div class="text-overline text-secondary mb-1">Спокойная стратегия</div>
+                <div class="text-overline text-secondary mb-1"> стратегия</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Сапёр</h1>
                 <p class="text-body-1 text-md-h6 text-medium-emphasis mb-0">{{ helperText }}</p>
               </div>
@@ -320,124 +320,124 @@ onUnmounted(() => {
 }
 
 @media (max-width: 45rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 8.75rem;
   }
 
-  .board-wrap {
+ .board-wrap {
     gap: 0.4rem;
     grid-template-columns: repeat(var(--board-size), minmax(3.6rem, 1fr));
   }
 }
 
 @media (max-height: 44rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 7rem;
   }
 }
 
 @media (min-height: 681px) and (max-height: 920px) {
-  .game-container {
+ .game-container {
     padding-block: 4.75rem 4vh !important;
   }
 
-  .game-container :deep(.v-card) {
+ .game-container :deep(.v-card) {
     padding-block: 1rem !important;
   }
 
-  .game-container .intro-copy,
-  .game-container .v-alert {
+ .game-container.intro-copy,
+ .game-container .v-alert {
     display: none !important;
   }
 
-  .board-header {
+ .board-header {
     justify-content: center !important;
     margin-block-end: clamp(0.5rem, 1.2vh, 1rem) !important;
   }
 
-  .header-actions {
+ .header-actions {
     flex-direction: row !important;
   }
 
-  .header-actions :deep(.dwell-button) {
+ .header-actions :deep(.dwell-button) {
     min-block-size: clamp(4.75rem, 9vh, 6.5rem) !important;
     padding: 0.45rem !important;
   }
 
-  .board-wrap {
+ .board-wrap {
     gap: 0.8vh;
     inline-size: min(100%, 67vh);
     max-inline-size: none;
   }
 
-  .mine-cell :deep(.dwell-button) {
+ .mine-cell :deep(.dwell-button) {
     min-block-size: min(11.2vh, 5.75rem) !important;
     padding: 0.35rem !important;
   }
 }
 
 @media (max-height: 680px) {
-  .game-container {
+ .game-container {
     padding-block: 4.75rem 4vh !important;
   }
 
-  .game-container :deep(.v-card) {
+ .game-container :deep(.v-card) {
     padding-block: 1rem !important;
   }
 
-  .game-container .text-overline,
-  .game-container p,
-  .game-container .v-alert {
+ .game-container .text-overline,
+ .game-container p,
+ .game-container .v-alert {
     display: none;
   }
 
-  .game-container .intro-copy {
+ .game-container.intro-copy {
     display: none !important;
   }
 
-  .board-header {
+ .board-header {
     justify-content: center !important;
     margin-block-end: 0.5rem !important;
   }
 
-  .header-actions {
+ .header-actions {
     flex-direction: row !important;
   }
 
-  .header-actions .v-chip {
+ .header-actions.v-chip {
     display: none;
   }
 
-  .header-actions :deep(.dwell-button) {
+ .header-actions :deep(.dwell-button) {
     min-block-size: 4.5rem !important;
     padding: 0.35rem !important;
   }
 
-  .board-wrap {
+ .board-wrap {
     gap: 0.6vh;
     grid-template-columns: repeat(var(--board-size), minmax(0, 1fr));
     inline-size: min(100%, 65vh);
     max-inline-size: none;
   }
 
-  .mine-cell :deep(.dwell-button) {
+ .mine-cell :deep(.dwell-button) {
     min-block-size: 9.5vh !important;
     padding: 0.3rem !important;
   }
 
-  .hidden-cell,
-  .flagged-cell,
-  .revealed-cell {
+ .hidden-cell,
+ .flagged-cell,
+ .revealed-cell {
     gap: 0.15rem;
   }
 
-  .hidden-cell :deep(.v-icon),
-  .flagged-cell :deep(.v-icon),
-  .revealed-cell :deep(.v-icon) {
+ .hidden-cell :deep(.v-icon),
+ .flagged-cell :deep(.v-icon),
+ .revealed-cell :deep(.v-icon) {
     font-size: 1.55rem !important;
   }
 
-  .cell-number {
+ .cell-number {
     font-size: 2.2rem;
   }
 }

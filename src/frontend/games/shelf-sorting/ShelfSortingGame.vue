@@ -258,54 +258,54 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 9.75rem;
   }
 }
 
 @media (max-height: 44rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4.35rem;
   }
 
-  .shelf-panel {
+ .shelf-panel {
     padding: 1rem 1.25rem 0.9rem !important;
   }
 
-  .shelf-panel .text-overline {
+ .shelf-panel .text-overline {
     display: none;
   }
 
-  .shelf-panel .text-h4 {
+ .shelf-panel .text-h4 {
     font-size: clamp(2rem, 5.2vh, 2.35rem) !important;
     line-height: 1.05 !important;
     margin-block-end: 0.6rem !important;
   }
 
-  .shelf-feedback {
+ .shelf-feedback {
     margin-block-end: 0.9rem !important;
   }
 
-  .item-card {
+ .item-card {
     margin-block-end: 0.85rem !important;
     padding: 0.85rem !important;
   }
 
-  .item-caption {
+ .item-caption {
     display: none;
   }
 
-  .item-emoji,
-  .shelf-icon {
+ .item-emoji,
+ .shelf-icon {
     font-size: clamp(3rem, 7vw, 4.5rem);
   }
 
-  .shelf-visual {
+ .shelf-visual {
     block-size: 4.2rem;
   }
 
-  .shelf-choice-content,
-  .game-container :deep(.dwell-button) {
+ .shelf-choice-content,
+ .game-container :deep(.dwell-button) {
     min-block-size: 9rem !important;
   }
 }

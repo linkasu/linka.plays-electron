@@ -59,7 +59,7 @@ function restart() {
     <v-container class="sun-rays-container d-flex align-center justify-center" fluid>
       <v-card class="sun-rays-card pa-4 pa-sm-6 pa-md-8" color="transparent" elevation="0">
         <div class="text-center mb-4 mb-md-6 sun-rays-copy">
-          <div class="text-overline text-amber-darken-2">первая спокойная фиксация</div>
+          <div class="text-overline text-amber-darken-2">первая фиксация</div>
           <h1 class="text-h4 text-sm-h3 font-weight-bold">Открой лучи солнца</h1>
           <p class="text-body-1 text-sm-h6 text-medium-emphasis mb-0">Смотри в центр. Если взгляд ушёл, солнце просто подождёт.</p>
         </div>
@@ -87,7 +87,7 @@ function restart() {
 
         <v-card class="sun-rays-note mt-5 mx-auto px-4 py-3" color="amber-lighten-5" rounded="xl" variant="tonal">
           <div class="text-body-2 font-weight-medium">Открыто лучей: {{ raysLabel }}</div>
-          <div class="text-caption text-medium-emphasis">Уход взгляда не считается ошибкой, прогресс мягко начнётся заново.</div>
+          <div class="text-caption text-medium-emphasis">Уход взгляда не считается ошибкой, прогресс начнётся заново.</div>
         </v-card>
       </v-card>
     </v-container>

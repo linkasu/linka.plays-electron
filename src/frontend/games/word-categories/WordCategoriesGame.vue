@@ -33,7 +33,7 @@ const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame
   generateRound: generateWordCategoriesRound
 });
 
-const feedbackMessage = ref("Посмотри на картинку и выбери ответ без спешки.");
+const feedbackMessage = ref("Посмотри на картинку и выбери ответ.");
 const pendingSelection = ref(false);
 const isSpeaking = ref(false);
 const wrongChoiceId = ref<string>();
@@ -90,7 +90,7 @@ function clearFeedbackTimer() {
 
 function resetFeedback() {
   clearFeedbackTimer();
-  feedbackMessage.value = "Посмотри на картинку и выбери ответ без спешки.";
+  feedbackMessage.value = "Посмотри на картинку и выбери ответ.";
   pendingSelection.value = false;
   isSpeaking.value = false;
   wrongChoiceId.value = undefined;
@@ -253,44 +253,44 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 9.75rem;
   }
 }
 
 @media (max-height: 42rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4.75rem;
   }
 
-  .word-game-card {
+ .word-game-card {
     padding: 1rem !important;
   }
 
-  .word-feedback {
+ .word-feedback {
     margin-block-end: 0.75rem !important;
   }
 
-  .target-card {
+ .target-card {
     margin-block-end: 0.75rem !important;
     padding: 0.75rem !important;
   }
 
-  .target-emoji,
-  .choice-emoji {
+ .target-emoji,
+ .choice-emoji {
     font-size: clamp(2.75rem, 6vw, 3.8rem);
   }
 
-  .choice-content,
-  .game-container :deep(.dwell-button) {
+ .choice-content,
+ .game-container :deep(.dwell-button) {
     min-block-size: 7rem !important;
   }
 
-  .choice-content .text-h5 {
+ .choice-content .text-h5 {
     font-size: 1.25rem !important;
   }
 
-  .choice-hint {
+ .choice-hint {
     font-size: 0.78rem !important;
     line-height: 1.15;
   }

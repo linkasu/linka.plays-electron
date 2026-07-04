@@ -97,7 +97,7 @@ onUnmounted(() => {
       <v-row justify="center">
         <v-col cols="12" lg="10">
           <v-card class="yes-no-card pa-6 pa-md-8" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Отвечаем спокойно</div>
+            <div class="text-overline text-secondary text-center mb-2">Отвечаем </div>
             <div class="item-display mb-6">
               <div class="item-emoji emoji-glyph">{{ round.item.emoji }}</div>
               <h1 class="text-h3 font-weight-bold mb-2">{{ round.prompt }}</h1>
@@ -129,34 +129,34 @@ onUnmounted(() => {
 }
 
 @media (max-height: 42rem) {
-  .yes-no-card {
+ .yes-no-card {
     padding: 1rem !important;
   }
 
-  .yes-no-card > .text-overline {
+ .yes-no-card >.text-overline {
     display: none;
   }
 
-  .item-display {
+ .item-display {
     margin-block-end: 0.85rem !important;
   }
 
-  .item-display h1 {
+ .item-display h1 {
     font-size: clamp(1.9rem, 5.8vh, 2.35rem) !important;
     line-height: 1.05;
   }
 
-  .item-display .text-h6 {
+ .item-display .text-h6 {
     font-size: 1rem !important;
     line-height: 1.18;
   }
 
-  .item-emoji,
-  .choice-emoji {
+ .item-emoji,
+ .choice-emoji {
     font-size: clamp(3rem, 9vh, 4.25rem);
   }
 
-  .game-container :deep(.dwell-button) {
+ .game-container :deep(.dwell-button) {
     min-block-size: 10rem !important;
   }
 }

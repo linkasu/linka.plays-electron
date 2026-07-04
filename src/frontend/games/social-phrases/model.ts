@@ -161,7 +161,7 @@ export function generateSocialPhraseRound(roundIndex = 1, random = Math.random):
   if (correctIndex < 0) throw new Error(`Нет правильной фразы для ситуации ${source.id}.`);
 
   return {
-    ...source,
+   ...source,
     roundId: `social-phrases:${source.id}:round:${roundIndex}`,
     choices,
     correctChoice: choices[correctIndex],

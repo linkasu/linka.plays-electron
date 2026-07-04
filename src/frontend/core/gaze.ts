@@ -140,8 +140,8 @@ export function useDwellSelection(options: {
   function chooseTarget(now: number) {
     if (now < cooldownUntil.value || !options.pointer.value.valid) return undefined;
     const containing = options.targets.value
-      .filter((target) => target.enabled !== false && containsPoint(target, options.pointer.value))
-      .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+     .filter((target) => target.enabled !== false && containsPoint(target, options.pointer.value))
+     .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
     return containing[0];
   }
 

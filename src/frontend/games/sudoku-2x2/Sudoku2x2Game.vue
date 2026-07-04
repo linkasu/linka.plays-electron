@@ -285,45 +285,45 @@ onUnmounted(() => {
 }
 
 @media (max-width: 56rem) {
-  .sudoku-layout {
+ .sudoku-layout {
     grid-template-columns: 1fr;
   }
 
-  .sudoku-board {
+ .sudoku-board {
     --sudoku-cell-size: clamp(3.2rem, min(var(--sudoku-cell-vh), calc(78vw / var(--sudoku-size))), 7rem);
   }
 }
 
 @media (max-height: 44rem) {
-  .sudoku-card > h1 {
+ .sudoku-card > h1 {
     margin-block-end: 0.5rem !important;
   }
 }
 
 @media (max-height: 42.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 6.5rem;
   }
 
-  .sudoku-card > .text-overline,
-  .sudoku-card > .v-alert {
+ .sudoku-card >.text-overline,
+ .sudoku-card > .v-alert {
     display: none;
   }
 
-  .sudoku-layout {
+ .sudoku-layout {
     gap: 0.75rem;
   }
 
-  .sudoku-board {
+ .sudoku-board {
     --sudoku-cell-size: clamp(2.65rem, min(var(--sudoku-cell-vh), calc(40vw / var(--sudoku-size))), 5.4rem);
   }
 
-  .choice-panel .text-h5 {
+ .choice-panel .text-h5 {
     display: none;
   }
 
-  .sudoku-cell__number,
-  .choice-card__number {
+ .sudoku-cell__number,
+ .choice-card__number {
     font-size: clamp(2rem, 7vh, 4rem);
   }
 }

@@ -187,7 +187,7 @@ function createBubble(first = false): BubblePop {
   previousBubblePoint = point;
 
   return {
-    id: `quiet-bubble-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    id: `bubble-pop-${Date.now()}-${Math.random().toString(36).slice(2)}`,
     x: point.x,
     y: point.y,
     radius,
@@ -525,7 +525,7 @@ onUnmounted(() => {
   <div class="bubble-pop-shell">
     <canvas ref="canvasRef" class="bubble-pop-canvas" />
 
-    <div class="quiet-controls d-flex align-center ga-1 pa-1">
+    <div class="compact-controls d-flex align-center ga-1 pa-1">
       <v-btn aria-label="В меню" color="primary" density="comfortable" icon="mdi-arrow-left" size="small" variant="flat" @click="router.push(resolveMenuRoute())" />
       <v-btn
         :aria-label="session.status === 'paused' ? 'Продолжить' : 'Пауза'"
@@ -540,7 +540,7 @@ onUnmounted(() => {
 
     <GameResultDialog
       :model-value="resultVisible"
-      title="Тихие пузыри"
+      title=" пузыри"
       :score="session.score"
       :mistakes="session.mistakes"
       :duration-ms="durationMs"
@@ -567,7 +567,7 @@ onUnmounted(() => {
   position: absolute;
 }
 
-.quiet-controls {
+.compact-controls {
   background: rgb(var(--v-theme-surface) / 88%);
   border: 1px solid rgb(var(--v-theme-primary) / 18%);
   border-radius: 18px;
@@ -579,8 +579,8 @@ onUnmounted(() => {
   z-index: 2;
 }
 
-.quiet-controls:focus-within,
-.quiet-controls:hover {
+.compact-controls:focus-within,
+.compact-controls:hover {
   opacity: 0.95;
 }
 </style>

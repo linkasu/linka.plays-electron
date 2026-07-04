@@ -30,7 +30,7 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
   generateRound: generateIWantRound
 });
 
-const feedback = ref("Выбери карточку, чтобы сказать: «Я хочу ...».");
+const feedback = ref("Выбери карточку, чтобы сказать: «Я хочу...».");
 const selectedCardId = ref<string>();
 const isChangingRound = ref(false);
 const cardMinHeight = computed(() => Math.round(184 * session.settings.targetScale));
@@ -87,7 +87,7 @@ async function choose(card: IWantCard) {
 }
 
 function restart() {
-  feedback.value = "Выбери карточку, чтобы сказать: «Я хочу ...».";
+  feedback.value = "Выбери карточку, чтобы сказать: «Я хочу...».";
   selectedCardId.value = undefined;
   isChangingRound.value = false;
   restartRoundGame();
@@ -169,52 +169,52 @@ onUnmounted(() => {
 }
 
 @media (max-height: 42rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4.25rem;
   }
 
-  .i-want-card {
+ .i-want-card {
     padding: 1rem !important;
   }
 
-  .i-want-card > .text-overline {
+ .i-want-card >.text-overline {
     display: none;
   }
 
-  .phrase-panel {
+ .phrase-panel {
     margin-block-end: 0.75rem !important;
   }
 
-  .i-want-card h1 {
+ .i-want-card h1 {
     font-size: 2rem !important;
     line-height: 1.05;
     margin-block: 0.35rem !important;
   }
 
-  .feedback-text,
-  .i-want-card :deep(.v-chip) {
+ .feedback-text,
+ .i-want-card :deep(.v-chip) {
     font-size: 0.9rem !important;
   }
 
-  .game-container :deep(.dwell-button) {
+ .game-container :deep(.dwell-button) {
     min-block-size: 6.6rem !important;
   }
 
-  .card-content {
+ .card-content {
     min-block-size: 5.8rem;
   }
 
-  .card-emoji {
+ .card-emoji {
     font-size: clamp(2rem, 5vw, 3rem);
     margin-block-end: 0.2rem !important;
   }
 
-  .card-label {
+ .card-label {
     font-size: 1.15rem !important;
     line-height: 1.05;
   }
 
-  .card-kind {
+ .card-kind {
     font-size: 0.875rem !important;
     margin-block-start: 0.25rem !important;
   }

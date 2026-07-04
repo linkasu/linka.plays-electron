@@ -57,7 +57,7 @@ export function generateOneManyRound(roundIndex = 1, random = Math.random): OneM
   const target = shuffleItems<OneManyAnswer>(["one", "many"], random)[0];
   const oneOnLeft = shuffleItems([true, false], random)[0];
   const choices = [buildChoice("one", roundIndex, item.emoji, oneOnLeft), buildChoice("many", roundIndex, item.emoji, oneOnLeft)]
-    .sort((left, right) => left.side.localeCompare(right.side));
+   .sort((left, right) => left.side.localeCompare(right.side));
 
   return {
     roundId: `one-many:round:${roundIndex}`,

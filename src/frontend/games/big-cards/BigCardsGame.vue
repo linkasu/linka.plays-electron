@@ -96,7 +96,7 @@ onUnmounted(() => {
       <v-row justify="center">
         <v-col cols="12" lg="11" xl="9">
           <v-card class="pa-5 pa-md-8" color="surface" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Мягкий выбор без ошибок</div>
+            <div class="text-overline text-secondary text-center mb-2"> выбор без ошибок</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">Большие карточки</h1>
             <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-2">{{ round.prompt }}</p>
             <p class="text-h6 text-md-h5 text-center mb-6">{{ feedbackText }}</p>
@@ -106,7 +106,7 @@ onUnmounted(() => {
                 <div class="card-emoji emoji-glyph">{{ card.emoji }}</div>
                 <div class="text-h4 text-md-h3 font-weight-bold mt-3">{{ card.label }}</div>
                 <div class="big-card-note text-body-1 text-md-h6 font-weight-medium mt-2">
-                  {{ active && progress > 0.8 ? "Почти готово" : card.id === round.suggested.id ? "Мягкая подсказка" : "Тоже можно" }}
+                  {{ active && progress > 0.8 ? "Почти готово" : card.id === round.suggested.id ? " подсказка" : "Тоже можно" }}
                 </div>
               </template>
             </GameChoiceCardGrid>
@@ -129,7 +129,7 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
-  .card-emoji {
+ .card-emoji {
     font-size: clamp(4.5rem, min(11vw, 16vh), 8rem);
   }
 }

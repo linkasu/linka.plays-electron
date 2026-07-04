@@ -58,7 +58,7 @@ function buildCountChoices(answer: number, settings: SessionSettings, random: ()
   const choiceCount = settings.preset === "gentle" ? 3 : 4;
   const max = maxValueFor(settings);
   const nearby = [answer - 1, answer + 1, answer - 2, answer + 2]
-    .filter((value) => value >= 1 && value <= max && value !== answer);
+   .filter((value) => value >= 1 && value <= max && value !== answer);
   const values = new Set([answer]);
 
   for (const value of shuffleItems(nearby, random)) {

@@ -273,66 +273,66 @@ onUnmounted(() => {
 }
 
 @media (max-width: 43.75rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 9.75rem;
   }
 
-  .partner-layout {
+ .partner-layout {
     grid-template-columns: 1fr;
   }
 
-  .speech-bubble::before {
+ .speech-bubble::before {
     display: none;
   }
 }
 
 @media (max-height: 44rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 2.5rem;
   }
 
-  .mini-dialog-card {
+ .mini-dialog-card {
     padding: 1rem !important;
   }
 
-  .partner-card {
+ .partner-card {
     margin-block-end: 0.75rem !important;
     padding: 0.75rem !important;
   }
 
-  .voice-legend {
+ .voice-legend {
     display: none !important;
   }
 
-  .partner-layout {
+ .partner-layout {
     grid-template-columns: 8rem minmax(0, 1fr);
   }
 
-  .partner-avatar {
+ .partner-avatar {
     block-size: 4.5rem !important;
     inline-size: 4.5rem !important;
   }
 
-  .partner-avatar .v-icon {
+ .partner-avatar.v-icon {
     font-size: 2.75rem !important;
   }
 
-  .partner-expression {
+ .partner-expression {
     font-size: 2rem;
     margin-block-start: -1.25rem;
     transform: translateX(1.8rem);
   }
 
-  .speech-bubble {
+ .speech-bubble {
     padding: 0.75rem 1rem;
   }
 
-  .speech-bubble h1 {
+ .speech-bubble h1 {
     font-size: 1.85rem !important;
     line-height: 1.08;
   }
 
-  .game-container :deep(.dwell-button) {
+ .game-container :deep(.dwell-button) {
     min-block-size: 8.75rem !important;
   }
 }

@@ -41,9 +41,9 @@ const owlTargetStyle = computed(() => {
   } as CSSProperties;
 });
 const owlStateText = computed(() => {
-  if (session.status === "paused") return "Сова спокойно ждёт паузу.";
-  if (session.step >= session.maxSteps) return "Сова проснулась и тихо смотрит вокруг.";
-  if (session.step >= 5) return "Глаза почти открыты. Ещё немного спокойного взгляда.";
+  if (session.status === "paused") return "Сова ждёт паузу.";
+  if (session.step >= session.maxSteps) return "Сова проснулась и смотрит вокруг.";
+  if (session.step >= 5) return "Глаза почти открыты. Ещё немного взгляда.";
   if (session.step >= 2) return "Сова уже моргает и просыпается.";
   return "Смотри на большую сову, чтобы она открыла глаза.";
 });
@@ -348,11 +348,11 @@ onUnmounted(() => {
   transition: block-size 180ms ease, box-shadow 180ms ease;
 }
 
-.wake-owl-owl--blink .wake-owl-eye {
+.wake-owl-owl--blink.wake-owl-eye {
   animation: wake-owl-eye-blink 520ms ease-out;
 }
 
-.wake-owl-owl--awake .wake-owl-eye {
+.wake-owl-owl--awake.wake-owl-eye {
   animation: wake-owl-awake-blink 5.8s ease-in-out infinite;
 }
 
@@ -448,20 +448,20 @@ onUnmounted(() => {
 }
 
 @media (max-width: 600px) {
-  .wake-owl-playfield {
+ .wake-owl-playfield {
     padding: 120px 18px 116px;
   }
 
-  .wake-owl-copy-card {
+ .wake-owl-copy-card {
     inset-block-start: 96px;
     inset-inline: 14px;
   }
 
-  .wake-owl-target-zone {
+ .wake-owl-target-zone {
     inline-size: min(74vw, 330px);
   }
 
-  .wake-owl-progress {
+ .wake-owl-progress {
     inset-inline: 16px;
   }
 }

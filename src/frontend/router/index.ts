@@ -295,7 +295,7 @@ export default createRouter({
     { path: "/menu/specialist", name: "menu-specialist", component: HomePage },
     { path: "/menu/self", name: "menu-self", component: SelfMenuPage },
     { path: "/tobii-calibration", name: "tobii-calibration", component: TobiiCalibrationPage },
-    ...gameRoutes,
+   ...gameRoutes,
     { path: "/games/:gameId", name: "planned-game", component: PlannedGamePage }
   ]
 });

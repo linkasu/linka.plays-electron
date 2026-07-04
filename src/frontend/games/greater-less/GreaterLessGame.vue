@@ -165,21 +165,21 @@ onUnmounted(() => {
 }
 
 @media (min-width: 68.75rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 7.25rem;
   }
 }
 
 @media (max-height: 40rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 5rem;
   }
 
-  .choice-row :deep(.dwell-button) {
+ .choice-row :deep(.dwell-button) {
     min-block-size: 13rem !important;
   }
 
-  .group-items {
+ .group-items {
     min-block-size: 8rem;
   }
 }

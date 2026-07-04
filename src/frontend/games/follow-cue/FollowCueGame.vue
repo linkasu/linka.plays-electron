@@ -89,7 +89,7 @@ function generateRound(roundIndex: number): CueRound {
 
   return {
     roundId: `follow-cue:round:${roundIndex}`,
-    prompt: "Следуй за мягкой подсказкой",
+    prompt: "Следуй за подсказкой",
     choices,
     target: choices[correctIndex],
     correctIndex
@@ -302,31 +302,31 @@ onUnmounted(() => {
   transition: filter 160ms ease, transform 160ms ease;
 }
 
-.cue-target--mistake .choice-icon {
+.cue-target--mistake.choice-icon {
   filter: saturate(0.72) opacity(0.7);
   transform: scale(0.94);
 }
 
-.follow-cue--strength-1 .cue-target--hinted,
-.follow-cue--strength-2 .cue-target--hinted,
-.follow-cue--strength-3 .cue-target--hinted {
+.follow-cue--strength-1.cue-target--hinted,
+.follow-cue--strength-2.cue-target--hinted,
+.follow-cue--strength-3.cue-target--hinted {
   filter: drop-shadow(0 0 1.3rem rgb(var(--v-theme-primary) / 46%));
   transform: scale(1.02);
 }
 
-.follow-cue--strength-1 .cue-beam,
-.follow-cue--strength-2 .cue-beam,
-.follow-cue--strength-3 .cue-beam {
+.follow-cue--strength-1.cue-beam,
+.follow-cue--strength-2.cue-beam,
+.follow-cue--strength-3.cue-beam {
   display: none;
 }
 
-.follow-cue--strength-2 .cue-arrow,
-.follow-cue--strength-3 .cue-arrow {
+.follow-cue--strength-2.cue-arrow,
+.follow-cue--strength-3.cue-arrow {
   filter: drop-shadow(0 0 1.25rem rgb(var(--cue-color-rgb) / 56%));
   transform: translate(-50%, -50%) scale(1.08);
 }
 
-.follow-cue--strength-3 .cue-glow {
+.follow-cue--strength-3.cue-glow {
   display: none;
 }
 
@@ -345,17 +345,17 @@ onUnmounted(() => {
 }
 
 @media (max-width: 640px) {
-  .cue-board {
+ .cue-board {
     gap: 0.65rem;
   }
 
-  .cue-guide {
+ .cue-guide {
     inline-size: min(16rem, 58vw);
   }
 }
 
 @media (max-height: 44rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 5rem;
   }
 }

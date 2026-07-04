@@ -63,8 +63,8 @@ const maxHull = 3;
 const damageFlash = ref(0);
 const resultVisible = computed(() => session.status === "finished");
 const guidanceText = computed(() => {
-  if (session.status === "paused") return "Пауза. Планер спокойно ждёт продолжения.";
-  if (cleanupProgress.value > 0) return "Маршрут завершён: планер мягко уходит в чистое небо.";
+  if (session.status === "paused") return "Пауза. Планер ждёт продолжения.";
+  if (cleanupProgress.value > 0) return "Маршрут завершён: планер уходит в чистое небо.";
   if (hull.value <= 1) return "Остался один шанс. Держи планер точно в просвете.";
   if (!pointer.value.valid) return "Можно вести планер взглядом или мышью. Без управления планер держит курс хуже.";
   return "Веди планер точно через воздушные ворота: промах повреждает крыло.";

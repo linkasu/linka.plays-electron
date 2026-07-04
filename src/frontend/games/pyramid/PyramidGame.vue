@@ -205,7 +205,7 @@ watch(() => session.status, (status) => {
         <v-col cols="12" lg="10">
           <v-card class="pa-4 pa-md-5" rounded="xl" elevation="8">
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-3">Собери пирамидку</h1>
-            <p class="text-body-1 text-medium-emphasis text-center mb-4">Выбирай кольца спокойно. Даже если порядок другой, мы поставим каждое кольцо и покажем всю сборку.</p>
+            <p class="text-body-1 text-medium-emphasis text-center mb-4">Выбирай кольца. Даже если порядок другой, мы поставим каждое кольцо и покажем всю сборку.</p>
             <div class="play-area">
               <v-card class="stack-card pa-5" color="deep-purple-lighten-5" rounded="xl" variant="flat">
                 <div class="stack" aria-label="Собранная пирамидка">
@@ -406,57 +406,57 @@ watch(() => session.status, (status) => {
 }
 
 @media (max-width: 60rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 6.25rem;
   }
 
-  .play-area {
+ .play-area {
     grid-template-columns: 1fr;
   }
 
-  .stack {
+ .stack {
     min-block-size: 18.75rem;
   }
 
-  .stack-layers {
+ .stack-layers {
     min-block-size: 14rem;
   }
 }
 
 @media (min-width: 43.75rem) and (max-height: 51.25rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 7rem;
   }
 
-  .play-area {
+ .play-area {
     gap: 1rem;
     grid-template-columns: minmax(0, 0.8fr) minmax(18rem, 1.2fr);
   }
 
-  .stack {
+ .stack {
     min-block-size: 13.75rem;
   }
 
-  .stack-layers {
+ .stack-layers {
     min-block-size: 10.625rem;
   }
 
-  .stem {
+ .stem {
     block-size: 11.875rem;
   }
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 6.5rem;
   }
 
-  .rings {
+ .rings {
     grid-template-columns: 1fr;
   }
 
-  .stack-ring,
-  .loose-ring {
+ .stack-ring,
+ .loose-ring {
     block-size: 3rem;
   }
 }

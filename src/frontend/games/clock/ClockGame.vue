@@ -225,25 +225,25 @@ onUnmounted(() => {
 }
 
 @media (min-width: 68.75rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 2rem;
   }
 }
 
 @media (max-height: 40rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 0;
   }
 
-  .game-container :deep(.v-card) {
+ .game-container :deep(.v-card) {
     padding: 1rem !important;
   }
 
-  .clock-face {
+ .clock-face {
     inline-size: min(74%, 6.75rem);
   }
 
-  .clock-feedback {
+ .clock-feedback {
     margin-block-end: 0.75rem !important;
   }
 }

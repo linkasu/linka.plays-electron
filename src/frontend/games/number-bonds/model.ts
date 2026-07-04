@@ -14,7 +14,7 @@ export type NumberBondsRound = {
 function buildNumberBondsChoices(missingPart: number, maxPart: number, choiceCount: number, random: () => number) {
   const choices = new Set([missingPart]);
   const nearby = [missingPart - 1, missingPart + 1, missingPart - 2, missingPart + 2]
-    .filter((value) => value >= 1 && value <= maxPart && value !== missingPart);
+   .filter((value) => value >= 1 && value <= maxPart && value !== missingPart);
 
   for (const value of shuffleItems(nearby, random)) {
     if (choices.size < choiceCount) choices.add(value);

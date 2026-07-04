@@ -452,11 +452,11 @@ onBeforeUnmount(() => {
   box-shadow: inset 0 0 18px rgb(77 255 234 / 18%);
 }
 
-.is-holding .target-ring {
+.is-holding.target-ring {
   animation: target-spin 720ms linear infinite;
 }
 
-.is-bursting .target-ring {
+.is-bursting.target-ring {
   animation: target-burst 280ms ease-out forwards;
 }
 
@@ -470,7 +470,7 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 0 8px rgb(255 236 92 / 22%), 0 0 24px rgb(255 236 92 / 90%);
 }
 
-.is-bursting .target-dot {
+.is-bursting.target-dot {
   animation: dot-burst 280ms ease-out forwards;
 }
 
@@ -494,11 +494,11 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 14px rgb(255 236 92 / 95%);
 }
 
-.is-holding .target-spark {
+.is-holding.target-spark {
   animation: spark-orbit 720ms linear infinite;
 }
 
-.is-bursting .target-spark {
+.is-bursting.target-spark {
   animation: spark-burst 280ms ease-out forwards;
 }
 

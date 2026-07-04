@@ -38,7 +38,7 @@ export const threeFrameStories: ThreeFrameStory[] = [
     prompt: "Собери историю: как появляется цветок?",
     frames: [
       { id: "seed", label: "семечко", caption: "Сначала кладём семечко в землю.", emoji: "🌰", color: "green-lighten-5" },
-      { id: "watering", label: "полив", caption: "Потом мягко поливаем росток.", emoji: "💧", color: "light-blue-lighten-5" },
+      { id: "watering", label: "полив", caption: "Потом поливаем росток.", emoji: "💧", color: "light-blue-lighten-5" },
       { id: "flower", label: "цветок", caption: "В конце раскрывается цветок.", emoji: "🌸", color: "pink-lighten-5" }
     ]
   },
@@ -49,7 +49,7 @@ export const threeFrameStories: ThreeFrameStory[] = [
     frames: [
       { id: "kettle", label: "чайник", caption: "Сначала греем чайник.", emoji: "🫖", color: "blue-grey-lighten-5" },
       { id: "cup", label: "чашка", caption: "Потом наливаем чай в чашку.", emoji: "☕", color: "brown-lighten-5" },
-      { id: "cookie", label: "печенье", caption: "В конце пьём чай спокойно.", emoji: "🍪", color: "orange-lighten-5" }
+      { id: "cookie", label: "печенье", caption: "В конце пьём чай.", emoji: "🍪", color: "orange-lighten-5" }
     ]
   },
   {
@@ -58,7 +58,7 @@ export const threeFrameStories: ThreeFrameStory[] = [
     prompt: "Собери историю: что происходит после тучи?",
     frames: [
       { id: "cloud", label: "туча", caption: "Сначала приходит туча.", emoji: "☁️", color: "blue-grey-lighten-5" },
-      { id: "rain", label: "дождь", caption: "Потом идёт тихий дождь.", emoji: "🌧️", color: "light-blue-lighten-5" },
+      { id: "rain", label: "дождь", caption: "Потом идёт дождь.", emoji: "🌧️", color: "light-blue-lighten-5" },
       { id: "rainbow", label: "радуга", caption: "В конце появляется радуга.", emoji: "🌈", color: "purple-lighten-5" }
     ]
   },
@@ -67,7 +67,7 @@ export const threeFrameStories: ThreeFrameStory[] = [
     title: "Снеговик",
     prompt: "Собери историю: как сделать снеговика?",
     frames: [
-      { id: "snow", label: "снег", caption: "Сначала выпал мягкий снег.", emoji: "❄️", color: "cyan-lighten-5" },
+      { id: "snow", label: "снег", caption: "Сначала выпал снег.", emoji: "❄️", color: "cyan-lighten-5" },
       { id: "snowballs", label: "комы", caption: "Потом катаем снежные комы.", emoji: "⚪", color: "blue-lighten-5" },
       { id: "snowman", label: "снеговик", caption: "В конце стоит снеговик.", emoji: "⛄", color: "indigo-lighten-5" }
     ]

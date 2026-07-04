@@ -211,8 +211,8 @@ onUnmounted(() => {
   background: #315f57 !important;
 }
 
-.choice-row :deep(.dwell-button--active) .pizza-choice__label,
-.choice-row :deep(.dwell-button--active) .pizza-choice__helper {
+.choice-row :deep(.dwell-button--active).pizza-choice__label,
+.choice-row :deep(.dwell-button--active).pizza-choice__helper {
   color: #ffffff !important;
 }
 
@@ -271,63 +271,63 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 10.5rem;
   }
 }
 
 @media (max-height: 43rem) and (min-width: 60rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 7.25rem;
   }
 
-  .pizza-plate {
+ .pizza-plate {
     inline-size: 8rem;
     min-block-size: 8rem;
   }
 }
 
 @media (max-height: 42.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4.75rem;
   }
 
-  .game-container :deep(.v-card) {
+ .game-container :deep(.v-card) {
     padding-block: 1rem !important;
   }
 
-  .game-container .text-overline,
-  .game-container h1,
-  .game-container .v-alert {
+ .game-container .text-overline,
+ .game-container h1,
+ .game-container .v-alert {
     display: none;
   }
 
-  .pizza-choice-col {
+ .pizza-choice-col {
     flex: 0 0 33.3333% !important;
     max-inline-size: 33.3333% !important;
   }
 
-  .choice-row :deep(.dwell-button) {
+ .choice-row :deep(.dwell-button) {
     min-block-size: 15rem !important;
     padding: 0.5rem !important;
   }
 
-  .pizza-choice {
+ .pizza-choice {
     min-block-size: 11rem;
     padding: 0.35rem;
   }
 
-  .pizza-plate {
+ .pizza-plate {
     inline-size: 6.4rem;
     min-block-size: 6.4rem;
   }
 
-  .pizza-choice__label {
+ .pizza-choice__label {
     font-size: 1.75rem !important;
     margin-block-start: 0.5rem !important;
   }
 
-  .pizza-choice__helper {
+ .pizza-choice__helper {
     display: none;
   }
 }

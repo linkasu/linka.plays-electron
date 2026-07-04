@@ -216,7 +216,7 @@ function cubicTangent(from: Point, first: Point, second: Point, to: Point, progr
 
 function setNodeFeedback(node: MazeNode) {
   if (isDeadEnd(node)) {
-    feedbackText.value = "Это тупик. Гномик может спокойно вернуться назад.";
+    feedbackText.value = "Это тупик. Гномик может вернуться назад.";
     void playTts("gaze-maze.deadend", 80);
     return;
   }

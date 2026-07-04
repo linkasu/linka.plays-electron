@@ -46,7 +46,7 @@ const kitStyle = computed(() => {
     ["--scene-start", currentKit.value.sceneStart],
     ["--scene-end", currentKit.value.sceneEnd],
     ["--scene-accent", currentKit.value.sceneAccent],
-    ...entries
+   ...entries
   ]);
 });
 
@@ -517,7 +517,7 @@ watch(() => session.status, (status) => {
   transform: rotate(-14deg);
 }
 
-.dress-piece--jacket .dress-piece__detail--one {
+.dress-piece--jacket.dress-piece__detail--one {
   background: rgb(255 255 255 / 70%);
   block-size: 74%;
   inline-size: 0.18rem;
@@ -526,7 +526,7 @@ watch(() => session.status, (status) => {
   position: absolute;
 }
 
-.dress-piece--jacket .dress-piece__detail--two {
+.dress-piece--jacket.dress-piece__detail--two {
   background: #ffeb3b;
   block-size: 0.55rem;
   border-radius: 999px;
@@ -689,8 +689,8 @@ watch(() => session.status, (status) => {
   inset-inline-start: 12%;
 }
 
-.choice-art--hat .choice-art__detail,
-.choice-art--shoes .choice-art__detail {
+.choice-art--hat.choice-art__detail,
+.choice-art--shoes.choice-art__detail {
   display: none;
 }
 
@@ -712,20 +712,20 @@ watch(() => session.status, (status) => {
   inset-inline-start: 50%;
 }
 
-.choice-art--jacket .choice-art__detail--one,
-.choice-art--jacket .choice-art__detail--two {
+.choice-art--jacket.choice-art__detail--one,
+.choice-art--jacket.choice-art__detail--two {
   block-size: 57%;
   border-radius: 999px;
   inline-size: 17%;
   inset-block-start: 26%;
 }
 
-.choice-art--jacket .choice-art__detail--one {
+.choice-art--jacket.choice-art__detail--one {
   inset-inline-start: 4%;
   transform: rotate(15deg);
 }
 
-.choice-art--jacket .choice-art__detail--two {
+.choice-art--jacket.choice-art__detail--two {
   inset-inline-end: 4%;
   transform: rotate(-15deg);
 }
@@ -736,8 +736,8 @@ watch(() => session.status, (status) => {
   inset-inline-start: 26%;
 }
 
-.choice-art--cold-jacket-vest .choice-art__detail--one,
-.choice-art--cold-jacket-vest .choice-art__detail--two {
+.choice-art--cold-jacket-vest.choice-art__detail--one,
+.choice-art--cold-jacket-vest.choice-art__detail--two {
   display: none;
 }
 
@@ -751,12 +751,12 @@ watch(() => session.status, (status) => {
   inset-inline-start: 24%;
 }
 
-.choice-art--cold-jacket-shirt .choice-art__detail--one,
-.choice-art--rain-jacket-shirt .choice-art__detail--one,
-.choice-art--sun-jacket-shirt .choice-art__detail--one,
-.choice-art--cold-jacket-shirt .choice-art__detail--two,
-.choice-art--rain-jacket-shirt .choice-art__detail--two,
-.choice-art--sun-jacket-shirt .choice-art__detail--two {
+.choice-art--cold-jacket-shirt.choice-art__detail--one,
+.choice-art--rain-jacket-shirt.choice-art__detail--one,
+.choice-art--sun-jacket-shirt.choice-art__detail--one,
+.choice-art--cold-jacket-shirt.choice-art__detail--two,
+.choice-art--rain-jacket-shirt.choice-art__detail--two,
+.choice-art--sun-jacket-shirt.choice-art__detail--two {
   block-size: 30%;
   inset-block-start: 29%;
 }
@@ -823,65 +823,65 @@ watch(() => session.status, (status) => {
 }
 
 @media (max-width: 56rem) {
-  .dress-character-shell {
+ .dress-character-shell {
     overflow-y: auto;
   }
 
-  .game-container {
+ .game-container {
     block-size: auto;
     padding-block-start: 7.5rem;
   }
 
-  .dress-card {
+ .dress-card {
     max-block-size: none;
   }
 
-  .play-area {
+ .play-area {
     grid-template-columns: 1fr;
   }
 
-  .choice-grid {
+ .choice-grid {
     grid-template-columns: 1fr;
     grid-template-rows: none;
   }
 }
 
 @media (max-height: 44rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 3.75rem;
   }
 
-  .dress-card {
+ .dress-card {
     padding-block: 0.75rem !important;
   }
 
-  .dress-card .text-overline {
+ .dress-card .text-overline {
     display: none;
   }
 
-  .prompt-line {
+ .prompt-line {
     margin-block-end: 0.5rem !important;
   }
 
-  .play-area {
+ .play-area {
     gap: 0.75rem;
     grid-template-columns: minmax(0, 0.9fr) minmax(18rem, 1.1fr);
   }
 
-  .character-stage {
+ .character-stage {
     block-size: 17.2rem;
   }
 
-  .choice-art {
+ .choice-art {
     block-size: clamp(2.4rem, min(5.2vw, 7vh), 3.4rem);
     inline-size: clamp(4.2rem, min(9vw, 12vh), 5.8rem);
   }
 
-  .choice-grid {
+ .choice-grid {
     gap: 0.55rem;
   }
 
-  .choice-button :deep(.dwell-button) {
+ .choice-button :deep(.dwell-button) {
     min-block-size: 6.75rem !important;
     padding: 0.35rem !important;
   }

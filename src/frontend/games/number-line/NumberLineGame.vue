@@ -200,75 +200,75 @@ onUnmounted(() => {
 }
 
 @media (max-width: 75rem) {
-  .number-road {
+ .number-road {
     grid-template-columns: repeat(5, minmax(6rem, 1fr));
   }
 
-  .number-road__track {
+ .number-road__track {
     display: none;
   }
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 11rem;
   }
 
-  .number-road {
+ .number-road {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-height: 43rem) and (min-width: 75.0625rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 7.4rem;
   }
 
-  .number-step {
+ .number-step {
     min-block-size: 6.8rem;
   }
 }
 
 @media (max-height: 42.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 5rem;
   }
 
-  .number-line-card {
+ .number-line-card {
     padding: 1rem !important;
   }
 
-  .number-line-card .text-overline {
+ .number-line-card .text-overline {
     display: none;
   }
 
-  .number-line-card h1 {
+ .number-line-card h1 {
     font-size: 2.6rem !important;
     line-height: 1.05;
     margin-block-end: 0.35rem !important;
   }
 
-  .number-line-card p {
+ .number-line-card p {
     font-size: 1.1rem !important;
     margin-block-end: 0.75rem !important;
   }
 
-  .number-road {
+ .number-road {
     gap: 0.5rem;
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
-  .number-road :deep(.dwell-button) {
+ .number-road :deep(.dwell-button) {
     min-block-size: 6.6rem !important;
     padding: 0.4rem !important;
   }
 
-  .number-step {
+ .number-step {
     border-radius: 1.2rem;
     min-block-size: 5.75rem;
   }
 
-  .number-step__label {
+ .number-step__label {
     font-size: 3.2rem;
   }
 }

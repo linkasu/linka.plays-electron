@@ -121,7 +121,7 @@ export function syncBoatGeometry(state: BoatGameState, viewport: ViewportSize, t
   const river = riverGeometry(viewport);
   const size = boatVisualSize(viewport, targetScale);
   return {
-    ...state,
+   ...state,
     boat: { ...state.boat, x: boatX(viewport, size), y: clamp(state.boat.y, river.top + size * 0.36, river.bottom - size * 0.36) },
     gate: { ...state.gate, y: clamp(state.gate.y, river.top + state.gate.radius, river.bottom - state.gate.radius) }
   };
@@ -169,7 +169,7 @@ function spawnRoute(state: BoatGameState, viewport: ViewportSize, routeIndex: nu
   const gapHeight = riverHeight * segment.gapHeight;
   const hazard = { id: `stones-${segment.id}`, x, width, gapY, gapHeight, phase: 0 };
   return {
-    ...state,
+   ...state,
     routeIndex,
     gate: { id: `gate-${segment.id}`, x, y: gapY, radius: gapHeight / 2, phase: 0 },
     hazards: [hazard],
@@ -188,11 +188,11 @@ function updateBoatPosition(state: BoatGameState, inputY: number | undefined, de
   const easedStep = diff * Math.min(1, delta * 2.65);
   const maxStep = delta * 340 * motionSpeed;
   return {
-    ...state,
+   ...state,
     invulnerableSeconds: Math.max(0, state.invulnerableSeconds - delta),
     shakeSeconds: Math.max(0, state.shakeSeconds - delta),
     boat: {
-      ...state.boat,
+     ...state.boat,
       y: clamp(state.boat.y + clamp(easedStep, -maxStep, maxStep), river.top + size * 0.28, river.bottom - size * 0.28),
       phase: state.boat.phase + (reduceMotion ? 0 : delta * 2.35),
       damageFlash: Math.max(0, state.boat.damageFlash - delta * 1.8)
@@ -203,7 +203,7 @@ function updateBoatPosition(state: BoatGameState, inputY: number | undefined, de
 function scrollRoute(state: BoatGameState, delta: number, motionSpeed: number, reduceMotion: boolean): BoatGameState {
   const speed = boatScrollSpeed(motionSpeed);
   return {
-    ...state,
+   ...state,
     gate: { ...state.gate, x: state.gate.x - speed * delta, phase: state.gate.phase + (reduceMotion ? 0 : delta * 1.7) },
     hazards: state.hazards.map((hazard) => ({ ...hazard, x: hazard.x - speed * delta, phase: hazard.phase + (reduceMotion ? 0 : delta * 1.9) })).filter((hazard) => hazard.x > -hazard.width * 1.4)
   };
@@ -238,7 +238,7 @@ function applyDamage(state: BoatGameState, damage: { hazardId: string; reason: B
   const targetY = hazard ? hazard.gapY : river.centerY;
   const pushedY = clamp(state.boat.y + Math.sign(targetY - state.boat.y || 1) * size * 0.25, river.top + size * 0.32, river.bottom - size * 0.32);
   const next = {
-    ...state,
+   ...state,
     hull: nextHull,
     invulnerableSeconds: 1,
     shakeSeconds: 0.45,

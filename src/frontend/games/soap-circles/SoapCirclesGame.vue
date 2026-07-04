@@ -318,12 +318,12 @@ onUnmounted(() => {
 }
 
 @media (max-width: 720px) {
-  .soap-circles-stage {
+ .soap-circles-stage {
     min-block-size: 680px;
     padding-block-start: 96px;
   }
 
-  .soap-circle-target {
+ .soap-circle-target {
     block-size: clamp(136px, 34vw, 190px);
     inline-size: clamp(136px, 34vw, 190px);
   }

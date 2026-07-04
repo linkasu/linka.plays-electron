@@ -16,7 +16,7 @@ export function generateCountItemsRound(settings: SessionSettings, roundIndex = 
   const choiceCount = settings.preset === "gentle" ? 2 : 4;
   const targetCount = randomInt(1, max, random);
   const nearby = [targetCount - 1, targetCount + 1, targetCount + 2, targetCount - 2]
-    .filter((value) => value >= 1 && value <= 9 && value !== targetCount);
+   .filter((value) => value >= 1 && value <= 9 && value !== targetCount);
   const choices = new Set([targetCount]);
   for (const value of shuffleItems(nearby, random)) {
     if (choices.size < choiceCount) choices.add(value);

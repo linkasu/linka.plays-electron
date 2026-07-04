@@ -262,38 +262,38 @@ watch(isSpeaking, (speaking) => {
 }
 
 @media (max-height: 64rem) {
-  .period-row,
-  .period-card,
-  .game-container .v-divider {
+ .period-row,
+ .period-card,
+ .game-container .v-divider {
     display: none;
   }
 }
 
 @media (min-height: 64.001rem) {
-  .game-container {
+ .game-container {
     padding-block-end: 2rem;
   }
 }
 
 @media (max-height: 44rem) {
-  .day-routine-card {
+ .day-routine-card {
     padding-block: 0.75rem !important;
   }
 
-  .feedback-line,
-  .choice-title {
+ .feedback-line,
+ .choice-title {
     margin-block-end: 0.75rem !important;
   }
 
-  .choice-row {
+ .choice-row {
     margin-block: -0.25rem;
   }
 
-  .choice-row :deep(.dwell-button) {
+ .choice-row :deep(.dwell-button) {
     min-block-size: 5.75rem !important;
   }
 
-  .choice-emoji {
+ .choice-emoji {
     font-size: clamp(2.2rem, 5vw, 3rem);
   }
 }

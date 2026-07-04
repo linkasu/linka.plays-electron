@@ -35,7 +35,7 @@ let feedbackTimer = 0;
 const hintedChoiceId = computed(() => mistakesInRound.value > 0 ? round.value.target.id : undefined);
 const hintText = computed(() => {
   if (mistakesInRound.value <= 0) return "Выбери лицо с нужной эмоцией.";
-  return `Посмотри на подсказку: ${round.value.target.label} подсвечена мягкой рамкой.`;
+  return `Посмотри на подсказку: ${round.value.target.label} подсвечена рамкой.`;
 });
 
 function choiceTargetId(choiceId: string) {
@@ -190,7 +190,7 @@ onUnmounted(() => {
 }
 
 @media (max-height: 42rem) {
-  .emotion-choice {
+ .emotion-choice {
     min-block-size: 6.75rem;
   }
 }

@@ -150,7 +150,7 @@ onUnmounted(() => {
 
             <v-expand-transition>
               <v-alert v-if="hintedRoundId === round.roundId" class="mt-5 text-h6" color="primary" icon="mdi-heart-outline" rounded="xl" variant="tonal">
-                Посмотри на цвет и число открытой карты. Ошибка не страшна: можно спокойно выбрать другую карточку.
+                Посмотри на цвет и число открытой карты. Ошибка не страшна: можно выбрать другую карточку.
               </v-alert>
             </v-expand-transition>
           </v-card>
@@ -242,53 +242,53 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
-  .game-container {
+ .game-container {
     padding-block: 5rem 3.8rem;
   }
 
-  .open-card-panel {
+ .open-card-panel {
     min-block-size: 18rem;
   }
 }
 
 @media (max-height: 51.25rem) {
-  .game-container {
+ .game-container {
     padding-block: 4.25rem 3.8rem;
   }
 
-  .open-card-col,
-  .open-card-panel {
+ .open-card-col,
+ .open-card-panel {
     display: none;
   }
 
-  .game-symbol {
+ .game-symbol {
     display: none;
   }
 
-  .game-container h1 {
+ .game-container h1 {
     font-size: clamp(2.4rem, 7vw, 3.6rem) !important;
     line-height: 1.02;
   }
 
-  .game-container p[role="status"] {
+ .game-container p[role="status"] {
     font-size: clamp(1rem, 2.4vw, 1.18rem) !important;
   }
 
-  .choice-grid :deep(.dwell-button) {
+ .choice-grid :deep(.dwell-button) {
     padding: clamp(0.45rem, 1.2vh, 0.7rem) !important;
   }
 
-  .uno-card {
+ .uno-card {
     border-width: 0.34rem;
     inline-size: clamp(4.45rem, 10.5vw, 6.1rem);
   }
 
-  .uno-card__stripe {
+ .uno-card__stripe {
     font-size: clamp(0.72rem, 1.8vw, 0.95rem);
     padding-block: 0.28rem;
   }
 
-  .uno-card__number {
+ .uno-card__number {
     font-size: clamp(2.8rem, 8vw, 4.6rem);
   }
 }

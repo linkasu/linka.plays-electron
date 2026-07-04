@@ -57,10 +57,10 @@ const leaf = reactive<Leaf>({ id: "leaf-0", x: 0, y: 0, radius: 80, angle: 0, hu
 const resultVisible = computed(() => session.status === "finished");
 const leafProgress = computed(() => Math.round(leaf.progress * 100));
 const guidanceText = computed(() => {
-  if (session.status === "paused") return "Пауза. Змейка подождёт спокойно.";
+  if (session.status === "paused") return "Пауза. Змейка подождёт.";
   if (!pointer.value.valid) return "Можно вести змейку взглядом или указателем к большому листу.";
   if (leaf.progress > 0.08) return "Хорошо. Подержи змейку у листа ещё немного.";
-  return "Веди змейку мягко к подсвеченному листу.";
+  return "Веди змейку к подсвеченному листу.";
 });
 
 let leafSequence = 0;
@@ -507,7 +507,7 @@ useGameLoop({ context, update, draw });
 }
 
 @media (max-width: 45rem) {
-  .gaze-follow-snake-guidance {
+ .gaze-follow-snake-guidance {
     inset-block-start: auto;
     inset-block-end: max(1rem, env(safe-area-inset-bottom));
     inset-inline: 1rem;

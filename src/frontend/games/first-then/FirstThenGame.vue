@@ -221,38 +221,38 @@ onUnmounted(() => {
 }
 
 @media (max-height: 51.25rem) {
-  .timeline-card {
+ .timeline-card {
     display: none;
   }
 }
 
 @media (max-height: 44rem) {
-  .first-then-card {
+ .first-then-card {
     padding-block: 0.875rem !important;
   }
 
-  .first-then-heading {
+ .first-then-heading {
     margin-block-end: 0.875rem !important;
   }
 
-  .first-then-heading h1 {
+ .first-then-heading h1 {
     font-size: 2rem !important;
     line-height: 1.08;
   }
 
-  .phase-chip {
+ .phase-chip {
     margin-block-end: 0.75rem !important;
   }
 
-  .choice-emoji {
+ .choice-emoji {
     font-size: clamp(2.75rem, 6vw, 3.75rem);
   }
 
-  .choice-phrase {
+ .choice-phrase {
     display: none;
   }
 
-  .first-then-card :deep(.dwell-button) {
+ .first-then-card :deep(.dwell-button) {
     min-block-size: 7.5rem !important;
   }
 }

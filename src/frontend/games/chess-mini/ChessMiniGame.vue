@@ -375,11 +375,11 @@ onUnmounted(() => {
   filter: drop-shadow(0 0.2rem 0.24rem rgb(0 0 0 / 18%));
 }
 
-.piece-white .piece-icon {
+.piece-white.piece-icon {
   color: #4e342e;
 }
 
-.piece-black .piece-icon {
+.piece-black.piece-icon {
   color: #0d47a1;
 }
 
@@ -412,16 +412,16 @@ onUnmounted(() => {
 }
 
 @media (max-width: 48rem) {
-  .game-card {
+ .game-card {
     max-block-size: none;
     overflow: visible;
   }
 
-  .game-layout {
+ .game-layout {
     grid-template-columns: 1fr;
   }
 
-  .board-grid {
+ .board-grid {
     inline-size: min(92vw, 68dvh, 36rem);
   }
 }

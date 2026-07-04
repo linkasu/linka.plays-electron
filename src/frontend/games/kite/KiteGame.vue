@@ -403,8 +403,8 @@ useGameLoop({ context, update, draw });
     <canvas ref="canvasRef" class="kite-canvas" />
 
     <v-card class="kite-hint px-4 py-3" color="surface" rounded="xl" variant="tonal">
-      <div class="text-body-2 font-weight-medium">Смотри на змея спокойно: ветер мягко поднимет его выше.</div>
-      <div class="text-caption text-medium-emphasis">Если взгляд ушёл, змей просто ждёт и продолжает плавно парить.</div>
+      <div class="text-body-2 font-weight-medium">Смотри на змея: ветер поднимет его выше.</div>
+      <div class="text-caption text-medium-emphasis">Если взгляд ушёл, змей просто ждёт и продолжает парить.</div>
     </v-card>
 
     <GameHud

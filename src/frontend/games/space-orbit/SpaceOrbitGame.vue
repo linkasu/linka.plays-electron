@@ -47,8 +47,8 @@ const backgroundStars = reactive<BackgroundStar[]>([]);
 const resultVisible = computed(() => session.status === "finished");
 const holdProgress = computed(() => Math.min(100, Math.round(star.heldMs / session.settings.dwellMs * 100)));
 const guidanceText = computed(() => {
-  if (session.status === "paused") return "Пауза. Орбита спокойно ждёт продолжения.";
-  if (!pointer.value.valid) return "Можно вести ракету взглядом или мышью по мягкой орбите.";
+  if (session.status === "paused") return "Пауза. Орбита ждёт продолжения.";
+  if (!pointer.value.valid) return "Можно вести ракету взглядом или мышью по орбите.";
   if (star.heldMs > 0) return "Оставайся рядом со звездой ещё чуть-чуть.";
   return "Веди ракету взглядом по орбите и собирай звёзды.";
 });
@@ -437,7 +437,7 @@ useGameLoop({ context, update, draw });
     />
 
     <v-card class="space-orbit-guidance pa-4" color="surface" rounded="xl" variant="flat">
-      <div class="text-overline text-primary mb-1">Плавное ведение</div>
+      <div class="text-overline text-primary mb-1">Ведение взглядом</div>
       <div class="text-body-1 font-weight-medium">{{ guidanceText }}</div>
       <v-progress-linear class="mt-3" :model-value="holdProgress" color="amber" height="0.5rem" rounded />
       <div class="text-caption text-medium-emphasis mt-2">Звёзд собрано: {{ session.step }} / {{ session.maxSteps }}</div>
@@ -483,7 +483,7 @@ useGameLoop({ context, update, draw });
 }
 
 @media (max-width: 45rem) {
-  .space-orbit-guidance {
+ .space-orbit-guidance {
     inset-block-start: auto;
     inset-block-end: max(1rem, env(safe-area-inset-bottom));
     inset-inline: 1rem;

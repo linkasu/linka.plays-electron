@@ -16,7 +16,7 @@ watch(preset, (nextPreset) => {
   <v-card class="pa-4" rounded="xl" variant="tonal">
     <div class="text-subtitle-1 font-weight-bold mb-3">Настройки занятия</div>
     <v-btn-toggle v-model="preset" color="primary" divided mandatory rounded="lg" variant="outlined">
-      <v-btn value="gentle">Мягко</v-btn>
+      <v-btn value="gentle"></v-btn>
       <v-btn value="standard">Обычно</v-btn>
       <v-btn value="challenge">Сложнее</v-btn>
     </v-btn-toggle>

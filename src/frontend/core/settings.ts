@@ -72,7 +72,7 @@ export function settingsFromPreset(preset: DifficultyPreset): SessionSettings {
 
 export function clampSettings(settings: SessionSettings): SessionSettings {
   return {
-    ...settings,
+   ...settings,
     sessionSeconds: Math.min(300, Math.max(30, settings.sessionSeconds)),
     maxSteps: Math.min(40, Math.max(1, settings.maxSteps)),
     dwellMs: Math.min(3000, Math.max(500, settings.dwellMs)),
@@ -90,6 +90,6 @@ export function recommendNextSettings(metrics: {
   if (metrics.gazeLostCount >= 3) return "Часто терялся взгляд: проверь посадку и увеличь цели.";
   if (metrics.targetCancels >= 4) return "Много отмен выбора: увеличь dwell или размер целей.";
   if (metrics.mistakes > metrics.successes) return "Ошибок больше успехов: включи подсказки или gentle preset.";
-  if (metrics.successes >= 8 && metrics.mistakes === 0) return "Сессия стабильная: можно аккуратно усложнить следующий запуск.";
+  if (metrics.successes >= 8 && metrics.mistakes === 0) return "Сессия стабильная: можно усложнить следующий запуск.";
   return "Настройки подходят для повторного запуска.";
 }

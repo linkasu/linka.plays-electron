@@ -91,7 +91,7 @@ function applyMove(state: RouteSnakeState, direction: SnakeDirection, event: Rou
   const nextSnake = ateFood ? [head, ...state.snake] : [head, ...state.snake.slice(0, -1)];
   const nextEvent = ateFood ? "ate-food" : event;
   const nextState = {
-    ...state,
+   ...state,
     snake: nextSnake,
     direction,
     food: ateFood ? placeFood(state.width, state.height, nextSnake, state.food) : state.food,

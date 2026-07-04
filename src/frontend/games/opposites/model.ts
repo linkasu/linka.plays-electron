@@ -33,7 +33,7 @@ export const oppositePairs: OppositePair[] = [
   { id: "light", concepts: [concept("day", "день", "☀️", "amber"), concept("night", "ночь", "🌙", "blue")] },
   { id: "state", concepts: [concept("open", "открытый", "🚪", "green"), concept("closed", "закрытый", "🔒", "blue-grey")] },
   { id: "direction", concepts: [concept("up", "вверх", "⬆️", "purple"), concept("down", "вниз", "⬇️", "cyan")] },
-  { id: "speed", concepts: [concept("fast", "быстрый", "🐇", "pink"), concept("slow", "медленный", "🐢", "lime")] },
+  { id: "speed", concepts: [concept("fast", "быстрый", "🐇", "pink"), concept("slow", "", "🐢", "lime")] },
   { id: "amount", concepts: [concept("full", "полный", "🧺", "brown"), concept("empty", "пустой", "⭕", "grey")] },
   { id: "emotion", concepts: [concept("happy", "весёлый", "🙂", "yellow"), concept("sad", "грустный", "🙁", "blue")] }
 ];

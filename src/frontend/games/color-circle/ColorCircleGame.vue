@@ -93,7 +93,7 @@ function answer(color: ColorCircleColor) {
 
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: color.id, expected: round.value.target.label, actual: color.label, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, message: "Показан нужный цвет перед следующим кругом." });
-  feedbackText.value = `Это ${color.label}. Нужен был ${round.value.target.label}. Следующий круг спокойно.`;
+  feedbackText.value = `Это ${color.label}. Нужен был ${round.value.target.label}. Следующий круг.`;
   void colorCircleFeedback.playMistake(session.settings.sound);
   playResponseTts(`color-circle.${color.id}`);
   revealedTargetId.value = round.value.target.id;
@@ -262,48 +262,48 @@ onUnmounted(() => {
 }
 
 @media (max-height: 920px) {
-  .color-circle-container {
+ .color-circle-container {
     align-items: flex-start !important;
     padding-block-start: 5.9rem;
   }
 
-  .color-circle-card {
+ .color-circle-card {
     padding-block: 0.9rem !important;
   }
 
-  .color-circle-overline,
-  .color-circle-feedback {
+ .color-circle-overline,
+ .color-circle-feedback {
     display: none;
   }
 
-  .color-circle-title {
+ .color-circle-title {
     font-size: clamp(2rem, 5vw, 3rem) !important;
     margin-block-end: 0.45rem !important;
   }
 
-  .target-chip {
+ .target-chip {
     font-size: clamp(1rem, 2.1vw, 1.45rem);
     margin-block-end: 0.75rem !important;
     padding: 0.45rem 1rem;
   }
 
-  .color-circle-board {
+ .color-circle-board {
     border-width: 0.5rem;
     gap: 0.35rem;
     inline-size: min(76vw, 43vh, 27rem);
   }
 
-  .color-sector {
+ .color-sector {
     min-block-size: 0;
   }
 }
 
 @media (max-width: 600px) {
-  .color-circle-container {
+ .color-circle-container {
     padding-block-start: 6.75rem;
   }
 
-  .color-circle-board {
+ .color-circle-board {
     inline-size: min(88vw, 31rem);
   }
 }

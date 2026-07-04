@@ -47,9 +47,9 @@ const insideBalance = ref(false);
 const resultVisible = computed(() => session.status === "finished");
 const progressPercent = computed(() => Math.round(holdProgress.value * 100));
 const guideText = computed(() => {
-  if (session.status === "paused") return "Пауза. Шар остаётся на месте и спокойно ждёт.";
-  if (!pointer.value.valid) return "Можно вести шар взглядом или мышью. Зона баланса широкая и не спешит.";
-  if (!insideBalance.value) return "Верни шар в мягкую светлую зону. Прогресс просто ждёт.";
+  if (session.status === "paused") return "Пауза. Шар остаётся на месте и ждёт.";
+  if (!pointer.value.valid) return "Можно вести шар взглядом или мышью. Зона баланса остаётся широкой.";
+  if (!insideBalance.value) return "Верни шар в светлую зону. Прогресс просто ждёт.";
   return "Удерживай шар в зоне баланса ещё немного.";
 });
 
@@ -367,7 +367,7 @@ onMounted(() => {
       <div class="text-caption text-medium-emphasis mt-2">Прогресс сохраняется и ждёт возвращения в зону.</div>
     </v-card>
 
-    <div class="quiet-controls d-flex align-center ga-1 pa-1">
+    <div class="compact-controls d-flex align-center ga-1 pa-1">
       <v-btn aria-label="В меню" color="surface" density="comfortable" icon="mdi-arrow-left" size="small" variant="text" @click="router.push(resolveMenuRoute())" />
       <v-btn
         :aria-label="session.status === 'paused' ? 'Продолжить' : 'Пауза'"
@@ -409,7 +409,7 @@ onMounted(() => {
   z-index: 2;
 }
 
-.quiet-controls {
+.compact-controls {
   background: rgb(255 255 255 / 36%);
   border: 0.0625rem solid rgb(255 255 255 / 42%);
   border-radius: 1.125rem;
@@ -422,13 +422,13 @@ onMounted(() => {
   z-index: 3;
 }
 
-.quiet-controls:focus-within,
-.quiet-controls:hover {
+.compact-controls:focus-within,
+.compact-controls:hover {
   opacity: 0.95;
 }
 
 @media (max-width: 42.5rem) {
-  .balancer-card {
+ .balancer-card {
     inset-block-start: auto;
     inset-block-end: max(1rem, env(safe-area-inset-bottom));
   }

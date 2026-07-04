@@ -26,13 +26,13 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 
 const reveals: DoorReveal[] = [
   { icon: "mdi-lightbulb-on", label: "тёплый свет", glow: "#ffe5a3", ttsId: "open-door.warm-light" },
-  { icon: "mdi-heart", label: "мягкое сердце", glow: "#ffc2d6", ttsId: "open-door.pink-heart" },
-  { icon: "mdi-flower", label: "тихий цветок", glow: "#c9f4c7", ttsId: "open-door.green-flower" },
-  { icon: "mdi-star", label: "спокойная звезда", glow: "#f9e7ff", ttsId: "open-door.violet-star" },
+  { icon: "mdi-heart", label: "розовое сердце", glow: "#ffc2d6", ttsId: "open-door.pink-heart" },
+  { icon: "mdi-flower", label: "зелёный цветок", glow: "#c9f4c7", ttsId: "open-door.green-flower" },
+  { icon: "mdi-star", label: "фиолетовая звезда", glow: "#f9e7ff", ttsId: "open-door.violet-star" },
   { icon: "mdi-weather-sunny", label: "лучик солнца", glow: "#ffdf8a", ttsId: "open-door.sun-ray" },
   { icon: "mdi-cloud", label: "пушистое облако", glow: "#d7ecff", ttsId: "open-door.fluffy-cloud" },
-  { icon: "mdi-music-note", label: "тихая нота", glow: "#d8d1ff", ttsId: "open-door.music-note" },
-  { icon: "mdi-creation", label: "мягкая искра", glow: "#ffe7bd", ttsId: "open-door.gold-spark" }
+  { icon: "mdi-music-note", label: "нота", glow: "#d8d1ff", ttsId: "open-door.music-note" },
+  { icon: "mdi-creation", label: "золотая искра", glow: "#ffe7bd", ttsId: "open-door.gold-spark" }
 ];
 
 const doorOpen = ref(false);
@@ -323,12 +323,12 @@ onUnmounted(() => {
 }
 
 @media (max-width: 640px) {
-  .open-door-container {
+ .open-door-container {
     align-items: flex-start !important;
     padding-block-start: 82px;
   }
 
-  .open-door-stage {
+ .open-door-stage {
     min-block-size: 330px;
   }
 }

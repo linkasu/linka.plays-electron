@@ -40,14 +40,14 @@ const isPaymentRound = computed(() => round.value.taskKind === "pay-coins");
 const isShoppingListRound = computed(() => round.value.taskKind === "shopping-list");
 const selectedTotal = computed(() => selectedCoins.value.reduce((sum, coin) => sum + coin, 0));
 const selectedShoppingItems = computed(() => selectedItemIds.value
-  .map((id) => round.value.choices.find((item) => item.id === id))
-  .filter((item): item is ShopItem => Boolean(item)));
+ .map((id) => round.value.choices.find((item) => item.id === id))
+ .filter((item): item is ShopItem => Boolean(item)));
 const targetListText = computed(() => round.value.targetItems.map((item) => item.label).join(" и "));
 const shoppingTotal = computed(() => selectedShoppingItems.value.reduce((sum, item) => sum + item.price, 0));
 const targetItemIds = computed(() => new Set(round.value.correctItemIds));
 const shoppingReady = computed(() => validateShopShoppingCart(round.value, selectedItemIds.value));
 const selectedCoinCounts = computed(() => round.value.coins.map((coin) => ({
-  ...coin,
+ ...coin,
   count: selectedCoins.value.filter((selected) => selected === coin.value).length
 })));
 
@@ -399,7 +399,7 @@ onUnmounted(() => {
   box-shadow: inset 0 -0.5rem 2rem rgb(255 255 255 / 18%);
 }
 
-.shop-card--payment .receipt-panel {
+.shop-card--payment.receipt-panel {
   margin-block-end: clamp(0.5rem, 1.2vh, 1rem) !important;
   padding-block: clamp(0.75rem, 1.8vh, 1rem) !important;
 }
@@ -428,7 +428,7 @@ onUnmounted(() => {
   line-height: 1;
 }
 
-.shop-card--payment .receipt-panel__emoji {
+.shop-card--payment.receipt-panel__emoji {
   font-size: clamp(2.5rem, min(5vw, 7vh), 4rem);
 }
 
@@ -440,7 +440,7 @@ onUnmounted(() => {
   text-align: center;
 }
 
-.shop-card--payment .receipt-panel__price {
+.shop-card--payment.receipt-panel__price {
   font-size: clamp(3rem, min(8vw, 10vh), 5.25rem);
   margin-block: clamp(0.2rem, 0.8vh, 0.5rem);
 }
@@ -454,7 +454,7 @@ onUnmounted(() => {
   min-block-size: 3.25rem;
 }
 
-.shop-card--payment .selected-coins {
+.shop-card--payment.selected-coins {
   min-block-size: clamp(2.25rem, 5vh, 3rem);
 }
 
@@ -472,7 +472,7 @@ onUnmounted(() => {
   min-block-size: 3.25rem;
 }
 
-.shop-card--payment .selected-coin {
+.shop-card--payment.selected-coin {
   font-size: clamp(1.25rem, 3vh, 1.75rem);
   inline-size: clamp(2.25rem, 5vh, 3rem);
   min-block-size: clamp(2.25rem, 5vh, 3rem);
@@ -497,7 +497,7 @@ onUnmounted(() => {
   min-block-size: clamp(5.25rem, min(14vw, 16vh), 7.75rem);
 }
 
-.shop-card--payment .coin-card__value {
+.shop-card--payment.coin-card__value {
   font-size: clamp(2.75rem, min(7vw, 9vh), 4.75rem);
   inline-size: clamp(4.5rem, min(10vw, 12vh), 6.25rem);
   min-block-size: clamp(4.5rem, min(10vw, 12vh), 6.25rem);
@@ -510,64 +510,64 @@ onUnmounted(() => {
 }
 
 @media (min-width: 68.75rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 7.25rem;
   }
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 11rem;
   }
 
-  .basket-panel {
+ .basket-panel {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-height: 44rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4.75rem;
   }
 
-  .shop-card {
+ .shop-card {
     padding-block: 1rem !important;
   }
 
-  .shop-card .text-overline,
-  .shop-card h1,
-  .shop-card .v-alert {
+ .shop-card .text-overline,
+ .shop-card h1,
+ .shop-card .v-alert {
     display: none;
   }
 
-  .shop-choice-col {
+ .shop-choice-col {
     flex: 0 0 25% !important;
     max-inline-size: 25% !important;
   }
 
-  .choice-row :deep(.dwell-button) {
+ .choice-row :deep(.dwell-button) {
     min-block-size: 10rem !important;
     padding: 0.5rem !important;
   }
 
-  .basket-panel {
+ .basket-panel {
     gap: 0.5rem;
     grid-template-columns: minmax(0, 1fr) minmax(12rem, 18rem);
     margin-block-start: 0.5rem !important;
     padding-block: 0.5rem !important;
   }
 
-  .item-card,
-  .coin-card {
+ .item-card,
+ .coin-card {
     min-block-size: 7rem;
   }
 
-  .item-card__emoji {
+ .item-card__emoji {
     font-size: 3.25rem;
     margin-block-end: 0.35rem;
   }
 
-  .item-card__label {
+ .item-card__label {
     font-size: 1.35rem !important;
   }
 }

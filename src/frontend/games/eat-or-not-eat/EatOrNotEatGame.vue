@@ -139,36 +139,36 @@ onUnmounted(() => {
 }
 
 @media (max-height: 42rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 5rem;
   }
 
-  .eat-card {
+ .eat-card {
     padding: 1rem !important;
   }
 
-  .eat-card > .text-overline {
+ .eat-card >.text-overline {
     display: none;
   }
 
-  .item-display {
+ .item-display {
     margin-block-end: 0.9rem !important;
   }
 
-  .item-display h1 {
+ .item-display h1 {
     font-size: clamp(2rem, 6vh, 2.5rem) !important;
   }
 
-  .item-display p {
+ .item-display p {
     font-size: 1rem !important;
   }
 
-  .item-emoji,
-  .choice-emoji {
+ .item-emoji,
+ .choice-emoji {
     font-size: clamp(3rem, 9vh, 4.25rem);
   }
 
-  .eat-card :deep(.dwell-button) {
+ .eat-card :deep(.dwell-button) {
     min-block-size: 10rem !important;
   }
 }

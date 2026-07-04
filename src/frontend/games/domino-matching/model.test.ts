@@ -19,7 +19,7 @@ function stateWith(overrides: Partial<DominoGameState>): DominoGameState {
     boneyard: [],
     status: "playing",
     lastMessage: "",
-    ...overrides
+   ...overrides
   };
 }
 

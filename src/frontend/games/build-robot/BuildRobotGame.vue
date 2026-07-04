@@ -39,8 +39,8 @@ const feedbackText = computed(() => {
 });
 const partById = computed(() => Object.fromEntries(round.value.choices.map((part) => [part.id, part])) as Record<RobotPartId, RobotPart>);
 const displayedPartIds = computed(() => new Set<RobotPartId>([
-  ...round.value.completedPartIds,
-  ...(successPartId.value ? [successPartId.value] : [])
+ ...round.value.completedPartIds,
+ ...(successPartId.value ? [successPartId.value] : [])
 ]));
 
 function choiceTargetId(part: RobotPart) {
@@ -236,7 +236,7 @@ onUnmounted(() => {
 
             <v-expand-transition>
               <v-alert v-if="hintedRoundId === round.roundId" class="mt-3 text-body-1 font-weight-bold" color="primary" icon="mdi-lightbulb-on-outline" rounded="xl" variant="tonal">
-                Можно спокойно попробовать ещё раз.
+                Можно попробовать ещё раз.
               </v-alert>
             </v-expand-transition>
           </v-card>
@@ -373,15 +373,15 @@ onUnmounted(() => {
   position: absolute;
 }
 
-.robot-slot .part-art::before,
-.robot-slot .part-art::after,
-.robot-slot .part-art__detail {
+.robot-slot.part-art::before,
+.robot-slot.part-art::after,
+.robot-slot.part-art__detail {
   border-color: rgb(69 88 96 / 34%);
 }
 
 .part-art--ghost::before,
 .part-art--ghost::after,
-.part-art--ghost .part-art__detail {
+.part-art--ghost.part-art__detail {
   background: rgb(248 252 253 / 86%);
   border-color: rgb(69 88 96 / 34%);
   box-shadow: none;
@@ -403,8 +403,8 @@ onUnmounted(() => {
   inset-inline-start: 41%;
 }
 
-.part-art--head .part-art__detail--one,
-.part-art--head .part-art__detail--two {
+.part-art--head.part-art__detail--one,
+.part-art--head.part-art__detail--two {
   background: #243238;
   block-size: 12%;
   border: 0;
@@ -414,15 +414,15 @@ onUnmounted(() => {
   inset-block-start: 50%;
 }
 
-.part-art--head .part-art__detail--one {
+.part-art--head.part-art__detail--one {
   inset-inline-start: 34%;
 }
 
-.part-art--head .part-art__detail--two {
+.part-art--head.part-art__detail--two {
   inset-inline-end: 34%;
 }
 
-.part-art--head .part-art__detail--three {
+.part-art--head.part-art__detail--three {
   background: rgb(255 255 255 / 86%);
   block-size: 10%;
   border: 0;
@@ -453,9 +453,9 @@ onUnmounted(() => {
   inset-inline-start: 34.5%;
 }
 
-.part-art--body .part-art__detail--one,
-.part-art--body .part-art__detail--two,
-.part-art--body .part-art__detail--three {
+.part-art--body.part-art__detail--one,
+.part-art--body.part-art__detail--two,
+.part-art--body.part-art__detail--three {
   block-size: 10%;
   border: 0;
   border-radius: 999px;
@@ -464,17 +464,17 @@ onUnmounted(() => {
   inset-block-start: 70%;
 }
 
-.part-art--body .part-art__detail--one {
+.part-art--body.part-art__detail--one {
   background: #ef6f8f;
   inset-inline-start: 37%;
 }
 
-.part-art--body .part-art__detail--two {
+.part-art--body.part-art__detail--two {
   background: #ffe082;
   inset-inline-start: 47%;
 }
 
-.part-art--body .part-art__detail--three {
+.part-art--body.part-art__detail--three {
   background: #7fd3c6;
   inset-inline-start: 57%;
 }
@@ -497,8 +497,8 @@ onUnmounted(() => {
   transform: rotate(28deg);
 }
 
-.part-art--arms .part-art__detail--one,
-.part-art--arms .part-art__detail--two {
+.part-art--arms.part-art__detail--one,
+.part-art--arms.part-art__detail--two {
   background: color-mix(in srgb, var(--part-color) 72%, white);
   block-size: 33%;
   border-radius: 999px 999px 1rem 1rem;
@@ -506,17 +506,17 @@ onUnmounted(() => {
   inset-block-start: 50%;
 }
 
-.part-art--arms .part-art__detail--one {
+.part-art--arms.part-art__detail--one {
   inset-inline-start: 10%;
   transform: rotate(-24deg);
 }
 
-.part-art--arms .part-art__detail--two {
+.part-art--arms.part-art__detail--two {
   inset-inline-end: 10%;
   transform: rotate(24deg);
 }
 
-.part-art--arms .part-art__detail--three {
+.part-art--arms.part-art__detail--three {
   display: none;
 }
 
@@ -559,7 +559,7 @@ onUnmounted(() => {
   transform: rotate(14deg);
 }
 
-.part-art--arm-side .part-art__detail {
+.part-art--arm-side.part-art__detail {
   display: none;
 }
 
@@ -581,8 +581,8 @@ onUnmounted(() => {
   transform: rotate(9deg);
 }
 
-.part-art--legs .part-art__detail--one,
-.part-art--legs .part-art__detail--two {
+.part-art--legs.part-art__detail--one,
+.part-art--legs.part-art__detail--two {
   background: color-mix(in srgb, var(--part-color) 76%, #263238);
   block-size: 15%;
   border-radius: 999px;
@@ -590,54 +590,54 @@ onUnmounted(() => {
   inset-block-start: 68%;
 }
 
-.part-art--legs .part-art__detail--one {
+.part-art--legs.part-art__detail--one {
   inset-inline-start: 21%;
   transform: rotate(-8deg);
 }
 
-.part-art--legs .part-art__detail--two {
+.part-art--legs.part-art__detail--two {
   inset-inline-end: 21%;
   transform: rotate(8deg);
 }
 
-.part-art--legs .part-art__detail--three {
+.part-art--legs.part-art__detail--three {
   display: none;
 }
 
 @media (max-width: 600px) {
-  .game-container {
+ .game-container {
     overflow-y: auto;
     padding-block-start: 7.5rem;
   }
 
-  .build-robot-shell {
+ .build-robot-shell {
     overflow-y: auto;
   }
 
-  .robot-card {
+ .robot-card {
     max-block-size: none;
   }
 
-  .robot-slot {
+ .robot-slot {
     min-block-size: 7.25rem;
   }
 
-  .robot-middle-row {
+ .robot-middle-row {
     grid-template-columns: minmax(4rem, 0.72fr) minmax(6.5rem, 1.45fr) minmax(4rem, 0.72fr);
   }
 }
 
 @media (max-height: 820px) {
-  .game-container {
+ .game-container {
     padding-block-start: 4.4rem;
   }
 
-  .robot-slot {
+ .robot-slot {
     min-block-size: clamp(4.6rem, 10vh, 6.2rem);
   }
 
-  .part-art,
-  .part-art--choice {
+ .part-art,
+ .part-art--choice {
     block-size: clamp(2.55rem, min(5.3vw, 7.4vh), 3.9rem);
     inline-size: clamp(3.4rem, min(7vw, 9.6vh), 5.1rem);
   }

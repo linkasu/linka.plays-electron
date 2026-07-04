@@ -126,7 +126,7 @@ onUnmounted(() => {
             <div class="text-overline text-secondary text-center mb-2">Размер и слово</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
             <v-alert v-if="hint" class="mb-5 text-body-1 font-weight-bold" color="warning" icon="mdi-lightbulb-outline" rounded="xl" variant="tonal">
-              {{ hint }} Посмотри ещё раз спокойно.
+              {{ hint }} Посмотри ещё раз.
             </v-alert>
             <v-row class="choice-row" dense>
               <v-col v-for="(choice, index) in round.choices" :key="choice.choiceId" cols="12" sm="6" md="6">
@@ -193,21 +193,21 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 9.25rem;
   }
 }
 
 @media (max-height: 42rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 5rem;
   }
 
-  .choice-row :deep(.dwell-button) {
+ .choice-row :deep(.dwell-button) {
     min-block-size: 12.5rem !important;
   }
 
-  .choice-emoji--big {
+ .choice-emoji--big {
     font-size: clamp(5.5rem, min(14vw, 17vh), 8rem);
   }
 }

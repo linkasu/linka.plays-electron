@@ -27,7 +27,7 @@ export const iWantCards: IWantCard[] = [
 ];
 
 export function buildIWantPhrase(card: IWantCard | undefined) {
-  return card ? `Я хочу ${card.phrase}` : "Я хочу ...";
+  return card ? `Я хочу ${card.phrase}` : "Я хочу...";
 }
 
 export function generateIWantRound(roundIndex = 1): IWantRound {

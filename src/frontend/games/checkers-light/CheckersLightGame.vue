@@ -427,60 +427,60 @@ onUnmounted(() => {
 }
 
 @media (max-height: 68rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4.5rem;
   }
 
-  .game-card {
+ .game-card {
     padding-block: 1rem !important;
   }
 
-  .game-header {
+ .game-header {
     margin-block-end: 0.8rem !important;
   }
 
-  .game-header .text-overline,
-  .game-header p,
-  .feedback-alert,
-  .game-card .v-btn {
+ .game-header .text-overline,
+ .game-header p,
+ .feedback-alert,
+ .game-card .v-btn {
     display: none !important;
   }
 
-  .board {
+ .board {
     inline-size: min(94vw, 39rem, 70vh);
   }
 }
 
 @media (max-height: 42.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4.25rem;
   }
 
-  .game-header {
+ .game-header {
     display: none !important;
   }
 
-  .board {
+ .board {
     gap: 0.18rem;
     inline-size: min(94vw, 29rem, 58vh);
   }
 
-  .board-cell :deep(.dwell-button) {
+ .board-cell :deep(.dwell-button) {
     min-block-size: 2.65rem !important;
     padding: 0.2rem !important;
   }
 
-  .cell-content {
+ .cell-content {
     min-block-size: 2.35rem;
   }
 
-  .piece-label,
-  .cell-coordinate {
+ .piece-label,
+ .cell-coordinate {
     display: none;
   }
 
-  .piece :deep(.v-icon),
-  .move-cue :deep(.v-icon) {
+ .piece :deep(.v-icon),
+ .move-cue :deep(.v-icon) {
     font-size: 1.95rem;
   }
 }

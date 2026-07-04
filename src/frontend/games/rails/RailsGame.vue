@@ -34,8 +34,8 @@ type TrainChoice = {
 };
 
 const trainChoices: TrainChoice[] = [
-  { id: "blue", title: "Синий", label: "спокойный синий", body: "#6177d8", accent: "#dbe4ff", icon: "mdi-train" },
-  { id: "green", title: "Зелёный", label: "мягкий зелёный", body: "#43a878", accent: "#dcf7e9", icon: "mdi-train-car" },
+  { id: "blue", title: "Синий", label: "синий", body: "#6177d8", accent: "#dbe4ff", icon: "mdi-train" },
+  { id: "green", title: "Зелёный", label: "зелёный", body: "#43a878", accent: "#dcf7e9", icon: "mdi-train-car" },
   { id: "orange", title: "Тёплый", label: "тёплый поезд", body: "#df8b3f", accent: "#fff0d8", icon: "mdi-train" }
 ];
 
@@ -55,11 +55,11 @@ const progressPercent = computed(() => Math.round(train.visualRatio * 100));
 const activeStation = computed(() => Math.min(session.maxSteps, session.step + 1));
 const stationDwellPercent = computed(() => Math.round(Math.min(1, train.dwellMs / session.settings.dwellMs) * 100));
 const guidanceText = computed(() => {
-  if (!selectedTrain.value) return "Выбери поезд взглядом, затем веди его по плавным рельсам.";
-  if (session.status === "paused") return "Пауза. Поезд спокойно ждёт на рельсах.";
-  if (!pointer.value.valid) return "Можно вести поезд взглядом или мышью. Рельсы спокойно ждут.";
+  if (!selectedTrain.value) return "Выбери поезд взглядом, затем веди его по изогнутым рельсам.";
+  if (session.status === "paused") return "Пауза. Поезд ждёт на рельсах.";
+  if (!pointer.value.valid) return "Можно вести поезд взглядом или мышью. Рельсы ждут.";
   if (train.dwellMs > 0) return `Станция ${activeStation.value}: удержи взгляд ещё немного, ${stationDwellPercent.value}%.`;
-  if (train.hint > 0.35) return "Верни взгляд к светлым рельсам или ближайшей станции. Поезд спокойно остаётся на пути.";
+  if (train.hint > 0.35) return "Верни взгляд к светлым рельсам или ближайшей станции. Поезд остаётся на пути.";
   return `Веди ${selectedTrain.value.label} к станции ${activeStation.value}.`;
 });
 
@@ -150,7 +150,7 @@ function railSamples(): RailSample[] {
     const previous = raw[Math.max(0, index - 1)];
     const next = raw[Math.min(raw.length - 1, index + 1)];
     return {
-      ...point,
+     ...point,
       ratio: lengths[index] / total,
       angle: Math.atan2(next.y - previous.y, next.x - previous.x)
     };
@@ -190,7 +190,7 @@ function projectToRail(point: Point, samples: RailSample[]): Projection {
     const candidateDistance = distance(point, candidate);
     if (candidateDistance < best.distance) {
       best = {
-        ...candidate,
+       ...candidate,
         distance: candidateDistance,
         ratio: start.ratio + (end.ratio - start.ratio) * t
       };
@@ -547,7 +547,7 @@ useGameLoop({ context, update, draw });
     <GameHud title="Рельсы" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
 
     <v-card class="rails-guidance pa-4" color="surface" rounded="xl" variant="flat">
-      <div class="text-overline text-primary mb-1">Плавное ведение</div>
+      <div class="text-overline text-primary mb-1">Ведение взглядом</div>
       <div class="text-body-1 font-weight-medium">{{ guidanceText }}</div>
       <v-progress-linear class="mt-3" :model-value="progressPercent" color="primary" height="0.5rem" rounded />
       <div class="text-caption text-medium-emphasis mt-2">Прогресс: {{ progressPercent }}% · станция {{ activeStation }} из {{ session.maxSteps }}</div>
@@ -558,7 +558,7 @@ useGameLoop({ context, update, draw });
         <div class="text-overline text-secondary text-center mb-2">Выбор поезда</div>
         <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">Рельсы</h1>
         <p class="text-body-1 text-md-h6 text-medium-emphasis text-center mb-5">
-          Выбери поезд взглядом. Потом веди его по светлым рельсам через станции. Поезд спокойно остаётся на пути.
+          Выбери поезд взглядом. Потом веди его по светлым рельсам через станции. Поезд остаётся на пути.
         </p>
 
         <v-row>
@@ -619,13 +619,13 @@ useGameLoop({ context, update, draw });
   color: #17212b !important;
 }
 
-.rails-picker-card :deep(.dwell-button--active) .train-choice-title,
-.rails-picker-card :deep(.dwell-button--active) .train-choice-caption {
+.rails-picker-card :deep(.dwell-button--active).train-choice-title,
+.rails-picker-card :deep(.dwell-button--active).train-choice-caption {
   color: #ffffff !important;
 }
 
 @media (max-width: 45rem) {
-  .rails-guidance {
+ .rails-guidance {
     inset-block-start: auto;
     inset-block-end: max(1rem, env(safe-area-inset-bottom));
     inset-inline: 1rem;

@@ -666,114 +666,114 @@ onUnmounted(() => {
 }
 
 @media (max-width: 75rem) {
-  .game-card {
+ .game-card {
     max-block-size: none;
     overflow: visible;
   }
 
-  .game-layout {
+ .game-layout {
     grid-template-columns: 1fr 1fr;
   }
 
-  .game-layout--setup {
+ .game-layout--setup {
     grid-template-columns: minmax(14rem, 0.55fr) minmax(22rem, 1fr);
   }
 
-  .boards-panel {
+ .boards-panel {
     grid-column: 1 / -1;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 48rem) {
-  .game-layout,
-  .game-layout--setup,
-  .boards-panel {
+ .game-layout,
+ .game-layout--setup,
+ .boards-panel {
     grid-template-columns: 1fr;
   }
 
-  .setup-field-row {
+ .setup-field-row {
     grid-template-columns: 1fr;
   }
 
-  .setup-gaze-actions {
+ .setup-gaze-actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-height: 42.5rem) and (min-width: 75.01rem) {
-  .game-card h1,
-  .game-card p,
-  .game-card .text-overline {
+ .game-card h1,
+ .game-card p,
+ .game-card .text-overline {
     display: none;
   }
 
-  .game-layout {
+ .game-layout {
     grid-template-columns: minmax(14rem, 0.7fr) minmax(17rem, 1fr) minmax(11rem, 0.5fr);
   }
 }
 
 @media (max-height: 42.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4.5rem;
   }
 
-  .game-card {
+ .game-card {
     padding: 0.75rem !important;
   }
 
-  .game-card h1,
-  .game-card p,
-  .game-card .text-overline,
-  .boards-panel {
+ .game-card h1,
+ .game-card p,
+ .game-card .text-overline,
+ .boards-panel {
     display: none;
   }
 
-  .game-layout {
+ .game-layout {
     gap: 0.7rem;
     grid-template-columns: minmax(16rem, 0.85fr) minmax(18rem, 1fr);
   }
 
-  .game-layout--setup {
+ .game-layout--setup {
     grid-template-columns: minmax(13rem, 0.5fr) minmax(25rem, 1fr);
   }
 
-  .setup-field-row {
+ .setup-field-row {
     grid-template-columns: minmax(0, 1fr) minmax(8rem, 0.3fr);
   }
 
-  .setup-gaze-actions :deep(.dwell-button) {
+ .setup-gaze-actions :deep(.dwell-button) {
     min-block-size: clamp(3.2rem, 8dvh, 4.6rem) !important;
   }
 
-  .control-panel {
+ .control-panel {
     gap: 0.45rem;
   }
 
-  .control-panel :deep(.v-alert) {
+ .control-panel :deep(.v-alert) {
     display: none;
   }
 
-  .active-grid {
+ .active-grid {
     max-inline-size: min(100%, 25rem);
   }
 
-  .setup-overview-grid {
+ .setup-overview-grid {
     inline-size: min(100%, 29rem, 72dvh);
     max-inline-size: min(100%, 29rem, 72dvh);
   }
 
-  .battle-board-grid {
+ .battle-board-grid {
     inline-size: min(100%, 29rem, 72dvh);
     max-inline-size: min(100%, 29rem, 72dvh);
   }
 
-  .active-grid :deep(.dwell-button) {
+ .active-grid :deep(.dwell-button) {
     min-block-size: clamp(2.45rem, 7dvh, 4rem) !important;
   }
 
-  .sector-grid :deep(.dwell-button) {
+ .sector-grid :deep(.dwell-button) {
     min-block-size: clamp(2.45rem, 6.4dvh, 3.6rem) !important;
   }
 }

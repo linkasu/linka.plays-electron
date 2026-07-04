@@ -255,52 +255,52 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
-  .comic-card {
+ .comic-card {
     padding-block: 1.25rem !important;
   }
 
-  .comic-overline {
+ .comic-overline {
     display: none;
   }
 
-  .comic-title {
+ .comic-title {
     font-size: clamp(2.1rem, 6vh, 2.9rem) !important;
     line-height: 1 !important;
     margin-block-end: 0.5rem !important;
   }
 
-  .comic-prompt,
-  .comic-feedback {
+ .comic-prompt,
+ .comic-feedback {
     margin-block-end: 0.35rem !important;
   }
 
-  .comic-hint-card {
+ .comic-hint-card {
     display: none;
   }
 
-  .comic-slot {
+ .comic-slot {
     min-block-size: 9.5rem;
   }
 
-  .comic-choice :deep(.dwell-button) {
+ .comic-choice :deep(.dwell-button) {
     padding-block: 1rem !important;
   }
 
-  .choice-frame__note {
+ .choice-frame__note {
     display: none;
   }
 }
 
 @media (max-height: 57.5rem) {
-  .comic-slot {
+ .comic-slot {
     min-block-size: 5.25rem;
     padding-block: 0.75rem !important;
   }
 
-  .comic-slot .v-avatar,
-  .comic-slot .text-body-1,
-  .comic-slot .text-h6,
-  .comic-slot .text-md-h5 {
+ .comic-slot.v-avatar,
+ .comic-slot .text-body-1,
+ .comic-slot .text-h6,
+ .comic-slot .text-md-h5 {
     display: none;
   }
 }

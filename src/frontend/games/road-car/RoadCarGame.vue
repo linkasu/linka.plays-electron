@@ -318,7 +318,7 @@ useGameLoop({ context, update, draw });
 
 <template>
   <div class="road-car-shell">
-    <canvas ref="canvasRef" class="road-car-canvas" aria-label="Игра Плавная машинка: 4-полосное шоссе" />
+    <canvas ref="canvasRef" class="road-car-canvas" aria-label="Игра Машинка на дороге: 4-полосное шоссе" />
 
     <v-card class="road-car-hint px-4 py-3" color="surface" rounded="xl" variant="flat">
       <div class="text-body-2 font-weight-medium">{{ guidanceText }}</div>
@@ -326,7 +326,7 @@ useGameLoop({ context, update, draw });
     </v-card>
 
     <GameHud
-      title="Плавная машинка"
+      title="Машинка на дороге"
       :step="session.step"
       :max-steps="session.maxSteps"
       :score="session.score"
@@ -340,7 +340,7 @@ useGameLoop({ context, update, draw });
 
     <GameResultDialog
       :model-value="resultVisible"
-      title="Плавная машинка"
+      title="Машинка на дороге"
       :score="session.score"
       :mistakes="session.mistakes"
       :duration-ms="durationMs"
@@ -378,7 +378,7 @@ useGameLoop({ context, update, draw });
 }
 
 @media (max-width: 45rem), (max-height: 40rem) {
-  .road-car-hint {
+ .road-car-hint {
     display: none;
   }
 }

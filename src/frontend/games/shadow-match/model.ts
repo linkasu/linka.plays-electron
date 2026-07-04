@@ -23,7 +23,7 @@ export const shadowMatchItems: ShadowMatchItem[] = [
   { id: "fish", label: "рыбка", icon: "mdi-fish", color: "cyan", hint: "у тени есть хвостик" },
   { id: "duck", label: "утка", icon: "mdi-duck", color: "amber", hint: "тень похожа на уточку" },
   { id: "star", label: "звезда", icon: "mdi-star-outline", color: "yellow-darken-2", hint: "у тени острые лучики" },
-  { id: "cloud", label: "облако", icon: "mdi-cloud-outline", color: "blue-lighten-1", hint: "тень мягкая и круглая" },
+  { id: "cloud", label: "облако", icon: "mdi-cloud-outline", color: "blue-lighten-1", hint: "тень и круглая" },
   { id: "boat", label: "лодочка", icon: "mdi-sail-boat", color: "indigo", hint: "у тени есть парус" },
   { id: "mushroom", label: "грибок", icon: "mdi-mushroom-outline", color: "brown", hint: "у тени широкая шляпка" }
 ];

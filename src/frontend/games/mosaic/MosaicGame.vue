@@ -443,189 +443,189 @@ onUnmounted(() => {
 }
 
 @media (max-width: 58rem) and (min-width: 43rem) {
-  .mosaic-card {
+ .mosaic-card {
     padding-block: 0.75rem !important;
   }
 
-  .mosaic-feedback,
-  .mosaic-attribution {
+ .mosaic-feedback,
+ .mosaic-attribution {
     display: none;
   }
 
-  .mosaic-layout {
+ .mosaic-layout {
     gap: 0.75rem;
     grid-template-columns: minmax(17rem, 0.86fr) minmax(20rem, 1.14fr);
   }
 
-  .mosaic-guide {
+ .mosaic-guide {
     grid-template-columns: minmax(0, 1fr) minmax(9rem, 0.62fr);
   }
 
-  .mosaic-board {
+ .mosaic-board {
     inline-size: min(19rem, calc(100vh - 14.5rem), 100%);
   }
 
-  .mosaic-side {
+ .mosaic-side {
     gap: 0.5rem;
     grid-template-rows: auto 1fr;
   }
 
-  .mosaic-choices {
+ .mosaic-choices {
     gap: 0.45rem;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .mosaic-piece--choice {
+ .mosaic-piece--choice {
     max-inline-size: 4.5rem;
   }
 
-  .mosaic-choices :deep(.dwell-button) {
+ .mosaic-choices :deep(.dwell-button) {
     min-block-size: 6.8rem !important;
     padding: 0.75rem !important;
   }
 }
 
 @media (max-width: 42.99rem) {
-  .mosaic-card {
+ .mosaic-card {
     padding-block: 0.75rem !important;
   }
 
-  .mosaic-feedback,
-  .mosaic-attribution {
+ .mosaic-feedback,
+ .mosaic-attribution {
     display: none;
   }
 
-  .mosaic-layout {
+ .mosaic-layout {
     gap: 0.75rem;
     grid-template-columns: 1fr;
   }
 
-  .mosaic-guide {
+ .mosaic-guide {
     grid-template-columns: 1fr;
   }
 
-  .mosaic-board {
+ .mosaic-board {
     inline-size: min(19rem, 54vh, 82vw);
   }
 
-  .mosaic-side {
+ .mosaic-side {
     gap: 0.5rem;
     grid-template-rows: auto 1fr;
     max-inline-size: none;
   }
 
-  .mosaic-choices {
+ .mosaic-choices {
     gap: 0.45rem;
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
-  .mosaic-piece--choice {
+ .mosaic-piece--choice {
     max-inline-size: 3.75rem;
   }
 
-  .mosaic-choices :deep(.dwell-button) {
+ .mosaic-choices :deep(.dwell-button) {
     min-block-size: 6.75rem !important;
     padding: 0.75rem !important;
   }
 }
 
 @media (max-height: 50rem) and (min-width: 58rem) {
-  .mosaic-card {
+ .mosaic-card {
     padding-block: 0.75rem !important;
   }
 
-  .mosaic-feedback {
+ .mosaic-feedback {
     display: none;
   }
 
-  .mosaic-layout {
+ .mosaic-layout {
     grid-template-columns: minmax(27rem, min(42vw, 32rem)) minmax(30rem, 1fr);
   }
 
-  .mosaic-board {
+ .mosaic-board {
     inline-size: min(32rem, calc(100vh - 9.5rem), 100%);
   }
 
-  .mosaic-side {
+ .mosaic-side {
     gap: 0.5rem;
     grid-template-rows: auto auto;
   }
 
-  .mosaic-attribution {
+ .mosaic-attribution {
     display: none;
   }
 
-  .mosaic-choices {
+ .mosaic-choices {
     gap: 0.5rem;
   }
 
-  .mosaic-choices :deep(.dwell-button) {
+ .mosaic-choices :deep(.dwell-button) {
     min-block-size: 8rem !important;
   }
 
-  .mosaic-piece--choice {
+ .mosaic-piece--choice {
     max-inline-size: clamp(6rem, 7vw, 7.25rem);
   }
 
-  .mosaic-guide {
+ .mosaic-guide {
     gap: 0.75rem;
     grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.58fr);
   }
 }
 
 @media (max-height: 60rem) and (min-width: 70rem) {
-  .mosaic-card {
+ .mosaic-card {
     padding-block: 0.75rem !important;
   }
 
-  .mosaic-feedback,
-  .mosaic-attribution {
+ .mosaic-feedback,
+ .mosaic-attribution {
     display: none;
   }
 
-  .mosaic-layout {
+ .mosaic-layout {
     grid-template-columns: minmax(24rem, min(35vw, 28rem)) minmax(28rem, 1fr);
   }
 
-  .mosaic-board {
+ .mosaic-board {
     inline-size: min(28rem, calc(100dvh - 11rem), 100%);
   }
 
-  .mosaic-side {
+ .mosaic-side {
     gap: 0.5rem;
   }
 
-  .mosaic-choices {
+ .mosaic-choices {
     gap: 0.5rem;
   }
 
-  .mosaic-choices :deep(.dwell-button) {
+ .mosaic-choices :deep(.dwell-button) {
     min-block-size: 7rem !important;
   }
 
-  .mosaic-piece--choice {
+ .mosaic-piece--choice {
     max-inline-size: 5.25rem;
   }
 
-  .mosaic-preview-button-image img {
+ .mosaic-preview-button-image img {
     inline-size: clamp(2.8rem, 4vw, 3.8rem);
   }
 }
 
 @media (max-height: 50rem) and (min-width: 58rem) and (max-width: 70rem) {
-  .mosaic-attribution {
+ .mosaic-attribution {
     display: none;
   }
 
-  .mosaic-layout {
+ .mosaic-layout {
     grid-template-columns: minmax(21rem, 0.9fr) minmax(28rem, 1.1fr);
   }
 
-  .mosaic-board {
+ .mosaic-board {
     inline-size: min(23rem, calc(100vh - 11rem), 100%);
   }
 
-  .mosaic-piece--choice {
+ .mosaic-piece--choice {
     max-inline-size: 5.5rem;
   }
 }

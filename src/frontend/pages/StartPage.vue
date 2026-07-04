@@ -11,10 +11,10 @@ import { rememberMenuMode } from "../core/menuMode";
           <div class="d-flex flex-column flex-md-row align-md-start justify-space-between ga-6 mb-10">
             <div>
               <div class="text-overline text-secondary mb-2">LINKa plays</div>
-              <h1 class="text-h3 text-md-h2 font-weight-bold mb-4">Тихие игры для взгляда</h1>
+              <h1 class="text-h3 text-md-h2 font-weight-bold mb-4"> игры для взгляда</h1>
               <p class="text-h6 text-medium-emphasis mb-0">
-                Спокойные задания помогают тренировать фиксацию, выбор, внимание, слова и счёт. Выберите режим,
-                проверьте взгляд и откройте подходящую игру без спешки.
+                 задания помогают тренировать фиксацию, выбор, внимание, слова и счёт. Выберите режим,
+                проверьте взгляд и откройте подходящую игру.
               </p>
             </div>
             <TobiiStatusBadge />
@@ -43,7 +43,7 @@ import { rememberMenuMode } from "../core/menuMode";
                 </v-avatar>
                 <h2 class="text-h4 font-weight-bold mb-3">Самостоятельно</h2>
                 <p class="text-body-1 text-medium-emphasis mb-6">
-                  Крупные спокойные карточки, меньше текста и больше пространства для выбора взглядом.
+                  Крупные карточки, меньше текста и больше пространства для выбора взглядом.
                 </p>
                 <v-btn block color="secondary" size="x-large" to="/menu/self" variant="flat" @click="rememberMenuMode('self')">
                   Играть самостоятельно

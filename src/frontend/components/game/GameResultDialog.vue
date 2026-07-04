@@ -30,7 +30,7 @@ const finishReasonLabels: Record<string, string> = {
 
 const finishReason = computed(() => props.metrics?.finishReason);
 const resultMessage = computed(() => {
-  if (finishReason.value === "game-lost") return "Партия завершена. Можно спокойно попробовать ещё раз.";
+  if (finishReason.value === "game-lost") return "Партия завершена. Можно попробовать ещё раз.";
   if (finishReason.value === "game-draw") return "Партия завершилась вничью.";
   if (finishReason.value === "too-many-mistakes") return "Сессия завершена: было много сложных попыток.";
   return "Хорошая работа. Сессия завершена.";

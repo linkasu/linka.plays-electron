@@ -196,53 +196,53 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 7.75rem;
   }
 
-  .shape-svg {
+ .shape-svg {
     block-size: 5.75rem;
     inline-size: 5.75rem;
   }
 }
 
 @media (max-height: 40rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 5rem;
   }
 
-  .shapes-card {
+ .shapes-card {
     padding: 1rem !important;
   }
 
-  .shapes-card .text-overline,
-  .shapes-card .v-alert {
+ .shapes-card .text-overline,
+ .shapes-card .v-alert {
     display: none;
   }
 
-  .shapes-card h1 {
+ .shapes-card h1 {
     font-size: 2.55rem !important;
     line-height: 1.05;
     margin-block-end: 0.75rem !important;
   }
 
-  .choice-col {
+ .choice-col {
     flex: 0 0 25% !important;
     max-inline-size: 25% !important;
     min-inline-size: 0;
   }
 
-  .choice-row :deep(.dwell-button) {
+ .choice-row :deep(.dwell-button) {
     min-block-size: 8.25rem !important;
     padding: 0.45rem !important;
   }
 
-  .shape-svg {
+ .shape-svg {
     block-size: 4.75rem;
     inline-size: 4.75rem;
   }
 
-  .shape-wrap .text-h5 {
+ .shape-wrap .text-h5 {
     font-size: 1.2rem !important;
     line-height: 1.1;
   }

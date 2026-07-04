@@ -100,8 +100,8 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
     const targetCancels = session.events.filter((event) => event.type === "target-cancel" && event.payload?.reason !== "disabled").length;
     const dwellEvents = session.events.filter((event) => event.type === "target-click");
     const dwellMs = dwellEvents
-      .map((event) => Number(event.payload?.elapsedMs ?? event.payload?.dwellMs))
-      .filter((value) => Number.isFinite(value));
+     .map((event) => Number(event.payload?.elapsedMs ?? event.payload?.dwellMs))
+     .filter((value) => Number.isFinite(value));
     const meanDwellMs = dwellMs.length ? dwellMs.reduce((sum, value) => sum + value, 0) / dwellMs.length : undefined;
 
     return {

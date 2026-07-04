@@ -345,8 +345,8 @@ useGameLoop({ context, update, draw });
     <canvas ref="canvasRef" class="leaves-wind-canvas" />
 
     <v-card class="leaves-wind-hint px-4 py-3" color="surface" rounded="xl" variant="tonal">
-      <div class="text-body-2 font-weight-medium">Веди взгляд спокойно: листья мягко подхватят ветер.</div>
-      <div class="text-caption text-medium-emphasis">Здесь нет проигрыша, только плавное слежение и отдых.</div>
+      <div class="text-body-2 font-weight-medium">Веди взгляд по ветру: листья подхватят движение.</div>
+      <div class="text-caption text-medium-emphasis">Здесь нет проигрыша, только слежение взглядом и отдых.</div>
     </v-card>
 
     <GameHud

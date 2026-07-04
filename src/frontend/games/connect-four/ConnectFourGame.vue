@@ -56,7 +56,7 @@ const rows = Array.from({ length: connectFourRows }, (_, row) => row);
 const columns = Array.from({ length: connectFourColumns }, (_, column) => column);
 
 const statusText = computed(() => {
-  if (sleeping.value) return "Спокойно думаем над ходом";
+  if (sleeping.value) return " думаем над ходом";
   if (aiThinking.value) return "Компьютер думает над ходом";
   if (playerTurnBlocked.value) return "Пауза перед твоим ходом";
   if (result.value === "R") return "Ты собрал 4 в ряд";
@@ -245,7 +245,7 @@ onUnmounted(() => {
 
 <template>
   <div class="connect-shell">
-    <div class="quiet-controls d-flex align-center ga-2 pa-1">
+    <div class="compact-controls d-flex align-center ga-2 pa-1">
       <GameDwellButton :target-id="menuTargetId()" :disabled="finalizing" :dwell-ms="session.settings.dwellMs" min-height="8.5rem" color="surface" @select="router.push(resolveMenuRoute())">
         <template #default>
           <div class="control-button-content">
@@ -329,18 +329,18 @@ onUnmounted(() => {
   overflow: hidden;
 }
 
-.quiet-controls {
+.compact-controls {
   inset-block-start: max(0.75rem, env(safe-area-inset-top));
   inset-inline-start: max(0.75rem, env(safe-area-inset-left));
   position: fixed;
   z-index: 10;
 }
 
-.quiet-controls :deep(.dwell-hitbox) {
+.compact-controls :deep(.dwell-hitbox) {
   inline-size: 9.375rem;
 }
 
-.quiet-controls :deep(.dwell-button) {
+.compact-controls :deep(.dwell-button) {
   padding: 0.625rem !important;
 }
 
@@ -473,23 +473,23 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     padding: 5.5rem 0.375rem 0.625rem;
   }
 
-  .game-header {
+ .game-header {
     margin-block-end: 0.5rem !important;
   }
 
-  .play-area {
+ .play-area {
     inline-size: min(100%, calc((100vh - 11.875rem) * 1.45));
   }
 
-  .board {
+ .board {
     gap: 0.3125rem;
   }
 
-  .board {
+ .board {
     border-radius: 1.25rem;
     border-width: 0.1875rem;
     padding: 0.375rem;
@@ -497,25 +497,25 @@ onUnmounted(() => {
 }
 
 @media (max-height: 48.75rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4.75rem;
   }
 
-  .game-header {
+ .game-header {
     display: none !important;
   }
 
-  .game-header p,
-  .help-text {
+ .game-header p,
+ .help-text {
     display: none;
   }
 
-  .play-area {
+ .play-area {
     inline-size: min(100%, calc((100vh - 7rem) * 1.45), 45rem);
   }
 
-  .board,
-  .column-hit-zones {
+ .board,
+ .column-hit-zones {
     gap: 0.125rem;
     padding: 0.25rem;
   }

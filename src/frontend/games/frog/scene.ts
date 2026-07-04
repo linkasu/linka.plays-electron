@@ -407,8 +407,8 @@ export function drawFrogScene(context: CanvasRenderingContext2D, options: FrogSc
   const totalMs = options.sessionSeconds * 1000;
   const progress = totalMs > 0 ? Math.min(1, Math.max(0, options.durationMs / totalMs)) : 0;
   const activeBug = options.bugs
-    .filter((bug) => bug.state === "flying" && bug.dwellProgress > 0)
-    .sort((a, b) => b.dwellProgress - a.dwellProgress)[0];
+   .filter((bug) => bug.state === "flying" && bug.dwellProgress > 0)
+   .sort((a, b) => b.dwellProgress - a.dwellProgress)[0];
 
   drawSky(context, progress);
   drawMeadow(context, options.now);

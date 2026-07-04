@@ -319,29 +319,29 @@ onUnmounted(() => {
 }
 
 @media (max-width: 640px) {
-  .warm-window-container {
+ .warm-window-container {
     align-items: flex-start !important;
     padding-block: 82px 16px;
   }
 
-  .warm-window-house {
+ .warm-window-house {
     max-inline-size: 96vw;
     padding-block-start: 54px;
   }
 
-  .warm-window-body {
+ .warm-window-body {
     border-width: 7px;
     padding: 14px;
   }
 
-  .warm-window-grid {
+ .warm-window-grid {
     gap: 10px;
     grid-template-columns: repeat(3, minmax(68px, 1fr));
     grid-template-rows: repeat(3, clamp(76px, 20vw, 96px));
   }
 
-  .warm-window-target,
-  .warm-window-door {
+ .warm-window-target,
+ .warm-window-door {
     min-block-size: clamp(76px, 20vw, 96px);
   }
 }

@@ -41,12 +41,12 @@ const lastMistakeId = ref<string>();
 const resultVisible = ref(false);
 const pendingSelection = ref(false);
 const isSpeaking = ref(false);
-const feedbackMessage = ref("Добавляй ингредиенты по порядку. Если ошибёшься, попробуй ещё раз спокойно.");
+const feedbackMessage = ref("Добавляй ингредиенты по порядку. Если ошибёшься, попробуй ещё раз.");
 const promptAudio = useGamePromptAudio({ gameId: "soup-recipe", soundEnabled: toRef(session.settings, "sound") });
 const currentRoundId = computed(() => `soup-recipe:step:${session.step + 1}`);
 const placedIngredients = computed(() => placedIngredientIds.value
-  .map((id) => round.ingredients.find((ingredient) => ingredient.id === id))
-  .filter((ingredient): ingredient is SoupIngredient => Boolean(ingredient)));
+ .map((id) => round.ingredients.find((ingredient) => ingredient.id === id))
+ .filter((ingredient): ingredient is SoupIngredient => Boolean(ingredient)));
 const nextIngredient = computed(() => round.ingredients.find((ingredient) => !placedIngredientIds.value.includes(ingredient.id)));
 const recipeComplete = computed(() => placedIngredientIds.value.length >= round.ingredients.length);
 const ingredientSlots = computed(() => computeIngredientSlots(width.value, height.value));
@@ -175,7 +175,7 @@ function restart() {
   pendingSelection.value = false;
   isSpeaking.value = false;
   flyingIngredients.splice(0);
-  feedbackMessage.value = "Добавляй ингредиенты по порядку. Если ошибёшься, попробуй ещё раз спокойно.";
+  feedbackMessage.value = "Добавляй ингредиенты по порядку. Если ошибёшься, попробуй ещё раз.";
   startSession();
   void playPrompt(450);
 }

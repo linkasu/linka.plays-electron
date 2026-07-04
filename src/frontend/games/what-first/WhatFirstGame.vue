@@ -35,7 +35,7 @@ const successChoiceId = ref<string>();
 let feedbackTimer = 0;
 
 const resultVisible = computed(() => session.status === "finished");
-const sceneEmojis = computed(() => round.value.choices.map((choice) => choice.emoji).join("  "));
+const sceneEmojis = computed(() => round.value.choices.map((choice) => choice.emoji).join(" "));
 
 function choiceTargetId(action: WhatFirstAction) {
   return `what-first:choice:${round.value.scene.id}:${action.id}`;
@@ -237,80 +237,80 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 9.75rem;
   }
 }
 
 @media (max-height: 58rem) {
-  .what-first-card .text-center,
-  .what-first-card .v-alert {
+ .what-first-card .text-center,
+ .what-first-card .v-alert {
     margin-block-end: 1rem !important;
   }
 
-  .scene-emojis,
-  .choice-emoji {
+ .scene-emojis,
+ .choice-emoji {
     font-size: clamp(3.5rem, 8vw, 5.5rem);
   }
 
-  .choice-phrase {
+ .choice-phrase {
     display: none;
   }
 }
 
 @media (max-height: 42rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 3.5rem;
   }
 
-  .what-first-card {
+ .what-first-card {
     padding: 0.75rem !important;
   }
 
-  .what-first-card > .text-overline {
+ .what-first-card >.text-overline {
     display: none;
   }
 
-  .what-first-card h1 {
+ .what-first-card h1 {
     font-size: clamp(1.8rem, 5.4vh, 2.25rem) !important;
     line-height: 1.05;
     margin-block-end: 0.25rem !important;
   }
 
-  .what-first-card .text-center {
+ .what-first-card .text-center {
     margin-block-end: 0.45rem !important;
   }
 
-  .what-first-card .v-alert {
+ .what-first-card .v-alert {
     margin-block-end: 0.45rem !important;
     padding: 0.55rem !important;
   }
 
-  .scene-emojis {
+ .scene-emojis {
     display: none;
   }
 
-  .scene-context,
-  .what-first-card .v-alert .text-h6 {
+ .scene-context,
+ .what-first-card .v-alert .text-h6 {
     font-size: 1rem !important;
     line-height: 1.15;
   }
 
-  .choice-emoji {
+ .choice-emoji {
     font-size: clamp(2.5rem, 7vh, 3.75rem);
   }
 
-  .what-first-card :deep(.dwell-button .text-h3) {
+ .what-first-card :deep(.dwell-button .text-h3) {
     font-size: clamp(1.55rem, 5vh, 2rem) !important;
     line-height: 1.05;
   }
 
-  .what-first-card :deep(.dwell-button .v-chip),
-  .choice-phrase {
+ .what-first-card :deep(.dwell-button.v-chip),
+ .choice-phrase {
     display: none;
   }
 
-  .game-container :deep(.dwell-button) {
+ .game-container :deep(.dwell-button) {
     min-block-size: 8rem !important;
   }
 }

@@ -165,43 +165,43 @@ onUnmounted(() => {
 }
 
 @media (max-height: 51.25rem) {
-  .object-card {
+ .object-card {
     display: none;
   }
 }
 
 @media (max-height: 42rem) {
-  .object-action-card {
+ .object-action-card {
     padding: 1rem !important;
   }
 
-  .object-action-card > .text-overline {
+ .object-action-card >.text-overline {
     display: none;
   }
 
-  .prompt-panel {
+ .prompt-panel {
     margin-block-end: 0.75rem !important;
   }
 
-  .prompt-panel h1 {
+ .prompt-panel h1 {
     font-size: 2rem !important;
     line-height: 1.08;
   }
 
-  .prompt-panel .text-h6 {
+ .prompt-panel .text-h6 {
     font-size: 0.98rem !important;
     line-height: 1.2;
   }
 
-  .choice-emoji {
+ .choice-emoji {
     font-size: clamp(2.4rem, 5vw, 3.3rem);
   }
 
-  .choice-title {
+ .choice-title {
     font-size: 1.18rem !important;
   }
 
-  .object-action-card :deep(.dwell-button) {
+ .object-action-card :deep(.dwell-button) {
     min-block-size: 8.5rem !important;
   }
 }

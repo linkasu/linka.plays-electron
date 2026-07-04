@@ -32,11 +32,11 @@ const flower = reactive({
 });
 
 const resultVisible = computed(() => session.status === "finished");
-const phaseLabel = computed(() => flower.phase === "opening" ? "Мягкий вдох" : "Мягкий выдох");
+const phaseLabel = computed(() => flower.phase === "opening" ? " вдох" : " выдох");
 const guidanceText = computed(() => {
-  if (session.status === "paused") return "Пауза. Цветок спокойно ждёт.";
-  if (!pointer.value.valid) return "Смотри в центр цветка или мягко веди туда указатель.";
-  return flower.phase === "opening" ? "Удерживай взгляд в центре, лепестки раскрываются." : "Удерживай взгляд в центре, лепестки тихо закрываются.";
+  if (session.status === "paused") return "Пауза. Цветок ждёт продолжения.";
+  if (!pointer.value.valid) return "Смотри в центр цветка или веди туда указатель.";
+  return flower.phase === "opening" ? "Удерживай взгляд в центре, лепестки раскрываются." : "Удерживай взгляд в центре, лепестки закрываются.";
 });
 
 let finishAfter = 0;

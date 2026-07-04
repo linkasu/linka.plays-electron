@@ -424,7 +424,7 @@ onUnmounted(() => {
     <canvas ref="canvasRef" class="balloons-canvas" />
 
     <v-card class="balloons-hint px-4 py-3" color="surface" rounded="xl" variant="tonal">
-      <div class="text-body-2 font-weight-medium">Смотри на шарик спокойно, и он мягко улетит вверх.</div>
+      <div class="text-body-2 font-weight-medium">Смотри на шарик, и он улетит вверх.</div>
       <div class="text-caption text-medium-emphasis">Если взгляд ушёл, ничего страшного: круг начнётся заново.</div>
     </v-card>
 

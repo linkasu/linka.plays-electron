@@ -203,68 +203,68 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 11rem;
   }
 }
 
 @media (min-width: 56.25rem) and (max-width: 75rem) {
-  .choice-row :deep(.dwell-button) {
+ .choice-row :deep(.dwell-button) {
     padding-inline: 0.35rem !important;
   }
 
-  .calendar-choice__label {
+ .calendar-choice__label {
     font-size: 1.3rem;
   }
 }
 
 @media (max-height: 42rem) and (min-width: 60rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 7.4rem;
   }
 }
 
 @media (max-height: 42.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4.75rem;
   }
 
-  .game-container :deep(.v-card) {
+ .game-container :deep(.v-card) {
     padding-block: 1rem !important;
   }
 
-  .game-container .d-flex,
-  .game-container .text-overline,
-  .game-container h1,
-  .game-container .v-alert {
+ .game-container.d-flex,
+ .game-container .text-overline,
+ .game-container h1,
+ .game-container .v-alert {
     display: none !important;
   }
 
-  .choice-row {
+ .choice-row {
     row-gap: 0.35rem;
   }
 
-  .choice-row :deep(.v-col) {
+ .choice-row :deep(.v-col) {
     flex: 0 0 50% !important;
     max-inline-size: 50% !important;
   }
 
-  .choice-row :deep(.dwell-button) {
+ .choice-row :deep(.dwell-button) {
     min-block-size: 7.25rem !important;
     padding: 0.5rem !important;
   }
 
-  .calendar-choice__label {
+ .calendar-choice__label {
     font-size: 2.4rem;
   }
 }
 
 @media (max-height: 42.5rem) and (min-width: 56.25rem) {
-  .choice-row :deep(.dwell-button) {
+ .choice-row :deep(.dwell-button) {
     padding-inline: 0.35rem !important;
   }
 
-  .calendar-choice__label {
+ .calendar-choice__label {
     font-size: 1.3rem;
   }
 }

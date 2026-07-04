@@ -194,7 +194,7 @@ onUnmounted(() => {
   z-index: -1;
 }
 
-.catch-light-orb--active .catch-light-icon {
+.catch-light-orb--active.catch-light-icon {
   transform: scale(1.12) rotate(10deg);
 }
 

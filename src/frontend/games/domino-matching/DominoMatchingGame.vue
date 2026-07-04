@@ -303,11 +303,11 @@ onUnmounted(() => {
   justify-content: center;
 }
 
-.board-path--bent .board-row {
+.board-path--bent.board-row {
   justify-content: flex-start;
 }
 
-.board-path--bent .board-row--reverse {
+.board-path--bent.board-row--reverse {
   justify-content: flex-end;
 }
 
@@ -341,11 +341,11 @@ onUnmounted(() => {
   transition: filter 160ms ease, transform 160ms ease;
 }
 
-.hand-card--playable .domino {
+.hand-card--playable.domino {
   box-shadow: 0 0 0 0.24rem rgb(var(--v-theme-primary) / 52%), 0 0.55rem 1.2rem rgb(61 41 23 / 16%);
 }
 
-.hand-card--selected .domino {
+.hand-card--selected.domino {
   box-shadow: 0 0 0 0.28rem rgb(var(--v-theme-secondary)), 0 0.55rem 1.2rem rgb(61 41 23 / 16%);
 }
 
@@ -433,28 +433,28 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
-  .game-container {
+ .game-container {
     padding-block: 4.5rem 0.7rem;
   }
 
-  .domino-card {
+ .domino-card {
     max-block-size: calc(100dvh - 5.2rem);
   }
 
-  .game-container h1,
-  .game-container .text-overline {
+ .game-container h1,
+ .game-container .text-overline {
     display: none;
   }
 
-  .instruction {
+ .instruction {
     margin-block-end: 0.45rem !important;
   }
 
-  .board-zone {
+ .board-zone {
     max-block-size: 24vh;
   }
 
-  .hand-row {
+ .hand-row {
     max-block-size: 34vh;
   }
 }

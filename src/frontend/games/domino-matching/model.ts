@@ -125,7 +125,7 @@ function placeForOwner(state: DominoGameState, owner: DominoPlayer, tileId: stri
     ? [placedTile(tile, placement.left, placement.right, owner), ...state.board]
     : [...state.board, placedTile(tile, placement.left, placement.right, owner)];
   const nextState = updateStatus({
-    ...state,
+   ...state,
     board: nextBoard,
     playerHand: owner === "player" ? removeTile(state.playerHand, tileId) : state.playerHand,
     botHand: owner === "bot" ? removeTile(state.botHand, tileId) : state.botHand,
@@ -144,7 +144,7 @@ function drawForOwner(state: DominoGameState, owner: DominoPlayer): DominoMoveRe
 
   const [drawn, ...boneyard] = state.boneyard;
   const nextState = updateStatus({
-    ...state,
+   ...state,
     playerHand: owner === "player" ? [...state.playerHand, drawn] : state.playerHand,
     botHand: owner === "bot" ? [...state.botHand, drawn] : state.botHand,
     boneyard,

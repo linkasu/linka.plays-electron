@@ -92,7 +92,7 @@ const gridStyle = computed(() => ({
 }
 
 @media (max-height: 40rem) {
-  .square-choice-row {
+ .square-choice-row {
     --choice-size: var(--choice-grid-compact-size);
   }
 }

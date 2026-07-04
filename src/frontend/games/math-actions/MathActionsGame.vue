@@ -154,25 +154,25 @@ onUnmounted(() => {
 }
 
 @media (min-width: 68.75rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 7.25rem;
   }
 }
 
 @media (max-height: 40rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 5rem;
   }
 
-  .math-card {
+ .math-card {
     padding: 1rem !important;
   }
 
-  .math-card .v-alert {
+ .math-card .v-alert {
     display: none;
   }
 
-  .expression {
+ .expression {
     font-size: 3rem;
     margin-block-end: 0.75rem !important;
   }

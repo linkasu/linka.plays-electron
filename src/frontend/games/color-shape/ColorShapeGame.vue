@@ -167,7 +167,7 @@ onUnmounted(() => {
 
             <v-expand-transition>
               <v-alert v-if="hintedRoundId === round.roundId" class="mt-5 text-h6" color="primary" icon="mdi-shape-outline" rounded="xl" variant="tonal">
-                Ошибка не завершает игру. Можно спокойно попробовать ещё раз.
+                Ошибка не завершает игру. Можно попробовать ещё раз.
               </v-alert>
             </v-expand-transition>
           </v-card>
@@ -244,53 +244,53 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 5rem;
   }
 
-  .color-shape-card {
+ .color-shape-card {
     padding: 1rem !important;
   }
 
-  .color-shape-card .text-overline,
-  .color-shape-card p,
-  .color-shape-card .v-alert {
+ .color-shape-card .text-overline,
+ .color-shape-card p,
+ .color-shape-card .v-alert {
     display: none;
   }
 
-  .color-shape-card h1 {
+ .color-shape-card h1 {
     font-size: 2.45rem !important;
     line-height: 1.05;
     margin-block-end: 0.75rem !important;
   }
 
-  .color-shape-choice-col {
+ .color-shape-choice-col {
     flex: 0 0 25% !important;
     max-inline-size: 25% !important;
   }
 
-  .choice-grid :deep(.dwell-button) {
+ .choice-grid :deep(.dwell-button) {
     min-block-size: 8.75rem !important;
     padding: 0.4rem !important;
   }
 
-  .shape-svg {
+ .shape-svg {
     block-size: 4rem;
     inline-size: 4rem;
   }
 
-  .shape-panel {
+ .shape-panel {
     border-radius: 1.1rem;
     padding: 0.35rem;
   }
 
-  .object-choice .text-h5 {
+ .object-choice .text-h5 {
     font-size: 1.05rem !important;
     line-height: 1.1;
     margin-block-start: 0.35rem !important;
   }
 
-  .trait-row {
+ .trait-row {
     display: none;
   }
 }

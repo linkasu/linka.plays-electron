@@ -65,10 +65,10 @@ export function generateObjectActionRound(roundIndex = 1): ObjectActionRound {
   const pair = objectActionPairs[(roundIndex - 1) % objectActionPairs.length];
   const correctChoices = objectActionChoices.filter((choice) => pair.validActionIds.includes(choice.id));
   const distractors = objectActionChoices
-    .filter((choice) => !pair.validActionIds.includes(choice.id))
-    .slice(roundIndex % objectActionChoices.length)
-    .concat(objectActionChoices.filter((choice) => !pair.validActionIds.includes(choice.id)))
-    .slice(0, Math.max(0, 4 - correctChoices.length));
+   .filter((choice) => !pair.validActionIds.includes(choice.id))
+   .slice(roundIndex % objectActionChoices.length)
+   .concat(objectActionChoices.filter((choice) => !pair.validActionIds.includes(choice.id)))
+   .slice(0, Math.max(0, 4 - correctChoices.length));
   const choices = [...correctChoices, ...distractors].sort((left, right) => left.id.localeCompare(right.id));
 
   return {

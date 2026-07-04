@@ -151,13 +151,13 @@ async function chooseFigure(figure: ShapeDanceFigure) {
     phase.value = "feedback";
     isLocked.value = true;
     activeFigureId.value = figure.id;
-    feedbackText.value = "Почти. Сейчас фигуры мягко повторят танец ещё раз.";
+    feedbackText.value = "Почти. Сейчас фигуры повторят танец ещё раз.";
     void danceFeedback.playMistake(session.settings.sound);
     recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: figure.id, expected: expected.label, actual: figure.label, isCorrect: false });
     isSpeaking.value = true;
     await promptAudio.playSequenceAndWait(["shape-dance.mistake"], 80);
     isSpeaking.value = false;
-    feedbackTimer = window.setTimeout(() => playSequence("Посмотри ещё раз: танец начнётся спокойно."), feedbackMs);
+    feedbackTimer = window.setTimeout(() => playSequence("Посмотри ещё раз: танец начнётся."), feedbackMs);
     return;
   }
 
@@ -176,7 +176,7 @@ async function chooseFigure(figure: ShapeDanceFigure) {
 
   phase.value = "feedback";
   isLocked.value = true;
-  feedbackText.value = "Танец повторён. Спокойная пауза перед новым уровнем.";
+  feedbackText.value = "Танец повторён. пауза перед новым уровнем.";
   void danceFeedback.playSuccess(session.settings.sound);
   recordSuccess({
     roundId: round.value.roundId,
@@ -309,43 +309,43 @@ onUnmounted(() => {
   color: #1f2a27 !important;
 }
 
-.dance-figure--active .figure-label {
+.dance-figure--active.figure-label {
   color: #ffffff !important;
 }
 
 @media (max-height: 57.5rem) {
-  .shape-dance-container {
+ .shape-dance-container {
     padding-block-start: 5.75rem;
   }
 
-  .shape-dance-card {
+ .shape-dance-card {
     padding-block: 0.9rem !important;
   }
 
-  .shape-dance-title {
+ .shape-dance-title {
     font-size: 2rem !important;
     line-height: 1.05;
   }
 
-  .shape-dance-feedback {
+ .shape-dance-feedback {
     font-size: 1.15rem !important;
     margin-block-end: 0.75rem !important;
   }
 
-  .dance-stage {
+ .dance-stage {
     margin-block-end: 1rem !important;
     padding-block: 0.9rem !important;
   }
 
-  .dance-stage__figures :deep(.dwell-button) {
+ .dance-stage__figures :deep(.dwell-button) {
     min-block-size: 9.5rem !important;
   }
 
-  .dance-figure__icon {
+ .dance-figure__icon {
     font-size: clamp(3.2rem, 8vw, 5rem);
   }
 
-  .figure-label {
+ .figure-label {
     font-size: 1.2rem !important;
   }
 }
@@ -385,11 +385,11 @@ onUnmounted(() => {
 }
 
 @media (max-width: 600px) {
-  .shape-dance-container {
+ .shape-dance-container {
     padding-block-start: 9.75rem;
   }
 
-  .dance-stage__figures {
+ .dance-stage__figures {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

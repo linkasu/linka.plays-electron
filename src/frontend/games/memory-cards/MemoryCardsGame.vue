@@ -104,7 +104,7 @@ async function chooseCard(card: MemoryCardState) {
     lastMismatchCardIds.value = [];
     void playMemoryCardsMatchMelody(session.settings.sound);
     recordSuccess({ roundId: round.value.roundId, targetId: cardTargetId(second), pairId: second.pairId, expected: first.label, actual: second.label, isCorrect: true });
-    feedbackMessage.value = matchedCount.value === round.value.pairCount ? "Все пары найдены." : "Пара найдена. Продолжаем спокойно.";
+    feedbackMessage.value = matchedCount.value === round.value.pairCount ? "Все пары найдены." : "Пара найдена. Продолжаем.";
     isSpeaking.value = true;
     await promptAudio.playSequenceAndWait([matchedCount.value === round.value.pairCount ? "memory-cards.complete" : "memory-cards.match"], 80);
     isSpeaking.value = false;
@@ -116,7 +116,7 @@ async function chooseCard(card: MemoryCardState) {
   lastMismatchCardIds.value = [first.id, second.id];
   void playMemoryCardsMismatchMelody(session.settings.sound);
   recordMistake({ roundId: round.value.roundId, targetId: cardTargetId(second), expectedTargetId: cardTargetId(first), expected: first.label, actual: second.label, isCorrect: false });
-  feedbackMessage.value = "Это разные карточки. Они мягко закроются.";
+  feedbackMessage.value = "Это разные карточки. Они закроются.";
   isSpeaking.value = true;
   await promptAudio.playSequenceAndWait(["memory-cards.mismatch"], 80);
   closeTimeout = window.setTimeout(() => {
@@ -169,7 +169,7 @@ onUnmounted(() => {
       <v-row justify="center">
         <v-col cols="12" lg="9" xl="8">
           <v-card class="memory-panel pa-3 pa-md-6" color="rgba(255, 255, 255, 0.9)" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-1">Спокойная память</div>
+            <div class="text-overline text-secondary text-center mb-1"> память</div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">Найди одинаковые карточки</h1>
             <div class="feedback-line text-body-1 text-medium-emphasis text-center mb-3">{{ feedbackMessage }}</div>
             <v-row class="memory-grid" justify="center">
@@ -260,7 +260,7 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
-  .game-container {
+ .game-container {
     justify-content: flex-start;
     padding-block-start: 5rem;
   }

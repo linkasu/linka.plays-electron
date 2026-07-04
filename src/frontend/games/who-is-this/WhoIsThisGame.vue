@@ -242,61 +242,61 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 7.5rem;
   }
 
-  .picture-card {
+ .picture-card {
     min-block-size: 21rem;
   }
 }
 
 @media (max-height: 42.5rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 5rem;
   }
 
-  .who-card {
+ .who-card {
     padding: 1rem !important;
   }
 
-  .who-card > .text-overline,
-  .who-card > p {
+ .who-card >.text-overline,
+ .who-card > p {
     display: none;
   }
 
-  .who-card > h1 {
+ .who-card > h1 {
     font-size: clamp(1.8rem, 5.4vh, 2.25rem) !important;
     line-height: 1.05;
     margin-block-end: 0.55rem !important;
   }
 
-  .compact-picture {
+ .compact-picture {
     display: flex;
   }
 
-  .main-row {
+ .main-row {
     row-gap: 0 !important;
   }
 
-  .picture-col {
+ .picture-col {
     display: none;
   }
 
-  .choice-grid {
+ .choice-grid {
     row-gap: 0.35rem;
   }
 
-  .choice-content,
-  .who-card :deep(.dwell-button) {
+ .choice-content,
+ .who-card :deep(.dwell-button) {
     min-block-size: 7.85rem !important;
   }
 
-  .choice-icon {
+ .choice-icon {
     font-size: clamp(2.9rem, 7.8vh, 4rem);
   }
 
-  .choice-content .text-h4 {
+ .choice-content .text-h4 {
     font-size: clamp(1.5rem, 4.8vh, 2rem) !important;
     margin-block-start: 0.45rem !important;
   }

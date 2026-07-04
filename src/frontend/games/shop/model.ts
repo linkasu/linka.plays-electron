@@ -88,8 +88,8 @@ export function buildShopPaymentSuggestion(total: number): ShopCoinValue[] {
 
 export function validateShopShoppingCart(round: ShopRound, selectedItemIds: string[]) {
   const selectedItems = selectedItemIds
-    .map((id) => shopItems.find((item) => item.id === id))
-    .filter((item): item is ShopItem => Boolean(item));
+   .map((id) => shopItems.find((item) => item.id === id))
+   .filter((item): item is ShopItem => Boolean(item));
   const selectedSet = new Set(selectedItemIds);
   const targetSet = new Set(round.correctItemIds);
   const matchesTargets = selectedSet.size === targetSet.size && [...targetSet].every((id) => selectedSet.has(id));

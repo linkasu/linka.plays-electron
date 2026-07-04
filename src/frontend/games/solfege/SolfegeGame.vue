@@ -445,121 +445,121 @@ onMounted(() => {
 }
 
 @media (max-width: 960px) {
-  .solfege-container {
+ .solfege-container {
     padding-block-start: 116px;
   }
 
-  .score-card {
+ .score-card {
     margin-block-end: 1rem !important;
   }
 }
 
 @media (max-height: 920px) {
-  .score-card {
+ .score-card {
     display: none !important;
   }
 
-  .piano-card {
+ .piano-card {
     margin-block-end: 1rem !important;
   }
 }
 
 @media (max-height: 760px) {
-  .solfege-container {
+ .solfege-container {
     align-items: flex-start !important;
     min-block-size: auto;
     padding-block-start: 4.75rem;
   }
 
-  .solfege-panel {
+ .solfege-panel {
     padding: 1rem !important;
   }
 
-  .score-card {
+ .score-card {
     display: none !important;
   }
 
-  .piano-card {
+ .piano-card {
     margin-block-end: 0.85rem !important;
     padding: 1rem !important;
   }
 
-  .solfege-instruction p {
+ .solfege-instruction p {
     display: none;
   }
 
-  .piano-frame {
+ .piano-frame {
     padding: 16px 12px 12px;
   }
 
-  .white-keyboard {
+ .white-keyboard {
     min-block-size: 130px;
   }
 
-  .black-keys {
+ .black-keys {
     inset-block-start: 16px;
     inset-inline: 12px;
   }
 
-  .black-key {
+ .black-key {
     block-size: 72px;
   }
 
 }
 
 @media (max-width: 600px) {
-  .note-bubbles {
+ .note-bubbles {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
-  .score-staff {
+ .score-staff {
     block-size: 150px;
   }
 }
 
 @media (max-width: 75rem) {
-  .black-keys {
+ .black-keys {
     display: none;
   }
 
-  .solfege-panel,
-  .piano-card {
+ .solfege-panel,
+ .piano-card {
     padding: 0.5rem !important;
   }
 
-  .piano-frame {
+ .piano-frame {
     border-radius: 1.25rem;
     padding: 0.25rem;
   }
 
-  .white-keyboard {
+ .white-keyboard {
     gap: 0.125rem;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     min-block-size: min(58dvh, 24rem);
   }
 
-  .white-key {
+ .white-key {
     border-radius: 1rem;
     padding-block-end: 0;
   }
 
-  .white-key-target :deep(.dwell-progress) {
+ .white-key-target :deep(.dwell-progress) {
     --dwell-size: min(7rem, 70%) !important;
   }
 }
 
 @media (max-width: 75rem) and (max-height: 47.5rem) {
-  .white-keyboard {
+ .white-keyboard {
     min-block-size: 23.5rem;
   }
 }
 
 @media (min-width: 75.001rem) {
-  .piano-frame {
+ .piano-frame {
     padding-inline: 0.5rem;
   }
 
-  .white-keyboard {
+ .white-keyboard {
     gap: 0;
   }
 }

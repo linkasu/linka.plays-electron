@@ -52,7 +52,7 @@ const covers: Cover[] = [
   { id: "dark-bush", label: "тёмным кустом", hint: "за тёмным кустом", icon: "mdi-leaf", color: "#5cae61", shape: "bush" },
   { id: "wide-bush", label: "широким кустом", hint: "за широким кустом", icon: "mdi-leaf", color: "#8acb72", shape: "bush" },
   { id: "flower-bush", label: "цветущим кустом", hint: "за цветущим кустом", icon: "mdi-leaf", color: "#86c779", shape: "bush" },
-  { id: "soft-bush", label: "мягкими кустами", hint: "за мягкими кустами", icon: "mdi-leaf", color: "#96d27f", shape: "bush" },
+  { id: "dense-bush", label: "густыми кустами", hint: "за густыми кустами", icon: "mdi-leaf", color: "#96d27f", shape: "bush" },
   { id: "low-bush", label: "низким кустом", hint: "за низким кустом", icon: "mdi-leaf", color: "#6fbd67", shape: "bush" }
 ];
 
@@ -119,7 +119,7 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
 });
 
 const hintText = computed(() => {
-  if (hintedRoundId.value !== round.value.roundId) return "Посмотри на спокойную сцену и выбери, кто спрятался за фоном.";
+  if (hintedRoundId.value !== round.value.roundId) return "Посмотри на сцену и выбери, кто спрятался за фоном.";
   return `Подсказка: ${round.value.target.name} ${round.value.targetSpot.cover.hint}. Ошибки не страшны.`;
 });
 
@@ -228,7 +228,7 @@ onUnmounted(() => {
               <div class="scene-ground" aria-hidden="true" />
               <div class="scene-path" aria-hidden="true" />
               <v-chip class="scene-chip" color="white" prepend-icon="mdi-eye-outline" rounded="pill" size="large" variant="elevated">
-                Ищи спокойным взглядом
+                Ищи взглядом
               </v-chip>
 
               <GameDwellButton
@@ -263,7 +263,7 @@ onUnmounted(() => {
 
             <v-expand-transition>
               <v-alert v-if="hintedRoundId === round.roundId" class="mt-5 text-h6" color="primary" icon="mdi-account-question-outline" rounded="xl" variant="tonal">
-                Цель мягко подсвечена. Переведи взгляд туда и удержи его спокойно.
+                Цель подсвечена. Переведи взгляд туда и удержи его.
               </v-alert>
             </v-expand-transition>
           </v-card>
@@ -507,45 +507,45 @@ onUnmounted(() => {
 }
 
 @media (max-width: 600px) {
-  .game-container {
+ .game-container {
     padding-block-start: 7.5rem;
   }
 
-  .search-scene {
+ .search-scene {
     block-size: 34rem;
   }
 
-  .scene-chip {
+ .scene-chip {
     display: none;
   }
 }
 
 @media (max-height: 760px) {
-  .game-container {
+ .game-container {
     padding-block-start: 6.25rem;
   }
 
-  .game-container :deep(.v-card.pa-4) {
+ .game-container :deep(.v-card.pa-4) {
     padding-block: 1rem !important;
   }
 
-  .who-hiding-title {
+ .who-hiding-title {
     font-size: clamp(1.7rem, 4vw, 2.25rem) !important;
     line-height: 1.08;
     margin-block-end: 0.5rem !important;
   }
 
-  .who-hiding-hint {
+ .who-hiding-hint {
     font-size: 1rem !important;
     margin-block-end: 0.75rem !important;
   }
 
-  .search-scene {
+ .search-scene {
     block-size: min(21.5rem, calc(100vh - 15rem));
   }
 
-  .scene-chip,
-  .scene-cloud {
+ .scene-chip,
+ .scene-cloud {
     display: none;
   }
 }

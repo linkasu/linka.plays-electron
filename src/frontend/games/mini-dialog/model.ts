@@ -58,7 +58,7 @@ export const miniDialogCharacter: MiniDialogCharacter = {
 export const miniDialogVoiceRoles = {
   partner: "Алёна говорит за Миру",
   correct: "Филипп озвучивает выбранную реплику",
-  mistake: "Юлия мягко объясняет ошибку"
+  mistake: "Юлия объясняет ошибку"
 } as const;
 
 export const miniDialogPath: MiniDialogNodeId[] = ["hello", "feeling", "ready", "picture", "continue", "more", "goodbye"];

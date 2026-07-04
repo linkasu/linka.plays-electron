@@ -295,47 +295,47 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
-  .game-container {
+ .game-container {
     align-items: flex-start;
     overflow: auto;
     padding-block-start: 6.25rem;
   }
 
-  .schedule-strip {
+ .schedule-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-height: 40.625rem) {
-  .game-container {
+ .game-container {
     padding-block-start: 4.25rem;
   }
 
-  .schedule-card {
+ .schedule-card {
     gap: 0.45rem;
     padding: 0.85rem 1rem 1rem !important;
   }
 
-  .schedule-header .text-overline,
-  .schedule-prompt {
+ .schedule-header .text-overline,
+ .schedule-prompt {
     display: none;
   }
 
-  .schedule-title {
+ .schedule-title {
     font-size: clamp(1.65rem, 5vh, 2.1rem) !important;
     margin-block-end: 0;
   }
 
-  .schedule-slot {
+ .schedule-slot {
     min-block-size: clamp(3rem, 8vh, 3.4rem);
   }
 
-  .choice-row :deep(.dwell-button),
-  .choice-row :deep(.dwell-hitbox) {
+ .choice-row :deep(.dwell-button),
+ .choice-row :deep(.dwell-hitbox) {
     min-block-size: clamp(8rem, 22vh, 8.5rem) !important;
   }
 
-  .choice-icon {
+ .choice-icon {
     font-size: clamp(2.35rem, 7vh, 3rem);
   }
 }

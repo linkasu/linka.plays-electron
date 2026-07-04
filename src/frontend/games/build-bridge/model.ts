@@ -91,12 +91,12 @@ export function isBridgeSlotOccupied(slotId: string, placements: readonly Bridge
 
 export function supportIdsFromPlacements(placements: readonly BridgePlacement[]) {
   return placements
-    .map((placement) => {
+   .map((placement) => {
       const piece = bridgePieceById(placement.pieceId);
       const slot = bridgeSlotById(placement.slotId);
       return piece?.kind === "support" ? slot?.acceptsPieceId : undefined;
     })
-    .filter((id): id is string => Boolean(id));
+   .filter((id): id is string => Boolean(id));
 }
 
 export function hasBridgeSupportAt(supportId: string, placements: readonly BridgePlacement[]) {

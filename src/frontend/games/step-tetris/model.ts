@@ -104,8 +104,8 @@ export function normalizeShape(cells: StepTetrisPoint[]) {
   const minRow = Math.min(...cells.map((cell) => cell.row));
   const minColumn = Math.min(...cells.map((cell) => cell.column));
   return cells
-    .map((cell) => ({ row: cell.row - minRow, column: cell.column - minColumn }))
-    .sort((a, b) => a.row - b.row || a.column - b.column);
+   .map((cell) => ({ row: cell.row - minRow, column: cell.column - minColumn }))
+   .sort((a, b) => a.row - b.row || a.column - b.column);
 }
 
 export function rotateShape(cells: StepTetrisPoint[]) {
@@ -162,7 +162,7 @@ export function isValidPlacement(board: StepTetrisBoard, placement: StepTetrisPl
 
 export function movePlacement(placement: StepTetrisPlacement, rowOffset: number, columnOffset: number): StepTetrisPlacement {
   return {
-    ...placement,
+   ...placement,
     row: placement.row + rowOffset,
     column: placement.column + columnOffset
   };
@@ -170,7 +170,7 @@ export function movePlacement(placement: StepTetrisPlacement, rowOffset: number,
 
 export function rotatePlacement(placement: StepTetrisPlacement): StepTetrisPlacement {
   return {
-    ...placement,
+   ...placement,
     piece: createPiece(placement.piece.id, placement.piece.rotation + 1)
   };
 }
@@ -214,7 +214,7 @@ export function lockPiece(board: StepTetrisBoard, placement: StepTetrisPlacement
   for (const cell of placedCells) nextBoard[cellIndex(cell.row, cell.column)] = placement.piece.id;
 
   return {
-    ...clearFullLines(nextBoard),
+   ...clearFullLines(nextBoard),
     placedCells
   };
 }

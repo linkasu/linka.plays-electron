@@ -157,7 +157,7 @@ export const magneticLevels: MagneticLevel[] = [
   {
     id: "final-reactor",
     title: "Финальный реактор",
-    brief: "Оставь сильный положительный толчок снизу, мягкий отрицательный проводник и сильный отрицательный реактор.",
+    brief: "Оставь сильный положительный толчок снизу, отрицательный проводник и сильный отрицательный реактор.",
     start: { x: 0.12, y: 0.84 },
     goal: { x: 0.86, y: 0.22, radius: 0.055 },
     magnets: [
@@ -214,7 +214,7 @@ export function startSimulation(state: MagneticLabState): MagneticLabState {
   if (state.mode === "running") return state;
   const level = currentLevel(state);
   return {
-    ...state,
+   ...state,
     mode: "running",
     capsule: { ...level.start, vx: 0, vy: 0, pole: "positive" },
     elapsedSeconds: 0,
@@ -278,7 +278,7 @@ export function pointInWall(point: Point, wall: LabWall) {
 
 function updateSelectedMagnet(state: MagneticLabState, update: (magnet: MagnetConfig) => MagnetConfig): MagneticLabState {
   return {
-    ...state,
+   ...state,
     magnets: state.magnets.map((magnet) => magnet.id === state.selectedMagnetId ? update(magnet) : magnet)
   };
 }

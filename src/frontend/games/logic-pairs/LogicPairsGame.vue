@@ -39,7 +39,7 @@ const relationLabel = computed(() => {
 });
 
 const helperText = computed(() => {
-  if (hintedRoundId.value === round.value.roundId) return `Почти. ${round.value.explanation} Правильная карточка мягко подсвечена.`;
+  if (hintedRoundId.value === round.value.roundId) return `Почти. ${round.value.explanation} Правильная карточка подсвечена.`;
   return round.value.instruction;
 });
 
@@ -224,7 +224,7 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
-  .target-card {
+ .target-card {
     min-block-size: 13rem;
   }
 }

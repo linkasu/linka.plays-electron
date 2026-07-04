@@ -249,7 +249,7 @@ onUnmounted(() => {
   <div class="where-object-shell">
     <canvas ref="canvasRef" class="where-object-canvas" />
 
-    <div class="quiet-controls d-flex align-center ga-1 pa-1">
+    <div class="compact-controls d-flex align-center ga-1 pa-1">
       <v-btn aria-label="В меню" color="primary" density="comfortable" icon="mdi-arrow-left" size="small" variant="text" @click="router.push(resolveMenuRoute())" />
       <v-btn
         :aria-label="session.status === 'paused' ? 'Продолжить' : 'Пауза'"
@@ -307,7 +307,7 @@ onUnmounted(() => {
   position: absolute;
 }
 
-.quiet-controls {
+.compact-controls {
   background: rgb(255 255 255 / 72%);
   border-radius: 1.125rem;
   box-shadow: 0 0.5rem 1.4rem rgb(76 58 112 / 12%);
@@ -319,8 +319,8 @@ onUnmounted(() => {
   z-index: 4;
 }
 
-.quiet-controls:focus-within,
-.quiet-controls:hover {
+.compact-controls:focus-within,
+.compact-controls:hover {
   opacity: 0.96;
 }
 
@@ -361,20 +361,20 @@ onUnmounted(() => {
 }
 
 @media (max-height: 42rem) {
-  .prompt-panel {
+ .prompt-panel {
     inset-block-start: 4.1rem;
     padding: 0.7rem 1rem;
   }
 
-  .prompt-panel .text-overline {
+ .prompt-panel .text-overline {
     display: none;
   }
 
-  .prompt-panel h1 {
+ .prompt-panel h1 {
     font-size: clamp(1.6rem, 3.2vw, 2.2rem);
   }
 
-  .prompt-panel p {
+ .prompt-panel p {
     font-size: 0.95rem;
   }
 }
