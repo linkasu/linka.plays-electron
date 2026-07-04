@@ -4,6 +4,10 @@
   "private": true,
   "description": "LINKa plays MVP on Electron, Vue and Canvas",
   "main": "dist-electron/main.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linkasu/linka.plays-electron.git"
+  },
   "scripts": {
     "dev": "npm run build:electron && concurrently -k \"vite --host 127.0.0.1\" \"wait-on tcp:5173 && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5173 electron dist-electron/main.js\"",
     "electron:serve": "npm run dev",
@@ -16,6 +20,7 @@
     "lint:adaptive-layout": "node scripts/lint-adaptive-layout.mjs",
     "preview": "vite preview",
     "test:unit": "vitest run",
+    "smoke:packaged-resources": "node scripts/ci/packaged-resources-smoke.js",
     "audit:readiness": "node scripts/game-readiness-audit.mjs",
     "audit:electron-cdp": "node scripts/electron-cdp-smoke.mjs",
     "audit:electron-cdp:all": "node scripts/electron-cdp-smoke.mjs --all-games",
@@ -24,11 +29,16 @@
     "review:next": "node scripts/open-next-development-game.mjs",
     "tts:add": "node scripts/add-tts-phrase.mjs",
     "tts:assets": "node scripts/generate-tts-assets.mjs",
-    "electron:build": "npm run build:native && npm run build && electron-builder -p never"
+    "electron:build": "npm run build:native && npm run build && electron-builder",
+    "electron:build:win": "npm run electron:build -- --win -p never",
+    "electron:build:mac": "npm run electron:build -- --mac --x64 --arm64 -p never",
+    "electron:build:linux": "npm run electron:build -- --linux -p never"
   },
   "dependencies": {
-    "@linkasu/tobii-electron": "https://github.com/linkasu/linka-tobii-electron/releases/download/v0.2.10/linkasu-tobii-electron-0.2.10.tgz",
+    "@linkasu/tobii-electron": "https://github.com/linkasu/linka-tobii-electron/releases/download/v0.2.11/linkasu-tobii-electron-0.2.11.tgz",
     "@mdi/font": "^7.4.47",
+    "electron-store": "^8.2.0",
+    "electron-updater": "^6.8.9",
     "roboto-fontface": "^0.10.0",
     "smplr": "^0.26.0",
     "twemoji-colr-font": "^15.0.3",
@@ -52,8 +62,33 @@
     "wait-on": "^9.0.3"
   },
   "build": {
-    "productName": "LINKa plays",
+    "productName": "Линка играй",
     "appId": "su.linka.plays",
+    "directories": {
+      "buildResources": "resources/electron"
+    },
+    "icon": "resources/electron/icon",
+    "publish": [
+      "github"
+    ],
+    "artifactName": "${name}-${version}-${os}-${arch}.${ext}",
+    "mac": {
+      "icon": "icon.icns",
+      "category": "public.app-category.education"
+    },
+    "win": {
+      "icon": "icons/icon.ico",
+      "signAndEditExecutable": true,
+      "verifyUpdateCodeSignature": false
+    },
+    "linux": {
+      "category": "Education",
+      "maintainer": "Ivan Bakaidov <ivan@aacidov.ru>",
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    },
     "asarUnpack": [
       "node_modules/@linkasu/tobii-electron/native/tobiifree-native/**/*.node",
       "node_modules/@linkasu/tobii-electron/node_modules/@linka/tobiifree-native/**/*.node",
@@ -69,27 +104,39 @@
       {
         "from": "./node_modules/@linkasu/tobii-electron/tools/tobiifree-helper/",
         "to": "extraResources/bin/tobiifree-helper",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       },
       {
         "from": "./node_modules/@linkasu/tobii-electron/tools/tobiifree-sdk/",
         "to": "extraResources/bin/tobiifree-sdk",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       },
       {
         "from": "./node_modules/usb/",
         "to": "extraResources/bin/node_modules/usb",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       },
       {
         "from": "./node_modules/node-gyp-build/",
         "to": "extraResources/bin/node_modules/node-gyp-build",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       },
       {
         "from": "./node_modules/@linkasu/tobii-electron/extraResources/bin/",
         "to": "extraResources/bin",
-        "filter": ["EyeLog.exe", "*.dll", "*.config"]
+        "filter": [
+          "EyeLog.exe",
+          "*.dll",
+          "*.config"
+        ]
       },
       {
         "from": "./build/Release/connect_four_ai.node",

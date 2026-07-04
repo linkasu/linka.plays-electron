@@ -35,6 +35,28 @@ declare global {
 
   type Dispose = () => void;
 
+  type AppVersionInfo = {
+    version: string;
+    platform: string;
+    isPackaged: boolean;
+  };
+
+  type UpdaterState = {
+    available: boolean;
+    downloaded: boolean;
+    error: string;
+    percent: number;
+    version: string;
+  };
+
+  type UpdateInfo = {
+    version?: string;
+  };
+
+  type UpdateProgressInfo = {
+    percent: number;
+  };
+
   type ConnectFourAiResult = {
     ok: boolean;
     column?: number;
@@ -120,6 +142,15 @@ declare global {
       chessMiniLegalMoves: (payload: { fen: string }) => Promise<ChessMiniAiResult>;
       chessMiniApplyMove: (payload: { fen: string; fromIndex: number; toIndex: number; promotion?: string }) => Promise<ChessMiniAiResult>;
       chessMiniBestMove: (payload: { fen: string; depth?: number; timeLimitMs?: number }) => Promise<ChessMiniAiResult>;
+    };
+    linkaUpdater?: {
+      getAppVersion: () => Promise<AppVersionInfo>;
+      getState: () => Promise<UpdaterState>;
+      restartApp: () => void;
+      onInfo: (listener: (info: UpdateProgressInfo) => void) => Dispose;
+      onAvailable: (listener: (info: UpdateInfo) => void) => Dispose;
+      onDownloaded: (listener: (info: UpdateInfo) => void) => Dispose;
+      onError: (listener: (message: string) => void) => Dispose;
     };
   }
 }

@@ -1,0 +1,63 @@
+name: Release linka.plays
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version, with or without v prefix"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: --win
+          - os: macos-latest
+            target: --mac --x64 --arm64
+    runs-on: ${{ matrix.os }}
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      CSC_IDENTITY_AUTO_DISCOVERY: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Use HTTPS for public GitHub dependencies
+        shell: bash
+        run: |
+          git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
+          git config --global url."https://github.com/".insteadOf "git@github.com:"
+
+      - run: npm ci
+
+      - run: npm run typecheck
+
+      - run: npm run lint:adaptive-layout
+
+      - name: Build and publish
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run build:native
+          npm run build
+          npx electron-builder ${{ matrix.target }} --publish always
+
+  publish-updater-mirror:
+    needs: build
+    uses: ./.github/workflows/publish-linka-plays-updater.yml
+    secrets: inherit
+    with:
+      version: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}

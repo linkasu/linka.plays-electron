@@ -30,3 +30,29 @@ contextBridge.exposeInMainWorld("linkaAi", {
   chessMiniApplyMove: (payload: { fen: string; fromIndex: number; toIndex: number; promotion?: string }) => ipcRenderer.invoke("chess-mini:apply-move", payload),
   chessMiniBestMove: (payload: { fen: string; depth?: number; timeLimitMs?: number }) => ipcRenderer.invoke("chess-mini:best-move", payload)
 });
+
+contextBridge.exposeInMainWorld("linkaUpdater", {
+  getAppVersion: () => ipcRenderer.invoke("app:version"),
+  getState: () => ipcRenderer.invoke("updater:getState"),
+  restartApp: () => ipcRenderer.send("updater:restartApp"),
+  onInfo: (listener: (info: unknown) => void): Dispose => {
+    const handler = (_event: Electron.IpcRendererEvent, info: unknown) => listener(info);
+    ipcRenderer.on("updater:info", handler);
+    return () => ipcRenderer.off("updater:info", handler);
+  },
+  onAvailable: (listener: (info: unknown) => void): Dispose => {
+    const handler = (_event: Electron.IpcRendererEvent, info: unknown) => listener(info);
+    ipcRenderer.on("updater:available", handler);
+    return () => ipcRenderer.off("updater:available", handler);
+  },
+  onDownloaded: (listener: (info: unknown) => void): Dispose => {
+    const handler = (_event: Electron.IpcRendererEvent, info: unknown) => listener(info);
+    ipcRenderer.on("updater:downloaded", handler);
+    return () => ipcRenderer.off("updater:downloaded", handler);
+  },
+  onError: (listener: (message: string) => void): Dispose => {
+    const handler = (_event: Electron.IpcRendererEvent, message: string) => listener(message);
+    ipcRenderer.on("updater:error", handler);
+    return () => ipcRenderer.off("updater:error", handler);
+  }
+});

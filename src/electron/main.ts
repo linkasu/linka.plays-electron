@@ -2,12 +2,14 @@ import { BackWatch } from "@linkasu/tobii-electron/main";
 import { app, BrowserWindow, ipcMain } from "electron";
 import { join } from "path";
 import { registerConnectFourAiHandlers } from "./connectFourAi";
+import { registerUpdaterHandlers, setupAutoUpdater } from "./updater";
 
 let mainWindow: BrowserWindow | undefined;
 let noTobiiHandlersRegistered = false;
 
 app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required");
 registerConnectFourAiHandlers();
+registerUpdaterHandlers();
 
 const devSession = process.env.LINKA_DEV_SESSION;
 if (devSession) {
@@ -72,6 +74,7 @@ async function createWindow() {
   } else {
     await win.loadFile(join(__dirname, "..", "dist", "index.html"));
   }
+  setupAutoUpdater(win);
 }
 
 app.whenReady().then(async () => {
