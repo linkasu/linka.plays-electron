@@ -374,7 +374,7 @@
     },
     {
       "id": "number-2048",
-      "title": "2048 мягкий",
+      "title": "2048",
       "category": "strategy",
       "status": "therapy-ready",
       "resolvedStabilityStatus": "needs-check",
@@ -404,7 +404,7 @@
     },
     {
       "id": "step-tetris",
-      "title": "Тетрис спокойный",
+      "title": "Тетрис",
       "category": "strategy",
       "status": "therapy-ready",
       "resolvedStabilityStatus": "needs-check",
@@ -514,7 +514,7 @@
     },
     {
       "id": "route-snake",
-      "title": "Змейка спокойная",
+      "title": "Змейка",
       "category": "strategy",
       "status": "therapy-ready",
       "resolvedStabilityStatus": "needs-check",
@@ -584,7 +584,7 @@
     },
     {
       "id": "road-car",
-      "title": "Плавная машинка",
+      "title": "Машинка на дороге",
       "category": "continuous-control",
       "status": "therapy-ready",
       "resolvedStabilityStatus": "needs-check",
@@ -1842,7 +1842,7 @@
     {
       "id": "bubble-pop",
       "line": 566,
-      "title": "Тихие пузыри",
+      "title": "Пузыри",
       "route": "/games/bubble-pop",
       "category": "gaze-basics",
       "status": "therapy-ready",
@@ -4895,7 +4895,7 @@
     {
       "id": "number-2048",
       "line": 1754,
-      "title": "2048 мягкий",
+      "title": "2048",
       "route": "/games/number-2048",
       "category": "strategy",
       "status": "therapy-ready",
@@ -5012,7 +5012,7 @@
     {
       "id": "step-tetris",
       "line": 1796,
-      "title": "Тетрис спокойный",
+      "title": "Тетрис",
       "route": "/games/step-tetris",
       "category": "strategy",
       "status": "therapy-ready",
@@ -5509,7 +5509,7 @@
     {
       "id": "route-snake",
       "line": 1978,
-      "title": "Змейка спокойная",
+      "title": "Змейка",
       "route": "/games/route-snake",
       "category": "strategy",
       "status": "therapy-ready",
@@ -5814,7 +5814,7 @@
     {
       "id": "road-car",
       "line": 2090,
-      "title": "Плавная машинка",
+      "title": "Машинка на дороге",
       "route": "/games/road-car",
       "category": "continuous-control",
       "status": "therapy-ready",

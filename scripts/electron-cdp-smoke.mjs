@@ -6,11 +6,11 @@ import { fileURLToPath } from "node:url";
 
 const defaultRoutes = [
   "/menu/self",
-  "/games/calm-2048",
-  "/games/calm-snake",
+  "/games/number-2048",
+  "/games/route-snake",
   "/games/sokoban-large",
   "/games/tanks-no-shooting",
-  "/games/calm-tetris"
+  "/games/step-tetris"
 ];
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
