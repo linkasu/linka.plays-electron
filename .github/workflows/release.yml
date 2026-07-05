@@ -67,6 +67,9 @@ jobs:
           gh release view "$release_tag" >/dev/null 2>&1 || gh release create "$release_tag" --title "$release_tag" --notes ""
           for artifact in release/*; do
             if [ -f "$artifact" ]; then
+              if [ "$(basename "$artifact")" = "builder-debug.yml" ]; then
+                continue
+              fi
               gh release upload "$release_tag" "$artifact" --clobber
             fi
           done
