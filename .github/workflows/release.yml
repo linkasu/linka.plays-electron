@@ -64,6 +64,10 @@ jobs:
           npm run build
           npx electron-builder ${{ matrix.target }} -p never
 
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            npm run smoke:packaged-window -- --screenshot-dir release-debug/screenshots --output release-debug/packaged-window-smoke.json --log release-debug/app.log
+          fi
+
           gh release view "$release_tag" >/dev/null 2>&1 || gh release create "$release_tag" --title "$release_tag" --notes ""
           for artifact in release/*; do
             if [ -f "$artifact" ]; then
@@ -73,6 +77,14 @@ jobs:
               gh release upload "$release_tag" "$artifact" --clobber
             fi
           done
+
+      - name: Upload Windows packaged renderer debug
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-packaged-renderer-debug-${{ github.run_id }}
+          path: release-debug/**/*
+          if-no-files-found: ignore
 
   publish-updater-mirror:
     needs: build
