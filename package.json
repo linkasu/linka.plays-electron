@@ -1,6 +1,6 @@
 {
   "name": "linka.plays-electron",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "LINKa plays MVP on Electron, Vue and Canvas",
   "main": "dist-electron/main.js",
@@ -31,7 +31,7 @@
     "tts:assets": "node scripts/generate-tts-assets.mjs",
     "electron:build": "npm run build:native && npm run build && electron-builder",
     "electron:build:win": "npm run electron:build -- --win -p never",
-    "electron:build:mac": "npm run electron:build -- --mac --x64 --arm64 -p never",
+    "electron:build:mac": "npm run electron:build -- --mac --arm64 -p never",
     "electron:build:linux": "npm run electron:build -- --linux -p never"
   },
   "dependencies": {
@@ -65,7 +65,8 @@
     "productName": "Линка играй",
     "appId": "su.linka.plays",
     "directories": {
-      "buildResources": "resources/electron"
+      "buildResources": "resources/electron",
+      "output": "release"
     },
     "icon": "resources/electron/icon",
     "publish": [
