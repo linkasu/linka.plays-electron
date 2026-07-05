@@ -1,6 +1,6 @@
 {
   "name": "linka.plays-electron",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "private": true,
   "description": "LINKa plays MVP on Electron, Vue and Canvas",
   "main": "dist-electron/main.js",
@@ -36,7 +36,7 @@
     "electron:build:linux": "npm run electron:build -- --linux -p never"
   },
   "dependencies": {
-    "@linkasu/tobii-electron": "https://github.com/linkasu/linka-tobii-electron/releases/download/v0.2.13/linkasu-tobii-electron-0.2.13.tgz",
+    "@linkasu/tobii-electron": "https://github.com/linkasu/linka-tobii-electron/releases/download/v0.2.14/linkasu-tobii-electron-0.2.14.tgz",
     "@mdi/font": "^7.4.47",
     "electron-store": "^8.2.0",
     "electron-updater": "^6.8.9",

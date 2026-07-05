@@ -9,13 +9,22 @@ export type TtsAsset = {
 const audioCache = new Map<string, HTMLAudioElement>();
 let currentAudio: HTMLAudioElement | undefined;
 
+function resolveAudioPath(path: string) {
+  if (/^[a-z][a-z0-9+.-]*:/i.test(path)) return path;
+  const base = import.meta.env.BASE_URL || "/";
+  const normalizedBase = base.endsWith("/") ? base : `${base}/`;
+  const normalizedPath = path.replace(/^\/+/, "");
+  return new URL(`${normalizedBase}${normalizedPath}`, window.location.href).toString();
+}
+
 function getAudio(asset: TtsAsset) {
-  let audio = audioCache.get(asset.path);
+  const src = resolveAudioPath(asset.path);
+  let audio = audioCache.get(src);
   if (!audio) {
-    audio = new Audio(asset.path);
+    audio = new Audio(src);
     audio.preload = "auto";
     audio.volume = 0.42;
-    audioCache.set(asset.path, audio);
+    audioCache.set(src, audio);
   }
   return audio;
 }
@@ -86,12 +95,13 @@ export function stopTtsPlayback() {
 
 export function disposeTtsAssets(assets: TtsAsset[]) {
   for (const asset of assets) {
-    const audio = audioCache.get(asset.path);
+    const src = resolveAudioPath(asset.path);
+    const audio = audioCache.get(src);
     if (!audio) continue;
     audio.pause();
     audio.removeAttribute("src");
     audio.load();
-    audioCache.delete(asset.path);
+    audioCache.delete(src);
     if (currentAudio === audio) currentAudio = undefined;
   }
 }

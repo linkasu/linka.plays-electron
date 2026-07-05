@@ -34,14 +34,14 @@ function registerNoTobiiHandlers() {
   ipcMain.handle("tobii:status:get", () => disabledTobiiStatus());
   ipcMain.handle("tobii:diagnostics:get", () => ({
     status: disabledTobiiStatus(),
-    coordinateScaleMode: "auto",
+    coordinateScaleMode: "one",
     appliedScaleFactor: 1,
     recentTrackerDebug: [],
     recentGaze: []
   }));
   ipcMain.handle("tobii:diagnostics:set-scale-mode", () => ({
     status: disabledTobiiStatus(),
-    coordinateScaleMode: "auto",
+    coordinateScaleMode: "one",
     appliedScaleFactor: 1,
     recentTrackerDebug: [],
     recentGaze: []

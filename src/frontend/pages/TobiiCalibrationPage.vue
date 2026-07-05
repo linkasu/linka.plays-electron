@@ -25,7 +25,6 @@ const completingPoint = ref(false);
 const tobiiStatus = ref<TobiiStatus>();
 const gazePoint = ref<GazePoint>();
 const diagnostics = ref<TobiiDiagnosticsSnapshot>();
-const scaleMode = ref<TobiiCoordinateScaleMode>("auto");
 const recentRendererSamples = ref<GazeSample[]>([]);
 
 const holdMs = 1600;
@@ -81,12 +80,6 @@ const samplesPerSecond = computed(() => {
 });
 const lastTrackerDebug = computed(() => diagnostics.value?.recentTrackerDebug.at(-1));
 const lastRendererGaze = computed(() => diagnostics.value?.recentGaze.at(-1));
-const scaleModes: Array<{ value: TobiiCoordinateScaleMode; label: string }> = [
-  { value: "auto", label: "Авто" },
-  { value: "one", label: "1x" },
-  { value: "display", label: "Display scale" },
-  { value: "inverse-display", label: "Inverse" }
-];
 
 async function startTobiiCalibration() {
   if (calibrationBusy.value || !window.linkaTobii) return;
@@ -339,20 +332,6 @@ async function refreshDiagnostics() {
   try {
     diagnostics.value = await window.linkaTobii.getDiagnostics();
     tobiiStatus.value = diagnostics.value.status;
-    scaleMode.value = diagnostics.value.coordinateScaleMode;
-  } catch (error) {
-    diagnosticsError.value = error instanceof Error ? error.message : String(error);
-  }
-}
-
-async function setScaleMode(nextMode: TobiiCoordinateScaleMode | undefined) {
-  if (!nextMode || !window.linkaTobii?.setCoordinateScaleMode) return;
-  diagnosticsError.value = "";
-  diagnosticsMessage.value = "";
-  try {
-    diagnostics.value = await window.linkaTobii.setCoordinateScaleMode(nextMode);
-    scaleMode.value = diagnostics.value.coordinateScaleMode;
-    diagnosticsMessage.value = `Режим масштаба Tobii: ${nextMode}`;
   } catch (error) {
     diagnosticsError.value = error instanceof Error ? error.message : String(error);
   }
@@ -460,11 +439,7 @@ onBeforeUnmount(() => {
                 </v-col>
                 <v-col cols="12" md="4">
                   <div class="text-caption text-medium-emphasis">Scale</div>
-                  <div class="text-body-2">{{ diagnostics?.coordinateScaleMode || "-" }} / {{ formatNumber(diagnostics?.appliedScaleFactor, 2) }}</div>
-                </v-col>
-                <v-col cols="12" md="4">
-                  <div class="text-caption text-medium-emphasis">Display scale</div>
-                  <div class="text-body-2">{{ formatNumber(diagnostics?.display?.scaleFactor, 2) }}</div>
+                  <div class="text-body-2">1x / {{ formatNumber(diagnostics?.appliedScaleFactor, 2) }}</div>
                 </v-col>
                 <v-col cols="12" md="4">
                   <div class="text-caption text-medium-emphasis">Raw gaze</div>
@@ -476,13 +451,8 @@ onBeforeUnmount(() => {
                 </v-col>
               </v-row>
               <div class="text-caption text-medium-emphasis mt-3">
-                Если реакции нет, попробуйте режимы масштаба. На Windows с масштабом 125-150% обычно должен работать Auto или Display scale.
+                Координаты Tobii используются без дополнительного масштаба: 1x.
               </div>
-              <v-btn-toggle class="mt-2" color="primary" divided mandatory :model-value="scaleMode" variant="outlined" @update:model-value="setScaleMode">
-                <v-btn v-for="mode in scaleModes" :key="mode.value" :value="mode.value" size="small">
-                  {{ mode.label }}
-                </v-btn>
-              </v-btn-toggle>
             </v-card-text>
           </v-card>
         </v-card-text>
