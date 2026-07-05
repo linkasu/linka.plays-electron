@@ -4,6 +4,8 @@ type Dispose = () => void;
 
 contextBridge.exposeInMainWorld("linkaTobii", {
   getStatus: () => ipcRenderer.invoke("tobii:status:get"),
+  getDiagnostics: () => ipcRenderer.invoke("tobii:diagnostics:get"),
+  setCoordinateScaleMode: (mode: string) => ipcRenderer.invoke("tobii:diagnostics:set-scale-mode", mode),
   rendererReady: () => ipcRenderer.send("tobii:renderer-ready"),
   startCalibration: () => ipcRenderer.invoke("tobii:calibration:start"),
   addCalibrationPoint: (point: { x: number; y: number }) => ipcRenderer.invoke("tobii:calibration:add-point", point),
@@ -55,4 +57,8 @@ contextBridge.exposeInMainWorld("linkaUpdater", {
     ipcRenderer.on("updater:error", handler);
     return () => ipcRenderer.off("updater:error", handler);
   }
+});
+
+contextBridge.exposeInMainWorld("linkaDiagnostics", {
+  upload: (payload: unknown) => ipcRenderer.invoke("diagnostics:upload", payload)
 });

@@ -25,6 +25,42 @@ declare global {
     updatedAt: number;
   };
 
+  type TobiiCoordinateScaleMode = "auto" | "one" | "display" | "inverse-display";
+
+  type TobiiDiagnosticsSnapshot = {
+    status: TobiiStatus;
+    coordinateScaleMode: TobiiCoordinateScaleMode;
+    appliedScaleFactor: number;
+    window?: {
+      focused: boolean;
+      bounds: { x: number; y: number; width: number; height: number };
+      contentBounds: { x: number; y: number; width: number; height: number };
+    };
+    display?: {
+      bounds: { x: number; y: number; width: number; height: number };
+      workArea: { x: number; y: number; width: number; height: number };
+      scaleFactor: number;
+    };
+    recentTrackerDebug: Array<{
+      raw: { x: number; y: number };
+      normalized: { x: number; y: number };
+      screen: { x: number; y: number };
+      screenRect: { x: number; y: number; width: number; height: number };
+      boundsCount: number;
+      hitIndex: number;
+      softwareCalibration: boolean;
+      scaleFactor?: number;
+      at?: number;
+    }>;
+    recentGaze: Array<{
+      at: number;
+      screen: GazePoint;
+      client: GazePoint;
+      contentBounds: { x: number; y: number; width: number; height: number };
+      displayScaleFactor: number;
+    }>;
+  };
+
   type GazePoint = {
     x: number;
     y: number;
@@ -126,6 +162,8 @@ declare global {
   interface Window {
     linkaTobii?: {
       getStatus: () => Promise<TobiiStatus>;
+      getDiagnostics: () => Promise<TobiiDiagnosticsSnapshot>;
+      setCoordinateScaleMode: (mode: TobiiCoordinateScaleMode) => Promise<TobiiDiagnosticsSnapshot>;
       rendererReady: () => void;
       startCalibration: () => Promise<boolean>;
       addCalibrationPoint: (point: { x: number; y: number }) => Promise<boolean>;
@@ -134,6 +172,9 @@ declare global {
       restartService: () => Promise<boolean>;
       onStatus: (listener: (status: TobiiStatus) => void) => Dispose;
       onGaze: (listener: (point: GazePoint) => void) => Dispose;
+    };
+    linkaDiagnostics?: {
+      upload: (payload: unknown) => Promise<{ ok: boolean; id?: string }>;
     };
     linkaAi?: {
       connectFourBestMove: (payload: { board: string; player?: "R" | "Y"; depth?: number; timeLimitMs?: number; threads?: number }) => Promise<ConnectFourAiResult>;

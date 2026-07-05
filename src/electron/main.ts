@@ -2,6 +2,7 @@ import { BackWatch } from "@linkasu/tobii-electron/main";
 import { app, BrowserWindow, ipcMain } from "electron";
 import { join } from "path";
 import { registerConnectFourAiHandlers } from "./connectFourAi";
+import { registerDiagnosticsHandlers } from "./diagnostics";
 import { registerUpdaterHandlers, setupAutoUpdater } from "./updater";
 
 let mainWindow: BrowserWindow | undefined;
@@ -9,6 +10,7 @@ let noTobiiHandlersRegistered = false;
 
 app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required");
 registerConnectFourAiHandlers();
+registerDiagnosticsHandlers();
 registerUpdaterHandlers();
 
 const devSession = process.env.LINKA_DEV_SESSION;
@@ -30,6 +32,20 @@ function registerNoTobiiHandlers() {
   if (noTobiiHandlersRegistered) return;
   noTobiiHandlersRegistered = true;
   ipcMain.handle("tobii:status:get", () => disabledTobiiStatus());
+  ipcMain.handle("tobii:diagnostics:get", () => ({
+    status: disabledTobiiStatus(),
+    coordinateScaleMode: "auto",
+    appliedScaleFactor: 1,
+    recentTrackerDebug: [],
+    recentGaze: []
+  }));
+  ipcMain.handle("tobii:diagnostics:set-scale-mode", () => ({
+    status: disabledTobiiStatus(),
+    coordinateScaleMode: "auto",
+    appliedScaleFactor: 1,
+    recentTrackerDebug: [],
+    recentGaze: []
+  }));
   ipcMain.handle("tobii:calibration:start", () => false);
   ipcMain.handle("tobii:calibration:add-point", () => false);
   ipcMain.handle("tobii:calibration:finish", () => false);

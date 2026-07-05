@@ -6,12 +6,16 @@ import { resolveMenuRoute } from "../core/menuMode";
 type CalibrationPhase = "idle" | "start" | "look" | "finish";
 type CalibrationPointState = "idle" | "holding" | "bursting" | "done";
 type CalibrationPoint = { x: number; y: number };
+type GazeSample = { at: number; valid: boolean; x: number; y: number };
 
 const router = useRouter();
 const calibrationBusy = ref(false);
 const calibrationActive = ref(false);
 const calibrationMessage = ref("");
 const calibrationError = ref("");
+const diagnosticsMessage = ref("");
+const diagnosticsError = ref("");
+const uploadBusy = ref(false);
 const phase = ref<CalibrationPhase>("idle");
 const activeGroupIndex = ref(0);
 const activePointIndex = ref<number | null>(null);
@@ -20,6 +24,9 @@ const holdProgress = ref(0);
 const completingPoint = ref(false);
 const tobiiStatus = ref<TobiiStatus>();
 const gazePoint = ref<GazePoint>();
+const diagnostics = ref<TobiiDiagnosticsSnapshot>();
+const scaleMode = ref<TobiiCoordinateScaleMode>("auto");
+const recentRendererSamples = ref<GazeSample[]>([]);
 
 const holdMs = 1600;
 const burstMs = 280;
@@ -28,6 +35,7 @@ const targetHitRadius = 360;
 let holdFrame: number | undefined;
 let disposeStatus: Dispose | undefined;
 let disposeGaze: Dispose | undefined;
+let diagnosticsTimer: number | undefined;
 
 const calibrationGroups: CalibrationPoint[][] = [
   [
@@ -48,6 +56,8 @@ const currentTargetIndex = computed(() => {
   return index >= 0 ? index : null;
 });
 const canUseTobii = computed(() => tobiiStatus.value?.state === "connected" || tobiiStatus.value?.state === "tracking");
+const isEyeLogMode = computed(() => tobiiStatus.value?.mode === "direct");
+const canRunSdkCalibration = computed(() => canUseTobii.value && !isEyeLogMode.value);
 const tobiiStatusMessage = computed(() => tobiiStatus.value?.message || "Проверяю состояние Tobii...");
 const tobiiStatusAlertType = computed(() => {
   if (!tobiiStatus.value) return "info";
@@ -59,6 +69,24 @@ const gazeMarkerStyle = computed(() => ({
   left: `${gazePoint.value?.x ?? -100}px`,
   top: `${gazePoint.value?.y ?? -100}px`
 }));
+const validRatio = computed(() => {
+  if (recentRendererSamples.value.length === 0) return 0;
+  return recentRendererSamples.value.filter((sample) => sample.valid).length / recentRendererSamples.value.length;
+});
+const samplesPerSecond = computed(() => {
+  const samples = recentRendererSamples.value;
+  if (samples.length < 2) return 0;
+  const durationMs = samples[samples.length - 1].at - samples[0].at;
+  return durationMs > 0 ? (samples.length - 1) / durationMs * 1000 : 0;
+});
+const lastTrackerDebug = computed(() => diagnostics.value?.recentTrackerDebug.at(-1));
+const lastRendererGaze = computed(() => diagnostics.value?.recentGaze.at(-1));
+const scaleModes: Array<{ value: TobiiCoordinateScaleMode; label: string }> = [
+  { value: "auto", label: "Авто" },
+  { value: "one", label: "1x" },
+  { value: "display", label: "Display scale" },
+  { value: "inverse-display", label: "Inverse" }
+];
 
 async function startTobiiCalibration() {
   if (calibrationBusy.value || !window.linkaTobii) return;
@@ -74,6 +102,7 @@ async function startTobiiCalibration() {
 
   try {
     phase.value = "start";
+    if (!canRunSdkCalibration.value) throw new Error("SDK-калибровка недоступна в Windows EyeLog-режиме. Используйте проверку взгляда и отправку диагностики.");
     await window.linkaTobii.startCalibration();
     phase.value = "look";
   } catch (error) {
@@ -93,6 +122,10 @@ function cancelTobiiCalibration() {
 
 async function applySavedCalibration() {
   if (!window.linkaTobii) return;
+  if (!canRunSdkCalibration.value) {
+    calibrationError.value = "Сохранённая SDK-калибровка недоступна в Windows EyeLog-режиме.";
+    return;
+  }
   calibrationBusy.value = true;
   calibrationError.value = "";
   try {
@@ -146,6 +179,11 @@ function isPointDisabled(index: number) {
 
 function onGaze(point: GazePoint) {
   gazePoint.value = point;
+  const now = Date.now();
+  recentRendererSamples.value = [
+    ...recentRendererSamples.value.filter((sample) => now - sample.at <= 10000),
+    { at: now, valid: point.valid, x: point.x, y: point.y }
+  ].slice(-240);
   if (!calibrationActive.value || phase.value !== "look" || !point.valid) {
     resetActivePoint();
     return;
@@ -296,9 +334,73 @@ async function loadTobiiStatus() {
   }
 }
 
+async function refreshDiagnostics() {
+  if (!window.linkaTobii?.getDiagnostics) return;
+  try {
+    diagnostics.value = await window.linkaTobii.getDiagnostics();
+    tobiiStatus.value = diagnostics.value.status;
+    scaleMode.value = diagnostics.value.coordinateScaleMode;
+  } catch (error) {
+    diagnosticsError.value = error instanceof Error ? error.message : String(error);
+  }
+}
+
+async function setScaleMode(nextMode: TobiiCoordinateScaleMode | undefined) {
+  if (!nextMode || !window.linkaTobii?.setCoordinateScaleMode) return;
+  diagnosticsError.value = "";
+  diagnosticsMessage.value = "";
+  try {
+    diagnostics.value = await window.linkaTobii.setCoordinateScaleMode(nextMode);
+    scaleMode.value = diagnostics.value.coordinateScaleMode;
+    diagnosticsMessage.value = `Режим масштаба Tobii: ${nextMode}`;
+  } catch (error) {
+    diagnosticsError.value = error instanceof Error ? error.message : String(error);
+  }
+}
+
+async function uploadDiagnostics() {
+  if (!window.linkaDiagnostics) return;
+  uploadBusy.value = true;
+  diagnosticsError.value = "";
+  diagnosticsMessage.value = "Собираю диагностику...";
+  await refreshDiagnostics();
+  try {
+    const result = await window.linkaDiagnostics.upload({
+      kind: "tobii-diagnostics",
+      route: router.currentRoute.value.fullPath,
+      viewport: {
+        width: window.innerWidth,
+        height: window.innerHeight,
+        devicePixelRatio: window.devicePixelRatio
+      },
+      userAgent: navigator.userAgent,
+      status: tobiiStatus.value,
+      diagnostics: diagnostics.value,
+      currentGaze: gazePoint.value,
+      rendererStats: {
+        sampleCount: recentRendererSamples.value.length,
+        samplesPerSecond: samplesPerSecond.value,
+        validRatio: validRatio.value,
+        recentSamples: recentRendererSamples.value.slice(-120)
+      }
+    });
+    diagnosticsMessage.value = result.id ? `Диагностика отправлена: ${result.id}` : "Диагностика отправлена.";
+  } catch (error) {
+    diagnosticsError.value = error instanceof Error ? error.message : String(error);
+  } finally {
+    uploadBusy.value = false;
+  }
+}
+
+function formatNumber(value: number | undefined, digits = 1) {
+  return typeof value === "number" && Number.isFinite(value) ? value.toFixed(digits) : "-";
+}
+
 onMounted(() => {
   window.addEventListener("keydown", onKeydown);
   void loadTobiiStatus();
+  void refreshDiagnostics();
+  diagnosticsTimer = window.setInterval(() => void refreshDiagnostics(), 1500);
   disposeStatus = window.linkaTobii?.onStatus((status) => {
     tobiiStatus.value = status;
   });
@@ -307,6 +409,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   stopHoldTimer();
+  if (diagnosticsTimer !== undefined) window.clearInterval(diagnosticsTimer);
   window.removeEventListener("keydown", onKeydown);
   disposeStatus?.();
   disposeGaze?.();
@@ -326,25 +429,77 @@ onBeforeUnmount(() => {
             <div>{{ tobiiStatusMessage }}</div>
             <div v-if="tobiiStatus?.lastError">Ошибка: {{ tobiiStatus.lastError }}</div>
           </v-alert>
+          <v-alert v-if="isEyeLogMode" class="mt-4" type="info" variant="tonal">
+            Windows сейчас использует EyeLog-поток. Это проверка реакции взгляда, а не SDK-калибровка Tobii.
+          </v-alert>
           <v-alert v-if="calibrationMessage" class="mt-4" type="info" variant="tonal">
             {{ calibrationMessage }}
           </v-alert>
           <v-alert v-if="calibrationError" class="mt-4" type="error" variant="tonal">
             {{ calibrationError }}
           </v-alert>
+          <v-alert v-if="diagnosticsMessage" class="mt-4" type="success" variant="tonal">
+            {{ diagnosticsMessage }}
+          </v-alert>
+          <v-alert v-if="diagnosticsError" class="mt-4" type="error" variant="tonal">
+            {{ diagnosticsError }}
+          </v-alert>
+          <v-card class="mt-4" rounded="lg" variant="tonal">
+            <v-card-title class="text-subtitle-1 pb-1">
+              Диагностика взгляда
+            </v-card-title>
+            <v-card-text class="pt-0">
+              <v-row dense>
+                <v-col cols="12" md="4">
+                  <div class="text-caption text-medium-emphasis">Renderer samples</div>
+                  <div class="text-body-2">{{ recentRendererSamples.length }} / {{ formatNumber(samplesPerSecond) }} Hz</div>
+                </v-col>
+                <v-col cols="12" md="4">
+                  <div class="text-caption text-medium-emphasis">Valid ratio</div>
+                  <div class="text-body-2">{{ formatNumber(validRatio * 100, 0) }}%</div>
+                </v-col>
+                <v-col cols="12" md="4">
+                  <div class="text-caption text-medium-emphasis">Scale</div>
+                  <div class="text-body-2">{{ diagnostics?.coordinateScaleMode || "-" }} / {{ formatNumber(diagnostics?.appliedScaleFactor, 2) }}</div>
+                </v-col>
+                <v-col cols="12" md="4">
+                  <div class="text-caption text-medium-emphasis">Display scale</div>
+                  <div class="text-body-2">{{ formatNumber(diagnostics?.display?.scaleFactor, 2) }}</div>
+                </v-col>
+                <v-col cols="12" md="4">
+                  <div class="text-caption text-medium-emphasis">Raw gaze</div>
+                  <div class="text-body-2">{{ formatNumber(lastTrackerDebug?.raw.x) }}, {{ formatNumber(lastTrackerDebug?.raw.y) }}</div>
+                </v-col>
+                <v-col cols="12" md="4">
+                  <div class="text-caption text-medium-emphasis">Client gaze</div>
+                  <div class="text-body-2">{{ formatNumber(lastRendererGaze?.client.x) }}, {{ formatNumber(lastRendererGaze?.client.y) }} / valid {{ lastRendererGaze?.client.valid ?? "-" }}</div>
+                </v-col>
+              </v-row>
+              <div class="text-caption text-medium-emphasis mt-3">
+                Если реакции нет, попробуйте режимы масштаба. На Windows с масштабом 125-150% обычно должен работать Auto или Display scale.
+              </div>
+              <v-btn-toggle class="mt-2" color="primary" divided mandatory :model-value="scaleMode" variant="outlined" @update:model-value="setScaleMode">
+                <v-btn v-for="mode in scaleModes" :key="mode.value" :value="mode.value" size="small">
+                  {{ mode.label }}
+                </v-btn>
+              </v-btn-toggle>
+            </v-card-text>
+          </v-card>
         </v-card-text>
-        <v-card-actions class="pa-6 pt-2">
-          <v-btn color="primary" :disabled="!canUseTobii" :loading="calibrationBusy" @click="startTobiiCalibration">
+        <v-card-actions class="pa-6 pt-2 flex-wrap ga-2">
+          <v-btn color="primary" :disabled="!canRunSdkCalibration" :loading="calibrationBusy" @click="startTobiiCalibration">
             Начать калибровку
           </v-btn>
-          <v-btn :disabled="!canUseTobii" :loading="calibrationBusy" @click="applySavedCalibration">
+          <v-btn :disabled="!canRunSdkCalibration" :loading="calibrationBusy" @click="applySavedCalibration">
             Применить сохранённую
           </v-btn>
-          <v-btn :loading="calibrationBusy" @click="restartService">
+          <v-btn v-if="!isEyeLogMode && canUseTobii" :loading="calibrationBusy" @click="restartService">
             Перезапустить Tobii
           </v-btn>
-          <v-spacer />
-          <v-btn @click="router.push(resolveMenuRoute())">
+          <v-btn color="secondary" :loading="uploadBusy" variant="tonal" @click="uploadDiagnostics">
+            Отправить диагностику
+          </v-btn>
+          <v-btn class="ms-md-auto" @click="router.push(resolveMenuRoute())">
             В меню
           </v-btn>
         </v-card-actions>
@@ -352,7 +507,7 @@ onBeforeUnmount(() => {
     </v-container>
 
     <div v-else class="calibration-stage" :class="{ 'is-finishing': phase === 'finish' }">
-      <div v-if="gazePoint?.valid" class="debug-gaze-marker" :style="gazeMarkerStyle" />
+      <div v-if="gazePoint" class="debug-gaze-marker" :class="{ 'is-invalid': !gazePoint.valid }" :style="gazeMarkerStyle" />
       <div
         v-for="(point, index) in currentGroup"
         v-show="pointStates[index] !== 'done' && currentTargetIndex === index"
@@ -409,6 +564,11 @@ onBeforeUnmount(() => {
   border-radius: 50%;
   box-shadow: 0 0 0 2px rgb(255 255 255 / 90%);
   pointer-events: none;
+}
+
+.debug-gaze-marker.is-invalid {
+  border-color: #ffb300;
+  opacity: 0.65;
 }
 
 .calibration-target {
