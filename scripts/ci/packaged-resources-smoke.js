@@ -3,7 +3,7 @@ const { spawn } = require("child_process");
 const { join } = require("path");
 
 const projectRoot = join(__dirname, "..", "..");
-const distDir = join(projectRoot, "dist");
+const packageOutputDir = join(projectRoot, "release");
 
 function assertFile (file) {
   if (!existsSync(file)) {
@@ -84,7 +84,7 @@ function isExpectedEyeLogCiFailure (stderr) {
 }
 
 function getWindowsExtraResourcesDir () {
-  return join(distDir, "win-unpacked", "resources", "extraResources");
+  return join(packageOutputDir, "win-unpacked", "resources", "extraResources");
 }
 
 function findMacAppBundle () {
@@ -103,7 +103,7 @@ function findMacAppBundle () {
     }
   }
 
-  scan(distDir, 0);
+  scan(packageOutputDir, 0);
   return appBundles.sort()[0];
 }
 
@@ -134,7 +134,7 @@ function smokeMacNativeAddon (resourcesDir) {
 function smokeMacPackage () {
   const appBundle = findMacAppBundle();
   if (!appBundle) {
-    throw new Error(`No packaged .app bundle found in ${distDir}`);
+    throw new Error(`No packaged .app bundle found in ${packageOutputDir}`);
   }
 
   const contentsDir = join(appBundle, "Contents");
