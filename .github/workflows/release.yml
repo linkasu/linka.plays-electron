@@ -52,9 +52,24 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          release_tag="${GITHUB_REF_NAME}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            release_tag="${{ inputs.version }}"
+          fi
+          if [[ "$release_tag" != v* ]]; then
+            release_tag="v$release_tag"
+          fi
+
           npm run build:native
           npm run build
-          npx electron-builder ${{ matrix.target }} --publish always
+          npx electron-builder ${{ matrix.target }} -p never
+
+          gh release view "$release_tag" >/dev/null 2>&1 || gh release create "$release_tag" --title "$release_tag" --notes ""
+          for artifact in release/*; do
+            if [ -f "$artifact" ]; then
+              gh release upload "$release_tag" "$artifact" --clobber
+            fi
+          done
 
   publish-updater-mirror:
     needs: build
