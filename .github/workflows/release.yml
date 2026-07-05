@@ -22,7 +22,7 @@ jobs:
           - os: windows-2022
             target: --win
           - os: macos-latest
-            target: --mac --x64 --arm64
+            target: --mac --arm64
     runs-on: ${{ matrix.os }}
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
