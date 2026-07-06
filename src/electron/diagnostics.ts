@@ -1,6 +1,5 @@
 import { app, ipcMain } from "electron";
 
-const defaultUploadUrl = "https://linka.su/linka-plays-debug/upload/?token=9f5ae86a31625f7101f0dc0a4db7a1da735d";
 const maxPayloadBytes = 900 * 1024;
 
 type DiagnosticsUploadPayload = {
@@ -10,7 +9,11 @@ type DiagnosticsUploadPayload = {
 
 export function registerDiagnosticsHandlers() {
   ipcMain.handle("diagnostics:upload", async (_event, payload: DiagnosticsUploadPayload) => {
-    const endpoint = process.env.LINKA_DIAGNOSTICS_URL || defaultUploadUrl;
+    const endpoint = process.env.LINKA_DIAGNOSTICS_URL;
+    if (!endpoint) {
+      throw new Error("Не задан LINKA_DIAGNOSTICS_URL для загрузки диагностики");
+    }
+
     const body = JSON.stringify({
       app: {
         version: app.getVersion(),

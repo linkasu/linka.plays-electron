@@ -22,3 +22,7 @@ npm run electron:serve
 
 Сейчас Tobii-слой заложен как IPC scaffold: `tobii:status:get`, `tobii:status`, `tobii:gaze`.
 Следующий шаг - перенести production tracker из `../linka.looks-electron/src/electron/tobii` и helper из `../linka.looks-electron/tools/tobiifree-helper`.
+
+## Diagnostics
+
+Для отправки диагностических отчётов задайте `LINKA_DIAGNOSTICS_URL` в окружении Electron-процесса.
