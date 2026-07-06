@@ -66,6 +66,9 @@ function openMode(mode: MenuMode) {
             <v-btn color="secondary" prepend-icon="mdi-eye-settings" size="large" to="/tobii-calibration" variant="tonal">
               Проверить Tobii
             </v-btn>
+            <v-btn color="primary" prepend-icon="mdi-crosshairs-gps" size="large" to="/gaze-debug" variant="tonal">
+              Debug взгляда
+            </v-btn>
           </div>
         </v-card>
       </v-col>

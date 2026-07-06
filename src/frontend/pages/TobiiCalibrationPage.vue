@@ -469,6 +469,9 @@ onBeforeUnmount(() => {
           <v-btn color="secondary" :loading="uploadBusy" variant="tonal" @click="uploadDiagnostics">
             Отправить диагностику
           </v-btn>
+          <v-btn color="primary" prepend-icon="mdi-crosshairs-gps" to="/gaze-debug" variant="tonal">
+            Debug взгляда
+          </v-btn>
           <v-btn class="ms-md-auto" @click="router.push(resolveMenuRoute())">
             В меню
           </v-btn>

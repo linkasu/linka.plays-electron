@@ -137,6 +137,7 @@ import WhoIsThisGame from "../games/who-is-this/WhoIsThisGame.vue";
 import WordCategoriesGame from "../games/word-categories/WordCategoriesGame.vue";
 import YesNoGame from "../games/yes-no/YesNoGame.vue";
 import HomePage from "../pages/HomePage.vue";
+import GazeDebugPage from "../pages/GazeDebugPage.vue";
 import PlannedGamePage from "../pages/PlannedGamePage.vue";
 import SelfMenuPage from "../pages/SelfMenuPage.vue";
 import StartPage from "../pages/StartPage.vue";
@@ -295,6 +296,7 @@ const router = createRouter({
     { path: "/", name: "start", component: StartPage },
     { path: "/menu/specialist", name: "menu-specialist", component: HomePage },
     { path: "/menu/self", name: "menu-self", component: SelfMenuPage },
+    { path: "/gaze-debug", name: "gaze-debug", component: GazeDebugPage },
     { path: "/tobii-calibration", name: "tobii-calibration", component: TobiiCalibrationPage },
    ...gameRoutes,
     { path: "/games/:gameId", name: "planned-game", component: PlannedGamePage }
