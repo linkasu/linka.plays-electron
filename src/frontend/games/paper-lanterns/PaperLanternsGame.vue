@@ -206,7 +206,7 @@ function updateActiveLantern(delta: number, now: number) {
   }
 
   const point = lanternPoint(lantern);
-  const hitRadius = lantern.radius * 1.18;
+  const hitRadius = lantern.radius * 1.35;
   const inside = pointer.value.valid && distance(point, pointer.value) <= hitRadius;
 
   if (!inside) {

@@ -194,7 +194,7 @@ function updateTarget(delta: number, now: number) {
   }
 
   const point = targetPixels(activeTarget);
-  const hitRadius = activeTarget.radius * 1.25;
+  const hitRadius = activeTarget.radius * 1.4;
   const inside = pointer.value.valid && distance(point, pointer.value) <= hitRadius;
 
   if (!inside) {

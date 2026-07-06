@@ -212,7 +212,7 @@ function updateBalloon(delta: number, now: number) {
   }
 
   const point = balloonPoint(balloon);
-  const hitRadius = balloon.radius * 1.18;
+  const hitRadius = balloon.radius * 1.35;
   const inside = pointer.value.valid && distance(point, pointer.value) <= hitRadius;
 
   if (!inside) {

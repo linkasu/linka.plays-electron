@@ -49,7 +49,7 @@ export function waterTop() {
 }
 
 export function duckHitRadius(duck: Duck) {
-  return duck.size * 0.84;
+  return duck.size;
 }
 
 function drawCloud(context: CanvasRenderingContext2D, x: number, y: number, size: number, alpha: number) {

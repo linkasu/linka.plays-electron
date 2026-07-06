@@ -251,8 +251,8 @@ function update(delta: number, now: number) {
   const points = trailPoints();
   const projection = pointer.value.valid ? projectPointToPath(pointer.value, points) : undefined;
   const width = trailWidth();
-  const onTrail = Boolean(projection && projection.distance <= width * 0.5);
-  const nearTrail = Boolean(projection && projection.distance <= width * 0.95);
+  const onTrail = Boolean(projection && projection.distance <= width * 0.62);
+  const nearTrail = Boolean(projection && projection.distance <= width * 1.1);
   const ahead = Boolean(projection && projection.ratio > progress.value + 0.003);
 
   updateTracking(nearTrail, projection);

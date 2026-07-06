@@ -89,7 +89,7 @@ function dockPoint(boat?: Boat): Point {
 }
 
 function hitRadius() {
-  return Math.min(170, Math.max(108, 76 * session.settings.targetScale));
+  return Math.min(190, Math.max(118, 90 * session.settings.targetScale));
 }
 
 function copyPointer() {

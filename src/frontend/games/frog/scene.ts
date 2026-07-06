@@ -63,7 +63,7 @@ export function frogMouthPoint(): Point {
 }
 
 export function bugHitRadius(bug: Bug) {
-  return bug.size * 0.86;
+  return bug.size;
 }
 
 function drawSky(context: CanvasRenderingContext2D, progress: number) {

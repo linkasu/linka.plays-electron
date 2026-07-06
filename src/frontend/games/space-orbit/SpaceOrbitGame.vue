@@ -204,7 +204,7 @@ function completeStar() {
 function updateStar(delta: number) {
   star.pulse += session.settings.reduceMotion ? 0 : delta * 2.4;
   const angularGap = Math.abs(angleDifference(orbit.craftAngle, star.angle));
-  const collectRadius = 0.25 + (star.radius / Math.max(orbitRadiusX(), orbitRadiusY())) * 0.55;
+  const collectRadius = 0.32 + (star.radius / Math.max(orbitRadiusX(), orbitRadiusY())) * 0.7;
   const progress = Math.max(0, 1 - angularGap / collectRadius);
   const closeEnough = pointer.value.valid && angularGap <= collectRadius;
 

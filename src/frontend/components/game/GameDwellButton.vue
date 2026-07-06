@@ -39,7 +39,7 @@ let enteredAt = 0;
 let disposed = false;
 let cooldownUntil = 0;
 
-const hitPaddingPx = 18;
+const hitPaddingPx = 36;
 
 const progressStyle = computed(() => ({
   "--dwell-progress-scale": progress.value.toFixed(3)

@@ -279,7 +279,7 @@ function updateStation(delta: number, now: number, samples: RailSample[]) {
   const stationPoint = pointAtRatio(samples, stationRatio);
   const atStation = train.ratio >= stationRatio - 0.003;
   const focusDistance = pointer.value.valid ? distance(pointer.value, stationPoint) : Number.POSITIVE_INFINITY;
-  const stationFocus = atStation && focusDistance <= railWidth() * 0.9;
+  const stationFocus = atStation && focusDistance <= railWidth() * 1.05;
 
   if (!stationFocus) {
     if (stationEnteredAt) resetStationDwell(now, pointer.value.valid ? "left" : "invalid-gaze");
@@ -310,8 +310,8 @@ function update(delta: number, now: number) {
   const samples = railSamples();
   const projection = pointer.value.valid ? projectToRail(pointer.value, samples) : undefined;
   const laneWidth = railWidth();
-  const nearRail = Boolean(projection && projection.distance <= laneWidth * 0.95);
-  const onRail = Boolean(projection && projection.distance <= laneWidth * 0.54);
+  const nearRail = Boolean(projection && projection.distance <= laneWidth * 1.1);
+  const onRail = Boolean(projection && projection.distance <= laneWidth * 0.65);
   const targetRatio = Math.min(1, activeStation.value / session.maxSteps);
   const canMoveForward = Boolean(projection && nearRail && projection.ratio > train.ratio + 0.002);
 

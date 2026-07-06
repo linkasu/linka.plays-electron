@@ -79,7 +79,7 @@ export function buildWhereObjectTargets(round: WhereObjectRound): WhereObjectCan
   }));
 }
 
-export function containsTarget(target: WhereObjectCanvasTarget, point: Point, padding = 18) {
+export function containsTarget(target: WhereObjectCanvasTarget, point: Point, padding = 32) {
   return point.x >= target.x - padding
     && point.x <= target.x + target.width + padding
     && point.y >= target.y - padding

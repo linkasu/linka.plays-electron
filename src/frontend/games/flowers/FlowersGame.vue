@@ -247,7 +247,7 @@ function updateBud(delta: number, now: number) {
   }
 
   const point = percentToPixels(bud);
-  const hitRadius = bud.radius * 1.28;
+  const hitRadius = bud.radius * 1.42;
   const inside = pointer.value.valid && distance(point, pointer.value) <= hitRadius;
 
   if (!inside) {

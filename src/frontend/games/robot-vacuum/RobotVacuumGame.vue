@@ -264,7 +264,7 @@ function closestCleanableTarget() {
   for (const target of targets) {
     const point = targetPixels(target);
     const nextDistance = distance(robot, point);
-    const cleanRadius = radius * 0.88 + target.radius;
+    const cleanRadius = radius * 1.05 + target.radius;
     if (nextDistance <= cleanRadius && nextDistance < closestDistance) {
       closest = target;
       closestDistance = nextDistance;

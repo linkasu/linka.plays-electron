@@ -219,7 +219,7 @@ function updateCloud(cloud: Cloud, delta: number, now: number) {
   const targetOpen = Math.max(influence, cloud.dwellProgress * 0.85);
   cloud.openness += (targetOpen - cloud.openness) * Math.min(1, delta * 1.8);
 
-  const inside = session.status === "running" && influence > 0.24;
+  const inside = session.status === "running" && influence > 0.15;
   if (!inside) {
     cloud.enteredAt = undefined;
     cloud.dwellProgress = Math.max(0, cloud.dwellProgress - delta * 0.42);

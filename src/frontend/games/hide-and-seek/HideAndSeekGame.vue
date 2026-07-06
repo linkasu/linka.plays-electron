@@ -107,11 +107,11 @@ function playResponseTts(id: string, delayMs = 920) {
 }
 
 function objectWidth() {
-  return 160 * session.settings.targetScale;
+  return 180 * session.settings.targetScale;
 }
 
 function objectHeight() {
-  return 150 * session.settings.targetScale;
+  return 170 * session.settings.targetScale;
 }
 
 function objectTargetId(object: HiddenObject) {

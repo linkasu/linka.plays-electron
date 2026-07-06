@@ -62,7 +62,7 @@ function flowerRadius() {
 }
 
 function hitRadius() {
-  return flowerRadius() * 0.72;
+  return flowerRadius() * 0.88;
 }
 
 function copyPointer() {

@@ -195,7 +195,7 @@ function closestGazeFish() {
   let closestDistance = Number.POSITIVE_INFINITY;
   for (const fish of fishes) {
     if (fish.fedAge > 0) continue;
-    const hitRadius = fish.size * 1.22;
+    const hitRadius = fish.size * 1.35;
     const nextDistance = distance(fish, pointer.value);
     if (nextDistance <= hitRadius && nextDistance < closestDistance) {
       closest = fish;

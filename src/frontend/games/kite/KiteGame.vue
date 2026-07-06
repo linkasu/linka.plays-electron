@@ -143,7 +143,7 @@ function completeLift(now: number) {
 function updateProgress(delta: number, now: number, influence: number) {
   if (session.status !== "running" || session.step >= session.maxSteps) return;
 
-  const focused = influence > 0.2;
+  const focused = influence > 0.14;
   if (focused && kite.enteredAt === 0) {
     kite.enteredAt = now;
     recordEvent("target-enter", targetPayload(now, kite.dwellProgress));

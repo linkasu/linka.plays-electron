@@ -162,7 +162,7 @@ function nodeScale(node: MazeNode) {
 }
 
 function nodeHitRadius(node: MazeNode) {
-  return nodeRadius() * nodeScale(node) * 1.05;
+  return nodeRadius() * nodeScale(node) * 1.2;
 }
 
 function resizeCanvas() {

@@ -308,7 +308,7 @@ function updateActiveStar(now: number) {
   if (!constellation || !star) return;
 
   const point = constellationToPixels(star);
-  const hitRadius = star.radius * 1.28;
+  const hitRadius = star.radius * 1.42;
   const inside = pointer.value.valid && distance(point, pointer.value) <= hitRadius;
 
   if (!inside) {

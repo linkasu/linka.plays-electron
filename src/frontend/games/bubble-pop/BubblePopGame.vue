@@ -267,7 +267,7 @@ function closestGazeBubble() {
   for (const bubble of bubbles) {
     if (bubble.phase === "popping") continue;
     const point = bubblePoint(bubble);
-    const hitRadius = bubble.radius * 1.24;
+    const hitRadius = bubble.radius * 1.4;
     const nextDistance = distance(point, pointer.value);
     if (nextDistance <= hitRadius && nextDistance < closestDistance) {
       closest = bubble;

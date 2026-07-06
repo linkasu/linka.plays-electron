@@ -75,7 +75,7 @@ function flowerRadius() {
 }
 
 function waterRadius(flower: GardenFlower) {
-  return flower.radius * 1.55;
+  return flower.radius * 1.8;
 }
 
 function currentFlowerHead(flower: GardenFlower) {

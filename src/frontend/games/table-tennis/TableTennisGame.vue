@@ -219,7 +219,7 @@ function updateBall(delta: number, now: number) {
 
   const paddleFace = paddle.x + paddle.width;
   const verticalGap = Math.abs(ball.y - paddle.y);
-  const touchesPaddle = ball.vx < 0 && ball.x - ball.radius <= paddleFace && ball.x + ball.radius >= paddle.x && verticalGap <= paddle.height / 2 + ball.radius * 0.62;
+  const touchesPaddle = ball.vx < 0 && ball.x - ball.radius <= paddleFace && ball.x + ball.radius >= paddle.x && verticalGap <= paddle.height / 2 + ball.radius * 0.9;
   if (touchesPaddle && now - ball.lastHitAt > 420) hitBall(now);
 
   const partnerFace = area.right - Math.max(92, width.value * 0.1);

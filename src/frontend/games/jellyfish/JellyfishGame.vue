@@ -197,7 +197,7 @@ function closestJellyfish() {
     if (jelly.phase === "resting") continue;
     const point = jellyfishPoint(jelly);
     const nextDistance = distance(point, pointer.value);
-    const hitRadius = jelly.size * 1.24;
+    const hitRadius = jelly.size * 1.38;
     if (nextDistance <= hitRadius && nextDistance < closestDistance) {
       closest = jelly;
       closestDistance = nextDistance;

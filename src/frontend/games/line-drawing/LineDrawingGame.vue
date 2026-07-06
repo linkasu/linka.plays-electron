@@ -183,7 +183,7 @@ function cancelDot(dot: DrawingDot, now: number, reason: "left" | "invalid-gaze"
 
 function updateDots(delta: number, now: number) {
   const nextDot = dots.find((dot) => !dot.completed);
-  const activeDot = nextDot && pointer.value.valid && distance(brush, nextDot) <= nextDot.radius ? nextDot : undefined;
+  const activeDot = nextDot && pointer.value.valid && distance(brush, nextDot) <= nextDot.radius * 1.18 ? nextDot : undefined;
 
   for (const dot of dots) {
     if (dot.bloom > 0) dot.bloom = Math.max(0, dot.bloom - delta * 1.5);

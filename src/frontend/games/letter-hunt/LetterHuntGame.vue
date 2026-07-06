@@ -314,7 +314,7 @@ function closestLetter() {
   for (const letter of activeLetters) {
     if (letter.feedback !== "idle") continue;
     const point = letterPoint(letter);
-    const hitRadius = letter.radius * 1.18;
+    const hitRadius = letter.radius * 1.36;
     const nextDistance = distance(point, pointer.value);
     if (nextDistance <= hitRadius && nextDistance < closestDistance) {
       closest = letter;

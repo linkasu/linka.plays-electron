@@ -181,11 +181,12 @@ function restart() {
 }
 
 function hitTestTarget(point: Point) {
+  const padding = Math.min(width.value, height.value) * 0.025;
   return targets.find((target) => (
-    point.x >= target.x
-    && point.x <= target.x + target.width
-    && point.y >= target.y
-    && point.y <= target.y + target.height
+    point.x >= target.x - padding
+    && point.x <= target.x + target.width + padding
+    && point.y >= target.y - padding
+    && point.y <= target.y + target.height + padding
   ));
 }
 

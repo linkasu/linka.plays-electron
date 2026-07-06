@@ -207,7 +207,7 @@ function closestShell() {
     if (shell.phase === "glowing" || shell.phase === "settling") continue;
     const point = shellPoint(shell);
     const nextDistance = distance(point, pointer.value);
-    const hitRadius = shell.radius * 1.16;
+    const hitRadius = shell.radius * 1.32;
     if (nextDistance <= hitRadius && nextDistance < closestDistance) {
       closest = shell;
       closestDistance = nextDistance;

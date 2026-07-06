@@ -58,7 +58,7 @@ export function swimBottom() {
 }
 
 export function fishHitRadius(fish: Fish) {
-  return fish.size * 0.88;
+  return fish.size * 1.05;
 }
 
 function drawWater(context: CanvasRenderingContext2D) {

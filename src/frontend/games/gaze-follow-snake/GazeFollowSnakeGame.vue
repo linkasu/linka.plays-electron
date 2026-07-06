@@ -244,8 +244,8 @@ function updateLeafProgress(delta: number, now: number) {
   if (session.status !== "running" || session.step >= session.maxSteps || segments.length === 0) return;
 
   const head = segments[0];
-  const focusDistance = leaf.radius * 0.92;
-  const nearDistance = leaf.radius * 1.34;
+  const focusDistance = leaf.radius * 1.05;
+  const nearDistance = leaf.radius * 1.5;
   const gap = distance(head, leaf);
   const focused = pointer.value.valid && gap <= focusDistance;
   const near = pointer.value.valid && gap <= nearDistance;

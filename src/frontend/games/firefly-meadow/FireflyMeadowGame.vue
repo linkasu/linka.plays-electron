@@ -201,7 +201,7 @@ function updateFireflies(delta: number, now: number) {
     }
 
     const point = percentToPixels(firefly);
-    const hitRadius = firefly.radius * 1.55;
+    const hitRadius = firefly.radius * 1.7;
     const inside = pointer.value.valid && distance(point, pointer.value) <= hitRadius;
 
     if (!inside) {

@@ -88,7 +88,7 @@ function fireCenter(): Point {
 
 function targetRadius() {
   const viewport = Math.min(window.innerWidth, window.innerHeight);
-  return clamp(viewport * 0.25 * session.settings.targetScale, 185, 320);
+  return clamp(viewport * 0.29 * session.settings.targetScale, 205, 360);
 }
 
 function copyPointer() {
