@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
+import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
@@ -303,19 +304,7 @@ onUnmounted(() => {
 <template>
   <div class="tennis-shell">
     <canvas ref="canvasRef" class="tennis-canvas" />
-
-    <div class="compact-controls d-flex align-center ga-1 pa-1">
-      <v-btn aria-label="В меню" color="surface" density="comfortable" icon="mdi-arrow-left" size="small" variant="text" @click="router.push(resolveMenuRoute())" />
-      <v-btn
-        :aria-label="session.status === 'paused' ? 'Продолжить' : 'Пауза'"
-        color="surface"
-        density="comfortable"
-        :icon="session.status === 'paused' ? 'mdi-play' : 'mdi-pause'"
-        size="small"
-        variant="text"
-        @click="session.status === 'paused' ? resumeSession() : pauseSession()"
-      />
-    </div>
+    <GameHud title="Теннис" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
 
     <GameResultDialog :model-value="resultVisible" title="Теннис" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
   </div>
@@ -336,21 +325,4 @@ onUnmounted(() => {
   position: absolute;
 }
 
-.compact-controls {
-  background: rgb(255 255 255 / 34%);
-  border: 0.0625rem solid rgb(255 255 255 / 34%);
-  border-radius: 1.125rem;
-  box-shadow: 0 0.625rem 1.75rem rgb(60 116 136 / 12%);
-  inset-block-start: max(1rem, env(safe-area-inset-top));
-  inset-inline-start: max(1rem, env(safe-area-inset-left));
-  opacity: 0.5;
-  position: absolute;
-  transition: opacity 160ms ease;
-  z-index: 2;
-}
-
-.compact-controls:focus-within,
-.compact-controls:hover {
-  opacity: 0.95;
-}
 </style>

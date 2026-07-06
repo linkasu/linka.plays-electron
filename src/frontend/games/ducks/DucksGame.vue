@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
+import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
@@ -282,19 +283,7 @@ onUnmounted(() => {
 <template>
   <div class="ducks-shell">
     <canvas ref="canvasRef" class="ducks-canvas" />
-
-    <div class="compact-controls d-flex align-center ga-1 pa-1">
-      <v-btn aria-label="В меню" color="surface" density="comfortable" icon="mdi-arrow-left" size="small" variant="text" @click="router.push(resolveMenuRoute())" />
-      <v-btn
-        :aria-label="session.status === 'paused' ? 'Продолжить' : 'Пауза'"
-        color="surface"
-        density="comfortable"
-        :icon="session.status === 'paused' ? 'mdi-play' : 'mdi-pause'"
-        size="small"
-        variant="text"
-        @click="session.status === 'paused' ? resumeSession() : pauseSession()"
-      />
-    </div>
+    <GameHud title="Утки" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
 
     <GameResultDialog
       :model-value="resultVisible"
@@ -325,19 +314,4 @@ onUnmounted(() => {
   position: absolute;
 }
 
-.compact-controls {
-  background: rgb(255 255 255 / 34%);
-  border-radius: 18px;
-  inset-block-start: 16px;
-  inset-inline-start: 16px;
-  opacity: 0.46;
-  position: absolute;
-  transition: opacity 160ms ease;
-  z-index: 2;
-}
-
-.compact-controls:focus-within,
-.compact-controls:hover {
-  opacity: 0.95;
-}
 </style>

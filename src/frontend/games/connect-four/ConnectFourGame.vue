@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
+import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
@@ -72,14 +73,6 @@ function columnTargetId(column: number) {
 
 function sleepTargetId() {
   return "connect-four:think-break";
-}
-
-function menuTargetId() {
-  return "connect-four:menu";
-}
-
-function pauseTargetId() {
-  return "connect-four:pause";
 }
 
 function markAt(row: number, column: number): ConnectFourCell {
@@ -212,11 +205,6 @@ function toggleThinkMode() {
   recordEvent("hint", { kind: "think-switch", enabled: sleeping.value });
 }
 
-function togglePause() {
-  if (session.status === "paused") resumeSession();
-  else if (session.status === "running") pauseSession();
-}
-
 function restart() {
   promptAudio.cancelPending();
   aiRequestId += 1;
@@ -245,24 +233,7 @@ onUnmounted(() => {
 
 <template>
   <div class="connect-shell">
-    <div class="compact-controls d-flex align-center ga-2 pa-1">
-      <GameDwellButton :target-id="menuTargetId()" :disabled="finalizing" :dwell-ms="session.settings.dwellMs" min-height="8.5rem" color="surface" @select="router.push(resolveMenuRoute())">
-        <template #default>
-          <div class="control-button-content">
-            <v-icon icon="mdi-arrow-left" size="26" />
-            <span>В меню</span>
-          </div>
-        </template>
-      </GameDwellButton>
-      <GameDwellButton :target-id="pauseTargetId()" :disabled="session.status === 'finished' || finalizing" :dwell-ms="session.settings.dwellMs" min-height="8.5rem" color="surface" @select="togglePause">
-        <template #default>
-          <div class="control-button-content">
-            <v-icon :icon="session.status === 'paused' ? 'mdi-play' : 'mdi-pause'" size="26" />
-            <span>{{ session.status === "paused" ? "Дальше" : "Пауза" }}</span>
-          </div>
-        </template>
-      </GameDwellButton>
-    </div>
+    <GameHud title="Четыре в ряд" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
 
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
@@ -327,29 +298,6 @@ onUnmounted(() => {
     linear-gradient(135deg, #fff8ec 0%, #edf6ff 100%);
   block-size: 100vh;
   overflow: hidden;
-}
-
-.compact-controls {
-  inset-block-start: max(0.75rem, env(safe-area-inset-top));
-  inset-inline-start: max(0.75rem, env(safe-area-inset-left));
-  position: fixed;
-  z-index: 10;
-}
-
-.compact-controls :deep(.dwell-hitbox) {
-  inline-size: 9.375rem;
-}
-
-.compact-controls :deep(.dwell-button) {
-  padding: 0.625rem !important;
-}
-
-.control-button-content {
-  align-items: center;
-  display: flex;
-  font-weight: 800;
-  gap: 0.5rem;
-  justify-content: center;
 }
 
 .game-container {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
+import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
@@ -329,21 +330,7 @@ onUnmounted(() => {
 <template>
   <div class="fishes-shell">
     <canvas ref="canvasRef" class="fishes-canvas" />
-
-    <div class="compact-controls d-flex align-center ga-2 pa-1">
-      <v-btn aria-label="В меню" class="exit-button" color="surface" density="comfortable" prepend-icon="mdi-arrow-left" size="small" variant="tonal" @click="router.push(resolveMenuRoute())">
-        В меню
-      </v-btn>
-      <v-btn
-        :aria-label="session.status === 'paused' ? 'Продолжить' : 'Пауза'"
-        color="surface"
-        density="comfortable"
-        :icon="session.status === 'paused' ? 'mdi-play' : 'mdi-pause'"
-        size="small"
-        variant="text"
-        @click="session.status === 'paused' ? resumeSession() : pauseSession()"
-      />
-    </div>
+    <GameHud title="Рыбки" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
 
     <GameResultDialog
       :model-value="resultVisible"
@@ -374,25 +361,4 @@ onUnmounted(() => {
   position: absolute;
 }
 
-.compact-controls {
-  background: rgb(5 33 56 / 58%);
-  border: 1px solid rgb(219 250 255 / 22%);
-  border-radius: 20px;
-  box-shadow: 0 10px 28px rgb(0 30 54 / 18%);
-  inset-block-start: max(16px, env(safe-area-inset-top));
-  inset-inline-start: max(16px, env(safe-area-inset-left));
-  opacity: 0.82;
-  position: absolute;
-  transition: opacity 160ms ease;
-  z-index: 2;
-}
-
-.exit-button {
-  min-inline-size: 86px;
-}
-
-.compact-controls:focus-within,
-.compact-controls:hover {
-  opacity: 0.95;
-}
 </style>

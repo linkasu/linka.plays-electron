@@ -293,7 +293,6 @@ onUnmounted(() => {
 
             <div class="d-flex flex-column flex-sm-row align-center justify-space-between ga-3 mt-5">
               <p class="text-body-2 text-medium-emphasis mb-0">Другая пустая клетка не завершает игру: она только напоминает выбрать отмеченное место.</p>
-              <v-btn color="secondary" prepend-icon="mdi-arrow-left" rounded="xl" size="large" variant="tonal" @click="router.push(resolveMenuRoute())">В меню</v-btn>
             </div>
           </v-card>
         </v-col>

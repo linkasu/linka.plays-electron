@@ -367,19 +367,6 @@ onMounted(() => {
       <div class="text-caption text-medium-emphasis mt-2">Прогресс сохраняется и ждёт возвращения в зону.</div>
     </v-card>
 
-    <div class="compact-controls d-flex align-center ga-1 pa-1">
-      <v-btn aria-label="В меню" color="surface" density="comfortable" icon="mdi-arrow-left" size="small" variant="text" @click="router.push(resolveMenuRoute())" />
-      <v-btn
-        :aria-label="session.status === 'paused' ? 'Продолжить' : 'Пауза'"
-        color="surface"
-        density="comfortable"
-        :icon="session.status === 'paused' ? 'mdi-play' : 'mdi-pause'"
-        size="small"
-        variant="text"
-        @click="session.status === 'paused' ? resumeSession() : pauseSession()"
-      />
-    </div>
-
     <GameResultDialog :model-value="resultVisible" title="Балансир" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
   </div>
 </template>
@@ -407,24 +394,6 @@ onMounted(() => {
   text-align: center;
   transform: translateX(-50%);
   z-index: 2;
-}
-
-.compact-controls {
-  background: rgb(255 255 255 / 36%);
-  border: 0.0625rem solid rgb(255 255 255 / 42%);
-  border-radius: 1.125rem;
-  box-shadow: 0 0.625rem 1.75rem rgb(64 128 136 / 12%);
-  inset-block-start: max(1rem, env(safe-area-inset-top));
-  inset-inline-start: max(1rem, env(safe-area-inset-left));
-  opacity: 0.58;
-  position: absolute;
-  transition: opacity 160ms ease;
-  z-index: 3;
-}
-
-.compact-controls:focus-within,
-.compact-controls:hover {
-  opacity: 0.95;
 }
 
 @media (max-width: 42.5rem) {

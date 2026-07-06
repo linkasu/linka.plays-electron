@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
+import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
@@ -248,19 +249,7 @@ onUnmounted(() => {
 <template>
   <div class="where-object-shell">
     <canvas ref="canvasRef" class="where-object-canvas" />
-
-    <div class="compact-controls d-flex align-center ga-1 pa-1">
-      <v-btn aria-label="В меню" color="primary" density="comfortable" icon="mdi-arrow-left" size="small" variant="text" @click="router.push(resolveMenuRoute())" />
-      <v-btn
-        :aria-label="session.status === 'paused' ? 'Продолжить' : 'Пауза'"
-        color="primary"
-        density="comfortable"
-        :icon="session.status === 'paused' ? 'mdi-play' : 'mdi-pause'"
-        size="small"
-        variant="text"
-        @click="session.status === 'paused' ? resumeSession() : pauseSession()"
-      />
-    </div>
+    <GameHud title="Где предмет?" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
 
     <section class="prompt-panel" aria-live="polite">
       <div class="text-overline text-secondary">AAC и предлоги</div>
@@ -305,23 +294,6 @@ onUnmounted(() => {
   display: block;
   inset: 0;
   position: absolute;
-}
-
-.compact-controls {
-  background: rgb(255 255 255 / 72%);
-  border-radius: 1.125rem;
-  box-shadow: 0 0.5rem 1.4rem rgb(76 58 112 / 12%);
-  inset-block-start: 1rem;
-  inset-inline-start: 1rem;
-  opacity: 0.82;
-  position: absolute;
-  transition: opacity 160ms ease;
-  z-index: 4;
-}
-
-.compact-controls:focus-within,
-.compact-controls:hover {
-  opacity: 0.96;
 }
 
 .prompt-panel {

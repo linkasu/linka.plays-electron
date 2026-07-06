@@ -295,10 +295,6 @@ onUnmounted(() => {
                 </GameDwellButton>
               </template>
             </div>
-
-            <div class="d-flex justify-end mt-4">
-              <v-btn color="secondary" prepend-icon="mdi-arrow-left" rounded="xl" size="large" variant="tonal" @click="router.push(resolveMenuRoute())">В меню</v-btn>
-            </div>
           </v-card>
         </v-col>
       </v-row>
