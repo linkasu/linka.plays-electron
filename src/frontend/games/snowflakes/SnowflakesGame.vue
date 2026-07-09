@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
+import { adaptiveGazeHitRadius } from "../../core/gazeTarget";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeSnowflakesPiano, playSnowflakeCue, setSnowflakesPianoActive, tickSnowflakesPiano, warmSnowflakesPiano } from "./audio";
 
@@ -41,6 +43,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+useStartPromptAudio({ gameId: "snowflakes", soundEnabled: toRef(session.settings, "sound") });
 
 const snowflakes = reactive<Snowflake[]>([]);
 const glows = reactive<GazeGlow[]>([]);
@@ -85,7 +88,7 @@ function snowflakeSize() {
 }
 
 function gazeRadius(flake: Snowflake) {
-  return Math.max(112, flake.size * 3.15) * session.settings.targetScale;
+  return adaptiveGazeHitRadius(flake, Math.max(112, flake.size * 3.15) * session.settings.targetScale, { edgeBoost: 0.3 });
 }
 
 function resetSnowflake(flake: Snowflake, index: number, fromTop = true) {

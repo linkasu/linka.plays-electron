@@ -21,6 +21,10 @@ export type TargetPlacementOptions = {
   random?: () => number;
 };
 
+export type SeparatedTargetPlacementOptions = TargetPlacementOptions & {
+  avoid?: PlacementPoint[];
+};
+
 const defaultHudHeight = 112;
 const defaultSidePadding = 32;
 const defaultBottomPadding = 64;
@@ -84,6 +88,10 @@ export function clampTargetCenterPercent(point: PlacementPoint, options: TargetP
 }
 
 export function randomTargetCenterPercent(options: TargetPlacementOptions): PlacementPoint {
+  return randomSeparatedTargetCenterPercent(options);
+}
+
+export function randomSeparatedTargetCenterPercent(options: SeparatedTargetPlacementOptions): PlacementPoint {
   const viewport = { width: viewportWidth(options.viewportWidth), height: viewportHeight(options.viewportHeight) };
   const area = createSafePlacementArea(options);
   const halfWidth = options.targetWidth / 2;
@@ -94,7 +102,7 @@ export function randomTargetCenterPercent(options: TargetPlacementOptions): Plac
   const maxY = area.y + area.height - halfHeight;
   const random = options.random ?? Math.random;
   const attempts = options.attempts ?? 12;
-  const previous = options.previous ? percentToPixels(options.previous, viewport) : undefined;
+  const avoid = [options.previous, ...(options.avoid ?? [])].filter((point): point is PlacementPoint => Boolean(point)).map((point) => percentToPixels(point, viewport));
   const minDistance = options.minDistance ?? 0;
   let best = clampTargetCenter({ x: minX, y: minY }, options);
   let bestDistance = -1;
@@ -105,7 +113,7 @@ export function randomTargetCenterPercent(options: TargetPlacementOptions): Plac
       y: minY + random() * Math.max(0, maxY - minY)
     }, options);
 
-    const distance = previous ? Math.hypot(candidate.x - previous.x, candidate.y - previous.y) : Number.POSITIVE_INFINITY;
+    const distance = avoid.length > 0 ? Math.min(...avoid.map((point) => Math.hypot(candidate.x - point.x, candidate.y - point.y))) : Number.POSITIVE_INFINITY;
     if (distance >= minDistance) return pixelsToPercent(candidate, viewport);
     if (distance > bestDistance) {
       best = candidate;

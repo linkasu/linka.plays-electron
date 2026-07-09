@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
+import { adaptiveGazeHitRadius } from "../../core/gazeTarget";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels } from "../../core/placement";
 import { disposeStarrySkyPiano, playStarrySkyCue, setStarrySkyPianoActive, tickStarrySkyPiano, warmStarrySkyPiano } from "./audio";
@@ -118,6 +120,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+useStartPromptAudio({ gameId: "starry-sky", soundEnabled: toRef(session.settings, "sound") });
 
 const constellations = reactive<Constellation[]>([]);
 const dustStars = reactive<DustStar[]>([]);
@@ -131,6 +134,7 @@ let activeStarIndex = 0;
 let nextConstellationAt = 0;
 let finishAfter = 0;
 const constellationFadeMs = 5200;
+const starDwellMultiplier = 0.68;
 
 function randomRange(min: number, max: number) {
   return min + Math.random() * (max - min);
@@ -308,7 +312,7 @@ function updateActiveStar(now: number) {
   if (!constellation || !star) return;
 
   const point = constellationToPixels(star);
-  const hitRadius = star.radius * 1.42;
+  const hitRadius = adaptiveGazeHitRadius(point, star.radius * 1.62, { edgeBoost: 0.2 });
   const inside = pointer.value.valid && distance(point, pointer.value) <= hitRadius;
 
   if (!inside) {
@@ -322,7 +326,7 @@ function updateActiveStar(now: number) {
     recordEvent("target-enter", targetPayload(star, now, 0, constellation));
   }
 
-  star.dwellProgress = Math.min(1, (now - star.enteredAt) / session.settings.dwellMs);
+  star.dwellProgress = Math.min(1, (now - star.enteredAt) / (session.settings.dwellMs * starDwellMultiplier));
   if (star.dwellProgress >= 1) lightStar(star, now, constellation);
 }
 

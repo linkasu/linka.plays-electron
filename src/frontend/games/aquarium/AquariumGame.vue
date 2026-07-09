@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, reactive } from "vue";
+import { computed, onMounted, onUnmounted, reactive, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
+import { adaptiveGazeHitRadius } from "../../core/gazeTarget";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeAquariumAudio, playAquariumMelody, resetAquariumAudioSession, warmAquariumAudio } from "./audio";
 
@@ -51,6 +53,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.38, distractors: "none", hints: "high" },
   finishOnMistakes: false
 });
+useStartPromptAudio({ gameId: "aquarium", soundEnabled: toRef(session.settings, "sound") });
 
 const fishes = reactive<AquariumFish[]>([]);
 const food = reactive<FoodCrumb[]>([]);
@@ -195,7 +198,7 @@ function closestGazeFish() {
   let closestDistance = Number.POSITIVE_INFINITY;
   for (const fish of fishes) {
     if (fish.fedAge > 0) continue;
-    const hitRadius = fish.size * 1.35;
+    const hitRadius = adaptiveGazeHitRadius(fish, fish.size * 1.35, { viewportWidth: width.value, viewportHeight: height.value, edgeBoost: 0.28 });
     const nextDistance = distance(fish, pointer.value);
     if (nextDistance <= hitRadius && nextDistance < closestDistance) {
       closest = fish;

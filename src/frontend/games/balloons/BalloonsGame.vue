@@ -45,7 +45,7 @@ const promptAudio = useGamePromptAudio({
   gameId: "balloons",
   soundEnabled,
   volume: 0.32,
-  warmAssetIds: ["balloons.prompt", "balloons.release"]
+  warmAssetIds: ["balloons.prompt"]
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
@@ -163,7 +163,6 @@ function releaseBalloon(balloon: Balloon, now: number) {
   recordEvent("target-click", targetPayload(balloon, now, 1));
   recordSuccess({ targetId: balloon.id, hue: balloon.hue });
   void pianoFeedback.playSuccess();
-  promptAudio.play("balloons.release", 80);
   balloon.phase = "flying";
   balloon.phaseAge = 0;
   balloon.dwellProgress = 1;

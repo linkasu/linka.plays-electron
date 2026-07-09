@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, reactive } from "vue";
+import { computed, onMounted, onUnmounted, reactive, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeLeavesWindAudio, playLeavesWindFlowCue, warmLeavesWindAudio } from "./audio";
@@ -41,6 +42,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+useStartPromptAudio({ gameId: "leaves-wind", soundEnabled: toRef(session.settings, "sound") });
 
 const leaves = reactive<Leaf[]>([]);
 const windLines = reactive<WindLine[]>([]);
@@ -345,12 +347,12 @@ useGameLoop({ context, update, draw });
     <canvas ref="canvasRef" class="leaves-wind-canvas" />
 
     <v-card class="leaves-wind-hint px-4 py-3" color="surface" rounded="xl" variant="tonal">
-      <div class="text-body-2 font-weight-medium">Веди взгляд по ветру: листья подхватят движение.</div>
-      <div class="text-caption text-medium-emphasis">Здесь нет проигрыша, только слежение взглядом и отдых.</div>
+      <div class="text-body-2 font-weight-medium">Подмети двор взглядом: веди мягкий поток по листьям.</div>
+      <div class="text-caption text-medium-emphasis">Здесь нет проигрыша, только спокойное слежение взглядом.</div>
     </v-card>
 
     <GameHud
-      title="Листья на ветру"
+      title="Подмети двор"
       :step="session.step"
       :max-steps="session.maxSteps"
       :score="session.score"
@@ -364,7 +366,7 @@ useGameLoop({ context, update, draw });
 
     <GameResultDialog
       :model-value="resultVisible"
-      title="Листья на ветру"
+      title="Подмети двор"
       :score="session.score"
       :mistakes="session.mistakes"
       :duration-ms="durationMs"

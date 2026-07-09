@@ -5698,6 +5698,83 @@
     "path": "/audio/tts/bells/correct.mp3"
   },
   {
+    "id": "aquarium.prompt",
+    "game": "aquarium",
+    "text": "Покорми рыбок взглядом.",
+    "voice": "alena",
+    "path": "/audio/tts/aquarium/prompt.mp3"
+  },
+  {
+    "id": "breathing-flower.prompt",
+    "game": "breathing-flower",
+    "text": "Смотри в центр цветка. Дышим спокойно вместе.",
+    "voice": "alena",
+    "path": "/audio/tts/breathing-flower/prompt.mp3"
+  },
+  {
+    "id": "wake-owl.prompt",
+    "game": "wake-owl",
+    "text": "Смотри на сову и удерживай взгляд.",
+    "voice": "alena",
+    "path": "/audio/tts/wake-owl/prompt.mp3"
+  },
+  {
+    "id": "leaves-wind.prompt",
+    "game": "leaves-wind",
+    "text": "Подмети двор взглядом. Веди взглядом по листьям.",
+    "voice": "alena",
+    "path": "/audio/tts/leaves-wind/prompt.mp3"
+  },
+  {
+    "id": "clouds.prompt",
+    "game": "clouds",
+    "text": "Смотри на облако, чтобы оно рассеялось.",
+    "voice": "alena",
+    "path": "/audio/tts/clouds/prompt.mp3"
+  },
+  {
+    "id": "kite.prompt",
+    "game": "kite",
+    "text": "Смотри на воздушный змей, чтобы он поднялся выше.",
+    "voice": "alena",
+    "path": "/audio/tts/kite/prompt.mp3"
+  },
+  {
+    "id": "firefly-meadow.prompt",
+    "game": "firefly-meadow",
+    "text": "Смотри на светлячков, чтобы они загорелись.",
+    "voice": "alena",
+    "path": "/audio/tts/firefly-meadow/prompt.mp3"
+  },
+  {
+    "id": "starry-sky.prompt",
+    "game": "starry-sky",
+    "text": "Смотри на звёздочку, чтобы зажечь небо.",
+    "voice": "alena",
+    "path": "/audio/tts/starry-sky/prompt.mp3"
+  },
+  {
+    "id": "catch-light.prompt",
+    "game": "catch-light",
+    "text": "Смотри на свет, чтобы поймать его.",
+    "voice": "alena",
+    "path": "/audio/tts/catch-light/prompt.mp3"
+  },
+  {
+    "id": "magic-dust.prompt",
+    "game": "magic-dust",
+    "text": "Веди взглядом, чтобы появилась волшебная пыль.",
+    "voice": "alena",
+    "path": "/audio/tts/magic-dust/prompt.mp3"
+  },
+  {
+    "id": "snowflakes.prompt",
+    "game": "snowflakes",
+    "text": "Смотри на снежинки, чтобы они растаяли.",
+    "voice": "alena",
+    "path": "/audio/tts/snowflakes/prompt.mp3"
+  },
+  {
     "id": "who-hiding.intro",
     "game": "who-hiding",
     "text": "Сейчас игра в прятки. Кто-то спрятался за кустом. Слушай задание и удержи взгляд на нужном месте. Ошибки не страшны: подсказка поможет.",

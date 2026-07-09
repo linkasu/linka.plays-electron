@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeMagicDustPiano, playMagicDustCue, setMagicDustPianoActive, tickMagicDustPiano, warmMagicDustPiano } from "./audio";
 
@@ -35,6 +36,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+useStartPromptAudio({ gameId: "magic-dust", soundEnabled: toRef(session.settings, "sound") });
 
 const particles = reactive<DustParticle[]>([]);
 const backgroundSparks = reactive<BackgroundSpark[]>([]);

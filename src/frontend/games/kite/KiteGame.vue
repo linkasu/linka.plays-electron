@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, reactive } from "vue";
+import { computed, onMounted, onUnmounted, reactive, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
+import { adaptiveGazeHitRadius } from "../../core/gazeTarget";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeKitePiano, setKitePianoActive, setKitePianoIntensity, tickKitePiano, warmKitePiano } from "./audio";
 
@@ -31,6 +33,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   overrides: { preset: "gentle", dwellMs: 1450, sessionSeconds: 85, targetScale: 1.5, motionSpeed: 0.34, distractors: "none", hints: "high", sound: true },
   finishOnMistakes: false
 });
+useStartPromptAudio({ gameId: "kite", soundEnabled: toRef(session.settings, "sound") });
 
 const kite = reactive({
   x: 0,
@@ -100,7 +103,7 @@ function resetScene() {
 
 function gazeInfluence() {
   if (!pointer.value.valid) return 0;
-  const radius = kiteSize() * 0.88;
+  const radius = adaptiveGazeHitRadius(kite, kiteSize() * 0.9, { viewportWidth: width.value, viewportHeight: height.value, edgeBoost: 0.2 });
   return clamp(1 - distance(kite, pointer.value) / radius, 0, 1);
 }
 
@@ -171,11 +174,11 @@ function updateKite(delta: number, now: number) {
   const lift = stepLift * 0.34 + kite.dwellProgress * 0.09 + kite.power * 0.12;
   const calmX = width.value * (0.5 + Math.sin(now * 0.00016 + kite.sway) * 0.08);
   const gazeX = pointer.value.valid && influence > 0.12 ? pointer.value.x : calmX;
-  const targetX = clamp(gazeX, width.value * 0.16, width.value * 0.84);
+  const targetX = clamp(gazeX, width.value * 0.12, width.value * 0.88);
   const targetY = clamp(height.value * (0.62 - lift) + Math.sin(now * 0.00028 + kite.sway) * 12, height.value * 0.22, height.value * 0.66);
 
   const follow = session.status === "running" ? 0.92 : 0.36;
-  kite.x += (targetX - kite.x) * Math.min(1, delta * follow * session.settings.motionSpeed * 3.2);
+  kite.x += (targetX - kite.x) * Math.min(1, delta * follow * session.settings.motionSpeed * 3.8);
   kite.y += (targetY - kite.y) * Math.min(1, delta * follow * session.settings.motionSpeed * 3.4);
 }
 

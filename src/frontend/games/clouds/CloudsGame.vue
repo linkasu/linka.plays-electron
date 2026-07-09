@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
+import { adaptiveGazeHitRadius } from "../../core/gazeTarget";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { randomSeparatedTargetCenterPercent } from "../../core/placement";
 import { disposeCloudsPiano, playCloudsPianoCue, setCloudsPianoActive, setCloudsPianoIntensity, tickCloudsPiano, warmCloudsPiano } from "./audio";
 
 type Point = { x: number; y: number };
@@ -41,6 +44,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnMaxSteps: false,
   finishOnMistakes: false
 });
+useStartPromptAudio({ gameId: "clouds", soundEnabled: toRef(session.settings, "sound") });
 
 const clouds = reactive<Cloud[]>([]);
 const resultVisible = computed(() => session.status === "finished");
@@ -107,26 +111,38 @@ function createLobes(seed: number): CloudLobe[] {
   ];
 }
 
-function choosePoint(index: number) {
+function choosePoint(index: number, size: { rx: number; ry: number }, avoid: Point[] = []) {
   const layout = [
-    { x: 24, y: 34 },
-    { x: 57, y: 40 },
-    { x: 80, y: 29 },
+    { x: 18, y: 30 },
+    { x: 50, y: 38 },
+    { x: 80, y: 30 },
     { x: 34, y: 66 },
     { x: 68, y: 72 },
     { x: 14, y: 78 }
   ];
   const base = layout[index % layout.length];
+  const candidate = randomSeparatedTargetCenterPercent({
+    targetWidth: size.rx * 2.15,
+    targetHeight: size.ry * 2.4,
+    hudHeight: Math.max(104, window.innerHeight * 0.16),
+    sidePadding: Math.max(42, window.innerWidth * 0.06),
+    bottomPadding: Math.max(64, window.innerHeight * 0.08),
+    previous: base,
+    avoid,
+    minDistance: Math.max(size.rx * 1.45, 170),
+    attempts: 18
+  });
+
   return {
-    x: clamp(base.x + randomRange(-5, 5), 12, 88),
-    y: clamp(base.y + randomRange(-5, 5), 24, 84)
+    x: clamp((base.x + candidate.x) / 2, 12, 88),
+    y: clamp((base.y + candidate.y) / 2, 24, 84)
   };
 }
 
 function createCloud(index: number): Cloud {
   const seed = randomRange(0, Math.PI * 2);
-  const point = choosePoint(index);
   const size = cloudSize();
+  const point = choosePoint(index, size, clouds.filter((cloud) => cloud.phase !== "hidden").map((cloud) => ({ x: cloud.x, y: cloud.y })));
   cloudIndex += 1;
 
   return {
@@ -181,7 +197,7 @@ function targetPayload(cloud: Cloud, now: number, progress: number) {
 function gazeInfluence(cloud: Cloud) {
   if (!pointer.value.valid) return 0;
   const point = cloudPoint(cloud);
-  const radius = Math.max(cloud.baseRx, cloud.baseRy) * 1.05;
+  const radius = adaptiveGazeHitRadius(point, Math.max(cloud.baseRx, cloud.baseRy) * 1.05, { edgeBoost: 0.22 });
   return clamp(1 - distance(point, pointer.value) / radius, 0, 1);
 }
 

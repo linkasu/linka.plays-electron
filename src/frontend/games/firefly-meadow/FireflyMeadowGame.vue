@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
 import { disposeFireflyMeadowPiano, playFireflyIgniteCue, setFireflyMeadowPianoActive, tickFireflyMeadowPiano, warmFireflyMeadowPiano } from "./audio";
@@ -39,6 +40,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.45, distractors: "none", hints: "high", sound: true },
   finishOnMaxSteps: false
 });
+useStartPromptAudio({ gameId: "firefly-meadow", soundEnabled: toRef(session.settings, "sound") });
 
 const fireflies = reactive<Firefly[]>([]);
 const grass = reactive<GrassBlade[]>([]);

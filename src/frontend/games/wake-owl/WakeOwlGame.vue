@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import type { CSSProperties } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeWakeOwlAudio, playWakeOwlHoot, warmWakeOwlAudio } from "./audio";
 
@@ -28,6 +29,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   overrides: { preset: "gentle", targetScale: 1.75, motionSpeed: 0.32, distractors: "none", hints: "high", sound: true },
   finishOnMistakes: false
 });
+useStartPromptAudio({ gameId: "wake-owl", soundEnabled: toRef(session.settings, "sound") });
 
 const blinking = ref(false);
 const owlPositionIndex = ref(0);

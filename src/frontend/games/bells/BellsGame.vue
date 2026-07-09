@@ -24,10 +24,10 @@ type BellsRound = {
 };
 
 const bellDefinitions: BellDefinition[] = [
-  { id: "sun", label: "Солнечный", tone: "золотой", accent: "#f6bf42" },
-  { id: "sky", label: "Небесный", tone: "голубой", accent: "#5ba6f7" },
-  { id: "berry", label: "Ягодный", tone: "розовый", accent: "#ec77ad" },
-  { id: "meadow", label: "Луговой", tone: "зелёный", accent: "#74bf7a" }
+  { id: "sun", label: "Золотой", tone: "золотой", accent: "#f6bf42" },
+  { id: "sky", label: "Голубой", tone: "голубой", accent: "#5ba6f7" },
+  { id: "berry", label: "Розовый", tone: "розовый", accent: "#ec77ad" },
+  { id: "meadow", label: "Зелёный", tone: "зелёный", accent: "#74bf7a" }
 ];
 
 const router = useRouter();
@@ -47,7 +47,7 @@ const promptAudio = useGamePromptAudio({
   gameId: "bells",
   soundEnabled,
   volume: 0.32,
-  warmAssetIds: ["bells.prompt.sun", "bells.correct", "bells.mistake.sun"]
+  warmAssetIds: ["bells.prompt.sun", "bells.mistake.sun"]
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
@@ -163,13 +163,12 @@ async function selectBell(bell: BellDefinition) {
 
   selectedBellId.value = bell.id;
   recordSuccess({ roundId: round.value.roundId, targetId: bell.id, label: bell.label });
-  showFeedback("Колокольчик звенит", 1000);
+  showFeedback("Звон", 900);
   isSpeaking.value = true;
 
   try {
     void pianoFeedback.playSuccess();
     await playBellSoundAndWait();
-    await promptAudio.playSequenceAndWait(["bells.correct"], 80);
 
     if (session.status === "running" && session.step < session.maxSteps) {
       selectedBellId.value = "";

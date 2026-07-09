@@ -215,9 +215,9 @@ export const games: GameInfo[] = [
   },
   {
     id: "leaves-wind",
-    title: "Листья на ветру",
-    description: "Веди взглядом поток ветра: листья подхватывают движение.",
-    selfDescription: "Проведи листья ветром.",
+    title: "Подмети двор",
+    description: "Веди взглядом мягкий поток: листья собираются и двор становится чище.",
+    selfDescription: "Подмети листья взглядом.",
     route: "/games/leaves-wind",
     category: "gaze-basics",
     icon: "mdi-leaf",

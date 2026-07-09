@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeCatchLightPiano, playCatchLightCue, setCatchLightPianoActive, tickCatchLightPiano, warmCatchLightPiano } from "./audio";
 
@@ -26,12 +27,13 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   overrides: { preset: "gentle", targetScale: 1.6, motionSpeed: 0.36, distractors: "none", hints: "high", sound: true },
   finishOnMistakes: false
 });
+useStartPromptAudio({ gameId: "catch-light", soundEnabled: toRef(session.settings, "sound") });
 
 const zones: LightZone[] = [
   { id: "center", label: "середина", x: 50, y: 56, hue: 48 },
-  { id: "upper-left", label: "слева сверху", x: 24, y: 38, hue: 54 },
+  { id: "upper-left", label: "слева сверху", x: 30, y: 40, hue: 54 },
   { id: "upper-right", label: "справа сверху", x: 76, y: 38, hue: 42 },
-  { id: "middle-left", label: "слева", x: 20, y: 58, hue: 178 },
+  { id: "middle-left", label: "слева", x: 28, y: 58, hue: 178 },
   { id: "middle-right", label: "справа", x: 80, y: 58, hue: 202 },
   { id: "lower-left", label: "слева снизу", x: 30, y: 76, hue: 286 },
   { id: "lower-right", label: "справа снизу", x: 70, y: 76, hue: 326 },

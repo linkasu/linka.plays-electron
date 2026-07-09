@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clampTargetCenterPercent, createSafePlacementArea, randomTargetCenterPercent } from "./placement";
+import { clampTargetCenterPercent, createSafePlacementArea, randomSeparatedTargetCenterPercent, randomTargetCenterPercent } from "./placement";
 
 describe("placement", () => {
   it("creates a safe area below the HUD", () => {
@@ -37,5 +37,22 @@ describe("placement", () => {
 
     expect(point.x).toBeGreaterThan(70);
     expect(point.y).toBeGreaterThan(70);
+  });
+
+  it("keeps random placement away from multiple active points when possible", () => {
+    const avoid = [{ x: 25, y: 30 }, { x: 50, y: 50 }];
+    const values = [0.22, 0.18, 0.52, 0.42, 0.86, 0.76];
+    const point = randomSeparatedTargetCenterPercent({
+      viewportWidth: 1000,
+      viewportHeight: 700,
+      targetWidth: 100,
+      targetHeight: 100,
+      avoid,
+      minDistance: 220,
+      random: () => values.shift() ?? 0.86
+    });
+
+    const distanceToAvoid = avoid.map((other) => Math.hypot(point.x * 10 - other.x * 10, point.y * 7 - other.y * 7));
+    expect(Math.min(...distanceToAvoid)).toBeGreaterThanOrEqual(220);
   });
 });
