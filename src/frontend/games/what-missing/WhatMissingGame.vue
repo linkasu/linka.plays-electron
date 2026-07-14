@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
@@ -151,7 +152,7 @@ onUnmounted(() => {
               <v-col v-for="item in round.displayItems" :key="item.id" cols="4">
                 <v-card class="memory-slot pa-3 pa-md-5" :color="isItemVisible(item) ? item.color : 'grey-lighten-4'" rounded="xl" elevation="0">
                   <div v-if="isItemVisible(item)" class="slot-content">
-                    <div class="scene-emoji emoji-glyph">{{ item.emoji }}</div>
+                    <GameWordImage class="scene-emoji" :word-id="item.id" :word="item.label" :emoji="item.emoji" />
                     <div class="text-h6 text-md-h5 font-weight-bold mt-2">{{ item.label }}</div>
                   </div>
                   <div v-else class="missing-slot text-h6 text-md-h5 font-weight-bold text-medium-emphasis">пропало</div>
@@ -165,7 +166,7 @@ onUnmounted(() => {
               <v-col v-for="choice in round.choices" :key="choice.id" cols="6" sm="3">
                 <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || phase !== 'choose' || isResponding || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="11.25rem" :color="hintedChoiceId === choice.id ? 'deep-purple-darken-3' : 'surface'" @select="answer(choice)">
                   <template #default>
-                    <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
+                    <GameWordImage class="choice-emoji" :word-id="choice.id" :word="choice.label" :emoji="choice.emoji" />
                     <div class="text-h5 text-md-h4 font-weight-bold mt-2">{{ choice.label }}</div>
                     <div class="choice-status text-body-1 mt-1">{{ phase === "observe" ? "смотри" : "выбрать" }}</div>
                   </template>

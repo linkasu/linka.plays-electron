@@ -5,6 +5,7 @@ export type SimpleGraphsQuestionKind = "more" | "less" | "count";
 
 export type SimpleGraphsBar = {
   id: string;
+  wordId: string;
   label: string;
   emoji: string;
   value: number;
@@ -31,12 +32,12 @@ export type SimpleGraphsRound = {
 };
 
 const graphItems = [
-  { id: "apples", label: "яблоки", emoji: "🍎", color: "#f28b82" },
-  { id: "stars", label: "звёзды", emoji: "⭐", color: "#fdd663" },
-  { id: "fish", label: "рыбки", emoji: "🐟", color: "#7baaf7" },
-  { id: "flowers", label: "цветы", emoji: "🌸", color: "#f7a1c4" },
-  { id: "ducks", label: "утки", emoji: "🦆", color: "#81c995" },
-  { id: "cars", label: "машинки", emoji: "🚗", color: "#a78bfa" }
+  { id: "apples", wordId: "apple", label: "яблоки", emoji: "🍎", color: "#f28b82" },
+  { id: "stars", wordId: "star", label: "звёзды", emoji: "⭐", color: "#fdd663" },
+  { id: "fish", wordId: "fish", label: "рыбки", emoji: "🐟", color: "#7baaf7" },
+  { id: "flowers", wordId: "flower", label: "цветы", emoji: "🌸", color: "#f7a1c4" },
+  { id: "ducks", wordId: "duck", label: "утки", emoji: "🦆", color: "#81c995" },
+  { id: "cars", wordId: "car", label: "машинки", emoji: "🚗", color: "#a78bfa" }
 ] as const;
 
 function maxValueFor(settings: SessionSettings) {
@@ -78,7 +79,7 @@ function buildCountChoices(answer: number, settings: SessionSettings, random: ()
 function buildBarChoices(bars: SimpleGraphsBar[]): SimpleGraphsChoice[] {
   return bars.map((bar) => ({
     choiceId: `bar:${bar.id}`,
-    label: `${bar.emoji} ${bar.label}`,
+    label: bar.label,
     barId: bar.id,
     value: bar.value
   }));

@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameSessionChrome from "../../components/game/GameSessionChrome.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
@@ -98,12 +99,12 @@ onUnmounted(() => {
           <v-card class="match-card pa-4 pa-md-6" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Найди такую же картинку</div>
             <div class="sample-card mx-auto mb-4 mb-md-6">
-              <div class="sample-emoji emoji-glyph">{{ round.target.emoji }}</div>
+              <GameWordImage class="sample-emoji" :word-id="round.target.id" :word="round.target.word" :emoji="round.target.emoji" />
             </div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-4 mb-md-6">{{ round.prompt }}</h1>
             <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="clamp(9.5rem, 22vh, 11rem)" :sm="3" :highlight-choice="(choice) => hintedChoiceId === choice.id" :color="(choice) => hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="answer">
               <template #default="{ choice }">
-                <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
+                <GameWordImage class="choice-emoji" :word-id="choice.id" :word="choice.word" :emoji="choice.emoji" />
                 <div class="text-h6 text-md-h5 font-weight-bold mt-2">{{ choice.word }}</div>
               </template>
             </GameChoiceCardGrid>

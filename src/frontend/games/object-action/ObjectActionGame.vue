@@ -5,6 +5,7 @@ import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
@@ -124,7 +125,7 @@ onUnmounted(() => {
 
             <v-card class="object-card pa-4 mb-4" color="primary" rounded="xl" variant="tonal">
               <div class="d-flex flex-column flex-md-row align-center justify-center ga-4 text-center">
-                <div class="object-emoji emoji-glyph" aria-hidden="true">{{ round.pair.objectEmoji }}</div>
+            <GameWordImage class="object-emoji" :word-id="round.pair.id" :word="round.pair.objectTitle" :emoji="round.pair.objectEmoji" decorative />
                 <div>
                   <div class="text-overline text-primary">предмет</div>
                   <div class="text-h3 text-md-h2 font-weight-bold">{{ round.pair.objectTitle }}</div>

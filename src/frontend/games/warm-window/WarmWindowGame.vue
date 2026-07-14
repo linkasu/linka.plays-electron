@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
@@ -13,6 +14,7 @@ import { disposeWarmWindowPiano, playWarmWindowCue, setWarmWindowPianoActive, ti
 type WindowTarget = {
   id: string;
   label: string;
+  wordId?: string;
   animal: string;
   ttsId: string;
   gridColumn: number;
@@ -28,14 +30,14 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 });
 
 const windows = reactive<WindowTarget[]>([
-  { id: "warm-window:window:1", label: "котик", animal: "🐱", ttsId: "warm-window.cat", gridColumn: 1, gridRow: 1, lit: false },
-  { id: "warm-window:window:2", label: "щенок", animal: "🐶", ttsId: "warm-window.dog", gridColumn: 2, gridRow: 1, lit: false },
-  { id: "warm-window:window:3", label: "зайчик", animal: "🐰", ttsId: "warm-window.rabbit", gridColumn: 3, gridRow: 1, lit: false },
-  { id: "warm-window:window:4", label: "лисёнок", animal: "🦊", ttsId: "warm-window.fox", gridColumn: 1, gridRow: 2, lit: false },
-  { id: "warm-window:window:5", label: "медвежонок", animal: "🐻", ttsId: "warm-window.bear", gridColumn: 2, gridRow: 2, lit: false },
+  { id: "warm-window:window:1", wordId: "cat", label: "котик", animal: "🐱", ttsId: "warm-window.cat", gridColumn: 1, gridRow: 1, lit: false },
+  { id: "warm-window:window:2", wordId: "dog", label: "щенок", animal: "🐶", ttsId: "warm-window.dog", gridColumn: 2, gridRow: 1, lit: false },
+  { id: "warm-window:window:3", wordId: "rabbit", label: "зайчик", animal: "🐰", ttsId: "warm-window.rabbit", gridColumn: 3, gridRow: 1, lit: false },
+  { id: "warm-window:window:4", wordId: "fox", label: "лисёнок", animal: "🦊", ttsId: "warm-window.fox", gridColumn: 1, gridRow: 2, lit: false },
+  { id: "warm-window:window:5", wordId: "bear", label: "медвежонок", animal: "🐻", ttsId: "warm-window.bear", gridColumn: 2, gridRow: 2, lit: false },
   { id: "warm-window:window:6", label: "панда", animal: "🐼", ttsId: "warm-window.panda", gridColumn: 3, gridRow: 2, lit: false },
-  { id: "warm-window:window:7", label: "лягушонок", animal: "🐸", ttsId: "warm-window.frog", gridColumn: 1, gridRow: 3, lit: false },
-  { id: "warm-window:window:8", label: "птичка", animal: "🐦", ttsId: "warm-window.bird", gridColumn: 3, gridRow: 3, lit: false }
+  { id: "warm-window:window:7", wordId: "frog", label: "лягушонок", animal: "🐸", ttsId: "warm-window.frog", gridColumn: 1, gridRow: 3, lit: false },
+  { id: "warm-window:window:8", wordId: "bird", label: "птичка", animal: "🐦", ttsId: "warm-window.bird", gridColumn: 3, gridRow: 3, lit: false }
 ]);
 
 const resultVisible = computed(() => session.status === "finished");
@@ -128,7 +130,8 @@ onUnmounted(() => {
               >
                 <template #default="{ active, progress }">
                   <div :class="['warm-window-pane', { 'warm-window-pane--lit': windowTarget.lit, 'warm-window-pane--active': active }]">
-                    <span v-if="windowTarget.lit" class="warm-window-animal" aria-hidden="true">{{ windowTarget.animal }}</span>
+                    <GameWordImage v-if="windowTarget.lit && windowTarget.wordId" class="warm-window-animal" :word-id="windowTarget.wordId" :word="windowTarget.label" :emoji="windowTarget.animal" decorative />
+                    <span v-else-if="windowTarget.lit" class="warm-window-animal" aria-hidden="true">{{ windowTarget.animal }}</span>
                     <span v-else class="warm-window-emoji" aria-hidden="true">🪟</span>
                   </div>
                 </template>

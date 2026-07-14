@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
@@ -160,7 +161,8 @@ onUnmounted(() => {
             <p class="feed-animal-feedback text-h6 text-md-h5 text-medium-emphasis text-center mb-6">{{ feedbackText }}</p>
 
             <v-card class="animal-card pa-4 pa-md-5 mb-5 text-center" color="green-lighten-5" rounded="xl" variant="tonal">
-              <div :class="['animal-emoji emoji-glyph', { 'animal-emoji--fed': isFeeding }]">{{ round.animal.emoji }}</div>
+              <GameWordImage v-if="round.animal.wordId" :class="['animal-emoji', { 'animal-emoji--fed': isFeeding }]" :word-id="round.animal.wordId" :word="round.animal.name" :emoji="round.animal.emoji" />
+              <div v-else :class="['animal-emoji emoji-glyph', { 'animal-emoji--fed': isFeeding }]">{{ round.animal.emoji }}</div>
               <div class="animal-card__text">
                 <div class="animal-title text-h4 text-md-h3 font-weight-bold">{{ round.animal.name }}</div>
                 <v-chip class="animal-chip mt-3" color="success" size="large" variant="flat" :prepend-icon="isFeeding ? 'mdi-heart' : 'mdi-paw'">
@@ -173,7 +175,8 @@ onUnmounted(() => {
               <v-col v-for="food in round.foods" :key="food.id" cols="12" sm="4">
                 <GameDwellButton :class="[{ 'food-choice--hint': revealedFoodId === food.id, 'food-choice--mistake': mistakeFoodId === food.id }]" :target-id="foodTargetId(round.roundId, food.id)" :disabled="session.status !== 'running' || isFeeding" :dwell-ms="session.settings.dwellMs" min-height="clamp(9.25rem, 20vh, 13rem)" :color="food.color" @select="feed(food)">
                   <template #default="{ active, progress }">
-                    <div class="food-emoji emoji-glyph">{{ food.emoji }}</div>
+                    <GameWordImage v-if="food.wordId" class="food-emoji" :word-id="food.wordId" :word="food.name" :emoji="food.emoji" />
+                    <div v-else class="food-emoji emoji-glyph">{{ food.emoji }}</div>
                     <div class="food-choice-label text-h4 font-weight-bold mt-2">{{ food.name }}</div>
                     <div class="food-choice-status text-body-1 font-weight-medium mt-2">
                       {{ revealedFoodId === food.id ? "Подходит" : mistakeFoodId === food.id ? "Не подходит" : active && progress > 0.8 ? "Проверяем" : "Выбери" }}

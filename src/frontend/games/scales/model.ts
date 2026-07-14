@@ -8,6 +8,8 @@ export type ScalesAnswer = ScalesSide | "equal";
 export type ScalesPan = {
   side: ScalesSide;
   weight: number;
+  itemId: string;
+  itemName: string;
   emoji: string;
   items: string[];
 };
@@ -24,7 +26,14 @@ export type ScalesRound = {
 
 export const scalesAnswers: ScalesAnswer[] = ["left", "equal", "right"];
 
-const panEmojis = ["🍎", "⭐", "🟡", "🧸", "🪙", "🌸"];
+const panItems = [
+  { id: "apple", name: "яблоко", emoji: "🍎" },
+  { id: "star", name: "звезда", emoji: "⭐" },
+  { id: "ball", name: "мяч", emoji: "🟡" },
+  { id: "toy", name: "игрушка", emoji: "🧸" },
+  { id: "coin", name: "монета", emoji: "🪙" },
+  { id: "flower", name: "цветок", emoji: "🌸" }
+];
 
 function maxWeight(settings: SessionSettings) {
   if (settings.preset === "gentle") return 5;
@@ -50,12 +59,14 @@ function pickDifferentWeights(settings: SessionSettings, random: () => number) {
   return pairs[randomInt(0, pairs.length - 1, random)];
 }
 
-function buildPan(side: ScalesSide, weight: number, emoji: string): ScalesPan {
+function buildPan(side: ScalesSide, weight: number, item: (typeof panItems)[number]): ScalesPan {
   return {
     side,
     weight,
-    emoji,
-    items: Array.from({ length: weight }, () => emoji)
+    itemId: item.id,
+    itemName: item.name,
+    emoji: item.emoji,
+    items: Array.from({ length: weight }, () => item.emoji)
   };
 }
 
@@ -73,7 +84,7 @@ export function answerLabel(answer: ScalesAnswer, question: ScalesQuestion) {
 
 export function generateScalesRound(settings: SessionSettings, roundIndex = 1, random = Math.random): ScalesRound {
   const question: ScalesQuestion = roundIndex % 2 === 0 ? "lighter" : "heavier";
-  const emoji = panEmojis[randomInt(0, panEmojis.length - 1, random)];
+  const item = panItems[randomInt(0, panItems.length - 1, random)];
   const equalRound = roundIndex % 4 === 0;
   const [leftWeight, rightWeight] = equalRound
     ? (() => {
@@ -88,8 +99,8 @@ export function generateScalesRound(settings: SessionSettings, roundIndex = 1, r
     roundId: `scales:round:${roundIndex}`,
     prompt: question === "heavier" ? "Какая сторона тяжелее?" : "Какая сторона легче?",
     question,
-    left: buildPan("left", leftWeight, emoji),
-    right: buildPan("right", rightWeight, emoji),
+    left: buildPan("left", leftWeight, item),
+    right: buildPan("right", rightWeight, item),
     correctAnswer,
     tiltDeg
   };

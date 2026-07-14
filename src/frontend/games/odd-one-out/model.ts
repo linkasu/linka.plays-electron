@@ -5,6 +5,7 @@ export type OddOneOutCategoryId = "animals" | "food" | "clothes" | "transport" |
 
 export type OddOneOutItem = {
   id: string;
+  wordId?: string;
   label: string;
   emoji: string;
   categoryId: OddOneOutCategoryId;
@@ -29,7 +30,13 @@ export type OddOneOutRound = {
 };
 
 function item(categoryId: OddOneOutCategoryId, id: string, label: string, emoji: string): OddOneOutItem {
-  return { id: `${categoryId}:${id}`, label, emoji, categoryId };
+  const hasWordImage = categoryId === "animals"
+    || categoryId === "food"
+    || categoryId === "transport"
+    || categoryId === "nature"
+    || id === "dress"
+    || id === "drum";
+  return { id: `${categoryId}:${id}`, wordId: hasWordImage ? id : undefined, label, emoji, categoryId };
 }
 
 export const oddOneOutCategories: OddOneOutCategory[] = [

@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
@@ -124,7 +125,8 @@ onUnmounted(() => {
                 <GameDwellButton :target-id="cardTargetId(card)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="cardMinHeight" :color="selectedCardId === card.id ? 'deep-purple-darken-3' : 'surface'" @select="choose(card)">
                   <template #default>
                     <div class="card-content">
-                      <div class="card-emoji emoji-glyph mb-2" aria-hidden="true">{{ card.emoji }}</div>
+                      <GameWordImage v-if="card.wordId" class="card-emoji mb-2" :word-id="card.wordId" :word="card.label" :emoji="card.emoji" decorative />
+                      <div v-else class="card-emoji emoji-glyph mb-2" aria-hidden="true">{{ card.emoji }}</div>
                       <div class="card-label text-h5 text-md-h4 font-weight-bold">{{ card.label }}</div>
                       <div class="card-kind text-body-2 mt-1">{{ card.kind }}</div>
                     </div>

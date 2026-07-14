@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import GameSquareChoiceGrid, { type GameSquareChoice } from "../../components/game/GameSquareChoiceGrid.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
@@ -101,7 +102,7 @@ onUnmounted(() => {
               <p class="text-h6 text-medium-emphasis mb-0">{{ feedback }}</p>
             </div>
             <div class="items-grid mb-3 mb-md-5">
-              <span v-for="index in round.targetCount" :key="index" class="item-emoji emoji-glyph">{{ round.itemEmoji }}</span>
+              <GameWordImage v-for="index in round.targetCount" :key="index" class="item-emoji" :word-id="round.itemId" :word="round.itemName" :emoji="round.itemEmoji" decorative />
             </div>
             <GameSquareChoiceGrid :items="round.choices" grid-offset="21rem" compact-size="7.75rem" :target-id="(choice) => choiceTargetId(Number(choice))" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" @select="answerChoice">
               <template #default="{ choice }">

@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
@@ -108,7 +109,8 @@ onUnmounted(() => {
             <div class="text-overline text-secondary text-center mb-2">Любой ответ важен</div>
             <div class="item-display mb-4 mb-md-5">
               <v-chip class="mb-3 text-white" color="deep-purple-darken-3" size="large" variant="flat">{{ round.item.kind }}</v-chip>
-              <div class="item-emoji emoji-glyph">{{ round.item.emoji }}</div>
+              <GameWordImage v-if="round.item.wordId" class="item-emoji" :word-id="round.item.wordId" :word="round.item.title" :emoji="round.item.emoji" />
+              <div v-else class="item-emoji emoji-glyph">{{ round.item.emoji }}</div>
               <h1 class="text-h3 text-md-h2 font-weight-bold mb-2">{{ round.item.title }}</h1>
               <div class="want-prompt text-h6 text-md-h5">{{ round.prompt }}</div>
               <div class="text-h6 text-md-h5 mt-3">{{ feedback }}</div>

@@ -5,6 +5,7 @@ import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
@@ -99,7 +100,7 @@ onUnmounted(() => {
           <v-card class="yes-no-card pa-6 pa-md-8" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Отвечаем </div>
             <div class="item-display mb-6">
-              <div class="item-emoji emoji-glyph">{{ round.item.emoji }}</div>
+              <GameWordImage class="item-emoji" :word-id="round.item.id" :word="round.item.word" :emoji="round.item.emoji" />
               <h1 class="text-h3 font-weight-bold mb-2">{{ round.prompt }}</h1>
               <div class="text-h6 text-medium-emphasis">{{ feedback }}</div>
             </div>

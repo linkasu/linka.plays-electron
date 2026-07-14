@@ -5,6 +5,7 @@ import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
@@ -91,7 +92,7 @@ onUnmounted(() => {
             <p class="text-h6 text-medium-emphasis text-center mb-6">{{ feedbackText }}</p>
             <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="13.125rem" :cols="6" :md="6" @select="choose">
               <template #default="{ choice }">
-                <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
+                <GameWordImage class="choice-emoji" :word-id="choice.id" :word="choice.word" :emoji="choice.emoji" />
                 <div class="text-h5 font-weight-bold mt-2">{{ choice.word }}</div>
               </template>
             </GameChoiceCardGrid>

@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import GameSquareChoiceGrid, { type GameSquareChoice } from "../../components/game/GameSquareChoiceGrid.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
@@ -103,7 +104,7 @@ onUnmounted(() => {
         <v-col cols="12" lg="11">
           <v-card class="type-card pa-4 pa-md-6" rounded="xl" elevation="8">
             <div class="word-card mb-3 mb-md-5">
-              <div class="word-emoji emoji-glyph">{{ round.item.emoji }}</div>
+              <GameWordImage class="word-emoji" :word-id="round.item.id" :word="round.item.word" :emoji="round.item.emoji" />
               <div class="letters">
                 <span v-for="(letter, index) in round.letters" :key="`${letter}-${index}`" :class="['letter', { done: index < currentIndex, current: index === currentIndex }]">
                   {{ letter }}

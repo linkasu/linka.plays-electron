@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
@@ -104,7 +105,7 @@ onUnmounted(() => {
                   <template #default>
                     <div class="group-label text-overline mb-3">{{ group.side === "left" ? "Слева" : "Справа" }}</div>
                     <div class="group-items" aria-hidden="true">
-                      <span v-for="(item, index) in group.items" :key="index" class="group-emoji emoji-glyph">{{ item }}</span>
+                      <GameWordImage v-for="(_item, index) in group.items" :key="index" class="group-emoji" :word-id="group.itemId" :word="group.itemName" :emoji="group.emoji" decorative />
                     </div>
                     <div class="sr-only">{{ group.side === "left" ? "Левая" : "Правая" }} группа</div>
                   </template>

@@ -5,6 +5,7 @@ import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
@@ -149,7 +150,7 @@ onUnmounted(() => {
             <p class="hint-line text-body-1 text-md-h5 text-medium-emphasis text-center mb-3 mb-md-5">{{ hintText }}</p>
             <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="choiceMinHeight(round.choices.length)" :highlight-choice="(choice) => hintedChoiceId === choice.id" :color="(choice) => hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="answer">
               <template #default="{ choice, active, progress }">
-                <div :class="['animal-emoji', 'emoji-glyph', { 'animal-emoji--mistake': choice.id === lastMistakeId }]">{{ choice.emoji }}</div>
+                <GameWordImage :class="['animal-emoji', { 'animal-emoji--mistake': choice.id === lastMistakeId }]" :word-id="choice.id" :word="choice.word" :emoji="choice.emoji" />
                 <div class="animal-label text-h6 text-md-h4 font-weight-bold mt-2">{{ hintedChoiceId === choice.id && active && progress > 0.78 ? `Вот ${choice.word}` : choice.word }}</div>
               </template>
             </GameChoiceCardGrid>

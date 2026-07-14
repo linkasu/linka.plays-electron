@@ -2,6 +2,7 @@ export type IWantCardKind = "предмет" | "занятие" | "помощь"
 
 export type IWantCard = {
   id: string;
+  wordId?: string;
   label: string;
   phrase: string;
   emoji: string;
@@ -16,12 +17,12 @@ export type IWantRound = {
 
 export const iWantCards: IWantCard[] = [
   { id: "water", label: "Воду", phrase: "воду", emoji: "💧", kind: "предмет" },
-  { id: "apple", label: "Яблоко", phrase: "яблоко", emoji: "🍎", kind: "предмет" },
+  { id: "apple", wordId: "apple", label: "Яблоко", phrase: "яблоко", emoji: "🍎", kind: "предмет" },
   { id: "music", label: "Музыку", phrase: "музыку", emoji: "🎵", kind: "занятие" },
-  { id: "book", label: "Книгу", phrase: "книгу", emoji: "📖", kind: "предмет" },
-  { id: "ball", label: "Мяч", phrase: "мяч", emoji: "🟡", kind: "предмет" },
+  { id: "book", wordId: "book", label: "Книгу", phrase: "книгу", emoji: "📖", kind: "предмет" },
+  { id: "ball", wordId: "ball", label: "Мяч", phrase: "мяч", emoji: "🟡", kind: "предмет" },
   { id: "draw", label: "Рисовать", phrase: "рисовать", emoji: "🖍️", kind: "занятие" },
-  { id: "toy", label: "Игрушку", phrase: "игрушку", emoji: "🧸", kind: "предмет" },
+  { id: "toy", wordId: "toy", label: "Игрушку", phrase: "игрушку", emoji: "🧸", kind: "предмет" },
   { id: "rest", label: "Отдых", phrase: "отдохнуть", emoji: "🌙", kind: "занятие" },
   { id: "help", label: "Помощь", phrase: "помощь", emoji: "🤝", kind: "помощь" }
 ];

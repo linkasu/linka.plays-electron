@@ -4,12 +4,21 @@ import type { SessionSettings } from "../../core/settings";
 export type CountItemsRound = {
   roundId: string;
   targetCount: number;
+  itemId: string;
+  itemName: string;
   itemEmoji: string;
   choices: number[];
   correctIndex: number;
 };
 
-const itemEmojis = ["🍎", "⭐", "🌸", "🐟", "🦋", "🟡"];
+const countItems = [
+  { id: "apple", name: "яблоко", emoji: "🍎" },
+  { id: "star", name: "звезда", emoji: "⭐" },
+  { id: "flower", name: "цветок", emoji: "🌸" },
+  { id: "fish", name: "рыба", emoji: "🐟" },
+  { id: "butterfly", name: "бабочка", emoji: "🦋" },
+  { id: "ball", name: "мяч", emoji: "🟡" }
+];
 
 export function generateCountItemsRound(settings: SessionSettings, roundIndex = 1, random = Math.random): CountItemsRound {
   const max = settings.preset === "gentle" ? 3 : 9;
@@ -25,10 +34,13 @@ export function generateCountItemsRound(settings: SessionSettings, roundIndex = 
     if (choices.size < choiceCount && value !== targetCount) choices.add(value);
   }
   const shuffled = shuffleItems([...choices], random).slice(0, choiceCount);
+  const item = countItems[randomInt(0, countItems.length - 1, random)];
   return {
     roundId: `count-items:round:${roundIndex}`,
     targetCount,
-    itemEmoji: itemEmojis[randomInt(0, itemEmojis.length - 1, random)],
+    itemId: item.id,
+    itemName: item.name,
+    itemEmoji: item.emoji,
     choices: shuffled,
     correctIndex: shuffled.indexOf(targetCount)
   };

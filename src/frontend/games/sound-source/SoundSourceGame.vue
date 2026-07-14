@@ -4,12 +4,14 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 
 type SoundSource = {
   id: string;
+  wordId?: string;
   title: string;
   soundLabel: string;
   icon: string;
@@ -36,6 +38,7 @@ type CachedSourceAudio = {
 const soundSources: SoundSource[] = [
   {
     id: "shell",
+    wordId: "shell",
     title: "Ракушка",
     soundLabel: "морская волна",
     icon: "mdi-waves",
@@ -48,6 +51,7 @@ const soundSources: SoundSource[] = [
   },
   {
     id: "bell",
+    wordId: "bell",
     title: "Колокольчик",
     soundLabel: " звон",
     icon: "mdi-bell-outline",
@@ -59,6 +63,7 @@ const soundSources: SoundSource[] = [
   },
   {
     id: "bird",
+    wordId: "bird",
     title: "Птичка",
     soundLabel: "лёгкая песня",
     icon: "mdi-bird",
@@ -81,6 +86,7 @@ const soundSources: SoundSource[] = [
   },
   {
     id: "leaf",
+    wordId: "leaf",
     title: "Лист",
     soundLabel: "шорох листа",
     icon: "mdi-leaf",
@@ -383,7 +389,8 @@ onUnmounted(() => {
                   <span class="source-wave source-wave--three" />
                 </div>
                 <div class="source-glow" :style="{ opacity: source.id === round.target.id ? 0.44 + progress * 0.22 : active ? 0.28 : 0.18 }" aria-hidden="true" />
-                <span v-if="source.visual" class="source-emoji" aria-hidden="true">{{ source.visual }}</span>
+                <GameWordImage v-if="source.wordId" class="source-emoji" :word-id="source.wordId" :word="source.title" :emoji="source.visual ?? ''" decorative />
+                <span v-else-if="source.visual" class="source-emoji" aria-hidden="true">{{ source.visual }}</span>
                 <v-icon v-else class="source-icon" :icon="source.icon" />
                 <div class="text-h6 text-md-h4 font-weight-bold mt-2">{{ source.title }}</div>
                 <div class="source-caption text-body-2 mt-1">

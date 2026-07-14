@@ -5,6 +5,7 @@ import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
@@ -144,7 +145,8 @@ onUnmounted(() => {
 
             <GameChoiceCardGrid :choices="round.choices" :target-id="choiceTargetId" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="9.75rem" :color="choiceColor" :cols="6" :md="round.choices.length === 4 ? 3 : 4" @select="choose">
               <template #default="{ choice }">
-                <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
+                <GameWordImage v-if="choice.wordId" class="choice-emoji" :word-id="choice.wordId" :word="choice.label" :emoji="choice.emoji" />
+                <div v-else class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
                 <div class="text-h6 text-md-h5 font-weight-bold mt-2">{{ choice.label }}</div>
               </template>
             </GameChoiceCardGrid>

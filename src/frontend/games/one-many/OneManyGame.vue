@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
@@ -146,7 +147,7 @@ onUnmounted(() => {
                   <template #default>
                     <div class="choice-side text-overline mb-3">{{ choice.side === "left" ? "Слева" : "Справа" }}</div>
                     <div class="items" aria-hidden="true">
-                      <span v-for="(item, index) in choice.items" :key="index" class="item-emoji emoji-glyph">{{ item }}</span>
+                      <GameWordImage v-for="(_item, index) in choice.items" :key="index" class="item-emoji" :word-id="round.itemId" :word="round.itemName" :emoji="choice.emoji" decorative />
                     </div>
                     <div class="text-h3 text-md-h2 font-weight-bold mt-4">{{ choice.title }}</div>
                     <div class="sr-only">{{ choice.title }}: {{ choice.count }} {{ round.itemName }}</div>

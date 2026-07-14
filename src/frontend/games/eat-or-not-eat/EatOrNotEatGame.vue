@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
@@ -96,7 +97,7 @@ onUnmounted(() => {
           <v-card class="eat-card pa-6 pa-md-8" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Куда положим?</div>
             <div class="item-display mb-8">
-              <div class="item-emoji emoji-glyph">{{ round.item.emoji }}</div>
+              <GameWordImage class="item-emoji" :word-id="round.item.id" :word="round.item.word" :emoji="round.item.emoji" />
               <h1 class="text-h3 font-weight-bold">{{ round.item.word }}</h1>
               <p class="text-h6 text-medium-emphasis mb-0">{{ feedbackText }}</p>
             </div>

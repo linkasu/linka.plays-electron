@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
@@ -133,7 +134,7 @@ onUnmounted(() => {
                 <GameDwellButton :class="{ 'choice--mistake': mistakenChoiceId === choice.choiceId }" :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="260" color="surface" @select="choose(index)">
                   <template #default>
                     <div class="choice-size-label text-overline mb-3">{{ choice.sizeLabel }}</div>
-                    <div :class="['choice-emoji', 'emoji-glyph', `choice-emoji--${choice.size}`]" aria-hidden="true">{{ choice.emoji }}</div>
+                    <GameWordImage :class="['choice-emoji', `choice-emoji--${choice.size}`]" :word-id="choice.id" :word="choice.label" :emoji="choice.emoji" decorative />
                     <div class="text-h4 font-weight-bold mt-3">{{ choice.label }}</div>
                     <div class="sr-only">Размер: {{ choice.sizeLabel }}. Объект: {{ choice.label }}.</div>
                   </template>

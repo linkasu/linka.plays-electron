@@ -5,6 +5,7 @@ import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
@@ -103,7 +104,7 @@ onUnmounted(() => {
 
             <GameChoiceCardGrid :choices="round.choices" :target-id="(card) => cardTargetId(round.roundId, card.id)" :disabled="session.status !== 'running' || isResponding" :dwell-ms="session.settings.dwellMs" :min-height="260" :cols="12" :sm="6" :md="round.choices.length === 3 ? 4 : 6" :lg="round.choices.length === 4 ? 3 : round.choices.length === 3 ? 4 : 5" @select="choose">
               <template #default="{ choice: card, active, progress }">
-                <div class="card-emoji emoji-glyph">{{ card.emoji }}</div>
+                <GameWordImage class="card-emoji" :word-id="card.id" :word="card.label" :emoji="card.emoji" />
                 <div class="text-h4 text-md-h3 font-weight-bold mt-3">{{ card.label }}</div>
                 <div class="big-card-note text-body-1 text-md-h6 font-weight-medium mt-2">
                   {{ active && progress > 0.8 ? "Почти готово" : card.id === round.suggested.id ? " подсказка" : "Тоже можно" }}

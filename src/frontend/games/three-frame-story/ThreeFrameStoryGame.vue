@@ -5,6 +5,7 @@ import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
@@ -232,7 +233,8 @@ watch(isSpeaking, (speaking) => {
               <v-card v-for="slotIndex in 3" :key="slotIndex" class="story-slot pa-4" :color="assembledFrames[slotIndex - 1]?.color ?? 'blue-grey-lighten-5'" rounded="xl" variant="flat">
                 <template v-if="assembledFrames[slotIndex - 1]">
                   <div class="slot-number">{{ slotIndex }}</div>
-                  <div class="frame-emoji emoji-glyph">{{ assembledFrames[slotIndex - 1].emoji }}</div>
+                  <GameWordImage v-if="assembledFrames[slotIndex - 1].wordId" class="frame-emoji" :word-id="assembledFrames[slotIndex - 1].wordId!" :word="assembledFrames[slotIndex - 1].label" :emoji="assembledFrames[slotIndex - 1].emoji" />
+                  <div v-else class="frame-emoji emoji-glyph">{{ assembledFrames[slotIndex - 1].emoji }}</div>
                   <div class="text-h6 font-weight-bold mt-2">{{ assembledFrames[slotIndex - 1].label }}</div>
                 </template>
                 <template v-else>
@@ -247,7 +249,8 @@ watch(isSpeaking, (speaking) => {
               <v-col v-for="choice in round.choices" :key="choice.id" cols="4" sm="4">
                 <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="9rem" :color="choiceColor(choice)" @select="choose(choice)">
                   <template #default>
-                    <div class="frame-emoji emoji-glyph">{{ choice.emoji }}</div>
+                    <GameWordImage v-if="choice.wordId" class="frame-emoji" :word-id="choice.wordId" :word="choice.label" :emoji="choice.emoji" />
+                    <div v-else class="frame-emoji emoji-glyph">{{ choice.emoji }}</div>
                     <div class="text-h5 font-weight-bold mt-3">{{ choice.label }}</div>
                   </template>
                 </GameDwellButton>

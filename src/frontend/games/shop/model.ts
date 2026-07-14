@@ -12,6 +12,7 @@ export type ShopCoin = {
 
 export type ShopItem = {
   id: string;
+  wordId?: string;
   label: string;
   emoji: string;
   price: number;
@@ -40,13 +41,13 @@ export const shopCoins: ShopCoin[] = [
 ];
 
 export const shopItems: ShopItem[] = [
-  { id: "apple", label: "яблоко", emoji: "🍎", price: 2 },
-  { id: "juice", label: "сок", emoji: "🧃", price: 3 },
-  { id: "bread", label: "хлеб", emoji: "🍞", price: 4 },
-  { id: "milk", label: "молоко", emoji: "🥛", price: 5 },
-  { id: "banana", label: "банан", emoji: "🍌", price: 6 },
-  { id: "cookie", label: "печенье", emoji: "🍪", price: 7 },
-  { id: "cheese", label: "сыр", emoji: "🧀", price: 8 },
+  { id: "apple", wordId: "apple", label: "яблоко", emoji: "🍎", price: 2 },
+  { id: "juice", wordId: "juice", label: "сок", emoji: "🧃", price: 3 },
+  { id: "bread", wordId: "bread", label: "хлеб", emoji: "🍞", price: 4 },
+  { id: "milk", wordId: "milk", label: "молоко", emoji: "🥛", price: 5 },
+  { id: "banana", wordId: "banana", label: "банан", emoji: "🍌", price: 6 },
+  { id: "cookie", wordId: "cookie", label: "печенье", emoji: "🍪", price: 7 },
+  { id: "cheese", wordId: "cheese", label: "сыр", emoji: "🧀", price: 8 },
   { id: "berries", label: "ягоды", emoji: "🫐", price: 9 },
   { id: "cake", label: "кекс", emoji: "🧁", price: 10 }
 ];

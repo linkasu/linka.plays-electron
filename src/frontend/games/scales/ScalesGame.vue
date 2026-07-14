@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
@@ -124,14 +125,14 @@ onUnmounted(() => {
                 <div class="scale-pan-wrap scale-pan-wrap--left">
                   <div class="scale-cord" />
                   <div class="scale-pan scale-pan--left">
-                    <span v-for="(item, index) in round.left.items" :key="`left-${index}`" class="pan-item emoji-glyph">{{ item }}</span>
+                    <GameWordImage v-for="(_item, index) in round.left.items" :key="`left-${index}`" class="pan-item" :word-id="round.left.itemId" :word="round.left.itemName" :emoji="round.left.emoji" decorative />
                   </div>
                 </div>
                 <div class="scale-pivot" />
                 <div class="scale-pan-wrap scale-pan-wrap--right">
                   <div class="scale-cord" />
                   <div class="scale-pan scale-pan--right">
-                    <span v-for="(item, index) in round.right.items" :key="`right-${index}`" class="pan-item emoji-glyph">{{ item }}</span>
+                    <GameWordImage v-for="(_item, index) in round.right.items" :key="`right-${index}`" class="pan-item" :word-id="round.right.itemId" :word="round.right.itemName" :emoji="round.right.emoji" decorative />
                   </div>
                 </div>
                 <div class="scale-stand" />

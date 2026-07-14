@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { clampTargetCenterPercent } from "../../core/placement";
 import { resolveMenuRoute } from "../../core/menuMode";
@@ -212,7 +213,7 @@ onUnmounted(() => {
     <div class="scene">
       <v-card class="prompt pa-7 pa-md-8 text-center" rounded="xl" elevation="10">
         <div class="text-overline text-secondary mb-2">Найди</div>
-        <div v-if="currentObject" class="prompt-sample emoji-glyph mb-3">{{ currentObject.emoji }}</div>
+        <GameWordImage v-if="currentObject" class="prompt-sample mb-3" :word-id="currentObject.id" :word="currentObject.name" :emoji="currentObject.emoji" />
         <div class="text-h3 font-weight-bold">{{ currentObject ? currentObject.name : 'всех друзей' }}</div>
         <div class="text-body-1 text-medium-emphasis mt-2">{{ feedbackMessage }}</div>
       </v-card>
@@ -229,7 +230,7 @@ onUnmounted(() => {
         @select="chooseObject(object)"
       >
         <template #default>
-          <div class="object-emoji emoji-glyph">{{ object.emoji }}</div>
+          <GameWordImage class="object-emoji" :word-id="object.id" :word="object.name" :emoji="object.emoji" />
         </template>
       </GameDwellButton>
     </div>

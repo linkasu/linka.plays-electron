@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
@@ -184,7 +185,8 @@ onUnmounted(() => {
             <v-card class="target-card pa-5 pa-md-6 mb-6" color="indigo-lighten-5" rounded="xl" variant="flat">
               <div class="target-caption text-caption mb-2">{{ targetCardTitle }}</div>
               <div class="d-flex flex-column flex-sm-row align-center justify-center ga-4">
-                <div class="target-emoji emoji-glyph" aria-hidden="true">{{ targetEmoji }}</div>
+                <GameWordImage v-if="round.mode === 'item-to-category'" class="target-emoji" :word-id="round.targetItem.id" :word="round.targetItem.word" :emoji="round.targetItem.emoji" decorative />
+                <div v-else class="target-emoji emoji-glyph" aria-hidden="true">{{ targetEmoji }}</div>
                 <div class="text-center text-sm-start">
                   <div class="text-h4 font-weight-bold">{{ targetLabel }}</div>
                   <v-chip class="mt-2 text-white" color="deep-purple-darken-3" variant="flat" size="large">{{ modeChip }}</v-chip>
@@ -197,7 +199,8 @@ onUnmounted(() => {
                 <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="11.875rem" :color="choiceColor(choice)" @select="choose(choice)">
                   <template #default>
                     <div class="choice-content">
-                      <div class="choice-emoji emoji-glyph" aria-hidden="true">{{ choice.emoji }}</div>
+                      <div v-if="isCategoryChoice(choice)" class="choice-emoji emoji-glyph" aria-hidden="true">{{ choice.emoji }}</div>
+                      <GameWordImage v-else class="choice-emoji" :word-id="choice.id" :word="choice.word" :emoji="choice.emoji" decorative />
                       <div class="text-h5 font-weight-bold mt-2">{{ choiceLabel(choice) }}</div>
                       <div class="choice-hint text-body-2 mt-2">{{ choiceHint(choice) }}</div>
                     </div>

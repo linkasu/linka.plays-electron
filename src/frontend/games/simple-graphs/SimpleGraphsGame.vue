@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
@@ -46,6 +47,10 @@ const feedbackText = computed(() => feedback.value || round.value.helperText);
 
 function choiceTargetId(choice: SimpleGraphsChoice) {
   return `simple-graphs:choice:${choice.choiceId}`;
+}
+
+function choiceBar(choice: SimpleGraphsChoice) {
+  return round.value.bars.find((bar) => bar.id === choice.barId);
 }
 
 function promptAssetId() {
@@ -145,7 +150,7 @@ onUnmounted(() => {
                     </div>
                   </div>
                   <div class="graph-label">
-                    <span class="emoji-glyph" aria-hidden="true">{{ bar.emoji }}</span>
+                    <GameWordImage :word-id="bar.wordId" :word="bar.label" :emoji="bar.emoji" decorative />
                     <span>{{ bar.label }}</span>
                   </div>
                 </div>
@@ -157,6 +162,7 @@ onUnmounted(() => {
                 <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="132" color="surface" @select="choose(choice)">
                   <template #default>
                     <div :class="['choice-card', { 'choice-card--mistake': lastMistakeTargetId === choiceTargetId(choice) }]">
+                      <GameWordImage v-if="choiceBar(choice)" class="choice-word-image" :word-id="choiceBar(choice)!.wordId" :word="choiceBar(choice)!.label" :emoji="choiceBar(choice)!.emoji" decorative />
                       <div class="choice-label font-weight-bold" :class="round.questionKind === 'count' ? 'text-h2' : 'text-h5 text-md-h4'">
                         {{ choice.label }}
                       </div>
@@ -253,7 +259,7 @@ onUnmounted(() => {
   text-align: center;
 }
 
-.graph-label.emoji-glyph {
+.graph-label .game-word-image {
   font-size: clamp(2.3rem, 6vw, 3.75rem);
   line-height: 1;
 }
@@ -280,6 +286,10 @@ onUnmounted(() => {
 
 .choice-card--mistake {
   border-color: rgb(var(--v-theme-secondary));
+}
+
+.choice-word-image {
+  font-size: clamp(2.5rem, 6vw, 4rem);
 }
 
 .choice-label {

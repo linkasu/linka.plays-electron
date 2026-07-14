@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
@@ -178,7 +179,7 @@ onUnmounted(() => {
                   <template #default>
                     <div class="memory-card-content">
                       <template v-if="isCardOpen(card)">
-                        <div class="memory-card-emoji emoji-glyph">{{ card.emoji }}</div>
+                        <GameWordImage class="memory-card-emoji" :word-id="card.pairId" :word="card.label" :emoji="card.emoji" />
                         <div class="text-h5 font-weight-bold mt-2">{{ card.label }}</div>
                       </template>
                       <template v-else>

@@ -5,6 +5,7 @@ import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
@@ -152,7 +153,8 @@ onUnmounted(() => {
               <v-col cols="12" sm="4">
                 <v-sheet class="target-card pa-4" color="primary" rounded="xl">
                   <div class="text-overline text-white text-center mb-2">Найди пару для</div>
-                  <div class="target-card__visual text-white">{{ round.target.visual }}</div>
+                  <GameWordImage v-if="round.target.wordId" class="target-card__visual" :word-id="round.target.wordId" :word="round.target.label" :emoji="round.target.visual" />
+                  <div v-else class="target-card__visual text-white">{{ round.target.visual }}</div>
                   <div class="text-h5 text-md-h4 font-weight-bold text-white text-center mt-3">{{ round.target.label }}</div>
                 </v-sheet>
               </v-col>
@@ -161,7 +163,8 @@ onUnmounted(() => {
                 <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="12rem" :highlight-choice="(choice) => hintedRoundId === round.roundId && choice.id === round.pair.id" :color="(choice) => hintedRoundId === round.roundId && choice.id === round.pair.id ? 'primary' : 'surface'" :cols="6" :sm="3" @select="choose">
                   <template #default="{ choice }">
                     <div :class="['choice-card', { 'choice-card--mistake': choice.id === lastMistakeId }]">
-                      <div class="choice-card__visual">{{ choice.visual }}</div>
+                      <GameWordImage v-if="choice.wordId" class="choice-card__visual" :word-id="choice.wordId" :word="choice.label" :emoji="choice.visual" />
+                      <div v-else class="choice-card__visual">{{ choice.visual }}</div>
                       <div class="choice-card__label text-body-1 text-md-h6 font-weight-bold mt-3">{{ choice.label }}</div>
                     </div>
                   </template>

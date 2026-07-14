@@ -7,6 +7,8 @@ export type GreaterLessComparison = "more" | "less";
 export type GreaterLessGroup = {
   side: GreaterLessSide;
   count: number;
+  itemId: string;
+  itemName: string;
   emoji: string;
   items: string[];
 };
@@ -20,7 +22,14 @@ export type GreaterLessRound = {
   correctSide: GreaterLessSide;
 };
 
-const groupEmojis = ["🍎", "⭐", "🌸", "🐟", "🦋", "🟡"];
+const groupItems = [
+  { id: "apple", name: "яблоко", emoji: "🍎" },
+  { id: "star", name: "звезда", emoji: "⭐" },
+  { id: "flower", name: "цветок", emoji: "🌸" },
+  { id: "fish", name: "рыба", emoji: "🐟" },
+  { id: "butterfly", name: "бабочка", emoji: "🦋" },
+  { id: "ball", name: "мяч", emoji: "🟡" }
+];
 
 function pickDifferentCounts(settings: SessionSettings, random: () => number) {
   const maxCount = settings.preset === "gentle" ? 5 : settings.preset === "challenge" ? 10 : 8;
@@ -36,19 +45,21 @@ function pickDifferentCounts(settings: SessionSettings, random: () => number) {
   return pairs[randomInt(0, pairs.length - 1, random)];
 }
 
-function buildGroup(side: GreaterLessSide, count: number, emoji: string): GreaterLessGroup {
+function buildGroup(side: GreaterLessSide, count: number, item: (typeof groupItems)[number]): GreaterLessGroup {
   return {
     side,
     count,
-    emoji,
-    items: Array.from({ length: count }, () => emoji)
+    itemId: item.id,
+    itemName: item.name,
+    emoji: item.emoji,
+    items: Array.from({ length: count }, () => item.emoji)
   };
 }
 
 export function generateGreaterLessRound(settings: SessionSettings, roundIndex = 1, random = Math.random): GreaterLessRound {
   const [leftCount, rightCount] = pickDifferentCounts(settings, random);
   const comparison: GreaterLessComparison = roundIndex % 2 === 0 ? "less" : "more";
-  const emoji = groupEmojis[randomInt(0, groupEmojis.length - 1, random)];
+  const item = groupItems[randomInt(0, groupItems.length - 1, random)];
   const correctSide: GreaterLessSide = comparison === "more"
     ? leftCount > rightCount ? "left" : "right"
     : leftCount < rightCount ? "left" : "right";
@@ -57,8 +68,8 @@ export function generateGreaterLessRound(settings: SessionSettings, roundIndex =
     roundId: `greater-less:round:${roundIndex}`,
     prompt: comparison === "more" ? "Где больше?" : "Где меньше?",
     comparison,
-    left: buildGroup("left", leftCount, emoji),
-    right: buildGroup("right", rightCount, emoji),
+    left: buildGroup("left", leftCount, item),
+    right: buildGroup("right", rightCount, item),
     correctSide
   };
 }

@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
@@ -139,7 +140,7 @@ onUnmounted(() => {
             <v-card class="item-card pa-5 pa-md-6 mb-6" color="blue-grey-lighten-5" rounded="xl" variant="flat">
               <div class="item-caption text-caption mb-2">Предмет для сортировки</div>
               <div class="d-flex flex-column flex-sm-row align-center justify-center ga-4">
-                <div :class="['item-emoji emoji-glyph', { 'item-emoji--placed': successShelfId }]" aria-hidden="true">{{ round.item.emoji }}</div>
+                <GameWordImage :class="['item-emoji', { 'item-emoji--placed': successShelfId }]" :word-id="round.item.id" :word="round.item.label" :emoji="round.item.emoji" decorative />
                 <div class="text-center text-sm-start">
                   <div class="text-h4 font-weight-bold">{{ round.item.label }}</div>
                   <v-chip class="mt-2 text-white" color="deep-purple-darken-3" variant="flat" size="large">{{ round.rule === "category" ? "сортируем по категории" : "сортируем по цвету" }}</v-chip>
@@ -153,7 +154,7 @@ onUnmounted(() => {
                   <template #default>
                     <div class="shelf-choice-content">
                       <div class="shelf-visual mb-4" aria-hidden="true">
-                        <div v-if="successShelfId === shelf.id" class="shelf-placed-item emoji-glyph">{{ round.item.emoji }}</div>
+                        <GameWordImage v-if="successShelfId === shelf.id" class="shelf-placed-item" :word-id="round.item.id" :word="round.item.label" :emoji="round.item.emoji" decorative />
                         <v-icon class="shelf-icon" :icon="shelf.icon" color="brown-darken-2" />
                         <div class="shelf-board" />
                       </div>

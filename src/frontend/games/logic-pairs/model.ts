@@ -5,6 +5,7 @@ export type LogicPairRelation = "meaning" | "shape" | "number";
 
 export type LogicPairCard = {
   id: string;
+  wordId?: string;
   label: string;
   visual: string;
 };
@@ -33,21 +34,21 @@ export const logicPairDefinitions: LogicPairDefinition[] = [
   {
     id: "key-lock",
     relation: "meaning",
-    target: { id: "key", label: "ключ", visual: "🔑" },
+    target: { id: "key", wordId: "key", label: "ключ", visual: "🔑" },
     pair: { id: "lock", label: "замок", visual: "🔒" },
     explanation: "Ключ подходит к замку."
   },
   {
     id: "spoon-bowl",
     relation: "meaning",
-    target: { id: "spoon", label: "ложка", visual: "🥄" },
+    target: { id: "spoon", wordId: "spoon", label: "ложка", visual: "🥄" },
     pair: { id: "bowl", label: "миска", visual: "🥣" },
     explanation: "Ложка подходит к миске."
   },
   {
     id: "hand-glove",
     relation: "meaning",
-    target: { id: "hand", label: "рука", visual: "✋" },
+    target: { id: "hand", wordId: "hand", label: "рука", visual: "✋" },
     pair: { id: "glove", label: "перчатка", visual: "🧤" },
     explanation: "Перчатка надевается на руку."
   },

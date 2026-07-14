@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
@@ -234,7 +235,8 @@ onUnmounted(() => {
                   <GameDwellButton :target-id="itemTargetId(item.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="230" color="surface" @select="toggleShoppingItem(item)">
                     <template #default>
                       <div :class="['item-card', { 'item-card--selected': selectedItemIds.includes(item.id), 'item-card--mistake': lastMistakeTargetId === itemTargetId(item.id) }]">
-                        <div class="item-card__emoji emoji-glyph" aria-hidden="true">{{ item.emoji }}</div>
+                        <GameWordImage v-if="item.wordId" class="item-card__emoji" :word-id="item.wordId" :word="item.label" :emoji="item.emoji" decorative />
+                        <div v-else class="item-card__emoji emoji-glyph" aria-hidden="true">{{ item.emoji }}</div>
                         <div class="item-card__label text-h5 text-md-h4 font-weight-bold text-center">{{ item.label }}</div>
                         <v-chip class="item-card__price mt-3" color="deep-purple-darken-3" size="x-large" variant="flat">
                           {{ item.price }} мон.
@@ -266,7 +268,8 @@ onUnmounted(() => {
             <template v-else>
               <v-sheet class="receipt-panel pa-4 mb-4" color="primary" rounded="xl">
                 <div class="receipt-panel__item">
-                  <span class="receipt-panel__emoji emoji-glyph" aria-hidden="true">{{ round.targetItem.emoji }}</span>
+                  <GameWordImage v-if="round.targetItem.wordId" class="receipt-panel__emoji" :word-id="round.targetItem.wordId" :word="round.targetItem.label" :emoji="round.targetItem.emoji" decorative />
+                  <span v-else class="receipt-panel__emoji emoji-glyph" aria-hidden="true">{{ round.targetItem.emoji }}</span>
                   <div>
                     <div class="text-overline text-white">Покупка</div>
                     <div class="text-h4 text-md-h3 font-weight-bold text-white">{{ round.targetItem.label }}</div>

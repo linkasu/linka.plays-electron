@@ -1,4 +1,5 @@
 import type { WhereObjectPlace, WhereObjectPreposition, WhereObjectRound } from "./model";
+import { loadWordImage } from "../../core/wordImage";
 
 export type Point = { x: number; y: number };
 export type Rect = { x: number; y: number; width: number; height: number };
@@ -211,7 +212,7 @@ function objectAnchor(geometry: PlaceGeometry, prepositionId: string) {
   return geometry.in;
 }
 
-function drawObjectToken(context: CanvasRenderingContext2D, emoji: string, point: Point, size: number) {
+function drawObjectToken(context: CanvasRenderingContext2D, wordId: string, emoji: string, point: Point, size: number) {
   context.save();
   context.fillStyle = "rgb(255 255 255 / 94%)";
   context.beginPath();
@@ -221,6 +222,17 @@ function drawObjectToken(context: CanvasRenderingContext2D, emoji: string, point
   context.lineWidth = Math.max(2, size * 0.035);
   context.stroke();
   context.restore();
+
+  const image = loadWordImage(wordId);
+  if (image.complete && image.naturalWidth > 0) {
+    const maxSide = size * 0.94;
+    const scale = Math.min(maxSide / image.naturalWidth, maxSide / image.naturalHeight);
+    const width = image.naturalWidth * scale;
+    const height = image.naturalHeight * scale;
+    context.drawImage(image, point.x - width / 2, point.y - height / 2, width, height);
+    return;
+  }
+
   drawText(context, emoji, point.x, point.y + size * 0.02, size * 1.35, `${Math.round(size * 0.84)}px "Apple Color Emoji", "Segoe UI Emoji"`);
 }
 
@@ -231,7 +243,7 @@ function drawScene(context: CanvasRenderingContext2D, round: WhereObjectRound) {
   const tokenSize = Math.min(92, geometry.rect.width * 0.28);
 
   drawPlace(context, round.targetPlace, geometry);
-  drawObjectToken(context, round.targetObject.emoji, object, tokenSize);
+  drawObjectToken(context, round.targetObject.id, round.targetObject.emoji, object, tokenSize);
 }
 
 function drawDwellProgress(context: CanvasRenderingContext2D, target: WhereObjectCanvasTarget) {
