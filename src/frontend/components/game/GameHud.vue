@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRouter } from "vue-router";
+import { useDwellSettings } from "../../core/dwellSettings";
 import { resolveMenuMode, resolveMenuRoute } from "../../core/menuMode";
 import GameDwellButton from "./GameDwellButton.vue";
 import GazePointerOverlay from "./GazePointerOverlay.vue";
@@ -25,6 +26,7 @@ const emit = defineEmits<{
 }>();
 
 const router = useRouter();
+const { dwellMs } = useDwellSettings();
 const progress = computed(() => props.maxSteps > 0 ? Math.min(100, (props.step / props.maxSteps) * 100) : 0);
 const showProgress = computed(() => props.showProgress !== false);
 const showTimer = computed(() => props.showTimer !== false);
@@ -47,7 +49,7 @@ function togglePause() {
   <div class="game-hud d-flex flex-wrap align-center ga-2 pa-3">
     <template v-if="isSelfMode">
       <div class="self-gaze-edge d-flex ga-2" aria-label="Управление взглядом">
-        <GameDwellButton class="self-gaze-action" target-id="hud-menu" :dwell-ms="1700" min-height="clamp(5rem, 12dvh, 7.5rem)" color="secondary" @select="goToMenu">
+        <GameDwellButton class="self-gaze-action" target-id="hud-menu" :dwell-ms="dwellMs" min-height="clamp(5rem, 12dvh, 7.5rem)" color="secondary" @select="goToMenu">
           <template #default>
             <div class="d-flex flex-column align-center justify-center ga-1 text-white">
               <v-icon icon="mdi-arrow-left" size="36" />
@@ -56,7 +58,7 @@ function togglePause() {
             </div>
           </template>
         </GameDwellButton>
-        <GameDwellButton class="self-gaze-action" target-id="hud-pause" :dwell-ms="1300" min-height="clamp(5rem, 12dvh, 7.5rem)" color="surface" @select="togglePause">
+        <GameDwellButton class="self-gaze-action" target-id="hud-pause" :dwell-ms="dwellMs" min-height="clamp(5rem, 12dvh, 7.5rem)" color="surface" @select="togglePause">
           <template #default>
             <div class="d-flex flex-column align-center justify-center ga-1 text-primary">
               <v-icon :icon="paused ? 'mdi-play' : 'mdi-pause'" size="36" />

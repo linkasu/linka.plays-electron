@@ -5,6 +5,7 @@ let sharedCooldownUntil = 0;
 <script setup lang="ts">
 import { computed, getCurrentInstance, inject, onMounted, onUnmounted, ref } from "vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { DEFAULT_DWELL_MS } from "../../core/dwellSettings";
 import type { DwellCancelReason, DwellEventPayload } from "../../core/gaze";
 import { gameSessionTelemetryKey } from "../../core/session";
 
@@ -15,7 +16,7 @@ const props = withDefaults(defineProps<{
   color?: string;
   minHeight?: number | string;
 }>(), {
-  dwellMs: 1000,
+  dwellMs: DEFAULT_DWELL_MS,
   disabled: false,
   color: "surface",
   minHeight: 160

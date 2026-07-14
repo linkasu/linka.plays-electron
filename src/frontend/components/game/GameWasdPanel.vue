@@ -15,6 +15,7 @@ export type GameWasdControl = {
 </script>
 
 <script setup lang="ts">
+import { DEFAULT_DWELL_MS } from "../../core/dwellSettings";
 import GameDwellButton from "./GameDwellButton.vue";
 
 withDefaults(defineProps<{
@@ -25,7 +26,7 @@ withDefaults(defineProps<{
   ariaLabel?: string;
   showKeyCaps?: boolean;
 }>(), {
-  dwellMs: 1000,
+  dwellMs: DEFAULT_DWELL_MS,
   disabled: false,
   minHeight: "0",
   ariaLabel: "Кнопки управления WASD",

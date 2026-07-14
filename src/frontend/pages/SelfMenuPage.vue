@@ -3,11 +3,13 @@ import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import GameDwellButton from "../components/game/GameDwellButton.vue";
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
+import { useDwellSettings } from "../core/dwellSettings";
 import { firstMenuCategory, rememberMenuCategory, rememberMenuMode } from "../core/menuMode";
 import { games, groupGamesByCategory, resolveGameStabilityStatus, type GameCategoryId, type GameInfo } from "../data/games";
 
 const router = useRouter();
 const route = useRoute();
+const { dwellMs } = useDwellSettings();
 const releaseGames = games.filter((game) => resolveGameStabilityStatus(game) === "publish");
 const gameGroups = groupGamesByCategory(releaseGames, { excludeArchived: true });
 const selectedCategory = ref<GameCategoryId | null>(null);
@@ -44,10 +46,6 @@ function openGame(game: GameInfo) {
   rememberMenuMode("self");
   rememberMenuCategory(game.category);
   router.push({ path: game.route, query: { from: "self", category: game.category } });
-}
-
-function menuDwellMs(game: GameInfo) {
-  return Math.max(1300, game.defaultDwellMs);
 }
 
 onMounted(() => {
@@ -101,7 +99,7 @@ watch(() => route.query.category, syncCategoryFromRoute);
               <GameDwellButton
                 class="self-folder-card h-100"
                 :target-id="`self-folder-${group.category}`"
-                :dwell-ms="1500"
+                :dwell-ms="dwellMs"
                 min-height="clamp(7.5rem, 17dvh, 10rem)"
                 color="surface"
                 @select="selectCategory(group.category)"
@@ -133,7 +131,7 @@ watch(() => route.query.category, syncCategoryFromRoute);
                 <GameDwellButton
                   class="self-game-card h-100"
                   :target-id="`self-game-${game.id}`"
-                  :dwell-ms="menuDwellMs(game)"
+                  :dwell-ms="dwellMs"
                   min-height="clamp(7.5rem, 17dvh, 10rem)"
                   color="surface"
                   @select="openGame(game)"
@@ -165,7 +163,7 @@ watch(() => route.query.category, syncCategoryFromRoute);
 
           <v-row align="stretch" dense>
             <v-col cols="4">
-              <GameDwellButton target-id="self-prev" :disabled="pageIndex === 0" :dwell-ms="1200" min-height="clamp(4rem, 8dvh, 5rem)" color="secondary" @select="previousPage">
+              <GameDwellButton target-id="self-prev" :disabled="pageIndex === 0" :dwell-ms="dwellMs" min-height="clamp(4rem, 8dvh, 5rem)" color="secondary" @select="previousPage">
                 <template #default>
                   <div class="d-flex align-center justify-center ga-2 text-white text-h6 font-weight-bold">
                     <v-icon icon="mdi-arrow-left" />
@@ -175,7 +173,7 @@ watch(() => route.query.category, syncCategoryFromRoute);
               </GameDwellButton>
             </v-col>
             <v-col cols="4">
-              <GameDwellButton target-id="self-folders" :disabled="!selectedGroup" :dwell-ms="1200" min-height="clamp(4rem, 8dvh, 5rem)" color="surface" @select="showCategories">
+              <GameDwellButton target-id="self-folders" :disabled="!selectedGroup" :dwell-ms="dwellMs" min-height="clamp(4rem, 8dvh, 5rem)" color="surface" @select="showCategories">
                 <template #default>
                   <div class="d-flex align-center justify-center ga-2 text-primary text-h6 font-weight-bold">
                     <v-icon icon="mdi-folder-multiple-outline" />
@@ -185,7 +183,7 @@ watch(() => route.query.category, syncCategoryFromRoute);
               </GameDwellButton>
             </v-col>
             <v-col cols="4">
-              <GameDwellButton target-id="self-next" :disabled="pageIndex >= pageCount - 1" :dwell-ms="1200" min-height="clamp(4rem, 8dvh, 5rem)" color="primary" @select="nextPage">
+              <GameDwellButton target-id="self-next" :disabled="pageIndex >= pageCount - 1" :dwell-ms="dwellMs" min-height="clamp(4rem, 8dvh, 5rem)" color="primary" @select="nextPage">
                 <template #default>
                   <div class="d-flex align-center justify-center ga-2 text-white text-h6 font-weight-bold">
                     <span>Дальше</span>

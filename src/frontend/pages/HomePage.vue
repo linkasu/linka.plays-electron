@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
+import { DWELL_STEP_MS, MAX_DWELL_MS, MIN_DWELL_MS, useDwellSettings } from "../core/dwellSettings";
 import { firstMenuCategory, rememberMenuCategory, rememberMenuMode } from "../core/menuMode";
 import { gameSkillLabels, gameStatusLabels, groupGamesByCategory, type GameCategoryId, type GameInfo } from "../data/games";
 
@@ -14,6 +15,7 @@ type SpecialistGameItem = {
 
 const router = useRouter();
 const route = useRoute();
+const { dwellMs, setDwellMs } = useDwellSettings();
 const gameGroups = groupGamesByCategory();
 const selectedCategory = ref<GameCategoryId | null>(null);
 const pageIndex = ref(0);
@@ -164,6 +166,32 @@ watch(searchQuery, () => {
             </v-btn>
           </div>
 
+          <v-card class="pa-4 mb-5" color="surface-variant" rounded="xl" variant="tonal">
+            <div class="d-flex flex-column flex-md-row align-md-center ga-4">
+              <div class="flex-grow-1">
+                <div class="text-subtitle-1 font-weight-bold">Задержка выбора взглядом</div>
+                <div class="text-body-2 text-medium-emphasis">Применяется ко всем играм и самостоятельному меню</div>
+              </div>
+              <v-chip color="primary" size="large" variant="flat">{{ dwellMs }} мс</v-chip>
+            </div>
+            <v-slider
+              class="mt-3"
+              color="primary"
+              :max="MAX_DWELL_MS"
+              :min="MIN_DWELL_MS"
+              :model-value="dwellMs"
+              :step="DWELL_STEP_MS"
+              hide-details
+              show-ticks="always"
+              thumb-label="always"
+              @update:model-value="setDwellMs"
+            />
+            <div class="d-flex justify-space-between text-caption text-medium-emphasis">
+              <span>Быстрее: {{ MIN_DWELL_MS }} мс</span>
+              <span>Осторожнее: {{ MAX_DWELL_MS }} мс</span>
+            </div>
+          </v-card>
+
           <section v-if="!selectedGroup && !isSearchActive" aria-label="Папки игр">
             <div class="d-flex align-center justify-space-between ga-4 mb-4">
               <h2 class="text-h4 font-weight-bold mb-0">Папки игр</h2>
@@ -233,7 +261,7 @@ watch(searchQuery, () => {
                         <v-chip :color="item.game.status === 'planned' ? 'default' : 'primary'" size="small" variant="tonal">{{ gameStatusLabels[item.game.status] }}</v-chip>
                         <v-chip v-if="isSearchActive" color="secondary" size="small" variant="tonal">{{ item.categoryLabel }}</v-chip>
                         <v-chip color="info" prepend-icon="mdi-timer-outline" size="small" variant="tonal">{{ item.game.recommendedSessionSeconds }} сек</v-chip>
-                        <v-chip color="info" prepend-icon="mdi-clock-outline" size="small" variant="tonal">{{ item.game.defaultDwellMs }} мс</v-chip>
+                        <v-chip color="info" prepend-icon="mdi-clock-outline" size="small" variant="tonal">{{ dwellMs }} мс</v-chip>
                       </div>
                     </div>
                   </div>

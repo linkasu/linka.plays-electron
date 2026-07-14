@@ -1,3 +1,5 @@
+import { DEFAULT_DWELL_MS, MAX_DWELL_MS, MIN_DWELL_MS } from "./dwellSettings";
+
 export type DifficultyPreset = "gentle" | "standard" | "challenge" | "custom";
 
 export type SessionSettings = {
@@ -20,7 +22,7 @@ export const presetSettings: Record<Exclude<DifficultyPreset, "custom">, Session
     preset: "gentle",
     sessionSeconds: 60,
     maxSteps: 5,
-    dwellMs: 1400,
+    dwellMs: DEFAULT_DWELL_MS,
     targetScale: 1.35,
     motionSpeed: 0.65,
     distractors: "none",
@@ -34,7 +36,7 @@ export const presetSettings: Record<Exclude<DifficultyPreset, "custom">, Session
     preset: "standard",
     sessionSeconds: 120,
     maxSteps: 10,
-    dwellMs: 1000,
+    dwellMs: DEFAULT_DWELL_MS,
     targetScale: 1,
     motionSpeed: 1,
     distractors: "low",
@@ -48,7 +50,7 @@ export const presetSettings: Record<Exclude<DifficultyPreset, "custom">, Session
     preset: "challenge",
     sessionSeconds: 180,
     maxSteps: 15,
-    dwellMs: 750,
+    dwellMs: DEFAULT_DWELL_MS,
     targetScale: 0.9,
     motionSpeed: 1.2,
     distractors: "medium",
@@ -75,7 +77,7 @@ export function clampSettings(settings: SessionSettings): SessionSettings {
    ...settings,
     sessionSeconds: Math.min(300, Math.max(30, settings.sessionSeconds)),
     maxSteps: Math.min(40, Math.max(1, settings.maxSteps)),
-    dwellMs: Math.min(3000, Math.max(500, settings.dwellMs)),
+    dwellMs: Math.min(MAX_DWELL_MS, Math.max(MIN_DWELL_MS, settings.dwellMs)),
     targetScale: Math.min(2, Math.max(0.8, settings.targetScale)),
     motionSpeed: Math.min(1.4, Math.max(0.4, settings.motionSpeed))
   };

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useDwellSettings } from "../../core/dwellSettings";
 import { resolveMenuMode } from "../../core/menuMode";
 import GameDwellButton from "./GameDwellButton.vue";
 
@@ -31,6 +32,7 @@ const finishReasonLabels: Record<string, string> = {
 };
 
 const finishReason = computed(() => props.metrics?.finishReason);
+const { dwellMs } = useDwellSettings();
 const isSelfMode = computed(() => resolveMenuMode() === "self");
 const resultMessage = computed(() => {
   if (finishReason.value === "game-lost") return "Партия завершена. Можно попробовать ещё раз.";
@@ -110,7 +112,7 @@ const emit = defineEmits<{
         </v-card>
         <v-row class="mt-6 result-actions" align="stretch" dense>
           <v-col cols="12" sm="6">
-            <GameDwellButton target-id="result-restart" :dwell-ms="1200" min-height="clamp(8rem, 18vh, 12rem)" color="primary" @select="emit('restart')">
+            <GameDwellButton target-id="result-restart" :dwell-ms="dwellMs" min-height="clamp(8rem, 18vh, 12rem)" color="primary" @select="emit('restart')">
               <template #default>
                 <div class="d-flex flex-column align-center justify-center ga-3 text-white">
                   <v-icon icon="mdi-refresh" size="56" />
@@ -121,7 +123,7 @@ const emit = defineEmits<{
             </GameDwellButton>
           </v-col>
           <v-col cols="12" sm="6">
-            <GameDwellButton target-id="result-menu" :dwell-ms="1400" min-height="clamp(8rem, 18vh, 12rem)" color="secondary" @select="emit('menu')">
+            <GameDwellButton target-id="result-menu" :dwell-ms="dwellMs" min-height="clamp(8rem, 18vh, 12rem)" color="secondary" @select="emit('menu')">
               <template #default>
                 <div class="d-flex flex-column align-center justify-center ga-3 text-white">
                   <v-icon icon="mdi-view-grid-outline" size="56" />

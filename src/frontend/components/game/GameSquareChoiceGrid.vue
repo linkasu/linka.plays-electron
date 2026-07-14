@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { DEFAULT_DWELL_MS } from "../../core/dwellSettings";
 import GameDwellButton from "./GameDwellButton.vue";
 
 export type GameSquareChoice = string | number;
@@ -17,7 +18,7 @@ const props = withDefaults(defineProps<{
   targetId: (choice: GameSquareChoice) => string;
 }>(), {
   disabled: false,
-  dwellMs: 1000,
+  dwellMs: DEFAULT_DWELL_MS,
   gridOffset: "17.75rem",
   minSize: "9.375rem",
   maxSize: "15.625rem",

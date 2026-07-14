@@ -1,5 +1,6 @@
 <script setup lang="ts" generic="T extends { id: string }">
 import { computed } from "vue";
+import { DEFAULT_DWELL_MS } from "../../core/dwellSettings";
 import GameDwellButton from "./GameDwellButton.vue";
 
 const props = withDefaults(defineProps<{
@@ -17,7 +18,7 @@ const props = withDefaults(defineProps<{
   lg?: number;
 }>(), {
   disabled: false,
-  dwellMs: 1300
+  dwellMs: DEFAULT_DWELL_MS
 });
 
 const emit = defineEmits<{

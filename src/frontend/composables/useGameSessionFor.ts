@@ -1,4 +1,5 @@
 import { games } from "../data/games";
+import { resolveDwellMs } from "../core/dwellSettings";
 import { useGameSession } from "../core/session";
 import type { SessionSettings } from "../core/settings";
 
@@ -14,9 +15,9 @@ export function useGameSessionFor(gameId: string, options: UseGameSessionForOpti
   const info = games.find((game) => game.id === gameId);
   const initial: Partial<SessionSettings> = {
     sessionSeconds: info?.recommendedSessionSeconds,
-    dwellMs: info?.defaultDwellMs,
     maxSteps: options.maxSteps,
-   ...(options.overrides ?? {})
+   ...(options.overrides ?? {}),
+    dwellMs: resolveDwellMs()
   };
 
   for (const key of Object.keys(initial) as (keyof SessionSettings)[]) {

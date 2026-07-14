@@ -2,9 +2,11 @@
 import { useRouter } from "vue-router";
 import GameDwellButton from "../components/game/GameDwellButton.vue";
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
+import { useDwellSettings } from "../core/dwellSettings";
 import { rememberMenuMode, type MenuMode } from "../core/menuMode";
 
 const router = useRouter();
+const { dwellMs } = useDwellSettings();
 
 function openMode(mode: MenuMode) {
   rememberMenuMode(mode);
@@ -43,7 +45,7 @@ function openMode(mode: MenuMode) {
             </v-col>
 
             <v-col cols="12" md="6">
-              <GameDwellButton target-id="start-self" :dwell-ms="1500" min-height="clamp(14rem, 36dvh, 22rem)" color="secondary" @select="openMode('self')">
+              <GameDwellButton target-id="start-self" :dwell-ms="dwellMs" min-height="clamp(14rem, 36dvh, 22rem)" color="secondary" @select="openMode('self')">
                 <template #default>
                   <div class="d-flex flex-column align-start h-100 text-white">
                     <v-avatar class="mb-5" color="secondary" size="72" variant="flat">
