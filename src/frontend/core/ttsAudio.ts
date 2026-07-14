@@ -89,7 +89,13 @@ export function playTtsAssetAndWait(enabled: boolean, asset: TtsAsset | undefine
 }
 
 export function stopTtsPlayback() {
-  currentAudio?.pause();
+  if (!currentAudio) return;
+  currentAudio.pause();
+  try {
+    currentAudio.currentTime = 0;
+  } catch {
+    // Audio may already be detached while a route transition is disposing assets.
+  }
   currentAudio = undefined;
 }
 

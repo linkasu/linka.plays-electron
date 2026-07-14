@@ -1,6 +1,7 @@
 export type MenuMode = "specialist" | "self";
 
 const menuModeStorageKey = "linka-menu-mode";
+const menuCategoryStorageKey = "linka-menu-category";
 
 export const menuRoutes: Record<MenuMode, string> = {
   specialist: "/menu/specialist",
@@ -16,11 +17,25 @@ export function firstMenuMode(value: unknown): MenuMode | undefined {
   return isMenuMode(value) ? value : undefined;
 }
 
+export function firstMenuCategory(value: unknown): string | undefined {
+  if (Array.isArray(value)) return firstMenuCategory(value[0]);
+  return typeof value === "string" && value.length > 0 ? value : undefined;
+}
+
 export function rememberMenuMode(mode: MenuMode) {
   try {
     window.localStorage.setItem(menuModeStorageKey, mode);
   } catch {
     // Menu mode is convenience state; navigation must still work without storage.
+  }
+}
+
+export function rememberMenuCategory(category: string | undefined) {
+  try {
+    if (category) window.localStorage.setItem(menuCategoryStorageKey, category);
+    else window.localStorage.removeItem(menuCategoryStorageKey);
+  } catch {
+    // Menu category is convenience state; navigation must still work without storage.
   }
 }
 
@@ -34,6 +49,16 @@ export function resolveMenuMode(): MenuMode {
   return "self";
 }
 
+export function resolveMenuCategory() {
+  try {
+    return firstMenuCategory(window.localStorage.getItem(menuCategoryStorageKey));
+  } catch {
+    return undefined;
+  }
+}
+
 export function resolveMenuRoute() {
-  return menuRoutes[resolveMenuMode()];
+  const category = resolveMenuCategory();
+  if (!category) return menuRoutes[resolveMenuMode()];
+  return { path: menuRoutes[resolveMenuMode()], query: { category } };
 }

@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
-import { useRouter } from "vue-router";
+import { computed, onMounted, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import GameDwellButton from "../components/game/GameDwellButton.vue";
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
-import { rememberMenuMode } from "../core/menuMode";
+import { firstMenuCategory, rememberMenuCategory, rememberMenuMode } from "../core/menuMode";
 import { games, groupGamesByCategory, resolveGameStabilityStatus, type GameCategoryId, type GameInfo } from "../data/games";
 
 const router = useRouter();
+const route = useRoute();
 const releaseGames = games.filter((game) => resolveGameStabilityStatus(game) === "publish");
 const gameGroups = groupGamesByCategory(releaseGames, { excludeArchived: true });
 const selectedCategory = ref<GameCategoryId | null>(null);
@@ -21,11 +22,13 @@ const pageLabel = computed(() => `Страница ${pageIndex.value + 1} / ${pa
 
 function selectCategory(category: GameCategoryId) {
   selectedCategory.value = category;
+  rememberMenuCategory(category);
   pageIndex.value = 0;
 }
 
 function showCategories() {
   selectedCategory.value = null;
+  rememberMenuCategory(undefined);
   pageIndex.value = 0;
 }
 
@@ -39,7 +42,8 @@ function nextPage() {
 
 function openGame(game: GameInfo) {
   rememberMenuMode("self");
-  router.push({ path: game.route, query: { from: "self" } });
+  rememberMenuCategory(game.category);
+  router.push({ path: game.route, query: { from: "self", category: game.category } });
 }
 
 function menuDwellMs(game: GameInfo) {
@@ -48,7 +52,22 @@ function menuDwellMs(game: GameInfo) {
 
 onMounted(() => {
   rememberMenuMode("self");
+  syncCategoryFromRoute();
 });
+
+function syncCategoryFromRoute() {
+  const category = firstMenuCategory(route.query.category);
+  const group = category ? gameGroups.find((item) => item.category === category) : undefined;
+  if (!group) {
+    selectedCategory.value = null;
+    return;
+  }
+
+  selectedCategory.value = group.category;
+  pageIndex.value = 0;
+}
+
+watch(() => route.query.category, syncCategoryFromRoute);
 </script>
 
 <template>

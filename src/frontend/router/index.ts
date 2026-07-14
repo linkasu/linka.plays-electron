@@ -143,7 +143,8 @@ import SelfMenuPage from "../pages/SelfMenuPage.vue";
 import StartPage from "../pages/StartPage.vue";
 import TobiiCalibrationPage from "../pages/TobiiCalibrationPage.vue";
 import { games } from "../data/games";
-import { firstMenuMode, rememberMenuMode } from "../core/menuMode";
+import { stopTtsPlayback } from "../core/ttsAudio";
+import { firstMenuCategory, firstMenuMode, rememberMenuCategory, rememberMenuMode } from "../core/menuMode";
 
 const gameComponentsById: Record<string, Component> = {
   "aquarium": AquariumGame,
@@ -304,8 +305,13 @@ const router = createRouter({
 });
 
 router.beforeEach((to) => {
+  stopTtsPlayback();
   const mode = firstMenuMode(to.query.from);
   if (mode) rememberMenuMode(mode);
+
+  const category = firstMenuCategory(to.query.category);
+  if (category) rememberMenuCategory(category);
+  else if (to.path.startsWith("/menu/")) rememberMenuCategory(undefined);
 });
 
 export default router;

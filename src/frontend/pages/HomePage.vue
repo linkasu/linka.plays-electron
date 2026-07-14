@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
-import { rememberMenuMode } from "../core/menuMode";
+import { firstMenuCategory, rememberMenuCategory, rememberMenuMode } from "../core/menuMode";
 import { gameSkillLabels, gameStatusLabels, groupGamesByCategory, type GameCategoryId, type GameInfo } from "../data/games";
 
 type SpecialistGameItem = {
@@ -13,6 +13,7 @@ type SpecialistGameItem = {
 };
 
 const router = useRouter();
+const route = useRoute();
 const gameGroups = groupGamesByCategory();
 const selectedCategory = ref<GameCategoryId | null>(null);
 const pageIndex = ref(0);
@@ -59,18 +60,20 @@ function normalizeSearch(value: string) {
 }
 
 function gameRoute(game: GameInfo) {
-  return { path: game.route, query: { from: "specialist" } };
+  return { path: game.route, query: { from: "specialist", category: game.category } };
 }
 
 function selectCategory(category: GameCategoryId) {
   searchQuery.value = "";
   selectedCategory.value = category;
+  rememberMenuCategory(category);
   pageIndex.value = 0;
 }
 
 function showCategories() {
   searchQuery.value = "";
   selectedCategory.value = null;
+  rememberMenuCategory(undefined);
   pageIndex.value = 0;
 }
 
@@ -93,12 +96,29 @@ function nextPage() {
 
 function openGame(game: GameInfo) {
   rememberMenuMode("specialist");
+  rememberMenuCategory(game.category);
   router.push(gameRoute(game));
+}
+
+function syncCategoryFromRoute() {
+  const category = firstMenuCategory(route.query.category);
+  const group = category ? gameGroups.find((item) => item.category === category) : undefined;
+  if (!group) {
+    selectedCategory.value = null;
+    return;
+  }
+
+  searchQuery.value = "";
+  selectedCategory.value = group.category;
+  pageIndex.value = 0;
 }
 
 onMounted(() => {
   rememberMenuMode("specialist");
+  syncCategoryFromRoute();
 });
+
+watch(() => route.query.category, syncCategoryFromRoute);
 
 watch(searchQuery, () => {
   pageIndex.value = 0;
