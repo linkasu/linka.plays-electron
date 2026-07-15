@@ -17,23 +17,27 @@ describe("shadow-match model", () => {
     expect(ids.size).toBe(4);
   });
 
-  it("points correctIndex to the shadow target", () => {
+  it("points correctIndex to the correct shadow", () => {
     const round = generateShadowMatchRound(settingsFromPreset("challenge"), 6);
 
     expect(round.roundId).toBe("shadow-match:round:6");
-    expect(round.choices[round.correctIndex]).toBe(round.target);
+    expect(round.choices[round.correctIndex].isCorrect).toBe(true);
+    expect(round.choices[round.correctIndex].imageSrc).toContain("-shadow-correct.png");
   });
 
-  it("keeps the same icon for target and silhouette", () => {
+  it("uses separate artwork for the object and its shadows", () => {
     const round = generateShadowMatchRound(settingsFromPreset("standard"), 3);
 
-    expect(round.target.icon).toBe(round.choices[round.correctIndex].icon);
+    expect(round.target.imageSrc).toBe("./images/shadow-match/dog.png");
+    expect(round.target.imageSrc).not.toBe(round.choices[round.correctIndex].imageSrc);
+    expect(round.choices.every((choice) => choice.imageSrc.includes(`${round.target.id}-shadow`))).toBe(true);
     expect(round.target.hint.length).toBeGreaterThan(0);
   });
 
-  it("varies targets across the eight-step session", () => {
+  it("cycles through all supplied objects", () => {
     const targetIds = Array.from({ length: 8 }, (_, index) => generateShadowMatchRound(settingsFromPreset("standard"), index + 1).target.id);
 
-    expect(new Set(targetIds).size).toBe(8);
+    expect(new Set(targetIds).size).toBe(4);
+    expect(targetIds.slice(0, 4)).toEqual(targetIds.slice(4));
   });
 });

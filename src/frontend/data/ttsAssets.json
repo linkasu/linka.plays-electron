@@ -6169,21 +6169,21 @@
   {
     "id": "shadow-match.prompt",
     "game": "shadow-match",
-    "text": "Посмотри на тень и выбери похожий предмет.",
+    "text": "Посмотри на предмет и найди его тень.",
     "voice": "jane",
     "path": "/audio/tts/shadow-match/prompt.mp3"
   },
   {
     "id": "shadow-match.correct",
     "game": "shadow-match",
-    "text": "Да. Это такая тень.",
+    "text": "Да. Это его тень.",
     "voice": "jane",
     "path": "/audio/tts/shadow-match/correct.mp3"
   },
   {
     "id": "shadow-match.mistake",
     "game": "shadow-match",
-    "text": "Почти. Посмотри на тень ещё раз.",
+    "text": "Почти. Сравни предмет и тени ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/shadow-match/mistake.mp3"
   },
