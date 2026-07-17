@@ -1,6 +1,6 @@
 import { nextTick, ref } from "vue";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { disposeJellyfishAudio, scheduleJellyfishAmbient } from "./audio";
+import { disposeJellyfishAudio, playJellyfishSuccess, scheduleJellyfishAmbient } from "./audio";
 
 const pianoMocks = vi.hoisted(() => ({
   dispose: vi.fn(),
@@ -49,5 +49,31 @@ describe("jellyfish ambient lifecycle", () => {
     await vi.advanceTimersByTimeAsync(9000);
     expect(pianoMocks.play).toHaveBeenCalledOnce();
     expect(vi.getTimerCount()).toBe(1);
+  });
+
+  it("cancels a pending success melody when the game pauses or finishes", async () => {
+    const running = ref(true);
+    scheduleJellyfishAmbient(true, () => running.value);
+    playJellyfishSuccess(true);
+
+    expect(vi.getTimerCount()).toBe(2);
+
+    running.value = false;
+    await nextTick();
+
+    expect(vi.getTimerCount()).toBe(0);
+    await vi.runAllTimersAsync();
+    expect(pianoMocks.play).not.toHaveBeenCalled();
+  });
+
+  it("does not start a queued success melody after the session stops", async () => {
+    let running = true;
+    scheduleJellyfishAmbient(true, () => running);
+    playJellyfishSuccess(true);
+
+    running = false;
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(pianoMocks.play).not.toHaveBeenCalled();
   });
 });

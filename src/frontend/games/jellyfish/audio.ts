@@ -76,6 +76,8 @@ let cueUntil = 0;
 let ambientTimer = 0;
 let successTimer = 0;
 let stopAmbientWatch: WatchStopHandle | undefined;
+let isSessionRunning: (() => boolean) | undefined;
+let successGeneration = 0;
 
 function melodyLengthMs(melody: SoftPianoMelody) {
   return Math.ceil((melody.lengthSeconds ?? 2) * 1000);
@@ -91,6 +93,12 @@ function nextSuccessMelody() {
 
 function canUseWindowTimers() {
   return typeof window !== "undefined";
+}
+
+function cancelPendingSuccess() {
+  successGeneration += 1;
+  if (canUseWindowTimers()) window.clearTimeout(successTimer);
+  successTimer = 0;
 }
 
 function playQueued(enabled: boolean, melody: SoftPianoMelody, delayMs = 0) {
@@ -111,12 +119,12 @@ export function resetJellyfishAudioSession() {
   cueUntil = 0;
   if (canUseWindowTimers()) {
     window.clearTimeout(ambientTimer);
-    window.clearTimeout(successTimer);
   }
   ambientTimer = 0;
-  successTimer = 0;
+  cancelPendingSuccess();
   stopAmbientWatch?.();
   stopAmbientWatch = undefined;
+  isSessionRunning = undefined;
 }
 
 export function warmJellyfishAudio(enabled: boolean) {
@@ -128,7 +136,8 @@ export function scheduleJellyfishAmbient(enabled: boolean, isRunning: () => bool
   stopAmbientWatch = undefined;
   if (canUseWindowTimers()) window.clearTimeout(ambientTimer);
   ambientTimer = 0;
-  if (!enabled || !canUseWindowTimers()) return;
+  isSessionRunning = enabled && canUseWindowTimers() ? isRunning : undefined;
+  if (!isSessionRunning) return;
 
   const scheduleNext = () => {
     window.clearTimeout(ambientTimer);
@@ -149,16 +158,25 @@ export function scheduleJellyfishAmbient(enabled: boolean, isRunning: () => bool
     window.clearTimeout(ambientTimer);
     ambientTimer = 0;
     if (running) scheduleNext();
-    else disposeSoftPiano();
+    else {
+      cancelPendingSuccess();
+      disposeSoftPiano();
+    }
   }, { immediate: true });
 }
 
 export function playJellyfishSuccess(enabled: boolean) {
-  if (!enabled || !canUseWindowTimers()) return;
-  window.clearTimeout(successTimer);
+  const running = isSessionRunning;
+  if (!enabled || !canUseWindowTimers() || !running?.()) return;
+  cancelPendingSuccess();
+  const generation = successGeneration;
   const delayMs = Math.max(0, cueUntil - Date.now() + 40);
   const melody = nextSuccessMelody();
-  successTimer = window.setTimeout(() => playQueued(enabled, melody), delayMs);
+  successTimer = window.setTimeout(() => {
+    successTimer = 0;
+    if (generation !== successGeneration || running !== isSessionRunning || !running()) return;
+    playQueued(enabled, melody);
+  }, delayMs);
 }
 
 export function disposeJellyfishAudio() {

@@ -78,6 +78,7 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
   let gainTarget = 0;
   let loopGridStartAt: number | undefined;
   let lifecycle = 0;
+  let contextTransition: Promise<void> | undefined;
   let ttsActive = isTtsPlaybackActive();
   let unsubscribeTts: (() => void) | undefined;
 
@@ -99,6 +100,7 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
 
   function stopAudio() {
     lifecycle += 1;
+    contextTransition = undefined;
     scheduledUntil = 0;
     cueUntil = 0;
     loopGridStartAt = undefined;
@@ -133,6 +135,21 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
     }
   }
 
+  function queueContextTransition(context: AudioContext, currentLifecycle: number, transition: () => Promise<void>) {
+    const run = async () => {
+      if (context !== audioContext || currentLifecycle !== lifecycle) return false;
+      await transition();
+      return context === audioContext && currentLifecycle === lifecycle;
+    };
+    const result = contextTransition ? contextTransition.then(run) : run();
+    const settled = result.then(() => undefined, () => undefined);
+    contextTransition = settled;
+    void settled.then(() => {
+      if (contextTransition === settled) contextTransition = undefined;
+    });
+    return result;
+  }
+
   async function ensurePiano(resumeAudio: boolean) {
     if (unavailable) return undefined;
     try {
@@ -146,9 +163,12 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
     const context = audioContext;
     const currentLifecycle = lifecycle;
 
-    if (resumeAudio && context.state === "suspended") {
+    if (resumeAudio) {
       try {
-        await context.resume();
+        const valid = await queueContextTransition(context, currentLifecycle, async () => {
+          if (context.state === "suspended") await context.resume();
+        });
+        if (!valid) return undefined;
       } catch {
         if (context === audioContext && currentLifecycle === lifecycle) {
           stopAudio();
@@ -246,13 +266,12 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
       stopAudio();
       return;
     }
-    try {
-      void context.suspend().catch(() => {
-        if (context === audioContext) stopAudio();
-      });
-    } catch {
-      if (context === audioContext) stopAudio();
-    }
+    const currentLifecycle = lifecycle;
+    void queueContextTransition(context, currentLifecycle, async () => {
+      if (context.state === "running") await context.suspend();
+    }).catch(() => {
+      if (context === audioContext && currentLifecycle === lifecycle) stopAudio();
+    });
   }
 
   function ensureTtsSubscription() {

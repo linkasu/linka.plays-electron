@@ -55,6 +55,7 @@ class MockGainNode {
 
 class MockAudioContext {
   static instances: MockAudioContext[] = [];
+  static suspendDelayMs = 0;
 
   state: AudioContextState = "suspended";
   currentTime = 0;
@@ -65,6 +66,9 @@ class MockAudioContext {
     this.state = "running";
   });
   suspend = vi.fn(async () => {
+    if (MockAudioContext.suspendDelayMs > 0) {
+      await new Promise<void>((resolve) => window.setTimeout(resolve, MockAudioContext.suspendDelayMs));
+    }
     this.state = "suspended";
   });
   close = vi.fn(async () => {
@@ -111,6 +115,7 @@ beforeEach(() => {
   ttsMocks.active = false;
   ttsMocks.listeners.clear();
   MockAudioContext.instances.length = 0;
+  MockAudioContext.suspendDelayMs = 0;
   Object.defineProperty(window, "AudioContext", { configurable: true, value: MockAudioContext });
 });
 
@@ -148,8 +153,7 @@ describe("ambient piano lifecycle", () => {
     const ambient = createAmbientPiano(config);
 
     ambient.setActive(true, true);
-    await Promise.resolve();
-    await Promise.resolve();
+    await vi.advanceTimersByTimeAsync(0);
     const firstContext = MockAudioContext.instances[0];
     const firstInstrument = smplrMocks.instruments[0];
 
@@ -187,12 +191,49 @@ describe("ambient piano lifecycle", () => {
     expect(instrument.start).toHaveBeenCalledTimes(scheduledNotes);
 
     emitTtsPlayback(false);
-    await Promise.resolve();
+    await vi.runAllTimersAsync();
     expect(context.resume).toHaveBeenCalledTimes(2);
 
     ambient.setActive(true, false);
     expect(context.close).toHaveBeenCalledOnce();
     expect(instrument.dispose).toHaveBeenCalledOnce();
+  });
+
+  it("resumes after a delayed suspend when TTS ends immediately", async () => {
+    const ambient = createAmbientPiano(config);
+    ambient.setActive(true, true);
+    await vi.runAllTimersAsync();
+
+    const context = MockAudioContext.instances[0];
+    MockAudioContext.suspendDelayMs = 1000;
+
+    emitTtsPlayback(true);
+    emitTtsPlayback(false);
+    await vi.advanceTimersByTimeAsync(1000);
+
+    expect(context.suspend).toHaveBeenCalledOnce();
+    expect(context.resume).toHaveBeenCalledTimes(2);
+    expect(context.state).toBe("running");
+
+    ambient.dispose();
+  });
+
+  it("does not resume a disposed context after a delayed TTS suspend", async () => {
+    const ambient = createAmbientPiano(config);
+    ambient.setActive(true, true);
+    await vi.runAllTimersAsync();
+
+    const context = MockAudioContext.instances[0];
+    MockAudioContext.suspendDelayMs = 1000;
+
+    emitTtsPlayback(true);
+    emitTtsPlayback(false);
+    ambient.dispose();
+    await vi.advanceTimersByTimeAsync(1000);
+
+    expect(context.suspend).toHaveBeenCalledOnce();
+    expect(context.resume).toHaveBeenCalledOnce();
+    expect(context.close).toHaveBeenCalledOnce();
   });
 
   it("degrades scheduling errors to silence", async () => {
