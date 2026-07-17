@@ -20,6 +20,8 @@ export type DwellMachineInput = {
   now: number;
   targetId?: string;
   pointerValid: boolean;
+  disabled?: boolean;
+  anotherTargetActive?: boolean;
   dwellMs: number;
   graceMs: number;
   cooldownMs: number;
@@ -65,6 +67,11 @@ export function advanceDwellMachine(current: DwellMachineState, input: DwellMach
     state = createDwellMachineState();
   }
 
+  if (input.disabled) {
+    if (state.targetId) events.push({ type: "cancel", targetId: state.targetId, reason: "disabled" });
+    return { state: createDwellMachineState(), events, progress: 0 };
+  }
+
   if (state.phase === "idle") {
     if (input.pointerValid && input.targetId) {
       state = holdingState(input.targetId, input.now);
@@ -74,6 +81,11 @@ export function advanceDwellMachine(current: DwellMachineState, input: DwellMach
   }
 
   if (state.phase === "grace") {
+    if (input.anotherTargetActive) {
+      if (state.targetId) events.push({ type: "cancel", targetId: state.targetId, reason: "left" });
+      return { state: createDwellMachineState(), events, progress: 0 };
+    }
+
     if (input.pointerValid && input.targetId === state.targetId && input.now <= state.graceUntil) {
       state.phase = "holding";
       state.lastAt = input.now;
@@ -95,6 +107,11 @@ export function advanceDwellMachine(current: DwellMachineState, input: DwellMach
         reason: input.pointerValid ? "left" : "invalid-gaze"
       });
     }
+    return { state: createDwellMachineState(), events, progress: 0 };
+  }
+
+  if (input.anotherTargetActive) {
+    if (state.targetId) events.push({ type: "cancel", targetId: state.targetId, reason: "left" });
     return { state: createDwellMachineState(), events, progress: 0 };
   }
 

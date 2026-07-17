@@ -6,6 +6,7 @@ let sharedCooldownUntil = 0;
 import { computed, getCurrentInstance, inject, onMounted, onUnmounted, ref } from "vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { activeDomGazeTargetId, registerDomGazeTarget } from "../../core/domGazeTargetCoordinator";
+import { advanceDwellMachine, createDwellMachineState } from "../../core/dwellStateMachine";
 import { DEFAULT_DWELL_MS } from "../../core/dwellSettings";
 import type { DwellCancelReason, DwellEventPayload } from "../../core/gaze";
 import { gameSessionTelemetryKey } from "../../core/session";
@@ -18,13 +19,15 @@ const props = withDefaults(defineProps<{
   minHeight?: number | string;
   hitPadding?: number;
   priority?: number;
+  graceMs?: number;
 }>(), {
   dwellMs: DEFAULT_DWELL_MS,
   disabled: false,
   color: "surface",
   minHeight: 160,
   hitPadding: 36,
-  priority: 0
+  priority: 0,
+  graceMs: 140
 });
 
 const emit = defineEmits<{
@@ -41,10 +44,9 @@ const { pointer } = useGazePointer();
 const telemetry = inject(gameSessionTelemetryKey, undefined);
 const instance = getCurrentInstance();
 let frame = 0;
-let enteredAt = 0;
 let disposed = false;
-let cooldownUntil = 0;
 let unregisterTarget: (() => void) | undefined;
+let machineState = createDwellMachineState();
 
 const progressStyle = computed(() => ({
   "--dwell-progress-scale": progress.value.toFixed(3)
@@ -55,12 +57,12 @@ function currentTargetId() {
   return props.targetId ?? rootRef.value?.id ?? `dwell-button-${instance?.uid ?? "unknown"}`;
 }
 
-function makePayload(now: number, nextProgress: number, reason?: DwellCancelReason): DwellEventPayload {
+function makePayload(now: number, nextProgress: number, reason?: DwellCancelReason, elapsedMs = machineState.accumulatedMs): DwellEventPayload {
   return {
     targetId: currentTargetId(),
     at: Date.now(),
     dwellMs: props.dwellMs,
-    elapsedMs: enteredAt ? now - enteredAt : 0,
+    elapsedMs,
     progress: nextProgress,
     pointer: {
       x: pointer.value.x,
@@ -80,49 +82,48 @@ function record(type: "target-enter" | "target-cancel" | "target-click", payload
   telemetry?.recordEvent(type, payload as unknown as Record<string, unknown>);
 }
 
-function cancelReason(): DwellCancelReason | undefined {
-  if (props.disabled) return "disabled";
-  if (!pointer.value.valid) return "invalid-gaze";
-  return activeDomGazeTargetId.value === currentTargetId() ? undefined : "left";
-}
-
-function reset(now = performance.now(), reason?: DwellCancelReason) {
-  if (active.value && reason) record("target-cancel", makePayload(now, progress.value, reason));
-  active.value = false;
-  progress.value = 0;
-  enteredAt = 0;
-}
-
 function tick(now: number) {
   if (disposed) return;
-
-  if (now < cooldownUntil || now < sharedCooldownUntil) {
+  if (now < sharedCooldownUntil) {
     frame = requestAnimationFrame(tick);
     return;
   }
 
-  const reason = cancelReason();
-  if (reason) {
-    reset(now, active.value ? reason : undefined);
-    frame = requestAnimationFrame(tick);
-    return;
-  }
+  const targetId = currentTargetId();
+  const coordinatedTargetId = activeDomGazeTargetId.value;
+  const previousState = machineState;
+  const previousProgress = progress.value;
+  const result = advanceDwellMachine(machineState, {
+    now,
+    targetId: coordinatedTargetId === targetId ? targetId : undefined,
+    pointerValid: pointer.value.valid,
+    disabled: props.disabled,
+    anotherTargetActive: Boolean(coordinatedTargetId && coordinatedTargetId !== targetId),
+    dwellMs: props.dwellMs,
+    graceMs: props.graceMs,
+    cooldownMs: 500
+  });
+  machineState = result.state;
+  progress.value = result.progress;
 
-  if (!active.value) {
-    active.value = true;
-    enteredAt = now;
-    progress.value = 0;
-    record("target-enter", makePayload(now, 0));
-  }
-
-  progress.value = Math.min(1, (now - enteredAt) / props.dwellMs);
-  if (progress.value >= 1) {
-    const payload = makePayload(now, 1);
-    record("target-click", payload);
-    emit("select", payload);
-    cooldownUntil = now + 500;
-    sharedCooldownUntil = now + 700;
-    reset(now);
+  for (const event of result.events) {
+    if (event.type === "enter") {
+      active.value = true;
+      record("target-enter", makePayload(now, 0, undefined, 0));
+    }
+    if (event.type === "cancel") {
+      record("target-cancel", makePayload(now, previousProgress, event.reason, previousState.accumulatedMs));
+      active.value = false;
+      progress.value = 0;
+    }
+    if (event.type === "select") {
+      const payload = makePayload(now, 1, undefined, previousState.accumulatedMs + Math.max(0, now - previousState.lastAt));
+      record("target-click", payload);
+      emit("select", payload);
+      active.value = false;
+      progress.value = 0;
+      sharedCooldownUntil = now + 700;
+    }
   }
 
   if (!disposed) frame = requestAnimationFrame(tick);
@@ -130,9 +131,16 @@ function tick(now: number) {
 
 function selectByPointerClick() {
   if (props.disabled) return;
-  const payload = makePayload(performance.now(), 1);
+  const now = performance.now();
+  const payload = makePayload(now, 1, undefined, 0);
   record("target-click", payload);
   emit("select", payload);
+  machineState = {
+    ...createDwellMachineState(),
+    phase: "cooldown",
+    cooldownUntil: now + 500
+  };
+  sharedCooldownUntil = now + 700;
 }
 
 onMounted(() => {

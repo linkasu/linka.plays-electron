@@ -57,6 +57,36 @@ describe("dwell state machine", () => {
     expect(switched.state.targetId).toBe("b");
   });
 
+  it("cancels immediately when another coordinated target wins", () => {
+    const entered = advance(createDwellMachineState(), 0, "a");
+    const switched = advanceDwellMachine(entered.state, {
+      now: 200,
+      pointerValid: true,
+      anotherTargetActive: true,
+      dwellMs: 1000,
+      graceMs: 150,
+      cooldownMs: 500
+    });
+
+    expect(switched.events).toEqual([{ type: "cancel", targetId: "a", reason: "left" }]);
+    expect(switched.state.phase).toBe("idle");
+  });
+
+  it("cancels a disabled target without grace", () => {
+    const entered = advance(createDwellMachineState(), 0, "a");
+    const disabled = advanceDwellMachine(entered.state, {
+      now: 200,
+      pointerValid: true,
+      disabled: true,
+      dwellMs: 1000,
+      graceMs: 150,
+      cooldownMs: 500
+    });
+
+    expect(disabled.events).toEqual([{ type: "cancel", targetId: "a", reason: "disabled" }]);
+    expect(disabled.state.phase).toBe("idle");
+  });
+
   it("does not re-enter during cooldown", () => {
     const entered = advance(createDwellMachineState(), 0, "a");
     const selected = advance(entered.state, 1000, "a");
