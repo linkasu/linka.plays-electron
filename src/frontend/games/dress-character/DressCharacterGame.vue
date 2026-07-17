@@ -517,7 +517,7 @@ watch(() => session.status, (status) => {
   transform: rotate(-14deg);
 }
 
-.dress-piece--jacket.dress-piece__detail--one {
+.dress-piece--jacket .dress-piece__detail--one {
   background: rgb(255 255 255 / 70%);
   block-size: 74%;
   inline-size: 0.18rem;
@@ -526,7 +526,7 @@ watch(() => session.status, (status) => {
   position: absolute;
 }
 
-.dress-piece--jacket.dress-piece__detail--two {
+.dress-piece--jacket .dress-piece__detail--two {
   background: #ffeb3b;
   block-size: 0.55rem;
   border-radius: 999px;
@@ -689,8 +689,8 @@ watch(() => session.status, (status) => {
   inset-inline-start: 12%;
 }
 
-.choice-art--hat.choice-art__detail,
-.choice-art--shoes.choice-art__detail {
+.choice-art--hat .choice-art__detail,
+.choice-art--shoes .choice-art__detail {
   display: none;
 }
 
@@ -712,20 +712,20 @@ watch(() => session.status, (status) => {
   inset-inline-start: 50%;
 }
 
-.choice-art--jacket.choice-art__detail--one,
-.choice-art--jacket.choice-art__detail--two {
+.choice-art--jacket .choice-art__detail--one,
+.choice-art--jacket .choice-art__detail--two {
   block-size: 57%;
   border-radius: 999px;
   inline-size: 17%;
   inset-block-start: 26%;
 }
 
-.choice-art--jacket.choice-art__detail--one {
+.choice-art--jacket .choice-art__detail--one {
   inset-inline-start: 4%;
   transform: rotate(15deg);
 }
 
-.choice-art--jacket.choice-art__detail--two {
+.choice-art--jacket .choice-art__detail--two {
   inset-inline-end: 4%;
   transform: rotate(-15deg);
 }
@@ -736,8 +736,8 @@ watch(() => session.status, (status) => {
   inset-inline-start: 26%;
 }
 
-.choice-art--cold-jacket-vest.choice-art__detail--one,
-.choice-art--cold-jacket-vest.choice-art__detail--two {
+.choice-art--cold-jacket-vest .choice-art__detail--one,
+.choice-art--cold-jacket-vest .choice-art__detail--two {
   display: none;
 }
 
@@ -751,12 +751,12 @@ watch(() => session.status, (status) => {
   inset-inline-start: 24%;
 }
 
-.choice-art--cold-jacket-shirt.choice-art__detail--one,
-.choice-art--rain-jacket-shirt.choice-art__detail--one,
-.choice-art--sun-jacket-shirt.choice-art__detail--one,
-.choice-art--cold-jacket-shirt.choice-art__detail--two,
-.choice-art--rain-jacket-shirt.choice-art__detail--two,
-.choice-art--sun-jacket-shirt.choice-art__detail--two {
+.choice-art--cold-jacket-shirt .choice-art__detail--one,
+.choice-art--rain-jacket-shirt .choice-art__detail--one,
+.choice-art--sun-jacket-shirt .choice-art__detail--one,
+.choice-art--cold-jacket-shirt .choice-art__detail--two,
+.choice-art--rain-jacket-shirt .choice-art__detail--two,
+.choice-art--sun-jacket-shirt .choice-art__detail--two {
   block-size: 30%;
   inset-block-start: 29%;
 }
