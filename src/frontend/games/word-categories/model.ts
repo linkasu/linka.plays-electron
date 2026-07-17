@@ -1,4 +1,6 @@
 import { shuffleItems } from "../../core/random";
+import { choiceCountByPreset } from "../../core/round";
+import type { SessionSettings } from "../../core/settings";
 import { getWordsByCategory, type WordItem } from "../../data/wordBank";
 
 export type WordCategoriesMode = "item-to-category" | "category-to-item";
@@ -52,21 +54,26 @@ function pickWord(categoryId: WordCategoryId, roundIndex: number) {
   return words[(roundIndex - 1) % words.length];
 }
 
-function generateItemToCategoryRound(roundIndex: number, random = Math.random): WordCategoriesRound {
+function choiceCountFor(settings: SessionSettings, roundIndex: number) {
+  return choiceCountByPreset(settings, roundIndex, { gentle: 2, standard: 3, challenge: 4, cap: wordCategories.length });
+}
+
+function generateItemToCategoryRound(settings: SessionSettings, roundIndex: number, random = Math.random): WordCategoriesRound {
   if (categoryWords.length < wordCategories.length) throw new Error("WordCategoriesGame needs category words.");
 
   const targetItem = categoryWords[(roundIndex - 1) % categoryWords.length];
   const targetCategory = getWordCategory(targetItem.category);
   if (!targetCategory) throw new Error(`Unknown word category: ${targetItem.category}`);
 
-  const choices = shuffleItems(wordCategories, random);
   const correctChoiceId = targetCategory.id;
+  const distractors = shuffleItems(wordCategories.filter((category) => category.id !== correctChoiceId), random).slice(0, choiceCountFor(settings, roundIndex) - 1);
+  const choices = shuffleItems([targetCategory, ...distractors], random);
 
   return {
     roundId: `word-categories:round:${roundIndex}`,
     mode: "item-to-category",
-    prompt: `К какой группе относится ${targetItem.word}?`,
-    instruction: "Выбери категорию предмета.",
+    prompt: `К какой категории относится «${targetItem.word}»?`,
+    instruction: "Предмет → категория",
     explanation: `${targetItem.word} относится к группе «${targetCategory.title}»: ${targetCategory.hint}.`,
     targetItem,
     targetCategory,
@@ -76,21 +83,21 @@ function generateItemToCategoryRound(roundIndex: number, random = Math.random): 
   };
 }
 
-function generateCategoryToItemRound(roundIndex: number, random = Math.random): WordCategoriesRound {
+function generateCategoryToItemRound(settings: SessionSettings, roundIndex: number, random = Math.random): WordCategoriesRound {
   const targetCategory = wordCategories[(roundIndex - 1) % wordCategories.length];
   const targetItem = pickWord(targetCategory.id, roundIndex);
   const distractors = shuffleItems(wordCategories
    .filter((category) => category.id !== targetCategory.id)
    .map((category, index) => pickWord(category.id, roundIndex + index + 1)), random)
-   .slice(0, 3);
+   .slice(0, choiceCountFor(settings, roundIndex) - 1);
   const choices = shuffleItems([targetItem, ...distractors], random);
   const correctChoiceId = targetItem.id;
 
   return {
     roundId: `word-categories:round:${roundIndex}`,
     mode: "category-to-item",
-    prompt: `Что подходит к группе «${targetCategory.title}»?`,
-    instruction: "Выбери предмет для категории.",
+    prompt: `Какой предмет относится к категории «${targetCategory.title}»?`,
+    instruction: "Категория → предмет",
     explanation: `${targetItem.word} подходит к группе «${targetCategory.title}»: ${targetCategory.hint}.`,
     targetItem,
     targetCategory,
@@ -100,6 +107,8 @@ function generateCategoryToItemRound(roundIndex: number, random = Math.random): 
   };
 }
 
-export function generateWordCategoriesRound(roundIndex = 1, random = Math.random): WordCategoriesRound {
-  return roundIndex % 2 === 1 ? generateItemToCategoryRound(roundIndex, random) : generateCategoryToItemRound(roundIndex, random);
+export function generateWordCategoriesRound(settings: SessionSettings, mode: WordCategoriesMode, roundIndex = 1, random = Math.random): WordCategoriesRound {
+  return mode === "item-to-category"
+    ? generateItemToCategoryRound(settings, roundIndex, random)
+    : generateCategoryToItemRound(settings, roundIndex, random);
 }
