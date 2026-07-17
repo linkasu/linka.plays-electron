@@ -30,7 +30,7 @@ const recentRendererSamples = ref<GazeSample[]>([]);
 const holdMs = 1600;
 const burstMs = 280;
 const groupPauseMs = 120;
-const targetHitRadius = 360;
+const targetHitRadius = 72;
 let holdFrame: number | undefined;
 let disposeStatus: Dispose | undefined;
 let disposeGaze: Dispose | undefined;
@@ -38,14 +38,19 @@ let diagnosticsTimer: number | undefined;
 
 const calibrationGroups: CalibrationPoint[][] = [
   [
-    { x: 0.5, y: 0.22 },
-    { x: 0.24, y: 0.72 },
-    { x: 0.76, y: 0.72 }
+    { x: 0.12, y: 0.12 },
+    { x: 0.5, y: 0.12 },
+    { x: 0.88, y: 0.12 }
   ],
   [
-    { x: 0.24, y: 0.28 },
-    { x: 0.76, y: 0.28 },
-    { x: 0.5, y: 0.78 }
+    { x: 0.12, y: 0.5 },
+    { x: 0.5, y: 0.5 },
+    { x: 0.88, y: 0.5 }
+  ],
+  [
+    { x: 0.12, y: 0.88 },
+    { x: 0.5, y: 0.88 },
+    { x: 0.88, y: 0.88 }
   ]
 ];
 
@@ -267,7 +272,7 @@ async function continueAfterPoint() {
   phase.value = "finish";
   try {
     await window.linkaTobii?.finishCalibration();
-    calibrationMessage.value = "Калибровка Tobii сохранена и применена.";
+    calibrationMessage.value = "Калибровка Tobii по девяти точкам сохранена и применена. Теперь проверьте точность взгляда.";
     calibrationActive.value = false;
     phase.value = "idle";
   } catch (error) {
