@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { settingsFromPreset } from "../../core/settings";
-import { generateColorPatternRound, type ColorPatternRound } from "./model";
+import { colorPatternColors, generateColorPatternRound, type ColorPatternRound } from "./model";
 
 function completedIds(round: ColorPatternRound) {
   return [...round.sequence, round.answer].map((color) => color.id);
@@ -44,6 +44,11 @@ function createSequenceRandom(values: number[]) {
 }
 
 describe("generateColorPatternRound", () => {
+  it("uses only six well-distinguished colors", () => {
+    expect(colorPatternColors.map((color) => color.id)).toEqual(["red", "blue", "green", "yellow", "purple", "orange"]);
+    expect(new Set(colorPatternColors.map((color) => color.hex)).size).toBe(6);
+  });
+
   it("cycles AB, ABC and ABB patterns by round index", () => {
     const settings = settingsFromPreset("standard");
 
@@ -65,6 +70,7 @@ describe("generateColorPatternRound", () => {
       expect(new Set(choiceIds).size).toBe(4);
       expect(choiceIds).toContain(round.answer.id);
       expect(round.choices[round.correctIndex]).toBe(round.answer);
+      expect([...round.sequence, round.answer, ...round.choices].every((color) => colorPatternColors.includes(color))).toBe(true);
     }
   });
 

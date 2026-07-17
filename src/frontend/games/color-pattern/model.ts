@@ -25,9 +25,7 @@ export const colorPatternColors: ColorPatternColor[] = [
   { id: "green", label: "зелёный", hex: "#17683F", textColor: "#FFFFFF" },
   { id: "yellow", label: "жёлтый", hex: "#F7C948", textColor: "#2A2106" },
   { id: "purple", label: "фиолетовый", hex: "#6D3DB5", textColor: "#FFFFFF" },
-  { id: "orange", label: "оранжевый", hex: "#F28B2E", textColor: "#2B1708" },
-  { id: "teal", label: "бирюзовый", hex: "#075A56", textColor: "#FFFFFF" },
-  { id: "pink", label: "розовый", hex: "#B8326E", textColor: "#FFFFFF" }
+  { id: "orange", label: "оранжевый", hex: "#F28B2E", textColor: "#2B1708" }
 ];
 
 const patternKinds: ColorPatternKind[] = ["AB", "ABC", "ABB"];

@@ -9,7 +9,8 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { createDayRoutineBoard, findDayRoutinePeriod, type DayRoutineItem, type DayRoutinePeriod } from "./model";
+import { wordImageSrc } from "../../core/wordImage";
+import { createDayRoutineBoard, dayRoutineAudioCues, dayRoutineQuestion, findDayRoutinePeriod, type DayRoutineItem, type DayRoutinePeriod } from "./model";
 
 const dayRoutineFeedback = createStandardGameFeedback();
 
@@ -23,7 +24,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 const board = createDayRoutineBoard(session.maxSteps);
 const placedItemIds = ref<string[]>([]);
 const resultVisible = ref(false);
-const feedbackMessage = ref("Начинаем с утра. Выбери картинку, которая бывает утром.");
+const feedbackMessage = ref<string>(dayRoutineAudioCues.prompt.text);
 const wrongChoiceId = ref<string>();
 const highlightedPeriodId = ref<DayRoutinePeriod["id"]>("morning");
 const pendingSelection = ref(false);
@@ -33,6 +34,7 @@ let feedbackTimer = 0;
 let resultTimer = 0;
 
 const currentPeriod = computed(() => board.periods.find((period) => board.items.some((item) => item.periodId === period.id && !placedItemIds.value.includes(item.id))));
+const questionText = computed(() => currentPeriod.value ? dayRoutineQuestion(currentPeriod.value) : dayRoutineAudioCues.complete.text);
 const remainingChoices = computed(() => board.choices.filter((item) => !placedItemIds.value.includes(item.id)));
 
 function itemTargetId(item: DayRoutineItem) {
@@ -63,7 +65,7 @@ function resetFeedback() {
 
 async function playPrompt(delayMs = 0) {
   isSpeaking.value = true;
-  await promptAudio.playSequenceAndWait(["day-routine.prompt"], delayMs);
+  await promptAudio.playSequenceAndWait([dayRoutineAudioCues.prompt.id], delayMs);
   isSpeaking.value = false;
 }
 
@@ -93,13 +95,14 @@ async function choose(item: DayRoutineItem) {
     const nextPeriod = currentPeriod.value;
     const finishedAfterSuccess = !nextPeriod;
     void dayRoutineFeedback.playSuccess(session.settings.sound);
-    if (session.status === "running" && nextPeriod) {
-      feedbackMessage.value = `Верно. Теперь ищем картинки: ${nextPeriod.label}.`;
+    if (nextPeriod) {
+      feedbackMessage.value = dayRoutineAudioCues.correct.text;
       highlightedPeriodId.value = nextPeriod.id;
     } else {
-      feedbackMessage.value = "Вся последовательность дня собрана: утро, день, вечер.";
+      feedbackMessage.value = dayRoutineAudioCues.complete.text;
     }
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["day-routine.correct", "day-routine.complete"] : ["day-routine.correct"], 80, 170);
+    const cue = finishedAfterSuccess ? dayRoutineAudioCues.complete : dayRoutineAudioCues.correct;
+    await promptAudio.playSequenceAndWait([cue.id], 80);
     isSpeaking.value = false;
     pendingSelection.value = false;
 
@@ -111,11 +114,11 @@ async function choose(item: DayRoutineItem) {
   pendingSelection.value = true;
   wrongChoiceId.value = item.id;
   highlightedPeriodId.value = expectedPeriod.id;
-  feedbackMessage.value = "Посмотри на часть дня и попробуй выбрать другую картинку.";
+  feedbackMessage.value = dayRoutineAudioCues.mistake.text;
   recordMistake({ roundId, targetId, expectedTargetId: `day-routine:period:${expectedPeriod.id}`, answerId: item.id, expected: expectedPeriod.label, actual: actualPeriod?.label ?? item.periodId, isCorrect: false });
   void dayRoutineFeedback.playMistake(session.settings.sound);
   isSpeaking.value = true;
-  await promptAudio.playSequenceAndWait(["day-routine.mistake"], 80);
+  await promptAudio.playSequenceAndWait([dayRoutineAudioCues.mistake.id], 80);
   isSpeaking.value = false;
   feedbackTimer = window.setTimeout(() => {
     pendingSelection.value = false;
@@ -134,7 +137,7 @@ function restart() {
   promptAudio.cancelPending();
   placedItemIds.value = [];
   resultVisible.value = false;
-  feedbackMessage.value = "Начинаем с утра. Выбери картинку, которая бывает утром.";
+  feedbackMessage.value = dayRoutineAudioCues.prompt.text;
   wrongChoiceId.value = undefined;
   highlightedPeriodId.value = "morning";
   pendingSelection.value = false;
@@ -179,25 +182,25 @@ watch(isSpeaking, (speaking) => {
       <v-row justify="center">
         <v-col cols="12" xl="10">
           <v-card class="day-routine-card pa-5 pa-md-8" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Последовательность дня</div>
-            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-3">Что бывает {{ currentPeriod?.label ?? "дальше" }}?</h1>
+            <div class="sequence-label text-overline text-secondary text-center mb-2">Последовательность дня</div>
+            <h1 class="question-title text-h4 text-md-h3 font-weight-bold text-center mb-3">{{ questionText }}</h1>
             <p class="feedback-line text-body-1 text-medium-emphasis text-center mb-6">{{ feedbackMessage }}</p>
 
             <v-row class="period-row mb-6" align="stretch">
-              <v-col v-for="period in board.periods" :key="period.id" cols="12" md="4">
+              <v-col v-for="period in board.periods" :key="period.id" cols="12" sm="4">
                 <v-card :class="['period-card', { 'period-card--active': highlightedPeriodId === period.id }]" :color="period.color" rounded="xl" variant="flat">
-                  <div class="d-flex align-center ga-3 mb-3">
-                    <v-avatar color="surface" size="3.5rem"><v-icon :icon="period.icon" size="2.125rem" /></v-avatar>
+                  <div class="period-heading d-flex align-center ga-3 mb-3">
+                    <v-avatar class="period-avatar" color="surface" size="3.5rem"><v-icon :icon="period.icon" size="2.125rem" /></v-avatar>
                     <div>
                       <div class="text-h5 font-weight-bold">{{ period.title }}</div>
-                      <div class="text-body-2 text-medium-emphasis">{{ period.helper }}</div>
+                      <div class="period-helper text-body-2 text-medium-emphasis">{{ period.helper }}</div>
                     </div>
                   </div>
 
                   <div class="placed-grid" :aria-label="`Картинки: ${period.title}`">
-                    <v-card v-for="item in periodItems(period)" :key="item.id" class="pa-3 text-center" color="surface" rounded="lg" variant="elevated">
-                      <div class="placed-emoji emoji-glyph">{{ item.emoji }}</div>
-                      <div class="text-subtitle-2 font-weight-bold">{{ item.label }}</div>
+                    <v-card v-for="item in periodItems(period)" :key="item.id" class="placed-card pa-3 text-center" color="surface" rounded="lg" variant="elevated">
+                      <v-img class="placed-image" :src="wordImageSrc(item.imageId)" :alt="item.label" />
+                      <div class="placed-label text-subtitle-2 font-weight-bold">{{ item.label }}</div>
                     </v-card>
                     <v-card v-if="periodItems(period).length === 0" class="empty-slot d-flex align-center justify-center text-medium-emphasis" color="surface" rounded="lg" variant="tonal">
                       <span>Ждёт картинку</span>
@@ -207,14 +210,14 @@ watch(isSpeaking, (speaking) => {
               </v-col>
             </v-row>
 
-            <v-divider class="mb-5" />
+            <v-divider class="sequence-divider mb-5" />
             <div class="choice-title text-h6 font-weight-bold text-center mb-4">Выбери подходящую картинку</div>
             <v-row class="choice-row" justify="center">
               <v-col v-for="item in remainingChoices" :key="item.id" cols="3" sm="3">
                 <GameDwellButton :target-id="itemTargetId(item)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="8rem" :color="choiceColor(item)" @select="choose(item)">
                   <template #default>
-                    <div class="choice-emoji emoji-glyph">{{ item.emoji }}</div>
-                    <div class="text-subtitle-1 text-md-h6 font-weight-bold mt-2">{{ item.label }}</div>
+                    <v-img class="choice-image" :src="wordImageSrc(item.imageId)" :alt="item.label" />
+                    <div class="choice-label text-subtitle-1 text-md-h6 font-weight-bold mt-2">{{ item.label }}</div>
                   </template>
                 </GameDwellButton>
               </v-col>
@@ -251,21 +254,28 @@ watch(isSpeaking, (speaking) => {
   min-block-size: 6.5rem;
 }
 
-.choice-emoji {
-  font-size: clamp(2.9rem, 6vw, 5rem);
-  line-height: 1;
+.choice-image {
+  block-size: clamp(3.5rem, 7vw, 5rem);
+  inline-size: 100%;
 }
 
-.placed-emoji {
-  font-size: 2.5rem;
-  line-height: 1;
+.placed-image {
+  block-size: 3rem;
+  inline-size: 100%;
 }
 
 @media (max-height: 64rem) {
- .period-row,
- .period-card,
- .game-container .v-divider {
-    display: none;
+  .choice-row :deep(.dwell-button) {
+    min-block-size: 7rem !important;
+    padding: 0.75rem !important;
+  }
+
+  .choice-image {
+    block-size: 4rem;
+  }
+
+  .choice-label {
+    margin-block-start: 0.25rem !important;
   }
 }
 
@@ -280,21 +290,89 @@ watch(isSpeaking, (speaking) => {
     padding-block: 0.75rem !important;
   }
 
- .feedback-line,
- .choice-title {
+  .sequence-label {
+    display: none;
+  }
+
+  .question-title {
+    font-size: 1.5rem !important;
+    line-height: 1.15;
+    margin-block-end: 0.25rem !important;
+  }
+
+  .feedback-line,
+  .choice-title {
+    margin-block-end: 0.5rem !important;
+  }
+
+  .period-row {
     margin-block-end: 0.75rem !important;
   }
 
- .choice-row {
+  .period-card {
+    padding: 0.375rem;
+  }
+
+  .period-heading {
+    gap: 0.375rem !important;
+    margin-block-end: 0.25rem !important;
+  }
+
+  .period-avatar {
+    block-size: 2.25rem !important;
+    inline-size: 2.25rem !important;
+  }
+
+  .period-helper {
+    font-size: 0.6875rem !important;
+    line-height: 1.15;
+  }
+
+  .placed-grid {
+    gap: 0.25rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .placed-card {
+    min-inline-size: 0;
+    padding: 0.25rem !important;
+  }
+
+  .placed-image {
+    block-size: 2rem;
+  }
+
+  .placed-label {
+    font-size: 0.625rem !important;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+  }
+
+  .empty-slot {
+    font-size: 0.6875rem;
+    min-block-size: 3.25rem;
+  }
+
+  .sequence-divider {
+    margin-block-end: 0.5rem !important;
+  }
+
+  .choice-row {
     margin-block: -0.25rem;
   }
 
- .choice-row :deep(.dwell-button) {
-    min-block-size: 5.75rem !important;
+  .choice-row :deep(.dwell-button) {
+    min-block-size: 4.75rem !important;
+    padding: 0.5rem !important;
   }
 
- .choice-emoji {
-    font-size: clamp(2.2rem, 5vw, 3rem);
+  .choice-image {
+    block-size: 2.25rem;
+  }
+
+  .choice-label {
+    font-size: 0.875rem !important;
+    line-height: 1.1;
   }
 }
 </style>

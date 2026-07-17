@@ -266,12 +266,12 @@ onUnmounted(() => {
     min-block-size: 6.5rem !important;
   }
 
- .choice-card.color-label {
+  .choice-card .color-label {
     font-size: 1.25rem !important;
     line-height: 1.05;
   }
 
- .pattern-slot.color-label {
+  .pattern-slot .color-label {
     font-size: 1.5rem !important;
     line-height: 1.1;
   }
