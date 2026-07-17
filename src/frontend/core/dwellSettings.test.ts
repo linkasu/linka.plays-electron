@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
+  clearDwellMsOverride,
   DEFAULT_DWELL_MS,
   MAX_DWELL_MS,
   MIN_DWELL_MS,
@@ -11,7 +12,7 @@ import {
 
 describe("dwell settings", () => {
   beforeEach(() => {
-    setDwellMs(DEFAULT_DWELL_MS);
+    clearDwellMsOverride();
   });
 
   it("normalizes values to the supported range and step", () => {
@@ -29,5 +30,13 @@ describe("dwell settings", () => {
 
     expect(resolveDwellMs()).toBe(950);
     expect(values.get("linka-gaze-dwell-ms")).toBe("950");
+  });
+
+  it("uses a per-game default until the user sets an override", () => {
+    expect(resolveDwellMs(1350)).toBe(1350);
+
+    setDwellMs(925);
+
+    expect(resolveDwellMs(1350)).toBe(950);
   });
 });

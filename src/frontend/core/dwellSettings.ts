@@ -16,9 +16,13 @@ export function normalizeDwellMs(value: unknown) {
 
 function loadDwellMs() {
   try {
-    return normalizeDwellMs(window.localStorage.getItem(dwellStorageKey) ?? DEFAULT_DWELL_MS);
+    const storedValue = window.localStorage.getItem(dwellStorageKey);
+    return {
+      explicit: storedValue !== null,
+      value: normalizeDwellMs(storedValue ?? DEFAULT_DWELL_MS)
+    };
   } catch {
-    return DEFAULT_DWELL_MS;
+    return { explicit: false, value: DEFAULT_DWELL_MS };
   }
 }
 
@@ -26,10 +30,13 @@ export function persistDwellMs(value: number, storage: Pick<Storage, "setItem">)
   storage.setItem(dwellStorageKey, String(value));
 }
 
-const dwellMs = ref(typeof window === "undefined" ? DEFAULT_DWELL_MS : loadDwellMs());
+const loadedDwellMs = typeof window === "undefined" ? { explicit: false, value: DEFAULT_DWELL_MS } : loadDwellMs();
+const dwellMs = ref(loadedDwellMs.value);
+const explicitDwellMs = ref(loadedDwellMs.explicit);
 
 export function setDwellMs(value: unknown) {
   dwellMs.value = normalizeDwellMs(value);
+  explicitDwellMs.value = true;
   try {
     persistDwellMs(dwellMs.value, window.localStorage);
   } catch {
@@ -37,13 +44,24 @@ export function setDwellMs(value: unknown) {
   }
 }
 
-export function resolveDwellMs() {
-  return dwellMs.value;
+export function clearDwellMsOverride() {
+  dwellMs.value = DEFAULT_DWELL_MS;
+  explicitDwellMs.value = false;
+  try {
+    window.localStorage.removeItem(dwellStorageKey);
+  } catch {
+    // Per-game defaults remain active when storage is unavailable.
+  }
+}
+
+export function resolveDwellMs(fallback = DEFAULT_DWELL_MS) {
+  return explicitDwellMs.value ? dwellMs.value : normalizeDwellMs(fallback);
 }
 
 export function useDwellSettings() {
   return {
     dwellMs: readonly(dwellMs),
-    setDwellMs
+    setDwellMs,
+    clearDwellMsOverride
   };
 }
