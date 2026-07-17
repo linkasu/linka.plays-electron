@@ -1,48 +1,43 @@
-import { createAmbientPiano } from "../../core/ambientPiano";
+let audioContext: AudioContext | undefined;
 
-const piano = createAmbientPiano({
-  notesToLoad: [43, 47, 50, 52, 55, 59, 62, 64, 67, 71, 74, 76],
-  loopNotes: [43, 50, 55, 62, 59, 55, 47, 52, 59, 64, 62, 52, 50, 55, 62, 67, 64, 59, 47, 55, 62, 71, 67, 62],
-  cueNotes: [55, 62, 67, 76],
-  reverbName: "open-door-soft-room",
-  reverbAmount: 0.26,
-  volume: 68,
-  velocity: 44,
-  decayTime: 3.7,
-  velocityRange: [1, 68],
-  loopLookaheadSeconds: 1.8,
-  loopStepSeconds: 0.4,
-  loopAccentEvery: 6,
-  loopAccentDurationSeconds: 1.65,
-  loopBaseDurationSeconds: 1.08,
-  loopAccentVelocity: 50,
-  loopBaseVelocity: 40,
-  cueStepSeconds: 0.15,
-  cueDurationSeconds: 0.95,
-  cueStartVelocity: 64,
-  cueVelocityStep: 2,
-  cueCooldownSeconds: 0.82,
-  activeGain: 0.48,
-  fadeInSeconds: 1.1,
-  fadeOutSeconds: 1.5
-});
-
-export function warmOpenDoorPiano(enabled: boolean) {
-  piano.warm(enabled);
-}
-
-export function setOpenDoorPianoActive(enabled: boolean, nextActive: boolean) {
-  piano.setActive(enabled, nextActive);
-}
-
-export function tickOpenDoorPiano(enabled: boolean) {
-  piano.tick(enabled);
+function createAudioContext() {
+  const AudioContextConstructor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  return AudioContextConstructor ? new AudioContextConstructor() : undefined;
 }
 
 export function playOpenDoorCue(enabled: boolean) {
-  piano.playCue(enabled);
+  if (!enabled) return;
+
+  try {
+    audioContext ??= createAudioContext();
+    const context = audioContext;
+    if (!context) return;
+
+    void context.resume().then(() => {
+      const startedAt = context.currentTime;
+      const gain = context.createGain();
+      gain.gain.setValueAtTime(0.0001, startedAt);
+      gain.gain.exponentialRampToValueAtTime(0.045, startedAt + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, startedAt + 0.85);
+      gain.connect(context.destination);
+
+      [523.25, 659.25, 783.99].forEach((frequency, index) => {
+        const oscillator = context.createOscillator();
+        oscillator.type = "sine";
+        oscillator.frequency.value = frequency;
+        oscillator.connect(gain);
+        oscillator.start(startedAt + index * 0.11);
+        oscillator.stop(startedAt + 0.8);
+      });
+
+      window.setTimeout(() => gain.disconnect(), 1000);
+    }).catch(() => undefined);
+  } catch {
+    // The reward remains fully usable when Web Audio is unavailable.
+  }
 }
 
-export function disposeOpenDoorPiano() {
-  piano.dispose();
+export function disposeOpenDoorCue() {
+  void audioContext?.close().catch(() => undefined);
+  audioContext = undefined;
 }
