@@ -9,7 +9,7 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { buildIWantPhrase, generateIWantRound, iWantCards, type IWantCard, type IWantRound } from "./model";
+import { buildIWantPhrase, createIWantCommunication, generateIWantRound, iWantCardAssetId, iWantCards, iWantPhraseAssetId, type IWantCard, type IWantRound } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession, finishSession } = useGameSessionFor("i-want", {
@@ -22,7 +22,7 @@ const promptAudio = useGamePromptAudio({
   gameId: "i-want",
   soundEnabled: toRef(session.settings, "sound"),
   volume: 0.34,
-  warmAssetIds: ["i-want.intro", "i-want.next", "i-want.complete"]
+  warmAssetIds: ["i-want.intro", "i-want.next", "i-want.complete", ...iWantCards.map(iWantCardAssetId)]
 });
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<IWantRound>({
@@ -44,8 +44,9 @@ function cardTargetId(card: IWantCard) {
   return `i-want:card:${card.id}`;
 }
 
-function phraseAssetId(card: IWantCard) {
-  return `i-want.phrase.${card.id}`;
+function playCardPrompt(card: IWantCard) {
+  if (session.status !== "running" || isChangingRound.value) return;
+  promptAudio.play(iWantCardAssetId(card));
 }
 
 async function choose(card: IWantCard) {
@@ -54,20 +55,19 @@ async function choose(card: IWantCard) {
   const targetId = cardTargetId(card);
   selectedCardId.value = card.id;
   isChangingRound.value = true;
+  const communication = createIWantCommunication(card);
 
   recordSuccess({
     roundId: round.value.roundId,
     targetId,
     answerId: card.id,
-    expected: "valid-communication",
-    actual: `Я хочу ${card.phrase}`,
     cardKind: card.kind,
-    isCorrect: true,
-    noFail: true
+    ...communication
   });
-  feedback.value = `Ты сказал: «Я хочу ${card.phrase}». Спасибо, я понял.`;
+  feedback.value = `Ты сказал: «${communication.phrase}». Спасибо, я понял.`;
   const finishedAfterSuccess = session.step >= session.maxSteps;
-  await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [phraseAssetId(card), "i-want.complete"] : [phraseAssetId(card)], 80, 170);
+  const phraseAssetId = iWantPhraseAssetId(card);
+  await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [phraseAssetId, "i-want.complete"] : [phraseAssetId], 80, 170);
 
   if (finishedAfterSuccess) {
     feedback.value = "Спасибо. Я услышал твои желания.";
@@ -122,11 +122,10 @@ onUnmounted(() => {
 
             <v-row dense>
               <v-col v-for="card in round.cards" :key="card.id" cols="6" sm="4" md="4">
-                <GameDwellButton :target-id="cardTargetId(card)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="cardMinHeight" :color="selectedCardId === card.id ? 'deep-purple-darken-3' : 'surface'" @select="choose(card)">
+                <GameDwellButton :target-id="cardTargetId(card)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="cardMinHeight" :color="selectedCardId === card.id ? 'deep-purple-darken-3' : 'surface'" @target-enter="playCardPrompt(card)" @select="choose(card)">
                   <template #default>
                     <div class="card-content">
-                      <GameWordImage v-if="card.wordId" class="card-emoji mb-2" :word-id="card.wordId" :word="card.label" :emoji="card.emoji" decorative />
-                      <div v-else class="card-emoji emoji-glyph mb-2" aria-hidden="true">{{ card.emoji }}</div>
+                      <GameWordImage class="card-emoji mb-2" :word-id="card.wordId" :word="card.label" :emoji="card.emoji" decorative />
                       <div class="card-label text-h5 text-md-h4 font-weight-bold">{{ card.label }}</div>
                       <div class="card-kind text-body-2 mt-1">{{ card.kind }}</div>
                     </div>

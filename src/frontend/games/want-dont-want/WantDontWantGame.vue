@@ -9,7 +9,7 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { generateWantDontWantRound, type WantDontWantAnswer, type WantDontWantRound } from "./model";
+import { createWantDontWantCommunication, generateWantDontWantRound, wantDontWantPhraseAssetId, type WantDontWantAnswer, type WantDontWantRound } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession, finishSession } = useGameSessionFor("want-dont-want", {
@@ -31,16 +31,12 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
   generateRound: generateWantDontWantRound
 });
 
-const feedback = ref("Посмотри на ответ, который подходит тебе сейчас.");
+const feedback = ref(round.value.prompt);
 const isChangingRound = ref(false);
 const choiceMinHeight = computed(() => Math.round(220 * session.settings.targetScale));
 
 function answerTargetId(value: WantDontWantAnswer) {
   return `want-dont-want:answer:${value}`;
-}
-
-function phraseAssetId(value: WantDontWantAnswer) {
-  return `want-dont-want.phrase.${value}.${round.value.item.id}`;
 }
 
 async function answer(value: WantDontWantAnswer) {
@@ -51,21 +47,20 @@ async function answer(value: WantDontWantAnswer) {
 
   isChangingRound.value = true;
   const targetId = answerTargetId(value);
+  const communication = createWantDontWantCommunication(round.value.item, value);
   recordSuccess({
     roundId: round.value.roundId,
     targetId,
     answerId: value,
     itemId: round.value.item.id,
-    expected: "valid-communication",
-    actual: value,
-    isCorrect: true
+    ...communication
   });
-  feedback.value = `Ты сказал: «${choice.confirmation} ${round.value.item.title}». Спасибо, я понял.`;
+  feedback.value = communication.phrase;
   const finishedAfterSuccess = session.step >= session.maxSteps;
-  await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [phraseAssetId(value), "want-dont-want.complete"] : [phraseAssetId(value)], 80, 170);
+  const phraseAssetId = wantDontWantPhraseAssetId(round.value.item, value);
+  await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [phraseAssetId, "want-dont-want.complete"] : [phraseAssetId], 80, 170);
 
   if (finishedAfterSuccess) {
-    feedback.value = "Спасибо. Я услышал твой выбор.";
     finishSession("game-complete");
     isChangingRound.value = false;
     return;
@@ -73,18 +68,16 @@ async function answer(value: WantDontWantAnswer) {
 
   if (session.status === "running" && session.step < session.maxSteps) {
     nextRound();
-    feedback.value = "Следующий выбор. Можно сказать как тебе подходит.";
+    feedback.value = round.value.prompt;
     await promptAudio.playSequenceAndWait(["want-dont-want.next"], 180);
-  } else {
-    feedback.value = "Спасибо. Я услышал твой выбор.";
   }
   isChangingRound.value = false;
 }
 
 function restart() {
-  feedback.value = "Посмотри на ответ, который подходит тебе сейчас.";
   isChangingRound.value = false;
   restartRoundGame();
+  feedback.value = round.value.prompt;
   promptAudio.cancelPending();
   promptAudio.play("want-dont-want.intro", 260);
 }
@@ -109,11 +102,9 @@ onUnmounted(() => {
             <div class="text-overline text-secondary text-center mb-2">Любой ответ важен</div>
             <div class="item-display mb-4 mb-md-5">
               <v-chip class="mb-3 text-white" color="deep-purple-darken-3" size="large" variant="flat">{{ round.item.kind }}</v-chip>
-              <GameWordImage v-if="round.item.wordId" class="item-emoji" :word-id="round.item.wordId" :word="round.item.title" :emoji="round.item.emoji" />
-              <div v-else class="item-emoji emoji-glyph">{{ round.item.emoji }}</div>
+              <GameWordImage class="item-emoji" :word-id="round.item.wordId" :word="round.item.title" :emoji="round.item.emoji" />
               <h1 class="text-h3 text-md-h2 font-weight-bold mb-2">{{ round.item.title }}</h1>
-              <div class="want-prompt text-h6 text-md-h5">{{ round.prompt }}</div>
-              <div class="text-h6 text-md-h5 mt-3">{{ feedback }}</div>
+              <div class="want-prompt text-h6 text-md-h5">{{ feedback }}</div>
             </div>
 
             <v-row>

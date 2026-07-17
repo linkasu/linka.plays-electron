@@ -2,7 +2,7 @@ export type IWantCardKind = "предмет" | "занятие" | "помощь"
 
 export type IWantCard = {
   id: string;
-  wordId?: string;
+  wordId: string;
   label: string;
   phrase: string;
   emoji: string;
@@ -16,19 +16,37 @@ export type IWantRound = {
 };
 
 export const iWantCards: IWantCard[] = [
-  { id: "water", label: "Воду", phrase: "воду", emoji: "💧", kind: "предмет" },
-  { id: "apple", wordId: "apple", label: "Яблоко", phrase: "яблоко", emoji: "🍎", kind: "предмет" },
-  { id: "music", label: "Музыку", phrase: "музыку", emoji: "🎵", kind: "занятие" },
-  { id: "book", wordId: "book", label: "Книгу", phrase: "книгу", emoji: "📖", kind: "предмет" },
-  { id: "ball", wordId: "ball", label: "Мяч", phrase: "мяч", emoji: "🟡", kind: "предмет" },
-  { id: "draw", label: "Рисовать", phrase: "рисовать", emoji: "🖍️", kind: "занятие" },
-  { id: "toy", wordId: "toy", label: "Игрушку", phrase: "игрушку", emoji: "🧸", kind: "предмет" },
-  { id: "rest", label: "Отдых", phrase: "отдохнуть", emoji: "🌙", kind: "занятие" },
-  { id: "help", label: "Помощь", phrase: "помощь", emoji: "🤝", kind: "помощь" }
+  { id: "water", wordId: "cup", label: "Воду", phrase: "Я хочу воду", emoji: "💧", kind: "предмет" },
+  { id: "apple", wordId: "apple", label: "Яблоко", phrase: "Я хочу яблоко", emoji: "🍎", kind: "предмет" },
+  { id: "music", wordId: "drum", label: "Музыку", phrase: "Я хочу музыку", emoji: "🎵", kind: "занятие" },
+  { id: "book", wordId: "book", label: "Книгу", phrase: "Я хочу книгу", emoji: "📖", kind: "предмет" },
+  { id: "ball", wordId: "ball", label: "Мяч", phrase: "Я хочу мяч", emoji: "🟡", kind: "предмет" },
+  { id: "draw", wordId: "pencil", label: "Рисовать", phrase: "Я хочу рисовать", emoji: "🖍️", kind: "занятие" },
+  { id: "toy", wordId: "toy", label: "Игрушку", phrase: "Я хочу игрушку", emoji: "🧸", kind: "предмет" },
+  { id: "rest", wordId: "bed", label: "Отдых", phrase: "Я хочу отдохнуть", emoji: "🌙", kind: "занятие" },
+  { id: "help", wordId: "hand", label: "Помощь", phrase: "Я хочу помощь", emoji: "🤝", kind: "помощь" }
 ];
 
 export function buildIWantPhrase(card: IWantCard | undefined) {
-  return card ? `Я хочу ${card.phrase}` : "Я хочу...";
+  return card?.phrase ?? "Я хочу...";
+}
+
+export function iWantCardAssetId(card: IWantCard) {
+  return `i-want.card.${card.id}`;
+}
+
+export function iWantPhraseAssetId(card: IWantCard) {
+  return `i-want.phrase.${card.id}`;
+}
+
+export function createIWantCommunication(card: IWantCard) {
+  return {
+    phrase: card.phrase,
+    expected: "valid-communication" as const,
+    actual: card.phrase,
+    isCorrect: true as const,
+    noFail: true as const
+  };
 }
 
 export function generateIWantRound(roundIndex = 1): IWantRound {
