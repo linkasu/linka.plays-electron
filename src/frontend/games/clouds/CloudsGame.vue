@@ -8,20 +8,15 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { adaptiveGazeHitRadius } from "../../core/gazeTarget";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { randomSeparatedTargetCenterPercent } from "../../core/placement";
 import { disposeCloudsPiano, playCloudsPianoCue, setCloudsPianoActive, setCloudsPianoIntensity, tickCloudsPiano, warmCloudsPiano } from "./audio";
+import { cloudRenderGeometry, createCloudLobes, createCloudPlacementLayout, type CloudLobe, type CloudPlacement } from "./model";
 
 type Point = { x: number; y: number };
 type CloudPhase = "floating" | "parting" | "clearing" | "hidden";
-type CloudLobe = {
-  offsetX: number;
-  offsetY: number;
-  radius: number;
-  seed: number;
-  speed: number;
-};
 type Cloud = Point & {
   id: string;
+  homeX: number;
+  homeY: number;
   baseRx: number;
   baseRy: number;
   age: number;
@@ -75,10 +70,6 @@ function cloudPoint(cloud: Cloud) {
   };
 }
 
-function desiredCloudCount() {
-  return 6;
-}
-
 function resizeCanvas() {
   const canvas = canvasRef.value;
   if (!canvas) return;
@@ -91,66 +82,20 @@ function resizeCanvas() {
   ctx?.setTransform(ratio, 0, 0, ratio, 0, 0);
 }
 
-function cloudSize() {
-  const limit = Math.min(window.innerWidth * 0.22, window.innerHeight * 0.18);
-  const rx = Math.min(210, Math.max(118, limit * session.settings.targetScale));
-  return {
-    rx: rx * randomRange(0.88, 1.12),
-    ry: rx * randomRange(0.42, 0.54)
-  };
-}
-
-function createLobes(seed: number): CloudLobe[] {
-  return [
-    { offsetX: -0.72, offsetY: 0.08, radius: 0.58, seed: seed + 0.2, speed: 0.18 },
-    { offsetX: -0.38, offsetY: -0.14, radius: 0.72, seed: seed + 1.1, speed: 0.16 },
-    { offsetX: 0, offsetY: -0.24, radius: 0.84, seed: seed + 2.4, speed: 0.14 },
-    { offsetX: 0.4, offsetY: -0.1, radius: 0.74, seed: seed + 3.6, speed: 0.17 },
-    { offsetX: 0.72, offsetY: 0.1, radius: 0.6, seed: seed + 4.5, speed: 0.2 },
-    { offsetX: -0.04, offsetY: 0.18, radius: 0.9, seed: seed + 5.7, speed: 0.13 }
-  ];
-}
-
-function choosePoint(index: number, size: { rx: number; ry: number }, avoid: Point[] = []) {
-  const layout = [
-    { x: 18, y: 30 },
-    { x: 50, y: 38 },
-    { x: 80, y: 30 },
-    { x: 34, y: 66 },
-    { x: 68, y: 72 },
-    { x: 14, y: 78 }
-  ];
-  const base = layout[index % layout.length];
-  const candidate = randomSeparatedTargetCenterPercent({
-    targetWidth: size.rx * 2.15,
-    targetHeight: size.ry * 2.4,
-    hudHeight: Math.max(104, window.innerHeight * 0.16),
-    sidePadding: Math.max(42, window.innerWidth * 0.06),
-    bottomPadding: Math.max(64, window.innerHeight * 0.08),
-    previous: base,
-    avoid,
-    minDistance: Math.max(size.rx * 1.45, 170),
-    attempts: 18
-  });
-
-  return {
-    x: clamp((base.x + candidate.x) / 2, 12, 88),
-    y: clamp((base.y + candidate.y) / 2, 24, 84)
-  };
-}
-
-function createCloud(index: number): Cloud {
+function createCloud(placement: CloudPlacement): Cloud {
   const seed = randomRange(0, Math.PI * 2);
-  const size = cloudSize();
-  const point = choosePoint(index, size, clouds.filter((cloud) => cloud.phase !== "hidden").map((cloud) => ({ x: cloud.x, y: cloud.y })));
+  const x = placement.x / window.innerWidth * 100;
+  const y = placement.y / window.innerHeight * 100;
   cloudIndex += 1;
 
   return {
     id: `cloud-${Date.now()}-${cloudIndex}`,
-    x: point.x,
-    y: point.y,
-    baseRx: size.rx,
-    baseRy: size.ry,
+    x,
+    y,
+    homeX: x,
+    homeY: y,
+    baseRx: placement.baseRx,
+    baseRy: placement.baseRy,
     age: randomRange(0, 12),
     drift: randomRange(-0.18, 0.18),
     seed,
@@ -158,19 +103,36 @@ function createCloud(index: number): Cloud {
     dwellProgress: 0,
     phaseAge: 0,
     phase: "floating",
-    lobes: createLobes(seed)
+    lobes: createCloudLobes(seed)
   };
 }
 
 function resetCloud(cloud: Cloud) {
-  const next = createCloud(cloudIndex);
-  Object.assign(cloud, next);
+  const seed = randomRange(0, Math.PI * 2);
+  cloud.id = `cloud-${Date.now()}-${++cloudIndex}`;
+  cloud.x = cloud.homeX;
+  cloud.y = cloud.homeY;
+  cloud.age = randomRange(0, 12);
+  cloud.drift = randomRange(-0.18, 0.18);
+  cloud.seed = seed;
+  cloud.openness = 0;
+  cloud.dwellProgress = 0;
+  cloud.phaseAge = 0;
+  cloud.phase = "floating";
+  cloud.enteredAt = undefined;
+  cloud.lobes = createCloudLobes(seed);
 }
 
 function initClouds() {
+  const layout = createCloudPlacementLayout({
+    viewportWidth: window.innerWidth,
+    viewportHeight: window.innerHeight,
+    targetScale: session.settings.targetScale,
+    random: Math.random
+  });
   clouds.splice(0);
   cloudIndex = 0;
-  for (let index = 0; index < desiredCloudCount(); index++) clouds.push(createCloud(index));
+  for (const placement of layout.placements) clouds.push(createCloud(placement));
 }
 
 function copyPointer() {
@@ -294,11 +256,11 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
 
 function drawProgress(context: CanvasRenderingContext2D, cloud: Cloud, point: Point) {
   if (cloud.dwellProgress <= 0 || cloud.phase === "clearing") return;
-  const radius = cloud.baseRx * (0.78 + cloud.openness * 0.08);
+  const radius = cloud.baseRx * (cloudRenderGeometry.progressRadius + cloud.openness * cloudRenderGeometry.progressOpenRadius);
   context.save();
   context.strokeStyle = `rgb(105 160 205 / ${0.22 + cloud.dwellProgress * 0.34})`;
   context.lineCap = "round";
-  context.lineWidth = Math.max(4, cloud.baseRx * 0.028);
+  context.lineWidth = Math.max(4, cloud.baseRx * cloudRenderGeometry.progressLineWidth);
   context.beginPath();
   context.arc(point.x, point.y, radius, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * cloud.dwellProgress);
   context.stroke();
@@ -320,23 +282,23 @@ function drawCloud(context: CanvasRenderingContext2D, cloud: Cloud) {
   shadow.addColorStop(1, "rgb(128 169 196 / 0%)");
   context.fillStyle = shadow;
   context.beginPath();
-  context.ellipse(point.x, point.y + cloud.baseRy * 0.42, cloud.baseRx * 1.18, cloud.baseRy * 0.68, 0, 0, Math.PI * 2);
+  context.ellipse(point.x, point.y + cloud.baseRy * cloudRenderGeometry.shadowOffsetY, cloud.baseRx * cloudRenderGeometry.shadowRadiusX, cloud.baseRy * cloudRenderGeometry.shadowRadiusY, 0, 0, Math.PI * 2);
   context.fill();
 
   for (const lobe of cloud.lobes) {
-    const wobbleX = Math.sin(cloud.age * lobe.speed + lobe.seed) * cloud.baseRx * 0.035;
-    const wobbleY = Math.cos(cloud.age * lobe.speed * 0.8 + lobe.seed) * cloud.baseRy * 0.06;
+    const wobbleX = Math.sin(cloud.age * lobe.speed + lobe.seed) * cloud.baseRx * cloudRenderGeometry.lobeWobbleX;
+    const wobbleY = Math.cos(cloud.age * lobe.speed * 0.8 + lobe.seed) * cloud.baseRy * cloudRenderGeometry.lobeWobbleY;
     const naturalX = point.x + lobe.offsetX * cloud.baseRx + wobbleX;
     const naturalY = point.y + lobe.offsetY * cloud.baseRy + wobbleY;
     const awayX = pointer.value.valid ? naturalX - pointer.value.x : lobe.offsetX || 0.1;
     const awayY = pointer.value.valid ? naturalY - pointer.value.y : lobe.offsetY || -0.1;
     const awayLength = Math.max(1, Math.hypot(awayX, awayY));
     const localDistance = pointer.value.valid ? Math.min(1, distance({ x: naturalX, y: naturalY }, pointer.value) / (cloud.baseRx * 1.6)) : 1;
-    const push = open * (1.08 - localDistance) * cloud.baseRx * (0.22 + lobe.radius * 0.12);
+    const push = open * (cloudRenderGeometry.pushProximity - localDistance) * cloud.baseRx * (cloudRenderGeometry.pushBase + lobe.radius * cloudRenderGeometry.pushRadius);
     const x = naturalX + awayX / awayLength * push;
-    const y = naturalY + awayY / awayLength * push * 0.48 - clearing * cloud.baseRy * 0.24;
-    const rx = cloud.baseRx * lobe.radius * (1 + Math.sin(cloud.age * lobe.speed + lobe.seed) * 0.035 + open * 0.07);
-    const ry = cloud.baseRy * lobe.radius * (1 + Math.cos(cloud.age * lobe.speed + lobe.seed) * 0.045 - open * 0.02);
+    const y = naturalY + awayY / awayLength * push * cloudRenderGeometry.pushY - clearing * cloud.baseRy * cloudRenderGeometry.clearingLift;
+    const rx = cloud.baseRx * lobe.radius * (1 + Math.sin(cloud.age * lobe.speed + lobe.seed) * cloudRenderGeometry.lobePulseX + open * cloudRenderGeometry.lobeOpenRadiusX);
+    const ry = cloud.baseRy * lobe.radius * (1 + Math.cos(cloud.age * lobe.speed + lobe.seed) * cloudRenderGeometry.lobePulseY - open * cloudRenderGeometry.lobeOpenRadiusY);
     const body = context.createRadialGradient(x - rx * 0.28, y - ry * 0.38, ry * 0.12, x, y, rx);
     body.addColorStop(0, "rgb(255 255 255 / 96%)");
     body.addColorStop(0.64, "rgb(245 251 255 / 86%)");
@@ -379,6 +341,11 @@ function tick(now: number) {
   frame = requestAnimationFrame(tick);
 }
 
+function resizeGame() {
+  resizeCanvas();
+  initClouds();
+}
+
 function restart() {
   startSession();
   initClouds();
@@ -389,13 +356,13 @@ onMounted(async () => {
   resizeCanvas();
   initClouds();
   warmCloudsPiano(session.settings.sound);
-  window.addEventListener("resize", resizeCanvas);
+  window.addEventListener("resize", resizeGame);
   lastTime = performance.now();
   frame = requestAnimationFrame(tick);
 });
 
 onUnmounted(() => {
-  window.removeEventListener("resize", resizeCanvas);
+  window.removeEventListener("resize", resizeGame);
   cancelAnimationFrame(frame);
   disposeCloudsPiano();
 });
