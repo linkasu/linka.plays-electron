@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import ttsAssets from "../../data/ttsAssets.json";
-import { createObjectActionExplanation, generateObjectActionRound, isObjectActionCorrect, objectActionChoices } from "./model";
+import { createObjectActionExplanation, generateObjectActionRound, isObjectActionCorrect, objectActionChoices, objectActionChoiceTargetId } from "./model";
 
 describe("object-action model", () => {
   it("starts with unambiguous child-facing verbs", () => {
@@ -38,6 +38,17 @@ describe("object-action model", () => {
       const round = generateObjectActionRound(index);
       expect(new Set(round.choices.map((choice) => choice.id)).size).toBe(round.choices.length);
     }
+  });
+
+  it("keeps gaze target ids stable for choices shared by consecutive rounds", () => {
+    const firstRound = generateObjectActionRound(1);
+    const secondRound = generateObjectActionRound(2);
+    const sharedChoice = firstRound.choices.find((choice) => secondRound.choices.some((nextChoice) => nextChoice.id === choice.id));
+
+    expect(sharedChoice).toBeDefined();
+    expect(objectActionChoiceTargetId(sharedChoice!.id)).toBe(`object-action:choice:${sharedChoice!.id}`);
+    expect(objectActionChoiceTargetId(sharedChoice!.id)).not.toContain(firstRound.roundId);
+    expect(objectActionChoiceTargetId(sharedChoice!.id)).not.toContain(secondRound.roundId);
   });
 
   it("explains only the named action", () => {

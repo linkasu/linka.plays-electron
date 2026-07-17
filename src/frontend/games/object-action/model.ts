@@ -97,6 +97,10 @@ export const objectActionChoices: ObjectActionChoice[] = [
   }
 ];
 
+export function objectActionChoiceTargetId(choiceId: string) {
+  return `object-action:choice:${choiceId}`;
+}
+
 export function createObjectActionExplanation(action: ObjectActionChoice) {
   return `Это действие — ${action.title}.`;
 }

@@ -10,7 +10,7 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
-import { generateObjectActionRound, isObjectActionCorrect, type ObjectActionChoice, type ObjectActionRound } from "./model";
+import { generateObjectActionRound, isObjectActionCorrect, objectActionChoiceTargetId, type ObjectActionChoice, type ObjectActionRound } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, finishSession, startSession } = useGameSessionFor("object-action", {
@@ -35,7 +35,7 @@ const isChangingRound = ref(false);
 const choiceMinHeight = computed(() => `${9.5 * session.settings.targetScale}rem`);
 
 function choiceTargetId(choice: ObjectActionChoice) {
-  return `object-action:choice:${round.value.targetAction.id}:${choice.id}`;
+  return objectActionChoiceTargetId(choice.id);
 }
 
 async function playRoundPrompt(delayMs = 0) {

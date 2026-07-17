@@ -2,17 +2,18 @@
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
+import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
 import ttsAssets from "../../data/ttsAssets.json";
 import { disposeOpenDoorCue, playOpenDoorCue } from "./audio";
-import { advanceOpenDoor, createOpenDoorState, revealOpenDoor } from "./model";
+import { advanceOpenDoor, createOpenDoorState, openDoorTargetId, revealOpenDoor } from "./model";
 
 const revealPauseMs = 2400;
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, finishSession, recordSuccess, startSession } = useGameSessionFor("open-door", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordSuccess, startSession } = useGameSessionFor("open-door", {
   maxSteps: 8,
   overrides: { preset: "gentle", targetScale: 1.7, motionSpeed: 0.32, distractors: "none", hints: "high", sound: true },
   finishOnMaxSteps: false,
@@ -26,7 +27,7 @@ const currentReward = computed(() => doorState.value.reward);
 const resultVisible = computed(() => session.status === "finished");
 const targetMinHeight = computed(() => {
   const scaledHeight = 18 * Math.max(0.8, session.settings.targetScale);
-  return `min(${scaledHeight.toFixed(2)}rem, calc(100dvh - 9.5rem))`;
+  return `min(${scaledHeight.toFixed(2)}rem, calc(100dvh - 12rem))`;
 });
 const targetStyle = computed(() => ({
   "--open-door-target-scale": Math.max(0.8, session.settings.targetScale).toFixed(2),
@@ -49,10 +50,10 @@ function clearRevealTimer() {
 }
 
 function finishReveal() {
+  revealTimer = undefined;
   if (session.status !== "running") return;
 
   doorState.value = advanceOpenDoor(doorState.value);
-  revealTimer = undefined;
   if (doorState.value.phase === "complete") finishSession("game-complete");
 }
 
@@ -65,10 +66,17 @@ function openDoor() {
 
   clearRevealTimer();
   doorState.value = nextState;
-  recordSuccess({ targetId: `open-door:door:${nextState.openedCount}`, label: reward.label });
+  recordSuccess({ targetId: openDoorTargetId, label: reward.label });
   playOpenDoorCue(session.settings.sound);
   playTtsAsset(session.settings.sound, ttsAsset(reward.ttsId), 0.32);
   revealTimer = window.setTimeout(finishReveal, revealPauseMs);
+}
+
+function resumeGame() {
+  resumeSession();
+  if (session.status === "running" && doorState.value.phase === "revealed" && revealTimer === undefined) {
+    revealTimer = window.setTimeout(finishReveal, revealPauseMs);
+  }
 }
 
 function restart() {
@@ -96,9 +104,19 @@ onUnmounted(() => {
 
 <template>
   <main class="open-door-shell">
+    <GameHud
+      title="Открой дверцу"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :paused="session.status === 'paused'"
+      :show-progress="false"
+      :show-timer="false"
+      @pause="pauseSession"
+      @resume="resumeGame"
+    />
     <v-container class="open-door-container d-flex align-center justify-center" fluid>
       <GameDwellButton
-        :target-id="`open-door:door:${session.step + 1}`"
+        :target-id="openDoorTargetId"
         :dwell-ms="session.settings.dwellMs"
         :disabled="session.status !== 'running' || doorState.phase !== 'closed'"
         :min-height="targetMinHeight"
@@ -151,12 +169,13 @@ onUnmounted(() => {
 .open-door-container {
   block-size: 100%;
   padding: clamp(1.5rem, 4dvh, 2.5rem);
+  padding-block-start: clamp(10.5rem, 28dvh, 11rem);
   position: relative;
   z-index: 1;
 }
 
 .open-door-target {
-  block-size: min(calc(18rem * var(--open-door-target-scale)), calc(100dvh - 9.5rem));
+  block-size: min(calc(18rem * var(--open-door-target-scale)), calc(100dvh - 12rem));
   inline-size: min(calc(14rem * var(--open-door-target-scale)), calc(100dvw - 3rem), 28rem);
   max-block-size: 32rem;
 }

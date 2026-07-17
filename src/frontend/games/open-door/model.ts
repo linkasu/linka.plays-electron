@@ -18,6 +18,8 @@ export type OpenDoorState = {
   maxSteps: number;
 };
 
+export const openDoorTargetId = "open-door:door";
+
 export const openDoorRewards: OpenDoorReward[] = [
   { id: "warm-light", icon: "mdi-lightbulb-on", label: "тёплый свет", color: "#e6a425", glow: "#ffe5a3", ttsId: "open-door.warm-light" },
   { id: "pink-heart", icon: "mdi-heart", label: "розовое сердце", color: "#dc5f8b", glow: "#ffc2d6", ttsId: "open-door.pink-heart" },
