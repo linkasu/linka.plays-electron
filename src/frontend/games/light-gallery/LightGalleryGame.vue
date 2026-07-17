@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeLightGalleryPiano, playLightGalleryCue, setLightGalleryPianoActive, tickLightGalleryPiano, warmLightGalleryPiano } from "./audio";
 
@@ -32,6 +33,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.35, distractors: "none", hints: "high", sound: true },
   finishOnMistakes: false
 });
+useStartPromptAudio({ gameId: "light-gallery", soundEnabled: toRef(session.settings, "sound") });
 
 const panels = reactive<LightPanel[]>([
   {

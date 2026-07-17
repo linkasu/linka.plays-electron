@@ -5,6 +5,7 @@ import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import SunRaysCanvas from "./SunRaysCanvas.vue";
@@ -15,6 +16,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   overrides: { preset: "gentle", dwellMs: 1400, sessionSeconds: 80, targetScale: 1.7, motionSpeed: 0.35, distractors: "none", hints: "high", sound: true },
   finishOnMistakes: false
 });
+useStartPromptAudio({ gameId: "sun-rays", soundEnabled: toRef(session.settings, "sound") });
 
 const resultVisible = computed(() => session.status === "finished");
 const targetId = computed(() => `sun-rays:sun:${Math.min(session.step + 1, session.maxSteps)}`);

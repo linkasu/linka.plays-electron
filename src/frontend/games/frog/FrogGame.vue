@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeFrogAudio, playFrogMelody, resetFrogAudioSession, warmFrogAudio } from "./audio";
 import { bugHitRadius, drawFrogScene, laneBottom, laneTop, type Bug, type CatchBurst, type Point, type Tongue } from "./scene";
@@ -19,6 +20,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   overrides: { preset: "gentle", dwellMs: 850, sessionSeconds: 90, targetScale: 1.35, motionSpeed: 0.62, distractors: "none", hints: "high" },
   finishOnMaxSteps: false
 });
+useStartPromptAudio({ gameId: "frog", soundEnabled: toRef(session.settings, "sound") });
 
 const bugs = reactive<Bug[]>([]);
 const bursts = reactive<CatchBurst[]>([]);

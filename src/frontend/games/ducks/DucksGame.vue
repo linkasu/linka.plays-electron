@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeDuckAudio, playDuckMelody, resetDuckAudioSession, warmDuckAudio } from "./audio";
 import { drawDuckScene, duckHitRadius, waterTop, type Duck, type Point, type Splash } from "./scene";
@@ -17,6 +18,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   overrides: { preset: "gentle", dwellMs: 850, sessionSeconds: 60, targetScale: 1.35, motionSpeed: 0.6, distractors: "none", hints: "high" },
   finishOnMaxSteps: false
 });
+useStartPromptAudio({ gameId: "ducks", soundEnabled: toRef(session.settings, "sound") });
 
 const ducks = reactive<Duck[]>([]);
 const splashes = reactive<Splash[]>([]);
