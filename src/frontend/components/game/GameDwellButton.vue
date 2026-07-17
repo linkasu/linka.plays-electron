@@ -5,6 +5,7 @@ let sharedCooldownUntil = 0;
 <script setup lang="ts">
 import { computed, getCurrentInstance, inject, onMounted, onUnmounted, ref } from "vue";
 import { useGazePointer } from "../../composables/useGazePointer";
+import { activeDomGazeTargetId, registerDomGazeTarget } from "../../core/domGazeTargetCoordinator";
 import { DEFAULT_DWELL_MS } from "../../core/dwellSettings";
 import type { DwellCancelReason, DwellEventPayload } from "../../core/gaze";
 import { gameSessionTelemetryKey } from "../../core/session";
@@ -15,11 +16,15 @@ const props = withDefaults(defineProps<{
   disabled?: boolean;
   color?: string;
   minHeight?: number | string;
+  hitPadding?: number;
+  priority?: number;
 }>(), {
   dwellMs: DEFAULT_DWELL_MS,
   disabled: false,
   color: "surface",
-  minHeight: 160
+  minHeight: 160,
+  hitPadding: 36,
+  priority: 0
 });
 
 const emit = defineEmits<{
@@ -39,8 +44,7 @@ let frame = 0;
 let enteredAt = 0;
 let disposed = false;
 let cooldownUntil = 0;
-
-const hitPaddingPx = 36;
+let unregisterTarget: (() => void) | undefined;
 
 const progressStyle = computed(() => ({
   "--dwell-progress-scale": progress.value.toFixed(3)
@@ -76,20 +80,10 @@ function record(type: "target-enter" | "target-cancel" | "target-click", payload
   telemetry?.recordEvent(type, payload as unknown as Record<string, unknown>);
 }
 
-function containsPointer() {
-  const element = rootRef.value;
-  if (!element || !pointer.value.valid || props.disabled) return false;
-  const rect = element.getBoundingClientRect();
-  return pointer.value.x >= rect.left - hitPaddingPx
-    && pointer.value.x <= rect.right + hitPaddingPx
-    && pointer.value.y >= rect.top - hitPaddingPx
-    && pointer.value.y <= rect.bottom + hitPaddingPx;
-}
-
 function cancelReason(): DwellCancelReason | undefined {
   if (props.disabled) return "disabled";
   if (!pointer.value.valid) return "invalid-gaze";
-  return containsPointer() ? undefined : "left";
+  return activeDomGazeTargetId.value === currentTargetId() ? undefined : "left";
 }
 
 function reset(now = performance.now(), reason?: DwellCancelReason) {
@@ -142,11 +136,19 @@ function selectByPointerClick() {
 }
 
 onMounted(() => {
+  unregisterTarget = registerDomGazeTarget({
+    id: currentTargetId(),
+    element: () => rootRef.value,
+    enabled: () => !props.disabled,
+    hitPadding: () => props.hitPadding,
+    priority: () => props.priority
+  }, pointer);
   frame = requestAnimationFrame(tick);
 });
 
 onUnmounted(() => {
   disposed = true;
+  unregisterTarget?.();
   cancelAnimationFrame(frame);
 });
 </script>
