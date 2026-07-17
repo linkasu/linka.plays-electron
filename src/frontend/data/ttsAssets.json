@@ -8902,5 +8902,117 @@
     "text": "Финальный контур. Здесь несколько полей влияют на путь сразу. Подбери знаки и силу, затем проверь траекторию.",
     "voice": "jane",
     "path": "/audio/tts/cursor-magnet/task-final-reactor.mp3"
+  },
+  {
+    "id": "light-gallery.prompt",
+    "game": "light-gallery",
+    "text": "Смотри на картины, чтобы проявить свет.",
+    "voice": "jane",
+    "path": "/audio/tts/light-gallery/prompt.mp3"
+  },
+  {
+    "id": "northern-lights.prompt",
+    "game": "northern-lights",
+    "text": "Веди взглядом по небу и рисуй сияние.",
+    "voice": "jane",
+    "path": "/audio/tts/northern-lights/prompt.mp3"
+  },
+  {
+    "id": "soap-circles.prompt",
+    "game": "soap-circles",
+    "text": "Смотри на мыльный круг, чтобы он растворился.",
+    "voice": "jane",
+    "path": "/audio/tts/soap-circles/prompt.mp3"
+  },
+  {
+    "id": "sun-rays.prompt",
+    "game": "sun-rays",
+    "text": "Смотри в центр солнца, чтобы появились лучи.",
+    "voice": "jane",
+    "path": "/audio/tts/sun-rays/prompt.mp3"
+  },
+  {
+    "id": "lighthouse.prompt",
+    "game": "lighthouse",
+    "text": "Смотри на маяк и помоги лодочкам найти гавань.",
+    "voice": "jane",
+    "path": "/audio/tts/lighthouse/prompt.mp3"
+  },
+  {
+    "id": "moon-path.prompt",
+    "game": "moon-path",
+    "text": "Веди взглядом по воде и зажигай лунную дорожку.",
+    "voice": "jane",
+    "path": "/audio/tts/moon-path/prompt.mp3"
+  },
+  {
+    "id": "sand-garden.prompt",
+    "game": "sand-garden",
+    "text": "Веди взглядом по песку и рисуй дорожки.",
+    "voice": "jane",
+    "path": "/audio/tts/sand-garden/prompt.mp3"
+  },
+  {
+    "id": "sea-shells.prompt",
+    "game": "sea-shells",
+    "text": "Смотри на ракушку, чтобы она открылась.",
+    "voice": "jane",
+    "path": "/audio/tts/sea-shells/prompt.mp3"
+  },
+  {
+    "id": "paper-lanterns.prompt",
+    "game": "paper-lanterns",
+    "text": "Смотри на фонарик, чтобы зажечь его.",
+    "voice": "jane",
+    "path": "/audio/tts/paper-lanterns/prompt.mp3"
+  },
+  {
+    "id": "warm-fire.prompt",
+    "game": "warm-fire",
+    "text": "Смотри на огонёк, чтобы разжечь костёр.",
+    "voice": "jane",
+    "path": "/audio/tts/warm-fire/prompt.mp3"
+  },
+  {
+    "id": "butterfly.prompt",
+    "game": "butterfly",
+    "text": "Смотри на светлое пятно, чтобы разбудить бабочку.",
+    "voice": "jane",
+    "path": "/audio/tts/butterfly/prompt.mp3"
+  },
+  {
+    "id": "flowers.prompt",
+    "game": "flowers",
+    "text": "Смотри на росток, чтобы вырастить цветок.",
+    "voice": "jane",
+    "path": "/audio/tts/flowers/prompt.mp3"
+  },
+  {
+    "id": "ducks.prompt",
+    "game": "ducks",
+    "text": "Следи за уткой и удерживай на ней взгляд.",
+    "voice": "jane",
+    "path": "/audio/tts/ducks/prompt.mp3"
+  },
+  {
+    "id": "fishes.prompt",
+    "game": "fishes",
+    "text": "Следи за рыбкой и удерживай на ней взгляд.",
+    "voice": "jane",
+    "path": "/audio/tts/fishes/prompt.mp3"
+  },
+  {
+    "id": "frog.prompt",
+    "game": "frog",
+    "text": "Смотри на светлячка и помоги жабе поймать его.",
+    "voice": "jane",
+    "path": "/audio/tts/frog/prompt.mp3"
+  },
+  {
+    "id": "jellyfish.prompt",
+    "game": "jellyfish",
+    "text": "Следи взглядом за медузой.",
+    "voice": "jane",
+    "path": "/audio/tts/jellyfish/prompt.mp3"
   }
 ]
