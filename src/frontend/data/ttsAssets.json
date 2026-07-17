@@ -5628,13 +5628,6 @@
     "path": "/audio/tts/balloons/prompt.mp3"
   },
   {
-    "id": "balloons.release",
-    "game": "balloons",
-    "text": "Шарик улетел.",
-    "voice": "filipp",
-    "path": "/audio/tts/balloons/release.mp3"
-  },
-  {
     "id": "bells.prompt.sun",
     "game": "bells",
     "text": "Найди золотой колокольчик.",

@@ -168,7 +168,6 @@ async function selectBell(bell: BellDefinition) {
   isSpeaking.value = true;
 
   try {
-    void pianoFeedback.playSuccess();
     await playBellSoundAndWait();
 
     if (session.status === "running" && session.step < session.maxSteps) {

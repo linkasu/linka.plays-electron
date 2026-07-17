@@ -16,7 +16,6 @@ type WindowTarget = {
   label: string;
   wordId?: string;
   animal: string;
-  ttsId: string;
   gridColumn: number;
   gridRow: number;
   lit: boolean;
@@ -30,18 +29,18 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 });
 
 const windows = reactive<WindowTarget[]>([
-  { id: "warm-window:window:1", wordId: "cat", label: "котик", animal: "🐱", ttsId: "warm-window.cat", gridColumn: 1, gridRow: 1, lit: false },
-  { id: "warm-window:window:2", wordId: "dog", label: "щенок", animal: "🐶", ttsId: "warm-window.dog", gridColumn: 2, gridRow: 1, lit: false },
-  { id: "warm-window:window:3", wordId: "rabbit", label: "зайчик", animal: "🐰", ttsId: "warm-window.rabbit", gridColumn: 3, gridRow: 1, lit: false },
-  { id: "warm-window:window:4", wordId: "fox", label: "лисёнок", animal: "🦊", ttsId: "warm-window.fox", gridColumn: 1, gridRow: 2, lit: false },
-  { id: "warm-window:window:5", wordId: "bear", label: "медвежонок", animal: "🐻", ttsId: "warm-window.bear", gridColumn: 2, gridRow: 2, lit: false },
-  { id: "warm-window:window:6", label: "панда", animal: "🐼", ttsId: "warm-window.panda", gridColumn: 3, gridRow: 2, lit: false },
-  { id: "warm-window:window:7", wordId: "frog", label: "лягушонок", animal: "🐸", ttsId: "warm-window.frog", gridColumn: 1, gridRow: 3, lit: false },
-  { id: "warm-window:window:8", wordId: "bird", label: "птичка", animal: "🐦", ttsId: "warm-window.bird", gridColumn: 3, gridRow: 3, lit: false }
+  { id: "warm-window:window:1", wordId: "cat", label: "котик", animal: "🐱", gridColumn: 1, gridRow: 1, lit: false },
+  { id: "warm-window:window:2", wordId: "dog", label: "щенок", animal: "🐶", gridColumn: 2, gridRow: 1, lit: false },
+  { id: "warm-window:window:3", wordId: "rabbit", label: "зайчик", animal: "🐰", gridColumn: 3, gridRow: 1, lit: false },
+  { id: "warm-window:window:4", wordId: "fox", label: "лисёнок", animal: "🦊", gridColumn: 1, gridRow: 2, lit: false },
+  { id: "warm-window:window:5", wordId: "bear", label: "медвежонок", animal: "🐻", gridColumn: 2, gridRow: 2, lit: false },
+  { id: "warm-window:window:6", label: "панда", animal: "🐼", gridColumn: 3, gridRow: 2, lit: false },
+  { id: "warm-window:window:7", wordId: "frog", label: "лягушонок", animal: "🐸", gridColumn: 1, gridRow: 3, lit: false },
+  { id: "warm-window:window:8", wordId: "bird", label: "птичка", animal: "🐦", gridColumn: 3, gridRow: 3, lit: false }
 ]);
 
 const resultVisible = computed(() => session.status === "finished");
-const warmWindowTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.game === "warm-window");
+const warmWindowTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.id === "warm-window.intro");
 let audioFrame = 0;
 let introTimer = 0;
 
@@ -54,7 +53,6 @@ function lightWindow(windowTarget: WindowTarget) {
   windowTarget.lit = true;
   recordSuccess({ targetId: windowTarget.id, label: windowTarget.label });
   playWarmWindowCue(session.settings.sound);
-  playTtsAsset(session.settings.sound, ttsAsset(windowTarget.ttsId), 1);
 }
 
 function restart() {
