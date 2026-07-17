@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
@@ -154,7 +155,10 @@ onUnmounted(() => {
             <p class="text-body-1 text-medium-emphasis text-center mb-6">{{ feedbackMessage }}</p>
 
             <v-sheet class="source-card mx-auto mb-6 pa-5" rounded="xl" :color="`${round.source.tone}-lighten-5`">
-              <div class="source-emoji emoji-glyph">{{ round.source.emoji }}</div>
+              <div :class="['concept-visual', `concept-visual--${round.source.referenceId}`, `concept-visual--${round.source.visualState}`]" aria-hidden="true">
+                <GameWordImage class="concept-object" :word-id="round.source.assetId ?? round.source.referenceId" :word="round.source.label" :emoji="round.source.emoji" decorative />
+                <span v-if="round.source.stateMarker" class="state-marker emoji-glyph">{{ round.source.stateMarker }}</span>
+              </div>
               <div class="text-h5 text-md-h4 font-weight-bold mt-2">{{ round.source.label }}</div>
             </v-sheet>
 
@@ -162,7 +166,10 @@ onUnmounted(() => {
               <v-col v-for="(choice, index) in round.choices" :key="choice.id" cols="6" :sm="round.choices.length === 3 ? 4 : 3" :md="round.choices.length === 3 ? 4 : 3">
                 <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="190" :color="choiceColor(choice)" @select="choose(index)">
                   <template #default>
-                    <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
+                    <div :class="['concept-visual', `concept-visual--${choice.referenceId}`, `concept-visual--${choice.visualState}`]" aria-hidden="true">
+                      <GameWordImage class="concept-object" :word-id="choice.assetId ?? choice.referenceId" :word="choice.label" :emoji="choice.emoji" decorative />
+                      <span v-if="choice.stateMarker" class="state-marker emoji-glyph">{{ choice.stateMarker }}</span>
+                    </div>
                     <div class="text-h6 text-md-h5 font-weight-bold mt-2">{{ choice.label }}</div>
                   </template>
                 </GameDwellButton>
@@ -196,14 +203,71 @@ onUnmounted(() => {
   min-block-size: 10rem;
 }
 
-.source-emoji {
-  font-size: clamp(4.5rem, min(12vw, 14vh), 8rem);
-  line-height: 1;
+.concept-visual {
+  align-items: center;
+  border-radius: 1.5rem;
+  display: flex;
+  inline-size: min(9rem, 100%);
+  justify-content: center;
+  min-block-size: 7rem;
+  position: relative;
 }
 
-.choice-emoji {
+.concept-object {
   font-size: clamp(3.6rem, min(8vw, 12vh), 6.5rem);
   line-height: 1;
+  transform-origin: center;
+  transition: filter 160ms ease, transform 160ms ease;
+}
+
+.source-card .concept-object {
+  font-size: clamp(4.5rem, min(12vw, 14vh), 8rem);
+}
+
+.state-marker {
+  background: rgb(255 255 255 / 88%);
+  border-radius: 999rem;
+  font-size: clamp(1.4rem, 4vh, 2.3rem);
+  inset-block-end: 0;
+  inset-inline-end: 0;
+  line-height: 1;
+  padding: 0.2rem;
+  position: absolute;
+}
+
+.concept-visual--big .concept-object {
+  transform: scale(1.18);
+}
+
+.concept-visual--small .concept-object {
+  transform: scale(0.62);
+}
+
+.concept-visual--cold .concept-object,
+.concept-visual--night .concept-object,
+.concept-visual--sad .concept-object {
+  filter: saturate(0.72) hue-rotate(18deg);
+}
+
+.concept-visual--night {
+  background: rgb(var(--v-theme-primary) / 12%);
+}
+
+.concept-visual--open .concept-object {
+  transform: perspective(12rem) rotateY(-48deg) scaleX(0.82);
+  transform-origin: left center;
+}
+
+.concept-visual--down .concept-object {
+  transform: rotate(180deg);
+}
+
+.concept-visual--slow .concept-object {
+  transform: translateX(-0.45rem) scale(0.88);
+}
+
+.concept-visual--empty .concept-object {
+  filter: saturate(0.45);
 }
 
 @media (max-width: 37.5rem) {
@@ -214,7 +278,7 @@ onUnmounted(() => {
 
 @media (max-height: 42rem) {
  .game-container {
-    padding-block-start: 4rem;
+    padding-block-start: 9.25rem;
   }
 
  .game-container :deep(.v-card) {
@@ -244,12 +308,16 @@ onUnmounted(() => {
     padding: 0.75rem !important;
   }
 
- .source-emoji {
+  .source-card .concept-object {
     font-size: clamp(2.5rem, 8vh, 3.75rem);
   }
 
- .choice-emoji {
+  .concept-object {
     font-size: clamp(2.5rem, 8vh, 3.75rem);
+  }
+
+  .concept-visual {
+    min-block-size: 4rem;
   }
 
  .game-container :deep(.dwell-button) {

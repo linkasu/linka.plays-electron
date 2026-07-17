@@ -34,6 +34,17 @@ const oneManyItems = [
   { id: "car", name: "машинка", emoji: "🚗" }
 ] as const;
 
+const sideDeck: Array<{ target: OneManyAnswer; targetSide: OneManySide }> = [
+  { target: "one", targetSide: "left" },
+  { target: "one", targetSide: "right" },
+  { target: "many", targetSide: "left" },
+  { target: "many", targetSide: "right" },
+  { target: "one", targetSide: "left" },
+  { target: "one", targetSide: "right" },
+  { target: "many", targetSide: "left" },
+  { target: "many", targetSide: "right" }
+];
+
 function choiceSide(answer: OneManyAnswer, oneOnLeft: boolean): OneManySide {
   if (answer === "one") return oneOnLeft ? "left" : "right";
   return oneOnLeft ? "right" : "left";
@@ -52,12 +63,10 @@ function buildChoice(answer: OneManyAnswer, roundIndex: number, emoji: string, o
   };
 }
 
-export function generateOneManyRound(roundIndex = 1, random = Math.random): OneManyRound {
-  const item = shuffleItems([...oneManyItems], random)[(roundIndex - 1) % oneManyItems.length];
-  const target = shuffleItems<OneManyAnswer>(["one", "many"], random)[0];
-  const oneOnLeft = shuffleItems([true, false], random)[0];
+function buildRound(roundIndex: number, item: typeof oneManyItems[number], target: OneManyAnswer, targetSide: OneManySide): OneManyRound {
+  const oneOnLeft = target === "one" ? targetSide === "left" : targetSide === "right";
   const choices = [buildChoice("one", roundIndex, item.emoji, oneOnLeft), buildChoice("many", roundIndex, item.emoji, oneOnLeft)]
-   .sort((left, right) => left.side.localeCompare(right.side));
+    .sort((left, right) => left.side === "left" ? -1 : right.side === "left" ? 1 : 0);
 
   return {
     roundId: `one-many:round:${roundIndex}`,
@@ -67,4 +76,16 @@ export function generateOneManyRound(roundIndex = 1, random = Math.random): OneM
     itemName: item.name,
     choices
   };
+}
+
+export function createOneManyDeck(random = Math.random): OneManyRound[] {
+  const items = shuffleItems([...oneManyItems], random);
+  const sides = shuffleItems(sideDeck, random);
+  return sides.map(({ target, targetSide }, index) => buildRound(index + 1, items[index], target, targetSide));
+}
+
+export function generateOneManyRound(roundIndex = 1, random = Math.random): OneManyRound {
+  const safeIndex = Math.max(1, Math.floor(roundIndex));
+  const round = createOneManyDeck(random)[(safeIndex - 1) % oneManyItems.length];
+  return { ...round, roundId: `one-many:round:${safeIndex}` };
 }

@@ -10,7 +10,7 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { generateOneManyRound, type OneManyAnswer, type OneManyChoice, type OneManyRound } from "./model";
+import { createOneManyDeck, type OneManyAnswer, type OneManyChoice, type OneManyRound } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("one-many", {
@@ -28,10 +28,11 @@ const promptAudio = useGamePromptAudio({
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
+let deck = createOneManyDeck();
 const { round, resultVisible, nextRound, restart } = useRoundGame<OneManyRound>({
   session,
   startSession,
-  generateRound: generateOneManyRound
+  generateRound: (roundIndex) => deck[roundIndex - 1]
 });
 
 const feedback = ref("Выбери взглядом: один или много.");
@@ -116,6 +117,7 @@ function restartGame() {
   feedback.value = "Выбери взглядом: один или много.";
   isSpeaking.value = false;
   promptAudio.cancelPending();
+  deck = createOneManyDeck();
   restart();
   void playRoundPrompt(220);
 }

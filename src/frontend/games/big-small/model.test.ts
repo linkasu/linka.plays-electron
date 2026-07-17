@@ -45,4 +45,8 @@ describe("generateBigSmallRound", () => {
     expect(bigSmallObjects.length).toBeGreaterThanOrEqual(8);
     expect(new Set(bigSmallObjects.map((object) => object.id)).size).toBe(bigSmallObjects.length);
   });
+
+  it("uses an existing visual asset when the word-image house asset is unavailable", () => {
+    expect(bigSmallObjects.find((object) => object.id === "house")?.visualSrc).toBe("./images/shadow-match/house.png");
+  });
 });

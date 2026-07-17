@@ -7,6 +7,7 @@ export type BigSmallObject = {
   id: string;
   label: string;
   emoji: string;
+  visualSrc?: string;
   sizePhrases: Record<BigSmallSize, string>;
 };
 
@@ -34,7 +35,7 @@ export const bigSmallObjects: BigSmallObject[] = [
   { id: "duck", label: "утка", emoji: "🦆", sizePhrases: { big: "большая утка", small: "маленькая утка" } },
   { id: "star", label: "звезда", emoji: "⭐", sizePhrases: { big: "большая звезда", small: "маленькая звезда" } },
   { id: "fish", label: "рыбка", emoji: "🐟", sizePhrases: { big: "большая рыбка", small: "маленькая рыбка" } },
-  { id: "house", label: "дом", emoji: "🏠", sizePhrases: { big: "большой дом", small: "маленький дом" } }
+  { id: "house", label: "дом", emoji: "🏠", visualSrc: "./images/shadow-match/house.png", sizePhrases: { big: "большой дом", small: "маленький дом" } }
 ];
 
 const sizeLabels: Record<BigSmallSize, string> = {

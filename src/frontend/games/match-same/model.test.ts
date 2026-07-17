@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { settingsFromPreset } from "../../core/settings";
-import { generateMatchSameRound } from "./model";
+import { generateMatchSameRound, MATCH_SAME_PROMPT } from "./model";
 
 describe("match-same model", () => {
   it("uses three choices in gentle mode", () => {
@@ -29,5 +29,10 @@ describe("match-same model", () => {
     const emoji = new Set(round.choices.map((choice) => choice.emoji));
 
     expect(emoji.size).toBe(round.choices.length);
+  });
+
+  it("uses child-facing copy", () => {
+    expect(MATCH_SAME_PROMPT).toBe("Покажи такое же");
+    expect(generateMatchSameRound(settingsFromPreset("standard")).prompt).toBe(MATCH_SAME_PROMPT);
   });
 });

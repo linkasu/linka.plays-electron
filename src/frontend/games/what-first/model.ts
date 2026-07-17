@@ -88,10 +88,7 @@ export function createWhatFirstExplanation(scene: WhatFirstScene) {
   return `Сначала ${scene.first.phrase}, потом ${scene.then.phrase}.`;
 }
 
-export function generateWhatFirstRound(roundIndex = 1, random = Math.random): WhatFirstRound {
-  if (whatFirstScenes.length === 0) throw new Error("Недостаточно сцен для игры Что сначала?");
-
-  const scene = shuffleItems(whatFirstScenes, random)[(roundIndex - 1) % whatFirstScenes.length];
+function buildRound(scene: WhatFirstScene, roundIndex: number, random: () => number): WhatFirstRound {
   const choices = shuffleItems([scene.first, scene.then], random);
 
   return {
@@ -102,4 +99,15 @@ export function generateWhatFirstRound(roundIndex = 1, random = Math.random): Wh
     choices,
     explanation: createWhatFirstExplanation(scene)
   };
+}
+
+export function createWhatFirstDeck(random = Math.random): WhatFirstRound[] {
+  if (whatFirstScenes.length !== 8) throw new Error("Для игры «Что сначала?» нужны ровно восемь сцен.");
+  return shuffleItems(whatFirstScenes, random).map((scene, index) => buildRound(scene, index + 1, random));
+}
+
+export function generateWhatFirstRound(roundIndex = 1, random = Math.random): WhatFirstRound {
+  const safeIndex = Math.max(1, Math.floor(roundIndex));
+  const round = createWhatFirstDeck(random)[(safeIndex - 1) % whatFirstScenes.length];
+  return { ...round, roundId: `what-first:round:${safeIndex}` };
 }

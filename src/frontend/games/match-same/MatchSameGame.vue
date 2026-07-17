@@ -7,9 +7,17 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
-import { generateMatchSameRound, type MatchSameRound } from "./model";
+import { generateMatchSameRound, MATCH_SAME_PROMPT, type MatchSameRound } from "./model";
 
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("match-same", {
+const props = withDefaults(defineProps<{
+  gameId?: "match-same" | "who-is-this";
+  title?: string;
+}>(), {
+  gameId: "match-same",
+  title: MATCH_SAME_PROMPT
+});
+
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor(props.gameId, {
   maxSteps: 8,
   overrides: { sound: true },
   finishOnMistakes: false
@@ -35,7 +43,7 @@ const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundG
 const hintedChoiceId = computed(() => hintedRoundId.value === round.value.roundId ? round.value.target.id : undefined);
 
 function choiceTargetId(choiceId: string) {
-  return `match-same:choice:${choiceId}`;
+  return `${props.gameId}:choice:${choiceId}`;
 }
 
 async function playRoundPrompt(delayMs = 0) {
@@ -92,7 +100,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <GameSessionChrome title="Где такой же?" :session="session" :result-visible="resultVisible" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" gradient="linear-gradient(135deg, #f4f7ff 0%, #fff0e8 100%)" padding-top="5rem" @pause="pauseSession" @resume="resumeSession" @restart="restart">
+  <GameSessionChrome :title="props.title" :session="session" :result-visible="resultVisible" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" gradient="linear-gradient(135deg, #f4f7ff 0%, #fff0e8 100%)" padding-top="5rem" @pause="pauseSession" @resume="resumeSession" @restart="restart">
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11">

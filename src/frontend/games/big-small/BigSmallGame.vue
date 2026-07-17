@@ -133,9 +133,8 @@ onUnmounted(() => {
               <v-col v-for="(choice, index) in round.choices" :key="choice.choiceId" cols="12" sm="6" md="6">
                 <GameDwellButton :class="{ 'choice--mistake': mistakenChoiceId === choice.choiceId }" :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="260" color="surface" @select="choose(index)">
                   <template #default>
-                    <div class="choice-size-label text-overline mb-3">{{ choice.sizeLabel }}</div>
-                    <GameWordImage :class="['choice-emoji', `choice-emoji--${choice.size}`]" :word-id="choice.id" :word="choice.label" :emoji="choice.emoji" decorative />
-                    <div class="text-h4 font-weight-bold mt-3">{{ choice.label }}</div>
+                    <img v-if="choice.visualSrc" :class="['choice-emoji', 'choice-asset', `choice-emoji--${choice.size}`]" :src="choice.visualSrc" alt="" draggable="false">
+                    <GameWordImage v-else :class="['choice-emoji', `choice-emoji--${choice.size}`]" :word-id="choice.id" :word="choice.label" :emoji="choice.emoji" decorative />
                     <div class="sr-only">Размер: {{ choice.sizeLabel }}. Объект: {{ choice.label }}.</div>
                   </template>
                 </GameDwellButton>
@@ -163,12 +162,14 @@ onUnmounted(() => {
   row-gap: 1rem;
 }
 
-.choice-size-label {
-  color: #263238;
-}
-
 .choice-emoji {
   line-height: 1;
+}
+
+.choice-asset {
+  block-size: 1em;
+  inline-size: 1em;
+  object-fit: contain;
 }
 
 .choice-emoji--big {

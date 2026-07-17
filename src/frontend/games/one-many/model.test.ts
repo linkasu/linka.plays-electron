@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { generateOneManyRound, type OneManyRound } from "./model";
+import { createOneManyDeck, generateOneManyRound, type OneManyRound } from "./model";
 
 function choice(round: OneManyRound, id: "one" | "many") {
   const found = round.choices.find((item) => item.id === id);
@@ -17,11 +17,6 @@ describe("generateOneManyRound", () => {
     expect(choice(round, "many").items.length).toBeGreaterThan(1);
   });
 
-  it("uses random source for the requested concept", () => {
-    expect(generateOneManyRound(1, () => 0).target).toBe("many");
-    expect(generateOneManyRound(1, () => 0.99).target).toBe("one");
-  });
-
   it("includes item identity for telemetry and speech", () => {
     const round = generateOneManyRound(1, () => 0.99);
 
@@ -30,11 +25,21 @@ describe("generateOneManyRound", () => {
     expect(new Set(round.choices.flatMap((item) => item.items))).toEqual(new Set([round.choices[0].emoji]));
   });
 
-  it("keeps left and right choices distinct", () => {
-    for (let index = 1; index <= 8; index += 1) {
-      const round = generateOneManyRound(index);
-
+  it("keeps left and right choices distinct in every round", () => {
+    for (const round of createOneManyDeck()) {
       expect(new Set(round.choices.map((item) => item.side))).toEqual(new Set(["left", "right"]));
     }
+  });
+
+  it("balances one and many targets across both sides of the deck", () => {
+    const deck = createOneManyDeck(() => 0.42);
+    const targetPositions = deck.map((round) => `${round.target}:${choice(round, round.target).side}`);
+
+    expect(deck).toHaveLength(8);
+    expect(new Set(deck.map((round) => round.itemId)).size).toBe(8);
+    expect(targetPositions.filter((position) => position === "one:left")).toHaveLength(2);
+    expect(targetPositions.filter((position) => position === "one:right")).toHaveLength(2);
+    expect(targetPositions.filter((position) => position === "many:left")).toHaveLength(2);
+    expect(targetPositions.filter((position) => position === "many:right")).toHaveLength(2);
   });
 });

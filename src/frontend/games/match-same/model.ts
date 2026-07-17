@@ -4,6 +4,8 @@ import { getAllWords, type WordItem } from "../../data/wordBank";
 
 export type MatchSameRound = ChoiceRound<WordItem>;
 
+export const MATCH_SAME_PROMPT = "Покажи такое же";
+
 function uniqueByEmoji(items: WordItem[]) {
   const usedEmoji = new Set<string>();
   return items.filter((item) => {
@@ -25,6 +27,6 @@ export function generateMatchSameRound(settings: SessionSettings, roundIndex = 1
     choiceCount,
     pickTarget: (items) => pickRandom(items),
     isSame: idEquality,
-    prompt: () => "Где такая же?"
+    prompt: () => MATCH_SAME_PROMPT
   });
 }

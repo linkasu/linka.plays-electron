@@ -1,31 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { settingsFromPreset } from "../../core/settings";
-import { generateWhoIsThisRound, whoIsThisVocabulary } from "./model";
+import { MATCH_SAME_PROMPT } from "../match-same/model";
+import { WHO_IS_THIS_CHILD_TITLE } from "./model";
 
-describe("who-is-this model", () => {
-  it("uses three choices in gentle mode", () => {
-    const round = generateWhoIsThisRound(settingsFromPreset("gentle"));
-
-    expect(round.choices).toHaveLength(3);
-  });
-
-  it("uses four unique choices in standard mode", () => {
-    const round = generateWhoIsThisRound(settingsFromPreset("standard"));
-    const ids = new Set(round.choices.map((choice) => choice.id));
-
-    expect(round.choices).toHaveLength(4);
-    expect(ids.size).toBe(4);
-  });
-
-  it("points correctIndex to the target and uses the random source", () => {
-    const lowRandomRound = generateWhoIsThisRound(settingsFromPreset("challenge"), 1, () => 0);
-    const highRandomRound = generateWhoIsThisRound(settingsFromPreset("challenge"), 1, () => 0.99);
-
-    expect(lowRandomRound.roundId).toBe("who-is-this:round:1");
-    expect(lowRandomRound.choices[lowRandomRound.correctIndex]).toBe(lowRandomRound.target);
-    expect(highRandomRound.choices[highRandomRound.correctIndex]).toBe(highRandomRound.target);
-    expect(lowRandomRound.target.id).not.toBe(highRandomRound.target.id);
-    expect(lowRandomRound.prompt).toContain("Кто это");
-    expect(whoIsThisVocabulary.some((choice) => choice.id === lowRandomRound.target.id)).toBe(true);
+describe("who-is-this alias", () => {
+  it("uses the canonical match-same child-facing copy", () => {
+    expect(WHO_IS_THIS_CHILD_TITLE).toBe("Покажи такое же");
+    expect(WHO_IS_THIS_CHILD_TITLE).toBe(MATCH_SAME_PROMPT);
   });
 });

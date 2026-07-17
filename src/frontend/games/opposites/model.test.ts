@@ -31,8 +31,19 @@ describe("opposites model", () => {
   it("includes the source word without storing an answer-revealing hint", () => {
     const round = generateOppositesRound(settingsFromPreset("standard"), 1, () => 0.5);
 
-    expect(round.prompt).toContain(round.source.label);
+    expect(round.prompt).toBe(`Найди противоположность слову «${round.source.label}»`);
     expect("mistakeHint" in round).toBe(false);
+  });
+
+  it("uses complete labels and two states of one visual referent in every pair", () => {
+    for (const pair of oppositePairs) {
+      expect(pair.concepts.every((item) => item.label.trim().length > 0)).toBe(true);
+      expect(new Set(pair.concepts.map((item) => item.referenceId)).size).toBe(1);
+      expect(new Set(pair.concepts.map((item) => item.visualState)).size).toBe(2);
+      expect(new Set(pair.concepts.map((item) => item.assetId)).size).toBe(1);
+    }
+
+    expect(oppositePairs.find((pair) => pair.id === "speed")?.concepts[1].label).toBe("медленный");
   });
 
   it("uses the random source for pair and source side", () => {

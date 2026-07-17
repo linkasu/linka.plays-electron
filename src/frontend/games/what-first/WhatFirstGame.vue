@@ -8,7 +8,7 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { generateWhatFirstRound, type WhatFirstAction, type WhatFirstRound } from "./model";
+import { createWhatFirstDeck, type WhatFirstAction, type WhatFirstRound } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("what-first", {
@@ -26,8 +26,9 @@ const promptAudio = useGamePromptAudio({
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
+let deck = createWhatFirstDeck();
 const roundIndex = ref(1);
-const round = ref<WhatFirstRound>(generateWhatFirstRound(roundIndex.value));
+const round = ref<WhatFirstRound>(deck[0]);
 const feedback = ref("Выбери первое действие в сцене.");
 const isChangingRound = ref(false);
 const wrongChoiceId = ref<string>();
@@ -71,7 +72,7 @@ function resetHighlights() {
 
 function setNextRound() {
   roundIndex.value += 1;
-  round.value = generateWhatFirstRound(roundIndex.value);
+  round.value = deck[roundIndex.value - 1];
   feedback.value = "Новая сцена. Что сначала?";
 }
 
@@ -152,8 +153,9 @@ function choiceColor(action: WhatFirstAction) {
 function restart() {
   clearFeedbackTimer();
   promptAudio.cancelPending();
+  deck = createWhatFirstDeck();
   roundIndex.value = 1;
-  round.value = generateWhatFirstRound(roundIndex.value);
+  round.value = deck[0];
   feedback.value = "Выбери первое действие в сцене.";
   resetHighlights();
   isChangingRound.value = false;
@@ -192,7 +194,7 @@ onUnmounted(() => {
             </v-alert>
 
             <v-row>
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6" md="6">
+              <v-col v-for="choice in round.choices" :key="choice.id" cols="6">
                 <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="210" :color="choiceColor(choice)" @select="choose(choice)">
                   <template #default>
                     <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
@@ -286,8 +288,8 @@ onUnmounted(() => {
     padding: 0.55rem !important;
   }
 
- .scene-emojis {
-    display: none;
+  .scene-emojis {
+    font-size: clamp(2.5rem, 7vh, 3.75rem);
   }
 
  .scene-context,
