@@ -17,6 +17,24 @@ export type WhatMissingRound = {
   correctIndex: number;
 };
 
+export type WhatMissingPhase = "instruction" | "observe" | "transition" | "choose" | "feedback";
+
+export type WhatMissingPhaseEvent = "reset" | "instruction-complete" | "observe-complete" | "transition-complete" | "answer" | "retry" | "next-round";
+
+export const DEFAULT_WHAT_MISSING_OBSERVE_MS = 5000;
+
+const phaseTransitions: Record<WhatMissingPhase, Partial<Record<WhatMissingPhaseEvent, WhatMissingPhase>>> = {
+  instruction: { reset: "instruction", "instruction-complete": "observe" },
+  observe: { reset: "instruction", "observe-complete": "transition" },
+  transition: { reset: "instruction", "transition-complete": "choose" },
+  choose: { reset: "instruction", answer: "feedback" },
+  feedback: { reset: "instruction", retry: "choose", "next-round": "instruction" }
+};
+
+export function transitionWhatMissingPhase(phase: WhatMissingPhase, event: WhatMissingPhaseEvent) {
+  return phaseTransitions[phase][event] ?? phase;
+}
+
 export const whatMissingItems: WhatMissingItem[] = [
   { id: "ball", label: "мяч", emoji: "⚽", color: "blue-lighten-5" },
   { id: "book", label: "книга", emoji: "📘", color: "indigo-lighten-5" },

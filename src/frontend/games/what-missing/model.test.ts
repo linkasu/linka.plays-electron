@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { settingsFromPreset } from "../../core/settings";
-import { generateWhatMissingRound, shuffleWhatMissingItems, whatMissingItems } from "./model";
+import { DEFAULT_WHAT_MISSING_OBSERVE_MS, generateWhatMissingRound, shuffleWhatMissingItems, transitionWhatMissingPhase, whatMissingItems } from "./model";
 
 describe("what-missing model", () => {
   it("shows exactly three unique items", () => {
@@ -35,5 +35,27 @@ describe("what-missing model", () => {
 
     expect(shuffled).toHaveLength(4);
     expect(new Set(shuffled.map((item) => item.id))).toEqual(new Set(whatMissingItems.slice(0, 4).map((item) => item.id)));
+  });
+
+  it("keeps the default observation interval at five seconds or longer", () => {
+    expect(DEFAULT_WHAT_MISSING_OBSERVE_MS).toBeGreaterThanOrEqual(5000);
+  });
+
+  it("advances through every round phase in order", () => {
+    let phase = transitionWhatMissingPhase("instruction", "instruction-complete");
+    expect(phase).toBe("observe");
+    phase = transitionWhatMissingPhase(phase, "observe-complete");
+    expect(phase).toBe("transition");
+    phase = transitionWhatMissingPhase(phase, "transition-complete");
+    expect(phase).toBe("choose");
+    phase = transitionWhatMissingPhase(phase, "answer");
+    expect(phase).toBe("feedback");
+    expect(transitionWhatMissingPhase(phase, "retry")).toBe("choose");
+    expect(transitionWhatMissingPhase(phase, "next-round")).toBe("instruction");
+  });
+
+  it("does not allow phase events to skip observation", () => {
+    expect(transitionWhatMissingPhase("instruction", "transition-complete")).toBe("instruction");
+    expect(transitionWhatMissingPhase("observe", "answer")).toBe("observe");
   });
 });

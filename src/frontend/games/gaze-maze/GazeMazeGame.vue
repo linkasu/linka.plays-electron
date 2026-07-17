@@ -7,87 +7,13 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { disposeGazeMazeAudio, playGazeMazeHintMelody, playGazeMazeStepMelody, warmGazeMazeAudio } from "./audio";
-
-type MazeNode = {
-  id: string;
-  label: string;
-  x: number;
-  y: number;
-  kind?: "start" | "exit" | "branch" | "candy" | "deadend";
-};
-
-type MazeEdge = [string, string];
-
-type MazeLevel = {
-  id: string;
-  title: string;
-  startId: string;
-  exitId: string;
-  nodes: MazeNode[];
-  edges: MazeEdge[];
-};
-
-type Point = { x: number; y: number };
-
-const levels: MazeLevel[] = [
-  {
-    id: "sweet-garden",
-    title: "Сладкий сад",
-    startId: "start",
-    exitId: "exit",
-    nodes: [
-      { id: "start", label: "Домик", x: 12, y: 53, kind: "start" },
-      { id: "berry", label: "Ягодная конфета", x: 30, y: 33, kind: "candy" },
-      { id: "mint", label: "Мятная тропа", x: 30, y: 72, kind: "candy" },
-      { id: "caramel", label: "Карамельная развилка", x: 52, y: 52, kind: "branch" },
-      { id: "cotton", label: "Ватный тупик", x: 49, y: 17, kind: "deadend" },
-      { id: "crumb", label: "Крошечный тупик", x: 48, y: 88, kind: "deadend" },
-      { id: "star", label: "Звёздная конфета", x: 70, y: 31, kind: "candy" },
-      { id: "exit", label: "Конфетный выход", x: 86, y: 56, kind: "exit" }
-    ],
-    edges: [["start", "berry"], ["start", "mint"], ["berry", "caramel"], ["berry", "cotton"], ["mint", "caramel"], ["mint", "crumb"], ["caramel", "star"], ["caramel", "exit"], ["star", "exit"]]
-  },
-  {
-    id: "lollipop-bridge",
-    title: "Леденцовый мостик",
-    startId: "start",
-    exitId: "exit",
-    nodes: [
-      { id: "start", label: "Домик", x: 11, y: 69, kind: "start" },
-      { id: "sugar", label: "Сахарный камень", x: 28, y: 50, kind: "candy" },
-      { id: "upper", label: "Верхний мостик", x: 47, y: 30, kind: "branch" },
-      { id: "lower", label: "Нижний мостик", x: 47, y: 73, kind: "branch" },
-      { id: "marshmallow", label: "Зефирный тупик", x: 66, y: 19, kind: "deadend" },
-      { id: "wafer", label: "Вафельный тупик", x: 67, y: 84, kind: "deadend" },
-      { id: "cream", label: "Сливочная поляна", x: 67, y: 54, kind: "candy" },
-      { id: "exit", label: "Конфетный выход", x: 87, y: 33, kind: "exit" }
-    ],
-    edges: [["start", "sugar"], ["sugar", "upper"], ["sugar", "lower"], ["upper", "cream"], ["upper", "marshmallow"], ["lower", "cream"], ["lower", "wafer"], ["cream", "exit"], ["upper", "exit"]]
-  },
-  {
-    id: "candy-loop",
-    title: "Карамельная петля",
-    startId: "start",
-    exitId: "exit",
-    nodes: [
-      { id: "start", label: "Домик", x: 13, y: 35, kind: "start" },
-      { id: "gate", label: "Вафельная калитка", x: 32, y: 35, kind: "candy" },
-      { id: "pink", label: "Розовая конфета", x: 51, y: 22, kind: "branch" },
-      { id: "blue", label: "Голубая конфета", x: 51, y: 60, kind: "branch" },
-      { id: "mint-cave", label: "Мятный тупик", x: 69, y: 17, kind: "deadend" },
-      { id: "jelly-corner", label: "Желейный тупик", x: 33, y: 78, kind: "deadend" },
-      { id: "loop", label: "Карамельная петля", x: 70, y: 58, kind: "candy" },
-      { id: "exit", label: "Конфетный выход", x: 88, y: 73, kind: "exit" }
-    ],
-    edges: [["start", "gate"], ["gate", "pink"], ["gate", "blue"], ["gate", "jelly-corner"], ["pink", "loop"], ["pink", "mint-cave"], ["blue", "loop"], ["loop", "gate"], ["loop", "exit"]]
-  }
-];
+import { disposeGazeMazeAudio, playGazeMazeStepMelody, warmGazeMazeAudio } from "./audio";
+import { gazeMazeLevels as levels, isMazeDeadEnd, mazeNeighborIds, resolveAdjacentMazeTarget, type MazeNode, type MazePoint as Point } from "./model";
 
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("gaze-maze", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession, finishSession } = useGameSessionFor("gaze-maze", {
   maxSteps: 18,
   overrides: { preset: "gentle", targetScale: 1.35, sound: true, hints: "high" },
   finishOnMaxSteps: false,
@@ -133,15 +59,11 @@ async function playTts(assetId: string, delayMs = 0) {
 }
 
 function neighborIds(id: string) {
-  return currentLevel.value.edges.flatMap(([fromId, toId]) => {
-    if (fromId === id) return [toId];
-    if (toId === id) return [fromId];
-    return [];
-  });
+  return mazeNeighborIds(currentLevel.value, id);
 }
 
 function isDeadEnd(node: MazeNode) {
-  return node.kind === "deadend" || (node.kind !== "start" && node.kind !== "exit" && neighborIds(node.id).length === 1);
+  return isMazeDeadEnd(currentLevel.value, node);
 }
 
 function nodePoint(node: MazeNode): Point {
@@ -265,18 +187,9 @@ function completeMove() {
 
 function selectNode(node: MazeNode) {
   const now = performance.now();
-  if (session.status !== "running" || isSpeaking.value || node.id === currentNodeId.value || now < cooldownUntil || isMoving(now)) return;
+  if (session.status !== "running" || isSpeaking.value || !adjacentIds.value.has(node.id) || now < cooldownUntil || isMoving(now)) return;
   cooldownUntil = now + 650;
   resetDwell();
-
-  if (!adjacentIds.value.has(node.id)) {
-    void playGazeMazeHintMelody(session.settings.sound);
-    recordMistake({ selectedNodeId: node.id, currentNodeId: currentNodeId.value, levelId: currentLevel.value.id, hintOnly: true });
-    recordHint({ targetId: node.id, reason: "not-neighbor", currentNodeId: currentNodeId.value });
-    feedbackText.value = "Сюда пока далеко. Выбери соседнюю конфету на дорожке.";
-    void playTts("gaze-maze.not-neighbor", 80);
-    return;
-  }
 
   void playGazeMazeStepMelody(session.settings.sound);
   recordSuccess({ selectedNodeId: node.id, levelId: currentLevel.value.id, isExit: node.id === currentLevel.value.exitId });
@@ -284,11 +197,10 @@ function selectNode(node: MazeNode) {
 }
 
 function nodeAt(point: Point) {
-  return currentLevel.value.nodes.find((node) => {
-    if (node.id === currentNodeId.value) return false;
-    const center = nodePoint(node);
-    return Math.hypot(point.x - center.x, point.y - center.y) <= nodeHitRadius(node);
-  });
+  return resolveAdjacentMazeTarget(currentLevel.value, currentNodeId.value, point, (node) => ({
+    center: nodePoint(node),
+    hitRadius: nodeHitRadius(node)
+  }));
 }
 
 function resetDwell() {

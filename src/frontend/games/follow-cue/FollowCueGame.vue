@@ -9,6 +9,7 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeFollowCueAudio, playFollowCueMistakeMelody, playFollowCueSuccessMelody, warmFollowCueAudio } from "./audio";
+import { isFollowCueHintVisible } from "./model";
 
 type CueSlot = {
   id: string;
@@ -89,7 +90,7 @@ function generateRound(roundIndex: number): CueRound {
 
   return {
     roundId: `follow-cue:round:${roundIndex}`,
-    prompt: "Следуй за подсказкой",
+    prompt: "Следуй за стрелкой",
     choices,
     target: choices[correctIndex],
     correctIndex
@@ -107,8 +108,8 @@ const cueStyle = computed(() => ({
 }));
 const cueStrengthClass = computed(() => `follow-cue--strength-${cueStrength.value}`);
 const helperText = computed(() => {
-  if (!cueStrength.value) return "Смотри на стрелку: она показывает нужную карточку.";
-  return "Подсказка ярче. Выбери подсвеченную карточку.";
+  if (!cueStrength.value) return "Смотри на стрелку.";
+  return "Выбери подсвеченную карточку.";
 });
 
 function choiceTargetId(choiceId: string) {
@@ -116,7 +117,7 @@ function choiceTargetId(choiceId: string) {
 }
 
 function choiceColor(choice: CueChoice) {
-  if (choice.isTarget && cueStrength.value > 0) return "primary";
+  if (isFollowCueHintVisible(choice.isTarget, cueStrength.value)) return "primary";
   if (lastMistakeId.value === choice.id) return "warning";
   return "surface";
 }
@@ -200,7 +201,7 @@ onUnmounted(() => {
               <GameDwellButton
                 v-for="choice in round.choices"
                 :key="choice.id"
-                :class="['cue-target', choice.slot.className, { 'cue-target--hinted': choice.isTarget, 'cue-target--mistake': lastMistakeId === choice.id }]"
+                :class="['cue-target', choice.slot.className, { 'cue-target--hinted': isFollowCueHintVisible(choice.isTarget, cueStrength), 'cue-target--mistake': lastMistakeId === choice.id }]"
                 :target-id="choiceTargetId(choice.id)"
                 :disabled="session.status !== 'running' || isSpeaking"
                 :dwell-ms="session.settings.dwellMs"
@@ -210,9 +211,9 @@ onUnmounted(() => {
                 @select="answer(choice)"
               >
                 <template #default="{ active, progress }">
-                  <v-icon class="choice-icon" :icon="choice.item.icon" :color="choice.isTarget && cueStrength > 0 ? undefined : choice.item.color" />
+                   <v-icon class="choice-icon" :icon="choice.item.icon" :color="isFollowCueHintVisible(choice.isTarget, cueStrength) ? undefined : choice.item.color" />
                   <div class="text-body-1 text-md-h6 font-weight-bold mt-2">{{ choice.item.label }}</div>
-                  <v-chip v-if="choice.isTarget && (cueStrength > 1 || (active && progress > 0.78))" class="mt-3" color="primary" variant="flat" size="large">
+                   <v-chip v-if="isFollowCueHintVisible(choice.isTarget, cueStrength) && (cueStrength > 1 || (active && progress > 0.78))" class="mt-3" color="primary" variant="flat" size="large">
                     сюда
                   </v-chip>
                 </template>
@@ -221,7 +222,7 @@ onUnmounted(() => {
 
             <div class="cue-feedback-slot mt-2">
               <v-alert class="cue-feedback text-body-2" :class="{ 'cue-feedback--visible': cueStrength > 0 }" color="primary" icon="mdi-arrow-right-bold" rounded="xl" variant="tonal">
-                Следуй за стрелкой к подсвеченной карточке.
+                 Следуй за стрелкой.
               </v-alert>
             </div>
           </v-card>
@@ -302,31 +303,31 @@ onUnmounted(() => {
   transition: filter 160ms ease, transform 160ms ease;
 }
 
-.cue-target--mistake.choice-icon {
+.cue-target--mistake .choice-icon {
   filter: saturate(0.72) opacity(0.7);
   transform: scale(0.94);
 }
 
-.follow-cue--strength-1.cue-target--hinted,
-.follow-cue--strength-2.cue-target--hinted,
-.follow-cue--strength-3.cue-target--hinted {
+.follow-cue--strength-1 .cue-target--hinted,
+.follow-cue--strength-2 .cue-target--hinted,
+.follow-cue--strength-3 .cue-target--hinted {
   filter: drop-shadow(0 0 1.3rem rgb(var(--v-theme-primary) / 46%));
   transform: scale(1.02);
 }
 
-.follow-cue--strength-1.cue-beam,
-.follow-cue--strength-2.cue-beam,
-.follow-cue--strength-3.cue-beam {
+.follow-cue--strength-1 .cue-beam,
+.follow-cue--strength-2 .cue-beam,
+.follow-cue--strength-3 .cue-beam {
   display: none;
 }
 
-.follow-cue--strength-2.cue-arrow,
-.follow-cue--strength-3.cue-arrow {
+.follow-cue--strength-2 .cue-arrow,
+.follow-cue--strength-3 .cue-arrow {
   filter: drop-shadow(0 0 1.25rem rgb(var(--cue-color-rgb) / 56%));
   transform: translate(-50%, -50%) scale(1.08);
 }
 
-.follow-cue--strength-3.cue-glow {
+.follow-cue--strength-3 .cue-glow {
   display: none;
 }
 
