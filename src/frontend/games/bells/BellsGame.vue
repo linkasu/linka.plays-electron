@@ -9,6 +9,7 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { resolvePublicAssetUrl } from "../../core/publicAsset";
 
 type BellDefinition = {
   id: string;
@@ -102,7 +103,7 @@ async function playPrompt(delay = 0) {
 
 function warmBellSound() {
   if (!soundEnabled.value || bellAudio) return;
-  bellAudio = new Audio("/audio/sfx/bells/soft-bell.ogg");
+  bellAudio = new Audio(resolvePublicAssetUrl("audio/sfx/bells/soft-bell.ogg"));
   bellAudio.preload = "auto";
   bellAudio.volume = 0.16;
   bellAudio.load();

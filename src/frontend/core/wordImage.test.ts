@@ -5,12 +5,12 @@ import { wordImageSrc } from "./wordImage";
 
 describe("wordImageSrc", () => {
   it("builds stable ASCII asset paths from word ids", () => {
-    expect(wordImageSrc("apple")).toBe("/images/words/apple.png");
-    expect(wordImageSrc("ice_cream")).toBe("/images/words/ice_cream.png");
+    expect(wordImageSrc("apple", "./", "file:///app/dist/index.html")).toBe("file:///app/dist/images/words/apple.png");
+    expect(wordImageSrc("ice_cream", "./", "file:///app/dist/index.html")).toBe("file:///app/dist/images/words/ice_cream.png");
   });
 
   it("encodes unsafe path characters", () => {
-    expect(wordImageSrc("word/name")).toBe("/images/words/word%2Fname.png");
+    expect(wordImageSrc("word/name", "./", "https://example.test/index.html")).toBe("https://example.test/images/words/word%2Fname.png");
   });
 
   it("covers the word bank except for the documented pine fallback", () => {

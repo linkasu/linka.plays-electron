@@ -1,3 +1,5 @@
+import { resolvePublicAssetUrl } from "../../core/publicAsset";
+
 export type MosaicImage = {
   id: string;
   title: string;
@@ -8,7 +10,7 @@ export type MosaicImage = {
   sourceUrl: string;
 };
 
-export const mosaicImages: MosaicImage[] = [
+const mosaicImageDefinitions: MosaicImage[] = [
   {
     id: "kitten",
     title: "Котёнок",
@@ -208,3 +210,8 @@ export const mosaicImages: MosaicImage[] = [
     sourceUrl: "https://commons.wikimedia.org/wiki/File:Tursiops%20truncatus%2001.jpg"
   }
 ];
+
+export const mosaicImages = mosaicImageDefinitions.map((image) => ({
+  ...image,
+  src: resolvePublicAssetUrl(image.src)
+}));

@@ -1,3 +1,5 @@
+import { resolvePublicAssetUrl } from "./publicAsset";
+
 export type TtsAsset = {
   id: string;
   game: string;
@@ -9,16 +11,8 @@ export type TtsAsset = {
 const audioCache = new Map<string, HTMLAudioElement>();
 let currentAudio: HTMLAudioElement | undefined;
 
-function resolveAudioPath(path: string) {
-  if (/^[a-z][a-z0-9+.-]*:/i.test(path)) return path;
-  const base = import.meta.env.BASE_URL || "/";
-  const normalizedBase = base.endsWith("/") ? base : `${base}/`;
-  const normalizedPath = path.replace(/^\/+/, "");
-  return new URL(`${normalizedBase}${normalizedPath}`, window.location.href).toString();
-}
-
 function getAudio(asset: TtsAsset) {
-  const src = resolveAudioPath(asset.path);
+  const src = resolvePublicAssetUrl(asset.path);
   let audio = audioCache.get(src);
   if (!audio) {
     audio = new Audio(src);
@@ -101,7 +95,7 @@ export function stopTtsPlayback() {
 
 export function disposeTtsAssets(assets: TtsAsset[]) {
   for (const asset of assets) {
-    const src = resolveAudioPath(asset.path);
+    const src = resolvePublicAssetUrl(asset.path);
     const audio = audioCache.get(src);
     if (!audio) continue;
     audio.pause();

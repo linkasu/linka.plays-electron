@@ -8,6 +8,7 @@ import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { resolvePublicAssetUrl } from "../../core/publicAsset";
 
 type SoundSource = {
   id: string;
@@ -234,13 +235,14 @@ async function connectSourceAudio(entry: CachedSourceAudio, pan: number) {
 }
 
 function getSourceAudio(source: SoundSource) {
-  let entry = audioCache.get(source.soundPath);
+  const soundPath = resolvePublicAssetUrl(source.soundPath);
+  let entry = audioCache.get(soundPath);
   if (!entry) {
-    const audio = new Audio(source.soundPath);
+    const audio = new Audio(soundPath);
     audio.preload = "auto";
     audio.volume = source.volume;
     entry = { audio };
-    audioCache.set(source.soundPath, entry);
+    audioCache.set(soundPath, entry);
   }
   return entry;
 }
