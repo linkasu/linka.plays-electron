@@ -1,5 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { createMusicalPathStones, findNextMusicalPathStone, isExpectedMusicalPathStone, musicalPathStoneTemplate } from "./model";
+import { createMusicalPathStones, findNextMusicalPathStone, isExpectedMusicalPathStone, musicalPathHitPadding, musicalPathStoneTemplate, type MusicalPathStone } from "./model";
+
+type Rect = { left: number; right: number; top: number; bottom: number };
+
+function compactDesktopTargetRect(stone: MusicalPathStone): Rect {
+  const centerX = stone.x * 8;
+  const centerY = Math.max(stone.y * 6, 210);
+  const halfWidth = (142 + musicalPathHitPadding * 2) / 2;
+  const halfHeight = (162 + musicalPathHitPadding * 2) / 2;
+  return { left: centerX - halfWidth, right: centerX + halfWidth, top: centerY - halfHeight, bottom: centerY + halfHeight };
+}
+
+function overlaps(first: Rect, second: Rect) {
+  return first.left < second.right && first.right > second.left && first.top < second.bottom && first.bottom > second.top;
+}
 
 describe("musical path model", () => {
   it("creates eight ordered stones from low do to high do", () => {
@@ -11,11 +25,19 @@ describe("musical path model", () => {
     expect(stones.every((stone) => !stone.selected && !stone.softError)).toBe(true);
   });
 
-  it("places notes from bottom to top", () => {
+  it("keeps the opening notes ascending and gives the final notes separate rows", () => {
     const stones = createMusicalPathStones();
 
-    expect(stones.map((stone) => stone.y)).toEqual([76, 70, 64, 58, 52, 46, 40, 34]);
-    expect(stones.map((stone) => stone.mobileY)).toEqual([82, 75, 68, 61, 54, 47, 40, 34]);
+    expect(stones.slice(0, 4).map((stone) => stone.y)).toEqual([76, 70, 64, 58]);
+    expect(stones.slice(4).map((stone) => [stone.x, stone.y])).toEqual([[69, 66], [90, 66], [69, 35], [90, 35]]);
+    expect(stones.slice(4).map((stone) => [stone.mobileX, stone.mobileY])).toEqual([[28, 60], [72, 60], [28, 34], [72, 34]]);
+  });
+
+  it("keeps the final compact-desktop effective gaze zones disjoint", () => {
+    const finalStones = createMusicalPathStones().slice(4);
+    const rects = finalStones.map(compactDesktopTargetRect);
+
+    expect(rects.every((rect, index) => rects.slice(index + 1).every((other) => !overlaps(rect, other)))).toBe(true);
   });
 
   it("limits stones by max steps", () => {

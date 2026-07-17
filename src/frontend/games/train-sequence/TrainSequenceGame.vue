@@ -170,7 +170,7 @@ watch(() => session.status, (status) => {
               </v-card>
 
               <div class="wagon-grid">
-                <GameDwellButton v-for="wagon in wagons" :key="wagon.id" :target-id="wagonTargetId(wagon)" :disabled="session.status !== 'running' || wagon.placed || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="9.375rem" color="surface" @select="chooseWagon(wagon)">
+                <GameDwellButton v-for="wagon in wagons" :key="wagon.id" :target-id="wagonTargetId(wagon)" :disabled="session.status !== 'running' || wagon.placed || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" :hit-padding="3" min-height="9.375rem" color="surface" @select="chooseWagon(wagon)">
                   <template #default>
                     <div class="wagon-card-content" :style="{ opacity: wagon.placed ? 0.28 : 1 }">
                       <div class="loose-wagon" :style="{ background: wagon.color }">
@@ -409,8 +409,7 @@ watch(() => session.status, (status) => {
   }
 
  .wagon-grid {
-    gap: 0.6rem;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.75rem;
     order: -1;
   }
 

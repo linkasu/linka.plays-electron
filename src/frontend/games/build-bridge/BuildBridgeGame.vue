@@ -8,8 +8,9 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
+import { resolveGazeTarget } from "../../core/gazeTargetResolver";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { bridgePieceById, bridgePieceTargetId, bridgeSlotTargetId, buildBridgeMaxSteps, buildBridgePieces, buildBridgeSlots, canPlaceBridgePieceAtSlot, nextBridgePieceOfKind, placedPieceIds, type BridgePiece, type BridgePieceKind, type BridgePlacement, type BridgeSlot } from "./model";
+import { advanceBuildBridge, bridgePieceById, bridgeSlotTargetId, buildBridgeMaxSteps, buildBridgeSlots, createBuildBridgeState, currentBridgePiece, type BridgePiece, type BridgeSlot } from "./model";
 
 type Point = { x: number; y: number };
 type Rect = Point & { width: number; height: number };
@@ -18,12 +19,9 @@ type Layout = {
   header: Rect;
   bridge: Rect;
   cards: Rect;
-  columns: number;
-  rows: number;
 };
-type KindTarget = Rect & { pieceKind: BridgePieceKind; label: string };
 type SlotTarget = Rect & { slot: BridgeSlot };
-type Target = (KindTarget & { kind: "piece-kind" }) | (SlotTarget & { kind: "slot" });
+type Target = SlotTarget;
 type BridgeGeometry = {
   inner: Rect;
   river: Rect;
@@ -65,13 +63,13 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnTimeout: false
 });
 
-const placements = ref<BridgePlacement[]>([]);
-const selectedPieceId = ref<string>();
+const bridgeState = ref(createBuildBridgeState());
+const placements = computed(() => bridgeState.value.placements);
 const fallingPieces = reactive<FallingPiece[]>([]);
-const message = ref("Сначала выбери: опора или доска. Потом покажи место на мосту.");
+const message = ref("Поставь опору 1 на подходящее место.");
 const isSpeaking = ref(false);
 const promptAudio = useGamePromptAudio({ gameId: "build-bridge", soundEnabled: toRef(session.settings, "sound") });
-const selectedPiece = computed(() => selectedPieceId.value ? bridgePieceById(selectedPieceId.value) : undefined);
+const activePiece = computed(() => currentBridgePiece(bridgeState.value));
 
 let targets: Target[] = [];
 let activeTargetId = "";
@@ -133,11 +131,7 @@ function computeLayout(): Layout {
   const bridge: Rect = { x: panel.x + 24, y: header.y + header.height + gap, width: panel.width - 48, height: bridgeHeight };
   const cardsY = bridge.y + bridge.height + gap;
   const cards: Rect = { x: panel.x + 24, y: cardsY, width: panel.width - 48, height: Math.max(180, panel.y + panel.height - cardsY - 18) };
-  return { panel, header, bridge, cards, columns: 4, rows: 2 };
-}
-
-function placedSet() {
-  return new Set(placedPieceIds(placements.value));
+  return { panel, header, bridge, cards };
 }
 
 function targetPayload(targetId: string, now: number, progress: number, reason?: "left" | "invalid-gaze" | "disabled") {
@@ -167,27 +161,28 @@ async function playAudio(assetIds: string[], delayMs = 0) {
 
 function restart() {
   promptAudio.cancelPending();
-  placements.value = [];
-  selectedPieceId.value = undefined;
+  bridgeState.value = createBuildBridgeState();
   fallingPieces.splice(0);
-  message.value = "Сначала выбери: опора или доска. Потом покажи место на мосту.";
+  message.value = "Поставь опору 1 на подходящее место.";
   isSpeaking.value = false;
   activeTargetId = "";
   activeStartedAt = 0;
   activeProgress = 0;
   cooldownUntil = 0;
   startSession();
-  void playAudio(["build-bridge.prompt"], 450);
+  void playAudio(["build-bridge.place"], 450);
 }
 
 function hitTestTarget(point: Point) {
   const padding = Math.min(width.value, height.value) * 0.025;
-  return targets.find((target) => (
-    point.x >= target.x - padding
-    && point.x <= target.x + target.width + padding
-    && point.y >= target.y - padding
-    && point.y <= target.y + target.height + padding
-  ));
+  const resolved = resolveGazeTarget(targets.map((target) => ({
+    id: bridgeSlotTargetId(target.slot),
+    rect: { left: target.x, top: target.y, right: target.x + target.width, bottom: target.y + target.height },
+    enabled: true,
+    visible: true,
+    hitPadding: padding
+  })), point);
+  return resolved ? targets.find((target) => bridgeSlotTargetId(target.slot) === resolved.id) : undefined;
 }
 
 function spawnFallingPiece(piece: BridgePiece, source: Rect) {
@@ -210,32 +205,18 @@ function spawnFallingPiece(piece: BridgePiece, source: Rect) {
   if (fallingPieces.length > 10) fallingPieces.shift();
 }
 
-function selectPieceKind(target: KindTarget) {
-  const piece = nextBridgePieceOfKind(target.pieceKind, placedPieceIds(placements.value));
-  if (!piece) {
-    message.value = target.pieceKind === "support" ? "Все опоры уже стоят." : "Все доски уже уложены.";
-    return;
-  }
-  const targetId = bridgePieceTargetId(piece);
-  selectedPieceId.value = piece.id;
-  recordEvent("hint", { targetId, action: "piece-kind-selected", pieceKind: target.pieceKind, pieceId: piece.id });
-  message.value = "Теперь выбери место на мосту.";
-  void playAudio(["build-bridge.place"], 80);
-}
-
-function placeSelectedPiece(target: SlotTarget) {
-  const piece = selectedPiece.value;
-  if (!piece) return;
-
+function placeCurrentPiece(target: SlotTarget) {
   const targetId = bridgeSlotTargetId(target.slot);
-  const stable = canPlaceBridgePieceAtSlot(piece.id, target.slot.id, placements.value);
-  if (stable) {
-    placements.value = [...placements.value, { pieceId: piece.id, slotId: target.slot.id }];
-    selectedPieceId.value = undefined;
-    recordSuccess({ targetId, answerId: piece.id, slotId: target.slot.id, action: "placed-piece" });
-    message.value = placements.value.length >= buildBridgeMaxSteps ? "Мост готов. Все детали нашли опору." : "Деталь держится. Выбери следующую деталь.";
+  const outcome = advanceBuildBridge(bridgeState.value, target.slot.id);
+  if (outcome.kind === "ignored") return;
+
+  if (outcome.kind === "placed") {
+    bridgeState.value = outcome.state;
+    recordSuccess({ targetId, answerId: outcome.piece.id, slotId: target.slot.id, action: "placed-piece" });
+    const nextPiece = currentBridgePiece(outcome.state);
+    message.value = nextPiece ? `Деталь держится. Теперь поставь ${nextPiece.label}.` : "Мост готов. Все детали нашли опору.";
     void bridgeFeedback.playSuccess(session.settings.sound);
-    if (placements.value.length >= buildBridgeMaxSteps && session.status === "running") {
+    if (outcome.state.phase === "complete" && session.status === "running") {
       void playAudio(["build-bridge.correct", "build-bridge.complete"], 80).then(() => finishSession("game-complete"));
     } else {
       void playAudio(["build-bridge.correct"], 80);
@@ -243,13 +224,13 @@ function placeSelectedPiece(target: SlotTarget) {
     return;
   }
 
-  spawnFallingPiece(piece, target);
-  selectedPieceId.value = undefined;
-  message.value = "Деталь упала. Выбери деталь снова.";
+  spawnFallingPiece(outcome.piece, target);
+  message.value = "Деталь упала. Попробуй другое место.";
   void bridgeFeedback.playMistake(session.settings.sound);
-  recordMistake({ targetId, expectedTargetId: bridgePieceTargetId(piece), answerId: piece.id, slotId: target.slot.id, action: "piece-fell", isCorrect: false });
-  recordEvent("hint", { targetId, action: "piece-fell", pieceId: piece.id, slotId: target.slot.id, supportedBy: target.slot.supportedBy });
-  void playAudio(["build-bridge.mistake"], 80);
+  const expectedSlot = buildBridgeSlots.find((slot) => slot.acceptsPieceId === outcome.piece.id);
+  recordMistake({ targetId, expectedTargetId: expectedSlot ? bridgeSlotTargetId(expectedSlot) : undefined, answerId: outcome.piece.id, slotId: target.slot.id, action: "piece-fell", isCorrect: false });
+  recordEvent("hint", { targetId, action: "piece-fell", pieceId: outcome.piece.id, slotId: target.slot.id, supportedBy: target.slot.supportedBy });
+  void playAudio(["build-bridge.place"], 80);
 }
 
 function updateDwell(now: number) {
@@ -268,7 +249,7 @@ function updateDwell(now: number) {
     return;
   }
 
-  const targetId = target.kind === "piece-kind" ? `build-bridge:kind:${target.pieceKind}` : bridgeSlotTargetId(target.slot);
+  const targetId = bridgeSlotTargetId(target.slot);
   if (activeTargetId !== targetId) {
     resetDwell(now);
     activeTargetId = targetId;
@@ -280,8 +261,7 @@ function updateDwell(now: number) {
   activeProgress = Math.min(1, (now - activeStartedAt) / session.settings.dwellMs);
   if (activeProgress >= 1) {
     recordEvent("target-click", targetPayload(targetId, now, 1));
-    if (target.kind === "piece-kind") selectPieceKind(target);
-    else placeSelectedPiece(target);
+    placeCurrentPiece(target);
     resetDwell(now);
     cooldownUntil = now + 650;
   }
@@ -548,23 +528,18 @@ function drawBridgeFootings(ctx: CanvasRenderingContext2D, rect: Rect) {
 }
 
 function drawBridgeSlots(ctx: CanvasRenderingContext2D, rect: Rect) {
-  if (!selectedPiece.value) return;
+  if (!activePiece.value) return;
   for (const slot of buildBridgeSlots) {
-    const compatibleKind = selectedPiece.value.kind === slot.kind;
+    const compatibleKind = activePiece.value.kind === slot.kind;
     if (!compatibleKind) continue;
     if (placements.value.some((placement) => placement.slotId === slot.id)) continue;
     const slotArea = slotTargetRect(rect, slot);
-    const stable = canPlaceBridgePieceAtSlot(selectedPiece.value.id, slot.id, placements.value);
     ctx.save();
-    ctx.globalAlpha = stable ? 0.88 : 0.42;
-    fillRoundedRect(ctx, slotArea, slotArea.height * 0.18, stable ? "rgb(27 143 118 / 18%)" : "rgb(141 78 56 / 18%)");
-    strokeRoundedRect(ctx, slotArea, slotArea.height * 0.18, stable ? "#1b8f76" : "#8d6e63", stable ? 4 : 2);
-    if (!stable) {
-      ctx.setLineDash([8, 8]);
-      strokeRoundedRect(ctx, slotArea, slotArea.height * 0.18, "#8d6e63", 2);
-    }
+    ctx.globalAlpha = 0.78;
+    fillRoundedRect(ctx, slotArea, slotArea.height * 0.18, "rgb(80 112 126 / 14%)");
+    strokeRoundedRect(ctx, slotArea, slotArea.height * 0.18, "#607d8b", 3);
     ctx.restore();
-    targets.push({ kind: "slot", ...slotArea, slot });
+    targets.push({ ...slotArea, slot });
   }
 }
 
@@ -585,7 +560,7 @@ function drawBridgeScene(ctx: CanvasRenderingContext2D, rect: Rect) {
   drawBridgeRamps(ctx, rect);
   drawPlacedBridge(ctx, rect);
   drawBridgeSlots(ctx, rect);
-  const bridgeHint = session.status === "finished" ? "Мост собран" : selectedPiece.value ? `Поставь: ${selectedPiece.value.label}` : "Сначала выбери деталь";
+  const bridgeHint = session.status === "finished" ? "Мост собран" : activePiece.value ? `Поставь: ${activePiece.value.label}` : "Мост собран";
   drawText(ctx, bridgeHint, rect.x + rect.width * 0.5, rect.y + rect.height - 24, { size: clamp(rect.width * 0.018, 13, 20), weight: 600, color: "#5d7775" });
   drawFinishedMessage(ctx, rect);
 }
@@ -598,33 +573,27 @@ function drawPieceIcon(ctx: CanvasRenderingContext2D, piece: BridgePiece, center
   drawPlank(ctx, { x: center.x - scale * 0.58, y: center.y - scale * 0.12, width: scale * 1.16, height: scale * 0.24 }, piece.color);
 }
 
-function drawKindChoiceCard(ctx: CanvasRenderingContext2D, rect: Rect, kind: BridgePieceKind) {
-  const nextPiece = nextBridgePieceOfKind(kind, placedPieceIds(placements.value));
-  const isSelected = selectedPiece.value?.kind === kind;
-  const label = kind === "support" ? "Опора" : "Доска";
+function drawCurrentPieceCard(ctx: CanvasRenderingContext2D, rect: Rect) {
+  const piece = activePiece.value;
   const radius = clamp(rect.height * 0.12, 16, 28);
-  fillRoundedRect(ctx, rect, radius, isSelected ? "#dff3f0" : "#fffaf1");
-  strokeRoundedRect(ctx, rect, radius, isSelected ? "#1b8f76" : "rgb(86 99 98 / 16%)", isSelected ? 4 : 1.5);
-  if (!nextPiece) {
-    ctx.save();
-    ctx.globalAlpha = 0.32;
-    fillRoundedRect(ctx, rect, radius, "#e3ece9");
-    ctx.restore();
-  }
+  fillRoundedRect(ctx, rect, radius, "#dff3f0");
+  strokeRoundedRect(ctx, rect, radius, "rgb(27 143 118 / 32%)", 2);
+  if (!piece) return;
 
   const iconScale = clamp(Math.min(rect.width, rect.height) * 0.3, 32, 72);
-  drawPieceIcon(ctx, nextPiece ?? buildBridgePieces.find((piece) => piece.kind === kind)!, { x: rect.x + rect.width * 0.5, y: rect.y + rect.height * 0.35 }, iconScale);
-  drawText(ctx, label, rect.x + rect.width * 0.5, rect.y + rect.height * 0.68, { size: clamp(rect.height * 0.15, 20, 34), weight: 800 });
-  drawText(ctx, nextPiece ? `следующая: ${nextPiece.label}` : "готово", rect.x + rect.width * 0.5, rect.y + rect.height * 0.84, { size: clamp(rect.height * 0.075, 12, 17), weight: 500, color: "#52605d" });
-
-  if (nextPiece && !selectedPiece.value) targets.push({ kind: "piece-kind", ...rect, pieceKind: kind, label });
+  drawPieceIcon(ctx, piece, { x: rect.x + rect.width * 0.5, y: rect.y + rect.height * 0.35 }, iconScale);
+  drawText(ctx, piece.label, rect.x + rect.width * 0.5, rect.y + rect.height * 0.68, { size: clamp(rect.height * 0.15, 20, 34), weight: 800 });
+  drawText(ctx, `деталь ${piece.order} из ${buildBridgeMaxSteps}: выбери место`, rect.x + rect.width * 0.5, rect.y + rect.height * 0.84, { size: clamp(rect.height * 0.075, 12, 17), weight: 500, color: "#52605d" });
 }
 
 function drawTargets(ctx: CanvasRenderingContext2D, layout: Layout) {
-  const gap = clamp(Math.min(width.value, height.value) * 0.018, 8, 18);
-  const cellWidth = (layout.cards.width - gap) / 2;
-  drawKindChoiceCard(ctx, { x: layout.cards.x, y: layout.cards.y, width: cellWidth, height: layout.cards.height }, "support");
-  drawKindChoiceCard(ctx, { x: layout.cards.x + cellWidth + gap, y: layout.cards.y, width: cellWidth, height: layout.cards.height }, "plank");
+  const cardWidth = Math.min(layout.cards.width, clamp(width.value * 0.46, 260, 620));
+  drawCurrentPieceCard(ctx, {
+    x: layout.cards.x + (layout.cards.width - cardWidth) * 0.5,
+    y: layout.cards.y,
+    width: cardWidth,
+    height: layout.cards.height
+  });
 }
 
 function drawFallingPieces(ctx: CanvasRenderingContext2D) {
@@ -641,7 +610,7 @@ function drawFallingPieces(ctx: CanvasRenderingContext2D) {
 
 function drawDwellProgress(ctx: CanvasRenderingContext2D) {
   if (!activeTargetId || !activeProgress) return;
-  const target = targets.find((item) => (item.kind === "piece-kind" ? `build-bridge:kind:${item.pieceKind}` : bridgeSlotTargetId(item.slot)) === activeTargetId);
+  const target = targets.find((item) => bridgeSlotTargetId(item.slot) === activeTargetId);
   if (!target) return;
   const radius = Math.min(target.width, target.height) * 0.22;
   const x = target.x + target.width * 0.5;
@@ -681,7 +650,7 @@ useGameLoop({ context, update, draw });
 onMounted(() => {
   promptAudio.warm();
   bridgeFeedback.warm(session.settings.sound);
-  void playAudio(["build-bridge.prompt"], 450);
+  void playAudio(["build-bridge.place"], 450);
 });
 
 onUnmounted(() => {

@@ -8,7 +8,7 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeMusicalPathAudio, playMusicalPathComplete, playMusicalPathMistake, playMusicalPathNote, warmMusicalPathAudio } from "./audio";
-import { createMusicalPathStones, findNextMusicalPathStone, isExpectedMusicalPathStone, type MusicalPathStone } from "./model";
+import { createMusicalPathStones, findNextMusicalPathStone, isExpectedMusicalPathStone, musicalPathHitPadding, type MusicalPathStone } from "./model";
 
 type Spark = {
   id: string;
@@ -204,8 +204,9 @@ onUnmounted(() => {
         :style="stoneStyle(stone)"
         :target-id="targetId(stone)"
         :dwell-ms="session.settings.dwellMs"
+        :hit-padding="musicalPathHitPadding"
         :disabled="session.status !== 'running' || stone.selected || pendingSelection"
-        min-height="11.125rem"
+        min-height="0"
         color="surface"
         @select="chooseStone(stone)"
       >
@@ -330,11 +331,11 @@ onUnmounted(() => {
 }
 
 .path-stone--active,
-.path-stone-target--next.path-stone {
+.path-stone-target--next .path-stone {
   transform: translateY(-0.25rem) scale(1.04);
 }
 
-.path-stone-target--next.path-stone {
+.path-stone-target--next .path-stone {
   box-shadow: 0 0 0 0.5rem hsl(var(--stone-hue) 82% 78% / 0.2), 0 1.625rem 2.75rem hsl(var(--stone-hue) 40% 32% / 0.2), inset -0.875rem -1rem 1.75rem hsl(var(--stone-hue) 36% 34% / 0.2), inset 1rem 1rem 1.625rem rgb(255 255 255 / 0.36);
 }
 
@@ -343,7 +344,7 @@ onUnmounted(() => {
   opacity: 0.72;
 }
 
-.path-stone-target--soft-error.path-stone {
+.path-stone-target--soft-error .path-stone {
   animation: soft-error 760ms ease;
 }
 
@@ -471,7 +472,7 @@ onUnmounted(() => {
   }
 }
 
-@media (min-width: 47.5625rem) and (max-width: 56.25rem), (max-height: 43.75rem) {
+@media (min-width: 47.5625rem) and (max-width: 56.25rem), (min-width: 47.5625rem) and (max-height: 43.75rem) {
  .path-stone-target {
     inset-block-start: max(var(--stone-y), 13.125rem);
   }

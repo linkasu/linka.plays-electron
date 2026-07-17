@@ -37,6 +37,15 @@ export type BridgePlacement = {
   slotId: string;
 };
 
+export type BuildBridgeState =
+  | { phase: "placing"; placements: BridgePlacement[] }
+  | { phase: "complete"; placements: BridgePlacement[] };
+
+export type BuildBridgeTransition =
+  | { kind: "ignored"; state: BuildBridgeState }
+  | { kind: "soft-error"; state: BuildBridgeState; piece: BridgePiece; slot: BridgeSlot }
+  | { kind: "placed"; state: BuildBridgeState; piece: BridgePiece; slot: BridgeSlot };
+
 export const buildBridgeSlots: BridgeSlot[] = [
   { id: "slot-support-left", label: "место левой опоры", kind: "support", acceptsPieceId: "support-left", supportedBy: ["riverbed"] },
   { id: "slot-support-center", label: "место средней опоры", kind: "support", acceptsPieceId: "support-center", supportedBy: ["riverbed"] },
@@ -56,8 +65,16 @@ export function nextBridgePiece(placedIds: readonly string[]) {
   return buildBridgePieces.find((piece) => !placed.has(piece.id));
 }
 
-export function canPlaceBridgePiece(pieceId: string, placedIds: readonly string[]) {
-  return nextBridgePiece(placedIds)?.id === pieceId;
+export function createBuildBridgeState(placements: readonly BridgePlacement[] = []): BuildBridgeState {
+  const nextPlacements = placements.map((placement) => ({ ...placement }));
+  return {
+    phase: nextPlacements.length >= buildBridgeMaxSteps ? "complete" : "placing",
+    placements: nextPlacements
+  };
+}
+
+export function currentBridgePiece(state: BuildBridgeState) {
+  return state.phase === "placing" ? nextBridgePiece(placedPieceIds(state.placements)) : undefined;
 }
 
 export function bridgeSlotById(slotId: string) {
@@ -66,11 +83,6 @@ export function bridgeSlotById(slotId: string) {
 
 export function bridgePieceById(pieceId: string) {
   return buildBridgePieces.find((piece) => piece.id === pieceId);
-}
-
-export function nextBridgePieceOfKind(kind: BridgePieceKind, placedIds: readonly string[]) {
-  const placed = new Set(placedIds);
-  return buildBridgePieces.find((piece) => piece.kind === kind && !placed.has(piece.id));
 }
 
 export function bridgeSlotTargetId(slot: Pick<BridgeSlot, "id">) {
@@ -112,11 +124,17 @@ export function canPlaceBridgePieceAtSlot(pieceId: string, slotId: string, place
   if (placedIds.includes(pieceId)) return false;
   if (placements.length && isBridgeSlotOccupied(slotId, placements)) return false;
   if (piece.kind !== slot.kind) return false;
-  if (!placements.length && piece.kind !== "support" && slot.acceptsPieceId !== pieceId) return false;
+  if (slot.acceptsPieceId !== pieceId) return false;
   if (piece.kind === "support") return slot.supportedBy.every((supportId) => hasBridgeSupport(supportId, placedIds));
   return slot.supportedBy.every((supportId) => placements.length ? hasBridgeSupportAt(supportId, placements) : hasBridgeSupport(supportId, placedIds));
 }
 
-export function bridgePieceTargetId(piece: Pick<BridgePiece, "id">) {
-  return `build-bridge:piece:${piece.id}`;
+export function advanceBuildBridge(state: BuildBridgeState, slotId: string): BuildBridgeTransition {
+  const piece = currentBridgePiece(state);
+  const slot = bridgeSlotById(slotId);
+  if (!piece || !slot || slot.kind !== piece.kind || isBridgeSlotOccupied(slotId, state.placements)) return { kind: "ignored", state };
+  if (!canPlaceBridgePieceAtSlot(piece.id, slot.id, state.placements)) return { kind: "soft-error", state, piece, slot };
+
+  const placements = [...state.placements, { pieceId: piece.id, slotId: slot.id }];
+  return { kind: "placed", state: createBuildBridgeState(placements), piece, slot };
 }
