@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -9,7 +9,7 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeMemoryCardsAudio, playMemoryCardsMatchMelody, playMemoryCardsMismatchMelody, warmMemoryCardsAudio } from "./audio";
-import { createMemoryCardsRound, type MemoryCard } from "./model";
+import { createMemoryCardsRound, memoryCardHitPaddingForGap, type MemoryCard } from "./model";
 
 type MemoryCardState = MemoryCard & {
   matched: boolean;
@@ -32,13 +32,50 @@ const lastMismatchCardIds = ref<string[]>([]);
 const inputBlocked = ref(false);
 const isSpeaking = ref(false);
 const feedbackMessage = ref("Открой две карточки и найди пару.");
+const gridRef = ref<HTMLDivElement>();
+const cardHitPadding = ref(0);
 let closeTimeout = 0;
+let gapMeasurementFrame = 0;
+let gridResizeObserver: ResizeObserver | undefined;
 const promptAudio = useGamePromptAudio({ gameId: "memory-cards", soundEnabled: toRef(session.settings, "sound") });
 
 const resultVisible = computed(() => session.status === "finished");
 const matchedCount = computed(() => cards.value.filter((card) => card.matched).length / 2);
 const targetCardHeight = computed(() => `clamp(8rem, ${Math.round(20 * session.settings.targetScale)}vh, 12.5rem)`);
 const cardColSpan = computed(() => round.value.columns === 4 ? 3 : 4);
+
+function measureCardGap() {
+  const targets = Array.from(gridRef.value?.querySelectorAll<HTMLElement>(".dwell-hitbox") ?? []);
+  let smallestGap = Number.POSITIVE_INFINITY;
+
+  for (let leftIndex = 0; leftIndex < targets.length; leftIndex += 1) {
+    const left = targets[leftIndex].getBoundingClientRect();
+    for (let rightIndex = leftIndex + 1; rightIndex < targets.length; rightIndex += 1) {
+      const right = targets[rightIndex].getBoundingClientRect();
+      const horizontalOverlap = Math.min(left.right, right.right) > Math.max(left.left, right.left);
+      const verticalOverlap = Math.min(left.bottom, right.bottom) > Math.max(left.top, right.top);
+      const horizontalGap = Math.max(left.left, right.left) - Math.min(left.right, right.right);
+      const verticalGap = Math.max(left.top, right.top) - Math.min(left.bottom, right.bottom);
+      if (verticalOverlap && horizontalGap >= 0) smallestGap = Math.min(smallestGap, horizontalGap);
+      if (horizontalOverlap && verticalGap >= 0) smallestGap = Math.min(smallestGap, verticalGap);
+    }
+  }
+
+  cardHitPadding.value = Number.isFinite(smallestGap) ? memoryCardHitPaddingForGap(smallestGap) : 0;
+}
+
+function scheduleCardGapMeasurement() {
+  window.cancelAnimationFrame(gapMeasurementFrame);
+  gapMeasurementFrame = window.requestAnimationFrame(measureCardGap);
+}
+
+function observeMemoryGrid() {
+  gridResizeObserver?.disconnect();
+  if (!gridRef.value || !gridResizeObserver) return;
+  gridResizeObserver.observe(gridRef.value);
+  for (const target of gridRef.value.querySelectorAll<HTMLElement>(".dwell-hitbox")) gridResizeObserver.observe(target);
+  scheduleCardGapMeasurement();
+}
 
 function createCardStates(memoryCards: MemoryCard[]): MemoryCardState[] {
   return memoryCards.map((card) => ({ ...card, matched: false, revealed: false }));
@@ -143,10 +180,13 @@ function restart() {
   inputBlocked.value = false;
   feedbackMessage.value = "Открой две карточки и найди пару.";
   startSession();
+  void nextTick(observeMemoryGrid);
   void playPrompt(450);
 }
 
 onMounted(() => {
+  gridResizeObserver = new ResizeObserver(scheduleCardGapMeasurement);
+  observeMemoryGrid();
   promptAudio.warm();
   warmMemoryCardsAudio(session.settings.sound);
   void playPrompt(450);
@@ -157,6 +197,8 @@ watch(() => session.settings.sound, (enabled) => {
 });
 
 onUnmounted(() => {
+  gridResizeObserver?.disconnect();
+  window.cancelAnimationFrame(gapMeasurementFrame);
   clearCloseTimeout();
   clearAudio();
   disposeMemoryCardsAudio();
@@ -173,24 +215,26 @@ onUnmounted(() => {
             <div class="text-overline text-secondary text-center mb-1"> память</div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">Найди одинаковые карточки</h1>
             <div class="feedback-line text-body-1 text-medium-emphasis text-center mb-3">{{ feedbackMessage }}</div>
-            <v-row class="memory-grid" justify="center">
-              <v-col v-for="card in cards" :key="card.id" cols="6" :sm="cardColSpan" :md="cardColSpan">
-                <GameDwellButton :target-id="cardTargetId(card)" :disabled="session.status !== 'running' || inputBlocked || isSpeaking || card.matched || card.revealed" :dwell-ms="session.settings.dwellMs" :min-height="targetCardHeight" :color="cardColor(card)" @select="chooseCard(card)">
-                  <template #default>
-                    <div class="memory-card-content">
-                      <template v-if="isCardOpen(card)">
-                        <GameWordImage class="memory-card-emoji" :word-id="card.pairId" :word="card.label" :emoji="card.emoji" />
-                        <div class="text-h5 font-weight-bold mt-2">{{ card.label }}</div>
-                      </template>
-                      <template v-else>
-                        <v-icon icon="mdi-cards" size="4.75rem" color="primary" />
-                        <div class="sr-only">Закрытая карточка</div>
-                      </template>
-                    </div>
-                  </template>
-                </GameDwellButton>
-              </v-col>
-            </v-row>
+            <div ref="gridRef">
+              <v-row class="memory-grid" justify="center">
+                <v-col v-for="card in cards" :key="card.id" cols="6" :sm="cardColSpan" :md="cardColSpan">
+                  <GameDwellButton :target-id="cardTargetId(card)" :disabled="session.status !== 'running' || inputBlocked || isSpeaking || card.matched || card.revealed" :dwell-ms="session.settings.dwellMs" :hit-padding="cardHitPadding" :min-height="targetCardHeight" :color="cardColor(card)" @select="chooseCard(card)">
+                    <template #default>
+                      <div class="memory-card-content">
+                        <template v-if="isCardOpen(card)">
+                          <GameWordImage class="memory-card-emoji" :word-id="card.pairId" :word="card.label" :emoji="card.emoji" />
+                          <div class="text-h5 font-weight-bold mt-2">{{ card.label }}</div>
+                        </template>
+                        <template v-else>
+                          <v-icon icon="mdi-cards" size="4.75rem" color="primary" />
+                          <div class="sr-only">Закрытая карточка</div>
+                        </template>
+                      </div>
+                    </template>
+                  </GameDwellButton>
+                </v-col>
+              </v-row>
+            </div>
           </v-card>
         </v-col>
       </v-row>

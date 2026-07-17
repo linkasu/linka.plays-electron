@@ -1,5 +1,6 @@
 import type { SessionSettings } from "../../core/settings";
 import { buildChoiceRound, choiceCountByPreset, idEquality, pickRandom, type ChoiceRound } from "../../core/round";
+import { createNonRepeatingRandomIndexGenerator } from "../../core/random";
 
 export type FindEmotionOption = {
   id: string;
@@ -20,7 +21,7 @@ export const findEmotionOptions: FindEmotionOption[] = [
   { id: "shy", label: "смущение", emoji: "☺️" }
 ];
 
-export function generateFindEmotionRound(settings: SessionSettings, roundIndex = 1): FindEmotionRound {
+function buildFindEmotionRound(settings: SessionSettings, roundIndex: number, target: FindEmotionOption, random = Math.random): FindEmotionRound {
   const choiceCount = choiceCountByPreset(settings, roundIndex, { gentle: 2, standard: 3, challenge: 4 });
   if (findEmotionOptions.length < choiceCount) throw new Error("Недостаточно эмоций для игры.");
 
@@ -29,8 +30,22 @@ export function generateFindEmotionRound(settings: SessionSettings, roundIndex =
     roundIndex,
     items: findEmotionOptions,
     choiceCount,
-    pickTarget: (items) => pickRandom(items),
+    pickTarget: () => target,
     isSame: idEquality,
-    prompt: (target) => `Найди эмоцию: ${target.label}`
+    prompt: (roundTarget) => `Найди эмоцию: ${roundTarget.label}`,
+    random
   });
+}
+
+export function generateFindEmotionRound(settings: SessionSettings, roundIndex = 1): FindEmotionRound {
+  return buildFindEmotionRound(settings, roundIndex, pickRandom(findEmotionOptions));
+}
+
+export function createFindEmotionRoundGenerator(random = Math.random) {
+  const targetIndexes = createNonRepeatingRandomIndexGenerator(findEmotionOptions.length, random);
+  return (settings: SessionSettings, roundIndex = 1) => {
+    const targetIndex = targetIndexes.next();
+    if (targetIndex === undefined) throw new Error("Недостаточно эмоций для игры.");
+    return buildFindEmotionRound(settings, roundIndex, findEmotionOptions[targetIndex], random);
+  };
 }

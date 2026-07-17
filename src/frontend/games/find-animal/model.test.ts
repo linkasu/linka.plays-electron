@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
+import wordImageManifest from "../../../../public/images/words/manifest.json";
 import { settingsFromPreset } from "../../core/settings";
-import { generateFindAnimalRound } from "./model";
+import { createFindAnimalRoundGenerator, generateFindAnimalRound } from "./model";
 
 function expectValidRound(round: ReturnType<typeof generateFindAnimalRound>) {
   const choiceIds = round.choices.map((choice) => choice.id);
@@ -54,5 +55,23 @@ describe("generateFindAnimalRound", () => {
     const round = generateFindAnimalRound(settingsFromPreset("standard"), 8);
 
     expect(round.roundId).toBe("find-animal:round:8");
+  });
+
+  it("draws targets from a shuffled deck without repeats until it is exhausted", () => {
+    const generateRound = createFindAnimalRoundGenerator(() => 0.37);
+    const targetIds = Array.from({ length: 30 }, (_, index) => generateRound(settingsFromPreset("standard"), index + 1).target.id);
+
+    expect(new Set(targetIds).size).toBe(targetIds.length);
+  });
+
+  it("only selects animals with packaged images", () => {
+    const packagedImageIds = new Set(wordImageManifest.map((item) => item.id));
+    const generateRound = createFindAnimalRoundGenerator(() => 0.61);
+
+    for (let index = 1; index <= 30; index += 1) {
+      const round = generateRound(settingsFromPreset("challenge"), index);
+      expect(round.assetMode).toBe("image");
+      expect(round.choices.every((choice) => packagedImageIds.has(choice.id))).toBe(true);
+    }
   });
 });

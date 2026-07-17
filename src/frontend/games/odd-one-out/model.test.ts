@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import wordImageManifest from "../../../../public/images/words/manifest.json";
 import { settingsFromPreset } from "../../core/settings";
 import { generateOddOneOutRound, oddOneOutCategories } from "./model";
 
@@ -53,6 +54,20 @@ describe("generateOddOneOutRound", () => {
     for (const category of oddOneOutCategories) {
       expect(category.items).toHaveLength(5);
       expect(new Set(category.items.map((item) => item.id)).size).toBe(5);
+    }
+  });
+
+  it("uses one available asset mode for every choice in a round", () => {
+    const packagedImageIds = new Set(wordImageManifest.map((item) => item.id));
+
+    for (let index = 1; index <= 100; index += 1) {
+      const round = generateOddOneOutRound(settingsFromPreset("challenge"), index);
+
+      if (round.assetMode === "image") {
+        expect(round.choices.every((choice) => choice.wordId && packagedImageIds.has(choice.wordId))).toBe(true);
+      } else {
+        expect(round.choices.every((choice) => Boolean(choice.emoji))).toBe(true);
+      }
     }
   });
 

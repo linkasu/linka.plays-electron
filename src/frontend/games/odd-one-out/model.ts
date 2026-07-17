@@ -2,6 +2,7 @@ import type { SessionSettings } from "../../core/settings";
 import { shuffleItems } from "../../data/wordBank";
 
 export type OddOneOutCategoryId = "animals" | "food" | "clothes" | "transport" | "music" | "nature";
+export type OddOneOutAssetMode = "image" | "emoji";
 
 export type OddOneOutItem = {
   id: string;
@@ -26,17 +27,24 @@ export type OddOneOutRound = {
   oddItem: OddOneOutItem;
   choices: OddOneOutItem[];
   correctIndex: number;
+  assetMode: OddOneOutAssetMode;
   mistakeHint: string;
 };
 
 function item(categoryId: OddOneOutCategoryId, id: string, label: string, emoji: string): OddOneOutItem {
-  const hasWordImage = categoryId === "animals"
+  const defaultImageId = categoryId === "animals"
     || categoryId === "food"
     || categoryId === "transport"
-    || categoryId === "nature"
-    || id === "dress"
-    || id === "drum";
-  return { id: `${categoryId}:${id}`, wordId: hasWordImage ? id : undefined, label, emoji, categoryId };
+    || categoryId === "nature" ? id : undefined;
+  const exceptionalImageIds: Record<string, string> = {
+    shirt: "shirt",
+    dress: "dress",
+    hat: "cap",
+    shoe: "shoes",
+    sock: "socks",
+    drum: "drum"
+  };
+  return { id: `${categoryId}:${id}`, wordId: defaultImageId ?? exceptionalImageIds[id], label, emoji, categoryId };
 }
 
 export const oddOneOutCategories: OddOneOutCategory[] = [
@@ -122,10 +130,12 @@ function choiceCountFor(settings: SessionSettings) {
 
 export function generateOddOneOutRound(settings: SessionSettings, roundIndex = 1): OddOneOutRound {
   const choiceCount = choiceCountFor(settings);
-  const commonCategory = shuffleItems(oddOneOutCategories)[0];
-  const oddCategory = shuffleItems(oddOneOutCategories.filter((category) => category.id !== commonCategory.id))[0];
-  const commonItems = shuffleItems(commonCategory.items).slice(0, choiceCount - 1);
-  const oddItem = shuffleItems(oddCategory.items)[0];
+  const assetMode: OddOneOutAssetMode = roundIndex % 2 === 1 ? "image" : "emoji";
+  const supportsMode = (candidate: OddOneOutItem) => assetMode === "emoji" || Boolean(candidate.wordId);
+  const commonCategory = shuffleItems(oddOneOutCategories.filter((category) => category.items.filter(supportsMode).length >= choiceCount - 1))[0];
+  const oddCategory = shuffleItems(oddOneOutCategories.filter((category) => category.id !== commonCategory.id && category.items.some(supportsMode)))[0];
+  const commonItems = shuffleItems(commonCategory.items.filter(supportsMode)).slice(0, choiceCount - 1);
+  const oddItem = shuffleItems(oddCategory.items.filter(supportsMode))[0];
   const choices = shuffleItems([...commonItems, oddItem]);
 
   return {
@@ -136,6 +146,7 @@ export function generateOddOneOutRound(settings: SessionSettings, roundIndex = 1
     oddItem,
     choices,
     correctIndex: choices.indexOf(oddItem),
+    assetMode,
     mistakeHint: `Почти. Большинство карточек — ${commonCategory.label}. ${commonCategory.helper} Найди карточку из другой группы.`
   };
 }

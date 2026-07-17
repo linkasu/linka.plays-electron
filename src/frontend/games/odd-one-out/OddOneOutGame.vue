@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, toRef, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
-import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { wordImageSrc } from "../../core/wordImage";
 import { oddOneOutFeedback } from "./audio";
 import { generateOddOneOutRound, type OddOneOutItem, type OddOneOutRound } from "./model";
 
@@ -31,11 +31,21 @@ const pendingSelection = ref(false);
 const isSpeaking = ref(false);
 const wrongChoiceId = ref<string>();
 const successChoiceId = ref<string>();
+const failedImageRoundId = ref<string>();
 const promptAudio = useGamePromptAudio({ gameId: "odd-one-out", soundEnabled: toRef(session.settings, "sound") });
 let feedbackTimer = 0;
+const showRoundImages = computed(() => round.value.assetMode === "image" && failedImageRoundId.value !== round.value.roundId);
 
 function choiceTargetId(choice: OddOneOutItem) {
   return `odd-one-out:choice:${choice.id}`;
+}
+
+function choiceImageSrc(choice: OddOneOutItem) {
+  return choice.wordId ? wordImageSrc(choice.wordId) : "";
+}
+
+function disableRoundImages() {
+  failedImageRoundId.value = round.value.roundId;
 }
 
 function clearFeedbackTimer() {
@@ -145,7 +155,7 @@ onUnmounted(() => {
 
             <GameChoiceCardGrid :choices="round.choices" :target-id="choiceTargetId" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="9.75rem" :color="choiceColor" :cols="6" :md="round.choices.length === 4 ? 3 : 4" @select="choose">
               <template #default="{ choice }">
-                <GameWordImage v-if="choice.wordId" class="choice-emoji" :word-id="choice.wordId" :word="choice.label" :emoji="choice.emoji" />
+                <img v-if="showRoundImages" class="choice-emoji choice-image" :src="choiceImageSrc(choice)" :alt="choice.label" draggable="false" @error="disableRoundImages">
                 <div v-else class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
                 <div class="text-h6 text-md-h5 font-weight-bold mt-2">{{ choice.label }}</div>
               </template>
@@ -170,6 +180,12 @@ onUnmounted(() => {
 .choice-emoji {
   font-size: clamp(3.2rem, min(8vw, 11vh), 6.5rem);
   line-height: 1;
+}
+
+.choice-image {
+  block-size: 1em;
+  inline-size: 1em;
+  object-fit: contain;
 }
 
 </style>

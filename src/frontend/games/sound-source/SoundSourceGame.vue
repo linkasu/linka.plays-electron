@@ -9,6 +9,7 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { resolvePublicAssetUrl } from "../../core/publicAsset";
+import { advanceSoundSourceHint, type SoundSourceHintState } from "./model";
 
 type SoundSource = {
   id: string;
@@ -114,7 +115,8 @@ const router = useRouter();
 const selectedSourceId = ref("");
 const lastMistakeSourceId = ref("");
 const pendingAudio = ref(false);
-const feedbackMessage = ref("Найди объект, от которого расходятся волны.");
+const feedbackMessage = ref("Послушай звук и выбери предмет, который его издаёт.");
+const hintState = ref<SoundSourceHintState>("hidden");
 const mistakenSourceIds = new Set<string>();
 let nextRoundTimer = 0;
 let audioContext: AudioContext | undefined;
@@ -123,7 +125,7 @@ let stopAudioTimer = 0;
 let playbackToken = 0;
 const audioCache = new Map<string, CachedSourceAudio>();
 
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("sound-source", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("sound-source", {
   maxSteps: 8,
   overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.45, distractors: "none", hints: "high", sound: true },
   finishOnMistakes: false
@@ -131,7 +133,8 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 
 const round = reactive<SoundRound>(createRound(0));
 const resultVisible = computed(() => session.status === "finished");
-const promptText = computed(() => "Где этот звук?");
+const promptText = computed(() => "Сначала послушай, затем выбери источник звука.");
+const hintVisible = computed(() => hintState.value === "revealed");
 const promptAudio = useGamePromptAudio({ gameId: "sound-source", soundEnabled: toRef(session.settings, "sound") });
 
 function createRound(step: number): SoundRound {
@@ -152,7 +155,8 @@ function setRound(step: number) {
   selectedSourceId.value = "";
   lastMistakeSourceId.value = "";
   mistakenSourceIds.clear();
-  feedbackMessage.value = "Смотри на объект с волнами. звук включён, а волну видно всегда.";
+  hintState.value = advanceSoundSourceHint(hintState.value, "new-round");
+  feedbackMessage.value = "Послушай звук и выбери предмет, который его издаёт.";
   void playRoundPromptAndCue(180);
 }
 
@@ -174,6 +178,22 @@ function sourcePan(source: SoundSource) {
   return ((index / (round.choices.length - 1)) * 2 - 1) * 0.62;
 }
 
+function targetMarkerVisible(source: SoundSource) {
+  return source.id === round.target.id && (hintVisible.value || selectedSourceId.value === source.id);
+}
+
+async function revealHint() {
+  if (session.status !== "running" || pendingAudio.value || hintVisible.value || selectedSourceId.value) return;
+
+  hintState.value = advanceSoundSourceHint(hintState.value, "hint-requested");
+  feedbackMessage.value = "Подсказка показывает источник. Послушай звук ещё раз.";
+  recordHint({ roundId: round.roundId, targetId: sourceTargetId(round.target), reason: "requested" });
+  const token = ++playbackToken;
+  pendingAudio.value = true;
+  await playSourceCue(round.target, "source");
+  if (token === playbackToken) pendingAudio.value = false;
+}
+
 async function chooseSource(source: SoundSource) {
   if (session.status !== "running" || selectedSourceId.value || pendingAudio.value) return;
 
@@ -182,7 +202,8 @@ async function chooseSource(source: SoundSource) {
   if (source.id !== round.target.id) {
     pendingAudio.value = true;
     lastMistakeSourceId.value = source.id;
-    feedbackMessage.value = "Почти. Посмотри, откуда расходятся волны, и попробуй ещё раз.";
+    hintState.value = advanceSoundSourceHint(hintState.value, "mistake");
+    feedbackMessage.value = "Почти. Теперь подсказка показывает источник звука.";
     if (!mistakenSourceIds.has(source.id)) {
       mistakenSourceIds.add(source.id);
       recordMistake({ roundId: round.roundId, selectedId: source.id, targetId: round.target.id, expected: round.target.soundLabel });
@@ -253,7 +274,7 @@ function warmSourceAudio() {
     try {
       getSourceAudio(source).audio.load();
     } catch {
-      // Object sounds are supportive only; gameplay continues with visual waves.
+      // Audio failures leave the explicit visual hint available.
     }
   }
 }
@@ -350,19 +371,35 @@ onUnmounted(() => {
     <v-container class="sound-source-container d-flex align-center justify-center" fluid>
       <v-card class="sound-source-panel pa-3 pa-sm-4 pa-md-6" color="surface" rounded="xl" elevation="8">
         <div class="text-center mb-3">
-          <div class="text-overline text-primary"> звук и визуальная волна</div>
-          <h1 class="text-h4 text-md-h2 font-weight-bold mb-1">Где звук?</h1>
+          <div class="text-overline text-primary">Слушай звук</div>
+          <h1 class="text-h4 text-md-h2 font-weight-bold mb-1">Послушай и найди источник</h1>
           <p class="text-body-1 text-md-h6 text-medium-emphasis mb-1">{{ promptText }}</p>
-          <p class="text-body-2 text-md-body-1 text-medium-emphasis mb-0">Выбери один из крупных объектов. Ошибка только подскажет, где искать волну.</p>
+          <p class="text-body-2 text-md-body-1 text-medium-emphasis mb-0">Волна появится только после ошибки или если попросить подсказку.</p>
         </div>
 
-        <div class="d-flex align-center mb-3">
-          <v-alert class="flex-grow-1" color="primary" icon="mdi-waves" rounded="xl" variant="tonal">
-            {{ feedbackMessage }}
-          </v-alert>
-        </div>
+        <v-row class="mb-3" align="stretch" dense>
+          <v-col cols="12" sm="8">
+            <v-alert class="fill-height" color="primary" icon="mdi-ear-hearing" rounded="xl" variant="tonal">
+              {{ feedbackMessage }}
+            </v-alert>
+          </v-col>
+          <v-col cols="12" sm="4">
+            <GameDwellButton
+              target-id="sound-source:hint"
+              :disabled="session.status !== 'running' || pendingAudio || hintVisible || Boolean(selectedSourceId)"
+              :dwell-ms="session.settings.dwellMs"
+              :hit-padding="8"
+              min-height="4rem"
+              color="secondary"
+              @select="revealHint"
+            >
+              <v-icon class="me-2" icon="mdi-lightbulb-on-outline" />
+              {{ hintVisible ? 'Подсказка показана' : 'Показать подсказку' }}
+            </GameDwellButton>
+          </v-col>
+        </v-row>
 
-        <div class="sound-source-grid" :class="`sound-source-grid--${round.choices.length}`" role="group" aria-label="Выбор источника звука или визуальной волны">
+        <div class="sound-source-grid" :class="`sound-source-grid--${round.choices.length}`" role="group" aria-label="Выбор источника услышанного звука">
           <GameDwellButton
             v-for="(source, index) in round.choices"
             :key="sourceTargetId(source)"
@@ -378,19 +415,18 @@ onUnmounted(() => {
               <div
                 class="source-card"
                 :class="{
-                  'source-card--target': source.id === round.target.id,
                   'source-card--active': active,
                   'source-card--selected': selectedSourceId === source.id,
                   'source-card--mistake': lastMistakeSourceId === source.id
                 }"
                 :style="sourceStyle(source, index)"
               >
-                <div v-if="source.id === round.target.id" class="source-waves" aria-hidden="true">
+                <div v-if="targetMarkerVisible(source)" class="source-waves" aria-hidden="true">
                   <span class="source-wave source-wave--one" />
                   <span class="source-wave source-wave--two" />
                   <span class="source-wave source-wave--three" />
                 </div>
-                <div class="source-glow" :style="{ opacity: source.id === round.target.id ? 0.44 + progress * 0.22 : active ? 0.28 : 0.18 }" aria-hidden="true" />
+                <div class="source-glow" :style="{ opacity: targetMarkerVisible(source) ? 0.44 + progress * 0.22 : active ? 0.28 : 0.18 }" aria-hidden="true" />
                 <GameWordImage v-if="source.wordId" class="source-emoji" :word-id="source.wordId" :word="source.title" :emoji="source.visual ?? ''" decorative />
                 <span v-else-if="source.visual" class="source-emoji" aria-hidden="true">{{ source.visual }}</span>
                 <v-icon v-else class="source-icon" :icon="source.icon" />

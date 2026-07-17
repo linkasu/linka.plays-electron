@@ -50,6 +50,12 @@ export function shuffleMemoryCards<T>(items: T[], random = Math.random): T[] {
   return result;
 }
 
+export function memoryCardHitPaddingForGap(gap: number, preferredPadding = 36) {
+  const safeGap = Number.isFinite(gap) ? Math.max(0, gap) : 0;
+  const safePreferredPadding = Number.isFinite(preferredPadding) ? Math.max(0, preferredPadding) : 0;
+  return Math.min(safePreferredPadding, safeGap / 2);
+}
+
 export function createMemoryCardDeck(sources: MemoryCardSource[], pairCount: number, roundIndex = 1, random = Math.random): MemoryCard[] {
   if (pairCount < 1) throw new Error("Memory cards need at least one pair.");
   if (sources.length < pairCount) throw new Error("Not enough memory card sources.");

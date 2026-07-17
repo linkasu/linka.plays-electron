@@ -10,7 +10,7 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { findEmotionFeedback } from "./audio";
-import { generateFindEmotionRound, type FindEmotionOption } from "./model";
+import { createFindEmotionRoundGenerator, type FindEmotionOption } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("find-emotion", {
@@ -18,11 +18,12 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   overrides: { sound: true },
   finishOnMistakes: false
 });
+let generateRound = createFindEmotionRoundGenerator();
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
   session,
   startSession,
-  generateRound: (roundIndex) => generateFindEmotionRound(session.settings, roundIndex)
+  generateRound: (roundIndex) => generateRound(session.settings, roundIndex)
 });
 
 const mistakesInRound = ref(0);
@@ -108,6 +109,7 @@ async function answer(choice: FindEmotionOption) {
 
 function restart() {
   resetRoundFeedback();
+  generateRound = createFindEmotionRoundGenerator();
   restartRoundGame();
   void playPrompt(450);
 }
