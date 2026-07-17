@@ -23,7 +23,6 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 const imageIndex = ref(selectMosaicImageIndex());
 const placedTileIds = ref<string[]>([]);
 const resultVisible = ref(false);
-const previewVisible = ref(false);
 const pendingSelection = ref(false);
 const isSpeaking = ref(false);
 const wrongTileId = ref<string>();
@@ -44,20 +43,10 @@ const mosaicSlots = computed(() => tiles.value.map((tile, index) => ({
   next: index === session.step && session.status === "running"
 })));
 const promptText = computed(() => currentTarget.value ? activeStep.value.prompt : "Мозаика готова.");
-const boardInteractionLocked = computed(() => session.status !== "running" || pendingSelection.value || isSpeaking.value || previewVisible.value);
-const previewOpenLocked = computed(() => session.status !== "running" || pendingSelection.value || isSpeaking.value || previewVisible.value);
+const boardInteractionLocked = computed(() => session.status !== "running" || pendingSelection.value || isSpeaking.value);
 
 function tileTargetId(tile: MosaicTile) {
   return `mosaic:tile:${image.value.id}:${tile.id}`;
-}
-
-function openPreview() {
-  if (previewOpenLocked.value) return;
-  previewVisible.value = true;
-}
-
-function closePreview() {
-  previewVisible.value = false;
 }
 
 function tilePieceStyle(tile: MosaicTile) {
@@ -110,7 +99,7 @@ async function chooseTile(tile: MosaicTile) {
     pendingSelection.value = true;
     successTileId.value = tile.id;
     placedTileIds.value = [...placedTileIds.value, tile.id];
-    feedbackMessage.value = `Верно. Кусочек ${tile.slotIndex + 1} на месте.`;
+    feedbackMessage.value = "Верно. Кусочек на месте.";
     recordSuccess({ roundId: step.roundId, targetId, answerId: tile.id, expected: step.target.id, actual: tile.id, imageId: image.value.id, slotIndex: step.slotIndex, isCorrect: true });
     const finishedAfterSuccess = session.step >= session.maxSteps;
     void mosaicFeedback.playSuccess(session.settings.sound);
@@ -152,7 +141,6 @@ function restart() {
   imageIndex.value = selectMosaicImageIndex();
   placedTileIds.value = [];
   resultVisible.value = false;
-  previewVisible.value = false;
   pendingSelection.value = false;
   isSpeaking.value = false;
   wrongTileId.value = undefined;
@@ -218,7 +206,7 @@ onUnmounted(() => {
                       <v-icon icon="mdi-help" color="primary" />
                       <span>сюда</span>
                     </div>
-                    <div v-else class="mosaic-empty">{{ slot.index + 1 }}</div>
+                    <div v-else class="mosaic-empty" aria-hidden="true" />
                   </v-card>
                 </div>
               </section>
@@ -231,21 +219,16 @@ onUnmounted(() => {
                     <div class="text-body-2 text-medium-emphasis">{{ image.prompt }}</div>
                   </v-card>
 
-                  <GameDwellButton target-id="mosaic:preview:open" :disabled="previewOpenLocked" :dwell-ms="session.settings.dwellMs" min-height="5.5rem" color="purple-lighten-5" @select="openPreview">
-                    <template #default>
-                      <div class="mosaic-preview-button-image">
-                        <img :src="image.src" :alt="`Образец: ${image.title}`" />
-                      </div>
-                      <div class="text-subtitle-2 font-weight-bold mt-1">Открыть образец</div>
-                    </template>
-                  </GameDwellButton>
+                  <v-card class="mosaic-reference pa-3" color="surface" rounded="xl" variant="tonal">
+                    <div class="text-caption text-medium-emphasis mb-2">Образец</div>
+                    <img :src="image.src" :alt="`Образец: ${image.title}`" />
+                  </v-card>
                 </div>
 
                 <div class="mosaic-choices" aria-label="Кусочки для выбора">
                   <GameDwellButton v-for="choice in activeStep.choices" :key="choice.id" :target-id="tileTargetId(choice)" :disabled="boardInteractionLocked" :dwell-ms="session.settings.dwellMs" min-height="9rem" :color="choiceColor(choice)" @select="chooseTile(choice)">
                     <template #default>
                       <div class="mosaic-piece mosaic-piece--choice" :style="tilePieceStyle(choice)" />
-                      <div class="text-subtitle-2 font-weight-bold mt-1">{{ choice.label }}</div>
                     </template>
                   </GameDwellButton>
                 </div>
@@ -257,24 +240,6 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <v-dialog v-model="previewVisible" max-width="42rem" persistent>
-      <v-card class="mosaic-preview pa-4" rounded="xl">
-        <div class="d-flex align-center justify-space-between ga-3 mb-3">
-          <div>
-            <div class="text-overline text-secondary">Образец</div>
-            <h2 class="text-h5 font-weight-bold">{{ image.title }}</h2>
-          </div>
-          <GameDwellButton target-id="mosaic:preview:close" :dwell-ms="session.settings.dwellMs" min-height="4.5rem" color="blue-grey-lighten-5" @select="closePreview">
-            <template #default>
-              <v-icon icon="mdi-close" size="30" />
-              <div class="text-subtitle-2 font-weight-bold mt-1">Закрыть</div>
-            </template>
-          </GameDwellButton>
-        </div>
-        <img class="mosaic-preview-image" :src="image.src" :alt="`Образец: ${image.title}`" />
-        <p class="text-body-2 text-medium-emphasis mt-3 mb-0">Посмотри на целую картинку, потом закрой образец и выбери следующий кусочек.</p>
-      </v-card>
-    </v-dialog>
     <GameResultDialog :model-value="resultVisible" title="Мозаика" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
   </GamePageShell>
 </template>
@@ -399,21 +364,16 @@ onUnmounted(() => {
   display: grid;
 }
 
-.mosaic-preview-button-image img {
+.mosaic-reference {
+  text-align: center;
+}
+
+.mosaic-reference img {
   aspect-ratio: 1;
   border-radius: 0.85rem;
   box-shadow: 0 0.45rem 1rem rgb(65 79 104 / 16%);
   display: block;
-  inline-size: clamp(3rem, 5vw, 4.2rem);
-  margin-inline: auto;
-  object-fit: cover;
-}
-
-.mosaic-preview-image {
-  aspect-ratio: 1;
-  border-radius: 1rem;
-  display: block;
-  inline-size: min(100%, 34rem);
+  inline-size: clamp(5rem, 7vw, 7rem);
   margin-inline: auto;
   object-fit: cover;
 }
@@ -607,8 +567,8 @@ onUnmounted(() => {
     max-inline-size: 5.25rem;
   }
 
- .mosaic-preview-button-image img {
-    inline-size: clamp(2.8rem, 4vw, 3.8rem);
+  .mosaic-reference img {
+    inline-size: clamp(4.5rem, 6vw, 5.75rem);
   }
 }
 

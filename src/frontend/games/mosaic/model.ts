@@ -10,7 +10,6 @@ export type MosaicTile = {
   row: number;
   col: number;
   slotIndex: number;
-  label: string;
 };
 
 export type MosaicStep = {
@@ -43,8 +42,7 @@ export function createMosaicTiles(image: MosaicImage): MosaicTile[] {
       imageId: image.id,
       row,
       col,
-      slotIndex,
-      label: `кусочек ${slotIndex + 1}`
+      slotIndex
     };
   });
 }
@@ -64,8 +62,8 @@ export function createMosaicStep(settings: SessionSettings, stepIndex: number, i
     target,
     choices,
     correctIndex: choices.findIndex((choice) => choice.id === target.id),
-    prompt: `Найди кусочек ${slotIndex + 1}.`,
-    hint: `Нужен кусочек для клетки ${slotIndex + 1}. Он подсвечен среди вариантов.`
+    prompt: "Найди кусочек для подсвеченной клетки.",
+    hint: "Сравни клетку с образцом и кусочками."
   };
 }
 

@@ -14,14 +14,19 @@ describe("shape-dance model", () => {
     round.sequence.forEach((figure) => expect(choiceIds.has(figure.id)).toBe(true));
   });
 
-  it("grows standard sequence length without exceeding four steps", () => {
-    expect(generateShapeDanceRound(settingsFromPreset("standard"), 1, () => 0.2).sequence).toHaveLength(2);
-    expect(generateShapeDanceRound(settingsFromPreset("standard"), 4, () => 0.2).sequence).toHaveLength(3);
-    expect(generateShapeDanceRound(settingsFromPreset("standard"), 8, () => 0.2).sequence).toHaveLength(4);
+  it("shows three- and four-step levels early while keeping a gentle introduction", () => {
+    const roundIndexes = Array.from({ length: 8 }, (_, index) => index + 1);
+    const sequenceLengths = (preset: "gentle" | "standard" | "challenge") => roundIndexes.map((roundIndex) =>
+      generateShapeDanceRound(settingsFromPreset(preset), roundIndex, () => 0.2).sequenceLength
+    );
+
+    expect(sequenceLengths("gentle")).toEqual([2, 3, 3, 4, 4, 4, 4, 4]);
+    expect(sequenceLengths("standard")).toEqual([3, 3, 3, 4, 4, 4, 4, 4]);
+    expect(sequenceLengths("challenge")).toEqual([4, 4, 4, 5, 5, 5, 5, 5]);
   });
 
   it("allows challenge rounds up to five steps", () => {
-    expect(generateShapeDanceRound(settingsFromPreset("challenge"), 1, () => 0.3).sequence).toHaveLength(3);
+    expect(generateShapeDanceRound(settingsFromPreset("challenge"), 1, () => 0.3).sequence).toHaveLength(4);
     expect(generateShapeDanceRound(settingsFromPreset("challenge"), 7, () => 0.3).sequence).toHaveLength(5);
   });
 

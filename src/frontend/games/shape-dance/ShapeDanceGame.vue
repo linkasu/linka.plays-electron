@@ -176,7 +176,7 @@ async function chooseFigure(figure: ShapeDanceFigure) {
 
   phase.value = "feedback";
   isLocked.value = true;
-  feedbackText.value = "Танец повторён. пауза перед новым уровнем.";
+  feedbackText.value = "Танец повторён.";
   void danceFeedback.playSuccess(session.settings.sound);
   recordSuccess({
     roundId: round.value.roundId,
@@ -309,7 +309,7 @@ onUnmounted(() => {
   color: #1f2a27 !important;
 }
 
-.dance-figure--active.figure-label {
+.dance-figure--active .figure-label {
   color: #ffffff !important;
 }
 

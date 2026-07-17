@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createFirstThenExplanation, createFirstThenPairOrder, firstThenPairs, generateFirstThenRound } from "./model";
+import { createFirstThenPairOrder, createFirstThenTimeline, firstThenPairs, generateFirstThenRound } from "./model";
 
 describe("first-then model", () => {
   it("creates a first phase round with both actions", () => {
@@ -44,10 +44,19 @@ describe("first-then model", () => {
     expect(generateFirstThenRound(1, "then", { choiceOrder }).choices).toEqual([firstPair.then, firstPair.first]);
   });
 
-  it("explains the order softly", () => {
-    const explanation = createFirstThenExplanation(firstThenPairs[0]);
+  it("does not leak the correct order through choice copy", () => {
+    const round = generateFirstThenRound(1, "first", { choiceOrder: [firstThenPairs[0].first.id, firstThenPairs[0].then.id] });
+    const choiceCopy = round.choices.map((choice) => `${choice.title} ${choice.emoji}`).join(" ").toLocaleLowerCase("ru");
 
-    expect(explanation).toContain(firstThenPairs[0].first.phrase);
-    expect(explanation).toContain(firstThenPairs[0].then.phrase);
+    expect(choiceCopy).not.toMatch(/сначала|потом/);
+    round.choices.forEach((choice) => expect(choice).not.toHaveProperty("phrase"));
+  });
+
+  it("keeps the timeline empty until correct phases are revealed", () => {
+    const pair = firstThenPairs[0];
+
+    expect(createFirstThenTimeline(pair, []).map((item) => item.action)).toEqual([undefined, undefined]);
+    expect(createFirstThenTimeline(pair, ["first"]).map((item) => item.action)).toEqual([pair.first, undefined]);
+    expect(createFirstThenTimeline(pair, ["first", "then"]).map((item) => item.action)).toEqual([pair.first, pair.then]);
   });
 });

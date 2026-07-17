@@ -41,7 +41,9 @@ describe("mosaic model", () => {
       expect(new Set(choiceIds).size).toBe(4);
       expect(choiceIds).toContain(step.target.id);
       expect(step.choices[step.correctIndex]).toBe(step.target);
-      expect(step.prompt).toContain(String(stepIndex + 1));
+      expect(step.prompt).not.toMatch(/[1-9]/);
+      expect(step.hint).not.toMatch(/[1-9]/);
+      step.choices.forEach((choice) => expect(choice).not.toHaveProperty("label"));
     }
   });
 

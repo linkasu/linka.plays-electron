@@ -9,7 +9,7 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { createFirstThenPairOrder, generateFirstThenRound, type FirstThenAction, type FirstThenPhase, type FirstThenRound } from "./model";
+import { createFirstThenPairOrder, createFirstThenTimeline, generateFirstThenRound, type FirstThenAction, type FirstThenPhase, type FirstThenRound } from "./model";
 
 const firstThenFeedback = createStandardGameFeedback();
 
@@ -27,16 +27,14 @@ const choiceOrdersByPairIndex = ref<Record<number, string[]>>({});
 const pairIndex = ref(1);
 const phase = ref<FirstThenPhase>("first");
 const round = ref<FirstThenRound>(generateFirstThenRound(pairIndex.value, phase.value, { pairOrder: pairOrder.value, choiceOrder: ensureChoiceOrder(pairIndex.value) }));
+const revealedPhases = ref<FirstThenPhase[]>([]);
 const resultVisible = computed(() => session.status === "finished");
 const feedback = ref("Выбери карточку. Сначала одно действие, потом другое.");
 const isChangingRound = ref(false);
 let transitionTimer = 0;
 
 const phaseLabel = computed(() => phase.value === "first" ? "Сначала" : "Потом");
-const timelineItems = computed(() => [
-  { label: "Сначала", action: round.value.pair.first, active: phase.value === "first" },
-  { label: "Потом", action: round.value.pair.then, active: phase.value === "then" }
-]);
+const timelineItems = computed(() => createFirstThenTimeline(round.value.pair, revealedPhases.value));
 
 function choiceTargetId(action: FirstThenAction) {
   return `first-then:choice:${round.value.pair.id}:${phase.value}:${action.id}`;
@@ -75,6 +73,7 @@ function advanceRound() {
     feedback.value = "Теперь выбери, что будет потом.";
     playPhasePrompt(300);
   } else {
+    revealedPhases.value = [];
     setRound(pairIndex.value + 1, "first");
     feedback.value = "Новая пара. Что сначала?";
     playPhasePrompt(300);
@@ -91,6 +90,7 @@ async function chooseAction(action: FirstThenAction) {
   isChangingRound.value = true;
 
   if (wasCorrect) {
+    revealedPhases.value = [...revealedPhases.value, phase.value];
     void firstThenFeedback.playSuccess(session.settings.sound);
     recordSuccess({
       roundId: round.value.roundId,
@@ -132,6 +132,7 @@ function restart() {
   promptAudio.cancelPending();
   pairOrder.value = createFirstThenPairOrder();
   choiceOrdersByPairIndex.value = {};
+  revealedPhases.value = [];
   feedback.value = "Выбери карточку. Сначала одно действие, потом другое.";
   isChangingRound.value = false;
   setRound(1, "first");
@@ -169,11 +170,15 @@ onUnmounted(() => {
 
             <v-card class="timeline-card pa-4 pa-md-5 mb-6" color="indigo-lighten-5" rounded="xl" variant="flat">
               <div class="d-flex flex-column flex-md-row align-stretch ga-4">
-                <div v-for="item in timelineItems" :key="item.label" class="timeline-step flex-grow-1 pa-4 rounded-xl" :class="{ 'timeline-step--active': item.active }">
+                <div v-for="item in timelineItems" :key="item.phase" class="timeline-step flex-grow-1 pa-4 rounded-xl" :class="{ 'timeline-step--filled': item.action }">
                   <div class="text-overline text-primary mb-1">{{ item.label }}</div>
-                  <div class="d-flex align-center ga-3">
+                  <div v-if="item.action" class="d-flex align-center ga-3">
                     <div class="timeline-emoji emoji-glyph">{{ item.action.emoji }}</div>
                     <div class="text-h6 text-md-h5 font-weight-bold">{{ item.action.title }}</div>
+                  </div>
+                  <div v-else class="timeline-empty text-body-1 text-medium-emphasis">
+                    <v-icon icon="mdi-dots-horizontal" />
+                    <span>Пока пусто</span>
                   </div>
                 </div>
               </div>
@@ -183,8 +188,7 @@ onUnmounted(() => {
             <GameChoiceCardGrid :choices="round.choices" :target-id="choiceTargetId" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" min-height="10rem" :cols="12" :md="6" @select="chooseAction">
               <template #default="{ choice }">
                 <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
-                <div class="text-h4 text-md-h3 font-weight-bold mb-2">{{ choice.title }}</div>
-                <div class="choice-phrase text-body-1 text-md-h6 font-weight-medium">{{ choice.phrase }}</div>
+                <div class="text-h4 text-md-h3 font-weight-bold">{{ choice.title }}</div>
               </template>
             </GameChoiceCardGrid>
           </v-card>
@@ -201,9 +205,16 @@ onUnmounted(() => {
   border: 0.125rem solid rgb(var(--v-theme-primary) / 12%);
 }
 
-.timeline-step--active {
+.timeline-step--filled {
   background: rgb(var(--v-theme-primary) / 12%);
   border-color: rgb(var(--v-theme-primary) / 34%);
+}
+
+.timeline-empty {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  min-block-size: 4.5rem;
 }
 
 .timeline-emoji {
@@ -216,13 +227,22 @@ onUnmounted(() => {
   line-height: 1;
 }
 
-.choice-phrase {
-  color: rgb(var(--v-theme-on-surface));
-}
-
 @media (max-height: 51.25rem) {
  .timeline-card {
-    display: none;
+    margin-block-end: 0.75rem !important;
+    padding: 0.75rem !important;
+  }
+
+  .timeline-step {
+    padding: 0.75rem !important;
+  }
+
+  .timeline-empty {
+    min-block-size: 2.5rem;
+  }
+
+  .timeline-emoji {
+    font-size: clamp(2.25rem, 5vw, 3.5rem);
   }
 }
 
@@ -246,10 +266,6 @@ onUnmounted(() => {
 
  .choice-emoji {
     font-size: clamp(2.75rem, 6vw, 3.75rem);
-  }
-
- .choice-phrase {
-    display: none;
   }
 
  .first-then-card :deep(.dwell-button) {

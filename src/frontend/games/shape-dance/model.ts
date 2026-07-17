@@ -31,10 +31,12 @@ export function shuffleShapeDanceItems<T>(items: T[], random = Math.random): T[]
 }
 
 function sequenceLengthFor(settings: SessionSettings, roundIndex: number) {
-  if (settings.preset === "gentle") return 2;
-  const growth = Math.floor(Math.max(0, roundIndex - 1) / 3);
-  if (settings.preset === "challenge") return Math.min(5, 3 + growth);
-  return Math.min(4, 2 + growth);
+  const normalizedRoundIndex = Math.max(1, Math.floor(roundIndex));
+  if (settings.preset === "gentle" && normalizedRoundIndex === 1) return 2;
+
+  const growth = Math.floor((normalizedRoundIndex - 1) / 3);
+  if (settings.preset === "challenge") return Math.min(5, 4 + growth);
+  return Math.min(4, 3 + growth);
 }
 
 function pickFigure(previous: ShapeDanceFigure | undefined, random: () => number) {

@@ -1,9 +1,10 @@
+import { shuffleItems } from "../../core/random";
+
 export type FirstThenPhase = "first" | "then";
 
 export type FirstThenAction = {
   id: string;
   title: string;
-  phrase: string;
   emoji: string;
 };
 
@@ -20,7 +21,12 @@ export type FirstThenRound = {
   prompt: string;
   expectedAction: FirstThenAction;
   choices: FirstThenAction[];
-  explanation: string;
+};
+
+export type FirstThenTimelineItem = {
+  phase: FirstThenPhase;
+  label: string;
+  action?: FirstThenAction;
 };
 
 export type FirstThenRoundOptions = {
@@ -32,48 +38,52 @@ export type FirstThenRoundOptions = {
 export const firstThenPairs: FirstThenPair[] = [
   {
     id: "wash-eat",
-    first: { id: "wash-hands", title: "Вымыть руки", phrase: "сначала моем руки", emoji: "🧼" },
-    then: { id: "eat", title: "Покушать", phrase: "потом едим", emoji: "🍽️" }
+    first: { id: "wash-hands", title: "Вымыть руки", emoji: "🧼" },
+    then: { id: "eat", title: "Покушать", emoji: "🍽️" }
   },
   {
     id: "shoes-walk",
-    first: { id: "put-shoes", title: "Надеть обувь", phrase: "сначала надеваем обувь", emoji: "👟" },
-    then: { id: "walk", title: "Идти гулять", phrase: "потом идём гулять", emoji: "🌳" }
+    first: { id: "put-shoes", title: "Надеть обувь", emoji: "👟" },
+    then: { id: "walk", title: "Идти гулять", emoji: "🌳" }
   },
   {
     id: "toothbrush-bed",
-    first: { id: "brush-teeth", title: "Почистить зубы", phrase: "сначала чистим зубы", emoji: "🪥" },
-    then: { id: "sleep", title: "Лечь спать", phrase: "потом ложимся спать", emoji: "🌙" }
+    first: { id: "brush-teeth", title: "Почистить зубы", emoji: "🪥" },
+    then: { id: "sleep", title: "Лечь спать", emoji: "🌙" }
   },
   {
     id: "open-read",
-    first: { id: "open-book", title: "Открыть книгу", phrase: "сначала открываем книгу", emoji: "📖" },
-    then: { id: "read", title: "Читать", phrase: "потом читаем", emoji: "👀" }
+    first: { id: "open-book", title: "Открыть книгу", emoji: "📖" },
+    then: { id: "read", title: "Читать", emoji: "👀" }
   },
   {
     id: "pour-drink",
-    first: { id: "pour-water", title: "Налить воду", phrase: "сначала наливаем воду", emoji: "💧" },
-    then: { id: "drink", title: "Попить", phrase: "потом пьём", emoji: "🥤" }
+    first: { id: "pour-water", title: "Налить воду", emoji: "💧" },
+    then: { id: "drink", title: "Попить", emoji: "🥤" }
   },
   {
     id: "paint-clean",
-    first: { id: "paint", title: "Порисовать", phrase: "сначала рисуем", emoji: "🖍️" },
-    then: { id: "clean-up", title: "Убрать карандаши", phrase: "потом убираем карандаши", emoji: "🧺" }
+    first: { id: "paint", title: "Порисовать", emoji: "🖍️" },
+    then: { id: "clean-up", title: "Убрать карандаши", emoji: "🧺" }
   },
   {
     id: "soap-rinse",
-    first: { id: "soap", title: "Намылить руки", phrase: "сначала намыливаем руки", emoji: "🫧" },
-    then: { id: "rinse", title: "Смыть пену", phrase: "потом смываем пену", emoji: "🚿" }
+    first: { id: "soap", title: "Намылить руки", emoji: "🫧" },
+    then: { id: "rinse", title: "Смыть пену", emoji: "🚿" }
   },
   {
     id: "sit-buckle",
-    first: { id: "sit", title: "Сесть", phrase: "сначала садимся", emoji: "🪑" },
-    then: { id: "buckle", title: "Пристегнуться", phrase: "потом пристёгиваемся", emoji: "🧷" }
+    first: { id: "sit", title: "Сесть", emoji: "🪑" },
+    then: { id: "buckle", title: "Пристегнуться", emoji: "🧷" }
   }
 ];
 
-export function createFirstThenExplanation(pair: FirstThenPair) {
-  return `Порядок такой: ${pair.first.phrase}, ${pair.then.phrase}.`;
+export function createFirstThenTimeline(pair: FirstThenPair, revealedPhases: FirstThenPhase[]): FirstThenTimelineItem[] {
+  const revealed = new Set(revealedPhases);
+  return [
+    { phase: "first", label: "Сначала", action: revealed.has("first") ? pair.first : undefined },
+    { phase: "then", label: "Потом", action: revealed.has("then") ? pair.then : undefined }
+  ];
 }
 
 export function createFirstThenPairOrder(random = Math.random) {
@@ -97,8 +107,6 @@ export function generateFirstThenRound(roundIndex = 1, phase: FirstThenPhase = "
     phase,
     prompt: phase === "first" ? "Что сначала?" : "Что потом?",
     expectedAction,
-    choices,
-    explanation: createFirstThenExplanation(pair)
+    choices
   };
 }
-import { shuffleItems } from "../../core/random";
