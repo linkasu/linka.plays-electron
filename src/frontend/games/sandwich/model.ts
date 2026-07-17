@@ -7,7 +7,10 @@ export type SandwichChoice = {
   label: string;
   shortLabel: string;
   kind: SandwichChoiceKind;
-  icon: string;
+  imageId?: string;
+  emoji: string;
+  roleIcon?: string;
+  ttsAssetId?: string;
   color: string;
 };
 
@@ -34,7 +37,10 @@ const bottomBread: SandwichChoice = {
   label: "Нижний хлеб",
   shortLabel: "нижний хлеб",
   kind: "bread",
-  icon: "mdi-bread-slice",
+  imageId: "bread",
+  emoji: "🍞",
+  roleIcon: "mdi-arrow-down-bold",
+  ttsAssetId: "word-categories.item.bread",
   color: "#d9a441"
 };
 
@@ -43,7 +49,10 @@ const topBread: SandwichChoice = {
   label: "Верхний хлеб",
   shortLabel: "верхний хлеб",
   kind: "top-bread",
-  icon: "mdi-bread-slice-outline",
+  imageId: "bread",
+  emoji: "🍞",
+  roleIcon: "mdi-arrow-up-bold",
+  ttsAssetId: "word-categories.item.bread",
   color: "#c7892f"
 };
 
@@ -52,7 +61,7 @@ const butter: SandwichChoice = {
   label: "Масло",
   shortLabel: "масло",
   kind: "spread",
-  icon: "mdi-knife",
+  emoji: "🧈",
   color: "#f8d568"
 };
 
@@ -61,7 +70,9 @@ const cheese: SandwichChoice = {
   label: "Сыр",
   shortLabel: "сыр",
   kind: "filling",
-  icon: "mdi-cheese",
+  imageId: "cheese",
+  emoji: "🧀",
+  ttsAssetId: "word-categories.item.cheese",
   color: "#f6c84c"
 };
 
@@ -70,7 +81,8 @@ const lettuce: SandwichChoice = {
   label: "Лист салата",
   shortLabel: "салат",
   kind: "vegetable",
-  icon: "mdi-leaf",
+  imageId: "leaf",
+  emoji: "🥬",
   color: "#73b66b"
 };
 
@@ -79,7 +91,9 @@ const tomato: SandwichChoice = {
   label: "Помидор",
   shortLabel: "помидор",
   kind: "vegetable",
-  icon: "mdi-circle",
+  imageId: "tomato",
+  emoji: "🍅",
+  ttsAssetId: "word-categories.item.tomato",
   color: "#e57373"
 };
 

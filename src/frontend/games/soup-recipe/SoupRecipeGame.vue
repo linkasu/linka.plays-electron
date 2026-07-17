@@ -4,17 +4,16 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
-import { useGazePointer } from "../../composables/useGazePointer";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { createSoupRecipeRound, type SoupIngredient } from "./model";
+import { createSoupIngredientSlots, createSoupRecipeLayout, createSoupRecipeRound, type SoupIngredient, type SoupRect } from "./model";
 
-type Rect = { x: number; y: number; width: number; height: number };
+type Rect = SoupRect;
 type Point = { x: number; y: number };
-type IngredientSlot = { ingredient: SoupIngredient; rect: Rect; center: Point };
 type Rgb = { r: number; g: number; b: number };
 type FlyingIngredient = {
   ingredient: SoupIngredient;
@@ -26,7 +25,6 @@ type FlyingIngredient = {
 
 const soupFeedback = createStandardGameFeedback();
 const router = useRouter();
-const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("soup-recipe", {
   maxSteps: 8,
@@ -49,7 +47,8 @@ const placedIngredients = computed(() => placedIngredientIds.value
  .filter((ingredient): ingredient is SoupIngredient => Boolean(ingredient)));
 const nextIngredient = computed(() => round.ingredients.find((ingredient) => !placedIngredientIds.value.includes(ingredient.id)));
 const recipeComplete = computed(() => placedIngredientIds.value.length >= round.ingredients.length);
-const ingredientSlots = computed(() => computeIngredientSlots(width.value, height.value));
+const layout = computed(() => createSoupRecipeLayout(width.value, height.value));
+const ingredientSlots = computed(() => createSoupIngredientSlots(round.ingredients, width.value, height.value));
 
 const flyingIngredients: FlyingIngredient[] = [];
 const bubbles = Array.from({ length: 18 }, (_, index) => ({
@@ -98,11 +97,17 @@ function scheduleResultDialog() {
 }
 
 function potCenter() {
-  const layout = computeLayout(width.value, height.value);
+  const currentLayout = createSoupRecipeLayout(width.value, height.value);
   return {
-    x: layout.potRect.x + layout.potRect.width * 0.5,
-    y: layout.potRect.y + layout.potRect.height * 0.56
+    x: currentLayout.potRect.x + currentLayout.potRect.width * 0.5,
+    y: currentLayout.potRect.y + currentLayout.potRect.height * 0.56
   };
+}
+
+function ingredientColor(ingredient: SoupIngredient) {
+  if (lastMistakeId.value === ingredient.id) return "orange-lighten-4";
+  if (placedIngredientIds.value.includes(ingredient.id)) return "green-lighten-5";
+  return "surface";
 }
 
 function addFlyingIngredient(ingredient: SoupIngredient) {
@@ -178,67 +183,6 @@ function restart() {
   feedbackMessage.value = "Добавляй ингредиенты по порядку. Если ошибёшься, попробуй ещё раз.";
   startSession();
   void playPrompt(450);
-}
-
-function computeLayout(canvasWidth: number, canvasHeight: number) {
-  const margin = clamp(canvasWidth * 0.045, 18, 84);
-  const top = clamp(canvasHeight * 0.11, 82, 116);
-  const bottom = clamp(canvasHeight * 0.04, 18, 44);
-  const panel = {
-    x: margin,
-    y: top,
-    width: canvasWidth - margin * 2,
-    height: canvasHeight - top - bottom
-  };
-  const headerHeight = clamp(panel.height * 0.18, 90, 126);
-  const contentY = panel.y + headerHeight;
-  const contentHeight = Math.max(260, panel.height - headerHeight - 18);
-  const gap = clamp(canvasWidth * 0.012, 12, 26);
-
-  if (canvasWidth < 720) {
-    const potHeight = Math.min(contentHeight * 0.46, 220);
-    return {
-      panel,
-      headerHeight,
-      potRect: { x: panel.x + 14, y: contentY, width: panel.width - 28, height: potHeight },
-      gridRect: { x: panel.x + 14, y: contentY + potHeight + gap, width: panel.width - 28, height: contentHeight - potHeight - gap },
-      columns: 4,
-      rows: 2
-    };
-  }
-
-  const potWidthRatio = canvasWidth < 1100 ? 0.34 : 0.4;
-  const potWidth = clamp(panel.width * potWidthRatio, 240, 720);
-  return {
-    panel,
-    headerHeight,
-    potRect: { x: panel.x + 14, y: contentY, width: potWidth, height: contentHeight },
-    gridRect: { x: panel.x + 14 + potWidth + gap, y: contentY, width: panel.width - potWidth - gap - 28, height: contentHeight },
-    columns: 4,
-    rows: 2
-  };
-}
-
-function computeIngredientSlots(canvasWidth: number, canvasHeight: number): IngredientSlot[] {
-  const layout = computeLayout(canvasWidth, canvasHeight);
-  const gap = clamp(Math.min(canvasWidth, canvasHeight) * 0.016, 8, 18);
-  const cellWidth = (layout.gridRect.width - gap * (layout.columns - 1)) / layout.columns;
-  const cellHeight = (layout.gridRect.height - gap * (layout.rows - 1)) / layout.rows;
-  return round.ingredients.map((ingredient, index) => {
-    const col = index % layout.columns;
-    const row = Math.floor(index / layout.columns);
-    const rect = {
-      x: layout.gridRect.x + col * (cellWidth + gap),
-      y: layout.gridRect.y + row * (cellHeight + gap),
-      width: cellWidth,
-      height: cellHeight
-    };
-    return {
-      ingredient,
-      rect,
-      center: { x: rect.x + rect.width * 0.5, y: rect.y + rect.height * 0.5 }
-    };
-  });
 }
 
 function updateFlights(now: number) {
@@ -350,37 +294,16 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   ctx.restore();
 }
 
-function drawHeader(ctx: CanvasRenderingContext2D, layout: ReturnType<typeof computeLayout>) {
+function drawHeader(ctx: CanvasRenderingContext2D, layout: ReturnType<typeof createSoupRecipeLayout>) {
   const cx = layout.panel.x + layout.panel.width * 0.5;
-  const titleY = layout.panel.y + clamp(layout.headerHeight * 0.42, 34, 52);
+  const titleY = layout.panel.y + 26;
   ctx.save();
   ctx.shadowBlur = 24;
   ctx.shadowColor = "rgba(92, 64, 51, 0.16)";
-  fillRoundRect(ctx, { x: cx - layout.panel.width * 0.31, y: layout.panel.y + 4, width: layout.panel.width * 0.62, height: layout.headerHeight - 18 }, 28, "rgba(255, 252, 238, 0.78)");
+  fillRoundRect(ctx, { x: cx - layout.panel.width * 0.31, y: layout.panel.y + 4, width: layout.panel.width * 0.62, height: 56 }, 28, "rgba(255, 252, 238, 0.78)");
   ctx.restore();
-  drawCenteredText(ctx, "Свари суп по рецепту", cx, titleY - 2, clamp(width.value * 0.021, 25, 42));
-  drawCenteredText(ctx, feedbackMessage.value, cx, titleY + clamp(layout.headerHeight * 0.31, 26, 36), clamp(width.value * 0.011, 14, 20), "#566d67", 600);
-}
-
-function drawRecipeProgress(ctx: CanvasRenderingContext2D, layout: ReturnType<typeof computeLayout>) {
-  const count = round.ingredients.length;
-  const dotGap = clamp(layout.panel.width * 0.008, 6, 14);
-  const radius = clamp(Math.min(width.value, height.value) * 0.013, 7, 12);
-  const totalWidth = count * radius * 2 + (count - 1) * dotGap;
-  let x = layout.panel.x + layout.panel.width * 0.5 - totalWidth * 0.5 + radius;
-  const y = layout.panel.y + layout.headerHeight - radius - 4;
-  for (const ingredient of round.ingredients) {
-    const done = placedIngredientIds.value.includes(ingredient.id);
-    const next = ingredient.id === nextIngredient.value?.id;
-    ctx.beginPath();
-    ctx.arc(x, y, next ? radius * 1.18 : radius, 0, Math.PI * 2);
-    ctx.fillStyle = done ? ingredient.color : next ? "#ffe0b2" : "rgba(255, 255, 255, 0.74)";
-    ctx.fill();
-    ctx.lineWidth = next ? 3 : 1.5;
-    ctx.strokeStyle = next ? "#ef8f35" : "rgba(60, 73, 68, 0.18)";
-    ctx.stroke();
-    x += radius * 2 + dotGap;
-  }
+  drawCenteredText(ctx, "Свари суп по рецепту", cx, titleY, clamp(width.value * 0.021, 24, 40));
+  drawCenteredText(ctx, feedbackMessage.value, cx, layout.panel.y + 56, clamp(width.value * 0.011, 13, 18), "#566d67", 600);
 }
 
 function drawGasFlame(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, now: number) {
@@ -646,100 +569,6 @@ function drawSoupBits(ctx: CanvasRenderingContext2D, soupRect: Rect, now: number
   ctx.restore();
 }
 
-function drawPotIcon(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
-  ctx.save();
-  ctx.strokeStyle = "rgba(93, 64, 55, 0.74)";
-  ctx.lineWidth = Math.max(4, size * 0.14);
-  ctx.lineCap = "round";
-  ctx.beginPath();
-  ctx.moveTo(x - size * 0.6, y - size * 0.15);
-  ctx.lineTo(x + size * 0.6, y - size * 0.15);
-  ctx.moveTo(x - size * 0.38, y - size * 0.15);
-  ctx.lineTo(x - size * 0.32, y + size * 0.52);
-  ctx.lineTo(x + size * 0.32, y + size * 0.52);
-  ctx.lineTo(x + size * 0.38, y - size * 0.15);
-  ctx.moveTo(x - size * 0.14, y - size * 0.55);
-  ctx.quadraticCurveTo(x - size * 0.42, y - size * 0.25, x, y - size * 0.12);
-  ctx.quadraticCurveTo(x + size * 0.32, y, x + size * 0.08, y + size * 0.22);
-  ctx.stroke();
-  ctx.restore();
-}
-
-function drawIngredientSlots(ctx: CanvasRenderingContext2D, slots: IngredientSlot[], now: number) {
-  if (slots.length > 0) {
-    const rows = [...new Set(slots.map((slot) => Math.round(slot.rect.y)))].sort((a, b) => a - b);
-    for (const rowY of rows) {
-      const rowSlots = slots.filter((slot) => Math.round(slot.rect.y) === rowY);
-      const minX = Math.min(...rowSlots.map((slot) => slot.rect.x));
-      const maxX = Math.max(...rowSlots.map((slot) => slot.rect.x + slot.rect.width));
-      const minY = Math.min(...rowSlots.map((slot) => slot.rect.y));
-      const maxH = Math.max(...rowSlots.map((slot) => slot.rect.height));
-      const shelfY = minY + maxH * 0.58;
-      const shelf = ctx.createLinearGradient(0, shelfY, 0, shelfY + maxH * 0.12);
-      shelf.addColorStop(0, "rgba(183, 122, 61, 0.5)");
-      shelf.addColorStop(1, "rgba(114, 67, 31, 0.42)");
-      ctx.save();
-      ctx.shadowBlur = 16;
-      ctx.shadowColor = "rgba(75, 39, 18, 0.22)";
-      fillRoundRect(ctx, { x: minX - 28, y: shelfY, width: maxX - minX + 56, height: Math.max(16, maxH * 0.12) }, 18, shelf);
-      ctx.restore();
-    }
-  }
-
-  for (const slot of slots) {
-    const placed = placedIngredientIds.value.includes(slot.ingredient.id);
-    const mistaken = lastMistakeId.value === slot.ingredient.id;
-    const focused = pointer.value.valid
-      && pointer.value.x >= slot.rect.x
-      && pointer.value.x <= slot.rect.x + slot.rect.width
-      && pointer.value.y >= slot.rect.y
-      && pointer.value.y <= slot.rect.y + slot.rect.height;
-
-    const bowlRadius = clamp(Math.min(slot.rect.width, slot.rect.height) * 0.28, 32, 74);
-    const bowlY = slot.center.y - slot.rect.height * 0.05;
-    ctx.save();
-    ctx.globalAlpha = placed ? 0.34 : 0.86;
-    ctx.fillStyle = "rgba(68, 37, 18, 0.2)";
-    ctx.beginPath();
-    ctx.ellipse(slot.center.x, bowlY + bowlRadius * 0.78, bowlRadius * 1.15, bowlRadius * 0.22, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-
-    ctx.save();
-    if (focused) {
-      ctx.shadowBlur = 20;
-      ctx.shadowColor = "rgba(255, 229, 127, 0.46)";
-    }
-    ctx.globalAlpha = placed ? 0.42 : 1;
-    const plate = ctx.createRadialGradient(slot.center.x - bowlRadius * 0.28, bowlY - bowlRadius * 0.24, 0, slot.center.x, bowlY, bowlRadius * 1.18);
-    plate.addColorStop(0, "#ffffff");
-    plate.addColorStop(0.64, "#fff6d8");
-    plate.addColorStop(1, "#e4b46f");
-    ctx.fillStyle = plate;
-    ctx.beginPath();
-    ctx.ellipse(slot.center.x, bowlY, bowlRadius * 1.08, bowlRadius * 0.72, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = "rgba(84, 53, 31, 0.22)";
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
-    ctx.restore();
-
-    if (mistaken) {
-      ctx.save();
-      ctx.globalAlpha = 0.18 + Math.sin(now * 0.01) * 0.04;
-      ctx.fillStyle = "#ef6c00";
-      ctx.beginPath();
-      ctx.ellipse(slot.center.x, bowlY, bowlRadius * 1.2, bowlRadius * 0.82, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-    const glyphSize = clamp(Math.min(slot.rect.width, slot.rect.height) * 0.2, 24, 50);
-    drawIngredientGlyph(ctx, slot.ingredient, slot.center.x, bowlY - bowlRadius * 0.08, glyphSize, false, placed ? 0.35 : 1);
-    drawCenteredText(ctx, slot.ingredient.label, slot.center.x, slot.center.y + slot.rect.height * 0.25, clamp(slot.rect.width * 0.07, 14, 22), placed ? "#6e6a5e" : "#18211d", 850);
-    if (slot.rect.height > 128) drawCenteredText(ctx, `${slot.ingredient.orderIndex}`, slot.center.x, bowlY + bowlRadius * 0.92, clamp(slot.rect.width * 0.045, 12, 16), "rgba(85, 58, 34, 0.72)", 800);
-  }
-}
-
 function drawIngredientGlyph(ctx: CanvasRenderingContext2D, ingredient: SoupIngredient, x: number, y: number, size: number, compact = false, alpha = 1) {
   ctx.save();
   ctx.globalAlpha = alpha;
@@ -926,12 +755,10 @@ function drawFlyingIngredients(ctx: CanvasRenderingContext2D, now: number) {
 
 function draw(ctx: CanvasRenderingContext2D, _delta: number, now: number) {
   updateFlights(now);
-  const layout = computeLayout(width.value, height.value);
+  const currentLayout = createSoupRecipeLayout(width.value, height.value);
   drawBackground(ctx, now);
-  drawHeader(ctx, layout);
-  drawRecipeProgress(ctx, layout);
-  drawPot(ctx, layout.potRect, now);
-  drawIngredientSlots(ctx, ingredientSlots.value, now);
+  drawHeader(ctx, currentLayout);
+  drawPot(ctx, currentLayout.potRect, now);
   drawFlyingIngredients(ctx, now);
 }
 
@@ -968,9 +795,32 @@ watch(isSpeaking, (speaking) => {
   <div class="soup-recipe-shell">
     <GameHud title="Рецепт супа" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
     <canvas ref="canvasRef" class="soup-canvas" aria-label="Рецепт супа" />
+    <div class="soup-recipe-layer" aria-label="Рецепт супа по порядку">
+      <div class="soup-recipe-strip" :style="targetStyle(layout.recipeRect)">
+        <div
+          v-for="ingredient in round.ingredients"
+          :key="`recipe:${ingredient.id}`"
+          :class="['soup-recipe-step', { 'soup-recipe-step--done': placedIngredientIds.includes(ingredient.id), 'soup-recipe-step--current': nextIngredient?.id === ingredient.id }]"
+        >
+          <div class="soup-recipe-visual">
+            <GameWordImage v-if="ingredient.imageId" :word-id="ingredient.imageId" :word="ingredient.label" :emoji="ingredient.emoji" decorative />
+            <v-icon v-else-if="ingredient.icon" :icon="ingredient.icon" />
+            <span v-else class="emoji-glyph" aria-hidden="true">{{ ingredient.emoji }}</span>
+          </div>
+          <span class="soup-recipe-label text-caption font-weight-bold">{{ ingredient.label }}</span>
+        </div>
+      </div>
+    </div>
     <div class="soup-target-layer" aria-label="Ингредиенты для супа">
-      <GameDwellButton v-for="slot in ingredientSlots" :key="slot.ingredient.id" class="soup-target" :style="targetStyle(slot.rect)" :target-id="ingredientTargetId(slot.ingredient)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking || placedIngredientIds.includes(slot.ingredient.id)" :dwell-ms="session.settings.dwellMs" :min-height="Math.max(96, slot.rect.height)" color="transparent" @select="chooseIngredient(slot.ingredient)">
-        <span class="sr-only">{{ slot.ingredient.label }}</span>
+      <GameDwellButton v-for="slot in ingredientSlots" :key="slot.ingredient.id" class="soup-target" :style="targetStyle(slot.rect)" :target-id="ingredientTargetId(slot.ingredient)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking || placedIngredientIds.includes(slot.ingredient.id)" :dwell-ms="session.settings.dwellMs" :hit-padding="0" :min-height="slot.rect.height" :color="ingredientColor(slot.ingredient)" @select="chooseIngredient(slot.ingredient)">
+        <div :class="['soup-ingredient-card', { 'soup-ingredient-card--placed': placedIngredientIds.includes(slot.ingredient.id) }]">
+          <div class="soup-ingredient-visual" :style="{ backgroundColor: slot.ingredient.color }">
+            <GameWordImage v-if="slot.ingredient.imageId" :word-id="slot.ingredient.imageId" :word="slot.ingredient.label" :emoji="slot.ingredient.emoji" />
+            <v-icon v-else-if="slot.ingredient.icon" :icon="slot.ingredient.icon" />
+            <span v-else class="emoji-glyph" :aria-label="slot.ingredient.label">{{ slot.ingredient.emoji }}</span>
+          </div>
+          <div class="soup-ingredient-label text-subtitle-2 text-md-subtitle-1 font-weight-bold">{{ slot.ingredient.label }}</div>
+        </div>
       </GameDwellButton>
     </div>
     <GameResultDialog :model-value="resultVisible" title="Рецепт супа" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
@@ -991,11 +841,66 @@ watch(isSpeaking, (speaking) => {
   position: fixed;
 }
 
-.soup-target-layer {
+.soup-target-layer,
+.soup-recipe-layer {
   inset: 0;
   pointer-events: none;
   position: fixed;
   z-index: 2;
+}
+
+.soup-recipe-layer {
+  z-index: 3;
+}
+
+.soup-recipe-strip {
+  display: grid;
+  gap: clamp(0.2rem, 0.45vw, 0.5rem);
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  position: absolute;
+}
+
+.soup-recipe-step {
+  align-items: center;
+  background: rgb(var(--v-theme-surface) / 94%);
+  border: 0.125rem solid rgb(var(--v-theme-primary) / 14%);
+  border-radius: 0.75rem;
+  display: flex;
+  gap: 0.25rem;
+  justify-content: center;
+  min-inline-size: 0;
+  opacity: 0.62;
+  overflow: hidden;
+  padding: 0.2rem;
+  transition: border-color 180ms ease, box-shadow 180ms ease, opacity 180ms ease, transform 180ms ease;
+}
+
+.soup-recipe-step--done {
+  background: rgb(var(--v-theme-success) / 13%);
+  opacity: 0.82;
+}
+
+.soup-recipe-step--current {
+  background: rgb(var(--v-theme-warning) / 24%);
+  border-color: rgb(var(--v-theme-warning-darken-1));
+  box-shadow: 0 0 0 0.2rem rgb(var(--v-theme-warning) / 24%);
+  opacity: 1;
+  transform: translateY(-0.1rem);
+}
+
+.soup-recipe-visual {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: clamp(1.8rem, 5dvh, 2.8rem);
+  justify-content: center;
+}
+
+.soup-recipe-label {
+  color: #18211d;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .soup-target {
@@ -1004,13 +909,42 @@ watch(isSpeaking, (speaking) => {
 }
 
 .soup-target :deep(.dwell-button) {
-  background: transparent !important;
-  box-shadow: none !important;
-  opacity: 0.01;
+  border: 0.125rem solid rgb(var(--v-theme-primary) / 14%);
+  padding: clamp(0.35rem, 1.2dvh, 0.75rem) !important;
 }
 
 .soup-target :deep(.dwell-button--active) {
-  opacity: 0.18;
+  border-color: rgb(var(--v-theme-primary));
+}
+
+.soup-ingredient-card {
+  align-items: center;
+  color: #18211d;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-block-size: 0;
+  transition: opacity 180ms ease;
+}
+
+.soup-ingredient-card--placed {
+  opacity: 0.38;
+}
+
+.soup-ingredient-visual {
+  align-items: center;
+  border-radius: 1rem;
+  display: inline-flex;
+  font-size: clamp(2.75rem, min(6.8vw, 10dvh), 5.25rem);
+  justify-content: center;
+  margin-block-end: clamp(0.15rem, 0.8dvh, 0.5rem);
+  min-block-size: clamp(3.25rem, 10dvh, 5.5rem);
+  min-inline-size: clamp(3.25rem, 7vw, 5.5rem);
+  padding: 0.2rem;
+}
+
+.soup-ingredient-label {
+  color: #18211d;
 }
 
 .sr-only {
@@ -1021,5 +955,11 @@ watch(isSpeaking, (speaking) => {
   overflow: hidden;
   position: absolute;
   white-space: nowrap;
+}
+
+@media (max-width: 60rem) {
+  .soup-recipe-label {
+    display: none;
+  }
 }
 </style>

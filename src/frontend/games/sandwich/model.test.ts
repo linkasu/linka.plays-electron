@@ -44,6 +44,18 @@ describe("sandwich model", () => {
     }
   });
 
+  it("provides recognizable visuals and only available ingredient speech", () => {
+    const byId = Object.fromEntries(sandwichChoices.map((choice) => [choice.id, choice]));
+
+    expect(byId["bottom-bread"]).toMatchObject({ imageId: "bread", roleIcon: "mdi-arrow-down-bold", ttsAssetId: "word-categories.item.bread" });
+    expect(byId["top-bread"]).toMatchObject({ imageId: "bread", roleIcon: "mdi-arrow-up-bold", ttsAssetId: "word-categories.item.bread" });
+    expect(byId.cheese).toMatchObject({ imageId: "cheese", ttsAssetId: "word-categories.item.cheese" });
+    expect(byId.tomato).toMatchObject({ imageId: "tomato", ttsAssetId: "word-categories.item.tomato" });
+    expect(byId.butter).toMatchObject({ emoji: "🧈" });
+    expect(byId.butter.ttsAssetId).toBeUndefined();
+    expect(sandwichChoices.every((choice) => choice.imageId || choice.emoji)).toBe(true);
+  });
+
   it("shuffles button choices without dropping ingredients", () => {
     const randomValues = [0.91, 0.13, 0.72, 0.28, 0.49];
     const shuffled = shuffleSandwichChoices(sandwichChoices, () => randomValues.shift() ?? 0);

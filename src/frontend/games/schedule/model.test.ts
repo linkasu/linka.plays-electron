@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createScheduleCards, dailyScheduleSteps, isExpectedScheduleChoice, nextScheduleStep, scheduleMaxSteps, scheduleTargetId } from "./model";
+import { createScheduleCandidates, createScheduleCards, dailyScheduleSteps, isExpectedScheduleChoice, nextScheduleStep, scheduleMaxSteps, schedulePromptAssetId, scheduleTargetId } from "./model";
 
 describe("schedule model", () => {
   it("keeps a full eight-step daily AAC sequence", () => {
@@ -30,5 +30,29 @@ describe("schedule model", () => {
 
   it("keeps target ids stable for telemetry", () => {
     expect(scheduleTargetId(dailyScheduleSteps[0])).toBe("schedule:card:wake");
+  });
+
+  it("uses clear word-bank AAC images for every action", () => {
+    expect(dailyScheduleSteps.map((step) => step.imageId)).toEqual(["clock", "soap", "porridge", "shirt", "book", "soup", "toy", "bed"]);
+  });
+
+  it("keeps the exact morning step prompt flow", () => {
+    expect(dailyScheduleSteps.slice(0, 4).map(schedulePromptAssetId)).toEqual([
+      "schedule.prompt.wake",
+      "schedule.prompt.wash",
+      "schedule.prompt.breakfast",
+      "schedule.prompt.dress"
+    ]);
+  });
+
+  it("shows at most four compact candidates and always includes the expected step", () => {
+    const cards = createScheduleCards();
+    const firstCandidates = createScheduleCandidates(cards, [], 4);
+    const washCandidates = createScheduleCandidates(cards, ["wake"], 4);
+
+    expect(firstCandidates.map((card) => card.id)).toEqual(["lunch", "wake", "play", "wash"]);
+    expect(washCandidates).toHaveLength(4);
+    expect(washCandidates.some((card) => card.id === "wash")).toBe(true);
+    expect(createScheduleCandidates(cards, ["wake", "wash", "breakfast", "dress", "therapy"], 4)).toHaveLength(3);
   });
 });

@@ -5,6 +5,7 @@ import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
@@ -31,6 +32,11 @@ const isFeedbackPlaying = ref(false);
 const isRecipeResting = ref(false);
 const isInputCoolingDown = ref(false);
 const promptAudio = useGamePromptAudio({ gameId: "sandwich", soundEnabled: toRef(session.settings, "sound") });
+const ingredientAudio = useGamePromptAudio({
+  gameId: "word-categories",
+  soundEnabled: toRef(session.settings, "sound"),
+  warmAssetIds: ["word-categories.item.bread", "word-categories.item.cheese", "word-categories.item.tomato"]
+});
 let feedbackTimer = 0;
 let recipeTimer = 0;
 let cooldownTimer = 0;
@@ -66,7 +72,14 @@ function clearTransientFeedback() {
 async function playPrompt(delayMs = 0) {
   isSpeaking.value = true;
   await promptAudio.playSequenceAndWait(["sandwich.prompt"], delayMs);
+  const ingredientAssetId = currentStep.value?.choice.ttsAssetId;
+  if (ingredientAssetId) await ingredientAudio.playSequenceAndWait([ingredientAssetId], 100);
   isSpeaking.value = false;
+}
+
+async function playCurrentIngredientName(delayMs = 0) {
+  const ingredientAssetId = currentStep.value?.choice.ttsAssetId;
+  if (ingredientAssetId) await ingredientAudio.playSequenceAndWait([ingredientAssetId], delayMs);
 }
 
 function startInputCooldown() {
@@ -132,6 +145,7 @@ async function chooseIngredient(choice: SandwichChoice) {
     }
     else {
       await promptAudio.playSequenceAndWait(["sandwich.correct"], 80);
+      await playCurrentIngredientName(100);
       isFeedbackPlaying.value = false;
       feedbackTimer = window.setTimeout(() => {
         successChoiceId.value = undefined;
@@ -153,6 +167,7 @@ async function chooseIngredient(choice: SandwichChoice) {
 function restart() {
   clearTimers();
   promptAudio.cancelPending();
+  ingredientAudio.cancelPending();
   plateSteps.value = [];
   visibleChoices.value = shuffleSandwichChoices();
   resultVisible.value = false;
@@ -167,6 +182,7 @@ function restart() {
 
 onMounted(() => {
   promptAudio.warm();
+  ingredientAudio.warm();
   sandwichFeedback.warm(session.settings.sound);
   void playPrompt(450);
 });
@@ -174,6 +190,7 @@ onMounted(() => {
 onUnmounted(() => {
   clearTimers();
   promptAudio.cancelPending();
+  ingredientAudio.cancelPending();
   sandwichFeedback.dispose();
 });
 
@@ -204,11 +221,28 @@ watch(() => session.status, (status) => {
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-1">Собери бутерброд</h1>
             <p class="intro text-body-1 text-medium-emphasis text-center mb-3">Выбирай ингредиенты по рецепту. Готовый бутерброд немного побудет на тарелке, потом начнём следующий.</p>
 
+            <div class="recipe-strip mb-3" :aria-label="`Рецепт: ${currentRecipe.helper}`">
+              <div
+                v-for="(ingredient, index) in currentRecipe.steps"
+                :key="`${currentRecipe.id}:${index}`"
+                :class="['recipe-step', { 'recipe-step--done': isRecipeResting || index < currentStep.stepIndex, 'recipe-step--current': !isRecipeResting && index === currentStep.stepIndex }]"
+              >
+                <div class="recipe-step-visual">
+                  <GameWordImage v-if="ingredient.imageId" :word-id="ingredient.imageId" :word="ingredient.label" :emoji="ingredient.emoji" decorative />
+                  <span v-else class="emoji-glyph" aria-hidden="true">{{ ingredient.emoji }}</span>
+                  <v-icon v-if="ingredient.roleIcon" class="ingredient-role" :icon="ingredient.roleIcon" size="small" />
+                </div>
+                <div class="recipe-step-label text-caption font-weight-bold">{{ ingredient.label }}</div>
+              </div>
+            </div>
+
             <v-card class="prompt-card pa-3 pa-md-4 mb-3" color="green-lighten-5" rounded="xl" variant="flat">
               <div class="d-flex flex-wrap align-center ga-3">
-                <v-avatar :color="currentStep.choice.color" size="54">
-                  <v-icon color="white" :icon="currentStep.choice.icon" size="32" />
-                </v-avatar>
+                <div class="current-ingredient" :style="{ backgroundColor: currentStep.choice.color }">
+                  <GameWordImage v-if="currentStep.choice.imageId" :word-id="currentStep.choice.imageId" :word="currentStep.choice.label" :emoji="currentStep.choice.emoji" decorative />
+                  <span v-else class="emoji-glyph" aria-hidden="true">{{ currentStep.choice.emoji }}</span>
+                  <v-icon v-if="currentStep.choice.roleIcon" class="ingredient-role" :icon="currentStep.choice.roleIcon" size="small" />
+                </div>
                 <div>
                   <div class="text-caption text-medium-emphasis">{{ currentRecipe.title }} · шаг {{ currentStep.stepIndex + 1 }} из {{ currentRecipe.steps.length }}</div>
                   <div class="text-h6 text-md-h5 font-weight-bold">{{ isRecipeResting ? `${currentRecipe.title} готов` : currentPrompt }}</div>
@@ -224,7 +258,8 @@ watch(() => session.status, (status) => {
                   <div class="plate">
                     <div v-if="plateLayers.length === 0" class="empty-plate text-body-1 text-medium-emphasis">Тарелка ждёт нижний хлеб</div>
                     <div v-for="layer in plateLayers" :key="layer.layerKey" :class="['sandwich-layer', `sandwich-layer--${layer.choice.kind}`]" :style="{ background: layer.choice.color }">
-                      <v-icon class="mr-2" color="white" :icon="layer.choice.icon" />
+                      <GameWordImage v-if="layer.choice.imageId" class="layer-image mr-2" :word-id="layer.choice.imageId" :word="layer.choice.label" :emoji="layer.choice.emoji" decorative />
+                      <span v-else class="emoji-glyph mr-2" aria-hidden="true">{{ layer.choice.emoji }}</span>
                       <span>{{ layer.choice.shortLabel }}</span>
                     </div>
                   </div>
@@ -239,9 +274,11 @@ watch(() => session.status, (status) => {
                 <GameDwellButton v-for="choice in visibleChoices" :key="choice.id" :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isRecipeResting || isInputCoolingDown || isSpeaking || isFeedbackPlaying" :dwell-ms="session.settings.dwellMs" min-height="6.5rem" :color="choiceColor(choice)" @select="chooseIngredient(choice)">
                   <template #default>
                     <div class="ingredient-content">
-                      <v-avatar :color="choice.color" size="52">
-                        <v-icon color="white" :icon="choice.icon" size="30" />
-                      </v-avatar>
+                      <div class="choice-visual" :style="{ backgroundColor: choice.color }">
+                        <GameWordImage v-if="choice.imageId" :word-id="choice.imageId" :word="choice.label" :emoji="choice.emoji" decorative />
+                        <span v-else class="emoji-glyph" aria-hidden="true">{{ choice.emoji }}</span>
+                        <v-icon v-if="choice.roleIcon" class="ingredient-role" :icon="choice.roleIcon" size="small" />
+                      </div>
                       <div class="text-subtitle-1 font-weight-bold mt-2">{{ choice.label }}</div>
                     </div>
                   </template>
@@ -278,6 +315,77 @@ watch(() => session.status, (status) => {
 
 .prompt-card {
   border: 0.125rem solid rgb(var(--v-theme-warning) / 18%);
+}
+
+.recipe-strip {
+  display: grid;
+  gap: clamp(0.35rem, 0.7vw, 0.7rem);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.recipe-step {
+  align-items: center;
+  background: rgb(var(--v-theme-surface));
+  border: 0.1875rem solid rgb(var(--v-theme-primary) / 14%);
+  border-radius: 1rem;
+  display: flex;
+  gap: clamp(0.25rem, 0.7vw, 0.65rem);
+  justify-content: center;
+  min-block-size: clamp(4.25rem, 9dvh, 6rem);
+  opacity: 0.62;
+  padding: 0.4rem;
+  transition: border-color 180ms ease, box-shadow 180ms ease, opacity 180ms ease, transform 180ms ease;
+}
+
+.recipe-step--done {
+  background: rgb(var(--v-theme-success) / 10%);
+  opacity: 0.82;
+}
+
+.recipe-step--current {
+  background: rgb(var(--v-theme-warning) / 24%);
+  border-color: rgb(var(--v-theme-warning-darken-1));
+  box-shadow: 0 0 0 0.25rem rgb(var(--v-theme-warning) / 24%);
+  opacity: 1;
+  transform: translateY(-0.125rem);
+}
+
+.recipe-step-visual,
+.current-ingredient,
+.choice-visual {
+  align-items: center;
+  border-radius: 1rem;
+  display: inline-flex;
+  flex: 0 0 auto;
+  justify-content: center;
+  position: relative;
+}
+
+.recipe-step-visual {
+  font-size: clamp(2rem, 5dvh, 3.5rem);
+}
+
+.current-ingredient {
+  font-size: clamp(3rem, 8dvh, 4.5rem);
+  min-block-size: 4rem;
+  min-inline-size: 4rem;
+  padding: 0.2rem;
+}
+
+.choice-visual {
+  font-size: clamp(3rem, 8dvh, 4.75rem);
+  min-block-size: 4.25rem;
+  min-inline-size: 4.25rem;
+  padding: 0.2rem;
+}
+
+.ingredient-role {
+  background: rgb(var(--v-theme-surface) / 92%);
+  border-radius: 999rem;
+  color: rgb(var(--v-theme-primary));
+  inset-block-end: -0.15rem;
+  inset-inline-end: -0.15rem;
+  position: absolute;
 }
 
 .play-area {
@@ -342,6 +450,10 @@ watch(() => session.status, (status) => {
   transition: transform 180ms ease;
 }
 
+.layer-image {
+  font-size: 1.8rem;
+}
+
 .sandwich-layer--bread,
 .sandwich-layer--top-bread {
   border-radius: 999rem 999rem 1.2rem 1.2rem;
@@ -361,9 +473,11 @@ watch(() => session.status, (status) => {
 }
 
 .ingredient-grid {
+  align-self: start;
   display: grid;
   gap: 0.75rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  inline-size: 100%;
 }
 
 .ingredient-content {
@@ -379,6 +493,28 @@ watch(() => session.status, (status) => {
   }
 }
 
+@media (max-height: 48rem) {
+ .recipe-strip {
+   padding-inline-start: min(15rem, 30vw);
+ }
+
+ .ingredient-grid :deep(.dwell-button) {
+   min-block-size: 7rem !important;
+   padding: 0.5rem !important;
+ }
+
+ .choice-visual {
+   font-size: 3rem;
+   min-block-size: 3.25rem;
+   min-inline-size: 3.25rem;
+ }
+
+ .ingredient-content .text-subtitle-1 {
+   font-size: 0.875rem !important;
+   margin-block-start: 0.25rem !important;
+ }
+}
+
 @media (max-height: 48rem) and (min-width: 56rem) {
  .sandwich-card {
     padding-block: 0.75rem !important;
@@ -391,7 +527,15 @@ watch(() => session.status, (status) => {
 
  .play-area {
     grid-template-columns: minmax(18rem, 0.85fr) minmax(26rem, 1.15fr);
-  }
+ }
+
+ .recipe-step {
+   min-block-size: 3.75rem;
+ }
+
+ .recipe-step-visual {
+   font-size: 2.5rem;
+ }
 
  .plate-stage {
     block-size: clamp(13rem, 42dvh, 18rem);
@@ -420,7 +564,23 @@ watch(() => session.status, (status) => {
  .prompt-card {
     margin-block-end: 0.75rem !important;
     padding-block: 0.75rem !important;
-  }
+ }
+
+ .recipe-strip {
+   margin-block-end: 0.65rem !important;
+ }
+
+ .recipe-step {
+   min-block-size: 3.4rem;
+ }
+
+ .recipe-step-label {
+   display: none;
+ }
+
+ .recipe-step-visual {
+   font-size: 2.4rem;
+ }
 
  .play-area {
     grid-template-columns: minmax(16rem, 0.85fr) minmax(20rem, 1.15fr);
