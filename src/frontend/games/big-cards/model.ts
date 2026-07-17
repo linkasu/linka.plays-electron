@@ -8,8 +8,13 @@ export type BigCard = {
 export type BigCardsRound = {
   roundId: string;
   prompt: string;
-  suggested: BigCard;
   choices: BigCard[];
+};
+
+export type BigCardChoiceResult = {
+  cardId: string;
+  label: string;
+  isCorrect: true;
 };
 
 const bigCards: BigCard[] = [
@@ -27,12 +32,14 @@ export function generateBigCardsRound(roundIndex = 1): BigCardsRound {
   const choiceCount = 2 + ((roundIndex - 1) % 3);
   const start = (roundIndex * 2) % bigCards.length;
   const choices = Array.from({ length: choiceCount }, (_, index) => bigCards[(start + index) % bigCards.length]);
-  const suggested = choices[(roundIndex - 1) % choices.length];
 
   return {
     roundId: `big-cards:round:${roundIndex}`,
-    prompt: `Можно посмотреть на ${suggested.label.toLowerCase()}. Любая карточка подойдёт.`,
-    suggested,
+    prompt: "Выбери любую картинку",
     choices
   };
+}
+
+export function evaluateBigCardChoice(card: BigCard): BigCardChoiceResult {
+  return { cardId: card.id, label: card.label, isCorrect: true };
 }

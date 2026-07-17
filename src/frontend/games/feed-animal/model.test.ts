@@ -12,4 +12,12 @@ describe("feed animal model", () => {
       expect(round.foods[round.correctIndex]).toBe(round.correctFood);
     }
   });
+
+  it("keeps fish as the correct food for the puppy round", () => {
+    const round = generateFeedAnimalRound(2);
+
+    expect(round.animal.id).toBe("puppy");
+    expect(round.correctFood.id).toBe("fish");
+    expect(animalEatsFood(round.animal, round.correctFood)).toBe(true);
+  });
 });

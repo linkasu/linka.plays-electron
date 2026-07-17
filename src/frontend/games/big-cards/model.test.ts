@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { generateBigCardsRound } from "./model";
+import { evaluateBigCardChoice, generateBigCardsRound } from "./model";
 
 describe("big-cards model", () => {
   it("cycles through two to four cards", () => {
@@ -9,12 +9,18 @@ describe("big-cards model", () => {
     expect(generateBigCardsRound(4).choices).toHaveLength(2);
   });
 
-  it("uses unique choices and includes the suggested card", () => {
-    const round = generateBigCardsRound(6);
-    const ids = new Set(round.choices.map((choice) => choice.id));
+  it("keeps the mode free-choice and treats every card as success", () => {
+    for (let roundIndex = 1; roundIndex <= 8; roundIndex += 1) {
+      const round = generateBigCardsRound(roundIndex);
+      const ids = new Set(round.choices.map((choice) => choice.id));
 
-    expect(ids.size).toBe(round.choices.length);
-    expect(round.choices).toContain(round.suggested);
-    expect(round.prompt).toContain(round.suggested.label.toLowerCase());
+      expect(round.prompt).toBe("Выбери любую картинку");
+      expect(ids.size).toBe(round.choices.length);
+      expect(round.choices.map(evaluateBigCardChoice)).toEqual(round.choices.map((card) => ({
+        cardId: card.id,
+        label: card.label,
+        isCorrect: true
+      })));
+    }
   });
 });

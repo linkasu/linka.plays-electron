@@ -13,6 +13,13 @@ export type ColorCircleRound = {
   correctIndex: number;
 };
 
+export type ColorCircleBounds = {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+};
+
 export const colorCircleColors: ColorCircleColor[] = [
   { id: "red", label: "красный", hex: "#B71C1C", textColor: "#FFFFFF" },
   { id: "yellow", label: "жёлтый", hex: "#F8C73E", textColor: "#25210C" },
@@ -20,8 +27,8 @@ export const colorCircleColors: ColorCircleColor[] = [
   { id: "green", label: "зелёный", hex: "#1B5E20", textColor: "#FFFFFF" },
   { id: "purple", label: "фиолетовый", hex: "#4A148C", textColor: "#FFFFFF" },
   { id: "orange", label: "оранжевый", hex: "#F28A2E", textColor: "#2B1708" },
-  { id: "teal", label: "бирюзовый", hex: "#00695C", textColor: "#FFFFFF" },
-  { id: "pink", label: "розовый", hex: "#880E4F", textColor: "#FFFFFF" }
+  { id: "teal", label: "бирюзовый", hex: "#21A7A1", textColor: "#172321" },
+  { id: "pink", label: "розовый", hex: "#E45C95", textColor: "#172321" }
 ];
 
 const sectorCount = 4;
@@ -32,6 +39,19 @@ function colorAt(index: number) {
 
 function rotateSectors(colors: ColorCircleColor[], offset: number) {
   return colors.map((_, index) => colors[(index + offset) % colors.length]);
+}
+
+export function resolveColorCircleSectorIndex(point: { x: number; y: number }, bounds: ColorCircleBounds) {
+  if (bounds.width <= 0 || bounds.height <= 0) return undefined;
+
+  const centerX = bounds.left + bounds.width / 2;
+  const centerY = bounds.top + bounds.height / 2;
+  const offsetX = point.x - centerX;
+  const offsetY = point.y - centerY;
+  const radius = Math.min(bounds.width, bounds.height) / 2;
+
+  if (Math.hypot(offsetX, offsetY) > radius) return undefined;
+  return (offsetY >= 0 ? 2 : 0) + (offsetX >= 0 ? 1 : 0);
 }
 
 export function generateColorCircleRound(roundIndex = 1): ColorCircleRound {

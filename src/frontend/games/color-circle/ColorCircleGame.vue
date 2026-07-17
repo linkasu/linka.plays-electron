@@ -6,10 +6,11 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useGazePointer } from "../../composables/useGazePointer";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { colorCircleFeedback } from "./audio";
-import { generateColorCircleRound, type ColorCircleColor } from "./model";
+import { generateColorCircleRound, resolveColorCircleSectorIndex, type ColorCircleColor } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("color-circle", { maxSteps: 8, finishOnMistakes: false });
@@ -24,6 +25,8 @@ const feedbackText = ref("Смотри на сектор нужного цвет
 const revealedTargetId = ref<string>();
 const selectedMistakeId = ref<string>();
 const advancing = ref(false);
+const boardRef = ref<HTMLElement>();
+const { pointer } = useGazePointer();
 const promptAudio = useGamePromptAudio({ gameId: "color-circle", soundEnabled: toRef(session.settings, "sound") });
 const responseAudio = useGamePromptAudio({ gameId: "color-circle", soundEnabled: toRef(session.settings, "sound") });
 let advanceTimer = 0;
@@ -32,6 +35,13 @@ const targetStyle = computed(() => ({
   "--target-color": round.value.target.hex,
   "--target-text": round.value.target.textColor
 }));
+
+const activeSectorIndex = computed(() => {
+  if (!pointer.value.valid) return undefined;
+  const bounds = boardRef.value?.getBoundingClientRect();
+  if (!bounds) return undefined;
+  return resolveColorCircleSectorIndex(pointer.value, bounds);
+});
 
 function sectorTargetId(color: ColorCircleColor) {
   return `color-circle:sector:${round.value.roundId}:${color.id}`;
@@ -42,6 +52,12 @@ function sectorStyle(color: ColorCircleColor) {
     "--sector-color": color.hex,
     "--sector-text": color.textColor
   };
+}
+
+function sectorDisabled(index: number) {
+  if (session.status !== "running" || advancing.value) return true;
+  if (!pointer.value.valid) return false;
+  return activeSectorIndex.value !== index;
 }
 
 function clearAdvanceTimer() {
@@ -145,8 +161,8 @@ onUnmounted(() => {
             </div>
             <p class="color-circle-feedback text-h6 text-md-h5 text-medium-emphasis text-center mb-6">{{ feedbackText }}</p>
 
-            <div class="color-circle-board mx-auto" role="group" :aria-label="round.prompt">
-              <GameDwellButton v-for="color in round.sectors" :key="`${round.roundId}-${color.id}`" class="color-sector-button" :target-id="sectorTargetId(color)" :disabled="session.status !== 'running' || advancing" :dwell-ms="session.settings.dwellMs" min-height="0" color="surface" @select="answer(color)">
+            <div ref="boardRef" class="color-circle-board mx-auto" role="group" :aria-label="round.prompt">
+              <GameDwellButton v-for="(color, index) in round.sectors" :key="`${round.roundId}-${color.id}`" class="color-sector-button" :target-id="sectorTargetId(color)" :disabled="sectorDisabled(index)" :dwell-ms="session.settings.dwellMs" :hit-padding="0" min-height="0" color="surface" @select="answer(color)">
                 <template #default>
                   <div :class="['color-sector', { 'color-sector--target': color.id === revealedTargetId, 'color-sector--mistake': color.id === selectedMistakeId }]" :style="sectorStyle(color)">
                     <span class="text-h5 text-md-h4 font-weight-bold color-sector__label">{{ color.label }}</span>
@@ -201,6 +217,8 @@ onUnmounted(() => {
 }
 
 .color-circle-board {
+  --sector-min-size: 11.25rem;
+  --board-min-size: calc(var(--sector-min-size) + var(--sector-min-size) + 2rem);
   aspect-ratio: 1;
   background: rgb(255 255 255 / 86%);
   border: 0.75rem solid rgb(255 255 255 / 90%);
@@ -209,23 +227,22 @@ onUnmounted(() => {
   display: grid;
   gap: 0.5rem;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  inline-size: min(78vw, 52vh, 30rem);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  inline-size: clamp(min(var(--board-min-size), calc(100vw - 4rem)), min(78vw, 52vh), 30rem);
   overflow: hidden;
 }
 
 .color-sector-button {
   block-size: 100%;
+  inline-size: 100%;
   min-block-size: 0;
+  overflow: hidden;
 }
 
 .color-sector-button :deep(.dwell-button) {
   border-radius: 0 !important;
   box-shadow: none;
   padding: 0 !important;
-}
-
-.color-sector-button :deep(.dwell-hitbox) {
-  block-size: 100%;
 }
 
 .color-sector {
@@ -235,7 +252,6 @@ onUnmounted(() => {
   color: var(--sector-text);
   display: flex;
   justify-content: center;
-  min-block-size: clamp(8.25rem, 24vw, 16rem);
   padding: 0.6rem;
   position: relative;
   transition: filter 180ms ease, transform 180ms ease;
@@ -290,11 +306,7 @@ onUnmounted(() => {
  .color-circle-board {
     border-width: 0.5rem;
     gap: 0.35rem;
-    inline-size: min(76vw, 43vh, 27rem);
-  }
-
- .color-sector {
-    min-block-size: 0;
+    inline-size: clamp(min(var(--board-min-size), calc(100vw - 4rem)), min(76vw, 43vh), 27rem);
   }
 }
 
@@ -303,8 +315,15 @@ onUnmounted(() => {
     padding-block-start: 6.75rem;
   }
 
- .color-circle-board {
-    inline-size: min(88vw, 31rem);
+}
+
+@media (max-height: 44rem) {
+ .target-chip {
+    display: none;
+  }
+
+ .color-circle-title {
+    margin-block-end: 0.75rem !important;
   }
 }
 </style>

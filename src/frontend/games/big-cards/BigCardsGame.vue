@@ -10,11 +10,11 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { generateBigCardsRound, type BigCard, type BigCardsRound } from "./model";
+import { evaluateBigCardChoice, generateBigCardsRound, type BigCard, type BigCardsRound } from "./model";
 
 const router = useRouter();
 const isResponding = ref(false);
-const feedbackText = ref("Посмотри на карточку, какая тебе больше нравится.");
+const feedbackText = ref("Любой выбор будет правильным.");
 let feedbackTimer = 0;
 let introTimer = 0;
 
@@ -46,21 +46,19 @@ function choose(card: BigCard) {
 
   isResponding.value = true;
   feedbackText.value = `Ты выбрал: ${card.label}. Хорошо.`;
+  const choiceResult = evaluateBigCardChoice(card);
+  promptAudio.cancelPending();
   promptAudio.play(`big-cards.${card.id}`);
   recordSuccess({
     roundId: round.value.roundId,
     targetId: cardTargetId(round.value.roundId, card.id),
-    cardId: card.id,
-    label: card.label,
-    suggestedId: round.value.suggested.id,
-    isSuggested: card.id === round.value.suggested.id
+    ...choiceResult
   });
 
   window.clearTimeout(feedbackTimer);
-  promptAudio.cancelPending();
   feedbackTimer = window.setTimeout(() => {
     isResponding.value = false;
-    feedbackText.value = "Можно выбрать любую карточку.";
+    feedbackText.value = "Любой выбор будет правильным.";
     if (session.status === "running" && session.step < session.maxSteps) nextRound();
   }, 850);
 }
@@ -69,7 +67,7 @@ function restart() {
   window.clearTimeout(feedbackTimer);
   window.clearTimeout(introTimer);
   isResponding.value = false;
-  feedbackText.value = "Посмотри на карточку, какая тебе больше нравится.";
+  feedbackText.value = "Любой выбор будет правильным.";
   restartRound();
   promptAudio.play("big-cards.intro");
 }
@@ -97,17 +95,17 @@ onUnmounted(() => {
       <v-row justify="center">
         <v-col cols="12" lg="11" xl="9">
           <v-card class="pa-5 pa-md-8" color="surface" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2"> выбор без ошибок</div>
-            <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">Большие карточки</h1>
-            <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-2">{{ round.prompt }}</p>
-            <p class="text-h6 text-md-h5 text-center mb-6">{{ feedbackText }}</p>
+            <div class="big-cards-overline text-overline text-secondary text-center mb-2">выбор без ошибок</div>
+            <h1 class="big-cards-title text-h3 text-md-h2 font-weight-bold text-center mb-3">Большие карточки</h1>
+            <p class="big-cards-prompt text-h6 text-md-h5 text-medium-emphasis text-center mb-2">{{ round.prompt }}</p>
+            <p class="big-cards-feedback text-h6 text-md-h5 text-center mb-6">{{ feedbackText }}</p>
 
-            <GameChoiceCardGrid :choices="round.choices" :target-id="(card) => cardTargetId(round.roundId, card.id)" :disabled="session.status !== 'running' || isResponding" :dwell-ms="session.settings.dwellMs" :min-height="260" :cols="12" :sm="6" :md="round.choices.length === 3 ? 4 : 6" :lg="round.choices.length === 4 ? 3 : round.choices.length === 3 ? 4 : 5" @select="choose">
+            <GameChoiceCardGrid :choices="round.choices" :target-id="(card) => cardTargetId(round.roundId, card.id)" :disabled="session.status !== 'running' || isResponding" :dwell-ms="session.settings.dwellMs" min-height="clamp(12.5rem, 34vh, 16.25rem)" :cols="12" :sm="6" :md="round.choices.length === 3 ? 4 : 6" :lg="round.choices.length === 4 ? 3 : round.choices.length === 3 ? 4 : 5" @select="choose">
               <template #default="{ choice: card, active, progress }">
                 <GameWordImage class="card-emoji" :word-id="card.id" :word="card.label" :emoji="card.emoji" />
                 <div class="text-h4 text-md-h3 font-weight-bold mt-3">{{ card.label }}</div>
                 <div class="big-card-note text-body-1 text-md-h6 font-weight-medium mt-2">
-                  {{ active && progress > 0.8 ? "Почти готово" : card.id === round.suggested.id ? " подсказка" : "Тоже можно" }}
+                  {{ active && progress > 0.8 ? "Почти готово" : "Можно выбрать" }}
                 </div>
               </template>
             </GameChoiceCardGrid>
@@ -130,6 +128,19 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
+  .big-cards-overline {
+    display: none;
+  }
+
+  .big-cards-title,
+  .big-cards-prompt {
+    margin-block-end: 0.35rem !important;
+  }
+
+  .big-cards-feedback {
+    margin-block-end: 0.75rem !important;
+  }
+
  .card-emoji {
     font-size: clamp(4.5rem, min(11vw, 16vh), 8rem);
   }
