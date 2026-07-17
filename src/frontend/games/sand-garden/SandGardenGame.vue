@@ -147,18 +147,18 @@ function updateRake(delta: number) {
 function updateTrails(delta: number, now: number) {
   for (let index = trails.length - 1; index >= 0; index -= 1) {
     const trail = trails[index];
-    trail.age += delta;
+    if (!session.settings.reduceMotion) trail.age += delta;
     if (trail.age >= trail.life) trails.splice(index, 1);
   }
 
-  if (!pointer.value.valid || session.settings.reduceMotion) {
+  if (!pointer.value.valid) {
     if (wasTracing) {
       recordEvent("target-cancel", {
         targetId: `sand-trace-${session.step + 1}`,
         at: Date.now(),
         progress: Math.min(1, calmTraceSeconds / calmStepSeconds()),
         pointer: copyPointer(),
-        reason: pointer.value.valid ? "disabled" : "invalid-gaze"
+        reason: "invalid-gaze"
       });
     }
     wasTracing = false;

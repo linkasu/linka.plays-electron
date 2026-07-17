@@ -10,6 +10,7 @@ import { adaptiveGazeHitRadius } from "../../core/gazeTarget";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels } from "../../core/placement";
 import { disposeStarrySkyPiano, playStarrySkyCue, setStarrySkyPianoActive, tickStarrySkyPiano, warmStarrySkyPiano } from "./audio";
+import { effectiveStarDwellMs as calculateEffectiveDwellMs } from "./model";
 
 type Point = { x: number; y: number };
 type StarPhase = "waiting" | "gazing" | "lit";
@@ -125,6 +126,7 @@ useStartPromptAudio({ gameId: "starry-sky", soundEnabled: toRef(session.settings
 const constellations = reactive<Constellation[]>([]);
 const dustStars = reactive<DustStar[]>([]);
 const resultVisible = computed(() => session.status === "finished");
+const effectiveDwellMs = computed(() => calculateEffectiveDwellMs(session.settings.dwellMs));
 
 let ctx: CanvasRenderingContext2D | undefined;
 let frame = 0;
@@ -134,7 +136,6 @@ let activeStarIndex = 0;
 let nextConstellationAt = 0;
 let finishAfter = 0;
 const constellationFadeMs = 5200;
-const starDwellMultiplier = 0.68;
 
 function randomRange(min: number, max: number) {
   return min + Math.random() * (max - min);
@@ -248,7 +249,7 @@ function targetPayload(star: ConstellationStar, now: number, progress: number, c
     constellationId: constellation.id,
     constellationName: constellation.name,
     at: Date.now(),
-    dwellMs: session.settings.dwellMs,
+    dwellMs: effectiveDwellMs.value,
     elapsedMs: star.enteredAt === undefined ? 0 : now - star.enteredAt,
     progress,
     pointer: copyPointer(),
@@ -326,7 +327,7 @@ function updateActiveStar(now: number) {
     recordEvent("target-enter", targetPayload(star, now, 0, constellation));
   }
 
-  star.dwellProgress = Math.min(1, (now - star.enteredAt) / (session.settings.dwellMs * starDwellMultiplier));
+  star.dwellProgress = Math.min(1, (now - star.enteredAt) / effectiveDwellMs.value);
   if (star.dwellProgress >= 1) lightStar(star, now, constellation);
 }
 

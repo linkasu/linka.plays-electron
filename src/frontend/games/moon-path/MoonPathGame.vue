@@ -200,16 +200,16 @@ function addGlow(now: number, point: Point) {
 }
 
 function updateIllumination(delta: number, now: number) {
-  const point = gazePathPoint(now);
+  const point = gazePathPoint(session.settings.reduceMotion ? 0 : now);
 
-  if (!point || session.settings.reduceMotion) {
+  if (!point) {
     pauseIllumination();
     return;
   }
 
   if (!wasIlluminating) startIllumination(now);
   illuminatedMs += delta * 1000;
-  addGlow(now, point);
+  if (!session.settings.reduceMotion) addGlow(now, point);
 
   while (session.step < session.maxSteps && illuminatedMs >= (session.step + 1) * stepTargetMs()) {
     recordPathStep(now);
@@ -407,12 +407,15 @@ function drawGuideSpark(context: CanvasRenderingContext2D, now: number) {
 }
 
 function draw(context: CanvasRenderingContext2D, now: number) {
-  drawBackground(context, now);
-  drawWaterLines(context, now);
-  drawMoonPath(context, now);
-  for (const glow of glows) drawGlow(context, glow);
-  drawGazeHighlight(context, now);
-  drawGuideSpark(context, now);
+  const visualNow = session.settings.reduceMotion ? 0 : now;
+  drawBackground(context, visualNow);
+  drawWaterLines(context, visualNow);
+  drawMoonPath(context, visualNow);
+  if (!session.settings.reduceMotion) {
+    for (const glow of glows) drawGlow(context, glow);
+    drawGuideSpark(context, visualNow);
+  }
+  drawGazeHighlight(context, visualNow);
 }
 
 function tick(now: number) {
