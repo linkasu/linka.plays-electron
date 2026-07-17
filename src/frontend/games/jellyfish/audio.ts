@@ -1,3 +1,4 @@
+import { watch, type WatchStopHandle } from "vue";
 import { createNonRepeatingRandomIndexGenerator } from "../../core/random";
 import { disposeSoftPiano, playSoftPianoMelody, warmSoftPiano, type SoftPianoMelody } from "../../core/softPiano";
 
@@ -74,6 +75,7 @@ const notesToLoad = [...new Set([...ambientMelodies, ...successMelodies].flatMap
 let cueUntil = 0;
 let ambientTimer = 0;
 let successTimer = 0;
+let stopAmbientWatch: WatchStopHandle | undefined;
 
 function melodyLengthMs(melody: SoftPianoMelody) {
   return Math.ceil((melody.lengthSeconds ?? 2) * 1000);
@@ -111,6 +113,10 @@ export function resetJellyfishAudioSession() {
     window.clearTimeout(ambientTimer);
     window.clearTimeout(successTimer);
   }
+  ambientTimer = 0;
+  successTimer = 0;
+  stopAmbientWatch?.();
+  stopAmbientWatch = undefined;
 }
 
 export function warmJellyfishAudio(enabled: boolean) {
@@ -118,13 +124,33 @@ export function warmJellyfishAudio(enabled: boolean) {
 }
 
 export function scheduleJellyfishAmbient(enabled: boolean, isRunning: () => boolean) {
+  stopAmbientWatch?.();
+  stopAmbientWatch = undefined;
+  if (canUseWindowTimers()) window.clearTimeout(ambientTimer);
+  ambientTimer = 0;
   if (!enabled || !canUseWindowTimers()) return;
-  window.clearTimeout(ambientTimer);
-  const delayMs = 9000 + Math.random() * 7000;
-  ambientTimer = window.setTimeout(() => {
-    if (isRunning()) playQueued(enabled, nextAmbientMelody());
-    scheduleJellyfishAmbient(enabled, isRunning);
-  }, delayMs);
+
+  const scheduleNext = () => {
+    window.clearTimeout(ambientTimer);
+    if (!isRunning()) {
+      ambientTimer = 0;
+      return;
+    }
+    const delayMs = 9000 + Math.random() * 7000;
+    ambientTimer = window.setTimeout(() => {
+      ambientTimer = 0;
+      if (!isRunning()) return;
+      playQueued(enabled, nextAmbientMelody());
+      scheduleNext();
+    }, delayMs);
+  };
+
+  stopAmbientWatch = watch(isRunning, (running) => {
+    window.clearTimeout(ambientTimer);
+    ambientTimer = 0;
+    if (running) scheduleNext();
+    else disposeSoftPiano();
+  }, { immediate: true });
 }
 
 export function playJellyfishSuccess(enabled: boolean) {

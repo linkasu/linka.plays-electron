@@ -10,6 +10,53 @@ export type TtsAsset = {
 
 const audioCache = new Map<string, HTMLAudioElement>();
 let currentAudio: HTMLAudioElement | undefined;
+let currentPlaybackFinish: (() => void) | undefined;
+let ttsPlaybackActive = false;
+const playbackListeners = new Set<(active: boolean) => void>();
+
+function setTtsPlaybackActive(active: boolean) {
+  if (ttsPlaybackActive === active) return;
+  ttsPlaybackActive = active;
+  for (const listener of playbackListeners) {
+    try {
+      listener(active);
+    } catch {
+      // Audio focus observers are optional and must not break speech playback.
+    }
+  }
+}
+
+function trackTtsPlayback(audio: HTMLAudioElement, onFinish?: () => void) {
+  let finished = false;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    audio.removeEventListener("ended", finish);
+    audio.removeEventListener("error", finish);
+    audio.removeEventListener("pause", finish);
+    if (currentPlaybackFinish === finish) currentPlaybackFinish = undefined;
+    setTtsPlaybackActive(false);
+    onFinish?.();
+  };
+
+  currentPlaybackFinish?.();
+  currentPlaybackFinish = finish;
+  audio.addEventListener("ended", finish);
+  audio.addEventListener("error", finish);
+  audio.addEventListener("pause", finish);
+  setTtsPlaybackActive(true);
+  return finish;
+}
+
+export function isTtsPlaybackActive() {
+  return ttsPlaybackActive;
+}
+
+export function subscribeTtsPlayback(listener: (active: boolean) => void) {
+  playbackListeners.add(listener);
+  listener(ttsPlaybackActive);
+  return () => playbackListeners.delete(listener);
+}
 
 function getAudio(asset: TtsAsset) {
   const src = resolvePublicAssetUrl(asset.path);
@@ -25,7 +72,7 @@ function getAudio(asset: TtsAsset) {
 
 function startTtsAsset(enabled: boolean, asset: TtsAsset | undefined, volume: number) {
   if (!enabled || !asset) return undefined;
-  currentAudio?.pause();
+  stopTtsPlayback();
   currentAudio = getAudio(asset);
   currentAudio.pause();
   currentAudio.currentTime = 0;
@@ -45,9 +92,14 @@ export function warmTtsAssets(enabled: boolean, assets: TtsAsset[]) {
 }
 
 export function playTtsAsset(enabled: boolean, asset: TtsAsset | undefined, volume = 0.42) {
+  let finish: (() => void) | undefined;
   try {
-    void startTtsAsset(enabled, asset, volume)?.play().catch(() => undefined);
+    const audio = startTtsAsset(enabled, asset, volume);
+    if (!audio) return;
+    finish = trackTtsPlayback(audio);
+    void audio.play().catch(finish);
   } catch {
+    finish?.();
     // Speech prompts are supportive only; gameplay continues silently.
   }
 }
@@ -59,23 +111,18 @@ export function playTtsAssetAndWait(enabled: boolean, asset: TtsAsset | undefine
     if (!audio) return Promise.resolve();
 
     return new Promise<void>((resolve) => {
-      let settled = false;
       let fallbackTimer = 0;
-      const finish = () => {
-        if (settled) return;
-        settled = true;
+      const finish = trackTtsPlayback(audio, () => {
         window.clearTimeout(fallbackTimer);
-        audio.removeEventListener("ended", finish);
-        audio.removeEventListener("error", finish);
-        audio.removeEventListener("pause", finish);
         resolve();
-      };
+      });
       fallbackTimer = window.setTimeout(finish, 6000);
 
-      audio.addEventListener("ended", finish);
-      audio.addEventListener("error", finish);
-      audio.addEventListener("pause", finish);
-      void audio.play().catch(finish);
+      try {
+        void audio.play().catch(finish);
+      } catch {
+        finish();
+      }
     });
   } catch {
     return Promise.resolve();
@@ -83,14 +130,16 @@ export function playTtsAssetAndWait(enabled: boolean, asset: TtsAsset | undefine
 }
 
 export function stopTtsPlayback() {
-  if (!currentAudio) return;
-  currentAudio.pause();
+  currentPlaybackFinish?.();
+  const audio = currentAudio;
+  currentAudio = undefined;
+  if (!audio) return;
+  audio.pause();
   try {
-    currentAudio.currentTime = 0;
+    audio.currentTime = 0;
   } catch {
     // Audio may already be detached while a route transition is disposing assets.
   }
-  currentAudio = undefined;
 }
 
 export function disposeTtsAssets(assets: TtsAsset[]) {
@@ -98,10 +147,10 @@ export function disposeTtsAssets(assets: TtsAsset[]) {
     const src = resolvePublicAssetUrl(asset.path);
     const audio = audioCache.get(src);
     if (!audio) continue;
+    if (currentAudio === audio) stopTtsPlayback();
     audio.pause();
     audio.removeAttribute("src");
     audio.load();
     audioCache.delete(src);
-    if (currentAudio === audio) currentAudio = undefined;
   }
 }

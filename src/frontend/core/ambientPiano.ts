@@ -1,6 +1,8 @@
 import { Reverb, SplendidGrandPiano } from "smplr";
+import { isTtsPlaybackActive, subscribeTtsPlayback } from "./ttsAudio";
 
 type SoftPiano = ReturnType<typeof SplendidGrandPiano>;
+const maxAmbientGain = 0.22;
 
 export type AmbientPianoPatternNote = {
   note: number;
@@ -66,6 +68,7 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
   let audioContext: AudioContext | undefined;
   let outputGain: GainNode | undefined;
   let piano: SoftPiano | undefined;
+  let loadingPiano: SoftPiano | undefined;
   let loading: Promise<SoftPiano | undefined> | undefined;
   let unavailable = false;
   let scheduledUntil = 0;
@@ -74,27 +77,94 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
   let intensity = 1;
   let gainTarget = 0;
   let loopGridStartAt: number | undefined;
+  let lifecycle = 0;
+  let ttsActive = isTtsPlaybackActive();
+  let unsubscribeTts: (() => void) | undefined;
+
+  function ambientGain(nextIntensity = intensity) {
+    return Math.min(maxAmbientGain, Math.max(0, config.activeGain * nextIntensity));
+  }
+
+  function silence() {
+    if (!audioContext || !outputGain) return;
+    try {
+      const now = audioContext.currentTime;
+      outputGain.gain.cancelScheduledValues(now);
+      outputGain.gain.setValueAtTime(0, now);
+      gainTarget = 0;
+    } catch {
+      // A closing context is already silent.
+    }
+  }
+
+  function stopAudio() {
+    lifecycle += 1;
+    scheduledUntil = 0;
+    cueUntil = 0;
+    loopGridStartAt = undefined;
+    silence();
+
+    const context = audioContext;
+    const gain = outputGain;
+    const instruments = new Set([piano, loadingPiano].filter((instrument): instrument is SoftPiano => Boolean(instrument)));
+    audioContext = undefined;
+    outputGain = undefined;
+    piano = undefined;
+    loadingPiano = undefined;
+    loading = undefined;
+    unavailable = false;
+
+    for (const instrument of instruments) {
+      try {
+        instrument.dispose();
+      } catch {
+        // Disposal errors must degrade to silence.
+      }
+    }
+    try {
+      gain?.disconnect();
+    } catch {
+      // The node may already be disconnected by its instrument.
+    }
+    try {
+      void context?.close().catch(() => undefined);
+    } catch {
+      // Some Web Audio implementations throw synchronously while closing.
+    }
+  }
 
   async function ensurePiano(resumeAudio: boolean) {
     if (unavailable) return undefined;
-    audioContext = audioContext ?? createAudioContext();
+    try {
+      audioContext = audioContext ?? createAudioContext();
+    } catch {
+      unavailable = true;
+      return undefined;
+    }
     if (!audioContext) return undefined;
 
-    if (resumeAudio && audioContext.state === "suspended") {
+    const context = audioContext;
+    const currentLifecycle = lifecycle;
+
+    if (resumeAudio && context.state === "suspended") {
       try {
-        await audioContext.resume();
+        await context.resume();
       } catch {
+        if (context === audioContext && currentLifecycle === lifecycle) {
+          stopAudio();
+          unavailable = true;
+        }
         return undefined;
       }
     }
+
+    if (context !== audioContext || currentLifecycle !== lifecycle) return undefined;
 
     if (piano) return piano;
     if (loading) return loading;
 
     loading = (async () => {
       try {
-        const context = audioContext;
-        if (!context) return undefined;
         outputGain = context.createGain();
         outputGain.gain.value = 0;
         outputGain.connect(context.destination);
@@ -109,6 +179,7 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
             velocityRange: config.velocityRange
           }
         });
+        loadingPiano = nextPiano;
 
         try {
           nextPiano.output.addEffect(config.reverbName, Reverb(context), config.reverbAmount);
@@ -117,10 +188,15 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
         }
 
         await nextPiano.ready;
+        if (context !== audioContext || currentLifecycle !== lifecycle) return undefined;
+        loadingPiano = undefined;
         piano = nextPiano;
         return nextPiano;
       } catch {
-        unavailable = true;
+        if (context === audioContext && currentLifecycle === lifecycle) {
+          stopAudio();
+          unavailable = true;
+        }
         return undefined;
       }
     })();
@@ -130,11 +206,57 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
 
   function fadeTo(target: number, seconds: number) {
     if (!audioContext || !outputGain) return;
-    gainTarget = target;
+    gainTarget = Math.min(maxAmbientGain, Math.max(0, target));
     const gain = outputGain.gain;
     const now = audioContext.currentTime;
     gain.cancelScheduledValues(now);
-    gain.setTargetAtTime(target, now, seconds / 3);
+    gain.setTargetAtTime(gainTarget, now, seconds / 3);
+  }
+
+  function failSilent() {
+    stopAudio();
+    unavailable = true;
+  }
+
+  function startActiveAudio() {
+    if (!active || ttsActive) return;
+    void ensurePiano(true).then((instrument) => {
+      if (!instrument || !active || ttsActive) return;
+      try {
+        fadeTo(ambientGain(), config.fadeInSeconds);
+        scheduleLoop(instrument);
+      } catch {
+        failSilent();
+      }
+    }).catch(failSilent);
+  }
+
+  function handleTtsPlayback(nextActive: boolean) {
+    const wasTtsActive = ttsActive;
+    ttsActive = nextActive;
+    if (!ttsActive) {
+      if (wasTtsActive) startActiveAudio();
+      return;
+    }
+
+    silence();
+    const context = audioContext;
+    if (!context) return;
+    if (!active) {
+      stopAudio();
+      return;
+    }
+    try {
+      void context.suspend().catch(() => {
+        if (context === audioContext) stopAudio();
+      });
+    } catch {
+      if (context === audioContext) stopAudio();
+    }
+  }
+
+  function ensureTtsSubscription() {
+    unsubscribeTts ??= subscribeTtsPlayback(handleTtsPlayback);
   }
 
   function scheduleLoop(instrument: SoftPiano) {
@@ -225,54 +347,60 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
   return {
     warm(enabled: boolean) {
       if (!enabled) return;
-      void ensurePiano(false);
+      void ensurePiano(false).catch(() => undefined);
     },
     setActive(enabled: boolean, nextActive: boolean) {
-      if (!enabled) nextActive = false;
+      nextActive = enabled && nextActive;
       if (nextActive === active && (!nextActive || !config.rescheduleActive)) return;
 
       active = nextActive;
       if (!active) {
-        fadeTo(0, config.fadeOutSeconds);
+        unsubscribeTts?.();
+        unsubscribeTts = undefined;
+        stopAudio();
         return;
       }
 
-      void ensurePiano(true).then((instrument) => {
-        if (!instrument || !active || !enabled) return;
-        fadeTo(config.activeGain * intensity, config.fadeInSeconds);
-        scheduleLoop(instrument);
-      });
+      ensureTtsSubscription();
+      startActiveAudio();
     },
     setIntensity(enabled: boolean, nextIntensity: number) {
       intensity = Math.max(0, Math.min(1, nextIntensity));
-      if (!enabled || !active) return;
-      const nextGainTarget = config.activeGain * intensity;
+      if (!enabled || !active || ttsActive) return;
+      const nextGainTarget = ambientGain();
       if (Math.abs(nextGainTarget - gainTarget) < 0.02) return;
-      fadeTo(nextGainTarget, 0.55);
+      try {
+        fadeTo(nextGainTarget, 0.55);
+      } catch {
+        failSilent();
+      }
     },
     tick(enabled: boolean) {
-      if (!enabled || !active || !piano) return;
-      scheduleLoop(piano);
+      if (!enabled || !active || ttsActive || !piano) return;
+      try {
+        scheduleLoop(piano);
+      } catch {
+        failSilent();
+      }
     },
     playCue(enabled: boolean) {
       if (!enabled) return;
+      ensureTtsSubscription();
+      if (ttsActive) return;
       void ensurePiano(true).then((instrument) => {
-        if (!instrument || !enabled) return;
-        playCue(instrument);
-      });
+        if (!instrument || ttsActive) return;
+        try {
+          playCue(instrument);
+        } catch {
+          failSilent();
+        }
+      }).catch(failSilent);
     },
     dispose() {
       active = false;
-      scheduledUntil = 0;
-      cueUntil = 0;
-      piano?.dispose();
-      piano = undefined;
-      loading = undefined;
-      outputGain?.disconnect();
-      outputGain = undefined;
-      void audioContext?.close().catch(() => undefined);
-      audioContext = undefined;
-      unavailable = false;
+      unsubscribeTts?.();
+      unsubscribeTts = undefined;
+      stopAudio();
     }
   };
 }
