@@ -5,12 +5,13 @@ import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { playSoftPianoMelody, warmSoftPiano } from "../../core/softPiano";
-import { generateComicStripRound, getComicFrameChoices, type ComicFrame } from "./model";
+import { createComicStripSlots, generateComicStripRound, getComicFrameChoices, type ComicFrame } from "./model";
 
 const storyAdvanceMs = 1300;
 const storiesPerSession = 2;
@@ -30,7 +31,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 const storyRoundIndex = ref(1);
 const placedFrameIds = ref<string[]>([]);
 const lastMistakeFrameId = ref<string>();
-const feedbackText = ref("Выбери первый кадр. Ошибки не страшны: подсказка поможет.");
+const feedbackText = ref("Выбери первый кадр. Если не получится, попробуй снова.");
 const isAdvancingStory = ref(false);
 const isSpeaking = ref(false);
 const completedStories = ref(0);
@@ -40,7 +41,7 @@ let advanceTimer = 0;
 const round = computed(() => generateComicStripRound(storyRoundIndex.value));
 const nextFrameIndex = computed(() => placedFrameIds.value.length);
 const nextFrame = computed(() => round.value.story.frames[nextFrameIndex.value]);
-const placedFrames = computed(() => placedFrameIds.value.map((frameId) => round.value.story.frames.find((frame) => frame.id === frameId)).filter((frame): frame is ComicFrame => Boolean(frame)));
+const comicSlots = computed(() => createComicStripSlots(round.value.story, placedFrameIds.value));
 const choices = computed(() => nextFrame.value ? getComicFrameChoices(round.value.story, nextFrameIndex.value, storyRoundIndex.value) : []);
 const hintText = computed(() => {
   if (!nextFrame.value) return round.value.story.finalMessage;
@@ -52,7 +53,7 @@ function frameTargetId(frame: ComicFrame) {
 }
 
 function frameBySlot(slotIndex: number) {
-  return placedFrames.value[slotIndex];
+  return comicSlots.value[slotIndex];
 }
 
 function clearAdvanceTimer() {
@@ -139,7 +140,7 @@ function restart() {
   lastMistakeFrameId.value = undefined;
   isAdvancingStory.value = false;
   isSpeaking.value = false;
-  feedbackText.value = "Выбери первый кадр. Ошибки не страшны: подсказка поможет.";
+  feedbackText.value = "Выбери первый кадр. Если не получится, попробуй снова.";
   startSession();
   promptAudio.play("comic-strip.prompt", 450);
 }
@@ -176,8 +177,11 @@ onUnmounted(() => {
               <v-col v-for="slotIndex in 3" :key="slotIndex" cols="4" md="4">
                 <v-card class="comic-slot pa-4" :color="frameBySlot(slotIndex - 1)?.color ?? 'grey-lighten-4'" rounded="xl" variant="flat">
                   <div v-if="frameBySlot(slotIndex - 1)" class="text-center">
-                    <v-avatar class="mb-3" color="white" size="5.5rem">
-                      <v-icon :icon="frameBySlot(slotIndex - 1)?.icon" color="primary" size="3.5rem" />
+                    <v-avatar class="comic-scene mb-3" :class="`comic-scene--${frameBySlot(slotIndex - 1)?.scene.setting}`" color="white" rounded="lg" role="img" :aria-label="frameBySlot(slotIndex - 1)?.caption">
+                      <template v-for="(layer, layerIndex) in frameBySlot(slotIndex - 1)?.scene.layers" :key="`${layer.kind}:${layerIndex}`">
+                        <GameWordImage v-if="layer.kind === 'word'" :class="['comic-scene__layer', `comic-scene__layer--${layer.position}`, `comic-scene__layer--${layer.size ?? 'medium'}`]" :word-id="layer.wordId" :word="layer.word" :emoji="layer.emoji" decorative />
+                        <v-icon v-else :class="['comic-scene__layer', `comic-scene__layer--${layer.position}`, `comic-scene__layer--${layer.size ?? 'medium'}`]" :icon="layer.icon" :color="layer.color" />
+                      </template>
                     </v-avatar>
                     <div class="text-h6 text-md-h5 font-weight-bold">{{ frameBySlot(slotIndex - 1)?.caption }}</div>
                     <v-chip class="mt-3" color="white" rounded="pill" variant="elevated">Кадр {{ slotIndex }}</v-chip>
@@ -207,10 +211,13 @@ onUnmounted(() => {
               <v-col v-for="frame in choices" :key="frame.id" cols="4" sm="4">
                 <GameDwellButton class="comic-choice" :target-id="frameTargetId(frame)" :disabled="session.status !== 'running' || isAdvancingStory || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="8rem" color="surface" @select="chooseFrame(frame)">
                   <template #default>
-                    <div :class="['choice-frame', { 'choice-frame--mistake': lastMistakeFrameId === frame.id }]">
-                      <v-icon :icon="frame.icon" size="4rem" />
-                      <div class="choice-frame__caption text-body-1 text-md-h6 font-weight-bold mt-3">{{ frame.caption }}</div>
-                      <div class="choice-frame__note text-body-2 font-weight-medium mt-1">выбрать кадр</div>
+                    <div :class="['choice-frame', { 'choice-frame--mistake': lastMistakeFrameId === frame.id }]" :aria-label="`Выбрать кадр: ${frame.caption}`">
+                      <v-avatar class="comic-scene comic-scene--choice" :class="`comic-scene--${frame.scene.setting}`" color="white" rounded="lg" aria-hidden="true">
+                        <template v-for="(layer, layerIndex) in frame.scene.layers" :key="`${layer.kind}:${layerIndex}`">
+                          <GameWordImage v-if="layer.kind === 'word'" :class="['comic-scene__layer', `comic-scene__layer--${layer.position}`, `comic-scene__layer--${layer.size ?? 'medium'}`]" :word-id="layer.wordId" :word="layer.word" :emoji="layer.emoji" decorative />
+                          <v-icon v-else :class="['comic-scene__layer', `comic-scene__layer--${layer.position}`, `comic-scene__layer--${layer.size ?? 'medium'}`]" :icon="layer.icon" :color="layer.color" />
+                        </template>
+                      </v-avatar>
                     </div>
                   </template>
                 </GameDwellButton>
@@ -238,69 +245,171 @@ onUnmounted(() => {
 }
 
 .choice-frame {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  inline-size: 100%;
   transition: transform 180ms ease;
 }
 
-.choice-frame__caption {
-  line-height: 1.15;
-  overflow-wrap: anywhere;
+.comic-scene {
+  background: linear-gradient(180deg, #dff3ff 0%, #f9fdff 100%);
+  block-size: clamp(6rem, 12vw, 9rem) !important;
+  border: 0.125rem solid rgb(var(--v-theme-primary) / 10%);
+  border-radius: 1rem !important;
+  box-shadow: inset 0 0 1.5rem rgb(255 255 255 / 52%);
+  inline-size: min(100%, 14rem) !important;
+  overflow: hidden;
+  position: relative;
 }
 
-.choice-frame__note {
-  color: rgb(var(--v-theme-on-surface));
+.comic-scene::after {
+  background: #a7d47b;
+  block-size: 28%;
+  content: "";
+  inset-block-end: 0;
+  inset-inline: 0;
+  position: absolute;
 }
+
+.comic-scene--earth {
+  background: linear-gradient(180deg, #dff4ff 0%, #fff8d8 72%);
+}
+
+.comic-scene--earth::after {
+  background: linear-gradient(180deg, #8bc66a 0 22%, #9a6948 22% 100%);
+  block-size: 34%;
+}
+
+.comic-scene--table,
+.comic-scene--desk {
+  background: linear-gradient(180deg, #fff8e9 0%, #fffdf7 100%);
+}
+
+.comic-scene--table::after,
+.comic-scene--desk::after {
+  background: linear-gradient(180deg, #d9aa72, #bd824e);
+  block-size: 26%;
+}
+
+.comic-scene--desk::after {
+  background: linear-gradient(180deg, #d6b28b, #aa7a50);
+  block-size: 34%;
+}
+
+.comic-scene--room {
+  background: linear-gradient(180deg, #fff7e3 0%, #f6ebdf 100%);
+}
+
+.comic-scene--room::after {
+  background: repeating-linear-gradient(90deg, #d8b894 0 14%, #cfa87e 14% 16%);
+  block-size: 24%;
+}
+
+.comic-scene--snow {
+  background: linear-gradient(180deg, #dff4ff 0%, #f8fdff 100%);
+}
+
+.comic-scene--snow::after {
+  background: linear-gradient(180deg, #ffffff, #dceff7);
+  block-size: 32%;
+}
+
+.comic-scene--water {
+  background: linear-gradient(180deg, #dff4ff 0 58%, #70c9e8 58% 100%);
+}
+
+.comic-scene--water::after {
+  background: repeating-radial-gradient(ellipse at 50% 0%, #dcf8ff 0 8%, #4db5d8 9% 18%);
+  block-size: 30%;
+}
+
+.comic-scene__layer {
+  filter: drop-shadow(0 0.35rem 0.45rem rgb(0 0 0 / 18%));
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+.comic-scene__layer--small {
+  font-size: clamp(1.25rem, 3vw, 2rem) !important;
+}
+
+.comic-scene__layer--medium {
+  font-size: clamp(2rem, 5vw, 3.75rem) !important;
+}
+
+.comic-scene__layer--large {
+  font-size: clamp(3rem, 7vw, 5.25rem) !important;
+}
+
+.comic-scene__layer--top-left { inset-block-start: 22%; inset-inline-start: 20%; }
+.comic-scene__layer--top-center { inset-block-start: 22%; inset-inline-start: 50%; }
+.comic-scene__layer--top-right { inset-block-start: 22%; inset-inline-start: 80%; }
+.comic-scene__layer--left { inset-block-start: 52%; inset-inline-start: 22%; }
+.comic-scene__layer--center { inset-block-start: 50%; inset-inline-start: 50%; }
+.comic-scene__layer--right { inset-block-start: 52%; inset-inline-start: 78%; }
+.comic-scene__layer--bottom-left { inset-block-start: 72%; inset-inline-start: 22%; }
+.comic-scene__layer--bottom-center { inset-block-start: 68%; inset-inline-start: 50%; }
+.comic-scene__layer--bottom-right { inset-block-start: 72%; inset-inline-start: 78%; }
 
 .choice-frame--mistake {
   transform: scale(0.96);
 }
 
 @media (max-height: 44rem) {
- .comic-card {
+  .comic-card {
     padding-block: 1.25rem !important;
   }
 
- .comic-overline {
+  .comic-overline {
     display: none;
   }
 
- .comic-title {
+  .comic-title {
     font-size: clamp(2.1rem, 6vh, 2.9rem) !important;
     line-height: 1 !important;
     margin-block-end: 0.5rem !important;
   }
 
- .comic-prompt,
- .comic-feedback {
+  .comic-prompt,
+  .comic-feedback {
     margin-block-end: 0.35rem !important;
   }
 
- .comic-hint-card {
+  .comic-hint-card {
     display: none;
   }
 
- .comic-slot {
+  .comic-slot {
     min-block-size: 9.5rem;
   }
 
- .comic-choice :deep(.dwell-button) {
+  .comic-choice :deep(.dwell-button) {
     padding-block: 1rem !important;
   }
 
- .choice-frame__note {
-    display: none;
+  .comic-scene--choice {
+    block-size: 5rem !important;
+    inline-size: min(100%, 8rem) !important;
   }
 }
 
 @media (max-height: 57.5rem) {
- .comic-slot {
+  .comic-slot {
     min-block-size: 5.25rem;
     padding-block: 0.75rem !important;
   }
 
- .comic-slot.v-avatar,
- .comic-slot .text-body-1,
- .comic-slot .text-h6,
- .comic-slot .text-md-h5 {
+  .comic-slot .v-avatar {
+    block-size: 4.5rem !important;
+    inline-size: min(100%, 7rem) !important;
+    margin-block-end: 0 !important;
+  }
+
+  .comic-slot .text-body-1,
+  .comic-slot .text-h6,
+  .comic-slot .text-md-h5 {
     display: none;
   }
 }

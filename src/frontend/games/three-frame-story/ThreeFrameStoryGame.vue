@@ -11,7 +11,7 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { shuffleItems } from "../../core/random";
-import { generateThreeFrameStoryRound, threeFrameStories, type ThreeFrameStoryFrame } from "./model";
+import { createThreeFrameStorySlots, generateThreeFrameStoryRound, threeFrameStories, type ThreeFrameStoryFrame } from "./model";
 
 const threeFrameStoryFeedback = createStandardGameFeedback();
 
@@ -56,10 +56,7 @@ let feedbackTimer = 0;
 let resultTimer = 0;
 
 const resultVisible = ref(false);
-const assembledFrames = computed(() => {
-  if (successChoiceId.value === round.value.expectedFrame.id) return [...round.value.placedFrames, round.value.expectedFrame];
-  return round.value.placedFrames;
-});
+const assembledFrames = computed(() => createThreeFrameStorySlots(round.value, successChoiceId.value));
 
 function choiceTargetId(choice: ThreeFrameStoryFrame) {
   return `three-frame-story:choice:${round.value.story.id}:${choice.id}`;
@@ -217,12 +214,12 @@ watch(isSpeaking, (speaking) => {
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
-          <v-card class="pa-5 pa-md-8" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Последовательность</div>
-            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">{{ round.story.title }}</h1>
-            <p class="text-body-1 text-medium-emphasis text-center mb-6">{{ round.story.prompt }}</p>
+          <v-card class="story-card pa-5 pa-md-8" rounded="xl" elevation="8">
+            <div class="story-overline text-overline text-secondary text-center mb-2">Последовательность</div>
+            <h1 class="story-title text-h4 text-md-h3 font-weight-bold text-center mb-2">{{ round.story.title }}</h1>
+            <p class="story-prompt text-body-1 text-medium-emphasis text-center mb-6">{{ round.story.prompt }}</p>
 
-            <v-card class="pa-4 pa-md-5 mb-6" color="blue-lighten-5" rounded="xl" variant="flat">
+            <v-card class="feedback-card pa-4 pa-md-5 mb-6" color="blue-lighten-5" rounded="xl" variant="flat">
               <div class="d-flex flex-wrap align-center justify-center ga-3 text-center">
                 <v-icon icon="mdi-filmstrip" color="primary" size="36" />
                 <div class="text-h6 font-weight-bold">{{ feedbackMessage }}</div>
@@ -230,28 +227,35 @@ watch(isSpeaking, (speaking) => {
             </v-card>
 
             <div class="story-slots mb-7" aria-label="Собранная история">
-              <v-card v-for="slotIndex in 3" :key="slotIndex" class="story-slot pa-4" :color="assembledFrames[slotIndex - 1]?.color ?? 'blue-grey-lighten-5'" rounded="xl" variant="flat">
-                <template v-if="assembledFrames[slotIndex - 1]">
-                  <div class="slot-number">{{ slotIndex }}</div>
-                  <GameWordImage v-if="assembledFrames[slotIndex - 1].wordId" class="frame-emoji" :word-id="assembledFrames[slotIndex - 1].wordId!" :word="assembledFrames[slotIndex - 1].label" :emoji="assembledFrames[slotIndex - 1].emoji" />
-                  <div v-else class="frame-emoji emoji-glyph">{{ assembledFrames[slotIndex - 1].emoji }}</div>
-                  <div class="text-h6 font-weight-bold mt-2">{{ assembledFrames[slotIndex - 1].label }}</div>
+              <v-card v-for="(frame, slotIndex) in assembledFrames" :key="slotIndex" class="story-slot pa-4" :color="frame?.color ?? 'blue-grey-lighten-5'" rounded="xl" variant="flat">
+                <template v-if="frame">
+                  <div class="slot-number">{{ slotIndex + 1 }}</div>
+                  <div class="story-scene" :class="`story-scene--${frame.scene.setting}`" role="img" :aria-label="frame.label">
+                    <template v-for="(layer, layerIndex) in frame.scene.layers" :key="`${layer.kind}:${layerIndex}`">
+                      <GameWordImage v-if="layer.kind === 'word'" :class="['scene-layer', `scene-layer--${layer.position}`, `scene-layer--${layer.size ?? 'medium'}`]" :word-id="layer.wordId" :word="layer.word" :emoji="layer.emoji" decorative />
+                      <v-icon v-else :class="['scene-layer', `scene-layer--${layer.position}`, `scene-layer--${layer.size ?? 'medium'}`]" :icon="layer.icon" :color="layer.color" />
+                    </template>
+                  </div>
+                  <div class="frame-label text-h6 font-weight-bold mt-2">{{ frame.label }}</div>
                 </template>
                 <template v-else>
-                  <div class="slot-number">{{ slotIndex }}</div>
+                  <div class="slot-number">{{ slotIndex + 1 }}</div>
                   <v-icon class="empty-icon" icon="mdi-help" color="blue-grey-darken-1" />
                   <div class="text-body-1 font-weight-bold text-medium-emphasis mt-2">Ждёт кадр</div>
                 </template>
               </v-card>
             </div>
 
-            <v-row justify="center">
+            <v-row class="choice-row" justify="center">
               <v-col v-for="choice in round.choices" :key="choice.id" cols="4" sm="4">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="9rem" :color="choiceColor(choice)" @select="choose(choice)">
+                <GameDwellButton class="story-choice" :aria-label="`Выбрать кадр: ${choice.label}`" :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="9rem" :color="choiceColor(choice)" @select="choose(choice)">
                   <template #default>
-                    <GameWordImage v-if="choice.wordId" class="frame-emoji" :word-id="choice.wordId" :word="choice.label" :emoji="choice.emoji" />
-                    <div v-else class="frame-emoji emoji-glyph">{{ choice.emoji }}</div>
-                    <div class="text-h5 font-weight-bold mt-3">{{ choice.label }}</div>
+                    <div class="story-scene story-scene--choice" :class="`story-scene--${choice.scene.setting}`" aria-hidden="true">
+                      <template v-for="(layer, layerIndex) in choice.scene.layers" :key="`${layer.kind}:${layerIndex}`">
+                        <GameWordImage v-if="layer.kind === 'word'" :class="['scene-layer', `scene-layer--${layer.position}`, `scene-layer--${layer.size ?? 'medium'}`]" :word-id="layer.wordId" :word="layer.word" :emoji="layer.emoji" decorative />
+                        <v-icon v-else :class="['scene-layer', `scene-layer--${layer.position}`, `scene-layer--${layer.size ?? 'medium'}`]" :icon="layer.icon" :color="layer.color" />
+                      </template>
+                    </div>
                   </template>
                 </GameDwellButton>
               </v-col>
@@ -277,7 +281,7 @@ watch(isSpeaking, (speaking) => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-block-size: clamp(10.625rem, 20vw, 15rem);
+  min-block-size: clamp(9rem, 20vw, 13rem);
   position: relative;
   text-align: center;
 }
@@ -293,25 +297,179 @@ watch(isSpeaking, (speaking) => {
   position: absolute;
 }
 
-.frame-emoji {
-  filter: drop-shadow(0 0.625rem 0.75rem rgb(0 0 0 / 14%));
-  font-size: clamp(4.5rem, 9vw, 7rem);
-  line-height: 1;
+.story-scene {
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(180deg, #dff3ff 0%, #f9fdff 100%);
+  border: 0.125rem solid rgb(var(--v-theme-primary) / 10%);
+  border-radius: 1rem;
+  box-shadow: inset 0 0 1.5rem rgb(255 255 255 / 52%);
+  inline-size: min(100%, 12rem);
+  overflow: hidden;
+  position: relative;
 }
 
+.story-scene::after {
+  background: #a7d47b;
+  block-size: 28%;
+  content: "";
+  inset-block-end: 0;
+  inset-inline: 0;
+  position: absolute;
+}
+
+.story-scene--earth {
+  background: linear-gradient(180deg, #dff4ff 0%, #fff8d8 72%);
+}
+
+.story-scene--earth::after {
+  background: linear-gradient(180deg, #8bc66a 0 22%, #9a6948 22% 100%);
+  block-size: 34%;
+}
+
+.story-scene--table {
+  background: linear-gradient(180deg, #fff8e9 0%, #fffdf7 100%);
+}
+
+.story-scene--table::after {
+  background: linear-gradient(180deg, #d9aa72, #bd824e);
+  block-size: 26%;
+}
+
+.story-scene--snow {
+  background: linear-gradient(180deg, #dff4ff 0%, #f8fdff 100%);
+}
+
+.story-scene--snow::after {
+  background: linear-gradient(180deg, #ffffff, #dceff7);
+  block-size: 32%;
+}
+
+.scene-layer {
+  filter: drop-shadow(0 0.35rem 0.45rem rgb(0 0 0 / 18%));
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+.scene-layer--small {
+  font-size: clamp(1.25rem, 3vw, 2rem) !important;
+}
+
+.scene-layer--medium {
+  font-size: clamp(2rem, 5vw, 3.75rem) !important;
+}
+
+.scene-layer--large {
+  font-size: clamp(3rem, 7vw, 5.25rem) !important;
+}
+
+.scene-layer--top-left { inset-block-start: 22%; inset-inline-start: 20%; }
+.scene-layer--top-center { inset-block-start: 22%; inset-inline-start: 50%; }
+.scene-layer--top-right { inset-block-start: 22%; inset-inline-start: 80%; }
+.scene-layer--left { inset-block-start: 52%; inset-inline-start: 22%; }
+.scene-layer--center { inset-block-start: 50%; inset-inline-start: 50%; }
+.scene-layer--right { inset-block-start: 52%; inset-inline-start: 78%; }
+.scene-layer--bottom-left { inset-block-start: 72%; inset-inline-start: 22%; }
+.scene-layer--bottom-center { inset-block-start: 68%; inset-inline-start: 50%; }
+.scene-layer--bottom-right { inset-block-start: 72%; inset-inline-start: 78%; }
+
 .empty-icon {
-  font-size: clamp(3.5rem, 7vw, 5.5rem);
+  font-size: clamp(2.75rem, 6vw, 4.5rem);
 }
 
 @media (max-width: 43.75rem) {
- .story-slots {
+  .story-slots {
     gap: 0.625rem;
   }
 }
 
 @media (max-height: 57.5rem) {
- .story-slots {
+  .story-card {
+    padding-block: 1rem !important;
+  }
+
+  .story-prompt {
+    margin-block-end: 0.75rem !important;
+  }
+
+  .feedback-card {
+    margin-block-end: 0.75rem !important;
+    padding-block: 0.75rem !important;
+  }
+
+  .story-slots {
+    gap: 0.75rem;
+    margin-block-end: 0.75rem !important;
+  }
+
+  .story-slot {
+    min-block-size: clamp(6.5rem, 18vh, 8.5rem);
+    padding: 0.625rem !important;
+  }
+
+  .story-slot .story-scene {
+    inline-size: min(100%, 8.5rem);
+  }
+
+  .story-slot .frame-label {
     display: none;
+  }
+
+  .story-choice :deep(.dwell-button) {
+    min-block-size: 7rem !important;
+    padding-block: 0.5rem !important;
+  }
+
+  .story-scene--choice {
+    inline-size: min(100%, 9rem);
+  }
+}
+
+@media (max-height: 44rem) {
+  .game-container {
+    padding-block: 0.5rem;
+  }
+
+  .story-overline,
+  .story-prompt {
+    display: none;
+  }
+
+  .story-title {
+    font-size: clamp(1.75rem, 5vh, 2.5rem) !important;
+    line-height: 1 !important;
+    margin-block-end: 0.5rem !important;
+  }
+
+  .feedback-card {
+    padding: 0.5rem !important;
+  }
+
+  .feedback-card .text-h6 {
+    font-size: 1rem !important;
+  }
+
+  .story-slot {
+    min-block-size: 5.75rem;
+  }
+
+  .slot-number {
+    inset-block-start: 0.35rem;
+    inset-inline-start: 0.35rem;
+    min-inline-size: 1.65rem;
+    padding: 0.1rem 0.4rem;
+  }
+
+  .story-slot .story-scene {
+    inline-size: min(100%, 7rem);
+  }
+
+  .story-choice :deep(.dwell-button) {
+    min-block-size: 5.75rem !important;
+  }
+
+  .story-scene--choice {
+    inline-size: min(100%, 7.5rem);
   }
 }
 </style>

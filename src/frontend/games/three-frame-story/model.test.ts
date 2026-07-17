@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { generateThreeFrameStoryRound, threeFrameStories } from "./model";
+import wordImageManifest from "../../../../public/images/words/manifest.json";
+import { createThreeFrameStorySlots, generateThreeFrameStoryRound, threeFrameStories } from "./model";
 
 describe("generateThreeFrameStoryRound", () => {
   it("offers exactly the three frames from the current story", () => {
@@ -27,9 +28,9 @@ describe("generateThreeFrameStoryRound", () => {
     const story = threeFrameStories[0];
     const random = () => 0;
 
-    expect(generateThreeFrameStoryRound(0, { random }).choices.map((frame) => frame.id)).toEqual(["watering", "flower", "seed"]);
+    expect(generateThreeFrameStoryRound(0, { random }).choices.map((frame) => frame.id)).toEqual(["sprout", "flower", "seed"]);
     expect(generateThreeFrameStoryRound(0, { random }).correctIndex).toBe(2);
-    expect(story.frames[0].emoji).toBe("🌰");
+    expect(story.frames[0].scene.layers).toHaveLength(3);
   });
 
   it("uses the provided story order", () => {
@@ -40,7 +41,7 @@ describe("generateThreeFrameStoryRound", () => {
   });
 
   it("keeps the provided choice order across story steps", () => {
-    const choiceOrder = ["flower", "seed", "watering"];
+    const choiceOrder = ["flower", "seed", "sprout"];
 
     expect(generateThreeFrameStoryRound(0, { choiceOrder }).choices.map((frame) => frame.id)).toEqual(choiceOrder);
     expect(generateThreeFrameStoryRound(1, { choiceOrder }).choices.map((frame) => frame.id)).toEqual(choiceOrder);
@@ -52,6 +53,37 @@ describe("generateThreeFrameStoryRound", () => {
 
     expect(round.placedFrames).toEqual(round.story.frames.slice(0, 2));
     expect(round.stepInStory).toBe(2);
+  });
+
+  it("keeps all three compact strip slots visible while frames are assembled", () => {
+    const firstRound = generateThreeFrameStoryRound(0);
+    const finalRound = generateThreeFrameStoryRound(2);
+
+    expect(createThreeFrameStorySlots(firstRound)).toEqual([undefined, undefined, undefined]);
+    expect(createThreeFrameStorySlots(firstRound, firstRound.expectedFrame.id)).toEqual([firstRound.expectedFrame, undefined, undefined]);
+    expect(createThreeFrameStorySlots(finalRound)).toEqual([finalRound.story.frames[0], finalRound.story.frames[1], undefined]);
+    expect(createThreeFrameStorySlots(finalRound, "wrong-frame")).toEqual([finalRound.story.frames[0], finalRound.story.frames[1], undefined]);
+    expect(createThreeFrameStorySlots(finalRound, finalRound.expectedFrame.id)).toEqual(finalRound.story.frames);
+  });
+
+  it("uses composed visual scenes instead of emoji-only choice art", () => {
+    for (const story of threeFrameStories) {
+      expect(story.prompt).not.toMatch(/сначала|потом|в конце/i);
+      for (const frame of story.frames) {
+        expect(frame).not.toHaveProperty("emoji");
+        expect(frame.scene.layers.length).toBeGreaterThanOrEqual(2);
+      }
+    }
+  });
+
+  it("references only available word images", () => {
+    const availableWordImageIds = new Set(wordImageManifest.map((asset) => asset.id));
+    const referencedWordImageIds = threeFrameStories.flatMap((story) => story.frames).flatMap((frame) =>
+      frame.scene.layers.filter((layer) => layer.kind === "word").map((layer) => layer.wordId)
+    );
+
+    expect(referencedWordImageIds.length).toBeGreaterThan(0);
+    referencedWordImageIds.forEach((wordId) => expect(availableWordImageIds.has(wordId), wordId).toBe(true));
   });
 
   it("moves to the next story after three successful steps", () => {
