@@ -6,7 +6,13 @@ export type YesNoAnswer = "yes" | "no";
 export type YesNoChoice = {
   id: YesNoAnswer;
   title: string;
-  emoji: string;
+  icon: string;
+  color: string;
+};
+
+export type YesNoNameAsset = {
+  id: string;
+  text: string;
 };
 
 export type YesNoRound = {
@@ -24,9 +30,19 @@ export type YesNoRoundOptions = {
 };
 
 export const yesNoChoices: YesNoChoice[] = [
-  { id: "yes", title: "Да", emoji: "✅" },
-  { id: "no", title: "Нет", emoji: "❌" }
+  { id: "yes", title: "Да", icon: "mdi-check-bold", color: "green-lighten-4" },
+  { id: "no", title: "Нет", icon: "mdi-close-thick", color: "red-lighten-4" }
 ];
+
+export function findYesNoNameAsset(item: WordItem, assets: YesNoNameAsset[]) {
+  const normalizedWord = item.word.trim().toLocaleLowerCase("ru-RU");
+  const matchingAssets = assets.filter((asset) => asset.text.trim().toLocaleLowerCase("ru-RU").replace(/[.!?]+$/u, "") === normalizedWord);
+  const nameMarkers = [".word.", ".name.", ".item.", ".card."];
+  const isNameAsset = (asset: YesNoNameAsset) => nameMarkers.some((marker) => asset.id.includes(marker));
+
+  return matchingAssets.find((asset) => asset.id.endsWith(`.${item.id}`) && isNameAsset(asset))
+    ?? matchingAssets.find(isNameAsset);
+}
 
 export function generateYesNoRound(roundIndex = 1, optionsOrRandom: YesNoRoundOptions | (() => number) = {}): YesNoRound {
   const options = typeof optionsOrRandom === "function" ? { random: optionsOrRandom } : optionsOrRandom;

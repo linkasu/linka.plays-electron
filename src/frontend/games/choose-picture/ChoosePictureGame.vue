@@ -11,14 +11,14 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { generateChoosePictureRound } from "./model";
+import { choosePictureInstruction, generateChoosePictureRound } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("choose-picture", { maxSteps: 8, finishOnMaxSteps: false, finishOnMistakes: false });
 const soundEnabled = toRef(session.settings, "sound");
 const feedback = useStandardGameFeedback(soundEnabled);
-const promptAudio = useGamePromptAudio({ gameId: "choose-picture", soundEnabled, warmAssetIds: ["choose-picture.intro", "choose-picture.correct", "choose-picture.mistake", "choose-picture.complete"] });
-const feedbackText = ref("Посмотри на слово и выбери картинку.");
+const promptAudio = useGamePromptAudio({ gameId: "choose-picture", soundEnabled, warmAssetIds: ["choose-picture.correct", "choose-picture.mistake", "choose-picture.complete"] });
+const feedbackText = ref("");
 const isSpeaking = ref(false);
 
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
@@ -48,8 +48,7 @@ async function choose(choice: (typeof round.value.choices)[number]) {
       return;
     }
     nextRound();
-    feedbackText.value = "Посмотри на слово и выбери картинку.";
-    promptAudio.play("choose-picture.intro", 180);
+    feedbackText.value = "";
   } else {
     recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: false });
     void feedback.playMistake();
@@ -61,16 +60,14 @@ async function choose(choice: (typeof round.value.choices)[number]) {
 }
 
 function restart() {
-  feedbackText.value = "Посмотри на слово и выбери картинку.";
+  feedbackText.value = "";
   isSpeaking.value = false;
   promptAudio.cancelPending();
   restartRoundGame();
-  promptAudio.play("choose-picture.intro", 220);
 }
 
 onMounted(() => {
   promptAudio.warm();
-  promptAudio.play("choose-picture.intro", 420);
 });
 
 onUnmounted(() => {
@@ -87,13 +84,13 @@ onUnmounted(() => {
       <v-row justify="center">
         <v-col cols="12" lg="10">
           <v-card class="choose-picture-card pa-6 pa-md-8" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Слушаем и выбираем</div>
-            <h1 class="text-h3 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
-            <p class="text-h6 text-medium-emphasis text-center mb-6">{{ feedbackText }}</p>
-            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="13.125rem" :cols="6" :md="6" @select="choose">
+            <div class="text-overline text-secondary text-center mb-2">Читаем и выбираем</div>
+            <p class="text-h6 text-medium-emphasis text-center mb-2">{{ choosePictureInstruction }}</p>
+            <h1 class="text-h3 font-weight-bold text-center mb-6">{{ round.prompt }}</h1>
+            <p v-if="feedbackText" class="text-h6 text-medium-emphasis text-center mb-6">{{ feedbackText }}</p>
+            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="13.125rem" @select="choose">
               <template #default="{ choice }">
                 <GameWordImage class="choice-emoji" :word-id="choice.id" :word="choice.word" :emoji="choice.emoji" />
-                <div class="text-h5 font-weight-bold mt-2">{{ choice.word }}</div>
               </template>
             </GameChoiceCardGrid>
           </v-card>
@@ -141,8 +138,5 @@ onUnmounted(() => {
     min-block-size: 8rem !important;
   }
 
- .game-container :deep(.dwell-button .text-h5) {
-    font-size: clamp(1.35rem, 4.5vh, 1.8rem) !important;
-  }
 }
 </style>

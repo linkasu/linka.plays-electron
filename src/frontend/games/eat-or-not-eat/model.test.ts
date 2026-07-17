@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { generateEatOrNotEatRound } from "./model";
+import { createEatOrNotEatRoundGenerator, generateEatOrNotEatRound } from "./model";
 
 describe("generateEatOrNotEatRound", () => {
   it("keeps round ids stable for telemetry", () => {
@@ -34,6 +34,25 @@ describe("generateEatOrNotEatRound", () => {
       expect(round.item.id).toBeTruthy();
       expect(round.item.word).toBeTruthy();
       expect(round.item.emoji).toBeTruthy();
+      expect(round.prompt).toContain(round.item.word);
     }
+  });
+
+  it("builds a balanced non-repeating food and thing deck", () => {
+    const generateRound = createEatOrNotEatRoundGenerator(() => 0.42);
+    const rounds = Array.from({ length: 8 }, (_, index) => generateRound(index + 1));
+
+    expect(new Set(rounds.map((round) => round.item.id)).size).toBe(rounds.length);
+    expect(rounds.filter((round) => round.correctAnswer === "food")).toHaveLength(4);
+    expect(rounds.filter((round) => round.correctAnswer === "thing")).toHaveLength(4);
+  });
+
+  it("does not repeat an item during a complete balanced deck", () => {
+    const generateRound = createEatOrNotEatRoundGenerator(() => 0);
+    const rounds = Array.from({ length: 80 }, (_, index) => generateRound(index + 1));
+
+    expect(new Set(rounds.map((round) => round.item.id)).size).toBe(80);
+    expect(rounds.filter((round) => round.correctAnswer === "food")).toHaveLength(40);
+    expect(rounds.filter((round) => round.correctAnswer === "thing")).toHaveLength(40);
   });
 });

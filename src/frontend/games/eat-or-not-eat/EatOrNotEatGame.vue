@@ -10,7 +10,7 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeEatOrNotEatAudio, playEatOrNotEatMistakeMelody, warmEatOrNotEatAudio } from "./audio";
-import { generateEatOrNotEatRound, type EatOrNotEatAnswer, type EatOrNotEatRound } from "./model";
+import { createEatOrNotEatRoundGenerator, type EatOrNotEatAnswer, type EatOrNotEatRound } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("eat-or-not-eat", {
@@ -21,17 +21,18 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 });
 const promptAudio = useGamePromptAudio({ gameId: "eat-or-not-eat", soundEnabled: toRef(session.settings, "sound"), warmAssetIds: ["eat-or-not-eat.prompt", "eat-or-not-eat.correct", "eat-or-not-eat.mistake", "eat-or-not-eat.complete"] });
 
+let generateRound = createEatOrNotEatRoundGenerator();
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<EatOrNotEatRound>({
   session,
   startSession,
-  generateRound: generateEatOrNotEatRound
+  generateRound: (roundIndex) => generateRound(roundIndex)
 });
-const feedbackText = ref("Выбери, можно ли это есть.");
+const feedbackText = ref("Выбери зону: еда или не еда.");
 const isSpeaking = ref(false);
 
-const answers: Array<{ id: EatOrNotEatAnswer; title: string; emoji: string }> = [
-  { id: "food", title: "Можно есть", emoji: "🍽️" },
-  { id: "thing", title: "Нельзя есть", emoji: "📦" }
+const answers: Array<{ id: EatOrNotEatAnswer; title: string; helper: string; emoji: string; color: string }> = [
+  { id: "food", title: "Еда", helper: "Можно есть", emoji: "🍎", color: "green-lighten-4" },
+  { id: "thing", title: "Не еда", helper: "Нельзя есть", emoji: "🧸", color: "blue-lighten-4" }
 ];
 
 function answerTargetId(value: EatOrNotEatAnswer) {
@@ -54,7 +55,7 @@ async function answer(value: EatOrNotEatAnswer) {
       return;
     }
     nextRound();
-    feedbackText.value = "Выбери, можно ли это есть.";
+    feedbackText.value = "Выбери зону: еда или не еда.";
     promptAudio.play("eat-or-not-eat.prompt", 180);
   }
   else {
@@ -68,9 +69,10 @@ async function answer(value: EatOrNotEatAnswer) {
 }
 
 function restart() {
-  feedbackText.value = "Выбери, можно ли это есть.";
+  feedbackText.value = "Выбери зону: еда или не еда.";
   isSpeaking.value = false;
   promptAudio.cancelPending();
+  generateRound = createEatOrNotEatRoundGenerator();
   restartRoundGame();
   promptAudio.play("eat-or-not-eat.prompt", 220);
 }
@@ -95,18 +97,19 @@ onUnmounted(() => {
       <v-row justify="center">
         <v-col cols="12" lg="10">
           <v-card class="eat-card pa-6 pa-md-8" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Куда положим?</div>
+            <div class="text-overline text-secondary text-center mb-2">Разложи по двум зонам</div>
             <div class="item-display mb-8">
               <GameWordImage class="item-emoji" :word-id="round.item.id" :word="round.item.word" :emoji="round.item.emoji" />
-              <h1 class="text-h3 font-weight-bold">{{ round.item.word }}</h1>
+              <h1 class="text-h3 font-weight-bold">{{ round.prompt }}</h1>
               <p class="text-h6 text-medium-emphasis mb-0">{{ feedbackText }}</p>
             </div>
             <v-row>
-              <v-col v-for="option in answers" :key="option.id" cols="12" md="6">
-                <GameDwellButton :target-id="answerTargetId(option.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="13.125rem" @select="answer(option.id)">
+              <v-col v-for="option in answers" :key="option.id" cols="12" sm="6">
+                <GameDwellButton :target-id="answerTargetId(option.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="13.125rem" :color="option.color" @select="answer(option.id)">
                   <template #default>
                     <div class="choice-emoji emoji-glyph">{{ option.emoji }}</div>
-                    <div class="text-h4 font-weight-bold">{{ option.title }}</div>
+                    <div class="text-h3 font-weight-bold">{{ option.title }}</div>
+                    <div class="text-h6 mt-2">{{ option.helper }}</div>
                   </template>
                 </GameDwellButton>
               </v-col>
