@@ -8,10 +8,16 @@ export type WhatFirstAction = {
   emoji: string;
 };
 
+export type WhatFirstContextVisual = {
+  emoji: string;
+  label: string;
+};
+
 export type WhatFirstScene = {
   id: string;
   title: string;
   context: string;
+  contextVisual: WhatFirstContextVisual;
   first: WhatFirstAction;
   then: WhatFirstAction;
 };
@@ -30,6 +36,7 @@ export const whatFirstScenes: WhatFirstScene[] = [
     id: "wash-eat",
     title: "Перед едой",
     context: "Мы хотим сесть за стол.",
+    contextVisual: { emoji: "🍴", label: "Стол перед едой" },
     first: { id: "wash-hands", title: "Вымыть руки", aacLabel: "мыть", phrase: "моем руки", emoji: "🧼" },
     then: { id: "eat", title: "Есть", aacLabel: "есть", phrase: "едим", emoji: "🍽️" }
   },
@@ -37,6 +44,7 @@ export const whatFirstScenes: WhatFirstScene[] = [
     id: "shoes-walk",
     title: "На прогулку",
     context: "Мы собираемся выйти на улицу.",
+    contextVisual: { emoji: "🚪", label: "Выход на улицу" },
     first: { id: "put-shoes", title: "Надеть обувь", aacLabel: "обувь", phrase: "надеваем обувь", emoji: "👟" },
     then: { id: "walk", title: "Гулять", aacLabel: "гулять", phrase: "идём гулять", emoji: "🌳" }
   },
@@ -44,6 +52,7 @@ export const whatFirstScenes: WhatFirstScene[] = [
     id: "brush-sleep",
     title: "Перед сном",
     context: "Вечером пора готовиться ко сну.",
+    contextVisual: { emoji: "🌙", label: "Вечер дома" },
     first: { id: "brush-teeth", title: "Почистить зубы", aacLabel: "зубы", phrase: "чистим зубы", emoji: "🪥" },
     then: { id: "sleep", title: "Спать", aacLabel: "спать", phrase: "ложимся спать", emoji: "🛏️" }
   },
@@ -51,6 +60,7 @@ export const whatFirstScenes: WhatFirstScene[] = [
     id: "open-read",
     title: "Книга",
     context: "Мы хотим посмотреть историю.",
+    contextVisual: { emoji: "📚", label: "Книжная история" },
     first: { id: "open-book", title: "Открыть книгу", aacLabel: "открыть", phrase: "открываем книгу", emoji: "📖" },
     then: { id: "read", title: "Читать", aacLabel: "читать", phrase: "читаем", emoji: "👀" }
   },
@@ -58,6 +68,7 @@ export const whatFirstScenes: WhatFirstScene[] = [
     id: "pour-drink",
     title: "Попить воды",
     context: "В стакане пока пусто.",
+    contextVisual: { emoji: "🚰", label: "Вода для питья" },
     first: { id: "pour-water", title: "Налить воду", aacLabel: "налить", phrase: "наливаем воду", emoji: "💧" },
     then: { id: "drink", title: "Пить", aacLabel: "пить", phrase: "пьём", emoji: "🥤" }
   },
@@ -65,6 +76,7 @@ export const whatFirstScenes: WhatFirstScene[] = [
     id: "soap-rinse",
     title: "Моем руки",
     context: "На руках появилась пена.",
+    contextVisual: { emoji: "👐", label: "Руки у раковины" },
     first: { id: "soap", title: "Намылить", aacLabel: "мыло", phrase: "намыливаем руки", emoji: "🫧" },
     then: { id: "rinse", title: "Смыть", aacLabel: "смыть", phrase: "смываем пену", emoji: "🚿" }
   },
@@ -72,6 +84,7 @@ export const whatFirstScenes: WhatFirstScene[] = [
     id: "sit-buckle",
     title: "В кресле",
     context: "Нужно безопасно сесть перед дорогой.",
+    contextVisual: { emoji: "🚗", label: "Поездка в машине" },
     first: { id: "sit", title: "Сесть", aacLabel: "сесть", phrase: "садимся", emoji: "🪑" },
     then: { id: "buckle", title: "Пристегнуться", aacLabel: "ремень", phrase: "пристёгиваемся", emoji: "🧷" }
   },
@@ -79,6 +92,7 @@ export const whatFirstScenes: WhatFirstScene[] = [
     id: "peel-eat",
     title: "Банан",
     context: "Мы хотим съесть банан.",
+    contextVisual: { emoji: "🧺", label: "Корзинка с фруктами" },
     first: { id: "peel", title: "Очистить", aacLabel: "чистить", phrase: "чистим банан", emoji: "🍌" },
     then: { id: "bite", title: "Кусать", aacLabel: "есть", phrase: "кушаем банан", emoji: "😋" }
   }

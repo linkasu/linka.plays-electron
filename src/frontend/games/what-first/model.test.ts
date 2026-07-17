@@ -18,6 +18,28 @@ describe("what-first model", () => {
     expect(round.choices).toEqual([round.scene.then, round.scene.first]);
   });
 
+  it("keeps the context visual unchanged when choice order is reversed", () => {
+    const orderedDeck = createWhatFirstDeck(() => 0.99);
+    let randomCalls = 0;
+    const reversedDeck = createWhatFirstDeck(() => randomCalls++ < whatFirstScenes.length - 1 ? 0.99 : 0);
+
+    orderedDeck.forEach((orderedRound, index) => {
+      const reversedRound = reversedDeck[index];
+      expect(reversedRound.scene.id).toBe(orderedRound.scene.id);
+      expect(reversedRound.scene.contextVisual).toBe(orderedRound.scene.contextVisual);
+      expect(orderedRound.choices).toEqual([orderedRound.scene.first, orderedRound.scene.then]);
+      expect(reversedRound.choices).toEqual([reversedRound.scene.then, reversedRound.scene.first]);
+    });
+  });
+
+  it("uses neutral context visuals that do not encode the reversed answer", () => {
+    whatFirstScenes.forEach((scene) => {
+      expect(scene.contextVisual.emoji).not.toContain(scene.first.emoji);
+      expect(scene.contextVisual.emoji).not.toContain(scene.then.emoji);
+      expect(scene.contextVisual.emoji).not.toBe(`${scene.then.emoji} ${scene.first.emoji}`);
+    });
+  });
+
   it("uses the random source for scene order", () => {
     const lowRandomRound = generateWhatFirstRound(1, () => 0);
     const highRandomRound = generateWhatFirstRound(1, () => 0.99);

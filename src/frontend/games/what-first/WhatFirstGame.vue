@@ -36,7 +36,6 @@ const successChoiceId = ref<string>();
 let feedbackTimer = 0;
 
 const resultVisible = computed(() => session.status === "finished");
-const sceneEmojis = computed(() => round.value.choices.map((choice) => choice.emoji).join(" "));
 
 function choiceTargetId(action: WhatFirstAction) {
   return `what-first:choice:${round.value.scene.id}:${action.id}`;
@@ -184,7 +183,7 @@ onUnmounted(() => {
             <div class="text-overline text-secondary text-center mb-2">AAC и порядок действий</div>
             <div class="text-center mb-6">
               <v-chip class="mb-4 text-white" color="deep-purple-darken-3" size="large" variant="flat">{{ round.scene.title }}</v-chip>
-              <div class="scene-emojis emoji-glyph mb-3" aria-hidden="true">{{ sceneEmojis }}</div>
+              <div class="scene-visual emoji-glyph mb-3" role="img" :aria-label="round.scene.contextVisual.label">{{ round.scene.contextVisual.emoji }}</div>
               <h1 class="text-h3 text-md-h2 font-weight-bold mb-2">{{ round.prompt }}</h1>
               <div class="scene-context text-h6 text-md-h5">{{ round.scene.context }}</div>
             </div>
@@ -223,7 +222,7 @@ onUnmounted(() => {
   padding-block-start: 8.25rem;
 }
 
-.scene-emojis {
+.scene-visual {
   font-size: clamp(4rem, 10vw, 7rem);
   line-height: 1;
 }
@@ -250,8 +249,8 @@ onUnmounted(() => {
     margin-block-end: 1rem !important;
   }
 
- .scene-emojis,
- .choice-emoji {
+  .scene-visual,
+  .choice-emoji {
     font-size: clamp(3.5rem, 8vw, 5.5rem);
   }
 
@@ -288,7 +287,7 @@ onUnmounted(() => {
     padding: 0.55rem !important;
   }
 
-  .scene-emojis {
+  .scene-visual {
     font-size: clamp(2.5rem, 7vh, 3.75rem);
   }
 
