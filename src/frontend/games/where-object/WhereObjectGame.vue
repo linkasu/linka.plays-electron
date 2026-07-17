@@ -12,7 +12,7 @@ import { useRoundGame } from "../../composables/useRoundGame";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
-import { generateWhereObjectRound, isWhereObjectCorrect, type WhereObjectChoice, type WhereObjectRound } from "./model";
+import { createWhereObjectRoundGenerator, isWhereObjectCorrect, type WhereObjectChoice, type WhereObjectRound } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("where-object", {
@@ -29,10 +29,11 @@ const promptAudio = useGamePromptAudio({
   warmAssetIds: ["where-object.complete"]
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
+let generateRound = createWhereObjectRoundGenerator();
 const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<WhereObjectRound>({
   session,
   startSession,
-  generateRound: generateWhereObjectRound
+  generateRound: (roundIndex) => generateRound(roundIndex)
 });
 
 const lastMistakeId = ref<string>();
@@ -43,7 +44,7 @@ const choiceMinHeight = computed(() => {
 });
 const hintText = computed(() => lastMistakeId.value
   ? "Посмотри на все картинки ещё раз."
-  : "В каждой картинке один предмет. Покажи, где он находится.");
+  : "Выбери картинку, которая точно подходит к заданию.");
 
 function choiceTargetId(choice: WhereObjectChoice) {
   return `where-object:preposition:${choice.id}`;
@@ -101,7 +102,7 @@ async function chooseScene(choice: WhereObjectChoice) {
     recordMistake({
       roundId: round.value.roundId,
       targetId,
-      expectedTargetId: choiceTargetId(round.value.correctChoice),
+      expectedTargetId: `where-object:preposition:${round.value.targetPreposition.id}`,
       answerId: choice.id,
       objectId: round.value.targetObject.id,
       expected: round.value.scenePhrase,
@@ -111,7 +112,7 @@ async function chooseScene(choice: WhereObjectChoice) {
     lastMistakeId.value = choice.id;
     void pianoFeedback.playMistake();
     promptAudio.cancelPending();
-    await speakSceneText(`Это другая картинка. Где ${round.value.targetObject.word}?`, session.settings.sound, 80);
+    await speakSceneText(`Это другая картинка. ${round.value.prompt}`, session.settings.sound, 80);
   }
 
   isChangingRound.value = false;
@@ -122,6 +123,7 @@ function restart() {
   isChangingRound.value = false;
   promptAudio.cancelPending();
   cancelSceneSpeech();
+  generateRound = createWhereObjectRoundGenerator();
   restartRoundGame();
   void playRoundPrompt(220);
 }
@@ -177,7 +179,6 @@ onUnmounted(() => {
                   />
                   <div class="mini-scene__box-front" aria-hidden="true" />
                 </div>
-                <div class="relation-label text-h5 text-md-h4 font-weight-bold mt-2">{{ choice.preposition.label }}</div>
               </template>
             </GameChoiceCardGrid>
           </v-card>
@@ -251,12 +252,6 @@ onUnmounted(() => {
   inset-inline-start: 20%;
 }
 
-.relation-label {
-  color: #263238;
-  line-height: 1.1;
-  text-align: center;
-}
-
 @media (max-height: 42rem) {
   .where-object-card {
     padding: 1rem !important;
@@ -282,10 +277,6 @@ onUnmounted(() => {
 
   .mini-scene {
     min-block-size: 5.8rem;
-  }
-
-  .relation-label {
-    font-size: 1.18rem !important;
   }
 }
 </style>

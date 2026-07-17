@@ -1,3 +1,5 @@
+import { shuffleItems } from "../../core/random";
+
 export type WhereObjectPrepositionId = "on" | "under" | "in" | "beside";
 export type WhereObjectPlaceId = "box";
 
@@ -25,8 +27,6 @@ export type WhereObjectRound = {
   targetPlace: WhereObjectPlace;
   targetPreposition: WhereObjectPreposition;
   choices: WhereObjectChoice[];
-  correctChoice: WhereObjectChoice;
-  correctId: WhereObjectPrepositionId;
   scenePhrase: string;
 };
 
@@ -70,16 +70,20 @@ export function phraseFor(place: WhereObjectPlace, preposition: WhereObjectPrepo
 }
 
 export function isWhereObjectCorrect(round: WhereObjectRound, choice: WhereObjectChoice) {
-  return round.correctId === choice.id;
+  return round.targetPreposition.id === choice.id;
 }
 
-export function generateWhereObjectRound(roundIndex = 1): WhereObjectRound {
+type WhereObjectDeckEntry = {
+  targetObject: WhereObjectItem;
+  targetPreposition: WhereObjectPreposition;
+};
+
+function buildWhereObjectRound(roundIndex: number, entry: WhereObjectDeckEntry, random: () => number): WhereObjectRound {
   const normalizedIndex = Math.max(1, Math.floor(roundIndex));
-  const targetObject = whereObjectItems[(normalizedIndex - 1) % whereObjectItems.length];
+  const { targetObject, targetPreposition } = entry;
   const targetPlace = whereObjectPlaces[0];
-  const targetPreposition = whereObjectPrepositions[(normalizedIndex - 1) % whereObjectPrepositions.length];
   const scenePhrase = `${targetObject.word} ${phraseFor(targetPlace, targetPreposition)}`;
-  const unorderedChoices = whereObjectPrepositions.map<WhereObjectChoice>((preposition) => ({
+  const choices = shuffleItems(whereObjectPrepositions.map<WhereObjectChoice>((preposition) => ({
     id: preposition.id,
     preposition,
     targetObject,
@@ -88,20 +92,37 @@ export function generateWhereObjectRound(roundIndex = 1): WhereObjectRound {
     answerAssetId: preposition.id === "beside"
       ? undefined
       : `where-object.answer.${targetObject.id}.${targetPlace.id}.${preposition.id}`
-  }));
-  const choices = unorderedChoices;
-  const correctChoice = choices.find((choice) => choice.id === targetPreposition.id);
-  if (!correctChoice) throw new Error("Не удалось создать правильную пространственную сцену.");
+  })), random);
 
   return {
     roundId: `where-object:round:${normalizedIndex}`,
-    prompt: `Где ${targetObject.word}? Покажи картинку.`,
+    prompt: `Покажи: ${scenePhrase}.`,
     targetObject,
     targetPlace,
     targetPreposition,
     choices,
-    correctChoice,
-    correctId: targetPreposition.id,
     scenePhrase
+  };
+}
+
+function createWhereObjectDeck(random: () => number) {
+  const objects = shuffleItems(whereObjectItems, random);
+  const prepositions = shuffleItems(whereObjectPrepositions, random);
+  const phases = shuffleItems(prepositions.map((_, index) => index), random);
+
+  return phases.flatMap((phase) => shuffleItems(objects.map<WhereObjectDeckEntry>((targetObject, objectIndex) => ({
+    targetObject,
+    targetPreposition: prepositions[(Math.floor(objectIndex / 2) + phase) % prepositions.length]
+  })), random));
+}
+
+export function createWhereObjectRoundGenerator(random = Math.random) {
+  let deck: WhereObjectDeckEntry[] = [];
+
+  return (roundIndex = 1): WhereObjectRound => {
+    if (deck.length === 0) deck = createWhereObjectDeck(random);
+    const entry = deck.shift();
+    if (!entry) throw new Error("Не удалось создать колоду пространственных сцен.");
+    return buildWhereObjectRound(roundIndex, entry, random);
   };
 }
