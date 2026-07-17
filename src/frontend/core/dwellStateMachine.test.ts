@@ -37,6 +37,33 @@ describe("dwell state machine", () => {
     expect(continued.progress).toBe(0.5);
   });
 
+  it("freezes progress during a short valid exit from the target", () => {
+    const entered = advance(createDwellMachineState(), 0, "a");
+    const holding = advance(entered.state, 400, "a");
+    const left = advance(holding.state, 450, undefined, true);
+    const restored = advance(left.state, 550, "a");
+    const continued = advance(restored.state, 650, "a");
+
+    expect(left.state.phase).toBe("grace");
+    expect(left.progress).toBe(0.4);
+    expect(restored.progress).toBe(0.4);
+    expect(continued.progress).toBe(0.5);
+  });
+
+  it("never accumulates invalid-gaze time", () => {
+    const entered = advance(createDwellMachineState(), 0, "a");
+    const holding = advance(entered.state, 300, "a");
+    const lost = advance(holding.state, 320, undefined, false);
+    const stillLost = advance(lost.state, 400, undefined, false);
+    const restored = advance(stillLost.state, 430, "a");
+    const continued = advance(restored.state, 530, "a");
+
+    expect(lost.progress).toBe(0.3);
+    expect(stillLost.progress).toBe(0.3);
+    expect(restored.progress).toBe(0.3);
+    expect(continued.progress).toBe(0.4);
+  });
+
   it("cancels after invalid gaze exceeds grace", () => {
     const entered = advance(createDwellMachineState(), 0, "a");
     const lost = advance(entered.state, 200, undefined, false);

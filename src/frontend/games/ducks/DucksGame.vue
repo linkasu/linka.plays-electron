@@ -6,9 +6,12 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
+import { createDwellMachineState } from "../../core/dwellStateMachine";
+import type { DwellCancelReason } from "../../core/gaze";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { advanceMovingTargetDwell, advanceMovingTargetX, movingTargetSpawnX } from "../../core/movingTarget";
 import { disposeDuckAudio, playDuckMelody, resetDuckAudioSession, warmDuckAudio } from "./audio";
-import { drawDuckScene, duckHitRadius, waterTop, type Duck, type Point, type Splash } from "./scene";
+import { drawDuckScene, duckHitRadius, waterTop, type Duck, type Splash } from "./scene";
 
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
@@ -30,6 +33,7 @@ let lastTime = performance.now();
 let spawnSequence = 0;
 let lastSpawnDirection: -1 | 1 = 1;
 let sameSideSpawns = 0;
+let dwellState = createDwellMachineState();
 
 function resizeCanvas() {
   const canvas = canvasRef.value;
@@ -93,14 +97,19 @@ function resetDuck(duck: Duck, index: number, fromEdge = false) {
   duck.size = size;
   duck.laneY = laneY(index, Math.max(1, maxDuckCount()));
   duck.y = duck.laneY;
-  duck.x = fromEdge
-    ? direction === 1 ? -edgeDelay : window.innerWidth + edgeDelay
-    : window.innerWidth * ((index + 1) / (activeDuckCount() + 1));
+  duck.x = movingTargetSpawnX({
+    direction,
+    edgeOffset: edgeDelay,
+    fromEdge,
+    index,
+    targetCount: activeDuckCount(),
+    targetRadius: size,
+    viewportWidth: window.innerWidth
+  });
   duck.speed = randomRange(24, 42) * session.settings.motionSpeed * progressionSpeed() * (0.92 + depthScale * 0.24);
   duck.bob = randomRange(0, Math.PI * 2);
   duck.state = "swimming";
   duck.dwellProgress = 0;
-  duck.enteredAt = undefined;
   duck.hitAge = 0;
 }
 
@@ -124,9 +133,10 @@ function createDuck(index: number, fromEdge = false): Duck {
 
 function initDucks() {
   ducks.splice(0);
+  dwellState = createDwellMachineState();
   spawnSequence = 0;
   sameSideSpawns = 0;
-  for (let index = 0; index < activeDuckCount(); index++) ducks.push(createDuck(index, true));
+  for (let index = 0; index < activeDuckCount(); index++) ducks.push(createDuck(index, false));
 }
 
 function ensureProgressionDucks() {
@@ -143,16 +153,12 @@ function copyPointer() {
   };
 }
 
-function distance(a: Point, b: Point) {
-  return Math.hypot(a.x - b.x, a.y - b.y);
-}
-
-function targetPayload(duck: Duck, now: number, progress: number, reason?: "left" | "invalid-gaze") {
+function targetPayload(duck: Duck, progress: number, reason?: DwellCancelReason) {
   return {
     targetId: duck.id,
     at: Date.now(),
     dwellMs: session.settings.dwellMs,
-    elapsedMs: duck.enteredAt === undefined ? 0 : now - duck.enteredAt,
+    elapsedMs: Math.round(progress * session.settings.dwellMs),
     progress,
     pointer: copyPointer(),
     reason
@@ -170,46 +176,52 @@ function addSplash(duck: Duck) {
   if (splashes.length > 8) splashes.shift();
 }
 
-function cancelDuck(duck: Duck, now: number, reason: "left" | "invalid-gaze") {
-  recordEvent("target-cancel", targetPayload(duck, now, duck.dwellProgress, reason));
+function cancelDuck(duck: Duck, reason: DwellCancelReason) {
+  recordEvent("target-cancel", targetPayload(duck, duck.dwellProgress, reason));
   duck.dwellProgress = 0;
-  duck.enteredAt = undefined;
 }
 
-function hitDuck(duck: Duck, now: number) {
-  recordEvent("target-click", targetPayload(duck, now, 1));
+function hitDuck(duck: Duck) {
+  recordEvent("target-click", targetPayload(duck, 1));
   recordSuccess({ targetId: duck.id });
   void playDuckMelody(session.settings.sound);
   addSplash(duck);
   duck.state = "hit";
   duck.hitAge = 0;
   duck.dwellProgress = 1;
-  duck.enteredAt = undefined;
 }
 
-function updateDuckGaze(duck: Duck, now: number) {
-  if (duck.state !== "swimming" || session.status !== "running") return;
-  const inside = pointer.value.valid && distance(duck, pointer.value) <= duckHitRadius(duck);
+function updateDuckGaze(now: number) {
+  if (session.status !== "running") return;
+  const result = advanceMovingTargetDwell(dwellState, {
+    now,
+    pointer: pointer.value,
+    targets: ducks,
+    point: (duck) => duck,
+    hitRadius: duckHitRadius,
+    enabled: (duck) => duck.state === "swimming",
+    dwellMs: session.settings.dwellMs
+  });
+  dwellState = result.state;
 
-  if (!inside) {
-    if (duck.enteredAt !== undefined) cancelDuck(duck, now, pointer.value.valid ? "left" : "invalid-gaze");
-    return;
+  for (const event of result.events) {
+    const duck = ducks.find((candidate) => candidate.id === event.targetId);
+    if (!duck) continue;
+    if (event.type === "enter") recordEvent("target-enter", targetPayload(duck, 0));
+    if (event.type === "cancel") cancelDuck(duck, event.reason);
+    if (event.type === "select") hitDuck(duck);
   }
 
-  if (duck.enteredAt === undefined) {
-    duck.enteredAt = now;
-    recordEvent("target-enter", targetPayload(duck, now, 0));
+  for (const duck of ducks) {
+    if (duck.state === "swimming") duck.dwellProgress = dwellState.targetId === duck.id ? result.progress : 0;
   }
-
-  duck.dwellProgress = Math.min(1, (now - duck.enteredAt) / session.settings.dwellMs);
-  if (duck.dwellProgress >= 1) hitDuck(duck, now);
 }
 
 function updateDucks(delta: number, now: number) {
   ensureProgressionDucks();
   for (let index = 0; index < ducks.length; index++) {
     const duck = ducks[index];
-    duck.x += duck.direction * duck.speed * delta;
+    duck.x = advanceMovingTargetX(duck.x, duck.direction, duck.speed, delta);
     duck.bob += delta * 1.8;
     duck.y = duck.laneY + Math.sin(duck.bob) * duck.size * 0.035;
 
@@ -220,8 +232,8 @@ function updateDucks(delta: number, now: number) {
     }
 
     if (duck.x < -duck.size * 2 || duck.x > window.innerWidth + duck.size * 2) resetDuck(duck, index, true);
-    updateDuckGaze(duck, now);
   }
+  updateDuckGaze(now);
 }
 
 function updateSplashes(delta: number) {

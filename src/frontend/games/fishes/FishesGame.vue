@@ -6,9 +6,13 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
+import { createDwellMachineState } from "../../core/dwellStateMachine";
+import type { DwellCancelReason } from "../../core/gaze";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { advanceMovingTargetDwell, advanceMovingTargetX, movingTargetSpawnX } from "../../core/movingTarget";
 import { disposeFishAudio, playFishMelody, resetFishAudioSession, warmFishAudio } from "./audio";
-import { drawFishScene, fishHitRadius, surfaceY, swimBottom, swimTop, type Bubble, type CatchRipple, type Fish, type Point } from "./scene";
+import { fishTravelSpeed } from "./model";
+import { drawFishScene, fishHitRadius, swimBottom, swimTop, type Bubble, type CatchRipple, type Fish } from "./scene";
 
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
@@ -31,6 +35,7 @@ let lastTime = performance.now();
 let spawnSequence = 0;
 let lastSpawnDirection: -1 | 1 = 1;
 let sameSideSpawns = 0;
+let dwellState = createDwellMachineState();
 
 function resizeCanvas() {
   const canvas = canvasRef.value;
@@ -94,15 +99,20 @@ function resetFish(fish: Fish, index: number, fromEdge = false) {
   fish.size = size;
   fish.laneY = laneY(index, Math.max(1, maxFishCount()));
   fish.y = fish.laneY;
-  fish.x = fromEdge
-    ? direction === 1 ? -edgeDelay : window.innerWidth + edgeDelay
-    : window.innerWidth * ((index + 1) / (activeFishCount() + 1));
-  fish.speed = randomRange(22, 38) * 4 * session.settings.motionSpeed * progressionSpeed() * (0.92 + depthScale * 0.2);
+  fish.x = movingTargetSpawnX({
+    direction,
+    edgeOffset: edgeDelay,
+    fromEdge,
+    index,
+    targetCount: activeFishCount(),
+    targetRadius: fishHitRadius({ size }),
+    viewportWidth: window.innerWidth
+  });
+  fish.speed = fishTravelSpeed(randomRange(22, 38), session.settings.motionSpeed, progressionSpeed(), depthScale);
   fish.phase = randomRange(0, Math.PI * 2);
   fish.hue = [24, 190, 318, 46, 264][index % 5];
   fish.state = "swimming";
   fish.dwellProgress = 0;
-  fish.enteredAt = undefined;
   fish.caughtAge = 0;
   fish.hookX = undefined;
   fish.hookY = undefined;
@@ -145,9 +155,10 @@ function initBubbles() {
 function initFishes() {
   fishes.splice(0);
   ripples.splice(0);
+  dwellState = createDwellMachineState();
   spawnSequence = 0;
   sameSideSpawns = 0;
-  for (let index = 0; index < activeFishCount(); index++) fishes.push(createFish(index, true));
+  for (let index = 0; index < activeFishCount(); index++) fishes.push(createFish(index, false));
 }
 
 function ensureProgressionFishes() {
@@ -164,16 +175,12 @@ function copyPointer() {
   };
 }
 
-function distance(a: Point, b: Point) {
-  return Math.hypot(a.x - b.x, a.y - b.y);
-}
-
-function targetPayload(fish: Fish, now: number, progress: number, reason?: "left" | "invalid-gaze") {
+function targetPayload(fish: Fish, progress: number, reason?: DwellCancelReason) {
   return {
     targetId: fish.id,
     at: Date.now(),
     dwellMs: session.settings.dwellMs,
-    elapsedMs: fish.enteredAt === undefined ? 0 : now - fish.enteredAt,
+    elapsedMs: Math.round(progress * session.settings.dwellMs),
     progress,
     pointer: copyPointer(),
     reason
@@ -192,41 +199,47 @@ function addCatchRipple(fish: Fish) {
   if (ripples.length > 8) ripples.shift();
 }
 
-function cancelFish(fish: Fish, now: number, reason: "left" | "invalid-gaze") {
-  recordEvent("target-cancel", targetPayload(fish, now, fish.dwellProgress, reason));
+function cancelFish(fish: Fish, reason: DwellCancelReason) {
+  recordEvent("target-cancel", targetPayload(fish, fish.dwellProgress, reason));
   fish.dwellProgress = 0;
-  fish.enteredAt = undefined;
 }
 
-function catchFish(fish: Fish, now: number) {
-  recordEvent("target-click", targetPayload(fish, now, 1));
+function catchFish(fish: Fish) {
+  recordEvent("target-click", targetPayload(fish, 1));
   recordSuccess({ targetId: fish.id, hue: fish.hue });
   void playFishMelody(session.settings.sound);
   addCatchRipple(fish);
   fish.state = "caught";
   fish.caughtAge = 0;
   fish.dwellProgress = 1;
-  fish.enteredAt = undefined;
   fish.hookX = fish.x;
   fish.hookY = -fish.size * 1.2;
 }
 
-function updateFishGaze(fish: Fish, now: number) {
-  if (fish.state !== "swimming" || session.status !== "running") return;
-  const inside = pointer.value.valid && distance(fish, pointer.value) <= fishHitRadius(fish);
+function updateFishGaze(now: number) {
+  if (session.status !== "running") return;
+  const result = advanceMovingTargetDwell(dwellState, {
+    now,
+    pointer: pointer.value,
+    targets: fishes,
+    point: (fish) => fish,
+    hitRadius: fishHitRadius,
+    enabled: (fish) => fish.state === "swimming",
+    dwellMs: session.settings.dwellMs
+  });
+  dwellState = result.state;
 
-  if (!inside) {
-    if (fish.enteredAt !== undefined) cancelFish(fish, now, pointer.value.valid ? "left" : "invalid-gaze");
-    return;
+  for (const event of result.events) {
+    const fish = fishes.find((candidate) => candidate.id === event.targetId);
+    if (!fish) continue;
+    if (event.type === "enter") recordEvent("target-enter", targetPayload(fish, 0));
+    if (event.type === "cancel") cancelFish(fish, event.reason);
+    if (event.type === "select") catchFish(fish);
   }
 
-  if (fish.enteredAt === undefined) {
-    fish.enteredAt = now;
-    recordEvent("target-enter", targetPayload(fish, now, 0));
+  for (const fish of fishes) {
+    if (fish.state === "swimming") fish.dwellProgress = dwellState.targetId === fish.id ? result.progress : 0;
   }
-
-  fish.dwellProgress = Math.min(1, (now - fish.enteredAt) / session.settings.dwellMs);
-  if (fish.dwellProgress >= 1) catchFish(fish, now);
 }
 
 function updateFishes(delta: number, now: number) {
@@ -244,13 +257,13 @@ function updateFishes(delta: number, now: number) {
       continue;
     }
 
-    fish.x += fish.direction * fish.speed * delta;
+    fish.x = advanceMovingTargetX(fish.x, fish.direction, fish.speed, delta);
     fish.phase += delta * 2.1;
     fish.y = fish.laneY + Math.sin(fish.phase) * fish.size * 0.055;
 
     if (fish.x < -fish.size * 2 || fish.x > window.innerWidth + fish.size * 2) resetFish(fish, index, true);
-    updateFishGaze(fish, now);
   }
+  updateFishGaze(now);
 }
 
 function updateBubbles(delta: number) {

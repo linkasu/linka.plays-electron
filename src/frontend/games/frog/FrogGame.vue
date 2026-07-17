@@ -6,11 +6,14 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
+import { createDwellMachineState } from "../../core/dwellStateMachine";
+import type { DwellCancelReason } from "../../core/gaze";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { advanceMovingTargetDwell, advanceMovingTargetX, movingTargetSpawnX } from "../../core/movingTarget";
 import { disposeFrogAudio, playFrogMelody, resetFrogAudioSession, warmFrogAudio } from "./audio";
 import { bugHitRadius, drawFrogScene, laneBottom, laneTop, type Bug, type CatchBurst, type Point, type Tongue } from "./scene";
 
-type CancelReason = "left" | "invalid-gaze" | "escaped";
+type CancelReason = DwellCancelReason | "escaped";
 
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
@@ -32,6 +35,7 @@ let frame = 0;
 let lastTime = performance.now();
 let spawnTimer = 999;
 let lastSpawnKey = "";
+let dwellState = createDwellMachineState();
 
 function resizeCanvas() {
   const canvas = canvasRef.value;
@@ -99,7 +103,15 @@ function spawnBug() {
   const edgeDelay = size * randomRange(1.25, 1.8);
   const bug: Bug = {
     id: `bug-${Date.now()}-${Math.round(Math.random() * 10000)}`,
-    x: spawn.direction === 1 ? -edgeDelay : window.innerWidth + edgeDelay,
+    x: movingTargetSpawnX({
+      direction: spawn.direction,
+      edgeOffset: edgeDelay,
+      fromEdge: true,
+      index: spawn.laneIndex,
+      targetCount: 3,
+      targetRadius: size,
+      viewportWidth: window.innerWidth
+    }),
     y: laneY(spawn.laneIndex),
     laneY: 0,
     laneIndex: spawn.laneIndex,
@@ -119,6 +131,7 @@ function initGameObjects() {
   bugs.splice(0);
   bursts.splice(0);
   tongues.splice(0);
+  dwellState = createDwellMachineState();
   spawnTimer = 999;
   lastSpawnKey = "";
 }
@@ -133,17 +146,13 @@ function copyPointer() {
   };
 }
 
-function distance(a: Point, b: Point) {
-  return Math.hypot(a.x - b.x, a.y - b.y);
-}
-
-function targetPayload(bug: Bug, now: number, progress: number, reason?: CancelReason) {
+function targetPayload(bug: Bug, progress: number, reason?: CancelReason) {
   return {
     targetId: bug.id,
     laneIndex: bug.laneIndex,
     at: Date.now(),
     dwellMs: session.settings.dwellMs,
-    elapsedMs: bug.enteredAt === undefined ? 0 : now - bug.enteredAt,
+    elapsedMs: Math.round(progress * session.settings.dwellMs),
     progress,
     pointer: copyPointer(),
     reason
@@ -175,14 +184,13 @@ function finishIfAttemptsComplete() {
   if (attempts() >= session.maxSteps) finishSession("max-steps");
 }
 
-function cancelBug(bug: Bug, now: number, reason: Exclude<CancelReason, "escaped">) {
-  recordEvent("target-cancel", targetPayload(bug, now, bug.dwellProgress, reason));
+function cancelBug(bug: Bug, reason: DwellCancelReason) {
+  recordEvent("target-cancel", targetPayload(bug, bug.dwellProgress, reason));
   bug.dwellProgress = 0;
-  bug.enteredAt = undefined;
 }
 
-function catchBug(bug: Bug, now: number) {
-  recordEvent("target-click", targetPayload(bug, now, 1));
+function catchBug(bug: Bug) {
+  recordEvent("target-click", targetPayload(bug, 1));
   recordSuccess({ targetId: bug.id, laneIndex: bug.laneIndex });
   void playFrogMelody(session.settings.sound);
   addBurst(bug);
@@ -190,35 +198,43 @@ function catchBug(bug: Bug, now: number) {
   bug.state = "caught";
   bug.caughtAge = 0;
   bug.dwellProgress = 1;
-  bug.enteredAt = undefined;
   spawnTimer = Math.max(spawnTimer, spawnDelaySeconds() * 0.36);
   finishIfAttemptsComplete();
 }
 
-function missBug(bug: Bug, index: number, now: number) {
-  recordEvent("target-cancel", targetPayload(bug, now, bug.dwellProgress, "escaped"));
+function missBug(bug: Bug, index: number) {
+  recordEvent("target-cancel", targetPayload(bug, bug.dwellProgress, "escaped"));
   recordMistake({ targetId: bug.id, laneIndex: bug.laneIndex, reason: "escaped" });
   bugs.splice(index, 1);
+  if (dwellState.targetId === bug.id) dwellState = createDwellMachineState();
   spawnTimer = Math.max(spawnTimer, spawnDelaySeconds() * 0.46);
   finishIfAttemptsComplete();
 }
 
-function updateBugGaze(bug: Bug, now: number) {
-  if (bug.state !== "flying" || session.status !== "running") return;
-  const inside = pointer.value.valid && distance(bug, pointer.value) <= bugHitRadius(bug);
+function updateBugGaze(now: number) {
+  if (session.status !== "running") return;
+  const result = advanceMovingTargetDwell(dwellState, {
+    now,
+    pointer: pointer.value,
+    targets: bugs,
+    point: (bug) => bug,
+    hitRadius: bugHitRadius,
+    enabled: (bug) => bug.state === "flying",
+    dwellMs: session.settings.dwellMs
+  });
+  dwellState = result.state;
 
-  if (!inside) {
-    if (bug.enteredAt !== undefined) cancelBug(bug, now, pointer.value.valid ? "left" : "invalid-gaze");
-    return;
+  for (const event of result.events) {
+    const bug = bugs.find((candidate) => candidate.id === event.targetId);
+    if (!bug) continue;
+    if (event.type === "enter") recordEvent("target-enter", targetPayload(bug, 0));
+    if (event.type === "cancel") cancelBug(bug, event.reason);
+    if (event.type === "select") catchBug(bug);
   }
 
-  if (bug.enteredAt === undefined) {
-    bug.enteredAt = now;
-    recordEvent("target-enter", targetPayload(bug, now, 0));
+  for (const bug of bugs) {
+    if (bug.state === "flying") bug.dwellProgress = dwellState.targetId === bug.id ? result.progress : 0;
   }
-
-  bug.dwellProgress = Math.min(1, (now - bug.enteredAt) / session.settings.dwellMs);
-  if (bug.dwellProgress >= 1) catchBug(bug, now);
 }
 
 function updateBugs(delta: number, now: number) {
@@ -245,16 +261,15 @@ function updateBugs(delta: number, now: number) {
       continue;
     }
 
-    bug.x += bug.direction * bug.speed * delta;
+    bug.x = advanceMovingTargetX(bug.x, bug.direction, bug.speed, delta);
     bug.y = bug.laneY + Math.sin(bug.phase) * bug.size * 0.075;
 
     if (bug.x < -bug.size * 2 || bug.x > window.innerWidth + bug.size * 2) {
-      missBug(bug, index, now);
+      missBug(bug, index);
       continue;
     }
-
-    updateBugGaze(bug, now);
   }
+  updateBugGaze(now);
 }
 
 function updateEffects(delta: number) {

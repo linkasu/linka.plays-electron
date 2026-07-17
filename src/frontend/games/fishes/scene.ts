@@ -10,7 +10,6 @@ export type Fish = Point & {
   hue: number;
   state: FishState;
   dwellProgress: number;
-  enteredAt?: number;
   caughtAge: number;
   hookX?: number;
   hookY?: number;
@@ -57,7 +56,7 @@ export function swimBottom() {
   return window.innerHeight * 0.66;
 }
 
-export function fishHitRadius(fish: Fish) {
+export function fishHitRadius(fish: Pick<Fish, "size">) {
   return fish.size * 1.05;
 }
 

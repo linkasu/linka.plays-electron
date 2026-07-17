@@ -6,7 +6,10 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
+import { createDwellMachineState } from "../../core/dwellStateMachine";
+import type { DwellCancelReason } from "../../core/gaze";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { advanceMovingTargetDwell, advanceMovingTargetX, alternatingMovingTargetDirection, movingTargetSpawnX } from "../../core/movingTarget";
 import { disposeJellyfishAudio, playJellyfishSuccess, resetJellyfishAudioSession, scheduleJellyfishAmbient, warmJellyfishAudio } from "./audio";
 
 type Point = { x: number; y: number };
@@ -19,7 +22,6 @@ type Jellyfish = Point & {
   phaseAge: number;
   phase: JellyfishPhase;
   dwellProgress: number;
-  enteredAt?: number;
   laneY: number;
   speed: number;
   direction: -1 | 1;
@@ -54,6 +56,7 @@ let frame = 0;
 let lastTime = performance.now();
 let spawnIndex = 0;
 let finishAfter = 0;
+let dwellState = createDwellMachineState();
 
 function resizeCanvas() {
   const canvas = canvasRef.value;
@@ -70,10 +73,6 @@ function resizeCanvas() {
 
 function randomRange(min: number, max: number) {
   return min + Math.random() * (max - min);
-}
-
-function distance(a: Point, b: Point) {
-  return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
 function jellyfishSize() {
@@ -105,7 +104,7 @@ function randomHue(index: number) {
 }
 
 function resetJellyfish(jelly: Jellyfish, index: number, fromEdge = true) {
-  const direction: -1 | 1 = index % 2 === 0 ? 1 : -1;
+  const direction = alternatingMovingTargetDirection(spawnIndex);
   const size = jellyfishSize() * randomRange(0.9, 1.08);
   const laneCount = Math.max(1, desiredJellyfishCount());
   const laneProgress = laneCount === 1 ? 0.48 : index / (laneCount - 1);
@@ -113,7 +112,15 @@ function resetJellyfish(jelly: Jellyfish, index: number, fromEdge = true) {
 
   jelly.size = size;
   jelly.direction = direction;
-  jelly.x = fromEdge ? direction === 1 ? -size * randomRange(1.2, 2.3) : window.innerWidth + size * randomRange(1.2, 2.3) : window.innerWidth * ((index + 1) / (desiredJellyfishCount() + 1));
+  jelly.x = movingTargetSpawnX({
+    direction,
+    edgeOffset: size * randomRange(1.2, 2.3),
+    fromEdge,
+    index,
+    targetCount: desiredJellyfishCount(),
+    targetRadius: size,
+    viewportWidth: window.innerWidth
+  });
   jelly.y = laneY;
   jelly.laneY = laneY;
   jelly.speed = randomRange(12, 22) * session.settings.motionSpeed;
@@ -121,7 +128,6 @@ function resetJellyfish(jelly: Jellyfish, index: number, fromEdge = true) {
   jelly.phase = "drifting";
   jelly.phaseAge = 0;
   jelly.dwellProgress = 0;
-  jelly.enteredAt = undefined;
   jelly.wave = randomRange(0, Math.PI * 2);
   spawnIndex += 1;
 }
@@ -156,21 +162,20 @@ function copyPointer() {
   };
 }
 
-function targetPayload(jelly: Jellyfish, now: number, progress: number, reason?: "left" | "invalid-gaze") {
+function targetPayload(jelly: Jellyfish, progress: number, reason?: DwellCancelReason) {
   return {
     targetId: jelly.id,
     at: Date.now(),
     dwellMs: session.settings.dwellMs,
-    elapsedMs: jelly.enteredAt === undefined ? 0 : now - jelly.enteredAt,
+    elapsedMs: Math.round(progress * session.settings.dwellMs),
     progress,
     pointer: copyPointer(),
     reason
   };
 }
 
-function cancelJellyfish(jelly: Jellyfish, now: number, reason: "left" | "invalid-gaze") {
-  recordEvent("target-cancel", targetPayload(jelly, now, jelly.dwellProgress, reason));
-  jelly.enteredAt = undefined;
+function cancelJellyfish(jelly: Jellyfish, reason: DwellCancelReason) {
+  recordEvent("target-cancel", targetPayload(jelly, jelly.dwellProgress, reason));
   jelly.dwellProgress = 0;
   if (jelly.phase === "glowing") {
     jelly.phase = "drifting";
@@ -179,57 +184,48 @@ function cancelJellyfish(jelly: Jellyfish, now: number, reason: "left" | "invali
 }
 
 function rewardJellyfish(jelly: Jellyfish, now: number) {
-  recordEvent("target-click", targetPayload(jelly, now, 1));
+  recordEvent("target-click", targetPayload(jelly, 1));
   recordSuccess({ targetId: jelly.id, hue: jelly.hue });
   playJellyfishSuccess(session.settings.sound);
   jelly.phase = "resting";
   jelly.phaseAge = 0;
   jelly.dwellProgress = 1;
-  jelly.enteredAt = undefined;
 
   if (session.step >= session.maxSteps) finishAfter = now + 1500;
 }
 
-function closestJellyfish() {
-  if (!pointer.value.valid || session.step >= session.maxSteps) return undefined;
+function updateJellyfishGaze(now: number) {
+  if (session.status !== "running") return;
+  const result = advanceMovingTargetDwell(dwellState, {
+    now,
+    pointer: pointer.value,
+    targets: jellyfish,
+    point: jellyfishPoint,
+    hitRadius: (jelly) => jelly.size * 1.38,
+    enabled: (jelly) => jelly.phase !== "resting" && session.step < session.maxSteps,
+    dwellMs: session.settings.dwellMs
+  });
+  dwellState = result.state;
 
-  let closest: Jellyfish | undefined;
-  let closestDistance = Number.POSITIVE_INFINITY;
-  for (const jelly of jellyfish) {
-    if (jelly.phase === "resting") continue;
-    const point = jellyfishPoint(jelly);
-    const nextDistance = distance(point, pointer.value);
-    const hitRadius = jelly.size * 1.38;
-    if (nextDistance <= hitRadius && nextDistance < closestDistance) {
-      closest = jelly;
-      closestDistance = nextDistance;
+  for (const event of result.events) {
+    const jelly = jellyfish.find((candidate) => candidate.id === event.targetId);
+    if (!jelly) continue;
+    if (event.type === "enter") {
+      jelly.phase = "glowing";
+      jelly.phaseAge = 0;
+      recordEvent("target-enter", targetPayload(jelly, 0));
     }
-  }
-  return closest;
-}
-
-function updateJellyfishGaze(jelly: Jellyfish, now: number, gazeJelly?: Jellyfish) {
-  if (jelly.phase === "resting" || session.status !== "running") return;
-  const inside = gazeJelly === jelly;
-
-  if (!inside) {
-    if (jelly.enteredAt !== undefined) cancelJellyfish(jelly, now, pointer.value.valid ? "left" : "invalid-gaze");
-    return;
+    if (event.type === "cancel") cancelJellyfish(jelly, event.reason);
+    if (event.type === "select") rewardJellyfish(jelly, now);
   }
 
-  if (jelly.enteredAt === undefined) {
-    jelly.enteredAt = now;
-    jelly.phase = "glowing";
-    jelly.phaseAge = 0;
-    recordEvent("target-enter", targetPayload(jelly, now, 0));
+  for (const jelly of jellyfish) {
+    if (jelly.phase !== "resting") jelly.dwellProgress = dwellState.targetId === jelly.id ? result.progress : 0;
   }
-
-  jelly.dwellProgress = Math.min(1, (now - jelly.enteredAt) / session.settings.dwellMs);
-  if (jelly.dwellProgress >= 1) rewardJellyfish(jelly, now);
 }
 
 function ensureJellyfish() {
-  while (jellyfish.length < desiredJellyfishCount()) jellyfish.push(createJellyfish(jellyfish.length, true));
+  while (jellyfish.length < desiredJellyfishCount()) jellyfish.push(createJellyfish(jellyfish.length, false));
   while (jellyfish.length > desiredJellyfishCount()) jellyfish.pop();
 }
 
@@ -241,22 +237,21 @@ function updateJellyfish(delta: number, now: number) {
     return;
   }
 
-  const gazeJelly = closestJellyfish();
   for (let index = 0; index < jellyfish.length; index++) {
     const jelly = jellyfish[index];
     jelly.age += delta;
     jelly.phaseAge += delta;
-    jelly.x += jelly.direction * jelly.speed * delta;
+    jelly.x = advanceMovingTargetX(jelly.x, jelly.direction, jelly.speed, delta);
     jelly.y = jelly.laneY + Math.sin(jelly.age * 0.28 + jelly.wave) * jelly.size * 0.12;
 
     if (jelly.phase === "resting") {
-      if (jelly.phaseAge >= restSeconds && session.status === "running" && session.step < session.maxSteps) resetJellyfish(jelly, index, true);
+      if (jelly.phaseAge >= restSeconds && session.status === "running" && session.step < session.maxSteps) resetJellyfish(jelly, index, false);
       continue;
     }
 
     if (jelly.x < -jelly.size * 2.4 || jelly.x > window.innerWidth + jelly.size * 2.4) resetJellyfish(jelly, index, true);
-    updateJellyfishGaze(jelly, now, gazeJelly);
   }
+  updateJellyfishGaze(now);
 }
 
 function initBubbles() {
@@ -276,6 +271,7 @@ function initBubbles() {
 
 function initJellyfish() {
   jellyfish.splice(0);
+  dwellState = createDwellMachineState();
   spawnIndex = 0;
   finishAfter = 0;
   for (let index = 0; index < desiredJellyfishCount(); index++) jellyfish.push(createJellyfish(index, false));

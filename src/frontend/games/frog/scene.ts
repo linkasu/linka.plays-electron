@@ -10,7 +10,6 @@ export type Bug = Point & {
   phase: number;
   state: BugState;
   dwellProgress: number;
-  enteredAt?: number;
   caughtAge: number;
 };
 export type CatchBurst = Point & {

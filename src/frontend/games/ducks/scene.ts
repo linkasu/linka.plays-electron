@@ -11,7 +11,6 @@ export type Duck = {
   bob: number;
   state: DuckState;
   dwellProgress: number;
-  enteredAt?: number;
   hitAge: number;
 };
 export type Splash = Point & {
