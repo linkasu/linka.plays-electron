@@ -1,36 +1,48 @@
 import { describe, expect, it } from "vitest";
-import { generateWhereObjectRound, phraseFor, whereObjectItems, whereObjectPlaces, whereObjectPrepositions } from "./model";
+import ttsAssets from "../../data/ttsAssets.json";
+import { generateWhereObjectRound, isWhereObjectCorrect, phraseFor, whereObjectItems, whereObjectPrepositions } from "./model";
 
 describe("generateWhereObjectRound", () => {
-  it("always asks for a preposition answer", () => {
-    const round = generateWhereObjectRound(1);
+  it("creates four visual mini-scenes with one correct relation", () => {
+    for (let index = 1; index <= whereObjectPrepositions.length; index += 1) {
+      const round = generateWhereObjectRound(index);
+      const correctChoices = round.choices.filter((choice) => isWhereObjectCorrect(round, choice));
 
-    expect(round.roundId).toBe("where-object:round:1");
-    expect(round.prompt).toContain(round.targetObject.word);
-    expect(round.prepositions.map((item) => item.id)).toEqual(["on", "under", "in"]);
-    expect(round.correctId).toBe(round.targetPreposition.id);
+      expect(round.choices).toHaveLength(4);
+      expect(new Set(round.choices.map((choice) => choice.id)).size).toBe(4);
+      expect(correctChoices).toEqual([round.correctChoice]);
+      expect(round.choices.every((choice) => choice.targetObject === round.targetObject)).toBe(true);
+      expect(round.choices.every((choice) => choice.targetPlace === round.targetPlace)).toBe(true);
+    }
   });
 
-  it("cycles through semi-open places", () => {
-    expect(generateWhereObjectRound(1).targetPlace.id).toBe("house");
-    expect(generateWhereObjectRound(2).targetPlace.id).toBe("table");
-    expect(generateWhereObjectRound(3).targetPlace.id).toBe("bag");
-    expect(generateWhereObjectRound(4).targetPlace.id).toBe("box");
-    expect(generateWhereObjectRound(whereObjectPlaces.length + 1).targetPlace.id).toBe("house");
+  it("uses on, under, in and beside", () => {
+    expect(whereObjectPrepositions.map((item) => item.id)).toEqual(["on", "under", "in", "beside"]);
+    const rounds = [1, 2, 3, 4].map(generateWhereObjectRound);
+
+    expect(rounds.map((round) => round.targetPreposition.id)).toEqual(["on", "under", "in", "beside"]);
+    expect(rounds.map((round) => round.choices.indexOf(round.correctChoice))).toEqual([0, 1, 2, 3]);
   });
 
-  it("cycles through prepositions and objects", () => {
-    expect(generateWhereObjectRound(1).targetPreposition.id).toBe("on");
-    expect(generateWhereObjectRound(2).targetPreposition.id).toBe("under");
-    expect(generateWhereObjectRound(3).targetPreposition.id).toBe("in");
+  it("cycles through objects", () => {
     expect(generateWhereObjectRound(whereObjectItems.length + 1).targetObject.id).toBe(whereObjectItems[0].id);
   });
 
   it("builds grammatical scene phrases", () => {
-    const round = generateWhereObjectRound(3);
+    const insideRound = generateWhereObjectRound(3);
+    const besideRound = generateWhereObjectRound(4);
 
-    expect(phraseFor(round.targetPlace, round.targetPreposition)).toBe(round.targetPlace.phrases[round.targetPreposition.id]);
-    expect(round.scenePhrase).toBe(`${round.targetObject.word} ${phraseFor(round.targetPlace, round.targetPreposition)}`);
-    expect(whereObjectPrepositions).toHaveLength(3);
+    expect(insideRound.scenePhrase).toBe(`${insideRound.targetObject.word} ${phraseFor(insideRound.targetPlace, insideRound.targetPreposition)}`);
+    expect(besideRound.scenePhrase).toBe(`${besideRound.targetObject.word} рядом с коробкой`);
+  });
+
+  it("uses existing full-scene TTS assets and marks beside for exact speech fallback", () => {
+    const assetIds = new Set(ttsAssets.map((asset) => asset.id));
+    const round = generateWhereObjectRound(1);
+
+    for (const choice of round.choices) {
+      if (choice.id === "beside") expect(choice.answerAssetId).toBeUndefined();
+      else expect(assetIds.has(choice.answerAssetId ?? "")).toBe(true);
+    }
   });
 });

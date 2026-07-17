@@ -1,62 +1,54 @@
 import { describe, expect, it } from "vitest";
-import { createObjectActionExplanation, generateObjectActionRound, isObjectActionCorrect, objectActionPairs, phraseForAction } from "./model";
+import ttsAssets from "../../data/ttsAssets.json";
+import { createObjectActionExplanation, generateObjectActionRound, isObjectActionCorrect, objectActionChoices } from "./model";
 
 describe("object-action model", () => {
-  it("creates four action choices with the matching action", () => {
-    const round = generateObjectActionRound(1);
-
-    expect(round.roundId).toBe("object-action:round:1");
-    expect(round.choices).toHaveLength(4);
-    expect(round.correctChoices.length).toBeGreaterThan(0);
-    for (const correctChoice of round.correctChoices) expect(round.choices).toContainEqual(correctChoice);
+  it("starts with unambiguous child-facing verbs", () => {
+    expect(objectActionChoices.map((choice) => choice.title)).toEqual([
+      "пить",
+      "есть",
+      "спать",
+      "идти",
+      "мыть",
+      "рисовать",
+      "катать"
+    ]);
   });
 
-  it("cycles through object action pairs", () => {
-    const afterLast = generateObjectActionRound(objectActionPairs.length + 1);
+  it("creates four visual scenes with exactly one correct action", () => {
+    for (let index = 1; index <= objectActionChoices.length; index += 1) {
+      const round = generateObjectActionRound(index);
+      const matchingChoices = round.choices.filter((choice) => isObjectActionCorrect(round, choice));
 
-    expect(afterLast.pair).toBe(objectActionPairs[0]);
+      expect(round.choices).toHaveLength(4);
+      expect(matchingChoices).toEqual([round.correctChoice]);
+      expect(round.prompt).toBe(`Покажи действие: ${round.targetAction.title}.`);
+      expect(round.choices.every((choice) => choice.actorEmoji && choice.propEmoji && choice.cueEmoji && choice.sceneLabel)).toBe(true);
+    }
+  });
+
+  it("cycles through actions", () => {
+    const afterLast = generateObjectActionRound(objectActionChoices.length + 1);
+
+    expect(afterLast.targetAction).toBe(objectActionChoices[0]);
   });
 
   it("keeps choice ids unique", () => {
-    const round = generateObjectActionRound(3);
-    const ids = new Set(round.choices.map((choice) => choice.id));
-
-    expect(ids.size).toBe(round.choices.length);
+    for (let index = 1; index <= objectActionChoices.length; index += 1) {
+      const round = generateObjectActionRound(index);
+      expect(new Set(round.choices.map((choice) => choice.id)).size).toBe(round.choices.length);
+    }
   });
 
-  it("explains the correct pair softly", () => {
-    const explanation = createObjectActionExplanation(objectActionPairs[1]);
-
-    expect(explanation).toContain(phraseForAction(objectActionPairs[1], objectActionPairs[1].validActionIds[0]));
+  it("explains only the named action", () => {
+    expect(createObjectActionExplanation(objectActionChoices[1])).toBe("Это действие — есть.");
   });
 
-  it("allows opening and reading a book", () => {
-    const round = generateObjectActionRound(4);
-    const titles = round.correctChoices.map((choice) => choice.title).sort();
+  it("uses existing matching TTS assets without the brush and comb mismatch", () => {
+    const assetIds = new Set(ttsAssets.map((asset) => asset.id));
+    const mappedAssets = objectActionChoices.flatMap((choice) => choice.successAssetId ?? []);
 
-    expect(round.pair.id).toBe("book");
-    expect(titles).toEqual(["открывать", "читать"]);
-    expect(isObjectActionCorrect(round.pair, { id: "open", title: "открывать", emoji: "🚪" })).toBe(true);
-    expect(isObjectActionCorrect(round.pair, { id: "read", title: "читать", emoji: "👀" })).toBe(true);
-  });
-
-  it("allows washing and drinking from a cup", () => {
-    const round = generateObjectActionRound(3);
-    const titles = round.correctChoices.map((choice) => choice.title).sort();
-
-    expect(round.pair.id).toBe("cup");
-    expect(titles).toEqual(["мыть", "пить"]);
-    expect(isObjectActionCorrect(round.pair, { id: "wash", title: "мыть", emoji: "🫧" })).toBe(true);
-    expect(isObjectActionCorrect(round.pair, { id: "drink", title: "пить", emoji: "💧" })).toBe(true);
-  });
-
-  it("allows eating with and washing a spoon", () => {
-    const round = generateObjectActionRound(2);
-    const titles = round.correctChoices.map((choice) => choice.title).sort();
-
-    expect(round.pair.id).toBe("spoon");
-    expect(titles).toEqual(["есть", "мыть"]);
-    expect(isObjectActionCorrect(round.pair, { id: "eat", title: "есть", emoji: "🍽️" })).toBe(true);
-    expect(isObjectActionCorrect(round.pair, { id: "wash", title: "мыть", emoji: "🫧" })).toBe(true);
+    expect(mappedAssets.every((id) => assetIds.has(id))).toBe(true);
+    expect(objectActionChoices.some((choice) => choice.id === "comb" || choice.sceneLabel.includes("зуб"))).toBe(false);
   });
 });

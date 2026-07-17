@@ -1,82 +1,129 @@
-export type ObjectActionPair = {
-  id: string;
-  objectTitle: string;
-  objectEmoji: string;
-  validActionIds: string[];
-  phrases: Record<string, string>;
-};
-
 export type ObjectActionChoice = {
   id: string;
   title: string;
-  emoji: string;
+  actorEmoji: string;
+  propEmoji: string;
+  cueEmoji: string;
+  settingEmoji: string;
+  sceneLabel: string;
+  successText: string;
+  successAssetId?: string;
 };
 
 export type ObjectActionRound = {
   roundId: string;
   prompt: string;
-  pair: ObjectActionPair;
+  targetAction: ObjectActionChoice;
   choices: ObjectActionChoice[];
-  correctChoices: ObjectActionChoice[];
+  correctChoice: ObjectActionChoice;
   explanation: string;
 };
 
 export const objectActionChoices: ObjectActionChoice[] = [
-  { id: "roll", title: "катить", emoji: "↔️" },
-  { id: "eat", title: "есть", emoji: "🍽️" },
-  { id: "drink", title: "пить", emoji: "💧" },
-  { id: "read", title: "читать", emoji: "👀" },
-  { id: "wash", title: "мыть", emoji: "🫧" },
-  { id: "draw", title: "рисовать", emoji: "🎨" },
-  { id: "open", title: "открывать", emoji: "🚪" },
-  { id: "comb", title: "расчёсывать", emoji: "💇" }
+  {
+    id: "drink",
+    title: "пить",
+    actorEmoji: "🧑",
+    propEmoji: "🥤",
+    cueEmoji: "↗️",
+    settingEmoji: "💧",
+    sceneLabel: "Человек подносит чашку ко рту и пьёт",
+    successText: "Человек пьёт из чашки.",
+    successAssetId: "object-action.phrase.cup-drink"
+  },
+  {
+    id: "eat",
+    title: "есть",
+    actorEmoji: "😋",
+    propEmoji: "🥣",
+    cueEmoji: "🥄",
+    settingEmoji: "🍽️",
+    sceneLabel: "Человек ест ложкой из миски",
+    successText: "Человек ест ложкой.",
+    successAssetId: "object-action.phrase.spoon-eat"
+  },
+  {
+    id: "sleep",
+    title: "спать",
+    actorEmoji: "😴",
+    propEmoji: "🛏️",
+    cueEmoji: "💤",
+    settingEmoji: "🌙",
+    sceneLabel: "Человек спит в кровати ночью",
+    successText: "Человек спит в кровати."
+  },
+  {
+    id: "walk",
+    title: "идти",
+    actorEmoji: "🚶",
+    propEmoji: "🌳",
+    cueEmoji: "➡️",
+    settingEmoji: "🛤️",
+    sceneLabel: "Человек идёт вперёд по дорожке",
+    successText: "Человек идёт по дорожке."
+  },
+  {
+    id: "wash",
+    title: "мыть",
+    actorEmoji: "👐",
+    propEmoji: "🧼",
+    cueEmoji: "💦",
+    settingEmoji: "🚰",
+    sceneLabel: "Человек моет руки водой с мылом",
+    successText: "Человек моет руки с мылом.",
+    successAssetId: "object-action.phrase.soap-wash"
+  },
+  {
+    id: "draw",
+    title: "рисовать",
+    actorEmoji: "🧑‍🎨",
+    propEmoji: "🖍️",
+    cueEmoji: "✍️",
+    settingEmoji: "📄",
+    sceneLabel: "Человек рисует карандашом на бумаге",
+    successText: "Человек рисует карандашом.",
+    successAssetId: "object-action.phrase.pencil-draw"
+  },
+  {
+    id: "roll",
+    title: "катать",
+    actorEmoji: "🧒",
+    propEmoji: "⚽",
+    cueEmoji: "↔️",
+    settingEmoji: "🛝",
+    sceneLabel: "Ребёнок толкает и катает мяч",
+    successText: "Ребёнок катает мяч.",
+    successAssetId: "object-action.phrase.ball-roll"
+  }
 ];
 
-export const objectActionPairs: ObjectActionPair[] = [
-  { id: "ball", objectTitle: "мяч", objectEmoji: "🟡", validActionIds: ["roll"], phrases: { roll: "мяч катить" } },
-  { id: "spoon", objectTitle: "ложка", objectEmoji: "🥄", validActionIds: ["eat", "wash"], phrases: { eat: "ложкой есть", wash: "ложку мыть" } },
-  { id: "cup", objectTitle: "чашка", objectEmoji: "🥤", validActionIds: ["drink", "wash"], phrases: { drink: "из чашки пить", wash: "чашку мыть" } },
-  { id: "book", objectTitle: "книга", objectEmoji: "📖", validActionIds: ["read", "open"], phrases: { read: "книгу читать", open: "книгу открывать" } },
-  { id: "soap", objectTitle: "мыло", objectEmoji: "🧼", validActionIds: ["wash"], phrases: { wash: "мылом мыть" } },
-  { id: "pencil", objectTitle: "карандаш", objectEmoji: "🖍️", validActionIds: ["draw"], phrases: { draw: "карандашом рисовать" } },
-  { id: "key", objectTitle: "ключ", objectEmoji: "🔑", validActionIds: ["open"], phrases: { open: "ключом открывать" } },
-  { id: "brush", objectTitle: "щётка", objectEmoji: "🪮", validActionIds: ["comb"], phrases: { comb: "щёткой расчёсывать" } }
-];
-
-export function createObjectActionExplanation(pair: ObjectActionPair, actionId = pair.validActionIds[0]) {
-  return `Подходит: ${phraseForAction(pair, actionId)}.`;
+export function createObjectActionExplanation(action: ObjectActionChoice) {
+  return `Это действие — ${action.title}.`;
 }
 
-export function isObjectActionCorrect(pair: ObjectActionPair, choice: ObjectActionChoice) {
-  return pair.validActionIds.includes(choice.id);
-}
-
-export function phraseForAction(pair: ObjectActionPair, actionId: string) {
-  return pair.phrases[actionId] ?? `${pair.objectTitle} ${actionTitle(actionId)}`;
-}
-
-function actionTitle(actionId: string) {
-  return objectActionChoices.find((choice) => choice.id === actionId)?.title ?? actionId;
+export function isObjectActionCorrect(round: ObjectActionRound, choice: ObjectActionChoice) {
+  return round.correctChoice.id === choice.id;
 }
 
 export function generateObjectActionRound(roundIndex = 1): ObjectActionRound {
-  if (objectActionPairs.length < 4) throw new Error("Недостаточно пар предмет-действие для игры.");
+  if (objectActionChoices.length < 4) throw new Error("Недостаточно визуальных сцен действий для игры.");
 
-  const pair = objectActionPairs[(roundIndex - 1) % objectActionPairs.length];
-  const correctChoices = objectActionChoices.filter((choice) => pair.validActionIds.includes(choice.id));
-  const distractors = objectActionChoices
-   .filter((choice) => !pair.validActionIds.includes(choice.id))
-   .slice(roundIndex % objectActionChoices.length)
-   .concat(objectActionChoices.filter((choice) => !pair.validActionIds.includes(choice.id)))
-   .slice(0, Math.max(0, 4 - correctChoices.length));
-  const choices = [...correctChoices, ...distractors].sort((left, right) => left.id.localeCompare(right.id));
+  const normalizedIndex = Math.max(1, Math.floor(roundIndex));
+  const targetIndex = (normalizedIndex - 1) % objectActionChoices.length;
+  const targetAction = objectActionChoices[targetIndex];
+  const selected = [targetAction];
+  for (let offset = 1; selected.length < 4; offset += 1) {
+    selected.push(objectActionChoices[(targetIndex + offset) % objectActionChoices.length]);
+  }
+  const shift = (normalizedIndex - 1) % selected.length;
+  const choices = selected.map((_, index) => selected[(index + shift) % selected.length]);
 
   return {
-    roundId: `object-action:round:${roundIndex}`,
-    prompt: `Что можно делать с предметом: ${pair.objectTitle}?`,
-    pair,
+    roundId: `object-action:round:${normalizedIndex}`,
+    prompt: `Покажи действие: ${targetAction.title}.`,
+    targetAction,
     choices,
-    correctChoices,
-    explanation: createObjectActionExplanation(pair)
+    correctChoice: targetAction,
+    explanation: createObjectActionExplanation(targetAction)
   };
 }

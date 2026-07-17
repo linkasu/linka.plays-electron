@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref, toRef, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
+import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
+import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
-import { useGazePointer } from "../../composables/useGazePointer";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { generateWhereObjectRound, type WhereObjectPreposition } from "./model";
-import { buildWhereObjectTargets, containsTarget, drawWhereObjectScene, type WhereObjectCanvasTarget, type Point } from "./scene";
+import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
+import { generateWhereObjectRound, isWhereObjectCorrect, type WhereObjectChoice, type WhereObjectRound } from "./model";
 
 const router = useRouter();
-const canvasRef = ref<HTMLCanvasElement>();
-const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("where-object", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("where-object", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 120, targetScale: 1.2 },
   finishOnMaxSteps: false,
@@ -26,328 +26,266 @@ const promptAudio = useGamePromptAudio({
   gameId: "where-object",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: ["where-object.mistake", "where-object.complete"]
+  warmAssetIds: ["where-object.complete"]
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
-
-const lastMistakeId = ref<string>();
-const isChangingRound = ref(false);
-const canvasTargets = ref<WhereObjectCanvasTarget[]>([]);
-const resultVisible = computed(() => session.status === "finished");
-
-const { round, nextRound, restart: restartRoundGame } = useRoundGame({
+const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<WhereObjectRound>({
   session,
   startSession,
   generateRound: generateWhereObjectRound
 });
 
-const hintText = computed(() => {
-  return lastMistakeId.value ? "Посмотри на сцену ещё раз и выбери другое слово." : "Посмотри на сцену и выбери слово: на, под или в.";
+const lastMistakeId = ref<string>();
+const isChangingRound = ref(false);
+const choiceMinHeight = computed(() => {
+  const scale = session.settings.targetScale;
+  return `clamp(${7.5 * scale}rem, 26dvh, ${9.5 * scale}rem)`;
 });
+const hintText = computed(() => lastMistakeId.value
+  ? "Посмотри на все картинки ещё раз."
+  : "В каждой картинке один предмет. Покажи, где он находится.");
 
-let ctx: CanvasRenderingContext2D | undefined;
-let frame = 0;
-
-function resizeCanvas() {
-  const canvas = canvasRef.value;
-  if (!canvas) return;
-  const ratio = window.devicePixelRatio || 1;
-  canvas.width = Math.round(window.innerWidth * ratio);
-  canvas.height = Math.round(window.innerHeight * ratio);
-  canvas.style.width = `${window.innerWidth}px`;
-  canvas.style.height = `${window.innerHeight}px`;
-  ctx = canvas.getContext("2d") ?? undefined;
-    ctx?.setTransform(ratio, 0, 0, ratio, 0, 0);
-  resetCanvasTargets();
-}
-
-function prepositionTargetId(prepositionId: string) {
-  return `where-object:preposition:${prepositionId}`;
-}
-
-function targetTelemetryId(target: WhereObjectCanvasTarget) {
-  return prepositionTargetId(target.id);
-}
-
-function resetCanvasTargets() {
-  canvasTargets.value = buildWhereObjectTargets(round.value);
-}
-
-function promptAssetId() {
-  return `where-object.prompt.${round.value.targetObject.id}`;
-}
-
-function answerAssetId() {
-  return `where-object.answer.${round.value.targetObject.id}.${round.value.targetPlace.id}.${round.value.targetPreposition.id}`;
+function choiceTargetId(choice: WhereObjectChoice) {
+  return `where-object:preposition:${choice.id}`;
 }
 
 async function playRoundPrompt(delayMs = 0) {
   isChangingRound.value = true;
-  await promptAudio.playSequenceAndWait([promptAssetId()], delayMs);
+  promptAudio.cancelPending();
+  await speakSceneText(round.value.prompt, session.settings.sound, delayMs);
   isChangingRound.value = false;
 }
 
-function copyPointer() {
-  return {
-    x: pointer.value.x,
-    y: pointer.value.y,
-    valid: pointer.value.valid,
-    source: pointer.value.source,
-    timestamp: pointer.value.timestamp
-  };
-}
-
-function targetPayload(target: WhereObjectCanvasTarget, now: number, progress: number, reason?: "left" | "invalid-gaze" | "disabled") {
-  return {
-    targetId: targetTelemetryId(target),
-    at: Date.now(),
-    dwellMs: session.settings.dwellMs,
-    elapsedMs: target.enteredAt === undefined ? 0 : now - target.enteredAt,
-    progress,
-    pointer: copyPointer(),
-    reason
-  };
-}
-
-function clearTargetDwell(target: WhereObjectCanvasTarget) {
-  target.dwellProgress = 0;
-  target.enteredAt = undefined;
-}
-
-function cancelTarget(target: WhereObjectCanvasTarget, now: number, reason: "left" | "invalid-gaze" | "disabled") {
-  if (target.enteredAt !== undefined) recordEvent("target-cancel", targetPayload(target, now, target.dwellProgress, reason));
-  clearTargetDwell(target);
-}
-
-function resetFeedback() {
-  lastMistakeId.value = undefined;
-}
-
-function answerPreposition(preposition: WhereObjectPreposition, target: WhereObjectCanvasTarget) {
-  const targetId = prepositionTargetId(preposition.id);
-  const expectedTargetId = prepositionTargetId(round.value.targetPreposition.id);
-  if (preposition.id === round.value.targetPreposition.id) {
-    recordSuccess({ roundId: round.value.roundId, targetId, answerId: preposition.id, expected: round.value.targetPreposition.label, actual: preposition.label, isCorrect: true });
-    resetFeedback();
-    return true;
-  }
-
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: preposition.id, expected: round.value.targetPreposition.label, actual: preposition.label, isCorrect: false });
-  lastMistakeId.value = target.id;
-  return false;
-}
-
-async function advanceAfterCorrect() {
-  if (session.status !== "running" || session.step >= session.maxSteps) {
-    isChangingRound.value = false;
+async function playCorrectScene(choice: WhereObjectChoice) {
+  cancelSceneSpeech();
+  if (choice.answerAssetId) {
+    await promptAudio.playSequenceAndWait([choice.answerAssetId], 80);
     return;
   }
-
-  nextRound();
-  resetCanvasTargets();
-  await playRoundPrompt(180);
+  await speakSceneText(`${choice.scenePhrase}.`, session.settings.sound, 80);
 }
 
-async function selectTarget(target: WhereObjectCanvasTarget, now: number) {
-  if (isChangingRound.value) return;
-  recordEvent("target-click", targetPayload(target, now, 1));
+async function chooseScene(choice: WhereObjectChoice) {
+  if (session.status !== "running" || isChangingRound.value) return;
+
+  const targetId = choiceTargetId(choice);
+  const correct = isWhereObjectCorrect(round.value, choice);
   isChangingRound.value = true;
-  const correct = answerPreposition(target.preposition, target);
 
-  for (const item of canvasTargets.value) clearTargetDwell(item);
-  if (!correct) {
-  void pianoFeedback.playMistake();
-    await promptAudio.playSequenceAndWait(["where-object.mistake"], 80);
-    isChangingRound.value = false;
-    return;
-  }
-
-  void pianoFeedback.playSuccess();
-  await promptAudio.playSequenceAndWait([answerAssetId()], 80);
-  if (session.step >= session.maxSteps) {
-    await promptAudio.playSequenceAndWait(["where-object.complete"], 80);
-    finishSession("game-complete");
-    isChangingRound.value = false;
-    return;
-  }
-  await advanceAfterCorrect();
-}
-
-function updateCanvasDwell(now: number) {
-  if (session.status !== "running" || isChangingRound.value) {
-    for (const target of canvasTargets.value) cancelTarget(target, now, "disabled");
-    return;
-  }
-
-  const currentPointer: Point = { x: pointer.value.x, y: pointer.value.y };
-  const activeTarget = pointer.value.valid ? canvasTargets.value.find((target) => containsTarget(target, currentPointer)) : undefined;
-
-  for (const target of canvasTargets.value) {
-    if (target !== activeTarget) {
-      cancelTarget(target, now, pointer.value.valid ? "left" : "invalid-gaze");
-      continue;
+  if (correct) {
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      answerId: choice.id,
+      objectId: round.value.targetObject.id,
+      expected: round.value.scenePhrase,
+      actual: choice.scenePhrase,
+      isCorrect: true
+    });
+    lastMistakeId.value = undefined;
+    void pianoFeedback.playSuccess();
+    await playCorrectScene(choice);
+    if (session.step >= session.maxSteps) {
+      await promptAudio.playSequenceAndWait(["where-object.complete"], 80);
+      finishSession("game-complete");
+      isChangingRound.value = false;
+      return;
     }
 
-    if (target.enteredAt === undefined) {
-      target.enteredAt = now;
-      target.dwellProgress = 0;
-      recordEvent("target-enter", targetPayload(target, now, 0));
+    if (session.status === "running") {
+      nextRound();
+      await playRoundPrompt(180);
+      return;
     }
-
-    target.dwellProgress = Math.min(1, (now - target.enteredAt) / session.settings.dwellMs);
-    if (target.dwellProgress >= 1) selectTarget(target, now);
+  } else {
+    recordMistake({
+      roundId: round.value.roundId,
+      targetId,
+      expectedTargetId: choiceTargetId(round.value.correctChoice),
+      answerId: choice.id,
+      objectId: round.value.targetObject.id,
+      expected: round.value.scenePhrase,
+      actual: choice.scenePhrase,
+      isCorrect: false
+    });
+    lastMistakeId.value = choice.id;
+    void pianoFeedback.playMistake();
+    promptAudio.cancelPending();
+    await speakSceneText(`Это другая картинка. Где ${round.value.targetObject.word}?`, session.settings.sound, 80);
   }
-}
 
-function draw(now: number) {
-  if (!ctx) return;
-  drawWhereObjectScene(ctx, {
-    round: round.value,
-    targets: canvasTargets.value,
-    pointer: pointer.value,
-    running: session.status === "running" && !isChangingRound.value,
-    hintedId: undefined,
-    mistakeId: lastMistakeId.value,
-    now
-  });
-}
-
-function tick(now: number) {
-  updateCanvasDwell(now);
-  draw(now);
-  frame = window.requestAnimationFrame(tick);
+  isChangingRound.value = false;
 }
 
 function restart() {
-  resetFeedback();
+  lastMistakeId.value = undefined;
   isChangingRound.value = false;
   promptAudio.cancelPending();
+  cancelSceneSpeech();
   restartRoundGame();
-  resetCanvasTargets();
   void playRoundPrompt(220);
 }
 
-watch(() => round.value.roundId, () => {
-  resetCanvasTargets();
-});
-
-onMounted(async () => {
-  await nextTick();
-  resizeCanvas();
-  window.addEventListener("resize", resizeCanvas);
-  frame = window.requestAnimationFrame(tick);
+onMounted(() => {
+  promptAudio.warm();
   void playRoundPrompt(420);
 });
 
 onUnmounted(() => {
-  window.removeEventListener("resize", resizeCanvas);
-  window.cancelAnimationFrame(frame);
   promptAudio.cancelPending();
+  cancelSceneSpeech();
 });
 </script>
 
 <template>
-  <div class="where-object-shell">
-    <canvas ref="canvasRef" class="where-object-canvas" />
-    <GameHud title="Где предмет?" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+  <GamePageShell gradient="linear-gradient(135deg, #eee7ff 0%, #e3f6ef 48%, #fff0d1 100%)" padding-top="8.25rem">
+    <template #hud>
+      <GameHud title="Где предмет?" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    </template>
 
-    <section class="prompt-panel" aria-live="polite">
-      <div class="text-overline text-secondary">AAC и предлоги</div>
-      <h1>{{ round.prompt }}</h1>
-      <p>{{ hintText }}</p>
-    </section>
+    <v-container class="game-container" fluid>
+      <v-row justify="center">
+        <v-col cols="12" lg="11" xl="10">
+          <v-card class="where-object-card pa-4 pa-md-6" rounded="xl" elevation="8">
+            <div class="prompt-panel text-center mb-4" aria-live="polite">
+              <div class="text-overline text-secondary mb-1">Где предмет?</div>
+              <h1 class="text-h3 text-md-h2 font-weight-bold mb-2">{{ round.prompt }}</h1>
+              <div class="text-h6 text-md-h5 text-medium-emphasis">{{ hintText }}</div>
+            </div>
 
-    <div
-      v-for="target in canvasTargets"
-      :key="`${round.roundId}:${target.id}`"
-      :id="targetTelemetryId(target)"
-      class="dwell-hitbox canvas-hitbox"
-      :data-correct="target.id === round.correctId ? 'true' : undefined"
-      :style="{ left: `${target.x}px`, top: `${target.y}px`, width: `${target.width}px`, height: `${target.height}px` }"
-      aria-hidden="true"
-    />
+            <GameChoiceCardGrid
+              :choices="round.choices"
+              :target-id="choiceTargetId"
+              :disabled="session.status !== 'running' || isChangingRound"
+              :dwell-ms="session.settings.dwellMs"
+              :min-height="choiceMinHeight"
+              :mistake-choice="(choice) => lastMistakeId === choice.id"
+              :cols="6"
+              :sm="6"
+              :md="3"
+              @select="chooseScene"
+            >
+              <template #default="{ choice }">
+                <div class="mini-scene" role="img" :aria-label="choice.scenePhrase">
+                  <div class="mini-scene__box-back" aria-hidden="true" />
+                  <GameWordImage
+                    :class="['mini-scene__object', `mini-scene__object--${choice.id}`]"
+                    :word-id="choice.targetObject.id"
+                    :word="choice.targetObject.word"
+                    :emoji="choice.targetObject.emoji"
+                    decorative
+                  />
+                  <div class="mini-scene__box-front" aria-hidden="true" />
+                </div>
+                <div class="relation-label text-h5 text-md-h4 font-weight-bold mt-2">{{ choice.preposition.label }}</div>
+              </template>
+            </GameChoiceCardGrid>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
 
-    <GameResultDialog
-      :model-value="resultVisible"
-      title="Где предмет?"
-      :score="session.score"
-      :mistakes="session.mistakes"
-      :duration-ms="durationMs"
-      :metrics="metrics"
-      :recommendation="recommendation"
-      @menu="router.push(resolveMenuRoute())"
-      @restart="restart"
-    />
-  </div>
+    <GameResultDialog :model-value="resultVisible" title="Где предмет?" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+  </GamePageShell>
 </template>
 
 <style scoped>
-.where-object-shell {
-  background: #f5efff;
-  block-size: 100vh;
-  inline-size: 100vw;
+.mini-scene {
+  background: linear-gradient(180deg, #eaf8ff 0%, #fff8df 72%, #d8edcf 72%, #d8edcf 100%);
+  border-radius: 1.25rem;
+  min-block-size: 8.2rem;
   overflow: hidden;
   position: relative;
 }
 
-.where-object-canvas {
-  display: block;
-  inset: 0;
+.mini-scene__box-back,
+.mini-scene__box-front {
+  background: #d5a96f;
+  border: 0.12rem solid #8d6948;
+  inline-size: 38%;
+  inset-inline-start: 50%;
   position: absolute;
+  transform: translateX(-50%);
 }
 
-.prompt-panel {
-  background: rgb(255 252 246 / 84%);
-  border: 0.0625rem solid rgb(38 50 56 / 10%);
-  border-radius: 1.75rem;
-  box-shadow: 0 0.8rem 2rem rgb(76 58 112 / 10%);
-  inline-size: min(68rem, calc(100vw - 2rem));
-  inset-block-start: 5rem;
-  inset-inline-start: 50%;
-  padding: 1rem 1.25rem;
-  position: absolute;
-  text-align: center;
-  transform: translateX(-50%);
+.mini-scene__box-back {
+  block-size: 34%;
+  border-radius: 0.4rem 0.4rem 0 0;
+  inset-block-end: 19%;
+  transform: translateX(-50%) skewY(-5deg);
+  z-index: 1;
+}
+
+.mini-scene__box-front {
+  block-size: 18%;
+  border-radius: 0 0 0.45rem 0.45rem;
+  inset-block-end: 17%;
   z-index: 3;
 }
 
-.prompt-panel h1 {
-  color: #263238;
-  font-size: clamp(2rem, 4vw, 3.2rem);
-  font-weight: 800;
-  line-height: 1.05;
-  margin: 0.1rem 0 0.35rem;
-}
-
-.prompt-panel p {
-  color: #54615f;
-  font-size: clamp(1rem, 2vw, 1.35rem);
-  font-weight: 600;
-  margin: 0;
-}
-
-.canvas-hitbox {
-  pointer-events: none;
+.mini-scene__object {
+  font-size: clamp(3.1rem, 5.2vw, 4.6rem);
   position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+}
+
+.mini-scene__object--on {
+  inset-block-start: 27%;
+  inset-inline-start: 50%;
+}
+
+.mini-scene__object--under {
+  inset-block-start: 87%;
+  inset-inline-start: 50%;
+}
+
+.mini-scene__object--in {
+  inset-block-start: 59%;
+  inset-inline-start: 50%;
   z-index: 2;
 }
 
+.mini-scene__object--beside {
+  inset-block-start: 64%;
+  inset-inline-start: 20%;
+}
+
+.relation-label {
+  color: #263238;
+  line-height: 1.1;
+  text-align: center;
+}
+
 @media (max-height: 42rem) {
- .prompt-panel {
-    inset-block-start: 4.1rem;
-    padding: 0.7rem 1rem;
+  .where-object-card {
+    padding: 1rem !important;
   }
 
- .prompt-panel .text-overline {
+  .prompt-panel {
+    margin-block-end: 0.75rem !important;
+  }
+
+  .prompt-panel .text-overline {
     display: none;
   }
 
- .prompt-panel h1 {
-    font-size: clamp(1.6rem, 3.2vw, 2.2rem);
+  .prompt-panel h1 {
+    font-size: 2rem !important;
+    line-height: 1.08;
   }
 
- .prompt-panel p {
-    font-size: 0.95rem;
+  .prompt-panel .text-h6 {
+    font-size: 0.98rem !important;
+    line-height: 1.2;
+  }
+
+  .mini-scene {
+    min-block-size: 5.8rem;
+  }
+
+  .relation-label {
+    font-size: 1.18rem !important;
   }
 }
 </style>

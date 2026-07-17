@@ -1,5 +1,5 @@
-export type WhereObjectPrepositionId = "on" | "under" | "in";
-export type WhereObjectPlaceId = "house" | "table" | "bag" | "box";
+export type WhereObjectPrepositionId = "on" | "under" | "in" | "beside";
+export type WhereObjectPlaceId = "box";
 
 export type WhereObjectPreposition = {
   id: WhereObjectPrepositionId;
@@ -24,37 +24,33 @@ export type WhereObjectRound = {
   targetObject: WhereObjectItem;
   targetPlace: WhereObjectPlace;
   targetPreposition: WhereObjectPreposition;
-  prepositions: WhereObjectPreposition[];
+  choices: WhereObjectChoice[];
+  correctChoice: WhereObjectChoice;
   correctId: WhereObjectPrepositionId;
   scenePhrase: string;
+};
+
+export type WhereObjectChoice = {
+  id: WhereObjectPrepositionId;
+  preposition: WhereObjectPreposition;
+  targetObject: WhereObjectItem;
+  targetPlace: WhereObjectPlace;
+  scenePhrase: string;
+  answerAssetId?: string;
 };
 
 export const whereObjectPrepositions: WhereObjectPreposition[] = [
   { id: "on", label: "на" },
   { id: "under", label: "под" },
-  { id: "in", label: "в" }
+  { id: "in", label: "в" },
+  { id: "beside", label: "рядом" }
 ];
 
 export const whereObjectPlaces: WhereObjectPlace[] = [
   {
-    id: "house",
-    label: "домик",
-    phrases: { on: "на домике", under: "под домиком", in: "в домике" }
-  },
-  {
-    id: "table",
-    label: "стол",
-    phrases: { on: "на столе", under: "под столом", in: "в ящике стола" }
-  },
-  {
-    id: "bag",
-    label: "сумка",
-    phrases: { on: "на сумке", under: "под сумкой", in: "в сумке" }
-  },
-  {
     id: "box",
     label: "коробка",
-    phrases: { on: "на коробке", under: "под коробкой", in: "в коробке" }
+    phrases: { on: "на коробке", under: "под коробкой", in: "в коробке", beside: "рядом с коробкой" }
   }
 ];
 
@@ -73,19 +69,38 @@ export function phraseFor(place: WhereObjectPlace, preposition: WhereObjectPrepo
   return place.phrases[preposition.id];
 }
 
+export function isWhereObjectCorrect(round: WhereObjectRound, choice: WhereObjectChoice) {
+  return round.correctId === choice.id;
+}
+
 export function generateWhereObjectRound(roundIndex = 1): WhereObjectRound {
-  const targetObject = whereObjectItems[(roundIndex - 1) % whereObjectItems.length];
-  const targetPlace = whereObjectPlaces[(roundIndex - 1) % whereObjectPlaces.length];
-  const targetPreposition = whereObjectPrepositions[(roundIndex - 1) % whereObjectPrepositions.length];
+  const normalizedIndex = Math.max(1, Math.floor(roundIndex));
+  const targetObject = whereObjectItems[(normalizedIndex - 1) % whereObjectItems.length];
+  const targetPlace = whereObjectPlaces[0];
+  const targetPreposition = whereObjectPrepositions[(normalizedIndex - 1) % whereObjectPrepositions.length];
   const scenePhrase = `${targetObject.word} ${phraseFor(targetPlace, targetPreposition)}`;
+  const unorderedChoices = whereObjectPrepositions.map<WhereObjectChoice>((preposition) => ({
+    id: preposition.id,
+    preposition,
+    targetObject,
+    targetPlace,
+    scenePhrase: `${targetObject.word} ${phraseFor(targetPlace, preposition)}`,
+    answerAssetId: preposition.id === "beside"
+      ? undefined
+      : `where-object.answer.${targetObject.id}.${targetPlace.id}.${preposition.id}`
+  }));
+  const choices = unorderedChoices;
+  const correctChoice = choices.find((choice) => choice.id === targetPreposition.id);
+  if (!correctChoice) throw new Error("Не удалось создать правильную пространственную сцену.");
 
   return {
-    roundId: `where-object:round:${roundIndex}`,
-    prompt: `Где ${targetObject.word}?`,
+    roundId: `where-object:round:${normalizedIndex}`,
+    prompt: `Где ${targetObject.word}? Покажи картинку.`,
     targetObject,
     targetPlace,
     targetPreposition,
-    prepositions: whereObjectPrepositions,
+    choices,
+    correctChoice,
     correctId: targetPreposition.id,
     scenePhrase
   };
