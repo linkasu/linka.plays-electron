@@ -22,6 +22,7 @@
     "test:unit": "vitest run",
     "smoke:packaged-resources": "node scripts/ci/packaged-resources-smoke.js",
     "smoke:packaged-window": "node scripts/ci/packaged-window-smoke.js",
+    "smoke:renderer-assets": "node scripts/ci/renderer-assets-smoke.mjs",
     "audit:readiness": "node scripts/game-readiness-audit.mjs",
     "audit:electron-cdp": "node scripts/electron-cdp-smoke.mjs",
     "audit:electron-cdp:all": "node scripts/electron-cdp-smoke.mjs --all-games",

@@ -15,6 +15,7 @@
 npm install
 npm run typecheck
 npm run build
+npm run smoke:renderer-assets
 npm run electron:serve
 ```
 
