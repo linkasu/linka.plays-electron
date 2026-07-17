@@ -2,11 +2,18 @@ import { shuffleItems } from "../../core/random";
 
 export type PhraseKind = "greeting" | "request" | "thanks";
 
+export type FunctionalPhraseKind = "refusal" | "help" | "stop";
+
 export type SocialPhraseChoice = {
   id: string;
-  kind: PhraseKind;
-  emoji: string;
+  kind: PhraseKind | "functional";
+  function?: FunctionalPhraseKind;
+  icon: string;
+  color: string;
+  iconColor: string;
   text: string;
+  accepted: boolean;
+  endsSession?: boolean;
 };
 
 export type SocialPhraseScene = {
@@ -14,159 +21,118 @@ export type SocialPhraseScene = {
   scene: string;
   prompt: string;
   partner: string;
+  sceneIcon: string;
+  sceneColor: string;
   expectedKind: PhraseKind;
   choices: SocialPhraseChoice[];
   correctFeedback: string;
   mistakeFeedback: string;
 };
 
-export type SocialPhraseRound = SocialPhraseScene & {
+export type SocialPhraseRound = Omit<SocialPhraseScene, "choices"> & {
   roundId: string;
   choices: SocialPhraseChoice[];
-  correctChoice: SocialPhraseChoice;
-  correctIndex: number;
+  expectedChoice: SocialPhraseChoice;
 };
 
-export const kindLabels: Record<PhraseKind, string> = {
-  greeting: "приветствие",
-  request: "просьба",
-  thanks: "благодарность"
+export type SocialPhraseEvaluation = {
+  type: "communication" | "hint";
+  phrase: string;
+  feedback: string;
+  isCorrect: boolean;
+  noFail: true;
+  functional: boolean;
+  endsSession: boolean;
 };
 
-export const kindHints: Record<PhraseKind, string> = {
-  greeting: "Здесь ждут приветствие.",
-  request: "Здесь нужна просьба.",
-  thanks: "Здесь хочется благодарности."
-};
+export const socialPhrasesInstruction = "Посмотри на ситуацию и выбери, что можно сказать. Если тебе нужна помощь, ты не хочешь или хочешь остановиться, выбери такую карточку: это тоже важный ответ.";
 
 export const socialPhraseScenes: SocialPhraseScene[] = [
   {
     id: "morning-adult",
-    scene: "Утром ты видишь знакомого взрослого.",
-    prompt: "Поздоровайся.",
-    partner: "Взрослый улыбается тебе.",
+    scene: "Утром ты встречаешь знакомого взрослого.",
+    prompt: "Что можно сказать?",
+    partner: "Взрослый улыбается и смотрит на тебя.",
+    sceneIcon: "mdi-weather-sunset-up",
+    sceneColor: "amber-lighten-5",
     expectedKind: "greeting",
     choices: [
-      { id: "good-morning", kind: "greeting", emoji: "🌤️", text: "Доброе утро!" },
-      { id: "water-please", kind: "request", emoji: "💧", text: "Можно воды?" },
-      { id: "thank-you", kind: "thanks", emoji: "💛", text: "Спасибо!" }
+      { id: "good-morning", kind: "greeting", icon: "mdi-weather-sunny", color: "amber-lighten-4", iconColor: "amber-darken-4", text: "Доброе утро!", accepted: true },
+      { id: "good-evening", kind: "greeting", icon: "mdi-weather-night", color: "deep-purple-lighten-5", iconColor: "deep-purple-darken-3", text: "Добрый вечер!", accepted: false },
+      { id: "no-greeting", kind: "functional", function: "refusal", icon: "mdi-comment-off-outline", color: "red-lighten-5", iconColor: "red-darken-3", text: "Я не хочу здороваться.", accepted: true },
+      { id: "help-greeting", kind: "functional", function: "help", icon: "mdi-help-circle-outline", color: "blue-lighten-5", iconColor: "blue-darken-3", text: "Помоги мне поздороваться.", accepted: true }
     ],
-    correctFeedback: "Взрослый улыбается в ответ.",
-    mistakeFeedback: "Сначала можно поздороваться."
+    correctFeedback: "Взрослый услышал твоё приветствие.",
+    mistakeFeedback: "Сейчас утро. Посмотри на картинки солнца и луны."
   },
   {
     id: "thirsty",
-    scene: "Тебе хочется пить.",
-    prompt: "Попроси воду.",
-    partner: "Рядом стоит стакан с водой.",
+    scene: "Тебе хочется пить, а вода стоит далеко.",
+    prompt: "Что можно попросить?",
+    partner: "Человек рядом может подать нужный предмет.",
+    sceneIcon: "mdi-cup-water",
+    sceneColor: "blue-lighten-5",
     expectedKind: "request",
     choices: [
-      { id: "hello", kind: "greeting", emoji: "👋", text: "Привет!" },
-      { id: "may-i-have-water", kind: "request", emoji: "🥤", text: "Дай воды, пожалуйста" },
-      { id: "thanks-help", kind: "thanks", emoji: "🙏", text: "Спасибо за помощь" }
+      { id: "water-please", kind: "request", icon: "mdi-cup-water", color: "blue-lighten-4", iconColor: "blue-darken-3", text: "Дай воды, пожалуйста.", accepted: true },
+      { id: "book-please", kind: "request", icon: "mdi-book-open-page-variant-outline", color: "green-lighten-5", iconColor: "green-darken-3", text: "Дай книгу, пожалуйста.", accepted: false },
+      { id: "no-water", kind: "functional", function: "refusal", icon: "mdi-cup-off-outline", color: "red-lighten-5", iconColor: "red-darken-3", text: "Нет, я не хочу пить.", accepted: true },
+      { id: "help-water", kind: "functional", function: "help", icon: "mdi-help-circle-outline", color: "amber-lighten-5", iconColor: "amber-darken-4", text: "Помоги мне попросить воду.", accepted: true }
     ],
     correctFeedback: "Тебя услышали и подали воду.",
-    mistakeFeedback: "Если хочется пить, лучше попросить воду."
+    mistakeFeedback: "Ты хочешь пить. Найди карточку со стаканом воды."
   },
   {
     id: "opened-box",
     scene: "Тебе помогли открыть коробку.",
-    prompt: "Поблагодари.",
-    partner: "Коробка уже открыта.",
+    prompt: "За что можно поблагодарить?",
+    partner: "Коробка открыта, и человек ждёт твоего ответа.",
+    sceneIcon: "mdi-package-variant-closed-check",
+    sceneColor: "green-lighten-5",
     expectedKind: "thanks",
     choices: [
-      { id: "hi", kind: "greeting", emoji: "😊", text: "Здравствуйте!" },
-      { id: "help-please", kind: "request", emoji: "🤝", text: "Помоги, пожалуйста" },
-      { id: "thank-open", kind: "thanks", emoji: "🎁", text: "Спасибо, что открыл" }
+      { id: "thanks-open", kind: "thanks", icon: "mdi-package-variant-closed-check", color: "green-lighten-4", iconColor: "green-darken-3", text: "Спасибо, что помог открыть коробку.", accepted: true },
+      { id: "thanks-book", kind: "thanks", icon: "mdi-book-heart-outline", color: "blue-lighten-5", iconColor: "blue-darken-3", text: "Спасибо за книгу.", accepted: false },
+      { id: "no-speaking", kind: "functional", function: "refusal", icon: "mdi-comment-off-outline", color: "red-lighten-5", iconColor: "red-darken-3", text: "Я не хочу говорить.", accepted: true },
+      { id: "help-thanks", kind: "functional", function: "help", icon: "mdi-help-circle-outline", color: "amber-lighten-5", iconColor: "amber-darken-4", text: "Помоги мне сказать спасибо.", accepted: true }
     ],
     correctFeedback: "Человек понял твою благодарность.",
-    mistakeFeedback: "Коробку уже открыли. Можно сказать спасибо."
+    mistakeFeedback: "Посмотри, что уже открыли: коробку или книгу?"
   },
   {
-    id: "friend-arrives",
-    scene: "В комнату пришёл друг.",
-    prompt: "Поздоровайся с другом.",
-    partner: "Друг смотрит на тебя и машет рукой.",
-    expectedKind: "greeting",
-    choices: [
-      { id: "friend-hi", kind: "greeting", emoji: "👋", text: "Привет!" },
-      { id: "toy-please", kind: "request", emoji: "🧸", text: "Дай игрушку, пожалуйста" },
-      { id: "thanks-friend", kind: "thanks", emoji: "⭐", text: "Спасибо тебе" }
-    ],
-    correctFeedback: "Друг рад твоему приветствию.",
-    mistakeFeedback: "Друг пришёл и машет. Можно сказать привет."
-  },
-  {
-    id: "far-card",
-    scene: "Нужная карточка лежит далеко.",
-    prompt: "Попроси карточку.",
-    partner: "Человек рядом может её подать.",
+    id: "loud-activity",
+    scene: "На занятии стало слишком громко.",
+    prompt: "Что можно попросить?",
+    partner: "Взрослый рядом может сделать звук тише или остановиться.",
+    sceneIcon: "mdi-volume-high",
+    sceneColor: "deep-orange-lighten-5",
     expectedKind: "request",
     choices: [
-      { id: "good-day", kind: "greeting", emoji: "☀️", text: "Добрый день!" },
-      { id: "card-please", kind: "request", emoji: "🃏", text: "Подай карточку, пожалуйста" },
-      { id: "thanks-card", kind: "thanks", emoji: "💚", text: "Спасибо за карточку" }
+      { id: "quieter-please", kind: "request", icon: "mdi-volume-low", color: "green-lighten-5", iconColor: "green-darken-3", text: "Сделай тише, пожалуйста.", accepted: true },
+      { id: "louder-please", kind: "request", icon: "mdi-volume-high", color: "deep-purple-lighten-5", iconColor: "deep-purple-darken-3", text: "Сделай громче, пожалуйста.", accepted: false },
+      { id: "stop-please", kind: "functional", function: "stop", icon: "mdi-stop-circle-outline", color: "red-lighten-5", iconColor: "red-darken-3", text: "Стоп, пожалуйста.", accepted: true, endsSession: true },
+      { id: "help-noise", kind: "functional", function: "help", icon: "mdi-help-circle-outline", color: "amber-lighten-5", iconColor: "amber-darken-4", text: "Помоги мне, пожалуйста.", accepted: true }
     ],
-    correctFeedback: "Человек подал карточку.",
-    mistakeFeedback: "Карточка далеко. Можно попросить её подать."
-  },
-  {
-    id: "favorite-book",
-    scene: "Тебе дали любимую книгу.",
-    prompt: "Скажи спасибо.",
-    partner: "Книга уже у тебя в руках.",
-    expectedKind: "thanks",
-    choices: [
-      { id: "book-hello", kind: "greeting", emoji: "🙋", text: "Приветствую!" },
-      { id: "read-please", kind: "request", emoji: "📖", text: "Почитай, пожалуйста" },
-      { id: "thanks-book", kind: "thanks", emoji: "📚", text: "Спасибо за книгу" }
-    ],
-    correctFeedback: "Твоё спасибо услышали.",
-    mistakeFeedback: "Книгу уже дали. Можно поблагодарить."
-  },
-  {
-    id: "narrow-way",
-    scene: "Ты хочешь пройти к столу.",
-    prompt: "Попроси место.",
-    partner: "Проход узкий.",
-    expectedKind: "request",
-    choices: [
-      { id: "table-hi", kind: "greeting", emoji: "🙂", text: "Здравствуйте" },
-      { id: "pass-please", kind: "request", emoji: "➡️", text: "Можно пройти?" },
-      { id: "thanks-place", kind: "thanks", emoji: "🌟", text: "Спасибо за место" }
-    ],
-    correctFeedback: "Тебе освободили проход.",
-    mistakeFeedback: "Проход узкий. Можно попросить место."
-  },
-  {
-    id: "teacher-start",
-    scene: "Занятие начинается.",
-    prompt: "Поздоровайся с педагогом.",
-    partner: "Педагог смотрит на тебя.",
-    expectedKind: "greeting",
-    choices: [
-      { id: "teacher-hello", kind: "greeting", emoji: "👋", text: "Здравствуйте!" },
-      { id: "break-please", kind: "request", emoji: "🕊️", text: "Можно паузу?" },
-      { id: "thanks-lesson", kind: "thanks", emoji: "💛", text: "Спасибо за занятие" }
-    ],
-    correctFeedback: "Педагог приветствует тебя в ответ.",
-    mistakeFeedback: "Занятие начинается. Можно поздороваться."
+    correctFeedback: "Тебя услышали и сделали звук тише.",
+    mistakeFeedback: "Сейчас и так громко. Найди тихий динамик или попроси остановиться."
   }
 ];
 
-export function generateSocialPhraseRound(roundIndex = 1, random = Math.random): SocialPhraseRound {
-  const source = shuffleItems(socialPhraseScenes, random)[(roundIndex - 1) % socialPhraseScenes.length];
-  const choices = shuffleItems(source.choices.map((choice) => ({ ...choice })), random);
-  const correctIndex = choices.findIndex((choice) => choice.kind === source.expectedKind);
-  if (correctIndex < 0) throw new Error(`Нет правильной фразы для ситуации ${source.id}.`);
+function buildSocialPhraseRound(scene: SocialPhraseScene, roundIndex: number, random = Math.random): SocialPhraseRound {
+  const choices = shuffleItems(scene.choices.map((choice) => ({ ...choice })), random);
+  const expectedChoice = choices.find((choice) => choice.kind === scene.expectedKind && choice.accepted);
+  if (!expectedChoice) throw new Error(`Нет подходящей фразы для ситуации ${scene.id}.`);
 
   return {
-   ...source,
-    roundId: `social-phrases:${source.id}:round:${roundIndex}`,
+    ...scene,
+    roundId: `social-phrases:${scene.id}:round:${roundIndex}`,
     choices,
-    correctChoice: choices[correctIndex],
-    correctIndex
+    expectedChoice
   };
+}
+
+export function createSocialPhraseDeck(random = Math.random): SocialPhraseRound[] {
+  return shuffleItems(socialPhraseScenes, random).map((scene, index) => buildSocialPhraseRound(scene, index + 1, random));
 }
 
 export function getSocialPhraseChoice(round: SocialPhraseRound, choiceId: string) {
@@ -175,8 +141,18 @@ export function getSocialPhraseChoice(round: SocialPhraseRound, choiceId: string
   return choice;
 }
 
-export function isSocialPhraseChoiceCorrect(round: SocialPhraseRound, choice: SocialPhraseChoice) {
-  return choice.kind === round.expectedKind;
+export function evaluateSocialPhraseChoice(round: SocialPhraseRound, choice: SocialPhraseChoice): SocialPhraseEvaluation {
+  const functional = choice.kind === "functional";
+  const accepted = choice.accepted || functional;
+  return {
+    type: accepted ? "communication" : "hint",
+    phrase: choice.text,
+    feedback: accepted ? functional ? "Я услышал твой ответ." : round.correctFeedback : round.mistakeFeedback,
+    isCorrect: accepted,
+    noFail: true,
+    functional,
+    endsSession: choice.endsSession === true
+  };
 }
 
 export function validateSocialPhraseScenes() {
@@ -184,8 +160,15 @@ export function validateSocialPhraseScenes() {
   for (const scene of socialPhraseScenes) {
     if (!scene.scene) errors.push(`${scene.id}: empty scene`);
     if (!scene.prompt) errors.push(`${scene.id}: empty prompt`);
-    if (!scene.choices.some((choice) => choice.kind === scene.expectedKind)) errors.push(`${scene.id}: no expected choice`);
+    if (!scene.sceneIcon.startsWith("mdi-")) errors.push(`${scene.id}: missing scene icon`);
+    if (scene.choices.length < 3 || scene.choices.length > 4) errors.push(`${scene.id}: expected 3 or 4 choices`);
+    if (!scene.choices.some((choice) => choice.kind === scene.expectedKind && choice.accepted)) errors.push(`${scene.id}: no expected choice`);
+    if (scene.choices.some((choice) => choice.kind !== "functional" && choice.kind !== scene.expectedKind)) errors.push(`${scene.id}: mixed semantic roles`);
+    if (scene.choices.some((choice) => choice.kind === "functional" && (!choice.function || !choice.accepted))) errors.push(`${scene.id}: invalid functional choice`);
     if (new Set(scene.choices.map((choice) => choice.id)).size !== scene.choices.length) errors.push(`${scene.id}: duplicate choice id`);
+    if (new Set(scene.choices.map((choice) => choice.icon)).size !== scene.choices.length) errors.push(`${scene.id}: duplicate choice icon`);
+    if (new Set(scene.choices.map((choice) => choice.color)).size !== scene.choices.length) errors.push(`${scene.id}: duplicate choice color`);
+    if (scene.choices.some((choice) => !choice.text || !/[.!?]$/.test(choice.text))) errors.push(`${scene.id}: incomplete phrase`);
   }
   return errors;
 }
