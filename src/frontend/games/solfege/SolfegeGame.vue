@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GazePointerOverlay from "../../components/game/GazePointerOverlay.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { generateSolfegeSequence, nextSolfegeSequenceNote, solfegeChoiceNotes, solfegeMaxSteps, solfegeNotes, type SolfegeNote } from "./model";
+import { solfegeChoiceNotes, solfegeGuidedProgress, solfegeGuidedStages, solfegeGuidedStageStart, solfegeMaxSteps, solfegeSelectionOutcome, type SolfegeMode, type SolfegeNote } from "./model";
+
+type SolfegePhase = "selecting" | "demonstrating" | "repeating" | "free";
 
 const blackKeyLayout = [
   { left: "10.6%", label: "до-диез" },
@@ -18,34 +21,53 @@ const blackKeyLayout = [
 
 const router = useRouter();
 const audioEnabled = ref(true);
-const noteSequence = ref(generateSolfegeSequence());
 const notePeakGain = 0.16;
+const mode = ref<SolfegeMode>("guided");
+const phase = ref<SolfegePhase>("selecting");
+const activeStageIndex = ref(0);
+const demonstrationNoteId = ref<string>();
 const pendingSelection = ref(false);
 const successNoteId = ref<string>();
-const successStep = ref<number>();
 const wrongNoteId = ref<string>();
-const hintedNoteId = ref<string>();
+const demoTimers = new Set<number>();
 let feedbackTimer = 0;
 let audioContext: AudioContext | undefined;
 
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("solfege", {
   maxSteps: solfegeMaxSteps,
   overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.42, distractors: "none", hints: "high", dwellMs: 1300, sessionSeconds: 135 },
-  finishOnMistakes: false
+  finishOnMistakes: false,
+  finishOnTimeout: false
 });
+pauseSession();
 
 const resultVisible = computed(() => session.status === "finished");
-const displayStep = computed(() => successStep.value ?? session.step);
-const playedNotes = computed(() => noteSequence.value.slice(0, session.step));
-const nextNote = computed(() => nextSolfegeSequenceNote(noteSequence.value, displayStep.value));
-const choiceNotes = computed(() => solfegeChoiceNotes(displayStep.value));
+const hasStarted = computed(() => phase.value !== "selecting");
+const choiceNotes = solfegeChoiceNotes();
+const currentStage = computed(() => solfegeGuidedStages[activeStageIndex.value]);
+const completedInStage = computed(() => Math.max(0, Math.min(currentStage.value.sequence.length, session.step - solfegeGuidedStageStart(activeStageIndex.value))));
+const expectedNote = computed(() => phase.value === "repeating" ? currentStage.value.sequence[completedInStage.value] : undefined);
+const instructionTitle = computed(() => {
+  if (phase.value === "demonstrating") return "Смотри и слушай";
+  if (phase.value === "repeating") return "Повтори мелодию";
+  return "Играй свободно";
+});
+const instructionText = computed(() => {
+  if (phase.value === "demonstrating") return `Сейчас прозвучат ${currentStage.value.sequence.length} ноты по порядку.`;
+  if (phase.value === "repeating") return "Нажимай подсвечиваемые клавиши по порядку.";
+  return "Нажимай любые клавиши. Здесь нет ошибок.";
+});
 
 function noteTargetId(note: SolfegeNote) {
-  return `solfege:${session.step}:${note.id}`;
+  return `solfege:${mode.value}:${session.step}:${note.id}`;
 }
 
 function isPlayed(note: SolfegeNote) {
-  return playedNotes.value.some((played) => played.id === note.id);
+  return currentStage.value.sequence.slice(0, completedInStage.value).some((played) => played.id === note.id);
+}
+
+function isSequenceStepComplete(index: number) {
+  return index < completedInStage.value;
 }
 
 function clearFeedbackTimer() {
@@ -57,9 +79,21 @@ function resetFeedback() {
   clearFeedbackTimer();
   pendingSelection.value = false;
   successNoteId.value = undefined;
-  successStep.value = undefined;
   wrongNoteId.value = undefined;
-  hintedNoteId.value = undefined;
+}
+
+function clearDemoTimers() {
+  for (const timer of demoTimers) window.clearTimeout(timer);
+  demoTimers.clear();
+  demonstrationNoteId.value = undefined;
+}
+
+function scheduleDemo(callback: () => void, delayMs: number) {
+  const timer = window.setTimeout(() => {
+    demoTimers.delete(timer);
+    callback();
+  }, delayMs);
+  demoTimers.add(timer);
 }
 
 async function ensureAudio() {
@@ -98,7 +132,9 @@ function playNote(note: SolfegeNote) {
 }
 
 function playPromptNote(delayMs = 0) {
-  const note = nextNote.value;
+  const note = phase.value === "demonstrating"
+    ? currentStage.value.sequence.find((candidate) => candidate.id === demonstrationNoteId.value)
+    : expectedNote.value;
   if (!note) return;
   window.setTimeout(() => playNote(note), delayMs);
 }
@@ -115,103 +151,218 @@ function toggleAudio() {
       audioEnabled.value = false;
       return;
     }
-    playPromptNote();
+    if (phase.value !== "free") playPromptNote();
   })();
 }
 
 function chooseNote(note: SolfegeNote) {
-  if (session.status !== "running" || pendingSelection.value) return;
-  const expected = nextNote.value;
+  if (session.status !== "running") return;
+  const outcome = solfegeSelectionOutcome(mode.value, note.id, expectedNote.value?.id);
+
+  if (outcome === "free") {
+    clearFeedbackTimer();
+    successNoteId.value = note.id;
+    playNote(note);
+    feedbackTimer = window.setTimeout(() => {
+      successNoteId.value = undefined;
+    }, 420);
+    return;
+  }
+
+  if (phase.value !== "repeating" || pendingSelection.value) return;
+  const expected = expectedNote.value;
   if (!expected) return;
 
   clearFeedbackTimer();
   const targetId = noteTargetId(note);
   const expectedTargetId = noteTargetId(expected);
 
-  if (note.id !== expected.id) {
+  if (outcome === "mistake") {
     pendingSelection.value = true;
     wrongNoteId.value = note.id;
-    hintedNoteId.value = undefined;
     playNote(note);
     recordMistake({ targetId, expectedTargetId, selectedId: note.id, expectedId: expected.id });
     feedbackTimer = window.setTimeout(() => {
       pendingSelection.value = false;
       wrongNoteId.value = undefined;
-      hintedNoteId.value = undefined;
-      playPromptNote(120);
     }, 1200);
     return;
   }
 
+  const progress = solfegeGuidedProgress(session.step);
   pendingSelection.value = true;
-  successStep.value = session.step;
   successNoteId.value = note.id;
-  hintedNoteId.value = undefined;
   playNote(note);
-  recordSuccess({ targetId, noteId: note.id, label: note.label, octaveLabel: note.octaveLabel });
-  if (session.status === "running" && session.step < session.maxSteps) {
+  recordSuccess({ targetId, stageId: progress?.stage.id, stageNote: (progress?.noteIndex ?? 0) + 1, noteId: note.id, label: note.label, octaveLabel: note.octaveLabel });
+
+  const nextProgress = solfegeGuidedProgress(session.step);
+  if (session.status === "running" && nextProgress) {
     feedbackTimer = window.setTimeout(() => {
       resetFeedback();
-      playPromptNote(180);
-    }, 760);
+      if (nextProgress.stageIndex !== activeStageIndex.value) runDemonstration(nextProgress.stageIndex);
+    }, nextProgress.stageIndex === activeStageIndex.value ? 620 : 820);
+  }
+}
+
+function runDemonstration(stageIndex: number) {
+  clearDemoTimers();
+  resetFeedback();
+  activeStageIndex.value = stageIndex;
+  phase.value = "demonstrating";
+  const sequence = solfegeGuidedStages[stageIndex].sequence;
+  const initialDelay = 320;
+  const noteInterval = 820;
+
+  sequence.forEach((note, index) => {
+    const noteDelay = initialDelay + index * noteInterval;
+    scheduleDemo(() => {
+      demonstrationNoteId.value = note.id;
+      playNote(note);
+    }, noteDelay);
+    scheduleDemo(() => {
+      if (demonstrationNoteId.value === note.id) demonstrationNoteId.value = undefined;
+    }, noteDelay + 560);
+  });
+
+  scheduleDemo(() => {
+    demonstrationNoteId.value = undefined;
+    phase.value = "repeating";
+  }, initialDelay + sequence.length * noteInterval);
+}
+
+function startGame(nextMode: SolfegeMode) {
+  clearDemoTimers();
+  resetFeedback();
+  mode.value = nextMode;
+  activeStageIndex.value = 0;
+  startSession();
+  void ensureAudio();
+
+  if (nextMode === "free") {
+    phase.value = "free";
+    return;
+  }
+
+  runDemonstration(0);
+}
+
+function selectMode() {
+  clearDemoTimers();
+  resetFeedback();
+  pauseSession();
+  phase.value = "selecting";
+}
+
+function pauseGame() {
+  if (session.status !== "running") return;
+  clearDemoTimers();
+  resetFeedback();
+  pauseSession();
+}
+
+function resumeGame() {
+  if (session.status !== "paused") return;
+  const replayDemonstration = phase.value === "demonstrating";
+  resumeSession();
+  if (mode.value !== "guided") return;
+
+  const progress = solfegeGuidedProgress(session.step);
+  if (!progress) return;
+  if (replayDemonstration || progress.stageIndex !== activeStageIndex.value) {
+    runDemonstration(progress.stageIndex);
+  } else {
+    phase.value = "repeating";
   }
 }
 
 function restart() {
-  resetFeedback();
-  noteSequence.value = generateSolfegeSequence();
-  startSession();
+  startGame("guided");
 }
 
 onUnmounted(() => {
+  clearDemoTimers();
   clearFeedbackTimer();
   void audioContext?.close().catch(() => undefined);
-});
-
-onMounted(() => {
-  playPromptNote(520);
 });
 </script>
 
 <template>
   <div class="solfege-shell">
     <GameHud
+      v-if="hasStarted"
       title="Сольфеджио"
       :step="session.step"
       :max-steps="session.maxSteps"
-      :score="session.score"
-      :mistakes="session.mistakes"
+      :score="mode === 'guided' ? session.score : undefined"
+      :mistakes="mode === 'guided' ? session.mistakes : undefined"
       :duration-ms="durationMs"
       :session-seconds="session.settings.sessionSeconds"
       :paused="session.status === 'paused'"
-      @pause="pauseSession"
-      @resume="resumeSession"
+      :show-progress="false"
+      :show-timer="false"
+      @pause="pauseGame"
+      @resume="resumeGame"
     />
+    <GazePointerOverlay v-else />
 
     <v-container class="solfege-container d-flex align-center" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
           <v-card class="solfege-panel pa-4 pa-md-7" rounded="xl" elevation="8">
-            <div class="top-controls mb-3">
+            <div class="top-controls mb-3 ga-2">
+              <v-btn v-if="hasStarted" aria-label="Выбрать другой режим" color="secondary" prepend-icon="mdi-swap-horizontal" rounded="xl" size="large" variant="tonal" @click="selectMode">Режим</v-btn>
               <v-btn :aria-label="audioEnabled ? 'Выключить звук' : 'Включить звук'" :icon="audioEnabled ? 'mdi-volume-low' : 'mdi-volume-off'" color="primary" rounded="xl" size="large" variant="tonal" @click="toggleAudio" />
             </div>
 
-            <div class="solfege-instruction text-center mb-3">
-              <h1 class="text-h4 text-md-h3 font-weight-bold">Слушай ноту</h1>
-              <p class="text-body-1 text-medium-emphasis mb-0">Выбери белую клавишу с таким же звуком.</p>
+            <div v-if="phase === 'selecting'" class="mode-selection text-center">
+              <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Выбери режим</h1>
+              <p class="text-body-1 text-medium-emphasis mb-6">Сначала можно повторять короткие мелодии или просто познакомиться с пианино.</p>
+              <v-row justify="center">
+                <v-col cols="12" sm="6">
+                  <GameDwellButton target-id="solfege:mode:guided" :dwell-ms="session.settings.dwellMs" min-height="11rem" color="indigo-lighten-5" @select="startGame('guided')">
+                    <template #default>
+                      <div class="d-flex flex-column align-center justify-center ga-3 pa-4">
+                        <v-icon color="indigo-darken-2" icon="mdi-music-note-plus" size="4rem" />
+                        <div class="text-h5 font-weight-bold">Повтори мелодию</div>
+                        <div class="text-body-2 text-grey-darken-3">Сначала послушай 2 ноты, затем 3 и 4</div>
+                      </div>
+                    </template>
+                  </GameDwellButton>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <GameDwellButton target-id="solfege:mode:free" :dwell-ms="session.settings.dwellMs" min-height="11rem" color="teal-lighten-5" @select="startGame('free')">
+                    <template #default>
+                      <div class="d-flex flex-column align-center justify-center ga-3 pa-4">
+                        <v-icon color="teal-darken-2" icon="mdi-piano" size="4rem" />
+                        <div class="text-h5 font-weight-bold">Свободное пианино</div>
+                        <div class="text-body-2 text-grey-darken-3">Играй любые ноты без ошибок и подсказок</div>
+                      </div>
+                    </template>
+                  </GameDwellButton>
+                </v-col>
+              </v-row>
             </div>
 
-            <v-card class="score-card pa-4 pa-md-5 mb-5" color="indigo-lighten-5" rounded="xl" variant="flat">
-              <div class="score-staff" aria-label="Прогресс по нотам октавы">
+            <template v-else>
+              <div class="solfege-instruction text-center mb-3">
+                <div v-if="mode === 'guided'" class="text-overline text-secondary">Мелодия {{ activeStageIndex + 1 }} из {{ solfegeGuidedStages.length }} · нот в мелодии: {{ currentStage.sequence.length }}</div>
+                <h1 class="text-h4 text-md-h3 font-weight-bold">{{ instructionTitle }}</h1>
+                <p class="text-body-1 text-medium-emphasis mb-0">{{ instructionText }}</p>
+              </div>
+
+              <v-card v-if="mode === 'guided'" class="score-card pa-4 pa-md-5 mb-5" color="indigo-lighten-5" rounded="xl" variant="flat">
+              <div class="score-staff" :aria-label="`Мелодия из ${currentStage.sequence.length} нот`">
                 <div v-for="line in 5" :key="line" class="staff-line" />
                 <div class="note-bubbles">
                   <div
-                    v-for="note in solfegeNotes"
-                    :key="`bubble-${note.id}`"
+                    v-for="(note, index) in currentStage.sequence"
+                    :key="`bubble-${activeStageIndex}-${index}`"
                     class="note-bubble"
-                    :class="{ 'note-bubble--played': isPlayed(note) }"
+                    :class="{ 'note-bubble--played': isSequenceStepComplete(index), 'note-bubble--current': phase === 'repeating' && index === completedInStage }"
                     :style="{ '--note-color': note.color }"
                   >
+                    <span>{{ index + 1 }}</span>
+                    <small>{{ note.label }}</small>
                   </div>
                 </div>
               </div>
@@ -228,25 +379,26 @@ onMounted(() => {
                     :key="`key-${session.step}-${note.id}`"
                     class="white-key-target"
                     :target-id="noteTargetId(note)"
-                    :disabled="session.status !== 'running' || pendingSelection"
+                    :disabled="session.status !== 'running' || pendingSelection || phase === 'demonstrating'"
                     :dwell-ms="session.settings.dwellMs"
                     min-height="100%"
                     color="surface"
                     @select="chooseNote(note)"
                   >
                     <template #default="{ active }">
-                      <div
+                     <div
                         class="white-key"
-                        :class="{ 'white-key--played': isPlayed(note), 'white-key--success': successNoteId === note.id, 'white-key--hint': hintedNoteId === note.id, 'white-key--wrong': wrongNoteId === note.id, 'white-key--active': active }"
+                        :class="{ 'white-key--played': mode === 'guided' && isPlayed(note), 'white-key--success': successNoteId === note.id, 'white-key--hint': expectedNote?.id === note.id, 'white-key--demo': demonstrationNoteId === note.id, 'white-key--wrong': wrongNoteId === note.id, 'white-key--active': active }"
                         :style="{ '--note-color': note.color }"
                       >
-                        <span aria-hidden="true" />
+                        <span>{{ note.label }}</span>
                       </div>
                     </template>
                   </GameDwellButton>
                 </div>
               </div>
             </v-card>
+            </template>
           </v-card>
         </v-col>
       </v-row>
@@ -297,6 +449,10 @@ onMounted(() => {
   z-index: 2;
 }
 
+.mode-selection {
+  padding-block: clamp(4rem, 10dvh, 7rem) clamp(1rem, 4dvh, 3rem);
+}
+
 .solfege-instruction {
   padding-inline: 4.5rem;
 }
@@ -322,9 +478,8 @@ onMounted(() => {
 
 .note-bubbles {
   align-items: center;
-  display: grid;
-  gap: 10px;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
+  display: flex;
+  gap: 0.625rem;
   inset: 0;
   position: absolute;
 }
@@ -336,11 +491,22 @@ onMounted(() => {
   border-radius: 999px;
   color: #40524f;
   display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
   font-weight: 800;
   inline-size: 100%;
   justify-content: center;
   min-block-size: 54px;
   opacity: 0.46;
+}
+
+.note-bubble--current {
+  box-shadow: 0 0 0 0.375rem color-mix(in srgb, var(--note-color) 32%, transparent);
+  opacity: 1;
+}
+
+.note-bubble small {
+  font-weight: 700;
 }
 
 .note-bubble--played {
@@ -407,11 +573,13 @@ onMounted(() => {
 
 .white-key--played,
 .white-key--success,
-.white-key--hint {
+.white-key--hint,
+.white-key--demo {
   background: linear-gradient(180deg, color-mix(in srgb, var(--note-color) 48%, white) 0%, #fffaf0 100%);
 }
 
 .white-key--hint,
+.white-key--demo,
 .white-key--active {
   box-shadow: inset 0 -12px 0 rgb(31 41 55 / 6%), 0 0 0 6px color-mix(in srgb, var(--note-color) 25%, transparent);
   transform: translateY(-4px);
@@ -468,7 +636,7 @@ onMounted(() => {
  .solfege-container {
     align-items: flex-start !important;
     min-block-size: auto;
-    padding-block-start: 4.75rem;
+    padding-block-start: 9.5rem;
   }
 
  .solfege-panel {
@@ -508,12 +676,8 @@ onMounted(() => {
 }
 
 @media (max-width: 600px) {
- .note-bubbles {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
  .score-staff {
-    block-size: 150px;
+    block-size: 9.375rem;
   }
 }
 
@@ -532,10 +696,10 @@ onMounted(() => {
     padding: 0.25rem;
   }
 
- .white-keyboard {
+  .white-keyboard {
     gap: 0.125rem;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    min-block-size: min(58dvh, 24rem);
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    min-block-size: clamp(10rem, 32dvh, 18rem);
   }
 
  .white-key {
@@ -550,7 +714,7 @@ onMounted(() => {
 
 @media (max-width: 75rem) and (max-height: 47.5rem) {
  .white-keyboard {
-    min-block-size: 23.5rem;
+    min-block-size: min(34dvh, 14rem);
   }
 }
 

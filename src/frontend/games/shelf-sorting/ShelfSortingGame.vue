@@ -26,12 +26,15 @@ const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame
   generateRound: generateShelfSortingRound
 });
 
-const feedbackMessage = ref("Посмотри на предмет и выбери подходящую полку.");
+const feedbackMessage = ref(round.value.hint);
 const pendingSelection = ref(false);
 const isSpeaking = ref(false);
 const wrongShelfId = ref<string>();
 const successShelfId = ref<string>();
 let feedbackTimer = 0;
+let promptTimer = 0;
+let speechGuardTimer = 0;
+let speechToken = 0;
 
 function shelfTargetId(shelf: ShelfSortingShelf) {
   return `shelf-sorting:shelf:${round.value.rule}:${shelf.id}`;
@@ -44,11 +47,54 @@ function clearFeedbackTimer() {
 
 function resetFeedback() {
   clearFeedbackTimer();
-  feedbackMessage.value = "Посмотри на предмет и выбери подходящую полку.";
+  feedbackMessage.value = round.value.hint;
   pendingSelection.value = false;
   isSpeaking.value = false;
   wrongShelfId.value = undefined;
   successShelfId.value = undefined;
+}
+
+function cancelRoundPrompt() {
+  window.clearTimeout(promptTimer);
+  window.clearTimeout(speechGuardTimer);
+  promptTimer = 0;
+  speechGuardTimer = 0;
+  speechToken += 1;
+  window.speechSynthesis?.cancel();
+  isSpeaking.value = false;
+}
+
+function speakRoundPrompt(delayMs = 0) {
+  cancelRoundPrompt();
+  if (!session.settings.sound || !("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) return;
+  const token = speechToken;
+
+  promptTimer = window.setTimeout(() => {
+    promptTimer = 0;
+    try {
+      const utterance = new SpeechSynthesisUtterance(round.value.prompt);
+      utterance.lang = "ru-RU";
+      utterance.rate = 0.82;
+      utterance.pitch = 1;
+      utterance.volume = 0.3;
+      const finishSpeaking = () => {
+        if (token !== speechToken) return;
+        window.clearTimeout(speechGuardTimer);
+        speechGuardTimer = 0;
+        isSpeaking.value = false;
+      };
+      utterance.onend = utterance.onerror = finishSpeaking;
+      isSpeaking.value = true;
+      window.speechSynthesis.speak(utterance);
+      speechGuardTimer = window.setTimeout(() => {
+        if (token !== speechToken) return;
+        window.speechSynthesis.cancel();
+        finishSpeaking();
+      }, 8000);
+    } catch {
+      isSpeaking.value = false;
+    }
+  }, delayMs);
 }
 
 async function chooseShelf(shelf: ShelfSortingShelf) {
@@ -80,6 +126,7 @@ async function chooseShelf(shelf: ShelfSortingShelf) {
       feedbackTimer = window.setTimeout(() => {
         nextRound();
         resetFeedback();
+        speakRoundPrompt(180);
       }, 950);
     }
     return;
@@ -104,24 +151,30 @@ function shelfColor(shelf: ShelfSortingShelf) {
   return shelf.color;
 }
 
+function shelfStyle(shelf: ShelfSortingShelf) {
+  return { "--shelf-accent": shelf.accent, "--shelf-swatch": shelf.swatch ?? shelf.accent };
+}
+
 function shelfStatus(shelf: ShelfSortingShelf) {
   if (successShelfId.value === shelf.id) return "предмет на полке";
   return shelf.hint;
 }
 
 function restart() {
-  resetFeedback();
+  cancelRoundPrompt();
   restartRounds();
-  promptAudio.play("shelf-sorting.intro", 180);
+  resetFeedback();
+  speakRoundPrompt(180);
 }
 
 onMounted(() => {
   promptAudio.warm();
-  promptAudio.play("shelf-sorting.intro", 420);
+  speakRoundPrompt(420);
 });
 
 onUnmounted(() => {
   clearFeedbackTimer();
+  cancelRoundPrompt();
   promptAudio.cancelPending();
 });
 </script>
@@ -133,14 +186,15 @@ onUnmounted(() => {
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="9">
           <v-card class="shelf-panel pa-5 pa-md-8" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">{{ round.prompt }}</div>
-            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-3">Куда положить предмет?</h1>
+            <div class="text-overline text-secondary text-center mb-2">Правило и предмет</div>
+            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
             <p class="shelf-feedback text-body-1 text-center mb-6">{{ feedbackMessage }}</p>
 
             <v-card class="item-card pa-5 pa-md-6 mb-6" color="blue-grey-lighten-5" rounded="xl" variant="flat">
               <div class="item-caption text-caption mb-2">Предмет для сортировки</div>
               <div class="d-flex flex-column flex-sm-row align-center justify-center ga-4">
-                <GameWordImage :class="['item-emoji', { 'item-emoji--placed': successShelfId }]" :word-id="round.item.id" :word="round.item.label" :emoji="round.item.emoji" decorative />
+                <GameWordImage v-if="round.item.imageId" :class="['item-visual', { 'item-visual--placed': successShelfId }]" :word-id="round.item.imageId" :word="round.item.label" emoji="" decorative />
+                <v-icon v-else :class="['item-visual', { 'item-visual--placed': successShelfId }]" :icon="round.item.icon" color="deep-purple-darken-2" />
                 <div class="text-center text-sm-start">
                   <div class="text-h4 font-weight-bold">{{ round.item.label }}</div>
                   <v-chip class="mt-2 text-white" color="deep-purple-darken-3" variant="flat" size="large">{{ round.rule === "category" ? "сортируем по категории" : "сортируем по цвету" }}</v-chip>
@@ -153,9 +207,13 @@ onUnmounted(() => {
                 <GameDwellButton :class="{ 'shelf-choice--wrong': wrongShelfId === shelf.id, 'shelf-choice--success': successShelfId === shelf.id }" :target-id="shelfTargetId(shelf)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="11.875rem" :color="shelfColor(shelf)" @select="chooseShelf(shelf)">
                   <template #default>
                     <div class="shelf-choice-content">
-                      <div class="shelf-visual mb-4" aria-hidden="true">
-                        <GameWordImage v-if="successShelfId === shelf.id" class="shelf-placed-item" :word-id="round.item.id" :word="round.item.label" :emoji="round.item.emoji" decorative />
-                        <v-icon class="shelf-icon" :icon="shelf.icon" color="brown-darken-2" />
+                      <div class="shelf-visual mb-4" :style="shelfStyle(shelf)" aria-hidden="true">
+                        <template v-if="successShelfId === shelf.id">
+                          <GameWordImage v-if="round.item.imageId" class="shelf-placed-item" :word-id="round.item.imageId" :word="round.item.label" emoji="" decorative />
+                          <v-icon v-else class="shelf-placed-item" :icon="round.item.icon" />
+                        </template>
+                        <v-icon v-if="round.rule === 'category'" class="shelf-icon" :icon="shelf.icon" :color="shelf.accent" />
+                        <div v-else class="shelf-swatch" />
                         <div class="shelf-board" />
                       </div>
                       <div class="text-h5 font-weight-bold mb-2">{{ shelf.title }}</div>
@@ -193,13 +251,13 @@ onUnmounted(() => {
   color: #263238;
 }
 
-.item-emoji {
+.item-visual {
   font-size: clamp(4.8rem, 10vw, 7.8rem);
   line-height: 1;
   transition: opacity 180ms ease, transform 180ms ease;
 }
 
-.item-emoji--placed {
+.item-visual--placed {
   opacity: 0.35;
   transform: scale(0.84);
 }
@@ -228,13 +286,22 @@ onUnmounted(() => {
 }
 
 .shelf-board {
-  background: #6d4c41;
+  background: var(--shelf-accent);
   block-size: clamp(0.45rem, 1.1vw, 0.75rem);
   border-radius: 999rem;
   box-shadow: 0 0.35rem 0 rgb(72 45 36 / 16%);
   inline-size: 76%;
   inset-block-end: 0.2rem;
   position: absolute;
+}
+
+.shelf-swatch {
+  background: var(--shelf-swatch);
+  block-size: clamp(3.8rem, 7vw, 5.8rem);
+  border: 0.35rem solid #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 18%);
+  inline-size: clamp(5.8rem, 11vw, 9rem);
 }
 
 .shelf-placed-item {
@@ -266,7 +333,7 @@ onUnmounted(() => {
 
 @media (max-height: 44rem) {
  .game-container {
-    padding-block-start: 4.35rem;
+    padding-block-start: 9.5rem;
   }
 
  .shelf-panel {
@@ -296,7 +363,7 @@ onUnmounted(() => {
     display: none;
   }
 
- .item-emoji,
+  .item-visual,
  .shelf-icon {
     font-size: clamp(3rem, 7vw, 4.5rem);
   }

@@ -7,6 +7,9 @@ export type SolfegeNote = {
   color: string;
 };
 
+export type SolfegeMode = "guided" | "free";
+export type SolfegeSelectionOutcome = "correct" | "mistake" | "free";
+
 export const solfegeNotes: SolfegeNote[] = [
   { id: "do", label: "До", syllable: "до", octaveLabel: "C4", frequency: 261.63, color: "#ef9a9a" },
   { id: "re", label: "Ре", syllable: "ре", octaveLabel: "D4", frequency: 293.66, color: "#ffcc80" },
@@ -18,33 +21,48 @@ export const solfegeNotes: SolfegeNote[] = [
   { id: "do-high", label: "До", syllable: "до", octaveLabel: "C5", frequency: 523.25, color: "#f48fb1" }
 ];
 
-export const solfegeMaxSteps = solfegeNotes.length;
+function notesById(...ids: string[]) {
+  return ids.map((id) => {
+    const note = solfegeNotes.find((candidate) => candidate.id === id);
+    if (!note) throw new Error(`Unknown solfege note: ${id}`);
+    return note;
+  });
+}
 
-export function generateSolfegeSequence(random = Math.random) {
-  const notes = [...solfegeNotes];
-  for (let index = notes.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(random() * (index + 1));
-    [notes[index], notes[swapIndex]] = [notes[swapIndex], notes[index]];
+export const solfegeGuidedStages = [
+  { id: "two-notes", sequence: notesById("do", "re") },
+  { id: "three-notes", sequence: notesById("do", "re", "mi") },
+  { id: "four-notes", sequence: notesById("do", "re", "mi", "fa") }
+] as const;
+
+export const solfegeMaxSteps = solfegeGuidedStages.reduce((total, stage) => total + stage.sequence.length, 0);
+
+export function solfegeGuidedStageStart(stageIndex: number) {
+  return solfegeGuidedStages.slice(0, stageIndex).reduce((total, stage) => total + stage.sequence.length, 0);
+}
+
+export function solfegeGuidedProgress(completedSteps: number) {
+  const safeSteps = Math.max(0, Math.floor(completedSteps));
+
+  for (let stageIndex = 0; stageIndex < solfegeGuidedStages.length; stageIndex += 1) {
+    const stage = solfegeGuidedStages[stageIndex];
+    const stageStart = solfegeGuidedStageStart(stageIndex);
+    const noteIndex = safeSteps - stageStart;
+    if (noteIndex < stage.sequence.length) return { stageIndex, stage, noteIndex, expectedNote: stage.sequence[noteIndex] };
   }
-  return notes;
+
+  return undefined;
 }
 
-export function playedSolfegeNotes(step: number) {
-  return solfegeNotes.slice(0, Math.max(0, Math.min(step, solfegeMaxSteps)));
-}
-
-export function nextSolfegeNote(step: number) {
-  return solfegeNotes[step];
-}
-
-export function nextSolfegeSequenceNote(sequence: readonly SolfegeNote[], step: number) {
-  return sequence[step];
-}
-
-export function solfegeChoiceNotes(step: number) {
+export function solfegeChoiceNotes() {
   return solfegeNotes;
 }
 
-export function isExpectedSolfegeNote(noteId: string, step: number) {
-  return nextSolfegeNote(step)?.id === noteId;
+export function isExpectedSolfegeNote(noteId: string, completedSteps: number) {
+  return solfegeGuidedProgress(completedSteps)?.expectedNote.id === noteId;
+}
+
+export function solfegeSelectionOutcome(mode: SolfegeMode, noteId: string, expectedNoteId?: string): SolfegeSelectionOutcome {
+  if (mode === "free") return "free";
+  return noteId === expectedNoteId ? "correct" : "mistake";
 }

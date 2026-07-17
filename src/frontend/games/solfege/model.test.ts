@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { generateSolfegeSequence, isExpectedSolfegeNote, nextSolfegeNote, nextSolfegeSequenceNote, playedSolfegeNotes, solfegeChoiceNotes, solfegeMaxSteps, solfegeNotes } from "./model";
+import { isExpectedSolfegeNote, solfegeChoiceNotes, solfegeGuidedProgress, solfegeGuidedStages, solfegeMaxSteps, solfegeNotes, solfegeSelectionOutcome } from "./model";
 
 describe("solfege model", () => {
   it("keeps one octave order stable", () => {
-    expect(solfegeNotes).toHaveLength(solfegeMaxSteps);
+    expect(solfegeNotes).toHaveLength(8);
     expect(solfegeNotes.map((note) => note.id)).toEqual([
       "do",
       "re",
@@ -16,36 +16,41 @@ describe("solfege model", () => {
     ]);
   });
 
-  it("returns played and next notes from the current step", () => {
-    expect(playedSolfegeNotes(0)).toEqual([]);
-    expect(playedSolfegeNotes(3).map((note) => note.id)).toEqual(["do", "re", "mi"]);
-    expect(nextSolfegeNote(3)?.id).toBe("fa");
-    expect(nextSolfegeNote(solfegeMaxSteps)).toBeUndefined();
+  it("progresses from two demonstrated notes to three and four", () => {
+    expect(solfegeGuidedStages.map((stage) => stage.sequence.length)).toEqual([2, 3, 4]);
+    expect(solfegeGuidedStages.map((stage) => stage.sequence.map((note) => note.id))).toEqual([
+      ["do", "re"],
+      ["do", "re", "mi"],
+      ["do", "re", "mi", "fa"]
+    ]);
+    expect(solfegeMaxSteps).toBe(9);
   });
 
-  it("generates a randomized full-octave sequence", () => {
-    const randomValues = [0.99, 0.01, 0.42, 0.73, 0.15, 0.88, 0.33];
-    let index = 0;
-    const sequence = generateSolfegeSequence(() => randomValues[index++] ?? 0);
-
-    expect(sequence).toHaveLength(solfegeMaxSteps);
-    expect(new Set(sequence.map((note) => note.id))).toEqual(new Set(solfegeNotes.map((note) => note.id)));
-    expect(sequence.map((note) => note.id)).not.toEqual(solfegeNotes.map((note) => note.id));
-    expect(nextSolfegeSequenceNote(sequence, 0)).toBe(sequence[0]);
+  it("maps completed notes to the expected note in the current stage", () => {
+    expect(solfegeGuidedProgress(0)).toMatchObject({ stageIndex: 0, noteIndex: 0, expectedNote: { id: "do" } });
+    expect(solfegeGuidedProgress(1)).toMatchObject({ stageIndex: 0, noteIndex: 1, expectedNote: { id: "re" } });
+    expect(solfegeGuidedProgress(2)).toMatchObject({ stageIndex: 1, noteIndex: 0, expectedNote: { id: "do" } });
+    expect(solfegeGuidedProgress(5)).toMatchObject({ stageIndex: 2, noteIndex: 0, expectedNote: { id: "do" } });
+    expect(solfegeGuidedProgress(solfegeMaxSteps)).toBeUndefined();
   });
 
   it("uses the whole octave as playable choices", () => {
-    for (let step = 0; step < solfegeMaxSteps; step += 1) {
-      const choices = solfegeChoiceNotes(step).map((note) => note.id);
+    const choices = solfegeChoiceNotes().map((note) => note.id);
 
-      expect(choices).toContain(nextSolfegeNote(step)?.id);
-      expect(new Set(choices).size).toBe(choices.length);
-      expect(choices).toEqual(solfegeNotes.map((note) => note.id));
-    }
+    expect(new Set(choices).size).toBe(choices.length);
+    expect(choices).toEqual(solfegeNotes.map((note) => note.id));
   });
 
   it("checks the expected note for the step", () => {
     expect(isExpectedSolfegeNote("do", 0)).toBe(true);
     expect(isExpectedSolfegeNote("re", 0)).toBe(false);
+    expect(isExpectedSolfegeNote("do", 2)).toBe(true);
+    expect(isExpectedSolfegeNote("do", solfegeMaxSteps)).toBe(false);
+  });
+
+  it("never reports mistakes in free piano mode", () => {
+    expect(solfegeSelectionOutcome("free", "si", "do")).toBe("free");
+    expect(solfegeSelectionOutcome("guided", "si", "do")).toBe("mistake");
+    expect(solfegeSelectionOutcome("guided", "do", "do")).toBe("correct");
   });
 });

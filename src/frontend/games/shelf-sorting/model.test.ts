@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { correctShelfIdFor, generateShelfSortingRound, shelvesForRule } from "./model";
+import { correctShelfIdFor, generateShelfSortingRound, shelfSortingItems, shelvesForRule } from "./model";
 
 describe("generateShelfSortingRound", () => {
   it("alternates category and color rules", () => {
@@ -18,6 +18,47 @@ describe("generateShelfSortingRound", () => {
       expect(shelfIds).toContain(round.correctShelfId);
       expect(new Set(shelfIds).size).toBe(round.shelves.length);
       expect(round.shelves[round.correctIndex].id).toBe(round.correctShelfId);
+    }
+  });
+
+  it("uses distinct category symbols and large-swatch data for exact colors", () => {
+    const categoryShelves = shelvesForRule("category");
+    const colorShelves = shelvesForRule("color");
+
+    expect(new Set(categoryShelves.map((shelf) => shelf.icon)).size).toBe(categoryShelves.length);
+    expect(categoryShelves.every((shelf) => shelf.icon && !shelf.swatch)).toBe(true);
+    expect(colorShelves.map((shelf) => shelf.id)).toEqual(["red", "yellow", "green"]);
+    expect(colorShelves.every((shelf) => shelf.swatch && !shelf.icon)).toBe(true);
+  });
+
+  it("only puts items with an exact color on color rounds", () => {
+    for (let index = 0; index < 20; index += 1) {
+      const round = generateShelfSortingRound(2, () => index / 20);
+
+      expect(round.item.colorShelfId).toBe(round.correctShelfId);
+      expect(["red", "yellow", "green"]).toContain(round.correctShelfId);
+    }
+  });
+
+  it("uses word images when available and MDI icons for teddy and kite", () => {
+    const teddy = shelfSortingItems.find((item) => item.id === "teddy");
+    const kite = shelfSortingItems.find((item) => item.id === "kite");
+
+    expect(teddy?.icon).toBe("mdi-teddy-bear");
+    expect(teddy?.imageId).toBeUndefined();
+    expect(kite?.icon).toBe("mdi-kite");
+    expect(kite?.imageId).toBeUndefined();
+    expect(shelfSortingItems.filter((item) => !["teddy", "kite"].includes(item.id)).every((item) => item.imageId)).toBe(true);
+  });
+
+  it("prompts with the rule and item without naming the answer", () => {
+    for (const roundIndex of [1, 2]) {
+      const round = generateShelfSortingRound(roundIndex, () => 0);
+      const answerTitle = round.shelves[round.correctIndex].title;
+
+      expect(round.prompt).toContain(round.rule === "category" ? "Сортируем по категории" : "Сортируем по цвету");
+      expect(round.prompt).toContain(`Предмет: ${round.item.label}`);
+      expect(round.prompt).not.toContain(answerTitle);
     }
   });
 
