@@ -1,83 +1,79 @@
 import { describe, expect, it } from "vitest";
 import { settingsFromPreset } from "../../core/settings";
-import { generateTypeWordRound } from "./model";
+import ttsAssetsData from "../../data/ttsAssets.json";
+import wordImageManifest from "../../../../public/images/words/manifest.json";
+import { createTypeWordDeck, evaluateTypeWordChoice, generateTypeWordRound, typeWordAudioAssetId } from "./model";
 
-function expectKeyboardIncludesWord(round: ReturnType<typeof generateTypeWordRound>) {
-  const keys = new Set(round.keyboardChoices);
-  const uniqueLetters = new Set(round.letters);
+const imageIds = new Set(wordImageManifest.map((item) => item.id));
+const wordAudioIds = new Set(ttsAssetsData.filter((asset) => asset.game === "word-categories").map((asset) => asset.id));
 
-  expect(keys.size).toBe(round.keyboardChoices.length);
-  for (const letter of uniqueLetters) expect(keys.has(letter)).toBe(true);
+function roundForWord(word: string, preset: "gentle" | "standard" | "challenge" = "standard") {
+  const settings = settingsFromPreset(preset);
+  const item = createTypeWordDeck(settings, () => 0).find((candidate) => candidate.word === word);
+  if (!item) throw new Error(`Test word is missing from the TypeWord deck: ${word}`);
+  return generateTypeWordRound(settings, item, 1, () => 0);
 }
 
-describe("generateTypeWordRound", () => {
-  it("keeps round ids stable for telemetry", () => {
-    expect(generateTypeWordRound(settingsFromPreset("gentle"), 1).roundId).toBe("type-word:round:1");
-    expect(generateTypeWordRound(settingsFromPreset("standard"), 7).roundId).toBe("type-word:round:7");
+describe("TypeWord model", () => {
+  it("keeps repeated letters and advances through each repeated slot", () => {
+    const round = roundForWord("пицца");
+
+    expect(round.letters).toEqual(["п", "и", "ц", "ц", "а"]);
+    expect(round.letterChoices[2]).toContain("ц");
+    expect(round.letterChoices[3]).toContain("ц");
+
+    const firstRepeatedLetter = evaluateTypeWordChoice(round, 2, "ц");
+    expect(firstRepeatedLetter).toEqual({ isCorrect: true, nextIndex: 3, complete: false });
+    expect(evaluateTypeWordChoice(round, firstRepeatedLetter.nextIndex, "ц")).toEqual({ isCorrect: true, nextIndex: 4, complete: false });
   });
 
-  it("builds letters from the selected lowercase word", () => {
-    const round = generateTypeWordRound(settingsFromPreset("standard"), 1);
+  it.each([
+    ["gentle", 2],
+    ["standard", 3],
+    ["challenge", 4]
+  ] as const)("offers exactly %s preset choice count", (preset, expectedCount) => {
+    const settings = settingsFromPreset(preset);
+    const item = createTypeWordDeck(settings, () => 0)[0];
+    if (!item) throw new Error("TypeWord deck is empty.");
+    const round = generateTypeWordRound(settings, item, 3, () => 0);
 
-    expect(round.letters).toEqual(Array.from(round.item.word.toLowerCase()));
-    expect(round.letters.length).toBeGreaterThanOrEqual(2);
-    expect(round.letters.every(Boolean)).toBe(true);
+    expect(round.roundId).toBe("type-word:round:3");
+    expect(round.letterChoices).toHaveLength(round.letters.length);
+    for (const choices of round.letterChoices) expect(choices).toHaveLength(expectedCount);
   });
 
-  it("keeps gentle words short and keyboard compact", () => {
-    const settings = settingsFromPreset("gentle");
+  it("uses unique distractors that never reveal another letter from the word", () => {
+    const round = roundForWord("банан", "challenge");
+    const wordLetters = new Set(round.letters);
 
-    for (let index = 0; index < 100; index += 1) {
-      const round = generateTypeWordRound(settings, index + 1);
-      const wordLength = Array.from(round.item.word).length;
-
-      expect(round.roundId).toBe(`type-word:round:${index + 1}`);
-      expect(wordLength).toBeGreaterThanOrEqual(2);
-      expect(wordLength).toBeLessThanOrEqual(4);
-      expect(round.keyboardChoices.length).toBeGreaterThanOrEqual(4);
-      expect(round.keyboardChoices.length).toBeLessThanOrEqual(8);
-      expect(round.keyboardChoices.length % 2).toBe(0);
-      expectKeyboardIncludesWord(round);
-    }
+    round.letterChoices.forEach((choices, index) => {
+      const target = round.letters[index];
+      expect(new Set(choices).size).toBe(choices.length);
+      expect(choices.filter((choice) => choice === target)).toHaveLength(1);
+      expect(choices.filter((choice) => choice !== target).every((choice) => !wordLetters.has(choice))).toBe(true);
+    });
   });
 
-  it("keeps non-gentle words within six letters and keyboard choices playable", () => {
-    for (const preset of ["standard", "challenge", "custom"] as const) {
-      const settings = settingsFromPreset(preset);
+  it("keeps progress unchanged after a wrong choice", () => {
+    const round = roundForWord("кот");
+    const distractor = round.letterChoices[0]?.find((choice) => choice !== round.letters[0]);
+    if (!distractor) throw new Error("TypeWord round has no distractor.");
 
-      for (let index = 0; index < 100; index += 1) {
-        const round = generateTypeWordRound(settings, index + 1);
-        const wordLength = Array.from(round.item.word).length;
-
-        expect(wordLength).toBeGreaterThanOrEqual(2);
-        expect(wordLength).toBeLessThanOrEqual(6);
-        expect(round.keyboardChoices.length).toBeGreaterThanOrEqual(6);
-        expect(round.keyboardChoices.length).toBeLessThanOrEqual(8);
-        expect(round.keyboardChoices.length % 2).toBe(0);
-        expectKeyboardIncludesWord(round);
-      }
-    }
+    expect(evaluateTypeWordChoice(round, 0, distractor)).toEqual({ isCorrect: false, nextIndex: 0, complete: false });
   });
 
-  it("keeps repeated letters as repeated target letters but unique reusable keys", () => {
-    for (let index = 0; index < 300; index += 1) {
-      const round = generateTypeWordRound(settingsFromPreset("standard"), index + 1);
-      const uniqueLetters = new Set(round.letters);
-      if (uniqueLetters.size === round.letters.length) continue;
+  it.each(["gentle", "standard", "challenge"] as const)("creates a unique short-word %s deck", (preset) => {
+    const deck = createTypeWordDeck(settingsFromPreset(preset), () => 0);
+    const ids = deck.map((item) => item.id);
+    const maxLength = preset === "gentle" ? 4 : 5;
 
-      expect(round.letters.length).toBeGreaterThan(uniqueLetters.size);
-      expectKeyboardIncludesWord(round);
-      return;
-    }
-
-    throw new Error("No repeated-letter word was sampled during the test run.");
-  });
-
-  it("uses injected randomness without looping on repeated values", () => {
-    const settings = settingsFromPreset("standard");
-    const first = generateTypeWordRound(settings, 1, () => 0);
-
-    expect(generateTypeWordRound(settings, 1, () => 0).keyboardChoices).toEqual(first.keyboardChoices);
-    expectKeyboardIncludesWord(first);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(deck.length).toBeGreaterThan(5);
+    expect(deck.every((item) => {
+      const length = Array.from(item.word).length;
+      return length >= 3 && length <= maxLength;
+    })).toBe(true);
+    expect(deck.every((item) => imageIds.has(item.id))).toBe(true);
+    expect(deck.every((item) => wordAudioIds.has(typeWordAudioAssetId(item.id)))).toBe(true);
   });
 });
