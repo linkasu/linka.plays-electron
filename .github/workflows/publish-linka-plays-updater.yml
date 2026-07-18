@@ -6,8 +6,6 @@ on:
       version:
         required: true
         type: string
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
       version:
@@ -18,7 +16,7 @@ jobs:
   publish-updater:
     runs-on: ubuntu-latest
     env:
-      RELEASE_TAG: ${{ github.event_name == 'release' && github.event.release.tag_name || inputs.version }}
+      RELEASE_TAG: ${{ inputs.version }}
     steps:
       - name: Configure SSH
         shell: bash
