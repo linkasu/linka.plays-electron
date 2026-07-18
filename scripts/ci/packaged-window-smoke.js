@@ -164,7 +164,12 @@ async function main() {
   const appLog = [];
   const child = spawn(exePath, [`--remote-debugging-port=${port}`, "--enable-logging"], {
     cwd: projectRoot,
-    env: { ...process.env, LINKA_NO_TOBII: "1", ELECTRON_ENABLE_LOGGING: "1" },
+    env: {
+      ...process.env,
+      LINKA_NO_TOBII: "1",
+      LINKA_METRICS_URL: process.env.LINKA_METRICS_URL ?? "http://127.0.0.1:1",
+      ELECTRON_ENABLE_LOGGING: "1"
+    },
     windowsHide: false,
     stdio: ["ignore", "pipe", "pipe"]
   });
