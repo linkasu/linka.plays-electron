@@ -175,8 +175,7 @@ async function applyAiMove() {
   if (session.status !== "running" || result.value) return;
   const column = typeof aiMove.column === "number" && availableColumns(board.value).includes(aiMove.column) ? aiMove.column : chooseDeepQMove(board.value);
   if (column === undefined) return;
-  const index = dropDisc(board.value, column, "Y");
-  recordEvent("target-click", { targetId: columnTargetId(column), actor: "deep-q", mark: "Y", column, index, ai: aiMove });
+  dropDisc(board.value, column, "Y");
   const winner = findWinner(board.value);
   if (winner) void finishRound(winner);
   else blockPlayerTurn();
@@ -184,8 +183,7 @@ async function applyAiMove() {
 
 function chooseColumn(column: number) {
   if (!canChooseColumn(column)) return;
-  const index = dropDisc(board.value, column, "R");
-  recordEvent("target-click", { targetId: columnTargetId(column), actor: "player", mark: "R", column, index });
+  dropDisc(board.value, column, "R");
 
   const winner = findWinner(board.value);
   if (winner) {

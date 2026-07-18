@@ -1,4 +1,5 @@
 import { onMounted, onUnmounted, ref } from "vue";
+import { recordMetricsEvent } from "../core/telemetry";
 
 const fallbackStatus: TobiiStatus = {
   state: "unsupported",
@@ -7,6 +8,13 @@ const fallbackStatus: TobiiStatus = {
   deviceFound: false,
   updatedAt: Date.now()
 };
+let lastReportedState: TobiiStatusState | undefined;
+
+function reportState(status: TobiiStatus) {
+  if (lastReportedState === status.state) return;
+  lastReportedState = status.state;
+  recordMetricsEvent({ eventName: "tobii_state_changed", properties: { state: status.state } });
+}
 
 export function useTobiiStatus() {
   const status = ref<TobiiStatus>(fallbackStatus);
@@ -17,11 +25,14 @@ export function useTobiiStatus() {
     window.linkaTobii.rendererReady();
     window.linkaTobii.getStatus().then((nextStatus) => {
       status.value = nextStatus;
+      reportState(nextStatus);
     }).catch(() => {
       status.value = fallbackStatus;
+      reportState(fallbackStatus);
     });
     dispose = window.linkaTobii.onStatus((nextStatus) => {
       status.value = nextStatus;
+      reportState(nextStatus);
     });
   });
 

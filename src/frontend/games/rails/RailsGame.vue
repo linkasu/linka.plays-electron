@@ -237,7 +237,6 @@ function resetStationDwell(now: number, reason?: "left" | "invalid-gaze") {
 function chooseTrain(choice: TrainChoice) {
   if (session.status !== "running") return;
   selectedTrain.value = choice;
-  recordEvent("target-click", { targetId: `rails:train:${choice.id}`, trainId: choice.id, dwellMs: session.settings.dwellMs, pointer: copyPointer() });
 }
 
 function resetRail() {

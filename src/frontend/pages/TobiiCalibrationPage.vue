@@ -13,9 +13,7 @@ const calibrationBusy = ref(false);
 const calibrationActive = ref(false);
 const calibrationMessage = ref("");
 const calibrationError = ref("");
-const diagnosticsMessage = ref("");
 const diagnosticsError = ref("");
-const uploadBusy = ref(false);
 const phase = ref<CalibrationPhase>("idle");
 const activeGroupIndex = ref(0);
 const activePointIndex = ref<number | null>(null);
@@ -100,7 +98,7 @@ async function startTobiiCalibration() {
 
   try {
     phase.value = "start";
-    if (!canRunSdkCalibration.value) throw new Error("SDK-калибровка недоступна в Windows EyeLog-режиме. Используйте проверку взгляда и отправку диагностики.");
+    if (!canRunSdkCalibration.value) throw new Error("SDK-калибровка недоступна в Windows EyeLog-режиме. Используйте локальную проверку взгляда.");
     await window.linkaTobii.startCalibration();
     phase.value = "look";
   } catch (error) {
@@ -342,40 +340,6 @@ async function refreshDiagnostics() {
   }
 }
 
-async function uploadDiagnostics() {
-  if (!window.linkaDiagnostics) return;
-  uploadBusy.value = true;
-  diagnosticsError.value = "";
-  diagnosticsMessage.value = "Собираю диагностику...";
-  await refreshDiagnostics();
-  try {
-    const result = await window.linkaDiagnostics.upload({
-      kind: "tobii-diagnostics",
-      route: router.currentRoute.value.fullPath,
-      viewport: {
-        width: window.innerWidth,
-        height: window.innerHeight,
-        devicePixelRatio: window.devicePixelRatio
-      },
-      userAgent: navigator.userAgent,
-      status: tobiiStatus.value,
-      diagnostics: diagnostics.value,
-      currentGaze: gazePoint.value,
-      rendererStats: {
-        sampleCount: recentRendererSamples.value.length,
-        samplesPerSecond: samplesPerSecond.value,
-        validRatio: validRatio.value,
-        recentSamples: recentRendererSamples.value.slice(-120)
-      }
-    });
-    diagnosticsMessage.value = result.id ? `Диагностика отправлена: ${result.id}` : "Диагностика отправлена.";
-  } catch (error) {
-    diagnosticsError.value = error instanceof Error ? error.message : String(error);
-  } finally {
-    uploadBusy.value = false;
-  }
-}
-
 function formatNumber(value: number | undefined, digits = 1) {
   return typeof value === "number" && Number.isFinite(value) ? value.toFixed(digits) : "-";
 }
@@ -422,9 +386,6 @@ onBeforeUnmount(() => {
           <v-alert v-if="calibrationError" class="mt-4" type="error" variant="tonal">
             {{ calibrationError }}
           </v-alert>
-          <v-alert v-if="diagnosticsMessage" class="mt-4" type="success" variant="tonal">
-            {{ diagnosticsMessage }}
-          </v-alert>
           <v-alert v-if="diagnosticsError" class="mt-4" type="error" variant="tonal">
             {{ diagnosticsError }}
           </v-alert>
@@ -470,9 +431,6 @@ onBeforeUnmount(() => {
           </v-btn>
           <v-btn v-if="!isEyeLogMode && canUseTobii" :loading="calibrationBusy" @click="restartService">
             Перезапустить Tobii
-          </v-btn>
-          <v-btn color="secondary" :loading="uploadBusy" variant="tonal" @click="uploadDiagnostics">
-            Отправить диагностику
           </v-btn>
           <v-btn color="primary" prepend-icon="mdi-crosshairs-gps" to="/gaze-debug" variant="tonal">
             Debug взгляда

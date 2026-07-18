@@ -170,7 +170,6 @@ async function applyAiMove() {
   board.value = aiMove.board;
   flippedCells.value = aiMove.flipped;
   lastMove.value = move;
-  recordEvent("target-click", { targetId: cellTargetId(move), actor: "ai", mark: "ai", flipped: aiMove.flipped.length, ai: aiMoveChoice });
   afterAiTurn();
 }
 

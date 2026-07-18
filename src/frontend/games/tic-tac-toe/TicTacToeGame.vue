@@ -88,7 +88,6 @@ function applyAiMove() {
   const move = chooseDeepQMove(board.value);
   if (move === undefined) return;
   board.value[move] = "O";
-  recordEvent("target-click", { targetId: cellTargetId(move), actor: "deep-q", mark: "O" });
   const winner = findWinner(board.value);
   if (winner) void finishRound(winner);
   else blockPlayerTurn();
@@ -109,7 +108,6 @@ function blockPlayerTurn() {
 function chooseCell(index: number) {
   if (session.status !== "running" || gazeBlocked.value || result.value || board.value[index]) return;
   board.value[index] = "X";
-  recordEvent("target-click", { targetId: cellTargetId(index), actor: "player", mark: "X" });
 
   const winner = findWinner(board.value);
   if (winner) {

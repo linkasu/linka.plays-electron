@@ -20,7 +20,8 @@ type SessionEventType =
  | "session-start"
  | "session-pause"
  | "session-resume"
- | "session-finish"
+  | "session-finish"
+  | "session-interrupt"
  | "level-start"
  | "target-enter"
  | "target-cancel"
@@ -55,4 +56,4 @@ type SessionEventType =
 
 ## Privacy
 
-Сырые gaze paths могут быть чувствительными. Для обычного отчёта хранить агрегаты. Сырые события включать только в debug/dev mode или с явным согласием.
+Локальный `payload` может содержать данные, нужные игровой логике, но не является сетевым payload. Перед IPC центральная проекция удаляет `targetId`, expected/actual, текст, board/FEN, координаты и timestamp указателя. Непрерывные gaze/mouse samples никогда не отправляются, включая debug/dev mode; в session summary передаются только раздельные счётчики и gaze-агрегаты.

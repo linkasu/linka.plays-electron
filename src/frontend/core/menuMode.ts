@@ -1,3 +1,5 @@
+import { recordMetricsEvent } from "./telemetry";
+
 export type MenuMode = "specialist" | "self";
 
 const menuModeStorageKey = "linka-menu-mode";
@@ -23,11 +25,13 @@ export function firstMenuCategory(value: unknown): string | undefined {
 }
 
 export function rememberMenuMode(mode: MenuMode) {
+  const previousMode = resolveMenuMode();
   try {
     window.localStorage.setItem(menuModeStorageKey, mode);
   } catch {
     // Menu mode is convenience state; navigation must still work without storage.
   }
+  if (previousMode !== mode) recordMetricsEvent({ eventName: "mode_changed", properties: { mode } });
 }
 
 export function rememberMenuCategory(category: string | undefined) {

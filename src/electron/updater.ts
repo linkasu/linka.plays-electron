@@ -36,8 +36,15 @@ let isDownloadingUpdate = false;
 let isQuittingForUpdate = false;
 let downloadedVersion: string | null = null;
 let mainWindow: BrowserWindow | undefined;
+let telemetryHooks: UpdaterTelemetryHooks = {};
 
-export function registerUpdaterHandlers() {
+type UpdaterTelemetryHooks = {
+  onState?: (state: "idle" | "checking" | "available" | "downloading" | "downloaded" | "installing" | "error", version?: string) => void;
+  onRestart?: () => Promise<void>;
+};
+
+export function registerUpdaterHandlers(hooks: UpdaterTelemetryHooks = {}) {
+  telemetryHooks = hooks;
   ipcMain.handle("app:version", () => ({
     version: app.getVersion(),
     platform: process.platform,
@@ -47,9 +54,12 @@ export function registerUpdaterHandlers() {
   ipcMain.on("updater:restartApp", () => {
     if (isQuittingForUpdate || !downloadedVersion || !updateState.downloaded) return;
     isQuittingForUpdate = true;
-    recordUpdateInstallAttempt(downloadedVersion);
-    logUpdate("restart_app");
-    autoUpdater.quitAndInstall();
+    telemetryHooks.onState?.("installing", downloadedVersion);
+    void Promise.resolve(telemetryHooks.onRestart?.()).catch(() => undefined).finally(() => {
+      recordUpdateInstallAttempt(downloadedVersion);
+      logUpdate("restart_app");
+      autoUpdater.quitAndInstall();
+    });
   });
 }
 
@@ -58,6 +68,7 @@ export function setupAutoUpdater(win: BrowserWindow) {
   updateState.version = app.getVersion();
   if (autoUpdaterInitialized || !app.isPackaged) return;
   autoUpdaterInitialized = true;
+  telemetryHooks.onState?.("checking");
 
   if (updateFeedUrl) {
     autoUpdater.setFeedURL({ provider: "generic", url: updateFeedUrl });
@@ -66,6 +77,7 @@ export function setupAutoUpdater(win: BrowserWindow) {
 
   clearUpdateAttemptIfSucceeded();
   if (shouldSkipUpdateCheck()) {
+    telemetryHooks.onState?.("idle");
     console.warn("Skipping update check to avoid restart loop.");
     logUpdate("update_check_skipped");
     return;
@@ -80,6 +92,7 @@ export function setupAutoUpdater(win: BrowserWindow) {
     updateState.error = message;
     updateState.available = false;
     updateState.downloaded = false;
+    telemetryHooks.onState?.("error");
     logUpdate("update_error", { message });
     sendToRenderer("updater:error", message);
   });
@@ -92,12 +105,15 @@ export function setupAutoUpdater(win: BrowserWindow) {
     updateState.downloaded = false;
     updateState.error = "";
     updateState.percent = 0;
+    telemetryHooks.onState?.("available", info.version);
+    telemetryHooks.onState?.("downloading", info.version);
     logUpdate("update_available", info);
     sendToRenderer("updater:available", info);
     autoUpdater.downloadUpdate().catch((error) => {
       isDownloadingUpdate = false;
       const message = error instanceof Error ? error.message : String(error);
       updateState.error = message;
+      telemetryHooks.onState?.("error");
       logUpdate("update_download_error", { message });
       sendToRenderer("updater:error", message);
     });
@@ -106,6 +122,7 @@ export function setupAutoUpdater(win: BrowserWindow) {
   autoUpdater.on("update-not-available", () => {
     isDownloadingUpdate = false;
     updateState.available = false;
+    telemetryHooks.onState?.("idle");
     logUpdate("update_not_available");
   });
 
@@ -122,13 +139,17 @@ export function setupAutoUpdater(win: BrowserWindow) {
     updateState.downloaded = true;
     updateState.error = "";
     updateState.percent = 100;
+    telemetryHooks.onState?.("downloaded", info.version);
     logUpdate("update_downloaded", info);
     sendToRenderer("updater:downloaded", info);
     if (isUpdateTestMode && !isQuittingForUpdate) {
       isQuittingForUpdate = true;
-      recordUpdateInstallAttempt(downloadedVersion);
-      logUpdate("update_test_quit_and_install");
-      autoUpdater.quitAndInstall(true, false);
+      telemetryHooks.onState?.("installing", downloadedVersion);
+      void Promise.resolve(telemetryHooks.onRestart?.()).catch(() => undefined).finally(() => {
+        recordUpdateInstallAttempt(downloadedVersion);
+        logUpdate("update_test_quit_and_install");
+        autoUpdater.quitAndInstall(true, false);
+      });
     }
   });
 
@@ -137,6 +158,7 @@ export function setupAutoUpdater(win: BrowserWindow) {
     updateState.error = message;
     updateState.available = false;
     updateState.downloaded = false;
+    telemetryHooks.onState?.("error");
     logUpdate("update_check_error", { message });
     sendToRenderer("updater:error", message);
   });

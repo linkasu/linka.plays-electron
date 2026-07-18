@@ -93,6 +93,54 @@ declare global {
     percent: number;
   };
 
+  type MetricsEvent =
+    | { eventName: "page_viewed"; properties: { page: string } }
+    | { eventName: "mode_changed"; properties: { mode: "specialist" | "self" } }
+    | { eventName: "settings_changed"; properties: { settingKey: "dwell_ms"; number: number } }
+    | { eventName: "game_session_started" | "game_session_paused" | "game_session_resumed"; gameSessionId: string; properties: { gameId: string; mode?: "specialist" | "self"; gameCategory?: MetricsGameCategory } }
+    | { eventName: "game_session_finished"; gameSessionId: string; properties: { gameId: string; result?: MetricsResult; reason: MetricsFinishReason } }
+    | { eventName: "game_session_interrupted"; gameSessionId: string; properties: { gameId: string; reason: MetricsInterruptionReason } }
+    | { eventName: "level_entered" | "level_cancelled" | "level_clicked"; gameSessionId: string; properties: { gameId: string; levelIndex: number } }
+    | { eventName: "target_entered" | "target_cancelled" | "target_clicked"; gameSessionId: string; properties: { gameId: string; levelIndex: number; targetKind: "interactive" | "control"; inputMethod: "mouse" | "gaze"; elapsedMs?: number; reason?: "left" | "invalid-gaze" | "disabled" } }
+    | { eventName: "success" | "mistake"; gameSessionId: string; properties: { gameId: string; levelIndex: number; targetKind?: "interactive" | "control"; inputMethod: "mouse" | "gaze"; responseMs?: number } }
+    | { eventName: "hint_used"; gameSessionId: string; properties: { gameId: string; levelIndex: number; hintKind: "generic" } }
+    | { eventName: "difficulty_changed"; gameSessionId: string; properties: { gameId: string; difficulty: number } }
+    | { eventName: "tobii_state_changed"; properties: { state: TobiiStatusState } }
+    | { eventName: "error"; properties: { fingerprint: string; component: string } };
+
+  type MetricsGameCategory = "gaze-basics" | "visual-search" | "sequencing" | "language-aac" | "numeracy" | "strategy" | "continuous-control";
+  type MetricsFinishReason = "max-steps" | "timeout" | "too-many-mistakes" | "manual" | "game-complete" | "game-lost" | "game-draw";
+  type MetricsInterruptionReason = "route-leave" | "window-close" | "app-quit" | "update-restart" | "renderer-crash";
+  type MetricsResult = "completed" | "incomplete" | "lost" | "draw" | "interrupted";
+
+  type MetricsSessionSummary = {
+    gameSessionId: string;
+    gameId: string;
+    startedAt: string;
+    endedAt: string;
+    durationMs: number;
+    pausedMs?: number;
+    menuMode?: "specialist" | "self";
+    gameCategory?: MetricsGameCategory;
+    inputMethod?: "mouse" | "gaze" | "mixed";
+    finishReason?: MetricsFinishReason;
+    stepsCompleted?: number;
+    maxSteps?: number;
+    successCount: number;
+    mistakeCount: number;
+    hintCount: number;
+    targetCancelCount?: number;
+    gazeLostCount?: number;
+    difficultyChanges?: number;
+    gazeSampleCount?: number;
+    mouseSampleCount?: number;
+    validGazeRatio?: number;
+    meanDwellMs?: number;
+    configuredDwellMs?: number;
+    result?: MetricsResult;
+    interruptionReason?: MetricsInterruptionReason;
+  };
+
   type ConnectFourAiResult = {
     ok: boolean;
     column?: number;
@@ -173,8 +221,9 @@ declare global {
       onStatus: (listener: (status: TobiiStatus) => void) => Dispose;
       onGaze: (listener: (point: GazePoint) => void) => Dispose;
     };
-    linkaDiagnostics?: {
-      upload: (payload: unknown) => Promise<{ ok: boolean; id?: string }>;
+    linkaMetrics?: {
+      recordEvent: (event: MetricsEvent) => void;
+      recordSessionSummary: (summary: MetricsSessionSummary) => void;
     };
     linkaAi?: {
       connectFourBestMove: (payload: { board: string; player?: "R" | "Y"; depth?: number; timeLimitMs?: number; threads?: number }) => Promise<ConnectFourAiResult>;

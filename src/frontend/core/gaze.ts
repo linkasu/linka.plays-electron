@@ -25,9 +25,10 @@ export type DwellEventPayload = {
 
 export type GazeMetricsSnapshot = {
   totalGazeSamples: number;
+  mouseSampleCount: number;
   validGazeSamples: number;
   invalidGazeSamples: number;
-  validGazeRatio: number;
+  validGazeRatio?: number;
   lostGazeEvents: number;
   restoredGazeEvents: number;
   rawPathLength: number;
@@ -36,6 +37,7 @@ export type GazeMetricsSnapshot = {
 
 export function createGazeMetricsTracker() {
   let totalGazeSamples = 0;
+  let mouseSampleCount = 0;
   let validGazeSamples = 0;
   let invalidGazeSamples = 0;
   let lostGazeEvents = 0;
@@ -48,6 +50,7 @@ export function createGazeMetricsTracker() {
 
   function reset() {
     totalGazeSamples = 0;
+    mouseSampleCount = 0;
     validGazeSamples = 0;
     invalidGazeSamples = 0;
     lostGazeEvents = 0;
@@ -60,6 +63,10 @@ export function createGazeMetricsTracker() {
   }
 
   function record(point: GazePoint): "lost" | "restored" | undefined {
+    if (point.source === "mouse") {
+      mouseSampleCount += 1;
+      return undefined;
+    }
     const timestamp = point.timestamp ?? Date.now();
     const normalizedPoint = { ...point, timestamp };
     let transition: "lost" | "restored" | undefined;
@@ -97,9 +104,10 @@ export function createGazeMetricsTracker() {
   function snapshot(): GazeMetricsSnapshot {
     return {
       totalGazeSamples,
+      mouseSampleCount,
       validGazeSamples,
       invalidGazeSamples,
-      validGazeRatio: totalGazeSamples ? validGazeSamples / totalGazeSamples : 1,
+      validGazeRatio: totalGazeSamples ? validGazeSamples / totalGazeSamples : undefined,
       lostGazeEvents,
       restoredGazeEvents,
       rawPathLength,

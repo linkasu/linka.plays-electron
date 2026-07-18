@@ -124,17 +124,15 @@ function finishIfNeeded(sideJustMoved: CheckersLightPieceSide) {
   return true;
 }
 
-function applyMove(move: CheckersLightMove, actor: CheckersLightPieceSide, source: Record<string, unknown> = {}) {
+function applyMove(move: CheckersLightMove, actor: CheckersLightPieceSide) {
   const result = applyCheckersLightMove(gameState.value, move.fromIndex, move.toIndex);
   if (!result || Array.isArray(result)) return false;
   gameState.value = result.state;
   lastMove.value = move;
   lastCapturedIndex.value = move.capturedIndex;
-  const target = targetId(move.toIndex);
   if (actor === "gold") {
+    const target = targetId(move.toIndex);
     recordSuccess({ targetId: target, side: actor, fromIndex: move.fromIndex, toIndex: move.toIndex, capture: move.capture, king: board.value[move.toIndex]?.king, isCorrect: true });
-  } else {
-    recordEvent("target-click", { targetId: target, side: actor, fromIndex: move.fromIndex, toIndex: move.toIndex, capture: move.capture, ...source });
   }
 
   if (result.mustContinue) {
@@ -175,7 +173,7 @@ async function applyAiTurn() {
     finishIfNeeded("gold");
     return;
   }
-  applyMove(aiChoice.move, "blue", aiChoice.source);
+  applyMove(aiChoice.move, "blue");
   if (gameState.value.turn === "blue" && gameState.value.status === "playing") scheduleAiMove(350);
 }
 

@@ -195,7 +195,6 @@ function handlePlayerShot(index: number) {
 
   playerShots.value = result.shots;
   lastPlayerShot.value = index;
-  recordEvent("target-click", { targetId: cellTargetId(index), coordinate: coordinateLabel(index), result: result.result });
 
   if (result.result === "miss") {
     recordMistake({ coordinate: coordinateLabel(index), result: "miss", isCorrect: false });

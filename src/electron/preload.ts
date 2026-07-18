@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
+import type { RendererSessionSummaryInput, RendererTelemetryEventInput } from "./telemetry/types";
 
 type Dispose = () => void;
 
@@ -59,6 +60,7 @@ contextBridge.exposeInMainWorld("linkaUpdater", {
   }
 });
 
-contextBridge.exposeInMainWorld("linkaDiagnostics", {
-  upload: (payload: unknown) => ipcRenderer.invoke("diagnostics:upload", payload)
+contextBridge.exposeInMainWorld("linkaMetrics", {
+  recordEvent: (event: RendererTelemetryEventInput) => ipcRenderer.send("metrics:event", event),
+  recordSessionSummary: (summary: RendererSessionSummaryInput) => ipcRenderer.send("metrics:session-summary", summary)
 });

@@ -1,4 +1,5 @@
 import { readonly, ref } from "vue";
+import { recordMetricsEvent } from "./telemetry";
 
 export const DEFAULT_DWELL_MS = 750;
 export const MIN_DWELL_MS = 500;
@@ -35,16 +36,20 @@ const dwellMs = ref(loadedDwellMs.value);
 const explicitDwellMs = ref(loadedDwellMs.explicit);
 
 export function setDwellMs(value: unknown) {
-  dwellMs.value = normalizeDwellMs(value);
+  const nextDwellMs = normalizeDwellMs(value);
+  const changed = dwellMs.value !== nextDwellMs;
+  dwellMs.value = nextDwellMs;
   explicitDwellMs.value = true;
   try {
     persistDwellMs(dwellMs.value, window.localStorage);
   } catch {
     // The setting remains active for this run when storage is unavailable.
   }
+  if (changed) recordMetricsEvent({ eventName: "settings_changed", properties: { settingKey: "dwell_ms", number: dwellMs.value } });
 }
 
 export function clearDwellMsOverride() {
+  const changed = dwellMs.value !== DEFAULT_DWELL_MS;
   dwellMs.value = DEFAULT_DWELL_MS;
   explicitDwellMs.value = false;
   try {
@@ -52,6 +57,7 @@ export function clearDwellMsOverride() {
   } catch {
     // Per-game defaults remain active when storage is unavailable.
   }
+  if (changed) recordMetricsEvent({ eventName: "settings_changed", properties: { settingKey: "dwell_ms", number: dwellMs.value } });
 }
 
 export function resolveDwellMs(fallback = DEFAULT_DWELL_MS) {

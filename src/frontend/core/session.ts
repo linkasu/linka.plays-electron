@@ -1,18 +1,22 @@
 import { computed, onUnmounted, provide, reactive, ref, watch, type InjectionKey } from "vue";
 import { useGazePointer } from "../composables/useGazePointer";
 import { createGazeMetricsTracker } from "./gaze";
+import { createGameSessionSummary, projectSessionEvent, type SessionTelemetryContext } from "./sessionTelemetry";
 import type { SessionSettings } from "./settings";
 import { createDefaultSettings, recommendNextSettings } from "./settings";
+import { recordMetricsEvent, recordMetricsSummary } from "./telemetry";
 
 export type SessionStatus = "idle" | "running" | "paused" | "finished";
 
 export type SessionFinishReason = "max-steps" | "timeout" | "too-many-mistakes" | "manual" | "game-complete" | "game-lost" | "game-draw";
+export type SessionInterruptionReason = "route-leave" | "window-close" | "app-quit" | "update-restart" | "renderer-crash";
 
 export type SessionEventType =
   | "session-start"
   | "session-pause"
   | "session-resume"
   | "session-finish"
+  | "session-interrupt"
   | "level-start"
   | "target-enter"
   | "target-cancel"
@@ -41,6 +45,7 @@ export type GameSessionState = {
   pausedAt?: number;
   pausedMs: number;
   finishReason?: SessionFinishReason;
+  interruptionReason?: SessionInterruptionReason;
   status: SessionStatus;
   step: number;
   maxSteps: number;
@@ -57,12 +62,14 @@ export type GameSessionTelemetry = {
 
 export const gameSessionTelemetryKey: InjectionKey<GameSessionTelemetry> = Symbol("game-session-telemetry");
 
-export function useGameSession(gameId: string, initialSettings: Partial<SessionSettings> = {}, options: { finishOnMaxSteps?: boolean; finishOnMistakes?: boolean; finishOnTimeout?: boolean } = {}) {
+export function useGameSession(gameId: string, initialSettings: Partial<SessionSettings> = {}, options: { finishOnMaxSteps?: boolean; finishOnMistakes?: boolean; finishOnTimeout?: boolean; telemetryContext?: SessionTelemetryContext } = {}) {
   const settings = createDefaultSettings(initialSettings);
   const { pointer } = useGazePointer();
   const gazeTracker = createGazeMetricsTracker();
+  const telemetryContext = options.telemetryContext ?? { targetKind: "interactive" };
+  const reportedSummaries = new Set<string>();
   const session = reactive<GameSessionState>({
-    sessionId: `${gameId}-${Date.now()}`,
+    sessionId: crypto.randomUUID(),
     gameId,
     startedAt: 0,
     pausedMs: 0,
@@ -98,7 +105,7 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
   const metrics = computed(() => {
     const gaze = gazeTracker.snapshot();
     const targetCancels = session.events.filter((event) => event.type === "target-cancel" && event.payload?.reason !== "disabled").length;
-    const dwellEvents = session.events.filter((event) => event.type === "target-click");
+    const dwellEvents = session.events.filter((event) => event.type === "target-click" && pointerSource(event.payload) === "tobii");
     const dwellMs = dwellEvents
      .map((event) => Number(event.payload?.elapsedMs ?? event.payload?.dwellMs))
      .filter((value) => Number.isFinite(value));
@@ -117,6 +124,7 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
       hintsUsed: session.hintsUsed,
       validGazeRatio: gaze.validGazeRatio,
       totalGazeSamples: gaze.totalGazeSamples,
+      mouseSampleCount: gaze.mouseSampleCount,
       validGazeSamples: gaze.validGazeSamples,
       invalidGazeSamples: gaze.invalidGazeSamples,
       rawPathLength: gaze.rawPathLength,
@@ -132,23 +140,28 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
   const recommendation = computed(() => recommendNextSettings(metrics.value));
 
   function recordEvent(type: SessionEventType, payload?: Record<string, unknown>) {
-    session.events.push({
+    const event: SessionEvent = {
       id: `${type}-${session.events.length}-${Date.now()}`,
       sessionId: session.sessionId,
       gameId,
       type,
       at: Date.now(),
       payload
-    });
+    };
+    session.events.push(event);
+    const projected = projectSessionEvent(event, telemetryContext, pointer.value.source, session.step);
+    if (projected) recordMetricsEvent(projected);
   }
 
   function startSession() {
-    session.sessionId = `${gameId}-${Date.now()}`;
+    if (session.status === "running" || session.status === "paused") finishSession("manual");
+    session.sessionId = crypto.randomUUID();
     session.startedAt = Date.now();
     session.finishedAt = undefined;
     session.pausedAt = undefined;
     session.pausedMs = 0;
     session.finishReason = undefined;
+    session.interruptionReason = undefined;
     session.status = "running";
     session.step = 0;
     session.score = 0;
@@ -186,6 +199,21 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
     session.finishedAt = now;
     session.finishReason = reason;
     recordEvent("session-finish", { reason, durationMs: activeDurationMs(now), pausedMs: session.pausedMs });
+    emitSessionSummary();
+  }
+
+  function interruptSession(reason: SessionInterruptionReason = "route-leave") {
+    if (session.status === "finished") return;
+    const now = Date.now();
+    if (session.status === "paused" && session.pausedAt) {
+      session.pausedMs += now - session.pausedAt;
+      session.pausedAt = undefined;
+    }
+    session.status = "finished";
+    session.finishedAt = now;
+    session.interruptionReason = reason;
+    recordEvent("session-interrupt", { reason });
+    emitSessionSummary();
   }
 
   function recordSuccess(payload: Record<string, unknown> = {}) {
@@ -208,6 +236,37 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
     recordEvent("hint", payload);
   }
 
+  function emitSessionSummary() {
+    if (!session.startedAt || !session.finishedAt || reportedSummaries.has(session.sessionId)) return;
+    reportedSummaries.add(session.sessionId);
+    const snapshot = metrics.value;
+    recordMetricsSummary(createGameSessionSummary({
+      sessionId: session.sessionId,
+      gameId,
+      startedAt: session.startedAt,
+      endedAt: session.finishedAt,
+      durationMs: snapshot.durationMs,
+      pausedMs: snapshot.pausedMs,
+      mode: telemetryContext.mode,
+      category: telemetryContext.category,
+      finishReason: session.finishReason,
+      interruptionReason: session.interruptionReason,
+      stepsCompleted: snapshot.stepsCompleted,
+      maxSteps: snapshot.maxSteps,
+      successCount: snapshot.successes,
+      mistakeCount: snapshot.mistakes,
+      hintCount: snapshot.hintsUsed,
+      targetCancelCount: snapshot.targetCancels,
+      gazeLostCount: snapshot.gazeLostCount,
+      difficultyChanges: snapshot.difficultyChanges,
+      gazeSampleCount: snapshot.totalGazeSamples,
+      mouseSampleCount: snapshot.mouseSampleCount,
+      validGazeRatio: snapshot.validGazeRatio,
+      meanDwellMs: snapshot.meanDwellMs,
+      configuredDwellMs: session.settings.dwellMs
+    }));
+  }
+
   startSession();
 
   watch(pointer, (nextPointer) => {
@@ -220,6 +279,7 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
   provide(gameSessionTelemetryKey, { recordEvent });
 
   onUnmounted(() => {
+    if (session.status === "running" || session.status === "paused") interruptSession("route-leave");
     window.clearInterval(timer);
   });
 
@@ -233,8 +293,16 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
     pauseSession,
     resumeSession,
     finishSession,
+    interruptSession,
     recordSuccess,
     recordMistake,
     recordHint
   };
+}
+
+function pointerSource(payload?: Record<string, unknown>) {
+  const pointer = payload?.pointer;
+  if (!pointer || typeof pointer !== "object") return undefined;
+  const source = (pointer as { source?: unknown }).source;
+  return source === "tobii" || source === "mouse" ? source : undefined;
 }

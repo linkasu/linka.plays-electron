@@ -1,5 +1,6 @@
 import { games } from "../data/games";
 import { resolveDwellMs } from "../core/dwellSettings";
+import { resolveMenuMode } from "../core/menuMode";
 import { useGameSession } from "../core/session";
 import type { SessionSettings } from "../core/settings";
 
@@ -30,10 +31,16 @@ export function createInitialSessionSettings(gameId: string, options: UseGameSes
 
 export function useGameSessionFor(gameId: string, options: UseGameSessionForOptions = {}) {
   const initial = createInitialSessionSettings(gameId, options);
+  const info = games.find((game) => game.id === gameId);
 
   return useGameSession(gameId, initial, {
     finishOnMaxSteps: options.finishOnMaxSteps,
     finishOnMistakes: options.finishOnMistakes,
-    finishOnTimeout: options.finishOnTimeout
+    finishOnTimeout: options.finishOnTimeout,
+    telemetryContext: {
+      mode: resolveMenuMode(),
+      category: info?.category,
+      targetKind: info?.category === "continuous-control" ? "control" : "interactive"
+    }
   });
 }
