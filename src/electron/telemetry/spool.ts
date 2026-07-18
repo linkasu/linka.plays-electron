@@ -112,6 +112,13 @@ export class FileTelemetrySpool {
     });
   }
 
+  clear() {
+    return this.exclusive(async () => {
+      await rm(this.directory, { recursive: true, force: true });
+      this.totalBytes = 0;
+    });
+  }
+
   private exclusive<T>(task: () => Promise<T>): Promise<T> {
     const result = this.operation.then(task, task);
     this.operation = result.then(() => undefined, () => undefined);

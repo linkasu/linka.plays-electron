@@ -49,12 +49,17 @@ type TelemetryOptions = {
 export class MetricsTelemetry {
   readonly appSessionId = randomUUID();
   private readonly spool: FileTelemetrySpool;
+  private readonly telemetryDirectory: string;
   private readonly identityPath: string;
-  private readonly appStartedAt = Date.now();
+  private appStartedAt = 0;
   private identity?: InstallationIdentity;
   private initialized = false;
+  private collectionEnabled = true;
   private flushTimer?: NodeJS.Timeout;
+  private flushPromise?: Promise<void>;
+  private pendingFlushDelay?: number;
   private flushInProgress = false;
+  private requestController?: AbortController;
   private retryAttempt = 0;
   private batchRecordLimit = 500;
   private appForeground = true;
@@ -69,22 +74,30 @@ export class MetricsTelemetry {
   private lastUpdaterState?: string;
 
   constructor(private readonly options: TelemetryOptions) {
-    const telemetryDirectory = join(options.userDataPath, "telemetry-v1");
-    this.spool = new FileTelemetrySpool(join(telemetryDirectory, "spool"));
-    this.identityPath = join(telemetryDirectory, "installation.json");
+    this.telemetryDirectory = join(options.userDataPath, "telemetry-v1");
+    this.spool = new FileTelemetrySpool(join(this.telemetryDirectory, "spool"));
+    this.identityPath = join(this.telemetryDirectory, "installation.json");
   }
 
   async initialize() {
-    if (!this.options.enabled) return;
+    if (!this.options.enabled || !this.collectionEnabled || this.initialized) return;
     await this.spool.initialize();
+    if (!this.collectionEnabled) return;
     this.identity = await this.loadIdentity();
-    await this.recordInternalEvent("app_started", {});
+    if (!this.collectionEnabled) return;
+    this.appStartedAt = Date.now();
     this.initialized = true;
+    try {
+      await this.recordInternalEvent("app_started", {});
+    } catch (error) {
+      this.initialized = false;
+      throw error;
+    }
     this.requestFlush(0);
   }
 
   recordRendererEvent(input: unknown) {
-    if (!this.options.enabled || this.shuttingDown) return false;
+    if (!this.acceptsEvents()) return false;
     const sanitized = sanitizeRendererTelemetryEvent(input);
     if (!sanitized) return false;
     if (sanitized.game_session_id && this.summarizedSessions.has(sanitized.game_session_id)) return true;
@@ -94,10 +107,11 @@ export class MetricsTelemetry {
   }
 
   recordRendererSummary(input: unknown) {
-    if (!this.options.enabled || this.shuttingDown) return false;
+    if (!this.acceptsEvents()) return false;
     const sanitized = sanitizeRendererSessionSummary(input);
     if (!sanitized || this.summarizedSessions.has(sanitized.gameSessionId)) return Boolean(sanitized);
     const finalization = this.sessionFinalization.then(async () => {
+      if (!this.acceptsEvents()) return;
       if (this.summarizedSessions.has(sanitized.gameSessionId)) return;
       await this.enqueueSummary(toStoredGameSummary(sanitized, this.appSessionId, this.options.appMetadata));
       this.markSummarized(sanitized.gameSessionId);
@@ -109,18 +123,18 @@ export class MetricsTelemetry {
   }
 
   async recordInternalEvent(eventName: TelemetryEventName, properties: Record<string, unknown>, gameSessionId?: string) {
-    if (!this.options.enabled) return;
+    if (!this.acceptsEvents()) return;
     await this.enqueueEvent(eventName, properties, gameSessionId);
   }
 
   recordUpdaterState(state: "idle" | "checking" | "available" | "downloading" | "downloaded" | "installing" | "error", version?: string) {
-    if (!this.options.enabled || this.lastUpdaterState === state) return;
+    if (!this.acceptsEvents() || this.lastUpdaterState === state) return;
     this.lastUpdaterState = state;
     void this.recordInternalEvent("updater_state_changed", { state, ...(version ? { version: safeValue(version) } : {}) }).catch(() => undefined);
   }
 
   setAppForeground(foreground: boolean) {
-    if (!this.options.enabled || foreground === this.appForeground || this.shuttingDown) return;
+    if (!this.acceptsEvents() || foreground === this.appForeground) return;
     const now = Date.now();
     this.appForeground = foreground;
     if (foreground) {
@@ -134,14 +148,14 @@ export class MetricsTelemetry {
   }
 
   recordError(component: string, error: unknown) {
-    if (!this.options.enabled) return;
+    if (!this.acceptsEvents()) return;
     const constructorName = normalizeErrorConstructor(error);
     const fingerprint = `sha256:${createHash("sha256").update(`${component}:${constructorName}`).digest("hex")}`;
     void this.recordInternalEvent("error", { fingerprint, component: safeValue(component) }).catch(() => undefined);
   }
 
   interruptActiveSessions(reason: "route-leave" | "window-close" | "app-quit" | "update-restart" | "renderer-crash") {
-    if (!this.options.enabled) return Promise.resolve();
+    if (!this.isActive()) return Promise.resolve();
     const finalization = this.sessionFinalization.then(() => this.finalizeActiveSessions(reason));
     this.sessionFinalization = finalization.then(() => undefined, () => undefined);
     return finalization;
@@ -162,11 +176,29 @@ export class MetricsTelemetry {
   }
 
   shutdown(reason: "app-quit" | "update-restart") {
-    if (!this.options.enabled) return Promise.resolve();
+    if (!this.isActive()) return Promise.resolve();
     if (this.shutdownPromise) return this.shutdownPromise;
     this.shuttingDown = true;
+    this.requestController?.abort();
     this.shutdownPromise = this.finishShutdown(reason);
     return this.shutdownPromise;
+  }
+
+  async disableAndClear() {
+    this.collectionEnabled = false;
+    this.initialized = false;
+    this.shuttingDown = true;
+    if (this.flushTimer) clearTimeout(this.flushTimer);
+    this.flushTimer = undefined;
+    this.pendingFlushDelay = undefined;
+    this.requestController?.abort();
+    this.activeSessions.clear();
+    this.summarizedSessions.clear();
+    this.identity = undefined;
+    await this.sessionFinalization.catch(() => undefined);
+    await this.flushPromise?.catch(() => undefined);
+    await this.spool.clear();
+    await rm(this.telemetryDirectory, { recursive: true, force: true });
   }
 
   private async finishShutdown(reason: "app-quit" | "update-restart") {
@@ -219,32 +251,49 @@ export class MetricsTelemetry {
   }
 
   private requestFlush(delay: number) {
-    if (!this.options.enabled || !this.initialized || this.shuttingDown || this.flushTimer) return;
+    if (!this.acceptsEvents()) return;
+    if (this.flushPromise) {
+      this.pendingFlushDelay = this.pendingFlushDelay === undefined ? delay : Math.min(this.pendingFlushDelay, delay);
+      return;
+    }
+    if (this.flushTimer) return;
     this.flushTimer = setTimeout(() => {
       this.flushTimer = undefined;
-      void this.flush();
+      const flush = this.flush();
+      this.flushPromise = flush;
+      void flush.finally(() => {
+        if (this.flushPromise !== flush) return;
+        this.flushPromise = undefined;
+        const nextDelay = this.pendingFlushDelay;
+        this.pendingFlushDelay = undefined;
+        if (nextDelay !== undefined) this.requestFlush(nextDelay);
+      });
     }, delay);
     this.flushTimer.unref();
   }
 
   private async flush() {
-    if (this.flushInProgress || this.shuttingDown) return;
+    if (this.flushInProgress || !this.acceptsEvents()) return;
     this.flushInProgress = true;
     try {
       if (!this.identity) this.identity = await this.registerInstallation();
+      if (!this.acceptsEvents()) return;
       const batch = await this.spool.getBatch(this.identity.installationId, this.batchRecordLimit);
+      if (!this.acceptsEvents()) return;
       if (!batch) {
         await this.enqueueDroppedNotice();
         this.retryAttempt = 0;
         return;
       }
-      const response = await fetch(endpointURL(this.options.endpoint, "/v1/events"), {
+      const response = await this.requestWithTimeout(endpointURL(this.options.endpoint, "/v1/events"), {
         method: "POST",
         headers: { "content-type": "application/json", authorization: `Bearer ${this.identity.token}` },
-        body: batch.body,
-        signal: AbortSignal.timeout(15_000)
+        body: batch.body
+      }, async (result) => {
+        await result.arrayBuffer();
+        return { ok: result.ok, status: result.status };
       });
-      await response.body?.cancel();
+      if (!this.acceptsEvents()) return;
       if (identityRejectionStatuses.has(response.status)) {
         this.identity = undefined;
         await rm(this.identityPath, { force: true });
@@ -276,22 +325,41 @@ export class MetricsTelemetry {
   }
 
   private async registerInstallation() {
-    const response = await fetch(endpointURL(this.options.endpoint, "/v1/installations"), {
+    const response = await this.requestWithTimeout(endpointURL(this.options.endpoint, "/v1/installations"), {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: "{}",
-      signal: AbortSignal.timeout(15_000)
+      body: "{}"
+    }, async (result) => {
+      if (!result.ok) {
+        await result.arrayBuffer();
+        throw new Error("installation registration rejected");
+      }
+      return result.json() as Promise<{ installation_id?: unknown; token?: unknown }>;
     });
-    if (!response.ok) {
-      await response.body?.cancel();
-      throw new Error("installation registration rejected");
-    }
-    const body = await response.json() as { installation_id?: unknown; token?: unknown };
-    if (!isUUID(body.installation_id) || typeof body.token !== "string" || body.token.length < 32 || body.token.length > 1024) throw new Error("invalid installation registration");
-    const identity = { installationId: body.installation_id, token: body.token };
+    if (!this.acceptsEvents()) throw new Error("telemetry disabled");
+    if (!isUUID(response.installation_id) || typeof response.token !== "string" || response.token.length < 32 || response.token.length > 1024) throw new Error("invalid installation registration");
+    const identity = { installationId: response.installation_id, token: response.token };
     await this.saveIdentity(identity);
     await this.enqueueEvent("installation_created", {});
     return identity;
+  }
+
+  private async requestWithTimeout<Result>(input: string, init: RequestInit, consume: (response: Response) => Promise<Result>) {
+    const controller = new AbortController();
+    this.requestController = controller;
+    const timeout = setTimeout(() => controller.abort(), 15_000);
+    timeout.unref();
+    const aborted = new Promise<never>((_resolve, reject) => {
+      controller.signal.addEventListener("abort", () => reject(abortError()), { once: true });
+    });
+    const operation = (async () => consume(await fetch(input, { ...init, signal: controller.signal })))();
+    void operation.catch(() => undefined);
+    try {
+      return await Promise.race([operation, aborted]);
+    } finally {
+      clearTimeout(timeout);
+      if (this.requestController === controller) this.requestController = undefined;
+    }
   }
 
   private async enqueueDroppedNotice() {
@@ -418,9 +486,8 @@ export class MetricsTelemetry {
   }
 
   private async saveIdentity(identity: InstallationIdentity) {
-    const telemetryDirectory = join(this.options.userDataPath, "telemetry-v1");
-    await mkdir(telemetryDirectory, { recursive: true, mode: 0o700 });
-    await chmod(telemetryDirectory, 0o700);
+    await mkdir(this.telemetryDirectory, { recursive: true, mode: 0o700 });
+    await chmod(this.telemetryDirectory, 0o700);
     let protectedToken = safeStorage.isEncryptionAvailable();
     let token = identity.token;
     if (protectedToken) {
@@ -442,6 +509,18 @@ export class MetricsTelemetry {
     await rename(temporary, this.identityPath);
     await chmod(this.identityPath, 0o600);
   }
+
+  private isActive() {
+    return this.options.enabled && this.collectionEnabled && this.initialized;
+  }
+
+  private acceptsEvents() {
+    return this.isActive() && !this.shuttingDown;
+  }
+}
+
+export function clearMetricsTelemetryData(userDataPath: string) {
+  return rm(join(userDataPath, "telemetry-v1"), { recursive: true, force: true });
 }
 
 export function createMetricsTelemetry() {
@@ -493,4 +572,10 @@ function optionalString(value: unknown) {
 
 function oneOf<T extends string>(value: string, ...allowed: T[]): value is T {
   return allowed.includes(value as T);
+}
+
+function abortError() {
+  const error = new Error("telemetry request aborted");
+  error.name = "AbortError";
+  return error;
 }

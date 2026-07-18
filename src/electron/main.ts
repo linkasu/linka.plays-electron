@@ -1,18 +1,25 @@
 import { BackWatch } from "@linkasu/tobii-electron/main";
 import { app, BrowserWindow, ipcMain, shell } from "electron";
-import { join } from "path";
+import { isAbsolute, join } from "path";
 import { registerConnectFourAiHandlers } from "./connectFourAi";
-import { createMetricsTelemetry, type MetricsTelemetry } from "./telemetry";
+import { registerPrivacyIpcHandlers } from "./privacyIpc";
+import { clearMetricsTelemetryData, createMetricsTelemetry, type MetricsTelemetry } from "./telemetry";
+import { shouldStartTelemetry } from "./telemetry/policy";
+import { TelemetryPrivacyController } from "./telemetry/privacyController";
+import { TelemetryPrivacyPreferenceStore } from "./telemetry/privacyPreference";
 import { registerUpdaterHandlers, setupAutoUpdater } from "./updater";
 
 let mainWindow: BrowserWindow | undefined;
 let noTobiiHandlersRegistered = false;
-let metrics: MetricsTelemetry | undefined;
+let privacyController: TelemetryPrivacyController<MetricsTelemetry> | undefined;
 let quitReason: "app-quit" | "update-restart" = "app-quit";
 let quitPreparing = false;
 let quitPrepared = false;
 const devSession = process.env.LINKA_DEV_SESSION;
-if (devSession) {
+const smokeUserDataPath = process.env.LINKA_PRIVACY_SMOKE === "1" ? process.env.LINKA_TEST_USER_DATA_PATH : undefined;
+if (smokeUserDataPath && isAbsolute(smokeUserDataPath)) {
+  app.setPath("userData", smokeUserDataPath);
+} else if (devSession) {
   app.setPath("userData", join(app.getPath("userData"), devSession));
 }
 const hasSingleInstanceLock = app.requestSingleInstanceLock();
@@ -21,19 +28,27 @@ if (!hasSingleInstanceLock) app.quit();
 
 app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required");
 registerConnectFourAiHandlers();
+registerPrivacyIpcHandlers({
+  getTelemetryPreference: () => privacyController?.getPreference() ?? "unknown",
+  setTelemetryPreference: (preference) => {
+    if (!privacyController) throw new Error("privacy controller is not ready");
+    return privacyController.setPreference(preference);
+  }
+});
 registerUpdaterHandlers({
-  onState: (state, version) => metrics?.recordUpdaterState(state, version),
+  onState: (state, version) => privacyController?.telemetry?.recordUpdaterState(state, version),
   onRestart: async () => {
     quitReason = "update-restart";
-    await metrics?.shutdown(quitReason);
+    await privacyController?.closeGate();
+    await privacyController?.telemetry?.shutdown(quitReason);
     quitPrepared = true;
   }
 });
 ipcMain.on("metrics:event", (_event, input: unknown) => {
-  metrics?.recordRendererEvent(input);
+  privacyController?.telemetry?.recordRendererEvent(input);
 });
 ipcMain.on("metrics:session-summary", (_event, input: unknown) => {
-  metrics?.recordRendererSummary(input);
+  privacyController?.telemetry?.recordRendererSummary(input);
 });
 
 function disabledTobiiStatus() {
@@ -102,13 +117,13 @@ async function createWindow() {
     mainWindow = undefined;
   });
   win.on("close", () => {
-    if (!quitPreparing && !quitPrepared) void metrics?.interruptActiveSessions("window-close").catch(() => undefined);
+    if (!quitPreparing && !quitPrepared) void privacyController?.telemetry?.interruptActiveSessions("window-close").catch(() => undefined);
   });
-  win.on("focus", () => metrics?.setAppForeground(true));
-  win.on("blur", () => metrics?.setAppForeground(false));
+  win.on("focus", () => privacyController?.telemetry?.setAppForeground(true));
+  win.on("blur", () => privacyController?.telemetry?.setAppForeground(false));
   win.webContents.on("render-process-gone", () => {
-    metrics?.recordError("renderer.crash", { constructor: { name: "RendererProcessGone" } });
-    void metrics?.interruptActiveSessions("renderer-crash").catch(() => undefined);
+    privacyController?.telemetry?.recordError("renderer.crash", { constructor: { name: "RendererProcessGone" } });
+    void privacyController?.telemetry?.interruptActiveSessions("renderer-crash").catch(() => undefined);
   });
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (url === "https://plays-metric.nkolinka.ru/privacy") void shell.openExternal(url);
@@ -131,16 +146,22 @@ async function createWindow() {
 
 app.whenReady().then(async () => {
   if (!hasSingleInstanceLock) return;
-  metrics = createMetricsTelemetry();
-  await metrics.initialize().catch(() => undefined);
+  const userDataPath = app.getPath("userData");
+  privacyController = new TelemetryPrivacyController({
+    store: new TelemetryPrivacyPreferenceStore(userDataPath),
+    canStartTelemetry: () => shouldStartTelemetry(app.isPackaged, "enabled"),
+    createTelemetry: createMetricsTelemetry,
+    clearTelemetryData: () => clearMetricsTelemetryData(userDataPath)
+  });
+  await privacyController.initialize().catch((error) => console.warn("[privacy] failed to initialize", error));
   await createWindow();
 });
 
 process.on("uncaughtExceptionMonitor", (error) => {
-  metrics?.recordError("electron.main", error);
+  privacyController?.telemetry?.recordError("electron.main", error);
 });
 process.on("unhandledRejection", (reason) => {
-  metrics?.recordError("electron.promise", reason);
+  privacyController?.telemetry?.recordError("electron.promise", reason);
 });
 
 app.on("activate", () => {
@@ -159,11 +180,11 @@ app.on("window-all-closed", () => {
 });
 
 app.on("before-quit", (event) => {
-  if (!metrics || quitPrepared) return;
+  if (quitPrepared) return;
   event.preventDefault();
   if (quitPreparing) return;
   quitPreparing = true;
-  void metrics.shutdown(quitReason).catch(() => undefined).finally(() => {
+  void Promise.resolve(privacyController?.closeGate()).then(() => privacyController?.telemetry?.shutdown(quitReason)).catch(() => undefined).finally(() => {
     quitPrepared = true;
     app.quit();
   });

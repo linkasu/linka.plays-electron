@@ -112,6 +112,8 @@ declare global {
   type MetricsFinishReason = "max-steps" | "timeout" | "too-many-mistakes" | "manual" | "game-complete" | "game-lost" | "game-draw";
   type MetricsInterruptionReason = "route-leave" | "window-close" | "app-quit" | "update-restart" | "renderer-crash";
   type MetricsResult = "completed" | "incomplete" | "lost" | "draw" | "interrupted";
+  type TelemetryPrivacyPreference = "unknown" | "enabled" | "disabled";
+  type TelemetryPrivacyDecision = Exclude<TelemetryPrivacyPreference, "unknown">;
 
   type MetricsSessionSummary = {
     gameSessionId: string;
@@ -224,6 +226,10 @@ declare global {
     linkaMetrics?: {
       recordEvent: (event: MetricsEvent) => void;
       recordSessionSummary: (summary: MetricsSessionSummary) => void;
+    };
+    linkaPrivacy?: {
+      getTelemetryPreference: () => Promise<TelemetryPrivacyPreference>;
+      setTelemetryPreference: (preference: TelemetryPrivacyDecision) => Promise<TelemetryPrivacyPreference>;
     };
     linkaAi?: {
       connectFourBestMove: (payload: { board: string; player?: "R" | "Y"; depth?: number; timeLimitMs?: number; threads?: number }) => Promise<ConnectFourAiResult>;

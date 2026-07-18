@@ -1,6 +1,6 @@
 {
   "name": "linka.plays-electron",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "private": true,
   "description": "LINKa plays MVP on Electron, Vue and Canvas",
   "main": "dist-electron/main.js",
@@ -21,6 +21,7 @@
     "preview": "vite preview",
     "test:unit": "vitest run",
     "smoke:packaged-resources": "node scripts/ci/packaged-resources-smoke.js",
+    "smoke:packaged-privacy": "node scripts/ci/packaged-privacy-smoke.js",
     "smoke:packaged-window": "node scripts/ci/packaged-window-smoke.js",
     "smoke:renderer-assets": "node scripts/ci/renderer-assets-smoke.mjs",
     "audit:readiness": "node scripts/game-readiness-audit.mjs",

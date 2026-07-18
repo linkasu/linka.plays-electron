@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../components/game/GameDwellButton.vue";
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
@@ -8,29 +8,47 @@ import { rememberMenuMode, type MenuMode } from "../core/menuMode";
 
 const router = useRouter();
 const { dwellMs } = useDwellSettings();
-const privacyPolicyVersion = "2026-07-18-v1";
-const privacyStorageKey = "linka-metrics-privacy-version";
-const privacyDialog = ref(readAcceptedPolicyVersion() !== privacyPolicyVersion);
+const telemetryPreference = ref<TelemetryPrivacyPreference>("unknown");
+const privacyDialog = ref(true);
+const privacyLoading = ref(true);
+const privacySaving = ref(false);
+const privacyError = ref("");
+const privacyRequired = computed(() => privacyLoading.value || telemetryPreference.value === "unknown");
+const privacyStatusLabel = computed(() => telemetryPreference.value === "enabled" ? "Аналитика включена" : telemetryPreference.value === "disabled" ? "Аналитика отключена" : "Настроить аналитику");
 
-function readAcceptedPolicyVersion() {
-  try {
-    return window.localStorage.getItem(privacyStorageKey);
-  } catch {
-    return null;
+onMounted(async () => {
+  if (!window.linkaPrivacy) {
+    telemetryPreference.value = "disabled";
+    privacyLoading.value = false;
+    privacyDialog.value = false;
+    return;
   }
-}
+  try {
+    telemetryPreference.value = await window.linkaPrivacy.getTelemetryPreference();
+    privacyDialog.value = telemetryPreference.value === "unknown";
+  } catch {
+    privacyError.value = "Не удалось прочитать настройку. Аналитика не будет включена без вашего выбора.";
+  } finally {
+    privacyLoading.value = false;
+  }
+});
 
-function continueWithMetrics() {
+async function chooseTelemetryPreference(preference: TelemetryPrivacyDecision) {
+  if (!window.linkaPrivacy || privacySaving.value) return;
+  privacySaving.value = true;
+  privacyError.value = "";
   try {
-    window.localStorage.setItem(privacyStorageKey, privacyPolicyVersion);
+    telemetryPreference.value = await window.linkaPrivacy.setTelemetryPreference(preference);
+    privacyDialog.value = false;
   } catch {
-    // The notice will be shown again if local storage is unavailable.
+    privacyError.value = "Не удалось сохранить настройку. Попробуйте ещё раз.";
+  } finally {
+    privacySaving.value = false;
   }
-  privacyDialog.value = false;
 }
 
 function openMode(mode: MenuMode) {
-  if (privacyDialog.value) return;
+  if (privacyRequired.value) return;
   rememberMenuMode(mode);
   router.push(mode === "self" ? "/menu/self" : "/menu/specialist");
 }
@@ -52,7 +70,7 @@ function openMode(mode: MenuMode) {
 
           <v-row class="mb-5" align="stretch">
             <v-col cols="12" sm="6">
-              <v-card class="mode-card h-100 pa-5 d-flex flex-column" color="surface" :disabled="privacyDialog" min-height="clamp(14rem, 36dvh, 22rem)" rounded="xl" variant="tonal" @click="openMode('specialist')">
+              <v-card class="mode-card h-100 pa-5 d-flex flex-column" color="surface" :disabled="privacyRequired" min-height="clamp(14rem, 36dvh, 22rem)" rounded="xl" variant="tonal" @click="openMode('specialist')">
                 <v-avatar class="mb-5" color="primary" size="72">
                   <v-icon icon="mdi-clipboard-text-outline" size="40" />
                 </v-avatar>
@@ -67,7 +85,7 @@ function openMode(mode: MenuMode) {
             </v-col>
 
             <v-col cols="12" sm="6">
-              <GameDwellButton target-id="start-self" :disabled="privacyDialog" :dwell-ms="dwellMs" min-height="clamp(14rem, 36dvh, 22rem)" color="secondary" @select="openMode('self')">
+              <GameDwellButton target-id="start-self" :disabled="privacyRequired" :dwell-ms="dwellMs" min-height="clamp(14rem, 36dvh, 22rem)" color="secondary" @select="openMode('self')">
                 <template #default>
                   <div class="d-flex flex-column align-start h-100 text-white">
                     <v-avatar class="mb-5" color="secondary" size="72" variant="flat">
@@ -93,6 +111,9 @@ function openMode(mode: MenuMode) {
             <v-btn color="primary" prepend-icon="mdi-crosshairs-gps" size="large" to="/gaze-debug" variant="tonal">
               Debug взгляда
             </v-btn>
+            <v-btn prepend-icon="mdi-shield-check-outline" variant="tonal" @click="privacyDialog = true">
+              {{ privacyStatusLabel }}
+            </v-btn>
             <v-btn href="https://plays-metric.nkolinka.ru/privacy" rel="noopener noreferrer" target="_blank" variant="text">
               Политика аналитики
             </v-btn>
@@ -101,21 +122,25 @@ function openMode(mode: MenuMode) {
       </v-col>
     </v-row>
 
-    <v-dialog :model-value="privacyDialog" max-width="min(44rem, 94vw)" persistent>
+    <v-dialog v-model="privacyDialog" max-width="min(44rem, 94vw)" :persistent="privacyRequired" scrollable>
       <v-card class="pa-2 pa-sm-4" rounded="xl">
-        <v-card-title class="text-h5 text-sm-h4 font-weight-bold text-wrap">Обезличенная аналитика</v-card-title>
+        <v-card-title class="text-h5 text-sm-h4 font-weight-bold text-wrap">Помогите улучшать LINKa plays</v-card-title>
         <v-card-text class="text-body-1">
-          <p class="mb-4">В LINKa plays всегда включена обезличенная аналитика. Она помогает оценивать стабильность приложения и игровых сессий.</p>
+          <p class="mb-4">Выберите, разрешаете ли вы обезличенную аналитику. До выбора приложение ничего не собирает и не отправляет. Настройку можно изменить здесь позже.</p>
           <v-list bg-color="transparent" density="compact">
             <v-list-item lines="two" prepend-icon="mdi-chart-box-outline" title="Что передаётся" subtitle="Версия приложения и ОС, экраны и режим, настройки dwell, состояния Tobii и обновления, агрегированные результаты и длительность сессий." />
             <v-list-item lines="three" prepend-icon="mdi-shield-lock-outline" title="Что не передаётся" subtitle="Имена и контакты, тексты и фразы, ответы, координаты взгляда или указателя, идентификаторы целей, игровые доски, пути файлов, сообщения и стеки ошибок." />
             <v-list-item lines="two" prepend-icon="mdi-database-clock-outline" title="Хранение" subtitle="Данные хранятся бессрочно, автоматическое удаление и удаление по запросу не предусмотрены." />
+            <v-list-item lines="two" prepend-icon="mdi-delete-sweep-outline" title="Если отключить" subtitle="Сбор и отправка прекратятся, а локальная очередь и идентификатор установки будут удалены." />
           </v-list>
           <a href="https://plays-metric.nkolinka.ru/privacy" rel="noopener noreferrer" target="_blank">Полная политика аналитики</a>
+          <v-alert v-if="privacyError" class="mt-4" type="error" variant="tonal">{{ privacyError }}</v-alert>
         </v-card-text>
-        <v-card-actions class="pa-4 pt-0">
+        <v-card-actions class="pa-4 pt-0 flex-wrap ga-2">
+          <v-btn v-if="!privacyRequired" :disabled="privacySaving" size="large" variant="text" @click="privacyDialog = false">Отмена</v-btn>
           <v-spacer />
-          <v-btn color="primary" size="large" @click="continueWithMetrics">Продолжить</v-btn>
+          <v-btn :disabled="privacyLoading" :loading="privacySaving" size="large" variant="tonal" @click="chooseTelemetryPreference('disabled')">Не отправлять</v-btn>
+          <v-btn color="primary" :disabled="privacyLoading" :loading="privacySaving" size="large" @click="chooseTelemetryPreference('enabled')">Включить аналитику</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

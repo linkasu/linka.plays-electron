@@ -14,7 +14,46 @@ permissions:
   contents: write
 
 jobs:
+  release-version:
+    runs-on: ubuntu-latest
+    outputs:
+      release_tag: ${{ steps.gate.outputs.release_tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Require package.json release version
+        id: gate
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
+        run: |
+          set -euo pipefail
+          release_tag="$(node scripts/ci/release-version-gate.js "$RELEASE_VERSION")"
+          echo "release_tag=$release_tag" >> "$GITHUB_OUTPUT"
+
+  verify:
+    needs: release-version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Use HTTPS for public GitHub dependencies
+        run: |
+          git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
+          git config --global url."https://github.com/".insteadOf "git@github.com:"
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run test:unit
+      - run: npm run lint:adaptive-layout
+
   build:
+    needs: verify
     strategy:
       fail-fast: false
       max-parallel: 1
@@ -44,51 +83,69 @@ jobs:
 
       - run: npm ci
 
-      - run: npm run typecheck
-
-      - run: npm run lint:adaptive-layout
-
-      - name: Build and publish
+      - name: Build package
         shell: bash
         run: |
           set -euo pipefail
-          release_tag="${GITHUB_REF_NAME}"
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            release_tag="${{ inputs.version }}"
-          fi
-          if [[ "$release_tag" != v* ]]; then
-            release_tag="v$release_tag"
-          fi
-
           npm run build:native
           npm run build
           npx electron-builder ${{ matrix.target }} -p never
 
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            npm run smoke:packaged-window -- --screenshot-dir release-debug/screenshots --output release-debug/packaged-window-smoke.json --log release-debug/app.log
-          fi
+      - name: Packaged privacy smoke
+        run: npm run smoke:packaged-privacy -- --output release-debug/packaged-privacy-smoke.json --log release-debug/packaged-privacy-smoke.log
 
-          gh release view "$release_tag" >/dev/null 2>&1 || gh release create "$release_tag" --title "$release_tag" --notes ""
-          for artifact in release/*; do
-            if [ -f "$artifact" ]; then
-              if [ "$(basename "$artifact")" = "builder-debug.yml" ]; then
-                continue
-              fi
-              gh release upload "$release_tag" "$artifact" --clobber
-            fi
-          done
+      - name: Packaged renderer smoke
+        if: runner.os == 'Windows'
+        run: npm run smoke:packaged-window -- --screenshot-dir release-debug/screenshots --output release-debug/packaged-window-smoke.json --log release-debug/app.log
 
-      - name: Upload Windows packaged renderer debug
-        if: always() && runner.os == 'Windows'
+      - name: Upload tested packages
         uses: actions/upload-artifact@v4
         with:
-          name: windows-packaged-renderer-debug-${{ github.run_id }}
+          name: ${{ runner.os }}-packages-${{ github.run_id }}
+          path: |
+            release/*.exe
+            release/*.dmg
+            release/*.zip
+            release/*.yml
+            release/*.blockmap
+          if-no-files-found: error
+
+      - name: Upload packaged smoke debug
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}-packaged-smoke-debug-${{ github.run_id }}
           path: release-debug/**/*
           if-no-files-found: ignore
 
+  publish:
+    needs: [release-version, build]
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: "*-packages-${{ github.run_id }}"
+          path: release
+          merge-multiple: true
+
+      - name: Publish tested artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          release_tag="${{ needs.release-version.outputs.release_tag }}"
+
+          gh release view "$release_tag" >/dev/null 2>&1 || gh release create "$release_tag" --title "$release_tag" --notes ""
+          for artifact in release/*; do
+            test -f "$artifact"
+            gh release upload "$release_tag" "$artifact" --clobber
+          done
+
   publish-updater-mirror:
-    needs: build
+    needs: [release-version, publish]
     uses: ./.github/workflows/publish-linka-plays-updater.yml
     secrets: inherit
     with:
-      version: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
+      version: ${{ needs.release-version.outputs.release_tag }}

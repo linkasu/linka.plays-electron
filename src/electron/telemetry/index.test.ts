@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { mkdtemp, rm } from "fs/promises";
+import { mkdtemp, rm, stat } from "fs/promises";
 import { tmpdir } from "os";
 import { join } from "path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -38,7 +38,9 @@ async function readRecords(userDataPath: string) {
 
 describe("MetricsTelemetry lifecycle", () => {
   it("serializes renderer summary before interruption finalization", async () => {
+    vi.useFakeTimers();
     const { telemetry, userDataPath } = await createTelemetry();
+    await telemetry.initialize();
     const gameSessionId = randomUUID();
     telemetry.recordRendererEvent({
       eventName: "game_session_started",
@@ -65,7 +67,9 @@ describe("MetricsTelemetry lifecycle", () => {
   });
 
   it("shares one shutdown and writes one app summary", async () => {
+    vi.useFakeTimers();
     const { telemetry, userDataPath } = await createTelemetry();
+    await telemetry.initialize();
 
     const first = telemetry.shutdown("app-quit");
     const second = telemetry.shutdown("update-restart");
@@ -86,6 +90,90 @@ describe("MetricsTelemetry lifecycle", () => {
     const records = await readRecords(userDataPath);
     expect(records.filter((record) => record.kind === "summary" && "session_type" in record.payload && record.payload.session_type === "app")).toHaveLength(1);
     expect(records.filter((record) => record.kind === "event" && "event_name" in record.payload && record.payload.event_name === "app_closed")).toHaveLength(1);
+  });
+
+  it("does not create telemetry storage before initialization", async () => {
+    const { telemetry, userDataPath } = await createTelemetry();
+
+    expect(telemetry.recordRendererEvent({ eventName: "page_viewed", properties: { page: "start" } })).toBe(false);
+    await expect(stat(join(userDataPath, "telemetry-v1"))).rejects.toMatchObject({ code: "ENOENT" });
+  });
+
+  it("stops collection and clears queued data when disabled", async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    const { telemetry, userDataPath } = await createTelemetry();
+    await telemetry.initialize();
+    telemetry.recordRendererEvent({ eventName: "page_viewed", properties: { page: "start" } });
+
+    await telemetry.disableAndClear();
+
+    expect(telemetry.recordRendererEvent({ eventName: "page_viewed", properties: { page: "start" } })).toBe(false);
+    expect(fetchMock).not.toHaveBeenCalled();
+    await expect(stat(join(userDataPath, "telemetry-v1"))).rejects.toMatchObject({ code: "ENOENT" });
+  });
+
+  it("aborts a request whose response body hangs when telemetry is disabled", async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi.fn(async () => hangingRegistrationResponse());
+    vi.stubGlobal("fetch", fetchMock);
+    const { telemetry, userDataPath } = await createTelemetry();
+    await telemetry.initialize();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(fetchMock).toHaveBeenCalledOnce();
+
+    await expect(telemetry.disableAndClear()).resolves.toBeUndefined();
+
+    await expect(stat(join(userDataPath, "telemetry-v1"))).rejects.toMatchObject({ code: "ENOENT" });
+  });
+
+  it("does not wait for a hanging events response body when disabled", async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi.fn(async (input: string | URL | Request) => {
+      if (String(input).endsWith("/v1/installations")) {
+        return new Response(JSON.stringify({ installation_id: randomUUID(), token: "a".repeat(64) }), {
+          status: 201,
+          headers: { "content-type": "application/json" }
+        });
+      }
+      return hangingEventsResponse();
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const { telemetry } = await createTelemetry();
+    await telemetry.initialize();
+    await vi.advanceTimersByTimeAsync(0);
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+
+    await expect(telemetry.disableAndClear()).resolves.toBeUndefined();
+  });
+
+  it("aborts a hanging response body and completes shutdown", async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi.fn(async () => hangingRegistrationResponse());
+    vi.stubGlobal("fetch", fetchMock);
+    const { telemetry } = await createTelemetry();
+    await telemetry.initialize();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const flush = (telemetry as unknown as { flushPromise?: Promise<void> }).flushPromise;
+
+    await expect(telemetry.shutdown("app-quit")).resolves.toBeUndefined();
+    await expect(flush).resolves.toBeUndefined();
+  });
+
+  it("keeps the HTTP timeout active while reading the response body", async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi.fn(async () => hangingRegistrationResponse());
+    vi.stubGlobal("fetch", fetchMock);
+    const { telemetry } = await createTelemetry();
+    await telemetry.initialize();
+    await vi.advanceTimersByTimeAsync(0);
+    const flush = (telemetry as unknown as { flushPromise?: Promise<void> }).flushPromise;
+    expect(flush).toBeDefined();
+
+    await vi.advanceTimersByTimeAsync(15_000);
+    await expect(flush).resolves.toBeUndefined();
   });
 
   it.each([400, 413, 422])("isolates one invalid record after HTTP %s and continues delivery", async (rejectionStatus) => {
@@ -125,3 +213,19 @@ describe("MetricsTelemetry lifecycle", () => {
     await telemetry.shutdown("app-quit");
   });
 });
+
+function hangingRegistrationResponse() {
+  return {
+    ok: true,
+    status: 201,
+    json: () => new Promise<never>(() => undefined)
+  } as unknown as Response;
+}
+
+function hangingEventsResponse() {
+  return {
+    ok: true,
+    status: 202,
+    arrayBuffer: () => new Promise<never>(() => undefined)
+  } as unknown as Response;
+}

@@ -4,9 +4,9 @@
 
 Клиент отправляет batch в `POST /v1/events` по контракту `linka.plays-metric/internal/contract/v1`. Максимум одного batch: 500 записей и 512 KiB. Endpoint по умолчанию: `https://plays-metric.nkolinka.ru`; для стенда используется `LINKA_METRICS_URL`.
 
-Телеметрия включена только в packaged-приложении. Dev, CDP и unit tests по умолчанию не создают сетевых запросов. Явный `LINKA_METRICS_FORCE=1` предназначен только для E2E проверки packaged-потока.
+Телеметрия может работать только в packaged-приложении и только при persisted privacy preference `Enabled`. При `Unknown` telemetry runtime не создаётся; legacy-каталог `telemetry-v1` от `0.1.17` удаляется без чтения и отправки до первого opt-in. При `Disabled` локальный `telemetry-v1` также удаляется. Dev, CDP и unit tests по умолчанию не создают сетевых запросов. Явный `LINKA_METRICS_FORCE=1` разрешает E2E-поток в dev, но не заменяет явный выбор `Enabled`.
 
-Electron main:
+Electron main после `Enabled`:
 
 - регистрирует случайную installation и хранит выданный token через Electron `safeStorage`;
 - при недоступном `safeStorage` использует локальный файл с правами `0600` в каталоге `0700`;
@@ -15,6 +15,7 @@ Electron main:
 - сохраняет записи до сети в атомарном сегментированном spool под `userData/telemetry-v1`;
 - не допускает второй production-процесс с тем же `userData`, чтобы записи spool не обрабатывались конкурентно;
 - повторяет временные ошибки с exponential backoff и jitter;
+- держит timeout/abort активным до полного чтения HTTP response body, чтобы disable и quit не ожидали зависший ответ;
 - при validation-ответе `400/413/422` уменьшает batch до одной записи, удаляет только подтверждённо несовместимую запись и отражает потерю через `queue_dropped`.
 
 Spool ограничен 200 MiB. При переполнении сначала удаляются старые low-priority action events, session summaries сохраняются максимально долго. Потери позднее отражаются событием `queue_dropped`.
