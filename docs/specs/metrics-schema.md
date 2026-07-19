@@ -1,24 +1,26 @@
-# Клиентская телеметрия v1
+# Клиентская телеметрия v2
 
 ## Граница контракта
 
-Клиент отправляет batch в `POST /v1/events` по контракту `linka.plays-metric/internal/contract/v1`. Максимум одного batch: 500 записей и 512 KiB. Endpoint по умолчанию: `https://plays-metric.nkolinka.ru`; для стенда используется `LINKA_METRICS_URL`.
+Клиент получает pairwise installation key и короткоживущий Metrics JWT через public broker `https://api.identity.linka.su`, затем отправляет stream-specific batch в `POST https://metrics.nkolinka.ru/v2/batches`. Для стенда используются `LINKA_IDENTITY_URL` и `LINKA_METRICS_URL`. Максимум одного batch: 500 записей и 512 KiB.
 
 Телеметрия может работать только в packaged-приложении и только при persisted privacy preference `Enabled`. При `Unknown` telemetry runtime не создаётся; legacy-каталог `telemetry-v1` от `0.1.17` удаляется без чтения и отправки до первого opt-in. При `Disabled` локальный `telemetry-v1` также удаляется. Dev, CDP и unit tests по умолчанию не создают сетевых запросов. Явный `LINKA_METRICS_FORCE=1` разрешает E2E-поток в dev, но не заменяет явный выбор `Enabled`.
 
 Electron main после `Enabled`:
 
-- регистрирует случайную installation и хранит выданный token через Electron `safeStorage`;
+- регистрирует installation только после opt-in по policy `2026-07-19-v3`, не передавая device ID или свободные metadata;
+- хранит audience-separated refresh capability через Electron `safeStorage` и обновляет короткоживущий Metrics JWT;
 - при недоступном `safeStorage` использует локальный файл с правами `0600` в каталоге `0700`;
 - создаёт UUID app session, event UUID, timestamps и app metadata;
 - проверяет renderer input строгим sanitizer, включая allowlist route, game ID и error component;
 - сохраняет записи до сети в атомарном сегментированном spool под `userData/telemetry-v1`;
 - не допускает второй production-процесс с тем же `userData`, чтобы записи spool не обрабатывались конкурентно;
-- повторяет временные ошибки с exponential backoff и jitter;
+- сохраняет точное тело активного batch, его UUID и `Idempotency-Key`, поэтому response-loss retry является exact replay даже после перезапуска;
+- разделяет записи на `common`, `technical` и `plays` batches и повторяет временные ошибки с exponential backoff и jitter;
 - держит timeout/abort активным до полного чтения HTTP response body, чтобы disable и quit не ожидали зависший ответ;
-- при validation-ответе `400/413/422` уменьшает batch до одной записи, удаляет только подтверждённо несовместимую запись и отражает потерю через `queue_dropped`.
+- при `413` уменьшает batch, но не удаляет запись по неоднозначному server response; `400/409/422` и некорректный success ACK сохраняют exact batch для диагностики и безопасного повтора.
 
-Spool ограничен 200 MiB. При переполнении сначала удаляются старые low-priority action events, session summaries сохраняются максимально долго. Потери позднее отражаются событием `queue_dropped`.
+Spool ограничен 200 MiB и 30-дневным окном backend. При переполнении сначала удаляются старые low-priority action events, session summaries сохраняются максимально долго. Потери позднее отражаются событием `queue_dropped`.
 
 ## Session summary
 

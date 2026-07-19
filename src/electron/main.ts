@@ -151,7 +151,7 @@ app.whenReady().then(async () => {
     store: new TelemetryPrivacyPreferenceStore(userDataPath),
     canStartTelemetry: () => shouldStartTelemetry(app.isPackaged, "enabled"),
     createTelemetry: createMetricsTelemetry,
-    clearTelemetryData: () => clearMetricsTelemetryData(userDataPath)
+    clearTelemetryData: (preference) => clearMetricsTelemetryData(userDataPath, preference)
   });
   await privacyController.initialize().catch((error) => console.warn("[privacy] failed to initialize", error));
   await createWindow();

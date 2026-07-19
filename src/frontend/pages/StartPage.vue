@@ -130,8 +130,8 @@ function openMode(mode: MenuMode) {
           <v-list bg-color="transparent" density="compact">
             <v-list-item lines="two" prepend-icon="mdi-chart-box-outline" title="Что передаётся" subtitle="Версия приложения и ОС, экраны и режим, настройки dwell, состояния Tobii и обновления, агрегированные результаты и длительность сессий." />
             <v-list-item lines="three" prepend-icon="mdi-shield-lock-outline" title="Что не передаётся" subtitle="Имена и контакты, тексты и фразы, ответы, координаты взгляда или указателя, идентификаторы целей, игровые доски, пути файлов, сообщения и стеки ошибок." />
-            <v-list-item lines="two" prepend-icon="mdi-database-clock-outline" title="Хранение" subtitle="Данные хранятся бессрочно, автоматическое удаление и удаление по запросу не предусмотрены." />
-            <v-list-item lines="two" prepend-icon="mdi-delete-sweep-outline" title="Если отключить" subtitle="Сбор и отправка прекратятся, а локальная очередь и идентификатор установки будут удалены." />
+            <v-list-item lines="two" prepend-icon="mdi-database-clock-outline" title="Хранение" subtitle="До отключения принятые обезличенные данные хранятся без автоматического срока удаления." />
+            <v-list-item lines="three" prepend-icon="mdi-delete-sweep-outline" title="Если отключить" subtitle="Сбор и отправка прекратятся, локальная очередь будет удалена, а сервер заблокирует новые события и поставит ранее принятые данные на удаление." />
           </v-list>
           <a href="https://plays-metric.nkolinka.ru/privacy" rel="noopener noreferrer" target="_blank">Полная политика аналитики</a>
           <v-alert v-if="privacyError" class="mt-4" type="error" variant="tonal">{{ privacyError }}</v-alert>

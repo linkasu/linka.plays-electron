@@ -2,23 +2,33 @@ import { randomUUID } from "crypto";
 import { chmod, mkdir, open, readFile, readdir, rename, rm, stat } from "fs/promises";
 import { join } from "path";
 import type { SpoolRecord, StoredSessionSummary, StoredTelemetryEvent } from "./types";
+import { projectV2Record, type MetricsStream } from "./v2";
 
 const recordSuffix = ".record.json";
 const pendingDropsFile = "pending-drops.json";
-type DropReason = "capacity" | "invalid";
+const activeBatchFile = "active-batch.json";
+const maximumBatchAgeMs = 7 * 24 * 60 * 60 * 1000;
+const maximumRecordAgeMs = 30 * 24 * 60 * 60 * 1000;
+type DropReason = "capacity" | "expired" | "invalid";
 type PendingDrops = Record<DropReason, number>;
 
 export type TelemetryBatch = {
-  schema_version: 1;
-  events: Array<StoredTelemetryEvent & { installation_id: string }>;
-  session_summaries?: Array<StoredSessionSummary & { installation_id: string }>;
+  schema_version: 2;
+  batch_id: string;
+  scope: { product: "linka-plays"; subject_key: string };
+  stream: MetricsStream;
+  sent_at: string;
+  records: Array<Record<string, unknown>>;
 };
 
 export type SpoolBatch = {
+  batchId: string;
   body: string;
   files: string[];
   recordCount: number;
 };
+
+type StoredBatch = SpoolBatch & { sentAt: string; subjectKey: string };
 
 export class FileTelemetrySpool {
   private operation = Promise.resolve();
@@ -48,47 +58,82 @@ export class FileTelemetrySpool {
     });
   }
 
-  getBatch(installationId: string, maxRecords = 500, maxBytes = 512 * 1024) {
+  getBatch(subjectKey: string, maxRecords = 500, maxBytes = 512 * 1024) {
     return this.exclusive(async (): Promise<SpoolBatch | undefined> => {
+      const active = await this.readActiveBatch(subjectKey);
+      if (active) return active;
       const files = (await readdir(this.directory)).filter((name) => name.endsWith(recordSuffix)).sort();
       const selected: string[] = [];
-      const events: TelemetryBatch["events"] = [];
-      const summaries: NonNullable<TelemetryBatch["session_summaries"]> = [];
+      const records: TelemetryBatch["records"] = [];
+      const dropped: PendingDrops = { capacity: 0, expired: 0, invalid: 0 };
+      const batchId = randomUUID();
+      const sentAt = new Date().toISOString();
+      let stream: MetricsStream | undefined;
 
       for (const fileName of files) {
         if (selected.length >= maxRecords) break;
         const record = await this.readRecord(fileName);
         if (!record) continue;
-        const nextEvents = record.kind === "event" ? [...events, { ...(record.payload as StoredTelemetryEvent), installation_id: installationId }] : events;
-        const nextSummaries = record.kind === "summary" ? [...summaries, { ...(record.payload as StoredSessionSummary), installation_id: installationId }] : summaries;
-        const body = JSON.stringify({ schema_version: 1, events: nextEvents, ...(nextSummaries.length ? { session_summaries: nextSummaries } : {}) });
-        if (Buffer.byteLength(body, "utf8") > maxBytes) break;
+        const occurredAt = record.kind === "event" ? (record.payload as StoredTelemetryEvent).occurred_at : (record.payload as StoredSessionSummary).ended_at;
+        if (!Number.isFinite(Date.parse(occurredAt)) || Date.parse(occurredAt) < Date.now() - maximumRecordAgeMs) {
+          await this.removeFiles([fileName]);
+          dropped.expired += 1;
+          continue;
+        }
+        const projected = projectV2Record(record);
+        if (!projected) {
+          await this.removeFiles([fileName]);
+          dropped.invalid += 1;
+          continue;
+        }
+        if (stream && projected.stream !== stream) continue;
+        stream = projected.stream;
+        const nextRecords = [...records, projected.value];
+        const body = JSON.stringify(createBatch(batchId, subjectKey, stream, sentAt, nextRecords));
+        if (Buffer.byteLength(body, "utf8") > maxBytes) {
+          if (records.length > 0) break;
+          await this.removeFiles([fileName]);
+          dropped.invalid += 1;
+          continue;
+        }
         selected.push(fileName);
-        if (record.kind === "event") events.push(nextEvents.at(-1)!);
-        else summaries.push(nextSummaries.at(-1)!);
+        records.push(projected.value);
       }
 
+      for (const reason of ["expired", "invalid"] as const) {
+        if (dropped[reason] > 0) await this.addPendingDrops(reason, dropped[reason]);
+      }
       if (selected.length === 0) return undefined;
-      const batch: TelemetryBatch = { schema_version: 1, events, ...(summaries.length ? { session_summaries: summaries } : {}) };
-      return { body: JSON.stringify(batch), files: selected, recordCount: selected.length };
+      const body = JSON.stringify(createBatch(batchId, subjectKey, stream!, sentAt, records));
+      const batch: StoredBatch = { batchId, body, files: selected, recordCount: selected.length, sentAt, subjectKey };
+      await this.atomicWrite(activeBatchFile, JSON.stringify(batch));
+      return { batchId, body, files: selected, recordCount: selected.length };
     });
   }
 
   acknowledge(files: string[]) {
-    return this.exclusive(() => this.removeFiles(files));
+    return this.exclusive(async () => {
+      await this.removeFiles(files);
+      await rm(join(this.directory, activeBatchFile), { force: true });
+    });
   }
 
   discard(files: string[], reason: DropReason) {
     return this.exclusive(async () => {
       await this.removeFiles(files);
+      await rm(join(this.directory, activeBatchFile), { force: true });
       await this.addPendingDrops(reason, files.length);
     });
+  }
+
+  releaseBatch() {
+    return this.exclusive(() => rm(join(this.directory, activeBatchFile), { force: true }));
   }
 
   pendingDroppedCount() {
     return this.exclusive(async () => {
       const pending = await this.readPendingDrops();
-      return pending.capacity + pending.invalid;
+      return pending.capacity + pending.expired + pending.invalid;
     });
   }
 
@@ -173,15 +218,16 @@ export class FileTelemetrySpool {
       const parsed = JSON.parse(await readFile(join(this.directory, pendingDropsFile), "utf8")) as Partial<PendingDrops>;
       return {
         capacity: validCount(parsed.capacity),
+        expired: validCount(parsed.expired),
         invalid: validCount(parsed.invalid)
       };
     } catch {
-      return { capacity: 0, invalid: 0 };
+      return { capacity: 0, expired: 0, invalid: 0 };
     }
   }
 
   private async writePendingDrops(pending: PendingDrops) {
-    if (pending.capacity <= 0 && pending.invalid <= 0) {
+    if (pending.capacity <= 0 && pending.expired <= 0 && pending.invalid <= 0) {
       await rm(join(this.directory, pendingDropsFile), { force: true });
       return;
     }
@@ -224,6 +270,20 @@ export class FileTelemetrySpool {
     return sizes.reduce((sum, size) => sum + size, 0);
   }
 
+  private async readActiveBatch(subjectKey: string): Promise<SpoolBatch | undefined> {
+    try {
+      const batch = JSON.parse(await readFile(join(this.directory, activeBatchFile), "utf8")) as Partial<StoredBatch>;
+      if (!isUUID(batch.batchId) || typeof batch.body !== "string" || !Array.isArray(batch.files) || !batch.files.every((file) => typeof file === "string" && file.endsWith(recordSuffix)) || batch.recordCount !== batch.files.length || typeof batch.sentAt !== "string" || batch.subjectKey !== subjectKey) throw new Error("invalid active batch");
+      if (Date.parse(batch.sentAt) < Date.now() - maximumBatchAgeMs) throw new Error("expired active batch");
+      const existing = await Promise.all(batch.files.map(async (file) => this.fileSize(file)));
+      if (existing.some((size) => size === 0)) throw new Error("active batch record is missing");
+      return { batchId: batch.batchId, body: batch.body, files: batch.files, recordCount: batch.recordCount };
+    } catch {
+      await rm(join(this.directory, activeBatchFile), { force: true });
+      return undefined;
+    }
+  }
+
   private async fileSize(fileName: string) {
     try {
       return (await stat(join(this.directory, fileName))).size;
@@ -233,6 +293,14 @@ export class FileTelemetrySpool {
   }
 }
 
+function createBatch(batchId: string, subjectKey: string, stream: MetricsStream, sentAt: string, records: Array<Record<string, unknown>>): TelemetryBatch {
+  return { schema_version: 2, batch_id: batchId, scope: { product: "linka-plays", subject_key: subjectKey }, stream, sent_at: sentAt, records };
+}
+
 function validCount(value: unknown) {
   return typeof value === "number" && Number.isSafeInteger(value) && value > 0 ? value : 0;
+}
+
+function isUUID(value: unknown): value is string {
+  return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }

@@ -7,6 +7,7 @@ type PrivacyPreferenceStore = {
 
 type TelemetryRuntime = {
   initialize: () => Promise<void>;
+  stopCollection: () => void;
   disableAndClear: () => Promise<void>;
 };
 
@@ -14,7 +15,7 @@ type TelemetryPrivacyControllerOptions<Telemetry extends TelemetryRuntime> = {
   store: PrivacyPreferenceStore;
   canStartTelemetry: () => boolean;
   createTelemetry: () => Telemetry;
-  clearTelemetryData: () => Promise<void>;
+  clearTelemetryData: (preference: "unknown" | "disabled") => Promise<void>;
 };
 
 export class TelemetryPrivacyController<Telemetry extends TelemetryRuntime> {
@@ -39,7 +40,7 @@ export class TelemetryPrivacyController<Telemetry extends TelemetryRuntime> {
       if (this.preference === "enabled") {
         await this.startTelemetry();
       } else {
-        await this.options.clearTelemetryData();
+        await this.options.clearTelemetryData(this.preference);
       }
       return this.preference;
     });
@@ -51,18 +52,17 @@ export class TelemetryPrivacyController<Telemetry extends TelemetryRuntime> {
       if (preference === this.preference && preference === "enabled" && (this.currentTelemetry || !this.options.canStartTelemetry())) return preference;
 
       if (preference === "disabled") {
-        this.preference = preference;
         const telemetry = this.currentTelemetry;
+        telemetry?.stopCollection();
+        await this.options.store.write(preference);
+        this.preference = preference;
         this.currentTelemetry = undefined;
-        const cleanup = telemetry?.disableAndClear() ?? this.options.clearTelemetryData();
-        const [stored, cleaned] = await Promise.allSettled([this.options.store.write(preference), cleanup]);
-        if (cleaned.status === "rejected") throw cleaned.reason;
-        if (stored.status === "rejected") throw stored.reason;
+        await (telemetry?.disableAndClear() ?? this.options.clearTelemetryData("disabled")).catch(() => undefined);
         return preference;
       }
 
       // A 0.1.17 queue predates consent. It must never be delivered after the first opt-in.
-      await this.options.clearTelemetryData();
+      await this.options.clearTelemetryData("disabled");
       await this.options.store.write(preference);
       this.preference = preference;
       await this.startTelemetry();
@@ -83,7 +83,6 @@ export class TelemetryPrivacyController<Telemetry extends TelemetryRuntime> {
       await telemetry.initialize();
     } catch (error) {
       this.currentTelemetry = undefined;
-      await telemetry.disableAndClear().catch(() => undefined);
       throw error;
     }
   }

@@ -1,19 +1,20 @@
 import { createHash, randomUUID } from "crypto";
-import { app, safeStorage } from "electron";
-import { chmod, mkdir, open, readFile, rename, rm } from "fs/promises";
+import { app } from "electron";
+import { rm } from "fs/promises";
 import { release } from "os";
 import { join } from "path";
+import { PublicInstallationIdentityClient, TelemetryDeniedError, type TelemetryRequest } from "./identity";
 import { isTelemetryEnabled, retryDelayMs } from "./policy";
 import { sanitizeRendererSessionSummary, sanitizeRendererTelemetryEvent, toStoredGameSummary } from "./sanitizer";
 import { FileTelemetrySpool } from "./spool";
 import type { AppMetadata, SanitizedRendererEvent, StoredSessionSummary, StoredTelemetryEvent, TelemetryEventName } from "./types";
+import { shouldQueueV2Event } from "./v2";
 
-const defaultEndpoint = "https://plays-metric.nkolinka.ru";
+const defaultMetricsEndpoint = "https://metrics.nkolinka.ru";
+const defaultIdentityEndpoint = "https://api.identity.linka.su";
+const defaultPolicyVersion = "2026-07-19-v3";
 const lowPriorityEvents = new Set<TelemetryEventName>(["level_entered", "level_cancelled", "level_clicked", "target_entered", "target_cancelled", "target_clicked", "success", "mistake", "hint_used", "difficulty_changed"]);
-const identityRejectionStatuses = new Set([401, 403]);
-const invalidBatchStatuses = new Set([400, 413, 422]);
 
-type InstallationIdentity = { installationId: string; token: string };
 type ActiveGameSession = {
   id: string;
   gameId: string;
@@ -41,7 +42,9 @@ type ActiveGameSession = {
 
 type TelemetryOptions = {
   enabled: boolean;
-  endpoint: string;
+  metricsEndpoint: string;
+  identityEndpoint: string;
+  policyVersion: string;
   userDataPath: string;
   appMetadata: AppMetadata;
 };
@@ -50,9 +53,8 @@ export class MetricsTelemetry {
   readonly appSessionId = randomUUID();
   private readonly spool: FileTelemetrySpool;
   private readonly telemetryDirectory: string;
-  private readonly identityPath: string;
+  private readonly identityClient: PublicInstallationIdentityClient;
   private appStartedAt = 0;
-  private identity?: InstallationIdentity;
   private initialized = false;
   private collectionEnabled = true;
   private flushTimer?: NodeJS.Timeout;
@@ -76,14 +78,12 @@ export class MetricsTelemetry {
   constructor(private readonly options: TelemetryOptions) {
     this.telemetryDirectory = join(options.userDataPath, "telemetry-v1");
     this.spool = new FileTelemetrySpool(join(this.telemetryDirectory, "spool"));
-    this.identityPath = join(this.telemetryDirectory, "installation.json");
+    this.identityClient = new PublicInstallationIdentityClient({ directory: this.telemetryDirectory, endpoint: options.identityEndpoint, platform: options.appMetadata.platform, policyVersion: options.policyVersion });
   }
 
   async initialize() {
     if (!this.options.enabled || !this.collectionEnabled || this.initialized) return;
     await this.spool.initialize();
-    if (!this.collectionEnabled) return;
-    this.identity = await this.loadIdentity();
     if (!this.collectionEnabled) return;
     this.appStartedAt = Date.now();
     this.initialized = true;
@@ -102,7 +102,8 @@ export class MetricsTelemetry {
     if (!sanitized) return false;
     if (sanitized.game_session_id && this.summarizedSessions.has(sanitized.game_session_id)) return true;
     this.trackGameEvent(sanitized);
-    void this.enqueueEvent(sanitized.event_name, sanitized.properties, sanitized.game_session_id).catch(() => undefined);
+    if (sanitized.event_name === "target_cancelled" && sanitized.properties.reason === "disabled") return true;
+    void this.enqueueEvent(sanitized.event_name, this.enrichGameProperties(sanitized), sanitized.game_session_id).catch(() => undefined);
     return true;
   }
 
@@ -184,7 +185,7 @@ export class MetricsTelemetry {
     return this.shutdownPromise;
   }
 
-  async disableAndClear() {
+  stopCollection() {
     this.collectionEnabled = false;
     this.initialized = false;
     this.shuttingDown = true;
@@ -192,12 +193,17 @@ export class MetricsTelemetry {
     this.flushTimer = undefined;
     this.pendingFlushDelay = undefined;
     this.requestController?.abort();
+  }
+
+  async disableAndClear() {
+    this.stopCollection();
     this.activeSessions.clear();
     this.summarizedSessions.clear();
-    this.identity = undefined;
     await this.sessionFinalization.catch(() => undefined);
     await this.flushPromise?.catch(() => undefined);
     await this.spool.clear();
+    const denied = await this.identityClient.deny((input, init) => this.requestJSON(input, init)).catch(() => false);
+    if (!denied) throw new Error("telemetry denial was not delivered");
     await rm(this.telemetryDirectory, { recursive: true, force: true });
   }
 
@@ -207,25 +213,12 @@ export class MetricsTelemetry {
     await this.interruptActiveSessions(reason);
     await this.enqueueEvent("app_closed", {});
     const endedAt = Math.max(this.appStartedAt, Date.now());
-    await this.enqueueSummary({
-      session_id: this.appSessionId,
-      session_type: "app",
-      app_session_id: this.appSessionId,
-      started_at: new Date(this.appStartedAt).toISOString(),
-      ended_at: new Date(endedAt).toISOString(),
-      duration_ms: Math.min(604800000, Math.max(0, endedAt - this.appStartedAt - this.appPausedMs)),
-      paused_ms: this.appPausedMs || undefined,
-      finish_reason: reason,
-      success_count: 0,
-      mistake_count: 0,
-      hint_count: 0,
-      app: this.options.appMetadata
-    });
     if (this.flushTimer) clearTimeout(this.flushTimer);
     this.flushTimer = undefined;
   }
 
   private async enqueueEvent(eventName: TelemetryEventName, properties: Record<string, unknown>, gameSessionId?: string) {
+    if (!shouldQueueV2Event(eventName)) return;
     const payload: StoredTelemetryEvent = {
       event_id: randomUUID(),
       event_name: eventName,
@@ -276,47 +269,54 @@ export class MetricsTelemetry {
     if (this.flushInProgress || !this.acceptsEvents()) return;
     this.flushInProgress = true;
     try {
-      if (!this.identity) this.identity = await this.registerInstallation();
+      const identity = await this.identityClient.getAccess((input, init) => this.requestJSON(input, init));
       if (!this.acceptsEvents()) return;
-      const batch = await this.spool.getBatch(this.identity.installationId, this.batchRecordLimit);
+      const batch = await this.spool.getBatch(identity.installationKey, this.batchRecordLimit);
       if (!this.acceptsEvents()) return;
       if (!batch) {
         await this.enqueueDroppedNotice();
         this.retryAttempt = 0;
         return;
       }
-      const response = await this.requestWithTimeout(endpointURL(this.options.endpoint, "/v1/events"), {
+      const response = await this.requestWithTimeout(endpointURL(this.options.metricsEndpoint, "/v2/batches"), {
         method: "POST",
-        headers: { "content-type": "application/json", authorization: `Bearer ${this.identity.token}` },
+        headers: { "content-type": "application/json", authorization: `Bearer ${identity.accessToken!.token}`, "idempotency-key": batch.batchId },
         body: batch.body
       }, async (result) => {
-        await result.arrayBuffer();
-        return { ok: result.ok, status: result.status };
+        const body = await readJSON(result);
+        return { ok: result.ok, status: result.status, body };
       });
       if (!this.acceptsEvents()) return;
-      if (identityRejectionStatuses.has(response.status)) {
-        this.identity = undefined;
-        await rm(this.identityPath, { force: true });
-        throw new Error("installation identity rejected");
-      }
-      if (invalidBatchStatuses.has(response.status)) {
-        if (batch.recordCount > 1) {
-          this.batchRecordLimit = Math.max(1, Math.floor(batch.recordCount / 2));
-        } else {
-          await this.spool.discard(batch.files, "invalid");
-          this.batchRecordLimit = 500;
-        }
+      if (response.status === 401) {
+        await this.identityClient.invalidateAccess();
         this.retryAttempt = 0;
         this.requestFlush(0);
         return;
       }
-      if (!response.ok) throw new Error("metrics batch rejected");
+      if (response.status === 403 && isErrorCode(response.body, "telemetry_suppressed")) throw new TelemetryDeniedError();
+      if (response.status === 413) {
+        if (batch.recordCount > 1) {
+          this.batchRecordLimit = Math.max(1, Math.floor(batch.recordCount / 2));
+          await this.spool.releaseBatch();
+          this.retryAttempt = 0;
+          this.requestFlush(0);
+          return;
+        }
+        throw new Error("single-record metrics batch rejected as too large");
+      }
+      if (response.status !== 202 || !isBatchAcknowledgement(response.body, batch.batchId, batch.recordCount)) throw new Error("metrics batch rejected");
       await this.spool.acknowledge(batch.files);
       await this.enqueueDroppedNotice();
       this.batchRecordLimit = 500;
       this.retryAttempt = 0;
       this.requestFlush(0);
-    } catch {
+    } catch (error) {
+      if (error instanceof TelemetryDeniedError) {
+        this.collectionEnabled = false;
+        this.initialized = false;
+        await this.spool.clear();
+        return;
+      }
       this.requestFlush(retryDelayMs(this.retryAttempt));
       this.retryAttempt += 1;
     } finally {
@@ -324,24 +324,8 @@ export class MetricsTelemetry {
     }
   }
 
-  private async registerInstallation() {
-    const response = await this.requestWithTimeout(endpointURL(this.options.endpoint, "/v1/installations"), {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: "{}"
-    }, async (result) => {
-      if (!result.ok) {
-        await result.arrayBuffer();
-        throw new Error("installation registration rejected");
-      }
-      return result.json() as Promise<{ installation_id?: unknown; token?: unknown }>;
-    });
-    if (!this.acceptsEvents()) throw new Error("telemetry disabled");
-    if (!isUUID(response.installation_id) || typeof response.token !== "string" || response.token.length < 32 || response.token.length > 1024) throw new Error("invalid installation registration");
-    const identity = { installationId: response.installation_id, token: response.token };
-    await this.saveIdentity(identity);
-    await this.enqueueEvent("installation_created", {});
-    return identity;
+  private requestJSON(input: string, init: RequestInit) {
+    return this.requestWithTimeout(input, init, async (response) => ({ ok: response.ok, status: response.status, body: await readJSON(response) }));
   }
 
   private async requestWithTimeout<Result>(input: string, init: RequestInit, consume: (response: Response) => Promise<Result>) {
@@ -364,11 +348,14 @@ export class MetricsTelemetry {
 
   private async enqueueDroppedNotice() {
     const pending = await this.spool.pendingDroppedCounts();
-    for (const reason of ["capacity", "invalid"] as const) {
-      const count = pending[reason];
-      if (count <= 0) continue;
-      await this.enqueueEvent("queue_dropped", { dropped_count: count, reason });
-      await this.spool.clearPendingDroppedCount(reason, count);
+    for (const reason of ["capacity", "expired", "invalid"] as const) {
+      let remaining = pending[reason];
+      while (remaining > 0) {
+        const count = Math.min(1_000_000, remaining);
+        await this.enqueueEvent("queue_dropped", { dropped_count: count, reason });
+        await this.spool.clearPendingDroppedCount(reason, count);
+        remaining -= count;
+      }
     }
   }
 
@@ -433,6 +420,18 @@ export class MetricsTelemetry {
     }
   }
 
+  private enrichGameProperties(event: SanitizedRendererEvent) {
+    if (!event.game_session_id) return event.properties;
+    const session = this.activeSessions.get(event.game_session_id);
+    if (!session) return event.properties;
+    const methods = [...session.inputMethods];
+    return {
+      ...event.properties,
+      game_category: event.properties.game_category ?? session.category,
+      input_method: event.properties.input_method ?? (methods.length > 1 ? "mixed" : methods[0] ?? "unknown")
+    };
+  }
+
   private createSyntheticSummary(session: ActiveGameSession): StoredSessionSummary {
     const endedAt = Math.max(session.startedAtMs, session.endedAt ? Date.parse(session.endedAt) : Date.now());
     const pausedMs = session.pausedMs + (session.pausedAtMs ? Math.max(0, endedAt - session.pausedAtMs) : 0);
@@ -470,46 +469,6 @@ export class MetricsTelemetry {
     if (this.summarizedSessions.size > 1000) this.summarizedSessions.delete(this.summarizedSessions.values().next().value!);
   }
 
-  private async loadIdentity(): Promise<InstallationIdentity | undefined> {
-    try {
-      const stored = JSON.parse(await readFile(this.identityPath, "utf8")) as { installation_id?: unknown; token?: unknown; protected?: unknown };
-      if (!isUUID(stored.installation_id) || typeof stored.token !== "string") return undefined;
-      if (stored.protected === true) {
-        if (!safeStorage.isEncryptionAvailable()) return undefined;
-        return { installationId: stored.installation_id, token: safeStorage.decryptString(Buffer.from(stored.token, "base64")) };
-      }
-      if (stored.protected === false) return { installationId: stored.installation_id, token: stored.token };
-      return undefined;
-    } catch {
-      return undefined;
-    }
-  }
-
-  private async saveIdentity(identity: InstallationIdentity) {
-    await mkdir(this.telemetryDirectory, { recursive: true, mode: 0o700 });
-    await chmod(this.telemetryDirectory, 0o700);
-    let protectedToken = safeStorage.isEncryptionAvailable();
-    let token = identity.token;
-    if (protectedToken) {
-      try {
-        token = safeStorage.encryptString(identity.token).toString("base64");
-      } catch {
-        protectedToken = false;
-      }
-    }
-    const temporary = `${this.identityPath}.${randomUUID()}.tmp`;
-    const file = await open(temporary, "wx", 0o600);
-    try {
-      await file.writeFile(JSON.stringify({ installation_id: identity.installationId, token, protected: protectedToken }), "utf8");
-      await file.sync();
-    } finally {
-      await file.close();
-    }
-    await rm(this.identityPath, { force: true });
-    await rename(temporary, this.identityPath);
-    await chmod(this.identityPath, 0o600);
-  }
-
   private isActive() {
     return this.options.enabled && this.collectionEnabled && this.initialized;
   }
@@ -519,23 +478,34 @@ export class MetricsTelemetry {
   }
 }
 
-export function clearMetricsTelemetryData(userDataPath: string) {
-  return rm(join(userDataPath, "telemetry-v1"), { recursive: true, force: true });
+export async function clearMetricsTelemetryData(userDataPath: string, preference: "unknown" | "disabled" = "unknown") {
+  const directory = join(userDataPath, "telemetry-v1");
+  if (preference === "unknown") {
+    await rm(directory, { recursive: true, force: true });
+    return;
+  }
+  const identity = new PublicInstallationIdentityClient({ directory, endpoint: process.env.LINKA_IDENTITY_URL ?? defaultIdentityEndpoint, platform: currentPlatform(), policyVersion: defaultPolicyVersion });
+  await rm(join(directory, "spool"), { recursive: true, force: true });
+  const denied = await identity.deny(standaloneJSONRequest).catch(() => false);
+  if (!denied) throw new Error("telemetry denial was not delivered");
+  await rm(directory, { recursive: true, force: true });
 }
 
 export function createMetricsTelemetry() {
-  const platform: AppMetadata["platform"] = process.platform === "win32" ? "windows" : process.platform === "darwin" ? "macos" : "linux";
+  const platform = currentPlatform();
   const version = safeValue(app.getVersion());
   return new MetricsTelemetry({
     enabled: isTelemetryEnabled(app.isPackaged),
-    endpoint: process.env.LINKA_METRICS_URL ?? defaultEndpoint,
+    metricsEndpoint: process.env.LINKA_METRICS_URL ?? defaultMetricsEndpoint,
+    identityEndpoint: process.env.LINKA_IDENTITY_URL ?? defaultIdentityEndpoint,
+    policyVersion: defaultPolicyVersion,
     userDataPath: app.getPath("userData"),
     appMetadata: {
       version,
       build: version,
       platform,
       os_version: safeValue(release()),
-      locale: safeValue(app.getLocale())
+      locale: normalizeLocale(app.getLocale())
     }
   });
 }
@@ -562,10 +532,6 @@ function normalizeErrorConstructor(error: unknown) {
   return typeof error === "string" ? "String" : safeValue(typeof error);
 }
 
-function isUUID(value: unknown): value is string {
-  return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
-}
-
 function optionalString(value: unknown) {
   return typeof value === "string" && value ? value : undefined;
 }
@@ -579,3 +545,35 @@ function abortError() {
   error.name = "AbortError";
   return error;
 }
+
+function currentPlatform(): AppMetadata["platform"] {
+  return process.platform === "win32" ? "windows" : process.platform === "darwin" ? "macos" : "linux";
+}
+
+function normalizeLocale(locale: string) {
+  return locale === "ru" || locale === "ru-RU" || locale === "en" || locale === "en-US" ? locale : "other";
+}
+
+function isErrorCode(value: unknown, code: string) {
+  return typeof value === "object" && value !== null && "error" in value && (value as { error?: unknown }).error === code;
+}
+
+function isBatchAcknowledgement(value: unknown, batchId: string, recordCount: number) {
+  return typeof value === "object" && value !== null && "batch_id" in value && "accepted_records" in value && "replayed" in value &&
+    (value as { batch_id?: unknown }).batch_id === batchId && (value as { accepted_records?: unknown }).accepted_records === recordCount && typeof (value as { replayed?: unknown }).replayed === "boolean";
+}
+
+async function readJSON(response: Response) {
+  const text = await response.text();
+  if (!text) return undefined;
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    return undefined;
+  }
+}
+
+const standaloneJSONRequest: TelemetryRequest = async (input, init) => {
+  const response = await fetch(input, { ...init, signal: AbortSignal.timeout(15_000) });
+  return { ok: response.ok, status: response.status, body: await readJSON(response) };
+};
