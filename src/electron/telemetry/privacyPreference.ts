@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
-import { chmod, mkdir, open, readFile, rename, rm } from "fs/promises";
-import { join } from "path";
+import { chmod, mkdir, open, readFile, readdir, rename, rm } from "fs/promises";
+import { basename, join } from "path";
 
 export type TelemetryPrivacyPreference = "unknown" | "enabled" | "disabled";
 export type TelemetryPrivacyDecision = Exclude<TelemetryPrivacyPreference, "unknown">;
@@ -22,7 +22,7 @@ export class TelemetryPrivacyPreferenceStore {
 
   async read(): Promise<TelemetryPrivacyPreference> {
     try {
-      const stored = JSON.parse(await readFile(this.path, "utf8")) as { telemetry?: unknown };
+      const stored = JSON.parse(await readRecoverable(this.userDataPath, this.path)) as { telemetry?: unknown };
       return parseTelemetryPrivacyPreference(stored.telemetry);
     } catch {
       return "unknown";
@@ -39,8 +39,39 @@ export class TelemetryPrivacyPreferenceStore {
     } finally {
       await file.close();
     }
-    await rm(this.path, { force: true });
+    if (process.platform === "win32") await rm(this.path, { force: true });
     await rename(temporary, this.path);
     await chmod(this.path, 0o600);
+    try {
+      const directory = await open(this.userDataPath, "r");
+      try {
+        await directory.sync();
+      } finally {
+        await directory.close();
+      }
+    } catch {
+      // Directory fsync is unavailable on some supported filesystems.
+    }
+  }
+}
+
+async function readRecoverable(directory: string, destination: string) {
+  try {
+    return await readFile(destination, "utf8");
+  } catch (error) {
+    if (process.platform !== "win32") throw error;
+    const prefix = `${basename(destination)}.`;
+    const candidates = (await readdir(directory)).filter((name) => name.startsWith(prefix) && name.endsWith(".tmp")).sort().reverse();
+    for (const candidate of candidates) {
+      try {
+        const temporary = join(directory, candidate);
+        const contents = await readFile(temporary, "utf8");
+        await rename(temporary, destination);
+        return contents;
+      } catch {
+        // Try the next complete temporary file.
+      }
+    }
+    throw error;
   }
 }

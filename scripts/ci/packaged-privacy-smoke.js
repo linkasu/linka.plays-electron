@@ -112,21 +112,46 @@ async function evaluate(client, expression) {
 }
 
 async function startMetricsServer(requests) {
-  const installationId = randomUUID();
+  const installationKey = "a".repeat(64);
+  const refreshToken = `refresh.${"r".repeat(120)}`;
+  const accessToken = `access.${"a".repeat(120)}`;
   const server = createServer((request, response) => {
     const chunks = [];
     request.on("data", (chunk) => chunks.push(chunk));
     request.on("end", () => {
       const body = Buffer.concat(chunks).toString("utf8");
       requests.push({ method: request.method, path: request.url, body });
-      if (request.url === "/v1/installations") {
+      if (request.url === "/v1/public/installations") {
+        const registration = JSON.parse(body);
         response.writeHead(201, { "content-type": "application/json" });
-        response.end(JSON.stringify({ installation_id: installationId, token: "a".repeat(64) }));
+        response.end(JSON.stringify({
+          installation_key: installationKey,
+          product: "linka-plays",
+          platform: registration.platform,
+          preference: "allowed",
+          policy_version: registration.policy_version,
+          recorded_at: registration.recorded_at,
+          refresh_token: refreshToken,
+          refresh_expires_at: new Date(Date.now() + 86400000).toISOString(),
+          metrics_token: { access_token: accessToken, token_type: "Bearer", expires_at: new Date(Date.now() + 300000).toISOString() }
+        }));
         return;
       }
-      if (request.url === "/v1/events") {
-        response.writeHead(202, { "content-length": "0" });
-        response.end();
+      if (request.url === "/v1/public/installations/token") {
+        response.writeHead(200, { "content-type": "application/json" });
+        response.end(JSON.stringify({ installation_key: installationKey, product: "linka-plays", metrics_token: { access_token: accessToken, token_type: "Bearer", expires_at: new Date(Date.now() + 300000).toISOString() } }));
+        return;
+      }
+      if (request.url === "/v1/public/installations/telemetry-preference") {
+        const preference = JSON.parse(body);
+        response.writeHead(200, { "content-type": "application/json" });
+        response.end(JSON.stringify({ installation_key: installationKey, product: "linka-plays", preference: "denied", policy_version: preference.policy_version, recorded_at: preference.recorded_at }));
+        return;
+      }
+      if (request.url === "/v2/batches") {
+        const batch = JSON.parse(body);
+        response.writeHead(202, { "content-type": "application/json" });
+        response.end(JSON.stringify({ batch_id: batch.batch_id, accepted_records: batch.records.length, replayed: false }));
         return;
       }
       response.writeHead(404, { "content-length": "0" });
@@ -142,13 +167,14 @@ async function startMetricsServer(requests) {
   return { server, endpoint: `http://127.0.0.1:${address.port}` };
 }
 
-function launchApplication(executable, port, userDataPath, metricsEndpoint, logs) {
+function launchApplication(executable, port, userDataPath, telemetryEndpoint, logs) {
   const child = spawn(executable, [`--remote-debugging-port=${port}`, "--enable-logging"], {
     cwd: projectRoot,
     env: {
       ...process.env,
       LINKA_NO_TOBII: "1",
-      LINKA_METRICS_URL: metricsEndpoint,
+      LINKA_IDENTITY_URL: telemetryEndpoint,
+      LINKA_METRICS_URL: telemetryEndpoint,
       LINKA_PRIVACY_SMOKE: "1",
       LINKA_TEST_USER_DATA_PATH: userDataPath,
       ELECTRON_ENABLE_LOGGING: "1"
@@ -229,15 +255,16 @@ async function main() {
 
     const enabled = await evaluate(client, `window.linkaPrivacy.setTelemetryPreference('enabled')`);
     assert(enabled === "enabled", `Enable IPC returned ${enabled}`);
-    await waitFor("installation and events requests", () => requests.some((request) => request.path === "/v1/installations") && requests.some((request) => request.path === "/v1/events"));
+    await waitFor("installation and V2 batch requests", () => requests.some((request) => request.path === "/v1/public/installations") && requests.some((request) => request.path === "/v2/batches"));
     const deliveredEvents = requests
-      .filter((request) => request.path === "/v1/events")
-      .flatMap((request) => JSON.parse(request.body).events ?? []);
-    assert(deliveredEvents.some((event) => event.event_name === "app_started"), "Enabled telemetry did not deliver app_started");
-    report.checks.enabled = { preference: enabled, deliveredEventNames: deliveredEvents.map((event) => event.event_name) };
+      .filter((request) => request.path === "/v2/batches")
+      .flatMap((request) => JSON.parse(request.body).records ?? []);
+    assert(deliveredEvents.some((event) => event.kind === "app_started"), "Enabled telemetry did not deliver app_started");
+    report.checks.enabled = { preference: enabled, deliveredEventNames: deliveredEvents.map((event) => event.kind) };
 
     const disabled = await evaluate(client, `window.linkaPrivacy.setTelemetryPreference('disabled')`);
     assert(disabled === "disabled", `Disable IPC returned ${disabled}`);
+    assert(requests.some((request) => request.path === "/v1/public/installations/telemetry-preference"), "Disabled preference did not deliver server denial");
     assert(!existsSync(telemetryPath), "Disabled preference did not delete telemetry-v1");
     const requestsAfterDisable = requests.length;
     await wait(1000);

@@ -14,6 +14,10 @@ vi.mock("electron", () => ({
 
 const directories: string[] = [];
 const appMetadata: AppMetadata = { version: "1.0.0", build: "1.0.0", platform: "linux", os_version: "1.0", locale: "ru-RU" };
+const installationKey = "a".repeat(64);
+const refreshToken = "refresh." + "r".repeat(120);
+const accessToken = "access." + "a".repeat(120);
+const realSetTimeout = globalThis.setTimeout;
 
 afterEach(async () => {
   vi.useRealTimers();
@@ -26,7 +30,7 @@ async function createTelemetry() {
   directories.push(userDataPath);
   return {
     userDataPath,
-    telemetry: new MetricsTelemetry({ enabled: true, endpoint: "https://example.test", userDataPath, appMetadata })
+    telemetry: new MetricsTelemetry({ enabled: true, metricsEndpoint: "https://metrics.example.test", identityEndpoint: "https://identity.example.test", policyVersion: "2026-07-19-v3", userDataPath, appMetadata })
   };
 }
 
@@ -66,7 +70,7 @@ describe("MetricsTelemetry lifecycle", () => {
     expect(records.some((record) => record.kind === "event" && "event_name" in record.payload && record.payload.event_name === "game_session_interrupted")).toBe(false);
   });
 
-  it("shares one shutdown and writes one app summary", async () => {
+  it("shares one shutdown and writes one app close event", async () => {
     vi.useFakeTimers();
     const { telemetry, userDataPath } = await createTelemetry();
     await telemetry.initialize();
@@ -88,7 +92,7 @@ describe("MetricsTelemetry lifecycle", () => {
     await first;
 
     const records = await readRecords(userDataPath);
-    expect(records.filter((record) => record.kind === "summary" && "session_type" in record.payload && record.payload.session_type === "app")).toHaveLength(1);
+    expect(records.filter((record) => record.kind === "summary" && "session_type" in record.payload && record.payload.session_type === "app")).toHaveLength(0);
     expect(records.filter((record) => record.kind === "event" && "event_name" in record.payload && record.payload.event_name === "app_closed")).toHaveLength(1);
   });
 
@@ -116,14 +120,23 @@ describe("MetricsTelemetry lifecycle", () => {
 
   it("aborts a request whose response body hangs when telemetry is disabled", async () => {
     vi.useFakeTimers();
-    const fetchMock = vi.fn(async () => hangingRegistrationResponse());
+    let requestCount = 0;
+    const fetchMock = vi.fn(async (input: string | URL | Request) => {
+      requestCount += 1;
+      if (requestCount === 1) return hangingRegistrationResponse();
+      if (String(input).endsWith("/v1/public/installations")) return registrationResponse();
+      return new Response(JSON.stringify({ installation_key: installationKey, product: "linka-plays", preference: "denied", policy_version: "2026-07-19-v3", recorded_at: new Date().toISOString() }), { status: 200 });
+    });
     vi.stubGlobal("fetch", fetchMock);
     const { telemetry, userDataPath } = await createTelemetry();
     await telemetry.initialize();
-    await vi.advanceTimersByTimeAsync(0);
+    const flush = (telemetry as unknown as { flush: () => Promise<void> }).flush();
+    await waitForFetch(fetchMock);
     expect(fetchMock).toHaveBeenCalledOnce();
 
     await expect(telemetry.disableAndClear()).resolves.toBeUndefined();
+    await expect(flush).resolves.toBeUndefined();
+    expect(fetchMock).toHaveBeenCalledTimes(3);
 
     await expect(stat(join(userDataPath, "telemetry-v1"))).rejects.toMatchObject({ code: "ENOENT" });
   });
@@ -131,9 +144,12 @@ describe("MetricsTelemetry lifecycle", () => {
   it("does not wait for a hanging events response body when disabled", async () => {
     vi.useFakeTimers();
     const fetchMock = vi.fn(async (input: string | URL | Request) => {
-      if (String(input).endsWith("/v1/installations")) {
-        return new Response(JSON.stringify({ installation_id: randomUUID(), token: "a".repeat(64) }), {
-          status: 201,
+      if (String(input).endsWith("/v1/public/installations")) {
+        return registrationResponse();
+      }
+      if (String(input).endsWith("/v1/public/installations/telemetry-preference")) {
+        return new Response(JSON.stringify({ installation_key: installationKey, product: "linka-plays", preference: "denied", policy_version: "2026-07-19-v3", recorded_at: new Date().toISOString() }), {
+          status: 200,
           headers: { "content-type": "application/json" }
         });
       }
@@ -154,9 +170,9 @@ describe("MetricsTelemetry lifecycle", () => {
     vi.stubGlobal("fetch", fetchMock);
     const { telemetry } = await createTelemetry();
     await telemetry.initialize();
-    await vi.advanceTimersByTimeAsync(0);
+    const flush = (telemetry as unknown as { flush: () => Promise<void> }).flush();
+    await waitForFetch(fetchMock);
     expect(fetchMock).toHaveBeenCalledOnce();
-    const flush = (telemetry as unknown as { flushPromise?: Promise<void> }).flushPromise;
 
     await expect(telemetry.shutdown("app-quit")).resolves.toBeUndefined();
     await expect(flush).resolves.toBeUndefined();
@@ -168,31 +184,30 @@ describe("MetricsTelemetry lifecycle", () => {
     vi.stubGlobal("fetch", fetchMock);
     const { telemetry } = await createTelemetry();
     await telemetry.initialize();
-    await vi.advanceTimersByTimeAsync(0);
-    const flush = (telemetry as unknown as { flushPromise?: Promise<void> }).flushPromise;
-    expect(flush).toBeDefined();
+    const flush = (telemetry as unknown as { flush: () => Promise<void> }).flush();
+    await waitForFetch(fetchMock);
+    expect(fetchMock).toHaveBeenCalledOnce();
 
     await vi.advanceTimersByTimeAsync(15_000);
     await expect(flush).resolves.toBeUndefined();
   });
 
-  it.each([400, 413, 422])("isolates one invalid record after HTTP %s and continues delivery", async (rejectionStatus) => {
+  it("splits a rejected oversized batch without discarding records", async () => {
     vi.useFakeTimers();
-    const installationId = randomUUID();
-    const eventBodies: Array<{ events: Array<{ event_name: string }> }> = [];
+    const eventBodies: Array<{ batch_id: string; records: Array<{ kind: string }> }> = [];
     let eventRequest = 0;
     const fetchMock = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
       const url = String(input);
-      if (url.endsWith("/v1/installations")) {
-        return new Response(JSON.stringify({ installation_id: installationId, token: "a".repeat(64) }), {
-          status: 201,
-          headers: { "content-type": "application/json" }
-        });
+      if (url.endsWith("/v1/public/installations")) {
+        return registrationResponse();
       }
-      if (url.endsWith("/v1/events")) {
-        eventBodies.push(JSON.parse(String(init?.body)) as { events: Array<{ event_name: string }> });
+      if (url.endsWith("/v2/batches")) {
+        const batch = JSON.parse(String(init?.body)) as { batch_id: string; records: Array<{ kind: string }> };
+        eventBodies.push(batch);
         eventRequest += 1;
-        return new Response(null, { status: eventRequest <= 2 ? rejectionStatus : 202 });
+        return eventRequest === 1
+          ? new Response(JSON.stringify({ error: "body_too_large" }), { status: 413 })
+          : batchResponse(batch);
       }
       throw new Error(`unexpected request: ${url}`);
     });
@@ -200,16 +215,43 @@ describe("MetricsTelemetry lifecycle", () => {
     const { telemetry } = await createTelemetry();
 
     await telemetry.initialize();
+    telemetry.recordRendererEvent({ eventName: "page_viewed", properties: { page: "start" } });
     const flush = () => (telemetry as unknown as { flush: () => Promise<void> }).flush();
     await flush();
     await flush();
     await flush();
+
+    expect(fetchMock.mock.calls.map(([input]) => String(input))).toContain("https://metrics.example.test/v2/batches");
+    expect(eventBodies.map((body) => body.records.length)).toEqual([2, 1, 1]);
+    expect(eventBodies[1].batch_id).not.toBe(eventBodies[0].batch_id);
+    await telemetry.shutdown("app-quit");
+  });
+
+  it.each([400, 409, 422, 202])("preserves the exact batch after ambiguous HTTP %s", async (status) => {
+    vi.useFakeTimers();
+    const bodies: string[] = [];
+    const fetchMock = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      if (String(input).endsWith("/v1/public/installations")) return registrationResponse();
+      if (String(input).endsWith("/v2/batches")) {
+        bodies.push(String(init?.body));
+        return status === 202
+          ? new Response(JSON.stringify({ batch_id: randomUUID(), accepted_records: 2, replayed: false }), { status })
+          : new Response(JSON.stringify({ error: "ambiguous_rejection" }), { status });
+      }
+      throw new Error(`unexpected request: ${input}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const { telemetry, userDataPath } = await createTelemetry();
+    await telemetry.initialize();
+    telemetry.recordRendererEvent({ eventName: "page_viewed", properties: { page: "start" } });
+    const flush = () => (telemetry as unknown as { flush: () => Promise<void> }).flush();
+
+    await flush();
     await flush();
 
-    expect(fetchMock.mock.calls.map(([input]) => String(input))).toContain("https://example.test/v1/events");
-    expect(eventBodies).toHaveLength(4);
-    expect(eventBodies.slice(0, 3).map((body) => body.events.length)).toEqual([2, 1, 1]);
-    expect(eventBodies[3].events[0]?.event_name).toBe("queue_dropped");
+    expect(bodies).toHaveLength(2);
+    expect(bodies[1]).toBe(bodies[0]);
+    expect(await readRecords(userDataPath)).toHaveLength(2);
     await telemetry.shutdown("app-quit");
   });
 });
@@ -218,7 +260,7 @@ function hangingRegistrationResponse() {
   return {
     ok: true,
     status: 201,
-    json: () => new Promise<never>(() => undefined)
+    text: () => new Promise<never>(() => undefined)
   } as unknown as Response;
 }
 
@@ -226,6 +268,31 @@ function hangingEventsResponse() {
   return {
     ok: true,
     status: 202,
-    arrayBuffer: () => new Promise<never>(() => undefined)
+    text: () => new Promise<never>(() => undefined)
   } as unknown as Response;
+}
+
+function registrationResponse() {
+  return new Response(JSON.stringify({
+    installation_key: installationKey,
+    product: "linka-plays",
+    platform: "linux",
+    preference: "allowed",
+    policy_version: "2026-07-19-v3",
+    recorded_at: new Date().toISOString(),
+    refresh_token: refreshToken,
+    refresh_expires_at: new Date(Date.now() + 86400000).toISOString(),
+    metrics_token: { access_token: accessToken, token_type: "Bearer", expires_at: new Date(Date.now() + 300000).toISOString() }
+  }), { status: 201, headers: { "content-type": "application/json" } });
+}
+
+function batchResponse(batch: { batch_id: string; records: unknown[] }) {
+  return new Response(JSON.stringify({ batch_id: batch.batch_id, accepted_records: batch.records.length, replayed: false }), { status: 202 });
+}
+
+async function waitForFetch(mock: { mock: { calls: unknown[][] } }) {
+  for (let attempt = 0; attempt < 100 && mock.mock.calls.length === 0; attempt += 1) {
+    await new Promise<void>((resolve) => realSetTimeout(resolve, 10));
+  }
+  if (mock.mock.calls.length === 0) throw new Error("fetch was not called");
 }

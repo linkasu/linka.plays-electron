@@ -8,16 +8,16 @@ const require = createRequire(import.meta.url);
 const packageJson = require("../../package.json");
 const { assertReleaseVersion } = require("./release-version-gate");
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
+const version = packageJson.version;
 
 describe("release version gate", () => {
   it("accepts only the exact package version and its canonical tag", () => {
-    expect(packageJson.version).toBe("0.1.18");
-    expect(assertReleaseVersion("0.1.18")).toBe("v0.1.18");
-    expect(assertReleaseVersion("v0.1.18")).toBe("v0.1.18");
+    expect(assertReleaseVersion(version)).toBe(`v${version}`);
+    expect(assertReleaseVersion(`v${version}`)).toBe(`v${version}`);
   });
 
-  it.each([undefined, "", "0.1.17", "v0.1.17", "vv0.1.18", "0.1.18-beta", "v0.1.18 "])("rejects mismatched release value %j", (version) => {
-    expect(() => assertReleaseVersion(version)).toThrow("must exactly match package.json version 0.1.18");
+  it.each([undefined, "", "0.0.0", "v0.0.0", `vv${version}`, `${version}-beta`, `v${version} `])("rejects mismatched release value %j", (candidate) => {
+    expect(() => assertReleaseVersion(candidate)).toThrow(`must exactly match package.json version ${version}`);
   });
 
   it("gates verify, build, publish and updater jobs before artifacts are built", () => {
