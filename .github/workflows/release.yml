@@ -108,6 +108,7 @@ jobs:
             release/*.zip
             release/*.yml
             release/*.blockmap
+            !release/builder-debug.yml
           if-no-files-found: error
 
       - name: Upload packaged smoke debug
@@ -140,6 +141,9 @@ jobs:
           gh release view "$release_tag" >/dev/null 2>&1 || gh release create "$release_tag" --title "$release_tag" --notes ""
           for artifact in release/*; do
             test -f "$artifact"
+            if [ "$(basename "$artifact")" = "builder-debug.yml" ]; then
+              continue
+            fi
             gh release upload "$release_tag" "$artifact" --clobber
           done
 
