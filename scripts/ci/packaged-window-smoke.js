@@ -30,20 +30,26 @@ function findPackagedExe() {
   return candidates[0];
 }
 
-async function waitForJsonList(port, timeoutMs) {
+async function waitForPageTarget(port, timeoutMs) {
   const startedAt = Date.now();
   let lastError;
   while (Date.now() - startedAt < timeoutMs) {
     try {
       const response = await fetch(`http://127.0.0.1:${port}/json/list`);
-      if (response.ok) return response.json();
-      lastError = new Error(`CDP /json/list returned ${response.status}`);
+      if (response.ok) {
+        const targets = await response.json();
+        const pageTarget = targets.find((target) => target.type === "page" && target.webSocketDebuggerUrl);
+        if (pageTarget) return pageTarget;
+        lastError = new Error("CDP is ready but the Electron page target is not available yet");
+      } else {
+        lastError = new Error(`CDP /json/list returned ${response.status}`);
+      }
     } catch (error) {
       lastError = error;
     }
     await wait(250);
   }
-  throw new Error(`Cannot read Electron CDP targets on port ${port}: ${lastError?.message ?? "timeout"}`);
+  throw new Error(`Cannot find Electron page target on port ${port}: ${lastError?.message ?? "timeout"}`);
 }
 
 function createCdpClient(webSocketDebuggerUrl) {
@@ -167,6 +173,7 @@ async function main() {
     env: {
       ...process.env,
       LINKA_NO_TOBII: "1",
+      LINKA_IDENTITY_URL: process.env.LINKA_IDENTITY_URL ?? "http://127.0.0.1:1",
       LINKA_METRICS_URL: process.env.LINKA_METRICS_URL ?? "http://127.0.0.1:1",
       ELECTRON_ENABLE_LOGGING: "1"
     },
@@ -180,9 +187,7 @@ async function main() {
   let client;
   let report;
   try {
-    const targets = await waitForJsonList(port, 30000);
-    const pageTarget = targets.find((target) => target.type === "page" && target.webSocketDebuggerUrl);
-    if (!pageTarget) throw new Error("No Electron page target with webSocketDebuggerUrl found");
+    const pageTarget = await waitForPageTarget(port, 30000);
     client = await createCdpClient(pageTarget.webSocketDebuggerUrl);
 
     const runtimeErrors = [];
