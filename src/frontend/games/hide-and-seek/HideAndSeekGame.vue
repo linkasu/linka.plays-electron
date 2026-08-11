@@ -6,19 +6,19 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useGameTimers } from "../../composables/useGameTimers";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
 import ttsAssets from "../../data/ttsAssets.json";
 import { disposeHideAndSeekAudio, playHideAndSeekMistakeMelody, playHideAndSeekSuccessMelody, resetHideAndSeekAudioSession, warmHideAndSeekAudio } from "./audio";
-import { createHideAndSeekLayout, hideAndSeekFallbackObstacles, type HideAndSeekRect } from "./model";
+import { createHideAndSeekLayout, hideAndSeekFallbackObstacles, hideObjectBehindCover, type HideAndSeekCover, type HideAndSeekRect, type HideAndSeekSpot } from "./model";
 
 type SeekPicture = { id: string; emoji: string; name: string };
-type HiddenObject = SeekPicture & { placementIndex: number; hidden: boolean };
-type SeekRound = { id: string; target: SeekPicture; choices: HiddenObject[] };
+type SeekRound = { id: string; target: SeekPicture; spots: HideAndSeekSpot<SeekPicture>[] };
 type ElementComponent = { $el?: HTMLElement };
 
 const totalRounds = 10;
-const choicesPerRound = 5;
+const coversPerRound = 5;
 const picturePool: SeekPicture[] = [
   { id: "cat", emoji: "🐱", name: "кота" },
   { id: "star", emoji: "⭐", name: "звезду" },
@@ -36,9 +36,20 @@ const picturePool: SeekPicture[] = [
   { id: "moon", emoji: "🌙", name: "луну" },
   { id: "butterfly", emoji: "🦋", name: "бабочку" }
 ];
+const coverPool: HideAndSeekCover[] = [
+  { id: "bush", emoji: "🌿", label: "куст" },
+  { id: "rock", emoji: "🪨", label: "камень" },
+  { id: "box", emoji: "📦", label: "коробка" },
+  { id: "tree", emoji: "🌲", label: "ёлка" },
+  { id: "umbrella", emoji: "☂️", label: "зонтик" }
+];
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("hide-and-seek", { maxSteps: totalRounds });
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("hide-and-seek", {
+  maxSteps: totalRounds,
+  finishOnMaxSteps: false,
+  finishOnMistakes: false
+});
 
 const hideAndSeekTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.game === "hide-and-seek");
 const rounds = ref<SeekRound[]>(createRounds());
@@ -47,8 +58,8 @@ const isAdvancing = ref(false);
 const resultVisible = computed(() => session.status === "finished");
 const currentRound = computed(() => rounds.value[pageIndex.value]);
 const currentObject = computed(() => currentRound.value?.target);
-const feedbackMessage = ref("Смотри и выбирай того, кого просим.");
-const lastMistakeObjectId = ref<string>();
+const feedbackMessage = ref("Посмотри, кто выглядывает из-за укрытия.");
+const lastMistakeSpotId = ref<string>();
 const shellRef = ref<HTMLElement>();
 const promptRef = ref<ElementComponent>();
 const viewportSize = ref({ width: window.innerWidth, height: window.innerHeight });
@@ -57,13 +68,10 @@ const sceneLayout = computed(() => createHideAndSeekLayout({
   viewportWidth: viewportSize.value.width,
   viewportHeight: viewportSize.value.height,
   targetScale: session.settings.targetScale,
-  targetCount: choicesPerRound,
+  targetCount: coversPerRound,
   obstacles: obstacleBounds.value
 }));
-const mistakenObjectIdsForCurrentTarget = new Set<string>();
-let nextRoundTimer = 0;
-let promptTimer = 0;
-let responseTtsTimer = 0;
+const { setGameTimeout, clearGameTimers } = useGameTimers();
 let layoutFrame = 0;
 
 function shuffled<T>(items: T[]) {
@@ -76,12 +84,10 @@ function shuffled<T>(items: T[]) {
 }
 
 function createRound(roundIndex: number, target: SeekPicture): SeekRound {
-  const distractors = shuffled(picturePool.filter((picture) => picture.id !== target.id)).slice(0, choicesPerRound - 1);
-  const choices = shuffled([target, ...distractors]);
   return {
     id: `hide-and-seek-round-${roundIndex}-${Date.now()}`,
     target,
-    choices: choices.map((choice, placementIndex) => ({ ...choice, placementIndex, hidden: false }))
+    spots: hideObjectBehindCover(shuffled(coverPool), target)
   };
 }
 
@@ -94,8 +100,7 @@ function ttsAsset(id: string) {
 }
 
 function playPrompt(delayMs = 0) {
-  window.clearTimeout(promptTimer);
-  promptTimer = window.setTimeout(() => {
+  setGameTimeout(() => {
     const object = currentObject.value;
     if (!object) return;
     playTtsAsset(session.settings.sound, ttsAsset(`hide-and-seek.prompt.${object.id}`), 0.36);
@@ -103,8 +108,7 @@ function playPrompt(delayMs = 0) {
 }
 
 function playResponseTts(id: string, delayMs = 920) {
-  window.clearTimeout(responseTtsTimer);
-  responseTtsTimer = window.setTimeout(() => {
+  setGameTimeout(() => {
     playTtsAsset(session.settings.sound, ttsAsset(id), 0.36);
   }, delayMs);
 }
@@ -121,19 +125,19 @@ function objectHitPadding() {
   return sceneLayout.value.hitPadding;
 }
 
-function objectTargetId(object: HiddenObject) {
-  return `hide-and-seek:${currentRound.value?.id ?? "round"}:object:${object.id}`;
+function spotTargetId(spot: HideAndSeekSpot<SeekPicture>) {
+  return `hide-and-seek:${currentRound.value?.id ?? "round"}:cover:${spot.id}`;
 }
 
-function objectStyle(object: HiddenObject) {
-  const point = sceneLayout.value.placements[object.placementIndex];
-  const isLastMistake = object.id === lastMistakeObjectId.value;
+function spotStyle(spot: HideAndSeekSpot<SeekPicture>) {
+  const point = sceneLayout.value.placements[spot.placementIndex];
+  const isLastMistake = spot.id === lastMistakeSpotId.value;
 
   return {
     left: `${point.x}px`,
     top: `${point.y}px`,
     inlineSize: `${objectWidth()}px`,
-    opacity: isLastMistake ? 0.72 : 0.42
+    opacity: spot.opened && !spot.hiddenObject ? 0.52 : isLastMistake ? 0.76 : 1
   };
 }
 
@@ -155,41 +159,40 @@ function scheduleLayoutUpdate() {
   });
 }
 
-function objectColor(object: HiddenObject) {
-  return object.id === lastMistakeObjectId.value ? "warning" : "transparent";
+function spotColor(spot: HideAndSeekSpot<SeekPicture>) {
+  if (spot.opened && spot.hiddenObject) return "success";
+  return spot.id === lastMistakeSpotId.value ? "warning" : "surface";
 }
 
-function chooseObject(object: HiddenObject) {
-  if (session.status !== "running" || object.hidden || !currentObject.value || isAdvancing.value) return;
+function chooseSpot(spot: HideAndSeekSpot<SeekPicture>) {
+  if (session.status !== "running" || spot.opened || !currentObject.value || isAdvancing.value) return;
 
   const expectedObject = currentObject.value;
-  object.hidden = true;
-  if (object.id !== expectedObject.id) {
-    lastMistakeObjectId.value = object.id;
-    feedbackMessage.value = `Почти. Попробуем ещё раз: найди ${expectedObject.name}.`;
+  spot.opened = true;
+  if (!spot.hiddenObject) {
+    lastMistakeSpotId.value = spot.id;
+    feedbackMessage.value = `За укрытием пусто. Поищи ${expectedObject.name} в другом месте.`;
     void playHideAndSeekMistakeMelody(session.settings.sound);
     playResponseTts("hide-and-seek.mistake");
-    if (mistakenObjectIdsForCurrentTarget.has(object.id)) return;
-
-    mistakenObjectIdsForCurrentTarget.add(object.id);
-    recordMistake({ targetId: object.id, expectedTargetId: expectedObject.id, actual: object.name, expected: expectedObject.name, isCorrect: false });
+    recordMistake({ targetId: spotTargetId(spot), expectedTargetId: expectedObject.id, coverId: spot.id, actual: "empty", expected: expectedObject.name, isCorrect: false });
     return;
   }
 
-  lastMistakeObjectId.value = undefined;
-  mistakenObjectIdsForCurrentTarget.clear();
-  feedbackMessage.value = session.step + 1 >= session.maxSteps ? "Всех нашли!" : "Есть! Сейчас новая страница.";
-  recordSuccess({ targetId: object.id, answerId: object.id, expected: object.name, actual: object.name, isCorrect: true });
+  lastMistakeSpotId.value = undefined;
+  feedbackMessage.value = session.step + 1 >= session.maxSteps ? "Всех нашли!" : `Нашли ${expectedObject.name}! Сейчас новая сцена.`;
+  recordSuccess({ targetId: spotTargetId(spot), answerId: expectedObject.id, coverId: spot.id, expected: expectedObject.name, actual: expectedObject.name, isCorrect: true });
   void playHideAndSeekSuccessMelody(session.settings.sound);
   playResponseTts("hide-and-seek.correct");
   isAdvancing.value = true;
-  window.clearTimeout(nextRoundTimer);
-  nextRoundTimer = window.setTimeout(() => {
+  setGameTimeout(() => {
     if (session.status !== "running") return;
+    if (session.step >= session.maxSteps) {
+      finishSession("max-steps");
+      return;
+    }
     pageIndex.value = Math.min(pageIndex.value + 1, rounds.value.length - 1);
-    lastMistakeObjectId.value = undefined;
-    mistakenObjectIdsForCurrentTarget.clear();
-    feedbackMessage.value = "Смотри и выбирай того, кого просим.";
+    lastMistakeSpotId.value = undefined;
+    feedbackMessage.value = "Открывай укрытия и найди спрятавшегося друга.";
     isAdvancing.value = false;
     scheduleLayoutUpdate();
     playPrompt(180);
@@ -197,16 +200,13 @@ function chooseObject(object: HiddenObject) {
 }
 
 function restart() {
-  window.clearTimeout(nextRoundTimer);
-  window.clearTimeout(promptTimer);
-  window.clearTimeout(responseTtsTimer);
+  clearGameTimers();
   rounds.value = createRounds();
   pageIndex.value = 0;
   isAdvancing.value = false;
-  lastMistakeObjectId.value = undefined;
-  mistakenObjectIdsForCurrentTarget.clear();
+  lastMistakeSpotId.value = undefined;
   resetHideAndSeekAudioSession();
-  feedbackMessage.value = "Смотри и выбирай того, кого просим.";
+  feedbackMessage.value = "Открывай укрытия и найди спрятавшегося друга.";
   startSession();
   playPrompt(220);
 }
@@ -221,9 +221,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  window.clearTimeout(nextRoundTimer);
-  window.clearTimeout(promptTimer);
-  window.clearTimeout(responseTtsTimer);
+  clearGameTimers();
   window.removeEventListener("resize", scheduleLayoutUpdate);
   window.cancelAnimationFrame(layoutFrame);
   disposeHideAndSeekAudio();
@@ -236,26 +234,34 @@ onUnmounted(() => {
     <GameHud title="Прятки" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
     <div class="scene">
       <v-card ref="promptRef" class="prompt pa-7 pa-md-8 text-center" rounded="xl" elevation="10">
-        <div class="text-overline text-secondary mb-2">Найди</div>
+        <div class="text-overline text-secondary mb-2">Кто спрятался?</div>
         <GameWordImage v-if="currentObject" class="prompt-sample mb-3" :word-id="currentObject.id" :word="currentObject.name" :emoji="currentObject.emoji" />
         <div class="text-h3 font-weight-bold">{{ currentObject ? currentObject.name : 'всех друзей' }}</div>
         <div class="text-body-1 text-medium-emphasis mt-2">{{ feedbackMessage }}</div>
       </v-card>
       <GameDwellButton
-        v-for="object in currentRound?.choices.filter((choice) => !choice.hidden) ?? []"
-        :key="`${currentRound?.id}:${object.id}`"
-        class="hidden-target"
-        :color="objectColor(object)"
-        :target-id="objectTargetId(object)"
-        :disabled="session.status !== 'running' || object.hidden || isAdvancing"
+        v-for="spot in currentRound?.spots ?? []"
+        :key="`${currentRound?.id}:${spot.id}`"
+        class="hide-spot"
+        :color="spotColor(spot)"
+        :target-id="spotTargetId(spot)"
+        :disabled="session.status !== 'running' || spot.opened || isAdvancing"
         :dwell-ms="session.settings.dwellMs"
         :hit-padding="objectHitPadding()"
         :min-height="objectHeight()"
-        :style="objectStyle(object)"
-        @select="chooseObject(object)"
+        :style="spotStyle(spot)"
+        @select="chooseSpot(spot)"
       >
         <template #default>
-          <GameWordImage class="object-emoji" :word-id="object.id" :word="object.name" :emoji="object.emoji" />
+          <div class="spot-content">
+            <div v-if="spot.hiddenObject && !spot.opened" class="peek-window">
+              <GameWordImage class="peek-object" :word-id="spot.hiddenObject.id" :word="spot.hiddenObject.name" :emoji="spot.hiddenObject.emoji" decorative />
+            </div>
+            <GameWordImage v-if="spot.opened && spot.hiddenObject" class="found-object" :word-id="spot.hiddenObject.id" :word="spot.hiddenObject.name" :emoji="spot.hiddenObject.emoji" />
+            <div v-else-if="spot.opened" class="empty-spot" aria-hidden="true">✨</div>
+            <div v-else class="cover-emoji" aria-hidden="true">{{ spot.emoji }}</div>
+          </div>
+          <div class="text-h6 font-weight-bold">{{ spot.opened ? (spot.hiddenObject ? spot.hiddenObject.name : 'пусто') : spot.label }}</div>
         </template>
       </GameDwellButton>
     </div>
@@ -278,10 +284,10 @@ onUnmounted(() => {
 }
 
 .prompt {
-  inline-size: min(444px, calc(100vw - 64px));
-  left: 32px;
+  inline-size: min(27.75rem, calc(100vw - 4rem));
+  left: 2rem;
   position: absolute;
-  top: 118px;
+  top: 7.375rem;
   z-index: 3;
 }
 
@@ -290,23 +296,51 @@ onUnmounted(() => {
   line-height: 1;
 }
 
-.hidden-target {
+.hide-spot {
   position: absolute;
   transform: translate(-50%, -50%);
 }
 
-.object-emoji {
-  font-size: clamp(4rem, 8vw, 6rem);
+.spot-content {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-block-size: 7rem;
+  position: relative;
+}
+
+.cover-emoji,
+.empty-spot,
+.found-object,
+.peek-object {
+  font-size: clamp(3.5rem, 7vw, 5.5rem);
   line-height: 1;
 }
 
-@media (max-height: 700px) {
+.peek-window {
+  block-size: 2.4rem;
+  inset-block-start: -0.8rem;
+  overflow: hidden;
+  position: absolute;
+}
+
+.peek-object {
+  transform: translateY(0.45rem);
+}
+
+.cover-emoji {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-height: 43.75rem) {
  .prompt {
-    inline-size: min(480px, calc(100vw - 32px));
+    inline-size: min(30rem, calc(100vw - 2rem));
     left: 50%;
-    max-inline-size: min(480px, calc(100vw - 32px));
+    max-inline-size: min(30rem, calc(100vw - 2rem));
     padding: 0.75rem 1rem !important;
-    top: 124px;
+    top: 7.75rem;
     transform: translateX(-50%);
   }
 

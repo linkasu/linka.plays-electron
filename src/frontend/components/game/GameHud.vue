@@ -46,7 +46,7 @@ function togglePause() {
 </script>
 
 <template>
-  <div class="game-hud d-flex flex-wrap align-center ga-2 pa-3">
+  <div class="game-hud d-flex flex-wrap align-center ga-2 pa-3" data-canvas-overlay>
     <template v-if="isSelfMode">
       <div class="self-gaze-edge d-flex ga-2" aria-label="Управление взглядом">
         <GameDwellButton class="self-gaze-action" target-id="hud-menu" :dwell-ms="dwellMs" min-height="clamp(5rem, 12dvh, 7.5rem)" color="secondary" @select="goToMenu">

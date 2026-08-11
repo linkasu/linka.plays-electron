@@ -6,6 +6,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
+import { isCanvasControlBlocked } from "../../core/domGazeTargetCoordinator";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
 
@@ -118,7 +119,7 @@ function targetPayload(target: DustTarget, now: number, progress: number, reason
     kind: target.kind,
     at: Date.now(),
     dwellMs: session.settings.dwellMs,
-    elapsedMs: target.enteredAt === undefined ? 0 : now - target.enteredAt,
+    elapsedMs: Math.round(progress * session.settings.dwellMs),
     progress,
     robot: { x: Math.round(robot.x), y: Math.round(robot.y) },
     pointer: copyPointer(),
@@ -126,11 +127,9 @@ function targetPayload(target: DustTarget, now: number, progress: number, reason
   };
 }
 
-function createTarget(first = false): DustTarget {
+function createTarget(): DustTarget {
   const radius = targetRadius() * randomRange(0.9, 1.12);
-  const point = first
-    ? { x: 50, y: 56 }
-    : randomTargetCenterPercent({
+  const point = randomTargetCenterPercent({
       targetWidth: radius * 2.6,
       targetHeight: radius * 2.6,
       hudHeight: Math.max(118, height.value * 0.16),
@@ -163,7 +162,7 @@ function refillTargets() {
   if (session.step >= session.maxSteps || finishAfter > 0) return;
   const remaining = session.maxSteps - session.step;
   const desired = Math.min(activeTargetLimit(), remaining);
-  while (targets.length < desired) targets.push(createTarget(targets.length === 0 && session.step === 0));
+  while (targets.length < desired) targets.push(createTarget());
 }
 
 function createRoomDots() {
@@ -204,8 +203,9 @@ function updateRobot(delta: number) {
   const nextTarget = clampToRoom(pointer.value.valid ? pointer.value : idleTarget);
   const previous = { x: robot.x, y: robot.y };
   const smoothing = pointer.value.valid ? 4.15 : 1.15;
-  robot.x += (nextTarget.x - robot.x) * Math.min(1, delta * smoothing * session.settings.motionSpeed);
-  robot.y += (nextTarget.y - robot.y) * Math.min(1, delta * smoothing * session.settings.motionSpeed);
+  const alpha = 1 - Math.exp(-delta * smoothing * session.settings.motionSpeed);
+  robot.x += (nextTarget.x - robot.x) * alpha;
+  robot.y += (nextTarget.y - robot.y) * alpha;
   const clampedRobot = clampToRoom(robot);
   robot.x = clampedRobot.x;
   robot.y = clampedRobot.y;
@@ -257,7 +257,7 @@ function collectTarget(target: DustTarget, now: number) {
 }
 
 function closestCleanableTarget() {
-  if (session.step >= session.maxSteps) return undefined;
+  if (session.step >= session.maxSteps || !pointer.value.valid || isCanvasControlBlocked(pointer.value)) return undefined;
   const radius = robotRadius();
   let closest: DustTarget | undefined;
   let closestDistance = Number.POSITIVE_INFINITY;
@@ -288,7 +288,7 @@ function updateTargets(delta: number, now: number) {
       target.enteredAt = now;
       recordEvent("target-enter", targetPayload(target, now, 0));
     }
-    target.dwellProgress = Math.min(1, (now - target.enteredAt) / session.settings.dwellMs);
+    target.dwellProgress = Math.min(1, target.dwellProgress + delta * 1000 / session.settings.dwellMs);
     if (target.dwellProgress >= 1) collectTarget(target, now);
   }
 }

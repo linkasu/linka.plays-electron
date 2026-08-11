@@ -6,6 +6,7 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useGameTimers } from "../../composables/useGameTimers";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposePatternsAudio, playPatternsMistakeMelody, playPatternsSuccessMelody, warmPatternsAudio } from "./audio";
@@ -14,7 +15,8 @@ import { generatePatternRound, type PatternItem } from "./model";
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("patterns", {
   maxSteps: 8,
-  overrides: { dwellMs: 1200, sessionSeconds: 120, sound: true }
+  overrides: { dwellMs: 1200, sessionSeconds: 120, sound: true },
+  finishOnMistakes: false
 });
 
 const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame({
@@ -29,15 +31,14 @@ const isSpeaking = ref(false);
 const wrongChoiceId = ref<string>();
 const successChoiceId = ref<string>();
 const promptAudio = useGamePromptAudio({ gameId: "patterns", soundEnabled: toRef(session.settings, "sound") });
-let feedbackTimer = 0;
+const { setGameTimeout, clearGameTimers } = useGameTimers();
 
 function choiceTargetId(choice: PatternItem) {
   return `patterns:choice:${choice.id}`;
 }
 
 function clearFeedbackTimer() {
-  window.clearTimeout(feedbackTimer);
-  feedbackTimer = 0;
+  clearGameTimers();
 }
 
 function resetFeedback() {
@@ -50,9 +51,11 @@ function resetFeedback() {
 }
 
 async function playPrompt(delayMs = 0) {
+  const sessionId = session.sessionId;
+  const roundId = round.value.roundId;
   isSpeaking.value = true;
   await promptAudio.playSequenceAndWait(["patterns.prompt"], delayMs);
-  isSpeaking.value = false;
+  if (session.sessionId === sessionId && round.value.roundId === roundId) isSpeaking.value = false;
 }
 
 async function choose(index: number) {
@@ -65,6 +68,8 @@ async function choose(index: number) {
   clearFeedbackTimer();
 
   if (index === round.value.correctIndex) {
+    const sessionId = session.sessionId;
+    const roundId = round.value.roundId;
     pendingSelection.value = true;
     successChoiceId.value = choice.id;
     feedbackMessage.value = "Верно. Ряд продолжается.";
@@ -72,11 +77,12 @@ async function choose(index: number) {
     const finishedAfterSuccess = session.step >= session.maxSteps;
     void playPatternsSuccessMelody(session.settings.sound);
     isSpeaking.value = true;
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["patterns.correct", "patterns.complete"] : ["patterns.correct"], 80, 170);
+    const playback = await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["patterns.correct", "patterns.complete"] : ["patterns.correct"], 80, 170);
+    if (playback === "cancelled" || session.sessionId !== sessionId || round.value.roundId !== roundId) return;
     isSpeaking.value = false;
 
-    if (session.status === "running" && session.step < session.maxSteps) {
-      feedbackTimer = window.setTimeout(() => {
+    if (session.step < session.maxSteps) {
+      setGameTimeout(() => {
         nextRound();
         resetFeedback();
       }, 550);
@@ -85,14 +91,17 @@ async function choose(index: number) {
   }
 
   pendingSelection.value = true;
+  const sessionId = session.sessionId;
+  const roundId = round.value.roundId;
   wrongChoiceId.value = choice.id;
   feedbackMessage.value = "Посмотри на повтор в ряду и попробуй ещё раз.";
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.answer.label, actual: choice.label, isCorrect: false });
   void playPatternsMistakeMelody(session.settings.sound);
   isSpeaking.value = true;
-  await promptAudio.playSequenceAndWait(["patterns.mistake"], 80);
+  const playback = await promptAudio.playSequenceAndWait(["patterns.mistake"], 80);
+  if (playback === "cancelled" || session.sessionId !== sessionId || round.value.roundId !== roundId) return;
   isSpeaking.value = false;
-  feedbackTimer = window.setTimeout(() => {
+  setGameTimeout(() => {
     pendingSelection.value = false;
     wrongChoiceId.value = undefined;
   }, 1000);

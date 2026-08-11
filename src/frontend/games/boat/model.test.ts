@@ -66,4 +66,19 @@ describe("boat model", () => {
     expect(state.mode).toBe("crashed");
     expect(state.hull).toBe(0);
   });
+
+  it("keeps one hull point in assisted mode", () => {
+    const state = withStonesAtBoat({ ...createBoatGameState(viewport), hull: 1, invulnerableSeconds: 0 }, false);
+    const result = updateBoatGame(state, state.boat.y, 0.02, viewport, 0.78, 1.35, false, false);
+
+    expect(result.event.type).toBe("damage");
+    expect(result.state.mode).toBe("running");
+    expect(result.state.hull).toBe(1);
+  });
+
+  it("keeps every gate at least 150 pixels high at the required viewport", () => {
+    const requiredViewport = { width: 800, height: 600 };
+    const riverHeight = requiredViewport.height - Math.max(62, requiredViewport.height * 0.09) - Math.max(126, requiredViewport.height * 0.19);
+    expect(Math.min(...boatRouteSegments.map((segment) => segment.gapHeight * riverHeight))).toBeGreaterThanOrEqual(150);
+  });
 });

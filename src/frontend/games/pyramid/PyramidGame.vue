@@ -188,6 +188,13 @@ onUnmounted(() => {
 });
 
 watch(() => session.status, (status) => {
+  if (status === "finished" && session.finishReason !== "game-complete") {
+    clearResultTimer();
+    clearReviewTimer();
+    reviewVisible.value = false;
+    resultVisible.value = true;
+    return;
+  }
   if (status !== "finished") {
     clearResultTimer();
     clearReviewTimer();

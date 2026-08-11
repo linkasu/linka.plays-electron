@@ -11,6 +11,7 @@ import type { DwellCancelReason } from "../../core/gaze";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { advanceMovingTargetDwell, advanceMovingTargetX, movingTargetSpawnX } from "../../core/movingTarget";
 import { disposeFrogAudio, playFrogMelody, resetFrogAudioSession, warmFrogAudio } from "./audio";
+import { frogProgression } from "./model";
 import { bugHitRadius, drawFrogScene, laneBottom, laneTop, type Bug, type CatchBurst, type Point, type Tongue } from "./scene";
 
 type CancelReason = DwellCancelReason | "escaped";
@@ -20,7 +21,7 @@ const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("frog", {
   maxSteps: 10,
-  overrides: { preset: "gentle", dwellMs: 850, sessionSeconds: 90, targetScale: 1.35, motionSpeed: 0.62, distractors: "none", hints: "high" },
+  overrides: { preset: "gentle", dwellMs: 900, sessionSeconds: 90, targetScale: 1.35, motionSpeed: 0.62, distractors: "none", hints: "high" },
   finishOnMaxSteps: false
 });
 useStartPromptAudio({ gameId: "frog", soundEnabled: toRef(session.settings, "sound") });
@@ -53,21 +54,17 @@ function randomRange(min: number, max: number) {
   return min + Math.random() * (max - min);
 }
 
-function attempts() {
-  return session.step + session.mistakes;
-}
-
 function activeBugLimit() {
   if (window.innerWidth < 860) return 1;
-  return attempts() >= 4 ? 2 : 1;
+  return frogProgression(session.step).activeBugLimit;
 }
 
 function spawnDelaySeconds() {
-  return Math.max(1.1, 2 * Math.pow(0.98, attempts()));
+  return frogProgression(session.step).spawnDelaySeconds;
 }
 
 function progressionSpeed() {
-  return 1 + Math.min(0.5, attempts() * 0.055);
+  return frogProgression(session.step).speedMultiplier;
 }
 
 function bugSize() {
@@ -180,8 +177,8 @@ function addTongue(target: Point) {
   if (tongues.length > 4) tongues.shift();
 }
 
-function finishIfAttemptsComplete() {
-  if (attempts() >= session.maxSteps) finishSession("max-steps");
+function finishIfComplete() {
+  if (session.step >= session.maxSteps) finishSession("max-steps");
 }
 
 function cancelBug(bug: Bug, reason: DwellCancelReason) {
@@ -199,7 +196,7 @@ function catchBug(bug: Bug) {
   bug.caughtAge = 0;
   bug.dwellProgress = 1;
   spawnTimer = Math.max(spawnTimer, spawnDelaySeconds() * 0.36);
-  finishIfAttemptsComplete();
+  finishIfComplete();
 }
 
 function missBug(bug: Bug, index: number) {
@@ -208,7 +205,6 @@ function missBug(bug: Bug, index: number) {
   bugs.splice(index, 1);
   if (dwellState.targetId === bug.id) dwellState = createDwellMachineState();
   spawnTimer = Math.max(spawnTimer, spawnDelaySeconds() * 0.46);
-  finishIfAttemptsComplete();
 }
 
 function updateBugGaze(now: number) {
@@ -293,7 +289,7 @@ function draw(context: CanvasRenderingContext2D, now: number) {
     now,
     durationMs: durationMs.value,
     sessionSeconds: session.settings.sessionSeconds,
-    attempts: attempts(),
+    attempts: session.step,
     maxAttempts: session.maxSteps
   });
 }

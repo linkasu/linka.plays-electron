@@ -129,7 +129,7 @@ async function answer(value: YesNoAnswer) {
   const wasCorrect = value === round.value.answer;
   if (wasCorrect) {
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: value, expected: round.value.answer, actual: value, isCorrect: true });
-    feedback.value = "Да, так и есть.";
+    feedback.value = "Верно.";
     void feedbackAudio.playSuccess();
     const finishedAfterSuccess = session.step >= session.maxSteps;
     await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["yes-no.correct", "yes-no.complete"] : ["yes-no.correct"], 80, 170);

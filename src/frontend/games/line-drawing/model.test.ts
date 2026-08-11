@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { drawingLevelAt, drawingLevels, wrapDrawingLevelIndex } from "./model";
+import { drawingCheckpoints, drawingLevelAt, drawingLevels, wrapDrawingLevelIndex } from "./model";
 
 describe("line drawing levels", () => {
   it("progresses from simple shapes to animals", () => {
@@ -26,5 +26,13 @@ describe("line drawing levels", () => {
   it("wraps level indexes safely", () => {
     expect(wrapDrawingLevelIndex(-1)).toBe(drawingLevels.length - 1);
     expect(drawingLevelAt(drawingLevels.length).id).toBe(drawingLevels[0].id);
+  });
+
+  it("requires closed drawings to return to the first checkpoint", () => {
+    for (const level of drawingLevels) {
+      const checkpoints = drawingCheckpoints(level);
+      expect(checkpoints).toHaveLength(level.points.length + (level.closed ? 1 : 0));
+      if (level.closed) expect(checkpoints.at(-1)).toBe(level.points[0]);
+    }
   });
 });

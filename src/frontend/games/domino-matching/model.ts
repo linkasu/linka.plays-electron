@@ -40,6 +40,7 @@ export type DominoMoveResult = {
   message: string;
   botPlayed?: boolean;
   botDrew?: boolean;
+  playerPassed?: boolean;
 };
 
 export const dominoTiles: DominoTile[] = Array.from({ length: 7 }, (_, left) =>
@@ -163,6 +164,17 @@ export function playPlayerTile(state: DominoGameState, tileId: string, side?: Do
 
 export function drawPlayerTile(state: DominoGameState) {
   return drawForOwner(state, "player");
+}
+
+export function passPlayerTurn(state: DominoGameState): DominoMoveResult {
+  if (state.status !== "playing") return { state, ok: false, message: "Партия уже завершена." };
+  if (hasPlayableMove(state.playerHand, state)) return { state, ok: false, message: "У игрока есть подходящий ход." };
+  if (state.boneyard.length) return { state, ok: false, message: "Сначала возьми костяшку из базара." };
+
+  const checkedState = updateStatus(state);
+  if (checkedState.status !== "playing") return { state: checkedState, ok: true, message: checkedState.lastMessage, playerPassed: true };
+  const botResult = runBotTurn({ ...state, lastMessage: "Игрок пропустил ход." });
+  return { ...botResult, playerPassed: true };
 }
 
 export function runBotTurn(state: DominoGameState): DominoMoveResult {

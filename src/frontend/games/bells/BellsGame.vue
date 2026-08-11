@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, toRef } from "vue";
+import { onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -10,6 +10,7 @@ import { useRoundGame } from "../../composables/useRoundGame";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { resolvePublicAssetUrl } from "../../core/publicAsset";
+import type { SessionStatus } from "../../core/session";
 
 type BellDefinition = {
   id: string;
@@ -33,6 +34,7 @@ const bellDefinitions: BellDefinition[] = [
 
 const router = useRouter();
 const selectedBellId = ref("");
+const pendingRoundAdvance = ref(false);
 const feedbackText = ref("");
 const isSpeaking = ref(false);
 let feedbackTimer = 0;
@@ -169,11 +171,14 @@ async function selectBell(bell: BellDefinition) {
 
   try {
     await playBellSoundAndWait();
+    const statusAfterBell = session.status as SessionStatus;
 
-    if (session.status === "running" && session.step < session.maxSteps) {
+    if (statusAfterBell === "running" && session.step < session.maxSteps) {
       selectedBellId.value = "";
       nextRound();
       await playPrompt(180);
+    } else if (statusAfterBell === "paused" && session.step < session.maxSteps) {
+      pendingRoundAdvance.value = true;
     }
   } finally {
     isSpeaking.value = false;
@@ -183,6 +188,7 @@ async function selectBell(bell: BellDefinition) {
 function restart() {
   promptAudio.cancelPending();
   selectedBellId.value = "";
+  pendingRoundAdvance.value = false;
   feedbackText.value = "";
   isSpeaking.value = false;
   window.clearTimeout(feedbackTimer);
@@ -201,6 +207,20 @@ onUnmounted(() => {
   window.clearTimeout(feedbackTimer);
   bellAudio?.pause();
   bellAudio = undefined;
+});
+
+watch(() => session.status, (status) => {
+  if (status === "paused") {
+    bellAudio?.pause();
+    return;
+  }
+  if (status === "running" && pendingRoundAdvance.value) {
+    pendingRoundAdvance.value = false;
+    selectedBellId.value = "";
+    nextRound();
+    void playPrompt(180);
+  }
+  if (status === "finished") pendingRoundAdvance.value = false;
 });
 </script>
 

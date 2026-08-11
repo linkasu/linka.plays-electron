@@ -49,6 +49,17 @@ export function selectTrainWagon(wagons: TrainWagon[], wagonId: TrainWagonId): T
   if (!selectedWagon || selectedWagon.placed) return { kind: "ignored" };
 
   const expectedWagon = getNextTrainWagon(wagons);
+  const isCorrect = wagonId === expectedWagon?.id;
+  if (!isCorrect) {
+    return {
+      kind: "placed",
+      wagons: wagons.map((wagon) => ({ ...wagon })),
+      selectedWagon: { ...selectedWagon },
+      expectedWagon,
+      isCorrect: false,
+      isComplete: false
+    };
+  }
   const nextPlacedIndex = getPlacedTrainWagons(wagons).length + 1;
   const nextWagons = wagons.map((wagon) => wagon.id === wagonId ? { ...wagon, placed: true, placedIndex: nextPlacedIndex } : wagon);
   const nextSelectedWagon = nextWagons.find((wagon) => wagon.id === wagonId) ?? selectedWagon;
@@ -58,7 +69,7 @@ export function selectTrainWagon(wagons: TrainWagon[], wagonId: TrainWagonId): T
     wagons: nextWagons,
     selectedWagon: nextSelectedWagon,
     expectedWagon,
-    isCorrect: wagonId === expectedWagon?.id,
+    isCorrect,
     isComplete: nextWagons.every((wagon) => wagon.placed)
   };
 }

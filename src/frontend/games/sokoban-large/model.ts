@@ -5,7 +5,7 @@ export type SokobanLargePoint = {
   column: number;
 };
 
-export type SokobanLargeMoveEvent = "moved" | "pushed" | "blocked" | "complete";
+export type SokobanLargeMoveEvent = "moved" | "pushed" | "blocked" | "complete" | "deadlocked";
 
 export type SokobanLargeState = {
   width: number;
@@ -112,7 +112,7 @@ export function solveSokobanLargeState(initialState: SokobanLargeState, maxMoves
     if (item.path.length >= maxMoves) continue;
 
     for (const direction of directions) {
-      const result = applySokobanLargeMove(item.state, direction);
+      const result = applySokobanLargeMoveInternal(item.state, direction, false);
       if (!result.moved) continue;
       const key = stateKey(result.state);
       if (visited.has(key)) continue;
@@ -127,6 +127,10 @@ export function solveSokobanLargeState(initialState: SokobanLargeState, maxMoves
 }
 
 export function applySokobanLargeMove(state: SokobanLargeState, direction: SokobanLargeDirection): SokobanLargeMoveResult {
+  return applySokobanLargeMoveInternal(state, direction, true);
+}
+
+function applySokobanLargeMoveInternal(state: SokobanLargeState, direction: SokobanLargeDirection, detectDeadlock: boolean): SokobanLargeMoveResult {
   const nextPlayer = movePoint(state.player, direction);
   if (isBlocked(state, nextPlayer)) {
     return { state: cloneState(state), event: "blocked", moved: false, pushed: false };
@@ -154,16 +158,18 @@ export function applySokobanLargeMove(state: SokobanLargeState, direction: Sokob
     stepIndex: state.stepIndex + 1
   };
 
+  const complete = isSokobanLargeComplete(nextState);
+  const deadlocked = detectDeadlock && !complete && solveSokobanLargeState(nextState, 64).length === 0;
   return {
     state: nextState,
-    event: isSokobanLargeComplete(nextState) ? "complete" : "pushed",
+    event: complete ? "complete" : deadlocked ? "deadlocked" : "pushed",
     moved: true,
     pushed: true
   };
 }
 
 export function sokobanLargeChoiceOutcome(result: SokobanLargeMoveResult, _mistakesAfterChoice: number): SokobanLargeChoiceOutcome {
-  if (result.moved || result.event === "complete") return "move";
+  if ((result.moved && result.event !== "deadlocked") || result.event === "complete") return "move";
   return "wrong-move";
 }
 

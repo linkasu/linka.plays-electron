@@ -15,10 +15,8 @@ export const findEmotionOptions: FindEmotionOption[] = [
   { id: "sadness", label: "грусть", emoji: "😢" },
   { id: "anger", label: "злость", emoji: "😠" },
   { id: "surprise", label: "удивление", emoji: "😮" },
-  { id: "calm", label: "спокойствие", emoji: "🙂" },
   { id: "fear", label: "страх", emoji: "😨" },
-  { id: "sleepy", label: "сонливость", emoji: "😴" },
-  { id: "shy", label: "смущение", emoji: "☺️" }
+  { id: "sleepy", label: "сонливость", emoji: "😴" }
 ];
 
 function buildFindEmotionRound(settings: SessionSettings, roundIndex: number, target: FindEmotionOption, random = Math.random): FindEmotionRound {

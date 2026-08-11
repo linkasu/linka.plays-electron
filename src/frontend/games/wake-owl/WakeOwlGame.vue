@@ -208,7 +208,7 @@ onUnmounted(() => {
 .wake-owl-playfield {
   block-size: 100vh;
   inset: 0;
-  padding: clamp(110px, 13vh, 148px) clamp(40px, 5vw, 92px) clamp(104px, 13vh, 136px);
+  padding: clamp(6.875rem, 13vh, 9.25rem) clamp(2.5rem, 5vw, 5.75rem) clamp(6.5rem, 13vh, 8.5rem);
   position: absolute;
   z-index: 1;
 }
@@ -226,9 +226,9 @@ onUnmounted(() => {
 .wake-owl-moon {
   background: radial-gradient(circle at 36% 34%, #fff9d4 0 28%, #f1d98f 62%, #d4a84f 100%);
   border-radius: 999px;
-  block-size: clamp(72px, 12vw, 124px);
+  block-size: clamp(4.5rem, 12vw, 7.75rem);
   box-shadow: 0 0 70px rgb(255 225 150 / 34%);
-  inline-size: clamp(72px, 12vw, 124px);
+  inline-size: clamp(4.5rem, 12vw, 7.75rem);
   inset-block-start: 12%;
   inset-inline-end: 12%;
   position: absolute;
@@ -263,7 +263,7 @@ onUnmounted(() => {
 .wake-owl-target-zone {
   --owl-x: 50%;
   --owl-y: 62%;
-  inline-size: clamp(320px, 29vw, 500px);
+  inline-size: clamp(20rem, 29vw, 31.25rem);
   inset-block-start: var(--owl-y);
   inset-inline-start: var(--owl-x);
   position: absolute;
@@ -326,7 +326,7 @@ onUnmounted(() => {
 .wake-owl-face {
   align-items: center;
   display: grid;
-  gap: clamp(18px, 5vw, 44px);
+  gap: clamp(1.125rem, 5vw, 2.75rem);
   grid-template-columns: 1fr 1fr;
   inset-block-start: 18%;
   inset-inline: 14%;
@@ -343,7 +343,7 @@ onUnmounted(() => {
   border-radius: 999px;
   box-shadow: inset 0 0 24px rgb(95 58 24 / 32%), 0 0 var(--eye-glow) rgb(255 220 128 / 34%);
   display: flex;
-  inline-size: clamp(78px, 18vw, 128px);
+  inline-size: clamp(4.875rem, 18vw, 8rem);
   justify-content: center;
   overflow: hidden;
   transform-origin: center;
@@ -370,10 +370,10 @@ onUnmounted(() => {
 
 .wake-owl-beak {
   background: linear-gradient(180deg, #ffc85f, #d88929);
-  block-size: clamp(30px, 5vw, 46px);
+  block-size: clamp(1.875rem, 5vw, 2.875rem);
   clip-path: polygon(50% 100%, 0 0, 100% 0);
   grid-column: 1 / -1;
-  inline-size: clamp(42px, 7vw, 62px);
+  inline-size: clamp(2.625rem, 7vw, 3.875rem);
   margin-block-start: -8px;
 }
 
@@ -413,7 +413,7 @@ onUnmounted(() => {
 .wake-owl-progress {
   inset-block-end: max(24px, env(safe-area-inset-bottom));
   inset-inline: clamp(22px, 28vw, 520px);
-  inline-size: min(520px, 100%);
+  inline-size: min(32.5rem, 100%);
   margin-inline: auto;
   position: absolute;
   z-index: 3;
@@ -449,9 +449,9 @@ onUnmounted(() => {
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 37.5rem) {
  .wake-owl-playfield {
-    padding: 120px 18px 116px;
+    padding: 7.5rem 1.125rem 7.25rem;
   }
 
  .wake-owl-copy-card {
@@ -460,7 +460,7 @@ onUnmounted(() => {
   }
 
  .wake-owl-target-zone {
-    inline-size: min(74vw, 330px);
+    inline-size: min(74vw, 20.625rem);
   }
 
  .wake-owl-progress {

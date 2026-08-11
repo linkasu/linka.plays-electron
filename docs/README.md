@@ -6,7 +6,8 @@
 
 ## Что входит
 
-- 154 registry-игры из текущей Electron-реализации.
+- 136 registry-игр из текущей Electron-реализации.
+- Методическое пособие для специалистов и родителей: `linka-plays-methodical-guide.md` и черновой PDF `linka-plays-methodical-guide.pdf`.
 - Полный индекс игровых документов: `games/README.md`.
 - Общий Electron/Vue/Vuetify/Canvas подход.
 - Общий gaze engine для Tobii и mouse fallback.
@@ -34,11 +35,13 @@
 11. `10-migration-roadmap.md` - этапы переноса.
 12. `11-qa-and-validation.md` - проверка качества.
 13. `12-release-plan.md` - релизные пакеты.
-14. `games/README.md` и файлы игр - конкретные игровые спецификации.
-15. `research/` - источники и практические выводы.
-16. `specs/` - контракты данных для разработки.
-17. `tests/2026-06-16/` - текущий readiness и Electron CDP visual audit для реестра игр.
-18. `specs/metrics-schema.md` и `specs/privacy.md` - доставка, агрегаты и запреты клиентской телеметрии.
+14. `linka-plays-methodical-guide.md` / `linka-plays-methodical-guide.pdf` - методика подбора игр и занятий с айтрекером.
+15. `games/README.md` и файлы игр - конкретные игровые спецификации.
+16. `research/` - источники и практические выводы.
+17. `specs/` - контракты данных для разработки.
+18. `tests/2026-06-16/` - текущий readiness и Electron CDP visual audit для реестра игр.
+19. `specs/metrics-schema.md` и `specs/privacy.md` - доставка, агрегаты и запреты клиентской телеметрии.
+20. `game-audit-remediation-plan.md` - полный аудит 136 игр и исполняемый итерационный план исправлений.
 
 ## Игры
 

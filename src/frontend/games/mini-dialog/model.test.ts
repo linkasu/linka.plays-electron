@@ -43,6 +43,8 @@ describe("mini-dialog graph", () => {
     expect(kinds).toEqual(new Set(["answer", "refusal", "support", "repeat", "more", "stop"]));
     expect(miniDialogGraph.activity.choices.some((choice) => choice.text === "Стоп, пожалуйста.")).toBe(true);
     expect(miniDialogGraph.more.choices.some((choice) => choice.text === "Да, давай ещё.")).toBe(true);
+    expect(miniDialogGraph.hello.choices.find((choice) => choice.id === "help")?.nextNodeId).toBe("hello");
+    expect(miniDialogGraph.activity.choices.find((choice) => choice.id === "help-picture")?.nextNodeId).toBe("activity");
   });
 
   it("creates isolated shuffled rounds without changing the dialogue graph", () => {

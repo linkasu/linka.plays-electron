@@ -111,4 +111,17 @@ describe("sokoban large model", () => {
     expect(finalState.box).toEqual(finalState.goal);
     expect(isSokobanLargeComplete(finalState)).toBe(true);
   });
+
+  it("detects an irreversible non-goal corner after a push", () => {
+    const state = fixedState();
+    state.player = { row: 3, column: 1 };
+    state.box = { row: 2, column: 1 };
+    const result = applySokobanLargeMove(state, "up");
+
+    expect(result.moved).toBe(true);
+    expect(result.pushed).toBe(true);
+    expect(result.state.box).toEqual({ row: 1, column: 1 });
+    expect(result.event).toBe("deadlocked");
+    expect(sokobanLargeChoiceOutcome(result, 0)).toBe("wrong-move");
+  });
 });

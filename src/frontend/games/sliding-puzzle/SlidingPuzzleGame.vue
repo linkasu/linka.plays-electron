@@ -247,12 +247,12 @@ onUnmounted(() => {
  .game-container .text-overline,
  .game-container h1,
  .game-container p,
- .game-container.v-avatar,
+  .game-container .v-avatar,
  .game-container .v-alert {
     display: none;
   }
 
- .game-container.d-flex.flex-column.flex-md-row {
+  .game-container .d-flex.flex-column.flex-md-row {
     margin-block-end: 0.75rem !important;
   }
 

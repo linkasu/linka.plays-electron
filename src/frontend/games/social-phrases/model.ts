@@ -42,6 +42,7 @@ export type SocialPhraseEvaluation = {
   isCorrect: boolean;
   noFail: true;
   functional: boolean;
+  function?: FunctionalPhraseKind;
   endsSession: boolean;
 };
 
@@ -147,10 +148,11 @@ export function evaluateSocialPhraseChoice(round: SocialPhraseRound, choice: Soc
   return {
     type: accepted ? "communication" : "hint",
     phrase: choice.text,
-    feedback: accepted ? functional ? "Я услышал твой ответ." : round.correctFeedback : round.mistakeFeedback,
+    feedback: accepted ? functional ? "Я услышал твой ответ." : round.correctFeedback : "Эта фраза прозвучала. Можно выбрать другую фразу или попросить помощь.",
     isCorrect: accepted,
     noFail: true,
     functional,
+    function: choice.function,
     endsSession: choice.endsSession === true
   };
 }

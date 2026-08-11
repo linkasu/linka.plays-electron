@@ -60,8 +60,8 @@ describe("social-phrases model", () => {
     const evaluation = evaluateSocialPhraseChoice(round, mismatch);
 
     expect(evaluation).toMatchObject({ type: "hint", phrase: mismatch.text, isCorrect: false, noFail: true, endsSession: false });
-    expect(evaluation.feedback).toBe(round.mistakeFeedback);
-    expect(evaluation.feedback).not.toMatch(/ошиб|невер/i);
+    expect(evaluation.feedback).toContain("Можно выбрать другую фразу");
+    expect(evaluation.feedback).not.toMatch(/ошиб|невер|стакан|короб|динамик/i);
   });
 
   it("keeps every option retrievable", () => {

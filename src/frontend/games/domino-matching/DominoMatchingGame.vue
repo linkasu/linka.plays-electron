@@ -8,7 +8,7 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { drawPlayerTile, getOpenEnds, getPlayablePlacements, hasPlayableMove, playPlayerTile, startDominoGame, type DominoGameState, type DominoPlacement, type DominoSide, type DominoTile, type PlacedDominoTile } from "./model";
+import { drawPlayerTile, getOpenEnds, getPlayablePlacements, hasPlayableMove, passPlayerTurn, playPlayerTile, startDominoGame, type DominoGameState, type DominoPlacement, type DominoSide, type DominoTile, type PlacedDominoTile } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("domino-matching", {
@@ -44,7 +44,7 @@ const boardRows = computed(() => {
 
 const helperText = computed(() => {
   if (selectedTile.value) return "Эта костяшка подходит с двух сторон. Выбери левый или правый край.";
-  if (!playerHasMove.value) return game.value.boneyard.length ? "Подходящих костяшек нет. Можно взять из базара." : "Ходов нет и базар пуст. Партия закончится.";
+  if (!playerHasMove.value) return game.value.boneyard.length ? "Подходящих костяшек нет. Можно взять из базара." : "Ходов нет и базар пуст. Передай ход боту.";
   return `Открытые числа: ${openEnds.value.leftEnd} слева и ${openEnds.value.rightEnd} справа. Выбери подходящую костяшку.`;
 });
 
@@ -79,21 +79,34 @@ function placementFor(side: DominoSide) {
 }
 
 async function speakResult(assetIds: string[]) {
+  const sessionId = session.sessionId;
   isSpeaking.value = true;
-  await promptAudio.playSequenceAndWait(assetIds, 80, 170);
-  isSpeaking.value = false;
+  const playback = await promptAudio.playSequenceAndWait(assetIds, 80, 170);
+  if (playback === "completed" && session.sessionId === sessionId) isSpeaking.value = false;
+}
+
+function finishReasonForStatus(status: DominoGameState["status"]) {
+  if (status === "player-won") return "game-complete" as const;
+  if (status === "bot-won") return "game-lost" as const;
+  return "game-draw" as const;
+}
+
+async function finishDominoGame(state: DominoGameState) {
+  if (state.status === "playing") return;
+  const sessionId = session.sessionId;
+  await speakResult(["domino-matching.complete"]);
+  if (session.sessionId === sessionId) finishSession(finishReasonForStatus(state.status));
 }
 
 async function afterSuccessfulMove(previousState: DominoGameState, resultState: DominoGameState, targetId: string, answerId: string) {
   const botAction = resultState.lastBotAction;
-  const completed = resultState.status !== "playing" || session.step + 1 >= session.maxSteps;
-  recordSuccess({ targetId, answerId, leftEnd: openEnds.value.leftEnd, rightEnd: openEnds.value.rightEnd, botAction, status: resultState.status });
+  const resultEnds = getOpenEnds(resultState);
+  recordSuccess({ targetId, answerId, leftEnd: resultEnds.leftEnd, rightEnd: resultEnds.rightEnd, botAction, status: resultState.status });
   selectedTileId.value = undefined;
   lastMistakeId.value = undefined;
   void feedbackAudio.playSuccess();
   game.value = resultState;
-  if (completed) await speakResult(["domino-matching.complete"]);
-  if (completed) finishSession(resultState.status === "playing" ? "max-steps" : "game-complete");
+  await finishDominoGame(resultState);
   if (botAction && previousState.lastBotAction !== botAction) recordHint({ text: botAction, reason: "bot-turn" });
 }
 
@@ -133,16 +146,21 @@ async function chooseSide(side: DominoSide) {
 
 async function drawTile() {
   if (session.status !== "running" || isSpeaking.value || playerHasMove.value) return;
-  const result = drawPlayerTile(game.value);
+  const result = game.value.boneyard.length ? drawPlayerTile(game.value) : passPlayerTurn(game.value);
   if (!result.ok) {
-    finishSession("game-complete");
+    recordHint({ targetId: "domino-matching:draw", text: result.message, reason: "domino-action-unavailable" });
     return;
   }
 
   game.value = result.state;
   selectedTileId.value = undefined;
   lastMistakeId.value = undefined;
-  recordHint({ targetId: "domino-matching:draw", text: "Игрок взял костяшку из базара.", reason: "draw-domino" });
+  recordHint({
+    targetId: "domino-matching:draw",
+    text: result.playerPassed ? "Игрок передал ход боту." : "Игрок взял костяшку из базара.",
+    reason: result.playerPassed ? "pass-domino" : "draw-domino"
+  });
+  await finishDominoGame(result.state);
 }
 
 function restart() {
@@ -237,8 +255,8 @@ onUnmounted(() => {
                   <template #default>
                     <div class="draw-card">
                       <v-icon size="x-large">mdi-tray-arrow-down</v-icon>
-                      <div class="text-h6 font-weight-bold">{{ game.boneyard.length ? 'Взять' : 'Итог' }}</div>
-                      <div class="text-body-2">{{ game.boneyard.length ? 'из базара' : 'ходов нет' }}</div>
+                      <div class="text-h6 font-weight-bold">{{ game.boneyard.length ? 'Взять' : 'Пас' }}</div>
+                      <div class="text-body-2">{{ game.boneyard.length ? 'из базара' : 'ход боту' }}</div>
                     </div>
                   </template>
                 </GameDwellButton>

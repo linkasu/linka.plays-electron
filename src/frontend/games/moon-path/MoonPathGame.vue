@@ -7,6 +7,7 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { ambientStepTargetMs } from "../../core/ambientProgress";
 import { disposeMoonPathPiano, playMoonPathCue, setMoonPathPianoActive, tickMoonPathPiano, warmMoonPathPiano } from "./audio";
 
 type Point = { x: number; y: number };
@@ -129,12 +130,12 @@ function gazePathPoint(now: number) {
   if (!pointer.value.valid || pointer.value.y < waterTop() - 24) return undefined;
   const y = Math.max(waterTop() + 8, Math.min(window.innerHeight - 18, pointer.value.y));
   const center = pathCenterX(y, now);
-  const x = center + (pointer.value.x - center) * 0.34;
-  return { x, y };
+  if (Math.abs(pointer.value.x - center) > pathWidth(y) * 0.55) return undefined;
+  return { x: pointer.value.x, y };
 }
 
 function stepTargetMs() {
-  return session.settings.sessionSeconds * 1000 / session.maxSteps;
+  return ambientStepTargetMs(session.settings.sessionSeconds, session.maxSteps);
 }
 
 function recordPathStep(now: number) {

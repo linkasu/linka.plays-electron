@@ -19,9 +19,13 @@ describe("generateBuildRobotRound", () => {
   });
 
   it("includes all details as unique choices and points correctIndex to the target", () => {
+    const correctIndexes = new Set<number>();
     for (let index = 1; index <= 12; index += 1) {
-      expectValidRound(generateBuildRobotRound(index));
+      const round = generateBuildRobotRound(index);
+      expectValidRound(round);
+      correctIndexes.add(round.correctIndex);
     }
+    expect(correctIndexes.size).toBeGreaterThan(1);
   });
 
   it("tracks completed details inside the current robot", () => {

@@ -34,6 +34,7 @@ let loadedNotesKey = "";
 let unavailable = false;
 let melodyUntil = 0;
 let fallbackGain: GainNode | undefined;
+let loadGeneration = 0;
 
 function createAudioContext() {
   const AudioContextConstructor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
@@ -78,6 +79,7 @@ async function ensurePiano(resumeAudio: boolean, notesToLoad = defaultNotesToLoa
   }
   if (loading) return loading;
 
+  const generation = loadGeneration;
   loading = (async () => {
     try {
       const context = await ensureAudioContext(resumeAudio);
@@ -105,11 +107,15 @@ async function ensurePiano(resumeAudio: boolean, notesToLoad = defaultNotesToLoa
       }
 
       await nextPiano.ready;
+      if (generation !== loadGeneration) {
+        nextPiano.dispose();
+        return undefined;
+      }
       piano = nextPiano;
       loadedNotesKey = nextNotesKey;
       return nextPiano;
     } catch {
-      unavailable = true;
+      if (generation === loadGeneration) unavailable = true;
       return undefined;
     }
   })();
@@ -178,6 +184,9 @@ export async function playSoftPianoMelody(enabled: boolean, melody: SoftPianoMel
 }
 
 export function disposeSoftPiano() {
+  const contextToClose = audioContext;
+  const pendingLoad = loading;
+  loadGeneration += 1;
   piano?.dispose();
   piano = undefined;
   loading = undefined;
@@ -185,7 +194,9 @@ export function disposeSoftPiano() {
   fallbackGain?.disconnect();
   fallbackGain = undefined;
   melodyUntil = 0;
-  void audioContext?.close().catch(() => undefined);
   audioContext = undefined;
   unavailable = false;
+  const closeContext = () => contextToClose?.close().catch(() => undefined);
+  if (pendingLoad) void pendingLoad.finally(closeContext);
+  else void closeContext();
 }

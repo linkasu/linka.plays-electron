@@ -10,6 +10,7 @@ import { useRoundGame } from "../../composables/useRoundGame";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
 import { generateShopRound, validateShopShoppingCart, type ShopCoin, type ShopCoinValue, type ShopItem } from "./model";
 
 const router = useRouter();
@@ -68,15 +69,8 @@ function shoppingActionTargetId() {
   return "shop:action:buy";
 }
 
-function promptAssetIds() {
-  if (round.value.taskKind === "shopping-list") {
-    return ["shop.wallet.10", "shop.buy", `shop.item.${round.value.targetItems[0].id}`, "shop.and", `shop.item.${round.value.targetItems[1].id}`];
-  }
-  return ["shop.pay", `shop.item.${round.value.targetItem.id}`, "shop.price", `shop.number.${round.value.targetPrice}`];
-}
-
 function playRoundPrompt(delayMs = 0) {
-  return promptAudio.playSequenceAndWait(promptAssetIds(), delayMs, 90);
+  return speakSceneText(round.value.prompt, session.settings.sound, delayMs);
 }
 
 function resetSelection(text = round.value.helperText) {
@@ -200,6 +194,7 @@ async function checkPayment() {
 
 function restart() {
   promptAudio.cancelPending();
+  cancelSceneSpeech();
   isSpeaking.value = false;
   restartRoundGame();
   resetSelection(round.value.helperText);
@@ -213,6 +208,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   promptAudio.cancelPending();
+  cancelSceneSpeech();
 });
 </script>
 

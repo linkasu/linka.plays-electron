@@ -106,7 +106,7 @@ onUnmounted(() => {
     />
 
     <v-container class="warm-window-container d-flex align-center justify-center" fluid>
-      <v-card class="warm-window-scene pa-4 pa-sm-6 pa-md-8" color="transparent" elevation="0">
+      <v-card class="warm-window-scene px-4 px-sm-6 px-md-8" color="transparent" elevation="0">
         <div class="warm-window-house" role="group" aria-label="Дом с окнами для игры Тёплое окно">
           <div class="warm-window-roof" aria-hidden="true">
             <div class="warm-window-chimney"></div>
@@ -120,7 +120,7 @@ onUnmounted(() => {
                 :target-id="windowTarget.id"
                 :dwell-ms="session.settings.dwellMs"
                 :disabled="session.status !== 'running' || windowTarget.lit"
-                :min-height="92"
+                min-height="7.75rem"
                 :color="windowTarget.lit ? 'amber-lighten-4' : 'blue-grey-darken-3'"
                 class="warm-window-target"
                 :style="{ gridColumn: windowTarget.gridColumn, gridRow: windowTarget.gridRow }"
@@ -169,7 +169,7 @@ onUnmounted(() => {
 
 .warm-window-container {
   min-block-size: 100vh;
-  padding-block: 64px 24px;
+  padding-block: 4rem 1.5rem;
 }
 
 .warm-window-sky {
@@ -205,20 +205,20 @@ onUnmounted(() => {
 }
 
 .warm-window-scene {
-  inline-size: min(1320px, 98vw);
+  inline-size: min(82.5rem, 98vw);
   position: relative;
   z-index: 1;
 }
 
 .warm-window-house {
   margin-inline: auto;
-  max-inline-size: min(1160px, 96vw);
+  max-inline-size: min(72.5rem, 96vw);
   padding-block-start: clamp(68px, 10vh, 118px);
   position: relative;
 }
 
 .warm-window-roof {
-  block-size: clamp(128px, 16vh, 188px);
+  block-size: clamp(8rem, 16vh, 11.75rem);
   inline-size: 100%;
   inset-block-start: 0;
   inset-inline-start: 0;
@@ -238,10 +238,10 @@ onUnmounted(() => {
 
 .warm-window-chimney {
   background: linear-gradient(180deg, #8c4438 0%, #69342f 100%);
-  block-size: clamp(58px, 7vh, 86px);
+  block-size: clamp(3.625rem, 7vh, 5.375rem);
   border-radius: 10px 10px 2px 2px;
   box-shadow: inset 0 0 0 2px rgb(255 215 185 / 18%), 0 14px 26px rgb(30 19 28 / 24%);
-  inline-size: clamp(46px, 5vw, 70px);
+  inline-size: clamp(2.875rem, 5vw, 4.375rem);
   inset-block-start: clamp(12px, 2vh, 22px);
   inset-inline-end: 24%;
   position: absolute;
@@ -254,21 +254,21 @@ onUnmounted(() => {
   border-radius: 36px 36px 24px 24px;
   box-shadow: inset 0 0 0 2px rgb(255 244 214 / 28%), 0 28px 70px rgb(16 18 32 / 36%);
   margin-inline: auto;
-  max-inline-size: min(1040px, 94vw);
-  padding: clamp(24px, 3.4vw, 46px);
+  max-inline-size: min(65rem, 94vw);
+  padding: clamp(1.5rem, 3.4vw, 2.875rem);
   position: relative;
   z-index: 1;
 }
 
 .warm-window-grid {
   display: grid;
-  gap: clamp(18px, 2.6vw, 34px);
-  grid-template-columns: repeat(3, minmax(136px, 1fr));
-  grid-template-rows: repeat(3, clamp(124px, 15.8vh, 176px));
+  gap: clamp(1.125rem, 2.6vw, 2.125rem);
+  grid-template-columns: repeat(3, minmax(8.5rem, 1fr));
+  grid-template-rows: repeat(3, clamp(7.75rem, 15.8vh, 11rem));
 }
 
 .warm-window-target {
-  min-block-size: clamp(124px, 15.8vh, 176px);
+  min-block-size: clamp(7.75rem, 15.8vh, 11rem);
 }
 
 .warm-window-pane {
@@ -316,10 +316,24 @@ onUnmounted(() => {
   grid-column: 2;
   grid-row: 3;
   justify-content: center;
-  min-block-size: clamp(124px, 15.8vh, 176px);
+  min-block-size: clamp(7.75rem, 15.8vh, 11rem);
 }
 
-@media (max-width: 640px) {
+@media (max-height: 42rem) {
+  .warm-window-container {
+    align-items: flex-start !important;
+  }
+
+  .warm-window-body {
+    padding-block: 1rem;
+  }
+
+  .warm-window-grid {
+    gap: 0.5rem 1rem;
+  }
+}
+
+@media (max-width: 40rem) {
  .warm-window-container {
     align-items: flex-start !important;
     padding-block: 82px 16px;
@@ -332,18 +346,18 @@ onUnmounted(() => {
 
  .warm-window-body {
     border-width: 7px;
-    padding: 14px;
+    padding: 0.875rem;
   }
 
  .warm-window-grid {
-    gap: 10px;
-    grid-template-columns: repeat(3, minmax(68px, 1fr));
-    grid-template-rows: repeat(3, clamp(76px, 20vw, 96px));
+    gap: 0.625rem;
+    grid-template-columns: repeat(3, minmax(4.25rem, 1fr));
+    grid-template-rows: repeat(3, clamp(4.75rem, 20vw, 6rem));
   }
 
  .warm-window-target,
  .warm-window-door {
-    min-block-size: clamp(76px, 20vw, 96px);
+    min-block-size: clamp(4.75rem, 20vw, 6rem);
   }
 }
 </style>

@@ -169,7 +169,7 @@ onUnmounted(() => {
             </div>
 
             <v-card class="timeline-card pa-4 pa-md-5 mb-6" color="indigo-lighten-5" rounded="xl" variant="flat">
-              <div class="d-flex flex-column flex-md-row align-stretch ga-4">
+              <div class="d-flex flex-column flex-sm-row align-stretch ga-4">
                 <div v-for="item in timelineItems" :key="item.phase" class="timeline-step flex-grow-1 pa-4 rounded-xl" :class="{ 'timeline-step--filled': item.action }">
                   <div class="text-overline text-primary mb-1">{{ item.label }}</div>
                   <div v-if="item.action" class="d-flex align-center ga-3">
@@ -185,7 +185,7 @@ onUnmounted(() => {
             </v-card>
 
             <v-chip class="phase-chip mb-4" color="primary" size="large" variant="tonal">Выбираем: {{ phaseLabel }}</v-chip>
-            <GameChoiceCardGrid :choices="round.choices" :target-id="choiceTargetId" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" min-height="10rem" :cols="12" :md="6" @select="chooseAction">
+            <GameChoiceCardGrid :choices="round.choices" :target-id="choiceTargetId" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" min-height="11.25rem" :cols="12" :md="6" @select="chooseAction">
               <template #default="{ choice }">
                 <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
                 <div class="text-h4 text-md-h3 font-weight-bold">{{ choice.title }}</div>
@@ -228,17 +228,17 @@ onUnmounted(() => {
 }
 
 @media (max-height: 51.25rem) {
- .timeline-card {
-    margin-block-end: 0.75rem !important;
-    padding: 0.75rem !important;
+  .timeline-card {
+    margin-block-end: 0.5rem !important;
+    padding: 0.5rem !important;
   }
 
   .timeline-step {
-    padding: 0.75rem !important;
+    padding: 0.5rem !important;
   }
 
   .timeline-empty {
-    min-block-size: 2.5rem;
+    min-block-size: 2rem;
   }
 
   .timeline-emoji {
@@ -247,12 +247,16 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
+  .first-then-card > .text-overline {
+    display: none;
+  }
+
  .first-then-card {
     padding-block: 0.875rem !important;
   }
 
- .first-then-heading {
-    margin-block-end: 0.875rem !important;
+  .first-then-heading {
+    margin-block-end: 0.5rem !important;
   }
 
  .first-then-heading h1 {
@@ -260,16 +264,16 @@ onUnmounted(() => {
     line-height: 1.08;
   }
 
- .phase-chip {
-    margin-block-end: 0.75rem !important;
+  .phase-chip {
+    margin-block-end: 0.5rem !important;
   }
 
  .choice-emoji {
     font-size: clamp(2.75rem, 6vw, 3.75rem);
   }
 
- .first-then-card :deep(.dwell-button) {
-    min-block-size: 7.5rem !important;
+  .first-then-card :deep(.dwell-button) {
+    min-block-size: 11.25rem !important;
   }
 }
 </style>

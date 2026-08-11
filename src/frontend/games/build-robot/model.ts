@@ -39,8 +39,8 @@ function partsForRobot(robotIndex: number) {
   return buildRobotPartOrder.map((id) => ({ ...baseParts[id], color: palette[id] }));
 }
 
-function rotateChoices(parts: RobotPart[], roundIndex: number) {
-  const offset = roundIndex % parts.length;
+function rotateChoices(parts: RobotPart[], robotIndex: number) {
+  const offset = robotIndex % parts.length;
   return [...parts.slice(offset), ...parts.slice(0, offset)];
 }
 
@@ -54,7 +54,7 @@ export function generateBuildRobotRound(roundIndex = 1): BuildRobotRound {
 
   if (!target) throw new Error(`BuildRobotGame cannot find robot part: ${targetId}`);
 
-  const choices = rotateChoices(parts, safeRoundIndex);
+  const choices = rotateChoices(parts, robotIndex);
 
   return {
     roundId: `build-robot:round:${safeRoundIndex}`,

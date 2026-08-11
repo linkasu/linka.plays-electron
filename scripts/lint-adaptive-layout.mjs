@@ -5,10 +5,16 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 
 const hardPxPattern = /(?:^|[^A-Za-z0-9_-])(?:\d+(?:\.\d+)?|\})px\b/;
+const layoutPropertyPattern = /(?:^|["'`{;])\s*(?:(?:min|max)[-A-Z])?(?:block[-A-Z]size|inline[-A-Z]size|width|height|padding|margin|inset|top|right|bottom|left|gap|row[-A-Z]gap|column[-A-Z]gap|grid[-A-Z]template[-A-Z](?:columns|rows)|flex[-A-Z]basis)\s*:/i;
+const layoutMediaPattern = /@media[^\n]*(?:width|height)\s*:/i;
 const checkedExtensions = new Set([".vue", ".css", ".scss"]);
 
 function isCheckedFile(filePath) {
   return filePath.startsWith("src/frontend/") && checkedExtensions.has(path.extname(filePath));
+}
+
+function hasHardLayoutPx(content) {
+  return hardPxPattern.test(content) && (layoutPropertyPattern.test(content) || layoutMediaPattern.test(content));
 }
 
 function diffLines() {
@@ -32,7 +38,7 @@ function diffLines() {
     if (!filePath || !isCheckedFile(filePath)) continue;
     if (line.startsWith("+") && !line.startsWith("+++")) {
       const content = line.slice(1);
-      if (hardPxPattern.test(content)) issues.push({ filePath, lineNumber: newLine, content });
+      if (hasHardLayoutPx(content)) issues.push({ filePath, lineNumber: newLine, content });
       newLine += 1;
       continue;
     }
@@ -52,7 +58,7 @@ function allLines() {
   for (const filePath of files) {
     const lines = readFileSync(filePath, "utf8").split("\n");
     lines.forEach((content, index) => {
-      if (hardPxPattern.test(content)) issues.push({ filePath, lineNumber: index + 1, content });
+      if (hasHardLayoutPx(content)) issues.push({ filePath, lineNumber: index + 1, content });
     });
   }
 

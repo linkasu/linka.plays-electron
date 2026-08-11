@@ -6,6 +6,7 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useGameTimers } from "../../composables/useGameTimers";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
@@ -34,6 +35,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 const soundEnabled = toRef(session.settings, "sound");
 const promptAudio = useGamePromptAudio({ gameId: "connect-four", soundEnabled, warmAssetIds: ["connect-four.prompt", "connect-four.correct", "connect-four.mistake", "connect-four.complete"] });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
+const { setGameTimeout, clearGameTimers } = useGameTimers();
 
 const aiMoveDelayMs = 950;
 const playerTurnDelayMs = 900;
@@ -50,7 +52,6 @@ const resultVisible = computed(() => session.status === "finished");
 const line = computed(() => winningLine(board.value));
 const gazeBlocked = computed(() => aiThinking.value || playerTurnBlocked.value || sleeping.value || finalizing.value);
 const sleepDisabled = computed(() => session.status !== "running" || aiThinking.value || finalizing.value || Boolean(result.value));
-let aiTimer = 0;
 let aiRequestId = 0;
 
 const rows = Array.from({ length: connectFourRows }, (_, row) => row);
@@ -126,6 +127,7 @@ async function chooseAiColumn(snapshot: ConnectFourBoard) {
 }
 
 async function finishRound(nextResult: ConnectFourWinner) {
+  const sessionId = session.sessionId;
   result.value = nextResult;
   aiThinking.value = false;
   playerTurnBlocked.value = false;
@@ -137,7 +139,8 @@ async function finishRound(nextResult: ConnectFourWinner) {
 
   if (nextResult === "Y") void feedbackAudio.playMistake();
   else void feedbackAudio.playSuccess();
-  await promptAudio.playSequenceAndWait(nextResult === "R" ? ["connect-four.correct", "connect-four.complete"] : nextResult === "Y" ? ["connect-four.mistake", "connect-four.complete"] : ["connect-four.complete"], 80, 170);
+  const playback = await promptAudio.playSequenceAndWait(nextResult === "R" ? ["connect-four.correct", "connect-four.complete"] : nextResult === "Y" ? ["connect-four.mistake", "connect-four.complete"] : ["connect-four.complete"], 80, 170);
+  if (playback === "cancelled" || session.sessionId !== sessionId) return;
 
   if (session.status !== "finished") finishSession(nextResult === "draw" ? "game-draw" : nextResult === "R" ? "game-complete" : "game-lost");
   finalizing.value = false;
@@ -145,19 +148,15 @@ async function finishRound(nextResult: ConnectFourWinner) {
 
 function blockPlayerTurn() {
   playerTurnBlocked.value = true;
-  window.clearTimeout(aiTimer);
-  aiTimer = window.setTimeout(() => {
-    if (session.status === "paused") {
-      blockPlayerTurn();
-      return;
-    }
+  clearGameTimers();
+  setGameTimeout(() => {
     playerTurnBlocked.value = false;
   }, playerTurnDelayMs);
 }
 
 async function applyAiMove() {
   if (isSessionPaused()) {
-    aiTimer = window.setTimeout(applyAiMove, 250);
+    setGameTimeout(applyAiMove, 250);
     return;
   }
 
@@ -167,7 +166,7 @@ async function applyAiMove() {
   const aiMove = await chooseAiColumn(snapshot);
   if (requestId !== aiRequestId) return;
   if (isSessionPaused()) {
-    aiTimer = window.setTimeout(applyAiMove, 250);
+    setGameTimeout(applyAiMove, 250);
     return;
   }
 
@@ -193,8 +192,8 @@ function chooseColumn(column: number) {
 
   aiRequestId += 1;
   aiThinking.value = true;
-  window.clearTimeout(aiTimer);
-  aiTimer = window.setTimeout(applyAiMove, aiMoveDelayMs);
+  clearGameTimers();
+  setGameTimeout(applyAiMove, aiMoveDelayMs);
 }
 
 function toggleThinkMode() {
@@ -206,7 +205,7 @@ function toggleThinkMode() {
 function restart() {
   promptAudio.cancelPending();
   aiRequestId += 1;
-  window.clearTimeout(aiTimer);
+  clearGameTimers();
   board.value = createEmptyBoard();
   result.value = undefined;
   aiThinking.value = false;
@@ -225,7 +224,7 @@ onMounted(() => {
 onUnmounted(() => {
   promptAudio.cancelPending();
   aiRequestId += 1;
-  window.clearTimeout(aiTimer);
+  clearGameTimers();
 });
 </script>
 
@@ -310,7 +309,7 @@ onUnmounted(() => {
 }
 
 .game-header :deep(.dwell-hitbox) {
-  inline-size: min(100%, 260px);
+  inline-size: min(100%, 16.25rem);
 }
 
 .think-button-content {
@@ -447,8 +446,8 @@ onUnmounted(() => {
     padding-block-start: 4.75rem;
   }
 
- .game-header {
-    display: none !important;
+  .game-header {
+    margin-block-end: 0.5rem !important;
   }
 
  .game-header p,

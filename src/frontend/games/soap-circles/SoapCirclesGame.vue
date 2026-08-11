@@ -210,7 +210,7 @@ onUnmounted(() => {
   border-radius: 50%;
   filter: blur(1px);
   inline-size: 78vw;
-  min-inline-size: 720px;
+  min-inline-size: 45rem;
   opacity: 0.55;
   pointer-events: none;
   position: absolute;
@@ -230,7 +230,7 @@ onUnmounted(() => {
 
 .soap-circles-stage {
   block-size: 100vh;
-  min-block-size: 620px;
+  min-block-size: 38.75rem;
   padding-block-start: 96px;
   position: relative;
   z-index: 1;
@@ -239,8 +239,8 @@ onUnmounted(() => {
 .soap-circle-target {
   animation: soap-float 5.6s ease-in-out infinite;
   animation-delay: var(--float-delay);
-  block-size: clamp(150px, var(--circle-size), 236px);
-  inline-size: clamp(150px, var(--circle-size), 236px);
+  block-size: clamp(9.375rem, var(--circle-size), 14.75rem);
+  inline-size: clamp(9.375rem, var(--circle-size), 14.75rem);
   position: absolute;
   transform: translate(-50%, -50%);
 }
@@ -319,15 +319,15 @@ onUnmounted(() => {
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 45rem) {
  .soap-circles-stage {
-    min-block-size: 680px;
+    min-block-size: 42.5rem;
     padding-block-start: 96px;
   }
 
  .soap-circle-target {
-    block-size: clamp(136px, 34vw, 190px);
-    inline-size: clamp(136px, 34vw, 190px);
+    block-size: clamp(8.5rem, 34vw, 11.875rem);
+    inline-size: clamp(8.5rem, 34vw, 11.875rem);
   }
 }
 

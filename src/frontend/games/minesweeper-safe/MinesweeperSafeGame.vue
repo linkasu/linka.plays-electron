@@ -336,7 +336,7 @@ onUnmounted(() => {
   }
 }
 
-@media (min-height: 681px) and (max-height: 920px) {
+@media (min-height: 42.5625rem) and (max-height: 57.5rem) {
  .game-container {
     padding-block: 4.75rem 4vh !important;
   }
@@ -345,7 +345,7 @@ onUnmounted(() => {
     padding-block: 1rem !important;
   }
 
- .game-container.intro-copy,
+  .game-container .intro-copy,
  .game-container .v-alert {
     display: none !important;
   }
@@ -376,7 +376,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-height: 680px) {
+@media (max-height: 42.5rem) {
  .game-container {
     padding-block: 4.75rem 4vh !important;
   }
@@ -391,7 +391,7 @@ onUnmounted(() => {
     display: none;
   }
 
- .game-container.intro-copy {
+  .game-container .intro-copy {
     display: none !important;
   }
 
@@ -404,7 +404,7 @@ onUnmounted(() => {
     flex-direction: row !important;
   }
 
- .header-actions.v-chip {
+  .header-actions .v-chip {
     display: none;
   }
 

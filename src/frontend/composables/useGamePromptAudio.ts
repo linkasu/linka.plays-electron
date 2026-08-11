@@ -15,17 +15,20 @@ export type UseGamePromptAudio = {
   warm: () => void;
   play: (assetId: string, delayMs?: number) => void;
   playSequence: (assetIds: string[], delayMs?: number, gapMs?: number) => void;
-  playSequenceAndWait: (assetIds: string[], delayMs?: number, gapMs?: number) => Promise<void>;
+  playSequenceAndWait: (assetIds: string[], delayMs?: number, gapMs?: number) => Promise<PromptPlaybackResult>;
   cancelPending: () => void;
   dispose: () => void;
   assets: TtsAsset[];
 };
+
+export type PromptPlaybackResult = "completed" | "cancelled";
 
 export function useGamePromptAudio(options: UseGamePromptAudioOptions): UseGamePromptAudio {
   const assets = allAssets.filter((asset) => asset.game === options.gameId);
   const volume = options.volume ?? 0.36;
   const enabled = computed(() => options.soundEnabled.value);
   const pendingTimers = new Set<number>();
+  const pendingWaits = new Map<number, () => void>();
   let sequenceToken = 0;
   const warmAssetIds = options.warmAssetIds ? new Set(options.warmAssetIds) : undefined;
   const warmAssets = warmAssetIds ? assets.filter((asset) => warmAssetIds.has(asset.id)) : assets;
@@ -34,6 +37,11 @@ export function useGamePromptAudio(options: UseGamePromptAudioOptions): UseGameP
     sequenceToken += 1;
     for (const id of pendingTimers) window.clearTimeout(id);
     pendingTimers.clear();
+    for (const [id, cancel] of pendingWaits) {
+      window.clearTimeout(id);
+      cancel();
+    }
+    pendingWaits.clear();
     stopTtsPlayback();
   }
 
@@ -60,8 +68,12 @@ export function useGamePromptAudio(options: UseGamePromptAudioOptions): UseGameP
   }
 
   function wait(delayMs: number) {
-    return new Promise<void>((resolve) => {
-      window.setTimeout(resolve, delayMs);
+    return new Promise<boolean>((resolve) => {
+      const timer = window.setTimeout(() => {
+        pendingWaits.delete(timer);
+        resolve(true);
+      }, delayMs);
+      pendingWaits.set(timer, () => resolve(false));
     });
   }
 
@@ -69,14 +81,16 @@ export function useGamePromptAudio(options: UseGamePromptAudioOptions): UseGameP
     cancelPending();
     const token = ++sequenceToken;
     const sequenceAssets = assetIds.map(findAsset).filter((asset): asset is TtsAsset => Boolean(asset));
-    if (!sequenceAssets.length) return;
+    if (!sequenceAssets.length) return "completed";
 
-    if (delayMs > 0) await wait(delayMs);
+    if (delayMs > 0 && !await wait(delayMs)) return "cancelled";
     for (const asset of sequenceAssets) {
-      if (token !== sequenceToken) return;
+      if (token !== sequenceToken) return "cancelled";
       await playTtsAssetAndWait(enabled.value, asset, volume);
-      if (gapMs > 0) await wait(gapMs);
+      if (token !== sequenceToken) return "cancelled";
+      if (gapMs > 0 && !await wait(gapMs)) return "cancelled";
     }
+    return token === sequenceToken ? "completed" : "cancelled";
   }
 
   function playSequence(assetIds: string[], delayMs = 0, gapMs = 140) {

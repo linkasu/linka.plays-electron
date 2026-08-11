@@ -471,7 +471,7 @@ onBeforeUnmount(() => {
 }
 
 .panel-container {
-  max-width: 820px;
+  max-width: 51.25rem;
 }
 
 .calibration-stage {
@@ -493,8 +493,8 @@ onBeforeUnmount(() => {
 .debug-gaze-marker {
   position: fixed;
   z-index: 3;
-  width: 22px;
-  height: 22px;
+  width: 1.375rem;
+  height: 1.375rem;
   transform: translate(-50%, -50%);
   border: 3px solid #f44336;
   border-radius: 50%;
@@ -509,8 +509,8 @@ onBeforeUnmount(() => {
 
 .calibration-target {
   position: fixed;
-  width: 360px;
-  height: 360px;
+  width: 22.5rem;
+  height: 22.5rem;
   transform: translate(-50%, -50%);
   display: grid;
   place-items: center;
@@ -530,8 +530,8 @@ onBeforeUnmount(() => {
 
 .target-ring {
   position: relative;
-  width: 76px;
-  height: 76px;
+  width: 4.75rem;
+  height: 4.75rem;
   display: grid;
   place-items: center;
   border-radius: 50%;
@@ -542,7 +542,7 @@ onBeforeUnmount(() => {
 .target-ring::before {
   content: "";
   position: absolute;
-  inset: 10px;
+  inset: 0.625rem;
   border-radius: 50%;
   background: #04122e;
   box-shadow: inset 0 0 18px rgb(77 255 234 / 18%);
@@ -559,8 +559,8 @@ onBeforeUnmount(() => {
 .target-dot {
   position: relative;
   z-index: 1;
-  width: 14px;
-  height: 14px;
+  width: 0.875rem;
+  height: 0.875rem;
   border-radius: 50%;
   background: #ffec5c;
   box-shadow: 0 0 0 8px rgb(255 236 92 / 22%), 0 0 24px rgb(255 236 92 / 90%);
@@ -580,9 +580,9 @@ onBeforeUnmount(() => {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 7px;
-  height: 7px;
-  margin: -3.5px 0 0 -3.5px;
+  width: 0.4375rem;
+  height: 0.4375rem;
+  margin: -0.21875rem 0 0 -0.21875rem;
   border-radius: 50%;
   background: #ffec5c;
   opacity: 0;

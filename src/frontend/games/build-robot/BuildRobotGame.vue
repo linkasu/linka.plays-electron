@@ -6,6 +6,7 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useGameTimers } from "../../composables/useGameTimers";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeBuildRobotAudio, playBuildRobotMistakeMelody, playBuildRobotSuccessMelody, warmBuildRobotAudio } from "./audio";
@@ -30,7 +31,7 @@ const successPartId = ref<RobotPartId>();
 const pendingSelection = ref(false);
 const isSpeaking = ref(false);
 const promptAudio = useGamePromptAudio({ gameId: "build-robot", soundEnabled: toRef(session.settings, "sound") });
-let feedbackTimer = 0;
+const { setGameTimeout, clearGameTimers } = useGameTimers();
 
 const feedbackText = computed(() => {
   if (successPartId.value) return `Верно. ${round.value.target.label} на месте.`;
@@ -48,9 +49,8 @@ function choiceTargetId(part: RobotPart) {
 }
 
 function clearFeedbackTimer() {
-  window.clearTimeout(feedbackTimer);
+  clearGameTimers();
   promptAudio.cancelPending();
-  feedbackTimer = 0;
 }
 
 function promptAssetId() {
@@ -58,9 +58,11 @@ function promptAssetId() {
 }
 
 async function playPrompt(delayMs = 0) {
+  const sessionId = session.sessionId;
+  const roundId = round.value.roundId;
   isSpeaking.value = true;
   await promptAudio.playSequenceAndWait([promptAssetId()], delayMs);
-  isSpeaking.value = false;
+  if (session.sessionId === sessionId && round.value.roundId === roundId) isSpeaking.value = false;
 }
 
 function resetFeedback() {
@@ -80,6 +82,8 @@ async function choosePart(part: RobotPart) {
   clearFeedbackTimer();
 
   if (part.id === round.value.target.id) {
+    const sessionId = session.sessionId;
+    const roundId = round.value.roundId;
     pendingSelection.value = true;
     hintedRoundId.value = undefined;
     lastMistakePartId.value = undefined;
@@ -87,29 +91,33 @@ async function choosePart(part: RobotPart) {
     void playBuildRobotSuccessMelody(session.settings.sound);
     recordSuccess({ roundId: round.value.roundId, targetId, answerId: part.id, expected: round.value.target.label, actual: part.label, isCorrect: true });
     isSpeaking.value = true;
-    await promptAudio.playSequenceAndWait(["build-robot.correct"], 80);
+    const playback = await promptAudio.playSequenceAndWait(["build-robot.correct"], 80);
+    if (playback === "cancelled" || session.sessionId !== sessionId || round.value.roundId !== roundId) return;
+    isSpeaking.value = false;
 
-    if (session.status === "running" && session.step < session.maxSteps) {
-      feedbackTimer = window.setTimeout(() => {
+    if (session.step < session.maxSteps) {
+      setGameTimeout(() => {
         nextRound();
         resetFeedback();
         void playPrompt(180);
       }, 260);
     } else {
       pendingSelection.value = false;
-      isSpeaking.value = false;
     }
     return;
   }
 
   pendingSelection.value = true;
+  const sessionId = session.sessionId;
+  const roundId = round.value.roundId;
   void playBuildRobotMistakeMelody(session.settings.sound);
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: part.id, expected: round.value.target.label, actual: part.label, isCorrect: false });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "wrong-robot-part" });
   hintedRoundId.value = round.value.roundId;
   lastMistakePartId.value = part.id;
   isSpeaking.value = true;
-  await promptAudio.playSequenceAndWait(["build-robot.mistake", promptAssetId()], 80, 170);
+  const playback = await promptAudio.playSequenceAndWait(["build-robot.mistake", promptAssetId()], 80, 170);
+  if (playback === "cancelled" || session.sessionId !== sessionId || round.value.roundId !== roundId) return;
   pendingSelection.value = false;
   lastMistakePartId.value = undefined;
   isSpeaking.value = false;
@@ -604,7 +612,7 @@ onUnmounted(() => {
   display: none;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 37.5rem) {
  .game-container {
     overflow-y: auto;
     padding-block-start: 7.5rem;
@@ -627,7 +635,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-height: 820px) {
+@media (max-height: 51.25rem) {
  .game-container {
     padding-block-start: 4.4rem;
   }

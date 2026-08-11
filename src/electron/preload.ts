@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
+import type { TelemetryPrivacyDecision, TelemetryPrivacyPreference } from "./telemetry/privacyPreference";
 import type { RendererSessionSummaryInput, RendererTelemetryEventInput } from "./telemetry/types";
 
 type Dispose = () => void;
@@ -63,4 +64,9 @@ contextBridge.exposeInMainWorld("linkaUpdater", {
 contextBridge.exposeInMainWorld("linkaMetrics", {
   recordEvent: (event: RendererTelemetryEventInput) => ipcRenderer.send("metrics:event", event),
   recordSessionSummary: (summary: RendererSessionSummaryInput) => ipcRenderer.send("metrics:session-summary", summary)
+});
+
+contextBridge.exposeInMainWorld("linkaPrivacy", {
+  getTelemetryPreference: (): Promise<TelemetryPrivacyPreference> => ipcRenderer.invoke("privacy:telemetry:get"),
+  setTelemetryPreference: (preference: TelemetryPrivacyDecision): Promise<TelemetryPrivacyPreference> => ipcRenderer.invoke("privacy:telemetry:set", preference)
 });

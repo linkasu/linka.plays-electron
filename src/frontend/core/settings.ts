@@ -15,6 +15,7 @@ export type SessionSettings = {
   highContrast: boolean;
   reduceMotion: boolean;
   targetMagnet: boolean;
+  controlOutcomeMode: "assisted" | "strict";
 };
 
 export const presetSettings: Record<Exclude<DifficultyPreset, "custom">, SessionSettings> = {
@@ -30,7 +31,8 @@ export const presetSettings: Record<Exclude<DifficultyPreset, "custom">, Session
     sound: true,
     highContrast: false,
     reduceMotion: false,
-    targetMagnet: true
+    targetMagnet: true,
+    controlOutcomeMode: "assisted"
   },
   standard: {
     preset: "standard",
@@ -44,7 +46,8 @@ export const presetSettings: Record<Exclude<DifficultyPreset, "custom">, Session
     sound: true,
     highContrast: false,
     reduceMotion: false,
-    targetMagnet: true
+    targetMagnet: true,
+    controlOutcomeMode: "assisted"
   },
   challenge: {
     preset: "challenge",
@@ -58,7 +61,8 @@ export const presetSettings: Record<Exclude<DifficultyPreset, "custom">, Session
     sound: true,
     highContrast: false,
     reduceMotion: false,
-    targetMagnet: false
+    targetMagnet: false,
+    controlOutcomeMode: "assisted"
   }
 };
 
@@ -79,7 +83,8 @@ export function clampSettings(settings: SessionSettings): SessionSettings {
     maxSteps: Math.min(40, Math.max(1, settings.maxSteps)),
     dwellMs: Math.min(MAX_DWELL_MS, Math.max(MIN_DWELL_MS, settings.dwellMs)),
     targetScale: Math.min(2, Math.max(0.8, settings.targetScale)),
-    motionSpeed: Math.min(1.4, Math.max(0.4, settings.motionSpeed))
+    motionSpeed: Math.min(1.4, Math.max(0.4, settings.motionSpeed)),
+    controlOutcomeMode: settings.controlOutcomeMode === "strict" ? "strict" : "assisted"
   };
 }
 

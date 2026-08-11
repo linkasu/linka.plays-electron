@@ -1,4 +1,4 @@
-import { computed, onUnmounted, provide, reactive, ref, watch, type InjectionKey } from "vue";
+import { computed, onUnmounted, provide, reactive, readonly, ref, watch, type InjectionKey } from "vue";
 import { useGazePointer } from "../composables/useGazePointer";
 import { createGazeMetricsTracker } from "./gaze";
 import { createGameSessionSummary, projectSessionEvent, type SessionTelemetryContext } from "./sessionTelemetry";
@@ -62,12 +62,21 @@ export type GameSessionTelemetry = {
 
 export const gameSessionTelemetryKey: InjectionKey<GameSessionTelemetry> = Symbol("game-session-telemetry");
 
+const activeSessionStatusState = ref<SessionStatus>("idle");
+const activeSessionEpochState = ref(0);
+let activeSessionOwner: symbol | undefined;
+
+export const activeGameSessionStatus = readonly(activeSessionStatusState);
+export const activeGameSessionEpoch = readonly(activeSessionEpochState);
+
 export function useGameSession(gameId: string, initialSettings: Partial<SessionSettings> = {}, options: { finishOnMaxSteps?: boolean; finishOnMistakes?: boolean; finishOnTimeout?: boolean; telemetryContext?: SessionTelemetryContext } = {}) {
+  const sessionOwner = Symbol(gameId);
   const settings = createDefaultSettings(initialSettings);
   const { pointer } = useGazePointer();
   const gazeTracker = createGazeMetricsTracker();
   const telemetryContext = options.telemetryContext ?? { targetKind: "interactive" };
   const reportedSummaries = new Set<string>();
+  let autoPausedByVisibility = false;
   const session = reactive<GameSessionState>({
     sessionId: crypto.randomUUID(),
     gameId,
@@ -155,6 +164,8 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
 
   function startSession() {
     if (session.status === "running" || session.status === "paused") finishSession("manual");
+    activeSessionOwner = sessionOwner;
+    activeSessionEpochState.value += 1;
     session.sessionId = crypto.randomUUID();
     session.startedAt = Date.now();
     session.finishedAt = undefined;
@@ -163,6 +174,7 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
     session.finishReason = undefined;
     session.interruptionReason = undefined;
     session.status = "running";
+    activeSessionStatusState.value = "running";
     session.step = 0;
     session.score = 0;
     session.mistakes = 0;
@@ -170,12 +182,17 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
     session.events = [];
     gazeTracker.reset();
     recordEvent("session-start");
+    if (document.hidden) {
+      autoPausedByVisibility = true;
+      pauseSession();
+    }
   }
 
   function pauseSession() {
     if (session.status !== "running") return;
     session.pausedAt = Date.now();
     session.status = "paused";
+    if (activeSessionOwner === sessionOwner) activeSessionStatusState.value = "paused";
     recordEvent("session-pause");
   }
 
@@ -185,7 +202,22 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
     if (session.pausedAt) session.pausedMs += now - session.pausedAt;
     session.pausedAt = undefined;
     session.status = "running";
+    if (activeSessionOwner === sessionOwner) activeSessionStatusState.value = "running";
     recordEvent("session-resume");
+  }
+
+  function handleVisibilityChange() {
+    if (document.hidden) {
+      if (session.status === "running") {
+        autoPausedByVisibility = true;
+        pauseSession();
+      }
+      return;
+    }
+    if (autoPausedByVisibility && session.status === "paused") {
+      autoPausedByVisibility = false;
+      resumeSession();
+    }
   }
 
   function finishSession(reason: SessionFinishReason = "manual") {
@@ -196,6 +228,7 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
       session.pausedAt = undefined;
     }
     session.status = "finished";
+    if (activeSessionOwner === sessionOwner) activeSessionStatusState.value = "finished";
     session.finishedAt = now;
     session.finishReason = reason;
     recordEvent("session-finish", { reason, durationMs: activeDurationMs(now), pausedMs: session.pausedMs });
@@ -210,6 +243,7 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
       session.pausedAt = undefined;
     }
     session.status = "finished";
+    if (activeSessionOwner === sessionOwner) activeSessionStatusState.value = "finished";
     session.finishedAt = now;
     session.interruptionReason = reason;
     recordEvent("session-interrupt", { reason });
@@ -232,6 +266,7 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
   }
 
   function recordHint(payload: Record<string, unknown> = {}) {
+    if (session.status !== "running") return;
     session.hintsUsed += 1;
     recordEvent("hint", payload);
   }
@@ -268,6 +303,7 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
   }
 
   startSession();
+  document.addEventListener("visibilitychange", handleVisibilityChange);
 
   watch(pointer, (nextPointer) => {
     if (session.status !== "running") return;
@@ -279,8 +315,14 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
   provide(gameSessionTelemetryKey, { recordEvent });
 
   onUnmounted(() => {
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
     if (session.status === "running" || session.status === "paused") interruptSession("route-leave");
     window.clearInterval(timer);
+    if (activeSessionOwner === sessionOwner) {
+      activeSessionOwner = undefined;
+      activeSessionStatusState.value = "idle";
+      activeSessionEpochState.value += 1;
+    }
   });
 
   return {

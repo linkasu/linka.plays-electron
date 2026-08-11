@@ -611,7 +611,7 @@ onUnmounted(() => {
   transform: rotate(14deg) scale(0.86);
 }
 
-@media (max-width: 600px) {
+@media (max-width: 37.5rem) {
  .game-container {
     padding-block-start: 7.5rem;
   }
@@ -621,7 +621,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-height: 760px) {
+@media (max-height: 47.5rem) {
  .game-container {
     padding-block-start: 6.25rem;
   }

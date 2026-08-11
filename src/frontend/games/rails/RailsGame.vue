@@ -7,6 +7,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
+import { isCanvasControlBlocked } from "../../core/domGazeTargetCoordinator";
 import { resolveMenuRoute } from "../../core/menuMode";
 
 type Point = {
@@ -88,7 +89,7 @@ function trainSize() {
 function controlPoints(): Point[] {
   const left = Math.max(78, width.value * 0.12);
   const right = width.value - left;
-  const top = Math.max(150, height.value * 0.2);
+  const top = Math.max(230, height.value * 0.3);
   const bottom = height.value - Math.max(88, height.value * 0.12);
   const travel = Math.max(320, bottom - top);
 
@@ -302,12 +303,13 @@ function updateStation(delta: number, now: number, samples: RailSample[]) {
 
 function update(delta: number, now: number) {
   train.phase += session.settings.reduceMotion ? 0 : delta * 1.25;
-  train.visualRatio += (train.ratio - train.visualRatio) * Math.min(1, delta * 5.4);
+  train.visualRatio += (train.ratio - train.visualRatio) * (1 - Math.exp(-delta * 5.4));
 
   if (session.status !== "running" || !selectedTrain.value) return;
 
   const samples = railSamples();
-  const projection = pointer.value.valid ? projectToRail(pointer.value, samples) : undefined;
+  const controlActive = pointer.value.valid && !isCanvasControlBlocked(pointer.value);
+  const projection = controlActive ? projectToRail(pointer.value, samples) : undefined;
   const laneWidth = railWidth();
   const nearRail = Boolean(projection && projection.distance <= laneWidth * 1.1);
   const onRail = Boolean(projection && projection.distance <= laneWidth * 0.65);
@@ -317,9 +319,9 @@ function update(delta: number, now: number) {
   updateTracking(nearRail, projection);
 
   const confidenceTarget = onRail ? 1 : nearRail ? 0.55 : 0;
-  const hintTarget = nearRail || !pointer.value.valid ? 0 : 1;
-  train.confidence += (confidenceTarget - train.confidence) * Math.min(1, delta * 4.4);
-  train.hint += (hintTarget - train.hint) * Math.min(1, delta * 2.8);
+  const hintTarget = nearRail || !controlActive ? 0 : 1;
+  train.confidence += (confidenceTarget - train.confidence) * (1 - Math.exp(-delta * 4.4));
+  train.hint += (hintTarget - train.hint) * (1 - Math.exp(-delta * 2.8));
 
   if (canMoveForward && projection) {
     const speed = (onRail ? 0.3 : 0.12) * session.settings.motionSpeed;
@@ -545,7 +547,7 @@ useGameLoop({ context, update, draw });
 
     <GameHud title="Рельсы" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
 
-    <v-card class="rails-guidance pa-4" color="surface" rounded="xl" variant="flat">
+    <v-card class="rails-guidance pa-4" color="surface" rounded="xl" variant="flat" data-canvas-overlay>
       <div class="text-overline text-primary mb-1">Ведение взглядом</div>
       <div class="text-body-1 font-weight-medium">{{ guidanceText }}</div>
       <v-progress-linear class="mt-3" :model-value="progressPercent" color="primary" height="0.5rem" rounded />

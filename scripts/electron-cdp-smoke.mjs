@@ -3,13 +3,13 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { WebSocket } from "undici";
 
 const defaultRoutes = [
   "/menu/self",
   "/games/number-2048",
   "/games/route-snake",
   "/games/sokoban-large",
-  "/games/tanks-no-shooting",
   "/games/step-tetris"
 ];
 
@@ -35,18 +35,18 @@ function hasFlag(name) {
   return process.argv.includes(name);
 }
 
-async function readRegistryRoutes() {
+async function readRegistryGames() {
   const registryPath = argValue("--registry", defaultRegistryPath);
   const source = await readFile(registryPath, "utf8");
-  return Array.from(source.matchAll(/route:\s*"([^"]+)"/g))
-    .map((match) => match[1])
-    .filter((route) => route.startsWith("/games/"));
+  return Array.from(source.matchAll(/\{\s*\n\s*id:\s*"([^"]+)"[\s\S]*?route:\s*"([^"]+)"[\s\S]*?minTargetSizePx:\s*(\d+)[\s\S]*?\n\s*\}(?=\s*,?\s*(?:\{|\]))/g))
+    .map((match) => ({ id: match[1], route: match[2], minTargetSizePx: Number(match[3]) }))
+    .filter((game) => game.route.startsWith("/games/"));
 }
 
-async function parseRoutes() {
+function parseRoutes(registryGames) {
   const value = argValue("--routes", "");
   if (value) return value.split(",").map((route) => route.trim()).filter(Boolean);
-  if (hasFlag("--all-games")) return readRegistryRoutes();
+  if (hasFlag("--all-games")) return registryGames.map((game) => game.route);
   return defaultRoutes;
 }
 
@@ -116,11 +116,12 @@ async function evaluateJson(client, expression) {
   return result.result?.value;
 }
 
-async function collectMetrics(client, expectedRoute, minBottomClearanceRem) {
+async function collectMetrics(client, expectedRoute, minBottomClearanceRem, minTargetSizePx) {
   const expectedHash = `#${expectedRoute}`;
   return evaluateJson(client, `(() => {
     const expectedHash = ${JSON.stringify(expectedHash)};
     const minBottomClearanceRem = ${JSON.stringify(minBottomClearanceRem)};
+    const minTargetSizePx = ${JSON.stringify(minTargetSizePx)};
     const viewport = { width: window.innerWidth, height: window.innerHeight };
     const scrolling = document.scrollingElement || document.documentElement;
     const rootFontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
@@ -198,6 +199,7 @@ async function collectMetrics(client, expectedRoute, minBottomClearanceRem) {
         width: Math.round(rect.width),
         height: Math.round(rect.height),
         visibleRatio: Number((visibleArea / area).toFixed(3)),
+        visibleShortSide: Math.round(Math.min(visibleWidth, visibleHeight)),
         viewportAreaRatio: Number((visibleArea / viewportArea).toFixed(4)),
         shortSideRatio: Number((Math.min(rect.width, rect.height) / Math.min(viewport.width, viewport.height)).toFixed(3)),
         bottomClearance: Math.round(viewport.height - rect.bottom),
@@ -215,6 +217,7 @@ async function collectMetrics(client, expectedRoute, minBottomClearanceRem) {
       url: window.location.href,
       routeMatches: window.location.hash === expectedHash,
       title: document.title,
+      visibilityState: document.visibilityState,
       viewport,
       scrollWidth: scrolling.scrollWidth,
       scrollHeight: scrolling.scrollHeight,
@@ -228,6 +231,9 @@ async function collectMetrics(client, expectedRoute, minBottomClearanceRem) {
       minBottomClearance: visibleTargets.length ? Math.min(...visibleTargets.map((target) => target.bottomClearance)) : null,
       hudOverlapCount: targetRects.filter((target) => target.overlapsHud).length,
       lowContrastTargetCount: targetRects.filter((target) => target.firstViewportVisible && target.contrastRatio !== null && target.contrastRatio < 4.5).length,
+      clippedTargetCount: targetRects.filter((target) => target.visibleRatio < 0.999).length,
+      undersizedTargetCount: targetRects.filter((target) => target.firstViewportVisible && target.visibleShortSide < minTargetSizePx).length,
+      minTargetSizePx,
       bottomCrowdedTargetCount: targetRects.filter((target) => target.firstViewportVisible && target.bottomClearance < minBottomClearance).length,
       wasdPanelCount: document.querySelectorAll('.wasd-panel').length,
       canvases: canvasRects,
@@ -242,6 +248,8 @@ function isFailure(result) {
     || result.metrics.horizontalOverflow
     || result.metrics.hudOverlapCount
     || result.metrics.lowContrastTargetCount
+    || result.metrics.clippedTargetCount
+    || result.metrics.undersizedTargetCount
     || result.metrics.bottomCrowdedTargetCount
     || (result.metrics.wasdPanelCount > 0 && result.metrics.visibleTargetCount < result.metrics.targetCount)
     || (result.metrics.targetCount > 0 && result.metrics.visibleTargetCount === 0);
@@ -307,7 +315,9 @@ function summarizeResults(results) {
 async function main() {
   const port = Number(argValue("--port", "9222"));
   const minBottomClearanceRem = Number(argValue("--min-bottom-clearance-rem", "1.5"));
-  const routes = await parseRoutes();
+  const registryGames = await readRegistryGames();
+  const registryByRoute = new Map(registryGames.map((game) => [game.route, game]));
+  const routes = parseRoutes(registryGames);
   const screenshotDirValue = argValue("--screenshot-dir", "");
   const screenshotDir = screenshotDirValue ? path.resolve(screenshotDirValue) : "";
   if (screenshotDir) await mkdir(screenshotDir, { recursive: true });
@@ -320,7 +330,7 @@ async function main() {
 
   const client = await createCdpClient(pageTarget.webSocketDebuggerUrl);
   const runtimeErrors = [];
-  client.on("Runtime.exceptionThrown", (params) => runtimeErrors.push(params.exceptionDetails?.text ?? "Runtime exception"));
+  client.on("Runtime.exceptionThrown", (params) => runtimeErrors.push(params.exceptionDetails?.exception?.description ?? params.exceptionDetails?.text ?? "Runtime exception"));
   client.on("Log.entryAdded", (params) => {
     if (params.entry?.level === "error" && !params.entry.text?.includes("Failed to load resource:")) runtimeErrors.push(params.entry.text);
   });
@@ -328,6 +338,7 @@ async function main() {
   await client.send("Page.enable");
   await client.send("Runtime.enable");
   await client.send("Log.enable");
+  await client.send("Page.bringToFront");
 
   const results = [];
   for (const route of routes) {
@@ -340,10 +351,17 @@ async function main() {
         mobile: false
       });
       await client.send("Page.navigate", { url: routeUrl(pageTarget.url, route, `${Date.now()}-${results.length}`) });
-      await wait(250);
-      await evaluateJson(client, "window.scrollTo(0, 0); true");
+      await client.send("Page.bringToFront");
       await wait(900);
-      const metrics = await collectMetrics(client, route, minBottomClearanceRem);
+      const resumedSession = await evaluateJson(client, `(() => {
+        const resumeButton = Array.from(document.querySelectorAll('.game-hud button')).find((button) => /продолжить/i.test(button.textContent ?? ''));
+        if (!(resumeButton instanceof HTMLButtonElement)) return false;
+        resumeButton.click();
+        return true;
+      })()`);
+      await evaluateJson(client, "window.scrollTo(0, 0); true");
+      await wait(250);
+      const metrics = await collectMetrics(client, route, minBottomClearanceRem, registryByRoute.get(route)?.minTargetSizePx ?? 120);
       let screenshotPath = null;
       if (screenshotDir) {
         screenshotPath = path.join(screenshotDir, screenshotName(route, viewport));
@@ -351,7 +369,7 @@ async function main() {
         await writeFile(screenshotPath, Buffer.from(screenshot.data, "base64"));
       }
       const routeErrors = runtimeErrors.slice(errorStart);
-      results.push({ route, viewport, errors: routeErrors, screenshotPath, metrics });
+      results.push({ route, viewport, resumedSession, errors: routeErrors, screenshotPath, metrics });
     }
   }
 
@@ -363,7 +381,7 @@ async function main() {
 
   const failures = results.filter((result) => isFailure(result));
   const summary = summarizeResults(results);
-  const report = { port, routes, checked: results.length, failures: failures.length, minBottomClearanceRem, screenshotDir: screenshotDir || null, summary, results };
+  const report = { port, commitSha: process.env.GITHUB_SHA ?? null, routes, checked: results.length, failures: failures.length, minBottomClearanceRem, screenshotDir: screenshotDir || null, summary, results };
   const json = JSON.stringify(report, null, 2);
 
   const outputPath = argValue("--output", "");

@@ -133,8 +133,10 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 
 const round = reactive<SoundRound>(createRound(0));
 const resultVisible = computed(() => session.status === "finished");
-const promptText = computed(() => "Сначала послушай, затем выбери источник звука.");
-const hintVisible = computed(() => hintState.value === "revealed");
+const promptText = computed(() => session.settings.sound
+  ? "Сначала послушай, затем выбери источник звука."
+  : "Звук выключен. Найди источник по спокойной визуальной волне.");
+const hintVisible = computed(() => hintState.value === "revealed" || !session.settings.sound);
 const promptAudio = useGamePromptAudio({ gameId: "sound-source", soundEnabled: toRef(session.settings, "sound") });
 
 function createRound(step: number): SoundRound {
@@ -374,7 +376,7 @@ onUnmounted(() => {
           <div class="text-overline text-primary">Слушай звук</div>
           <h1 class="text-h4 text-md-h2 font-weight-bold mb-1">Послушай и найди источник</h1>
           <p class="text-body-1 text-md-h6 text-medium-emphasis mb-1">{{ promptText }}</p>
-          <p class="text-body-2 text-md-body-1 text-medium-emphasis mb-0">Волна появится только после ошибки или если попросить подсказку.</p>
+          <p class="text-body-2 text-md-body-1 text-medium-emphasis mb-0">{{ session.settings.sound ? 'Волна появится после ошибки или по подсказке.' : 'Волна заменяет звук и не требует быстрой реакции.' }}</p>
         </div>
 
         <v-row class="mb-3" align="stretch" dense>
@@ -390,7 +392,7 @@ onUnmounted(() => {
               :dwell-ms="session.settings.dwellMs"
               :hit-padding="8"
               min-height="4rem"
-              color="secondary"
+              color="blue-grey-darken-2"
               @select="revealHint"
             >
               <v-icon class="me-2" icon="mdi-lightbulb-on-outline" />
@@ -480,24 +482,24 @@ onUnmounted(() => {
 }
 
 .sound-source-panel {
-  inline-size: min(1120px, 100%);
+  inline-size: min(70rem, 100%);
 }
 
 .sound-source-grid {
   display: grid;
-  gap: clamp(16px, 2vw, 24px);
+  gap: clamp(1rem, 2vw, 1.5rem);
 }
 
 .sound-source-grid--2 {
-  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  grid-template-columns: repeat(2, minmax(13.75rem, 1fr));
 }
 
 .sound-source-grid--3 {
-  grid-template-columns: repeat(3, minmax(190px, 1fr));
+  grid-template-columns: repeat(3, minmax(11.875rem, 1fr));
 }
 
 .sound-source-grid--4 {
-  grid-template-columns: repeat(4, minmax(170px, 1fr));
+  grid-template-columns: repeat(4, minmax(10.625rem, 1fr));
 }
 
 .sound-source-target :deep(.dwell-button) {
@@ -568,8 +570,8 @@ onUnmounted(() => {
   animation-delay: var(--source-delay);
   border: 4px solid color-mix(in srgb, var(--source-accent) 46%, transparent);
   border-radius: 999px;
-  block-size: 72px;
-  inline-size: 72px;
+  block-size: 4.5rem;
+  inline-size: 4.5rem;
   inset-block-start: 50%;
   inset-inline-start: 50%;
   opacity: 0;
@@ -597,16 +599,16 @@ onUnmounted(() => {
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 56.25rem) {
  .sound-source-grid,
  .sound-source-grid--2,
  .sound-source-grid--3,
  .sound-source-grid--4 {
-    grid-template-columns: repeat(2, minmax(150px, 1fr));
+    grid-template-columns: repeat(2, minmax(9.375rem, 1fr));
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 35rem) {
  .sound-source-container {
     padding-block: 6.5rem 1rem;
   }

@@ -34,7 +34,30 @@ describe("useGameSession", () => {
   });
 
   afterEach(() => {
+    Object.defineProperty(document, "hidden", { configurable: true, value: false });
     vi.useRealTimers();
+  });
+
+  it("auto-pauses while hidden without resuming a manual pause", () => {
+    const mounted = mountSession({ sessionSeconds: 30 });
+    try {
+      Object.defineProperty(document, "hidden", { configurable: true, value: true });
+      document.dispatchEvent(new Event("visibilitychange"));
+      expect(mounted.api.session.status).toBe("paused");
+
+      Object.defineProperty(document, "hidden", { configurable: true, value: false });
+      document.dispatchEvent(new Event("visibilitychange"));
+      expect(mounted.api.session.status).toBe("running");
+
+      mounted.api.pauseSession();
+      Object.defineProperty(document, "hidden", { configurable: true, value: true });
+      document.dispatchEvent(new Event("visibilitychange"));
+      Object.defineProperty(document, "hidden", { configurable: true, value: false });
+      document.dispatchEvent(new Event("visibilitychange"));
+      expect(mounted.api.session.status).toBe("paused");
+    } finally {
+      mounted.unmount();
+    }
   });
 
   it("finishes after maxSteps successes", () => {

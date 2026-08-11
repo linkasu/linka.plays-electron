@@ -25,9 +25,21 @@ export type HideAndSeekLayoutOptions = {
   obstacles?: HideAndSeekRect[];
 };
 
+export type HideAndSeekCover = {
+  id: string;
+  label: string;
+  emoji: string;
+};
+
+export type HideAndSeekSpot<T> = HideAndSeekCover & {
+  placementIndex: number;
+  hiddenObject?: T;
+  opened: boolean;
+};
+
 const baseTargetWidth = 180;
 const baseTargetHeight = 170;
-const edgePadding = 12;
+const edgePadding = 24;
 const targetGap = 12;
 const hitPadding = 16;
 const compactHeight = 700;
@@ -40,6 +52,17 @@ const placementAnchors = [
   { x: 0.28, y: 0.8 },
   { x: 0.72, y: 0.8 }
 ];
+
+export function hideObjectBehindCover<T>(covers: HideAndSeekCover[], hiddenObject: T, random = Math.random): HideAndSeekSpot<T>[] {
+  if (!covers.length) throw new RangeError("HideAndSeek requires at least one cover");
+  const hiddenIndex = Math.min(covers.length - 1, Math.floor(random() * covers.length));
+  return covers.map((cover, placementIndex) => ({
+    ...cover,
+    placementIndex,
+    hiddenObject: placementIndex === hiddenIndex ? hiddenObject : undefined,
+    opened: false
+  }));
+}
 
 export function hideAndSeekFallbackObstacles(viewportWidth: number, viewportHeight: number): HideAndSeekRect[] {
   const compact = viewportHeight <= compactHeight;

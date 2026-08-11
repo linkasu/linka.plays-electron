@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { execFileSync } from "node:child_process";
 import { access, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -79,12 +80,9 @@ function parseGames(source) {
   return games;
 }
 
-function parseRouterPaths(source) {
-  const paths = new Set(Array.from(source.matchAll(/path:\s*"([^"]+)"/g)).map((match) => match[1]));
-  if (/const\s+gameRoutes\s*=\s*games\.map/.test(source) && /\.\.\.gameRoutes/.test(source)) {
-    paths.add("__registry_game_routes__");
-  }
-  return paths;
+function parseRouterGameIds(source) {
+  const componentMap = source.match(/const\s+gameComponentsById[^=]*=\s*\{([\s\S]*?)\n\};/)?.[1] ?? "";
+  return new Set(Array.from(componentMap.matchAll(/^\s*"([^"]+)"\s*:/gm)).map((match) => match[1]));
 }
 
 async function latestDocsTestPath(id) {
@@ -104,7 +102,7 @@ async function latestDocsTestPath(id) {
   return null;
 }
 
-async function fileSignals(game, routerPaths) {
+async function fileSignals(game, routerGameIds) {
   const gameDir = path.join(gamesRoot, game.id);
   const hasGameDir = await exists(gameDir);
   const files = hasGameDir ? await readdir(gameDir) : [];
@@ -113,7 +111,8 @@ async function fileSignals(game, routerPaths) {
   const docsTestPath = await latestDocsTestPath(game.id);
 
   return {
-    routeExists: routerPaths.has(game.route) || routerPaths.has("__registry_game_routes__"),
+    routeMatchesId: game.route === `/games/${game.id}`,
+    componentMapped: routerGameIds.has(game.id),
     gameDirExists: hasGameDir,
     vueFiles,
     hasVueComponent: vueFiles.length > 0,
@@ -131,7 +130,8 @@ async function fileSignals(game, routerPaths) {
 function promotionBlockers(game, signals) {
   const blockers = [];
   if (game.readinessGroup !== "ready") blockers.push(`stability:${game.resolvedStabilityStatus}`);
-  if (!signals.routeExists) blockers.push("missing-route");
+  if (!signals.routeMatchesId) blockers.push("route-id-mismatch");
+  if (!signals.componentMapped) blockers.push("missing-component-mapping");
   if (!signals.hasVueComponent) blockers.push("missing-vue-component");
   if (!signals.hasRuntimeAuditDoc) blockers.push("missing-runtime-audit-doc");
   if (!signals.hasGameDoc) blockers.push("missing-game-doc");
@@ -178,20 +178,30 @@ async function buildReport() {
   const routerPath = path.resolve(argValue("--router", defaultRouterPath));
   const registrySource = await readFile(registryPath, "utf8");
   const routerSource = await readFile(routerPath, "utf8");
-  const routerPaths = parseRouterPaths(routerSource);
+  const routerGameIds = parseRouterGameIds(routerSource);
   const parsedGames = parseGames(registrySource);
   const games = [];
 
   for (const game of parsedGames) {
-    const signals = await fileSignals(game, routerPaths);
+    const signals = await fileSignals(game, routerGameIds);
     games.push({ ...game, signals, promotionBlockers: promotionBlockers(game, signals) });
   }
 
   const readyGames = games.filter((game) => game.readinessGroup === "ready");
   const developmentGames = games.filter((game) => game.readinessGroup === "development");
 
+  const registryIds = new Set(games.map((game) => game.id));
+  const extraRouterComponentIds = Array.from(routerGameIds).filter((id) => !registryIds.has(id)).sort();
+  const publishQualityBlockers = games
+    .filter((game) => game.readinessGroup === "ready")
+    .flatMap((game) => game.promotionBlockers
+      .filter((blocker) => !blocker.startsWith("stability:"))
+      .map((blocker) => ({ id: game.id, blocker })));
+
   return {
     generatedAt: new Date().toISOString(),
+    commitSha: currentCommitSha(),
+    appVersion: await packageVersion(),
     registryPath: path.relative(projectRoot, registryPath),
     routerPath: path.relative(projectRoot, routerPath),
     rule: {
@@ -205,7 +215,9 @@ async function buildReport() {
       status: countBy(games, "status"),
       resolvedStabilityStatus: countBy(games, "resolvedStabilityStatus"),
       categoryReadiness: nestedCountBy(games, "category", "readinessGroup"),
-      missingRoutes: games.filter((game) => !game.signals.routeExists).length,
+      routeIdMismatches: games.filter((game) => !game.signals.routeMatchesId).length,
+      missingComponentMappings: games.filter((game) => !game.signals.componentMapped).length,
+      extraRouterComponentIds,
       missingVueComponents: games.filter((game) => !game.signals.hasVueComponent).length,
       missingGameDocs: games.filter((game) => !game.signals.hasGameDoc).length,
       missingRuntimeAuditDocs: games.filter((game) => !game.signals.hasRuntimeAuditDoc).length,
@@ -213,9 +225,23 @@ async function buildReport() {
       readyMissingGameDocs: readyGames.filter((game) => !game.signals.hasGameDoc).length,
       developmentMissingGameDocs: developmentGames.filter((game) => !game.signals.hasGameDoc).length
     },
+    publishQualityBlockers,
     developmentQueue: listTopDevelopmentGames(games),
     games
   };
+}
+
+function currentCommitSha() {
+  try {
+    return execFileSync("git", ["rev-parse", "HEAD"], { cwd: projectRoot, encoding: "utf8" }).trim();
+  } catch {
+    return null;
+  }
+}
+
+async function packageVersion() {
+  const packageJson = JSON.parse(await readFile(path.join(projectRoot, "package.json"), "utf8"));
+  return packageJson.version ?? null;
 }
 
 async function main() {
@@ -231,6 +257,10 @@ async function main() {
   } else {
     console.log(json);
   }
+  if (process.argv.includes("--check") && (
+    report.publishQualityBlockers.length > 0
+    || report.summary.extraRouterComponentIds.length > 0
+  )) process.exitCode = 1;
 }
 
 main().catch((error) => {

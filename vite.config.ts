@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [vue()],
   test: {
     environment: "happy-dom",
-    include: ["src/frontend/**/*.{test,spec}.ts", "src/electron/**/*.{test,spec}.ts"]
+    include: ["src/frontend/**/*.{test,spec}.ts", "src/electron/**/*.{test,spec}.ts", "scripts/ci/**/*.{test,spec}.{js,mjs}"]
   },
   build: {
     outDir: "dist",

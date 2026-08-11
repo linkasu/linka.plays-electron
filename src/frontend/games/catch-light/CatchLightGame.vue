@@ -166,8 +166,8 @@ onUnmounted(() => {
 }
 
 .catch-light-target {
-  block-size: clamp(180px, 22vw, 230px);
-  inline-size: clamp(180px, 22vw, 230px);
+  block-size: clamp(11.25rem, 22vw, 14.375rem);
+  inline-size: clamp(11.25rem, 22vw, 14.375rem);
   position: absolute;
   transform: translate(-50%, -50%);
   transition: inset-block-start 760ms ease-in-out, inset-inline-start 760ms ease-in-out;
@@ -209,10 +209,10 @@ onUnmounted(() => {
 
 .catch-light-trail {
   background: radial-gradient(circle, var(--trail-color) 0%, rgb(255 255 255 / 40%) 35%, transparent 70%);
-  block-size: clamp(56px, 10vw, 96px);
+  block-size: clamp(3.5rem, 10vw, 6rem);
   border-radius: 999px;
   filter: blur(1px);
-  inline-size: clamp(56px, 10vw, 96px);
+  inline-size: clamp(3.5rem, 10vw, 6rem);
   opacity: 0.5;
   position: absolute;
   transform: translate(-50%, -50%);

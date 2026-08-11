@@ -45,7 +45,6 @@ const clouds = reactive<Cloud[]>([]);
 const resultVisible = computed(() => session.status === "finished");
 
 const clearSeconds = 0.9;
-const hiddenSeconds = 10;
 let ctx: CanvasRenderingContext2D | undefined;
 let frame = 0;
 let lastTime = performance.now();
@@ -164,6 +163,7 @@ function gazeInfluence(cloud: Cloud) {
 }
 
 function clearCloud(cloud: Cloud, now: number) {
+  if (session.step >= session.maxSteps) return;
   recordEvent("target-click", targetPayload(cloud, now, 1));
   recordSuccess({ targetId: cloud.id, label: "cloud" });
   playCloudsPianoCue(session.settings.sound);
@@ -219,11 +219,15 @@ function updateCloud(cloud: Cloud, delta: number, now: number) {
 function updateClouds(delta: number, now: number) {
   for (const cloud of clouds) updateCloud(cloud, delta, now);
   if (session.status === "running" && clouds.length > 0 && clouds.every((cloud) => cloud.phase === "hidden")) {
-    finishSession("game-complete");
+    const remaining = session.maxSteps - session.step;
+    if (remaining <= 0) {
+      finishSession("game-complete");
+      return;
+    }
+    clouds.forEach((cloud, index) => {
+      if (index < remaining) resetCloud(cloud);
+    });
     return;
-  }
-  for (const cloud of clouds) {
-    if (cloud.phase === "hidden" && cloud.phaseAge >= hiddenSeconds && session.status === "running") resetCloud(cloud);
   }
 }
 

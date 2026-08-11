@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import wordImageManifest from "../../../../public/images/words/manifest.json";
 import { settingsFromPreset } from "../../core/settings";
-import { generateOddOneOutRound, oddOneOutCategories } from "./model";
+import { canContrastOddOneOutCategories, generateOddOneOutRound, oddOneOutCategories } from "./model";
 
 describe("generateOddOneOutRound", () => {
   it("creates gentle rounds with three choices and one odd item", () => {
@@ -20,7 +20,15 @@ describe("generateOddOneOutRound", () => {
       expect(round.choices[round.correctIndex]).toBe(round.oddItem);
       expect(round.oddCategory.id).toBe(round.oddItem.categoryId);
       expect(round.oddCategory.id).not.toBe(round.commonCategory.id);
+      expect(canContrastOddOneOutCategories(round.commonCategory.id, round.oddCategory.id)).toBe(true);
     }
+  });
+
+  it("does not contrast semantically overlapping broad categories", () => {
+    expect(canContrastOddOneOutCategories("animals", "food")).toBe(false);
+    expect(canContrastOddOneOutCategories("animals", "nature")).toBe(false);
+    expect(canContrastOddOneOutCategories("food", "nature")).toBe(false);
+    expect(canContrastOddOneOutCategories("animals", "transport")).toBe(true);
   });
 
   it("creates standard rounds with four choices and category hints", () => {

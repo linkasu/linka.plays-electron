@@ -592,18 +592,18 @@ onUnmounted(() => {
 
 .letter-hunt-prompt {
   left: 50%;
-  max-inline-size: min(520px, calc(100vw - 32px));
+  max-inline-size: min(32.5rem, calc(100vw - 2rem));
   pointer-events: none;
   position: fixed;
   text-align: center;
-  top: 104px;
+  top: 6.5rem;
   transform: translateX(-50%);
   z-index: 8;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 43.75rem) {
  .letter-hunt-prompt {
-    top: 152px;
+    top: 9.5rem;
   }
 }
 </style>

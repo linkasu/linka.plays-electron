@@ -179,9 +179,9 @@ onUnmounted(() => {
 }
 
 .sr-only {
-  block-size: 1px;
+  block-size: 0.0625rem;
   clip: rect(0, 0, 0, 0);
-  inline-size: 1px;
+  inline-size: 0.0625rem;
   overflow: hidden;
   position: absolute;
   white-space: nowrap;

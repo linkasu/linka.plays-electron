@@ -1222,12 +1222,12 @@ std::vector<ChessMove> ChessPseudoMoves(const ChessPosition& position) {
         }
       }
       if (side == 'w' && from == ChessIndex(7, 4) && !ChessInCheck(position, 'w')) {
-        if (position.whiteKingCastle && position.board[ChessIndex(7, 5)] == '.' && position.board[ChessIndex(7, 6)] == '.' && !ChessAttacked(position, ChessIndex(7, 5), 'b') && !ChessAttacked(position, ChessIndex(7, 6), 'b')) ChessPush(moves, from, ChessIndex(7, 6), 0, kChessCastle);
-        if (position.whiteQueenCastle && position.board[ChessIndex(7, 3)] == '.' && position.board[ChessIndex(7, 2)] == '.' && position.board[ChessIndex(7, 1)] == '.' && !ChessAttacked(position, ChessIndex(7, 3), 'b') && !ChessAttacked(position, ChessIndex(7, 2), 'b')) ChessPush(moves, from, ChessIndex(7, 2), 0, kChessCastle);
+        if (position.whiteKingCastle && position.board[ChessIndex(7, 7)] == 'R' && position.board[ChessIndex(7, 5)] == '.' && position.board[ChessIndex(7, 6)] == '.' && !ChessAttacked(position, ChessIndex(7, 5), 'b') && !ChessAttacked(position, ChessIndex(7, 6), 'b')) ChessPush(moves, from, ChessIndex(7, 6), 0, kChessCastle);
+        if (position.whiteQueenCastle && position.board[ChessIndex(7, 0)] == 'R' && position.board[ChessIndex(7, 3)] == '.' && position.board[ChessIndex(7, 2)] == '.' && position.board[ChessIndex(7, 1)] == '.' && !ChessAttacked(position, ChessIndex(7, 3), 'b') && !ChessAttacked(position, ChessIndex(7, 2), 'b')) ChessPush(moves, from, ChessIndex(7, 2), 0, kChessCastle);
       }
       if (side == 'b' && from == ChessIndex(0, 4) && !ChessInCheck(position, 'b')) {
-        if (position.blackKingCastle && position.board[ChessIndex(0, 5)] == '.' && position.board[ChessIndex(0, 6)] == '.' && !ChessAttacked(position, ChessIndex(0, 5), 'w') && !ChessAttacked(position, ChessIndex(0, 6), 'w')) ChessPush(moves, from, ChessIndex(0, 6), 0, kChessCastle);
-        if (position.blackQueenCastle && position.board[ChessIndex(0, 3)] == '.' && position.board[ChessIndex(0, 2)] == '.' && position.board[ChessIndex(0, 1)] == '.' && !ChessAttacked(position, ChessIndex(0, 3), 'w') && !ChessAttacked(position, ChessIndex(0, 2), 'w')) ChessPush(moves, from, ChessIndex(0, 2), 0, kChessCastle);
+        if (position.blackKingCastle && position.board[ChessIndex(0, 7)] == 'r' && position.board[ChessIndex(0, 5)] == '.' && position.board[ChessIndex(0, 6)] == '.' && !ChessAttacked(position, ChessIndex(0, 5), 'w') && !ChessAttacked(position, ChessIndex(0, 6), 'w')) ChessPush(moves, from, ChessIndex(0, 6), 0, kChessCastle);
+        if (position.blackQueenCastle && position.board[ChessIndex(0, 0)] == 'r' && position.board[ChessIndex(0, 3)] == '.' && position.board[ChessIndex(0, 2)] == '.' && position.board[ChessIndex(0, 1)] == '.' && !ChessAttacked(position, ChessIndex(0, 3), 'w') && !ChessAttacked(position, ChessIndex(0, 2), 'w')) ChessPush(moves, from, ChessIndex(0, 2), 0, kChessCastle);
       }
     }
   }
@@ -1256,10 +1256,10 @@ ChessPosition ChessApply(const ChessPosition& position, ChessMove move) {
 
   if (piece == 'K') { next.whiteKingCastle = false; next.whiteQueenCastle = false; }
   if (piece == 'k') { next.blackKingCastle = false; next.blackQueenCastle = false; }
-  if (move.from == ChessIndex(7, 0) || move.to == ChessIndex(7, 0) || captured == 'R') next.whiteQueenCastle = false;
-  if (move.from == ChessIndex(7, 7) || move.to == ChessIndex(7, 7) || captured == 'R') next.whiteKingCastle = false;
-  if (move.from == ChessIndex(0, 0) || move.to == ChessIndex(0, 0) || captured == 'r') next.blackQueenCastle = false;
-  if (move.from == ChessIndex(0, 7) || move.to == ChessIndex(0, 7) || captured == 'r') next.blackKingCastle = false;
+  if (move.from == ChessIndex(7, 0) || (move.to == ChessIndex(7, 0) && captured == 'R')) next.whiteQueenCastle = false;
+  if (move.from == ChessIndex(7, 7) || (move.to == ChessIndex(7, 7) && captured == 'R')) next.whiteKingCastle = false;
+  if (move.from == ChessIndex(0, 0) || (move.to == ChessIndex(0, 0) && captured == 'r')) next.blackQueenCastle = false;
+  if (move.from == ChessIndex(0, 7) || (move.to == ChessIndex(0, 7) && captured == 'r')) next.blackKingCastle = false;
 
   next.enPassant = -1;
   if (std::tolower(static_cast<unsigned char>(piece)) == 'p' && std::abs(ChessRow(move.to) - ChessRow(move.from)) == 2) next.enPassant = (move.from + move.to) / 2;
@@ -1281,13 +1281,31 @@ std::vector<ChessMove> ChessLegalMoves(const ChessPosition& position) {
 std::string ChessStatus(const ChessPosition& position, bool& check, std::string& reason) {
   check = ChessInCheck(position, position.side);
   const auto moves = ChessLegalMoves(position);
-  if (!moves.empty()) return "playing";
-  if (check) {
-    reason = "checkmate";
-    return position.side == 'w' ? "black-win" : "white-win";
+  if (moves.empty()) {
+    if (check) {
+      reason = "checkmate";
+      return position.side == 'w' ? "black-win" : "white-win";
+    }
+    reason = "stalemate";
+    return "draw";
   }
-  reason = "stalemate";
-  return "draw";
+  if (position.halfmove >= 100) {
+    reason = "fifty-move";
+    return "draw";
+  }
+  int nonKingPieces = 0;
+  char lonePiece = 0;
+  for (const char piece : position.board) {
+    const char lower = static_cast<char>(std::tolower(static_cast<unsigned char>(piece)));
+    if (piece == '.' || lower == 'k') continue;
+    nonKingPieces += 1;
+    lonePiece = lower;
+  }
+  if (nonKingPieces == 0 || (nonKingPieces == 1 && (lonePiece == 'b' || lonePiece == 'n'))) {
+    reason = "insufficient-material";
+    return "draw";
+  }
+  return "playing";
 }
 
 int ChessPieceValue(char piece) {

@@ -347,9 +347,9 @@ useGameLoop({ context, update, draw });
 }
 
 .breathing-flower-guide {
-  bottom: 28px;
+  bottom: 1.75rem;
   left: 50%;
-  max-inline-size: min(520px, calc(100vw - 32px));
+  max-inline-size: min(32.5rem, calc(100vw - 2rem));
   position: fixed;
   transform: translateX(-50%);
   z-index: 8;

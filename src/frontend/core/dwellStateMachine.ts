@@ -1,6 +1,6 @@
 import type { DwellCancelReason } from "./gaze";
 
-export type DwellPhase = "idle" | "holding" | "grace" | "cooldown";
+export type DwellPhase = "idle" | "holding" | "grace" | "cooldown" | "awaiting-release";
 
 export type DwellMachineState = {
   phase: DwellPhase;
@@ -22,6 +22,7 @@ export type DwellMachineInput = {
   pointerValid: boolean;
   disabled?: boolean;
   anotherTargetActive?: boolean;
+  releaseTargetActive?: boolean;
   dwellMs: number;
   graceMs: number;
   cooldownMs: number;
@@ -64,6 +65,11 @@ export function advanceDwellMachine(current: DwellMachineState, input: DwellMach
 
   if (state.phase === "cooldown") {
     if (input.now < state.cooldownUntil) return { state, events, progress: 0 };
+    state = { ...state, phase: "awaiting-release", cooldownUntil: 0 };
+  }
+
+  if (state.phase === "awaiting-release") {
+    if (input.releaseTargetActive) return { state, events, progress: 0 };
     state = createDwellMachineState();
   }
 
@@ -137,6 +143,7 @@ export function advanceDwellMachine(current: DwellMachineState, input: DwellMach
   return {
     state: {
       phase: "cooldown",
+      targetId: input.targetId,
       accumulatedMs: 0,
       lastAt: input.now,
       graceUntil: 0,

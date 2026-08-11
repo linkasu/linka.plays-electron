@@ -87,11 +87,11 @@ export const highwaySegments: HighwaySegment[] = [
 ];
 
 export function highwayRoad(viewport: ViewportSize): HighwayRoad {
-  const roadWidth = Math.min(viewport.width * 0.72, Math.max(420, viewport.height * 0.82));
+  const roadWidth = Math.min(viewport.width * 0.8, Math.max(600, viewport.height));
   const left = (viewport.width - roadWidth) / 2;
   const right = left + roadWidth;
   const top = Math.max(72, viewport.height * 0.12);
-  const bottom = viewport.height - Math.max(38, viewport.height * 0.07);
+  const bottom = viewport.height - Math.max(118, viewport.height * 0.16);
   return { left, right, top, bottom, laneWidth: roadWidth / laneCount };
 }
 
@@ -143,7 +143,7 @@ export function syncHighwayGeometry(state: HighwayState, viewport: ViewportSize)
   };
 }
 
-export function updateHighway(state: HighwayState, inputX: number | undefined, deltaSeconds: number, viewport: ViewportSize, motionSpeed = 1): HighwayUpdateResult {
+export function updateHighway(state: HighwayState, inputX: number | undefined, deltaSeconds: number, viewport: ViewportSize, motionSpeed = 1, strictLoss = true): HighwayUpdateResult {
   if (state.mode !== "running") return { state, event: { type: "none" } };
   const delta = Math.min(0.05, Math.max(0, deltaSeconds));
   const road = highwayRoad(viewport);
@@ -153,7 +153,7 @@ export function updateHighway(state: HighwayState, inputX: number | undefined, d
   next = scrollWorld(next, viewport, delta, motionSpeed);
 
   const hit = next.invulnerableSeconds <= 0 ? detectCollision(next, viewport) : undefined;
-  if (hit) return applyDamage(next, hit, viewport);
+  if (hit) return applyDamage(next, hit, viewport, strictLoss);
 
   if (goalReached(next, viewport)) {
     const segmentIndex = next.segmentIndex;
@@ -232,8 +232,8 @@ function goalReached(state: HighwayState, viewport: ViewportSize) {
   return laneGap < road.laneWidth * 0.34 && verticalGap < carSize(viewport) * 0.58;
 }
 
-function applyDamage(state: HighwayState, obstacle: HighwayObstacle, viewport: ViewportSize): HighwayUpdateResult {
-  const nextHull = state.hull - 1;
+function applyDamage(state: HighwayState, obstacle: HighwayObstacle, viewport: ViewportSize, strictLoss: boolean): HighwayUpdateResult {
+  const nextHull = strictLoss ? state.hull - 1 : Math.max(1, state.hull - 1);
   const road = highwayRoad(viewport);
   const escapeLane = nearestFreeLane(obstacle.lane, state.obstacles.map((item) => item.lane));
   const next = {
@@ -243,7 +243,7 @@ function applyDamage(state: HighwayState, obstacle: HighwayObstacle, viewport: V
     car: { ...state.car, targetLane: escapeLane, x: laneCenter(road, escapeLane), lane: escapeLane, damageFlash: 1 },
     obstacles: state.obstacles.filter((item) => item.id !== obstacle.id)
   };
-  if (nextHull <= 0) return { state: { ...next, mode: "crashed" }, event: { type: "crashed", segmentIndex: state.segmentIndex, obstacleId: obstacle.id, lane: obstacle.lane } };
+  if (strictLoss && nextHull <= 0) return { state: { ...next, mode: "crashed" }, event: { type: "crashed", segmentIndex: state.segmentIndex, obstacleId: obstacle.id, lane: obstacle.lane } };
   return { state: next, event: { type: "damage", segmentIndex: state.segmentIndex, obstacleId: obstacle.id, lane: obstacle.lane, hull: nextHull } };
 }
 

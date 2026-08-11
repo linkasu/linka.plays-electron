@@ -345,7 +345,7 @@ onUnmounted(() => {
   opacity: 1;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 40rem) {
  .cue-board {
     gap: 0.65rem;
   }

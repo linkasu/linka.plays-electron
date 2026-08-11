@@ -10,7 +10,7 @@ import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
 import { createMiniDialogCommunication, generateMiniDialogRound, getMiniDialogChoice, getMiniDialogNextNodeId, miniDialogInstruction, type MiniDialogChoice, type MiniDialogNodeId, type MiniDialogRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, finishSession, startSession } = useGameSessionFor("mini-dialog", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordHint, finishSession, startSession } = useGameSessionFor("mini-dialog", {
   maxSteps: 6,
   overrides: { dwellMs: 1350, sessionSeconds: 135, sound: true },
   finishOnMaxSteps: false,
@@ -47,7 +47,7 @@ async function choose(choiceId: string) {
   isChangingRound.value = true;
   selectedChoiceId.value = choice.id;
   feedback.value = `Ты сказал: «${communication.phrase}»`;
-  recordSuccess({
+  const payload = {
     roundId: round.value.roundId,
     nodeId: round.value.nodeId,
     targetId,
@@ -55,17 +55,25 @@ async function choose(choiceId: string) {
     scenario: round.value.scenario,
     choiceKind: choice.kind,
     ...communication
-  });
+  };
+  if (choice.kind === "support") recordHint({ ...payload, reason: "requested-help" });
+  else if (choice.kind !== "repeat") recordSuccess(payload);
 
   await speakSceneText(communication.phrase, session.settings.sound, 80);
 
   const requestedNodeId = getMiniDialogNextNodeId(choice);
-  const nextNodeId = session.step >= session.maxSteps ? "finish" : requestedNodeId;
+  const canAutoFinish = choice.kind !== "support" && choice.kind !== "repeat" && choice.kind !== "more";
+  const nextNodeId = canAutoFinish && session.step >= session.maxSteps ? "finish" : requestedNodeId;
   roundIndex.value += 1;
   setRound(nextNodeId);
   selectedChoiceId.value = undefined;
   feedback.value = `Мира отвечает: «${round.value.partnerLine}»`;
   await playPartnerLine(160);
+
+  if (choice.kind === "support") {
+    feedback.value = "Я помогу. Послушай вопрос ещё раз; можно ответить или отказаться.";
+    await speakSceneText(feedback.value, session.settings.sound, 100);
+  }
 
   if (round.value.isTerminal) {
     finishSession("game-complete");

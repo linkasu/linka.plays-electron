@@ -245,13 +245,13 @@ onUnmounted(() => {
   filter: saturate(0.72) opacity(0.76);
 }
 
-@media (max-height: 920px) {
+@media (max-height: 57.5rem) {
  .feed-animal-overline {
     display: none;
   }
 
- .feed-animal-feedback {
-    margin-block-end: 1rem !important;
+  .feed-animal-feedback {
+    margin-block-end: 0.75rem !important;
   }
 
  .feed-animal-card {

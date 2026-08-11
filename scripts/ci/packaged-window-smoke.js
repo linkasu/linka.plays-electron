@@ -1,6 +1,7 @@
 const { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } = require("fs");
 const { spawn, spawnSync } = require("child_process");
 const { basename, join, resolve } = require("path");
+const { WebSocket } = require("undici");
 
 const projectRoot = join(__dirname, "..", "..");
 const packageOutputDir = join(projectRoot, "release");

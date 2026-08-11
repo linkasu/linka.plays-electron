@@ -16,4 +16,6 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run test:unit
-      - run: npm run lint:adaptive-layout
+      - run: npm run lint:adaptive-layout -- --all
+      - run: npm run audit:readiness -- --check
+      - run: npm run audit:tts-assets

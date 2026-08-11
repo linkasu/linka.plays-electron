@@ -57,7 +57,7 @@ function currentTargetId() {
   return props.targetId ?? rootRef.value?.id ?? `dwell-button-${instance?.uid ?? "unknown"}`;
 }
 
-function makePayload(now: number, nextProgress: number, reason?: DwellCancelReason, elapsedMs = machineState.accumulatedMs): DwellEventPayload {
+function makePayload(now: number, nextProgress: number, reason?: DwellCancelReason, elapsedMs = machineState.accumulatedMs, source = pointer.value.source): DwellEventPayload {
   return {
     targetId: currentTargetId(),
     at: Date.now(),
@@ -68,7 +68,7 @@ function makePayload(now: number, nextProgress: number, reason?: DwellCancelReas
       x: pointer.value.x,
       y: pointer.value.y,
       valid: pointer.value.valid,
-      source: pointer.value.source,
+      source,
       timestamp: pointer.value.timestamp
     },
     reason
@@ -93,12 +93,19 @@ function tick(now: number) {
   const coordinatedTargetId = activeDomGazeTargetId.value;
   const previousState = machineState;
   const previousProgress = progress.value;
+  const rect = rootRef.value?.getBoundingClientRect();
+  const releaseTargetActive = Boolean(rect && pointer.value.valid
+    && pointer.value.x >= rect.left - props.hitPadding
+    && pointer.value.x <= rect.right + props.hitPadding
+    && pointer.value.y >= rect.top - props.hitPadding
+    && pointer.value.y <= rect.bottom + props.hitPadding);
   const result = advanceDwellMachine(machineState, {
     now,
     targetId: coordinatedTargetId === targetId ? targetId : undefined,
     pointerValid: pointer.value.valid,
     disabled: props.disabled,
     anotherTargetActive: Boolean(coordinatedTargetId && coordinatedTargetId !== targetId),
+    releaseTargetActive,
     dwellMs: props.dwellMs,
     graceMs: props.graceMs,
     cooldownMs: 500
@@ -129,15 +136,16 @@ function tick(now: number) {
   if (!disposed) frame = requestAnimationFrame(tick);
 }
 
-function selectByPointerClick() {
-  if (props.disabled) return;
+function selectByPointerClick(event: MouseEvent) {
+  if (props.disabled || performance.now() < sharedCooldownUntil) return;
   const now = performance.now();
-  const payload = makePayload(now, 1, undefined, 0);
+  const payload = makePayload(now, 1, undefined, 0, "mouse");
   record("target-click", payload);
   emit("select", payload);
   machineState = {
     ...createDwellMachineState(),
     phase: "cooldown",
+    targetId: currentTargetId(),
     cooldownUntil: now + 500
   };
   sharedCooldownUntil = now + 700;
@@ -168,6 +176,8 @@ onUnmounted(() => {
       :color="color"
       :disabled="disabled"
       :style="{ minBlockSize }"
+      tag="button"
+      type="button"
       class="pa-5 text-center d-flex flex-column justify-center"
       rounded="xl"
       variant="elevated"

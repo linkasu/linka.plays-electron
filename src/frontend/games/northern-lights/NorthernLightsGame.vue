@@ -7,6 +7,7 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { ambientStepTargetMs } from "../../core/ambientProgress";
 import { disposeNorthernLightsPiano, setNorthernLightsPianoActive, tickNorthernLightsPiano, warmNorthernLightsPiano } from "./audio";
 
 type GazeGlow = {
@@ -91,7 +92,7 @@ function copyPointer() {
 }
 
 function stepTargetMs() {
-  return session.settings.sessionSeconds * 1000 / session.maxSteps;
+  return ambientStepTargetMs(session.settings.sessionSeconds, session.maxSteps);
 }
 
 function addGazeGlow(now: number) {

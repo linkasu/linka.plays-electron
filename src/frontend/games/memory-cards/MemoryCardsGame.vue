@@ -7,6 +7,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useGameTimers } from "../../composables/useGameTimers";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeMemoryCardsAudio, playMemoryCardsMatchMelody, playMemoryCardsMismatchMelody, warmMemoryCardsAudio } from "./audio";
 import { createMemoryCardsRound, memoryCardHitPaddingForGap, type MemoryCard } from "./model";
@@ -34,7 +35,7 @@ const isSpeaking = ref(false);
 const feedbackMessage = ref("Открой две карточки и найди пару.");
 const gridRef = ref<HTMLDivElement>();
 const cardHitPadding = ref(0);
-let closeTimeout = 0;
+const { setGameTimeout, clearGameTimers } = useGameTimers();
 let gapMeasurementFrame = 0;
 let gridResizeObserver: ResizeObserver | undefined;
 const promptAudio = useGamePromptAudio({ gameId: "memory-cards", soundEnabled: toRef(session.settings, "sound") });
@@ -82,9 +83,7 @@ function createCardStates(memoryCards: MemoryCard[]): MemoryCardState[] {
 }
 
 function clearCloseTimeout() {
-  if (!closeTimeout) return;
-  window.clearTimeout(closeTimeout);
-  closeTimeout = 0;
+  clearGameTimers();
 }
 
 function clearAudio() {
@@ -157,7 +156,7 @@ async function chooseCard(card: MemoryCardState) {
   feedbackMessage.value = "Это разные карточки. Они закроются.";
   isSpeaking.value = true;
   await promptAudio.playSequenceAndWait(["memory-cards.mismatch"], 80);
-  closeTimeout = window.setTimeout(() => {
+  setGameTimeout(() => {
     first.revealed = false;
     second.revealed = false;
     selectedCardIds.value = [];
@@ -165,7 +164,6 @@ async function chooseCard(card: MemoryCardState) {
     inputBlocked.value = false;
     isSpeaking.value = false;
     feedbackMessage.value = "Попробуй открыть ещё две карточки.";
-    closeTimeout = 0;
   }, 260);
 }
 
@@ -269,13 +267,13 @@ onUnmounted(() => {
 
 .memory-grid {
   flex: 0 1 min(1040px, 100%);
-  inline-size: min(1040px, 100%);
-  max-inline-size: 1040px;
+  inline-size: min(65rem, 100%);
+  max-inline-size: 65rem;
   margin-inline: auto;
 }
 
 .memory-grid :deep(.v-col) {
-  padding: 6px;
+  padding: 0.375rem;
 }
 
 .feedback-line {
@@ -296,9 +294,9 @@ onUnmounted(() => {
 }
 
 .sr-only {
-  block-size: 1px;
+  block-size: 0.0625rem;
   clip: rect(0, 0, 0, 0);
-  inline-size: 1px;
+  inline-size: 0.0625rem;
   overflow: hidden;
   position: absolute;
   white-space: nowrap;

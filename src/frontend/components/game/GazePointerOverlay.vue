@@ -22,11 +22,11 @@ const markerStyle = computed(() => ({
 
 <style scoped>
 .gaze-pointer {
-  block-size: 22px;
+  block-size: 1.375rem;
   border: 3px solid rgb(255 255 255 / 82%);
   border-radius: 999px;
   box-shadow: 0 0 0 4px rgb(108 92 231 / 22%), 0 6px 18px rgb(20 20 40 / 22%);
-  inline-size: 22px;
+  inline-size: 1.375rem;
   pointer-events: none;
   position: fixed;
   transform: translate(-50%, -50%);

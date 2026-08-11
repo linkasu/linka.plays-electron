@@ -89,18 +89,26 @@ function randomHue() {
 function chooseFireflyPoint(radius: number, first: boolean) {
   if (first) return { x: 50, y: 56 };
 
-  const point = randomTargetCenterPercent({
-    targetWidth: radius * 2,
-    targetHeight: radius * 2,
-    hudHeight: Math.max(88, window.innerHeight * 0.18),
-    sidePadding: Math.max(72, window.innerWidth * 0.12),
-    bottomPadding: Math.max(96, window.innerHeight * 0.14),
-    previous: previousFireflyPoint,
-    minDistance: Math.min(280, Math.max(160, radius * 1.45)),
-    attempts: 20
-  });
-
-  return point;
+  let fallback = { x: 50, y: 56 };
+  for (let attempt = 0; attempt < 24; attempt += 1) {
+    const point = randomTargetCenterPercent({
+      targetWidth: radius * 2,
+      targetHeight: radius * 2,
+      hudHeight: Math.max(88, window.innerHeight * 0.18),
+      sidePadding: Math.max(72, window.innerWidth * 0.12),
+      bottomPadding: Math.max(96, window.innerHeight * 0.14),
+      previous: previousFireflyPoint,
+      minDistance: Math.min(280, Math.max(160, radius * 1.45)),
+      attempts: 20
+    });
+    fallback = point;
+    const pointPixels = percentToPixels(point);
+    const separated = fireflies
+      .filter((firefly) => firefly.phase !== "lit")
+      .every((firefly) => distance(pointPixels, percentToPixels(firefly)) >= radius * 2.4);
+    if (separated) return point;
+  }
+  return fallback;
 }
 
 function createFirefly(first = false): Firefly {
@@ -185,6 +193,12 @@ function updateFireflies(delta: number, now: number) {
     return;
   }
 
+  const activeTarget = fireflies
+    .filter((firefly) => firefly.phase !== "lit")
+    .map((firefly) => ({ firefly, distance: distance(percentToPixels(firefly), pointer.value) }))
+    .filter(({ firefly, distance: targetDistance }) => pointer.value.valid && targetDistance <= firefly.radius * 1.7)
+    .sort((left, right) => left.distance - right.distance)[0]?.firefly;
+
   for (let index = fireflies.length - 1; index >= 0; index--) {
     const firefly = fireflies[index];
     firefly.age += delta;
@@ -204,7 +218,7 @@ function updateFireflies(delta: number, now: number) {
 
     const point = percentToPixels(firefly);
     const hitRadius = firefly.radius * 1.7;
-    const inside = pointer.value.valid && distance(point, pointer.value) <= hitRadius;
+    const inside = activeTarget?.id === firefly.id && distance(point, pointer.value) <= hitRadius;
 
     if (!inside) {
       if (firefly.enteredAt !== undefined) cancelFirefly(firefly, now, pointer.value.valid ? "left" : "invalid-gaze");

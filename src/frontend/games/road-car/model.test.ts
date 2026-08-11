@@ -64,4 +64,17 @@ describe("smooth car highway model", () => {
     expect(state.mode).toBe("crashed");
     expect(state.hull).toBe(0);
   });
+
+  it("keeps one hull point in assisted mode", () => {
+    const state = withObstacleAtCar({ ...createHighwayState(viewport), hull: 1, invulnerableSeconds: 0 });
+    const result = updateHighway(state, state.car.x, 0.02, viewport, 1, false);
+
+    expect(result.event.type).toBe("damage");
+    expect(result.state.mode).toBe("running");
+    expect(result.state.hull).toBe(1);
+  });
+
+  it("keeps four lane targets at least 150 pixels wide at 800 by 600", () => {
+    expect(highwayRoad({ width: 800, height: 600 }).laneWidth).toBeGreaterThanOrEqual(150);
+  });
 });

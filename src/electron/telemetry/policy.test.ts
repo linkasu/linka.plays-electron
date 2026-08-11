@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isTelemetryEnabled, retryDelayMs } from "./policy";
+import { isTelemetryEnabled, retryDelayMs, shouldStartTelemetry } from "./policy";
 
 describe("telemetry policy", () => {
   it("is disabled in development and tests unless explicitly forced", () => {
@@ -7,6 +7,14 @@ describe("telemetry policy", () => {
     expect(isTelemetryEnabled(false, "0")).toBe(false);
     expect(isTelemetryEnabled(false, "1")).toBe(true);
     expect(isTelemetryEnabled(true, undefined)).toBe(true);
+  });
+
+  it("starts collection only after an explicit enabled decision", () => {
+    expect(shouldStartTelemetry(true, "unknown", undefined)).toBe(false);
+    expect(shouldStartTelemetry(true, "disabled", undefined)).toBe(false);
+    expect(shouldStartTelemetry(true, "enabled", undefined)).toBe(true);
+    expect(shouldStartTelemetry(false, "enabled", undefined)).toBe(false);
+    expect(shouldStartTelemetry(false, "enabled", "1")).toBe(true);
   });
 
   it("uses bounded exponential backoff with jitter", () => {

@@ -6,6 +6,7 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useGameTimers } from "../../composables/useGameTimers";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
@@ -36,8 +37,6 @@ const activeStepIndex = ref(-1);
 const selectedIds = ref<string[]>([]);
 const isLocked = ref(true);
 const isSpeaking = ref(false);
-let sequenceTimers: number[] = [];
-let feedbackTimer = 0;
 
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("shape-dance", {
   maxSteps: 8,
@@ -45,6 +44,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnMistakes: false
 });
 const promptAudio = useGamePromptAudio({ gameId: "shape-dance", soundEnabled: toRef(session.settings, "sound") });
+const { setGameTimeout, clearGameTimers } = useGameTimers();
 
 const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame<ShapeDanceRound>({
   session,
@@ -60,17 +60,15 @@ function figureTargetId(figure: ShapeDanceFigure) {
 }
 
 function clearSequenceTimers() {
-  sequenceTimers.forEach((timer) => window.clearTimeout(timer));
-  sequenceTimers = [];
+  clearGameTimers();
 }
 
 function clearFeedbackTimer() {
-  window.clearTimeout(feedbackTimer);
-  feedbackTimer = 0;
+  clearGameTimers();
 }
 
 function queueSequenceTimer(callback: () => void, delayMs: number) {
-  sequenceTimers.push(window.setTimeout(callback, delayMs));
+  setGameTimeout(callback, delayMs);
 }
 
 function playDanceNote(figure: ShapeDanceFigure) {
@@ -85,8 +83,11 @@ function playDanceNote(figure: ShapeDanceFigure) {
 }
 
 async function unlockForRepeat() {
+  const sessionId = session.sessionId;
+  const roundId = round.value.roundId;
   isSpeaking.value = true;
-  await promptAudio.playSequenceAndWait(["shape-dance.prompt"], 80);
+  const playback = await promptAudio.playSequenceAndWait(["shape-dance.prompt"], 80);
+  if (playback === "cancelled" || session.sessionId !== sessionId || round.value.roundId !== roundId) return;
   isSpeaking.value = false;
   if (phase.value === "repeat") isLocked.value = false;
 }
@@ -148,6 +149,8 @@ async function chooseFigure(figure: ShapeDanceFigure) {
   clearFeedbackTimer();
 
   if (figure.id !== expected.id) {
+    const sessionId = session.sessionId;
+    const roundId = round.value.roundId;
     phase.value = "feedback";
     isLocked.value = true;
     activeFigureId.value = figure.id;
@@ -155,9 +158,10 @@ async function chooseFigure(figure: ShapeDanceFigure) {
     void danceFeedback.playMistake(session.settings.sound);
     recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: figure.id, expected: expected.label, actual: figure.label, isCorrect: false });
     isSpeaking.value = true;
-    await promptAudio.playSequenceAndWait(["shape-dance.mistake"], 80);
+    const playback = await promptAudio.playSequenceAndWait(["shape-dance.mistake"], 80);
+    if (playback === "cancelled" || session.sessionId !== sessionId || round.value.roundId !== roundId) return;
     isSpeaking.value = false;
-    feedbackTimer = window.setTimeout(() => playSequence("Посмотри ещё раз: танец начнётся."), feedbackMs);
+    setGameTimeout(() => playSequence("Посмотри ещё раз: танец начнётся."), feedbackMs);
     return;
   }
 
@@ -167,7 +171,7 @@ async function chooseFigure(figure: ShapeDanceFigure) {
   if (selectedIds.value.length < round.value.sequence.length) {
     playDanceNote(figure);
     feedbackText.value = "Верно. Продолжай следующий шаг.";
-    feedbackTimer = window.setTimeout(() => {
+    setGameTimeout(() => {
       activeFigureId.value = undefined;
       feedbackText.value = "Выбери следующую фигуру.";
     }, 520);
@@ -175,6 +179,8 @@ async function chooseFigure(figure: ShapeDanceFigure) {
   }
 
   phase.value = "feedback";
+  const sessionId = session.sessionId;
+  const roundId = round.value.roundId;
   isLocked.value = true;
   feedbackText.value = "Танец повторён.";
   void danceFeedback.playSuccess(session.settings.sound);
@@ -187,11 +193,12 @@ async function chooseFigure(figure: ShapeDanceFigure) {
     isCorrect: true
   });
   isSpeaking.value = true;
-  await promptAudio.playSequenceAndWait(session.step >= session.maxSteps ? ["shape-dance.correct", "shape-dance.complete"] : ["shape-dance.correct"], 80, 170);
+  const playback = await promptAudio.playSequenceAndWait(session.step >= session.maxSteps ? ["shape-dance.correct", "shape-dance.complete"] : ["shape-dance.correct"], 80, 170);
+  if (playback === "cancelled" || session.sessionId !== sessionId || round.value.roundId !== roundId) return;
   isSpeaking.value = false;
 
-  if (session.status === "running" && session.step < session.maxSteps) {
-    feedbackTimer = window.setTimeout(() => nextRound(), roundPauseMs);
+  if (session.step < session.maxSteps) {
+    setGameTimeout(() => nextRound(), roundPauseMs);
   }
 }
 
@@ -384,7 +391,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 37.5rem) {
  .shape-dance-container {
     padding-block-start: 9.75rem;
   }

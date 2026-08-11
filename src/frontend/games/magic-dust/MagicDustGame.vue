@@ -7,6 +7,7 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { ambientStepTargetMs } from "../../core/ambientProgress";
 import { disposeMagicDustPiano, playMagicDustCue, setMagicDustPianoActive, tickMagicDustPiano, warmMagicDustPiano } from "./audio";
 
 type Point = { x: number; y: number };
@@ -82,7 +83,7 @@ function copyPointer() {
 }
 
 function stepTargetMs() {
-  return session.settings.sessionSeconds * 1000 / session.maxSteps;
+  return ambientStepTargetMs(session.settings.sessionSeconds, session.maxSteps);
 }
 
 function initBackgroundSparks() {

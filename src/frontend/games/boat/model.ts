@@ -71,12 +71,12 @@ export type BoatRouteSegment = {
 
 export const boatRouteSegments: BoatRouteSegment[] = [
   { id: "first-gap", title: "Первый проход", gapY: 0.5, gapHeight: 0.42, width: 0.13 },
-  { id: "upper-gap", title: "Верхнее окно", gapY: 0.34, gapHeight: 0.38, width: 0.14 },
-  { id: "lower-gap", title: "Нижнее окно", gapY: 0.7, gapHeight: 0.36, width: 0.14 },
-  { id: "middle-tight", title: "Узкий пролёт", gapY: 0.5, gapHeight: 0.31, width: 0.15 },
-  { id: "high-tight", title: "Высокий пролёт", gapY: 0.28, gapHeight: 0.3, width: 0.15 },
-  { id: "low-tight", title: "Низкий пролёт", gapY: 0.72, gapHeight: 0.29, width: 0.16 },
-  { id: "final-stones", title: "Финальные камни", gapY: 0.44, gapHeight: 0.27, width: 0.17 }
+  { id: "upper-gap", title: "Верхнее окно", gapY: 0.34, gapHeight: 0.4, width: 0.14 },
+  { id: "lower-gap", title: "Нижнее окно", gapY: 0.7, gapHeight: 0.4, width: 0.14 },
+  { id: "middle-tight", title: "Узкий пролёт", gapY: 0.5, gapHeight: 0.39, width: 0.15 },
+  { id: "high-tight", title: "Высокий пролёт", gapY: 0.28, gapHeight: 0.39, width: 0.15 },
+  { id: "low-tight", title: "Низкий пролёт", gapY: 0.72, gapHeight: 0.38, width: 0.16 },
+  { id: "final-stones", title: "Финальные камни", gapY: 0.44, gapHeight: 0.38, width: 0.17 }
 ];
 
 export function riverGeometry(viewport: ViewportSize): RiverGeometry {
@@ -127,7 +127,7 @@ export function syncBoatGeometry(state: BoatGameState, viewport: ViewportSize, t
   };
 }
 
-export function updateBoatGame(state: BoatGameState, inputY: number | undefined, deltaSeconds: number, viewport: ViewportSize, motionSpeed = 0.78, targetScale = 1.35, reduceMotion = false): BoatUpdateResult {
+export function updateBoatGame(state: BoatGameState, inputY: number | undefined, deltaSeconds: number, viewport: ViewportSize, motionSpeed = 0.78, targetScale = 1.35, reduceMotion = false, strictLoss = true): BoatUpdateResult {
   if (state.mode !== "running") return { state, event: { type: "none" } };
 
   const delta = Math.min(0.05, Math.max(0, deltaSeconds));
@@ -136,7 +136,7 @@ export function updateBoatGame(state: BoatGameState, inputY: number | undefined,
   next = scrollRoute(next, delta, motionSpeed, reduceMotion);
 
   const damage = next.invulnerableSeconds <= 0 ? detectDamage(next, viewport, targetScale) : undefined;
-  if (damage) return applyDamage(next, damage, viewport, targetScale);
+  if (damage) return applyDamage(next, damage, viewport, targetScale, strictLoss);
 
   const mainHazard = next.hazards[0];
   if (!mainHazard) return { state: spawnRoute(next, viewport, next.routeIndex, true, targetScale), event: { type: "none" } };
@@ -230,8 +230,8 @@ function stoneGateHitsBoat(hazard: BoatHazard, point: Point, boatSize: number) {
   return point.y - halfBoatHeight < gapTop || point.y + halfBoatHeight > gapBottom;
 }
 
-function applyDamage(state: BoatGameState, damage: { hazardId: string; reason: BoatDamageReason }, viewport: ViewportSize, targetScale: number): BoatUpdateResult {
-  const nextHull = state.hull - 1;
+function applyDamage(state: BoatGameState, damage: { hazardId: string; reason: BoatDamageReason }, viewport: ViewportSize, targetScale: number, strictLoss: boolean): BoatUpdateResult {
+  const nextHull = strictLoss ? state.hull - 1 : Math.max(1, state.hull - 1);
   const river = riverGeometry(viewport);
   const size = boatVisualSize(viewport, targetScale);
   const hazard = state.hazards.find((item) => item.id === damage.hazardId);
@@ -244,7 +244,7 @@ function applyDamage(state: BoatGameState, damage: { hazardId: string; reason: B
     shakeSeconds: 0.45,
     boat: { ...state.boat, y: pushedY, damageFlash: 1 }
   };
-  if (nextHull <= 0) return { state: { ...next, mode: "crashed" }, event: { type: "crashed", routeIndex: state.routeIndex, hazardId: damage.hazardId, reason: damage.reason } };
+  if (strictLoss && nextHull <= 0) return { state: { ...next, mode: "crashed" }, event: { type: "crashed", routeIndex: state.routeIndex, hazardId: damage.hazardId, reason: damage.reason } };
   return { state: next, event: { type: "damage", routeIndex: state.routeIndex, hazardId: damage.hazardId, reason: damage.reason, hull: nextHull } };
 }
 

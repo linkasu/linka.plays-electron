@@ -149,7 +149,7 @@ export function chooseCheckersLightAiMove(state: CheckersLightState, depth = 5):
   let bestScore = Number.NEGATIVE_INFINITY;
   for (const move of orderMoves(moves)) {
     const result = applyMoveObject(state, move);
-    const score = minimax(result.state, depth - 1, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, false);
+    const score = minimax(result.state, depth - 1, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY);
     if (score > bestScore) {
       bestScore = score;
       bestMove = move;
@@ -288,16 +288,17 @@ function determineStatus(board: CheckersLightBoard, sideToMove: CheckersLightPie
   return "playing";
 }
 
-function minimax(state: CheckersLightState, depth: number, alpha: number, beta: number, maximizingBlue: boolean): number {
+function minimax(state: CheckersLightState, depth: number, alpha: number, beta: number): number {
   if (depth <= 0 || state.status !== "playing") return evaluateState(state);
-  const side = maximizingBlue ? "blue" : "gold";
+  const side = state.turn;
+  const maximizingBlue = side === "blue";
   const moves = orderMoves(getLegalMoves(state, side));
   if (!moves.length) return evaluateState(state);
 
   if (maximizingBlue) {
     let value = Number.NEGATIVE_INFINITY;
     for (const move of moves) {
-      value = Math.max(value, minimax(applyMoveObject({ ...state, turn: side }, move).state, depth - 1, alpha, beta, false));
+      value = Math.max(value, minimax(applyMoveObject(state, move).state, depth - 1, alpha, beta));
       alpha = Math.max(alpha, value);
       if (alpha >= beta) break;
     }
@@ -306,7 +307,7 @@ function minimax(state: CheckersLightState, depth: number, alpha: number, beta: 
 
   let value = Number.POSITIVE_INFINITY;
   for (const move of moves) {
-    value = Math.min(value, minimax(applyMoveObject({ ...state, turn: side }, move).state, depth - 1, alpha, beta, true));
+    value = Math.min(value, minimax(applyMoveObject(state, move).state, depth - 1, alpha, beta));
     beta = Math.min(beta, value);
     if (alpha >= beta) break;
   }

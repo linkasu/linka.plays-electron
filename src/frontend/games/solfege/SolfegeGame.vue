@@ -6,6 +6,7 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import GazePointerOverlay from "../../components/game/GazePointerOverlay.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useGameTimers } from "../../composables/useGameTimers";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { solfegeChoiceNotes, solfegeGuidedProgress, solfegeGuidedStages, solfegeGuidedStageStart, solfegeMaxSteps, solfegeSelectionOutcome, type SolfegeMode, type SolfegeNote } from "./model";
 
@@ -39,6 +40,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
   finishOnMistakes: false,
   finishOnTimeout: false
 });
+const { setGameTimeout, clearGameTimeout, clearGameTimers } = useGameTimers();
 pauseSession();
 
 const resultVisible = computed(() => session.status === "finished");
@@ -71,7 +73,7 @@ function isSequenceStepComplete(index: number) {
 }
 
 function clearFeedbackTimer() {
-  window.clearTimeout(feedbackTimer);
+  clearGameTimeout(feedbackTimer);
   feedbackTimer = 0;
 }
 
@@ -83,13 +85,13 @@ function resetFeedback() {
 }
 
 function clearDemoTimers() {
-  for (const timer of demoTimers) window.clearTimeout(timer);
+  for (const timer of demoTimers) clearGameTimeout(timer);
   demoTimers.clear();
   demonstrationNoteId.value = undefined;
 }
 
 function scheduleDemo(callback: () => void, delayMs: number) {
-  const timer = window.setTimeout(() => {
+  const timer = setGameTimeout(() => {
     demoTimers.delete(timer);
     callback();
   }, delayMs);
@@ -136,7 +138,7 @@ function playPromptNote(delayMs = 0) {
     ? currentStage.value.sequence.find((candidate) => candidate.id === demonstrationNoteId.value)
     : expectedNote.value;
   if (!note) return;
-  window.setTimeout(() => playNote(note), delayMs);
+  setGameTimeout(() => playNote(note), delayMs);
 }
 
 function toggleAudio() {
@@ -163,7 +165,8 @@ function chooseNote(note: SolfegeNote) {
     clearFeedbackTimer();
     successNoteId.value = note.id;
     playNote(note);
-    feedbackTimer = window.setTimeout(() => {
+    recordSuccess({ targetId: noteTargetId(note), noteId: note.id, label: note.label, octaveLabel: note.octaveLabel, mode: "free" });
+    feedbackTimer = setGameTimeout(() => {
       successNoteId.value = undefined;
     }, 420);
     return;
@@ -182,7 +185,7 @@ function chooseNote(note: SolfegeNote) {
     wrongNoteId.value = note.id;
     playNote(note);
     recordMistake({ targetId, expectedTargetId, selectedId: note.id, expectedId: expected.id });
-    feedbackTimer = window.setTimeout(() => {
+    feedbackTimer = setGameTimeout(() => {
       pendingSelection.value = false;
       wrongNoteId.value = undefined;
     }, 1200);
@@ -197,7 +200,7 @@ function chooseNote(note: SolfegeNote) {
 
   const nextProgress = solfegeGuidedProgress(session.step);
   if (session.status === "running" && nextProgress) {
-    feedbackTimer = window.setTimeout(() => {
+    feedbackTimer = setGameTimeout(() => {
       resetFeedback();
       if (nextProgress.stageIndex !== activeStageIndex.value) runDemonstration(nextProgress.stageIndex);
     }, nextProgress.stageIndex === activeStageIndex.value ? 620 : 820);
@@ -280,6 +283,7 @@ function restart() {
 }
 
 onUnmounted(() => {
+  clearGameTimers();
   clearDemoTimers();
   clearFeedbackTimer();
   void audioContext?.close().catch(() => undefined);
@@ -458,13 +462,13 @@ onUnmounted(() => {
 }
 
 .score-staff {
-  block-size: 104px;
+  block-size: 6.5rem;
   position: relative;
 }
 
 .staff-line {
   background: rgb(69 82 80 / 18%);
-  block-size: 2px;
+  block-size: 0.125rem;
   inline-size: 100%;
   inset-inline: 0;
   position: absolute;
@@ -496,7 +500,7 @@ onUnmounted(() => {
   font-weight: 800;
   inline-size: 100%;
   justify-content: center;
-  min-block-size: 54px;
+  min-block-size: 3.375rem;
   opacity: 0.46;
 }
 
@@ -518,15 +522,15 @@ onUnmounted(() => {
   background: linear-gradient(180deg, #4b5563 0%, #1f2937 100%);
   border-radius: 28px;
   box-shadow: inset 0 -12px 0 rgb(0 0 0 / 16%), 0 22px 38px rgb(31 41 55 / 18%);
-  padding: 24px 20px 18px;
+  padding: 1.5rem 1.25rem 1.125rem;
   position: relative;
 }
 
 .white-keyboard {
   display: grid;
-  gap: 4px;
+  gap: 0.25rem;
   grid-template-columns: repeat(8, minmax(0, 1fr));
-  min-block-size: 210px;
+  min-block-size: 13.125rem;
   position: relative;
   z-index: 1;
 }
@@ -599,7 +603,7 @@ onUnmounted(() => {
 .black-key {
   background: linear-gradient(180deg, #2f3542 0%, #111827 100%);
   border-radius: 0 0 12px 12px;
-  block-size: 116px;
+  block-size: 7.25rem;
   box-shadow: 0 10px 18px rgb(0 0 0 / 20%);
   inline-size: 7.8%;
   position: absolute;
@@ -612,7 +616,7 @@ onUnmounted(() => {
   70% { transform: translateX(0.35rem); }
 }
 
-@media (max-width: 960px) {
+@media (max-width: 60rem) {
  .solfege-container {
     padding-block-start: 116px;
   }
@@ -622,7 +626,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-height: 920px) {
+@media (max-height: 57.5rem) {
  .score-card {
     display: none !important;
   }
@@ -632,7 +636,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-height: 760px) {
+@media (max-height: 47.5rem) {
  .solfege-container {
     align-items: flex-start !important;
     min-block-size: auto;
@@ -657,11 +661,11 @@ onUnmounted(() => {
   }
 
  .piano-frame {
-    padding: 16px 12px 12px;
+    padding: 1rem 0.75rem 0.75rem;
   }
 
  .white-keyboard {
-    min-block-size: 130px;
+    min-block-size: 8.125rem;
   }
 
  .black-keys {
@@ -670,12 +674,12 @@ onUnmounted(() => {
   }
 
  .black-key {
-    block-size: 72px;
+    block-size: 4.5rem;
   }
 
 }
 
-@media (max-width: 600px) {
+@media (max-width: 37.5rem) {
  .score-staff {
     block-size: 9.375rem;
   }

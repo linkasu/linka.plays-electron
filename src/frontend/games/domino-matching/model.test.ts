@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { settingsFromPreset } from "../../core/settings";
-import { dominoTiles, drawPlayerTile, getOpenEnds, getPlayablePlacements, hasPlayableMove, playPlayerTile, runBotTurn, startDominoGame, type DominoGameState, type DominoTile } from "./model";
+import { dominoTiles, drawPlayerTile, getOpenEnds, getPlayablePlacements, hasPlayableMove, passPlayerTurn, playPlayerTile, runBotTurn, startDominoGame, type DominoGameState, type DominoTile } from "./model";
 
 function randomFrom(values: number[]) {
   let index = 0;
@@ -106,5 +106,44 @@ describe("domino-matching model", () => {
 
     expect(result.botDrew).toBe(true);
     expect(result.state.botHand.map((item) => item.id)).toEqual(["0-1", "3-6"]);
+  });
+
+  it("passes to the bot when the player is blocked and the boneyard is empty", () => {
+    const state = stateWith({
+      playerHand: [tile(0, 1)],
+      botHand: [tile(4, 5), tile(5, 6)],
+      boneyard: []
+    });
+    const result = passPlayerTurn(state);
+
+    expect(result.ok).toBe(true);
+    expect(result.playerPassed).toBe(true);
+    expect(result.botPlayed).toBe(true);
+    expect(result.state.board.at(-1)?.tile.id).toBe("4-5");
+    expect(result.state.status).toBe("playing");
+  });
+
+  it("reports a blocked draw when neither side can move", () => {
+    const state = stateWith({
+      playerHand: [tile(0, 1)],
+      botHand: [tile(5, 6)],
+      boneyard: []
+    });
+    const result = passPlayerTurn(state);
+
+    expect(result.ok).toBe(true);
+    expect(result.state.status).toBe("blocked");
+  });
+
+  it("reports a bot win after the player passes", () => {
+    const state = stateWith({
+      playerHand: [tile(0, 1)],
+      botHand: [tile(4, 5)],
+      boneyard: []
+    });
+    const result = passPlayerTurn(state);
+
+    expect(result.botPlayed).toBe(true);
+    expect(result.state.status).toBe("bot-won");
   });
 });

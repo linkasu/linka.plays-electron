@@ -70,9 +70,8 @@ async function chooseWagon(wagon: TrainWagon) {
     recordSuccess({ roundId, targetId: wagonTargetId(outcome.selectedWagon), expected: outcome.selectedWagon.id, actual: outcome.selectedWagon.id, isCorrect: true });
     void playTrainSequenceSuccessMelody(session.settings.sound);
   } else {
-    feedbackMessage.value = "Вагон тоже прицепился. Продолжим собирать поезд.";
+    feedbackMessage.value = `Сейчас нужен вагон ${outcome.expectedWagon?.number ?? "по порядку"}. Попробуй ещё раз.`;
     recordMistake({ roundId, targetId: wagonTargetId(outcome.selectedWagon), expectedTargetId: outcome.expectedWagon ? wagonTargetId(outcome.expectedWagon) : undefined, expected: outcome.expectedWagon?.id, actual: outcome.selectedWagon.id, isCorrect: false });
-    if (session.status === "running") session.step += 1;
     void playTrainSequenceMistakeMelody(session.settings.sound);
   }
 
@@ -123,6 +122,11 @@ onUnmounted(() => {
 });
 
 watch(() => session.status, (status) => {
+  if (status === "finished" && session.finishReason !== "game-complete") {
+    clearResultTimer();
+    resultVisible.value = true;
+    return;
+  }
   if (status !== "finished") {
     clearResultTimer();
     resultVisible.value = false;
@@ -388,8 +392,8 @@ watch(() => session.status, (status) => {
     display: none;
   }
 
- .hint-card {
-    margin-block-end: 0.75rem !important;
+  .hint-card {
+    margin-block-end: 0.25rem !important;
     padding: 0.5rem 0.75rem !important;
   }
 

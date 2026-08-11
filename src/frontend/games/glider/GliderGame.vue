@@ -6,6 +6,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
+import { isCanvasControlBlocked } from "../../core/domGazeTargetCoordinator";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { applyGliderDamage, classifyGatePass, gliderDifficulty } from "./model";
 
@@ -88,7 +89,7 @@ function playTop() {
 }
 
 function playBottom() {
-  return height.value - Math.max(58, height.value * 0.08);
+  return height.value - Math.max(118, height.value * 0.16);
 }
 
 function gliderSize() {
@@ -99,7 +100,7 @@ function gliderSize() {
 function gateGap() {
   const safeHeight = playBottom() - playTop();
   const difficulty = gliderDifficulty(session.step, session.maxSteps);
-  return Math.min(safeHeight * 0.56, Math.max(138, 178 * session.settings.targetScale * difficulty.gapScale));
+  return Math.min(safeHeight * 0.64, Math.max(150, 178 * session.settings.targetScale * difficulty.gapScale));
 }
 
 function gateSpeed() {
@@ -108,7 +109,7 @@ function gateSpeed() {
 }
 
 function safeGateY(gap = gateGap()) {
-  return clamp(randomRange(playTop() + gap * 0.45, playBottom() - gap * 0.45), playTop() + gap * 0.42, playBottom() - gap * 0.42);
+  return clamp(randomRange(playTop() + gap * 0.5, playBottom() - gap * 0.5), playTop() + gap * 0.5, playBottom() - gap * 0.5);
 }
 
 function copyPointer() {
@@ -206,13 +207,14 @@ function completeGate(now: number) {
 }
 
 function damageGlider(now: number, reason: "miss") {
-  const nextHull = applyGliderDamage(hull.value);
+  const damagedHull = applyGliderDamage(hull.value);
+  const nextHull = session.settings.controlOutcomeMode === "strict" ? damagedHull : Math.max(1, damagedHull);
   hull.value = nextHull;
   damageFlash.value = 1;
   glider.glow = 0.7;
   recordMistake({ targetId: gate.id, reason, hull: nextHull, gate: session.step + 1, glider: { x: glider.x, y: glider.y }, gateCenter: { x: gate.x, y: gate.y } });
   recordEvent("target-cancel", targetPayload(0, now, "left"));
-  if (nextHull <= 0) {
+  if (session.settings.controlOutcomeMode === "strict" && nextHull <= 0) {
     finishSession("game-lost");
     return;
   }
@@ -222,11 +224,7 @@ function damageGlider(now: number, reason: "miss") {
 function updateGlider(delta: number, now: number) {
   glider.phase += delta * (session.settings.reduceMotion ? 1.1 : 2.4);
   const size = gliderSize();
-  const fallback = {
-    x: width.value * (0.28 + Math.sin(now * 0.00018) * 0.05),
-    y: (playTop() + playBottom()) * 0.5 + Math.sin(now * 0.00024) * height.value * 0.08
-  };
-  const target = pointer.value.valid ? pointer.value : fallback;
+  const target = pointer.value;
   const targetX = clamp(target.x, width.value * 0.12, width.value * 0.62);
   const targetY = clamp(target.y, playTop() + size * 0.45, playBottom() - size * 0.45);
   const previousX = glider.x;
@@ -236,8 +234,8 @@ function updateGlider(delta: number, now: number) {
 
   glider.x += clamp((targetX - glider.x) * easing, -maxStep, maxStep);
   glider.y += clamp((targetY - glider.y) * easing, -maxStep, maxStep);
-  glider.vx = (glider.x - previousX) / Math.max(delta, 0.016);
-  glider.vy = (glider.y - previousY) / Math.max(delta, 0.016);
+  glider.vx = (glider.x - previousX) / Math.max(delta, 0.001);
+  glider.vy = (glider.y - previousY) / Math.max(delta, 0.001);
   glider.tilt += (clamp(glider.vy / 420, -0.42, 0.42) - glider.tilt) * Math.min(1, delta * 4.8);
   glider.glow += (0 - glider.glow) * Math.min(1, delta * 1.6);
   damageFlash.value = Math.max(0, damageFlash.value - delta * 1.7);
@@ -322,6 +320,12 @@ function update(delta: number, now: number) {
 
   if (cleanupStartedAt > 0) {
     updateCleanup(delta, now);
+    return;
+  }
+
+  if (!pointer.value.valid || isCanvasControlBlocked(pointer.value)) {
+    updateClouds(delta);
+    updateTrails(delta);
     return;
   }
 
@@ -555,7 +559,7 @@ useGameLoop({ context, update, draw });
   <div class="glider-shell">
     <canvas ref="canvasRef" class="glider-canvas" />
 
-    <v-card class="glider-hint px-4 py-3" color="surface" rounded="xl" variant="flat">
+    <v-card class="glider-hint px-4 py-3" color="surface" rounded="xl" variant="flat" data-canvas-overlay>
       <div class="d-flex align-center ga-3">
         <v-icon icon="mdi-airplane" color="primary" size="32" />
         <div>

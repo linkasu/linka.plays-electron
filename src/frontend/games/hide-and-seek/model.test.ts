@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createHideAndSeekLayout,
+  hideObjectBehindCover,
   hideAndSeekEffectiveTargetBounds,
   hideAndSeekFallbackObstacles,
   hideAndSeekRectsOverlap
@@ -13,6 +14,21 @@ const viewports = [
 ];
 
 describe("hide-and-seek placement", () => {
+  it("hides the object behind exactly one cover", () => {
+    const covers = [
+      { id: "bush", label: "куст", emoji: "🌿" },
+      { id: "rock", label: "камень", emoji: "🪨" },
+      { id: "box", label: "коробка", emoji: "📦" }
+    ];
+    const hiddenObject = { id: "cat" };
+    const spots = hideObjectBehindCover(covers, hiddenObject, () => 0.5);
+
+    expect(spots).toHaveLength(covers.length);
+    expect(spots.filter((spot) => spot.hiddenObject)).toEqual([expect.objectContaining({ id: "rock", hiddenObject })]);
+    expect(spots.map((spot) => spot.placementIndex)).toEqual([0, 1, 2]);
+    expect(spots.every((spot) => !spot.opened)).toBe(true);
+  });
+
   it.each(viewports)("places five deterministic targets at $width x $height", ({ width, height }) => {
     const obstacles = hideAndSeekFallbackObstacles(width, height);
     for (const targetScale of [1, 2]) {

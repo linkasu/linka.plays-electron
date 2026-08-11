@@ -6,6 +6,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import GameWasdPanel, { type GameWasdControl } from "../../components/game/GameWasdPanel.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useGameTimers } from "../../composables/useGameTimers";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
@@ -39,6 +40,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 const soundEnabled = toRef(session.settings, "sound");
 const promptAudio = useGamePromptAudio({ gameId: "step-tetris", soundEnabled, warmAssetIds: ["step-tetris.prompt", "step-tetris.correct", "step-tetris.mistake", "step-tetris.complete"] });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
+const { waitForGameTimeout, clearGameTimers } = useGameTimers();
 
 const pieceSequence: StepTetrisPieceId[] = ["o", "t", "i", "l", "s", "t", "o", "l", "s", "i"];
 const rows = Array.from({ length: stepTetrisRows }, (_, row) => row);
@@ -106,10 +108,6 @@ function cellStyle(row: number, column: number) {
   return { "--cell-color": color, "--drop-rows": dropRows.value, "--drop-duration": `${dropAnimationMs}ms` };
 }
 
-function wait(ms: number) {
-  return new Promise<void>((resolve) => window.setTimeout(resolve, ms));
-}
-
 function findValidRotation(placement: StepTetrisPlacement) {
   const rotated = rotatePlacement(placement);
   for (const columnOffset of [0, -1, 1, -2, 2]) {
@@ -137,6 +135,7 @@ function rotateCurrent() {
 }
 
 async function nextPiece() {
+  const sessionId = session.sessionId;
   pieceIndex.value += 1;
   const piece = createPiece(pieceSequence[pieceIndex.value % pieceSequence.length]);
   const placement = createSpawnPlacement(piece);
@@ -150,17 +149,18 @@ async function nextPiece() {
   feedbackMessage.value = "Наверху стало тесно. Доска завершена, можно начать снова.";
   recordMistake({ kind: "top-out", piece: piece.id, isCorrect: false });
   void feedbackAudio.playMistake();
-  await promptAudio.playSequenceAndWait(["step-tetris.mistake", "step-tetris.complete"], 80, 170);
-  finishSession("game-lost");
+  const playback = await promptAudio.playSequenceAndWait(["step-tetris.mistake", "step-tetris.complete"], 80, 170);
+  if (playback === "completed" && session.sessionId === sessionId) finishSession("game-lost");
 }
 
 async function dropCurrent() {
   if (!canPlay.value || !ghostPlacement.value) return;
   const targetPlacement = ghostPlacement.value;
+  const sessionId = session.sessionId;
   dropRows.value = Math.max(0, targetPlacement.row - currentPlacement.value.row);
   isDropping.value = true;
   feedbackMessage.value = "Фигура опускается вниз.";
-  await wait(dropAnimationMs);
+  if (!await waitForGameTimeout(dropAnimationMs) || session.sessionId !== sessionId || session.status !== "running") return;
 
   const result = lockPiece(board.value, targetPlacement);
   isDropping.value = false;
@@ -177,7 +177,8 @@ async function dropCurrent() {
     : "Фигура легла на место.";
 
   void feedbackAudio.playSuccess();
-  await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["step-tetris.correct", "step-tetris.complete"] : ["step-tetris.correct"], 80, 170);
+  const playback = await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["step-tetris.correct", "step-tetris.complete"] : ["step-tetris.correct"], 80, 170);
+  if (playback === "cancelled" || session.sessionId !== sessionId) return;
   if (finishedAfterSuccess) {
     finishSession("game-complete");
     isSpeaking.value = false;
@@ -195,6 +196,7 @@ function chooseAction(control: GameWasdControl) {
 }
 
 function restart() {
+  clearGameTimers();
   promptAudio.cancelPending();
   board.value = createEmptyBoard();
   pieceIndex.value = 0;
@@ -214,6 +216,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   promptAudio.cancelPending();
+  clearGameTimers();
 });
 </script>
 

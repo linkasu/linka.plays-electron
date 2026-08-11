@@ -65,4 +65,11 @@ describe("what-first model", () => {
     expect(explanation).toContain(whatFirstScenes[0].then.phrase);
     expect(explanation).toContain("Сначала");
   });
+
+  it("keeps the hand-washing context consistent with soaping first", () => {
+    const scene = whatFirstScenes.find((candidate) => candidate.id === "soap-rinse");
+    expect(scene?.context).toContain("нет пены");
+    expect(scene?.first.id).toBe("soap");
+    expect(scene?.then.id).toBe("rinse");
+  });
 });

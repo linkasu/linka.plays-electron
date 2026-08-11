@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref, toRef } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
@@ -8,12 +8,12 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeGazeMazeAudio, playGazeMazeStepMelody, warmGazeMazeAudio } from "./audio";
-import { gazeMazeLevels as levels, isMazeDeadEnd, mazeNeighborIds, resolveAdjacentMazeTarget, type MazeNode, type MazePoint as Point } from "./model";
+import { gazeMazeLevels as levels, isMazeDeadEnd, mazeNeighborIds, type MazeNode, type MazePoint as Point } from "./model";
 
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession, finishSession } = useGameSessionFor("gaze-maze", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("gaze-maze", {
   maxSteps: 18,
   overrides: { preset: "gentle", targetScale: 1.35, sound: true, hints: "high" },
   finishOnMaxSteps: false,
@@ -37,7 +37,7 @@ let cooldownUntil = 0;
 let lastTime = performance.now();
 let moveFromId: string | undefined;
 let moveToId: string | undefined;
-let moveStartedAt = 0;
+let moveElapsedMs = 0;
 let pendingMoveNode: MazeNode | undefined;
 
 const moveDurationMs = 780;
@@ -104,8 +104,8 @@ function roundRect(context: CanvasRenderingContext2D, x: number, y: number, widt
   context.roundRect(x, y, width, height, radius);
 }
 
-function isMoving(now = performance.now()) {
-  return moveToId !== undefined && now - moveStartedAt < moveDurationMs;
+function isMoving() {
+  return moveToId !== undefined && moveElapsedMs < moveDurationMs;
 }
 
 function easeMove(progress: number) {
@@ -147,10 +147,10 @@ function setNodeFeedback(node: MazeNode) {
   feedbackText.value = `Гномик на месте: ${node.label.toLowerCase()}. Можно идти: ${choices.join(" или ")}.`;
 }
 
-function beginMove(node: MazeNode, now: number) {
+function beginMove(node: MazeNode) {
   moveFromId = currentNodeId.value;
   moveToId = node.id;
-  moveStartedAt = now;
+  moveElapsedMs = 0;
   pendingMoveNode = node;
   feedbackText.value = node.id === currentLevel.value.exitId
     ? "Гномик бежит к большой конфете."
@@ -160,13 +160,15 @@ function beginMove(node: MazeNode, now: number) {
 }
 
 function completeMove() {
-  if (!moveToId || !pendingMoveNode) return;
+  if (!moveToId || !pendingMoveNode || session.status !== "running") return;
 
   const arrivedNode = pendingMoveNode;
   currentNodeId.value = arrivedNode.id;
   moveFromId = undefined;
   moveToId = undefined;
   pendingMoveNode = undefined;
+  moveElapsedMs = 0;
+  recordSuccess({ selectedNodeId: arrivedNode.id, levelId: currentLevel.value.id, isExit: arrivedNode.id === currentLevel.value.exitId });
 
   if (arrivedNode.id === currentLevel.value.exitId) {
     if (currentLevelIndex.value >= levels.length - 1) {
@@ -187,44 +189,67 @@ function completeMove() {
 
 function selectNode(node: MazeNode) {
   const now = performance.now();
-  if (session.status !== "running" || isSpeaking.value || !adjacentIds.value.has(node.id) || now < cooldownUntil || isMoving(now)) return;
+  if (session.status !== "running" || isSpeaking.value || now < cooldownUntil || isMoving()) return;
+  if (!adjacentIds.value.has(node.id)) {
+    recordMistake({ selectedNodeId: node.id, levelId: currentLevel.value.id, reason: "not-neighbor" });
+    recordHint({ selectedNodeId: node.id, neighborIds: [...adjacentIds.value], reason: "not-neighbor" });
+    feedbackText.value = "Выбери соседнюю конфету, соединённую дорожкой.";
+    void playTts("gaze-maze.not-neighbor", 80);
+    resetDwell("left");
+    return;
+  }
   cooldownUntil = now + 650;
+  recordEvent("target-click", dwellPayload(node, now, 1));
   resetDwell();
 
   void playGazeMazeStepMelody(session.settings.sound);
-  recordSuccess({ selectedNodeId: node.id, levelId: currentLevel.value.id, isExit: node.id === currentLevel.value.exitId });
-  beginMove(node, now);
+  beginMove(node);
 }
 
 function nodeAt(point: Point) {
-  return resolveAdjacentMazeTarget(currentLevel.value, currentNodeId.value, point, (node) => ({
-    center: nodePoint(node),
-    hitRadius: nodeHitRadius(node)
-  }));
+  return currentLevel.value.nodes
+    .map((node) => ({ node, distance: Math.hypot(point.x - nodePoint(node).x, point.y - nodePoint(node).y) }))
+    .filter(({ node, distance }) => node.id !== currentNodeId.value && distance <= nodeHitRadius(node))
+    .sort((left, right) => left.distance - right.distance)[0]?.node;
 }
 
-function resetDwell() {
+function dwellPayload(node: MazeNode, now: number, progress: number, reason?: "left" | "invalid-gaze") {
+  return {
+    targetId: `gaze-maze:${currentLevel.value.id}:${node.id}`,
+    at: Date.now(),
+    dwellMs: session.settings.dwellMs,
+    elapsedMs: enteredAt > 0 ? now - enteredAt : 0,
+    progress,
+    pointer: { ...pointer.value },
+    reason
+  };
+}
+
+function resetDwell(reason?: "left" | "invalid-gaze") {
+  if (reason && hoverNodeId) recordEvent("target-cancel", dwellPayload(nodeById(hoverNodeId), performance.now(), dwellProgress, reason));
   hoverNodeId = undefined;
   enteredAt = 0;
   dwellProgress = 0;
 }
 
 function updateDwell(now: number) {
-  if (session.status !== "running" || isSpeaking.value || !pointer.value.valid || now < cooldownUntil || isMoving(now)) {
-    resetDwell();
+  if (session.status !== "running" || isSpeaking.value || !pointer.value.valid || now < cooldownUntil || isMoving()) {
+    resetDwell(pointer.value.valid ? "left" : "invalid-gaze");
     return;
   }
 
   const node = nodeAt(pointer.value);
   if (!node) {
-    resetDwell();
+    resetDwell("left");
     return;
   }
 
   if (hoverNodeId !== node.id) {
+    if (hoverNodeId) resetDwell("left");
     hoverNodeId = node.id;
     enteredAt = now;
     dwellProgress = 0;
+    recordEvent("target-enter", dwellPayload(node, now, 0));
     return;
   }
 
@@ -385,7 +410,7 @@ function drawGnome(context: CanvasRenderingContext2D, now: number) {
   const toNode = moveToId ? nodeById(moveToId) : fromNode;
   const from = nodePoint(fromNode);
   const to = nodePoint(toNode);
-  const rawProgress = moveToId ? Math.min(1, Math.max(0, (now - moveStartedAt) / moveDurationMs)) : 1;
+  const rawProgress = moveToId ? Math.min(1, Math.max(0, moveElapsedMs / moveDurationMs)) : 1;
   const progress = easeMove(rawProgress);
   const controls = pathControls(from, to);
   const center = moveToId ? cubicPoint(from, controls.first, controls.second, to, progress) : from;
@@ -445,7 +470,10 @@ function draw(now: number) {
 function tick(now: number) {
   const delta = Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
-  if (moveToId && now - moveStartedAt >= moveDurationMs) completeMove();
+  if (session.status === "running" && moveToId) {
+    moveElapsedMs += delta * 1000;
+    if (moveElapsedMs >= moveDurationMs) completeMove();
+  }
   if (delta >= 0) updateDwell(now);
   draw(now);
   frame = requestAnimationFrame(tick);
@@ -461,6 +489,16 @@ onMounted(async () => {
   void playTts("gaze-maze.prompt", 450);
 });
 
+watch(() => session.status, (status) => {
+  if (status === "paused") resetDwell("left");
+  if (status === "finished") {
+    moveFromId = undefined;
+    moveToId = undefined;
+    pendingMoveNode = undefined;
+    moveElapsedMs = 0;
+  }
+});
+
 onUnmounted(() => {
   window.removeEventListener("resize", resizeCanvas);
   cancelAnimationFrame(frame);
@@ -472,7 +510,7 @@ onUnmounted(() => {
 <template>
   <div class="gaze-maze-shell">
     <canvas ref="canvasRef" class="gaze-maze-canvas" @click="onCanvasClick" />
-    <GameHud title="Конфетный лабиринт" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud title="Конфетный лабиринт" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" :show-progress="false" @pause="pauseSession" @resume="resumeSession" />
     <GameResultDialog :model-value="resultVisible" title="Конфетный лабиринт" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
   </div>
 </template>

@@ -114,14 +114,26 @@ describe("dwell state machine", () => {
     expect(disabled.state.phase).toBe("idle");
   });
 
-  it("does not re-enter during cooldown", () => {
+  it("requires release after cooldown before re-entering the same target", () => {
     const entered = advance(createDwellMachineState(), 0, "a");
     const selected = advance(entered.state, 1000, "a");
     const cooling = advance(selected.state, 1200, "a");
-    const reentered = advance(cooling.state, 1500, "a");
+    const stillHeld = advanceDwellMachine(cooling.state, {
+      now: 1500,
+      targetId: "a",
+      pointerValid: true,
+      releaseTargetActive: true,
+      dwellMs: 1000,
+      graceMs: 150,
+      cooldownMs: 500
+    });
+    const released = advance(stillHeld.state, 1510, undefined, true);
+    const reentered = advance(released.state, 1520, "a");
 
     expect(cooling.events).toEqual([]);
     expect(cooling.state.phase).toBe("cooldown");
+    expect(stillHeld.state.phase).toBe("awaiting-release");
+    expect(stillHeld.events).toEqual([]);
     expect(reentered.events).toEqual([{ type: "enter", targetId: "a" }]);
   });
 });

@@ -65,7 +65,7 @@ export const miniDialogGraph: Record<MiniDialogNodeId, MiniDialogNode> = {
     choices: [
       { id: "talk", kind: "answer", text: "Да, я хочу поговорить.", icon: "mdi-message-text-outline", color: "blue-lighten-5", iconColor: "blue-darken-3", nextNodeId: "feeling" },
       { id: "not-now", kind: "refusal", text: "Нет, я не хочу разговаривать.", icon: "mdi-close-circle-outline", color: "red-lighten-5", iconColor: "red-darken-3", nextNodeId: "finish" },
-      { id: "help", kind: "support", text: "Помоги мне ответить, пожалуйста.", icon: "mdi-help-circle-outline", color: "amber-lighten-5", iconColor: "amber-darken-4", nextNodeId: "feeling" },
+      { id: "help", kind: "support", text: "Помоги мне ответить, пожалуйста.", icon: "mdi-help-circle-outline", color: "amber-lighten-5", iconColor: "amber-darken-4", nextNodeId: "hello" },
       { id: "repeat", kind: "repeat", text: "Скажи ещё раз, пожалуйста.", icon: "mdi-replay", color: "deep-purple-lighten-5", iconColor: "deep-purple-darken-3", nextNodeId: "hello" }
     ]
   },
@@ -91,7 +91,7 @@ export const miniDialogGraph: Record<MiniDialogNodeId, MiniDialogNode> = {
     choices: [
       { id: "see-picture", kind: "answer", text: "Да, я хочу посмотреть.", icon: "mdi-image-check-outline", color: "blue-lighten-5", iconColor: "blue-darken-3", nextNodeId: "picture" },
       { id: "no-picture", kind: "refusal", text: "Нет, я не хочу смотреть.", icon: "mdi-image-off-outline", color: "red-lighten-5", iconColor: "red-darken-3", nextNodeId: "more" },
-      { id: "help-picture", kind: "support", text: "Помоги мне посмотреть, пожалуйста.", icon: "mdi-help-circle-outline", color: "amber-lighten-5", iconColor: "amber-darken-4", nextNodeId: "picture" },
+      { id: "help-picture", kind: "support", text: "Помоги мне посмотреть, пожалуйста.", icon: "mdi-help-circle-outline", color: "amber-lighten-5", iconColor: "amber-darken-4", nextNodeId: "activity" },
       { id: "stop-activity", kind: "stop", text: "Стоп, пожалуйста.", icon: "mdi-stop-circle-outline", color: "deep-orange-lighten-5", iconColor: "deep-orange-darken-3", nextNodeId: "finish" }
     ]
   },

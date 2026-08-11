@@ -28,14 +28,15 @@ describe("train-sequence model", () => {
     expect(getNextTrainWagon(outcome.wagons)?.id).toBe("yellow");
   });
 
-  it("still places a wrong wagon and reports the expected wagon", () => {
+  it("keeps a wrong wagon available and reports the expected wagon", () => {
     const outcome = selectTrainWagon(createTrainWagons(fixedRandom), "violet");
 
     expect(outcome.kind).toBe("placed");
     if (outcome.kind !== "placed") return;
     expect(outcome.isCorrect).toBe(false);
     expect(outcome.expectedWagon?.id).toBe("red");
-    expect(outcome.selectedWagon.placedIndex).toBe(1);
+    expect(outcome.selectedWagon.placed).toBe(false);
+    expect(getPlacedTrainWagons(outcome.wagons)).toEqual([]);
   });
 
   it("ignores already placed wagons", () => {
@@ -45,15 +46,15 @@ describe("train-sequence model", () => {
     expect(selectTrainWagon(first.wagons, "red")).toEqual({ kind: "ignored" });
   });
 
-  it("completes after all wagons are placed in any order", () => {
+  it("completes only after all wagons are placed in numeric order", () => {
     let wagons = createTrainWagons(fixedRandom);
-    for (const wagonId of ["violet", "red", "green", "yellow", "blue"] as const) {
+    for (const wagonId of ["red", "yellow", "green", "blue", "violet"] as const) {
       const outcome = selectTrainWagon(wagons, wagonId);
       if (outcome.kind !== "placed") throw new Error(`Expected ${wagonId} placement.`);
       wagons = outcome.wagons;
     }
 
-    expect(getPlacedTrainWagons(wagons).map((wagon) => wagon.id)).toEqual(["violet", "red", "green", "yellow", "blue"]);
+    expect(getPlacedTrainWagons(wagons).map((wagon) => wagon.id)).toEqual(["red", "yellow", "green", "blue", "violet"]);
     expect(wagons.every((wagon) => wagon.placed)).toBe(true);
   });
 });

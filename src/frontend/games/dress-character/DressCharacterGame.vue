@@ -6,6 +6,7 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useGameTimers } from "../../composables/useGameTimers";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeDressCharacterAudio, playDressCharacterHintMelody, playDressCharacterSuccessMelody, warmDressCharacterAudio } from "./audio";
 import { clothingSlots, dressCharacterMaxSteps, getDressCharacterExpectedItem, getDressCharacterKit, getDressCharacterTask, isDressCharacterKitCompleteStep, type ClothingItem, type ClothingSlot } from "./model";
@@ -28,8 +29,7 @@ const isFeedbackPlaying = ref(false);
 const isResettingKit = ref(false);
 const isInputCoolingDown = ref(false);
 const promptAudio = useGamePromptAudio({ gameId: "dress-character", soundEnabled: toRef(session.settings, "sound") });
-let resetTimer = 0;
-let inputCooldownTimer = 0;
+const { setGameTimeout, clearGameTimers } = useGameTimers();
 
 const visibleStep = computed(() => isResettingKit.value ? Math.max(0, session.step - 1) : Math.min(session.step, session.maxSteps - 1));
 const currentKit = computed(() => getDressCharacterKit(visibleStep.value));
@@ -59,10 +59,7 @@ function resetClothes() {
 }
 
 function clearResetTimer() {
-  window.clearTimeout(resetTimer);
-  window.clearTimeout(inputCooldownTimer);
-  resetTimer = 0;
-  inputCooldownTimer = 0;
+  clearGameTimers();
 }
 
 function promptAssetId(task = currentTask.value, kit = currentKit.value) {
@@ -70,23 +67,25 @@ function promptAssetId(task = currentTask.value, kit = currentKit.value) {
 }
 
 async function playPrompt(delayMs = 0) {
+  const sessionId = session.sessionId;
+  const step = session.step;
   isSpeaking.value = true;
   await promptAudio.playSequenceAndWait([promptAssetId()], delayMs);
-  isSpeaking.value = false;
+  if (session.sessionId === sessionId && session.step === step) isSpeaking.value = false;
 }
 
 function scheduleKitReset() {
   clearResetTimer();
   isResettingKit.value = true;
   feedbackMessage.value = `${currentKit.value.title}: комплект готов. Посмотрим на него и подготовим следующую погоду.`;
-  resetTimer = window.setTimeout(() => {
+  setGameTimeout(() => {
     resetClothes();
     lastMistakeChoiceId.value = undefined;
     isResettingKit.value = false;
     isInputCoolingDown.value = true;
     feedbackMessage.value = `${currentKit.value.title}. ${currentKit.value.helper}`;
     void playPrompt(150);
-    inputCooldownTimer = window.setTimeout(() => {
+    setGameTimeout(() => {
       isInputCoolingDown.value = false;
     }, 700);
   }, resetDelayMs);
@@ -101,25 +100,30 @@ async function choose(item: ClothingItem) {
   const roundId = `dress-character:round:${session.step + 1}`;
 
   if (item.id === expectedItem.id) {
+    const sessionId = session.sessionId;
     isFeedbackPlaying.value = true;
     dressed[item.slot] = true;
     lastMistakeChoiceId.value = undefined;
     feedbackMessage.value = `Да, это ${item.label.toLowerCase()}. Персонажу удобно.`;
     recordSuccess({ roundId, targetId, answerId: item.slot, expected: expectedItem.label, actual: item.label, isCorrect: true });
+    const completedStep = session.step;
     const finishedAfterSuccess = session.step >= session.maxSteps;
     await playDressCharacterSuccessMelody(session.settings.sound);
+    if (session.sessionId !== sessionId || session.step !== completedStep) return;
     if (finishedAfterSuccess) {
       isSpeaking.value = true;
-      await promptAudio.playSequenceAndWait(["dress-character.correct", "dress-character.complete"], 80, 170);
+      const playback = await promptAudio.playSequenceAndWait(["dress-character.correct", "dress-character.complete"], 80, 170);
+      if (playback === "cancelled" || session.sessionId !== sessionId || session.step !== completedStep) return;
       isSpeaking.value = false;
       isFeedbackPlaying.value = false;
       resultVisible.value = true;
       return;
     }
 
-    if (session.status === "running" && isDressCharacterKitCompleteStep(session.step - 1)) {
+    if (isDressCharacterKitCompleteStep(session.step - 1)) {
       isSpeaking.value = true;
-      await promptAudio.playSequenceAndWait(["dress-character.correct", "dress-character.kit-complete"], 80, 170);
+      const playback = await promptAudio.playSequenceAndWait(["dress-character.correct", "dress-character.kit-complete"], 80, 170);
+      if (playback === "cancelled" || session.sessionId !== sessionId || session.step !== completedStep) return;
       isSpeaking.value = false;
       isFeedbackPlaying.value = false;
       scheduleKitReset();
@@ -127,19 +131,24 @@ async function choose(item: ClothingItem) {
     }
 
     isSpeaking.value = true;
-    await promptAudio.playSequenceAndWait(["dress-character.correct", promptAssetId()], 80, 170);
+    const playback = await promptAudio.playSequenceAndWait(["dress-character.correct", promptAssetId()], 80, 170);
+    if (playback === "cancelled" || session.sessionId !== sessionId || session.step !== completedStep) return;
     isSpeaking.value = false;
     isFeedbackPlaying.value = false;
     return;
   }
 
   isFeedbackPlaying.value = true;
+  const sessionId = session.sessionId;
+  const step = session.step;
   lastMistakeChoiceId.value = item.id;
   feedbackMessage.value = "Посмотри одежду ещё раз.";
   recordMistake({ roundId, targetId, expectedTargetId, answerId: item.slot, expected: expectedItem.label, actual: item.label, isCorrect: false });
   await playDressCharacterHintMelody(session.settings.sound);
+  if (session.sessionId !== sessionId || session.step !== step) return;
   isSpeaking.value = true;
-  await promptAudio.playSequenceAndWait(["dress-character.mistake", promptAssetId(getDressCharacterTask(session.step), getDressCharacterKit(session.step))], 80, 170);
+  const playback = await promptAudio.playSequenceAndWait(["dress-character.mistake", promptAssetId(getDressCharacterTask(session.step), getDressCharacterKit(session.step))], 80, 170);
+  if (playback === "cancelled" || session.sessionId !== sessionId || session.step !== step) return;
   isSpeaking.value = false;
   lastMistakeChoiceId.value = undefined;
   isFeedbackPlaying.value = false;

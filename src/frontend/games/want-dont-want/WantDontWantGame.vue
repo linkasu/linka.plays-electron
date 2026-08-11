@@ -9,7 +9,8 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { createWantDontWantCommunication, generateWantDontWantRound, wantDontWantPhraseAssetId, type WantDontWantAnswer, type WantDontWantRound } from "./model";
+import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
+import { createWantDontWantCommunication, generateWantDontWantRound, type WantDontWantAnswer, type WantDontWantRound } from "./model";
 
 const router = useRouter();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession, finishSession } = useGameSessionFor("want-dont-want", {
@@ -57,8 +58,8 @@ async function answer(value: WantDontWantAnswer) {
   });
   feedback.value = communication.phrase;
   const finishedAfterSuccess = session.step >= session.maxSteps;
-  const phraseAssetId = wantDontWantPhraseAssetId(round.value.item, value);
-  await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [phraseAssetId, "want-dont-want.complete"] : [phraseAssetId], 80, 170);
+  await speakSceneText(communication.phrase, session.settings.sound, 80);
+  if (finishedAfterSuccess) await promptAudio.playSequenceAndWait(["want-dont-want.complete"], 170);
 
   if (finishedAfterSuccess) {
     finishSession("game-complete");
@@ -79,6 +80,7 @@ function restart() {
   restartRoundGame();
   feedback.value = round.value.prompt;
   promptAudio.cancelPending();
+  cancelSceneSpeech();
   promptAudio.play("want-dont-want.intro", 260);
 }
 
@@ -89,6 +91,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   promptAudio.cancelPending();
+  cancelSceneSpeech();
 });
 </script>
 

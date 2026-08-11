@@ -27,7 +27,11 @@ describe("dress-character model", () => {
     expect(getDressCharacterExpectedItem(0).slot).toBe("hat");
     expect(getDressCharacterExpectedItem(1).slot).toBe("jacket");
     expect(getDressCharacterExpectedItem(2).slot).toBe("shoes");
-    expect(getDressCharacterTask(0).choices.map((choice) => choice.label)).toEqual(["Шапка", "Кепка", "Шляпа"]);
+    const correctIndexes = Array.from({ length: dressCharacterMaxSteps() }, (_, step) => {
+      const task = getDressCharacterTask(step);
+      return task.choices.findIndex((choice) => choice.id === task.target.id);
+    });
+    expect(new Set(correctIndexes).size).toBeGreaterThan(1);
   });
 
   it("marks only the shoe step as a completed kit", () => {

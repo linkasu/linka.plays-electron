@@ -11,7 +11,7 @@ import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
 import { createSocialPhraseDeck, evaluateSocialPhraseChoice, getSocialPhraseChoice, socialPhrasesInstruction, type SocialPhraseChoice, type SocialPhraseRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("social-phrases", {
+const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordHint, startSession, finishSession } = useGameSessionFor("social-phrases", {
   maxSteps: 4,
   overrides: { dwellMs: 1300, sessionSeconds: 125, sound: true },
   finishOnMaxSteps: false,
@@ -51,15 +51,25 @@ async function choose(choice: SocialPhraseChoice) {
 
   if (evaluation.type === "communication") {
     feedback.value = `Ты сказал: «${evaluation.phrase}»`;
-    recordSuccess({
+    const payload = {
       roundId: round.value.roundId,
       targetId,
       answerId: choice.id,
       expected: round.value.expectedKind,
       actual: choice.kind,
       ...evaluation
-    });
+    };
+    if (evaluation.function === "help") recordHint({ ...payload, reason: "requested-help" });
+    else recordSuccess(payload);
     await speakSceneText(evaluation.phrase, session.settings.sound, 80);
+
+    if (evaluation.function === "help") {
+      feedback.value = "Я помогу. Послушай ситуацию ещё раз и выбери в своём темпе.";
+      await speakSceneText(feedback.value, session.settings.sound, 100);
+      selectedChoiceId.value = undefined;
+      await playRoundPrompt(140);
+      return;
+    }
 
     if (evaluation.endsSession) {
       feedback.value = "Я услышал тебя. Останавливаемся.";
@@ -85,7 +95,7 @@ async function choose(choice: SocialPhraseChoice) {
   }
 
   feedback.value = evaluation.feedback;
-  recordMistake({
+  recordHint({
     roundId: round.value.roundId,
     targetId,
     expectedTargetId: choiceTargetId(round.value.expectedChoice.id),
@@ -94,7 +104,8 @@ async function choose(choice: SocialPhraseChoice) {
     actual: choice.kind,
     phrase: choice.text,
     isCorrect: false,
-    noFail: true
+    noFail: true,
+    reason: "alternative-phrase"
   });
   await speakSceneText(evaluation.feedback, session.settings.sound, 80);
   selectedChoiceId.value = undefined;

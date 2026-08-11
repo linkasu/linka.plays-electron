@@ -75,3 +75,7 @@ export function wrapDrawingLevelIndex(index: number) {
 export function drawingLevelAt(index: number) {
   return drawingLevels[wrapDrawingLevelIndex(index)];
 }
+
+export function drawingCheckpoints(level: DrawingLevel) {
+  return level.closed && level.points.length > 0 ? [...level.points, level.points[0]] : [...level.points];
+}

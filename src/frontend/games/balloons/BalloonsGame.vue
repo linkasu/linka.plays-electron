@@ -473,7 +473,7 @@ onUnmounted(() => {
   inset-block-end: max(18px, env(safe-area-inset-bottom));
   inset-inline: 18px;
   margin-inline: auto;
-  max-inline-size: 560px;
+  max-inline-size: 35rem;
   opacity: 0.78;
   position: absolute;
   z-index: 3;

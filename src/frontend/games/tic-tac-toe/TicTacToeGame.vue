@@ -6,6 +6,7 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useGameTimers } from "../../composables/useGameTimers";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { chooseDeepQMove, createEmptyBoard, findWinner, winningLine, type TicTacToeBoard, type TicTacToeWinner } from "./model";
@@ -20,6 +21,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 const soundEnabled = toRef(session.settings, "sound");
 const promptAudio = useGamePromptAudio({ gameId: "tic-tac-toe", soundEnabled, warmAssetIds: ["tic-tac-toe.prompt", "tic-tac-toe.correct", "tic-tac-toe.mistake", "tic-tac-toe.complete"] });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
+const { setGameTimeout, clearGameTimers } = useGameTimers();
 
 const aiMoveDelayMs = 900;
 const playerTurnDelayMs = 850;
@@ -34,8 +36,6 @@ const resultVisible = computed(() => session.status === "finished");
 const line = computed(() => winningLine(board.value));
 const gazeBlocked = computed(() => aiThinking.value || playerTurnBlocked.value || sleeping.value || finalizing.value);
 const sleepDisabled = computed(() => session.status !== "running" || aiThinking.value || finalizing.value || Boolean(result.value));
-let aiTimer = 0;
-
 const statusText = computed(() => {
   if (sleeping.value) return " думаем над ходом";
   if (aiThinking.value) return "Компьютер думает над ходом";
@@ -60,6 +60,7 @@ function isWinningCell(index: number) {
 }
 
 async function finishRound(nextResult: TicTacToeWinner) {
+  const sessionId = session.sessionId;
   result.value = nextResult;
   aiThinking.value = false;
   playerTurnBlocked.value = false;
@@ -71,18 +72,14 @@ async function finishRound(nextResult: TicTacToeWinner) {
 
   if (nextResult === "O") void feedbackAudio.playMistake();
   else void feedbackAudio.playSuccess();
-  await promptAudio.playSequenceAndWait(nextResult === "X" ? ["tic-tac-toe.correct", "tic-tac-toe.complete"] : nextResult === "O" ? ["tic-tac-toe.mistake", "tic-tac-toe.complete"] : ["tic-tac-toe.complete"], 80, 170);
+  const playback = await promptAudio.playSequenceAndWait(nextResult === "X" ? ["tic-tac-toe.correct", "tic-tac-toe.complete"] : nextResult === "O" ? ["tic-tac-toe.mistake", "tic-tac-toe.complete"] : ["tic-tac-toe.complete"], 80, 170);
+  if (playback === "cancelled" || session.sessionId !== sessionId) return;
 
   if (session.status !== "finished") finishSession(nextResult === "draw" ? "game-draw" : nextResult === "X" ? "game-complete" : "game-lost");
   finalizing.value = false;
 }
 
 function applyAiMove() {
-  if (session.status === "paused") {
-    aiTimer = window.setTimeout(applyAiMove, 250);
-    return;
-  }
-
   aiThinking.value = false;
   if (session.status !== "running" || result.value) return;
   const move = chooseDeepQMove(board.value);
@@ -95,12 +92,8 @@ function applyAiMove() {
 
 function blockPlayerTurn() {
   playerTurnBlocked.value = true;
-  window.clearTimeout(aiTimer);
-  aiTimer = window.setTimeout(() => {
-    if (session.status === "paused") {
-      blockPlayerTurn();
-      return;
-    }
+  clearGameTimers();
+  setGameTimeout(() => {
     playerTurnBlocked.value = false;
   }, playerTurnDelayMs);
 }
@@ -116,8 +109,8 @@ function chooseCell(index: number) {
   }
 
   aiThinking.value = true;
-  window.clearTimeout(aiTimer);
-  aiTimer = window.setTimeout(applyAiMove, aiMoveDelayMs);
+  clearGameTimers();
+  setGameTimeout(applyAiMove, aiMoveDelayMs);
 }
 
 function toggleThinkMode() {
@@ -128,7 +121,7 @@ function toggleThinkMode() {
 
 function restart() {
   promptAudio.cancelPending();
-  window.clearTimeout(aiTimer);
+  clearGameTimers();
   board.value = createEmptyBoard();
   result.value = undefined;
   aiThinking.value = false;
@@ -146,7 +139,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   promptAudio.cancelPending();
-  window.clearTimeout(aiTimer);
+  clearGameTimers();
 });
 </script>
 
@@ -233,7 +226,7 @@ onUnmounted(() => {
 }
 
 .game-container :deep(.d-flex >.dwell-hitbox) {
-  inline-size: min(100%, 260px);
+  inline-size: min(100%, 16.25rem);
 }
 
 .think-button-content {
@@ -288,12 +281,13 @@ onUnmounted(() => {
  .game-container .text-overline,
  .game-container h1,
  .game-container p,
- .game-container > .v-row .text-body-1 .text-medium-emphasis {
+  .game-container > .v-row .text-body-1.text-medium-emphasis {
     display: none;
   }
 
- .game-container.d-flex.flex-column.flex-md-row {
-    display: none !important;
+  .game-container .d-flex.flex-column.flex-md-row {
+    gap: 0 !important;
+    margin-block-end: 0.25rem !important;
   }
 
  .board-grid {

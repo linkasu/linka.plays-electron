@@ -113,7 +113,7 @@ export function createGameSessionSummary(input: {
 export function finishResult(reason?: SessionFinishReason): "completed" | "incomplete" | "lost" | "draw" {
   if (reason === "game-lost") return "lost";
   if (reason === "game-draw") return "draw";
-  if (reason === "timeout" || reason === "too-many-mistakes") return "incomplete";
+  if (reason === "timeout" || reason === "too-many-mistakes" || reason === "manual") return "incomplete";
   return "completed";
 }
 

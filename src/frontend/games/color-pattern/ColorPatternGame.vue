@@ -6,6 +6,7 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useGameTimers } from "../../composables/useGameTimers";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
@@ -32,7 +33,7 @@ const isSpeaking = ref(false);
 const wrongChoiceId = ref<string>();
 const successChoiceId = ref<string>();
 const promptAudio = useGamePromptAudio({ gameId: "color-pattern", soundEnabled: toRef(session.settings, "sound") });
-let feedbackTimer = 0;
+const { setGameTimeout, clearGameTimers } = useGameTimers();
 
 const patternGridStyle = computed(() => ({
   "--pattern-slot-count": String(round.value.sequence.length + 1)
@@ -50,8 +51,7 @@ function colorStyle(color: ColorPatternColor) {
 }
 
 function clearFeedbackTimer() {
-  window.clearTimeout(feedbackTimer);
-  feedbackTimer = 0;
+  clearGameTimers();
 }
 
 function resetFeedback() {
@@ -64,9 +64,11 @@ function resetFeedback() {
 }
 
 async function playPrompt(delayMs = 0) {
+  const sessionId = session.sessionId;
+  const roundId = round.value.roundId;
   isSpeaking.value = true;
   await promptAudio.playSequenceAndWait(["color-pattern.prompt"], delayMs);
-  isSpeaking.value = false;
+  if (session.sessionId === sessionId && round.value.roundId === roundId) isSpeaking.value = false;
 }
 
 async function choose(choice: ColorPatternColor) {
@@ -77,6 +79,8 @@ async function choose(choice: ColorPatternColor) {
   clearFeedbackTimer();
 
   if (choice.id === round.value.answer.id) {
+    const sessionId = session.sessionId;
+    const roundId = round.value.roundId;
     pendingSelection.value = true;
     successChoiceId.value = choice.id;
     feedbackText.value = "Верно. Цветовой ряд продолжается.";
@@ -84,11 +88,12 @@ async function choose(choice: ColorPatternColor) {
     const finishedAfterSuccess = session.step >= session.maxSteps;
     void colorPatternFeedback.playSuccess(session.settings.sound);
     isSpeaking.value = true;
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["color-pattern.correct", "color-pattern.complete"] : ["color-pattern.correct"], 80, 170);
+    const playback = await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["color-pattern.correct", "color-pattern.complete"] : ["color-pattern.correct"], 80, 170);
+    if (playback === "cancelled" || session.sessionId !== sessionId || round.value.roundId !== roundId) return;
     isSpeaking.value = false;
 
-    if (session.status === "running" && session.step < session.maxSteps) {
-      feedbackTimer = window.setTimeout(() => {
+    if (session.step < session.maxSteps) {
+      setGameTimeout(() => {
         nextRound();
         resetFeedback();
       }, 650);
@@ -97,15 +102,18 @@ async function choose(choice: ColorPatternColor) {
   }
 
   pendingSelection.value = true;
+  const sessionId = session.sessionId;
+  const roundId = round.value.roundId;
   wrongChoiceId.value = choice.id;
   feedbackText.value = "Посмотри на повтор цветов и попробуй ещё раз.";
   recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.answer.label, actual: choice.label, patternKind: round.value.patternKind, isCorrect: false });
   void colorPatternFeedback.playMistake(session.settings.sound);
   isSpeaking.value = true;
-  await promptAudio.playSequenceAndWait(["color-pattern.mistake"], 80);
+  const playback = await promptAudio.playSequenceAndWait(["color-pattern.mistake"], 80);
+  if (playback === "cancelled" || session.sessionId !== sessionId || round.value.roundId !== roundId) return;
   isSpeaking.value = false;
 
-  feedbackTimer = window.setTimeout(() => {
+  setGameTimeout(() => {
     pendingSelection.value = false;
     wrongChoiceId.value = undefined;
   }, 1000);

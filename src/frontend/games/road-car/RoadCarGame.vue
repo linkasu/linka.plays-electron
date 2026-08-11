@@ -6,6 +6,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
+import { isCanvasControlBlocked } from "../../core/domGazeTargetCoordinator";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { carSize, createHighwayState, highwayRoad, highwaySegments, laneCenter, laneCount, laneDashPattern, syncHighwayGeometry, updateHighway, type HighwayObstacle, type HighwayState, type Point, type ViewportSize } from "./model";
 
@@ -21,6 +22,7 @@ const { canvasRef, context, width, height } = useCanvasStage();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("road-car", {
   maxSteps: highwaySegments.length,
   overrides: { preset: "standard", dwellMs: 600, targetScale: 1.25, motionSpeed: 0.9, distractors: "low", hints: "medium" },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 
@@ -86,7 +88,8 @@ function update(delta: number) {
   highwayState.value = syncHighwayGeometry(highwayState.value, viewport.value);
   if (session.status !== "running") return;
   updateRoadside(delta);
-  const result = updateHighway(highwayState.value, pointer.value.valid ? pointer.value.x : undefined, delta, viewport.value, session.settings.motionSpeed);
+  if (!pointer.value.valid || isCanvasControlBlocked(pointer.value)) return;
+  const result = updateHighway(highwayState.value, pointer.value.x, delta, viewport.value, session.settings.motionSpeed, session.settings.controlOutcomeMode === "strict");
   highwayState.value = result.state;
   if (result.event.type === "success") {
     recordSuccess({ segmentId: highwaySegments[result.event.segmentIndex]?.id, lane: result.event.lane, goalId: result.event.goalId, hull: highwayState.value.hull });
@@ -320,7 +323,7 @@ useGameLoop({ context, update, draw });
   <div class="road-car-shell">
     <canvas ref="canvasRef" class="road-car-canvas" aria-label="Игра Машинка на дороге: 4-полосное шоссе" />
 
-    <v-card class="road-car-hint px-4 py-3" color="surface" rounded="xl" variant="flat">
+    <v-card class="road-car-hint px-4 py-3" color="surface" rounded="xl" variant="flat" data-canvas-overlay>
       <div class="text-body-2 font-weight-medium">{{ guidanceText }}</div>
       <div class="text-caption text-medium-emphasis">Четыре полосы. Жёлтый знак собери, встречные машины объезжай.</div>
     </v-card>

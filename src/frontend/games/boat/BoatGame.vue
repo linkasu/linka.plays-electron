@@ -6,6 +6,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { isCanvasControlBlocked } from "../../core/domGazeTargetCoordinator";
 import { disposeBoatAudio, playBoatDamageCue, playBoatSuccessCue, setBoatMusicActive, tickBoatMusic, warmBoatAudio } from "./audio";
 import { boatPoint, boatRouteSegments, boatScrollSpeed, boatVisualSize, createBoatGameState, riverGeometry, syncBoatGeometry, updateBoatGame, type BoatGameState, type BoatHazard, type Point, type ViewportSize } from "./model";
 
@@ -28,6 +29,7 @@ const { pointer } = useGazePointer();
 const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("boat", {
   maxSteps: boatRouteSegments.length,
   overrides: { preset: "standard", dwellMs: 500, sessionSeconds: 135, targetScale: 1.2, motionSpeed: 0.78, distractors: "low", hints: "medium" },
+  finishOnMaxSteps: false,
   finishOnMistakes: false
 });
 
@@ -122,10 +124,16 @@ function updateRipples(delta: number) {
 function update(delta: number) {
   tickBoatMusic(soundEnabled.value);
   if (session.status !== "running") return;
+  const controlActive = pointer.value.valid && !isCanvasControlBlocked(pointer.value);
+  if (!controlActive) {
+    updateDecorations(delta);
+    updateRipples(delta);
+    return;
+  }
   sceneryOffset = (sceneryOffset + boatScrollSpeed(session.settings.motionSpeed) * delta) % Math.max(1, viewport.value.width);
 
   const previousGate = boatState.value.gate;
-  const result = updateBoatGame(boatState.value, pointer.value.valid ? pointer.value.y : undefined, delta, viewport.value, session.settings.motionSpeed, session.settings.targetScale, session.settings.reduceMotion);
+  const result = updateBoatGame(boatState.value, pointer.value.y, delta, viewport.value, session.settings.motionSpeed, session.settings.targetScale, session.settings.reduceMotion, session.settings.controlOutcomeMode === "strict");
   boatState.value = result.state;
 
   if (result.event.type === "success") {

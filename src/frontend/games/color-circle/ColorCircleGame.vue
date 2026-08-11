@@ -277,7 +277,7 @@ onUnmounted(() => {
   filter: saturate(0.72) brightness(0.96);
 }
 
-@media (max-height: 920px) {
+@media (max-height: 57.5rem) {
  .color-circle-container {
     align-items: flex-start !important;
     padding-block-start: 5.9rem;
@@ -310,7 +310,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 37.5rem) {
  .color-circle-container {
     padding-block-start: 6.75rem;
   }

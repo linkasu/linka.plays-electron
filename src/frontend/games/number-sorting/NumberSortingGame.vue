@@ -68,12 +68,13 @@ async function choose(card: NumberSortingCard) {
 
   if (card.value === expectedNumber) {
     const nextSelected = [...selectedNumbers.value, card.value];
+    const completedSequence = nextSelected.length >= round.value.correctOrder.length;
     wrongNumber.value = undefined;
     pendingFeedback.value = true;
     selectedNumbers.value = nextSelected;
-    recordSuccess({ roundId: round.value.roundId, targetId, prompt: round.value.prompt, direction: round.value.direction, expected: expectedNumber, actual: card.value, sequence: [...nextSelected], isCorrect: true });
+    if (completedSequence) recordSuccess({ roundId: round.value.roundId, targetId, prompt: round.value.prompt, direction: round.value.direction, expected: round.value.correctOrder, actual: nextSelected, sequence: nextSelected, isCorrect: true });
     void feedbackAudio.playSuccess();
-    const finishedAfterSuccess = session.step >= session.maxSteps;
+    const finishedAfterSuccess = completedSequence && session.step >= session.maxSteps;
     await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["number-sorting.correct", "number-sorting.complete"] : ["number-sorting.correct"], 80, 170);
 
     if (finishedAfterSuccess) {
@@ -82,7 +83,7 @@ async function choose(card: NumberSortingCard) {
       return;
     }
 
-    if (nextSelected.length >= round.value.correctOrder.length) {
+    if (completedSequence) {
       nextRound();
       resetChoices();
       promptAudio.play("number-sorting.prompt", 180);

@@ -19,7 +19,7 @@ defineProps<{
 
 <style scoped>
 .answer-card {
-  min-block-size: 180px;
+  min-block-size: 11.25rem;
 }
 
 .answer-emoji {

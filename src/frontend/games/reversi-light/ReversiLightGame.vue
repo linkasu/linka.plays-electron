@@ -6,6 +6,7 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useGameTimers } from "../../composables/useGameTimers";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { applyMove, cellIndex, chooseAiMove, countPieces, createInitialBoard, findWinner, hasAnyMove, reversiLightSize, validMoves, type ReversiLightBoard, type ReversiLightCell, type ReversiLightWinner } from "./model";
@@ -20,6 +21,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 const soundEnabled = toRef(session.settings, "sound");
 const promptAudio = useGamePromptAudio({ gameId: "reversi-light", soundEnabled, warmAssetIds: ["reversi-light.prompt", "reversi-light.complete"] });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
+const { setGameTimeout, clearGameTimers } = useGameTimers();
 
 const aiMoveDelayMs = 850;
 const passDelayMs = 700;
@@ -37,7 +39,6 @@ const playerMoves = computed(() => validMoves(board.value, "player"));
 const counts = computed(() => countPieces(board.value));
 const rows = Array.from({ length: reversiLightSize }, (_, row) => row);
 const columns = Array.from({ length: reversiLightSize }, (_, column) => column);
-let aiTimer = 0;
 let aiRequestId = 0;
 
 const statusText = computed(() => {
@@ -111,6 +112,7 @@ function pieceClasses(cell: ReversiLightCell) {
 }
 
 async function finishBoard(reason: "max-steps" | "game-complete" = "game-complete") {
+  const sessionId = session.sessionId;
   result.value = findWinner(board.value);
   aiThinking.value = false;
   if (result.value === "player") recordSuccess({ result: result.value, board: board.value.join("|"), final: true });
@@ -118,7 +120,8 @@ async function finishBoard(reason: "max-steps" | "game-complete" = "game-complet
   else recordEvent("level-start", { result: result.value, board: board.value.join("|") });
   if (result.value === "ai") void feedbackAudio.playMistake();
   else void feedbackAudio.playSuccess();
-  await promptAudio.playSequenceAndWait(["reversi-light.complete"], 80, 170);
+  const playback = await promptAudio.playSequenceAndWait(["reversi-light.complete"], 80, 170);
+  if (playback === "cancelled" || session.sessionId !== sessionId) return;
   if (session.status !== "finished") finishSession(reason === "max-steps" ? "max-steps" : result.value === "draw" ? "game-draw" : result.value === "player" ? "game-complete" : "game-lost");
 }
 
@@ -140,7 +143,7 @@ function afterAiTurn() {
 
 async function applyAiMove() {
   if (isSessionPaused()) {
-    aiTimer = window.setTimeout(applyAiMove, 250);
+    setGameTimeout(applyAiMove, 250);
     return;
   }
 
@@ -151,7 +154,7 @@ async function applyAiMove() {
   const aiMoveChoice = await chooseNativeAiMove(snapshot);
   if (requestId !== aiRequestId) return;
   if (isSessionPaused()) {
-    aiTimer = window.setTimeout(applyAiMove, 250);
+    setGameTimeout(applyAiMove, 250);
     return;
   }
 
@@ -175,8 +178,8 @@ async function applyAiMove() {
 
 function scheduleAiMove(delayMs = aiMoveDelayMs) {
   aiThinking.value = true;
-  window.clearTimeout(aiTimer);
-  aiTimer = window.setTimeout(applyAiMove, delayMs);
+  clearGameTimers();
+  setGameTimeout(applyAiMove, delayMs);
 }
 
 async function chooseCell(index: number) {
@@ -220,7 +223,7 @@ async function chooseCell(index: number) {
 function restart() {
   promptAudio.cancelPending();
   aiRequestId += 1;
-  window.clearTimeout(aiTimer);
+  clearGameTimers();
   board.value = createInitialBoard();
   result.value = undefined;
   aiThinking.value = false;
@@ -239,7 +242,7 @@ onMounted(() => {
 onUnmounted(() => {
   promptAudio.cancelPending();
   aiRequestId += 1;
-  window.clearTimeout(aiTimer);
+  clearGameTimers();
 });
 </script>
 

@@ -69,3 +69,9 @@ export function registerDomGazeTarget(registration: DomGazeTargetRegistration, p
 }
 
 export const activeDomGazeTargetId = readonly(activeTargetId);
+
+export function isCanvasControlBlocked(point: { x: number; y: number }) {
+  if (activeTargetId.value) return true;
+  if (typeof document.elementsFromPoint !== "function") return false;
+  return document.elementsFromPoint(point.x, point.y).some((element) => Boolean(element.closest("[data-canvas-overlay]")));
+}

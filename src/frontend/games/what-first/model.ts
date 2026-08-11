@@ -75,7 +75,7 @@ export const whatFirstScenes: WhatFirstScene[] = [
   {
     id: "soap-rinse",
     title: "Моем руки",
-    context: "На руках появилась пена.",
+    context: "На руках пока нет пены.",
     contextVisual: { emoji: "👐", label: "Руки у раковины" },
     first: { id: "soap", title: "Намылить", aacLabel: "мыло", phrase: "намыливаем руки", emoji: "🫧" },
     then: { id: "rinse", title: "Смыть", aacLabel: "смыть", phrase: "смываем пену", emoji: "🚿" }

@@ -128,12 +128,18 @@ function choiceCountFor(settings: SessionSettings) {
   return 4;
 }
 
+export function canContrastOddOneOutCategories(first: OddOneOutCategoryId, second: OddOneOutCategoryId) {
+  if (first === second) return false;
+  const potentiallyOverlapping = new Set(["animals:food", "animals:nature", "food:nature"]);
+  return !potentiallyOverlapping.has([first, second].sort().join(":"));
+}
+
 export function generateOddOneOutRound(settings: SessionSettings, roundIndex = 1): OddOneOutRound {
   const choiceCount = choiceCountFor(settings);
   const assetMode: OddOneOutAssetMode = roundIndex % 2 === 1 ? "image" : "emoji";
   const supportsMode = (candidate: OddOneOutItem) => assetMode === "emoji" || Boolean(candidate.wordId);
   const commonCategory = shuffleItems(oddOneOutCategories.filter((category) => category.items.filter(supportsMode).length >= choiceCount - 1))[0];
-  const oddCategory = shuffleItems(oddOneOutCategories.filter((category) => category.id !== commonCategory.id && category.items.some(supportsMode)))[0];
+  const oddCategory = shuffleItems(oddOneOutCategories.filter((category) => canContrastOddOneOutCategories(commonCategory.id, category.id) && category.items.some(supportsMode)))[0];
   const commonItems = shuffleItems(commonCategory.items.filter(supportsMode)).slice(0, choiceCount - 1);
   const oddItem = shuffleItems(oddCategory.items.filter(supportsMode))[0];
   const choices = shuffleItems([...commonItems, oddItem]);

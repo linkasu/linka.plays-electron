@@ -396,7 +396,7 @@ onUnmounted(() => {
     display: none !important;
   }
 
- .game-container.d-flex.flex-column.flex-md-row {
+  .game-container .d-flex.flex-column.flex-md-row {
     margin-block-end: 0.8rem !important;
   }
 
@@ -424,8 +424,8 @@ onUnmounted(() => {
 }
 
 @media (max-height: 42.5rem) {
- .game-container {
-    padding-block-start: 4.75rem;
+  .game-container {
+    padding-block-start: 4.625rem;
   }
 
  .game-container :deep(.v-card) {

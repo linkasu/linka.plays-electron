@@ -51,19 +51,19 @@ export const dressCharacterWeatherKits: DressCharacterWeatherKit[] = [
       {
         slot: "jacket",
         prompt: "Холодно. Что надеть на тело?",
-        target: { id: "cold-jacket-coat", slot: "jacket", label: "Куртка", color: "#64b5f6", darkColor: "#16446f" },
+        target: { id: "cold-jacket-coat", slot: "jacket", label: "Тёплая куртка", color: "#64b5f6", darkColor: "#16446f" },
         choices: [
-          { id: "cold-jacket-coat", slot: "jacket", label: "Куртка", color: "#64b5f6", darkColor: "#16446f" },
-          { id: "cold-jacket-vest", slot: "jacket", label: "Жилет", color: "#a5d6a7", darkColor: "#1b5e20" },
+          { id: "cold-jacket-coat", slot: "jacket", label: "Тёплая куртка", color: "#64b5f6", darkColor: "#16446f" },
+          { id: "cold-jacket-vest", slot: "jacket", label: "Лёгкий жилет", color: "#a5d6a7", darkColor: "#1b5e20" },
           { id: "cold-jacket-shirt", slot: "jacket", label: "Футболка", color: "#ffcc80", darkColor: "#9a3412" }
         ]
       },
       {
         slot: "shoes",
         prompt: "Холодно. Что надеть на ноги?",
-        target: { id: "cold-shoes-boots", slot: "shoes", label: "Ботинки", color: "#4db6ac", darkColor: "#15514d" },
+        target: { id: "cold-shoes-boots", slot: "shoes", label: "Тёплые ботинки", color: "#4db6ac", darkColor: "#15514d" },
         choices: [
-          { id: "cold-shoes-boots", slot: "shoes", label: "Ботинки", color: "#4db6ac", darkColor: "#15514d" },
+          { id: "cold-shoes-boots", slot: "shoes", label: "Тёплые ботинки", color: "#4db6ac", darkColor: "#15514d" },
           { id: "cold-shoes-sandals", slot: "shoes", label: "Сандалии", color: "#f472b6", darkColor: "#9d174d" },
           { id: "cold-shoes-slippers", slot: "shoes", label: "Тапочки", color: "#ce93d8", darkColor: "#6a1b9a" }
         ]
@@ -91,19 +91,19 @@ export const dressCharacterWeatherKits: DressCharacterWeatherKit[] = [
       {
         slot: "jacket",
         prompt: "Идёт дождь. Что надеть на тело?",
-        target: { id: "rain-jacket-raincoat", slot: "jacket", label: "Плащ", color: "#38bdf8", darkColor: "#075985" },
+        target: { id: "rain-jacket-raincoat", slot: "jacket", label: "Непромокаемый плащ", color: "#38bdf8", darkColor: "#075985" },
         choices: [
-          { id: "rain-jacket-raincoat", slot: "jacket", label: "Плащ", color: "#38bdf8", darkColor: "#075985" },
-          { id: "rain-jacket-coat", slot: "jacket", label: "Куртка", color: "#64b5f6", darkColor: "#16446f" },
+          { id: "rain-jacket-raincoat", slot: "jacket", label: "Непромокаемый плащ", color: "#38bdf8", darkColor: "#075985" },
+          { id: "rain-jacket-coat", slot: "jacket", label: "Тёплая куртка", color: "#64b5f6", darkColor: "#16446f" },
           { id: "rain-jacket-shirt", slot: "jacket", label: "Футболка", color: "#fb923c", darkColor: "#9a3412" }
         ]
       },
       {
         slot: "shoes",
         prompt: "Идёт дождь. Что надеть на ноги?",
-        target: { id: "rain-shoes-rainboots", slot: "shoes", label: "Сапоги", color: "#22c55e", darkColor: "#166534" },
+        target: { id: "rain-shoes-rainboots", slot: "shoes", label: "Резиновые сапоги", color: "#22c55e", darkColor: "#166534" },
         choices: [
-          { id: "rain-shoes-rainboots", slot: "shoes", label: "Сапоги", color: "#22c55e", darkColor: "#166534" },
+          { id: "rain-shoes-rainboots", slot: "shoes", label: "Резиновые сапоги", color: "#22c55e", darkColor: "#166534" },
           { id: "rain-shoes-boots", slot: "shoes", label: "Ботинки", color: "#4db6ac", darkColor: "#15514d" },
           { id: "rain-shoes-sandals", slot: "shoes", label: "Сандалии", color: "#f472b6", darkColor: "#9d174d" }
         ]
@@ -169,7 +169,9 @@ export function getDressCharacterKit(step: number, kits = dressCharacterWeatherK
 }
 
 export function getDressCharacterTask(step: number, kits = dressCharacterWeatherKits) {
-  return getDressCharacterKit(step, kits).items[dressCharacterSlotIndex(step)];
+  const task = getDressCharacterKit(step, kits).items[dressCharacterSlotIndex(step)];
+  const offset = (Math.max(0, Math.floor(step)) * 2 + dressCharacterKitIndex(step, kits)) % task.choices.length;
+  return { ...task, choices: [...task.choices.slice(offset), ...task.choices.slice(0, offset)] };
 }
 
 export function getDressCharacterExpectedItem(step: number, kits = dressCharacterWeatherKits) {

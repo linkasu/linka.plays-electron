@@ -315,7 +315,7 @@ export const games: GameInfo[] = [
     status: "polished",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 90,
-    minTargetSizePx: 170,
+    minTargetSizePx: 130,
     defaultDwellMs: 1400
   },
   {
@@ -330,7 +330,7 @@ export const games: GameInfo[] = [
     status: "polished",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 85,
-    minTargetSizePx: 180,
+    minTargetSizePx: 150,
     defaultDwellMs: 1300
   },
   {
@@ -480,7 +480,7 @@ export const games: GameInfo[] = [
     status: "polished",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 80,
-    minTargetSizePx: 180,
+    minTargetSizePx: 124,
     defaultDwellMs: 1350
   },
   {
@@ -510,7 +510,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 90,
-    minTargetSizePx: 220,
+    minTargetSizePx: 212,
     defaultDwellMs: 1300
   },
   {
@@ -540,7 +540,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 90,
-    minTargetSizePx: 210,
+    minTargetSizePx: 184,
     defaultDwellMs: 1300
   },
   {
@@ -691,7 +691,7 @@ export const games: GameInfo[] = [
     status: "polished",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
-    minTargetSizePx: 180,
+    minTargetSizePx: 160,
     defaultDwellMs: 1200
   },
   {
@@ -721,7 +721,7 @@ export const games: GameInfo[] = [
     status: "polished",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
-    minTargetSizePx: 180,
+    minTargetSizePx: 152,
     defaultDwellMs: 1200
   },
   {
@@ -751,7 +751,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
-    minTargetSizePx: 200,
+    minTargetSizePx: 144,
     defaultDwellMs: 1250
   },
   {
@@ -766,7 +766,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
-    minTargetSizePx: 200,
+    minTargetSizePx: 150,
     defaultDwellMs: 1300
   },
   {
@@ -781,7 +781,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
-    minTargetSizePx: 200,
+    minTargetSizePx: 180,
     defaultDwellMs: 1300
   },
   {
@@ -796,7 +796,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
-    minTargetSizePx: 200,
+    minTargetSizePx: 116,
     defaultDwellMs: 1300
   },
   {
@@ -811,7 +811,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
-    minTargetSizePx: 210,
+    minTargetSizePx: 152,
     defaultDwellMs: 1300
   },
   {
@@ -826,7 +826,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
-    minTargetSizePx: 200,
+    minTargetSizePx: 88,
     defaultDwellMs: 1300
   },
   {
@@ -841,7 +841,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
-    minTargetSizePx: 200,
+    minTargetSizePx: 156,
     defaultDwellMs: 1300
   },
   {
@@ -856,7 +856,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
-    minTargetSizePx: 200,
+    minTargetSizePx: 176,
     defaultDwellMs: 1300
   },
   {
@@ -886,7 +886,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
-    minTargetSizePx: 200,
+    minTargetSizePx: 168,
     defaultDwellMs: 1300
   },
   {
@@ -901,7 +901,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
-    minTargetSizePx: 150,
+    minTargetSizePx: 144,
     defaultDwellMs: 1300
   },
   {
@@ -931,7 +931,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 135,
-    minTargetSizePx: 170,
+    minTargetSizePx: 132,
     defaultDwellMs: 1300
   },
   {
@@ -961,7 +961,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 150,
-    minTargetSizePx: 180,
+    minTargetSizePx: 133,
     defaultDwellMs: 1300
   },
   {
@@ -991,7 +991,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
-    minTargetSizePx: 150,
+    minTargetSizePx: 112,
     defaultDwellMs: 1300
   },
   {
@@ -1006,7 +1006,7 @@ export const games: GameInfo[] = [
     status: "polished",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
-    minTargetSizePx: 150,
+    minTargetSizePx: 136,
     defaultDwellMs: 1200
   },
   {
@@ -1021,7 +1021,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
-    minTargetSizePx: 180,
+    minTargetSizePx: 144,
     defaultDwellMs: 1300
   },
   {
@@ -1036,7 +1036,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
-    minTargetSizePx: 180,
+    minTargetSizePx: 76,
     defaultDwellMs: 1300
   },
   {
@@ -1051,7 +1051,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 140,
-    minTargetSizePx: 180,
+    minTargetSizePx: 92,
     defaultDwellMs: 1300
   },
   {
@@ -1081,7 +1081,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
-    minTargetSizePx: 180,
+    minTargetSizePx: 142,
     defaultDwellMs: 1250
   },
   {
@@ -1096,7 +1096,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 150,
-    minTargetSizePx: 180,
+    minTargetSizePx: 109,
     defaultDwellMs: 1300
   },
   {
@@ -1111,7 +1111,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
-    minTargetSizePx: 180,
+    minTargetSizePx: 152,
     defaultDwellMs: 1250
   },
   {
@@ -1126,7 +1126,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 135,
-    minTargetSizePx: 180,
+    minTargetSizePx: 103,
     defaultDwellMs: 1300
   },
   {
@@ -1141,7 +1141,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 140,
-    minTargetSizePx: 180,
+    minTargetSizePx: 128,
     defaultDwellMs: 1300
   },
   {
@@ -1156,7 +1156,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 140,
-    minTargetSizePx: 180,
+    minTargetSizePx: 168,
     defaultDwellMs: 1300
   },
   {
@@ -1231,7 +1231,7 @@ export const games: GameInfo[] = [
     status: "polished",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
-    minTargetSizePx: 180,
+    minTargetSizePx: 128,
     defaultDwellMs: 1200
   },
   {
@@ -1276,7 +1276,7 @@ export const games: GameInfo[] = [
     status: "polished",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
-    minTargetSizePx: 180,
+    minTargetSizePx: 160,
     defaultDwellMs: 1300
   },
   {
@@ -1291,7 +1291,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
-    minTargetSizePx: 220,
+    minTargetSizePx: 133,
     defaultDwellMs: 1300
   },
   {
@@ -1306,7 +1306,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
-    minTargetSizePx: 220,
+    minTargetSizePx: 162,
     defaultDwellMs: 1300
   },
   {
@@ -1321,7 +1321,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 125,
-    minTargetSizePx: 190,
+    minTargetSizePx: 165,
     defaultDwellMs: 1300
   },
   {
@@ -1336,7 +1336,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
-    minTargetSizePx: 190,
+    minTargetSizePx: 156,
     defaultDwellMs: 1300
   },
   {
@@ -1382,7 +1382,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "archived",
     tags: ["hidden-from-menu"],
     recommendedSessionSeconds: 120,
-    minTargetSizePx: 180,
+    minTargetSizePx: 152,
     defaultDwellMs: 1200
   },
   {
@@ -1397,7 +1397,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 125,
-    minTargetSizePx: 190,
+    minTargetSizePx: 136,
     defaultDwellMs: 1300
   },
   {
@@ -1412,7 +1412,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 125,
-    minTargetSizePx: 190,
+    minTargetSizePx: 172,
     defaultDwellMs: 1300
   },
   {
@@ -1427,7 +1427,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 135,
-    minTargetSizePx: 180,
+    minTargetSizePx: 120,
     defaultDwellMs: 1350
   },
   {
@@ -1442,7 +1442,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 125,
-    minTargetSizePx: 180,
+    minTargetSizePx: 120,
     defaultDwellMs: 1300
   },
   {
@@ -1472,7 +1472,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
-    minTargetSizePx: 170,
+    minTargetSizePx: 124,
     defaultDwellMs: 1300
   },
   {
@@ -1487,7 +1487,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
-    minTargetSizePx: 190,
+    minTargetSizePx: 116,
     defaultDwellMs: 1300
   },
   {
@@ -1502,7 +1502,7 @@ export const games: GameInfo[] = [
     status: "polished",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
-    minTargetSizePx: 160,
+    minTargetSizePx: 124,
     defaultDwellMs: 1200
   },
   {
@@ -1517,7 +1517,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 140,
-    minTargetSizePx: 180,
+    minTargetSizePx: 76,
     defaultDwellMs: 1300
   },
   {
@@ -1562,7 +1562,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 125,
-    minTargetSizePx: 170,
+    minTargetSizePx: 100,
     defaultDwellMs: 1300
   },
   {
@@ -1577,7 +1577,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
-    minTargetSizePx: 150,
+    minTargetSizePx: 106,
     defaultDwellMs: 1300
   },
   {
@@ -1592,7 +1592,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
-    minTargetSizePx: 190,
+    minTargetSizePx: 128,
     defaultDwellMs: 1300
   },
   {
@@ -1607,7 +1607,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
-    minTargetSizePx: 170,
+    minTargetSizePx: 112,
     defaultDwellMs: 1300
   },
   {
@@ -1622,7 +1622,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
-    minTargetSizePx: 180,
+    minTargetSizePx: 136,
     defaultDwellMs: 1300
   },
   {
@@ -1637,7 +1637,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
-    minTargetSizePx: 170,
+    minTargetSizePx: 167,
     defaultDwellMs: 1300
   },
   {
@@ -1667,7 +1667,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 140,
-    minTargetSizePx: 180,
+    minTargetSizePx: 96,
     defaultDwellMs: 1300
   },
   {
@@ -1682,7 +1682,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
-    minTargetSizePx: 160,
+    minTargetSizePx: 109,
     defaultDwellMs: 1300
   },
   {
@@ -1697,7 +1697,7 @@ export const games: GameInfo[] = [
     status: "polished",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
-    minTargetSizePx: 180,
+    minTargetSizePx: 132,
     defaultDwellMs: 1200
   },
   {
@@ -1712,7 +1712,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 125,
-    minTargetSizePx: 190,
+    minTargetSizePx: 140,
     defaultDwellMs: 1300
   },
   {
@@ -1727,7 +1727,7 @@ export const games: GameInfo[] = [
     status: "polished",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
-    minTargetSizePx: 96,
+    minTargetSizePx: 80,
     defaultDwellMs: 1200
   },
   {
@@ -1742,7 +1742,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
-    minTargetSizePx: 112,
+    minTargetSizePx: 60,
     defaultDwellMs: 1200
   },
   {
@@ -1757,7 +1757,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
-    minTargetSizePx: 148,
+    minTargetSizePx: 94,
     defaultDwellMs: 1300
   },
   {
@@ -1772,7 +1772,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
-    minTargetSizePx: 132,
+    minTargetSizePx: 88,
     defaultDwellMs: 1100
   },
   {
@@ -1802,7 +1802,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
-    minTargetSizePx: 160,
+    minTargetSizePx: 151,
     defaultDwellMs: 1300
   },
   {
@@ -1817,13 +1817,13 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
-    minTargetSizePx: 116,
+    minTargetSizePx: 90,
     defaultDwellMs: 1100
   },
   {
     id: "sokoban-large",
     title: "Сокобан крупный",
-    description: "Выбирай направление, чтобы подтолкнуть ящик к цели на маленькой крупной сетке; третий неверный ход завершает задачу.",
+    description: "Выбирай направление, чтобы подтолкнуть ящик к цели на маленькой крупной сетке; неверный ход можно спокойно повторить.",
     selfDescription: "Подтолкни ящик к цели.",
     route: "/games/sokoban-large",
     category: "strategy",
@@ -1832,7 +1832,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
-    minTargetSizePx: 148,
+    minTargetSizePx: 92,
     defaultDwellMs: 1200
   },
   {
@@ -1847,7 +1847,7 @@ export const games: GameInfo[] = [
     status: "polished",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
-    minTargetSizePx: 128,
+    minTargetSizePx: 101,
     defaultDwellMs: 1300
   },
   {
@@ -1862,7 +1862,7 @@ export const games: GameInfo[] = [
     status: "polished",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
-    minTargetSizePx: 140,
+    minTargetSizePx: 97,
     defaultDwellMs: 1450
   },
   {
@@ -1877,7 +1877,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
-    minTargetSizePx: 126,
+    minTargetSizePx: 90,
     defaultDwellMs: 1300
   },
   {
@@ -1892,7 +1892,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
-    minTargetSizePx: 104,
+    minTargetSizePx: 60,
     defaultDwellMs: 1300
   },
   {
@@ -1907,14 +1907,14 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
-    minTargetSizePx: 126,
+    minTargetSizePx: 41,
     defaultDwellMs: 1300
   },
   {
     id: "chess-mini",
-    title: "Шахматы",
-    description: "Играй полноценную партию в шахматы 8×8: белые выбирают ход взглядом, чёрные отвечают движком.",
-    selfDescription: "Выбери шахматный ход.",
+    title: "Шахматный тренажёр",
+    description: "Тренируй восемь легальных ходов белыми на доске 8×8 с ответами C++ движка.",
+    selfDescription: "Потренируй шахматные ходы.",
     route: "/games/chess-mini",
     category: "strategy",
     icon: "mdi-chess-knight",
@@ -1952,7 +1952,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
-    minTargetSizePx: 150,
+    minTargetSizePx: 116,
     defaultDwellMs: 1200
   },
   {
@@ -1967,7 +1967,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 165,
-    minTargetSizePx: 150,
+    minTargetSizePx: 84,
     defaultDwellMs: 1100
   },
   {
@@ -1982,7 +1982,7 @@ export const games: GameInfo[] = [
     status: "therapy-ready",
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
-    minTargetSizePx: 150,
+    minTargetSizePx: 59,
     defaultDwellMs: 850
   },
   {

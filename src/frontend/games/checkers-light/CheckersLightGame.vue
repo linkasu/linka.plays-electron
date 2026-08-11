@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useGameTimers } from "../../composables/useGameTimers";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
@@ -39,6 +40,7 @@ const { session, durationMs, metrics, recommendation, pauseSession, resumeSessio
 const soundEnabled = toRef(session.settings, "sound");
 const promptAudio = useGamePromptAudio({ gameId: "checkers-light", soundEnabled, warmAssetIds: ["checkers-light.prompt", "checkers-light.complete"] });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
+const { setGameTimeout, clearGameTimers } = useGameTimers();
 
 const aiSearchDepth = 6;
 const aiSearchTimeLimitMs = 1200;
@@ -46,10 +48,10 @@ const aiMoveDelayMs = 650;
 
 const gameState = ref(createInitialCheckersLightState());
 const aiThinking = ref(false);
+const aiNeedsResume = ref(false);
 const lastMove = ref<CheckersLightMove>();
 const lastCapturedIndex = ref<number>();
 const feedbackMessage = ref("Цель — оставить синего врага без ходов или без шашек. Если есть взятие, его нужно выполнить.");
-let aiTimer = 0;
 let aiRequestId = 0;
 
 const rows = Array.from({ length: checkersLightSize }, (_, row) => row);
@@ -63,6 +65,7 @@ const resultVisible = computed(() => session.status === "finished");
 const statusText = computed(() => {
   if (gameState.value.status === "gold-win") return "Победа: у синего нет хода";
   if (gameState.value.status === "blue-win") return "Синий выиграл партию";
+  if (gameState.value.status === "draw") return "Партия завершилась вничью";
   if (aiThinking.value) return "Синий думает над ходом";
   if (gameState.value.turn === "blue") return "Синий ходит";
   if (gameState.value.forcedFromIndex !== undefined) return "Продолжи обязательное взятие";
@@ -115,6 +118,12 @@ function cellClasses(index: number) {
 
 function finishIfNeeded(sideJustMoved: CheckersLightPieceSide) {
   if (gameState.value.status === "playing") return false;
+  if (gameState.value.status === "draw") {
+    feedbackMessage.value = "Партия завершилась вничью.";
+    promptAudio.play("checkers-light.complete", 120);
+    finishSession("game-draw");
+    return true;
+  }
   const goldWon = gameState.value.status === "gold-win";
   feedbackMessage.value = goldWon ? "Партия выиграна: у синего больше нет хода." : "Партия завершена: у золотых больше нет хода.";
   if (goldWon) void feedbackAudio.playSuccess();
@@ -164,10 +173,18 @@ async function chooseNativeAiMove() {
 async function applyAiTurn() {
   if (session.status !== "running" || gameState.value.turn !== "blue" || gameState.value.status !== "playing") return;
   const requestId = ++aiRequestId;
+  const boardSnapshot = encodeCheckersLightBoard(gameState.value.board);
+  const forcedFromSnapshot = gameState.value.forcedFromIndex;
   aiThinking.value = true;
   const aiChoice = await chooseNativeAiMove();
   if (requestId !== aiRequestId) return;
+  if (boardSnapshot !== encodeCheckersLightBoard(gameState.value.board) || forcedFromSnapshot !== gameState.value.forcedFromIndex) return;
   aiThinking.value = false;
+  if (session.status !== "running") {
+    aiNeedsResume.value = true;
+    return;
+  }
+  aiNeedsResume.value = false;
   if (!aiChoice.move) {
     gameState.value = { ...gameState.value, status: "gold-win" };
     finishIfNeeded("gold");
@@ -178,8 +195,9 @@ async function applyAiTurn() {
 }
 
 function scheduleAiMove(delayMs = aiMoveDelayMs) {
-  window.clearTimeout(aiTimer);
-  aiTimer = window.setTimeout(() => void applyAiTurn(), delayMs);
+  aiNeedsResume.value = false;
+  clearGameTimers();
+  setGameTimeout(() => void applyAiTurn(), delayMs);
 }
 
 function selectCell(index: number) {
@@ -212,10 +230,11 @@ function selectCell(index: number) {
 
 function restart() {
   promptAudio.cancelPending();
-  window.clearTimeout(aiTimer);
+  clearGameTimers();
   aiRequestId += 1;
   gameState.value = createInitialCheckersLightState();
   aiThinking.value = false;
+  aiNeedsResume.value = false;
   lastMove.value = undefined;
   lastCapturedIndex.value = undefined;
   feedbackMessage.value = "Новая партия готова. Золотые ходят первыми. Взятие обязательно.";
@@ -231,8 +250,12 @@ onMounted(() => {
 
 onUnmounted(() => {
   promptAudio.cancelPending();
-  window.clearTimeout(aiTimer);
+  clearGameTimers();
   aiRequestId += 1;
+});
+
+watch(() => session.status, (nextStatus, previousStatus) => {
+  if (nextStatus === "running" && previousStatus === "paused" && aiNeedsResume.value && gameState.value.turn === "blue" && gameState.value.status === "playing") scheduleAiMove();
 });
 </script>
 
@@ -446,8 +469,8 @@ onUnmounted(() => {
 }
 
 @media (max-height: 42.5rem) {
- .game-container {
-    padding-block-start: 4.25rem;
+  .game-container {
+    padding-block-start: 7.25rem;
   }
 
  .game-header {
