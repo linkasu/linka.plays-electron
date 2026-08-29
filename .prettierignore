@@ -1,0 +1,17 @@
+# Build output
+dist
+dist-electron
+release
+build
+
+# Vendored and generated assets
+vendor
+native/*/build
+resources
+
+# Lockfile is owned by npm
+package-lock.json
+
+# Records, not source: test-run reports and game specs. Reformatting them
+# would bury every real change in 300 files of reflowed prose.
+docs
