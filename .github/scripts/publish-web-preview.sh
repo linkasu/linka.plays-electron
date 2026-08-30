@@ -6,6 +6,13 @@
 #   TARGET       subdirectory to write into; empty means the site root
 #   REMOVE_ONLY  when set, delete TARGET instead of writing a build into it
 #   GH_TOKEN     token with contents:write
+#   PRUNE_PREVIEWS  set to "1" to reconcile previews against KEEP_PREVIEWS.
+#                   A separate flag on purpose: GitHub Actions always defines an
+#                   env var, so "is KEEP_PREVIEWS set" would be true on every
+#                   run and an empty list would wipe every preview
+#   KEEP_PREVIEWS   space separated pull request numbers whose previews survive;
+#                   every other preview is dropped. Empty means no pull request
+#                   is open, which is only trustworthy together with the flag
 #   PUBLISH_REMOTE  override the target repository; only used to exercise this
 #                   script against a local repository before shipping it
 #
@@ -31,6 +38,25 @@ if git fetch --depth=1 "$remote" gh-pages 2>/dev/null; then
   echo "Existing site restored."
 else
   echo "No gh-pages branch yet, starting an empty site."
+fi
+
+# Previews are reconciled here rather than on a "pull request closed" event.
+# A merge fires both events, so cleaning up separately meant two force pushes to
+# gh-pages seconds apart: Pages started building the first, the second replaced
+# it, and the first was reported as "Page build failed". Worse, when three
+# publishes contended, the Actions concurrency queue dropped the pending one and
+# the cleanup was silently lost.
+if [ "${PRUNE_PREVIEWS:-}" = "1" ] && [ -d "$site/preview" ]; then
+  for directory in "$site"/preview/pr-*; do
+    [ -d "$directory" ] || continue
+    number="$(basename "$directory")"
+    number="${number#pr-}"
+    case " ${KEEP_PREVIEWS} " in
+      *" ${number} "*) ;;
+      *) rm -rf "$directory"; echo "Dropped preview for closed pull request ${number}." ;;
+    esac
+  done
+  rmdir "$site/preview" 2>/dev/null || true
 fi
 
 if [ -n "${REMOVE_ONLY:-}" ]; then
@@ -59,6 +85,11 @@ git init --quiet --initial-branch=gh-pages
 git config user.name "github-actions[bot]"
 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 git add -A
-git commit --quiet -m "Publish ${target:-site root} from ${GITHUB_SHA:-unknown}"
+if [ -n "${REMOVE_ONLY:-}" ]; then
+  summary="Remove $target"
+else
+  summary="Publish ${target:-site root}"
+fi
+git commit --quiet -m "$summary from ${GITHUB_SHA:-unknown}"
 git push --force --quiet "$remote" gh-pages
 echo "Pushed gh-pages."

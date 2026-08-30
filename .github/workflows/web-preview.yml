@@ -3,6 +3,10 @@ name: Web preview
 # Publishes the renderer as a static site so games can be opened by link:
 # `main` goes to the site root, every pull request gets `preview/pr-<number>/`.
 #
+# Previews for closed pull requests are dropped by the next publish to the site
+# root, not by a "pull request closed" event: a merge fires both, and two force
+# pushes seconds apart made Pages report the first build as failed.
+#
 # The site lives on the `gh-pages` branch and is republished as a single orphan
 # commit every time. Keeping no history is deliberate: a build is 67 MB, most
 # of it audio and images, and a growing branch would be paid for by everyone
@@ -12,7 +16,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    types: [opened, synchronize, reopened, closed]
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: write
@@ -28,8 +32,7 @@ jobs:
     # Pull requests from forks get a read-only token and cannot publish.
     if: >-
       github.event_name == 'push' ||
-      (github.event.action != 'closed' &&
-       github.event.pull_request.head.repo.full_name == github.repository)
+      github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -43,11 +46,26 @@ jobs:
 
       - run: npm run build:web
 
+      # Only for the site root: which previews are still wanted. Kept out of the
+      # publish script so the script stays testable without GitHub.
+      - name: List open pull requests
+        if: github.event_name == 'push'
+        id: open
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          numbers="$(gh pr list --state open --limit 200 --json number --jq '[.[].number] | join(" ")')"
+          echo "numbers=$numbers" >> "$GITHUB_OUTPUT"
+
       - name: Publish
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Empty means the site root.
           TARGET: ${{ github.event_name == 'pull_request' && format('preview/pr-{0}', github.event.pull_request.number) || '' }}
+          # Only a root publish reconciles previews.
+          PRUNE_PREVIEWS: ${{ github.event_name == 'push' && '1' || '' }}
+          KEEP_PREVIEWS: ${{ steps.open.outputs.numbers }}
         run: bash .github/scripts/publish-web-preview.sh
 
       - name: Say where it is
@@ -65,16 +83,3 @@ jobs:
           Игра открывается в рамке с фиксированным соотношением сторон, чтобы у всех была одинаковая геометрия. Прямая ссылка на игру: \`${base}/play.html#/games/who-hiding\`, без рамки — \`${base}/#/games/who-hiding\`.
 
           Обновляется на каждый пуш. Чего в браузере нет: айтрекер (управление мышью), телеметрия, апдейтер и шахматы — им нужен нативный движок. Остальные игры работают."
-
-  cleanup:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Drop the preview
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TARGET: preview/pr-${{ github.event.pull_request.number }}
-          REMOVE_ONLY: "1"
-        run: bash .github/scripts/publish-web-preview.sh
