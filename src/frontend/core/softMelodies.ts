@@ -4,13 +4,15 @@ import { notesToLoadForMinorMelodies, softMinorMelodies, type MinorMelody } from
 export type TherapeuticMelody = MajorMelody | MinorMelody;
 
 export const softTherapeuticMelodies: TherapeuticMelody[] = [
- ...softMajorMelodies,
- ...softMinorMelodies
+  ...softMajorMelodies,
+  ...softMinorMelodies,
 ];
 
 export function notesToLoadForSoftTherapeuticMelodies(melodies = softTherapeuticMelodies) {
   if (melodies === softTherapeuticMelodies) {
-    return [...new Set([...notesToLoadForMajorMelodies(), ...notesToLoadForMinorMelodies()])].sort((a, b) => a - b);
+    return [...new Set([...notesToLoadForMajorMelodies(), ...notesToLoadForMinorMelodies()])].sort(
+      (a, b) => a - b,
+    );
   }
 
   return [...new Set(melodies.flatMap((melody) => melody.notesToLoad ?? []))].sort((a, b) => a - b);

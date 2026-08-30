@@ -5,7 +5,7 @@ const pointer = ref<GazePoint>({
   y: window.innerHeight / 2,
   valid: false,
   source: "mouse",
-  timestamp: Date.now()
+  timestamp: Date.now(),
 });
 
 let subscribers = 0;
@@ -27,17 +27,17 @@ export function mouseOwnsPointer(mouseAt: number, gazeAt: number, takeoverMs = m
 function clampToViewport(point: { x: number; y: number }) {
   return {
     x: Math.max(0, Math.min(window.innerWidth, point.x)),
-    y: Math.max(0, Math.min(window.innerHeight, point.y))
+    y: Math.max(0, Math.min(window.innerHeight, point.y)),
   };
 }
 
 function setPointer(nextPoint: GazePoint) {
   const next = clampToViewport(nextPoint);
   pointer.value = {
-   ...nextPoint,
+    ...nextPoint,
     x: next.x,
     y: next.y,
-    timestamp: nextPoint.timestamp ?? Date.now()
+    timestamp: nextPoint.timestamp ?? Date.now(),
   };
 }
 
@@ -48,7 +48,7 @@ function onPointerMove(event: PointerEvent) {
     y: event.clientY,
     valid: true,
     source: "mouse",
-    timestamp: Date.now()
+    timestamp: Date.now(),
   });
 }
 
@@ -79,12 +79,16 @@ function onGaze(point: GazePoint) {
     y,
     valid: point.valid,
     source: "tobii",
-    timestamp
+    timestamp,
   });
 }
 
 function checkStaleGaze() {
-  if (pointer.value.source === "tobii" && pointer.value.valid && Date.now() - (pointer.value.timestamp ?? 0) > gazeTtlMs) {
+  if (
+    pointer.value.source === "tobii" &&
+    pointer.value.valid &&
+    Date.now() - (pointer.value.timestamp ?? 0) > gazeTtlMs
+  ) {
     pointer.value = { ...pointer.value, valid: false, timestamp: Date.now() };
   }
   staleFrame = window.requestAnimationFrame(checkStaleGaze);

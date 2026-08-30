@@ -8,7 +8,9 @@ import { TelemetryPrivacyPreferenceStore } from "./privacyPreference";
 const directories: string[] = [];
 
 afterEach(async () => {
-  await Promise.all(directories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })));
+  await Promise.all(
+    directories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })),
+  );
 });
 
 async function createUserData() {
@@ -29,7 +31,7 @@ describe("TelemetryPrivacyController", () => {
       store: new TelemetryPrivacyPreferenceStore(userDataPath),
       canStartTelemetry: () => true,
       createTelemetry,
-      clearTelemetryData: () => rm(telemetryPath, { recursive: true, force: true })
+      clearTelemetryData: () => rm(telemetryPath, { recursive: true, force: true }),
     });
 
     await expect(controller.initialize()).resolves.toBe("unknown");
@@ -40,12 +42,14 @@ describe("TelemetryPrivacyController", () => {
 
   it("serializes decisions and rejects IPC transitions after the shutdown gate closes", async () => {
     let releaseEnabledWrite: () => void = () => undefined;
-    const enabledWrite = new Promise<void>((resolve) => { releaseEnabledWrite = resolve; });
+    const enabledWrite = new Promise<void>((resolve) => {
+      releaseEnabledWrite = resolve;
+    });
     const writes: string[] = [];
     const runtime = {
       initialize: vi.fn(async () => undefined),
       stopCollection: vi.fn(),
-      disableAndClear: vi.fn(async () => undefined)
+      disableAndClear: vi.fn(async () => undefined),
     };
     const controller = new TelemetryPrivacyController({
       store: {
@@ -53,18 +57,20 @@ describe("TelemetryPrivacyController", () => {
         write: async (preference) => {
           writes.push(preference);
           if (preference === "enabled") await enabledWrite;
-        }
+        },
       },
       canStartTelemetry: () => true,
       createTelemetry: () => runtime,
-      clearTelemetryData: vi.fn(async () => undefined)
+      clearTelemetryData: vi.fn(async () => undefined),
     });
 
     const enabled = controller.setPreference("enabled");
     await vi.waitFor(() => expect(writes).toEqual(["enabled"]));
     const disabled = controller.setPreference("disabled");
     const closing = controller.closeGate();
-    await expect(controller.setPreference("enabled")).rejects.toThrow("privacy transitions are closed");
+    await expect(controller.setPreference("enabled")).rejects.toThrow(
+      "privacy transitions are closed",
+    );
     expect(writes).toEqual(["enabled"]);
 
     releaseEnabledWrite();
@@ -80,12 +86,21 @@ describe("TelemetryPrivacyController", () => {
   });
 
   it("does not destroy identity when persisting Disabled fails", async () => {
-    const runtime = { initialize: vi.fn(async () => undefined), stopCollection: vi.fn(), disableAndClear: vi.fn(async () => undefined) };
+    const runtime = {
+      initialize: vi.fn(async () => undefined),
+      stopCollection: vi.fn(),
+      disableAndClear: vi.fn(async () => undefined),
+    };
     const controller = new TelemetryPrivacyController({
-      store: { read: async () => "enabled", write: async () => { throw new Error("disk full"); } },
+      store: {
+        read: async () => "enabled",
+        write: async () => {
+          throw new Error("disk full");
+        },
+      },
       canStartTelemetry: () => true,
       createTelemetry: () => runtime,
-      clearTelemetryData: vi.fn(async () => undefined)
+      clearTelemetryData: vi.fn(async () => undefined),
     });
     await controller.initialize();
 
@@ -98,12 +113,18 @@ describe("TelemetryPrivacyController", () => {
   });
 
   it("does not issue denial for a telemetry startup failure", async () => {
-    const runtime = { initialize: vi.fn(async () => { throw new Error("spool unavailable"); }), stopCollection: vi.fn(), disableAndClear: vi.fn(async () => undefined) };
+    const runtime = {
+      initialize: vi.fn(async () => {
+        throw new Error("spool unavailable");
+      }),
+      stopCollection: vi.fn(),
+      disableAndClear: vi.fn(async () => undefined),
+    };
     const controller = new TelemetryPrivacyController({
       store: { read: async () => "enabled", write: vi.fn(async () => undefined) },
       canStartTelemetry: () => true,
       createTelemetry: () => runtime,
-      clearTelemetryData: vi.fn(async () => undefined)
+      clearTelemetryData: vi.fn(async () => undefined),
     });
 
     await expect(controller.initialize()).rejects.toThrow("spool unavailable");
@@ -114,12 +135,23 @@ describe("TelemetryPrivacyController", () => {
 
   it("keeps Disabled persisted when remote denial must be retried later", async () => {
     const writes: string[] = [];
-    const runtime = { initialize: vi.fn(async () => undefined), stopCollection: vi.fn(), disableAndClear: vi.fn(async () => { throw new Error("offline"); }) };
+    const runtime = {
+      initialize: vi.fn(async () => undefined),
+      stopCollection: vi.fn(),
+      disableAndClear: vi.fn(async () => {
+        throw new Error("offline");
+      }),
+    };
     const controller = new TelemetryPrivacyController({
-      store: { read: async () => "enabled", write: async (preference) => { writes.push(preference); } },
+      store: {
+        read: async () => "enabled",
+        write: async (preference) => {
+          writes.push(preference);
+        },
+      },
       canStartTelemetry: () => true,
       createTelemetry: () => runtime,
-      clearTelemetryData: vi.fn(async () => undefined)
+      clearTelemetryData: vi.fn(async () => undefined),
     });
     await controller.initialize();
 

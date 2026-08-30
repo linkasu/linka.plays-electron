@@ -1,33 +1,82 @@
 import { describe, expect, it } from "vitest";
-import { buildChoiceRound, choiceCountByPreset, idEquality, pickByRoundIndex, referenceEquality } from "./round";
+import {
+  buildChoiceRound,
+  choiceCountByPreset,
+  idEquality,
+  pickByRoundIndex,
+  referenceEquality,
+} from "./round";
 import { createDefaultSettings, presetSettings } from "./settings";
 
 const items = [
   { id: "a", label: "альфа" },
   { id: "b", label: "бета" },
   { id: "c", label: "гамма" },
-  { id: "d", label: "дельта" }
+  { id: "d", label: "дельта" },
 ];
 
 describe("choiceCountByPreset", () => {
   it("returns gentle/standard/challenge variants by preset", () => {
-    expect(choiceCountByPreset({ ...presetSettings.gentle }, 1, { gentle: 2, standard: 3, challenge: 4 })).toBe(2);
-    expect(choiceCountByPreset({ ...presetSettings.standard }, 1, { gentle: 2, standard: 3, challenge: 4 })).toBe(3);
-    expect(choiceCountByPreset({ ...presetSettings.challenge }, 1, { gentle: 2, standard: 3, challenge: 4 })).toBe(4);
+    expect(
+      choiceCountByPreset({ ...presetSettings.gentle }, 1, {
+        gentle: 2,
+        standard: 3,
+        challenge: 4,
+      }),
+    ).toBe(2);
+    expect(
+      choiceCountByPreset({ ...presetSettings.standard }, 1, {
+        gentle: 2,
+        standard: 3,
+        challenge: 4,
+      }),
+    ).toBe(3);
+    expect(
+      choiceCountByPreset({ ...presetSettings.challenge }, 1, {
+        gentle: 2,
+        standard: 3,
+        challenge: 4,
+      }),
+    ).toBe(4);
   });
 
   it("supports function presets dependent on round index", () => {
     const fn = (idx: number) => 2 + (idx % 3);
-    expect(choiceCountByPreset({ ...presetSettings.standard }, 1, { gentle: 2, standard: fn, challenge: 4 })).toBe(3);
-    expect(choiceCountByPreset({ ...presetSettings.standard }, 4, { gentle: 2, standard: fn, challenge: 4 })).toBe(3);
+    expect(
+      choiceCountByPreset({ ...presetSettings.standard }, 1, {
+        gentle: 2,
+        standard: fn,
+        challenge: 4,
+      }),
+    ).toBe(3);
+    expect(
+      choiceCountByPreset({ ...presetSettings.standard }, 4, {
+        gentle: 2,
+        standard: fn,
+        challenge: 4,
+      }),
+    ).toBe(3);
   });
 
   it("respects cap", () => {
-    expect(choiceCountByPreset({ ...presetSettings.challenge }, 1, { gentle: 2, standard: 3, challenge: 6, cap: 5 })).toBe(5);
+    expect(
+      choiceCountByPreset({ ...presetSettings.challenge }, 1, {
+        gentle: 2,
+        standard: 3,
+        challenge: 6,
+        cap: 5,
+      }),
+    ).toBe(5);
   });
 
   it("never drops below 2", () => {
-    expect(choiceCountByPreset({ ...presetSettings.gentle }, 1, { gentle: 1, standard: 3, challenge: 4 })).toBe(2);
+    expect(
+      choiceCountByPreset({ ...presetSettings.gentle }, 1, {
+        gentle: 1,
+        standard: 3,
+        challenge: 4,
+      }),
+    ).toBe(2);
   });
 });
 
@@ -42,7 +91,7 @@ describe("buildChoiceRound", () => {
       choiceCount: 3,
       pickTarget: (pool, idx) => pickByRoundIndex(pool, idx),
       isSame: idEquality,
-      prompt: (target) => `Найди ${target.label}`
+      prompt: (target) => `Найди ${target.label}`,
     });
     expect(round.roundId).toBe("test:round:1");
     expect(round.choices.length).toBe(3);
@@ -59,7 +108,7 @@ describe("buildChoiceRound", () => {
       choiceCount: 100,
       pickTarget: (pool) => pool[0],
       isSame: idEquality,
-      prompt: () => "x"
+      prompt: () => "x",
     });
     expect(round.choices.length).toBe(items.length);
   });
@@ -73,22 +122,24 @@ describe("buildChoiceRound", () => {
       choiceCount: 4,
       pickTarget: (p, idx) => p[(idx - 1) % p.length],
       isSame: referenceEquality,
-      prompt: (target) => `${target}`
+      prompt: (target) => `${target}`,
     });
     expect(round.choices.length).toBe(4);
     expect(round.choices[round.correctIndex]).toBe(round.target);
   });
 
   it("throws when the pool has fewer than two items", () => {
-    expect(() => buildChoiceRound({
-      idPrefix: "x",
-      roundIndex: 1,
-      items: items.slice(0, 1),
-      choiceCount: 2,
-      pickTarget: (pool) => pool[0],
-      isSame: idEquality,
-      prompt: () => "x"
-    })).toThrow();
+    expect(() =>
+      buildChoiceRound({
+        idPrefix: "x",
+        roundIndex: 1,
+        items: items.slice(0, 1),
+        choiceCount: 2,
+        pickTarget: (pool) => pool[0],
+        isSame: idEquality,
+        prompt: () => "x",
+      }),
+    ).toThrow();
   });
 
   it("uses settings only via pickTarget when needed", () => {

@@ -30,20 +30,20 @@ export type DayRoutineBoard = {
 export const dayRoutineAudioCues = {
   prompt: {
     id: "day-routine.prompt",
-    text: "Начинаем с утра. Выбери картинку, которая бывает утром."
+    text: "Начинаем с утра. Выбери картинку, которая бывает утром.",
   },
   correct: {
     id: "day-routine.correct",
-    text: "Верно. Продолжаем собирать день."
+    text: "Верно. Продолжаем собирать день.",
   },
   mistake: {
     id: "day-routine.mistake",
-    text: "Посмотри на часть дня и попробуй выбрать другую картинку."
+    text: "Посмотри на часть дня и попробуй выбрать другую картинку.",
   },
   complete: {
     id: "day-routine.complete",
-    text: "Готово. Утро, день и вечер собраны."
-  }
+    text: "Готово. Утро, день и вечер собраны.",
+  },
 } as const;
 
 export const dayRoutinePeriods: DayRoutinePeriod[] = [
@@ -54,7 +54,7 @@ export const dayRoutinePeriods: DayRoutinePeriod[] = [
     title: "Утро",
     helper: "Сначала просыпаемся, умываемся и завтракаем.",
     icon: "mdi-weather-sunset-up",
-    color: "amber-lighten-5"
+    color: "amber-lighten-5",
   },
   {
     id: "day",
@@ -63,7 +63,7 @@ export const dayRoutinePeriods: DayRoutinePeriod[] = [
     title: "День",
     helper: "Днём играем, гуляем и обедаем.",
     icon: "mdi-white-balance-sunny",
-    color: "light-blue-lighten-5"
+    color: "light-blue-lighten-5",
   },
   {
     id: "evening",
@@ -72,19 +72,67 @@ export const dayRoutinePeriods: DayRoutinePeriod[] = [
     title: "Вечер",
     helper: "Вечером ужинаем, умываемся и готовимся ко сну.",
     icon: "mdi-weather-night",
-    color: "deep-purple-lighten-5"
-  }
+    color: "deep-purple-lighten-5",
+  },
 ];
 
 export const dayRoutineItems: DayRoutineItem[] = [
-  { id: "wake-up", label: "проснуться", imageId: "clock", periodId: "morning", hint: "Будильник помогает начать утро." },
-  { id: "wash-face", label: "умыться", imageId: "soap", periodId: "morning", hint: "Умываемся утром после сна." },
-  { id: "breakfast", label: "завтрак", imageId: "porridge", periodId: "morning", hint: "Завтрак бывает утром." },
-  { id: "play", label: "играть", imageId: "toy", periodId: "day", hint: "Днём есть время для игры." },
-  { id: "walk", label: "гулять", imageId: "tree", periodId: "day", hint: "На прогулку часто выходят днём." },
-  { id: "lunch", label: "обед", imageId: "soup", periodId: "day", hint: "Обед бывает в середине дня." },
-  { id: "dinner", label: "ужин", imageId: "plate", periodId: "evening", hint: "Ужин ждёт вечером." },
-  { id: "sleep", label: "спать", imageId: "bed", periodId: "evening", hint: "Спать ложатся вечером или ночью." }
+  {
+    id: "wake-up",
+    label: "проснуться",
+    imageId: "clock",
+    periodId: "morning",
+    hint: "Будильник помогает начать утро.",
+  },
+  {
+    id: "wash-face",
+    label: "умыться",
+    imageId: "soap",
+    periodId: "morning",
+    hint: "Умываемся утром после сна.",
+  },
+  {
+    id: "breakfast",
+    label: "завтрак",
+    imageId: "porridge",
+    periodId: "morning",
+    hint: "Завтрак бывает утром.",
+  },
+  {
+    id: "play",
+    label: "играть",
+    imageId: "toy",
+    periodId: "day",
+    hint: "Днём есть время для игры.",
+  },
+  {
+    id: "walk",
+    label: "гулять",
+    imageId: "tree",
+    periodId: "day",
+    hint: "На прогулку часто выходят днём.",
+  },
+  {
+    id: "lunch",
+    label: "обед",
+    imageId: "soup",
+    periodId: "day",
+    hint: "Обед бывает в середине дня.",
+  },
+  {
+    id: "dinner",
+    label: "ужин",
+    imageId: "plate",
+    periodId: "evening",
+    hint: "Ужин ждёт вечером.",
+  },
+  {
+    id: "sleep",
+    label: "спать",
+    imageId: "bed",
+    periodId: "evening",
+    hint: "Спать ложатся вечером или ночью.",
+  },
 ];
 
 export function dayRoutineQuestion(period: DayRoutinePeriod) {
@@ -98,7 +146,7 @@ export function createDayRoutineBoard(maxSteps = 8, random = Math.random): DayRo
     roundId: "day-routine:board",
     periods: dayRoutinePeriods,
     items,
-    choices: shuffleItems(items, random)
+    choices: shuffleItems(items, random),
   };
 }
 

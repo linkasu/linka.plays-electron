@@ -31,9 +31,11 @@ function sleep(ms) {
 }
 
 function outputPathForAsset(asset) {
-  if (!asset.path?.startsWith("/")) throw new Error(`TTS asset ${asset.id} must use an absolute public path.`);
+  if (!asset.path?.startsWith("/"))
+    throw new Error(`TTS asset ${asset.id} must use an absolute public path.`);
   const outputPath = resolve(publicRoot, asset.path.slice(1));
-  if (!outputPath.startsWith(`${publicRoot}/`)) throw new Error(`TTS asset ${asset.id} writes outside public/`);
+  if (!outputPath.startsWith(`${publicRoot}/`))
+    throw new Error(`TTS asset ${asset.id} writes outside public/`);
   return outputPath;
 }
 
@@ -51,7 +53,7 @@ async function synthesizeAsset(asset, options) {
     console.log(`dry ${asset.id}: ${asset.text}`);
     return;
   }
-  if (!options.force && await pathExists(outputPath)) {
+  if (!options.force && (await pathExists(outputPath))) {
     console.log(`skip ${asset.id}: ${asset.path}`);
     return;
   }
@@ -59,7 +61,7 @@ async function synthesizeAsset(asset, options) {
   const response = await fetch(`${options.baseUrl}/tts`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text: asset.text, voice: asset.voice ?? options.voice })
+    body: JSON.stringify({ text: asset.text, voice: asset.voice ?? options.voice }),
   });
 
   if (!response.ok) {
@@ -68,7 +70,8 @@ async function synthesizeAsset(asset, options) {
   }
 
   const contentType = response.headers.get("content-type") ?? "";
-  if (!contentType.includes("audio/")) throw new Error(`TTS response for ${asset.id} is not audio: ${contentType}`);
+  if (!contentType.includes("audio/"))
+    throw new Error(`TTS response for ${asset.id} is not audio: ${contentType}`);
 
   const buffer = Buffer.from(await response.arrayBuffer());
   await mkdir(dirname(outputPath), { recursive: true });
@@ -77,9 +80,16 @@ async function synthesizeAsset(asset, options) {
 }
 
 async function main() {
-  const manifestPath = resolve(projectRoot, argValue("--manifest") ?? "src/frontend/data/ttsAssets.json");
+  const manifestPath = resolve(
+    projectRoot,
+    argValue("--manifest") ?? "src/frontend/data/ttsAssets.json",
+  );
   const game = argValue("--game");
-  const baseUrl = (process.env.TTS_BASE_URL ?? argValue("--base-url") ?? "https://tts.linka.su").replace(/\/$/, "");
+  const baseUrl = (
+    process.env.TTS_BASE_URL ??
+    argValue("--base-url") ??
+    "https://tts.linka.su"
+  ).replace(/\/$/, "");
   const voice = process.env.TTS_VOICE ?? argValue("--voice") ?? "jane";
   const delayMs = Number(process.env.TTS_DELAY_MS ?? argValue("--delay-ms") ?? 250);
   const force = hasArg("--force");
@@ -90,7 +100,8 @@ async function main() {
 
   const selectedAssets = assets.filter((asset) => !game || asset.game === game);
   for (const asset of selectedAssets) validateAsset(asset);
-  if (!selectedAssets.length) throw new Error(game ? `No TTS assets for game ${game}.` : "No TTS assets found.");
+  if (!selectedAssets.length)
+    throw new Error(game ? `No TTS assets for game ${game}.` : "No TTS assets found.");
 
   console.log(`TTS endpoint: ${baseUrl}`);
   console.log(`TTS voice: ${voice}`);

@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { createPyramidRings, getCorrectPyramidOrder, getNextPyramidRing, getPlacedPyramidRings, selectPyramidRing } from "./model";
+import {
+  createPyramidRings,
+  getCorrectPyramidOrder,
+  getNextPyramidRing,
+  getPlacedPyramidRings,
+  selectPyramidRing,
+} from "./model";
 
 describe("pyramid model", () => {
   it("starts with rings ordered from large to small", () => {
@@ -12,7 +18,12 @@ describe("pyramid model", () => {
   it("returns the correct review order from large to small", () => {
     const rings = createPyramidRings().reverse();
 
-    expect(getCorrectPyramidOrder(rings).map((ring) => ring.id)).toEqual(["ring-1", "ring-2", "ring-3", "ring-4"]);
+    expect(getCorrectPyramidOrder(rings).map((ring) => ring.id)).toEqual([
+      "ring-1",
+      "ring-2",
+      "ring-3",
+      "ring-4",
+    ]);
   });
 
   it("places a correct ring and advances the expected ring", () => {
@@ -50,7 +61,12 @@ describe("pyramid model", () => {
       rings = outcome.rings;
     }
 
-    expect(getPlacedPyramidRings(rings).map((ring) => ring.id)).toEqual(["ring-4", "ring-1", "ring-3", "ring-2"]);
+    expect(getPlacedPyramidRings(rings).map((ring) => ring.id)).toEqual([
+      "ring-4",
+      "ring-1",
+      "ring-3",
+      "ring-2",
+    ]);
     expect(rings.every((ring) => ring.placed)).toBe(true);
   });
 });

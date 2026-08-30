@@ -13,25 +13,47 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateOppositesRound, type OppositeConcept, type OppositesRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("opposites", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("opposites", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 125, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
 const promptAudio = useGamePromptAudio({
   gameId: "opposites",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: ["opposites.prompt.hot", "opposites.prompt.big", "opposites.prompt.day", "opposites.mistake", "opposites.complete"]
+  warmAssetIds: [
+    "opposites.prompt.hot",
+    "opposites.prompt.big",
+    "opposites.prompt.day",
+    "opposites.mistake",
+    "opposites.complete",
+  ],
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
-const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame<OppositesRound>({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRounds,
+} = useRoundGame<OppositesRound>({
   session,
   startSession,
-  generateRound: (roundIndex) => generateOppositesRound(session.settings, roundIndex)
+  generateRound: (roundIndex) => generateOppositesRound(session.settings, roundIndex),
 });
 
 const feedbackMessage = ref("Выбери слово с противоположным значением.");
@@ -88,10 +110,22 @@ async function choose(index: number) {
     pendingSelection.value = true;
     successChoiceId.value = choice.id;
     feedbackMessage.value = `Верно. ${round.value.source.label} и ${choice.label} — противоположности.`;
-    recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: true, pairId: round.value.pairId });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      answerId: choice.id,
+      expected: round.value.target.label,
+      actual: choice.label,
+      isCorrect: true,
+      pairId: round.value.pairId,
+    });
     void pianoFeedback.playSuccess();
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [correctAssetId(), "opposites.complete"] : [correctAssetId()], 80, 170);
+    await promptAudio.playSequenceAndWait(
+      finishedAfterSuccess ? [correctAssetId(), "opposites.complete"] : [correctAssetId()],
+      80,
+      170,
+    );
 
     if (finishedAfterSuccess) {
       finishSession("game-complete");
@@ -112,7 +146,16 @@ async function choose(index: number) {
   pendingSelection.value = true;
   wrongChoiceId.value = choice.id;
   feedbackMessage.value = "Посмотри на слово ещё раз и выбери другую карточку.";
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: false, pairId: round.value.pairId });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    expectedTargetId,
+    answerId: choice.id,
+    expected: round.value.target.label,
+    actual: choice.label,
+    isCorrect: false,
+    pairId: round.value.pairId,
+  });
   void pianoFeedback.playMistake();
   await promptAudio.playSequenceAndWait([mistakeAssetId()], 80);
   pendingSelection.value = false;
@@ -145,7 +188,18 @@ onUnmounted(() => {
 
 <template>
   <div class="opposites-shell">
-    <GameHud title="Противоположности" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Противоположности"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="9">
@@ -154,21 +208,68 @@ onUnmounted(() => {
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
             <p class="text-body-1 text-medium-emphasis text-center mb-6">{{ feedbackMessage }}</p>
 
-            <v-sheet class="source-card mx-auto mb-6 pa-5" rounded="xl" :color="`${round.source.tone}-lighten-5`">
-              <div :class="['concept-visual', `concept-visual--${round.source.referenceId}`, `concept-visual--${round.source.visualState}`]" aria-hidden="true">
-                <GameWordImage class="concept-object" :word-id="round.source.assetId ?? round.source.referenceId" :word="round.source.label" :emoji="round.source.emoji" decorative />
-                <span v-if="round.source.stateMarker" class="state-marker emoji-glyph">{{ round.source.stateMarker }}</span>
+            <v-sheet
+              class="source-card mx-auto mb-6 pa-5"
+              rounded="xl"
+              :color="`${round.source.tone}-lighten-5`"
+            >
+              <div
+                :class="[
+                  'concept-visual',
+                  `concept-visual--${round.source.referenceId}`,
+                  `concept-visual--${round.source.visualState}`,
+                ]"
+                aria-hidden="true"
+              >
+                <GameWordImage
+                  class="concept-object"
+                  :word-id="round.source.assetId ?? round.source.referenceId"
+                  :word="round.source.label"
+                  :emoji="round.source.emoji"
+                  decorative
+                />
+                <span v-if="round.source.stateMarker" class="state-marker emoji-glyph">{{
+                  round.source.stateMarker
+                }}</span>
               </div>
               <div class="text-h5 text-md-h4 font-weight-bold mt-2">{{ round.source.label }}</div>
             </v-sheet>
 
             <v-row justify="center" dense>
-              <v-col v-for="(choice, index) in round.choices" :key="choice.id" cols="6" :sm="round.choices.length === 3 ? 4 : 3" :md="round.choices.length === 3 ? 4 : 3">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection" :dwell-ms="session.settings.dwellMs" :min-height="190" :color="choiceColor(choice)" @select="choose(index)">
+              <v-col
+                v-for="(choice, index) in round.choices"
+                :key="choice.id"
+                cols="6"
+                :sm="round.choices.length === 3 ? 4 : 3"
+                :md="round.choices.length === 3 ? 4 : 3"
+              >
+                <GameDwellButton
+                  :target-id="choiceTargetId(choice)"
+                  :disabled="session.status !== 'running' || pendingSelection"
+                  :dwell-ms="session.settings.dwellMs"
+                  :min-height="190"
+                  :color="choiceColor(choice)"
+                  @select="choose(index)"
+                >
                   <template #default>
-                    <div :class="['concept-visual', `concept-visual--${choice.referenceId}`, `concept-visual--${choice.visualState}`]" aria-hidden="true">
-                      <GameWordImage class="concept-object" :word-id="choice.assetId ?? choice.referenceId" :word="choice.label" :emoji="choice.emoji" decorative />
-                      <span v-if="choice.stateMarker" class="state-marker emoji-glyph">{{ choice.stateMarker }}</span>
+                    <div
+                      :class="[
+                        'concept-visual',
+                        `concept-visual--${choice.referenceId}`,
+                        `concept-visual--${choice.visualState}`,
+                      ]"
+                      aria-hidden="true"
+                    >
+                      <GameWordImage
+                        class="concept-object"
+                        :word-id="choice.assetId ?? choice.referenceId"
+                        :word="choice.label"
+                        :emoji="choice.emoji"
+                        decorative
+                      />
+                      <span v-if="choice.stateMarker" class="state-marker emoji-glyph">{{
+                        choice.stateMarker
+                      }}</span>
                     </div>
                     <div class="text-h6 text-md-h5 font-weight-bold mt-2">{{ choice.label }}</div>
                   </template>
@@ -179,7 +280,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Противоположности" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Противоположности"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -217,7 +328,9 @@ onUnmounted(() => {
   font-size: clamp(3.6rem, min(8vw, 12vh), 6.5rem);
   line-height: 1;
   transform-origin: center;
-  transition: filter 160ms ease, transform 160ms ease;
+  transition:
+    filter 160ms ease,
+    transform 160ms ease;
 }
 
 .source-card .concept-object {
@@ -271,35 +384,35 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 9.75rem;
   }
 }
 
 @media (max-height: 42rem) {
- .game-container {
+  .game-container {
     padding-block-start: 9.25rem;
   }
 
- .game-container :deep(.v-card) {
+  .game-container :deep(.v-card) {
     padding: 1rem !important;
   }
 
- .game-container :deep(.v-card >.text-overline) {
+  .game-container :deep(.v-card > .text-overline) {
     display: none;
   }
 
- .game-container h1 {
+  .game-container h1 {
     font-size: clamp(1.8rem, 5vh, 2.25rem) !important;
     line-height: 1.05;
     margin-block-end: 0.45rem !important;
   }
 
- .game-container p {
+  .game-container p {
     margin-block-end: 0.75rem !important;
   }
 
- .source-card {
+  .source-card {
     flex-direction: row;
     gap: 0.75rem;
     inline-size: min(18rem, 64vw);
@@ -320,7 +433,7 @@ onUnmounted(() => {
     min-block-size: 4rem;
   }
 
- .game-container :deep(.dwell-button) {
+  .game-container :deep(.dwell-button) {
     min-block-size: 8.5rem !important;
   }
 }

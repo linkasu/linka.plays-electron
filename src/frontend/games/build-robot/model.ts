@@ -22,16 +22,21 @@ export type BuildRobotRound = {
 export const buildRobotPartOrder: RobotPartId[] = ["head", "body", "arms", "legs"];
 
 const baseParts: Record<RobotPartId, Omit<RobotPart, "color">> = {
-  head: { id: "head", label: "голова", instructionLabel: "голову", icon: "mdi-robot-happy-outline" },
+  head: {
+    id: "head",
+    label: "голова",
+    instructionLabel: "голову",
+    icon: "mdi-robot-happy-outline",
+  },
   body: { id: "body", label: "корпус", instructionLabel: "корпус", icon: "mdi-cube-outline" },
   arms: { id: "arms", label: "руки", instructionLabel: "руки", icon: "mdi-arm-flex-outline" },
-  legs: { id: "legs", label: "ноги", instructionLabel: "ноги", icon: "mdi-shoe-print" }
+  legs: { id: "legs", label: "ноги", instructionLabel: "ноги", icon: "mdi-shoe-print" },
 };
 
 const robotPalettes: Record<RobotPartId, string>[] = [
   { head: "#90caf9", body: "#a5d6a7", arms: "#ffe082", legs: "#ce93d8" },
   { head: "#ffccbc", body: "#b39ddb", arms: "#80deea", legs: "#c5e1a5" },
-  { head: "#f8bbd0", body: "#b2dfdb", arms: "#fff59d", legs: "#b0bec5" }
+  { head: "#f8bbd0", body: "#b2dfdb", arms: "#fff59d", legs: "#b0bec5" },
 ];
 
 function partsForRobot(robotIndex: number) {
@@ -64,6 +69,6 @@ export function generateBuildRobotRound(roundIndex = 1): BuildRobotRound {
     target,
     choices,
     correctIndex: choices.indexOf(target),
-    completedPartIds: buildRobotPartOrder.slice(0, stepIndex)
+    completedPartIds: buildRobotPartOrder.slice(0, stepIndex),
   };
 }

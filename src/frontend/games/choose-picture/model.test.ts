@@ -37,7 +37,9 @@ describe("choose-picture model", () => {
     const settings = settingsFromPreset("standard");
     const first = generateChoosePictureRound(settings, 1, () => 0);
 
-    expect(generateChoosePictureRound(settings, 1, () => 0).choices.map((choice) => choice.id)).toEqual(first.choices.map((choice) => choice.id));
+    expect(
+      generateChoosePictureRound(settings, 1, () => 0).choices.map((choice) => choice.id),
+    ).toEqual(first.choices.map((choice) => choice.id));
     expect(generateChoosePictureRound(settings, 1, () => 0.99).target.id).not.toBe(first.target.id);
   });
 });

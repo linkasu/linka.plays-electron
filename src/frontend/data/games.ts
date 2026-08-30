@@ -26,7 +26,7 @@ export const gameCategoryOrder = [
   "language-aac",
   "numeracy",
   "strategy",
-  "continuous-control"
+  "continuous-control",
 ] as const;
 
 export type GameCategoryId = (typeof gameCategoryOrder)[number];
@@ -49,71 +49,72 @@ export type GameSkill =
 export const gameCategories: Record<GameCategoryId, string> = {
   "gaze-basics": "Основы взгляда",
   "visual-search": "Поиск и внимание",
-  sequencing: "Последовательности",
+  "sequencing": "Последовательности",
   "language-aac": "Слова и AAC",
-  numeracy: "Счёт и математика",
-  strategy: "Головоломки",
-  "continuous-control": "Непрерывное управление"
+  "numeracy": "Счёт и математика",
+  "strategy": "Головоломки",
+  "continuous-control": "Непрерывное управление",
 };
 
 export const gameCategoryDescriptions: Record<GameCategoryId, string> = {
   "gaze-basics": "Первые игры для фиксации, переключения и попадания взглядом.",
   "visual-search": "Задания, где нужно найти объект и удержать цель.",
-  sequencing: "Игры с порядком действий, сборкой и понятной очередностью шагов.",
+  "sequencing": "Игры с порядком действий, сборкой и понятной очередностью шагов.",
   "language-aac": "Выбор картинок, слов и смысловых категорий для коммуникации.",
-  numeracy: "Количество, числа и простые арифметические действия крупными целями.",
-  strategy: "Головоломки, настольные и пошаговые игры для тех, кто хочет настоящую задачу без таймера и давления.",
-  "continuous-control": "Ведение движения взглядом."
+  "numeracy": "Количество, числа и простые арифметические действия крупными целями.",
+  "strategy":
+    "Головоломки, настольные и пошаговые игры для тех, кто хочет настоящую задачу без таймера и давления.",
+  "continuous-control": "Ведение движения взглядом.",
 };
 
 export const selfMenuCategoryLabels: Record<GameCategoryId, string> = {
   "gaze-basics": "Смотреть",
   "visual-search": "Искать",
-  sequencing: "Собирать",
+  "sequencing": "Собирать",
   "language-aac": "Слова",
-  numeracy: "Считать",
-  strategy: "Головоломки",
-  "continuous-control": "Управлять"
+  "numeracy": "Считать",
+  "strategy": "Головоломки",
+  "continuous-control": "Управлять",
 };
 
 export const selfMenuCategoryDescriptions: Record<GameCategoryId, string> = {
   "gaze-basics": "Смотри на цель, она откликнется.",
   "visual-search": "Найди, кто спрятался.",
-  sequencing: "Выбирай по порядку.",
+  "sequencing": "Выбирай по порядку.",
   "language-aac": "Выбери картинку или слово.",
-  numeracy: "Посчитай и выбери ответ.",
-  strategy: "Думай, выбирай ход и проходи задачу.",
-  "continuous-control": "Веди движение взглядом."
+  "numeracy": "Посчитай и выбери ответ.",
+  "strategy": "Думай, выбирай ход и проходи задачу.",
+  "continuous-control": "Веди движение взглядом.",
 };
 
 export const gameSkillLabels: Record<GameSkill, string> = {
-  fixation: "фиксация",
+  "fixation": "фиксация",
   "smooth-pursuit": "слежение",
   "attention-shift": "переключение",
   "visual-search": "поиск",
-  choice: "выбор",
-  aac: "AAC",
-  vocabulary: "словарь",
-  classification: "классификация",
-  sequence: "последовательность",
-  counting: "счёт",
-  math: "арифметика",
-  typing: "печать",
-  "continuous-control": "непрерывное управление"
+  "choice": "выбор",
+  "aac": "AAC",
+  "vocabulary": "словарь",
+  "classification": "классификация",
+  "sequence": "последовательность",
+  "counting": "счёт",
+  "math": "арифметика",
+  "typing": "печать",
+  "continuous-control": "непрерывное управление",
 };
 
 export const gameStatusLabels: Record<GameStatus, string> = {
-  planned: "Запланировано",
-  mvp: "MVP",
+  "planned": "Запланировано",
+  "mvp": "MVP",
   "therapy-ready": "Для занятий",
-  polished: "Готово"
+  "polished": "Готово",
 };
 
 export const gameStabilityStatusLabels: Record<GameStabilityStatus, string> = {
   "needs-check": "Нужна проверка",
-  prefixed: "Предварительно исправлено",
-  publish: "В публикацию",
-  archived: "В архив"
+  "prefixed": "Предварительно исправлено",
+  "publish": "В публикацию",
+  "archived": "В архив",
 };
 
 export function resolveGameStabilityStatus(game: GameInfo): GameStabilityStatus {
@@ -136,7 +137,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 88,
     minTargetSizePx: 180,
-    defaultDwellMs: 1350
+    defaultDwellMs: 1350,
   },
   {
     id: "balloons",
@@ -151,7 +152,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 82,
     minTargetSizePx: 188,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "bells",
@@ -166,7 +167,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 90,
     minTargetSizePx: 190,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "breathing-flower",
@@ -181,7 +182,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 220,
-    defaultDwellMs: 1400
+    defaultDwellMs: 1400,
   },
   {
     id: "wake-owl",
@@ -196,7 +197,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 82,
     minTargetSizePx: 240,
-    defaultDwellMs: 1400
+    defaultDwellMs: 1400,
   },
   {
     id: "clouds",
@@ -211,7 +212,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 75,
     minTargetSizePx: 190,
-    defaultDwellMs: 1500
+    defaultDwellMs: 1500,
   },
   {
     id: "leaves-wind",
@@ -226,7 +227,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 80,
     minTargetSizePx: 180,
-    defaultDwellMs: 1500
+    defaultDwellMs: 1500,
   },
   {
     id: "kite",
@@ -241,7 +242,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 190,
-    defaultDwellMs: 1450
+    defaultDwellMs: 1450,
   },
   {
     id: "firefly-meadow",
@@ -256,7 +257,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 75,
     minTargetSizePx: 180,
-    defaultDwellMs: 1350
+    defaultDwellMs: 1350,
   },
   {
     id: "catch-light",
@@ -271,12 +272,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 180,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "starry-sky",
     title: "Звёздное небо",
-    description: "Соединяй звёзды по порядку, рисуй базовые созвездия и смотри на их подписи после завершения.",
+    description:
+      "Соединяй звёзды по порядку, рисуй базовые созвездия и смотри на их подписи после завершения.",
     selfDescription: "Нарисуй созвездия взглядом.",
     route: "/games/starry-sky",
     category: "gaze-basics",
@@ -286,7 +288,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 210,
     minTargetSizePx: 150,
-    defaultDwellMs: 1250
+    defaultDwellMs: 1250,
   },
   {
     id: "magic-dust",
@@ -301,7 +303,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 75,
     minTargetSizePx: 170,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "light-gallery",
@@ -316,7 +318,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 90,
     minTargetSizePx: 130,
-    defaultDwellMs: 1400
+    defaultDwellMs: 1400,
   },
   {
     id: "soap-circles",
@@ -331,7 +333,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 150,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "northern-lights",
@@ -346,12 +348,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 180,
-    defaultDwellMs: 1400
+    defaultDwellMs: 1400,
   },
   {
     id: "sun-rays",
     title: "Солнце и лучи",
-    description: "Смотри на большое солнце: лучи постепенно раскрываются, а при уходе взгляда солнце ждёт.",
+    description:
+      "Смотри на большое солнце: лучи постепенно раскрываются, а при уходе взгляда солнце ждёт.",
     selfDescription: "Открой лучи солнца.",
     route: "/games/sun-rays",
     category: "gaze-basics",
@@ -361,7 +364,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 80,
     minTargetSizePx: 240,
-    defaultDwellMs: 1400
+    defaultDwellMs: 1400,
   },
   {
     id: "snowflakes",
@@ -376,7 +379,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 180,
-    defaultDwellMs: 1400
+    defaultDwellMs: 1400,
   },
   {
     id: "moon-path",
@@ -391,7 +394,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 86,
     minTargetSizePx: 180,
-    defaultDwellMs: 1450
+    defaultDwellMs: 1450,
   },
   {
     id: "lighthouse",
@@ -406,7 +409,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 95,
     minTargetSizePx: 220,
-    defaultDwellMs: 1400
+    defaultDwellMs: 1400,
   },
   {
     id: "sand-garden",
@@ -421,7 +424,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 84,
     minTargetSizePx: 190,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "sea-shells",
@@ -436,7 +439,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 200,
-    defaultDwellMs: 1350
+    defaultDwellMs: 1350,
   },
   {
     id: "paper-lanterns",
@@ -451,12 +454,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 190,
-    defaultDwellMs: 1350
+    defaultDwellMs: 1350,
   },
   {
     id: "open-door",
     title: "Открой дверцу",
-    description: "Удерживай взгляд на крупной дверце: она спокойно открывается и показывает светящийся символ.",
+    description:
+      "Удерживай взгляд на крупной дверце: она спокойно открывается и показывает светящийся символ.",
     selfDescription: "Открой дверцу взглядом.",
     route: "/games/open-door",
     category: "gaze-basics",
@@ -466,7 +470,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 220,
-    defaultDwellMs: 1350
+    defaultDwellMs: 1350,
   },
   {
     id: "warm-window",
@@ -481,12 +485,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 80,
     minTargetSizePx: 124,
-    defaultDwellMs: 1350
+    defaultDwellMs: 1350,
   },
   {
     id: "warm-fire",
     title: "Тёплый костёр",
-    description: "Смотри на маленький огонёк: взгляд разжигает пламя, искры, музыку и цветные узоры без вспышек.",
+    description:
+      "Смотри на маленький огонёк: взгляд разжигает пламя, искры, музыку и цветные узоры без вспышек.",
     selfDescription: "Согрей костёр взглядом.",
     route: "/games/warm-fire",
     category: "gaze-basics",
@@ -496,12 +501,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 92,
     minTargetSizePx: 210,
-    defaultDwellMs: 1450
+    defaultDwellMs: 1450,
   },
   {
     id: "big-cards",
     title: "Большие карточки",
-    description: "Выбирай одну из 2-4 крупных картинок по подсказке: любой выбор даёт отклик без ошибки.",
+    description:
+      "Выбирай одну из 2-4 крупных картинок по подсказке: любой выбор даёт отклик без ошибки.",
     selfDescription: "Выбери большую карточку.",
     route: "/games/big-cards",
     category: "gaze-basics",
@@ -511,12 +517,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 90,
     minTargetSizePx: 212,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "color-circle",
     title: "Цветной круг",
-    description: "Выбери названный цвет на большом круге из секторов; подсказка помогает перейти к следующему кругу.",
+    description:
+      "Выбери названный цвет на большом круге из секторов; подсказка помогает перейти к следующему кругу.",
     selfDescription: "Выбери цвет в круге.",
     route: "/games/color-circle",
     category: "gaze-basics",
@@ -526,12 +533,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 90,
     minTargetSizePx: 180,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "feed-animal",
     title: "Покорми зверька",
-    description: "Выбери подходящую еду для зверька: удачный выбор кормит, а подсказка помогает повторить попытку.",
+    description:
+      "Выбери подходящую еду для зверька: удачный выбор кормит, а подсказка помогает повторить попытку.",
     selfDescription: "Выбери, что ест зверёк.",
     route: "/games/feed-animal",
     category: "gaze-basics",
@@ -541,7 +549,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 90,
     minTargetSizePx: 184,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "butterfly",
@@ -556,7 +564,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 60,
     minTargetSizePx: 180,
-    defaultDwellMs: 900
+    defaultDwellMs: 900,
   },
   {
     id: "flowers",
@@ -571,7 +579,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 75,
     minTargetSizePx: 170,
-    defaultDwellMs: 1100
+    defaultDwellMs: 1100,
   },
   {
     id: "bubble-pop",
@@ -587,7 +595,7 @@ export const games: GameInfo[] = [
     tags: ["hidden-from-menu"],
     recommendedSessionSeconds: 75,
     minTargetSizePx: 190,
-    defaultDwellMs: 1200
+    defaultDwellMs: 1200,
   },
   {
     id: "ducks",
@@ -602,7 +610,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 60,
     minTargetSizePx: 160,
-    defaultDwellMs: 850
+    defaultDwellMs: 850,
   },
   {
     id: "fishes",
@@ -617,7 +625,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 60,
     minTargetSizePx: 160,
-    defaultDwellMs: 850
+    defaultDwellMs: 850,
   },
   {
     id: "jellyfish",
@@ -632,7 +640,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 85,
     minTargetSizePx: 165,
-    defaultDwellMs: 1450
+    defaultDwellMs: 1450,
   },
   {
     id: "frog",
@@ -647,7 +655,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 90,
     minTargetSizePx: 140,
-    defaultDwellMs: 900
+    defaultDwellMs: 900,
   },
   {
     id: "hide-and-seek",
@@ -662,12 +670,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 130,
-    defaultDwellMs: 1200
+    defaultDwellMs: 1200,
   },
   {
     id: "who-hiding",
     title: "Кто спрятался?",
-    description: "Найди частично скрытого персонажа в фигура-фон сцене; подсказка помогает при повторном выборе.",
+    description:
+      "Найди частично скрытого персонажа в фигура-фон сцене; подсказка помогает при повторном выборе.",
     selfDescription: "Найди, кто спрятался.",
     route: "/games/who-hiding",
     category: "visual-search",
@@ -677,7 +686,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 170,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "find-color",
@@ -692,12 +701,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 160,
-    defaultDwellMs: 1200
+    defaultDwellMs: 1200,
   },
   {
     id: "find-shape",
     title: "Найди форму",
-    description: "Найди заданную форму среди крупных карточек: подсказка помогает заметить нужную форму.",
+    description:
+      "Найди заданную форму среди крупных карточек: подсказка помогает заметить нужную форму.",
     selfDescription: "Найди нужную форму.",
     route: "/games/find-shape",
     category: "visual-search",
@@ -707,7 +717,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 210,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "match-same",
@@ -722,7 +732,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 152,
-    defaultDwellMs: 1200
+    defaultDwellMs: 1200,
   },
   {
     id: "what-missing",
@@ -737,12 +747,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 210,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "follow-cue",
     title: "Следуй за подсказкой",
-    description: " стрелка и световая подсказка ведут к следующей крупной цели; при необходимости подсказка становится заметнее.",
+    description:
+      " стрелка и световая подсказка ведут к следующей крупной цели; при необходимости подсказка становится заметнее.",
     selfDescription: "Следуй за стрелкой.",
     route: "/games/follow-cue",
     category: "visual-search",
@@ -752,7 +763,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 144,
-    defaultDwellMs: 1250
+    defaultDwellMs: 1250,
   },
   {
     id: "find-letter",
@@ -767,12 +778,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 150,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "find-digit",
     title: "Найди цифру",
-    description: "Найди заданную цифру среди крупных карточек; подсказка помогает заметить нужную цифру.",
+    description:
+      "Найди заданную цифру среди крупных карточек; подсказка помогает заметить нужную цифру.",
     selfDescription: "Найди цифру.",
     route: "/games/find-digit",
     category: "numeracy",
@@ -782,12 +794,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "logic-pairs",
     title: "Логические пары",
-    description: "Подбери пару по смыслу, форме или числу: ключ к замку, форма к форме, цифра к точкам; подсказка помогает заметить связь.",
+    description:
+      "Подбери пару по смыслу, форме или числу: ключ к замку, форма к форме, цифра к точкам; подсказка помогает заметить связь.",
     selfDescription: "Найди подходящую пару.",
     route: "/games/logic-pairs",
     category: "numeracy",
@@ -797,7 +810,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 116,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "shadow-match",
@@ -812,12 +825,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 152,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "sound-source",
     title: "Где звук?",
-    description: "Найди источник визуальной волны; звук можно включить, а сбой аудио станет тишиной.",
+    description:
+      "Найди источник визуальной волны; звук можно включить, а сбой аудио станет тишиной.",
     selfDescription: "Найди, откуда звук.",
     route: "/games/sound-source",
     category: "visual-search",
@@ -827,12 +841,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 88,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "odd-one-out",
     title: "Что лишнее?",
-    description: "Выбери предмет, который отличается от общей группы; подсказка объяснит категорию.",
+    description:
+      "Выбери предмет, который отличается от общей группы; подсказка объяснит категорию.",
     selfDescription: "Найди лишний предмет.",
     route: "/games/odd-one-out",
     category: "visual-search",
@@ -842,7 +857,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 156,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "find-emotion",
@@ -857,7 +872,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 176,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "letter-hunt",
@@ -872,12 +887,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
-    defaultDwellMs: 1250
+    defaultDwellMs: 1250,
   },
   {
     id: "find-animal",
     title: "Найди животное",
-    description: "Найди названное животное среди крупных карточек; подсказка помогает при повторном выборе.",
+    description:
+      "Найди названное животное среди крупных карточек; подсказка помогает при повторном выборе.",
     selfDescription: "Найди животное.",
     route: "/games/find-animal",
     category: "visual-search",
@@ -887,7 +903,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 168,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "memory-cards",
@@ -902,12 +918,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 144,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "gaze-maze",
     title: "Лабиринт взгляда-указателя",
-    description: "Выбирай следующую точку или выход в широком лабиринте взглядом; подсказка помогает вернуться к маршруту.",
+    description:
+      "Выбирай следующую точку или выход в широком лабиринте взглядом; подсказка помогает вернуться к маршруту.",
     selfDescription: "Найди выход взглядом.",
     route: "/games/gaze-maze",
     category: "visual-search",
@@ -917,12 +934,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 170,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "build-robot",
     title: "Собери роботика",
-    description: "Выбирай детали робота по шагам: голова, корпус, руки и ноги; подсказка помогает найти нужную деталь.",
+    description:
+      "Выбирай детали робота по шагам: голова, корпус, руки и ноги; подсказка помогает найти нужную деталь.",
     selfDescription: "Собери роботика по порядку.",
     route: "/games/build-robot",
     category: "sequencing",
@@ -932,7 +950,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 135,
     minTargetSizePx: 132,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "pyramid",
@@ -947,7 +965,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 120,
-    defaultDwellMs: 1200
+    defaultDwellMs: 1200,
   },
   {
     id: "dress-character",
@@ -962,7 +980,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 133,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "train-sequence",
@@ -977,7 +995,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 150,
-    defaultDwellMs: 1200
+    defaultDwellMs: 1200,
   },
   {
     id: "sandwich",
@@ -992,7 +1010,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 112,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "patterns",
@@ -1007,12 +1025,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 136,
-    defaultDwellMs: 1200
+    defaultDwellMs: 1200,
   },
   {
     id: "color-pattern",
     title: "Цветовой узор",
-    description: "Продолжай цветовой ряд AB, ABC или ABB крупной карточкой; ошибка даёт просьбу посмотреть на повтор.",
+    description:
+      "Продолжай цветовой ряд AB, ABC или ABB крупной карточкой; ошибка даёт просьбу посмотреть на повтор.",
     selfDescription: "Продолжи цветовой ряд.",
     route: "/games/color-pattern",
     category: "sequencing",
@@ -1022,7 +1041,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 144,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "day-routine",
@@ -1037,7 +1056,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 76,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "three-frame-story",
@@ -1052,7 +1071,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 140,
     minTargetSizePx: 92,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "first-then",
@@ -1067,7 +1086,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "musical-path",
@@ -1082,12 +1101,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 142,
-    defaultDwellMs: 1250
+    defaultDwellMs: 1250,
   },
   {
     id: "mosaic",
     title: "Мозаика",
-    description: "Собирай картинку из девяти крупных кусочков: активная клетка подсвечена, ошибки только подсказывают.",
+    description:
+      "Собирай картинку из девяти крупных кусочков: активная клетка подсвечена, ошибки только подсказывают.",
     selfDescription: "Собери картинку из кусочков.",
     route: "/games/mosaic",
     category: "sequencing",
@@ -1097,7 +1117,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 109,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "shape-dance",
@@ -1112,12 +1132,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 152,
-    defaultDwellMs: 1250
+    defaultDwellMs: 1250,
   },
   {
     id: "soup-recipe",
     title: "Рецепт супа",
-    description: "Добавляй ингредиенты супа по порядку; неверный выбор только подсветит следующий шаг.",
+    description:
+      "Добавляй ингредиенты супа по порядку; неверный выбор только подсветит следующий шаг.",
     selfDescription: "Свари суп по рецепту.",
     route: "/games/soup-recipe",
     category: "sequencing",
@@ -1127,7 +1148,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 135,
     minTargetSizePx: 103,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "comic-strip",
@@ -1142,7 +1163,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 140,
     minTargetSizePx: 128,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "schedule",
@@ -1157,7 +1178,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 140,
     minTargetSizePx: 168,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "build-bridge",
@@ -1172,7 +1193,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 135,
     minTargetSizePx: 180,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "shelf-sorting",
@@ -1187,12 +1208,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 135,
     minTargetSizePx: 180,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "solfege",
     title: "Сольфеджио",
-    description: "Найди ноты одной октавы на красивом пианино: клавиши светятся, а звук можно включить отдельно.",
+    description:
+      "Найди ноты одной октавы на красивом пианино: клавиши светятся, а звук можно включить отдельно.",
     selfDescription: "Найди ноты на пианино.",
     route: "/games/solfege",
     category: "sequencing",
@@ -1202,12 +1224,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 135,
     minTargetSizePx: 180,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "choose-emotion",
     title: "Выбери эмоцию",
-    description: "Выбирай эмоцию для ситуации или лица среди крупных AAC-карточек; неверный выбор только подсказывает.",
+    description:
+      "Выбирай эмоцию для ситуации или лица среди крупных AAC-карточек; неверный выбор только подсказывает.",
     selfDescription: "Выбери эмоцию.",
     route: "/games/choose-emotion",
     category: "language-aac",
@@ -1217,7 +1240,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 220,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "choose-picture",
@@ -1232,7 +1255,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 128,
-    defaultDwellMs: 1200
+    defaultDwellMs: 1200,
   },
   {
     id: "eat-or-not-eat",
@@ -1247,12 +1270,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 180,
-    defaultDwellMs: 1200
+    defaultDwellMs: 1200,
   },
   {
     id: "word-categories",
     title: "Категории слов",
-    description: "Выбирай категорию для предмета или предмет для заданной категории с подсказкой после ошибки.",
+    description:
+      "Выбирай категорию для предмета или предмет для заданной категории с подсказкой после ошибки.",
     selfDescription: "Выбери группу или предмет.",
     route: "/games/word-categories",
     category: "language-aac",
@@ -1262,7 +1286,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 125,
     minTargetSizePx: 180,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "yes-no",
@@ -1277,12 +1301,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 160,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "i-want",
     title: "Я хочу...",
-    description: "Выбирай карточку желания или предмета и составляй фразу «Я хочу...»; любой выбор засчитывается как коммуникация.",
+    description:
+      "Выбирай карточку желания или предмета и составляй фразу «Я хочу...»; любой выбор засчитывается как коммуникация.",
     selfDescription: "Скажи, что хочешь.",
     route: "/games/i-want",
     category: "language-aac",
@@ -1292,12 +1317,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 133,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "want-dont-want",
     title: "Хочу / не хочу",
-    description: "Выбирай, хочешь ли предмет или занятие: любой ответ считается важной коммуникацией.",
+    description:
+      "Выбирай, хочешь ли предмет или занятие: любой ответ считается важной коммуникацией.",
     selfDescription: "Скажи, хочешь или не хочешь.",
     route: "/games/want-dont-want",
     category: "language-aac",
@@ -1307,12 +1333,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 162,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "object-action",
     title: "Покажи действие",
-    description: "Покажи названное действие среди четырёх крупных сцен: пить, есть, спать, идти и другие.",
+    description:
+      "Покажи названное действие среди четырёх крупных сцен: пить, есть, спать, идти и другие.",
     selfDescription: "Покажи названное действие.",
     route: "/games/object-action",
     category: "language-aac",
@@ -1322,12 +1349,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 125,
     minTargetSizePx: 165,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "where-object",
     title: "Где предмет?",
-    description: "Покажи картинку, где предмет находится на, под, в или рядом с коробкой; ошибка даёт подсказку.",
+    description:
+      "Покажи картинку, где предмет находится на, под, в или рядом с коробкой; ошибка даёт подсказку.",
     selfDescription: "Покажи, где предмет.",
     route: "/games/where-object",
     category: "language-aac",
@@ -1337,12 +1365,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 156,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "big-small",
     title: "Большой / маленький",
-    description: "Выбирай большой или маленький предмет по подсказке, тренируя понятные AAC-признаки.",
+    description:
+      "Выбирай большой или маленький предмет по подсказке, тренируя понятные AAC-признаки.",
     selfDescription: "Выбери большой или маленький.",
     route: "/games/big-small",
     category: "language-aac",
@@ -1352,12 +1381,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 200,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "one-many",
     title: "Один / много",
-    description: "Выбирай один предмет или много предметов на крупных карточках, без давления и штрафов.",
+    description:
+      "Выбирай один предмет или много предметов на крупных карточках, без давления и штрафов.",
     selfDescription: "Выбери один или много.",
     route: "/games/one-many",
     category: "language-aac",
@@ -1367,7 +1397,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 200,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "who-is-this",
@@ -1383,12 +1413,13 @@ export const games: GameInfo[] = [
     tags: ["hidden-from-menu"],
     recommendedSessionSeconds: 120,
     minTargetSizePx: 152,
-    defaultDwellMs: 1200
+    defaultDwellMs: 1200,
   },
   {
     id: "opposites",
     title: "Противоположности",
-    description: "Подбирай противоположные понятия: горячий и холодный, большой и маленький, день и ночь.",
+    description:
+      "Подбирай противоположные понятия: горячий и холодный, большой и маленький, день и ночь.",
     selfDescription: "Найди противоположность.",
     route: "/games/opposites",
     category: "language-aac",
@@ -1398,7 +1429,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 125,
     minTargetSizePx: 136,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "what-first",
@@ -1413,12 +1444,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 125,
     minTargetSizePx: 172,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "mini-dialog",
     title: "Мини-диалог",
-    description: "Веди короткий AAC-диалог: отвечай, отказывайся, проси о помощи, повторе или остановке; любая реплика считается коммуникацией.",
+    description:
+      "Веди короткий AAC-диалог: отвечай, отказывайся, проси о помощи, повторе или остановке; любая реплика считается коммуникацией.",
     selfDescription: "Выбери, что хочешь сказать.",
     route: "/games/mini-dialog",
     category: "language-aac",
@@ -1428,12 +1460,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 135,
     minTargetSizePx: 120,
-    defaultDwellMs: 1350
+    defaultDwellMs: 1350,
   },
   {
     id: "social-phrases",
     title: "Социальные фразы",
-    description: "Выбирай социальную или функциональную AAC-фразу: отказ, просьба о помощи и остановка тоже считаются коммуникацией.",
+    description:
+      "Выбирай социальную или функциональную AAC-фразу: отказ, просьба о помощи и остановка тоже считаются коммуникацией.",
     selfDescription: "Скажи фразу, откажись или попроси о помощи.",
     route: "/games/social-phrases",
     category: "language-aac",
@@ -1443,12 +1476,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 125,
     minTargetSizePx: 120,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "type-word",
     title: "Печать слов",
-    description: "Собирай короткие слова по одной букве, каждый раз выбирая следующую из 2–4 крупных кнопок.",
+    description:
+      "Собирай короткие слова по одной букве, каждый раз выбирая следующую из 2–4 крупных кнопок.",
     selfDescription: "Собери слово по буквам.",
     route: "/games/type-word",
     category: "language-aac",
@@ -1458,12 +1492,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 120,
-    defaultDwellMs: 1200
+    defaultDwellMs: 1200,
   },
   {
     id: "clock",
     title: "Часы",
-    description: "Выбери время на крупных циферблатах: полные часы, подсказка при ошибке и без резкого завершения.",
+    description:
+      "Выбери время на крупных циферблатах: полные часы, подсказка при ошибке и без резкого завершения.",
     selfDescription: "Выбери время на часах.",
     route: "/games/clock",
     category: "numeracy",
@@ -1473,12 +1508,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 124,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "calendar",
     title: "Календарь",
-    description: "Выбирай день недели или карточку вчера-сегодня-завтра: крупные варианты, подсказка при ошибке и темп.",
+    description:
+      "Выбирай день недели или карточку вчера-сегодня-завтра: крупные варианты, подсказка при ошибке и темп.",
     selfDescription: "Выбери день в календаре.",
     route: "/games/calendar",
     category: "numeracy",
@@ -1488,7 +1524,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 116,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "count-items",
@@ -1503,7 +1539,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 124,
-    defaultDwellMs: 1200
+    defaultDwellMs: 1200,
   },
   {
     id: "coin-counting",
@@ -1518,12 +1554,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 140,
     minTargetSizePx: 76,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "pizza-fractions",
     title: "Доли пиццы",
-    description: "Выбирай половину, четверть или целую пиццу на крупных карточках; ошибка подсвечивает правильную долю.",
+    description:
+      "Выбирай половину, четверть или целую пиццу на крупных карточках; ошибка подсвечивает правильную долю.",
     selfDescription: "Выбери долю пиццы.",
     route: "/games/pizza-fractions",
     category: "numeracy",
@@ -1533,7 +1570,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 190,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "greater-less",
@@ -1548,12 +1585,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 160,
-    defaultDwellMs: 1200
+    defaultDwellMs: 1200,
   },
   {
     id: "scales",
     title: "Весы",
-    description: "Смотри на картинку весов и выбирай, какая сторона тяжелее, легче или равна; ошибка даёт подсказку.",
+    description:
+      "Смотри на картинку весов и выбирай, какая сторона тяжелее, легче или равна; ошибка даёт подсказку.",
     selfDescription: "Выбери сторону весов.",
     route: "/games/scales",
     category: "numeracy",
@@ -1563,7 +1601,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 125,
     minTargetSizePx: 100,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "number-line",
@@ -1578,12 +1616,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 106,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "number-sorting",
     title: "Сортировка чисел",
-    description: "Выбирай следующее число по возрастанию или убыванию из крупных карточек; ошибка подсвечивает подсказку.",
+    description:
+      "Выбирай следующее число по возрастанию или убыванию из крупных карточек; ошибка подсвечивает подсказку.",
     selfDescription: "Выбери следующее число.",
     route: "/games/number-sorting",
     category: "numeracy",
@@ -1593,12 +1632,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 128,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "sudoku-2x2",
     title: "Судоку 2x2",
-    description: "Заполни простую сетку 2x2 недостающим числом или цветом, а ошибка объяснит выбор.",
+    description:
+      "Заполни простую сетку 2x2 недостающим числом или цветом, а ошибка объяснит выбор.",
     selfDescription: "Выбери недостающую клетку.",
     route: "/games/sudoku-2x2",
     category: "numeracy",
@@ -1608,12 +1648,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 112,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "lines-angles",
     title: "Линии и углы",
-    description: "Выбирай прямую или кривую линию, угол или направление на крупных геометрических карточках.",
+    description:
+      "Выбирай прямую или кривую линию, угол или направление на крупных геометрических карточках.",
     selfDescription: "Найди линию или угол.",
     route: "/games/lines-angles",
     category: "numeracy",
@@ -1623,12 +1664,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 136,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "simple-graphs",
     title: "Простые графики",
-    description: "Смотри на крупный столбиковый график и выбирай, где больше, меньше или сколько предметов.",
+    description:
+      "Смотри на крупный столбиковый график и выбирай, где больше, меньше или сколько предметов.",
     selfDescription: "Ответь по графику.",
     route: "/games/simple-graphs",
     category: "numeracy",
@@ -1638,7 +1680,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 167,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "number-bonds",
@@ -1653,7 +1695,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 170,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "shop",
@@ -1668,7 +1710,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 140,
     minTargetSizePx: 96,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "coordinates",
@@ -1683,7 +1725,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 130,
     minTargetSizePx: 109,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "shapes",
@@ -1698,12 +1740,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 132,
-    defaultDwellMs: 1200
+    defaultDwellMs: 1200,
   },
   {
     id: "color-shape",
     title: "Цвет + форма",
-    description: "Выбери объект по двум признакам, например красный круг: ошибка подсветит цвет или форму.",
+    description:
+      "Выбери объект по двум признакам, например красный круг: ошибка подсветит цвет или форму.",
     selfDescription: "Найди цветную форму.",
     route: "/games/color-shape",
     category: "numeracy",
@@ -1713,7 +1756,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 125,
     minTargetSizePx: 140,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "math-actions",
@@ -1728,12 +1771,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 80,
-    defaultDwellMs: 1200
+    defaultDwellMs: 1200,
   },
   {
     id: "minesweeper-safe",
     title: "Сапёр",
-    description: "Выбирай безопасные клетки по числам-подсказкам: мина завершает партию, поэтому ищи.",
+    description:
+      "Выбирай безопасные клетки по числам-подсказкам: мина завершает партию, поэтому ищи.",
     selfDescription: "Найди безопасную клетку.",
     route: "/games/minesweeper-safe",
     category: "strategy",
@@ -1743,12 +1787,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 60,
-    defaultDwellMs: 1200
+    defaultDwellMs: 1200,
   },
   {
     id: "domino-matching",
     title: "Домино",
-    description: "Ставь костяшки к открытым числам, бери из базара, если хода нет, и играй партию с ботом.",
+    description:
+      "Ставь костяшки к открытым числам, бери из базара, если хода нет, и играй партию с ботом.",
     selfDescription: "Собери цепочку домино.",
     route: "/games/domino-matching",
     category: "strategy",
@@ -1758,12 +1803,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 94,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "number-2048",
     title: "2048",
-    description: "Сдвигай плитки 4×4 и собирай одинаковые числа: если ходов не останется, доска завершится.",
+    description:
+      "Сдвигай плитки 4×4 и собирай одинаковые числа: если ходов не останется, доска завершится.",
     selfDescription: "Собери одинаковые плитки.",
     route: "/games/number-2048",
     category: "strategy",
@@ -1773,12 +1819,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 88,
-    defaultDwellMs: 1100
+    defaultDwellMs: 1100,
   },
   {
     id: "sliding-puzzle",
     title: "Пятнашки 3×3",
-    description: "Собирай пятнашки на поле 3×3: выбирай соседнюю с пустой клеткой плитку и проверяй правило.",
+    description:
+      "Собирай пятнашки на поле 3×3: выбирай соседнюю с пустой клеткой плитку и проверяй правило.",
     selfDescription: "Собери пятнашки.",
     route: "/games/sliding-puzzle",
     category: "strategy",
@@ -1788,12 +1835,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 132,
-    defaultDwellMs: 1200
+    defaultDwellMs: 1200,
   },
   {
     id: "uno-like",
     title: "Уно-подобное",
-    description: "Выбирай карту по цвету или числу к открытой карте: ошибка повторит правило без подсветки ответа.",
+    description:
+      "Выбирай карту по цвету или числу к открытой карте: ошибка повторит правило без подсветки ответа.",
     selfDescription: "Подбери карту по цвету или числу.",
     route: "/games/uno-like",
     category: "strategy",
@@ -1803,7 +1851,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 151,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "step-tetris",
@@ -1818,12 +1866,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 90,
-    defaultDwellMs: 1100
+    defaultDwellMs: 1100,
   },
   {
     id: "sokoban-large",
     title: "Сокобан крупный",
-    description: "Выбирай направление, чтобы подтолкнуть ящик к цели на маленькой крупной сетке; неверный ход можно спокойно повторить.",
+    description:
+      "Выбирай направление, чтобы подтолкнуть ящик к цели на маленькой крупной сетке; неверный ход можно спокойно повторить.",
     selfDescription: "Подтолкни ящик к цели.",
     route: "/games/sokoban-large",
     category: "strategy",
@@ -1833,7 +1882,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 92,
-    defaultDwellMs: 1200
+    defaultDwellMs: 1200,
   },
   {
     id: "tic-tac-toe",
@@ -1848,7 +1897,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 101,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "connect-four",
@@ -1863,7 +1912,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 97,
-    defaultDwellMs: 1450
+    defaultDwellMs: 1450,
   },
   {
     id: "reversi-light",
@@ -1878,12 +1927,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 90,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "lines-five",
     title: "Lines 5",
-    description: "Ставь шарики на мини-поле 5×5 и собирай линии из 3–5 одинаковых цветов, пока поле не заполнилось.",
+    description:
+      "Ставь шарики на мини-поле 5×5 и собирай линии из 3–5 одинаковых цветов, пока поле не заполнилось.",
     selfDescription: "Собери линию шариков.",
     route: "/games/lines-five",
     category: "strategy",
@@ -1893,12 +1943,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 60,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "checkers-light",
     title: "Шашки",
-    description: "Играй в упрощённые шашки 4x4: возможные ходы отмечены, а отсутствие ходов завершает раунд.",
+    description:
+      "Играй в упрощённые шашки 4x4: возможные ходы отмечены, а отсутствие ходов завершает раунд.",
     selfDescription: "Выбери ход шашкой.",
     route: "/games/checkers-light",
     category: "strategy",
@@ -1908,7 +1959,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 41,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "chess-mini",
@@ -1923,12 +1974,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 126,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "battleship-light",
     title: "Морской бой",
-    description: "Расставь флот, выбирай сектор и веди полноценный пошаговый морской бой против соперника.",
+    description:
+      "Расставь флот, выбирай сектор и веди полноценный пошаговый морской бой против соперника.",
     selfDescription: "Поставь корабли и стреляй.",
     route: "/games/battleship-light",
     category: "strategy",
@@ -1938,12 +1990,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 130,
-    defaultDwellMs: 1300
+    defaultDwellMs: 1300,
   },
   {
     id: "step-pong",
     title: "Понг пошаговый",
-    description: "Выбирай позицию ракетки перед ударом: после трёх сложных выборов раунд завершается.",
+    description:
+      "Выбирай позицию ракетки перед ударом: после трёх сложных выборов раунд завершается.",
     selfDescription: "Поставь ракетку.",
     route: "/games/step-pong",
     category: "strategy",
@@ -1953,12 +2006,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 116,
-    defaultDwellMs: 1200
+    defaultDwellMs: 1200,
   },
   {
     id: "route-snake",
     title: "Змейка",
-    description: "Веди змейку по сетке: если рядом край или хвостик, змейка замедляется и ищет свободный путь.",
+    description:
+      "Веди змейку по сетке: если рядом край или хвостик, змейка замедляется и ищет свободный путь.",
     selfDescription: "Помоги змейке найти листочки.",
     route: "/games/route-snake",
     category: "strategy",
@@ -1968,12 +2022,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 165,
     minTargetSizePx: 84,
-    defaultDwellMs: 1100
+    defaultDwellMs: 1100,
   },
   {
     id: "cursor-magnet",
     title: "Магнитная лаборатория",
-    description: "Настраивай полюса и силу магнитов, запускай симуляцию и проводи капсулу через лабораторные контуры.",
+    description:
+      "Настраивай полюса и силу магнитов, запускай симуляцию и проводи капсулу через лабораторные контуры.",
     selfDescription: "Собери магнитную схему.",
     route: "/games/cursor-magnet",
     category: "strategy",
@@ -1983,7 +2038,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 180,
     minTargetSizePx: 59,
-    defaultDwellMs: 850
+    defaultDwellMs: 850,
   },
   {
     id: "boat",
@@ -1998,7 +2053,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 135,
     minTargetSizePx: 150,
-    defaultDwellMs: 500
+    defaultDwellMs: 500,
   },
   {
     id: "gaze-follow-snake",
@@ -2013,7 +2068,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
-    defaultDwellMs: 600
+    defaultDwellMs: 600,
   },
   {
     id: "table-tennis",
@@ -2028,7 +2083,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 90,
     minTargetSizePx: 160,
-    defaultDwellMs: 1000
+    defaultDwellMs: 1000,
   },
   {
     id: "road-car",
@@ -2043,12 +2098,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
-    defaultDwellMs: 600
+    defaultDwellMs: 600,
   },
   {
     id: "glider",
     title: "Планер",
-    description: "Веди планер взглядом через широкие воздушные ворота: он держит высоту и ждёт корректировки.",
+    description:
+      "Веди планер взглядом через широкие воздушные ворота: он держит высоту и ждёт корректировки.",
     selfDescription: "Проведи планер.",
     route: "/games/glider",
     category: "continuous-control",
@@ -2058,7 +2114,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
-    defaultDwellMs: 600
+    defaultDwellMs: 600,
   },
   {
     id: "line-drawing",
@@ -2073,7 +2129,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
-    defaultDwellMs: 600
+    defaultDwellMs: 600,
   },
   {
     id: "rails",
@@ -2088,12 +2144,13 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
-    defaultDwellMs: 700
+    defaultDwellMs: 700,
   },
   {
     id: "balancer",
     title: "Балансир",
-    description: "Удерживай шар в широкой зоне баланса взглядом: прогресс сохраняется и ждёт возвращения в зону.",
+    description:
+      "Удерживай шар в широкой зоне баланса взглядом: прогресс сохраняется и ждёт возвращения в зону.",
     selfDescription: "Удержи шар в зоне.",
     route: "/games/balancer",
     category: "continuous-control",
@@ -2103,7 +2160,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 170,
-    defaultDwellMs: 600
+    defaultDwellMs: 600,
   },
   {
     id: "snow-trail",
@@ -2118,7 +2175,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
-    defaultDwellMs: 600
+    defaultDwellMs: 600,
   },
   {
     id: "robot-vacuum",
@@ -2133,7 +2190,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
-    defaultDwellMs: 600
+    defaultDwellMs: 600,
   },
   {
     id: "garden-watering",
@@ -2148,7 +2205,7 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 120,
     minTargetSizePx: 150,
-    defaultDwellMs: 1200
+    defaultDwellMs: 1200,
   },
   {
     id: "space-orbit",
@@ -2163,28 +2220,33 @@ export const games: GameInfo[] = [
     stabilityStatus: "publish",
     recommendedSessionSeconds: 150,
     minTargetSizePx: 150,
-    defaultDwellMs: 600
+    defaultDwellMs: 600,
   },
-
 ];
 
 export type GroupGamesByCategoryOptions = {
   excludeArchived?: boolean;
 };
 
-export function groupGamesByCategory(inputGames: GameInfo[] = games, options: GroupGamesByCategoryOptions = {}) {
+export function groupGamesByCategory(
+  inputGames: GameInfo[] = games,
+  options: GroupGamesByCategoryOptions = {},
+) {
   return gameCategoryOrder
-   .map((category) => ({
+    .map((category) => ({
       category,
       label: gameCategories[category],
       description: gameCategoryDescriptions[category],
       selfLabel: selfMenuCategoryLabels[category],
       selfDescription: selfMenuCategoryDescriptions[category],
-      games: inputGames.filter((game) => game.category === category
-        && !game.tags?.includes("hidden-from-menu")
-        && (!options.excludeArchived || resolveGameStabilityStatus(game) !== "archived"))
+      games: inputGames.filter(
+        (game) =>
+          game.category === category &&
+          !game.tags?.includes("hidden-from-menu") &&
+          (!options.excludeArchived || resolveGameStabilityStatus(game) !== "archived"),
+      ),
     }))
-   .filter((group) => group.games.length > 0);
+    .filter((group) => group.games.length > 0);
 }
 
 export function findGame(gameId: string | string[]) {

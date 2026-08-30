@@ -20,7 +20,10 @@ export function createSolvedBoard(): SlidingPuzzleBoard {
 }
 
 export function createInitialBoard(): SlidingPuzzleBoard {
-  return gentleShuffleTileIndexes.reduce((board, tileIndex) => moveTile(board, tileIndex).board, createSolvedBoard());
+  return gentleShuffleTileIndexes.reduce(
+    (board, tileIndex) => moveTile(board, tileIndex).board,
+    createSolvedBoard(),
+  );
 }
 
 export function findEmptyIndex(board: SlidingPuzzleBoard) {
@@ -41,7 +44,13 @@ export function moveTile(board: SlidingPuzzleBoard, tileIndex: number): SlidingP
   const emptyIndex = findEmptyIndex(board);
   const nextBoard = [...board];
 
-  if (emptyIndex < 0 || tileIndex < 0 || tileIndex >= board.length || board[tileIndex] === 0 || !areAdjacent(tileIndex, emptyIndex)) {
+  if (
+    emptyIndex < 0 ||
+    tileIndex < 0 ||
+    tileIndex >= board.length ||
+    board[tileIndex] === 0 ||
+    !areAdjacent(tileIndex, emptyIndex)
+  ) {
     return { board: nextBoard, moved: false, emptyIndex };
   }
 
@@ -55,12 +64,14 @@ export function moveTile(board: SlidingPuzzleBoard, tileIndex: number): SlidingP
     emptyIndex: tileIndex,
     movedTile,
     fromIndex: tileIndex,
-    toIndex: emptyIndex
+    toIndex: emptyIndex,
   };
 }
 
 export function isSolved(board: SlidingPuzzleBoard) {
-  return board.length === solvedBoard.length && board.every((tile, index) => tile === solvedBoard[index]);
+  return (
+    board.length === solvedBoard.length && board.every((tile, index) => tile === solvedBoard[index])
+  );
 }
 
 export function rowForIndex(index: number) {
@@ -72,5 +83,9 @@ export function colForIndex(index: number) {
 }
 
 export function areAdjacent(firstIndex: number, secondIndex: number) {
-  return Math.abs(rowForIndex(firstIndex) - rowForIndex(secondIndex)) + Math.abs(colForIndex(firstIndex) - colForIndex(secondIndex)) === 1;
+  return (
+    Math.abs(rowForIndex(firstIndex) - rowForIndex(secondIndex)) +
+      Math.abs(colForIndex(firstIndex) - colForIndex(secondIndex)) ===
+    1
+  );
 }

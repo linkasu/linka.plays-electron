@@ -12,18 +12,38 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateShelfSortingRound, type ShelfSortingShelf } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("shelf-sorting", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("shelf-sorting", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 135 },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
-const promptAudio = useGamePromptAudio({ gameId: "shelf-sorting", soundEnabled: toRef(session.settings, "sound"), volume: 0.3 });
+const promptAudio = useGamePromptAudio({
+  gameId: "shelf-sorting",
+  soundEnabled: toRef(session.settings, "sound"),
+  volume: 0.3,
+});
 
-const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRounds,
+} = useRoundGame({
   session,
   startSession,
-  generateRound: generateShelfSortingRound
+  generateRound: generateShelfSortingRound,
 });
 
 const feedbackMessage = ref(round.value.hint);
@@ -66,7 +86,12 @@ function cancelRoundPrompt() {
 
 function speakRoundPrompt(delayMs = 0) {
   cancelRoundPrompt();
-  if (!session.settings.sound || !("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) return;
+  if (
+    !session.settings.sound ||
+    !("speechSynthesis" in window) ||
+    !("SpeechSynthesisUtterance" in window)
+  )
+    return;
   const token = speechToken;
 
   promptTimer = window.setTimeout(() => {
@@ -111,10 +136,23 @@ async function chooseShelf(shelf: ShelfSortingShelf) {
     pendingSelection.value = true;
     successShelfId.value = shelf.id;
     feedbackMessage.value = "Верно. Предмет на своей полке.";
-    recordSuccess({ roundId: round.value.roundId, targetId, itemId: round.value.item.id, expected: round.value.correctShelfId, actual: shelf.id, isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      itemId: round.value.item.id,
+      expected: round.value.correctShelfId,
+      actual: shelf.id,
+      isCorrect: true,
+    });
     const finishedAfterSuccess = session.step >= session.maxSteps;
     isSpeaking.value = true;
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["shelf-sorting.correct", "shelf-sorting.complete"] : ["shelf-sorting.correct"], 80, 170);
+    await promptAudio.playSequenceAndWait(
+      finishedAfterSuccess
+        ? ["shelf-sorting.correct", "shelf-sorting.complete"]
+        : ["shelf-sorting.correct"],
+      80,
+      170,
+    );
     isSpeaking.value = false;
 
     if (finishedAfterSuccess) {
@@ -135,7 +173,15 @@ async function chooseShelf(shelf: ShelfSortingShelf) {
   pendingSelection.value = true;
   wrongShelfId.value = shelf.id;
   feedbackMessage.value = "Посмотри на предмет и попробуй выбрать другую полку.";
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, itemId: round.value.item.id, expected: round.value.correctShelfId, actual: shelf.id, isCorrect: false });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    expectedTargetId,
+    itemId: round.value.item.id,
+    expected: round.value.correctShelfId,
+    actual: shelf.id,
+    isCorrect: false,
+  });
   isSpeaking.value = true;
   await promptAudio.playSequenceAndWait(["shelf-sorting.mistake"], 80);
   isSpeaking.value = false;
@@ -181,7 +227,18 @@ onUnmounted(() => {
 
 <template>
   <div class="shelf-sorting-shell">
-    <GameHud title="Сортировка по полкам" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Сортировка по полкам"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="9">
@@ -190,29 +247,77 @@ onUnmounted(() => {
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
             <p class="shelf-feedback text-body-1 text-center mb-6">{{ feedbackMessage }}</p>
 
-            <v-card class="item-card pa-5 pa-md-6 mb-6" color="blue-grey-lighten-5" rounded="xl" variant="flat">
+            <v-card
+              class="item-card pa-5 pa-md-6 mb-6"
+              color="blue-grey-lighten-5"
+              rounded="xl"
+              variant="flat"
+            >
               <div class="item-caption text-caption mb-2">Предмет для сортировки</div>
               <div class="d-flex flex-column flex-sm-row align-center justify-center ga-4">
-                <GameWordImage v-if="round.item.imageId" :class="['item-visual', { 'item-visual--placed': successShelfId }]" :word-id="round.item.imageId" :word="round.item.label" emoji="" decorative />
-                <v-icon v-else :class="['item-visual', { 'item-visual--placed': successShelfId }]" :icon="round.item.icon" color="deep-purple-darken-2" />
+                <GameWordImage
+                  v-if="round.item.imageId"
+                  :class="['item-visual', { 'item-visual--placed': successShelfId }]"
+                  :word-id="round.item.imageId"
+                  :word="round.item.label"
+                  emoji=""
+                  decorative
+                />
+                <v-icon
+                  v-else
+                  :class="['item-visual', { 'item-visual--placed': successShelfId }]"
+                  :icon="round.item.icon"
+                  color="deep-purple-darken-2"
+                />
                 <div class="text-center text-sm-start">
                   <div class="text-h4 font-weight-bold">{{ round.item.label }}</div>
-                  <v-chip class="mt-2 text-white" color="deep-purple-darken-3" variant="flat" size="large">{{ round.rule === "category" ? "сортируем по категории" : "сортируем по цвету" }}</v-chip>
+                  <v-chip
+                    class="mt-2 text-white"
+                    color="deep-purple-darken-3"
+                    variant="flat"
+                    size="large"
+                    >{{
+                      round.rule === "category" ? "сортируем по категории" : "сортируем по цвету"
+                    }}</v-chip
+                  >
                 </div>
               </div>
             </v-card>
 
             <v-row justify="center">
               <v-col v-for="shelf in round.shelves" :key="shelf.id" cols="12" sm="4" md="4">
-                <GameDwellButton :class="{ 'shelf-choice--wrong': wrongShelfId === shelf.id, 'shelf-choice--success': successShelfId === shelf.id }" :target-id="shelfTargetId(shelf)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="11.875rem" :color="shelfColor(shelf)" @select="chooseShelf(shelf)">
+                <GameDwellButton
+                  :class="{
+                    'shelf-choice--wrong': wrongShelfId === shelf.id,
+                    'shelf-choice--success': successShelfId === shelf.id,
+                  }"
+                  :target-id="shelfTargetId(shelf)"
+                  :disabled="session.status !== 'running' || pendingSelection || isSpeaking"
+                  :dwell-ms="session.settings.dwellMs"
+                  min-height="11.875rem"
+                  :color="shelfColor(shelf)"
+                  @select="chooseShelf(shelf)"
+                >
                   <template #default>
                     <div class="shelf-choice-content">
                       <div class="shelf-visual mb-4" :style="shelfStyle(shelf)" aria-hidden="true">
                         <template v-if="successShelfId === shelf.id">
-                          <GameWordImage v-if="round.item.imageId" class="shelf-placed-item" :word-id="round.item.imageId" :word="round.item.label" emoji="" decorative />
+                          <GameWordImage
+                            v-if="round.item.imageId"
+                            class="shelf-placed-item"
+                            :word-id="round.item.imageId"
+                            :word="round.item.label"
+                            emoji=""
+                            decorative
+                          />
                           <v-icon v-else class="shelf-placed-item" :icon="round.item.icon" />
                         </template>
-                        <v-icon v-if="round.rule === 'category'" class="shelf-icon" :icon="shelf.icon" :color="shelf.accent" />
+                        <v-icon
+                          v-if="round.rule === 'category'"
+                          class="shelf-icon"
+                          :icon="shelf.icon"
+                          :color="shelf.accent"
+                        />
                         <div v-else class="shelf-swatch" />
                         <div class="shelf-board" />
                       </div>
@@ -227,7 +332,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Сортировка по полкам" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Сортировка по полкам"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -254,7 +369,9 @@ onUnmounted(() => {
 .item-visual {
   font-size: clamp(4.8rem, 10vw, 7.8rem);
   line-height: 1;
-  transition: opacity 180ms ease, transform 180ms ease;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
 }
 
 .item-visual--placed {
@@ -320,60 +437,67 @@ onUnmounted(() => {
 }
 
 @keyframes shelf-wrong {
-  0%, 100% { transform: translateX(0); }
-  35% { transform: translateX(-0.35rem); }
-  70% { transform: translateX(0.35rem); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  35% {
+    transform: translateX(-0.35rem);
+  }
+  70% {
+    transform: translateX(0.35rem);
+  }
 }
 
 @media (max-width: 37.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 9.75rem;
   }
 }
 
 @media (max-height: 44rem) {
- .game-container {
+  .game-container {
     padding-block-start: 9.5rem;
   }
 
- .shelf-panel {
+  .shelf-panel {
     padding: 1rem 1.25rem 0.9rem !important;
   }
 
- .shelf-panel .text-overline {
+  .shelf-panel .text-overline {
     display: none;
   }
 
- .shelf-panel .text-h4 {
+  .shelf-panel .text-h4 {
     font-size: clamp(2rem, 5.2vh, 2.35rem) !important;
     line-height: 1.05 !important;
     margin-block-end: 0.6rem !important;
   }
 
- .shelf-feedback {
+  .shelf-feedback {
     margin-block-end: 0.9rem !important;
   }
 
- .item-card {
+  .item-card {
     margin-block-end: 0.85rem !important;
     padding: 0.85rem !important;
   }
 
- .item-caption {
+  .item-caption {
     display: none;
   }
 
   .item-visual,
- .shelf-icon {
+  .shelf-icon {
     font-size: clamp(3rem, 7vw, 4.5rem);
   }
 
- .shelf-visual {
+  .shelf-visual {
     block-size: 4.2rem;
   }
 
- .shelf-choice-content,
- .game-container :deep(.dwell-button) {
+  .shelf-choice-content,
+  .game-container :deep(.dwell-button) {
     min-block-size: 9rem !important;
   }
 }

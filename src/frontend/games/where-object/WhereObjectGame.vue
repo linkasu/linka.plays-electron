@@ -12,28 +12,49 @@ import { useRoundGame } from "../../composables/useRoundGame";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
-import { createWhereObjectRoundGenerator, isWhereObjectCorrect, type WhereObjectChoice, type WhereObjectRound } from "./model";
+import {
+  createWhereObjectRoundGenerator,
+  isWhereObjectCorrect,
+  type WhereObjectChoice,
+  type WhereObjectRound,
+} from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("where-object", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("where-object", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 120, targetScale: 1.2 },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
 const promptAudio = useGamePromptAudio({
   gameId: "where-object",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: ["where-object.complete"]
+  warmAssetIds: ["where-object.complete"],
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 let generateRound = createWhereObjectRoundGenerator();
-const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<WhereObjectRound>({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRoundGame,
+} = useRoundGame<WhereObjectRound>({
   session,
   startSession,
-  generateRound: (roundIndex) => generateRound(roundIndex)
+  generateRound: (roundIndex) => generateRound(roundIndex),
 });
 
 const lastMistakeId = ref<string>();
@@ -42,9 +63,11 @@ const choiceMinHeight = computed(() => {
   const scale = session.settings.targetScale;
   return `clamp(${7.5 * scale}rem, 26dvh, ${9.5 * scale}rem)`;
 });
-const hintText = computed(() => lastMistakeId.value
-  ? "Посмотри на все картинки ещё раз."
-  : "Выбери картинку, которая точно подходит к заданию.");
+const hintText = computed(() =>
+  lastMistakeId.value
+    ? "Посмотри на все картинки ещё раз."
+    : "Выбери картинку, которая точно подходит к заданию.",
+);
 
 function choiceTargetId(choice: WhereObjectChoice) {
   return `where-object:preposition:${choice.id}`;
@@ -81,7 +104,7 @@ async function chooseScene(choice: WhereObjectChoice) {
       objectId: round.value.targetObject.id,
       expected: round.value.scenePhrase,
       actual: choice.scenePhrase,
-      isCorrect: true
+      isCorrect: true,
     });
     lastMistakeId.value = undefined;
     void pianoFeedback.playSuccess();
@@ -107,7 +130,7 @@ async function chooseScene(choice: WhereObjectChoice) {
       objectId: round.value.targetObject.id,
       expected: round.value.scenePhrase,
       actual: choice.scenePhrase,
-      isCorrect: false
+      isCorrect: false,
     });
     lastMistakeId.value = choice.id;
     void pianoFeedback.playMistake();
@@ -140,9 +163,23 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <GamePageShell gradient="linear-gradient(135deg, #eee7ff 0%, #e3f6ef 48%, #fff0d1 100%)" padding-top="8.25rem">
+  <GamePageShell
+    gradient="linear-gradient(135deg, #eee7ff 0%, #e3f6ef 48%, #fff0d1 100%)"
+    padding-top="8.25rem"
+  >
     <template #hud>
-      <GameHud title="Где предмет?" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+      <GameHud
+        title="Где предмет?"
+        :step="session.step"
+        :max-steps="session.maxSteps"
+        :score="session.score"
+        :mistakes="session.mistakes"
+        :duration-ms="durationMs"
+        :session-seconds="session.settings.sessionSeconds"
+        :paused="session.status === 'paused'"
+        @pause="pauseSession"
+        @resume="resumeSession"
+      />
     </template>
 
     <v-container class="game-container" fluid>
@@ -186,7 +223,17 @@ onUnmounted(() => {
       </v-row>
     </v-container>
 
-    <GameResultDialog :model-value="resultVisible" title="Где предмет?" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Где предмет?"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </GamePageShell>
 </template>
 

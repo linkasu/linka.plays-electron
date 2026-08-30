@@ -51,7 +51,13 @@ export function duckHitRadius(duck: Duck) {
   return duck.size;
 }
 
-function drawCloud(context: CanvasRenderingContext2D, x: number, y: number, size: number, alpha: number) {
+function drawCloud(
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  size: number,
+  alpha: number,
+) {
   context.save();
   context.globalAlpha = alpha;
   context.fillStyle = "#fff9f1";
@@ -111,13 +117,26 @@ function drawTree(context: CanvasRenderingContext2D, x: number, groundY: number,
   context.fill();
 }
 
-function drawBuilding(context: CanvasRenderingContext2D, building: Building, groundY: number, unit: number) {
+function drawBuilding(
+  context: CanvasRenderingContext2D,
+  building: Building,
+  groundY: number,
+  unit: number,
+) {
   const y = groundY - building.h - unit * (building.row ? 0.07 : 0.18);
   const shadowY = y + building.h + unit * 0.02;
 
   context.fillStyle = "rgb(48 92 54 / 20%)";
   context.beginPath();
-  context.ellipse(building.x + building.w * 0.5, shadowY, building.w * 0.58, unit * 0.08, 0, 0, Math.PI * 2);
+  context.ellipse(
+    building.x + building.w * 0.5,
+    shadowY,
+    building.w * 0.58,
+    unit * 0.08,
+    0,
+    0,
+    Math.PI * 2,
+  );
   context.fill();
 
   context.fillStyle = building.color;
@@ -134,20 +153,45 @@ function drawBuilding(context: CanvasRenderingContext2D, building: Building, gro
   context.fillStyle = "#7bb6d9";
   for (let index = 0; index < building.windows; index++) {
     const gap = building.w / (building.windows + 1);
-    context.fillRect(building.x + gap * (index + 1) - building.w * 0.07, y + building.h * 0.32, building.w * 0.14, building.h * 0.2);
+    context.fillRect(
+      building.x + gap * (index + 1) - building.w * 0.07,
+      y + building.h * 0.32,
+      building.w * 0.14,
+      building.h * 0.2,
+    );
   }
 
   context.fillStyle = "#83604f";
-  context.fillRect(building.x + building.w * 0.43, y + building.h * 0.54, building.w * 0.16, building.h * 0.46);
+  context.fillRect(
+    building.x + building.w * 0.43,
+    y + building.h * 0.54,
+    building.w * 0.16,
+    building.h * 0.46,
+  );
 }
 
-function drawCityPath(context: CanvasRenderingContext2D, centerX: number, groundY: number, unit: number) {
+function drawCityPath(
+  context: CanvasRenderingContext2D,
+  centerX: number,
+  groundY: number,
+  unit: number,
+) {
   context.fillStyle = "rgb(210 182 112 / 38%)";
   context.beginPath();
   context.moveTo(centerX - unit * 0.5, groundY - unit * 0.08);
-  context.quadraticCurveTo(centerX - unit * 0.18, groundY + unit * 0.18, centerX + unit * 0.25, waterTop());
+  context.quadraticCurveTo(
+    centerX - unit * 0.18,
+    groundY + unit * 0.18,
+    centerX + unit * 0.25,
+    waterTop(),
+  );
   context.lineTo(centerX - unit * 0.35, waterTop());
-  context.quadraticCurveTo(centerX - unit * 0.48, groundY + unit * 0.2, centerX - unit * 0.95, groundY - unit * 0.04);
+  context.quadraticCurveTo(
+    centerX - unit * 0.48,
+    groundY + unit * 0.2,
+    centerX - unit * 0.95,
+    groundY - unit * 0.04,
+  );
   context.closePath();
   context.fill();
 }
@@ -215,11 +259,14 @@ function drawClockTower(context: CanvasRenderingContext2D, progress: number) {
   context.strokeStyle = "#324c61";
   context.lineWidth = 2;
   for (let index = 0; index < 12; index++) {
-    const angle = index / 12 * Math.PI * 2 - Math.PI / 2;
+    const angle = (index / 12) * Math.PI * 2 - Math.PI / 2;
     const inner = clockRadius * (index % 3 === 0 ? 0.72 : 0.82);
     context.beginPath();
     context.moveTo(clockX + Math.cos(angle) * inner, clockY + Math.sin(angle) * inner);
-    context.lineTo(clockX + Math.cos(angle) * clockRadius * 0.9, clockY + Math.sin(angle) * clockRadius * 0.9);
+    context.lineTo(
+      clockX + Math.cos(angle) * clockRadius * 0.9,
+      clockY + Math.sin(angle) * clockRadius * 0.9,
+    );
     context.stroke();
   }
 
@@ -228,7 +275,10 @@ function drawClockTower(context: CanvasRenderingContext2D, progress: number) {
   context.lineWidth = 4;
   context.beginPath();
   context.moveTo(clockX, clockY);
-  context.lineTo(clockX + Math.cos(handAngle) * clockRadius * 0.58, clockY + Math.sin(handAngle) * clockRadius * 0.58);
+  context.lineTo(
+    clockX + Math.cos(handAngle) * clockRadius * 0.58,
+    clockY + Math.sin(handAngle) * clockRadius * 0.58,
+  );
   context.stroke();
   context.beginPath();
   context.arc(clockX, clockY, 4, 0, Math.PI * 2);
@@ -265,15 +315,15 @@ function drawVillage(context: CanvasRenderingContext2D, progress: number) {
   let index = 0;
 
   while (cursor < endX) {
-    const w = unit * (0.62 + index % 4 * 0.11);
+    const w = unit * (0.62 + (index % 4) * 0.11);
     buildings.push({
       x: cursor,
       w,
-      h: unit * (0.5 + index % 5 * 0.055),
-      row: index % 2 as 0 | 1,
+      h: unit * (0.5 + (index % 5) * 0.055),
+      row: (index % 2) as 0 | 1,
       color: colors[index % colors.length],
       roof: roofs[index % roofs.length],
-      windows: (index % 3 + 1) as 1 | 2 | 3
+      windows: ((index % 3) + 1) as 1 | 2 | 3,
     });
     cursor += w + unit * 0.12;
     index += 1;
@@ -281,7 +331,8 @@ function drawVillage(context: CanvasRenderingContext2D, progress: number) {
 
   context.save();
   drawCityPath(context, window.innerWidth * 0.38, groundY, unit);
-  for (let treeX = startX - unit * 0.1; treeX < endX; treeX += unit * 2.15) drawTree(context, treeX, groundY, unit);
+  for (let treeX = startX - unit * 0.1; treeX < endX; treeX += unit * 2.15)
+    drawTree(context, treeX, groundY, unit);
   for (const building of buildings) {
     const towerLeft = window.innerWidth * 0.5;
     const towerRight = window.innerWidth * 0.62;
@@ -301,15 +352,37 @@ function drawBackground(context: CanvasRenderingContext2D, progress: number) {
   context.fillStyle = sky;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-  drawCloud(context, window.innerWidth * 0.18, window.innerHeight * 0.12, window.innerWidth * 0.16, 0.64);
-  drawCloud(context, window.innerWidth * 0.74, window.innerHeight * 0.16, window.innerWidth * 0.13, 0.5);
+  drawCloud(
+    context,
+    window.innerWidth * 0.18,
+    window.innerHeight * 0.12,
+    window.innerWidth * 0.16,
+    0.64,
+  );
+  drawCloud(
+    context,
+    window.innerWidth * 0.74,
+    window.innerHeight * 0.16,
+    window.innerWidth * 0.13,
+    0.5,
+  );
   drawMountains(context);
 
   context.fillStyle = "#8abc3d";
   context.beginPath();
   context.moveTo(0, mountainBase - window.innerHeight * 0.004);
-  context.quadraticCurveTo(window.innerWidth * 0.26, mountainBase - window.innerHeight * 0.022, window.innerWidth * 0.5, mountainBase - window.innerHeight * 0.006);
-  context.quadraticCurveTo(window.innerWidth * 0.74, mountainBase + window.innerHeight * 0.014, window.innerWidth, mountainBase - window.innerHeight * 0.012);
+  context.quadraticCurveTo(
+    window.innerWidth * 0.26,
+    mountainBase - window.innerHeight * 0.022,
+    window.innerWidth * 0.5,
+    mountainBase - window.innerHeight * 0.006,
+  );
+  context.quadraticCurveTo(
+    window.innerWidth * 0.74,
+    mountainBase + window.innerHeight * 0.014,
+    window.innerWidth,
+    mountainBase - window.innerHeight * 0.012,
+  );
   context.lineTo(window.innerWidth, waterTop());
   context.lineTo(0, waterTop());
   context.closePath();
@@ -370,7 +443,14 @@ function drawDuck(context: CanvasRenderingContext2D, duck: Duck) {
   context.ellipse(-size * 0.03, size * 0.28, size * 0.56, size * 0.12, 0, 0, Math.PI * 2);
   context.fill();
 
-  const body = context.createRadialGradient(-size * 0.1, -size * 0.1, size * 0.08, 0, size * 0.05, size * 0.72);
+  const body = context.createRadialGradient(
+    -size * 0.1,
+    -size * 0.1,
+    size * 0.08,
+    0,
+    size * 0.05,
+    size * 0.72,
+  );
   body.addColorStop(0, "#ffe66f");
   body.addColorStop(0.58, "#ffd018");
   body.addColorStop(1, "#eeb000");
@@ -419,7 +499,13 @@ function drawAimProgress(context: CanvasRenderingContext2D, duck: Duck) {
   context.lineWidth = 5;
   context.lineCap = "round";
   context.beginPath();
-  context.arc(duck.x, duck.y, radius, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * duck.dwellProgress);
+  context.arc(
+    duck.x,
+    duck.y,
+    radius,
+    -Math.PI / 2,
+    -Math.PI / 2 + Math.PI * 2 * duck.dwellProgress,
+  );
   context.stroke();
   context.restore();
 }
@@ -431,7 +517,15 @@ function drawSplash(context: CanvasRenderingContext2D, splash: Splash) {
   context.strokeStyle = "#f8fdff";
   context.lineWidth = 4;
   context.beginPath();
-  context.ellipse(splash.x, splash.y, splash.radius * (1 + progress * 1.8), splash.radius * (0.34 + progress * 0.42), 0, 0, Math.PI * 2);
+  context.ellipse(
+    splash.x,
+    splash.y,
+    splash.radius * (1 + progress * 1.8),
+    splash.radius * (0.34 + progress * 0.42),
+    0,
+    0,
+    Math.PI * 2,
+  );
   context.stroke();
 
   context.fillStyle = "#f8fdff";
@@ -446,7 +540,11 @@ function drawSplash(context: CanvasRenderingContext2D, splash: Splash) {
   context.restore();
 }
 
-function drawPointerSight(context: CanvasRenderingContext2D, pointer: ScenePointer, running: boolean) {
+function drawPointerSight(
+  context: CanvasRenderingContext2D,
+  pointer: ScenePointer,
+  running: boolean,
+) {
   if (!pointer.valid || !running) return;
   context.save();
   context.strokeStyle = "rgb(255 255 255 / 62%)";

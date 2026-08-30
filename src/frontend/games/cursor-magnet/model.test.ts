@@ -1,5 +1,20 @@
 import { describe, expect, it } from "vitest";
-import { createMagneticLabState, currentLevel, cycleSelectedStrength, magneticForce, magneticLevels, nextLevel, pointInWall, selectMagnet, setSelectedPole, startSimulation, stepSimulation, stopSimulation, type MagneticLabState, type MagneticPole } from "./model";
+import {
+  createMagneticLabState,
+  currentLevel,
+  cycleSelectedStrength,
+  magneticForce,
+  magneticLevels,
+  nextLevel,
+  pointInWall,
+  selectMagnet,
+  setSelectedPole,
+  startSimulation,
+  stepSimulation,
+  stopSimulation,
+  type MagneticLabState,
+  type MagneticPole,
+} from "./model";
 
 function run(state: MagneticLabState, seconds: number) {
   let current = startSimulation(state);
@@ -9,11 +24,14 @@ function run(state: MagneticLabState, seconds: number) {
   return current;
 }
 
-function configuredLevel(levelIndex: number, config: { pole: MagneticPole; strength: 0 | 1 | 2 }[]) {
+function configuredLevel(
+  levelIndex: number,
+  config: { pole: MagneticPole; strength: 0 | 1 | 2 }[],
+) {
   const state = createMagneticLabState(levelIndex);
   return {
-   ...state,
-    magnets: state.magnets.map((magnet, index) => ({ ...magnet, ...config[index] }))
+    ...state,
+    magnets: state.magnets.map((magnet, index) => ({ ...magnet, ...config[index] })),
   };
 }
 
@@ -28,14 +46,18 @@ describe("magnetic lab model", () => {
   });
 
   it("attracts the positive capsule to a negative charge", () => {
-    const force = magneticForce({ x: 0.2, y: 0.5, vx: 0, vy: 0, pole: "positive" }, [{ id: "m", label: "M", x: 0.8, y: 0.5, pole: "negative", strength: 2 }]);
+    const force = magneticForce({ x: 0.2, y: 0.5, vx: 0, vy: 0, pole: "positive" }, [
+      { id: "m", label: "M", x: 0.8, y: 0.5, pole: "negative", strength: 2 },
+    ]);
 
     expect(force.x).toBeGreaterThan(0);
     expect(Math.abs(force.y)).toBeLessThan(0.001);
   });
 
   it("repels the positive capsule from a positive charge", () => {
-    const force = magneticForce({ x: 0.2, y: 0.5, vx: 0, vy: 0, pole: "positive" }, [{ id: "m", label: "M", x: 0.8, y: 0.5, pole: "positive", strength: 2 }]);
+    const force = magneticForce({ x: 0.2, y: 0.5, vx: 0, vy: 0, pole: "positive" }, [
+      { id: "m", label: "M", x: 0.8, y: 0.5, pole: "positive", strength: 2 },
+    ]);
 
     expect(force.x).toBeLessThan(0);
   });
@@ -67,13 +89,41 @@ describe("magnetic lab model", () => {
   it("has a playable solution for every lab contour", () => {
     const solutions = [
       [{ pole: "negative", strength: 2 }],
-      [{ pole: "positive", strength: 2 }, { pole: "negative", strength: 2 }],
-      [{ pole: "positive", strength: 0 }, { pole: "positive", strength: 0 }, { pole: "negative", strength: 2 }],
-      [{ pole: "positive", strength: 0 }, { pole: "positive", strength: 0 }, { pole: "negative", strength: 2 }],
-      [{ pole: "positive", strength: 2 }, { pole: "negative", strength: 2 }, { pole: "positive", strength: 0 }],
-      [{ pole: "positive", strength: 0 }, { pole: "positive", strength: 0 }, { pole: "negative", strength: 2 }],
-      [{ pole: "positive", strength: 0 }, { pole: "positive", strength: 0 }, { pole: "negative", strength: 2 }],
-      [{ pole: "positive", strength: 2 }, { pole: "positive", strength: 0 }, { pole: "negative", strength: 1 }, { pole: "negative", strength: 2 }]
+      [
+        { pole: "positive", strength: 2 },
+        { pole: "negative", strength: 2 },
+      ],
+      [
+        { pole: "positive", strength: 0 },
+        { pole: "positive", strength: 0 },
+        { pole: "negative", strength: 2 },
+      ],
+      [
+        { pole: "positive", strength: 0 },
+        { pole: "positive", strength: 0 },
+        { pole: "negative", strength: 2 },
+      ],
+      [
+        { pole: "positive", strength: 2 },
+        { pole: "negative", strength: 2 },
+        { pole: "positive", strength: 0 },
+      ],
+      [
+        { pole: "positive", strength: 0 },
+        { pole: "positive", strength: 0 },
+        { pole: "negative", strength: 2 },
+      ],
+      [
+        { pole: "positive", strength: 0 },
+        { pole: "positive", strength: 0 },
+        { pole: "negative", strength: 2 },
+      ],
+      [
+        { pole: "positive", strength: 2 },
+        { pole: "positive", strength: 0 },
+        { pole: "negative", strength: 1 },
+        { pole: "negative", strength: 2 },
+      ],
     ] satisfies { pole: MagneticPole; strength: 0 | 1 | 2 }[][];
 
     expect(solutions).toHaveLength(magneticLevels.length);

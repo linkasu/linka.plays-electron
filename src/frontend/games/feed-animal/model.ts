@@ -34,14 +34,45 @@ export const feedAnimalFoods: FeedAnimalFood[] = [
   { id: "honey", wordId: "honey", name: "Мёд", emoji: "🍯", color: "amber-lighten-4" },
   { id: "seeds", name: "Зёрна", emoji: "🌾", color: "yellow-lighten-4" },
   { id: "ball", wordId: "ball", name: "Мяч", emoji: "⚽", color: "blue-grey-lighten-4" },
-  { id: "boot", name: "Сапог", emoji: "🥾", color: "grey-lighten-3" }
+  { id: "boot", name: "Сапог", emoji: "🥾", color: "grey-lighten-3" },
 ];
 
 export const feedAnimals: FeedAnimal[] = [
-  { id: "rabbit", wordId: "rabbit", name: "Зайка", emoji: "🐰", promptName: "зайку", phrase: "Зайка ест морковку, яблоко или траву", eats: ["carrot", "apple", "grass"] },
-  { id: "puppy", wordId: "dog", name: "Щенок", emoji: "🐶", promptName: "щенка", phrase: "Щенок ест косточку или рыбку", eats: ["bone", "fish"] },
-  { id: "bear", wordId: "bear", name: "Мишка", emoji: "🐻", promptName: "мишку", phrase: "Мишка ест мёд, ягоды или рыбку", eats: ["honey", "berries", "fish"] },
-  { id: "hamster", name: "Хомяк", emoji: "🐹", promptName: "хомяка", phrase: "Хомяк ест зёрна, яблоко или морковку", eats: ["seeds", "apple", "carrot"] }
+  {
+    id: "rabbit",
+    wordId: "rabbit",
+    name: "Зайка",
+    emoji: "🐰",
+    promptName: "зайку",
+    phrase: "Зайка ест морковку, яблоко или траву",
+    eats: ["carrot", "apple", "grass"],
+  },
+  {
+    id: "puppy",
+    wordId: "dog",
+    name: "Щенок",
+    emoji: "🐶",
+    promptName: "щенка",
+    phrase: "Щенок ест косточку или рыбку",
+    eats: ["bone", "fish"],
+  },
+  {
+    id: "bear",
+    wordId: "bear",
+    name: "Мишка",
+    emoji: "🐻",
+    promptName: "мишку",
+    phrase: "Мишка ест мёд, ягоды или рыбку",
+    eats: ["honey", "berries", "fish"],
+  },
+  {
+    id: "hamster",
+    name: "Хомяк",
+    emoji: "🐹",
+    promptName: "хомяка",
+    phrase: "Хомяк ест зёрна, яблоко или морковку",
+    eats: ["seeds", "apple", "carrot"],
+  },
 ];
 
 function itemAt<T>(items: T[], index: number) {
@@ -71,6 +102,6 @@ export function generateFeedAnimalRound(roundIndex = 1): FeedAnimalRound {
     animal,
     foods,
     correctFood,
-    correctIndex: foods.findIndex((food) => food.id === correctFood.id)
+    correctIndex: foods.findIndex((food) => food.id === correctFood.id),
   };
 }

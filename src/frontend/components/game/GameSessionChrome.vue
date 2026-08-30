@@ -15,25 +15,28 @@ type GameResultMetrics = {
   hintsUsed?: number;
 };
 
-const props = withDefaults(defineProps<{
-  title: string;
-  session: GameSessionState;
-  resultVisible: boolean;
-  durationMs: number;
-  recommendation: string;
-  metrics?: GameResultMetrics;
-  gradient?: string;
-  paddingTop?: string;
-  fullHeight?: boolean;
-  showProgress?: boolean;
-  showTimer?: boolean;
-}>(), {
-  gradient: "warm",
-  paddingTop: "8.75rem",
-  fullHeight: false,
-  showProgress: true,
-  showTimer: true
-});
+const props = withDefaults(
+  defineProps<{
+    title: string;
+    session: GameSessionState;
+    resultVisible: boolean;
+    durationMs: number;
+    recommendation: string;
+    metrics?: GameResultMetrics;
+    gradient?: string;
+    paddingTop?: string;
+    fullHeight?: boolean;
+    showProgress?: boolean;
+    showTimer?: boolean;
+  }>(),
+  {
+    gradient: "warm",
+    paddingTop: "8.75rem",
+    fullHeight: false,
+    showProgress: true,
+    showTimer: true,
+  },
+);
 
 const emit = defineEmits<{
   pause: [];

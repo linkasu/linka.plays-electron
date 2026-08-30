@@ -111,7 +111,9 @@ export function createGazeMetricsTracker() {
       lostGazeEvents,
       restoredGazeEvents,
       rawPathLength,
-      meanSampleIntervalMs: sampleIntervalCount ? sampleIntervalSum / sampleIntervalCount : undefined
+      meanSampleIntervalMs: sampleIntervalCount
+        ? sampleIntervalSum / sampleIntervalCount
+        : undefined,
     };
   }
 
@@ -119,7 +121,12 @@ export function createGazeMetricsTracker() {
 }
 
 export function containsPoint(target: DwellTarget, point: { x: number; y: number }) {
-  return point.x >= target.x && point.x <= target.x + target.width && point.y >= target.y && point.y <= target.y + target.height;
+  return (
+    point.x >= target.x &&
+    point.x <= target.x + target.width &&
+    point.y >= target.y &&
+    point.y <= target.y + target.height
+  );
 }
 
 export function useDwellSelection(options: {
@@ -135,7 +142,9 @@ export function useDwellSelection(options: {
   const cooldownUntil = ref(0);
   const progressByTarget = ref<Record<string, number>>({});
 
-  const activeTarget = computed(() => options.targets.value.find((target) => target.id === activeTargetId.value));
+  const activeTarget = computed(() =>
+    options.targets.value.find((target) => target.id === activeTargetId.value),
+  );
 
   function resetProgress(targetId?: string) {
     if (!targetId) {
@@ -148,8 +157,8 @@ export function useDwellSelection(options: {
   function chooseTarget(now: number) {
     if (now < cooldownUntil.value || !options.pointer.value.valid) return undefined;
     const containing = options.targets.value
-     .filter((target) => target.enabled !== false && containsPoint(target, options.pointer.value))
-     .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+      .filter((target) => target.enabled !== false && containsPoint(target, options.pointer.value))
+      .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
     return containing[0];
   }
 
@@ -199,6 +208,6 @@ export function useDwellSelection(options: {
     activeTarget,
     progressByTarget,
     tick,
-    resetProgress
+    resetProgress,
   };
 }

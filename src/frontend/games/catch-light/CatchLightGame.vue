@@ -7,7 +7,13 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { disposeCatchLightPiano, playCatchLightCue, setCatchLightPianoActive, tickCatchLightPiano, warmCatchLightPiano } from "./audio";
+import {
+  disposeCatchLightPiano,
+  playCatchLightCue,
+  setCatchLightPianoActive,
+  tickCatchLightPiano,
+  warmCatchLightPiano,
+} from "./audio";
 
 type LightZone = {
   id: string;
@@ -22,10 +28,26 @@ type LightTrail = LightZone & {
 };
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSessionFor("catch-light", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("catch-light", {
   maxSteps: 9,
-  overrides: { preset: "gentle", targetScale: 1.6, motionSpeed: 0.36, distractors: "none", hints: "high", sound: true },
-  finishOnMistakes: false
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.6,
+    motionSpeed: 0.36,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
+  finishOnMistakes: false,
 });
 useStartPromptAudio({ gameId: "catch-light", soundEnabled: toRef(session.settings, "sound") });
 
@@ -38,7 +60,7 @@ const zones: LightZone[] = [
   { id: "lower-left", label: "слева снизу", x: 30, y: 76, hue: 286 },
   { id: "lower-right", label: "справа снизу", x: 70, y: 76, hue: 326 },
   { id: "low-center", label: "снизу", x: 50, y: 80, hue: 120 },
-  { id: "high-center", label: "сверху", x: 50, y: 34, hue: 34 }
+  { id: "high-center", label: "сверху", x: 50, y: 34, hue: 34 },
 ];
 
 const zoneIndex = ref(0);
@@ -48,7 +70,7 @@ const activeZone = computed(() => zones[zoneIndex.value]);
 const targetId = computed(() => `catch-light:${session.step + 1}:${activeZone.value.id}`);
 const targetStyle = computed(() => ({
   insetInlineStart: `${activeZone.value.x}%`,
-  insetBlockStart: `${activeZone.value.y}%`
+  insetBlockStart: `${activeZone.value.y}%`,
 }));
 const targetTone = computed(() => `hsl(${activeZone.value.hue} 100% 72%)`);
 
@@ -82,9 +104,12 @@ onMounted(() => {
   setCatchLightPianoActive(session.settings.sound, session.status === "running");
 });
 
-watch(() => session.status, (status) => {
-  setCatchLightPianoActive(session.settings.sound, status === "running");
-});
+watch(
+  () => session.status,
+  (status) => {
+    setCatchLightPianoActive(session.settings.sound, status === "running");
+  },
+);
 
 onUnmounted(() => {
   disposeCatchLightPiano();
@@ -111,7 +136,11 @@ onUnmounted(() => {
         v-for="mark in trail"
         :key="mark.trailId"
         class="catch-light-trail"
-        :style="{ insetInlineStart: `${mark.x}%`, insetBlockStart: `${mark.y}%`, '--trail-color': `hsl(${mark.hue} 100% 76%)` }"
+        :style="{
+          'insetInlineStart': `${mark.x}%`,
+          'insetBlockStart': `${mark.y}%`,
+          '--trail-color': `hsl(${mark.hue} 100% 76%)`,
+        }"
         aria-hidden="true"
       />
 
@@ -170,7 +199,9 @@ onUnmounted(() => {
   inline-size: clamp(11.25rem, 22vw, 14.375rem);
   position: absolute;
   transform: translate(-50%, -50%);
-  transition: inset-block-start 760ms ease-in-out, inset-inline-start 760ms ease-in-out;
+  transition:
+    inset-block-start 760ms ease-in-out,
+    inset-inline-start 760ms ease-in-out;
 }
 
 .catch-light-orb {
@@ -184,7 +215,12 @@ onUnmounted(() => {
 }
 
 .catch-light-orb::before {
-  background: radial-gradient(circle, var(--light-color) 0%, rgb(255 255 255 / 80%) 38%, rgb(255 235 157 / 0%) 72%);
+  background: radial-gradient(
+    circle,
+    var(--light-color) 0%,
+    rgb(255 255 255 / 80%) 38%,
+    rgb(255 235 157 / 0%) 72%
+  );
   border-radius: 999px;
   content: "";
   filter: blur(2px);
@@ -192,7 +228,9 @@ onUnmounted(() => {
   opacity: calc(0.62 + (var(--light-progress) * 0.32));
   position: absolute;
   transform: scale(calc(0.88 + (var(--light-progress) * 0.18)));
-  transition: opacity 180ms ease, transform 180ms ease;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
   z-index: -1;
 }
 
@@ -208,7 +246,12 @@ onUnmounted(() => {
 }
 
 .catch-light-trail {
-  background: radial-gradient(circle, var(--trail-color) 0%, rgb(255 255 255 / 40%) 35%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    var(--trail-color) 0%,
+    rgb(255 255 255 / 40%) 35%,
+    transparent 70%
+  );
   block-size: clamp(3.5rem, 10vw, 6rem);
   border-radius: 999px;
   filter: blur(1px);

@@ -3,12 +3,21 @@ import { describe, expect, it } from "vitest";
 import type { AppMetadata, SpoolRecord } from "./types";
 import { projectV2Record } from "./v2";
 
-const app: AppMetadata = { version: "1.0.0", build: "1.0.0", platform: "linux", os_version: "1.0", locale: "de-DE" };
+const app: AppMetadata = {
+  version: "1.0.0",
+  build: "1.0.0",
+  platform: "linux",
+  os_version: "1.0",
+  locale: "de-DE",
+};
 
 describe("V2 telemetry projection", () => {
   it("normalizes app navigation and locale without free-form values", () => {
     const projected = projectV2Record(event("page_viewed", { page: "start" }));
-    expect(projected).toMatchObject({ stream: "common", value: { kind: "page_viewed", page: "home", app: { locale: "other" } } });
+    expect(projected).toMatchObject({
+      stream: "common",
+      value: { kind: "page_viewed", page: "home", app: { locale: "other" } },
+    });
   });
 
   it("preserves mixed input and real session outcome aggregates", () => {
@@ -33,13 +42,20 @@ describe("V2 telemetry projection", () => {
         mistake_count: 2,
         hint_count: 3,
         result: "lost",
-        app
-      }
+        app,
+      },
     };
 
     expect(projectV2Record(record)).toMatchObject({
       stream: "plays",
-      value: { kind: "session_finished", input_method: "mixed", outcome: "lost", success_count: 1, mistake_count: 2, hint_count: 3 }
+      value: {
+        kind: "session_finished",
+        input_method: "mixed",
+        outcome: "lost",
+        success_count: 1,
+        mistake_count: 2,
+        hint_count: 3,
+      },
     });
   });
 
@@ -62,11 +78,14 @@ describe("V2 telemetry projection", () => {
         success_count: 0,
         mistake_count: 0,
         hint_count: 0,
-        app
-      }
+        app,
+      },
     };
 
-    expect(projectV2Record(record)).toMatchObject({ stream: "plays", value: { game_category: "unknown", input_method: "unknown" } });
+    expect(projectV2Record(record)).toMatchObject({
+      stream: "plays",
+      value: { game_category: "unknown", input_method: "unknown" },
+    });
   });
 
   it("canonicalizes renderer UUIDs before strict backend validation", () => {
@@ -89,8 +108,8 @@ describe("V2 telemetry projection", () => {
         success_count: 0,
         mistake_count: 0,
         hint_count: 0,
-        app
-      }
+        app,
+      },
     };
 
     const projected = projectV2Record(record)?.value;
@@ -107,6 +126,13 @@ function event(eventName: "page_viewed", properties: Record<string, unknown>): S
     createdAt: Date.now(),
     kind: "event",
     priority: "normal",
-    payload: { event_id: id, event_name: eventName, occurred_at: new Date().toISOString(), app_session_id: randomUUID(), app, properties }
+    payload: {
+      event_id: id,
+      event_name: eventName,
+      occurred_at: new Date().toISOString(),
+      app_session_id: randomUUID(),
+      app,
+      properties,
+    },
   };
 }

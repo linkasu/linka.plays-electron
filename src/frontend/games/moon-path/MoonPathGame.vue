@@ -8,7 +8,13 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { ambientStepTargetMs } from "../../core/ambientProgress";
-import { disposeMoonPathPiano, playMoonPathCue, setMoonPathPianoActive, tickMoonPathPiano, warmMoonPathPiano } from "./audio";
+import {
+  disposeMoonPathPiano,
+  playMoonPathCue,
+  setMoonPathPianoActive,
+  tickMoonPathPiano,
+  warmMoonPathPiano,
+} from "./audio";
 
 type Point = { x: number; y: number };
 type Star = Point & {
@@ -33,11 +39,28 @@ type MoonGlow = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("moon-path", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("moon-path", {
   maxSteps: 8,
-  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.42, distractors: "none", hints: "high", sound: true },
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.55,
+    motionSpeed: 0.42,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 useStartPromptAudio({ gameId: "moon-path", soundEnabled: toRef(session.settings, "sound") });
 
@@ -68,7 +91,7 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
@@ -96,7 +119,7 @@ function initScene() {
       y: randomRange(0, window.innerHeight * 0.44),
       radius: randomRange(0.7, 2.1),
       alpha: randomRange(0.16, 0.56),
-      twinkle: randomRange(0, Math.PI * 2)
+      twinkle: randomRange(0, Math.PI * 2),
     });
   }
 
@@ -107,20 +130,26 @@ function initScene() {
       amplitude: randomRange(5, 18),
       speed: randomRange(0.00018, 0.00038),
       phase: randomRange(0, Math.PI * 2),
-      alpha: randomRange(0.05, 0.14)
+      alpha: randomRange(0.05, 0.14),
     });
   }
 }
 
 function pathCenterX(y: number, now: number) {
-  const depth = Math.max(0, Math.min(1, (y - waterTop()) / Math.max(1, window.innerHeight - waterTop())));
+  const depth = Math.max(
+    0,
+    Math.min(1, (y - waterTop()) / Math.max(1, window.innerHeight - waterTop())),
+  );
   const drift = Math.sin(depth * Math.PI * 2.15 + now * 0.00032) * window.innerWidth * 0.035;
   const slowDrift = Math.sin(depth * Math.PI * 0.9 + now * 0.00012) * window.innerWidth * 0.045;
   return window.innerWidth * 0.5 + drift + slowDrift;
 }
 
 function pathWidth(y: number) {
-  const depth = Math.max(0, Math.min(1, (y - waterTop()) / Math.max(1, window.innerHeight - waterTop())));
+  const depth = Math.max(
+    0,
+    Math.min(1, (y - waterTop()) / Math.max(1, window.innerHeight - waterTop())),
+  );
   const nearHorizon = 46 + window.innerWidth * 0.04;
   const nearViewer = Math.min(420, window.innerWidth * 0.46);
   return nearHorizon + (nearViewer - nearHorizon) * depth;
@@ -149,7 +178,7 @@ function recordPathStep(now: number) {
     dwellMs: stepTargetMs(),
     elapsedMs,
     progress: 1,
-    pointer: copyPointer()
+    pointer: copyPointer(),
   });
   recordSuccess({ targetId, mode: "ambient-moon-path" });
   playMoonPathCue(session.settings.sound);
@@ -169,7 +198,7 @@ function startIllumination(now: number) {
     targetId: `moon-path-${session.step + 1}`,
     at: Date.now(),
     dwellMs: stepTargetMs(),
-    pointer: copyPointer()
+    pointer: copyPointer(),
   });
 }
 
@@ -180,7 +209,7 @@ function pauseIllumination() {
     at: Date.now(),
     progress: Math.min(1, illuminatedMs / Math.max(1, (session.step + 1) * stepTargetMs())),
     pointer: copyPointer(),
-    reason: "invalid-gaze"
+    reason: "invalid-gaze",
   });
   wasIlluminating = false;
   activeSegmentStartedAt = 0;
@@ -195,7 +224,7 @@ function addGlow(now: number, point: Point) {
     age: 0,
     life: randomRange(2.8, 4.2),
     radius: randomRange(96, 154) * session.settings.targetScale,
-    phase: randomRange(0, Math.PI * 2)
+    phase: randomRange(0, Math.PI * 2),
   });
   if (glows.length > 42) glows.shift();
 }
@@ -316,12 +345,14 @@ function drawMoonPath(context: CanvasRenderingContext2D, now: number) {
     for (let index = 0; index <= segments; index += 1) {
       const depth = index / segments;
       const y = waterTop() + depth * (window.innerHeight - waterTop());
-      const x = pathCenterX(y, now) + Math.sin(depth * 15 + now * 0.00045 + layer) * pathWidth(y) * 0.03;
+      const x =
+        pathCenterX(y, now) + Math.sin(depth * 15 + now * 0.00045 + layer) * pathWidth(y) * 0.03;
       if (index === 0) context.moveTo(x, y);
       else context.lineTo(x, y);
     }
     context.strokeStyle = `rgba(198, 220, 255, ${0.15 - layer * 0.018})`;
-    context.lineWidth = Math.max(18, window.innerWidth * 0.028) + layer * Math.max(18, window.innerWidth * 0.028);
+    context.lineWidth =
+      Math.max(18, window.innerWidth * 0.028) + layer * Math.max(18, window.innerWidth * 0.028);
     context.stroke();
   }
 
@@ -334,7 +365,15 @@ function drawMoonPath(context: CanvasRenderingContext2D, now: number) {
     context.globalAlpha = (0.08 + shimmer * 0.22) * (1 - depth * 0.12);
     context.fillStyle = "#eef5ff";
     context.beginPath();
-    context.ellipse(x, y, 8 + depth * 18, 1.2 + depth * 2.8, Math.sin(index) * 0.18, 0, Math.PI * 2);
+    context.ellipse(
+      x,
+      y,
+      8 + depth * 18,
+      1.2 + depth * 2.8,
+      Math.sin(index) * 0.18,
+      0,
+      Math.PI * 2,
+    );
     context.fill();
   }
 
@@ -420,7 +459,8 @@ function draw(context: CanvasRenderingContext2D, now: number) {
 }
 
 function tick(now: number) {
-  const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+  const delta =
+    session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
 
   if (session.status === "running") {
@@ -505,5 +545,4 @@ onUnmounted(() => {
   inset: 0;
   position: absolute;
 }
-
 </style>

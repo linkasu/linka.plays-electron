@@ -9,7 +9,13 @@ import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { adaptiveGazeHitRadius } from "../../core/gazeTarget";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels } from "../../core/placement";
-import { disposeStarrySkyPiano, playStarrySkyCue, setStarrySkyPianoActive, tickStarrySkyPiano, warmStarrySkyPiano } from "./audio";
+import {
+  disposeStarrySkyPiano,
+  playStarrySkyCue,
+  setStarrySkyPianoActive,
+  tickStarrySkyPiano,
+  warmStarrySkyPiano,
+} from "./audio";
 import { effectiveStarDwellMs as calculateEffectiveDwellMs } from "./model";
 
 type Point = { x: number; y: number };
@@ -53,9 +59,17 @@ const constellationBlueprints = [
       { x: 31.4, y: 57.9 },
       { x: 67.7, y: 48.2 },
       { x: 85.7, y: 52.6 },
-      { x: 100, y: 76.7 }
+      { x: 100, y: 76.7 },
     ],
-    links: [[0, 1], [1, 2], [2, 3], [3, 0], [0, 4], [4, 5], [5, 6]]
+    links: [
+      [0, 1],
+      [1, 2],
+      [2, 3],
+      [3, 0],
+      [0, 4],
+      [4, 5],
+      [5, 6],
+    ],
   },
   {
     id: "cassiopeia",
@@ -67,9 +81,14 @@ const constellationBlueprints = [
       { x: 72.8, y: 49 },
       { x: 45.2, y: 45.3 },
       { x: 29.8, y: 77.2 },
-      { x: 0, y: 57.3 }
+      { x: 0, y: 57.3 },
     ],
-    links: [[0, 1], [1, 2], [2, 3], [3, 4]]
+    links: [
+      [0, 1],
+      [1, 2],
+      [2, 3],
+      [3, 4],
+    ],
   },
   {
     id: "orion",
@@ -88,9 +107,22 @@ const constellationBlueprints = [
       { x: 62, y: 69.4 },
       { x: 36.1, y: 94.2 },
       { x: 45.9, y: 71.2 },
-      { x: 68.9, y: 100 }
+      { x: 68.9, y: 100 },
     ],
-    links: [[0, 1], [1, 2], [2, 3], [0, 4], [4, 5], [5, 6], [1, 7], [7, 8], [8, 2], [9, 10], [10, 7], [8, 11]]
+    links: [
+      [0, 1],
+      [1, 2],
+      [2, 3],
+      [0, 4],
+      [4, 5],
+      [5, 6],
+      [1, 7],
+      [7, 8],
+      [8, 2],
+      [9, 10],
+      [10, 7],
+      [8, 11],
+    ],
   },
   {
     id: "cygnus",
@@ -106,20 +138,50 @@ const constellationBlueprints = [
       { x: 6.6, y: 0 },
       { x: 69.8, y: 31.8 },
       { x: 36, y: 72 },
-      { x: 16.8, y: 100 }
+      { x: 16.8, y: 100 },
     ],
-    links: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [6, 2], [2, 7], [7, 8]]
-  }
+    links: [
+      [0, 1],
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+      [6, 2],
+      [2, 7],
+      [7, 8],
+    ],
+  },
 ] as const;
 
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("starry-sky", {
-  maxSteps: constellationBlueprints.reduce((sum, constellation) => sum + constellation.points.length, 0),
-  overrides: { preset: "gentle", targetScale: 1.45, motionSpeed: 0.2, distractors: "none", hints: "high", sound: true },
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  finishSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("starry-sky", {
+  maxSteps: constellationBlueprints.reduce(
+    (sum, constellation) => sum + constellation.points.length,
+    0,
+  ),
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.45,
+    motionSpeed: 0.2,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 useStartPromptAudio({ gameId: "starry-sky", soundEnabled: toRef(session.settings, "sound") });
 
@@ -154,7 +216,7 @@ function constellationToPixels(point: Point) {
   const scale = constellationFrameScale();
   return {
     x: window.innerWidth * 0.5 + (point.x - 50) * scale,
-    y: window.innerHeight * 0.58 + (point.y - 50) * scale
+    y: window.innerHeight * 0.58 + (point.y - 50) * scale,
   };
 }
 
@@ -183,8 +245,8 @@ function createConstellations() {
         phase: "waiting",
         dwellProgress: 0,
         age: randomRange(0, 6),
-        twinkleSeed: randomRange(0, Math.PI * 2)
-      }))
+        twinkleSeed: randomRange(0, Math.PI * 2),
+      })),
     });
   }
 }
@@ -198,14 +260,17 @@ function updateConstellationRadii() {
 
 function initDustStars() {
   dustStars.splice(0);
-  const count = Math.min(130, Math.max(58, Math.round((window.innerWidth * window.innerHeight) / 9000)));
+  const count = Math.min(
+    130,
+    Math.max(58, Math.round((window.innerWidth * window.innerHeight) / 9000)),
+  );
   for (let index = 0; index < count; index++) {
     dustStars.push({
       x: randomRange(2, 98),
       y: randomRange(13, 95),
       size: randomRange(0.65, 2),
       alpha: randomRange(0.14, 0.48),
-      twinkleSeed: randomRange(0, Math.PI * 2)
+      twinkleSeed: randomRange(0, Math.PI * 2),
     });
   }
 }
@@ -239,11 +304,17 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
-function targetPayload(star: ConstellationStar, now: number, progress: number, constellation: Constellation, reason?: "left" | "invalid-gaze") {
+function targetPayload(
+  star: ConstellationStar,
+  now: number,
+  progress: number,
+  constellation: Constellation,
+  reason?: "left" | "invalid-gaze",
+) {
   return {
     targetId: star.id,
     constellationId: constellation.id,
@@ -253,11 +324,16 @@ function targetPayload(star: ConstellationStar, now: number, progress: number, c
     elapsedMs: star.enteredAt === undefined ? 0 : now - star.enteredAt,
     progress,
     pointer: copyPointer(),
-    reason
+    reason,
   };
 }
 
-function cancelStar(star: ConstellationStar, now: number, constellation: Constellation, reason: "left" | "invalid-gaze") {
+function cancelStar(
+  star: ConstellationStar,
+  now: number,
+  constellation: Constellation,
+  reason: "left" | "invalid-gaze",
+) {
   recordEvent("target-cancel", targetPayload(star, now, star.dwellProgress, constellation, reason));
   star.enteredAt = undefined;
   star.dwellProgress = 0;
@@ -278,7 +354,11 @@ function completedConstellation(constellation: Constellation) {
 
 function lightStar(star: ConstellationStar, now: number, constellation: Constellation) {
   recordEvent("target-click", targetPayload(star, now, 1, constellation));
-  recordSuccess({ targetId: star.id, constellationId: constellation.id, constellationName: constellation.name });
+  recordSuccess({
+    targetId: star.id,
+    constellationId: constellation.id,
+    constellationName: constellation.name,
+  });
   playStarrySkyCue(session.settings.sound);
 
   star.phase = "lit";
@@ -317,7 +397,8 @@ function updateActiveStar(now: number) {
   const inside = pointer.value.valid && distance(point, pointer.value) <= hitRadius;
 
   if (!inside) {
-    if (star.enteredAt !== undefined) cancelStar(star, now, constellation, pointer.value.valid ? "left" : "invalid-gaze");
+    if (star.enteredAt !== undefined)
+      cancelStar(star, now, constellation, pointer.value.valid ? "left" : "invalid-gaze");
     return;
   }
 
@@ -347,7 +428,14 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
   context.fillStyle = sky;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-  const moon = context.createRadialGradient(window.innerWidth * 0.77, window.innerHeight * 0.2, 0, window.innerWidth * 0.77, window.innerHeight * 0.2, Math.max(window.innerWidth, window.innerHeight) * 0.35);
+  const moon = context.createRadialGradient(
+    window.innerWidth * 0.77,
+    window.innerHeight * 0.2,
+    0,
+    window.innerWidth * 0.77,
+    window.innerHeight * 0.2,
+    Math.max(window.innerWidth, window.innerHeight) * 0.35,
+  );
   moon.addColorStop(0, "rgb(218 226 255 / 16%)");
   moon.addColorStop(0.36, "rgb(140 154 228 / 7%)");
   moon.addColorStop(1, "rgb(15 16 42 / 0%)");
@@ -367,7 +455,13 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
   context.restore();
 }
 
-function drawConstellationLine(context: CanvasRenderingContext2D, from: ConstellationStar, to: ConstellationStar, hue: number, active: boolean) {
+function drawConstellationLine(
+  context: CanvasRenderingContext2D,
+  from: ConstellationStar,
+  to: ConstellationStar,
+  hue: number,
+  active: boolean,
+) {
   const start = constellationToPixels(from);
   const end = constellationToPixels(to);
   context.save();
@@ -388,7 +482,12 @@ function drawConstellationLine(context: CanvasRenderingContext2D, from: Constell
   context.restore();
 }
 
-function drawGuideLine(context: CanvasRenderingContext2D, from: ConstellationStar, to: ConstellationStar, hue: number) {
+function drawGuideLine(
+  context: CanvasRenderingContext2D,
+  from: ConstellationStar,
+  to: ConstellationStar,
+  hue: number,
+) {
   const start = constellationToPixels(from);
   const end = constellationToPixels(to);
   context.save();
@@ -403,7 +502,12 @@ function drawGuideLine(context: CanvasRenderingContext2D, from: ConstellationSta
   context.restore();
 }
 
-function drawStar(context: CanvasRenderingContext2D, star: ConstellationStar, hue: number, isActive: boolean) {
+function drawStar(
+  context: CanvasRenderingContext2D,
+  star: ConstellationStar,
+  hue: number,
+  isActive: boolean,
+) {
   const point = constellationToPixels(star);
   const pulse = 0.5 + Math.sin(star.age * 1.08 + star.twinkleSeed) * 0.5;
   const lit = star.phase === "lit" ? 1 : 0;
@@ -412,7 +516,14 @@ function drawStar(context: CanvasRenderingContext2D, star: ConstellationStar, hu
 
   context.save();
   context.globalCompositeOperation = "lighter";
-  const halo = context.createRadialGradient(point.x, point.y, 0, point.x, point.y, glowRadius * 2.2);
+  const halo = context.createRadialGradient(
+    point.x,
+    point.y,
+    0,
+    point.x,
+    point.y,
+    glowRadius * 2.2,
+  );
   halo.addColorStop(0, `hsla(${hue}, 100%, 90%, ${0.12 + gaze * 0.24 + lit * 0.18})`);
   halo.addColorStop(0.46, `hsla(${hue}, 92%, 66%, ${0.08 + gaze * 0.12 + lit * 0.1})`);
   halo.addColorStop(1, `hsla(${hue}, 82%, 52%, 0)`);
@@ -443,12 +554,25 @@ function drawStar(context: CanvasRenderingContext2D, star: ConstellationStar, hu
   context.lineTo(point.x, point.y + star.radius * (0.15 + lit * 0.08));
   context.stroke();
 
-  const core = context.createRadialGradient(point.x, point.y, 0, point.x, point.y, Math.max(10, star.radius * 0.18));
+  const core = context.createRadialGradient(
+    point.x,
+    point.y,
+    0,
+    point.x,
+    point.y,
+    Math.max(10, star.radius * 0.18),
+  );
   core.addColorStop(0, `hsla(${hue}, 100%, 97%, ${0.86 + lit * 0.1})`);
   core.addColorStop(1, `hsla(${hue}, 96%, 74%, 0)`);
   context.fillStyle = core;
   context.beginPath();
-  context.arc(point.x, point.y, Math.max(7, star.radius * (0.11 + gaze * 0.035 + lit * 0.03)), 0, Math.PI * 2);
+  context.arc(
+    point.x,
+    point.y,
+    Math.max(7, star.radius * (0.11 + gaze * 0.035 + lit * 0.03)),
+    0,
+    Math.PI * 2,
+  );
   context.fill();
   context.restore();
 }
@@ -482,7 +606,12 @@ function constellationOpacity(constellation: Constellation, now: number) {
   return Math.max(0, 1 - (now - constellation.completedAt) / constellationFadeMs);
 }
 
-function drawConstellation(context: CanvasRenderingContext2D, constellation: Constellation, index: number, now: number) {
+function drawConstellation(
+  context: CanvasRenderingContext2D,
+  constellation: Constellation,
+  index: number,
+  now: number,
+) {
   context.save();
   context.globalAlpha = constellationOpacity(constellation, now);
   const isActiveConstellation = index === activeConstellationIndex && nextConstellationAt === 0;
@@ -490,17 +619,37 @@ function drawConstellation(context: CanvasRenderingContext2D, constellation: Con
     const from = constellation.stars[fromIndex];
     const to = constellation.stars[toIndex];
     if (from.phase === "lit" && to.phase === "lit") {
-      drawConstellationLine(context, from, to, constellation.hue, index === activeConstellationIndex);
-    } else if (isActiveConstellation && (fromIndex === activeStarIndex || toIndex === activeStarIndex)) {
+      drawConstellationLine(
+        context,
+        from,
+        to,
+        constellation.hue,
+        index === activeConstellationIndex,
+      );
+    } else if (
+      isActiveConstellation &&
+      (fromIndex === activeStarIndex || toIndex === activeStarIndex)
+    ) {
       const linkedStar = fromIndex === activeStarIndex ? to : from;
-      if (linkedStar.phase === "lit") drawGuideLine(context, linkedStar, fromIndex === activeStarIndex ? from : to, constellation.hue);
+      if (linkedStar.phase === "lit")
+        drawGuideLine(
+          context,
+          linkedStar,
+          fromIndex === activeStarIndex ? from : to,
+          constellation.hue,
+        );
     }
   }
 
   for (let starIndex = 0; starIndex < constellation.stars.length; starIndex++) {
     const star = constellation.stars[starIndex];
     if (index < activeConstellationIndex || starIndex <= activeStarIndex || star.phase === "lit") {
-      drawStar(context, star, constellation.hue, isActiveConstellation && starIndex === activeStarIndex);
+      drawStar(
+        context,
+        star,
+        constellation.hue,
+        isActiveConstellation && starIndex === activeStarIndex,
+      );
     }
   }
 
@@ -515,7 +664,8 @@ function draw(context: CanvasRenderingContext2D, now: number) {
 }
 
 function tick(now: number) {
-  const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+  const delta =
+    session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
 
   if (session.status === "running") {

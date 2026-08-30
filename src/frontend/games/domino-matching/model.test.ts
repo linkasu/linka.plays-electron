@@ -1,6 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { settingsFromPreset } from "../../core/settings";
-import { dominoTiles, drawPlayerTile, getOpenEnds, getPlayablePlacements, hasPlayableMove, passPlayerTurn, playPlayerTile, runBotTurn, startDominoGame, type DominoGameState, type DominoTile } from "./model";
+import {
+  dominoTiles,
+  drawPlayerTile,
+  getOpenEnds,
+  getPlayablePlacements,
+  hasPlayableMove,
+  passPlayerTurn,
+  playPlayerTile,
+  runBotTurn,
+  startDominoGame,
+  type DominoGameState,
+  type DominoTile,
+} from "./model";
 
 function randomFrom(values: number[]) {
   let index = 0;
@@ -19,7 +31,7 @@ function stateWith(overrides: Partial<DominoGameState>): DominoGameState {
     boneyard: [],
     status: "playing",
     lastMessage: "",
-   ...overrides
+    ...overrides,
   };
 }
 
@@ -33,8 +45,14 @@ describe("domino-matching model", () => {
 
   it("deals preset-sized hands and leaves a boneyard", () => {
     const gentle = startDominoGame(settingsFromPreset("gentle"), randomFrom([0.1, 0.2, 0.3, 0.4]));
-    const standard = startDominoGame(settingsFromPreset("standard"), randomFrom([0.1, 0.2, 0.3, 0.4]));
-    const challenge = startDominoGame(settingsFromPreset("challenge"), randomFrom([0.1, 0.2, 0.3, 0.4]));
+    const standard = startDominoGame(
+      settingsFromPreset("standard"),
+      randomFrom([0.1, 0.2, 0.3, 0.4]),
+    );
+    const challenge = startDominoGame(
+      settingsFromPreset("challenge"),
+      randomFrom([0.1, 0.2, 0.3, 0.4]),
+    );
 
     expect(gentle.playerHand).toHaveLength(4);
     expect(standard.playerHand).toHaveLength(5);
@@ -44,10 +62,18 @@ describe("domino-matching model", () => {
   });
 
   it("keeps deterministic deals when random is injected", () => {
-    const first = startDominoGame(settingsFromPreset("standard"), randomFrom([0, 0.2, 0.4, 0.6, 0.8]));
-    const second = startDominoGame(settingsFromPreset("standard"), randomFrom([0, 0.2, 0.4, 0.6, 0.8]));
+    const first = startDominoGame(
+      settingsFromPreset("standard"),
+      randomFrom([0, 0.2, 0.4, 0.6, 0.8]),
+    );
+    const second = startDominoGame(
+      settingsFromPreset("standard"),
+      randomFrom([0, 0.2, 0.4, 0.6, 0.8]),
+    );
 
-    expect(second.playerHand.map((item) => item.id)).toEqual(first.playerHand.map((item) => item.id));
+    expect(second.playerHand.map((item) => item.id)).toEqual(
+      first.playerHand.map((item) => item.id),
+    );
   });
 
   it("finds playable placements on both board ends", () => {
@@ -55,15 +81,20 @@ describe("domino-matching model", () => {
 
     expect(getOpenEnds(state)).toEqual({ leftEnd: 2, rightEnd: 4 });
     expect(getPlayablePlacements(tile(1, 2), state)).toEqual([{ side: "left", left: 1, right: 2 }]);
-    expect(getPlayablePlacements(tile(4, 6), state)).toEqual([{ side: "right", left: 4, right: 6 }]);
-    expect(getPlayablePlacements(tile(2, 4), state).map((item) => item.side)).toEqual(["left", "right"]);
+    expect(getPlayablePlacements(tile(4, 6), state)).toEqual([
+      { side: "right", left: 4, right: 6 },
+    ]);
+    expect(getPlayablePlacements(tile(2, 4), state).map((item) => item.side)).toEqual([
+      "left",
+      "right",
+    ]);
   });
 
   it("places a player tile and lets the bot answer", () => {
     const state = stateWith({
       playerHand: [tile(1, 2), tile(0, 0)],
       botHand: [tile(4, 5)],
-      boneyard: [tile(0, 0)]
+      boneyard: [tile(0, 0)],
     });
 
     const result = playPlayerTile(state, "1-2", "left");
@@ -112,7 +143,7 @@ describe("domino-matching model", () => {
     const state = stateWith({
       playerHand: [tile(0, 1)],
       botHand: [tile(4, 5), tile(5, 6)],
-      boneyard: []
+      boneyard: [],
     });
     const result = passPlayerTurn(state);
 
@@ -127,7 +158,7 @@ describe("domino-matching model", () => {
     const state = stateWith({
       playerHand: [tile(0, 1)],
       botHand: [tile(5, 6)],
-      boneyard: []
+      boneyard: [],
     });
     const result = passPlayerTurn(state);
 
@@ -139,7 +170,7 @@ describe("domino-matching model", () => {
     const state = stateWith({
       playerHand: [tile(0, 1)],
       botHand: [tile(4, 5)],
-      boneyard: []
+      boneyard: [],
     });
     const result = passPlayerTurn(state);
 

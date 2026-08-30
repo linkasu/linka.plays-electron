@@ -9,38 +9,59 @@ import { useRoundGame } from "../../composables/useRoundGame";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { generateMatchSameRound, MATCH_SAME_PROMPT, type MatchSameRound } from "./model";
 
-const props = withDefaults(defineProps<{
-  gameId?: "match-same" | "who-is-this";
-  title?: string;
-}>(), {
-  gameId: "match-same",
-  title: MATCH_SAME_PROMPT
-});
+const props = withDefaults(
+  defineProps<{
+    gameId?: "match-same" | "who-is-this";
+    title?: string;
+  }>(),
+  {
+    gameId: "match-same",
+    title: MATCH_SAME_PROMPT,
+  },
+);
 
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor(props.gameId, {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  recordHint,
+  startSession,
+} = useGameSessionFor(props.gameId, {
   maxSteps: 8,
   overrides: { sound: true },
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
 const promptAudio = useGamePromptAudio({
   gameId: "match-same",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: ["match-same.prompt", "match-same.correct", "match-same.mistake"]
+  warmAssetIds: ["match-same.prompt", "match-same.correct", "match-same.mistake"],
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
 const hintedRoundId = ref<string>();
 const isSpeaking = ref(false);
 
-const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRoundGame,
+} = useRoundGame({
   session,
   startSession,
-  generateRound: (roundIndex) => generateMatchSameRound(session.settings, roundIndex)
+  generateRound: (roundIndex) => generateMatchSameRound(session.settings, roundIndex),
 });
 
-const hintedChoiceId = computed(() => hintedRoundId.value === round.value.roundId ? round.value.target.id : undefined);
+const hintedChoiceId = computed(() =>
+  hintedRoundId.value === round.value.roundId ? round.value.target.id : undefined,
+);
 
 function choiceTargetId(choiceId: string) {
   return `${props.gameId}:choice:${choiceId}`;
@@ -59,7 +80,14 @@ async function answer(choice: MatchSameRound["choices"][number]) {
 
   if (choice.id === round.value.target.id) {
     isSpeaking.value = true;
-    recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      answerId: choice.id,
+      expected: round.value.target.word,
+      actual: choice.word,
+      isCorrect: true,
+    });
     hintedRoundId.value = undefined;
     void pianoFeedback.playSuccess();
     await promptAudio.playSequenceAndWait(["match-same.correct"], 80);
@@ -73,7 +101,15 @@ async function answer(choice: MatchSameRound["choices"][number]) {
   }
 
   isSpeaking.value = true;
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.word, actual: choice.word, isCorrect: false });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    expectedTargetId,
+    answerId: choice.id,
+    expected: round.value.target.word,
+    actual: choice.word,
+    isCorrect: false,
+  });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "mistake" });
   hintedRoundId.value = round.value.roundId;
   void pianoFeedback.playMistake();
@@ -100,19 +136,53 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <GameSessionChrome :title="props.title" :session="session" :result-visible="resultVisible" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" gradient="linear-gradient(135deg, #f4f7ff 0%, #fff0e8 100%)" padding-top="5rem" @pause="pauseSession" @resume="resumeSession" @restart="restart">
+  <GameSessionChrome
+    :title="props.title"
+    :session="session"
+    :result-visible="resultVisible"
+    :duration-ms="durationMs"
+    :metrics="metrics"
+    :recommendation="recommendation"
+    gradient="linear-gradient(135deg, #f4f7ff 0%, #fff0e8 100%)"
+    padding-top="5rem"
+    @pause="pauseSession"
+    @resume="resumeSession"
+    @restart="restart"
+  >
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11">
           <v-card class="match-card pa-4 pa-md-6" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Найди такую же картинку</div>
             <div class="sample-card mx-auto mb-4 mb-md-6">
-              <GameWordImage class="sample-emoji" :word-id="round.target.id" :word="round.target.word" :emoji="round.target.emoji" />
+              <GameWordImage
+                class="sample-emoji"
+                :word-id="round.target.id"
+                :word="round.target.word"
+                :emoji="round.target.emoji"
+              />
             </div>
-            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-4 mb-md-6">{{ round.prompt }}</h1>
-            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="clamp(9.5rem, 22vh, 11rem)" :sm="3" :highlight-choice="(choice) => hintedChoiceId === choice.id" :color="(choice) => hintedChoiceId === choice.id ? 'primary' : 'surface'" @select="answer">
+            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-4 mb-md-6">
+              {{ round.prompt }}
+            </h1>
+            <GameChoiceCardGrid
+              :choices="round.choices"
+              :target-id="(choice) => choiceTargetId(choice.id)"
+              :disabled="session.status !== 'running' || isSpeaking"
+              :dwell-ms="session.settings.dwellMs"
+              min-height="clamp(9.5rem, 22vh, 11rem)"
+              :sm="3"
+              :highlight-choice="(choice) => hintedChoiceId === choice.id"
+              :color="(choice) => (hintedChoiceId === choice.id ? 'primary' : 'surface')"
+              @select="answer"
+            >
               <template #default="{ choice }">
-                <GameWordImage class="choice-emoji" :word-id="choice.id" :word="choice.word" :emoji="choice.emoji" />
+                <GameWordImage
+                  class="choice-emoji"
+                  :word-id="choice.id"
+                  :word="choice.word"
+                  :emoji="choice.emoji"
+                />
                 <div class="text-h6 text-md-h5 font-weight-bold mt-2">{{ choice.word }}</div>
               </template>
             </GameChoiceCardGrid>
@@ -150,20 +220,20 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
- .sample-card {
+  .sample-card {
     inline-size: min(10rem, 38vw);
     min-block-size: 6.25rem;
   }
 
- .sample-emoji {
+  .sample-emoji {
     font-size: clamp(4rem, min(10vw, 12vh), 6rem);
   }
 
- .match-card {
+  .match-card {
     padding-block: 1rem !important;
   }
 
- .match-card .text-overline {
+  .match-card .text-overline {
     display: none;
   }
 }

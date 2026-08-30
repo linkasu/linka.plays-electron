@@ -1,5 +1,12 @@
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { disposeTtsAssets, isTtsPlaybackActive, playTtsAsset, stopTtsPlayback, subscribeTtsPlayback, type TtsAsset } from "./ttsAudio";
+import {
+  disposeTtsAssets,
+  isTtsPlaybackActive,
+  playTtsAsset,
+  stopTtsPlayback,
+  subscribeTtsPlayback,
+  type TtsAsset,
+} from "./ttsAudio";
 
 class MockAudio extends EventTarget {
   static instances: MockAudio[] = [];
@@ -23,7 +30,7 @@ const asset: TtsAsset = {
   id: "test.prompt",
   game: "test",
   text: "Тест",
-  path: "/audio/test.mp3"
+  path: "/audio/test.mp3",
 };
 
 beforeEach(() => {

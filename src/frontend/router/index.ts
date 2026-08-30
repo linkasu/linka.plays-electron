@@ -144,7 +144,12 @@ import StartPage from "../pages/StartPage.vue";
 import TobiiCalibrationPage from "../pages/TobiiCalibrationPage.vue";
 import { games } from "../data/games";
 import { stopTtsPlayback } from "../core/ttsAudio";
-import { firstMenuCategory, firstMenuMode, rememberMenuCategory, rememberMenuMode } from "../core/menuMode";
+import {
+  firstMenuCategory,
+  firstMenuMode,
+  rememberMenuCategory,
+  rememberMenuMode,
+} from "../core/menuMode";
 
 const gameComponentsById: Record<string, Component> = {
   "aquarium": AquariumGame,
@@ -282,13 +287,13 @@ const gameComponentsById: Record<string, Component> = {
   "robot-vacuum": RobotVacuumGame,
   "garden-watering": GardenWateringGame,
   "space-orbit": SpaceOrbitGame,
-  "gaze-maze": GazeMazeGame
+  "gaze-maze": GazeMazeGame,
 };
 
 const gameRoutes = games.map((game) => ({
   path: game.route,
   name: game.id,
-  component: gameComponentsById[game.id] ?? PlannedGamePage
+  component: gameComponentsById[game.id] ?? PlannedGamePage,
 }));
 
 const router = createRouter({
@@ -299,9 +304,9 @@ const router = createRouter({
     { path: "/menu/self", name: "menu-self", component: SelfMenuPage },
     { path: "/gaze-debug", name: "gaze-debug", component: GazeDebugPage },
     { path: "/tobii-calibration", name: "tobii-calibration", component: TobiiCalibrationPage },
-   ...gameRoutes,
-    { path: "/games/:gameId", name: "planned-game", component: PlannedGamePage }
-  ]
+    ...gameRoutes,
+    { path: "/games/:gameId", name: "planned-game", component: PlannedGamePage },
+  ],
 });
 
 router.beforeEach((to) => {

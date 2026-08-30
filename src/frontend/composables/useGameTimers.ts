@@ -25,7 +25,11 @@ export function useGameTimers() {
 
   function setGameTimeout(callback: () => void, delayMs: number) {
     const timerId = nextTimerId++;
-    timers.set(timerId, { callback, remainingMs: Math.max(0, delayMs), startedAt: performance.now() });
+    timers.set(timerId, {
+      callback,
+      remainingMs: Math.max(0, delayMs),
+      startedAt: performance.now(),
+    });
     schedule(timerId);
     return timerId;
   }
@@ -54,23 +58,27 @@ export function useGameTimers() {
     timers.delete(timerId);
   }
 
-  const stopStatusWatch = watch(activeGameSessionStatus, (status, previousStatus) => {
-    if (status === "paused") {
-      const now = performance.now();
-      for (const timer of timers.values()) {
-        if (timer.nativeId === undefined) continue;
-        window.clearTimeout(timer.nativeId);
-        timer.nativeId = undefined;
-        timer.remainingMs = Math.max(0, timer.remainingMs - (now - timer.startedAt));
+  const stopStatusWatch = watch(
+    activeGameSessionStatus,
+    (status, previousStatus) => {
+      if (status === "paused") {
+        const now = performance.now();
+        for (const timer of timers.values()) {
+          if (timer.nativeId === undefined) continue;
+          window.clearTimeout(timer.nativeId);
+          timer.nativeId = undefined;
+          timer.remainingMs = Math.max(0, timer.remainingMs - (now - timer.startedAt));
+        }
+        return;
       }
-      return;
-    }
-    if (status === "running" && previousStatus === "paused") {
-      for (const timerId of timers.keys()) schedule(timerId);
-      return;
-    }
-    if (status === "finished" || status === "idle") clearGameTimers();
-  }, { flush: "sync" });
+      if (status === "running" && previousStatus === "paused") {
+        for (const timerId of timers.keys()) schedule(timerId);
+        return;
+      }
+      if (status === "finished" || status === "idle") clearGameTimers();
+    },
+    { flush: "sync" },
+  );
 
   const stopEpochWatch = watch(activeGameSessionEpoch, () => clearGameTimers(), { flush: "sync" });
 

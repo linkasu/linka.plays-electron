@@ -18,6 +18,8 @@
     "typecheck": "vue-tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.electron.json",
     "lint": "npm run lint:adaptive-layout",
     "lint:adaptive-layout": "node scripts/lint-adaptive-layout.mjs",
+    "format": "prettier --write \"**/*.{js,cjs,mjs,ts,vue,json,yml,yaml,md}\"",
+    "format:check": "prettier --check \"**/*.{js,cjs,mjs,ts,vue,json,yml,yaml,md}\"",
     "preview": "vite preview",
     "test:unit": "vitest run",
     "smoke:packaged-resources": "node scripts/ci/packaged-resources-smoke.js",
@@ -38,7 +40,8 @@
     "electron:build": "npm run build:native && npm run build && electron-builder",
     "electron:build:win": "npm run electron:build -- --win -p never",
     "electron:build:mac": "npm run electron:build -- --mac --arm64 -p never",
-    "electron:build:linux": "npm run electron:build -- --linux -p never"
+    "electron:build:linux": "npm run electron:build -- --linux -p never",
+    "prepare": "husky"
   },
   "dependencies": {
     "@linkasu/tobii-electron": "file:vendor/linkasu-tobii-electron-0.2.16.tgz",
@@ -61,7 +64,10 @@
     "electron-builder": "^26.0.12",
     "esbuild": "0.28.1",
     "happy-dom": "^20.10.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.4.1",
     "node-gyp": "^11.5.0",
+    "prettier": "^3.9.6",
     "typescript": "^5.9.3",
     "undici": "^6.27.0",
     "vite": "^7.3.6",
@@ -155,6 +161,11 @@
         "from": "./build/Release/connect_four_ai.node",
         "to": "native/connect_four_ai.node"
       }
+    ]
+  },
+  "lint-staged": {
+    "*.{js,cjs,mjs,ts,vue,json,yml,yaml,md}": [
+      "prettier --write"
     ]
   }
 }

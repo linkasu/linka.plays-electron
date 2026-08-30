@@ -7,21 +7,35 @@ import { FileTelemetrySpool } from "./spool";
 import type { AppMetadata, SpoolRecord, StoredTelemetryEvent } from "./types";
 
 const directories: string[] = [];
-const app: AppMetadata = { version: "1.0.0", build: "1.0.0", platform: "linux", os_version: "1.0", locale: "ru-RU" };
+const app: AppMetadata = {
+  version: "1.0.0",
+  build: "1.0.0",
+  platform: "linux",
+  os_version: "1.0",
+  locale: "ru-RU",
+};
 const subjectKey = "a".repeat(64);
 
+// The spool drops records older than `maximumRecordAgeMs` (30 days), so every
+// fixture timestamp has to be anchored to the current clock. A hardcoded date
+// makes this suite pass for thirty days and then fail forever, which is what
+// happened to the three getBatch tests after 2026-08-17.
+const recentIso = (msAgo = 0) => new Date(Date.now() - msAgo).toISOString();
+
 afterEach(async () => {
-  await Promise.all(directories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })));
+  await Promise.all(
+    directories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })),
+  );
 });
 
 function makeEvent(createdAt: number, priority: SpoolRecord["priority"] = "low"): SpoolRecord {
   const payload: StoredTelemetryEvent = {
     event_id: randomUUID(),
     event_name: "page_viewed",
-    occurred_at: "2026-07-18T10:00:00.000Z",
+    occurred_at: recentIso(),
     app_session_id: randomUUID(),
     app,
-    properties: { page: `page-${createdAt}-${"a".repeat(80)}` }
+    properties: { page: `page-${createdAt}-${"a".repeat(80)}` },
   };
   return { id: payload.event_id, createdAt, kind: "event", priority, payload };
 }
@@ -55,9 +69,17 @@ describe("FileTelemetrySpool", () => {
       kind: "summary",
       priority: "summary",
       payload: {
-        session_id: randomUUID(), session_type: "app", app_session_id: randomUUID(), started_at: "2026-07-18T10:00:00.000Z", ended_at: "2026-07-18T10:00:01.000Z",
-        duration_ms: 1000, success_count: 0, mistake_count: 0, hint_count: 0, app
-      }
+        session_id: randomUUID(),
+        session_type: "app",
+        app_session_id: randomUUID(),
+        started_at: recentIso(1000),
+        ended_at: recentIso(),
+        duration_ms: 1000,
+        success_count: 0,
+        mistake_count: 0,
+        hint_count: 0,
+        app,
+      },
     };
     await spool.enqueue(summary);
     for (let index = 3; index < 9; index += 1) await spool.enqueue(makeEvent(index, "low"));
@@ -77,7 +99,12 @@ describe("FileTelemetrySpool", () => {
     const batch = await spool.getBatch(subjectKey);
     expect(batch?.recordCount).toBe(500);
     expect(Buffer.byteLength(batch?.body ?? "", "utf8")).toBeLessThanOrEqual(512 * 1024);
-    expect(JSON.parse(batch?.body ?? "{}")).toMatchObject({ schema_version: 2, batch_id: batch?.batchId, scope: { product: "linka-plays", subject_key: subjectKey }, stream: "common" });
+    expect(JSON.parse(batch?.body ?? "{}")).toMatchObject({
+      schema_version: 2,
+      batch_id: batch?.batchId,
+      scope: { product: "linka-plays", subject_key: subjectKey },
+      stream: "common",
+    });
     expect(await spool.getBatch(subjectKey)).toEqual(batch);
   }, 15000);
 

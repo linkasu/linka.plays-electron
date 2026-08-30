@@ -11,14 +11,41 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { createInitialBoard, isSolved, moveTile, type SlidingPuzzleBoard } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("sliding-puzzle", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  finishSession,
+  recordSuccess,
+  recordMistake,
+  recordHint,
+  startSession,
+} = useGameSessionFor("sliding-puzzle", {
   maxSteps: 12,
-  overrides: { preset: "gentle", dwellMs: 1200, sessionSeconds: 180, targetScale: 1.2, sound: true },
+  overrides: {
+    preset: "gentle",
+    dwellMs: 1200,
+    sessionSeconds: 180,
+    targetScale: 1.2,
+    sound: true,
+  },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "sliding-puzzle", soundEnabled, warmAssetIds: ["sliding-puzzle.prompt", "sliding-puzzle.correct", "sliding-puzzle.mistake", "sliding-puzzle.complete"] });
+const promptAudio = useGamePromptAudio({
+  gameId: "sliding-puzzle",
+  soundEnabled,
+  warmAssetIds: [
+    "sliding-puzzle.prompt",
+    "sliding-puzzle.correct",
+    "sliding-puzzle.mistake",
+    "sliding-puzzle.complete",
+  ],
+});
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const board = ref<SlidingPuzzleBoard>(createInitialBoard());
@@ -54,7 +81,8 @@ async function chooseTile(tile: number, index: number) {
   if (!result.moved) {
     wrongIndex.value = index;
     movedIndex.value = undefined;
-    feedbackMessage.value = "Эта плитка не рядом с пустым местом. Найди соседа пустой клетки и попробуй другую.";
+    feedbackMessage.value =
+      "Эта плитка не рядом с пустым местом. Найди соседа пустой клетки и попробуй другую.";
     recordMistake({ targetId, answerId: tile, tileIndex: index, isCorrect: false });
     recordHint({ targetId, reason: "not-adjacent", text: "Найти плитку рядом с пустой клеткой." });
     isSpeaking.value = true;
@@ -70,12 +98,26 @@ async function chooseTile(tile: number, index: number) {
   clearHints();
   movedIndex.value = result.toIndex;
   const solvedAfterMove = isSolved(board.value);
-  feedbackMessage.value = solvedAfterMove ? "Пятнашки собраны. Отличная стратегия." : `Плитка ${tile} встала на пустое место. Ищи следующий соседний ход.`;
-  recordSuccess({ targetId, answerId: tile, fromIndex: result.fromIndex, toIndex: result.toIndex, isCorrect: true });
+  feedbackMessage.value = solvedAfterMove
+    ? "Пятнашки собраны. Отличная стратегия."
+    : `Плитка ${tile} встала на пустое место. Ищи следующий соседний ход.`;
+  recordSuccess({
+    targetId,
+    answerId: tile,
+    fromIndex: result.fromIndex,
+    toIndex: result.toIndex,
+    isCorrect: true,
+  });
 
   isSpeaking.value = true;
   void feedbackAudio.playSuccess();
-  await promptAudio.playSequenceAndWait(solvedAfterMove || finishedAfterSuccess ? ["sliding-puzzle.correct", "sliding-puzzle.complete"] : ["sliding-puzzle.correct"], 80, 170);
+  await promptAudio.playSequenceAndWait(
+    solvedAfterMove || finishedAfterSuccess
+      ? ["sliding-puzzle.correct", "sliding-puzzle.complete"]
+      : ["sliding-puzzle.correct"],
+    80,
+    170,
+  );
   if (solvedAfterMove) {
     finishSession("game-complete");
     isSpeaking.value = false;
@@ -121,33 +163,75 @@ onUnmounted(() => {
 
 <template>
   <div class="sliding-puzzle-shell">
-    <GameHud title="Пятнашки 3×3" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Пятнашки 3×3"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="8">
           <v-card class="pa-4 pa-md-7" color="rgba(255, 255, 255, 0.94)" rounded="xl" elevation="8">
-            <div class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-5">
+            <div
+              class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-5"
+            >
               <div>
-                <div class="text-overline text-secondary mb-1"> стратегия и зрительный поиск</div>
+                <div class="text-overline text-secondary mb-1">стратегия и зрительный поиск</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Пятнашки 3×3</h1>
-                <p class="text-body-1 text-medium-emphasis mb-0">Выбирай только плитку-соседа пустой клетки. Ошибка не завершает игру: правило можно проверить ещё раз.</p>
+                <p class="text-body-1 text-medium-emphasis mb-0">
+                  Выбирай только плитку-соседа пустой клетки. Ошибка не завершает игру: правило
+                  можно проверить ещё раз.
+                </p>
               </div>
               <v-avatar color="primary" rounded="xl" size="76">
                 <v-icon icon="mdi-puzzle-outline" size="46" />
               </v-avatar>
             </div>
 
-            <v-alert class="mb-5 text-body-1 font-weight-medium" :color="wrongIndex !== undefined ? 'primary' : solved ? 'success' : 'secondary'" icon="mdi-lightbulb-on-outline" rounded="xl" variant="tonal">
+            <v-alert
+              class="mb-5 text-body-1 font-weight-medium"
+              :color="wrongIndex !== undefined ? 'primary' : solved ? 'success' : 'secondary'"
+              icon="mdi-lightbulb-on-outline"
+              rounded="xl"
+              variant="tonal"
+            >
               {{ feedbackMessage }}
             </v-alert>
 
             <div class="puzzle-grid mx-auto" role="grid" aria-label="Поле пятнашек три на три">
-              <div v-for="(tile, index) in board" :key="`${tile}-${index}`" class="puzzle-cell" role="gridcell">
-                <v-card v-if="tile === 0" class="empty-tile" color="blue-grey-lighten-5" rounded="xl" variant="flat">
+              <div
+                v-for="(tile, index) in board"
+                :key="`${tile}-${index}`"
+                class="puzzle-cell"
+                role="gridcell"
+              >
+                <v-card
+                  v-if="tile === 0"
+                  class="empty-tile"
+                  color="blue-grey-lighten-5"
+                  rounded="xl"
+                  variant="flat"
+                >
                   <v-icon color="primary" icon="mdi-arrow-expand-all" size="42" />
                   <div class="text-caption font-weight-bold text-primary mt-1">пусто</div>
                 </v-card>
-                <GameDwellButton v-else :class="['tile-button', { 'tile-button--wrong': wrongIndex === index }]" :target-id="tileTargetId(tile, index)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="132" :color="tileColor(tile, index)" @select="chooseTile(tile, index)">
+                <GameDwellButton
+                  v-else
+                  :class="['tile-button', { 'tile-button--wrong': wrongIndex === index }]"
+                  :target-id="tileTargetId(tile, index)"
+                  :disabled="session.status !== 'running' || isSpeaking"
+                  :dwell-ms="session.settings.dwellMs"
+                  :min-height="132"
+                  :color="tileColor(tile, index)"
+                  @select="chooseTile(tile, index)"
+                >
                   <template #default>
                     <div class="tile-number">{{ tile }}</div>
                     <div class="tile-caption text-caption mt-1">плитка</div>
@@ -157,7 +241,14 @@ onUnmounted(() => {
             </div>
 
             <v-expand-transition>
-              <v-alert v-if="wrongIndex !== undefined" class="mt-5 text-h6" color="primary" icon="mdi-hand-pointing-up" rounded="xl" variant="tonal">
+              <v-alert
+                v-if="wrongIndex !== undefined"
+                class="mt-5 text-h6"
+                color="primary"
+                icon="mdi-hand-pointing-up"
+                rounded="xl"
+                variant="tonal"
+              >
                 Найди плитку, которая касается пустого места стороной.
               </v-alert>
             </v-expand-transition>
@@ -166,7 +257,17 @@ onUnmounted(() => {
       </v-row>
     </v-container>
 
-    <GameResultDialog :model-value="resultVisible" title="Пятнашки 3×3" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Пятнашки 3×3"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -226,29 +327,29 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 9.75rem;
   }
 
- .puzzle-grid {
+  .puzzle-grid {
     gap: 0.55rem;
   }
 }
 
 @media (max-height: 42.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 4.75rem;
   }
 
- .game-container :deep(.v-card) {
+  .game-container :deep(.v-card) {
     padding-block: 1rem !important;
   }
 
- .game-container .text-overline,
- .game-container h1,
- .game-container p,
+  .game-container .text-overline,
+  .game-container h1,
+  .game-container p,
   .game-container .v-avatar,
- .game-container .v-alert {
+  .game-container .v-alert {
     display: none;
   }
 
@@ -256,17 +357,17 @@ onUnmounted(() => {
     margin-block-end: 0.75rem !important;
   }
 
- .puzzle-grid {
+  .puzzle-grid {
     gap: 0.45rem;
     max-inline-size: min(100%, 28rem);
   }
 
- .puzzle-grid :deep(.dwell-button) {
+  .puzzle-grid :deep(.dwell-button) {
     min-block-size: 4rem !important;
     padding: 0.4rem !important;
   }
 
- .tile-number {
+  .tile-number {
     font-size: 3.1rem;
   }
 }

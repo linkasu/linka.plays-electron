@@ -18,17 +18,22 @@ function clamp01(value: number) {
 }
 
 export function wateringStrength(distancePx: number, waterRadiusPx: number) {
-  if (!Number.isFinite(distancePx) || !Number.isFinite(waterRadiusPx) || waterRadiusPx <= 0) return 0;
+  if (!Number.isFinite(distancePx) || !Number.isFinite(waterRadiusPx) || waterRadiusPx <= 0)
+    return 0;
   if (distancePx >= waterRadiusPx) return 0;
 
   const fullStrengthRadius = waterRadiusPx * 0.35;
   if (distancePx <= fullStrengthRadius) return 1;
 
-  const falloff = 1 - (distancePx - fullStrengthRadius) / Math.max(1, waterRadiusPx - fullStrengthRadius);
+  const falloff =
+    1 - (distancePx - fullStrengthRadius) / Math.max(1, waterRadiusPx - fullStrengthRadius);
   return clamp01(falloff * falloff);
 }
 
-export function advanceFlowerGrowth(current: GardenFlowerGrowth, input: GardenWateringInput): GardenFlowerGrowth {
+export function advanceFlowerGrowth(
+  current: GardenFlowerGrowth,
+  input: GardenWateringInput,
+): GardenFlowerGrowth {
   const deltaSeconds = Math.max(0, input.deltaSeconds);
   const growthPerSecond = input.growthPerSecond ?? 0.24;
   const bloomPulseDecayPerSecond = input.bloomPulseDecayPerSecond ?? 1.15;
@@ -39,6 +44,6 @@ export function advanceFlowerGrowth(current: GardenFlowerGrowth, input: GardenWa
     growth: nextGrowth,
     wateredSeconds: current.wateredSeconds + (strength > 0 ? deltaSeconds * strength : 0),
     completed: current.completed || nextGrowth >= 1,
-    bloomPulse: Math.max(0, strength, current.bloomPulse - bloomPulseDecayPerSecond * deltaSeconds)
+    bloomPulse: Math.max(0, strength, current.bloomPulse - bloomPulseDecayPerSecond * deltaSeconds),
   };
 }

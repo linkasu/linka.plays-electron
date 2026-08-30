@@ -27,25 +27,48 @@ import {
   type StepTetrisBoard,
   type StepTetrisCell,
   type StepTetrisPieceId,
-  type StepTetrisPlacement
+  type StepTetrisPlacement,
 } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("step-tetris", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordEvent,
+  recordMistake,
+  recordSuccess,
+  startSession,
+  finishSession,
+} = useGameSessionFor("step-tetris", {
   maxSteps: 24,
   overrides: { targetScale: 1.25, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "step-tetris", soundEnabled, warmAssetIds: ["step-tetris.prompt", "step-tetris.correct", "step-tetris.mistake", "step-tetris.complete"] });
+const promptAudio = useGamePromptAudio({
+  gameId: "step-tetris",
+  soundEnabled,
+  warmAssetIds: [
+    "step-tetris.prompt",
+    "step-tetris.correct",
+    "step-tetris.mistake",
+    "step-tetris.complete",
+  ],
+});
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 const { waitForGameTimeout, clearGameTimers } = useGameTimers();
 
 const pieceSequence: StepTetrisPieceId[] = ["o", "t", "i", "l", "s", "t", "o", "l", "s", "i"];
 const rows = Array.from({ length: stepTetrisRows }, (_, row) => row);
 const columns = Array.from({ length: stepTetrisColumns }, (_, column) => column);
-const pieceColors = Object.fromEntries(stepTetrisPieceIds.map((id) => [id, createPiece(id).color])) as Record<StepTetrisPieceId, string>;
+const pieceColors = Object.fromEntries(
+  stepTetrisPieceIds.map((id) => [id, createPiece(id).color]),
+) as Record<StepTetrisPieceId, string>;
 
 const board = ref<StepTetrisBoard>(createEmptyBoard());
 const pieceIndex = ref(0);
@@ -57,18 +80,57 @@ const dropRows = ref(0);
 const dropAnimationMs = 360;
 const resultVisible = computed(() => session.status === "finished");
 const ghostPlacement = computed(() => getGhostPlacement(board.value, currentPlacement.value));
-const canPlay = computed(() => session.status === "running" && !isSpeaking.value && !isDropping.value);
-const canMoveLeft = computed(() => canPlay.value && isValidPlacement(board.value, movePlacement(currentPlacement.value, 0, -1)));
-const canMoveRight = computed(() => canPlay.value && isValidPlacement(board.value, movePlacement(currentPlacement.value, 0, 1)));
+const canPlay = computed(
+  () => session.status === "running" && !isSpeaking.value && !isDropping.value,
+);
+const canMoveLeft = computed(
+  () =>
+    canPlay.value && isValidPlacement(board.value, movePlacement(currentPlacement.value, 0, -1)),
+);
+const canMoveRight = computed(
+  () => canPlay.value && isValidPlacement(board.value, movePlacement(currentPlacement.value, 0, 1)),
+);
 const validRotation = computed(() => findValidRotation(currentPlacement.value));
 const canRotate = computed(() => canPlay.value && Boolean(validRotation.value));
 const canDrop = computed(() => canPlay.value && Boolean(ghostPlacement.value));
 const currentColumnLabel = computed(() => currentPlacement.value.column + 1);
 const actionButtons = computed<GameWasdControl[]>(() => [
-  { id: "rotate", key: "w", label: "Повернуть", icon: "mdi-rotate-right", targetId: cellTargetId("rotate"), disabled: !canRotate.value, color: "surface" },
-  { id: "left", key: "a", label: "Влево", icon: "mdi-arrow-left-bold", targetId: cellTargetId("left"), disabled: !canMoveLeft.value, color: "surface" },
-  { id: "drop", key: "s", label: "Поставить", icon: "mdi-arrow-down-bold-box", targetId: cellTargetId("drop"), disabled: !canDrop.value, color: "surface" },
-  { id: "right", key: "d", label: "Вправо", icon: "mdi-arrow-right-bold", targetId: cellTargetId("right"), disabled: !canMoveRight.value, color: "surface" }
+  {
+    id: "rotate",
+    key: "w",
+    label: "Повернуть",
+    icon: "mdi-rotate-right",
+    targetId: cellTargetId("rotate"),
+    disabled: !canRotate.value,
+    color: "surface",
+  },
+  {
+    id: "left",
+    key: "a",
+    label: "Влево",
+    icon: "mdi-arrow-left-bold",
+    targetId: cellTargetId("left"),
+    disabled: !canMoveLeft.value,
+    color: "surface",
+  },
+  {
+    id: "drop",
+    key: "s",
+    label: "Поставить",
+    icon: "mdi-arrow-down-bold-box",
+    targetId: cellTargetId("drop"),
+    disabled: !canDrop.value,
+    color: "surface",
+  },
+  {
+    id: "right",
+    key: "d",
+    label: "Вправо",
+    icon: "mdi-arrow-right-bold",
+    targetId: cellTargetId("right"),
+    disabled: !canMoveRight.value,
+    color: "surface",
+  },
 ]);
 
 function cellTargetId(action: string) {
@@ -79,8 +141,18 @@ function cellKey(row: number, column: number) {
   return `${row}:${column}`;
 }
 
-const currentCellKeys = computed(() => new Set(placementCells(currentPlacement.value).map((cell) => cellKey(cell.row, cell.column))));
-const ghostCellKeys = computed(() => new Set((ghostPlacement.value ? placementCells(ghostPlacement.value) : []).map((cell) => cellKey(cell.row, cell.column))));
+const currentCellKeys = computed(
+  () =>
+    new Set(placementCells(currentPlacement.value).map((cell) => cellKey(cell.row, cell.column))),
+);
+const ghostCellKeys = computed(
+  () =>
+    new Set(
+      (ghostPlacement.value ? placementCells(ghostPlacement.value) : []).map((cell) =>
+        cellKey(cell.row, cell.column),
+      ),
+    ),
+);
 
 function lockedCell(row: number, column: number) {
   return board.value[cellIndex(row, column)];
@@ -93,19 +165,24 @@ function cellClasses(row: number, column: number) {
     "board-cell--locked": Boolean(locked),
     "board-cell--current": currentCellKeys.value.has(key),
     "board-cell--falling": isDropping.value && currentCellKeys.value.has(key),
-    "board-cell--ghost": !currentCellKeys.value.has(key) && ghostCellKeys.value.has(key)
+    "board-cell--ghost": !currentCellKeys.value.has(key) && ghostCellKeys.value.has(key),
   };
 }
 
 function cellStyle(row: number, column: number) {
   const locked = lockedCell(row, column);
   const key = cellKey(row, column);
-  const color = currentCellKeys.value.has(key) || ghostCellKeys.value.has(key)
-    ? currentPlacement.value.piece.color
-    : locked
-      ? pieceColors[locked]
-      : "transparent";
-  return { "--cell-color": color, "--drop-rows": dropRows.value, "--drop-duration": `${dropAnimationMs}ms` };
+  const color =
+    currentCellKeys.value.has(key) || ghostCellKeys.value.has(key)
+      ? currentPlacement.value.piece.color
+      : locked
+        ? pieceColors[locked]
+        : "transparent";
+  return {
+    "--cell-color": color,
+    "--drop-rows": dropRows.value,
+    "--drop-duration": `${dropAnimationMs}ms`,
+  };
 }
 
 function findValidRotation(placement: StepTetrisPlacement) {
@@ -126,12 +203,18 @@ function moveCurrent(columnOffset: number) {
   if (!canPlay.value) return;
   const nextPlacement = movePlacement(currentPlacement.value, 0, columnOffset);
   if (!isValidPlacement(board.value, nextPlacement)) return;
-  setCurrentPlacement(nextPlacement, columnOffset < 0 ? "Фигура сдвинулась влево." : "Фигура сдвинулась вправо.");
+  setCurrentPlacement(
+    nextPlacement,
+    columnOffset < 0 ? "Фигура сдвинулась влево." : "Фигура сдвинулась вправо.",
+  );
 }
 
 function rotateCurrent() {
   if (!canPlay.value || !validRotation.value) return;
-  setCurrentPlacement(validRotation.value, "Фигура повернулась. Можно ещё подвигать или поставить.");
+  setCurrentPlacement(
+    validRotation.value,
+    "Фигура повернулась. Можно ещё подвигать или поставить.",
+  );
 }
 
 async function nextPiece() {
@@ -149,7 +232,11 @@ async function nextPiece() {
   feedbackMessage.value = "Наверху стало тесно. Доска завершена, можно начать снова.";
   recordMistake({ kind: "top-out", piece: piece.id, isCorrect: false });
   void feedbackAudio.playMistake();
-  const playback = await promptAudio.playSequenceAndWait(["step-tetris.mistake", "step-tetris.complete"], 80, 170);
+  const playback = await promptAudio.playSequenceAndWait(
+    ["step-tetris.mistake", "step-tetris.complete"],
+    80,
+    170,
+  );
   if (playback === "completed" && session.sessionId === sessionId) finishSession("game-lost");
 }
 
@@ -160,7 +247,12 @@ async function dropCurrent() {
   dropRows.value = Math.max(0, targetPlacement.row - currentPlacement.value.row);
   isDropping.value = true;
   feedbackMessage.value = "Фигура опускается вниз.";
-  if (!await waitForGameTimeout(dropAnimationMs) || session.sessionId !== sessionId || session.status !== "running") return;
+  if (
+    !(await waitForGameTimeout(dropAnimationMs)) ||
+    session.sessionId !== sessionId ||
+    session.status !== "running"
+  )
+    return;
 
   const result = lockPiece(board.value, targetPlacement);
   isDropping.value = false;
@@ -171,13 +263,22 @@ async function dropCurrent() {
   isSpeaking.value = true;
   board.value = result.board;
   recordSuccess({ piece: currentPlacement.value.piece.id, clearedLines: result.clearedLines });
-  recordEvent("level-start", { kind: "piece-locked", piece: currentPlacement.value.piece.id, clearedLines: result.clearedLines });
-  feedbackMessage.value = result.clearedLines > 0
-    ? `Линии исчезли: ${result.clearedLines}.`
-    : "Фигура легла на место.";
+  recordEvent("level-start", {
+    kind: "piece-locked",
+    piece: currentPlacement.value.piece.id,
+    clearedLines: result.clearedLines,
+  });
+  feedbackMessage.value =
+    result.clearedLines > 0 ? `Линии исчезли: ${result.clearedLines}.` : "Фигура легла на место.";
 
   void feedbackAudio.playSuccess();
-  const playback = await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["step-tetris.correct", "step-tetris.complete"] : ["step-tetris.correct"], 80, 170);
+  const playback = await promptAudio.playSequenceAndWait(
+    finishedAfterSuccess
+      ? ["step-tetris.correct", "step-tetris.complete"]
+      : ["step-tetris.correct"],
+    80,
+    170,
+  );
   if (playback === "cancelled" || session.sessionId !== sessionId) return;
   if (finishedAfterSuccess) {
     finishSession("game-complete");
@@ -222,17 +323,35 @@ onUnmounted(() => {
 
 <template>
   <div class="step-tetris-shell">
-    <GameHud title="Тетрис" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Тетрис"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
 
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
           <v-card class="game-card pa-4 pa-md-6" rounded="xl" elevation="10">
-            <div class="d-flex flex-column flex-lg-row align-lg-center justify-space-between ga-4 mb-5">
+            <div
+              class="d-flex flex-column flex-lg-row align-lg-center justify-space-between ga-4 mb-5"
+            >
               <div>
-                <div class="text-overline text-secondary mb-1">Пошаговая стратегия без таймера падения</div>
+                <div class="text-overline text-secondary mb-1">
+                  Пошаговая стратегия без таймера падения
+                </div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Тетрис</h1>
-                <p class="text-body-1 text-medium-emphasis mb-0">Двигай фигуру по одному шагу. Полупрозрачная фигура помогает увидеть место падения.</p>
+                <p class="text-body-1 text-medium-emphasis mb-0">
+                  Двигай фигуру по одному шагу. Полупрозрачная фигура помогает увидеть место
+                  падения.
+                </p>
               </div>
               <v-chip color="primary" size="large" variant="tonal">
                 Колонка {{ currentColumnLabel }} · {{ currentPlacement.piece.label }}
@@ -255,11 +374,28 @@ onUnmounted(() => {
               </div>
 
               <div class="controls-panel">
-                <v-card class="side-panel pa-4 pa-md-5 h-100" color="indigo-lighten-5" rounded="xl" variant="flat">
-                  <v-alert class="mb-4 text-body-1 font-weight-medium" color="primary" rounded="xl" role="status" variant="tonal">
+                <v-card
+                  class="side-panel pa-4 pa-md-5 h-100"
+                  color="indigo-lighten-5"
+                  rounded="xl"
+                  variant="flat"
+                >
+                  <v-alert
+                    class="mb-4 text-body-1 font-weight-medium"
+                    color="primary"
+                    rounded="xl"
+                    role="status"
+                    variant="tonal"
+                  >
                     {{ feedbackMessage }}
                   </v-alert>
-                  <GameWasdPanel :controls="actionButtons" :disabled="isSpeaking" :dwell-ms="session.settings.dwellMs" aria-label="WASD управление тетрисом" @select="chooseAction">
+                  <GameWasdPanel
+                    :controls="actionButtons"
+                    :disabled="isSpeaking"
+                    :dwell-ms="session.settings.dwellMs"
+                    aria-label="WASD управление тетрисом"
+                    @select="chooseAction"
+                  >
                     <template #control="{ control }">
                       <div class="control-content">
                         <span class="control-key">{{ control.key.toUpperCase() }}</span>
@@ -276,7 +412,17 @@ onUnmounted(() => {
       </v-row>
     </v-container>
 
-    <GameResultDialog :model-value="resultVisible" title="Тетрис" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Тетрис"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -336,7 +482,9 @@ onUnmounted(() => {
 .board-cell--locked,
 .board-cell--current {
   background: var(--cell-color);
-  box-shadow: inset 0 -0.4375rem 0.625rem rgb(0 0 0 / 13%), 0 0.25rem 0.625rem rgb(56 70 90 / 12%);
+  box-shadow:
+    inset 0 -0.4375rem 0.625rem rgb(0 0 0 / 13%),
+    0 0.25rem 0.625rem rgb(56 70 90 / 12%);
 }
 
 .board-cell--current {
@@ -396,38 +544,37 @@ onUnmounted(() => {
 }
 
 @media (max-width: 45rem) {
- .game-container {
+  .game-container {
     padding-block-start: 8.75rem;
   }
 
- .tetris-layout {
+  .tetris-layout {
     grid-template-columns: 1fr;
   }
 
- .controls-panel {
+  .controls-panel {
     order: -1;
   }
-
 }
 
 @media (max-height: 42.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 4.75rem;
   }
 
- .game-card {
+  .game-card {
     padding-block: 1rem !important;
   }
 
- .game-card >.d-flex.flex-column.flex-lg-row {
+  .game-card > .d-flex.flex-column.flex-lg-row {
     display: none !important;
   }
 
- .tetris-layout {
+  .tetris-layout {
     gap: 0.75rem;
   }
 
- .board {
+  .board {
     inline-size: min(100%, 48vh, 24rem);
   }
 }

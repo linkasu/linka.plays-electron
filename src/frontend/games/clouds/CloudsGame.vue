@@ -8,8 +8,21 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { adaptiveGazeHitRadius } from "../../core/gazeTarget";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { disposeCloudsPiano, playCloudsPianoCue, setCloudsPianoActive, setCloudsPianoIntensity, tickCloudsPiano, warmCloudsPiano } from "./audio";
-import { cloudRenderGeometry, createCloudLobes, createCloudPlacementLayout, type CloudLobe, type CloudPlacement } from "./model";
+import {
+  disposeCloudsPiano,
+  playCloudsPianoCue,
+  setCloudsPianoActive,
+  setCloudsPianoIntensity,
+  tickCloudsPiano,
+  warmCloudsPiano,
+} from "./audio";
+import {
+  cloudRenderGeometry,
+  createCloudLobes,
+  createCloudPlacementLayout,
+  type CloudLobe,
+  type CloudPlacement,
+} from "./model";
 
 type Point = { x: number; y: number };
 type CloudPhase = "floating" | "parting" | "clearing" | "hidden";
@@ -33,11 +46,29 @@ type Cloud = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("clouds", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  finishSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("clouds", {
   maxSteps: 6,
-  overrides: { preset: "gentle", targetScale: 1.6, motionSpeed: 0.34, distractors: "none", hints: "high", sound: true },
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.6,
+    motionSpeed: 0.34,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 useStartPromptAudio({ gameId: "clouds", soundEnabled: toRef(session.settings, "sound") });
 
@@ -64,8 +95,8 @@ function distance(a: Point, b: Point) {
 
 function cloudPoint(cloud: Cloud) {
   return {
-    x: window.innerWidth * cloud.x / 100,
-    y: window.innerHeight * cloud.y / 100
+    x: (window.innerWidth * cloud.x) / 100,
+    y: (window.innerHeight * cloud.y) / 100,
   };
 }
 
@@ -83,8 +114,8 @@ function resizeCanvas() {
 
 function createCloud(placement: CloudPlacement): Cloud {
   const seed = randomRange(0, Math.PI * 2);
-  const x = placement.x / window.innerWidth * 100;
-  const y = placement.y / window.innerHeight * 100;
+  const x = (placement.x / window.innerWidth) * 100;
+  const y = (placement.y / window.innerHeight) * 100;
   cloudIndex += 1;
 
   return {
@@ -102,7 +133,7 @@ function createCloud(placement: CloudPlacement): Cloud {
     dwellProgress: 0,
     phaseAge: 0,
     phase: "floating",
-    lobes: createCloudLobes(seed)
+    lobes: createCloudLobes(seed),
   };
 }
 
@@ -127,7 +158,7 @@ function initClouds() {
     viewportWidth: window.innerWidth,
     viewportHeight: window.innerHeight,
     targetScale: session.settings.targetScale,
-    random: Math.random
+    random: Math.random,
   });
   clouds.splice(0);
   cloudIndex = 0;
@@ -140,7 +171,7 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
@@ -151,14 +182,16 @@ function targetPayload(cloud: Cloud, now: number, progress: number) {
     dwellMs: session.settings.dwellMs,
     elapsedMs: cloud.enteredAt === undefined ? 0 : now - cloud.enteredAt,
     progress,
-    pointer: copyPointer()
+    pointer: copyPointer(),
   };
 }
 
 function gazeInfluence(cloud: Cloud) {
   if (!pointer.value.valid) return 0;
   const point = cloudPoint(cloud);
-  const radius = adaptiveGazeHitRadius(point, Math.max(cloud.baseRx, cloud.baseRy) * 1.05, { edgeBoost: 0.22 });
+  const radius = adaptiveGazeHitRadius(point, Math.max(cloud.baseRx, cloud.baseRy) * 1.05, {
+    edgeBoost: 0.22,
+  });
   return clamp(1 - distance(point, pointer.value) / radius, 0, 1);
 }
 
@@ -218,7 +251,11 @@ function updateCloud(cloud: Cloud, delta: number, now: number) {
 
 function updateClouds(delta: number, now: number) {
   for (const cloud of clouds) updateCloud(cloud, delta, now);
-  if (session.status === "running" && clouds.length > 0 && clouds.every((cloud) => cloud.phase === "hidden")) {
+  if (
+    session.status === "running" &&
+    clouds.length > 0 &&
+    clouds.every((cloud) => cloud.phase === "hidden")
+  ) {
     const remaining = session.maxSteps - session.step;
     if (remaining <= 0) {
       finishSession("game-complete");
@@ -250,7 +287,14 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
 
   const sunX = window.innerWidth * 0.78 + Math.sin(now * 0.00008) * 18;
   const sunY = window.innerHeight * 0.22;
-  const glow = context.createRadialGradient(sunX, sunY, 0, sunX, sunY, Math.max(window.innerWidth, window.innerHeight) * 0.42);
+  const glow = context.createRadialGradient(
+    sunX,
+    sunY,
+    0,
+    sunX,
+    sunY,
+    Math.max(window.innerWidth, window.innerHeight) * 0.42,
+  );
   glow.addColorStop(0, "rgb(255 233 170 / 24%)");
   glow.addColorStop(0.36, "rgb(255 233 170 / 10%)");
   glow.addColorStop(1, "rgb(255 246 205 / 0%)");
@@ -260,13 +304,21 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
 
 function drawProgress(context: CanvasRenderingContext2D, cloud: Cloud, point: Point) {
   if (cloud.dwellProgress <= 0 || cloud.phase === "clearing") return;
-  const radius = cloud.baseRx * (cloudRenderGeometry.progressRadius + cloud.openness * cloudRenderGeometry.progressOpenRadius);
+  const radius =
+    cloud.baseRx *
+    (cloudRenderGeometry.progressRadius + cloud.openness * cloudRenderGeometry.progressOpenRadius);
   context.save();
   context.strokeStyle = `rgb(105 160 205 / ${0.22 + cloud.dwellProgress * 0.34})`;
   context.lineCap = "round";
   context.lineWidth = Math.max(4, cloud.baseRx * cloudRenderGeometry.progressLineWidth);
   context.beginPath();
-  context.arc(point.x, point.y, radius, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * cloud.dwellProgress);
+  context.arc(
+    point.x,
+    point.y,
+    radius,
+    -Math.PI / 2,
+    -Math.PI / 2 + Math.PI * 2 * cloud.dwellProgress,
+  );
   context.stroke();
   context.restore();
 }
@@ -281,28 +333,66 @@ function drawCloud(context: CanvasRenderingContext2D, cloud: Cloud) {
   context.save();
   context.globalAlpha = alpha;
 
-  const shadow = context.createRadialGradient(point.x, point.y + cloud.baseRy * 0.36, 0, point.x, point.y + cloud.baseRy * 0.36, cloud.baseRx * 1.28);
+  const shadow = context.createRadialGradient(
+    point.x,
+    point.y + cloud.baseRy * 0.36,
+    0,
+    point.x,
+    point.y + cloud.baseRy * 0.36,
+    cloud.baseRx * 1.28,
+  );
   shadow.addColorStop(0, `rgb(128 169 196 / ${0.08 * (1 - open * 0.6)})`);
   shadow.addColorStop(1, "rgb(128 169 196 / 0%)");
   context.fillStyle = shadow;
   context.beginPath();
-  context.ellipse(point.x, point.y + cloud.baseRy * cloudRenderGeometry.shadowOffsetY, cloud.baseRx * cloudRenderGeometry.shadowRadiusX, cloud.baseRy * cloudRenderGeometry.shadowRadiusY, 0, 0, Math.PI * 2);
+  context.ellipse(
+    point.x,
+    point.y + cloud.baseRy * cloudRenderGeometry.shadowOffsetY,
+    cloud.baseRx * cloudRenderGeometry.shadowRadiusX,
+    cloud.baseRy * cloudRenderGeometry.shadowRadiusY,
+    0,
+    0,
+    Math.PI * 2,
+  );
   context.fill();
 
   for (const lobe of cloud.lobes) {
-    const wobbleX = Math.sin(cloud.age * lobe.speed + lobe.seed) * cloud.baseRx * cloudRenderGeometry.lobeWobbleX;
-    const wobbleY = Math.cos(cloud.age * lobe.speed * 0.8 + lobe.seed) * cloud.baseRy * cloudRenderGeometry.lobeWobbleY;
+    const wobbleX =
+      Math.sin(cloud.age * lobe.speed + lobe.seed) * cloud.baseRx * cloudRenderGeometry.lobeWobbleX;
+    const wobbleY =
+      Math.cos(cloud.age * lobe.speed * 0.8 + lobe.seed) *
+      cloud.baseRy *
+      cloudRenderGeometry.lobeWobbleY;
     const naturalX = point.x + lobe.offsetX * cloud.baseRx + wobbleX;
     const naturalY = point.y + lobe.offsetY * cloud.baseRy + wobbleY;
     const awayX = pointer.value.valid ? naturalX - pointer.value.x : lobe.offsetX || 0.1;
     const awayY = pointer.value.valid ? naturalY - pointer.value.y : lobe.offsetY || -0.1;
     const awayLength = Math.max(1, Math.hypot(awayX, awayY));
-    const localDistance = pointer.value.valid ? Math.min(1, distance({ x: naturalX, y: naturalY }, pointer.value) / (cloud.baseRx * 1.6)) : 1;
-    const push = open * (cloudRenderGeometry.pushProximity - localDistance) * cloud.baseRx * (cloudRenderGeometry.pushBase + lobe.radius * cloudRenderGeometry.pushRadius);
-    const x = naturalX + awayX / awayLength * push;
-    const y = naturalY + awayY / awayLength * push * cloudRenderGeometry.pushY - clearing * cloud.baseRy * cloudRenderGeometry.clearingLift;
-    const rx = cloud.baseRx * lobe.radius * (1 + Math.sin(cloud.age * lobe.speed + lobe.seed) * cloudRenderGeometry.lobePulseX + open * cloudRenderGeometry.lobeOpenRadiusX);
-    const ry = cloud.baseRy * lobe.radius * (1 + Math.cos(cloud.age * lobe.speed + lobe.seed) * cloudRenderGeometry.lobePulseY - open * cloudRenderGeometry.lobeOpenRadiusY);
+    const localDistance = pointer.value.valid
+      ? Math.min(1, distance({ x: naturalX, y: naturalY }, pointer.value) / (cloud.baseRx * 1.6))
+      : 1;
+    const push =
+      open *
+      (cloudRenderGeometry.pushProximity - localDistance) *
+      cloud.baseRx *
+      (cloudRenderGeometry.pushBase + lobe.radius * cloudRenderGeometry.pushRadius);
+    const x = naturalX + (awayX / awayLength) * push;
+    const y =
+      naturalY +
+      (awayY / awayLength) * push * cloudRenderGeometry.pushY -
+      clearing * cloud.baseRy * cloudRenderGeometry.clearingLift;
+    const rx =
+      cloud.baseRx *
+      lobe.radius *
+      (1 +
+        Math.sin(cloud.age * lobe.speed + lobe.seed) * cloudRenderGeometry.lobePulseX +
+        open * cloudRenderGeometry.lobeOpenRadiusX);
+    const ry =
+      cloud.baseRy *
+      lobe.radius *
+      (1 +
+        Math.cos(cloud.age * lobe.speed + lobe.seed) * cloudRenderGeometry.lobePulseY -
+        open * cloudRenderGeometry.lobeOpenRadiusY);
     const body = context.createRadialGradient(x - rx * 0.28, y - ry * 0.38, ry * 0.12, x, y, rx);
     body.addColorStop(0, "rgb(255 255 255 / 96%)");
     body.addColorStop(0.64, "rgb(245 251 255 / 86%)");
@@ -314,13 +404,28 @@ function drawCloud(context: CanvasRenderingContext2D, cloud: Cloud) {
   }
 
   if (open > 0.05) {
-    const opening = context.createRadialGradient(point.x, point.y, 0, point.x, point.y, cloud.baseRx * 0.8);
+    const opening = context.createRadialGradient(
+      point.x,
+      point.y,
+      0,
+      point.x,
+      point.y,
+      cloud.baseRx * 0.8,
+    );
     opening.addColorStop(0, `rgb(139 201 241 / ${0.18 * open})`);
     opening.addColorStop(0.6, `rgb(205 238 255 / ${0.12 * open})`);
     opening.addColorStop(1, "rgb(205 238 255 / 0%)");
     context.fillStyle = opening;
     context.beginPath();
-    context.ellipse(point.x, point.y, cloud.baseRx * (0.42 + open * 0.22), cloud.baseRy * (0.46 + open * 0.12), 0, 0, Math.PI * 2);
+    context.ellipse(
+      point.x,
+      point.y,
+      cloud.baseRx * (0.42 + open * 0.22),
+      cloud.baseRy * (0.46 + open * 0.12),
+      0,
+      0,
+      Math.PI * 2,
+    );
     context.fill();
   }
 
@@ -334,7 +439,8 @@ function draw(context: CanvasRenderingContext2D, now: number) {
 }
 
 function tick(now: number) {
-  const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+  const delta =
+    session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
 
   setCloudsPianoActive(session.settings.sound, session.status === "running");
@@ -375,8 +481,27 @@ onUnmounted(() => {
 <template>
   <div class="clouds-shell">
     <canvas ref="canvasRef" class="clouds-canvas" />
-    <GameHud title="Облака" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
-    <GameResultDialog :model-value="resultVisible" title="Облака" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameHud
+      title="Облака"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Облака"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 

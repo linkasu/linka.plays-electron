@@ -28,19 +28,60 @@ export type BigSmallRound = {
 };
 
 export const bigSmallObjects: BigSmallObject[] = [
-  { id: "apple", label: "яблоко", emoji: "🍎", sizePhrases: { big: "большое яблоко", small: "маленькое яблоко" } },
-  { id: "ball", label: "мяч", emoji: "⚽", sizePhrases: { big: "большой мяч", small: "маленький мяч" } },
-  { id: "flower", label: "цветок", emoji: "🌸", sizePhrases: { big: "большой цветок", small: "маленький цветок" } },
-  { id: "car", label: "машина", emoji: "🚗", sizePhrases: { big: "большая машина", small: "маленькая машина" } },
-  { id: "duck", label: "утка", emoji: "🦆", sizePhrases: { big: "большая утка", small: "маленькая утка" } },
-  { id: "star", label: "звезда", emoji: "⭐", sizePhrases: { big: "большая звезда", small: "маленькая звезда" } },
-  { id: "fish", label: "рыбка", emoji: "🐟", sizePhrases: { big: "большая рыбка", small: "маленькая рыбка" } },
-  { id: "house", label: "дом", emoji: "🏠", visualSrc: "./images/shadow-match/house.png", sizePhrases: { big: "большой дом", small: "маленький дом" } }
+  {
+    id: "apple",
+    label: "яблоко",
+    emoji: "🍎",
+    sizePhrases: { big: "большое яблоко", small: "маленькое яблоко" },
+  },
+  {
+    id: "ball",
+    label: "мяч",
+    emoji: "⚽",
+    sizePhrases: { big: "большой мяч", small: "маленький мяч" },
+  },
+  {
+    id: "flower",
+    label: "цветок",
+    emoji: "🌸",
+    sizePhrases: { big: "большой цветок", small: "маленький цветок" },
+  },
+  {
+    id: "car",
+    label: "машина",
+    emoji: "🚗",
+    sizePhrases: { big: "большая машина", small: "маленькая машина" },
+  },
+  {
+    id: "duck",
+    label: "утка",
+    emoji: "🦆",
+    sizePhrases: { big: "большая утка", small: "маленькая утка" },
+  },
+  {
+    id: "star",
+    label: "звезда",
+    emoji: "⭐",
+    sizePhrases: { big: "большая звезда", small: "маленькая звезда" },
+  },
+  {
+    id: "fish",
+    label: "рыбка",
+    emoji: "🐟",
+    sizePhrases: { big: "большая рыбка", small: "маленькая рыбка" },
+  },
+  {
+    id: "house",
+    label: "дом",
+    emoji: "🏠",
+    visualSrc: "./images/shadow-match/house.png",
+    sizePhrases: { big: "большой дом", small: "маленький дом" },
+  },
 ];
 
 const sizeLabels: Record<BigSmallSize, string> = {
   big: "большой",
-  small: "маленький"
+  small: "маленький",
 };
 
 function pickObject(roundIndex: number, random: () => number) {
@@ -49,14 +90,18 @@ function pickObject(roundIndex: number, random: () => number) {
 
 function buildChoice(object: BigSmallObject, size: BigSmallSize): BigSmallChoice {
   return {
-   ...object,
+    ...object,
     choiceId: `${object.id}:${size}`,
     size,
-    sizeLabel: sizeLabels[size]
+    sizeLabel: sizeLabels[size],
   };
 }
 
-export function generateBigSmallRound(_settings: SessionSettings, roundIndex = 1, random = Math.random): BigSmallRound {
+export function generateBigSmallRound(
+  _settings: SessionSettings,
+  roundIndex = 1,
+  random = Math.random,
+): BigSmallRound {
   const object = pickObject(roundIndex, random);
   const targetSize = shuffleItems<BigSmallSize>(["big", "small"], random)[0];
   const choices = shuffleItems([buildChoice(object, "big"), buildChoice(object, "small")], random);
@@ -70,6 +115,6 @@ export function generateBigSmallRound(_settings: SessionSettings, roundIndex = 1
     targetPhrase,
     object,
     choices,
-    correctIndex: choices.findIndex((choice) => choice.choiceId === correctChoiceId)
+    correctIndex: choices.findIndex((choice) => choice.choiceId === correctChoiceId),
   };
 }

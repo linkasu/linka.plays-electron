@@ -35,11 +35,15 @@ export function emptyCellIndexes(board: Number2048Board) {
   }, []);
 }
 
-export function spawnTile(board: Number2048Board, random: Number2048Random = Math.random): Number2048SpawnResult {
+export function spawnTile(
+  board: Number2048Board,
+  random: Number2048Random = Math.random,
+): Number2048SpawnResult {
   const emptyIndexes = emptyCellIndexes(board);
   if (!emptyIndexes.length) return { board: [...board] };
 
-  const spawnedIndex = emptyIndexes[Math.min(emptyIndexes.length - 1, Math.floor(random() * emptyIndexes.length))];
+  const spawnedIndex =
+    emptyIndexes[Math.min(emptyIndexes.length - 1, Math.floor(random() * emptyIndexes.length))];
   const value = random() < 0.9 ? 2 : 4;
   const nextBoard = [...board];
   nextBoard[spawnedIndex] = value;
@@ -47,7 +51,10 @@ export function spawnTile(board: Number2048Board, random: Number2048Random = Mat
   return { board: nextBoard, spawnedIndex, value };
 }
 
-export function moveBoard(board: Number2048Board, direction: Number2048Direction): Number2048MoveResult {
+export function moveBoard(
+  board: Number2048Board,
+  direction: Number2048Direction,
+): Number2048MoveResult {
   const lines = linesForDirection(direction);
   const nextBoard = createEmptyBoard();
   let scoreGain = 0;

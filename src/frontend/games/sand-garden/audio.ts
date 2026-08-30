@@ -2,7 +2,9 @@ import { createAmbientPiano } from "../../core/ambientPiano";
 
 const piano = createAmbientPiano({
   notesToLoad: [34, 38, 41, 45, 48, 50, 53, 57, 60, 62, 65, 69],
-  loopNotes: [34, 45, 53, 57, 53, 45, 38, 48, 57, 62, 57, 48, 41, 50, 60, 65, 60, 50, 38, 45, 53, 60, 57, 45],
+  loopNotes: [
+    34, 45, 53, 57, 53, 45, 38, 48, 57, 62, 57, 48, 41, 50, 60, 65, 60, 50, 38, 45, 53, 60, 57, 45,
+  ],
   cueNotes: [53, 57, 60, 69],
   reverbName: "sand-garden-dune-room",
   reverbAmount: 0.28,
@@ -24,7 +26,7 @@ const piano = createAmbientPiano({
   cueCooldownSeconds: 0.9,
   activeGain: 0.84,
   fadeInSeconds: 1.4,
-  fadeOutSeconds: 1.7
+  fadeOutSeconds: 1.7,
 });
 
 export function warmSandGardenPiano(enabled: boolean) {

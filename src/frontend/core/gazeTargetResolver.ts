@@ -17,10 +17,12 @@ export type GazeTargetCandidate = {
 export type GazeTargetPoint = { x: number; y: number };
 
 function containsPoint(rect: GazeTargetRect, point: GazeTargetPoint, padding = 0) {
-  return point.x >= rect.left - padding
-    && point.x <= rect.right + padding
-    && point.y >= rect.top - padding
-    && point.y <= rect.bottom + padding;
+  return (
+    point.x >= rect.left - padding &&
+    point.x <= rect.right + padding &&
+    point.y >= rect.top - padding &&
+    point.y <= rect.bottom + padding
+  );
 }
 
 function distanceToRect(rect: GazeTargetRect, point: GazeTargetPoint) {
@@ -35,12 +37,17 @@ function distanceToCenter(rect: GazeTargetRect, point: GazeTargetPoint) {
 
 export function resolveGazeTarget(candidates: GazeTargetCandidate[], point: GazeTargetPoint) {
   return candidates
-    .filter((candidate) => candidate.enabled && candidate.visible && containsPoint(candidate.rect, point, candidate.hitPadding))
+    .filter(
+      (candidate) =>
+        candidate.enabled &&
+        candidate.visible &&
+        containsPoint(candidate.rect, point, candidate.hitPadding),
+    )
     .map((candidate) => ({
       candidate,
       directHit: containsPoint(candidate.rect, point),
       rectDistance: distanceToRect(candidate.rect, point),
-      centerDistance: distanceToCenter(candidate.rect, point)
+      centerDistance: distanceToCenter(candidate.rect, point),
     }))
     .sort((a, b) => {
       const priorityDifference = (b.candidate.priority ?? 0) - (a.candidate.priority ?? 0);

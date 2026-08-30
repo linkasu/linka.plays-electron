@@ -11,7 +11,7 @@ function argValue(name, fallback) {
   const found = process.argv.find((arg) => arg.startsWith(prefix));
   if (found) return found.slice(prefix.length);
   const index = process.argv.indexOf(name);
-  return index >= 0 ? process.argv[index + 1] ?? fallback : fallback;
+  return index >= 0 ? (process.argv[index + 1] ?? fallback) : fallback;
 }
 
 function wait(ms) {
@@ -20,7 +20,8 @@ function wait(ms) {
 
 function findPackagedExe() {
   const unpackedDir = join(packageOutputDir, "win-unpacked");
-  if (!existsSync(unpackedDir)) throw new Error(`No Windows unpacked package found: ${unpackedDir}`);
+  if (!existsSync(unpackedDir))
+    throw new Error(`No Windows unpacked package found: ${unpackedDir}`);
   const candidates = readdirSync(unpackedDir)
     .filter((name) => name.toLowerCase().endsWith(".exe"))
     .filter((name) => !/uninstall|uninstaller|elevate/i.test(name))
@@ -39,7 +40,9 @@ async function waitForPageTarget(port, timeoutMs) {
       const response = await fetch(`http://127.0.0.1:${port}/json/list`);
       if (response.ok) {
         const targets = await response.json();
-        const pageTarget = targets.find((target) => target.type === "page" && target.webSocketDebuggerUrl);
+        const pageTarget = targets.find(
+          (target) => target.type === "page" && target.webSocketDebuggerUrl,
+        );
         if (pageTarget) return pageTarget;
         lastError = new Error("CDP is ready but the Electron page target is not available yet");
       } else {
@@ -50,7 +53,9 @@ async function waitForPageTarget(port, timeoutMs) {
     }
     await wait(250);
   }
-  throw new Error(`Cannot find Electron page target on port ${port}: ${lastError?.message ?? "timeout"}`);
+  throw new Error(
+    `Cannot find Electron page target on port ${port}: ${lastError?.message ?? "timeout"}`,
+  );
 }
 
 function createCdpClient(webSocketDebuggerUrl) {
@@ -91,7 +96,9 @@ function createCdpClient(webSocketDebuggerUrl) {
 
   return new Promise((resolveClient, reject) => {
     socket.addEventListener("open", () => resolveClient({ send, on, close }));
-    socket.addEventListener("error", () => reject(new Error("Cannot connect to Electron CDP WebSocket")));
+    socket.addEventListener("error", () =>
+      reject(new Error("Cannot connect to Electron CDP WebSocket")),
+    );
   });
 }
 
@@ -99,14 +106,17 @@ async function evaluateJson(client, expression) {
   const result = await client.send("Runtime.evaluate", {
     expression,
     awaitPromise: true,
-    returnByValue: true
+    returnByValue: true,
   });
-  if (result.exceptionDetails) throw new Error(result.exceptionDetails.text ?? "Runtime.evaluate failed");
+  if (result.exceptionDetails)
+    throw new Error(result.exceptionDetails.text ?? "Runtime.evaluate failed");
   return result.result?.value;
 }
 
 async function collectDiagnostics(client) {
-  return evaluateJson(client, `(() => {
+  return evaluateJson(
+    client,
+    `(() => {
     const app = document.querySelector('#app');
     const bodyStyle = getComputedStyle(document.body);
     const documentElementStyle = getComputedStyle(document.documentElement);
@@ -133,21 +143,27 @@ async function collectDiagnostics(client) {
       stylesheetHrefs: Array.from(document.querySelectorAll('link[rel="stylesheet"]')).map((link) => link.href),
       resources
     };
-  })()`);
+  })()`,
+  );
 }
 
 async function writeScreenshot(client, screenshotDir) {
   mkdirSync(screenshotDir, { recursive: true });
-  const screenshot = await client.send("Page.captureScreenshot", { format: "png", fromSurface: true });
+  const screenshot = await client.send("Page.captureScreenshot", {
+    format: "png",
+    fromSurface: true,
+  });
   const screenshotPath = join(screenshotDir, "packaged-window.png");
   writeFileSync(screenshotPath, Buffer.from(screenshot.data, "base64"));
   return screenshotPath;
 }
 
 function rendererLooksBlank(diagnostics) {
-  return diagnostics.readyState === "complete" &&
+  return (
+    diagnostics.readyState === "complete" &&
     diagnostics.bodyTextLength < 10 &&
-    (!diagnostics.appExists || diagnostics.appChildCount === 0 || diagnostics.appHtmlLength < 100);
+    (!diagnostics.appExists || diagnostics.appChildCount === 0 || diagnostics.appHtmlLength < 100)
+  );
 }
 
 function stopProcess(child) {
@@ -161,8 +177,12 @@ function stopProcess(child) {
 
 async function main() {
   const port = Number(argValue("--port", "9229"));
-  const screenshotDir = resolve(argValue("--screenshot-dir", join(projectRoot, "release-debug", "screenshots")));
-  const outputPath = resolve(argValue("--output", join(projectRoot, "release-debug", "packaged-window-smoke.json")));
+  const screenshotDir = resolve(
+    argValue("--screenshot-dir", join(projectRoot, "release-debug", "screenshots")),
+  );
+  const outputPath = resolve(
+    argValue("--output", join(projectRoot, "release-debug", "packaged-window-smoke.json")),
+  );
   const logPath = resolve(argValue("--log", join(projectRoot, "release-debug", "app.log")));
   mkdirSync(resolve(outputPath, ".."), { recursive: true });
   mkdirSync(resolve(logPath, ".."), { recursive: true });
@@ -176,10 +196,10 @@ async function main() {
       LINKA_NO_TOBII: "1",
       LINKA_IDENTITY_URL: process.env.LINKA_IDENTITY_URL ?? "http://127.0.0.1:1",
       LINKA_METRICS_URL: process.env.LINKA_METRICS_URL ?? "http://127.0.0.1:1",
-      ELECTRON_ENABLE_LOGGING: "1"
+      ELECTRON_ENABLE_LOGGING: "1",
     },
     windowsHide: false,
-    stdio: ["ignore", "pipe", "pipe"]
+    stdio: ["ignore", "pipe", "pipe"],
   });
 
   child.stdout.on("data", (data) => appLog.push(data.toString()));
@@ -192,7 +212,9 @@ async function main() {
     client = await createCdpClient(pageTarget.webSocketDebuggerUrl);
 
     const runtimeErrors = [];
-    client.on("Runtime.exceptionThrown", (params) => runtimeErrors.push(params.exceptionDetails?.text ?? "Runtime exception"));
+    client.on("Runtime.exceptionThrown", (params) =>
+      runtimeErrors.push(params.exceptionDetails?.text ?? "Runtime exception"),
+    );
     client.on("Log.entryAdded", (params) => {
       if (params.entry?.level === "error") runtimeErrors.push(params.entry.text ?? "Log error");
     });
@@ -212,7 +234,7 @@ async function main() {
       port,
       screenshotPath,
       runtimeErrors,
-      diagnostics
+      diagnostics,
     };
   } finally {
     if (client) client.close();
@@ -227,7 +249,17 @@ async function main() {
   console.log(`Wrote packaged renderer screenshot to ${report.screenshotPath}`);
   console.log(`Wrote packaged renderer app log to ${logPath}`);
   if (!report.ok) {
-    console.error(JSON.stringify({ blank: report.blank, runtimeErrors: report.runtimeErrors, diagnostics: report.diagnostics }, null, 2));
+    console.error(
+      JSON.stringify(
+        {
+          blank: report.blank,
+          runtimeErrors: report.runtimeErrors,
+          diagnostics: report.diagnostics,
+        },
+        null,
+        2,
+      ),
+    );
     process.exitCode = 1;
   }
 }

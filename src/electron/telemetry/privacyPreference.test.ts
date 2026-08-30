@@ -7,7 +7,9 @@ import { TelemetryPrivacyPreferenceStore } from "./privacyPreference";
 const directories: string[] = [];
 
 afterEach(async () => {
-  await Promise.all(directories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })));
+  await Promise.all(
+    directories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })),
+  );
 });
 
 async function createStore() {
@@ -21,14 +23,20 @@ describe("TelemetryPrivacyPreferenceStore", () => {
     const { directory, store } = await createStore();
     expect(await store.read()).toBe("unknown");
 
-    await writeFile(join(directory, "privacy-preferences.json"), JSON.stringify({ informationalNoticeVersion: "2026-07-18-v1" }));
+    await writeFile(
+      join(directory, "privacy-preferences.json"),
+      JSON.stringify({ informationalNoticeVersion: "2026-07-18-v1" }),
+    );
     expect(await store.read()).toBe("unknown");
   });
 
-  it.each(["enabled", "disabled"] as const)("persists the %s decision in userData", async (preference) => {
-    const { directory, store } = await createStore();
-    await store.write(preference);
+  it.each(["enabled", "disabled"] as const)(
+    "persists the %s decision in userData",
+    async (preference) => {
+      const { directory, store } = await createStore();
+      await store.write(preference);
 
-    expect(await new TelemetryPrivacyPreferenceStore(directory).read()).toBe(preference);
-  });
+      expect(await new TelemetryPrivacyPreferenceStore(directory).read()).toBe(preference);
+    },
+  );
 });

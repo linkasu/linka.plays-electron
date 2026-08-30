@@ -12,7 +12,8 @@ const color = computed(() => {
 });
 
 const icon = computed(() => {
-  if (status.value.state === "tracking" || status.value.state === "connected") return "mdi-eye-check";
+  if (status.value.state === "tracking" || status.value.state === "connected")
+    return "mdi-eye-check";
   if (status.value.state === "error") return "mdi-eye-alert";
   return "mdi-mouse";
 });

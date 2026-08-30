@@ -27,12 +27,15 @@ const emit = defineEmits<{
 
 const router = useRouter();
 const { dwellMs } = useDwellSettings();
-const progress = computed(() => props.maxSteps > 0 ? Math.min(100, (props.step / props.maxSteps) * 100) : 0);
+const progress = computed(() =>
+  props.maxSteps > 0 ? Math.min(100, (props.step / props.maxSteps) * 100) : 0,
+);
 const showProgress = computed(() => props.showProgress !== false);
 const showTimer = computed(() => props.showTimer !== false);
 const isSelfMode = computed(() => resolveMenuMode() === "self");
 const remainingSeconds = computed(() => {
-  if (!showTimer.value || props.durationMs === undefined || props.sessionSeconds === undefined) return undefined;
+  if (!showTimer.value || props.durationMs === undefined || props.sessionSeconds === undefined)
+    return undefined;
   return Math.max(0, Math.ceil(props.sessionSeconds - props.durationMs / 1000));
 });
 
@@ -49,7 +52,14 @@ function togglePause() {
   <div class="game-hud d-flex flex-wrap align-center ga-2 pa-3" data-canvas-overlay>
     <template v-if="isSelfMode">
       <div class="self-gaze-edge d-flex ga-2" aria-label="Управление взглядом">
-        <GameDwellButton class="self-gaze-action" target-id="hud-menu" :dwell-ms="dwellMs" min-height="clamp(5rem, 12dvh, 7.5rem)" color="secondary" @select="goToMenu">
+        <GameDwellButton
+          class="self-gaze-action"
+          target-id="hud-menu"
+          :dwell-ms="dwellMs"
+          min-height="clamp(5rem, 12dvh, 7.5rem)"
+          color="secondary"
+          @select="goToMenu"
+        >
           <template #default>
             <div class="d-flex flex-column align-center justify-center ga-1 text-white">
               <v-icon icon="mdi-arrow-left" size="36" />
@@ -58,7 +68,14 @@ function togglePause() {
             </div>
           </template>
         </GameDwellButton>
-        <GameDwellButton class="self-gaze-action" target-id="hud-pause" :dwell-ms="dwellMs" min-height="clamp(5rem, 12dvh, 7.5rem)" color="surface" @select="togglePause">
+        <GameDwellButton
+          class="self-gaze-action"
+          target-id="hud-pause"
+          :dwell-ms="dwellMs"
+          min-height="clamp(5rem, 12dvh, 7.5rem)"
+          color="surface"
+          @select="togglePause"
+        >
           <template #default>
             <div class="d-flex flex-column align-center justify-center ga-1 text-primary">
               <v-icon :icon="paused ? 'mdi-play' : 'mdi-pause'" size="36" />
@@ -70,13 +87,30 @@ function togglePause() {
       </div>
     </template>
     <template v-else>
-      <v-btn color="surface" density="comfortable" prepend-icon="mdi-arrow-left" variant="flat" @click="goToMenu">
+      <v-btn
+        color="surface"
+        density="comfortable"
+        prepend-icon="mdi-arrow-left"
+        variant="flat"
+        @click="goToMenu"
+      >
         В меню
       </v-btn>
-      <v-btn color="surface" density="comfortable" :prepend-icon="paused ? 'mdi-play' : 'mdi-pause'" variant="flat" @click="togglePause">
+      <v-btn
+        color="surface"
+        density="comfortable"
+        :prepend-icon="paused ? 'mdi-play' : 'mdi-pause'"
+        variant="flat"
+        @click="togglePause"
+      >
         {{ paused ? "Продолжить" : "Пауза" }}
       </v-btn>
-      <v-chip color="secondary" prepend-icon="mdi-hand-back-left-outline" size="small" variant="tonal">
+      <v-chip
+        color="secondary"
+        prepend-icon="mdi-hand-back-left-outline"
+        size="small"
+        variant="tonal"
+      >
         Ручное управление специалиста
       </v-chip>
     </template>
@@ -85,9 +119,19 @@ function togglePause() {
       <div class="text-body-2 font-weight-bold">Шаг {{ step }} / {{ maxSteps }}</div>
       <v-progress-linear class="mt-1" :model-value="progress" color="primary" height="6" rounded />
     </v-card>
-    <v-chip v-if="score !== undefined" color="primary" size="small" variant="flat">Успех: {{ score }}</v-chip>
-    <v-chip v-if="mistakes !== undefined" color="warning" size="small" variant="tonal">Ошибки: {{ mistakes }}</v-chip>
-    <v-chip v-if="remainingSeconds !== undefined" color="info" prepend-icon="mdi-timer-outline" size="small" variant="tonal">
+    <v-chip v-if="score !== undefined" color="primary" size="small" variant="flat"
+      >Успех: {{ score }}</v-chip
+    >
+    <v-chip v-if="mistakes !== undefined" color="warning" size="small" variant="tonal"
+      >Ошибки: {{ mistakes }}</v-chip
+    >
+    <v-chip
+      v-if="remainingSeconds !== undefined"
+      color="info"
+      prepend-icon="mdi-timer-outline"
+      size="small"
+      variant="tonal"
+    >
       {{ remainingSeconds }} сек
     </v-chip>
     <TobiiStatusBadge />

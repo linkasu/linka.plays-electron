@@ -7,7 +7,13 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { disposeGazeFollowSnakeAudio, playGazeFollowSnakeLeafCue, setGazeFollowSnakeMusicActive, tickGazeFollowSnakeMusic, warmGazeFollowSnakeAudio } from "./audio";
+import {
+  disposeGazeFollowSnakeAudio,
+  playGazeFollowSnakeLeafCue,
+  setGazeFollowSnakeMusicActive,
+  tickGazeFollowSnakeMusic,
+  warmGazeFollowSnakeAudio,
+} from "./audio";
 
 type Point = { x: number; y: number };
 
@@ -43,17 +49,44 @@ type Sparkle = Point & {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("gaze-follow-snake", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("gaze-follow-snake", {
   maxSteps: 8,
-  overrides: { preset: "gentle", dwellMs: 600, targetScale: 1.45, motionSpeed: 0.52, distractors: "none", hints: "high" },
-  finishOnMistakes: false
+  overrides: {
+    preset: "gentle",
+    dwellMs: 600,
+    targetScale: 1.45,
+    motionSpeed: 0.52,
+    distractors: "none",
+    hints: "high",
+  },
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
 
 const segments = reactive<Segment[]>([]);
 const meadowLeaves = reactive<MeadowLeaf[]>([]);
 const sparkles = reactive<Sparkle[]>([]);
-const leaf = reactive<Leaf>({ id: "leaf-0", x: 0, y: 0, radius: 80, angle: 0, hue: 96, pulse: 0, enteredAt: 0, progress: 0 });
+const leaf = reactive<Leaf>({
+  id: "leaf-0",
+  x: 0,
+  y: 0,
+  radius: 80,
+  angle: 0,
+  hue: 96,
+  pulse: 0,
+  enteredAt: 0,
+  progress: 0,
+});
 const resultVisible = computed(() => session.status === "finished");
 const leafProgress = computed(() => Math.round(leaf.progress * 100));
 const guidanceText = computed(() => {
@@ -83,7 +116,10 @@ function snakeRadius() {
 }
 
 function targetRadius() {
-  return Math.min(112, Math.max(76, Math.min(width.value, height.value) * 0.095 * session.settings.targetScale));
+  return Math.min(
+    112,
+    Math.max(76, Math.min(width.value, height.value) * 0.095 * session.settings.targetScale),
+  );
 }
 
 function playArea() {
@@ -92,7 +128,7 @@ function playArea() {
     left: margin,
     right: width.value - margin,
     top: Math.max(126, height.value * 0.16),
-    bottom: height.value - Math.max(70, height.value * 0.1)
+    bottom: height.value - Math.max(70, height.value * 0.1),
   };
 }
 
@@ -102,7 +138,7 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
@@ -114,7 +150,7 @@ function targetPayload(now: number, progress: number, reason?: "left" | "invalid
     elapsedMs: leaf.enteredAt > 0 ? now - leaf.enteredAt : 0,
     progress,
     pointer: copyPointer(),
-    reason
+    reason,
   };
 }
 
@@ -157,7 +193,7 @@ function createMeadowLeaf(): MeadowLeaf {
     angle: randomRange(-1.2, 1.2),
     hue: randomRange(62, 132),
     phase: randomRange(0, Math.PI * 2),
-    sway: randomRange(0.2, 0.9)
+    sway: randomRange(0.2, 0.9),
   };
 }
 
@@ -167,7 +203,11 @@ function resetScene() {
   const radius = snakeRadius();
   segments.splice(0);
   for (let index = 0; index < 10; index += 1) {
-    segments.push({ x: startX - index * radius * 1.05, y: startY, radius: radius * (1 - index * 0.035) });
+    segments.push({
+      x: startX - index * radius * 1.05,
+      y: startY,
+      radius: radius * (1 - index * 0.035),
+    });
   }
 
   meadowLeaves.splice(0);
@@ -189,7 +229,7 @@ function addSparkles(x: number, y: number) {
       age: 0,
       life: randomRange(0.8, 1.35),
       radius: randomRange(4, 10),
-      hue: leaf.hue + randomRange(-16, 18)
+      hue: leaf.hue + randomRange(-16, 18),
     });
   }
   if (sparkles.length > 36) sparkles.splice(0, sparkles.length - 36);
@@ -209,13 +249,16 @@ function updateSnake(delta: number, now: number) {
   const head = segments[0];
   const area = playArea();
   const fallback = {
-    x: width.value * (0.5 + (session.settings.reduceMotion ? 0 : Math.sin(now * 0.00012 + idlePhase * 0.1) * 0.18)),
-    y: height.value * (0.56 + (session.settings.reduceMotion ? 0 : Math.cos(now * 0.0001) * 0.12))
+    x:
+      width.value *
+      (0.5 +
+        (session.settings.reduceMotion ? 0 : Math.sin(now * 0.00012 + idlePhase * 0.1) * 0.18)),
+    y: height.value * (0.56 + (session.settings.reduceMotion ? 0 : Math.cos(now * 0.0001) * 0.12)),
   };
   const target = pointer.value.valid ? pointer.value : fallback;
   const desired = {
     x: clamp(target.x, area.left * 0.42, width.value - area.left * 0.42),
-    y: clamp(target.y, area.top * 0.75, area.bottom + targetRadius() * 0.3)
+    y: clamp(target.y, area.top * 0.75, area.bottom + targetRadius() * 0.3),
   };
   const follow = pointer.value.valid ? 2.85 : 0.42;
   const maxStep = (pointer.value.valid ? 360 : 90) * session.settings.motionSpeed * delta;
@@ -233,7 +276,11 @@ function updateSnake(delta: number, now: number) {
     const sx = previous.x - segment.x;
     const sy = previous.y - segment.y;
     const segmentGap = Math.hypot(sx, sy) || 1;
-    const targetDistance = spacing + (session.settings.reduceMotion ? 0 : Math.sin(now * 0.003 + index * 0.8) * snakeRadius() * 0.05);
+    const targetDistance =
+      spacing +
+      (session.settings.reduceMotion
+        ? 0
+        : Math.sin(now * 0.003 + index * 0.8) * snakeRadius() * 0.05);
     const pull = (segmentGap - targetDistance) * Math.min(1, delta * 7.5);
     segment.x += (sx / segmentGap) * pull;
     segment.y += (sy / segmentGap) * pull;
@@ -241,7 +288,8 @@ function updateSnake(delta: number, now: number) {
 }
 
 function updateLeafProgress(delta: number, now: number) {
-  if (session.status !== "running" || session.step >= session.maxSteps || segments.length === 0) return;
+  if (session.status !== "running" || session.step >= session.maxSteps || segments.length === 0)
+    return;
 
   const head = segments[0];
   const focusDistance = leaf.radius * 1.05;
@@ -256,14 +304,20 @@ function updateLeafProgress(delta: number, now: number) {
   }
 
   if (!near && leaf.enteredAt > 0) {
-    recordEvent("target-cancel", targetPayload(now, leaf.progress, pointer.value.valid ? "left" : "invalid-gaze"));
+    recordEvent(
+      "target-cancel",
+      targetPayload(now, leaf.progress, pointer.value.valid ? "left" : "invalid-gaze"),
+    );
     leaf.enteredAt = 0;
   }
 
   if (near) {
     const distanceGain = clamp(1 - gap / nearDistance, 0.28, 1);
     const contactBoost = focused ? 1.35 : 0.7;
-    leaf.progress = Math.min(1, leaf.progress + (delta * 1000 / session.settings.dwellMs) * distanceGain * contactBoost);
+    leaf.progress = Math.min(
+      1,
+      leaf.progress + ((delta * 1000) / session.settings.dwellMs) * distanceGain * contactBoost,
+    );
   } else {
     leaf.progress = Math.max(0, leaf.progress - delta * 0.42);
   }
@@ -312,7 +366,14 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
     const visualNow = session.settings.reduceMotion ? 0 : now;
     const x = width.value * (0.14 + index * 0.26) + Math.sin(visualNow * 0.00008 + index) * 22;
     const y = height.value * (0.22 + (index % 2) * 0.28);
-    const glow = ctx.createRadialGradient(x, y, 0, x, y, Math.max(width.value, height.value) * 0.28);
+    const glow = ctx.createRadialGradient(
+      x,
+      y,
+      0,
+      x,
+      y,
+      Math.max(width.value, height.value) * 0.28,
+    );
     glow.addColorStop(0, index % 2 === 0 ? "rgb(255 251 216 / 62%)" : "rgb(221 247 209 / 56%)");
     glow.addColorStop(1, "rgb(255 255 255 / 0%)");
     ctx.fillStyle = glow;
@@ -321,19 +382,42 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   ctx.restore();
 }
 
-function drawLeafShape(ctx: CanvasRenderingContext2D, item: Point & { radius: number; angle: number; hue: number }, alpha = 1) {
+function drawLeafShape(
+  ctx: CanvasRenderingContext2D,
+  item: Point & { radius: number; angle: number; hue: number },
+  alpha = 1,
+) {
   ctx.save();
   ctx.translate(item.x, item.y);
   ctx.rotate(item.angle);
   ctx.globalAlpha = alpha;
-  const gradient = ctx.createLinearGradient(-item.radius, -item.radius * 0.45, item.radius, item.radius * 0.45);
+  const gradient = ctx.createLinearGradient(
+    -item.radius,
+    -item.radius * 0.45,
+    item.radius,
+    item.radius * 0.45,
+  );
   gradient.addColorStop(0, `hsl(${item.hue} 48% 52%)`);
   gradient.addColorStop(1, `hsl(${item.hue + 28} 58% 68%)`);
   ctx.fillStyle = gradient;
   ctx.beginPath();
   ctx.moveTo(-item.radius * 0.86, 0);
-  ctx.bezierCurveTo(-item.radius * 0.42, -item.radius * 0.78, item.radius * 0.46, -item.radius * 0.62, item.radius * 0.92, 0);
-  ctx.bezierCurveTo(item.radius * 0.42, item.radius * 0.68, -item.radius * 0.44, item.radius * 0.74, -item.radius * 0.86, 0);
+  ctx.bezierCurveTo(
+    -item.radius * 0.42,
+    -item.radius * 0.78,
+    item.radius * 0.46,
+    -item.radius * 0.62,
+    item.radius * 0.92,
+    0,
+  );
+  ctx.bezierCurveTo(
+    item.radius * 0.42,
+    item.radius * 0.68,
+    -item.radius * 0.44,
+    item.radius * 0.74,
+    -item.radius * 0.86,
+    0,
+  );
   ctx.fill();
   ctx.strokeStyle = "rgb(255 255 255 / 42%)";
   ctx.lineWidth = Math.max(2, item.radius * 0.035);
@@ -347,7 +431,14 @@ function drawLeafShape(ctx: CanvasRenderingContext2D, item: Point & { radius: nu
 function drawTargetLeaf(ctx: CanvasRenderingContext2D) {
   const pulse = session.settings.reduceMotion ? 1 : 1 + Math.sin(leaf.pulse) * 0.035;
   const glowRadius = leaf.radius * (1.42 + leaf.progress * 0.36);
-  const glow = ctx.createRadialGradient(leaf.x, leaf.y, leaf.radius * 0.12, leaf.x, leaf.y, glowRadius);
+  const glow = ctx.createRadialGradient(
+    leaf.x,
+    leaf.y,
+    leaf.radius * 0.12,
+    leaf.x,
+    leaf.y,
+    glowRadius,
+  );
   glow.addColorStop(0, `rgb(255 255 218 / ${0.24 + leaf.progress * 0.16})`);
   glow.addColorStop(0.58, "rgb(178 226 115 / 22%)");
   glow.addColorStop(1, "rgb(178 226 115 / 0%)");
@@ -362,7 +453,13 @@ function drawTargetLeaf(ctx: CanvasRenderingContext2D) {
   ctx.strokeStyle = "rgb(255 255 255 / 76%)";
   ctx.lineWidth = Math.max(5, leaf.radius * 0.065);
   ctx.beginPath();
-  ctx.arc(leaf.x, leaf.y, leaf.radius * 0.72, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * leaf.progress);
+  ctx.arc(
+    leaf.x,
+    leaf.y,
+    leaf.radius * 0.72,
+    -Math.PI / 2,
+    -Math.PI / 2 + Math.PI * 2 * leaf.progress,
+  );
   ctx.stroke();
   ctx.restore();
 }
@@ -393,8 +490,10 @@ function drawSnake(ctx: CanvasRenderingContext2D) {
   const eyeForward = head.radius * 0.32;
   ctx.fillStyle = "rgb(255 255 255 / 92%)";
   for (const side of [-1, 1]) {
-    const x = head.x + Math.cos(angle) * eyeForward + Math.cos(angle + Math.PI / 2) * eyeOffset * side;
-    const y = head.y + Math.sin(angle) * eyeForward + Math.sin(angle + Math.PI / 2) * eyeOffset * side;
+    const x =
+      head.x + Math.cos(angle) * eyeForward + Math.cos(angle + Math.PI / 2) * eyeOffset * side;
+    const y =
+      head.y + Math.sin(angle) * eyeForward + Math.sin(angle + Math.PI / 2) * eyeOffset * side;
     ctx.beginPath();
     ctx.arc(x, y, head.radius * 0.18, 0, Math.PI * 2);
     ctx.fill();
@@ -414,7 +513,12 @@ function drawSparkles(ctx: CanvasRenderingContext2D) {
 
 function draw(ctx: CanvasRenderingContext2D, _delta: number, now: number) {
   drawBackground(ctx, now);
-  for (const item of meadowLeaves) drawLeafShape(ctx, { ...item, y: item.y + (session.settings.reduceMotion ? 0 : Math.sin(item.phase) * 5) }, 0.18);
+  for (const item of meadowLeaves)
+    drawLeafShape(
+      ctx,
+      { ...item, y: item.y + (session.settings.reduceMotion ? 0 : Math.sin(item.phase) * 5) },
+      0.18,
+    );
   drawTargetLeaf(ctx);
   drawSparkles(ctx);
   drawSnake(ctx);
@@ -426,9 +530,13 @@ function restart() {
   setGazeFollowSnakeMusicActive(soundEnabled.value, true);
 }
 
-watch(() => [session.status, soundEnabled.value] as const, ([status, enabled]) => {
-  setGazeFollowSnakeMusicActive(enabled, status === "running");
-}, { immediate: true });
+watch(
+  () => [session.status, soundEnabled.value] as const,
+  ([status, enabled]) => {
+    setGazeFollowSnakeMusicActive(enabled, status === "running");
+  },
+  { immediate: true },
+);
 
 onMounted(() => {
   resetScene();
@@ -463,7 +571,13 @@ useGameLoop({ context, update, draw });
     <v-card class="gaze-follow-snake-guidance pa-4" color="surface" rounded="xl" variant="flat">
       <div class="text-overline text-primary mb-1">Непрерывное ведение</div>
       <div class="text-body-1 font-weight-medium">{{ guidanceText }}</div>
-      <v-progress-linear class="mt-3" :model-value="leafProgress" color="success" height="0.5rem" rounded />
+      <v-progress-linear
+        class="mt-3"
+        :model-value="leafProgress"
+        color="success"
+        height="0.5rem"
+        rounded
+      />
       <div class="text-caption text-medium-emphasis mt-2">Лист: {{ leafProgress }}%</div>
     </v-card>
 
@@ -507,7 +621,7 @@ useGameLoop({ context, update, draw });
 }
 
 @media (max-width: 45rem) {
- .gaze-follow-snake-guidance {
+  .gaze-follow-snake-guidance {
     inset-block-start: auto;
     inset-block-end: max(1rem, env(safe-area-inset-bottom));
     inset-inline: 1rem;

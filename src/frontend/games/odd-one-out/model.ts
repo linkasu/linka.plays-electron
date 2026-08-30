@@ -31,20 +31,34 @@ export type OddOneOutRound = {
   mistakeHint: string;
 };
 
-function item(categoryId: OddOneOutCategoryId, id: string, label: string, emoji: string): OddOneOutItem {
-  const defaultImageId = categoryId === "animals"
-    || categoryId === "food"
-    || categoryId === "transport"
-    || categoryId === "nature" ? id : undefined;
+function item(
+  categoryId: OddOneOutCategoryId,
+  id: string,
+  label: string,
+  emoji: string,
+): OddOneOutItem {
+  const defaultImageId =
+    categoryId === "animals" ||
+    categoryId === "food" ||
+    categoryId === "transport" ||
+    categoryId === "nature"
+      ? id
+      : undefined;
   const exceptionalImageIds: Record<string, string> = {
     shirt: "shirt",
     dress: "dress",
     hat: "cap",
     shoe: "shoes",
     sock: "socks",
-    drum: "drum"
+    drum: "drum",
   };
-  return { id: `${categoryId}:${id}`, wordId: defaultImageId ?? exceptionalImageIds[id], label, emoji, categoryId };
+  return {
+    id: `${categoryId}:${id}`,
+    wordId: defaultImageId ?? exceptionalImageIds[id],
+    label,
+    emoji,
+    categoryId,
+  };
 }
 
 export const oddOneOutCategories: OddOneOutCategory[] = [
@@ -57,8 +71,8 @@ export const oddOneOutCategories: OddOneOutCategory[] = [
       item("animals", "dog", "пёс", "🐶"),
       item("animals", "duck", "утка", "🦆"),
       item("animals", "rabbit", "заяц", "🐰"),
-      item("animals", "fish", "рыба", "🐟")
-    ]
+      item("animals", "fish", "рыба", "🐟"),
+    ],
   },
   {
     id: "food",
@@ -69,8 +83,8 @@ export const oddOneOutCategories: OddOneOutCategory[] = [
       item("food", "banana", "банан", "🍌"),
       item("food", "bread", "хлеб", "🍞"),
       item("food", "cheese", "сыр", "🧀"),
-      item("food", "carrot", "морковь", "🥕")
-    ]
+      item("food", "carrot", "морковь", "🥕"),
+    ],
   },
   {
     id: "clothes",
@@ -81,8 +95,8 @@ export const oddOneOutCategories: OddOneOutCategory[] = [
       item("clothes", "dress", "платье", "👗"),
       item("clothes", "hat", "шапка", "🧢"),
       item("clothes", "shoe", "ботинок", "👟"),
-      item("clothes", "sock", "носок", "🧦")
-    ]
+      item("clothes", "sock", "носок", "🧦"),
+    ],
   },
   {
     id: "transport",
@@ -93,8 +107,8 @@ export const oddOneOutCategories: OddOneOutCategory[] = [
       item("transport", "bus", "автобус", "🚌"),
       item("transport", "train", "поезд", "🚆"),
       item("transport", "boat", "лодка", "⛵"),
-      item("transport", "plane", "самолёт", "✈️")
-    ]
+      item("transport", "plane", "самолёт", "✈️"),
+    ],
   },
   {
     id: "music",
@@ -105,8 +119,8 @@ export const oddOneOutCategories: OddOneOutCategory[] = [
       item("music", "guitar", "гитара", "🎸"),
       item("music", "trumpet", "труба", "🎺"),
       item("music", "violin", "скрипка", "🎻"),
-      item("music", "piano", "пианино", "🎹")
-    ]
+      item("music", "piano", "пианино", "🎹"),
+    ],
   },
   {
     id: "nature",
@@ -117,9 +131,9 @@ export const oddOneOutCategories: OddOneOutCategory[] = [
       item("nature", "tree", "дерево", "🌳"),
       item("nature", "leaf", "лист", "🍃"),
       item("nature", "mushroom", "гриб", "🍄"),
-      item("nature", "sun", "солнце", "☀️")
-    ]
-  }
+      item("nature", "sun", "солнце", "☀️"),
+    ],
+  },
 ];
 
 function choiceCountFor(settings: SessionSettings) {
@@ -128,7 +142,10 @@ function choiceCountFor(settings: SessionSettings) {
   return 4;
 }
 
-export function canContrastOddOneOutCategories(first: OddOneOutCategoryId, second: OddOneOutCategoryId) {
+export function canContrastOddOneOutCategories(
+  first: OddOneOutCategoryId,
+  second: OddOneOutCategoryId,
+) {
   if (first === second) return false;
   const potentiallyOverlapping = new Set(["animals:food", "animals:nature", "food:nature"]);
   return !potentiallyOverlapping.has([first, second].sort().join(":"));
@@ -137,10 +154,24 @@ export function canContrastOddOneOutCategories(first: OddOneOutCategoryId, secon
 export function generateOddOneOutRound(settings: SessionSettings, roundIndex = 1): OddOneOutRound {
   const choiceCount = choiceCountFor(settings);
   const assetMode: OddOneOutAssetMode = roundIndex % 2 === 1 ? "image" : "emoji";
-  const supportsMode = (candidate: OddOneOutItem) => assetMode === "emoji" || Boolean(candidate.wordId);
-  const commonCategory = shuffleItems(oddOneOutCategories.filter((category) => category.items.filter(supportsMode).length >= choiceCount - 1))[0];
-  const oddCategory = shuffleItems(oddOneOutCategories.filter((category) => canContrastOddOneOutCategories(commonCategory.id, category.id) && category.items.some(supportsMode)))[0];
-  const commonItems = shuffleItems(commonCategory.items.filter(supportsMode)).slice(0, choiceCount - 1);
+  const supportsMode = (candidate: OddOneOutItem) =>
+    assetMode === "emoji" || Boolean(candidate.wordId);
+  const commonCategory = shuffleItems(
+    oddOneOutCategories.filter(
+      (category) => category.items.filter(supportsMode).length >= choiceCount - 1,
+    ),
+  )[0];
+  const oddCategory = shuffleItems(
+    oddOneOutCategories.filter(
+      (category) =>
+        canContrastOddOneOutCategories(commonCategory.id, category.id) &&
+        category.items.some(supportsMode),
+    ),
+  )[0];
+  const commonItems = shuffleItems(commonCategory.items.filter(supportsMode)).slice(
+    0,
+    choiceCount - 1,
+  );
   const oddItem = shuffleItems(oddCategory.items.filter(supportsMode))[0];
   const choices = shuffleItems([...commonItems, oddItem]);
 
@@ -153,6 +184,6 @@ export function generateOddOneOutRound(settings: SessionSettings, roundIndex = 1
     choices,
     correctIndex: choices.indexOf(oddItem),
     assetMode,
-    mistakeHint: `Почти. Большинство карточек — ${commonCategory.label}. ${commonCategory.helper} Найди карточку из другой группы.`
+    mistakeHint: `Почти. Большинство карточек — ${commonCategory.label}. ${commonCategory.helper} Найди карточку из другой группы.`,
   };
 }

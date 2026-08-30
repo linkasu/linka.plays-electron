@@ -12,7 +12,8 @@ import vuetify from "./plugins/vuetify";
 
 installGlobalMetricsErrorHandlers();
 router.afterEach((route) => {
-  if (typeof route.name === "string") recordMetricsEvent({ eventName: "page_viewed", properties: { page: route.name } });
+  if (typeof route.name === "string")
+    recordMetricsEvent({ eventName: "page_viewed", properties: { page: route.name } });
 });
 
 createApp(App).use(router).use(vuetify).mount("#app");

@@ -11,7 +11,12 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { feedAnimalFeedback } from "./audio";
-import { animalEatsFood, generateFeedAnimalRound, type FeedAnimalFood, type FeedAnimalRound } from "./model";
+import {
+  animalEatsFood,
+  generateFeedAnimalRound,
+  type FeedAnimalFood,
+  type FeedAnimalRound,
+} from "./model";
 
 const router = useRouter();
 const isFeeding = ref(false);
@@ -21,24 +26,46 @@ const mistakeFoodId = ref<string>();
 const feedbackText = ref("Выбери, что ест зверёк.");
 let feedbackTimer = 0;
 
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("feed-animal", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  recordHint,
+  startSession,
+} = useGameSessionFor("feed-animal", {
   maxSteps: 8,
   overrides: {
     preset: "gentle",
     targetScale: 1.6,
     motionSpeed: 0.45,
     distractors: "none",
-    hints: "high"
+    hints: "high",
   },
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
-const promptAudio = useGamePromptAudio({ gameId: "feed-animal", soundEnabled: toRef(session.settings, "sound") });
-const responseAudio = useGamePromptAudio({ gameId: "feed-animal", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "feed-animal",
+  soundEnabled: toRef(session.settings, "sound"),
+});
+const responseAudio = useGamePromptAudio({
+  gameId: "feed-animal",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 
-const { round, resultVisible, nextRound, restart: restartRound } = useRoundGame<FeedAnimalRound>({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRound,
+} = useRoundGame<FeedAnimalRound>({
   session,
   startSession,
-  generateRound: generateFeedAnimalRound
+  generateRound: generateFeedAnimalRound,
 });
 
 function foodTargetId(roundId: string, foodId: string) {
@@ -95,7 +122,7 @@ function feed(food: FeedAnimalFood) {
       animalId: round.value.animal.id,
       foodId: food.id,
       label: `${round.value.animal.name}: ${food.name}`,
-      isCorrect: true
+      isCorrect: true,
     });
     prepareNextRound();
     return;
@@ -114,9 +141,13 @@ function feed(food: FeedAnimalFood) {
     foodId: food.id,
     expectedFoodId: round.value.correctFood.id,
     label: `${round.value.animal.name}: ${food.name}`,
-    isCorrect: false
+    isCorrect: false,
   });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, message: "Показана подходящая еда." });
+  recordHint({
+    roundId: round.value.roundId,
+    targetId: expectedTargetId,
+    message: "Показана подходящая еда.",
+  });
 }
 
 function restart() {
@@ -135,9 +166,12 @@ onMounted(() => {
   playPrompt(450);
 });
 
-watch(() => session.settings.sound, (enabled) => {
-  feedAnimalFeedback.warm(enabled);
-});
+watch(
+  () => session.settings.sound,
+  (enabled) => {
+    feedAnimalFeedback.warm(enabled);
+  },
+);
 
 onUnmounted(() => {
   window.clearTimeout(feedbackTimer);
@@ -148,38 +182,112 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <GamePageShell gradient="linear-gradient(135deg, #fff7e8 0%, #ecfff2 52%, #eef7ff 100%)" padding-top="8.25rem">
+  <GamePageShell
+    gradient="linear-gradient(135deg, #fff7e8 0%, #ecfff2 52%, #eef7ff 100%)"
+    padding-top="8.25rem"
+  >
     <template #hud>
-      <GameHud title="Покорми зверька" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+      <GameHud
+        title="Покорми зверька"
+        :step="session.step"
+        :max-steps="session.maxSteps"
+        :score="session.score"
+        :mistakes="session.mistakes"
+        :duration-ms="durationMs"
+        :session-seconds="session.settings.sessionSeconds"
+        :paused="session.status === 'paused'"
+        @pause="pauseSession"
+        @resume="resumeSession"
+      />
     </template>
     <v-container class="feed-animal-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="8">
           <v-card class="feed-animal-card pa-4 pa-md-5" color="surface" rounded="xl" elevation="8">
-            <div class="feed-animal-overline text-overline text-secondary text-center mb-2">Что ест зверёк</div>
+            <div class="feed-animal-overline text-overline text-secondary text-center mb-2">
+              Что ест зверёк
+            </div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">Покорми зверька</h1>
-            <p class="feed-animal-feedback text-h6 text-md-h5 text-medium-emphasis text-center mb-6">{{ feedbackText }}</p>
+            <p
+              class="feed-animal-feedback text-h6 text-md-h5 text-medium-emphasis text-center mb-6"
+            >
+              {{ feedbackText }}
+            </p>
 
-            <v-card class="animal-card pa-4 pa-md-5 mb-5 text-center" color="green-lighten-5" rounded="xl" variant="tonal">
-              <GameWordImage v-if="round.animal.wordId" :class="['animal-emoji', { 'animal-emoji--fed': isFeeding }]" :word-id="round.animal.wordId" :word="round.animal.name" :emoji="round.animal.emoji" />
-              <div v-else :class="['animal-emoji emoji-glyph', { 'animal-emoji--fed': isFeeding }]">{{ round.animal.emoji }}</div>
+            <v-card
+              class="animal-card pa-4 pa-md-5 mb-5 text-center"
+              color="green-lighten-5"
+              rounded="xl"
+              variant="tonal"
+            >
+              <GameWordImage
+                v-if="round.animal.wordId"
+                :class="['animal-emoji', { 'animal-emoji--fed': isFeeding }]"
+                :word-id="round.animal.wordId"
+                :word="round.animal.name"
+                :emoji="round.animal.emoji"
+              />
+              <div v-else :class="['animal-emoji emoji-glyph', { 'animal-emoji--fed': isFeeding }]">
+                {{ round.animal.emoji }}
+              </div>
               <div class="animal-card__text">
-                <div class="animal-title text-h4 text-md-h3 font-weight-bold">{{ round.animal.name }}</div>
-                <v-chip class="animal-chip mt-3" color="success" size="large" variant="flat" :prepend-icon="isFeeding ? 'mdi-heart' : 'mdi-paw'">
-                {{ isFeeding && selectedFood && animalEatsFood(round.animal, selectedFood) ? `Ням, ${selectedFood.name.toLowerCase()}!` : round.animal.phrase }}
+                <div class="animal-title text-h4 text-md-h3 font-weight-bold">
+                  {{ round.animal.name }}
+                </div>
+                <v-chip
+                  class="animal-chip mt-3"
+                  color="success"
+                  size="large"
+                  variant="flat"
+                  :prepend-icon="isFeeding ? 'mdi-heart' : 'mdi-paw'"
+                >
+                  {{
+                    isFeeding && selectedFood && animalEatsFood(round.animal, selectedFood)
+                      ? `Ням, ${selectedFood.name.toLowerCase()}!`
+                      : round.animal.phrase
+                  }}
                 </v-chip>
               </div>
             </v-card>
 
             <v-row justify="center">
               <v-col v-for="food in round.foods" :key="food.id" cols="12" sm="4">
-                <GameDwellButton :class="[{ 'food-choice--hint': revealedFoodId === food.id, 'food-choice--mistake': mistakeFoodId === food.id }]" :target-id="foodTargetId(round.roundId, food.id)" :disabled="session.status !== 'running' || isFeeding" :dwell-ms="session.settings.dwellMs" min-height="clamp(9.25rem, 20vh, 13rem)" :color="food.color" @select="feed(food)">
+                <GameDwellButton
+                  :class="[
+                    {
+                      'food-choice--hint': revealedFoodId === food.id,
+                      'food-choice--mistake': mistakeFoodId === food.id,
+                    },
+                  ]"
+                  :target-id="foodTargetId(round.roundId, food.id)"
+                  :disabled="session.status !== 'running' || isFeeding"
+                  :dwell-ms="session.settings.dwellMs"
+                  min-height="clamp(9.25rem, 20vh, 13rem)"
+                  :color="food.color"
+                  @select="feed(food)"
+                >
                   <template #default="{ active, progress }">
-                    <GameWordImage v-if="food.wordId" class="food-emoji" :word-id="food.wordId" :word="food.name" :emoji="food.emoji" />
+                    <GameWordImage
+                      v-if="food.wordId"
+                      class="food-emoji"
+                      :word-id="food.wordId"
+                      :word="food.name"
+                      :emoji="food.emoji"
+                    />
                     <div v-else class="food-emoji emoji-glyph">{{ food.emoji }}</div>
-                    <div class="food-choice-label text-h4 font-weight-bold mt-2">{{ food.name }}</div>
+                    <div class="food-choice-label text-h4 font-weight-bold mt-2">
+                      {{ food.name }}
+                    </div>
                     <div class="food-choice-status text-body-1 font-weight-medium mt-2">
-                      {{ revealedFoodId === food.id ? "Подходит" : mistakeFoodId === food.id ? "Не подходит" : active && progress > 0.8 ? "Проверяем" : "Выбери" }}
+                      {{
+                        revealedFoodId === food.id
+                          ? "Подходит"
+                          : mistakeFoodId === food.id
+                            ? "Не подходит"
+                            : active && progress > 0.8
+                              ? "Проверяем"
+                              : "Выбери"
+                      }}
                     </div>
                   </template>
                 </GameDwellButton>
@@ -189,7 +297,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Покорми зверька" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Покорми зверька"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </GamePageShell>
 </template>
 
@@ -246,7 +364,7 @@ onUnmounted(() => {
 }
 
 @media (max-height: 57.5rem) {
- .feed-animal-overline {
+  .feed-animal-overline {
     display: none;
   }
 
@@ -254,24 +372,24 @@ onUnmounted(() => {
     margin-block-end: 0.75rem !important;
   }
 
- .feed-animal-card {
+  .feed-animal-card {
     padding-block: 1rem !important;
   }
 
- .animal-card {
+  .animal-card {
     margin-block-end: 1rem !important;
     padding-block: 0.75rem !important;
   }
 
- .animal-emoji {
+  .animal-emoji {
     font-size: clamp(4rem, min(8vw, 11vh), 5.75rem);
   }
 
- .animal-title {
+  .animal-title {
     font-size: clamp(1.5rem, 3vw, 2rem) !important;
   }
 
- .animal-chip {
+  .animal-chip {
     font-size: 0.95rem !important;
   }
 }

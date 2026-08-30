@@ -20,14 +20,30 @@ const owlPositions: OwlPosition[] = [
   { x: 27, y: 58 },
   { x: 73, y: 58 },
   { x: 36, y: 42 },
-  { x: 64, y: 42 }
+  { x: 64, y: 42 },
 ];
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSessionFor("wake-owl", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("wake-owl", {
   maxSteps: 8,
-  overrides: { preset: "gentle", targetScale: 1.75, motionSpeed: 0.32, distractors: "none", hints: "high", sound: true },
-  finishOnMistakes: false
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.75,
+    motionSpeed: 0.32,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
+  finishOnMistakes: false,
 });
 useStartPromptAudio({ gameId: "wake-owl", soundEnabled: toRef(session.settings, "sound") });
 
@@ -39,7 +55,7 @@ const owlTargetStyle = computed(() => {
   const position = owlPositions[owlPositionIndex.value] ?? owlPositions[0];
   return {
     "--owl-x": `${position.x}%`,
-    "--owl-y": `${position.y}%`
+    "--owl-y": `${position.y}%`,
   } as CSSProperties;
 });
 const owlStateText = computed(() => {
@@ -64,7 +80,7 @@ function owlStyle(active: boolean, progress: number) {
     "--eye-height": `${24 + open * 74}px`,
     "--eye-glow": `${12 + open * 24}px`,
     "--pupil-size": `${14 + open * 26}px`,
-    "--pupil-opacity": String(0.35 + open * 0.65)
+    "--pupil-opacity": String(0.35 + open * 0.65),
   } as CSSProperties;
 }
 
@@ -80,7 +96,8 @@ function wakeOwl() {
   window.clearTimeout(moveTimer);
   if (session.step < session.maxSteps) {
     moveTimer = window.setTimeout(() => {
-      owlPositionIndex.value = (owlPositionIndex.value + 1 + session.step % 2) % owlPositions.length;
+      owlPositionIndex.value =
+        (owlPositionIndex.value + 1 + (session.step % 2)) % owlPositions.length;
     }, 720);
   }
 }
@@ -130,7 +147,9 @@ onUnmounted(() => {
       <v-card class="wake-owl-copy-card px-4 py-3 text-center" color="transparent" elevation="0">
         <div class="text-overline text-blue-lighten-4">фиксация взглядом</div>
         <h1 class="text-h4 text-sm-h3 font-weight-bold">Разбуди сонную сову</h1>
-        <p class="text-body-1 text-sm-h6 text-blue-grey-lighten-4 mb-0">Удерживай взгляд на сове. Здесь нет ошибок.</p>
+        <p class="text-body-1 text-sm-h6 text-blue-grey-lighten-4 mb-0">
+          Удерживай взгляд на сове. Здесь нет ошибок.
+        </p>
       </v-card>
 
       <div class="wake-owl-target-zone" :style="owlTargetStyle">
@@ -145,7 +164,14 @@ onUnmounted(() => {
         >
           <template #default="{ active, progress }">
             <div
-              :class="['wake-owl-owl', { 'wake-owl-owl--active': active, 'wake-owl-owl--blink': blinking, 'wake-owl-owl--awake': session.step >= session.maxSteps }]"
+              :class="[
+                'wake-owl-owl',
+                {
+                  'wake-owl-owl--active': active,
+                  'wake-owl-owl--blink': blinking,
+                  'wake-owl-owl--awake': session.step >= session.maxSteps,
+                },
+              ]"
               :style="owlStyle(active, progress)"
               role="img"
               :aria-label="owlStateText"
@@ -172,7 +198,9 @@ onUnmounted(() => {
       </div>
 
       <v-card class="wake-owl-progress px-4 py-3" color="surface" rounded="xl" variant="tonal">
-        <div class="text-body-2 font-weight-medium">Пробуждение: {{ session.step }} из {{ session.maxSteps }}</div>
+        <div class="text-body-2 font-weight-medium">
+          Пробуждение: {{ session.step }} из {{ session.maxSteps }}
+        </div>
         <div class="text-caption text-medium-emphasis">{{ owlStateText }}</div>
       </v-card>
     </section>
@@ -268,7 +296,9 @@ onUnmounted(() => {
   inset-inline-start: var(--owl-x);
   position: absolute;
   transform: translate(-50%, -50%);
-  transition: inset-block-start 620ms ease, inset-inline-start 620ms ease;
+  transition:
+    inset-block-start 620ms ease,
+    inset-inline-start 620ms ease;
   z-index: 2;
 }
 
@@ -290,12 +320,16 @@ onUnmounted(() => {
   background: radial-gradient(circle at 50% 38%, #8a6742 0 30%, #6a4b31 62%, #4a3329 100%);
   border: clamp(8px, 1.6vw, 14px) solid rgb(238 203 140 / 72%);
   border-radius: 48% 48% 42% 42%;
-  box-shadow: inset 0 -26px 56px rgb(42 26 22 / 34%), 0 34px 90px rgb(5 10 25 / 44%);
+  box-shadow:
+    inset 0 -26px 56px rgb(42 26 22 / 34%),
+    0 34px 90px rgb(5 10 25 / 44%);
   margin-inline: auto;
   max-inline-size: 100%;
   min-inline-size: 100%;
   position: relative;
-  transition: filter 220ms ease, transform 220ms ease;
+  transition:
+    filter 220ms ease,
+    transform 220ms ease;
 }
 
 .wake-owl-owl--active {
@@ -341,13 +375,17 @@ onUnmounted(() => {
   block-size: var(--eye-height);
   border: clamp(5px, 1vw, 9px) solid #f8d891;
   border-radius: 999px;
-  box-shadow: inset 0 0 24px rgb(95 58 24 / 32%), 0 0 var(--eye-glow) rgb(255 220 128 / 34%);
+  box-shadow:
+    inset 0 0 24px rgb(95 58 24 / 32%),
+    0 0 var(--eye-glow) rgb(255 220 128 / 34%);
   display: flex;
   inline-size: clamp(4.875rem, 18vw, 8rem);
   justify-content: center;
   overflow: hidden;
   transform-origin: center;
-  transition: block-size 180ms ease, box-shadow 180ms ease;
+  transition:
+    block-size 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .wake-owl-owl--blink.wake-owl-eye {
@@ -365,7 +403,10 @@ onUnmounted(() => {
   box-shadow: 0 0 18px rgb(255 246 202 / 42%);
   inline-size: var(--pupil-size);
   opacity: var(--pupil-opacity);
-  transition: block-size 180ms ease, inline-size 180ms ease, opacity 180ms ease;
+  transition:
+    block-size 180ms ease,
+    inline-size 180ms ease,
+    opacity 180ms ease;
 }
 
 .wake-owl-beak {
@@ -420,7 +461,9 @@ onUnmounted(() => {
 }
 
 @keyframes wake-owl-slow-blink {
-  0%, 88%, 100% {
+  0%,
+  88%,
+  100% {
     transform: scaleY(1);
   }
 
@@ -430,7 +473,9 @@ onUnmounted(() => {
 }
 
 @keyframes wake-owl-awake-blink {
-  0%, 90%, 100% {
+  0%,
+  90%,
+  100% {
     transform: scaleY(1);
   }
 
@@ -440,7 +485,8 @@ onUnmounted(() => {
 }
 
 @keyframes wake-owl-eye-blink {
-  0%, 100% {
+  0%,
+  100% {
     transform: scaleY(1);
   }
 
@@ -450,20 +496,20 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
- .wake-owl-playfield {
+  .wake-owl-playfield {
     padding: 7.5rem 1.125rem 7.25rem;
   }
 
- .wake-owl-copy-card {
+  .wake-owl-copy-card {
     inset-block-start: 96px;
     inset-inline: 14px;
   }
 
- .wake-owl-target-zone {
+  .wake-owl-target-zone {
     inline-size: min(74vw, 20.625rem);
   }
 
- .wake-owl-progress {
+  .wake-owl-progress {
     inset-inline: 16px;
   }
 }

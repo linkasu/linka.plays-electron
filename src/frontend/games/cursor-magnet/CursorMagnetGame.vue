@@ -9,7 +9,23 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { createMagneticLabState, currentLevel, cycleSelectedStrength, magneticLevels, nextLevel, resetLevel, selectMagnet, selectedMagnet, setSelectedPole, startSimulation, stepSimulation, type MagneticLabState, type MagnetConfig, type MagneticPole, type Point } from "./model";
+import {
+  createMagneticLabState,
+  currentLevel,
+  cycleSelectedStrength,
+  magneticLevels,
+  nextLevel,
+  resetLevel,
+  selectMagnet,
+  selectedMagnet,
+  setSelectedPole,
+  startSimulation,
+  stepSimulation,
+  type MagneticLabState,
+  type MagnetConfig,
+  type MagneticPole,
+  type Point,
+} from "./model";
 
 type StageRect = {
   x: number;
@@ -21,16 +37,39 @@ type StageRect = {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordHint, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("cursor-magnet", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordHint,
+  recordMistake,
+  recordSuccess,
+  startSession,
+  finishSession,
+} = useGameSessionFor("cursor-magnet", {
   maxSteps: magneticLevels.length,
-  overrides: { preset: "standard", dwellMs: 850, targetScale: 1.35, motionSpeed: 1, distractors: "low", hints: "medium" },
+  overrides: {
+    preset: "standard",
+    dwellMs: 850,
+    targetScale: 1.35,
+    motionSpeed: 1,
+    distractors: "low",
+    hints: "medium",
+  },
   finishOnMaxSteps: false,
   finishOnMistakes: false,
-  finishOnTimeout: false
+  finishOnTimeout: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
 const taskAssetIds = magneticLevels.map((taskLevel) => `cursor-magnet.task.${taskLevel.id}`);
-const promptAudio = useGamePromptAudio({ gameId: "cursor-magnet", soundEnabled, warmAssetIds: ["cursor-magnet.intro", ...taskAssetIds] });
+const promptAudio = useGamePromptAudio({
+  gameId: "cursor-magnet",
+  soundEnabled,
+  warmAssetIds: ["cursor-magnet.intro", ...taskAssetIds],
+});
 
 const labState = ref<MagneticLabState>(createMagneticLabState());
 const helperText = ref("Выбери заряд, настрой знак и силу, затем нажми Пуск.");
@@ -42,7 +81,9 @@ const taskText = computed(() => `Задача: ${level.value.brief}`);
 const activeMagnet = computed(() => selectedMagnet(labState.value));
 const levelText = computed(() => `${labState.value.levelIndex + 1}/${magneticLevels.length}`);
 const canEdit = computed(() => labState.value.mode !== "running");
-const canGoNext = computed(() => labState.value.mode === "success" && labState.value.levelIndex < magneticLevels.length - 1);
+const canGoNext = computed(
+  () => labState.value.mode === "success" && labState.value.levelIndex < magneticLevels.length - 1,
+);
 const modeLabel = computed(() => {
   if (labState.value.mode === "running") return "Симуляция";
   if (labState.value.mode === "success") return "Схема сработала";
@@ -56,7 +97,7 @@ function stageRect(): StageRect {
     x: width.value * (compact ? 0.045 : 0.055),
     y: height.value * (compact ? 0.17 : 0.18),
     width: width.value * (compact ? 0.52 : 0.58),
-    height: height.value * (compact ? 0.74 : 0.72)
+    height: height.value * (compact ? 0.74 : 0.72),
   };
 }
 
@@ -64,7 +105,7 @@ function toStage(point: Point) {
   const rect = stageRect();
   return {
     x: rect.x + point.x * rect.width,
-    y: rect.y + point.y * rect.height
+    y: rect.y + point.y * rect.height,
   };
 }
 
@@ -82,7 +123,10 @@ function selectMagnetById(magnetId: string) {
 function setPole(pole: MagneticPole) {
   const magnet = activeMagnet.value;
   labState.value = setSelectedPole(labState.value, pole);
-  helperText.value = pole === "negative" ? "Отрицательный заряд притягивает положительную капсулу." : "Положительный заряд отталкивает положительную капсулу.";
+  helperText.value =
+    pole === "negative"
+      ? "Отрицательный заряд притягивает положительную капсулу."
+      : "Положительный заряд отталкивает положительную капсулу.";
   recordHint({ kind: "magnet-pole", magnetId: magnet?.id, pole, levelId: level.value.id });
 }
 
@@ -90,13 +134,22 @@ function cycleStrength() {
   const magnet = activeMagnet.value;
   labState.value = cycleSelectedStrength(labState.value);
   helperText.value = `Сила станции ${selectedMagnet(labState.value)?.label}: ${strengthText(selectedMagnet(labState.value)?.strength ?? 0)}.`;
-  recordHint({ kind: "magnet-strength", magnetId: magnet?.id, strength: selectedMagnet(labState.value)?.strength, levelId: level.value.id });
+  recordHint({
+    kind: "magnet-strength",
+    magnetId: magnet?.id,
+    strength: selectedMagnet(labState.value)?.strength,
+    levelId: level.value.id,
+  });
 }
 
 function runSimulation() {
   labState.value = startSimulation(labState.value);
   helperText.value = "Симуляция запущена. Наблюдай, как поля ведут капсулу.";
-  recordHint({ kind: "simulation-start", levelId: level.value.id, magnets: labState.value.magnets });
+  recordHint({
+    kind: "simulation-start",
+    levelId: level.value.id,
+    magnets: labState.value.magnets,
+  });
 }
 
 function resetCurrentLevel() {
@@ -167,16 +220,25 @@ function update(delta: number, now: number) {
 }
 
 function completeLevel() {
-  helperText.value = labState.value.levelIndex === magneticLevels.length - 1
-    ? "Финальная схема сработала. Магнитная лаборатория пройдена."
-    : "Схема сработала. Можно перейти к следующему контуру.";
-  recordSuccess({ levelId: level.value.id, elapsedSeconds: Math.round(labState.value.elapsedSeconds * 10) / 10, magnets: labState.value.magnets });
+  helperText.value =
+    labState.value.levelIndex === magneticLevels.length - 1
+      ? "Финальная схема сработала. Магнитная лаборатория пройдена."
+      : "Схема сработала. Можно перейти к следующему контуру.";
+  recordSuccess({
+    levelId: level.value.id,
+    elapsedSeconds: Math.round(labState.value.elapsedSeconds * 10) / 10,
+    magnets: labState.value.magnets,
+  });
   if (labState.value.levelIndex === magneticLevels.length - 1) finishSession("game-complete");
 }
 
 function failLevel() {
   helperText.value = `${failureText(labState.value.failureReason)} Перестрой знаки зарядов или силу и запусти снова.`;
-  recordMistake({ levelId: level.value.id, reason: labState.value.failureReason, magnets: labState.value.magnets });
+  recordMistake({
+    levelId: level.value.id,
+    reason: labState.value.failureReason,
+    magnets: labState.value.magnets,
+  });
 }
 
 function failureText(reason: MagneticLabState["failureReason"]) {
@@ -289,7 +351,14 @@ function drawGoal(ctx: CanvasRenderingContext2D, now: number) {
   const radius = stageLength(level.value.goal.radius);
   const pulse = session.settings.reduceMotion ? 0 : Math.sin(now * 0.004) * 0.08;
   ctx.save();
-  const glow = ctx.createRadialGradient(goal.x, goal.y, radius * 0.25, goal.x, goal.y, radius * 2.4);
+  const glow = ctx.createRadialGradient(
+    goal.x,
+    goal.y,
+    radius * 0.25,
+    goal.x,
+    goal.y,
+    radius * 2.4,
+  );
   glow.addColorStop(0, "rgb(128 255 209 / 58%)");
   glow.addColorStop(0.55, "rgb(57 206 255 / 22%)");
   glow.addColorStop(1, "rgb(57 206 255 / 0%)");
@@ -323,7 +392,8 @@ function drawMagnet(ctx: CanvasRenderingContext2D, magnet: MagnetConfig) {
   ctx.translate(point.x, point.y);
   ctx.shadowColor = magnet.pole === "positive" ? "rgb(255 60 90 / 70%)" : "rgb(70 150 255 / 70%)";
   ctx.shadowBlur = selected ? radius * 0.75 : radius * 0.35;
-  ctx.fillStyle = magnet.strength === 0 ? "#3b4257" : magnet.pole === "positive" ? "#e93d58" : "#3588ff";
+  ctx.fillStyle =
+    magnet.strength === 0 ? "#3b4257" : magnet.pole === "positive" ? "#e93d58" : "#3588ff";
   ctx.strokeStyle = selected ? "#ffffff" : "rgb(255 255 255 / 52%)";
   ctx.lineWidth = selected ? Math.max(4, radius * 0.13) : Math.max(2, radius * 0.08);
   ctx.beginPath();
@@ -356,7 +426,15 @@ function drawCapsule(ctx: CanvasRenderingContext2D) {
   ctx.strokeStyle = "#ffffff";
   ctx.lineWidth = Math.max(3, radius * 0.1);
   ctx.beginPath();
-  ctx.ellipse(0, 0, radius * 1.22, radius * 0.82, Math.atan2(labState.value.capsule.vy, labState.value.capsule.vx), 0, Math.PI * 2);
+  ctx.ellipse(
+    0,
+    0,
+    radius * 1.22,
+    radius * 0.82,
+    Math.atan2(labState.value.capsule.vy, labState.value.capsule.vx),
+    0,
+    Math.PI * 2,
+  );
   ctx.fill();
   ctx.stroke();
   ctx.fillStyle = "#281600";
@@ -386,7 +464,11 @@ function drawLabels(ctx: CanvasRenderingContext2D) {
   ctx.font = canvasFont(800, Math.max(15, height.value * 0.024));
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
-  ctx.fillText(`Контур ${levelText.value}: ${level.value.title}`, rect.x, rect.y - Math.max(26, height.value * 0.045));
+  ctx.fillText(
+    `Контур ${levelText.value}: ${level.value.title}`,
+    rect.x,
+    rect.y - Math.max(26, height.value * 0.045),
+  );
   ctx.font = canvasFont(600, Math.max(12, height.value * 0.018));
   ctx.fillStyle = "rgb(188 211 230 / 90%)";
   ctx.fillText(modeLabel.value, rect.x, rect.y + rect.height + Math.max(10, height.value * 0.015));
@@ -416,9 +498,25 @@ useGameLoop({ context, update, draw });
 
 <template>
   <div class="magnetic-lab-shell">
-    <canvas ref="canvasRef" class="magnetic-lab-canvas" aria-label="Игра Магнитная лаборатория" @click="onCanvasClick" />
+    <canvas
+      ref="canvasRef"
+      class="magnetic-lab-canvas"
+      aria-label="Игра Магнитная лаборатория"
+      @click="onCanvasClick"
+    />
 
-    <GameHud title="Магнитная лаборатория" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :paused="session.status === 'paused'" :show-timer="false" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Магнитная лаборатория"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :paused="session.status === 'paused'"
+      :show-timer="false"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
 
     <aside class="magnetic-lab-panel" aria-label="Панель магнитной лаборатории">
       <v-card class="magnetic-card pa-3 pa-sm-4" rounded="xl" elevation="12">
@@ -428,42 +526,113 @@ useGameLoop({ context, update, draw });
         <p class="hint-text text-caption text-sm-body-2 mb-3">{{ helperText }}</p>
 
         <div class="magnet-list mb-3">
-          <GameDwellButton v-for="magnet in labState.magnets" :key="magnet.id" :target-id="`cursor-magnet:select:${magnet.id}`" :disabled="!canEdit" :dwell-ms="session.settings.dwellMs" min-height="clamp(3.7rem, 10dvh, 5.5rem)" color="indigo-darken-4" @select="selectMagnetById(magnet.id)">
-            <div :class="['magnet-choice', { 'magnet-choice--selected': magnet.id === labState.selectedMagnetId }]">
+          <GameDwellButton
+            v-for="magnet in labState.magnets"
+            :key="magnet.id"
+            :target-id="`cursor-magnet:select:${magnet.id}`"
+            :disabled="!canEdit"
+            :dwell-ms="session.settings.dwellMs"
+            min-height="clamp(3.7rem, 10dvh, 5.5rem)"
+            color="indigo-darken-4"
+            @select="selectMagnetById(magnet.id)"
+          >
+            <div
+              :class="[
+                'magnet-choice',
+                { 'magnet-choice--selected': magnet.id === labState.selectedMagnetId },
+              ]"
+            >
               <strong>{{ magnet.label }}</strong>
-              <span :class="magnet.pole === 'positive' ? 'charge-positive' : 'charge-negative'">{{ chargeSymbol(magnet.pole) }}</span>
+              <span :class="magnet.pole === 'positive' ? 'charge-positive' : 'charge-negative'">{{
+                chargeSymbol(magnet.pole)
+              }}</span>
               <small>{{ strengthText(magnet.strength) }}</small>
             </div>
           </GameDwellButton>
         </div>
 
         <div class="control-grid mb-3">
-          <GameDwellButton target-id="cursor-magnet:positive" :disabled="!canEdit" :dwell-ms="session.settings.dwellMs" min-height="clamp(4rem, 10dvh, 5.6rem)" color="red-darken-3" @select="setPole('positive')">
+          <GameDwellButton
+            target-id="cursor-magnet:positive"
+            :disabled="!canEdit"
+            :dwell-ms="session.settings.dwellMs"
+            min-height="clamp(4rem, 10dvh, 5.6rem)"
+            color="red-darken-3"
+            @select="setPole('positive')"
+          >
             <div class="control-button"><strong>+</strong><span>положительный</span></div>
           </GameDwellButton>
-          <GameDwellButton target-id="cursor-magnet:negative" :disabled="!canEdit" :dwell-ms="session.settings.dwellMs" min-height="clamp(4rem, 10dvh, 5.6rem)" color="blue-darken-3" @select="setPole('negative')">
+          <GameDwellButton
+            target-id="cursor-magnet:negative"
+            :disabled="!canEdit"
+            :dwell-ms="session.settings.dwellMs"
+            min-height="clamp(4rem, 10dvh, 5.6rem)"
+            color="blue-darken-3"
+            @select="setPole('negative')"
+          >
             <div class="control-button"><strong>−</strong><span>отрицательный</span></div>
           </GameDwellButton>
-          <GameDwellButton target-id="cursor-magnet:strength" :disabled="!canEdit" :dwell-ms="session.settings.dwellMs" min-height="clamp(4rem, 10dvh, 5.6rem)" color="deep-purple-darken-3" @select="cycleStrength">
-            <div class="control-button"><v-icon icon="mdi-sine-wave" /><span>сила: {{ strengthText(activeMagnet?.strength ?? 0) }}</span></div>
+          <GameDwellButton
+            target-id="cursor-magnet:strength"
+            :disabled="!canEdit"
+            :dwell-ms="session.settings.dwellMs"
+            min-height="clamp(4rem, 10dvh, 5.6rem)"
+            color="deep-purple-darken-3"
+            @select="cycleStrength"
+          >
+            <div class="control-button">
+              <v-icon icon="mdi-sine-wave" /><span
+                >сила: {{ strengthText(activeMagnet?.strength ?? 0) }}</span
+              >
+            </div>
           </GameDwellButton>
-          <GameDwellButton target-id="cursor-magnet:run" :disabled="labState.mode === 'running'" :dwell-ms="session.settings.dwellMs" min-height="clamp(4rem, 10dvh, 5.6rem)" color="green-darken-3" @select="runSimulation">
+          <GameDwellButton
+            target-id="cursor-magnet:run"
+            :disabled="labState.mode === 'running'"
+            :dwell-ms="session.settings.dwellMs"
+            min-height="clamp(4rem, 10dvh, 5.6rem)"
+            color="green-darken-3"
+            @select="runSimulation"
+          >
             <div class="control-button"><v-icon icon="mdi-play" /><span>пуск</span></div>
           </GameDwellButton>
         </div>
 
         <div class="action-row">
-          <GameDwellButton target-id="cursor-magnet:reset" :dwell-ms="session.settings.dwellMs" min-height="clamp(3.5rem, 8dvh, 4.8rem)" color="blue-grey-darken-4" @select="resetCurrentLevel">
+          <GameDwellButton
+            target-id="cursor-magnet:reset"
+            :dwell-ms="session.settings.dwellMs"
+            min-height="clamp(3.5rem, 8dvh, 4.8rem)"
+            color="blue-grey-darken-4"
+            @select="resetCurrentLevel"
+          >
             <div class="small-action"><v-icon icon="mdi-restore" />Сброс</div>
           </GameDwellButton>
-          <GameDwellButton v-if="canGoNext" target-id="cursor-magnet:next" :dwell-ms="session.settings.dwellMs" min-height="clamp(3.5rem, 8dvh, 4.8rem)" color="cyan-darken-4" @select="openNextLevel">
+          <GameDwellButton
+            v-if="canGoNext"
+            target-id="cursor-magnet:next"
+            :dwell-ms="session.settings.dwellMs"
+            min-height="clamp(3.5rem, 8dvh, 4.8rem)"
+            color="cyan-darken-4"
+            @select="openNextLevel"
+          >
             <div class="small-action"><v-icon icon="mdi-arrow-right-bold" />Дальше</div>
           </GameDwellButton>
         </div>
       </v-card>
     </aside>
 
-    <GameResultDialog :model-value="resultVisible" title="Магнитная лаборатория" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Магнитная лаборатория"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -569,34 +738,34 @@ useGameLoop({ context, update, draw });
 }
 
 @media (max-width: 53.75rem), (max-height: 40.625rem) {
- .magnetic-lab-panel {
+  .magnetic-lab-panel {
     inline-size: min(23rem, 40dvw);
     inset-block-start: 4.6rem;
   }
 
- .magnetic-card h1,
- .magnetic-card .text-overline {
+  .magnetic-card h1,
+  .magnetic-card .text-overline {
     display: none;
   }
 
- .magnetic-card {
+  .magnetic-card {
     padding: 0.75rem !important;
   }
 
- .magnetic-card p {
+  .magnetic-card p {
     font-size: 0.82rem;
     margin-block-end: 0.55rem !important;
   }
 
- .magnetic-card.hint-text {
+  .magnetic-card.hint-text {
     display: none;
   }
 
- .magnetic-lab-panel :deep(.dwell-button) {
+  .magnetic-lab-panel :deep(.dwell-button) {
     padding: 0.65rem !important;
   }
 
- .magnet-list {
+  .magnet-list {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

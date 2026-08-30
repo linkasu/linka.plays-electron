@@ -2,7 +2,9 @@ import { createAmbientPiano } from "../../core/ambientPiano";
 
 const piano = createAmbientPiano({
   notesToLoad: [45, 47, 49, 52, 54, 56, 57, 59, 61, 64, 68, 73],
-  loopNotes: [49, 56, 61, 49, 56, 61, 52, 56, 61, 52, 56, 61, 45, 52, 57, 45, 52, 57, 47, 54, 59, 47, 54, 59],
+  loopNotes: [
+    49, 56, 61, 49, 56, 61, 52, 56, 61, 52, 56, 61, 45, 52, 57, 45, 52, 57, 47, 54, 59, 47, 54, 59,
+  ],
   cueNotes: [61, 64, 68, 73],
   reverbName: "moon-path-room",
   reverbAmount: 0.24,
@@ -24,7 +26,7 @@ const piano = createAmbientPiano({
   cueCooldownSeconds: 1.05,
   activeGain: 1,
   fadeInSeconds: 1.2,
-  fadeOutSeconds: 1.9
+  fadeOutSeconds: 1.9,
 });
 
 export function warmMoonPathPiano(enabled: boolean) {

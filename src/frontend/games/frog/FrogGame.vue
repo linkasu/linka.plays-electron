@@ -9,20 +9,53 @@ import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { createDwellMachineState } from "../../core/dwellStateMachine";
 import type { DwellCancelReason } from "../../core/gaze";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { advanceMovingTargetDwell, advanceMovingTargetX, movingTargetSpawnX } from "../../core/movingTarget";
+import {
+  advanceMovingTargetDwell,
+  advanceMovingTargetX,
+  movingTargetSpawnX,
+} from "../../core/movingTarget";
 import { disposeFrogAudio, playFrogMelody, resetFrogAudioSession, warmFrogAudio } from "./audio";
 import { frogProgression } from "./model";
-import { bugHitRadius, drawFrogScene, laneBottom, laneTop, type Bug, type CatchBurst, type Point, type Tongue } from "./scene";
+import {
+  bugHitRadius,
+  drawFrogScene,
+  laneBottom,
+  laneTop,
+  type Bug,
+  type CatchBurst,
+  type Point,
+  type Tongue,
+} from "./scene";
 
 type CancelReason = DwellCancelReason | "escaped";
 
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("frog", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordEvent,
+  recordMistake,
+  recordSuccess,
+  startSession,
+  finishSession,
+} = useGameSessionFor("frog", {
   maxSteps: 10,
-  overrides: { preset: "gentle", dwellMs: 900, sessionSeconds: 90, targetScale: 1.35, motionSpeed: 0.62, distractors: "none", hints: "high" },
-  finishOnMaxSteps: false
+  overrides: {
+    preset: "gentle",
+    dwellMs: 900,
+    sessionSeconds: 90,
+    targetScale: 1.35,
+    motionSpeed: 0.62,
+    distractors: "none",
+    hints: "high",
+  },
+  finishOnMaxSteps: false,
 });
 useStartPromptAudio({ gameId: "frog", soundEnabled: toRef(session.settings, "sound") });
 
@@ -76,7 +109,11 @@ function laneY(laneIndex: number) {
   const top = laneTop();
   const bottom = laneBottom();
   const spacing = laneIndex / 2;
-  return top + (bottom - top) * spacing + randomRange(-window.innerHeight * 0.018, window.innerHeight * 0.018);
+  return (
+    top +
+    (bottom - top) * spacing +
+    randomRange(-window.innerHeight * 0.018, window.innerHeight * 0.018)
+  );
 }
 
 function nextSpawnPoint() {
@@ -86,9 +123,11 @@ function nextSpawnPoint() {
     { laneIndex: 2, direction: 1 as const },
     { laneIndex: 0, direction: -1 as const },
     { laneIndex: 1, direction: -1 as const },
-    { laneIndex: 2, direction: -1 as const }
+    { laneIndex: 2, direction: -1 as const },
   ];
-  const available = points.filter((point) => `${point.direction}:${point.laneIndex}` !== lastSpawnKey);
+  const available = points.filter(
+    (point) => `${point.direction}:${point.laneIndex}` !== lastSpawnKey,
+  );
   const point = available[Math.floor(Math.random() * available.length)] ?? points[0];
   lastSpawnKey = `${point.direction}:${point.laneIndex}`;
   return point;
@@ -107,7 +146,7 @@ function spawnBug() {
       index: spawn.laneIndex,
       targetCount: 3,
       targetRadius: size,
-      viewportWidth: window.innerWidth
+      viewportWidth: window.innerWidth,
     }),
     y: laneY(spawn.laneIndex),
     laneY: 0,
@@ -118,7 +157,7 @@ function spawnBug() {
     phase: randomRange(0, Math.PI * 2),
     state: "flying",
     dwellProgress: 0,
-    caughtAge: 0
+    caughtAge: 0,
   };
   bug.laneY = bug.y;
   bugs.push(bug);
@@ -139,7 +178,7 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
@@ -152,7 +191,7 @@ function targetPayload(bug: Bug, progress: number, reason?: CancelReason) {
     elapsedMs: Math.round(progress * session.settings.dwellMs),
     progress,
     pointer: copyPointer(),
-    reason
+    reason,
   };
 }
 
@@ -162,7 +201,7 @@ function addBurst(bug: Bug) {
     y: bug.y,
     age: 0,
     life: 1.05,
-    radius: bug.size * 0.4
+    radius: bug.size * 0.4,
   });
   if (bursts.length > 8) bursts.shift();
 }
@@ -172,7 +211,7 @@ function addTongue(target: Point) {
     x: target.x,
     y: target.y,
     age: 0,
-    life: 0.42
+    life: 0.42,
   });
   if (tongues.length > 4) tongues.shift();
 }
@@ -216,7 +255,7 @@ function updateBugGaze(now: number) {
     point: (bug) => bug,
     hitRadius: bugHitRadius,
     enabled: (bug) => bug.state === "flying",
-    dwellMs: session.settings.dwellMs
+    dwellMs: session.settings.dwellMs,
   });
   dwellState = result.state;
 
@@ -229,7 +268,8 @@ function updateBugGaze(now: number) {
   }
 
   for (const bug of bugs) {
-    if (bug.state === "flying") bug.dwellProgress = dwellState.targetId === bug.id ? result.progress : 0;
+    if (bug.state === "flying")
+      bug.dwellProgress = dwellState.targetId === bug.id ? result.progress : 0;
   }
 }
 
@@ -290,12 +330,13 @@ function draw(context: CanvasRenderingContext2D, now: number) {
     durationMs: durationMs.value,
     sessionSeconds: session.settings.sessionSeconds,
     attempts: session.step,
-    maxAttempts: session.maxSteps
+    maxAttempts: session.maxSteps,
   });
 }
 
 function tick(now: number) {
-  const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+  const delta =
+    session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
 
   if (session.status === "running") {
@@ -334,7 +375,18 @@ onUnmounted(() => {
 <template>
   <div class="frog-shell">
     <canvas ref="canvasRef" class="frog-canvas" />
-    <GameHud title="Жаба" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Жаба"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
 
     <GameResultDialog
       :model-value="resultVisible"
@@ -364,5 +416,4 @@ onUnmounted(() => {
   inset: 0;
   position: absolute;
 }
-
 </style>

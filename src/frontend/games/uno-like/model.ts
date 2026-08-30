@@ -34,7 +34,7 @@ export const unoLikeColors: UnoLikeColor[] = [
   { id: "red", label: "красный", hex: "#d83a3a", textColor: "#ffffff" },
   { id: "blue", label: "синий", hex: "#2f6fdb", textColor: "#ffffff" },
   { id: "green", label: "зелёный", hex: "#1b5e20", textColor: "#ffffff" },
-  { id: "yellow", label: "жёлтый", hex: "#f8c73e", textColor: "#25210c" }
+  { id: "yellow", label: "жёлтый", hex: "#f8c73e", textColor: "#25210c" },
 ];
 
 export function createUnoLikeCard(color: UnoLikeColor, number: UnoLikeNumber): UnoLikeCard {
@@ -42,13 +42,18 @@ export function createUnoLikeCard(color: UnoLikeColor, number: UnoLikeNumber): U
     id: `${color.id}-${number}`,
     color,
     number,
-    label: `${color.label} ${number}`
+    label: `${color.label} ${number}`,
   };
 }
 
-export const unoLikeDeck: UnoLikeCard[] = unoLikeColors.flatMap((color) => unoLikeNumbers.map((number) => createUnoLikeCard(color, number)));
+export const unoLikeDeck: UnoLikeCard[] = unoLikeColors.flatMap((color) =>
+  unoLikeNumbers.map((number) => createUnoLikeCard(color, number)),
+);
 
-export function getUnoLikeMatchTraits(card: UnoLikeCard, openCard: UnoLikeCard): UnoLikeMatchTrait[] {
+export function getUnoLikeMatchTraits(
+  card: UnoLikeCard,
+  openCard: UnoLikeCard,
+): UnoLikeMatchTrait[] {
   const traits: UnoLikeMatchTrait[] = [];
   if (card.color.id === openCard.color.id) traits.push("color");
   if (card.number === openCard.number) traits.push("number");
@@ -70,11 +75,20 @@ function rotateItems<T>(items: T[], offset: number) {
   return [...items.slice(normalizedOffset), ...items.slice(0, normalizedOffset)];
 }
 
-function pushCandidate(choices: UnoLikeCard[], openCard: UnoLikeCard, startOffset: number, predicate: (card: UnoLikeCard) => boolean) {
+function pushCandidate(
+  choices: UnoLikeCard[],
+  openCard: UnoLikeCard,
+  startOffset: number,
+  predicate: (card: UnoLikeCard) => boolean,
+) {
   const openIndex = unoLikeDeck.findIndex((card) => card.id === openCard.id);
   for (let step = 0; step < unoLikeDeck.length; step += 1) {
     const candidate = unoLikeDeck[(openIndex + startOffset + step) % unoLikeDeck.length];
-    if (candidate.id !== openCard.id && !choices.some((choice) => choice.id === candidate.id) && predicate(candidate)) {
+    if (
+      candidate.id !== openCard.id &&
+      !choices.some((choice) => choice.id === candidate.id) &&
+      predicate(candidate)
+    ) {
       choices.push(candidate);
       return;
     }
@@ -83,20 +97,38 @@ function pushCandidate(choices: UnoLikeCard[], openCard: UnoLikeCard, startOffse
 
 export function generateUnoLikeRound(settings: SessionSettings, roundIndex = 1): UnoLikeRound {
   const choiceCount = choiceCountFor(settings);
-  if (unoLikeDeck.length < choiceCount + 1) throw new Error("Недостаточно карт для уно-подобной игры.");
+  if (unoLikeDeck.length < choiceCount + 1)
+    throw new Error("Недостаточно карт для уно-подобной игры.");
 
   const openCard = unoLikeDeck[((roundIndex - 1) * 5) % unoLikeDeck.length];
   const choices: UnoLikeCard[] = [];
 
-  pushCandidate(choices, openCard, roundIndex, (card) => card.color.id === openCard.color.id && card.number !== openCard.number);
-  pushCandidate(choices, openCard, roundIndex + unoLikeNumbers.length, (card) => card.number === openCard.number && card.color.id !== openCard.color.id);
+  pushCandidate(
+    choices,
+    openCard,
+    roundIndex,
+    (card) => card.color.id === openCard.color.id && card.number !== openCard.number,
+  );
+  pushCandidate(
+    choices,
+    openCard,
+    roundIndex + unoLikeNumbers.length,
+    (card) => card.number === openCard.number && card.color.id !== openCard.color.id,
+  );
 
   while (choices.length < choiceCount) {
-    pushCandidate(choices, openCard, roundIndex + choices.length * 3, (card) => card.color.id !== openCard.color.id && card.number !== openCard.number);
+    pushCandidate(
+      choices,
+      openCard,
+      roundIndex + choices.length * 3,
+      (card) => card.color.id !== openCard.color.id && card.number !== openCard.number,
+    );
   }
 
   const rotatedChoices = rotateItems(choices, roundIndex % choices.length);
-  const playableIds = rotatedChoices.filter((card) => isUnoLikePlayable(card, openCard)).map((card) => card.id);
+  const playableIds = rotatedChoices
+    .filter((card) => isUnoLikePlayable(card, openCard))
+    .map((card) => card.id);
 
   return {
     roundId: `uno-like:round:${roundIndex}`,
@@ -108,6 +140,6 @@ export function generateUnoLikeRound(settings: SessionSettings, roundIndex = 1):
     correctIndexes: rotatedChoices.reduce<number[]>((indexes, card, index) => {
       if (playableIds.includes(card.id)) indexes.push(index);
       return indexes;
-    }, [])
+    }, []),
   };
 }

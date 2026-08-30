@@ -8,7 +8,13 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
-import { disposeFireflyMeadowPiano, playFireflyIgniteCue, setFireflyMeadowPianoActive, tickFireflyMeadowPiano, warmFireflyMeadowPiano } from "./audio";
+import {
+  disposeFireflyMeadowPiano,
+  playFireflyIgniteCue,
+  setFireflyMeadowPianoActive,
+  tickFireflyMeadowPiano,
+  warmFireflyMeadowPiano,
+} from "./audio";
 
 type Point = { x: number; y: number };
 type FireflyPhase = "arriving" | "waiting" | "gazing" | "lit";
@@ -35,10 +41,28 @@ type GrassBlade = {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("firefly-meadow", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  finishSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("firefly-meadow", {
   maxSteps: 9,
-  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.45, distractors: "none", hints: "high", sound: true },
-  finishOnMaxSteps: false
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.55,
+    motionSpeed: 0.45,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
+  finishOnMaxSteps: false,
 });
 useStartPromptAudio({ gameId: "firefly-meadow", soundEnabled: toRef(session.settings, "sound") });
 
@@ -99,7 +123,7 @@ function chooseFireflyPoint(radius: number, first: boolean) {
       bottomPadding: Math.max(96, window.innerHeight * 0.14),
       previous: previousFireflyPoint,
       minDistance: Math.min(280, Math.max(160, radius * 1.45)),
-      attempts: 20
+      attempts: 20,
     });
     fallback = point;
     const pointPixels = percentToPixels(point);
@@ -127,7 +151,7 @@ function createFirefly(first = false): Firefly {
     phase: "arriving",
     dwellProgress: 0,
     drift: randomRange(-1, 1),
-    twinkleSeed: randomRange(0, Math.PI * 2)
+    twinkleSeed: randomRange(0, Math.PI * 2),
   };
 }
 
@@ -137,11 +161,16 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
-function targetPayload(firefly: Firefly, now: number, progress: number, reason?: "left" | "invalid-gaze") {
+function targetPayload(
+  firefly: Firefly,
+  now: number,
+  progress: number,
+  reason?: "left" | "invalid-gaze",
+) {
   return {
     targetId: firefly.id,
     at: Date.now(),
@@ -149,7 +178,7 @@ function targetPayload(firefly: Firefly, now: number, progress: number, reason?:
     elapsedMs: firefly.enteredAt === undefined ? 0 : now - firefly.enteredAt,
     progress,
     pointer: copyPointer(),
-    reason
+    reason,
   };
 }
 
@@ -160,7 +189,8 @@ function unlitFireflies() {
 function ensureFireflies() {
   if (session.status !== "running" || session.step >= session.maxSteps) return;
   const desired = Math.min(maxUnlitFireflies, session.maxSteps - session.step);
-  while (unlitFireflies() < desired) fireflies.push(createFirefly(session.step === 0 && fireflies.length === 0));
+  while (unlitFireflies() < desired)
+    fireflies.push(createFirefly(session.step === 0 && fireflies.length === 0));
 }
 
 function igniteFirefly(firefly: Firefly, now: number) {
@@ -196,7 +226,10 @@ function updateFireflies(delta: number, now: number) {
   const activeTarget = fireflies
     .filter((firefly) => firefly.phase !== "lit")
     .map((firefly) => ({ firefly, distance: distance(percentToPixels(firefly), pointer.value) }))
-    .filter(({ firefly, distance: targetDistance }) => pointer.value.valid && targetDistance <= firefly.radius * 1.7)
+    .filter(
+      ({ firefly, distance: targetDistance }) =>
+        pointer.value.valid && targetDistance <= firefly.radius * 1.7,
+    )
     .sort((left, right) => left.distance - right.distance)[0]?.firefly;
 
   for (let index = fireflies.length - 1; index >= 0; index--) {
@@ -221,7 +254,8 @@ function updateFireflies(delta: number, now: number) {
     const inside = activeTarget?.id === firefly.id && distance(point, pointer.value) <= hitRadius;
 
     if (!inside) {
-      if (firefly.enteredAt !== undefined) cancelFirefly(firefly, now, pointer.value.valid ? "left" : "invalid-gaze");
+      if (firefly.enteredAt !== undefined)
+        cancelFirefly(firefly, now, pointer.value.valid ? "left" : "invalid-gaze");
       continue;
     }
 
@@ -246,7 +280,7 @@ function initGrass() {
       y: randomRange(window.innerHeight * 0.68, window.innerHeight * 0.98),
       height: randomRange(28, 82),
       lean: randomRange(-18, 18),
-      alpha: randomRange(0.14, 0.34)
+      alpha: randomRange(0.14, 0.34),
     });
   }
 }
@@ -259,7 +293,14 @@ function drawBackground(context: CanvasRenderingContext2D) {
   context.fillStyle = sky;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-  const moonGlow = context.createRadialGradient(window.innerWidth * 0.72, window.innerHeight * 0.2, 0, window.innerWidth * 0.72, window.innerHeight * 0.2, Math.max(window.innerWidth, window.innerHeight) * 0.42);
+  const moonGlow = context.createRadialGradient(
+    window.innerWidth * 0.72,
+    window.innerHeight * 0.2,
+    0,
+    window.innerWidth * 0.72,
+    window.innerHeight * 0.2,
+    Math.max(window.innerWidth, window.innerHeight) * 0.42,
+  );
   moonGlow.addColorStop(0, "rgb(132 174 189 / 14%)");
   moonGlow.addColorStop(1, "rgb(132 174 189 / 0%)");
   context.fillStyle = moonGlow;
@@ -275,7 +316,15 @@ function drawBackground(context: CanvasRenderingContext2D) {
 
   context.fillStyle = "rgb(158 219 158 / 7%)";
   context.beginPath();
-  context.ellipse(window.innerWidth * 0.5, meadowTop + 10, window.innerWidth * 0.58, 26, 0, 0, Math.PI * 2);
+  context.ellipse(
+    window.innerWidth * 0.5,
+    meadowTop + 10,
+    window.innerWidth * 0.58,
+    26,
+    0,
+    0,
+    Math.PI * 2,
+  );
   context.fill();
 
   context.save();
@@ -286,7 +335,12 @@ function drawBackground(context: CanvasRenderingContext2D) {
     context.lineWidth = Math.max(1, blade.height * 0.035);
     context.beginPath();
     context.moveTo(blade.x, blade.y);
-    context.quadraticCurveTo(blade.x + blade.lean * 0.35, blade.y - blade.height * 0.46, blade.x + blade.lean, blade.y - blade.height);
+    context.quadraticCurveTo(
+      blade.x + blade.lean * 0.35,
+      blade.y - blade.height * 0.46,
+      blade.x + blade.lean,
+      blade.y - blade.height,
+    );
     context.stroke();
   }
   context.restore();
@@ -304,7 +358,14 @@ function drawFirefly(context: CanvasRenderingContext2D, firefly: Firefly) {
   context.save();
   context.globalCompositeOperation = "lighter";
 
-  const halo = context.createRadialGradient(point.x, point.y, 0, point.x, point.y, glowRadius * 2.35);
+  const halo = context.createRadialGradient(
+    point.x,
+    point.y,
+    0,
+    point.x,
+    point.y,
+    glowRadius * 2.35,
+  );
   halo.addColorStop(0, `hsla(${firefly.hue}, 96%, 82%, ${glowAlpha})`);
   halo.addColorStop(0.38, `hsla(${firefly.hue}, 88%, 58%, ${glowAlpha * 0.34})`);
   halo.addColorStop(1, `hsla(${firefly.hue}, 82%, 44%, 0)`);
@@ -313,12 +374,25 @@ function drawFirefly(context: CanvasRenderingContext2D, firefly: Firefly) {
   context.arc(point.x, point.y, glowRadius * 2.35, 0, Math.PI * 2);
   context.fill();
 
-  const core = context.createRadialGradient(point.x, point.y, 0, point.x, point.y, Math.max(8, firefly.radius * 0.16));
+  const core = context.createRadialGradient(
+    point.x,
+    point.y,
+    0,
+    point.x,
+    point.y,
+    Math.max(8, firefly.radius * 0.16),
+  );
   core.addColorStop(0, `hsla(${firefly.hue}, 100%, 92%, ${appear * (0.78 + gaze * 0.2)})`);
   core.addColorStop(1, `hsla(${firefly.hue}, 92%, 62%, 0)`);
   context.fillStyle = core;
   context.beginPath();
-  context.arc(point.x, point.y, Math.max(10, firefly.radius * (0.13 + gaze * 0.04)), 0, Math.PI * 2);
+  context.arc(
+    point.x,
+    point.y,
+    Math.max(10, firefly.radius * (0.13 + gaze * 0.04)),
+    0,
+    Math.PI * 2,
+  );
   context.fill();
 
   if (firefly.phase !== "lit") {
@@ -341,7 +415,8 @@ function draw(context: CanvasRenderingContext2D) {
 }
 
 function tick(now: number) {
-  const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+  const delta =
+    session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
 
   setFireflyMeadowPianoActive(session.settings.sound, session.status === "running");
@@ -380,7 +455,18 @@ onUnmounted(() => {
 <template>
   <div class="firefly-meadow-shell">
     <canvas ref="canvasRef" class="firefly-meadow-canvas" />
-    <GameHud title="Светлячковая поляна" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Светлячковая поляна"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
 
     <GameResultDialog
       :model-value="resultVisible"
@@ -410,5 +496,4 @@ onUnmounted(() => {
   inset: 0;
   position: absolute;
 }
-
 </style>

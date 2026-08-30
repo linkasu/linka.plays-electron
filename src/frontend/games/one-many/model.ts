@@ -31,7 +31,7 @@ const oneManyItems = [
   { id: "butterfly", name: "бабочка", emoji: "🦋" },
   { id: "ball", name: "мяч", emoji: "🟡" },
   { id: "leaf", name: "лист", emoji: "🍃" },
-  { id: "car", name: "машинка", emoji: "🚗" }
+  { id: "car", name: "машинка", emoji: "🚗" },
 ] as const;
 
 const sideDeck: Array<{ target: OneManyAnswer; targetSide: OneManySide }> = [
@@ -42,7 +42,7 @@ const sideDeck: Array<{ target: OneManyAnswer; targetSide: OneManySide }> = [
   { target: "one", targetSide: "left" },
   { target: "one", targetSide: "right" },
   { target: "many", targetSide: "left" },
-  { target: "many", targetSide: "right" }
+  { target: "many", targetSide: "right" },
 ];
 
 function choiceSide(answer: OneManyAnswer, oneOnLeft: boolean): OneManySide {
@@ -50,7 +50,12 @@ function choiceSide(answer: OneManyAnswer, oneOnLeft: boolean): OneManySide {
   return oneOnLeft ? "right" : "left";
 }
 
-function buildChoice(answer: OneManyAnswer, roundIndex: number, emoji: string, oneOnLeft: boolean): OneManyChoice {
+function buildChoice(
+  answer: OneManyAnswer,
+  roundIndex: number,
+  emoji: string,
+  oneOnLeft: boolean,
+): OneManyChoice {
   const count = answer === "one" ? 1 : 4 + (roundIndex % 2);
   return {
     id: answer,
@@ -59,14 +64,21 @@ function buildChoice(answer: OneManyAnswer, roundIndex: number, emoji: string, o
     side: choiceSide(answer, oneOnLeft),
     emoji,
     count,
-    items: Array.from({ length: count }, () => emoji)
+    items: Array.from({ length: count }, () => emoji),
   };
 }
 
-function buildRound(roundIndex: number, item: typeof oneManyItems[number], target: OneManyAnswer, targetSide: OneManySide): OneManyRound {
+function buildRound(
+  roundIndex: number,
+  item: (typeof oneManyItems)[number],
+  target: OneManyAnswer,
+  targetSide: OneManySide,
+): OneManyRound {
   const oneOnLeft = target === "one" ? targetSide === "left" : targetSide === "right";
-  const choices = [buildChoice("one", roundIndex, item.emoji, oneOnLeft), buildChoice("many", roundIndex, item.emoji, oneOnLeft)]
-    .sort((left, right) => left.side === "left" ? -1 : right.side === "left" ? 1 : 0);
+  const choices = [
+    buildChoice("one", roundIndex, item.emoji, oneOnLeft),
+    buildChoice("many", roundIndex, item.emoji, oneOnLeft),
+  ].sort((left, right) => (left.side === "left" ? -1 : right.side === "left" ? 1 : 0));
 
   return {
     roundId: `one-many:round:${roundIndex}`,
@@ -74,14 +86,16 @@ function buildRound(roundIndex: number, item: typeof oneManyItems[number], targe
     target,
     itemId: item.id,
     itemName: item.name,
-    choices
+    choices,
   };
 }
 
 export function createOneManyDeck(random = Math.random): OneManyRound[] {
   const items = shuffleItems([...oneManyItems], random);
   const sides = shuffleItems(sideDeck, random);
-  return sides.map(({ target, targetSide }, index) => buildRound(index + 1, items[index], target, targetSide));
+  return sides.map(({ target, targetSide }, index) =>
+    buildRound(index + 1, items[index], target, targetSide),
+  );
 }
 
 export function generateOneManyRound(roundIndex = 1, random = Math.random): OneManyRound {

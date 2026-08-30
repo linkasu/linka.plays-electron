@@ -5,14 +5,20 @@ import { generateFindShapeRound } from "./model";
 describe("find-shape model", () => {
   it("uses two to five choices in standard rounds", () => {
     const settings = settingsFromPreset("standard");
-    const counts = Array.from({ length: 8 }, (_, index) => generateFindShapeRound(settings, index + 1).choices.length);
+    const counts = Array.from(
+      { length: 8 },
+      (_, index) => generateFindShapeRound(settings, index + 1).choices.length,
+    );
 
     expect(counts).toEqual([2, 3, 4, 5, 2, 3, 4, 5]);
   });
 
   it("keeps gentle rounds simpler", () => {
     const settings = settingsFromPreset("gentle");
-    const counts = Array.from({ length: 4 }, (_, index) => generateFindShapeRound(settings, index + 1).choices.length);
+    const counts = Array.from(
+      { length: 4 },
+      (_, index) => generateFindShapeRound(settings, index + 1).choices.length,
+    );
 
     expect(counts).toEqual([2, 3, 2, 3]);
   });

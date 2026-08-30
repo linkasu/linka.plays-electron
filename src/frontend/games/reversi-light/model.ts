@@ -19,7 +19,7 @@ const directions = [
   [0, 1],
   [1, -1],
   [1, 0],
-  [1, 1]
+  [1, 1],
 ] as const;
 
 export function createInitialBoard(): ReversiLightBoard {
@@ -62,7 +62,11 @@ export function isValidMove(board: ReversiLightBoard, index: number, mark: Rever
   return flippedForMove(board, index, mark).length > 0;
 }
 
-export function applyMove(board: ReversiLightBoard, index: number, mark: ReversiLightMark): ReversiLightMoveResult | undefined {
+export function applyMove(
+  board: ReversiLightBoard,
+  index: number,
+  mark: ReversiLightMark,
+): ReversiLightMoveResult | undefined {
   const flipped = flippedForMove(board, index, mark);
   if (!flipped.length) return undefined;
 
@@ -84,10 +88,13 @@ export function chooseAiMove(board: ReversiLightBoard) {
 }
 
 export function countPieces(board: ReversiLightBoard) {
-  return board.reduce<Record<ReversiLightMark, number>>((counts, cell) => {
-    if (cell) counts[cell] += 1;
-    return counts;
-  }, { player: 0, ai: 0 });
+  return board.reduce<Record<ReversiLightMark, number>>(
+    (counts, cell) => {
+      if (cell) counts[cell] += 1;
+      return counts;
+    },
+    { player: 0, ai: 0 },
+  );
 }
 
 export function hasAnyMove(board: ReversiLightBoard) {
@@ -120,7 +127,11 @@ function flippedForMove(board: ReversiLightBoard, index: number, mark: ReversiLi
       nextColumn += columnDirection;
     }
 
-    if (line.length && isInside(nextRow, nextColumn) && board[cellIndex(nextRow, nextColumn)] === mark) {
+    if (
+      line.length &&
+      isInside(nextRow, nextColumn) &&
+      board[cellIndex(nextRow, nextColumn)] === mark
+    ) {
       flipped.push(...line);
     }
   }
@@ -133,7 +144,13 @@ function moveScore(board: ReversiLightBoard, move: number, mark: ReversiLightMar
   if (!result) return Number.NEGATIVE_INFINITY;
 
   const cornerBonus = [0, 3, 12, 15].includes(move) ? 8 : 0;
-  const edgeBonus = rowOf(move) === 0 || rowOf(move) === reversiLightSize - 1 || columnOf(move) === 0 || columnOf(move) === reversiLightSize - 1 ? 2 : 0;
+  const edgeBonus =
+    rowOf(move) === 0 ||
+    rowOf(move) === reversiLightSize - 1 ||
+    columnOf(move) === 0 ||
+    columnOf(move) === reversiLightSize - 1
+      ? 2
+      : 0;
   const playerReplies = validMoves(result.board, "player").length;
   return result.flipped.length * 3 + cornerBonus + edgeBonus - playerReplies;
 }

@@ -22,7 +22,7 @@ import {
   leavesWindTargetBounds,
   leavesWindTargetPoint,
   leavesWindTargetRadius,
-  type LeavesWindPoint
+  type LeavesWindPoint,
 } from "./model";
 
 type Leaf = LeavesWindPoint & {
@@ -50,16 +50,38 @@ type WindLine = {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("leaves-wind", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("leaves-wind", {
   maxSteps: 8,
-  overrides: { preset: "gentle", dwellMs: 1500, sessionSeconds: 80, targetScale: 1.5, motionSpeed: 0.42, distractors: "none", hints: "high", sound: true },
-  finishOnMistakes: false
+  overrides: {
+    preset: "gentle",
+    dwellMs: 1500,
+    sessionSeconds: 80,
+    targetScale: 1.5,
+    motionSpeed: 0.42,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
+  finishOnMistakes: false,
 });
 useStartPromptAudio({ gameId: "leaves-wind", soundEnabled: toRef(session.settings, "sound") });
 
 const leaves = reactive<Leaf[]>([]);
 const windLines = reactive<WindLine[]>([]);
-const breeze = reactive<LeavesWindPoint>({ x: window.innerWidth * 0.5, y: window.innerHeight * 0.54 });
+const breeze = reactive<LeavesWindPoint>({
+  x: window.innerWidth * 0.5,
+  y: window.innerHeight * 0.54,
+});
 const targetAnchor = reactive<LeavesWindPoint>({ x: breeze.x, y: breeze.y });
 const resultVisible = computed(() => session.status === "finished");
 
@@ -84,7 +106,7 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
@@ -102,12 +124,18 @@ function flowBounds() {
 
 function leafFocus(leaf: Leaf) {
   if (leaf !== activeLeaf() || !pointer.value.valid) return 0;
-  return clamp(1 - Math.hypot(pointer.value.x - leaf.x, pointer.value.y - leaf.y) / flowRadius(), 0, 1);
+  return clamp(
+    1 - Math.hypot(pointer.value.x - leaf.x, pointer.value.y - leaf.y) / flowRadius(),
+    0,
+    1,
+  );
 }
 
 function createLeaf(index: number): Leaf {
   const scene = leavesWindSceneBounds(width.value, height.value);
-  const sizeBase = Math.min(62, Math.max(34, Math.min(width.value, height.value) * 0.055)) * session.settings.targetScale;
+  const sizeBase =
+    Math.min(62, Math.max(34, Math.min(width.value, height.value) * 0.055)) *
+    session.settings.targetScale;
   return {
     id: `leaf-${Date.now()}-${index}-${Math.random().toString(36).slice(2)}`,
     x: randomRange(scene.left, scene.right),
@@ -120,7 +148,7 @@ function createLeaf(index: number): Leaf {
     spin: randomRange(-0.24, 0.24),
     age: randomRange(0, Math.PI * 2),
     seed: randomRange(0, Math.PI * 2),
-    follow: randomRange(0.52, 0.86)
+    follow: randomRange(0.52, 0.86),
   };
 }
 
@@ -154,7 +182,12 @@ function resetScene() {
   activateLeaf(0);
 }
 
-function targetPayload(leaf: Leaf, progress: number, reason?: DwellCancelReason, elapsedMs = Math.round(progress * session.settings.dwellMs)) {
+function targetPayload(
+  leaf: Leaf,
+  progress: number,
+  reason?: DwellCancelReason,
+  elapsedMs = Math.round(progress * session.settings.dwellMs),
+) {
   return {
     targetId: leaf.id,
     at: Date.now(),
@@ -162,7 +195,7 @@ function targetPayload(leaf: Leaf, progress: number, reason?: DwellCancelReason,
     elapsedMs,
     progress,
     pointer: copyPointer(),
-    reason
+    reason,
   };
 }
 
@@ -173,7 +206,7 @@ function completeActiveLeaf(inputMode: "gaze-dwell" | "mouse-click") {
 
   recordEvent("target-click", {
     ...targetPayload(leaf, 1, undefined, inputMode === "gaze-dwell" ? session.settings.dwellMs : 0),
-    inputMode
+    inputMode,
   });
   recordSuccess({ targetId: leaf.id, mode: inputMode });
   void playLeavesWindFlowCue(session.settings.sound);
@@ -197,7 +230,7 @@ function updateBreeze(delta: number, now: number) {
     bounds,
     deltaSeconds: delta,
     motionSpeed: session.settings.motionSpeed,
-    reduceMotion: session.settings.reduceMotion
+    reduceMotion: session.settings.reduceMotion,
   });
   leaf.x = next.x;
   leaf.y = next.y;
@@ -216,14 +249,15 @@ function updateTargetDwell(now: number) {
     targets: [leaf],
     point: (target) => target,
     hitRadius: () => flowRadius(),
-    dwellMs: session.settings.dwellMs
+    dwellMs: session.settings.dwellMs,
   });
   dwellState = result.state;
   dwellProgress = result.progress;
 
   for (const event of result.events) {
     if (event.type === "enter") recordEvent("target-enter", targetPayload(leaf, 0));
-    if (event.type === "cancel") recordEvent("target-cancel", targetPayload(leaf, previousProgress, event.reason));
+    if (event.type === "cancel")
+      recordEvent("target-cancel", targetPayload(leaf, previousProgress, event.reason));
     if (event.type === "select") {
       completeActiveLeaf("gaze-dwell");
       return;
@@ -238,7 +272,7 @@ function keepLeafInScene(leaf: Leaf) {
     left: scene.left + margin,
     top: scene.top + margin,
     right: scene.right - margin,
-    bottom: scene.bottom - margin
+    bottom: scene.bottom - margin,
   });
   if (next.x !== leaf.x) leaf.vx *= -0.45;
   if (next.y !== leaf.y) leaf.vy *= -0.45;
@@ -271,16 +305,25 @@ function updateLeaves(delta: number, now: number) {
     const dx = breeze.x - leaf.x;
     const dy = breeze.y - leaf.y;
     const distance = Math.hypot(dx, dy) || 1;
-    const pull = clamp(1 - distance / Math.max(width.value, height.value), 0.12, 0.72) * leaf.follow;
+    const pull =
+      clamp(1 - distance / Math.max(width.value, height.value), 0.12, 0.72) * leaf.follow;
     const flutterX = Math.sin(leaf.age * 1.8 + leaf.seed) * 14;
     const flutterY = Math.cos(leaf.age * 1.45 + leaf.seed) * 10;
 
-    leaf.vx += ((dx / distance) * 34 * pull + windX * 0.12 + ambientX + flutterX - leaf.vx) * Math.min(1, delta * 0.78 * session.settings.motionSpeed);
-    leaf.vy += ((dy / distance) * 24 * pull + windY * 0.1 + ambientY + flutterY - leaf.vy) * Math.min(1, delta * 0.72 * session.settings.motionSpeed);
+    leaf.vx +=
+      ((dx / distance) * 34 * pull + windX * 0.12 + ambientX + flutterX - leaf.vx) *
+      Math.min(1, delta * 0.78 * session.settings.motionSpeed);
+    leaf.vy +=
+      ((dy / distance) * 24 * pull + windY * 0.1 + ambientY + flutterY - leaf.vy) *
+      Math.min(1, delta * 0.72 * session.settings.motionSpeed);
     leaf.x += leaf.vx * delta;
     leaf.y += leaf.vy * delta;
     const spinBoost = 1 + leafFocus(leaf) * 1.35;
-    leaf.angle += (leaf.spin + leaf.vx * 0.0025 + Math.sin(leaf.age * 1.2 + leaf.seed) * 0.012) * delta * 18 * spinBoost;
+    leaf.angle +=
+      (leaf.spin + leaf.vx * 0.0025 + Math.sin(leaf.age * 1.2 + leaf.seed) * 0.012) *
+      delta *
+      18 *
+      spinBoost;
     keepLeafInScene(leaf);
   }
 }
@@ -293,7 +336,7 @@ function addWindLine() {
     life: randomRange(1.6, 2.6),
     length: randomRange(72, 150),
     alpha: randomRange(0.12, 0.28),
-    drift: randomRange(-18, 18)
+    drift: randomRange(-18, 18),
   });
   if (windLines.length > 32) windLines.shift();
 }
@@ -331,7 +374,14 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
 
   const sunX = width.value * 0.82 + Math.sin(now * 0.00008) * 18;
   const sunY = height.value * 0.24;
-  const glow = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, Math.max(width.value, height.value) * 0.44);
+  const glow = ctx.createRadialGradient(
+    sunX,
+    sunY,
+    0,
+    sunX,
+    sunY,
+    Math.max(width.value, height.value) * 0.44,
+  );
   glow.addColorStop(0, "rgb(255 238 172 / 36%)");
   glow.addColorStop(1, "rgb(255 238 172 / 0%)");
   ctx.fillStyle = glow;
@@ -359,7 +409,12 @@ function drawWindLine(ctx: CanvasRenderingContext2D, line: WindLine) {
   ctx.lineCap = "round";
   ctx.beginPath();
   ctx.moveTo(line.x - line.length * 0.5, line.y);
-  ctx.quadraticCurveTo(line.x, line.y - 18 * Math.sin(progress * Math.PI), line.x + line.length * 0.5, line.y + line.drift * 0.18);
+  ctx.quadraticCurveTo(
+    line.x,
+    line.y - 18 * Math.sin(progress * Math.PI),
+    line.x + line.length * 0.5,
+    line.y + line.drift * 0.18,
+  );
   ctx.stroke();
   ctx.restore();
 }
@@ -367,7 +422,10 @@ function drawWindLine(ctx: CanvasRenderingContext2D, line: WindLine) {
 function drawLeaf(ctx: CanvasRenderingContext2D, leaf: Leaf) {
   const isActive = leaf === activeLeaf();
   const focus = leafFocus(leaf);
-  const scaledSize = leaf.size * (isActive ? 1.08 : 0.9) * (1 + focus * 0.08 + (isActive ? dwellProgress * 0.08 : 0));
+  const scaledSize =
+    leaf.size *
+    (isActive ? 1.08 : 0.9) *
+    (1 + focus * 0.08 + (isActive ? dwellProgress * 0.08 : 0));
   const size = isActive ? Math.max(scaledSize, flowRadius() * 0.34) : scaledSize;
   ctx.save();
   ctx.translate(leaf.x, leaf.y);
@@ -468,15 +526,16 @@ function onCanvasClick(event: MouseEvent) {
   if (!canvas || !leaf) return;
   const rect = canvas.getBoundingClientRect();
   const point = {
-    x: (event.clientX - rect.left) * width.value / rect.width,
-    y: (event.clientY - rect.top) * height.value / rect.height
+    x: ((event.clientX - rect.left) * width.value) / rect.width,
+    y: ((event.clientY - rect.top) * height.value) / rect.height,
   };
   if (isLeavesWindTargetHit(point, leaf, flowRadius())) completeActiveLeaf("mouse-click");
 }
 
 function pause() {
   const leaf = activeLeaf();
-  if (leaf && dwellState.targetId) recordEvent("target-cancel", targetPayload(leaf, dwellProgress, "disabled"));
+  if (leaf && dwellState.targetId)
+    recordEvent("target-cancel", targetPayload(leaf, dwellProgress, "disabled"));
   dwellState = createDwellMachineState();
   dwellProgress = 0;
   pauseSession();
@@ -506,10 +565,22 @@ useGameLoop({ context, update, draw });
 
 <template>
   <div class="leaves-wind-shell">
-    <canvas ref="canvasRef" class="leaves-wind-canvas" aria-label="Следи за светящимся листом в потоке ветра" @click="onCanvasClick" />
+    <canvas
+      ref="canvasRef"
+      class="leaves-wind-canvas"
+      aria-label="Следи за светящимся листом в потоке ветра"
+      @click="onCanvasClick"
+    />
 
-    <v-card class="leaves-wind-hint px-4 py-3 text-on-surface" color="surface" rounded="xl" variant="flat">
-      <div class="text-body-2 font-weight-medium">Следи за светящимся листом и удерживай взгляд внутри потока.</div>
+    <v-card
+      class="leaves-wind-hint px-4 py-3 text-on-surface"
+      color="surface"
+      rounded="xl"
+      variant="flat"
+    >
+      <div class="text-body-2 font-weight-medium">
+        Следи за светящимся листом и удерживай взгляд внутри потока.
+      </div>
       <div class="text-caption text-medium-emphasis">Можно также нажать на тот же лист мышью.</div>
     </v-card>
 

@@ -9,15 +9,32 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { createMosaicStep, createMosaicTiles, isMosaicChoiceCorrect, mosaicTileCount, selectMosaicImageIndex, type MosaicTile } from "./model";
+import {
+  createMosaicStep,
+  createMosaicTiles,
+  isMosaicChoiceCorrect,
+  mosaicTileCount,
+  selectMosaicImageIndex,
+  type MosaicTile,
+} from "./model";
 
 const mosaicFeedback = createStandardGameFeedback();
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("mosaic", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+} = useGameSessionFor("mosaic", {
   maxSteps: mosaicTileCount,
   overrides: { dwellMs: 1300, sessionSeconds: 150, sound: true },
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 
 const imageIndex = ref(selectMosaicImageIndex());
@@ -27,23 +44,36 @@ const pendingSelection = ref(false);
 const isSpeaking = ref(false);
 const wrongTileId = ref<string>();
 const successTileId = ref<string>();
-const promptAudio = useGamePromptAudio({ gameId: "mosaic", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "mosaic",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 const feedbackMessage = ref("Найди кусочек для подсвеченной клетки.");
 let feedbackTimer = 0;
 let resultTimer = 0;
 
-const activeStep = computed(() => createMosaicStep(session.settings, Math.min(session.step, mosaicTileCount - 1), imageIndex.value));
+const activeStep = computed(() =>
+  createMosaicStep(session.settings, Math.min(session.step, mosaicTileCount - 1), imageIndex.value),
+);
 const image = computed(() => activeStep.value.image);
 const tiles = computed(() => createMosaicTiles(image.value));
-const currentTarget = computed(() => session.step < mosaicTileCount ? activeStep.value.target : undefined);
-const mosaicSlots = computed(() => tiles.value.map((tile, index) => ({
-  index,
-  tile,
-  filled: placedTileIds.value.includes(tile.id),
-  next: index === session.step && session.status === "running"
-})));
-const promptText = computed(() => currentTarget.value ? activeStep.value.prompt : "Мозаика готова.");
-const boardInteractionLocked = computed(() => session.status !== "running" || pendingSelection.value || isSpeaking.value);
+const currentTarget = computed(() =>
+  session.step < mosaicTileCount ? activeStep.value.target : undefined,
+);
+const mosaicSlots = computed(() =>
+  tiles.value.map((tile, index) => ({
+    index,
+    tile,
+    filled: placedTileIds.value.includes(tile.id),
+    next: index === session.step && session.status === "running",
+  })),
+);
+const promptText = computed(() =>
+  currentTarget.value ? activeStep.value.prompt : "Мозаика готова.",
+);
+const boardInteractionLocked = computed(
+  () => session.status !== "running" || pendingSelection.value || isSpeaking.value,
+);
 
 function tileTargetId(tile: MosaicTile) {
   return `mosaic:tile:${image.value.id}:${tile.id}`;
@@ -53,7 +83,7 @@ function tilePieceStyle(tile: MosaicTile) {
   return {
     "--mosaic-image": `url(${image.value.src})`,
     "--tile-x": `${tile.col * 50}%`,
-    "--tile-y": `${tile.row * 50}%`
+    "--tile-y": `${tile.row * 50}%`,
   };
 }
 
@@ -100,11 +130,24 @@ async function chooseTile(tile: MosaicTile) {
     successTileId.value = tile.id;
     placedTileIds.value = [...placedTileIds.value, tile.id];
     feedbackMessage.value = "Верно. Кусочек на месте.";
-    recordSuccess({ roundId: step.roundId, targetId, answerId: tile.id, expected: step.target.id, actual: tile.id, imageId: image.value.id, slotIndex: step.slotIndex, isCorrect: true });
+    recordSuccess({
+      roundId: step.roundId,
+      targetId,
+      answerId: tile.id,
+      expected: step.target.id,
+      actual: tile.id,
+      imageId: image.value.id,
+      slotIndex: step.slotIndex,
+      isCorrect: true,
+    });
     const finishedAfterSuccess = session.step >= session.maxSteps;
     void mosaicFeedback.playSuccess(session.settings.sound);
     isSpeaking.value = true;
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["mosaic.correct", "mosaic.complete"] : ["mosaic.correct"], 80, 170);
+    await promptAudio.playSequenceAndWait(
+      finishedAfterSuccess ? ["mosaic.correct", "mosaic.complete"] : ["mosaic.correct"],
+      80,
+      170,
+    );
     isSpeaking.value = false;
     feedbackTimer = window.setTimeout(() => {
       clearTransientFeedback();
@@ -118,7 +161,17 @@ async function chooseTile(tile: MosaicTile) {
   pendingSelection.value = true;
   wrongTileId.value = tile.id;
   feedbackMessage.value = "Посмотри на подсвеченную клетку и попробуй другой кусочек.";
-  recordMistake({ roundId: step.roundId, targetId, expectedTargetId, answerId: tile.id, expected: step.target.id, actual: tile.id, imageId: image.value.id, slotIndex: step.slotIndex, isCorrect: false });
+  recordMistake({
+    roundId: step.roundId,
+    targetId,
+    expectedTargetId,
+    answerId: tile.id,
+    expected: step.target.id,
+    actual: tile.id,
+    imageId: image.value.id,
+    slotIndex: step.slotIndex,
+    isCorrect: false,
+  });
   void mosaicFeedback.playMistake(session.settings.sound);
   isSpeaking.value = true;
   await promptAudio.playSequenceAndWait(["mosaic.mistake"], 80);
@@ -150,15 +203,18 @@ function restart() {
   void playPrompt(450);
 }
 
-watch(() => session.status, (status) => {
-  if (status === "finished") {
-    if (!isSpeaking.value) showResultSoon();
-    return;
-  }
+watch(
+  () => session.status,
+  (status) => {
+    if (status === "finished") {
+      if (!isSpeaking.value) showResultSoon();
+      return;
+    }
 
-  clearResultTimer();
-  resultVisible.value = false;
-});
+    clearResultTimer();
+    resultVisible.value = false;
+  },
+);
 
 watch(isSpeaking, (speaking) => {
   if (!speaking && session.status === "finished" && !resultVisible.value) showResultSoon();
@@ -179,9 +235,24 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <GamePageShell class="mosaic-shell" gradient="linear-gradient(135deg, #eef7ff 0%, #fff7e7 46%, #f2efff 100%)" padding-top="5rem">
+  <GamePageShell
+    class="mosaic-shell"
+    gradient="linear-gradient(135deg, #eef7ff 0%, #fff7e7 46%, #f2efff 100%)"
+    padding-top="5rem"
+  >
     <template #hud>
-      <GameHud title="Мозаика" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+      <GameHud
+        title="Мозаика"
+        :step="session.step"
+        :max-steps="session.maxSteps"
+        :score="session.score"
+        :mistakes="session.mistakes"
+        :duration-ms="durationMs"
+        :session-seconds="session.settings.sessionSeconds"
+        :paused="session.status === 'paused'"
+        @pause="pauseSession"
+        @resume="resumeSession"
+      />
     </template>
 
     <v-container class="mosaic-container" fluid>
@@ -193,15 +264,32 @@ onUnmounted(() => {
                 <div class="text-overline text-secondary">Пазл 3 × 3</div>
                 <h1 class="mosaic-title font-weight-bold">{{ image.title }}</h1>
               </div>
-              <v-chip class="font-weight-bold" color="primary" size="large" variant="tonal">{{ placedTileIds.length }} / {{ session.maxSteps }}</v-chip>
+              <v-chip class="font-weight-bold" color="primary" size="large" variant="tonal"
+                >{{ placedTileIds.length }} / {{ session.maxSteps }}</v-chip
+              >
             </div>
-            <p class="mosaic-feedback text-body-1 text-md-h6 text-medium-emphasis mb-3">{{ feedbackMessage }}</p>
+            <p class="mosaic-feedback text-body-1 text-md-h6 text-medium-emphasis mb-3">
+              {{ feedbackMessage }}
+            </p>
 
             <div class="mosaic-layout">
               <section class="mosaic-board-wrap" aria-label="Поле мозаики 3 на 3">
                 <div class="mosaic-board">
-                  <v-card v-for="slot in mosaicSlots" :key="slot.tile.id" :class="['mosaic-slot', { 'mosaic-slot--next': slot.next, 'mosaic-slot--filled': slot.filled }]" rounded="lg" variant="flat">
-                    <div v-if="slot.filled" class="mosaic-piece mosaic-piece--placed" :style="tilePieceStyle(slot.tile)" />
+                  <v-card
+                    v-for="slot in mosaicSlots"
+                    :key="slot.tile.id"
+                    :class="[
+                      'mosaic-slot',
+                      { 'mosaic-slot--next': slot.next, 'mosaic-slot--filled': slot.filled },
+                    ]"
+                    rounded="lg"
+                    variant="flat"
+                  >
+                    <div
+                      v-if="slot.filled"
+                      class="mosaic-piece mosaic-piece--placed"
+                      :style="tilePieceStyle(slot.tile)"
+                    />
                     <div v-else-if="slot.next" class="mosaic-empty mosaic-empty--next">
                       <v-icon icon="mdi-help" color="primary" />
                       <span>сюда</span>
@@ -213,34 +301,68 @@ onUnmounted(() => {
 
               <aside class="mosaic-side">
                 <div class="mosaic-guide">
-                  <v-card class="mosaic-prompt pa-3" color="blue-lighten-5" rounded="xl" variant="flat">
+                  <v-card
+                    class="mosaic-prompt pa-3"
+                    color="blue-lighten-5"
+                    rounded="xl"
+                    variant="flat"
+                  >
                     <div class="text-caption text-medium-emphasis">Подсказка</div>
                     <div class="text-h6 font-weight-bold">{{ promptText }}</div>
                     <div class="text-body-2 text-medium-emphasis">{{ image.prompt }}</div>
                   </v-card>
 
-                  <v-card class="mosaic-reference pa-3" color="surface" rounded="xl" variant="tonal">
+                  <v-card
+                    class="mosaic-reference pa-3"
+                    color="surface"
+                    rounded="xl"
+                    variant="tonal"
+                  >
                     <div class="text-caption text-medium-emphasis mb-2">Образец</div>
                     <img :src="image.src" :alt="`Образец: ${image.title}`" />
                   </v-card>
                 </div>
 
                 <div class="mosaic-choices" aria-label="Кусочки для выбора">
-                  <GameDwellButton v-for="choice in activeStep.choices" :key="choice.id" :target-id="tileTargetId(choice)" :disabled="boardInteractionLocked" :dwell-ms="session.settings.dwellMs" min-height="9rem" :color="choiceColor(choice)" @select="chooseTile(choice)">
+                  <GameDwellButton
+                    v-for="choice in activeStep.choices"
+                    :key="choice.id"
+                    :target-id="tileTargetId(choice)"
+                    :disabled="boardInteractionLocked"
+                    :dwell-ms="session.settings.dwellMs"
+                    min-height="9rem"
+                    :color="choiceColor(choice)"
+                    @select="chooseTile(choice)"
+                  >
                     <template #default>
-                      <div class="mosaic-piece mosaic-piece--choice" :style="tilePieceStyle(choice)" />
+                      <div
+                        class="mosaic-piece mosaic-piece--choice"
+                        :style="tilePieceStyle(choice)"
+                      />
                     </template>
                   </GameDwellButton>
                 </div>
 
-                <div class="mosaic-attribution text-caption text-medium-emphasis">{{ image.license }} · {{ image.attribution }}</div>
+                <div class="mosaic-attribution text-caption text-medium-emphasis">
+                  {{ image.license }} · {{ image.attribution }}
+                </div>
               </aside>
             </div>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Мозаика" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Мозаика"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </GamePageShell>
 </template>
 
@@ -403,167 +525,167 @@ onUnmounted(() => {
 }
 
 @media (max-width: 58rem) and (min-width: 43rem) {
- .mosaic-card {
+  .mosaic-card {
     padding-block: 0.75rem !important;
   }
 
- .mosaic-feedback,
- .mosaic-attribution {
+  .mosaic-feedback,
+  .mosaic-attribution {
     display: none;
   }
 
- .mosaic-layout {
+  .mosaic-layout {
     gap: 0.75rem;
     grid-template-columns: minmax(17rem, 0.86fr) minmax(20rem, 1.14fr);
   }
 
- .mosaic-guide {
+  .mosaic-guide {
     grid-template-columns: minmax(0, 1fr) minmax(9rem, 0.62fr);
   }
 
- .mosaic-board {
+  .mosaic-board {
     inline-size: min(19rem, calc(100vh - 14.5rem), 100%);
   }
 
- .mosaic-side {
+  .mosaic-side {
     gap: 0.5rem;
     grid-template-rows: auto 1fr;
   }
 
- .mosaic-choices {
+  .mosaic-choices {
     gap: 0.45rem;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
- .mosaic-piece--choice {
+  .mosaic-piece--choice {
     max-inline-size: 4.5rem;
   }
 
- .mosaic-choices :deep(.dwell-button) {
+  .mosaic-choices :deep(.dwell-button) {
     min-block-size: 6.8rem !important;
     padding: 0.75rem !important;
   }
 }
 
 @media (max-width: 42.99rem) {
- .mosaic-card {
+  .mosaic-card {
     padding-block: 0.75rem !important;
   }
 
- .mosaic-feedback,
- .mosaic-attribution {
+  .mosaic-feedback,
+  .mosaic-attribution {
     display: none;
   }
 
- .mosaic-layout {
+  .mosaic-layout {
     gap: 0.75rem;
     grid-template-columns: 1fr;
   }
 
- .mosaic-guide {
+  .mosaic-guide {
     grid-template-columns: 1fr;
   }
 
- .mosaic-board {
+  .mosaic-board {
     inline-size: min(19rem, 54vh, 82vw);
   }
 
- .mosaic-side {
+  .mosaic-side {
     gap: 0.5rem;
     grid-template-rows: auto 1fr;
     max-inline-size: none;
   }
 
- .mosaic-choices {
+  .mosaic-choices {
     gap: 0.45rem;
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
- .mosaic-piece--choice {
+  .mosaic-piece--choice {
     max-inline-size: 3.75rem;
   }
 
- .mosaic-choices :deep(.dwell-button) {
+  .mosaic-choices :deep(.dwell-button) {
     min-block-size: 6.75rem !important;
     padding: 0.75rem !important;
   }
 }
 
 @media (max-height: 50rem) and (min-width: 58rem) {
- .mosaic-card {
+  .mosaic-card {
     padding-block: 0.75rem !important;
   }
 
- .mosaic-feedback {
+  .mosaic-feedback {
     display: none;
   }
 
- .mosaic-layout {
+  .mosaic-layout {
     grid-template-columns: minmax(27rem, min(42vw, 32rem)) minmax(30rem, 1fr);
   }
 
- .mosaic-board {
+  .mosaic-board {
     inline-size: min(32rem, calc(100vh - 9.5rem), 100%);
   }
 
- .mosaic-side {
+  .mosaic-side {
     gap: 0.5rem;
     grid-template-rows: auto auto;
   }
 
- .mosaic-attribution {
+  .mosaic-attribution {
     display: none;
   }
 
- .mosaic-choices {
+  .mosaic-choices {
     gap: 0.5rem;
   }
 
- .mosaic-choices :deep(.dwell-button) {
+  .mosaic-choices :deep(.dwell-button) {
     min-block-size: 8rem !important;
   }
 
- .mosaic-piece--choice {
+  .mosaic-piece--choice {
     max-inline-size: clamp(6rem, 7vw, 7.25rem);
   }
 
- .mosaic-guide {
+  .mosaic-guide {
     gap: 0.75rem;
     grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.58fr);
   }
 }
 
 @media (max-height: 60rem) and (min-width: 70rem) {
- .mosaic-card {
+  .mosaic-card {
     padding-block: 0.75rem !important;
   }
 
- .mosaic-feedback,
- .mosaic-attribution {
+  .mosaic-feedback,
+  .mosaic-attribution {
     display: none;
   }
 
- .mosaic-layout {
+  .mosaic-layout {
     grid-template-columns: minmax(24rem, min(35vw, 28rem)) minmax(28rem, 1fr);
   }
 
- .mosaic-board {
+  .mosaic-board {
     inline-size: min(28rem, calc(100dvh - 11rem), 100%);
   }
 
- .mosaic-side {
+  .mosaic-side {
     gap: 0.5rem;
   }
 
- .mosaic-choices {
+  .mosaic-choices {
     gap: 0.5rem;
   }
 
- .mosaic-choices :deep(.dwell-button) {
+  .mosaic-choices :deep(.dwell-button) {
     min-block-size: 7rem !important;
   }
 
- .mosaic-piece--choice {
+  .mosaic-piece--choice {
     max-inline-size: 5.25rem;
   }
 
@@ -573,19 +695,19 @@ onUnmounted(() => {
 }
 
 @media (max-height: 50rem) and (min-width: 58rem) and (max-width: 70rem) {
- .mosaic-attribution {
+  .mosaic-attribution {
     display: none;
   }
 
- .mosaic-layout {
+  .mosaic-layout {
     grid-template-columns: minmax(21rem, 0.9fr) minmax(28rem, 1.1fr);
   }
 
- .mosaic-board {
+  .mosaic-board {
     inline-size: min(23rem, calc(100vh - 11rem), 100%);
   }
 
- .mosaic-piece--choice {
+  .mosaic-piece--choice {
     max-inline-size: 5.5rem;
   }
 }

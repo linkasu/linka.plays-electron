@@ -6,7 +6,7 @@ const { pointer } = useGazePointer();
 
 const markerStyle = computed(() => ({
   left: `${pointer.value.x}px`,
-  top: `${pointer.value.y}px`
+  top: `${pointer.value.y}px`,
 }));
 </script>
 
@@ -25,7 +25,9 @@ const markerStyle = computed(() => ({
   block-size: 1.375rem;
   border: 3px solid rgb(255 255 255 / 82%);
   border-radius: 999px;
-  box-shadow: 0 0 0 4px rgb(108 92 231 / 22%), 0 6px 18px rgb(20 20 40 / 22%);
+  box-shadow:
+    0 0 0 4px rgb(108 92 231 / 22%),
+    0 6px 18px rgb(20 20 40 / 22%);
   inline-size: 1.375rem;
   pointer-events: none;
   position: fixed;

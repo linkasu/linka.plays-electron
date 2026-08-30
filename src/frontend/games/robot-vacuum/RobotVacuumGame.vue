@@ -41,14 +41,38 @@ type RoomDot = Point & {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("robot-vacuum", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  finishSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("robot-vacuum", {
   maxSteps: 8,
-  overrides: { preset: "gentle", dwellMs: 600, targetScale: 1.42, motionSpeed: 0.58, distractors: "none", hints: "high" },
+  overrides: {
+    preset: "gentle",
+    dwellMs: 600,
+    targetScale: 1.42,
+    motionSpeed: 0.58,
+    distractors: "none",
+    hints: "high",
+  },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 
-const robot = reactive<Robot>({ x: window.innerWidth * 0.5, y: window.innerHeight * 0.56, angle: 0, phase: 0, glow: 0 });
+const robot = reactive<Robot>({
+  x: window.innerWidth * 0.5,
+  y: window.innerHeight * 0.56,
+  angle: 0,
+  phase: 0,
+  glow: 0,
+});
 const targets = reactive<DustTarget[]>([]);
 const sparks = reactive<CleanupSpark[]>([]);
 const roomDots = reactive<RoomDot[]>([]);
@@ -77,7 +101,7 @@ function roomBounds() {
     left: Math.max(32, width.value * 0.04),
     right: width.value - Math.max(32, width.value * 0.04),
     top: Math.max(118, height.value * 0.16),
-    bottom: height.value - Math.max(54, height.value * 0.07)
+    bottom: height.value - Math.max(54, height.value * 0.07),
   };
 }
 
@@ -95,7 +119,7 @@ function clampToRoom(point: Point, padding = robotRadius()) {
   const bounds = roomBounds();
   return {
     x: clamp(point.x, bounds.left + padding, bounds.right - padding),
-    y: clamp(point.y, bounds.top + padding, bounds.bottom - padding)
+    y: clamp(point.y, bounds.top + padding, bounds.bottom - padding),
   };
 }
 
@@ -109,11 +133,16 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
-function targetPayload(target: DustTarget, now: number, progress: number, reason?: "left" | "invalid-gaze") {
+function targetPayload(
+  target: DustTarget,
+  now: number,
+  progress: number,
+  reason?: "left" | "invalid-gaze",
+) {
   return {
     targetId: target.id,
     kind: target.kind,
@@ -123,22 +152,22 @@ function targetPayload(target: DustTarget, now: number, progress: number, reason
     progress,
     robot: { x: Math.round(robot.x), y: Math.round(robot.y) },
     pointer: copyPointer(),
-    reason
+    reason,
   };
 }
 
 function createTarget(): DustTarget {
   const radius = targetRadius() * randomRange(0.9, 1.12);
   const point = randomTargetCenterPercent({
-      targetWidth: radius * 2.6,
-      targetHeight: radius * 2.6,
-      hudHeight: Math.max(118, height.value * 0.16),
-      sidePadding: Math.max(72, width.value * 0.08),
-      bottomPadding: Math.max(64, height.value * 0.08),
-      previous: previousTargetPoint,
-      minDistance: Math.min(260, Math.max(150, radius * 4.2)),
-      attempts: 18
-    });
+    targetWidth: radius * 2.6,
+    targetHeight: radius * 2.6,
+    hudHeight: Math.max(118, height.value * 0.16),
+    sidePadding: Math.max(72, width.value * 0.08),
+    bottomPadding: Math.max(64, height.value * 0.08),
+    previous: previousTargetPoint,
+    minDistance: Math.min(260, Math.max(150, radius * 4.2)),
+    attempts: 18,
+  });
   previousTargetPoint = point;
   targetSequence += 1;
 
@@ -150,7 +179,7 @@ function createTarget(): DustTarget {
     radius,
     hue: targetHues[targetSequence % targetHues.length],
     age: randomRange(0, Math.PI * 2),
-    dwellProgress: 0
+    dwellProgress: 0,
   };
 }
 
@@ -174,7 +203,7 @@ function createRoomDots() {
       x: randomRange(bounds.left + 16, bounds.right - 16),
       y: randomRange(bounds.top + 22, bounds.bottom - 18),
       radius: randomRange(1.4, 3.8),
-      alpha: randomRange(0.08, 0.18)
+      alpha: randomRange(0.08, 0.18),
     });
   }
 }
@@ -199,7 +228,10 @@ function restart() {
 }
 
 function updateRobot(delta: number) {
-  const idleTarget = { x: width.value * 0.5 + Math.sin(robot.phase * 0.42) * 32, y: height.value * 0.56 + Math.cos(robot.phase * 0.36) * 18 };
+  const idleTarget = {
+    x: width.value * 0.5 + Math.sin(robot.phase * 0.42) * 32,
+    y: height.value * 0.56 + Math.cos(robot.phase * 0.36) * 18,
+  };
   const nextTarget = clampToRoom(pointer.value.valid ? pointer.value : idleTarget);
   const previous = { x: robot.x, y: robot.y };
   const smoothing = pointer.value.valid ? 4.15 : 1.15;
@@ -217,7 +249,7 @@ function updateRobot(delta: number) {
 function addCleanupBurst(point: Point, hue: number, count = 14) {
   if (session.settings.reduceMotion) return;
   for (let index = 0; index < count; index += 1) {
-    const angle = Math.PI * 2 * index / count + randomRange(-0.18, 0.18);
+    const angle = (Math.PI * 2 * index) / count + randomRange(-0.18, 0.18);
     const speed = randomRange(42, 108) * session.settings.motionSpeed;
     sparks.push({
       x: point.x,
@@ -227,7 +259,7 @@ function addCleanupBurst(point: Point, hue: number, count = 14) {
       age: 0,
       life: randomRange(0.85, 1.35),
       radius: randomRange(3.2, 7.6),
-      hue
+      hue,
     });
   }
   if (sparks.length > 90) sparks.splice(0, sparks.length - 90);
@@ -257,7 +289,12 @@ function collectTarget(target: DustTarget, now: number) {
 }
 
 function closestCleanableTarget() {
-  if (session.step >= session.maxSteps || !pointer.value.valid || isCanvasControlBlocked(pointer.value)) return undefined;
+  if (
+    session.step >= session.maxSteps ||
+    !pointer.value.valid ||
+    isCanvasControlBlocked(pointer.value)
+  )
+    return undefined;
   const radius = robotRadius();
   let closest: DustTarget | undefined;
   let closestDistance = Number.POSITIVE_INFINITY;
@@ -288,7 +325,10 @@ function updateTargets(delta: number, now: number) {
       target.enteredAt = now;
       recordEvent("target-enter", targetPayload(target, now, 0));
     }
-    target.dwellProgress = Math.min(1, target.dwellProgress + delta * 1000 / session.settings.dwellMs);
+    target.dwellProgress = Math.min(
+      1,
+      target.dwellProgress + (delta * 1000) / session.settings.dwellMs,
+    );
     if (target.dwellProgress >= 1) collectTarget(target, now);
   }
 }
@@ -420,19 +460,31 @@ function drawTarget(ctx: CanvasRenderingContext2D, target: DustTarget) {
     ctx.lineWidth = 6;
     ctx.lineCap = "round";
     ctx.beginPath();
-    ctx.arc(point.x, point.y, radius * 1.36, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * target.dwellProgress);
+    ctx.arc(
+      point.x,
+      point.y,
+      radius * 1.36,
+      -Math.PI / 2,
+      -Math.PI / 2 + Math.PI * 2 * target.dwellProgress,
+    );
     ctx.stroke();
   }
   ctx.restore();
 }
 
-function drawStar(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, hue: number) {
+function drawStar(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  radius: number,
+  hue: number,
+) {
   ctx.save();
   ctx.fillStyle = `hsl(${hue}, 92%, 70%)`;
   ctx.beginPath();
   for (let index = 0; index < 10; index += 1) {
     const stepRadius = index % 2 === 0 ? radius : radius * 0.46;
-    const angle = -Math.PI / 2 + index * Math.PI / 5;
+    const angle = -Math.PI / 2 + (index * Math.PI) / 5;
     const px = x + Math.cos(angle) * stepRadius;
     const py = y + Math.sin(angle) * stepRadius;
     if (index === 0) ctx.moveTo(px, py);

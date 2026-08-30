@@ -8,7 +8,16 @@ import GazePointerOverlay from "../../components/game/GazePointerOverlay.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useGameTimers } from "../../composables/useGameTimers";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { solfegeChoiceNotes, solfegeGuidedProgress, solfegeGuidedStages, solfegeGuidedStageStart, solfegeMaxSteps, solfegeSelectionOutcome, type SolfegeMode, type SolfegeNote } from "./model";
+import {
+  solfegeChoiceNotes,
+  solfegeGuidedProgress,
+  solfegeGuidedStages,
+  solfegeGuidedStageStart,
+  solfegeMaxSteps,
+  solfegeSelectionOutcome,
+  type SolfegeMode,
+  type SolfegeNote,
+} from "./model";
 
 type SolfegePhase = "selecting" | "demonstrating" | "repeating" | "free";
 
@@ -17,7 +26,7 @@ const blackKeyLayout = [
   { left: "23.1%", label: "ре-диез" },
   { left: "48.2%", label: "фа-диез" },
   { left: "60.7%", label: "соль-диез" },
-  { left: "73.2%", label: "ля-диез" }
+  { left: "73.2%", label: "ля-диез" },
 ];
 
 const router = useRouter();
@@ -34,11 +43,29 @@ const demoTimers = new Set<number>();
 let feedbackTimer = 0;
 let audioContext: AudioContext | undefined;
 
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("solfege", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+} = useGameSessionFor("solfege", {
   maxSteps: solfegeMaxSteps,
-  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.42, distractors: "none", hints: "high", dwellMs: 1300, sessionSeconds: 135 },
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.55,
+    motionSpeed: 0.42,
+    distractors: "none",
+    hints: "high",
+    dwellMs: 1300,
+    sessionSeconds: 135,
+  },
   finishOnMistakes: false,
-  finishOnTimeout: false
+  finishOnTimeout: false,
 });
 const { setGameTimeout, clearGameTimeout, clearGameTimers } = useGameTimers();
 pauseSession();
@@ -47,15 +74,26 @@ const resultVisible = computed(() => session.status === "finished");
 const hasStarted = computed(() => phase.value !== "selecting");
 const choiceNotes = solfegeChoiceNotes();
 const currentStage = computed(() => solfegeGuidedStages[activeStageIndex.value]);
-const completedInStage = computed(() => Math.max(0, Math.min(currentStage.value.sequence.length, session.step - solfegeGuidedStageStart(activeStageIndex.value))));
-const expectedNote = computed(() => phase.value === "repeating" ? currentStage.value.sequence[completedInStage.value] : undefined);
+const completedInStage = computed(() =>
+  Math.max(
+    0,
+    Math.min(
+      currentStage.value.sequence.length,
+      session.step - solfegeGuidedStageStart(activeStageIndex.value),
+    ),
+  ),
+);
+const expectedNote = computed(() =>
+  phase.value === "repeating" ? currentStage.value.sequence[completedInStage.value] : undefined,
+);
 const instructionTitle = computed(() => {
   if (phase.value === "demonstrating") return "Смотри и слушай";
   if (phase.value === "repeating") return "Повтори мелодию";
   return "Играй свободно";
 });
 const instructionText = computed(() => {
-  if (phase.value === "demonstrating") return `Сейчас прозвучат ${currentStage.value.sequence.length} ноты по порядку.`;
+  if (phase.value === "demonstrating")
+    return `Сейчас прозвучат ${currentStage.value.sequence.length} ноты по порядку.`;
   if (phase.value === "repeating") return "Нажимай подсвечиваемые клавиши по порядку.";
   return "Нажимай любые клавиши. Здесь нет ошибок.";
 });
@@ -65,7 +103,9 @@ function noteTargetId(note: SolfegeNote) {
 }
 
 function isPlayed(note: SolfegeNote) {
-  return currentStage.value.sequence.slice(0, completedInStage.value).some((played) => played.id === note.id);
+  return currentStage.value.sequence
+    .slice(0, completedInStage.value)
+    .some((played) => played.id === note.id);
 }
 
 function isSequenceStepComplete(index: number) {
@@ -100,7 +140,9 @@ function scheduleDemo(callback: () => void, delayMs: number) {
 
 async function ensureAudio() {
   try {
-    const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    const AudioContextClass =
+      window.AudioContext ||
+      (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!AudioContextClass) return false;
     audioContext ??= new AudioContextClass();
     if (audioContext.state === "suspended") await audioContext.resume();
@@ -114,7 +156,7 @@ function playNote(note: SolfegeNote) {
   if (!audioEnabled.value) return;
   void (async () => {
     try {
-      if (!await ensureAudio() || !audioContext) return;
+      if (!(await ensureAudio()) || !audioContext) return;
       const now = audioContext.currentTime;
       const oscillator = audioContext.createOscillator();
       const gain = audioContext.createGain();
@@ -134,9 +176,10 @@ function playNote(note: SolfegeNote) {
 }
 
 function playPromptNote(delayMs = 0) {
-  const note = phase.value === "demonstrating"
-    ? currentStage.value.sequence.find((candidate) => candidate.id === demonstrationNoteId.value)
-    : expectedNote.value;
+  const note =
+    phase.value === "demonstrating"
+      ? currentStage.value.sequence.find((candidate) => candidate.id === demonstrationNoteId.value)
+      : expectedNote.value;
   if (!note) return;
   setGameTimeout(() => playNote(note), delayMs);
 }
@@ -149,7 +192,7 @@ function toggleAudio() {
 
   audioEnabled.value = true;
   void (async () => {
-    if (!await ensureAudio()) {
+    if (!(await ensureAudio())) {
       audioEnabled.value = false;
       return;
     }
@@ -165,7 +208,13 @@ function chooseNote(note: SolfegeNote) {
     clearFeedbackTimer();
     successNoteId.value = note.id;
     playNote(note);
-    recordSuccess({ targetId: noteTargetId(note), noteId: note.id, label: note.label, octaveLabel: note.octaveLabel, mode: "free" });
+    recordSuccess({
+      targetId: noteTargetId(note),
+      noteId: note.id,
+      label: note.label,
+      octaveLabel: note.octaveLabel,
+      mode: "free",
+    });
     feedbackTimer = setGameTimeout(() => {
       successNoteId.value = undefined;
     }, 420);
@@ -196,14 +245,25 @@ function chooseNote(note: SolfegeNote) {
   pendingSelection.value = true;
   successNoteId.value = note.id;
   playNote(note);
-  recordSuccess({ targetId, stageId: progress?.stage.id, stageNote: (progress?.noteIndex ?? 0) + 1, noteId: note.id, label: note.label, octaveLabel: note.octaveLabel });
+  recordSuccess({
+    targetId,
+    stageId: progress?.stage.id,
+    stageNote: (progress?.noteIndex ?? 0) + 1,
+    noteId: note.id,
+    label: note.label,
+    octaveLabel: note.octaveLabel,
+  });
 
   const nextProgress = solfegeGuidedProgress(session.step);
   if (session.status === "running" && nextProgress) {
-    feedbackTimer = setGameTimeout(() => {
-      resetFeedback();
-      if (nextProgress.stageIndex !== activeStageIndex.value) runDemonstration(nextProgress.stageIndex);
-    }, nextProgress.stageIndex === activeStageIndex.value ? 620 : 820);
+    feedbackTimer = setGameTimeout(
+      () => {
+        resetFeedback();
+        if (nextProgress.stageIndex !== activeStageIndex.value)
+          runDemonstration(nextProgress.stageIndex);
+      },
+      nextProgress.stageIndex === activeStageIndex.value ? 620 : 820,
+    );
   }
 }
 
@@ -227,10 +287,13 @@ function runDemonstration(stageIndex: number) {
     }, noteDelay + 560);
   });
 
-  scheduleDemo(() => {
-    demonstrationNoteId.value = undefined;
-    phase.value = "repeating";
-  }, initialDelay + sequence.length * noteInterval);
+  scheduleDemo(
+    () => {
+      demonstrationNoteId.value = undefined;
+      phase.value = "repeating";
+    },
+    initialDelay + sequence.length * noteInterval,
+  );
 }
 
 function startGame(nextMode: SolfegeMode) {
@@ -314,32 +377,68 @@ onUnmounted(() => {
         <v-col cols="12" xl="10">
           <v-card class="solfege-panel pa-4 pa-md-7" rounded="xl" elevation="8">
             <div class="top-controls mb-3 ga-2">
-              <v-btn v-if="hasStarted" aria-label="Выбрать другой режим" color="secondary" prepend-icon="mdi-swap-horizontal" rounded="xl" size="large" variant="tonal" @click="selectMode">Режим</v-btn>
-              <v-btn :aria-label="audioEnabled ? 'Выключить звук' : 'Включить звук'" :icon="audioEnabled ? 'mdi-volume-low' : 'mdi-volume-off'" color="primary" rounded="xl" size="large" variant="tonal" @click="toggleAudio" />
+              <v-btn
+                v-if="hasStarted"
+                aria-label="Выбрать другой режим"
+                color="secondary"
+                prepend-icon="mdi-swap-horizontal"
+                rounded="xl"
+                size="large"
+                variant="tonal"
+                @click="selectMode"
+                >Режим</v-btn
+              >
+              <v-btn
+                :aria-label="audioEnabled ? 'Выключить звук' : 'Включить звук'"
+                :icon="audioEnabled ? 'mdi-volume-low' : 'mdi-volume-off'"
+                color="primary"
+                rounded="xl"
+                size="large"
+                variant="tonal"
+                @click="toggleAudio"
+              />
             </div>
 
             <div v-if="phase === 'selecting'" class="mode-selection text-center">
               <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Выбери режим</h1>
-              <p class="text-body-1 text-medium-emphasis mb-6">Сначала можно повторять короткие мелодии или просто познакомиться с пианино.</p>
+              <p class="text-body-1 text-medium-emphasis mb-6">
+                Сначала можно повторять короткие мелодии или просто познакомиться с пианино.
+              </p>
               <v-row justify="center">
                 <v-col cols="12" sm="6">
-                  <GameDwellButton target-id="solfege:mode:guided" :dwell-ms="session.settings.dwellMs" min-height="11rem" color="indigo-lighten-5" @select="startGame('guided')">
+                  <GameDwellButton
+                    target-id="solfege:mode:guided"
+                    :dwell-ms="session.settings.dwellMs"
+                    min-height="11rem"
+                    color="indigo-lighten-5"
+                    @select="startGame('guided')"
+                  >
                     <template #default>
                       <div class="d-flex flex-column align-center justify-center ga-3 pa-4">
                         <v-icon color="indigo-darken-2" icon="mdi-music-note-plus" size="4rem" />
                         <div class="text-h5 font-weight-bold">Повтори мелодию</div>
-                        <div class="text-body-2 text-grey-darken-3">Сначала послушай 2 ноты, затем 3 и 4</div>
+                        <div class="text-body-2 text-grey-darken-3">
+                          Сначала послушай 2 ноты, затем 3 и 4
+                        </div>
                       </div>
                     </template>
                   </GameDwellButton>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <GameDwellButton target-id="solfege:mode:free" :dwell-ms="session.settings.dwellMs" min-height="11rem" color="teal-lighten-5" @select="startGame('free')">
+                  <GameDwellButton
+                    target-id="solfege:mode:free"
+                    :dwell-ms="session.settings.dwellMs"
+                    min-height="11rem"
+                    color="teal-lighten-5"
+                    @select="startGame('free')"
+                  >
                     <template #default>
                       <div class="d-flex flex-column align-center justify-center ga-3 pa-4">
                         <v-icon color="teal-darken-2" icon="mdi-piano" size="4rem" />
                         <div class="text-h5 font-weight-bold">Свободное пианино</div>
-                        <div class="text-body-2 text-grey-darken-3">Играй любые ноты без ошибок и подсказок</div>
+                        <div class="text-body-2 text-grey-darken-3">
+                          Играй любые ноты без ошибок и подсказок
+                        </div>
                       </div>
                     </template>
                   </GameDwellButton>
@@ -349,59 +448,95 @@ onUnmounted(() => {
 
             <template v-else>
               <div class="solfege-instruction text-center mb-3">
-                <div v-if="mode === 'guided'" class="text-overline text-secondary">Мелодия {{ activeStageIndex + 1 }} из {{ solfegeGuidedStages.length }} · нот в мелодии: {{ currentStage.sequence.length }}</div>
+                <div v-if="mode === 'guided'" class="text-overline text-secondary">
+                  Мелодия {{ activeStageIndex + 1 }} из {{ solfegeGuidedStages.length }} · нот в
+                  мелодии: {{ currentStage.sequence.length }}
+                </div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold">{{ instructionTitle }}</h1>
                 <p class="text-body-1 text-medium-emphasis mb-0">{{ instructionText }}</p>
               </div>
 
-              <v-card v-if="mode === 'guided'" class="score-card pa-4 pa-md-5 mb-5" color="indigo-lighten-5" rounded="xl" variant="flat">
-              <div class="score-staff" :aria-label="`Мелодия из ${currentStage.sequence.length} нот`">
-                <div v-for="line in 5" :key="line" class="staff-line" />
-                <div class="note-bubbles">
-                  <div
-                    v-for="(note, index) in currentStage.sequence"
-                    :key="`bubble-${activeStageIndex}-${index}`"
-                    class="note-bubble"
-                    :class="{ 'note-bubble--played': isSequenceStepComplete(index), 'note-bubble--current': phase === 'repeating' && index === completedInStage }"
-                    :style="{ '--note-color': note.color }"
-                  >
-                    <span>{{ index + 1 }}</span>
-                    <small>{{ note.label }}</small>
+              <v-card
+                v-if="mode === 'guided'"
+                class="score-card pa-4 pa-md-5 mb-5"
+                color="indigo-lighten-5"
+                rounded="xl"
+                variant="flat"
+              >
+                <div
+                  class="score-staff"
+                  :aria-label="`Мелодия из ${currentStage.sequence.length} нот`"
+                >
+                  <div v-for="line in 5" :key="line" class="staff-line" />
+                  <div class="note-bubbles">
+                    <div
+                      v-for="(note, index) in currentStage.sequence"
+                      :key="`bubble-${activeStageIndex}-${index}`"
+                      class="note-bubble"
+                      :class="{
+                        'note-bubble--played': isSequenceStepComplete(index),
+                        'note-bubble--current': phase === 'repeating' && index === completedInStage,
+                      }"
+                      :style="{ '--note-color': note.color }"
+                    >
+                      <span>{{ index + 1 }}</span>
+                      <small>{{ note.label }}</small>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </v-card>
+              </v-card>
 
-            <v-card class="piano-card pa-4 pa-md-5 mb-5" color="blue-grey-lighten-5" rounded="xl" variant="flat">
-              <div class="piano-frame" aria-label="Пианино: одна октава">
-                <div class="black-keys" aria-hidden="true">
-                  <div v-for="key in blackKeyLayout" :key="key.label" class="black-key" :style="{ left: key.left }" />
+              <v-card
+                class="piano-card pa-4 pa-md-5 mb-5"
+                color="blue-grey-lighten-5"
+                rounded="xl"
+                variant="flat"
+              >
+                <div class="piano-frame" aria-label="Пианино: одна октава">
+                  <div class="black-keys" aria-hidden="true">
+                    <div
+                      v-for="key in blackKeyLayout"
+                      :key="key.label"
+                      class="black-key"
+                      :style="{ left: key.left }"
+                    />
+                  </div>
+                  <div class="white-keyboard">
+                    <GameDwellButton
+                      v-for="note in choiceNotes"
+                      :key="`key-${session.step}-${note.id}`"
+                      class="white-key-target"
+                      :target-id="noteTargetId(note)"
+                      :disabled="
+                        session.status !== 'running' ||
+                        pendingSelection ||
+                        phase === 'demonstrating'
+                      "
+                      :dwell-ms="session.settings.dwellMs"
+                      min-height="100%"
+                      color="surface"
+                      @select="chooseNote(note)"
+                    >
+                      <template #default="{ active }">
+                        <div
+                          class="white-key"
+                          :class="{
+                            'white-key--played': mode === 'guided' && isPlayed(note),
+                            'white-key--success': successNoteId === note.id,
+                            'white-key--hint': expectedNote?.id === note.id,
+                            'white-key--demo': demonstrationNoteId === note.id,
+                            'white-key--wrong': wrongNoteId === note.id,
+                            'white-key--active': active,
+                          }"
+                          :style="{ '--note-color': note.color }"
+                        >
+                          <span>{{ note.label }}</span>
+                        </div>
+                      </template>
+                    </GameDwellButton>
+                  </div>
                 </div>
-                <div class="white-keyboard">
-                  <GameDwellButton
-                    v-for="note in choiceNotes"
-                    :key="`key-${session.step}-${note.id}`"
-                    class="white-key-target"
-                    :target-id="noteTargetId(note)"
-                    :disabled="session.status !== 'running' || pendingSelection || phase === 'demonstrating'"
-                    :dwell-ms="session.settings.dwellMs"
-                    min-height="100%"
-                    color="surface"
-                    @select="chooseNote(note)"
-                  >
-                    <template #default="{ active }">
-                     <div
-                        class="white-key"
-                        :class="{ 'white-key--played': mode === 'guided' && isPlayed(note), 'white-key--success': successNoteId === note.id, 'white-key--hint': expectedNote?.id === note.id, 'white-key--demo': demonstrationNoteId === note.id, 'white-key--wrong': wrongNoteId === note.id, 'white-key--active': active }"
-                        :style="{ '--note-color': note.color }"
-                      >
-                        <span>{{ note.label }}</span>
-                      </div>
-                    </template>
-                  </GameDwellButton>
-                </div>
-              </div>
-            </v-card>
+              </v-card>
             </template>
           </v-card>
         </v-col>
@@ -424,7 +559,9 @@ onUnmounted(() => {
 
 <style scoped>
 .solfege-shell {
-  background: radial-gradient(circle at 15% 8%, rgb(255 224 178 / 55%), transparent 34%), linear-gradient(135deg, #fff8e7 0%, #edf7ff 52%, #f5ecff 100%);
+  background:
+    radial-gradient(circle at 15% 8%, rgb(255 224 178 / 55%), transparent 34%),
+    linear-gradient(135deg, #fff8e7 0%, #edf7ff 52%, #f5ecff 100%);
   min-block-size: 100vh;
 }
 
@@ -474,11 +611,21 @@ onUnmounted(() => {
   position: absolute;
 }
 
-.staff-line:nth-child(1) { inset-block-start: 18%; }
-.staff-line:nth-child(2) { inset-block-start: 34%; }
-.staff-line:nth-child(3) { inset-block-start: 50%; }
-.staff-line:nth-child(4) { inset-block-start: 66%; }
-.staff-line:nth-child(5) { inset-block-start: 82%; }
+.staff-line:nth-child(1) {
+  inset-block-start: 18%;
+}
+.staff-line:nth-child(2) {
+  inset-block-start: 34%;
+}
+.staff-line:nth-child(3) {
+  inset-block-start: 50%;
+}
+.staff-line:nth-child(4) {
+  inset-block-start: 66%;
+}
+.staff-line:nth-child(5) {
+  inset-block-start: 82%;
+}
 
 .note-bubbles {
   align-items: center;
@@ -521,7 +668,9 @@ onUnmounted(() => {
 .piano-frame {
   background: linear-gradient(180deg, #4b5563 0%, #1f2937 100%);
   border-radius: 28px;
-  box-shadow: inset 0 -12px 0 rgb(0 0 0 / 16%), 0 22px 38px rgb(31 41 55 / 18%);
+  box-shadow:
+    inset 0 -12px 0 rgb(0 0 0 / 16%),
+    0 22px 38px rgb(31 41 55 / 18%);
   padding: 1.5rem 1.25rem 1.125rem;
   position: relative;
 }
@@ -562,7 +711,10 @@ onUnmounted(() => {
   justify-content: flex-end;
   min-inline-size: 0;
   padding-block-end: 18px;
-  transition: background 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  transition:
+    background 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
   min-block-size: 100%;
 }
 
@@ -579,13 +731,19 @@ onUnmounted(() => {
 .white-key--success,
 .white-key--hint,
 .white-key--demo {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--note-color) 48%, white) 0%, #fffaf0 100%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--note-color) 48%, white) 0%,
+    #fffaf0 100%
+  );
 }
 
 .white-key--hint,
 .white-key--demo,
 .white-key--active {
-  box-shadow: inset 0 -12px 0 rgb(31 41 55 / 6%), 0 0 0 6px color-mix(in srgb, var(--note-color) 25%, transparent);
+  box-shadow:
+    inset 0 -12px 0 rgb(31 41 55 / 6%),
+    0 0 0 6px color-mix(in srgb, var(--note-color) 25%, transparent);
   transform: translateY(-4px);
 }
 
@@ -611,91 +769,97 @@ onUnmounted(() => {
 }
 
 @keyframes note-wrong {
-  0%, 100% { transform: translateX(0); }
-  35% { transform: translateX(-0.35rem); }
-  70% { transform: translateX(0.35rem); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  35% {
+    transform: translateX(-0.35rem);
+  }
+  70% {
+    transform: translateX(0.35rem);
+  }
 }
 
 @media (max-width: 60rem) {
- .solfege-container {
+  .solfege-container {
     padding-block-start: 116px;
   }
 
- .score-card {
+  .score-card {
     margin-block-end: 1rem !important;
   }
 }
 
 @media (max-height: 57.5rem) {
- .score-card {
+  .score-card {
     display: none !important;
   }
 
- .piano-card {
+  .piano-card {
     margin-block-end: 1rem !important;
   }
 }
 
 @media (max-height: 47.5rem) {
- .solfege-container {
+  .solfege-container {
     align-items: flex-start !important;
     min-block-size: auto;
     padding-block-start: 9.5rem;
   }
 
- .solfege-panel {
+  .solfege-panel {
     padding: 1rem !important;
   }
 
- .score-card {
+  .score-card {
     display: none !important;
   }
 
- .piano-card {
+  .piano-card {
     margin-block-end: 0.85rem !important;
     padding: 1rem !important;
   }
 
- .solfege-instruction p {
+  .solfege-instruction p {
     display: none;
   }
 
- .piano-frame {
+  .piano-frame {
     padding: 1rem 0.75rem 0.75rem;
   }
 
- .white-keyboard {
+  .white-keyboard {
     min-block-size: 8.125rem;
   }
 
- .black-keys {
+  .black-keys {
     inset-block-start: 16px;
     inset-inline: 12px;
   }
 
- .black-key {
+  .black-key {
     block-size: 4.5rem;
   }
-
 }
 
 @media (max-width: 37.5rem) {
- .score-staff {
+  .score-staff {
     block-size: 9.375rem;
   }
 }
 
 @media (max-width: 75rem) {
- .black-keys {
+  .black-keys {
     display: none;
   }
 
- .solfege-panel,
- .piano-card {
+  .solfege-panel,
+  .piano-card {
     padding: 0.5rem !important;
   }
 
- .piano-frame {
+  .piano-frame {
     border-radius: 1.25rem;
     padding: 0.25rem;
   }
@@ -706,28 +870,28 @@ onUnmounted(() => {
     min-block-size: clamp(10rem, 32dvh, 18rem);
   }
 
- .white-key {
+  .white-key {
     border-radius: 1rem;
     padding-block-end: 0;
   }
 
- .white-key-target :deep(.dwell-progress) {
+  .white-key-target :deep(.dwell-progress) {
     --dwell-size: min(7rem, 70%) !important;
   }
 }
 
 @media (max-width: 75rem) and (max-height: 47.5rem) {
- .white-keyboard {
+  .white-keyboard {
     min-block-size: min(34dvh, 14rem);
   }
 }
 
 @media (min-width: 75.001rem) {
- .piano-frame {
+  .piano-frame {
     padding-inline: 0.5rem;
   }
 
- .white-keyboard {
+  .white-keyboard {
     gap: 0;
   }
 }

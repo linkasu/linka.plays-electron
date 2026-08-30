@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { settingsFromPreset } from "../../core/settings";
 import { mosaicImages } from "./images";
-import { createMosaicStep, createMosaicTiles, getMosaicImage, isMosaicChoiceCorrect, mosaicTileCount, selectMosaicImageIndex } from "./model";
+import {
+  createMosaicStep,
+  createMosaicTiles,
+  getMosaicImage,
+  isMosaicChoiceCorrect,
+  mosaicTileCount,
+  selectMosaicImageIndex,
+} from "./model";
 
 describe("mosaic model", () => {
   it("creates a stable 3x3 tile map for an image", () => {
@@ -11,9 +18,15 @@ describe("mosaic model", () => {
     expect(tiles).toHaveLength(9);
     expect(tiles.map((tile) => tile.slotIndex)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
     expect(tiles.map((tile) => [tile.row, tile.col])).toEqual([
-      [0, 0], [0, 1], [0, 2],
-      [1, 0], [1, 1], [1, 2],
-      [2, 0], [2, 1], [2, 2]
+      [0, 0],
+      [0, 1],
+      [0, 2],
+      [1, 0],
+      [1, 1],
+      [1, 2],
+      [2, 0],
+      [2, 1],
+      [2, 2],
     ]);
   });
 
@@ -48,16 +61,29 @@ describe("mosaic model", () => {
   });
 
   it("uses three choices in gentle preset", () => {
-    const step = createMosaicStep({ ...settingsFromPreset("gentle"), maxSteps: mosaicTileCount }, 2, 1);
+    const step = createMosaicStep(
+      { ...settingsFromPreset("gentle"), maxSteps: mosaicTileCount },
+      2,
+      1,
+    );
 
     expect(step.choices).toHaveLength(3);
     expect(step.choices.map((choice) => choice.id)).toContain(step.target.id);
   });
 
   it("checks correct tile identity", () => {
-    const step = createMosaicStep({ ...settingsFromPreset("standard"), maxSteps: mosaicTileCount }, 0, 0);
+    const step = createMosaicStep(
+      { ...settingsFromPreset("standard"), maxSteps: mosaicTileCount },
+      0,
+      0,
+    );
 
     expect(isMosaicChoiceCorrect(step.target, step.target)).toBe(true);
-    expect(isMosaicChoiceCorrect(step.choices.find((choice) => choice.id !== step.target.id)!, step.target)).toBe(false);
+    expect(
+      isMosaicChoiceCorrect(
+        step.choices.find((choice) => choice.id !== step.target.id)!,
+        step.target,
+      ),
+    ).toBe(false);
   });
 });

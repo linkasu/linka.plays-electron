@@ -10,7 +10,7 @@ export type ClockRound = {
 };
 
 export function normalizeClockHour(hour: number) {
-  return ((hour - 1) % 12 + 12) % 12 + 1;
+  return ((((hour - 1) % 12) + 12) % 12) + 1;
 }
 
 export function formatClockHour(hour: number) {
@@ -32,10 +32,16 @@ function choiceCount(settings: SessionSettings) {
   return settings.preset === "gentle" ? 2 : 4;
 }
 
-export function generateClockRound(settings: SessionSettings, roundIndex = 1, random = Math.random): ClockRound {
+export function generateClockRound(
+  settings: SessionSettings,
+  roundIndex = 1,
+  random = Math.random,
+): ClockRound {
   const targetHour = randomHour(random);
   const choices = new Set([targetHour]);
-  const nearbyHours = [-1, 1, -2, 2, -3, 3, -4, 4, -5, 5, 6].map((offset) => normalizeClockHour(targetHour + offset));
+  const nearbyHours = [-1, 1, -2, 2, -3, 3, -4, 4, -5, 5, 6].map((offset) =>
+    normalizeClockHour(targetHour + offset),
+  );
 
   for (const hour of shuffleItems(nearbyHours, random)) {
     if (choices.size < choiceCount(settings)) choices.add(hour);
@@ -48,6 +54,6 @@ export function generateClockRound(settings: SessionSettings, roundIndex = 1, ra
     targetHour,
     prompt: `Выбери ${formatClockHour(targetHour)}`,
     choices: shuffled,
-    correctIndex: shuffled.indexOf(targetHour)
+    correctIndex: shuffled.indexOf(targetHour),
   };
 }

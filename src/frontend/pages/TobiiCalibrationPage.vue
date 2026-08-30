@@ -38,18 +38,18 @@ const calibrationGroups: CalibrationPoint[][] = [
   [
     { x: 0.12, y: 0.12 },
     { x: 0.5, y: 0.12 },
-    { x: 0.88, y: 0.12 }
+    { x: 0.88, y: 0.12 },
   ],
   [
     { x: 0.12, y: 0.5 },
     { x: 0.5, y: 0.5 },
-    { x: 0.88, y: 0.5 }
+    { x: 0.88, y: 0.5 },
   ],
   [
     { x: 0.12, y: 0.88 },
     { x: 0.5, y: 0.88 },
-    { x: 0.88, y: 0.88 }
-  ]
+    { x: 0.88, y: 0.88 },
+  ],
 ];
 
 const currentGroup = computed(() => calibrationGroups[activeGroupIndex.value]);
@@ -57,29 +57,41 @@ const currentTargetIndex = computed(() => {
   const index = pointStates.value.findIndex((state) => state !== "done");
   return index >= 0 ? index : null;
 });
-const canUseTobii = computed(() => tobiiStatus.value?.state === "connected" || tobiiStatus.value?.state === "tracking");
+const canUseTobii = computed(
+  () => tobiiStatus.value?.state === "connected" || tobiiStatus.value?.state === "tracking",
+);
 const isEyeLogMode = computed(() => tobiiStatus.value?.mode === "direct");
 const canRunSdkCalibration = computed(() => canUseTobii.value && !isEyeLogMode.value);
-const tobiiStatusMessage = computed(() => tobiiStatus.value?.message || "Проверяю состояние Tobii...");
+const tobiiStatusMessage = computed(
+  () => tobiiStatus.value?.message || "Проверяю состояние Tobii...",
+);
 const tobiiStatusAlertType = computed(() => {
   if (!tobiiStatus.value) return "info";
   if (canUseTobii.value) return "success";
-  if (["service_starting", "connecting", "reconnecting", "waiting_device"].includes(tobiiStatus.value.state)) return "warning";
+  if (
+    ["service_starting", "connecting", "reconnecting", "waiting_device"].includes(
+      tobiiStatus.value.state,
+    )
+  )
+    return "warning";
   return "error";
 });
 const gazeMarkerStyle = computed(() => ({
   left: `${gazePoint.value?.x ?? -100}px`,
-  top: `${gazePoint.value?.y ?? -100}px`
+  top: `${gazePoint.value?.y ?? -100}px`,
 }));
 const validRatio = computed(() => {
   if (recentRendererSamples.value.length === 0) return 0;
-  return recentRendererSamples.value.filter((sample) => sample.valid).length / recentRendererSamples.value.length;
+  return (
+    recentRendererSamples.value.filter((sample) => sample.valid).length /
+    recentRendererSamples.value.length
+  );
 });
 const samplesPerSecond = computed(() => {
   const samples = recentRendererSamples.value;
   if (samples.length < 2) return 0;
   const durationMs = samples[samples.length - 1].at - samples[0].at;
-  return durationMs > 0 ? (samples.length - 1) / durationMs * 1000 : 0;
+  return durationMs > 0 ? ((samples.length - 1) / durationMs) * 1000 : 0;
 });
 const lastTrackerDebug = computed(() => diagnostics.value?.recentTrackerDebug.at(-1));
 const lastRendererGaze = computed(() => diagnostics.value?.recentGaze.at(-1));
@@ -98,7 +110,10 @@ async function startTobiiCalibration() {
 
   try {
     phase.value = "start";
-    if (!canRunSdkCalibration.value) throw new Error("SDK-калибровка недоступна в Windows EyeLog-режиме. Используйте локальную проверку взгляда.");
+    if (!canRunSdkCalibration.value)
+      throw new Error(
+        "SDK-калибровка недоступна в Windows EyeLog-режиме. Используйте локальную проверку взгляда.",
+      );
     await window.linkaTobii.startCalibration();
     phase.value = "look";
   } catch (error) {
@@ -126,7 +141,9 @@ async function applySavedCalibration() {
   calibrationError.value = "";
   try {
     const applied = await window.linkaTobii.applySavedCalibration();
-    calibrationMessage.value = applied ? "Сохранённая калибровка применена." : "Сохранённая калибровка пока не найдена.";
+    calibrationMessage.value = applied
+      ? "Сохранённая калибровка применена."
+      : "Сохранённая калибровка пока не найдена.";
   } catch (error) {
     calibrationError.value = error instanceof Error ? error.message : String(error);
   } finally {
@@ -148,9 +165,9 @@ async function restartService() {
 function targetStyle(point: CalibrationPoint, index: number) {
   const progress = activePointIndex.value === index ? holdProgress.value : 0;
   return {
-    left: `${point.x * 100}%`,
-    top: `${point.y * 100}%`,
-    "--hold-progress": `${progress}%`
+    "left": `${point.x * 100}%`,
+    "top": `${point.y * 100}%`,
+    "--hold-progress": `${progress}%`,
   };
 }
 
@@ -160,7 +177,7 @@ function targetClasses(index: number) {
     [`is-${state}`]: true,
     "is-active": activePointIndex.value === index,
     "is-current": currentTargetIndex.value === index,
-    "is-disabled": isPointDisabled(index)
+    "is-disabled": isPointDisabled(index),
   };
 }
 
@@ -178,7 +195,7 @@ function onGaze(point: GazePoint) {
   const now = Date.now();
   recentRendererSamples.value = [
     ...recentRendererSamples.value.filter((sample) => now - sample.at <= 10000),
-    { at: now, valid: point.valid, x: point.x, y: point.y }
+    { at: now, valid: point.valid, x: point.x, y: point.y },
   ].slice(-240);
   if (!calibrationActive.value || phase.value !== "look" || !point.valid) {
     resetActivePoint();
@@ -201,7 +218,9 @@ function onGaze(point: GazePoint) {
 }
 
 function findHitTarget(point: GazePoint) {
-  const targets = Array.from(document.querySelectorAll<HTMLElement>(".calibration-target.is-current:not(.is-done)"));
+  const targets = Array.from(
+    document.querySelectorAll<HTMLElement>(".calibration-target.is-current:not(.is-done)"),
+  );
   const target = targets.find((element) => {
     const rect = element.getBoundingClientRect();
     const centerX = rect.x + rect.width / 2;
@@ -227,7 +246,7 @@ function startHoldTimer(index: number) {
   const tick = (now: number) => {
     if (activePointIndex.value !== index || pointStates.value[index] !== "holding") return;
     const elapsed = now - startedAt;
-    holdProgress.value = Math.min(100, elapsed / holdMs * 100);
+    holdProgress.value = Math.min(100, (elapsed / holdMs) * 100);
     if (elapsed >= holdMs) {
       void completePoint(index);
       return;
@@ -248,7 +267,7 @@ async function completePoint(index: number) {
   try {
     await Promise.all([
       window.linkaTobii.addCalibrationPoint(currentGroup.value[index]),
-      wait(burstMs)
+      wait(burstMs),
     ]);
     setPointState(index, "done");
     completingPoint.value = false;
@@ -270,7 +289,8 @@ async function continueAfterPoint() {
   phase.value = "finish";
   try {
     await window.linkaTobii?.finishCalibration();
-    calibrationMessage.value = "Калибровка Tobii по девяти точкам сохранена и применена. Теперь проверьте точность взгляда.";
+    calibrationMessage.value =
+      "Калибровка Tobii по девяти точкам сохранена и применена. Теперь проверьте точность взгляда.";
     calibrationActive.value = false;
     phase.value = "idle";
   } catch (error) {
@@ -287,7 +307,9 @@ function resetPointStates() {
 }
 
 function setPointState(index: number, state: CalibrationPointState) {
-  pointStates.value = pointStates.value.map((current, currentIndex) => currentIndex === index ? state : current);
+  pointStates.value = pointStates.value.map((current, currentIndex) =>
+    currentIndex === index ? state : current,
+  );
 }
 
 function stopHoldTimer() {
@@ -325,7 +347,7 @@ async function loadTobiiStatus() {
       mode: "socket-service",
       message: error instanceof Error ? error.message : String(error),
       deviceFound: false,
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     };
   }
 }
@@ -368,17 +390,17 @@ onBeforeUnmount(() => {
   <div class="tobii-calibration">
     <v-container v-if="!calibrationActive" class="panel-container py-10">
       <v-card rounded="xl" elevation="8">
-        <v-card-title class="text-h5 pa-6 pb-2">
-          Калибровка Tobii Eye Tracker 5
-        </v-card-title>
+        <v-card-title class="text-h5 pa-6 pb-2"> Калибровка Tobii Eye Tracker 5 </v-card-title>
         <v-card-text class="text-body-1 px-6">
-          Смотрите на точку и удерживайте взгляд, пока кольцо не заполнится. Если отвести взгляд раньше времени, точка начнётся заново. Для отмены нажмите Escape.
+          Смотрите на точку и удерживайте взгляд, пока кольцо не заполнится. Если отвести взгляд
+          раньше времени, точка начнётся заново. Для отмены нажмите Escape.
           <v-alert class="mt-4" :type="tobiiStatusAlertType" variant="tonal">
             <div>{{ tobiiStatusMessage }}</div>
             <div v-if="tobiiStatus?.lastError">Ошибка: {{ tobiiStatus.lastError }}</div>
           </v-alert>
           <v-alert v-if="isEyeLogMode" class="mt-4" type="info" variant="tonal">
-            Windows сейчас использует EyeLog-поток. Это проверка реакции взгляда, а не SDK-калибровка Tobii.
+            Windows сейчас использует EyeLog-поток. Это проверка реакции взгляда, а не
+            SDK-калибровка Tobii.
           </v-alert>
           <v-alert v-if="calibrationMessage" class="mt-4" type="info" variant="tonal">
             {{ calibrationMessage }}
@@ -390,14 +412,14 @@ onBeforeUnmount(() => {
             {{ diagnosticsError }}
           </v-alert>
           <v-card class="mt-4" rounded="lg" variant="tonal">
-            <v-card-title class="text-subtitle-1 pb-1">
-              Диагностика взгляда
-            </v-card-title>
+            <v-card-title class="text-subtitle-1 pb-1"> Диагностика взгляда </v-card-title>
             <v-card-text class="pt-0">
               <v-row dense>
                 <v-col cols="12" md="4">
                   <div class="text-caption text-medium-emphasis">Renderer samples</div>
-                  <div class="text-body-2">{{ recentRendererSamples.length }} / {{ formatNumber(samplesPerSecond) }} Hz</div>
+                  <div class="text-body-2">
+                    {{ recentRendererSamples.length }} / {{ formatNumber(samplesPerSecond) }} Hz
+                  </div>
                 </v-col>
                 <v-col cols="12" md="4">
                   <div class="text-caption text-medium-emphasis">Valid ratio</div>
@@ -405,15 +427,24 @@ onBeforeUnmount(() => {
                 </v-col>
                 <v-col cols="12" md="4">
                   <div class="text-caption text-medium-emphasis">Scale</div>
-                  <div class="text-body-2">1x / {{ formatNumber(diagnostics?.appliedScaleFactor, 2) }}</div>
+                  <div class="text-body-2">
+                    1x / {{ formatNumber(diagnostics?.appliedScaleFactor, 2) }}
+                  </div>
                 </v-col>
                 <v-col cols="12" md="4">
                   <div class="text-caption text-medium-emphasis">Raw gaze</div>
-                  <div class="text-body-2">{{ formatNumber(lastTrackerDebug?.raw.x) }}, {{ formatNumber(lastTrackerDebug?.raw.y) }}</div>
+                  <div class="text-body-2">
+                    {{ formatNumber(lastTrackerDebug?.raw.x) }},
+                    {{ formatNumber(lastTrackerDebug?.raw.y) }}
+                  </div>
                 </v-col>
                 <v-col cols="12" md="4">
                   <div class="text-caption text-medium-emphasis">Client gaze</div>
-                  <div class="text-body-2">{{ formatNumber(lastRendererGaze?.client.x) }}, {{ formatNumber(lastRendererGaze?.client.y) }} / valid {{ lastRendererGaze?.client.valid ?? "-" }}</div>
+                  <div class="text-body-2">
+                    {{ formatNumber(lastRendererGaze?.client.x) }},
+                    {{ formatNumber(lastRendererGaze?.client.y) }} / valid
+                    {{ lastRendererGaze?.client.valid ?? "-" }}
+                  </div>
                 </v-col>
               </v-row>
               <div class="text-caption text-medium-emphasis mt-3">
@@ -423,27 +454,43 @@ onBeforeUnmount(() => {
           </v-card>
         </v-card-text>
         <v-card-actions class="pa-6 pt-2 flex-wrap ga-2">
-          <v-btn color="primary" :disabled="!canRunSdkCalibration" :loading="calibrationBusy" @click="startTobiiCalibration">
+          <v-btn
+            color="primary"
+            :disabled="!canRunSdkCalibration"
+            :loading="calibrationBusy"
+            @click="startTobiiCalibration"
+          >
             Начать калибровку
           </v-btn>
-          <v-btn :disabled="!canRunSdkCalibration" :loading="calibrationBusy" @click="applySavedCalibration">
+          <v-btn
+            :disabled="!canRunSdkCalibration"
+            :loading="calibrationBusy"
+            @click="applySavedCalibration"
+          >
             Применить сохранённую
           </v-btn>
-          <v-btn v-if="!isEyeLogMode && canUseTobii" :loading="calibrationBusy" @click="restartService">
+          <v-btn
+            v-if="!isEyeLogMode && canUseTobii"
+            :loading="calibrationBusy"
+            @click="restartService"
+          >
             Перезапустить Tobii
           </v-btn>
           <v-btn color="primary" prepend-icon="mdi-crosshairs-gps" to="/gaze-debug" variant="tonal">
             Debug взгляда
           </v-btn>
-          <v-btn class="ms-md-auto" @click="router.push(resolveMenuRoute())">
-            В меню
-          </v-btn>
+          <v-btn class="ms-md-auto" @click="router.push(resolveMenuRoute())"> В меню </v-btn>
         </v-card-actions>
       </v-card>
     </v-container>
 
     <div v-else class="calibration-stage" :class="{ 'is-finishing': phase === 'finish' }">
-      <div v-if="gazePoint" class="debug-gaze-marker" :class="{ 'is-invalid': !gazePoint.valid }" :style="gazeMarkerStyle" />
+      <div
+        v-if="gazePoint"
+        class="debug-gaze-marker"
+        :class="{ 'is-invalid': !gazePoint.valid }"
+        :style="gazeMarkerStyle"
+      />
       <div
         v-for="(point, index) in currentGroup"
         v-show="pointStates[index] !== 'done' && currentTargetIndex === index"
@@ -480,7 +527,12 @@ onBeforeUnmount(() => {
   z-index: 1000;
   overflow: hidden;
   background:
-    radial-gradient(circle at 50% 45%, rgb(42 101 255 / 24%) 0%, rgb(6 17 45 / 92%) 45%, #020817 100%),
+    radial-gradient(
+      circle at 50% 45%,
+      rgb(42 101 255 / 24%) 0%,
+      rgb(6 17 45 / 92%) 45%,
+      #020817 100%
+    ),
     #020817;
   color: #fff;
   transition: opacity 240ms ease;
@@ -516,7 +568,10 @@ onBeforeUnmount(() => {
   place-items: center;
   border-radius: 50%;
   pointer-events: none;
-  transition: opacity 180ms ease, transform 180ms ease, filter 180ms ease;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    filter 180ms ease;
 }
 
 .calibration-target.is-disabled:not(.is-holding):not(.is-bursting) {
@@ -536,7 +591,9 @@ onBeforeUnmount(() => {
   place-items: center;
   border-radius: 50%;
   background: conic-gradient(#4dffea var(--hold-progress), rgb(77 255 234 / 26%) 0);
-  box-shadow: 0 0 28px rgb(77 255 234 / 70%), 0 0 76px rgb(54 116 255 / 38%);
+  box-shadow:
+    0 0 28px rgb(77 255 234 / 70%),
+    0 0 76px rgb(54 116 255 / 38%);
 }
 
 .target-ring::before {
@@ -563,7 +620,9 @@ onBeforeUnmount(() => {
   height: 0.875rem;
   border-radius: 50%;
   background: #ffec5c;
-  box-shadow: 0 0 0 8px rgb(255 236 92 / 22%), 0 0 24px rgb(255 236 92 / 90%);
+  box-shadow:
+    0 0 0 8px rgb(255 236 92 / 22%),
+    0 0 24px rgb(255 236 92 / 90%);
 }
 
 .is-bursting.target-dot {
@@ -598,39 +657,88 @@ onBeforeUnmount(() => {
   animation: spark-burst 280ms ease-out forwards;
 }
 
-.target-spark:nth-child(1) { --spark-angle: 0deg; }
-.target-spark:nth-child(2) { --spark-angle: 36deg; }
-.target-spark:nth-child(3) { --spark-angle: 72deg; }
-.target-spark:nth-child(4) { --spark-angle: 108deg; }
-.target-spark:nth-child(5) { --spark-angle: 144deg; }
-.target-spark:nth-child(6) { --spark-angle: 180deg; }
-.target-spark:nth-child(7) { --spark-angle: 216deg; }
-.target-spark:nth-child(8) { --spark-angle: 252deg; }
-.target-spark:nth-child(9) { --spark-angle: 288deg; }
-.target-spark:nth-child(10) { --spark-angle: 324deg; }
+.target-spark:nth-child(1) {
+  --spark-angle: 0deg;
+}
+.target-spark:nth-child(2) {
+  --spark-angle: 36deg;
+}
+.target-spark:nth-child(3) {
+  --spark-angle: 72deg;
+}
+.target-spark:nth-child(4) {
+  --spark-angle: 108deg;
+}
+.target-spark:nth-child(5) {
+  --spark-angle: 144deg;
+}
+.target-spark:nth-child(6) {
+  --spark-angle: 180deg;
+}
+.target-spark:nth-child(7) {
+  --spark-angle: 216deg;
+}
+.target-spark:nth-child(8) {
+  --spark-angle: 252deg;
+}
+.target-spark:nth-child(9) {
+  --spark-angle: 288deg;
+}
+.target-spark:nth-child(10) {
+  --spark-angle: 324deg;
+}
 
 @keyframes target-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes target-burst {
-  0% { opacity: 1; transform: scale(1); }
-  70% { opacity: 0.85; transform: scale(1.5); }
-  100% { opacity: 0; transform: scale(2.1); }
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  70% {
+    opacity: 0.85;
+    transform: scale(1.5);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.1);
+  }
 }
 
 @keyframes dot-burst {
-  to { opacity: 0; transform: scale(0.2); }
+  to {
+    opacity: 0;
+    transform: scale(0.2);
+  }
 }
 
 @keyframes spark-orbit {
-  0% { opacity: 0.25; transform: rotate(var(--spark-angle)) translateX(22px) scale(0.35); }
-  50% { opacity: 1; transform: rotate(calc(var(--spark-angle) + 180deg)) translateX(34px) scale(0.8); }
-  100% { opacity: 0.25; transform: rotate(calc(var(--spark-angle) + 360deg)) translateX(22px) scale(0.35); }
+  0% {
+    opacity: 0.25;
+    transform: rotate(var(--spark-angle)) translateX(22px) scale(0.35);
+  }
+  50% {
+    opacity: 1;
+    transform: rotate(calc(var(--spark-angle) + 180deg)) translateX(34px) scale(0.8);
+  }
+  100% {
+    opacity: 0.25;
+    transform: rotate(calc(var(--spark-angle) + 360deg)) translateX(22px) scale(0.35);
+  }
 }
 
 @keyframes spark-burst {
-  0% { opacity: 1; transform: rotate(var(--spark-angle)) translateX(28px) scale(0.7); }
-  100% { opacity: 0; transform: rotate(var(--spark-angle)) translateX(74px) scale(0.15); }
+  0% {
+    opacity: 1;
+    transform: rotate(var(--spark-angle)) translateX(28px) scale(0.7);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--spark-angle)) translateX(74px) scale(0.15);
+  }
 }
 </style>

@@ -8,18 +8,27 @@ export function recordMetricsSummary(summary: MetricsSessionSummary) {
 
 export function installGlobalMetricsErrorHandlers() {
   window.addEventListener("error", (event) => {
-    void recordErrorFingerprint("renderer.window", errorConstructor(event.error)).catch(() => undefined);
+    void recordErrorFingerprint("renderer.window", errorConstructor(event.error)).catch(
+      () => undefined,
+    );
   });
   window.addEventListener("unhandledrejection", (event) => {
-    void recordErrorFingerprint("renderer.promise", errorConstructor(event.reason)).catch(() => undefined);
+    void recordErrorFingerprint("renderer.promise", errorConstructor(event.reason)).catch(
+      () => undefined,
+    );
   });
 }
 
 async function recordErrorFingerprint(component: string, constructorName: string) {
   const bytes = new TextEncoder().encode(`${component}:${normalizeIdentifier(constructorName)}`);
   const digest = await crypto.subtle.digest("SHA-256", bytes);
-  const fingerprint = Array.from(new Uint8Array(digest), (value) => value.toString(16).padStart(2, "0")).join("");
-  recordMetricsEvent({ eventName: "error", properties: { fingerprint: `sha256:${fingerprint}`, component } });
+  const fingerprint = Array.from(new Uint8Array(digest), (value) =>
+    value.toString(16).padStart(2, "0"),
+  ).join("");
+  recordMetricsEvent({
+    eventName: "error",
+    properties: { fingerprint: `sha256:${fingerprint}`, component },
+  });
 }
 
 function errorConstructor(value: unknown) {

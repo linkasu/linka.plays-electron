@@ -22,7 +22,9 @@ describe("lines-angles model", () => {
 
     for (let index = 1; index <= linesAnglesTasks.length * 2; index += 1) {
       const round = generateLinesAnglesRound(settings, index);
-      const correctChoices = round.choices.filter((choice) => isCorrectLinesAnglesChoice(choice, round.task));
+      const correctChoices = round.choices.filter((choice) =>
+        isCorrectLinesAnglesChoice(choice, round.task),
+      );
 
       expect(round.roundId).toBe(`lines-angles:round:${index}`);
       expect(round.prompt).toBe(round.task.prompt);

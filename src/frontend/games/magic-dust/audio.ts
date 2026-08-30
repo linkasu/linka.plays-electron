@@ -2,7 +2,9 @@ import { createAmbientPiano } from "../../core/ambientPiano";
 
 const piano = createAmbientPiano({
   notesToLoad: [53, 55, 57, 60, 62, 64, 66, 67, 69, 72, 76, 79, 81, 84],
-  loopNotes: [53, 60, 67, 76, 72, 67, 62, 69, 76, 81, 79, 72, 57, 64, 69, 79, 76, 69, 60, 66, 72, 81, 84, 79],
+  loopNotes: [
+    53, 60, 67, 76, 72, 67, 62, 69, 76, 81, 79, 72, 57, 64, 69, 79, 76, 69, 60, 66, 72, 81, 84, 79,
+  ],
   cueNotes: [72, 79, 84, 81],
   reverbName: "magic-dust-room",
   reverbAmount: 0.2,
@@ -24,7 +26,7 @@ const piano = createAmbientPiano({
   cueCooldownSeconds: 0.8,
   activeGain: 0.92,
   fadeInSeconds: 1.1,
-  fadeOutSeconds: 1.6
+  fadeOutSeconds: 1.6,
 });
 
 export function warmMagicDustPiano(enabled: boolean) {

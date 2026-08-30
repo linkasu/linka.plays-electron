@@ -17,15 +17,20 @@ const countItems = [
   { id: "flower", name: "цветок", emoji: "🌸" },
   { id: "fish", name: "рыба", emoji: "🐟" },
   { id: "butterfly", name: "бабочка", emoji: "🦋" },
-  { id: "ball", name: "мяч", emoji: "🟡" }
+  { id: "ball", name: "мяч", emoji: "🟡" },
 ];
 
-export function generateCountItemsRound(settings: SessionSettings, roundIndex = 1, random = Math.random): CountItemsRound {
+export function generateCountItemsRound(
+  settings: SessionSettings,
+  roundIndex = 1,
+  random = Math.random,
+): CountItemsRound {
   const max = settings.preset === "gentle" ? 3 : 9;
   const choiceCount = settings.preset === "gentle" ? 2 : 4;
   const targetCount = randomInt(1, max, random);
-  const nearby = [targetCount - 1, targetCount + 1, targetCount + 2, targetCount - 2]
-   .filter((value) => value >= 1 && value <= 9 && value !== targetCount);
+  const nearby = [targetCount - 1, targetCount + 1, targetCount + 2, targetCount - 2].filter(
+    (value) => value >= 1 && value <= 9 && value !== targetCount,
+  );
   const choices = new Set([targetCount]);
   for (const value of shuffleItems(nearby, random)) {
     if (choices.size < choiceCount) choices.add(value);
@@ -42,6 +47,6 @@ export function generateCountItemsRound(settings: SessionSettings, roundIndex = 
     itemName: item.name,
     itemEmoji: item.emoji,
     choices: shuffled,
-    correctIndex: shuffled.indexOf(targetCount)
+    correctIndex: shuffled.indexOf(targetCount),
   };
 }

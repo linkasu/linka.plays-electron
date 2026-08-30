@@ -10,7 +10,9 @@ describe("generateShapesRound", () => {
       const round = generateShapesRound(settings, index + 1);
 
       expect(round.choices).toContainEqual(round.target);
-      expect(round.correctIndex).toBe(round.choices.findIndex((choice) => choice.id === round.target.id));
+      expect(round.correctIndex).toBe(
+        round.choices.findIndex((choice) => choice.id === round.target.id),
+      );
       expect(round.prompt).toBe(`Найди ${round.target.label}`);
     }
   });

@@ -168,7 +168,7 @@ export const wordBank: WordItem[] = [
   { id: "shoes", word: "обувь", emoji: "👟", category: "clothes" },
   { id: "socks", word: "носки", emoji: "🧦", category: "clothes" },
   { id: "coat", word: "пальто", emoji: "🧥", category: "clothes" },
-  { id: "cap", word: "кепка", emoji: "🧢", category: "clothes" }
+  { id: "cap", word: "кепка", emoji: "🧢", category: "clothes" },
 ];
 
 export function getAllWords() {
@@ -180,7 +180,9 @@ export function getWordsByCategory(category: string) {
 }
 
 export function getWordsByLength(min: number, max: number) {
-  return wordBank.filter((item) => Array.from(item.word).length >= min && Array.from(item.word).length <= max);
+  return wordBank.filter(
+    (item) => Array.from(item.word).length >= min && Array.from(item.word).length <= max,
+  );
 }
 
 export function sampleItems<T>(items: T[], count: number, exclude: T[] = []) {

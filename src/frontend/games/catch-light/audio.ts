@@ -24,7 +24,7 @@ const piano = createAmbientPiano({
   cueCooldownSeconds: 0.82,
   activeGain: 0.82,
   fadeInSeconds: 1.2,
-  fadeOutSeconds: 1.5
+  fadeOutSeconds: 1.5,
 });
 
 export function warmCatchLightPiano(enabled: boolean) {

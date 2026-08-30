@@ -15,7 +15,9 @@ const menuRoute = computed(() => resolveMenuRoute());
     <v-row justify="center">
       <v-col cols="12" md="10" lg="8">
         <v-card class="pa-6 pa-md-10" rounded="xl" elevation="8">
-          <div class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-6 mb-8">
+          <div
+            class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-6 mb-8"
+          >
             <div>
               <div class="text-overline text-secondary mb-2">Игра в разработке</div>
               <h1 class="text-h3 text-md-h2 font-weight-bold mb-3">
@@ -42,15 +44,28 @@ const menuRoute = computed(() => resolveMenuRoute());
             </div>
 
             <v-alert class="mb-8" color="info" icon="mdi-hammer-wrench" variant="tonal">
-              Игра уже описана в документации и добавлена в каталог. Реализация будет подключена отдельной игровой веткой.
+              Игра уже описана в документации и добавлена в каталог. Реализация будет подключена
+              отдельной игровой веткой.
             </v-alert>
           </template>
 
           <div class="d-flex flex-wrap ga-3">
-            <v-btn color="primary" prepend-icon="mdi-arrow-left" size="large" :to="menuRoute" variant="flat">
+            <v-btn
+              color="primary"
+              prepend-icon="mdi-arrow-left"
+              size="large"
+              :to="menuRoute"
+              variant="flat"
+            >
               В меню
             </v-btn>
-            <v-btn color="secondary" prepend-icon="mdi-eye-settings" size="large" to="/tobii-calibration" variant="tonal">
+            <v-btn
+              color="secondary"
+              prepend-icon="mdi-eye-settings"
+              size="large"
+              to="/tobii-calibration"
+              variant="tonal"
+            >
               Проверить Tobii
             </v-btn>
           </div>

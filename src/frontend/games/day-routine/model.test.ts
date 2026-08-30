@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import ttsAssets from "../../data/ttsAssets.json";
-import { createDayRoutineBoard, dayRoutineAudioCues, dayRoutineItems, dayRoutinePeriods, dayRoutineQuestion, findDayRoutinePeriod } from "./model";
+import {
+  createDayRoutineBoard,
+  dayRoutineAudioCues,
+  dayRoutineItems,
+  dayRoutinePeriods,
+  dayRoutineQuestion,
+  findDayRoutinePeriod,
+} from "./model";
 
 function createSequenceRandom(values: number[]) {
   let index = 0;
@@ -24,14 +31,16 @@ describe("createDayRoutineBoard", () => {
       "day",
       "day",
       "evening",
-      "evening"
+      "evening",
     ]);
   });
 
   it("keeps choices as the same cards as the ordered sequence", () => {
     const board = createDayRoutineBoard(8);
 
-    expect(new Set(board.choices.map((item) => item.id))).toEqual(new Set(board.items.map((item) => item.id)));
+    expect(new Set(board.choices.map((item) => item.id))).toEqual(
+      new Set(board.items.map((item) => item.id)),
+    );
     expect(board.choices).toHaveLength(board.items.length);
   });
 
@@ -52,26 +61,44 @@ describe("createDayRoutineBoard", () => {
     expect(dayRoutinePeriods.map(dayRoutineQuestion)).toEqual([
       "Что бывает утром?",
       "Что бывает днём?",
-      "Что бывает вечером?"
+      "Что бывает вечером?",
     ]);
   });
 
   it("keeps runtime audio cues paired with their screen text", () => {
-    const assetTextById = new Map(ttsAssets.filter((asset) => asset.game === "day-routine").map((asset) => [asset.id, asset.text]));
+    const assetTextById = new Map(
+      ttsAssets
+        .filter((asset) => asset.game === "day-routine")
+        .map((asset) => [asset.id, asset.text]),
+    );
 
     expect(Object.values(dayRoutineAudioCues).map((cue) => cue.id)).toEqual([
       "day-routine.prompt",
       "day-routine.correct",
       "day-routine.mistake",
-      "day-routine.complete"
+      "day-routine.complete",
     ]);
-    for (const cue of Object.values(dayRoutineAudioCues)) expect(assetTextById.get(cue.id)).toBe(cue.text);
+    for (const cue of Object.values(dayRoutineAudioCues))
+      expect(assetTextById.get(cue.id)).toBe(cue.text);
   });
 
   it("has enough unique vocabulary cards for the configured session", () => {
     expect(dayRoutineItems).toHaveLength(8);
     expect(new Set(dayRoutineItems.map((item) => item.id)).size).toBe(8);
-    expect(dayRoutineItems.every((item) => item.label && item.hint && findDayRoutinePeriod(item.periodId))).toBe(true);
-    expect(dayRoutineItems.map((item) => item.imageId)).toEqual(["clock", "soap", "porridge", "toy", "tree", "soup", "plate", "bed"]);
+    expect(
+      dayRoutineItems.every(
+        (item) => item.label && item.hint && findDayRoutinePeriod(item.periodId),
+      ),
+    ).toBe(true);
+    expect(dayRoutineItems.map((item) => item.imageId)).toEqual([
+      "clock",
+      "soap",
+      "porridge",
+      "toy",
+      "tree",
+      "soup",
+      "plate",
+      "bed",
+    ]);
   });
 });

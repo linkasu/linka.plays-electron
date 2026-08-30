@@ -13,23 +13,42 @@ import { shadowMatchFeedback } from "./audio";
 import { generateShadowMatchRound, type ShadowMatchChoice } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("shadow-match", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  recordHint,
+  startSession,
+} = useGameSessionFor("shadow-match", {
   maxSteps: 8,
   overrides: { sound: true },
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 
 const hintedRoundId = ref<string>();
 const lastMistakeId = ref<string>();
 const pendingSelection = ref(false);
 const isSpeaking = ref(false);
-const promptAudio = useGamePromptAudio({ gameId: "shadow-match", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "shadow-match",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 let feedbackTimer = 0;
 
-const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRoundGame,
+} = useRoundGame({
   session,
   startSession,
-  generateRound: (roundIndex) => generateShadowMatchRound(session.settings, roundIndex)
+  generateRound: (roundIndex) => generateShadowMatchRound(session.settings, roundIndex),
 });
 
 const hintedChoiceId = computed(() => {
@@ -37,7 +56,8 @@ const hintedChoiceId = computed(() => {
   return round.value.choices[round.value.correctIndex].id;
 });
 const hintText = computed(() => {
-  if (hintedRoundId.value === round.value.roundId) return `Почти получилось. Подсказка: ${round.value.target.hint}.`;
+  if (hintedRoundId.value === round.value.roundId)
+    return `Почти получилось. Подсказка: ${round.value.target.hint}.`;
   return "Посмотри на предмет, затем выбери его тень.";
 });
 
@@ -78,7 +98,14 @@ async function answer(choice: ShadowMatchChoice) {
   clearTimers();
   if (choice.id === correctChoice.id) {
     pendingSelection.value = true;
-    recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.label, actual: choice.id, isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      answerId: choice.id,
+      expected: round.value.target.label,
+      actual: choice.id,
+      isCorrect: true,
+    });
     hintedRoundId.value = undefined;
     lastMistakeId.value = undefined;
     void shadowMatchFeedback.playSuccess(session.settings.sound);
@@ -98,8 +125,20 @@ async function answer(choice: ShadowMatchChoice) {
   }
 
   pendingSelection.value = true;
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.label, actual: choice.id, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "shadow-mismatch" });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    expectedTargetId,
+    answerId: choice.id,
+    expected: round.value.target.label,
+    actual: choice.id,
+    isCorrect: false,
+  });
+  recordHint({
+    roundId: round.value.roundId,
+    targetId: expectedTargetId,
+    reason: "shadow-mismatch",
+  });
   hintedRoundId.value = round.value.roundId;
   lastMistakeId.value = choice.id;
   void shadowMatchFeedback.playMistake(session.settings.sound);
@@ -122,9 +161,12 @@ onMounted(() => {
   void playTargetPrompt(450);
 });
 
-watch(() => session.settings.sound, (enabled) => {
-  shadowMatchFeedback.warm(enabled);
-});
+watch(
+  () => session.settings.sound,
+  (enabled) => {
+    shadowMatchFeedback.warm(enabled);
+  },
+);
 
 onUnmounted(() => {
   clearTimers();
@@ -133,9 +175,23 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <GamePageShell gradient="linear-gradient(135deg, #eef6ff 0%, #f6f0ff 48%, #fff7ed 100%)" padding-top="5rem">
+  <GamePageShell
+    gradient="linear-gradient(135deg, #eef6ff 0%, #f6f0ff 48%, #fff7ed 100%)"
+    padding-top="5rem"
+  >
     <template #hud>
-      <GameHud title="Найди тень" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+      <GameHud
+        title="Найди тень"
+        :step="session.step"
+        :max-steps="session.maxSteps"
+        :score="session.score"
+        :mistakes="session.mistakes"
+        :duration-ms="durationMs"
+        :session-seconds="session.settings.sessionSeconds"
+        :paused="session.status === 'paused'"
+        @pause="pauseSession"
+        @resume="resumeSession"
+      />
     </template>
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
@@ -143,16 +199,48 @@ onUnmounted(() => {
           <v-card class="shadow-match-card pa-3 pa-md-5" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-1">Сравни предмет и силуэт</div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-1">{{ round.prompt }}</h1>
-            <p class="text-body-1 text-md-h6 text-medium-emphasis text-center mb-3">{{ hintText }}</p>
+            <p class="text-body-1 text-md-h6 text-medium-emphasis text-center mb-3">
+              {{ hintText }}
+            </p>
 
-            <v-card class="object-sample mx-auto mb-3 mb-md-4" rounded="xl" variant="outlined" color="blue-grey-lighten-2">
-              <img class="object-image" :src="round.target.imageSrc" :alt="round.target.label" draggable="false">
+            <v-card
+              class="object-sample mx-auto mb-3 mb-md-4"
+              rounded="xl"
+              variant="outlined"
+              color="blue-grey-lighten-2"
+            >
+              <img
+                class="object-image"
+                :src="round.target.imageSrc"
+                :alt="round.target.label"
+                draggable="false"
+              />
             </v-card>
 
-            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="clamp(6rem, 18vh, 11rem)" :highlight-choice="(choice) => hintedChoiceId === choice.id" :color="(choice) => hintedChoiceId === choice.id ? 'primary' : 'surface'" :cols="round.choices.length === 4 ? 3 : 4" :sm="round.choices.length === 4 ? 3 : 4" :md="round.choices.length === 3 ? 4 : 3" @select="answer">
+            <GameChoiceCardGrid
+              :choices="round.choices"
+              :target-id="(choice) => choiceTargetId(choice.id)"
+              :disabled="session.status !== 'running' || pendingSelection || isSpeaking"
+              :dwell-ms="session.settings.dwellMs"
+              min-height="clamp(6rem, 18vh, 11rem)"
+              :highlight-choice="(choice) => hintedChoiceId === choice.id"
+              :color="(choice) => (hintedChoiceId === choice.id ? 'primary' : 'surface')"
+              :cols="round.choices.length === 4 ? 3 : 4"
+              :sm="round.choices.length === 4 ? 3 : 4"
+              :md="round.choices.length === 3 ? 4 : 3"
+              @select="answer"
+            >
               <template #default="{ choice }">
                 <div class="choice-card">
-                  <img :class="['choice-image', { 'choice-image--mistake': choice.id === lastMistakeId }]" :src="choice.imageSrc" alt="Вариант тени" draggable="false">
+                  <img
+                    :class="[
+                      'choice-image',
+                      { 'choice-image--mistake': choice.id === lastMistakeId },
+                    ]"
+                    :src="choice.imageSrc"
+                    alt="Вариант тени"
+                    draggable="false"
+                  />
                 </div>
               </template>
             </GameChoiceCardGrid>
@@ -160,7 +248,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Найди тень" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Найди тень"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </GamePageShell>
 </template>
 
@@ -208,7 +306,9 @@ onUnmounted(() => {
   inline-size: min(100%, clamp(7rem, 18vh, 11rem));
   object-fit: contain;
   pointer-events: none;
-  transition: filter 160ms ease, transform 160ms ease;
+  transition:
+    filter 160ms ease,
+    transform 160ms ease;
   user-select: none;
 }
 
@@ -218,7 +318,7 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
- .game-container {
+  .game-container {
     padding-block-end: 1.25rem;
   }
 

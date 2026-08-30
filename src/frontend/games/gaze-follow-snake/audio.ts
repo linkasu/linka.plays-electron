@@ -24,7 +24,7 @@ const piano = createAmbientPiano({
   cueCooldownSeconds: 0.78,
   activeGain: 0.68,
   fadeInSeconds: 1.35,
-  fadeOutSeconds: 1.6
+  fadeOutSeconds: 1.6,
 });
 
 export function warmGazeFollowSnakeAudio(enabled: boolean) {

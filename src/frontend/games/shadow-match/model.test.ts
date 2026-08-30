@@ -30,12 +30,17 @@ describe("shadow-match model", () => {
 
     expect(round.target.imageSrc).toBe("./images/shadow-match/dog.png");
     expect(round.target.imageSrc).not.toBe(round.choices[round.correctIndex].imageSrc);
-    expect(round.choices.every((choice) => choice.imageSrc.includes(`${round.target.id}-shadow`))).toBe(true);
+    expect(
+      round.choices.every((choice) => choice.imageSrc.includes(`${round.target.id}-shadow`)),
+    ).toBe(true);
     expect(round.target.hint.length).toBeGreaterThan(0);
   });
 
   it("cycles through all supplied objects", () => {
-    const targetIds = Array.from({ length: 8 }, (_, index) => generateShadowMatchRound(settingsFromPreset("standard"), index + 1).target.id);
+    const targetIds = Array.from(
+      { length: 8 },
+      (_, index) => generateShadowMatchRound(settingsFromPreset("standard"), index + 1).target.id,
+    );
 
     expect(new Set(targetIds).size).toBe(4);
     expect(targetIds.slice(0, 4)).toEqual(targetIds.slice(4));

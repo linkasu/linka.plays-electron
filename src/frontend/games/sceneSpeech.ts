@@ -15,7 +15,12 @@ export function cancelSceneSpeech() {
 
 export function speakSceneText(text: string, enabled: boolean, delayMs = 0, volume = 0.34) {
   cancelSceneSpeech();
-  if (!enabled || typeof window.speechSynthesis === "undefined" || typeof SpeechSynthesisUtterance === "undefined") return Promise.resolve();
+  if (
+    !enabled ||
+    typeof window.speechSynthesis === "undefined" ||
+    typeof SpeechSynthesisUtterance === "undefined"
+  )
+    return Promise.resolve();
 
   const token = ++speechToken;
   return new Promise<void>((resolve) => {

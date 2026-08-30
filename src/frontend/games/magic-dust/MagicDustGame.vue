@@ -8,7 +8,13 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { ambientStepTargetMs } from "../../core/ambientProgress";
-import { disposeMagicDustPiano, playMagicDustCue, setMagicDustPianoActive, tickMagicDustPiano, warmMagicDustPiano } from "./audio";
+import {
+  disposeMagicDustPiano,
+  playMagicDustCue,
+  setMagicDustPianoActive,
+  tickMagicDustPiano,
+  warmMagicDustPiano,
+} from "./audio";
 
 type Point = { x: number; y: number };
 type DustParticle = Point & {
@@ -31,11 +37,28 @@ type BackgroundSpark = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("magic-dust", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("magic-dust", {
   maxSteps: 8,
-  overrides: { preset: "gentle", targetScale: 1.45, motionSpeed: 0.42, distractors: "none", hints: "high", sound: true },
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.45,
+    motionSpeed: 0.42,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 useStartPromptAudio({ gameId: "magic-dust", soundEnabled: toRef(session.settings, "sound") });
 
@@ -78,7 +101,7 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
@@ -88,14 +111,17 @@ function stepTargetMs() {
 
 function initBackgroundSparks() {
   backgroundSparks.splice(0);
-  const count = Math.min(96, Math.max(42, Math.round((window.innerWidth * window.innerHeight) / 12500)));
+  const count = Math.min(
+    96,
+    Math.max(42, Math.round((window.innerWidth * window.innerHeight) / 12500)),
+  );
   for (let index = 0; index < count; index += 1) {
     backgroundSparks.push({
       x: randomRange(0, window.innerWidth),
       y: randomRange(0, window.innerHeight),
       radius: randomRange(0.8, 2.4),
       alpha: randomRange(0.08, 0.28),
-      twinkle: randomRange(0, Math.PI * 2)
+      twinkle: randomRange(0, Math.PI * 2),
     });
   }
 }
@@ -125,7 +151,7 @@ function addParticle(now: number) {
     driftY: Math.sin(angle) * speed * randomRange(0.2, 0.75) - randomRange(5, 18),
     hue: randomHue(),
     spin: randomRange(0, Math.PI * 2),
-    sparkle: Math.random() > 0.34
+    sparkle: Math.random() > 0.34,
   });
 
   if (particles.length > 180) particles.splice(0, particles.length - 180);
@@ -145,7 +171,7 @@ function recordAttentionEnter(now: number) {
     targetId: `magic-dust-attention-${session.step + 1}`,
     at: Date.now(),
     dwellMs: stepTargetMs(),
-    pointer: copyPointer()
+    pointer: copyPointer(),
   });
 }
 
@@ -159,7 +185,7 @@ function recordAttentionStep(now: number) {
     dwellMs: stepTargetMs(),
     elapsedMs,
     progress: 1,
-    pointer: copyPointer()
+    pointer: copyPointer(),
   });
   recordSuccess({ targetId, mode: "ambient-magic-dust" });
   playMagicDustCue(session.settings.sound);
@@ -203,7 +229,14 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
   context.fillStyle = sky;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-  const glow = context.createRadialGradient(window.innerWidth * 0.52, window.innerHeight * 0.55, 0, window.innerWidth * 0.52, window.innerHeight * 0.55, Math.max(window.innerWidth, window.innerHeight) * 0.72);
+  const glow = context.createRadialGradient(
+    window.innerWidth * 0.52,
+    window.innerHeight * 0.55,
+    0,
+    window.innerWidth * 0.52,
+    window.innerHeight * 0.55,
+    Math.max(window.innerWidth, window.innerHeight) * 0.72,
+  );
   glow.addColorStop(0, "rgb(255 218 156 / 16%)");
   glow.addColorStop(0.48, "rgb(190 130 255 / 10%)");
   glow.addColorStop(1, "rgb(28 16 52 / 0%)");
@@ -230,7 +263,14 @@ function drawParticle(context: CanvasRenderingContext2D, particle: DustParticle)
   context.save();
   context.globalCompositeOperation = "lighter";
 
-  const halo = context.createRadialGradient(particle.x, particle.y, 0, particle.x, particle.y, radius * 3.2);
+  const halo = context.createRadialGradient(
+    particle.x,
+    particle.y,
+    0,
+    particle.x,
+    particle.y,
+    radius * 3.2,
+  );
   halo.addColorStop(0, `hsla(${particle.hue}, 100%, 88%, ${0.34 * fade})`);
   halo.addColorStop(0.45, `hsla(${particle.hue + 20}, 92%, 72%, ${0.16 * fade})`);
   halo.addColorStop(1, `hsla(${particle.hue}, 90%, 58%, 0)`);
@@ -264,7 +304,14 @@ function drawParticle(context: CanvasRenderingContext2D, particle: DustParticle)
 function drawGazeHalo(context: CanvasRenderingContext2D) {
   if (!pointer.value.valid || session.status !== "running") return;
   const radius = Math.min(132, Math.max(72, 76 * session.settings.targetScale));
-  const halo = context.createRadialGradient(pointer.value.x, pointer.value.y, 0, pointer.value.x, pointer.value.y, radius);
+  const halo = context.createRadialGradient(
+    pointer.value.x,
+    pointer.value.y,
+    0,
+    pointer.value.x,
+    pointer.value.y,
+    radius,
+  );
   halo.addColorStop(0, "rgb(255 246 214 / 16%)");
   halo.addColorStop(0.5, "rgb(229 178 255 / 8%)");
   halo.addColorStop(1, "rgb(229 178 255 / 0%)");
@@ -284,7 +331,8 @@ function draw(context: CanvasRenderingContext2D, now: number) {
 }
 
 function tick(now: number) {
-  const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+  const delta =
+    session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
 
   if (session.status === "running") {

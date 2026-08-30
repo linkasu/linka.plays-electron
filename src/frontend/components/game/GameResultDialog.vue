@@ -23,12 +23,12 @@ const props = defineProps<{
 
 const finishReasonLabels: Record<string, string> = {
   "max-steps": "все шаги выполнены",
-  timeout: "время занятия закончилось",
+  "timeout": "время занятия закончилось",
   "too-many-mistakes": "много сложных попыток",
-  manual: "завершено вручную",
+  "manual": "завершено вручную",
   "game-complete": "игра завершена",
   "game-lost": "раунд остановлен",
-  "game-draw": "ничья"
+  "game-draw": "ничья",
 };
 
 const finishReason = computed(() => props.metrics?.finishReason);
@@ -37,7 +37,8 @@ const isSelfMode = computed(() => resolveMenuMode() === "self");
 const resultMessage = computed(() => {
   if (finishReason.value === "game-lost") return "Партия завершена. Можно попробовать ещё раз.";
   if (finishReason.value === "game-draw") return "Партия завершилась вничью.";
-  if (finishReason.value === "too-many-mistakes") return "Сессия завершена: было много сложных попыток.";
+  if (finishReason.value === "too-many-mistakes")
+    return "Сессия завершена: было много сложных попыток.";
   return "Хорошая работа. Сессия завершена.";
 });
 
@@ -53,15 +54,23 @@ function milliseconds(value?: number) {
 
 const emit = defineEmits<{
   "update:modelValue": [value: boolean];
-  restart: [];
-  menu: [];
+  "restart": [];
+  "menu": [];
 }>();
 </script>
 
 <template>
-  <v-dialog :model-value="props.modelValue" max-width="56rem" persistent transition="fade-transition" @update:model-value="emit('update:modelValue', $event)">
+  <v-dialog
+    :model-value="props.modelValue"
+    max-width="56rem"
+    persistent
+    transition="fade-transition"
+    @update:model-value="emit('update:modelValue', $event)"
+  >
     <v-card class="pa-4 pa-md-6" rounded="xl">
-      <v-card-title class="text-h4 text-md-h3 font-weight-bold text-center pb-2">{{ title }}</v-card-title>
+      <v-card-title class="text-h4 text-md-h3 font-weight-bold text-center pb-2">{{
+        title
+      }}</v-card-title>
       <v-card-text>
         <p class="text-h5 text-center mb-6">{{ resultMessage }}</p>
         <v-row>
@@ -81,12 +90,20 @@ const emit = defineEmits<{
         <v-alert class="mt-4" color="info" variant="tonal">
           Длительность: {{ Math.round(durationMs / 1000) }} сек. {{ recommendation }}
         </v-alert>
-        <v-card v-if="metrics && !isSelfMode" class="mt-4 pa-4" color="surface" rounded="lg" variant="tonal">
+        <v-card
+          v-if="metrics && !isSelfMode"
+          class="mt-4 pa-4"
+          color="surface"
+          rounded="lg"
+          variant="tonal"
+        >
           <div class="text-subtitle-2 font-weight-bold mb-3">Наблюдения для взрослого</div>
           <v-row dense>
             <v-col cols="12" sm="6">
               <div class="text-caption text-medium-emphasis">Завершение</div>
-              <div class="text-body-2 font-weight-bold">{{ finishReasonLabels[metrics.finishReason ?? ''] ?? '—' }}</div>
+              <div class="text-body-2 font-weight-bold">
+                {{ finishReasonLabels[metrics.finishReason ?? ""] ?? "—" }}
+              </div>
             </v-col>
             <v-col cols="12" sm="6">
               <div class="text-caption text-medium-emphasis">Валидный взгляд</div>
@@ -94,7 +111,9 @@ const emit = defineEmits<{
             </v-col>
             <v-col cols="12" sm="6">
               <div class="text-caption text-medium-emphasis">Средний dwell</div>
-              <div class="text-body-2 font-weight-bold">{{ milliseconds(metrics.meanDwellMs) }}</div>
+              <div class="text-body-2 font-weight-bold">
+                {{ milliseconds(metrics.meanDwellMs) }}
+              </div>
             </v-col>
             <v-col cols="12" sm="6">
               <div class="text-caption text-medium-emphasis">Отмены выбора</div>
@@ -112,7 +131,13 @@ const emit = defineEmits<{
         </v-card>
         <v-row class="mt-6 result-actions" align="stretch" dense>
           <v-col cols="12" sm="6">
-            <GameDwellButton target-id="result-restart" :dwell-ms="dwellMs" min-height="clamp(8rem, 18vh, 12rem)" color="primary" @select="emit('restart')">
+            <GameDwellButton
+              target-id="result-restart"
+              :dwell-ms="dwellMs"
+              min-height="clamp(8rem, 18vh, 12rem)"
+              color="primary"
+              @select="emit('restart')"
+            >
               <template #default>
                 <div class="d-flex flex-column align-center justify-center ga-3 text-white">
                   <v-icon icon="mdi-refresh" size="56" />
@@ -123,7 +148,13 @@ const emit = defineEmits<{
             </GameDwellButton>
           </v-col>
           <v-col cols="12" sm="6">
-            <GameDwellButton target-id="result-menu" :dwell-ms="dwellMs" min-height="clamp(8rem, 18vh, 12rem)" color="secondary" @select="emit('menu')">
+            <GameDwellButton
+              target-id="result-menu"
+              :dwell-ms="dwellMs"
+              min-height="clamp(8rem, 18vh, 12rem)"
+              color="secondary"
+              @select="emit('menu')"
+            >
               <template #default>
                 <div class="d-flex flex-column align-center justify-center ga-3 text-white">
                   <v-icon icon="mdi-view-grid-outline" size="56" />

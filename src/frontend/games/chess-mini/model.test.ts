@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { boardCells, cellIndex, chessCellCount, chessInitialFen, fenSideToMove, parseFenBoard, pieceSide, squareLabel, statusLabel } from "./model";
+import {
+  boardCells,
+  cellIndex,
+  chessCellCount,
+  chessInitialFen,
+  fenSideToMove,
+  parseFenBoard,
+  pieceSide,
+  squareLabel,
+  statusLabel,
+} from "./model";
 
 describe("chess-mini model", () => {
   it("parses the full 8x8 initial chess board", () => {

@@ -11,7 +11,12 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { playSoftPianoMelody, warmSoftPiano } from "../../core/softPiano";
-import { createComicStripSlots, generateComicStripRound, getComicFrameChoices, type ComicFrame } from "./model";
+import {
+  createComicStripSlots,
+  generateComicStripRound,
+  getComicFrameChoices,
+  type ComicFrame,
+} from "./model";
 
 const storyAdvanceMs = 1300;
 const storiesPerSession = 2;
@@ -21,11 +26,22 @@ const storyNoteByFrameIndex = [60, 64, 67];
 const storyFrequencyByFrameIndex = [261.63, 329.63, 392];
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("comic-strip", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("comic-strip", {
   maxSteps: 6,
   overrides: { sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 
 const storyRoundIndex = ref(1);
@@ -35,14 +51,21 @@ const feedbackText = ref("Выбери первый кадр. Если не по
 const isAdvancingStory = ref(false);
 const isSpeaking = ref(false);
 const completedStories = ref(0);
-const promptAudio = useGamePromptAudio({ gameId: "comic-strip", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "comic-strip",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 let advanceTimer = 0;
 
 const round = computed(() => generateComicStripRound(storyRoundIndex.value));
 const nextFrameIndex = computed(() => placedFrameIds.value.length);
 const nextFrame = computed(() => round.value.story.frames[nextFrameIndex.value]);
 const comicSlots = computed(() => createComicStripSlots(round.value.story, placedFrameIds.value));
-const choices = computed(() => nextFrame.value ? getComicFrameChoices(round.value.story, nextFrameIndex.value, storyRoundIndex.value) : []);
+const choices = computed(() =>
+  nextFrame.value
+    ? getComicFrameChoices(round.value.story, nextFrameIndex.value, storyRoundIndex.value)
+    : [],
+);
 const hintText = computed(() => {
   if (!nextFrame.value) return round.value.story.finalMessage;
   return "Выбери, какой кадр должен быть следующим в истории.";
@@ -76,13 +99,21 @@ function playFrameNote(frameIndex: number) {
   void playSoftPianoMelody(session.settings.sound, {
     notesToLoad: storyNotes,
     sampled: [{ note: storyNoteByFrameIndex[safeIndex], at: 0, duration: 0.48, velocity: 30 }],
-    fallback: [{ frequency: storyFrequencyByFrameIndex[safeIndex], at: 0, duration: 0.44, peak: 0.034 }],
-    lengthSeconds: 0.52
+    fallback: [
+      { frequency: storyFrequencyByFrameIndex[safeIndex], at: 0, duration: 0.44, peak: 0.034 },
+    ],
+    lengthSeconds: 0.52,
   });
 }
 
 async function chooseFrame(frame: ComicFrame) {
-  if (session.status !== "running" || isAdvancingStory.value || isSpeaking.value || !nextFrame.value) return;
+  if (
+    session.status !== "running" ||
+    isAdvancingStory.value ||
+    isSpeaking.value ||
+    !nextFrame.value
+  )
+    return;
 
   const expectedFrame = nextFrame.value;
   const targetId = frameTargetId(frame);
@@ -92,7 +123,14 @@ async function chooseFrame(frame: ComicFrame) {
     isAdvancingStory.value = true;
     placedFrameIds.value = [...placedFrameIds.value, frame.id];
     lastMistakeFrameId.value = undefined;
-    recordSuccess({ roundId: round.value.roundId, targetId, answerId: frame.id, expected: expectedFrame.caption, actual: frame.caption, isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      answerId: frame.id,
+      expected: expectedFrame.caption,
+      actual: frame.caption,
+      isCorrect: true,
+    });
     playFrameNote(completedFrameIndex);
     isSpeaking.value = true;
     await promptAudio.playSequenceAndWait(["comic-strip.correct"], 80);
@@ -117,7 +155,15 @@ async function chooseFrame(frame: ComicFrame) {
     return;
   }
 
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: frame.id, expected: expectedFrame.caption, actual: frame.caption, isCorrect: false });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    expectedTargetId,
+    answerId: frame.id,
+    expected: expectedFrame.caption,
+    actual: frame.caption,
+    isCorrect: false,
+  });
   isAdvancingStory.value = true;
   lastMistakeFrameId.value = frame.id;
   feedbackText.value = "Посмотри на историю и попробуй выбрать другой кадр.";
@@ -160,31 +206,88 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <GamePageShell gradient="linear-gradient(135deg, #fff7e8 0%, #eef8ff 48%, #f6f0ff 100%)" padding-top="5rem">
+  <GamePageShell
+    gradient="linear-gradient(135deg, #fff7e8 0%, #eef8ff 48%, #f6f0ff 100%)"
+    padding-top="5rem"
+  >
     <template #hud>
-      <GameHud title="Комикс" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+      <GameHud
+        title="Комикс"
+        :step="session.step"
+        :max-steps="session.maxSteps"
+        :score="session.score"
+        :mistakes="session.mistakes"
+        :duration-ms="durationMs"
+        :session-seconds="session.settings.sessionSeconds"
+        :paused="session.status === 'paused'"
+        @pause="pauseSession"
+        @resume="resumeSession"
+      />
     </template>
     <v-container class="comic-strip-container" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
           <v-card class="comic-card pa-4 pa-md-7" color="surface" rounded="xl" elevation="8">
-            <div class="comic-overline text-overline text-secondary text-center mb-2">Последовательность</div>
+            <div class="comic-overline text-overline text-secondary text-center mb-2">
+              Последовательность
+            </div>
             <h1 class="comic-title text-h3 text-md-h2 font-weight-bold text-center mb-2">Комикс</h1>
-            <p class="comic-prompt text-h6 text-md-h5 text-medium-emphasis text-center mb-2">{{ round.story.prompt }}</p>
+            <p class="comic-prompt text-h6 text-md-h5 text-medium-emphasis text-center mb-2">
+              {{ round.story.prompt }}
+            </p>
             <p class="comic-feedback text-body-1 text-md-h6 text-center mb-5">{{ feedbackText }}</p>
 
             <v-row class="mb-5" dense justify="center">
               <v-col v-for="slotIndex in 3" :key="slotIndex" cols="4" md="4">
-                <v-card class="comic-slot pa-4" :color="frameBySlot(slotIndex - 1)?.color ?? 'grey-lighten-4'" rounded="xl" variant="flat">
+                <v-card
+                  class="comic-slot pa-4"
+                  :color="frameBySlot(slotIndex - 1)?.color ?? 'grey-lighten-4'"
+                  rounded="xl"
+                  variant="flat"
+                >
                   <div v-if="frameBySlot(slotIndex - 1)" class="text-center">
-                    <v-avatar class="comic-scene mb-3" :class="`comic-scene--${frameBySlot(slotIndex - 1)?.scene.setting}`" color="white" rounded="lg" role="img" :aria-label="frameBySlot(slotIndex - 1)?.caption">
-                      <template v-for="(layer, layerIndex) in frameBySlot(slotIndex - 1)?.scene.layers" :key="`${layer.kind}:${layerIndex}`">
-                        <GameWordImage v-if="layer.kind === 'word'" :class="['comic-scene__layer', `comic-scene__layer--${layer.position}`, `comic-scene__layer--${layer.size ?? 'medium'}`]" :word-id="layer.wordId" :word="layer.word" :emoji="layer.emoji" decorative />
-                        <v-icon v-else :class="['comic-scene__layer', `comic-scene__layer--${layer.position}`, `comic-scene__layer--${layer.size ?? 'medium'}`]" :icon="layer.icon" :color="layer.color" />
+                    <v-avatar
+                      class="comic-scene mb-3"
+                      :class="`comic-scene--${frameBySlot(slotIndex - 1)?.scene.setting}`"
+                      color="white"
+                      rounded="lg"
+                      role="img"
+                      :aria-label="frameBySlot(slotIndex - 1)?.caption"
+                    >
+                      <template
+                        v-for="(layer, layerIndex) in frameBySlot(slotIndex - 1)?.scene.layers"
+                        :key="`${layer.kind}:${layerIndex}`"
+                      >
+                        <GameWordImage
+                          v-if="layer.kind === 'word'"
+                          :class="[
+                            'comic-scene__layer',
+                            `comic-scene__layer--${layer.position}`,
+                            `comic-scene__layer--${layer.size ?? 'medium'}`,
+                          ]"
+                          :word-id="layer.wordId"
+                          :word="layer.word"
+                          :emoji="layer.emoji"
+                          decorative
+                        />
+                        <v-icon
+                          v-else
+                          :class="[
+                            'comic-scene__layer',
+                            `comic-scene__layer--${layer.position}`,
+                            `comic-scene__layer--${layer.size ?? 'medium'}`,
+                          ]"
+                          :icon="layer.icon"
+                          :color="layer.color"
+                        />
                       </template>
                     </v-avatar>
-                    <div class="text-h6 text-md-h5 font-weight-bold">{{ frameBySlot(slotIndex - 1)?.caption }}</div>
-                    <v-chip class="mt-3" color="white" rounded="pill" variant="elevated">Кадр {{ slotIndex }}</v-chip>
+                    <div class="text-h6 text-md-h5 font-weight-bold">
+                      {{ frameBySlot(slotIndex - 1)?.caption }}
+                    </div>
+                    <v-chip class="mt-3" color="white" rounded="pill" variant="elevated"
+                      >Кадр {{ slotIndex }}</v-chip
+                    >
                   </div>
                   <div v-else class="empty-slot text-center text-medium-emphasis">
                     <v-icon icon="mdi-image-outline" size="4rem" />
@@ -195,13 +298,24 @@ onUnmounted(() => {
               </v-col>
             </v-row>
 
-            <v-card class="comic-hint-card pa-4 pa-md-5 mb-5" color="blue-lighten-5" rounded="xl" variant="flat">
+            <v-card
+              class="comic-hint-card pa-4 pa-md-5 mb-5"
+              color="blue-lighten-5"
+              rounded="xl"
+              variant="flat"
+            >
               <div class="d-flex flex-column flex-md-row align-center justify-space-between ga-3">
                 <div>
                   <div class="text-caption text-medium-emphasis">Следующий шаг</div>
                   <div class="text-h6 text-md-h5 font-weight-bold">{{ hintText }}</div>
                 </div>
-                <v-chip color="primary" prepend-icon="mdi-filmstrip-box-multiple" rounded="pill" size="large" variant="elevated">
+                <v-chip
+                  color="primary"
+                  prepend-icon="mdi-filmstrip-box-multiple"
+                  rounded="pill"
+                  size="large"
+                  variant="elevated"
+                >
                   {{ placedFrameIds.length }} / 3 кадра
                 </v-chip>
               </div>
@@ -209,13 +323,56 @@ onUnmounted(() => {
 
             <v-row dense justify="center">
               <v-col v-for="frame in choices" :key="frame.id" cols="4" sm="4">
-                <GameDwellButton class="comic-choice" :target-id="frameTargetId(frame)" :disabled="session.status !== 'running' || isAdvancingStory || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="8rem" color="surface" @select="chooseFrame(frame)">
+                <GameDwellButton
+                  class="comic-choice"
+                  :target-id="frameTargetId(frame)"
+                  :disabled="session.status !== 'running' || isAdvancingStory || isSpeaking"
+                  :dwell-ms="session.settings.dwellMs"
+                  min-height="8rem"
+                  color="surface"
+                  @select="chooseFrame(frame)"
+                >
                   <template #default>
-                    <div :class="['choice-frame', { 'choice-frame--mistake': lastMistakeFrameId === frame.id }]" :aria-label="`Выбрать кадр: ${frame.caption}`">
-                      <v-avatar class="comic-scene comic-scene--choice" :class="`comic-scene--${frame.scene.setting}`" color="white" rounded="lg" aria-hidden="true">
-                        <template v-for="(layer, layerIndex) in frame.scene.layers" :key="`${layer.kind}:${layerIndex}`">
-                          <GameWordImage v-if="layer.kind === 'word'" :class="['comic-scene__layer', `comic-scene__layer--${layer.position}`, `comic-scene__layer--${layer.size ?? 'medium'}`]" :word-id="layer.wordId" :word="layer.word" :emoji="layer.emoji" decorative />
-                          <v-icon v-else :class="['comic-scene__layer', `comic-scene__layer--${layer.position}`, `comic-scene__layer--${layer.size ?? 'medium'}`]" :icon="layer.icon" :color="layer.color" />
+                    <div
+                      :class="[
+                        'choice-frame',
+                        { 'choice-frame--mistake': lastMistakeFrameId === frame.id },
+                      ]"
+                      :aria-label="`Выбрать кадр: ${frame.caption}`"
+                    >
+                      <v-avatar
+                        class="comic-scene comic-scene--choice"
+                        :class="`comic-scene--${frame.scene.setting}`"
+                        color="white"
+                        rounded="lg"
+                        aria-hidden="true"
+                      >
+                        <template
+                          v-for="(layer, layerIndex) in frame.scene.layers"
+                          :key="`${layer.kind}:${layerIndex}`"
+                        >
+                          <GameWordImage
+                            v-if="layer.kind === 'word'"
+                            :class="[
+                              'comic-scene__layer',
+                              `comic-scene__layer--${layer.position}`,
+                              `comic-scene__layer--${layer.size ?? 'medium'}`,
+                            ]"
+                            :word-id="layer.wordId"
+                            :word="layer.word"
+                            :emoji="layer.emoji"
+                            decorative
+                          />
+                          <v-icon
+                            v-else
+                            :class="[
+                              'comic-scene__layer',
+                              `comic-scene__layer--${layer.position}`,
+                              `comic-scene__layer--${layer.size ?? 'medium'}`,
+                            ]"
+                            :icon="layer.icon"
+                            :color="layer.color"
+                          />
                         </template>
                       </v-avatar>
                     </div>
@@ -227,7 +384,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="session.status === 'finished'" title="Комикс" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="session.status === 'finished'"
+      title="Комикс"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </GamePageShell>
 </template>
 
@@ -343,15 +510,42 @@ onUnmounted(() => {
   font-size: clamp(3rem, 7vw, 5.25rem) !important;
 }
 
-.comic-scene__layer--top-left { inset-block-start: 22%; inset-inline-start: 20%; }
-.comic-scene__layer--top-center { inset-block-start: 22%; inset-inline-start: 50%; }
-.comic-scene__layer--top-right { inset-block-start: 22%; inset-inline-start: 80%; }
-.comic-scene__layer--left { inset-block-start: 52%; inset-inline-start: 22%; }
-.comic-scene__layer--center { inset-block-start: 50%; inset-inline-start: 50%; }
-.comic-scene__layer--right { inset-block-start: 52%; inset-inline-start: 78%; }
-.comic-scene__layer--bottom-left { inset-block-start: 72%; inset-inline-start: 22%; }
-.comic-scene__layer--bottom-center { inset-block-start: 68%; inset-inline-start: 50%; }
-.comic-scene__layer--bottom-right { inset-block-start: 72%; inset-inline-start: 78%; }
+.comic-scene__layer--top-left {
+  inset-block-start: 22%;
+  inset-inline-start: 20%;
+}
+.comic-scene__layer--top-center {
+  inset-block-start: 22%;
+  inset-inline-start: 50%;
+}
+.comic-scene__layer--top-right {
+  inset-block-start: 22%;
+  inset-inline-start: 80%;
+}
+.comic-scene__layer--left {
+  inset-block-start: 52%;
+  inset-inline-start: 22%;
+}
+.comic-scene__layer--center {
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+}
+.comic-scene__layer--right {
+  inset-block-start: 52%;
+  inset-inline-start: 78%;
+}
+.comic-scene__layer--bottom-left {
+  inset-block-start: 72%;
+  inset-inline-start: 22%;
+}
+.comic-scene__layer--bottom-center {
+  inset-block-start: 68%;
+  inset-inline-start: 50%;
+}
+.comic-scene__layer--bottom-right {
+  inset-block-start: 72%;
+  inset-inline-start: 78%;
+}
 
 .choice-frame--mistake {
   transform: scale(0.96);

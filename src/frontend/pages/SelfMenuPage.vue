@@ -5,7 +5,13 @@ import GameDwellButton from "../components/game/GameDwellButton.vue";
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
 import { useDwellSettings } from "../core/dwellSettings";
 import { firstMenuCategory, rememberMenuCategory, rememberMenuMode } from "../core/menuMode";
-import { games, groupGamesByCategory, resolveGameStabilityStatus, type GameCategoryId, type GameInfo } from "../data/games";
+import {
+  games,
+  groupGamesByCategory,
+  resolveGameStabilityStatus,
+  type GameCategoryId,
+  type GameInfo,
+} from "../data/games";
 
 const router = useRouter();
 const route = useRoute();
@@ -15,11 +21,21 @@ const gameGroups = groupGamesByCategory(releaseGames, { excludeArchived: true })
 const selectedCategory = ref<GameCategoryId | null>(null);
 const pageIndex = ref(0);
 const pageSize = 4;
-const selectedGroup = computed(() => gameGroups.find((group) => group.category === selectedCategory.value));
+const selectedGroup = computed(() =>
+  gameGroups.find((group) => group.category === selectedCategory.value),
+);
 const activeItems = computed(() => selectedGroup.value?.games ?? gameGroups);
 const pageCount = computed(() => Math.max(1, Math.ceil(activeItems.value.length / pageSize)));
-const visibleGroups = computed(() => gameGroups.slice(pageIndex.value * pageSize, pageIndex.value * pageSize + pageSize));
-const visibleGames = computed(() => selectedGroup.value?.games.slice(pageIndex.value * pageSize, pageIndex.value * pageSize + pageSize) ?? []);
+const visibleGroups = computed(() =>
+  gameGroups.slice(pageIndex.value * pageSize, pageIndex.value * pageSize + pageSize),
+);
+const visibleGames = computed(
+  () =>
+    selectedGroup.value?.games.slice(
+      pageIndex.value * pageSize,
+      pageIndex.value * pageSize + pageSize,
+    ) ?? [],
+);
 const pageLabel = computed(() => `Страница ${pageIndex.value + 1} / ${pageCount.value}`);
 
 function selectCategory(category: GameCategoryId) {
@@ -73,23 +89,52 @@ watch(() => route.query.category, syncCategoryFromRoute);
     <v-row class="h-100" justify="center" align="center">
       <v-col cols="12" lg="11" xl="10">
         <v-card class="gallery-card pa-5 pa-md-7" rounded="xl" elevation="8">
-          <div class="d-flex flex-column flex-md-row align-md-start justify-space-between ga-4 mb-4">
+          <div
+            class="d-flex flex-column flex-md-row align-md-start justify-space-between ga-4 mb-4"
+          >
             <div>
               <div class="text-overline text-secondary mb-2">Самостоятельный режим</div>
-              <h1 class="text-h3 text-md-h2 font-weight-bold mb-2">{{ selectedGroup ? selectedGroup.selfLabel : "Выбери папку" }}</h1>
-              <p class="text-body-1 text-medium-emphasis mb-0">{{ selectedGroup ? selectedGroup.selfDescription : "Большие карточки, выбор взглядом и страницы без скролла." }}</p>
+              <h1 class="text-h3 text-md-h2 font-weight-bold mb-2">
+                {{ selectedGroup ? selectedGroup.selfLabel : "Выбери папку" }}
+              </h1>
+              <p class="text-body-1 text-medium-emphasis mb-0">
+                {{
+                  selectedGroup
+                    ? selectedGroup.selfDescription
+                    : "Большие карточки, выбор взглядом и страницы без скролла."
+                }}
+              </p>
             </div>
             <TobiiStatusBadge />
           </div>
 
           <div class="d-flex flex-wrap ga-3 mb-4" aria-label="Действия взрослого">
-            <v-btn color="secondary" prepend-icon="mdi-eye-settings" size="large" to="/tobii-calibration" variant="tonal">
+            <v-btn
+              color="secondary"
+              prepend-icon="mdi-eye-settings"
+              size="large"
+              to="/tobii-calibration"
+              variant="tonal"
+            >
               Проверить взгляд
             </v-btn>
-            <v-btn color="primary" prepend-icon="mdi-clipboard-text-outline" size="large" to="/menu/specialist" variant="text" @click="rememberMenuMode('specialist')">
+            <v-btn
+              color="primary"
+              prepend-icon="mdi-clipboard-text-outline"
+              size="large"
+              to="/menu/specialist"
+              variant="text"
+              @click="rememberMenuMode('specialist')"
+            >
               Режим специалиста
             </v-btn>
-            <v-btn color="secondary" prepend-icon="mdi-home-heart" size="large" to="/" variant="text">
+            <v-btn
+              color="secondary"
+              prepend-icon="mdi-home-heart"
+              size="large"
+              to="/"
+              variant="text"
+            >
               На старт
             </v-btn>
           </div>
@@ -110,9 +155,19 @@ watch(() => route.query.category, syncCategoryFromRoute);
                       <v-icon icon="mdi-folder-heart-outline" size="40" />
                     </v-avatar>
                     <div class="d-flex flex-column min-w-0">
-                      <h3 class="text-h4 font-weight-bold text-high-emphasis mb-2">{{ group.selfLabel }}</h3>
-                      <p class="text-body-1 text-medium-emphasis mb-2">{{ group.selfDescription }}</p>
-                      <v-chip class="align-self-start" color="secondary" size="small" variant="tonal">{{ group.games.length }} игр</v-chip>
+                      <h3 class="text-h4 font-weight-bold text-high-emphasis mb-2">
+                        {{ group.selfLabel }}
+                      </h3>
+                      <p class="text-body-1 text-medium-emphasis mb-2">
+                        {{ group.selfDescription }}
+                      </p>
+                      <v-chip
+                        class="align-self-start"
+                        color="secondary"
+                        size="small"
+                        variant="tonal"
+                        >{{ group.games.length }} игр</v-chip
+                      >
                     </div>
                   </div>
                 </template>
@@ -142,9 +197,15 @@ watch(() => route.query.category, syncCategoryFromRoute);
                         <v-icon :icon="game.icon" size="40" />
                       </v-avatar>
                       <div class="d-flex flex-column min-w-0">
-                        <h3 class="text-h4 font-weight-bold text-high-emphasis mb-2">{{ game.title }}</h3>
-                        <p class="text-body-1 text-medium-emphasis mb-2">{{ game.selfDescription }}</p>
-                        <div class="d-flex align-center ga-2 text-primary font-weight-bold text-body-1">
+                        <h3 class="text-h4 font-weight-bold text-high-emphasis mb-2">
+                          {{ game.title }}
+                        </h3>
+                        <p class="text-body-1 text-medium-emphasis mb-2">
+                          {{ game.selfDescription }}
+                        </p>
+                        <div
+                          class="d-flex align-center ga-2 text-primary font-weight-bold text-body-1"
+                        >
                           <span>Играть</span>
                           <v-icon icon="mdi-arrow-right" />
                         </div>
@@ -157,15 +218,26 @@ watch(() => route.query.category, syncCategoryFromRoute);
           </section>
 
           <div class="d-flex align-center justify-space-between ga-4 mt-3 mb-2">
-            <v-chip v-if="!selectedGroup" color="info" size="large" variant="tonal">{{ pageLabel }}</v-chip>
+            <v-chip v-if="!selectedGroup" color="info" size="large" variant="tonal">{{
+              pageLabel
+            }}</v-chip>
             <v-spacer v-else />
           </div>
 
           <v-row align="stretch" dense>
             <v-col cols="4">
-              <GameDwellButton target-id="self-prev" :disabled="pageIndex === 0" :dwell-ms="dwellMs" min-height="clamp(4rem, 8dvh, 5rem)" color="secondary" @select="previousPage">
+              <GameDwellButton
+                target-id="self-prev"
+                :disabled="pageIndex === 0"
+                :dwell-ms="dwellMs"
+                min-height="clamp(4rem, 8dvh, 5rem)"
+                color="secondary"
+                @select="previousPage"
+              >
                 <template #default>
-                  <div class="d-flex align-center justify-center ga-2 text-white text-h6 font-weight-bold">
+                  <div
+                    class="d-flex align-center justify-center ga-2 text-white text-h6 font-weight-bold"
+                  >
                     <v-icon icon="mdi-arrow-left" />
                     <span>Назад</span>
                   </div>
@@ -173,9 +245,18 @@ watch(() => route.query.category, syncCategoryFromRoute);
               </GameDwellButton>
             </v-col>
             <v-col cols="4">
-              <GameDwellButton target-id="self-folders" :disabled="!selectedGroup" :dwell-ms="dwellMs" min-height="clamp(4rem, 8dvh, 5rem)" color="surface" @select="showCategories">
+              <GameDwellButton
+                target-id="self-folders"
+                :disabled="!selectedGroup"
+                :dwell-ms="dwellMs"
+                min-height="clamp(4rem, 8dvh, 5rem)"
+                color="surface"
+                @select="showCategories"
+              >
                 <template #default>
-                  <div class="d-flex align-center justify-center ga-2 text-primary text-h6 font-weight-bold">
+                  <div
+                    class="d-flex align-center justify-center ga-2 text-primary text-h6 font-weight-bold"
+                  >
                     <v-icon icon="mdi-folder-multiple-outline" />
                     <span>Папки</span>
                   </div>
@@ -183,9 +264,18 @@ watch(() => route.query.category, syncCategoryFromRoute);
               </GameDwellButton>
             </v-col>
             <v-col cols="4">
-              <GameDwellButton target-id="self-next" :disabled="pageIndex >= pageCount - 1" :dwell-ms="dwellMs" min-height="clamp(4rem, 8dvh, 5rem)" color="primary" @select="nextPage">
+              <GameDwellButton
+                target-id="self-next"
+                :disabled="pageIndex >= pageCount - 1"
+                :dwell-ms="dwellMs"
+                min-height="clamp(4rem, 8dvh, 5rem)"
+                color="primary"
+                @select="nextPage"
+              >
                 <template #default>
-                  <div class="d-flex align-center justify-center ga-2 text-white text-h6 font-weight-bold">
+                  <div
+                    class="d-flex align-center justify-center ga-2 text-white text-h6 font-weight-bold"
+                  >
                     <span>Дальше</span>
                     <v-icon icon="mdi-arrow-right" />
                   </div>

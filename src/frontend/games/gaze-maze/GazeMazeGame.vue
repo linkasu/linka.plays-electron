@@ -8,16 +8,35 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeGazeMazeAudio, playGazeMazeStepMelody, warmGazeMazeAudio } from "./audio";
-import { gazeMazeLevels as levels, isMazeDeadEnd, mazeNeighborIds, type MazeNode, type MazePoint as Point } from "./model";
+import {
+  gazeMazeLevels as levels,
+  isMazeDeadEnd,
+  mazeNeighborIds,
+  type MazeNode,
+  type MazePoint as Point,
+} from "./model";
 
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("gaze-maze", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordEvent,
+  recordSuccess,
+  recordMistake,
+  recordHint,
+  startSession,
+  finishSession,
+} = useGameSessionFor("gaze-maze", {
   maxSteps: 18,
   overrides: { preset: "gentle", targetScale: 1.35, sound: true, hints: "high" },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 
 const currentLevelIndex = ref(0);
@@ -25,7 +44,10 @@ const currentNodeId = ref(levels[0].startId);
 const feedbackText = ref("Помоги гномику пройти к конфете. Можно идти туда и обратно.");
 const isSpeaking = ref(false);
 const resultVisible = computed(() => session.status === "finished");
-const promptAudio = useGamePromptAudio({ gameId: "gaze-maze", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "gaze-maze",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 
 let ctx: CanvasRenderingContext2D | undefined;
 let frame = 0;
@@ -68,13 +90,16 @@ function isDeadEnd(node: MazeNode) {
 
 function nodePoint(node: MazeNode): Point {
   return {
-    x: stage.x + stage.width * node.x / 100,
-    y: stage.y + stage.height * node.y / 100
+    x: stage.x + (stage.width * node.x) / 100,
+    y: stage.y + (stage.height * node.y) / 100,
   };
 }
 
 function nodeRadius() {
-  return Math.max(42, Math.min(76, Math.min(stage.width, stage.height) * 0.092 * session.settings.targetScale));
+  return Math.max(
+    42,
+    Math.min(76, Math.min(stage.width, stage.height) * 0.092 * session.settings.targetScale),
+  );
 }
 
 function nodeScale(node: MazeNode) {
@@ -99,7 +124,14 @@ function resizeCanvas() {
   ctx?.setTransform(ratio, 0, 0, ratio, 0, 0);
 }
 
-function roundRect(context: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) {
+function roundRect(
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+) {
   context.beginPath();
   context.roundRect(x, y, width, height, radius);
 }
@@ -116,23 +148,37 @@ function pathControls(from: Point, to: Point) {
   const midX = (from.x + to.x) / 2;
   return {
     first: { x: midX, y: from.y },
-    second: { x: midX, y: to.y }
+    second: { x: midX, y: to.y },
   };
 }
 
 function cubicPoint(from: Point, first: Point, second: Point, to: Point, progress: number) {
   const inverse = 1 - progress;
   return {
-    x: inverse ** 3 * from.x + 3 * inverse ** 2 * progress * first.x + 3 * inverse * progress ** 2 * second.x + progress ** 3 * to.x,
-    y: inverse ** 3 * from.y + 3 * inverse ** 2 * progress * first.y + 3 * inverse * progress ** 2 * second.y + progress ** 3 * to.y
+    x:
+      inverse ** 3 * from.x +
+      3 * inverse ** 2 * progress * first.x +
+      3 * inverse * progress ** 2 * second.x +
+      progress ** 3 * to.x,
+    y:
+      inverse ** 3 * from.y +
+      3 * inverse ** 2 * progress * first.y +
+      3 * inverse * progress ** 2 * second.y +
+      progress ** 3 * to.y,
   };
 }
 
 function cubicTangent(from: Point, first: Point, second: Point, to: Point, progress: number) {
   const inverse = 1 - progress;
   return {
-    x: 3 * inverse ** 2 * (first.x - from.x) + 6 * inverse * progress * (second.x - first.x) + 3 * progress ** 2 * (to.x - second.x),
-    y: 3 * inverse ** 2 * (first.y - from.y) + 6 * inverse * progress * (second.y - first.y) + 3 * progress ** 2 * (to.y - second.y)
+    x:
+      3 * inverse ** 2 * (first.x - from.x) +
+      6 * inverse * progress * (second.x - first.x) +
+      3 * progress ** 2 * (to.x - second.x),
+    y:
+      3 * inverse ** 2 * (first.y - from.y) +
+      6 * inverse * progress * (second.y - first.y) +
+      3 * progress ** 2 * (to.y - second.y),
   };
 }
 
@@ -152,11 +198,12 @@ function beginMove(node: MazeNode) {
   moveToId = node.id;
   moveElapsedMs = 0;
   pendingMoveNode = node;
-  feedbackText.value = node.id === currentLevel.value.exitId
-    ? "Гномик бежит к большой конфете."
-    : isDeadEnd(node)
-      ? "Гномик заглядывает в тупик."
-      : "Гномик перебегает к соседней конфете.";
+  feedbackText.value =
+    node.id === currentLevel.value.exitId
+      ? "Гномик бежит к большой конфете."
+      : isDeadEnd(node)
+        ? "Гномик заглядывает в тупик."
+        : "Гномик перебегает к соседней конфете.";
 }
 
 function completeMove() {
@@ -168,7 +215,11 @@ function completeMove() {
   moveToId = undefined;
   pendingMoveNode = undefined;
   moveElapsedMs = 0;
-  recordSuccess({ selectedNodeId: arrivedNode.id, levelId: currentLevel.value.id, isExit: arrivedNode.id === currentLevel.value.exitId });
+  recordSuccess({
+    selectedNodeId: arrivedNode.id,
+    levelId: currentLevel.value.id,
+    isExit: arrivedNode.id === currentLevel.value.exitId,
+  });
 
   if (arrivedNode.id === currentLevel.value.exitId) {
     if (currentLevelIndex.value >= levels.length - 1) {
@@ -191,8 +242,16 @@ function selectNode(node: MazeNode) {
   const now = performance.now();
   if (session.status !== "running" || isSpeaking.value || now < cooldownUntil || isMoving()) return;
   if (!adjacentIds.value.has(node.id)) {
-    recordMistake({ selectedNodeId: node.id, levelId: currentLevel.value.id, reason: "not-neighbor" });
-    recordHint({ selectedNodeId: node.id, neighborIds: [...adjacentIds.value], reason: "not-neighbor" });
+    recordMistake({
+      selectedNodeId: node.id,
+      levelId: currentLevel.value.id,
+      reason: "not-neighbor",
+    });
+    recordHint({
+      selectedNodeId: node.id,
+      neighborIds: [...adjacentIds.value],
+      reason: "not-neighbor",
+    });
     feedbackText.value = "Выбери соседнюю конфету, соединённую дорожкой.";
     void playTts("gaze-maze.not-neighbor", 80);
     resetDwell("left");
@@ -208,12 +267,22 @@ function selectNode(node: MazeNode) {
 
 function nodeAt(point: Point) {
   return currentLevel.value.nodes
-    .map((node) => ({ node, distance: Math.hypot(point.x - nodePoint(node).x, point.y - nodePoint(node).y) }))
-    .filter(({ node, distance }) => node.id !== currentNodeId.value && distance <= nodeHitRadius(node))
+    .map((node) => ({
+      node,
+      distance: Math.hypot(point.x - nodePoint(node).x, point.y - nodePoint(node).y),
+    }))
+    .filter(
+      ({ node, distance }) => node.id !== currentNodeId.value && distance <= nodeHitRadius(node),
+    )
     .sort((left, right) => left.distance - right.distance)[0]?.node;
 }
 
-function dwellPayload(node: MazeNode, now: number, progress: number, reason?: "left" | "invalid-gaze") {
+function dwellPayload(
+  node: MazeNode,
+  now: number,
+  progress: number,
+  reason?: "left" | "invalid-gaze",
+) {
   return {
     targetId: `gaze-maze:${currentLevel.value.id}:${node.id}`,
     at: Date.now(),
@@ -221,19 +290,29 @@ function dwellPayload(node: MazeNode, now: number, progress: number, reason?: "l
     elapsedMs: enteredAt > 0 ? now - enteredAt : 0,
     progress,
     pointer: { ...pointer.value },
-    reason
+    reason,
   };
 }
 
 function resetDwell(reason?: "left" | "invalid-gaze") {
-  if (reason && hoverNodeId) recordEvent("target-cancel", dwellPayload(nodeById(hoverNodeId), performance.now(), dwellProgress, reason));
+  if (reason && hoverNodeId)
+    recordEvent(
+      "target-cancel",
+      dwellPayload(nodeById(hoverNodeId), performance.now(), dwellProgress, reason),
+    );
   hoverNodeId = undefined;
   enteredAt = 0;
   dwellProgress = 0;
 }
 
 function updateDwell(now: number) {
-  if (session.status !== "running" || isSpeaking.value || !pointer.value.valid || now < cooldownUntil || isMoving()) {
+  if (
+    session.status !== "running" ||
+    isSpeaking.value ||
+    !pointer.value.valid ||
+    now < cooldownUntil ||
+    isMoving()
+  ) {
     resetDwell(pointer.value.valid ? "left" : "invalid-gaze");
     return;
   }
@@ -288,7 +367,7 @@ function drawBackground(context: CanvasRenderingContext2D) {
   context.globalAlpha = 0.32;
   for (let i = 0; i < 9; i += 1) {
     const x = (i * 217) % window.innerWidth;
-    const y = 90 + (i * 83) % Math.max(160, window.innerHeight - 180);
+    const y = 90 + ((i * 83) % Math.max(160, window.innerHeight - 180));
     context.fillStyle = i % 2 ? "#ffffff" : "#ffd5e7";
     context.beginPath();
     context.ellipse(x, y, 70, 22, 0, 0, Math.PI * 2);
@@ -305,20 +384,32 @@ function updateStage() {
     x: marginX,
     y: top,
     width: window.innerWidth - marginX * 2,
-    height: Math.max(300, window.innerHeight - top - bottom)
+    height: Math.max(300, window.innerHeight - top - bottom),
   };
 }
 
 function drawSceneChrome(context: CanvasRenderingContext2D) {
   context.save();
   context.fillStyle = "rgb(255 255 255 / 68%)";
-  roundRect(context, Math.max(16, window.innerWidth * 0.03), window.innerHeight - 66, window.innerWidth - Math.max(32, window.innerWidth * 0.06), 42, 21);
+  roundRect(
+    context,
+    Math.max(16, window.innerWidth * 0.03),
+    window.innerHeight - 66,
+    window.innerWidth - Math.max(32, window.innerWidth * 0.06),
+    42,
+    21,
+  );
   context.fill();
   context.textAlign = "center";
   context.textBaseline = "middle";
   context.fillStyle = "#32463f";
   context.font = `700 ${window.innerWidth < 900 ? 15 : 18}px system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
-  context.fillText(`${currentLevel.value.title}. ${feedbackText.value}`, window.innerWidth / 2, window.innerHeight - 45, window.innerWidth - 72);
+  context.fillText(
+    `${currentLevel.value.title}. ${feedbackText.value}`,
+    window.innerWidth / 2,
+    window.innerHeight - 45,
+    window.innerWidth - 72,
+  );
   context.restore();
 }
 
@@ -330,12 +421,23 @@ function drawCandyPath(context: CanvasRenderingContext2D) {
     const to = nodePoint(nodeById(toId));
     const active = fromId === currentNodeId.value || toId === currentNodeId.value;
     const deadEndPath = isDeadEnd(nodeById(fromId)) || isDeadEnd(nodeById(toId));
-    context.strokeStyle = active ? "rgb(255 187 104 / 88%)" : deadEndPath ? "rgb(212 185 223 / 68%)" : "rgb(192 211 225 / 70%)";
+    context.strokeStyle = active
+      ? "rgb(255 187 104 / 88%)"
+      : deadEndPath
+        ? "rgb(212 185 223 / 68%)"
+        : "rgb(192 211 225 / 70%)";
     context.lineWidth = active ? 22 : deadEndPath ? 15 : 18;
     context.beginPath();
     context.moveTo(from.x, from.y);
     const controls = pathControls(from, to);
-    context.bezierCurveTo(controls.first.x, controls.first.y, controls.second.x, controls.second.y, to.x, to.y);
+    context.bezierCurveTo(
+      controls.first.x,
+      controls.first.y,
+      controls.second.x,
+      controls.second.y,
+      to.x,
+      to.y,
+    );
     context.stroke();
     context.strokeStyle = "rgb(255 255 255 / 78%)";
     context.lineWidth = active ? 10 : 8;
@@ -351,15 +453,28 @@ function drawCandyNode(context: CanvasRenderingContext2D, node: MazeNode, now: n
   const isHover = hoverNodeId === node.id;
   const deadEnd = isDeadEnd(node);
   const pulse = Math.sin(now * 0.004) * 0.04;
-  const drawRadius = radius * nodeScale(node) * (isCurrent ? 1.12 : isAdjacent ? 1.02 + pulse : 0.92);
+  const drawRadius =
+    radius * nodeScale(node) * (isCurrent ? 1.12 : isAdjacent ? 1.02 + pulse : 0.92);
 
   context.save();
   context.translate(center.x, center.y);
   context.rotate(node.kind === "exit" ? 0 : Math.sin(now * 0.0015 + node.x) * 0.05);
   context.shadowColor = isAdjacent ? "rgb(255 162 74 / 45%)" : "rgb(62 83 104 / 16%)";
   context.shadowBlur = isAdjacent ? 22 : 10;
-  context.fillStyle = isCurrent ? "#fff0b6" : deadEnd ? "#f7e9ff" : isAdjacent ? "#fff8df" : "#f7fbff";
-  context.strokeStyle = isCurrent ? "#243631" : deadEnd && isAdjacent ? "#c278d3" : isAdjacent ? "#f3a95b" : "#b8cbd1";
+  context.fillStyle = isCurrent
+    ? "#fff0b6"
+    : deadEnd
+      ? "#f7e9ff"
+      : isAdjacent
+        ? "#fff8df"
+        : "#f7fbff";
+  context.strokeStyle = isCurrent
+    ? "#243631"
+    : deadEnd && isAdjacent
+      ? "#c278d3"
+      : isAdjacent
+        ? "#f3a95b"
+        : "#b8cbd1";
   context.lineWidth = isCurrent ? 5 : isAdjacent ? 4 : 3;
   context.beginPath();
   context.arc(0, 0, drawRadius, 0, Math.PI * 2);
@@ -414,9 +529,13 @@ function drawGnome(context: CanvasRenderingContext2D, now: number) {
   const progress = easeMove(rawProgress);
   const controls = pathControls(from, to);
   const center = moveToId ? cubicPoint(from, controls.first, controls.second, to, progress) : from;
-  const tangent = moveToId ? cubicTangent(from, controls.first, controls.second, to, progress) : { x: 1, y: 0 };
+  const tangent = moveToId
+    ? cubicTangent(from, controls.first, controls.second, to, progress)
+    : { x: 1, y: 0 };
   const radius = nodeRadius();
-  const runBounce = moveToId ? Math.abs(Math.sin(progress * Math.PI * 4)) * 8 : Math.sin(now * 0.004) * 4;
+  const runBounce = moveToId
+    ? Math.abs(Math.sin(progress * Math.PI * 4)) * 8
+    : Math.sin(now * 0.004) * 4;
   const facing = tangent.x >= 0 ? 1 : -1;
   context.save();
   context.translate(center.x, center.y - radius * 0.95 - runBounce);
@@ -489,15 +608,18 @@ onMounted(async () => {
   void playTts("gaze-maze.prompt", 450);
 });
 
-watch(() => session.status, (status) => {
-  if (status === "paused") resetDwell("left");
-  if (status === "finished") {
-    moveFromId = undefined;
-    moveToId = undefined;
-    pendingMoveNode = undefined;
-    moveElapsedMs = 0;
-  }
-});
+watch(
+  () => session.status,
+  (status) => {
+    if (status === "paused") resetDwell("left");
+    if (status === "finished") {
+      moveFromId = undefined;
+      moveToId = undefined;
+      pendingMoveNode = undefined;
+      moveElapsedMs = 0;
+    }
+  },
+);
 
 onUnmounted(() => {
   window.removeEventListener("resize", resizeCanvas);
@@ -510,8 +632,30 @@ onUnmounted(() => {
 <template>
   <div class="gaze-maze-shell">
     <canvas ref="canvasRef" class="gaze-maze-canvas" @click="onCanvasClick" />
-    <GameHud title="Конфетный лабиринт" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" :show-progress="false" @pause="pauseSession" @resume="resumeSession" />
-    <GameResultDialog :model-value="resultVisible" title="Конфетный лабиринт" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameHud
+      title="Конфетный лабиринт"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      :show-progress="false"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Конфетный лабиринт"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 

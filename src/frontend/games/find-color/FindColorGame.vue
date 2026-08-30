@@ -13,24 +13,40 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateFindColorRound, type FindColorOption } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("find-color", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  recordHint,
+  startSession,
+} = useGameSessionFor("find-color", {
   maxSteps: 8,
   overrides: { sound: true },
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
 const promptAudio = useGamePromptAudio({
   gameId: "find-color",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: ["find-color.prompt.red", "find-color.correct", "find-color.mistake"]
+  warmAssetIds: ["find-color.prompt.red", "find-color.correct", "find-color.mistake"],
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
-const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRoundGame,
+} = useRoundGame({
   session,
   startSession,
-  generateRound: (roundIndex) => generateFindColorRound(session.settings, roundIndex)
+  generateRound: (roundIndex) => generateFindColorRound(session.settings, roundIndex),
 });
 
 const mistakesInRound = ref(0);
@@ -59,7 +75,7 @@ async function playRoundPrompt(delayMs = 0) {
 function choiceStyle(choice: FindColorOption) {
   return {
     "--find-color-bg": choice.hex,
-    "--find-color-text": choice.textColor
+    "--find-color-text": choice.textColor,
   };
 }
 
@@ -70,7 +86,14 @@ async function answer(choice: FindColorOption) {
   const expectedTargetId = choiceTargetId(round.value.target.id);
   if (choice.id === round.value.target.id) {
     isSpeaking.value = true;
-    recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      answerId: choice.id,
+      expected: round.value.target.label,
+      actual: choice.label,
+      isCorrect: true,
+    });
     mistakesInRound.value = 0;
     lastMistakeId.value = undefined;
     void pianoFeedback.playSuccess();
@@ -87,8 +110,21 @@ async function answer(choice: FindColorOption) {
   isSpeaking.value = true;
   mistakesInRound.value += 1;
   lastMistakeId.value = choice.id;
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, text: `Нужен ${round.value.target.label} круг.`, reason: "wrong-color-selected" });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    expectedTargetId,
+    answerId: choice.id,
+    expected: round.value.target.label,
+    actual: choice.label,
+    isCorrect: false,
+  });
+  recordHint({
+    roundId: round.value.roundId,
+    targetId: expectedTargetId,
+    text: `Нужен ${round.value.target.label} круг.`,
+    reason: "wrong-color-selected",
+  });
   void pianoFeedback.playMistake();
   await promptAudio.playSequenceAndWait(["find-color.mistake", promptAssetId()], 80, 170);
   isSpeaking.value = false;
@@ -116,7 +152,18 @@ onUnmounted(() => {
 <template>
   <GamePageShell gradient="warm" padding-top="4rem">
     <template #hud>
-      <GameHud title="Найди цвет" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+      <GameHud
+        title="Найди цвет"
+        :step="session.step"
+        :max-steps="session.maxSteps"
+        :score="session.score"
+        :mistakes="session.mistakes"
+        :duration-ms="durationMs"
+        :session-seconds="session.settings.sessionSeconds"
+        :paused="session.status === 'paused'"
+        @pause="pauseSession"
+        @resume="resumeSession"
+      />
     </template>
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
@@ -125,11 +172,29 @@ onUnmounted(() => {
             <div class="text-overline text-secondary text-center mb-2">Смотри и выбирай</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
             <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5">{{ hintText }}</p>
-            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="clamp(7.75rem, 23vh, 13.75rem)" @select="answer">
+            <GameChoiceCardGrid
+              :choices="round.choices"
+              :target-id="(choice) => choiceTargetId(choice.id)"
+              :disabled="session.status !== 'running' || isSpeaking"
+              :dwell-ms="session.settings.dwellMs"
+              min-height="clamp(7.75rem, 23vh, 13.75rem)"
+              @select="answer"
+            >
               <template #default="{ choice }">
-                <div :class="['color-choice', { 'color-choice--hinted': mistakesInRound > 0 && choice.id === round.target.id, 'color-choice--mistake': choice.id === lastMistakeId }]" :style="choiceStyle(choice)">
+                <div
+                  :class="[
+                    'color-choice',
+                    {
+                      'color-choice--hinted': mistakesInRound > 0 && choice.id === round.target.id,
+                      'color-choice--mistake': choice.id === lastMistakeId,
+                    },
+                  ]"
+                  :style="choiceStyle(choice)"
+                >
                   <div class="color-dot" aria-hidden="true" />
-                  <div class="text-h4 text-md-h3 font-weight-bold color-label">{{ choice.label }}</div>
+                  <div class="text-h4 text-md-h3 font-weight-bold color-label">
+                    {{ choice.label }}
+                  </div>
                 </div>
               </template>
             </GameChoiceCardGrid>
@@ -137,7 +202,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Найди цвет" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Найди цвет"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </GamePageShell>
 </template>
 
@@ -159,7 +234,10 @@ onUnmounted(() => {
   justify-content: center;
   min-block-size: clamp(7rem, 20vh, 10.5rem);
   outline: 0 solid transparent;
-  transition: filter 160ms ease, outline 160ms ease, transform 160ms ease;
+  transition:
+    filter 160ms ease,
+    outline 160ms ease,
+    transform 160ms ease;
 }
 
 .color-dot {
@@ -167,7 +245,10 @@ onUnmounted(() => {
   border: 0.5rem solid rgb(255 255 255 / 42%);
   border-radius: 999px;
   block-size: clamp(3.25rem, min(8vh, 12vw), 7.5rem);
-  box-shadow: 0 0 0 0.875rem rgb(255 255 255 / 22%), inset 0 0.5rem 1rem rgb(255 255 255 / 18%), inset 0 -0.4rem 0.8rem rgb(0 0 0 / 16%);
+  box-shadow:
+    0 0 0 0.875rem rgb(255 255 255 / 22%),
+    inset 0 0.5rem 1rem rgb(255 255 255 / 18%),
+    inset 0 -0.4rem 0.8rem rgb(0 0 0 / 16%);
   inline-size: clamp(3.25rem, min(8vh, 12vw), 7.5rem);
   opacity: 0.95;
 }
@@ -186,7 +267,7 @@ onUnmounted(() => {
 }
 
 @media (max-height: 42rem) {
- .color-choice {
+  .color-choice {
     gap: 0.5rem;
   }
 }

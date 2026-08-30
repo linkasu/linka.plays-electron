@@ -12,22 +12,55 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateNumberLineRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("number-line", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("number-line", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 130, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
-const numberLineTaskAssetIds = ["number-line.task.find", "number-line.task.next", "number-line.task.previous"];
-const numberLineNumberAssetIds = Array.from({ length: 10 }, (_, index) => `number-line.number.${index + 1}`);
-const promptAudio = useGamePromptAudio({ gameId: "number-line", soundEnabled, warmAssetIds: [...numberLineTaskAssetIds, ...numberLineNumberAssetIds, "number-line.correct", "number-line.mistake", "number-line.complete"] });
+const numberLineTaskAssetIds = [
+  "number-line.task.find",
+  "number-line.task.next",
+  "number-line.task.previous",
+];
+const numberLineNumberAssetIds = Array.from(
+  { length: 10 },
+  (_, index) => `number-line.number.${index + 1}`,
+);
+const promptAudio = useGamePromptAudio({
+  gameId: "number-line",
+  soundEnabled,
+  warmAssetIds: [
+    ...numberLineTaskAssetIds,
+    ...numberLineNumberAssetIds,
+    "number-line.correct",
+    "number-line.mistake",
+    "number-line.complete",
+  ],
+});
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
-const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRoundGame,
+} = useRoundGame({
   session,
   startSession,
-  generateRound: (roundIndex) => generateNumberLineRound(session.settings, roundIndex)
+  generateRound: (roundIndex) => generateNumberLineRound(session.settings, roundIndex),
 });
 
 const lastMistakeNumber = ref<number>();
@@ -43,7 +76,10 @@ function numberTargetId(number: number) {
 }
 
 function promptAssetIds() {
-  const taskNumber = round.value.taskKind === "find" ? round.value.targetNumber : round.value.currentNumber ?? round.value.targetNumber;
+  const taskNumber =
+    round.value.taskKind === "find"
+      ? round.value.targetNumber
+      : (round.value.currentNumber ?? round.value.targetNumber);
   return [`number-line.task.${round.value.taskKind}`, `number-line.number.${taskNumber}`];
 }
 
@@ -58,11 +94,24 @@ async function choose(number: number) {
   const expectedTargetId = numberTargetId(round.value.targetNumber);
   if (number === round.value.targetNumber) {
     lastMistakeNumber.value = undefined;
-    recordSuccess({ roundId: round.value.roundId, targetId, prompt: round.value.prompt, expected: round.value.targetNumber, actual: number, isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      prompt: round.value.prompt,
+      expected: round.value.targetNumber,
+      actual: number,
+      isCorrect: true,
+    });
     isSpeaking.value = true;
     void feedbackAudio.playSuccess();
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["number-line.correct", "number-line.complete"] : ["number-line.correct"], 80, 170);
+    await promptAudio.playSequenceAndWait(
+      finishedAfterSuccess
+        ? ["number-line.correct", "number-line.complete"]
+        : ["number-line.correct"],
+      80,
+      170,
+    );
     if (finishedAfterSuccess) {
       finishSession("game-complete");
       isSpeaking.value = false;
@@ -77,7 +126,15 @@ async function choose(number: number) {
   }
 
   lastMistakeNumber.value = number;
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, prompt: round.value.prompt, expected: round.value.targetNumber, actual: number, isCorrect: false });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    expectedTargetId,
+    prompt: round.value.prompt,
+    expected: round.value.targetNumber,
+    actual: number,
+    isCorrect: false,
+  });
   isSpeaking.value = true;
   void feedbackAudio.playMistake();
   await promptAudio.playSequenceAndWait(["number-line.mistake"], 80);
@@ -104,20 +161,50 @@ onUnmounted(() => {
 
 <template>
   <div class="number-line-shell">
-    <GameHud title="Числовая дорожка" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Числовая дорожка"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" xl="11">
           <v-card class="number-line-card pa-4 pa-md-6" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Считай слева направо</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
-            <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-6">{{ feedbackText }}</p>
+            <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-6">
+              {{ feedbackText }}
+            </p>
 
             <div class="number-road" aria-label="Числовая дорожка от 1 до 10">
               <div class="number-road__track" aria-hidden="true" />
-              <GameDwellButton v-for="number in round.numbers" :key="number" :target-id="numberTargetId(number)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="150" color="surface" @select="choose(number)">
+              <GameDwellButton
+                v-for="number in round.numbers"
+                :key="number"
+                :target-id="numberTargetId(number)"
+                :disabled="session.status !== 'running' || isSpeaking"
+                :dwell-ms="session.settings.dwellMs"
+                :min-height="150"
+                color="surface"
+                @select="choose(number)"
+              >
                 <template #default>
-                  <div :class="['number-step', { 'number-step--current': number === round.currentNumber, 'number-step--mistake': number === lastMistakeNumber }]">
+                  <div
+                    :class="[
+                      'number-step',
+                      {
+                        'number-step--current': number === round.currentNumber,
+                        'number-step--mistake': number === lastMistakeNumber,
+                      },
+                    ]"
+                  >
                     <span class="number-step__label">{{ number }}</span>
                   </div>
                 </template>
@@ -127,7 +214,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Числовая дорожка" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Числовая дорожка"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -153,7 +250,11 @@ onUnmounted(() => {
 }
 
 .number-road__track {
-  background: linear-gradient(90deg, rgb(var(--v-theme-primary) / 20%), rgb(var(--v-theme-secondary) / 26%));
+  background: linear-gradient(
+    90deg,
+    rgb(var(--v-theme-primary) / 20%),
+    rgb(var(--v-theme-secondary) / 26%)
+  );
   block-size: 1.1rem;
   border-radius: 999px;
   inset-block-start: 50%;
@@ -174,7 +275,10 @@ onUnmounted(() => {
   min-block-size: 8.75rem;
   outline: 0 solid transparent;
   position: relative;
-  transition: filter 160ms ease, outline 160ms ease, transform 160ms ease;
+  transition:
+    filter 160ms ease,
+    outline 160ms ease,
+    transform 160ms ease;
 }
 
 .number-step__label {
@@ -200,75 +304,75 @@ onUnmounted(() => {
 }
 
 @media (max-width: 75rem) {
- .number-road {
+  .number-road {
     grid-template-columns: repeat(5, minmax(6rem, 1fr));
   }
 
- .number-road__track {
+  .number-road__track {
     display: none;
   }
 }
 
 @media (max-width: 37.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 11rem;
   }
 
- .number-road {
+  .number-road {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-height: 43rem) and (min-width: 75.0625rem) {
- .game-container {
+  .game-container {
     padding-block-start: 7.4rem;
   }
 
- .number-step {
+  .number-step {
     min-block-size: 6.8rem;
   }
 }
 
 @media (max-height: 42.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 5rem;
   }
 
- .number-line-card {
+  .number-line-card {
     padding: 1rem !important;
   }
 
- .number-line-card .text-overline {
+  .number-line-card .text-overline {
     display: none;
   }
 
- .number-line-card h1 {
+  .number-line-card h1 {
     font-size: 2.6rem !important;
     line-height: 1.05;
     margin-block-end: 0.35rem !important;
   }
 
- .number-line-card p {
+  .number-line-card p {
     font-size: 1.1rem !important;
     margin-block-end: 0.75rem !important;
   }
 
- .number-road {
+  .number-road {
     gap: 0.5rem;
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
- .number-road :deep(.dwell-button) {
+  .number-road :deep(.dwell-button) {
     min-block-size: 6.6rem !important;
     padding: 0.4rem !important;
   }
 
- .number-step {
+  .number-step {
     border-radius: 1.2rem;
     min-block-size: 5.75rem;
   }
 
- .number-step__label {
+  .number-step__label {
     font-size: 3.2rem;
   }
 }

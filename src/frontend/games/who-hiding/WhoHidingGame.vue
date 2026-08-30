@@ -11,7 +11,14 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import type { TtsAsset } from "../../core/ttsAudio";
 import ttsAssets from "../../data/ttsAssets.json";
 import { createWhoHidingAudio } from "./audio";
-import { beginWhoHidingPlayback, cancelWhoHidingPlayback, canChooseWhoHidingSpot, completeWhoHidingPlayback, createWhoHidingInputState, type WhoHidingInputPhase } from "./model";
+import {
+  beginWhoHidingPlayback,
+  cancelWhoHidingPlayback,
+  canChooseWhoHidingSpot,
+  completeWhoHidingPlayback,
+  createWhoHidingInputState,
+  type WhoHidingInputPhase,
+} from "./model";
 
 type Character = {
   id: string;
@@ -45,7 +52,7 @@ const characters: Character[] = [
   { id: "bird", name: "птичку", icon: "mdi-bird", color: "#42a5f5" },
   { id: "bear", name: "мишку", icon: "mdi-teddy-bear", color: "#795548" },
   { id: "bunny", name: "зайку", icon: "mdi-rabbit", color: "#90a4ae" },
-  { id: "friend", name: "друга", icon: "mdi-account", color: "#26a69a" }
+  { id: "friend", name: "друга", icon: "mdi-account", color: "#26a69a" },
 ];
 
 const covers: Cover[] = [
@@ -54,34 +61,64 @@ const covers: Cover[] = [
   { id: "wide-bush", hint: "за широким кустом", color: "#8acb72", shape: "bush" },
   { id: "flower-bush", hint: "за цветущим кустом", color: "#73bf68", shape: "bush" },
   { id: "dense-bush", hint: "за густыми кустами", color: "#478f4f", shape: "bush" },
-  { id: "low-bush", hint: "за низким кустом", color: "#9bce78", shape: "bush" }
+  { id: "low-bush", hint: "за низким кустом", color: "#9bce78", shape: "bush" },
 ];
 
 const layouts = [
-  [{ x: 25, y: 68, size: 178 }, { x: 54, y: 64, size: 190 }, { x: 80, y: 69, size: 174 }],
-  [{ x: 20, y: 66, size: 172 }, { x: 48, y: 71, size: 188 }, { x: 76, y: 65, size: 180 }],
-  [{ x: 23, y: 70, size: 182 }, { x: 53, y: 63, size: 174 }, { x: 82, y: 68, size: 190 }],
-  [{ x: 18, y: 68, size: 170 }, { x: 41, y: 63, size: 178 }, { x: 64, y: 71, size: 186 }, { x: 85, y: 66, size: 170 }]
+  [
+    { x: 25, y: 68, size: 178 },
+    { x: 54, y: 64, size: 190 },
+    { x: 80, y: 69, size: 174 },
+  ],
+  [
+    { x: 20, y: 66, size: 172 },
+    { x: 48, y: 71, size: 188 },
+    { x: 76, y: 65, size: 180 },
+  ],
+  [
+    { x: 23, y: 70, size: 182 },
+    { x: 53, y: 63, size: 174 },
+    { x: 82, y: 68, size: 190 },
+  ],
+  [
+    { x: 18, y: 68, size: 170 },
+    { x: 41, y: 63, size: 178 },
+    { x: 64, y: 71, size: 186 },
+    { x: 85, y: 66, size: 170 },
+  ],
 ] as const;
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("who-hiding", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  recordHint,
+  startSession,
+} = useGameSessionFor("who-hiding", {
   maxSteps: 8,
   overrides: { sound: true },
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const whoHidingTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.game === "who-hiding");
 const promptAudio = createWhoHidingAudio({
   assets: whoHidingTtsAssets,
   enabled: () => session.settings.sound,
-  volume: 0.34
+  volume: 0.34,
 });
 const pianoFeedback = useStandardGameFeedback(computed(() => session.settings.sound));
 
 const hintedRoundId = ref<string>();
 const lastMistakeId = ref<string>();
 const inputState = ref(createWhoHidingInputState());
-const inputLocked = computed(() => session.status !== "running" || !canChooseWhoHidingSpot(inputState.value));
+const inputLocked = computed(
+  () => session.status !== "running" || !canChooseWhoHidingSpot(inputState.value),
+);
 let pendingRoundAdvance = false;
 
 function generateRound(roundIndex: number) {
@@ -90,7 +127,10 @@ function generateRound(roundIndex: number) {
   const layout = layouts[(roundIndex - 1) % layouts.length];
   const targetSlot = (roundIndex * 2) % layout.length;
   const spots: Spot[] = layout.map((point, index) => {
-    const character = index === targetSlot ? target : availableDecoys[(roundIndex + index) % availableDecoys.length];
+    const character =
+      index === targetSlot
+        ? target
+        : availableDecoys[(roundIndex + index) % availableDecoys.length];
     const cover = covers[(roundIndex + index) % covers.length];
 
     return {
@@ -100,7 +140,7 @@ function generateRound(roundIndex: number) {
       size: point.size,
       character,
       cover,
-      isTarget: index === targetSlot
+      isTarget: index === targetSlot,
     };
   });
 
@@ -110,14 +150,19 @@ function generateRound(roundIndex: number) {
     prompt: `Найди ${target.name}`,
     target,
     targetSpot,
-    spots
+    spots,
   };
 }
 
-const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRoundGame,
+} = useRoundGame({
   session,
   startSession,
-  generateRound
+  generateRound,
 });
 
 const hintText = computed(() => {
@@ -149,11 +194,17 @@ async function playRoundPrompt(delayMs = 0, includeIntro = false) {
   const sequence = includeIntro ? ["who-hiding.intro", promptAssetId()] : [promptAssetId()];
   const playbackId = await playSpeech(sequence, "prompt", delayMs, 170);
   if (playbackId === undefined) return;
-  const nextPhase = session.status === "running" ? "ready" : session.status === "paused" ? "paused" : "finished";
+  const nextPhase =
+    session.status === "running" ? "ready" : session.status === "paused" ? "paused" : "finished";
   inputState.value = completeWhoHidingPlayback(inputState.value, playbackId, nextPhase);
 }
 
-async function playSpeech(assetIds: string[], phase: "prompt" | "feedback", delayMs = 0, gapMs = 140) {
+async function playSpeech(
+  assetIds: string[],
+  phase: "prompt" | "feedback",
+  delayMs = 0,
+  gapMs = 140,
+) {
   inputState.value = beginWhoHidingPlayback(inputState.value, phase);
   const playbackId = inputState.value.playbackId;
   const result = await promptAudio.playSequenceAndWait(assetIds, delayMs, gapMs);
@@ -170,7 +221,7 @@ function spotStyle(spot: Spot) {
   return {
     left: `${spot.x}%`,
     top: `${spot.y}%`,
-    inlineSize: `${spot.size * session.settings.targetScale}px`
+    inlineSize: `${spot.size * session.settings.targetScale}px`,
   };
 }
 
@@ -180,7 +231,14 @@ async function chooseSpot(spot: Spot) {
   const targetId = spotTargetId(spot);
   const expectedTargetId = spotTargetId(round.value.targetSpot);
   if (spot.isTarget) {
-    recordSuccess({ roundId: round.value.roundId, targetId, answerId: spot.character.id, expected: round.value.target.name, actual: spot.character.name, isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      answerId: spot.character.id,
+      expected: round.value.target.name,
+      actual: spot.character.name,
+      isCorrect: true,
+    });
     hintedRoundId.value = undefined;
     lastMistakeId.value = undefined;
     pendingRoundAdvance = session.status === "running" && session.step < session.maxSteps;
@@ -193,18 +251,38 @@ async function chooseSpot(spot: Spot) {
       await playRoundPrompt(180);
       return;
     }
-    inputState.value = completeWhoHidingPlayback(inputState.value, playbackId, session.status === "running" ? "ready" : "finished");
+    inputState.value = completeWhoHidingPlayback(
+      inputState.value,
+      playbackId,
+      session.status === "running" ? "ready" : "finished",
+    );
     return;
   }
 
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: spot.character.id, expected: round.value.target.name, actual: spot.character.name, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "wrong-hidden-character" });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    expectedTargetId,
+    answerId: spot.character.id,
+    expected: round.value.target.name,
+    actual: spot.character.name,
+    isCorrect: false,
+  });
+  recordHint({
+    roundId: round.value.roundId,
+    targetId: expectedTargetId,
+    reason: "wrong-hidden-character",
+  });
   hintedRoundId.value = round.value.roundId;
   lastMistakeId.value = spot.id;
   void pianoFeedback.playMistake();
   const playbackId = await playSpeech([mistakeAssetId(), coverAssetId()], "feedback", 80, 170);
   if (playbackId === undefined) return;
-  inputState.value = completeWhoHidingPlayback(inputState.value, playbackId, session.status === "running" ? "ready" : "finished");
+  inputState.value = completeWhoHidingPlayback(
+    inputState.value,
+    playbackId,
+    session.status === "running" ? "ready" : "finished",
+  );
 }
 
 function handlePause() {
@@ -243,13 +321,28 @@ onUnmounted(() => {
 
 <template>
   <div class="who-hiding-shell">
-    <GameHud title="Кто спрятался?" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="handlePause" @resume="handleResume" />
+    <GameHud
+      title="Кто спрятался?"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="handlePause"
+      @resume="handleResume"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" xl="10">
           <v-card class="pa-4 pa-md-7" color="surface" rounded="xl" elevation="8">
-            <h1 class="who-hiding-title text-h3 text-md-h2 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
-            <p class="who-hiding-hint text-h6 text-md-h5 text-medium-emphasis text-center mb-4">{{ hintText }}</p>
+            <h1 class="who-hiding-title text-h3 text-md-h2 font-weight-bold text-center mb-2">
+              {{ round.prompt }}
+            </h1>
+            <p class="who-hiding-hint text-h6 text-md-h5 text-medium-emphasis text-center mb-4">
+              {{ hintText }}
+            </p>
 
             <v-card class="search-scene" color="blue-lighten-5" rounded="xl" variant="flat">
               <div class="scene-cloud scene-cloud--left" aria-hidden="true" />
@@ -262,7 +355,13 @@ onUnmounted(() => {
               <GameDwellButton
                 v-for="spot in round.spots"
                 :key="spot.id"
-                :class="['hidden-choice', { 'hidden-choice--hint': hintedRoundId === round.roundId && spot.isTarget, 'hidden-choice--mistake': spot.id === lastMistakeId }]"
+                :class="[
+                  'hidden-choice',
+                  {
+                    'hidden-choice--hint': hintedRoundId === round.roundId && spot.isTarget,
+                    'hidden-choice--mistake': spot.id === lastMistakeId,
+                  },
+                ]"
                 :target-id="spotTargetId(spot)"
                 :disabled="inputLocked"
                 :dwell-ms="session.settings.dwellMs"
@@ -272,9 +371,21 @@ onUnmounted(() => {
                 @select="chooseSpot(spot)"
               >
                 <template #default>
-                  <div class="hideout" :style="{ '--character-color': spot.character.color, '--cover-color': spot.cover.color }">
+                  <div
+                    class="hideout"
+                    :style="{
+                      '--character-color': spot.character.color,
+                      '--cover-color': spot.cover.color,
+                    }"
+                  >
                     <v-icon class="hidden-character" :icon="spot.character.icon" />
-                    <div :class="['cover-shape', `cover-shape--${spot.cover.shape}`, `cover-shape--${spot.cover.id}`]">
+                    <div
+                      :class="[
+                        'cover-shape',
+                        `cover-shape--${spot.cover.shape}`,
+                        `cover-shape--${spot.cover.id}`,
+                      ]"
+                    >
                       <span class="bush-blob bush-blob--left" aria-hidden="true" />
                       <span class="bush-blob bush-blob--center" aria-hidden="true" />
                       <span class="bush-blob bush-blob--right" aria-hidden="true" />
@@ -285,7 +396,11 @@ onUnmounted(() => {
                         <span class="bush-blob bush-blob--dense-top" aria-hidden="true" />
                         <span class="bush-blob bush-blob--dense-right" aria-hidden="true" />
                       </template>
-                      <div v-if="spot.cover.id === 'flower-bush'" class="bush-flowers" aria-hidden="true">
+                      <div
+                        v-if="spot.cover.id === 'flower-bush'"
+                        class="bush-flowers"
+                        aria-hidden="true"
+                      >
                         <span class="bush-flower bush-flower--left" />
                         <span class="bush-flower bush-flower--center" />
                         <span class="bush-flower bush-flower--right" />
@@ -299,7 +414,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Кто спрятался?" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Кто спрятался?"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -324,7 +449,9 @@ onUnmounted(() => {
   background: rgb(255 255 255 / 66%);
   border-radius: 999px;
   block-size: 4.2rem;
-  box-shadow: -3.3rem 0.5rem 0 -0.6rem rgb(255 255 255 / 56%), 3.1rem 0.65rem 0 -0.8rem rgb(255 255 255 / 54%);
+  box-shadow:
+    -3.3rem 0.5rem 0 -0.6rem rgb(255 255 255 / 56%),
+    3.1rem 0.65rem 0 -0.8rem rgb(255 255 255 / 54%);
   inline-size: 9.4rem;
   position: absolute;
 }
@@ -448,7 +575,9 @@ onUnmounted(() => {
     color-mix(in srgb, var(--cover-color) 72%, black) 100%
   );
   border: 0.18rem solid rgb(236 255 221 / 52%);
-  box-shadow: inset 0 -0.85rem 1.2rem rgb(20 79 36 / 18%), 0 0.45rem 1rem rgb(41 94 51 / 28%);
+  box-shadow:
+    inset 0 -0.85rem 1.2rem rgb(20 79 36 / 18%),
+    0 0.45rem 1rem rgb(41 94 51 / 28%);
   color: #2f6f3a;
   opacity: 0.84;
   overflow: visible;
@@ -485,7 +614,9 @@ onUnmounted(() => {
 
 .cover-shape--dark-bush {
   border-color: rgb(190 230 185 / 34%);
-  box-shadow: inset 0 -1rem 1.35rem rgb(8 45 22 / 38%), 0 0.45rem 1rem rgb(26 68 38 / 30%);
+  box-shadow:
+    inset 0 -1rem 1.35rem rgb(8 45 22 / 38%),
+    0 0.45rem 1rem rgb(26 68 38 / 30%);
 }
 
 .cover-shape--wide-bush {
@@ -501,7 +632,9 @@ onUnmounted(() => {
 
 .cover-shape--dense-bush {
   block-size: clamp(8.2rem, 12vw, 11rem);
-  box-shadow: inset 0 -1rem 1.4rem rgb(14 68 31 / 34%), 0 0.5rem 1.1rem rgb(25 73 39 / 34%);
+  box-shadow:
+    inset 0 -1rem 1.4rem rgb(14 68 31 / 34%),
+    0 0.5rem 1.1rem rgb(25 73 39 / 34%);
 }
 
 .cover-shape--low-bush {
@@ -515,7 +648,9 @@ onUnmounted(() => {
   background: color-mix(in srgb, var(--cover-color) 84%, white);
   border: 0.16rem solid rgb(239 255 226 / 42%);
   border-radius: 50%;
-  box-shadow: inset 0 -0.45rem 0.85rem rgb(36 95 42 / 18%), 0 0.2rem 0.5rem rgb(38 93 46 / 12%);
+  box-shadow:
+    inset 0 -0.45rem 0.85rem rgb(36 95 42 / 18%),
+    0 0.2rem 0.5rem rgb(38 93 46 / 12%);
   position: absolute;
 }
 
@@ -587,7 +722,13 @@ onUnmounted(() => {
 }
 
 .bush-flower {
-  background: radial-gradient(circle, #f9a825 0 20%, #fff8e1 22% 45%, #f48fb1 47% 69%, transparent 71%);
+  background: radial-gradient(
+    circle,
+    #f9a825 0 20%,
+    #fff8e1 22% 45%,
+    #f48fb1 47% 69%,
+    transparent 71%
+  );
   block-size: 2.4rem;
   border-radius: 50%;
   inline-size: 2.4rem;
@@ -612,36 +753,36 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 7.5rem;
   }
 
- .search-scene {
+  .search-scene {
     block-size: 34rem;
   }
 }
 
 @media (max-height: 47.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 6.25rem;
   }
 
- .game-container :deep(.v-card.pa-4) {
+  .game-container :deep(.v-card.pa-4) {
     padding-block: 1rem !important;
   }
 
- .who-hiding-title {
+  .who-hiding-title {
     font-size: clamp(1.7rem, 4vw, 2.25rem) !important;
     line-height: 1.08;
     margin-block-end: 0.5rem !important;
   }
 
- .who-hiding-hint {
+  .who-hiding-hint {
     font-size: 1rem !important;
     margin-block-end: 0.75rem !important;
   }
 
- .search-scene {
+  .search-scene {
     block-size: min(21.5rem, calc(100vh - 15rem));
   }
 

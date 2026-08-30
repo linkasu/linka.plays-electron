@@ -20,7 +20,7 @@ const lanternPattern = [
   { note: 62, beat: 9.98, duration: 0.78, velocity: 46 },
   { note: 66, beat: 10.48, duration: 0.92, velocity: 50, grace: [62, 64] },
   { note: 64, beat: 11.14, duration: 0.74, velocity: 44 },
-  { note: 59, beat: 11.64, duration: 1.28, velocity: 42 }
+  { note: 59, beat: 11.64, duration: 1.28, velocity: 42 },
 ] satisfies readonly AmbientPianoPatternNote[];
 
 const piano = createAmbientPiano({
@@ -53,7 +53,7 @@ const piano = createAmbientPiano({
   cueCooldownSeconds: 0.98,
   activeGain: 1,
   fadeInSeconds: 0.9,
-  fadeOutSeconds: 1.5
+  fadeOutSeconds: 1.5,
 });
 
 export function warmPaperLanternsPiano(enabled: boolean) {

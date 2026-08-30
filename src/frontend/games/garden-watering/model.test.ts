@@ -5,7 +5,7 @@ const seed: GardenFlowerGrowth = {
   growth: 0,
   wateredSeconds: 0,
   completed: false,
-  bloomPulse: 0
+  bloomPulse: 0,
 };
 
 describe("garden-watering model", () => {
@@ -24,7 +24,11 @@ describe("garden-watering model", () => {
   });
 
   it("does not grow when water is outside the radius", () => {
-    const next = advanceFlowerGrowth(seed, { deltaSeconds: 1, distancePx: 140, waterRadiusPx: 100 });
+    const next = advanceFlowerGrowth(seed, {
+      deltaSeconds: 1,
+      distancePx: 140,
+      waterRadiusPx: 100,
+    });
 
     expect(next.growth).toBe(0);
     expect(next.wateredSeconds).toBe(0);
@@ -32,7 +36,10 @@ describe("garden-watering model", () => {
   });
 
   it("clamps growth and marks the flower complete", () => {
-    const next = advanceFlowerGrowth({ ...seed, growth: 0.94 }, { deltaSeconds: 1, distancePx: 0, waterRadiusPx: 120, growthPerSecond: 0.2 });
+    const next = advanceFlowerGrowth(
+      { ...seed, growth: 0.94 },
+      { deltaSeconds: 1, distancePx: 0, waterRadiusPx: 120, growthPerSecond: 0.2 },
+    );
 
     expect(next.growth).toBe(1);
     expect(next.completed).toBe(true);
@@ -48,7 +55,10 @@ describe("garden-watering model", () => {
   });
 
   it("does not keep watering completed flowers", () => {
-    const next = advanceFlowerGrowth({ growth: 1, wateredSeconds: 2, completed: true, bloomPulse: 0.5 }, { deltaSeconds: 1, distancePx: 0, waterRadiusPx: 100 });
+    const next = advanceFlowerGrowth(
+      { growth: 1, wateredSeconds: 2, completed: true, bloomPulse: 0.5 },
+      { deltaSeconds: 1, distancePx: 0, waterRadiusPx: 100 },
+    );
 
     expect(next.growth).toBe(1);
     expect(next.wateredSeconds).toBe(2);

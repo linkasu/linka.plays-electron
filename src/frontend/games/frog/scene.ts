@@ -57,7 +57,7 @@ export function frogMouthPoint(): Point {
   const size = frogSize();
   return {
     x: window.innerWidth * 0.5,
-    y: frogBaseY() - size * 0.38
+    y: frogBaseY() - size * 0.38,
   };
 }
 
@@ -98,11 +98,11 @@ function drawFireflyMist(context: CanvasRenderingContext2D, progress: number) {
   context.save();
   for (let index = 0; index < 18; index++) {
     const baseX = (index * 0.137 + 0.08) % 1;
-    const baseY = 0.16 + index % 7 * 0.072;
+    const baseY = 0.16 + (index % 7) * 0.072;
     const drift = Math.sin(progress * Math.PI * 2 + index) * 0.018;
     const x = window.innerWidth * Math.min(0.96, Math.max(0.04, baseX + drift));
     const y = window.innerHeight * baseY + Math.cos(progress * Math.PI * 2 + index * 0.9) * 8;
-    const radius = 2.4 + index % 3 * 1.2;
+    const radius = 2.4 + (index % 3) * 1.2;
     context.globalAlpha = 0.24 + (index % 4) * 0.06;
     context.fillStyle = "#fff7a4";
     context.beginPath();
@@ -121,8 +121,18 @@ function drawMeadow(context: CanvasRenderingContext2D, now: number) {
   context.fillStyle = "#325d45";
   context.beginPath();
   context.moveTo(0, window.innerHeight * 0.55);
-  context.quadraticCurveTo(window.innerWidth * 0.28, window.innerHeight * 0.5, window.innerWidth * 0.52, window.innerHeight * 0.57);
-  context.quadraticCurveTo(window.innerWidth * 0.74, window.innerHeight * 0.63, window.innerWidth, window.innerHeight * 0.54);
+  context.quadraticCurveTo(
+    window.innerWidth * 0.28,
+    window.innerHeight * 0.5,
+    window.innerWidth * 0.52,
+    window.innerHeight * 0.57,
+  );
+  context.quadraticCurveTo(
+    window.innerWidth * 0.74,
+    window.innerHeight * 0.63,
+    window.innerWidth,
+    window.innerHeight * 0.54,
+  );
   context.lineTo(window.innerWidth, window.innerHeight);
   context.lineTo(0, window.innerHeight);
   context.closePath();
@@ -131,7 +141,12 @@ function drawMeadow(context: CanvasRenderingContext2D, now: number) {
   context.fillStyle = hill;
   context.beginPath();
   context.moveTo(0, pondTop - 18);
-  context.quadraticCurveTo(window.innerWidth * 0.24, pondTop - 42, window.innerWidth * 0.5, pondTop - 16);
+  context.quadraticCurveTo(
+    window.innerWidth * 0.24,
+    pondTop - 42,
+    window.innerWidth * 0.5,
+    pondTop - 16,
+  );
   context.quadraticCurveTo(window.innerWidth * 0.72, pondTop + 18, window.innerWidth, pondTop - 24);
   context.lineTo(window.innerWidth, window.innerHeight);
   context.lineTo(0, window.innerHeight);
@@ -144,7 +159,15 @@ function drawMeadow(context: CanvasRenderingContext2D, now: number) {
   water.addColorStop(1, "#16435c");
   context.fillStyle = water;
   context.beginPath();
-  context.ellipse(window.innerWidth * 0.5, window.innerHeight * 0.86, window.innerWidth * 0.64, window.innerHeight * 0.22, 0, 0, Math.PI * 2);
+  context.ellipse(
+    window.innerWidth * 0.5,
+    window.innerHeight * 0.86,
+    window.innerWidth * 0.64,
+    window.innerHeight * 0.22,
+    0,
+    0,
+    Math.PI * 2,
+  );
   context.fill();
 
   drawReeds(context, now);
@@ -184,7 +207,7 @@ function drawReeds(context: CanvasRenderingContext2D, now: number) {
     for (let index = 0; index < 9; index++) {
       const x = origin + side * index * 16;
       const baseY = window.innerHeight * (0.73 + (index % 3) * 0.026);
-      const height = 62 + index % 4 * 14;
+      const height = 62 + (index % 4) * 14;
       const sway = Math.sin(now / 1700 + index) * 12;
       context.strokeStyle = index % 2 ? "#6f8a35" : "#8aa747";
       context.lineWidth = 5;
@@ -196,7 +219,15 @@ function drawReeds(context: CanvasRenderingContext2D, now: number) {
       if (index % 3 === 0) {
         context.fillStyle = "#765542";
         context.beginPath();
-        context.ellipse(x + sway, baseY - height - 8, 7, 18, Math.sin(now / 1600 + index) * 0.18, 0, Math.PI * 2);
+        context.ellipse(
+          x + sway,
+          baseY - height - 8,
+          7,
+          18,
+          Math.sin(now / 1600 + index) * 0.18,
+          0,
+          Math.PI * 2,
+        );
         context.fill();
       }
     }
@@ -217,7 +248,14 @@ function drawFrog(context: CanvasRenderingContext2D, now: number) {
   context.ellipse(0, size * 0.08, size * 0.58, size * 0.16, 0, 0, Math.PI * 2);
   context.fill();
 
-  const body = context.createRadialGradient(-size * 0.14, -size * 0.36, size * 0.08, 0, -size * 0.12, size * 0.82);
+  const body = context.createRadialGradient(
+    -size * 0.14,
+    -size * 0.36,
+    size * 0.08,
+    0,
+    -size * 0.12,
+    size * 0.82,
+  );
   body.addColorStop(0, "#a9df66");
   body.addColorStop(0.58, "#57a947");
   body.addColorStop(1, "#2d6f3c");
@@ -265,19 +303,36 @@ function eased(progress: number) {
 function quadraticPoint(start: Point, control: Point, end: Point, progress: number): Point {
   const oneMinus = 1 - progress;
   return {
-    x: oneMinus * oneMinus * start.x + 2 * oneMinus * progress * control.x + progress * progress * end.x,
-    y: oneMinus * oneMinus * start.y + 2 * oneMinus * progress * control.y + progress * progress * end.y
+    x:
+      oneMinus * oneMinus * start.x +
+      2 * oneMinus * progress * control.x +
+      progress * progress * end.x,
+    y:
+      oneMinus * oneMinus * start.y +
+      2 * oneMinus * progress * control.y +
+      progress * progress * end.y,
   };
 }
 
-function drawTongueLine(context: CanvasRenderingContext2D, target: Point, alpha: number, width: number, reach = 1) {
+function drawTongueLine(
+  context: CanvasRenderingContext2D,
+  target: Point,
+  alpha: number,
+  width: number,
+  reach = 1,
+) {
   const start = frogMouthPoint();
   const control = {
     x: (start.x + target.x) * 0.5,
-    y: (start.y + target.y) * 0.5 - Math.min(56, Math.abs(start.x - target.x) * 0.08)
+    y: (start.y + target.y) * 0.5 - Math.min(56, Math.abs(start.x - target.x) * 0.08),
   };
   const end = quadraticPoint(start, control, target, Math.min(1, Math.max(0.08, reach)));
-  const partialControl = quadraticPoint(start, control, target, Math.min(1, Math.max(0.04, reach * 0.52)));
+  const partialControl = quadraticPoint(
+    start,
+    control,
+    target,
+    Math.min(1, Math.max(0.04, reach * 0.52)),
+  );
 
   context.save();
   context.globalAlpha = alpha;
@@ -309,7 +364,15 @@ function drawBug(context: CanvasRenderingContext2D, bug: Bug, now: number) {
 
   context.fillStyle = "rgb(210 252 255 / 58%)";
   context.beginPath();
-  context.ellipse(-size * 0.18, -size * 0.16, size * 0.24, size * 0.12, -0.45 + wing, 0, Math.PI * 2);
+  context.ellipse(
+    -size * 0.18,
+    -size * 0.16,
+    size * 0.24,
+    size * 0.12,
+    -0.45 + wing,
+    0,
+    Math.PI * 2,
+  );
   context.ellipse(size * 0.18, -size * 0.16, size * 0.24, size * 0.12, 0.45 - wing, 0, Math.PI * 2);
   context.fill();
 
@@ -358,16 +421,26 @@ function drawBurst(context: CanvasRenderingContext2D, burst: CatchBurst) {
   context.stroke();
   context.fillStyle = "#fff7b8";
   for (let index = 0; index < 7; index++) {
-    const angle = index / 7 * Math.PI * 2 + progress * 0.8;
+    const angle = (index / 7) * Math.PI * 2 + progress * 0.8;
     const distance = burst.radius * progress * 1.6;
     context.beginPath();
-    context.arc(burst.x + Math.cos(angle) * distance, burst.y + Math.sin(angle) * distance, Math.max(2, burst.radius * 0.06), 0, Math.PI * 2);
+    context.arc(
+      burst.x + Math.cos(angle) * distance,
+      burst.y + Math.sin(angle) * distance,
+      Math.max(2, burst.radius * 0.06),
+      0,
+      Math.PI * 2,
+    );
     context.fill();
   }
   context.restore();
 }
 
-function drawPointerSight(context: CanvasRenderingContext2D, pointer: ScenePointer, running: boolean) {
+function drawPointerSight(
+  context: CanvasRenderingContext2D,
+  pointer: ScenePointer,
+  running: boolean,
+) {
   if (!pointer.valid || !running) return;
   context.save();
   context.strokeStyle = "rgb(255 255 255 / 58%)";
@@ -406,15 +479,25 @@ export function drawFrogScene(context: CanvasRenderingContext2D, options: FrogSc
   const totalMs = options.sessionSeconds * 1000;
   const progress = totalMs > 0 ? Math.min(1, Math.max(0, options.durationMs / totalMs)) : 0;
   const activeBug = options.bugs
-   .filter((bug) => bug.state === "flying" && bug.dwellProgress > 0)
-   .sort((a, b) => b.dwellProgress - a.dwellProgress)[0];
+    .filter((bug) => bug.state === "flying" && bug.dwellProgress > 0)
+    .sort((a, b) => b.dwellProgress - a.dwellProgress)[0];
 
   drawSky(context, progress);
   drawMeadow(context, options.now);
-  if (activeBug) drawTongueLine(context, activeBug, 0.26 + activeBug.dwellProgress * 0.34, Math.max(5, activeBug.size * 0.09), eased(activeBug.dwellProgress));
+  if (activeBug)
+    drawTongueLine(
+      context,
+      activeBug,
+      0.26 + activeBug.dwellProgress * 0.34,
+      Math.max(5, activeBug.size * 0.09),
+      eased(activeBug.dwellProgress),
+    );
   for (const tongue of options.tongues) {
     const tongueProgress = tongue.age / tongue.life;
-    const reach = tongueProgress < 0.58 ? eased(tongueProgress / 0.58) : eased(1 - (tongueProgress - 0.58) / 0.42);
+    const reach =
+      tongueProgress < 0.58
+        ? eased(tongueProgress / 0.58)
+        : eased(1 - (tongueProgress - 0.58) / 0.42);
     drawTongueLine(context, tongue, Math.max(0, 1 - tongueProgress) * 0.86, 9, reach);
   }
   [...options.bugs].sort((a, b) => a.y - b.y).forEach((bug) => drawBug(context, bug, options.now));

@@ -42,14 +42,19 @@ export const battleshipShips: BattleshipShipDefinition[] = [
   { id: "ship-1-a", name: "Катер", length: 1 },
   { id: "ship-1-b", name: "Катер", length: 1 },
   { id: "ship-1-c", name: "Катер", length: 1 },
-  { id: "ship-1-d", name: "Катер", length: 1 }
+  { id: "ship-1-d", name: "Катер", length: 1 },
 ];
 
-export const battleshipSectors: { id: BattleshipSectorId; label: string; rowStart: number; columnStart: number }[] = [
+export const battleshipSectors: {
+  id: BattleshipSectorId;
+  label: string;
+  rowStart: number;
+  columnStart: number;
+}[] = [
   { id: "nw", label: "Левый верх", rowStart: 0, columnStart: 0 },
   { id: "ne", label: "Правый верх", rowStart: 0, columnStart: 5 },
   { id: "sw", label: "Левый низ", rowStart: 5, columnStart: 0 },
-  { id: "se", label: "Правый низ", rowStart: 5, columnStart: 5 }
+  { id: "se", label: "Правый низ", rowStart: 5, columnStart: 5 },
 ];
 
 const coordinateColumns = ["А", "Б", "В", "Г", "Д", "Е", "Ж", "З", "И", "К"];
@@ -61,7 +66,7 @@ export function cellIndex(row: number, column: number) {
 export function cellPosition(index: number) {
   return {
     row: Math.floor(index / battleshipSize),
-    column: index % battleshipSize
+    column: index % battleshipSize,
   };
 }
 
@@ -75,7 +80,8 @@ export function coordinateLabel(index: number) {
 }
 
 export function getSectorCells(sectorId: BattleshipSectorId) {
-  const sector = battleshipSectors.find((candidate) => candidate.id === sectorId) ?? battleshipSectors[0];
+  const sector =
+    battleshipSectors.find((candidate) => candidate.id === sectorId) ?? battleshipSectors[0];
   const cells: number[] = [];
   for (let row = sector.rowStart; row < sector.rowStart + 5; row += 1) {
     for (let column = sector.columnStart; column < sector.columnStart + 5; column += 1) {
@@ -98,7 +104,12 @@ export function occupiedCells(fleet: BattleshipShip[]) {
   return new Set(fleet.flatMap((ship) => ship.cells));
 }
 
-export function canPlaceShip(fleet: BattleshipShip[], ship: BattleshipShipDefinition, anchorIndex: number, orientation: BattleshipOrientation) {
+export function canPlaceShip(
+  fleet: BattleshipShip[],
+  ship: BattleshipShipDefinition,
+  anchorIndex: number,
+  orientation: BattleshipOrientation,
+) {
   const cells = shipCells(anchorIndex, ship.length, orientation);
   if (cells.some((index) => index < 0)) return false;
 
@@ -118,7 +129,12 @@ export function canPlaceShip(fleet: BattleshipShip[], ship: BattleshipShipDefini
   return true;
 }
 
-export function placeShip(fleet: BattleshipShip[], ship: BattleshipShipDefinition, anchorIndex: number, orientation: BattleshipOrientation) {
+export function placeShip(
+  fleet: BattleshipShip[],
+  ship: BattleshipShipDefinition,
+  anchorIndex: number,
+  orientation: BattleshipOrientation,
+) {
   if (!canPlaceShip(fleet, ship, anchorIndex, orientation)) return undefined;
   return [...fleet, { ...ship, cells: shipCells(anchorIndex, ship.length, orientation) }];
 }
@@ -135,7 +151,12 @@ export function allShipsSunk(fleet: BattleshipShip[], shots: BattleshipShots) {
   return fleet.length === battleshipShips.length && fleet.every((ship) => isShipSunk(ship, shots));
 }
 
-export function fireAt(fleet: BattleshipShip[], shots: BattleshipShots, index: number, shooter: BattleshipWinner): BattleshipFireResult {
+export function fireAt(
+  fleet: BattleshipShip[],
+  shots: BattleshipShots,
+  index: number,
+  shooter: BattleshipWinner,
+): BattleshipFireResult {
   if (index < 0 || index >= battleshipCellCount || shots[index]) return { ok: false, shots };
 
   const ship = findShipAt(fleet, index);
@@ -152,7 +173,7 @@ export function fireAt(fleet: BattleshipShip[], shots: BattleshipShots, index: n
     result: sunk ? "sunk" : "hit",
     shots: nextShots,
     shipId: ship.id,
-    winner: allShipsSunk(fleet, nextShots) ? shooter : undefined
+    winner: allShipsSunk(fleet, nextShots) ? shooter : undefined,
   };
 }
 
@@ -183,7 +204,8 @@ export function autoPlaceFleet(seed = 42) {
       const orientationRoll = randomInt(currentSeed, 2);
       currentSeed = orientationRoll.seed;
       const anchorIndex = cellIndex(rowRoll.value, columnRoll.value);
-      const orientation: BattleshipOrientation = orientationRoll.value === 0 ? "horizontal" : "vertical";
+      const orientation: BattleshipOrientation =
+        orientationRoll.value === 0 ? "horizontal" : "vertical";
       const nextFleet = placeShip(fleet, ship, anchorIndex, orientation);
       if (nextFleet) {
         fleet = nextFleet;
@@ -196,12 +218,18 @@ export function autoPlaceFleet(seed = 42) {
   return { fleet, seed: currentSeed };
 }
 
-export function chooseAiShot(fleet: BattleshipShip[], shots: BattleshipShots, seed = 7): BattleshipAiChoice {
-  const openCells = Array.from({ length: battleshipCellCount }, (_, index) => index).filter((index) => !shots[index]);
+export function chooseAiShot(
+  fleet: BattleshipShip[],
+  shots: BattleshipShots,
+  seed = 7,
+): BattleshipAiChoice {
+  const openCells = Array.from({ length: battleshipCellCount }, (_, index) => index).filter(
+    (index) => !shots[index],
+  );
   const targetCells = Object.entries(shots)
-   .filter(([, shot]) => shot === "hit")
-   .flatMap(([index]) => neighborCells(Number(index)))
-   .filter((index) => !shots[index]);
+    .filter(([, shot]) => shot === "hit")
+    .flatMap(([index]) => neighborCells(Number(index)))
+    .filter((index) => !shots[index]);
   const uniqueTargets = Array.from(new Set(targetCells));
   const candidates = uniqueTargets.length > 0 ? uniqueTargets : openCells;
   const roll = randomInt(seed, candidates.length);
@@ -209,7 +237,7 @@ export function chooseAiShot(fleet: BattleshipShip[], shots: BattleshipShots, se
   return {
     index: candidates[roll.value],
     nextSeed: roll.seed,
-    mode: uniqueTargets.length > 0 ? "target" : "hunt"
+    mode: uniqueTargets.length > 0 ? "target" : "hunt",
   };
 }
 
@@ -219,8 +247,10 @@ export function neighborCells(index: number) {
     [row - 1, column],
     [row + 1, column],
     [row, column - 1],
-    [row, column + 1]
-  ].filter(([nextRow, nextColumn]) => isInside(nextRow, nextColumn)).map(([nextRow, nextColumn]) => cellIndex(nextRow, nextColumn));
+    [row, column + 1],
+  ]
+    .filter(([nextRow, nextColumn]) => isInside(nextRow, nextColumn))
+    .map(([nextRow, nextColumn]) => cellIndex(nextRow, nextColumn));
 }
 
 export function placementProgress(fleet: BattleshipShip[]) {

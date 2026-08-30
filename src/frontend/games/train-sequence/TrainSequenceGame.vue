@@ -7,14 +7,37 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { disposeTrainSequenceAudio, playTrainSequenceCompleteMelody, playTrainSequenceMistakeMelody, playTrainSequenceSuccessMelody, warmTrainSequenceAudio } from "./audio";
-import { createTrainWagons, getOrderedTrainWagons, getPlacedTrainWagons, selectTrainWagon, type TrainWagon } from "./model";
+import {
+  disposeTrainSequenceAudio,
+  playTrainSequenceCompleteMelody,
+  playTrainSequenceMistakeMelody,
+  playTrainSequenceSuccessMelody,
+  warmTrainSequenceAudio,
+} from "./audio";
+import {
+  createTrainWagons,
+  getOrderedTrainWagons,
+  getPlacedTrainWagons,
+  selectTrainWagon,
+  type TrainWagon,
+} from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("train-sequence", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("train-sequence", {
   maxSteps: 5,
   overrides: { sound: true },
-  finishOnMaxSteps: false
+  finishOnMaxSteps: false,
 });
 
 const wagons = reactive<TrainWagon[]>([]);
@@ -26,7 +49,10 @@ const placedWagons = computed(() => getPlacedTrainWagons(wagons));
 const currentRoundId = computed(() => `train-sequence:round:${session.step + 1}`);
 const isSpeaking = ref(false);
 const pendingSelection = ref(false);
-const promptAudio = useGamePromptAudio({ gameId: "train-sequence", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "train-sequence",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 let resultTimer = 0;
 
 function wagonTargetId(wagon: TrainWagon) {
@@ -56,7 +82,8 @@ function scheduleResultDialog() {
 }
 
 async function chooseWagon(wagon: TrainWagon) {
-  if (session.status !== "running" || wagon.placed || pendingSelection.value || isSpeaking.value) return;
+  if (session.status !== "running" || wagon.placed || pendingSelection.value || isSpeaking.value)
+    return;
 
   const roundId = currentRoundId.value;
   const outcome = selectTrainWagon(wagons, wagon.id);
@@ -67,11 +94,24 @@ async function chooseWagon(wagon: TrainWagon) {
 
   if (outcome.isCorrect) {
     feedbackMessage.value = `Верно. Вагон ${outcome.selectedWagon.number} прицепился к поезду.`;
-    recordSuccess({ roundId, targetId: wagonTargetId(outcome.selectedWagon), expected: outcome.selectedWagon.id, actual: outcome.selectedWagon.id, isCorrect: true });
+    recordSuccess({
+      roundId,
+      targetId: wagonTargetId(outcome.selectedWagon),
+      expected: outcome.selectedWagon.id,
+      actual: outcome.selectedWagon.id,
+      isCorrect: true,
+    });
     void playTrainSequenceSuccessMelody(session.settings.sound);
   } else {
     feedbackMessage.value = `Сейчас нужен вагон ${outcome.expectedWagon?.number ?? "по порядку"}. Попробуй ещё раз.`;
-    recordMistake({ roundId, targetId: wagonTargetId(outcome.selectedWagon), expectedTargetId: outcome.expectedWagon ? wagonTargetId(outcome.expectedWagon) : undefined, expected: outcome.expectedWagon?.id, actual: outcome.selectedWagon.id, isCorrect: false });
+    recordMistake({
+      roundId,
+      targetId: wagonTargetId(outcome.selectedWagon),
+      expectedTargetId: outcome.expectedWagon ? wagonTargetId(outcome.expectedWagon) : undefined,
+      expected: outcome.expectedWagon?.id,
+      actual: outcome.selectedWagon.id,
+      isCorrect: false,
+    });
     void playTrainSequenceMistakeMelody(session.settings.sound);
   }
 
@@ -82,14 +122,24 @@ async function chooseWagon(wagon: TrainWagon) {
     trainDeparting.value = true;
     finishSession("game-complete");
     void playTrainSequenceCompleteMelody(session.settings.sound);
-    await promptAudio.playSequenceAndWait([outcome.isCorrect ? "train-sequence.correct" : "train-sequence.mistake", "train-sequence.complete"], 80, 170);
+    await promptAudio.playSequenceAndWait(
+      [
+        outcome.isCorrect ? "train-sequence.correct" : "train-sequence.mistake",
+        "train-sequence.complete",
+      ],
+      80,
+      170,
+    );
     isSpeaking.value = false;
     pendingSelection.value = false;
     scheduleResultDialog();
     return;
   }
 
-  await promptAudio.playSequenceAndWait([outcome.isCorrect ? "train-sequence.correct" : "train-sequence.mistake"], 80);
+  await promptAudio.playSequenceAndWait(
+    [outcome.isCorrect ? "train-sequence.correct" : "train-sequence.mistake"],
+    80,
+  );
   isSpeaking.value = false;
   pendingSelection.value = false;
 }
@@ -121,40 +171,71 @@ onUnmounted(() => {
   disposeTrainSequenceAudio();
 });
 
-watch(() => session.status, (status) => {
-  if (status === "finished" && session.finishReason !== "game-complete") {
-    clearResultTimer();
-    resultVisible.value = true;
-    return;
-  }
-  if (status !== "finished") {
-    clearResultTimer();
-    resultVisible.value = false;
-  }
-});
+watch(
+  () => session.status,
+  (status) => {
+    if (status === "finished" && session.finishReason !== "game-complete") {
+      clearResultTimer();
+      resultVisible.value = true;
+      return;
+    }
+    if (status !== "finished") {
+      clearResultTimer();
+      resultVisible.value = false;
+    }
+  },
+);
 </script>
 
 <template>
   <div class="train-shell">
-    <GameHud title="Поезд" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Поезд"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
           <v-card class="pa-5 pa-md-8" rounded="xl" elevation="8">
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-3">Собери поезд</h1>
-            <p class="text-body-1 text-medium-emphasis text-center mb-6">Прицепи пять вагонов по номерам. Поезд примет каждый выбор, а порядок видно на вагонах.</p>
+            <p class="text-body-1 text-medium-emphasis text-center mb-6">
+              Прицепи пять вагонов по номерам. Поезд примет каждый выбор, а порядок видно на
+              вагонах.
+            </p>
 
-            <v-card class="hint-card pa-4 pa-md-5 mb-6" color="blue-lighten-5" rounded="xl" variant="flat">
+            <v-card
+              class="hint-card pa-4 pa-md-5 mb-6"
+              color="blue-lighten-5"
+              rounded="xl"
+              variant="flat"
+            >
               <div class="text-caption text-medium-emphasis mb-1">Правило</div>
               <div class="d-flex flex-wrap align-center ga-3">
-                <v-avatar v-for="wagon in orderedWagons" :key="`rule-${wagon.id}`" :color="wagon.color" size="3.5rem"><span class="text-h5 font-weight-bold">{{ wagon.number }}</span></v-avatar>
+                <v-avatar
+                  v-for="wagon in orderedWagons"
+                  :key="`rule-${wagon.id}`"
+                  :color="wagon.color"
+                  size="3.5rem"
+                  ><span class="text-h5 font-weight-bold">{{ wagon.number }}</span></v-avatar
+                >
                 <div class="text-h6 font-weight-bold">Собирай поезд от 1 к 5.</div>
               </div>
             </v-card>
 
             <div class="play-area">
               <v-card class="track-card pa-5" color="cyan-lighten-5" rounded="xl" variant="flat">
-                <div :class="['train-track', { 'train-track--departing': trainDeparting }]" aria-label="Собранный поезд">
+                <div
+                  :class="['train-track', { 'train-track--departing': trainDeparting }]"
+                  aria-label="Собранный поезд"
+                >
                   <div class="locomotive">
                     <div class="chimney" />
                     <div class="cabin" />
@@ -163,18 +244,37 @@ watch(() => session.status, (status) => {
                     <div class="wheel wheel--front" />
                     <div class="wheel wheel--back" />
                   </div>
-                  <div v-for="wagon in placedWagons" :key="`placed-${wagon.id}`" class="track-wagon" :style="{ background: wagon.color }">
+                  <div
+                    v-for="wagon in placedWagons"
+                    :key="`placed-${wagon.id}`"
+                    class="track-wagon"
+                    :style="{ background: wagon.color }"
+                  >
                     <span>{{ wagon.number }}</span>
                     <div class="wagon-wheel wagon-wheel--left" />
                     <div class="wagon-wheel wagon-wheel--right" />
                   </div>
                 </div>
                 <div class="rail" />
-                <div class="text-body-1 text-center text-medium-emphasis mt-5">{{ feedbackMessage }}</div>
+                <div class="text-body-1 text-center text-medium-emphasis mt-5">
+                  {{ feedbackMessage }}
+                </div>
               </v-card>
 
               <div class="wagon-grid">
-                <GameDwellButton v-for="wagon in wagons" :key="wagon.id" :target-id="wagonTargetId(wagon)" :disabled="session.status !== 'running' || wagon.placed || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" :hit-padding="3" min-height="9.375rem" color="surface" @select="chooseWagon(wagon)">
+                <GameDwellButton
+                  v-for="wagon in wagons"
+                  :key="wagon.id"
+                  :target-id="wagonTargetId(wagon)"
+                  :disabled="
+                    session.status !== 'running' || wagon.placed || pendingSelection || isSpeaking
+                  "
+                  :dwell-ms="session.settings.dwellMs"
+                  :hit-padding="3"
+                  min-height="9.375rem"
+                  color="surface"
+                  @select="chooseWagon(wagon)"
+                >
                   <template #default>
                     <div class="wagon-card-content" :style="{ opacity: wagon.placed ? 0.28 : 1 }">
                       <div class="loose-wagon" :style="{ background: wagon.color }">
@@ -190,7 +290,17 @@ watch(() => session.status, (status) => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Поезд" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Поезд"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -333,7 +443,23 @@ watch(() => session.status, (status) => {
 }
 
 .rail {
-  background: linear-gradient(90deg, #8d6e63 0 8%, transparent 8% 14%, #8d6e63 14% 22%, transparent 22% 28%, #8d6e63 28% 36%, transparent 36% 42%, #8d6e63 42% 50%, transparent 50% 56%, #8d6e63 56% 64%, transparent 64% 70%, #8d6e63 70% 78%, transparent 78% 84%, #8d6e63 84% 92%, transparent 92% 100%);
+  background: linear-gradient(
+    90deg,
+    #8d6e63 0 8%,
+    transparent 8% 14%,
+    #8d6e63 14% 22%,
+    transparent 22% 28%,
+    #8d6e63 28% 36%,
+    transparent 36% 42%,
+    #8d6e63 42% 50%,
+    transparent 50% 56%,
+    #8d6e63 56% 64%,
+    transparent 64% 70%,
+    #8d6e63 70% 78%,
+    transparent 78% 84%,
+    #8d6e63 84% 92%,
+    transparent 92% 100%
+  );
   block-size: 0.875rem;
   border-block: 0.25rem solid #6d4c41;
   border-radius: 999rem;
@@ -350,45 +476,45 @@ watch(() => session.status, (status) => {
 }
 
 @media (max-width: 68.75rem) {
- .play-area {
+  .play-area {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 37.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 6.5rem;
   }
 
- .train-track {
+  .train-track {
     gap: 0.5rem;
     transform-origin: left bottom;
   }
 
- .locomotive {
+  .locomotive {
     inline-size: 8.625rem;
   }
 
- .track-wagon {
+  .track-wagon {
     inline-size: 6.625rem;
   }
 
- .wagon-grid {
+  .wagon-grid {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-height: 42.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 6.5rem;
   }
 
- .game-container :deep(.v-card.pa-5) {
+  .game-container :deep(.v-card.pa-5) {
     padding: 1rem !important;
   }
 
- .game-container p,
- .track-card .text-body-1 {
+  .game-container p,
+  .track-card .text-body-1 {
     display: none;
   }
 
@@ -397,36 +523,36 @@ watch(() => session.status, (status) => {
     padding: 0.5rem 0.75rem !important;
   }
 
- .hint-card :deep(.v-avatar) {
+  .hint-card :deep(.v-avatar) {
     block-size: 2.25rem !important;
     inline-size: 2.25rem !important;
   }
 
- .hint-card .text-h6 {
+  .hint-card .text-h6 {
     font-size: 1rem !important;
   }
 
- .play-area {
+  .play-area {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
   }
 
- .wagon-grid {
+  .wagon-grid {
     gap: 0.75rem;
     order: -1;
   }
 
- .track-card {
+  .track-card {
     padding: 0.75rem !important;
   }
 
- .train-track {
+  .train-track {
     min-block-size: 9.375rem;
     padding-block-start: 2rem;
   }
 
- .loose-wagon {
+  .loose-wagon {
     block-size: 3.375rem;
   }
 }

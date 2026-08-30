@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { settingsFromPreset } from "../../core/settings";
-import { generateUnoLikeRound, getUnoLikeMatchTraits, isUnoLikePlayable, unoLikeDeck } from "./model";
+import {
+  generateUnoLikeRound,
+  getUnoLikeMatchTraits,
+  isUnoLikePlayable,
+  unoLikeDeck,
+} from "./model";
 
 describe("uno-like model", () => {
   it("scales hand size by preset", () => {
@@ -15,7 +20,9 @@ describe("uno-like model", () => {
     for (let index = 1; index <= 12; index += 1) {
       const round = generateUnoLikeRound(settings, index);
       const playableCards = round.choices.filter((card) => isUnoLikePlayable(card, round.openCard));
-      const matchKinds = playableCards.flatMap((card) => getUnoLikeMatchTraits(card, round.openCard));
+      const matchKinds = playableCards.flatMap((card) =>
+        getUnoLikeMatchTraits(card, round.openCard),
+      );
 
       expect(playableCards.map((card) => card.id)).toEqual(round.playableIds);
       expect(matchKinds).toContain("color");
@@ -45,7 +52,9 @@ describe("uno-like model", () => {
     const wrong = unoLikeDeck.find((card) => card.id === "green-6");
 
     expect(openCard && sameColor && getUnoLikeMatchTraits(sameColor, openCard)).toEqual(["color"]);
-    expect(openCard && sameNumber && getUnoLikeMatchTraits(sameNumber, openCard)).toEqual(["number"]);
+    expect(openCard && sameNumber && getUnoLikeMatchTraits(sameNumber, openCard)).toEqual([
+      "number",
+    ]);
     expect(openCard && wrong && getUnoLikeMatchTraits(wrong, openCard)).toEqual([]);
   });
 });

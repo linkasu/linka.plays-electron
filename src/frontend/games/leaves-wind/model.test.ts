@@ -7,13 +7,13 @@ import {
   leavesWindSceneBounds,
   leavesWindTargetBounds,
   leavesWindTargetPoint,
-  leavesWindTargetRadius
+  leavesWindTargetRadius,
 } from "./model";
 
 describe("leaves wind model", () => {
   it.each([
     [800, 600],
-    [1600, 900]
+    [1600, 900],
   ])("keeps every scaled target fully inside the playable scene at %ix%i", (width, height) => {
     const scene = leavesWindSceneBounds(width, height);
 
@@ -52,7 +52,7 @@ describe("leaves wind model", () => {
       bounds,
       deltaSeconds: 1,
       motionSpeed: 0.5,
-      reduceMotion: false
+      reduceMotion: false,
     });
     const fast = advanceLeavesWindTarget({
       current: { x: 200, y: 200 },
@@ -60,10 +60,12 @@ describe("leaves wind model", () => {
       bounds,
       deltaSeconds: 1,
       motionSpeed: 1,
-      reduceMotion: false
+      reduceMotion: false,
     });
 
-    expect(Math.hypot(fast.x - 200, fast.y - 200)).toBeGreaterThan(Math.hypot(slow.x - 200, slow.y - 200));
+    expect(Math.hypot(fast.x - 200, fast.y - 200)).toBeGreaterThan(
+      Math.hypot(slow.x - 200, slow.y - 200),
+    );
     expect(fast.x).toBeGreaterThanOrEqual(bounds.left);
     expect(fast.x).toBeLessThanOrEqual(bounds.right);
     expect(fast.y).toBeGreaterThanOrEqual(bounds.top);
@@ -86,7 +88,7 @@ describe("leaves wind model", () => {
 
   it.each([
     [800, 600],
-    [1600, 900]
+    [1600, 900],
   ])("moves the next target away from a stationary previous gaze at %ix%i", (width, height) => {
     const radius = leavesWindTargetRadius(width, height, 2);
     const bounds = leavesWindTargetBounds(width, height, radius);
@@ -100,14 +102,16 @@ describe("leaves wind model", () => {
 
   it("snaps between stable targets instead of animating in reduced-motion mode", () => {
     const bounds = { left: 100, top: 100, right: 700, bottom: 500 };
-    expect(advanceLeavesWindTarget({
-      current: { x: 200, y: 200 },
-      destination: { x: 600, y: 400 },
-      bounds,
-      deltaSeconds: 0.016,
-      motionSpeed: 0.4,
-      reduceMotion: true
-    })).toEqual({ x: 600, y: 400 });
+    expect(
+      advanceLeavesWindTarget({
+        current: { x: 200, y: 200 },
+        destination: { x: 600, y: 400 },
+        bounds,
+        deltaSeconds: 0.016,
+        motionSpeed: 0.4,
+        reduceMotion: true,
+      }),
+    ).toEqual({ x: 600, y: 400 });
   });
 
   it("accepts only points inside the single flow target", () => {

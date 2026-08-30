@@ -60,7 +60,9 @@ export type AmbientPianoConfig = {
 };
 
 function createAudioContext() {
-  const AudioContextConstructor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  const AudioContextConstructor =
+    window.AudioContext ??
+    (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
   return AudioContextConstructor ? new AudioContextConstructor() : undefined;
 }
 
@@ -108,7 +110,9 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
 
     const context = audioContext;
     const gain = outputGain;
-    const instruments = new Set([piano, loadingPiano].filter((instrument): instrument is SoftPiano => Boolean(instrument)));
+    const instruments = new Set(
+      [piano, loadingPiano].filter((instrument): instrument is SoftPiano => Boolean(instrument)),
+    );
     audioContext = undefined;
     outputGain = undefined;
     piano = undefined;
@@ -135,14 +139,21 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
     }
   }
 
-  function queueContextTransition(context: AudioContext, currentLifecycle: number, transition: () => Promise<void>) {
+  function queueContextTransition(
+    context: AudioContext,
+    currentLifecycle: number,
+    transition: () => Promise<void>,
+  ) {
     const run = async () => {
       if (context !== audioContext || currentLifecycle !== lifecycle) return false;
       await transition();
       return context === audioContext && currentLifecycle === lifecycle;
     };
     const result = contextTransition ? contextTransition.then(run) : run();
-    const settled = result.then(() => undefined, () => undefined);
+    const settled = result.then(
+      () => undefined,
+      () => undefined,
+    );
     contextTransition = settled;
     void settled.then(() => {
       if (contextTransition === settled) contextTransition = undefined;
@@ -196,8 +207,8 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
           decayTime: config.decayTime,
           notesToLoad: {
             notes: config.notesToLoad,
-            velocityRange: config.velocityRange
-          }
+            velocityRange: config.velocityRange,
+          },
         });
         loadingPiano = nextPiano;
 
@@ -240,15 +251,17 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
 
   function startActiveAudio() {
     if (!active || ttsActive) return;
-    void ensurePiano(true).then((instrument) => {
-      if (!instrument || !active || ttsActive) return;
-      try {
-        fadeTo(ambientGain(), config.fadeInSeconds);
-        scheduleLoop(instrument);
-      } catch {
-        failSilent();
-      }
-    }).catch(failSilent);
+    void ensurePiano(true)
+      .then((instrument) => {
+        if (!instrument || !active || ttsActive) return;
+        try {
+          fadeTo(ambientGain(), config.fadeInSeconds);
+          scheduleLoop(instrument);
+        } catch {
+          failSilent();
+        }
+      })
+      .catch(failSilent);
   }
 
   function handleTtsPlayback(nextActive: boolean) {
@@ -291,7 +304,7 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
           note,
           time: startAt + index * layer.stepSeconds,
           duration: layer.durationSeconds,
-          velocity: layer.velocity
+          velocity: layer.velocity,
         });
       });
     }
@@ -309,14 +322,14 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
             note,
             time: startAt + item.beat + graceOffset + index * graceStep,
             duration: graceDuration,
-            velocity: Math.max(graceMinVelocity, item.velocity + graceVelocityOffset)
+            velocity: Math.max(graceMinVelocity, item.velocity + graceVelocityOffset),
           });
         });
         instrument.start({
           note: item.note,
           time: startAt + item.beat,
           duration: item.duration,
-          velocity: item.velocity + patternVelocityOffset
+          velocity: item.velocity + patternVelocityOffset,
         });
       });
       scheduledUntil = startAt + (config.patternLengthSeconds ?? config.loopStepSeconds);
@@ -330,7 +343,7 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
         note,
         time: startAt + index * config.loopStepSeconds,
         duration: isAccent ? config.loopAccentDurationSeconds : config.loopBaseDurationSeconds,
-        velocity: isAccent ? config.loopAccentVelocity : config.loopBaseVelocity
+        velocity: isAccent ? config.loopAccentVelocity : config.loopBaseVelocity,
       });
     });
     scheduledUntil = startAt + loopNotes.length * config.loopStepSeconds;
@@ -345,19 +358,22 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
     let startAt = now + 0.04;
     if (config.cueQuantizeToLoop && loopGridStartAt !== undefined) {
       const gridStep = Math.max(0.1, config.loopStepSeconds);
-      const nextGridIndex = Math.ceil((startAt - loopGridStartAt) / gridStep) + (config.cueQuantizeDelaySteps ?? 0);
+      const nextGridIndex =
+        Math.ceil((startAt - loopGridStartAt) / gridStep) + (config.cueQuantizeDelaySteps ?? 0);
       startAt = loopGridStartAt + nextGridIndex * gridStep;
     }
     const startVelocity = config.cueStartVelocity ?? 64;
     const velocityStep = config.cueVelocityStep ?? 2;
     config.cueNotes.forEach((note, index) => {
-      const duration = Array.isArray(config.cueDurationSeconds) ? config.cueDurationSeconds[index] : config.cueDurationSeconds;
+      const duration = Array.isArray(config.cueDurationSeconds)
+        ? config.cueDurationSeconds[index]
+        : config.cueDurationSeconds;
       const velocity = config.cueVelocities?.[index] ?? startVelocity - index * velocityStep;
       instrument.start({
         note,
         time: startAt + index * step,
         duration: duration ?? 0.95,
-        velocity
+        velocity,
       });
     });
     cueUntil = startAt + (config.cueCooldownSeconds ?? 0.82);
@@ -406,20 +422,22 @@ export function createAmbientPiano(config: AmbientPianoConfig) {
       if (!enabled) return;
       ensureTtsSubscription();
       if (ttsActive) return;
-      void ensurePiano(true).then((instrument) => {
-        if (!instrument || ttsActive) return;
-        try {
-          playCue(instrument);
-        } catch {
-          failSilent();
-        }
-      }).catch(failSilent);
+      void ensurePiano(true)
+        .then((instrument) => {
+          if (!instrument || ttsActive) return;
+          try {
+            playCue(instrument);
+          } catch {
+            failSilent();
+          }
+        })
+        .catch(failSilent);
     },
     dispose() {
       active = false;
       unsubscribeTts?.();
       unsubscribeTts = undefined;
       stopAudio();
-    }
+    },
   };
 }

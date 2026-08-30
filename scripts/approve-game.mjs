@@ -16,7 +16,7 @@ function argValue(name, fallback) {
   const found = process.argv.find((arg) => arg.startsWith(prefix));
   if (found) return found.slice(prefix.length);
   const index = process.argv.indexOf(name);
-  return index >= 0 ? process.argv[index + 1] ?? fallback : fallback;
+  return index >= 0 ? (process.argv[index + 1] ?? fallback) : fallback;
 }
 
 function hasFlag(name) {
@@ -63,9 +63,9 @@ function approveRegistrySource(source, gameId) {
     if (id !== gameId) return block;
     approved = true;
     if (/\n\s*stabilityStatus:\s*"[^"]+"/.test(block)) {
-      return block.replace(/(\n\s*stabilityStatus:\s*)"[^"]+"/, "$1\"publish\"");
+      return block.replace(/(\n\s*stabilityStatus:\s*)"[^"]+"/, '$1"publish"');
     }
-    return block.replace(/(\n\s*status:\s*"[^"]+",)/, "$1\n    stabilityStatus: \"publish\",");
+    return block.replace(/(\n\s*status:\s*"[^"]+",)/, '$1\n    stabilityStatus: "publish",');
   });
 
   if (!approved) throw new Error(`Game not found in registry: ${gameId}`);
@@ -73,10 +73,11 @@ function approveRegistrySource(source, gameId) {
 }
 
 function runReadinessAudit(auditPath) {
-  const result = spawnSync(process.execPath, [
-    path.join(projectRoot, "scripts/game-readiness-audit.mjs"),
-    `--output=${auditPath}`
-  ], { cwd: projectRoot, encoding: "utf8" });
+  const result = spawnSync(
+    process.execPath,
+    [path.join(projectRoot, "scripts/game-readiness-audit.mjs"), `--output=${auditPath}`],
+    { cwd: projectRoot, encoding: "utf8" },
+  );
 
   if (result.status !== 0) {
     process.stderr.write(result.stdout);
@@ -92,7 +93,8 @@ async function detectAudioModule(game) {
 
   for (const vueFile of game.signals?.vueFiles ?? []) {
     const source = await readFile(path.join(gameDir, vueFile), "utf8");
-    if (source.includes("createStandardGameFeedback")) return "стандартный feedback из `core/gameFeedbackAudio.ts`";
+    if (source.includes("createStandardGameFeedback"))
+      return "стандартный feedback из `core/gameFeedbackAudio.ts`";
   }
 
   return "нет";
@@ -102,44 +104,78 @@ function syncGamesReadme(source, audit) {
   const gamesById = new Map(audit.games.map((game) => [game.id, game]));
   let nextSource = source.replace(
     /Сводка по последнему readiness-аудиту: 154 игры, \d+ \S+, \d+ \S+\. Все registry-игры имеют `docs\/games\/<id>\.md`\./,
-    `Сводка по последнему readiness-аудиту: ${audit.summary.totalGames} игры, ${audit.summary.readinessGroup.ready} ${pluralGame(audit.summary.readinessGroup.ready)}, ${audit.summary.readinessGroup.development} ${pluralGame(audit.summary.readinessGroup.development)}. Все registry-игры имеют \`docs/games/<id>.md\`.`
+    `Сводка по последнему readiness-аудиту: ${audit.summary.totalGames} игры, ${audit.summary.readinessGroup.ready} ${pluralGame(audit.summary.readinessGroup.ready)}, ${audit.summary.readinessGroup.development} ${pluralGame(audit.summary.readinessGroup.development)}. Все registry-игры имеют \`docs/games/<id>.md\`.`,
   );
 
-  nextSource = nextSource.split("\n").map((line) => {
-    const match = line.match(/^(.+\| `([^`]+)` \| \[[^\]]+\]\([^)]*\) \| )`[^`]+` \| `[^`]+` \| `[^`]+` \|$/);
-    if (!match) return line;
-    const game = gamesById.get(match[2]);
-    if (!game) return line;
-    return `${match[1]}\`${game.status}\` | \`${game.resolvedStabilityStatus}\` | \`${game.readinessGroup}\` |`;
-  }).join("\n");
+  nextSource = nextSource
+    .split("\n")
+    .map((line) => {
+      const match = line.match(
+        /^(.+\| `([^`]+)` \| \[[^\]]+\]\([^)]*\) \| )`[^`]+` \| `[^`]+` \| `[^`]+` \|$/,
+      );
+      if (!match) return line;
+      const game = gamesById.get(match[2]);
+      if (!game) return line;
+      return `${match[1]}\`${game.status}\` | \`${game.resolvedStabilityStatus}\` | \`${game.readinessGroup}\` |`;
+    })
+    .join("\n");
 
   return nextSource;
 }
 
 function syncIndex(source, audit) {
   return source
-    .replace(/- Ready: \d+ \S+\./, `- Ready: ${audit.summary.readinessGroup.ready} ${pluralGame(audit.summary.readinessGroup.ready)}.`)
-    .replace(/- Development: \d+ \S+\./, `- Development: ${audit.summary.readinessGroup.development} ${pluralGame(audit.summary.readinessGroup.development)}.`);
+    .replace(
+      /- Ready: \d+ \S+\./,
+      `- Ready: ${audit.summary.readinessGroup.ready} ${pluralGame(audit.summary.readinessGroup.ready)}.`,
+    )
+    .replace(
+      /- Development: \d+ \S+\./,
+      `- Development: ${audit.summary.readinessGroup.development} ${pluralGame(audit.summary.readinessGroup.development)}.`,
+    );
 }
 
 function syncReadinessMarkdown(source, audit) {
   let nextSource = source
     .replace(/\| Ready \| \d+ \|/, `| Ready | ${audit.summary.readinessGroup.ready} |`)
-    .replace(/\| Development \| \d+ \|/, `| Development | ${audit.summary.readinessGroup.development} |`)
-    .replace(/\| `resolvedStabilityStatus: "publish"` \| \d+ \|/, `| \`resolvedStabilityStatus: "publish"\` | ${audit.summary.resolvedStabilityStatus.publish ?? 0} |`)
-    .replace(/\| `resolvedStabilityStatus: "needs-check"` \| \d+ \|/, `| \`resolvedStabilityStatus: "needs-check"\` | ${audit.summary.resolvedStabilityStatus["needs-check"] ?? 0} |`)
-    .replace(/\| `resolvedStabilityStatus: "archived"` \| \d+ \|/, `| \`resolvedStabilityStatus: "archived"\` | ${audit.summary.resolvedStabilityStatus.archived ?? 0} |`);
+    .replace(
+      /\| Development \| \d+ \|/,
+      `| Development | ${audit.summary.readinessGroup.development} |`,
+    )
+    .replace(
+      /\| `resolvedStabilityStatus: "publish"` \| \d+ \|/,
+      `| \`resolvedStabilityStatus: "publish"\` | ${audit.summary.resolvedStabilityStatus.publish ?? 0} |`,
+    )
+    .replace(
+      /\| `resolvedStabilityStatus: "needs-check"` \| \d+ \|/,
+      `| \`resolvedStabilityStatus: "needs-check"\` | ${audit.summary.resolvedStabilityStatus["needs-check"] ?? 0} |`,
+    )
+    .replace(
+      /\| `resolvedStabilityStatus: "archived"` \| \d+ \|/,
+      `| \`resolvedStabilityStatus: "archived"\` | ${audit.summary.resolvedStabilityStatus.archived ?? 0} |`,
+    );
 
   for (const [category, counts] of Object.entries(audit.summary.categoryReadiness)) {
-    const categoryPattern = new RegExp("\\\\| `" + escapeRegExp(category) + "` \\\\| \\\\d+ \\\\| \\\\d+ \\\\|");
-    nextSource = nextSource.replace(categoryPattern, `| \`${category}\` | ${counts.ready ?? 0} | ${counts.development ?? 0} |`);
+    const categoryPattern = new RegExp(
+      "\\\\| `" + escapeRegExp(category) + "` \\\\| \\\\d+ \\\\| \\\\d+ \\\\|",
+    );
+    nextSource = nextSource.replace(
+      categoryPattern,
+      `| \`${category}\` | ${counts.ready ?? 0} | ${counts.development ?? 0} |`,
+    );
   }
 
-  const rows = audit.developmentQueue.slice(0, 10).map((game) => (
-    `| \`${game.id}\` | \`${game.category}\` | \`${game.resolvedStabilityStatus}\` | ${(game.blockers ?? []).map((blocker) => `\`${blocker}\``).join(", ")} |`
-  )).join("\n");
+  const rows = audit.developmentQueue
+    .slice(0, 10)
+    .map(
+      (game) =>
+        `| \`${game.id}\` | \`${game.category}\` | \`${game.resolvedStabilityStatus}\` | ${(game.blockers ?? []).map((blocker) => `\`${blocker}\``).join(", ")} |`,
+    )
+    .join("\n");
   const lines = nextSource.split("\n");
-  const headerIndex = lines.findIndex((line) => line === "| Игра | Категория | Stability | Blockers |");
+  const headerIndex = lines.findIndex(
+    (line) => line === "| Игра | Категория | Stability | Blockers |",
+  );
   if (headerIndex >= 0) {
     let endIndex = headerIndex + 2;
     while (endIndex < lines.length && lines[endIndex].startsWith("| `")) endIndex += 1;
@@ -153,12 +189,24 @@ function syncReadinessMarkdown(source, audit) {
 async function syncGameDoc(source, game) {
   const audioModule = await detectAudioModule(game);
   return source
-    .replace(/\| Resolved stability \| `[^`]+` \|/, `| Resolved stability | \`${game.resolvedStabilityStatus}\` |`)
+    .replace(
+      /\| Resolved stability \| `[^`]+` \|/,
+      `| Resolved stability | \`${game.resolvedStabilityStatus}\` |`,
+    )
     .replace(/\| Readiness group \| `[^`]+` \|/, `| Readiness group | \`${game.readinessGroup}\` |`)
     .replace(/\| Audio module \| [^|]+ \|/, `| Audio module | ${audioModule} |`)
-    .replace(/Игра находится в группе `[^`]+`, потому что resolved stability [^.]+\./, `Игра находится в группе \`${game.readinessGroup}\`, потому что resolved stability ${game.resolvedStabilityStatus === "publish" ? "равен" : "не равен"} \`publish\`.`)
-    .replace(/Автоматические blockers:\n\n[\s\S]*?\n\n## QA checklist/, `Автоматические blockers:\n\n${game.promotionBlockers.length ? game.promotionBlockers.map((blocker) => `- ${blocker}`).join("\n") : "- нет"}\n\n## QA checklist`)
-    .replace(/## Next step\n\n[\s\S]*$/, `## Next step\n\n${game.readinessGroup === "ready" ? "Оставить в ready-очереди и проверять регрессии через общий Electron CDP audit." : "Разобрать blockers из readiness-аудита, затем повторить Electron CDP/PNG audit и принять решение о `stabilityStatus: \"publish\"`."}\n`);
+    .replace(
+      /Игра находится в группе `[^`]+`, потому что resolved stability [^.]+\./,
+      `Игра находится в группе \`${game.readinessGroup}\`, потому что resolved stability ${game.resolvedStabilityStatus === "publish" ? "равен" : "не равен"} \`publish\`.`,
+    )
+    .replace(
+      /Автоматические blockers:\n\n[\s\S]*?\n\n## QA checklist/,
+      `Автоматические blockers:\n\n${game.promotionBlockers.length ? game.promotionBlockers.map((blocker) => `- ${blocker}`).join("\n") : "- нет"}\n\n## QA checklist`,
+    )
+    .replace(
+      /## Next step\n\n[\s\S]*$/,
+      `## Next step\n\n${game.readinessGroup === "ready" ? "Оставить в ready-очереди и проверять регрессии через общий Electron CDP audit." : 'Разобрать blockers из readiness-аудита, затем повторить Electron CDP/PNG audit и принять решение о `stabilityStatus: "publish"`.'}\n`,
+    );
 }
 
 async function syncDocs(auditPath, approvedGameId) {
@@ -167,17 +215,32 @@ async function syncDocs(auditPath, approvedGameId) {
   if (!game) throw new Error(`Approved game missing from audit: ${approvedGameId}`);
 
   const gamesReadmePath = path.join(docsGamesRoot, "README.md");
-  await writeFile(gamesReadmePath, syncGamesReadme(await readFile(gamesReadmePath, "utf8"), audit), "utf8");
+  await writeFile(
+    gamesReadmePath,
+    syncGamesReadme(await readFile(gamesReadmePath, "utf8"), audit),
+    "utf8",
+  );
 
   const datedRoot = path.dirname(auditPath);
   const indexPath = path.join(datedRoot, "index.md");
-  if (await exists(indexPath)) await writeFile(indexPath, syncIndex(await readFile(indexPath, "utf8"), audit), "utf8");
+  if (await exists(indexPath))
+    await writeFile(indexPath, syncIndex(await readFile(indexPath, "utf8"), audit), "utf8");
 
   const readinessMdPath = path.join(datedRoot, "readiness-audit.md");
-  if (await exists(readinessMdPath)) await writeFile(readinessMdPath, syncReadinessMarkdown(await readFile(readinessMdPath, "utf8"), audit), "utf8");
+  if (await exists(readinessMdPath))
+    await writeFile(
+      readinessMdPath,
+      syncReadinessMarkdown(await readFile(readinessMdPath, "utf8"), audit),
+      "utf8",
+    );
 
   const gameDocPath = path.join(docsGamesRoot, `${approvedGameId}.md`);
-  if (await exists(gameDocPath)) await writeFile(gameDocPath, await syncGameDoc(await readFile(gameDocPath, "utf8"), game), "utf8");
+  if (await exists(gameDocPath))
+    await writeFile(
+      gameDocPath,
+      await syncGameDoc(await readFile(gameDocPath, "utf8"), game),
+      "utf8",
+    );
 }
 
 const gameId = argValue("--id", "");
@@ -193,10 +256,14 @@ console.log(`Approved ${gameId}`);
 console.log(`Audit: ${path.relative(projectRoot, auditPath)}`);
 
 if (hasFlag("--open-next")) {
-  const result = spawnSync(process.execPath, [path.join(projectRoot, "scripts/open-next-development-game.mjs"), `--audit=${auditPath}`], {
-    cwd: projectRoot,
-    encoding: "utf8",
-    stdio: "inherit"
-  });
+  const result = spawnSync(
+    process.execPath,
+    [path.join(projectRoot, "scripts/open-next-development-game.mjs"), `--audit=${auditPath}`],
+    {
+      cwd: projectRoot,
+      encoding: "utf8",
+      stdio: "inherit",
+    },
+  );
   if (result.status !== 0) process.exit(result.status ?? 1);
 }

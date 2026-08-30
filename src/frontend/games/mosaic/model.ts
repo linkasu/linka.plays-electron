@@ -42,12 +42,16 @@ export function createMosaicTiles(image: MosaicImage): MosaicTile[] {
       imageId: image.id,
       row,
       col,
-      slotIndex
+      slotIndex,
     };
   });
 }
 
-export function createMosaicStep(settings: SessionSettings, stepIndex: number, imageIndex = 0): MosaicStep {
+export function createMosaicStep(
+  settings: SessionSettings,
+  stepIndex: number,
+  imageIndex = 0,
+): MosaicStep {
   const image = getMosaicImage(imageIndex);
   const tiles = createMosaicTiles(image);
   const slotIndex = Math.max(0, Math.min(Math.floor(stepIndex), tiles.length - 1));
@@ -63,7 +67,7 @@ export function createMosaicStep(settings: SessionSettings, stepIndex: number, i
     choices,
     correctIndex: choices.findIndex((choice) => choice.id === target.id),
     prompt: "Найди кусочек для подсвеченной клетки.",
-    hint: "Сравни клетку с образцом и кусочками."
+    hint: "Сравни клетку с образцом и кусочками.",
   };
 }
 
@@ -71,8 +75,16 @@ export function isMosaicChoiceCorrect(choice: MosaicTile, target: MosaicTile) {
   return choice.id === target.id;
 }
 
-function buildMosaicChoices(target: MosaicTile, tiles: MosaicTile[], choiceCount: number, offset: number) {
-  const distractors = rotate(tiles.filter((tile) => tile.id !== target.id), offset).slice(0, Math.max(0, choiceCount - 1));
+function buildMosaicChoices(
+  target: MosaicTile,
+  tiles: MosaicTile[],
+  choiceCount: number,
+  offset: number,
+) {
+  const distractors = rotate(
+    tiles.filter((tile) => tile.id !== target.id),
+    offset,
+  ).slice(0, Math.max(0, choiceCount - 1));
   return rotate([target, ...distractors], offset % Math.max(1, choiceCount));
 }
 

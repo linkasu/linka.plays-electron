@@ -42,7 +42,12 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
-export function createSafePlacementArea(options: Pick<TargetPlacementOptions, "viewportWidth" | "viewportHeight" | "hudHeight" | "sidePadding" | "bottomPadding"> = {}): PlacementArea {
+export function createSafePlacementArea(
+  options: Pick<
+    TargetPlacementOptions,
+    "viewportWidth" | "viewportHeight" | "hudHeight" | "sidePadding" | "bottomPadding"
+  > = {},
+): PlacementArea {
   const width = viewportWidth(options.viewportWidth);
   const height = viewportHeight(options.viewportHeight);
   const sidePadding = options.sidePadding ?? defaultSidePadding;
@@ -53,37 +58,52 @@ export function createSafePlacementArea(options: Pick<TargetPlacementOptions, "v
     x: sidePadding,
     y: top,
     width: Math.max(1, width - sidePadding * 2),
-    height: Math.max(1, height - top - bottomPadding)
+    height: Math.max(1, height - top - bottomPadding),
   };
 }
 
-export function percentToPixels(point: PlacementPoint, viewport: { width?: number; height?: number } = {}): PlacementPoint {
+export function percentToPixels(
+  point: PlacementPoint,
+  viewport: { width?: number; height?: number } = {},
+): PlacementPoint {
   return {
-    x: viewportWidth(viewport.width) * point.x / 100,
-    y: viewportHeight(viewport.height) * point.y / 100
+    x: (viewportWidth(viewport.width) * point.x) / 100,
+    y: (viewportHeight(viewport.height) * point.y) / 100,
   };
 }
 
-export function pixelsToPercent(point: PlacementPoint, viewport: { width?: number; height?: number } = {}): PlacementPoint {
+export function pixelsToPercent(
+  point: PlacementPoint,
+  viewport: { width?: number; height?: number } = {},
+): PlacementPoint {
   return {
-    x: viewportWidth(viewport.width) ? point.x / viewportWidth(viewport.width) * 100 : 50,
-    y: viewportHeight(viewport.height) ? point.y / viewportHeight(viewport.height) * 100 : 50
+    x: viewportWidth(viewport.width) ? (point.x / viewportWidth(viewport.width)) * 100 : 50,
+    y: viewportHeight(viewport.height) ? (point.y / viewportHeight(viewport.height)) * 100 : 50,
   };
 }
 
-export function clampTargetCenter(point: PlacementPoint, options: TargetPlacementOptions): PlacementPoint {
+export function clampTargetCenter(
+  point: PlacementPoint,
+  options: TargetPlacementOptions,
+): PlacementPoint {
   const area = createSafePlacementArea(options);
   const halfWidth = options.targetWidth / 2;
   const halfHeight = options.targetHeight / 2;
 
   return {
     x: clamp(point.x, area.x + halfWidth, area.x + area.width - halfWidth),
-    y: clamp(point.y, area.y + halfHeight, area.y + area.height - halfHeight)
+    y: clamp(point.y, area.y + halfHeight, area.y + area.height - halfHeight),
   };
 }
 
-export function clampTargetCenterPercent(point: PlacementPoint, options: TargetPlacementOptions): PlacementPoint {
-  const viewport = { width: viewportWidth(options.viewportWidth), height: viewportHeight(options.viewportHeight) };
+export function clampTargetCenterPercent(
+  point: PlacementPoint,
+  options: TargetPlacementOptions,
+): PlacementPoint {
+  const viewport = {
+    width: viewportWidth(options.viewportWidth),
+    height: viewportHeight(options.viewportHeight),
+  };
   return pixelsToPercent(clampTargetCenter(percentToPixels(point, viewport), options), viewport);
 }
 
@@ -91,8 +111,13 @@ export function randomTargetCenterPercent(options: TargetPlacementOptions): Plac
   return randomSeparatedTargetCenterPercent(options);
 }
 
-export function randomSeparatedTargetCenterPercent(options: SeparatedTargetPlacementOptions): PlacementPoint {
-  const viewport = { width: viewportWidth(options.viewportWidth), height: viewportHeight(options.viewportHeight) };
+export function randomSeparatedTargetCenterPercent(
+  options: SeparatedTargetPlacementOptions,
+): PlacementPoint {
+  const viewport = {
+    width: viewportWidth(options.viewportWidth),
+    height: viewportHeight(options.viewportHeight),
+  };
   const area = createSafePlacementArea(options);
   const halfWidth = options.targetWidth / 2;
   const halfHeight = options.targetHeight / 2;
@@ -102,18 +127,28 @@ export function randomSeparatedTargetCenterPercent(options: SeparatedTargetPlace
   const maxY = area.y + area.height - halfHeight;
   const random = options.random ?? Math.random;
   const attempts = options.attempts ?? 12;
-  const avoid = [options.previous, ...(options.avoid ?? [])].filter((point): point is PlacementPoint => Boolean(point)).map((point) => percentToPixels(point, viewport));
+  const avoid = [options.previous, ...(options.avoid ?? [])]
+    .filter((point): point is PlacementPoint => Boolean(point))
+    .map((point) => percentToPixels(point, viewport));
   const minDistance = options.minDistance ?? 0;
   let best = clampTargetCenter({ x: minX, y: minY }, options);
   let bestDistance = -1;
 
   for (let index = 0; index < attempts; index++) {
-    const candidate = clampTargetCenter({
-      x: minX + random() * Math.max(0, maxX - minX),
-      y: minY + random() * Math.max(0, maxY - minY)
-    }, options);
+    const candidate = clampTargetCenter(
+      {
+        x: minX + random() * Math.max(0, maxX - minX),
+        y: minY + random() * Math.max(0, maxY - minY),
+      },
+      options,
+    );
 
-    const distance = avoid.length > 0 ? Math.min(...avoid.map((point) => Math.hypot(candidate.x - point.x, candidate.y - point.y))) : Number.POSITIVE_INFINITY;
+    const distance =
+      avoid.length > 0
+        ? Math.min(
+            ...avoid.map((point) => Math.hypot(candidate.x - point.x, candidate.y - point.y)),
+          )
+        : Number.POSITIVE_INFINITY;
     if (distance >= minDistance) return pixelsToPercent(candidate, viewport);
     if (distance > bestDistance) {
       best = candidate;

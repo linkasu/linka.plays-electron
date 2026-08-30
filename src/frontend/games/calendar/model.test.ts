@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { settingsFromPreset } from "../../core/settings";
-import { calendarRelativeDays, generateCalendarRound, getRelativeWeekday, wrapWeekdayIndex } from "./model";
+import {
+  calendarRelativeDays,
+  generateCalendarRound,
+  getRelativeWeekday,
+  wrapWeekdayIndex,
+} from "./model";
 
 describe("generateCalendarRound", () => {
   it("wraps weekdays through the start and end of the week", () => {
@@ -19,7 +24,9 @@ describe("generateCalendarRound", () => {
       expect(round.taskKind).toBe("weekday");
       expect(round.choices).toHaveLength(4);
       expect(round.choices.map((choice) => choice.id)).toContain(round.correctChoiceId);
-      expect(round.correctIndex).toBe(round.choices.findIndex((choice) => choice.id === round.correctChoiceId));
+      expect(round.correctIndex).toBe(
+        round.choices.findIndex((choice) => choice.id === round.correctChoiceId),
+      );
       expect(round.correctChoiceId).toBe(`weekday:${round.targetDay.id}`);
       expect(round.promptId).toBe(`${round.taskKind}.${round.today.id}.${round.targetRelative.id}`);
     }
@@ -32,9 +39,13 @@ describe("generateCalendarRound", () => {
       const round = generateCalendarRound(settings, index, () => 0);
 
       expect(round.taskKind).toBe("relative");
-      expect(round.choices.map((choice) => choice.relativeId).sort()).toEqual(calendarRelativeDays.map((day) => day.id).sort());
+      expect(round.choices.map((choice) => choice.relativeId).sort()).toEqual(
+        calendarRelativeDays.map((day) => day.id).sort(),
+      );
       expect(round.correctChoiceId).toBe(`relative:${round.targetRelative.id}`);
-      expect(round.correctIndex).toBe(round.choices.findIndex((choice) => choice.id === round.correctChoiceId));
+      expect(round.correctIndex).toBe(
+        round.choices.findIndex((choice) => choice.id === round.correctChoiceId),
+      );
       expect(round.choices.every((choice) => choice.sublabel)).toBe(true);
     }
   });
@@ -51,7 +62,10 @@ describe("generateCalendarRound", () => {
 
   it("cycles prompts without repeating early rounds", () => {
     const settings = settingsFromPreset("standard");
-    const promptIds = Array.from({ length: 8 }, (_, index) => generateCalendarRound(settings, index + 1, () => 0).promptId);
+    const promptIds = Array.from(
+      { length: 8 },
+      (_, index) => generateCalendarRound(settings, index + 1, () => 0).promptId,
+    );
 
     expect(new Set(promptIds).size).toBe(promptIds.length);
   });

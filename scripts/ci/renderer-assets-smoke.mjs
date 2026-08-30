@@ -14,7 +14,7 @@ const requiredAssets = [
   "images/mosaic/squirrel.jpg",
   "audio/sfx/bells/soft-bell.ogg",
   "audio/sfx/sound-source/bell.mp3",
-  "audio/tts/aquarium/prompt.mp3"
+  "audio/tts/aquarium/prompt.mp3",
 ];
 
 for (const relativePath of requiredAssets) {

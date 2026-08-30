@@ -16,19 +16,26 @@ describe("generateYesNoRound", () => {
   it("uses large-card icon data without external answer images", () => {
     expect(yesNoChoices).toEqual([
       { id: "yes", title: "Да", icon: "mdi-check-bold", color: "green-lighten-4" },
-      { id: "no", title: "Нет", icon: "mdi-close-thick", color: "red-lighten-4" }
+      { id: "no", title: "Нет", icon: "mdi-close-thick", color: "red-lighten-4" },
     ]);
   });
 
   it("finds an existing word or name asset for the dynamic question", () => {
     const round = generateYesNoRound(1, () => 0);
-    const matching = { id: `word-categories.item.${round.askedItem.id}`, text: `${round.askedItem.word}.` };
+    const matching = {
+      id: `word-categories.item.${round.askedItem.id}`,
+      text: `${round.askedItem.word}.`,
+    };
 
-    expect(findYesNoNameAsset(round.askedItem, [
-      { id: "feedback.apple", text: round.askedItem.word },
-      matching
-    ])).toBe(matching);
-    expect(findYesNoNameAsset(round.askedItem, [{ id: "feedback.apple", text: round.askedItem.word }])).toBeUndefined();
+    expect(
+      findYesNoNameAsset(round.askedItem, [
+        { id: "feedback.apple", text: round.askedItem.word },
+        matching,
+      ]),
+    ).toBe(matching);
+    expect(
+      findYesNoNameAsset(round.askedItem, [{ id: "feedback.apple", text: round.askedItem.word }]),
+    ).toBeUndefined();
   });
 
   it("makes yes rounds ask about the displayed item", () => {
@@ -46,7 +53,10 @@ describe("generateYesNoRound", () => {
   });
 
   it("selects answer from injected randomness", () => {
-    const answers = new Set([generateYesNoRound(1, () => 0).answer, generateYesNoRound(2, () => 0.99).answer]);
+    const answers = new Set([
+      generateYesNoRound(1, () => 0).answer,
+      generateYesNoRound(2, () => 0.99).answer,
+    ]);
 
     expect(answers).toEqual(new Set(["yes", "no"]));
   });

@@ -19,16 +19,26 @@ export type WhatMissingRound = {
 
 export type WhatMissingPhase = "instruction" | "observe" | "transition" | "choose" | "feedback";
 
-export type WhatMissingPhaseEvent = "reset" | "instruction-complete" | "observe-complete" | "transition-complete" | "answer" | "retry" | "next-round";
+export type WhatMissingPhaseEvent =
+  | "reset"
+  | "instruction-complete"
+  | "observe-complete"
+  | "transition-complete"
+  | "answer"
+  | "retry"
+  | "next-round";
 
 export const DEFAULT_WHAT_MISSING_OBSERVE_MS = 5000;
 
-const phaseTransitions: Record<WhatMissingPhase, Partial<Record<WhatMissingPhaseEvent, WhatMissingPhase>>> = {
-  instruction: { reset: "instruction", "instruction-complete": "observe" },
-  observe: { reset: "instruction", "observe-complete": "transition" },
-  transition: { reset: "instruction", "transition-complete": "choose" },
+const phaseTransitions: Record<
+  WhatMissingPhase,
+  Partial<Record<WhatMissingPhaseEvent, WhatMissingPhase>>
+> = {
+  instruction: { "reset": "instruction", "instruction-complete": "observe" },
+  observe: { "reset": "instruction", "observe-complete": "transition" },
+  transition: { "reset": "instruction", "transition-complete": "choose" },
   choose: { reset: "instruction", answer: "feedback" },
-  feedback: { reset: "instruction", retry: "choose", "next-round": "instruction" }
+  feedback: { "reset": "instruction", "retry": "choose", "next-round": "instruction" },
 };
 
 export function transitionWhatMissingPhase(phase: WhatMissingPhase, event: WhatMissingPhaseEvent) {
@@ -45,7 +55,7 @@ export const whatMissingItems: WhatMissingItem[] = [
   { id: "backpack", label: "рюкзак", emoji: "🎒", color: "red-lighten-5" },
   { id: "clock", label: "часы", emoji: "🕘", color: "cyan-lighten-5" },
   { id: "camera", label: "камера", emoji: "📷", color: "grey-lighten-4" },
-  { id: "umbrella", label: "зонт", emoji: "☂️", color: "purple-lighten-5" }
+  { id: "umbrella", label: "зонт", emoji: "☂️", color: "purple-lighten-5" },
 ];
 
 export function shuffleWhatMissingItems<T>(items: T[], random = Math.random): T[] {
@@ -57,14 +67,20 @@ export function shuffleWhatMissingItems<T>(items: T[], random = Math.random): T[
   return result;
 }
 
-export function generateWhatMissingRound(_settings: SessionSettings, roundIndex = 1, random = Math.random): WhatMissingRound {
+export function generateWhatMissingRound(
+  _settings: SessionSettings,
+  roundIndex = 1,
+  random = Math.random,
+): WhatMissingRound {
   const displayCount = 3;
   if (whatMissingItems.length < displayCount) throw new Error("Недостаточно предметов для игры.");
 
   const displayItems = shuffleWhatMissingItems(whatMissingItems, random).slice(0, displayCount);
   const missingIndex = Math.floor(random() * displayItems.length);
   const missingItem = displayItems[missingIndex];
-  const decoyItems = whatMissingItems.filter((item) => !displayItems.some((displayItem) => displayItem.id === item.id));
+  const decoyItems = whatMissingItems.filter(
+    (item) => !displayItems.some((displayItem) => displayItem.id === item.id),
+  );
   const decoy = decoyItems[Math.floor(random() * decoyItems.length)];
   const choices = shuffleWhatMissingItems([...displayItems, decoy], random);
 
@@ -75,6 +91,6 @@ export function generateWhatMissingRound(_settings: SessionSettings, roundIndex 
     missingItem,
     missingIndex,
     choices,
-    correctIndex: choices.indexOf(missingItem)
+    correctIndex: choices.indexOf(missingItem),
   };
 }

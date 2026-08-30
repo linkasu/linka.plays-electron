@@ -34,18 +34,45 @@ type BackgroundStar = Point & {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("space-orbit", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("space-orbit", {
   maxSteps: 8,
-  overrides: { preset: "gentle", dwellMs: 600, targetScale: 1.4, motionSpeed: 0.56, distractors: "none", hints: "high" },
-  finishOnMistakes: false
+  overrides: {
+    preset: "gentle",
+    dwellMs: 600,
+    targetScale: 1.4,
+    motionSpeed: 0.56,
+    distractors: "none",
+    hints: "high",
+  },
+  finishOnMistakes: false,
 });
 
 const orbit = reactive({ craftAngle: -Math.PI * 0.45, targetAngle: -Math.PI * 0.45, pulse: 0 });
-const star = reactive<OrbitStar>({ id: "space-star-0", angle: Math.PI * 0.1, radius: 36, hue: 50, pulse: 0, heldMs: 0, entered: false });
+const star = reactive<OrbitStar>({
+  id: "space-star-0",
+  angle: Math.PI * 0.1,
+  radius: 36,
+  hue: 50,
+  pulse: 0,
+  heldMs: 0,
+  entered: false,
+});
 const cleanupGlows = reactive<CleanupGlow[]>([]);
 const backgroundStars = reactive<BackgroundStar[]>([]);
 const resultVisible = computed(() => session.status === "finished");
-const holdProgress = computed(() => Math.min(100, Math.round(star.heldMs / session.settings.dwellMs * 100)));
+const holdProgress = computed(() =>
+  Math.min(100, Math.round((star.heldMs / session.settings.dwellMs) * 100)),
+);
 const guidanceText = computed(() => {
   if (session.status === "paused") return "Пауза. Орбита ждёт продолжения.";
   if (!pointer.value.valid) return "Можно вести ракету взглядом или мышью по орбите.";
@@ -98,7 +125,7 @@ function pointOnOrbit(angle: number, radiusOffset = 0): Point {
   const center = orbitCenter();
   return {
     x: center.x + Math.cos(angle) * (orbitRadiusX() + radiusOffset),
-    y: center.y + Math.sin(angle) * (orbitRadiusY() + radiusOffset * 0.68)
+    y: center.y + Math.sin(angle) * (orbitRadiusY() + radiusOffset * 0.68),
   };
 }
 
@@ -115,7 +142,7 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
@@ -129,7 +156,7 @@ function targetPayload(progress: number, reason?: "left" | "invalid-gaze") {
     orbitAngle: star.angle,
     craftAngle: orbit.craftAngle,
     pointer: copyPointer(),
-    reason
+    reason,
   };
 }
 
@@ -158,7 +185,7 @@ function createBackgroundStars() {
       y: randomRange(0, height.value),
       radius: randomRange(0.8, 2.3),
       alpha: randomRange(0.18, 0.66),
-      phase: randomRange(0, Math.PI * 2)
+      phase: randomRange(0, Math.PI * 2),
     });
   }
 }
@@ -192,7 +219,7 @@ function completeStar() {
     age: 0,
     life: 1.45,
     radius: star.radius,
-    hue: star.hue
+    hue: star.hue,
   });
   if (cleanupGlows.length > 10) cleanupGlows.shift();
 
@@ -215,7 +242,11 @@ function updateStar(delta: number) {
       recordEvent("target-enter", targetPayload(progress));
     }
   } else {
-    if (star.entered && star.heldMs > 0) recordEvent("target-cancel", targetPayload(progress, pointer.value.valid ? "left" : "invalid-gaze"));
+    if (star.entered && star.heldMs > 0)
+      recordEvent(
+        "target-cancel",
+        targetPayload(progress, pointer.value.valid ? "left" : "invalid-gaze"),
+      );
     star.entered = false;
     star.heldMs = Math.max(0, star.heldMs - delta * 1200);
   }
@@ -253,7 +284,9 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
 
   ctx.save();
   for (const dot of backgroundStars) {
-    const shimmer = session.settings.reduceMotion ? 0.72 : 0.72 + Math.sin(now * 0.001 + dot.phase) * 0.28;
+    const shimmer = session.settings.reduceMotion
+      ? 0.72
+      : 0.72 + Math.sin(now * 0.001 + dot.phase) * 0.28;
     ctx.globalAlpha = dot.alpha * shimmer;
     ctx.fillStyle = "#fff8cc";
     ctx.beginPath();
@@ -264,7 +297,14 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
 
   const center = orbitCenter();
   const planetRadius = Math.min(132, Math.max(82, Math.min(width.value, height.value) * 0.16));
-  const planet = ctx.createRadialGradient(center.x - planetRadius * 0.32, center.y - planetRadius * 0.35, planetRadius * 0.18, center.x, center.y, planetRadius);
+  const planet = ctx.createRadialGradient(
+    center.x - planetRadius * 0.32,
+    center.y - planetRadius * 0.35,
+    planetRadius * 0.18,
+    center.x,
+    center.y,
+    planetRadius,
+  );
   planet.addColorStop(0, "#bfe7ff");
   planet.addColorStop(0.48, "#638edc");
   planet.addColorStop(1, "#334b9a");
@@ -289,11 +329,17 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   ctx.restore();
 }
 
-function drawStarShape(ctx: CanvasRenderingContext2D, x: number, y: number, outer: number, inner: number) {
+function drawStarShape(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  outer: number,
+  inner: number,
+) {
   ctx.beginPath();
   for (let index = 0; index < 10; index += 1) {
     const radius = index % 2 === 0 ? outer : inner;
-    const angle = -Math.PI / 2 + index * Math.PI / 5;
+    const angle = -Math.PI / 2 + (index * Math.PI) / 5;
     const pointX = x + Math.cos(angle) * radius;
     const pointY = y + Math.sin(angle) * radius;
     if (index === 0) ctx.moveTo(pointX, pointY);
@@ -316,7 +362,13 @@ function drawTargetStar(ctx: CanvasRenderingContext2D) {
 
   ctx.globalAlpha = 0.88;
   ctx.fillStyle = `hsl(${star.hue} 96% 76%)`;
-  drawStarShape(ctx, position.x, position.y, star.radius * 0.52 + pulse, star.radius * 0.23 + pulse * 0.25);
+  drawStarShape(
+    ctx,
+    position.x,
+    position.y,
+    star.radius * 0.52 + pulse,
+    star.radius * 0.23 + pulse * 0.25,
+  );
   ctx.fill();
   ctx.strokeStyle = "rgba(255, 255, 255, 0.72)";
   ctx.lineWidth = 3;
@@ -326,7 +378,13 @@ function drawTargetStar(ctx: CanvasRenderingContext2D) {
   ctx.strokeStyle = "#ffffff";
   ctx.lineWidth = 5;
   ctx.beginPath();
-  ctx.arc(position.x, position.y, star.radius * 0.82, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * progress);
+  ctx.arc(
+    position.x,
+    position.y,
+    star.radius * 0.82,
+    -Math.PI / 2,
+    -Math.PI / 2 + Math.PI * 2 * progress,
+  );
   ctx.stroke();
   ctx.restore();
 }
@@ -439,8 +497,16 @@ useGameLoop({ context, update, draw });
     <v-card class="space-orbit-guidance pa-4" color="surface" rounded="xl" variant="flat">
       <div class="text-overline text-primary mb-1">Ведение взглядом</div>
       <div class="text-body-1 font-weight-medium">{{ guidanceText }}</div>
-      <v-progress-linear class="mt-3" :model-value="holdProgress" color="amber" height="0.5rem" rounded />
-      <div class="text-caption text-medium-emphasis mt-2">Звёзд собрано: {{ session.step }} / {{ session.maxSteps }}</div>
+      <v-progress-linear
+        class="mt-3"
+        :model-value="holdProgress"
+        color="amber"
+        height="0.5rem"
+        rounded
+      />
+      <div class="text-caption text-medium-emphasis mt-2">
+        Звёзд собрано: {{ session.step }} / {{ session.maxSteps }}
+      </div>
     </v-card>
 
     <GameResultDialog
@@ -483,7 +549,7 @@ useGameLoop({ context, update, draw });
 }
 
 @media (max-width: 45rem) {
- .space-orbit-guidance {
+  .space-orbit-guidance {
     inset-block-start: auto;
     inset-block-end: max(1rem, env(safe-area-inset-bottom));
     inset-inline: 1rem;

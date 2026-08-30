@@ -63,7 +63,7 @@ export const cloudRenderGeometry = {
   shadowRadiusY: 0.68,
   progressRadius: 0.78,
   progressOpenRadius: 0.08,
-  progressLineWidth: 0.028
+  progressLineWidth: 0.028,
 } as const;
 
 const cloudLobeTemplates = [
@@ -72,16 +72,35 @@ const cloudLobeTemplates = [
   { offsetX: 0, offsetY: -0.24, radius: 0.84, seedOffset: 2.4, speed: 0.14 },
   { offsetX: 0.4, offsetY: -0.1, radius: 0.74, seedOffset: 3.6, speed: 0.17 },
   { offsetX: 0.72, offsetY: 0.1, radius: 0.6, seedOffset: 4.5, speed: 0.2 },
-  { offsetX: -0.04, offsetY: 0.18, radius: 0.9, seedOffset: 5.7, speed: 0.13 }
+  { offsetX: -0.04, offsetY: 0.18, radius: 0.9, seedOffset: 5.7, speed: 0.13 },
 ] as const;
 
 const templatesByCount: Record<number, Array<{ id: string; rows: number[] }>> = {
   1: [{ id: "single", rows: [1] }],
-  2: [{ id: "two-wide", rows: [2] }, { id: "two-tall", rows: [1, 1] }],
-  3: [{ id: "three-wide", rows: [3] }, { id: "two-one", rows: [2, 1] }, { id: "one-two", rows: [1, 2] }],
-  4: [{ id: "two-by-two", rows: [2, 2] }, { id: "four-wide", rows: [4] }, { id: "one-two-one", rows: [1, 2, 1] }],
-  5: [{ id: "three-two", rows: [3, 2] }, { id: "two-three", rows: [2, 3] }, { id: "two-two-one", rows: [2, 2, 1] }],
-  6: [{ id: "three-by-two", rows: [3, 3] }, { id: "two-by-three", rows: [2, 2, 2] }, { id: "three-two-one", rows: [3, 2, 1] }]
+  2: [
+    { id: "two-wide", rows: [2] },
+    { id: "two-tall", rows: [1, 1] },
+  ],
+  3: [
+    { id: "three-wide", rows: [3] },
+    { id: "two-one", rows: [2, 1] },
+    { id: "one-two", rows: [1, 2] },
+  ],
+  4: [
+    { id: "two-by-two", rows: [2, 2] },
+    { id: "four-wide", rows: [4] },
+    { id: "one-two-one", rows: [1, 2, 1] },
+  ],
+  5: [
+    { id: "three-two", rows: [3, 2] },
+    { id: "two-three", rows: [2, 3] },
+    { id: "two-two-one", rows: [2, 2, 1] },
+  ],
+  6: [
+    { id: "three-by-two", rows: [3, 3] },
+    { id: "two-by-three", rows: [2, 2, 2] },
+    { id: "three-two-one", rows: [3, 2, 1] },
+  ],
 };
 
 const maximumCloudCount = 6;
@@ -103,11 +122,14 @@ export function createCloudLobes(seed: number): CloudLobe[] {
     offsetY: lobe.offsetY,
     radius: lobe.radius,
     seed: seed + lobe.seedOffset,
-    speed: lobe.speed
+    speed: lobe.speed,
   }));
 }
 
-export function cloudPlacementArea(viewportWidth: number, viewportHeight: number): CloudPlacementArea {
+export function cloudPlacementArea(
+  viewportWidth: number,
+  viewportHeight: number,
+): CloudPlacementArea {
   const sidePadding = Math.max(42, viewportWidth * 0.06);
   const top = Math.max(104, viewportHeight * 0.16);
   const bottomPadding = Math.max(64, viewportHeight * 0.08);
@@ -116,23 +138,25 @@ export function cloudPlacementArea(viewportWidth: number, viewportHeight: number
     x: sidePadding,
     y: top,
     width: Math.max(1, viewportWidth - sidePadding * 2),
-    height: Math.max(1, viewportHeight - top - bottomPadding)
+    height: Math.max(1, viewportHeight - top - bottomPadding),
   };
 }
 
 export function cloudVisualBounds(baseRx: number, baseRy: number): CloudVisualBounds {
   const geometry = cloudRenderGeometry;
-  const progressExtent = baseRx * (geometry.progressRadius + geometry.progressOpenRadius)
-    + Math.max(2, baseRx * geometry.progressLineWidth / 2);
+  const progressExtent =
+    baseRx * (geometry.progressRadius + geometry.progressOpenRadius) +
+    Math.max(2, (baseRx * geometry.progressLineWidth) / 2);
   const bounds: CloudVisualBounds = {
     left: Math.max(baseRx * geometry.shadowRadiusX, progressExtent),
     right: Math.max(baseRx * geometry.shadowRadiusX, progressExtent),
     top: Math.max(baseRy * (geometry.shadowRadiusY - geometry.shadowOffsetY), progressExtent),
-    bottom: Math.max(baseRy * (geometry.shadowRadiusY + geometry.shadowOffsetY), progressExtent)
+    bottom: Math.max(baseRy * (geometry.shadowRadiusY + geometry.shadowOffsetY), progressExtent),
   };
 
   for (const lobe of cloudLobeTemplates) {
-    const push = baseRx * geometry.pushProximity * (geometry.pushBase + lobe.radius * geometry.pushRadius);
+    const push =
+      baseRx * geometry.pushProximity * (geometry.pushBase + lobe.radius * geometry.pushRadius);
     const radiusX = baseRx * lobe.radius * (1 + geometry.lobePulseX + geometry.lobeOpenRadiusX);
     const radiusY = baseRy * lobe.radius * (1 + geometry.lobePulseY);
     const wobbleX = baseRx * geometry.lobeWobbleX;
@@ -142,7 +166,10 @@ export function cloudVisualBounds(baseRx: number, baseRy: number): CloudVisualBo
 
     bounds.left = Math.max(bounds.left, -centerX + wobbleX + push + radiusX);
     bounds.right = Math.max(bounds.right, centerX + wobbleX + push + radiusX);
-    bounds.top = Math.max(bounds.top, -centerY + wobbleY + push * geometry.pushY + baseRy * geometry.clearingLift + radiusY);
+    bounds.top = Math.max(
+      bounds.top,
+      -centerY + wobbleY + push * geometry.pushY + baseRy * geometry.clearingLift + radiusY,
+    );
     bounds.bottom = Math.max(bounds.bottom, centerY + wobbleY + push * geometry.pushY + radiusY);
   }
 
@@ -150,10 +177,12 @@ export function cloudVisualBounds(baseRx: number, baseRy: number): CloudVisualBo
 }
 
 export function cloudPlacementsOverlap(first: CloudPlacement, second: CloudPlacement) {
-  return first.x + first.visualBounds.right > second.x - second.visualBounds.left
-    && first.x - first.visualBounds.left < second.x + second.visualBounds.right
-    && first.y + first.visualBounds.bottom > second.y - second.visualBounds.top
-    && first.y - first.visualBounds.top < second.y + second.visualBounds.bottom;
+  return (
+    first.x + first.visualBounds.right > second.x - second.visualBounds.left &&
+    first.x - first.visualBounds.left < second.x + second.visualBounds.right &&
+    first.y + first.visualBounds.bottom > second.y - second.visualBounds.top &&
+    first.y - first.visualBounds.top < second.y + second.visualBounds.bottom
+  );
 }
 
 function desiredNominalRadius(viewportWidth: number, viewportHeight: number, targetScale: number) {
@@ -172,7 +201,7 @@ function placeWithTemplate(
   nominalRadius: number,
   area: CloudPlacementArea,
   gap: number,
-  template: { id: string; rows: number[] }
+  template: { id: string; rows: number[] },
 ): CloudPlacementLayout | undefined {
   const placements = profiles.map((profile) => {
     const baseRx = nominalRadius * profile.sizeFactor;
@@ -186,11 +215,22 @@ function placeWithTemplate(
     rows.push(placements.slice(placementIndex, placementIndex + rowLength));
     placementIndex += rowLength;
   }
-  if (placementIndex !== placements.length || rows.some((row) => row.length === 0)) return undefined;
+  if (placementIndex !== placements.length || rows.some((row) => row.length === 0))
+    return undefined;
 
-  const rowWidths = rows.map((row) => row.reduce((width, placement) => width + placement.visualBounds.left + placement.visualBounds.right, 0) + gap * (row.length - 1));
-  const rowHeights = rows.map((row) => Math.max(...row.map((placement) => placement.visualBounds.top + placement.visualBounds.bottom)));
-  const totalHeight = rowHeights.reduce((height, rowHeight) => height + rowHeight, 0) + gap * (rows.length - 1);
+  const rowWidths = rows.map(
+    (row) =>
+      row.reduce(
+        (width, placement) => width + placement.visualBounds.left + placement.visualBounds.right,
+        0,
+      ) +
+      gap * (row.length - 1),
+  );
+  const rowHeights = rows.map((row) =>
+    Math.max(...row.map((placement) => placement.visualBounds.top + placement.visualBounds.bottom)),
+  );
+  const totalHeight =
+    rowHeights.reduce((height, rowHeight) => height + rowHeight, 0) + gap * (rows.length - 1);
   if (Math.max(...rowWidths) > area.width || totalHeight > area.height) return undefined;
 
   let rowTop = area.y + (area.height - totalHeight) / 2;
@@ -212,14 +252,20 @@ function placeWithTemplate(
     count: placements.length,
     nominalRadius,
     radiusScale: 1,
-    template: template.id
+    template: template.id,
   };
 }
 
-export function createCloudPlacementLayout(options: CreateCloudPlacementOptions): CloudPlacementLayout {
+export function createCloudPlacementLayout(
+  options: CreateCloudPlacementOptions,
+): CloudPlacementLayout {
   const viewportWidth = Math.max(1, options.viewportWidth);
   const viewportHeight = Math.max(1, options.viewportHeight);
-  const desiredCount = clamp(Math.floor(options.desiredCount ?? maximumCloudCount), 1, maximumCloudCount);
+  const desiredCount = clamp(
+    Math.floor(options.desiredCount ?? maximumCloudCount),
+    1,
+    maximumCloudCount,
+  );
   const random = options.random ?? Math.random;
   const area = cloudPlacementArea(viewportWidth, viewportHeight);
   const desiredRadius = desiredNominalRadius(viewportWidth, viewportHeight, options.targetScale);
@@ -228,7 +274,7 @@ export function createCloudPlacementLayout(options: CreateCloudPlacementOptions)
   const templateOffset = options.templateOffset ?? Math.floor(random() * maximumCloudCount);
   const profiles = Array.from({ length: desiredCount }, () => ({
     sizeFactor: 0.94 + random() * 0.12,
-    aspectRatio: 0.42 + random() * 0.12
+    aspectRatio: 0.42 + random() * 0.12,
   }));
 
   for (let count = desiredCount; count >= 1; count -= 1) {

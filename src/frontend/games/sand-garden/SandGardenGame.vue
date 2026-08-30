@@ -8,7 +8,13 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { disposeSandGardenPiano, playSandGardenCue, setSandGardenPianoActive, tickSandGardenPiano, warmSandGardenPiano } from "./audio";
+import {
+  disposeSandGardenPiano,
+  playSandGardenCue,
+  setSandGardenPianoActive,
+  tickSandGardenPiano,
+  warmSandGardenPiano,
+} from "./audio";
 
 type Point = { x: number; y: number };
 type SandTrail = Point & {
@@ -29,11 +35,29 @@ type SandPebble = Point & {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("sand-garden", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  finishSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("sand-garden", {
   maxSteps: 8,
-  overrides: { preset: "gentle", targetScale: 1.45, motionSpeed: 0.5, distractors: "none", hints: "high", sound: true },
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.45,
+    motionSpeed: 0.5,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 useStartPromptAudio({ gameId: "sand-garden", soundEnabled: toRef(session.settings, "sound") });
 
@@ -63,7 +87,7 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
@@ -85,7 +109,7 @@ function resetGarden() {
       x: randomRange(16, Math.max(17, width.value - 16)),
       y: randomRange(112, Math.max(113, height.value - 18)),
       radius: randomRange(1.2, 3.8),
-      alpha: randomRange(0.08, 0.22)
+      alpha: randomRange(0.08, 0.22),
     });
   }
 }
@@ -95,20 +119,24 @@ function startTrace(now: number) {
   recordEvent("target-enter", {
     targetId: `sand-trace-${session.step + 1}`,
     at: Date.now(),
-    pointer: copyPointer()
+    pointer: copyPointer(),
   });
 }
 
 function completeCalmStep(now: number) {
-  const elapsedMs = activeTraceStartedAt > 0 ? now - activeTraceStartedAt : session.settings.dwellMs;
+  const elapsedMs =
+    activeTraceStartedAt > 0 ? now - activeTraceStartedAt : session.settings.dwellMs;
   recordEvent("target-click", {
     targetId: `sand-trace-${session.step + 1}`,
     at: Date.now(),
     elapsedMs,
     progress: 1,
-    pointer: copyPointer()
+    pointer: copyPointer(),
   });
-  recordSuccess({ targetId: `sand-trace-${session.step + 1}`, traceSeconds: Number(calmTraceSeconds.toFixed(1)) });
+  recordSuccess({
+    targetId: `sand-trace-${session.step + 1}`,
+    traceSeconds: Number(calmTraceSeconds.toFixed(1)),
+  });
   playSandGardenCue(session.settings.sound);
   calmTraceSeconds = 0;
   activeTraceStartedAt = now;
@@ -131,14 +159,16 @@ function addTrail(now: number) {
     life: randomRange(9.5, 13.5),
     width: randomRange(34, 48) * session.settings.targetScale,
     wobble: randomRange(-1, 1),
-    hue: randomRange(30, 38)
+    hue: randomRange(30, 38),
   });
 
   if (trails.length > 230) trails.splice(0, trails.length - 230);
 }
 
 function updateRake(delta: number) {
-  const target = pointer.value.valid ? pointer.value : { x: width.value * 0.5, y: height.value * 0.58 };
+  const target = pointer.value.valid
+    ? pointer.value
+    : { x: width.value * 0.5, y: height.value * 0.58 };
   const smoothing = pointer.value.valid ? 4.8 : 0.85;
   rake.x += (target.x - rake.x) * Math.min(1, delta * smoothing);
   rake.y += (target.y - rake.y) * Math.min(1, delta * smoothing);
@@ -158,7 +188,7 @@ function updateTrails(delta: number, now: number) {
         at: Date.now(),
         progress: Math.min(1, calmTraceSeconds / calmStepSeconds()),
         pointer: copyPointer(),
-        reason: "invalid-gaze"
+        reason: "invalid-gaze",
       });
     }
     wasTracing = false;
@@ -178,7 +208,8 @@ function updateTrails(delta: number, now: number) {
     trailTimer -= interval;
   }
 
-  if (calmTraceSeconds >= calmStepSeconds() && session.step < session.maxSteps) completeCalmStep(now);
+  if (calmTraceSeconds >= calmStepSeconds() && session.step < session.maxSteps)
+    completeCalmStep(now);
   if (finishAfter > 0 && now >= finishAfter) finishSession("max-steps");
 }
 
@@ -202,7 +233,14 @@ function drawBackground(ctx: CanvasRenderingContext2D) {
     const y = height.value * (0.16 + index * 0.075);
     ctx.beginPath();
     ctx.moveTo(-40, y);
-    ctx.bezierCurveTo(width.value * 0.22, y - 24, width.value * 0.48, y + 26, width.value + 40, y - 6);
+    ctx.bezierCurveTo(
+      width.value * 0.22,
+      y - 24,
+      width.value * 0.48,
+      y + 26,
+      width.value + 40,
+      y - 6,
+    );
     ctx.stroke();
   }
   ctx.restore();
@@ -234,7 +272,7 @@ function drawTrail(ctx: CanvasRenderingContext2D, trail: SandTrail) {
     (trail.previousX + trail.x) * 0.5 + trail.wobble * 12,
     (trail.previousY + trail.y) * 0.5 - lift,
     trail.x,
-    trail.y
+    trail.y,
   );
   ctx.stroke();
 
@@ -248,7 +286,14 @@ function drawRake(ctx: CanvasRenderingContext2D) {
   ctx.save();
   ctx.globalAlpha = pointer.value.valid ? 0.76 : 0.34;
 
-  const halo = ctx.createRadialGradient(rake.x, rake.y, 0, rake.x, rake.y, 86 * session.settings.targetScale);
+  const halo = ctx.createRadialGradient(
+    rake.x,
+    rake.y,
+    0,
+    rake.x,
+    rake.y,
+    86 * session.settings.targetScale,
+  );
   halo.addColorStop(0, "rgb(255 244 210 / 30%)");
   halo.addColorStop(1, "rgb(255 244 210 / 0%)");
   ctx.fillStyle = halo;

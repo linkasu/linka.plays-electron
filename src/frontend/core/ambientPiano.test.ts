@@ -9,12 +9,12 @@ type MockPiano = {
 
 const smplrMocks = vi.hoisted(() => ({
   readyDelayMs: 0,
-  instruments: [] as MockPiano[]
+  instruments: [] as MockPiano[],
 }));
 
 const ttsMocks = vi.hoisted(() => ({
   active: false,
-  listeners: new Set<(active: boolean) => void>()
+  listeners: new Set<(active: boolean) => void>(),
 }));
 
 vi.mock("smplr", () => ({
@@ -24,11 +24,11 @@ vi.mock("smplr", () => ({
       output: { addEffect: vi.fn() },
       ready: new Promise<void>((resolve) => window.setTimeout(resolve, smplrMocks.readyDelayMs)),
       start: vi.fn(),
-      dispose: vi.fn()
+      dispose: vi.fn(),
     };
     smplrMocks.instruments.push(instrument);
     return instrument;
-  })
+  }),
 }));
 
 vi.mock("./ttsAudio", () => ({
@@ -37,7 +37,7 @@ vi.mock("./ttsAudio", () => ({
     ttsMocks.listeners.add(listener);
     listener(ttsMocks.active);
     return () => ttsMocks.listeners.delete(listener);
-  }
+  },
 }));
 
 class MockAudioParam {
@@ -67,7 +67,9 @@ class MockAudioContext {
   });
   suspend = vi.fn(async () => {
     if (MockAudioContext.suspendDelayMs > 0) {
-      await new Promise<void>((resolve) => window.setTimeout(resolve, MockAudioContext.suspendDelayMs));
+      await new Promise<void>((resolve) =>
+        window.setTimeout(resolve, MockAudioContext.suspendDelayMs),
+      );
     }
     this.state = "suspended";
   });
@@ -100,7 +102,7 @@ const config: AmbientPianoConfig = {
   loopBaseVelocity: 36,
   activeGain: 1,
   fadeInSeconds: 1,
-  fadeOutSeconds: 1
+  fadeOutSeconds: 1,
 };
 
 function emitTtsPlayback(active: boolean) {
@@ -121,7 +123,10 @@ beforeEach(() => {
 
 afterAll(() => {
   vi.useRealTimers();
-  Object.defineProperty(window, "AudioContext", { configurable: true, value: originalAudioContext });
+  Object.defineProperty(window, "AudioContext", {
+    configurable: true,
+    value: originalAudioContext,
+  });
 });
 
 describe("ambient piano lifecycle", () => {
@@ -143,7 +148,11 @@ describe("ambient piano lifecycle", () => {
 
     expect(context.resume).toHaveBeenCalledOnce();
     expect(instrument.start).toHaveBeenCalledTimes(config.loopNotes?.length ?? 0);
-    expect(context.gain.gain.setTargetAtTime).toHaveBeenCalledWith(0.22, 0, config.fadeInSeconds / 3);
+    expect(context.gain.gain.setTargetAtTime).toHaveBeenCalledWith(
+      0.22,
+      0,
+      config.fadeInSeconds / 3,
+    );
 
     ambient.dispose();
   });

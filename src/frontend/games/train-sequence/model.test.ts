@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { createTrainWagons, getNextTrainWagon, getOrderedTrainWagons, getPlacedTrainWagons, selectTrainWagon } from "./model";
+import {
+  createTrainWagons,
+  getNextTrainWagon,
+  getOrderedTrainWagons,
+  getPlacedTrainWagons,
+  selectTrainWagon,
+} from "./model";
 
 describe("train-sequence model", () => {
   const fixedRandom = () => 0;
@@ -15,7 +21,13 @@ describe("train-sequence model", () => {
   it("keeps correct numeric order independent of input order", () => {
     const wagons = createTrainWagons(fixedRandom).reverse();
 
-    expect(getOrderedTrainWagons(wagons).map((wagon) => wagon.id)).toEqual(["red", "yellow", "green", "blue", "violet"]);
+    expect(getOrderedTrainWagons(wagons).map((wagon) => wagon.id)).toEqual([
+      "red",
+      "yellow",
+      "green",
+      "blue",
+      "violet",
+    ]);
   });
 
   it("places a correct wagon and advances the expected wagon", () => {
@@ -54,7 +66,13 @@ describe("train-sequence model", () => {
       wagons = outcome.wagons;
     }
 
-    expect(getPlacedTrainWagons(wagons).map((wagon) => wagon.id)).toEqual(["red", "yellow", "green", "blue", "violet"]);
+    expect(getPlacedTrainWagons(wagons).map((wagon) => wagon.id)).toEqual([
+      "red",
+      "yellow",
+      "green",
+      "blue",
+      "violet",
+    ]);
     expect(wagons.every((wagon) => wagon.placed)).toBe(true);
   });
 });

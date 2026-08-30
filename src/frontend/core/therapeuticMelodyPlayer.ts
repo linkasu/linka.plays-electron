@@ -22,6 +22,6 @@ export function createTherapeuticMelodyPlayer() {
     dispose() {
       melodyGenerator.reset();
       disposeSoftPiano();
-    }
+    },
   };
 }
