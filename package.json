@@ -15,6 +15,7 @@
     "build:native": "node-gyp rebuild",
     "build:renderer": "vite build",
     "build:electron": "tsc -p tsconfig.electron.json",
+    "build:web": "npm run build:renderer && node scripts/build-tester-pages.mjs",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.electron.json",
     "lint": "npm run lint:adaptive-layout",
     "lint:adaptive-layout": "node scripts/lint-adaptive-layout.mjs",
