@@ -29,7 +29,7 @@ export const pizzaFractionChoices: PizzaFractionChoice[] = [
     shortLabel: "1",
     filledSlices: 4,
     totalSlices: 4,
-    helperText: "Заполнена вся пицца."
+    helperText: "Заполнена вся пицца.",
   },
   {
     id: "half",
@@ -38,7 +38,7 @@ export const pizzaFractionChoices: PizzaFractionChoice[] = [
     shortLabel: "1/2",
     filledSlices: 2,
     totalSlices: 4,
-    helperText: "Заполнены две части из четырёх."
+    helperText: "Заполнены две части из четырёх.",
   },
   {
     id: "quarter",
@@ -47,8 +47,8 @@ export const pizzaFractionChoices: PizzaFractionChoice[] = [
     shortLabel: "1/4",
     filledSlices: 1,
     totalSlices: 4,
-    helperText: "Заполнена одна часть из четырёх."
-  }
+    helperText: "Заполнена одна часть из четырёх.",
+  },
 ];
 
 const targetOrder: PizzaFractionId[] = ["half", "quarter", "whole"];
@@ -57,9 +57,14 @@ function pickTarget(roundIndex: number) {
   return targetOrder[(Math.max(1, roundIndex) - 1) % targetOrder.length];
 }
 
-export function generatePizzaFractionsRound(_settings: SessionSettings, roundIndex = 1, random = Math.random): PizzaFractionsRound {
+export function generatePizzaFractionsRound(
+  _settings: SessionSettings,
+  roundIndex = 1,
+  random = Math.random,
+): PizzaFractionsRound {
   const targetId = pickTarget(roundIndex);
-  const target = pizzaFractionChoices.find((choice) => choice.id === targetId) ?? pizzaFractionChoices[0];
+  const target =
+    pizzaFractionChoices.find((choice) => choice.id === targetId) ?? pizzaFractionChoices[0];
   const choices = shuffleItems(pizzaFractionChoices, random);
 
   return {
@@ -67,6 +72,6 @@ export function generatePizzaFractionsRound(_settings: SessionSettings, roundInd
     prompt: `Выбери ${target.promptLabel}`,
     targetId,
     choices,
-    correctIndex: choices.findIndex((choice) => choice.id === targetId)
+    correctIndex: choices.findIndex((choice) => choice.id === targetId),
   };
 }

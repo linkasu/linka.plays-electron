@@ -9,7 +9,12 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useGameTimers } from "../../composables/useGameTimers";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { disposeMemoryCardsAudio, playMemoryCardsMatchMelody, playMemoryCardsMismatchMelody, warmMemoryCardsAudio } from "./audio";
+import {
+  disposeMemoryCardsAudio,
+  playMemoryCardsMatchMelody,
+  playMemoryCardsMismatchMelody,
+  warmMemoryCardsAudio,
+} from "./audio";
 import { createMemoryCardsRound, memoryCardHitPaddingForGap, type MemoryCard } from "./model";
 
 type MemoryCardState = MemoryCard & {
@@ -18,11 +23,22 @@ type MemoryCardState = MemoryCard & {
 };
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("memory-cards", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("memory-cards", {
   maxSteps: 3,
   overrides: { preset: "gentle", targetScale: 1.2, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 
 const roundIndex = ref(1);
@@ -38,12 +54,17 @@ const cardHitPadding = ref(0);
 const { setGameTimeout, clearGameTimers } = useGameTimers();
 let gapMeasurementFrame = 0;
 let gridResizeObserver: ResizeObserver | undefined;
-const promptAudio = useGamePromptAudio({ gameId: "memory-cards", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "memory-cards",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 
 const resultVisible = computed(() => session.status === "finished");
 const matchedCount = computed(() => cards.value.filter((card) => card.matched).length / 2);
-const targetCardHeight = computed(() => `clamp(8rem, ${Math.round(20 * session.settings.targetScale)}vh, 12.5rem)`);
-const cardColSpan = computed(() => round.value.columns === 4 ? 3 : 4);
+const targetCardHeight = computed(
+  () => `clamp(8rem, ${Math.round(20 * session.settings.targetScale)}vh, 12.5rem)`,
+);
+const cardColSpan = computed(() => (round.value.columns === 4 ? 3 : 4));
 
 function measureCardGap() {
   const targets = Array.from(gridRef.value?.querySelectorAll<HTMLElement>(".dwell-hitbox") ?? []);
@@ -74,7 +95,8 @@ function observeMemoryGrid() {
   gridResizeObserver?.disconnect();
   if (!gridRef.value || !gridResizeObserver) return;
   gridResizeObserver.observe(gridRef.value);
-  for (const target of gridRef.value.querySelectorAll<HTMLElement>(".dwell-hitbox")) gridResizeObserver.observe(target);
+  for (const target of gridRef.value.querySelectorAll<HTMLElement>(".dwell-hitbox"))
+    gridResizeObserver.observe(target);
   scheduleCardGapMeasurement();
 }
 
@@ -113,11 +135,21 @@ function cardColor(card: MemoryCardState) {
 }
 
 async function chooseCard(card: MemoryCardState) {
-  if (session.status !== "running" || inputBlocked.value || isSpeaking.value || card.matched || card.revealed) return;
+  if (
+    session.status !== "running" ||
+    inputBlocked.value ||
+    isSpeaking.value ||
+    card.matched ||
+    card.revealed
+  )
+    return;
 
   card.revealed = true;
   selectedCardIds.value = [...selectedCardIds.value, card.id];
-  feedbackMessage.value = selectedCardIds.value.length === 1 ? "Теперь найди такую же карточку." : "Смотрим, пара ли это.";
+  feedbackMessage.value =
+    selectedCardIds.value.length === 1
+      ? "Теперь найди такую же карточку."
+      : "Смотрим, пара ли это.";
 
   if (selectedCardIds.value.length < 2) {
     isSpeaking.value = true;
@@ -127,7 +159,9 @@ async function chooseCard(card: MemoryCardState) {
   }
 
   inputBlocked.value = true;
-  const [first, second] = selectedCardIds.value.map((cardId) => cards.value.find((item) => item.id === cardId));
+  const [first, second] = selectedCardIds.value.map((cardId) =>
+    cards.value.find((item) => item.id === cardId),
+  );
   if (!first || !second) {
     selectedCardIds.value = [];
     inputBlocked.value = false;
@@ -140,10 +174,27 @@ async function chooseCard(card: MemoryCardState) {
     selectedCardIds.value = [];
     lastMismatchCardIds.value = [];
     void playMemoryCardsMatchMelody(session.settings.sound);
-    recordSuccess({ roundId: round.value.roundId, targetId: cardTargetId(second), pairId: second.pairId, expected: first.label, actual: second.label, isCorrect: true });
-    feedbackMessage.value = matchedCount.value === round.value.pairCount ? "Все пары найдены." : "Пара найдена. Продолжаем.";
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId: cardTargetId(second),
+      pairId: second.pairId,
+      expected: first.label,
+      actual: second.label,
+      isCorrect: true,
+    });
+    feedbackMessage.value =
+      matchedCount.value === round.value.pairCount
+        ? "Все пары найдены."
+        : "Пара найдена. Продолжаем.";
     isSpeaking.value = true;
-    await promptAudio.playSequenceAndWait([matchedCount.value === round.value.pairCount ? "memory-cards.complete" : "memory-cards.match"], 80);
+    await promptAudio.playSequenceAndWait(
+      [
+        matchedCount.value === round.value.pairCount
+          ? "memory-cards.complete"
+          : "memory-cards.match",
+      ],
+      80,
+    );
     isSpeaking.value = false;
     inputBlocked.value = false;
     if (matchedCount.value === round.value.pairCount) finishSession("game-complete");
@@ -152,7 +203,14 @@ async function chooseCard(card: MemoryCardState) {
 
   lastMismatchCardIds.value = [first.id, second.id];
   void playMemoryCardsMismatchMelody(session.settings.sound);
-  recordMistake({ roundId: round.value.roundId, targetId: cardTargetId(second), expectedTargetId: cardTargetId(first), expected: first.label, actual: second.label, isCorrect: false });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId: cardTargetId(second),
+    expectedTargetId: cardTargetId(first),
+    expected: first.label,
+    actual: second.label,
+    isCorrect: false,
+  });
   feedbackMessage.value = "Это разные карточки. Они закроются.";
   isSpeaking.value = true;
   await promptAudio.playSequenceAndWait(["memory-cards.mismatch"], 80);
@@ -190,9 +248,12 @@ onMounted(() => {
   void playPrompt(450);
 });
 
-watch(() => session.settings.sound, (enabled) => {
-  warmMemoryCardsAudio(enabled);
-});
+watch(
+  () => session.settings.sound,
+  (enabled) => {
+    warmMemoryCardsAudio(enabled);
+  },
+);
 
 onUnmounted(() => {
   gridResizeObserver?.disconnect();
@@ -205,22 +266,67 @@ onUnmounted(() => {
 
 <template>
   <div class="memory-shell">
-    <GameHud title="Пары" :step="matchedCount" :max-steps="round.pairCount" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Пары"
+      :step="matchedCount"
+      :max-steps="round.pairCount"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="9" xl="8">
-          <v-card class="memory-panel pa-3 pa-md-6" color="rgba(255, 255, 255, 0.9)" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-1"> память</div>
-            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">Найди одинаковые карточки</h1>
-            <div class="feedback-line text-body-1 text-medium-emphasis text-center mb-3">{{ feedbackMessage }}</div>
+          <v-card
+            class="memory-panel pa-3 pa-md-6"
+            color="rgba(255, 255, 255, 0.9)"
+            rounded="xl"
+            elevation="8"
+          >
+            <div class="text-overline text-secondary text-center mb-1">память</div>
+            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">
+              Найди одинаковые карточки
+            </h1>
+            <div class="feedback-line text-body-1 text-medium-emphasis text-center mb-3">
+              {{ feedbackMessage }}
+            </div>
             <div ref="gridRef">
               <v-row class="memory-grid" justify="center">
-                <v-col v-for="card in cards" :key="card.id" cols="6" :sm="cardColSpan" :md="cardColSpan">
-                  <GameDwellButton :target-id="cardTargetId(card)" :disabled="session.status !== 'running' || inputBlocked || isSpeaking || card.matched || card.revealed" :dwell-ms="session.settings.dwellMs" :hit-padding="cardHitPadding" :min-height="targetCardHeight" :color="cardColor(card)" @select="chooseCard(card)">
+                <v-col
+                  v-for="card in cards"
+                  :key="card.id"
+                  cols="6"
+                  :sm="cardColSpan"
+                  :md="cardColSpan"
+                >
+                  <GameDwellButton
+                    :target-id="cardTargetId(card)"
+                    :disabled="
+                      session.status !== 'running' ||
+                      inputBlocked ||
+                      isSpeaking ||
+                      card.matched ||
+                      card.revealed
+                    "
+                    :dwell-ms="session.settings.dwellMs"
+                    :hit-padding="cardHitPadding"
+                    :min-height="targetCardHeight"
+                    :color="cardColor(card)"
+                    @select="chooseCard(card)"
+                  >
                     <template #default>
                       <div class="memory-card-content">
                         <template v-if="isCardOpen(card)">
-                          <GameWordImage class="memory-card-emoji" :word-id="card.pairId" :word="card.label" :emoji="card.emoji" />
+                          <GameWordImage
+                            class="memory-card-emoji"
+                            :word-id="card.pairId"
+                            :word="card.label"
+                            :emoji="card.emoji"
+                          />
                           <div class="text-h5 font-weight-bold mt-2">{{ card.label }}</div>
                         </template>
                         <template v-else>
@@ -237,13 +343,25 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Пары" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Пары"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
 <style scoped>
 .memory-shell {
-  background: radial-gradient(circle at 20% 20%, #fff6d8 0 22%, transparent 34%), linear-gradient(135deg, #e7f5ff 0%, #f7edff 52%, #fff3e2 100%);
+  background:
+    radial-gradient(circle at 20% 20%, #fff6d8 0 22%, transparent 34%),
+    linear-gradient(135deg, #e7f5ff 0%, #f7edff 52%, #fff3e2 100%);
   block-size: 100vh;
   overflow: hidden;
 }
@@ -303,7 +421,7 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
- .game-container {
+  .game-container {
     justify-content: flex-start;
     padding-block-start: 5rem;
   }

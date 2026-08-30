@@ -37,7 +37,9 @@ let fallbackGain: GainNode | undefined;
 let loadGeneration = 0;
 
 function createAudioContext() {
-  const AudioContextConstructor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  const AudioContextConstructor =
+    window.AudioContext ??
+    (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
   return AudioContextConstructor ? new AudioContextConstructor() : undefined;
 }
 
@@ -96,8 +98,8 @@ async function ensurePiano(resumeAudio: boolean, notesToLoad = defaultNotesToLoa
         decayTime: 1.8,
         notesToLoad: {
           notes: nextNotes,
-          velocityRange: [1, 80]
-        }
+          velocityRange: [1, 80],
+        },
       });
 
       try {
@@ -125,12 +127,22 @@ async function ensurePiano(resumeAudio: boolean, notesToLoad = defaultNotesToLoa
 
 function melodyLength(melody: SoftPianoMelody) {
   if (melody.lengthSeconds !== undefined) return melody.lengthSeconds;
-  const lastFallback = melody.fallback.reduce((max, note) => Math.max(max, note.at + note.duration), 0);
-  const lastSampled = melody.sampled.reduce((max, note) => Math.max(max, note.at + note.duration), 0);
+  const lastFallback = melody.fallback.reduce(
+    (max, note) => Math.max(max, note.at + note.duration),
+    0,
+  );
+  const lastSampled = melody.sampled.reduce(
+    (max, note) => Math.max(max, note.at + note.duration),
+    0,
+  );
   return Math.max(lastFallback, lastSampled);
 }
 
-function playFallbackMelody(context: AudioContext, startAt: number, notes: SoftPianoFallbackNote[]) {
+function playFallbackMelody(
+  context: AudioContext,
+  startAt: number,
+  notes: SoftPianoFallbackNote[],
+) {
   fallbackGain = fallbackGain ?? context.createGain();
   fallbackGain.gain.value = maxFallbackGain;
   fallbackGain.connect(context.destination);
@@ -154,13 +166,17 @@ function playFallbackMelody(context: AudioContext, startAt: number, notes: SoftP
   }
 }
 
-function playSampledPianoMelody(instrument: SoftPiano, startAt: number, notes: SoftPianoSampledNote[]) {
+function playSampledPianoMelody(
+  instrument: SoftPiano,
+  startAt: number,
+  notes: SoftPianoSampledNote[],
+) {
   for (const note of notes) {
     instrument.start({
       note: note.note,
       time: startAt + note.at,
       duration: note.duration,
-      velocity: note.velocity
+      velocity: note.velocity,
     });
   }
 }
@@ -178,7 +194,8 @@ export async function playSoftPianoMelody(enabled: boolean, melody: SoftPianoMel
 
   const startAt = context.currentTime + 0.04;
   melodyUntil = startAt + melodyLength(melody);
-  if (piano && loadedNotesKey === notesKey(melody.notesToLoad)) playSampledPianoMelody(piano, startAt, melody.sampled);
+  if (piano && loadedNotesKey === notesKey(melody.notesToLoad))
+    playSampledPianoMelody(piano, startAt, melody.sampled);
   else playFallbackMelody(context, startAt, melody.fallback);
   void ensurePiano(false, melody.notesToLoad);
 }

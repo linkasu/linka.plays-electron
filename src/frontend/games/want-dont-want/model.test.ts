@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 import ttsAssets from "../../data/ttsAssets.json";
 import wordImages from "../../../../public/images/words/manifest.json";
-import { createWantDontWantCommunication, generateWantDontWantRound, wantDontWantChoices, wantDontWantItems, wantDontWantPhraseAssetId } from "./model";
+import {
+  createWantDontWantCommunication,
+  generateWantDontWantRound,
+  wantDontWantChoices,
+  wantDontWantItems,
+  wantDontWantPhraseAssetId,
+} from "./model";
 
 describe("want-dont-want model", () => {
   it("creates a round with both AAC choices", () => {
@@ -18,7 +24,9 @@ describe("want-dont-want model", () => {
     const afterLast = generateWantDontWantRound(wantDontWantItems.length + 1);
 
     expect(afterLast.item).toBe(wantDontWantItems[0]);
-    expect(new Set(wantDontWantItems.map((item) => item.kind))).toEqual(new Set(["предмет", "занятие"]));
+    expect(new Set(wantDontWantItems.map((item) => item.kind))).toEqual(
+      new Set(["предмет", "занятие"]),
+    );
   });
 
   it("stores complete grammatical phrases for every answer", () => {
@@ -30,7 +38,7 @@ describe("want-dont-want model", () => {
     const hugs = wantDontWantItems.find((item) => item.id === "hug");
     expect(hugs?.phrases).toEqual({
       want: "Я хочу обниматься",
-      dontWant: "Я не хочу обниматься"
+      dontWant: "Я не хочу обниматься",
     });
   });
 
@@ -38,10 +46,24 @@ describe("want-dont-want model", () => {
     const imageIds = new Set(wordImages.map((image) => image.id));
     const ttsIds = new Set(ttsAssets.map((asset) => asset.id));
 
-    expect(wantDontWantItems.map((item) => item.id)).toEqual(["water", "apple", "music", "book", "ball", "draw", "toy", "rest", "hug"]);
+    expect(wantDontWantItems.map((item) => item.id)).toEqual([
+      "water",
+      "apple",
+      "music",
+      "book",
+      "ball",
+      "draw",
+      "toy",
+      "rest",
+      "hug",
+    ]);
     for (const item of wantDontWantItems) {
       expect(imageIds.has(item.wordId), `${item.id} image`).toBe(true);
-      for (const choice of wantDontWantChoices) expect(ttsIds.has(wantDontWantPhraseAssetId(item, choice.id)), `${item.id} ${choice.id} TTS`).toBe(true);
+      for (const choice of wantDontWantChoices)
+        expect(
+          ttsIds.has(wantDontWantPhraseAssetId(item, choice.id)),
+          `${item.id} ${choice.id} TTS`,
+        ).toBe(true);
     }
   });
 
@@ -51,7 +73,7 @@ describe("want-dont-want model", () => {
         expect(createWantDontWantCommunication(item, choice.id)).toMatchObject({
           expected: "valid-communication",
           isCorrect: true,
-          noFail: true
+          noFail: true,
         });
       }
     }

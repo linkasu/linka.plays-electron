@@ -10,24 +10,46 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
-import { generateObjectActionRound, isObjectActionCorrect, objectActionChoiceTargetId, type ObjectActionChoice, type ObjectActionRound } from "./model";
+import {
+  generateObjectActionRound,
+  isObjectActionCorrect,
+  objectActionChoiceTargetId,
+  type ObjectActionChoice,
+  type ObjectActionRound,
+} from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, finishSession, startSession } = useGameSessionFor("object-action", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  finishSession,
+  startSession,
+} = useGameSessionFor("object-action", {
   maxSteps: 8,
   finishOnMistakes: false,
-  finishOnMaxSteps: false
+  finishOnMaxSteps: false,
 });
 const promptAudio = useGamePromptAudio({
   gameId: "object-action",
   soundEnabled: toRef(session.settings, "sound"),
-  volume: 0.34
+  volume: 0.34,
 });
 
-const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<ObjectActionRound>({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRoundGame,
+} = useRoundGame<ObjectActionRound>({
   session,
   startSession,
-  generateRound: generateObjectActionRound
+  generateRound: generateObjectActionRound,
 });
 
 const feedback = ref("Посмотри на картинки и покажи названное действие.");
@@ -70,7 +92,7 @@ async function chooseAction(choice: ObjectActionChoice) {
       actionId: round.value.targetAction.id,
       expected: round.value.targetAction.title,
       actual: choice.title,
-      isCorrect: true
+      isCorrect: true,
     });
     feedback.value = round.value.explanation;
     await playCorrectScene(choice);
@@ -96,7 +118,7 @@ async function chooseAction(choice: ObjectActionChoice) {
       actionId: round.value.targetAction.id,
       expected: round.value.targetAction.title,
       actual: choice.title,
-      isCorrect: false
+      isCorrect: false,
     });
     feedback.value = `Это другое действие. Покажи: ${round.value.targetAction.title}.`;
     promptAudio.cancelPending();
@@ -127,9 +149,23 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <GamePageShell gradient="linear-gradient(135deg, #eef8ff 0%, #fff7e8 50%, #f1ecff 100%)" padding-top="8.25rem">
+  <GamePageShell
+    gradient="linear-gradient(135deg, #eef8ff 0%, #fff7e8 50%, #f1ecff 100%)"
+    padding-top="8.25rem"
+  >
     <template #hud>
-      <GameHud title="Покажи действие" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+      <GameHud
+        title="Покажи действие"
+        :step="session.step"
+        :max-steps="session.maxSteps"
+        :score="session.score"
+        :mistakes="session.mistakes"
+        :duration-ms="durationMs"
+        :session-seconds="session.settings.sessionSeconds"
+        :paused="session.status === 'paused'"
+        @pause="pauseSession"
+        @resume="resumeSession"
+      />
     </template>
     <v-container class="game-container" fluid>
       <v-row justify="center">
@@ -154,19 +190,39 @@ onUnmounted(() => {
             >
               <template #default="{ choice }">
                 <div class="action-scene" role="img" :aria-label="choice.sceneLabel">
-                  <span class="action-scene__setting emoji-glyph" aria-hidden="true">{{ choice.settingEmoji }}</span>
-                  <span class="action-scene__actor emoji-glyph" aria-hidden="true">{{ choice.actorEmoji }}</span>
-                  <span class="action-scene__cue emoji-glyph" aria-hidden="true">{{ choice.cueEmoji }}</span>
-                  <span class="action-scene__prop emoji-glyph" aria-hidden="true">{{ choice.propEmoji }}</span>
+                  <span class="action-scene__setting emoji-glyph" aria-hidden="true">{{
+                    choice.settingEmoji
+                  }}</span>
+                  <span class="action-scene__actor emoji-glyph" aria-hidden="true">{{
+                    choice.actorEmoji
+                  }}</span>
+                  <span class="action-scene__cue emoji-glyph" aria-hidden="true">{{
+                    choice.cueEmoji
+                  }}</span>
+                  <span class="action-scene__prop emoji-glyph" aria-hidden="true">{{
+                    choice.propEmoji
+                  }}</span>
                 </div>
-                <div class="choice-title text-h5 text-md-h4 font-weight-bold mt-2">{{ choice.title }}</div>
+                <div class="choice-title text-h5 text-md-h4 font-weight-bold mt-2">
+                  {{ choice.title }}
+                </div>
               </template>
             </GameChoiceCardGrid>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Покажи действие" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Покажи действие"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </GamePageShell>
 </template>
 

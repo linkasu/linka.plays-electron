@@ -21,19 +21,40 @@ import {
   winningLine,
   type ConnectFourBoard,
   type ConnectFourCell,
-  type ConnectFourWinner
+  type ConnectFourWinner,
 } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("connect-four", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordEvent,
+  recordMistake,
+  recordSuccess,
+  startSession,
+  finishSession,
+} = useGameSessionFor("connect-four", {
   maxSteps: 1,
   overrides: { dwellMs: 1450, targetScale: 1.35, sound: true },
   finishOnMaxSteps: false,
   finishOnMistakes: false,
-  finishOnTimeout: false
+  finishOnTimeout: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "connect-four", soundEnabled, warmAssetIds: ["connect-four.prompt", "connect-four.correct", "connect-four.mistake", "connect-four.complete"] });
+const promptAudio = useGamePromptAudio({
+  gameId: "connect-four",
+  soundEnabled,
+  warmAssetIds: [
+    "connect-four.prompt",
+    "connect-four.correct",
+    "connect-four.mistake",
+    "connect-four.complete",
+  ],
+});
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 const { setGameTimeout, clearGameTimers } = useGameTimers();
 
@@ -50,8 +71,13 @@ const sleeping = ref(false);
 const finalizing = ref(false);
 const resultVisible = computed(() => session.status === "finished");
 const line = computed(() => winningLine(board.value));
-const gazeBlocked = computed(() => aiThinking.value || playerTurnBlocked.value || sleeping.value || finalizing.value);
-const sleepDisabled = computed(() => session.status !== "running" || aiThinking.value || finalizing.value || Boolean(result.value));
+const gazeBlocked = computed(
+  () => aiThinking.value || playerTurnBlocked.value || sleeping.value || finalizing.value,
+);
+const sleepDisabled = computed(
+  () =>
+    session.status !== "running" || aiThinking.value || finalizing.value || Boolean(result.value),
+);
 let aiRequestId = 0;
 
 const rows = Array.from({ length: connectFourRows }, (_, row) => row);
@@ -88,8 +114,8 @@ function cellClasses(row: number, column: number) {
       "disc--empty": !mark,
       "disc--player": mark === "R",
       "disc--ai": mark === "Y",
-      "disc--win": isWinningCell(row, column)
-    }
+      "disc--win": isWinningCell(row, column),
+    },
   ];
 }
 
@@ -99,7 +125,12 @@ function isWinningCell(row: number, column: number) {
 }
 
 function canChooseColumn(column: number) {
-  return session.status === "running" && !gazeBlocked.value && !result.value && availableColumns(board.value).includes(column);
+  return (
+    session.status === "running" &&
+    !gazeBlocked.value &&
+    !result.value &&
+    availableColumns(board.value).includes(column)
+  );
 }
 
 function isSessionPaused() {
@@ -116,11 +147,21 @@ async function chooseAiColumn(snapshot: ConnectFourBoard) {
     player: "Y",
     depth: aiSearchDepth,
     timeLimitMs: aiSearchTimeLimitMs,
-    threads: 0
+    threads: 0,
   });
 
-  if (nativeResult?.ok && typeof nativeResult.column === "number" && availableColumns(snapshot).includes(nativeResult.column)) {
-    return { column: nativeResult.column, source: nativeResult.source, depth: nativeResult.depth, nodes: nativeResult.nodes, elapsedMs: nativeResult.elapsedMs };
+  if (
+    nativeResult?.ok &&
+    typeof nativeResult.column === "number" &&
+    availableColumns(snapshot).includes(nativeResult.column)
+  ) {
+    return {
+      column: nativeResult.column,
+      source: nativeResult.source,
+      depth: nativeResult.depth,
+      nodes: nativeResult.nodes,
+      elapsedMs: nativeResult.elapsedMs,
+    };
   }
 
   return { column: chooseDeepQMove(snapshot), source: "fallback" as const };
@@ -139,10 +180,21 @@ async function finishRound(nextResult: ConnectFourWinner) {
 
   if (nextResult === "Y") void feedbackAudio.playMistake();
   else void feedbackAudio.playSuccess();
-  const playback = await promptAudio.playSequenceAndWait(nextResult === "R" ? ["connect-four.correct", "connect-four.complete"] : nextResult === "Y" ? ["connect-four.mistake", "connect-four.complete"] : ["connect-four.complete"], 80, 170);
+  const playback = await promptAudio.playSequenceAndWait(
+    nextResult === "R"
+      ? ["connect-four.correct", "connect-four.complete"]
+      : nextResult === "Y"
+        ? ["connect-four.mistake", "connect-four.complete"]
+        : ["connect-four.complete"],
+    80,
+    170,
+  );
   if (playback === "cancelled" || session.sessionId !== sessionId) return;
 
-  if (session.status !== "finished") finishSession(nextResult === "draw" ? "game-draw" : nextResult === "R" ? "game-complete" : "game-lost");
+  if (session.status !== "finished")
+    finishSession(
+      nextResult === "draw" ? "game-draw" : nextResult === "R" ? "game-complete" : "game-lost",
+    );
   finalizing.value = false;
 }
 
@@ -172,7 +224,10 @@ async function applyAiMove() {
 
   aiThinking.value = false;
   if (session.status !== "running" || result.value) return;
-  const column = typeof aiMove.column === "number" && availableColumns(board.value).includes(aiMove.column) ? aiMove.column : chooseDeepQMove(board.value);
+  const column =
+    typeof aiMove.column === "number" && availableColumns(board.value).includes(aiMove.column)
+      ? aiMove.column
+      : chooseDeepQMove(board.value);
   if (column === undefined) return;
   dropDisc(board.value, column, "Y");
   const winner = findWinner(board.value);
@@ -230,21 +285,45 @@ onUnmounted(() => {
 
 <template>
   <div class="connect-shell">
-    <GameHud title="Четыре в ряд" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Четыре в ряд"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
 
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12">
           <v-card class="game-card pa-2 pa-sm-3 pa-md-4" rounded="xl" elevation="10">
-            <div class="game-header d-flex flex-column flex-sm-row align-center justify-center ga-2 mb-3">
+            <div
+              class="game-header d-flex flex-column flex-sm-row align-center justify-center ga-2 mb-3"
+            >
               <v-chip :color="gazeBlocked ? 'secondary' : 'primary'" size="large" variant="flat">
                 {{ statusText }}
               </v-chip>
-                  <GameDwellButton :target-id="sleepTargetId()" :disabled="sleepDisabled" :dwell-ms="session.settings.dwellMs" min-height="8.5rem" color="deep-purple-darken-3" @select="toggleThinkMode">
+              <GameDwellButton
+                :target-id="sleepTargetId()"
+                :disabled="sleepDisabled"
+                :dwell-ms="session.settings.dwellMs"
+                min-height="8.5rem"
+                color="deep-purple-darken-3"
+                @select="toggleThinkMode"
+              >
                 <template #default>
                   <div class="think-button-content">
-                      <v-icon :icon="sleeping ? 'mdi-check-circle' : 'mdi-sleep'" size="32" style="color: #ffffff" />
-                      <span style="color: #ffffff">{{ sleeping ? "Готов ходить" : "Подумать" }}</span>
+                    <v-icon
+                      :icon="sleeping ? 'mdi-check-circle' : 'mdi-sleep'"
+                      size="32"
+                      style="color: #ffffff"
+                    />
+                    <span style="color: #ffffff">{{ sleeping ? "Готов ходить" : "Подумать" }}</span>
                   </div>
                 </template>
               </GameDwellButton>
@@ -277,13 +356,25 @@ onUnmounted(() => {
               </div>
             </div>
 
-            <div class="help-text text-body-2 text-medium-emphasis text-center">Смотри в любую часть нужной колонки. После хода есть короткая пауза.</div>
+            <div class="help-text text-body-2 text-medium-emphasis text-center">
+              Смотри в любую часть нужной колонки. После хода есть короткая пауза.
+            </div>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
 
-    <GameResultDialog :model-value="resultVisible" title="4 в ряд" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="4 в ряд"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -394,7 +485,9 @@ onUnmounted(() => {
   border-radius: 999px;
   inline-size: auto;
   margin: auto;
-  transition: transform 180ms ease, box-shadow 180ms ease;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .disc--empty {
@@ -409,32 +502,36 @@ onUnmounted(() => {
 
 .disc--ai {
   background: radial-gradient(circle at 34% 28%, #d8f0ff 0%, #4aa3ff 46%, #1759c5 100%);
-  box-shadow: 0 0 0 0.1875rem rgb(255 255 255 / 44%), inset -0.3125rem -0.375rem 0 rgb(15 48 120 / 24%);
+  box-shadow:
+    0 0 0 0.1875rem rgb(255 255 255 / 44%),
+    inset -0.3125rem -0.375rem 0 rgb(15 48 120 / 24%);
 }
 
 .disc--win {
-  box-shadow: 0 0 0 0.3125rem rgb(255 255 255 / 72%), inset -0.3125rem -0.375rem 0 rgb(85 24 28 / 20%);
+  box-shadow:
+    0 0 0 0.3125rem rgb(255 255 255 / 72%),
+    inset -0.3125rem -0.375rem 0 rgb(85 24 28 / 20%);
   transform: scale(1.08);
 }
 
 @media (max-width: 37.5rem) {
- .game-container {
+  .game-container {
     padding: 5.5rem 0.375rem 0.625rem;
   }
 
- .game-header {
+  .game-header {
     margin-block-end: 0.5rem !important;
   }
 
- .play-area {
+  .play-area {
     inline-size: min(100%, calc((100vh - 11.875rem) * 1.45));
   }
 
- .board {
+  .board {
     gap: 0.3125rem;
   }
 
- .board {
+  .board {
     border-radius: 1.25rem;
     border-width: 0.1875rem;
     padding: 0.375rem;
@@ -442,7 +539,7 @@ onUnmounted(() => {
 }
 
 @media (max-height: 48.75rem) {
- .game-container {
+  .game-container {
     padding-block-start: 4.75rem;
   }
 
@@ -450,17 +547,17 @@ onUnmounted(() => {
     margin-block-end: 0.5rem !important;
   }
 
- .game-header p,
- .help-text {
+  .game-header p,
+  .help-text {
     display: none;
   }
 
- .play-area {
+  .play-area {
     inline-size: min(100%, calc((100vh - 7rem) * 1.45), 45rem);
   }
 
- .board,
- .column-hit-zones {
+  .board,
+  .column-hit-zones {
     gap: 0.125rem;
     padding: 0.25rem;
   }

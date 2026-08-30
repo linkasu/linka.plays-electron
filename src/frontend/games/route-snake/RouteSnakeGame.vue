@@ -8,18 +8,47 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { routeSnakeOutcome, createRouteSnakeState, setSnakeDirection, stepSnake, type RouteSnakeStepEvent, type SnakeDirection, type SnakePoint } from "./model";
+import {
+  routeSnakeOutcome,
+  createRouteSnakeState,
+  setSnakeDirection,
+  stepSnake,
+  type RouteSnakeStepEvent,
+  type SnakeDirection,
+  type SnakePoint,
+} from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("route-snake", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  recordHint,
+  startSession,
+  finishSession,
+} = useGameSessionFor("route-snake", {
   maxSteps: 24,
   overrides: { motionSpeed: 0.65, targetScale: 1.25, sound: true },
   finishOnMaxSteps: false,
   finishOnMistakes: false,
-  finishOnTimeout: false
+  finishOnTimeout: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "route-snake", soundEnabled, warmAssetIds: ["route-snake.prompt", "route-snake.correct", "route-snake.mistake", "route-snake.complete"] });
+const promptAudio = useGamePromptAudio({
+  gameId: "route-snake",
+  soundEnabled,
+  warmAssetIds: [
+    "route-snake.prompt",
+    "route-snake.correct",
+    "route-snake.mistake",
+    "route-snake.complete",
+  ],
+});
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const boardState = ref(createRouteSnakeState());
@@ -31,23 +60,33 @@ const isSpeaking = ref(false);
 let lastStepAt = performance.now();
 const stepTimer = window.setInterval(tick, 180);
 
-const directionControls: { direction: SnakeDirection; key: "w" | "a" | "s" | "d"; label: string; icon: string; color: string }[] = [
+const directionControls: {
+  direction: SnakeDirection;
+  key: "w" | "a" | "s" | "d";
+  label: string;
+  icon: string;
+  color: string;
+}[] = [
   { direction: "up", key: "w", label: "Вверх", icon: "mdi-arrow-up-bold", color: "surface" },
   { direction: "left", key: "a", label: "Влево", icon: "mdi-arrow-left-bold", color: "surface" },
   { direction: "down", key: "s", label: "Вниз", icon: "mdi-arrow-down-bold", color: "surface" },
-  { direction: "right", key: "d", label: "Вправо", icon: "mdi-arrow-right-bold", color: "surface" }
+  { direction: "right", key: "d", label: "Вправо", icon: "mdi-arrow-right-bold", color: "surface" },
 ];
 
 const rows = computed(() => Array.from({ length: boardState.value.height }, (_, row) => row));
-const columns = computed(() => Array.from({ length: boardState.value.width }, (_, column) => column));
-const directionButtons = computed<GameWasdControl[]>(() => directionControls.map((control) => ({
-  id: control.direction,
-  key: control.key,
-  label: control.label,
-  icon: control.icon,
-  targetId: directionTargetId(control.direction),
-  color: control.color
-})));
+const columns = computed(() =>
+  Array.from({ length: boardState.value.width }, (_, column) => column),
+);
+const directionButtons = computed<GameWasdControl[]>(() =>
+  directionControls.map((control) => ({
+    id: control.direction,
+    key: control.key,
+    label: control.label,
+    icon: control.icon,
+    targetId: directionTargetId(control.direction),
+    color: control.color,
+  })),
+);
 
 function directionTargetId(direction: SnakeDirection) {
   return `route-snake:direction:${direction}`;
@@ -57,9 +96,10 @@ function chooseDirection(direction: SnakeDirection) {
   if (session.status !== "running" || isSpeaking.value) return;
   const previousDirection = boardState.value.direction;
   boardState.value = setSnakeDirection(boardState.value, direction);
-  feedbackMessage.value = previousDirection === boardState.value.direction && previousDirection !== direction
-    ? "Разворот слишком резкий. Продолжаем вперёд."
-    : "Хорошо. Змейка повернёт.";
+  feedbackMessage.value =
+    previousDirection === boardState.value.direction && previousDirection !== direction
+      ? "Разворот слишком резкий. Продолжаем вперёд."
+      : "Хорошо. Змейка повернёт.";
 }
 
 function chooseDirectionButton(control: GameWasdControl) {
@@ -77,10 +117,16 @@ async function tick() {
   const result = stepSnake(boardState.value);
   boardState.value = result.state;
   if (routeSnakeOutcome(result) === "loss") {
-    feedbackMessage.value = result.event === "blocked-wall"
-      ? "Змейка упёрлась в край поля. Раунд завершён, можно начать заново."
-      : "Змейка встретила хвостик. Раунд завершён, можно начать заново.";
-    recordMistake({ event: result.event, moved: result.moved, direction: boardState.value.direction, isCorrect: false });
+    feedbackMessage.value =
+      result.event === "blocked-wall"
+        ? "Змейка упёрлась в край поля. Раунд завершён, можно начать заново."
+        : "Змейка встретила хвостик. Раунд завершён, можно начать заново.";
+    recordMistake({
+      event: result.event,
+      moved: result.moved,
+      direction: boardState.value.direction,
+      isCorrect: false,
+    });
     isSpeaking.value = true;
     void feedbackAudio.playMistake();
     await promptAudio.playSequenceAndWait(["route-snake.mistake", "route-snake.complete"], 80, 170);
@@ -95,7 +141,11 @@ async function handleStepEvent(event: RouteSnakeStepEvent, moved: boolean) {
   if (event === "ate-food") {
     leavesEaten.value += 1;
     feedbackMessage.value = "Листочек найден. Змейка стала чуть длиннее.";
-    recordSuccess({ event, leavesEaten: leavesEaten.value, snakeLength: boardState.value.snake.length });
+    recordSuccess({
+      event,
+      leavesEaten: leavesEaten.value,
+      snakeLength: boardState.value.snake.length,
+    });
     isSpeaking.value = true;
     void feedbackAudio.playSuccess();
     await promptAudio.playSequenceAndWait(["route-snake.correct"], 80, 170);
@@ -110,9 +160,10 @@ async function handleStepEvent(event: RouteSnakeStepEvent, moved: boolean) {
   }
 
   slowUntil.value = performance.now() + 2000;
-  feedbackMessage.value = event === "blocked-wall"
-    ? "Край поля рядом. Змейка замедлилась и повернула."
-    : "Впереди хвостик. Сделаем паузу и выберем свободный путь.";
+  feedbackMessage.value =
+    event === "blocked-wall"
+      ? "Край поля рядом. Змейка замедлилась и повернула."
+      : "Впереди хвостик. Сделаем паузу и выберем свободный путь.";
   recordHint({ event, moved, direction: boardState.value.direction });
   recordMistake({ event, moved, direction: boardState.value.direction });
 }
@@ -123,8 +174,8 @@ function cellClasses(row: number, column: number) {
     {
       "snake-cell--head": isHead(row, column),
       "snake-cell--body": isBody(row, column),
-      "snake-cell--food": isFood(row, column)
-    }
+      "snake-cell--food": isFood(row, column),
+    },
   ];
 }
 
@@ -178,28 +229,63 @@ onUnmounted(() => {
 
 <template>
   <div class="route-snake-shell">
-    <GameHud title="Змейка" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :paused="session.status === 'paused'" :show-progress="false" :show-timer="false" @pause="pauseGame" @resume="resumeGame" />
+    <GameHud
+      title="Змейка"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :paused="session.status === 'paused'"
+      :show-progress="false"
+      :show-timer="false"
+      @pause="pauseGame"
+      @resume="resumeGame"
+    />
 
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
           <v-card class="snake-card pa-4 pa-md-6" rounded="xl" elevation="10">
-            <div class="text-overline text-success-darken-3 text-center mb-2"> маршрут без таймера</div>
-            <h1 class="snake-title text-h4 text-md-h3 font-weight-bold text-center mb-2">Помоги змейке найти листочки</h1>
+            <div class="text-overline text-success-darken-3 text-center mb-2">
+              маршрут без таймера
+            </div>
+            <h1 class="snake-title text-h4 text-md-h3 font-weight-bold text-center mb-2">
+              Помоги змейке найти листочки
+            </h1>
             <p class="snake-message text-body-1 text-center mb-4">{{ feedbackMessage }}</p>
 
             <div class="snake-layout">
               <div class="snake-board" role="grid" aria-label="Поле змейки">
                 <div v-for="row in rows" :key="row" class="snake-row" role="row">
-                  <div v-for="column in columns" :key="column" :class="cellClasses(row, column)" role="gridcell">
-                    <v-icon v-if="isFood(row, column)" icon="mdi-leaf" color="green-darken-1" size="clamp(1.1rem, 3dvh, 1.75rem)" />
+                  <div
+                    v-for="column in columns"
+                    :key="column"
+                    :class="cellClasses(row, column)"
+                    role="gridcell"
+                  >
+                    <v-icon
+                      v-if="isFood(row, column)"
+                      icon="mdi-leaf"
+                      color="green-darken-1"
+                      size="clamp(1.1rem, 3dvh, 1.75rem)"
+                    />
                   </div>
                 </div>
               </div>
 
               <div class="snake-controls-panel">
                 <div class="text-subtitle-1 font-weight-bold text-center mb-3">Поверни змейку</div>
-                <GameWasdPanel class="snake-controls" :controls="directionButtons" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="clamp(4.2rem, 12dvh, 7rem)" aria-label="Направления змейки" :show-key-caps="false" @select="chooseDirectionButton" />
+                <GameWasdPanel
+                  class="snake-controls"
+                  :controls="directionButtons"
+                  :disabled="session.status !== 'running' || isSpeaking"
+                  :dwell-ms="session.settings.dwellMs"
+                  min-height="clamp(4.2rem, 12dvh, 7rem)"
+                  aria-label="Направления змейки"
+                  :show-key-caps="false"
+                  @select="chooseDirectionButton"
+                />
                 <div class="snake-status mt-3">
                   <v-icon icon="mdi-leaf" size="1.25rem" />
                   <span>Листочки: {{ leavesEaten }}</span>
@@ -211,7 +297,17 @@ onUnmounted(() => {
       </v-row>
     </v-container>
 
-    <GameResultDialog :model-value="resultVisible" title="Змейка" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Змейка"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -301,11 +397,12 @@ onUnmounted(() => {
 
 .snake-board {
   background:
-    linear-gradient(135deg, rgb(17 83 52 / 96%), rgb(36 123 68 / 92%)),
-    rgb(var(--v-theme-surface));
+    linear-gradient(135deg, rgb(17 83 52 / 96%), rgb(36 123 68 / 92%)), rgb(var(--v-theme-surface));
   border: clamp(0.28rem, 0.9dvh, 0.5rem) solid #ffffff;
   border-radius: clamp(0.9rem, 2.8dvh, 1.75rem);
-  box-shadow: 0 1rem 2.4rem rgb(19 79 45 / 25%), inset 0 0 0 0.125rem rgb(255 255 255 / 35%);
+  box-shadow:
+    0 1rem 2.4rem rgb(19 79 45 / 25%),
+    inset 0 0 0 0.125rem rgb(255 255 255 / 35%);
   display: grid;
   gap: clamp(0.16rem, 0.55dvh, 0.375rem);
   inline-size: min(100%, 72dvh, 39rem);
@@ -326,7 +423,9 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   position: relative;
-  transition: background-color 220ms ease, transform 220ms ease;
+  transition:
+    background-color 220ms ease,
+    transform 220ms ease;
 }
 
 .snake-cell--body {
@@ -336,13 +435,19 @@ onUnmounted(() => {
 
 .snake-cell--head {
   background: linear-gradient(145deg, #38b957 0%, #11652f 100%);
-  box-shadow: 0 0.45rem 1.25rem rgb(17 101 47 / 34%), inset 0 0 0 0.16rem rgb(255 255 255 / 42%);
+  box-shadow:
+    0 0.45rem 1.25rem rgb(17 101 47 / 34%),
+    inset 0 0 0 0.16rem rgb(255 255 255 / 42%);
   transform: scale(1.04);
 }
 
 .snake-cell--head::after {
-  background: radial-gradient(circle, #ffffff 0 18%, transparent 20% 100%), radial-gradient(circle, #ffffff 0 18%, transparent 20% 100%);
-  background-position: 34% 38%, 66% 38%;
+  background:
+    radial-gradient(circle, #ffffff 0 18%, transparent 20% 100%),
+    radial-gradient(circle, #ffffff 0 18%, transparent 20% 100%);
+  background-position:
+    34% 38%,
+    66% 38%;
   background-repeat: no-repeat;
   background-size: 32% 32%;
   content: "";
@@ -365,51 +470,51 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 10.75rem;
   }
 
- .snake-board,
- .snake-row {
+  .snake-board,
+  .snake-row {
     gap: 0.25rem;
   }
 
- .snake-cell {
+  .snake-cell {
     border-radius: 0.625rem;
   }
 }
 
 @media (max-width: 50rem) {
- .snake-layout {
+  .snake-layout {
     gap: clamp(0.75rem, 2dvh, 1.25rem);
     grid-template-columns: minmax(0, 1fr) minmax(12rem, 0.85fr);
   }
 
- .snake-controls {
+  .snake-controls {
     inline-size: min(100%, 26rem, 45dvh);
   }
 }
 
 @media (max-height: 42.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 4.75rem;
   }
 
- .text-overline,
+  .text-overline,
   h1,
- .v-card > p {
+  .v-card > p {
     display: none !important;
   }
 
- .snake-board {
+  .snake-board {
     inline-size: min(100%, 72dvh, 31rem);
   }
 
- .snake-controls {
+  .snake-controls {
     inline-size: min(100%, 30rem, 48dvh);
   }
 
- .snake-layout {
+  .snake-layout {
     gap: clamp(0.75rem, 2vw, 1.25rem);
     grid-template-columns: minmax(0, 1fr) minmax(13rem, 0.72fr);
   }

@@ -8,7 +8,11 @@ export type SoupIngredient = {
 };
 
 export type SoupRect = { x: number; y: number; width: number; height: number };
-export type SoupIngredientSlot = { ingredient: SoupIngredient; rect: SoupRect; center: { x: number; y: number } };
+export type SoupIngredientSlot = {
+  ingredient: SoupIngredient;
+  rect: SoupRect;
+  center: { x: number; y: number };
+};
 
 export type SoupRecipeRound = {
   roundId: string;
@@ -23,7 +27,7 @@ export const soupRecipeIngredients: readonly SoupIngredient[] = [
   { id: "peas", label: "горошек", emoji: "🫛", color: "#a5d6a7" },
   { id: "noodles", label: "лапша", imageId: "pasta", emoji: "🍝", color: "#fff59d" },
   { id: "salt", label: "соль", emoji: "🧂", icon: "mdi-shaker-outline", color: "#e0e0e0" },
-  { id: "greens", label: "зелень", imageId: "leaf", emoji: "🌿", color: "#81c784" }
+  { id: "greens", label: "зелень", imageId: "leaf", emoji: "🌿", color: "#81c784" },
 ];
 
 function clamp(value: number, min: number, max: number) {
@@ -38,14 +42,14 @@ export function createSoupRecipeLayout(canvasWidth: number, canvasHeight: number
     x: margin,
     y: top,
     width: canvasWidth - margin * 2,
-    height: canvasHeight - top - bottom
+    height: canvasHeight - top - bottom,
   };
   const headerHeight = clamp(panel.height * 0.26, 116, 148);
   const recipeRect = {
     x: panel.x + 14,
     y: panel.y + 72,
     width: panel.width - 28,
-    height: Math.max(44, headerHeight - 78)
+    height: Math.max(44, headerHeight - 78),
   };
   const contentY = panel.y + headerHeight;
   const contentHeight = Math.max(240, panel.height - headerHeight - 18);
@@ -58,9 +62,14 @@ export function createSoupRecipeLayout(canvasWidth: number, canvasHeight: number
       headerHeight,
       recipeRect,
       potRect: { x: panel.x + 14, y: contentY, width: panel.width - 28, height: potHeight },
-      gridRect: { x: panel.x + 14, y: contentY + potHeight + gap, width: panel.width - 28, height: contentHeight - potHeight - gap },
+      gridRect: {
+        x: panel.x + 14,
+        y: contentY + potHeight + gap,
+        width: panel.width - 28,
+        height: contentHeight - potHeight - gap,
+      },
       columns: 4,
-      rows: 2
+      rows: 2,
     };
   }
 
@@ -71,13 +80,22 @@ export function createSoupRecipeLayout(canvasWidth: number, canvasHeight: number
     headerHeight,
     recipeRect,
     potRect: { x: panel.x + 14, y: contentY, width: potWidth, height: contentHeight },
-    gridRect: { x: panel.x + 14 + potWidth + gap, y: contentY, width: panel.width - potWidth - gap - 28, height: contentHeight },
+    gridRect: {
+      x: panel.x + 14 + potWidth + gap,
+      y: contentY,
+      width: panel.width - potWidth - gap - 28,
+      height: contentHeight,
+    },
     columns: 4,
-    rows: 2
+    rows: 2,
   };
 }
 
-export function createSoupIngredientSlots(ingredients: readonly SoupIngredient[], canvasWidth: number, canvasHeight: number): SoupIngredientSlot[] {
+export function createSoupIngredientSlots(
+  ingredients: readonly SoupIngredient[],
+  canvasWidth: number,
+  canvasHeight: number,
+): SoupIngredientSlot[] {
   const layout = createSoupRecipeLayout(canvasWidth, canvasHeight);
   const gap = clamp(Math.min(canvasWidth, canvasHeight) * 0.016, 8, 18);
   const cellWidth = (layout.gridRect.width - gap * (layout.columns - 1)) / layout.columns;
@@ -90,12 +108,12 @@ export function createSoupIngredientSlots(ingredients: readonly SoupIngredient[]
       x: layout.gridRect.x + col * (cellWidth + gap),
       y: layout.gridRect.y + row * (cellHeight + gap),
       width: cellWidth,
-      height: cellHeight
+      height: cellHeight,
     };
     return {
       ingredient,
       rect,
-      center: { x: rect.x + rect.width * 0.5, y: rect.y + rect.height * 0.5 }
+      center: { x: rect.x + rect.width * 0.5, y: rect.y + rect.height * 0.5 },
     };
   });
 }
@@ -105,6 +123,8 @@ export function createSoupRecipeRound(maxSteps = soupRecipeIngredients.length): 
 
   return {
     roundId: "soup-recipe:recipe:1",
-    ingredients: soupRecipeIngredients.slice(0, safeMaxSteps).map((ingredient) => ({ ...ingredient }))
+    ingredients: soupRecipeIngredients
+      .slice(0, safeMaxSteps)
+      .map((ingredient) => ({ ...ingredient })),
   };
 }

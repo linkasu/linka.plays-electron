@@ -26,7 +26,7 @@ const danceNoteByFigureId: Record<string, { note: number; frequency: number }> =
   triangle: { note: 67, frequency: 392 },
   diamond: { note: 72, frequency: 523.25 },
   star: { note: 63, frequency: 311.13 },
-  hexagon: { note: 55, frequency: 196 }
+  hexagon: { note: 55, frequency: 196 },
 };
 
 const router = useRouter();
@@ -38,22 +38,43 @@ const selectedIds = ref<string[]>([]);
 const isLocked = ref(true);
 const isSpeaking = ref(false);
 
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("shape-dance", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+} = useGameSessionFor("shape-dance", {
   maxSteps: 8,
   overrides: { sound: true },
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
-const promptAudio = useGamePromptAudio({ gameId: "shape-dance", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "shape-dance",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 const { setGameTimeout, clearGameTimers } = useGameTimers();
 
-const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame<ShapeDanceRound>({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRounds,
+} = useRoundGame<ShapeDanceRound>({
   session,
   startSession,
-  generateRound: (roundIndex) => generateShapeDanceRound(session.settings, roundIndex)
+  generateRound: (roundIndex) => generateShapeDanceRound(session.settings, roundIndex),
 });
 
 const expectedFigure = computed(() => round.value.sequence[selectedIds.value.length]);
-const progressText = computed(() => `Шаг ${Math.min(selectedIds.value.length + 1, round.value.sequence.length)} из ${round.value.sequence.length}`);
+const progressText = computed(
+  () =>
+    `Шаг ${Math.min(selectedIds.value.length + 1, round.value.sequence.length)} из ${round.value.sequence.length}`,
+);
 
 function figureTargetId(figure: ShapeDanceFigure) {
   return `shape-dance:${round.value.roundId}:figure:${figure.id}`;
@@ -78,7 +99,7 @@ function playDanceNote(figure: ShapeDanceFigure) {
     notesToLoad: [55, 60, 63, 64, 67, 72],
     sampled: [{ note: note.note, at: 0, duration: 0.48, velocity: 30 }],
     fallback: [{ frequency: note.frequency, at: 0, duration: 0.44, peak: 0.034 }],
-    lengthSeconds: 0.5
+    lengthSeconds: 0.5,
   });
 }
 
@@ -87,7 +108,12 @@ async function unlockForRepeat() {
   const roundId = round.value.roundId;
   isSpeaking.value = true;
   const playback = await promptAudio.playSequenceAndWait(["shape-dance.prompt"], 80);
-  if (playback === "cancelled" || session.sessionId !== sessionId || round.value.roundId !== roundId) return;
+  if (
+    playback === "cancelled" ||
+    session.sessionId !== sessionId ||
+    round.value.roundId !== roundId
+  )
+    return;
   isSpeaking.value = false;
   if (phase.value === "repeat") isLocked.value = false;
 }
@@ -105,25 +131,34 @@ function playSequence(message = "Смотри, как фигуры танцую�
   feedbackText.value = message;
 
   round.value.sequence.forEach((figure, index) => {
-    queueSequenceTimer(() => {
-      activeFigureId.value = figure.id;
-      activeStepIndex.value = index;
-      feedbackText.value = `Шаг ${index + 1}: ${figure.label}.`;
-      playDanceNote(figure);
-    }, 320 + index * stepGapMs);
+    queueSequenceTimer(
+      () => {
+        activeFigureId.value = figure.id;
+        activeStepIndex.value = index;
+        feedbackText.value = `Шаг ${index + 1}: ${figure.label}.`;
+        playDanceNote(figure);
+      },
+      320 + index * stepGapMs,
+    );
 
-    queueSequenceTimer(() => {
-      if (activeStepIndex.value === index) activeFigureId.value = undefined;
-    }, 320 + index * stepGapMs + highlightMs);
+    queueSequenceTimer(
+      () => {
+        if (activeStepIndex.value === index) activeFigureId.value = undefined;
+      },
+      320 + index * stepGapMs + highlightMs,
+    );
   });
 
-  queueSequenceTimer(() => {
-    activeFigureId.value = undefined;
-    activeStepIndex.value = -1;
-    phase.value = "repeat";
-    feedbackText.value = "Теперь повтори танец по порядку.";
-    void unlockForRepeat();
-  }, 560 + round.value.sequence.length * stepGapMs);
+  queueSequenceTimer(
+    () => {
+      activeFigureId.value = undefined;
+      activeStepIndex.value = -1;
+      phase.value = "repeat";
+      feedbackText.value = "Теперь повтори танец по порядку.";
+      void unlockForRepeat();
+    },
+    560 + round.value.sequence.length * stepGapMs,
+  );
 }
 
 function resetRoundFeedback() {
@@ -139,7 +174,13 @@ function resetRoundFeedback() {
 }
 
 async function chooseFigure(figure: ShapeDanceFigure) {
-  if (session.status !== "running" || phase.value !== "repeat" || isLocked.value || isSpeaking.value) return;
+  if (
+    session.status !== "running" ||
+    phase.value !== "repeat" ||
+    isLocked.value ||
+    isSpeaking.value
+  )
+    return;
 
   const expected = expectedFigure.value;
   if (!expected) return;
@@ -156,10 +197,23 @@ async function chooseFigure(figure: ShapeDanceFigure) {
     activeFigureId.value = figure.id;
     feedbackText.value = "Почти. Сейчас фигуры повторят танец ещё раз.";
     void danceFeedback.playMistake(session.settings.sound);
-    recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: figure.id, expected: expected.label, actual: figure.label, isCorrect: false });
+    recordMistake({
+      roundId: round.value.roundId,
+      targetId,
+      expectedTargetId,
+      answerId: figure.id,
+      expected: expected.label,
+      actual: figure.label,
+      isCorrect: false,
+    });
     isSpeaking.value = true;
     const playback = await promptAudio.playSequenceAndWait(["shape-dance.mistake"], 80);
-    if (playback === "cancelled" || session.sessionId !== sessionId || round.value.roundId !== roundId) return;
+    if (
+      playback === "cancelled" ||
+      session.sessionId !== sessionId ||
+      round.value.roundId !== roundId
+    )
+      return;
     isSpeaking.value = false;
     setGameTimeout(() => playSequence("Посмотри ещё раз: танец начнётся."), feedbackMs);
     return;
@@ -190,11 +244,22 @@ async function chooseFigure(figure: ShapeDanceFigure) {
     answerId: selectedIds.value.join("-"),
     expected: round.value.sequence.map((item) => item.id).join("-"),
     actual: selectedIds.value.join("-"),
-    isCorrect: true
+    isCorrect: true,
   });
   isSpeaking.value = true;
-  const playback = await promptAudio.playSequenceAndWait(session.step >= session.maxSteps ? ["shape-dance.correct", "shape-dance.complete"] : ["shape-dance.correct"], 80, 170);
-  if (playback === "cancelled" || session.sessionId !== sessionId || round.value.roundId !== roundId) return;
+  const playback = await promptAudio.playSequenceAndWait(
+    session.step >= session.maxSteps
+      ? ["shape-dance.correct", "shape-dance.complete"]
+      : ["shape-dance.correct"],
+    80,
+    170,
+  );
+  if (
+    playback === "cancelled" ||
+    session.sessionId !== sessionId ||
+    round.value.roundId !== roundId
+  )
+    return;
   isSpeaking.value = false;
 
   if (session.step < session.maxSteps) {
@@ -214,7 +279,11 @@ function restart() {
   restartRounds();
 }
 
-watch(() => round.value.roundId, () => playSequence(), { immediate: true });
+watch(
+  () => round.value.roundId,
+  () => playSequence(),
+  { immediate: true },
+);
 
 onMounted(() => {
   promptAudio.warm();
@@ -232,40 +301,114 @@ onUnmounted(() => {
 
 <template>
   <div class="shape-dance-shell">
-    <GameHud title="Танец фигур" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Танец фигур"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="shape-dance-container" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
           <v-card class="shape-dance-card pa-4 pa-md-7" color="surface" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Повтори последовательность</div>
-            <h1 class="shape-dance-title text-h3 text-md-h2 font-weight-bold text-center mb-2">Танец фигур</h1>
-            <p class="shape-dance-feedback text-h6 text-md-h5 text-medium-emphasis text-center mb-4">{{ feedbackText }}</p>
+            <div class="text-overline text-secondary text-center mb-2">
+              Повтори последовательность
+            </div>
+            <h1 class="shape-dance-title text-h3 text-md-h2 font-weight-bold text-center mb-2">
+              Танец фигур
+            </h1>
+            <p
+              class="shape-dance-feedback text-h6 text-md-h5 text-medium-emphasis text-center mb-4"
+            >
+              {{ feedbackText }}
+            </p>
 
-            <v-card class="dance-stage pa-4 pa-md-6 mb-5" color="blue-grey-lighten-5" rounded="xl" variant="flat">
+            <v-card
+              class="dance-stage pa-4 pa-md-6 mb-5"
+              color="blue-grey-lighten-5"
+              rounded="xl"
+              variant="flat"
+            >
               <div class="dance-stage__figures" aria-label="Фигуры танца">
-                <GameDwellButton v-for="figure in round.choices" :key="figure.id" class="shape-dance-target" :target-id="figureTargetId(figure)" :disabled="session.status !== 'running' || phase !== 'repeat' || isLocked || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="12rem" :color="figureColor(figure)" @select="chooseFigure(figure)">
+                <GameDwellButton
+                  v-for="figure in round.choices"
+                  :key="figure.id"
+                  class="shape-dance-target"
+                  :target-id="figureTargetId(figure)"
+                  :disabled="
+                    session.status !== 'running' || phase !== 'repeat' || isLocked || isSpeaking
+                  "
+                  :dwell-ms="session.settings.dwellMs"
+                  min-height="12rem"
+                  :color="figureColor(figure)"
+                  @select="chooseFigure(figure)"
+                >
                   <template #default>
-                    <div :class="['dance-figure', figure.motionClass, { 'dance-figure--active': activeFigureId === figure.id }]">
-                      <v-icon class="dance-figure__icon" :color="activeFigureId === figure.id ? 'white' : figure.iconColor" :icon="figure.icon" />
-                      <div class="figure-label text-h5 text-md-h4 font-weight-bold mt-3">{{ figure.label }}</div>
+                    <div
+                      :class="[
+                        'dance-figure',
+                        figure.motionClass,
+                        { 'dance-figure--active': activeFigureId === figure.id },
+                      ]"
+                    >
+                      <v-icon
+                        class="dance-figure__icon"
+                        :color="activeFigureId === figure.id ? 'white' : figure.iconColor"
+                        :icon="figure.icon"
+                      />
+                      <div class="figure-label text-h5 text-md-h4 font-weight-bold mt-3">
+                        {{ figure.label }}
+                      </div>
                     </div>
                   </template>
                 </GameDwellButton>
               </div>
             </v-card>
 
-            <div class="d-flex flex-wrap justify-center align-center ga-3 mb-5" aria-label="Прогресс повторения">
-              <v-chip color="primary" size="large" variant="tonal">{{ phase === "watch" ? "Смотри" : progressText }}</v-chip>
-              <v-chip v-for="(_, index) in round.sequence" :key="`${round.roundId}:dot:${index}`" :color="index < selectedIds.length ? 'success' : activeStepIndex === index ? 'primary' : 'blue-grey-lighten-2'" size="large" variant="flat">
+            <div
+              class="d-flex flex-wrap justify-center align-center ga-3 mb-5"
+              aria-label="Прогресс повторения"
+            >
+              <v-chip color="primary" size="large" variant="tonal">{{
+                phase === "watch" ? "Смотри" : progressText
+              }}</v-chip>
+              <v-chip
+                v-for="(_, index) in round.sequence"
+                :key="`${round.roundId}:dot:${index}`"
+                :color="
+                  index < selectedIds.length
+                    ? 'success'
+                    : activeStepIndex === index
+                      ? 'primary'
+                      : 'blue-grey-lighten-2'
+                "
+                size="large"
+                variant="flat"
+              >
                 {{ index + 1 }}
               </v-chip>
             </div>
-
           </v-card>
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Танец фигур" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Танец фигур"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -300,7 +443,10 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  transition: box-shadow 220ms ease, transform 220ms ease, background 220ms ease;
+  transition:
+    box-shadow 220ms ease,
+    transform 220ms ease,
+    background 220ms ease;
 }
 
 .dance-figure--active {
@@ -321,38 +467,38 @@ onUnmounted(() => {
 }
 
 @media (max-height: 57.5rem) {
- .shape-dance-container {
+  .shape-dance-container {
     padding-block-start: 5.75rem;
   }
 
- .shape-dance-card {
+  .shape-dance-card {
     padding-block: 0.9rem !important;
   }
 
- .shape-dance-title {
+  .shape-dance-title {
     font-size: 2rem !important;
     line-height: 1.05;
   }
 
- .shape-dance-feedback {
+  .shape-dance-feedback {
     font-size: 1.15rem !important;
     margin-block-end: 0.75rem !important;
   }
 
- .dance-stage {
+  .dance-stage {
     margin-block-end: 1rem !important;
     padding-block: 0.9rem !important;
   }
 
- .dance-stage__figures :deep(.dwell-button) {
+  .dance-stage__figures :deep(.dwell-button) {
     min-block-size: 9.5rem !important;
   }
 
- .dance-figure__icon {
+  .dance-figure__icon {
     font-size: clamp(3.2rem, 8vw, 5rem);
   }
 
- .figure-label {
+  .figure-label {
     font-size: 1.2rem !important;
   }
 }
@@ -392,11 +538,11 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
- .shape-dance-container {
+  .shape-dance-container {
     padding-block-start: 9.75rem;
   }
 
- .dance-stage__figures {
+  .dance-stage__figures {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

@@ -1,4 +1,8 @@
-import { createNonRepeatingRandomIndexGenerator, sampleItems, shuffleItems } from "../../core/random";
+import {
+  createNonRepeatingRandomIndexGenerator,
+  sampleItems,
+  shuffleItems,
+} from "../../core/random";
 import { getWordsByCategory, type WordItem } from "../../data/wordBank";
 
 export type EatOrNotEatAnswer = "food" | "thing";
@@ -12,15 +16,19 @@ export type EatOrNotEatRound = {
 
 const itemsByAnswer: Record<EatOrNotEatAnswer, WordItem[]> = {
   food: getWordsByCategory("food"),
-  thing: getWordsByCategory("thing")
+  thing: getWordsByCategory("thing"),
 };
 
-function buildEatOrNotEatRound(roundIndex: number, item: WordItem, correctAnswer: EatOrNotEatAnswer): EatOrNotEatRound {
+function buildEatOrNotEatRound(
+  roundIndex: number,
+  item: WordItem,
+  correctAnswer: EatOrNotEatAnswer,
+): EatOrNotEatRound {
   return {
     roundId: `eat-or-not-eat:round:${roundIndex}`,
     prompt: `Куда относится «${item.word}»: еда или не еда?`,
     item,
-    correctAnswer
+    correctAnswer,
   };
 }
 
@@ -35,12 +43,13 @@ export function generateEatOrNotEatRound(roundIndex = 1, random = Math.random): 
 export function createEatOrNotEatRoundGenerator(random = Math.random) {
   const itemIndexes = {
     food: createNonRepeatingRandomIndexGenerator(itemsByAnswer.food.length, random),
-    thing: createNonRepeatingRandomIndexGenerator(itemsByAnswer.thing.length, random)
+    thing: createNonRepeatingRandomIndexGenerator(itemsByAnswer.thing.length, random),
   };
   let answerPair: EatOrNotEatAnswer[] = [];
 
   return (roundIndex = 1): EatOrNotEatRound => {
-    if (answerPair.length === 0) answerPair = shuffleItems<EatOrNotEatAnswer>(["food", "thing"], random);
+    if (answerPair.length === 0)
+      answerPair = shuffleItems<EatOrNotEatAnswer>(["food", "thing"], random);
     const correctAnswer = answerPair.shift();
     if (!correctAnswer) throw new Error("Не удалось выбрать категорию для игры Съедобное.");
 

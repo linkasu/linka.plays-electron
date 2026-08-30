@@ -25,23 +25,45 @@ describe("generatePizzaFractionsRound", () => {
       targets.push(generatePizzaFractionsRound(settings, index).targetId);
     }
 
-    expect(targets).toEqual(["half", "quarter", "whole", "half", "quarter", "whole", "half", "quarter"]);
+    expect(targets).toEqual([
+      "half",
+      "quarter",
+      "whole",
+      "half",
+      "quarter",
+      "whole",
+      "half",
+      "quarter",
+    ]);
   });
 
   it("keeps visual slice data clear and bounded", () => {
-    expect(pizzaFractionChoices).toEqual(expect.arrayContaining([
-      expect.objectContaining({ id: "whole", filledSlices: 4, totalSlices: 4, shortLabel: "1" }),
-      expect.objectContaining({ id: "half", filledSlices: 2, totalSlices: 4, shortLabel: "1/2" }),
-      expect.objectContaining({ id: "quarter", filledSlices: 1, totalSlices: 4, shortLabel: "1/4" })
-    ]));
-    expect(pizzaFractionChoices.every((choice) => choice.filledSlices >= 1 && choice.filledSlices <= choice.totalSlices)).toBe(true);
+    expect(pizzaFractionChoices).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: "whole", filledSlices: 4, totalSlices: 4, shortLabel: "1" }),
+        expect.objectContaining({ id: "half", filledSlices: 2, totalSlices: 4, shortLabel: "1/2" }),
+        expect.objectContaining({
+          id: "quarter",
+          filledSlices: 1,
+          totalSlices: 4,
+          shortLabel: "1/4",
+        }),
+      ]),
+    );
+    expect(
+      pizzaFractionChoices.every(
+        (choice) => choice.filledSlices >= 1 && choice.filledSlices <= choice.totalSlices,
+      ),
+    ).toBe(true);
   });
 
   it("uses injected randomness for choice order and stores no answer-revealing hint", () => {
     const settings = settingsFromPreset("standard");
     const round = generatePizzaFractionsRound(settings, 1, () => 0);
 
-    expect(generatePizzaFractionsRound(settings, 1, () => 0).choices.map((choice) => choice.id)).toEqual(round.choices.map((choice) => choice.id));
+    expect(
+      generatePizzaFractionsRound(settings, 1, () => 0).choices.map((choice) => choice.id),
+    ).toEqual(round.choices.map((choice) => choice.id));
     expect("mistakeHint" in round).toBe(false);
   });
 });

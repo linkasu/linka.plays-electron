@@ -25,7 +25,7 @@ const piano = createAmbientPiano({
   cueQuantizeDelaySteps: 1,
   activeGain: 1.08,
   fadeInSeconds: 1.4,
-  fadeOutSeconds: 1.8
+  fadeOutSeconds: 1.8,
 });
 
 export function warmCloudsPiano(enabled: boolean) {

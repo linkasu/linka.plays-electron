@@ -9,17 +9,45 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useGameTimers } from "../../composables/useGameTimers";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { chooseDeepQMove, createEmptyBoard, findWinner, winningLine, type TicTacToeBoard, type TicTacToeWinner } from "./model";
+import {
+  chooseDeepQMove,
+  createEmptyBoard,
+  findWinner,
+  winningLine,
+  type TicTacToeBoard,
+  type TicTacToeWinner,
+} from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("tic-tac-toe", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordEvent,
+  recordMistake,
+  recordSuccess,
+  startSession,
+  finishSession,
+} = useGameSessionFor("tic-tac-toe", {
   maxSteps: 1,
   overrides: { sessionSeconds: 86400, targetScale: 1.25, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "tic-tac-toe", soundEnabled, warmAssetIds: ["tic-tac-toe.prompt", "tic-tac-toe.correct", "tic-tac-toe.mistake", "tic-tac-toe.complete"] });
+const promptAudio = useGamePromptAudio({
+  gameId: "tic-tac-toe",
+  soundEnabled,
+  warmAssetIds: [
+    "tic-tac-toe.prompt",
+    "tic-tac-toe.correct",
+    "tic-tac-toe.mistake",
+    "tic-tac-toe.complete",
+  ],
+});
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 const { setGameTimeout, clearGameTimers } = useGameTimers();
 
@@ -34,8 +62,13 @@ const sleeping = ref(false);
 const finalizing = ref(false);
 const resultVisible = computed(() => session.status === "finished");
 const line = computed(() => winningLine(board.value));
-const gazeBlocked = computed(() => aiThinking.value || playerTurnBlocked.value || sleeping.value || finalizing.value);
-const sleepDisabled = computed(() => session.status !== "running" || aiThinking.value || finalizing.value || Boolean(result.value));
+const gazeBlocked = computed(
+  () => aiThinking.value || playerTurnBlocked.value || sleeping.value || finalizing.value,
+);
+const sleepDisabled = computed(
+  () =>
+    session.status !== "running" || aiThinking.value || finalizing.value || Boolean(result.value),
+);
 const statusText = computed(() => {
   if (sleeping.value) return " думаем над ходом";
   if (aiThinking.value) return "Компьютер думает над ходом";
@@ -72,10 +105,21 @@ async function finishRound(nextResult: TicTacToeWinner) {
 
   if (nextResult === "O") void feedbackAudio.playMistake();
   else void feedbackAudio.playSuccess();
-  const playback = await promptAudio.playSequenceAndWait(nextResult === "X" ? ["tic-tac-toe.correct", "tic-tac-toe.complete"] : nextResult === "O" ? ["tic-tac-toe.mistake", "tic-tac-toe.complete"] : ["tic-tac-toe.complete"], 80, 170);
+  const playback = await promptAudio.playSequenceAndWait(
+    nextResult === "X"
+      ? ["tic-tac-toe.correct", "tic-tac-toe.complete"]
+      : nextResult === "O"
+        ? ["tic-tac-toe.mistake", "tic-tac-toe.complete"]
+        : ["tic-tac-toe.complete"],
+    80,
+    170,
+  );
   if (playback === "cancelled" || session.sessionId !== sessionId) return;
 
-  if (session.status !== "finished") finishSession(nextResult === "draw" ? "game-draw" : nextResult === "X" ? "game-complete" : "game-lost");
+  if (session.status !== "finished")
+    finishSession(
+      nextResult === "draw" ? "game-draw" : nextResult === "X" ? "game-complete" : "game-lost",
+    );
   finalizing.value = false;
 }
 
@@ -99,7 +143,8 @@ function blockPlayerTurn() {
 }
 
 function chooseCell(index: number) {
-  if (session.status !== "running" || gazeBlocked.value || result.value || board.value[index]) return;
+  if (session.status !== "running" || gazeBlocked.value || result.value || board.value[index])
+    return;
   board.value[index] = "X";
 
   const winner = findWinner(board.value);
@@ -145,27 +190,55 @@ onUnmounted(() => {
 
 <template>
   <div class="tic-shell">
-    <GameHud title="Крестики-нолики" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Крестики-нолики"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
 
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" md="10" lg="8" xl="6">
           <v-card class="pa-5 pa-md-8" rounded="xl" elevation="10">
-            <div class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-6">
+            <div
+              class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-6"
+            >
               <div>
                 <div class="text-overline text-secondary mb-1">Классическая стратегия</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Крестики-нолики</h1>
-                <p class="text-body-1 text-medium-emphasis mb-0">Ты играешь крестиками. Компьютер ходит ноликами.</p>
+                <p class="text-body-1 text-medium-emphasis mb-0">
+                  Ты играешь крестиками. Компьютер ходит ноликами.
+                </p>
               </div>
               <div class="d-flex flex-column flex-sm-row align-center ga-2">
                 <v-chip :color="gazeBlocked ? 'secondary' : 'primary'" size="large" variant="tonal">
                   {{ statusText }}
                 </v-chip>
-                <GameDwellButton :target-id="sleepTargetId()" :disabled="sleepDisabled" :dwell-ms="session.settings.dwellMs" min-height="8.5rem" color="deep-purple-darken-3" @select="toggleThinkMode">
+                <GameDwellButton
+                  :target-id="sleepTargetId()"
+                  :disabled="sleepDisabled"
+                  :dwell-ms="session.settings.dwellMs"
+                  min-height="8.5rem"
+                  color="deep-purple-darken-3"
+                  @select="toggleThinkMode"
+                >
                   <template #default>
                     <div class="think-button-content">
-                      <v-icon :icon="sleeping ? 'mdi-check-circle' : 'mdi-sleep'" size="32" style="color: #ffffff" />
-                      <span style="color: #ffffff">{{ sleeping ? "Готов ходить" : "Подумать" }}</span>
+                      <v-icon
+                        :icon="sleeping ? 'mdi-check-circle' : 'mdi-sleep'"
+                        size="32"
+                        style="color: #ffffff"
+                      />
+                      <span style="color: #ffffff">{{
+                        sleeping ? "Готов ходить" : "Подумать"
+                      }}</span>
                     </div>
                   </template>
                 </GameDwellButton>
@@ -177,27 +250,47 @@ onUnmounted(() => {
                 v-for="(cell, index) in board"
                 :key="index"
                 :target-id="cellTargetId(index)"
-                :disabled="session.status !== 'running' || gazeBlocked || Boolean(result) || Boolean(cell)"
+                :disabled="
+                  session.status !== 'running' || gazeBlocked || Boolean(result) || Boolean(cell)
+                "
                 :dwell-ms="session.settings.dwellMs"
                 min-height="8.5rem"
                 :color="cell ? 'surface-variant' : 'surface'"
                 @select="chooseCell(index)"
               >
                 <template #default>
-                  <div :class="['cell-mark', cell === 'X' ? 'cell-mark--x' : 'cell-mark--o', { 'cell-mark--win': isWinningCell(index) }]">
+                  <div
+                    :class="[
+                      'cell-mark',
+                      cell === 'X' ? 'cell-mark--x' : 'cell-mark--o',
+                      { 'cell-mark--win': isWinningCell(index) },
+                    ]"
+                  >
                     {{ cell || "" }}
                   </div>
                 </template>
               </GameDwellButton>
             </div>
 
-            <div class="text-body-1 text-medium-emphasis text-center">Смотри на свободную клетку, дождись крестика и короткой паузы между ходами.</div>
+            <div class="text-body-1 text-medium-emphasis text-center">
+              Смотри на свободную клетку, дождись крестика и короткой паузы между ходами.
+            </div>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
 
-    <GameResultDialog :model-value="resultVisible" title="Крестики-нолики" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Крестики-нолики"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -225,7 +318,7 @@ onUnmounted(() => {
   min-inline-size: 0;
 }
 
-.game-container :deep(.d-flex >.dwell-hitbox) {
+.game-container :deep(.d-flex > .dwell-hitbox) {
   inline-size: min(100%, 16.25rem);
 }
 
@@ -264,23 +357,23 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 7rem;
   }
 }
 
 @media (max-height: 42.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 4.75rem;
   }
 
- .game-container :deep(.v-card) {
+  .game-container :deep(.v-card) {
     padding-block: 1rem !important;
   }
 
- .game-container .text-overline,
- .game-container h1,
- .game-container p,
+  .game-container .text-overline,
+  .game-container h1,
+  .game-container p,
   .game-container > .v-row .text-body-1.text-medium-emphasis {
     display: none;
   }
@@ -290,12 +383,12 @@ onUnmounted(() => {
     margin-block-end: 0.25rem !important;
   }
 
- .board-grid {
+  .board-grid {
     gap: 0.55rem;
     max-inline-size: 20rem;
   }
 
- .board-grid :deep(.dwell-button) {
+  .board-grid :deep(.dwell-button) {
     min-block-size: 5rem !important;
     padding: 0.5rem !important;
   }

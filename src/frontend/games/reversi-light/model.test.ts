@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { applyMove, cellIndex, chooseAiMove, countPieces, createInitialBoard, findWinner, isValidMove, validMoves } from "./model";
+import {
+  applyMove,
+  cellIndex,
+  chooseAiMove,
+  countPieces,
+  createInitialBoard,
+  findWinner,
+  isValidMove,
+  validMoves,
+} from "./model";
 
 describe("reversi-light model", () => {
   it("creates a 4x4 opening board", () => {
@@ -41,7 +50,11 @@ describe("reversi-light model", () => {
   });
 
   it("declares the piece majority as winner", () => {
-    expect(findWinner(["player", "player", "ai", "", "", "", "", "", "", "", "", "", "", "", "", ""])).toBe("player");
-    expect(findWinner(["player", "ai", "", "", "", "", "", "", "", "", "", "", "", "", "", ""])).toBe("draw");
+    expect(
+      findWinner(["player", "player", "ai", "", "", "", "", "", "", "", "", "", "", "", "", ""]),
+    ).toBe("player");
+    expect(
+      findWinner(["player", "ai", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]),
+    ).toBe("draw");
   });
 });

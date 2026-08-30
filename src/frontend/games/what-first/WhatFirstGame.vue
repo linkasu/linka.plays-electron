@@ -11,18 +11,35 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { createWhatFirstDeck, type WhatFirstAction, type WhatFirstRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("what-first", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("what-first", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 125, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
 const promptAudio = useGamePromptAudio({
   gameId: "what-first",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: ["what-first.prompt.wash-eat", "what-first.prompt.shoes-walk", "what-first.prompt.brush-sleep", "what-first.mistake", "what-first.complete"]
+  warmAssetIds: [
+    "what-first.prompt.wash-eat",
+    "what-first.prompt.shoes-walk",
+    "what-first.prompt.brush-sleep",
+    "what-first.mistake",
+    "what-first.complete",
+  ],
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
@@ -96,12 +113,16 @@ async function choose(action: WhatFirstAction) {
       expected: expectedAction.id,
       actual: action.id,
       sceneId: round.value.scene.id,
-      isCorrect: true
+      isCorrect: true,
     });
     feedback.value = `Верно: сначала ${action.phrase}.`;
     void pianoFeedback.playSuccess();
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [correctAssetId(), "what-first.complete"] : [correctAssetId()], 80, 170);
+    await promptAudio.playSequenceAndWait(
+      finishedAfterSuccess ? [correctAssetId(), "what-first.complete"] : [correctAssetId()],
+      80,
+      170,
+    );
 
     if (finishedAfterSuccess) {
       feedback.value = "Готово. Порядок действий стал понятнее.";
@@ -133,7 +154,7 @@ async function choose(action: WhatFirstAction) {
     expected: expectedAction.id,
     actual: action.id,
     sceneId: round.value.scene.id,
-    isCorrect: false
+    isCorrect: false,
   });
   feedback.value = "Посмотри на сцену ещё раз и выбери другое действие.";
   void pianoFeedback.playMistake();
@@ -175,15 +196,38 @@ onUnmounted(() => {
 
 <template>
   <div class="what-first-shell">
-    <GameHud title="Что сначала?" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Что сначала?"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="9">
           <v-card class="what-first-card pa-5 pa-md-8" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">AAC и порядок действий</div>
             <div class="text-center mb-6">
-              <v-chip class="mb-4 text-white" color="deep-purple-darken-3" size="large" variant="flat">{{ round.scene.title }}</v-chip>
-              <div class="scene-visual emoji-glyph mb-3" role="img" :aria-label="round.scene.contextVisual.label">{{ round.scene.contextVisual.emoji }}</div>
+              <v-chip
+                class="mb-4 text-white"
+                color="deep-purple-darken-3"
+                size="large"
+                variant="flat"
+                >{{ round.scene.title }}</v-chip
+              >
+              <div
+                class="scene-visual emoji-glyph mb-3"
+                role="img"
+                :aria-label="round.scene.contextVisual.label"
+              >
+                {{ round.scene.contextVisual.emoji }}
+              </div>
               <h1 class="text-h3 text-md-h2 font-weight-bold mb-2">{{ round.prompt }}</h1>
               <div class="scene-context text-h6 text-md-h5">{{ round.scene.context }}</div>
             </div>
@@ -194,11 +238,24 @@ onUnmounted(() => {
 
             <v-row>
               <v-col v-for="choice in round.choices" :key="choice.id" cols="6">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="210" :color="choiceColor(choice)" @select="choose(choice)">
+                <GameDwellButton
+                  :target-id="choiceTargetId(choice)"
+                  :disabled="session.status !== 'running' || isChangingRound"
+                  :dwell-ms="session.settings.dwellMs"
+                  :min-height="210"
+                  :color="choiceColor(choice)"
+                  @select="choose(choice)"
+                >
                   <template #default>
                     <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
                     <div class="text-h3 text-md-h2 font-weight-bold mb-2">{{ choice.title }}</div>
-                    <v-chip class="mb-3 text-white" color="deep-purple-darken-3" size="large" variant="flat">{{ choice.aacLabel }}</v-chip>
+                    <v-chip
+                      class="mb-3 text-white"
+                      color="deep-purple-darken-3"
+                      size="large"
+                      variant="flat"
+                      >{{ choice.aacLabel }}</v-chip
+                    >
                     <div class="choice-phrase text-h6">{{ choice.phrase }}</div>
                   </template>
                 </GameDwellButton>
@@ -208,7 +265,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Что сначала?" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Что сначала?"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -238,14 +305,14 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 9.75rem;
   }
 }
 
 @media (max-height: 58rem) {
- .what-first-card .text-center,
- .what-first-card .v-alert {
+  .what-first-card .text-center,
+  .what-first-card .v-alert {
     margin-block-end: 1rem !important;
   }
 
@@ -254,35 +321,35 @@ onUnmounted(() => {
     font-size: clamp(3.5rem, 8vw, 5.5rem);
   }
 
- .choice-phrase {
+  .choice-phrase {
     display: none;
   }
 }
 
 @media (max-height: 42rem) {
- .game-container {
+  .game-container {
     padding-block-start: 3.5rem;
   }
 
- .what-first-card {
+  .what-first-card {
     padding: 0.75rem !important;
   }
 
- .what-first-card >.text-overline {
+  .what-first-card > .text-overline {
     display: none;
   }
 
- .what-first-card h1 {
+  .what-first-card h1 {
     font-size: clamp(1.8rem, 5.4vh, 2.25rem) !important;
     line-height: 1.05;
     margin-block-end: 0.25rem !important;
   }
 
- .what-first-card .text-center {
+  .what-first-card .text-center {
     margin-block-end: 0.45rem !important;
   }
 
- .what-first-card .v-alert {
+  .what-first-card .v-alert {
     margin-block-end: 0.45rem !important;
     padding: 0.55rem !important;
   }
@@ -291,27 +358,27 @@ onUnmounted(() => {
     font-size: clamp(2.5rem, 7vh, 3.75rem);
   }
 
- .scene-context,
- .what-first-card .v-alert .text-h6 {
+  .scene-context,
+  .what-first-card .v-alert .text-h6 {
     font-size: 1rem !important;
     line-height: 1.15;
   }
 
- .choice-emoji {
+  .choice-emoji {
     font-size: clamp(2.5rem, 7vh, 3.75rem);
   }
 
- .what-first-card :deep(.dwell-button .text-h3) {
+  .what-first-card :deep(.dwell-button .text-h3) {
     font-size: clamp(1.55rem, 5vh, 2rem) !important;
     line-height: 1.05;
   }
 
- .what-first-card :deep(.dwell-button.v-chip),
- .choice-phrase {
+  .what-first-card :deep(.dwell-button.v-chip),
+  .choice-phrase {
     display: none;
   }
 
- .game-container :deep(.dwell-button) {
+  .game-container :deep(.dwell-button) {
     min-block-size: 8rem !important;
   }
 }

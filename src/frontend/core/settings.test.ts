@@ -4,12 +4,12 @@ import { clampSettings, createDefaultSettings, settingsFromPreset } from "./sett
 describe("settings", () => {
   it("clamps session settings into safe ranges", () => {
     const settings = clampSettings({
-     ...createDefaultSettings(),
+      ...createDefaultSettings(),
       sessionSeconds: 1,
       maxSteps: 100,
       dwellMs: 100,
       targetScale: 5,
-      motionSpeed: 10
+      motionSpeed: 10,
     });
 
     expect(settings.sessionSeconds).toBe(30);

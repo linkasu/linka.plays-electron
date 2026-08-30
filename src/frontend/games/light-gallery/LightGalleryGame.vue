@@ -7,7 +7,13 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { disposeLightGalleryPiano, playLightGalleryCue, setLightGalleryPianoActive, tickLightGalleryPiano, warmLightGalleryPiano } from "./audio";
+import {
+  disposeLightGalleryPiano,
+  playLightGalleryCue,
+  setLightGalleryPianoActive,
+  tickLightGalleryPiano,
+  warmLightGalleryPiano,
+} from "./audio";
 
 type LightPanel = {
   id: string;
@@ -28,10 +34,26 @@ type LightPanel = {
 };
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSessionFor("light-gallery", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("light-gallery", {
   maxSteps: 8,
-  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.35, distractors: "none", hints: "high", sound: true },
-  finishOnMistakes: false
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.55,
+    motionSpeed: 0.35,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
+  finishOnMistakes: false,
 });
 useStartPromptAudio({ gameId: "light-gallery", soundEnabled: toRef(session.settings, "sound") });
 
@@ -49,9 +71,9 @@ const panels = reactive<LightPanel[]>([
       bottom: "#8a5944",
       warmAura: "255 190 104",
       coolAura: "156 194 255",
-      lowAura: "255 136 116"
+      lowAura: "255 136 116",
     },
-    revealed: false
+    revealed: false,
   },
   {
     id: "light-gallery:panel:pond",
@@ -66,9 +88,9 @@ const panels = reactive<LightPanel[]>([
       bottom: "#21456f",
       warmAura: "148 255 228",
       coolAura: "118 181 255",
-      lowAura: "82 238 205"
+      lowAura: "82 238 205",
     },
-    revealed: false
+    revealed: false,
   },
   {
     id: "light-gallery:panel:meadow",
@@ -83,9 +105,9 @@ const panels = reactive<LightPanel[]>([
       bottom: "#35492d",
       warmAura: "225 255 151",
       coolAura: "105 229 184",
-      lowAura: "176 255 176"
+      lowAura: "176 255 176",
     },
-    revealed: false
+    revealed: false,
   },
   {
     id: "light-gallery:panel:moon",
@@ -100,9 +122,9 @@ const panels = reactive<LightPanel[]>([
       bottom: "#272150",
       warmAura: "219 226 255",
       coolAura: "125 151 255",
-      lowAura: "161 125 255"
+      lowAura: "161 125 255",
     },
-    revealed: false
+    revealed: false,
   },
   {
     id: "light-gallery:panel:garden",
@@ -117,9 +139,9 @@ const panels = reactive<LightPanel[]>([
       bottom: "#7b4b2e",
       warmAura: "255 177 94",
       coolAura: "255 143 160",
-      lowAura: "255 211 135"
+      lowAura: "255 211 135",
     },
-    revealed: false
+    revealed: false,
   },
   {
     id: "light-gallery:panel:cloud",
@@ -134,9 +156,9 @@ const panels = reactive<LightPanel[]>([
       bottom: "#343a55",
       warmAura: "255 255 255",
       coolAura: "180 220 255",
-      lowAura: "214 232 255"
+      lowAura: "214 232 255",
     },
-    revealed: false
+    revealed: false,
   },
   {
     id: "light-gallery:panel:lantern",
@@ -151,9 +173,9 @@ const panels = reactive<LightPanel[]>([
       bottom: "#744226",
       warmAura: "255 199 89",
       coolAura: "255 149 103",
-      lowAura: "255 230 148"
+      lowAura: "255 230 148",
     },
-    revealed: false
+    revealed: false,
   },
   {
     id: "light-gallery:panel:stars",
@@ -168,10 +190,10 @@ const panels = reactive<LightPanel[]>([
       bottom: "#21183d",
       warmAura: "231 210 255",
       coolAura: "145 129 255",
-      lowAura: "196 149 255"
+      lowAura: "196 149 255",
     },
-    revealed: false
-  }
+    revealed: false,
+  },
 ]);
 
 const resultVisible = computed(() => session.status === "finished");
@@ -188,7 +210,7 @@ const backdropStyle = computed(() => {
   const lowAura = mood?.lowAura ?? "244 142 255";
 
   return {
-    background: `radial-gradient(circle at 16% 18%, rgb(${warmAura} / 18%), transparent 31%), radial-gradient(circle at 82% 22%, rgb(${coolAura} / 17%), transparent 35%), radial-gradient(circle at 48% 88%, rgb(${lowAura} / 15%), transparent 43%), linear-gradient(180deg, ${top} 0%, ${middle} 44%, ${bottom} 100%)`
+    background: `radial-gradient(circle at 16% 18%, rgb(${warmAura} / 18%), transparent 31%), radial-gradient(circle at 82% 22%, rgb(${coolAura} / 17%), transparent 35%), radial-gradient(circle at 48% 88%, rgb(${lowAura} / 15%), transparent 43%), linear-gradient(180deg, ${top} 0%, ${middle} 44%, ${bottom} 100%)`,
   };
 });
 let audioTimer = 0;
@@ -207,9 +229,13 @@ function restart() {
   startSession();
 }
 
-watch(() => [session.status, session.settings.sound] as const, () => {
-  setLightGalleryPianoActive(session.settings.sound, session.status === "running");
-}, { immediate: true });
+watch(
+  () => [session.status, session.settings.sound] as const,
+  () => {
+    setLightGalleryPianoActive(session.settings.sound, session.status === "running");
+  },
+  { immediate: true },
+);
 
 onMounted(() => {
   warmLightGalleryPiano(session.settings.sound);
@@ -225,7 +251,12 @@ onUnmounted(() => {
 <template>
   <div class="light-gallery-shell">
     <Transition name="light-gallery-backdrop-fade">
-      <div :key="activePanelId || 'gallery-base'" class="light-gallery-backdrop" :style="backdropStyle" aria-hidden="true" />
+      <div
+        :key="activePanelId || 'gallery-base'"
+        class="light-gallery-backdrop"
+        :style="backdropStyle"
+        aria-hidden="true"
+      />
     </Transition>
     <div class="light-gallery-aura" aria-hidden="true" />
 
@@ -252,7 +283,11 @@ onUnmounted(() => {
           </p>
         </div>
 
-        <div class="light-gallery-grid" role="group" aria-label="Панели света для игры Галерея света">
+        <div
+          class="light-gallery-grid"
+          role="group"
+          aria-label="Панели света для игры Галерея света"
+        >
           <GameDwellButton
             v-for="panel in panels"
             :key="panel.id"
@@ -266,22 +301,50 @@ onUnmounted(() => {
           >
             <template #default="{ active, progress }">
               <div
-                :class="['light-gallery-panel', { 'light-gallery-panel--active': active, 'light-gallery-panel--revealed': panel.revealed }]"
-                :style="{ '--panel-gradient': panel.gradient, '--panel-progress': panel.revealed ? 1 : active ? progress : 0 }"
+                :class="[
+                  'light-gallery-panel',
+                  {
+                    'light-gallery-panel--active': active,
+                    'light-gallery-panel--revealed': panel.revealed,
+                  },
+                ]"
+                :style="{
+                  '--panel-gradient': panel.gradient,
+                  '--panel-progress': panel.revealed ? 1 : active ? progress : 0,
+                }"
               >
                 <div class="light-gallery-panel-art" aria-hidden="true">
                   <v-icon :icon="panel.icon" class="light-gallery-panel-icon" />
                 </div>
-                <div class="light-gallery-panel-title text-subtitle-1 text-sm-h6 font-weight-bold">{{ panel.title }}</div>
-                <div class="light-gallery-panel-caption text-caption">{{ panel.revealed ? panel.caption : active && progress > 0.72 ? 'Проявляется' : 'Смотри ' }}</div>
+                <div class="light-gallery-panel-title text-subtitle-1 text-sm-h6 font-weight-bold">
+                  {{ panel.title }}
+                </div>
+                <div class="light-gallery-panel-caption text-caption">
+                  {{
+                    panel.revealed
+                      ? panel.caption
+                      : active && progress > 0.72
+                        ? "Проявляется"
+                        : "Смотри "
+                  }}
+                </div>
               </div>
             </template>
           </GameDwellButton>
         </div>
 
-        <v-card class="light-gallery-progress mt-5 mx-auto px-4 py-3" color="surface" rounded="xl" variant="tonal">
-          <div class="text-body-2 font-weight-medium">Проявлено картин: {{ revealedCount }} из {{ session.maxSteps }}</div>
-          <div class="text-caption text-medium-emphasis">Выбирай панели в любом порядке, галерея просто становится светлее.</div>
+        <v-card
+          class="light-gallery-progress mt-5 mx-auto px-4 py-3"
+          color="surface"
+          rounded="xl"
+          variant="tonal"
+        >
+          <div class="text-body-2 font-weight-medium">
+            Проявлено картин: {{ revealedCount }} из {{ session.maxSteps }}
+          </div>
+          <div class="text-caption text-medium-emphasis">
+            Выбирай панели в любом порядке, галерея просто становится светлее.
+          </div>
         </v-card>
       </v-card>
     </v-container>
@@ -316,7 +379,10 @@ onUnmounted(() => {
 
 .light-gallery-backdrop-fade-enter-active,
 .light-gallery-backdrop-fade-leave-active {
-  transition: opacity 1400ms ease, transform 1600ms ease, filter 1600ms ease;
+  transition:
+    opacity 1400ms ease,
+    transform 1600ms ease,
+    filter 1600ms ease;
 }
 
 .light-gallery-backdrop-fade-enter-from {
@@ -331,7 +397,8 @@ onUnmounted(() => {
 }
 
 .light-gallery-aura {
-  background: radial-gradient(circle at 28% 30%, rgb(255 255 255 / 10%), transparent 34%),
+  background:
+    radial-gradient(circle at 28% 30%, rgb(255 255 255 / 10%), transparent 34%),
     radial-gradient(circle at 74% 62%, rgb(159 203 255 / 9%), transparent 38%),
     linear-gradient(110deg, rgb(255 255 255 / 5%), rgb(255 210 164 / 5%));
   inset: 0;
@@ -378,7 +445,11 @@ onUnmounted(() => {
   position: relative;
   text-shadow: 0 1px 14px rgb(12 14 30 / 42%);
   transform: scale(calc(0.97 + (var(--panel-progress) * 0.03)));
-  transition: color 220ms ease, filter 220ms ease, opacity 220ms ease, transform 220ms ease;
+  transition:
+    color 220ms ease,
+    filter 220ms ease,
+    opacity 220ms ease,
+    transform 220ms ease;
 }
 
 .light-gallery-panel-title,
@@ -390,11 +461,14 @@ onUnmounted(() => {
   background: var(--panel-gradient);
   border-radius: 22px;
   content: "";
-  filter: saturate(calc(0.42 + (var(--panel-progress) * 0.58))) contrast(calc(0.72 + (var(--panel-progress) * 0.34)));
+  filter: saturate(calc(0.42 + (var(--panel-progress) * 0.58)))
+    contrast(calc(0.72 + (var(--panel-progress) * 0.34)));
   inset: -0.6rem;
   opacity: calc(0.18 + (var(--panel-progress) * 0.76));
   position: absolute;
-  transition: filter 260ms ease, opacity 260ms ease;
+  transition:
+    filter 260ms ease,
+    opacity 260ms ease;
   z-index: -1;
 }
 
@@ -435,50 +509,50 @@ onUnmounted(() => {
 }
 
 @media (max-width: 53.75rem) {
- .light-gallery-grid {
+  .light-gallery-grid {
     grid-template-columns: repeat(2, minmax(8.5rem, 1fr));
   }
 }
 
 @media (max-height: 45rem) {
- .light-gallery-container {
+  .light-gallery-container {
     padding-block-start: 5.75rem;
   }
 
- .light-gallery-copy,
- .light-gallery-progress {
+  .light-gallery-copy,
+  .light-gallery-progress {
     display: none;
   }
 
- .light-gallery-grid {
+  .light-gallery-grid {
     gap: 0.75rem;
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
- .light-gallery-target {
+  .light-gallery-target {
     min-block-size: 7rem;
   }
 
- .light-gallery-panel-art {
+  .light-gallery-panel-art {
     block-size: 3.25rem;
     inline-size: 3.25rem;
   }
 
- .light-gallery-panel-icon {
+  .light-gallery-panel-icon {
     font-size: 1.9rem;
   }
 
- .light-gallery-panel-caption {
+  .light-gallery-panel-caption {
     display: none;
   }
 }
 
 @media (max-width: 32.5rem) {
- .light-gallery-container {
+  .light-gallery-container {
     padding-block-start: 104px;
   }
 
- .light-gallery-grid {
+  .light-gallery-grid {
     grid-template-columns: 1fr;
   }
 }

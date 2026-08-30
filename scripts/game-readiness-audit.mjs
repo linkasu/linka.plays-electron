@@ -18,7 +18,7 @@ function argValue(name, fallback) {
   const found = process.argv.find((arg) => arg.startsWith(prefix));
   if (found) return found.slice(prefix.length);
   const index = process.argv.indexOf(name);
-  return index >= 0 ? process.argv[index + 1] ?? fallback : fallback;
+  return index >= 0 ? (process.argv[index + 1] ?? fallback) : fallback;
 }
 
 async function exists(filePath) {
@@ -56,8 +56,13 @@ function parseGames(source) {
     const tags = extractStringArray(block, "tags");
     const status = extractString(block, "status");
     const explicitStabilityStatus = extractString(block, "stabilityStatus") || null;
-    const resolvedStabilityStatus = explicitStabilityStatus
-      ?? (tags.includes("hidden-from-menu") ? "archived" : status === "polished" ? "publish" : "needs-check");
+    const resolvedStabilityStatus =
+      explicitStabilityStatus ??
+      (tags.includes("hidden-from-menu")
+        ? "archived"
+        : status === "polished"
+          ? "publish"
+          : "needs-check");
 
     games.push({
       id,
@@ -73,7 +78,7 @@ function parseGames(source) {
       skills: extractStringArray(block, "skills"),
       recommendedSessionSeconds: extractNumber(block, "recommendedSessionSeconds"),
       minTargetSizePx: extractNumber(block, "minTargetSizePx"),
-      defaultDwellMs: extractNumber(block, "defaultDwellMs")
+      defaultDwellMs: extractNumber(block, "defaultDwellMs"),
     });
   }
 
@@ -81,7 +86,8 @@ function parseGames(source) {
 }
 
 function parseRouterGameIds(source) {
-  const componentMap = source.match(/const\s+gameComponentsById[^=]*=\s*\{([\s\S]*?)\n\};/)?.[1] ?? "";
+  const componentMap =
+    source.match(/const\s+gameComponentsById[^=]*=\s*\{([\s\S]*?)\n\};/)?.[1] ?? "";
   return new Set(Array.from(componentMap.matchAll(/^\s*"([^"]+)"\s*:/gm)).map((match) => match[1]));
 }
 
@@ -123,7 +129,7 @@ async function fileSignals(game, routerGameIds) {
     hasGameDoc: await exists(docsGamePath),
     gameDocPath: (await exists(docsGamePath)) ? path.relative(projectRoot, docsGamePath) : null,
     hasRuntimeAuditDoc: docsTestPath !== null,
-    runtimeAuditDocPath: docsTestPath
+    runtimeAuditDocPath: docsTestPath,
   };
 }
 
@@ -136,7 +142,10 @@ function promotionBlockers(game, signals) {
   if (!signals.hasRuntimeAuditDoc) blockers.push("missing-runtime-audit-doc");
   if (!signals.hasGameDoc) blockers.push("missing-game-doc");
   if (signals.hasModel && !signals.hasModelTest) blockers.push("model-without-test");
-  if (["strategy", "numeracy", "sequencing", "language-aac"].includes(game.category) && !signals.hasModel) {
+  if (
+    ["strategy", "numeracy", "sequencing", "language-aac"].includes(game.category) &&
+    !signals.hasModel
+  ) {
     blockers.push("rules-not-extracted-to-model");
   }
   return blockers;
@@ -169,7 +178,7 @@ function listTopDevelopmentGames(games) {
       category: game.category,
       status: game.status,
       resolvedStabilityStatus: game.resolvedStabilityStatus,
-      blockers: game.promotionBlockers
+      blockers: game.promotionBlockers,
     }));
 }
 
@@ -191,12 +200,16 @@ async function buildReport() {
   const developmentGames = games.filter((game) => game.readinessGroup === "development");
 
   const registryIds = new Set(games.map((game) => game.id));
-  const extraRouterComponentIds = Array.from(routerGameIds).filter((id) => !registryIds.has(id)).sort();
+  const extraRouterComponentIds = Array.from(routerGameIds)
+    .filter((id) => !registryIds.has(id))
+    .sort();
   const publishQualityBlockers = games
     .filter((game) => game.readinessGroup === "ready")
-    .flatMap((game) => game.promotionBlockers
-      .filter((blocker) => !blocker.startsWith("stability:"))
-      .map((blocker) => ({ id: game.id, blocker })));
+    .flatMap((game) =>
+      game.promotionBlockers
+        .filter((blocker) => !blocker.startsWith("stability:"))
+        .map((blocker) => ({ id: game.id, blocker })),
+    );
 
   return {
     generatedAt: new Date().toISOString(),
@@ -207,7 +220,8 @@ async function buildReport() {
     rule: {
       ready: "resolvedStabilityStatus === publish",
       development: "everything else",
-      resolvedStabilityStatus: "explicit stabilityStatus, hidden-from-menu as archived, polished as publish, otherwise needs-check"
+      resolvedStabilityStatus:
+        "explicit stabilityStatus, hidden-from-menu as archived, polished as publish, otherwise needs-check",
     },
     summary: {
       totalGames: games.length,
@@ -221,19 +235,24 @@ async function buildReport() {
       missingVueComponents: games.filter((game) => !game.signals.hasVueComponent).length,
       missingGameDocs: games.filter((game) => !game.signals.hasGameDoc).length,
       missingRuntimeAuditDocs: games.filter((game) => !game.signals.hasRuntimeAuditDoc).length,
-      modelWithoutTest: games.filter((game) => game.signals.hasModel && !game.signals.hasModelTest).length,
+      modelWithoutTest: games.filter((game) => game.signals.hasModel && !game.signals.hasModelTest)
+        .length,
       readyMissingGameDocs: readyGames.filter((game) => !game.signals.hasGameDoc).length,
-      developmentMissingGameDocs: developmentGames.filter((game) => !game.signals.hasGameDoc).length
+      developmentMissingGameDocs: developmentGames.filter((game) => !game.signals.hasGameDoc)
+        .length,
     },
     publishQualityBlockers,
     developmentQueue: listTopDevelopmentGames(games),
-    games
+    games,
   };
 }
 
 function currentCommitSha() {
   try {
-    return execFileSync("git", ["rev-parse", "HEAD"], { cwd: projectRoot, encoding: "utf8" }).trim();
+    return execFileSync("git", ["rev-parse", "HEAD"], {
+      cwd: projectRoot,
+      encoding: "utf8",
+    }).trim();
   } catch {
     return null;
   }
@@ -257,10 +276,11 @@ async function main() {
   } else {
     console.log(json);
   }
-  if (process.argv.includes("--check") && (
-    report.publishQualityBlockers.length > 0
-    || report.summary.extraRouterComponentIds.length > 0
-  )) process.exitCode = 1;
+  if (
+    process.argv.includes("--check") &&
+    (report.publishQualityBlockers.length > 0 || report.summary.extraRouterComponentIds.length > 0)
+  )
+    process.exitCode = 1;
 }
 
 main().catch((error) => {

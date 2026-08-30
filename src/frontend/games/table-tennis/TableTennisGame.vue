@@ -7,8 +7,21 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { disposeTennisAudio, playTennisMelody, resetTennisAudioSession, warmTennisAudio } from "./audio";
-import { drawTennisScene, tennisCourtBottom, tennisCourtTop, type TennisBall, type TennisBurst, type TennisPaddle, type TennisTrail } from "./scene";
+import {
+  disposeTennisAudio,
+  playTennisMelody,
+  resetTennisAudioSession,
+  warmTennisAudio,
+} from "./audio";
+import {
+  drawTennisScene,
+  tennisCourtBottom,
+  tennisCourtTop,
+  type TennisBall,
+  type TennisBurst,
+  type TennisPaddle,
+  type TennisTrail,
+} from "./scene";
 
 type RallyBall = TennisBall & {
   id: string;
@@ -23,14 +36,50 @@ type RallyBall = TennisBall & {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, recordMistake, startSession } = useGameSessionFor("table-tennis", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordEvent,
+  recordSuccess,
+  recordMistake,
+  startSession,
+} = useGameSessionFor("table-tennis", {
   maxSteps: 30,
-  overrides: { preset: "gentle", dwellMs: 850, sessionSeconds: 90, targetScale: 1.38, motionSpeed: 0.72, distractors: "none", hints: "high" },
-  finishOnMaxSteps: false
+  overrides: {
+    preset: "gentle",
+    dwellMs: 850,
+    sessionSeconds: 90,
+    targetScale: 1.38,
+    motionSpeed: 0.72,
+    distractors: "none",
+    hints: "high",
+  },
+  finishOnMaxSteps: false,
 });
 
-const paddle = reactive<TennisPaddle>({ x: 84, y: window.innerHeight * 0.56, width: 34, height: 210, glow: 0 });
-const ball = reactive<RallyBall>({ id: `ball-${Date.now()}`, x: window.innerWidth * 0.72, y: window.innerHeight * 0.5, vx: -120, vy: 48, radius: 28, phase: 0, contactProgress: 0, lastHitAt: 0, trailAge: 0 });
+const paddle = reactive<TennisPaddle>({
+  x: 84,
+  y: window.innerHeight * 0.56,
+  width: 34,
+  height: 210,
+  glow: 0,
+});
+const ball = reactive<RallyBall>({
+  id: `ball-${Date.now()}`,
+  x: window.innerWidth * 0.72,
+  y: window.innerHeight * 0.5,
+  vx: -120,
+  vy: 48,
+  radius: 28,
+  phase: 0,
+  contactProgress: 0,
+  lastHitAt: 0,
+  trailAge: 0,
+});
 const trails = reactive<TennisTrail[]>([]);
 const bursts = reactive<TennisBurst[]>([]);
 const streak = ref(0);
@@ -49,7 +98,7 @@ function playArea() {
     right: width.value - Math.max(54, width.value * 0.055),
     top,
     bottom,
-    centerY: top + (bottom - top) / 2
+    centerY: top + (bottom - top) / 2,
   };
 }
 
@@ -68,9 +117,15 @@ function syncGeometry() {
   paddle.x = Math.max(74, width.value * 0.1);
   paddle.width = Math.max(30, Math.min(42, width.value * 0.032));
   paddle.height = paddleHeight();
-  paddle.y = Math.max(area.top + paddle.height / 2, Math.min(area.bottom - paddle.height / 2, paddle.y));
+  paddle.y = Math.max(
+    area.top + paddle.height / 2,
+    Math.min(area.bottom - paddle.height / 2, paddle.y),
+  );
   ball.radius = ballRadius();
-  partnerY.value = Math.max(area.top + paddle.height * 0.26, Math.min(area.bottom - paddle.height * 0.26, partnerY.value));
+  partnerY.value = Math.max(
+    area.top + paddle.height * 0.26,
+    Math.min(area.bottom - paddle.height * 0.26, partnerY.value),
+  );
 }
 
 function copyPointer() {
@@ -79,7 +134,7 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
@@ -91,7 +146,7 @@ function targetPayload(progress: number, now: number, reason?: "left" | "invalid
     elapsedMs: ball.enteredAt === undefined ? 0 : now - ball.enteredAt,
     progress,
     pointer: copyPointer(),
-    reason
+    reason,
   };
 }
 
@@ -145,7 +200,11 @@ function completeApproach(now: number) {
   clearApproach();
 }
 
-function cancelApproach(now: number, reason: "left" | "invalid-gaze", progress = ball.contactProgress) {
+function cancelApproach(
+  now: number,
+  reason: "left" | "invalid-gaze",
+  progress = ball.contactProgress,
+) {
   if (ball.enteredAt === undefined) return;
   recordEvent("target-cancel", targetPayload(progress, now, reason));
   clearApproach();
@@ -154,7 +213,10 @@ function cancelApproach(now: number, reason: "left" | "invalid-gaze", progress =
 function hitBall(now: number) {
   const area = playArea();
   const offset = (ball.y - paddle.y) / Math.max(1, paddle.height / 2);
-  const nextSpeed = Math.min(248, Math.abs(ball.vx) * (1.04 + Math.min(0.1, streak.value * 0.007)) + 10);
+  const nextSpeed = Math.min(
+    248,
+    Math.abs(ball.vx) * (1.04 + Math.min(0.1, streak.value * 0.007)) + 10,
+  );
   completeApproach(now);
   ball.x = paddle.x + paddle.width + ball.radius;
   ball.vx = nextSpeed;
@@ -177,14 +239,23 @@ function updatePaddle(delta: number) {
   const targetY = pointer.value.valid ? pointer.value.y : paddle.y;
   const smoothing = pointer.value.valid ? 6.2 : 2.1;
   paddle.y += (targetY - paddle.y) * Math.min(1, delta * smoothing);
-  paddle.y = Math.max(area.top + paddle.height / 2, Math.min(area.bottom - paddle.height / 2, paddle.y));
+  paddle.y = Math.max(
+    area.top + paddle.height / 2,
+    Math.min(area.bottom - paddle.height / 2, paddle.y),
+  );
 }
 
 function updatePartner(delta: number) {
   const area = playArea();
-  const targetY = ball.vx > 0 ? ball.y : area.centerY + (session.settings.reduceMotion ? 0 : Math.sin(ball.phase) * 18);
+  const targetY =
+    ball.vx > 0
+      ? ball.y
+      : area.centerY + (session.settings.reduceMotion ? 0 : Math.sin(ball.phase) * 18);
   partnerY.value += (targetY - partnerY.value) * Math.min(1, delta * 3.2);
-  partnerY.value = Math.max(area.top + paddle.height * 0.26, Math.min(area.bottom - paddle.height * 0.26, partnerY.value));
+  partnerY.value = Math.max(
+    area.top + paddle.height * 0.26,
+    Math.min(area.bottom - paddle.height * 0.26, partnerY.value),
+  );
 }
 
 function updateContact(now: number) {
@@ -219,7 +290,11 @@ function updateBall(delta: number, now: number) {
 
   const paddleFace = paddle.x + paddle.width;
   const verticalGap = Math.abs(ball.y - paddle.y);
-  const touchesPaddle = ball.vx < 0 && ball.x - ball.radius <= paddleFace && ball.x + ball.radius >= paddle.x && verticalGap <= paddle.height / 2 + ball.radius * 0.9;
+  const touchesPaddle =
+    ball.vx < 0 &&
+    ball.x - ball.radius <= paddleFace &&
+    ball.x + ball.radius >= paddle.x &&
+    verticalGap <= paddle.height / 2 + ball.radius * 0.9;
   if (touchesPaddle && now - ball.lastHitAt > 420) hitBall(now);
 
   const partnerFace = area.right - Math.max(92, width.value * 0.1);
@@ -272,7 +347,7 @@ function draw(ctx: CanvasRenderingContext2D, _delta: number, now: number) {
     sessionSeconds: session.settings.sessionSeconds,
     score: session.score,
     streak: streak.value,
-    reduceMotion: session.settings.reduceMotion
+    reduceMotion: session.settings.reduceMotion,
   });
 }
 
@@ -304,9 +379,30 @@ onUnmounted(() => {
 <template>
   <div class="tennis-shell">
     <canvas ref="canvasRef" class="tennis-canvas" />
-    <GameHud title="Теннис" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Теннис"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
 
-    <GameResultDialog :model-value="resultVisible" title="Теннис" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Теннис"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -324,5 +420,4 @@ onUnmounted(() => {
   inset: 0;
   position: absolute;
 }
-
 </style>

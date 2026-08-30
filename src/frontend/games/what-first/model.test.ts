@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { createWhatFirstDeck, createWhatFirstExplanation, generateWhatFirstRound, whatFirstScenes } from "./model";
+import {
+  createWhatFirstDeck,
+  createWhatFirstExplanation,
+  generateWhatFirstRound,
+  whatFirstScenes,
+} from "./model";
 
 describe("what-first model", () => {
   it("creates a round that expects the first action", () => {
@@ -21,7 +26,9 @@ describe("what-first model", () => {
   it("keeps the context visual unchanged when choice order is reversed", () => {
     const orderedDeck = createWhatFirstDeck(() => 0.99);
     let randomCalls = 0;
-    const reversedDeck = createWhatFirstDeck(() => randomCalls++ < whatFirstScenes.length - 1 ? 0.99 : 0);
+    const reversedDeck = createWhatFirstDeck(() =>
+      randomCalls++ < whatFirstScenes.length - 1 ? 0.99 : 0,
+    );
 
     orderedDeck.forEach((orderedRound, index) => {
       const reversedRound = reversedDeck[index];
@@ -54,8 +61,12 @@ describe("what-first model", () => {
 
     expect(deck).toHaveLength(8);
     expect(new Set(deck.map((round) => round.scene.id)).size).toBe(8);
-    expect(new Set(deck.map((round) => round.scene.id))).toEqual(new Set(whatFirstScenes.map((scene) => scene.id)));
-    expect(deck.map((round) => round.roundId)).toEqual(Array.from({ length: 8 }, (_, index) => `what-first:round:${index + 1}`));
+    expect(new Set(deck.map((round) => round.scene.id))).toEqual(
+      new Set(whatFirstScenes.map((scene) => scene.id)),
+    );
+    expect(deck.map((round) => round.roundId)).toEqual(
+      Array.from({ length: 8 }, (_, index) => `what-first:round:${index + 1}`),
+    );
   });
 
   it("softly explains the sequence", () => {

@@ -13,7 +13,7 @@ const config = {
   quoteProps: "consistent",
   // 95% of existing lines are under 105 characters, so this keeps reflow
   // noise down compared to the 80 default.
-  printWidth: 100
+  printWidth: 100,
 };
 
 module.exports = config;

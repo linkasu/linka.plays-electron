@@ -13,12 +13,29 @@ import { advanceOpenDoor, createOpenDoorState, openDoorTargetId, revealOpenDoor 
 
 const revealPauseMs = 2400;
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordSuccess, startSession } = useGameSessionFor("open-door", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  finishSession,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("open-door", {
   maxSteps: 8,
-  overrides: { preset: "gentle", targetScale: 1.7, motionSpeed: 0.32, distractors: "none", hints: "high", sound: true },
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.7,
+    motionSpeed: 0.32,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
   finishOnMaxSteps: false,
   finishOnMistakes: false,
-  finishOnTimeout: false
+  finishOnTimeout: false,
 });
 
 const doorState = ref(createOpenDoorState(session.maxSteps));
@@ -33,7 +50,7 @@ const targetStyle = computed(() => ({
   "--open-door-target-scale": Math.max(0.8, session.settings.targetScale).toFixed(2),
   "--open-door-motion-duration": `${Math.round(360 + (1 - Math.min(1, session.settings.motionSpeed)) * 240)}ms`,
   "--open-door-glow": currentReward.value?.glow ?? "#ffe5a3",
-  "--open-door-reward-color": currentReward.value?.color ?? "#e6a425"
+  "--open-door-reward-color": currentReward.value?.color ?? "#e6a425",
 }));
 const openDoorTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.game === "open-door");
 let revealTimer: number | undefined;
@@ -74,7 +91,11 @@ function openDoor() {
 
 function resumeGame() {
   resumeSession();
-  if (session.status === "running" && doorState.value.phase === "revealed" && revealTimer === undefined) {
+  if (
+    session.status === "running" &&
+    doorState.value.phase === "revealed" &&
+    revealTimer === undefined
+  ) {
     revealTimer = window.setTimeout(finishReveal, revealPauseMs);
   }
 }
@@ -126,16 +147,28 @@ onUnmounted(() => {
         @select="openDoor"
       >
         <template #default="{ active }">
-          <div class="open-door-stage" :aria-label="doorOpen ? undefined : 'Закрытая дверь. Удерживай взгляд, чтобы открыть.'">
+          <div
+            class="open-door-stage"
+            :aria-label="doorOpen ? undefined : 'Закрытая дверь. Удерживай взгляд, чтобы открыть.'"
+          >
             <div class="open-door-doorway" aria-hidden="true" />
-            <div :class="['open-door-light', { 'open-door-light--visible': doorOpen }]" aria-hidden="true" />
+            <div
+              :class="['open-door-light', { 'open-door-light--visible': doorOpen }]"
+              aria-hidden="true"
+            />
 
             <div v-if="doorOpen && currentReward" class="open-door-reveal" aria-live="polite">
               <v-icon :icon="currentReward.icon" class="open-door-reveal-icon" />
               <span class="open-door-sr-only">{{ currentReward.label }}</span>
             </div>
 
-            <div :class="['open-door-panel', { 'open-door-panel--open': doorOpen, 'open-door-panel--active': active }]" aria-hidden="true">
+            <div
+              :class="[
+                'open-door-panel',
+                { 'open-door-panel--open': doorOpen, 'open-door-panel--active': active },
+              ]"
+              aria-hidden="true"
+            >
               <div class="open-door-panel-inset" />
               <div class="open-door-handle" />
             </div>
@@ -206,20 +239,29 @@ onUnmounted(() => {
   border: clamp(0.65rem, 1.8dvh, 1rem) solid #6d4935;
   border-block-end-width: clamp(0.9rem, 2.4dvh, 1.3rem);
   border-radius: 3.2rem 3.2rem 0.7rem 0.7rem;
-  box-shadow: 0 1.4rem 2.8rem rgb(23 20 24 / 42%), inset 0 0 2.2rem rgb(0 0 0 / 48%);
+  box-shadow:
+    0 1.4rem 2.8rem rgb(23 20 24 / 42%),
+    inset 0 0 2.2rem rgb(0 0 0 / 48%);
   inset: 0;
   position: absolute;
 }
 
 .open-door-light {
-  background: radial-gradient(circle, var(--open-door-glow) 0%, rgb(255 245 214 / 52%) 40%, transparent 74%);
+  background: radial-gradient(
+    circle,
+    var(--open-door-glow) 0%,
+    rgb(255 245 214 / 52%) 40%,
+    transparent 74%
+  );
   block-size: 92%;
   border-radius: 999rem;
   inline-size: 110%;
   opacity: 0;
   position: absolute;
   transform: scale(0.74);
-  transition: opacity var(--open-door-motion-duration) ease, transform var(--open-door-motion-duration) ease;
+  transition:
+    opacity var(--open-door-motion-duration) ease,
+    transform var(--open-door-motion-duration) ease;
 }
 
 .open-door-light--visible {
@@ -248,11 +290,15 @@ onUnmounted(() => {
     linear-gradient(145deg, #a8734e 0%, #7b4a31 52%, #54301f 100%);
   border: clamp(0.55rem, 1.6dvh, 0.85rem) solid #5c3827;
   border-radius: 2.65rem 2.65rem 0.6rem 0.6rem;
-  box-shadow: inset 0 0 0 0.18rem rgb(255 231 188 / 16%), 0 1.35rem 2.7rem rgb(31 23 23 / 36%);
+  box-shadow:
+    inset 0 0 0 0.18rem rgb(255 231 188 / 16%),
+    0 1.35rem 2.7rem rgb(31 23 23 / 36%);
   inset: 0;
   position: absolute;
   transform-origin: left center;
-  transition: filter 180ms ease, transform var(--open-door-motion-duration) cubic-bezier(0.2, 0.75, 0.25, 1);
+  transition:
+    filter 180ms ease,
+    transform var(--open-door-motion-duration) cubic-bezier(0.2, 0.75, 0.25, 1);
   z-index: 2;
 }
 

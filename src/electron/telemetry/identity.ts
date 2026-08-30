@@ -64,13 +64,20 @@ export class PublicInstallationIdentityClient {
 
   async getAccess(request: TelemetryRequest): Promise<InstallationIdentity> {
     const identity = await this.getIdentity(request);
-    if (identity.accessToken && Date.parse(identity.accessToken.expiresAt) > Date.now() + 60_000) return identity;
+    if (identity.accessToken && Date.parse(identity.accessToken.expiresAt) > Date.now() + 60_000)
+      return identity;
 
-    const response = await request(endpointURL(this.options.endpoint, "/v1/public/installations/token"), {
-      method: "POST",
-      headers: { "content-type": "application/json", authorization: `Bearer ${identity.refreshToken}` },
-      body: "{}"
-    });
+    const response = await request(
+      endpointURL(this.options.endpoint, "/v1/public/installations/token"),
+      {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "authorization": `Bearer ${identity.refreshToken}`,
+        },
+        body: "{}",
+      },
+    );
     if (response.status === 403) throw new TelemetryDeniedError();
     if (response.status === 401) throw new Error("installation refresh credential rejected");
     if (!response.ok) throw new Error("installation token refresh rejected");
@@ -101,21 +108,41 @@ export class PublicInstallationIdentityClient {
         await this.clear();
         return true;
       }
-      const registration = await request(endpointURL(this.options.endpoint, "/v1/public/installations"), {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(pending)
-      });
+      const registration = await request(
+        endpointURL(this.options.endpoint, "/v1/public/installations"),
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(pending),
+        },
+      );
       if (!registration.ok) return false;
-      this.identity = parseRegistrationResponse(registration.body, pending.policy_version, this.options.platform);
+      this.identity = parseRegistrationResponse(
+        registration.body,
+        pending.policy_version,
+        this.options.platform,
+      );
       await this.save(this.identity);
     }
-    const response = await request(endpointURL(this.options.endpoint, "/v1/public/installations/telemetry-preference"), {
-      method: "PUT",
-      headers: { "content-type": "application/json", authorization: `Bearer ${this.identity.refreshToken}` },
-      body: JSON.stringify({ preference: "denied", policy_version: this.identity.policyVersion, recorded_at: new Date().toISOString() })
-    });
-    if (response.status === 200 && isDenialResponse(response.body, this.identity.installationKey, this.identity.policyVersion)) {
+    const response = await request(
+      endpointURL(this.options.endpoint, "/v1/public/installations/telemetry-preference"),
+      {
+        method: "PUT",
+        headers: {
+          "content-type": "application/json",
+          "authorization": `Bearer ${this.identity.refreshToken}`,
+        },
+        body: JSON.stringify({
+          preference: "denied",
+          policy_version: this.identity.policyVersion,
+          recorded_at: new Date().toISOString(),
+        }),
+      },
+    );
+    if (
+      response.status === 200 &&
+      isDenialResponse(response.body, this.identity.installationKey, this.identity.policyVersion)
+    ) {
       await this.clear();
       return true;
     }
@@ -126,7 +153,10 @@ export class PublicInstallationIdentityClient {
     this.identity = undefined;
     this.identityLoaded = true;
     this.identityUnavailable = false;
-    await Promise.all([rm(this.identityPath, { force: true }), rm(this.registrationPath, { force: true })]);
+    await Promise.all([
+      rm(this.identityPath, { force: true }),
+      rm(this.registrationPath, { force: true }),
+    ]);
   }
 
   private async getIdentity(request: TelemetryRequest) {
@@ -138,10 +168,14 @@ export class PublicInstallationIdentityClient {
     const response = await request(endpointURL(this.options.endpoint, "/v1/public/installations"), {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify(registration)
+      body: JSON.stringify(registration),
     });
     if (!response.ok) throw new Error("installation registration rejected");
-    const identity = parseRegistrationResponse(response.body, registration.policy_version, this.options.platform);
+    const identity = parseRegistrationResponse(
+      response.body,
+      registration.policy_version,
+      this.options.platform,
+    );
     this.identity = identity;
     this.identityLoaded = true;
     await this.save(identity);
@@ -170,7 +204,12 @@ export class PublicInstallationIdentityClient {
       await rm(this.identityPath, { force: true });
       return;
     }
-    if (stored.schema_version !== 2 || !isOpaqueKey(stored.installation_key) || typeof stored.credentials !== "string" || typeof stored.protected !== "boolean") {
+    if (
+      stored.schema_version !== 2 ||
+      !isOpaqueKey(stored.installation_key) ||
+      typeof stored.credentials !== "string" ||
+      typeof stored.protected !== "boolean"
+    ) {
       this.identityUnavailable = true;
       return;
     }
@@ -206,7 +245,7 @@ export class PublicInstallationIdentityClient {
       platform: this.options.platform,
       preference: "allowed",
       policy_version: this.options.policyVersion,
-      recorded_at: new Date().toISOString()
+      recorded_at: new Date().toISOString(),
     };
     await atomicWrite(this.options.directory, this.registrationPath, JSON.stringify(registration));
     return registration;
@@ -214,8 +253,18 @@ export class PublicInstallationIdentityClient {
 
   private async readRegistration(recentOnly = true): Promise<RegistrationAttempt | undefined> {
     try {
-      const parsed = JSON.parse(await readRecoverable(this.options.directory, this.registrationPath)) as Partial<RegistrationAttempt>;
-      if (isUUID(parsed.request_id) && parsed.product_id === "linka-plays" && parsed.platform === this.options.platform && parsed.preference === "allowed" && parsed.policy_version === this.options.policyVersion && isDate(parsed.recorded_at) && (!recentOnly || isRecentDate(parsed.recorded_at))) {
+      const parsed = JSON.parse(
+        await readRecoverable(this.options.directory, this.registrationPath),
+      ) as Partial<RegistrationAttempt>;
+      if (
+        isUUID(parsed.request_id) &&
+        parsed.product_id === "linka-plays" &&
+        parsed.platform === this.options.platform &&
+        parsed.preference === "allowed" &&
+        parsed.policy_version === this.options.policyVersion &&
+        isDate(parsed.recorded_at) &&
+        (!recentOnly || isRecentDate(parsed.recorded_at))
+      ) {
         return parsed as RegistrationAttempt;
       }
     } catch {
@@ -230,7 +279,7 @@ export class PublicInstallationIdentityClient {
       refresh_expires_at: identity.refreshExpiresAt,
       policy_version: identity.policyVersion,
       access_token: identity.accessToken?.token,
-      access_expires_at: identity.accessToken?.expiresAt
+      access_expires_at: identity.accessToken?.expiresAt,
     });
     let protectedCredentials = false;
     let value = credentials;
@@ -242,13 +291,33 @@ export class PublicInstallationIdentityClient {
         protectedCredentials = false;
       }
     }
-    const stored: StoredIdentity = { schema_version: 2, installation_key: identity.installationKey, credentials: value, protected: protectedCredentials };
+    const stored: StoredIdentity = {
+      schema_version: 2,
+      installation_key: identity.installationKey,
+      credentials: value,
+      protected: protectedCredentials,
+    };
     await atomicWrite(this.options.directory, this.identityPath, JSON.stringify(stored));
   }
 }
 
-function parseRegistrationResponse(value: unknown, policyVersion: string, platform: AppMetadata["platform"]): InstallationIdentity {
-  if (!isObject(value) || !isOpaqueKey(value.installation_key) || value.product !== "linka-plays" || value.platform !== platform || value.preference !== "allowed" || value.policy_version !== policyVersion || typeof value.refresh_token !== "string" || value.refresh_token.length < 100 || value.refresh_token.length > 4096 || !isDate(value.refresh_expires_at)) {
+function parseRegistrationResponse(
+  value: unknown,
+  policyVersion: string,
+  platform: AppMetadata["platform"],
+): InstallationIdentity {
+  if (
+    !isObject(value) ||
+    !isOpaqueKey(value.installation_key) ||
+    value.product !== "linka-plays" ||
+    value.platform !== platform ||
+    value.preference !== "allowed" ||
+    value.policy_version !== policyVersion ||
+    typeof value.refresh_token !== "string" ||
+    value.refresh_token.length < 100 ||
+    value.refresh_token.length > 4096 ||
+    !isDate(value.refresh_expires_at)
+  ) {
     throw new Error("invalid installation registration");
   }
   return {
@@ -256,33 +325,69 @@ function parseRegistrationResponse(value: unknown, policyVersion: string, platfo
     refreshToken: value.refresh_token,
     refreshExpiresAt: value.refresh_expires_at,
     policyVersion,
-    accessToken: parseAccessToken(value.metrics_token)
+    accessToken: parseAccessToken(value.metrics_token),
   };
 }
 
 function parseTokenResponse(value: unknown, installationKey: string) {
-  if (!isObject(value) || value.installation_key !== installationKey || value.product !== "linka-plays") throw new Error("invalid installation token response");
+  if (
+    !isObject(value) ||
+    value.installation_key !== installationKey ||
+    value.product !== "linka-plays"
+  )
+    throw new Error("invalid installation token response");
   const access = parseAccessToken(value.metrics_token);
   if (!access) throw new Error("missing installation access token");
   return access;
 }
 
 function parseAccessToken(value: unknown): AccessToken | undefined {
-  if (!isObject(value) || typeof value.access_token !== "string" || value.access_token.length < 100 || value.access_token.length > 4096 || value.token_type !== "Bearer" || !isDate(value.expires_at)) return undefined;
+  if (
+    !isObject(value) ||
+    typeof value.access_token !== "string" ||
+    value.access_token.length < 100 ||
+    value.access_token.length > 4096 ||
+    value.token_type !== "Bearer" ||
+    !isDate(value.expires_at)
+  )
+    return undefined;
   return { token: value.access_token, expiresAt: value.expires_at };
 }
 
-function parseStoredIdentity(installationKey: string, value: Record<string, unknown>): InstallationIdentity | undefined {
-  if (typeof value.refresh_token !== "string" || value.refresh_token.length < 100 || value.refresh_token.length > 4096 || !isDate(value.refresh_expires_at) || typeof value.policy_version !== "string" || !value.policy_version) return undefined;
-  const accessToken = value.access_token === undefined && value.access_expires_at === undefined
-    ? undefined
-    : parseAccessToken({ access_token: value.access_token, expires_at: value.access_expires_at, token_type: "Bearer" });
-  return { installationKey, refreshToken: value.refresh_token, refreshExpiresAt: value.refresh_expires_at, policyVersion: value.policy_version, accessToken };
+function parseStoredIdentity(
+  installationKey: string,
+  value: Record<string, unknown>,
+): InstallationIdentity | undefined {
+  if (
+    typeof value.refresh_token !== "string" ||
+    value.refresh_token.length < 100 ||
+    value.refresh_token.length > 4096 ||
+    !isDate(value.refresh_expires_at) ||
+    typeof value.policy_version !== "string" ||
+    !value.policy_version
+  )
+    return undefined;
+  const accessToken =
+    value.access_token === undefined && value.access_expires_at === undefined
+      ? undefined
+      : parseAccessToken({
+          access_token: value.access_token,
+          expires_at: value.access_expires_at,
+          token_type: "Bearer",
+        });
+  return {
+    installationKey,
+    refreshToken: value.refresh_token,
+    refreshExpiresAt: value.refresh_expires_at,
+    policyVersion: value.policy_version,
+    accessToken,
+  };
 }
 
 function endpointURL(base: string, path: string) {
   const url = new URL(base);
-  if ((url.protocol !== "https:" && url.protocol !== "http:") || url.username || url.password) throw new Error("invalid identity endpoint");
+  if ((url.protocol !== "https:" && url.protocol !== "http:") || url.username || url.password)
+    throw new Error("invalid identity endpoint");
   url.pathname = `${url.pathname.replace(/\/$/, "")}${path}`;
   url.search = "";
   url.hash = "";
@@ -321,7 +426,10 @@ async function readRecoverable(directory: string, destination: string) {
   } catch (error) {
     if (process.platform !== "win32") throw error;
     const prefix = `${basename(destination)}.`;
-    const candidates = (await readdir(directory)).filter((name) => name.startsWith(prefix) && name.endsWith(".tmp")).sort().reverse();
+    const candidates = (await readdir(directory))
+      .filter((name) => name.startsWith(prefix) && name.endsWith(".tmp"))
+      .sort()
+      .reverse();
     for (const candidate of candidates) {
       try {
         const temporary = join(directory, candidate);
@@ -337,7 +445,14 @@ async function readRecoverable(directory: string, destination: string) {
 }
 
 function isDenialResponse(value: unknown, installationKey: string, policyVersion: string) {
-  return isObject(value) && value.installation_key === installationKey && value.product === "linka-plays" && value.preference === "denied" && value.policy_version === policyVersion && isDate(value.recorded_at);
+  return (
+    isObject(value) &&
+    value.installation_key === installationKey &&
+    value.product === "linka-plays" &&
+    value.preference === "denied" &&
+    value.policy_version === policyVersion &&
+    isDate(value.recorded_at)
+  );
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {
@@ -349,7 +464,11 @@ function isDate(value: unknown): value is string {
 }
 
 function isRecentDate(value: unknown): value is string {
-  return isDate(value) && Date.parse(value) > Date.now() - 23 * 60 * 60 * 1000 && Date.parse(value) < Date.now() + 5 * 60 * 1000;
+  return (
+    isDate(value) &&
+    Date.parse(value) > Date.now() - 23 * 60 * 60 * 1000 &&
+    Date.parse(value) < Date.now() + 5 * 60 * 1000
+  );
 }
 
 function isOpaqueKey(value: unknown): value is string {
@@ -357,13 +476,25 @@ function isOpaqueKey(value: unknown): value is string {
 }
 
 function isUUID(value: unknown): value is string {
-  return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+  return (
+    typeof value === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+  );
 }
 
 function isLegacyIdentity(value: Record<string, unknown>) {
-  return value.schema_version === undefined && isUUID(value.installation_id) && typeof value.token === "string";
+  return (
+    value.schema_version === undefined &&
+    isUUID(value.installation_id) &&
+    typeof value.token === "string"
+  );
 }
 
 function isMissingFileError(error: unknown) {
-  return typeof error === "object" && error !== null && "code" in error && (error as { code?: unknown }).code === "ENOENT";
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: unknown }).code === "ENOENT"
+  );
 }

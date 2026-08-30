@@ -10,7 +10,17 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { createScheduleCandidates, createScheduleCards, dailyScheduleSteps, isExpectedScheduleChoice, nextScheduleStep, scheduleMaxSteps, schedulePromptAssetId, scheduleTargetId, type ScheduleCard } from "./model";
+import {
+  createScheduleCandidates,
+  createScheduleCards,
+  dailyScheduleSteps,
+  isExpectedScheduleChoice,
+  nextScheduleStep,
+  scheduleMaxSteps,
+  schedulePromptAssetId,
+  scheduleTargetId,
+  type ScheduleCard,
+} from "./model";
 
 type ScheduleCardState = ScheduleCard & {
   placed: boolean;
@@ -20,13 +30,26 @@ type ScheduleCardState = ScheduleCard & {
 const router = useRouter();
 const { height, smAndDown } = useDisplay();
 const scheduleFeedback = createStandardGameFeedback();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("schedule", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+} = useGameSessionFor("schedule", {
   maxSteps: scheduleMaxSteps,
   overrides: { sound: true },
   finishOnMistakes: false,
-  finishOnTimeout: false
+  finishOnTimeout: false,
 });
-const promptAudio = useGamePromptAudio({ gameId: "schedule", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "schedule",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 
 const cards = ref<ScheduleCardState[]>(makeCards());
 const feedbackMessage = ref("Собери день по порядку. Начни с первой карточки утром.");
@@ -36,12 +59,22 @@ const wrongChoiceId = ref<string>();
 const successChoiceId = ref<string>();
 const resultVisible = ref(false);
 
-const placedCards = computed(() => cards.value.filter((card) => card.placed).sort((a, b) => (a.placedIndex ?? 0) - (b.placedIndex ?? 0)));
+const placedCards = computed(() =>
+  cards.value
+    .filter((card) => card.placed)
+    .sort((a, b) => (a.placedIndex ?? 0) - (b.placedIndex ?? 0)),
+);
 const placedIds = computed(() => placedCards.value.map((card) => card.id));
 const nextStep = computed(() => nextScheduleStep(placedIds.value));
 const currentRoundId = computed(() => `schedule:step:${session.step + 1}`);
 const compactChoices = computed(() => smAndDown.value || height.value <= 700);
-const visibleCards = computed(() => createScheduleCandidates(cards.value, placedIds.value, compactChoices.value ? 4 : cards.value.length));
+const visibleCards = computed(() =>
+  createScheduleCandidates(
+    cards.value,
+    placedIds.value,
+    compactChoices.value ? 4 : cards.value.length,
+  ),
+);
 
 function makeCards(): ScheduleCardState[] {
   return createScheduleCards().map((card) => ({ ...card, placed: false }));
@@ -62,13 +95,16 @@ async function playIntroPrompt(delayMs = 0) {
   promptAudio.cancelPending();
   isSpeaking.value = true;
   const firstStep = nextStep.value;
-  const sequence = firstStep ? ["schedule.intro", schedulePromptAssetId(firstStep)] : ["schedule.intro"];
+  const sequence = firstStep
+    ? ["schedule.intro", schedulePromptAssetId(firstStep)]
+    : ["schedule.intro"];
   await promptAudio.playSequenceAndWait(sequence, delayMs, 180);
   isSpeaking.value = false;
 }
 
 async function choose(card: ScheduleCardState) {
-  if (session.status !== "running" || pendingSelection.value || isSpeaking.value || card.placed) return;
+  if (session.status !== "running" || pendingSelection.value || isSpeaking.value || card.placed)
+    return;
 
   const expected = nextStep.value;
   if (!expected) return;
@@ -80,8 +116,16 @@ async function choose(card: ScheduleCardState) {
     pendingSelection.value = true;
     isSpeaking.value = true;
     successChoiceId.value = card.id;
-    feedbackMessage.value = nextStep.value ? "Верно. Теперь выбери следующий шаг дня." : "Расписание собрано. День получился понятным.";
-    recordSuccess({ roundId: currentRoundId.value, targetId: scheduleTargetId(card), expected: expected.id, actual: card.id, isCorrect: true });
+    feedbackMessage.value = nextStep.value
+      ? "Верно. Теперь выбери следующий шаг дня."
+      : "Расписание собрано. День получился понятным.";
+    recordSuccess({
+      roundId: currentRoundId.value,
+      targetId: scheduleTargetId(card),
+      expected: expected.id,
+      actual: card.id,
+      isCorrect: true,
+    });
     void scheduleFeedback.playSuccess(session.settings.sound);
     promptAudio.cancelPending();
     const upcomingStep = nextStep.value;
@@ -98,7 +142,14 @@ async function choose(card: ScheduleCardState) {
   isSpeaking.value = true;
   wrongChoiceId.value = card.id;
   feedbackMessage.value = "Посмотри на порядок дня и попробуй выбрать другую карточку.";
-  recordMistake({ roundId: currentRoundId.value, targetId: scheduleTargetId(card), expectedTargetId: scheduleTargetId(expected), expected: expected.id, actual: card.id, isCorrect: false });
+  recordMistake({
+    roundId: currentRoundId.value,
+    targetId: scheduleTargetId(card),
+    expectedTargetId: scheduleTargetId(expected),
+    expected: expected.id,
+    actual: card.id,
+    isCorrect: false,
+  });
   void scheduleFeedback.playMistake(session.settings.sound);
   promptAudio.cancelPending();
   await promptAudio.playSequenceAndWait(["schedule.mistake"], 120);
@@ -135,20 +186,43 @@ onUnmounted(() => {
 
 <template>
   <div class="schedule-shell">
-    <GameHud title="Расписание" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Расписание"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
           <v-card class="schedule-card pa-4 pa-md-6" rounded="xl" elevation="8">
             <div class="schedule-header text-center">
               <div class="text-overline text-secondary mb-1">AAC-последовательность</div>
-              <h1 class="schedule-title text-h4 text-md-h3 font-weight-bold">Собери расписание дня</h1>
+              <h1 class="schedule-title text-h4 text-md-h3 font-weight-bold">
+                Собери расписание дня
+              </h1>
               <p class="schedule-prompt text-body-1 text-medium-emphasis">{{ feedbackMessage }}</p>
             </div>
 
-            <v-card v-if="nextStep" class="current-step-card pa-2" color="amber-lighten-5" rounded="xl" variant="flat">
+            <v-card
+              v-if="nextStep"
+              class="current-step-card pa-2"
+              color="amber-lighten-5"
+              rounded="xl"
+              variant="flat"
+            >
               <div class="current-step-image">
-                <GameWordImage :word-id="nextStep.imageId" :word="nextStep.title" :emoji="nextStep.emoji" />
+                <GameWordImage
+                  :word-id="nextStep.imageId"
+                  :word="nextStep.title"
+                  :emoji="nextStep.emoji"
+                />
               </div>
               <div class="current-step-copy">
                 <div class="text-caption text-medium-emphasis">Сейчас</div>
@@ -156,11 +230,32 @@ onUnmounted(() => {
               </div>
             </v-card>
 
-            <div class="schedule-strip-title text-caption text-medium-emphasis">Сюда собирается расписание</div>
+            <div class="schedule-strip-title text-caption text-medium-emphasis">
+              Сюда собирается расписание
+            </div>
             <div class="schedule-strip" aria-label="Собранное расписание дня по порядку">
-              <v-card v-for="(step, index) in dailyScheduleSteps" :key="step.id" :class="['schedule-slot', { 'schedule-slot--next': nextStep?.id === step.id, 'schedule-slot--done': isPlaced(step.id) }]" color="blue-grey-lighten-5" rounded="xl" variant="flat">
+              <v-card
+                v-for="(step, index) in dailyScheduleSteps"
+                :key="step.id"
+                :class="[
+                  'schedule-slot',
+                  {
+                    'schedule-slot--next': nextStep?.id === step.id,
+                    'schedule-slot--done': isPlaced(step.id),
+                  },
+                ]"
+                color="blue-grey-lighten-5"
+                rounded="xl"
+                variant="flat"
+              >
                 <template v-if="isPlaced(step.id)">
-                  <GameWordImage class="slot-image" :word-id="step.imageId" :word="step.title" :emoji="step.emoji" decorative />
+                  <GameWordImage
+                    class="slot-image"
+                    :word-id="step.imageId"
+                    :word="step.title"
+                    :emoji="step.emoji"
+                    decorative
+                  />
                   <div class="text-caption font-weight-bold mt-1">{{ step.title }}</div>
                 </template>
                 <template v-else>
@@ -170,15 +265,42 @@ onUnmounted(() => {
             </div>
 
             <v-row class="choice-row" justify="center" no-gutters>
-              <v-col v-for="card in visibleCards" :key="card.id" class="schedule-choice-col pa-2" cols="6" sm="3">
-                <GameDwellButton :target-id="scheduleTargetId(card)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking || card.placed" :dwell-ms="session.settings.dwellMs" min-height="11rem" :color="choiceColor(card)" @select="choose(card)">
+              <v-col
+                v-for="card in visibleCards"
+                :key="card.id"
+                class="schedule-choice-col pa-2"
+                cols="6"
+                sm="3"
+              >
+                <GameDwellButton
+                  :target-id="scheduleTargetId(card)"
+                  :disabled="
+                    session.status !== 'running' || pendingSelection || isSpeaking || card.placed
+                  "
+                  :dwell-ms="session.settings.dwellMs"
+                  min-height="11rem"
+                  :color="choiceColor(card)"
+                  @select="choose(card)"
+                >
                   <template #default>
                     <div :class="['schedule-choice', { 'schedule-choice--placed': card.placed }]">
                       <div class="choice-image" :style="{ backgroundColor: card.color }">
-                        <GameWordImage :word-id="card.imageId" :word="card.title" :emoji="card.emoji" />
+                        <GameWordImage
+                          :word-id="card.imageId"
+                          :word="card.title"
+                          :emoji="card.emoji"
+                        />
                       </div>
-                      <div class="schedule-choice-title text-h6 font-weight-bold mt-2">{{ card.title }}</div>
-                      <v-chip class="schedule-choice-chip mt-3" color="primary" size="large" variant="tonal">{{ card.aacLabel }}</v-chip>
+                      <div class="schedule-choice-title text-h6 font-weight-bold mt-2">
+                        {{ card.title }}
+                      </div>
+                      <v-chip
+                        class="schedule-choice-chip mt-3"
+                        color="primary"
+                        size="large"
+                        variant="tonal"
+                        >{{ card.aacLabel }}</v-chip
+                      >
                     </div>
                   </template>
                 </GameDwellButton>
@@ -188,7 +310,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Расписание" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Расписание"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -267,7 +399,9 @@ onUnmounted(() => {
   flex-direction: column;
   justify-content: center;
   min-block-size: clamp(3.4rem, 7.7vh, 6.75rem);
-  transition: box-shadow 180ms ease, transform 180ms ease;
+  transition:
+    box-shadow 180ms ease,
+    transform 180ms ease;
 }
 
 .schedule-slot--next {
@@ -313,7 +447,9 @@ onUnmounted(() => {
 
 .schedule-choice {
   color: #17212b;
-  transition: opacity 160ms ease, transform 160ms ease;
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
 }
 
 .schedule-choice-title,
@@ -346,43 +482,43 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
- .game-container {
+  .game-container {
     align-items: flex-start;
     overflow: auto;
     padding-block-start: 6.25rem;
   }
 
- .schedule-strip {
+  .schedule-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-height: 40.625rem) {
- .game-container {
+  .game-container {
     padding-block-start: 4.25rem;
   }
 
- .schedule-card {
+  .schedule-card {
     gap: 0.45rem;
     padding: 0.85rem 1rem 1rem !important;
   }
 
- .schedule-header .text-overline,
- .schedule-prompt {
+  .schedule-header .text-overline,
+  .schedule-prompt {
     display: none;
   }
 
- .schedule-title {
+  .schedule-title {
     font-size: clamp(1.65rem, 5vh, 2.1rem) !important;
     margin-block-end: 0;
   }
 
- .schedule-slot {
+  .schedule-slot {
     min-block-size: clamp(3rem, 8vh, 3.4rem);
   }
 
- .choice-row :deep(.dwell-button),
- .choice-row :deep(.dwell-hitbox) {
+  .choice-row :deep(.dwell-button),
+  .choice-row :deep(.dwell-hitbox) {
     min-block-size: clamp(8rem, 22vh, 8.5rem) !important;
   }
 

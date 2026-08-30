@@ -47,15 +47,53 @@ type Trail = Point & {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, recordMistake, startSession } = useGameSessionFor("glider", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  finishSession,
+  recordEvent,
+  recordSuccess,
+  recordMistake,
+  startSession,
+} = useGameSessionFor("glider", {
   maxSteps: 8,
-  overrides: { preset: "standard", dwellMs: 600, targetScale: 1.2, motionSpeed: 0.9, distractors: "low", hints: "medium" },
+  overrides: {
+    preset: "standard",
+    dwellMs: 600,
+    targetScale: 1.2,
+    motionSpeed: 0.9,
+    distractors: "low",
+    hints: "medium",
+  },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 
-const glider = reactive<Glider>({ x: window.innerWidth * 0.26, y: window.innerHeight * 0.52, vx: 0, vy: 0, tilt: 0, phase: 0, glow: 0 });
-const gate = reactive<Gate>({ id: "gate-0", x: window.innerWidth * 0.82, y: window.innerHeight * 0.5, gap: 260, width: 92, speed: 86, phase: 0, entered: false, enteredAt: 0, passed: false });
+const glider = reactive<Glider>({
+  x: window.innerWidth * 0.26,
+  y: window.innerHeight * 0.52,
+  vx: 0,
+  vy: 0,
+  tilt: 0,
+  phase: 0,
+  glow: 0,
+});
+const gate = reactive<Gate>({
+  id: "gate-0",
+  x: window.innerWidth * 0.82,
+  y: window.innerHeight * 0.5,
+  gap: 260,
+  width: 92,
+  speed: 86,
+  phase: 0,
+  entered: false,
+  enteredAt: 0,
+  passed: false,
+});
 const clouds = reactive<Cloud[]>([]);
 const trails = reactive<Trail[]>([]);
 const cleanupProgress = ref(0);
@@ -67,7 +105,8 @@ const guidanceText = computed(() => {
   if (session.status === "paused") return "Пауза. Планер ждёт продолжения.";
   if (cleanupProgress.value > 0) return "Маршрут завершён: планер уходит в чистое небо.";
   if (hull.value <= 1) return "Остался один шанс. Держи планер точно в просвете.";
-  if (!pointer.value.valid) return "Можно вести планер взглядом или мышью. Без управления планер держит курс хуже.";
+  if (!pointer.value.valid)
+    return "Можно вести планер взглядом или мышью. Без управления планер держит курс хуже.";
   return "Веди планер точно через воздушные ворота: промах повреждает крыло.";
 });
 
@@ -100,7 +139,10 @@ function gliderSize() {
 function gateGap() {
   const safeHeight = playBottom() - playTop();
   const difficulty = gliderDifficulty(session.step, session.maxSteps);
-  return Math.min(safeHeight * 0.64, Math.max(150, 178 * session.settings.targetScale * difficulty.gapScale));
+  return Math.min(
+    safeHeight * 0.64,
+    Math.max(150, 178 * session.settings.targetScale * difficulty.gapScale),
+  );
 }
 
 function gateSpeed() {
@@ -109,7 +151,11 @@ function gateSpeed() {
 }
 
 function safeGateY(gap = gateGap()) {
-  return clamp(randomRange(playTop() + gap * 0.5, playBottom() - gap * 0.5), playTop() + gap * 0.5, playBottom() - gap * 0.5);
+  return clamp(
+    randomRange(playTop() + gap * 0.5, playBottom() - gap * 0.5),
+    playTop() + gap * 0.5,
+    playBottom() - gap * 0.5,
+  );
 }
 
 function copyPointer() {
@@ -118,7 +164,7 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
@@ -133,7 +179,7 @@ function targetPayload(progress: number, now: number, reason?: "left" | "cleanup
     gateGap: gate.gap,
     glider: { x: glider.x, y: glider.y },
     pointer: copyPointer(),
-    reason
+    reason,
   };
 }
 
@@ -158,7 +204,7 @@ function createCloud(index: number): Cloud {
     size: randomRange(62, 138) * (width.value < 720 ? 0.76 : 1),
     speed: randomRange(8, 22),
     alpha: randomRange(0.18, 0.42),
-    phase: index + randomRange(0, Math.PI * 2)
+    phase: index + randomRange(0, Math.PI * 2),
   };
 }
 
@@ -208,11 +254,19 @@ function completeGate(now: number) {
 
 function damageGlider(now: number, reason: "miss") {
   const damagedHull = applyGliderDamage(hull.value);
-  const nextHull = session.settings.controlOutcomeMode === "strict" ? damagedHull : Math.max(1, damagedHull);
+  const nextHull =
+    session.settings.controlOutcomeMode === "strict" ? damagedHull : Math.max(1, damagedHull);
   hull.value = nextHull;
   damageFlash.value = 1;
   glider.glow = 0.7;
-  recordMistake({ targetId: gate.id, reason, hull: nextHull, gate: session.step + 1, glider: { x: glider.x, y: glider.y }, gateCenter: { x: gate.x, y: gate.y } });
+  recordMistake({
+    targetId: gate.id,
+    reason,
+    hull: nextHull,
+    gate: session.step + 1,
+    glider: { x: glider.x, y: glider.y },
+    gateCenter: { x: gate.x, y: gate.y },
+  });
   recordEvent("target-cancel", targetPayload(0, now, "left"));
   if (session.settings.controlOutcomeMode === "strict" && nextHull <= 0) {
     finishSession("game-lost");
@@ -258,7 +312,15 @@ function updateGate(delta: number, now: number) {
     recordEvent("target-enter", targetPayload(gateProgress, now));
   }
 
-  const outcome = classifyGatePass(gate.x, gate.width, gate.y, gate.gap, glider.x, glider.y, difficulty.passRatio);
+  const outcome = classifyGatePass(
+    gate.x,
+    gate.width,
+    gate.y,
+    gate.gap,
+    glider.x,
+    glider.y,
+    difficulty.passRatio,
+  );
   if (!gate.passed && outcome === "pass") {
     completeGate(now);
     return;
@@ -281,7 +343,13 @@ function updateClouds(delta: number) {
 }
 
 function addTrail() {
-  trails.push({ x: glider.x - gliderSize() * 0.46, y: glider.y + Math.sin(glider.phase) * gliderSize() * 0.05, age: 0, life: 1.4, radius: randomRange(8, 16) });
+  trails.push({
+    x: glider.x - gliderSize() * 0.46,
+    y: glider.y + Math.sin(glider.phase) * gliderSize() * 0.05,
+    age: 0,
+    life: 1.4,
+    radius: randomRange(8, 16),
+  });
   if (trails.length > 34) trails.shift();
 }
 
@@ -345,7 +413,14 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
 
   const sunX = width.value * 0.78 + Math.sin(now * 0.00008) * 16;
   const sunY = height.value * 0.24;
-  const sun = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, Math.max(width.value, height.value) * 0.34);
+  const sun = ctx.createRadialGradient(
+    sunX,
+    sunY,
+    0,
+    sunX,
+    sunY,
+    Math.max(width.value, height.value) * 0.34,
+  );
   sun.addColorStop(0, "rgb(255 230 150 / 44%)");
   sun.addColorStop(1, "rgb(255 230 150 / 0%)");
   ctx.fillStyle = sun;
@@ -371,8 +446,24 @@ function drawCloud(ctx: CanvasRenderingContext2D, cloud: Cloud) {
   ctx.fillStyle = "#ffffff";
   ctx.beginPath();
   ctx.ellipse(cloud.x, cloud.y + bob, cloud.size * 0.66, cloud.size * 0.26, 0, 0, Math.PI * 2);
-  ctx.ellipse(cloud.x - cloud.size * 0.34, cloud.y + bob + cloud.size * 0.03, cloud.size * 0.34, cloud.size * 0.2, 0, 0, Math.PI * 2);
-  ctx.ellipse(cloud.x + cloud.size * 0.28, cloud.y + bob - cloud.size * 0.02, cloud.size * 0.38, cloud.size * 0.22, 0, 0, Math.PI * 2);
+  ctx.ellipse(
+    cloud.x - cloud.size * 0.34,
+    cloud.y + bob + cloud.size * 0.03,
+    cloud.size * 0.34,
+    cloud.size * 0.2,
+    0,
+    0,
+    Math.PI * 2,
+  );
+  ctx.ellipse(
+    cloud.x + cloud.size * 0.28,
+    cloud.y + bob - cloud.size * 0.02,
+    cloud.size * 0.38,
+    cloud.size * 0.22,
+    0,
+    0,
+    Math.PI * 2,
+  );
   ctx.fill();
   ctx.restore();
 }
@@ -394,7 +485,14 @@ function drawGate(ctx: CanvasRenderingContext2D) {
   const gapBottom = gate.y + gate.gap * 0.5;
   const pulse = 1 + Math.sin(gate.phase * 2.1) * 0.025;
   const columnWidth = gate.width * pulse;
-  const glow = ctx.createRadialGradient(gate.x, gate.y, gate.gap * 0.16, gate.x, gate.y, gate.gap * 0.72);
+  const glow = ctx.createRadialGradient(
+    gate.x,
+    gate.y,
+    gate.gap * 0.16,
+    gate.x,
+    gate.y,
+    gate.gap * 0.72,
+  );
   glow.addColorStop(0, "rgb(255 255 255 / 24%)");
   glow.addColorStop(0.58, "rgb(125 205 218 / 14%)");
   glow.addColorStop(1, "rgb(125 205 218 / 0%)");
@@ -437,11 +535,21 @@ function drawGlider(ctx: CanvasRenderingContext2D) {
   const size = gliderSize();
   const bobY = Math.sin(glider.phase) * size * 0.035;
   ctx.save();
-  const shake = damageFlash.value > 0 && !session.settings.reduceMotion ? Math.sin(performance.now() * 0.05) * size * 0.04 : 0;
+  const shake =
+    damageFlash.value > 0 && !session.settings.reduceMotion
+      ? Math.sin(performance.now() * 0.05) * size * 0.04
+      : 0;
   ctx.translate(glider.x + shake, glider.y + bobY);
   ctx.rotate(glider.tilt);
 
-  const shadow = ctx.createRadialGradient(-size * 0.08, size * 0.28, size * 0.08, -size * 0.08, size * 0.28, size * 0.76);
+  const shadow = ctx.createRadialGradient(
+    -size * 0.08,
+    size * 0.28,
+    size * 0.08,
+    -size * 0.08,
+    size * 0.28,
+    size * 0.76,
+  );
   shadow.addColorStop(0, "rgb(62 96 118 / 20%)");
   shadow.addColorStop(1, "rgb(62 96 118 / 0%)");
   ctx.fillStyle = shadow;
@@ -503,7 +611,13 @@ function drawStatus(ctx: CanvasRenderingContext2D) {
   ctx.strokeStyle = "rgb(255 255 255 / 28%)";
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.roundRect(x - fontSize * 0.8, y - fontSize * 1.45, fontSize * 15.2, fontSize * 3.4, fontSize * 0.65);
+  ctx.roundRect(
+    x - fontSize * 0.8,
+    y - fontSize * 1.45,
+    fontSize * 15.2,
+    fontSize * 3.4,
+    fontSize * 0.65,
+  );
   ctx.fill();
   ctx.stroke();
   ctx.fillStyle = "#f8fbff";
@@ -528,7 +642,14 @@ function drawCleanup(ctx: CanvasRenderingContext2D) {
   ctx.lineCap = "round";
   ctx.beginPath();
   ctx.moveTo(width.value * 0.18, height.value * 0.72);
-  ctx.bezierCurveTo(width.value * 0.38, height.value * 0.56, width.value * 0.62, height.value * 0.42, width.value * 0.9, height.value * 0.28);
+  ctx.bezierCurveTo(
+    width.value * 0.38,
+    height.value * 0.56,
+    width.value * 0.62,
+    height.value * 0.42,
+    width.value * 0.9,
+    height.value * 0.28,
+  );
   ctx.stroke();
   ctx.restore();
 }
@@ -559,12 +680,20 @@ useGameLoop({ context, update, draw });
   <div class="glider-shell">
     <canvas ref="canvasRef" class="glider-canvas" />
 
-    <v-card class="glider-hint px-4 py-3" color="surface" rounded="xl" variant="flat" data-canvas-overlay>
+    <v-card
+      class="glider-hint px-4 py-3"
+      color="surface"
+      rounded="xl"
+      variant="flat"
+      data-canvas-overlay
+    >
       <div class="d-flex align-center ga-3">
         <v-icon icon="mdi-airplane" color="primary" size="32" />
         <div>
           <div class="text-body-2 font-weight-medium">{{ guidanceText }}</div>
-          <div class="text-caption text-medium-emphasis">Ворота уже, скорость выше, промах повреждает крыло.</div>
+          <div class="text-caption text-medium-emphasis">
+            Ворота уже, скорость выше, промах повреждает крыло.
+          </div>
         </div>
       </div>
     </v-card>

@@ -5,7 +5,10 @@ import { join } from "path";
 const calibrationFiles = ["tobiifree-calibration.bin", "tobiifree-software-calibration.json"];
 const migrationMarker = ".linka-looks-calibration-v1.migrated";
 
-export async function migrateLooksTobiiCalibration(sourceDirectory: string, targetDirectory: string) {
+export async function migrateLooksTobiiCalibration(
+  sourceDirectory: string,
+  targetDirectory: string,
+) {
   const markerPath = join(targetDirectory, migrationMarker);
   if (await exists(markerPath)) return [];
 
@@ -13,7 +16,11 @@ export async function migrateLooksTobiiCalibration(sourceDirectory: string, targ
   const copied: string[] = [];
   for (const fileName of calibrationFiles) {
     try {
-      await copyFile(join(sourceDirectory, fileName), join(targetDirectory, fileName), constants.COPYFILE_EXCL);
+      await copyFile(
+        join(sourceDirectory, fileName),
+        join(targetDirectory, fileName),
+        constants.COPYFILE_EXCL,
+      );
       copied.push(fileName);
     } catch (error) {
       if (hasCode(error, "ENOENT") || hasCode(error, "EEXIST")) continue;

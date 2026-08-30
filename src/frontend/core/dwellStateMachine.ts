@@ -40,7 +40,7 @@ export function createDwellMachineState(): DwellMachineState {
     accumulatedMs: 0,
     lastAt: 0,
     graceUntil: 0,
-    cooldownUntil: 0
+    cooldownUntil: 0,
   };
 }
 
@@ -51,7 +51,7 @@ function holdingState(targetId: string, now: number): DwellMachineState {
     accumulatedMs: 0,
     lastAt: now,
     graceUntil: 0,
-    cooldownUntil: 0
+    cooldownUntil: 0,
   };
 }
 
@@ -59,7 +59,10 @@ function progress(state: DwellMachineState, dwellMs: number) {
   return Math.min(1, state.accumulatedMs / Math.max(1, dwellMs));
 }
 
-export function advanceDwellMachine(current: DwellMachineState, input: DwellMachineInput): DwellMachineResult {
+export function advanceDwellMachine(
+  current: DwellMachineState,
+  input: DwellMachineInput,
+): DwellMachineResult {
   const events: DwellMachineEvent[] = [];
   let state = { ...current };
 
@@ -74,7 +77,8 @@ export function advanceDwellMachine(current: DwellMachineState, input: DwellMach
   }
 
   if (input.disabled) {
-    if (state.targetId) events.push({ type: "cancel", targetId: state.targetId, reason: "disabled" });
+    if (state.targetId)
+      events.push({ type: "cancel", targetId: state.targetId, reason: "disabled" });
     return { state: createDwellMachineState(), events, progress: 0 };
   }
 
@@ -105,12 +109,13 @@ export function advanceDwellMachine(current: DwellMachineState, input: DwellMach
       return { state, events, progress: 0 };
     }
 
-    if (input.now < state.graceUntil) return { state, events, progress: progress(state, input.dwellMs) };
+    if (input.now < state.graceUntil)
+      return { state, events, progress: progress(state, input.dwellMs) };
     if (state.targetId) {
       events.push({
         type: "cancel",
         targetId: state.targetId,
-        reason: input.pointerValid ? "left" : "invalid-gaze"
+        reason: input.pointerValid ? "left" : "invalid-gaze",
       });
     }
     return { state: createDwellMachineState(), events, progress: 0 };
@@ -147,9 +152,9 @@ export function advanceDwellMachine(current: DwellMachineState, input: DwellMach
       accumulatedMs: 0,
       lastAt: input.now,
       graceUntil: 0,
-      cooldownUntil: input.now + input.cooldownMs
+      cooldownUntil: input.now + input.cooldownMs,
     },
     events,
-    progress: 1
+    progress: 1,
   };
 }

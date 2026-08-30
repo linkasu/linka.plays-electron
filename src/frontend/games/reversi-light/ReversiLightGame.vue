@@ -9,17 +9,46 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useGameTimers } from "../../composables/useGameTimers";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { applyMove, cellIndex, chooseAiMove, countPieces, createInitialBoard, findWinner, hasAnyMove, reversiLightSize, validMoves, type ReversiLightBoard, type ReversiLightCell, type ReversiLightWinner } from "./model";
+import {
+  applyMove,
+  cellIndex,
+  chooseAiMove,
+  countPieces,
+  createInitialBoard,
+  findWinner,
+  hasAnyMove,
+  reversiLightSize,
+  validMoves,
+  type ReversiLightBoard,
+  type ReversiLightCell,
+  type ReversiLightWinner,
+} from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("reversi-light", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordEvent,
+  recordMistake,
+  recordSuccess,
+  startSession,
+  finishSession,
+} = useGameSessionFor("reversi-light", {
   maxSteps: 10,
   overrides: { dwellMs: 1300, sessionSeconds: 180, targetScale: 1.25, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "reversi-light", soundEnabled, warmAssetIds: ["reversi-light.prompt", "reversi-light.complete"] });
+const promptAudio = useGamePromptAudio({
+  gameId: "reversi-light",
+  soundEnabled,
+  warmAssetIds: ["reversi-light.prompt", "reversi-light.complete"],
+});
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 const { setGameTimeout, clearGameTimers } = useGameTimers();
 
@@ -33,7 +62,9 @@ const result = ref<ReversiLightWinner>();
 const aiThinking = ref(false);
 const flippedCells = ref<number[]>([]);
 const lastMove = ref<number>();
-const feedbackMessage = ref("Твои тёплые фишки ходят на подсвеченные клетки. Неподходящая клетка просто даст подсказку.");
+const feedbackMessage = ref(
+  "Твои тёплые фишки ходят на подсвеченные клетки. Неподходящая клетка просто даст подсказку.",
+);
 const resultVisible = computed(() => session.status === "finished");
 const playerMoves = computed(() => validMoves(board.value, "player"));
 const counts = computed(() => countPieces(board.value));
@@ -72,7 +103,7 @@ function isSessionPaused() {
 }
 
 function encodeBoardForAi(nextBoard: ReversiLightBoard) {
-  return nextBoard.map((cell) => cell === "player" ? "R" : cell === "ai" ? "Y" : ".").join("");
+  return nextBoard.map((cell) => (cell === "player" ? "R" : cell === "ai" ? "Y" : ".")).join("");
 }
 
 async function chooseNativeAiMove(snapshot: ReversiLightBoard) {
@@ -80,11 +111,21 @@ async function chooseNativeAiMove(snapshot: ReversiLightBoard) {
     board: encodeBoardForAi(snapshot),
     player: "Y",
     depth: aiSearchDepth,
-    timeLimitMs: aiSearchTimeLimitMs
+    timeLimitMs: aiSearchTimeLimitMs,
   });
 
-  if (nativeResult?.ok && typeof nativeResult.move === "number" && validMoves(snapshot, "ai").includes(nativeResult.move)) {
-    return { move: nativeResult.move, source: nativeResult.source, depth: nativeResult.depth, nodes: nativeResult.nodes, elapsedMs: nativeResult.elapsedMs };
+  if (
+    nativeResult?.ok &&
+    typeof nativeResult.move === "number" &&
+    validMoves(snapshot, "ai").includes(nativeResult.move)
+  ) {
+    return {
+      move: nativeResult.move,
+      source: nativeResult.source,
+      depth: nativeResult.depth,
+      nodes: nativeResult.nodes,
+      elapsedMs: nativeResult.elapsedMs,
+    };
   }
 
   return { move: chooseAiMove(snapshot), source: "fallback" as const };
@@ -102,8 +143,8 @@ function cellClasses(index: number, cell: ReversiLightCell) {
     {
       "reversi-cell-content--valid": !cell && isValidPlayerCell(index),
       "reversi-cell-content--last": lastMove.value === index,
-      "reversi-cell-content--flipped": flippedCells.value.includes(index)
-    }
+      "reversi-cell-content--flipped": flippedCells.value.includes(index),
+    },
   ];
 }
 
@@ -115,14 +156,25 @@ async function finishBoard(reason: "max-steps" | "game-complete" = "game-complet
   const sessionId = session.sessionId;
   result.value = findWinner(board.value);
   aiThinking.value = false;
-  if (result.value === "player") recordSuccess({ result: result.value, board: board.value.join("|"), final: true });
-  else if (result.value === "ai") recordMistake({ result: result.value, board: board.value.join("|"), final: true });
+  if (result.value === "player")
+    recordSuccess({ result: result.value, board: board.value.join("|"), final: true });
+  else if (result.value === "ai")
+    recordMistake({ result: result.value, board: board.value.join("|"), final: true });
   else recordEvent("level-start", { result: result.value, board: board.value.join("|") });
   if (result.value === "ai") void feedbackAudio.playMistake();
   else void feedbackAudio.playSuccess();
   const playback = await promptAudio.playSequenceAndWait(["reversi-light.complete"], 80, 170);
   if (playback === "cancelled" || session.sessionId !== sessionId) return;
-  if (session.status !== "finished") finishSession(reason === "max-steps" ? "max-steps" : result.value === "draw" ? "game-draw" : result.value === "player" ? "game-complete" : "game-lost");
+  if (session.status !== "finished")
+    finishSession(
+      reason === "max-steps"
+        ? "max-steps"
+        : result.value === "draw"
+          ? "game-draw"
+          : result.value === "player"
+            ? "game-complete"
+            : "game-lost",
+    );
 }
 
 function afterAiTurn() {
@@ -161,7 +213,11 @@ async function applyAiMove() {
   aiThinking.value = false;
   if (session.status !== "running" || result.value) return;
 
-  const move = typeof aiMoveChoice.move === "number" && validMoves(board.value, "ai").includes(aiMoveChoice.move) ? aiMoveChoice.move : chooseAiMove(board.value);
+  const move =
+    typeof aiMoveChoice.move === "number" &&
+    validMoves(board.value, "ai").includes(aiMoveChoice.move)
+      ? aiMoveChoice.move
+      : chooseAiMove(board.value);
   if (move === undefined) {
     feedbackMessage.value = "Луна пропускает ход. Выбирай подсвеченную клетку.";
     afterAiTurn();
@@ -188,7 +244,8 @@ async function chooseCell(index: number) {
   const targetId = cellTargetId(index);
   const move = applyMove(board.value, index, "player");
   if (!move) {
-    feedbackMessage.value = "Эта клетка пока не переворачивает фишки. Выбери одну из отмеченных клеток.";
+    feedbackMessage.value =
+      "Эта клетка пока не переворачивает фишки. Выбери одну из отмеченных клеток.";
     flippedCells.value = [];
     lastMove.value = index;
     recordMistake({ targetId, reason: "invalid-reversi-move", isCorrect: false });
@@ -248,26 +305,57 @@ onUnmounted(() => {
 
 <template>
   <div class="reversi-shell">
-    <GameHud title="Реверси light" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Реверси light"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
 
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="8">
-          <v-card class="pa-4 pa-md-6" color="rgba(255, 255, 255, 0.94)" rounded="xl" elevation="10">
-            <div class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-5">
+          <v-card
+            class="pa-4 pa-md-6"
+            color="rgba(255, 255, 255, 0.94)"
+            rounded="xl"
+            elevation="10"
+          >
+            <div
+              class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-5"
+            >
               <div>
                 <div class="text-overline text-secondary mb-1">Мини-стратегия 4×4</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Реверси light</h1>
-                <p class="text-body-1 text-medium-emphasis mb-0">Ставь тёплую фишку на отмеченную клетку и переворачивай фишки луны.</p>
+                <p class="text-body-1 text-medium-emphasis mb-0">
+                  Ставь тёплую фишку на отмеченную клетку и переворачивай фишки луны.
+                </p>
               </div>
               <div class="d-flex flex-wrap ga-2">
-                <v-chip color="primary" size="large" variant="tonal">Твои: {{ counts.player }}</v-chip>
+                <v-chip color="primary" size="large" variant="tonal"
+                  >Твои: {{ counts.player }}</v-chip
+                >
                 <v-chip color="indigo" size="large" variant="tonal">Луна: {{ counts.ai }}</v-chip>
-                <v-chip :color="aiThinking ? 'secondary' : 'primary'" size="large" variant="flat">{{ statusText }}</v-chip>
+                <v-chip :color="aiThinking ? 'secondary' : 'primary'" size="large" variant="flat">{{
+                  statusText
+                }}</v-chip>
               </div>
             </div>
 
-            <v-alert class="mb-5 text-body-1 font-weight-medium" :color="playerMoves.length ? 'primary' : 'secondary'" icon="mdi-circle-double" rounded="xl" role="status" variant="tonal">
+            <v-alert
+              class="mb-5 text-body-1 font-weight-medium"
+              :color="playerMoves.length ? 'primary' : 'secondary'"
+              icon="mdi-circle-double"
+              rounded="xl"
+              role="status"
+              variant="tonal"
+            >
               {{ feedbackMessage }}
             </v-alert>
 
@@ -286,22 +374,40 @@ onUnmounted(() => {
                   <template #default>
                     <div :class="cellClasses(cellIndex(row, column), markAt(row, column))">
                       <div v-if="markAt(row, column)" :class="pieceClasses(markAt(row, column))" />
-                      <div v-else-if="isValidPlayerCell(cellIndex(row, column))" class="valid-dot" />
+                      <div
+                        v-else-if="isValidPlayerCell(cellIndex(row, column))"
+                        class="valid-dot"
+                      />
                     </div>
                   </template>
                 </GameDwellButton>
               </template>
             </div>
 
-            <div class="d-flex flex-column flex-sm-row align-center justify-space-between ga-3 mt-5">
-              <p class="text-body-2 text-medium-emphasis mb-0">Другая пустая клетка не завершает игру: она только напоминает выбрать отмеченное место.</p>
+            <div
+              class="d-flex flex-column flex-sm-row align-center justify-space-between ga-3 mt-5"
+            >
+              <p class="text-body-2 text-medium-emphasis mb-0">
+                Другая пустая клетка не завершает игру: она только напоминает выбрать отмеченное
+                место.
+              </p>
             </div>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
 
-    <GameResultDialog :model-value="resultVisible" title="Реверси light" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Реверси light"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -356,7 +462,9 @@ onUnmounted(() => {
 .piece {
   border-radius: 999px;
   block-size: clamp(3.25rem, 10vw, 5.375rem);
-  box-shadow: 0 0.75rem 1.5rem rgb(45 40 30 / 18%), inset 0 -0.625rem 1.125rem rgb(0 0 0 / 10%);
+  box-shadow:
+    0 0.75rem 1.5rem rgb(45 40 30 / 18%),
+    inset 0 -0.625rem 1.125rem rgb(0 0 0 / 10%);
   inline-size: clamp(3.25rem, 10vw, 5.375rem);
   transition: transform 180ms ease;
 }
@@ -378,51 +486,51 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 7.25rem;
   }
 
- .reversi-cell-content {
+  .reversi-cell-content {
     min-block-size: 4.625rem;
   }
 }
 
 @media (max-height: 42.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 4.75rem;
   }
 
- .game-container :deep(.v-card) {
+  .game-container :deep(.v-card) {
     padding-block: 1rem !important;
   }
 
- .game-container .text-overline,
- .game-container h1,
- .game-container p,
- .game-container .v-alert,
- .game-container .v-btn {
+  .game-container .text-overline,
+  .game-container h1,
+  .game-container p,
+  .game-container .v-alert,
+  .game-container .v-btn {
     display: none;
   }
 
- .game-container.d-flex.flex-column.flex-md-row {
+  .game-container.d-flex.flex-column.flex-md-row {
     margin-block-end: 0.75rem !important;
   }
 
- .board-grid {
+  .board-grid {
     gap: 0.45rem;
     max-inline-size: min(100%, 37rem);
   }
 
- .board-grid :deep(.dwell-button) {
+  .board-grid :deep(.dwell-button) {
     min-block-size: 5.625rem !important;
     padding: 0.35rem !important;
   }
 
- .reversi-cell-content {
+  .reversi-cell-content {
     min-block-size: 4.5rem;
   }
 
- .piece {
+  .piece {
     block-size: 2.7rem;
     inline-size: 2.7rem;
   }

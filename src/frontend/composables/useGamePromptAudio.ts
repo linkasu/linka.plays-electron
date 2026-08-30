@@ -1,5 +1,12 @@
 import { computed, onUnmounted, watch, type Ref } from "vue";
-import { disposeTtsAssets, playTtsAsset, playTtsAssetAndWait, stopTtsPlayback, warmTtsAssets, type TtsAsset } from "../core/ttsAudio";
+import {
+  disposeTtsAssets,
+  playTtsAsset,
+  playTtsAssetAndWait,
+  stopTtsPlayback,
+  warmTtsAssets,
+  type TtsAsset,
+} from "../core/ttsAudio";
 import ttsAssetsData from "../data/ttsAssets.json";
 
 const allAssets = ttsAssetsData as TtsAsset[];
@@ -15,7 +22,11 @@ export type UseGamePromptAudio = {
   warm: () => void;
   play: (assetId: string, delayMs?: number) => void;
   playSequence: (assetIds: string[], delayMs?: number, gapMs?: number) => void;
-  playSequenceAndWait: (assetIds: string[], delayMs?: number, gapMs?: number) => Promise<PromptPlaybackResult>;
+  playSequenceAndWait: (
+    assetIds: string[],
+    delayMs?: number,
+    gapMs?: number,
+  ) => Promise<PromptPlaybackResult>;
   cancelPending: () => void;
   dispose: () => void;
   assets: TtsAsset[];
@@ -80,15 +91,17 @@ export function useGamePromptAudio(options: UseGamePromptAudioOptions): UseGameP
   async function playSequenceAndWait(assetIds: string[], delayMs = 0, gapMs = 140) {
     cancelPending();
     const token = ++sequenceToken;
-    const sequenceAssets = assetIds.map(findAsset).filter((asset): asset is TtsAsset => Boolean(asset));
+    const sequenceAssets = assetIds
+      .map(findAsset)
+      .filter((asset): asset is TtsAsset => Boolean(asset));
     if (!sequenceAssets.length) return "completed";
 
-    if (delayMs > 0 && !await wait(delayMs)) return "cancelled";
+    if (delayMs > 0 && !(await wait(delayMs))) return "cancelled";
     for (const asset of sequenceAssets) {
       if (token !== sequenceToken) return "cancelled";
       await playTtsAssetAndWait(enabled.value, asset, volume);
       if (token !== sequenceToken) return "cancelled";
-      if (gapMs > 0 && !await wait(gapMs)) return "cancelled";
+      if (gapMs > 0 && !(await wait(gapMs))) return "cancelled";
     }
     return token === sequenceToken ? "completed" : "cancelled";
   }

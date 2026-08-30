@@ -2,7 +2,9 @@ import { createAmbientPiano } from "../../core/ambientPiano";
 
 const piano = createAmbientPiano({
   notesToLoad: [43, 45, 47, 48, 50, 52, 55, 57, 59, 60, 64, 67, 72],
-  loopNotes: [45, 52, 57, 60, 57, 52, 43, 50, 55, 59, 55, 50, 45, 52, 57, 64, 60, 57, 47, 55, 59, 67, 64, 59],
+  loopNotes: [
+    45, 52, 57, 60, 57, 52, 43, 50, 55, 59, 55, 50, 45, 52, 57, 64, 60, 57, 47, 55, 59, 67, 64, 59,
+  ],
   cueNotes: [57, 60, 64, 72],
   reverbName: "lighthouse-room",
   reverbAmount: 0.18,
@@ -24,7 +26,7 @@ const piano = createAmbientPiano({
   cueCooldownSeconds: 0.86,
   activeGain: 0.92,
   fadeInSeconds: 1.1,
-  fadeOutSeconds: 1.5
+  fadeOutSeconds: 1.5,
 });
 
 export function warmLighthousePiano(enabled: boolean) {

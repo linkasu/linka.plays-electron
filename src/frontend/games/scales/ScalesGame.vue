@@ -10,17 +10,38 @@ import { useRoundGame } from "../../composables/useRoundGame";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { answerLabel, generateScalesRound, scalesAnswers, type ScalesAnswer, type ScalesSide } from "./model";
+import {
+  answerLabel,
+  generateScalesRound,
+  scalesAnswers,
+  type ScalesAnswer,
+  type ScalesSide,
+} from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("scales", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("scales", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 125, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "scales", soundEnabled, warmAssetIds: ["scales.prompt", "scales.correct", "scales.mistake", "scales.complete"] });
+const promptAudio = useGamePromptAudio({
+  gameId: "scales",
+  soundEnabled,
+  warmAssetIds: ["scales.prompt", "scales.correct", "scales.mistake", "scales.complete"],
+});
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const feedback = ref("Посмотри на весы и выбери ответ.");
@@ -30,13 +51,13 @@ const answerMinHeight = "clamp(6.25rem, 11vh, 9rem)";
 const { round, resultVisible, nextRound, restart } = useRoundGame({
   session,
   startSession,
-  generateRound: (roundIndex) => generateScalesRound(session.settings, roundIndex)
+  generateRound: (roundIndex) => generateScalesRound(session.settings, roundIndex),
 });
 
 const frameStyle = computed(() => ({
   "--scale-tilt": `${round.value.tiltDeg}deg`,
   "--left-pan-y": panOffset("left"),
-  "--right-pan-y": panOffset("right")
+  "--right-pan-y": panOffset("right"),
 }));
 
 function answerTargetId(answer: ScalesAnswer) {
@@ -58,11 +79,24 @@ async function choose(answer: ScalesAnswer) {
   if (answer === round.value.correctAnswer) {
     feedback.value = "Верно.";
     lastMistakeAnswer.value = undefined;
-    recordSuccess({ roundId: round.value.roundId, targetId, prompt: round.value.prompt, expected: round.value.correctAnswer, actual: answer, leftWeight: round.value.left.weight, rightWeight: round.value.right.weight, isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      prompt: round.value.prompt,
+      expected: round.value.correctAnswer,
+      actual: answer,
+      leftWeight: round.value.left.weight,
+      rightWeight: round.value.right.weight,
+      isCorrect: true,
+    });
     isSpeaking.value = true;
     void feedbackAudio.playSuccess();
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["scales.correct", "scales.complete"] : ["scales.correct"], 80, 170);
+    await promptAudio.playSequenceAndWait(
+      finishedAfterSuccess ? ["scales.correct", "scales.complete"] : ["scales.correct"],
+      80,
+      170,
+    );
     if (finishedAfterSuccess) {
       finishSession("game-complete");
       isSpeaking.value = false;
@@ -77,7 +111,17 @@ async function choose(answer: ScalesAnswer) {
 
   feedback.value = "Посмотри на весы ещё раз и выбери другой ответ.";
   lastMistakeAnswer.value = answer;
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, prompt: round.value.prompt, expected: round.value.correctAnswer, actual: answer, leftWeight: round.value.left.weight, rightWeight: round.value.right.weight, isCorrect: false });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    expectedTargetId,
+    prompt: round.value.prompt,
+    expected: round.value.correctAnswer,
+    actual: answer,
+    leftWeight: round.value.left.weight,
+    rightWeight: round.value.right.weight,
+    isCorrect: false,
+  });
   isSpeaking.value = true;
   void feedbackAudio.playMistake();
   await promptAudio.playSequenceAndWait(["scales.mistake"], 80);
@@ -105,14 +149,31 @@ onUnmounted(() => {
 
 <template>
   <div class="scales-shell">
-    <GameHud title="Весы" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Весы"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11" xl="10">
           <v-card class="scales-card pa-4 pa-md-6" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Сравни весы</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
-            <v-alert class="mb-4 text-body-1 font-weight-bold" color="primary" icon="mdi-heart-outline" rounded="xl" variant="tonal">
+            <v-alert
+              class="mb-4 text-body-1 font-weight-bold"
+              color="primary"
+              icon="mdi-heart-outline"
+              rounded="xl"
+              variant="tonal"
+            >
               {{ feedback }}
             </v-alert>
 
@@ -125,14 +186,30 @@ onUnmounted(() => {
                 <div class="scale-pan-wrap scale-pan-wrap--left">
                   <div class="scale-cord" />
                   <div class="scale-pan scale-pan--left">
-                    <GameWordImage v-for="(_item, index) in round.left.items" :key="`left-${index}`" class="pan-item" :word-id="round.left.itemId" :word="round.left.itemName" :emoji="round.left.emoji" decorative />
+                    <GameWordImage
+                      v-for="(_item, index) in round.left.items"
+                      :key="`left-${index}`"
+                      class="pan-item"
+                      :word-id="round.left.itemId"
+                      :word="round.left.itemName"
+                      :emoji="round.left.emoji"
+                      decorative
+                    />
                   </div>
                 </div>
                 <div class="scale-pivot" />
                 <div class="scale-pan-wrap scale-pan-wrap--right">
                   <div class="scale-cord" />
                   <div class="scale-pan scale-pan--right">
-                    <GameWordImage v-for="(_item, index) in round.right.items" :key="`right-${index}`" class="pan-item" :word-id="round.right.itemId" :word="round.right.itemName" :emoji="round.right.emoji" decorative />
+                    <GameWordImage
+                      v-for="(_item, index) in round.right.items"
+                      :key="`right-${index}`"
+                      class="pan-item"
+                      :word-id="round.right.itemId"
+                      :word="round.right.itemName"
+                      :emoji="round.right.emoji"
+                      decorative
+                    />
                   </div>
                 </div>
                 <div class="scale-stand" />
@@ -144,12 +221,31 @@ onUnmounted(() => {
             </v-sheet>
 
             <v-row class="answer-row" dense>
-              <v-col v-for="answer in scalesAnswers" :key="answer" class="scales-answer-col" cols="12" md="4">
-                <GameDwellButton :target-id="answerTargetId(answer)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="answerMinHeight" :color="lastMistakeAnswer === answer ? 'secondary' : 'surface'" @select="choose(answer)">
+              <v-col
+                v-for="answer in scalesAnswers"
+                :key="answer"
+                class="scales-answer-col"
+                cols="12"
+                md="4"
+              >
+                <GameDwellButton
+                  :target-id="answerTargetId(answer)"
+                  :disabled="session.status !== 'running' || isSpeaking"
+                  :dwell-ms="session.settings.dwellMs"
+                  :min-height="answerMinHeight"
+                  :color="lastMistakeAnswer === answer ? 'secondary' : 'surface'"
+                  @select="choose(answer)"
+                >
                   <template #default>
-                    <div class="d-flex align-center justify-center ga-3 text-h5 text-md-h4 font-weight-bold">
+                    <div
+                      class="d-flex align-center justify-center ga-3 text-h5 text-md-h4 font-weight-bold"
+                    >
                       <v-icon v-if="answer === 'equal'" icon="mdi-equal" size="38" />
-                      <v-icon v-else-if="answer === round.correctAnswer && session.status === 'finished'" icon="mdi-check" size="38" />
+                      <v-icon
+                        v-else-if="answer === round.correctAnswer && session.status === 'finished'"
+                        icon="mdi-check"
+                        size="38"
+                      />
                       {{ answerLabel(answer, round.question) }}
                     </div>
                   </template>
@@ -160,7 +256,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Весы" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restartGame" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Весы"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restartGame"
+    />
   </div>
 </template>
 
@@ -362,22 +468,22 @@ onUnmounted(() => {
 }
 
 @media (max-height: 42rem) {
- .game-container .text-overline,
- .game-container h1,
- .game-container .v-alert {
+  .game-container .text-overline,
+  .game-container h1,
+  .game-container .v-alert {
     display: none;
   }
 
- .scales-answer-col {
+  .scales-answer-col {
     flex: 0 0 33.3333% !important;
     max-inline-size: 33.3333% !important;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
- .scale-beam,
- .scale-pan-wrap,
- .pan-item {
+  .scale-beam,
+  .scale-pan-wrap,
+  .pan-item {
     animation: none;
   }
 }

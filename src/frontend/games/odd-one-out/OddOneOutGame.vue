@@ -14,16 +14,32 @@ import { oddOneOutFeedback } from "./audio";
 import { generateOddOneOutRound, type OddOneOutItem, type OddOneOutRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("odd-one-out", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  recordHint,
+  startSession,
+} = useGameSessionFor("odd-one-out", {
   maxSteps: 8,
   overrides: { sound: true },
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 
-const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame<OddOneOutRound>({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRounds,
+} = useRoundGame<OddOneOutRound>({
   session,
   startSession,
-  generateRound: (roundIndex) => generateOddOneOutRound(session.settings, roundIndex)
+  generateRound: (roundIndex) => generateOddOneOutRound(session.settings, roundIndex),
 });
 
 const feedbackMessage = ref("Найди карточку, которая не подходит к остальным.");
@@ -32,9 +48,14 @@ const isSpeaking = ref(false);
 const wrongChoiceId = ref<string>();
 const successChoiceId = ref<string>();
 const failedImageRoundId = ref<string>();
-const promptAudio = useGamePromptAudio({ gameId: "odd-one-out", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "odd-one-out",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 let feedbackTimer = 0;
-const showRoundImages = computed(() => round.value.assetMode === "image" && failedImageRoundId.value !== round.value.roundId);
+const showRoundImages = computed(
+  () => round.value.assetMode === "image" && failedImageRoundId.value !== round.value.roundId,
+);
 
 function choiceTargetId(choice: OddOneOutItem) {
   return `odd-one-out:choice:${choice.id}`;
@@ -82,7 +103,14 @@ async function choose(choice: OddOneOutItem) {
     successChoiceId.value = choice.id;
     feedbackMessage.value = `Верно. ${choice.label} из другой группы.`;
     void oddOneOutFeedback.playSuccess(session.settings.sound);
-    recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.oddItem.label, actual: choice.label, isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      answerId: choice.id,
+      expected: round.value.oddItem.label,
+      actual: choice.label,
+      isCorrect: true,
+    });
     isSpeaking.value = true;
     await promptAudio.playSequenceAndWait(["odd-one-out.correct"], 80);
 
@@ -103,8 +131,22 @@ async function choose(choice: OddOneOutItem) {
   wrongChoiceId.value = choice.id;
   feedbackMessage.value = round.value.mistakeHint;
   void oddOneOutFeedback.playMistake(session.settings.sound);
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.oddItem.label, actual: choice.label, isCorrect: false, commonCategory: round.value.commonCategory.id });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "mistake", category: round.value.commonCategory.id });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    expectedTargetId,
+    answerId: choice.id,
+    expected: round.value.oddItem.label,
+    actual: choice.label,
+    isCorrect: false,
+    commonCategory: round.value.commonCategory.id,
+  });
+  recordHint({
+    roundId: round.value.roundId,
+    targetId: expectedTargetId,
+    reason: "mistake",
+    category: round.value.commonCategory.id,
+  });
   isSpeaking.value = true;
   await promptAudio.playSequenceAndWait(["odd-one-out.mistake", "odd-one-out.prompt"], 80, 170);
   pendingSelection.value = false;
@@ -130,9 +172,12 @@ onMounted(() => {
   void playPrompt(450);
 });
 
-watch(() => session.settings.sound, (enabled) => {
-  oddOneOutFeedback.warm(enabled);
-});
+watch(
+  () => session.settings.sound,
+  (enabled) => {
+    oddOneOutFeedback.warm(enabled);
+  },
+);
 
 onUnmounted(() => {
   clearFeedbackTimer();
@@ -141,21 +186,56 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <GamePageShell gradient="linear-gradient(135deg, #f0f7ff 0%, #fff6e7 100%)" padding-top="5.125rem">
+  <GamePageShell
+    gradient="linear-gradient(135deg, #f0f7ff 0%, #fff6e7 100%)"
+    padding-top="5.125rem"
+  >
     <template #hud>
-      <GameHud title="Что лишнее?" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+      <GameHud
+        title="Что лишнее?"
+        :step="session.step"
+        :max-steps="session.maxSteps"
+        :score="session.score"
+        :mistakes="session.mistakes"
+        :duration-ms="durationMs"
+        :session-seconds="session.settings.sessionSeconds"
+        :paused="session.status === 'paused'"
+        @pause="pauseSession"
+        @resume="resumeSession"
+      />
     </template>
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="9">
           <v-card class="odd-card pa-4 pa-md-8" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-1 mb-md-2">Сравни карточки</div>
-            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2 mb-md-3">{{ round.prompt }}</h1>
-            <p class="odd-feedback text-body-1 text-medium-emphasis text-center mb-3 mb-md-6">{{ feedbackMessage }}</p>
+            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2 mb-md-3">
+              {{ round.prompt }}
+            </h1>
+            <p class="odd-feedback text-body-1 text-medium-emphasis text-center mb-3 mb-md-6">
+              {{ feedbackMessage }}
+            </p>
 
-            <GameChoiceCardGrid :choices="round.choices" :target-id="choiceTargetId" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="9.75rem" :color="choiceColor" :cols="6" :md="round.choices.length === 4 ? 3 : 4" @select="choose">
+            <GameChoiceCardGrid
+              :choices="round.choices"
+              :target-id="choiceTargetId"
+              :disabled="session.status !== 'running' || pendingSelection || isSpeaking"
+              :dwell-ms="session.settings.dwellMs"
+              min-height="9.75rem"
+              :color="choiceColor"
+              :cols="6"
+              :md="round.choices.length === 4 ? 3 : 4"
+              @select="choose"
+            >
               <template #default="{ choice }">
-                <img v-if="showRoundImages" class="choice-emoji choice-image" :src="choiceImageSrc(choice)" :alt="choice.label" draggable="false" @error="disableRoundImages">
+                <img
+                  v-if="showRoundImages"
+                  class="choice-emoji choice-image"
+                  :src="choiceImageSrc(choice)"
+                  :alt="choice.label"
+                  draggable="false"
+                  @error="disableRoundImages"
+                />
                 <div v-else class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
                 <div class="text-h6 text-md-h5 font-weight-bold mt-2">{{ choice.label }}</div>
               </template>
@@ -164,7 +244,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Что лишнее?" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Что лишнее?"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </GamePageShell>
 </template>
 
@@ -187,5 +277,4 @@ onUnmounted(() => {
   inline-size: 1em;
   object-fit: contain;
 }
-
 </style>

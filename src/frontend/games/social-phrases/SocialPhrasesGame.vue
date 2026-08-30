@@ -8,21 +8,44 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
-import { createSocialPhraseDeck, evaluateSocialPhraseChoice, getSocialPhraseChoice, socialPhrasesInstruction, type SocialPhraseChoice, type SocialPhraseRound } from "./model";
+import {
+  createSocialPhraseDeck,
+  evaluateSocialPhraseChoice,
+  getSocialPhraseChoice,
+  socialPhrasesInstruction,
+  type SocialPhraseChoice,
+  type SocialPhraseRound,
+} from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordHint, startSession, finishSession } = useGameSessionFor("social-phrases", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordHint,
+  startSession,
+  finishSession,
+} = useGameSessionFor("social-phrases", {
   maxSteps: 4,
   overrides: { dwellMs: 1300, sessionSeconds: 125, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 
 let deck = createSocialPhraseDeck();
-const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<SocialPhraseRound>({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRoundGame,
+} = useRoundGame<SocialPhraseRound>({
   session,
   startSession,
-  generateRound: (roundIndex) => deck[roundIndex - 1]
+  generateRound: (roundIndex) => deck[roundIndex - 1],
 });
 
 const feedback = ref("Твоя выбранная фраза будет озвучена.");
@@ -35,7 +58,14 @@ function choiceTargetId(choiceId: string) {
 
 async function playRoundPrompt(delayMs = 0, includeInstruction = false) {
   isChangingRound.value = true;
-  const prompt = [includeInstruction ? socialPhrasesInstruction : "", round.value.scene, round.value.partner, round.value.prompt].filter(Boolean).join(" ");
+  const prompt = [
+    includeInstruction ? socialPhrasesInstruction : "",
+    round.value.scene,
+    round.value.partner,
+    round.value.prompt,
+  ]
+    .filter(Boolean)
+    .join(" ");
   await speakSceneText(prompt, session.settings.sound, delayMs);
   isChangingRound.value = false;
 }
@@ -57,7 +87,7 @@ async function choose(choice: SocialPhraseChoice) {
       answerId: choice.id,
       expected: round.value.expectedKind,
       actual: choice.kind,
-      ...evaluation
+      ...evaluation,
     };
     if (evaluation.function === "help") recordHint({ ...payload, reason: "requested-help" });
     else recordSuccess(payload);
@@ -105,7 +135,7 @@ async function choose(choice: SocialPhraseChoice) {
     phrase: choice.text,
     isCorrect: false,
     noFail: true,
-    reason: "alternative-phrase"
+    reason: "alternative-phrase",
   });
   await speakSceneText(evaluation.feedback, session.settings.sound, 80);
   selectedChoiceId.value = undefined;
@@ -133,34 +163,87 @@ onUnmounted(() => {
 
 <template>
   <div class="social-phrases-shell">
-    <GameHud title="Социальные фразы" :step="session.step" :max-steps="session.maxSteps" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Социальные фразы"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11" xl="10">
           <v-card class="social-phrases-card pa-4 pa-md-6" rounded="xl" elevation="8">
-            <v-alert class="instruction mb-4" color="blue-lighten-5" icon="mdi-information-outline" rounded="xl" variant="flat">
+            <v-alert
+              class="instruction mb-4"
+              color="blue-lighten-5"
+              icon="mdi-information-outline"
+              rounded="xl"
+              variant="flat"
+            >
               <div class="text-h6 text-md-h5 font-weight-bold">{{ socialPhrasesInstruction }}</div>
             </v-alert>
 
-            <v-card class="scene-card pa-4 mb-4" :color="round.sceneColor" rounded="xl" variant="flat">
+            <v-card
+              class="scene-card pa-4 mb-4"
+              :color="round.sceneColor"
+              rounded="xl"
+              variant="flat"
+            >
               <div class="scene-layout">
-                <v-icon class="scene-icon" color="primary" :icon="round.sceneIcon" size="clamp(4rem, 12dvh, 7rem)" />
+                <v-icon
+                  class="scene-icon"
+                  color="primary"
+                  :icon="round.sceneIcon"
+                  size="clamp(4rem, 12dvh, 7rem)"
+                />
                 <div>
-                  <h1 class="scene-title text-h4 text-md-h3 font-weight-bold mb-2">{{ round.scene }}</h1>
+                  <h1 class="scene-title text-h4 text-md-h3 font-weight-bold mb-2">
+                    {{ round.scene }}
+                  </h1>
                   <div class="scene-partner text-body-1 text-md-h6 mb-2">{{ round.partner }}</div>
-                  <div class="scene-prompt text-h6 text-md-h5 font-weight-bold">{{ round.prompt }}</div>
+                  <div class="scene-prompt text-h6 text-md-h5 font-weight-bold">
+                    {{ round.prompt }}
+                  </div>
                 </div>
               </div>
             </v-card>
 
-            <div class="social-feedback text-h6 text-md-h5 font-weight-bold text-center mb-4">{{ feedback }}</div>
+            <div class="social-feedback text-h6 text-md-h5 font-weight-bold text-center mb-4">
+              {{ feedback }}
+            </div>
 
             <v-row justify="center" dense>
               <v-col v-for="choice in round.choices" :key="choice.id" cols="6" sm="3">
-                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" min-height="clamp(7.5rem, 22dvh, 11.5rem)" :color="selectedChoiceId === choice.id ? choice.iconColor : choice.color" @select="choose(choice)">
+                <GameDwellButton
+                  :target-id="choiceTargetId(choice.id)"
+                  :disabled="session.status !== 'running' || isChangingRound"
+                  :dwell-ms="session.settings.dwellMs"
+                  min-height="clamp(7.5rem, 22dvh, 11.5rem)"
+                  :color="selectedChoiceId === choice.id ? choice.iconColor : choice.color"
+                  @select="choose(choice)"
+                >
                   <template #default>
-                    <v-icon class="choice-icon mb-2" :color="selectedChoiceId === choice.id ? 'white' : choice.iconColor" :icon="choice.icon" size="clamp(2.8rem, 7dvh, 4.8rem)" />
-                    <div :class="['choice-text', 'text-h6', 'text-md-h5', 'font-weight-bold', { 'text-white': selectedChoiceId === choice.id }]">{{ choice.text }}</div>
+                    <v-icon
+                      class="choice-icon mb-2"
+                      :color="selectedChoiceId === choice.id ? 'white' : choice.iconColor"
+                      :icon="choice.icon"
+                      size="clamp(2.8rem, 7dvh, 4.8rem)"
+                    />
+                    <div
+                      :class="[
+                        'choice-text',
+                        'text-h6',
+                        'text-md-h5',
+                        'font-weight-bold',
+                        { 'text-white': selectedChoiceId === choice.id },
+                      ]"
+                    >
+                      {{ choice.text }}
+                    </div>
                   </template>
                 </GameDwellButton>
               </v-col>
@@ -169,7 +252,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Социальные фразы" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Социальные фразы"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -278,6 +371,5 @@ onUnmounted(() => {
   .choice-text {
     font-size: clamp(0.95rem, 2.6dvh, 1.2rem) !important;
   }
-
 }
 </style>

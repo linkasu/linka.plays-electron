@@ -41,7 +41,7 @@ const bottomBread: SandwichChoice = {
   emoji: "🍞",
   roleIcon: "mdi-arrow-down-bold",
   ttsAssetId: "word-categories.item.bread",
-  color: "#d9a441"
+  color: "#d9a441",
 };
 
 const topBread: SandwichChoice = {
@@ -53,7 +53,7 @@ const topBread: SandwichChoice = {
   emoji: "🍞",
   roleIcon: "mdi-arrow-up-bold",
   ttsAssetId: "word-categories.item.bread",
-  color: "#c7892f"
+  color: "#c7892f",
 };
 
 const butter: SandwichChoice = {
@@ -62,7 +62,7 @@ const butter: SandwichChoice = {
   shortLabel: "масло",
   kind: "spread",
   emoji: "🧈",
-  color: "#f8d568"
+  color: "#f8d568",
 };
 
 const cheese: SandwichChoice = {
@@ -73,7 +73,7 @@ const cheese: SandwichChoice = {
   imageId: "cheese",
   emoji: "🧀",
   ttsAssetId: "word-categories.item.cheese",
-  color: "#f6c84c"
+  color: "#f6c84c",
 };
 
 const lettuce: SandwichChoice = {
@@ -83,7 +83,7 @@ const lettuce: SandwichChoice = {
   kind: "vegetable",
   imageId: "leaf",
   emoji: "🥬",
-  color: "#73b66b"
+  color: "#73b66b",
 };
 
 const tomato: SandwichChoice = {
@@ -94,24 +94,31 @@ const tomato: SandwichChoice = {
   imageId: "tomato",
   emoji: "🍅",
   ttsAssetId: "word-categories.item.tomato",
-  color: "#e57373"
+  color: "#e57373",
 };
 
-export const sandwichChoices: SandwichChoice[] = [bottomBread, butter, cheese, lettuce, tomato, topBread];
+export const sandwichChoices: SandwichChoice[] = [
+  bottomBread,
+  butter,
+  cheese,
+  lettuce,
+  tomato,
+  topBread,
+];
 
 export const sandwichRecipes: SandwichRecipe[] = [
   {
     id: "cheese-salad",
     title: "Сырный бутерброд",
     helper: "Нижний хлеб, масло, сыр, салат и верхний хлеб.",
-    steps: [bottomBread, butter, cheese, lettuce, topBread]
+    steps: [bottomBread, butter, cheese, lettuce, topBread],
   },
   {
     id: "tomato-cheese",
     title: "Овощной бутерброд",
     helper: "Нижний хлеб, масло, помидор, сыр и верхний хлеб.",
-    steps: [bottomBread, butter, tomato, cheese, topBread]
-  }
+    steps: [bottomBread, butter, tomato, cheese, topBread],
+  },
 ];
 
 function instructionFor(choice: SandwichChoice, recipe: SandwichRecipe, stepIndex: number) {
@@ -133,19 +140,22 @@ export function sandwichMaxSteps(recipes = sandwichRecipes) {
 }
 
 export function buildSandwichSteps(recipes = sandwichRecipes): SandwichRecipeStep[] {
-  return recipes.flatMap((recipe, recipeIndex) => recipe.steps.map((choice, stepIndex) => {
-    const absoluteStepIndex = recipes.slice(0, recipeIndex).reduce((sum, item) => sum + item.steps.length, 0) + stepIndex;
-    return {
-      id: `sandwich-step-${absoluteStepIndex + 1}`,
-      roundId: `sandwich:round:${absoluteStepIndex + 1}`,
-      recipeId: recipe.id,
-      recipeIndex,
-      stepIndex,
-      choice,
-      instruction: instructionFor(choice, recipe, stepIndex),
-      helper: helperFor(choice, stepIndex)
-    };
-  }));
+  return recipes.flatMap((recipe, recipeIndex) =>
+    recipe.steps.map((choice, stepIndex) => {
+      const absoluteStepIndex =
+        recipes.slice(0, recipeIndex).reduce((sum, item) => sum + item.steps.length, 0) + stepIndex;
+      return {
+        id: `sandwich-step-${absoluteStepIndex + 1}`,
+        roundId: `sandwich:round:${absoluteStepIndex + 1}`,
+        recipeId: recipe.id,
+        recipeIndex,
+        stepIndex,
+        choice,
+        instruction: instructionFor(choice, recipe, stepIndex),
+        helper: helperFor(choice, stepIndex),
+      };
+    }),
+  );
 }
 
 export function isSandwichRecipeCompleteStep(step: SandwichRecipeStep, recipes = sandwichRecipes) {
@@ -156,6 +166,9 @@ export function getSandwichRecipe(recipeIndex: number, recipes = sandwichRecipes
   return recipes[recipeIndex % recipes.length];
 }
 
-export function shuffleSandwichChoices(choices = sandwichChoices, random = Math.random): SandwichChoice[] {
+export function shuffleSandwichChoices(
+  choices = sandwichChoices,
+  random = Math.random,
+): SandwichChoice[] {
   return shuffleItems(choices, random);
 }

@@ -1,5 +1,22 @@
 import { describe, expect, it } from "vitest";
-import { allShipsSunk, autoPlaceFleet, battleshipCellCount, battleshipShips, battleshipSize, canPlaceShip, cellIndex, chooseAiShot, coordinateLabel, countShots, fireAt, getSectorCells, isShipSunk, placeShip, shipCells, type BattleshipShots } from "./model";
+import {
+  allShipsSunk,
+  autoPlaceFleet,
+  battleshipCellCount,
+  battleshipShips,
+  battleshipSize,
+  canPlaceShip,
+  cellIndex,
+  chooseAiShot,
+  coordinateLabel,
+  countShots,
+  fireAt,
+  getSectorCells,
+  isShipSunk,
+  placeShip,
+  shipCells,
+  type BattleshipShots,
+} from "./model";
 
 describe("battleship-light model", () => {
   it("uses a full 10 by 10 board with classic fleet", () => {
@@ -53,7 +70,12 @@ describe("battleship-light model", () => {
 
   it("detects full victory when all ships are sunk", () => {
     const { fleet } = autoPlaceFleet(321);
-    const shots = fleet.flatMap((ship) => ship.cells).reduce((nextShots, index) => fireAt(fleet, nextShots, index, "player").shots, {} as BattleshipShots);
+    const shots = fleet
+      .flatMap((ship) => ship.cells)
+      .reduce(
+        (nextShots, index) => fireAt(fleet, nextShots, index, "player").shots,
+        {} as BattleshipShots,
+      );
 
     expect(allShipsSunk(fleet, shots)).toBe(true);
     expect(fleet.every((ship) => isShipSunk(ship, shots))).toBe(true);
@@ -65,6 +87,8 @@ describe("battleship-light model", () => {
     const choice = chooseAiShot(fleet, shots, 9);
 
     expect(choice.mode).toBe("target");
-    expect([cellIndex(4, 5), cellIndex(6, 5), cellIndex(5, 4), cellIndex(5, 6)]).toContain(choice.index);
+    expect([cellIndex(4, 5), cellIndex(6, 5), cellIndex(5, 4), cellIndex(5, 6)]).toContain(
+      choice.index,
+    );
   });
 });

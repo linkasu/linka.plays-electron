@@ -24,7 +24,7 @@ const piano = createAmbientPiano({
   cueCooldownSeconds: 0.95,
   activeGain: 0.56,
   fadeInSeconds: 1.4,
-  fadeOutSeconds: 1.8
+  fadeOutSeconds: 1.8,
 });
 
 export function warmFireflyMeadowPiano(enabled: boolean) {

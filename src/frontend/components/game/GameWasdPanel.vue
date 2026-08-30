@@ -18,20 +18,23 @@ export type GameWasdControl = {
 import { DEFAULT_DWELL_MS } from "../../core/dwellSettings";
 import GameDwellButton from "./GameDwellButton.vue";
 
-withDefaults(defineProps<{
-  controls: GameWasdControl[];
-  dwellMs?: number;
-  disabled?: boolean;
-  minHeight?: number | string;
-  ariaLabel?: string;
-  showKeyCaps?: boolean;
-}>(), {
-  dwellMs: DEFAULT_DWELL_MS,
-  disabled: false,
-  minHeight: "0",
-  ariaLabel: "Кнопки управления WASD",
-  showKeyCaps: true
-});
+withDefaults(
+  defineProps<{
+    controls: GameWasdControl[];
+    dwellMs?: number;
+    disabled?: boolean;
+    minHeight?: number | string;
+    ariaLabel?: string;
+    showKeyCaps?: boolean;
+  }>(),
+  {
+    dwellMs: DEFAULT_DWELL_MS,
+    disabled: false,
+    minHeight: "0",
+    ariaLabel: "Кнопки управления WASD",
+    showKeyCaps: true,
+  },
+);
 
 const emit = defineEmits<{
   select: [control: GameWasdControl];
@@ -40,15 +43,39 @@ const emit = defineEmits<{
 
 <template>
   <div class="wasd-panel" :aria-label="ariaLabel" role="group">
-    <div v-for="control in controls" :key="control.id" :class="`wasd-panel__key wasd-panel__key--${control.key}`">
-      <GameDwellButton :target-id="control.targetId" :disabled="disabled || control.disabled" :dwell-ms="dwellMs" :min-height="minHeight" :color="control.color ?? 'surface'" @select="emit('select', control)">
+    <div
+      v-for="control in controls"
+      :key="control.id"
+      :class="`wasd-panel__key wasd-panel__key--${control.key}`"
+    >
+      <GameDwellButton
+        :target-id="control.targetId"
+        :disabled="disabled || control.disabled"
+        :dwell-ms="dwellMs"
+        :min-height="minHeight"
+        :color="control.color ?? 'surface'"
+        @select="emit('select', control)"
+      >
         <template #default="{ active, progress }">
           <slot name="control" :control="control" :active="active" :progress="progress">
             <div class="wasd-panel__content">
-              <span v-if="showKeyCaps" class="wasd-panel__cap" style="color: #000000">{{ control.key.toUpperCase() }}</span>
-              <v-icon :icon="control.icon" class="wasd-panel__icon" size="44" style="color: #000000" />
+              <span v-if="showKeyCaps" class="wasd-panel__cap" style="color: #000000">{{
+                control.key.toUpperCase()
+              }}</span>
+              <v-icon
+                :icon="control.icon"
+                class="wasd-panel__icon"
+                size="44"
+                style="color: #000000"
+              />
               <span style="color: #000000">{{ control.label }}</span>
-              <v-chip v-if="control.chipText" :color="control.chipColor ?? 'primary'" size="small" variant="flat">{{ control.chipText }}</v-chip>
+              <v-chip
+                v-if="control.chipText"
+                :color="control.chipColor ?? 'primary'"
+                size="small"
+                variant="flat"
+                >{{ control.chipText }}</v-chip
+              >
             </div>
           </slot>
         </template>

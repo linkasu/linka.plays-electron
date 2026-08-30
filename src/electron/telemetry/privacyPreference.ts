@@ -22,7 +22,9 @@ export class TelemetryPrivacyPreferenceStore {
 
   async read(): Promise<TelemetryPrivacyPreference> {
     try {
-      const stored = JSON.parse(await readRecoverable(this.userDataPath, this.path)) as { telemetry?: unknown };
+      const stored = JSON.parse(await readRecoverable(this.userDataPath, this.path)) as {
+        telemetry?: unknown;
+      };
       return parseTelemetryPrivacyPreference(stored.telemetry);
     } catch {
       return "unknown";
@@ -61,7 +63,10 @@ async function readRecoverable(directory: string, destination: string) {
   } catch (error) {
     if (process.platform !== "win32") throw error;
     const prefix = `${basename(destination)}.`;
-    const candidates = (await readdir(directory)).filter((name) => name.startsWith(prefix) && name.endsWith(".tmp")).sort().reverse();
+    const candidates = (await readdir(directory))
+      .filter((name) => name.startsWith(prefix) && name.endsWith(".tmp"))
+      .sort()
+      .reverse();
     for (const candidate of candidates) {
       try {
         const temporary = join(directory, candidate);

@@ -4,7 +4,8 @@ export const chessInitialFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ
 
 export type ChessSide = "white" | "black";
 export type ChessStatus = "playing" | "white-win" | "black-win" | "draw";
-export type ChessPiece = "P" | "N" | "B" | "R" | "Q" | "K" | "p" | "n" | "b" | "r" | "q" | "k" | ".";
+export type ChessPiece =
+  "P" | "N" | "B" | "R" | "Q" | "K" | "p" | "n" | "b" | "r" | "q" | "k" | ".";
 
 export type ChessCell = {
   index: number;
@@ -14,7 +15,10 @@ export type ChessCell = {
   piece: ChessPiece;
 };
 
-export const chessPieceMeta: Record<Exclude<ChessPiece, ".">, { label: string; icon: string; side: ChessSide }> = {
+export const chessPieceMeta: Record<
+  Exclude<ChessPiece, ".">,
+  { label: string; icon: string; side: ChessSide }
+> = {
   P: { label: "Пешка", icon: "mdi-chess-pawn", side: "white" },
   N: { label: "Конь", icon: "mdi-chess-knight", side: "white" },
   B: { label: "Слон", icon: "mdi-chess-bishop", side: "white" },
@@ -26,7 +30,7 @@ export const chessPieceMeta: Record<Exclude<ChessPiece, ".">, { label: string; i
   b: { label: "Слон", icon: "mdi-chess-bishop", side: "black" },
   r: { label: "Ладья", icon: "mdi-chess-rook", side: "black" },
   q: { label: "Ферзь", icon: "mdi-chess-queen", side: "black" },
-  k: { label: "Король", icon: "mdi-chess-king", side: "black" }
+  k: { label: "Король", icon: "mdi-chess-king", side: "black" },
 };
 
 export function cellIndex(row: number, column: number) {
@@ -36,7 +40,7 @@ export function cellIndex(row: number, column: number) {
 export function cellPosition(index: number) {
   return {
     row: Math.floor(index / chessBoardSize),
-    column: index % chessBoardSize
+    column: index % chessBoardSize,
   };
 }
 

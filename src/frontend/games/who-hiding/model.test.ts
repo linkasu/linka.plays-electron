@@ -4,7 +4,7 @@ import {
   cancelWhoHidingPlayback,
   canChooseWhoHidingSpot,
   completeWhoHidingPlayback,
-  createWhoHidingInputState
+  createWhoHidingInputState,
 } from "./model";
 
 describe("who-hiding input state machine", () => {
@@ -13,7 +13,9 @@ describe("who-hiding input state machine", () => {
 
     expect(canChooseWhoHidingSpot(speaking)).toBe(false);
     expect(completeWhoHidingPlayback(speaking, speaking.playbackId - 1, "ready")).toEqual(speaking);
-    expect(canChooseWhoHidingSpot(completeWhoHidingPlayback(speaking, speaking.playbackId, "ready"))).toBe(true);
+    expect(
+      canChooseWhoHidingSpot(completeWhoHidingPlayback(speaking, speaking.playbackId, "ready")),
+    ).toBe(true);
   });
 
   it("keeps stale completion from unlocking input after a safe cancel", () => {

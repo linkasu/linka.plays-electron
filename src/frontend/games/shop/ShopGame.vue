@@ -11,25 +11,72 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
-import { generateShopRound, validateShopShoppingCart, type ShopCoin, type ShopCoinValue, type ShopItem } from "./model";
+import {
+  generateShopRound,
+  validateShopShoppingCart,
+  type ShopCoin,
+  type ShopCoinValue,
+  type ShopItem,
+} from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("shop", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("shop", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 140, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
-const shopItemAssetIds = ["shop.item.apple", "shop.item.juice", "shop.item.bread", "shop.item.milk", "shop.item.banana", "shop.item.cookie", "shop.item.cheese", "shop.item.berries", "shop.item.cake"];
+const shopItemAssetIds = [
+  "shop.item.apple",
+  "shop.item.juice",
+  "shop.item.bread",
+  "shop.item.milk",
+  "shop.item.banana",
+  "shop.item.cookie",
+  "shop.item.cheese",
+  "shop.item.berries",
+  "shop.item.cake",
+];
 const shopNumberAssetIds = Array.from({ length: 10 }, (_, index) => `shop.number.${index + 1}`);
-const promptAudio = useGamePromptAudio({ gameId: "shop", soundEnabled, warmAssetIds: ["shop.wallet.10", "shop.buy", "shop.and", "shop.pay", "shop.price", ...shopItemAssetIds, ...shopNumberAssetIds, "shop.correct", "shop.mistake", "shop.complete"] });
+const promptAudio = useGamePromptAudio({
+  gameId: "shop",
+  soundEnabled,
+  warmAssetIds: [
+    "shop.wallet.10",
+    "shop.buy",
+    "shop.and",
+    "shop.pay",
+    "shop.price",
+    ...shopItemAssetIds,
+    ...shopNumberAssetIds,
+    "shop.correct",
+    "shop.mistake",
+    "shop.complete",
+  ],
+});
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
-const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRoundGame,
+} = useRoundGame({
   session,
   startSession,
-  generateRound: (roundIndex) => generateShopRound(session.settings, roundIndex)
+  generateRound: (roundIndex) => generateShopRound(session.settings, roundIndex),
 });
 
 const selectedCoins = ref<ShopCoinValue[]>([]);
@@ -41,17 +88,25 @@ const isSpeaking = ref(false);
 const isPaymentRound = computed(() => round.value.taskKind === "pay-coins");
 const isShoppingListRound = computed(() => round.value.taskKind === "shopping-list");
 const selectedTotal = computed(() => selectedCoins.value.reduce((sum, coin) => sum + coin, 0));
-const selectedShoppingItems = computed(() => selectedItemIds.value
- .map((id) => round.value.choices.find((item) => item.id === id))
- .filter((item): item is ShopItem => Boolean(item)));
-const targetListText = computed(() => round.value.targetItems.map((item) => item.label).join(" и "));
-const shoppingTotal = computed(() => selectedShoppingItems.value.reduce((sum, item) => sum + item.price, 0));
+const selectedShoppingItems = computed(() =>
+  selectedItemIds.value
+    .map((id) => round.value.choices.find((item) => item.id === id))
+    .filter((item): item is ShopItem => Boolean(item)),
+);
+const targetListText = computed(() =>
+  round.value.targetItems.map((item) => item.label).join(" и "),
+);
+const shoppingTotal = computed(() =>
+  selectedShoppingItems.value.reduce((sum, item) => sum + item.price, 0),
+);
 const targetItemIds = computed(() => new Set(round.value.correctItemIds));
 const shoppingReady = computed(() => validateShopShoppingCart(round.value, selectedItemIds.value));
-const selectedCoinCounts = computed(() => round.value.coins.map((coin) => ({
- ...coin,
-  count: selectedCoins.value.filter((selected) => selected === coin.value).length
-})));
+const selectedCoinCounts = computed(() =>
+  round.value.coins.map((coin) => ({
+    ...coin,
+    count: selectedCoins.value.filter((selected) => selected === coin.value).length,
+  })),
+);
 
 function itemTargetId(itemId: string) {
   return `shop:item:${itemId}`;
@@ -92,7 +147,11 @@ async function advanceRound() {
   isSpeaking.value = true;
   void feedbackAudio.playSuccess();
   const finishedAfterSuccess = session.step >= session.maxSteps;
-  await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["shop.correct", "shop.complete"] : ["shop.correct"], 80, 170);
+  await promptAudio.playSequenceAndWait(
+    finishedAfterSuccess ? ["shop.correct", "shop.complete"] : ["shop.correct"],
+    80,
+    170,
+  );
   if (finishedAfterSuccess) {
     finishSession("game-complete");
     isSpeaking.value = false;
@@ -116,7 +175,17 @@ async function toggleShoppingItem(item: ShopItem) {
   }
 
   if (!targetItemIds.value.has(item.id)) {
-    recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId: shoppingActionTargetId(), prompt: round.value.prompt, expected: round.value.correctItemIds, actual: [...selectedItemIds.value, item.id], itemId: item.id, isCorrect: false, reason: "not-in-list" });
+    recordMistake({
+      roundId: round.value.roundId,
+      targetId,
+      expectedTargetId: shoppingActionTargetId(),
+      prompt: round.value.prompt,
+      expected: round.value.correctItemIds,
+      actual: [...selectedItemIds.value, item.id],
+      itemId: item.id,
+      isCorrect: false,
+      reason: "not-in-list",
+    });
     setSoftHint(targetId, "Этот товар не из списка. Выбери товары из задания.");
     isSpeaking.value = true;
     void feedbackAudio.playMistake();
@@ -135,13 +204,37 @@ async function buyShoppingList() {
 
   const targetId = shoppingActionTargetId();
   if (shoppingReady.value) {
-    recordSuccess({ roundId: round.value.roundId, targetId, prompt: round.value.prompt, expected: round.value.correctItemIds, actual: selectedItemIds.value, total: shoppingTotal.value, walletTotal: round.value.walletTotal, isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      prompt: round.value.prompt,
+      expected: round.value.correctItemIds,
+      actual: selectedItemIds.value,
+      total: shoppingTotal.value,
+      walletTotal: round.value.walletTotal,
+      isCorrect: true,
+    });
     await advanceRound();
     return;
   }
 
-  recordMistake({ roundId: round.value.roundId, targetId, prompt: round.value.prompt, expected: round.value.correctItemIds, actual: selectedItemIds.value, total: shoppingTotal.value, walletTotal: round.value.walletTotal, isCorrect: false, reason: shoppingTotal.value > round.value.walletTotal ? "too-much" : "list-mismatch" });
-  setSoftHint(targetId, shoppingTotal.value > round.value.walletTotal ? "Не хватает монет. Убери один товар." : "Выбери все товары из списка, потом нажми Купить.");
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    prompt: round.value.prompt,
+    expected: round.value.correctItemIds,
+    actual: selectedItemIds.value,
+    total: shoppingTotal.value,
+    walletTotal: round.value.walletTotal,
+    isCorrect: false,
+    reason: shoppingTotal.value > round.value.walletTotal ? "too-much" : "list-mismatch",
+  });
+  setSoftHint(
+    targetId,
+    shoppingTotal.value > round.value.walletTotal
+      ? "Не хватает монет. Убери один товар."
+      : "Выбери все товары из списка, потом нажми Купить.",
+  );
   isSpeaking.value = true;
   void feedbackAudio.playMistake();
   await promptAudio.playSequenceAndWait(["shop.mistake"], 80);
@@ -154,7 +247,16 @@ async function addCoin(coin: ShopCoin) {
   const targetId = coinTargetId(coin.value);
   const nextTotal = selectedTotal.value + coin.value;
   if (nextTotal > round.value.targetPrice) {
-    recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId: actionTargetId("check"), expected: round.value.targetPrice, actual: nextTotal, selectedCoins: [...selectedCoins.value, coin.value], isCorrect: false, reason: "too-much" });
+    recordMistake({
+      roundId: round.value.roundId,
+      targetId,
+      expectedTargetId: actionTargetId("check"),
+      expected: round.value.targetPrice,
+      actual: nextTotal,
+      selectedCoins: [...selectedCoins.value, coin.value],
+      isCorrect: false,
+      reason: "too-much",
+    });
     setSoftHint(targetId, "Получилось больше цены. Можно очистить и собрать снова.");
     isSpeaking.value = true;
     void feedbackAudio.playMistake();
@@ -164,7 +266,10 @@ async function addCoin(coin: ShopCoin) {
   }
 
   selectedCoins.value = [...selectedCoins.value, coin.value];
-  feedback.value = nextTotal === round.value.targetPrice ? "Оплата готова. Нажми галочку." : "Хорошо. Можно добавить ещё монетку.";
+  feedback.value =
+    nextTotal === round.value.targetPrice
+      ? "Оплата готова. Нажми галочку."
+      : "Хорошо. Можно добавить ещё монетку.";
   lastMistakeTargetId.value = undefined;
 }
 
@@ -179,13 +284,34 @@ async function checkPayment() {
   const targetId = actionTargetId("check");
   const actual = selectedTotal.value;
   if (actual === round.value.targetPrice) {
-    recordSuccess({ roundId: round.value.roundId, targetId, prompt: round.value.prompt, expected: round.value.targetPrice, actual, selectedCoins: [...selectedCoins.value], isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      prompt: round.value.prompt,
+      expected: round.value.targetPrice,
+      actual,
+      selectedCoins: [...selectedCoins.value],
+      isCorrect: true,
+    });
     await advanceRound();
     return;
   }
 
-  recordMistake({ roundId: round.value.roundId, targetId, expected: round.value.targetPrice, actual, selectedCoins: [...selectedCoins.value], isCorrect: false, reason: actual < round.value.targetPrice ? "not-enough" : "too-much" });
-  setSoftHint(targetId, actual < round.value.targetPrice ? "Пока меньше цены. Добавь ещё монетку." : "Получилось больше цены. Очисти и попробуй снова.");
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    expected: round.value.targetPrice,
+    actual,
+    selectedCoins: [...selectedCoins.value],
+    isCorrect: false,
+    reason: actual < round.value.targetPrice ? "not-enough" : "too-much",
+  });
+  setSoftHint(
+    targetId,
+    actual < round.value.targetPrice
+      ? "Пока меньше цены. Добавь ещё монетку."
+      : "Получилось больше цены. Очисти и попробуй снова.",
+  );
   isSpeaking.value = true;
   void feedbackAudio.playMistake();
   await promptAudio.playSequenceAndWait(["shop.mistake"], 80);
@@ -214,30 +340,100 @@ onUnmounted(() => {
 
 <template>
   <div class="shop-shell">
-    <GameHud title="Магазин" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Магазин"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" xl="11">
-          <v-card :class="['shop-card pa-4 pa-md-6', { 'shop-card--payment': isPaymentRound }]" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Магазин с крупными ценниками</div>
+          <v-card
+            :class="['shop-card pa-4 pa-md-6', { 'shop-card--payment': isPaymentRound }]"
+            rounded="xl"
+            elevation="8"
+          >
+            <div class="text-overline text-secondary text-center mb-2">
+              Магазин с крупными ценниками
+            </div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
-            <v-alert class="mb-4 text-body-1 font-weight-bold" :color="lastMistakeTargetId ? 'secondary' : 'primary'" :icon="lastMistakeTargetId ? 'mdi-heart-outline' : 'mdi-lightbulb-outline'" rounded="xl" variant="tonal">
+            <v-alert
+              class="mb-4 text-body-1 font-weight-bold"
+              :color="lastMistakeTargetId ? 'secondary' : 'primary'"
+              :icon="lastMistakeTargetId ? 'mdi-heart-outline' : 'mdi-lightbulb-outline'"
+              rounded="xl"
+              variant="tonal"
+            >
               {{ feedback || round.helperText }}
             </v-alert>
 
             <template v-if="round.taskKind === 'shopping-list'">
               <v-row class="choice-row" dense>
-                <v-col v-for="item in round.choices" :key="item.id" class="shop-choice-col" cols="12" sm="6" lg="3">
-                  <GameDwellButton :target-id="itemTargetId(item.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="230" color="surface" @select="toggleShoppingItem(item)">
+                <v-col
+                  v-for="item in round.choices"
+                  :key="item.id"
+                  class="shop-choice-col"
+                  cols="12"
+                  sm="6"
+                  lg="3"
+                >
+                  <GameDwellButton
+                    :target-id="itemTargetId(item.id)"
+                    :disabled="session.status !== 'running' || isSpeaking"
+                    :dwell-ms="session.settings.dwellMs"
+                    :min-height="230"
+                    color="surface"
+                    @select="toggleShoppingItem(item)"
+                  >
                     <template #default>
-                      <div :class="['item-card', { 'item-card--selected': selectedItemIds.includes(item.id), 'item-card--mistake': lastMistakeTargetId === itemTargetId(item.id) }]">
-                        <GameWordImage v-if="item.wordId" class="item-card__emoji" :word-id="item.wordId" :word="item.label" :emoji="item.emoji" decorative />
-                        <div v-else class="item-card__emoji emoji-glyph" aria-hidden="true">{{ item.emoji }}</div>
-                        <div class="item-card__label text-h5 text-md-h4 font-weight-bold text-center">{{ item.label }}</div>
-                        <v-chip class="item-card__price mt-3" color="deep-purple-darken-3" size="x-large" variant="flat">
+                      <div
+                        :class="[
+                          'item-card',
+                          {
+                            'item-card--selected': selectedItemIds.includes(item.id),
+                            'item-card--mistake': lastMistakeTargetId === itemTargetId(item.id),
+                          },
+                        ]"
+                      >
+                        <GameWordImage
+                          v-if="item.wordId"
+                          class="item-card__emoji"
+                          :word-id="item.wordId"
+                          :word="item.label"
+                          :emoji="item.emoji"
+                          decorative
+                        />
+                        <div v-else class="item-card__emoji emoji-glyph" aria-hidden="true">
+                          {{ item.emoji }}
+                        </div>
+                        <div
+                          class="item-card__label text-h5 text-md-h4 font-weight-bold text-center"
+                        >
+                          {{ item.label }}
+                        </div>
+                        <v-chip
+                          class="item-card__price mt-3"
+                          color="deep-purple-darken-3"
+                          size="x-large"
+                          variant="flat"
+                        >
                           {{ item.price }} мон.
                         </v-chip>
-                        <v-chip v-if="selectedItemIds.includes(item.id)" class="mt-2" color="success" size="large" variant="tonal">В корзине</v-chip>
+                        <v-chip
+                          v-if="selectedItemIds.includes(item.id)"
+                          class="mt-2"
+                          color="success"
+                          size="large"
+                          variant="tonal"
+                          >В корзине</v-chip
+                        >
                       </div>
                     </template>
                   </GameDwellButton>
@@ -247,12 +443,29 @@ onUnmounted(() => {
               <v-sheet class="basket-panel pa-3 pa-md-4 mt-3" color="surface" rounded="xl" border>
                 <div class="basket-panel__summary">
                   <div class="text-h6 text-md-h5 font-weight-bold">Нужно: {{ targetListText }}</div>
-                  <div class="text-h6 text-md-h5 font-weight-bold">Корзина: {{ shoppingTotal }} / {{ round.walletTotal }} мон.</div>
-                  <div class="text-body-1 text-medium-emphasis">{{ selectedShoppingItems.length ? selectedShoppingItems.map((item) => item.label).join(', ') : 'Выбери товары из списка' }}</div>
+                  <div class="text-h6 text-md-h5 font-weight-bold">
+                    Корзина: {{ shoppingTotal }} / {{ round.walletTotal }} мон.
+                  </div>
+                  <div class="text-body-1 text-medium-emphasis">
+                    {{
+                      selectedShoppingItems.length
+                        ? selectedShoppingItems.map((item) => item.label).join(", ")
+                        : "Выбери товары из списка"
+                    }}
+                  </div>
                 </div>
-                <GameDwellButton :target-id="shoppingActionTargetId()" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="6rem" color="deep-purple-darken-3" @select="buyShoppingList">
+                <GameDwellButton
+                  :target-id="shoppingActionTargetId()"
+                  :disabled="session.status !== 'running' || isSpeaking"
+                  :dwell-ms="session.settings.dwellMs"
+                  min-height="6rem"
+                  color="deep-purple-darken-3"
+                  @select="buyShoppingList"
+                >
                   <template #default>
-                    <div class="d-flex align-center justify-center ga-3 text-h5 text-md-h4 font-weight-bold">
+                    <div
+                      class="d-flex align-center justify-center ga-3 text-h5 text-md-h4 font-weight-bold"
+                    >
                       <v-icon icon="mdi-cart-check" size="38" />
                       Купить
                     </div>
@@ -264,28 +477,69 @@ onUnmounted(() => {
             <template v-else>
               <v-sheet class="receipt-panel pa-4 mb-4" color="primary" rounded="xl">
                 <div class="receipt-panel__item">
-                  <GameWordImage v-if="round.targetItem.wordId" class="receipt-panel__emoji" :word-id="round.targetItem.wordId" :word="round.targetItem.label" :emoji="round.targetItem.emoji" decorative />
-                  <span v-else class="receipt-panel__emoji emoji-glyph" aria-hidden="true">{{ round.targetItem.emoji }}</span>
+                  <GameWordImage
+                    v-if="round.targetItem.wordId"
+                    class="receipt-panel__emoji"
+                    :word-id="round.targetItem.wordId"
+                    :word="round.targetItem.label"
+                    :emoji="round.targetItem.emoji"
+                    decorative
+                  />
+                  <span v-else class="receipt-panel__emoji emoji-glyph" aria-hidden="true">{{
+                    round.targetItem.emoji
+                  }}</span>
                   <div>
                     <div class="text-overline text-white">Покупка</div>
-                    <div class="text-h4 text-md-h3 font-weight-bold text-white">{{ round.targetItem.label }}</div>
+                    <div class="text-h4 text-md-h3 font-weight-bold text-white">
+                      {{ round.targetItem.label }}
+                    </div>
                   </div>
                 </div>
-                <div class="receipt-panel__price text-white">{{ selectedTotal }} / {{ round.targetPrice }}</div>
+                <div class="receipt-panel__price text-white">
+                  {{ selectedTotal }} / {{ round.targetPrice }}
+                </div>
                 <div class="selected-coins" aria-label="Выбранные монетки">
-                  <span v-if="selectedCoins.length === 0" class="text-white text-h6">Монетки ещё ждут</span>
-                  <span v-for="(coin, index) in selectedCoins" :key="`${coin}-${index}`" class="selected-coin">{{ coin }}</span>
+                  <span v-if="selectedCoins.length === 0" class="text-white text-h6"
+                    >Монетки ещё ждут</span
+                  >
+                  <span
+                    v-for="(coin, index) in selectedCoins"
+                    :key="`${coin}-${index}`"
+                    class="selected-coin"
+                    >{{ coin }}</span
+                  >
                 </div>
               </v-sheet>
 
               <v-row class="coin-row" dense>
                 <v-col v-for="coin in selectedCoinCounts" :key="coin.value" cols="12" sm="4">
-                  <GameDwellButton :target-id="coinTargetId(coin.value)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="clamp(7rem, 17vh, 10.5rem)" color="surface" @select="addCoin(coin)">
+                  <GameDwellButton
+                    :target-id="coinTargetId(coin.value)"
+                    :disabled="session.status !== 'running' || isSpeaking"
+                    :dwell-ms="session.settings.dwellMs"
+                    min-height="clamp(7rem, 17vh, 10.5rem)"
+                    color="surface"
+                    @select="addCoin(coin)"
+                  >
                     <template #default>
-                      <div :class="['coin-card', { 'coin-card--mistake': lastMistakeTargetId === coinTargetId(coin.value) }]">
+                      <div
+                        :class="[
+                          'coin-card',
+                          {
+                            'coin-card--mistake': lastMistakeTargetId === coinTargetId(coin.value),
+                          },
+                        ]"
+                      >
                         <div class="coin-card__value">{{ coin.label }}</div>
                         <div class="text-body-1 text-medium-emphasis">монетка</div>
-                        <v-chip v-if="coin.count > 0" class="mt-2" color="primary" size="large" variant="tonal">Выбрано: {{ coin.count }}</v-chip>
+                        <v-chip
+                          v-if="coin.count > 0"
+                          class="mt-2"
+                          color="primary"
+                          size="large"
+                          variant="tonal"
+                          >Выбрано: {{ coin.count }}</v-chip
+                        >
                       </div>
                     </template>
                   </GameDwellButton>
@@ -294,16 +548,34 @@ onUnmounted(() => {
 
               <v-row class="action-row mt-2" dense>
                 <v-col cols="12" sm="5">
-                  <GameDwellButton :target-id="actionTargetId('clear')" :disabled="session.status !== 'running' || isSpeaking || selectedCoins.length === 0" :dwell-ms="session.settings.dwellMs" min-height="clamp(4.5rem, 10vh, 7rem)" color="surface" @select="clearCoins">
+                  <GameDwellButton
+                    :target-id="actionTargetId('clear')"
+                    :disabled="
+                      session.status !== 'running' || isSpeaking || selectedCoins.length === 0
+                    "
+                    :dwell-ms="session.settings.dwellMs"
+                    min-height="clamp(4.5rem, 10vh, 7rem)"
+                    color="surface"
+                    @select="clearCoins"
+                  >
                     <template #default>
                       <div class="text-h5 text-md-h4 font-weight-bold">Очистить</div>
                     </template>
                   </GameDwellButton>
                 </v-col>
                 <v-col cols="12" sm="7">
-                  <GameDwellButton :target-id="actionTargetId('check')" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="clamp(4.5rem, 10vh, 7rem)" color="primary" @select="checkPayment">
+                  <GameDwellButton
+                    :target-id="actionTargetId('check')"
+                    :disabled="session.status !== 'running' || isSpeaking"
+                    :dwell-ms="session.settings.dwellMs"
+                    min-height="clamp(4.5rem, 10vh, 7rem)"
+                    color="primary"
+                    @select="checkPayment"
+                  >
                     <template #default>
-                      <div class="d-flex align-center justify-center ga-3 text-h5 text-md-h4 font-weight-bold">
+                      <div
+                        class="d-flex align-center justify-center ga-3 text-h5 text-md-h4 font-weight-bold"
+                      >
                         <v-icon icon="mdi-check" size="42" />
                         Проверить оплату
                       </div>
@@ -316,7 +588,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Магазин" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Магазин"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -367,7 +649,10 @@ onUnmounted(() => {
   justify-content: center;
   min-block-size: 9rem;
   outline: 0 solid transparent;
-  transition: filter 160ms ease, outline 160ms ease, transform 160ms ease;
+  transition:
+    filter 160ms ease,
+    outline 160ms ease,
+    transform 160ms ease;
 }
 
 .item-card {
@@ -509,64 +794,64 @@ onUnmounted(() => {
 }
 
 @media (min-width: 68.75rem) {
- .game-container {
+  .game-container {
     padding-block-start: 7.25rem;
   }
 }
 
 @media (max-width: 37.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 11rem;
   }
 
- .basket-panel {
+  .basket-panel {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-height: 44rem) {
- .game-container {
+  .game-container {
     padding-block-start: 4.75rem;
   }
 
- .shop-card {
+  .shop-card {
     padding-block: 1rem !important;
   }
 
- .shop-card .text-overline,
- .shop-card h1,
- .shop-card .v-alert {
+  .shop-card .text-overline,
+  .shop-card h1,
+  .shop-card .v-alert {
     display: none;
   }
 
- .shop-choice-col {
+  .shop-choice-col {
     flex: 0 0 25% !important;
     max-inline-size: 25% !important;
   }
 
- .choice-row :deep(.dwell-button) {
+  .choice-row :deep(.dwell-button) {
     min-block-size: 10rem !important;
     padding: 0.5rem !important;
   }
 
- .basket-panel {
+  .basket-panel {
     gap: 0.5rem;
     grid-template-columns: minmax(0, 1fr) minmax(12rem, 18rem);
     margin-block-start: 0.5rem !important;
     padding-block: 0.5rem !important;
   }
 
- .item-card,
- .coin-card {
+  .item-card,
+  .coin-card {
     min-block-size: 7rem;
   }
 
- .item-card__emoji {
+  .item-card__emoji {
     font-size: 3.25rem;
     margin-block-end: 0.35rem;
   }
 
- .item-card__label {
+  .item-card__label {
     font-size: 1.35rem !important;
   }
 }

@@ -1,10 +1,28 @@
 import { describe, expect, it } from "vitest";
-import { createScheduleCandidates, createScheduleCards, dailyScheduleSteps, isExpectedScheduleChoice, nextScheduleStep, scheduleMaxSteps, schedulePromptAssetId, scheduleTargetId } from "./model";
+import {
+  createScheduleCandidates,
+  createScheduleCards,
+  dailyScheduleSteps,
+  isExpectedScheduleChoice,
+  nextScheduleStep,
+  scheduleMaxSteps,
+  schedulePromptAssetId,
+  scheduleTargetId,
+} from "./model";
 
 describe("schedule model", () => {
   it("keeps a full eight-step daily AAC sequence", () => {
     expect(dailyScheduleSteps).toHaveLength(scheduleMaxSteps);
-    expect(dailyScheduleSteps.map((step) => step.id)).toEqual(["wake", "wash", "breakfast", "dress", "therapy", "lunch", "play", "sleep"]);
+    expect(dailyScheduleSteps.map((step) => step.id)).toEqual([
+      "wake",
+      "wash",
+      "breakfast",
+      "dress",
+      "therapy",
+      "lunch",
+      "play",
+      "sleep",
+    ]);
     expect(new Set(dailyScheduleSteps.map((step) => step.id)).size).toBe(scheduleMaxSteps);
   });
 
@@ -33,7 +51,16 @@ describe("schedule model", () => {
   });
 
   it("uses clear word-bank AAC images for every action", () => {
-    expect(dailyScheduleSteps.map((step) => step.imageId)).toEqual(["clock", "soap", "porridge", "shirt", "book", "soup", "toy", "bed"]);
+    expect(dailyScheduleSteps.map((step) => step.imageId)).toEqual([
+      "clock",
+      "soap",
+      "porridge",
+      "shirt",
+      "book",
+      "soup",
+      "toy",
+      "bed",
+    ]);
   });
 
   it("keeps the exact morning step prompt flow", () => {
@@ -41,7 +68,7 @@ describe("schedule model", () => {
       "schedule.prompt.wake",
       "schedule.prompt.wash",
       "schedule.prompt.breakfast",
-      "schedule.prompt.dress"
+      "schedule.prompt.dress",
     ]);
   });
 
@@ -53,6 +80,8 @@ describe("schedule model", () => {
     expect(firstCandidates.map((card) => card.id)).toEqual(["lunch", "wake", "play", "wash"]);
     expect(washCandidates).toHaveLength(4);
     expect(washCandidates.some((card) => card.id === "wash")).toBe(true);
-    expect(createScheduleCandidates(cards, ["wake", "wash", "breakfast", "dress", "therapy"], 4)).toHaveLength(3);
+    expect(
+      createScheduleCandidates(cards, ["wake", "wash", "breakfast", "dress", "therapy"], 4),
+    ).toHaveLength(3);
   });
 });

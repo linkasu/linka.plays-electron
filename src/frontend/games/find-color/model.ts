@@ -1,5 +1,11 @@
 import type { SessionSettings } from "../../core/settings";
-import { buildChoiceRound, choiceCountByPreset, idEquality, pickRandom, type ChoiceRound } from "../../core/round";
+import {
+  buildChoiceRound,
+  choiceCountByPreset,
+  idEquality,
+  pickRandom,
+  type ChoiceRound,
+} from "../../core/round";
 
 export type FindColorOption = {
   id: string;
@@ -18,11 +24,15 @@ export const findColorOptions: FindColorOption[] = [
   { id: "purple", label: "фиолетовый", hex: "#4A148C", textColor: "#FFFFFF" },
   { id: "orange", label: "оранжевый", hex: "#EF6C00", textColor: "#1A1A1A" },
   { id: "teal", label: "бирюзовый", hex: "#00695C", textColor: "#FFFFFF" },
-  { id: "pink", label: "розовый", hex: "#880E4F", textColor: "#FFFFFF" }
+  { id: "pink", label: "розовый", hex: "#880E4F", textColor: "#FFFFFF" },
 ];
 
 export function generateFindColorRound(settings: SessionSettings, roundIndex = 1): FindColorRound {
-  const choiceCount = choiceCountByPreset(settings, roundIndex, { gentle: 3, standard: 4, challenge: 4 });
+  const choiceCount = choiceCountByPreset(settings, roundIndex, {
+    gentle: 3,
+    standard: 4,
+    challenge: 4,
+  });
   if (findColorOptions.length < choiceCount) throw new Error("Недостаточно цветов для игры.");
 
   return buildChoiceRound({
@@ -32,6 +42,6 @@ export function generateFindColorRound(settings: SessionSettings, roundIndex = 1
     choiceCount,
     pickTarget: (items) => pickRandom(items),
     isSame: idEquality,
-    prompt: (target) => `Найди ${target.label}`
+    prompt: (target) => `Найди ${target.label}`,
   });
 }

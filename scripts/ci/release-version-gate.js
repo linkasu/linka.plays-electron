@@ -3,7 +3,9 @@ const packageJson = require("../../package.json");
 function assertReleaseVersion(releaseVersion, packageVersion = packageJson.version) {
   const accepted = releaseVersion === packageVersion || releaseVersion === `v${packageVersion}`;
   if (!accepted) {
-    throw new Error(`Release version ${JSON.stringify(releaseVersion)} must exactly match package.json version ${packageVersion}`);
+    throw new Error(
+      `Release version ${JSON.stringify(releaseVersion)} must exactly match package.json version ${packageVersion}`,
+    );
   }
   return `v${packageVersion}`;
 }

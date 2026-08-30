@@ -2,7 +2,9 @@ import { createAmbientPiano } from "../../core/ambientPiano";
 
 const piano = createAmbientPiano({
   notesToLoad: [43, 47, 50, 52, 55, 59, 62, 64, 67, 71, 74, 76, 79],
-  loopNotes: [43, 50, 55, 62, 59, 55, 47, 52, 59, 64, 67, 62, 50, 55, 62, 71, 67, 62, 47, 55, 59, 67, 74, 79],
+  loopNotes: [
+    43, 50, 55, 62, 59, 55, 47, 52, 59, 64, 67, 62, 50, 55, 62, 71, 67, 62, 47, 55, 59, 67, 74, 79,
+  ],
   cueNotes: [62, 67, 74, 79],
   reverbName: "light-gallery-room",
   reverbAmount: 0.24,
@@ -24,7 +26,7 @@ const piano = createAmbientPiano({
   cueCooldownSeconds: 1,
   activeGain: 0.9,
   fadeInSeconds: 1.2,
-  fadeOutSeconds: 1.8
+  fadeOutSeconds: 1.8,
 });
 
 export function warmLightGalleryPiano(enabled: boolean) {

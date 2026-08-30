@@ -28,7 +28,7 @@ const updateState: UpdaterState = {
   downloaded: false,
   error: "",
   percent: 0,
-  version: ""
+  version: "",
 };
 
 let autoUpdaterInitialized = false;
@@ -39,27 +39,37 @@ let mainWindow: BrowserWindow | undefined;
 let telemetryHooks: UpdaterTelemetryHooks = {};
 
 type UpdaterTelemetryHooks = {
-  onState?: (state: "idle" | "checking" | "available" | "downloading" | "downloaded" | "installing" | "error", version?: string) => void;
+  onState?: (
+    state:
+      "idle" | "checking" | "available" | "downloading" | "downloaded" | "installing" | "error",
+    version?: string,
+  ) => void;
   onRestart?: () => Promise<void>;
 };
 
 export function registerUpdaterHandlers(hooks: UpdaterTelemetryHooks = {}) {
   telemetryHooks = hooks;
-  ipcMain.handle("app:version", () => ({
-    version: app.getVersion(),
-    platform: process.platform,
-    isPackaged: app.isPackaged
-  } satisfies AppVersionInfo));
+  ipcMain.handle(
+    "app:version",
+    () =>
+      ({
+        version: app.getVersion(),
+        platform: process.platform,
+        isPackaged: app.isPackaged,
+      }) satisfies AppVersionInfo,
+  );
   ipcMain.handle("updater:getState", () => ({ ...updateState }));
   ipcMain.on("updater:restartApp", () => {
     if (isQuittingForUpdate || !downloadedVersion || !updateState.downloaded) return;
     isQuittingForUpdate = true;
     telemetryHooks.onState?.("installing", downloadedVersion);
-    void Promise.resolve(telemetryHooks.onRestart?.()).catch(() => undefined).finally(() => {
-      recordUpdateInstallAttempt(downloadedVersion);
-      logUpdate("restart_app");
-      autoUpdater.quitAndInstall();
-    });
+    void Promise.resolve(telemetryHooks.onRestart?.())
+      .catch(() => undefined)
+      .finally(() => {
+        recordUpdateInstallAttempt(downloadedVersion);
+        logUpdate("restart_app");
+        autoUpdater.quitAndInstall();
+      });
   });
 }
 
@@ -145,11 +155,13 @@ export function setupAutoUpdater(win: BrowserWindow) {
     if (isUpdateTestMode && !isQuittingForUpdate) {
       isQuittingForUpdate = true;
       telemetryHooks.onState?.("installing", downloadedVersion);
-      void Promise.resolve(telemetryHooks.onRestart?.()).catch(() => undefined).finally(() => {
-        recordUpdateInstallAttempt(downloadedVersion);
-        logUpdate("update_test_quit_and_install");
-        autoUpdater.quitAndInstall(true, false);
-      });
+      void Promise.resolve(telemetryHooks.onRestart?.())
+        .catch(() => undefined)
+        .finally(() => {
+          recordUpdateInstallAttempt(downloadedVersion);
+          logUpdate("update_test_quit_and_install");
+          autoUpdater.quitAndInstall(true, false);
+        });
     }
   });
 
@@ -164,12 +176,12 @@ export function setupAutoUpdater(win: BrowserWindow) {
   });
 }
 
-function sendToRenderer (channel: string, payload?: unknown) {
+function sendToRenderer(channel: string, payload?: unknown) {
   if (!mainWindow || mainWindow.isDestroyed()) return;
   mainWindow.webContents.send(channel, payload);
 }
 
-function logUpdate (message: string, payload?: unknown) {
+function logUpdate(message: string, payload?: unknown) {
   if (!updateLogPath) return;
   const safePayload = payload ? ` ${JSON.stringify(payload)}` : "";
   const line = `[${new Date().toISOString()}] ${message}${safePayload}\n`;
@@ -180,20 +192,24 @@ function logUpdate (message: string, payload?: unknown) {
   }
 }
 
-function recordUpdateInstallAttempt (version: string | null) {
+function recordUpdateInstallAttempt(version: string | null) {
   updateStore.set("lastAttemptAt", Date.now());
   if (version) updateStore.set("lastAttemptVersion", version);
 }
 
-function clearUpdateAttemptIfSucceeded () {
+function clearUpdateAttemptIfSucceeded() {
   const lastAttemptVersion = updateStore.get("lastAttemptVersion");
-  if (typeof lastAttemptVersion === "string" && lastAttemptVersion && lastAttemptVersion === app.getVersion()) {
+  if (
+    typeof lastAttemptVersion === "string" &&
+    lastAttemptVersion &&
+    lastAttemptVersion === app.getVersion()
+  ) {
     updateStore.delete("lastAttemptAt");
     updateStore.delete("lastAttemptVersion");
   }
 }
 
-function shouldSkipUpdateCheck () {
+function shouldSkipUpdateCheck() {
   if (isUpdateTestMode) return false;
   const lastAttemptAt = updateStore.get("lastAttemptAt");
   if (typeof lastAttemptAt !== "number") return false;

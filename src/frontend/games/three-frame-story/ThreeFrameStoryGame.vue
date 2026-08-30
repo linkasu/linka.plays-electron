@@ -11,15 +11,30 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { shuffleItems } from "../../core/random";
-import { createThreeFrameStorySlots, generateThreeFrameStoryRound, threeFrameStories, type ThreeFrameStoryFrame } from "./model";
+import {
+  createThreeFrameStorySlots,
+  generateThreeFrameStoryRound,
+  threeFrameStories,
+  type ThreeFrameStoryFrame,
+} from "./model";
 
 const threeFrameStoryFeedback = createStandardGameFeedback();
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("three-frame-story", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+} = useGameSessionFor("three-frame-story", {
   maxSteps: 6,
   overrides: { sound: true },
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 
 function createThreeFrameStoryOrder() {
@@ -38,25 +53,35 @@ function choiceOrderForStep(completedSteps: number) {
   const story = storyForStep(completedSteps);
   if (!choiceOrders.value[story.id]) {
     choiceOrders.value = {
-     ...choiceOrders.value,
-      [story.id]: shuffleItems(story.frames).map((frame) => frame.id)
+      ...choiceOrders.value,
+      [story.id]: shuffleItems(story.frames).map((frame) => frame.id),
     };
   }
   return choiceOrders.value[story.id];
 }
 
-const round = shallowRef(generateThreeFrameStoryRound(session.step, { choiceOrder: choiceOrderForStep(session.step), storyOrder: storyOrder.value }));
+const round = shallowRef(
+  generateThreeFrameStoryRound(session.step, {
+    choiceOrder: choiceOrderForStep(session.step),
+    storyOrder: storyOrder.value,
+  }),
+);
 const feedbackMessage = ref("Выбери первый кадр истории.");
 const pendingSelection = ref(false);
 const isSpeaking = ref(false);
 const wrongChoiceId = ref<string>();
 const successChoiceId = ref<string>();
-const promptAudio = useGamePromptAudio({ gameId: "three-frame-story", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "three-frame-story",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 let feedbackTimer = 0;
 let resultTimer = 0;
 
 const resultVisible = ref(false);
-const assembledFrames = computed(() => createThreeFrameStorySlots(round.value, successChoiceId.value));
+const assembledFrames = computed(() =>
+  createThreeFrameStorySlots(round.value, successChoiceId.value),
+);
 
 function choiceTargetId(choice: ThreeFrameStoryFrame) {
   return `three-frame-story:choice:${round.value.story.id}:${choice.id}`;
@@ -95,7 +120,10 @@ function showResultSoon(delayMs = 900) {
 }
 
 function refreshRound() {
-  round.value = generateThreeFrameStoryRound(session.step, { choiceOrder: choiceOrderForStep(session.step), storyOrder: storyOrder.value });
+  round.value = generateThreeFrameStoryRound(session.step, {
+    choiceOrder: choiceOrderForStep(session.step),
+    storyOrder: storyOrder.value,
+  });
 }
 
 function scheduleNextFrame() {
@@ -104,7 +132,9 @@ function scheduleNextFrame() {
     if (session.status !== "running") return;
     refreshRound();
     const isNewStory = round.value.stepInStory === 0;
-    resetFeedback(isNewStory ? "Новая история. Выбери первый кадр." : "Хорошо. Выбери следующий кадр.");
+    resetFeedback(
+      isNewStory ? "Новая история. Выбери первый кадр." : "Хорошо. Выбери следующий кадр.",
+    );
   }, 700);
 }
 
@@ -126,12 +156,18 @@ async function choose(choice: ThreeFrameStoryFrame) {
       expected: round.value.expectedFrame.label,
       actual: choice.label,
       storyId: round.value.story.id,
-      isCorrect: true
+      isCorrect: true,
     });
     const finishedAfterSuccess = session.step >= session.maxSteps;
     void threeFrameStoryFeedback.playSuccess(session.settings.sound);
     isSpeaking.value = true;
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["three-frame-story.correct", "three-frame-story.complete"] : ["three-frame-story.correct"], 80, 170);
+    await promptAudio.playSequenceAndWait(
+      finishedAfterSuccess
+        ? ["three-frame-story.correct", "three-frame-story.complete"]
+        : ["three-frame-story.correct"],
+      80,
+      170,
+    );
     isSpeaking.value = false;
     if (session.status === "running") scheduleNextFrame();
     return;
@@ -147,7 +183,7 @@ async function choose(choice: ThreeFrameStoryFrame) {
     expected: round.value.expectedFrame.label,
     actual: choice.label,
     storyId: round.value.story.id,
-    isCorrect: false
+    isCorrect: false,
   });
   void threeFrameStoryFeedback.playMistake(session.settings.sound);
   isSpeaking.value = true;
@@ -192,14 +228,17 @@ onUnmounted(() => {
   threeFrameStoryFeedback.dispose();
 });
 
-watch(() => session.status, (status) => {
-  if (status === "finished") {
-    if (!isSpeaking.value) showResultSoon();
-  } else {
-    clearResultTimer();
-    resultVisible.value = false;
-  }
-});
+watch(
+  () => session.status,
+  (status) => {
+    if (status === "finished") {
+      if (!isSpeaking.value) showResultSoon();
+    } else {
+      clearResultTimer();
+      resultVisible.value = false;
+    }
+  },
+);
 
 watch(isSpeaking, (speaking) => {
   if (!speaking && session.status === "finished" && !resultVisible.value) showResultSoon();
@@ -207,19 +246,44 @@ watch(isSpeaking, (speaking) => {
 </script>
 
 <template>
-  <GamePageShell gradient="linear-gradient(135deg, #fff8e1 0%, #e3f2fd 54%, #f3e5f5 100%)" padding-top="5rem">
+  <GamePageShell
+    gradient="linear-gradient(135deg, #fff8e1 0%, #e3f2fd 54%, #f3e5f5 100%)"
+    padding-top="5rem"
+  >
     <template #hud>
-      <GameHud title="История из 3 кадров" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+      <GameHud
+        title="История из 3 кадров"
+        :step="session.step"
+        :max-steps="session.maxSteps"
+        :score="session.score"
+        :mistakes="session.mistakes"
+        :duration-ms="durationMs"
+        :session-seconds="session.settings.sessionSeconds"
+        :paused="session.status === 'paused'"
+        @pause="pauseSession"
+        @resume="resumeSession"
+      />
     </template>
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
           <v-card class="story-card pa-5 pa-md-8" rounded="xl" elevation="8">
-            <div class="story-overline text-overline text-secondary text-center mb-2">Последовательность</div>
-            <h1 class="story-title text-h4 text-md-h3 font-weight-bold text-center mb-2">{{ round.story.title }}</h1>
-            <p class="story-prompt text-body-1 text-medium-emphasis text-center mb-6">{{ round.story.prompt }}</p>
+            <div class="story-overline text-overline text-secondary text-center mb-2">
+              Последовательность
+            </div>
+            <h1 class="story-title text-h4 text-md-h3 font-weight-bold text-center mb-2">
+              {{ round.story.title }}
+            </h1>
+            <p class="story-prompt text-body-1 text-medium-emphasis text-center mb-6">
+              {{ round.story.prompt }}
+            </p>
 
-            <v-card class="feedback-card pa-4 pa-md-5 mb-6" color="blue-lighten-5" rounded="xl" variant="flat">
+            <v-card
+              class="feedback-card pa-4 pa-md-5 mb-6"
+              color="blue-lighten-5"
+              rounded="xl"
+              variant="flat"
+            >
               <div class="d-flex flex-wrap align-center justify-center ga-3 text-center">
                 <v-icon icon="mdi-filmstrip" color="primary" size="36" />
                 <div class="text-h6 font-weight-bold">{{ feedbackMessage }}</div>
@@ -227,13 +291,48 @@ watch(isSpeaking, (speaking) => {
             </v-card>
 
             <div class="story-slots mb-7" aria-label="Собранная история">
-              <v-card v-for="(frame, slotIndex) in assembledFrames" :key="slotIndex" class="story-slot pa-4" :color="frame?.color ?? 'blue-grey-lighten-5'" rounded="xl" variant="flat">
+              <v-card
+                v-for="(frame, slotIndex) in assembledFrames"
+                :key="slotIndex"
+                class="story-slot pa-4"
+                :color="frame?.color ?? 'blue-grey-lighten-5'"
+                rounded="xl"
+                variant="flat"
+              >
                 <template v-if="frame">
                   <div class="slot-number">{{ slotIndex + 1 }}</div>
-                  <div class="story-scene" :class="`story-scene--${frame.scene.setting}`" role="img" :aria-label="frame.label">
-                    <template v-for="(layer, layerIndex) in frame.scene.layers" :key="`${layer.kind}:${layerIndex}`">
-                      <GameWordImage v-if="layer.kind === 'word'" :class="['scene-layer', `scene-layer--${layer.position}`, `scene-layer--${layer.size ?? 'medium'}`]" :word-id="layer.wordId" :word="layer.word" :emoji="layer.emoji" decorative />
-                      <v-icon v-else :class="['scene-layer', `scene-layer--${layer.position}`, `scene-layer--${layer.size ?? 'medium'}`]" :icon="layer.icon" :color="layer.color" />
+                  <div
+                    class="story-scene"
+                    :class="`story-scene--${frame.scene.setting}`"
+                    role="img"
+                    :aria-label="frame.label"
+                  >
+                    <template
+                      v-for="(layer, layerIndex) in frame.scene.layers"
+                      :key="`${layer.kind}:${layerIndex}`"
+                    >
+                      <GameWordImage
+                        v-if="layer.kind === 'word'"
+                        :class="[
+                          'scene-layer',
+                          `scene-layer--${layer.position}`,
+                          `scene-layer--${layer.size ?? 'medium'}`,
+                        ]"
+                        :word-id="layer.wordId"
+                        :word="layer.word"
+                        :emoji="layer.emoji"
+                        decorative
+                      />
+                      <v-icon
+                        v-else
+                        :class="[
+                          'scene-layer',
+                          `scene-layer--${layer.position}`,
+                          `scene-layer--${layer.size ?? 'medium'}`,
+                        ]"
+                        :icon="layer.icon"
+                        :color="layer.color"
+                      />
                     </template>
                   </div>
                   <div class="frame-label text-h6 font-weight-bold mt-2">{{ frame.label }}</div>
@@ -241,19 +340,57 @@ watch(isSpeaking, (speaking) => {
                 <template v-else>
                   <div class="slot-number">{{ slotIndex + 1 }}</div>
                   <v-icon class="empty-icon" icon="mdi-help" color="blue-grey-darken-1" />
-                  <div class="text-body-1 font-weight-bold text-medium-emphasis mt-2">Ждёт кадр</div>
+                  <div class="text-body-1 font-weight-bold text-medium-emphasis mt-2">
+                    Ждёт кадр
+                  </div>
                 </template>
               </v-card>
             </div>
 
             <v-row class="choice-row" justify="center">
               <v-col v-for="choice in round.choices" :key="choice.id" cols="4" sm="4">
-                <GameDwellButton class="story-choice" :aria-label="`Выбрать кадр: ${choice.label}`" :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="9rem" :color="choiceColor(choice)" @select="choose(choice)">
+                <GameDwellButton
+                  class="story-choice"
+                  :aria-label="`Выбрать кадр: ${choice.label}`"
+                  :target-id="choiceTargetId(choice)"
+                  :disabled="session.status !== 'running' || pendingSelection || isSpeaking"
+                  :dwell-ms="session.settings.dwellMs"
+                  min-height="9rem"
+                  :color="choiceColor(choice)"
+                  @select="choose(choice)"
+                >
                   <template #default>
-                    <div class="story-scene story-scene--choice" :class="`story-scene--${choice.scene.setting}`" aria-hidden="true">
-                      <template v-for="(layer, layerIndex) in choice.scene.layers" :key="`${layer.kind}:${layerIndex}`">
-                        <GameWordImage v-if="layer.kind === 'word'" :class="['scene-layer', `scene-layer--${layer.position}`, `scene-layer--${layer.size ?? 'medium'}`]" :word-id="layer.wordId" :word="layer.word" :emoji="layer.emoji" decorative />
-                        <v-icon v-else :class="['scene-layer', `scene-layer--${layer.position}`, `scene-layer--${layer.size ?? 'medium'}`]" :icon="layer.icon" :color="layer.color" />
+                    <div
+                      class="story-scene story-scene--choice"
+                      :class="`story-scene--${choice.scene.setting}`"
+                      aria-hidden="true"
+                    >
+                      <template
+                        v-for="(layer, layerIndex) in choice.scene.layers"
+                        :key="`${layer.kind}:${layerIndex}`"
+                      >
+                        <GameWordImage
+                          v-if="layer.kind === 'word'"
+                          :class="[
+                            'scene-layer',
+                            `scene-layer--${layer.position}`,
+                            `scene-layer--${layer.size ?? 'medium'}`,
+                          ]"
+                          :word-id="layer.wordId"
+                          :word="layer.word"
+                          :emoji="layer.emoji"
+                          decorative
+                        />
+                        <v-icon
+                          v-else
+                          :class="[
+                            'scene-layer',
+                            `scene-layer--${layer.position}`,
+                            `scene-layer--${layer.size ?? 'medium'}`,
+                          ]"
+                          :icon="layer.icon"
+                          :color="layer.color"
+                        />
                       </template>
                     </div>
                   </template>
@@ -264,7 +401,17 @@ watch(isSpeaking, (speaking) => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="История из 3 кадров" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="История из 3 кадров"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </GamePageShell>
 </template>
 
@@ -363,15 +510,42 @@ watch(isSpeaking, (speaking) => {
   font-size: clamp(3rem, 7vw, 5.25rem) !important;
 }
 
-.scene-layer--top-left { inset-block-start: 22%; inset-inline-start: 20%; }
-.scene-layer--top-center { inset-block-start: 22%; inset-inline-start: 50%; }
-.scene-layer--top-right { inset-block-start: 22%; inset-inline-start: 80%; }
-.scene-layer--left { inset-block-start: 52%; inset-inline-start: 22%; }
-.scene-layer--center { inset-block-start: 50%; inset-inline-start: 50%; }
-.scene-layer--right { inset-block-start: 52%; inset-inline-start: 78%; }
-.scene-layer--bottom-left { inset-block-start: 72%; inset-inline-start: 22%; }
-.scene-layer--bottom-center { inset-block-start: 68%; inset-inline-start: 50%; }
-.scene-layer--bottom-right { inset-block-start: 72%; inset-inline-start: 78%; }
+.scene-layer--top-left {
+  inset-block-start: 22%;
+  inset-inline-start: 20%;
+}
+.scene-layer--top-center {
+  inset-block-start: 22%;
+  inset-inline-start: 50%;
+}
+.scene-layer--top-right {
+  inset-block-start: 22%;
+  inset-inline-start: 80%;
+}
+.scene-layer--left {
+  inset-block-start: 52%;
+  inset-inline-start: 22%;
+}
+.scene-layer--center {
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+}
+.scene-layer--right {
+  inset-block-start: 52%;
+  inset-inline-start: 78%;
+}
+.scene-layer--bottom-left {
+  inset-block-start: 72%;
+  inset-inline-start: 22%;
+}
+.scene-layer--bottom-center {
+  inset-block-start: 68%;
+  inset-inline-start: 50%;
+}
+.scene-layer--bottom-right {
+  inset-block-start: 72%;
+  inset-inline-start: 78%;
+}
 
 .empty-icon {
   font-size: clamp(2.75rem, 6vw, 4.5rem);

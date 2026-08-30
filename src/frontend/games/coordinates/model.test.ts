@@ -8,7 +8,17 @@ describe("coordinates model", () => {
     expect(coordinateColumns).toEqual(["A", "B", "C"]);
     expect(coordinateRows).toEqual([1, 2, 3]);
     expect(round.cells).toHaveLength(9);
-    expect(round.cells.map((cell) => cell.coordinate)).toEqual(["A1", "B1", "C1", "A2", "B2", "C2", "A3", "B3", "C3"]);
+    expect(round.cells.map((cell) => cell.coordinate)).toEqual([
+      "A1",
+      "B1",
+      "C1",
+      "A2",
+      "B2",
+      "C2",
+      "A3",
+      "B3",
+      "C3",
+    ]);
   });
 
   it("marks exactly one target cell and points correctIndex to it", () => {

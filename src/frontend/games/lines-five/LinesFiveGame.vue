@@ -8,25 +8,52 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { cellIndex, chooseLinesFiveCell, columnOf, countColors, createInitialLinesFiveState, linesFiveSize, reachableDestinationIndexes, rowOf, type LinesFiveCell, type LinesFiveColor } from "./model";
+import {
+  cellIndex,
+  chooseLinesFiveCell,
+  columnOf,
+  countColors,
+  createInitialLinesFiveState,
+  linesFiveSize,
+  reachableDestinationIndexes,
+  rowOf,
+  type LinesFiveCell,
+  type LinesFiveColor,
+} from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordHint, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("lines-five", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordHint,
+  recordMistake,
+  recordSuccess,
+  startSession,
+  finishSession,
+} = useGameSessionFor("lines-five", {
   maxSteps: 999,
   overrides: { targetScale: 1.18, sound: true },
   finishOnMaxSteps: false,
   finishOnMistakes: false,
-  finishOnTimeout: false
+  finishOnTimeout: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "lines-five", soundEnabled, warmAssetIds: ["lines-five.prompt", "lines-five.complete"] });
+const promptAudio = useGamePromptAudio({
+  gameId: "lines-five",
+  soundEnabled,
+  warmAssetIds: ["lines-five.prompt", "lines-five.complete"],
+});
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const colorLabels: Record<LinesFiveColor, string> = {
   sky: "голубой",
   sun: "солнечный",
   leaf: "зелёный",
-  berry: "ягодный"
+  berry: "ягодный",
 };
 
 const gameState = ref(createInitialLinesFiveState());
@@ -35,13 +62,19 @@ const lastMovedTo = ref<number>();
 const clearedIndexes = ref<number[]>([]);
 const spawnedIndexes = ref<number[]>([]);
 const pathIndexes = ref<number[]>([]);
-const feedbackMessage = ref("Выбери шарик, затем свободную клетку, до которой есть путь. Собирай линию из пяти одинаковых шаров.");
+const feedbackMessage = ref(
+  "Выбери шарик, затем свободную клетку, до которой есть путь. Собирай линию из пяти одинаковых шаров.",
+);
 
 const rows = Array.from({ length: linesFiveSize }, (_, row) => row);
 const columns = Array.from({ length: linesFiveSize }, (_, column) => column);
 const board = computed(() => gameState.value.board);
 const selectedIndex = computed(() => gameState.value.selectedIndex);
-const reachableIndexes = computed(() => selectedIndex.value === undefined ? [] : reachableDestinationIndexes(board.value, selectedIndex.value));
+const reachableIndexes = computed(() =>
+  selectedIndex.value === undefined
+    ? []
+    : reachableDestinationIndexes(board.value, selectedIndex.value),
+);
 const counts = computed(() => countColors(board.value));
 const resultVisible = computed(() => session.status === "finished");
 
@@ -66,8 +99,8 @@ function cellClasses(index: number, cell: LinesFiveCell) {
       "lines-cell-content--reachable": reachableIndexes.value.includes(index),
       "lines-cell-content--path": pathIndexes.value.includes(index),
       "lines-cell-content--cleared": clearedIndexes.value.includes(index),
-      "lines-cell-content--spawned": spawnedIndexes.value.includes(index)
-    }
+      "lines-cell-content--spawned": spawnedIndexes.value.includes(index),
+    },
   ];
 }
 
@@ -96,10 +129,17 @@ function chooseCell(index: number) {
   }
 
   if (result.event === "invalid") {
-    feedbackMessage.value = selectedIndex.value === undefined
-      ? "Сначала выбери шарик, который нужно передвинуть."
-      : "До этой клетки нет свободного пути. Выбери подсвеченную клетку или другой шарик.";
-    recordMistake({ targetId: target, row: rowOf(index), column: columnOf(index), reason: "invalid-lines-move", isCorrect: false });
+    feedbackMessage.value =
+      selectedIndex.value === undefined
+        ? "Сначала выбери шарик, который нужно передвинуть."
+        : "До этой клетки нет свободного пути. Выбери подсвеченную клетку или другой шарик.";
+    recordMistake({
+      targetId: target,
+      row: rowOf(index),
+      column: columnOf(index),
+      reason: "invalid-lines-move",
+      isCorrect: false,
+    });
     void feedbackAudio.playMistake();
     return;
   }
@@ -113,7 +153,7 @@ function chooseCell(index: number) {
     cleared: result.cleared.length,
     spawned: result.spawned.length,
     score: result.state.score,
-    isCorrect: true
+    isCorrect: true,
   });
 
   if (result.event === "cleared") {
@@ -130,7 +170,13 @@ function chooseCell(index: number) {
 
   if (result.event === "loss") {
     feedbackMessage.value = "Поле заполнилось. Раунд завершён, можно попробовать снова.";
-    recordMistake({ targetId: target, row: rowOf(index), column: columnOf(index), reason: "board-full", isCorrect: false });
+    recordMistake({
+      targetId: target,
+      row: rowOf(index),
+      column: columnOf(index),
+      reason: "board-full",
+      isCorrect: false,
+    });
     void finishGame();
     return;
   }
@@ -147,7 +193,8 @@ function restart() {
   clearedIndexes.value = [];
   spawnedIndexes.value = [];
   pathIndexes.value = [];
-  feedbackMessage.value = "Новая доска готова. Выбери шарик, затем подсвеченную клетку для перемещения.";
+  feedbackMessage.value =
+    "Новая доска готова. Выбери шарик, затем подсвеченную клетку для перемещения.";
   startSession();
   promptAudio.play("lines-five.prompt", 220);
 }
@@ -164,31 +211,69 @@ onUnmounted(() => {
 
 <template>
   <div class="lines-five-shell">
-    <GameHud title="Lines 5" :step="session.step" :max-steps="session.maxSteps" :score="gameState.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" :show-progress="false" :show-timer="false" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Lines 5"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="gameState.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      :show-progress="false"
+      :show-timer="false"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
 
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="8">
-          <v-card class="pa-4 pa-md-6" color="rgba(255, 255, 255, 0.94)" rounded="xl" elevation="10">
-            <div class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-5">
+          <v-card
+            class="pa-4 pa-md-6"
+            color="rgba(255, 255, 255, 0.94)"
+            rounded="xl"
+            elevation="10"
+          >
+            <div
+              class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-5"
+            >
               <div>
                 <div class="text-overline text-secondary mb-1">Полноценная стратегия Lines 5</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Lines 5</h1>
-                <p class="text-body-1 text-medium-emphasis mb-0">Выбери шарик, передвинь его по свободному пути и собирай линии из пяти одинаковых цветов.</p>
+                <p class="text-body-1 text-medium-emphasis mb-0">
+                  Выбери шарик, передвинь его по свободному пути и собирай линии из пяти одинаковых
+                  цветов.
+                </p>
               </div>
               <div class="d-flex flex-wrap ga-2">
-                <v-chip color="primary" size="large" variant="tonal">Очки: {{ gameState.score }}</v-chip>
-                <v-chip color="secondary" size="large" variant="tonal">Ходов: {{ gameState.moveCount }}</v-chip>
+                <v-chip color="primary" size="large" variant="tonal"
+                  >Очки: {{ gameState.score }}</v-chip
+                >
+                <v-chip color="secondary" size="large" variant="tonal"
+                  >Ходов: {{ gameState.moveCount }}</v-chip
+                >
               </div>
             </div>
 
-            <v-alert class="mb-5 text-body-1 font-weight-medium" color="primary" icon="mdi-vector-line" rounded="xl" role="status" variant="tonal">
+            <v-alert
+              class="mb-5 text-body-1 font-weight-medium"
+              color="primary"
+              icon="mdi-vector-line"
+              rounded="xl"
+              role="status"
+              variant="tonal"
+            >
               {{ feedbackMessage }}
             </v-alert>
 
             <v-row class="align-center" dense>
               <v-col cols="12" md="8" class="board-column">
-                <div class="board-grid mx-auto" role="grid" aria-label="Поле Lines Five шесть на шесть">
+                <div
+                  class="board-grid mx-auto"
+                  role="grid"
+                  aria-label="Поле Lines Five шесть на шесть"
+                >
                   <template v-for="row in rows" :key="row">
                     <GameDwellButton
                       v-for="column in columns"
@@ -202,9 +287,20 @@ onUnmounted(() => {
                       @select="chooseCell(cellIndex(row, column))"
                     >
                       <template #default>
-                        <div :class="cellClasses(cellIndex(row, column), board[cellIndex(row, column)])">
-                          <div v-if="board[cellIndex(row, column)]" :class="['ball', `ball--${board[cellIndex(row, column)]}`]" />
-                          <v-icon v-else-if="reachableIndexes.includes(cellIndex(row, column))" class="reachable-icon" icon="mdi-arrow-expand" />
+                        <div
+                          :class="
+                            cellClasses(cellIndex(row, column), board[cellIndex(row, column)])
+                          "
+                        >
+                          <div
+                            v-if="board[cellIndex(row, column)]"
+                            :class="['ball', `ball--${board[cellIndex(row, column)]}`]"
+                          />
+                          <v-icon
+                            v-else-if="reachableIndexes.includes(cellIndex(row, column))"
+                            class="reachable-icon"
+                            icon="mdi-arrow-expand"
+                          />
                         </div>
                       </template>
                     </GameDwellButton>
@@ -213,10 +309,21 @@ onUnmounted(() => {
               </v-col>
 
               <v-col cols="12" md="4" class="side-column">
-                <v-card class="side-info-card pa-4" color="blue-grey-lighten-5" rounded="xl" variant="flat">
+                <v-card
+                  class="side-info-card pa-4"
+                  color="blue-grey-lighten-5"
+                  rounded="xl"
+                  variant="flat"
+                >
                   <div class="text-h6 font-weight-bold mb-3 text-blue-grey-darken-4">На поле</div>
                   <v-list bg-color="transparent" density="compact">
-                    <v-list-item v-for="color in ['sky', 'sun', 'leaf', 'berry']" :key="color" class="side-list-item" :title="colorLabels[color as LinesFiveColor]" :subtitle="`${counts[color as LinesFiveColor]} шар.`">
+                    <v-list-item
+                      v-for="color in ['sky', 'sun', 'leaf', 'berry']"
+                      :key="color"
+                      class="side-list-item"
+                      :title="colorLabels[color as LinesFiveColor]"
+                      :subtitle="`${counts[color as LinesFiveColor]} шар.`"
+                    >
                       <template #prepend>
                         <span :class="['mini-ball', `ball--${color}`]" />
                       </template>
@@ -224,15 +331,31 @@ onUnmounted(() => {
                   </v-list>
                 </v-card>
 
-                <v-card class="side-info-card pa-4 mt-4" color="blue-grey-lighten-5" rounded="xl" variant="flat">
+                <v-card
+                  class="side-info-card pa-4 mt-4"
+                  color="blue-grey-lighten-5"
+                  rounded="xl"
+                  variant="flat"
+                >
                   <div class="text-h6 font-weight-bold mb-3 text-blue-grey-darken-4">Следующие</div>
                   <div class="d-flex ga-3 align-center">
-                    <span v-for="(color, index) in gameState.nextBalls" :key="`${color}-${index}`" :class="['mini-ball', `ball--${color}`]" />
+                    <span
+                      v-for="(color, index) in gameState.nextBalls"
+                      :key="`${color}-${index}`"
+                      :class="['mini-ball', `ball--${color}`]"
+                    />
                   </div>
                 </v-card>
 
-                <v-alert class="side-rule-alert mt-4 text-body-2" color="info" icon="mdi-heart-outline" rounded="xl" variant="flat">
-                  Если ход не собрал линию, появятся три новых шара. Линия из пяти освобождает клетки.
+                <v-alert
+                  class="side-rule-alert mt-4 text-body-2"
+                  color="info"
+                  icon="mdi-heart-outline"
+                  rounded="xl"
+                  variant="flat"
+                >
+                  Если ход не собрал линию, появятся три новых шара. Линия из пяти освобождает
+                  клетки.
                 </v-alert>
               </v-col>
             </v-row>
@@ -241,7 +364,17 @@ onUnmounted(() => {
       </v-row>
     </v-container>
 
-    <GameResultDialog :model-value="resultVisible" title="Lines 5" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Lines 5"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -277,7 +410,9 @@ onUnmounted(() => {
   inline-size: 100%;
   justify-content: center;
   min-block-size: clamp(3.4rem, 7.4vh, 5rem);
-  transition: outline 160ms ease, transform 160ms ease;
+  transition:
+    outline 160ms ease,
+    transform 160ms ease;
 }
 
 .lines-cell-content--selected {
@@ -316,7 +451,9 @@ onUnmounted(() => {
 .ball,
 .mini-ball {
   border-radius: 999px;
-  box-shadow: 0 0.75rem 1.375rem rgb(42 38 30 / 18%), inset 0 -0.5625rem 1rem rgb(0 0 0 / 10%);
+  box-shadow:
+    0 0.75rem 1.375rem rgb(42 38 30 / 18%),
+    inset 0 -0.5625rem 1rem rgb(0 0 0 / 10%);
   display: inline-block;
 }
 
@@ -371,28 +508,28 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 9.75rem;
   }
 
- .lines-cell-content {
+  .lines-cell-content {
     min-block-size: 3.25rem;
   }
 }
 
 @media (min-height: 42.5625rem) and (max-height: 68rem) {
- .game-container {
+  .game-container {
     padding-block-start: 4.25rem;
   }
 
- .game-container :deep(.v-card) {
+  .game-container :deep(.v-card) {
     padding-block: 0.9rem !important;
   }
 
- .game-container .text-overline,
- .game-container h1,
- .game-container p,
- .game-container .v-btn {
+  .game-container .text-overline,
+  .game-container h1,
+  .game-container p,
+  .game-container .v-btn {
     display: none !important;
   }
 
@@ -400,24 +537,24 @@ onUnmounted(() => {
     margin-block-end: 0.8rem !important;
   }
 
- .game-container .v-alert {
+  .game-container .v-alert {
     margin-block-end: 0.8rem !important;
     padding-block: 0.65rem !important;
   }
 
- .board-grid {
+  .board-grid {
     max-inline-size: min(100%, 36rem, 58vh);
   }
 
- .board-grid :deep(.dwell-button) {
+  .board-grid :deep(.dwell-button) {
     min-block-size: clamp(3.6rem, 8vh, 5rem) !important;
   }
 
- .lines-cell-content {
+  .lines-cell-content {
     min-block-size: clamp(3.4rem, 7.4vh, 4.75rem);
   }
 
- .ball {
+  .ball {
     block-size: clamp(2.2rem, 4.8vh, 3.4rem);
     inline-size: clamp(2.2rem, 4.8vh, 3.4rem);
   }
@@ -428,43 +565,43 @@ onUnmounted(() => {
     padding-block-start: 4.625rem;
   }
 
- .game-container :deep(.v-card) {
+  .game-container :deep(.v-card) {
     padding-block: 1rem !important;
   }
 
- .game-container .text-overline,
- .game-container h1,
- .game-container p,
- .game-container .v-alert,
- .game-container .v-btn,
- .side-column {
+  .game-container .text-overline,
+  .game-container h1,
+  .game-container p,
+  .game-container .v-alert,
+  .game-container .v-btn,
+  .side-column {
     display: none;
   }
 
- .board-column {
+  .board-column {
     flex-basis: 100%;
     max-inline-size: 100%;
   }
 
- .game-container.d-flex.flex-column.flex-md-row {
+  .game-container.d-flex.flex-column.flex-md-row {
     display: none !important;
   }
 
- .board-grid {
+  .board-grid {
     gap: 0.28rem;
     max-inline-size: min(100%, 34rem, 64vh);
   }
 
- .board-grid :deep(.dwell-button) {
+  .board-grid :deep(.dwell-button) {
     min-block-size: 3.55rem !important;
     padding: 0.35rem !important;
   }
 
- .lines-cell-content {
+  .lines-cell-content {
     min-block-size: 3.35rem;
   }
 
- .ball {
+  .ball {
     block-size: 2.3rem;
     inline-size: 2.3rem;
   }

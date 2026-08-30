@@ -8,7 +8,13 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { adaptiveGazeHitRadius } from "../../core/gazeTarget";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { disposeSnowflakesPiano, playSnowflakeCue, setSnowflakesPianoActive, tickSnowflakesPiano, warmSnowflakesPiano } from "./audio";
+import {
+  disposeSnowflakesPiano,
+  playSnowflakeCue,
+  setSnowflakesPianoActive,
+  tickSnowflakesPiano,
+  warmSnowflakesPiano,
+} from "./audio";
 
 type Point = { x: number; y: number };
 type SnowflakePhase = "falling" | "melting" | "melted";
@@ -37,11 +43,29 @@ type GazeGlow = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("snowflakes", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  finishSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("snowflakes", {
   maxSteps: 8,
-  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.32, distractors: "none", hints: "high", sound: true },
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.55,
+    motionSpeed: 0.32,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 useStartPromptAudio({ gameId: "snowflakes", soundEnabled: toRef(session.settings, "sound") });
 
@@ -88,14 +112,20 @@ function snowflakeSize() {
 }
 
 function gazeRadius(flake: Snowflake) {
-  return adaptiveGazeHitRadius(flake, Math.max(112, flake.size * 3.15) * session.settings.targetScale, { edgeBoost: 0.3 });
+  return adaptiveGazeHitRadius(
+    flake,
+    Math.max(112, flake.size * 3.15) * session.settings.targetScale,
+    { edgeBoost: 0.3 },
+  );
 }
 
 function resetSnowflake(flake: Snowflake, index: number, fromTop = true) {
   const size = snowflakeSize() * randomRange(0.78, 1.16);
   flake.id = `snowflake-${Date.now()}-${spawnIndex}-${index}`;
   flake.x = randomRange(size, Math.max(size, window.innerWidth - size));
-  flake.y = fromTop ? randomRange(-window.innerHeight * 0.22, -size * 2) : randomRange(window.innerHeight * 0.1, window.innerHeight * 0.92);
+  flake.y = fromTop
+    ? randomRange(-window.innerHeight * 0.22, -size * 2)
+    : randomRange(window.innerHeight * 0.1, window.innerHeight * 0.92);
   flake.size = size;
   flake.speed = randomRange(20, 38) * session.settings.motionSpeed;
   flake.drift = randomRange(-12, 12) * session.settings.motionSpeed;
@@ -126,7 +156,7 @@ function createSnowflake(index: number, fromTop = false): Snowflake {
     dwellProgress: 0,
     glow: 0,
     arms: 6,
-    hue: 204
+    hue: 204,
   };
   resetSnowflake(flake, index, fromTop);
   return flake;
@@ -146,11 +176,16 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
-function targetPayload(flake: Snowflake, now: number, progress: number, reason?: "left" | "invalid-gaze") {
+function targetPayload(
+  flake: Snowflake,
+  now: number,
+  progress: number,
+  reason?: "left" | "invalid-gaze",
+) {
   return {
     targetId: flake.id,
     at: Date.now(),
@@ -158,7 +193,7 @@ function targetPayload(flake: Snowflake, now: number, progress: number, reason?:
     elapsedMs: flake.enteredAt === undefined ? 0 : now - flake.enteredAt,
     progress,
     pointer: copyPointer(),
-    reason
+    reason,
   };
 }
 
@@ -169,7 +204,7 @@ function addGazeGlow(x: number, y: number, radius: number, hue: number) {
     age: 0,
     life: randomRange(1.9, 3.1),
     radius,
-    hue
+    hue,
   });
   if (glows.length > 30) glows.shift();
 }
@@ -177,7 +212,12 @@ function addGazeGlow(x: number, y: number, radius: number, hue: number) {
 function addPointerGlow(now: number) {
   if (!pointer.value.valid || now - lastGlowAt < 150) return;
   lastGlowAt = now;
-  addGazeGlow(pointer.value.x, pointer.value.y, randomRange(76, 124) * session.settings.targetScale, randomRange(190, 215));
+  addGazeGlow(
+    pointer.value.x,
+    pointer.value.y,
+    randomRange(76, 124) * session.settings.targetScale,
+    randomRange(190, 215),
+  );
 }
 
 function closestSnowflake() {
@@ -225,7 +265,8 @@ function updateSnowflakeGaze(flake: Snowflake, now: number, gazeFlake?: Snowflak
   const inside = gazeFlake === flake;
 
   if (!inside) {
-    if (flake.enteredAt !== undefined) cancelSnowflake(flake, now, pointer.value.valid ? "left" : "invalid-gaze");
+    if (flake.enteredAt !== undefined)
+      cancelSnowflake(flake, now, pointer.value.valid ? "left" : "invalid-gaze");
     return;
   }
 
@@ -260,11 +301,14 @@ function updateSnowflakes(delta: number, now: number) {
     flake.age += delta;
     flake.phaseAge += delta;
 
-    const nearGaze = pointer.value.valid ? Math.max(0, 1 - distance(flake, pointer.value) / gazeRadius(flake)) : 0;
+    const nearGaze = pointer.value.valid
+      ? Math.max(0, 1 - distance(flake, pointer.value) / gazeRadius(flake))
+      : 0;
     flake.glow += (Math.max(nearGaze, flake.dwellProgress) - flake.glow) * Math.min(1, delta * 4.2);
 
     if (flake.phase === "melted") {
-      if (flake.phaseAge >= meltSeconds && session.step < session.maxSteps) resetSnowflake(flake, index, true);
+      if (flake.phaseAge >= meltSeconds && session.step < session.maxSteps)
+        resetSnowflake(flake, index, true);
       continue;
     }
 
@@ -291,7 +335,9 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
   context.save();
   context.globalAlpha = 0.42;
   for (let index = 0; index < 5; index++) {
-    const x = window.innerWidth * (0.12 + index * 0.2) + Math.sin(now * 0.00012 + index) * window.innerWidth * 0.035;
+    const x =
+      window.innerWidth * (0.12 + index * 0.2) +
+      Math.sin(now * 0.00012 + index) * window.innerWidth * 0.035;
     const y = window.innerHeight * (0.12 + index * 0.075);
     const cloud = context.createRadialGradient(x, y, 0, x, y, window.innerWidth * 0.24);
     cloud.addColorStop(0, "rgb(255 255 255 / 74%)");
@@ -352,7 +398,7 @@ function drawSnowflake(context: CanvasRenderingContext2D, flake: Snowflake) {
   context.lineWidth = Math.max(1.6, radius * (0.05 + gaze * 0.014));
 
   for (let arm = 0; arm < flake.arms; arm++) {
-    const angle = Math.PI * 2 * arm / flake.arms;
+    const angle = (Math.PI * 2 * arm) / flake.arms;
     const endX = Math.cos(angle) * radius;
     const endY = Math.sin(angle) * radius;
     context.beginPath();
@@ -367,7 +413,10 @@ function drawSnowflake(context: CanvasRenderingContext2D, flake: Snowflake) {
     for (const turn of [-0.72, 0.72]) {
       context.beginPath();
       context.moveTo(branchX, branchY);
-      context.lineTo(branchX + Math.cos(angle + turn) * branchLength, branchY + Math.sin(angle + turn) * branchLength);
+      context.lineTo(
+        branchX + Math.cos(angle + turn) * branchLength,
+        branchY + Math.sin(angle + turn) * branchLength,
+      );
       context.stroke();
     }
   }
@@ -382,7 +431,13 @@ function drawSnowflake(context: CanvasRenderingContext2D, flake: Snowflake) {
     context.lineWidth = Math.max(2, radius * 0.05);
     context.setLineDash([Math.max(8, radius * 0.17), Math.max(10, radius * 0.2)]);
     context.beginPath();
-    context.arc(0, 0, radius * 1.32, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.max(0.1, flake.dwellProgress));
+    context.arc(
+      0,
+      0,
+      radius * 1.32,
+      -Math.PI / 2,
+      -Math.PI / 2 + Math.PI * 2 * Math.max(0.1, flake.dwellProgress),
+    );
     context.stroke();
   }
 
@@ -396,7 +451,8 @@ function draw(context: CanvasRenderingContext2D, now: number) {
 }
 
 function tick(now: number) {
-  const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+  const delta =
+    session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
 
   if (session.status === "running") {
@@ -480,5 +536,4 @@ onUnmounted(() => {
   inset: 0;
   position: absolute;
 }
-
 </style>

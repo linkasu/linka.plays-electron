@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import wordImageManifest from "../../../../public/images/words/manifest.json";
-import { createThreeFrameStorySlots, generateThreeFrameStoryRound, threeFrameStories } from "./model";
+import {
+  createThreeFrameStorySlots,
+  generateThreeFrameStoryRound,
+  threeFrameStories,
+} from "./model";
 
 describe("generateThreeFrameStoryRound", () => {
   it("offers exactly the three frames from the current story", () => {
@@ -28,7 +32,11 @@ describe("generateThreeFrameStoryRound", () => {
     const story = threeFrameStories[0];
     const random = () => 0;
 
-    expect(generateThreeFrameStoryRound(0, { random }).choices.map((frame) => frame.id)).toEqual(["sprout", "flower", "seed"]);
+    expect(generateThreeFrameStoryRound(0, { random }).choices.map((frame) => frame.id)).toEqual([
+      "sprout",
+      "flower",
+      "seed",
+    ]);
     expect(generateThreeFrameStoryRound(0, { random }).correctIndex).toBe(2);
     expect(story.frames[0].scene.layers).toHaveLength(3);
   });
@@ -43,9 +51,15 @@ describe("generateThreeFrameStoryRound", () => {
   it("keeps the provided choice order across story steps", () => {
     const choiceOrder = ["flower", "seed", "sprout"];
 
-    expect(generateThreeFrameStoryRound(0, { choiceOrder }).choices.map((frame) => frame.id)).toEqual(choiceOrder);
-    expect(generateThreeFrameStoryRound(1, { choiceOrder }).choices.map((frame) => frame.id)).toEqual(choiceOrder);
-    expect(generateThreeFrameStoryRound(2, { choiceOrder }).choices.map((frame) => frame.id)).toEqual(choiceOrder);
+    expect(
+      generateThreeFrameStoryRound(0, { choiceOrder }).choices.map((frame) => frame.id),
+    ).toEqual(choiceOrder);
+    expect(
+      generateThreeFrameStoryRound(1, { choiceOrder }).choices.map((frame) => frame.id),
+    ).toEqual(choiceOrder);
+    expect(
+      generateThreeFrameStoryRound(2, { choiceOrder }).choices.map((frame) => frame.id),
+    ).toEqual(choiceOrder);
   });
 
   it("keeps already assembled frames before the next expected frame", () => {
@@ -60,10 +74,24 @@ describe("generateThreeFrameStoryRound", () => {
     const finalRound = generateThreeFrameStoryRound(2);
 
     expect(createThreeFrameStorySlots(firstRound)).toEqual([undefined, undefined, undefined]);
-    expect(createThreeFrameStorySlots(firstRound, firstRound.expectedFrame.id)).toEqual([firstRound.expectedFrame, undefined, undefined]);
-    expect(createThreeFrameStorySlots(finalRound)).toEqual([finalRound.story.frames[0], finalRound.story.frames[1], undefined]);
-    expect(createThreeFrameStorySlots(finalRound, "wrong-frame")).toEqual([finalRound.story.frames[0], finalRound.story.frames[1], undefined]);
-    expect(createThreeFrameStorySlots(finalRound, finalRound.expectedFrame.id)).toEqual(finalRound.story.frames);
+    expect(createThreeFrameStorySlots(firstRound, firstRound.expectedFrame.id)).toEqual([
+      firstRound.expectedFrame,
+      undefined,
+      undefined,
+    ]);
+    expect(createThreeFrameStorySlots(finalRound)).toEqual([
+      finalRound.story.frames[0],
+      finalRound.story.frames[1],
+      undefined,
+    ]);
+    expect(createThreeFrameStorySlots(finalRound, "wrong-frame")).toEqual([
+      finalRound.story.frames[0],
+      finalRound.story.frames[1],
+      undefined,
+    ]);
+    expect(createThreeFrameStorySlots(finalRound, finalRound.expectedFrame.id)).toEqual(
+      finalRound.story.frames,
+    );
   });
 
   it("uses composed visual scenes instead of emoji-only choice art", () => {
@@ -78,12 +106,16 @@ describe("generateThreeFrameStoryRound", () => {
 
   it("references only available word images", () => {
     const availableWordImageIds = new Set(wordImageManifest.map((asset) => asset.id));
-    const referencedWordImageIds = threeFrameStories.flatMap((story) => story.frames).flatMap((frame) =>
-      frame.scene.layers.filter((layer) => layer.kind === "word").map((layer) => layer.wordId)
-    );
+    const referencedWordImageIds = threeFrameStories
+      .flatMap((story) => story.frames)
+      .flatMap((frame) =>
+        frame.scene.layers.filter((layer) => layer.kind === "word").map((layer) => layer.wordId),
+      );
 
     expect(referencedWordImageIds.length).toBeGreaterThan(0);
-    referencedWordImageIds.forEach((wordId) => expect(availableWordImageIds.has(wordId), wordId).toBe(true));
+    referencedWordImageIds.forEach((wordId) =>
+      expect(availableWordImageIds.has(wordId), wordId).toBe(true),
+    );
   });
 
   it("moves to the next story after three successful steps", () => {

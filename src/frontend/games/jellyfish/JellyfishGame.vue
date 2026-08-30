@@ -9,8 +9,19 @@ import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { createDwellMachineState } from "../../core/dwellStateMachine";
 import type { DwellCancelReason } from "../../core/gaze";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { advanceMovingTargetDwell, advanceMovingTargetX, alternatingMovingTargetDirection, movingTargetSpawnX } from "../../core/movingTarget";
-import { disposeJellyfishAudio, playJellyfishSuccess, resetJellyfishAudioSession, scheduleJellyfishAmbient, warmJellyfishAudio } from "./audio";
+import {
+  advanceMovingTargetDwell,
+  advanceMovingTargetX,
+  alternatingMovingTargetDirection,
+  movingTargetSpawnX,
+} from "../../core/movingTarget";
+import {
+  disposeJellyfishAudio,
+  playJellyfishSuccess,
+  resetJellyfishAudioSession,
+  scheduleJellyfishAmbient,
+  warmJellyfishAudio,
+} from "./audio";
 
 type Point = { x: number; y: number };
 type JellyfishPhase = "drifting" | "glowing" | "resting";
@@ -37,11 +48,28 @@ type Bubble = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("jellyfish", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  finishSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("jellyfish", {
   maxSteps: 8,
-  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.36, distractors: "none", hints: "high" },
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.55,
+    motionSpeed: 0.36,
+    distractors: "none",
+    hints: "high",
+  },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 useStartPromptAudio({ gameId: "jellyfish", soundEnabled: toRef(session.settings, "sound") });
 
@@ -95,7 +123,7 @@ function swimBottom() {
 function jellyfishPoint(jelly: Jellyfish) {
   return {
     x: jelly.x + Math.sin(jelly.age * 0.42 + jelly.wave) * jelly.size * 0.09,
-    y: jelly.y + Math.cos(jelly.age * 0.34 + jelly.wave) * jelly.size * 0.08
+    y: jelly.y + Math.cos(jelly.age * 0.34 + jelly.wave) * jelly.size * 0.08,
   };
 }
 
@@ -108,7 +136,10 @@ function resetJellyfish(jelly: Jellyfish, index: number, fromEdge = true) {
   const size = jellyfishSize() * randomRange(0.9, 1.08);
   const laneCount = Math.max(1, desiredJellyfishCount());
   const laneProgress = laneCount === 1 ? 0.48 : index / (laneCount - 1);
-  const laneY = swimTop() + (swimBottom() - swimTop()) * laneProgress + randomRange(-window.innerHeight * 0.035, window.innerHeight * 0.035);
+  const laneY =
+    swimTop() +
+    (swimBottom() - swimTop()) * laneProgress +
+    randomRange(-window.innerHeight * 0.035, window.innerHeight * 0.035);
 
   jelly.size = size;
   jelly.direction = direction;
@@ -119,7 +150,7 @@ function resetJellyfish(jelly: Jellyfish, index: number, fromEdge = true) {
     index,
     targetCount: desiredJellyfishCount(),
     targetRadius: size,
-    viewportWidth: window.innerWidth
+    viewportWidth: window.innerWidth,
   });
   jelly.y = laneY;
   jelly.laneY = laneY;
@@ -146,7 +177,7 @@ function createJellyfish(index: number, fromEdge = false): Jellyfish {
     laneY: 0,
     speed: 12,
     direction: 1,
-    wave: randomRange(0, Math.PI * 2)
+    wave: randomRange(0, Math.PI * 2),
   };
   resetJellyfish(jelly, index, fromEdge);
   return jelly;
@@ -158,7 +189,7 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
@@ -170,7 +201,7 @@ function targetPayload(jelly: Jellyfish, progress: number, reason?: DwellCancelR
     elapsedMs: Math.round(progress * session.settings.dwellMs),
     progress,
     pointer: copyPointer(),
-    reason
+    reason,
   };
 }
 
@@ -203,7 +234,7 @@ function updateJellyfishGaze(now: number) {
     point: jellyfishPoint,
     hitRadius: (jelly) => jelly.size * 1.38,
     enabled: (jelly) => jelly.phase !== "resting" && session.step < session.maxSteps,
-    dwellMs: session.settings.dwellMs
+    dwellMs: session.settings.dwellMs,
   });
   dwellState = result.state;
 
@@ -220,12 +251,14 @@ function updateJellyfishGaze(now: number) {
   }
 
   for (const jelly of jellyfish) {
-    if (jelly.phase !== "resting") jelly.dwellProgress = dwellState.targetId === jelly.id ? result.progress : 0;
+    if (jelly.phase !== "resting")
+      jelly.dwellProgress = dwellState.targetId === jelly.id ? result.progress : 0;
   }
 }
 
 function ensureJellyfish() {
-  while (jellyfish.length < desiredJellyfishCount()) jellyfish.push(createJellyfish(jellyfish.length, false));
+  while (jellyfish.length < desiredJellyfishCount())
+    jellyfish.push(createJellyfish(jellyfish.length, false));
   while (jellyfish.length > desiredJellyfishCount()) jellyfish.pop();
 }
 
@@ -245,11 +278,17 @@ function updateJellyfish(delta: number, now: number) {
     jelly.y = jelly.laneY + Math.sin(jelly.age * 0.28 + jelly.wave) * jelly.size * 0.12;
 
     if (jelly.phase === "resting") {
-      if (jelly.phaseAge >= restSeconds && session.status === "running" && session.step < session.maxSteps) resetJellyfish(jelly, index, false);
+      if (
+        jelly.phaseAge >= restSeconds &&
+        session.status === "running" &&
+        session.step < session.maxSteps
+      )
+        resetJellyfish(jelly, index, false);
       continue;
     }
 
-    if (jelly.x < -jelly.size * 2.4 || jelly.x > window.innerWidth + jelly.size * 2.4) resetJellyfish(jelly, index, true);
+    if (jelly.x < -jelly.size * 2.4 || jelly.x > window.innerWidth + jelly.size * 2.4)
+      resetJellyfish(jelly, index, true);
   }
   updateJellyfishGaze(now);
 }
@@ -264,7 +303,7 @@ function initBubbles() {
       radius: randomRange(2.5, 8),
       speed: randomRange(5, 13),
       wobble: randomRange(0, Math.PI * 2),
-      alpha: randomRange(0.16, 0.42)
+      alpha: randomRange(0.16, 0.42),
     });
   }
 }
@@ -274,7 +313,8 @@ function initJellyfish() {
   dwellState = createDwellMachineState();
   spawnIndex = 0;
   finishAfter = 0;
-  for (let index = 0; index < desiredJellyfishCount(); index++) jellyfish.push(createJellyfish(index, false));
+  for (let index = 0; index < desiredJellyfishCount(); index++)
+    jellyfish.push(createJellyfish(index, false));
 }
 
 function updateBubbles(delta: number) {
@@ -303,12 +343,27 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
   for (let index = 0; index < 5; index++) {
     const y = window.innerHeight * (0.16 + index * 0.15);
     const drift = Math.sin(now * 0.00016 + index * 1.8) * window.innerWidth * 0.06;
-    const light = context.createRadialGradient(window.innerWidth * (0.18 + index * 0.18) + drift, y, 0, window.innerWidth * (0.18 + index * 0.18) + drift, y, window.innerWidth * 0.32);
+    const light = context.createRadialGradient(
+      window.innerWidth * (0.18 + index * 0.18) + drift,
+      y,
+      0,
+      window.innerWidth * (0.18 + index * 0.18) + drift,
+      y,
+      window.innerWidth * 0.32,
+    );
     light.addColorStop(0, "rgb(162 231 255 / 48%)");
     light.addColorStop(1, "rgb(162 231 255 / 0%)");
     context.fillStyle = light;
     context.beginPath();
-    context.ellipse(window.innerWidth * (0.18 + index * 0.18) + drift, y, window.innerWidth * 0.34, window.innerHeight * 0.12, 0, 0, Math.PI * 2);
+    context.ellipse(
+      window.innerWidth * (0.18 + index * 0.18) + drift,
+      y,
+      window.innerWidth * 0.34,
+      window.innerHeight * 0.12,
+      0,
+      0,
+      Math.PI * 2,
+    );
     context.fill();
   }
   context.restore();
@@ -327,7 +382,10 @@ function drawBubble(context: CanvasRenderingContext2D, bubble: Bubble) {
 
 function drawJellyfish(context: CanvasRenderingContext2D, jelly: Jellyfish) {
   const point = jellyfishPoint(jelly);
-  const gaze = jelly.phase === "glowing" ? Math.max(0.28, jelly.dwellProgress) : jelly.dwellProgress * Math.max(0, 1 - jelly.phaseAge / restSeconds);
+  const gaze =
+    jelly.phase === "glowing"
+      ? Math.max(0.28, jelly.dwellProgress)
+      : jelly.dwellProgress * Math.max(0, 1 - jelly.phaseAge / restSeconds);
   const rest = jelly.phase === "resting" ? Math.min(1, jelly.phaseAge / restSeconds) : 0;
   const pulse = 0.5 + Math.sin(jelly.age * 1.35 + jelly.wave) * 0.5;
   const size = jelly.size * (1 + pulse * 0.035 + gaze * 0.08);
@@ -335,7 +393,14 @@ function drawJellyfish(context: CanvasRenderingContext2D, jelly: Jellyfish) {
 
   context.save();
   context.globalCompositeOperation = "lighter";
-  const halo = context.createRadialGradient(point.x, point.y, size * 0.08, point.x, point.y, size * (1.7 + gaze * 0.52));
+  const halo = context.createRadialGradient(
+    point.x,
+    point.y,
+    size * 0.08,
+    point.x,
+    point.y,
+    size * (1.7 + gaze * 0.52),
+  );
   halo.addColorStop(0, `hsla(${jelly.hue + 18}, 100%, 88%, ${0.18 + gaze * 0.24})`);
   halo.addColorStop(0.48, `hsla(${jelly.hue}, 88%, 70%, ${0.08 + gaze * 0.18})`);
   halo.addColorStop(1, `hsla(${jelly.hue}, 82%, 54%, 0)`);
@@ -347,23 +412,48 @@ function drawJellyfish(context: CanvasRenderingContext2D, jelly: Jellyfish) {
 
   context.save();
   context.globalAlpha = 1 - rest * 0.18;
-  const body = context.createRadialGradient(point.x - size * 0.22, capY - size * 0.24, size * 0.04, point.x, capY, size * 0.94);
+  const body = context.createRadialGradient(
+    point.x - size * 0.22,
+    capY - size * 0.24,
+    size * 0.04,
+    point.x,
+    capY,
+    size * 0.94,
+  );
   body.addColorStop(0, `hsla(${jelly.hue + 32}, 100%, 96%, ${0.76 + gaze * 0.14})`);
   body.addColorStop(0.52, `hsla(${jelly.hue}, 86%, 80%, ${0.44 + gaze * 0.22})`);
   body.addColorStop(1, `hsla(${jelly.hue - 24}, 72%, 58%, ${0.22 + gaze * 0.18})`);
   context.fillStyle = body;
   context.beginPath();
   context.moveTo(point.x - size * 0.62, capY + size * 0.05);
-  context.bezierCurveTo(point.x - size * 0.56, capY - size * 0.56, point.x + size * 0.56, capY - size * 0.56, point.x + size * 0.62, capY + size * 0.05);
+  context.bezierCurveTo(
+    point.x - size * 0.56,
+    capY - size * 0.56,
+    point.x + size * 0.56,
+    capY - size * 0.56,
+    point.x + size * 0.62,
+    capY + size * 0.05,
+  );
   context.quadraticCurveTo(point.x + size * 0.46, capY + size * 0.48, point.x, capY + size * 0.48);
-  context.quadraticCurveTo(point.x - size * 0.46, capY + size * 0.48, point.x - size * 0.62, capY + size * 0.05);
+  context.quadraticCurveTo(
+    point.x - size * 0.46,
+    capY + size * 0.48,
+    point.x - size * 0.62,
+    capY + size * 0.05,
+  );
   context.fill();
 
   context.strokeStyle = `hsla(${jelly.hue + 36}, 100%, 94%, ${0.44 + gaze * 0.28})`;
   context.lineWidth = Math.max(2, size * 0.028);
   context.lineCap = "round";
   context.beginPath();
-  context.arc(point.x - size * 0.12, capY - size * 0.04, size * 0.44, Math.PI * 1.12, Math.PI * 1.58);
+  context.arc(
+    point.x - size * 0.12,
+    capY - size * 0.04,
+    size * 0.44,
+    Math.PI * 1.12,
+    Math.PI * 1.58,
+  );
   context.stroke();
 
   for (let index = -3; index <= 3; index++) {
@@ -376,7 +466,14 @@ function drawJellyfish(context: CanvasRenderingContext2D, jelly: Jellyfish) {
     context.lineWidth = Math.max(1.4, size * (0.014 + gaze * 0.004));
     context.beginPath();
     context.moveTo(startX, startY);
-    context.bezierCurveTo(startX + sway * 0.4, startY + length * 0.34, startX - sway * 0.2, startY + length * 0.68, startX + sway, startY + length);
+    context.bezierCurveTo(
+      startX + sway * 0.4,
+      startY + length * 0.34,
+      startX - sway * 0.2,
+      startY + length * 0.68,
+      startX + sway,
+      startY + length,
+    );
     context.stroke();
   }
 
@@ -385,7 +482,13 @@ function drawJellyfish(context: CanvasRenderingContext2D, jelly: Jellyfish) {
     context.lineWidth = Math.max(2, size * 0.024);
     context.setLineDash([Math.max(8, size * 0.08), Math.max(10, size * 0.1)]);
     context.beginPath();
-    context.arc(point.x, point.y, size * (0.86 + gaze * 0.14), -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.max(0.12, jelly.dwellProgress));
+    context.arc(
+      point.x,
+      point.y,
+      size * (0.86 + gaze * 0.14),
+      -Math.PI / 2,
+      -Math.PI / 2 + Math.PI * 2 * Math.max(0.12, jelly.dwellProgress),
+    );
     context.stroke();
   }
 
@@ -399,7 +502,8 @@ function draw(context: CanvasRenderingContext2D, now: number) {
 }
 
 function tick(now: number) {
-  const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+  const delta =
+    session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
 
   if (session.status === "running") {
@@ -441,7 +545,18 @@ onUnmounted(() => {
   <div class="jellyfish-shell">
     <canvas ref="canvasRef" class="jellyfish-canvas" />
 
-    <GameHud title="Медузы" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Медузы"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
 
     <GameResultDialog
       :model-value="resultVisible"

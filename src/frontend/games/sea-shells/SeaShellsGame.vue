@@ -8,7 +8,13 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
-import { disposeSeaShellsPiano, playSeaShellsCue, setSeaShellsPianoActive, tickSeaShellsPiano, warmSeaShellsPiano } from "./audio";
+import {
+  disposeSeaShellsPiano,
+  playSeaShellsCue,
+  setSeaShellsPianoActive,
+  tickSeaShellsPiano,
+  warmSeaShellsPiano,
+} from "./audio";
 
 type Point = { x: number; y: number };
 type ShellPhase = "settling" | "closed" | "opening" | "glowing";
@@ -33,11 +39,29 @@ type SandSparkle = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("sea-shells", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  finishSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("sea-shells", {
   maxSteps: 8,
-  overrides: { preset: "gentle", targetScale: 1.62, motionSpeed: 0.34, distractors: "none", hints: "high", sound: true },
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.62,
+    motionSpeed: 0.34,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 useStartPromptAudio({ gameId: "sea-shells", soundEnabled: toRef(session.settings, "sound") });
 
@@ -112,12 +136,15 @@ function chooseShellPoint(radius: number, first: boolean, ignoredId?: string) {
       bottomPadding: Math.max(70, window.innerHeight * 0.08),
       previous: previousShellPoint,
       minDistance: Math.min(340, Math.max(210, radius * 1.78)),
-      attempts: 12
+      attempts: 12,
     });
     const candidatePixel = shellPixelPoint(candidate);
     const gap = shells.reduce((minimum, shell) => {
       if (shell.id === ignoredId) return minimum;
-      return Math.min(minimum, distance(candidatePixel, shellPixelPoint(shell)) - (radius + shell.radius) * 0.94);
+      return Math.min(
+        minimum,
+        distance(candidatePixel, shellPixelPoint(shell)) - (radius + shell.radius) * 0.94,
+      );
     }, Number.POSITIVE_INFINITY);
     if (!best || gap > bestGap) {
       best = candidate;
@@ -144,7 +171,7 @@ function createShell(first = false, ignoredId?: string): SeaShell {
     phase: "settling",
     dwellProgress: 0,
     tilt: randomRange(-0.16, 0.16),
-    pearlOffset: randomRange(-0.12, 0.12)
+    pearlOffset: randomRange(-0.12, 0.12),
   };
 }
 
@@ -152,7 +179,7 @@ function shellPoint(shell: SeaShell) {
   const point = percentToPixels(shell);
   return {
     x: point.x + Math.sin(shell.age * 0.36 + shell.tilt * 8) * shell.radius * 0.025,
-    y: point.y + Math.cos(shell.age * 0.28 + shell.tilt * 6) * shell.radius * 0.018
+    y: point.y + Math.cos(shell.age * 0.28 + shell.tilt * 6) * shell.radius * 0.018,
   };
 }
 
@@ -162,11 +189,16 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
-function targetPayload(shell: SeaShell, now: number, progress: number, reason?: "left" | "invalid-gaze") {
+function targetPayload(
+  shell: SeaShell,
+  now: number,
+  progress: number,
+  reason?: "left" | "invalid-gaze",
+) {
   return {
     targetId: shell.id,
     at: Date.now(),
@@ -174,7 +206,7 @@ function targetPayload(shell: SeaShell, now: number, progress: number, reason?: 
     elapsedMs: shell.enteredAt === undefined ? 0 : now - shell.enteredAt,
     progress,
     pointer: copyPointer(),
-    reason
+    reason,
   };
 }
 
@@ -219,11 +251,13 @@ function closestShell() {
 }
 
 function updateShellGaze(shell: SeaShell, now: number, gazeShell?: SeaShell) {
-  if (shell.phase === "glowing" || shell.phase === "settling" || session.status !== "running") return;
+  if (shell.phase === "glowing" || shell.phase === "settling" || session.status !== "running")
+    return;
   const inside = gazeShell === shell;
 
   if (!inside) {
-    if (shell.enteredAt !== undefined) cancelShell(shell, now, pointer.value.valid ? "left" : "invalid-gaze");
+    if (shell.enteredAt !== undefined)
+      cancelShell(shell, now, pointer.value.valid ? "left" : "invalid-gaze");
     return;
   }
 
@@ -239,7 +273,10 @@ function updateShellGaze(shell: SeaShell, now: number, gazeShell?: SeaShell) {
 }
 
 function resetShell(shell: SeaShell, index: number) {
-  const fresh = createShell(index === 0 && session.step === 0 && previousShellPoint === undefined, shell.id);
+  const fresh = createShell(
+    index === 0 && session.step === 0 && previousShellPoint === undefined,
+    shell.id,
+  );
   Object.assign(shell, fresh);
   spawnIndex += 1;
 }
@@ -272,7 +309,12 @@ function updateShells(delta: number, now: number) {
     }
 
     if (shell.phase === "glowing") {
-      if (shell.phaseAge >= glowSeconds && session.status === "running" && session.step < session.maxSteps) resetShell(shell, index);
+      if (
+        shell.phaseAge >= glowSeconds &&
+        session.status === "running" &&
+        session.step < session.maxSteps
+      )
+        resetShell(shell, index);
       continue;
     }
 
@@ -289,7 +331,7 @@ function initSparkles() {
       y: randomRange(64, 96),
       radius: randomRange(0.8, 2.7),
       alpha: randomRange(0.1, 0.32),
-      phase: randomRange(0, Math.PI * 2)
+      phase: randomRange(0, Math.PI * 2),
     });
   }
 }
@@ -316,7 +358,9 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
   context.save();
   context.globalAlpha = 0.34;
   for (let index = 0; index < 5; index++) {
-    const x = window.innerWidth * (0.12 + index * 0.22) + Math.sin(now * 0.00018 + index) * window.innerWidth * 0.04;
+    const x =
+      window.innerWidth * (0.12 + index * 0.22) +
+      Math.sin(now * 0.00018 + index) * window.innerWidth * 0.04;
     const y = window.innerHeight * (0.16 + index * 0.08);
     const light = context.createRadialGradient(x, y, 0, x, y, window.innerWidth * 0.24);
     light.addColorStop(0, "rgb(208 250 255 / 42%)");
@@ -330,8 +374,24 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
 
   context.fillStyle = "rgb(205 164 103 / 38%)";
   context.beginPath();
-  context.ellipse(window.innerWidth * 0.28, window.innerHeight * 0.9, window.innerWidth * 0.48, window.innerHeight * 0.2, 0, 0, Math.PI * 2);
-  context.ellipse(window.innerWidth * 0.72, window.innerHeight * 0.91, window.innerWidth * 0.5, window.innerHeight * 0.22, 0, 0, Math.PI * 2);
+  context.ellipse(
+    window.innerWidth * 0.28,
+    window.innerHeight * 0.9,
+    window.innerWidth * 0.48,
+    window.innerHeight * 0.2,
+    0,
+    0,
+    Math.PI * 2,
+  );
+  context.ellipse(
+    window.innerWidth * 0.72,
+    window.innerHeight * 0.91,
+    window.innerWidth * 0.5,
+    window.innerHeight * 0.22,
+    0,
+    0,
+    Math.PI * 2,
+  );
   context.fill();
 
   context.save();
@@ -346,7 +406,14 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
   context.restore();
 }
 
-function drawShellHalf(context: CanvasRenderingContext2D, shell: SeaShell, point: Point, radius: number, open: number, upper: boolean) {
+function drawShellHalf(
+  context: CanvasRenderingContext2D,
+  shell: SeaShell,
+  point: Point,
+  radius: number,
+  open: number,
+  upper: boolean,
+) {
   const lift = upper ? -radius * 0.34 * open : radius * 0.08 * open;
   const height = radius * (upper ? 0.58 : 0.52);
   const y = point.y + lift + (upper ? -radius * 0.08 : radius * 0.12);
@@ -356,14 +423,28 @@ function drawShellHalf(context: CanvasRenderingContext2D, shell: SeaShell, point
   context.rotate((upper ? -0.24 : 0.09) * open);
   if (!upper) context.scale(1, -1);
   context.translate(-point.x, -y);
-  const gradient = context.createRadialGradient(point.x - radius * 0.28, y - height * 0.28, radius * 0.08, point.x, y, radius * 1.12);
+  const gradient = context.createRadialGradient(
+    point.x - radius * 0.28,
+    y - height * 0.28,
+    radius * 0.08,
+    point.x,
+    y,
+    radius * 1.12,
+  );
   gradient.addColorStop(0, `hsla(${shell.hue + 32}, 88%, 92%, 0.98)`);
   gradient.addColorStop(0.58, `hsla(${shell.hue}, 72%, ${74 + open * 5}%, 0.96)`);
   gradient.addColorStop(1, `hsla(${shell.hue - 18}, 54%, 54%, 0.96)`);
   context.fillStyle = gradient;
   context.beginPath();
   context.moveTo(point.x - radius * 0.88, y + height * 0.2);
-  context.bezierCurveTo(point.x - radius * 0.66, y - height * 0.92, point.x + radius * 0.66, y - height * 0.92, point.x + radius * 0.88, y + height * 0.2);
+  context.bezierCurveTo(
+    point.x - radius * 0.66,
+    y - height * 0.92,
+    point.x + radius * 0.66,
+    y - height * 0.92,
+    point.x + radius * 0.88,
+    y + height * 0.2,
+  );
   context.quadraticCurveTo(point.x, y + height * 0.72, point.x - radius * 0.88, y + height * 0.2);
   context.fill();
 
@@ -373,20 +454,39 @@ function drawShellHalf(context: CanvasRenderingContext2D, shell: SeaShell, point
     const offset = index / 3;
     context.beginPath();
     context.moveTo(point.x, y + height * 0.48);
-    context.quadraticCurveTo(point.x + offset * radius * 0.28, y - height * 0.14, point.x + offset * radius * 0.72, y + height * 0.04);
+    context.quadraticCurveTo(
+      point.x + offset * radius * 0.28,
+      y - height * 0.14,
+      point.x + offset * radius * 0.72,
+      y + height * 0.04,
+    );
     context.stroke();
   }
 
   context.restore();
 }
 
-function drawPearl(context: CanvasRenderingContext2D, shell: SeaShell, point: Point, radius: number, openProgress: number, glow: number) {
+function drawPearl(
+  context: CanvasRenderingContext2D,
+  shell: SeaShell,
+  point: Point,
+  radius: number,
+  openProgress: number,
+  glow: number,
+) {
   if (openProgress <= 0.12) return;
 
   const pearlX = point.x + shell.pearlOffset * radius;
   const pearlY = point.y + radius * (0.2 - openProgress * 0.14);
   const pearlRadius = radius * (0.16 + glow * 0.045);
-  const pearl = context.createRadialGradient(pearlX - pearlRadius * 0.32, pearlY - pearlRadius * 0.38, pearlRadius * 0.08, pearlX, pearlY, pearlRadius);
+  const pearl = context.createRadialGradient(
+    pearlX - pearlRadius * 0.32,
+    pearlY - pearlRadius * 0.38,
+    pearlRadius * 0.08,
+    pearlX,
+    pearlY,
+    pearlRadius,
+  );
   pearl.addColorStop(0, "rgb(255 255 250 / 100%)");
   pearl.addColorStop(0.55, "rgb(236 245 255 / 96%)");
   pearl.addColorStop(1, "rgb(180 202 232 / 82%)");
@@ -398,9 +498,15 @@ function drawPearl(context: CanvasRenderingContext2D, shell: SeaShell, point: Po
 
 function drawShell(context: CanvasRenderingContext2D, shell: SeaShell) {
   const point = shellPoint(shell);
-  const openProgress = shell.phase === "glowing" ? 1 : shell.phase === "opening" ? Math.max(0.24, shell.dwellProgress) : 0;
+  const openProgress =
+    shell.phase === "glowing"
+      ? 1
+      : shell.phase === "opening"
+        ? Math.max(0.24, shell.dwellProgress)
+        : 0;
   const settle = shell.phase === "settling" ? Math.min(1, shell.phaseAge / settlingSeconds) : 1;
-  const glow = shell.phase === "glowing" ? Math.max(0, 1 - shell.phaseAge / glowSeconds) : openProgress;
+  const glow =
+    shell.phase === "glowing" ? Math.max(0, 1 - shell.phaseAge / glowSeconds) : openProgress;
   const radius = shell.radius * (0.92 + settle * 0.08 + glow * 0.04);
 
   context.save();
@@ -408,7 +514,15 @@ function drawShell(context: CanvasRenderingContext2D, shell: SeaShell) {
 
   context.fillStyle = "rgb(70 57 45 / 20%)";
   context.beginPath();
-  context.ellipse(point.x, point.y + radius * 0.48, radius * 0.96, radius * 0.23, 0, 0, Math.PI * 2);
+  context.ellipse(
+    point.x,
+    point.y + radius * 0.48,
+    radius * 0.96,
+    radius * 0.23,
+    0,
+    0,
+    Math.PI * 2,
+  );
   context.fill();
 
   context.translate(point.x, point.y);
@@ -417,7 +531,14 @@ function drawShell(context: CanvasRenderingContext2D, shell: SeaShell) {
 
   if (glow > 0.02) {
     const glowRadius = radius * (1.08 + glow * 1.32);
-    const halo = context.createRadialGradient(point.x, point.y - radius * 0.04, 0, point.x, point.y - radius * 0.04, glowRadius);
+    const halo = context.createRadialGradient(
+      point.x,
+      point.y - radius * 0.04,
+      0,
+      point.x,
+      point.y - radius * 0.04,
+      glowRadius,
+    );
     halo.addColorStop(0, `hsla(${shell.hue + 54}, 100%, 92%, ${0.22 + glow * 0.26})`);
     halo.addColorStop(0.52, `hsla(${shell.hue + 20}, 86%, 70%, ${0.08 + glow * 0.15})`);
     halo.addColorStop(1, `hsla(${shell.hue}, 80%, 58%, 0)`);
@@ -436,7 +557,13 @@ function drawShell(context: CanvasRenderingContext2D, shell: SeaShell) {
     context.lineWidth = Math.max(2, radius * 0.02);
     context.setLineDash([Math.max(8, radius * 0.07), Math.max(12, radius * 0.09)]);
     context.beginPath();
-    context.arc(point.x, point.y, radius * (0.82 + shell.dwellProgress * 0.12), -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.max(0.12, shell.dwellProgress));
+    context.arc(
+      point.x,
+      point.y,
+      radius * (0.82 + shell.dwellProgress * 0.12),
+      -Math.PI / 2,
+      -Math.PI / 2 + Math.PI * 2 * Math.max(0.12, shell.dwellProgress),
+    );
     context.stroke();
   }
 
@@ -449,7 +576,8 @@ function draw(context: CanvasRenderingContext2D, now: number) {
 }
 
 function tick(now: number) {
-  const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+  const delta =
+    session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
 
   if (session.status === "running") {

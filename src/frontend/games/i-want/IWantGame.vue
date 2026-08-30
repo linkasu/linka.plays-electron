@@ -9,26 +9,55 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { buildIWantPhrase, createIWantCommunication, generateIWantRound, iWantCardAssetId, iWantCards, iWantPhraseAssetId, type IWantCard, type IWantRound } from "./model";
+import {
+  buildIWantPhrase,
+  createIWantCommunication,
+  generateIWantRound,
+  iWantCardAssetId,
+  iWantCards,
+  iWantPhraseAssetId,
+  type IWantCard,
+  type IWantRound,
+} from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession, finishSession } = useGameSessionFor("i-want", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  startSession,
+  finishSession,
+} = useGameSessionFor("i-want", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 120, targetScale: 1.05 },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const promptAudio = useGamePromptAudio({
   gameId: "i-want",
   soundEnabled: toRef(session.settings, "sound"),
   volume: 0.34,
-  warmAssetIds: ["i-want.intro", "i-want.next", "i-want.complete", ...iWantCards.map(iWantCardAssetId)]
+  warmAssetIds: [
+    "i-want.intro",
+    "i-want.next",
+    "i-want.complete",
+    ...iWantCards.map(iWantCardAssetId),
+  ],
 });
 
-const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<IWantRound>({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRoundGame,
+} = useRoundGame<IWantRound>({
   session,
   startSession,
-  generateRound: generateIWantRound
+  generateRound: generateIWantRound,
 });
 
 const feedback = ref("Выбери карточку, чтобы сказать: «Я хочу...».");
@@ -62,12 +91,16 @@ async function choose(card: IWantCard) {
     targetId,
     answerId: card.id,
     cardKind: card.kind,
-    ...communication
+    ...communication,
   });
   feedback.value = `Ты сказал: «${communication.phrase}». Спасибо, я понял.`;
   const finishedAfterSuccess = session.step >= session.maxSteps;
   const phraseAssetId = iWantPhraseAssetId(card);
-  await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [phraseAssetId, "i-want.complete"] : [phraseAssetId], 80, 170);
+  await promptAudio.playSequenceAndWait(
+    finishedAfterSuccess ? [phraseAssetId, "i-want.complete"] : [phraseAssetId],
+    80,
+    170,
+  );
 
   if (finishedAfterSuccess) {
     feedback.value = "Спасибо. Я услышал твои желания.";
@@ -108,25 +141,58 @@ onUnmounted(() => {
 
 <template>
   <div class="i-want-shell">
-    <GameHud title="Я хочу..." :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Я хочу..."
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="11" xl="10">
           <v-card class="i-want-card pa-4 pa-md-6" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">AAC: любой выбор засчитывается</div>
+            <div class="text-overline text-secondary text-center mb-2">
+              AAC: любой выбор засчитывается
+            </div>
             <div class="phrase-panel text-center mb-4 mb-md-5">
-              <v-chip class="mb-3" color="primary" size="large" variant="tonal">{{ round.prompt }}</v-chip>
+              <v-chip class="mb-3" color="primary" size="large" variant="tonal">{{
+                round.prompt
+              }}</v-chip>
               <h1 class="text-h3 text-md-h2 font-weight-bold mb-2">{{ phrase }}</h1>
-              <div class="feedback-text text-body-1 text-md-h6 text-medium-emphasis">{{ feedback }}</div>
+              <div class="feedback-text text-body-1 text-md-h6 text-medium-emphasis">
+                {{ feedback }}
+              </div>
             </div>
 
             <v-row dense>
               <v-col v-for="card in round.cards" :key="card.id" cols="6" sm="4" md="4">
-                <GameDwellButton :target-id="cardTargetId(card)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="cardMinHeight" :color="selectedCardId === card.id ? 'deep-purple-darken-3' : 'surface'" @target-enter="playCardPrompt(card)" @select="choose(card)">
+                <GameDwellButton
+                  :target-id="cardTargetId(card)"
+                  :disabled="session.status !== 'running' || isChangingRound"
+                  :dwell-ms="session.settings.dwellMs"
+                  :min-height="cardMinHeight"
+                  :color="selectedCardId === card.id ? 'deep-purple-darken-3' : 'surface'"
+                  @target-enter="playCardPrompt(card)"
+                  @select="choose(card)"
+                >
                   <template #default>
                     <div class="card-content">
-                      <GameWordImage class="card-emoji mb-2" :word-id="card.wordId" :word="card.label" :emoji="card.emoji" decorative />
-                      <div class="card-label text-h5 text-md-h4 font-weight-bold">{{ card.label }}</div>
+                      <GameWordImage
+                        class="card-emoji mb-2"
+                        :word-id="card.wordId"
+                        :word="card.label"
+                        :emoji="card.emoji"
+                        decorative
+                      />
+                      <div class="card-label text-h5 text-md-h4 font-weight-bold">
+                        {{ card.label }}
+                      </div>
                       <div class="card-kind text-body-2 mt-1">{{ card.kind }}</div>
                     </div>
                   </template>
@@ -137,7 +203,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Я хочу..." :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Я хочу..."
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -170,52 +246,52 @@ onUnmounted(() => {
 }
 
 @media (max-height: 42rem) {
- .game-container {
+  .game-container {
     padding-block-start: 4.25rem;
   }
 
- .i-want-card {
+  .i-want-card {
     padding: 1rem !important;
   }
 
- .i-want-card >.text-overline {
+  .i-want-card > .text-overline {
     display: none;
   }
 
- .phrase-panel {
+  .phrase-panel {
     margin-block-end: 0.75rem !important;
   }
 
- .i-want-card h1 {
+  .i-want-card h1 {
     font-size: 2rem !important;
     line-height: 1.05;
     margin-block: 0.35rem !important;
   }
 
- .feedback-text,
- .i-want-card :deep(.v-chip) {
+  .feedback-text,
+  .i-want-card :deep(.v-chip) {
     font-size: 0.9rem !important;
   }
 
- .game-container :deep(.dwell-button) {
+  .game-container :deep(.dwell-button) {
     min-block-size: 6.6rem !important;
   }
 
- .card-content {
+  .card-content {
     min-block-size: 5.8rem;
   }
 
- .card-emoji {
+  .card-emoji {
     font-size: clamp(2rem, 5vw, 3rem);
     margin-block-end: 0.2rem !important;
   }
 
- .card-label {
+  .card-label {
     font-size: 1.15rem !important;
     line-height: 1.05;
   }
 
- .card-kind {
+  .card-kind {
     font-size: 0.875rem !important;
     margin-block-start: 0.25rem !important;
   }

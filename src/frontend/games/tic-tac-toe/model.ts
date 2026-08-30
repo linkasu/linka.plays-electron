@@ -15,7 +15,7 @@ const winningLines = [
   [1, 4, 7],
   [2, 5, 8],
   [0, 4, 8],
-  [2, 4, 6]
+  [2, 4, 6],
 ] as const;
 
 const qTable = trainQTable();
@@ -43,7 +43,9 @@ export function findWinner(board: TicTacToeBoard): TicTacToeWinner {
 }
 
 export function winningLine(board: TicTacToeBoard) {
-  return winningLines.find(([a, b, c]) => board[a] && board[a] === board[b] && board[a] === board[c]);
+  return winningLines.find(
+    ([a, b, c]) => board[a] && board[a] === board[b] && board[a] === board[c],
+  );
 }
 
 export function chooseDeepQMove(board: TicTacToeBoard) {
@@ -83,7 +85,7 @@ function trainQTable() {
   let seed = 73471;
 
   function random() {
-    seed = seed * 1664525 + 1013904223 >>> 0;
+    seed = (seed * 1664525 + 1013904223) >>> 0;
     return seed / 0x100000000;
   }
 
@@ -100,14 +102,19 @@ function trainQTable() {
     const moves = availableMoves(board);
     if (random() < epsilon) return moves[Math.floor(random() * moves.length)];
     const values = valuesFor(boardKey(board));
-    return moves.reduce((bestMove, move) => values[move] > values[bestMove] ? move : bestMove, moves[0]);
+    return moves.reduce(
+      (bestMove, move) => (values[move] > values[bestMove] ? move : bestMove),
+      moves[0],
+    );
   }
 
   function update(previousKey: string, move: number, reward: number, nextBoard: TicTacToeBoard) {
     const values = valuesFor(previousKey);
     const nextMoves = availableMoves(nextBoard);
     const nextValues = valuesFor(boardKey(nextBoard));
-    const nextBest = nextMoves.length ? Math.max(...nextMoves.map((nextMove) => nextValues[nextMove])) : 0;
+    const nextBest = nextMoves.length
+      ? Math.max(...nextMoves.map((nextMove) => nextValues[nextMove]))
+      : 0;
     values[move] += qLearningRate * (reward + qDiscount * nextBest - values[move]);
   }
 

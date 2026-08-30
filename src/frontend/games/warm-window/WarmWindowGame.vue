@@ -9,7 +9,13 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
 import ttsAssets from "../../data/ttsAssets.json";
-import { disposeWarmWindowPiano, playWarmWindowCue, setWarmWindowPianoActive, tickWarmWindowPiano, warmWarmWindowPiano } from "./audio";
+import {
+  disposeWarmWindowPiano,
+  playWarmWindowCue,
+  setWarmWindowPianoActive,
+  tickWarmWindowPiano,
+  warmWarmWindowPiano,
+} from "./audio";
 
 type WindowTarget = {
   id: string;
@@ -22,25 +28,106 @@ type WindowTarget = {
 };
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSessionFor("warm-window", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("warm-window", {
   maxSteps: 8,
-  overrides: { preset: "gentle", targetScale: 1.6, motionSpeed: 0.35, distractors: "none", hints: "high", sound: true },
-  finishOnMistakes: false
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.6,
+    motionSpeed: 0.35,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
+  finishOnMistakes: false,
 });
 
 const windows = reactive<WindowTarget[]>([
-  { id: "warm-window:window:1", wordId: "cat", label: "котик", animal: "🐱", gridColumn: 1, gridRow: 1, lit: false },
-  { id: "warm-window:window:2", wordId: "dog", label: "щенок", animal: "🐶", gridColumn: 2, gridRow: 1, lit: false },
-  { id: "warm-window:window:3", wordId: "rabbit", label: "зайчик", animal: "🐰", gridColumn: 3, gridRow: 1, lit: false },
-  { id: "warm-window:window:4", wordId: "fox", label: "лисёнок", animal: "🦊", gridColumn: 1, gridRow: 2, lit: false },
-  { id: "warm-window:window:5", wordId: "bear", label: "медвежонок", animal: "🐻", gridColumn: 2, gridRow: 2, lit: false },
-  { id: "warm-window:window:6", label: "панда", animal: "🐼", gridColumn: 3, gridRow: 2, lit: false },
-  { id: "warm-window:window:7", wordId: "frog", label: "лягушонок", animal: "🐸", gridColumn: 1, gridRow: 3, lit: false },
-  { id: "warm-window:window:8", wordId: "bird", label: "птичка", animal: "🐦", gridColumn: 3, gridRow: 3, lit: false }
+  {
+    id: "warm-window:window:1",
+    wordId: "cat",
+    label: "котик",
+    animal: "🐱",
+    gridColumn: 1,
+    gridRow: 1,
+    lit: false,
+  },
+  {
+    id: "warm-window:window:2",
+    wordId: "dog",
+    label: "щенок",
+    animal: "🐶",
+    gridColumn: 2,
+    gridRow: 1,
+    lit: false,
+  },
+  {
+    id: "warm-window:window:3",
+    wordId: "rabbit",
+    label: "зайчик",
+    animal: "🐰",
+    gridColumn: 3,
+    gridRow: 1,
+    lit: false,
+  },
+  {
+    id: "warm-window:window:4",
+    wordId: "fox",
+    label: "лисёнок",
+    animal: "🦊",
+    gridColumn: 1,
+    gridRow: 2,
+    lit: false,
+  },
+  {
+    id: "warm-window:window:5",
+    wordId: "bear",
+    label: "медвежонок",
+    animal: "🐻",
+    gridColumn: 2,
+    gridRow: 2,
+    lit: false,
+  },
+  {
+    id: "warm-window:window:6",
+    label: "панда",
+    animal: "🐼",
+    gridColumn: 3,
+    gridRow: 2,
+    lit: false,
+  },
+  {
+    id: "warm-window:window:7",
+    wordId: "frog",
+    label: "лягушонок",
+    animal: "🐸",
+    gridColumn: 1,
+    gridRow: 3,
+    lit: false,
+  },
+  {
+    id: "warm-window:window:8",
+    wordId: "bird",
+    label: "птичка",
+    animal: "🐦",
+    gridColumn: 3,
+    gridRow: 3,
+    lit: false,
+  },
 ]);
 
 const resultVisible = computed(() => session.status === "finished");
-const warmWindowTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.id === "warm-window.intro");
+const warmWindowTtsAssets = (ttsAssets as TtsAsset[]).filter(
+  (asset) => asset.id === "warm-window.intro",
+);
 let audioFrame = 0;
 let introTimer = 0;
 
@@ -127,9 +214,29 @@ onUnmounted(() => {
                 @select="lightWindow(windowTarget)"
               >
                 <template #default="{ active, progress }">
-                  <div :class="['warm-window-pane', { 'warm-window-pane--lit': windowTarget.lit, 'warm-window-pane--active': active }]">
-                    <GameWordImage v-if="windowTarget.lit && windowTarget.wordId" class="warm-window-animal" :word-id="windowTarget.wordId" :word="windowTarget.label" :emoji="windowTarget.animal" decorative />
-                    <span v-else-if="windowTarget.lit" class="warm-window-animal" aria-hidden="true">{{ windowTarget.animal }}</span>
+                  <div
+                    :class="[
+                      'warm-window-pane',
+                      {
+                        'warm-window-pane--lit': windowTarget.lit,
+                        'warm-window-pane--active': active,
+                      },
+                    ]"
+                  >
+                    <GameWordImage
+                      v-if="windowTarget.lit && windowTarget.wordId"
+                      class="warm-window-animal"
+                      :word-id="windowTarget.wordId"
+                      :word="windowTarget.label"
+                      :emoji="windowTarget.animal"
+                      decorative
+                    />
+                    <span
+                      v-else-if="windowTarget.lit"
+                      class="warm-window-animal"
+                      aria-hidden="true"
+                      >{{ windowTarget.animal }}</span
+                    >
                     <span v-else class="warm-window-emoji" aria-hidden="true">🪟</span>
                   </div>
                 </template>
@@ -141,7 +248,6 @@ onUnmounted(() => {
             </div>
           </div>
         </div>
-
       </v-card>
     </v-container>
 
@@ -240,7 +346,9 @@ onUnmounted(() => {
   background: linear-gradient(180deg, #8c4438 0%, #69342f 100%);
   block-size: clamp(3.625rem, 7vh, 5.375rem);
   border-radius: 10px 10px 2px 2px;
-  box-shadow: inset 0 0 0 2px rgb(255 215 185 / 18%), 0 14px 26px rgb(30 19 28 / 24%);
+  box-shadow:
+    inset 0 0 0 2px rgb(255 215 185 / 18%),
+    0 14px 26px rgb(30 19 28 / 24%);
   inline-size: clamp(2.875rem, 5vw, 4.375rem);
   inset-block-start: clamp(12px, 2vh, 22px);
   inset-inline-end: 24%;
@@ -252,7 +360,9 @@ onUnmounted(() => {
   background: linear-gradient(180deg, #f0c796 0%, #d7a26f 100%);
   border: 10px solid rgb(112 70 58 / 44%);
   border-radius: 36px 36px 24px 24px;
-  box-shadow: inset 0 0 0 2px rgb(255 244 214 / 28%), 0 28px 70px rgb(16 18 32 / 36%);
+  box-shadow:
+    inset 0 0 0 2px rgb(255 244 214 / 28%),
+    0 28px 70px rgb(16 18 32 / 36%);
   margin-inline: auto;
   max-inline-size: min(65rem, 94vw);
   padding: clamp(1.5rem, 3.4vw, 2.875rem);
@@ -279,7 +389,10 @@ onUnmounted(() => {
   justify-content: center;
   min-block-size: 100%;
   text-shadow: none;
-  transition: color 180ms ease, filter 180ms ease, transform 180ms ease;
+  transition:
+    color 180ms ease,
+    filter 180ms ease,
+    transform 180ms ease;
 }
 
 .warm-window-pane--active {
@@ -334,29 +447,29 @@ onUnmounted(() => {
 }
 
 @media (max-width: 40rem) {
- .warm-window-container {
+  .warm-window-container {
     align-items: flex-start !important;
     padding-block: 82px 16px;
   }
 
- .warm-window-house {
+  .warm-window-house {
     max-inline-size: 96vw;
     padding-block-start: 54px;
   }
 
- .warm-window-body {
+  .warm-window-body {
     border-width: 7px;
     padding: 0.875rem;
   }
 
- .warm-window-grid {
+  .warm-window-grid {
     gap: 0.625rem;
     grid-template-columns: repeat(3, minmax(4.25rem, 1fr));
     grid-template-rows: repeat(3, clamp(4.75rem, 20vw, 6rem));
   }
 
- .warm-window-target,
- .warm-window-door {
+  .warm-window-target,
+  .warm-window-door {
     min-block-size: clamp(4.75rem, 20vw, 6rem);
   }
 }

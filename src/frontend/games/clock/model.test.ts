@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { settingsFromPreset } from "../../core/settings";
-import { formatClockHour, formatClockHourSpeech, generateClockRound, normalizeClockHour } from "./model";
+import {
+  formatClockHour,
+  formatClockHourSpeech,
+  generateClockRound,
+  normalizeClockHour,
+} from "./model";
 
 describe("generateClockRound", () => {
   it("keeps all hours on the 12-hour clock", () => {

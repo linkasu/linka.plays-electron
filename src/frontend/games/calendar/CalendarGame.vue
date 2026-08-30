@@ -12,25 +12,46 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateCalendarRound, type CalendarChoice } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("calendar", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("calendar", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 130, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
 const promptAudio = useGamePromptAudio({
   gameId: "calendar",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: ["calendar.prompt.weekday.monday.today", "calendar.prompt.relative.monday.today", "calendar.mistake", "calendar.complete"]
+  warmAssetIds: [
+    "calendar.prompt.weekday.monday.today",
+    "calendar.prompt.relative.monday.today",
+    "calendar.mistake",
+    "calendar.complete",
+  ],
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
-const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRoundGame,
+} = useRoundGame({
   session,
   startSession,
-  generateRound: (roundIndex) => generateCalendarRound(session.settings, roundIndex)
+  generateRound: (roundIndex) => generateCalendarRound(session.settings, roundIndex),
 });
 
 const mistakeChoiceId = ref<string>();
@@ -74,10 +95,20 @@ async function choose(choice: CalendarChoice) {
     isSpeaking.value = true;
     mistakeChoiceId.value = undefined;
     feedbackText.value = "Верно.";
-    recordSuccess({ roundId: round.value.roundId, targetId, expected: round.value.correctChoiceId, actual: choice.id, isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      expected: round.value.correctChoiceId,
+      actual: choice.id,
+      isCorrect: true,
+    });
     void pianoFeedback.playSuccess();
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [correctAssetId(), "calendar.complete"] : [correctAssetId()], 80, 170);
+    await promptAudio.playSequenceAndWait(
+      finishedAfterSuccess ? [correctAssetId(), "calendar.complete"] : [correctAssetId()],
+      80,
+      170,
+    );
     if (finishedAfterSuccess) {
       finishSession("game-complete");
       isSpeaking.value = false;
@@ -96,7 +127,14 @@ async function choose(choice: CalendarChoice) {
   isSpeaking.value = true;
   mistakeChoiceId.value = choice.id;
   feedbackText.value = "Посмотри на календарь ещё раз и выбери другой день.";
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, expected: round.value.correctChoiceId, actual: choice.id, isCorrect: false });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    expectedTargetId,
+    expected: round.value.correctChoiceId,
+    actual: choice.id,
+    isCorrect: false,
+  });
   void pianoFeedback.playMistake();
   await promptAudio.playSequenceAndWait([mistakeAssetId()], 80);
   isSpeaking.value = false;
@@ -123,25 +161,60 @@ onUnmounted(() => {
 
 <template>
   <div class="calendar-shell">
-    <GameHud title="Календарь" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Календарь"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" xl="10">
           <v-card class="pa-4 pa-md-7" rounded="xl" elevation="8">
             <div class="d-flex justify-center mb-3">
-              <v-chip color="primary" prepend-icon="mdi-calendar-today" size="large" variant="tonal">
+              <v-chip
+                color="primary"
+                prepend-icon="mdi-calendar-today"
+                size="large"
+                variant="tonal"
+              >
                 {{ round.contextText }}
               </v-chip>
             </div>
             <div class="text-overline text-secondary text-center mb-2">Дни недели и время</div>
             <h1 class="text-h4 text-md-h2 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
-            <v-alert class="mb-5 text-body-1 text-md-h6 font-weight-bold" color="primary" icon="mdi-lightbulb-outline" rounded="xl" variant="tonal">
+            <v-alert
+              class="mb-5 text-body-1 text-md-h6 font-weight-bold"
+              color="primary"
+              icon="mdi-lightbulb-outline"
+              rounded="xl"
+              variant="tonal"
+            >
               {{ feedbackText }}
             </v-alert>
 
             <v-row class="choice-row" justify="center">
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6" :md="round.choices.length === 3 ? 4 : 3">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="190" :color="choiceColor(choice)" @select="choose(choice)">
+              <v-col
+                v-for="choice in round.choices"
+                :key="choice.id"
+                cols="12"
+                sm="6"
+                :md="round.choices.length === 3 ? 4 : 3"
+              >
+                <GameDwellButton
+                  :target-id="choiceTargetId(choice)"
+                  :disabled="session.status !== 'running' || isSpeaking"
+                  :dwell-ms="session.settings.dwellMs"
+                  :min-height="190"
+                  :color="choiceColor(choice)"
+                  @select="choose(choice)"
+                >
                   <template #default>
                     <div class="calendar-choice">
                       <v-icon :icon="choice.icon" class="calendar-choice__icon mb-3" size="48" />
@@ -155,7 +228,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Календарь" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Календарь"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -203,68 +286,68 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 11rem;
   }
 }
 
 @media (min-width: 56.25rem) and (max-width: 75rem) {
- .choice-row :deep(.dwell-button) {
+  .choice-row :deep(.dwell-button) {
     padding-inline: 0.35rem !important;
   }
 
- .calendar-choice__label {
+  .calendar-choice__label {
     font-size: 1.3rem;
   }
 }
 
 @media (max-height: 42rem) and (min-width: 60rem) {
- .game-container {
+  .game-container {
     padding-block-start: 7.4rem;
   }
 }
 
 @media (max-height: 42.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 4.75rem;
   }
 
- .game-container :deep(.v-card) {
+  .game-container :deep(.v-card) {
     padding-block: 1rem !important;
   }
 
- .game-container.d-flex,
- .game-container .text-overline,
- .game-container h1,
- .game-container .v-alert {
+  .game-container.d-flex,
+  .game-container .text-overline,
+  .game-container h1,
+  .game-container .v-alert {
     display: none !important;
   }
 
- .choice-row {
+  .choice-row {
     row-gap: 0.35rem;
   }
 
- .choice-row :deep(.v-col) {
+  .choice-row :deep(.v-col) {
     flex: 0 0 50% !important;
     max-inline-size: 50% !important;
   }
 
- .choice-row :deep(.dwell-button) {
+  .choice-row :deep(.dwell-button) {
     min-block-size: 7.25rem !important;
     padding: 0.5rem !important;
   }
 
- .calendar-choice__label {
+  .calendar-choice__label {
     font-size: 2.4rem;
   }
 }
 
 @media (max-height: 42.5rem) and (min-width: 56.25rem) {
- .choice-row :deep(.dwell-button) {
+  .choice-row :deep(.dwell-button) {
     padding-inline: 0.35rem !important;
   }
 
- .calendar-choice__label {
+  .calendar-choice__label {
     font-size: 1.3rem;
   }
 }

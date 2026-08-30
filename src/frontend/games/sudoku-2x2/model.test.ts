@@ -5,8 +5,15 @@ function expectedValues(size: number) {
   return Array.from({ length: size }, (_, index) => index + 1);
 }
 
-function valuesAt(cells: Sudoku2x2Cell[], size: number, selector: (cell: Sudoku2x2Cell) => boolean) {
-  return cells.filter(selector).map((cell) => cell.value).sort((a, b) => a - b);
+function valuesAt(
+  cells: Sudoku2x2Cell[],
+  size: number,
+  selector: (cell: Sudoku2x2Cell) => boolean,
+) {
+  return cells
+    .filter(selector)
+    .map((cell) => cell.value)
+    .sort((a, b) => a - b);
 }
 
 describe("generateSudoku2x2Round", () => {
@@ -46,7 +53,9 @@ describe("generateSudoku2x2Round", () => {
       const round = generateSudoku2x2Round(index);
 
       expect(round.choices).toHaveLength(round.size);
-      expect(round.choices.map((choice) => choice.value).sort((a, b) => a - b)).toEqual(expectedValues(round.size));
+      expect(round.choices.map((choice) => choice.value).sort((a, b) => a - b)).toEqual(
+        expectedValues(round.size),
+      );
       expect(round.choices).toContain(round.correctChoice);
       expect(round.correctChoice.value).toBe(round.missingCell.value);
       expect(round.choices[round.correctIndex]).toBe(round.correctChoice);

@@ -59,7 +59,10 @@ describe("generateFindAnimalRound", () => {
 
   it("draws targets from a shuffled deck without repeats until it is exhausted", () => {
     const generateRound = createFindAnimalRoundGenerator(() => 0.37);
-    const targetIds = Array.from({ length: 30 }, (_, index) => generateRound(settingsFromPreset("standard"), index + 1).target.id);
+    const targetIds = Array.from(
+      { length: 30 },
+      (_, index) => generateRound(settingsFromPreset("standard"), index + 1).target.id,
+    );
 
     expect(new Set(targetIds).size).toBe(targetIds.length);
   });

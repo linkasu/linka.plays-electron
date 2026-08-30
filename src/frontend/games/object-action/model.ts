@@ -29,7 +29,7 @@ export const objectActionChoices: ObjectActionChoice[] = [
     settingEmoji: "💧",
     sceneLabel: "Человек подносит чашку ко рту и пьёт",
     successText: "Человек пьёт из чашки.",
-    successAssetId: "object-action.phrase.cup-drink"
+    successAssetId: "object-action.phrase.cup-drink",
   },
   {
     id: "eat",
@@ -40,7 +40,7 @@ export const objectActionChoices: ObjectActionChoice[] = [
     settingEmoji: "🍽️",
     sceneLabel: "Человек ест ложкой из миски",
     successText: "Человек ест ложкой.",
-    successAssetId: "object-action.phrase.spoon-eat"
+    successAssetId: "object-action.phrase.spoon-eat",
   },
   {
     id: "sleep",
@@ -50,7 +50,7 @@ export const objectActionChoices: ObjectActionChoice[] = [
     cueEmoji: "💤",
     settingEmoji: "🌙",
     sceneLabel: "Человек спит в кровати ночью",
-    successText: "Человек спит в кровати."
+    successText: "Человек спит в кровати.",
   },
   {
     id: "walk",
@@ -60,7 +60,7 @@ export const objectActionChoices: ObjectActionChoice[] = [
     cueEmoji: "➡️",
     settingEmoji: "🛤️",
     sceneLabel: "Человек идёт вперёд по дорожке",
-    successText: "Человек идёт по дорожке."
+    successText: "Человек идёт по дорожке.",
   },
   {
     id: "wash",
@@ -71,7 +71,7 @@ export const objectActionChoices: ObjectActionChoice[] = [
     settingEmoji: "🚰",
     sceneLabel: "Человек моет руки водой с мылом",
     successText: "Человек моет руки с мылом.",
-    successAssetId: "object-action.phrase.soap-wash"
+    successAssetId: "object-action.phrase.soap-wash",
   },
   {
     id: "draw",
@@ -82,7 +82,7 @@ export const objectActionChoices: ObjectActionChoice[] = [
     settingEmoji: "📄",
     sceneLabel: "Человек рисует карандашом на бумаге",
     successText: "Человек рисует карандашом.",
-    successAssetId: "object-action.phrase.pencil-draw"
+    successAssetId: "object-action.phrase.pencil-draw",
   },
   {
     id: "roll",
@@ -93,8 +93,8 @@ export const objectActionChoices: ObjectActionChoice[] = [
     settingEmoji: "🛝",
     sceneLabel: "Ребёнок толкает и катает мяч",
     successText: "Ребёнок катает мяч.",
-    successAssetId: "object-action.phrase.ball-roll"
-  }
+    successAssetId: "object-action.phrase.ball-roll",
+  },
 ];
 
 export function objectActionChoiceTargetId(choiceId: string) {
@@ -110,7 +110,8 @@ export function isObjectActionCorrect(round: ObjectActionRound, choice: ObjectAc
 }
 
 export function generateObjectActionRound(roundIndex = 1): ObjectActionRound {
-  if (objectActionChoices.length < 4) throw new Error("Недостаточно визуальных сцен действий для игры.");
+  if (objectActionChoices.length < 4)
+    throw new Error("Недостаточно визуальных сцен действий для игры.");
 
   const normalizedIndex = Math.max(1, Math.floor(roundIndex));
   const targetIndex = (normalizedIndex - 1) % objectActionChoices.length;
@@ -128,6 +129,6 @@ export function generateObjectActionRound(roundIndex = 1): ObjectActionRound {
     targetAction,
     choices,
     correctChoice: targetAction,
-    explanation: createObjectActionExplanation(targetAction)
+    explanation: createObjectActionExplanation(targetAction),
   };
 }

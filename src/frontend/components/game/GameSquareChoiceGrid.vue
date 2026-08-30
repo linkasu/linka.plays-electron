@@ -5,26 +5,29 @@ import GameDwellButton from "./GameDwellButton.vue";
 
 export type GameSquareChoice = string | number;
 
-const props = withDefaults(defineProps<{
-  items: GameSquareChoice[];
-  disabled?: boolean;
-  dwellMs?: number;
-  columns?: number;
-  gridOffset?: string;
-  minSize?: string;
-  maxSize?: string;
-  compactSize?: string;
-  widthFactor?: string;
-  targetId: (choice: GameSquareChoice) => string;
-}>(), {
-  disabled: false,
-  dwellMs: DEFAULT_DWELL_MS,
-  gridOffset: "17.75rem",
-  minSize: "9.375rem",
-  maxSize: "15.625rem",
-  compactSize: "9.75rem",
-  widthFactor: "20vw"
-});
+const props = withDefaults(
+  defineProps<{
+    items: GameSquareChoice[];
+    disabled?: boolean;
+    dwellMs?: number;
+    columns?: number;
+    gridOffset?: string;
+    minSize?: string;
+    maxSize?: string;
+    compactSize?: string;
+    widthFactor?: string;
+    targetId: (choice: GameSquareChoice) => string;
+  }>(),
+  {
+    disabled: false,
+    dwellMs: DEFAULT_DWELL_MS,
+    gridOffset: "17.75rem",
+    minSize: "9.375rem",
+    maxSize: "15.625rem",
+    compactSize: "9.75rem",
+    widthFactor: "20vw",
+  },
+);
 
 const emit = defineEmits<{
   select: [choice: GameSquareChoice];
@@ -40,7 +43,9 @@ const rows = computed(() => {
   }
 
   const splitAt = Math.ceil(props.items.length / 2);
-  return [props.items.slice(0, splitAt), props.items.slice(splitAt)].filter((row) => row.length > 0);
+  return [props.items.slice(0, splitAt), props.items.slice(splitAt)].filter(
+    (row) => row.length > 0,
+  );
 });
 
 const gridStyle = computed(() => ({
@@ -49,14 +54,31 @@ const gridStyle = computed(() => ({
   "--choice-grid-compact-size": props.compactSize,
   "--choice-grid-offset": props.gridOffset,
   "--choice-grid-width-factor": props.widthFactor,
-  "--choice-grid-height-size": `calc((100vh - ${props.gridOffset} - ${(rows.value.length - 1) * 0.625}rem) / ${rows.value.length})`
+  "--choice-grid-height-size": `calc((100vh - ${props.gridOffset} - ${(rows.value.length - 1) * 0.625}rem) / ${rows.value.length})`,
 }));
 </script>
 
 <template>
   <div class="square-choice-grid" :style="gridStyle">
-    <div v-for="(row, rowIndex) in rows" :key="rowIndex" :class="['square-choice-row', row.length <= 3 ? 'square-choice-row--short' : 'square-choice-row--wide']" :style="{ '--choice-count': row.length.toString() }">
-      <GameDwellButton v-for="choice in row" :key="choice" class="square-choice-key" :target-id="targetId(choice)" :disabled="disabled" :dwell-ms="dwellMs" min-height="0" @select="emit('select', choice)">
+    <div
+      v-for="(row, rowIndex) in rows"
+      :key="rowIndex"
+      :class="[
+        'square-choice-row',
+        row.length <= 3 ? 'square-choice-row--short' : 'square-choice-row--wide',
+      ]"
+      :style="{ '--choice-count': row.length.toString() }"
+    >
+      <GameDwellButton
+        v-for="choice in row"
+        :key="choice"
+        class="square-choice-key"
+        :target-id="targetId(choice)"
+        :disabled="disabled"
+        :dwell-ms="dwellMs"
+        min-height="0"
+        @select="emit('select', choice)"
+      >
         <template #default>
           <slot :choice="choice">
             <div class="text-h2 font-weight-bold">{{ choice }}</div>
@@ -76,7 +98,11 @@ const gridStyle = computed(() => ({
 }
 
 .square-choice-row {
-  --choice-size: clamp(var(--choice-grid-min-size), min(var(--choice-grid-width-factor), var(--choice-grid-height-size)), var(--choice-grid-max-size));
+  --choice-size: clamp(
+    var(--choice-grid-min-size),
+    min(var(--choice-grid-width-factor), var(--choice-grid-height-size)),
+    var(--choice-grid-max-size)
+  );
 
   display: grid;
   gap: 0.625rem;
@@ -93,7 +119,7 @@ const gridStyle = computed(() => ({
 }
 
 @media (max-height: 40rem) {
- .square-choice-row {
+  .square-choice-row {
     --choice-size: var(--choice-grid-compact-size);
   }
 }

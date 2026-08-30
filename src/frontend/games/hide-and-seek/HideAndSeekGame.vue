@@ -10,8 +10,21 @@ import { useGameTimers } from "../../composables/useGameTimers";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
 import ttsAssets from "../../data/ttsAssets.json";
-import { disposeHideAndSeekAudio, playHideAndSeekMistakeMelody, playHideAndSeekSuccessMelody, resetHideAndSeekAudioSession, warmHideAndSeekAudio } from "./audio";
-import { createHideAndSeekLayout, hideAndSeekFallbackObstacles, hideObjectBehindCover, type HideAndSeekCover, type HideAndSeekRect, type HideAndSeekSpot } from "./model";
+import {
+  disposeHideAndSeekAudio,
+  playHideAndSeekMistakeMelody,
+  playHideAndSeekSuccessMelody,
+  resetHideAndSeekAudioSession,
+  warmHideAndSeekAudio,
+} from "./audio";
+import {
+  createHideAndSeekLayout,
+  hideAndSeekFallbackObstacles,
+  hideObjectBehindCover,
+  type HideAndSeekCover,
+  type HideAndSeekRect,
+  type HideAndSeekSpot,
+} from "./model";
 
 type SeekPicture = { id: string; emoji: string; name: string };
 type SeekRound = { id: string; target: SeekPicture; spots: HideAndSeekSpot<SeekPicture>[] };
@@ -34,24 +47,37 @@ const picturePool: SeekPicture[] = [
   { id: "fish", emoji: "🐟", name: "рыбку" },
   { id: "sun", emoji: "☀️", name: "солнце" },
   { id: "moon", emoji: "🌙", name: "луну" },
-  { id: "butterfly", emoji: "🦋", name: "бабочку" }
+  { id: "butterfly", emoji: "🦋", name: "бабочку" },
 ];
 const coverPool: HideAndSeekCover[] = [
   { id: "bush", emoji: "🌿", label: "куст" },
   { id: "rock", emoji: "🪨", label: "камень" },
   { id: "box", emoji: "📦", label: "коробка" },
   { id: "tree", emoji: "🌲", label: "ёлка" },
-  { id: "umbrella", emoji: "☂️", label: "зонтик" }
+  { id: "umbrella", emoji: "☂️", label: "зонтик" },
 ];
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("hide-and-seek", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("hide-and-seek", {
   maxSteps: totalRounds,
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 
-const hideAndSeekTtsAssets = (ttsAssets as TtsAsset[]).filter((asset) => asset.game === "hide-and-seek");
+const hideAndSeekTtsAssets = (ttsAssets as TtsAsset[]).filter(
+  (asset) => asset.game === "hide-and-seek",
+);
 const rounds = ref<SeekRound[]>(createRounds());
 const pageIndex = ref(0);
 const isAdvancing = ref(false);
@@ -63,14 +89,18 @@ const lastMistakeSpotId = ref<string>();
 const shellRef = ref<HTMLElement>();
 const promptRef = ref<ElementComponent>();
 const viewportSize = ref({ width: window.innerWidth, height: window.innerHeight });
-const obstacleBounds = ref<HideAndSeekRect[]>(hideAndSeekFallbackObstacles(window.innerWidth, window.innerHeight));
-const sceneLayout = computed(() => createHideAndSeekLayout({
-  viewportWidth: viewportSize.value.width,
-  viewportHeight: viewportSize.value.height,
-  targetScale: session.settings.targetScale,
-  targetCount: coversPerRound,
-  obstacles: obstacleBounds.value
-}));
+const obstacleBounds = ref<HideAndSeekRect[]>(
+  hideAndSeekFallbackObstacles(window.innerWidth, window.innerHeight),
+);
+const sceneLayout = computed(() =>
+  createHideAndSeekLayout({
+    viewportWidth: viewportSize.value.width,
+    viewportHeight: viewportSize.value.height,
+    targetScale: session.settings.targetScale,
+    targetCount: coversPerRound,
+    obstacles: obstacleBounds.value,
+  }),
+);
 const { setGameTimeout, clearGameTimers } = useGameTimers();
 let layoutFrame = 0;
 
@@ -87,12 +117,14 @@ function createRound(roundIndex: number, target: SeekPicture): SeekRound {
   return {
     id: `hide-and-seek-round-${roundIndex}-${Date.now()}`,
     target,
-    spots: hideObjectBehindCover(shuffled(coverPool), target)
+    spots: hideObjectBehindCover(shuffled(coverPool), target),
   };
 }
 
 function createRounds() {
-  return shuffled(picturePool).slice(0, totalRounds).map((target, index) => createRound(index, target));
+  return shuffled(picturePool)
+    .slice(0, totalRounds)
+    .map((target, index) => createRound(index, target));
 }
 
 function ttsAsset(id: string) {
@@ -137,7 +169,7 @@ function spotStyle(spot: HideAndSeekSpot<SeekPicture>) {
     left: `${point.x}px`,
     top: `${point.y}px`,
     inlineSize: `${objectWidth()}px`,
-    opacity: spot.opened && !spot.hiddenObject ? 0.52 : isLastMistake ? 0.76 : 1
+    opacity: spot.opened && !spot.hiddenObject ? 0.52 : isLastMistake ? 0.76 : 1,
   };
 }
 
@@ -155,7 +187,8 @@ function scheduleLayoutUpdate() {
         const rect = element.getBoundingClientRect();
         return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
       });
-    obstacleBounds.value = measured.length === 2 ? measured : hideAndSeekFallbackObstacles(width, height);
+    obstacleBounds.value =
+      measured.length === 2 ? measured : hideAndSeekFallbackObstacles(width, height);
   });
 }
 
@@ -165,7 +198,8 @@ function spotColor(spot: HideAndSeekSpot<SeekPicture>) {
 }
 
 function chooseSpot(spot: HideAndSeekSpot<SeekPicture>) {
-  if (session.status !== "running" || spot.opened || !currentObject.value || isAdvancing.value) return;
+  if (session.status !== "running" || spot.opened || !currentObject.value || isAdvancing.value)
+    return;
 
   const expectedObject = currentObject.value;
   spot.opened = true;
@@ -174,13 +208,30 @@ function chooseSpot(spot: HideAndSeekSpot<SeekPicture>) {
     feedbackMessage.value = `За укрытием пусто. Поищи ${expectedObject.name} в другом месте.`;
     void playHideAndSeekMistakeMelody(session.settings.sound);
     playResponseTts("hide-and-seek.mistake");
-    recordMistake({ targetId: spotTargetId(spot), expectedTargetId: expectedObject.id, coverId: spot.id, actual: "empty", expected: expectedObject.name, isCorrect: false });
+    recordMistake({
+      targetId: spotTargetId(spot),
+      expectedTargetId: expectedObject.id,
+      coverId: spot.id,
+      actual: "empty",
+      expected: expectedObject.name,
+      isCorrect: false,
+    });
     return;
   }
 
   lastMistakeSpotId.value = undefined;
-  feedbackMessage.value = session.step + 1 >= session.maxSteps ? "Всех нашли!" : `Нашли ${expectedObject.name}! Сейчас новая сцена.`;
-  recordSuccess({ targetId: spotTargetId(spot), answerId: expectedObject.id, coverId: spot.id, expected: expectedObject.name, actual: expectedObject.name, isCorrect: true });
+  feedbackMessage.value =
+    session.step + 1 >= session.maxSteps
+      ? "Всех нашли!"
+      : `Нашли ${expectedObject.name}! Сейчас новая сцена.`;
+  recordSuccess({
+    targetId: spotTargetId(spot),
+    answerId: expectedObject.id,
+    coverId: spot.id,
+    expected: expectedObject.name,
+    actual: expectedObject.name,
+    isCorrect: true,
+  });
   void playHideAndSeekSuccessMelody(session.settings.sound);
   playResponseTts("hide-and-seek.correct");
   isAdvancing.value = true;
@@ -231,12 +282,31 @@ onUnmounted(() => {
 
 <template>
   <div ref="shellRef" class="seek-shell">
-    <GameHud title="Прятки" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Прятки"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <div class="scene">
       <v-card ref="promptRef" class="prompt pa-7 pa-md-8 text-center" rounded="xl" elevation="10">
         <div class="text-overline text-secondary mb-2">Кто спрятался?</div>
-        <GameWordImage v-if="currentObject" class="prompt-sample mb-3" :word-id="currentObject.id" :word="currentObject.name" :emoji="currentObject.emoji" />
-        <div class="text-h3 font-weight-bold">{{ currentObject ? currentObject.name : 'всех друзей' }}</div>
+        <GameWordImage
+          v-if="currentObject"
+          class="prompt-sample mb-3"
+          :word-id="currentObject.id"
+          :word="currentObject.name"
+          :emoji="currentObject.emoji"
+        />
+        <div class="text-h3 font-weight-bold">
+          {{ currentObject ? currentObject.name : "всех друзей" }}
+        </div>
         <div class="text-body-1 text-medium-emphasis mt-2">{{ feedbackMessage }}</div>
       </v-card>
       <GameDwellButton
@@ -255,17 +325,41 @@ onUnmounted(() => {
         <template #default>
           <div class="spot-content">
             <div v-if="spot.hiddenObject && !spot.opened" class="peek-window">
-              <GameWordImage class="peek-object" :word-id="spot.hiddenObject.id" :word="spot.hiddenObject.name" :emoji="spot.hiddenObject.emoji" decorative />
+              <GameWordImage
+                class="peek-object"
+                :word-id="spot.hiddenObject.id"
+                :word="spot.hiddenObject.name"
+                :emoji="spot.hiddenObject.emoji"
+                decorative
+              />
             </div>
-            <GameWordImage v-if="spot.opened && spot.hiddenObject" class="found-object" :word-id="spot.hiddenObject.id" :word="spot.hiddenObject.name" :emoji="spot.hiddenObject.emoji" />
+            <GameWordImage
+              v-if="spot.opened && spot.hiddenObject"
+              class="found-object"
+              :word-id="spot.hiddenObject.id"
+              :word="spot.hiddenObject.name"
+              :emoji="spot.hiddenObject.emoji"
+            />
             <div v-else-if="spot.opened" class="empty-spot" aria-hidden="true">✨</div>
             <div v-else class="cover-emoji" aria-hidden="true">{{ spot.emoji }}</div>
           </div>
-          <div class="text-h6 font-weight-bold">{{ spot.opened ? (spot.hiddenObject ? spot.hiddenObject.name : 'пусто') : spot.label }}</div>
+          <div class="text-h6 font-weight-bold">
+            {{ spot.opened ? (spot.hiddenObject ? spot.hiddenObject.name : "пусто") : spot.label }}
+          </div>
         </template>
       </GameDwellButton>
     </div>
-    <GameResultDialog :model-value="resultVisible" title="Прятки" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Прятки"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -335,7 +429,7 @@ onUnmounted(() => {
 }
 
 @media (max-height: 43.75rem) {
- .prompt {
+  .prompt {
     inline-size: min(30rem, calc(100vw - 2rem));
     left: 50%;
     max-inline-size: min(30rem, calc(100vw - 2rem));
@@ -344,16 +438,16 @@ onUnmounted(() => {
     transform: translateX(-50%);
   }
 
- .prompt-sample {
+  .prompt-sample {
     display: none;
   }
 
- .prompt .text-overline,
- .prompt .text-body-1 {
+  .prompt .text-overline,
+  .prompt .text-body-1 {
     display: none;
   }
 
- .prompt .text-h3 {
+  .prompt .text-h3 {
     font-size: 1.35rem !important;
     line-height: 1.15;
   }

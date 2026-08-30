@@ -4,7 +4,7 @@ import { disposeSoftPiano, warmSoftPiano } from "./softPiano";
 const pianoMocks = vi.hoisted(() => ({
   closeContext: vi.fn(() => Promise.resolve()),
   disposePiano: vi.fn(),
-  resolveReady: undefined as (() => void) | undefined
+  resolveReady: undefined as (() => void) | undefined,
 }));
 
 vi.mock("smplr", () => ({
@@ -15,8 +15,8 @@ vi.mock("smplr", () => ({
     ready: new Promise<void>((resolve) => {
       pianoMocks.resolveReady = resolve;
     }),
-    start: vi.fn()
-  }))
+    start: vi.fn(),
+  })),
 }));
 
 class FakeAudioContext {
@@ -25,7 +25,9 @@ class FakeAudioContext {
   state = "running" as AudioContextState;
 
   close = pianoMocks.closeContext;
-  createGain = vi.fn(() => ({ connect: vi.fn(), disconnect: vi.fn(), gain: { value: 1 } } as unknown as GainNode));
+  createGain = vi.fn(
+    () => ({ connect: vi.fn(), disconnect: vi.fn(), gain: { value: 1 } }) as unknown as GainNode,
+  );
 }
 
 afterEach(() => {

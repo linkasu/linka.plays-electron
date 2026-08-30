@@ -8,7 +8,12 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
-import { disposeLetterHuntAudio, playLetterHuntMistakeMelody, playLetterHuntSuccessMelody, warmLetterHuntAudio } from "./audio";
+import {
+  disposeLetterHuntAudio,
+  playLetterHuntMistakeMelody,
+  playLetterHuntSuccessMelody,
+  warmLetterHuntAudio,
+} from "./audio";
 
 type Point = { x: number; y: number };
 type LetterFeedback = "idle" | "correct" | "mistake";
@@ -36,10 +41,28 @@ type Cloud = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, recordMistake, startSession } = useGameSessionFor("letter-hunt", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordEvent,
+  recordSuccess,
+  recordMistake,
+  startSession,
+} = useGameSessionFor("letter-hunt", {
   maxSteps: 8,
-  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.44, distractors: "low", hints: "high", sound: true },
-  finishOnMistakes: false
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.55,
+    motionSpeed: 0.44,
+    distractors: "low",
+    hints: "high",
+    sound: true,
+  },
+  finishOnMistakes: false,
 });
 
 const activeLetters = reactive<FloatingLetter[]>([]);
@@ -48,10 +71,30 @@ const targetLetter = ref("А");
 const isSpeaking = ref(false);
 const resultVisible = computed(() => session.status === "finished");
 const promptText = computed(() => `Поймай букву ${targetLetter.value}`);
-const promptAudio = useGamePromptAudio({ gameId: "letter-hunt", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "letter-hunt",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 
 const roundLetters = ["А", "О", "М", "С", "К", "Р", "Т", "Л"];
-const distractorLetters = ["А", "О", "М", "С", "К", "Р", "Т", "Л", "Н", "П", "В", "Е", "И", "Б", "Д", "З"];
+const distractorLetters = [
+  "А",
+  "О",
+  "М",
+  "С",
+  "К",
+  "Р",
+  "Т",
+  "Л",
+  "Н",
+  "П",
+  "В",
+  "Е",
+  "И",
+  "Б",
+  "Д",
+  "З",
+];
 const letterHues = [205, 176, 36, 288, 12, 146, 224, 326];
 const mistakeGlowSeconds = 1.05;
 const correctGlowSeconds = 0.85;
@@ -63,7 +106,7 @@ const letterPromptIds: Record<string, string> = {
   К: "k",
   Р: "r",
   Т: "t",
-  Л: "l"
+  Л: "l",
 };
 
 let ctx: CanvasRenderingContext2D | undefined;
@@ -128,7 +171,9 @@ function targetForStep() {
 
 function pointIsFarEnough(point: Point, placed: Point[], radius: number) {
   const pixelPoint = percentToPixels(point);
-  return placed.every((placedPoint) => distance(pixelPoint, percentToPixels(placedPoint)) >= radius * 2.2);
+  return placed.every(
+    (placedPoint) => distance(pixelPoint, percentToPixels(placedPoint)) >= radius * 2.2,
+  );
 }
 
 function chooseLetterPoint(radius: number, placed: Point[]) {
@@ -136,7 +181,7 @@ function chooseLetterPoint(radius: number, placed: Point[]) {
     const slots = [
       { x: 20, y: 64 },
       { x: 50, y: 56 },
-      { x: 80, y: 64 }
+      { x: 80, y: 64 },
     ];
     return slots[placed.length % slots.length];
   }
@@ -146,7 +191,7 @@ function chooseLetterPoint(radius: number, placed: Point[]) {
       { x: 20, y: 64 },
       { x: 40, y: 56 },
       { x: 60, y: 56 },
-      { x: 80, y: 64 }
+      { x: 80, y: 64 },
     ];
     return slots[placed.length % slots.length];
   }
@@ -157,7 +202,7 @@ function chooseLetterPoint(radius: number, placed: Point[]) {
     hudHeight: Math.max(190, window.innerHeight * 0.24),
     sidePadding: Math.max(58, window.innerWidth * 0.08),
     bottomPadding: Math.max(72, window.innerHeight * 0.09),
-    attempts: 18
+    attempts: 18,
   });
 
   for (let attempt = 0; attempt < 26; attempt++) {
@@ -169,7 +214,7 @@ function chooseLetterPoint(radius: number, placed: Point[]) {
       bottomPadding: Math.max(72, window.innerHeight * 0.09),
       previous: placed[placed.length - 1],
       minDistance: Math.min(310, Math.max(170, radius * 1.9)),
-      attempts: 12
+      attempts: 12,
     });
     best = point;
     if (pointIsFarEnough(point, placed, radius)) return point;
@@ -196,14 +241,17 @@ function makeLetter(letter: string, point: Point, isTarget: boolean): FloatingLe
     dwellProgress: 0,
     feedback: "idle",
     feedbackAge: 0,
-    hue
+    hue,
   };
 }
 
 function roundChoices() {
   const target = targetForStep();
   const count = desiredLetterCount();
-  const distractors = shuffle(distractorLetters.filter((letter) => letter !== target)).slice(0, count - 1);
+  const distractors = shuffle(distractorLetters.filter((letter) => letter !== target)).slice(
+    0,
+    count - 1,
+  );
   return shuffle([target, ...distractors]);
 }
 
@@ -235,11 +283,16 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
-function targetPayload(letter: FloatingLetter, now: number, progress: number, reason?: "left" | "invalid-gaze" | "new-round") {
+function targetPayload(
+  letter: FloatingLetter,
+  now: number,
+  progress: number,
+  reason?: "left" | "invalid-gaze" | "new-round",
+) {
   return {
     targetId: letter.id,
     selectedLetter: letter.letter,
@@ -249,7 +302,7 @@ function targetPayload(letter: FloatingLetter, now: number, progress: number, re
     elapsedMs: letter.enteredAt === undefined ? 0 : now - letter.enteredAt,
     progress,
     pointer: copyPointer(),
-    reason
+    reason,
   };
 }
 
@@ -257,11 +310,15 @@ function letterPoint(letter: FloatingLetter) {
   const point = percentToPixels(letter);
   return {
     x: point.x + Math.sin(letter.age * 0.62 + letter.phase) * letter.radius * 0.08,
-    y: point.y + Math.cos(letter.age * 0.47 + letter.phase) * letter.radius * 0.06
+    y: point.y + Math.cos(letter.age * 0.47 + letter.phase) * letter.radius * 0.06,
   };
 }
 
-function cancelLetter(letter: FloatingLetter, now: number, reason: "left" | "invalid-gaze" | "new-round") {
+function cancelLetter(
+  letter: FloatingLetter,
+  now: number,
+  reason: "left" | "invalid-gaze" | "new-round",
+) {
   recordEvent("target-cancel", targetPayload(letter, now, letter.dwellProgress, reason));
   letter.enteredAt = undefined;
   letter.dwellProgress = 0;
@@ -297,7 +354,11 @@ function selectLetter(letter: FloatingLetter, now: number) {
   }
 
   void playLetterHuntMistakeMelody(session.settings.sound);
-  recordMistake({ targetId: letter.id, selectedLetter: letter.letter, targetLetter: targetLetter.value });
+  recordMistake({
+    targetId: letter.id,
+    selectedLetter: letter.letter,
+    targetLetter: targetLetter.value,
+  });
   letter.feedback = "mistake";
   letter.feedbackAge = 0;
   letter.dwellProgress = 0;
@@ -328,10 +389,10 @@ function keepLetterInBounds(letter: FloatingLetter) {
   const sidePadding = Math.max(50, window.innerWidth * 0.06);
   const topPadding = Math.max(188, window.innerHeight * 0.24);
   const bottomPadding = Math.max(64, window.innerHeight * 0.08);
-  const minX = (sidePadding + letter.radius) / window.innerWidth * 100;
-  const maxX = (window.innerWidth - sidePadding - letter.radius) / window.innerWidth * 100;
-  const minY = (topPadding + letter.radius) / window.innerHeight * 100;
-  const maxY = (window.innerHeight - bottomPadding - letter.radius) / window.innerHeight * 100;
+  const minX = ((sidePadding + letter.radius) / window.innerWidth) * 100;
+  const maxX = ((window.innerWidth - sidePadding - letter.radius) / window.innerWidth) * 100;
+  const minY = ((topPadding + letter.radius) / window.innerHeight) * 100;
+  const maxY = ((window.innerHeight - bottomPadding - letter.radius) / window.innerHeight) * 100;
 
   if (letter.x < minX || letter.x > maxX) {
     letter.x = Math.min(maxX, Math.max(minX, letter.x));
@@ -345,7 +406,9 @@ function keepLetterInBounds(letter: FloatingLetter) {
 
 function refreshMistakeLetter(letter: FloatingLetter) {
   const used = activeLetters.map((item) => item.letter);
-  const candidates = distractorLetters.filter((item) => item !== targetLetter.value && !used.includes(item));
+  const candidates = distractorLetters.filter(
+    (item) => item !== targetLetter.value && !used.includes(item),
+  );
   letter.letter = candidates[Math.floor(Math.random() * candidates.length)] ?? letter.letter;
   letter.feedback = "idle";
   letter.feedbackAge = 0;
@@ -373,14 +436,16 @@ function updateLetters(delta: number, now: number) {
 
     if (letter.feedback !== "idle") {
       letter.feedbackAge += delta;
-      if (letter.feedback === "mistake" && letter.feedbackAge >= mistakeGlowSeconds) refreshMistakeLetter(letter);
+      if (letter.feedback === "mistake" && letter.feedbackAge >= mistakeGlowSeconds)
+        refreshMistakeLetter(letter);
       continue;
     }
 
     if (session.status !== "running") continue;
     const inside = gazeLetter === letter;
     if (!inside) {
-      if (letter.enteredAt !== undefined) cancelLetter(letter, now, pointer.value.valid ? "left" : "invalid-gaze");
+      if (letter.enteredAt !== undefined)
+        cancelLetter(letter, now, pointer.value.valid ? "left" : "invalid-gaze");
       continue;
     }
 
@@ -404,7 +469,7 @@ function initClouds() {
       width: randomRange(120, 260),
       alpha: randomRange(0.12, 0.28),
       drift: randomRange(0.35, 0.75),
-      phase: randomRange(0, Math.PI * 2)
+      phase: randomRange(0, Math.PI * 2),
     });
   }
 }
@@ -431,24 +496,73 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
     context.globalAlpha = cloud.alpha;
     context.fillStyle = "#ffffff";
     context.beginPath();
-    context.ellipse(point.x, point.y + bob, cloud.width * 0.36, cloud.width * 0.13, 0, 0, Math.PI * 2);
-    context.ellipse(point.x - cloud.width * 0.22, point.y + bob + 3, cloud.width * 0.24, cloud.width * 0.1, 0, 0, Math.PI * 2);
-    context.ellipse(point.x + cloud.width * 0.24, point.y + bob + 1, cloud.width * 0.26, cloud.width * 0.11, 0, 0, Math.PI * 2);
+    context.ellipse(
+      point.x,
+      point.y + bob,
+      cloud.width * 0.36,
+      cloud.width * 0.13,
+      0,
+      0,
+      Math.PI * 2,
+    );
+    context.ellipse(
+      point.x - cloud.width * 0.22,
+      point.y + bob + 3,
+      cloud.width * 0.24,
+      cloud.width * 0.1,
+      0,
+      0,
+      Math.PI * 2,
+    );
+    context.ellipse(
+      point.x + cloud.width * 0.24,
+      point.y + bob + 1,
+      cloud.width * 0.26,
+      cloud.width * 0.11,
+      0,
+      0,
+      Math.PI * 2,
+    );
     context.fill();
   }
   context.restore();
 
   context.fillStyle = "rgb(113 174 119 / 22%)";
   context.beginPath();
-  context.ellipse(window.innerWidth * 0.28, window.innerHeight * 0.94, window.innerWidth * 0.5, window.innerHeight * 0.2, 0, 0, Math.PI * 2);
-  context.ellipse(window.innerWidth * 0.76, window.innerHeight * 0.93, window.innerWidth * 0.54, window.innerHeight * 0.22, 0, 0, Math.PI * 2);
+  context.ellipse(
+    window.innerWidth * 0.28,
+    window.innerHeight * 0.94,
+    window.innerWidth * 0.5,
+    window.innerHeight * 0.2,
+    0,
+    0,
+    Math.PI * 2,
+  );
+  context.ellipse(
+    window.innerWidth * 0.76,
+    window.innerHeight * 0.93,
+    window.innerWidth * 0.54,
+    window.innerHeight * 0.22,
+    0,
+    0,
+    Math.PI * 2,
+  );
   context.fill();
 }
 
 function drawLetter(context: CanvasRenderingContext2D, letter: FloatingLetter) {
   const point = letterPoint(letter);
-  const feedbackProgress = letter.feedback === "idle" ? 0 : Math.max(0, 1 - letter.feedbackAge / (letter.feedback === "correct" ? correctGlowSeconds : mistakeGlowSeconds));
-  const glowHue = letter.feedback === "correct" ? 142 : letter.feedback === "mistake" ? 38 : letter.hue;
+  const feedbackProgress =
+    letter.feedback === "idle"
+      ? 0
+      : Math.max(
+          0,
+          1 -
+            letter.feedbackAge /
+              (letter.feedback === "correct" ? correctGlowSeconds : mistakeGlowSeconds),
+        );
+  const glowHue =
+    letter.feedback === "correct" ? 142 : letter.feedback === "mistake" ? 38 : letter.hue;
   const radius = letter.radius * (1 + letter.dwellProgress * 0.04 + feedbackProgress * 0.08);
 
   context.save();
@@ -456,8 +570,18 @@ function drawLetter(context: CanvasRenderingContext2D, letter: FloatingLetter) {
   context.rotate(Math.sin(letter.age * 0.32 + letter.phase) * 0.035);
   context.translate(-point.x, -point.y);
 
-  const halo = context.createRadialGradient(point.x, point.y, 0, point.x, point.y, radius * (1.35 + letter.dwellProgress * 0.7 + feedbackProgress));
-  halo.addColorStop(0, `hsla(${glowHue}, 96%, 82%, ${0.16 + letter.dwellProgress * 0.18 + feedbackProgress * 0.18})`);
+  const halo = context.createRadialGradient(
+    point.x,
+    point.y,
+    0,
+    point.x,
+    point.y,
+    radius * (1.35 + letter.dwellProgress * 0.7 + feedbackProgress),
+  );
+  halo.addColorStop(
+    0,
+    `hsla(${glowHue}, 96%, 82%, ${0.16 + letter.dwellProgress * 0.18 + feedbackProgress * 0.18})`,
+  );
   halo.addColorStop(1, `hsla(${glowHue}, 90%, 70%, 0)`);
   context.fillStyle = halo;
   context.beginPath();
@@ -465,7 +589,12 @@ function drawLetter(context: CanvasRenderingContext2D, letter: FloatingLetter) {
   context.fill();
 
   context.fillStyle = "rgb(255 255 255 / 86%)";
-  context.strokeStyle = letter.feedback === "correct" ? "rgb(86 166 111 / 64%)" : letter.feedback === "mistake" ? "rgb(221 154 69 / 64%)" : "rgb(92 126 151 / 34%)";
+  context.strokeStyle =
+    letter.feedback === "correct"
+      ? "rgb(86 166 111 / 64%)"
+      : letter.feedback === "mistake"
+        ? "rgb(221 154 69 / 64%)"
+        : "rgb(92 126 151 / 34%)";
   context.lineWidth = Math.max(3, radius * 0.035);
   context.beginPath();
   context.roundRect(point.x - radius, point.y - radius, radius * 2, radius * 2, radius * 0.38);
@@ -483,7 +612,13 @@ function drawLetter(context: CanvasRenderingContext2D, letter: FloatingLetter) {
     context.lineWidth = Math.max(4, radius * 0.045);
     context.lineCap = "round";
     context.beginPath();
-    context.arc(point.x, point.y, radius * 1.12, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * letter.dwellProgress);
+    context.arc(
+      point.x,
+      point.y,
+      radius * 1.12,
+      -Math.PI / 2,
+      -Math.PI / 2 + Math.PI * 2 * letter.dwellProgress,
+    );
     context.stroke();
   }
 
@@ -496,7 +631,8 @@ function draw(context: CanvasRenderingContext2D, now: number) {
 }
 
 function tick(now: number) {
-  const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+  const delta =
+    session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
 
   if (session.status !== "paused") updateClouds(delta);
@@ -527,9 +663,12 @@ onMounted(async () => {
   frame = requestAnimationFrame(tick);
 });
 
-watch(() => session.settings.sound, (enabled) => {
-  warmLetterHuntAudio(enabled);
-});
+watch(
+  () => session.settings.sound,
+  (enabled) => {
+    warmLetterHuntAudio(enabled);
+  },
+);
 
 onUnmounted(() => {
   window.removeEventListener("resize", resizeCanvas);
@@ -602,7 +741,7 @@ onUnmounted(() => {
 }
 
 @media (max-width: 43.75rem) {
- .letter-hunt-prompt {
+  .letter-hunt-prompt {
     top: 9.5rem;
   }
 }

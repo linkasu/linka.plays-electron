@@ -45,7 +45,14 @@ function createSequenceRandom(values: number[]) {
 
 describe("generateColorPatternRound", () => {
   it("uses only six well-distinguished colors", () => {
-    expect(colorPatternColors.map((color) => color.id)).toEqual(["red", "blue", "green", "yellow", "purple", "orange"]);
+    expect(colorPatternColors.map((color) => color.id)).toEqual([
+      "red",
+      "blue",
+      "green",
+      "yellow",
+      "purple",
+      "orange",
+    ]);
     expect(new Set(colorPatternColors.map((color) => color.hex)).size).toBe(6);
   });
 
@@ -70,7 +77,11 @@ describe("generateColorPatternRound", () => {
       expect(new Set(choiceIds).size).toBe(4);
       expect(choiceIds).toContain(round.answer.id);
       expect(round.choices[round.correctIndex]).toBe(round.answer);
-      expect([...round.sequence, round.answer, ...round.choices].every((color) => colorPatternColors.includes(color))).toBe(true);
+      expect(
+        [...round.sequence, round.answer, ...round.choices].every((color) =>
+          colorPatternColors.includes(color),
+        ),
+      ).toBe(true);
     }
   });
 
@@ -95,7 +106,9 @@ describe("generateColorPatternRound", () => {
     const first = generateColorPatternRound(settings, 2, createSequenceRandom(values));
     const second = generateColorPatternRound(settings, 2, createSequenceRandom(values));
 
-    expect(first.sequence.map((color) => color.id)).toEqual(second.sequence.map((color) => color.id));
+    expect(first.sequence.map((color) => color.id)).toEqual(
+      second.sequence.map((color) => color.id),
+    );
     expect(first.answer.id).toBe(second.answer.id);
     expect(first.choices.map((color) => color.id)).toEqual(second.choices.map((color) => color.id));
   });

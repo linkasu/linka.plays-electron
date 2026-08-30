@@ -2,7 +2,8 @@ import type { SessionSettings } from "../../core/settings";
 import { shuffleItems } from "../../core/random";
 
 export type CalendarTaskKind = "weekday" | "relative";
-export type CalendarWeekdayId = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
+export type CalendarWeekdayId =
+  "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
 export type CalendarRelativeId = "yesterday" | "today" | "tomorrow";
 
 export type CalendarWeekday = {
@@ -52,16 +53,33 @@ export const calendarWeekdays: CalendarWeekday[] = [
   { id: "thursday", label: "Четверг", shortLabel: "Чт" },
   { id: "friday", label: "Пятница", shortLabel: "Пт" },
   { id: "saturday", label: "Суббота", shortLabel: "Сб" },
-  { id: "sunday", label: "Воскресенье", shortLabel: "Вс" }
+  { id: "sunday", label: "Воскресенье", shortLabel: "Вс" },
 ];
 
 export const calendarRelativeDays: CalendarRelativeDay[] = [
-  { id: "yesterday", label: "Вчера", offset: -1, questionText: "был вчера", icon: "mdi-calendar-arrow-left" },
+  {
+    id: "yesterday",
+    label: "Вчера",
+    offset: -1,
+    questionText: "был вчера",
+    icon: "mdi-calendar-arrow-left",
+  },
   { id: "today", label: "Сегодня", offset: 0, questionText: "сегодня", icon: "mdi-calendar-today" },
-  { id: "tomorrow", label: "Завтра", offset: 1, questionText: "будет завтра", icon: "mdi-calendar-arrow-right" }
+  {
+    id: "tomorrow",
+    label: "Завтра",
+    offset: 1,
+    questionText: "будет завтра",
+    icon: "mdi-calendar-arrow-right",
+  },
 ];
 
-const weekdayChoiceColors = ["blue-lighten-5", "green-lighten-5", "amber-lighten-5", "purple-lighten-5"];
+const weekdayChoiceColors = [
+  "blue-lighten-5",
+  "green-lighten-5",
+  "amber-lighten-5",
+  "purple-lighten-5",
+];
 
 export function wrapWeekdayIndex(index: number) {
   return ((index % calendarWeekdays.length) + calendarWeekdays.length) % calendarWeekdays.length;
@@ -89,7 +107,7 @@ function createWeekdayChoice(day: CalendarWeekday, index: number): CalendarChoic
     sublabel: day.shortLabel,
     icon: "mdi-calendar-check",
     color: weekdayChoiceColors[index % weekdayChoiceColors.length],
-    weekdayId: day.id
+    weekdayId: day.id,
   };
 }
 
@@ -100,13 +118,22 @@ function createRelativeChoice(todayIndex: number, relative: CalendarRelativeDay)
     label: relative.label,
     sublabel: day.label,
     icon: relative.icon,
-    color: relative.id === "today" ? "green-lighten-5" : relative.id === "tomorrow" ? "blue-lighten-5" : "amber-lighten-5",
+    color:
+      relative.id === "today"
+        ? "green-lighten-5"
+        : relative.id === "tomorrow"
+          ? "blue-lighten-5"
+          : "amber-lighten-5",
     weekdayId: day.id,
-    relativeId: relative.id
+    relativeId: relative.id,
   };
 }
 
-function generateWeekdayChoices(settings: SessionSettings, targetIndex: number, random: () => number) {
+function generateWeekdayChoices(
+  settings: SessionSettings,
+  targetIndex: number,
+  random: () => number,
+) {
   const selected = new Set<number>([wrapWeekdayIndex(targetIndex)]);
   const offsets = [-1, 1, -2, 2, -3, 3];
 
@@ -115,10 +142,19 @@ function generateWeekdayChoices(settings: SessionSettings, targetIndex: number, 
     selected.add(wrapWeekdayIndex(targetIndex + offset));
   }
 
-  return shuffleItems([...selected].map((index, choiceIndex) => createWeekdayChoice(calendarWeekdays[index], choiceIndex)), random);
+  return shuffleItems(
+    [...selected].map((index, choiceIndex) =>
+      createWeekdayChoice(calendarWeekdays[index], choiceIndex),
+    ),
+    random,
+  );
 }
 
-export function generateCalendarRound(settings: SessionSettings, roundIndex = 1, random = Math.random): CalendarRound {
+export function generateCalendarRound(
+  settings: SessionSettings,
+  roundIndex = 1,
+  random = Math.random,
+): CalendarRound {
   const startOffset = settings.preset === "gentle" ? 0 : 2;
   const todayIndex = wrapWeekdayIndex(roundIndex + startOffset - 1);
   const today = calendarWeekdays[todayIndex];
@@ -128,7 +164,10 @@ export function generateCalendarRound(settings: SessionSettings, roundIndex = 1,
   const promptId = `${taskKind}.${today.id}.${targetRelative.id}`;
 
   if (taskKind === "relative") {
-    const choices = shuffleItems(calendarRelativeDays.map((relative) => createRelativeChoice(todayIndex, relative)), random);
+    const choices = shuffleItems(
+      calendarRelativeDays.map((relative) => createRelativeChoice(todayIndex, relative)),
+      random,
+    );
     const correctChoiceId = `relative:${targetRelative.id}`;
 
     return {
@@ -144,7 +183,7 @@ export function generateCalendarRound(settings: SessionSettings, roundIndex = 1,
       correctIndex: choices.findIndex((choice) => choice.id === correctChoiceId),
       today,
       targetDay,
-      targetRelative
+      targetRelative,
     };
   }
 
@@ -165,6 +204,6 @@ export function generateCalendarRound(settings: SessionSettings, roundIndex = 1,
     correctIndex: choices.findIndex((choice) => choice.id === correctChoiceId),
     today,
     targetDay,
-    targetRelative
+    targetRelative,
   };
 }

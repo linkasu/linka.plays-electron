@@ -11,16 +11,36 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import SunRaysCanvas from "./SunRaysCanvas.vue";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSessionFor("sun-rays", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("sun-rays", {
   maxSteps: 8,
-  overrides: { preset: "gentle", dwellMs: 1400, sessionSeconds: 80, targetScale: 1.7, motionSpeed: 0.35, distractors: "none", hints: "high", sound: true },
-  finishOnMistakes: false
+  overrides: {
+    preset: "gentle",
+    dwellMs: 1400,
+    sessionSeconds: 80,
+    targetScale: 1.7,
+    motionSpeed: 0.35,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
+  finishOnMistakes: false,
 });
 useStartPromptAudio({ gameId: "sun-rays", soundEnabled: toRef(session.settings, "sound") });
 
 const resultVisible = computed(() => session.status === "finished");
 const targetId = computed(() => `sun-rays:sun:${Math.min(session.step + 1, session.maxSteps)}`);
-const raysLabel = computed(() => `${Math.min(session.step, session.maxSteps)} из ${session.maxSteps}`);
+const raysLabel = computed(
+  () => `${Math.min(session.step, session.maxSteps)} из ${session.maxSteps}`,
+);
 const feedback = useStandardGameFeedback(toRef(session.settings, "sound"));
 
 function sunText(active: boolean, progress: number) {
@@ -34,7 +54,7 @@ function selectSun() {
   void feedback.playSuccess();
   recordSuccess({
     targetId: targetId.value,
-    label: `Луч ${session.step + 1}`
+    label: `Луч ${session.step + 1}`,
   });
 }
 
@@ -63,7 +83,9 @@ function restart() {
         <div class="text-center mb-4 mb-md-6 sun-rays-copy">
           <div class="text-overline text-amber-darken-2">первая фиксация</div>
           <h1 class="text-h4 text-sm-h3 font-weight-bold">Открой лучи солнца</h1>
-          <p class="text-body-1 text-sm-h6 text-medium-emphasis mb-0">Смотри в центр. Если взгляд ушёл, солнце просто подождёт.</p>
+          <p class="text-body-1 text-sm-h6 text-medium-emphasis mb-0">
+            Смотри в центр. Если взгляд ушёл, солнце просто подождёт.
+          </p>
         </div>
 
         <GameDwellButton
@@ -87,9 +109,16 @@ function restart() {
           </template>
         </GameDwellButton>
 
-        <v-card class="sun-rays-note mt-5 mx-auto px-4 py-3" color="amber-lighten-5" rounded="xl" variant="tonal">
+        <v-card
+          class="sun-rays-note mt-5 mx-auto px-4 py-3"
+          color="amber-lighten-5"
+          rounded="xl"
+          variant="tonal"
+        >
           <div class="text-body-2 font-weight-medium">Открыто лучей: {{ raysLabel }}</div>
-          <div class="text-caption text-medium-emphasis">Уход взгляда не считается ошибкой, прогресс начнётся заново.</div>
+          <div class="text-caption text-medium-emphasis">
+            Уход взгляда не считается ошибкой, прогресс начнётся заново.
+          </div>
         </v-card>
       </v-card>
     </v-container>
@@ -110,7 +139,13 @@ function restart() {
 
 <style scoped>
 .sun-rays-shell {
-  background: radial-gradient(circle at 50% 34%, #fff4ba 0%, #ffe4a3 26%, #f6c98f 56%, #c7dff1 100%);
+  background: radial-gradient(
+    circle at 50% 34%,
+    #fff4ba 0%,
+    #ffe4a3 26%,
+    #f6c98f 56%,
+    #c7dff1 100%
+  );
   min-block-size: 100dvh;
   overflow: hidden;
 }

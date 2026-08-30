@@ -3,17 +3,42 @@ import { app } from "electron";
 import { rm } from "fs/promises";
 import { release } from "os";
 import { join } from "path";
-import { PublicInstallationIdentityClient, TelemetryDeniedError, type TelemetryRequest } from "./identity";
+import {
+  PublicInstallationIdentityClient,
+  TelemetryDeniedError,
+  type TelemetryRequest,
+} from "./identity";
 import { isTelemetryEnabled, retryDelayMs } from "./policy";
-import { sanitizeRendererSessionSummary, sanitizeRendererTelemetryEvent, toStoredGameSummary } from "./sanitizer";
+import {
+  sanitizeRendererSessionSummary,
+  sanitizeRendererTelemetryEvent,
+  toStoredGameSummary,
+} from "./sanitizer";
 import { FileTelemetrySpool } from "./spool";
-import type { AppMetadata, SanitizedRendererEvent, StoredSessionSummary, StoredTelemetryEvent, TelemetryEventName } from "./types";
+import type {
+  AppMetadata,
+  SanitizedRendererEvent,
+  StoredSessionSummary,
+  StoredTelemetryEvent,
+  TelemetryEventName,
+} from "./types";
 import { shouldQueueV2Event } from "./v2";
 
 const defaultMetricsEndpoint = "https://metrics.nkolinka.ru";
 const defaultIdentityEndpoint = "https://api.identity.linka.su";
 const defaultPolicyVersion = "2026-07-19-v3";
-const lowPriorityEvents = new Set<TelemetryEventName>(["level_entered", "level_cancelled", "level_clicked", "target_entered", "target_cancelled", "target_clicked", "success", "mistake", "hint_used", "difficulty_changed"]);
+const lowPriorityEvents = new Set<TelemetryEventName>([
+  "level_entered",
+  "level_cancelled",
+  "level_clicked",
+  "target_entered",
+  "target_cancelled",
+  "target_clicked",
+  "success",
+  "mistake",
+  "hint_used",
+  "difficulty_changed",
+]);
 
 type ActiveGameSession = {
   id: string;
@@ -78,7 +103,12 @@ export class MetricsTelemetry {
   constructor(private readonly options: TelemetryOptions) {
     this.telemetryDirectory = join(options.userDataPath, "telemetry-v1");
     this.spool = new FileTelemetrySpool(join(this.telemetryDirectory, "spool"));
-    this.identityClient = new PublicInstallationIdentityClient({ directory: this.telemetryDirectory, endpoint: options.identityEndpoint, platform: options.appMetadata.platform, policyVersion: options.policyVersion });
+    this.identityClient = new PublicInstallationIdentityClient({
+      directory: this.telemetryDirectory,
+      endpoint: options.identityEndpoint,
+      platform: options.appMetadata.platform,
+      policyVersion: options.policyVersion,
+    });
   }
 
   async initialize() {
@@ -100,38 +130,61 @@ export class MetricsTelemetry {
     if (!this.acceptsEvents()) return false;
     const sanitized = sanitizeRendererTelemetryEvent(input);
     if (!sanitized) return false;
-    if (sanitized.game_session_id && this.summarizedSessions.has(sanitized.game_session_id)) return true;
+    if (sanitized.game_session_id && this.summarizedSessions.has(sanitized.game_session_id))
+      return true;
     this.trackGameEvent(sanitized);
-    if (sanitized.event_name === "target_cancelled" && sanitized.properties.reason === "disabled") return true;
-    void this.enqueueEvent(sanitized.event_name, this.enrichGameProperties(sanitized), sanitized.game_session_id).catch(() => undefined);
+    if (sanitized.event_name === "target_cancelled" && sanitized.properties.reason === "disabled")
+      return true;
+    void this.enqueueEvent(
+      sanitized.event_name,
+      this.enrichGameProperties(sanitized),
+      sanitized.game_session_id,
+    ).catch(() => undefined);
     return true;
   }
 
   recordRendererSummary(input: unknown) {
     if (!this.acceptsEvents()) return false;
     const sanitized = sanitizeRendererSessionSummary(input);
-    if (!sanitized || this.summarizedSessions.has(sanitized.gameSessionId)) return Boolean(sanitized);
+    if (!sanitized || this.summarizedSessions.has(sanitized.gameSessionId))
+      return Boolean(sanitized);
     const finalization = this.sessionFinalization.then(async () => {
       if (!this.acceptsEvents()) return;
       if (this.summarizedSessions.has(sanitized.gameSessionId)) return;
-      await this.enqueueSummary(toStoredGameSummary(sanitized, this.appSessionId, this.options.appMetadata));
+      await this.enqueueSummary(
+        toStoredGameSummary(sanitized, this.appSessionId, this.options.appMetadata),
+      );
       this.markSummarized(sanitized.gameSessionId);
       this.activeSessions.delete(sanitized.gameSessionId);
     });
-    this.sessionFinalization = finalization.then(() => undefined, () => undefined);
+    this.sessionFinalization = finalization.then(
+      () => undefined,
+      () => undefined,
+    );
     void finalization.catch(() => undefined);
     return true;
   }
 
-  async recordInternalEvent(eventName: TelemetryEventName, properties: Record<string, unknown>, gameSessionId?: string) {
+  async recordInternalEvent(
+    eventName: TelemetryEventName,
+    properties: Record<string, unknown>,
+    gameSessionId?: string,
+  ) {
     if (!this.acceptsEvents()) return;
     await this.enqueueEvent(eventName, properties, gameSessionId);
   }
 
-  recordUpdaterState(state: "idle" | "checking" | "available" | "downloading" | "downloaded" | "installing" | "error", version?: string) {
+  recordUpdaterState(
+    state:
+      "idle" | "checking" | "available" | "downloading" | "downloaded" | "installing" | "error",
+    version?: string,
+  ) {
     if (!this.acceptsEvents() || this.lastUpdaterState === state) return;
     this.lastUpdaterState = state;
-    void this.recordInternalEvent("updater_state_changed", { state, ...(version ? { version: safeValue(version) } : {}) }).catch(() => undefined);
+    void this.recordInternalEvent("updater_state_changed", {
+      state,
+      ...(version ? { version: safeValue(version) } : {}),
+    }).catch(() => undefined);
   }
 
   setAppForeground(foreground: boolean) {
@@ -152,23 +205,36 @@ export class MetricsTelemetry {
     if (!this.acceptsEvents()) return;
     const constructorName = normalizeErrorConstructor(error);
     const fingerprint = `sha256:${createHash("sha256").update(`${component}:${constructorName}`).digest("hex")}`;
-    void this.recordInternalEvent("error", { fingerprint, component: safeValue(component) }).catch(() => undefined);
+    void this.recordInternalEvent("error", { fingerprint, component: safeValue(component) }).catch(
+      () => undefined,
+    );
   }
 
-  interruptActiveSessions(reason: "route-leave" | "window-close" | "app-quit" | "update-restart" | "renderer-crash") {
+  interruptActiveSessions(
+    reason: "route-leave" | "window-close" | "app-quit" | "update-restart" | "renderer-crash",
+  ) {
     if (!this.isActive()) return Promise.resolve();
     const finalization = this.sessionFinalization.then(() => this.finalizeActiveSessions(reason));
-    this.sessionFinalization = finalization.then(() => undefined, () => undefined);
+    this.sessionFinalization = finalization.then(
+      () => undefined,
+      () => undefined,
+    );
     return finalization;
   }
 
-  private async finalizeActiveSessions(reason: "route-leave" | "window-close" | "app-quit" | "update-restart" | "renderer-crash") {
+  private async finalizeActiveSessions(
+    reason: "route-leave" | "window-close" | "app-quit" | "update-restart" | "renderer-crash",
+  ) {
     for (const session of [...this.activeSessions.values()]) {
       if (!session.endedAt) {
         session.endedAt = new Date().toISOString();
         session.interruptionReason = reason;
         session.result = "interrupted";
-        await this.enqueueEvent("game_session_interrupted", { game_id: session.gameId, reason }, session.id);
+        await this.enqueueEvent(
+          "game_session_interrupted",
+          { game_id: session.gameId, reason },
+          session.id,
+        );
       }
       await this.enqueueSummary(this.createSyntheticSummary(session));
       this.markSummarized(session.id);
@@ -202,7 +268,9 @@ export class MetricsTelemetry {
     await this.sessionFinalization.catch(() => undefined);
     await this.flushPromise?.catch(() => undefined);
     await this.spool.clear();
-    const denied = await this.identityClient.deny((input, init) => this.requestJSON(input, init)).catch(() => false);
+    const denied = await this.identityClient
+      .deny((input, init) => this.requestJSON(input, init))
+      .catch(() => false);
     if (!denied) throw new Error("telemetry denial was not delivered");
     await rm(this.telemetryDirectory, { recursive: true, force: true });
   }
@@ -217,7 +285,11 @@ export class MetricsTelemetry {
     this.flushTimer = undefined;
   }
 
-  private async enqueueEvent(eventName: TelemetryEventName, properties: Record<string, unknown>, gameSessionId?: string) {
+  private async enqueueEvent(
+    eventName: TelemetryEventName,
+    properties: Record<string, unknown>,
+    gameSessionId?: string,
+  ) {
     if (!shouldQueueV2Event(eventName)) return;
     const payload: StoredTelemetryEvent = {
       event_id: randomUUID(),
@@ -226,27 +298,34 @@ export class MetricsTelemetry {
       app_session_id: this.appSessionId,
       ...(gameSessionId ? { game_session_id: gameSessionId } : {}),
       app: this.options.appMetadata,
-      properties
+      properties,
     };
     await this.spool.enqueue({
       id: payload.event_id,
       createdAt: Date.now(),
       kind: "event",
       priority: lowPriorityEvents.has(eventName) ? "low" : "normal",
-      payload
+      payload,
     });
     if (!this.shuttingDown) this.requestFlush(0);
   }
 
   private async enqueueSummary(payload: StoredSessionSummary) {
-    await this.spool.enqueue({ id: payload.session_id, createdAt: Date.now(), kind: "summary", priority: "summary", payload });
+    await this.spool.enqueue({
+      id: payload.session_id,
+      createdAt: Date.now(),
+      kind: "summary",
+      priority: "summary",
+      payload,
+    });
     if (!this.shuttingDown) this.requestFlush(0);
   }
 
   private requestFlush(delay: number) {
     if (!this.acceptsEvents()) return;
     if (this.flushPromise) {
-      this.pendingFlushDelay = this.pendingFlushDelay === undefined ? delay : Math.min(this.pendingFlushDelay, delay);
+      this.pendingFlushDelay =
+        this.pendingFlushDelay === undefined ? delay : Math.min(this.pendingFlushDelay, delay);
       return;
     }
     if (this.flushTimer) return;
@@ -269,7 +348,9 @@ export class MetricsTelemetry {
     if (this.flushInProgress || !this.acceptsEvents()) return;
     this.flushInProgress = true;
     try {
-      const identity = await this.identityClient.getAccess((input, init) => this.requestJSON(input, init));
+      const identity = await this.identityClient.getAccess((input, init) =>
+        this.requestJSON(input, init),
+      );
       if (!this.acceptsEvents()) return;
       const batch = await this.spool.getBatch(identity.installationKey, this.batchRecordLimit);
       if (!this.acceptsEvents()) return;
@@ -278,14 +359,22 @@ export class MetricsTelemetry {
         this.retryAttempt = 0;
         return;
       }
-      const response = await this.requestWithTimeout(endpointURL(this.options.metricsEndpoint, "/v2/batches"), {
-        method: "POST",
-        headers: { "content-type": "application/json", authorization: `Bearer ${identity.accessToken!.token}`, "idempotency-key": batch.batchId },
-        body: batch.body
-      }, async (result) => {
-        const body = await readJSON(result);
-        return { ok: result.ok, status: result.status, body };
-      });
+      const response = await this.requestWithTimeout(
+        endpointURL(this.options.metricsEndpoint, "/v2/batches"),
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "authorization": `Bearer ${identity.accessToken!.token}`,
+            "idempotency-key": batch.batchId,
+          },
+          body: batch.body,
+        },
+        async (result) => {
+          const body = await readJSON(result);
+          return { ok: result.ok, status: result.status, body };
+        },
+      );
       if (!this.acceptsEvents()) return;
       if (response.status === 401) {
         await this.identityClient.invalidateAccess();
@@ -293,7 +382,8 @@ export class MetricsTelemetry {
         this.requestFlush(0);
         return;
       }
-      if (response.status === 403 && isErrorCode(response.body, "telemetry_suppressed")) throw new TelemetryDeniedError();
+      if (response.status === 403 && isErrorCode(response.body, "telemetry_suppressed"))
+        throw new TelemetryDeniedError();
       if (response.status === 413) {
         if (batch.recordCount > 1) {
           this.batchRecordLimit = Math.max(1, Math.floor(batch.recordCount / 2));
@@ -304,7 +394,11 @@ export class MetricsTelemetry {
         }
         throw new Error("single-record metrics batch rejected as too large");
       }
-      if (response.status !== 202 || !isBatchAcknowledgement(response.body, batch.batchId, batch.recordCount)) throw new Error("metrics batch rejected");
+      if (
+        response.status !== 202 ||
+        !isBatchAcknowledgement(response.body, batch.batchId, batch.recordCount)
+      )
+        throw new Error("metrics batch rejected");
       await this.spool.acknowledge(batch.files);
       await this.enqueueDroppedNotice();
       this.batchRecordLimit = 500;
@@ -325,10 +419,18 @@ export class MetricsTelemetry {
   }
 
   private requestJSON(input: string, init: RequestInit) {
-    return this.requestWithTimeout(input, init, async (response) => ({ ok: response.ok, status: response.status, body: await readJSON(response) }));
+    return this.requestWithTimeout(input, init, async (response) => ({
+      ok: response.ok,
+      status: response.status,
+      body: await readJSON(response),
+    }));
   }
 
-  private async requestWithTimeout<Result>(input: string, init: RequestInit, consume: (response: Response) => Promise<Result>) {
+  private async requestWithTimeout<Result>(
+    input: string,
+    init: RequestInit,
+    consume: (response: Response) => Promise<Result>,
+  ) {
     const controller = new AbortController();
     this.requestController = controller;
     const timeout = setTimeout(() => controller.abort(), 15_000);
@@ -336,7 +438,8 @@ export class MetricsTelemetry {
     const aborted = new Promise<never>((_resolve, reject) => {
       controller.signal.addEventListener("abort", () => reject(abortError()), { once: true });
     });
-    const operation = (async () => consume(await fetch(input, { ...init, signal: controller.signal })))();
+    const operation = (async () =>
+      consume(await fetch(input, { ...init, signal: controller.signal })))();
     void operation.catch(() => undefined);
     try {
       return await Promise.race([operation, aborted]);
@@ -362,7 +465,12 @@ export class MetricsTelemetry {
   private trackGameEvent(event: SanitizedRendererEvent) {
     const id = event.game_session_id;
     const properties = event.properties;
-    if (event.event_name === "settings_changed" && properties.setting_key === "dwell_ms" && typeof properties.number === "number") this.configuredDwellMs = properties.number;
+    if (
+      event.event_name === "settings_changed" &&
+      properties.setting_key === "dwell_ms" &&
+      typeof properties.number === "number"
+    )
+      this.configuredDwellMs = properties.number;
     if (!id) return;
     if (event.event_name === "game_session_started") {
       this.activeSessions.set(id, {
@@ -382,7 +490,7 @@ export class MetricsTelemetry {
         inputMethods: new Set(),
         dwellTotalMs: 0,
         dwellCount: 0,
-        configuredDwellMs: this.configuredDwellMs
+        configuredDwellMs: this.configuredDwellMs,
       });
       return;
     }
@@ -402,9 +510,14 @@ export class MetricsTelemetry {
     }
     if (event.event_name === "mistake") session.mistakes += 1;
     if (event.event_name === "hint_used") session.hints += 1;
-    if (event.event_name === "target_cancelled" && properties.reason !== "disabled") session.targetCancels += 1;
+    if (event.event_name === "target_cancelled" && properties.reason !== "disabled")
+      session.targetCancels += 1;
     if (event.event_name === "difficulty_changed") session.difficultyChanges += 1;
-    if (event.event_name === "target_clicked" && properties.input_method === "gaze" && typeof properties.elapsed_ms === "number") {
+    if (
+      event.event_name === "target_clicked" &&
+      properties.input_method === "gaze" &&
+      typeof properties.elapsed_ms === "number"
+    ) {
       session.dwellTotalMs += properties.elapsed_ms;
       session.dwellCount += 1;
     }
@@ -428,13 +541,18 @@ export class MetricsTelemetry {
     return {
       ...event.properties,
       game_category: event.properties.game_category ?? session.category,
-      input_method: event.properties.input_method ?? (methods.length > 1 ? "mixed" : methods[0] ?? "unknown")
+      input_method:
+        event.properties.input_method ?? (methods.length > 1 ? "mixed" : (methods[0] ?? "unknown")),
     };
   }
 
   private createSyntheticSummary(session: ActiveGameSession): StoredSessionSummary {
-    const endedAt = Math.max(session.startedAtMs, session.endedAt ? Date.parse(session.endedAt) : Date.now());
-    const pausedMs = session.pausedMs + (session.pausedAtMs ? Math.max(0, endedAt - session.pausedAtMs) : 0);
+    const endedAt = Math.max(
+      session.startedAtMs,
+      session.endedAt ? Date.parse(session.endedAt) : Date.now(),
+    );
+    const pausedMs =
+      session.pausedMs + (session.pausedAtMs ? Math.max(0, endedAt - session.pausedAtMs) : 0);
     const inputMethods = [...session.inputMethods];
     return {
       session_id: session.id,
@@ -460,13 +578,14 @@ export class MetricsTelemetry {
       configured_dwell_ms: session.configuredDwellMs,
       result: session.result,
       interruption_reason: session.interruptionReason,
-      app: this.options.appMetadata
+      app: this.options.appMetadata,
     };
   }
 
   private markSummarized(id: string) {
     this.summarizedSessions.add(id);
-    if (this.summarizedSessions.size > 1000) this.summarizedSessions.delete(this.summarizedSessions.values().next().value!);
+    if (this.summarizedSessions.size > 1000)
+      this.summarizedSessions.delete(this.summarizedSessions.values().next().value!);
   }
 
   private isActive() {
@@ -478,13 +597,21 @@ export class MetricsTelemetry {
   }
 }
 
-export async function clearMetricsTelemetryData(userDataPath: string, preference: "unknown" | "disabled" = "unknown") {
+export async function clearMetricsTelemetryData(
+  userDataPath: string,
+  preference: "unknown" | "disabled" = "unknown",
+) {
   const directory = join(userDataPath, "telemetry-v1");
   if (preference === "unknown") {
     await rm(directory, { recursive: true, force: true });
     return;
   }
-  const identity = new PublicInstallationIdentityClient({ directory, endpoint: process.env.LINKA_IDENTITY_URL ?? defaultIdentityEndpoint, platform: currentPlatform(), policyVersion: defaultPolicyVersion });
+  const identity = new PublicInstallationIdentityClient({
+    directory,
+    endpoint: process.env.LINKA_IDENTITY_URL ?? defaultIdentityEndpoint,
+    platform: currentPlatform(),
+    policyVersion: defaultPolicyVersion,
+  });
   await rm(join(directory, "spool"), { recursive: true, force: true });
   const denied = await identity.deny(standaloneJSONRequest).catch(() => false);
   if (!denied) throw new Error("telemetry denial was not delivered");
@@ -505,14 +632,15 @@ export function createMetricsTelemetry() {
       build: version,
       platform,
       os_version: safeValue(release()),
-      locale: normalizeLocale(app.getLocale())
-    }
+      locale: normalizeLocale(app.getLocale()),
+    },
   });
 }
 
 function endpointURL(base: string, path: string) {
   const url = new URL(base);
-  if (!oneOf(url.protocol, "https:", "http:") || url.username || url.password) throw new Error("invalid metrics endpoint");
+  if (!oneOf(url.protocol, "https:", "http:") || url.username || url.password)
+    throw new Error("invalid metrics endpoint");
   url.pathname = `${url.pathname.replace(/\/$/, "")}${path}`;
   url.search = "";
   url.hash = "";
@@ -520,7 +648,10 @@ function endpointURL(base: string, path: string) {
 }
 
 function safeValue(value: string) {
-  const normalized = value.replace(/[^A-Za-z0-9._:+-]+/g, "-").replace(/^[^A-Za-z0-9]+/, "").slice(0, 96);
+  const normalized = value
+    .replace(/[^A-Za-z0-9._:+-]+/g, "-")
+    .replace(/^[^A-Za-z0-9]+/, "")
+    .slice(0, 96);
   return normalized || "unknown";
 }
 
@@ -547,20 +678,39 @@ function abortError() {
 }
 
 function currentPlatform(): AppMetadata["platform"] {
-  return process.platform === "win32" ? "windows" : process.platform === "darwin" ? "macos" : "linux";
+  return process.platform === "win32"
+    ? "windows"
+    : process.platform === "darwin"
+      ? "macos"
+      : "linux";
 }
 
 function normalizeLocale(locale: string) {
-  return locale === "ru" || locale === "ru-RU" || locale === "en" || locale === "en-US" ? locale : "other";
+  return locale === "ru" || locale === "ru-RU" || locale === "en" || locale === "en-US"
+    ? locale
+    : "other";
 }
 
 function isErrorCode(value: unknown, code: string) {
-  return typeof value === "object" && value !== null && "error" in value && (value as { error?: unknown }).error === code;
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "error" in value &&
+    (value as { error?: unknown }).error === code
+  );
 }
 
 function isBatchAcknowledgement(value: unknown, batchId: string, recordCount: number) {
-  return typeof value === "object" && value !== null && "batch_id" in value && "accepted_records" in value && "replayed" in value &&
-    (value as { batch_id?: unknown }).batch_id === batchId && (value as { accepted_records?: unknown }).accepted_records === recordCount && typeof (value as { replayed?: unknown }).replayed === "boolean";
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "batch_id" in value &&
+    "accepted_records" in value &&
+    "replayed" in value &&
+    (value as { batch_id?: unknown }).batch_id === batchId &&
+    (value as { accepted_records?: unknown }).accepted_records === recordCount &&
+    typeof (value as { replayed?: unknown }).replayed === "boolean"
+  );
 }
 
 async function readJSON(response: Response) {

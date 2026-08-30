@@ -9,20 +9,41 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useGameTimers } from "../../composables/useGameTimers";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { disposeBuildRobotAudio, playBuildRobotMistakeMelody, playBuildRobotSuccessMelody, warmBuildRobotAudio } from "./audio";
+import {
+  disposeBuildRobotAudio,
+  playBuildRobotMistakeMelody,
+  playBuildRobotSuccessMelody,
+  warmBuildRobotAudio,
+} from "./audio";
 import { generateBuildRobotRound, type RobotPart, type RobotPartId } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("build-robot", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  recordHint,
+  startSession,
+} = useGameSessionFor("build-robot", {
   maxSteps: 8,
   overrides: { sound: true },
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 
-const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRounds,
+} = useRoundGame({
   session,
   startSession,
-  generateRound: generateBuildRobotRound
+  generateRound: generateBuildRobotRound,
 });
 
 const hintedRoundId = ref<string>();
@@ -30,7 +51,10 @@ const lastMistakePartId = ref<RobotPartId>();
 const successPartId = ref<RobotPartId>();
 const pendingSelection = ref(false);
 const isSpeaking = ref(false);
-const promptAudio = useGamePromptAudio({ gameId: "build-robot", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "build-robot",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 const { setGameTimeout, clearGameTimers } = useGameTimers();
 
 const feedbackText = computed(() => {
@@ -38,11 +62,20 @@ const feedbackText = computed(() => {
   if (hintedRoundId.value === round.value.roundId) return "Почти. Посмотри на детали ещё раз.";
   return round.value.prompt;
 });
-const partById = computed(() => Object.fromEntries(round.value.choices.map((part) => [part.id, part])) as Record<RobotPartId, RobotPart>);
-const displayedPartIds = computed(() => new Set<RobotPartId>([
- ...round.value.completedPartIds,
- ...(successPartId.value ? [successPartId.value] : [])
-]));
+const partById = computed(
+  () =>
+    Object.fromEntries(round.value.choices.map((part) => [part.id, part])) as Record<
+      RobotPartId,
+      RobotPart
+    >,
+);
+const displayedPartIds = computed(
+  () =>
+    new Set<RobotPartId>([
+      ...round.value.completedPartIds,
+      ...(successPartId.value ? [successPartId.value] : []),
+    ]),
+);
 
 function choiceTargetId(part: RobotPart) {
   return `build-robot:${round.value.roundId}:part:${part.id}`;
@@ -89,10 +122,22 @@ async function choosePart(part: RobotPart) {
     lastMistakePartId.value = undefined;
     successPartId.value = part.id;
     void playBuildRobotSuccessMelody(session.settings.sound);
-    recordSuccess({ roundId: round.value.roundId, targetId, answerId: part.id, expected: round.value.target.label, actual: part.label, isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      answerId: part.id,
+      expected: round.value.target.label,
+      actual: part.label,
+      isCorrect: true,
+    });
     isSpeaking.value = true;
     const playback = await promptAudio.playSequenceAndWait(["build-robot.correct"], 80);
-    if (playback === "cancelled" || session.sessionId !== sessionId || round.value.roundId !== roundId) return;
+    if (
+      playback === "cancelled" ||
+      session.sessionId !== sessionId ||
+      round.value.roundId !== roundId
+    )
+      return;
     isSpeaking.value = false;
 
     if (session.step < session.maxSteps) {
@@ -111,13 +156,34 @@ async function choosePart(part: RobotPart) {
   const sessionId = session.sessionId;
   const roundId = round.value.roundId;
   void playBuildRobotMistakeMelody(session.settings.sound);
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: part.id, expected: round.value.target.label, actual: part.label, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "wrong-robot-part" });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    expectedTargetId,
+    answerId: part.id,
+    expected: round.value.target.label,
+    actual: part.label,
+    isCorrect: false,
+  });
+  recordHint({
+    roundId: round.value.roundId,
+    targetId: expectedTargetId,
+    reason: "wrong-robot-part",
+  });
   hintedRoundId.value = round.value.roundId;
   lastMistakePartId.value = part.id;
   isSpeaking.value = true;
-  const playback = await promptAudio.playSequenceAndWait(["build-robot.mistake", promptAssetId()], 80, 170);
-  if (playback === "cancelled" || session.sessionId !== sessionId || round.value.roundId !== roundId) return;
+  const playback = await promptAudio.playSequenceAndWait(
+    ["build-robot.mistake", promptAssetId()],
+    80,
+    170,
+  );
+  if (
+    playback === "cancelled" ||
+    session.sessionId !== sessionId ||
+    round.value.roundId !== roundId
+  )
+    return;
   pendingSelection.value = false;
   lastMistakePartId.value = undefined;
   isSpeaking.value = false;
@@ -162,49 +228,142 @@ onUnmounted(() => {
 
 <template>
   <div class="build-robot-shell">
-    <GameHud title="Собери роботика" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Собери роботика"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" xl="10">
           <v-card class="robot-card pa-3 pa-md-4" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-1">Последовательность сборки</div>
+            <div class="text-overline text-secondary text-center mb-1">
+              Последовательность сборки
+            </div>
             <h1 class="text-h5 text-md-h4 font-weight-bold text-center mb-1">Собери роботика</h1>
-            <p class="feedback-line text-body-1 text-md-h6 text-medium-emphasis text-center mb-3">{{ feedbackText }}</p>
+            <p class="feedback-line text-body-1 text-md-h6 text-medium-emphasis text-center mb-3">
+              {{ feedbackText }}
+            </p>
 
             <v-row class="align-stretch" dense>
               <v-col cols="12" sm="5">
                 <v-card class="robot-stage pa-3" color="cyan-lighten-5" rounded="xl" variant="flat">
-                  <div class="text-body-2 text-medium-emphasis text-center mb-2">Робот {{ round.robotIndex }}, шаг {{ round.stepIndex + 1 }} из 4</div>
+                  <div class="text-body-2 text-medium-emphasis text-center mb-2">
+                    Робот {{ round.robotIndex }}, шаг {{ round.stepIndex + 1 }} из 4
+                  </div>
                   <div class="robot-layout" aria-label="Собираемый робот">
-                    <v-card :class="['robot-slot', 'robot-slot--head', { 'robot-slot--placed': displayedPartIds.has('head') }]" :color="slotColor('head')" rounded="xl" variant="flat">
-                      <div :class="['part-art', 'part-art--head', { 'part-art--ghost': !slotFilled('head') }]" :style="partStyle(partById.head)" aria-hidden="true">
+                    <v-card
+                      :class="[
+                        'robot-slot',
+                        'robot-slot--head',
+                        { 'robot-slot--placed': displayedPartIds.has('head') },
+                      ]"
+                      :color="slotColor('head')"
+                      rounded="xl"
+                      variant="flat"
+                    >
+                      <div
+                        :class="[
+                          'part-art',
+                          'part-art--head',
+                          { 'part-art--ghost': !slotFilled('head') },
+                        ]"
+                        :style="partStyle(partById.head)"
+                        aria-hidden="true"
+                      >
                         <span class="part-art__detail part-art__detail--one" />
                         <span class="part-art__detail part-art__detail--two" />
                         <span class="part-art__detail part-art__detail--three" />
                       </div>
-                      <div class="text-subtitle-1 font-weight-bold mt-2">{{ partById.head.label }}</div>
+                      <div class="text-subtitle-1 font-weight-bold mt-2">
+                        {{ partById.head.label }}
+                      </div>
                     </v-card>
 
                     <div class="robot-middle-row">
-                      <v-card :class="['robot-slot', 'robot-slot--arms', 'robot-slot--arms-left', { 'robot-slot--placed': displayedPartIds.has('arms') }]" :color="slotColor('arms')" rounded="xl" variant="flat">
-                        <div :class="['part-art', 'part-art--arm-side', 'part-art--arm-side-left', { 'part-art--ghost': !slotFilled('arms') }]" :style="partStyle(partById.arms)" aria-hidden="true">
+                      <v-card
+                        :class="[
+                          'robot-slot',
+                          'robot-slot--arms',
+                          'robot-slot--arms-left',
+                          { 'robot-slot--placed': displayedPartIds.has('arms') },
+                        ]"
+                        :color="slotColor('arms')"
+                        rounded="xl"
+                        variant="flat"
+                      >
+                        <div
+                          :class="[
+                            'part-art',
+                            'part-art--arm-side',
+                            'part-art--arm-side-left',
+                            { 'part-art--ghost': !slotFilled('arms') },
+                          ]"
+                          :style="partStyle(partById.arms)"
+                          aria-hidden="true"
+                        >
                           <span class="part-art__detail part-art__detail--one" />
                           <span class="part-art__detail part-art__detail--two" />
                           <span class="part-art__detail part-art__detail--three" />
                         </div>
                       </v-card>
 
-                      <v-card :class="['robot-slot', 'robot-slot--body', { 'robot-slot--placed': displayedPartIds.has('body') }]" :color="slotColor('body')" rounded="xl" variant="flat">
-                        <div :class="['part-art', 'part-art--body', { 'part-art--ghost': !slotFilled('body') }]" :style="partStyle(partById.body)" aria-hidden="true">
+                      <v-card
+                        :class="[
+                          'robot-slot',
+                          'robot-slot--body',
+                          { 'robot-slot--placed': displayedPartIds.has('body') },
+                        ]"
+                        :color="slotColor('body')"
+                        rounded="xl"
+                        variant="flat"
+                      >
+                        <div
+                          :class="[
+                            'part-art',
+                            'part-art--body',
+                            { 'part-art--ghost': !slotFilled('body') },
+                          ]"
+                          :style="partStyle(partById.body)"
+                          aria-hidden="true"
+                        >
                           <span class="part-art__detail part-art__detail--one" />
                           <span class="part-art__detail part-art__detail--two" />
                           <span class="part-art__detail part-art__detail--three" />
                         </div>
-                        <div class="text-subtitle-1 font-weight-bold mt-2">{{ partById.body.label }}</div>
+                        <div class="text-subtitle-1 font-weight-bold mt-2">
+                          {{ partById.body.label }}
+                        </div>
                       </v-card>
 
-                      <v-card :class="['robot-slot', 'robot-slot--arms', 'robot-slot--arms-right', { 'robot-slot--placed': displayedPartIds.has('arms') }]" :color="slotColor('arms')" rounded="xl" variant="flat">
-                        <div :class="['part-art', 'part-art--arm-side', 'part-art--arm-side-right', { 'part-art--ghost': !slotFilled('arms') }]" :style="partStyle(partById.arms)" aria-hidden="true">
+                      <v-card
+                        :class="[
+                          'robot-slot',
+                          'robot-slot--arms',
+                          'robot-slot--arms-right',
+                          { 'robot-slot--placed': displayedPartIds.has('arms') },
+                        ]"
+                        :color="slotColor('arms')"
+                        rounded="xl"
+                        variant="flat"
+                      >
+                        <div
+                          :class="[
+                            'part-art',
+                            'part-art--arm-side',
+                            'part-art--arm-side-right',
+                            { 'part-art--ghost': !slotFilled('arms') },
+                          ]"
+                          :style="partStyle(partById.arms)"
+                          aria-hidden="true"
+                        >
                           <span class="part-art__detail part-art__detail--one" />
                           <span class="part-art__detail part-art__detail--two" />
                           <span class="part-art__detail part-art__detail--three" />
@@ -212,13 +371,32 @@ onUnmounted(() => {
                       </v-card>
                     </div>
 
-                    <v-card :class="['robot-slot', 'robot-slot--legs', { 'robot-slot--placed': displayedPartIds.has('legs') }]" :color="slotColor('legs')" rounded="xl" variant="flat">
-                      <div :class="['part-art', 'part-art--legs', { 'part-art--ghost': !slotFilled('legs') }]" :style="partStyle(partById.legs)" aria-hidden="true">
+                    <v-card
+                      :class="[
+                        'robot-slot',
+                        'robot-slot--legs',
+                        { 'robot-slot--placed': displayedPartIds.has('legs') },
+                      ]"
+                      :color="slotColor('legs')"
+                      rounded="xl"
+                      variant="flat"
+                    >
+                      <div
+                        :class="[
+                          'part-art',
+                          'part-art--legs',
+                          { 'part-art--ghost': !slotFilled('legs') },
+                        ]"
+                        :style="partStyle(partById.legs)"
+                        aria-hidden="true"
+                      >
                         <span class="part-art__detail part-art__detail--one" />
                         <span class="part-art__detail part-art__detail--two" />
                         <span class="part-art__detail part-art__detail--three" />
                       </div>
-                      <div class="text-subtitle-1 font-weight-bold mt-2">{{ partById.legs.label }}</div>
+                      <div class="text-subtitle-1 font-weight-bold mt-2">
+                        {{ partById.legs.label }}
+                      </div>
                     </v-card>
                   </div>
                 </v-card>
@@ -227,9 +405,22 @@ onUnmounted(() => {
               <v-col cols="12" sm="7">
                 <v-row class="choice-grid" dense>
                   <v-col v-for="part in round.choices" :key="part.id" cols="12" sm="6">
-                    <GameDwellButton :class="['choice-target', `choice-target--${part.id}`]" :style="partStyle(part)" :target-id="choiceTargetId(part)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="8.25rem" :color="choiceColor(part)" @select="choosePart(part)">
+                    <GameDwellButton
+                      :class="['choice-target', `choice-target--${part.id}`]"
+                      :style="partStyle(part)"
+                      :target-id="choiceTargetId(part)"
+                      :disabled="session.status !== 'running' || pendingSelection || isSpeaking"
+                      :dwell-ms="session.settings.dwellMs"
+                      min-height="8.25rem"
+                      :color="choiceColor(part)"
+                      @select="choosePart(part)"
+                    >
                       <template #default>
-                        <div :class="['part-art', 'part-art--choice', `part-art--${part.id}`]" :style="partStyle(part)" aria-hidden="true">
+                        <div
+                          :class="['part-art', 'part-art--choice', `part-art--${part.id}`]"
+                          :style="partStyle(part)"
+                          aria-hidden="true"
+                        >
                           <span class="part-art__detail part-art__detail--one" />
                           <span class="part-art__detail part-art__detail--two" />
                           <span class="part-art__detail part-art__detail--three" />
@@ -243,7 +434,14 @@ onUnmounted(() => {
             </v-row>
 
             <v-expand-transition>
-              <v-alert v-if="hintedRoundId === round.roundId" class="mt-3 text-body-1 font-weight-bold" color="primary" icon="mdi-lightbulb-on-outline" rounded="xl" variant="tonal">
+              <v-alert
+                v-if="hintedRoundId === round.roundId"
+                class="mt-3 text-body-1 font-weight-bold"
+                color="primary"
+                icon="mdi-lightbulb-on-outline"
+                rounded="xl"
+                variant="tonal"
+              >
                 Можно попробовать ещё раз.
               </v-alert>
             </v-expand-transition>
@@ -251,7 +449,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Собери роботика" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Собери роботика"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -305,7 +513,9 @@ onUnmounted(() => {
   justify-content: center;
   min-block-size: clamp(5.1rem, 12vh, 7.4rem);
   text-align: center;
-  transition: filter 160ms ease, transform 160ms ease;
+  transition:
+    filter 160ms ease,
+    transform 160ms ease;
 }
 
 .robot-slot :deep(.v-card__underlay) {
@@ -344,8 +554,19 @@ onUnmounted(() => {
 }
 
 .choice-grid :deep(.dwell-button) {
-  background: radial-gradient(circle at 18% 18%, color-mix(in srgb, var(--part-color) 44%, white), transparent 0 20%, transparent 21%),
-    linear-gradient(135deg, color-mix(in srgb, var(--part-color) 35%, #263238) 0%, #243238 46%, #172429 100%) !important;
+  background:
+    radial-gradient(
+      circle at 18% 18%,
+      color-mix(in srgb, var(--part-color) 44%, white),
+      transparent 0 20%,
+      transparent 21%
+    ),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--part-color) 35%, #263238) 0%,
+      #243238 46%,
+      #172429 100%
+    ) !important;
   background-color: #243238 !important;
   border: 0.18rem solid color-mix(in srgb, var(--part-color) 55%, white);
   color: #fff;
@@ -354,7 +575,11 @@ onUnmounted(() => {
 }
 
 .choice-target :deep(.dwell-button--active) {
-  background: linear-gradient(135deg, color-mix(in srgb, var(--part-color) 58%, #263238), #1c3338) !important;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--part-color) 58%, #263238),
+    #1c3338
+  ) !important;
 }
 
 .part-art {
@@ -613,42 +838,41 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
- .game-container {
+  .game-container {
     overflow-y: auto;
     padding-block-start: 7.5rem;
   }
 
- .build-robot-shell {
+  .build-robot-shell {
     overflow-y: auto;
   }
 
- .robot-card {
+  .robot-card {
     max-block-size: none;
   }
 
- .robot-slot {
+  .robot-slot {
     min-block-size: 7.25rem;
   }
 
- .robot-middle-row {
+  .robot-middle-row {
     grid-template-columns: minmax(4rem, 0.72fr) minmax(6.5rem, 1.45fr) minmax(4rem, 0.72fr);
   }
 }
 
 @media (max-height: 51.25rem) {
- .game-container {
+  .game-container {
     padding-block-start: 4.4rem;
   }
 
- .robot-slot {
+  .robot-slot {
     min-block-size: clamp(4.6rem, 10vh, 6.2rem);
   }
 
- .part-art,
- .part-art--choice {
+  .part-art,
+  .part-art--choice {
     block-size: clamp(2.55rem, min(5.3vw, 7.4vh), 3.9rem);
     inline-size: clamp(3.4rem, min(7vw, 9.6vh), 5.1rem);
   }
-
 }
 </style>

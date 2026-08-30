@@ -2,7 +2,9 @@ import { createAmbientPiano } from "../../core/ambientPiano";
 
 const piano = createAmbientPiano({
   notesToLoad: [50, 53, 55, 57, 60, 62, 65, 67, 69, 72, 74, 77, 81],
-  loopNotes: [50, 57, 62, 69, 67, 62, 53, 60, 65, 72, 69, 65, 55, 62, 67, 74, 72, 67, 57, 65, 69, 77, 81, 74],
+  loopNotes: [
+    50, 57, 62, 69, 67, 62, 53, 60, 65, 72, 69, 65, 55, 62, 67, 74, 72, 67, 57, 65, 69, 77, 81, 74,
+  ],
   cueNotes: [69, 74, 81, 77],
   reverbName: "soap-circles-room",
   reverbAmount: 0.22,
@@ -24,7 +26,7 @@ const piano = createAmbientPiano({
   cueCooldownSeconds: 0.9,
   activeGain: 0.9,
   fadeInSeconds: 1.2,
-  fadeOutSeconds: 1.7
+  fadeOutSeconds: 1.7,
 });
 
 export function warmSoapCirclesPiano(enabled: boolean) {

@@ -8,7 +8,12 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { ambientStepTargetMs } from "../../core/ambientProgress";
-import { disposeNorthernLightsPiano, setNorthernLightsPianoActive, tickNorthernLightsPiano, warmNorthernLightsPiano } from "./audio";
+import {
+  disposeNorthernLightsPiano,
+  setNorthernLightsPianoActive,
+  tickNorthernLightsPiano,
+  warmNorthernLightsPiano,
+} from "./audio";
 
 type GazeGlow = {
   x: number;
@@ -30,11 +35,28 @@ type Star = {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("northern-lights", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("northern-lights", {
   maxSteps: 8,
-  overrides: { preset: "gentle", targetScale: 1.6, motionSpeed: 0.4, distractors: "none", hints: "high", sound: true },
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.6,
+    motionSpeed: 0.4,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 useStartPromptAudio({ gameId: "northern-lights", soundEnabled: toRef(session.settings, "sound") });
 
@@ -76,7 +98,7 @@ function initStars() {
       y: randomRange(0, window.innerHeight * 0.62),
       radius: randomRange(0.7, 2.2),
       alpha: randomRange(0.18, 0.62),
-      twinkle: randomRange(0, Math.PI * 2)
+      twinkle: randomRange(0, Math.PI * 2),
     });
   }
 }
@@ -87,7 +109,7 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
@@ -104,7 +126,7 @@ function addGazeGlow(now: number) {
     age: 0,
     life: randomRange(2.2, 3.4),
     hue: randomRange(156, 206),
-    radius: randomRange(92, 156) * session.settings.targetScale
+    radius: randomRange(92, 156) * session.settings.targetScale,
   });
   if (glows.length > 34) glows.shift();
 }
@@ -119,7 +141,7 @@ function recordAttentionStep(now: number) {
     dwellMs: stepTargetMs(),
     elapsedMs,
     progress: 1,
-    pointer: copyPointer()
+    pointer: copyPointer(),
   });
   recordSuccess({ targetId, mode: "ambient-attention" });
   intervalEnteredAt = now;
@@ -134,7 +156,7 @@ function updateAttention(delta: number, now: number) {
       targetId: `aurora-attention-${session.step + 1}`,
       at: Date.now(),
       dwellMs: stepTargetMs(),
-      pointer: copyPointer()
+      pointer: copyPointer(),
     });
   }
 
@@ -173,7 +195,14 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
   }
   context.restore();
 
-  const horizon = context.createRadialGradient(window.innerWidth * 0.5, window.innerHeight * 0.98, 0, window.innerWidth * 0.5, window.innerHeight * 0.98, window.innerWidth * 0.72);
+  const horizon = context.createRadialGradient(
+    window.innerWidth * 0.5,
+    window.innerHeight * 0.98,
+    0,
+    window.innerWidth * 0.5,
+    window.innerHeight * 0.98,
+    window.innerWidth * 0.72,
+  );
   horizon.addColorStop(0, "rgb(52 93 86 / 24%)");
   horizon.addColorStop(1, "rgb(52 93 86 / 0%)");
   context.fillStyle = horizon;
@@ -204,7 +233,8 @@ function draw(context: CanvasRenderingContext2D, now: number) {
 }
 
 function tick(now: number) {
-  const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+  const delta =
+    session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
 
   if (session.status === "running") {
@@ -288,5 +318,4 @@ onUnmounted(() => {
   inset: 0;
   position: absolute;
 }
-
 </style>

@@ -47,9 +47,15 @@ export class TelemetryPrivacyController<Telemetry extends TelemetryRuntime> {
   }
 
   setPreference(preference: TelemetryPrivacyDecision) {
-    if (!this.acceptingTransitions) return Promise.reject(new Error("privacy transitions are closed"));
+    if (!this.acceptingTransitions)
+      return Promise.reject(new Error("privacy transitions are closed"));
     return this.enqueue(async () => {
-      if (preference === this.preference && preference === "enabled" && (this.currentTelemetry || !this.options.canStartTelemetry())) return preference;
+      if (
+        preference === this.preference &&
+        preference === "enabled" &&
+        (this.currentTelemetry || !this.options.canStartTelemetry())
+      )
+        return preference;
 
       if (preference === "disabled") {
         const telemetry = this.currentTelemetry;
@@ -57,7 +63,9 @@ export class TelemetryPrivacyController<Telemetry extends TelemetryRuntime> {
         await this.options.store.write(preference);
         this.preference = preference;
         this.currentTelemetry = undefined;
-        await (telemetry?.disableAndClear() ?? this.options.clearTelemetryData("disabled")).catch(() => undefined);
+        await (telemetry?.disableAndClear() ?? this.options.clearTelemetryData("disabled")).catch(
+          () => undefined,
+        );
         return preference;
       }
 
@@ -89,7 +97,10 @@ export class TelemetryPrivacyController<Telemetry extends TelemetryRuntime> {
 
   private enqueue<Result>(operation: () => Promise<Result>) {
     const result = this.transition.then(operation);
-    this.transition = result.then(() => undefined, () => undefined);
+    this.transition = result.then(
+      () => undefined,
+      () => undefined,
+    );
     return result;
   }
 }

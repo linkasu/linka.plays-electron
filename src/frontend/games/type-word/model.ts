@@ -40,7 +40,12 @@ export function createTypeWordDeck(settings: SessionSettings, random = Math.rand
   return shuffleItems(items, random);
 }
 
-export function generateTypeWordRound(settings: SessionSettings, item: WordItem, roundIndex = 1, random = Math.random): TypeWordRound {
+export function generateTypeWordRound(
+  settings: SessionSettings,
+  item: WordItem,
+  roundIndex = 1,
+  random = Math.random,
+): TypeWordRound {
   const letters = Array.from(item.word.toLowerCase());
   const wordLetters = new Set(letters);
   const distractors = alphabet.filter((letter) => !wordLetters.has(letter));
@@ -55,11 +60,15 @@ export function generateTypeWordRound(settings: SessionSettings, item: WordItem,
     item,
     letters,
     letterChoices,
-    wordAudioAssetId: typeWordAudioAssetId(item.id)
+    wordAudioAssetId: typeWordAudioAssetId(item.id),
   };
 }
 
-export function evaluateTypeWordChoice(round: TypeWordRound, currentIndex: number, choice: string): TypeWordSelection {
+export function evaluateTypeWordChoice(
+  round: TypeWordRound,
+  currentIndex: number,
+  choice: string,
+): TypeWordSelection {
   const expected = round.letters[currentIndex];
   if (expected === undefined) throw new RangeError("Текущий слот находится за границами слова.");
 

@@ -14,7 +14,7 @@ import {
   getGhostPlacement,
   isValidPlacement,
   lockPiece,
-  rotateShape
+  rotateShape,
 } from "./model";
 
 describe("step-tetris model", () => {
@@ -28,16 +28,18 @@ describe("step-tetris model", () => {
   });
 
   it("rotates and normalizes shape cells", () => {
-    expect(rotateShape([
-      { row: 0, column: 0 },
-      { row: 0, column: 1 },
-      { row: 0, column: 2 },
-      { row: 1, column: 1 }
-    ])).toEqual([
+    expect(
+      rotateShape([
+        { row: 0, column: 0 },
+        { row: 0, column: 1 },
+        { row: 0, column: 2 },
+        { row: 1, column: 1 },
+      ]),
+    ).toEqual([
       { row: 0, column: 1 },
       { row: 1, column: 0 },
       { row: 1, column: 1 },
-      { row: 2, column: 1 }
+      { row: 2, column: 1 },
     ]);
   });
 
@@ -74,7 +76,8 @@ describe("step-tetris model", () => {
 
   it("clears full lines and keeps board height", () => {
     const board = createEmptyBoard();
-    for (let column = 0; column < stepTetrisColumns; column++) board[cellIndex(stepTetrisRows - 1, column)] = "i";
+    for (let column = 0; column < stepTetrisColumns; column++)
+      board[cellIndex(stepTetrisRows - 1, column)] = "i";
     board[cellIndex(stepTetrisRows - 2, 0)] = "t";
 
     const result = clearFullLines(board);

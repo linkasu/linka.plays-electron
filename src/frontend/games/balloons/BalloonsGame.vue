@@ -34,18 +34,36 @@ type Cloud = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("balloons", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  finishSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("balloons", {
   maxSteps: 9,
-  overrides: { preset: "gentle", targetScale: 1.6, motionSpeed: 0.38, distractors: "none", hints: "high", sound: true },
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.6,
+    motionSpeed: 0.38,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
 const promptAudio = useGamePromptAudio({
   gameId: "balloons",
   soundEnabled,
   volume: 0.32,
-  warmAssetIds: ["balloons.prompt"]
+  warmAssetIds: ["balloons.prompt"],
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
@@ -104,7 +122,7 @@ function chooseBalloonPoint(radius: number, first: boolean) {
     bottomPadding: Math.max(96, window.innerHeight * 0.16),
     previous: previousBalloonPoint,
     minDistance: Math.min(300, Math.max(172, radius * 1.55)),
-    attempts: 24
+    attempts: 24,
   });
 }
 
@@ -124,7 +142,7 @@ function createBalloon(first = false): Balloon {
     phase: "appearing",
     dwellProgress: 0,
     sway: randomRange(0, Math.PI * 2),
-    lift: randomRange(0.86, 1.12)
+    lift: randomRange(0.86, 1.12),
   };
 }
 
@@ -134,11 +152,16 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
-function targetPayload(balloon: Balloon, now: number, progress: number, reason?: "left" | "invalid-gaze") {
+function targetPayload(
+  balloon: Balloon,
+  now: number,
+  progress: number,
+  reason?: "left" | "invalid-gaze",
+) {
   return {
     targetId: balloon.id,
     at: Date.now(),
@@ -146,7 +169,7 @@ function targetPayload(balloon: Balloon, now: number, progress: number, reason?:
     elapsedMs: balloon.enteredAt === undefined ? 0 : now - balloon.enteredAt,
     progress,
     pointer: copyPointer(),
-    reason
+    reason,
   };
 }
 
@@ -154,8 +177,13 @@ function balloonPoint(balloon: Balloon) {
   const point = percentToPixels(balloon);
   const flying = balloon.phase === "flying" ? Math.min(1, balloon.phaseAge / flyingSeconds) : 0;
   return {
-    x: point.x + Math.sin(balloon.age * 0.7 + balloon.sway) * balloon.radius * (0.05 + flying * 0.16),
-    y: point.y - flying * window.innerHeight * 0.56 * balloon.lift + Math.cos(balloon.age * 0.5 + balloon.sway) * balloon.radius * 0.035
+    x:
+      point.x +
+      Math.sin(balloon.age * 0.7 + balloon.sway) * balloon.radius * (0.05 + flying * 0.16),
+    y:
+      point.y -
+      flying * window.innerHeight * 0.56 * balloon.lift +
+      Math.cos(balloon.age * 0.5 + balloon.sway) * balloon.radius * 0.035,
   };
 }
 
@@ -215,7 +243,8 @@ function updateBalloon(delta: number, now: number) {
   const inside = pointer.value.valid && distance(point, pointer.value) <= hitRadius;
 
   if (!inside) {
-    if (balloon.enteredAt !== undefined) resetBalloonProgress(balloon, now, pointer.value.valid ? "left" : "invalid-gaze");
+    if (balloon.enteredAt !== undefined)
+      resetBalloonProgress(balloon, now, pointer.value.valid ? "left" : "invalid-gaze");
     return;
   }
 
@@ -240,7 +269,7 @@ function initClouds() {
       rx: randomRange(60, 150),
       ry: randomRange(18, 42),
       alpha: randomRange(0.22, 0.42),
-      speed: randomRange(1.8, 5.2)
+      speed: randomRange(1.8, 5.2),
     });
   }
 }
@@ -262,7 +291,14 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
 
   const sunX = window.innerWidth * 0.78 + Math.sin(now * 0.00008) * 18;
   const sunY = window.innerHeight * 0.2;
-  const glow = context.createRadialGradient(sunX, sunY, 0, sunX, sunY, Math.max(window.innerWidth, window.innerHeight) * 0.36);
+  const glow = context.createRadialGradient(
+    sunX,
+    sunY,
+    0,
+    sunX,
+    sunY,
+    Math.max(window.innerWidth, window.innerHeight) * 0.36,
+  );
   glow.addColorStop(0, "rgb(255 226 144 / 28%)");
   glow.addColorStop(1, "rgb(255 235 168 / 0%)");
   context.fillStyle = glow;
@@ -270,28 +306,61 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
 
   context.save();
   for (const cloud of clouds) {
-    const x = window.innerWidth * cloud.x / 100;
-    const y = window.innerHeight * cloud.y / 100;
+    const x = (window.innerWidth * cloud.x) / 100;
+    const y = (window.innerHeight * cloud.y) / 100;
     context.globalAlpha = cloud.alpha;
     context.fillStyle = "#eaf6fb";
     context.beginPath();
     context.ellipse(x, y, cloud.rx, cloud.ry, 0, 0, Math.PI * 2);
-    context.ellipse(x - cloud.rx * 0.45, y + cloud.ry * 0.08, cloud.rx * 0.46, cloud.ry * 0.72, 0, 0, Math.PI * 2);
-    context.ellipse(x + cloud.rx * 0.42, y - cloud.ry * 0.06, cloud.rx * 0.5, cloud.ry * 0.78, 0, 0, Math.PI * 2);
+    context.ellipse(
+      x - cloud.rx * 0.45,
+      y + cloud.ry * 0.08,
+      cloud.rx * 0.46,
+      cloud.ry * 0.72,
+      0,
+      0,
+      Math.PI * 2,
+    );
+    context.ellipse(
+      x + cloud.rx * 0.42,
+      y - cloud.ry * 0.06,
+      cloud.rx * 0.5,
+      cloud.ry * 0.78,
+      0,
+      0,
+      Math.PI * 2,
+    );
     context.fill();
   }
   context.restore();
 
   context.fillStyle = "rgb(62 126 78 / 34%)";
   context.beginPath();
-  context.ellipse(window.innerWidth * 0.18, window.innerHeight * 0.94, window.innerWidth * 0.32, window.innerHeight * 0.13, 0, 0, Math.PI * 2);
-  context.ellipse(window.innerWidth * 0.74, window.innerHeight * 0.95, window.innerWidth * 0.42, window.innerHeight * 0.15, 0, 0, Math.PI * 2);
+  context.ellipse(
+    window.innerWidth * 0.18,
+    window.innerHeight * 0.94,
+    window.innerWidth * 0.32,
+    window.innerHeight * 0.13,
+    0,
+    0,
+    Math.PI * 2,
+  );
+  context.ellipse(
+    window.innerWidth * 0.74,
+    window.innerHeight * 0.95,
+    window.innerWidth * 0.42,
+    window.innerHeight * 0.15,
+    0,
+    0,
+    Math.PI * 2,
+  );
   context.fill();
 }
 
 function drawBalloon(context: CanvasRenderingContext2D, balloon: Balloon) {
   const point = balloonPoint(balloon);
-  const appear = balloon.phase === "appearing" ? Math.min(1, balloon.phaseAge / appearingSeconds) : 1;
+  const appear =
+    balloon.phase === "appearing" ? Math.min(1, balloon.phaseAge / appearingSeconds) : 1;
   const flying = balloon.phase === "flying" ? Math.min(1, balloon.phaseAge / flyingSeconds) : 0;
   const gaze = balloon.dwellProgress;
   const squash = Math.sin(balloon.age * 1.2 + balloon.sway) * 0.018;
@@ -302,12 +371,27 @@ function drawBalloon(context: CanvasRenderingContext2D, balloon: Balloon) {
   context.save();
   context.globalAlpha = Math.max(0, alpha);
 
-  const shadow = context.createRadialGradient(point.x, point.y + radiusY * 1.25, 0, point.x, point.y + radiusY * 1.25, balloon.radius * 1.35);
+  const shadow = context.createRadialGradient(
+    point.x,
+    point.y + radiusY * 1.25,
+    0,
+    point.x,
+    point.y + radiusY * 1.25,
+    balloon.radius * 1.35,
+  );
   shadow.addColorStop(0, `rgb(76 109 126 / ${0.08 * (1 - flying)})`);
   shadow.addColorStop(1, "rgb(76 109 126 / 0%)");
   context.fillStyle = shadow;
   context.beginPath();
-  context.ellipse(point.x, point.y + radiusY * 1.2, radiusX * 0.72, radiusY * 0.22, 0, 0, Math.PI * 2);
+  context.ellipse(
+    point.x,
+    point.y + radiusY * 1.2,
+    radiusX * 0.72,
+    radiusY * 0.22,
+    0,
+    0,
+    Math.PI * 2,
+  );
   context.fill();
 
   if (gaze > 0 || balloon.phase === "flying") {
@@ -321,7 +405,14 @@ function drawBalloon(context: CanvasRenderingContext2D, balloon: Balloon) {
     context.fill();
   }
 
-  const body = context.createRadialGradient(point.x - radiusX * 0.32, point.y - radiusY * 0.38, radiusX * 0.1, point.x, point.y, radiusX * 1.04);
+  const body = context.createRadialGradient(
+    point.x - radiusX * 0.32,
+    point.y - radiusY * 0.38,
+    radiusX * 0.1,
+    point.x,
+    point.y,
+    radiusX * 1.04,
+  );
   body.addColorStop(0, `hsla(${balloon.hue + 12}, 100%, ${88 + gaze * 4}%, 0.98)`);
   body.addColorStop(0.5, `hsla(${balloon.hue}, 88%, ${66 + gaze * 8}%, 0.94)`);
   body.addColorStop(1, `hsla(${balloon.hue - 10}, 70%, ${45 + gaze * 7}%, 0.92)`);
@@ -333,7 +424,15 @@ function drawBalloon(context: CanvasRenderingContext2D, balloon: Balloon) {
   context.strokeStyle = `hsla(${balloon.hue - 8}, 64%, 34%, 0.18)`;
   context.lineWidth = Math.max(2, balloon.radius * 0.02);
   context.beginPath();
-  context.ellipse(point.x, point.y, radiusX * 0.58, radiusY * 0.98, 0, -Math.PI * 0.5, Math.PI * 0.5);
+  context.ellipse(
+    point.x,
+    point.y,
+    radiusX * 0.58,
+    radiusY * 0.98,
+    0,
+    -Math.PI * 0.5,
+    Math.PI * 0.5,
+  );
   context.stroke();
 
   const knotY = point.y + radiusY * 0.94;
@@ -356,7 +455,7 @@ function drawBalloon(context: CanvasRenderingContext2D, balloon: Balloon) {
     point.x - Math.sin(balloon.age * 0.7 + balloon.sway) * balloon.radius * 0.18,
     knotY + balloon.radius * 0.9,
     point.x,
-    knotY + balloon.radius * 1.22
+    knotY + balloon.radius * 1.22,
   );
   context.stroke();
 
@@ -365,7 +464,13 @@ function drawBalloon(context: CanvasRenderingContext2D, balloon: Balloon) {
     context.lineWidth = Math.max(4, balloon.radius * 0.035);
     context.lineCap = "round";
     context.beginPath();
-    context.arc(point.x, point.y, balloon.radius * 1.16, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.max(0.06, gaze));
+    context.arc(
+      point.x,
+      point.y,
+      balloon.radius * 1.16,
+      -Math.PI / 2,
+      -Math.PI / 2 + Math.PI * 2 * Math.max(0.06, gaze),
+    );
     context.stroke();
   }
 
@@ -378,7 +483,8 @@ function draw(context: CanvasRenderingContext2D, now: number) {
 }
 
 function tick(now: number) {
-  const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+  const delta =
+    session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
 
   if (session.status === "running") {
@@ -424,7 +530,9 @@ onUnmounted(() => {
 
     <v-card class="balloons-hint px-4 py-3" color="surface" rounded="xl" variant="tonal">
       <div class="text-body-2 font-weight-medium">Смотри на шарик, и он улетит вверх.</div>
-      <div class="text-caption text-medium-emphasis">Если взгляд ушёл, ничего страшного: круг начнётся заново.</div>
+      <div class="text-caption text-medium-emphasis">
+        Если взгляд ушёл, ничего страшного: круг начнётся заново.
+      </div>
     </v-card>
 
     <GameHud

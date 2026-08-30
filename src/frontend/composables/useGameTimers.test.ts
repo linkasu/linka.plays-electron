@@ -8,18 +8,27 @@ function mountTimers(callback: () => void) {
   let timers: ReturnType<typeof useGameTimers> | undefined;
   const root = document.createElement("div");
   document.body.append(root);
-  const app = createApp(defineComponent({
-    setup() {
-      api = useGameSession("timer-test", { sessionSeconds: 30 });
-      timers = useGameTimers();
-      timers.setGameTimeout(callback, 1_000);
-      return () => null;
-    }
-  }));
+  const app = createApp(
+    defineComponent({
+      setup() {
+        api = useGameSession("timer-test", { sessionSeconds: 30 });
+        timers = useGameTimers();
+        timers.setGameTimeout(callback, 1_000);
+        return () => null;
+      },
+    }),
+  );
   app.mount(root);
   if (!api) throw new Error("Session was not initialized.");
   if (!timers) throw new Error("Timers were not initialized.");
-  return { api, timers, unmount: () => { app.unmount(); root.remove(); } };
+  return {
+    api,
+    timers,
+    unmount: () => {
+      app.unmount();
+      root.remove();
+    },
+  };
 }
 
 describe("useGameTimers", () => {

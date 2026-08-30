@@ -4,7 +4,7 @@ import { findGame, groupGamesByCategory, resolveGameStabilityStatus } from "./ga
 describe("game registry", () => {
   it.each([
     ["bubble-pop", "/games/bubble-pop"],
-    ["who-is-this", "/games/who-is-this"]
+    ["who-is-this", "/games/who-is-this"],
   ])("keeps archived compatibility entry %s routable but hidden from menus", (gameId, route) => {
     const game = findGame(gameId);
 
@@ -24,7 +24,7 @@ describe("game registry", () => {
     expect(choosePicture?.skills).toEqual(["vocabulary", "choice", "visual-search"]);
     expect(objectAction).toMatchObject({
       title: "Покажи действие",
-      selfDescription: "Покажи названное действие."
+      selfDescription: "Покажи названное действие.",
     });
   });
 
@@ -40,8 +40,9 @@ describe("game registry", () => {
 
   it("records TypeWord as a guided choice between large letter buttons", () => {
     expect(findGame("type-word")).toMatchObject({
-      description: "Собирай короткие слова по одной букве, каждый раз выбирая следующую из 2–4 крупных кнопок.",
-      minTargetSizePx: 120
+      description:
+        "Собирай короткие слова по одной букве, каждый раз выбирая следующую из 2–4 крупных кнопок.",
+      minTargetSizePx: 120,
     });
   });
 
@@ -59,7 +60,7 @@ describe("game registry", () => {
       status: matchSame?.status,
       recommendedSessionSeconds: matchSame?.recommendedSessionSeconds,
       minTargetSizePx: matchSame?.minTargetSizePx,
-      defaultDwellMs: matchSame?.defaultDwellMs
+      defaultDwellMs: matchSame?.defaultDwellMs,
     });
   });
 });

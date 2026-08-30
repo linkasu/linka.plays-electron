@@ -2,7 +2,9 @@ import { createAmbientPiano } from "../../core/ambientPiano";
 
 const piano = createAmbientPiano({
   notesToLoad: [43, 47, 50, 52, 55, 59, 62, 64, 67, 71, 74, 76],
-  loopNotes: [43, 50, 55, 62, 59, 55, 47, 52, 59, 64, 62, 52, 50, 55, 62, 67, 64, 59, 47, 55, 62, 71, 67, 62],
+  loopNotes: [
+    43, 50, 55, 62, 59, 55, 47, 52, 59, 64, 62, 52, 50, 55, 62, 67, 64, 59, 47, 55, 62, 71, 67, 62,
+  ],
   cueNotes: [55, 62, 67, 74],
   reverbName: "warm-window-soft-room",
   reverbAmount: 0.26,
@@ -24,7 +26,7 @@ const piano = createAmbientPiano({
   cueCooldownSeconds: 0.82,
   activeGain: 0.48,
   fadeInSeconds: 1.1,
-  fadeOutSeconds: 1.5
+  fadeOutSeconds: 1.5,
 });
 
 export function warmWarmWindowPiano(enabled: boolean) {

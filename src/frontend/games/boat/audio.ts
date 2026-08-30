@@ -25,7 +25,7 @@ const piano = createAmbientPiano({
   cueCooldownSeconds: 0.8,
   activeGain: 0.72,
   fadeInSeconds: 1.25,
-  fadeOutSeconds: 1.5
+  fadeOutSeconds: 1.5,
 });
 
 const feedback = createStandardGameFeedback();

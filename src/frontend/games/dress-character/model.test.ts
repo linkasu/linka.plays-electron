@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { clothingSlots, dressCharacterKitIndex, dressCharacterMaxSteps, dressCharacterWeatherKits, getDressCharacterExpectedItem, getDressCharacterKit, getDressCharacterTask, isDressCharacterKitCompleteStep } from "./model";
+import {
+  clothingSlots,
+  dressCharacterKitIndex,
+  dressCharacterMaxSteps,
+  dressCharacterWeatherKits,
+  getDressCharacterExpectedItem,
+  getDressCharacterKit,
+  getDressCharacterTask,
+  isDressCharacterKitCompleteStep,
+} from "./model";
 
 describe("dress-character model", () => {
   it("keeps three weather kits with hat, jacket and shoes tasks", () => {
@@ -7,9 +16,16 @@ describe("dress-character model", () => {
     expect(clothingSlots).toEqual(["hat", "jacket", "shoes"]);
     for (const kit of dressCharacterWeatherKits) {
       expect(kit.items.map((item) => item.slot)).toEqual(clothingSlots);
-      expect(kit.items.every((item) => item.prompt && item.target && item.choices.length === 3)).toBe(true);
+      expect(
+        kit.items.every((item) => item.prompt && item.target && item.choices.length === 3),
+      ).toBe(true);
       for (const task of kit.items) {
-        expect(task.choices.every((choice) => choice.slot === task.slot && choice.label && choice.color && choice.darkColor)).toBe(true);
+        expect(
+          task.choices.every(
+            (choice) =>
+              choice.slot === task.slot && choice.label && choice.color && choice.darkColor,
+          ),
+        ).toBe(true);
         expect(task.choices.some((choice) => choice.id === task.target.id)).toBe(true);
       }
     }
@@ -35,7 +51,14 @@ describe("dress-character model", () => {
   });
 
   it("marks only the shoe step as a completed kit", () => {
-    expect([0, 1, 3, 4, 6, 7].map(isDressCharacterKitCompleteStep)).toEqual([false, false, false, false, false, false]);
+    expect([0, 1, 3, 4, 6, 7].map(isDressCharacterKitCompleteStep)).toEqual([
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+    ]);
     expect([2, 5, 8].map(isDressCharacterKitCompleteStep)).toEqual([true, true, true]);
   });
 });

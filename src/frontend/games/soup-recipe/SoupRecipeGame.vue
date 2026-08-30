@@ -10,7 +10,13 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { createSoupIngredientSlots, createSoupRecipeLayout, createSoupRecipeRound, type SoupIngredient, type SoupRect } from "./model";
+import {
+  createSoupIngredientSlots,
+  createSoupRecipeLayout,
+  createSoupRecipeRound,
+  type SoupIngredient,
+  type SoupRect,
+} from "./model";
 
 type Rect = SoupRect;
 type Point = { x: number; y: number };
@@ -26,11 +32,22 @@ type FlyingIngredient = {
 const soupFeedback = createStandardGameFeedback();
 const router = useRouter();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("soup-recipe", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("soup-recipe", {
   maxSteps: 8,
   overrides: { sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 
 const round = createSoupRecipeRound(session.maxSteps);
@@ -40,22 +57,31 @@ const resultVisible = ref(false);
 const pendingSelection = ref(false);
 const isSpeaking = ref(false);
 const feedbackMessage = ref("Добавляй ингредиенты по порядку. Если ошибёшься, попробуй ещё раз.");
-const promptAudio = useGamePromptAudio({ gameId: "soup-recipe", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "soup-recipe",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 const currentRoundId = computed(() => `soup-recipe:step:${session.step + 1}`);
-const placedIngredients = computed(() => placedIngredientIds.value
- .map((id) => round.ingredients.find((ingredient) => ingredient.id === id))
- .filter((ingredient): ingredient is SoupIngredient => Boolean(ingredient)));
-const nextIngredient = computed(() => round.ingredients.find((ingredient) => !placedIngredientIds.value.includes(ingredient.id)));
+const placedIngredients = computed(() =>
+  placedIngredientIds.value
+    .map((id) => round.ingredients.find((ingredient) => ingredient.id === id))
+    .filter((ingredient): ingredient is SoupIngredient => Boolean(ingredient)),
+);
+const nextIngredient = computed(() =>
+  round.ingredients.find((ingredient) => !placedIngredientIds.value.includes(ingredient.id)),
+);
 const recipeComplete = computed(() => placedIngredientIds.value.length >= round.ingredients.length);
 const layout = computed(() => createSoupRecipeLayout(width.value, height.value));
-const ingredientSlots = computed(() => createSoupIngredientSlots(round.ingredients, width.value, height.value));
+const ingredientSlots = computed(() =>
+  createSoupIngredientSlots(round.ingredients, width.value, height.value),
+);
 
 const flyingIngredients: FlyingIngredient[] = [];
 const bubbles = Array.from({ length: 18 }, (_, index) => ({
   x: ((index * 37) % 100) / 100,
   y: ((index * 53) % 100) / 100,
   size: 0.45 + ((index * 17) % 11) / 12,
-  phase: index * 0.7
+  phase: index * 0.7,
 }));
 let resultTimer = 0;
 
@@ -80,7 +106,7 @@ function targetStyle(rect: Rect) {
     insetBlockStart: `${rect.y}px`,
     insetInlineStart: `${rect.x}px`,
     inlineSize: `${rect.width}px`,
-    blockSize: `${rect.height}px`
+    blockSize: `${rect.height}px`,
   };
 }
 
@@ -100,7 +126,7 @@ function potCenter() {
   const currentLayout = createSoupRecipeLayout(width.value, height.value);
   return {
     x: currentLayout.potRect.x + currentLayout.potRect.width * 0.5,
-    y: currentLayout.potRect.y + currentLayout.potRect.height * 0.56
+    y: currentLayout.potRect.y + currentLayout.potRect.height * 0.56,
   };
 }
 
@@ -118,7 +144,7 @@ function addFlyingIngredient(ingredient: SoupIngredient) {
     from: slot.center,
     to: potCenter(),
     startedAt: performance.now(),
-    durationMs: ingredient.id === "water" ? 1600 : 900
+    durationMs: ingredient.id === "water" ? 1600 : 900,
   });
 }
 
@@ -129,7 +155,14 @@ async function playPrompt(delayMs = 0) {
 }
 
 async function chooseIngredient(ingredient: SoupIngredient) {
-  if (session.status !== "running" || pendingSelection.value || isSpeaking.value || placedIngredientIds.value.includes(ingredient.id) || recipeComplete.value) return;
+  if (
+    session.status !== "running" ||
+    pendingSelection.value ||
+    isSpeaking.value ||
+    placedIngredientIds.value.includes(ingredient.id) ||
+    recipeComplete.value
+  )
+    return;
 
   const expectedIngredient = nextIngredient.value;
   const targetId = ingredientTargetId(ingredient);
@@ -137,7 +170,14 @@ async function chooseIngredient(ingredient: SoupIngredient) {
 
   if (ingredient.id !== expectedIngredient?.id) {
     pendingSelection.value = true;
-    recordMistake({ roundId: currentRoundId.value, targetId, expectedTargetId, expected: expectedIngredient?.id, actual: ingredient.id, isCorrect: false });
+    recordMistake({
+      roundId: currentRoundId.value,
+      targetId,
+      expectedTargetId,
+      expected: expectedIngredient?.id,
+      actual: ingredient.id,
+      isCorrect: false,
+    });
     lastMistakeId.value = ingredient.id;
     feedbackMessage.value = "Посмотри на порядок рецепта и попробуй другой ингредиент.";
     void soupFeedback.playMistake(session.settings.sound);
@@ -152,7 +192,13 @@ async function chooseIngredient(ingredient: SoupIngredient) {
   addFlyingIngredient(ingredient);
   placedIngredientIds.value = [...placedIngredientIds.value, ingredient.id];
   lastMistakeId.value = undefined;
-  recordSuccess({ roundId: currentRoundId.value, targetId, expected: ingredient.id, actual: ingredient.id, isCorrect: true });
+  recordSuccess({
+    roundId: currentRoundId.value,
+    targetId,
+    expected: ingredient.id,
+    actual: ingredient.id,
+    isCorrect: true,
+  });
   void soupFeedback.playSuccess(session.settings.sound);
 
   if (recipeComplete.value && session.status === "running") {
@@ -187,7 +233,8 @@ function restart() {
 
 function updateFlights(now: number) {
   for (let index = flyingIngredients.length - 1; index >= 0; index -= 1) {
-    if (now - flyingIngredients[index].startedAt > flyingIngredients[index].durationMs) flyingIngredients.splice(index, 1);
+    if (now - flyingIngredients[index].startedAt > flyingIngredients[index].durationMs)
+      flyingIngredients.splice(index, 1);
   }
 }
 
@@ -198,7 +245,12 @@ function roundRect(ctx: CanvasRenderingContext2D, rect: Rect, radius: number) {
   ctx.lineTo(rect.x + rect.width - r, rect.y);
   ctx.quadraticCurveTo(rect.x + rect.width, rect.y, rect.x + rect.width, rect.y + r);
   ctx.lineTo(rect.x + rect.width, rect.y + rect.height - r);
-  ctx.quadraticCurveTo(rect.x + rect.width, rect.y + rect.height, rect.x + rect.width - r, rect.y + rect.height);
+  ctx.quadraticCurveTo(
+    rect.x + rect.width,
+    rect.y + rect.height,
+    rect.x + rect.width - r,
+    rect.y + rect.height,
+  );
   ctx.lineTo(rect.x + r, rect.y + rect.height);
   ctx.quadraticCurveTo(rect.x, rect.y + rect.height, rect.x, rect.y + rect.height - r);
   ctx.lineTo(rect.x, rect.y + r);
@@ -206,20 +258,39 @@ function roundRect(ctx: CanvasRenderingContext2D, rect: Rect, radius: number) {
   ctx.closePath();
 }
 
-function fillRoundRect(ctx: CanvasRenderingContext2D, rect: Rect, radius: number, fill: string | CanvasGradient | CanvasPattern) {
+function fillRoundRect(
+  ctx: CanvasRenderingContext2D,
+  rect: Rect,
+  radius: number,
+  fill: string | CanvasGradient | CanvasPattern,
+) {
   roundRect(ctx, rect, radius);
   ctx.fillStyle = fill;
   ctx.fill();
 }
 
-function strokeRoundRect(ctx: CanvasRenderingContext2D, rect: Rect, radius: number, stroke: string, lineWidth = 2) {
+function strokeRoundRect(
+  ctx: CanvasRenderingContext2D,
+  rect: Rect,
+  radius: number,
+  stroke: string,
+  lineWidth = 2,
+) {
   roundRect(ctx, rect, radius);
   ctx.strokeStyle = stroke;
   ctx.lineWidth = lineWidth;
   ctx.stroke();
 }
 
-function drawCenteredText(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, size: number, color = "#263d39", weight = 700) {
+function drawCenteredText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  size: number,
+  color = "#263d39",
+  weight = 700,
+) {
   ctx.fillStyle = color;
   ctx.font = `${weight} ${size}px system-ui, -apple-system, BlinkMacSystemFont, sans-serif`;
   ctx.textAlign = "center";
@@ -239,7 +310,7 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
     x: width.value * 0.05,
     y: height.value * 0.16,
     width: width.value * 0.34,
-    height: height.value * 0.34
+    height: height.value * 0.34,
   };
   ctx.save();
   ctx.globalAlpha = 0.78;
@@ -247,7 +318,17 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   const sky = ctx.createLinearGradient(0, windowRect.y, 0, windowRect.y + windowRect.height);
   sky.addColorStop(0, "#bfe9ff");
   sky.addColorStop(1, "#e8f8d7");
-  fillRoundRect(ctx, { x: windowRect.x + 16, y: windowRect.y + 16, width: windowRect.width - 32, height: windowRect.height - 32 }, 22, sky);
+  fillRoundRect(
+    ctx,
+    {
+      x: windowRect.x + 16,
+      y: windowRect.y + 16,
+      width: windowRect.width - 32,
+      height: windowRect.height - 32,
+    },
+    22,
+    sky,
+  );
   ctx.strokeStyle = "rgba(92, 128, 122, 0.16)";
   ctx.lineWidth = 6;
   ctx.beginPath();
@@ -271,8 +352,10 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   ctx.save();
   ctx.globalAlpha = 0.2;
   ctx.fillStyle = "#ffffff";
-  for (let x = 0; x < width.value; x += 84) ctx.fillRect(x, height.value * 0.53, 2, height.value * 0.18);
-  for (let y = height.value * 0.53; y < height.value * 0.72; y += 58) ctx.fillRect(0, y, width.value, 2);
+  for (let x = 0; x < width.value; x += 84)
+    ctx.fillRect(x, height.value * 0.53, 2, height.value * 0.18);
+  for (let y = height.value * 0.53; y < height.value * 0.72; y += 58)
+    ctx.fillRect(0, y, width.value, 2);
   ctx.restore();
 
   const counterTop = height.value * 0.68;
@@ -288,45 +371,101 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   for (let y = counterTop + 34; y < height.value; y += 54) {
     ctx.beginPath();
     ctx.moveTo(0, y + Math.sin(y * 0.04) * 4);
-    ctx.bezierCurveTo(width.value * 0.3, y - 8, width.value * 0.68, y + 10, width.value, y + Math.cos(y * 0.03) * 5);
+    ctx.bezierCurveTo(
+      width.value * 0.3,
+      y - 8,
+      width.value * 0.68,
+      y + 10,
+      width.value,
+      y + Math.cos(y * 0.03) * 5,
+    );
     ctx.stroke();
   }
   ctx.restore();
 }
 
-function drawHeader(ctx: CanvasRenderingContext2D, layout: ReturnType<typeof createSoupRecipeLayout>) {
+function drawHeader(
+  ctx: CanvasRenderingContext2D,
+  layout: ReturnType<typeof createSoupRecipeLayout>,
+) {
   const cx = layout.panel.x + layout.panel.width * 0.5;
   const titleY = layout.panel.y + 26;
   ctx.save();
   ctx.shadowBlur = 24;
   ctx.shadowColor = "rgba(92, 64, 51, 0.16)";
-  fillRoundRect(ctx, { x: cx - layout.panel.width * 0.31, y: layout.panel.y + 4, width: layout.panel.width * 0.62, height: 56 }, 28, "rgba(255, 252, 238, 0.78)");
+  fillRoundRect(
+    ctx,
+    {
+      x: cx - layout.panel.width * 0.31,
+      y: layout.panel.y + 4,
+      width: layout.panel.width * 0.62,
+      height: 56,
+    },
+    28,
+    "rgba(255, 252, 238, 0.78)",
+  );
   ctx.restore();
   drawCenteredText(ctx, "Свари суп по рецепту", cx, titleY, clamp(width.value * 0.021, 24, 40));
-  drawCenteredText(ctx, feedbackMessage.value, cx, layout.panel.y + 56, clamp(width.value * 0.011, 13, 18), "#566d67", 600);
+  drawCenteredText(
+    ctx,
+    feedbackMessage.value,
+    cx,
+    layout.panel.y + 56,
+    clamp(width.value * 0.011, 13, 18),
+    "#566d67",
+    600,
+  );
 }
 
-function drawGasFlame(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, now: number) {
+function drawGasFlame(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  radius: number,
+  now: number,
+) {
   ctx.save();
   ctx.globalCompositeOperation = "screen";
   for (let index = 0; index < 12; index += 1) {
-    const angle = index / 12 * Math.PI * 2;
+    const angle = (index / 12) * Math.PI * 2;
     const flicker = 0.82 + Math.sin(now * 0.006 + index * 1.7) * 0.16;
     const flameX = x + Math.cos(angle) * radius * 0.54;
     const flameY = y + Math.sin(angle) * radius * 0.24;
-    const flame = ctx.createRadialGradient(flameX, flameY, 0, flameX, flameY, radius * 0.34 * flicker);
+    const flame = ctx.createRadialGradient(
+      flameX,
+      flameY,
+      0,
+      flameX,
+      flameY,
+      radius * 0.34 * flicker,
+    );
     flame.addColorStop(0, "rgba(184, 231, 255, 0.95)");
     flame.addColorStop(0.46, "rgba(72, 169, 255, 0.76)");
     flame.addColorStop(1, "rgba(0, 85, 214, 0)");
     ctx.fillStyle = flame;
     ctx.beginPath();
-    ctx.ellipse(flameX, flameY, radius * 0.22 * flicker, radius * 0.42 * flicker, angle, 0, Math.PI * 2);
+    ctx.ellipse(
+      flameX,
+      flameY,
+      radius * 0.22 * flicker,
+      radius * 0.42 * flicker,
+      angle,
+      0,
+      Math.PI * 2,
+    );
     ctx.fill();
   }
   ctx.restore();
 }
 
-function drawBurner(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, lit: boolean, now: number) {
+function drawBurner(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  radius: number,
+  lit: boolean,
+  now: number,
+) {
   ctx.save();
   ctx.fillStyle = "rgba(28, 35, 38, 0.28)";
   ctx.beginPath();
@@ -348,7 +487,14 @@ function drawBurner(ctx: CanvasRenderingContext2D, x: number, y: number, radius:
   ctx.restore();
 }
 
-function drawStove(ctx: CanvasRenderingContext2D, x: number, y: number, widthPx: number, heightPx: number, now: number) {
+function drawStove(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  widthPx: number,
+  heightPx: number,
+  now: number,
+) {
   const top = ctx.createLinearGradient(0, y, 0, y + heightPx);
   top.addColorStop(0, "#f6faf8");
   top.addColorStop(0.52, "#d9e0df");
@@ -358,7 +504,13 @@ function drawStove(ctx: CanvasRenderingContext2D, x: number, y: number, widthPx:
   ctx.shadowColor = "rgba(38, 24, 12, 0.28)";
   fillRoundRect(ctx, { x, y, width: widthPx, height: heightPx }, heightPx * 0.22, top);
   ctx.restore();
-  strokeRoundRect(ctx, { x, y, width: widthPx, height: heightPx }, heightPx * 0.22, "rgba(65, 81, 84, 0.28)", Math.max(2, heightPx * 0.025));
+  strokeRoundRect(
+    ctx,
+    { x, y, width: widthPx, height: heightPx },
+    heightPx * 0.22,
+    "rgba(65, 81, 84, 0.28)",
+    Math.max(2, heightPx * 0.025),
+  );
 
   const mainY = y + heightPx * 0.34;
   drawBurner(ctx, x + widthPx * 0.5, mainY, heightPx * 0.24, true, now);
@@ -387,7 +539,7 @@ function mixRgb(from: Rgb, to: Rgb, amount: number): Rgb {
   return {
     r: Math.round(lerp(from.r, to.r, amount)),
     g: Math.round(lerp(from.g, to.g, amount)),
-    b: Math.round(lerp(from.b, to.b, amount))
+    b: Math.round(lerp(from.b, to.b, amount)),
   };
 }
 
@@ -427,7 +579,7 @@ function soupColors(now: number) {
   return {
     top: mixRgb(color, { r: 255, g: 243, b: 196 }, 0.24),
     middle: color,
-    bottom: mixRgb(color, { r: 128, g: 86, b: 45 }, 0.18)
+    bottom: mixRgb(color, { r: 128, g: 86, b: 45 }, 0.18),
   };
 }
 
@@ -449,7 +601,15 @@ function drawPot(ctx: CanvasRenderingContext2D, rect: Rect, now: number) {
   ctx.globalAlpha = 0.2;
   ctx.fillStyle = "#1d160f";
   ctx.beginPath();
-  ctx.ellipse(centerX, stoveY + stoveHeight * 0.72, stoveWidth * 0.48, stoveHeight * 0.18, 0, 0, Math.PI * 2);
+  ctx.ellipse(
+    centerX,
+    stoveY + stoveHeight * 0.72,
+    stoveWidth * 0.48,
+    stoveHeight * 0.18,
+    0,
+    0,
+    Math.PI * 2,
+  );
   ctx.fill();
   ctx.restore();
 
@@ -460,7 +620,12 @@ function drawPot(ctx: CanvasRenderingContext2D, rect: Rect, now: number) {
   for (const offset of [-0.22, 0.02, 0.24]) {
     ctx.beginPath();
     ctx.moveTo(centerX + potWidth * offset, potY - potHeight * 0.42);
-    ctx.quadraticCurveTo(centerX + potWidth * (offset - 0.04), potY - potHeight * 0.16, centerX + potWidth * (offset + 0.04), potY + potHeight * 0.08);
+    ctx.quadraticCurveTo(
+      centerX + potWidth * (offset - 0.04),
+      potY - potHeight * 0.16,
+      centerX + potWidth * (offset + 0.04),
+      potY + potHeight * 0.08,
+    );
     ctx.stroke();
   }
   ctx.restore();
@@ -471,13 +636,28 @@ function drawPot(ctx: CanvasRenderingContext2D, rect: Rect, now: number) {
   ctx.lineCap = "round";
   ctx.beginPath();
   ctx.moveTo(potX + potWidth * 0.02, potY + potHeight * 0.48);
-  ctx.quadraticCurveTo(potX - potWidth * 0.18, potY + potHeight * 0.5, potX - potWidth * 0.15, potY + potHeight * 0.74);
+  ctx.quadraticCurveTo(
+    potX - potWidth * 0.18,
+    potY + potHeight * 0.5,
+    potX - potWidth * 0.15,
+    potY + potHeight * 0.74,
+  );
   ctx.moveTo(potX + potWidth * 0.98, potY + potHeight * 0.48);
-  ctx.quadraticCurveTo(potX + potWidth * 1.18, potY + potHeight * 0.5, potX + potWidth * 1.15, potY + potHeight * 0.74);
+  ctx.quadraticCurveTo(
+    potX + potWidth * 1.18,
+    potY + potHeight * 0.5,
+    potX + potWidth * 1.15,
+    potY + potHeight * 0.74,
+  );
   ctx.stroke();
   ctx.restore();
 
-  const bodyGradient = ctx.createLinearGradient(potX, potY + potHeight * 0.22, potX + potWidth, potY + potHeight * 1.06);
+  const bodyGradient = ctx.createLinearGradient(
+    potX,
+    potY + potHeight * 0.22,
+    potX + potWidth,
+    potY + potHeight * 1.06,
+  );
   bodyGradient.addColorStop(0, "#f5fbfb");
   bodyGradient.addColorStop(0.26, "#cfdada");
   bodyGradient.addColorStop(0.62, "#8f9f9f");
@@ -485,9 +665,23 @@ function drawPot(ctx: CanvasRenderingContext2D, rect: Rect, now: number) {
   ctx.save();
   ctx.beginPath();
   ctx.moveTo(potX + potWidth * 0.08, potY + potHeight * 0.34);
-  ctx.bezierCurveTo(potX + potWidth * 0.08, potY + potHeight * 0.86, potX + potWidth * 0.18, potY + potHeight * 1.04, potX + potWidth * 0.34, potY + potHeight * 1.08);
+  ctx.bezierCurveTo(
+    potX + potWidth * 0.08,
+    potY + potHeight * 0.86,
+    potX + potWidth * 0.18,
+    potY + potHeight * 1.04,
+    potX + potWidth * 0.34,
+    potY + potHeight * 1.08,
+  );
   ctx.lineTo(potX + potWidth * 0.66, potY + potHeight * 1.08);
-  ctx.bezierCurveTo(potX + potWidth * 0.82, potY + potHeight * 1.04, potX + potWidth * 0.92, potY + potHeight * 0.86, potX + potWidth * 0.92, potY + potHeight * 0.34);
+  ctx.bezierCurveTo(
+    potX + potWidth * 0.82,
+    potY + potHeight * 1.04,
+    potX + potWidth * 0.92,
+    potY + potHeight * 0.86,
+    potX + potWidth * 0.92,
+    potY + potHeight * 0.34,
+  );
   ctx.closePath();
   ctx.fillStyle = bodyGradient;
   ctx.fill();
@@ -500,16 +694,37 @@ function drawPot(ctx: CanvasRenderingContext2D, rect: Rect, now: number) {
   ctx.globalAlpha = 0.42;
   ctx.fillStyle = "#ffffff";
   ctx.beginPath();
-  ctx.ellipse(potX + potWidth * 0.28, potY + potHeight * 0.62, potWidth * 0.07, potHeight * 0.28, -0.08, 0, Math.PI * 2);
+  ctx.ellipse(
+    potX + potWidth * 0.28,
+    potY + potHeight * 0.62,
+    potWidth * 0.07,
+    potHeight * 0.28,
+    -0.08,
+    0,
+    Math.PI * 2,
+  );
   ctx.fill();
   ctx.restore();
 
-  const soupRect = { x: potX + potWidth * 0.12, y: potY + potHeight * 0.2, width: potWidth * 0.76, height: potHeight * 0.26 };
+  const soupRect = {
+    x: potX + potWidth * 0.12,
+    y: potY + potHeight * 0.2,
+    width: potWidth * 0.76,
+    height: potHeight * 0.26,
+  };
   const colors = soupColors(now);
   ctx.save();
   ctx.fillStyle = "#5f6f6f";
   ctx.beginPath();
-  ctx.ellipse(centerX, soupRect.y + soupRect.height * 0.5, soupRect.width * 0.58, soupRect.height * 0.65, 0, 0, Math.PI * 2);
+  ctx.ellipse(
+    centerX,
+    soupRect.y + soupRect.height * 0.5,
+    soupRect.width * 0.58,
+    soupRect.height * 0.65,
+    0,
+    0,
+    Math.PI * 2,
+  );
   ctx.fill();
   const soupGradient = ctx.createLinearGradient(0, soupRect.y, 0, soupRect.y + soupRect.height);
   soupGradient.addColorStop(0, rgbCss(colors.top));
@@ -517,7 +732,15 @@ function drawPot(ctx: CanvasRenderingContext2D, rect: Rect, now: number) {
   soupGradient.addColorStop(1, rgbCss(colors.bottom));
   ctx.fillStyle = soupGradient;
   ctx.beginPath();
-  ctx.ellipse(centerX, soupRect.y + soupRect.height * 0.52, soupRect.width * 0.5, soupRect.height * 0.48, 0, 0, Math.PI * 2);
+  ctx.ellipse(
+    centerX,
+    soupRect.y + soupRect.height * 0.52,
+    soupRect.width * 0.5,
+    soupRect.height * 0.48,
+    0,
+    0,
+    Math.PI * 2,
+  );
   ctx.fill();
   ctx.restore();
   drawSoupBits(ctx, soupRect, now);
@@ -538,7 +761,15 @@ function drawSoupBits(ctx: CanvasRenderingContext2D, soupRect: Rect, now: number
     ctx.strokeStyle = "#64b5f6";
     ctx.lineWidth = Math.max(3, soupRect.height * 0.08);
     ctx.beginPath();
-    ctx.ellipse(soupCx + Math.sin(now * 0.002) * soupRect.width * 0.04, soupCy, soupRect.width * 0.36, soupRect.height * 0.26, 0, 0, Math.PI * 2);
+    ctx.ellipse(
+      soupCx + Math.sin(now * 0.002) * soupRect.width * 0.04,
+      soupCy,
+      soupRect.width * 0.36,
+      soupRect.height * 0.26,
+      0,
+      0,
+      Math.PI * 2,
+    );
     ctx.stroke();
     ctx.restore();
   }
@@ -550,8 +781,14 @@ function drawSoupBits(ctx: CanvasRenderingContext2D, soupRect: Rect, now: number
     const sink = clamp((flightProgress - 0.58) / 0.42, 0, 1);
     for (let bit = 0; bit < 4; bit += 1) {
       const bubble = bubbles[(index * 4 + bit) % bubbles.length];
-      const x = soupRect.x + soupRect.width * (0.18 + ((index * 0.18 + bit * 0.21 + bubble.x * 0.18) % 0.64));
-      const y = soupRect.y + soupRect.height * (0.22 + sink * 0.22 + ((index * 0.17 + bit * 0.13 + bubble.y * 0.12) % 0.22)) + Math.sin(now * 0.003 + bubble.phase) * 2;
+      const x =
+        soupRect.x +
+        soupRect.width * (0.18 + ((index * 0.18 + bit * 0.21 + bubble.x * 0.18) % 0.64));
+      const y =
+        soupRect.y +
+        soupRect.height *
+          (0.22 + sink * 0.22 + ((index * 0.17 + bit * 0.13 + bubble.y * 0.12) % 0.22)) +
+        Math.sin(now * 0.003 + bubble.phase) * 2;
       const size = clamp(soupRect.height * (0.06 + bubble.size * 0.018), 3, 8);
       ctx.save();
       ctx.globalAlpha = 0.2 + sink * 0.62;
@@ -569,7 +806,15 @@ function drawSoupBits(ctx: CanvasRenderingContext2D, soupRect: Rect, now: number
   ctx.restore();
 }
 
-function drawIngredientGlyph(ctx: CanvasRenderingContext2D, ingredient: SoupIngredient, x: number, y: number, size: number, compact = false, alpha = 1) {
+function drawIngredientGlyph(
+  ctx: CanvasRenderingContext2D,
+  ingredient: SoupIngredient,
+  x: number,
+  y: number,
+  size: number,
+  compact = false,
+  alpha = 1,
+) {
   ctx.save();
   ctx.globalAlpha = alpha;
   ctx.fillStyle = ingredient.color;
@@ -586,8 +831,22 @@ function drawIngredientGlyph(ctx: CanvasRenderingContext2D, ingredient: SoupIngr
     case "water":
       ctx.beginPath();
       ctx.moveTo(x, y - size * 0.68);
-      ctx.bezierCurveTo(x + size * 0.52, y - size * 0.05, x + size * 0.42, y + size * 0.55, x, y + size * 0.6);
-      ctx.bezierCurveTo(x - size * 0.42, y + size * 0.55, x - size * 0.52, y - size * 0.05, x, y - size * 0.68);
+      ctx.bezierCurveTo(
+        x + size * 0.52,
+        y - size * 0.05,
+        x + size * 0.42,
+        y + size * 0.55,
+        x,
+        y + size * 0.6,
+      );
+      ctx.bezierCurveTo(
+        x - size * 0.42,
+        y + size * 0.55,
+        x - size * 0.52,
+        y - size * 0.05,
+        x,
+        y - size * 0.68,
+      );
       ctx.stroke();
       break;
     case "potatoes":
@@ -622,7 +881,13 @@ function drawIngredientGlyph(ctx: CanvasRenderingContext2D, ingredient: SoupIngr
       for (let index = 0; index < 8; index += 1) {
         const angle = index * Math.PI * 0.25;
         ctx.beginPath();
-        ctx.arc(x + Math.cos(angle) * size * 0.45, y + Math.sin(angle) * size * 0.45, size * 0.08, 0, Math.PI * 2);
+        ctx.arc(
+          x + Math.cos(angle) * size * 0.45,
+          y + Math.sin(angle) * size * 0.45,
+          size * 0.08,
+          0,
+          Math.PI * 2,
+        );
         ctx.fillStyle = "#0f1820";
         ctx.fill();
       }
@@ -675,28 +940,36 @@ function flightPoint(flight: FlyingIngredient, raw: number) {
   const arc = Math.sin(raw * Math.PI) * 86;
   return {
     x: lerp(flight.from.x, flight.to.x, progress),
-    y: lerp(flight.from.y, flight.to.y, progress) - arc
+    y: lerp(flight.from.y, flight.to.y, progress) - arc,
   };
 }
 
-function drawWaterPour(ctx: CanvasRenderingContext2D, flight: FlyingIngredient, raw: number, now: number) {
+function drawWaterPour(
+  ctx: CanvasRenderingContext2D,
+  flight: FlyingIngredient,
+  raw: number,
+  now: number,
+) {
   const moveEnd = 0.36;
   const moving = clamp(raw / moveEnd, 0, 1);
   const pouring = clamp((raw - moveEnd) / (1 - moveEnd), 0, 1);
   const ended = clamp((raw - 0.92) / 0.08, 0, 1);
   const pourPosition = {
     x: flight.to.x + clamp(width.value * 0.075, 58, 138),
-    y: flight.to.y - clamp(height.value * 0.18, 92, 170)
+    y: flight.to.y - clamp(height.value * 0.18, 92, 170),
   };
-  const pitcher = raw < moveEnd
-    ? {
-        x: lerp(flight.from.x, pourPosition.x, easeOutCubic(moving)),
-        y: lerp(flight.from.y, pourPosition.y, easeOutCubic(moving)) - Math.sin(moving * Math.PI) * clamp(height.value * 0.12, 46, 96)
-      }
-    : {
-        x: pourPosition.x + Math.sin(now * 0.005) * 2,
-        y: pourPosition.y + Math.sin(now * 0.004) * 2
-      };
+  const pitcher =
+    raw < moveEnd
+      ? {
+          x: lerp(flight.from.x, pourPosition.x, easeOutCubic(moving)),
+          y:
+            lerp(flight.from.y, pourPosition.y, easeOutCubic(moving)) -
+            Math.sin(moving * Math.PI) * clamp(height.value * 0.12, 46, 96),
+        }
+      : {
+          x: pourPosition.x + Math.sin(now * 0.005) * 2,
+          y: pourPosition.y + Math.sin(now * 0.004) * 2,
+        };
 
   ctx.save();
   ctx.globalAlpha = 1 - ended;
@@ -708,10 +981,13 @@ function drawWaterPour(ctx: CanvasRenderingContext2D, flight: FlyingIngredient, 
     ctx.lineJoin = "round";
     for (let pass = 0; pass < 2; pass += 1) {
       ctx.strokeStyle = pass === 0 ? "rgba(30, 144, 255, 0.32)" : "rgba(119, 213, 255, 0.92)";
-      ctx.lineWidth = pass === 0 ? clamp(Math.min(width.value, height.value) * 0.024, 12, 30) : clamp(Math.min(width.value, height.value) * 0.011, 5, 15);
+      ctx.lineWidth =
+        pass === 0
+          ? clamp(Math.min(width.value, height.value) * 0.024, 12, 30)
+          : clamp(Math.min(width.value, height.value) * 0.011, 5, 15);
       ctx.beginPath();
       for (let step = 0; step <= 26; step += 1) {
-        const t = streamEnd * step / 26;
+        const t = (streamEnd * step) / 26;
         const bend = Math.sin(t * Math.PI) * clamp(width.value * 0.018, 10, 26);
         const x = lerp(spout.x, target.x, t) - bend + Math.sin(now * 0.009 + step) * 2;
         const y = lerp(spout.y, target.y, t) + Math.sin(t * Math.PI) * 18;
@@ -749,7 +1025,15 @@ function drawFlyingIngredients(ctx: CanvasRenderingContext2D, now: number) {
     const point = flightPoint(flight, raw);
     const sink = clamp((raw - 0.68) / 0.32, 0, 1);
     const size = clamp(Math.min(width.value, height.value) * 0.035, 22, 42) * (1 - sink * 0.42);
-    drawIngredientGlyph(ctx, flight.ingredient, point.x, point.y + sink * 24, size, false, 1 - raw * 0.3);
+    drawIngredientGlyph(
+      ctx,
+      flight.ingredient,
+      point.x,
+      point.y + sink * 24,
+      size,
+      false,
+      1 - raw * 0.3,
+    );
   }
 }
 
@@ -776,15 +1060,17 @@ onUnmounted(() => {
   soupFeedback.dispose();
 });
 
-watch(() => session.status, (status) => {
-  if (status === "finished") {
-    if (!isSpeaking.value) scheduleResultDialog();
-  }
-  else {
-    clearResultTimer();
-    resultVisible.value = false;
-  }
-});
+watch(
+  () => session.status,
+  (status) => {
+    if (status === "finished") {
+      if (!isSpeaking.value) scheduleResultDialog();
+    } else {
+      clearResultTimer();
+      resultVisible.value = false;
+    }
+  },
+);
 
 watch(isSpeaking, (speaking) => {
   if (!speaking && session.status === "finished" && !resultVisible.value) scheduleResultDialog();
@@ -793,37 +1079,103 @@ watch(isSpeaking, (speaking) => {
 
 <template>
   <div class="soup-recipe-shell">
-    <GameHud title="Рецепт супа" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Рецепт супа"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <canvas ref="canvasRef" class="soup-canvas" aria-label="Рецепт супа" />
     <div class="soup-recipe-layer" aria-label="Рецепт супа по порядку">
       <div class="soup-recipe-strip" :style="targetStyle(layout.recipeRect)">
         <div
           v-for="ingredient in round.ingredients"
           :key="`recipe:${ingredient.id}`"
-          :class="['soup-recipe-step', { 'soup-recipe-step--done': placedIngredientIds.includes(ingredient.id), 'soup-recipe-step--current': nextIngredient?.id === ingredient.id }]"
+          :class="[
+            'soup-recipe-step',
+            {
+              'soup-recipe-step--done': placedIngredientIds.includes(ingredient.id),
+              'soup-recipe-step--current': nextIngredient?.id === ingredient.id,
+            },
+          ]"
         >
           <div class="soup-recipe-visual">
-            <GameWordImage v-if="ingredient.imageId" :word-id="ingredient.imageId" :word="ingredient.label" :emoji="ingredient.emoji" decorative />
+            <GameWordImage
+              v-if="ingredient.imageId"
+              :word-id="ingredient.imageId"
+              :word="ingredient.label"
+              :emoji="ingredient.emoji"
+              decorative
+            />
             <v-icon v-else-if="ingredient.icon" :icon="ingredient.icon" />
             <span v-else class="emoji-glyph" aria-hidden="true">{{ ingredient.emoji }}</span>
           </div>
-          <span class="soup-recipe-label text-caption font-weight-bold">{{ ingredient.label }}</span>
+          <span class="soup-recipe-label text-caption font-weight-bold">{{
+            ingredient.label
+          }}</span>
         </div>
       </div>
     </div>
     <div class="soup-target-layer" aria-label="Ингредиенты для супа">
-      <GameDwellButton v-for="slot in ingredientSlots" :key="slot.ingredient.id" class="soup-target" :style="targetStyle(slot.rect)" :target-id="ingredientTargetId(slot.ingredient)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking || placedIngredientIds.includes(slot.ingredient.id)" :dwell-ms="session.settings.dwellMs" :hit-padding="0" :min-height="slot.rect.height" :color="ingredientColor(slot.ingredient)" @select="chooseIngredient(slot.ingredient)">
-        <div :class="['soup-ingredient-card', { 'soup-ingredient-card--placed': placedIngredientIds.includes(slot.ingredient.id) }]">
+      <GameDwellButton
+        v-for="slot in ingredientSlots"
+        :key="slot.ingredient.id"
+        class="soup-target"
+        :style="targetStyle(slot.rect)"
+        :target-id="ingredientTargetId(slot.ingredient)"
+        :disabled="
+          session.status !== 'running' ||
+          pendingSelection ||
+          isSpeaking ||
+          placedIngredientIds.includes(slot.ingredient.id)
+        "
+        :dwell-ms="session.settings.dwellMs"
+        :hit-padding="0"
+        :min-height="slot.rect.height"
+        :color="ingredientColor(slot.ingredient)"
+        @select="chooseIngredient(slot.ingredient)"
+      >
+        <div
+          :class="[
+            'soup-ingredient-card',
+            { 'soup-ingredient-card--placed': placedIngredientIds.includes(slot.ingredient.id) },
+          ]"
+        >
           <div class="soup-ingredient-visual" :style="{ backgroundColor: slot.ingredient.color }">
-            <GameWordImage v-if="slot.ingredient.imageId" :word-id="slot.ingredient.imageId" :word="slot.ingredient.label" :emoji="slot.ingredient.emoji" />
+            <GameWordImage
+              v-if="slot.ingredient.imageId"
+              :word-id="slot.ingredient.imageId"
+              :word="slot.ingredient.label"
+              :emoji="slot.ingredient.emoji"
+            />
             <v-icon v-else-if="slot.ingredient.icon" :icon="slot.ingredient.icon" />
-            <span v-else class="emoji-glyph" :aria-label="slot.ingredient.label">{{ slot.ingredient.emoji }}</span>
+            <span v-else class="emoji-glyph" :aria-label="slot.ingredient.label">{{
+              slot.ingredient.emoji
+            }}</span>
           </div>
-          <div class="soup-ingredient-label text-subtitle-2 text-md-subtitle-1 font-weight-bold">{{ slot.ingredient.label }}</div>
+          <div class="soup-ingredient-label text-subtitle-2 text-md-subtitle-1 font-weight-bold">
+            {{ slot.ingredient.label }}
+          </div>
         </div>
       </GameDwellButton>
     </div>
-    <GameResultDialog :model-value="resultVisible" title="Рецепт супа" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Рецепт супа"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -872,7 +1224,11 @@ watch(isSpeaking, (speaking) => {
   opacity: 0.62;
   overflow: hidden;
   padding: 0.2rem;
-  transition: border-color 180ms ease, box-shadow 180ms ease, opacity 180ms ease, transform 180ms ease;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    opacity 180ms ease,
+    transform 180ms ease;
 }
 
 .soup-recipe-step--done {

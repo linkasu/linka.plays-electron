@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { routeSnakeOutcome, createRouteSnakeState, nextSnakeHead, pointsEqual, setSnakeDirection, stepSnake, type RouteSnakeState } from "./model";
+import {
+  routeSnakeOutcome,
+  createRouteSnakeState,
+  nextSnakeHead,
+  pointsEqual,
+  setSnakeDirection,
+  stepSnake,
+  type RouteSnakeState,
+} from "./model";
 
 function state(overrides: Partial<RouteSnakeState>): RouteSnakeState {
   return {
@@ -9,7 +17,7 @@ function state(overrides: Partial<RouteSnakeState>): RouteSnakeState {
     direction: "right",
     food: { row: 0, column: 0 },
     lastEvent: "moved",
-   ...overrides
+    ...overrides,
   };
 }
 
@@ -35,7 +43,16 @@ describe("calm snake model", () => {
   });
 
   it("grows when the next step reaches food", () => {
-    const result = stepSnake(state({ snake: [{ row: 2, column: 2 }, { row: 2, column: 1 }], direction: "right", food: { row: 2, column: 3 } }));
+    const result = stepSnake(
+      state({
+        snake: [
+          { row: 2, column: 2 },
+          { row: 2, column: 1 },
+        ],
+        direction: "right",
+        food: { row: 2, column: 3 },
+      }),
+    );
 
     expect(result.event).toBe("ate-food");
     expect(result.state.snake).toHaveLength(3);
@@ -44,14 +61,28 @@ describe("calm snake model", () => {
   });
 
   it("does not reverse into itself", () => {
-    const current = state({ snake: [{ row: 2, column: 2 }, { row: 2, column: 1 }], direction: "right" });
+    const current = state({
+      snake: [
+        { row: 2, column: 2 },
+        { row: 2, column: 1 },
+      ],
+      direction: "right",
+    });
 
     expect(setSnakeDirection(current, "left")).toBe(current);
     expect(stepSnake(current, "left").state.snake[0]).toEqual({ row: 2, column: 3 });
   });
 
   it("uses a gentle fallback when the next step reaches a wall", () => {
-    const result = stepSnake(state({ snake: [{ row: 0, column: 4 }, { row: 0, column: 3 }], direction: "right" }));
+    const result = stepSnake(
+      state({
+        snake: [
+          { row: 0, column: 4 },
+          { row: 0, column: 3 },
+        ],
+        direction: "right",
+      }),
+    );
 
     expect(result.event).toBe("blocked-wall");
     expect(result.moved).toBe(true);
@@ -66,9 +97,9 @@ describe("calm snake model", () => {
         { row: 0, column: 0 },
         { row: 1, column: 0 },
         { row: 0, column: 1 },
-        { row: 1, column: 1 }
+        { row: 1, column: 1 },
       ],
-      direction: "up"
+      direction: "up",
     });
 
     const result = stepSnake(current);

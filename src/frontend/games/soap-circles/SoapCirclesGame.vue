@@ -7,7 +7,13 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { disposeSoapCirclesPiano, playSoapCircleCue, setSoapCirclesPianoActive, tickSoapCirclesPiano, warmSoapCirclesPiano } from "./audio";
+import {
+  disposeSoapCirclesPiano,
+  playSoapCircleCue,
+  setSoapCirclesPianoActive,
+  tickSoapCirclesPiano,
+  warmSoapCirclesPiano,
+} from "./audio";
 
 type SoapCircle = {
   id: string;
@@ -20,11 +26,28 @@ type SoapCircle = {
 };
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordSuccess, startSession } = useGameSessionFor("soap-circles", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  finishSession,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("soap-circles", {
   maxSteps: 8,
-  overrides: { preset: "gentle", targetScale: 1.6, motionSpeed: 0.32, distractors: "none", hints: "high", sound: true },
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.6,
+    motionSpeed: 0.32,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 useStartPromptAudio({ gameId: "soap-circles", soundEnabled: toRef(session.settings, "sound") });
 
@@ -37,7 +60,7 @@ const positions = [
   { x: 38, y: 66 },
   { x: 76, y: 68 },
   { x: 20, y: 61 },
-  { x: 58, y: 53 }
+  { x: 58, y: 53 },
 ];
 const hues = [188, 198, 212, 274, 306, 326];
 let circleIndex = 0;
@@ -60,7 +83,7 @@ function createCircle(slot: number): SoapCircle {
     size: 18 + ((circleIndex + slot) % 3) * 2.2,
     hue,
     delay: -0.55 * ((circleIndex + slot) % 5),
-    selected: false
+    selected: false,
   };
   circleIndex += 1;
   return circle;
@@ -68,7 +91,14 @@ function createCircle(slot: number): SoapCircle {
 
 function resetCircles() {
   circleIndex = 0;
-  circles.splice(0, circles.length, createCircle(0), createCircle(1), createCircle(2), createCircle(3));
+  circles.splice(
+    0,
+    circles.length,
+    createCircle(0),
+    createCircle(1),
+    createCircle(2),
+    createCircle(3),
+  );
 }
 
 function circleStyle(circle: SoapCircle) {
@@ -76,8 +106,8 @@ function circleStyle(circle: SoapCircle) {
     "--circle-hue": `${circle.hue}`,
     "--circle-size": `${circle.size}vw`,
     "--float-delay": `${circle.delay}s`,
-    insetBlockStart: `${circle.y}%`,
-    insetInlineStart: `${circle.x}%`
+    "insetBlockStart": `${circle.y}%`,
+    "insetInlineStart": `${circle.x}%`,
   };
 }
 
@@ -113,9 +143,13 @@ function restart() {
 
 resetCircles();
 
-watch(() => [session.status, session.settings.sound] as const, () => {
-  setSoapCirclesPianoActive(session.settings.sound, session.status === "running");
-}, { immediate: true });
+watch(
+  () => [session.status, session.settings.sound] as const,
+  () => {
+    setSoapCirclesPianoActive(session.settings.sound, session.status === "running");
+  },
+  { immediate: true },
+);
 
 onMounted(() => {
   warmSoapCirclesPiano(session.settings.sound);
@@ -154,7 +188,9 @@ onUnmounted(() => {
         :key="circle.id"
         :target-id="circle.id"
         :dwell-ms="session.settings.dwellMs"
-        :disabled="session.status !== 'running' || circle.selected || session.step >= session.maxSteps"
+        :disabled="
+          session.status !== 'running' || circle.selected || session.step >= session.maxSteps
+        "
         :min-height="180"
         class="soap-circle-target"
         color="transparent"
@@ -163,7 +199,10 @@ onUnmounted(() => {
       >
         <template #default="{ active, progress }">
           <div
-            :class="['soap-circle', { 'soap-circle--active': active, 'soap-circle--selected': circle.selected }]"
+            :class="[
+              'soap-circle',
+              { 'soap-circle--active': active, 'soap-circle--selected': circle.selected },
+            ]"
             :style="{ '--circle-progress': `${circle.selected ? 1 : active ? progress : 0}` }"
           >
             <span class="soap-circle-shine" aria-hidden="true" />
@@ -197,7 +236,8 @@ onUnmounted(() => {
 }
 
 .soap-circles-glow {
-  background: radial-gradient(circle at 18% 22%, rgb(255 255 255 / 82%), transparent 28%),
+  background:
+    radial-gradient(circle at 18% 22%, rgb(255 255 255 / 82%), transparent 28%),
     radial-gradient(circle at 76% 30%, rgb(173 235 255 / 38%), transparent 30%),
     radial-gradient(circle at 54% 86%, rgb(255 205 239 / 28%), transparent 38%);
   inset: 0;
@@ -253,27 +293,41 @@ onUnmounted(() => {
 }
 
 .soap-circle-target:deep(.dwell-progress) {
-  background: radial-gradient(closest-side, transparent 73%, rgb(255 255 255 / 78%) 74% 81%, transparent 82%),
+  background:
+    radial-gradient(closest-side, transparent 73%, rgb(255 255 255 / 78%) 74% 81%, transparent 82%),
     conic-gradient(rgb(53 173 203 / 72%) calc(var(--dwell-progress) * 1%), transparent 0);
   box-shadow: 0 0 0 10px rgb(255 255 255 / 20%);
 }
 
 .soap-circle {
   align-items: center;
-  background: radial-gradient(circle at 32% 24%, rgb(255 255 255 / 86%) 0 9%, transparent 10%),
+  background:
+    radial-gradient(circle at 32% 24%, rgb(255 255 255 / 86%) 0 9%, transparent 10%),
     radial-gradient(circle at 64% 70%, hsl(var(--circle-hue) 94% 86% / 48%) 0 22%, transparent 46%),
-    radial-gradient(circle at 50% 50%, hsl(var(--circle-hue) 92% 82% / 34%) 0 58%, hsl(calc(var(--circle-hue) + 54) 92% 80% / 46%) 73%, rgb(255 255 255 / 72%) 76%, transparent 80%);
+    radial-gradient(
+      circle at 50% 50%,
+      hsl(var(--circle-hue) 92% 82% / 34%) 0 58%,
+      hsl(calc(var(--circle-hue) + 54) 92% 80% / 46%) 73%,
+      rgb(255 255 255 / 72%) 76%,
+      transparent 80%
+    );
   block-size: 100%;
   border: 2px solid rgb(255 255 255 / 68%);
   border-radius: 50%;
-  box-shadow: inset -18px -22px 42px rgb(86 169 205 / 18%), inset 14px 18px 34px rgb(255 255 255 / 44%), 0 18px 54px rgb(59 166 197 / 16%);
+  box-shadow:
+    inset -18px -22px 42px rgb(86 169 205 / 18%),
+    inset 14px 18px 34px rgb(255 255 255 / 44%),
+    0 18px 54px rgb(59 166 197 / 16%);
   display: flex;
   inline-size: 100%;
   justify-content: center;
   opacity: calc(0.88 + (var(--circle-progress) * 0.12));
   position: relative;
   transform: scale(calc(1 + (var(--circle-progress) * 0.08)));
-  transition: opacity 780ms ease, transform 780ms ease, filter 780ms ease;
+  transition:
+    opacity 780ms ease,
+    transform 780ms ease,
+    filter 780ms ease;
 }
 
 .soap-circle--active {
@@ -307,7 +361,6 @@ onUnmounted(() => {
   position: absolute;
 }
 
-
 @keyframes soap-float {
   0%,
   100% {
@@ -320,15 +373,14 @@ onUnmounted(() => {
 }
 
 @media (max-width: 45rem) {
- .soap-circles-stage {
+  .soap-circles-stage {
     min-block-size: 42.5rem;
     padding-block-start: 96px;
   }
 
- .soap-circle-target {
+  .soap-circle-target {
     block-size: clamp(8.5rem, 34vw, 11.875rem);
     inline-size: clamp(8.5rem, 34vw, 11.875rem);
   }
 }
-
 </style>

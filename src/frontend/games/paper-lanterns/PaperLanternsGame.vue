@@ -8,7 +8,13 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
-import { disposePaperLanternsPiano, playPaperLanternsCue, setPaperLanternsPianoActive, tickPaperLanternsPiano, warmPaperLanternsPiano } from "./audio";
+import {
+  disposePaperLanternsPiano,
+  playPaperLanternsCue,
+  setPaperLanternsPianoActive,
+  tickPaperLanternsPiano,
+  warmPaperLanternsPiano,
+} from "./audio";
 
 type Point = { x: number; y: number };
 type LanternPhase = "appearing" | "waiting" | "gazing" | "rising";
@@ -33,11 +39,29 @@ type Star = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("paper-lanterns", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  finishSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("paper-lanterns", {
   maxSteps: 9,
-  overrides: { preset: "gentle", targetScale: 1.6, motionSpeed: 0.42, distractors: "none", hints: "high", sound: true },
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.6,
+    motionSpeed: 0.42,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 useStartPromptAudio({ gameId: "paper-lanterns", soundEnabled: toRef(session.settings, "sound") });
 
@@ -97,7 +121,7 @@ function chooseLanternPoint(radius: number, first: boolean) {
     bottomPadding: Math.max(96, window.innerHeight * 0.14),
     previous: previousLanternPoint,
     minDistance: Math.min(300, Math.max(170, radius * 1.5)),
-    attempts: 22
+    attempts: 22,
   });
 
   return point;
@@ -119,7 +143,7 @@ function createLantern(first = false): Lantern {
     phase: "appearing",
     dwellProgress: 0,
     sway: randomRange(0, Math.PI * 2),
-    lift: randomRange(0.74, 1.08)
+    lift: randomRange(0.74, 1.08),
   };
 }
 
@@ -129,11 +153,16 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
-function targetPayload(lantern: Lantern, now: number, progress: number, reason?: "left" | "invalid-gaze") {
+function targetPayload(
+  lantern: Lantern,
+  now: number,
+  progress: number,
+  reason?: "left" | "invalid-gaze",
+) {
   return {
     targetId: lantern.id,
     at: Date.now(),
@@ -141,7 +170,7 @@ function targetPayload(lantern: Lantern, now: number, progress: number, reason?:
     elapsedMs: lantern.enteredAt === undefined ? 0 : now - lantern.enteredAt,
     progress,
     pointer: copyPointer(),
-    reason
+    reason,
   };
 }
 
@@ -149,8 +178,12 @@ function lanternPoint(lantern: Lantern) {
   const point = percentToPixels(lantern);
   const rise = lantern.phase === "rising" ? Math.min(1, lantern.phaseAge / risingSeconds) : 0;
   return {
-    x: point.x + Math.sin(lantern.age * 0.62 + lantern.sway) * lantern.radius * (0.06 + rise * 0.18),
-    y: point.y - rise * window.innerHeight * 0.5 * lantern.lift + Math.cos(lantern.age * 0.46 + lantern.sway) * lantern.radius * 0.04
+    x:
+      point.x + Math.sin(lantern.age * 0.62 + lantern.sway) * lantern.radius * (0.06 + rise * 0.18),
+    y:
+      point.y -
+      rise * window.innerHeight * 0.5 * lantern.lift +
+      Math.cos(lantern.age * 0.46 + lantern.sway) * lantern.radius * 0.04,
   };
 }
 
@@ -212,7 +245,8 @@ function updateActiveLantern(delta: number, now: number) {
   const inside = pointer.value.valid && distance(point, pointer.value) <= hitRadius;
 
   if (!inside) {
-    if (lantern.enteredAt !== undefined) cancelLantern(lantern, now, pointer.value.valid ? "left" : "invalid-gaze");
+    if (lantern.enteredAt !== undefined)
+      cancelLantern(lantern, now, pointer.value.valid ? "left" : "invalid-gaze");
     return;
   }
 
@@ -245,7 +279,7 @@ function initStars() {
       y: randomRange(7, 58),
       radius: randomRange(0.8, 2.2),
       alpha: randomRange(0.18, 0.56),
-      phase: randomRange(0, Math.PI * 2)
+      phase: randomRange(0, Math.PI * 2),
     });
   }
 }
@@ -271,7 +305,14 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
 
   const moonX = window.innerWidth * 0.78;
   const moonY = window.innerHeight * 0.2;
-  const moonGlow = context.createRadialGradient(moonX, moonY, 0, moonX, moonY, Math.max(window.innerWidth, window.innerHeight) * 0.32);
+  const moonGlow = context.createRadialGradient(
+    moonX,
+    moonY,
+    0,
+    moonX,
+    moonY,
+    Math.max(window.innerWidth, window.innerHeight) * 0.32,
+  );
   moonGlow.addColorStop(0, "rgb(255 222 171 / 18%)");
   moonGlow.addColorStop(1, "rgb(255 222 171 / 0%)");
   context.fillStyle = moonGlow;
@@ -279,14 +320,31 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
 
   context.fillStyle = "rgb(13 24 42 / 42%)";
   context.beginPath();
-  context.ellipse(window.innerWidth * 0.28, window.innerHeight * 0.88, window.innerWidth * 0.38, window.innerHeight * 0.18, 0, 0, Math.PI * 2);
-  context.ellipse(window.innerWidth * 0.72, window.innerHeight * 0.9, window.innerWidth * 0.44, window.innerHeight * 0.2, 0, 0, Math.PI * 2);
+  context.ellipse(
+    window.innerWidth * 0.28,
+    window.innerHeight * 0.88,
+    window.innerWidth * 0.38,
+    window.innerHeight * 0.18,
+    0,
+    0,
+    Math.PI * 2,
+  );
+  context.ellipse(
+    window.innerWidth * 0.72,
+    window.innerHeight * 0.9,
+    window.innerWidth * 0.44,
+    window.innerHeight * 0.2,
+    0,
+    0,
+    Math.PI * 2,
+  );
   context.fill();
 }
 
 function drawLantern(context: CanvasRenderingContext2D, lantern: Lantern, decorative = false) {
   const point = lanternPoint(lantern);
-  const appear = lantern.phase === "appearing" ? Math.min(1, lantern.phaseAge / appearingSeconds) : 1;
+  const appear =
+    lantern.phase === "appearing" ? Math.min(1, lantern.phaseAge / appearingSeconds) : 1;
   const rise = lantern.phase === "rising" ? Math.min(1, lantern.phaseAge / risingSeconds) : 0;
   const light = Math.max(lantern.dwellProgress, rise);
   const bodyWidth = lantern.radius * (0.94 + Math.sin(lantern.age * 0.85 + lantern.sway) * 0.025);
@@ -310,10 +368,22 @@ function drawLantern(context: CanvasRenderingContext2D, lantern: Lantern, decora
   context.lineWidth = Math.max(2, lantern.radius * 0.018);
   context.beginPath();
   context.moveTo(point.x, point.y - bodyHeight * 0.64);
-  context.quadraticCurveTo(point.x + Math.sin(lantern.age * 0.7 + lantern.sway) * lantern.radius * 0.18, point.y - bodyHeight * 1.1, point.x + bodyWidth * 0.24, point.y - bodyHeight * 1.34);
+  context.quadraticCurveTo(
+    point.x + Math.sin(lantern.age * 0.7 + lantern.sway) * lantern.radius * 0.18,
+    point.y - bodyHeight * 1.1,
+    point.x + bodyWidth * 0.24,
+    point.y - bodyHeight * 1.34,
+  );
   context.stroke();
 
-  const body = context.createRadialGradient(point.x - bodyWidth * 0.2, point.y - bodyHeight * 0.18, bodyWidth * 0.08, point.x, point.y, bodyWidth * 0.92);
+  const body = context.createRadialGradient(
+    point.x - bodyWidth * 0.2,
+    point.y - bodyHeight * 0.18,
+    bodyWidth * 0.08,
+    point.x,
+    point.y,
+    bodyWidth * 0.92,
+  );
   body.addColorStop(0, `hsla(${lantern.hue + 18}, 100%, ${90 - light * 4}%, 0.96)`);
   body.addColorStop(0.6, `hsla(${lantern.hue}, 88%, ${68 + light * 8}%, 0.86)`);
   body.addColorStop(1, `hsla(${lantern.hue - 10}, 72%, ${46 + light * 10}%, 0.84)`);
@@ -326,14 +396,34 @@ function drawLantern(context: CanvasRenderingContext2D, lantern: Lantern, decora
   context.lineWidth = Math.max(2, lantern.radius * 0.016);
   for (const offset of [-0.32, 0, 0.32]) {
     context.beginPath();
-    context.ellipse(point.x + bodyWidth * offset, point.y, bodyWidth * (0.24 - Math.abs(offset) * 0.18), bodyHeight * 0.5, 0, -Math.PI * 0.5, Math.PI * 0.5);
+    context.ellipse(
+      point.x + bodyWidth * offset,
+      point.y,
+      bodyWidth * (0.24 - Math.abs(offset) * 0.18),
+      bodyHeight * 0.5,
+      0,
+      -Math.PI * 0.5,
+      Math.PI * 0.5,
+    );
     context.stroke();
   }
 
   context.fillStyle = `hsla(${lantern.hue - 8}, 64%, 35%, 0.72)`;
   context.beginPath();
-  context.roundRect(point.x - bodyWidth * 0.28, point.y - bodyHeight * 0.58, bodyWidth * 0.56, bodyHeight * 0.12, lantern.radius * 0.045);
-  context.roundRect(point.x - bodyWidth * 0.26, point.y + bodyHeight * 0.46, bodyWidth * 0.52, bodyHeight * 0.12, lantern.radius * 0.045);
+  context.roundRect(
+    point.x - bodyWidth * 0.28,
+    point.y - bodyHeight * 0.58,
+    bodyWidth * 0.56,
+    bodyHeight * 0.12,
+    lantern.radius * 0.045,
+  );
+  context.roundRect(
+    point.x - bodyWidth * 0.26,
+    point.y + bodyHeight * 0.46,
+    bodyWidth * 0.52,
+    bodyHeight * 0.12,
+    lantern.radius * 0.045,
+  );
   context.fill();
 
   if (!decorative && lantern.phase !== "rising") {
@@ -341,7 +431,13 @@ function drawLantern(context: CanvasRenderingContext2D, lantern: Lantern, decora
     context.lineWidth = 3;
     context.setLineDash([10, 14]);
     context.beginPath();
-    context.arc(point.x, point.y, lantern.radius * (0.82 + lantern.dwellProgress * 0.08), 0, Math.PI * 2);
+    context.arc(
+      point.x,
+      point.y,
+      lantern.radius * (0.82 + lantern.dwellProgress * 0.08),
+      0,
+      Math.PI * 2,
+    );
     context.stroke();
   }
 
@@ -355,7 +451,8 @@ function draw(context: CanvasRenderingContext2D, now: number) {
 }
 
 function tick(now: number) {
-  const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+  const delta =
+    session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
 
   if (session.status === "running") {

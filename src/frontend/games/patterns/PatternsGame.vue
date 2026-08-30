@@ -9,20 +9,40 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useGameTimers } from "../../composables/useGameTimers";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { disposePatternsAudio, playPatternsMistakeMelody, playPatternsSuccessMelody, warmPatternsAudio } from "./audio";
+import {
+  disposePatternsAudio,
+  playPatternsMistakeMelody,
+  playPatternsSuccessMelody,
+  warmPatternsAudio,
+} from "./audio";
 import { generatePatternRound, type PatternItem } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession } = useGameSessionFor("patterns", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+} = useGameSessionFor("patterns", {
   maxSteps: 8,
   overrides: { dwellMs: 1200, sessionSeconds: 120, sound: true },
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 
-const { round, resultVisible, nextRound, restart: restartRounds } = useRoundGame({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRounds,
+} = useRoundGame({
   session,
   startSession,
-  generateRound: (roundIndex) => generatePatternRound(session.settings, roundIndex)
+  generateRound: (roundIndex) => generatePatternRound(session.settings, roundIndex),
 });
 
 const feedbackMessage = ref("Посмотри на ряд и выбери, что будет дальше.");
@@ -30,7 +50,10 @@ const pendingSelection = ref(false);
 const isSpeaking = ref(false);
 const wrongChoiceId = ref<string>();
 const successChoiceId = ref<string>();
-const promptAudio = useGamePromptAudio({ gameId: "patterns", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "patterns",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 const { setGameTimeout, clearGameTimers } = useGameTimers();
 
 function choiceTargetId(choice: PatternItem) {
@@ -73,12 +96,28 @@ async function choose(index: number) {
     pendingSelection.value = true;
     successChoiceId.value = choice.id;
     feedbackMessage.value = "Верно. Ряд продолжается.";
-    recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.answer.label, actual: choice.label, isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      answerId: choice.id,
+      expected: round.value.answer.label,
+      actual: choice.label,
+      isCorrect: true,
+    });
     const finishedAfterSuccess = session.step >= session.maxSteps;
     void playPatternsSuccessMelody(session.settings.sound);
     isSpeaking.value = true;
-    const playback = await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["patterns.correct", "patterns.complete"] : ["patterns.correct"], 80, 170);
-    if (playback === "cancelled" || session.sessionId !== sessionId || round.value.roundId !== roundId) return;
+    const playback = await promptAudio.playSequenceAndWait(
+      finishedAfterSuccess ? ["patterns.correct", "patterns.complete"] : ["patterns.correct"],
+      80,
+      170,
+    );
+    if (
+      playback === "cancelled" ||
+      session.sessionId !== sessionId ||
+      round.value.roundId !== roundId
+    )
+      return;
     isSpeaking.value = false;
 
     if (session.step < session.maxSteps) {
@@ -95,11 +134,24 @@ async function choose(index: number) {
   const roundId = round.value.roundId;
   wrongChoiceId.value = choice.id;
   feedbackMessage.value = "Посмотри на повтор в ряду и попробуй ещё раз.";
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.answer.label, actual: choice.label, isCorrect: false });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    expectedTargetId,
+    answerId: choice.id,
+    expected: round.value.answer.label,
+    actual: choice.label,
+    isCorrect: false,
+  });
   void playPatternsMistakeMelody(session.settings.sound);
   isSpeaking.value = true;
   const playback = await promptAudio.playSequenceAndWait(["patterns.mistake"], 80);
-  if (playback === "cancelled" || session.sessionId !== sessionId || round.value.roundId !== roundId) return;
+  if (
+    playback === "cancelled" ||
+    session.sessionId !== sessionId ||
+    round.value.roundId !== roundId
+  )
+    return;
   isSpeaking.value = false;
   setGameTimeout(() => {
     pendingSelection.value = false;
@@ -135,27 +187,65 @@ onUnmounted(() => {
 
 <template>
   <div class="patterns-shell">
-    <GameHud title="Паттерны" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Паттерны"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="9">
           <v-card class="pa-5 pa-md-8" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Продолжи последовательность</div>
+            <div class="text-overline text-secondary text-center mb-2">
+              Продолжи последовательность
+            </div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-3">Что будет дальше?</h1>
             <p class="text-body-1 text-medium-emphasis text-center mb-6">{{ feedbackMessage }}</p>
 
             <div class="pattern-row mb-6" aria-label="Ряд с пустой последней позицией">
-              <v-card v-for="(item, index) in round.sequence" :key="`${round.roundId}:${index}`" class="pattern-slot" color="surface" rounded="xl" variant="flat">
+              <v-card
+                v-for="(item, index) in round.sequence"
+                :key="`${round.roundId}:${index}`"
+                class="pattern-slot"
+                color="surface"
+                rounded="xl"
+                variant="flat"
+              >
                 <v-icon class="pattern-icon" :color="item.color" :icon="item.icon" />
               </v-card>
-              <v-card class="pattern-slot pattern-slot--blank" color="blue-grey-lighten-5" rounded="xl" variant="flat">
+              <v-card
+                class="pattern-slot pattern-slot--blank"
+                color="blue-grey-lighten-5"
+                rounded="xl"
+                variant="flat"
+              >
                 <v-icon class="blank-icon" color="blue-grey-darken-1" icon="mdi-help" />
               </v-card>
             </div>
 
             <v-row justify="center">
-              <v-col v-for="(choice, index) in round.choices" :key="choice.id" cols="6" :sm="round.choices.length === 3 ? 4 : 3" :md="round.choices.length === 3 ? 4 : 3">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="10rem" :color="choiceColor(choice)" @select="choose(index)">
+              <v-col
+                v-for="(choice, index) in round.choices"
+                :key="choice.id"
+                cols="6"
+                :sm="round.choices.length === 3 ? 4 : 3"
+                :md="round.choices.length === 3 ? 4 : 3"
+              >
+                <GameDwellButton
+                  :target-id="choiceTargetId(choice)"
+                  :disabled="session.status !== 'running' || pendingSelection || isSpeaking"
+                  :dwell-ms="session.settings.dwellMs"
+                  min-height="10rem"
+                  :color="choiceColor(choice)"
+                  @select="choose(index)"
+                >
                   <template #default>
                     <div class="choice-content">
                       <v-icon class="choice-icon" :color="choice.color" :icon="choice.icon" />
@@ -168,7 +258,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Паттерны" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Паттерны"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -193,7 +293,9 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   min-block-size: clamp(7.25rem, 16vw, 11.125rem);
-  transition: box-shadow 180ms ease, transform 180ms ease;
+  transition:
+    box-shadow 180ms ease,
+    transform 180ms ease;
 }
 
 .pattern-slot--blank {
@@ -219,27 +321,27 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 9.75rem;
   }
 
- .pattern-row {
+  .pattern-row {
     gap: 0.625rem;
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (max-height: 44rem) {
- .game-container {
+  .game-container {
     padding-block-start: 5rem;
   }
 
- .pattern-row {
+  .pattern-row {
     margin-block-end: 1rem !important;
   }
 
- .pattern-slot,
- .game-container :deep(.dwell-button) {
+  .pattern-slot,
+  .game-container :deep(.dwell-button) {
     min-block-size: 8.5rem !important;
   }
 }

@@ -19,7 +19,11 @@ export type ChoiceRoundFlowOptions<T> = {
   nextRound: () => void;
   restartRoundGame: () => void;
   isSameChoice: (left: T, right: T) => boolean;
-  buildAnswerPayload?: (choice: T, round: ChoiceRound<T>, isCorrect: boolean) => Record<string, unknown>;
+  buildAnswerPayload?: (
+    choice: T,
+    round: ChoiceRound<T>,
+    isCorrect: boolean,
+  ) => Record<string, unknown>;
   buildHintPayload?: (round: ChoiceRound<T>) => Record<string, unknown>;
   recordSuccess: (payload: Record<string, unknown>) => void;
   recordMistake: (payload: Record<string, unknown>) => void;
@@ -46,7 +50,7 @@ const defaultDelays: Required<ChoiceRoundFlowDelays> = {
   responseOnSuccess: 980,
   responseOnMistake: 940,
   nextRoundDelay: 2600,
-  mistakeReleaseDelay: 2200
+  mistakeReleaseDelay: 2200,
 };
 
 export type ChoiceRoundFlow<T> = {
@@ -60,7 +64,9 @@ export type ChoiceRoundFlow<T> = {
   dispose: () => void;
 };
 
-export function useChoiceRoundFlow<T extends { id: string }>(options: ChoiceRoundFlowOptions<T>): ChoiceRoundFlow<T> {
+export function useChoiceRoundFlow<T extends { id: string }>(
+  options: ChoiceRoundFlowOptions<T>,
+): ChoiceRoundFlow<T> {
   const delays = { ...defaultDelays, ...(options.delays ?? {}) };
   const hintedRoundId = ref<string>();
   const lastMistakeId = ref<string>();
@@ -96,9 +102,11 @@ export function useChoiceRoundFlow<T extends { id: string }>(options: ChoiceRoun
       roundId: round.roundId,
       answerId: choice.id,
       targetId: round.target.id,
-      isCorrect
+      isCorrect,
     };
-    const extra = options.buildAnswerPayload ? options.buildAnswerPayload(choice, round, isCorrect) : {};
+    const extra = options.buildAnswerPayload
+      ? options.buildAnswerPayload(choice, round, isCorrect)
+      : {};
     return { ...base, ...extra };
   }
 
@@ -115,7 +123,10 @@ export function useChoiceRoundFlow<T extends { id: string }>(options: ChoiceRoun
       lastMistakeId.value = undefined;
       playResponse(options.prompt?.successAssetId, delays.responseOnSuccess);
 
-      if (options.session.status === "running" && (!finishOnMaxSteps || options.session.step < options.session.maxSteps)) {
+      if (
+        options.session.status === "running" &&
+        (!finishOnMaxSteps || options.session.step < options.session.maxSteps)
+      ) {
         setGameTimeout(() => {
           if (options.session.status !== "running") {
             pendingSelection.value = false;
@@ -136,7 +147,11 @@ export function useChoiceRoundFlow<T extends { id: string }>(options: ChoiceRoun
     pendingSelection.value = true;
     options.feedback?.playMistake?.();
     options.recordMistake(buildPayload(choice, false));
-    options.recordHint?.(options.buildHintPayload ? options.buildHintPayload(round) : { roundId: round.roundId, targetId: round.target.id, reason: "wrong-choice" });
+    options.recordHint?.(
+      options.buildHintPayload
+        ? options.buildHintPayload(round)
+        : { roundId: round.roundId, targetId: round.target.id, reason: "wrong-choice" },
+    );
     hintedRoundId.value = round.roundId;
     lastMistakeId.value = choice.id;
     playResponse(options.prompt?.mistakeAssetId, delays.responseOnMistake);
@@ -166,5 +181,14 @@ export function useChoiceRoundFlow<T extends { id: string }>(options: ChoiceRoun
     clearGameTimers();
   }
 
-  return { hintedRoundId, lastMistakeId, pendingSelection, hintedChoice, answer, restart, start, dispose };
+  return {
+    hintedRoundId,
+    lastMistakeId,
+    pendingSelection,
+    hintedChoice,
+    answer,
+    restart,
+    start,
+    dispose,
+  };
 }

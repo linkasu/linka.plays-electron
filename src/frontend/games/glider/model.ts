@@ -13,14 +13,27 @@ export function gliderDifficulty(step: number, maxSteps: number): GliderDifficul
     gapScale: 1 - progress * 0.32,
     speedScale: 1 + progress * 0.38,
     passRatio: 0.38 - progress * 0.06,
-    drift: 1 + progress * 0.85
+    drift: 1 + progress * 0.85,
   };
 }
 
-export function classifyGatePass(gateX: number, gateWidth: number, gateY: number, gateGap: number, gliderX: number, gliderY: number, passRatio: number): GliderOutcome {
+export function classifyGatePass(
+  gateX: number,
+  gateWidth: number,
+  gateY: number,
+  gateGap: number,
+  gliderX: number,
+  gliderY: number,
+  passRatio: number,
+): GliderOutcome {
   const horizontalDistance = Math.abs(gateX - gliderX);
   if (gateX < gliderX - gateWidth * 1.25) return "miss";
-  if (gateX <= gliderX && horizontalDistance <= gateWidth * 0.8 && Math.abs(gateY - gliderY) <= gateGap * passRatio) return "pass";
+  if (
+    gateX <= gliderX &&
+    horizontalDistance <= gateWidth * 0.8 &&
+    Math.abs(gateY - gliderY) <= gateGap * passRatio
+  )
+    return "pass";
   return "approach";
 }
 

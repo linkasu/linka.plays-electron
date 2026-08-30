@@ -10,7 +10,7 @@ const defaultRoutes = [
   "/games/number-2048",
   "/games/route-snake",
   "/games/sokoban-large",
-  "/games/step-tetris"
+  "/games/step-tetris",
 ];
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
@@ -20,7 +20,7 @@ const defaultRegistryPath = path.join(projectRoot, "src/frontend/data/games.ts")
 const viewports = [
   { width: 800, height: 600 },
   { width: 1024, height: 600 },
-  { width: 1600, height: 900 }
+  { width: 1600, height: 900 },
 ];
 
 function argValue(name, fallback) {
@@ -28,7 +28,7 @@ function argValue(name, fallback) {
   const found = process.argv.find((arg) => arg.startsWith(prefix));
   if (found) return found.slice(prefix.length);
   const index = process.argv.indexOf(name);
-  return index >= 0 ? process.argv[index + 1] ?? fallback : fallback;
+  return index >= 0 ? (process.argv[index + 1] ?? fallback) : fallback;
 }
 
 function hasFlag(name) {
@@ -38,14 +38,22 @@ function hasFlag(name) {
 async function readRegistryGames() {
   const registryPath = argValue("--registry", defaultRegistryPath);
   const source = await readFile(registryPath, "utf8");
-  return Array.from(source.matchAll(/\{\s*\n\s*id:\s*"([^"]+)"[\s\S]*?route:\s*"([^"]+)"[\s\S]*?minTargetSizePx:\s*(\d+)[\s\S]*?\n\s*\}(?=\s*,?\s*(?:\{|\]))/g))
+  return Array.from(
+    source.matchAll(
+      /\{\s*\n\s*id:\s*"([^"]+)"[\s\S]*?route:\s*"([^"]+)"[\s\S]*?minTargetSizePx:\s*(\d+)[\s\S]*?\n\s*\}(?=\s*,?\s*(?:\{|\]))/g,
+    ),
+  )
     .map((match) => ({ id: match[1], route: match[2], minTargetSizePx: Number(match[3]) }))
     .filter((game) => game.route.startsWith("/games/"));
 }
 
 function parseRoutes(registryGames) {
   const value = argValue("--routes", "");
-  if (value) return value.split(",").map((route) => route.trim()).filter(Boolean);
+  if (value)
+    return value
+      .split(",")
+      .map((route) => route.trim())
+      .filter(Boolean);
   if (hasFlag("--all-games")) return registryGames.map((game) => game.route);
   return defaultRoutes;
 }
@@ -92,7 +100,9 @@ function createCdpClient(webSocketDebuggerUrl) {
 
   return new Promise((resolve, reject) => {
     socket.addEventListener("open", () => resolve({ send, on, close }));
-    socket.addEventListener("error", () => reject(new Error("Cannot connect to Electron CDP WebSocket")));
+    socket.addEventListener("error", () =>
+      reject(new Error("Cannot connect to Electron CDP WebSocket")),
+    );
   });
 }
 
@@ -110,15 +120,18 @@ async function evaluateJson(client, expression) {
   const result = await client.send("Runtime.evaluate", {
     expression,
     awaitPromise: true,
-    returnByValue: true
+    returnByValue: true,
   });
-  if (result.exceptionDetails) throw new Error(result.exceptionDetails.text ?? "Runtime.evaluate failed");
+  if (result.exceptionDetails)
+    throw new Error(result.exceptionDetails.text ?? "Runtime.evaluate failed");
   return result.result?.value;
 }
 
 async function collectMetrics(client, expectedRoute, minBottomClearanceRem, minTargetSizePx) {
   const expectedHash = `#${expectedRoute}`;
-  return evaluateJson(client, `(() => {
+  return evaluateJson(
+    client,
+    `(() => {
     const expectedHash = ${JSON.stringify(expectedHash)};
     const minBottomClearanceRem = ${JSON.stringify(minBottomClearanceRem)};
     const minTargetSizePx = ${JSON.stringify(minTargetSizePx)};
@@ -239,20 +252,24 @@ async function collectMetrics(client, expectedRoute, minBottomClearanceRem, minT
       canvases: canvasRects,
       targets: targetRects
     };
-  })()`);
+  })()`,
+  );
 }
 
 function isFailure(result) {
-  return result.errors.length
-    || !result.metrics.routeMatches
-    || result.metrics.horizontalOverflow
-    || result.metrics.hudOverlapCount
-    || result.metrics.lowContrastTargetCount
-    || result.metrics.clippedTargetCount
-    || result.metrics.undersizedTargetCount
-    || result.metrics.bottomCrowdedTargetCount
-    || (result.metrics.wasdPanelCount > 0 && result.metrics.visibleTargetCount < result.metrics.targetCount)
-    || (result.metrics.targetCount > 0 && result.metrics.visibleTargetCount === 0);
+  return (
+    result.errors.length ||
+    !result.metrics.routeMatches ||
+    result.metrics.horizontalOverflow ||
+    result.metrics.hudOverlapCount ||
+    result.metrics.lowContrastTargetCount ||
+    result.metrics.clippedTargetCount ||
+    result.metrics.undersizedTargetCount ||
+    result.metrics.bottomCrowdedTargetCount ||
+    (result.metrics.wasdPanelCount > 0 &&
+      result.metrics.visibleTargetCount < result.metrics.targetCount) ||
+    (result.metrics.targetCount > 0 && result.metrics.visibleTargetCount === 0)
+  );
 }
 
 function minOrCurrent(current, next) {
@@ -279,7 +296,7 @@ function summarizeResults(results) {
       minViewportAreaRatio: null,
       minShortSideRatio: null,
       minBottomClearance: null,
-      canvasCount: 0
+      canvasCount: 0,
     };
     const metrics = result.metrics;
     current.checked += 1;
@@ -290,13 +307,24 @@ function summarizeResults(results) {
     current.lowContrastTargetCount += metrics.lowContrastTargetCount;
     current.bottomCrowdedTargetCount += metrics.bottomCrowdedTargetCount;
     current.hiddenTargetViewportCount += metrics.visibleTargetCount < metrics.targetCount ? 1 : 0;
-    current.zeroVisibleTargetViewportCount += metrics.targetCount > 0 && metrics.visibleTargetCount === 0 ? 1 : 0;
-    current.wasdPartialViewportCount += metrics.wasdPanelCount > 0 && metrics.visibleTargetCount < metrics.targetCount ? 1 : 0;
+    current.zeroVisibleTargetViewportCount +=
+      metrics.targetCount > 0 && metrics.visibleTargetCount === 0 ? 1 : 0;
+    current.wasdPartialViewportCount +=
+      metrics.wasdPanelCount > 0 && metrics.visibleTargetCount < metrics.targetCount ? 1 : 0;
     current.maxTargetCount = Math.max(current.maxTargetCount, metrics.targetCount);
-    current.minVisibleTargetCount = minOrCurrent(current.minVisibleTargetCount, metrics.visibleTargetCount);
-    current.minViewportAreaRatio = minOrCurrent(current.minViewportAreaRatio, metrics.minViewportAreaRatio);
+    current.minVisibleTargetCount = minOrCurrent(
+      current.minVisibleTargetCount,
+      metrics.visibleTargetCount,
+    );
+    current.minViewportAreaRatio = minOrCurrent(
+      current.minViewportAreaRatio,
+      metrics.minViewportAreaRatio,
+    );
     current.minShortSideRatio = minOrCurrent(current.minShortSideRatio, metrics.minShortSideRatio);
-    current.minBottomClearance = minOrCurrent(current.minBottomClearance, metrics.minBottomClearance);
+    current.minBottomClearance = minOrCurrent(
+      current.minBottomClearance,
+      metrics.minBottomClearance,
+    );
     current.canvasCount = Math.max(current.canvasCount, metrics.canvases.length);
     byRoute.set(result.route, current);
   }
@@ -308,7 +336,7 @@ function summarizeResults(results) {
     checked: results.length,
     failureRouteCount: routes.filter((route) => route.failures > 0).length,
     failureViewportCount: results.filter((result) => isFailure(result)).length,
-    routes
+    routes,
   };
 }
 
@@ -324,15 +352,25 @@ async function main() {
   const listResponse = await fetch(`http://127.0.0.1:${port}/json/list`);
   if (!listResponse.ok) throw new Error(`Cannot read Electron CDP targets on port ${port}`);
   const targets = await listResponse.json();
-  const pageTarget = targets.find((target) => target.type === "page" && target.webSocketDebuggerUrl && /^https?:/.test(target.url));
+  const pageTarget = targets.find(
+    (target) =>
+      target.type === "page" && target.webSocketDebuggerUrl && /^https?:/.test(target.url),
+  );
   if (!pageTarget) throw new Error("No Electron page target with webSocketDebuggerUrl found");
   const originalUrl = pageTarget.url;
 
   const client = await createCdpClient(pageTarget.webSocketDebuggerUrl);
   const runtimeErrors = [];
-  client.on("Runtime.exceptionThrown", (params) => runtimeErrors.push(params.exceptionDetails?.exception?.description ?? params.exceptionDetails?.text ?? "Runtime exception"));
+  client.on("Runtime.exceptionThrown", (params) =>
+    runtimeErrors.push(
+      params.exceptionDetails?.exception?.description ??
+        params.exceptionDetails?.text ??
+        "Runtime exception",
+    ),
+  );
   client.on("Log.entryAdded", (params) => {
-    if (params.entry?.level === "error" && !params.entry.text?.includes("Failed to load resource:")) runtimeErrors.push(params.entry.text);
+    if (params.entry?.level === "error" && !params.entry.text?.includes("Failed to load resource:"))
+      runtimeErrors.push(params.entry.text);
   });
 
   await client.send("Page.enable");
@@ -348,28 +386,48 @@ async function main() {
         width: viewport.width,
         height: viewport.height,
         deviceScaleFactor: 1,
-        mobile: false
+        mobile: false,
       });
-      await client.send("Page.navigate", { url: routeUrl(pageTarget.url, route, `${Date.now()}-${results.length}`) });
+      await client.send("Page.navigate", {
+        url: routeUrl(pageTarget.url, route, `${Date.now()}-${results.length}`),
+      });
       await client.send("Page.bringToFront");
       await wait(900);
-      const resumedSession = await evaluateJson(client, `(() => {
+      const resumedSession = await evaluateJson(
+        client,
+        `(() => {
         const resumeButton = Array.from(document.querySelectorAll('.game-hud button')).find((button) => /продолжить/i.test(button.textContent ?? ''));
         if (!(resumeButton instanceof HTMLButtonElement)) return false;
         resumeButton.click();
         return true;
-      })()`);
+      })()`,
+      );
       await evaluateJson(client, "window.scrollTo(0, 0); true");
       await wait(250);
-      const metrics = await collectMetrics(client, route, minBottomClearanceRem, registryByRoute.get(route)?.minTargetSizePx ?? 120);
+      const metrics = await collectMetrics(
+        client,
+        route,
+        minBottomClearanceRem,
+        registryByRoute.get(route)?.minTargetSizePx ?? 120,
+      );
       let screenshotPath = null;
       if (screenshotDir) {
         screenshotPath = path.join(screenshotDir, screenshotName(route, viewport));
-        const screenshot = await client.send("Page.captureScreenshot", { format: "png", fromSurface: true });
+        const screenshot = await client.send("Page.captureScreenshot", {
+          format: "png",
+          fromSurface: true,
+        });
         await writeFile(screenshotPath, Buffer.from(screenshot.data, "base64"));
       }
       const routeErrors = runtimeErrors.slice(errorStart);
-      results.push({ route, viewport, resumedSession, errors: routeErrors, screenshotPath, metrics });
+      results.push({
+        route,
+        viewport,
+        resumedSession,
+        errors: routeErrors,
+        screenshotPath,
+        metrics,
+      });
     }
   }
 
@@ -381,7 +439,17 @@ async function main() {
 
   const failures = results.filter((result) => isFailure(result));
   const summary = summarizeResults(results);
-  const report = { port, commitSha: process.env.GITHUB_SHA ?? null, routes, checked: results.length, failures: failures.length, minBottomClearanceRem, screenshotDir: screenshotDir || null, summary, results };
+  const report = {
+    port,
+    commitSha: process.env.GITHUB_SHA ?? null,
+    routes,
+    checked: results.length,
+    failures: failures.length,
+    minBottomClearanceRem,
+    screenshotDir: screenshotDir || null,
+    summary,
+    results,
+  };
   const json = JSON.stringify(report, null, 2);
 
   const outputPath = argValue("--output", "");

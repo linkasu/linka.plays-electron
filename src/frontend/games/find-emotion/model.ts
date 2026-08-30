@@ -1,5 +1,11 @@
 import type { SessionSettings } from "../../core/settings";
-import { buildChoiceRound, choiceCountByPreset, idEquality, pickRandom, type ChoiceRound } from "../../core/round";
+import {
+  buildChoiceRound,
+  choiceCountByPreset,
+  idEquality,
+  pickRandom,
+  type ChoiceRound,
+} from "../../core/round";
 import { createNonRepeatingRandomIndexGenerator } from "../../core/random";
 
 export type FindEmotionOption = {
@@ -16,11 +22,20 @@ export const findEmotionOptions: FindEmotionOption[] = [
   { id: "anger", label: "злость", emoji: "😠" },
   { id: "surprise", label: "удивление", emoji: "😮" },
   { id: "fear", label: "страх", emoji: "😨" },
-  { id: "sleepy", label: "сонливость", emoji: "😴" }
+  { id: "sleepy", label: "сонливость", emoji: "😴" },
 ];
 
-function buildFindEmotionRound(settings: SessionSettings, roundIndex: number, target: FindEmotionOption, random = Math.random): FindEmotionRound {
-  const choiceCount = choiceCountByPreset(settings, roundIndex, { gentle: 2, standard: 3, challenge: 4 });
+function buildFindEmotionRound(
+  settings: SessionSettings,
+  roundIndex: number,
+  target: FindEmotionOption,
+  random = Math.random,
+): FindEmotionRound {
+  const choiceCount = choiceCountByPreset(settings, roundIndex, {
+    gentle: 2,
+    standard: 3,
+    challenge: 4,
+  });
   if (findEmotionOptions.length < choiceCount) throw new Error("Недостаточно эмоций для игры.");
 
   return buildChoiceRound({
@@ -31,11 +46,14 @@ function buildFindEmotionRound(settings: SessionSettings, roundIndex: number, ta
     pickTarget: () => target,
     isSame: idEquality,
     prompt: (roundTarget) => `Найди эмоцию: ${roundTarget.label}`,
-    random
+    random,
   });
 }
 
-export function generateFindEmotionRound(settings: SessionSettings, roundIndex = 1): FindEmotionRound {
+export function generateFindEmotionRound(
+  settings: SessionSettings,
+  roundIndex = 1,
+): FindEmotionRound {
   return buildFindEmotionRound(settings, roundIndex, pickRandom(findEmotionOptions));
 }
 

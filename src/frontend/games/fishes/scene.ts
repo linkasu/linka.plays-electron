@@ -104,7 +104,14 @@ function drawLightRays(context: CanvasRenderingContext2D) {
   context.restore();
 }
 
-function drawSeaweed(context: CanvasRenderingContext2D, x: number, baseY: number, height: number, color: string, sway: number) {
+function drawSeaweed(
+  context: CanvasRenderingContext2D,
+  x: number,
+  baseY: number,
+  height: number,
+  color: string,
+  sway: number,
+) {
   context.save();
   context.strokeStyle = color;
   context.lineWidth = Math.max(5, height * 0.08);
@@ -113,13 +120,24 @@ function drawSeaweed(context: CanvasRenderingContext2D, x: number, baseY: number
     const offset = (index - 1) * height * 0.12;
     context.beginPath();
     context.moveTo(x + offset, baseY);
-    context.quadraticCurveTo(x + offset + Math.sin(sway + index) * height * 0.14, baseY - height * 0.5, x + offset + Math.cos(sway + index) * height * 0.08, baseY - height);
+    context.quadraticCurveTo(
+      x + offset + Math.sin(sway + index) * height * 0.14,
+      baseY - height * 0.5,
+      x + offset + Math.cos(sway + index) * height * 0.08,
+      baseY - height,
+    );
     context.stroke();
   }
   context.restore();
 }
 
-function drawShell(context: CanvasRenderingContext2D, x: number, y: number, size: number, color: string) {
+function drawShell(
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  size: number,
+  color: string,
+) {
   context.save();
   context.fillStyle = color;
   context.beginPath();
@@ -130,7 +148,12 @@ function drawShell(context: CanvasRenderingContext2D, x: number, y: number, size
   for (let index = -2; index <= 2; index++) {
     context.beginPath();
     context.moveTo(x, y);
-    context.quadraticCurveTo(x + index * size * 0.18, y - size * 0.34, x + index * size * 0.36, y - size * 0.05);
+    context.quadraticCurveTo(
+      x + index * size * 0.18,
+      y - size * 0.34,
+      x + index * size * 0.36,
+      y - size * 0.05,
+    );
     context.stroke();
   }
   context.restore();
@@ -156,17 +179,38 @@ function drawSeabed(context: CanvasRenderingContext2D, now: number) {
     [0.08, 0.9, 70, "#2e7386"],
     [0.25, 0.86, 46, "#557d4d"],
     [0.66, 0.88, 58, "#2e7386"],
-    [0.92, 0.9, 72, "#5e7040"]
-  ] as const) drawSeaweed(context, window.innerWidth * item[0], window.innerHeight * item[1], item[2], item[3], now / 1600);
+    [0.92, 0.9, 72, "#5e7040"],
+  ] as const)
+    drawSeaweed(
+      context,
+      window.innerWidth * item[0],
+      window.innerHeight * item[1],
+      item[2],
+      item[3],
+      now / 1600,
+    );
 
   drawShell(context, window.innerWidth * 0.18, window.innerHeight * 0.9, 42, "#c79d91");
   drawShell(context, window.innerWidth * 0.52, window.innerHeight * 0.84, 58, "#d6a77f");
   drawShell(context, window.innerWidth * 0.82, window.innerHeight * 0.86, 36, "#a9975d");
 
   context.fillStyle = "rgb(87 143 154 / 45%)";
-  for (const rock of [[0.42, 0.93, 32], [0.62, 0.92, 24], [0.73, 0.88, 18], [0.34, 0.86, 15]] as const) {
+  for (const rock of [
+    [0.42, 0.93, 32],
+    [0.62, 0.92, 24],
+    [0.73, 0.88, 18],
+    [0.34, 0.86, 15],
+  ] as const) {
     context.beginPath();
-    context.ellipse(window.innerWidth * rock[0], window.innerHeight * rock[1], rock[2], rock[2] * 0.42, 0, 0, Math.PI * 2);
+    context.ellipse(
+      window.innerWidth * rock[0],
+      window.innerHeight * rock[1],
+      rock[2],
+      rock[2] * 0.42,
+      0,
+      0,
+      Math.PI * 2,
+    );
     context.fill();
   }
 }
@@ -234,10 +278,16 @@ function drawTreasureClock(context: CanvasRenderingContext2D, progress: number) 
   context.strokeStyle = "rgb(49 84 106 / 70%)";
   context.lineWidth = 1.5;
   for (let index = 0; index < 12; index++) {
-    const angle = index / 12 * Math.PI * 2 - Math.PI / 2;
+    const angle = (index / 12) * Math.PI * 2 - Math.PI / 2;
     context.beginPath();
-    context.moveTo(clockX + Math.cos(angle) * clockRadius * 0.7, clockY + Math.sin(angle) * clockRadius * 0.7);
-    context.lineTo(clockX + Math.cos(angle) * clockRadius * 0.88, clockY + Math.sin(angle) * clockRadius * 0.88);
+    context.moveTo(
+      clockX + Math.cos(angle) * clockRadius * 0.7,
+      clockY + Math.sin(angle) * clockRadius * 0.7,
+    );
+    context.lineTo(
+      clockX + Math.cos(angle) * clockRadius * 0.88,
+      clockY + Math.sin(angle) * clockRadius * 0.88,
+    );
     context.stroke();
   }
 
@@ -246,7 +296,10 @@ function drawTreasureClock(context: CanvasRenderingContext2D, progress: number) 
   context.lineWidth = 4;
   context.beginPath();
   context.moveTo(clockX, clockY);
-  context.lineTo(clockX + Math.cos(handAngle) * clockRadius * 0.58, clockY + Math.sin(handAngle) * clockRadius * 0.58);
+  context.lineTo(
+    clockX + Math.cos(handAngle) * clockRadius * 0.58,
+    clockY + Math.sin(handAngle) * clockRadius * 0.58,
+  );
   context.stroke();
   context.fillStyle = "#31546a";
   context.beginPath();
@@ -256,12 +309,21 @@ function drawTreasureClock(context: CanvasRenderingContext2D, progress: number) 
   context.fillStyle = "#e3b45b";
   context.beginPath();
   context.roundRect?.(x - size * 0.1, top + height * 0.76, size * 0.2, size * 0.16, 5);
-  if (!context.roundRect) context.rect(x - size * 0.1, top + height * 0.76, size * 0.2, size * 0.16);
+  if (!context.roundRect)
+    context.rect(x - size * 0.1, top + height * 0.76, size * 0.2, size * 0.16);
   context.fill();
 
   context.fillStyle = "rgb(255 230 150 / 48%)";
   context.beginPath();
-  context.ellipse(left + width * 0.3, top + height * 0.24, width * 0.16, height * 0.08, -0.25, 0, Math.PI * 2);
+  context.ellipse(
+    left + width * 0.3,
+    top + height * 0.24,
+    width * 0.16,
+    height * 0.08,
+    -0.25,
+    0,
+    Math.PI * 2,
+  );
   context.fill();
   context.restore();
 }
@@ -278,7 +340,8 @@ function drawBubble(context: CanvasRenderingContext2D, bubble: Bubble) {
 }
 
 function drawFish(context: CanvasRenderingContext2D, fish: Fish) {
-  const alpha = fish.state === "caught" ? Math.max(0, 1 - Math.max(0, fish.caughtAge - 1.05) / 0.38) : 1;
+  const alpha =
+    fish.state === "caught" ? Math.max(0, 1 - Math.max(0, fish.caughtAge - 1.05) / 0.38) : 1;
   const size = fish.size;
 
   if (fish.state === "caught") drawFishingHook(context, fish, alpha);
@@ -294,7 +357,14 @@ function drawFish(context: CanvasRenderingContext2D, fish: Fish) {
   context.ellipse(-size * 0.03, size * 0.32, size * 0.62, size * 0.12, 0, 0, Math.PI * 2);
   context.fill();
 
-  const body = context.createRadialGradient(-size * 0.16, -size * 0.12, size * 0.08, 0, 0, size * 0.62);
+  const body = context.createRadialGradient(
+    -size * 0.16,
+    -size * 0.12,
+    size * 0.08,
+    0,
+    0,
+    size * 0.62,
+  );
   body.addColorStop(0, `hsl(${fish.hue}, 95%, 76%)`);
   body.addColorStop(0.62, `hsl(${fish.hue + 8}, 88%, 58%)`);
   body.addColorStop(1, `hsl(${fish.hue + 12}, 78%, 44%)`);
@@ -352,13 +422,25 @@ function drawFishingHook(context: CanvasRenderingContext2D, fish: Fish, alpha: n
   context.lineCap = "round";
   context.beginPath();
   context.moveTo(hookX, Math.min(surfaceY() - fish.size * 0.45, hookY + fish.size * 0.25));
-  context.quadraticCurveTo(hookX + Math.sin(fish.phase) * fish.size * 0.08, (hookY + mouthY) * 0.5, mouthX, mouthY);
+  context.quadraticCurveTo(
+    hookX + Math.sin(fish.phase) * fish.size * 0.08,
+    (hookY + mouthY) * 0.5,
+    mouthX,
+    mouthY,
+  );
   context.stroke();
 
   context.strokeStyle = "rgb(255 226 148 / 86%)";
   context.lineWidth = Math.max(3, fish.size * 0.035);
   context.beginPath();
-  context.arc(mouthX - fish.direction * hookSize * 0.28, mouthY - hookSize * 0.08, hookSize, -0.15 * Math.PI, 0.92 * Math.PI, fish.direction < 0);
+  context.arc(
+    mouthX - fish.direction * hookSize * 0.28,
+    mouthY - hookSize * 0.08,
+    hookSize,
+    -0.15 * Math.PI,
+    0.92 * Math.PI,
+    fish.direction < 0,
+  );
   context.stroke();
 
   context.fillStyle = "rgb(255 248 218 / 62%)";
@@ -375,14 +457,25 @@ function drawCatchProgress(context: CanvasRenderingContext2D, fish: Fish) {
   context.lineWidth = 5;
   context.lineCap = "round";
   context.beginPath();
-  context.arc(fish.x, fish.y, radius, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * fish.dwellProgress);
+  context.arc(
+    fish.x,
+    fish.y,
+    radius,
+    -Math.PI / 2,
+    -Math.PI / 2 + Math.PI * 2 * fish.dwellProgress,
+  );
   context.stroke();
 
   context.strokeStyle = "rgb(255 255 255 / 52%)";
   context.lineWidth = 2;
   context.beginPath();
   context.moveTo(fish.x, surfaceY() + 8);
-  context.quadraticCurveTo(fish.x + fish.size * 0.1, (surfaceY() + fish.y) * 0.5, fish.x, fish.y - radius);
+  context.quadraticCurveTo(
+    fish.x + fish.size * 0.1,
+    (surfaceY() + fish.y) * 0.5,
+    fish.x,
+    fish.y - radius,
+  );
   context.stroke();
   context.restore();
 }
@@ -394,12 +487,24 @@ function drawCatchRipple(context: CanvasRenderingContext2D, ripple: CatchRipple)
   context.strokeStyle = `hsl(${ripple.hue}, 90%, 86%)`;
   context.lineWidth = 4;
   context.beginPath();
-  context.ellipse(ripple.x, ripple.y, ripple.radius * (1 + progress * 1.8), ripple.radius * (0.44 + progress * 0.42), 0, 0, Math.PI * 2);
+  context.ellipse(
+    ripple.x,
+    ripple.y,
+    ripple.radius * (1 + progress * 1.8),
+    ripple.radius * (0.44 + progress * 0.42),
+    0,
+    0,
+    Math.PI * 2,
+  );
   context.stroke();
   context.restore();
 }
 
-function drawPointerSight(context: CanvasRenderingContext2D, pointer: ScenePointer, running: boolean) {
+function drawPointerSight(
+  context: CanvasRenderingContext2D,
+  pointer: ScenePointer,
+  running: boolean,
+) {
   if (!pointer.valid || !running) return;
   context.save();
   context.strokeStyle = "rgb(255 255 255 / 62%)";

@@ -15,7 +15,7 @@ function argValue(name, fallback) {
   const found = process.argv.find((arg) => arg.startsWith(prefix));
   if (found) return found.slice(prefix.length);
   const index = process.argv.indexOf(name);
-  return index >= 0 ? process.argv[index + 1] ?? fallback : fallback;
+  return index >= 0 ? (process.argv[index + 1] ?? fallback) : fallback;
 }
 
 function hasFlag(name) {
@@ -36,41 +36,47 @@ async function latestAuditPath() {
 
 function requestJson(url) {
   return new Promise((resolve, reject) => {
-    http.get(url, (response) => {
-      let body = "";
-      response.on("data", (chunk) => {
-        body += chunk;
-      });
-      response.on("end", () => {
-        try {
-          resolve(JSON.parse(body));
-        } catch (error) {
-          reject(error);
-        }
-      });
-    }).on("error", reject);
+    http
+      .get(url, (response) => {
+        let body = "";
+        response.on("data", (chunk) => {
+          body += chunk;
+        });
+        response.on("end", () => {
+          try {
+            resolve(JSON.parse(body));
+          } catch (error) {
+            reject(error);
+          }
+        });
+      })
+      .on("error", reject);
   });
 }
 
 function activateElectron() {
   if (hasFlag("--no-activate")) return;
-  execFile("osascript", ["-e", "tell application \"Electron\" to activate"], () => {});
+  execFile("osascript", ["-e", 'tell application "Electron" to activate'], () => {});
 }
 
 async function navigateElectron(url, cdpPort) {
   const targets = await requestJson(`http://127.0.0.1:${cdpPort}/json/list`);
-  const target = targets.find((item) => item.type === "page" && !item.url.startsWith("devtools://"));
+  const target = targets.find(
+    (item) => item.type === "page" && !item.url.startsWith("devtools://"),
+  );
   if (!target) throw new Error(`No Electron page target on CDP port ${cdpPort}`);
 
   await new Promise((resolve, reject) => {
     const socket = new WebSocket(target.webSocketDebuggerUrl);
     const id = 1;
     socket.onopen = () => {
-      socket.send(JSON.stringify({
-        id,
-        method: "Runtime.evaluate",
-        params: { expression: `location.href = ${JSON.stringify(url)}` }
-      }));
+      socket.send(
+        JSON.stringify({
+          id,
+          method: "Runtime.evaluate",
+          params: { expression: `location.href = ${JSON.stringify(url)}` },
+        }),
+      );
     };
     socket.onmessage = (event) => {
       const message = JSON.parse(event.data);
@@ -91,7 +97,8 @@ const nextGame = explicitId
   ? audit.games.find((game) => game.id === explicitId)
   : audit.developmentQueue[0];
 
-if (!nextGame) throw new Error(explicitId ? `Game not found: ${explicitId}` : "Development queue is empty");
+if (!nextGame)
+  throw new Error(explicitId ? `Game not found: ${explicitId}` : "Development queue is empty");
 
 const route = nextGame.route ?? `/games/${nextGame.id}`;
 const url = `${baseUrl}/#${route}`;

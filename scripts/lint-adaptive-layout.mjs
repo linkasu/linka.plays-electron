@@ -5,7 +5,8 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 
 const hardPxPattern = /(?:^|[^A-Za-z0-9_-])(?:\d+(?:\.\d+)?|\})px\b/;
-const layoutPropertyPattern = /(?:^|["'`{;])\s*(?:(?:min|max)[-A-Z])?(?:block[-A-Z]size|inline[-A-Z]size|width|height|padding|margin|inset|top|right|bottom|left|gap|row[-A-Z]gap|column[-A-Z]gap|grid[-A-Z]template[-A-Z](?:columns|rows)|flex[-A-Z]basis)\s*:/i;
+const layoutPropertyPattern =
+  /(?:^|["'`{;])\s*(?:(?:min|max)[-A-Z])?(?:block[-A-Z]size|inline[-A-Z]size|width|height|padding|margin|inset|top|right|bottom|left|gap|row[-A-Z]gap|column[-A-Z]gap|grid[-A-Z]template[-A-Z](?:columns|rows)|flex[-A-Z]basis)\s*:/i;
 const layoutMediaPattern = /@media[^\n]*(?:width|height)\s*:/i;
 const checkedExtensions = new Set([".vue", ".css", ".scss"]);
 
@@ -14,11 +15,17 @@ function isCheckedFile(filePath) {
 }
 
 function hasHardLayoutPx(content) {
-  return hardPxPattern.test(content) && (layoutPropertyPattern.test(content) || layoutMediaPattern.test(content));
+  return (
+    hardPxPattern.test(content) &&
+    (layoutPropertyPattern.test(content) || layoutMediaPattern.test(content))
+  );
 }
 
 function diffLines() {
-  const diff = execFileSync("git", ["diff", "--unified=0", "--", "src/frontend"], { encoding: "utf8", maxBuffer: 50 * 1024 * 1024 });
+  const diff = execFileSync("git", ["diff", "--unified=0", "--", "src/frontend"], {
+    encoding: "utf8",
+    maxBuffer: 50 * 1024 * 1024,
+  });
   const issues = [];
   let filePath = "";
   let newLine = 0;
@@ -69,9 +76,16 @@ const checkAll = process.argv.includes("--all");
 const issues = checkAll ? allLines() : diffLines();
 
 if (issues.length) {
-  console.error("Hard px values are forbidden in frontend layout styles. Use rem, %, viewport units, clamp(), min(), max(), or Vuetify layout props.");
-  for (const issue of issues) console.error(`${issue.filePath}:${issue.lineNumber}: ${issue.content.trim()}`);
+  console.error(
+    "Hard px values are forbidden in frontend layout styles. Use rem, %, viewport units, clamp(), min(), max(), or Vuetify layout props.",
+  );
+  for (const issue of issues)
+    console.error(`${issue.filePath}:${issue.lineNumber}: ${issue.content.trim()}`);
   process.exitCode = 1;
 } else {
-  console.log(checkAll ? "No hard px values found in frontend layout styles." : "No added hard px values found in frontend layout styles.");
+  console.log(
+    checkAll
+      ? "No hard px values found in frontend layout styles."
+      : "No added hard px values found in frontend layout styles.",
+  );
 }

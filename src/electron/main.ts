@@ -4,7 +4,11 @@ import { isAbsolute, join } from "path";
 import { migrateLooksTobiiCalibration } from "./calibrationMigration";
 import { registerConnectFourAiHandlers } from "./connectFourAi";
 import { registerPrivacyIpcHandlers } from "./privacyIpc";
-import { clearMetricsTelemetryData, createMetricsTelemetry, type MetricsTelemetry } from "./telemetry";
+import {
+  clearMetricsTelemetryData,
+  createMetricsTelemetry,
+  type MetricsTelemetry,
+} from "./telemetry";
 import { shouldStartTelemetry } from "./telemetry/policy";
 import { TelemetryPrivacyController } from "./telemetry/privacyController";
 import { TelemetryPrivacyPreferenceStore } from "./telemetry/privacyPreference";
@@ -17,7 +21,8 @@ let quitReason: "app-quit" | "update-restart" = "app-quit";
 let quitPreparing = false;
 let quitPrepared = false;
 const devSession = process.env.LINKA_DEV_SESSION;
-const smokeUserDataPath = process.env.LINKA_PRIVACY_SMOKE === "1" ? process.env.LINKA_TEST_USER_DATA_PATH : undefined;
+const smokeUserDataPath =
+  process.env.LINKA_PRIVACY_SMOKE === "1" ? process.env.LINKA_TEST_USER_DATA_PATH : undefined;
 if (smokeUserDataPath && isAbsolute(smokeUserDataPath)) {
   app.setPath("userData", smokeUserDataPath);
 } else if (devSession) {
@@ -34,7 +39,7 @@ registerPrivacyIpcHandlers({
   setTelemetryPreference: (preference) => {
     if (!privacyController) throw new Error("privacy controller is not ready");
     return privacyController.setPreference(preference);
-  }
+  },
 });
 registerUpdaterHandlers({
   onState: (state, version) => privacyController?.telemetry?.recordUpdaterState(state, version),
@@ -43,7 +48,7 @@ registerUpdaterHandlers({
     await privacyController?.closeGate();
     await privacyController?.telemetry?.shutdown(quitReason);
     quitPrepared = true;
-  }
+  },
 });
 ipcMain.on("metrics:event", (_event, input: unknown) => {
   privacyController?.telemetry?.recordRendererEvent(input);
@@ -58,7 +63,7 @@ function disabledTobiiStatus() {
     mode: "unsupported",
     message: "Tobii отключён для debug-сеанса, используется мышь.",
     deviceFound: false,
-    updatedAt: Date.now()
+    updatedAt: Date.now(),
   };
 }
 
@@ -71,14 +76,14 @@ function registerNoTobiiHandlers() {
     coordinateScaleMode: "one",
     appliedScaleFactor: 1,
     recentTrackerDebug: [],
-    recentGaze: []
+    recentGaze: [],
   }));
   ipcMain.handle("tobii:diagnostics:set-scale-mode", () => ({
     status: disabledTobiiStatus(),
     coordinateScaleMode: "one",
     appliedScaleFactor: 1,
     recentTrackerDebug: [],
-    recentGaze: []
+    recentGaze: [],
   }));
   ipcMain.handle("tobii:calibration:start", () => false);
   ipcMain.handle("tobii:calibration:add-point", () => false);
@@ -100,19 +105,21 @@ async function createWindow() {
     webPreferences: {
       preload: join(__dirname, "preload.js"),
       contextIsolation: true,
-      nodeIntegration: false
-    }
+      nodeIntegration: false,
+    },
   });
 
   mainWindow = win;
   if (process.env.LINKA_NO_TOBII === "1") {
     registerNoTobiiHandlers();
   } else {
-    await migrateLooksTobiiCalibration(join(app.getPath("appData"), "linka.looks"), app.getPath("userData"))
-      .catch((error) => console.warn("[tobii] failed to migrate LINKa Looks calibration", error));
+    await migrateLooksTobiiCalibration(
+      join(app.getPath("appData"), "linka.looks"),
+      app.getPath("userData"),
+    ).catch((error) => console.warn("[tobii] failed to migrate LINKa Looks calibration", error));
     const backWatch = new BackWatch(win, {
       socketName: process.env.LINKA_TOBII_SOCKET_NAME ?? "su.linka.plays.tobiifree",
-      showStartupError: false
+      showStartupError: false,
     });
     void backWatch;
   }
@@ -120,13 +127,20 @@ async function createWindow() {
     mainWindow = undefined;
   });
   win.on("close", () => {
-    if (!quitPreparing && !quitPrepared) void privacyController?.telemetry?.interruptActiveSessions("window-close").catch(() => undefined);
+    if (!quitPreparing && !quitPrepared)
+      void privacyController?.telemetry
+        ?.interruptActiveSessions("window-close")
+        .catch(() => undefined);
   });
   win.on("focus", () => privacyController?.telemetry?.setAppForeground(true));
   win.on("blur", () => privacyController?.telemetry?.setAppForeground(false));
   win.webContents.on("render-process-gone", () => {
-    privacyController?.telemetry?.recordError("renderer.crash", { constructor: { name: "RendererProcessGone" } });
-    void privacyController?.telemetry?.interruptActiveSessions("renderer-crash").catch(() => undefined);
+    privacyController?.telemetry?.recordError("renderer.crash", {
+      constructor: { name: "RendererProcessGone" },
+    });
+    void privacyController?.telemetry
+      ?.interruptActiveSessions("renderer-crash")
+      .catch(() => undefined);
   });
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (url === "https://plays-metric.nkolinka.ru/privacy") void shell.openExternal(url);
@@ -154,9 +168,11 @@ app.whenReady().then(async () => {
     store: new TelemetryPrivacyPreferenceStore(userDataPath),
     canStartTelemetry: () => shouldStartTelemetry(app.isPackaged, "enabled"),
     createTelemetry: createMetricsTelemetry,
-    clearTelemetryData: (preference) => clearMetricsTelemetryData(userDataPath, preference)
+    clearTelemetryData: (preference) => clearMetricsTelemetryData(userDataPath, preference),
   });
-  await privacyController.initialize().catch((error) => console.warn("[privacy] failed to initialize", error));
+  await privacyController
+    .initialize()
+    .catch((error) => console.warn("[privacy] failed to initialize", error));
   await createWindow();
 });
 
@@ -187,8 +203,11 @@ app.on("before-quit", (event) => {
   event.preventDefault();
   if (quitPreparing) return;
   quitPreparing = true;
-  void Promise.resolve(privacyController?.closeGate()).then(() => privacyController?.telemetry?.shutdown(quitReason)).catch(() => undefined).finally(() => {
-    quitPrepared = true;
-    app.quit();
-  });
+  void Promise.resolve(privacyController?.closeGate())
+    .then(() => privacyController?.telemetry?.shutdown(quitReason))
+    .catch(() => undefined)
+    .finally(() => {
+      quitPrepared = true;
+      app.quit();
+    });
 });

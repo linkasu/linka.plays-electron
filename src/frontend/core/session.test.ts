@@ -3,17 +3,22 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useGameSession } from "./session";
 import type { SessionSettings } from "./settings";
 
-function mountSession(overrides: Partial<SessionSettings> = {}, options: Parameters<typeof useGameSession>[2] = {}) {
+function mountSession(
+  overrides: Partial<SessionSettings> = {},
+  options: Parameters<typeof useGameSession>[2] = {},
+) {
   let api: ReturnType<typeof useGameSession> | undefined;
   const root = document.createElement("div");
   document.body.append(root);
 
-  const app = createApp(defineComponent({
-    setup() {
-      api = useGameSession("unit-game", overrides, options);
-      return () => null;
-    }
-  }));
+  const app = createApp(
+    defineComponent({
+      setup() {
+        api = useGameSession("unit-game", overrides, options);
+        return () => null;
+      },
+    }),
+  );
 
   app.mount(root);
   if (!api) throw new Error("Session composable was not initialized.");
@@ -23,7 +28,7 @@ function mountSession(overrides: Partial<SessionSettings> = {}, options: Paramet
     unmount: () => {
       app.unmount();
       root.remove();
-    }
+    },
   };
 }
 

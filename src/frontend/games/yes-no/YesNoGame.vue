@@ -11,17 +11,38 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { disposeTtsAssets, playTtsAssetAndWait, stopTtsPlayback, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
+import {
+  disposeTtsAssets,
+  playTtsAssetAndWait,
+  stopTtsPlayback,
+  warmTtsAssets,
+  type TtsAsset,
+} from "../../core/ttsAudio";
 import ttsAssetsData from "../../data/ttsAssets.json";
 import { findYesNoNameAsset, generateYesNoRound, type YesNoAnswer, type YesNoRound } from "./model";
 
 const allTtsAssets = ttsAssetsData as TtsAsset[];
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, finishSession, startSession } = useGameSessionFor("yes-no", { maxSteps: 8, finishOnMaxSteps: false, finishOnMistakes: false });
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  finishSession,
+  startSession,
+} = useGameSessionFor("yes-no", { maxSteps: 8, finishOnMaxSteps: false, finishOnMistakes: false });
 const soundEnabled = toRef(session.settings, "sound");
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
-const promptAudio = useGamePromptAudio({ gameId: "yes-no", soundEnabled, warmAssetIds: ["yes-no.correct", "yes-no.mistake", "yes-no.complete"] });
+const promptAudio = useGamePromptAudio({
+  gameId: "yes-no",
+  soundEnabled,
+  warmAssetIds: ["yes-no.correct", "yes-no.mistake", "yes-no.complete"],
+});
 const recentAnswers = ref<YesNoAnswer[]>([]);
 
 function generateRound(roundIndex: number) {
@@ -30,10 +51,15 @@ function generateRound(roundIndex: number) {
   return nextRound;
 }
 
-const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<YesNoRound>({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRoundGame,
+} = useRoundGame<YesNoRound>({
   session,
   startSession,
-  generateRound
+  generateRound,
 });
 
 const feedback = ref("Выбери ответ взглядом.");
@@ -60,7 +86,8 @@ function cancelRoundQuestion() {
 }
 
 function speakSystemText(text: string) {
-  if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) return Promise.resolve(false);
+  if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window))
+    return Promise.resolve(false);
 
   return new Promise<boolean>((resolve) => {
     let settled = false;
@@ -128,11 +155,22 @@ async function answer(value: YesNoAnswer) {
 
   const wasCorrect = value === round.value.answer;
   if (wasCorrect) {
-    recordSuccess({ roundId: round.value.roundId, targetId, answerId: value, expected: round.value.answer, actual: value, isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      answerId: value,
+      expected: round.value.answer,
+      actual: value,
+      isCorrect: true,
+    });
     feedback.value = "Верно.";
     void feedbackAudio.playSuccess();
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["yes-no.correct", "yes-no.complete"] : ["yes-no.correct"], 80, 170);
+    await promptAudio.playSequenceAndWait(
+      finishedAfterSuccess ? ["yes-no.correct", "yes-no.complete"] : ["yes-no.correct"],
+      80,
+      170,
+    );
     if (finishedAfterSuccess) {
       finishSession("game-complete");
       isChangingRound.value = false;
@@ -142,7 +180,15 @@ async function answer(value: YesNoAnswer) {
     feedback.value = "Следующий вопрос.";
     await playRoundQuestion(180);
   } else {
-    recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: value, expected: round.value.answer, actual: value, isCorrect: false });
+    recordMistake({
+      roundId: round.value.roundId,
+      targetId,
+      expectedTargetId,
+      answerId: value,
+      expected: round.value.answer,
+      actual: value,
+      isCorrect: false,
+    });
     feedback.value = "Посмотри на картинку и вопрос ещё раз. Попробуй выбрать другой ответ.";
     void feedbackAudio.playMistake();
     await promptAudio.playSequenceAndWait(["yes-no.mistake"], 80);
@@ -172,7 +218,18 @@ onUnmounted(() => {
 <template>
   <GamePageShell gradient="linear-gradient(135deg, #eef7ff 0%, #fff4e9 100%)" padding-top="8.25rem">
     <template #hud>
-      <GameHud title="Да / нет" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+      <GameHud
+        title="Да / нет"
+        :step="session.step"
+        :max-steps="session.maxSteps"
+        :score="session.score"
+        :mistakes="session.mistakes"
+        :duration-ms="durationMs"
+        :session-seconds="session.settings.sessionSeconds"
+        :paused="session.status === 'paused'"
+        @pause="pauseSession"
+        @resume="resumeSession"
+      />
     </template>
     <v-container class="game-container" fluid>
       <v-row justify="center">
@@ -180,11 +237,26 @@ onUnmounted(() => {
           <v-card class="yes-no-card pa-6 pa-md-8" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Отвечаем</div>
             <div class="item-display mb-6">
-              <GameWordImage class="item-emoji" :word-id="round.item.id" :word="round.item.word" :emoji="round.item.emoji" />
+              <GameWordImage
+                class="item-emoji"
+                :word-id="round.item.id"
+                :word="round.item.word"
+                :emoji="round.item.emoji"
+              />
               <h1 class="text-h3 font-weight-bold mb-2">{{ round.prompt }}</h1>
               <div class="text-h6 text-medium-emphasis">{{ feedback }}</div>
             </div>
-            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => answerTargetId(choice.id)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" min-height="13.75rem" :cols="12" :md="6" :color="(choice) => choice.color" @select="(choice) => answer(choice.id)">
+            <GameChoiceCardGrid
+              :choices="round.choices"
+              :target-id="(choice) => answerTargetId(choice.id)"
+              :disabled="session.status !== 'running' || isChangingRound"
+              :dwell-ms="session.settings.dwellMs"
+              min-height="13.75rem"
+              :cols="12"
+              :md="6"
+              :color="(choice) => choice.color"
+              @select="(choice) => answer(choice.id)"
+            >
               <template #default="{ choice }">
                 <v-icon class="choice-icon align-self-center" :icon="choice.icon" />
                 <div class="text-h3 font-weight-bold">{{ choice.title }}</div>
@@ -194,7 +266,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Да / нет" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Да / нет"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </GamePageShell>
 </template>
 
@@ -210,24 +292,24 @@ onUnmounted(() => {
 }
 
 @media (max-height: 42rem) {
- .yes-no-card {
+  .yes-no-card {
     padding: 1rem !important;
   }
 
- .yes-no-card >.text-overline {
+  .yes-no-card > .text-overline {
     display: none;
   }
 
- .item-display {
+  .item-display {
     margin-block-end: 0.85rem !important;
   }
 
- .item-display h1 {
+  .item-display h1 {
     font-size: clamp(1.9rem, 5.8vh, 2.35rem) !important;
     line-height: 1.05;
   }
 
- .item-display .text-h6 {
+  .item-display .text-h6 {
     font-size: 1rem !important;
     line-height: 1.18;
   }
@@ -237,7 +319,7 @@ onUnmounted(() => {
     font-size: clamp(3rem, 9vh, 4.25rem);
   }
 
- .game-container :deep(.dwell-button) {
+  .game-container :deep(.dwell-button) {
     min-block-size: 10rem !important;
   }
 }

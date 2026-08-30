@@ -8,24 +8,54 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { number2048Outcome, canMove, createInitialBoard, highestTile, moveBoard, spawnTile, type Number2048Board, type Number2048Direction } from "./model";
+import {
+  number2048Outcome,
+  canMove,
+  createInitialBoard,
+  highestTile,
+  moveBoard,
+  spawnTile,
+  type Number2048Board,
+  type Number2048Direction,
+} from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("number-2048", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordEvent,
+  recordMistake,
+  recordSuccess,
+  startSession,
+  finishSession,
+} = useGameSessionFor("number-2048", {
   maxSteps: 32,
   overrides: { preset: "gentle", targetScale: 1.15, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "number-2048", soundEnabled, warmAssetIds: ["number-2048.prompt", "number-2048.correct", "number-2048.mistake", "number-2048.complete"] });
+const promptAudio = useGamePromptAudio({
+  gameId: "number-2048",
+  soundEnabled,
+  warmAssetIds: [
+    "number-2048.prompt",
+    "number-2048.correct",
+    "number-2048.mistake",
+    "number-2048.complete",
+  ],
+});
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const directions = [
   { direction: "up", key: "w", label: "Вверх", icon: "mdi-arrow-up-bold" },
   { direction: "left", key: "a", label: "Влево", icon: "mdi-arrow-left-bold" },
   { direction: "down", key: "s", label: "Вниз", icon: "mdi-arrow-down-bold" },
-  { direction: "right", key: "d", label: "Вправо", icon: "mdi-arrow-right-bold" }
+  { direction: "right", key: "d", label: "Вправо", icon: "mdi-arrow-right-bold" },
 ] as const;
 
 const board = ref<Number2048Board>(createInitialBoard());
@@ -38,14 +68,16 @@ const resultVisible = computed(() => session.status === "finished");
 const hasMoves = computed(() => canMove(board.value));
 const canUndo = computed(() => Boolean(previousBoard.value) && session.status === "running");
 const maxTile = computed(() => highestTile(board.value));
-const directionButtons = computed<GameWasdControl[]>(() => directions.map((item) => ({
-  id: item.direction,
-  key: item.key,
-  label: item.label,
-  icon: item.icon,
-  targetId: directionTargetId(item.direction),
-  color: canMove(board.value, item.direction) ? "surface" : "blue-grey-lighten-5"
-})));
+const directionButtons = computed<GameWasdControl[]>(() =>
+  directions.map((item) => ({
+    id: item.direction,
+    key: item.key,
+    label: item.label,
+    icon: item.icon,
+    targetId: directionTargetId(item.direction),
+    color: canMove(board.value, item.direction) ? "surface" : "blue-grey-lighten-5",
+  })),
+);
 
 function directionTargetId(direction: Number2048Direction) {
   return `number-2048:direction:${direction}`;
@@ -77,7 +109,14 @@ async function chooseDirection(direction: Number2048Direction) {
   const spawn = spawnTile(move.board);
   board.value = spawn.board;
   lastSpawnedIndex.value = spawn.spawnedIndex;
-  recordSuccess({ targetId, direction, merged: move.merged, scoreGain: move.scoreGain, highestTile: highestTile(board.value), isCorrect: true });
+  recordSuccess({
+    targetId,
+    direction,
+    merged: move.merged,
+    scoreGain: move.scoreGain,
+    highestTile: highestTile(board.value),
+    isCorrect: true,
+  });
 
   if (number2048Outcome(board.value) === "loss") {
     feedbackMessage.value = "Ходов больше нет. Доска завершена, можно начать новую.";
@@ -90,14 +129,26 @@ async function chooseDirection(direction: Number2048Direction) {
     feedbackMessage.value = `Есть слияние: +${move.scoreGain}. Продолжаем.`;
     isSpeaking.value = true;
     void feedbackAudio.playSuccess();
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["number-2048.correct", "number-2048.complete"] : ["number-2048.correct"], 80, 170);
+    await promptAudio.playSequenceAndWait(
+      finishedAfterSuccess
+        ? ["number-2048.correct", "number-2048.complete"]
+        : ["number-2048.correct"],
+      80,
+      170,
+    );
     if (finishedAfterSuccess) finishSession("game-complete");
     isSpeaking.value = false;
   } else {
     feedbackMessage.value = "Плитки сдвинулись. Можно искать следующее слияние.";
     isSpeaking.value = true;
     void feedbackAudio.playSuccess();
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["number-2048.correct", "number-2048.complete"] : ["number-2048.correct"], 80, 170);
+    await promptAudio.playSequenceAndWait(
+      finishedAfterSuccess
+        ? ["number-2048.correct", "number-2048.complete"]
+        : ["number-2048.correct"],
+      80,
+      170,
+    );
     if (finishedAfterSuccess) finishSession("game-complete");
     isSpeaking.value = false;
   }
@@ -153,44 +204,89 @@ onUnmounted(() => {
 
 <template>
   <div class="number-2048-shell">
-    <GameHud title="2048" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="2048"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="11" xl="10">
           <v-card class="pa-4 pa-md-6" color="rgba(255, 255, 255, 0.92)" rounded="xl" elevation="8">
-            <div class="d-flex flex-column flex-lg-row align-lg-center justify-space-between ga-4 mb-5">
+            <div
+              class="d-flex flex-column flex-lg-row align-lg-center justify-space-between ga-4 mb-5"
+            >
               <div>
-                <div class="text-overline text-secondary mb-1"> стратегия</div>
+                <div class="text-overline text-secondary mb-1">стратегия</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Собирай одинаковые плитки</h1>
-                <p class="text-body-1 text-medium-emphasis mb-0">Двигай всё поле одной крупной кнопкой. Если ходов не останется, доска завершится.</p>
+                <p class="text-body-1 text-medium-emphasis mb-0">
+                  Двигай всё поле одной крупной кнопкой. Если ходов не останется, доска завершится.
+                </p>
               </div>
               <div class="d-flex flex-wrap ga-2">
-                <v-chip color="primary" size="large" variant="tonal">Лучшая плитка: {{ maxTile || 0 }}</v-chip>
-                <v-chip color="secondary" size="large" variant="tonal">Ходов: {{ session.step }} / {{ session.maxSteps }}</v-chip>
+                <v-chip color="primary" size="large" variant="tonal"
+                  >Лучшая плитка: {{ maxTile || 0 }}</v-chip
+                >
+                <v-chip color="secondary" size="large" variant="tonal"
+                  >Ходов: {{ session.step }} / {{ session.maxSteps }}</v-chip
+                >
               </div>
             </div>
 
-            <v-alert class="compact-feedback mb-5 text-body-1 font-weight-medium" :color="hasMoves ? 'primary' : 'secondary'" icon="mdi-leaf" rounded="xl" variant="tonal">
+            <v-alert
+              class="compact-feedback mb-5 text-body-1 font-weight-medium"
+              :color="hasMoves ? 'primary' : 'secondary'"
+              icon="mdi-leaf"
+              rounded="xl"
+              variant="tonal"
+            >
               {{ feedbackMessage }}
             </v-alert>
 
             <v-row class="play-area align-center" dense>
               <v-col cols="12" md="7" class="board-column order-2 order-md-1">
                 <div class="board-grid mx-auto" role="grid" aria-label="Поле 2048 четыре на четыре">
-                  <v-card v-for="(value, index) in board" :key="index" :class="['tile-card', { 'tile-card--new': lastSpawnedIndex === index }]" :color="tileColor(value)" rounded="xl" variant="flat">
+                  <v-card
+                    v-for="(value, index) in board"
+                    :key="index"
+                    :class="['tile-card', { 'tile-card--new': lastSpawnedIndex === index }]"
+                    :color="tileColor(value)"
+                    rounded="xl"
+                    variant="flat"
+                  >
                     <div class="tile-value">{{ value || "" }}</div>
                   </v-card>
                 </div>
               </v-col>
 
               <v-col cols="12" md="5" class="controls-column order-1 order-md-2">
-                <GameWasdPanel :controls="directionButtons" :disabled="session.status !== 'running' || isSpeaking || !hasMoves" :dwell-ms="session.settings.dwellMs" aria-label="Направления 2048" @select="chooseDirectionButton" />
+                <GameWasdPanel
+                  :controls="directionButtons"
+                  :disabled="session.status !== 'running' || isSpeaking || !hasMoves"
+                  :dwell-ms="session.settings.dwellMs"
+                  aria-label="Направления 2048"
+                  @select="chooseDirectionButton"
+                />
 
                 <v-divider class="my-4" />
 
                 <v-row dense>
                   <v-col cols="6">
-                    <GameDwellButton :target-id="actionTargetId('undo')" :disabled="!canUndo || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="112" color="secondary" @select="undoMove">
+                    <GameDwellButton
+                      :target-id="actionTargetId('undo')"
+                      :disabled="!canUndo || isSpeaking"
+                      :dwell-ms="session.settings.dwellMs"
+                      :min-height="112"
+                      color="secondary"
+                      @select="undoMove"
+                    >
                       <template #default>
                         <div class="direction-button-content">
                           <v-icon icon="mdi-undo" size="36" />
@@ -200,7 +296,14 @@ onUnmounted(() => {
                     </GameDwellButton>
                   </v-col>
                   <v-col cols="6">
-                    <GameDwellButton :target-id="actionTargetId('new-board')" :disabled="isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="112" color="primary" @select="restart">
+                    <GameDwellButton
+                      :target-id="actionTargetId('new-board')"
+                      :disabled="isSpeaking"
+                      :dwell-ms="session.settings.dwellMs"
+                      :min-height="112"
+                      color="primary"
+                      @select="restart"
+                    >
                       <template #default>
                         <div class="direction-button-content">
                           <v-icon icon="mdi-refresh" size="36" />
@@ -217,7 +320,17 @@ onUnmounted(() => {
       </v-row>
     </v-container>
 
-    <GameResultDialog :model-value="resultVisible" title="2048" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="2048"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -246,7 +359,9 @@ onUnmounted(() => {
   aspect-ratio: 1;
   display: flex;
   justify-content: center;
-  transition: box-shadow 180ms ease, transform 180ms ease;
+  transition:
+    box-shadow 180ms ease,
+    transform 180ms ease;
 }
 
 .tile-card--new {
@@ -272,68 +387,68 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 8.75rem;
   }
 }
 
 @media (max-height: 42.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 4.75rem;
   }
 
- .game-container :deep(.v-card) {
+  .game-container :deep(.v-card) {
     padding-block: 1rem !important;
   }
 
- .game-container.d-flex.flex-column.flex-lg-row,
- .compact-feedback {
+  .game-container.d-flex.flex-column.flex-lg-row,
+  .compact-feedback {
     display: none !important;
   }
 
- .game-container .v-divider {
+  .game-container .v-divider {
     margin-block: 0.5rem !important;
   }
 
- .play-area {
+  .play-area {
     align-items: center;
     display: grid !important;
     gap: clamp(0.8rem, 2vw, 1.4rem);
     grid-template-columns: minmax(0, 0.92fr) minmax(17rem, 0.72fr);
   }
 
- .board-column,
- .controls-column {
+  .board-column,
+  .controls-column {
     flex: initial;
     inline-size: auto;
     max-inline-size: none;
     padding-block: 0 !important;
   }
 
- .board-grid {
+  .board-grid {
     gap: 0.35rem;
     max-inline-size: min(45vh, 18rem);
   }
 
- .controls-column :deep(.wasd-panel) {
+  .controls-column :deep(.wasd-panel) {
     inline-size: min(100%, 48vh);
   }
 
- .controls-column :deep(.dwell-button) {
+  .controls-column :deep(.dwell-button) {
     padding: 0.45rem !important;
   }
 
- .direction-button-content {
+  .direction-button-content {
     gap: 0.25rem;
   }
 }
 
 @media (max-height: 42.5rem) and (max-width: 52rem) {
- .play-area {
+  .play-area {
     grid-template-columns: minmax(0, 0.82fr) minmax(15rem, 0.72fr);
   }
 
- .board-grid {
+  .board-grid {
     max-inline-size: min(42vh, 16rem);
   }
 }

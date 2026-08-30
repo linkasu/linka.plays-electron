@@ -16,49 +16,80 @@ import {
   isSokobanLargeComplete,
   pointsEqual,
   type SokobanLargeDirection,
-  type SokobanLargePoint
+  type SokobanLargePoint,
 } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("sokoban-large", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("sokoban-large", {
   maxSteps: 40,
   overrides: { targetScale: 1.2, sound: true },
   finishOnMaxSteps: false,
   finishOnMistakes: false,
-  finishOnTimeout: false
+  finishOnTimeout: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "sokoban-large", soundEnabled, warmAssetIds: ["sokoban-large.complete"] });
+const promptAudio = useGamePromptAudio({
+  gameId: "sokoban-large",
+  soundEnabled,
+  warmAssetIds: ["sokoban-large.complete"],
+});
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 const { setGameTimeout, clearGameTimers } = useGameTimers();
 
-const directionControls: { direction: SokobanLargeDirection; key: "w" | "a" | "s" | "d"; label: string; icon: string }[] = [
+const directionControls: {
+  direction: SokobanLargeDirection;
+  key: "w" | "a" | "s" | "d";
+  label: string;
+  icon: string;
+}[] = [
   { direction: "up", key: "w", label: "Вверх", icon: "mdi-arrow-up-bold" },
   { direction: "left", key: "a", label: "Влево", icon: "mdi-arrow-left-bold" },
   { direction: "down", key: "s", label: "Вниз", icon: "mdi-arrow-down-bold" },
-  { direction: "right", key: "d", label: "Вправо", icon: "mdi-arrow-right-bold" }
+  { direction: "right", key: "d", label: "Вправо", icon: "mdi-arrow-right-bold" },
 ];
 
 const boardState = ref(createSokobanLargeState());
-const feedbackMessage = ref("Выбери ход. Если направление не подходит, ящик не двигается, а правило можно проверить ещё раз.");
+const feedbackMessage = ref(
+  "Выбери ход. Если направление не подходит, ящик не двигается, а правило можно проверить ещё раз.",
+);
 const wrongDirection = ref<SokobanLargeDirection>();
 const successDirection = ref<SokobanLargeDirection>();
 const pendingChoice = ref(false);
 const roundComplete = ref(false);
 
 const rows = computed(() => Array.from({ length: boardState.value.height }, (_, row) => row));
-const columns = computed(() => Array.from({ length: boardState.value.width }, (_, column) => column));
+const columns = computed(() =>
+  Array.from({ length: boardState.value.width }, (_, column) => column),
+);
 const resultVisible = computed(() => session.status === "finished");
 const complete = computed(() => isSokobanLargeComplete(boardState.value));
-const progressPercent = computed(() => Math.min(100, Math.round((boardState.value.stepIndex / Math.max(1, boardState.value.solution.length)) * 100)));
-const directionButtons = computed<GameWasdControl[]>(() => directionControls.map((control) => ({
-  id: control.direction,
-  key: control.key,
-  label: control.label,
-  icon: control.icon,
-  targetId: directionTargetId(control.direction),
-  color: "surface"
-})));
+const progressPercent = computed(() =>
+  Math.min(
+    100,
+    Math.round((boardState.value.stepIndex / Math.max(1, boardState.value.solution.length)) * 100),
+  ),
+);
+const directionButtons = computed<GameWasdControl[]>(() =>
+  directionControls.map((control) => ({
+    id: control.direction,
+    key: control.key,
+    label: control.label,
+    icon: control.icon,
+    targetId: directionTargetId(control.direction),
+    color: "surface",
+  })),
+);
 
 function directionTargetId(direction: SokobanLargeDirection) {
   return `sokoban-large:direction:${direction}`;
@@ -81,7 +112,8 @@ function resetChoiceState() {
 }
 
 async function chooseDirection(direction: SokobanLargeDirection) {
-  if (session.status !== "running" || pendingChoice.value || roundComplete.value || complete.value) return;
+  if (session.status !== "running" || pendingChoice.value || roundComplete.value || complete.value)
+    return;
 
   const targetId = directionTargetId(direction);
   const before = boardState.value;
@@ -104,7 +136,14 @@ async function chooseDirection(direction: SokobanLargeDirection) {
     wrongDirection.value = direction;
     pendingChoice.value = true;
     feedbackMessage.value = "Ящик оказался в углу без цели. Этот склад лучше начать заново.";
-    recordMistake({ targetId, direction, reason: result.event, box: result.state.box, goal: result.state.goal, isCorrect: false });
+    recordMistake({
+      targetId,
+      direction,
+      reason: result.event,
+      box: result.state.box,
+      goal: result.state.goal,
+      isCorrect: false,
+    });
     void feedbackAudio.playMistake();
     finishSession("game-lost");
     return;
@@ -119,7 +158,7 @@ async function chooseDirection(direction: SokobanLargeDirection) {
     player: result.state.player,
     box: result.state.box,
     goal: result.state.goal,
-    isCorrect: true
+    isCorrect: true,
   });
 
   if (result.event === "complete") {
@@ -177,8 +216,8 @@ function cellClasses(row: number, column: number) {
       "sokoban-cell--goal": hasGoal(row, column),
       "sokoban-cell--wall": hasWall(row, column),
       "sokoban-cell--box": hasBox(row, column),
-      "sokoban-cell--player": hasPlayer(row, column)
-    }
+      "sokoban-cell--player": hasPlayer(row, column),
+    },
   ];
 }
 
@@ -195,54 +234,130 @@ onUnmounted(() => {
 
 <template>
   <div class="sokoban-large-shell">
-    <GameHud title="Сокобан крупный" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" :show-progress="false" :show-timer="false" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Сокобан крупный"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      :show-progress="false"
+      :show-timer="false"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
 
     <v-container class="sokoban-large-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="11" xl="10">
-          <v-card class="sokoban-card pa-4 pa-md-6" color="rgba(255, 255, 255, 0.94)" rounded="xl" elevation="8">
-            <div class="d-flex flex-column flex-lg-row align-lg-center justify-space-between ga-4 mb-5">
+          <v-card
+            class="sokoban-card pa-4 pa-md-6"
+            color="rgba(255, 255, 255, 0.94)"
+            rounded="xl"
+            elevation="8"
+          >
+            <div
+              class="d-flex flex-column flex-lg-row align-lg-center justify-space-between ga-4 mb-5"
+            >
               <div>
-                <div class="text-overline text-primary mb-1"> стратегия на крупной сетке</div>
+                <div class="text-overline text-primary mb-1">стратегия на крупной сетке</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Доведи ящик до цели</h1>
-                <p class="text-body-1 text-medium-emphasis mb-0">Выбирай направление взгляда. Если ход не сработал, осмотрись и попробуй другой.</p>
+                <p class="text-body-1 text-medium-emphasis mb-0">
+                  Выбирай направление взгляда. Если ход не сработал, осмотрись и попробуй другой.
+                </p>
               </div>
               <div class="d-flex flex-wrap ga-2">
-                <v-chip color="primary" size="large" variant="tonal">Раунд {{ boardState.roundIndex + 1 }} · ход {{ boardState.stepIndex }} / {{ boardState.solution.length }}</v-chip>
-                <v-chip color="secondary" size="large" variant="tonal">Цель: клетка с мишенью</v-chip>
+                <v-chip color="primary" size="large" variant="tonal"
+                  >Раунд {{ boardState.roundIndex + 1 }} · ход {{ boardState.stepIndex }} /
+                  {{ boardState.solution.length }}</v-chip
+                >
+                <v-chip color="secondary" size="large" variant="tonal"
+                  >Цель: клетка с мишенью</v-chip
+                >
               </div>
             </div>
 
-            <v-alert class="compact-feedback mb-5 text-body-1 font-weight-medium" :color="wrongDirection ? 'primary' : 'secondary'" :icon="wrongDirection ? 'mdi-lightbulb-on-outline' : 'mdi-package-variant-closed'" rounded="xl" role="status" variant="tonal">
+            <v-alert
+              class="compact-feedback mb-5 text-body-1 font-weight-medium"
+              :color="wrongDirection ? 'primary' : 'secondary'"
+              :icon="wrongDirection ? 'mdi-lightbulb-on-outline' : 'mdi-package-variant-closed'"
+              rounded="xl"
+              role="status"
+              variant="tonal"
+            >
               {{ feedbackMessage }}
             </v-alert>
 
             <v-row class="play-area align-center" dense>
               <v-col cols="12" md="7" class="board-column order-2 order-md-1">
-                <div class="sokoban-board mx-auto" role="grid" aria-label="Поле сокобана шесть на шесть">
-                  <div v-for="row in rows" :key="row" class="sokoban-row" role="row" :style="{ gridTemplateColumns: `repeat(${boardState.width}, minmax(0, 1fr))` }">
-                    <div v-for="column in columns" :key="column" :class="cellClasses(row, column)" role="gridcell" :aria-label="pointTargetId({ row, column })">
+                <div
+                  class="sokoban-board mx-auto"
+                  role="grid"
+                  aria-label="Поле сокобана шесть на шесть"
+                >
+                  <div
+                    v-for="row in rows"
+                    :key="row"
+                    class="sokoban-row"
+                    role="row"
+                    :style="{ gridTemplateColumns: `repeat(${boardState.width}, minmax(0, 1fr))` }"
+                  >
+                    <div
+                      v-for="column in columns"
+                      :key="column"
+                      :class="cellClasses(row, column)"
+                      role="gridcell"
+                      :aria-label="pointTargetId({ row, column })"
+                    >
                       <v-icon v-if="hasWall(row, column)" class="wall-icon" icon="mdi-wall" />
                       <v-icon v-if="hasGoal(row, column)" class="goal-icon" icon="mdi-bullseye" />
-                      <v-icon v-if="hasBox(row, column)" class="box-icon" icon="mdi-package-variant-closed" />
-                      <v-icon v-if="hasPlayer(row, column)" class="player-icon" icon="mdi-account" />
+                      <v-icon
+                        v-if="hasBox(row, column)"
+                        class="box-icon"
+                        icon="mdi-package-variant-closed"
+                      />
+                      <v-icon
+                        v-if="hasPlayer(row, column)"
+                        class="player-icon"
+                        icon="mdi-account"
+                      />
                     </div>
                   </div>
                 </div>
 
-                <v-progress-linear class="board-progress mt-5" :model-value="progressPercent" color="primary" height="14" rounded />
+                <v-progress-linear
+                  class="board-progress mt-5"
+                  :model-value="progressPercent"
+                  color="primary"
+                  height="14"
+                  rounded
+                />
               </v-col>
 
               <v-col cols="12" md="5" class="controls-column order-1 order-md-2">
                 <div class="text-h6 font-weight-bold text-center mb-3">Выбери следующий ход</div>
-                <GameWasdPanel :controls="directionButtons" :disabled="session.status !== 'running' || pendingChoice || roundComplete || complete" :dwell-ms="session.settings.dwellMs" aria-label="Направления сокобана" @select="chooseDirectionButton">
+                <GameWasdPanel
+                  :controls="directionButtons"
+                  :disabled="
+                    session.status !== 'running' || pendingChoice || roundComplete || complete
+                  "
+                  :dwell-ms="session.settings.dwellMs"
+                  aria-label="Направления сокобана"
+                  @select="chooseDirectionButton"
+                >
                   <template #control="{ control, active, progress }">
                     <div class="direction-content">
                       <span class="direction-key">{{ control.key.toUpperCase() }}</span>
                       <v-icon class="direction-icon" :icon="control.icon" size="44" />
                       <span>{{ control.label }}</span>
-                      <v-chip v-if="control.chipText" color="primary" size="small" variant="flat">{{ control.chipText }}</v-chip>
-                      <v-chip v-else-if="active" color="secondary" size="small" variant="flat">{{ Math.round(progress * 100) }}%</v-chip>
+                      <v-chip v-if="control.chipText" color="primary" size="small" variant="flat">{{
+                        control.chipText
+                      }}</v-chip>
+                      <v-chip v-else-if="active" color="secondary" size="small" variant="flat"
+                        >{{ Math.round(progress * 100) }}%</v-chip
+                      >
                     </div>
                   </template>
                 </GameWasdPanel>
@@ -257,7 +372,17 @@ onUnmounted(() => {
       </v-row>
     </v-container>
 
-    <GameResultDialog :model-value="resultVisible" title="Сокобан крупный" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Сокобан крупный"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -369,110 +494,110 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
- .sokoban-large-container {
+  .sokoban-large-container {
     padding-block-start: 10.25rem;
   }
 }
 
 @media (max-height: 58rem) {
- .sokoban-large-container {
+  .sokoban-large-container {
     padding-block-start: 5.5rem;
   }
 
- .sokoban-card {
+  .sokoban-card {
     padding-block: 1.25rem !important;
   }
 
- .sokoban-card >.d-flex.flex-column.flex-lg-row {
+  .sokoban-card > .d-flex.flex-column.flex-lg-row {
     margin-block-end: 1rem !important;
   }
 
- .compact-feedback {
+  .compact-feedback {
     margin-block-end: 1rem !important;
   }
 
- .direction-hint {
+  .direction-hint {
     display: none;
   }
 
- .board-progress {
+  .board-progress {
     margin-block-start: 0.8rem !important;
   }
 
- .sokoban-board {
+  .sokoban-board {
     gap: clamp(0.4rem, 0.9vw, 0.65rem);
     max-inline-size: min(92vw, 38.75rem, 45vh);
     padding: clamp(0.5rem, 1.1vw, 0.75rem);
   }
 
- .sokoban-row {
+  .sokoban-row {
     gap: clamp(0.4rem, 0.9vw, 0.65rem);
   }
 }
 
 @media (max-height: 42.5rem) {
- .sokoban-large-container {
+  .sokoban-large-container {
     padding-block-start: 4.75rem;
   }
 
- .sokoban-large-container :deep(.v-card) {
+  .sokoban-large-container :deep(.v-card) {
     padding-block: 1rem !important;
   }
 
- .sokoban-large-container.d-flex.flex-column.flex-lg-row,
- .sokoban-large-container .text-h6 {
+  .sokoban-large-container.d-flex.flex-column.flex-lg-row,
+  .sokoban-large-container .text-h6 {
     display: none !important;
   }
 
- .play-area {
+  .play-area {
     align-items: center;
     display: grid !important;
     gap: clamp(0.8rem, 2vw, 1.4rem);
     grid-template-columns: minmax(0, 0.92fr) minmax(16rem, 0.72fr);
   }
 
- .board-column,
- .controls-column {
+  .board-column,
+  .controls-column {
     flex: initial;
     inline-size: auto;
     max-inline-size: none;
     padding-block: 0 !important;
   }
 
- .controls-column :deep(.wasd-panel) {
+  .controls-column :deep(.wasd-panel) {
     inline-size: min(100%, 50vh);
   }
 
- .controls-column :deep(.dwell-button) {
+  .controls-column :deep(.dwell-button) {
     padding: 0.45rem !important;
   }
 
- .direction-hint,
- .board-progress {
+  .direction-hint,
+  .board-progress {
     display: none;
   }
 
- .sokoban-board {
+  .sokoban-board {
     gap: 0.4rem;
     max-inline-size: min(100%, 50vh, 25rem);
     padding: 0.5rem;
   }
 
- .sokoban-row {
+  .sokoban-row {
     gap: 0.4rem;
   }
 
- .compact-feedback {
+  .compact-feedback {
     display: none;
   }
 }
 
 @media (max-height: 42.5rem) and (max-width: 52rem) {
- .play-area {
+  .play-area {
     grid-template-columns: minmax(0, 0.8fr) minmax(15rem, 0.72fr);
   }
 
- .sokoban-board {
+  .sokoban-board {
     max-inline-size: min(100%, 46vh, 22rem);
   }
 }
