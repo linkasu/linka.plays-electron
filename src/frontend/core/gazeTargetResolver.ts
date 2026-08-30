@@ -31,7 +31,7 @@ export function unionRect(rects: GazeTargetRect[]): GazeTargetRect | undefined {
     left: Math.min(...usable.map((rect) => rect.left)),
     top: Math.min(...usable.map((rect) => rect.top)),
     right: Math.max(...usable.map((rect) => rect.right)),
-    bottom: Math.max(...usable.map((rect) => rect.bottom))
+    bottom: Math.max(...usable.map((rect) => rect.bottom)),
   };
 }
 

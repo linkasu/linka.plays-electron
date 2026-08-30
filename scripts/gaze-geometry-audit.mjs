@@ -63,7 +63,11 @@ async function readRegistryGames() {
 
 function parseRoutes(registryGames) {
   const value = argValue("--routes", "");
-  if (value) return value.split(",").map((route) => route.trim()).filter(Boolean);
+  if (value)
+    return value
+      .split(",")
+      .map((route) => route.trim())
+      .filter(Boolean);
   if (hasFlag("--all-games")) return registryGames.map((game) => game.route);
   return defaultRoutes;
 }
@@ -203,7 +207,8 @@ async function main() {
   const listResponse = await fetch(`http://127.0.0.1:${port}/json/list`);
   if (!listResponse.ok) throw new Error(`Cannot read Electron CDP targets on port ${port}`);
   const pageTarget = (await listResponse.json()).find(
-    (target) => target.type === "page" && target.webSocketDebuggerUrl && /^https?:/.test(target.url),
+    (target) =>
+      target.type === "page" && target.webSocketDebuggerUrl && /^https?:/.test(target.url),
   );
   if (!pageTarget) throw new Error("No Electron page target with webSocketDebuggerUrl found");
 
@@ -234,7 +239,10 @@ async function main() {
       expression: pageProbe,
       returnByValue: true,
     });
-    if (exceptionDetails) throw new Error(`${route}: ${exceptionDetails.exception?.description ?? exceptionDetails.text}`);
+    if (exceptionDetails)
+      throw new Error(
+        `${route}: ${exceptionDetails.exception?.description ?? exceptionDetails.text}`,
+      );
 
     const probe = result.value;
     const game = registryByRoute.get(route);
@@ -243,7 +251,8 @@ async function main() {
     if (!probe.available) {
       findings.push({
         kind: "audit-hook-missing",
-        detail: "window.linkaGazeTargets is absent. Run a dev build or open the app with ?linka-audit.",
+        detail:
+          "window.linkaGazeTargets is absent. Run a dev build or open the app with ?linka-audit.",
       });
     }
 
@@ -296,7 +305,11 @@ async function main() {
     generatedAt: new Date().toISOString(),
     thresholds: { minCoverage, minGapPx },
     routes: results,
-    summary: { routes: results.length, routesWithFindings: failing.length, findings: results.reduce((total, entry) => total + entry.findings.length, 0) },
+    summary: {
+      routes: results.length,
+      routesWithFindings: failing.length,
+      findings: results.reduce((total, entry) => total + entry.findings.length, 0),
+    },
   };
 
   const outputPath = argValue("--output", "");
@@ -313,7 +326,9 @@ async function main() {
     }
     console.log(`FAIL ${entry.route}  (${entry.targetCount} targets)`);
     for (const finding of entry.findings) {
-      console.log(`       ${finding.kind}: ${finding.target ?? ""} ${finding.detail}`.replace(/\s+/g, " "));
+      console.log(
+        `       ${finding.kind}: ${finding.target ?? ""} ${finding.detail}`.replace(/\s+/g, " "),
+      );
     }
   }
   console.log(`\n${report.summary.findings} findings across ${report.summary.routes} routes.`);
