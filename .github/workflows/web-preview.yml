@@ -41,7 +41,7 @@ jobs:
 
       - run: npm ci
 
-      - run: npm run build:renderer
+      - run: npm run build:web
 
       - name: Publish
         env:
@@ -59,11 +59,12 @@ jobs:
           set -euo pipefail
           owner="${GITHUB_REPOSITORY%%/*}"
           name="${GITHUB_REPOSITORY##*/}"
-          gh pr comment "$NUMBER" --body "Собранная версия этой ветки: https://${owner}.github.io/${name}/preview/pr-${NUMBER}/
+          base="https://${owner}.github.io/${name}/preview/pr-${NUMBER}"
+          gh pr comment "$NUMBER" --body "Собранная версия этой ветки: ${base}/tests.html — список всех игр, каждая открывается по ссылке.
 
-          Обновляется на каждый пуш. Ссылка на конкретную игру — добавьте её маршрут: \`…/preview/pr-${NUMBER}/#/games/who-hiding\`.
+          Игра открывается в рамке с фиксированным соотношением сторон, чтобы у всех была одинаковая геометрия. Прямая ссылка на игру: \`${base}/play.html#/games/who-hiding\`, без рамки — \`${base}/#/games/who-hiding\`.
 
-          Чего в браузере нет: айтрекер (управление мышью), телеметрия, апдейтер и шахматы — они держатся на нативном движке. Остальные игры работают."
+          Обновляется на каждый пуш. Чего в браузере нет: айтрекер (управление мышью), телеметрия, апдейтер и шахматы — им нужен нативный движок. Остальные игры работают."
 
   cleanup:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
