@@ -37,8 +37,10 @@ if [ -n "${REMOVE_ONLY:-}" ]; then
   rm -rf "${site:?}/$target"
   echo "Removed $target."
 elif [ -z "$target" ]; then
-  # Root publish: replace everything except the previews.
-  find "$site" -mindepth 1 -maxdepth 1 ! -name preview -exec rm -rf {} +
+  # Root publish: replace everything except the previews and CNAME. A custom
+  # domain lives in that file, and Pages drops the domain the moment it goes
+  # missing — a full republish would quietly break the address.
+  find "$site" -mindepth 1 -maxdepth 1 ! -name preview ! -name CNAME -exec rm -rf {} +
   cp -R dist/. "$site/"
   echo "Published the site root."
 else
