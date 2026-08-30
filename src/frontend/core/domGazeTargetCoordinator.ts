@@ -1,5 +1,5 @@
 import { readonly, ref, type Ref } from "vue";
-import { resolveGazeTarget, type GazeTargetCandidate } from "./gazeTargetResolver";
+import { resolveGazeTarget, type GazeTargetCandidate, type GazeTargetRect } from "./gazeTargetResolver";
 
 export type DomGazeTargetRegistration = {
   id: string;
@@ -7,6 +7,12 @@ export type DomGazeTargetRegistration = {
   enabled: () => boolean;
   hitPadding: () => number;
   priority: () => number;
+  /**
+   * Рамка нарисованной фигуры, если она не совпадает с боксом элемента.
+   * Видимость по-прежнему считается по самому элементу: пустой контейнер
+   * не должен становиться целью только потому, что внутри что-то торчит.
+   */
+  shape?: () => GazeTargetRect | undefined;
 };
 
 const registrations = new Map<string, DomGazeTargetRegistration>();
@@ -23,12 +29,12 @@ function collectCandidates() {
   for (const registration of registrations.values()) {
     const element = registration.element();
     if (!element) continue;
-    const rect = element.getBoundingClientRect();
+    const box = element.getBoundingClientRect();
     candidates.push({
       id: registration.id,
-      rect,
+      rect: registration.shape?.() ?? box,
       enabled: registration.enabled(),
-      visible: isVisible(element, rect),
+      visible: isVisible(element, box),
       hitPadding: Math.max(0, registration.hitPadding()),
       priority: registration.priority()
     });
@@ -66,6 +72,32 @@ export function registerDomGazeTarget(registration: DomGazeTargetRegistration, p
     if (activeTargetId.value === registration.id) activeTargetId.value = undefined;
     stop();
   };
+}
+
+/**
+ * Снимок всех зарегистрированных зон взгляда: то, по чему на самом деле
+ * считается попадание. Нужен приёмке — иначе проверить, что зона совпадает
+ * с нарисованным, можно только повторив вычисление снаружи, то есть никак.
+ */
+export type GazeTargetSnapshotEntry = GazeTargetCandidate & { element: HTMLElement };
+
+export function gazeTargetSnapshot(): GazeTargetSnapshotEntry[] {
+  const snapshot: GazeTargetSnapshotEntry[] = [];
+  for (const registration of registrations.values()) {
+    const element = registration.element();
+    if (!element) continue;
+    const box = element.getBoundingClientRect();
+    snapshot.push({
+      id: registration.id,
+      rect: registration.shape?.() ?? box,
+      enabled: registration.enabled(),
+      visible: isVisible(element, box),
+      hitPadding: Math.max(0, registration.hitPadding()),
+      priority: registration.priority(),
+      element
+    });
+  }
+  return snapshot;
 }
 
 export const activeDomGazeTargetId = readonly(activeTargetId);

@@ -6,6 +6,7 @@ let sharedCooldownUntil = 0;
 import { computed, getCurrentInstance, inject, onMounted, onUnmounted, ref } from "vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { activeDomGazeTargetId, registerDomGazeTarget } from "../../core/domGazeTargetCoordinator";
+import { unionRect, type GazeTargetRect } from "../../core/gazeTargetResolver";
 import { advanceDwellMachine, createDwellMachineState } from "../../core/dwellStateMachine";
 import { DEFAULT_DWELL_MS } from "../../core/dwellSettings";
 import type { DwellCancelReason, DwellEventPayload } from "../../core/gaze";
@@ -20,6 +21,7 @@ const props = withDefaults(defineProps<{
   hitPadding?: number;
   priority?: number;
   graceMs?: number;
+  shapeSelector?: string;
 }>(), {
   dwellMs: DEFAULT_DWELL_MS,
   disabled: false,
@@ -27,7 +29,8 @@ const props = withDefaults(defineProps<{
   minHeight: 160,
   hitPadding: 36,
   priority: 0,
-  graceMs: 140
+  graceMs: 140,
+  shapeSelector: undefined
 });
 
 const emit = defineEmits<{
@@ -55,6 +58,21 @@ const minBlockSize = computed(() => typeof props.minHeight === "number" ? `${pro
 
 function currentTargetId() {
   return props.targetId ?? rootRef.value?.id ?? `dwell-button-${instance?.uid ?? "unknown"}`;
+}
+
+/**
+ * Прямоугольник, по которому засчитывается взгляд.
+ *
+ * Без `shapeSelector` это бокс контейнера — прежнее поведение. С ним зона
+ * собирается по тем частям рисунка, которые игра объявила фигурой: иначе
+ * подсветка идёт по нарисованному, а dwell — по боксу, и они расходятся.
+ */
+function currentRect(): GazeTargetRect | undefined {
+  const root = rootRef.value;
+  if (!root) return undefined;
+  if (!props.shapeSelector) return root.getBoundingClientRect();
+  const parts = Array.from(root.querySelectorAll(props.shapeSelector)).map((part) => part.getBoundingClientRect());
+  return unionRect(parts) ?? root.getBoundingClientRect();
 }
 
 function makePayload(now: number, nextProgress: number, reason?: DwellCancelReason, elapsedMs = machineState.accumulatedMs, source = pointer.value.source): DwellEventPayload {
@@ -93,7 +111,7 @@ function tick(now: number) {
   const coordinatedTargetId = activeDomGazeTargetId.value;
   const previousState = machineState;
   const previousProgress = progress.value;
-  const rect = rootRef.value?.getBoundingClientRect();
+  const rect = currentRect();
   const releaseTargetActive = Boolean(rect && pointer.value.valid
     && pointer.value.x >= rect.left - props.hitPadding
     && pointer.value.x <= rect.right + props.hitPadding
@@ -157,7 +175,8 @@ onMounted(() => {
     element: () => rootRef.value,
     enabled: () => !props.disabled,
     hitPadding: () => props.hitPadding,
-    priority: () => props.priority
+    priority: () => props.priority,
+    shape: () => (props.shapeSelector ? currentRect() : undefined)
   }, pointer);
   frame = requestAnimationFrame(tick);
 });
