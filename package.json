@@ -30,6 +30,8 @@
     "audit:tts-assets": "node scripts/tts-assets-audit.mjs",
     "audit:electron-cdp": "node scripts/electron-cdp-smoke.mjs",
     "audit:electron-cdp:all": "node scripts/electron-cdp-smoke.mjs --all-games",
+    "audit:gaze": "node scripts/gaze-geometry-audit.mjs",
+    "audit:gaze:all": "node scripts/gaze-geometry-audit.mjs --all-games",
     "review:approve": "node scripts/approve-game.mjs",
     "review:remove": "node scripts/remove-game.mjs",
     "review:next": "node scripts/open-next-development-game.mjs",
