@@ -1,0 +1,79 @@
+name: Web preview
+
+# Publishes the renderer as a static site so games can be opened by link:
+# `main` goes to the site root, every pull request gets `preview/pr-<number>/`.
+#
+# The site lives on the `gh-pages` branch and is republished as a single orphan
+# commit every time. Keeping no history is deliberate: a build is 67 MB, most
+# of it audio and images, and a growing branch would be paid for by everyone
+# who clones the repository.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# The branch is rewritten wholesale, so two publishes must never overlap.
+concurrency:
+  group: gh-pages-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    # Pull requests from forks get a read-only token and cannot publish.
+    if: >-
+      github.event_name == 'push' ||
+      (github.event.action != 'closed' &&
+       github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build:renderer
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Empty means the site root.
+          TARGET: ${{ github.event_name == 'pull_request' && format('preview/pr-{0}', github.event.pull_request.number) || '' }}
+        run: bash .github/scripts/publish-web-preview.sh
+
+      - name: Say where it is
+        if: github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          owner="${GITHUB_REPOSITORY%%/*}"
+          name="${GITHUB_REPOSITORY##*/}"
+          gh pr comment "$NUMBER" --body "Собранная версия этой ветки: https://${owner}.github.io/${name}/preview/pr-${NUMBER}/
+
+          Обновляется на каждый пуш. Ссылка на конкретную игру — добавьте её маршрут: \`…/preview/pr-${NUMBER}/#/games/who-hiding\`.
+
+          Чего в браузере нет: айтрекер (управление мышью), телеметрия, апдейтер и шахматы — они держатся на нативном движке. Остальные игры работают."
+
+  cleanup:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Drop the preview
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TARGET: preview/pr-${{ github.event.pull_request.number }}
+          REMOVE_ONLY: "1"
+        run: bash .github/scripts/publish-web-preview.sh
