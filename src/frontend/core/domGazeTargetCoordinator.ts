@@ -21,7 +21,12 @@ let pointerRef: Ref<GazePoint> | undefined;
 let frame = 0;
 
 function isVisible(element: HTMLElement, rect: DOMRect) {
-  return element.isConnected && rect.width > 0 && rect.height > 0 && getComputedStyle(element).visibility !== "hidden";
+  return (
+    element.isConnected &&
+    rect.width > 0 &&
+    rect.height > 0 &&
+    getComputedStyle(element).visibility !== "hidden"
+  );
 }
 
 function collectCandidates() {
@@ -36,7 +41,7 @@ function collectCandidates() {
       enabled: registration.enabled(),
       visible: isVisible(element, box),
       hitPadding: Math.max(0, registration.hitPadding()),
-      priority: registration.priority()
+      priority: registration.priority(),
     });
   }
   return candidates;
@@ -64,7 +69,10 @@ function stop() {
   activeTargetId.value = undefined;
 }
 
-export function registerDomGazeTarget(registration: DomGazeTargetRegistration, pointer: Ref<GazePoint>) {
+export function registerDomGazeTarget(
+  registration: DomGazeTargetRegistration,
+  pointer: Ref<GazePoint>,
+) {
   registrations.set(registration.id, registration);
   start(pointer);
   return () => {
@@ -105,5 +113,7 @@ export const activeDomGazeTargetId = readonly(activeTargetId);
 export function isCanvasControlBlocked(point: { x: number; y: number }) {
   if (activeTargetId.value) return true;
   if (typeof document.elementsFromPoint !== "function") return false;
-  return document.elementsFromPoint(point.x, point.y).some((element) => Boolean(element.closest("[data-canvas-overlay]")));
+  return document
+    .elementsFromPoint(point.x, point.y)
+    .some((element) => Boolean(element.closest("[data-canvas-overlay]")));
 }

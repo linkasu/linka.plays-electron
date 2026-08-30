@@ -34,7 +34,7 @@ export const sudoku2x2Choices: Sudoku2x2Choice[] = [
   { id: "card-2", value: 2, label: "2", colorName: "жёлтая", tone: "sun" },
   { id: "card-3", value: 3, label: "3", colorName: "зелёная", tone: "mint" },
   { id: "card-4", value: 4, label: "4", colorName: "розовая", tone: "rose" },
-  { id: "card-5", value: 5, label: "5", colorName: "фиолетовая", tone: "violet" }
+  { id: "card-5", value: 5, label: "5", colorName: "фиолетовая", tone: "violet" },
 ];
 
 function boardSizeForRound(roundIndex: number): Sudoku2x2Size {
@@ -52,7 +52,12 @@ function choicesForSize(size: Sudoku2x2Size, roundIndex: number) {
   return roundIndex % 2 === 0 ? [...choices].reverse() : choices;
 }
 
-function cellValue(size: Sudoku2x2Size, row: number, col: number, roundIndex: number): Sudoku2x2Value {
+function cellValue(
+  size: Sudoku2x2Size,
+  row: number,
+  col: number,
+  roundIndex: number,
+): Sudoku2x2Value {
   const offset = (roundIndex - 1) % size;
   return (((row + col + offset) % size) + 1) as Sudoku2x2Value;
 }
@@ -75,7 +80,7 @@ export function generateSudoku2x2Round(roundIndex = 1): Sudoku2x2Round {
       row,
       col,
       value: cellValue(size, row, col, safeRoundIndex),
-      hidden: index === hiddenIndex
+      hidden: index === hiddenIndex,
     };
   });
   const missingCell = board[hiddenIndex];
@@ -92,6 +97,6 @@ export function generateSudoku2x2Round(roundIndex = 1): Sudoku2x2Round {
     missingCell,
     choices,
     correctChoice,
-    correctIndex: choices.findIndex((choice) => choice.id === correctChoice.id)
+    correctIndex: choices.findIndex((choice) => choice.id === correctChoice.id),
   };
 }

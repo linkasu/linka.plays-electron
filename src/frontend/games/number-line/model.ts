@@ -18,7 +18,10 @@ function wrappedNumber(seed: number, max: number) {
   return ((seed - 1) % max) + 1;
 }
 
-export function generateNumberLineRound(settings: SessionSettings, roundIndex = 1): NumberLineRound {
+export function generateNumberLineRound(
+  settings: SessionSettings,
+  roundIndex = 1,
+): NumberLineRound {
   const taskOrder: NumberLineTaskKind[] = ["find", "next", "previous"];
   const taskKind = taskOrder[(Math.max(1, roundIndex) - 1) % taskOrder.length];
   const gentleOffset = settings.preset === "gentle" ? 1 : 0;
@@ -34,7 +37,7 @@ export function generateNumberLineRound(settings: SessionSettings, roundIndex = 
       helperText: "Выбери следующее число на дорожке.",
       numbers: numberLineNumbers,
       currentNumber,
-      targetNumber
+      targetNumber,
     };
   }
 
@@ -49,7 +52,7 @@ export function generateNumberLineRound(settings: SessionSettings, roundIndex = 
       helperText: "Выбери предыдущее число на дорожке.",
       numbers: numberLineNumbers,
       currentNumber,
-      targetNumber
+      targetNumber,
     };
   }
 
@@ -61,6 +64,6 @@ export function generateNumberLineRound(settings: SessionSettings, roundIndex = 
     prompt: `Найди число ${targetNumber}`,
     helperText: "Выбери нужное число на дорожке.",
     numbers: numberLineNumbers,
-    targetNumber
+    targetNumber,
   };
 }

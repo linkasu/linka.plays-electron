@@ -24,7 +24,8 @@ describe("generateScalesRound", () => {
       expect(round.right.weight).toBeLessThanOrEqual(5);
       expect(round.left.items).toHaveLength(round.left.weight);
       expect(round.right.items).toHaveLength(round.right.weight);
-      if (round.correctAnswer !== "equal") expect(Math.abs(round.left.weight - round.right.weight)).toBeGreaterThanOrEqual(2);
+      if (round.correctAnswer !== "equal")
+        expect(Math.abs(round.left.weight - round.right.weight)).toBeGreaterThanOrEqual(2);
     }
   });
 
@@ -47,7 +48,9 @@ describe("generateScalesRound", () => {
     for (let index = 0; index < 100; index += 1) {
       const round = generateScalesRound(settings, index + 1);
 
-      expect(round.correctAnswer).toBe(correctScalesAnswer(round.question, round.left.weight, round.right.weight));
+      expect(round.correctAnswer).toBe(
+        correctScalesAnswer(round.question, round.left.weight, round.right.weight),
+      );
       if (round.left.weight > round.right.weight) expect(round.tiltDeg).toBeLessThan(0);
       if (round.left.weight < round.right.weight) expect(round.tiltDeg).toBeGreaterThan(0);
       if (round.left.weight === round.right.weight) expect(round.tiltDeg).toBe(0);

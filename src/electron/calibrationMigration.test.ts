@@ -7,7 +7,9 @@ import { migrateLooksTobiiCalibration } from "./calibrationMigration";
 const directories: string[] = [];
 
 afterEach(async () => {
-  await Promise.all(directories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })));
+  await Promise.all(
+    directories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })),
+  );
 });
 
 async function createDirectories() {
@@ -27,9 +29,13 @@ describe("LINKa Looks calibration migration", () => {
     await writeFile(join(source, "tobiifree-software-calibration.json"), "looks-json");
     await writeFile(join(target, "tobiifree-software-calibration.json"), "plays-json");
 
-    expect(await migrateLooksTobiiCalibration(source, target)).toEqual(["tobiifree-calibration.bin"]);
+    expect(await migrateLooksTobiiCalibration(source, target)).toEqual([
+      "tobiifree-calibration.bin",
+    ]);
     expect(await readFile(join(target, "tobiifree-calibration.bin"), "utf8")).toBe("looks-binary");
-    expect(await readFile(join(target, "tobiifree-software-calibration.json"), "utf8")).toBe("plays-json");
+    expect(await readFile(join(target, "tobiifree-software-calibration.json"), "utf8")).toBe(
+      "plays-json",
+    );
   });
 
   it("runs once and does not recreate calibration removed after migration", async () => {
@@ -41,6 +47,8 @@ describe("LINKa Looks calibration migration", () => {
     await writeFile(join(source, fileName), "second");
 
     expect(await migrateLooksTobiiCalibration(source, target)).toEqual([]);
-    await expect(readFile(join(target, fileName), "utf8")).rejects.toMatchObject({ code: "ENOENT" });
+    await expect(readFile(join(target, fileName), "utf8")).rejects.toMatchObject({
+      code: "ENOENT",
+    });
   });
 });

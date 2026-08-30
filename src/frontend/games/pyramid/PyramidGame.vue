@@ -7,8 +7,21 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { disposePyramidAudio, playPyramidCompleteMelody, playPyramidMistakeMelody, playPyramidPlaceMelody, warmPyramidAudio } from "./audio";
-import { createPyramidRings, getCorrectPyramidOrder, getNextPyramidRing, getPlacedPyramidRings, selectPyramidRing, type PyramidRing } from "./model";
+import {
+  disposePyramidAudio,
+  playPyramidCompleteMelody,
+  playPyramidMistakeMelody,
+  playPyramidPlaceMelody,
+  warmPyramidAudio,
+} from "./audio";
+import {
+  createPyramidRings,
+  getCorrectPyramidOrder,
+  getNextPyramidRing,
+  getPlacedPyramidRings,
+  selectPyramidRing,
+  type PyramidRing,
+} from "./model";
 
 type PyramidMistakeReview = {
   step: number;
@@ -17,10 +30,21 @@ type PyramidMistakeReview = {
 };
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("pyramid", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("pyramid", {
   maxSteps: 4,
   overrides: { sound: true },
-  finishOnMaxSteps: false
+  finishOnMaxSteps: false,
 });
 
 const rings = reactive<PyramidRing[]>([]);
@@ -36,7 +60,10 @@ const feedbackMessage = ref("Можно выбирать любое кольцо
 const currentRoundId = computed(() => `pyramid:round:${session.step + 1}`);
 const isSpeaking = ref(false);
 const pendingSelection = ref(false);
-const promptAudio = useGamePromptAudio({ gameId: "pyramid", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "pyramid",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 let resultTimer = 0;
 let reviewTimer = 0;
 
@@ -50,7 +77,9 @@ function ringInlineSize(ring: PyramidRing) {
 
 function reviewRingLabel(ring?: PyramidRing) {
   if (!ring) return "кольцо не найдено";
-  const order = getCorrectPyramidOrder(createPyramidRings()).findIndex((item) => item.id === ring.id);
+  const order = getCorrectPyramidOrder(createPyramidRings()).findIndex(
+    (item) => item.id === ring.id,
+  );
   return ["самое большое", "второе", "третье", "самое маленькое"][order] ?? "кольцо";
 }
 
@@ -118,7 +147,8 @@ async function playPrompt(delayMs = 0) {
 }
 
 async function chooseRing(ring: PyramidRing) {
-  if (session.status !== "running" || ring.placed || pendingSelection.value || isSpeaking.value) return;
+  if (session.status !== "running" || ring.placed || pendingSelection.value || isSpeaking.value)
+    return;
 
   const roundId = currentRoundId.value;
   const outcome = selectPyramidRing(rings, ring.id);
@@ -129,12 +159,29 @@ async function chooseRing(ring: PyramidRing) {
 
   if (outcome.isCorrect) {
     feedbackMessage.value = "Верно. Кольцо легло на пирамидку.";
-    recordSuccess({ roundId, targetId: ringTargetId(outcome.selectedRing), expected: outcome.selectedRing.id, actual: outcome.selectedRing.id, isCorrect: true });
+    recordSuccess({
+      roundId,
+      targetId: ringTargetId(outcome.selectedRing),
+      expected: outcome.selectedRing.id,
+      actual: outcome.selectedRing.id,
+      isCorrect: true,
+    });
     void playPyramidPlaceMelody(session.settings.sound);
   } else {
     feedbackMessage.value = "Кольцо поставлено. Продолжай собирать пирамидку.";
-    recordMistake({ roundId, targetId: ringTargetId(outcome.selectedRing), expectedTargetId: outcome.expectedRing ? ringTargetId(outcome.expectedRing) : undefined, expected: outcome.expectedRing?.id, actual: outcome.selectedRing.id, isCorrect: false });
-    mistakeReviews.value.push({ step: outcome.selectedRing.placedIndex ?? placedRings.value.length, selectedRing: outcome.selectedRing, expectedRing: outcome.expectedRing });
+    recordMistake({
+      roundId,
+      targetId: ringTargetId(outcome.selectedRing),
+      expectedTargetId: outcome.expectedRing ? ringTargetId(outcome.expectedRing) : undefined,
+      expected: outcome.expectedRing?.id,
+      actual: outcome.selectedRing.id,
+      isCorrect: false,
+    });
+    mistakeReviews.value.push({
+      step: outcome.selectedRing.placedIndex ?? placedRings.value.length,
+      selectedRing: outcome.selectedRing,
+      expectedRing: outcome.expectedRing,
+    });
     if (session.status === "running") session.step += 1;
     void playPyramidMistakeMelody(session.settings.sound);
   }
@@ -145,14 +192,21 @@ async function chooseRing(ring: PyramidRing) {
     feedbackMessage.value = "Пирамидка собрана. Посмотри, как стоят все кольца.";
     finishSession("game-complete");
     void playPyramidCompleteMelody(session.settings.sound);
-    await promptAudio.playSequenceAndWait([outcome.isCorrect ? "pyramid.correct" : "pyramid.mistake", "pyramid.complete"], 80, 170);
+    await promptAudio.playSequenceAndWait(
+      [outcome.isCorrect ? "pyramid.correct" : "pyramid.mistake", "pyramid.complete"],
+      80,
+      170,
+    );
     isSpeaking.value = false;
     pendingSelection.value = false;
     void startMistakeReview();
     return;
   }
 
-  await promptAudio.playSequenceAndWait([outcome.isCorrect ? "pyramid.correct" : "pyramid.mistake"], 80);
+  await promptAudio.playSequenceAndWait(
+    [outcome.isCorrect ? "pyramid.correct" : "pyramid.mistake"],
+    80,
+  );
   isSpeaking.value = false;
   pendingSelection.value = false;
 }
@@ -187,47 +241,93 @@ onUnmounted(() => {
   disposePyramidAudio();
 });
 
-watch(() => session.status, (status) => {
-  if (status === "finished" && session.finishReason !== "game-complete") {
-    clearResultTimer();
-    clearReviewTimer();
-    reviewVisible.value = false;
-    resultVisible.value = true;
-    return;
-  }
-  if (status !== "finished") {
-    clearResultTimer();
-    clearReviewTimer();
-    reviewVisible.value = false;
-    resultVisible.value = false;
-  }
-});
+watch(
+  () => session.status,
+  (status) => {
+    if (status === "finished" && session.finishReason !== "game-complete") {
+      clearResultTimer();
+      clearReviewTimer();
+      reviewVisible.value = false;
+      resultVisible.value = true;
+      return;
+    }
+    if (status !== "finished") {
+      clearResultTimer();
+      clearReviewTimer();
+      reviewVisible.value = false;
+      resultVisible.value = false;
+    }
+  },
+);
 </script>
 
 <template>
   <div class="pyramid-shell">
-    <GameHud title="Пирамидка" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Пирамидка"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10">
           <v-card class="pa-4 pa-md-5" rounded="xl" elevation="8">
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-3">Собери пирамидку</h1>
-            <p class="text-body-1 text-medium-emphasis text-center mb-4">Выбирай кольца. Даже если порядок другой, мы поставим каждое кольцо и покажем всю сборку.</p>
+            <p class="text-body-1 text-medium-emphasis text-center mb-4">
+              Выбирай кольца. Даже если порядок другой, мы поставим каждое кольцо и покажем всю
+              сборку.
+            </p>
             <div class="play-area">
-              <v-card class="stack-card pa-5" color="deep-purple-lighten-5" rounded="xl" variant="flat">
+              <v-card
+                class="stack-card pa-5"
+                color="deep-purple-lighten-5"
+                rounded="xl"
+                variant="flat"
+              >
                 <div class="stack" aria-label="Собранная пирамидка">
                   <div class="stem" />
                   <div class="stack-layers">
-                    <div v-for="ring in placedRings" :key="`placed-${ring.id}`" class="stack-ring" :style="{ inlineSize: ringInlineSize(ring), background: ring.color }" />
+                    <div
+                      v-for="ring in placedRings"
+                      :key="`placed-${ring.id}`"
+                      class="stack-ring"
+                      :style="{ inlineSize: ringInlineSize(ring), background: ring.color }"
+                    />
                   </div>
                   <div class="base" />
                 </div>
-                <div class="text-body-1 text-center text-medium-emphasis mt-4">{{ feedbackMessage }}</div>
+                <div class="text-body-1 text-center text-medium-emphasis mt-4">
+                  {{ feedbackMessage }}
+                </div>
               </v-card>
               <div class="rings">
-                <GameDwellButton v-for="ring in rings" :key="ring.id" :target-id="ringTargetId(ring)" :disabled="session.status !== 'running' || ring.placed || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="8rem" @select="chooseRing(ring)">
+                <GameDwellButton
+                  v-for="ring in rings"
+                  :key="ring.id"
+                  :target-id="ringTargetId(ring)"
+                  :disabled="
+                    session.status !== 'running' || ring.placed || pendingSelection || isSpeaking
+                  "
+                  :dwell-ms="session.settings.dwellMs"
+                  min-height="8rem"
+                  @select="chooseRing(ring)"
+                >
                   <template #default>
-                    <div class="loose-ring" :style="{ inlineSize: ringInlineSize(ring), background: ring.color, opacity: ring.placed ? 0.25 : 1 }" />
+                    <div
+                      class="loose-ring"
+                      :style="{
+                        inlineSize: ringInlineSize(ring),
+                        background: ring.color,
+                        opacity: ring.placed ? 0.25 : 1,
+                      }"
+                    />
                   </template>
                 </GameDwellButton>
               </div>
@@ -236,7 +336,12 @@ watch(() => session.status, (status) => {
         </v-col>
       </v-row>
     </v-container>
-    <v-dialog :model-value="reviewVisible" max-width="48rem" persistent transition="fade-transition">
+    <v-dialog
+      :model-value="reviewVisible"
+      max-width="48rem"
+      persistent
+      transition="fade-transition"
+    >
       <v-card class="review-card pa-4 pa-md-6" rounded="xl" elevation="12">
         <v-card-title class="text-h4 font-weight-bold px-0 pt-0">Разбор порядка</v-card-title>
         <v-card-text class="px-0">
@@ -249,7 +354,12 @@ watch(() => session.status, (status) => {
               <v-card color="deep-purple-lighten-5" rounded="xl" variant="flat" class="pa-4 h-100">
                 <div class="text-subtitle-1 font-weight-bold mb-3">Твой порядок</div>
                 <div class="review-ring-row" aria-label="Порядок выбранных колец">
-                  <span v-for="ring in placedRings" :key="`review-placed-${ring.id}`" class="review-ring" :style="{ inlineSize: ringInlineSize(ring), background: ring.color }" />
+                  <span
+                    v-for="ring in placedRings"
+                    :key="`review-placed-${ring.id}`"
+                    class="review-ring"
+                    :style="{ inlineSize: ringInlineSize(ring), background: ring.color }"
+                  />
                 </div>
               </v-card>
             </v-col>
@@ -257,24 +367,51 @@ watch(() => session.status, (status) => {
               <v-card color="green-lighten-5" rounded="xl" variant="flat" class="pa-4 h-100">
                 <div class="text-subtitle-1 font-weight-bold mb-3">Порядок по правилу</div>
                 <div class="review-ring-row" aria-label="Правильный порядок колец">
-                  <span v-for="ring in correctOrder" :key="`review-correct-${ring.id}`" class="review-ring" :style="{ inlineSize: ringInlineSize(ring), background: ring.color }" />
+                  <span
+                    v-for="ring in correctOrder"
+                    :key="`review-correct-${ring.id}`"
+                    class="review-ring"
+                    :style="{ inlineSize: ringInlineSize(ring), background: ring.color }"
+                  />
                 </div>
               </v-card>
             </v-col>
           </v-row>
 
-          <v-card v-if="activeReview" color="warning" variant="tonal" rounded="xl" class="mt-4 pa-4">
+          <v-card
+            v-if="activeReview"
+            color="warning"
+            variant="tonal"
+            rounded="xl"
+            class="mt-4 pa-4"
+          >
             <div class="text-overline">Сложный шаг {{ activeReview.step }}</div>
-            <div class="text-body-1 font-weight-bold mb-3">Выбрано {{ reviewRingLabel(activeReview.selectedRing) }} кольцо, а по правилу ждали {{ reviewRingLabel(activeReview.expectedRing) }}.</div>
+            <div class="text-body-1 font-weight-bold mb-3">
+              Выбрано {{ reviewRingLabel(activeReview.selectedRing) }} кольцо, а по правилу ждали
+              {{ reviewRingLabel(activeReview.expectedRing) }}.
+            </div>
             <div class="review-comparison">
               <div>
                 <div class="text-caption text-medium-emphasis mb-1">Выбрано</div>
-                <span class="review-ring review-ring--single" :style="{ inlineSize: ringInlineSize(activeReview.selectedRing), background: activeReview.selectedRing.color }" />
+                <span
+                  class="review-ring review-ring--single"
+                  :style="{
+                    inlineSize: ringInlineSize(activeReview.selectedRing),
+                    background: activeReview.selectedRing.color,
+                  }"
+                />
               </div>
               <v-icon icon="mdi-arrow-right" aria-hidden="true" />
               <div>
                 <div class="text-caption text-medium-emphasis mb-1">Ждали</div>
-                <span v-if="activeReview.expectedRing" class="review-ring review-ring--single" :style="{ inlineSize: ringInlineSize(activeReview.expectedRing), background: activeReview.expectedRing.color }" />
+                <span
+                  v-if="activeReview.expectedRing"
+                  class="review-ring review-ring--single"
+                  :style="{
+                    inlineSize: ringInlineSize(activeReview.expectedRing),
+                    background: activeReview.expectedRing.color,
+                  }"
+                />
               </div>
             </div>
           </v-card>
@@ -285,7 +422,17 @@ watch(() => session.status, (status) => {
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <GameResultDialog :model-value="resultVisible" title="Пирамидка" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Пирамидка"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -413,57 +560,57 @@ watch(() => session.status, (status) => {
 }
 
 @media (max-width: 60rem) {
- .game-container {
+  .game-container {
     padding-block-start: 6.25rem;
   }
 
- .play-area {
+  .play-area {
     grid-template-columns: 1fr;
   }
 
- .stack {
+  .stack {
     min-block-size: 18.75rem;
   }
 
- .stack-layers {
+  .stack-layers {
     min-block-size: 14rem;
   }
 }
 
 @media (min-width: 43.75rem) and (max-height: 51.25rem) {
- .game-container {
+  .game-container {
     padding-block-start: 7rem;
   }
 
- .play-area {
+  .play-area {
     gap: 1rem;
     grid-template-columns: minmax(0, 0.8fr) minmax(18rem, 1.2fr);
   }
 
- .stack {
+  .stack {
     min-block-size: 13.75rem;
   }
 
- .stack-layers {
+  .stack-layers {
     min-block-size: 10.625rem;
   }
 
- .stem {
+  .stem {
     block-size: 11.875rem;
   }
 }
 
 @media (max-width: 37.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 6.5rem;
   }
 
- .rings {
+  .rings {
     grid-template-columns: 1fr;
   }
 
- .stack-ring,
- .loose-ring {
+  .stack-ring,
+  .loose-ring {
     block-size: 3rem;
   }
 }

@@ -16,12 +16,17 @@ export type ChoiceCountByPresetConfig = {
   cap?: number;
 };
 
-export function choiceCountByPreset(settings: SessionSettings, roundIndex: number, config: ChoiceCountByPresetConfig) {
-  const presetKey: keyof Omit<ChoiceCountByPresetConfig, "cap"> = settings.preset === "gentle"
-    ? "gentle"
-    : settings.preset === "challenge"
-    ? "challenge"
-    : "standard";
+export function choiceCountByPreset(
+  settings: SessionSettings,
+  roundIndex: number,
+  config: ChoiceCountByPresetConfig,
+) {
+  const presetKey: keyof Omit<ChoiceCountByPresetConfig, "cap"> =
+    settings.preset === "gentle"
+      ? "gentle"
+      : settings.preset === "challenge"
+        ? "challenge"
+        : "standard";
   const raw = config[presetKey];
   const value = typeof raw === "function" ? raw(Math.max(1, roundIndex)) : raw;
   const safe = Math.max(2, Math.floor(value));
@@ -40,12 +45,16 @@ export type BuildChoiceRoundInput<T> = {
 };
 
 export function buildChoiceRound<T>(input: BuildChoiceRoundInput<T>): ChoiceRound<T> {
-  if (input.items.length < 2) throw new Error(`buildChoiceRound: pool too small for ${input.idPrefix}.`);
+  if (input.items.length < 2)
+    throw new Error(`buildChoiceRound: pool too small for ${input.idPrefix}.`);
 
   const requested = Math.max(2, Math.floor(input.choiceCount));
   const choiceCount = Math.min(requested, input.items.length);
   const target = input.pickTarget(input.items, Math.max(1, input.roundIndex));
-  const distractors = shuffleItems(input.items.filter((item) => !input.isSame(item, target)), input.random).slice(0, choiceCount - 1);
+  const distractors = shuffleItems(
+    input.items.filter((item) => !input.isSame(item, target)),
+    input.random,
+  ).slice(0, choiceCount - 1);
   const choices = shuffleItems([target, ...distractors], input.random);
   const correctIndex = choices.findIndex((choice) => input.isSame(choice, target));
 
@@ -54,7 +63,7 @@ export function buildChoiceRound<T>(input: BuildChoiceRoundInput<T>): ChoiceRoun
     prompt: input.prompt(target, input.roundIndex),
     target,
     choices,
-    correctIndex
+    correctIndex,
   };
 }
 

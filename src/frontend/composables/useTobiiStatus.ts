@@ -6,7 +6,7 @@ const fallbackStatus: TobiiStatus = {
   mode: "unsupported",
   message: "Electron IPC недоступен, используется мышь.",
   deviceFound: false,
-  updatedAt: Date.now()
+  updatedAt: Date.now(),
 };
 let lastReportedState: TobiiStatusState | undefined;
 
@@ -23,13 +23,16 @@ export function useTobiiStatus() {
   onMounted(() => {
     if (!window.linkaTobii) return;
     window.linkaTobii.rendererReady();
-    window.linkaTobii.getStatus().then((nextStatus) => {
-      status.value = nextStatus;
-      reportState(nextStatus);
-    }).catch(() => {
-      status.value = fallbackStatus;
-      reportState(fallbackStatus);
-    });
+    window.linkaTobii
+      .getStatus()
+      .then((nextStatus) => {
+        status.value = nextStatus;
+        reportState(nextStatus);
+      })
+      .catch(() => {
+        status.value = fallbackStatus;
+        reportState(fallbackStatus);
+      });
     dispose = window.linkaTobii.onStatus((nextStatus) => {
       status.value = nextStatus;
       reportState(nextStatus);

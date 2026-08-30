@@ -37,48 +37,84 @@ export const whatFirstScenes: WhatFirstScene[] = [
     title: "Перед едой",
     context: "Мы хотим сесть за стол.",
     contextVisual: { emoji: "🍴", label: "Стол перед едой" },
-    first: { id: "wash-hands", title: "Вымыть руки", aacLabel: "мыть", phrase: "моем руки", emoji: "🧼" },
-    then: { id: "eat", title: "Есть", aacLabel: "есть", phrase: "едим", emoji: "🍽️" }
+    first: {
+      id: "wash-hands",
+      title: "Вымыть руки",
+      aacLabel: "мыть",
+      phrase: "моем руки",
+      emoji: "🧼",
+    },
+    then: { id: "eat", title: "Есть", aacLabel: "есть", phrase: "едим", emoji: "🍽️" },
   },
   {
     id: "shoes-walk",
     title: "На прогулку",
     context: "Мы собираемся выйти на улицу.",
     contextVisual: { emoji: "🚪", label: "Выход на улицу" },
-    first: { id: "put-shoes", title: "Надеть обувь", aacLabel: "обувь", phrase: "надеваем обувь", emoji: "👟" },
-    then: { id: "walk", title: "Гулять", aacLabel: "гулять", phrase: "идём гулять", emoji: "🌳" }
+    first: {
+      id: "put-shoes",
+      title: "Надеть обувь",
+      aacLabel: "обувь",
+      phrase: "надеваем обувь",
+      emoji: "👟",
+    },
+    then: { id: "walk", title: "Гулять", aacLabel: "гулять", phrase: "идём гулять", emoji: "🌳" },
   },
   {
     id: "brush-sleep",
     title: "Перед сном",
     context: "Вечером пора готовиться ко сну.",
     contextVisual: { emoji: "🌙", label: "Вечер дома" },
-    first: { id: "brush-teeth", title: "Почистить зубы", aacLabel: "зубы", phrase: "чистим зубы", emoji: "🪥" },
-    then: { id: "sleep", title: "Спать", aacLabel: "спать", phrase: "ложимся спать", emoji: "🛏️" }
+    first: {
+      id: "brush-teeth",
+      title: "Почистить зубы",
+      aacLabel: "зубы",
+      phrase: "чистим зубы",
+      emoji: "🪥",
+    },
+    then: { id: "sleep", title: "Спать", aacLabel: "спать", phrase: "ложимся спать", emoji: "🛏️" },
   },
   {
     id: "open-read",
     title: "Книга",
     context: "Мы хотим посмотреть историю.",
     contextVisual: { emoji: "📚", label: "Книжная история" },
-    first: { id: "open-book", title: "Открыть книгу", aacLabel: "открыть", phrase: "открываем книгу", emoji: "📖" },
-    then: { id: "read", title: "Читать", aacLabel: "читать", phrase: "читаем", emoji: "👀" }
+    first: {
+      id: "open-book",
+      title: "Открыть книгу",
+      aacLabel: "открыть",
+      phrase: "открываем книгу",
+      emoji: "📖",
+    },
+    then: { id: "read", title: "Читать", aacLabel: "читать", phrase: "читаем", emoji: "👀" },
   },
   {
     id: "pour-drink",
     title: "Попить воды",
     context: "В стакане пока пусто.",
     contextVisual: { emoji: "🚰", label: "Вода для питья" },
-    first: { id: "pour-water", title: "Налить воду", aacLabel: "налить", phrase: "наливаем воду", emoji: "💧" },
-    then: { id: "drink", title: "Пить", aacLabel: "пить", phrase: "пьём", emoji: "🥤" }
+    first: {
+      id: "pour-water",
+      title: "Налить воду",
+      aacLabel: "налить",
+      phrase: "наливаем воду",
+      emoji: "💧",
+    },
+    then: { id: "drink", title: "Пить", aacLabel: "пить", phrase: "пьём", emoji: "🥤" },
   },
   {
     id: "soap-rinse",
     title: "Моем руки",
     context: "На руках пока нет пены.",
     contextVisual: { emoji: "👐", label: "Руки у раковины" },
-    first: { id: "soap", title: "Намылить", aacLabel: "мыло", phrase: "намыливаем руки", emoji: "🫧" },
-    then: { id: "rinse", title: "Смыть", aacLabel: "смыть", phrase: "смываем пену", emoji: "🚿" }
+    first: {
+      id: "soap",
+      title: "Намылить",
+      aacLabel: "мыло",
+      phrase: "намыливаем руки",
+      emoji: "🫧",
+    },
+    then: { id: "rinse", title: "Смыть", aacLabel: "смыть", phrase: "смываем пену", emoji: "🚿" },
   },
   {
     id: "sit-buckle",
@@ -86,23 +122,39 @@ export const whatFirstScenes: WhatFirstScene[] = [
     context: "Нужно безопасно сесть перед дорогой.",
     contextVisual: { emoji: "🚗", label: "Поездка в машине" },
     first: { id: "sit", title: "Сесть", aacLabel: "сесть", phrase: "садимся", emoji: "🪑" },
-    then: { id: "buckle", title: "Пристегнуться", aacLabel: "ремень", phrase: "пристёгиваемся", emoji: "🧷" }
+    then: {
+      id: "buckle",
+      title: "Пристегнуться",
+      aacLabel: "ремень",
+      phrase: "пристёгиваемся",
+      emoji: "🧷",
+    },
   },
   {
     id: "peel-eat",
     title: "Банан",
     context: "Мы хотим съесть банан.",
     contextVisual: { emoji: "🧺", label: "Корзинка с фруктами" },
-    first: { id: "peel", title: "Очистить", aacLabel: "чистить", phrase: "чистим банан", emoji: "🍌" },
-    then: { id: "bite", title: "Кусать", aacLabel: "есть", phrase: "кушаем банан", emoji: "😋" }
-  }
+    first: {
+      id: "peel",
+      title: "Очистить",
+      aacLabel: "чистить",
+      phrase: "чистим банан",
+      emoji: "🍌",
+    },
+    then: { id: "bite", title: "Кусать", aacLabel: "есть", phrase: "кушаем банан", emoji: "😋" },
+  },
 ];
 
 export function createWhatFirstExplanation(scene: WhatFirstScene) {
   return `Сначала ${scene.first.phrase}, потом ${scene.then.phrase}.`;
 }
 
-function buildRound(scene: WhatFirstScene, roundIndex: number, random: () => number): WhatFirstRound {
+function buildRound(
+  scene: WhatFirstScene,
+  roundIndex: number,
+  random: () => number,
+): WhatFirstRound {
   const choices = shuffleItems([scene.first, scene.then], random);
 
   return {
@@ -111,13 +163,16 @@ function buildRound(scene: WhatFirstScene, roundIndex: number, random: () => num
     prompt: "Что сначала?",
     expectedAction: scene.first,
     choices,
-    explanation: createWhatFirstExplanation(scene)
+    explanation: createWhatFirstExplanation(scene),
   };
 }
 
 export function createWhatFirstDeck(random = Math.random): WhatFirstRound[] {
-  if (whatFirstScenes.length !== 8) throw new Error("Для игры «Что сначала?» нужны ровно восемь сцен.");
-  return shuffleItems(whatFirstScenes, random).map((scene, index) => buildRound(scene, index + 1, random));
+  if (whatFirstScenes.length !== 8)
+    throw new Error("Для игры «Что сначала?» нужны ровно восемь сцен.");
+  return shuffleItems(whatFirstScenes, random).map((scene, index) =>
+    buildRound(scene, index + 1, random),
+  );
 }
 
 export function generateWhatFirstRound(roundIndex = 1, random = Math.random): WhatFirstRound {

@@ -7,14 +7,15 @@ import {
   sokobanLargeChoiceOutcome,
   sokobanLargeSolution,
   solveSokobanLargeState,
-  type SokobanLargeState
+  type SokobanLargeState,
 } from "./model";
 
 function perimeterWalls(width: number, height: number) {
   const walls = [];
   for (let row = 0; row < height; row += 1) {
     for (let column = 0; column < width; column += 1) {
-      if (row === 0 || column === 0 || row === height - 1 || column === width - 1) walls.push({ row, column });
+      if (row === 0 || column === 0 || row === height - 1 || column === width - 1)
+        walls.push({ row, column });
     }
   }
   return walls;
@@ -30,12 +31,15 @@ function fixedState(): SokobanLargeState {
     goal: { row: 2, column: 4 },
     stepIndex: 0,
     roundIndex: 0,
-    solution: [...sokobanLargeSolution]
+    solution: [...sokobanLargeSolution],
   };
 }
 
 function playSolution(state: SokobanLargeState) {
-  return state.solution.reduce((currentState, direction) => applySokobanLargeMove(currentState, direction).state, state);
+  return state.solution.reduce(
+    (currentState, direction) => applySokobanLargeMove(currentState, direction).state,
+    state,
+  );
 }
 
 describe("sokoban large model", () => {

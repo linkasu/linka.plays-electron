@@ -16,11 +16,13 @@ describe("big-cards model", () => {
 
       expect(round.prompt).toBe("Выбери любую картинку");
       expect(ids.size).toBe(round.choices.length);
-      expect(round.choices.map(evaluateBigCardChoice)).toEqual(round.choices.map((card) => ({
-        cardId: card.id,
-        label: card.label,
-        isCorrect: true
-      })));
+      expect(round.choices.map(evaluateBigCardChoice)).toEqual(
+        round.choices.map((card) => ({
+          cardId: card.id,
+          label: card.label,
+          isCorrect: true,
+        })),
+      );
     }
   });
 });

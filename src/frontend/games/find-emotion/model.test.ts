@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { settingsFromPreset } from "../../core/settings";
-import { createFindEmotionRoundGenerator, findEmotionOptions, generateFindEmotionRound } from "./model";
+import {
+  createFindEmotionRoundGenerator,
+  findEmotionOptions,
+  generateFindEmotionRound,
+} from "./model";
 
 describe("find-emotion model", () => {
   it("uses two choices in gentle mode", () => {
@@ -38,20 +42,34 @@ describe("find-emotion model", () => {
   });
 
   it("uses visually distinct basic emotion symbols", () => {
-    expect(findEmotionOptions.map((option) => option.id)).toEqual(["joy", "sadness", "anger", "surprise", "fear", "sleepy"]);
-    expect(new Set(findEmotionOptions.map((option) => option.emoji)).size).toBe(findEmotionOptions.length);
+    expect(findEmotionOptions.map((option) => option.id)).toEqual([
+      "joy",
+      "sadness",
+      "anger",
+      "surprise",
+      "fear",
+      "sleepy",
+    ]);
+    expect(new Set(findEmotionOptions.map((option) => option.emoji)).size).toBe(
+      findEmotionOptions.length,
+    );
   });
 
   it("uses every emotion in a shuffled deck before repeating a target", () => {
     const generateRound = createFindEmotionRoundGenerator(() => 0.42);
-    const targetIds = findEmotionOptions.map((_, index) => generateRound(settingsFromPreset("standard"), index + 1).target.id);
+    const targetIds = findEmotionOptions.map(
+      (_, index) => generateRound(settingsFromPreset("standard"), index + 1).target.id,
+    );
 
     expect(new Set(targetIds).size).toBe(findEmotionOptions.length);
   });
 
   it("does not repeat the last target when the deck is refilled", () => {
     const generateRound = createFindEmotionRoundGenerator(() => 0);
-    const targets = Array.from({ length: findEmotionOptions.length + 1 }, (_, index) => generateRound(settingsFromPreset("standard"), index + 1).target.id);
+    const targets = Array.from(
+      { length: findEmotionOptions.length + 1 },
+      (_, index) => generateRound(settingsFromPreset("standard"), index + 1).target.id,
+    );
 
     expect(targets.at(-1)).not.toBe(targets.at(-2));
   });

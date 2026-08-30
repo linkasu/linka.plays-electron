@@ -13,7 +13,8 @@ import vuetify from "./plugins/vuetify";
 
 installGlobalMetricsErrorHandlers();
 router.afterEach((route) => {
-  if (typeof route.name === "string") recordMetricsEvent({ eventName: "page_viewed", properties: { page: route.name } });
+  if (typeof route.name === "string")
+    recordMetricsEvent({ eventName: "page_viewed", properties: { page: route.name } });
 });
 
 // Приёмка (как агентская, так и человеческая) должна уметь спросить у

@@ -3,7 +3,13 @@ import wordImageManifest from "../../../../public/images/words/manifest.json";
 import { resolveGazeTarget, type GazeTargetCandidate } from "../../core/gazeTargetResolver";
 import { settingsFromPreset } from "../../core/settings";
 import { wordImageSrc } from "../../core/wordImage";
-import { createMemoryCardDeck, createMemoryCardsRound, memoryCardHitPaddingForGap, memoryCardSources, shuffleMemoryCards } from "./model";
+import {
+  createMemoryCardDeck,
+  createMemoryCardsRound,
+  memoryCardHitPaddingForGap,
+  memoryCardSources,
+  shuffleMemoryCards,
+} from "./model";
 
 function pairCounts(pairIds: string[]) {
   return pairIds.reduce<Record<string, number>>((counts, pairId) => {
@@ -26,7 +32,9 @@ describe("createMemoryCardsRound", () => {
     const shuffled = shuffleMemoryCards(deck, () => 0.2);
 
     expect(shuffled).toHaveLength(deck.length);
-    expect(pairCounts(shuffled.map((card) => card.pairId))).toEqual(pairCounts(deck.map((card) => card.pairId)));
+    expect(pairCounts(shuffled.map((card) => card.pairId))).toEqual(
+      pairCounts(deck.map((card) => card.pairId)),
+    );
   });
 
   it("creates unique card ids", () => {
@@ -45,8 +53,20 @@ describe("createMemoryCardsRound", () => {
   it("resolves the exact gap boundary to one card through the shared arbiter", () => {
     const hitPadding = memoryCardHitPaddingForGap(12);
     const candidates: GazeTargetCandidate[] = [
-      { id: "left", rect: { left: 0, top: 0, right: 100, bottom: 100 }, enabled: true, visible: true, hitPadding },
-      { id: "right", rect: { left: 112, top: 0, right: 212, bottom: 100 }, enabled: true, visible: true, hitPadding }
+      {
+        id: "left",
+        rect: { left: 0, top: 0, right: 100, bottom: 100 },
+        enabled: true,
+        visible: true,
+        hitPadding,
+      },
+      {
+        id: "right",
+        rect: { left: 112, top: 0, right: 212, bottom: 100 },
+        enabled: true,
+        visible: true,
+        hitPadding,
+      },
     ];
 
     expect(resolveGazeTarget(candidates, { x: 106, y: 50 })?.id).toBe("left");
@@ -56,6 +76,8 @@ describe("createMemoryCardsRound", () => {
     const packagedImageIds = new Set(wordImageManifest.map((item) => item.id));
 
     expect(memoryCardSources.every((source) => packagedImageIds.has(source.id))).toBe(true);
-    expect(wordImageSrc(memoryCardSources[0].id, "./", "file:///app/dist/index.html")).toBe(`file:///app/dist/images/words/${memoryCardSources[0].id}.png`);
+    expect(wordImageSrc(memoryCardSources[0].id, "./", "file:///app/dist/index.html")).toBe(
+      `file:///app/dist/images/words/${memoryCardSources[0].id}.png`,
+    );
   });
 });

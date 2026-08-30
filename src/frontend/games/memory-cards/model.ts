@@ -33,7 +33,7 @@ export const memoryCardSources: MemoryCardSource[] = [
   { id: "fish", label: "Рыбка", emoji: "🐟" },
   { id: "duck", label: "Утка", emoji: "🦆" },
   { id: "butterfly", label: "Бабочка", emoji: "🦋" },
-  { id: "heart", label: "Сердце", emoji: "❤️" }
+  { id: "heart", label: "Сердце", emoji: "❤️" },
 ];
 
 export function getMemoryCardsRoundSettings(settings: SessionSettings): MemoryCardsRoundSettings {
@@ -52,30 +52,43 @@ export function shuffleMemoryCards<T>(items: T[], random = Math.random): T[] {
 
 export function memoryCardHitPaddingForGap(gap: number, preferredPadding = 36) {
   const safeGap = Number.isFinite(gap) ? Math.max(0, gap) : 0;
-  const safePreferredPadding = Number.isFinite(preferredPadding) ? Math.max(0, preferredPadding) : 0;
+  const safePreferredPadding = Number.isFinite(preferredPadding)
+    ? Math.max(0, preferredPadding)
+    : 0;
   return Math.min(safePreferredPadding, safeGap / 2);
 }
 
-export function createMemoryCardDeck(sources: MemoryCardSource[], pairCount: number, roundIndex = 1, random = Math.random): MemoryCard[] {
+export function createMemoryCardDeck(
+  sources: MemoryCardSource[],
+  pairCount: number,
+  roundIndex = 1,
+  random = Math.random,
+): MemoryCard[] {
   if (pairCount < 1) throw new Error("Memory cards need at least one pair.");
   if (sources.length < pairCount) throw new Error("Not enough memory card sources.");
 
   const selectedSources = shuffleMemoryCards(sources, random).slice(0, pairCount);
-  return selectedSources.flatMap((source) => [0, 1].map((copyIndex) => ({
-    id: `memory-cards:${roundIndex}:${source.id}:${copyIndex}`,
-    pairId: source.id,
-    label: source.label,
-    emoji: source.emoji
-  })));
+  return selectedSources.flatMap((source) =>
+    [0, 1].map((copyIndex) => ({
+      id: `memory-cards:${roundIndex}:${source.id}:${copyIndex}`,
+      pairId: source.id,
+      label: source.label,
+      emoji: source.emoji,
+    })),
+  );
 }
 
-export function createMemoryCardsRound(settings: SessionSettings, roundIndex = 1, random = Math.random): MemoryCardsRound {
+export function createMemoryCardsRound(
+  settings: SessionSettings,
+  roundIndex = 1,
+  random = Math.random,
+): MemoryCardsRound {
   const roundSettings = getMemoryCardsRoundSettings(settings);
   const deck = createMemoryCardDeck(memoryCardSources, roundSettings.pairCount, roundIndex, random);
   return {
     roundId: `memory-cards:round:${roundIndex}`,
     pairCount: roundSettings.pairCount,
     columns: roundSettings.columns,
-    cards: shuffleMemoryCards(deck, random)
+    cards: shuffleMemoryCards(deck, random),
   };
 }

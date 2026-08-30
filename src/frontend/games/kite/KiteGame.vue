@@ -9,7 +9,13 @@ import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { adaptiveGazeHitRadius } from "../../core/gazeTarget";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { disposeKitePiano, setKitePianoActive, setKitePianoIntensity, tickKitePiano, warmKitePiano } from "./audio";
+import {
+  disposeKitePiano,
+  setKitePianoActive,
+  setKitePianoIntensity,
+  tickKitePiano,
+  warmKitePiano,
+} from "./audio";
 
 type Point = { x: number; y: number };
 type Cloud = Point & {
@@ -28,10 +34,29 @@ type WindLine = Point & {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("kite", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("kite", {
   maxSteps: 8,
-  overrides: { preset: "gentle", dwellMs: 1450, sessionSeconds: 85, targetScale: 1.5, motionSpeed: 0.34, distractors: "none", hints: "high", sound: true },
-  finishOnMistakes: false
+  overrides: {
+    preset: "gentle",
+    dwellMs: 1450,
+    sessionSeconds: 85,
+    targetScale: 1.5,
+    motionSpeed: 0.34,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
+  finishOnMistakes: false,
 });
 useStartPromptAudio({ gameId: "kite", soundEnabled: toRef(session.settings, "sound") });
 
@@ -42,7 +67,7 @@ const kite = reactive({
   dwellProgress: 0,
   enteredAt: 0,
   glow: 0,
-  sway: 0
+  sway: 0,
 });
 const clouds = reactive<Cloud[]>([]);
 const windLines = reactive<WindLine[]>([]);
@@ -59,7 +84,10 @@ function clamp(value: number, min: number, max: number) {
 }
 
 function kiteSize() {
-  return Math.min(260, Math.max(150, Math.min(width.value, height.value) * 0.24 * session.settings.targetScale));
+  return Math.min(
+    260,
+    Math.max(150, Math.min(width.value, height.value) * 0.24 * session.settings.targetScale),
+  );
 }
 
 function distance(a: Point, b: Point) {
@@ -72,7 +100,7 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
@@ -96,14 +124,18 @@ function resetScene() {
       radius: randomRange(36, 82),
       speed: randomRange(4, 11),
       alpha: randomRange(0.22, 0.46),
-      phase: randomRange(0, Math.PI * 2)
+      phase: randomRange(0, Math.PI * 2),
     });
   }
 }
 
 function gazeInfluence() {
   if (!pointer.value.valid) return 0;
-  const radius = adaptiveGazeHitRadius(kite, kiteSize() * 0.9, { viewportWidth: width.value, viewportHeight: height.value, edgeBoost: 0.2 });
+  const radius = adaptiveGazeHitRadius(kite, kiteSize() * 0.9, {
+    viewportWidth: width.value,
+    viewportHeight: height.value,
+    edgeBoost: 0.2,
+  });
   return clamp(1 - distance(kite, pointer.value) / radius, 0, 1);
 }
 
@@ -130,7 +162,7 @@ function targetPayload(now: number, progress: number) {
     dwellMs: session.settings.dwellMs,
     elapsedMs: kite.enteredAt > 0 ? now - kite.enteredAt : 0,
     progress,
-    pointer: copyPointer()
+    pointer: copyPointer(),
   };
 }
 
@@ -154,7 +186,7 @@ function updateProgress(delta: number, now: number, influence: number) {
   if (!focused) kite.enteredAt = 0;
 
   if (focused) {
-    const gain = (delta * 1000 / session.settings.dwellMs) * (0.55 + influence * 0.7);
+    const gain = ((delta * 1000) / session.settings.dwellMs) * (0.55 + influence * 0.7);
     kite.dwellProgress = Math.min(1, kite.dwellProgress + gain);
   } else {
     kite.dwellProgress = Math.max(0, kite.dwellProgress - delta * 0.12);
@@ -175,7 +207,11 @@ function updateKite(delta: number, now: number) {
   const calmX = width.value * (0.5 + Math.sin(now * 0.00016 + kite.sway) * 0.08);
   const gazeX = pointer.value.valid && influence > 0.12 ? pointer.value.x : calmX;
   const targetX = clamp(gazeX, width.value * 0.12, width.value * 0.88);
-  const targetY = clamp(height.value * (0.62 - lift) + Math.sin(now * 0.00028 + kite.sway) * 12, height.value * 0.22, height.value * 0.66);
+  const targetY = clamp(
+    height.value * (0.62 - lift) + Math.sin(now * 0.00028 + kite.sway) * 12,
+    height.value * 0.22,
+    height.value * 0.66,
+  );
 
   const follow = session.status === "running" ? 0.92 : 0.36;
   kite.x += (targetX - kite.x) * Math.min(1, delta * follow * session.settings.motionSpeed * 3.8);
@@ -197,7 +233,7 @@ function addWindLine() {
     age: 0,
     life: randomRange(1.5, 2.8),
     length: randomRange(86, 180),
-    drift: randomRange(-22, 22)
+    drift: randomRange(-22, 22),
   });
   if (windLines.length > 24) windLines.shift();
 }
@@ -229,7 +265,14 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
 
   const sunX = width.value * 0.82 + Math.sin(now * 0.00008) * 18;
   const sunY = height.value * 0.19;
-  const glow = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, Math.max(width.value, height.value) * 0.38);
+  const glow = ctx.createRadialGradient(
+    sunX,
+    sunY,
+    0,
+    sunX,
+    sunY,
+    Math.max(width.value, height.value) * 0.38,
+  );
   glow.addColorStop(0, "rgb(255 242 179 / 34%)");
   glow.addColorStop(1, "rgb(255 242 179 / 0%)");
   ctx.fillStyle = glow;
@@ -237,8 +280,24 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
 
   ctx.fillStyle = "rgb(129 177 114 / 34%)";
   ctx.beginPath();
-  ctx.ellipse(width.value * 0.23, height.value * 0.96, width.value * 0.36, height.value * 0.16, 0, 0, Math.PI * 2);
-  ctx.ellipse(width.value * 0.74, height.value * 0.97, width.value * 0.44, height.value * 0.18, 0, 0, Math.PI * 2);
+  ctx.ellipse(
+    width.value * 0.23,
+    height.value * 0.96,
+    width.value * 0.36,
+    height.value * 0.16,
+    0,
+    0,
+    Math.PI * 2,
+  );
+  ctx.ellipse(
+    width.value * 0.74,
+    height.value * 0.97,
+    width.value * 0.44,
+    height.value * 0.18,
+    0,
+    0,
+    Math.PI * 2,
+  );
   ctx.fill();
 }
 
@@ -249,9 +308,33 @@ function drawCloud(ctx: CanvasRenderingContext2D, cloud: Cloud, now: number) {
   ctx.globalAlpha = cloud.alpha;
   ctx.fillStyle = "#ffffff";
   ctx.beginPath();
-  ctx.ellipse(x - cloud.radius * 0.46, y + cloud.radius * 0.06, cloud.radius * 0.56, cloud.radius * 0.28, 0, 0, Math.PI * 2);
-  ctx.ellipse(x, y - cloud.radius * 0.1, cloud.radius * 0.72, cloud.radius * 0.38, 0, 0, Math.PI * 2);
-  ctx.ellipse(x + cloud.radius * 0.52, y + cloud.radius * 0.08, cloud.radius * 0.52, cloud.radius * 0.26, 0, 0, Math.PI * 2);
+  ctx.ellipse(
+    x - cloud.radius * 0.46,
+    y + cloud.radius * 0.06,
+    cloud.radius * 0.56,
+    cloud.radius * 0.28,
+    0,
+    0,
+    Math.PI * 2,
+  );
+  ctx.ellipse(
+    x,
+    y - cloud.radius * 0.1,
+    cloud.radius * 0.72,
+    cloud.radius * 0.38,
+    0,
+    0,
+    Math.PI * 2,
+  );
+  ctx.ellipse(
+    x + cloud.radius * 0.52,
+    y + cloud.radius * 0.08,
+    cloud.radius * 0.52,
+    cloud.radius * 0.26,
+    0,
+    0,
+    Math.PI * 2,
+  );
   ctx.fill();
   ctx.restore();
 }
@@ -265,7 +348,12 @@ function drawWindLine(ctx: CanvasRenderingContext2D, line: WindLine) {
   ctx.lineCap = "round";
   ctx.beginPath();
   ctx.moveTo(line.x - line.length * 0.5, line.y);
-  ctx.quadraticCurveTo(line.x, line.y - 16 * Math.sin(progress * Math.PI), line.x + line.length * 0.5, line.y + line.drift * 0.14);
+  ctx.quadraticCurveTo(
+    line.x,
+    line.y - 16 * Math.sin(progress * Math.PI),
+    line.x + line.length * 0.5,
+    line.y + line.drift * 0.14,
+  );
   ctx.stroke();
   ctx.restore();
 }
@@ -275,7 +363,7 @@ function drawTail(ctx: CanvasRenderingContext2D, size: number, now: number) {
   for (let index = 0; index < 8; index += 1) {
     points.push({
       x: Math.sin(now * 0.001 + index * 0.82 + kite.sway) * size * 0.13,
-      y: size * 0.42 + index * size * 0.18
+      y: size * 0.42 + index * size * 0.18,
     });
   }
 
@@ -320,7 +408,12 @@ function drawKite(ctx: CanvasRenderingContext2D, now: number) {
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(0, size * 0.34);
-  ctx.quadraticCurveTo(-width.value * 0.1, height.value * 0.76, width.value * 0.48, height.value * 0.95 - kite.y);
+  ctx.quadraticCurveTo(
+    -width.value * 0.1,
+    height.value * 0.76,
+    width.value * 0.48,
+    height.value * 0.95 - kite.y,
+  );
   ctx.stroke();
 
   ctx.rotate(angle);
@@ -362,7 +455,13 @@ function drawKite(ctx: CanvasRenderingContext2D, now: number) {
   ctx.lineWidth = 4;
   ctx.setLineDash([12, 14]);
   ctx.beginPath();
-  ctx.arc(0, 0, size * (0.58 + kite.dwellProgress * 0.04), -Math.PI * 0.5, -Math.PI * 0.5 + Math.PI * 2 * Math.max(0.02, kite.dwellProgress));
+  ctx.arc(
+    0,
+    0,
+    size * (0.58 + kite.dwellProgress * 0.04),
+    -Math.PI * 0.5,
+    -Math.PI * 0.5 + Math.PI * 2 * Math.max(0.02, kite.dwellProgress),
+  );
   ctx.stroke();
   ctx.restore();
 }
@@ -407,7 +506,9 @@ useGameLoop({ context, update, draw });
 
     <v-card class="kite-hint px-4 py-3" color="surface" rounded="xl" variant="tonal">
       <div class="text-body-2 font-weight-medium">Смотри на змея: ветер поднимет его выше.</div>
-      <div class="text-caption text-medium-emphasis">Если взгляд ушёл, змей просто ждёт и продолжает парить.</div>
+      <div class="text-caption text-medium-emphasis">
+        Если взгляд ушёл, змей просто ждёт и продолжает парить.
+      </div>
     </v-card>
 
     <GameHud

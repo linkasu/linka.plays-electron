@@ -13,7 +13,7 @@ import {
   getMoveTargets,
   isDarkCell,
   type CheckersLightBoard,
-  type CheckersLightState
+  type CheckersLightState,
 } from "./model";
 
 function emptyState(board: CheckersLightBoard, turn: "gold" | "blue" = "gold"): CheckersLightState {
@@ -27,7 +27,9 @@ function emptyBoard(): CheckersLightBoard {
 describe("checkers-light model", () => {
   it("creates a full 8x8 Russian checkers opening", () => {
     const state = createInitialCheckersLightState();
-    const pieceIndexes = state.board.map((piece, index) => piece ? index : undefined).filter((index): index is number => index !== undefined);
+    const pieceIndexes = state.board
+      .map((piece, index) => (piece ? index : undefined))
+      .filter((index): index is number => index !== undefined);
 
     expect(state.board).toHaveLength(64);
     expect(countCheckersLightPieces(state.board)).toEqual({ gold: 12, blue: 12 });
@@ -39,7 +41,12 @@ describe("checkers-light model", () => {
     const state = createInitialCheckersLightState();
 
     expect(getMoveTargets(state, cellIndex(5, 0))).toEqual([cellIndex(4, 1)]);
-    expect(getMovablePieceIndexes(state)).toEqual([cellIndex(5, 0), cellIndex(5, 2), cellIndex(5, 4), cellIndex(5, 6)]);
+    expect(getMovablePieceIndexes(state)).toEqual([
+      cellIndex(5, 0),
+      cellIndex(5, 2),
+      cellIndex(5, 4),
+      cellIndex(5, 6),
+    ]);
   });
 
   it("enforces mandatory captures over quiet moves", () => {
@@ -49,7 +56,14 @@ describe("checkers-light model", () => {
     board[cellIndex(5, 4)] = { id: "gold-quiet", side: "gold", king: false };
     const state = emptyState(board);
 
-    expect(getLegalMoves(state)).toEqual([{ fromIndex: cellIndex(5, 0), toIndex: cellIndex(3, 2), capturedIndex: cellIndex(4, 1), capture: true }]);
+    expect(getLegalMoves(state)).toEqual([
+      {
+        fromIndex: cellIndex(5, 0),
+        toIndex: cellIndex(3, 2),
+        capturedIndex: cellIndex(4, 1),
+        capture: true,
+      },
+    ]);
   });
 
   it("allows simple pieces to capture backwards", () => {
@@ -58,7 +72,12 @@ describe("checkers-light model", () => {
     board[cellIndex(4, 3)] = { id: "blue", side: "blue", king: false };
     const state = emptyState(board);
 
-    expect(getLegalMoves(state)).toContainEqual({ fromIndex: cellIndex(3, 2), toIndex: cellIndex(5, 4), capturedIndex: cellIndex(4, 3), capture: true });
+    expect(getLegalMoves(state)).toContainEqual({
+      fromIndex: cellIndex(3, 2),
+      toIndex: cellIndex(5, 4),
+      capturedIndex: cellIndex(4, 3),
+      capture: true,
+    });
   });
 
   it("moves immutably and continues capture chains", () => {
@@ -99,8 +118,18 @@ describe("checkers-light model", () => {
     board[cellIndex(3, 2)] = { id: "blue", side: "blue", king: false };
     const state = emptyState(board);
 
-    expect(getLegalMoves(state)).toContainEqual({ fromIndex: cellIndex(5, 0), toIndex: cellIndex(2, 3), capturedIndex: cellIndex(3, 2), capture: true });
-    expect(getLegalMoves(state)).toContainEqual({ fromIndex: cellIndex(5, 0), toIndex: cellIndex(1, 4), capturedIndex: cellIndex(3, 2), capture: true });
+    expect(getLegalMoves(state)).toContainEqual({
+      fromIndex: cellIndex(5, 0),
+      toIndex: cellIndex(2, 3),
+      capturedIndex: cellIndex(3, 2),
+      capture: true,
+    });
+    expect(getLegalMoves(state)).toContainEqual({
+      fromIndex: cellIndex(5, 0),
+      toIndex: cellIndex(1, 4),
+      capturedIndex: cellIndex(3, 2),
+      capture: true,
+    });
   });
 
   it("reports wins and lets AI choose a legal capture", () => {
@@ -111,7 +140,12 @@ describe("checkers-light model", () => {
     const aiMove = chooseCheckersLightAiMove(state, 3);
 
     expect(checkersLightOutcome(emptyState(board, "blue"))).toBe("playing");
-    expect(aiMove).toEqual({ fromIndex: cellIndex(2, 1), toIndex: cellIndex(4, 3), capturedIndex: cellIndex(3, 2), capture: true });
+    expect(aiMove).toEqual({
+      fromIndex: cellIndex(2, 1),
+      toIndex: cellIndex(4, 3),
+      capturedIndex: cellIndex(3, 2),
+      capture: true,
+    });
     expect(encodeCheckersLightBoard(board)).toHaveLength(64);
   });
 });

@@ -7,7 +7,7 @@ import {
   normalizeDwellMs,
   persistDwellMs,
   resolveDwellMs,
-  setDwellMs
+  setDwellMs,
 } from "./dwellSettings";
 
 describe("dwell settings", () => {

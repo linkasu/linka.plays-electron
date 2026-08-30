@@ -10,15 +10,35 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { colorCircleFeedback } from "./audio";
-import { generateColorCircleRound, resolveColorCircleSectorIndex, type ColorCircleColor } from "./model";
+import {
+  generateColorCircleRound,
+  resolveColorCircleSectorIndex,
+  type ColorCircleColor,
+} from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("color-circle", { maxSteps: 8, finishOnMistakes: false });
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  recordHint,
+  startSession,
+} = useGameSessionFor("color-circle", { maxSteps: 8, finishOnMistakes: false });
 
-const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRoundGame,
+} = useRoundGame({
   session,
   startSession,
-  generateRound: (roundIndex) => generateColorCircleRound(roundIndex)
+  generateRound: (roundIndex) => generateColorCircleRound(roundIndex),
 });
 
 const feedbackText = ref("Смотри на сектор нужного цвета.");
@@ -27,13 +47,19 @@ const selectedMistakeId = ref<string>();
 const advancing = ref(false);
 const boardRef = ref<HTMLElement>();
 const { pointer } = useGazePointer();
-const promptAudio = useGamePromptAudio({ gameId: "color-circle", soundEnabled: toRef(session.settings, "sound") });
-const responseAudio = useGamePromptAudio({ gameId: "color-circle", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "color-circle",
+  soundEnabled: toRef(session.settings, "sound"),
+});
+const responseAudio = useGamePromptAudio({
+  gameId: "color-circle",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 let advanceTimer = 0;
 
 const targetStyle = computed(() => ({
   "--target-color": round.value.target.hex,
-  "--target-text": round.value.target.textColor
+  "--target-text": round.value.target.textColor,
 }));
 
 const activeSectorIndex = computed(() => {
@@ -50,7 +76,7 @@ function sectorTargetId(color: ColorCircleColor) {
 function sectorStyle(color: ColorCircleColor) {
   return {
     "--sector-color": color.hex,
-    "--sector-text": color.textColor
+    "--sector-text": color.textColor,
   };
 }
 
@@ -97,7 +123,14 @@ function answer(color: ColorCircleColor) {
   const expectedTargetId = sectorTargetId(round.value.target);
 
   if (color.id === round.value.target.id) {
-    recordSuccess({ roundId: round.value.roundId, targetId, answerId: color.id, expected: round.value.target.label, actual: color.label, isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      answerId: color.id,
+      expected: round.value.target.label,
+      actual: color.label,
+      isCorrect: true,
+    });
     feedbackText.value = `Да, это ${color.label}.`;
     void colorCircleFeedback.playSuccess(session.settings.sound);
     playResponseTts(`color-circle.${color.id}`);
@@ -107,8 +140,20 @@ function answer(color: ColorCircleColor) {
     return;
   }
 
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: color.id, expected: round.value.target.label, actual: color.label, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, message: "Показан нужный цвет перед следующим кругом." });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    expectedTargetId,
+    answerId: color.id,
+    expected: round.value.target.label,
+    actual: color.label,
+    isCorrect: false,
+  });
+  recordHint({
+    roundId: round.value.roundId,
+    targetId: expectedTargetId,
+    message: "Показан нужный цвет перед следующим кругом.",
+  });
   feedbackText.value = `Это ${color.label}. Нужен был ${round.value.target.label}. Следующий круг.`;
   void colorCircleFeedback.playMistake(session.settings.sound);
   playResponseTts(`color-circle.${color.id}`);
@@ -135,9 +180,12 @@ onMounted(() => {
   playTargetPrompt(450);
 });
 
-watch(() => session.settings.sound, (enabled) => {
-  colorCircleFeedback.warm(enabled);
-});
+watch(
+  () => session.settings.sound,
+  (enabled) => {
+    colorCircleFeedback.warm(enabled);
+  },
+);
 
 onUnmounted(() => {
   clearAdvanceTimer();
@@ -148,24 +196,70 @@ onUnmounted(() => {
 
 <template>
   <div class="color-circle-shell">
-    <GameHud title="Цветной круг" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Цветной круг"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="color-circle-container d-flex align-center" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="8">
           <v-card class="color-circle-card pa-4 pa-md-7" rounded="xl" elevation="8">
-            <div class="color-circle-overline text-overline text-secondary text-center mb-2">Первый выбор цвета</div>
-            <h1 class="color-circle-title text-h3 text-md-h2 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
+            <div class="color-circle-overline text-overline text-secondary text-center mb-2">
+              Первый выбор цвета
+            </div>
+            <h1 class="color-circle-title text-h3 text-md-h2 font-weight-bold text-center mb-3">
+              {{ round.prompt }}
+            </h1>
             <div class="target-chip mx-auto mb-4" :style="targetStyle">
               <span class="target-chip__dot" aria-hidden="true" />
               <span>{{ round.target.label }}</span>
             </div>
-            <p class="color-circle-feedback text-h6 text-md-h5 text-medium-emphasis text-center mb-6">{{ feedbackText }}</p>
+            <p
+              class="color-circle-feedback text-h6 text-md-h5 text-medium-emphasis text-center mb-6"
+            >
+              {{ feedbackText }}
+            </p>
 
-            <div ref="boardRef" class="color-circle-board mx-auto" role="group" :aria-label="round.prompt">
-              <GameDwellButton v-for="(color, index) in round.sectors" :key="`${round.roundId}-${color.id}`" class="color-sector-button" :target-id="sectorTargetId(color)" :disabled="sectorDisabled(index)" :dwell-ms="session.settings.dwellMs" :hit-padding="0" min-height="0" color="surface" @select="answer(color)">
+            <div
+              ref="boardRef"
+              class="color-circle-board mx-auto"
+              role="group"
+              :aria-label="round.prompt"
+            >
+              <GameDwellButton
+                v-for="(color, index) in round.sectors"
+                :key="`${round.roundId}-${color.id}`"
+                class="color-sector-button"
+                :target-id="sectorTargetId(color)"
+                :disabled="sectorDisabled(index)"
+                :dwell-ms="session.settings.dwellMs"
+                :hit-padding="0"
+                min-height="0"
+                color="surface"
+                @select="answer(color)"
+              >
                 <template #default>
-                  <div :class="['color-sector', { 'color-sector--target': color.id === revealedTargetId, 'color-sector--mistake': color.id === selectedMistakeId }]" :style="sectorStyle(color)">
-                    <span class="text-h5 text-md-h4 font-weight-bold color-sector__label">{{ color.label }}</span>
+                  <div
+                    :class="[
+                      'color-sector',
+                      {
+                        'color-sector--target': color.id === revealedTargetId,
+                        'color-sector--mistake': color.id === selectedMistakeId,
+                      },
+                    ]"
+                    :style="sectorStyle(color)"
+                  >
+                    <span class="text-h5 text-md-h4 font-weight-bold color-sector__label">{{
+                      color.label
+                    }}</span>
                   </div>
                 </template>
               </GameDwellButton>
@@ -174,7 +268,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Цветной круг" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Цветной круг"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -254,7 +358,9 @@ onUnmounted(() => {
   justify-content: center;
   padding: 0.6rem;
   position: relative;
-  transition: filter 180ms ease, transform 180ms ease;
+  transition:
+    filter 180ms ease,
+    transform 180ms ease;
 }
 
 .color-sector__label {
@@ -278,32 +384,32 @@ onUnmounted(() => {
 }
 
 @media (max-height: 57.5rem) {
- .color-circle-container {
+  .color-circle-container {
     align-items: flex-start !important;
     padding-block-start: 5.9rem;
   }
 
- .color-circle-card {
+  .color-circle-card {
     padding-block: 0.9rem !important;
   }
 
- .color-circle-overline,
- .color-circle-feedback {
+  .color-circle-overline,
+  .color-circle-feedback {
     display: none;
   }
 
- .color-circle-title {
+  .color-circle-title {
     font-size: clamp(2rem, 5vw, 3rem) !important;
     margin-block-end: 0.45rem !important;
   }
 
- .target-chip {
+  .target-chip {
     font-size: clamp(1rem, 2.1vw, 1.45rem);
     margin-block-end: 0.75rem !important;
     padding: 0.45rem 1rem;
   }
 
- .color-circle-board {
+  .color-circle-board {
     border-width: 0.5rem;
     gap: 0.35rem;
     inline-size: clamp(min(var(--board-min-size), calc(100vw - 4rem)), min(76vw, 43vh), 27rem);
@@ -311,18 +417,17 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
- .color-circle-container {
+  .color-circle-container {
     padding-block-start: 6.75rem;
   }
-
 }
 
 @media (max-height: 44rem) {
- .target-chip {
+  .target-chip {
     display: none;
   }
 
- .color-circle-title {
+  .color-circle-title {
     margin-block-end: 0.75rem !important;
   }
 }

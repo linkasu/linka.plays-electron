@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import ttsAssets from "../../data/ttsAssets.json";
-import { createObjectActionExplanation, generateObjectActionRound, isObjectActionCorrect, objectActionChoices, objectActionChoiceTargetId } from "./model";
+import {
+  createObjectActionExplanation,
+  generateObjectActionRound,
+  isObjectActionCorrect,
+  objectActionChoices,
+  objectActionChoiceTargetId,
+} from "./model";
 
 describe("object-action model", () => {
   it("starts with unambiguous child-facing verbs", () => {
@@ -11,19 +17,25 @@ describe("object-action model", () => {
       "идти",
       "мыть",
       "рисовать",
-      "катать"
+      "катать",
     ]);
   });
 
   it("creates four visual scenes with exactly one correct action", () => {
     for (let index = 1; index <= objectActionChoices.length; index += 1) {
       const round = generateObjectActionRound(index);
-      const matchingChoices = round.choices.filter((choice) => isObjectActionCorrect(round, choice));
+      const matchingChoices = round.choices.filter((choice) =>
+        isObjectActionCorrect(round, choice),
+      );
 
       expect(round.choices).toHaveLength(4);
       expect(matchingChoices).toEqual([round.correctChoice]);
       expect(round.prompt).toBe(`Покажи действие: ${round.targetAction.title}.`);
-      expect(round.choices.every((choice) => choice.actorEmoji && choice.propEmoji && choice.cueEmoji && choice.sceneLabel)).toBe(true);
+      expect(
+        round.choices.every(
+          (choice) => choice.actorEmoji && choice.propEmoji && choice.cueEmoji && choice.sceneLabel,
+        ),
+      ).toBe(true);
     }
   });
 
@@ -43,10 +55,14 @@ describe("object-action model", () => {
   it("keeps gaze target ids stable for choices shared by consecutive rounds", () => {
     const firstRound = generateObjectActionRound(1);
     const secondRound = generateObjectActionRound(2);
-    const sharedChoice = firstRound.choices.find((choice) => secondRound.choices.some((nextChoice) => nextChoice.id === choice.id));
+    const sharedChoice = firstRound.choices.find((choice) =>
+      secondRound.choices.some((nextChoice) => nextChoice.id === choice.id),
+    );
 
     expect(sharedChoice).toBeDefined();
-    expect(objectActionChoiceTargetId(sharedChoice!.id)).toBe(`object-action:choice:${sharedChoice!.id}`);
+    expect(objectActionChoiceTargetId(sharedChoice!.id)).toBe(
+      `object-action:choice:${sharedChoice!.id}`,
+    );
     expect(objectActionChoiceTargetId(sharedChoice!.id)).not.toContain(firstRound.roundId);
     expect(objectActionChoiceTargetId(sharedChoice!.id)).not.toContain(secondRound.roundId);
   });
@@ -60,6 +76,10 @@ describe("object-action model", () => {
     const mappedAssets = objectActionChoices.flatMap((choice) => choice.successAssetId ?? []);
 
     expect(mappedAssets.every((id) => assetIds.has(id))).toBe(true);
-    expect(objectActionChoices.some((choice) => choice.id === "comb" || choice.sceneLabel.includes("зуб"))).toBe(false);
+    expect(
+      objectActionChoices.some(
+        (choice) => choice.id === "comb" || choice.sceneLabel.includes("зуб"),
+      ),
+    ).toBe(false);
   });
 });

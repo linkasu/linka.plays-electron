@@ -30,7 +30,9 @@ describe("find-letter model", () => {
 
       expect(round.roundId).toBe(`find-letter:round:${index + 1}`);
       expect(letters.size).toBe(round.choices.length);
-      expect(findLetterAlphabet).toContain(round.target.letter as (typeof findLetterAlphabet)[number]);
+      expect(findLetterAlphabet).toContain(
+        round.target.letter as (typeof findLetterAlphabet)[number],
+      );
       expect(round.choices[round.correctIndex]).toMatchObject(round.target);
       expect(round.prompt).toContain(round.target.letter);
     }

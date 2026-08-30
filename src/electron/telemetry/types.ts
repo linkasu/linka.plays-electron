@@ -6,11 +6,35 @@ export type AppMetadata = {
   locale: string;
 };
 
-export type MetricsGameCategory = "gaze-basics" | "visual-search" | "sequencing" | "language-aac" | "numeracy" | "strategy" | "continuous-control";
-export type MetricsFinishReason = "max-steps" | "timeout" | "too-many-mistakes" | "manual" | "game-complete" | "game-lost" | "game-draw";
-export type MetricsInterruptionReason = "route-leave" | "window-close" | "app-quit" | "update-restart" | "renderer-crash";
+export type MetricsGameCategory =
+  | "gaze-basics"
+  | "visual-search"
+  | "sequencing"
+  | "language-aac"
+  | "numeracy"
+  | "strategy"
+  | "continuous-control";
+export type MetricsFinishReason =
+  | "max-steps"
+  | "timeout"
+  | "too-many-mistakes"
+  | "manual"
+  | "game-complete"
+  | "game-lost"
+  | "game-draw";
+export type MetricsInterruptionReason =
+  "route-leave" | "window-close" | "app-quit" | "update-restart" | "renderer-crash";
 export type MetricsResult = "completed" | "incomplete" | "lost" | "draw" | "interrupted";
-export type MetricsTobiiState = "unsupported" | "service_starting" | "service_unavailable" | "connecting" | "waiting_device" | "connected" | "tracking" | "reconnecting" | "error";
+export type MetricsTobiiState =
+  | "unsupported"
+  | "service_starting"
+  | "service_unavailable"
+  | "connecting"
+  | "waiting_device"
+  | "connected"
+  | "tracking"
+  | "reconnecting"
+  | "error";
 
 export type TelemetryEventName =
   | "installation_created"
@@ -95,14 +119,63 @@ export type RendererTelemetryEventInput =
   | { eventName: "page_viewed"; properties: { page: string } }
   | { eventName: "mode_changed"; properties: { mode: "specialist" | "self" } }
   | { eventName: "settings_changed"; properties: { settingKey: "dwell_ms"; number: number } }
-  | { eventName: "game_session_started" | "game_session_paused" | "game_session_resumed"; gameSessionId: string; properties: { gameId: string; mode?: "specialist" | "self"; gameCategory?: MetricsGameCategory } }
-  | { eventName: "game_session_finished"; gameSessionId: string; properties: { gameId: string; result?: MetricsResult; reason: MetricsFinishReason } }
-  | { eventName: "game_session_interrupted"; gameSessionId: string; properties: { gameId: string; reason: MetricsInterruptionReason } }
-  | { eventName: "level_entered" | "level_cancelled" | "level_clicked"; gameSessionId: string; properties: { gameId: string; levelIndex: number } }
-  | { eventName: "target_entered" | "target_cancelled" | "target_clicked"; gameSessionId: string; properties: { gameId: string; levelIndex: number; targetKind: "interactive" | "control"; inputMethod: "mouse" | "gaze"; elapsedMs?: number; reason?: "left" | "invalid-gaze" | "disabled" } }
-  | { eventName: "success" | "mistake"; gameSessionId: string; properties: { gameId: string; levelIndex: number; targetKind?: "interactive" | "control"; inputMethod: "mouse" | "gaze"; responseMs?: number } }
-  | { eventName: "hint_used"; gameSessionId: string; properties: { gameId: string; levelIndex: number; hintKind: "generic" } }
-  | { eventName: "difficulty_changed"; gameSessionId: string; properties: { gameId: string; difficulty: number } }
+  | {
+      eventName: "game_session_started" | "game_session_paused" | "game_session_resumed";
+      gameSessionId: string;
+      properties: {
+        gameId: string;
+        mode?: "specialist" | "self";
+        gameCategory?: MetricsGameCategory;
+      };
+    }
+  | {
+      eventName: "game_session_finished";
+      gameSessionId: string;
+      properties: { gameId: string; result?: MetricsResult; reason: MetricsFinishReason };
+    }
+  | {
+      eventName: "game_session_interrupted";
+      gameSessionId: string;
+      properties: { gameId: string; reason: MetricsInterruptionReason };
+    }
+  | {
+      eventName: "level_entered" | "level_cancelled" | "level_clicked";
+      gameSessionId: string;
+      properties: { gameId: string; levelIndex: number };
+    }
+  | {
+      eventName: "target_entered" | "target_cancelled" | "target_clicked";
+      gameSessionId: string;
+      properties: {
+        gameId: string;
+        levelIndex: number;
+        targetKind: "interactive" | "control";
+        inputMethod: "mouse" | "gaze";
+        elapsedMs?: number;
+        reason?: "left" | "invalid-gaze" | "disabled";
+      };
+    }
+  | {
+      eventName: "success" | "mistake";
+      gameSessionId: string;
+      properties: {
+        gameId: string;
+        levelIndex: number;
+        targetKind?: "interactive" | "control";
+        inputMethod: "mouse" | "gaze";
+        responseMs?: number;
+      };
+    }
+  | {
+      eventName: "hint_used";
+      gameSessionId: string;
+      properties: { gameId: string; levelIndex: number; hintKind: "generic" };
+    }
+  | {
+      eventName: "difficulty_changed";
+      gameSessionId: string;
+      properties: { gameId: string; difficulty: number };
+    }
   | { eventName: "tobii_state_changed"; properties: { state: MetricsTobiiState } }
   | { eventName: "error"; properties: { fingerprint: string; component: string } };
 

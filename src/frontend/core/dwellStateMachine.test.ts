@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { advanceDwellMachine, createDwellMachineState, type DwellMachineState } from "./dwellStateMachine";
+import {
+  advanceDwellMachine,
+  createDwellMachineState,
+  type DwellMachineState,
+} from "./dwellStateMachine";
 
 function advance(state: DwellMachineState, now: number, targetId?: string, pointerValid = true) {
   return advanceDwellMachine(state, {
@@ -8,7 +12,7 @@ function advance(state: DwellMachineState, now: number, targetId?: string, point
     pointerValid,
     dwellMs: 1000,
     graceMs: 150,
-    cooldownMs: 500
+    cooldownMs: 500,
   });
 }
 
@@ -79,7 +83,7 @@ describe("dwell state machine", () => {
 
     expect(switched.events).toEqual([
       { type: "cancel", targetId: "a", reason: "left" },
-      { type: "enter", targetId: "b" }
+      { type: "enter", targetId: "b" },
     ]);
     expect(switched.state.targetId).toBe("b");
   });
@@ -92,7 +96,7 @@ describe("dwell state machine", () => {
       anotherTargetActive: true,
       dwellMs: 1000,
       graceMs: 150,
-      cooldownMs: 500
+      cooldownMs: 500,
     });
 
     expect(switched.events).toEqual([{ type: "cancel", targetId: "a", reason: "left" }]);
@@ -107,7 +111,7 @@ describe("dwell state machine", () => {
       disabled: true,
       dwellMs: 1000,
       graceMs: 150,
-      cooldownMs: 500
+      cooldownMs: 500,
     });
 
     expect(disabled.events).toEqual([{ type: "cancel", targetId: "a", reason: "disabled" }]);
@@ -125,7 +129,7 @@ describe("dwell state machine", () => {
       releaseTargetActive: true,
       dwellMs: 1000,
       graceMs: 150,
-      cooldownMs: 500
+      cooldownMs: 500,
     });
     const released = advance(stillHeld.state, 1510, undefined, true);
     const reentered = advance(released.state, 1520, "a");

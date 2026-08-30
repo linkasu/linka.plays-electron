@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { isExpectedSolfegeNote, solfegeChoiceNotes, solfegeGuidedProgress, solfegeGuidedStages, solfegeMaxSteps, solfegeNotes, solfegeSelectionOutcome } from "./model";
+import {
+  isExpectedSolfegeNote,
+  solfegeChoiceNotes,
+  solfegeGuidedProgress,
+  solfegeGuidedStages,
+  solfegeMaxSteps,
+  solfegeNotes,
+  solfegeSelectionOutcome,
+} from "./model";
 
 describe("solfege model", () => {
   it("keeps one octave order stable", () => {
@@ -12,7 +20,7 @@ describe("solfege model", () => {
       "sol",
       "la",
       "si",
-      "do-high"
+      "do-high",
     ]);
   });
 
@@ -21,16 +29,32 @@ describe("solfege model", () => {
     expect(solfegeGuidedStages.map((stage) => stage.sequence.map((note) => note.id))).toEqual([
       ["do", "re"],
       ["do", "re", "mi"],
-      ["do", "re", "mi", "fa"]
+      ["do", "re", "mi", "fa"],
     ]);
     expect(solfegeMaxSteps).toBe(9);
   });
 
   it("maps completed notes to the expected note in the current stage", () => {
-    expect(solfegeGuidedProgress(0)).toMatchObject({ stageIndex: 0, noteIndex: 0, expectedNote: { id: "do" } });
-    expect(solfegeGuidedProgress(1)).toMatchObject({ stageIndex: 0, noteIndex: 1, expectedNote: { id: "re" } });
-    expect(solfegeGuidedProgress(2)).toMatchObject({ stageIndex: 1, noteIndex: 0, expectedNote: { id: "do" } });
-    expect(solfegeGuidedProgress(5)).toMatchObject({ stageIndex: 2, noteIndex: 0, expectedNote: { id: "do" } });
+    expect(solfegeGuidedProgress(0)).toMatchObject({
+      stageIndex: 0,
+      noteIndex: 0,
+      expectedNote: { id: "do" },
+    });
+    expect(solfegeGuidedProgress(1)).toMatchObject({
+      stageIndex: 0,
+      noteIndex: 1,
+      expectedNote: { id: "re" },
+    });
+    expect(solfegeGuidedProgress(2)).toMatchObject({
+      stageIndex: 1,
+      noteIndex: 0,
+      expectedNote: { id: "do" },
+    });
+    expect(solfegeGuidedProgress(5)).toMatchObject({
+      stageIndex: 2,
+      noteIndex: 0,
+      expectedNote: { id: "do" },
+    });
     expect(solfegeGuidedProgress(solfegeMaxSteps)).toBeUndefined();
   });
 

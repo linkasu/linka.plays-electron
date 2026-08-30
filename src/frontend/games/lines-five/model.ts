@@ -34,13 +34,13 @@ const directions = [
   [0, 1],
   [1, 0],
   [1, 1],
-  [1, -1]
+  [1, -1],
 ] as const;
 const neighborSteps = [
   [-1, 0],
   [0, 1],
   [1, 0],
-  [0, -1]
+  [0, -1],
 ] as const;
 
 export function createEmptyLinesFiveBoard(): LinesFiveBoard {
@@ -56,7 +56,7 @@ export function createInitialLinesFiveState(seed = 0x5f3759df): LinesFiveState {
     [cellIndex(0, 3), "sky"],
     [cellIndex(2, 2), "sun"],
     [cellIndex(3, 3), "leaf"],
-    [cellIndex(5, 5), "berry"]
+    [cellIndex(5, 5), "berry"],
   ];
   for (const [index, color] of opening) board[index] = color;
 
@@ -66,7 +66,7 @@ export function createInitialLinesFiveState(seed = 0x5f3759df): LinesFiveState {
     score: 0,
     moveCount: 0,
     seed,
-    status: "playing"
+    status: "playing",
   };
 }
 
@@ -106,10 +106,13 @@ export function linesFiveOutcome(board: LinesFiveBoard): LinesFiveOutcome {
 }
 
 export function countColors(board: LinesFiveBoard) {
-  return board.reduce<Record<LinesFiveColor, number>>((counts, cell) => {
-    if (cell) counts[cell] += 1;
-    return counts;
-  }, { sky: 0, sun: 0, leaf: 0, berry: 0 });
+  return board.reduce<Record<LinesFiveColor, number>>(
+    (counts, cell) => {
+      if (cell) counts[cell] += 1;
+      return counts;
+    },
+    { sky: 0, sun: 0, leaf: 0, berry: 0 },
+  );
 }
 
 export function isSelectableBall(state: LinesFiveState, index: number) {
@@ -121,7 +124,8 @@ export function reachableDestinationIndexes(board: LinesFiveBoard, fromIndex: nu
 }
 
 export function chooseLinesFiveCell(state: LinesFiveState, index: number): LinesFiveMoveResult {
-  if (state.status !== "playing" || index < 0 || index >= linesFiveCellCount) return invalidResult(state);
+  if (state.status !== "playing" || index < 0 || index >= linesFiveCellCount)
+    return invalidResult(state);
 
   if (state.board[index]) {
     return {
@@ -129,7 +133,7 @@ export function chooseLinesFiveCell(state: LinesFiveState, index: number): Lines
       event: "selected",
       path: [],
       cleared: [],
-      spawned: []
+      spawned: [],
     };
   }
 
@@ -150,30 +154,40 @@ export function chooseLinesFiveCell(state: LinesFiveState, index: number): Lines
   if (movedCleared.length) {
     const board = clearIndexes(movedBoard, movedCleared);
     const nextState = {
-     ...cloneState(state),
+      ...cloneState(state),
       board,
       selectedIndex: undefined,
       score: state.score + movedCleared.length,
       moveCount: state.moveCount + 1,
-      status: linesFiveOutcome(board)
+      status: linesFiveOutcome(board),
     };
-    return { state: nextState, event: "cleared", movedFrom: state.selectedIndex, movedTo: index, path, cleared: movedCleared, spawned: [] };
+    return {
+      state: nextState,
+      event: "cleared",
+      movedFrom: state.selectedIndex,
+      movedTo: index,
+      path,
+      cleared: movedCleared,
+      spawned: [],
+    };
   }
 
   const spawned = spawnBalls(movedBoard, state.nextBalls, state.seed + state.moveCount + 1);
-  const spawnLines = spawned.indexes.flatMap((spawnedIndex) => completedLinesThrough(spawned.board, spawnedIndex));
+  const spawnLines = spawned.indexes.flatMap((spawnedIndex) =>
+    completedLinesThrough(spawned.board, spawnedIndex),
+  );
   const spawnCleared = uniqueLineIndexes(spawnLines);
   const board = spawnCleared.length ? clearIndexes(spawned.board, spawnCleared) : spawned.board;
   const nextStatus = linesFiveOutcome(board);
   const nextState = {
-   ...cloneState(state),
+    ...cloneState(state),
     board,
     selectedIndex: undefined,
     nextBalls: nextQueue(spawned.seed),
     seed: spawned.seed,
     score: state.score + spawnCleared.length,
     moveCount: state.moveCount + 1,
-    status: nextStatus
+    status: nextStatus,
   };
 
   return {
@@ -183,11 +197,21 @@ export function chooseLinesFiveCell(state: LinesFiveState, index: number): Lines
     movedTo: index,
     path,
     cleared: spawnCleared,
-    spawned: spawned.indexes
+    spawned: spawned.indexes,
   };
 }
 
-export function placeBall(board: LinesFiveBoard, index: number, color: LinesFiveColor): Omit<LinesFiveMoveResult, "state" | "event" | "movedFrom" | "movedTo" | "path" | "spawned"> & { board: LinesFiveBoard; placedIndex: number; completedLines: number[][] } | undefined {
+export function placeBall(
+  board: LinesFiveBoard,
+  index: number,
+  color: LinesFiveColor,
+):
+  | (Omit<LinesFiveMoveResult, "state" | "event" | "movedFrom" | "movedTo" | "path" | "spawned"> & {
+      board: LinesFiveBoard;
+      placedIndex: number;
+      completedLines: number[][];
+    })
+  | undefined {
   if (index < 0 || index >= linesFiveCellCount || board[index]) return undefined;
 
   const nextBoard = [...board];
@@ -243,7 +267,13 @@ export function findPath(board: LinesFiveBoard, fromIndex: number, toIndex: numb
   return [];
 }
 
-function lineThrough(board: LinesFiveBoard, index: number, color: LinesFiveColor, rowStep: number, columnStep: number) {
+function lineThrough(
+  board: LinesFiveBoard,
+  index: number,
+  color: LinesFiveColor,
+  rowStep: number,
+  columnStep: number,
+) {
   const row = rowOf(index);
   const column = columnOf(index);
   const before = collectDirection(board, row, column, color, -rowStep, -columnStep).reverse();
@@ -251,7 +281,14 @@ function lineThrough(board: LinesFiveBoard, index: number, color: LinesFiveColor
   return [...before, index, ...after];
 }
 
-function collectDirection(board: LinesFiveBoard, row: number, column: number, color: LinesFiveColor, rowStep: number, columnStep: number) {
+function collectDirection(
+  board: LinesFiveBoard,
+  row: number,
+  column: number,
+  color: LinesFiveColor,
+  rowStep: number,
+  columnStep: number,
+) {
   const indexes: number[] = [];
   let nextRow = row + rowStep;
   let nextColumn = column + columnStep;
@@ -301,9 +338,9 @@ function neighbors(index: number) {
   const row = rowOf(index);
   const column = columnOf(index);
   return neighborSteps
-   .map(([rowStep, columnStep]) => [row + rowStep, column + columnStep] as const)
-   .filter(([nextRow, nextColumn]) => isInside(nextRow, nextColumn))
-   .map(([nextRow, nextColumn]) => cellIndex(nextRow, nextColumn));
+    .map(([rowStep, columnStep]) => [row + rowStep, column + columnStep] as const)
+    .filter(([nextRow, nextColumn]) => isInside(nextRow, nextColumn))
+    .map(([nextRow, nextColumn]) => cellIndex(nextRow, nextColumn));
 }
 
 function reconstructPath(previous: Map<number, number>, fromIndex: number, toIndex: number) {
@@ -334,9 +371,9 @@ function invalidResult(state: LinesFiveState): LinesFiveMoveResult {
 
 function cloneState(state: LinesFiveState): LinesFiveState {
   return {
-   ...state,
+    ...state,
     board: [...state.board],
-    nextBalls: [...state.nextBalls]
+    nextBalls: [...state.nextBalls],
   };
 }
 

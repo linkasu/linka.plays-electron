@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
 import ttsAssets from "../../data/ttsAssets.json";
 import wordImages from "../../../../public/images/words/manifest.json";
-import { buildIWantPhrase, createIWantCommunication, generateIWantRound, iWantCardAssetId, iWantCards, iWantPhraseAssetId } from "./model";
+import {
+  buildIWantPhrase,
+  createIWantCommunication,
+  generateIWantRound,
+  iWantCardAssetId,
+  iWantCards,
+  iWantPhraseAssetId,
+} from "./model";
 
 describe("i-want model", () => {
   it("creates a no-fail AAC round with six cards", () => {
@@ -21,7 +28,11 @@ describe("i-want model", () => {
   it("builds spoken AAC phrases", () => {
     expect(buildIWantPhrase(iWantCards[0])).toBe("Я хочу воду");
     expect(buildIWantPhrase(undefined)).toBe("Я хочу...");
-    expect(iWantCards.every((card) => buildIWantPhrase(card) === card.phrase && !buildIWantPhrase(card).endsWith("..."))).toBe(true);
+    expect(
+      iWantCards.every(
+        (card) => buildIWantPhrase(card) === card.phrase && !buildIWantPhrase(card).endsWith("..."),
+      ),
+    ).toBe(true);
   });
 
   it("keeps every card grammatical and backed by image, card and phrase assets", () => {
@@ -43,7 +54,7 @@ describe("i-want model", () => {
         expected: "valid-communication",
         actual: card.phrase,
         isCorrect: true,
-        noFail: true
+        noFail: true,
       });
     }
   });

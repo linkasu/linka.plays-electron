@@ -24,7 +24,7 @@ export function createPyramidRings(): PyramidRing[] {
     { id: "ring-1", size: 240, color: "#ff8a65", placed: false },
     { id: "ring-2", size: 200, color: "#ffd54f", placed: false },
     { id: "ring-3", size: 160, color: "#4fc3f7", placed: false },
-    { id: "ring-4", size: 120, color: "#9575cd", placed: false }
+    { id: "ring-4", size: 120, color: "#9575cd", placed: false },
   ];
 }
 
@@ -33,20 +33,27 @@ export function getNextPyramidRing(rings: PyramidRing[]) {
 }
 
 export function getPlacedPyramidRings(rings: PyramidRing[]) {
-  return rings.filter((ring) => ring.placed).sort((a, b) => (a.placedIndex ?? 0) - (b.placedIndex ?? 0));
+  return rings
+    .filter((ring) => ring.placed)
+    .sort((a, b) => (a.placedIndex ?? 0) - (b.placedIndex ?? 0));
 }
 
 export function getCorrectPyramidOrder(rings: PyramidRing[]) {
   return [...rings].sort((a, b) => b.size - a.size);
 }
 
-export function selectPyramidRing(rings: PyramidRing[], ringId: PyramidRingId): PyramidSelectionOutcome {
+export function selectPyramidRing(
+  rings: PyramidRing[],
+  ringId: PyramidRingId,
+): PyramidSelectionOutcome {
   const selectedRing = rings.find((ring) => ring.id === ringId);
   if (!selectedRing || selectedRing.placed) return { kind: "ignored" };
 
   const expectedRing = getNextPyramidRing(rings);
   const nextPlacedIndex = getPlacedPyramidRings(rings).length + 1;
-  const nextRings = rings.map((ring) => ring.id === ringId ? { ...ring, placed: true, placedIndex: nextPlacedIndex } : ring);
+  const nextRings = rings.map((ring) =>
+    ring.id === ringId ? { ...ring, placed: true, placedIndex: nextPlacedIndex } : ring,
+  );
   const nextSelectedRing = nextRings.find((ring) => ring.id === ringId) ?? selectedRing;
 
   return {
@@ -55,6 +62,6 @@ export function selectPyramidRing(rings: PyramidRing[], ringId: PyramidRingId): 
     selectedRing: nextSelectedRing,
     expectedRing,
     isCorrect: ringId === expectedRing?.id,
-    isComplete: nextRings.every((ring) => ring.placed)
+    isComplete: nextRings.every((ring) => ring.placed),
   };
 }

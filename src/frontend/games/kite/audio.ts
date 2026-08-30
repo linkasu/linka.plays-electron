@@ -18,7 +18,7 @@ const piano = createAmbientPiano({
   loopBaseVelocity: 38,
   activeGain: 0.95,
   fadeInSeconds: 1.3,
-  fadeOutSeconds: 1.8
+  fadeOutSeconds: 1.8,
 });
 
 export function warmKitePiano(enabled: boolean) {

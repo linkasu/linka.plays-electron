@@ -14,11 +14,30 @@ type SnowSpark = Point & { age: number; life: number; size: number; drift: numbe
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordHint, recordSuccess, startSession } = useGameSessionFor("snow-trail", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  finishSession,
+  recordEvent,
+  recordHint,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("snow-trail", {
   maxSteps: 8,
-  overrides: { preset: "gentle", dwellMs: 600, targetScale: 1.45, motionSpeed: 0.48, distractors: "none", hints: "high" },
+  overrides: {
+    preset: "gentle",
+    dwellMs: 600,
+    targetScale: 1.45,
+    motionSpeed: 0.48,
+    distractors: "none",
+    hints: "high",
+  },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 
 const progress = ref(0);
@@ -85,7 +104,7 @@ function trailPoints(): Point[] {
       { x: width * 0.72, y: bottom - (bottom - top) * 0.32 },
       { x: width * 0.32, y: bottom - (bottom - top) * 0.5 },
       { x: width * 0.76, y: bottom - (bottom - top) * 0.68 },
-      { x: center, y: top }
+      { x: center, y: top },
     ];
   }
 
@@ -96,13 +115,14 @@ function trailPoints(): Point[] {
     { x: width * 0.58, y: bottom - (bottom - top) * 0.48 },
     { x: left + 36, y: bottom - (bottom - top) * 0.62 },
     { x: width * 0.42, y: bottom - (bottom - top) * 0.8 },
-    { x: right, y: top }
+    { x: right, y: top },
   ];
 }
 
 function pathLength(points: Point[]) {
   let length = 0;
-  for (let index = 1; index < points.length; index += 1) length += distance(points[index - 1], points[index]);
+  for (let index = 1; index < points.length; index += 1)
+    length += distance(points[index - 1], points[index]);
   return Math.max(1, length);
 }
 
@@ -136,12 +156,19 @@ function projectPointToPath(point: Point, points: Point[]): Projection {
     const dy = end.y - start.y;
     const segmentLength = Math.hypot(dx, dy);
     const segmentLengthSquared = dx * dx + dy * dy;
-    const t = segmentLengthSquared <= 0 ? 0 : clamp(((point.x - start.x) * dx + (point.y - start.y) * dy) / segmentLengthSquared, 0, 1);
+    const t =
+      segmentLengthSquared <= 0
+        ? 0
+        : clamp(((point.x - start.x) * dx + (point.y - start.y) * dy) / segmentLengthSquared, 0, 1);
     const candidate = { x: start.x + dx * t, y: start.y + dy * t };
     const nextDistance = distance(point, candidate);
 
     if (nextDistance < best.distance) {
-      best = { ...candidate, distance: nextDistance, ratio: (walked + segmentLength * t) / totalLength };
+      best = {
+        ...candidate,
+        distance: nextDistance,
+        ratio: (walked + segmentLength * t) / totalLength,
+      };
     }
 
     walked += segmentLength;
@@ -156,11 +183,16 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
-function targetPayload(targetId: string, pathProgress: number, projection?: Projection, reason?: "left" | "invalid-gaze") {
+function targetPayload(
+  targetId: string,
+  pathProgress: number,
+  projection?: Projection,
+  reason?: "left" | "invalid-gaze",
+) {
   return {
     targetId,
     at: Date.now(),
@@ -170,7 +202,7 @@ function targetPayload(targetId: string, pathProgress: number, projection?: Proj
     pathProgress,
     pointer: copyPointer(),
     distanceToPath: projection?.distance,
-    reason
+    reason,
   };
 }
 
@@ -183,7 +215,15 @@ function updateTracking(nearTrail: boolean, projection: Projection | undefined) 
 
   if (!nearTrail && tracking) {
     tracking = false;
-    recordEvent("target-cancel", targetPayload("snow-trail", progress.value, projection, pointer.value.valid ? "left" : "invalid-gaze"));
+    recordEvent(
+      "target-cancel",
+      targetPayload(
+        "snow-trail",
+        progress.value,
+        projection,
+        pointer.value.valid ? "left" : "invalid-gaze",
+      ),
+    );
   }
 }
 
@@ -196,7 +236,7 @@ function addSnowSpark(point: Point, count = 8) {
       age: 0,
       life: 0.9 + Math.random() * 0.65,
       size: 3 + Math.random() * 5,
-      drift: (Math.random() - 0.5) * 28
+      drift: (Math.random() - 0.5) * 28,
     });
   }
   if (sparks.length > 90) sparks.splice(0, sparks.length - 90);
@@ -211,7 +251,10 @@ function startCleanup(now: number) {
 
 function updateCheckpoints(now: number) {
   const points = trailPoints();
-  while (session.step < session.maxSteps && progress.value >= (session.step + 1) / session.maxSteps - 0.004) {
+  while (
+    session.step < session.maxSteps &&
+    progress.value >= (session.step + 1) / session.maxSteps - 0.004
+  ) {
     const checkpoint = session.step + 1;
     const targetId = `snow-trail-checkpoint-${checkpoint}`;
     const checkpointPoint = pointAtPathProgress(points, checkpoint / session.maxSteps);
@@ -269,7 +312,12 @@ function update(delta: number, now: number) {
 
   if (!nearTrail && now - lastHintAt > 3400) {
     lastHintAt = now;
-    recordHint({ kind: "snow-trail-guide", pathProgress: progress.value, pointer: copyPointer(), distanceToPath: projection?.distance });
+    recordHint({
+      kind: "snow-trail-guide",
+      pathProgress: progress.value,
+      pointer: copyPointer(),
+      distanceToPath: projection?.distance,
+    });
   }
 
   updateCheckpoints(now);
@@ -278,7 +326,8 @@ function update(delta: number, now: number) {
 function strokePath(context: CanvasRenderingContext2D, points: Point[]) {
   context.beginPath();
   context.moveTo(points[0].x, points[0].y);
-  for (let index = 1; index < points.length; index += 1) context.lineTo(points[index].x, points[index].y);
+  for (let index = 1; index < points.length; index += 1)
+    context.lineTo(points[index].x, points[index].y);
   context.stroke();
 }
 
@@ -321,7 +370,12 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
     context.moveTo(0, window.innerHeight);
     context.lineTo(0, base);
     for (let x = 0; x <= window.innerWidth; x += 90) {
-      context.quadraticCurveTo(x + 44, base - 38 - ridge * 10, x + 90, base + Math.sin(x * 0.01 + ridge) * 18);
+      context.quadraticCurveTo(
+        x + 44,
+        base - 38 - ridge * 10,
+        x + 90,
+        base + Math.sin(x * 0.01 + ridge) * 18,
+      );
     }
     context.lineTo(window.innerWidth, window.innerHeight);
     context.closePath();
@@ -333,9 +387,11 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
   context.fillStyle = "rgb(255 255 255 / 58%)";
   for (let index = 0; index < 44; index += 1) {
     const visualNow = session.settings.reduceMotion ? 0 : now;
-    const x = (index * 97 + visualNow * 0.006 * (index % 4 + 1)) % (window.innerWidth + 40) - 20;
-    const y = (index * 53 + visualNow * 0.012 * (index % 3 + 1)) % (window.innerHeight + 40) - 20;
-    const size = 1.5 + index % 4;
+    const x =
+      ((index * 97 + visualNow * 0.006 * ((index % 4) + 1)) % (window.innerWidth + 40)) - 20;
+    const y =
+      ((index * 53 + visualNow * 0.012 * ((index % 3) + 1)) % (window.innerHeight + 40)) - 20;
+    const size = 1.5 + (index % 4);
     context.beginPath();
     context.arc(x, y, size, 0, Math.PI * 2);
     context.fill();
@@ -389,7 +445,11 @@ function drawCheckpoints(context: CanvasRenderingContext2D, points: Point[]) {
 
     context.save();
     context.fillStyle = done ? "rgb(217 247 255 / 92%)" : "rgb(255 255 255 / 70%)";
-    context.strokeStyle = done ? "rgb(79 177 201 / 86%)" : next ? "rgb(94 153 203 / 70%)" : "rgb(126 153 178 / 34%)";
+    context.strokeStyle = done
+      ? "rgb(79 177 201 / 86%)"
+      : next
+        ? "rgb(94 153 203 / 70%)"
+        : "rgb(126 153 178 / 34%)";
     context.lineWidth = Math.max(3, width * 0.035);
     context.beginPath();
     context.arc(point.x, point.y, radius, 0, Math.PI * 2);
@@ -425,7 +485,14 @@ function drawSled(context: CanvasRenderingContext2D, points: Point[]) {
   const glowRadius = size * (1.9 + snow.confidence * 0.55);
 
   context.save();
-  const glow = context.createRadialGradient(point.x, point.y, size * 0.2, point.x, point.y, glowRadius);
+  const glow = context.createRadialGradient(
+    point.x,
+    point.y,
+    size * 0.2,
+    point.x,
+    point.y,
+    glowRadius,
+  );
   glow.addColorStop(0, `rgb(255 255 255 / ${0.88 + snow.confidence * 0.1})`);
   glow.addColorStop(0.45, "rgb(158 223 236 / 46%)");
   glow.addColorStop(1, "rgb(158 223 236 / 0%)");
@@ -495,7 +562,8 @@ function draw(context: CanvasRenderingContext2D, now: number) {
 }
 
 function tick(now: number) {
-  const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+  const delta =
+    session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
   update(delta, now);
   if (ctx) draw(ctx, now);
@@ -556,8 +624,16 @@ onUnmounted(() => {
     <v-card class="snow-trail-guidance pa-4" color="surface" rounded="xl" variant="flat">
       <div class="text-overline text-info mb-1">Управление взглядом</div>
       <div class="text-body-1 font-weight-medium">{{ guidanceText }}</div>
-      <v-progress-linear class="mt-3" :model-value="progressPercent" color="info" height="0.5rem" rounded />
-      <div class="text-caption text-medium-emphasis mt-2">Отметки: {{ session.step }} / {{ session.maxSteps }}</div>
+      <v-progress-linear
+        class="mt-3"
+        :model-value="progressPercent"
+        color="info"
+        height="0.5rem"
+        rounded
+      />
+      <div class="text-caption text-medium-emphasis mt-2">
+        Отметки: {{ session.step }} / {{ session.maxSteps }}
+      </div>
     </v-card>
 
     <GameResultDialog
@@ -600,7 +676,7 @@ onUnmounted(() => {
 }
 
 @media (max-width: 45rem) {
- .snow-trail-guidance {
+  .snow-trail-guidance {
     inset-block-start: auto;
     inset-block-end: max(1rem, env(safe-area-inset-bottom));
     inset-inline: 1rem;

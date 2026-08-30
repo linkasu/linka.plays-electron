@@ -1,5 +1,8 @@
 import { contextBridge, ipcRenderer } from "electron";
-import type { TelemetryPrivacyDecision, TelemetryPrivacyPreference } from "./telemetry/privacyPreference";
+import type {
+  TelemetryPrivacyDecision,
+  TelemetryPrivacyPreference,
+} from "./telemetry/privacyPreference";
 import type { RendererSessionSummaryInput, RendererTelemetryEventInput } from "./telemetry/types";
 
 type Dispose = () => void;
@@ -7,10 +10,12 @@ type Dispose = () => void;
 contextBridge.exposeInMainWorld("linkaTobii", {
   getStatus: () => ipcRenderer.invoke("tobii:status:get"),
   getDiagnostics: () => ipcRenderer.invoke("tobii:diagnostics:get"),
-  setCoordinateScaleMode: (mode: string) => ipcRenderer.invoke("tobii:diagnostics:set-scale-mode", mode),
+  setCoordinateScaleMode: (mode: string) =>
+    ipcRenderer.invoke("tobii:diagnostics:set-scale-mode", mode),
   rendererReady: () => ipcRenderer.send("tobii:renderer-ready"),
   startCalibration: () => ipcRenderer.invoke("tobii:calibration:start"),
-  addCalibrationPoint: (point: { x: number; y: number }) => ipcRenderer.invoke("tobii:calibration:add-point", point),
+  addCalibrationPoint: (point: { x: number; y: number }) =>
+    ipcRenderer.invoke("tobii:calibration:add-point", point),
   finishCalibration: () => ipcRenderer.invoke("tobii:calibration:finish"),
   applySavedCalibration: () => ipcRenderer.invoke("tobii:calibration:apply-saved"),
   restartService: () => ipcRenderer.invoke("tobii:service:restart"),
@@ -23,16 +28,40 @@ contextBridge.exposeInMainWorld("linkaTobii", {
     const handler = (_event: Electron.IpcRendererEvent, point: unknown) => listener(point);
     ipcRenderer.on("tobii:gaze", handler);
     return () => ipcRenderer.off("tobii:gaze", handler);
-  }
+  },
 });
 
 contextBridge.exposeInMainWorld("linkaAi", {
-  connectFourBestMove: (payload: { board: string; player?: "R" | "Y"; depth?: number; timeLimitMs?: number; threads?: number }) => ipcRenderer.invoke("connect-four:best-move", payload),
-  reversiLightBestMove: (payload: { board: string; player?: "R" | "Y"; depth?: number; timeLimitMs?: number }) => ipcRenderer.invoke("reversi-light:best-move", payload),
-  checkersLightBestMove: (payload: { board: string; side?: "gold" | "blue"; depth?: number; timeLimitMs?: number; forcedFrom?: number }) => ipcRenderer.invoke("checkers-light:best-move", payload),
-  chessMiniLegalMoves: (payload: { fen: string }) => ipcRenderer.invoke("chess-mini:legal-moves", payload),
-  chessMiniApplyMove: (payload: { fen: string; fromIndex: number; toIndex: number; promotion?: string }) => ipcRenderer.invoke("chess-mini:apply-move", payload),
-  chessMiniBestMove: (payload: { fen: string; depth?: number; timeLimitMs?: number }) => ipcRenderer.invoke("chess-mini:best-move", payload)
+  connectFourBestMove: (payload: {
+    board: string;
+    player?: "R" | "Y";
+    depth?: number;
+    timeLimitMs?: number;
+    threads?: number;
+  }) => ipcRenderer.invoke("connect-four:best-move", payload),
+  reversiLightBestMove: (payload: {
+    board: string;
+    player?: "R" | "Y";
+    depth?: number;
+    timeLimitMs?: number;
+  }) => ipcRenderer.invoke("reversi-light:best-move", payload),
+  checkersLightBestMove: (payload: {
+    board: string;
+    side?: "gold" | "blue";
+    depth?: number;
+    timeLimitMs?: number;
+    forcedFrom?: number;
+  }) => ipcRenderer.invoke("checkers-light:best-move", payload),
+  chessMiniLegalMoves: (payload: { fen: string }) =>
+    ipcRenderer.invoke("chess-mini:legal-moves", payload),
+  chessMiniApplyMove: (payload: {
+    fen: string;
+    fromIndex: number;
+    toIndex: number;
+    promotion?: string;
+  }) => ipcRenderer.invoke("chess-mini:apply-move", payload),
+  chessMiniBestMove: (payload: { fen: string; depth?: number; timeLimitMs?: number }) =>
+    ipcRenderer.invoke("chess-mini:best-move", payload),
 });
 
 contextBridge.exposeInMainWorld("linkaUpdater", {
@@ -58,15 +87,19 @@ contextBridge.exposeInMainWorld("linkaUpdater", {
     const handler = (_event: Electron.IpcRendererEvent, message: string) => listener(message);
     ipcRenderer.on("updater:error", handler);
     return () => ipcRenderer.off("updater:error", handler);
-  }
+  },
 });
 
 contextBridge.exposeInMainWorld("linkaMetrics", {
   recordEvent: (event: RendererTelemetryEventInput) => ipcRenderer.send("metrics:event", event),
-  recordSessionSummary: (summary: RendererSessionSummaryInput) => ipcRenderer.send("metrics:session-summary", summary)
+  recordSessionSummary: (summary: RendererSessionSummaryInput) =>
+    ipcRenderer.send("metrics:session-summary", summary),
 });
 
 contextBridge.exposeInMainWorld("linkaPrivacy", {
-  getTelemetryPreference: (): Promise<TelemetryPrivacyPreference> => ipcRenderer.invoke("privacy:telemetry:get"),
-  setTelemetryPreference: (preference: TelemetryPrivacyDecision): Promise<TelemetryPrivacyPreference> => ipcRenderer.invoke("privacy:telemetry:set", preference)
+  getTelemetryPreference: (): Promise<TelemetryPrivacyPreference> =>
+    ipcRenderer.invoke("privacy:telemetry:get"),
+  setTelemetryPreference: (
+    preference: TelemetryPrivacyDecision,
+  ): Promise<TelemetryPrivacyPreference> => ipcRenderer.invoke("privacy:telemetry:set", preference),
 });

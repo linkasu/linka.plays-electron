@@ -14,7 +14,7 @@ function argValue(name, fallback) {
   const found = process.argv.find((argument) => argument.startsWith(prefix));
   if (found) return found.slice(prefix.length);
   const index = process.argv.indexOf(name);
-  return index >= 0 ? process.argv[index + 1] ?? fallback : fallback;
+  return index >= 0 ? (process.argv[index + 1] ?? fallback) : fallback;
 }
 
 function wait(milliseconds) {
@@ -25,7 +25,10 @@ function findPackagedExecutable() {
   if (process.platform === "win32") {
     const directory = join(releaseDirectory, "win-unpacked");
     const executable = readdirSync(directory)
-      .filter((name) => name.toLowerCase().endsWith(".exe") && !/uninstall|uninstaller|elevate/i.test(name))
+      .filter(
+        (name) =>
+          name.toLowerCase().endsWith(".exe") && !/uninstall|uninstaller|elevate/i.test(name),
+      )
       .map((name) => join(directory, name))
       .find((path) => statSync(path).isFile());
     if (executable) return executable;
@@ -35,7 +38,9 @@ function findPackagedExecutable() {
     const appBundle = findDirectory(releaseDirectory, (name) => name.endsWith(".app"));
     if (appBundle) {
       const directory = join(appBundle, "Contents", "MacOS");
-      const executable = readdirSync(directory).map((name) => join(directory, name)).find((path) => statSync(path).isFile());
+      const executable = readdirSync(directory)
+        .map((name) => join(directory, name))
+        .find((path) => statSync(path).isFile());
       if (executable) return executable;
     }
   }
@@ -75,7 +80,12 @@ async function waitForPageTarget(port) {
     const response = await fetch(`http://127.0.0.1:${port}/json/list`);
     if (!response.ok) return undefined;
     const targets = await response.json();
-    return targets.find((target) => target.type === "page" && target.webSocketDebuggerUrl && !target.url.startsWith("devtools:"));
+    return targets.find(
+      (target) =>
+        target.type === "page" &&
+        target.webSocketDebuggerUrl &&
+        !target.url.startsWith("devtools:"),
+    );
   });
 }
 
@@ -92,23 +102,34 @@ function createCdpClient(webSocketDebuggerUrl) {
     else request.resolve(message.result ?? {});
   });
   return new Promise((resolveClient, reject) => {
-    socket.addEventListener("open", () => resolveClient({
-      send(method, params = {}) {
-        const id = nextId++;
-        socket.send(JSON.stringify({ id, method, params }));
-        return new Promise((resolveSend, rejectSend) => pending.set(id, { resolve: resolveSend, reject: rejectSend }));
-      },
-      close() {
-        socket.close();
-      }
-    }));
-    socket.addEventListener("error", () => reject(new Error("Cannot connect to packaged Electron CDP target")));
+    socket.addEventListener("open", () =>
+      resolveClient({
+        send(method, params = {}) {
+          const id = nextId++;
+          socket.send(JSON.stringify({ id, method, params }));
+          return new Promise((resolveSend, rejectSend) =>
+            pending.set(id, { resolve: resolveSend, reject: rejectSend }),
+          );
+        },
+        close() {
+          socket.close();
+        },
+      }),
+    );
+    socket.addEventListener("error", () =>
+      reject(new Error("Cannot connect to packaged Electron CDP target")),
+    );
   });
 }
 
 async function evaluate(client, expression) {
-  const response = await client.send("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true });
-  if (response.exceptionDetails) throw new Error(response.exceptionDetails.text ?? "Runtime evaluation failed");
+  const response = await client.send("Runtime.evaluate", {
+    expression,
+    awaitPromise: true,
+    returnByValue: true,
+  });
+  if (response.exceptionDetails)
+    throw new Error(response.exceptionDetails.text ?? "Runtime evaluation failed");
   return response.result?.value;
 }
 
@@ -125,34 +146,64 @@ async function startMetricsServer(requests) {
       if (request.url === "/v1/public/installations") {
         const registration = JSON.parse(body);
         response.writeHead(201, { "content-type": "application/json" });
-        response.end(JSON.stringify({
-          installation_key: installationKey,
-          product: "linka-plays",
-          platform: registration.platform,
-          preference: "allowed",
-          policy_version: registration.policy_version,
-          recorded_at: registration.recorded_at,
-          refresh_token: refreshToken,
-          refresh_expires_at: new Date(Date.now() + 86400000).toISOString(),
-          metrics_token: { access_token: accessToken, token_type: "Bearer", expires_at: new Date(Date.now() + 300000).toISOString() }
-        }));
+        response.end(
+          JSON.stringify({
+            installation_key: installationKey,
+            product: "linka-plays",
+            platform: registration.platform,
+            preference: "allowed",
+            policy_version: registration.policy_version,
+            recorded_at: registration.recorded_at,
+            refresh_token: refreshToken,
+            refresh_expires_at: new Date(Date.now() + 86400000).toISOString(),
+            metrics_token: {
+              access_token: accessToken,
+              token_type: "Bearer",
+              expires_at: new Date(Date.now() + 300000).toISOString(),
+            },
+          }),
+        );
         return;
       }
       if (request.url === "/v1/public/installations/token") {
         response.writeHead(200, { "content-type": "application/json" });
-        response.end(JSON.stringify({ installation_key: installationKey, product: "linka-plays", metrics_token: { access_token: accessToken, token_type: "Bearer", expires_at: new Date(Date.now() + 300000).toISOString() } }));
+        response.end(
+          JSON.stringify({
+            installation_key: installationKey,
+            product: "linka-plays",
+            metrics_token: {
+              access_token: accessToken,
+              token_type: "Bearer",
+              expires_at: new Date(Date.now() + 300000).toISOString(),
+            },
+          }),
+        );
         return;
       }
       if (request.url === "/v1/public/installations/telemetry-preference") {
         const preference = JSON.parse(body);
         response.writeHead(200, { "content-type": "application/json" });
-        response.end(JSON.stringify({ installation_key: installationKey, product: "linka-plays", preference: "denied", policy_version: preference.policy_version, recorded_at: preference.recorded_at }));
+        response.end(
+          JSON.stringify({
+            installation_key: installationKey,
+            product: "linka-plays",
+            preference: "denied",
+            policy_version: preference.policy_version,
+            recorded_at: preference.recorded_at,
+          }),
+        );
         return;
       }
       if (request.url === "/v2/batches") {
         const batch = JSON.parse(body);
         response.writeHead(202, { "content-type": "application/json" });
-        response.end(JSON.stringify({ batch_id: batch.batch_id, accepted_records: batch.records.length, replayed: false }));
+        response.end(
+          JSON.stringify({
+            batch_id: batch.batch_id,
+            accepted_records: batch.records.length,
+            replayed: false,
+          }),
+        );
         return;
       }
       response.writeHead(404, { "content-length": "0" });
@@ -164,7 +215,8 @@ async function startMetricsServer(requests) {
     server.listen(0, "127.0.0.1", resolveListen);
   });
   const address = server.address();
-  if (!address || typeof address === "string") throw new Error("Metrics smoke server did not expose a TCP port");
+  if (!address || typeof address === "string")
+    throw new Error("Metrics smoke server did not expose a TCP port");
   return { server, endpoint: `http://127.0.0.1:${address.port}` };
 }
 
@@ -178,10 +230,10 @@ function launchApplication(executable, port, userDataPath, telemetryEndpoint, lo
       LINKA_METRICS_URL: telemetryEndpoint,
       LINKA_PRIVACY_SMOKE: "1",
       LINKA_TEST_USER_DATA_PATH: userDataPath,
-      ELECTRON_ENABLE_LOGGING: "1"
+      ELECTRON_ENABLE_LOGGING: "1",
     },
     windowsHide: true,
-    stdio: ["ignore", "pipe", "pipe"]
+    stdio: ["ignore", "pipe", "pipe"],
   });
   child.stdout.on("data", (data) => logs.push(data.toString()));
   child.stderr.on("data", (data) => logs.push(data.toString()));
@@ -197,13 +249,15 @@ async function stopProcess(child) {
   child.kill();
   const exited = await Promise.race([
     new Promise((resolveExit) => child.once("exit", () => resolveExit(true))),
-    wait(3000).then(() => false)
+    wait(3000).then(() => false),
   ]);
   if (!exited) child.kill("SIGKILL");
 }
 
 async function inspectPrivacyApi(client) {
-  return evaluate(client, `(async () => {
+  return evaluate(
+    client,
+    `(async () => {
     const api = window.linkaPrivacy;
     const metrics = window.linkaMetrics;
     return {
@@ -214,7 +268,8 @@ async function inspectPrivacyApi(client) {
       preference: api ? await api.getTelemetryPreference() : null,
       dialogOpen: Boolean(document.querySelector('.v-dialog.v-overlay--active'))
     };
-  })()`);
+  })()`,
+  );
 }
 
 function assert(condition, message) {
@@ -223,8 +278,12 @@ function assert(condition, message) {
 
 async function main() {
   const port = Number(argValue("--port", "9239"));
-  const outputPath = resolve(argValue("--output", join(projectRoot, "release-debug", "packaged-privacy-smoke.json")));
-  const logPath = resolve(argValue("--log", join(projectRoot, "release-debug", "packaged-privacy-smoke.log")));
+  const outputPath = resolve(
+    argValue("--output", join(projectRoot, "release-debug", "packaged-privacy-smoke.json")),
+  );
+  const logPath = resolve(
+    argValue("--log", join(projectRoot, "release-debug", "packaged-privacy-smoke.log")),
+  );
   const userDataPath = join(tmpdir(), `linka-packaged-privacy-${process.pid}-${Date.now()}`);
   const telemetryPath = join(userDataPath, "telemetry-v1");
   const requests = [];
@@ -247,25 +306,51 @@ async function main() {
     await wait(1500);
 
     const unknown = await inspectPrivacyApi(client);
-    assert(unknown.present && unknown.getTyped && unknown.setTyped && unknown.metricsTyped, "Packaged typed preload privacy/metrics API is missing");
-    assert(unknown.preference === "unknown", `Expected unknown preference, got ${unknown.preference}`);
+    assert(
+      unknown.present && unknown.getTyped && unknown.setTyped && unknown.metricsTyped,
+      "Packaged typed preload privacy/metrics API is missing",
+    );
+    assert(
+      unknown.preference === "unknown",
+      `Expected unknown preference, got ${unknown.preference}`,
+    );
     assert(unknown.dialogOpen, "Unknown preference did not open the privacy decision dialog");
     assert(requests.length === 0, "Unknown preference made a metrics network request");
-    assert(!existsSync(telemetryPath), "Unknown preference did not delete the pre-0.1.18 telemetry directory");
+    assert(
+      !existsSync(telemetryPath),
+      "Unknown preference did not delete the pre-0.1.18 telemetry directory",
+    );
     report.checks.unknown = unknown;
 
     const enabled = await evaluate(client, `window.linkaPrivacy.setTelemetryPreference('enabled')`);
     assert(enabled === "enabled", `Enable IPC returned ${enabled}`);
-    await waitFor("installation and V2 batch requests", () => requests.some((request) => request.path === "/v1/public/installations") && requests.some((request) => request.path === "/v2/batches"));
+    await waitFor(
+      "installation and V2 batch requests",
+      () =>
+        requests.some((request) => request.path === "/v1/public/installations") &&
+        requests.some((request) => request.path === "/v2/batches"),
+    );
     const deliveredEvents = requests
       .filter((request) => request.path === "/v2/batches")
       .flatMap((request) => JSON.parse(request.body).records ?? []);
-    assert(deliveredEvents.some((event) => event.kind === "app_started"), "Enabled telemetry did not deliver app_started");
-    report.checks.enabled = { preference: enabled, deliveredEventNames: deliveredEvents.map((event) => event.kind) };
+    assert(
+      deliveredEvents.some((event) => event.kind === "app_started"),
+      "Enabled telemetry did not deliver app_started",
+    );
+    report.checks.enabled = {
+      preference: enabled,
+      deliveredEventNames: deliveredEvents.map((event) => event.kind),
+    };
 
-    const disabled = await evaluate(client, `window.linkaPrivacy.setTelemetryPreference('disabled')`);
+    const disabled = await evaluate(
+      client,
+      `window.linkaPrivacy.setTelemetryPreference('disabled')`,
+    );
     assert(disabled === "disabled", `Disable IPC returned ${disabled}`);
-    assert(requests.some((request) => request.path === "/v1/public/installations/telemetry-preference"), "Disabled preference did not deliver server denial");
+    assert(
+      requests.some((request) => request.path === "/v1/public/installations/telemetry-preference"),
+      "Disabled preference did not deliver server denial",
+    );
     assert(!existsSync(telemetryPath), "Disabled preference did not delete telemetry-v1");
     const requestsAfterDisable = requests.length;
     await wait(1000);
@@ -283,10 +368,16 @@ async function main() {
     await client.send("Runtime.enable");
     await wait(1000);
     const restarted = await inspectPrivacyApi(client);
-    assert(restarted.present && restarted.preference === "disabled", "Disabled preference did not persist across packaged restart");
+    assert(
+      restarted.present && restarted.preference === "disabled",
+      "Disabled preference did not persist across packaged restart",
+    );
     assert(!restarted.dialogOpen, "Persisted Disabled unexpectedly reopened the first-run dialog");
     assert(!existsSync(telemetryPath), "Persisted Disabled recreated telemetry-v1");
-    assert(requests.length === requestsAfterDisable, "Persisted Disabled made a metrics request after restart");
+    assert(
+      requests.length === requestsAfterDisable,
+      "Persisted Disabled made a metrics request after restart",
+    );
     report.checks.restart = restarted;
     report.ok = true;
   } finally {

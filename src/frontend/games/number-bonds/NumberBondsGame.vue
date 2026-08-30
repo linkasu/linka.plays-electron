@@ -12,35 +12,69 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateNumberBondsRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("number-bonds", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("number-bonds", {
   maxSteps: 8,
   overrides: { sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
-const numberBondsQuestionAssetIds = ["number-bonds.question.add-to", "number-bonds.question.to-make"];
-const numberBondsNumberAssetIds = Array.from({ length: 10 }, (_, index) => `number-bonds.number.${index + 1}`);
-const promptAudio = useGamePromptAudio({ gameId: "number-bonds", soundEnabled, warmAssetIds: [...numberBondsQuestionAssetIds, ...numberBondsNumberAssetIds, "number-bonds.correct", "number-bonds.mistake", "number-bonds.complete"] });
+const numberBondsQuestionAssetIds = [
+  "number-bonds.question.add-to",
+  "number-bonds.question.to-make",
+];
+const numberBondsNumberAssetIds = Array.from(
+  { length: 10 },
+  (_, index) => `number-bonds.number.${index + 1}`,
+);
+const promptAudio = useGamePromptAudio({
+  gameId: "number-bonds",
+  soundEnabled,
+  warmAssetIds: [
+    ...numberBondsQuestionAssetIds,
+    ...numberBondsNumberAssetIds,
+    "number-bonds.correct",
+    "number-bonds.mistake",
+    "number-bonds.complete",
+  ],
+});
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const { round, resultVisible, nextRound, restart } = useRoundGame({
   session,
   startSession,
-  generateRound: (roundIndex) => generateNumberBondsRound(session.settings, roundIndex)
+  generateRound: (roundIndex) => generateNumberBondsRound(session.settings, roundIndex),
 });
 
 const hint = ref("Выбери недостающую часть.");
 const lastMistakeTargetId = ref<string>();
 const isSpeaking = ref(false);
-const knownDots = computed(() => Array.from({ length: round.value.knownPart }, (_, index) => index));
+const knownDots = computed(() =>
+  Array.from({ length: round.value.knownPart }, (_, index) => index),
+);
 
 function choiceTargetId(choice: number) {
   return `number-bonds:choice:${choice}`;
 }
 
 function promptAssetIds() {
-  return ["number-bonds.question.add-to", `number-bonds.number.${round.value.knownPart}`, "number-bonds.question.to-make", `number-bonds.number.${round.value.total}`];
+  return [
+    "number-bonds.question.add-to",
+    `number-bonds.number.${round.value.knownPart}`,
+    "number-bonds.question.to-make",
+    `number-bonds.number.${round.value.total}`,
+  ];
 }
 
 function playRoundPrompt(delayMs = 0) {
@@ -54,12 +88,26 @@ async function answer(choice: number) {
   const expectedTargetId = choiceTargetId(round.value.missingPart);
   if (choice === round.value.missingPart) {
     lastMistakeTargetId.value = undefined;
-    recordSuccess({ roundId: round.value.roundId, targetId, total: round.value.total, knownPart: round.value.knownPart, expected: round.value.missingPart, actual: choice, isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      total: round.value.total,
+      knownPart: round.value.knownPart,
+      expected: round.value.missingPart,
+      actual: choice,
+      isCorrect: true,
+    });
     hint.value = "Верно.";
     isSpeaking.value = true;
     void feedbackAudio.playSuccess();
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["number-bonds.correct", "number-bonds.complete"] : ["number-bonds.correct"], 80, 170);
+    await promptAudio.playSequenceAndWait(
+      finishedAfterSuccess
+        ? ["number-bonds.correct", "number-bonds.complete"]
+        : ["number-bonds.correct"],
+      80,
+      170,
+    );
     if (finishedAfterSuccess) {
       finishSession("game-complete");
       isSpeaking.value = false;
@@ -76,7 +124,16 @@ async function answer(choice: number) {
 
   hint.value = "Посмотри на пример ещё раз и выбери другую часть.";
   lastMistakeTargetId.value = targetId;
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, total: round.value.total, knownPart: round.value.knownPart, expected: round.value.missingPart, actual: choice, isCorrect: false });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    expectedTargetId,
+    total: round.value.total,
+    knownPart: round.value.knownPart,
+    expected: round.value.missingPart,
+    actual: choice,
+    isCorrect: false,
+  });
   isSpeaking.value = true;
   void feedbackAudio.playMistake();
   await promptAudio.playSequenceAndWait(["number-bonds.mistake"], 80);
@@ -104,12 +161,25 @@ onUnmounted(() => {
 
 <template>
   <div class="number-bonds-shell">
-    <GameHud title="Состав числа" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Состав числа"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11" xl="10">
           <v-card class="number-bonds-card pa-4 pa-md-6" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">Составь число до {{ session.settings.preset === "gentle" ? 5 : 10 }}</div>
+            <div class="text-overline text-secondary text-center mb-2">
+              Составь число до {{ session.settings.preset === "gentle" ? 5 : 10 }}
+            </div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-4">{{ round.prompt }}</h1>
 
             <v-sheet class="bond-panel pa-4 pa-md-5 mb-4" color="primary" rounded="xl">
@@ -137,15 +207,33 @@ onUnmounted(() => {
               </div>
             </v-sheet>
 
-            <v-alert class="mb-4 text-body-1 font-weight-bold" :color="lastMistakeTargetId ? 'secondary' : 'primary'" :icon="lastMistakeTargetId ? 'mdi-heart-outline' : 'mdi-lightbulb-outline'" rounded="xl" variant="tonal">
+            <v-alert
+              class="mb-4 text-body-1 font-weight-bold"
+              :color="lastMistakeTargetId ? 'secondary' : 'primary'"
+              :icon="lastMistakeTargetId ? 'mdi-heart-outline' : 'mdi-lightbulb-outline'"
+              rounded="xl"
+              variant="tonal"
+            >
               {{ hint }}
             </v-alert>
 
             <v-row class="choice-row" dense>
               <v-col v-for="choice in round.choices" :key="choice" cols="12" sm="6" md="3">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="190" color="surface" @select="answer(choice)">
+                <GameDwellButton
+                  :target-id="choiceTargetId(choice)"
+                  :disabled="session.status !== 'running' || isSpeaking"
+                  :dwell-ms="session.settings.dwellMs"
+                  :min-height="190"
+                  color="surface"
+                  @select="answer(choice)"
+                >
                   <template #default>
-                    <div :class="['choice-card', { 'choice-card--mistake': lastMistakeTargetId === choiceTargetId(choice) }]">
+                    <div
+                      :class="[
+                        'choice-card',
+                        { 'choice-card--mistake': lastMistakeTargetId === choiceTargetId(choice) },
+                      ]"
+                    >
                       <div class="choice-card__number">{{ choice }}</div>
                       <div class="choice-card__caption text-body-1">часть</div>
                     </div>
@@ -157,7 +245,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Состав числа" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restartGame" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Состав числа"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restartGame"
+    />
   </div>
 </template>
 
@@ -244,7 +342,9 @@ onUnmounted(() => {
   flex-direction: column;
   justify-content: center;
   min-block-size: 8.75rem;
-  transition: outline 160ms ease, transform 160ms ease;
+  transition:
+    outline 160ms ease,
+    transform 160ms ease;
 }
 
 .choice-card__number {
@@ -264,53 +364,53 @@ onUnmounted(() => {
 }
 
 @media (min-width: 68.75rem) {
- .game-container {
+  .game-container {
     padding-block-start: 7.25rem;
   }
 }
 
 @media (max-width: 37.5rem) {
- .part-row {
+  .part-row {
     align-items: center;
     flex-direction: column;
   }
 
- .part-card {
+  .part-card {
     inline-size: 100%;
   }
 }
 
 @media (max-height: 40rem) {
- .game-container {
+  .game-container {
     padding-block-start: 9.25rem;
   }
 
- .bond-equation {
+  .bond-equation {
     font-size: clamp(2.75rem, min(9vw, 10vh), 5.25rem);
   }
 }
 
 @media (max-height: 42.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 6.5rem;
   }
 
- .number-bonds-card {
+  .number-bonds-card {
     display: flex;
     flex-direction: column;
     padding: 1rem !important;
   }
 
- .number-bonds-card >.text-overline,
- .number-bonds-card > .v-alert {
+  .number-bonds-card > .text-overline,
+  .number-bonds-card > .v-alert {
     display: none;
   }
 
- .choice-row {
+  .choice-row {
     order: 1;
   }
 
- .bond-panel {
+  .bond-panel {
     display: none;
   }
 }

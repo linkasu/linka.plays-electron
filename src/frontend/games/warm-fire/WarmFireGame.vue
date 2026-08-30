@@ -7,7 +7,13 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { disposeWarmFirePiano, playWarmFireCue, setWarmFirePianoActive, tickWarmFirePiano, warmWarmFirePiano } from "./audio";
+import {
+  disposeWarmFirePiano,
+  playWarmFireCue,
+  setWarmFirePianoActive,
+  tickWarmFirePiano,
+  warmWarmFirePiano,
+} from "./audio";
 
 type Point = { x: number; y: number };
 type Spark = Point & {
@@ -44,11 +50,28 @@ type FlameFlight = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("warm-fire", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("warm-fire", {
   maxSteps: 8,
-  overrides: { preset: "gentle", targetScale: 1.72, motionSpeed: 0.3, distractors: "none", hints: "high", sound: true },
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.72,
+    motionSpeed: 0.3,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 useStartPromptAudio({ gameId: "warm-fire", soundEnabled: toRef(session.settings, "sound") });
 
@@ -84,7 +107,7 @@ function distance(a: Point, b: Point) {
 function fireCenter(): Point {
   return {
     x: window.innerWidth * 0.5,
-    y: window.innerHeight * (window.innerHeight < 720 ? 0.63 : 0.66)
+    y: window.innerHeight * (window.innerHeight < 720 ? 0.63 : 0.66),
   };
 }
 
@@ -99,7 +122,7 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
@@ -127,7 +150,7 @@ function initEmbers() {
       phase: randomRange(0, Math.PI * 2),
       radius: randomRange(1.7, 5.8),
       warmth: randomRange(0.36, 1),
-      hueShift: randomRange(-14, 34)
+      hueShift: randomRange(-14, 34),
     });
   }
 }
@@ -160,7 +183,7 @@ function targetPayload(now: number, progress: number, reason?: "left" | "invalid
     elapsedMs: enteredAt === undefined ? 0 : now - enteredAt,
     progress,
     pointer: copyPointer(),
-    reason
+    reason,
   };
 }
 
@@ -177,7 +200,7 @@ function addSpark(now: number, burst = false) {
     driftX: Math.cos(angle) * randomRange(10, 30) * session.settings.motionSpeed,
     driftY: Math.sin(angle) * randomRange(42, 92) * session.settings.motionSpeed,
     hue: randomRange(28, 58) + fireEnergy * randomRange(18, 96),
-    spin: now * 0.001 + randomRange(0, Math.PI * 2)
+    spin: now * 0.001 + randomRange(0, Math.PI * 2),
   });
 
   if (sparks.length > 150) sparks.splice(0, sparks.length - 150);
@@ -191,7 +214,7 @@ function addAuraRing(now: number) {
     age: 0,
     life: 3.8,
     radius: targetRadius() * randomRange(0.46, 0.62),
-    hue: 34 + session.step * 23 + Math.sin(now * 0.001) * 18
+    hue: 34 + session.step * 23 + Math.sin(now * 0.001) * 18,
   });
   if (auraRings.length > 8) auraRings.splice(0, auraRings.length - 8);
 }
@@ -209,7 +232,7 @@ function addFlameFlight(now: number, burst = false) {
     driftX: side * randomRange(18, 54) * session.settings.motionSpeed,
     driftY: -randomRange(72, 128) * session.settings.motionSpeed,
     hue: randomRange(28, 64) + energy * randomRange(18, 112),
-    phase: now * 0.001 + randomRange(0, Math.PI * 2)
+    phase: now * 0.001 + randomRange(0, Math.PI * 2),
   });
 
   if (flameFlights.length > 18) flameFlights.splice(0, flameFlights.length - 18);
@@ -240,7 +263,11 @@ function updateAttention(delta: number, now: number) {
   if (session.status !== "running" || session.step >= session.maxSteps) return;
 
   if (gazeHeat < 0.1) {
-    if (enteredAt !== undefined) recordEvent("target-cancel", targetPayload(now, dwellProgress, pointer.value.valid ? "left" : "invalid-gaze"));
+    if (enteredAt !== undefined)
+      recordEvent(
+        "target-cancel",
+        targetPayload(now, dwellProgress, pointer.value.valid ? "left" : "invalid-gaze"),
+      );
     enteredAt = undefined;
     dwellProgress = Math.max(0, dwellProgress - delta * 0.8);
     return;
@@ -251,7 +278,11 @@ function updateAttention(delta: number, now: number) {
     recordEvent("target-enter", targetPayload(now, 0));
   }
 
-  dwellProgress = clamp(dwellProgress + delta * 1000 * (0.62 + gazeHeat * 0.66) / session.settings.dwellMs, 0, 1);
+  dwellProgress = clamp(
+    dwellProgress + (delta * 1000 * (0.62 + gazeHeat * 0.66)) / session.settings.dwellMs,
+    0,
+    1,
+  );
   if (dwellProgress >= 1) completeWarmStep(now);
 }
 
@@ -274,7 +305,8 @@ function updateSparks(delta: number, now: number) {
   for (let index = sparks.length - 1; index >= 0; index -= 1) {
     const spark = sparks[index];
     spark.age += delta * (gazeHeat > 0.08 ? 1 : 1.9);
-    spark.x += spark.driftX * delta + Math.sin(spark.age * 2.2 + spark.spin) * delta * (5 + fireEnergy * 8);
+    spark.x +=
+      spark.driftX * delta + Math.sin(spark.age * 2.2 + spark.spin) * delta * (5 + fireEnergy * 8);
     spark.y += spark.driftY * delta;
     spark.driftY -= (3.8 + fireEnergy * 4.6) * delta;
     spark.driftX += Math.sin(spark.age * 1.4 + spark.spin) * delta * 2.4;
@@ -284,7 +316,9 @@ function updateSparks(delta: number, now: number) {
   for (let index = flameFlights.length - 1; index >= 0; index -= 1) {
     const flame = flameFlights[index];
     flame.age += delta * (gazeHeat > 0.08 ? 1 : 1.9);
-    flame.x += flame.driftX * delta + Math.sin(flame.age * 2.4 + flame.phase) * delta * (18 + fireEnergy * 22);
+    flame.x +=
+      flame.driftX * delta +
+      Math.sin(flame.age * 2.4 + flame.phase) * delta * (18 + fireEnergy * 22);
     flame.y += flame.driftY * delta;
     flame.driftX += Math.sin(flame.age * 1.1 + flame.phase) * delta * 4.2;
     flame.driftY -= (7 + fireEnergy * 12) * delta;
@@ -307,10 +341,23 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
   context.fillStyle = sky;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-  const halo = context.createRadialGradient(center.x, center.y, 0, center.x, center.y, Math.max(window.innerWidth, window.innerHeight) * 0.82);
+  const halo = context.createRadialGradient(
+    center.x,
+    center.y,
+    0,
+    center.x,
+    center.y,
+    Math.max(window.innerWidth, window.innerHeight) * 0.82,
+  );
   halo.addColorStop(0, `hsla(${26 + fireEnergy * 54}, 100%, 64%, ${0.36 * intensity})`);
-  halo.addColorStop(0.34, `hsla(${292 + Math.sin(now * 0.00038) * 18}, 82%, 48%, ${0.12 * intensity})`);
-  halo.addColorStop(0.7, `hsla(${196 + Math.cos(now * 0.00031) * 16}, 88%, 44%, ${0.06 * intensity})`);
+  halo.addColorStop(
+    0.34,
+    `hsla(${292 + Math.sin(now * 0.00038) * 18}, 82%, 48%, ${0.12 * intensity})`,
+  );
+  halo.addColorStop(
+    0.7,
+    `hsla(${196 + Math.cos(now * 0.00031) * 16}, 88%, 44%, ${0.06 * intensity})`,
+  );
   halo.addColorStop(1, "rgb(16 8 12 / 0%)");
   context.fillStyle = halo;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
@@ -338,7 +385,7 @@ function drawPsychedelicVeil(context: CanvasRenderingContext2D, now: number) {
     context.lineWidth = 11 - index * 0.62;
     context.beginPath();
     for (let step = 0; step <= 96; step += 1) {
-      const angle = step / 96 * Math.PI * 2;
+      const angle = (step / 96) * Math.PI * 2;
       const wobble = Math.sin(angle * 3 + phase) * 18 + Math.sin(angle * 5 - phase * 1.6) * 9;
       const x = center.x + Math.cos(angle) * (radius + wobble);
       const y = center.y + Math.sin(angle) * (radius * 0.52 + wobble * 0.42);
@@ -384,7 +431,14 @@ function drawFireGlow(context: CanvasRenderingContext2D) {
   const intensity = clamp(fireEnergy / maxFireEnergy, 0, 1);
   if (intensity <= 0.01) return;
   const radius = 58 + fireEnergy * 390;
-  const glow = context.createRadialGradient(center.x, center.y + 10, 0, center.x, center.y + 10, radius);
+  const glow = context.createRadialGradient(
+    center.x,
+    center.y + 10,
+    0,
+    center.x,
+    center.y + 10,
+    radius,
+  );
   glow.addColorStop(0, `rgb(255 226 152 / ${0.5 * intensity})`);
   glow.addColorStop(0.42, `rgb(255 109 74 / ${0.3 * intensity})`);
   glow.addColorStop(0.78, `rgb(206 71 170 / ${0.12 * intensity})`);
@@ -398,27 +452,59 @@ function drawFireGlow(context: CanvasRenderingContext2D) {
   context.restore();
 }
 
-function drawFlameLayer(context: CanvasRenderingContext2D, now: number, scale: number, hue: number, alpha: number, offset: number) {
+function drawFlameLayer(
+  context: CanvasRenderingContext2D,
+  now: number,
+  scale: number,
+  hue: number,
+  alpha: number,
+  offset: number,
+) {
   const intensity = clamp(fireEnergy / maxFireEnergy, 0, 1);
   if (intensity <= 0.01) return;
   const center = fireCenter();
-  const pulse = Math.sin(now * 0.0011 + offset) * 0.045 + Math.sin(now * 0.00053 + offset * 0.9) * 0.035;
+  const pulse =
+    Math.sin(now * 0.0011 + offset) * 0.045 + Math.sin(now * 0.00053 + offset * 0.9) * 0.035;
   const height = (18 + fireEnergy * 320) * scale * (1 + pulse);
   const width = (10 + fireEnergy * 148) * scale;
   const sway = Math.sin(now * 0.00072 + offset) * (7 + fireEnergy * 30);
 
   context.save();
   context.globalCompositeOperation = "lighter";
-  const gradient = context.createRadialGradient(center.x + sway * 0.2, center.y + 58, 0, center.x + sway, center.y - height * 0.25, height * 1.02);
+  const gradient = context.createRadialGradient(
+    center.x + sway * 0.2,
+    center.y + 58,
+    0,
+    center.x + sway,
+    center.y - height * 0.25,
+    height * 1.02,
+  );
   gradient.addColorStop(0, `hsla(${hue + 18}, 100%, 84%, ${alpha * intensity})`);
   gradient.addColorStop(0.36, `hsla(${hue}, 98%, 62%, ${alpha * 0.72 * intensity})`);
-  gradient.addColorStop(0.72, `hsla(${hue + 86 * fireEnergy}, 94%, 54%, ${alpha * 0.22 * intensity})`);
+  gradient.addColorStop(
+    0.72,
+    `hsla(${hue + 86 * fireEnergy}, 94%, 54%, ${alpha * 0.22 * intensity})`,
+  );
   gradient.addColorStop(1, `hsla(${hue + 120}, 88%, 42%, 0)`);
   context.fillStyle = gradient;
   context.beginPath();
   context.moveTo(center.x + sway, center.y - height);
-  context.bezierCurveTo(center.x - width * 0.95 - sway * 0.1, center.y - height * 0.42, center.x - width * 1.4, center.y + 62, center.x, center.y + 104);
-  context.bezierCurveTo(center.x + width * 1.35, center.y + 64, center.x + width * 0.92 + sway * 0.16, center.y - height * 0.4, center.x + sway, center.y - height);
+  context.bezierCurveTo(
+    center.x - width * 0.95 - sway * 0.1,
+    center.y - height * 0.42,
+    center.x - width * 1.4,
+    center.y + 62,
+    center.x,
+    center.y + 104,
+  );
+  context.bezierCurveTo(
+    center.x + width * 1.35,
+    center.y + 64,
+    center.x + width * 0.92 + sway * 0.16,
+    center.y - height * 0.4,
+    center.x + sway,
+    center.y - height,
+  );
   context.fill();
   context.restore();
 }
@@ -458,7 +544,15 @@ function drawAuraRings(context: CanvasRenderingContext2D) {
     context.strokeStyle = `hsla(${ring.hue + progress * 78}, 96%, 70%, ${0.22 * fade})`;
     context.lineWidth = 8 * fade + 1;
     context.beginPath();
-    context.ellipse(ring.x, ring.y, ring.radius * (1 + progress * 1.35), ring.radius * (0.48 + progress * 0.34), progress * 0.4, 0, Math.PI * 2);
+    context.ellipse(
+      ring.x,
+      ring.y,
+      ring.radius * (1 + progress * 1.35),
+      ring.radius * (0.48 + progress * 0.34),
+      progress * 0.4,
+      0,
+      Math.PI * 2,
+    );
     context.stroke();
   }
   context.restore();
@@ -505,7 +599,14 @@ function drawSpark(context: CanvasRenderingContext2D, spark: Spark, now: number)
 function drawGazeHalo(context: CanvasRenderingContext2D) {
   if (!pointer.value.valid || session.status !== "running") return;
   const radius = clamp(82 + gazeHeat * 84, 82, 170);
-  const halo = context.createRadialGradient(pointer.value.x, pointer.value.y, 0, pointer.value.x, pointer.value.y, radius);
+  const halo = context.createRadialGradient(
+    pointer.value.x,
+    pointer.value.y,
+    0,
+    pointer.value.x,
+    pointer.value.y,
+    radius,
+  );
   halo.addColorStop(0, `rgb(255 232 176 / ${0.12 + gazeHeat * 0.16})`);
   halo.addColorStop(0.5, `rgb(255 116 104 / ${0.055 + gazeHeat * 0.07})`);
   halo.addColorStop(1, "rgb(255 116 104 / 0%)");
@@ -535,7 +636,8 @@ function draw(context: CanvasRenderingContext2D, now: number) {
 }
 
 function tick(now: number) {
-  const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+  const delta =
+    session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
   updateAttention(delta, now);
   updateSparks(delta, now);

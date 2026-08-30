@@ -25,7 +25,9 @@ describe("generateShopRound", () => {
       expect(targetTotal).toBe(round.targetPrice);
       expect(targetTotal).toBeLessThanOrEqual(round.walletTotal);
       expect(round.correctItemIds).toEqual(round.targetItems.map((item) => item.id));
-      expect(round.targetItems.every((item) => round.choices.some((choice) => choice.id === item.id))).toBe(true);
+      expect(
+        round.targetItems.every((item) => round.choices.some((choice) => choice.id === item.id)),
+      ).toBe(true);
     }
   });
 
@@ -44,7 +46,8 @@ describe("generateShopRound", () => {
 
     expect(validateShopShoppingCart(round, round.correctItemIds)).toBe(true);
     expect(validateShopShoppingCart(round, round.correctItemIds.slice(0, 1))).toBe(false);
-    if (extra) expect(validateShopShoppingCart(round, [...round.correctItemIds, extra.id])).toBe(false);
+    if (extra)
+      expect(validateShopShoppingCart(round, [...round.correctItemIds, extra.id])).toBe(false);
   });
 
   it("offers supported coins that can pay every target price", () => {

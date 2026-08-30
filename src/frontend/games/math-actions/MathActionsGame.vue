@@ -3,7 +3,9 @@ import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
-import GameSquareChoiceGrid, { type GameSquareChoice } from "../../components/game/GameSquareChoiceGrid.vue";
+import GameSquareChoiceGrid, {
+  type GameSquareChoice,
+} from "../../components/game/GameSquareChoiceGrid.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
@@ -11,14 +13,34 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateMathRound, type MathRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("math-actions", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("math-actions", {
   maxSteps: 8,
   overrides: { dwellMs: 1000, sessionSeconds: 120, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "math-actions", soundEnabled, warmAssetIds: ["math-actions.prompt", "math-actions.correct", "math-actions.mistake", "math-actions.complete"] });
+const promptAudio = useGamePromptAudio({
+  gameId: "math-actions",
+  soundEnabled,
+  warmAssetIds: [
+    "math-actions.prompt",
+    "math-actions.correct",
+    "math-actions.mistake",
+    "math-actions.complete",
+  ],
+});
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 let roundIndex = 1;
@@ -51,12 +73,25 @@ async function pressKey(key: string) {
     if (!answer.value) return;
     const targetId = keyTargetId(key);
     if (answer.value === round.value.answerText) {
-      recordSuccess({ roundId: round.value.roundId, targetId, expression: round.value.expression, expected: round.value.answerText, actual: answer.value, isCorrect: true });
+      recordSuccess({
+        roundId: round.value.roundId,
+        targetId,
+        expression: round.value.expression,
+        expected: round.value.answerText,
+        actual: answer.value,
+        isCorrect: true,
+      });
       feedback.value = "Верно.";
       isSpeaking.value = true;
       void feedbackAudio.playSuccess();
       const finishedAfterSuccess = session.step >= session.maxSteps;
-      await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["math-actions.correct", "math-actions.complete"] : ["math-actions.correct"], 80, 170);
+      await promptAudio.playSequenceAndWait(
+        finishedAfterSuccess
+          ? ["math-actions.correct", "math-actions.complete"]
+          : ["math-actions.correct"],
+        80,
+        170,
+      );
       if (finishedAfterSuccess) {
         finishSession("game-complete");
         isSpeaking.value = false;
@@ -68,7 +103,14 @@ async function pressKey(key: string) {
       isSpeaking.value = false;
       return;
     }
-    recordMistake({ roundId: round.value.roundId, targetId, expression: round.value.expression, expected: round.value.answerText, actual: answer.value, isCorrect: false });
+    recordMistake({
+      roundId: round.value.roundId,
+      targetId,
+      expression: round.value.expression,
+      expected: round.value.answerText,
+      actual: answer.value,
+      isCorrect: false,
+    });
     answer.value = "";
     feedback.value = "Попробуй ещё раз и введи другой ответ.";
     isSpeaking.value = true;
@@ -107,7 +149,18 @@ onUnmounted(() => {
 
 <template>
   <div class="math-shell">
-    <GameHud title="Математика" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Математика"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11">
@@ -115,10 +168,28 @@ onUnmounted(() => {
             <div class="expression mb-3">
               {{ round.expression }} = <span class="answer">{{ answer || "?" }}</span>
             </div>
-            <v-alert class="mb-4 text-body-1 font-weight-bold" color="primary" icon="mdi-lightbulb-outline" rounded="xl" variant="tonal">
+            <v-alert
+              class="mb-4 text-body-1 font-weight-bold"
+              color="primary"
+              icon="mdi-lightbulb-outline"
+              rounded="xl"
+              variant="tonal"
+            >
               {{ feedback }}
             </v-alert>
-            <GameSquareChoiceGrid :items="keys" :columns="4" grid-offset="14.5rem" min-size="5.5rem" max-size="10.5rem" compact-size="5rem" width-factor="12vw" :target-id="(choice) => keyTargetId(String(choice))" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" @select="selectKey">
+            <GameSquareChoiceGrid
+              :items="keys"
+              :columns="4"
+              grid-offset="14.5rem"
+              min-size="5.5rem"
+              max-size="10.5rem"
+              compact-size="5rem"
+              width-factor="12vw"
+              :target-id="(choice) => keyTargetId(String(choice))"
+              :disabled="session.status !== 'running' || isSpeaking"
+              :dwell-ms="session.settings.dwellMs"
+              @select="selectKey"
+            >
               <template #default="{ choice }">
                 <div class="text-h3 font-weight-bold">{{ choice }}</div>
               </template>
@@ -127,7 +198,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Математика" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Математика"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -154,25 +235,25 @@ onUnmounted(() => {
 }
 
 @media (min-width: 68.75rem) {
- .game-container {
+  .game-container {
     padding-block-start: 7.25rem;
   }
 }
 
 @media (max-height: 40rem) {
- .game-container {
+  .game-container {
     padding-block-start: 5rem;
   }
 
- .math-card {
+  .math-card {
     padding: 1rem !important;
   }
 
- .math-card .v-alert {
+  .math-card .v-alert {
     display: none;
   }
 
- .expression {
+  .expression {
     font-size: 3rem;
     margin-block-end: 0.75rem !important;
   }

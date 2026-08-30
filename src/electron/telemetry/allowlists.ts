@@ -134,7 +134,7 @@ export const allowedTelemetryGameIds = [
   "snow-trail",
   "robot-vacuum",
   "garden-watering",
-  "space-orbit"
+  "space-orbit",
 ] as const;
 
 export const allowedTelemetryGameIdSet = new Set<string>(allowedTelemetryGameIds);
@@ -145,6 +145,6 @@ export const allowedTelemetryPageIdSet = new Set<string>([
   "gaze-debug",
   "tobii-calibration",
   "planned-game",
-  ...allowedTelemetryGameIds
+  ...allowedTelemetryGameIds,
 ]);
 export const allowedRendererErrorComponentSet = new Set(["renderer.window", "renderer.promise"]);

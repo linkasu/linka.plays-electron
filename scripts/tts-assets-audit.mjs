@@ -27,7 +27,8 @@ for (const asset of assets) {
   try {
     await access(filePath);
     const metadata = await stat(filePath);
-    if (!metadata.isFile() || metadata.size === 0) failures.push(`${asset.id}: empty asset ${asset.path}`);
+    if (!metadata.isFile() || metadata.size === 0)
+      failures.push(`${asset.id}: empty asset ${asset.path}`);
   } catch {
     failures.push(`${asset.id}: missing asset ${asset.path}`);
   }

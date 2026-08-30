@@ -23,7 +23,8 @@ function filenameForItem(item) {
 
 function parseWordBank(source) {
   const entries = [];
-  const itemPattern = /\{\s*id:\s*"([^"]+)",\s*word:\s*"([^"]+)",\s*emoji:\s*"([^"]+)",\s*category:\s*"([^"]+)"\s*\}/g;
+  const itemPattern =
+    /\{\s*id:\s*"([^"]+)",\s*word:\s*"([^"]+)",\s*emoji:\s*"([^"]+)",\s*category:\s*"([^"]+)"\s*\}/g;
   for (const match of source.matchAll(itemPattern)) {
     entries.push({ id: match[1], word: match[2], emoji: match[3], category: match[4] });
   }
@@ -69,15 +70,17 @@ function imageHtml(item) {
 }
 
 function indexHtml(items) {
-  const rows = items.map((item) => {
-    const fileName = filenameForItem(item);
-    return `
+  const rows = items
+    .map((item) => {
+      const fileName = filenameForItem(item);
+      return `
         <article class="card">
           <img src="./${encodeURIComponent(fileName)}" alt="${escapeHtml(item.word)}">
           <h2>${escapeHtml(item.word)}</h2>
           <p>${escapeHtml(item.emoji)} · ${escapeHtml(item.category)} · ${escapeHtml(item.id)}</p>
         </article>`;
-  }).join("");
+    })
+    .join("");
 
   return `<!doctype html>
 <html lang="ru">
@@ -137,7 +140,12 @@ async function renderImage(window, item, outputPath) {
   await window.loadURL(dataUrl);
   await window.webContents.executeJavaScript("document.fonts.ready.then(() => true)");
   await new Promise((resolveReady) => setTimeout(resolveReady, 80));
-  const image = await window.webContents.capturePage({ x: 0, y: 0, width: imageSize, height: imageSize });
+  const image = await window.webContents.capturePage({
+    x: 0,
+    y: 0,
+    width: imageSize,
+    height: imageSize,
+  });
   await writeFile(outputPath, image.toPNG());
 }
 
@@ -159,15 +167,16 @@ async function main() {
     webPreferences: {
       backgroundThrottling: false,
       contextIsolation: true,
-      nodeIntegration: false
-    }
+      nodeIntegration: false,
+    },
   });
 
   const manifest = [];
   for (const item of items) {
     const fileName = filenameForItem(item);
     const outputPath = resolve(outputDir, fileName);
-    if (!outputPath.startsWith(`${outputDir}/`)) throw new Error(`Unsafe output path for ${item.word}`);
+    if (!outputPath.startsWith(`${outputDir}/`))
+      throw new Error(`Unsafe output path for ${item.word}`);
     await renderImage(window, item, outputPath);
     manifest.push({ ...item, file: fileName, path: `/images/words/${fileName}`, size: imageSize });
     console.log(`write ${fileName}`);
@@ -179,9 +188,11 @@ async function main() {
   console.log(`Generated ${items.length} word images in ${outputDir}`);
 }
 
-main().catch((error) => {
-  console.error(error instanceof Error ? error.message : error);
-  process.exitCode = 1;
-}).finally(() => {
-  app.quit();
-});
+main()
+  .catch((error) => {
+    console.error(error instanceof Error ? error.message : error);
+    process.exitCode = 1;
+  })
+  .finally(() => {
+    app.quit();
+  });

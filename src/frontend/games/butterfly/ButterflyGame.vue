@@ -8,7 +8,12 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { randomTargetCenterPercent, percentToPixels } from "../../core/placement";
-import { disposeButterflyAudio, playButterflyMelody, resetButterflyAudioSession, warmButterflyAudio } from "./audio";
+import {
+  disposeButterflyAudio,
+  playButterflyMelody,
+  resetButterflyAudioSession,
+  warmButterflyAudio,
+} from "./audio";
 
 type Point = { x: number; y: number };
 type TargetPhase = "appearing" | "waiting" | "gazing" | "blooming";
@@ -33,10 +38,29 @@ type RewardButterfly = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("butterfly", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  finishSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("butterfly", {
   maxSteps: 5,
-  overrides: { preset: "gentle", dwellMs: 900, sessionSeconds: 60, targetScale: 1.45, motionSpeed: 0.55, distractors: "none", hints: "high" },
-  finishOnMaxSteps: false
+  overrides: {
+    preset: "gentle",
+    dwellMs: 900,
+    sessionSeconds: 60,
+    targetScale: 1.45,
+    motionSpeed: 0.55,
+    distractors: "none",
+    hints: "high",
+  },
+  finishOnMaxSteps: false,
 });
 useStartPromptAudio({ gameId: "butterfly", soundEnabled: toRef(session.settings, "sound") });
 
@@ -84,15 +108,15 @@ function createTarget(first = false): GlowTarget {
   const point = first
     ? { x: 50, y: 54 }
     : randomTargetCenterPercent({
-      targetWidth: radius * 2,
-      targetHeight: radius * 2,
-      hudHeight: Math.max(96, window.innerHeight * 0.16),
-      sidePadding: Math.max(80, window.innerWidth * 0.16),
-      bottomPadding: Math.max(72, window.innerHeight * 0.12),
-      previous: previousTargetPoint,
-      minDistance: Math.min(260, Math.max(150, radius * 1.4)),
-      attempts: 16
-    });
+        targetWidth: radius * 2,
+        targetHeight: radius * 2,
+        hudHeight: Math.max(96, window.innerHeight * 0.16),
+        sidePadding: Math.max(80, window.innerWidth * 0.16),
+        bottomPadding: Math.max(72, window.innerHeight * 0.12),
+        previous: previousTargetPoint,
+        minDistance: Math.min(260, Math.max(150, radius * 1.4)),
+        attempts: 16,
+      });
 
   previousTargetPoint = point;
   return {
@@ -104,7 +128,7 @@ function createTarget(first = false): GlowTarget {
     age: 0,
     phaseAge: 0,
     phase: "appearing",
-    dwellProgress: 0
+    dwellProgress: 0,
   };
 }
 
@@ -114,11 +138,16 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
-function targetPayload(nextTarget: GlowTarget, now: number, progress: number, reason?: "left" | "invalid-gaze") {
+function targetPayload(
+  nextTarget: GlowTarget,
+  now: number,
+  progress: number,
+  reason?: "left" | "invalid-gaze",
+) {
   return {
     targetId: nextTarget.id,
     at: Date.now(),
@@ -126,7 +155,7 @@ function targetPayload(nextTarget: GlowTarget, now: number, progress: number, re
     elapsedMs: nextTarget.enteredAt === undefined ? 0 : now - nextTarget.enteredAt,
     progress,
     pointer: copyPointer(),
-    reason
+    reason,
   };
 }
 
@@ -139,7 +168,7 @@ function spawnRewardButterfly(nextTarget: GlowTarget) {
     life: 5.8,
     size: nextTarget.radius * 0.42,
     hue: nextTarget.hue,
-    driftX: (Math.random() - 0.5) * 16
+    driftX: (Math.random() - 0.5) * 16,
   });
   if (rewardButterflies.length > 8) rewardButterflies.shift();
 }
@@ -166,7 +195,13 @@ function cancelTarget(nextTarget: GlowTarget, now: number, reason: "left" | "inv
 }
 
 function ensureTarget(now: number) {
-  if (session.status !== "running" || target.value || rewardButterflies.length > 0 || now < restUntil) return;
+  if (
+    session.status !== "running" ||
+    target.value ||
+    rewardButterflies.length > 0 ||
+    now < restUntil
+  )
+    return;
   if (session.step >= session.maxSteps) {
     finishSession("max-steps");
     return;
@@ -200,7 +235,8 @@ function updateTarget(delta: number, now: number) {
   const inside = pointer.value.valid && distance(point, pointer.value) <= hitRadius;
 
   if (!inside) {
-    if (activeTarget.enteredAt !== undefined) cancelTarget(activeTarget, now, pointer.value.valid ? "left" : "invalid-gaze");
+    if (activeTarget.enteredAt !== undefined)
+      cancelTarget(activeTarget, now, pointer.value.valid ? "left" : "invalid-gaze");
     return;
   }
 
@@ -211,7 +247,10 @@ function updateTarget(delta: number, now: number) {
     recordEvent("target-enter", targetPayload(activeTarget, now, 0));
   }
 
-  activeTarget.dwellProgress = Math.min(1, (now - activeTarget.enteredAt) / session.settings.dwellMs);
+  activeTarget.dwellProgress = Math.min(
+    1,
+    (now - activeTarget.enteredAt) / session.settings.dwellMs,
+  );
   if (activeTarget.dwellProgress >= 1) awakenTarget(activeTarget, now);
 }
 
@@ -226,7 +265,14 @@ function updateButterflies(delta: number) {
 }
 
 function drawBackground(context: CanvasRenderingContext2D) {
-  const gradient = context.createRadialGradient(window.innerWidth * 0.5, window.innerHeight * 0.58, 0, window.innerWidth * 0.5, window.innerHeight * 0.58, Math.max(window.innerWidth, window.innerHeight) * 0.8);
+  const gradient = context.createRadialGradient(
+    window.innerWidth * 0.5,
+    window.innerHeight * 0.58,
+    0,
+    window.innerWidth * 0.5,
+    window.innerHeight * 0.58,
+    Math.max(window.innerWidth, window.innerHeight) * 0.8,
+  );
   gradient.addColorStop(0, "#080818");
   gradient.addColorStop(0.58, "#03040d");
   gradient.addColorStop(1, "#000004");
@@ -236,12 +282,15 @@ function drawBackground(context: CanvasRenderingContext2D) {
 
 function drawGlowTarget(context: CanvasRenderingContext2D, nextTarget: GlowTarget) {
   const point = targetPixels(nextTarget);
-  const appear = nextTarget.phase === "appearing" ? Math.min(1, nextTarget.phaseAge / appearanceSeconds) : 1;
-  const bloom = nextTarget.phase === "blooming" ? Math.min(1, nextTarget.phaseAge / bloomSeconds) : 0;
+  const appear =
+    nextTarget.phase === "appearing" ? Math.min(1, nextTarget.phaseAge / appearanceSeconds) : 1;
+  const bloom =
+    nextTarget.phase === "blooming" ? Math.min(1, nextTarget.phaseAge / bloomSeconds) : 0;
   const pulse = 0.5 + Math.sin(nextTarget.age * 1.35) * 0.5;
   const gazeBoost = nextTarget.dwellProgress * 0.32;
   const bloomFade = nextTarget.phase === "blooming" ? 1 - bloom : 1;
-  const radius = nextTarget.radius * (1 + pulse * 0.08 + nextTarget.dwellProgress * 0.16 + bloom * 1.2);
+  const radius =
+    nextTarget.radius * (1 + pulse * 0.08 + nextTarget.dwellProgress * 0.16 + bloom * 1.2);
   const alpha = appear * bloomFade * (0.36 + pulse * 0.12 + gazeBoost);
 
   context.save();
@@ -316,7 +365,8 @@ function draw(context: CanvasRenderingContext2D) {
 }
 
 function tick(now: number) {
-  const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+  const delta =
+    session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
 
   if (session.status === "running") {
@@ -359,7 +409,18 @@ onUnmounted(() => {
 <template>
   <div class="butterfly-shell">
     <canvas ref="canvasRef" class="butterfly-canvas" />
-    <GameHud title="Бабочки" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Бабочки"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
 
     <GameResultDialog
       :model-value="resultVisible"
@@ -389,5 +450,4 @@ onUnmounted(() => {
   inset: 0;
   position: absolute;
 }
-
 </style>

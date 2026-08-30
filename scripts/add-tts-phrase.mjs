@@ -12,7 +12,7 @@ function argValue(name, fallback = "") {
   const found = process.argv.find((arg) => arg.startsWith(prefix));
   if (found) return found.slice(prefix.length);
   const index = process.argv.indexOf(name);
-  return index >= 0 ? process.argv[index + 1] ?? fallback : fallback;
+  return index >= 0 ? (process.argv[index + 1] ?? fallback) : fallback;
 }
 
 function usage() {
@@ -34,7 +34,8 @@ function validateAsset({ game, id, text, path: assetPath }) {
   if (!game) throw new Error(`Missing --game. ${usage()}`);
   if (!id) throw new Error(`Missing --id. ${usage()}`);
   if (!text) throw new Error(`Missing --text. ${usage()}`);
-  if (!assetPath.startsWith("/audio/tts/")) throw new Error("TTS path must live under /audio/tts/.");
+  if (!assetPath.startsWith("/audio/tts/"))
+    throw new Error("TTS path must live under /audio/tts/.");
   if (!assetPath.endsWith(".mp3")) throw new Error("TTS path must end with .mp3.");
 }
 
@@ -42,7 +43,10 @@ const game = argValue("--game");
 const id = argValue("--id");
 const text = argValue("--text");
 const voice = argValue("--voice", "jane");
-const manifestPath = path.resolve(projectRoot, argValue("--manifest", "src/frontend/data/ttsAssets.json"));
+const manifestPath = path.resolve(
+  projectRoot,
+  argValue("--manifest", "src/frontend/data/ttsAssets.json"),
+);
 const assetPath = argValue("--path", game && id ? defaultAssetPath(game, id) : "");
 const nextAsset = { id, game, text, voice, path: assetPath };
 

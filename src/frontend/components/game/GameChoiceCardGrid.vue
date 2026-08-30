@@ -3,23 +3,26 @@ import { computed } from "vue";
 import { DEFAULT_DWELL_MS } from "../../core/dwellSettings";
 import GameDwellButton from "./GameDwellButton.vue";
 
-const props = withDefaults(defineProps<{
-  choices: T[];
-  disabled?: boolean;
-  dwellMs?: number;
-  targetId: (choice: T) => string;
-  highlightChoice?: (choice: T) => boolean;
-  mistakeChoice?: (choice: T) => boolean;
-  minHeight?: number | string;
-  color?: (choice: T) => string | undefined;
-  cols?: number;
-  sm?: number;
-  md?: number;
-  lg?: number;
-}>(), {
-  disabled: false,
-  dwellMs: DEFAULT_DWELL_MS
-});
+const props = withDefaults(
+  defineProps<{
+    choices: T[];
+    disabled?: boolean;
+    dwellMs?: number;
+    targetId: (choice: T) => string;
+    highlightChoice?: (choice: T) => boolean;
+    mistakeChoice?: (choice: T) => boolean;
+    minHeight?: number | string;
+    color?: (choice: T) => string | undefined;
+    cols?: number;
+    sm?: number;
+    md?: number;
+    lg?: number;
+  }>(),
+  {
+    disabled: false,
+    dwellMs: DEFAULT_DWELL_MS,
+  },
+);
 
 const emit = defineEmits<{
   select: [choice: T];
@@ -46,7 +49,7 @@ const breakpoints = computed(() => {
     cols: props.cols ?? fallback.cols,
     sm: props.sm ?? fallback.sm,
     md: props.md ?? fallback.md,
-    lg: props.lg ?? fallback.lg
+    lg: props.lg ?? fallback.lg,
   };
 });
 
@@ -73,7 +76,10 @@ function choiceColor(choice: T) {
       :lg="breakpoints.lg"
     >
       <GameDwellButton
-        :class="{ 'game-choice-grid__cell--hinted': highlightChoice?.(choice), 'game-choice-grid__cell--mistake': mistakeChoice?.(choice) }"
+        :class="{
+          'game-choice-grid__cell--hinted': highlightChoice?.(choice),
+          'game-choice-grid__cell--mistake': mistakeChoice?.(choice),
+        }"
         :target-id="targetId(choice)"
         :disabled="disabled"
         :dwell-ms="dwellMs"

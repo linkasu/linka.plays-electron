@@ -35,18 +35,57 @@ type TrainChoice = {
 };
 
 const trainChoices: TrainChoice[] = [
-  { id: "blue", title: "Синий", label: "синий", body: "#6177d8", accent: "#dbe4ff", icon: "mdi-train" },
-  { id: "green", title: "Зелёный", label: "зелёный", body: "#43a878", accent: "#dcf7e9", icon: "mdi-train-car" },
-  { id: "orange", title: "Тёплый", label: "тёплый поезд", body: "#df8b3f", accent: "#fff0d8", icon: "mdi-train" }
+  {
+    id: "blue",
+    title: "Синий",
+    label: "синий",
+    body: "#6177d8",
+    accent: "#dbe4ff",
+    icon: "mdi-train",
+  },
+  {
+    id: "green",
+    title: "Зелёный",
+    label: "зелёный",
+    body: "#43a878",
+    accent: "#dcf7e9",
+    icon: "mdi-train-car",
+  },
+  {
+    id: "orange",
+    title: "Тёплый",
+    label: "тёплый поезд",
+    body: "#df8b3f",
+    accent: "#fff0d8",
+    icon: "mdi-train",
+  },
 ];
 
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordHint, recordSuccess, startSession } = useGameSessionFor("rails", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordEvent,
+  recordHint,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("rails", {
   maxSteps: 8,
-  overrides: { preset: "gentle", dwellMs: 700, targetScale: 1.35, motionSpeed: 0.52, distractors: "none", hints: "high" },
-  finishOnMistakes: false
+  overrides: {
+    preset: "gentle",
+    dwellMs: 700,
+    targetScale: 1.35,
+    motionSpeed: 0.52,
+    distractors: "none",
+    hints: "high",
+  },
+  finishOnMistakes: false,
 });
 
 const selectedTrain = ref<TrainChoice>();
@@ -54,13 +93,17 @@ const train = reactive({ ratio: 0, visualRatio: 0, dwellMs: 0, confidence: 0, hi
 const resultVisible = computed(() => session.status === "finished");
 const progressPercent = computed(() => Math.round(train.visualRatio * 100));
 const activeStation = computed(() => Math.min(session.maxSteps, session.step + 1));
-const stationDwellPercent = computed(() => Math.round(Math.min(1, train.dwellMs / session.settings.dwellMs) * 100));
+const stationDwellPercent = computed(() =>
+  Math.round(Math.min(1, train.dwellMs / session.settings.dwellMs) * 100),
+);
 const guidanceText = computed(() => {
   if (!selectedTrain.value) return "Выбери поезд взглядом, затем веди его по изогнутым рельсам.";
   if (session.status === "paused") return "Пауза. Поезд ждёт на рельсах.";
   if (!pointer.value.valid) return "Можно вести поезд взглядом или мышью. Рельсы ждут.";
-  if (train.dwellMs > 0) return `Станция ${activeStation.value}: удержи взгляд ещё немного, ${stationDwellPercent.value}%.`;
-  if (train.hint > 0.35) return "Верни взгляд к светлым рельсам или ближайшей станции. Поезд остаётся на пути.";
+  if (train.dwellMs > 0)
+    return `Станция ${activeStation.value}: удержи взгляд ещё немного, ${stationDwellPercent.value}%.`;
+  if (train.hint > 0.35)
+    return "Верни взгляд к светлым рельсам или ближайшей станции. Поезд остаётся на пути.";
   return `Веди ${selectedTrain.value.label} к станции ${activeStation.value}.`;
 });
 
@@ -103,7 +146,7 @@ function controlPoints(): Point[] {
       { x: mobileRight, y: top + travel * 0.38 },
       { x: mobileLeft, y: top + travel * 0.52 },
       { x: mobileLeft, y: top + travel * 0.78 },
-      { x: center, y: bottom }
+      { x: center, y: bottom },
     ];
   }
 
@@ -114,7 +157,7 @@ function controlPoints(): Point[] {
     { x: width.value * 0.68, y: top + travel * 0.52 },
     { x: left, y: top + travel * 0.56 },
     { x: width.value * 0.32, y: top + travel * 0.86 },
-    { x: right, y: bottom }
+    { x: right, y: bottom },
   ];
 }
 
@@ -122,8 +165,18 @@ function catmullRom(p0: Point, p1: Point, p2: Point, p3: Point, t: number): Poin
   const t2 = t * t;
   const t3 = t2 * t;
   return {
-    x: 0.5 * ((2 * p1.x) + (-p0.x + p2.x) * t + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2 + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3),
-    y: 0.5 * ((2 * p1.y) + (-p0.y + p2.y) * t + (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t2 + (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t3)
+    x:
+      0.5 *
+      (2 * p1.x +
+        (-p0.x + p2.x) * t +
+        (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2 +
+        (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3),
+    y:
+      0.5 *
+      (2 * p1.y +
+        (-p0.y + p2.y) * t +
+        (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t2 +
+        (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t3),
   };
 }
 
@@ -144,16 +197,17 @@ function railSamples(): RailSample[] {
   }
 
   const lengths = [0];
-  for (let index = 1; index < raw.length; index += 1) lengths[index] = lengths[index - 1] + distance(raw[index - 1], raw[index]);
+  for (let index = 1; index < raw.length; index += 1)
+    lengths[index] = lengths[index - 1] + distance(raw[index - 1], raw[index]);
   const total = Math.max(1, lengths[lengths.length - 1]);
 
   return raw.map((point, index) => {
     const previous = raw[Math.max(0, index - 1)];
     const next = raw[Math.min(raw.length - 1, index + 1)];
     return {
-     ...point,
+      ...point,
       ratio: lengths[index] / total,
-      angle: Math.atan2(next.y - previous.y, next.x - previous.x)
+      angle: Math.atan2(next.y - previous.y, next.x - previous.x),
     };
   });
 }
@@ -170,7 +224,7 @@ function pointAtRatio(samples: RailSample[], ratio: number): RailSample {
         x: previous.x + (next.x - previous.x) * local,
         y: previous.y + (next.y - previous.y) * local,
         ratio: target,
-        angle: previous.angle + (next.angle - previous.angle) * local
+        angle: previous.angle + (next.angle - previous.angle) * local,
       };
     }
   }
@@ -186,14 +240,17 @@ function projectToRail(point: Point, samples: RailSample[]): Projection {
     const dx = end.x - start.x;
     const dy = end.y - start.y;
     const lengthSquared = dx * dx + dy * dy;
-    const t = lengthSquared <= 0 ? 0 : clamp(((point.x - start.x) * dx + (point.y - start.y) * dy) / lengthSquared, 0, 1);
+    const t =
+      lengthSquared <= 0
+        ? 0
+        : clamp(((point.x - start.x) * dx + (point.y - start.y) * dy) / lengthSquared, 0, 1);
     const candidate = { x: start.x + dx * t, y: start.y + dy * t };
     const candidateDistance = distance(point, candidate);
     if (candidateDistance < best.distance) {
       best = {
-       ...candidate,
+        ...candidate,
         distance: candidateDistance,
-        ratio: start.ratio + (end.ratio - start.ratio) * t
+        ratio: start.ratio + (end.ratio - start.ratio) * t,
       };
     }
   }
@@ -207,7 +264,7 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
@@ -215,7 +272,12 @@ function stationTargetId(station: number) {
   return `rails:station:${station}`;
 }
 
-function stationPayload(station: number, progress: number, now: number, reason?: "left" | "invalid-gaze") {
+function stationPayload(
+  station: number,
+  progress: number,
+  now: number,
+  reason?: "left" | "invalid-gaze",
+) {
   return {
     targetId: stationTargetId(station),
     station,
@@ -225,12 +287,16 @@ function stationPayload(station: number, progress: number, now: number, reason?:
     progress,
     railProgress: train.ratio,
     pointer: copyPointer(),
-    reason
+    reason,
   };
 }
 
 function resetStationDwell(now: number, reason?: "left" | "invalid-gaze") {
-  if (stationEnteredAt && reason) recordEvent("target-cancel", stationPayload(activeStation.value, train.dwellMs / session.settings.dwellMs, now, reason));
+  if (stationEnteredAt && reason)
+    recordEvent(
+      "target-cancel",
+      stationPayload(activeStation.value, train.dwellMs / session.settings.dwellMs, now, reason),
+    );
   stationEnteredAt = 0;
   train.dwellMs = 0;
 }
@@ -261,13 +327,24 @@ function restart() {
 function updateTracking(nearRail: boolean, projection: Projection | undefined) {
   if (nearRail && !tracking) {
     tracking = true;
-    recordEvent("target-enter", { targetId: "rails:rail", railProgress: train.ratio, pointer: copyPointer(), distanceToRail: projection?.distance });
+    recordEvent("target-enter", {
+      targetId: "rails:rail",
+      railProgress: train.ratio,
+      pointer: copyPointer(),
+      distanceToRail: projection?.distance,
+    });
     return;
   }
 
   if (!nearRail && tracking) {
     tracking = false;
-    recordEvent("target-cancel", { targetId: "rails:rail", railProgress: train.ratio, pointer: copyPointer(), distanceToRail: projection?.distance, reason: pointer.value.valid ? "left" : "invalid-gaze" });
+    recordEvent("target-cancel", {
+      targetId: "rails:rail",
+      railProgress: train.ratio,
+      pointer: copyPointer(),
+      distanceToRail: projection?.distance,
+      reason: pointer.value.valid ? "left" : "invalid-gaze",
+    });
   }
 }
 
@@ -278,7 +355,9 @@ function updateStation(delta: number, now: number, samples: RailSample[]) {
   const stationRatio = station / session.maxSteps;
   const stationPoint = pointAtRatio(samples, stationRatio);
   const atStation = train.ratio >= stationRatio - 0.003;
-  const focusDistance = pointer.value.valid ? distance(pointer.value, stationPoint) : Number.POSITIVE_INFINITY;
+  const focusDistance = pointer.value.valid
+    ? distance(pointer.value, stationPoint)
+    : Number.POSITIVE_INFINITY;
   const stationFocus = atStation && focusDistance <= railWidth() * 1.05;
 
   if (!stationFocus) {
@@ -326,12 +405,20 @@ function update(delta: number, now: number) {
   if (canMoveForward && projection) {
     const speed = (onRail ? 0.3 : 0.12) * session.settings.motionSpeed;
     const desiredRatio = Math.min(targetRatio, projection.ratio);
-    train.ratio = Math.min(targetRatio, train.ratio + Math.min(Math.max(0, desiredRatio - train.ratio), speed * delta));
+    train.ratio = Math.min(
+      targetRatio,
+      train.ratio + Math.min(Math.max(0, desiredRatio - train.ratio), speed * delta),
+    );
   }
 
   if (!nearRail && pointer.value.valid && now - lastHintAt > 3200) {
     lastHintAt = now;
-    recordHint({ targetId: "rails:rail", railProgress: train.ratio, pointer: copyPointer(), distanceToRail: projection?.distance });
+    recordHint({
+      targetId: "rails:rail",
+      railProgress: train.ratio,
+      pointer: copyPointer(),
+      distanceToRail: projection?.distance,
+    });
   }
 
   updateStation(delta, now, samples);
@@ -367,7 +454,14 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
   for (let index = 0; index < 5; index += 1) {
     const x = width.value * (0.08 + index * 0.24);
     const y = height.value * (0.22 + (index % 2) * 0.18 + Math.sin(now * 0.00016 + index) * 0.018);
-    const glow = context.createRadialGradient(x, y, 0, x, y, Math.max(width.value, height.value) * 0.22);
+    const glow = context.createRadialGradient(
+      x,
+      y,
+      0,
+      x,
+      y,
+      Math.max(width.value, height.value) * 0.22,
+    );
     glow.addColorStop(0, index % 2 === 0 ? "rgb(255 255 255 / 70%)" : "rgb(215 232 255 / 52%)");
     glow.addColorStop(1, "rgb(255 255 255 / 0%)");
     context.fillStyle = glow;
@@ -399,8 +493,14 @@ function drawRails(context: CanvasRenderingContext2D, samples: RailSample[]) {
     const sample = samples[index];
     const normal = sample.angle + Math.PI / 2;
     context.beginPath();
-    context.moveTo(sample.x - Math.cos(normal) * widthPx * 0.44, sample.y - Math.sin(normal) * widthPx * 0.44);
-    context.lineTo(sample.x + Math.cos(normal) * widthPx * 0.44, sample.y + Math.sin(normal) * widthPx * 0.44);
+    context.moveTo(
+      sample.x - Math.cos(normal) * widthPx * 0.44,
+      sample.y - Math.sin(normal) * widthPx * 0.44,
+    );
+    context.lineTo(
+      sample.x + Math.cos(normal) * widthPx * 0.44,
+      sample.y + Math.sin(normal) * widthPx * 0.44,
+    );
     context.stroke();
   }
 
@@ -420,7 +520,10 @@ function drawRails(context: CanvasRenderingContext2D, samples: RailSample[]) {
 
   context.strokeStyle = "rgb(94 139 184 / 64%)";
   context.lineWidth = Math.max(8, widthPx * 0.16);
-  drawRailPath(context, samples.slice(0, Math.max(2, Math.round(samples.length * train.visualRatio))));
+  drawRailPath(
+    context,
+    samples.slice(0, Math.max(2, Math.round(samples.length * train.visualRatio))),
+  );
   context.stroke();
   context.restore();
 }
@@ -439,8 +542,16 @@ function drawStations(context: CanvasRenderingContext2D, samples: RailSample[]) 
     const pulse = active ? 1 + Math.sin(train.phase * 4) * 0.05 : 1;
     const radius = baseRadius * (active ? 1.18 : 1) * pulse;
 
-    context.fillStyle = done ? "rgb(234 250 242 / 94%)" : active ? "rgb(255 248 213 / 95%)" : "rgb(255 255 255 / 84%)";
-    context.strokeStyle = done ? "rgb(67 168 120 / 88%)" : active ? "rgb(223 139 63 / 88%)" : "rgb(120 137 150 / 42%)";
+    context.fillStyle = done
+      ? "rgb(234 250 242 / 94%)"
+      : active
+        ? "rgb(255 248 213 / 95%)"
+        : "rgb(255 255 255 / 84%)";
+    context.strokeStyle = done
+      ? "rgb(67 168 120 / 88%)"
+      : active
+        ? "rgb(223 139 63 / 88%)"
+        : "rgb(120 137 150 / 42%)";
     context.lineWidth = Math.max(3, railWidth() * 0.035);
     context.beginPath();
     context.arc(point.x, point.y, radius, 0, Math.PI * 2);
@@ -451,7 +562,13 @@ function drawStations(context: CanvasRenderingContext2D, samples: RailSample[]) 
       context.strokeStyle = "rgb(80 125 220 / 86%)";
       context.lineWidth = Math.max(5, railWidth() * 0.055);
       context.beginPath();
-      context.arc(point.x, point.y, radius + 10, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.min(1, train.dwellMs / session.settings.dwellMs));
+      context.arc(
+        point.x,
+        point.y,
+        radius + 10,
+        -Math.PI / 2,
+        -Math.PI / 2 + Math.PI * 2 * Math.min(1, train.dwellMs / session.settings.dwellMs),
+      );
       context.stroke();
     }
 
@@ -462,7 +579,14 @@ function drawStations(context: CanvasRenderingContext2D, samples: RailSample[]) 
   context.restore();
 }
 
-function roundedRect(context: CanvasRenderingContext2D, x: number, y: number, rectWidth: number, rectHeight: number, radius: number) {
+function roundedRect(
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  rectWidth: number,
+  rectHeight: number,
+  radius: number,
+) {
   context.beginPath();
   context.moveTo(x + radius, y);
   context.lineTo(x + rectWidth - radius, y);
@@ -545,30 +669,75 @@ useGameLoop({ context, update, draw });
   <div class="rails-shell">
     <canvas ref="canvasRef" class="rails-canvas" />
 
-    <GameHud title="Рельсы" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Рельсы"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
 
-    <v-card class="rails-guidance pa-4" color="surface" rounded="xl" variant="flat" data-canvas-overlay>
+    <v-card
+      class="rails-guidance pa-4"
+      color="surface"
+      rounded="xl"
+      variant="flat"
+      data-canvas-overlay
+    >
       <div class="text-overline text-primary mb-1">Ведение взглядом</div>
       <div class="text-body-1 font-weight-medium">{{ guidanceText }}</div>
-      <v-progress-linear class="mt-3" :model-value="progressPercent" color="primary" height="0.5rem" rounded />
-      <div class="text-caption text-medium-emphasis mt-2">Прогресс: {{ progressPercent }}% · станция {{ activeStation }} из {{ session.maxSteps }}</div>
+      <v-progress-linear
+        class="mt-3"
+        :model-value="progressPercent"
+        color="primary"
+        height="0.5rem"
+        rounded
+      />
+      <div class="text-caption text-medium-emphasis mt-2">
+        Прогресс: {{ progressPercent }}% · станция {{ activeStation }} из {{ session.maxSteps }}
+      </div>
     </v-card>
 
-    <v-container v-if="!selectedTrain && session.status !== 'finished'" class="rails-picker d-flex align-center justify-center" fluid>
+    <v-container
+      v-if="!selectedTrain && session.status !== 'finished'"
+      class="rails-picker d-flex align-center justify-center"
+      fluid
+    >
       <v-card class="rails-picker-card pa-4 pa-md-6" color="surface" rounded="xl" elevation="10">
         <div class="text-overline text-secondary text-center mb-2">Выбор поезда</div>
         <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">Рельсы</h1>
         <p class="text-body-1 text-md-h6 text-medium-emphasis text-center mb-5">
-          Выбери поезд взглядом. Потом веди его по светлым рельсам через станции. Поезд остаётся на пути.
+          Выбери поезд взглядом. Потом веди его по светлым рельсам через станции. Поезд остаётся на
+          пути.
         </p>
 
         <v-row>
           <v-col v-for="choice in trainChoices" :key="choice.id" cols="12" sm="4">
-            <GameDwellButton :target-id="`rails:train:${choice.id}`" :disabled="session.status !== 'running'" :dwell-ms="session.settings.dwellMs" min-height="10.625rem" color="surface" @select="chooseTrain(choice)">
+            <GameDwellButton
+              :target-id="`rails:train:${choice.id}`"
+              :disabled="session.status !== 'running'"
+              :dwell-ms="session.settings.dwellMs"
+              min-height="10.625rem"
+              color="surface"
+              @select="chooseTrain(choice)"
+            >
               <template #default="{ active, progress }">
-                <v-icon :icon="choice.icon" size="3.375rem" :style="{ color: active ? '#ffffff' : choice.body }" />
-                <div class="train-choice-title text-h6 font-weight-bold mt-3">{{ choice.title }}</div>
-                <div class="train-choice-caption text-body-2 mt-1">{{ active ? `${Math.round(progress * 100)}%` : choice.label }}</div>
+                <v-icon
+                  :icon="choice.icon"
+                  size="3.375rem"
+                  :style="{ color: active ? '#ffffff' : choice.body }"
+                />
+                <div class="train-choice-title text-h6 font-weight-bold mt-3">
+                  {{ choice.title }}
+                </div>
+                <div class="train-choice-caption text-body-2 mt-1">
+                  {{ active ? `${Math.round(progress * 100)}%` : choice.label }}
+                </div>
               </template>
             </GameDwellButton>
           </v-col>
@@ -576,7 +745,17 @@ useGameLoop({ context, update, draw });
       </v-card>
     </v-container>
 
-    <GameResultDialog :model-value="resultVisible" title="Рельсы" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Рельсы"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -626,7 +805,7 @@ useGameLoop({ context, update, draw });
 }
 
 @media (max-width: 45rem) {
- .rails-guidance {
+  .rails-guidance {
     inset-block-start: auto;
     inset-block-end: max(1rem, env(safe-area-inset-bottom));
     inset-inline: 1rem;

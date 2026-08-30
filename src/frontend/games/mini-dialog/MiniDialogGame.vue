@@ -7,14 +7,34 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
-import { createMiniDialogCommunication, generateMiniDialogRound, getMiniDialogChoice, getMiniDialogNextNodeId, miniDialogInstruction, type MiniDialogChoice, type MiniDialogNodeId, type MiniDialogRound } from "./model";
+import {
+  createMiniDialogCommunication,
+  generateMiniDialogRound,
+  getMiniDialogChoice,
+  getMiniDialogNextNodeId,
+  miniDialogInstruction,
+  type MiniDialogChoice,
+  type MiniDialogNodeId,
+  type MiniDialogRound,
+} from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordHint, finishSession, startSession } = useGameSessionFor("mini-dialog", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordHint,
+  finishSession,
+  startSession,
+} = useGameSessionFor("mini-dialog", {
   maxSteps: 6,
   overrides: { dwellMs: 1350, sessionSeconds: 135, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 
 const roundIndex = ref(1);
@@ -54,7 +74,7 @@ async function choose(choiceId: string) {
     answerId: choice.id,
     scenario: round.value.scenario,
     choiceKind: choice.kind,
-    ...communication
+    ...communication,
   };
   if (choice.kind === "support") recordHint({ ...payload, reason: "requested-help" });
   else if (choice.kind !== "repeat") recordSuccess(payload);
@@ -62,7 +82,8 @@ async function choose(choiceId: string) {
   await speakSceneText(communication.phrase, session.settings.sound, 80);
 
   const requestedNodeId = getMiniDialogNextNodeId(choice);
-  const canAutoFinish = choice.kind !== "support" && choice.kind !== "repeat" && choice.kind !== "more";
+  const canAutoFinish =
+    choice.kind !== "support" && choice.kind !== "repeat" && choice.kind !== "more";
   const nextNodeId = canAutoFinish && session.step >= session.maxSteps ? "finish" : requestedNodeId;
   roundIndex.value += 1;
   setRound(nextNodeId);
@@ -105,20 +126,44 @@ onUnmounted(() => {
 
 <template>
   <div class="mini-dialog-shell">
-    <GameHud title="Мини-диалог" :step="session.step" :max-steps="session.maxSteps" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Мини-диалог"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11" xl="10">
           <v-card class="mini-dialog-card pa-4 pa-md-6" rounded="xl" elevation="8">
-            <v-alert class="instruction mb-4" color="blue-lighten-5" icon="mdi-message-text-outline" rounded="xl" variant="flat">
+            <v-alert
+              class="instruction mb-4"
+              color="blue-lighten-5"
+              icon="mdi-message-text-outline"
+              rounded="xl"
+              variant="flat"
+            >
               <div class="text-h6 text-md-h5 font-weight-bold">{{ miniDialogInstruction }}</div>
             </v-alert>
 
-            <v-card class="partner-card pa-4 mb-4" color="deep-purple-lighten-5" rounded="xl" variant="flat">
+            <v-card
+              class="partner-card pa-4 mb-4"
+              color="deep-purple-lighten-5"
+              rounded="xl"
+              variant="flat"
+            >
               <div class="partner-layout">
                 <div class="partner-person">
                   <v-avatar :color="round.character.color" size="clamp(4.8rem, 10dvh, 6.5rem)">
-                    <v-icon color="white" :icon="round.character.icon" size="clamp(2.8rem, 6dvh, 4rem)" />
+                    <v-icon
+                      color="white"
+                      :icon="round.character.icon"
+                      size="clamp(2.8rem, 6dvh, 4rem)"
+                    />
                   </v-avatar>
                   <div class="text-h6 font-weight-bold mt-2">{{ round.character.name }}</div>
                   <div class="text-body-2 text-medium-emphasis">{{ round.character.role }}</div>
@@ -126,22 +171,52 @@ onUnmounted(() => {
 
                 <div class="speech-bubble">
                   <div class="d-flex align-center ga-3 mb-2">
-                    <v-icon color="deep-purple-darken-3" :icon="round.sceneIcon" size="clamp(2.5rem, 6dvh, 4rem)" />
-                    <h1 class="partner-line text-h4 text-md-h3 font-weight-bold">{{ round.partnerLine }}</h1>
+                    <v-icon
+                      color="deep-purple-darken-3"
+                      :icon="round.sceneIcon"
+                      size="clamp(2.5rem, 6dvh, 4rem)"
+                    />
+                    <h1 class="partner-line text-h4 text-md-h3 font-weight-bold">
+                      {{ round.partnerLine }}
+                    </h1>
                   </div>
                   <div class="text-h6 text-medium-emphasis">{{ round.prompt }}</div>
                 </div>
               </div>
             </v-card>
 
-            <div class="feedback text-h6 text-md-h5 font-weight-bold text-center mb-4">{{ feedback }}</div>
+            <div class="feedback text-h6 text-md-h5 font-weight-bold text-center mb-4">
+              {{ feedback }}
+            </div>
 
             <v-row v-if="!round.isTerminal" justify="center" dense>
               <v-col v-for="choice in round.choices" :key="choice.id" cols="6" sm="3">
-                <GameDwellButton :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" min-height="clamp(7.5rem, 22dvh, 11.5rem)" :color="selectedChoiceId === choice.id ? choice.iconColor : choice.color" @select="choose(choice.id)">
+                <GameDwellButton
+                  :target-id="choiceTargetId(choice)"
+                  :disabled="session.status !== 'running' || isChangingRound"
+                  :dwell-ms="session.settings.dwellMs"
+                  min-height="clamp(7.5rem, 22dvh, 11.5rem)"
+                  :color="selectedChoiceId === choice.id ? choice.iconColor : choice.color"
+                  @select="choose(choice.id)"
+                >
                   <template #default>
-                    <v-icon class="choice-icon mb-2" :color="selectedChoiceId === choice.id ? 'white' : choice.iconColor" :icon="choice.icon" size="clamp(2.8rem, 7dvh, 4.8rem)" />
-                    <div :class="['choice-text', 'text-h6', 'text-md-h5', 'font-weight-bold', { 'text-white': selectedChoiceId === choice.id }]">{{ choice.text }}</div>
+                    <v-icon
+                      class="choice-icon mb-2"
+                      :color="selectedChoiceId === choice.id ? 'white' : choice.iconColor"
+                      :icon="choice.icon"
+                      size="clamp(2.8rem, 7dvh, 4.8rem)"
+                    />
+                    <div
+                      :class="[
+                        'choice-text',
+                        'text-h6',
+                        'text-md-h5',
+                        'font-weight-bold',
+                        { 'text-white': selectedChoiceId === choice.id },
+                      ]"
+                    >
+                      {{ choice.text }}
+                    </div>
                   </template>
                 </GameDwellButton>
               </v-col>
@@ -150,7 +225,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Мини-диалог" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Мини-диалог"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 

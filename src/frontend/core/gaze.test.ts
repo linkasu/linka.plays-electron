@@ -3,17 +3,29 @@ import { containsPoint, createGazeMetricsTracker } from "./gaze";
 
 describe("gaze helpers", () => {
   it("checks whether a point is inside a target", () => {
-    expect(containsPoint({ id: "a", x: 10, y: 20, width: 50, height: 40 }, { x: 30, y: 30 })).toBe(true);
-    expect(containsPoint({ id: "a", x: 10, y: 20, width: 50, height: 40 }, { x: 80, y: 30 })).toBe(false);
+    expect(containsPoint({ id: "a", x: 10, y: 20, width: 50, height: 40 }, { x: 30, y: 30 })).toBe(
+      true,
+    );
+    expect(containsPoint({ id: "a", x: 10, y: 20, width: 50, height: 40 }, { x: 80, y: 30 })).toBe(
+      false,
+    );
   });
 
   it("tracks valid gaze ratio and lost/restored transitions", () => {
     const tracker = createGazeMetricsTracker();
 
-    expect(tracker.record({ x: 0, y: 0, valid: true, source: "tobii", timestamp: 1000 })).toBeUndefined();
-    expect(tracker.record({ x: 3, y: 4, valid: true, source: "tobii", timestamp: 1020 })).toBeUndefined();
-    expect(tracker.record({ x: 3, y: 4, valid: false, source: "tobii", timestamp: 1040 })).toBe("lost");
-    expect(tracker.record({ x: 6, y: 8, valid: true, source: "tobii", timestamp: 1060 })).toBe("restored");
+    expect(
+      tracker.record({ x: 0, y: 0, valid: true, source: "tobii", timestamp: 1000 }),
+    ).toBeUndefined();
+    expect(
+      tracker.record({ x: 3, y: 4, valid: true, source: "tobii", timestamp: 1020 }),
+    ).toBeUndefined();
+    expect(tracker.record({ x: 3, y: 4, valid: false, source: "tobii", timestamp: 1040 })).toBe(
+      "lost",
+    );
+    expect(tracker.record({ x: 6, y: 8, valid: true, source: "tobii", timestamp: 1060 })).toBe(
+      "restored",
+    );
 
     expect(tracker.snapshot()).toMatchObject({
       totalGazeSamples: 4,
@@ -23,7 +35,7 @@ describe("gaze helpers", () => {
       lostGazeEvents: 1,
       restoredGazeEvents: 1,
       rawPathLength: 10,
-      meanSampleIntervalMs: 20
+      meanSampleIntervalMs: 20,
     });
   });
 
@@ -39,7 +51,7 @@ describe("gaze helpers", () => {
       mouseSampleCount: 2,
       validGazeSamples: 0,
       invalidGazeSamples: 1,
-      validGazeRatio: 0
+      validGazeRatio: 0,
     });
   });
 });

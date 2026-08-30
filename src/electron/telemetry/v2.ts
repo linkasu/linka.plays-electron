@@ -8,7 +8,13 @@ const commonKinds = new Set(["app_started", "app_backgrounded", "app_foregrounde
 export function projectV2Record(record: SpoolRecord): ProjectedRecord | undefined {
   if (record.kind === "summary") return projectSummary(record.payload as StoredSessionSummary);
   const event = record.payload as StoredTelemetryEvent;
-  const base = { record_id: event.event_id.toLowerCase(), occurred_at: event.occurred_at, kind: event.event_name, app_session_id: event.app_session_id.toLowerCase(), app: normalizedApp(event.app) };
+  const base = {
+    record_id: event.event_id.toLowerCase(),
+    occurred_at: event.occurred_at,
+    kind: event.event_name,
+    app_session_id: event.app_session_id.toLowerCase(),
+    app: normalizedApp(event.app),
+  };
   if (commonKinds.has(event.event_name)) return { stream: "common", value: base };
   if (event.event_name === "page_viewed") {
     const page = pageName(event.properties.page);
@@ -16,32 +22,75 @@ export function projectV2Record(record: SpoolRecord): ProjectedRecord | undefine
   }
   if (event.event_name === "mode_changed") {
     const mode = event.properties.mode === "specialist" ? "assisted" : event.properties.mode;
-    return mode === "self" || mode === "assisted" ? { stream: "common", value: { ...base, mode } } : undefined;
+    return mode === "self" || mode === "assisted"
+      ? { stream: "common", value: { ...base, mode } }
+      : undefined;
   }
   if (event.event_name === "tobii_state_changed" || event.event_name === "updater_state_changed") {
     const state = technicalState(event.properties.state);
     if (!state) return undefined;
-    return { stream: "technical", value: { ...base, kind: "state_changed", component: event.event_name === "tobii_state_changed" ? "tobii" : "updater", state } };
+    return {
+      stream: "technical",
+      value: {
+        ...base,
+        kind: "state_changed",
+        component: event.event_name === "tobii_state_changed" ? "tobii" : "updater",
+        state,
+      },
+    };
   }
   if (event.event_name === "error") {
     const fingerprint = event.properties.fingerprint;
     if (typeof fingerprint !== "string") return undefined;
-    return { stream: "technical", value: { ...base, kind: "error", component: technicalComponent(event.properties.component), error_fingerprint: fingerprint.toLowerCase() } };
+    return {
+      stream: "technical",
+      value: {
+        ...base,
+        kind: "error",
+        component: technicalComponent(event.properties.component),
+        error_fingerprint: fingerprint.toLowerCase(),
+      },
+    };
   }
   if (event.event_name === "queue_dropped") {
-    return { stream: "technical", value: { ...base, component: "telemetry", dropped_count: event.properties.dropped_count, drop_reason: event.properties.reason } };
+    return {
+      stream: "technical",
+      value: {
+        ...base,
+        component: "telemetry",
+        dropped_count: event.properties.dropped_count,
+        drop_reason: event.properties.reason,
+      },
+    };
   }
   return projectGameEvent(event, base);
 }
 
 export function shouldQueueV2Event(eventName: StoredTelemetryEvent["event_name"]) {
-  return commonKinds.has(eventName) || eventName === "page_viewed" || eventName === "mode_changed" || eventName === "tobii_state_changed" || eventName === "updater_state_changed" || eventName === "error" || eventName === "queue_dropped" || eventName === "game_session_started" || eventName === "target_cancelled" || eventName === "success" || eventName === "mistake" || eventName === "hint_used";
+  return (
+    commonKinds.has(eventName) ||
+    eventName === "page_viewed" ||
+    eventName === "mode_changed" ||
+    eventName === "tobii_state_changed" ||
+    eventName === "updater_state_changed" ||
+    eventName === "error" ||
+    eventName === "queue_dropped" ||
+    eventName === "game_session_started" ||
+    eventName === "target_cancelled" ||
+    eventName === "success" ||
+    eventName === "mistake" ||
+    eventName === "hint_used"
+  );
 }
 
 function projectSummary(summary: StoredSessionSummary): ProjectedRecord | undefined {
-  if (summary.session_type !== "game" || !summary.game_session_id || !summary.game_id) return undefined;
+  if (summary.session_type !== "game" || !summary.game_session_id || !summary.game_id)
+    return undefined;
   const outcome = summary.result ?? (summary.interruption_reason ? "interrupted" : "completed");
-  if (!oneOf(outcome, "completed", "incomplete", "lost", "draw", "interrupted", "cancelled", "error")) return undefined;
+  if (
+    !oneOf(outcome, "completed", "incomplete", "lost", "draw", "interrupted", "cancelled", "error")
+  )
+    return undefined;
   return {
     stream: "plays",
     value: compact({
@@ -59,25 +108,40 @@ function projectSummary(summary: StoredSessionSummary): ProjectedRecord | undefi
       success_count: summary.success_count,
       mistake_count: summary.mistake_count,
       hint_count: summary.hint_count,
-      valid_gaze_ratio: summary.valid_gaze_ratio
-    })
+      valid_gaze_ratio: summary.valid_gaze_ratio,
+    }),
   };
 }
 
-function projectGameEvent(event: StoredTelemetryEvent, base: Record<string, unknown>): ProjectedRecord | undefined {
+function projectGameEvent(
+  event: StoredTelemetryEvent,
+  base: Record<string, unknown>,
+): ProjectedRecord | undefined {
   if (!event.game_session_id || typeof event.properties.game_id !== "string") return undefined;
   const shared = {
     ...base,
     game_session_id: event.game_session_id.toLowerCase(),
     game_id: event.properties.game_id,
-    game_category: typeof event.properties.game_category === "string" ? event.properties.game_category : "unknown",
-    input_method: event.properties.input_method ?? "unknown"
+    game_category:
+      typeof event.properties.game_category === "string"
+        ? event.properties.game_category
+        : "unknown",
+    input_method: event.properties.input_method ?? "unknown",
   };
-  if (event.event_name === "game_session_started") return { stream: "plays", value: { ...shared, kind: "session_started" } };
-  const outcomes = { success: "success", mistake: "mistake", hint_used: "hint", target_cancelled: "cancelled" } as const;
+  if (event.event_name === "game_session_started")
+    return { stream: "plays", value: { ...shared, kind: "session_started" } };
+  const outcomes = {
+    success: "success",
+    mistake: "mistake",
+    hint_used: "hint",
+    target_cancelled: "cancelled",
+  } as const;
   const outcome = outcomes[event.event_name as keyof typeof outcomes];
   if (!outcome || typeof event.properties.level_index !== "number") return undefined;
-  return { stream: "plays", value: { ...shared, kind: "interaction", level_index: event.properties.level_index, outcome } };
+  return {
+    stream: "plays",
+    value: { ...shared, kind: "interaction", level_index: event.properties.level_index, outcome },
+  };
 }
 
 function normalizedApp(app: StoredTelemetryEvent["app"]) {
@@ -94,9 +158,21 @@ function pageName(value: unknown) {
 
 function technicalState(value: unknown) {
   const mapped: Record<string, string> = {
-    unsupported: "unavailable", service_starting: "starting", service_unavailable: "unavailable", connecting: "connecting",
-    waiting_device: "connecting", connected: "connected", tracking: "tracking", reconnecting: "connecting", error: "error",
-    idle: "idle", checking: "checking", available: "ready", downloading: "downloading", downloaded: "ready", installing: "installing"
+    unsupported: "unavailable",
+    service_starting: "starting",
+    service_unavailable: "unavailable",
+    connecting: "connecting",
+    waiting_device: "connecting",
+    connected: "connected",
+    tracking: "tracking",
+    reconnecting: "connecting",
+    error: "error",
+    idle: "idle",
+    checking: "checking",
+    available: "ready",
+    downloading: "downloading",
+    downloaded: "ready",
+    installing: "installing",
   };
   return typeof value === "string" ? mapped[value] : undefined;
 }

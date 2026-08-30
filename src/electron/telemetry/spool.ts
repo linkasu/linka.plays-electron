@@ -34,14 +34,21 @@ export class FileTelemetrySpool {
   private operation = Promise.resolve();
   private totalBytes?: number;
 
-  constructor(private readonly directory: string, private readonly capBytes = 200 * 1024 * 1024) {}
+  constructor(
+    private readonly directory: string,
+    private readonly capBytes = 200 * 1024 * 1024,
+  ) {}
 
   initialize() {
     return this.exclusive(async () => {
       await mkdir(this.directory, { recursive: true, mode: 0o700 });
       await chmod(this.directory, 0o700);
       const entries = await readdir(this.directory);
-      await Promise.all(entries.filter((name) => name.endsWith(".tmp")).map((name) => rm(join(this.directory, name), { force: true })));
+      await Promise.all(
+        entries
+          .filter((name) => name.endsWith(".tmp"))
+          .map((name) => rm(join(this.directory, name), { force: true })),
+      );
       this.totalBytes = await this.calculateRecordBytes();
     });
   }
@@ -62,7 +69,9 @@ export class FileTelemetrySpool {
     return this.exclusive(async (): Promise<SpoolBatch | undefined> => {
       const active = await this.readActiveBatch(subjectKey);
       if (active) return active;
-      const files = (await readdir(this.directory)).filter((name) => name.endsWith(recordSuffix)).sort();
+      const files = (await readdir(this.directory))
+        .filter((name) => name.endsWith(recordSuffix))
+        .sort();
       const selected: string[] = [];
       const records: TelemetryBatch["records"] = [];
       const dropped: PendingDrops = { capacity: 0, expired: 0, invalid: 0 };
@@ -74,8 +83,14 @@ export class FileTelemetrySpool {
         if (selected.length >= maxRecords) break;
         const record = await this.readRecord(fileName);
         if (!record) continue;
-        const occurredAt = record.kind === "event" ? (record.payload as StoredTelemetryEvent).occurred_at : (record.payload as StoredSessionSummary).ended_at;
-        if (!Number.isFinite(Date.parse(occurredAt)) || Date.parse(occurredAt) < Date.now() - maximumRecordAgeMs) {
+        const occurredAt =
+          record.kind === "event"
+            ? (record.payload as StoredTelemetryEvent).occurred_at
+            : (record.payload as StoredSessionSummary).ended_at;
+        if (
+          !Number.isFinite(Date.parse(occurredAt)) ||
+          Date.parse(occurredAt) < Date.now() - maximumRecordAgeMs
+        ) {
           await this.removeFiles([fileName]);
           dropped.expired += 1;
           continue;
@@ -105,7 +120,14 @@ export class FileTelemetrySpool {
       }
       if (selected.length === 0) return undefined;
       const body = JSON.stringify(createBatch(batchId, subjectKey, stream!, sentAt, records));
-      const batch: StoredBatch = { batchId, body, files: selected, recordCount: selected.length, sentAt, subjectKey };
+      const batch: StoredBatch = {
+        batchId,
+        body,
+        files: selected,
+        recordCount: selected.length,
+        sentAt,
+        subjectKey,
+      };
       await this.atomicWrite(activeBatchFile, JSON.stringify(batch));
       return { batchId, body, files: selected, recordCount: selected.length };
     });
@@ -151,7 +173,9 @@ export class FileTelemetrySpool {
 
   listRecords() {
     return this.exclusive(async () => {
-      const files = (await readdir(this.directory)).filter((name) => name.endsWith(recordSuffix)).sort();
+      const files = (await readdir(this.directory))
+        .filter((name) => name.endsWith(recordSuffix))
+        .sort();
       const records = await Promise.all(files.map((fileName) => this.readRecord(fileName)));
       return records.filter((record): record is SpoolRecord => Boolean(record));
     });
@@ -166,7 +190,10 @@ export class FileTelemetrySpool {
 
   private exclusive<T>(task: () => Promise<T>): Promise<T> {
     const result = this.operation.then(task, task);
-    this.operation = result.then(() => undefined, () => undefined);
+    this.operation = result.then(
+      () => undefined,
+      () => undefined,
+    );
     return result;
   }
 
@@ -174,10 +201,13 @@ export class FileTelemetrySpool {
     if (this.totalBytes === undefined) this.totalBytes = await this.calculateRecordBytes();
     if (this.totalBytes <= this.capBytes) return 0;
     const entries = (await readdir(this.directory)).filter((name) => name.endsWith(recordSuffix));
-    const files = await Promise.all(entries.map(async (name) => ({ name, size: (await stat(join(this.directory, name))).size })));
+    const files = await Promise.all(
+      entries.map(async (name) => ({ name, size: (await stat(join(this.directory, name))).size })),
+    );
 
     const ordered = files.sort((left, right) => {
-      const rank = (name: string) => name.includes("-low.record.json") ? 0 : name.includes("-normal.record.json") ? 1 : 2;
+      const rank = (name: string) =>
+        name.includes("-low.record.json") ? 0 : name.includes("-normal.record.json") ? 1 : 2;
       return rank(left.name) - rank(right.name) || left.name.localeCompare(right.name);
     });
     let dropped = 0;
@@ -201,8 +231,15 @@ export class FileTelemetrySpool {
 
   private async readRecord(fileName: string) {
     try {
-      const parsed = JSON.parse(await readFile(join(this.directory, fileName), "utf8")) as SpoolRecord;
-      if (!parsed || (parsed.kind !== "event" && parsed.kind !== "summary") || typeof parsed.id !== "string") throw new Error("invalid spool record");
+      const parsed = JSON.parse(
+        await readFile(join(this.directory, fileName), "utf8"),
+      ) as SpoolRecord;
+      if (
+        !parsed ||
+        (parsed.kind !== "event" && parsed.kind !== "summary") ||
+        typeof parsed.id !== "string"
+      )
+        throw new Error("invalid spool record");
       return parsed;
     } catch {
       const size = await this.fileSize(fileName);
@@ -215,11 +252,13 @@ export class FileTelemetrySpool {
 
   private async readPendingDrops() {
     try {
-      const parsed = JSON.parse(await readFile(join(this.directory, pendingDropsFile), "utf8")) as Partial<PendingDrops>;
+      const parsed = JSON.parse(
+        await readFile(join(this.directory, pendingDropsFile), "utf8"),
+      ) as Partial<PendingDrops>;
       return {
         capacity: validCount(parsed.capacity),
         expired: validCount(parsed.expired),
-        invalid: validCount(parsed.invalid)
+        invalid: validCount(parsed.invalid),
       };
     } catch {
       return { capacity: 0, expired: 0, invalid: 0 };
@@ -272,12 +311,29 @@ export class FileTelemetrySpool {
 
   private async readActiveBatch(subjectKey: string): Promise<SpoolBatch | undefined> {
     try {
-      const batch = JSON.parse(await readFile(join(this.directory, activeBatchFile), "utf8")) as Partial<StoredBatch>;
-      if (!isUUID(batch.batchId) || typeof batch.body !== "string" || !Array.isArray(batch.files) || !batch.files.every((file) => typeof file === "string" && file.endsWith(recordSuffix)) || batch.recordCount !== batch.files.length || typeof batch.sentAt !== "string" || batch.subjectKey !== subjectKey) throw new Error("invalid active batch");
-      if (Date.parse(batch.sentAt) < Date.now() - maximumBatchAgeMs) throw new Error("expired active batch");
+      const batch = JSON.parse(
+        await readFile(join(this.directory, activeBatchFile), "utf8"),
+      ) as Partial<StoredBatch>;
+      if (
+        !isUUID(batch.batchId) ||
+        typeof batch.body !== "string" ||
+        !Array.isArray(batch.files) ||
+        !batch.files.every((file) => typeof file === "string" && file.endsWith(recordSuffix)) ||
+        batch.recordCount !== batch.files.length ||
+        typeof batch.sentAt !== "string" ||
+        batch.subjectKey !== subjectKey
+      )
+        throw new Error("invalid active batch");
+      if (Date.parse(batch.sentAt) < Date.now() - maximumBatchAgeMs)
+        throw new Error("expired active batch");
       const existing = await Promise.all(batch.files.map(async (file) => this.fileSize(file)));
       if (existing.some((size) => size === 0)) throw new Error("active batch record is missing");
-      return { batchId: batch.batchId, body: batch.body, files: batch.files, recordCount: batch.recordCount };
+      return {
+        batchId: batch.batchId,
+        body: batch.body,
+        files: batch.files,
+        recordCount: batch.recordCount,
+      };
     } catch {
       await rm(join(this.directory, activeBatchFile), { force: true });
       return undefined;
@@ -293,8 +349,21 @@ export class FileTelemetrySpool {
   }
 }
 
-function createBatch(batchId: string, subjectKey: string, stream: MetricsStream, sentAt: string, records: Array<Record<string, unknown>>): TelemetryBatch {
-  return { schema_version: 2, batch_id: batchId, scope: { product: "linka-plays", subject_key: subjectKey }, stream, sent_at: sentAt, records };
+function createBatch(
+  batchId: string,
+  subjectKey: string,
+  stream: MetricsStream,
+  sentAt: string,
+  records: Array<Record<string, unknown>>,
+): TelemetryBatch {
+  return {
+    schema_version: 2,
+    batch_id: batchId,
+    scope: { product: "linka-plays", subject_key: subjectKey },
+    stream,
+    sent_at: sentAt,
+    records,
+  };
 }
 
 function validCount(value: unknown) {
@@ -302,5 +371,8 @@ function validCount(value: unknown) {
 }
 
 function isUUID(value: unknown): value is string {
-  return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+  return (
+    typeof value === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+  );
 }

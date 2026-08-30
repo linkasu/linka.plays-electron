@@ -25,7 +25,7 @@ export const colorPatternColors: ColorPatternColor[] = [
   { id: "green", label: "зелёный", hex: "#17683F", textColor: "#FFFFFF" },
   { id: "yellow", label: "жёлтый", hex: "#F7C948", textColor: "#2A2106" },
   { id: "purple", label: "фиолетовый", hex: "#6D3DB5", textColor: "#FFFFFF" },
-  { id: "orange", label: "оранжевый", hex: "#F28B2E", textColor: "#2B1708" }
+  { id: "orange", label: "оранжевый", hex: "#F28B2E", textColor: "#2B1708" },
 ];
 
 const patternKinds: ColorPatternKind[] = ["AB", "ABC", "ABB"];
@@ -47,24 +47,34 @@ function colorForSymbol(symbol: string, unit: ColorPatternColor[]) {
 function buildPattern(patternKind: ColorPatternKind, unit: ColorPatternColor[]) {
   const visibleLength = patternKind === "AB" ? 3 : 5;
   const completedLength = visibleLength + 1;
-  const completed = Array.from({ length: completedLength }, (_, index) => colorForSymbol(patternKind[index % patternKind.length], unit));
+  const completed = Array.from({ length: completedLength }, (_, index) =>
+    colorForSymbol(patternKind[index % patternKind.length], unit),
+  );
 
   return {
     sequence: completed.slice(0, visibleLength),
-    answer: completed[visibleLength]
+    answer: completed[visibleLength],
   };
 }
 
-export function generateColorPatternRound(settings: SessionSettings, roundIndex = 1, random = Math.random): ColorPatternRound {
+export function generateColorPatternRound(
+  settings: SessionSettings,
+  roundIndex = 1,
+  random = Math.random,
+): ColorPatternRound {
   const patternKind = patternKindFor(roundIndex);
   const unitSize = patternKind === "ABC" ? 3 : 2;
   const choiceCount = choiceCountFor(settings);
 
-  if (colorPatternColors.length < Math.max(unitSize, choiceCount)) throw new Error("Недостаточно цветов для игры.");
+  if (colorPatternColors.length < Math.max(unitSize, choiceCount))
+    throw new Error("Недостаточно цветов для игры.");
 
   const unit = shuffleItems(colorPatternColors, random).slice(0, unitSize);
   const { sequence, answer } = buildPattern(patternKind, unit);
-  const distractors = shuffleItems(colorPatternColors.filter((color) => color.id !== answer.id), random).slice(0, choiceCount - 1);
+  const distractors = shuffleItems(
+    colorPatternColors.filter((color) => color.id !== answer.id),
+    random,
+  ).slice(0, choiceCount - 1);
   const choices = shuffleItems([answer, ...distractors], random);
 
   return {
@@ -73,6 +83,6 @@ export function generateColorPatternRound(settings: SessionSettings, roundIndex 
     sequence,
     answer,
     choices,
-    correctIndex: choices.indexOf(answer)
+    correctIndex: choices.indexOf(answer),
   };
 }

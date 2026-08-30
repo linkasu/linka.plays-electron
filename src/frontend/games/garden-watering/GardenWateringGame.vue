@@ -34,11 +34,30 @@ type WaterDrop = Point & {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("garden-watering", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  finishSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("garden-watering", {
   maxSteps: 6,
-  overrides: { preset: "gentle", dwellMs: 1200, sessionSeconds: 120, targetScale: 1.45, motionSpeed: 0.55, distractors: "none", hints: "high" },
+  overrides: {
+    preset: "gentle",
+    dwellMs: 1200,
+    sessionSeconds: 120,
+    targetScale: 1.45,
+    motionSpeed: 0.55,
+    distractors: "none",
+    hints: "high",
+  },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 
 const flowers = reactive<GardenFlower[]>([]);
@@ -55,7 +74,7 @@ const flowerLayout = [
   { x: 20, y: 82 },
   { x: 67, y: 88 },
   { x: 84, y: 62 },
-  { x: 50, y: 75 }
+  { x: 50, y: 75 },
 ];
 let dropTimer = 0;
 let finishAfter = 0;
@@ -84,7 +103,7 @@ function currentFlowerHead(flower: GardenFlower) {
   const groundY = base.y + flower.radius * 0.8;
   return {
     x: base.x,
-    y: groundY - flower.radius * (0.2 + easedGrowth * 0.95)
+    y: groundY - flower.radius * (0.2 + easedGrowth * 0.95),
   };
 }
 
@@ -94,7 +113,7 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
@@ -105,7 +124,7 @@ function targetPayload(flower: GardenFlower, now: number, progress: number) {
     elapsedMs: Math.round(flower.wateredSeconds * 1000),
     progress,
     pointer: copyPointer(),
-    now
+    now,
   };
 }
 
@@ -123,19 +142,21 @@ function createFlowers() {
       y: Math.min(91, Math.max(58, layout.y + randomRange(-2, 2))),
       radius: flowerRadius() * randomRange(0.92, 1.08),
       hue: flowerHues[index % flowerHues.length],
-      petals: 6 + index % 3 * 2,
+      petals: 6 + (index % 3) * 2,
       age: randomRange(0, 3),
       growth: 0,
       wateredSeconds: 0,
       completed: false,
       bloomPulse: 0,
-      entered: false
+      entered: false,
     });
   }
 }
 
 function updateWateringCan(delta: number) {
-  const target = pointer.value.valid ? pointer.value : { x: width.value * 0.5, y: height.value * 0.5 };
+  const target = pointer.value.valid
+    ? pointer.value
+    : { x: width.value * 0.5, y: height.value * 0.5 };
   const smoothing = pointer.value.valid ? 6.4 : 1.25;
   wateringCan.x += (target.x - wateringCan.x) * Math.min(1, delta * smoothing);
   wateringCan.y += (target.y - wateringCan.y) * Math.min(1, delta * smoothing);
@@ -149,7 +170,7 @@ function spawnDrop() {
     vy: randomRange(72, 128),
     age: 0,
     life: randomRange(0.75, 1.15),
-    radius: randomRange(3.2, 6.4)
+    radius: randomRange(3.2, 6.4),
   });
   if (drops.length > 90) drops.shift();
 }
@@ -193,7 +214,7 @@ function updateFlowers(delta: number, now: number) {
       deltaSeconds: delta,
       distancePx: pointer.value.valid ? distance(wateringCan, head) : Number.POSITIVE_INFINITY,
       waterRadiusPx: waterRadius(flower),
-      growthPerSecond: 0.23 * session.settings.motionSpeed
+      growthPerSecond: 0.23 * session.settings.motionSpeed,
     });
     const wasCompleted = flower.completed;
 
@@ -227,8 +248,10 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   ctx.save();
   ctx.globalAlpha = 0.36;
   for (let index = 0; index < 4; index += 1) {
-    const cloudX = (width.value * (0.18 + index * 0.22) + Math.sin(visualNow * 0.00008 + index) * 34) % (width.value + 180);
-    const cloudY = height.value * (0.14 + index % 2 * 0.09);
+    const cloudX =
+      (width.value * (0.18 + index * 0.22) + Math.sin(visualNow * 0.00008 + index) * 34) %
+      (width.value + 180);
+    const cloudY = height.value * (0.14 + (index % 2) * 0.09);
     ctx.fillStyle = "#ffffff";
     ctx.beginPath();
     ctx.ellipse(cloudX - 48, cloudY + 8, 58, 22, 0, 0, Math.PI * 2);
@@ -251,11 +274,16 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   ctx.strokeStyle = "#6aa85d";
   ctx.lineWidth = 2;
   for (let index = 0; index < 42; index += 1) {
-    const x = index / 41 * width.value;
+    const x = (index / 41) * width.value;
     const y = meadowTop + 20 + Math.sin(index * 1.7) * 10;
     ctx.beginPath();
     ctx.moveTo(x, height.value);
-    ctx.quadraticCurveTo(x + Math.sin(index) * 28, (y + height.value) / 2, x + Math.cos(index) * 8, y);
+    ctx.quadraticCurveTo(
+      x + Math.sin(index) * 28,
+      (y + height.value) / 2,
+      x + Math.cos(index) * 8,
+      y,
+    );
     ctx.stroke();
   }
   ctx.restore();
@@ -271,7 +299,15 @@ function drawFlower(ctx: CanvasRenderingContext2D, flower: GardenFlower) {
   ctx.save();
   ctx.fillStyle = "rgb(54 94 52 / 16%)";
   ctx.beginPath();
-  ctx.ellipse(base.x, base.y + flower.radius * 0.86, flower.radius * 0.58, flower.radius * 0.13, 0, 0, Math.PI * 2);
+  ctx.ellipse(
+    base.x,
+    base.y + flower.radius * 0.86,
+    flower.radius * 0.58,
+    flower.radius * 0.13,
+    0,
+    0,
+    Math.PI * 2,
+  );
   ctx.fill();
 
   if (!flower.completed) {
@@ -291,18 +327,31 @@ function drawFlower(ctx: CanvasRenderingContext2D, flower: GardenFlower) {
   ctx.lineCap = "round";
   ctx.beginPath();
   ctx.moveTo(base.x, base.y + flower.radius * 0.74);
-  ctx.quadraticCurveTo(base.x - flower.radius * 0.08, (base.y + head.y) / 2, head.x, head.y + flower.radius * 0.1);
+  ctx.quadraticCurveTo(
+    base.x - flower.radius * 0.08,
+    (base.y + head.y) / 2,
+    head.x,
+    head.y + flower.radius * 0.1,
+  );
   ctx.stroke();
 
   ctx.fillStyle = "#5fac69";
   for (const side of [-1, 1]) {
     ctx.save();
-    ctx.translate(base.x + side * flower.radius * 0.04, base.y + flower.radius * (0.42 - flower.growth * 0.24));
+    ctx.translate(
+      base.x + side * flower.radius * 0.04,
+      base.y + flower.radius * (0.42 - flower.growth * 0.24),
+    );
     ctx.scale(side, 1);
     ctx.rotate(-0.48 + (session.settings.reduceMotion ? 0 : Math.sin(flower.age * 1.2) * 0.04));
     ctx.beginPath();
     ctx.moveTo(0, 0);
-    ctx.quadraticCurveTo(flower.radius * 0.3, -flower.radius * 0.16, flower.radius * (0.5 + flower.growth * 0.14), 0);
+    ctx.quadraticCurveTo(
+      flower.radius * 0.3,
+      -flower.radius * 0.16,
+      flower.radius * (0.5 + flower.growth * 0.14),
+      0,
+    );
     ctx.quadraticCurveTo(flower.radius * 0.3, flower.radius * 0.16, 0, 0);
     ctx.fill();
     ctx.restore();
@@ -322,10 +371,19 @@ function drawFlower(ctx: CanvasRenderingContext2D, flower: GardenFlower) {
   const petalDistance = flower.radius * (0.08 + bloom * 0.28 + pulse * 0.035);
   const petalRadius = flower.radius * (0.16 + bloom * 0.19 + pulse * 0.03);
   for (let index = 0; index < flower.petals; index += 1) {
-    const angle = index / flower.petals * Math.PI * 2 + (session.settings.reduceMotion ? 0 : Math.sin(flower.age * 0.45) * 0.025);
+    const angle =
+      (index / flower.petals) * Math.PI * 2 +
+      (session.settings.reduceMotion ? 0 : Math.sin(flower.age * 0.45) * 0.025);
     ctx.save();
     ctx.rotate(angle);
-    const gradient = ctx.createRadialGradient(0, -petalDistance, 1, 0, -petalDistance, petalRadius * 1.45);
+    const gradient = ctx.createRadialGradient(
+      0,
+      -petalDistance,
+      1,
+      0,
+      -petalDistance,
+      petalRadius * 1.45,
+    );
     gradient.addColorStop(0, `hsl(${flower.hue + 8}, 94%, 88%)`);
     gradient.addColorStop(1, `hsl(${flower.hue}, 72%, 64%)`);
     ctx.fillStyle = gradient;
@@ -371,7 +429,12 @@ function drawWateringCan(ctx: CanvasRenderingContext2D) {
   ctx.quadraticCurveTo(x - 34 * scale, y - 28 * scale, x - 4 * scale, y - 2 * scale);
   ctx.stroke();
 
-  const body = ctx.createLinearGradient(x - 118 * scale, y - 78 * scale, x - 36 * scale, y - 4 * scale);
+  const body = ctx.createLinearGradient(
+    x - 118 * scale,
+    y - 78 * scale,
+    x - 36 * scale,
+    y - 4 * scale,
+  );
   body.addColorStop(0, "#b7d8d0");
   body.addColorStop(1, "#76adab");
   ctx.fillStyle = body;

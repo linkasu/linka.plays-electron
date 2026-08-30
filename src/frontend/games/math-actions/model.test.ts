@@ -15,7 +15,9 @@ describe("generateMathRound", () => {
 
   it("keeps round ids stable for telemetry", () => {
     expect(generateMathRound(settingsFromPreset("gentle"), 1).roundId).toBe("math-actions:round:1");
-    expect(generateMathRound(settingsFromPreset("standard"), 8).roundId).toBe("math-actions:round:8");
+    expect(generateMathRound(settingsFromPreset("standard"), 8).roundId).toBe(
+      "math-actions:round:8",
+    );
   });
 
   it("gentle rounds use addition only with operands up to five", () => {
@@ -38,9 +40,9 @@ describe("generateMathRound", () => {
 
   it("standard addition rounds compute the answer from the expression", () => {
     vi.spyOn(Math, "random")
-     .mockReturnValueOnce(0.49)
-     .mockReturnValueOnce(0)
-     .mockReturnValueOnce(0.95);
+      .mockReturnValueOnce(0.49)
+      .mockReturnValueOnce(0)
+      .mockReturnValueOnce(0.95);
 
     const round = generateMathRound(settingsFromPreset("standard"), 2);
     const { a, operator, b } = parseExpression(round.expression);
@@ -53,10 +55,7 @@ describe("generateMathRound", () => {
   });
 
   it("standard subtraction rounds start at the random threshold", () => {
-    vi.spyOn(Math, "random")
-     .mockReturnValueOnce(0.5)
-     .mockReturnValueOnce(0)
-     .mockReturnValueOnce(0);
+    vi.spyOn(Math, "random").mockReturnValueOnce(0.5).mockReturnValueOnce(0).mockReturnValueOnce(0);
 
     const round = generateMathRound(settingsFromPreset("standard"), 3);
     const { a, operator, b } = parseExpression(round.expression);

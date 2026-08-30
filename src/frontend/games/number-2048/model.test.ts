@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { number2048Outcome, canMove, createEmptyBoard, createInitialBoard, highestTile, moveBoard, spawnTile, type Number2048Random } from "./model";
+import {
+  number2048Outcome,
+  canMove,
+  createEmptyBoard,
+  createInitialBoard,
+  highestTile,
+  moveBoard,
+  spawnTile,
+  type Number2048Random,
+} from "./model";
 
 function randomFrom(values: number[]): Number2048Random {
   let index = 0;

@@ -7,7 +7,7 @@ const menuCategoryStorageKey = "linka-menu-category";
 
 export const menuRoutes: Record<MenuMode, string> = {
   specialist: "/menu/specialist",
-  self: "/menu/self"
+  self: "/menu/self",
 };
 
 export function isMenuMode(value: unknown): value is MenuMode {
@@ -31,7 +31,8 @@ export function rememberMenuMode(mode: MenuMode) {
   } catch {
     // Menu mode is convenience state; navigation must still work without storage.
   }
-  if (previousMode !== mode) recordMetricsEvent({ eventName: "mode_changed", properties: { mode } });
+  if (previousMode !== mode)
+    recordMetricsEvent({ eventName: "mode_changed", properties: { mode } });
 }
 
 export function rememberMenuCategory(category: string | undefined) {

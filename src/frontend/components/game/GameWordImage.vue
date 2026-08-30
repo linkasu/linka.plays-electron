@@ -2,20 +2,26 @@
 import { ref, watch } from "vue";
 import { wordImageSrc } from "../../core/wordImage";
 
-const props = withDefaults(defineProps<{
-  wordId: string;
-  word: string;
-  emoji: string;
-  decorative?: boolean;
-}>(), {
-  decorative: false
-});
+const props = withDefaults(
+  defineProps<{
+    wordId: string;
+    word: string;
+    emoji: string;
+    decorative?: boolean;
+  }>(),
+  {
+    decorative: false,
+  },
+);
 
 const failed = ref(false);
 
-watch(() => props.wordId, () => {
-  failed.value = false;
-});
+watch(
+  () => props.wordId,
+  () => {
+    failed.value = false;
+  },
+);
 </script>
 
 <template>
@@ -27,8 +33,13 @@ watch(() => props.wordId, () => {
       :alt="decorative ? '' : word"
       draggable="false"
       @error="failed = true"
+    />
+    <span
+      v-else
+      class="game-word-image__fallback emoji-glyph"
+      :aria-label="decorative ? undefined : word"
+      >{{ emoji }}</span
     >
-    <span v-else class="game-word-image__fallback emoji-glyph" :aria-label="decorative ? undefined : word">{{ emoji }}</span>
   </span>
 </template>
 

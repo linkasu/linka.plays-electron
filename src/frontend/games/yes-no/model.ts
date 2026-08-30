@@ -31,21 +31,34 @@ export type YesNoRoundOptions = {
 
 export const yesNoChoices: YesNoChoice[] = [
   { id: "yes", title: "Да", icon: "mdi-check-bold", color: "green-lighten-4" },
-  { id: "no", title: "Нет", icon: "mdi-close-thick", color: "red-lighten-4" }
+  { id: "no", title: "Нет", icon: "mdi-close-thick", color: "red-lighten-4" },
 ];
 
 export function findYesNoNameAsset(item: WordItem, assets: YesNoNameAsset[]) {
   const normalizedWord = item.word.trim().toLocaleLowerCase("ru-RU");
-  const matchingAssets = assets.filter((asset) => asset.text.trim().toLocaleLowerCase("ru-RU").replace(/[.!?]+$/u, "") === normalizedWord);
+  const matchingAssets = assets.filter(
+    (asset) =>
+      asset.text
+        .trim()
+        .toLocaleLowerCase("ru-RU")
+        .replace(/[.!?]+$/u, "") === normalizedWord,
+  );
   const nameMarkers = [".word.", ".name.", ".item.", ".card."];
-  const isNameAsset = (asset: YesNoNameAsset) => nameMarkers.some((marker) => asset.id.includes(marker));
+  const isNameAsset = (asset: YesNoNameAsset) =>
+    nameMarkers.some((marker) => asset.id.includes(marker));
 
-  return matchingAssets.find((asset) => asset.id.endsWith(`.${item.id}`) && isNameAsset(asset))
-    ?? matchingAssets.find(isNameAsset);
+  return (
+    matchingAssets.find((asset) => asset.id.endsWith(`.${item.id}`) && isNameAsset(asset)) ??
+    matchingAssets.find(isNameAsset)
+  );
 }
 
-export function generateYesNoRound(roundIndex = 1, optionsOrRandom: YesNoRoundOptions | (() => number) = {}): YesNoRound {
-  const options = typeof optionsOrRandom === "function" ? { random: optionsOrRandom } : optionsOrRandom;
+export function generateYesNoRound(
+  roundIndex = 1,
+  optionsOrRandom: YesNoRoundOptions | (() => number) = {},
+): YesNoRound {
+  const options =
+    typeof optionsOrRandom === "function" ? { random: optionsOrRandom } : optionsOrRandom;
   const random = options.random ?? Math.random;
   const words = getAllWords();
   if (words.length < 2) throw new Error("Недостаточно слов для игры Да / нет.");
@@ -64,11 +77,14 @@ export function generateYesNoRound(roundIndex = 1, optionsOrRandom: YesNoRoundOp
     item,
     askedItem,
     answer,
-    choices: yesNoChoices
+    choices: yesNoChoices,
   };
 }
 
-export function selectYesNoAnswer(recentAnswers: YesNoAnswer[] = [], random = Math.random): YesNoAnswer {
+export function selectYesNoAnswer(
+  recentAnswers: YesNoAnswer[] = [],
+  random = Math.random,
+): YesNoAnswer {
   const rolled: YesNoAnswer = random() < 0.5 ? "yes" : "no";
   const lastTwo = recentAnswers.slice(-2);
   if (lastTwo.length === 2 && lastTwo[0] === lastTwo[1] && rolled === lastTwo[0]) {

@@ -1,5 +1,11 @@
 import type { SessionSettings } from "../../core/settings";
-import { buildChoiceRound, choiceCountByPreset, idEquality, pickRandom, type ChoiceRound } from "../../core/round";
+import {
+  buildChoiceRound,
+  choiceCountByPreset,
+  idEquality,
+  pickRandom,
+  type ChoiceRound,
+} from "../../core/round";
 import { getAllWords, type WordItem } from "../../data/wordBank";
 
 export type MatchSameRound = ChoiceRound<WordItem>;
@@ -17,7 +23,11 @@ function uniqueByEmoji(items: WordItem[]) {
 
 export function generateMatchSameRound(settings: SessionSettings, roundIndex = 1): MatchSameRound {
   const words = uniqueByEmoji(getAllWords());
-  const choiceCount = choiceCountByPreset(settings, roundIndex, { gentle: 3, standard: 4, challenge: 4 });
+  const choiceCount = choiceCountByPreset(settings, roundIndex, {
+    gentle: 3,
+    standard: 4,
+    challenge: 4,
+  });
   if (words.length < choiceCount) throw new Error("Недостаточно разных картинок для игры.");
 
   return buildChoiceRound({
@@ -27,6 +37,6 @@ export function generateMatchSameRound(settings: SessionSettings, roundIndex = 1
     choiceCount,
     pickTarget: (items) => pickRandom(items),
     isSame: idEquality,
-    prompt: () => MATCH_SAME_PROMPT
+    prompt: () => MATCH_SAME_PROMPT,
   });
 }

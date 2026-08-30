@@ -9,32 +9,60 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { createFirstThenPairOrder, createFirstThenTimeline, generateFirstThenRound, type FirstThenAction, type FirstThenPhase, type FirstThenRound } from "./model";
+import {
+  createFirstThenPairOrder,
+  createFirstThenTimeline,
+  generateFirstThenRound,
+  type FirstThenAction,
+  type FirstThenPhase,
+  type FirstThenRound,
+} from "./model";
 
 const firstThenFeedback = createStandardGameFeedback();
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, finishSession, startSession } = useGameSessionFor("first-then", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  finishSession,
+  startSession,
+} = useGameSessionFor("first-then", {
   maxSteps: 8,
   overrides: { sound: true },
   finishOnMistakes: false,
-  finishOnMaxSteps: false
+  finishOnMaxSteps: false,
 });
-const promptAudio = useGamePromptAudio({ gameId: "first-then", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "first-then",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 
 const pairOrder = ref(createFirstThenPairOrder());
 const choiceOrdersByPairIndex = ref<Record<number, string[]>>({});
 const pairIndex = ref(1);
 const phase = ref<FirstThenPhase>("first");
-const round = ref<FirstThenRound>(generateFirstThenRound(pairIndex.value, phase.value, { pairOrder: pairOrder.value, choiceOrder: ensureChoiceOrder(pairIndex.value) }));
+const round = ref<FirstThenRound>(
+  generateFirstThenRound(pairIndex.value, phase.value, {
+    pairOrder: pairOrder.value,
+    choiceOrder: ensureChoiceOrder(pairIndex.value),
+  }),
+);
 const revealedPhases = ref<FirstThenPhase[]>([]);
 const resultVisible = computed(() => session.status === "finished");
 const feedback = ref("Выбери карточку. Сначала одно действие, потом другое.");
 const isChangingRound = ref(false);
 let transitionTimer = 0;
 
-const phaseLabel = computed(() => phase.value === "first" ? "Сначала" : "Потом");
-const timelineItems = computed(() => createFirstThenTimeline(round.value.pair, revealedPhases.value));
+const phaseLabel = computed(() => (phase.value === "first" ? "Сначала" : "Потом"));
+const timelineItems = computed(() =>
+  createFirstThenTimeline(round.value.pair, revealedPhases.value),
+);
 
 function choiceTargetId(action: FirstThenAction) {
   return `first-then:choice:${round.value.pair.id}:${phase.value}:${action.id}`;
@@ -43,11 +71,16 @@ function choiceTargetId(action: FirstThenAction) {
 function setRound(nextPairIndex: number, nextPhase: FirstThenPhase) {
   pairIndex.value = nextPairIndex;
   phase.value = nextPhase;
-  round.value = generateFirstThenRound(nextPairIndex, nextPhase, { pairOrder: pairOrder.value, choiceOrder: ensureChoiceOrder(nextPairIndex) });
+  round.value = generateFirstThenRound(nextPairIndex, nextPhase, {
+    pairOrder: pairOrder.value,
+    choiceOrder: ensureChoiceOrder(nextPairIndex),
+  });
 }
 
 function ensureChoiceOrder(nextPairIndex: number) {
-  choiceOrdersByPairIndex.value[nextPairIndex] ??= generateFirstThenRound(nextPairIndex, "first", { pairOrder: pairOrder.value }).choices.map((choice) => choice.id);
+  choiceOrdersByPairIndex.value[nextPairIndex] ??= generateFirstThenRound(nextPairIndex, "first", {
+    pairOrder: pairOrder.value,
+  }).choices.map((choice) => choice.id);
   return choiceOrdersByPairIndex.value[nextPairIndex];
 }
 
@@ -99,7 +132,7 @@ async function chooseAction(action: FirstThenAction) {
       expected: expectedAction.id,
       actual: action.id,
       phase: phase.value,
-      isCorrect: true
+      isCorrect: true,
     });
     feedback.value = phase.value === "first" ? "Верно: это сначала." : "Верно: это потом.";
     await promptAudio.playSequenceAndWait([`first-then.correct.${phase.value}`], 80);
@@ -113,18 +146,21 @@ async function chooseAction(action: FirstThenAction) {
       expected: expectedAction.id,
       actual: action.id,
       phase: phase.value,
-      isCorrect: false
+      isCorrect: false,
     });
     feedback.value = "Посмотри на порядок действий и попробуй выбрать другую карточку.";
     await promptAudio.playSequenceAndWait(["first-then.mistake"], 80);
   }
 
   clearTransitionTimer();
-  transitionTimer = window.setTimeout(() => {
-    transitionTimer = 0;
-    if (wasCorrect) advanceRound();
-    isChangingRound.value = false;
-  }, wasCorrect ? 550 : 850);
+  transitionTimer = window.setTimeout(
+    () => {
+      transitionTimer = 0;
+      if (wasCorrect) advanceRound();
+      isChangingRound.value = false;
+    },
+    wasCorrect ? 550 : 850,
+  );
 }
 
 function restart() {
@@ -154,9 +190,23 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <GamePageShell gradient="linear-gradient(135deg, #f1f7ff 0%, #fff6e8 52%, #f3ecff 100%)" padding-top="8.25rem">
+  <GamePageShell
+    gradient="linear-gradient(135deg, #f1f7ff 0%, #fff6e8 52%, #f3ecff 100%)"
+    padding-top="8.25rem"
+  >
     <template #hud>
-      <GameHud title="Сначала-потом" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+      <GameHud
+        title="Сначала-потом"
+        :step="session.step"
+        :max-steps="session.maxSteps"
+        :score="session.score"
+        :mistakes="session.mistakes"
+        :duration-ms="durationMs"
+        :session-seconds="session.settings.sessionSeconds"
+        :paused="session.status === 'paused'"
+        @pause="pauseSession"
+        @resume="resumeSession"
+      />
     </template>
     <v-container class="game-container" fluid>
       <v-row justify="center">
@@ -168,9 +218,19 @@ onUnmounted(() => {
               <div class="text-h6 text-md-h5 text-medium-emphasis">{{ feedback }}</div>
             </div>
 
-            <v-card class="timeline-card pa-4 pa-md-5 mb-6" color="indigo-lighten-5" rounded="xl" variant="flat">
+            <v-card
+              class="timeline-card pa-4 pa-md-5 mb-6"
+              color="indigo-lighten-5"
+              rounded="xl"
+              variant="flat"
+            >
               <div class="d-flex flex-column flex-sm-row align-stretch ga-4">
-                <div v-for="item in timelineItems" :key="item.phase" class="timeline-step flex-grow-1 pa-4 rounded-xl" :class="{ 'timeline-step--filled': item.action }">
+                <div
+                  v-for="item in timelineItems"
+                  :key="item.phase"
+                  class="timeline-step flex-grow-1 pa-4 rounded-xl"
+                  :class="{ 'timeline-step--filled': item.action }"
+                >
                   <div class="text-overline text-primary mb-1">{{ item.label }}</div>
                   <div v-if="item.action" class="d-flex align-center ga-3">
                     <div class="timeline-emoji emoji-glyph">{{ item.action.emoji }}</div>
@@ -184,8 +244,19 @@ onUnmounted(() => {
               </div>
             </v-card>
 
-            <v-chip class="phase-chip mb-4" color="primary" size="large" variant="tonal">Выбираем: {{ phaseLabel }}</v-chip>
-            <GameChoiceCardGrid :choices="round.choices" :target-id="choiceTargetId" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" min-height="11.25rem" :cols="12" :md="6" @select="chooseAction">
+            <v-chip class="phase-chip mb-4" color="primary" size="large" variant="tonal"
+              >Выбираем: {{ phaseLabel }}</v-chip
+            >
+            <GameChoiceCardGrid
+              :choices="round.choices"
+              :target-id="choiceTargetId"
+              :disabled="session.status !== 'running' || isChangingRound"
+              :dwell-ms="session.settings.dwellMs"
+              min-height="11.25rem"
+              :cols="12"
+              :md="6"
+              @select="chooseAction"
+            >
               <template #default="{ choice }">
                 <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
                 <div class="text-h4 text-md-h3 font-weight-bold">{{ choice.title }}</div>
@@ -195,7 +266,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Сначала-потом" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Сначала-потом"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </GamePageShell>
 </template>
 
@@ -251,7 +332,7 @@ onUnmounted(() => {
     display: none;
   }
 
- .first-then-card {
+  .first-then-card {
     padding-block: 0.875rem !important;
   }
 
@@ -259,7 +340,7 @@ onUnmounted(() => {
     margin-block-end: 0.5rem !important;
   }
 
- .first-then-heading h1 {
+  .first-then-heading h1 {
     font-size: 2rem !important;
     line-height: 1.08;
   }
@@ -268,7 +349,7 @@ onUnmounted(() => {
     margin-block-end: 0.5rem !important;
   }
 
- .choice-emoji {
+  .choice-emoji {
     font-size: clamp(2.75rem, 6vw, 3.75rem);
   }
 

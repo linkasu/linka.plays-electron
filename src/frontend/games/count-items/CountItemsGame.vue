@@ -3,7 +3,9 @@ import { onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
-import GameSquareChoiceGrid, { type GameSquareChoice } from "../../components/game/GameSquareChoiceGrid.vue";
+import GameSquareChoiceGrid, {
+  type GameSquareChoice,
+} from "../../components/game/GameSquareChoiceGrid.vue";
 import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
@@ -13,14 +15,34 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateCountItemsRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("count-items", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("count-items", {
   maxSteps: 8,
   overrides: { dwellMs: 1100, sessionSeconds: 120, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "count-items", soundEnabled, warmAssetIds: ["count-items.prompt", "count-items.correct", "count-items.mistake", "count-items.complete"] });
+const promptAudio = useGamePromptAudio({
+  gameId: "count-items",
+  soundEnabled,
+  warmAssetIds: [
+    "count-items.prompt",
+    "count-items.correct",
+    "count-items.mistake",
+    "count-items.complete",
+  ],
+});
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 const feedback = ref("Посчитай предметы и выбери число.");
 const isSpeaking = ref(false);
@@ -28,7 +50,7 @@ const isSpeaking = ref(false);
 const { round, resultVisible, nextRound, restart } = useRoundGame({
   session,
   startSession,
-  generateRound: (roundIndex) => generateCountItemsRound(session.settings, roundIndex)
+  generateRound: (roundIndex) => generateCountItemsRound(session.settings, roundIndex),
 });
 
 function choiceTargetId(choice: number) {
@@ -46,7 +68,13 @@ async function answer(index: number) {
     recordSuccess({ roundId: round.value.roundId, targetId, actual, isCorrect: true });
     void feedbackAudio.playSuccess();
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["count-items.correct", "count-items.complete"] : ["count-items.correct"], 80, 170);
+    await promptAudio.playSequenceAndWait(
+      finishedAfterSuccess
+        ? ["count-items.correct", "count-items.complete"]
+        : ["count-items.correct"],
+      80,
+      170,
+    );
     if (finishedAfterSuccess) {
       finishSession("game-complete");
       isSpeaking.value = false;
@@ -60,7 +88,14 @@ async function answer(index: number) {
   }
   isSpeaking.value = true;
   feedback.value = "Посчитай предметы ещё раз и выбери другое число.";
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, expected: round.value.targetCount, actual, isCorrect: false });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    expectedTargetId,
+    expected: round.value.targetCount,
+    actual,
+    isCorrect: false,
+  });
   void feedbackAudio.playMistake();
   await promptAudio.playSequenceAndWait(["count-items.mistake"], 80);
   isSpeaking.value = false;
@@ -87,12 +122,22 @@ onMounted(() => {
 onUnmounted(() => {
   promptAudio.cancelPending();
 });
-
 </script>
 
 <template>
   <div class="count-shell">
-    <GameHud title="Счёт" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Счёт"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11">
@@ -102,9 +147,25 @@ onUnmounted(() => {
               <p class="text-h6 text-medium-emphasis mb-0">{{ feedback }}</p>
             </div>
             <div class="items-grid mb-3 mb-md-5">
-              <GameWordImage v-for="index in round.targetCount" :key="index" class="item-emoji" :word-id="round.itemId" :word="round.itemName" :emoji="round.itemEmoji" decorative />
+              <GameWordImage
+                v-for="index in round.targetCount"
+                :key="index"
+                class="item-emoji"
+                :word-id="round.itemId"
+                :word="round.itemName"
+                :emoji="round.itemEmoji"
+                decorative
+              />
             </div>
-            <GameSquareChoiceGrid :items="round.choices" grid-offset="21rem" compact-size="7.75rem" :target-id="(choice) => choiceTargetId(Number(choice))" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" @select="answerChoice">
+            <GameSquareChoiceGrid
+              :items="round.choices"
+              grid-offset="21rem"
+              compact-size="7.75rem"
+              :target-id="(choice) => choiceTargetId(Number(choice))"
+              :disabled="session.status !== 'running' || isSpeaking"
+              :dwell-ms="session.settings.dwellMs"
+              @select="answerChoice"
+            >
               <template #default="{ choice }">
                 <div class="text-h2 font-weight-bold">{{ choice }}</div>
               </template>
@@ -113,7 +174,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Счёт" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restartGame" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Счёт"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restartGame"
+    />
   </div>
 </template>
 
@@ -146,26 +217,26 @@ onUnmounted(() => {
 }
 
 @media (min-width: 68.75rem) {
- .game-container {
+  .game-container {
     padding-block-start: 7.25rem;
   }
 }
 
 @media (max-height: 40rem) {
- .game-container {
+  .game-container {
     padding-block-start: 7.25rem;
   }
 
- .count-card {
+  .count-card {
     padding: 1rem !important;
   }
 
- .count-prompt,
- .items-grid {
+  .count-prompt,
+  .items-grid {
     margin-block-end: 0.75rem !important;
   }
 
- .item-emoji {
+  .item-emoji {
     font-size: clamp(2.1rem, min(5vw, 7vh), 3.6rem);
   }
 }

@@ -46,7 +46,12 @@ describe("number-line model", () => {
   it("cycles find, next and previous tasks", () => {
     const settings = settingsFromPreset("standard");
 
-    expect(Array.from({ length: 6 }, (_, index) => generateNumberLineRound(settings, index + 1).taskKind)).toEqual(["find", "next", "previous", "find", "next", "previous"]);
+    expect(
+      Array.from(
+        { length: 6 },
+        (_, index) => generateNumberLineRound(settings, index + 1).taskKind,
+      ),
+    ).toEqual(["find", "next", "previous", "find", "next", "previous"]);
   });
 
   it("keeps generated targets within the 1-10 road", () => {

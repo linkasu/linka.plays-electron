@@ -4,7 +4,9 @@ import { notesToLoadForMinorMelodies, softMinorMelodies } from "./minorMelodies"
 describe("minor melodies", () => {
   it("contains globally reusable soft minor melodies", () => {
     expect(softMinorMelodies.length).toBeGreaterThanOrEqual(4);
-    expect(new Set(softMinorMelodies.map((melody) => melody.id)).size).toBe(softMinorMelodies.length);
+    expect(new Set(softMinorMelodies.map((melody) => melody.id)).size).toBe(
+      softMinorMelodies.length,
+    );
   });
 
   it("keeps sampled and fallback melody shapes aligned", () => {

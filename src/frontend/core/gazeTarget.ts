@@ -20,12 +20,19 @@ function edgeFactor(position: number, size: number, bandRatio: number) {
   return Math.max(0, 1 - Math.min(position, size - position) / band);
 }
 
-export function adaptiveGazeHitRadius(point: Point, baseRadius: number, options: AdaptiveGazeHitRadiusOptions = {}) {
+export function adaptiveGazeHitRadius(
+  point: Point,
+  baseRadius: number,
+  options: AdaptiveGazeHitRadiusOptions = {},
+) {
   const width = viewportWidth(options.viewportWidth);
   const height = viewportHeight(options.viewportHeight);
   const edgeBoost = options.edgeBoost ?? 0.18;
   const bandRatio = options.edgeBandRatio ?? 0.16;
-  const boost = Math.max(edgeFactor(point.x, width, bandRatio), edgeFactor(point.y, height, bandRatio));
+  const boost = Math.max(
+    edgeFactor(point.x, width, bandRatio),
+    edgeFactor(point.y, height, bandRatio),
+  );
 
   return baseRadius * (1 + boost * edgeBoost);
 }

@@ -13,27 +13,48 @@ import { findEmotionFeedback } from "./audio";
 import { createFindEmotionRoundGenerator, type FindEmotionOption } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("find-emotion", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  recordHint,
+  startSession,
+} = useGameSessionFor("find-emotion", {
   maxSteps: 8,
   overrides: { sound: true },
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 let generateRound = createFindEmotionRoundGenerator();
 
-const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRoundGame,
+} = useRoundGame({
   session,
   startSession,
-  generateRound: (roundIndex) => generateRound(session.settings, roundIndex)
+  generateRound: (roundIndex) => generateRound(session.settings, roundIndex),
 });
 
 const mistakesInRound = ref(0);
 const lastMistakeId = ref<string>();
 const pendingSelection = ref(false);
 const isSpeaking = ref(false);
-const promptAudio = useGamePromptAudio({ gameId: "find-emotion", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "find-emotion",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 let feedbackTimer = 0;
 
-const hintedChoiceId = computed(() => mistakesInRound.value > 0 ? round.value.target.id : undefined);
+const hintedChoiceId = computed(() =>
+  mistakesInRound.value > 0 ? round.value.target.id : undefined,
+);
 const hintText = computed(() => {
   if (mistakesInRound.value <= 0) return "Выбери лицо с нужной эмоцией.";
   return `Посмотри на подсказку: ${round.value.target.label} подсвечена рамкой.`;
@@ -76,7 +97,14 @@ async function answer(choice: FindEmotionOption) {
   if (choice.id === round.value.target.id) {
     pendingSelection.value = true;
     void findEmotionFeedback.playSuccess(session.settings.sound);
-    recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      answerId: choice.id,
+      expected: round.value.target.label,
+      actual: choice.label,
+      isCorrect: true,
+    });
     mistakesInRound.value = 0;
     lastMistakeId.value = undefined;
     isSpeaking.value = true;
@@ -98,7 +126,15 @@ async function answer(choice: FindEmotionOption) {
   mistakesInRound.value += 1;
   lastMistakeId.value = choice.id;
   void findEmotionFeedback.playMistake(session.settings.sound);
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: false });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    expectedTargetId,
+    answerId: choice.id,
+    expected: round.value.target.label,
+    actual: choice.label,
+    isCorrect: false,
+  });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "mistake" });
   isSpeaking.value = true;
   await promptAudio.playSequenceAndWait(["find-emotion.mistake", promptAssetId()], 80, 170);
@@ -120,9 +156,12 @@ onMounted(() => {
   void playPrompt(450);
 });
 
-watch(() => session.settings.sound, (enabled) => {
-  findEmotionFeedback.warm(enabled);
-});
+watch(
+  () => session.settings.sound,
+  (enabled) => {
+    findEmotionFeedback.warm(enabled);
+  },
+);
 
 onUnmounted(() => {
   clearTimers();
@@ -133,7 +172,18 @@ onUnmounted(() => {
 <template>
   <GamePageShell gradient="linear-gradient(135deg, #fff5f8 0%, #eef8ff 100%)" padding-top="6rem">
     <template #hud>
-      <GameHud title="Найди эмоцию" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+      <GameHud
+        title="Найди эмоцию"
+        :step="session.step"
+        :max-steps="session.maxSteps"
+        :score="session.score"
+        :mistakes="session.mistakes"
+        :duration-ms="durationMs"
+        :session-seconds="session.settings.sessionSeconds"
+        :paused="session.status === 'paused'"
+        @pause="pauseSession"
+        @resume="resumeSession"
+      />
     </template>
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
@@ -142,9 +192,25 @@ onUnmounted(() => {
             <div class="text-overline text-secondary text-center mb-2">Смотри на лицо</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
             <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5">{{ hintText }}</p>
-            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="11rem" :highlight-choice="(choice) => hintedChoiceId === choice.id" :color="(choice) => hintedChoiceId === choice.id ? 'primary' : 'surface'" :cols="4" :md="round.choices.length === 3 ? 4 : 3" @select="answer">
+            <GameChoiceCardGrid
+              :choices="round.choices"
+              :target-id="(choice) => choiceTargetId(choice.id)"
+              :disabled="session.status !== 'running' || pendingSelection || isSpeaking"
+              :dwell-ms="session.settings.dwellMs"
+              min-height="11rem"
+              :highlight-choice="(choice) => hintedChoiceId === choice.id"
+              :color="(choice) => (hintedChoiceId === choice.id ? 'primary' : 'surface')"
+              :cols="4"
+              :md="round.choices.length === 3 ? 4 : 3"
+              @select="answer"
+            >
               <template #default="{ choice }">
-                <div :class="['emotion-choice', { 'emotion-choice--mistake': choice.id === lastMistakeId }]">
+                <div
+                  :class="[
+                    'emotion-choice',
+                    { 'emotion-choice--mistake': choice.id === lastMistakeId },
+                  ]"
+                >
                   <div class="emotion-emoji emoji-glyph" aria-hidden="true">{{ choice.emoji }}</div>
                   <div class="sr-only">{{ choice.label }}</div>
                 </div>
@@ -154,7 +220,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Найди эмоцию" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Найди эмоцию"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </GamePageShell>
 </template>
 
@@ -170,7 +246,9 @@ onUnmounted(() => {
   flex-direction: column;
   justify-content: center;
   min-block-size: 7.5rem;
-  transition: filter 160ms ease, transform 160ms ease;
+  transition:
+    filter 160ms ease,
+    transform 160ms ease;
 }
 
 .emotion-emoji {
@@ -192,7 +270,7 @@ onUnmounted(() => {
 }
 
 @media (max-height: 42rem) {
- .emotion-choice {
+  .emotion-choice {
     min-block-size: 6.75rem;
   }
 }

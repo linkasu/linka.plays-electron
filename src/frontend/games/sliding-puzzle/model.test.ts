@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { createInitialBoard, createSolvedBoard, isSolved, movableTileIndexes, moveTile, slidingPuzzleCellCount } from "./model";
+import {
+  createInitialBoard,
+  createSolvedBoard,
+  isSolved,
+  movableTileIndexes,
+  moveTile,
+  slidingPuzzleCellCount,
+} from "./model";
 
 describe("sliding puzzle model", () => {
   it("creates a solved 3x3 board", () => {
@@ -24,7 +31,13 @@ describe("sliding puzzle model", () => {
     const result = moveTile(board, 3);
 
     expect(board).toEqual([1, 6, 2, 7, 0, 3, 5, 4, 8]);
-    expect(result).toMatchObject({ moved: true, movedTile: 7, fromIndex: 3, toIndex: 4, emptyIndex: 3 });
+    expect(result).toMatchObject({
+      moved: true,
+      movedTile: 7,
+      fromIndex: 3,
+      toIndex: 4,
+      emptyIndex: 3,
+    });
     expect(result.board).toEqual([1, 6, 2, 0, 7, 3, 5, 4, 8]);
   });
 

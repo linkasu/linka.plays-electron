@@ -16,13 +16,21 @@ describe("session telemetry projection", () => {
       gameId: "chess-mini",
       type: "mistake",
       at: 1,
-      payload: { targetId: "e2", expected: "secret", actual: "secret", board: "private", step: 3 }
+      payload: { targetId: "e2", expected: "secret", actual: "secret", board: "private", step: 3 },
     };
 
-    expect(projectSessionEvent(event, { targetKind: "interactive", category: "strategy" }, "mouse")).toEqual({
+    expect(
+      projectSessionEvent(event, { targetKind: "interactive", category: "strategy" }, "mouse"),
+    ).toEqual({
       eventName: "mistake",
       gameSessionId: event.sessionId,
-      properties: { gameId: "chess-mini", levelIndex: 3, targetKind: "interactive", inputMethod: "mouse", responseMs: undefined }
+      properties: {
+        gameId: "chess-mini",
+        levelIndex: 3,
+        targetKind: "interactive",
+        inputMethod: "mouse",
+        responseMs: undefined,
+      },
     });
   });
 
@@ -45,7 +53,7 @@ describe("session telemetry projection", () => {
       gazeSampleCount: 0,
       mouseSampleCount: 20,
       validGazeRatio: 1,
-      configuredDwellMs: 750
+      configuredDwellMs: 750,
     });
 
     expect(summary.inputMethod).toBe("mouse");

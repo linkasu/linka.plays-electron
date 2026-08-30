@@ -53,7 +53,14 @@ export function tennisCourtBottom() {
   return window.innerHeight - Math.max(72, window.innerHeight * 0.1);
 }
 
-function roundedRect(context: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) {
+function roundedRect(
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+) {
   context.beginPath();
   if (context.roundRect) {
     context.roundRect(x, y, width, height, radius);
@@ -72,7 +79,13 @@ function roundedRect(context: CanvasRenderingContext2D, x: number, y: number, wi
   context.quadraticCurveTo(x, y, x + nextRadius, y);
 }
 
-function drawCloud(context: CanvasRenderingContext2D, x: number, y: number, size: number, alpha: number) {
+function drawCloud(
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  size: number,
+  alpha: number,
+) {
   context.save();
   context.globalAlpha = alpha;
   context.fillStyle = "#ffffff";
@@ -94,8 +107,20 @@ function drawBackground(context: CanvasRenderingContext2D, now: number, reduceMo
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
   const sway = reduceMotion ? 0 : Math.sin(now / 2600) * 12;
-  drawCloud(context, window.innerWidth * 0.18 + sway, window.innerHeight * 0.14, Math.min(132, window.innerWidth * 0.11), 0.62);
-  drawCloud(context, window.innerWidth * 0.74 - sway * 0.8, window.innerHeight * 0.12, Math.min(156, window.innerWidth * 0.13), 0.5);
+  drawCloud(
+    context,
+    window.innerWidth * 0.18 + sway,
+    window.innerHeight * 0.14,
+    Math.min(132, window.innerWidth * 0.11),
+    0.62,
+  );
+  drawCloud(
+    context,
+    window.innerWidth * 0.74 - sway * 0.8,
+    window.innerHeight * 0.12,
+    Math.min(156, window.innerWidth * 0.13),
+    0.5,
+  );
 
   const grassTop = tennisCourtBottom() + 18;
   context.fillStyle = "#b9df93";
@@ -181,7 +206,11 @@ function drawProgress(context: CanvasRenderingContext2D, options: TennisSceneOpt
   context.restore();
 }
 
-function drawPaddle(context: CanvasRenderingContext2D, paddle: TennisPaddle, side: "player" | "partner") {
+function drawPaddle(
+  context: CanvasRenderingContext2D,
+  paddle: TennisPaddle,
+  side: "player" | "partner",
+) {
   const left = paddle.x;
   const top = paddle.y - paddle.height / 2;
   const radius = paddle.width * 0.7;
@@ -190,10 +219,23 @@ function drawPaddle(context: CanvasRenderingContext2D, paddle: TennisPaddle, sid
   context.save();
   context.fillStyle = side === "player" ? "rgb(255 214 107 / 20%)" : "rgb(255 255 255 / 18%)";
   context.beginPath();
-  context.ellipse(left + paddle.width * 0.5, paddle.y, paddle.width * (2.6 + glow), paddle.height * (0.56 + glow * 0.08), 0, 0, Math.PI * 2);
+  context.ellipse(
+    left + paddle.width * 0.5,
+    paddle.y,
+    paddle.width * (2.6 + glow),
+    paddle.height * (0.56 + glow * 0.08),
+    0,
+    0,
+    Math.PI * 2,
+  );
   context.fill();
 
-  const gradient = context.createLinearGradient(left, top, left + paddle.width, top + paddle.height);
+  const gradient = context.createLinearGradient(
+    left,
+    top,
+    left + paddle.width,
+    top + paddle.height,
+  );
   gradient.addColorStop(0, side === "player" ? "#fff4b8" : "#d9f7ff");
   gradient.addColorStop(1, side === "player" ? "#f7aa61" : "#83c9e8");
   context.fillStyle = gradient;
@@ -212,13 +254,28 @@ function drawBall(context: CanvasRenderingContext2D, ball: TennisBall) {
   const shadow = Math.max(8, ball.radius * 0.35);
   context.fillStyle = "rgb(48 92 54 / 18%)";
   context.beginPath();
-  context.ellipse(ball.x + ball.radius * 0.36, ball.y + ball.radius * 1.05, ball.radius * 0.82, shadow, 0, 0, Math.PI * 2);
+  context.ellipse(
+    ball.x + ball.radius * 0.36,
+    ball.y + ball.radius * 1.05,
+    ball.radius * 0.82,
+    shadow,
+    0,
+    0,
+    Math.PI * 2,
+  );
   context.fill();
 
   context.translate(ball.x, ball.y);
   context.rotate(ball.phase * 0.3);
 
-  const glow = context.createRadialGradient(-ball.radius * 0.34, -ball.radius * 0.42, 1, 0, 0, ball.radius * 1.2);
+  const glow = context.createRadialGradient(
+    -ball.radius * 0.34,
+    -ball.radius * 0.42,
+    1,
+    0,
+    0,
+    ball.radius * 1.2,
+  );
   glow.addColorStop(0, "#fff9bf");
   glow.addColorStop(0.58, "#ffd66f");
   glow.addColorStop(1, "#f4a65f");
@@ -248,21 +305,36 @@ function drawTrail(context: CanvasRenderingContext2D, trail: TennisTrail) {
 
 function drawBurst(context: CanvasRenderingContext2D, burst: TennisBurst) {
   const progress = Math.min(1, burst.age / burst.life);
-  const color = burst.kind === "miss" ? "117 160 185" : burst.kind === "return" ? "120 205 220" : "255 210 103";
+  const color =
+    burst.kind === "miss" ? "117 160 185" : burst.kind === "return" ? "120 205 220" : "255 210 103";
 
   context.save();
   context.globalAlpha = 1 - progress;
   context.strokeStyle = `rgb(${color} / 62%)`;
   context.lineWidth = 4;
   context.beginPath();
-  context.arc(burst.x, burst.y, burst.radius * (0.4 + (progress * (context.canvas.dataset.reduceMotion === "true" ? 0.18 : 0.9))), 0, Math.PI * 2);
+  context.arc(
+    burst.x,
+    burst.y,
+    burst.radius * (0.4 + progress * (context.canvas.dataset.reduceMotion === "true" ? 0.18 : 0.9)),
+    0,
+    Math.PI * 2,
+  );
   context.stroke();
 
   context.fillStyle = `rgb(${color} / 34%)`;
   for (let index = 0; index < 6; index++) {
-    const angle = index / 6 * Math.PI * 2 + progress * (context.canvas.dataset.reduceMotion === "true" ? 0 : 0.7);
+    const angle =
+      (index / 6) * Math.PI * 2 +
+      progress * (context.canvas.dataset.reduceMotion === "true" ? 0 : 0.7);
     context.beginPath();
-    context.arc(burst.x + Math.cos(angle) * burst.radius * progress, burst.y + Math.sin(angle) * burst.radius * progress, Math.max(3, burst.radius * 0.1 * (1 - progress)), 0, Math.PI * 2);
+    context.arc(
+      burst.x + Math.cos(angle) * burst.radius * progress,
+      burst.y + Math.sin(angle) * burst.radius * progress,
+      Math.max(3, burst.radius * 0.1 * (1 - progress)),
+      0,
+      Math.PI * 2,
+    );
     context.fill();
   }
   context.restore();
@@ -295,7 +367,7 @@ export function drawTennisScene(context: CanvasRenderingContext2D, options: Tenn
     y: options.partnerY,
     width: Math.max(22, options.paddle.width * 0.82),
     height: options.paddle.height * 0.72,
-    glow: 0.2
+    glow: 0.2,
   };
   drawPaddle(context, partnerPaddle, "partner");
   drawPaddle(context, options.paddle, "player");
@@ -306,7 +378,13 @@ export function drawTennisScene(context: CanvasRenderingContext2D, options: Tenn
     context.strokeStyle = "#fff4a8";
     context.lineWidth = 5;
     context.beginPath();
-    context.arc(options.paddle.x + options.paddle.width * 0.5, options.paddle.y, options.paddle.height * 0.52, -Math.PI / 2, Math.PI / 2);
+    context.arc(
+      options.paddle.x + options.paddle.width * 0.5,
+      options.paddle.y,
+      options.paddle.height * 0.52,
+      -Math.PI / 2,
+      Math.PI / 2,
+    );
     context.stroke();
     context.restore();
   }

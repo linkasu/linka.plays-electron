@@ -15,7 +15,8 @@ if (!archivePath) {
 
 function parseWordBank(source) {
   const entries = [];
-  const itemPattern = /\{\s*id:\s*"([^"]+)",\s*word:\s*"([^"]+)",\s*emoji:\s*"([^"]+)",\s*category:\s*"([^"]+)"\s*\}/g;
+  const itemPattern =
+    /\{\s*id:\s*"([^"]+)",\s*word:\s*"([^"]+)",\s*emoji:\s*"([^"]+)",\s*category:\s*"([^"]+)"\s*\}/g;
   for (const match of source.matchAll(itemPattern)) {
     entries.push({ id: match[1], word: match[2], emoji: match[3], category: match[4] });
   }
@@ -31,7 +32,7 @@ async function collectPngFiles(directory) {
   const files = [];
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     const path = resolve(directory, entry.name);
-    if (entry.isDirectory()) files.push(...await collectPngFiles(path));
+    if (entry.isDirectory()) files.push(...(await collectPngFiles(path)));
     if (entry.isFile() && entry.name.toLocaleLowerCase("ru").endsWith(".png")) files.push(path);
   }
   return files;
@@ -66,7 +67,10 @@ async function main() {
 
     await writeFile(resolve(outputDir, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
     console.log(`Imported ${manifest.length} word images from ${archive}`);
-    if (missing.length) console.warn(`Missing images (${missing.length}): ${missing.map((item) => item.word).join(", ")}`);
+    if (missing.length)
+      console.warn(
+        `Missing images (${missing.length}): ${missing.map((item) => item.word).join(", ")}`,
+      );
   } finally {
     await rm(tempDir, { recursive: true, force: true });
   }

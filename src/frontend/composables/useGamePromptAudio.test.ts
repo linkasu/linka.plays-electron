@@ -7,22 +7,25 @@ vi.mock("../core/ttsAudio", () => ({
   playTtsAsset: vi.fn(),
   playTtsAssetAndWait: vi.fn(() => Promise.resolve()),
   stopTtsPlayback: vi.fn(),
-  warmTtsAssets: vi.fn()
+  warmTtsAssets: vi.fn(),
 }));
 
 describe("useGamePromptAudio", () => {
   it("reports a cancelled sequence immediately when its pending delay is cancelled", async () => {
     let promptAudio: ReturnType<typeof useGamePromptAudio> | undefined;
-    let playback: ReturnType<ReturnType<typeof useGamePromptAudio>["playSequenceAndWait"]> | undefined;
+    let playback:
+      ReturnType<ReturnType<typeof useGamePromptAudio>["playSequenceAndWait"]> | undefined;
     const root = document.createElement("div");
     document.body.append(root);
-    const app = createApp(defineComponent({
-      setup() {
-        promptAudio = useGamePromptAudio({ gameId: "patterns", soundEnabled: ref(true) });
-        playback = promptAudio.playSequenceAndWait(["patterns.prompt"], 10_000);
-        return () => null;
-      }
-    }));
+    const app = createApp(
+      defineComponent({
+        setup() {
+          promptAudio = useGamePromptAudio({ gameId: "patterns", soundEnabled: ref(true) });
+          playback = promptAudio.playSequenceAndWait(["patterns.prompt"], 10_000);
+          return () => null;
+        },
+      }),
+    );
 
     app.mount(root);
     try {

@@ -32,7 +32,7 @@ const panItems = [
   { id: "ball", name: "мяч", emoji: "🟡" },
   { id: "toy", name: "игрушка", emoji: "🧸" },
   { id: "coin", name: "монета", emoji: "🪙" },
-  { id: "flower", name: "цветок", emoji: "🌸" }
+  { id: "flower", name: "цветок", emoji: "🌸" },
 ];
 
 function maxWeight(settings: SessionSettings) {
@@ -66,11 +66,15 @@ function buildPan(side: ScalesSide, weight: number, item: (typeof panItems)[numb
     itemId: item.id,
     itemName: item.name,
     emoji: item.emoji,
-    items: Array.from({ length: weight }, () => item.emoji)
+    items: Array.from({ length: weight }, () => item.emoji),
   };
 }
 
-export function correctScalesAnswer(question: ScalesQuestion, leftWeight: number, rightWeight: number): ScalesAnswer {
+export function correctScalesAnswer(
+  question: ScalesQuestion,
+  leftWeight: number,
+  rightWeight: number,
+): ScalesAnswer {
   if (leftWeight === rightWeight) return "equal";
   if (question === "heavier") return leftWeight > rightWeight ? "left" : "right";
   return leftWeight < rightWeight ? "left" : "right";
@@ -82,15 +86,19 @@ export function answerLabel(answer: ScalesAnswer, question: ScalesQuestion) {
   return question === "heavier" ? `${side} тяжелее` : `${side} легче`;
 }
 
-export function generateScalesRound(settings: SessionSettings, roundIndex = 1, random = Math.random): ScalesRound {
+export function generateScalesRound(
+  settings: SessionSettings,
+  roundIndex = 1,
+  random = Math.random,
+): ScalesRound {
   const question: ScalesQuestion = roundIndex % 2 === 0 ? "lighter" : "heavier";
   const item = panItems[randomInt(0, panItems.length - 1, random)];
   const equalRound = roundIndex % 4 === 0;
   const [leftWeight, rightWeight] = equalRound
     ? (() => {
-      const weight = randomInt(1, maxWeight(settings), random);
-      return [weight, weight] as [number, number];
-    })()
+        const weight = randomInt(1, maxWeight(settings), random);
+        return [weight, weight] as [number, number];
+      })()
     : pickDifferentWeights(settings, random);
   const correctAnswer = correctScalesAnswer(question, leftWeight, rightWeight);
   const tiltDeg = leftWeight === rightWeight ? 0 : leftWeight > rightWeight ? -7 : 7;
@@ -102,6 +110,6 @@ export function generateScalesRound(settings: SessionSettings, roundIndex = 1, r
     left: buildPan("left", leftWeight, item),
     right: buildPan("right", rightWeight, item),
     correctAnswer,
-    tiltDeg
+    tiltDeg,
   };
 }

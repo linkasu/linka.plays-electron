@@ -13,7 +13,10 @@ function expectValidRound(round: ReturnType<typeof generateBuildRobotRound>) {
 
 describe("generateBuildRobotRound", () => {
   it("asks for robot details in the fixed assembly order", () => {
-    const targets = Array.from({ length: 8 }, (_, index) => generateBuildRobotRound(index + 1).target.id);
+    const targets = Array.from(
+      { length: 8 },
+      (_, index) => generateBuildRobotRound(index + 1).target.id,
+    );
 
     expect(targets).toEqual([...buildRobotPartOrder, ...buildRobotPartOrder]);
   });

@@ -1,10 +1,17 @@
 import type { TelemetryPrivacyPreference } from "./privacyPreference";
 
-export function isTelemetryEnabled(isPackaged: boolean, forceValue = process.env.LINKA_METRICS_FORCE) {
+export function isTelemetryEnabled(
+  isPackaged: boolean,
+  forceValue = process.env.LINKA_METRICS_FORCE,
+) {
   return isPackaged || forceValue === "1";
 }
 
-export function shouldStartTelemetry(isPackaged: boolean, preference: TelemetryPrivacyPreference, forceValue = process.env.LINKA_METRICS_FORCE) {
+export function shouldStartTelemetry(
+  isPackaged: boolean,
+  preference: TelemetryPrivacyPreference,
+  forceValue = process.env.LINKA_METRICS_FORCE,
+) {
   return preference === "enabled" && isTelemetryEnabled(isPackaged, forceValue);
 }
 

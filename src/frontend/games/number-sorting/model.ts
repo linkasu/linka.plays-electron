@@ -28,19 +28,31 @@ function settingsForPreset(settings: SessionSettings) {
   return { cardCount: 5, maxNumber: 12 };
 }
 
-export function generateNumberSortingRound(settings: SessionSettings, roundIndex = 1, random = Math.random): NumberSortingRound {
+export function generateNumberSortingRound(
+  settings: SessionSettings,
+  roundIndex = 1,
+  random = Math.random,
+): NumberSortingRound {
   const direction: NumberSortingDirection = roundIndex % 2 === 0 ? "descending" : "ascending";
   const { cardCount, maxNumber } = settingsForPreset(settings);
   const values = shuffleItems(numberRange(maxNumber), random).slice(0, cardCount);
-  const correctOrder = [...values].sort((left, right) => direction === "ascending" ? left - right : right - left);
+  const correctOrder = [...values].sort((left, right) =>
+    direction === "ascending" ? left - right : right - left,
+  );
 
   return {
     roundId: `number-sorting:round:${roundIndex}`,
     direction,
-    prompt: direction === "ascending" ? "Выбирай числа от меньшего к большему" : "Выбирай числа от большего к меньшему",
-    helperText: direction === "ascending" ? "Найди самое маленькое оставшееся число." : "Найди самое большое оставшееся число.",
+    prompt:
+      direction === "ascending"
+        ? "Выбирай числа от меньшего к большему"
+        : "Выбирай числа от большего к меньшему",
+    helperText:
+      direction === "ascending"
+        ? "Найди самое маленькое оставшееся число."
+        : "Найди самое большое оставшееся число.",
     cards: values.map((value) => ({ id: `number-sorting:card:${roundIndex}:${value}`, value })),
     correctOrder,
-    targetNumber: correctOrder[0]
+    targetNumber: correctOrder[0],
   };
 }

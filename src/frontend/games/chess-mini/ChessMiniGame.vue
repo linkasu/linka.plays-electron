@@ -9,19 +9,45 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useGameTimers } from "../../composables/useGameTimers";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { boardCells, chessInitialFen, chessPieceMeta, fenSideToMove, isWhitePiece, pieceSide, squareLabel, statusLabel, type ChessPiece, type ChessStatus } from "./model";
+import {
+  boardCells,
+  chessInitialFen,
+  chessPieceMeta,
+  fenSideToMove,
+  isWhitePiece,
+  pieceSide,
+  squareLabel,
+  statusLabel,
+  type ChessPiece,
+  type ChessStatus,
+} from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordMistake, recordSuccess, startSession, finishSession } = useGameSessionFor("chess-mini", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordMistake,
+  recordSuccess,
+  startSession,
+  finishSession,
+} = useGameSessionFor("chess-mini", {
   maxSteps: 8,
   overrides: { targetScale: 1.1, sound: true, sessionSeconds: 86400 },
   finishOnMaxSteps: false,
   finishOnMistakes: false,
-  finishOnTimeout: false
+  finishOnTimeout: false,
 });
 
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "chess-mini", soundEnabled, warmAssetIds: ["chess-mini.prompt", "chess-mini.complete"] });
+const promptAudio = useGamePromptAudio({
+  gameId: "chess-mini",
+  soundEnabled,
+  warmAssetIds: ["chess-mini.prompt", "chess-mini.complete"],
+});
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 const { setGameTimeout, clearGameTimers } = useGameTimers();
 
@@ -40,12 +66,20 @@ let mounted = true;
 
 const cells = computed(() => boardCells(fen.value));
 const sideToMove = computed(() => fenSideToMove(fen.value));
-const selectedMoves = computed(() => selectedIndex.value === undefined ? [] : legalMoves.value.filter((move) => move.fromIndex === selectedIndex.value));
+const selectedMoves = computed(() =>
+  selectedIndex.value === undefined
+    ? []
+    : legalMoves.value.filter((move) => move.fromIndex === selectedIndex.value),
+);
 const movableFrom = computed(() => new Set(legalMoves.value.map((move) => move.fromIndex)));
 const selectedTargets = computed(() => new Set(selectedMoves.value.map((move) => move.toIndex)));
-const actionIndexes = computed(() => selectedIndex.value === undefined ? [...movableFrom.value] : [...selectedTargets.value]);
+const actionIndexes = computed(() =>
+  selectedIndex.value === undefined ? [...movableFrom.value] : [...selectedTargets.value],
+);
 const actionPageCount = computed(() => Math.max(1, Math.ceil(actionIndexes.value.length / 2)));
-const visibleActionIndexes = computed(() => actionIndexes.value.slice(actionPage.value * 2, actionPage.value * 2 + 2));
+const visibleActionIndexes = computed(() =>
+  actionIndexes.value.slice(actionPage.value * 2, actionPage.value * 2 + 2),
+);
 const resultVisible = computed(() => session.status === "finished");
 const statusText = computed(() => {
   if (pending.value && sideToMove.value === "black") return "Чёрные думают";
@@ -75,7 +109,12 @@ function requestContext() {
 }
 
 function isCurrentRequest(context: ReturnType<typeof requestContext>) {
-  return mounted && context.epoch === gameEpoch && context.sessionId === session.sessionId && context.fen === fen.value;
+  return (
+    mounted &&
+    context.epoch === gameEpoch &&
+    context.sessionId === session.sessionId &&
+    context.fen === fen.value
+  );
 }
 
 function failEngine(message: string) {
@@ -94,7 +133,8 @@ function isPlayerPiece(piece: ChessPiece) {
 
 function describeSelectedPiece(index: number, piece: ChessPiece) {
   const moves = legalMoves.value.filter((move) => move.fromIndex === index).length;
-  if (moves > 0) return `${pieceLabel(piece)} ${squareLabel(index)} выбрана. Теперь выбери подсвеченную клетку.`;
+  if (moves > 0)
+    return `${pieceLabel(piece)} ${squareLabel(index)} выбрана. Теперь выбери подсвеченную клетку.`;
   return `${pieceLabel(piece)} ${squareLabel(index)} выбрана, но сейчас у этой фигуры нет хода. Можно выбрать другую белую фигуру.`;
 }
 
@@ -110,10 +150,13 @@ function cellColor(index: number, piece: ChessPiece) {
   if (wrongTarget.value === index) return "orange-lighten-4";
   if (selectedIndex.value === index) return "amber-lighten-3";
   if (selectedTargets.value.has(index)) return "green-lighten-4";
-  if (lastMove.value?.fromIndex === index || lastMove.value?.toIndex === index) return "cyan-lighten-5";
+  if (lastMove.value?.fromIndex === index || lastMove.value?.toIndex === index)
+    return "cyan-lighten-5";
   if (isPlayerPiece(piece) && movableFrom.value.has(index)) return "amber-lighten-5";
   if (isPlayerPiece(piece)) return "brown-lighten-5";
-  return (Math.floor(index / 8) + index % 8) % 2 === 0 ? "brown-lighten-5" : "blue-grey-lighten-5";
+  return (Math.floor(index / 8) + (index % 8)) % 2 === 0
+    ? "brown-lighten-5"
+    : "blue-grey-lighten-5";
 }
 
 function cellClasses(index: number, piece: ChessPiece) {
@@ -121,7 +164,7 @@ function cellClasses(index: number, piece: ChessPiece) {
     "piece-white": pieceSide(piece) === "white",
     "piece-black": pieceSide(piece) === "black",
     "cell-target": selectedTargets.value.has(index),
-    "cell-selected": selectedIndex.value === index
+    "cell-selected": selectedIndex.value === index,
   };
 }
 
@@ -131,7 +174,13 @@ function applyNativeResult(result: ChessMiniAiResult) {
   legalMoves.value = result.moves ?? [];
   status.value = result.status;
   check.value = Boolean(result.check);
-  if (result.fromIndex !== undefined && result.toIndex !== undefined && result.fromIndex >= 0 && result.toIndex >= 0) lastMove.value = { fromIndex: result.fromIndex, toIndex: result.toIndex };
+  if (
+    result.fromIndex !== undefined &&
+    result.toIndex !== undefined &&
+    result.fromIndex >= 0 &&
+    result.toIndex >= 0
+  )
+    lastMove.value = { fromIndex: result.fromIndex, toIndex: result.toIndex };
   selectedIndex.value = undefined;
   resetActionPage();
   return true;
@@ -177,14 +226,20 @@ async function makeAiMove() {
   const context = requestContext();
   pending.value = true;
   feedbackMessage.value = "Чёрные думают над ответом.";
-  const result = await window.linkaAi.chessMiniBestMove({ fen: context.fen, depth: 16, timeLimitMs: 5000 });
+  const result = await window.linkaAi.chessMiniBestMove({
+    fen: context.fen,
+    depth: 16,
+    timeLimitMs: 5000,
+  });
   if (!isCurrentRequest(context)) return;
   if (session.status !== "running") {
     pending.value = false;
     return;
   }
   if (applyNativeResult(result)) {
-    feedbackMessage.value = check.value ? "Чёрные сходили. У белого короля шах." : "Чёрные сходили. Теперь ход белых.";
+    feedbackMessage.value = check.value
+      ? "Чёрные сходили. У белого короля шах."
+      : "Чёрные сходили. Теперь ход белых.";
     finishIfNeeded();
   } else {
     failEngine("Шахматный тренажёр не получил корректный ответ движка.");
@@ -200,7 +255,12 @@ async function applyPlayerMove(move: ChessMiniMove) {
   }
   const context = requestContext();
   pending.value = true;
-  const result = await window.linkaAi.chessMiniApplyMove({ fen: context.fen, fromIndex: move.fromIndex, toIndex: move.toIndex, promotion: move.promotion ?? "q" });
+  const result = await window.linkaAi.chessMiniApplyMove({
+    fen: context.fen,
+    fromIndex: move.fromIndex,
+    toIndex: move.toIndex,
+    promotion: move.promotion ?? "q",
+  });
   if (!isCurrentRequest(context)) return;
   if (session.status !== "running") {
     pending.value = false;
@@ -209,14 +269,24 @@ async function applyPlayerMove(move: ChessMiniMove) {
   if (!applyNativeResult(result)) {
     feedbackMessage.value = "Этот ход не проходит по правилам. Выбери другой ход.";
     wrongTarget.value = move.toIndex;
-    recordMistake({ targetId: targetId(move.toIndex), from: move.fromIndex, to: move.toIndex, isCorrect: false });
+    recordMistake({
+      targetId: targetId(move.toIndex),
+      from: move.fromIndex,
+      to: move.toIndex,
+      isCorrect: false,
+    });
     void feedbackAudio.playMistake();
     setGameTimeout(clearWrongMark, 1400);
     pending.value = false;
     return;
   }
 
-  recordSuccess({ targetId: targetId(move.toIndex), from: move.fromIndex, to: move.toIndex, isCorrect: true });
+  recordSuccess({
+    targetId: targetId(move.toIndex),
+    from: move.fromIndex,
+    to: move.toIndex,
+    isCorrect: true,
+  });
   void feedbackAudio.playSuccess();
   feedbackMessage.value = check.value ? "Ход принят. Чёрному королю шах." : "Ход принят.";
   if (session.step >= session.maxSteps) {
@@ -235,7 +305,13 @@ async function applyPlayerMove(move: ChessMiniMove) {
 }
 
 async function chooseCell(index: number) {
-  if (session.status !== "running" || pending.value || sideToMove.value !== "white" || status.value !== "playing") return;
+  if (
+    session.status !== "running" ||
+    pending.value ||
+    sideToMove.value !== "white" ||
+    status.value !== "playing"
+  )
+    return;
   clearFeedbackTimer();
   clearWrongMark();
 
@@ -272,7 +348,12 @@ async function chooseCell(index: number) {
     }
     wrongTarget.value = index;
     feedbackMessage.value = "Так ходить нельзя. Выбери одну из зелёных клеток.";
-    recordMistake({ targetId: targetId(index), from: selectedIndex.value, selected: index, isCorrect: false });
+    recordMistake({
+      targetId: targetId(index),
+      from: selectedIndex.value,
+      selected: index,
+      isCorrect: false,
+    });
     void feedbackAudio.playMistake();
     setGameTimeout(clearWrongMark, 1400);
     return;
@@ -314,21 +395,47 @@ onUnmounted(() => {
   clearGameTimers();
 });
 
-watch(() => session.status, (nextStatus, previousStatus) => {
-  if (nextStatus !== "running" || previousStatus !== "paused" || pending.value || status.value !== "playing") return;
-  if (sideToMove.value === "black") void makeAiMove();
-  else void loadLegalMoves();
-});
+watch(
+  () => session.status,
+  (nextStatus, previousStatus) => {
+    if (
+      nextStatus !== "running" ||
+      previousStatus !== "paused" ||
+      pending.value ||
+      status.value !== "playing"
+    )
+      return;
+    if (sideToMove.value === "black") void makeAiMove();
+    else void loadLegalMoves();
+  },
+);
 </script>
 
 <template>
   <div class="chess-shell">
-    <GameHud title="Шахматы" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :paused="session.status === 'paused'" :show-progress="false" :show-timer="false" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Шахматы"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :paused="session.status === 'paused'"
+      :show-progress="false"
+      :show-timer="false"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
 
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="11">
-          <v-card class="game-card pa-3 pa-md-4" color="rgba(255, 255, 255, 0.95)" rounded="xl" elevation="10">
+          <v-card
+            class="game-card pa-3 pa-md-4"
+            color="rgba(255, 255, 255, 0.95)"
+            rounded="xl"
+            elevation="10"
+          >
             <div class="game-layout">
               <section class="board-section" aria-label="Шахматная доска">
                 <div class="board-grid" role="grid" aria-label="Шахматная доска восемь на восемь">
@@ -337,14 +444,31 @@ watch(() => session.status, (nextStatus, previousStatus) => {
                     :key="`${fen}-${cell.index}`"
                     type="button"
                     class="board-cell"
-                    :disabled="session.status !== 'running' || pending || sideToMove !== 'white' || status !== 'playing'"
-                    :style="{ '--board-cell-color': `rgb(var(--v-theme-${cellColor(cell.index, cell.piece)}))` }"
+                    :disabled="
+                      session.status !== 'running' ||
+                      pending ||
+                      sideToMove !== 'white' ||
+                      status !== 'playing'
+                    "
+                    :style="{
+                      '--board-cell-color': `rgb(var(--v-theme-${cellColor(cell.index, cell.piece)}))`,
+                    }"
                     @click="chooseCell(cell.index)"
                   >
                     <div class="cell-content" :class="cellClasses(cell.index, cell.piece)">
                       <div class="cell-label">{{ cell.label }}</div>
-                      <v-icon v-if="pieceIcon(cell.piece)" :icon="pieceIcon(cell.piece)" class="piece-icon" size="clamp(1.75rem, 4.8dvh, 3.6rem)" />
-                      <v-icon v-else-if="selectedTargets.has(cell.index)" icon="mdi-circle-outline" class="target-icon" size="clamp(1.2rem, 3dvh, 2.2rem)" />
+                      <v-icon
+                        v-if="pieceIcon(cell.piece)"
+                        :icon="pieceIcon(cell.piece)"
+                        class="piece-icon"
+                        size="clamp(1.75rem, 4.8dvh, 3.6rem)"
+                      />
+                      <v-icon
+                        v-else-if="selectedTargets.has(cell.index)"
+                        icon="mdi-circle-outline"
+                        class="target-icon"
+                        size="clamp(1.2rem, 3dvh, 2.2rem)"
+                      />
                     </div>
                   </button>
                 </div>
@@ -354,40 +478,90 @@ watch(() => session.status, (nextStatus, previousStatus) => {
                 <div class="trainer-intro">
                   <div class="text-overline text-secondary mb-1">Тренажёр легальных ходов 8×8</div>
                   <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Шахматный тренажёр</h1>
-                  <p class="text-body-1 text-medium-emphasis mb-0">Выполни восемь легальных ходов белыми. Чёрные отвечают C++ движком.</p>
+                  <p class="text-body-1 text-medium-emphasis mb-0">
+                    Выполни восемь легальных ходов белыми. Чёрные отвечают C++ движком.
+                  </p>
                 </div>
 
-                <v-alert class="text-body-1 font-weight-medium" :color="check ? 'warning' : 'secondary'" icon="mdi-chess-king" rounded="xl" variant="tonal">
+                <v-alert
+                  class="text-body-1 font-weight-medium"
+                  :color="check ? 'warning' : 'secondary'"
+                  icon="mdi-chess-king"
+                  rounded="xl"
+                  variant="tonal"
+                >
                   {{ feedbackMessage }} {{ statusText }}
                 </v-alert>
 
                 <div class="d-flex flex-wrap ga-2">
                   <v-chip color="primary" size="large" variant="flat">Белые: игрок</v-chip>
                   <v-chip color="blue-grey" size="large" variant="tonal">Чёрные: ИИ</v-chip>
-                  <v-chip v-if="selectedIndex !== undefined" color="success" size="large" variant="tonal">{{ squareLabel(selectedIndex) }}: ходов {{ selectedMoves.length }}</v-chip>
+                  <v-chip
+                    v-if="selectedIndex !== undefined"
+                    color="success"
+                    size="large"
+                    variant="tonal"
+                    >{{ squareLabel(selectedIndex) }}: ходов {{ selectedMoves.length }}</v-chip
+                  >
                   <v-chip v-if="check" color="warning" size="large" variant="flat">Шах</v-chip>
                 </div>
 
                 <div class="action-picker">
-                  <div class="text-subtitle-1 font-weight-bold">{{ selectedIndex === undefined ? 'Выбери фигуру' : 'Выбери клетку хода' }}</div>
-                  <GameDwellButton v-for="index in visibleActionIndexes" :key="`action:${fen}:${selectedIndex}:${index}`" :target-id="`chess-mini:action:${index}`" :disabled="session.status !== 'running' || pending" :dwell-ms="session.settings.dwellMs" min-height="8rem" color="teal-darken-3" @select="chooseCell(index)">
+                  <div class="text-subtitle-1 font-weight-bold">
+                    {{ selectedIndex === undefined ? "Выбери фигуру" : "Выбери клетку хода" }}
+                  </div>
+                  <GameDwellButton
+                    v-for="index in visibleActionIndexes"
+                    :key="`action:${fen}:${selectedIndex}:${index}`"
+                    :target-id="`chess-mini:action:${index}`"
+                    :disabled="session.status !== 'running' || pending"
+                    :dwell-ms="session.settings.dwellMs"
+                    min-height="8rem"
+                    color="teal-darken-3"
+                    @select="chooseCell(index)"
+                  >
                     <template #default>
                       <div class="text-center">
-                        <v-icon v-if="pieceIcon(cells[index].piece)" :icon="pieceIcon(cells[index].piece)" size="3rem" />
-                        <div class="text-h5 font-weight-bold">{{ selectedIndex === undefined ? pieceLabel(cells[index].piece) : 'Ход' }} {{ squareLabel(index) }}</div>
+                        <v-icon
+                          v-if="pieceIcon(cells[index].piece)"
+                          :icon="pieceIcon(cells[index].piece)"
+                          size="3rem"
+                        />
+                        <div class="text-h5 font-weight-bold">
+                          {{ selectedIndex === undefined ? pieceLabel(cells[index].piece) : "Ход" }}
+                          {{ squareLabel(index) }}
+                        </div>
                       </div>
                     </template>
                   </GameDwellButton>
                   <div v-if="actionPageCount > 1" class="action-pages">
-                    <GameDwellButton target-id="chess-mini:actions:next" :dwell-ms="session.settings.dwellMs" min-height="8rem" color="blue-grey-darken-2" @select="changeActionPage(1)">
-                      <template #default><div class="text-h6 font-weight-bold">Другие фигуры</div></template>
+                    <GameDwellButton
+                      target-id="chess-mini:actions:next"
+                      :dwell-ms="session.settings.dwellMs"
+                      min-height="8rem"
+                      color="blue-grey-darken-2"
+                      @select="changeActionPage(1)"
+                    >
+                      <template #default
+                        ><div class="text-h6 font-weight-bold">Другие фигуры</div></template
+                      >
                     </GameDwellButton>
                   </div>
-                  <div class="text-body-2 text-medium-emphasis text-center">Страница {{ actionPage + 1 }} из {{ actionPageCount }}</div>
+                  <div class="text-body-2 text-medium-emphasis text-center">
+                    Страница {{ actionPage + 1 }} из {{ actionPageCount }}
+                  </div>
                 </div>
 
                 <div class="restart-row d-flex ga-3">
-                  <v-btn color="primary" prepend-icon="mdi-restart" rounded="xl" size="large" variant="tonal" @click="restart">Новая партия</v-btn>
+                  <v-btn
+                    color="primary"
+                    prepend-icon="mdi-restart"
+                    rounded="xl"
+                    size="large"
+                    variant="tonal"
+                    @click="restart"
+                    >Новая партия</v-btn
+                  >
                 </div>
               </aside>
             </div>
@@ -396,7 +570,17 @@ watch(() => session.status, (nextStatus, previousStatus) => {
       </v-row>
     </v-container>
 
-    <GameResultDialog :model-value="resultVisible" title="Шахматы" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Шахматы"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -545,16 +729,16 @@ watch(() => session.status, (nextStatus, previousStatus) => {
 }
 
 @media (max-width: 48rem) {
- .game-card {
+  .game-card {
     max-block-size: none;
     overflow: visible;
   }
 
- .game-layout {
+  .game-layout {
     grid-template-columns: 1fr;
   }
 
- .board-grid {
+  .board-grid {
     inline-size: min(92vw, 68dvh, 36rem);
   }
 }

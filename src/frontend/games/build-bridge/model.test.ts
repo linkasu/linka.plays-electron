@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { advanceBuildBridge, bridgeSlotTargetId, buildBridgeMaxSteps, buildBridgePieces, buildBridgeSlots, canPlaceBridgePieceAtSlot, createBuildBridgeState, currentBridgePiece, hasBridgeSupport, nextBridgePiece } from "./model";
+import {
+  advanceBuildBridge,
+  bridgeSlotTargetId,
+  buildBridgeMaxSteps,
+  buildBridgePieces,
+  buildBridgeSlots,
+  canPlaceBridgePieceAtSlot,
+  createBuildBridgeState,
+  currentBridgePiece,
+  hasBridgeSupport,
+  nextBridgePiece,
+} from "./model";
 
 describe("build bridge model", () => {
   it("keeps the bridge build order stable", () => {
@@ -13,13 +24,15 @@ describe("build bridge model", () => {
       "plank-two",
       "plank-three",
       "plank-four",
-      "plank-five"
+      "plank-five",
     ]);
   });
 
   it("finds the next piece from placed ids", () => {
     expect(nextBridgePiece([])?.id).toBe("support-left");
-    expect(nextBridgePiece(["support-left", "support-center", "support-right", "support-far"])?.id).toBe("plank-one");
+    expect(
+      nextBridgePiece(["support-left", "support-center", "support-right", "support-far"])?.id,
+    ).toBe("plank-one");
     expect(nextBridgePiece(buildBridgePieces.map((piece) => piece.id))).toBeUndefined();
   });
 
@@ -34,14 +47,23 @@ describe("build bridge model", () => {
 
   it("drops planks when there is no support underneath", () => {
     expect(canPlaceBridgePieceAtSlot("plank-three", "slot-plank-three", [])).toBe(false);
-    expect(canPlaceBridgePieceAtSlot("plank-three", "slot-plank-three", ["support-center"])).toBe(false);
-    expect(canPlaceBridgePieceAtSlot("plank-three", "slot-plank-three", ["support-center", "support-right"])).toBe(true);
+    expect(canPlaceBridgePieceAtSlot("plank-three", "slot-plank-three", ["support-center"])).toBe(
+      false,
+    );
+    expect(
+      canPlaceBridgePieceAtSlot("plank-three", "slot-plank-three", [
+        "support-center",
+        "support-right",
+      ]),
+    ).toBe(true);
   });
 
   it("accepts only the matching place for the current detail", () => {
     expect(canPlaceBridgePieceAtSlot("support-left", "slot-support-left", [])).toBe(true);
     expect(canPlaceBridgePieceAtSlot("support-left", "slot-support-center", [])).toBe(false);
-    expect(canPlaceBridgePieceAtSlot("plank-four", "slot-plank-one", ["support-left", "support-right"])).toBe(false);
+    expect(
+      canPlaceBridgePieceAtSlot("plank-four", "slot-plank-one", ["support-left", "support-right"]),
+    ).toBe(false);
   });
 
   it("starts directly in placement mode with the first ordered detail", () => {
@@ -65,7 +87,9 @@ describe("build bridge model", () => {
     const outcome = advanceBuildBridge(createBuildBridgeState(), "slot-support-left");
 
     expect(outcome.kind).toBe("placed");
-    expect(outcome.state.placements).toEqual([{ pieceId: "support-left", slotId: "slot-support-left" }]);
+    expect(outcome.state.placements).toEqual([
+      { pieceId: "support-left", slotId: "slot-support-left" },
+    ]);
     expect(currentBridgePiece(outcome.state)?.id).toBe("support-center");
   });
 

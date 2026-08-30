@@ -1,4 +1,8 @@
-import { advanceDwellMachine, type DwellMachineResult, type DwellMachineState } from "./dwellStateMachine";
+import {
+  advanceDwellMachine,
+  type DwellMachineResult,
+  type DwellMachineState,
+} from "./dwellStateMachine";
 
 export type MovingTargetPoint = { x: number; y: number };
 export type MovingTargetPointer = MovingTargetPoint & { valid: boolean };
@@ -27,7 +31,9 @@ type MovingTargetDwellOptions<T extends { id: string }> = {
 
 export function movingTargetSpawnX(options: MovingTargetSpawnOptions) {
   if (options.fromEdge) {
-    return options.direction === 1 ? -options.edgeOffset : options.viewportWidth + options.edgeOffset;
+    return options.direction === 1
+      ? -options.edgeOffset
+      : options.viewportWidth + options.edgeOffset;
   }
 
   const count = Math.max(1, options.targetCount);
@@ -37,7 +43,12 @@ export function movingTargetSpawnX(options: MovingTargetSpawnOptions) {
   return radius + safeWidth * ((index + 1) / (count + 1));
 }
 
-export function advanceMovingTargetX(x: number, direction: -1 | 1, speed: number, deltaSeconds: number) {
+export function advanceMovingTargetX(
+  x: number,
+  direction: -1 | 1,
+  speed: number,
+  deltaSeconds: number,
+) {
   return x + direction * speed * deltaSeconds;
 }
 
@@ -45,7 +56,12 @@ export function alternatingMovingTargetDirection(sequence: number): -1 | 1 {
   return Math.abs(Math.trunc(sequence)) % 2 === 0 ? 1 : -1;
 }
 
-export function closestMovingTarget<T extends { id: string }>(options: Pick<MovingTargetDwellOptions<T>, "pointer" | "targets" | "point" | "hitRadius" | "enabled">) {
+export function closestMovingTarget<T extends { id: string }>(
+  options: Pick<
+    MovingTargetDwellOptions<T>,
+    "pointer" | "targets" | "point" | "hitRadius" | "enabled"
+  >,
+) {
   if (!options.pointer.valid) return undefined;
 
   let closest: T | undefined;
@@ -62,7 +78,10 @@ export function closestMovingTarget<T extends { id: string }>(options: Pick<Movi
   return closest;
 }
 
-export function advanceMovingTargetDwell<T extends { id: string }>(current: DwellMachineState, options: MovingTargetDwellOptions<T>): DwellMachineResult {
+export function advanceMovingTargetDwell<T extends { id: string }>(
+  current: DwellMachineState,
+  options: MovingTargetDwellOptions<T>,
+): DwellMachineResult {
   const target = closestMovingTarget(options);
   return advanceDwellMachine(current, {
     now: options.now,
@@ -70,6 +89,6 @@ export function advanceMovingTargetDwell<T extends { id: string }>(current: Dwel
     pointerValid: options.pointer.valid,
     dwellMs: options.dwellMs,
     graceMs: options.graceMs ?? 140,
-    cooldownMs: options.cooldownMs ?? 500
+    cooldownMs: options.cooldownMs ?? 500,
   });
 }

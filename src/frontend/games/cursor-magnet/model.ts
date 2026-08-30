@@ -60,118 +60,125 @@ export const magneticLevels: MagneticLevel[] = [
     start: { x: 0.18, y: 0.55 },
     goal: { x: 0.78, y: 0.55, radius: 0.055 },
     magnets: [{ id: "alpha", label: "A", x: 0.78, y: 0.55, pole: "positive", strength: 2 }],
-    walls: []
+    walls: [],
   },
   {
     id: "repulse-turn",
     title: "Отталкивание",
-    brief: "Нижний положительный заряд толкает капсулу вверх, правый отрицательный тянет к реактору.",
+    brief:
+      "Нижний положительный заряд толкает капсулу вверх, правый отрицательный тянет к реактору.",
     start: { x: 0.18, y: 0.72 },
     goal: { x: 0.78, y: 0.34, radius: 0.06 },
     magnets: [
       { id: "alpha", label: "A", x: 0.12, y: 0.84, pole: "negative", strength: 2 },
-      { id: "beta", label: "B", x: 0.78, y: 0.34, pole: "positive", strength: 2 }
+      { id: "beta", label: "B", x: 0.78, y: 0.34, pole: "positive", strength: 2 },
     ],
-    walls: [{ x: 0.4, y: 0.52, width: 0.14, height: 0.16 }]
+    walls: [{ x: 0.4, y: 0.52, width: 0.14, height: 0.16 }],
   },
   {
     id: "s-curve",
     title: "Извилистый коридор",
-    brief: "Выключи боковые помехи и оставь отрицательный заряд у реактора, чтобы капсула прошла между перегородками.",
+    brief:
+      "Выключи боковые помехи и оставь отрицательный заряд у реактора, чтобы капсула прошла между перегородками.",
     start: { x: 0.16, y: 0.28 },
     goal: { x: 0.82, y: 0.74, radius: 0.052 },
     magnets: [
       { id: "alpha", label: "A", x: 0.34, y: 0.2, pole: "positive", strength: 1 },
       { id: "beta", label: "B", x: 0.56, y: 0.5, pole: "negative", strength: 1 },
-      { id: "gamma", label: "C", x: 0.82, y: 0.74, pole: "positive", strength: 1 }
+      { id: "gamma", label: "C", x: 0.82, y: 0.74, pole: "positive", strength: 1 },
     ],
     walls: [
       { x: 0.42, y: 0.16, width: 0.08, height: 0.22 },
-      { x: 0.62, y: 0.68, width: 0.08, height: 0.22 }
-    ]
+      { x: 0.62, y: 0.68, width: 0.08, height: 0.22 },
+    ],
   },
   {
     id: "interference-zone",
     title: "Зона помех",
-    brief: "Проведи капсулу между двумя стенами: выключи лишние поля и оставь отрицательный заряд у реактора.",
+    brief:
+      "Проведи капсулу между двумя стенами: выключи лишние поля и оставь отрицательный заряд у реактора.",
     start: { x: 0.17, y: 0.48 },
     goal: { x: 0.84, y: 0.48, radius: 0.055 },
     magnets: [
       { id: "alpha", label: "A", x: 0.34, y: 0.3, pole: "positive", strength: 2 },
       { id: "beta", label: "B", x: 0.54, y: 0.48, pole: "negative", strength: 1 },
-      { id: "gamma", label: "C", x: 0.84, y: 0.48, pole: "positive", strength: 1 }
+      { id: "gamma", label: "C", x: 0.84, y: 0.48, pole: "positive", strength: 1 },
     ],
     walls: [
       { x: 0.3, y: 0.6, width: 0.28, height: 0.08 },
-      { x: 0.56, y: 0.32, width: 0.24, height: 0.08 }
-    ]
+      { x: 0.56, y: 0.32, width: 0.24, height: 0.08 },
+    ],
   },
   {
     id: "upper-gate",
     title: "Верхний шлюз",
-    brief: "Положительный заряд снизу выталкивает капсулу вверх, отрицательный у реактора забирает её в шлюз.",
+    brief:
+      "Положительный заряд снизу выталкивает капсулу вверх, отрицательный у реактора забирает её в шлюз.",
     start: { x: 0.15, y: 0.78 },
     goal: { x: 0.84, y: 0.24, radius: 0.055 },
     magnets: [
       { id: "alpha", label: "A", x: 0.12, y: 0.9, pole: "negative", strength: 1 },
       { id: "beta", label: "B", x: 0.84, y: 0.24, pole: "positive", strength: 1 },
-      { id: "gamma", label: "C", x: 0.46, y: 0.46, pole: "positive", strength: 2 }
+      { id: "gamma", label: "C", x: 0.46, y: 0.46, pole: "positive", strength: 2 },
     ],
     walls: [
       { x: 0.34, y: 0.58, width: 0.24, height: 0.08 },
-      { x: 0.58, y: 0.3, width: 0.08, height: 0.28 }
-    ]
+      { x: 0.58, y: 0.3, width: 0.08, height: 0.28 },
+    ],
   },
   {
     id: "narrow-channel",
     title: "Узкий канал",
-    brief: "Не включай верхнюю и нижнюю помехи. Отрицательный заряд справа тянет капсулу по каналу.",
+    brief:
+      "Не включай верхнюю и нижнюю помехи. Отрицательный заряд справа тянет капсулу по каналу.",
     start: { x: 0.12, y: 0.5 },
     goal: { x: 0.88, y: 0.5, radius: 0.052 },
     magnets: [
       { id: "alpha", label: "A", x: 0.5, y: 0.25, pole: "positive", strength: 2 },
       { id: "beta", label: "B", x: 0.5, y: 0.75, pole: "negative", strength: 2 },
-      { id: "gamma", label: "C", x: 0.88, y: 0.5, pole: "positive", strength: 1 }
+      { id: "gamma", label: "C", x: 0.88, y: 0.5, pole: "positive", strength: 1 },
     ],
     walls: [
       { x: 0.24, y: 0.32, width: 0.44, height: 0.06 },
-      { x: 0.24, y: 0.62, width: 0.44, height: 0.06 }
-    ]
+      { x: 0.24, y: 0.62, width: 0.44, height: 0.06 },
+    ],
   },
   {
     id: "core-bypass",
     title: "Обход ядра",
-    brief: "Отключи боковые ловушки и оставь отрицательный заряд у реактора, чтобы капсула обошла ядро.",
+    brief:
+      "Отключи боковые ловушки и оставь отрицательный заряд у реактора, чтобы капсула обошла ядро.",
     start: { x: 0.18, y: 0.22 },
     goal: { x: 0.84, y: 0.72, radius: 0.052 },
     magnets: [
       { id: "alpha", label: "A", x: 0.2, y: 0.14, pole: "positive", strength: 2 },
       { id: "beta", label: "B", x: 0.54, y: 0.44, pole: "negative", strength: 2 },
-      { id: "gamma", label: "C", x: 0.84, y: 0.72, pole: "positive", strength: 1 }
+      { id: "gamma", label: "C", x: 0.84, y: 0.72, pole: "positive", strength: 1 },
     ],
     walls: [
       { x: 0.42, y: 0.12, width: 0.08, height: 0.25 },
-      { x: 0.62, y: 0.64, width: 0.08, height: 0.25 }
-    ]
+      { x: 0.62, y: 0.64, width: 0.08, height: 0.25 },
+    ],
   },
   {
     id: "final-reactor",
     title: "Финальный реактор",
-    brief: "Оставь сильный положительный толчок снизу, отрицательный проводник и сильный отрицательный реактор.",
+    brief:
+      "Оставь сильный положительный толчок снизу, отрицательный проводник и сильный отрицательный реактор.",
     start: { x: 0.12, y: 0.84 },
     goal: { x: 0.86, y: 0.22, radius: 0.055 },
     magnets: [
       { id: "alpha", label: "A", x: 0.1, y: 0.92, pole: "negative", strength: 1 },
       { id: "beta", label: "B", x: 0.5, y: 0.52, pole: "positive", strength: 1 },
       { id: "gamma", label: "C", x: 0.66, y: 0.72, pole: "positive", strength: 1 },
-      { id: "delta", label: "D", x: 0.86, y: 0.22, pole: "positive", strength: 2 }
+      { id: "delta", label: "D", x: 0.86, y: 0.22, pole: "positive", strength: 2 },
     ],
     walls: [
       { x: 0.34, y: 0.7, width: 0.22, height: 0.08 },
       { x: 0.58, y: 0.24, width: 0.08, height: 0.18 },
-      { x: 0.24, y: 0.28, width: 0.24, height: 0.08 }
-    ]
-  }
+      { x: 0.24, y: 0.28, width: 0.24, height: 0.08 },
+    ],
+  },
 ];
 
 export function createMagneticLabState(levelIndex = 0): MagneticLabState {
@@ -183,7 +190,7 @@ export function createMagneticLabState(levelIndex = 0): MagneticLabState {
     mode: "editing",
     capsule: { ...level.start, vx: 0, vy: 0, pole: "positive" },
     magnets: level.magnets.map((magnet) => ({ ...magnet })),
-    elapsedSeconds: 0
+    elapsedSeconds: 0,
   };
 }
 
@@ -196,7 +203,8 @@ export function selectedMagnet(state: MagneticLabState) {
 }
 
 export function selectMagnet(state: MagneticLabState, magnetId: string): MagneticLabState {
-  if (!state.magnets.some((magnet) => magnet.id === magnetId) || state.mode === "running") return state;
+  if (!state.magnets.some((magnet) => magnet.id === magnetId) || state.mode === "running")
+    return state;
   return { ...state, selectedMagnetId: magnetId };
 }
 
@@ -207,24 +215,32 @@ export function setSelectedPole(state: MagneticLabState, pole: MagneticPole): Ma
 
 export function cycleSelectedStrength(state: MagneticLabState): MagneticLabState {
   if (state.mode === "running") return state;
-  return updateSelectedMagnet(state, (magnet) => ({ ...magnet, strength: ((magnet.strength + 1) % 3) as 0 | 1 | 2 }));
+  return updateSelectedMagnet(state, (magnet) => ({
+    ...magnet,
+    strength: ((magnet.strength + 1) % 3) as 0 | 1 | 2,
+  }));
 }
 
 export function startSimulation(state: MagneticLabState): MagneticLabState {
   if (state.mode === "running") return state;
   const level = currentLevel(state);
   return {
-   ...state,
+    ...state,
     mode: "running",
     capsule: { ...level.start, vx: 0, vy: 0, pole: "positive" },
     elapsedSeconds: 0,
-    failureReason: undefined
+    failureReason: undefined,
   };
 }
 
 export function stopSimulation(state: MagneticLabState): MagneticLabState {
   if (state.mode !== "running") return state;
-  return { ...state, mode: "editing", capsule: { ...currentLevel(state).start, vx: 0, vy: 0, pole: "positive" }, elapsedSeconds: 0 };
+  return {
+    ...state,
+    mode: "editing",
+    capsule: { ...currentLevel(state).start, vx: 0, vy: 0, pole: "positive" },
+    elapsedSeconds: 0,
+  };
 }
 
 export function resetLevel(state: MagneticLabState): MagneticLabState {
@@ -236,7 +252,11 @@ export function nextLevel(state: MagneticLabState): MagneticLabState {
 }
 
 export function stepSimulation(state: MagneticLabState, deltaSeconds: number): StepResult {
-  if (state.mode !== "running") return { state, event: state.mode === "success" ? "success" : state.mode === "failed" ? "failed" : "running" };
+  if (state.mode !== "running")
+    return {
+      state,
+      event: state.mode === "success" ? "success" : state.mode === "failed" ? "failed" : "running",
+    };
 
   const level = currentLevel(state);
   const delta = Math.min(0.04, Math.max(0, deltaSeconds));
@@ -245,27 +265,34 @@ export function stepSimulation(state: MagneticLabState, deltaSeconds: number): S
   const elapsedSeconds = state.elapsedSeconds + delta;
 
   const nextBase = { ...state, capsule: nextCapsule, elapsedSeconds };
-  if (distance(nextCapsule, level.goal) <= level.goal.radius) return { state: { ...nextBase, mode: "success" }, event: "success" };
-  if (isOutOfBounds(nextCapsule)) return { state: { ...nextBase, mode: "failed", failureReason: "bounds" }, event: "failed" };
-  if (level.walls.some((wall) => pointInWall(nextCapsule, wall))) return { state: { ...nextBase, mode: "failed", failureReason: "wall" }, event: "failed" };
-  if (elapsedSeconds > 14 && Math.hypot(nextCapsule.vx, nextCapsule.vy) < 0.008) return { state: { ...nextBase, mode: "failed", failureReason: "stalled" }, event: "failed" };
+  if (distance(nextCapsule, level.goal) <= level.goal.radius)
+    return { state: { ...nextBase, mode: "success" }, event: "success" };
+  if (isOutOfBounds(nextCapsule))
+    return { state: { ...nextBase, mode: "failed", failureReason: "bounds" }, event: "failed" };
+  if (level.walls.some((wall) => pointInWall(nextCapsule, wall)))
+    return { state: { ...nextBase, mode: "failed", failureReason: "wall" }, event: "failed" };
+  if (elapsedSeconds > 14 && Math.hypot(nextCapsule.vx, nextCapsule.vy) < 0.008)
+    return { state: { ...nextBase, mode: "failed", failureReason: "stalled" }, event: "failed" };
   return { state: nextBase, event: "running" };
 }
 
 export function magneticForce(capsule: CapsuleState, magnets: MagnetConfig[]): Point {
-  return magnets.reduce<Point>((total, magnet) => {
-    if (magnet.strength === 0) return total;
-    const dx = magnet.x - capsule.x;
-    const dy = magnet.y - capsule.y;
-    const distanceSquared = Math.max(0.006, dx * dx + dy * dy);
-    const distanceValue = Math.sqrt(distanceSquared);
-    const direction = magnet.pole === capsule.pole ? -1 : 1;
-    const power = direction * magnet.strength * 0.12 / distanceSquared;
-    return {
-      x: total.x + dx / distanceValue * power,
-      y: total.y + dy / distanceValue * power
-    };
-  }, { x: 0, y: 0 });
+  return magnets.reduce<Point>(
+    (total, magnet) => {
+      if (magnet.strength === 0) return total;
+      const dx = magnet.x - capsule.x;
+      const dy = magnet.y - capsule.y;
+      const distanceSquared = Math.max(0.006, dx * dx + dy * dy);
+      const distanceValue = Math.sqrt(distanceSquared);
+      const direction = magnet.pole === capsule.pole ? -1 : 1;
+      const power = (direction * magnet.strength * 0.12) / distanceSquared;
+      return {
+        x: total.x + (dx / distanceValue) * power,
+        y: total.y + (dy / distanceValue) * power,
+      };
+    },
+    { x: 0, y: 0 },
+  );
 }
 
 export function distance(a: Point, b: Point) {
@@ -273,13 +300,23 @@ export function distance(a: Point, b: Point) {
 }
 
 export function pointInWall(point: Point, wall: LabWall) {
-  return point.x >= wall.x && point.x <= wall.x + wall.width && point.y >= wall.y && point.y <= wall.y + wall.height;
+  return (
+    point.x >= wall.x &&
+    point.x <= wall.x + wall.width &&
+    point.y >= wall.y &&
+    point.y <= wall.y + wall.height
+  );
 }
 
-function updateSelectedMagnet(state: MagneticLabState, update: (magnet: MagnetConfig) => MagnetConfig): MagneticLabState {
+function updateSelectedMagnet(
+  state: MagneticLabState,
+  update: (magnet: MagnetConfig) => MagnetConfig,
+): MagneticLabState {
   return {
-   ...state,
-    magnets: state.magnets.map((magnet) => magnet.id === state.selectedMagnetId ? update(magnet) : magnet)
+    ...state,
+    magnets: state.magnets.map((magnet) =>
+      magnet.id === state.selectedMagnetId ? update(magnet) : magnet,
+    ),
   };
 }
 

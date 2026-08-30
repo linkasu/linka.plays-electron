@@ -5,13 +5,13 @@ import { disposeJellyfishAudio, playJellyfishSuccess, scheduleJellyfishAmbient }
 const pianoMocks = vi.hoisted(() => ({
   dispose: vi.fn(),
   play: vi.fn(() => Promise.resolve()),
-  warm: vi.fn()
+  warm: vi.fn(),
 }));
 
 vi.mock("../../core/softPiano", () => ({
   disposeSoftPiano: pianoMocks.dispose,
   playSoftPianoMelody: pianoMocks.play,
-  warmSoftPiano: pianoMocks.warm
+  warmSoftPiano: pianoMocks.warm,
 }));
 
 beforeEach(() => {

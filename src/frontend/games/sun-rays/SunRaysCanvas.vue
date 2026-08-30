@@ -40,7 +40,13 @@ function rayProgress(index: number) {
   return 0;
 }
 
-function drawCloud(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, alpha: number) {
+function drawCloud(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  scale: number,
+  alpha: number,
+) {
   ctx.save();
   ctx.globalAlpha = alpha;
   ctx.fillStyle = "#ffffff";
@@ -52,10 +58,17 @@ function drawCloud(ctx: CanvasRenderingContext2D, x: number, y: number, scale: n
   ctx.restore();
 }
 
-function drawRay(ctx: CanvasRenderingContext2D, index: number, cx: number, cy: number, radius: number, now: number) {
+function drawRay(
+  ctx: CanvasRenderingContext2D,
+  index: number,
+  cx: number,
+  cy: number,
+  radius: number,
+  now: number,
+) {
   const count = Math.max(1, props.maxSteps);
   const progress = rayProgress(index);
-  const angle = -Math.PI / 2 + index * Math.PI * 2 / count;
+  const angle = -Math.PI / 2 + (index * Math.PI * 2) / count;
   const shimmer = Math.sin(now * 0.0012 + index * 1.7) * 0.04;
   const visible = clamp(0.2 + progress * 0.8 + shimmer * Math.max(0.25, progress), 0, 1);
   const length = Math.min(width, height) * (0.34 + visible * 0.17);
@@ -81,7 +94,7 @@ function drawRay(ctx: CanvasRenderingContext2D, index: number, cx: number, cy: n
     start + length * 0.56,
     radius * 0.18 * Math.cos(index + now * 0.0006),
     end,
-    0
+    0,
   );
   ctx.stroke();
 
@@ -100,10 +113,23 @@ function drawRay(ctx: CanvasRenderingContext2D, index: number, cx: number, cy: n
   ctx.restore();
 }
 
-function drawSun(ctx: CanvasRenderingContext2D, cx: number, cy: number, radius: number, now: number) {
+function drawSun(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  radius: number,
+  now: number,
+) {
   const open = clamp(props.step / Math.max(1, props.maxSteps), 0, 1);
   const pulse = props.active ? 1 + Math.sin(now * 0.004) * 0.025 : 1;
-  const glow = ctx.createRadialGradient(cx, cy, radius * 0.25, cx, cy, radius * (2.9 + open * 1.05));
+  const glow = ctx.createRadialGradient(
+    cx,
+    cy,
+    radius * 0.25,
+    cx,
+    cy,
+    radius * (2.9 + open * 1.05),
+  );
   glow.addColorStop(0, `rgb(255 232 104 / ${0.58 + open * 0.26})`);
   glow.addColorStop(0.46, `rgb(255 207 79 / ${0.22 + open * 0.22})`);
   glow.addColorStop(1, "rgb(255 215 96 / 0%)");
@@ -112,7 +138,14 @@ function drawSun(ctx: CanvasRenderingContext2D, cx: number, cy: number, radius: 
   ctx.arc(cx, cy, radius * (2.75 + open * 0.74), 0, Math.PI * 2);
   ctx.fill();
 
-  const body = ctx.createRadialGradient(cx - radius * 0.28, cy - radius * 0.34, radius * 0.08, cx, cy, radius * 1.08);
+  const body = ctx.createRadialGradient(
+    cx - radius * 0.28,
+    cy - radius * 0.34,
+    radius * 0.08,
+    cx,
+    cy,
+    radius * 1.08,
+  );
   body.addColorStop(0, "#fff9c4");
   body.addColorStop(0.45, "#ffd75f");
   body.addColorStop(1, "#f39b27");
@@ -166,8 +199,20 @@ function draw(now: number) {
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, width, height);
 
-  drawCloud(ctx, width * 0.22 + Math.sin(now * 0.00018) * width * 0.02, height * 0.24, Math.min(width, height) * 0.08, 0.32);
-  drawCloud(ctx, width * 0.76 + Math.sin(now * 0.00014 + 2) * width * 0.025, height * 0.31, Math.min(width, height) * 0.095, 0.24);
+  drawCloud(
+    ctx,
+    width * 0.22 + Math.sin(now * 0.00018) * width * 0.02,
+    height * 0.24,
+    Math.min(width, height) * 0.08,
+    0.32,
+  );
+  drawCloud(
+    ctx,
+    width * 0.76 + Math.sin(now * 0.00014 + 2) * width * 0.025,
+    height * 0.31,
+    Math.min(width, height) * 0.095,
+    0.24,
+  );
 
   const cx = width * 0.5;
   const cy = height * 0.43;

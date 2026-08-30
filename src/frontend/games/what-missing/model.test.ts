@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { settingsFromPreset } from "../../core/settings";
-import { DEFAULT_WHAT_MISSING_OBSERVE_MS, generateWhatMissingRound, shuffleWhatMissingItems, transitionWhatMissingPhase, whatMissingItems } from "./model";
+import {
+  DEFAULT_WHAT_MISSING_OBSERVE_MS,
+  generateWhatMissingRound,
+  shuffleWhatMissingItems,
+  transitionWhatMissingPhase,
+  whatMissingItems,
+} from "./model";
 
 describe("what-missing model", () => {
   it("shows exactly three unique items", () => {
@@ -34,7 +40,9 @@ describe("what-missing model", () => {
     const shuffled = shuffleWhatMissingItems(whatMissingItems.slice(0, 4), () => 0.3);
 
     expect(shuffled).toHaveLength(4);
-    expect(new Set(shuffled.map((item) => item.id))).toEqual(new Set(whatMissingItems.slice(0, 4).map((item) => item.id)));
+    expect(new Set(shuffled.map((item) => item.id))).toEqual(
+      new Set(whatMissingItems.slice(0, 4).map((item) => item.id)),
+    );
   });
 
   it("keeps the default observation interval at five seconds or longer", () => {

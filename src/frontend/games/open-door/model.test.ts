@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { advanceOpenDoor, createOpenDoorState, openDoorRewards, openDoorTargetId, revealOpenDoor } from "./model";
+import {
+  advanceOpenDoor,
+  createOpenDoorState,
+  openDoorRewards,
+  openDoorTargetId,
+  revealOpenDoor,
+} from "./model";
 
 describe("open-door model", () => {
   it("moves through closed, revealed, and complete without accepting a second reveal", () => {
@@ -16,7 +22,10 @@ describe("open-door model", () => {
   });
 
   it("returns to a closed door before exposing the next reward", () => {
-    const firstReveal = revealOpenDoor(createOpenDoorState(2, () => 0), () => 0);
+    const firstReveal = revealOpenDoor(
+      createOpenDoorState(2, () => 0),
+      () => 0,
+    );
     const nextDoor = advanceOpenDoor(firstReveal);
 
     expect(nextDoor).toMatchObject({ phase: "closed", openedCount: 1 });
@@ -24,7 +33,10 @@ describe("open-door model", () => {
   });
 
   it("uses one semantic gaze target for consecutive doors", () => {
-    const firstReveal = revealOpenDoor(createOpenDoorState(2, () => 0), () => 0);
+    const firstReveal = revealOpenDoor(
+      createOpenDoorState(2, () => 0),
+      () => 0,
+    );
     const secondReveal = revealOpenDoor(advanceOpenDoor(firstReveal), () => 0);
 
     expect(firstReveal.openedCount).toBe(1);

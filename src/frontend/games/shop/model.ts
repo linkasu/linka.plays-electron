@@ -37,7 +37,7 @@ export type ShopRound = {
 export const shopCoins: ShopCoin[] = [
   { value: 1, label: "1" },
   { value: 2, label: "2" },
-  { value: 5, label: "5" }
+  { value: 5, label: "5" },
 ];
 
 export const shopItems: ShopItem[] = [
@@ -49,7 +49,7 @@ export const shopItems: ShopItem[] = [
   { id: "cookie", wordId: "cookie", label: "печенье", emoji: "🍪", price: 7 },
   { id: "cheese", wordId: "cheese", label: "сыр", emoji: "🧀", price: 8 },
   { id: "berries", label: "ягоды", emoji: "🫐", price: 9 },
-  { id: "cake", label: "кекс", emoji: "🧁", price: 10 }
+  { id: "cake", label: "кекс", emoji: "🧁", price: 10 },
 ];
 
 function choiceCountFor(settings: SessionSettings) {
@@ -89,15 +89,20 @@ export function buildShopPaymentSuggestion(total: number): ShopCoinValue[] {
 
 export function validateShopShoppingCart(round: ShopRound, selectedItemIds: string[]) {
   const selectedItems = selectedItemIds
-   .map((id) => shopItems.find((item) => item.id === id))
-   .filter((item): item is ShopItem => Boolean(item));
+    .map((id) => shopItems.find((item) => item.id === id))
+    .filter((item): item is ShopItem => Boolean(item));
   const selectedSet = new Set(selectedItemIds);
   const targetSet = new Set(round.correctItemIds);
-  const matchesTargets = selectedSet.size === targetSet.size && [...targetSet].every((id) => selectedSet.has(id));
+  const matchesTargets =
+    selectedSet.size === targetSet.size && [...targetSet].every((id) => selectedSet.has(id));
   return matchesTargets && sumItems(selectedItems) <= round.walletTotal;
 }
 
-export function generateShopRound(settings: SessionSettings, roundIndex = 1, random = Math.random): ShopRound {
+export function generateShopRound(
+  settings: SessionSettings,
+  roundIndex = 1,
+  random = Math.random,
+): ShopRound {
   const taskKind: ShopTaskKind = roundIndex % 2 === 0 ? "pay-coins" : "shopping-list";
   const choiceCount = choiceCountFor(settings);
   if (shopItems.length < choiceCount) throw new Error("Недостаточно товаров для магазина.");
@@ -107,7 +112,10 @@ export function generateShopRound(settings: SessionSettings, roundIndex = 1, ran
     const [targetItems] = shuffleItems(buildShoppingPairs(walletTotal), random);
     if (!targetItems) throw new Error("Недостаточно товаров для списка покупок.");
     const targetIds = new Set(targetItems.map((item) => item.id));
-    const distractors = shuffleItems(shopItems.filter((item) => !targetIds.has(item.id)), random).slice(0, choiceCount - targetItems.length);
+    const distractors = shuffleItems(
+      shopItems.filter((item) => !targetIds.has(item.id)),
+      random,
+    ).slice(0, choiceCount - targetItems.length);
     const choices = shuffleItems([...targetItems, ...distractors], random);
     const targetPrice = sumItems(targetItems);
 
@@ -124,12 +132,15 @@ export function generateShopRound(settings: SessionSettings, roundIndex = 1, ran
       correctIndex: choices.findIndex((item) => item.id === targetItems[0].id),
       correctItemIds: targetItems.map((item) => item.id),
       coins: shopCoins,
-      suggestedCoins: buildShopPaymentSuggestion(targetPrice)
+      suggestedCoins: buildShopPaymentSuggestion(targetPrice),
     };
   }
 
   const [targetItem] = shuffleItems(shopItems, random).slice(0, 1);
-  const distractors = shuffleItems(shopItems.filter((item) => item.price !== targetItem.price), random).slice(0, choiceCount - 1);
+  const distractors = shuffleItems(
+    shopItems.filter((item) => item.price !== targetItem.price),
+    random,
+  ).slice(0, choiceCount - 1);
   const choices = shuffleItems([targetItem, ...distractors], random);
   const targetPrice = targetItem.price;
 
@@ -146,6 +157,6 @@ export function generateShopRound(settings: SessionSettings, roundIndex = 1, ran
     correctIndex: choices.findIndex((item) => item.id === targetItem.id),
     correctItemIds: [targetItem.id],
     coins: shopCoins,
-    suggestedCoins: buildShopPaymentSuggestion(targetPrice)
+    suggestedCoins: buildShopPaymentSuggestion(targetPrice),
   };
 }

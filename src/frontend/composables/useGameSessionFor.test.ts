@@ -16,7 +16,7 @@ describe("createInitialSessionSettings", () => {
 
   it("keeps an explicit game override", () => {
     const settings = createInitialSessionSettings("aquarium", {
-      overrides: { dwellMs: 900 }
+      overrides: { dwellMs: 900 },
     });
 
     expect(settings.dwellMs).toBe(900);

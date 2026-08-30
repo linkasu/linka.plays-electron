@@ -22,7 +22,9 @@ describe("generateOneManyRound", () => {
 
     expect(round.itemId).toBeTruthy();
     expect(round.itemName).toBeTruthy();
-    expect(new Set(round.choices.flatMap((item) => item.items))).toEqual(new Set([round.choices[0].emoji]));
+    expect(new Set(round.choices.flatMap((item) => item.items))).toEqual(
+      new Set([round.choices[0].emoji]),
+    );
   });
 
   it("keeps left and right choices distinct in every round", () => {
@@ -33,7 +35,9 @@ describe("generateOneManyRound", () => {
 
   it("balances one and many targets across both sides of the deck", () => {
     const deck = createOneManyDeck(() => 0.42);
-    const targetPositions = deck.map((round) => `${round.target}:${choice(round, round.target).side}`);
+    const targetPositions = deck.map(
+      (round) => `${round.target}:${choice(round, round.target).side}`,
+    );
 
     expect(deck).toHaveLength(8);
     expect(new Set(deck.map((round) => round.itemId)).size).toBe(8);

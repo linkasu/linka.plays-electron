@@ -1,24 +1,40 @@
 import { describe, expect, it } from "vitest";
-import { carSize, createHighwayState, highwaySegments, laneCenter, highwayRoad, updateHighway, type HighwayState, type ViewportSize } from "./model";
+import {
+  carSize,
+  createHighwayState,
+  highwaySegments,
+  laneCenter,
+  highwayRoad,
+  updateHighway,
+  type HighwayState,
+  type ViewportSize,
+} from "./model";
 
 const viewport: ViewportSize = { width: 1000, height: 700 };
 
 function withGoalAtCar(state: HighwayState): HighwayState {
   const road = highwayRoad(viewport);
   return {
-   ...state,
-    car: { ...state.car, x: laneCenter(road, state.goal.lane), targetLane: state.goal.lane, lane: state.goal.lane },
+    ...state,
+    car: {
+      ...state.car,
+      x: laneCenter(road, state.goal.lane),
+      targetLane: state.goal.lane,
+      lane: state.goal.lane,
+    },
     goal: { ...state.goal, y: state.car.y },
-    obstacles: []
+    obstacles: [],
   };
 }
 
 function withObstacleAtCar(state: HighwayState): HighwayState {
   const road = highwayRoad(viewport);
   return {
-   ...state,
+    ...state,
     car: { ...state.car, x: laneCenter(road, 1), lane: 1, targetLane: 1 },
-    obstacles: [{ id: "test-car", lane: 1, y: state.car.y, length: carSize(viewport), kind: "car" }]
+    obstacles: [
+      { id: "test-car", lane: 1, y: state.car.y, length: carSize(viewport), kind: "car" },
+    ],
   };
 }
 
@@ -41,14 +57,24 @@ describe("smooth car highway model", () => {
   });
 
   it("records success when the car reaches the goal lane marker", () => {
-    const result = updateHighway(withGoalAtCar(createHighwayState(viewport)), undefined, 0.02, viewport);
+    const result = updateHighway(
+      withGoalAtCar(createHighwayState(viewport)),
+      undefined,
+      0.02,
+      viewport,
+    );
 
     expect(result.event.type).toBe("success");
     expect(result.state.segmentIndex).toBe(1);
   });
 
   it("damages the car on same-lane collision", () => {
-    const result = updateHighway(withObstacleAtCar(createHighwayState(viewport)), undefined, 0.02, viewport);
+    const result = updateHighway(
+      withObstacleAtCar(createHighwayState(viewport)),
+      undefined,
+      0.02,
+      viewport,
+    );
 
     expect(result.event.type).toBe("damage");
     expect(result.state.hull).toBe(2);
@@ -66,7 +92,11 @@ describe("smooth car highway model", () => {
   });
 
   it("keeps one hull point in assisted mode", () => {
-    const state = withObstacleAtCar({ ...createHighwayState(viewport), hull: 1, invulnerableSeconds: 0 });
+    const state = withObstacleAtCar({
+      ...createHighwayState(viewport),
+      hull: 1,
+      invulnerableSeconds: 0,
+    });
     const result = updateHighway(state, state.car.x, 0.02, viewport, 1, false);
 
     expect(result.event.type).toBe("damage");

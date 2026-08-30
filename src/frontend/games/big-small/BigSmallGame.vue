@@ -13,18 +13,29 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateBigSmallRound, type BigSmallChoice, type BigSmallRound } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("big-small", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("big-small", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 120, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
 const promptAudio = useGamePromptAudio({
   gameId: "big-small",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: ["big-small.mistake", "big-small.complete"]
+  warmAssetIds: ["big-small.mistake", "big-small.complete"],
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
@@ -34,7 +45,7 @@ const isSpeaking = ref(false);
 const { round, resultVisible, nextRound, restart } = useRoundGame<BigSmallRound>({
   session,
   startSession,
-  generateRound: (roundIndex) => generateBigSmallRound(session.settings, roundIndex)
+  generateRound: (roundIndex) => generateBigSmallRound(session.settings, roundIndex),
 });
 
 function choiceTargetId(choice: BigSmallChoice) {
@@ -71,10 +82,22 @@ async function choose(index: number) {
     isSpeaking.value = true;
     hint.value = "";
     mistakenChoiceId.value = undefined;
-    recordSuccess({ roundId: round.value.roundId, targetId, prompt: round.value.prompt, objectId: choice.id, expected: round.value.targetSize, actual: choice.size, isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      prompt: round.value.prompt,
+      objectId: choice.id,
+      expected: round.value.targetSize,
+      actual: choice.size,
+      isCorrect: true,
+    });
     void pianoFeedback.playSuccess();
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [correctAssetId(), "big-small.complete"] : [correctAssetId()], 80, 170);
+    await promptAudio.playSequenceAndWait(
+      finishedAfterSuccess ? [correctAssetId(), "big-small.complete"] : [correctAssetId()],
+      80,
+      170,
+    );
     if (finishedAfterSuccess) {
       finishSession("game-complete");
       isSpeaking.value = false;
@@ -92,7 +115,16 @@ async function choose(index: number) {
   isSpeaking.value = true;
   mistakenChoiceId.value = choice.choiceId;
   hint.value = "Посмотри на размеры ещё раз и выбери другую карточку.";
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, prompt: round.value.prompt, objectId: choice.id, expected: round.value.targetSize, actual: choice.size, isCorrect: false });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    expectedTargetId,
+    prompt: round.value.prompt,
+    objectId: choice.id,
+    expected: round.value.targetSize,
+    actual: choice.size,
+    isCorrect: false,
+  });
   void pianoFeedback.playMistake();
   await promptAudio.playSequenceAndWait([mistakeAssetId()], 80);
   isSpeaking.value = false;
@@ -119,23 +151,70 @@ onUnmounted(() => {
 
 <template>
   <div class="big-small-shell">
-    <GameHud title="Большой / маленький" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Большой / маленький"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="9">
           <v-card class="pa-5 pa-md-8" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Размер и слово</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
-            <v-alert v-if="hint" class="mb-5 text-body-1 font-weight-bold" color="warning" icon="mdi-lightbulb-outline" rounded="xl" variant="tonal">
+            <v-alert
+              v-if="hint"
+              class="mb-5 text-body-1 font-weight-bold"
+              color="warning"
+              icon="mdi-lightbulb-outline"
+              rounded="xl"
+              variant="tonal"
+            >
               {{ hint }} Посмотри ещё раз.
             </v-alert>
             <v-row class="choice-row" dense>
-              <v-col v-for="(choice, index) in round.choices" :key="choice.choiceId" cols="12" sm="6" md="6">
-                <GameDwellButton :class="{ 'choice--mistake': mistakenChoiceId === choice.choiceId }" :target-id="choiceTargetId(choice)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="260" color="surface" @select="choose(index)">
+              <v-col
+                v-for="(choice, index) in round.choices"
+                :key="choice.choiceId"
+                cols="12"
+                sm="6"
+                md="6"
+              >
+                <GameDwellButton
+                  :class="{ 'choice--mistake': mistakenChoiceId === choice.choiceId }"
+                  :target-id="choiceTargetId(choice)"
+                  :disabled="session.status !== 'running' || isSpeaking"
+                  :dwell-ms="session.settings.dwellMs"
+                  :min-height="260"
+                  color="surface"
+                  @select="choose(index)"
+                >
                   <template #default>
-                    <img v-if="choice.visualSrc" :class="['choice-emoji', 'choice-asset', `choice-emoji--${choice.size}`]" :src="choice.visualSrc" alt="" draggable="false">
-                    <GameWordImage v-else :class="['choice-emoji', `choice-emoji--${choice.size}`]" :word-id="choice.id" :word="choice.label" :emoji="choice.emoji" decorative />
-                    <div class="sr-only">Размер: {{ choice.sizeLabel }}. Объект: {{ choice.label }}.</div>
+                    <img
+                      v-if="choice.visualSrc"
+                      :class="['choice-emoji', 'choice-asset', `choice-emoji--${choice.size}`]"
+                      :src="choice.visualSrc"
+                      alt=""
+                      draggable="false"
+                    />
+                    <GameWordImage
+                      v-else
+                      :class="['choice-emoji', `choice-emoji--${choice.size}`]"
+                      :word-id="choice.id"
+                      :word="choice.label"
+                      :emoji="choice.emoji"
+                      decorative
+                    />
+                    <div class="sr-only">
+                      Размер: {{ choice.sizeLabel }}. Объект: {{ choice.label }}.
+                    </div>
                   </template>
                 </GameDwellButton>
               </v-col>
@@ -144,7 +223,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Большой / маленький" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restartGame" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Большой / маленький"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restartGame"
+    />
   </div>
 </template>
 
@@ -195,21 +284,21 @@ onUnmounted(() => {
 }
 
 @media (max-width: 37.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 9.25rem;
   }
 }
 
 @media (max-height: 42rem) {
- .game-container {
+  .game-container {
     padding-block-start: 5rem;
   }
 
- .choice-row :deep(.dwell-button) {
+  .choice-row :deep(.dwell-button) {
     min-block-size: 12.5rem !important;
   }
 
- .choice-emoji--big {
+  .choice-emoji--big {
     font-size: clamp(5.5rem, min(14vw, 17vh), 8rem);
   }
 }

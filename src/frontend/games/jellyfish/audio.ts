@@ -1,6 +1,11 @@
 import { watch, type WatchStopHandle } from "vue";
 import { createNonRepeatingRandomIndexGenerator } from "../../core/random";
-import { disposeSoftPiano, playSoftPianoMelody, warmSoftPiano, type SoftPianoMelody } from "../../core/softPiano";
+import {
+  disposeSoftPiano,
+  playSoftPianoMelody,
+  warmSoftPiano,
+  type SoftPianoMelody,
+} from "../../core/softPiano";
 
 const ambientMelodies: SoftPianoMelody[] = [
   {
@@ -8,29 +13,29 @@ const ambientMelodies: SoftPianoMelody[] = [
     sampled: [
       { note: 55, at: 0, duration: 1.4, velocity: 22 },
       { note: 62, at: 0.32, duration: 1.1, velocity: 18 },
-      { note: 67, at: 0.74, duration: 1.2, velocity: 16 }
+      { note: 67, at: 0.74, duration: 1.2, velocity: 16 },
     ],
     fallback: [
       { frequency: 196, at: 0, duration: 1.4, peak: 0.018 },
       { frequency: 293.66, at: 0.32, duration: 1.1, peak: 0.014 },
-      { frequency: 392, at: 0.74, duration: 1.2, peak: 0.012 }
+      { frequency: 392, at: 0.74, duration: 1.2, peak: 0.012 },
     ],
-    lengthSeconds: 2.2
+    lengthSeconds: 2.2,
   },
   {
     notesToLoad: [50, 57, 64, 69],
     sampled: [
       { note: 50, at: 0, duration: 1.5, velocity: 20 },
       { note: 57, at: 0.4, duration: 1.1, velocity: 17 },
-      { note: 69, at: 0.92, duration: 1.0, velocity: 15 }
+      { note: 69, at: 0.92, duration: 1.0, velocity: 15 },
     ],
     fallback: [
       { frequency: 146.83, at: 0, duration: 1.5, peak: 0.016 },
       { frequency: 220, at: 0.4, duration: 1.1, peak: 0.013 },
-      { frequency: 440, at: 0.92, duration: 1.0, peak: 0.01 }
+      { frequency: 440, at: 0.92, duration: 1.0, peak: 0.01 },
     ],
-    lengthSeconds: 2.15
-  }
+    lengthSeconds: 2.15,
+  },
 ];
 
 const successMelodies: SoftPianoMelody[] = [
@@ -40,15 +45,15 @@ const successMelodies: SoftPianoMelody[] = [
       { note: 60, at: 0, duration: 0.58, velocity: 34 },
       { note: 64, at: 0.2, duration: 0.58, velocity: 32 },
       { note: 67, at: 0.42, duration: 0.7, velocity: 30 },
-      { note: 72, at: 0.78, duration: 0.86, velocity: 28 }
+      { note: 72, at: 0.78, duration: 0.86, velocity: 28 },
     ],
     fallback: [
       { frequency: 261.63, at: 0, duration: 0.58, peak: 0.028 },
       { frequency: 329.63, at: 0.2, duration: 0.58, peak: 0.024 },
       { frequency: 392, at: 0.42, duration: 0.7, peak: 0.022 },
-      { frequency: 523.25, at: 0.78, duration: 0.86, peak: 0.018 }
+      { frequency: 523.25, at: 0.78, duration: 0.86, peak: 0.018 },
     ],
-    lengthSeconds: 1.86
+    lengthSeconds: 1.86,
   },
   {
     notesToLoad: [57, 60, 64, 69],
@@ -56,21 +61,25 @@ const successMelodies: SoftPianoMelody[] = [
       { note: 57, at: 0, duration: 0.64, velocity: 32 },
       { note: 60, at: 0.24, duration: 0.58, velocity: 30 },
       { note: 64, at: 0.46, duration: 0.74, velocity: 29 },
-      { note: 69, at: 0.84, duration: 0.92, velocity: 26 }
+      { note: 69, at: 0.84, duration: 0.92, velocity: 26 },
     ],
     fallback: [
       { frequency: 220, at: 0, duration: 0.64, peak: 0.026 },
       { frequency: 261.63, at: 0.24, duration: 0.58, peak: 0.023 },
       { frequency: 329.63, at: 0.46, duration: 0.74, peak: 0.02 },
-      { frequency: 440, at: 0.84, duration: 0.92, peak: 0.017 }
+      { frequency: 440, at: 0.84, duration: 0.92, peak: 0.017 },
     ],
-    lengthSeconds: 1.96
-  }
+    lengthSeconds: 1.96,
+  },
 ];
 
 const ambientGenerator = createNonRepeatingRandomIndexGenerator(ambientMelodies.length);
 const successGenerator = createNonRepeatingRandomIndexGenerator(successMelodies.length);
-const notesToLoad = [...new Set([...ambientMelodies, ...successMelodies].flatMap((melody) => melody.notesToLoad ?? []))].sort((a, b) => a - b);
+const notesToLoad = [
+  ...new Set(
+    [...ambientMelodies, ...successMelodies].flatMap((melody) => melody.notesToLoad ?? []),
+  ),
+].sort((a, b) => a - b);
 
 let cueUntil = 0;
 let ambientTimer = 0;
@@ -154,15 +163,19 @@ export function scheduleJellyfishAmbient(enabled: boolean, isRunning: () => bool
     }, delayMs);
   };
 
-  stopAmbientWatch = watch(isRunning, (running) => {
-    window.clearTimeout(ambientTimer);
-    ambientTimer = 0;
-    if (running) scheduleNext();
-    else {
-      cancelPendingSuccess();
-      disposeSoftPiano();
-    }
-  }, { immediate: true });
+  stopAmbientWatch = watch(
+    isRunning,
+    (running) => {
+      window.clearTimeout(ambientTimer);
+      ambientTimer = 0;
+      if (running) scheduleNext();
+      else {
+        cancelPendingSuccess();
+        disposeSoftPiano();
+      }
+    },
+    { immediate: true },
+  );
 }
 
 export function playJellyfishSuccess(enabled: boolean) {

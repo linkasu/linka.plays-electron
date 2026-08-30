@@ -29,23 +29,87 @@ type PongRound = {
 };
 
 const lanes: PaddleLane[] = [
-  { id: "top", label: "Верхняя позиция", hint: "поднять ракетку", icon: "mdi-arrow-up-bold-box-outline", color: "blue-lighten-5", y: 25 },
-  { id: "middle", label: "Средняя позиция", hint: "держать ракетку ровно", icon: "mdi-arrow-right-bold-box-outline", color: "teal-lighten-5", y: 50 },
-  { id: "bottom", label: "Нижняя позиция", hint: "опустить ракетку", icon: "mdi-arrow-down-bold-box-outline", color: "amber-lighten-5", y: 75 }
+  {
+    id: "top",
+    label: "Верхняя позиция",
+    hint: "поднять ракетку",
+    icon: "mdi-arrow-up-bold-box-outline",
+    color: "blue-lighten-5",
+    y: 25,
+  },
+  {
+    id: "middle",
+    label: "Средняя позиция",
+    hint: "держать ракетку ровно",
+    icon: "mdi-arrow-right-bold-box-outline",
+    color: "teal-lighten-5",
+    y: 50,
+  },
+  {
+    id: "bottom",
+    label: "Нижняя позиция",
+    hint: "опустить ракетку",
+    icon: "mdi-arrow-down-bold-box-outline",
+    color: "amber-lighten-5",
+    y: 75,
+  },
 ];
 
-const incomingSequence: PaddleLaneId[] = ["middle", "top", "bottom", "middle", "bottom", "top", "middle", "top", "bottom", "middle"];
-const returnSequence: PaddleLaneId[] = ["top", "middle", "middle", "bottom", "top", "bottom", "top", "bottom", "middle", "top"];
+const incomingSequence: PaddleLaneId[] = [
+  "middle",
+  "top",
+  "bottom",
+  "middle",
+  "bottom",
+  "top",
+  "middle",
+  "top",
+  "bottom",
+  "middle",
+];
+const returnSequence: PaddleLaneId[] = [
+  "top",
+  "middle",
+  "middle",
+  "bottom",
+  "top",
+  "bottom",
+  "top",
+  "bottom",
+  "middle",
+  "top",
+];
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("step-pong", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  recordHint,
+  startSession,
+  finishSession,
+} = useGameSessionFor("step-pong", {
   maxSteps: 10,
   overrides: { targetScale: 1.2, motionSpeed: 0.55, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "step-pong", soundEnabled, warmAssetIds: ["step-pong.prompt", "step-pong.correct", "step-pong.mistake", "step-pong.complete"] });
+const promptAudio = useGamePromptAudio({
+  gameId: "step-pong",
+  soundEnabled,
+  warmAssetIds: [
+    "step-pong.prompt",
+    "step-pong.correct",
+    "step-pong.mistake",
+    "step-pong.complete",
+  ],
+});
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const selectedLaneId = ref<PaddleLaneId>("middle");
@@ -65,14 +129,19 @@ function generateRound(roundIndex: number): PongRound {
   return {
     roundId: `step-pong:round:${roundIndex}`,
     incomingLane: laneById(incomingSequence[index]),
-    returnLane: laneById(returnSequence[index])
+    returnLane: laneById(returnSequence[index]),
   };
 }
 
-const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRoundGame,
+} = useRoundGame({
   session,
   startSession,
-  generateRound
+  generateRound,
 });
 
 const selectedLane = computed(() => laneById(selectedLaneId.value));
@@ -80,11 +149,13 @@ const ballStyle = computed(() => ({
   "--ball-y": `${round.value.incomingLane.y}%`,
   "--return-y": `${round.value.returnLane.y}%`,
   "--paddle-y": `${selectedLane.value.y}%`,
-  "--shot-angle": `${(round.value.returnLane.y - round.value.incomingLane.y) * 0.22}deg`
+  "--shot-angle": `${(round.value.returnLane.y - round.value.incomingLane.y) * 0.22}deg`,
 }));
-const helperText = computed(() => hintStrength.value > 0
-  ? `Мяч не потерялся. Подсказка: нужна ${round.value.incomingLane.label.toLowerCase()}.`
-  : `Мяч летит в ${round.value.incomingLane.label.toLowerCase()}.`);
+const helperText = computed(() =>
+  hintStrength.value > 0
+    ? `Мяч не потерялся. Подсказка: нужна ${round.value.incomingLane.label.toLowerCase()}.`
+    : `Мяч летит в ${round.value.incomingLane.label.toLowerCase()}.`,
+);
 
 function laneTargetId(lane: PaddleLane) {
   return `step-pong:lane:${lane.id}`;
@@ -103,9 +174,10 @@ async function chooseLane(lane: PaddleLane) {
     lastMistakeLaneId.value = lane.id;
     lastSuccessLaneId.value = undefined;
     hintStrength.value = Math.min(3, hintStrength.value + 1);
-    feedbackText.value = outcome === "loss"
-      ? "Третья сложная позиция: мяч остановился. Раунд завершён, можно начать заново."
-      : "Мяч остался в игре. Подсказка показывает, куда поставить ракетку.";
+    feedbackText.value =
+      outcome === "loss"
+        ? "Третья сложная позиция: мяч остановился. Раунд завершён, можно начать заново."
+        : "Мяч остался в игре. Подсказка показывает, куда поставить ракетку.";
     recordMistake({
       roundId: round.value.roundId,
       targetId,
@@ -113,17 +185,26 @@ async function chooseLane(lane: PaddleLane) {
       expected: round.value.incomingLane.label,
       actual: lane.label,
       outcome,
-      isCorrect: false
+      isCorrect: false,
     });
     isSpeaking.value = true;
     void feedbackAudio.playMistake();
-    await promptAudio.playSequenceAndWait(outcome === "loss" ? ["step-pong.mistake", "step-pong.complete"] : ["step-pong.mistake"], 80, 170);
+    await promptAudio.playSequenceAndWait(
+      outcome === "loss" ? ["step-pong.mistake", "step-pong.complete"] : ["step-pong.mistake"],
+      80,
+      170,
+    );
     if (outcome === "loss") {
       finishSession("game-lost");
       isSpeaking.value = false;
       return;
     }
-    recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "step-pong-lane", strength: hintStrength.value });
+    recordHint({
+      roundId: round.value.roundId,
+      targetId: expectedTargetId,
+      reason: "step-pong-lane",
+      strength: hintStrength.value,
+    });
     animationMode.value = "incoming";
     isSpeaking.value = false;
     return;
@@ -141,12 +222,16 @@ async function chooseLane(lane: PaddleLane) {
     returnLane: round.value.returnLane.id,
     expected: round.value.incomingLane.label,
     actual: lane.label,
-    isCorrect: true
+    isCorrect: true,
   });
   const willFinish = session.step >= session.maxSteps;
   isSpeaking.value = true;
   void feedbackAudio.playSuccess();
-  await promptAudio.playSequenceAndWait(willFinish ? ["step-pong.correct", "step-pong.complete"] : ["step-pong.correct"], 80, 170);
+  await promptAudio.playSequenceAndWait(
+    willFinish ? ["step-pong.correct", "step-pong.complete"] : ["step-pong.correct"],
+    80,
+    170,
+  );
   if (willFinish) {
     finishSession("game-complete");
     animationMode.value = "incoming";
@@ -190,17 +275,34 @@ onUnmounted(() => {
 
 <template>
   <div class="step-pong-shell">
-    <GameHud title="Понг пошаговый" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Понг пошаговый"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
 
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
           <v-card class="pa-4 pa-md-6" rounded="xl" elevation="8">
-            <div class="game-header d-flex flex-column flex-lg-row align-lg-center justify-space-between ga-4 mb-5">
+            <div
+              class="game-header d-flex flex-column flex-lg-row align-lg-center justify-space-between ga-4 mb-5"
+            >
               <div>
                 <div class="text-overline text-secondary mb-1">Strategy/control: выбор позиции</div>
-                <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Поставь ракетку перед ударом</h1>
-                <p class="game-feedback text-body-1 text-md-h6 text-medium-emphasis mb-0">{{ feedbackText }}</p>
+                <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">
+                  Поставь ракетку перед ударом
+                </h1>
+                <p class="game-feedback text-body-1 text-md-h6 text-medium-emphasis mb-0">
+                  {{ feedbackText }}
+                </p>
               </div>
               <v-chip class="game-helper" color="primary" size="large" variant="tonal">
                 {{ helperText }}
@@ -209,21 +311,49 @@ onUnmounted(() => {
 
             <v-row align="stretch">
               <v-col cols="12" sm="6" class="pe-sm-4">
-                <v-card class="pong-board pa-3 pa-md-5" color="cyan-lighten-5" rounded="xl" variant="flat">
-                  <div class="pong-stage" :class="`pong-stage--${animationMode}`" :style="ballStyle" aria-label="Поле пошагового понга">
+                <v-card
+                  class="pong-board pa-3 pa-md-5"
+                  color="cyan-lighten-5"
+                  rounded="xl"
+                  variant="flat"
+                >
+                  <div
+                    class="pong-stage"
+                    :class="`pong-stage--${animationMode}`"
+                    :style="ballStyle"
+                    aria-label="Поле пошагового понга"
+                  >
                     <div class="partner-paddle" aria-hidden="true" />
                     <div class="net" aria-hidden="true" />
 
                     <div class="lane-markers" aria-label="Линии прилёта мяча">
-                      <div v-for="lane in lanes" :key="lane.id" class="lane-marker" :class="{ 'lane-marker--active': lane.id === round.incomingLane.id }" :style="{ '--lane-y': `${lane.y}%` }">
-                        <v-icon v-if="lane.id === round.incomingLane.id" icon="mdi-bullseye-arrow" color="primary" size="26" />
+                      <div
+                        v-for="lane in lanes"
+                        :key="lane.id"
+                        class="lane-marker"
+                        :class="{ 'lane-marker--active': lane.id === round.incomingLane.id }"
+                        :style="{ '--lane-y': `${lane.y}%` }"
+                      >
+                        <v-icon
+                          v-if="lane.id === round.incomingLane.id"
+                          icon="mdi-bullseye-arrow"
+                          color="primary"
+                          size="26"
+                        />
                       </div>
                     </div>
 
                     <div class="incoming-path" aria-hidden="true" />
                     <div class="return-path" aria-hidden="true" />
                     <div class="pong-ball" aria-hidden="true" />
-                    <div class="player-paddle" :class="{ 'player-paddle--hint': hintStrength > 0, 'player-paddle--success': lastSuccessLaneId === selectedLaneId }" aria-hidden="true" />
+                    <div
+                      class="player-paddle"
+                      :class="{
+                        'player-paddle--hint': hintStrength > 0,
+                        'player-paddle--success': lastSuccessLaneId === selectedLaneId,
+                      }"
+                      aria-hidden="true"
+                    />
                   </div>
                 </v-card>
               </v-col>
@@ -243,17 +373,36 @@ onUnmounted(() => {
                       @select="chooseLane(lane)"
                     >
                       <template #default>
-                        <div :class="['lane-choice', { 'lane-choice--hinted': hintStrength > 0 && lane.id === round.incomingLane.id }]">
+                        <div
+                          :class="[
+                            'lane-choice',
+                            {
+                              'lane-choice--hinted':
+                                hintStrength > 0 && lane.id === round.incomingLane.id,
+                            },
+                          ]"
+                        >
                           <v-icon :icon="lane.icon" size="42" color="on-surface" />
-                          <div class="lane-choice__label text-subtitle-1 text-md-h6 font-weight-bold mt-1">{{ lane.label }}</div>
+                          <div
+                            class="lane-choice__label text-subtitle-1 text-md-h6 font-weight-bold mt-1"
+                          >
+                            {{ lane.label }}
+                          </div>
                           <div class="lane-choice__hint text-body-2">{{ lane.hint }}</div>
                         </div>
                       </template>
                     </GameDwellButton>
                   </div>
 
-                  <v-alert class="game-note mt-4 text-body-1" color="info" icon="mdi-hand-heart-outline" rounded="xl" variant="tonal">
-                    Если позиция не подошла, это промах. После трёх сложных выборов раунд завершается.
+                  <v-alert
+                    class="game-note mt-4 text-body-1"
+                    color="info"
+                    icon="mdi-hand-heart-outline"
+                    rounded="xl"
+                    variant="tonal"
+                  >
+                    Если позиция не подошла, это промах. После трёх сложных выборов раунд
+                    завершается.
                   </v-alert>
                 </v-card>
               </v-col>
@@ -263,7 +412,17 @@ onUnmounted(() => {
       </v-row>
     </v-container>
 
-    <GameResultDialog :model-value="resultVisible" title="Понг пошаговый" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Понг пошаговый"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -282,7 +441,9 @@ onUnmounted(() => {
 }
 
 .pong-stage {
-  background: radial-gradient(circle at 50% 50%, rgb(255 255 255 / 78%) 0%, transparent 36%), linear-gradient(180deg, #e9fbff 0%, #f8fffb 100%);
+  background:
+    radial-gradient(circle at 50% 50%, rgb(255 255 255 / 78%) 0%, transparent 36%),
+    linear-gradient(180deg, #e9fbff 0%, #f8fffb 100%);
   block-size: clamp(28rem, 61vh, 38rem);
   border: 0.25rem solid rgb(var(--v-theme-primary) / 14%);
   border-radius: 1.6rem;
@@ -291,7 +452,11 @@ onUnmounted(() => {
 }
 
 .net {
-  background: repeating-linear-gradient(180deg, rgb(var(--v-theme-primary) / 22%) 0 1.2rem, transparent 1.2rem 2rem);
+  background: repeating-linear-gradient(
+    180deg,
+    rgb(var(--v-theme-primary) / 22%) 0 1.2rem,
+    transparent 1.2rem 2rem
+  );
   block-size: 80%;
   inline-size: 0.25rem;
   inset-block: 10%;
@@ -322,15 +487,21 @@ onUnmounted(() => {
   block-size: clamp(6.4rem, 18vh, 9rem);
   inset-block-start: var(--paddle-y);
   inset-inline-end: 8%;
-  transition: inset-block-start 260ms ease, box-shadow 220ms ease;
+  transition:
+    inset-block-start 260ms ease,
+    box-shadow 220ms ease;
 }
 
 .player-paddle--hint {
-  box-shadow: 0 0 0 0.35rem rgb(var(--v-theme-primary) / 28%), 0 0.8rem 1.6rem rgb(var(--v-theme-primary) / 18%);
+  box-shadow:
+    0 0 0 0.35rem rgb(var(--v-theme-primary) / 28%),
+    0 0.8rem 1.6rem rgb(var(--v-theme-primary) / 18%);
 }
 
 .player-paddle--success {
-  box-shadow: 0 0 0 0.35rem rgb(var(--v-theme-success) / 28%), 0 0.8rem 1.6rem rgb(var(--v-theme-success) / 18%);
+  box-shadow:
+    0 0 0 0.35rem rgb(var(--v-theme-success) / 28%),
+    0 0.8rem 1.6rem rgb(var(--v-theme-success) / 18%);
 }
 
 .lane-marker {
@@ -364,7 +535,11 @@ onUnmounted(() => {
 }
 
 .incoming-path {
-  background: linear-gradient(90deg, rgb(var(--v-theme-primary) / 0%), rgb(var(--v-theme-primary) / 42%));
+  background: linear-gradient(
+    90deg,
+    rgb(var(--v-theme-primary) / 0%),
+    rgb(var(--v-theme-primary) / 42%)
+  );
   animation: path-pulse 1.8s ease-in-out infinite;
   inline-size: 62%;
   inset-block-start: var(--ball-y);
@@ -373,7 +548,11 @@ onUnmounted(() => {
 }
 
 .return-path {
-  background: linear-gradient(90deg, rgb(var(--v-theme-success) / 42%), rgb(var(--v-theme-success) / 0%));
+  background: linear-gradient(
+    90deg,
+    rgb(var(--v-theme-success) / 42%),
+    rgb(var(--v-theme-success) / 0%)
+  );
   inline-size: 42%;
   inset-block-start: var(--return-y);
   inset-inline-start: 14%;
@@ -458,7 +637,8 @@ onUnmounted(() => {
 }
 
 @keyframes path-pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.35;
   }
   48% {
@@ -482,7 +662,8 @@ onUnmounted(() => {
 }
 
 @keyframes paddle-hit {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(-50%) scaleX(1);
   }
   45% {
@@ -507,82 +688,82 @@ onUnmounted(() => {
 }
 
 @media (max-width: 60rem) {
- .game-container {
+  .game-container {
     padding-block-start: 9.5rem;
   }
 }
 
 @media (min-width: 43.75rem) and (max-height: 57.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 7.25rem;
   }
 
- .pong-board {
+  .pong-board {
     min-block-size: clamp(20rem, 50vh, 28rem);
   }
 
- .pong-stage {
+  .pong-stage {
     block-size: clamp(18rem, 44vh, 25rem);
   }
 
- .lane-grid {
+  .lane-grid {
     gap: 0.55rem;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
- .lane-grid :deep(.dwell-button) {
+  .lane-grid :deep(.dwell-button) {
     min-block-size: 6.5rem !important;
     padding: 0.75rem !important;
   }
 
- .lane-grid > :last-child {
+  .lane-grid > :last-child {
     grid-column: 1 / -1;
   }
 
- .lane-choice :deep(.v-icon) {
+  .lane-choice :deep(.v-icon) {
     font-size: 2.25rem !important;
   }
 
- .lane-choice .text-body-2 {
+  .lane-choice .text-body-2 {
     display: none;
   }
 
- .lane-choice {
+  .lane-choice {
     color: #1f2a27;
     min-block-size: 5.75rem;
   }
 
- .lane-choice :deep(.v-icon) {
+  .lane-choice :deep(.v-icon) {
     color: #1f2a27 !important;
   }
 
- .lane-choice__label,
- .lane-choice__hint {
+  .lane-choice__label,
+  .lane-choice__hint {
     color: #1f2a27 !important;
   }
 
- .game-feedback,
- .game-helper,
- .game-note,
- .text-overline {
+  .game-feedback,
+  .game-helper,
+  .game-note,
+  .text-overline {
     display: none;
   }
 
- .game-header {
+  .game-header {
     margin-block-end: 0.75rem !important;
   }
 }
 
 @media (max-width: 37.5rem) {
- .game-container {
+  .game-container {
     padding-block-start: 11rem;
   }
 
- .pong-board {
+  .pong-board {
     min-block-size: 27rem;
   }
 
- .pong-stage {
+  .pong-stage {
     block-size: 25rem;
   }
 }

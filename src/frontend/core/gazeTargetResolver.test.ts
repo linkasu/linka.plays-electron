@@ -7,15 +7,15 @@ const targets: GazeTargetCandidate[] = [
     rect: { left: 0, top: 0, right: 100, bottom: 100 },
     enabled: true,
     visible: true,
-    hitPadding: 36
+    hitPadding: 36,
   },
   {
     id: "right",
     rect: { left: 112, top: 0, right: 212, bottom: 100 },
     enabled: true,
     visible: true,
-    hitPadding: 36
-  }
+    hitPadding: 36,
+  },
 ];
 
 describe("resolveGazeTarget", () => {
@@ -29,14 +29,26 @@ describe("resolveGazeTarget", () => {
   });
 
   it("uses priority before distance", () => {
-    const prioritized = targets.map((target) => target.id === "right" ? { ...target, priority: 2 } : target);
+    const prioritized = targets.map((target) =>
+      target.id === "right" ? { ...target, priority: 2 } : target,
+    );
 
     expect(resolveGazeTarget(prioritized, { x: 103, y: 50 })?.id).toBe("right");
   });
 
   it("ignores disabled and invisible targets", () => {
-    expect(resolveGazeTarget(targets.map((target) => ({ ...target, enabled: false })), { x: 50, y: 50 })).toBeUndefined();
-    expect(resolveGazeTarget(targets.map((target) => ({ ...target, visible: false })), { x: 50, y: 50 })).toBeUndefined();
+    expect(
+      resolveGazeTarget(
+        targets.map((target) => ({ ...target, enabled: false })),
+        { x: 50, y: 50 },
+      ),
+    ).toBeUndefined();
+    expect(
+      resolveGazeTarget(
+        targets.map((target) => ({ ...target, visible: false })),
+        { x: 50, y: 50 },
+      ),
+    ).toBeUndefined();
   });
 
   it("returns no target outside every padded area", () => {

@@ -19,7 +19,7 @@ const piano = createAmbientPiano({
   activeGain: 0.8,
   fadeInSeconds: 1.2,
   fadeOutSeconds: 1.8,
-  rescheduleActive: true
+  rescheduleActive: true,
 });
 
 export function warmBreathingFlowerPiano(enabled: boolean) {

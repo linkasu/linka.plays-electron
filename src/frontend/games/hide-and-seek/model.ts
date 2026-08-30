@@ -50,23 +50,32 @@ const placementAnchors = [
   { x: 0.5, y: 0.2 },
   { x: 0.84, y: 0.2 },
   { x: 0.28, y: 0.8 },
-  { x: 0.72, y: 0.8 }
+  { x: 0.72, y: 0.8 },
 ];
 
-export function hideObjectBehindCover<T>(covers: HideAndSeekCover[], hiddenObject: T, random = Math.random): HideAndSeekSpot<T>[] {
+export function hideObjectBehindCover<T>(
+  covers: HideAndSeekCover[],
+  hiddenObject: T,
+  random = Math.random,
+): HideAndSeekSpot<T>[] {
   if (!covers.length) throw new RangeError("HideAndSeek requires at least one cover");
   const hiddenIndex = Math.min(covers.length - 1, Math.floor(random() * covers.length));
   return covers.map((cover, placementIndex) => ({
     ...cover,
     placementIndex,
     hiddenObject: placementIndex === hiddenIndex ? hiddenObject : undefined,
-    opened: false
+    opened: false,
   }));
 }
 
-export function hideAndSeekFallbackObstacles(viewportWidth: number, viewportHeight: number): HideAndSeekRect[] {
+export function hideAndSeekFallbackObstacles(
+  viewportWidth: number,
+  viewportHeight: number,
+): HideAndSeekRect[] {
   const compact = viewportHeight <= compactHeight;
-  const promptWidth = compact ? Math.min(480, viewportWidth - 32) : Math.min(444, viewportWidth - 64);
+  const promptWidth = compact
+    ? Math.min(480, viewportWidth - 32)
+    : Math.min(444, viewportWidth - 64);
   const promptImageSize = Math.min(128, Math.max(80, viewportWidth * 0.12));
 
   return [
@@ -75,23 +84,25 @@ export function hideAndSeekFallbackObstacles(viewportWidth: number, viewportHeig
       x: compact ? (viewportWidth - promptWidth) / 2 : 32,
       y: compact ? 124 : 118,
       width: promptWidth,
-      height: compact ? 58 : promptImageSize + 194
-    }
+      height: compact ? 58 : promptImageSize + 194,
+    },
   ];
 }
 
 export function hideAndSeekRectsOverlap(first: HideAndSeekRect, second: HideAndSeekRect) {
-  return first.x < second.x + second.width
-    && first.x + first.width > second.x
-    && first.y < second.y + second.height
-    && first.y + first.height > second.y;
+  return (
+    first.x < second.x + second.width &&
+    first.x + first.width > second.x &&
+    first.y < second.y + second.height &&
+    first.y + first.height > second.y
+  );
 }
 
 export function hideAndSeekEffectiveTargetBounds(
   placement: HideAndSeekTargetPlacement,
   targetWidth: number,
   targetHeight: number,
-  targetHitPadding = hitPadding
+  targetHitPadding = hitPadding,
 ): HideAndSeekRect {
   const width = targetWidth + targetHitPadding * 2;
   const height = targetHeight + targetHitPadding * 2;
@@ -99,24 +110,32 @@ export function hideAndSeekEffectiveTargetBounds(
     x: placement.x - width / 2,
     y: placement.y - height / 2,
     width,
-    height
+    height,
   };
 }
 
 function placementArea(options: HideAndSeekLayoutOptions, obstacles: HideAndSeekRect[]) {
   const fullWidthBottom = obstacles
-    .filter((obstacle) => obstacle.x <= edgePadding && obstacle.x + obstacle.width >= options.viewportWidth - edgePadding)
+    .filter(
+      (obstacle) =>
+        obstacle.x <= edgePadding &&
+        obstacle.x + obstacle.width >= options.viewportWidth - edgePadding,
+    )
     .reduce((bottom, obstacle) => Math.max(bottom, obstacle.y + obstacle.height), edgePadding);
-  const compactBottom = options.viewportHeight <= compactHeight
-    ? obstacles.reduce((bottom, obstacle) => Math.max(bottom, obstacle.y + obstacle.height), fullWidthBottom)
-    : fullWidthBottom;
+  const compactBottom =
+    options.viewportHeight <= compactHeight
+      ? obstacles.reduce(
+          (bottom, obstacle) => Math.max(bottom, obstacle.y + obstacle.height),
+          fullWidthBottom,
+        )
+      : fullWidthBottom;
   const top = Math.min(options.viewportHeight - edgePadding, compactBottom + targetGap);
 
   return {
     x: edgePadding,
     y: top,
     width: Math.max(1, options.viewportWidth - edgePadding * 2),
-    height: Math.max(1, options.viewportHeight - top - edgePadding)
+    height: Math.max(1, options.viewportHeight - top - edgePadding),
   };
 }
 
@@ -124,7 +143,7 @@ function createCandidates(
   area: HideAndSeekRect,
   targetWidth: number,
   targetHeight: number,
-  obstacles: HideAndSeekRect[]
+  obstacles: HideAndSeekRect[],
 ) {
   const effectiveWidth = targetWidth + hitPadding * 2;
   const effectiveHeight = targetHeight + hitPadding * 2;
@@ -142,28 +161,33 @@ function createCandidates(
     for (let column = 0; column < columns; column += 1) {
       const placement = {
         x: startX + column * (effectiveWidth + targetGap),
-        y: startY + row * (effectiveHeight + targetGap)
+        y: startY + row * (effectiveHeight + targetGap),
       };
       const bounds = hideAndSeekEffectiveTargetBounds(placement, targetWidth, targetHeight);
-      if (obstacles.every((obstacle) => !hideAndSeekRectsOverlap(bounds, obstacle))) candidates.push(placement);
+      if (obstacles.every((obstacle) => !hideAndSeekRectsOverlap(bounds, obstacle)))
+        candidates.push(placement);
     }
   }
 
   return candidates;
 }
 
-function selectSpreadPlacements(candidates: HideAndSeekTargetPlacement[], count: number, area: HideAndSeekRect) {
+function selectSpreadPlacements(
+  candidates: HideAndSeekTargetPlacement[],
+  count: number,
+  area: HideAndSeekRect,
+) {
   const remaining = [...candidates];
   const selected: HideAndSeekTargetPlacement[] = [];
 
   for (let index = 0; index < count; index += 1) {
     const anchor = placementAnchors[index] ?? {
-      x: ((index * 0.61803398875) % 1),
-      y: ((index * 0.38196601125) % 1)
+      x: (index * 0.61803398875) % 1,
+      y: (index * 0.38196601125) % 1,
     };
     const anchorPoint = {
       x: area.x + area.width * anchor.x,
-      y: area.y + area.height * anchor.y
+      y: area.y + area.height * anchor.y,
     };
     let bestIndex = 0;
     let bestDistance = Number.POSITIVE_INFINITY;
@@ -185,7 +209,9 @@ function selectSpreadPlacements(candidates: HideAndSeekTargetPlacement[], count:
 
 export function createHideAndSeekLayout(options: HideAndSeekLayoutOptions): HideAndSeekLayout {
   const targetCount = options.targetCount ?? 5;
-  const obstacles = options.obstacles ?? hideAndSeekFallbackObstacles(options.viewportWidth, options.viewportHeight);
+  const obstacles =
+    options.obstacles ??
+    hideAndSeekFallbackObstacles(options.viewportWidth, options.viewportHeight);
   const area = placementArea(options, obstacles);
   const desiredScale = Math.max(minimumScale, options.targetScale);
   const stepCount = Math.ceil((desiredScale - minimumScale) * 100);
@@ -201,7 +227,7 @@ export function createHideAndSeekLayout(options: HideAndSeekLayoutOptions): Hide
       targetWidth,
       targetHeight,
       hitPadding,
-      placements: selectSpreadPlacements(candidates, targetCount, area)
+      placements: selectSpreadPlacements(candidates, targetCount, area),
     };
   }
 

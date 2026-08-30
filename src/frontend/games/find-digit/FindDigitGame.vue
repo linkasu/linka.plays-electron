@@ -13,16 +13,32 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { generateFindDigitRound, type FindDigitOption } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("find-digit", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  recordHint,
+  startSession,
+} = useGameSessionFor("find-digit", {
   maxSteps: 8,
   overrides: { sound: true },
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 
-const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRoundGame,
+} = useRoundGame({
   session,
   startSession,
-  generateRound: (roundIndex) => generateFindDigitRound(session.settings, roundIndex)
+  generateRound: (roundIndex) => generateFindDigitRound(session.settings, roundIndex),
 });
 
 const mistakesInRound = ref(0);
@@ -30,7 +46,10 @@ const lastMistakeId = ref<string>();
 const successChoiceId = ref<string>();
 const pendingSelection = ref(false);
 const isSpeaking = ref(false);
-const promptAudio = useGamePromptAudio({ gameId: "find-digit", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "find-digit",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 const feedback = useStandardGameFeedback(toRef(session.settings, "sound"));
 let feedbackTimer = 0;
 
@@ -77,7 +96,14 @@ async function answer(choice: FindDigitOption) {
   if (choice.id === round.value.target.id) {
     pendingSelection.value = true;
     successChoiceId.value = choice.id;
-    recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      answerId: choice.id,
+      expected: round.value.target.label,
+      actual: choice.label,
+      isCorrect: true,
+    });
     mistakesInRound.value = 0;
     lastMistakeId.value = undefined;
     void feedback.playSuccess();
@@ -99,11 +125,27 @@ async function answer(choice: FindDigitOption) {
   pendingSelection.value = true;
   mistakesInRound.value += 1;
   lastMistakeId.value = choice.id;
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.label, actual: choice.label, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "wrong-digit-selected" });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    expectedTargetId,
+    answerId: choice.id,
+    expected: round.value.target.label,
+    actual: choice.label,
+    isCorrect: false,
+  });
+  recordHint({
+    roundId: round.value.roundId,
+    targetId: expectedTargetId,
+    reason: "wrong-digit-selected",
+  });
   void feedback.playMistake();
   isSpeaking.value = true;
-  await promptAudio.playSequenceAndWait(["find-digit.mistake", `find-digit.prompt.${round.value.target.id}`], 80, 170);
+  await promptAudio.playSequenceAndWait(
+    ["find-digit.mistake", `find-digit.prompt.${round.value.target.id}`],
+    80,
+    170,
+  );
   pendingSelection.value = false;
   lastMistakeId.value = undefined;
   isSpeaking.value = false;
@@ -126,9 +168,24 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <GamePageShell gradient="linear-gradient(135deg, #f5fbff 0%, #f7f1ff 48%, #fff7df 100%)" padding-top="0" full-height>
+  <GamePageShell
+    gradient="linear-gradient(135deg, #f5fbff 0%, #f7f1ff 48%, #fff7df 100%)"
+    padding-top="0"
+    full-height
+  >
     <template #hud>
-      <GameHud title="Найди цифру" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+      <GameHud
+        title="Найди цифру"
+        :step="session.step"
+        :max-steps="session.maxSteps"
+        :score="session.score"
+        :mistakes="session.mistakes"
+        :duration-ms="durationMs"
+        :session-seconds="session.settings.sessionSeconds"
+        :paused="session.status === 'paused'"
+        @pause="pauseSession"
+        @resume="resumeSession"
+      />
     </template>
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
@@ -136,10 +193,32 @@ onUnmounted(() => {
           <v-card class="find-digit-card pa-3 pa-md-5" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-1">Цифровая полянка</div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-1">{{ round.prompt }}</h1>
-            <p class="text-body-1 text-md-h6 text-medium-emphasis text-center mb-3">{{ hintText }}</p>
-            <GameChoiceCardGrid :choices="round.choices" :target-id="(choice) => choiceTargetId(choice.id)" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="clamp(12rem, 30vh, 18rem)" :cols="round.choices.length === 4 ? 3 : 4" :sm="round.choices.length === 4 ? 3 : 4" :md="round.choices.length > 4 ? 4 : round.choices.length === 4 ? 3 : 4" @select="answer">
+            <p class="text-body-1 text-md-h6 text-medium-emphasis text-center mb-3">
+              {{ hintText }}
+            </p>
+            <GameChoiceCardGrid
+              :choices="round.choices"
+              :target-id="(choice) => choiceTargetId(choice.id)"
+              :disabled="session.status !== 'running' || pendingSelection || isSpeaking"
+              :dwell-ms="session.settings.dwellMs"
+              min-height="clamp(12rem, 30vh, 18rem)"
+              :cols="round.choices.length === 4 ? 3 : 4"
+              :sm="round.choices.length === 4 ? 3 : 4"
+              :md="round.choices.length > 4 ? 4 : round.choices.length === 4 ? 3 : 4"
+              @select="answer"
+            >
               <template #default="{ choice }">
-                <div :class="['digit-scene', digitTone(choice), { 'digit-scene--hinted': mistakesInRound > 0 && choice.id === round.target.id, 'digit-scene--mistake': choice.id === lastMistakeId, 'digit-scene--success': choice.id === successChoiceId }]">
+                <div
+                  :class="[
+                    'digit-scene',
+                    digitTone(choice),
+                    {
+                      'digit-scene--hinted': mistakesInRound > 0 && choice.id === round.target.id,
+                      'digit-scene--mistake': choice.id === lastMistakeId,
+                      'digit-scene--success': choice.id === successChoiceId,
+                    },
+                  ]"
+                >
                   <span class="digit-scene__number">{{ choice.label }}</span>
                 </div>
               </template>
@@ -148,7 +227,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Найди цифру" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Найди цифру"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </GamePageShell>
 </template>
 
@@ -176,7 +265,10 @@ onUnmounted(() => {
   outline: 0 solid transparent;
   overflow: hidden;
   padding: 1.25rem;
-  transition: filter 160ms ease, outline 160ms ease, transform 160ms ease;
+  transition:
+    filter 160ms ease,
+    outline 160ms ease,
+    transform 160ms ease;
 }
 
 .digit-scene__number {
@@ -229,15 +321,15 @@ onUnmounted(() => {
 }
 
 @media (max-height: 42rem) {
- .game-container {
+  .game-container {
     padding-block: 4.5rem 1.25rem;
   }
 
- .digit-scene {
+  .digit-scene {
     min-block-size: 7.25rem;
   }
 
- .digit-scene__number {
+  .digit-scene__number {
     font-size: clamp(4.4rem, min(11vw, 14vh), 7rem);
   }
 }

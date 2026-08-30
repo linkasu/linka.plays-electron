@@ -12,29 +12,32 @@ import { DEFAULT_DWELL_MS } from "../../core/dwellSettings";
 import type { DwellCancelReason, DwellEventPayload } from "../../core/gaze";
 import { gameSessionTelemetryKey } from "../../core/session";
 
-const props = withDefaults(defineProps<{
-  targetId?: string;
-  dwellMs?: number;
-  disabled?: boolean;
-  color?: string;
-  minHeight?: number | string;
-  hitPadding?: number;
-  priority?: number;
-  graceMs?: number;
-  shapeSelector?: string;
-}>(), {
-  dwellMs: DEFAULT_DWELL_MS,
-  disabled: false,
-  color: "surface",
-  minHeight: 160,
-  hitPadding: 36,
-  priority: 0,
-  graceMs: 140,
-  shapeSelector: undefined
-});
+const props = withDefaults(
+  defineProps<{
+    targetId?: string;
+    dwellMs?: number;
+    disabled?: boolean;
+    color?: string;
+    minHeight?: number | string;
+    hitPadding?: number;
+    priority?: number;
+    graceMs?: number;
+    shapeSelector?: string;
+  }>(),
+  {
+    dwellMs: DEFAULT_DWELL_MS,
+    disabled: false,
+    color: "surface",
+    minHeight: 160,
+    hitPadding: 36,
+    priority: 0,
+    graceMs: 140,
+    shapeSelector: undefined,
+  },
+);
 
 const emit = defineEmits<{
-  select: [payload: DwellEventPayload];
+  "select": [payload: DwellEventPayload];
   "target-enter": [payload: DwellEventPayload];
   "target-cancel": [payload: DwellEventPayload];
   "target-click": [payload: DwellEventPayload];
@@ -52,9 +55,11 @@ let unregisterTarget: (() => void) | undefined;
 let machineState = createDwellMachineState();
 
 const progressStyle = computed(() => ({
-  "--dwell-progress-scale": progress.value.toFixed(3)
+  "--dwell-progress-scale": progress.value.toFixed(3),
 }));
-const minBlockSize = computed(() => typeof props.minHeight === "number" ? `${props.minHeight}px` : props.minHeight);
+const minBlockSize = computed(() =>
+  typeof props.minHeight === "number" ? `${props.minHeight}px` : props.minHeight,
+);
 
 function currentTargetId() {
   return props.targetId ?? rootRef.value?.id ?? `dwell-button-${instance?.uid ?? "unknown"}`;
@@ -71,11 +76,19 @@ function currentRect(): GazeTargetRect | undefined {
   const root = rootRef.value;
   if (!root) return undefined;
   if (!props.shapeSelector) return root.getBoundingClientRect();
-  const parts = Array.from(root.querySelectorAll(props.shapeSelector)).map((part) => part.getBoundingClientRect());
+  const parts = Array.from(root.querySelectorAll(props.shapeSelector)).map((part) =>
+    part.getBoundingClientRect(),
+  );
   return unionRect(parts) ?? root.getBoundingClientRect();
 }
 
-function makePayload(now: number, nextProgress: number, reason?: DwellCancelReason, elapsedMs = machineState.accumulatedMs, source = pointer.value.source): DwellEventPayload {
+function makePayload(
+  now: number,
+  nextProgress: number,
+  reason?: DwellCancelReason,
+  elapsedMs = machineState.accumulatedMs,
+  source = pointer.value.source,
+): DwellEventPayload {
   return {
     targetId: currentTargetId(),
     at: Date.now(),
@@ -87,13 +100,16 @@ function makePayload(now: number, nextProgress: number, reason?: DwellCancelReas
       y: pointer.value.y,
       valid: pointer.value.valid,
       source,
-      timestamp: pointer.value.timestamp
+      timestamp: pointer.value.timestamp,
     },
-    reason
+    reason,
   };
 }
 
-function record(type: "target-enter" | "target-cancel" | "target-click", payload: DwellEventPayload) {
+function record(
+  type: "target-enter" | "target-cancel" | "target-click",
+  payload: DwellEventPayload,
+) {
   if (type === "target-enter") emit("target-enter", payload);
   if (type === "target-cancel") emit("target-cancel", payload);
   if (type === "target-click") emit("target-click", payload);
@@ -112,11 +128,14 @@ function tick(now: number) {
   const previousState = machineState;
   const previousProgress = progress.value;
   const rect = currentRect();
-  const releaseTargetActive = Boolean(rect && pointer.value.valid
-    && pointer.value.x >= rect.left - props.hitPadding
-    && pointer.value.x <= rect.right + props.hitPadding
-    && pointer.value.y >= rect.top - props.hitPadding
-    && pointer.value.y <= rect.bottom + props.hitPadding);
+  const releaseTargetActive = Boolean(
+    rect &&
+    pointer.value.valid &&
+    pointer.value.x >= rect.left - props.hitPadding &&
+    pointer.value.x <= rect.right + props.hitPadding &&
+    pointer.value.y >= rect.top - props.hitPadding &&
+    pointer.value.y <= rect.bottom + props.hitPadding,
+  );
   const result = advanceDwellMachine(machineState, {
     now,
     targetId: coordinatedTargetId === targetId ? targetId : undefined,
@@ -126,7 +145,7 @@ function tick(now: number) {
     releaseTargetActive,
     dwellMs: props.dwellMs,
     graceMs: props.graceMs,
-    cooldownMs: 500
+    cooldownMs: 500,
   });
   machineState = result.state;
   progress.value = result.progress;
@@ -137,12 +156,20 @@ function tick(now: number) {
       record("target-enter", makePayload(now, 0, undefined, 0));
     }
     if (event.type === "cancel") {
-      record("target-cancel", makePayload(now, previousProgress, event.reason, previousState.accumulatedMs));
+      record(
+        "target-cancel",
+        makePayload(now, previousProgress, event.reason, previousState.accumulatedMs),
+      );
       active.value = false;
       progress.value = 0;
     }
     if (event.type === "select") {
-      const payload = makePayload(now, 1, undefined, previousState.accumulatedMs + Math.max(0, now - previousState.lastAt));
+      const payload = makePayload(
+        now,
+        1,
+        undefined,
+        previousState.accumulatedMs + Math.max(0, now - previousState.lastAt),
+      );
       record("target-click", payload);
       emit("select", payload);
       active.value = false;
@@ -164,20 +191,23 @@ function selectByPointerClick(event: MouseEvent) {
     ...createDwellMachineState(),
     phase: "cooldown",
     targetId: currentTargetId(),
-    cooldownUntil: now + 500
+    cooldownUntil: now + 500,
   };
   sharedCooldownUntil = now + 700;
 }
 
 onMounted(() => {
-  unregisterTarget = registerDomGazeTarget({
-    id: currentTargetId(),
-    element: () => rootRef.value,
-    enabled: () => !props.disabled,
-    hitPadding: () => props.hitPadding,
-    priority: () => props.priority,
-    shape: () => (props.shapeSelector ? currentRect() : undefined)
-  }, pointer);
+  unregisterTarget = registerDomGazeTarget(
+    {
+      id: currentTargetId(),
+      element: () => rootRef.value,
+      enabled: () => !props.disabled,
+      hitPadding: () => props.hitPadding,
+      priority: () => props.priority,
+      shape: () => (props.shapeSelector ? currentRect() : undefined),
+    },
+    pointer,
+  );
   frame = requestAnimationFrame(tick);
 });
 
@@ -218,11 +248,15 @@ onUnmounted(() => {
   inline-size: 100%;
   overflow: hidden;
   position: relative;
-  transition: transform 160ms ease, box-shadow 160ms ease;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .dwell-button--active {
-  box-shadow: 0 0 0 0.22rem rgb(var(--v-theme-secondary) / 32%), 0 0.7rem 1.6rem rgb(var(--v-theme-primary) / 16%);
+  box-shadow:
+    0 0 0 0.22rem rgb(var(--v-theme-secondary) / 32%),
+    0 0.7rem 1.6rem rgb(var(--v-theme-primary) / 16%);
   transform: scale(1.03);
 }
 

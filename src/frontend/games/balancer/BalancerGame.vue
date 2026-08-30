@@ -33,14 +33,45 @@ type BalanceSpark = Point & {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("balancer", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("balancer", {
   maxSteps: 8,
-  overrides: { preset: "gentle", dwellMs: 600, targetScale: 1.55, motionSpeed: 0.5, distractors: "none", hints: "high" },
-  finishOnMistakes: false
+  overrides: {
+    preset: "gentle",
+    dwellMs: 600,
+    targetScale: 1.55,
+    motionSpeed: 0.5,
+    distractors: "none",
+    hints: "high",
+  },
+  finishOnMistakes: false,
 });
 
-const orb = reactive<BalanceOrb>({ x: window.innerWidth * 0.5, y: window.innerHeight * 0.56, radius: 64, phase: 0, glow: 0 });
-const zone = reactive<BalanceZone>({ id: "balance-zone-0", x: window.innerWidth * 0.5, y: window.innerHeight * 0.56, width: 320, height: 210, hue: 190, phase: 0 });
+const orb = reactive<BalanceOrb>({
+  x: window.innerWidth * 0.5,
+  y: window.innerHeight * 0.56,
+  radius: 64,
+  phase: 0,
+  glow: 0,
+});
+const zone = reactive<BalanceZone>({
+  id: "balance-zone-0",
+  x: window.innerWidth * 0.5,
+  y: window.innerHeight * 0.56,
+  width: 320,
+  height: 210,
+  hue: 190,
+  phase: 0,
+});
 const sparks = reactive<BalanceSpark[]>([]);
 const holdProgress = ref(0);
 const insideBalance = ref(false);
@@ -48,7 +79,8 @@ const resultVisible = computed(() => session.status === "finished");
 const progressPercent = computed(() => Math.round(holdProgress.value * 100));
 const guideText = computed(() => {
   if (session.status === "paused") return "Пауза. Шар остаётся на месте и ждёт.";
-  if (!pointer.value.valid) return "Можно вести шар взглядом или мышью. Зона баланса остаётся широкой.";
+  if (!pointer.value.valid)
+    return "Можно вести шар взглядом или мышью. Зона баланса остаётся широкой.";
   if (!insideBalance.value) return "Верни шар в светлую зону. Прогресс просто ждёт.";
   return "Удерживай шар в зоне баланса ещё немного.";
 });
@@ -61,7 +93,7 @@ const zonePositions = [
   { x: 56, y: 42, hue: 224 },
   { x: 34, y: 62, hue: 184 },
   { x: 66, y: 62, hue: 198 },
-  { x: 50, y: 52, hue: 166 }
+  { x: 50, y: 52, hue: 166 },
 ];
 
 let tracking = false;
@@ -81,7 +113,7 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
@@ -92,10 +124,20 @@ function orbRadius() {
 
 function syncGeometry() {
   orb.radius = orbRadius();
-  zone.width = Math.min(430, Math.max(270, Math.min(width.value * 0.52, 250 * session.settings.targetScale)));
-  zone.height = Math.min(300, Math.max(180, Math.min(height.value * 0.32, 168 * session.settings.targetScale)));
+  zone.width = Math.min(
+    430,
+    Math.max(270, Math.min(width.value * 0.52, 250 * session.settings.targetScale)),
+  );
+  zone.height = Math.min(
+    300,
+    Math.max(180, Math.min(height.value * 0.32, 168 * session.settings.targetScale)),
+  );
   zone.x = clamp(zone.x, zone.width * 0.5 + 24, width.value - zone.width * 0.5 - 24);
-  zone.y = clamp(zone.y, Math.max(138, zone.height * 0.5 + 36), height.value - zone.height * 0.5 - 40);
+  zone.y = clamp(
+    zone.y,
+    Math.max(138, zone.height * 0.5 + 36),
+    height.value - zone.height * 0.5 - 40,
+  );
   orb.x = clamp(orb.x, orb.radius + 8, width.value - orb.radius - 8);
   orb.y = clamp(orb.y, Math.max(116, orb.radius + 8), height.value - orb.radius - 8);
 }
@@ -103,8 +145,8 @@ function syncGeometry() {
 function moveZone(step = session.step) {
   const next = zonePositions[step % zonePositions.length];
   zone.id = `balance-zone-${step}-${Date.now()}`;
-  zone.x = width.value * next.x / 100;
-  zone.y = height.value * next.y / 100;
+  zone.x = (width.value * next.x) / 100;
+  zone.y = (height.value * next.y) / 100;
   zone.hue = next.hue;
   zone.phase = randomRange(0, Math.PI * 2);
   syncGeometry();
@@ -125,7 +167,7 @@ function targetPayload(progress: number, now: number, reason?: "left" | "invalid
     progress,
     pointer: copyPointer(),
     orb: { x: Math.round(orb.x), y: Math.round(orb.y) },
-    reason
+    reason,
   };
 }
 
@@ -142,7 +184,7 @@ function addCompletionSparks() {
       age: 0,
       life: randomRange(0.85, 1.35),
       radius: randomRange(3.2, 7.2),
-      hue: zone.hue + randomRange(-18, 24)
+      hue: zone.hue + randomRange(-18, 24),
     });
   }
   if (sparks.length > 90) sparks.splice(0, sparks.length - 90);
@@ -160,7 +202,10 @@ function completeBalance(now: number) {
 }
 
 function updateOrb(delta: number) {
-  const fallback = { x: width.value * 0.5 + Math.sin(orb.phase * 0.38) * 28, y: height.value * 0.56 };
+  const fallback = {
+    x: width.value * 0.5 + Math.sin(orb.phase * 0.38) * 28,
+    y: height.value * 0.56,
+  };
   const target = pointer.value.valid ? pointer.value : fallback;
   const smoothing = pointer.value.valid ? 4.8 : 1.15;
   orb.x += (target.x - orb.x) * Math.min(1, delta * smoothing);
@@ -185,14 +230,17 @@ function updateBalance(delta: number, now: number) {
   }
 
   if (!inside && tracking) {
-    recordEvent("target-cancel", targetPayload(holdProgress.value, now, pointer.value.valid ? "left" : "invalid-gaze"));
+    recordEvent(
+      "target-cancel",
+      targetPayload(holdProgress.value, now, pointer.value.valid ? "left" : "invalid-gaze"),
+    );
     tracking = false;
     enteredAt = 0;
   }
 
   if (!inside) return;
 
-  holdProgress.value = Math.min(1, holdProgress.value + delta * 1000 / session.settings.dwellMs);
+  holdProgress.value = Math.min(1, holdProgress.value + (delta * 1000) / session.settings.dwellMs);
   if (holdProgress.value >= 1) completeBalance(now);
 }
 
@@ -286,7 +334,14 @@ function drawOrb(ctx: CanvasRenderingContext2D) {
   ctx.arc(0, 0, glowRadius, 0, Math.PI * 2);
   ctx.fill();
 
-  const body = ctx.createRadialGradient(-orb.radius * 0.3, -orb.radius * 0.34, orb.radius * 0.1, 0, 0, orb.radius);
+  const body = ctx.createRadialGradient(
+    -orb.radius * 0.3,
+    -orb.radius * 0.34,
+    orb.radius * 0.1,
+    0,
+    0,
+    orb.radius,
+  );
   body.addColorStop(0, "#ffffff");
   body.addColorStop(0.38, `hsl(${zone.hue}, 88%, 80%)`);
   body.addColorStop(1, `hsl(${zone.hue + 18}, 70%, 52%)`);
@@ -298,7 +353,13 @@ function drawOrb(ctx: CanvasRenderingContext2D) {
   ctx.lineWidth = Math.max(4, orb.radius * 0.08);
   ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
   ctx.beginPath();
-  ctx.arc(0, 0, orb.radius * (0.78 + holdProgress.value * 0.14), -Math.PI * 0.8, -Math.PI * 0.8 + Math.PI * 2 * holdProgress.value);
+  ctx.arc(
+    0,
+    0,
+    orb.radius * (0.78 + holdProgress.value * 0.14),
+    -Math.PI * 0.8,
+    -Math.PI * 0.8 + Math.PI * 2 * holdProgress.value,
+  );
   ctx.stroke();
   ctx.restore();
 }
@@ -364,10 +425,22 @@ onMounted(() => {
       <h1 class="text-h4 text-sm-h3 font-weight-bold">Балансир</h1>
       <p class="text-body-1 text-sm-h6 text-medium-emphasis mb-3">{{ guideText }}</p>
       <v-progress-linear :model-value="progressPercent" color="teal" height="0.625rem" rounded />
-      <div class="text-caption text-medium-emphasis mt-2">Прогресс сохраняется и ждёт возвращения в зону.</div>
+      <div class="text-caption text-medium-emphasis mt-2">
+        Прогресс сохраняется и ждёт возвращения в зону.
+      </div>
     </v-card>
 
-    <GameResultDialog :model-value="resultVisible" title="Балансир" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Балансир"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -397,7 +470,7 @@ onMounted(() => {
 }
 
 @media (max-width: 42.5rem) {
- .balancer-card {
+  .balancer-card {
     inset-block-start: auto;
     inset-block-end: max(1rem, env(safe-area-inset-bottom));
   }

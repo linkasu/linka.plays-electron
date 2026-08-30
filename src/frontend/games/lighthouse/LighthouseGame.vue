@@ -7,7 +7,13 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { disposeLighthousePiano, playLighthouseCue, setLighthousePianoActive, tickLighthousePiano, warmLighthousePiano } from "./audio";
+import {
+  disposeLighthousePiano,
+  playLighthouseCue,
+  setLighthousePianoActive,
+  tickLighthousePiano,
+  warmLighthousePiano,
+} from "./audio";
 
 type Point = { x: number; y: number };
 type BoatPhase = "drifting" | "guided" | "docked";
@@ -28,11 +34,29 @@ type Ripple = Point & { age: number; life: number; radius: number };
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("lighthouse", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  finishSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("lighthouse", {
   maxSteps: 8,
-  overrides: { preset: "gentle", targetScale: 1.75, motionSpeed: 0.34, distractors: "none", hints: "high", sound: true },
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.75,
+    motionSpeed: 0.34,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 useStartPromptAudio({ gameId: "lighthouse", soundEnabled: toRef(session.settings, "sound") });
 
@@ -77,7 +101,7 @@ function islandCenter(): Point {
 function islandSize() {
   return {
     width: Math.min(560, Math.max(300, window.innerWidth * 0.34)),
-    height: Math.min(170, Math.max(110, window.innerHeight * 0.16))
+    height: Math.min(170, Math.max(110, window.innerHeight * 0.16)),
   };
 }
 
@@ -86,7 +110,7 @@ function dockPoint(boat?: Boat): Point {
   const size = islandSize();
   return {
     x: center.x + (boat?.dockOffsetX ?? 0),
-    y: center.y + (boat?.dockOffsetY ?? size.height * 0.36)
+    y: center.y + (boat?.dockOffsetY ?? size.height * 0.36),
   };
 }
 
@@ -100,7 +124,7 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
@@ -117,7 +141,7 @@ function initScene() {
       y: randomRange(0, waterTop() * 0.86),
       radius: randomRange(0.7, 2.2),
       alpha: randomRange(0.16, 0.6),
-      twinkle: randomRange(0, Math.PI * 2)
+      twinkle: randomRange(0, Math.PI * 2),
     });
   }
   for (let index = 0; index < session.maxSteps; index++) boats.push(createBoat(index));
@@ -138,8 +162,9 @@ function createBoat(index: number): Boat {
     speed: randomRange(8, 18) * session.settings.motionSpeed * side,
     bob: randomRange(0, Math.PI * 2),
     dockOffsetX: island.width * berthColumns[index % berthColumns.length],
-    dockOffsetY: island.height * berthRows[Math.floor(index / berthColumns.length) % berthRows.length],
-    dockedAt: 0
+    dockOffsetY:
+      island.height * berthRows[Math.floor(index / berthColumns.length) % berthRows.length],
+    dockedAt: 0,
   };
 }
 
@@ -174,7 +199,7 @@ function targetPayload(now: number, progress: number, reason?: "left" | "invalid
     elapsedMs: enteredAt === undefined ? 0 : now - enteredAt,
     progress,
     pointer: copyPointer(),
-    reason
+    reason,
   };
 }
 
@@ -199,7 +224,11 @@ function updateDwell(now: number) {
   const lamp = lighthouseLamp();
   const inside = pointer.value.valid && distance(pointer.value, lamp) <= hitRadius();
   if (!inside) {
-    if (enteredAt !== undefined) recordEvent("target-cancel", targetPayload(now, dwellProgress, pointer.value.valid ? "left" : "invalid-gaze"));
+    if (enteredAt !== undefined)
+      recordEvent(
+        "target-cancel",
+        targetPayload(now, dwellProgress, pointer.value.valid ? "left" : "invalid-gaze"),
+      );
     resetDwell();
     return;
   }
@@ -289,7 +318,7 @@ function drawWater(context: CanvasRenderingContext2D, now: number) {
     const y = top + 22 + line * ((window.innerHeight - top) / 11);
     context.beginPath();
     for (let index = 0; index <= 46; index++) {
-      const x = window.innerWidth * index / 46;
+      const x = (window.innerWidth * index) / 46;
       const wave = Math.sin(index * 0.68 + line * 0.8 + now * 0.0007) * 7;
       if (index === 0) context.moveTo(x, y + wave);
       else context.lineTo(x, y + wave);
@@ -327,18 +356,52 @@ function drawIsland(context: CanvasRenderingContext2D, now: number) {
   context.save();
   context.fillStyle = "rgb(225 190 117 / 42%)";
   context.beginPath();
-  context.ellipse(center.x, center.y + height * 0.16, width * 0.58, height * 0.42, -0.02, 0, Math.PI * 2);
+  context.ellipse(
+    center.x,
+    center.y + height * 0.16,
+    width * 0.58,
+    height * 0.42,
+    -0.02,
+    0,
+    Math.PI * 2,
+  );
   context.fill();
-  const sand = context.createLinearGradient(0, center.y - height * 0.34, 0, center.y + height * 0.56);
+  const sand = context.createLinearGradient(
+    0,
+    center.y - height * 0.34,
+    0,
+    center.y + height * 0.56,
+  );
   sand.addColorStop(0, "#d7b16c");
   sand.addColorStop(0.62, "#c8944f");
   sand.addColorStop(1, "#8f693d");
   context.fillStyle = sand;
   context.beginPath();
   context.moveTo(center.x - width * 0.45, center.y + height * 0.16);
-  context.bezierCurveTo(center.x - width * 0.38, center.y - height * 0.24, center.x - width * 0.14, center.y - height * 0.44, center.x + width * 0.08, center.y - height * 0.34);
-  context.bezierCurveTo(center.x + width * 0.36, center.y - height * 0.2, center.x + width * 0.5, center.y + height * 0.06, center.x + width * 0.42, center.y + height * 0.34);
-  context.bezierCurveTo(center.x + width * 0.14, center.y + height * 0.55, center.x - width * 0.24, center.y + height * 0.5, center.x - width * 0.45, center.y + height * 0.16);
+  context.bezierCurveTo(
+    center.x - width * 0.38,
+    center.y - height * 0.24,
+    center.x - width * 0.14,
+    center.y - height * 0.44,
+    center.x + width * 0.08,
+    center.y - height * 0.34,
+  );
+  context.bezierCurveTo(
+    center.x + width * 0.36,
+    center.y - height * 0.2,
+    center.x + width * 0.5,
+    center.y + height * 0.06,
+    center.x + width * 0.42,
+    center.y + height * 0.34,
+  );
+  context.bezierCurveTo(
+    center.x + width * 0.14,
+    center.y + height * 0.55,
+    center.x - width * 0.24,
+    center.y + height * 0.5,
+    center.x - width * 0.45,
+    center.y + height * 0.16,
+  );
   context.closePath();
   context.fill();
   context.strokeStyle = "rgb(255 238 181 / 34%)";
@@ -347,7 +410,15 @@ function drawIsland(context: CanvasRenderingContext2D, now: number) {
   context.fillStyle = "#5b5f62";
   for (const rock of [-0.32, -0.2, 0.28, 0.38]) {
     context.beginPath();
-    context.ellipse(center.x + width * rock, center.y + height * (0.16 + Math.abs(rock) * 0.2), width * 0.035, height * 0.05, rock, 0, Math.PI * 2);
+    context.ellipse(
+      center.x + width * rock,
+      center.y + height * (0.16 + Math.abs(rock) * 0.2),
+      width * 0.035,
+      height * 0.05,
+      rock,
+      0,
+      Math.PI * 2,
+    );
     context.fill();
   }
   context.restore();
@@ -439,7 +510,15 @@ function drawRipples(context: CanvasRenderingContext2D) {
     const progress = ripple.age / ripple.life;
     context.globalAlpha = 1 - progress;
     context.beginPath();
-    context.ellipse(ripple.x, ripple.y, ripple.radius * (0.6 + progress), ripple.radius * (0.14 + progress * 0.12), 0, 0, Math.PI * 2);
+    context.ellipse(
+      ripple.x,
+      ripple.y,
+      ripple.radius * (0.6 + progress),
+      ripple.radius * (0.14 + progress * 0.12),
+      0,
+      0,
+      Math.PI * 2,
+    );
     context.stroke();
   }
   context.restore();
@@ -456,7 +535,8 @@ function draw(context: CanvasRenderingContext2D, now: number) {
 }
 
 function tick(now: number) {
-  const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+  const delta =
+    session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
   update(delta, now);
   if (ctx) draw(ctx, now);

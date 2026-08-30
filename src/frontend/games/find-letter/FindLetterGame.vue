@@ -13,15 +13,31 @@ import { findLetterFeedback } from "./audio";
 import { generateFindLetterRound, type FindLetterOption } from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("find-letter", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  recordHint,
+  startSession,
+} = useGameSessionFor("find-letter", {
   maxSteps: 8,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 
-const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRoundGame,
+} = useRoundGame({
   session,
   startSession,
-  generateRound: (roundIndex) => generateFindLetterRound(session.settings, roundIndex)
+  generateRound: (roundIndex) => generateFindLetterRound(session.settings, roundIndex),
 });
 
 const feedbackMessage = ref("Посмотри на образец и найди такую же букву.");
@@ -30,10 +46,15 @@ const wrongChoiceId = ref<string>();
 const successChoiceId = ref<string>();
 const pendingSelection = ref(false);
 const isSpeaking = ref(false);
-const promptAudio = useGamePromptAudio({ gameId: "find-letter", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "find-letter",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 let feedbackTimer = 0;
 
-const hintedChoiceId = computed(() => hintedRoundId.value === round.value.roundId ? round.value.target.id : undefined);
+const hintedChoiceId = computed(() =>
+  hintedRoundId.value === round.value.roundId ? round.value.target.id : undefined,
+);
 
 function choiceTargetId(choice: FindLetterOption) {
   return `find-letter:choice:${choice.id}`;
@@ -72,7 +93,14 @@ async function answer(choice: FindLetterOption) {
     pendingSelection.value = true;
     successChoiceId.value = choice.id;
     feedbackMessage.value = "Верно. Это нужная буква.";
-    recordSuccess({ roundId: round.value.roundId, targetId, answerId: choice.id, expected: round.value.target.letter, actual: choice.letter, isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      answerId: choice.id,
+      expected: round.value.target.letter,
+      actual: choice.letter,
+      isCorrect: true,
+    });
     void findLetterFeedback.playSuccess(session.settings.sound);
     await promptAudio.playSequenceAndWait(["find-letter.correct"], 80);
 
@@ -90,10 +118,22 @@ async function answer(choice: FindLetterOption) {
   wrongChoiceId.value = choice.id;
   hintedRoundId.value = round.value.roundId;
   feedbackMessage.value = `Почти. Ищи букву ${round.value.target.letter}; она подсвечена рамкой.`;
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, answerId: choice.id, expected: round.value.target.letter, actual: choice.letter, isCorrect: false });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    expectedTargetId,
+    answerId: choice.id,
+    expected: round.value.target.letter,
+    actual: choice.letter,
+    isCorrect: false,
+  });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "mistake" });
   void findLetterFeedback.playMistake(session.settings.sound);
-  await promptAudio.playSequenceAndWait(["find-letter.mistake", `find-letter.prompt.${round.value.target.id}`], 80, 170);
+  await promptAudio.playSequenceAndWait(
+    ["find-letter.mistake", `find-letter.prompt.${round.value.target.id}`],
+    80,
+    170,
+  );
   pendingSelection.value = false;
   wrongChoiceId.value = undefined;
 }
@@ -117,9 +157,12 @@ onMounted(() => {
   void playTargetPrompt(450);
 });
 
-watch(() => session.settings.sound, (enabled) => {
-  findLetterFeedback.warm(enabled);
-});
+watch(
+  () => session.settings.sound,
+  (enabled) => {
+    findLetterFeedback.warm(enabled);
+  },
+);
 
 onUnmounted(() => {
   clearFeedbackTimer();
@@ -130,7 +173,18 @@ onUnmounted(() => {
 <template>
   <GamePageShell gradient="linear-gradient(135deg, #f5f7ff 0%, #fff3e8 100%)" padding-top="6.25rem">
     <template #hud>
-      <GameHud title="Найди букву" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+      <GameHud
+        title="Найди букву"
+        :step="session.step"
+        :max-steps="session.maxSteps"
+        :score="session.score"
+        :mistakes="session.mistakes"
+        :duration-ms="durationMs"
+        :session-seconds="session.settings.sessionSeconds"
+        :paused="session.status === 'paused'"
+        @pause="pauseSession"
+        @resume="resumeSession"
+      />
     </template>
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
@@ -141,11 +195,32 @@ onUnmounted(() => {
               <div class="target-letter">{{ round.target.letter }}</div>
             </div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-1">{{ round.prompt }}</h1>
-            <p class="text-body-1 text-md-h6 text-medium-emphasis text-center mb-3">{{ feedbackMessage }}</p>
+            <p class="text-body-1 text-md-h6 text-medium-emphasis text-center mb-3">
+              {{ feedbackMessage }}
+            </p>
 
-            <GameChoiceCardGrid :choices="round.choices" :target-id="choiceTargetId" :disabled="session.status !== 'running' || pendingSelection || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="9.375rem" :color="choiceColor" :cols="round.choices.length === 4 ? 3 : 4" :sm="round.choices.length === 4 ? 3 : 4" :md="round.choices.length > 4 ? 4 : round.choices.length === 4 ? 3 : 4" @select="answer">
+            <GameChoiceCardGrid
+              :choices="round.choices"
+              :target-id="choiceTargetId"
+              :disabled="session.status !== 'running' || pendingSelection || isSpeaking"
+              :dwell-ms="session.settings.dwellMs"
+              min-height="9.375rem"
+              :color="choiceColor"
+              :cols="round.choices.length === 4 ? 3 : 4"
+              :sm="round.choices.length === 4 ? 3 : 4"
+              :md="round.choices.length > 4 ? 4 : round.choices.length === 4 ? 3 : 4"
+              @select="answer"
+            >
               <template #default="{ choice }">
-                <div :class="['letter-choice', { 'letter-choice--hinted': hintedChoiceId === choice.id, 'letter-choice--mistake': wrongChoiceId === choice.id }]">
+                <div
+                  :class="[
+                    'letter-choice',
+                    {
+                      'letter-choice--hinted': hintedChoiceId === choice.id,
+                      'letter-choice--mistake': wrongChoiceId === choice.id,
+                    },
+                  ]"
+                >
                   {{ choice.letter }}
                 </div>
               </template>
@@ -154,7 +229,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Найди букву" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Найди букву"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </GamePageShell>
 </template>
 
@@ -189,7 +274,9 @@ onUnmounted(() => {
 .letter-choice {
   color: rgb(var(--v-theme-on-surface));
   font-size: clamp(4rem, min(9vw, 12vh), 6.5rem);
-  transition: transform 160ms ease, text-shadow 160ms ease;
+  transition:
+    transform 160ms ease,
+    text-shadow 160ms ease;
 }
 
 .letter-choice--hinted {
@@ -203,7 +290,7 @@ onUnmounted(() => {
 }
 
 @media (max-height: 43rem) {
- .target-letter-card {
+  .target-letter-card {
     min-block-size: 6.25rem;
   }
 }

@@ -11,7 +11,7 @@ const directions = [
   [1, 0],
   [0, 1],
   [1, 1],
-  [1, -1]
+  [1, -1],
 ] as const;
 
 export function createEmptyBoard(): ConnectFourBoard {
@@ -23,7 +23,9 @@ export function cellIndex(row: number, column: number) {
 }
 
 export function availableColumns(board: ConnectFourBoard) {
-  return Array.from({ length: connectFourColumns }, (_, column) => column).filter((column) => !board[cellIndex(0, column)]);
+  return Array.from({ length: connectFourColumns }, (_, column) => column).filter(
+    (column) => !board[cellIndex(0, column)],
+  );
 }
 
 export function dropDisc(board: ConnectFourBoard, column: number, mark: ConnectFourMark) {
@@ -58,8 +60,16 @@ export function winningLine(board: ConnectFourBoard) {
       const mark = board[cellIndex(row, column)];
       if (!mark) continue;
       for (const [dx, dy] of directions) {
-        const line = Array.from({ length: 4 }, (_, offset) => [row + dy * offset, column + dx * offset] as const);
-        if (line.every(([nextRow, nextColumn]) => isInside(nextRow, nextColumn) && board[cellIndex(nextRow, nextColumn)] === mark)) {
+        const line = Array.from(
+          { length: 4 },
+          (_, offset) => [row + dy * offset, column + dx * offset] as const,
+        );
+        if (
+          line.every(
+            ([nextRow, nextColumn]) =>
+              isInside(nextRow, nextColumn) && board[cellIndex(nextRow, nextColumn)] === mark,
+          )
+        ) {
           return line.map(([nextRow, nextColumn]) => cellIndex(nextRow, nextColumn));
         }
       }
@@ -79,8 +89,10 @@ export function chooseDeepQMove(board: ConnectFourBoard) {
   if (block !== undefined) return block;
 
   return columns.reduce((bestColumn, column) => {
-    const bestValue = evaluateColumn(board, bestColumn, "Y") - evaluateColumn(board, bestColumn, "R") * 0.82;
-    const nextValue = evaluateColumn(board, column, "Y") - evaluateColumn(board, column, "R") * 0.82;
+    const bestValue =
+      evaluateColumn(board, bestColumn, "Y") - evaluateColumn(board, bestColumn, "R") * 0.82;
+    const nextValue =
+      evaluateColumn(board, column, "Y") - evaluateColumn(board, column, "R") * 0.82;
     return nextValue > bestValue ? column : bestColumn;
   }, columns[0]);
 }
@@ -101,7 +113,10 @@ function evaluateColumn(board: ConnectFourBoard, column: number, mark: ConnectFo
   let score = 3 - Math.abs(3 - column);
 
   for (const [dx, dy] of directions) {
-    const length = 1 + countDirection(next, row, column, dx, dy, mark) + countDirection(next, row, column, -dx, -dy, mark);
+    const length =
+      1 +
+      countDirection(next, row, column, dx, dy, mark) +
+      countDirection(next, row, column, -dx, -dy, mark);
     if (length >= 4) score += 10000;
     else if (length === 3) score += 180;
     else if (length === 2) score += 28;
@@ -111,7 +126,14 @@ function evaluateColumn(board: ConnectFourBoard, column: number, mark: ConnectFo
   return score;
 }
 
-function countDirection(board: ConnectFourBoard, row: number, column: number, dx: number, dy: number, mark: ConnectFourMark) {
+function countDirection(
+  board: ConnectFourBoard,
+  row: number,
+  column: number,
+  dx: number,
+  dy: number,
+  mark: ConnectFourMark,
+) {
   let count = 0;
   let nextRow = row + dy;
   let nextColumn = column + dx;
@@ -129,7 +151,10 @@ function countOpenWindows(board: ConnectFourBoard, mark: ConnectFourMark) {
   for (let row = 0; row < connectFourRows; row++) {
     for (let column = 0; column < connectFourColumns; column++) {
       for (const [dx, dy] of directions) {
-        const cells = Array.from({ length: 4 }, (_, offset) => [row + dy * offset, column + dx * offset] as const);
+        const cells = Array.from(
+          { length: 4 },
+          (_, offset) => [row + dy * offset, column + dx * offset] as const,
+        );
         if (!cells.every(([nextRow, nextColumn]) => isInside(nextRow, nextColumn))) continue;
         const marks = cells.map(([nextRow, nextColumn]) => board[cellIndex(nextRow, nextColumn)]);
         if (marks.includes(opponent)) continue;

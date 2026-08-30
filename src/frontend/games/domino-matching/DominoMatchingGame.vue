@@ -8,18 +8,47 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { drawPlayerTile, getOpenEnds, getPlayablePlacements, hasPlayableMove, passPlayerTurn, playPlayerTile, startDominoGame, type DominoGameState, type DominoPlacement, type DominoSide, type DominoTile, type PlacedDominoTile } from "./model";
+import {
+  drawPlayerTile,
+  getOpenEnds,
+  getPlayablePlacements,
+  hasPlayableMove,
+  passPlayerTurn,
+  playPlayerTile,
+  startDominoGame,
+  type DominoGameState,
+  type DominoPlacement,
+  type DominoSide,
+  type DominoTile,
+  type PlacedDominoTile,
+} from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("domino-matching", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  recordHint,
+  startSession,
+  finishSession,
+} = useGameSessionFor("domino-matching", {
   maxSteps: 10,
   overrides: { dwellMs: 1300, sessionSeconds: 180, sound: true },
   finishOnMaxSteps: false,
   finishOnMistakes: false,
-  finishOnTimeout: false
+  finishOnTimeout: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "domino-matching", soundEnabled, warmAssetIds: ["domino-matching.complete"] });
+const promptAudio = useGamePromptAudio({
+  gameId: "domino-matching",
+  soundEnabled,
+  warmAssetIds: ["domino-matching.complete"],
+});
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 const boardRowSize = 5;
 
@@ -31,8 +60,12 @@ const isSpeaking = ref(false);
 const openEnds = computed(() => getOpenEnds(game.value));
 const playerHasMove = computed(() => hasPlayableMove(game.value.playerHand, game.value));
 const canUseDrawAction = computed(() => !playerHasMove.value && !selectedTile.value);
-const selectedTile = computed(() => game.value.playerHand.find((tile) => tile.id === selectedTileId.value));
-const selectedPlacements = computed(() => selectedTile.value ? getPlayablePlacements(selectedTile.value, game.value) : []);
+const selectedTile = computed(() =>
+  game.value.playerHand.find((tile) => tile.id === selectedTileId.value),
+);
+const selectedPlacements = computed(() =>
+  selectedTile.value ? getPlayablePlacements(selectedTile.value, game.value) : [],
+);
 const boardRows = computed(() => {
   const rows: PlacedDominoTile[][] = [];
   for (let index = 0; index < game.value.board.length; index += boardRowSize) {
@@ -43,8 +76,12 @@ const boardRows = computed(() => {
 });
 
 const helperText = computed(() => {
-  if (selectedTile.value) return "Эта костяшка подходит с двух сторон. Выбери левый или правый край.";
-  if (!playerHasMove.value) return game.value.boneyard.length ? "Подходящих костяшек нет. Можно взять из базара." : "Ходов нет и базар пуст. Передай ход боту.";
+  if (selectedTile.value)
+    return "Эта костяшка подходит с двух сторон. Выбери левый или правый край.";
+  if (!playerHasMove.value)
+    return game.value.boneyard.length
+      ? "Подходящих костяшек нет. Можно взять из базара."
+      : "Ходов нет и базар пуст. Передай ход боту.";
   return `Открытые числа: ${openEnds.value.leftEnd} слева и ${openEnds.value.rightEnd} справа. Выбери подходящую костяшку.`;
 });
 
@@ -63,7 +100,7 @@ const pipPositions: Record<number, string[]> = {
   3: ["top-left", "center", "bottom-right"],
   4: ["top-left", "top-right", "bottom-left", "bottom-right"],
   5: ["top-left", "top-right", "center", "bottom-left", "bottom-right"],
-  6: ["top-left", "top-right", "middle-left", "middle-right", "bottom-left", "bottom-right"]
+  6: ["top-left", "top-right", "middle-left", "middle-right", "bottom-left", "bottom-right"],
 };
 
 function dotPositions(count: number) {
@@ -98,16 +135,29 @@ async function finishDominoGame(state: DominoGameState) {
   if (session.sessionId === sessionId) finishSession(finishReasonForStatus(state.status));
 }
 
-async function afterSuccessfulMove(previousState: DominoGameState, resultState: DominoGameState, targetId: string, answerId: string) {
+async function afterSuccessfulMove(
+  previousState: DominoGameState,
+  resultState: DominoGameState,
+  targetId: string,
+  answerId: string,
+) {
   const botAction = resultState.lastBotAction;
   const resultEnds = getOpenEnds(resultState);
-  recordSuccess({ targetId, answerId, leftEnd: resultEnds.leftEnd, rightEnd: resultEnds.rightEnd, botAction, status: resultState.status });
+  recordSuccess({
+    targetId,
+    answerId,
+    leftEnd: resultEnds.leftEnd,
+    rightEnd: resultEnds.rightEnd,
+    botAction,
+    status: resultState.status,
+  });
   selectedTileId.value = undefined;
   lastMistakeId.value = undefined;
   void feedbackAudio.playSuccess();
   game.value = resultState;
   await finishDominoGame(resultState);
-  if (botAction && previousState.lastBotAction !== botAction) recordHint({ text: botAction, reason: "bot-turn" });
+  if (botAction && previousState.lastBotAction !== botAction)
+    recordHint({ text: botAction, reason: "bot-turn" });
 }
 
 async function chooseTile(tile: DominoTile) {
@@ -117,8 +167,18 @@ async function chooseTile(tile: DominoTile) {
   if (!placements.length) {
     lastMistakeId.value = tile.id;
     selectedTileId.value = undefined;
-    recordMistake({ targetId: tileTargetId(tile), answerId: tile.id, leftEnd: openEnds.value.leftEnd, rightEnd: openEnds.value.rightEnd, isCorrect: false });
-    recordHint({ targetId: tileTargetId(tile), text: "Сравни числа на костяшке с открытыми краями цепочки.", reason: "wrong-domino-tile" });
+    recordMistake({
+      targetId: tileTargetId(tile),
+      answerId: tile.id,
+      leftEnd: openEnds.value.leftEnd,
+      rightEnd: openEnds.value.rightEnd,
+      isCorrect: false,
+    });
+    recordHint({
+      targetId: tileTargetId(tile),
+      text: "Сравни числа на костяшке с открытыми краями цепочки.",
+      reason: "wrong-domino-tile",
+    });
     void feedbackAudio.playMistake();
     return;
   }
@@ -131,7 +191,8 @@ async function chooseTile(tile: DominoTile) {
 
   const previousState = game.value;
   const result = playPlayerTile(game.value, tile.id, placements[0].side);
-  if (result.ok) await afterSuccessfulMove(previousState, result.state, tileTargetId(tile), tile.id);
+  if (result.ok)
+    await afterSuccessfulMove(previousState, result.state, tileTargetId(tile), tile.id);
 }
 
 async function chooseSide(side: DominoSide) {
@@ -141,14 +202,26 @@ async function chooseSide(side: DominoSide) {
 
   const previousState = game.value;
   const result = playPlayerTile(game.value, selectedTile.value.id, side);
-  if (result.ok) await afterSuccessfulMove(previousState, result.state, sideTargetId(side), `${selectedTile.value.id}:${side}`);
+  if (result.ok)
+    await afterSuccessfulMove(
+      previousState,
+      result.state,
+      sideTargetId(side),
+      `${selectedTile.value.id}:${side}`,
+    );
 }
 
 async function drawTile() {
   if (session.status !== "running" || isSpeaking.value || playerHasMove.value) return;
-  const result = game.value.boneyard.length ? drawPlayerTile(game.value) : passPlayerTurn(game.value);
+  const result = game.value.boneyard.length
+    ? drawPlayerTile(game.value)
+    : passPlayerTurn(game.value);
   if (!result.ok) {
-    recordHint({ targetId: "domino-matching:draw", text: result.message, reason: "domino-action-unavailable" });
+    recordHint({
+      targetId: "domino-matching:draw",
+      text: result.message,
+      reason: "domino-action-unavailable",
+    });
     return;
   }
 
@@ -158,7 +231,7 @@ async function drawTile() {
   recordHint({
     targetId: "domino-matching:draw",
     text: result.playerPassed ? "Игрок передал ход боту." : "Игрок взял костяшку из базара.",
-    reason: result.playerPassed ? "pass-domino" : "draw-domino"
+    reason: result.playerPassed ? "pass-domino" : "draw-domino",
   });
   await finishDominoGame(result.state);
 }
@@ -183,35 +256,84 @@ onUnmounted(() => {
 
 <template>
   <div class="domino-shell">
-    <GameHud title="Домино" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" :show-timer="false" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Домино"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      :show-timer="false"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" xl="11">
           <v-card class="domino-card pa-3 pa-md-4" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-1">Strategy · counting · turn taking</div>
-            <h1 class="text-h5 text-md-h4 font-weight-bold text-center mb-2">Собери цепочку домино</h1>
+            <div class="text-overline text-secondary text-center mb-1">
+              Strategy · counting · turn taking
+            </div>
+            <h1 class="text-h5 text-md-h4 font-weight-bold text-center mb-2">
+              Собери цепочку домино
+            </h1>
 
-            <v-alert class="instruction mb-3 text-body-1 text-md-h6 font-weight-bold" color="primary" icon="mdi-dots-grid" rounded="xl" variant="tonal">
+            <v-alert
+              class="instruction mb-3 text-body-1 text-md-h6 font-weight-bold"
+              color="primary"
+              icon="mdi-dots-grid"
+              rounded="xl"
+              variant="tonal"
+            >
               {{ helperText }}
             </v-alert>
 
             <div class="status-row mb-3">
-              <v-chip color="primary" variant="tonal" size="large">Слева: {{ openEnds.leftEnd }}</v-chip>
-              <v-chip color="secondary" variant="tonal" size="large">Базар: {{ game.boneyard.length }}</v-chip>
-              <v-chip color="deep-purple" variant="tonal" size="large">У бота: {{ game.botHand.length }}</v-chip>
-              <v-chip v-if="game.lastBotAction" color="teal" variant="tonal" size="large">{{ game.lastBotAction }}</v-chip>
-              <v-chip color="primary" variant="tonal" size="large">Справа: {{ openEnds.rightEnd }}</v-chip>
+              <v-chip color="primary" variant="tonal" size="large"
+                >Слева: {{ openEnds.leftEnd }}</v-chip
+              >
+              <v-chip color="secondary" variant="tonal" size="large"
+                >Базар: {{ game.boneyard.length }}</v-chip
+              >
+              <v-chip color="deep-purple" variant="tonal" size="large"
+                >У бота: {{ game.botHand.length }}</v-chip
+              >
+              <v-chip v-if="game.lastBotAction" color="teal" variant="tonal" size="large">{{
+                game.lastBotAction
+              }}</v-chip>
+              <v-chip color="primary" variant="tonal" size="large"
+                >Справа: {{ openEnds.rightEnd }}</v-chip
+              >
             </div>
 
             <section class="board-zone mb-3" aria-label="Цепочка домино на столе">
               <div :class="['board-path', { 'board-path--bent': boardRows.length > 1 }]">
-                <div v-for="(row, rowIndex) in boardRows" :key="`board-row-${rowIndex}`" :class="['board-row', { 'board-row--reverse': rowIndex % 2 === 1 }]">
-                  <div v-for="placed in row" :key="`${placed.owner}-${placed.tile.id}-${placed.left}-${placed.right}`" :class="['domino', `domino--${placed.owner}`]" :aria-label="`Костяшка ${placed.left}:${placed.right}`">
+                <div
+                  v-for="(row, rowIndex) in boardRows"
+                  :key="`board-row-${rowIndex}`"
+                  :class="['board-row', { 'board-row--reverse': rowIndex % 2 === 1 }]"
+                >
+                  <div
+                    v-for="placed in row"
+                    :key="`${placed.owner}-${placed.tile.id}-${placed.left}-${placed.right}`"
+                    :class="['domino', `domino--${placed.owner}`]"
+                    :aria-label="`Костяшка ${placed.left}:${placed.right}`"
+                  >
                     <div class="domino__half">
-                      <span v-for="position in dotPositions(placed.left)" :key="`${placed.tile.id}-placed-left-${position}`" :class="['domino__dot', `domino__dot--${position}`]" />
+                      <span
+                        v-for="position in dotPositions(placed.left)"
+                        :key="`${placed.tile.id}-placed-left-${position}`"
+                        :class="['domino__dot', `domino__dot--${position}`]"
+                      />
                     </div>
                     <div class="domino__half">
-                      <span v-for="position in dotPositions(placed.right)" :key="`${placed.tile.id}-placed-right-${position}`" :class="['domino__dot', `domino__dot--${position}`]" />
+                      <span
+                        v-for="position in dotPositions(placed.right)"
+                        :key="`${placed.tile.id}-placed-right-${position}`"
+                        :class="['domino__dot', `domino__dot--${position}`]"
+                      />
                     </div>
                   </div>
                 </div>
@@ -219,11 +341,19 @@ onUnmounted(() => {
             </section>
 
             <v-row v-if="selectedTile" class="side-row mb-3" dense>
-              <v-col v-for="side in (['left', 'right'] as DominoSide[])" :key="side" cols="6">
-                <GameDwellButton :target-id="sideTargetId(side)" :disabled="session.status !== 'running' || isSpeaking || !placementFor(side)" :dwell-ms="session.settings.dwellMs" color="secondary" @select="chooseSide(side)">
+              <v-col v-for="side in ['left', 'right'] as DominoSide[]" :key="side" cols="6">
+                <GameDwellButton
+                  :target-id="sideTargetId(side)"
+                  :disabled="session.status !== 'running' || isSpeaking || !placementFor(side)"
+                  :dwell-ms="session.settings.dwellMs"
+                  color="secondary"
+                  @select="chooseSide(side)"
+                >
                   <template #default>
                     <div class="side-choice">
-                      <div class="text-h6 font-weight-bold">{{ side === 'left' ? 'Слева' : 'Справа' }}</div>
+                      <div class="text-h6 font-weight-bold">
+                        {{ side === "left" ? "Слева" : "Справа" }}
+                      </div>
                       <div class="text-body-1">Поставить {{ tileLabel(selectedTile) }}</div>
                     </div>
                   </template>
@@ -234,15 +364,41 @@ onUnmounted(() => {
             <div class="hand-title text-h6 font-weight-bold mb-2">Твои костяшки</div>
             <v-row class="hand-row" dense>
               <v-col v-for="tile in game.playerHand" :key="tile.id" cols="6" sm="4" md="3" lg="2">
-                <GameDwellButton :target-id="tileTargetId(tile)" :disabled="session.status !== 'running' || isSpeaking || Boolean(selectedTile)" :dwell-ms="session.settings.dwellMs" color="surface" @select="chooseTile(tile)">
+                <GameDwellButton
+                  :target-id="tileTargetId(tile)"
+                  :disabled="session.status !== 'running' || isSpeaking || Boolean(selectedTile)"
+                  :dwell-ms="session.settings.dwellMs"
+                  color="surface"
+                  @select="chooseTile(tile)"
+                >
                   <template #default>
-                    <div :class="['hand-card', { 'hand-card--selected': tile.id === selectedTileId, 'hand-card--mistake': tile.id === lastMistakeId, 'hand-card--playable': getPlayablePlacements(tile, game).length > 0 }]">
-                      <div class="domino domino--hand" :aria-label="`Костяшка ${tile.left}:${tile.right}`">
+                    <div
+                      :class="[
+                        'hand-card',
+                        {
+                          'hand-card--selected': tile.id === selectedTileId,
+                          'hand-card--mistake': tile.id === lastMistakeId,
+                          'hand-card--playable': getPlayablePlacements(tile, game).length > 0,
+                        },
+                      ]"
+                    >
+                      <div
+                        class="domino domino--hand"
+                        :aria-label="`Костяшка ${tile.left}:${tile.right}`"
+                      >
                         <div class="domino__half">
-                          <span v-for="position in dotPositions(tile.left)" :key="`${tile.id}-left-${position}`" :class="['domino__dot', `domino__dot--${position}`]" />
+                          <span
+                            v-for="position in dotPositions(tile.left)"
+                            :key="`${tile.id}-left-${position}`"
+                            :class="['domino__dot', `domino__dot--${position}`]"
+                          />
                         </div>
                         <div class="domino__half">
-                          <span v-for="position in dotPositions(tile.right)" :key="`${tile.id}-right-${position}`" :class="['domino__dot', `domino__dot--${position}`]" />
+                          <span
+                            v-for="position in dotPositions(tile.right)"
+                            :key="`${tile.id}-right-${position}`"
+                            :class="['domino__dot', `domino__dot--${position}`]"
+                          />
                         </div>
                       </div>
                       <div class="text-body-1 font-weight-bold mt-1">{{ tileLabel(tile) }}</div>
@@ -251,16 +407,32 @@ onUnmounted(() => {
                 </GameDwellButton>
               </v-col>
               <v-col cols="6" sm="4" md="3" lg="2">
-                <GameDwellButton v-if="canUseDrawAction" target-id="domino-matching:draw" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" color="surface" @select="drawTile">
+                <GameDwellButton
+                  v-if="canUseDrawAction"
+                  target-id="domino-matching:draw"
+                  :disabled="session.status !== 'running' || isSpeaking"
+                  :dwell-ms="session.settings.dwellMs"
+                  color="surface"
+                  @select="drawTile"
+                >
                   <template #default>
                     <div class="draw-card">
                       <v-icon size="x-large">mdi-tray-arrow-down</v-icon>
-                      <div class="text-h6 font-weight-bold">{{ game.boneyard.length ? 'Взять' : 'Пас' }}</div>
-                      <div class="text-body-2">{{ game.boneyard.length ? 'из базара' : 'ход боту' }}</div>
+                      <div class="text-h6 font-weight-bold">
+                        {{ game.boneyard.length ? "Взять" : "Пас" }}
+                      </div>
+                      <div class="text-body-2">
+                        {{ game.boneyard.length ? "из базара" : "ход боту" }}
+                      </div>
                     </div>
                   </template>
                 </GameDwellButton>
-                <v-sheet v-else class="draw-card draw-card--idle" rounded="xl" color="grey-lighten-4">
+                <v-sheet
+                  v-else
+                  class="draw-card draw-card--idle"
+                  rounded="xl"
+                  color="grey-lighten-4"
+                >
                   <v-icon size="x-large">mdi-check-circle-outline</v-icon>
                   <div class="text-h6 font-weight-bold">Ход есть</div>
                   <div class="text-body-2">базар пока закрыт</div>
@@ -271,7 +443,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Домино" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Домино"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -356,15 +538,21 @@ onUnmounted(() => {
 }
 
 .hand-card {
-  transition: filter 160ms ease, transform 160ms ease;
+  transition:
+    filter 160ms ease,
+    transform 160ms ease;
 }
 
 .hand-card--playable.domino {
-  box-shadow: 0 0 0 0.24rem rgb(var(--v-theme-primary) / 52%), 0 0.55rem 1.2rem rgb(61 41 23 / 16%);
+  box-shadow:
+    0 0 0 0.24rem rgb(var(--v-theme-primary) / 52%),
+    0 0.55rem 1.2rem rgb(61 41 23 / 16%);
 }
 
 .hand-card--selected.domino {
-  box-shadow: 0 0 0 0.28rem rgb(var(--v-theme-secondary)), 0 0.55rem 1.2rem rgb(61 41 23 / 16%);
+  box-shadow:
+    0 0 0 0.28rem rgb(var(--v-theme-secondary)),
+    0 0.55rem 1.2rem rgb(61 41 23 / 16%);
 }
 
 .hand-card--mistake {
@@ -451,28 +639,28 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
- .game-container {
+  .game-container {
     padding-block: 4.5rem 0.7rem;
   }
 
- .domino-card {
+  .domino-card {
     max-block-size: calc(100dvh - 5.2rem);
   }
 
- .game-container h1,
- .game-container .text-overline {
+  .game-container h1,
+  .game-container .text-overline {
     display: none;
   }
 
- .instruction {
+  .instruction {
     margin-block-end: 0.45rem !important;
   }
 
- .board-zone {
+  .board-zone {
     max-block-size: 24vh;
   }
 
- .hand-row {
+  .hand-row {
     max-block-size: 34vh;
   }
 }

@@ -8,7 +8,12 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
-import { disposeFlowerAudio, playFlowerMelody, resetFlowerAudioSession, warmFlowerAudio } from "./audio";
+import {
+  disposeFlowerAudio,
+  playFlowerMelody,
+  resetFlowerAudioSession,
+  warmFlowerAudio,
+} from "./audio";
 
 type Point = { x: number; y: number };
 type BudPhase = "appearing" | "waiting" | "gazing" | "blooming";
@@ -41,10 +46,29 @@ type Cloud = Point & {
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
 const { pointer } = useGazePointer();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, finishSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("flowers", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  finishSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("flowers", {
   maxSteps: 5,
-  overrides: { preset: "gentle", dwellMs: 1100, sessionSeconds: 75, targetScale: 1.45, motionSpeed: 0.55, distractors: "none", hints: "high" },
-  finishOnMaxSteps: false
+  overrides: {
+    preset: "gentle",
+    dwellMs: 1100,
+    sessionSeconds: 75,
+    targetScale: 1.45,
+    motionSpeed: 0.55,
+    distractors: "none",
+    hints: "high",
+  },
+  finishOnMaxSteps: false,
 });
 useStartPromptAudio({ gameId: "flowers", soundEnabled: toRef(session.settings, "sound") });
 
@@ -106,7 +130,7 @@ function randomMeadowPoint(radius: number) {
     bottomPadding: Math.max(72, window.innerHeight * 0.1),
     previous: previousBudPoint,
     minDistance: Math.min(260, Math.max(150, radius * 1.45)),
-    attempts: 18
+    attempts: 18,
   });
 }
 
@@ -158,7 +182,7 @@ function createBud(first = false): ActiveBud {
     age: 0,
     phaseAge: 0,
     phase: "appearing",
-    dwellProgress: 0
+    dwellProgress: 0,
   };
 }
 
@@ -168,11 +192,16 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
-function targetPayload(bud: ActiveBud, now: number, progress: number, reason?: "left" | "invalid-gaze") {
+function targetPayload(
+  bud: ActiveBud,
+  now: number,
+  progress: number,
+  reason?: "left" | "invalid-gaze",
+) {
   return {
     targetId: bud.id,
     at: Date.now(),
@@ -180,7 +209,7 @@ function targetPayload(bud: ActiveBud, now: number, progress: number, reason?: "
     elapsedMs: bud.enteredAt === undefined ? 0 : now - bud.enteredAt,
     progress,
     pointer: copyPointer(),
-    reason
+    reason,
   };
 }
 
@@ -203,7 +232,7 @@ function settleBud(bud: ActiveBud) {
     hue: bud.hue,
     petals: bud.petals,
     age: oldFlowerBloomSeconds,
-    settled: true
+    settled: true,
   });
 }
 
@@ -253,7 +282,8 @@ function updateBud(delta: number, now: number) {
   const inside = pointer.value.valid && distance(point, pointer.value) <= hitRadius;
 
   if (!inside) {
-    if (bud.enteredAt !== undefined) cancelBud(bud, now, pointer.value.valid ? "left" : "invalid-gaze");
+    if (bud.enteredAt !== undefined)
+      cancelBud(bud, now, pointer.value.valid ? "left" : "invalid-gaze");
     return;
   }
 
@@ -275,7 +305,10 @@ function updateFlowers(delta: number) {
 function randomizeCloud(cloud: Cloud, x: number) {
   cloud.x = x;
   cloud.y = randomRange(window.innerHeight * 0.1, window.innerHeight * 0.3);
-  cloud.size = randomRange(Math.max(72, window.innerWidth * 0.06), Math.max(118, window.innerWidth * 0.12));
+  cloud.size = randomRange(
+    Math.max(72, window.innerWidth * 0.06),
+    Math.max(118, window.innerWidth * 0.12),
+  );
   cloud.alpha = randomRange(0.48, 0.82);
   cloud.speed = randomRange(4, 10) * session.settings.motionSpeed;
 }
@@ -303,10 +336,42 @@ function drawCloud(context: CanvasRenderingContext2D, cloud: Cloud) {
   context.globalAlpha = cloud.alpha;
   context.fillStyle = "#ffffff";
   context.beginPath();
-  context.ellipse(cloud.x - cloud.size * 0.38, cloud.y + cloud.size * 0.08, cloud.size * 0.42, cloud.size * 0.2, 0, 0, Math.PI * 2);
-  context.ellipse(cloud.x - cloud.size * 0.08, cloud.y - cloud.size * 0.02, cloud.size * 0.46, cloud.size * 0.26, 0, 0, Math.PI * 2);
-  context.ellipse(cloud.x + cloud.size * 0.28, cloud.y + cloud.size * 0.06, cloud.size * 0.4, cloud.size * 0.22, 0, 0, Math.PI * 2);
-  context.ellipse(cloud.x + cloud.size * 0.02, cloud.y + cloud.size * 0.14, cloud.size * 0.62, cloud.size * 0.18, 0, 0, Math.PI * 2);
+  context.ellipse(
+    cloud.x - cloud.size * 0.38,
+    cloud.y + cloud.size * 0.08,
+    cloud.size * 0.42,
+    cloud.size * 0.2,
+    0,
+    0,
+    Math.PI * 2,
+  );
+  context.ellipse(
+    cloud.x - cloud.size * 0.08,
+    cloud.y - cloud.size * 0.02,
+    cloud.size * 0.46,
+    cloud.size * 0.26,
+    0,
+    0,
+    Math.PI * 2,
+  );
+  context.ellipse(
+    cloud.x + cloud.size * 0.28,
+    cloud.y + cloud.size * 0.06,
+    cloud.size * 0.4,
+    cloud.size * 0.22,
+    0,
+    0,
+    Math.PI * 2,
+  );
+  context.ellipse(
+    cloud.x + cloud.size * 0.02,
+    cloud.y + cloud.size * 0.14,
+    cloud.size * 0.62,
+    cloud.size * 0.18,
+    0,
+    0,
+    Math.PI * 2,
+  );
   context.fill();
   context.restore();
 }
@@ -331,11 +396,25 @@ function drawBackground(context: CanvasRenderingContext2D) {
 
   context.fillStyle = "rgb(255 255 255 / 18%)";
   context.beginPath();
-  context.ellipse(window.innerWidth * 0.5, meadowTop + 12, window.innerWidth * 0.56, 22, 0, 0, Math.PI * 2);
+  context.ellipse(
+    window.innerWidth * 0.5,
+    meadowTop + 12,
+    window.innerWidth * 0.56,
+    22,
+    0,
+    0,
+    Math.PI * 2,
+  );
   context.fill();
 }
 
-function drawStem(context: CanvasRenderingContext2D, point: Point, radius: number, alpha: number, growth = 1) {
+function drawStem(
+  context: CanvasRenderingContext2D,
+  point: Point,
+  radius: number,
+  alpha: number,
+  growth = 1,
+) {
   const stemTop = point.y + radius * 0.34;
   const stemBottom = point.y + radius * 1.18;
   const visibleBottom = stemTop + (stemBottom - stemTop) * growth;
@@ -347,13 +426,29 @@ function drawStem(context: CanvasRenderingContext2D, point: Point, radius: numbe
   context.lineCap = "round";
   context.beginPath();
   context.moveTo(point.x, stemTop);
-  context.quadraticCurveTo(point.x - radius * 0.035, stemTop + (visibleBottom - stemTop) * 0.52, point.x, visibleBottom);
+  context.quadraticCurveTo(
+    point.x - radius * 0.035,
+    stemTop + (visibleBottom - stemTop) * 0.52,
+    point.x,
+    visibleBottom,
+  );
   context.stroke();
 
   context.restore();
 }
 
-function drawFlowerShape(context: CanvasRenderingContext2D, point: Point, options: { radius: number; hue: number; petals: number; bloom: number; alpha: number; active: boolean }) {
+function drawFlowerShape(
+  context: CanvasRenderingContext2D,
+  point: Point,
+  options: {
+    radius: number;
+    hue: number;
+    petals: number;
+    bloom: number;
+    alpha: number;
+    active: boolean;
+  },
+) {
   const petalRadius = options.radius * (0.26 + options.bloom * 0.24);
   const petalDistance = options.radius * (0.08 + options.bloom * 0.34);
 
@@ -362,10 +457,17 @@ function drawFlowerShape(context: CanvasRenderingContext2D, point: Point, option
   context.globalAlpha = options.alpha;
 
   for (let index = 0; index < options.petals; index++) {
-    const angle = index / options.petals * Math.PI * 2;
+    const angle = (index / options.petals) * Math.PI * 2;
     context.save();
     context.rotate(angle);
-    const gradient = context.createRadialGradient(0, -petalDistance, 1, 0, -petalDistance, petalRadius * 1.5);
+    const gradient = context.createRadialGradient(
+      0,
+      -petalDistance,
+      1,
+      0,
+      -petalDistance,
+      petalRadius * 1.5,
+    );
     gradient.addColorStop(0, `hsl(${options.hue}, 92%, ${options.active ? 86 : 78}%)`);
     gradient.addColorStop(1, `hsl(${options.hue + 12}, 64%, ${options.active ? 64 : 70}%)`);
     context.fillStyle = gradient;
@@ -385,7 +487,12 @@ function drawFlowerShape(context: CanvasRenderingContext2D, point: Point, option
   context.restore();
 }
 
-function drawSprout(context: CanvasRenderingContext2D, bud: ActiveBud, point: Point, appear: number) {
+function drawSprout(
+  context: CanvasRenderingContext2D,
+  bud: ActiveBud,
+  point: Point,
+  appear: number,
+) {
   const sproutHeight = bud.radius * (0.18 + bud.dwellProgress * 0.16);
   const leafLength = bud.radius * (0.12 + bud.dwellProgress * 0.04);
   const leafWidth = bud.radius * (0.045 + bud.dwellProgress * 0.015);
@@ -430,7 +537,14 @@ function drawGrownFlower(context: CanvasRenderingContext2D, flower: GrownFlower)
   const alpha = 0.68;
   const radius = flower.radius * 0.58;
   drawStem(context, point, radius, alpha, 1);
-  drawFlowerShape(context, point, { radius, hue: flower.hue, petals: flower.petals, bloom, alpha, active: false });
+  drawFlowerShape(context, point, {
+    radius,
+    hue: flower.hue,
+    petals: flower.petals,
+    bloom,
+    alpha,
+    active: false,
+  });
 }
 
 function drawBud(context: CanvasRenderingContext2D, bud: ActiveBud) {
@@ -452,11 +566,24 @@ function drawBud(context: CanvasRenderingContext2D, bud: ActiveBud) {
   if (bud.phase === "blooming") {
     const growth = Math.min(1, 0.28 + bloom * 0.72);
     drawStem(context, point, bud.radius * 0.72, appear * 0.92, growth);
-    drawFlowerShape(context, point, { radius: bud.radius * (0.58 + bloom * 0.2), hue: bud.hue, petals: bud.petals, bloom, alpha: appear * 0.92, active: true });
+    drawFlowerShape(context, point, {
+      radius: bud.radius * (0.58 + bloom * 0.2),
+      hue: bud.hue,
+      petals: bud.petals,
+      bloom,
+      alpha: appear * 0.92,
+      active: true,
+    });
     return;
   }
 
-  drawStem(context, point, bud.radius * 0.62, appear * 0.84, 0.28 + appear * 0.22 + bud.dwellProgress * 0.36);
+  drawStem(
+    context,
+    point,
+    bud.radius * 0.62,
+    appear * 0.84,
+    0.28 + appear * 0.22 + bud.dwellProgress * 0.36,
+  );
   drawSprout(context, bud, point, appear);
 }
 
@@ -467,7 +594,8 @@ function draw(context: CanvasRenderingContext2D) {
 }
 
 function tick(now: number) {
-  const delta = session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+  const delta =
+    session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
   lastTime = now;
 
   if (session.status === "running") {
@@ -513,7 +641,18 @@ onUnmounted(() => {
 <template>
   <div class="flowers-shell">
     <canvas ref="canvasRef" class="flowers-canvas" />
-    <GameHud title="Цветы" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Цветы"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
 
     <GameResultDialog
       :model-value="resultVisible"
@@ -543,5 +682,4 @@ onUnmounted(() => {
   inset: 0;
   position: absolute;
 }
-
 </style>

@@ -12,14 +12,18 @@ export type UseGameSessionForOptions = {
   finishOnTimeout?: boolean;
 };
 
-export function createInitialSessionSettings(gameId: string, options: UseGameSessionForOptions = {}, resolveActiveDwellMs = resolveDwellMs) {
+export function createInitialSessionSettings(
+  gameId: string,
+  options: UseGameSessionForOptions = {},
+  resolveActiveDwellMs = resolveDwellMs,
+) {
   const info = games.find((game) => game.id === gameId);
   const overrides = options.overrides ?? {};
   const initial: Partial<SessionSettings> = {
     sessionSeconds: info?.recommendedSessionSeconds,
     maxSteps: options.maxSteps,
     ...overrides,
-    dwellMs: overrides.dwellMs ?? resolveActiveDwellMs(info?.defaultDwellMs)
+    dwellMs: overrides.dwellMs ?? resolveActiveDwellMs(info?.defaultDwellMs),
   };
 
   for (const key of Object.keys(initial) as (keyof SessionSettings)[]) {
@@ -40,7 +44,7 @@ export function useGameSessionFor(gameId: string, options: UseGameSessionForOpti
     telemetryContext: {
       mode: resolveMenuMode(),
       category: info?.category,
-      targetKind: info?.category === "continuous-control" ? "control" : "interactive"
-    }
+      targetKind: info?.category === "continuous-control" ? "control" : "interactive",
+    },
   });
 }

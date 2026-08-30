@@ -41,7 +41,7 @@ onMounted(async () => {
       available.value = false;
       downloaded.value = false;
       errorMessage.value = message;
-    })
+    }),
   ];
 });
 
@@ -56,14 +56,26 @@ function restartApp() {
 </script>
 
 <template>
-  <v-snackbar :model-value="visible" location="bottom" color="surface" variant="elevated" :timeout="-1">
+  <v-snackbar
+    :model-value="visible"
+    location="bottom"
+    color="surface"
+    variant="elevated"
+    :timeout="-1"
+  >
     <div class="d-flex flex-column ga-3">
       <div v-if="available" class="d-flex align-center ga-3">
         <v-icon color="primary" icon="mdi-download" />
         <div class="flex-grow-1">
           <div class="font-weight-bold">Загружается обновление Линка играй</div>
           <div class="text-body-2 text-medium-emphasis">Текущая версия: {{ version }}</div>
-          <v-progress-linear class="mt-2" color="primary" height="0.5rem" rounded :model-value="percent" />
+          <v-progress-linear
+            class="mt-2"
+            color="primary"
+            height="0.5rem"
+            rounded
+            :model-value="percent"
+          />
         </div>
         <v-chip color="primary" variant="tonal">{{ progressLabel }}</v-chip>
       </div>
@@ -71,7 +83,9 @@ function restartApp() {
       <div v-else-if="downloaded" class="d-flex flex-column flex-sm-row align-sm-center ga-3">
         <div class="flex-grow-1">
           <div class="font-weight-bold">Обновление готово</div>
-          <div class="text-body-2 text-medium-emphasis">Перезапустите приложение, чтобы установить новую версию.</div>
+          <div class="text-body-2 text-medium-emphasis">
+            Перезапустите приложение, чтобы установить новую версию.
+          </div>
         </div>
         <v-btn color="primary" prepend-icon="mdi-restart" variant="flat" @click="restartApp">
           Перезапустить

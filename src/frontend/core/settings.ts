@@ -32,7 +32,7 @@ export const presetSettings: Record<Exclude<DifficultyPreset, "custom">, Session
     highContrast: false,
     reduceMotion: false,
     targetMagnet: true,
-    controlOutcomeMode: "assisted"
+    controlOutcomeMode: "assisted",
   },
   standard: {
     preset: "standard",
@@ -47,7 +47,7 @@ export const presetSettings: Record<Exclude<DifficultyPreset, "custom">, Session
     highContrast: false,
     reduceMotion: false,
     targetMagnet: true,
-    controlOutcomeMode: "assisted"
+    controlOutcomeMode: "assisted",
   },
   challenge: {
     preset: "challenge",
@@ -62,8 +62,8 @@ export const presetSettings: Record<Exclude<DifficultyPreset, "custom">, Session
     highContrast: false,
     reduceMotion: false,
     targetMagnet: false,
-    controlOutcomeMode: "assisted"
-  }
+    controlOutcomeMode: "assisted",
+  },
 };
 
 export function createDefaultSettings(overrides: Partial<SessionSettings> = {}): SessionSettings {
@@ -78,13 +78,13 @@ export function settingsFromPreset(preset: DifficultyPreset): SessionSettings {
 
 export function clampSettings(settings: SessionSettings): SessionSettings {
   return {
-   ...settings,
+    ...settings,
     sessionSeconds: Math.min(300, Math.max(30, settings.sessionSeconds)),
     maxSteps: Math.min(40, Math.max(1, settings.maxSteps)),
     dwellMs: Math.min(MAX_DWELL_MS, Math.max(MIN_DWELL_MS, settings.dwellMs)),
     targetScale: Math.min(2, Math.max(0.8, settings.targetScale)),
     motionSpeed: Math.min(1.4, Math.max(0.4, settings.motionSpeed)),
-    controlOutcomeMode: settings.controlOutcomeMode === "strict" ? "strict" : "assisted"
+    controlOutcomeMode: settings.controlOutcomeMode === "strict" ? "strict" : "assisted",
   };
 }
 
@@ -96,7 +96,9 @@ export function recommendNextSettings(metrics: {
 }) {
   if (metrics.gazeLostCount >= 3) return "Часто терялся взгляд: проверь посадку и увеличь цели.";
   if (metrics.targetCancels >= 4) return "Много отмен выбора: увеличь dwell или размер целей.";
-  if (metrics.mistakes > metrics.successes) return "Ошибок больше успехов: включи подсказки или gentle preset.";
-  if (metrics.successes >= 8 && metrics.mistakes === 0) return "Сессия стабильная: можно усложнить следующий запуск.";
+  if (metrics.mistakes > metrics.successes)
+    return "Ошибок больше успехов: включи подсказки или gentle preset.";
+  if (metrics.successes >= 8 && metrics.mistakes === 0)
+    return "Сессия стабильная: можно усложнить следующий запуск.";
   return "Настройки подходят для повторного запуска.";
 }

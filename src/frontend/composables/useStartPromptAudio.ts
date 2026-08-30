@@ -15,7 +15,7 @@ export function useStartPromptAudio(options: UseStartPromptAudioOptions) {
     gameId: options.gameId,
     soundEnabled: options.soundEnabled,
     volume: options.volume,
-    warmAssetIds: [assetId]
+    warmAssetIds: [assetId],
   });
 
   function play(delayMs = options.delayMs ?? 450) {

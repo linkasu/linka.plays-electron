@@ -68,6 +68,6 @@ export function safeGameArea(width: number, height: number) {
     x: 32,
     y: 112,
     width: Math.max(240, width - 64),
-    height: Math.max(240, height - 176)
+    height: Math.max(240, height - 176),
   };
 }

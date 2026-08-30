@@ -12,7 +12,9 @@ const refreshToken = "refresh." + "r".repeat(120);
 const accessToken = "access." + "a".repeat(120);
 
 afterEach(async () => {
-  await Promise.all(directories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })));
+  await Promise.all(
+    directories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })),
+  );
 });
 
 describe("PublicInstallationIdentityClient", () => {
@@ -26,7 +28,10 @@ describe("PublicInstallationIdentityClient", () => {
     });
 
     await expect(client.getAccess(request)).rejects.toThrow("response lost");
-    await expect(client.getAccess(request)).resolves.toMatchObject({ installationKey, accessToken: { token: accessToken } });
+    await expect(client.getAccess(request)).resolves.toMatchObject({
+      installationKey,
+      accessToken: { token: accessToken },
+    });
 
     expect(bodies).toHaveLength(2);
     expect(bodies[1]).toBe(bodies[0]);
@@ -37,7 +42,11 @@ describe("PublicInstallationIdentityClient", () => {
     const refreshedToken = "refreshed." + "b".repeat(120);
     const request = vi.fn<TelemetryRequest>(async (input) => {
       if (input.endsWith("/v1/public/installations")) return jsonResponse(201, registration(1));
-      return jsonResponse(200, { installation_key: installationKey, product: "linka-plays", metrics_token: token(refreshedToken) });
+      return jsonResponse(200, {
+        installation_key: installationKey,
+        product: "linka-plays",
+        metrics_token: token(refreshedToken),
+      });
     });
 
     const identity = await client.getAccess(request);
@@ -46,7 +55,7 @@ describe("PublicInstallationIdentityClient", () => {
     expect(identity.accessToken?.token).toBe(refreshedToken);
     expect(request.mock.calls.map(([input]) => input)).toEqual([
       "https://identity.example.test/v1/public/installations",
-      "https://identity.example.test/v1/public/installations/token"
+      "https://identity.example.test/v1/public/installations/token",
     ]);
   });
 
@@ -64,21 +73,33 @@ describe("PublicInstallationIdentityClient", () => {
         registrationBodies.push(String(init.body));
         return jsonResponse(201, registration());
       }
-      return jsonResponse(200, { installation_key: installationKey, product: "linka-plays", preference: "denied", policy_version: "2026-07-19-v3", recorded_at: new Date().toISOString() });
+      return jsonResponse(200, {
+        installation_key: installationKey,
+        product: "linka-plays",
+        preference: "denied",
+        policy_version: "2026-07-19-v3",
+        recorded_at: new Date().toISOString(),
+      });
     });
 
     await expect(client.deny(denialRequest)).resolves.toBe(true);
     expect(registrationBodies[1]).toBe(registrationBodies[0]);
-    await expect(stat(join(clientDirectory(client), "installation.json"))).rejects.toMatchObject({ code: "ENOENT" });
+    await expect(stat(join(clientDirectory(client), "installation.json"))).rejects.toMatchObject({
+      code: "ENOENT",
+    });
   });
 
   it("keeps the credential when denial is temporarily unavailable", async () => {
     const client = await createClient();
     await client.getAccess(async () => jsonResponse(201, registration()));
 
-    await expect(client.deny(async () => jsonResponse(503, { error: "unavailable" }))).resolves.toBe(false);
+    await expect(
+      client.deny(async () => jsonResponse(503, { error: "unavailable" })),
+    ).resolves.toBe(false);
 
-    const stored = JSON.parse(await readFile(join(clientDirectory(client), "installation.json"), "utf8")) as { schema_version: number; installation_key: string };
+    const stored = JSON.parse(
+      await readFile(join(clientDirectory(client), "installation.json"), "utf8"),
+    ) as { schema_version: number; installation_key: string };
     expect(stored).toMatchObject({ schema_version: 2, installation_key: installationKey });
   });
 
@@ -86,7 +107,9 @@ describe("PublicInstallationIdentityClient", () => {
     const client = await createClient();
     await client.getAccess(async () => jsonResponse(201, registration()));
 
-    await expect(client.deny(async () => jsonResponse(status, { error: "denial_not_confirmed" }))).resolves.toBe(false);
+    await expect(
+      client.deny(async () => jsonResponse(status, { error: "denial_not_confirmed" })),
+    ).resolves.toBe(false);
 
     await expect(stat(join(clientDirectory(client), "installation.json"))).resolves.toBeDefined();
   });
@@ -95,7 +118,17 @@ describe("PublicInstallationIdentityClient", () => {
     const client = await createClient();
     await client.getAccess(async () => jsonResponse(201, registration()));
 
-    await expect(client.deny(async () => jsonResponse(200, { installation_key: "b".repeat(64), product: "linka-plays", preference: "denied", policy_version: "2026-07-19-v3", recorded_at: new Date().toISOString() }))).resolves.toBe(false);
+    await expect(
+      client.deny(async () =>
+        jsonResponse(200, {
+          installation_key: "b".repeat(64),
+          product: "linka-plays",
+          preference: "denied",
+          policy_version: "2026-07-19-v3",
+          recorded_at: new Date().toISOString(),
+        }),
+      ),
+    ).resolves.toBe(false);
 
     await expect(stat(join(clientDirectory(client), "installation.json"))).resolves.toBeDefined();
   });
@@ -105,22 +138,36 @@ describe("PublicInstallationIdentityClient", () => {
     await writeFile(join(clientDirectory(client), "installation.json"), "{broken", { mode: 0o600 });
     const request = vi.fn<TelemetryRequest>();
 
-    await expect(client.getAccess(request)).rejects.toThrow("stored installation credential is unavailable");
+    await expect(client.getAccess(request)).rejects.toThrow(
+      "stored installation credential is unavailable",
+    );
     await expect(client.deny(request)).resolves.toBe(false);
 
     expect(request).not.toHaveBeenCalled();
-    await expect(readFile(join(clientDirectory(client), "installation.json"), "utf8")).resolves.toBe("{broken");
+    await expect(
+      readFile(join(clientDirectory(client), "installation.json"), "utf8"),
+    ).resolves.toBe("{broken");
   });
 
   it("replaces only a recognized legacy V1 identity during the hard switch", async () => {
     const client = await createClient();
-    await writeFile(join(clientDirectory(client), "installation.json"), JSON.stringify({ installation_id: "9d51fb86-530c-4926-b627-4e42074b85db", token: "legacy-token", protected: false }), { mode: 0o600 });
+    await writeFile(
+      join(clientDirectory(client), "installation.json"),
+      JSON.stringify({
+        installation_id: "9d51fb86-530c-4926-b627-4e42074b85db",
+        token: "legacy-token",
+        protected: false,
+      }),
+      { mode: 0o600 },
+    );
     const request = vi.fn<TelemetryRequest>(async () => jsonResponse(201, registration()));
 
     await expect(client.getAccess(request)).resolves.toMatchObject({ installationKey });
 
     expect(request).toHaveBeenCalledOnce();
-    const stored = JSON.parse(await readFile(join(clientDirectory(client), "installation.json"), "utf8")) as { schema_version: number };
+    const stored = JSON.parse(
+      await readFile(join(clientDirectory(client), "installation.json"), "utf8"),
+    ) as { schema_version: number };
     expect(stored.schema_version).toBe(2);
   });
 });
@@ -128,7 +175,12 @@ describe("PublicInstallationIdentityClient", () => {
 async function createClient() {
   const directory = await mkdtemp(join(tmpdir(), "linka-identity-client-"));
   directories.push(directory);
-  const client = new PublicInstallationIdentityClient({ directory, endpoint: "https://identity.example.test", platform: "linux", policyVersion: "2026-07-19-v3" });
+  const client = new PublicInstallationIdentityClient({
+    directory,
+    endpoint: "https://identity.example.test",
+    platform: "linux",
+    policyVersion: "2026-07-19-v3",
+  });
   Object.defineProperty(client, "__testDirectory", { value: directory });
   return client;
 }
@@ -147,12 +199,16 @@ function registration(expiresInMs = 300000) {
     recorded_at: new Date().toISOString(),
     refresh_token: refreshToken,
     refresh_expires_at: new Date(Date.now() + 86400000).toISOString(),
-    metrics_token: token(accessToken, expiresInMs)
+    metrics_token: token(accessToken, expiresInMs),
   };
 }
 
 function token(value = accessToken, expiresInMs = 300000) {
-  return { access_token: value, token_type: "Bearer", expires_at: new Date(Date.now() + expiresInMs).toISOString() };
+  return {
+    access_token: value,
+    token_type: "Bearer",
+    expires_at: new Date(Date.now() + expiresInMs).toISOString(),
+  };
 }
 
 function jsonResponse(status: number, body: unknown) {

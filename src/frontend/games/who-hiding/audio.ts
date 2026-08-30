@@ -86,20 +86,26 @@ export function createWhoHidingAudio(options: {
     });
   }
 
-  async function playSequenceAndWait(assetIds: string[], delayMs = 0, gapMs = 140): Promise<WhoHidingAudioResult> {
+  async function playSequenceAndWait(
+    assetIds: string[],
+    delayMs = 0,
+    gapMs = 140,
+  ): Promise<WhoHidingAudioResult> {
     cancel();
     if (!options.enabled()) return "completed";
-    const assets = assetIds.map((id) => assetsById.get(id)).filter((asset): asset is TtsAsset => Boolean(asset));
+    const assets = assetIds
+      .map((id) => assetsById.get(id))
+      .filter((asset): asset is TtsAsset => Boolean(asset));
     if (!assets.length) return "completed";
 
     const controller = new AbortController();
     activeController = controller;
-    if (!await wait(delayMs, controller.signal)) return "cancelled";
+    if (!(await wait(delayMs, controller.signal))) return "cancelled";
 
     for (let index = 0; index < assets.length; index += 1) {
       const result = await playAssetAndWait(assets[index], controller.signal);
       if (result === "cancelled") return result;
-      if (index < assets.length - 1 && !await wait(gapMs, controller.signal)) return "cancelled";
+      if (index < assets.length - 1 && !(await wait(gapMs, controller.signal))) return "cancelled";
     }
 
     if (activeController === controller) activeController = undefined;

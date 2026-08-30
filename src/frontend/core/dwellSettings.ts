@@ -20,7 +20,7 @@ function loadDwellMs() {
     const storedValue = window.localStorage.getItem(dwellStorageKey);
     return {
       explicit: storedValue !== null,
-      value: normalizeDwellMs(storedValue ?? DEFAULT_DWELL_MS)
+      value: normalizeDwellMs(storedValue ?? DEFAULT_DWELL_MS),
     };
   } catch {
     return { explicit: false, value: DEFAULT_DWELL_MS };
@@ -31,7 +31,8 @@ export function persistDwellMs(value: number, storage: Pick<Storage, "setItem">)
   storage.setItem(dwellStorageKey, String(value));
 }
 
-const loadedDwellMs = typeof window === "undefined" ? { explicit: false, value: DEFAULT_DWELL_MS } : loadDwellMs();
+const loadedDwellMs =
+  typeof window === "undefined" ? { explicit: false, value: DEFAULT_DWELL_MS } : loadDwellMs();
 const dwellMs = ref(loadedDwellMs.value);
 const explicitDwellMs = ref(loadedDwellMs.explicit);
 
@@ -45,7 +46,11 @@ export function setDwellMs(value: unknown) {
   } catch {
     // The setting remains active for this run when storage is unavailable.
   }
-  if (changed) recordMetricsEvent({ eventName: "settings_changed", properties: { settingKey: "dwell_ms", number: dwellMs.value } });
+  if (changed)
+    recordMetricsEvent({
+      eventName: "settings_changed",
+      properties: { settingKey: "dwell_ms", number: dwellMs.value },
+    });
 }
 
 export function clearDwellMsOverride() {
@@ -57,7 +62,11 @@ export function clearDwellMsOverride() {
   } catch {
     // Per-game defaults remain active when storage is unavailable.
   }
-  if (changed) recordMetricsEvent({ eventName: "settings_changed", properties: { settingKey: "dwell_ms", number: dwellMs.value } });
+  if (changed)
+    recordMetricsEvent({
+      eventName: "settings_changed",
+      properties: { settingKey: "dwell_ms", number: dwellMs.value },
+    });
 }
 
 export function resolveDwellMs(fallback = DEFAULT_DWELL_MS) {
@@ -68,6 +77,6 @@ export function useDwellSettings() {
   return {
     dwellMs: readonly(dwellMs),
     setDwellMs,
-    clearDwellMsOverride
+    clearDwellMsOverride,
   };
 }

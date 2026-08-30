@@ -9,23 +9,50 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { generateUnoLikeRound, getUnoLikeMatchTraits, isUnoLikePlayable, type UnoLikeCard, type UnoLikeRound } from "./model";
+import {
+  generateUnoLikeRound,
+  getUnoLikeMatchTraits,
+  isUnoLikePlayable,
+  type UnoLikeCard,
+  type UnoLikeRound,
+} from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession, finishSession } = useGameSessionFor("uno-like", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  recordHint,
+  startSession,
+  finishSession,
+} = useGameSessionFor("uno-like", {
   maxSteps: 10,
   overrides: { sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
-const promptAudio = useGamePromptAudio({ gameId: "uno-like", soundEnabled, warmAssetIds: ["uno-like.prompt", "uno-like.correct", "uno-like.mistake", "uno-like.complete"] });
+const promptAudio = useGamePromptAudio({
+  gameId: "uno-like",
+  soundEnabled,
+  warmAssetIds: ["uno-like.prompt", "uno-like.correct", "uno-like.mistake", "uno-like.complete"],
+});
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
-const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<UnoLikeRound>({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRoundGame,
+} = useRoundGame<UnoLikeRound>({
   session,
   startSession,
-  generateRound: (roundIndex) => generateUnoLikeRound(session.settings, roundIndex)
+  generateRound: (roundIndex) => generateUnoLikeRound(session.settings, roundIndex),
 });
 
 const hintedRoundId = ref<string>();
@@ -48,12 +75,24 @@ async function choose(card: UnoLikeCard) {
   if (isUnoLikePlayable(card, round.value.openCard)) {
     const finishedAfterSuccess = session.step + 1 >= session.maxSteps;
     const matchTraits = getUnoLikeMatchTraits(card, round.value.openCard);
-    recordSuccess({ roundId: round.value.roundId, targetId, answerId: card.id, expected: round.value.playableIds, actual: card.label, matchTraits, isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      answerId: card.id,
+      expected: round.value.playableIds,
+      actual: card.label,
+      matchTraits,
+      isCorrect: true,
+    });
     hintedRoundId.value = undefined;
     lastMistakeId.value = undefined;
     isSpeaking.value = true;
     void feedbackAudio.playSuccess();
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? ["uno-like.correct", "uno-like.complete"] : ["uno-like.correct"], 80, 170);
+    await promptAudio.playSequenceAndWait(
+      finishedAfterSuccess ? ["uno-like.correct", "uno-like.complete"] : ["uno-like.correct"],
+      80,
+      170,
+    );
     if (finishedAfterSuccess) {
       finishSession("game-complete");
       isSpeaking.value = false;
@@ -67,8 +106,19 @@ async function choose(card: UnoLikeCard) {
 
   hintedRoundId.value = round.value.roundId;
   lastMistakeId.value = card.id;
-  recordMistake({ roundId: round.value.roundId, targetId, answerId: card.id, actual: card.label, isCorrect: false });
-  recordHint({ roundId: round.value.roundId, targetId, reason: "no-color-or-number-match", text: "Сравнить цвет или число с открытой картой." });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    answerId: card.id,
+    actual: card.label,
+    isCorrect: false,
+  });
+  recordHint({
+    roundId: round.value.roundId,
+    targetId,
+    reason: "no-color-or-number-match",
+    text: "Сравнить цвет или число с открытой картой.",
+  });
   isSpeaking.value = true;
   void feedbackAudio.playMistake();
   await promptAudio.playSequenceAndWait(["uno-like.mistake"], 80);
@@ -101,12 +151,25 @@ onUnmounted(() => {
 
 <template>
   <div class="uno-like-shell">
-    <GameHud title="Уно-подобное" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Уно-подобное"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11" xl="9">
           <v-card class="pa-4 pa-md-6" color="rgba(255, 255, 255, 0.94)" rounded="xl" elevation="8">
-            <div class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-4">
+            <div
+              class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-4"
+            >
               <div>
                 <div class="text-overline text-secondary mb-1">Стратегия: цвет или число</div>
                 <h1 class="text-h3 text-md-h2 font-weight-bold mb-2">{{ round.prompt }}</h1>
@@ -121,25 +184,66 @@ onUnmounted(() => {
               <v-col class="open-card-col" cols="12" md="4">
                 <v-sheet class="open-card-panel pa-4" color="secondary" rounded="xl">
                   <div class="text-overline text-white text-center mb-3">Открытая карта</div>
-                  <div class="uno-card uno-card--open" :style="{ borderColor: round.openCard.color.hex }">
-                    <div class="uno-card__stripe" :style="{ backgroundColor: round.openCard.color.hex, color: round.openCard.color.textColor }">{{ round.openCard.color.label }}</div>
+                  <div
+                    class="uno-card uno-card--open"
+                    :style="{ borderColor: round.openCard.color.hex }"
+                  >
+                    <div
+                      class="uno-card__stripe"
+                      :style="{
+                        backgroundColor: round.openCard.color.hex,
+                        color: round.openCard.color.textColor,
+                      }"
+                    >
+                      {{ round.openCard.color.label }}
+                    </div>
                     <div class="uno-card__number">{{ round.openCard.number }}</div>
                   </div>
-                  <div class="text-h5 font-weight-bold text-white text-center mt-3">{{ round.openCard.label }}</div>
+                  <div class="text-h5 font-weight-bold text-white text-center mt-3">
+                    {{ round.openCard.label }}
+                  </div>
                 </v-sheet>
               </v-col>
 
               <v-col cols="12" md="8">
                 <v-row class="choice-grid" dense>
-                  <v-col v-for="card in round.choices" :key="card.id" cols="6" sm="3" :lg="round.choices.length >= 5 ? 4 : 6">
-                    <GameDwellButton :target-id="cardTargetId(card)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" min-height="clamp(7.5rem, 18vh, 9.5rem)" :color="cardButtonColor(card)" @select="choose(card)">
+                  <v-col
+                    v-for="card in round.choices"
+                    :key="card.id"
+                    cols="6"
+                    sm="3"
+                    :lg="round.choices.length >= 5 ? 4 : 6"
+                  >
+                    <GameDwellButton
+                      :target-id="cardTargetId(card)"
+                      :disabled="session.status !== 'running' || isSpeaking"
+                      :dwell-ms="session.settings.dwellMs"
+                      min-height="clamp(7.5rem, 18vh, 9.5rem)"
+                      :color="cardButtonColor(card)"
+                      @select="choose(card)"
+                    >
                       <template #default>
-                        <div :class="['choice-card', { 'choice-card--mistake': lastMistakeId === card.id }]">
+                        <div
+                          :class="[
+                            'choice-card',
+                            { 'choice-card--mistake': lastMistakeId === card.id },
+                          ]"
+                        >
                           <div class="uno-card" :style="{ borderColor: card.color.hex }">
-                            <div class="uno-card__stripe" :style="{ backgroundColor: card.color.hex, color: card.color.textColor }">{{ card.color.label }}</div>
+                            <div
+                              class="uno-card__stripe"
+                              :style="{
+                                backgroundColor: card.color.hex,
+                                color: card.color.textColor,
+                              }"
+                            >
+                              {{ card.color.label }}
+                            </div>
                             <div class="uno-card__number">{{ card.number }}</div>
                           </div>
-                          <div class="choice-label text-body-1 text-md-h6 font-weight-bold mt-2">{{ card.label }}</div>
+                          <div class="choice-label text-body-1 text-md-h6 font-weight-bold mt-2">
+                            {{ card.label }}
+                          </div>
                         </div>
                       </template>
                     </GameDwellButton>
@@ -149,15 +253,33 @@ onUnmounted(() => {
             </v-row>
 
             <v-expand-transition>
-              <v-alert v-if="hintedRoundId === round.roundId" class="mt-5 text-h6" color="primary" icon="mdi-heart-outline" rounded="xl" variant="tonal">
-                Посмотри на цвет и число открытой карты. Ошибка не страшна: можно выбрать другую карточку.
+              <v-alert
+                v-if="hintedRoundId === round.roundId"
+                class="mt-5 text-h6"
+                color="primary"
+                icon="mdi-heart-outline"
+                rounded="xl"
+                variant="tonal"
+              >
+                Посмотри на цвет и число открытой карты. Ошибка не страшна: можно выбрать другую
+                карточку.
               </v-alert>
             </v-expand-transition>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Уно-подобное" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Уно-подобное"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -192,7 +314,9 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  transition: filter 160ms ease, transform 160ms ease;
+  transition:
+    filter 160ms ease,
+    transform 160ms ease;
 }
 
 .choice-card--mistake {
@@ -242,53 +366,53 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
- .game-container {
+  .game-container {
     padding-block: 5rem 3.8rem;
   }
 
- .open-card-panel {
+  .open-card-panel {
     min-block-size: 18rem;
   }
 }
 
 @media (max-height: 51.25rem) {
- .game-container {
+  .game-container {
     padding-block: 4.25rem 3.8rem;
   }
 
- .open-card-col,
- .open-card-panel {
+  .open-card-col,
+  .open-card-panel {
     display: none;
   }
 
- .game-symbol {
+  .game-symbol {
     display: none;
   }
 
- .game-container h1 {
+  .game-container h1 {
     font-size: clamp(2.4rem, 7vw, 3.6rem) !important;
     line-height: 1.02;
   }
 
- .game-container p[role="status"] {
+  .game-container p[role="status"] {
     font-size: clamp(1rem, 2.4vw, 1.18rem) !important;
   }
 
- .choice-grid :deep(.dwell-button) {
+  .choice-grid :deep(.dwell-button) {
     padding: clamp(0.45rem, 1.2vh, 0.7rem) !important;
   }
 
- .uno-card {
+  .uno-card {
     border-width: 0.34rem;
     inline-size: clamp(4.45rem, 10.5vw, 6.1rem);
   }
 
- .uno-card__stripe {
+  .uno-card__stripe {
     font-size: clamp(0.72rem, 1.8vw, 0.95rem);
     padding-block: 0.28rem;
   }
 
- .uno-card__number {
+  .uno-card__number {
     font-size: clamp(2.8rem, 8vw, 4.6rem);
   }
 }

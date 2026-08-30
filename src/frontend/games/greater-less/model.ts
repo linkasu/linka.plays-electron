@@ -28,7 +28,7 @@ const groupItems = [
   { id: "flower", name: "цветок", emoji: "🌸" },
   { id: "fish", name: "рыба", emoji: "🐟" },
   { id: "butterfly", name: "бабочка", emoji: "🦋" },
-  { id: "ball", name: "мяч", emoji: "🟡" }
+  { id: "ball", name: "мяч", emoji: "🟡" },
 ];
 
 function pickDifferentCounts(settings: SessionSettings, random: () => number) {
@@ -45,24 +45,37 @@ function pickDifferentCounts(settings: SessionSettings, random: () => number) {
   return pairs[randomInt(0, pairs.length - 1, random)];
 }
 
-function buildGroup(side: GreaterLessSide, count: number, item: (typeof groupItems)[number]): GreaterLessGroup {
+function buildGroup(
+  side: GreaterLessSide,
+  count: number,
+  item: (typeof groupItems)[number],
+): GreaterLessGroup {
   return {
     side,
     count,
     itemId: item.id,
     itemName: item.name,
     emoji: item.emoji,
-    items: Array.from({ length: count }, () => item.emoji)
+    items: Array.from({ length: count }, () => item.emoji),
   };
 }
 
-export function generateGreaterLessRound(settings: SessionSettings, roundIndex = 1, random = Math.random): GreaterLessRound {
+export function generateGreaterLessRound(
+  settings: SessionSettings,
+  roundIndex = 1,
+  random = Math.random,
+): GreaterLessRound {
   const [leftCount, rightCount] = pickDifferentCounts(settings, random);
   const comparison: GreaterLessComparison = roundIndex % 2 === 0 ? "less" : "more";
   const item = groupItems[randomInt(0, groupItems.length - 1, random)];
-  const correctSide: GreaterLessSide = comparison === "more"
-    ? leftCount > rightCount ? "left" : "right"
-    : leftCount < rightCount ? "left" : "right";
+  const correctSide: GreaterLessSide =
+    comparison === "more"
+      ? leftCount > rightCount
+        ? "left"
+        : "right"
+      : leftCount < rightCount
+        ? "left"
+        : "right";
 
   return {
     roundId: `greater-less:round:${roundIndex}`,
@@ -70,6 +83,6 @@ export function generateGreaterLessRound(settings: SessionSettings, roundIndex =
     comparison,
     left: buildGroup("left", leftCount, item),
     right: buildGroup("right", rightCount, item),
-    correctSide
+    correctSide,
   };
 }

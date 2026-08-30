@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { correctShelfIdFor, generateShelfSortingRound, shelfSortingItems, shelvesForRule } from "./model";
+import {
+  correctShelfIdFor,
+  generateShelfSortingRound,
+  shelfSortingItems,
+  shelvesForRule,
+} from "./model";
 
 describe("generateShelfSortingRound", () => {
   it("alternates category and color rules", () => {
@@ -48,7 +53,11 @@ describe("generateShelfSortingRound", () => {
     expect(teddy?.imageId).toBeUndefined();
     expect(kite?.icon).toBe("mdi-kite");
     expect(kite?.imageId).toBeUndefined();
-    expect(shelfSortingItems.filter((item) => !["teddy", "kite"].includes(item.id)).every((item) => item.imageId)).toBe(true);
+    expect(
+      shelfSortingItems
+        .filter((item) => !["teddy", "kite"].includes(item.id))
+        .every((item) => item.imageId),
+    ).toBe(true);
   });
 
   it("prompts with the rule and item without naming the answer", () => {
@@ -56,7 +65,9 @@ describe("generateShelfSortingRound", () => {
       const round = generateShelfSortingRound(roundIndex, () => 0);
       const answerTitle = round.shelves[round.correctIndex].title;
 
-      expect(round.prompt).toContain(round.rule === "category" ? "Сортируем по категории" : "Сортируем по цвету");
+      expect(round.prompt).toContain(
+        round.rule === "category" ? "Сортируем по категории" : "Сортируем по цвету",
+      );
       expect(round.prompt).toContain(`Предмет: ${round.item.label}`);
       expect(round.prompt).not.toContain(answerTitle);
     }

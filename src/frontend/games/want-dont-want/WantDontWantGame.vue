@@ -10,26 +10,46 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
-import { createWantDontWantCommunication, generateWantDontWantRound, type WantDontWantAnswer, type WantDontWantRound } from "./model";
+import {
+  createWantDontWantCommunication,
+  generateWantDontWantRound,
+  type WantDontWantAnswer,
+  type WantDontWantRound,
+} from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession, finishSession } = useGameSessionFor("want-dont-want", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  startSession,
+  finishSession,
+} = useGameSessionFor("want-dont-want", {
   maxSteps: 9,
   overrides: { preset: "gentle", dwellMs: 1300, sessionSeconds: 120, targetScale: 1.2 },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const promptAudio = useGamePromptAudio({
   gameId: "want-dont-want",
   soundEnabled: toRef(session.settings, "sound"),
   volume: 0.34,
-  warmAssetIds: ["want-dont-want.intro", "want-dont-want.next", "want-dont-want.complete"]
+  warmAssetIds: ["want-dont-want.intro", "want-dont-want.next", "want-dont-want.complete"],
 });
 
-const { round, resultVisible, nextRound, restart: restartRoundGame } = useRoundGame<WantDontWantRound>({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRoundGame,
+} = useRoundGame<WantDontWantRound>({
   session,
   startSession,
-  generateRound: generateWantDontWantRound
+  generateRound: generateWantDontWantRound,
 });
 
 const feedback = ref(round.value.prompt);
@@ -54,7 +74,7 @@ async function answer(value: WantDontWantAnswer) {
     targetId,
     answerId: value,
     itemId: round.value.item.id,
-    ...communication
+    ...communication,
   });
   feedback.value = communication.phrase;
   const finishedAfterSuccess = session.step >= session.maxSteps;
@@ -97,22 +117,51 @@ onUnmounted(() => {
 
 <template>
   <div class="want-shell">
-    <GameHud title="Хочу / не хочу" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Хочу / не хочу"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="9">
           <v-card class="want-card pa-4 pa-md-6" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Любой ответ важен</div>
             <div class="item-display mb-4 mb-md-5">
-              <v-chip class="mb-3 text-white" color="deep-purple-darken-3" size="large" variant="flat">{{ round.item.kind }}</v-chip>
-              <GameWordImage class="item-emoji" :word-id="round.item.wordId" :word="round.item.title" :emoji="round.item.emoji" />
+              <v-chip
+                class="mb-3 text-white"
+                color="deep-purple-darken-3"
+                size="large"
+                variant="flat"
+                >{{ round.item.kind }}</v-chip
+              >
+              <GameWordImage
+                class="item-emoji"
+                :word-id="round.item.wordId"
+                :word="round.item.title"
+                :emoji="round.item.emoji"
+              />
               <h1 class="text-h3 text-md-h2 font-weight-bold mb-2">{{ round.item.title }}</h1>
               <div class="want-prompt text-h6 text-md-h5">{{ feedback }}</div>
             </div>
 
             <v-row>
               <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6" md="6">
-                <GameDwellButton :target-id="answerTargetId(choice.id)" :disabled="session.status !== 'running' || isChangingRound" :dwell-ms="session.settings.dwellMs" :min-height="choiceMinHeight" :color="choice.id === 'want' ? 'deep-purple-darken-3' : 'teal-darken-3'" @select="answer(choice.id)">
+                <GameDwellButton
+                  :target-id="answerTargetId(choice.id)"
+                  :disabled="session.status !== 'running' || isChangingRound"
+                  :dwell-ms="session.settings.dwellMs"
+                  :min-height="choiceMinHeight"
+                  :color="choice.id === 'want' ? 'deep-purple-darken-3' : 'teal-darken-3'"
+                  @select="answer(choice.id)"
+                >
                   <template #default>
                     <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
                     <div class="text-h3 text-md-h2 font-weight-bold">{{ choice.title }}</div>
@@ -124,7 +173,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Хочу / не хочу" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Хочу / не хочу"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 
@@ -157,28 +216,28 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
- .game-container {
+  .game-container {
     padding-block-start: 4.25rem;
   }
 
- .want-card {
+  .want-card {
     padding: 1rem !important;
   }
 
- .item-display {
+  .item-display {
     margin-block-end: 0.75rem !important;
   }
 
- .item-emoji {
+  .item-emoji {
     font-size: clamp(3rem, 7vw, 4.4rem);
   }
 
- .want-card h1 {
+  .want-card h1 {
     font-size: 2.1rem !important;
     line-height: 1.05;
   }
 
- .game-container :deep(.dwell-button) {
+  .game-container :deep(.dwell-button) {
     min-block-size: 9.2rem !important;
   }
 }

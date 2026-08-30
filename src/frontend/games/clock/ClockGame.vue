@@ -1,25 +1,44 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, toRef } from "vue";
 import GameSessionChrome from "../../components/game/GameSessionChrome.vue";
-import GameSquareChoiceGrid, { type GameSquareChoice } from "../../components/game/GameSquareChoiceGrid.vue";
+import GameSquareChoiceGrid, {
+  type GameSquareChoice,
+} from "../../components/game/GameSquareChoiceGrid.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { formatClockHour, generateClockRound } from "./model";
 
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("clock", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("clock", {
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 130, sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
 const promptAudio = useGamePromptAudio({
   gameId: "clock",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: ["clock.prompt.1", "clock.prompt.2", "clock.prompt.3", "clock.mistake", "clock.complete"]
+  warmAssetIds: [
+    "clock.prompt.1",
+    "clock.prompt.2",
+    "clock.prompt.3",
+    "clock.mistake",
+    "clock.complete",
+  ],
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
@@ -28,7 +47,7 @@ const isSpeaking = ref(false);
 const { round, resultVisible, nextRound, restart } = useRoundGame({
   session,
   startSession,
-  generateRound: (roundIndex) => generateClockRound(session.settings, roundIndex)
+  generateRound: (roundIndex) => generateClockRound(session.settings, roundIndex),
 });
 
 function choiceTargetId(hour: number) {
@@ -62,11 +81,11 @@ function handStyle(hour: number) {
 }
 
 function markStyle(mark: number) {
-  const angle = (mark * 30 - 90) * Math.PI / 180;
+  const angle = ((mark * 30 - 90) * Math.PI) / 180;
   const radius = 39;
   return {
     insetBlockStart: `${50 + Math.sin(angle) * radius}%`,
-    insetInlineStart: `${50 + Math.cos(angle) * radius}%`
+    insetInlineStart: `${50 + Math.cos(angle) * radius}%`,
   };
 }
 
@@ -79,10 +98,20 @@ async function choose(hour: number) {
   if (hour === round.value.targetHour) {
     isSpeaking.value = true;
     feedback.value = "Верно.";
-    recordSuccess({ roundId: round.value.roundId, targetId, expected: round.value.targetHour, actual: hour, isCorrect: true });
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId,
+      expected: round.value.targetHour,
+      actual: hour,
+      isCorrect: true,
+    });
     void pianoFeedback.playSuccess();
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [correctAssetId(), "clock.complete"] : [correctAssetId()], 80, 170);
+    await promptAudio.playSequenceAndWait(
+      finishedAfterSuccess ? [correctAssetId(), "clock.complete"] : [correctAssetId()],
+      80,
+      170,
+    );
     if (finishedAfterSuccess) {
       finishSession("game-complete");
       isSpeaking.value = false;
@@ -100,7 +129,14 @@ async function choose(hour: number) {
 
   isSpeaking.value = true;
   feedback.value = "Посмотри на короткую стрелку ещё раз и выбери другие часы.";
-  recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, expected: round.value.targetHour, actual: hour, isCorrect: false });
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId,
+    expectedTargetId,
+    expected: round.value.targetHour,
+    actual: hour,
+    isCorrect: false,
+  });
   void pianoFeedback.playMistake();
   await promptAudio.playSequenceAndWait([mistakeAssetId()], 80);
   isSpeaking.value = false;
@@ -129,15 +165,37 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <GameSessionChrome title="Часы" :session="session" :result-visible="resultVisible" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" gradient="linear-gradient(135deg, #fff7e7 0%, #e7f5ff 100%)" padding-top="6rem" @pause="pauseSession" @resume="resumeSession" @restart="restartGame">
+  <GameSessionChrome
+    title="Часы"
+    :session="session"
+    :result-visible="resultVisible"
+    :duration-ms="durationMs"
+    :metrics="metrics"
+    :recommendation="recommendation"
+    gradient="linear-gradient(135deg, #fff7e7 0%, #e7f5ff 100%)"
+    padding-top="6rem"
+    @pause="pauseSession"
+    @resume="resumeSession"
+    @restart="restartGame"
+  >
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11">
           <v-card class="pa-4 pa-md-6" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Полные часы</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
-            <div class="clock-feedback text-h6 text-md-h5 text-center font-weight-bold mb-4">{{ feedback }}</div>
-            <GameSquareChoiceGrid :items="round.choices" grid-offset="18.5rem" compact-size="7.75rem" :target-id="(choice) => choiceTargetId(Number(choice))" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" @select="answerChoice">
+            <div class="clock-feedback text-h6 text-md-h5 text-center font-weight-bold mb-4">
+              {{ feedback }}
+            </div>
+            <GameSquareChoiceGrid
+              :items="round.choices"
+              grid-offset="18.5rem"
+              compact-size="7.75rem"
+              :target-id="(choice) => choiceTargetId(Number(choice))"
+              :disabled="session.status !== 'running' || isSpeaking"
+              :dwell-ms="session.settings.dwellMs"
+              @select="answerChoice"
+            >
               <template #default="{ choice }">
                 <div class="clock-choice" :aria-label="formatClockHour(Number(choice))">
                   <div class="clock-face" aria-hidden="true">
@@ -225,25 +283,25 @@ onUnmounted(() => {
 }
 
 @media (min-width: 68.75rem) {
- .game-container {
+  .game-container {
     padding-block-start: 2rem;
   }
 }
 
 @media (max-height: 40rem) {
- .game-container {
+  .game-container {
     padding-block-start: 0;
   }
 
- .game-container :deep(.v-card) {
+  .game-container :deep(.v-card) {
     padding: 1rem !important;
   }
 
- .clock-face {
+  .clock-face {
     inline-size: min(74%, 6.75rem);
   }
 
- .clock-feedback {
+  .clock-feedback {
     margin-block-end: 0.75rem !important;
   }
 }

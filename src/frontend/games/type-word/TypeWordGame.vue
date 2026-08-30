@@ -4,21 +4,44 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
-import GameSquareChoiceGrid, { type GameSquareChoice } from "../../components/game/GameSquareChoiceGrid.vue";
+import GameSquareChoiceGrid, {
+  type GameSquareChoice,
+} from "../../components/game/GameSquareChoiceGrid.vue";
 import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
-import { disposeTypeWordAudio, playTypeWordMistakeMelody, playTypeWordSuccessMelody, warmTypeWordAudio } from "./audio";
-import { createTypeWordDeck, evaluateTypeWordChoice, generateTypeWordRound, type TypeWordRound } from "./model";
+import {
+  disposeTypeWordAudio,
+  playTypeWordMistakeMelody,
+  playTypeWordSuccessMelody,
+  warmTypeWordAudio,
+} from "./audio";
+import {
+  createTypeWordDeck,
+  evaluateTypeWordChoice,
+  generateTypeWordRound,
+  type TypeWordRound,
+} from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("type-word", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("type-word", {
   maxSteps: 5,
   overrides: { dwellMs: 1200, sessionSeconds: 120 },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 
 let roundIndex = 1;
@@ -44,13 +67,13 @@ const promptAudio = useGamePromptAudio({
   gameId: "type-word",
   soundEnabled: toRef(session.settings, "sound"),
   volume: 0.34,
-  warmAssetIds: ["type-word.correct", "type-word.mistake", "type-word.complete"]
+  warmAssetIds: ["type-word.correct", "type-word.mistake", "type-word.complete"],
 });
 const wordNameAudio = useGamePromptAudio({
   gameId: "word-categories",
   soundEnabled: toRef(session.settings, "sound"),
   volume: 0.34,
-  warmAssetIds: deck.slice(0, session.maxSteps).map((item) => `word-categories.item.${item.id}`)
+  warmAssetIds: deck.slice(0, session.maxSteps).map((item) => `word-categories.item.${item.id}`),
 });
 
 function keyTargetId(key: string) {
@@ -63,7 +86,12 @@ async function playWordName(delayMs = 0) {
 
 async function playRoundPrompt(withInstruction: boolean, delayMs = 0) {
   isChangingWord.value = true;
-  if (withInstruction) await speakSceneText("Собери название предмета. Выбирай буквы слева направо.", session.settings.sound, delayMs);
+  if (withInstruction)
+    await speakSceneText(
+      "Собери название предмета. Выбирай буквы слева направо.",
+      session.settings.sound,
+      delayMs,
+    );
   await playWordName(withInstruction ? 0 : delayMs);
   isChangingWord.value = false;
 }
@@ -91,7 +119,16 @@ async function pressKey(key: string) {
   const selection = evaluateTypeWordChoice(round.value, currentIndex.value, key);
 
   if (!selection.isCorrect) {
-    recordMistake({ roundId: round.value.roundId, targetId, expectedTargetId, expected: currentLetter.value, actual: key, wordId: round.value.item.id, letterIndex: currentIndex.value, isCorrect: false });
+    recordMistake({
+      roundId: round.value.roundId,
+      targetId,
+      expectedTargetId,
+      expected: currentLetter.value,
+      actual: key,
+      wordId: round.value.item.id,
+      letterIndex: currentIndex.value,
+      isCorrect: false,
+    });
     wrongKey.value = key;
     feedbackMessage.value = "Это другая буква. Попробуй ещё раз.";
     isChangingWord.value = true;
@@ -108,7 +145,14 @@ async function pressKey(key: string) {
   feedbackMessage.value = selection.complete ? "Слово собрано." : "Верно. Выбери следующую букву.";
   if (!selection.complete) return;
 
-  recordSuccess({ roundId: round.value.roundId, targetId, wordId: round.value.item.id, expected: round.value.item.word, actual: round.value.item.word, isCorrect: true });
+  recordSuccess({
+    roundId: round.value.roundId,
+    targetId,
+    wordId: round.value.item.id,
+    expected: round.value.item.word,
+    actual: round.value.item.word,
+    isCorrect: true,
+  });
   isChangingWord.value = true;
   await playTypeWordSuccessMelody(session.settings.sound);
   await promptAudio.playSequenceAndWait(["type-word.correct"], 80);
@@ -163,7 +207,18 @@ onUnmounted(() => {
 
 <template>
   <div class="type-shell">
-    <GameHud title="Печать слов" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Печать слов"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11" xl="10">
@@ -180,7 +235,13 @@ onUnmounted(() => {
                 @select="repeatWordName"
               >
                 <template #default>
-                  <GameWordImage class="word-image" :word-id="round.item.id" :word="round.item.word" :emoji="round.item.emoji" decorative />
+                  <GameWordImage
+                    class="word-image"
+                    :word-id="round.item.id"
+                    :word="round.item.word"
+                    :emoji="round.item.emoji"
+                    decorative
+                  />
                   <div class="listen-label font-weight-bold mt-2">
                     <v-icon icon="mdi-volume-high" class="mr-1" />
                     Послушать название
@@ -190,12 +251,24 @@ onUnmounted(() => {
 
               <div class="word-work">
                 <h1 class="work-title font-weight-bold">Собери название предмета</h1>
-                <p class="feedback text-medium-emphasis" aria-live="polite">{{ feedbackMessage }}</p>
-                <div class="letters" role="group" :aria-label="`Собрано букв: ${currentIndex} из ${round.letters.length}`">
+                <p class="feedback text-medium-emphasis" aria-live="polite">
+                  {{ feedbackMessage }}
+                </p>
+                <div
+                  class="letters"
+                  role="group"
+                  :aria-label="`Собрано букв: ${currentIndex} из ${round.letters.length}`"
+                >
                   <span
                     v-for="(letter, index) in round.letters"
                     :key="`${letter}-${index}`"
-                    :class="['letter-slot', { 'letter-slot--done': index < currentIndex, 'letter-slot--current': index === currentIndex }]"
+                    :class="[
+                      'letter-slot',
+                      {
+                        'letter-slot--done': index < currentIndex,
+                        'letter-slot--current': index === currentIndex,
+                      },
+                    ]"
                   >
                     {{ index < currentIndex ? letter : "" }}
                   </span>
@@ -221,14 +294,31 @@ onUnmounted(() => {
               @select="selectKey"
             >
               <template #default="{ choice }">
-                <div :class="['letter-choice', { 'letter-choice--wrong': wrongKey === String(choice) }]">{{ choice }}</div>
+                <div
+                  :class="[
+                    'letter-choice',
+                    { 'letter-choice--wrong': wrongKey === String(choice) },
+                  ]"
+                >
+                  {{ choice }}
+                </div>
               </template>
             </GameSquareChoiceGrid>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Печать слов" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Печать слов"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </div>
 </template>
 

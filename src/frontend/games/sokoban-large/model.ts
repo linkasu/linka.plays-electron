@@ -37,7 +37,7 @@ const fallbackState: Omit<SokobanLargeState, "roundIndex" | "solution" | "stepIn
   walls: perimeterWalls(boardWidth, boardHeight),
   player: { row: 4, column: 2 },
   box: { row: 3, column: 2 },
-  goal: { row: 2, column: 4 }
+  goal: { row: 2, column: 4 },
 };
 
 export const sokobanLargeSolution = fallbackSolution;
@@ -46,7 +46,7 @@ export const sokobanLargeDirectionLabels: Record<SokobanLargeDirection, string> 
   up: "вверх",
   right: "вправо",
   down: "вниз",
-  left: "влево"
+  left: "влево",
 };
 
 const directions: SokobanLargeDirection[] = ["up", "right", "down", "left"];
@@ -54,29 +54,37 @@ const directionDeltas: Record<SokobanLargeDirection, SokobanLargePoint> = {
   up: { row: -1, column: 0 },
   right: { row: 0, column: 1 },
   down: { row: 1, column: 0 },
-  left: { row: 0, column: -1 }
+  left: { row: 0, column: -1 },
 };
 
-export function createSokobanLargeState(roundIndex = 0, random: () => number = createRoundRandom(roundIndex)): SokobanLargeState {
+export function createSokobanLargeState(
+  roundIndex = 0,
+  random: () => number = createRoundRandom(roundIndex),
+): SokobanLargeState {
   const generated = generateSokobanLargeState(roundIndex, random);
   if (generated) return generated;
 
   return {
-   ...cloneBaseState(fallbackState),
+    ...cloneBaseState(fallbackState),
     stepIndex: 0,
     roundIndex,
-    solution: [...fallbackSolution]
+    solution: [...fallbackSolution],
   };
 }
 
-export function generateSokobanLargeState(roundIndex = 0, random: () => number = createRoundRandom(roundIndex)): SokobanLargeState | undefined {
+export function generateSokobanLargeState(
+  roundIndex = 0,
+  random: () => number = createRoundRandom(roundIndex),
+): SokobanLargeState | undefined {
   const wallBudget = Math.min(3, Math.floor(roundIndex / 3) + randomInt(random, 0, 2));
   for (let attempt = 0; attempt < 160; attempt += 1) {
     const walls = [...perimeterWalls(boardWidth, boardHeight)];
     const innerCells = shuffled(innerPoints(boardWidth, boardHeight), random);
     for (const point of innerCells.slice(0, wallBudget)) walls.push(point);
 
-    const freeCells = innerPoints(boardWidth, boardHeight).filter((point) => !pointInList(walls, point));
+    const freeCells = innerPoints(boardWidth, boardHeight).filter(
+      (point) => !pointInList(walls, point),
+    );
     if (freeCells.length < 4) continue;
 
     const picks = shuffled(freeCells, random).slice(0, 3);
@@ -89,10 +97,15 @@ export function generateSokobanLargeState(roundIndex = 0, random: () => number =
       goal: picks[2],
       stepIndex: 0,
       roundIndex,
-      solution: []
+      solution: [],
     };
 
-    if (pointsEqual(state.player, state.box) || pointsEqual(state.player, state.goal) || pointsEqual(state.box, state.goal)) continue;
+    if (
+      pointsEqual(state.player, state.box) ||
+      pointsEqual(state.player, state.goal) ||
+      pointsEqual(state.box, state.goal)
+    )
+      continue;
 
     const solution = solveSokobanLargeState(state, 18);
     if (solution.length >= 3 && solution.length <= 14) return { ...state, solution };
@@ -101,8 +114,13 @@ export function generateSokobanLargeState(roundIndex = 0, random: () => number =
   return undefined;
 }
 
-export function solveSokobanLargeState(initialState: SokobanLargeState, maxMoves = 18): SokobanLargeDirection[] {
-  const queue: { state: SokobanLargeState; path: SokobanLargeDirection[] }[] = [{ state: cloneState(initialState), path: [] }];
+export function solveSokobanLargeState(
+  initialState: SokobanLargeState,
+  maxMoves = 18,
+): SokobanLargeDirection[] {
+  const queue: { state: SokobanLargeState; path: SokobanLargeDirection[] }[] = [
+    { state: cloneState(initialState), path: [] },
+  ];
   const visited = new Set([stateKey(initialState)]);
 
   while (queue.length) {
@@ -126,11 +144,18 @@ export function solveSokobanLargeState(initialState: SokobanLargeState, maxMoves
   return [];
 }
 
-export function applySokobanLargeMove(state: SokobanLargeState, direction: SokobanLargeDirection): SokobanLargeMoveResult {
+export function applySokobanLargeMove(
+  state: SokobanLargeState,
+  direction: SokobanLargeDirection,
+): SokobanLargeMoveResult {
   return applySokobanLargeMoveInternal(state, direction, true);
 }
 
-function applySokobanLargeMoveInternal(state: SokobanLargeState, direction: SokobanLargeDirection, detectDeadlock: boolean): SokobanLargeMoveResult {
+function applySokobanLargeMoveInternal(
+  state: SokobanLargeState,
+  direction: SokobanLargeDirection,
+  detectDeadlock: boolean,
+): SokobanLargeMoveResult {
   const nextPlayer = movePoint(state.player, direction);
   if (isBlocked(state, nextPlayer)) {
     return { state: cloneState(state), event: "blocked", moved: false, pushed: false };
@@ -142,7 +167,7 @@ function applySokobanLargeMoveInternal(state: SokobanLargeState, direction: Soko
       state: { ...cloneState(state), player: nextPlayer, stepIndex: state.stepIndex + 1 },
       event: "moved",
       moved: true,
-      pushed: false
+      pushed: false,
     };
   }
 
@@ -152,23 +177,27 @@ function applySokobanLargeMoveInternal(state: SokobanLargeState, direction: Soko
   }
 
   const nextState = {
-   ...cloneState(state),
+    ...cloneState(state),
     player: nextPlayer,
     box: nextBox,
-    stepIndex: state.stepIndex + 1
+    stepIndex: state.stepIndex + 1,
   };
 
   const complete = isSokobanLargeComplete(nextState);
-  const deadlocked = detectDeadlock && !complete && solveSokobanLargeState(nextState, 64).length === 0;
+  const deadlocked =
+    detectDeadlock && !complete && solveSokobanLargeState(nextState, 64).length === 0;
   return {
     state: nextState,
     event: complete ? "complete" : deadlocked ? "deadlocked" : "pushed",
     moved: true,
-    pushed: true
+    pushed: true,
   };
 }
 
-export function sokobanLargeChoiceOutcome(result: SokobanLargeMoveResult, _mistakesAfterChoice: number): SokobanLargeChoiceOutcome {
+export function sokobanLargeChoiceOutcome(
+  result: SokobanLargeMoveResult,
+  _mistakesAfterChoice: number,
+): SokobanLargeChoiceOutcome {
   if ((result.moved && result.event !== "deadlocked") || result.event === "complete") return "move";
   return "wrong-move";
 }
@@ -189,7 +218,10 @@ export function hasSokobanLargeWall(state: SokobanLargeState, point: SokobanLarg
   return state.walls.some((wall) => pointsEqual(wall, point));
 }
 
-export function movePoint(point: SokobanLargePoint, direction: SokobanLargeDirection): SokobanLargePoint {
+export function movePoint(
+  point: SokobanLargePoint,
+  direction: SokobanLargeDirection,
+): SokobanLargePoint {
   const delta = directionDeltas[direction];
   return { row: point.row + delta.row, column: point.column + delta.column };
 }
@@ -198,7 +230,8 @@ function perimeterWalls(width: number, height: number) {
   const walls: SokobanLargePoint[] = [];
   for (let row = 0; row < height; row += 1) {
     for (let column = 0; column < width; column += 1) {
-      if (row === 0 || column === 0 || row === height - 1 || column === width - 1) walls.push({ row, column });
+      if (row === 0 || column === 0 || row === height - 1 || column === width - 1)
+        walls.push({ row, column });
     }
   }
   return walls;
@@ -213,7 +246,9 @@ function innerPoints(width: number, height: number) {
 }
 
 function isInside(state: SokobanLargeState, point: SokobanLargePoint) {
-  return point.row >= 0 && point.row < state.height && point.column >= 0 && point.column < state.width;
+  return (
+    point.row >= 0 && point.row < state.height && point.column >= 0 && point.column < state.width
+  );
 }
 
 function isBlocked(state: SokobanLargeState, point: SokobanLargePoint) {
@@ -251,21 +286,21 @@ function createRoundRandom(roundIndex: number) {
 
 function cloneBaseState(state: Omit<SokobanLargeState, "roundIndex" | "solution" | "stepIndex">) {
   return {
-   ...state,
+    ...state,
     walls: state.walls.map((wall) => ({ ...wall })),
     player: { ...state.player },
     box: { ...state.box },
-    goal: { ...state.goal }
+    goal: { ...state.goal },
   };
 }
 
 function cloneState(state: SokobanLargeState): SokobanLargeState {
   return {
-   ...state,
+    ...state,
     walls: state.walls.map((wall) => ({ ...wall })),
     player: { ...state.player },
     box: { ...state.box },
     goal: { ...state.goal },
-    solution: [...state.solution]
+    solution: [...state.solution],
   };
 }

@@ -9,7 +9,12 @@ import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { adaptiveGazeHitRadius } from "../../core/gazeTarget";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { disposeAquariumAudio, playAquariumMelody, resetAquariumAudioSession, warmAquariumAudio } from "./audio";
+import {
+  disposeAquariumAudio,
+  playAquariumMelody,
+  resetAquariumAudioSession,
+  warmAquariumAudio,
+} from "./audio";
 
 type Point = { x: number; y: number };
 type AquariumFish = Point & {
@@ -48,10 +53,26 @@ type ActivationBurst = Point & {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordEvent, recordSuccess, startSession } = useGameSessionFor("aquarium", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordEvent,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("aquarium", {
   maxSteps: 8,
-  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.38, distractors: "none", hints: "high" },
-  finishOnMistakes: false
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.55,
+    motionSpeed: 0.38,
+    distractors: "none",
+    hints: "high",
+  },
+  finishOnMistakes: false,
 });
 useStartPromptAudio({ gameId: "aquarium", soundEnabled: toRef(session.settings, "sound") });
 
@@ -79,7 +100,10 @@ function waterTop() {
 function safePoint(padding = 84): Point {
   return {
     x: randomRange(padding, Math.max(padding + 1, width.value - padding)),
-    y: randomRange(waterTop() + padding * 0.35, Math.max(waterTop() + padding, height.value - padding * 0.72))
+    y: randomRange(
+      waterTop() + padding * 0.35,
+      Math.max(waterTop() + padding, height.value - padding * 0.72),
+    ),
   };
 }
 
@@ -89,8 +113,11 @@ function fishCount() {
 
 function fishSize(index: number) {
   const viewportLimit = Math.min(width.value, height.value) * 0.13;
-  const base = Math.min(116, Math.max(72, Math.min(viewportLimit, 76 * session.settings.targetScale)));
-  return base * (0.88 + index / Math.max(1, fishCount() - 1) * 0.2);
+  const base = Math.min(
+    116,
+    Math.max(72, Math.min(viewportLimit, 76 * session.settings.targetScale)),
+  );
+  return base * (0.88 + (index / Math.max(1, fishCount() - 1)) * 0.2);
 }
 
 function createFish(index: number): AquariumFish {
@@ -109,7 +136,7 @@ function createFish(index: number): AquariumFish {
     dwellProgress: 0,
     fedAge: 0,
     foodCooldown: randomRange(0.2, 0.8),
-    wander: safePoint(size)
+    wander: safePoint(size),
   };
 }
 
@@ -137,11 +164,16 @@ function copyPointer() {
     y: pointer.value.y,
     valid: pointer.value.valid,
     source: pointer.value.source,
-    timestamp: pointer.value.timestamp
+    timestamp: pointer.value.timestamp,
   };
 }
 
-function targetPayload(fish: AquariumFish, now: number, progress: number, reason?: "left" | "invalid-gaze") {
+function targetPayload(
+  fish: AquariumFish,
+  now: number,
+  progress: number,
+  reason?: "left" | "invalid-gaze",
+) {
   return {
     targetId: fish.id,
     at: Date.now(),
@@ -149,7 +181,7 @@ function targetPayload(fish: AquariumFish, now: number, progress: number, reason
     elapsedMs: fish.enteredAt === undefined ? 0 : now - fish.enteredAt,
     progress,
     pointer: copyPointer(),
-    reason
+    reason,
   };
 }
 
@@ -161,7 +193,7 @@ function addFood(point: Point, amount = 8) {
       age: 0,
       life: randomRange(3.2, 4.8),
       radius: randomRange(2.4, 5.2),
-      drift: randomRange(-1.2, 1.2)
+      drift: randomRange(-1.2, 1.2),
     });
   }
   if (food.length > 56) food.splice(0, food.length - 56);
@@ -174,7 +206,7 @@ function addBubble(point?: Point) {
     age: 0,
     life: randomRange(5.2, 7.8),
     radius: randomRange(4, 12),
-    speed: randomRange(18, 34)
+    speed: randomRange(18, 34),
   });
   if (bubbles.length > 46) bubbles.shift();
 }
@@ -186,7 +218,7 @@ function addActivationBurst(fish: AquariumFish) {
     age: 0,
     life: 1.6,
     radius: fish.size * 0.86,
-    hue: fish.hue
+    hue: fish.hue,
   });
   if (bursts.length > 8) bursts.shift();
 }
@@ -198,7 +230,11 @@ function closestGazeFish() {
   let closestDistance = Number.POSITIVE_INFINITY;
   for (const fish of fishes) {
     if (fish.fedAge > 0) continue;
-    const hitRadius = adaptiveGazeHitRadius(fish, fish.size * 1.35, { viewportWidth: width.value, viewportHeight: height.value, edgeBoost: 0.28 });
+    const hitRadius = adaptiveGazeHitRadius(fish, fish.size * 1.35, {
+      viewportWidth: width.value,
+      viewportHeight: height.value,
+      edgeBoost: 0.28,
+    });
     const nextDistance = distance(fish, pointer.value);
     if (nextDistance <= hitRadius && nextDistance < closestDistance) {
       closest = fish;
@@ -219,7 +255,8 @@ function feedFish(fish: AquariumFish, now: number) {
   addFood(fish, 18);
   addActivationBurst(fish);
   void playAquariumMelody(session.settings.sound);
-  for (let index = 0; index < 9; index += 1) addBubble({ x: fish.x + randomRange(-36, 36), y: fish.y + randomRange(-28, 22) });
+  for (let index = 0; index < 9; index += 1)
+    addBubble({ x: fish.x + randomRange(-36, 36), y: fish.y + randomRange(-28, 22) });
   fish.fedAge = 2.1;
   fish.enteredAt = undefined;
   fish.dwellProgress = 1;
@@ -233,7 +270,8 @@ function updateFishGaze(fish: AquariumFish, delta: number, now: number, gazeFish
 
   if (fish.fedAge > 0 || session.status !== "running") return;
   if (gazeFish !== fish) {
-    if (fish.enteredAt !== undefined) cancelFish(fish, now, pointer.value.valid ? "left" : "invalid-gaze");
+    if (fish.enteredAt !== undefined)
+      cancelFish(fish, now, pointer.value.valid ? "left" : "invalid-gaze");
     return;
   }
 
@@ -261,30 +299,38 @@ function separationPush(fish: AquariumFish) {
     if (nextDistance >= minimumDistance) continue;
 
     const overlap = minimumDistance - nextDistance;
-    push.x += dx / nextDistance * overlap * 4.2;
-    push.y += dy / nextDistance * overlap * 3.1;
+    push.x += (dx / nextDistance) * overlap * 4.2;
+    push.y += (dy / nextDistance) * overlap * 3.1;
   }
   return push;
 }
 
 function gazeTargetForFish(fish: AquariumFish, index: number, gazeFish?: AquariumFish) {
-  if (!pointer.value.valid || session.status !== "running" || session.step >= session.maxSteps) return fish.wander;
+  if (!pointer.value.valid || session.status !== "running" || session.step >= session.maxSteps)
+    return fish.wander;
   if (gazeFish === fish) return pointer.value;
 
   const angle = index * 2.399 + fish.age * 0.16;
   return {
     x: pointer.value.x + Math.cos(angle) * fish.size * 1.72,
-    y: pointer.value.y + Math.sin(angle) * fish.size * 1.08
+    y: pointer.value.y + Math.sin(angle) * fish.size * 1.08,
   };
 }
 
-function updateFishMovement(fish: AquariumFish, delta: number, index: number, gazeFish?: AquariumFish) {
+function updateFishMovement(
+  fish: AquariumFish,
+  delta: number,
+  index: number,
+  gazeFish?: AquariumFish,
+) {
   fish.age += delta;
   if (fish.fedAge > 0) fish.fedAge = Math.max(0, fish.fedAge - delta);
 
-  const hasGaze = pointer.value.valid && session.status === "running" && session.step < session.maxSteps;
+  const hasGaze =
+    pointer.value.valid && session.status === "running" && session.step < session.maxSteps;
   const target = gazeTargetForFish(fish, index, gazeFish);
-  if (!hasGaze && distance(fish, fish.wander) < fish.size * 0.72) fish.wander = safePoint(fish.size);
+  if (!hasGaze && distance(fish, fish.wander) < fish.size * 0.72)
+    fish.wander = safePoint(fish.size);
 
   const dx = target.x - fish.x;
   const dy = target.y - fish.y;
@@ -393,7 +439,15 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
     const baseY = height.value - 8;
     const stalkHeight = 70 + (index % 4) * 24;
     ctx.beginPath();
-    ctx.ellipse(baseX, baseY - stalkHeight * 0.46, 9 + index % 3 * 4, stalkHeight, Math.sin(index) * 0.18, 0, Math.PI * 2);
+    ctx.ellipse(
+      baseX,
+      baseY - stalkHeight * 0.46,
+      9 + (index % 3) * 4,
+      stalkHeight,
+      Math.sin(index) * 0.18,
+      0,
+      Math.PI * 2,
+    );
     ctx.fill();
   }
   ctx.restore();
@@ -433,7 +487,14 @@ function drawActivationBurst(ctx: CanvasRenderingContext2D, burst: ActivationBur
   ctx.arc(burst.x, burst.y, burst.radius * (0.34 + progress * 1.42), 0, Math.PI * 2);
   ctx.stroke();
 
-  const glow = ctx.createRadialGradient(burst.x, burst.y, 0, burst.x, burst.y, burst.radius * (0.78 + progress * 0.9));
+  const glow = ctx.createRadialGradient(
+    burst.x,
+    burst.y,
+    0,
+    burst.x,
+    burst.y,
+    burst.radius * (0.78 + progress * 0.9),
+  );
   glow.addColorStop(0, `hsla(${burst.hue + 18}, 96%, 86%, ${0.46 * (1 - progress)})`);
   glow.addColorStop(1, `hsla(${burst.hue + 18}, 96%, 70%, 0)`);
   ctx.fillStyle = glow;
@@ -469,7 +530,14 @@ function drawFish(ctx: CanvasRenderingContext2D, fish: AquariumFish) {
   ctx.quadraticCurveTo(-length * 0.76, body * 0.62, -length * 0.5, 0);
   ctx.fill();
 
-  const fill = ctx.createRadialGradient(-length * 0.16, -body * 0.3, body * 0.14, 0, 0, length * 0.56);
+  const fill = ctx.createRadialGradient(
+    -length * 0.16,
+    -body * 0.3,
+    body * 0.14,
+    0,
+    0,
+    length * 0.56,
+  );
   fill.addColorStop(0, "#fff7df");
   fill.addColorStop(0.56, `hsl(${fish.hue}, 82%, ${64 + focus * 8 + fed * 5}%)`);
   fill.addColorStop(1, `hsl(${fish.hue - 10}, 68%, ${45 + fed * 8}%)`);

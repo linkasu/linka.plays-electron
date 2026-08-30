@@ -10,7 +10,12 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { evaluateBigCardChoice, generateBigCardsRound, type BigCard, type BigCardsRound } from "./model";
+import {
+  evaluateBigCardChoice,
+  generateBigCardsRound,
+  type BigCard,
+  type BigCardsRound,
+} from "./model";
 
 const router = useRouter();
 const isResponding = ref(false);
@@ -18,23 +23,40 @@ const feedbackText = ref("Любой выбор будет правильным.
 let feedbackTimer = 0;
 let introTimer = 0;
 
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, startSession } = useGameSessionFor("big-cards", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  startSession,
+} = useGameSessionFor("big-cards", {
   maxSteps: 8,
   overrides: {
     preset: "gentle",
     targetScale: 1.6,
     motionSpeed: 0.45,
     distractors: "none",
-    hints: "high"
+    hints: "high",
   },
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
-const promptAudio = useGamePromptAudio({ gameId: "big-cards", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "big-cards",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 
-const { round, resultVisible, nextRound, restart: restartRound } = useRoundGame<BigCardsRound>({
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRound,
+} = useRoundGame<BigCardsRound>({
   session,
   startSession,
-  generateRound: generateBigCardsRound
+  generateRound: generateBigCardsRound,
 });
 
 function cardTargetId(roundId: string, cardId: string) {
@@ -52,7 +74,7 @@ function choose(card: BigCard) {
   recordSuccess({
     roundId: round.value.roundId,
     targetId: cardTargetId(round.value.roundId, card.id),
-    ...choiceResult
+    ...choiceResult,
   });
 
   window.clearTimeout(feedbackTimer);
@@ -89,20 +111,53 @@ onUnmounted(() => {
 <template>
   <GamePageShell gradient="linear-gradient(135deg, #fff7ed 0%, #eef8ff 52%, #f4fff1 100%)">
     <template #hud>
-      <GameHud title="Большие карточки" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+      <GameHud
+        title="Большие карточки"
+        :step="session.step"
+        :max-steps="session.maxSteps"
+        :score="session.score"
+        :mistakes="session.mistakes"
+        :duration-ms="durationMs"
+        :session-seconds="session.settings.sessionSeconds"
+        :paused="session.status === 'paused'"
+        @pause="pauseSession"
+        @resume="resumeSession"
+      />
     </template>
     <v-container class="big-cards-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="11" xl="9">
           <v-card class="pa-5 pa-md-8" color="surface" rounded="xl" elevation="8">
-            <div class="big-cards-overline text-overline text-secondary text-center mb-2">выбор без ошибок</div>
-            <h1 class="big-cards-title text-h3 text-md-h2 font-weight-bold text-center mb-3">Большие карточки</h1>
-            <p class="big-cards-prompt text-h6 text-md-h5 text-medium-emphasis text-center mb-2">{{ round.prompt }}</p>
+            <div class="big-cards-overline text-overline text-secondary text-center mb-2">
+              выбор без ошибок
+            </div>
+            <h1 class="big-cards-title text-h3 text-md-h2 font-weight-bold text-center mb-3">
+              Большие карточки
+            </h1>
+            <p class="big-cards-prompt text-h6 text-md-h5 text-medium-emphasis text-center mb-2">
+              {{ round.prompt }}
+            </p>
             <p class="big-cards-feedback text-h6 text-md-h5 text-center mb-6">{{ feedbackText }}</p>
 
-            <GameChoiceCardGrid :choices="round.choices" :target-id="(card) => cardTargetId(round.roundId, card.id)" :disabled="session.status !== 'running' || isResponding" :dwell-ms="session.settings.dwellMs" min-height="clamp(12.5rem, 34vh, 16.25rem)" :cols="12" :sm="6" :md="round.choices.length === 3 ? 4 : 6" :lg="round.choices.length === 4 ? 3 : round.choices.length === 3 ? 4 : 5" @select="choose">
+            <GameChoiceCardGrid
+              :choices="round.choices"
+              :target-id="(card) => cardTargetId(round.roundId, card.id)"
+              :disabled="session.status !== 'running' || isResponding"
+              :dwell-ms="session.settings.dwellMs"
+              min-height="clamp(12.5rem, 34vh, 16.25rem)"
+              :cols="12"
+              :sm="6"
+              :md="round.choices.length === 3 ? 4 : 6"
+              :lg="round.choices.length === 4 ? 3 : round.choices.length === 3 ? 4 : 5"
+              @select="choose"
+            >
               <template #default="{ choice: card, active, progress }">
-                <GameWordImage class="card-emoji" :word-id="card.id" :word="card.label" :emoji="card.emoji" />
+                <GameWordImage
+                  class="card-emoji"
+                  :word-id="card.id"
+                  :word="card.label"
+                  :emoji="card.emoji"
+                />
                 <div class="text-h4 text-md-h3 font-weight-bold mt-3">{{ card.label }}</div>
                 <div class="big-card-note text-body-1 text-md-h6 font-weight-medium mt-2">
                   {{ active && progress > 0.8 ? "Почти готово" : "Можно выбрать" }}
@@ -113,7 +168,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Большие карточки" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restart" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Большие карточки"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restart"
+    />
   </GamePageShell>
 </template>
 
@@ -141,7 +206,7 @@ onUnmounted(() => {
     margin-block-end: 0.75rem !important;
   }
 
- .card-emoji {
+  .card-emoji {
     font-size: clamp(4.5rem, min(11vw, 16vh), 8rem);
   }
 }

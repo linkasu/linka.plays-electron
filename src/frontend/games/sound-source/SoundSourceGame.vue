@@ -49,7 +49,7 @@ const soundSources: SoundSource[] = [
     wash: "#ddfbff",
     soundPath: "/audio/sfx/sound-source/shell-wave.mp3",
     cueMs: 1700,
-    volume: 0.38
+    volume: 0.38,
   },
   {
     id: "bell",
@@ -61,7 +61,7 @@ const soundSources: SoundSource[] = [
     wash: "#fff1c8",
     soundPath: "/audio/sfx/sound-source/bell.mp3",
     cueMs: 2200,
-    volume: 0.32
+    volume: 0.32,
   },
   {
     id: "bird",
@@ -73,7 +73,7 @@ const soundSources: SoundSource[] = [
     wash: "#eef8d8",
     soundPath: "/audio/sfx/sound-source/bird.mp3",
     cueMs: 1200,
-    volume: 0.34
+    volume: 0.34,
   },
   {
     id: "stream",
@@ -84,7 +84,7 @@ const soundSources: SoundSource[] = [
     wash: "#e5f0ff",
     soundPath: "/audio/sfx/sound-source/stream.mp3",
     cueMs: 1800,
-    volume: 0.36
+    volume: 0.36,
   },
   {
     id: "leaf",
@@ -96,7 +96,7 @@ const soundSources: SoundSource[] = [
     wash: "#e4f8ec",
     soundPath: "/audio/sfx/sound-source/leaf.mp3",
     cueMs: 1200,
-    volume: 0.32
+    volume: 0.32,
   },
   {
     id: "speaker",
@@ -107,8 +107,8 @@ const soundSources: SoundSource[] = [
     wash: "#f2e9ff",
     soundPath: "/audio/sfx/sound-source/speaker.mp3",
     cueMs: 1100,
-    volume: 0.28
-  }
+    volume: 0.28,
+  },
 ];
 
 const router = useRouter();
@@ -125,30 +125,56 @@ let stopAudioTimer = 0;
 let playbackToken = 0;
 const audioCache = new Map<string, CachedSourceAudio>();
 
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, recordHint, startSession } = useGameSessionFor("sound-source", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  recordHint,
+  startSession,
+} = useGameSessionFor("sound-source", {
   maxSteps: 8,
-  overrides: { preset: "gentle", targetScale: 1.55, motionSpeed: 0.45, distractors: "none", hints: "high", sound: true },
-  finishOnMistakes: false
+  overrides: {
+    preset: "gentle",
+    targetScale: 1.55,
+    motionSpeed: 0.45,
+    distractors: "none",
+    hints: "high",
+    sound: true,
+  },
+  finishOnMistakes: false,
 });
 
 const round = reactive<SoundRound>(createRound(0));
 const resultVisible = computed(() => session.status === "finished");
-const promptText = computed(() => session.settings.sound
-  ? "Сначала послушай, затем выбери источник звука."
-  : "Звук выключен. Найди источник по спокойной визуальной волне.");
+const promptText = computed(() =>
+  session.settings.sound
+    ? "Сначала послушай, затем выбери источник звука."
+    : "Звук выключен. Найди источник по спокойной визуальной волне.",
+);
 const hintVisible = computed(() => hintState.value === "revealed" || !session.settings.sound);
-const promptAudio = useGamePromptAudio({ gameId: "sound-source", soundEnabled: toRef(session.settings, "sound") });
+const promptAudio = useGamePromptAudio({
+  gameId: "sound-source",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 
 function createRound(step: number): SoundRound {
   const count = Math.min(4, 2 + Math.floor(step / 3));
   const offset = (step * 2) % soundSources.length;
-  const choices = Array.from({ length: count }, (_, index) => soundSources[(offset + index) % soundSources.length]);
+  const choices = Array.from(
+    { length: count },
+    (_, index) => soundSources[(offset + index) % soundSources.length],
+  );
   if (step % 2 === 1) choices.reverse();
 
   return {
     roundId: `sound-source-${step}`,
     target: choices[(step + 1) % choices.length],
-    choices
+    choices,
   };
 }
 
@@ -170,7 +196,7 @@ function sourceStyle(source: SoundSource, index: number) {
   return {
     "--source-accent": source.accent,
     "--source-wash": source.wash,
-    "--source-delay": `${index * 180}ms`
+    "--source-delay": `${index * 180}ms`,
   };
 }
 
@@ -181,15 +207,27 @@ function sourcePan(source: SoundSource) {
 }
 
 function targetMarkerVisible(source: SoundSource) {
-  return source.id === round.target.id && (hintVisible.value || selectedSourceId.value === source.id);
+  return (
+    source.id === round.target.id && (hintVisible.value || selectedSourceId.value === source.id)
+  );
 }
 
 async function revealHint() {
-  if (session.status !== "running" || pendingAudio.value || hintVisible.value || selectedSourceId.value) return;
+  if (
+    session.status !== "running" ||
+    pendingAudio.value ||
+    hintVisible.value ||
+    selectedSourceId.value
+  )
+    return;
 
   hintState.value = advanceSoundSourceHint(hintState.value, "hint-requested");
   feedbackMessage.value = "Подсказка показывает источник. Послушай звук ещё раз.";
-  recordHint({ roundId: round.roundId, targetId: sourceTargetId(round.target), reason: "requested" });
+  recordHint({
+    roundId: round.roundId,
+    targetId: sourceTargetId(round.target),
+    reason: "requested",
+  });
   const token = ++playbackToken;
   pendingAudio.value = true;
   await playSourceCue(round.target, "source");
@@ -208,7 +246,12 @@ async function chooseSource(source: SoundSource) {
     feedbackMessage.value = "Почти. Теперь подсказка показывает источник звука.";
     if (!mistakenSourceIds.has(source.id)) {
       mistakenSourceIds.add(source.id);
-      recordMistake({ roundId: round.roundId, selectedId: source.id, targetId: round.target.id, expected: round.target.soundLabel });
+      recordMistake({
+        roundId: round.roundId,
+        selectedId: source.id,
+        targetId: round.target.id,
+        expected: round.target.soundLabel,
+      });
     }
     await promptAudio.playSequenceAndWait(["sound-source.mistake"], 80);
     await playSourceCue(round.target, "source");
@@ -241,7 +284,9 @@ function wait(delayMs: number) {
 }
 
 function createAudioContext() {
-  const AudioContextConstructor = window.AudioContext ?? (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  const AudioContextConstructor =
+    window.AudioContext ??
+    (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
   return AudioContextConstructor ? new AudioContextConstructor() : undefined;
 }
 
@@ -331,14 +376,17 @@ function restart() {
   setRound(0);
 }
 
-watch(() => session.settings.sound, (enabled) => {
-  if (!enabled) {
-    stopCurrentAudio();
-    return;
-  }
-  warmSourceAudio();
-  void playRoundPromptAndCue(120);
-});
+watch(
+  () => session.settings.sound,
+  (enabled) => {
+    if (!enabled) {
+      stopCurrentAudio();
+      return;
+    }
+    warmSourceAudio();
+    void playRoundPromptAndCue(120);
+  },
+);
 
 onMounted(() => {
   promptAudio.warm();
@@ -371,24 +419,46 @@ onUnmounted(() => {
     />
 
     <v-container class="sound-source-container d-flex align-center justify-center" fluid>
-      <v-card class="sound-source-panel pa-3 pa-sm-4 pa-md-6" color="surface" rounded="xl" elevation="8">
+      <v-card
+        class="sound-source-panel pa-3 pa-sm-4 pa-md-6"
+        color="surface"
+        rounded="xl"
+        elevation="8"
+      >
         <div class="text-center mb-3">
           <div class="text-overline text-primary">Слушай звук</div>
           <h1 class="text-h4 text-md-h2 font-weight-bold mb-1">Послушай и найди источник</h1>
           <p class="text-body-1 text-md-h6 text-medium-emphasis mb-1">{{ promptText }}</p>
-          <p class="text-body-2 text-md-body-1 text-medium-emphasis mb-0">{{ session.settings.sound ? 'Волна появится после ошибки или по подсказке.' : 'Волна заменяет звук и не требует быстрой реакции.' }}</p>
+          <p class="text-body-2 text-md-body-1 text-medium-emphasis mb-0">
+            {{
+              session.settings.sound
+                ? "Волна появится после ошибки или по подсказке."
+                : "Волна заменяет звук и не требует быстрой реакции."
+            }}
+          </p>
         </div>
 
         <v-row class="mb-3" align="stretch" dense>
           <v-col cols="12" sm="8">
-            <v-alert class="fill-height" color="primary" icon="mdi-ear-hearing" rounded="xl" variant="tonal">
+            <v-alert
+              class="fill-height"
+              color="primary"
+              icon="mdi-ear-hearing"
+              rounded="xl"
+              variant="tonal"
+            >
               {{ feedbackMessage }}
             </v-alert>
           </v-col>
           <v-col cols="12" sm="4">
             <GameDwellButton
               target-id="sound-source:hint"
-              :disabled="session.status !== 'running' || pendingAudio || hintVisible || Boolean(selectedSourceId)"
+              :disabled="
+                session.status !== 'running' ||
+                pendingAudio ||
+                hintVisible ||
+                Boolean(selectedSourceId)
+              "
               :dwell-ms="session.settings.dwellMs"
               :hit-padding="8"
               min-height="4rem"
@@ -396,12 +466,17 @@ onUnmounted(() => {
               @select="revealHint"
             >
               <v-icon class="me-2" icon="mdi-lightbulb-on-outline" />
-              {{ hintVisible ? 'Подсказка показана' : 'Показать подсказку' }}
+              {{ hintVisible ? "Подсказка показана" : "Показать подсказку" }}
             </GameDwellButton>
           </v-col>
         </v-row>
 
-        <div class="sound-source-grid" :class="`sound-source-grid--${round.choices.length}`" role="group" aria-label="Выбор источника услышанного звука">
+        <div
+          class="sound-source-grid"
+          :class="`sound-source-grid--${round.choices.length}`"
+          role="group"
+          aria-label="Выбор источника услышанного звука"
+        >
           <GameDwellButton
             v-for="(source, index) in round.choices"
             :key="sourceTargetId(source)"
@@ -419,7 +494,7 @@ onUnmounted(() => {
                 :class="{
                   'source-card--active': active,
                   'source-card--selected': selectedSourceId === source.id,
-                  'source-card--mistake': lastMistakeSourceId === source.id
+                  'source-card--mistake': lastMistakeSourceId === source.id,
                 }"
                 :style="sourceStyle(source, index)"
               >
@@ -428,13 +503,40 @@ onUnmounted(() => {
                   <span class="source-wave source-wave--two" />
                   <span class="source-wave source-wave--three" />
                 </div>
-                <div class="source-glow" :style="{ opacity: targetMarkerVisible(source) ? 0.44 + progress * 0.22 : active ? 0.28 : 0.18 }" aria-hidden="true" />
-                <GameWordImage v-if="source.wordId" class="source-emoji" :word-id="source.wordId" :word="source.title" :emoji="source.visual ?? ''" decorative />
-                <span v-else-if="source.visual" class="source-emoji" aria-hidden="true">{{ source.visual }}</span>
+                <div
+                  class="source-glow"
+                  :style="{
+                    opacity: targetMarkerVisible(source)
+                      ? 0.44 + progress * 0.22
+                      : active
+                        ? 0.28
+                        : 0.18,
+                  }"
+                  aria-hidden="true"
+                />
+                <GameWordImage
+                  v-if="source.wordId"
+                  class="source-emoji"
+                  :word-id="source.wordId"
+                  :word="source.title"
+                  :emoji="source.visual ?? ''"
+                  decorative
+                />
+                <span v-else-if="source.visual" class="source-emoji" aria-hidden="true">{{
+                  source.visual
+                }}</span>
                 <v-icon v-else class="source-icon" :icon="source.icon" />
                 <div class="text-h6 text-md-h4 font-weight-bold mt-2">{{ source.title }}</div>
                 <div class="source-caption text-body-2 mt-1">
-                  {{ selectedSourceId === source.id ? 'Волна найдена' : lastMistakeSourceId === source.id ? 'Не отсюда' : active ? 'Держи взгляд' : 'Посмотри сюда' }}
+                  {{
+                    selectedSourceId === source.id
+                      ? "Волна найдена"
+                      : lastMistakeSourceId === source.id
+                        ? "Не отсюда"
+                        : active
+                          ? "Держи взгляд"
+                          : "Посмотри сюда"
+                  }}
                 </div>
               </div>
             </template>
@@ -466,7 +568,8 @@ onUnmounted(() => {
 }
 
 .sound-source-backdrop {
-  background: radial-gradient(circle at 18% 20%, rgb(255 255 255 / 70%), transparent 26%),
+  background:
+    radial-gradient(circle at 18% 20%, rgb(255 255 255 / 70%), transparent 26%),
     radial-gradient(circle at 82% 18%, rgb(168 218 255 / 34%), transparent 30%),
     radial-gradient(circle at 50% 88%, rgb(255 214 153 / 28%), transparent 42%);
   inset: 0;
@@ -527,13 +630,17 @@ onUnmounted(() => {
   filter: saturate(0.74);
 }
 
-.source-card > :not(.source-waves,.source-glow) {
+.source-card > :not(.source-waves, .source-glow) {
   position: relative;
   z-index: 1;
 }
 
 .source-glow {
-  background: radial-gradient(circle, color-mix(in srgb, var(--source-accent) 42%, transparent), transparent 68%);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--source-accent) 42%, transparent),
+    transparent 68%
+  );
   block-size: 11rem;
   border-radius: 999px;
   inline-size: 11rem;
@@ -600,23 +707,23 @@ onUnmounted(() => {
 }
 
 @media (max-width: 56.25rem) {
- .sound-source-grid,
- .sound-source-grid--2,
- .sound-source-grid--3,
- .sound-source-grid--4 {
+  .sound-source-grid,
+  .sound-source-grid--2,
+  .sound-source-grid--3,
+  .sound-source-grid--4 {
     grid-template-columns: repeat(2, minmax(9.375rem, 1fr));
   }
 }
 
 @media (max-width: 35rem) {
- .sound-source-container {
+  .sound-source-container {
     padding-block: 6.5rem 1rem;
   }
 
- .sound-source-grid,
- .sound-source-grid--2,
- .sound-source-grid--3,
- .sound-source-grid--4 {
+  .sound-source-grid,
+  .sound-source-grid--2,
+  .sound-source-grid--3,
+  .sound-source-grid--4 {
     grid-template-columns: 1fr;
   }
 }

@@ -25,18 +25,21 @@ const bigCards: BigCard[] = [
   { id: "tree", label: "Дерево", emoji: "🌳", color: "green-lighten-4" },
   { id: "duck", label: "Утка", emoji: "🦆", color: "cyan-lighten-4" },
   { id: "star", label: "Звезда", emoji: "⭐", color: "amber-lighten-4" },
-  { id: "bear", label: "Мишка", emoji: "🐻", color: "brown-lighten-4" }
+  { id: "bear", label: "Мишка", emoji: "🐻", color: "brown-lighten-4" },
 ];
 
 export function generateBigCardsRound(roundIndex = 1): BigCardsRound {
   const choiceCount = 2 + ((roundIndex - 1) % 3);
   const start = (roundIndex * 2) % bigCards.length;
-  const choices = Array.from({ length: choiceCount }, (_, index) => bigCards[(start + index) % bigCards.length]);
+  const choices = Array.from(
+    { length: choiceCount },
+    (_, index) => bigCards[(start + index) % bigCards.length],
+  );
 
   return {
     roundId: `big-cards:round:${roundIndex}`,
     prompt: "Выбери любую картинку",
-    choices
+    choices,
   };
 }
 

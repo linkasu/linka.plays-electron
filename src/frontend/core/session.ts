@@ -1,15 +1,36 @@
-import { computed, onUnmounted, provide, reactive, readonly, ref, watch, type InjectionKey } from "vue";
+import {
+  computed,
+  onUnmounted,
+  provide,
+  reactive,
+  readonly,
+  ref,
+  watch,
+  type InjectionKey,
+} from "vue";
 import { useGazePointer } from "../composables/useGazePointer";
 import { createGazeMetricsTracker } from "./gaze";
-import { createGameSessionSummary, projectSessionEvent, type SessionTelemetryContext } from "./sessionTelemetry";
+import {
+  createGameSessionSummary,
+  projectSessionEvent,
+  type SessionTelemetryContext,
+} from "./sessionTelemetry";
 import type { SessionSettings } from "./settings";
 import { createDefaultSettings, recommendNextSettings } from "./settings";
 import { recordMetricsEvent, recordMetricsSummary } from "./telemetry";
 
 export type SessionStatus = "idle" | "running" | "paused" | "finished";
 
-export type SessionFinishReason = "max-steps" | "timeout" | "too-many-mistakes" | "manual" | "game-complete" | "game-lost" | "game-draw";
-export type SessionInterruptionReason = "route-leave" | "window-close" | "app-quit" | "update-restart" | "renderer-crash";
+export type SessionFinishReason =
+  | "max-steps"
+  | "timeout"
+  | "too-many-mistakes"
+  | "manual"
+  | "game-complete"
+  | "game-lost"
+  | "game-draw";
+export type SessionInterruptionReason =
+  "route-leave" | "window-close" | "app-quit" | "update-restart" | "renderer-crash";
 
 export type SessionEventType =
   | "session-start"
@@ -60,7 +81,8 @@ export type GameSessionTelemetry = {
   recordEvent: (type: SessionEventType, payload?: Record<string, unknown>) => void;
 };
 
-export const gameSessionTelemetryKey: InjectionKey<GameSessionTelemetry> = Symbol("game-session-telemetry");
+export const gameSessionTelemetryKey: InjectionKey<GameSessionTelemetry> =
+  Symbol("game-session-telemetry");
 
 const activeSessionStatusState = ref<SessionStatus>("idle");
 const activeSessionEpochState = ref(0);
@@ -69,7 +91,16 @@ let activeSessionOwner: symbol | undefined;
 export const activeGameSessionStatus = readonly(activeSessionStatusState);
 export const activeGameSessionEpoch = readonly(activeSessionEpochState);
 
-export function useGameSession(gameId: string, initialSettings: Partial<SessionSettings> = {}, options: { finishOnMaxSteps?: boolean; finishOnMistakes?: boolean; finishOnTimeout?: boolean; telemetryContext?: SessionTelemetryContext } = {}) {
+export function useGameSession(
+  gameId: string,
+  initialSettings: Partial<SessionSettings> = {},
+  options: {
+    finishOnMaxSteps?: boolean;
+    finishOnMistakes?: boolean;
+    finishOnTimeout?: boolean;
+    telemetryContext?: SessionTelemetryContext;
+  } = {},
+) {
   const sessionOwner = Symbol(gameId);
   const settings = createDefaultSettings(initialSettings);
   const { pointer } = useGazePointer();
@@ -89,36 +120,48 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
     mistakes: 0,
     hintsUsed: 0,
     settings,
-    events: []
+    events: [],
   });
   const nowMs = ref(Date.now());
   const maxMistakesBeforeFinish = Math.max(6, settings.maxSteps * 3);
   const timer = window.setInterval(() => {
     nowMs.value = Date.now();
-    if (options.finishOnTimeout !== false && session.status === "running" && activeDurationMs(nowMs.value) >= session.settings.sessionSeconds * 1000) {
+    if (
+      options.finishOnTimeout !== false &&
+      session.status === "running" &&
+      activeDurationMs(nowMs.value) >= session.settings.sessionSeconds * 1000
+    ) {
       finishSession("timeout");
     }
   }, 250);
 
   function activeDurationMs(at = Date.now()) {
     if (!session.startedAt) return 0;
-    const currentPausedMs = session.status === "paused" && session.pausedAt ? at - session.pausedAt : 0;
+    const currentPausedMs =
+      session.status === "paused" && session.pausedAt ? at - session.pausedAt : 0;
     return Math.max(0, at - session.startedAt - session.pausedMs - currentPausedMs);
   }
 
   const durationMs = computed(() => {
-    if (session.status === "finished" && session.finishedAt) return activeDurationMs(session.finishedAt);
+    if (session.status === "finished" && session.finishedAt)
+      return activeDurationMs(session.finishedAt);
     return activeDurationMs(nowMs.value);
   });
 
   const metrics = computed(() => {
     const gaze = gazeTracker.snapshot();
-    const targetCancels = session.events.filter((event) => event.type === "target-cancel" && event.payload?.reason !== "disabled").length;
-    const dwellEvents = session.events.filter((event) => event.type === "target-click" && pointerSource(event.payload) === "tobii");
+    const targetCancels = session.events.filter(
+      (event) => event.type === "target-cancel" && event.payload?.reason !== "disabled",
+    ).length;
+    const dwellEvents = session.events.filter(
+      (event) => event.type === "target-click" && pointerSource(event.payload) === "tobii",
+    );
     const dwellMs = dwellEvents
-     .map((event) => Number(event.payload?.elapsedMs ?? event.payload?.dwellMs))
-     .filter((value) => Number.isFinite(value));
-    const meanDwellMs = dwellMs.length ? dwellMs.reduce((sum, value) => sum + value, 0) / dwellMs.length : undefined;
+      .map((event) => Number(event.payload?.elapsedMs ?? event.payload?.dwellMs))
+      .filter((value) => Number.isFinite(value));
+    const meanDwellMs = dwellMs.length
+      ? dwellMs.reduce((sum, value) => sum + value, 0) / dwellMs.length
+      : undefined;
 
     return {
       sessionId: session.sessionId,
@@ -142,7 +185,8 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
       targetCancels,
       gazeLostCount: gaze.lostGazeEvents,
       gazeRestoredCount: gaze.restoredGazeEvents,
-      difficultyChanges: session.events.filter((event) => event.type === "difficulty-change").length
+      difficultyChanges: session.events.filter((event) => event.type === "difficulty-change")
+        .length,
     };
   });
 
@@ -155,10 +199,15 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
       gameId,
       type,
       at: Date.now(),
-      payload
+      payload,
     };
     session.events.push(event);
-    const projected = projectSessionEvent(event, telemetryContext, pointer.value.source, session.step);
+    const projected = projectSessionEvent(
+      event,
+      telemetryContext,
+      pointer.value.source,
+      session.step,
+    );
     if (projected) recordMetricsEvent(projected);
   }
 
@@ -231,7 +280,11 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
     if (activeSessionOwner === sessionOwner) activeSessionStatusState.value = "finished";
     session.finishedAt = now;
     session.finishReason = reason;
-    recordEvent("session-finish", { reason, durationMs: activeDurationMs(now), pausedMs: session.pausedMs });
+    recordEvent("session-finish", {
+      reason,
+      durationMs: activeDurationMs(now),
+      pausedMs: session.pausedMs,
+    });
     emitSessionSummary();
   }
 
@@ -255,14 +308,16 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
     session.step += 1;
     session.score += 1;
     recordEvent("success", { step: session.step, ...payload });
-    if (options.finishOnMaxSteps !== false && session.step >= session.maxSteps) finishSession("max-steps");
+    if (options.finishOnMaxSteps !== false && session.step >= session.maxSteps)
+      finishSession("max-steps");
   }
 
   function recordMistake(payload: Record<string, unknown> = {}) {
     if (session.status !== "running") return;
     session.mistakes += 1;
     recordEvent("mistake", { step: session.step, ...payload });
-    if (options.finishOnMistakes !== false && session.mistakes >= maxMistakesBeforeFinish) finishSession("too-many-mistakes");
+    if (options.finishOnMistakes !== false && session.mistakes >= maxMistakesBeforeFinish)
+      finishSession("too-many-mistakes");
   }
 
   function recordHint(payload: Record<string, unknown> = {}) {
@@ -272,51 +327,59 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
   }
 
   function emitSessionSummary() {
-    if (!session.startedAt || !session.finishedAt || reportedSummaries.has(session.sessionId)) return;
+    if (!session.startedAt || !session.finishedAt || reportedSummaries.has(session.sessionId))
+      return;
     reportedSummaries.add(session.sessionId);
     const snapshot = metrics.value;
-    recordMetricsSummary(createGameSessionSummary({
-      sessionId: session.sessionId,
-      gameId,
-      startedAt: session.startedAt,
-      endedAt: session.finishedAt,
-      durationMs: snapshot.durationMs,
-      pausedMs: snapshot.pausedMs,
-      mode: telemetryContext.mode,
-      category: telemetryContext.category,
-      finishReason: session.finishReason,
-      interruptionReason: session.interruptionReason,
-      stepsCompleted: snapshot.stepsCompleted,
-      maxSteps: snapshot.maxSteps,
-      successCount: snapshot.successes,
-      mistakeCount: snapshot.mistakes,
-      hintCount: snapshot.hintsUsed,
-      targetCancelCount: snapshot.targetCancels,
-      gazeLostCount: snapshot.gazeLostCount,
-      difficultyChanges: snapshot.difficultyChanges,
-      gazeSampleCount: snapshot.totalGazeSamples,
-      mouseSampleCount: snapshot.mouseSampleCount,
-      validGazeRatio: snapshot.validGazeRatio,
-      meanDwellMs: snapshot.meanDwellMs,
-      configuredDwellMs: session.settings.dwellMs
-    }));
+    recordMetricsSummary(
+      createGameSessionSummary({
+        sessionId: session.sessionId,
+        gameId,
+        startedAt: session.startedAt,
+        endedAt: session.finishedAt,
+        durationMs: snapshot.durationMs,
+        pausedMs: snapshot.pausedMs,
+        mode: telemetryContext.mode,
+        category: telemetryContext.category,
+        finishReason: session.finishReason,
+        interruptionReason: session.interruptionReason,
+        stepsCompleted: snapshot.stepsCompleted,
+        maxSteps: snapshot.maxSteps,
+        successCount: snapshot.successes,
+        mistakeCount: snapshot.mistakes,
+        hintCount: snapshot.hintsUsed,
+        targetCancelCount: snapshot.targetCancels,
+        gazeLostCount: snapshot.gazeLostCount,
+        difficultyChanges: snapshot.difficultyChanges,
+        gazeSampleCount: snapshot.totalGazeSamples,
+        mouseSampleCount: snapshot.mouseSampleCount,
+        validGazeRatio: snapshot.validGazeRatio,
+        meanDwellMs: snapshot.meanDwellMs,
+        configuredDwellMs: session.settings.dwellMs,
+      }),
+    );
   }
 
   startSession();
   document.addEventListener("visibilitychange", handleVisibilityChange);
 
-  watch(pointer, (nextPointer) => {
-    if (session.status !== "running") return;
-    const transition = gazeTracker.record(nextPointer);
-    if (transition === "lost") recordEvent("gaze-lost", { source: nextPointer.source });
-    if (transition === "restored") recordEvent("gaze-restored", { source: nextPointer.source });
-  }, { deep: true });
+  watch(
+    pointer,
+    (nextPointer) => {
+      if (session.status !== "running") return;
+      const transition = gazeTracker.record(nextPointer);
+      if (transition === "lost") recordEvent("gaze-lost", { source: nextPointer.source });
+      if (transition === "restored") recordEvent("gaze-restored", { source: nextPointer.source });
+    },
+    { deep: true },
+  );
 
   provide(gameSessionTelemetryKey, { recordEvent });
 
   onUnmounted(() => {
     document.removeEventListener("visibilitychange", handleVisibilityChange);
-    if (session.status === "running" || session.status === "paused") interruptSession("route-leave");
+    if (session.status === "running" || session.status === "paused")
+      interruptSession("route-leave");
     window.clearInterval(timer);
     if (activeSessionOwner === sessionOwner) {
       activeSessionOwner = undefined;
@@ -338,7 +401,7 @@ export function useGameSession(gameId: string, initialSettings: Partial<SessionS
     interruptSession,
     recordSuccess,
     recordMistake,
-    recordHint
+    recordHint,
   };
 }
 

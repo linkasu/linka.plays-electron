@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { colorCircleColors, generateColorCircleRound, resolveColorCircleSectorIndex } from "./model";
+import {
+  colorCircleColors,
+  generateColorCircleRound,
+  resolveColorCircleSectorIndex,
+} from "./model";
 
 function relativeLuminance(hex: string) {
   const channels = hex.match(/[\da-f]{2}/gi)?.map((channel) => {
@@ -13,7 +17,10 @@ function relativeLuminance(hex: string) {
 function contrastRatio(first: string, second: string) {
   const firstLuminance = relativeLuminance(first);
   const secondLuminance = relativeLuminance(second);
-  return (Math.max(firstLuminance, secondLuminance) + 0.05) / (Math.min(firstLuminance, secondLuminance) + 0.05);
+  return (
+    (Math.max(firstLuminance, secondLuminance) + 0.05) /
+    (Math.min(firstLuminance, secondLuminance) + 0.05)
+  );
 }
 
 describe("generateColorCircleRound", () => {

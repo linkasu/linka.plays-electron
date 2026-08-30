@@ -10,21 +10,42 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { createOneManyDeck, type OneManyAnswer, type OneManyChoice, type OneManyRound } from "./model";
+import {
+  createOneManyDeck,
+  type OneManyAnswer,
+  type OneManyChoice,
+  type OneManyRound,
+} from "./model";
 
 const router = useRouter();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("one-many", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("one-many", {
   maxSteps: 8,
   overrides: { sound: true },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
 const promptAudio = useGamePromptAudio({
   gameId: "one-many",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: ["one-many.prompt.one", "one-many.prompt.many", "one-many.mistake", "one-many.complete"]
+  warmAssetIds: [
+    "one-many.prompt.one",
+    "one-many.prompt.many",
+    "one-many.mistake",
+    "one-many.complete",
+  ],
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
@@ -32,7 +53,7 @@ let deck = createOneManyDeck();
 const { round, resultVisible, nextRound, restart } = useRoundGame<OneManyRound>({
   session,
   startSession,
-  generateRound: (roundIndex) => deck[roundIndex - 1]
+  generateRound: (roundIndex) => deck[roundIndex - 1],
 });
 
 const feedback = ref("Выбери взглядом: один или много.");
@@ -76,11 +97,15 @@ async function choose(choice: OneManyChoice) {
       itemName: round.value.itemName,
       expected: round.value.target,
       actual: choice.id,
-      isCorrect: true
+      isCorrect: true,
     });
     void pianoFeedback.playSuccess();
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(finishedAfterSuccess ? [correctAssetId(), "one-many.complete"] : [correctAssetId()], 80, 170);
+    await promptAudio.playSequenceAndWait(
+      finishedAfterSuccess ? [correctAssetId(), "one-many.complete"] : [correctAssetId()],
+      80,
+      170,
+    );
     if (finishedAfterSuccess) {
       finishSession("game-complete");
       isSpeaking.value = false;
@@ -106,7 +131,7 @@ async function choose(choice: OneManyChoice) {
     itemName: round.value.itemName,
     expected: round.value.target,
     actual: choice.id,
-    isCorrect: false
+    isCorrect: false,
   });
   void pianoFeedback.playMistake();
   await promptAudio.playSequenceAndWait([mistakeAssetId()], 80);
@@ -134,7 +159,18 @@ onUnmounted(() => {
 
 <template>
   <div class="one-many-shell">
-    <GameHud title="Один / много" :step="session.step" :max-steps="session.maxSteps" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :session-seconds="session.settings.sessionSeconds" :paused="session.status === 'paused'" @pause="pauseSession" @resume="resumeSession" />
+    <GameHud
+      title="Один / много"
+      :step="session.step"
+      :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
+      :paused="session.status === 'paused'"
+      @pause="pauseSession"
+      @resume="resumeSession"
+    />
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11" xl="10">
@@ -145,14 +181,33 @@ onUnmounted(() => {
 
             <v-row class="choice-row" dense>
               <v-col v-for="choice in round.choices" :key="choice.id" cols="12" sm="6" md="6">
-                <GameDwellButton :target-id="choiceTargetId(choice.id)" :disabled="session.status !== 'running' || isSpeaking" :dwell-ms="session.settings.dwellMs" :min-height="250" color="surface" @select="choose(choice)">
+                <GameDwellButton
+                  :target-id="choiceTargetId(choice.id)"
+                  :disabled="session.status !== 'running' || isSpeaking"
+                  :dwell-ms="session.settings.dwellMs"
+                  :min-height="250"
+                  color="surface"
+                  @select="choose(choice)"
+                >
                   <template #default>
-                    <div class="choice-side text-overline mb-3">{{ choice.side === "left" ? "Слева" : "Справа" }}</div>
+                    <div class="choice-side text-overline mb-3">
+                      {{ choice.side === "left" ? "Слева" : "Справа" }}
+                    </div>
                     <div class="items" aria-hidden="true">
-                      <GameWordImage v-for="(_item, index) in choice.items" :key="index" class="item-emoji" :word-id="round.itemId" :word="round.itemName" :emoji="choice.emoji" decorative />
+                      <GameWordImage
+                        v-for="(_item, index) in choice.items"
+                        :key="index"
+                        class="item-emoji"
+                        :word-id="round.itemId"
+                        :word="round.itemName"
+                        :emoji="choice.emoji"
+                        decorative
+                      />
                     </div>
                     <div class="text-h3 text-md-h2 font-weight-bold mt-4">{{ choice.title }}</div>
-                    <div class="sr-only">{{ choice.title }}: {{ choice.count }} {{ round.itemName }}</div>
+                    <div class="sr-only">
+                      {{ choice.title }}: {{ choice.count }} {{ round.itemName }}
+                    </div>
                   </template>
                 </GameDwellButton>
               </v-col>
@@ -161,7 +216,17 @@ onUnmounted(() => {
         </v-col>
       </v-row>
     </v-container>
-    <GameResultDialog :model-value="resultVisible" title="Один / много" :score="session.score" :mistakes="session.mistakes" :duration-ms="durationMs" :metrics="metrics" :recommendation="recommendation" @menu="router.push(resolveMenuRoute())" @restart="restartGame" />
+    <GameResultDialog
+      :model-value="resultVisible"
+      title="Один / много"
+      :score="session.score"
+      :mistakes="session.mistakes"
+      :duration-ms="durationMs"
+      :metrics="metrics"
+      :recommendation="recommendation"
+      @menu="router.push(resolveMenuRoute())"
+      @restart="restartGame"
+    />
   </div>
 </template>
 
@@ -212,21 +277,21 @@ onUnmounted(() => {
 }
 
 @media (min-width: 68.75rem) {
- .game-container {
+  .game-container {
     padding-block-start: 7.25rem;
   }
 }
 
 @media (max-height: 40rem) {
- .game-container {
+  .game-container {
     padding-block-start: 5rem;
   }
 
- .choice-row :deep(.dwell-button) {
+  .choice-row :deep(.dwell-button) {
     min-block-size: 13rem !important;
   }
 
- .items {
+  .items {
     min-block-size: 8rem;
   }
 }

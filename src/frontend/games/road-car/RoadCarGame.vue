@@ -8,7 +8,21 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { isCanvasControlBlocked } from "../../core/domGazeTargetCoordinator";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { carSize, createHighwayState, highwayRoad, highwaySegments, laneCenter, laneCount, laneDashPattern, syncHighwayGeometry, updateHighway, type HighwayObstacle, type HighwayState, type Point, type ViewportSize } from "./model";
+import {
+  carSize,
+  createHighwayState,
+  highwayRoad,
+  highwaySegments,
+  laneCenter,
+  laneCount,
+  laneDashPattern,
+  syncHighwayGeometry,
+  updateHighway,
+  type HighwayObstacle,
+  type HighwayState,
+  type Point,
+  type ViewportSize,
+} from "./model";
 
 type RoadSideItem = Point & {
   size: number;
@@ -19,23 +33,48 @@ type RoadSideItem = Point & {
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
-const { session, durationMs, metrics, recommendation, pauseSession, resumeSession, recordSuccess, recordMistake, startSession, finishSession } = useGameSessionFor("road-car", {
+const {
+  session,
+  durationMs,
+  metrics,
+  recommendation,
+  pauseSession,
+  resumeSession,
+  recordSuccess,
+  recordMistake,
+  startSession,
+  finishSession,
+} = useGameSessionFor("road-car", {
   maxSteps: highwaySegments.length,
-  overrides: { preset: "standard", dwellMs: 600, targetScale: 1.25, motionSpeed: 0.9, distractors: "low", hints: "medium" },
+  overrides: {
+    preset: "standard",
+    dwellMs: 600,
+    targetScale: 1.25,
+    motionSpeed: 0.9,
+    distractors: "low",
+    hints: "medium",
+  },
   finishOnMaxSteps: false,
-  finishOnMistakes: false
+  finishOnMistakes: false,
 });
 
-const viewport = computed<ViewportSize>(() => ({ width: Math.max(1, width.value), height: Math.max(1, height.value) }));
-const highwayState = ref<HighwayState>(createHighwayState({ width: window.innerWidth, height: window.innerHeight }));
+const viewport = computed<ViewportSize>(() => ({
+  width: Math.max(1, width.value),
+  height: Math.max(1, height.value),
+}));
+const highwayState = ref<HighwayState>(
+  createHighwayState({ width: window.innerWidth, height: window.innerHeight }),
+);
 const roadsideItems = reactive<RoadSideItem[]>([]);
 const resultVisible = computed(() => session.status === "finished");
 const currentSegment = computed(() => highwaySegments[highwayState.value.segmentIndex]);
 const canvasFontUnit = String.fromCharCode(112, 120);
 const guidanceText = computed(() => {
   if (session.status === "paused") return "Пауза. Машина держит полосу.";
-  if (!pointer.value.valid) return "Можно вести машину взглядом или мышью: смотри на нужную полосу.";
-  if (highwayState.value.hull <= 1) return "Осторожно: машина повреждена. Выбирай свободную полосу заранее.";
+  if (!pointer.value.valid)
+    return "Можно вести машину взглядом или мышью: смотри на нужную полосу.";
+  if (highwayState.value.hull <= 1)
+    return "Осторожно: машина повреждена. Выбирай свободную полосу заранее.";
   return "Выбери полосу, собери жёлтый знак и объезжай встречные машины.";
 });
 
@@ -53,11 +92,13 @@ function createRoadsideItem(index: number): RoadSideItem {
   const road = highwayRoad(viewport.value);
   const leftSide = index % 2 === 0;
   return {
-    x: leftSide ? randomRange(12, Math.max(20, road.left - 28)) : randomRange(Math.min(width.value - 20, road.right + 28), width.value - 12),
+    x: leftSide
+      ? randomRange(12, Math.max(20, road.left - 28))
+      : randomRange(Math.min(width.value - 20, road.right + 28), width.value - 12),
     y: randomRange(0, height.value),
     size: randomRange(16, 34),
     phase: randomRange(0, Math.PI * 2),
-    kind: index % 5 === 0 ? "sign" : "tree"
+    kind: index % 5 === 0 ? "sign" : "tree",
   };
 }
 
@@ -89,14 +130,31 @@ function update(delta: number) {
   if (session.status !== "running") return;
   updateRoadside(delta);
   if (!pointer.value.valid || isCanvasControlBlocked(pointer.value)) return;
-  const result = updateHighway(highwayState.value, pointer.value.x, delta, viewport.value, session.settings.motionSpeed, session.settings.controlOutcomeMode === "strict");
+  const result = updateHighway(
+    highwayState.value,
+    pointer.value.x,
+    delta,
+    viewport.value,
+    session.settings.motionSpeed,
+    session.settings.controlOutcomeMode === "strict",
+  );
   highwayState.value = result.state;
   if (result.event.type === "success") {
-    recordSuccess({ segmentId: highwaySegments[result.event.segmentIndex]?.id, lane: result.event.lane, goalId: result.event.goalId, hull: highwayState.value.hull });
+    recordSuccess({
+      segmentId: highwaySegments[result.event.segmentIndex]?.id,
+      lane: result.event.lane,
+      goalId: result.event.goalId,
+      hull: highwayState.value.hull,
+    });
     if (highwayState.value.mode === "finished") finishSession("game-complete");
   }
   if (result.event.type === "damage" || result.event.type === "crashed") {
-    recordMistake({ segmentId: highwaySegments[result.event.segmentIndex]?.id, lane: result.event.lane, obstacleId: result.event.obstacleId, hull: highwayState.value.hull });
+    recordMistake({
+      segmentId: highwaySegments[result.event.segmentIndex]?.id,
+      lane: result.event.lane,
+      obstacleId: result.event.obstacleId,
+      hull: highwayState.value.hull,
+    });
     if (result.event.type === "crashed") finishSession("game-lost");
   }
 }
@@ -119,7 +177,13 @@ function drawRoadsideItem(ctx: CanvasRenderingContext2D, item: RoadSideItem) {
     ctx.strokeStyle = "rgb(82 96 74 / 46%)";
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.roundRect(-item.size * 0.58, -item.size * 0.34, item.size * 1.16, item.size * 0.68, item.size * 0.12);
+    ctx.roundRect(
+      -item.size * 0.58,
+      -item.size * 0.34,
+      item.size * 1.16,
+      item.size * 0.68,
+      item.size * 0.12,
+    );
     ctx.fill();
     ctx.stroke();
     ctx.strokeStyle = "#7f6d43";
@@ -133,11 +197,27 @@ function drawRoadsideItem(ctx: CanvasRenderingContext2D, item: RoadSideItem) {
 
   ctx.fillStyle = "#6aa05d";
   ctx.beginPath();
-  ctx.ellipse(0, 0, item.size * 0.72, item.size * 0.48, Math.sin(item.phase) * 0.12, 0, Math.PI * 2);
+  ctx.ellipse(
+    0,
+    0,
+    item.size * 0.72,
+    item.size * 0.48,
+    Math.sin(item.phase) * 0.12,
+    0,
+    Math.PI * 2,
+  );
   ctx.fill();
   ctx.fillStyle = "rgb(57 102 48 / 65%)";
   ctx.beginPath();
-  ctx.ellipse(item.size * 0.08, -item.size * 0.04, item.size * 0.42, item.size * 0.28, -0.25, 0, Math.PI * 2);
+  ctx.ellipse(
+    item.size * 0.08,
+    -item.size * 0.04,
+    item.size * 0.42,
+    item.size * 0.28,
+    -0.25,
+    0,
+    Math.PI * 2,
+  );
   ctx.fill();
   ctx.restore();
 }
@@ -147,7 +227,13 @@ function drawRoad(ctx: CanvasRenderingContext2D) {
   ctx.save();
   ctx.fillStyle = "#3c4651";
   ctx.beginPath();
-  ctx.roundRect(road.left, road.top, road.right - road.left, road.bottom - road.top, Math.min(34, road.laneWidth * 0.18));
+  ctx.roundRect(
+    road.left,
+    road.top,
+    road.right - road.left,
+    road.bottom - road.top,
+    Math.min(34, road.laneWidth * 0.18),
+  );
   ctx.fill();
 
   ctx.fillStyle = "rgb(255 255 255 / 10%)";
@@ -224,7 +310,13 @@ function drawObstacle(ctx: CanvasRenderingContext2D, obstacle: HighwayObstacle) 
   ctx.stroke();
   ctx.fillStyle = "rgb(210 238 255 / 82%)";
   ctx.beginPath();
-  ctx.roundRect(-widthValue * 0.32, -heightValue * 0.28, widthValue * 0.64, heightValue * 0.22, size * 0.04);
+  ctx.roundRect(
+    -widthValue * 0.32,
+    -heightValue * 0.28,
+    widthValue * 0.64,
+    heightValue * 0.22,
+    size * 0.04,
+  );
   ctx.fill();
   ctx.fillStyle = "rgb(255 244 180 / 86%)";
   ctx.beginPath();
@@ -285,16 +377,30 @@ function drawStatus(ctx: CanvasRenderingContext2D) {
   ctx.strokeStyle = "rgb(255 255 255 / 24%)";
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.roundRect(x - fontSize * 0.8, y - fontSize * 1.55, fontSize * 17.5, fontSize * 3.6, fontSize * 0.65);
+  ctx.roundRect(
+    x - fontSize * 0.8,
+    y - fontSize * 1.55,
+    fontSize * 17.5,
+    fontSize * 3.6,
+    fontSize * 0.65,
+  );
   ctx.fill();
   ctx.stroke();
   ctx.fillStyle = "#f6fbff";
   ctx.font = `800 ${fontSize}${canvasFontUnit} Roboto, sans-serif`;
   ctx.textAlign = "left";
   ctx.textBaseline = "middle";
-  ctx.fillText(`Шоссе ${highwayState.value.segmentIndex + 1}/${highwaySegments.length}: ${currentSegment.value.title}`, x, y - fontSize * 0.45);
+  ctx.fillText(
+    `Шоссе ${highwayState.value.segmentIndex + 1}/${highwaySegments.length}: ${currentSegment.value.title}`,
+    x,
+    y - fontSize * 0.45,
+  );
   ctx.fillStyle = highwayState.value.hull <= 1 ? "#ffd2c5" : "#dfffe8";
-  ctx.fillText(`Прочность: ${highwayState.value.hull}/${highwayState.value.maxHull}`, x, y + fontSize * 0.85);
+  ctx.fillText(
+    `Прочность: ${highwayState.value.hull}/${highwayState.value.maxHull}`,
+    x,
+    y + fontSize * 0.85,
+  );
   ctx.restore();
 }
 
@@ -321,11 +427,23 @@ useGameLoop({ context, update, draw });
 
 <template>
   <div class="road-car-shell">
-    <canvas ref="canvasRef" class="road-car-canvas" aria-label="Игра Машинка на дороге: 4-полосное шоссе" />
+    <canvas
+      ref="canvasRef"
+      class="road-car-canvas"
+      aria-label="Игра Машинка на дороге: 4-полосное шоссе"
+    />
 
-    <v-card class="road-car-hint px-4 py-3" color="surface" rounded="xl" variant="flat" data-canvas-overlay>
+    <v-card
+      class="road-car-hint px-4 py-3"
+      color="surface"
+      rounded="xl"
+      variant="flat"
+      data-canvas-overlay
+    >
       <div class="text-body-2 font-weight-medium">{{ guidanceText }}</div>
-      <div class="text-caption text-medium-emphasis">Четыре полосы. Жёлтый знак собери, встречные машины объезжай.</div>
+      <div class="text-caption text-medium-emphasis">
+        Четыре полосы. Жёлтый знак собери, встречные машины объезжай.
+      </div>
     </v-card>
 
     <GameHud
@@ -381,7 +499,7 @@ useGameLoop({ context, update, draw });
 }
 
 @media (max-width: 45rem), (max-height: 40rem) {
- .road-car-hint {
+  .road-car-hint {
     display: none;
   }
 }

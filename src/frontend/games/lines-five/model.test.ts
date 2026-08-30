@@ -13,7 +13,7 @@ import {
   placeBall,
   reachableDestinationIndexes,
   suggestedMoveIndexes,
-  type LinesFiveState
+  type LinesFiveState,
 } from "./model";
 
 describe("lines-five model", () => {
@@ -33,8 +33,16 @@ describe("lines-five model", () => {
   it("places a ball and clears a line of five", () => {
     const result = placeBall(createInitialLinesFiveState().board, cellIndex(0, 4), "sky");
 
-    expect(result?.completedLines).toEqual([[cellIndex(0, 0), cellIndex(0, 1), cellIndex(0, 2), cellIndex(0, 3), cellIndex(0, 4)]]);
-    expect(result?.cleared).toEqual([cellIndex(0, 0), cellIndex(0, 1), cellIndex(0, 2), cellIndex(0, 3), cellIndex(0, 4)]);
+    expect(result?.completedLines).toEqual([
+      [cellIndex(0, 0), cellIndex(0, 1), cellIndex(0, 2), cellIndex(0, 3), cellIndex(0, 4)],
+    ]);
+    expect(result?.cleared).toEqual([
+      cellIndex(0, 0),
+      cellIndex(0, 1),
+      cellIndex(0, 2),
+      cellIndex(0, 3),
+      cellIndex(0, 4),
+    ]);
     expect(result?.board[cellIndex(0, 0)]).toBe("");
     expect(result?.board[cellIndex(0, 4)]).toBe("");
   });
@@ -55,14 +63,27 @@ describe("lines-five model", () => {
     board[cellIndex(0, 2)] = "sky";
     board[cellIndex(0, 3)] = "sky";
     board[cellIndex(5, 5)] = "sky";
-    let state: LinesFiveState = { board, nextBalls: ["sun", "leaf", "berry"], score: 0, moveCount: 0, seed: 1, status: "playing" };
+    let state: LinesFiveState = {
+      board,
+      nextBalls: ["sun", "leaf", "berry"],
+      score: 0,
+      moveCount: 0,
+      seed: 1,
+      status: "playing",
+    };
     state = chooseLinesFiveCell(state, cellIndex(5, 5)).state;
     const result = chooseLinesFiveCell(state, cellIndex(0, 4));
 
     expect(result.event).toBe("cleared");
     expect(result.movedFrom).toBe(cellIndex(5, 5));
     expect(result.movedTo).toBe(cellIndex(0, 4));
-    expect(result.cleared).toEqual([cellIndex(0, 0), cellIndex(0, 1), cellIndex(0, 2), cellIndex(0, 3), cellIndex(0, 4)]);
+    expect(result.cleared).toEqual([
+      cellIndex(0, 0),
+      cellIndex(0, 1),
+      cellIndex(0, 2),
+      cellIndex(0, 3),
+      cellIndex(0, 4),
+    ]);
     expect(result.state.score).toBe(5);
     expect(result.state.board[cellIndex(0, 4)]).toBe("");
   });
@@ -74,7 +95,15 @@ describe("lines-five model", () => {
     board[cellIndex(1, 0)] = "sun";
     board[cellIndex(1, 2)] = "sun";
     board[cellIndex(2, 1)] = "sun";
-    const state: LinesFiveState = { board, selectedIndex: cellIndex(1, 1), nextBalls: ["sky", "sun", "leaf"], score: 0, moveCount: 0, seed: 1, status: "playing" };
+    const state: LinesFiveState = {
+      board,
+      selectedIndex: cellIndex(1, 1),
+      nextBalls: ["sky", "sun", "leaf"],
+      score: 0,
+      moveCount: 0,
+      seed: 1,
+      status: "playing",
+    };
 
     const result = chooseLinesFiveCell(state, cellIndex(4, 4));
 
@@ -91,7 +120,12 @@ describe("lines-five model", () => {
     expect(result.event).toBe("moved");
     expect(result.spawned).toHaveLength(3);
     expect(result.state.moveCount).toBe(1);
-    expect(countColors(result.state.board).sky + countColors(result.state.board).sun + countColors(result.state.board).leaf + countColors(result.state.board).berry).toBe(10);
+    expect(
+      countColors(result.state.board).sky +
+        countColors(result.state.board).sun +
+        countColors(result.state.board).leaf +
+        countColors(result.state.board).berry,
+    ).toBe(10);
   });
 
   it("detects reachable destinations and board-full loss", () => {

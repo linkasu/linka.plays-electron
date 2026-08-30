@@ -31,8 +31,12 @@ export function sampleItems<T>(items: T[], count: number, exclude: T[] = [], ran
   return result;
 }
 
-export function createNonRepeatingRandomIndexGenerator(size: number, random = Math.random): NonRepeatingRandomIndexGenerator {
-  if (!Number.isInteger(size) || size < 0) throw new Error("Generator size must be a non-negative integer.");
+export function createNonRepeatingRandomIndexGenerator(
+  size: number,
+  random = Math.random,
+): NonRepeatingRandomIndexGenerator {
+  if (!Number.isInteger(size) || size < 0)
+    throw new Error("Generator size must be a non-negative integer.");
 
   let pool: number[] = [];
   let previous: number | undefined;
