@@ -368,6 +368,7 @@ onUnmounted(() => {
                 :min-height="spot.size * session.settings.targetScale"
                 :style="spotStyle(spot)"
                 color="transparent"
+                shape-selector=".cover-shape, .bush-blob, .hidden-character"
                 @select="chooseSpot(spot)"
               >
                 <template #default>

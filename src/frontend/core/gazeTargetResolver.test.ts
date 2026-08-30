@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveGazeTarget, type GazeTargetCandidate } from "./gazeTargetResolver";
+import { resolveGazeTarget, unionRect, type GazeTargetCandidate } from "./gazeTargetResolver";
 
 const targets: GazeTargetCandidate[] = [
   {
@@ -53,5 +53,28 @@ describe("resolveGazeTarget", () => {
 
   it("returns no target outside every padded area", () => {
     expect(resolveGazeTarget(targets, { x: 300, y: 50 })).toBeUndefined();
+  });
+});
+
+describe("unionRect", () => {
+  it("covers parts drawn outside the container box", () => {
+    // Так устроен куст в who-hiding: контейнер 100..200, а крона и зверёк
+    // подняты выше него. Зона взгляда должна накрывать нарисованное целиком.
+    const container = { left: 0, top: 100, right: 100, bottom: 200 };
+    const crown = { left: 5, top: 40, right: 95, bottom: 150 };
+
+    expect(unionRect([container, crown])).toEqual({ left: 0, top: 40, right: 100, bottom: 200 });
+  });
+
+  it("ignores parts with no area so hidden decorations do not stretch the zone", () => {
+    const shape = { left: 10, top: 10, right: 60, bottom: 60 };
+    const collapsed = { left: 0, top: 0, right: 0, bottom: 0 };
+
+    expect(unionRect([shape, collapsed])).toEqual(shape);
+  });
+
+  it("returns nothing when there is nothing drawn", () => {
+    expect(unionRect([])).toBeUndefined();
+    expect(unionRect([{ left: 5, top: 5, right: 5, bottom: 5 }])).toBeUndefined();
   });
 });

@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
 
+import type { GazeTargetSnapshotEntry } from "./core/domGazeTargetCoordinator";
+
 declare global {
   type TobiiStatusState =
     | "unsupported"
@@ -331,6 +333,11 @@ declare global {
         timeLimitMs?: number;
       }) => Promise<ChessMiniAiResult>;
     };
+    /**
+     * Снимок зон взгляда для приёмки. Есть только в dev-сборке или когда в
+     * адресе стоит `?linka-audit`.
+     */
+    linkaGazeTargets?: () => GazeTargetSnapshotEntry[];
     linkaUpdater?: {
       getAppVersion: () => Promise<AppVersionInfo>;
       getState: () => Promise<UpdaterState>;

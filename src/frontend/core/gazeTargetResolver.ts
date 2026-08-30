@@ -16,6 +16,25 @@ export type GazeTargetCandidate = {
 
 export type GazeTargetPoint = { x: number; y: number };
 
+/**
+ * Прямоугольник, покрывающий все переданные части фигуры.
+ *
+ * Зона взгляда по умолчанию считается по боксу контейнера, а рисунок часто
+ * выходит за него: в who-hiding куст и зверёк поднимаются на 92px выше бокса,
+ * и ребёнок смотрит туда, где попадание не засчитывается. Здесь собирается
+ * рамка по тому, что действительно нарисовано.
+ */
+export function unionRect(rects: GazeTargetRect[]): GazeTargetRect | undefined {
+  const usable = rects.filter((rect) => rect.right > rect.left && rect.bottom > rect.top);
+  if (usable.length === 0) return undefined;
+  return {
+    left: Math.min(...usable.map((rect) => rect.left)),
+    top: Math.min(...usable.map((rect) => rect.top)),
+    right: Math.max(...usable.map((rect) => rect.right)),
+    bottom: Math.max(...usable.map((rect) => rect.bottom))
+  };
+}
+
 function containsPoint(rect: GazeTargetRect, point: GazeTargetPoint, padding = 0) {
   return (
     point.x >= rect.left - padding &&
