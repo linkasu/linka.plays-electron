@@ -1,5 +1,9 @@
 import { readonly, ref, type Ref } from "vue";
-import { resolveGazeTarget, type GazeTargetCandidate, type GazeTargetRect } from "./gazeTargetResolver";
+import {
+  resolveGazeTarget,
+  type GazeTargetCandidate,
+  type GazeTargetRect,
+} from "./gazeTargetResolver";
 
 export type DomGazeTargetRegistration = {
   id: string;
@@ -102,7 +106,7 @@ export function gazeTargetSnapshot(): GazeTargetSnapshotEntry[] {
       visible: isVisible(element, box),
       hitPadding: Math.max(0, registration.hitPadding()),
       priority: registration.priority(),
-      element
+      element,
     });
   }
   return snapshot;
