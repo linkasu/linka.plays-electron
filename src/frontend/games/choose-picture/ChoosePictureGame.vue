@@ -113,6 +113,7 @@ function restart() {
 
 onMounted(() => {
   promptAudio.warm();
+  promptAudio.play("choose-picture.intro", 450);
 });
 
 onUnmounted(() => {

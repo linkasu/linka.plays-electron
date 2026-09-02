@@ -287,6 +287,7 @@ watch(
 
 onMounted(() => {
   promptAudio.warm();
+  promptAudio.play("shape-dance.prompt", 450);
   warmSoftPiano(session.settings.sound, [55, 60, 63, 64, 67, 72]);
   danceFeedback.warm(session.settings.sound);
 });

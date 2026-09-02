@@ -243,6 +243,7 @@ function startGame(nextMode: WordCategoriesMode) {
 onMounted(() => {
   wordCategoriesFeedback.warm(session.settings.sound);
   promptAudio.warm();
+  promptAudio.play("word-categories.intro", 450);
 });
 
 onUnmounted(() => {

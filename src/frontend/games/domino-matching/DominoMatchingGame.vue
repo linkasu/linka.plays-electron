@@ -247,6 +247,7 @@ function restart() {
 
 onMounted(() => {
   promptAudio.warm();
+  promptAudio.play("domino-matching.prompt", 450);
 });
 
 onUnmounted(() => {

@@ -223,6 +223,7 @@ function cellClasses(row: number, column: number) {
 
 onMounted(() => {
   promptAudio.warm();
+  promptAudio.play("sokoban-large.prompt", 450);
 });
 
 onUnmounted(() => {
