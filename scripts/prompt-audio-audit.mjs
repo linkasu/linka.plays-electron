@@ -142,6 +142,13 @@ async function main() {
   await client.send("Runtime.enable");
   // Без переднего плана Chromium душит таймеры, и звук просто не успевает стартовать.
   await client.send("Page.bringToFront");
+  // Page.bringToFront не делает окно сфокусированным с точки зрения страницы:
+  // document.hasFocus() остаётся false, visibilityState — hidden, и игровая
+  // сессия встаёт на паузу. А useGameTimers при паузе таймеры не планирует,
+  // поэтому игры, которые говорят через игровой таймер, выглядят немыми.
+  // Именно так проверка чуть не записала «Прятки» в сломанные.
+  await client.send("Emulation.setFocusEmulationEnabled", { enabled: true });
+  await client.send("Page.setWebLifecycleState", { state: "active" });
 
   // Начинаем с чистой загрузки: проба ставится один раз на документ, и в уже
   // открытой странице остаётся прошлая её версия. Именно на этом первый прогон
