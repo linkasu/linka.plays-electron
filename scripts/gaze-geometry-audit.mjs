@@ -218,6 +218,11 @@ async function main() {
   await client.send("Runtime.enable");
   // Без переднего плана Chromium душит rAF, и координатор взгляда не обновляет зоны.
   await client.send("Page.bringToFront");
+  // И этого мало: страница всё равно считает себя скрытой и несфокусированной,
+  // сессия встаёт на паузу, часть целей выключается. Проверка речи на этом уже
+  // один раз объявила исправную игру сломанной — см. prompt-audio-audit.mjs.
+  await client.send("Emulation.setFocusEmulationEnabled", { enabled: true });
+  await client.send("Page.setWebLifecycleState", { state: "active" });
 
   // Начинаем с чистой загрузки: под dev-сервером горячая замена модулей оставляет
   // хук на прежнем экземпляре координатора, и снимок приходит пустым.
