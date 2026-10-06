@@ -9,9 +9,9 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { wordImageSrc } from "../../core/wordImage";
+import { gameArtSrc } from "../../core/gameArt";
 import { findAnimalFeedback } from "./audio";
-import { createFindAnimalRoundGenerator, type FindAnimalChoice } from "./model";
+import { createFindAnimalRoundGenerator, findAnimalArtId, type FindAnimalChoice } from "./model";
 
 const router = useRouter();
 const {
@@ -235,7 +235,7 @@ onUnmounted(() => {
                     'animal-image',
                     { 'animal-emoji--mistake': choice.id === lastMistakeId },
                   ]"
-                  :src="wordImageSrc(choice.id)"
+                  :src="gameArtSrc(findAnimalArtId(choice.id))"
                   :alt="choice.word"
                   draggable="false"
                   @error="disableRoundImages"

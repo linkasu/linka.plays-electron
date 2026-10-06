@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import GazePointerOverlay from "../../components/game/GazePointerOverlay.vue";
@@ -244,7 +245,12 @@ onUnmounted(() => {
                 {{ round.mode === "face" ? "Смотри на лицо" : "Смотри на ситуацию" }}
               </div>
               <div class="cue-emoji emoji-glyph text-center mb-3" aria-hidden="true">
-                {{ round.cueEmoji }}
+                <GameWordImage
+                  :art-id="round.cueArtId"
+                  :word="round.target.label"
+                  :emoji="round.cueEmoji"
+                  decorative
+                />
               </div>
               <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">
                 {{ round.prompt }}
@@ -279,7 +285,12 @@ onUnmounted(() => {
                         ]"
                       >
                         <div class="choice-emoji emoji-glyph" aria-hidden="true">
-                          {{ choice.emoji }}
+                          <GameWordImage
+                            :art-id="choice.artId"
+                            :word="choice.label"
+                            :emoji="choice.emoji"
+                            decorative
+                          />
                         </div>
                         <div class="sr-only">{{ choice.label }}</div>
                       </div>
@@ -349,6 +360,20 @@ onUnmounted(() => {
 .choice-emoji {
   font-size: clamp(4.5rem, min(11vw, 16vh), 8.25rem);
   line-height: 1;
+}
+
+/* A drawn face fills its 1em box edge to edge, an emoji glyph overflows it:
+   at the same font size the picture read noticeably smaller than the emoji. */
+.choice-emoji :deep(.game-word-image__asset) {
+  block-size: 1.35em;
+  inline-size: 1.35em;
+}
+
+/* The cue sits above the question; a full 1.35em pushed the choices off a
+   1366×768 screen. */
+.cue-emoji :deep(.game-word-image__asset) {
+  block-size: 1.1em;
+  inline-size: 1.1em;
 }
 
 .success-choice {

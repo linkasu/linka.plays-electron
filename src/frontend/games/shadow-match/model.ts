@@ -22,46 +22,34 @@ export type ShadowMatchRound = {
   correctIndex: number;
 };
 
-function shadowChoices(id: string): ShadowMatchChoice[] {
-  const basePath = `./images/shadow-match/${id}-shadow`;
-  return [
-    { id: `${id}-correct`, imageSrc: `${basePath}-correct.png`, isCorrect: true },
-    { id: `${id}-3`, imageSrc: `${basePath}-3.png`, isCorrect: false },
-    { id: `${id}-4`, imageSrc: `${basePath}-4.png`, isCorrect: false },
-    { id: `${id}-5`, imageSrc: `${basePath}-5.png`, isCorrect: false },
-  ];
-}
+type ShadowMatchSource = { id: string; label: string; hint: string };
 
-export const shadowMatchItems: ShadowMatchItem[] = [
-  {
-    id: "kitten",
-    label: "котёнок",
-    imageSrc: "./images/shadow-match/kitten.png",
-    hint: "сравни ушки, лапки и хвост",
-    shadows: shadowChoices("kitten"),
-  },
-  {
-    id: "house",
-    label: "дом",
-    imageSrc: "./images/shadow-match/house.png",
-    hint: "сравни крышу, окна и трубу",
-    shadows: shadowChoices("house"),
-  },
-  {
-    id: "dog",
-    label: "пёс",
-    imageSrc: "./images/shadow-match/dog.png",
-    hint: "сравни ушки, лапки и хвост",
-    shadows: shadowChoices("dog"),
-  },
-  {
-    id: "butterfly",
-    label: "бабочка",
-    imageSrc: "./images/shadow-match/butterfly.png",
-    hint: "сравни форму крыльев и усики",
-    shadows: shadowChoices("butterfly"),
-  },
+// Testers: «ПЕРЕРИСОВАТЬ!». The new set draws one exact shadow per object, so
+// the wrong choices are the shadows of the other objects: the child compares
+// outlines, not three near-identical silhouettes of the same thing.
+const sources: ShadowMatchSource[] = [
+  { id: "kettle", label: "чайник", hint: "сравни носик и ручку" },
+  { id: "umbrella", label: "зонтик", hint: "сравни купол и ручку" },
+  { id: "cat", label: "кошка", hint: "сравни ушки, лапки и хвост" },
+  { id: "car", label: "машинка", hint: "сравни колёса и крышу" },
+  { id: "fir-tree", label: "ёлка", hint: "сравни ветки и ствол" },
+  { id: "fish", label: "рыбка", hint: "сравни хвост и плавники" },
+  { id: "airplane", label: "самолёт", hint: "сравни крылья и хвост" },
+  { id: "mushroom", label: "гриб", hint: "сравни шляпку и ножку" },
 ];
+
+const imageSrc = (id: string) => `./images/shadow-match/${id}.png`;
+const shadowSrc = (id: string) => `./images/shadow-match/${id}-shadow.png`;
+
+export const shadowMatchItems: ShadowMatchItem[] = sources.map((source) => ({
+  ...source,
+  imageSrc: imageSrc(source.id),
+  shadows: sources.map((other) => ({
+    id: other.id === source.id ? `${source.id}-correct` : `${source.id}-other-${other.id}`,
+    imageSrc: shadowSrc(other.id),
+    isCorrect: other.id === source.id,
+  })),
+}));
 
 function choiceCountForSettings(settings: SessionSettings) {
   return settings.preset === "gentle" ? 3 : 4;
