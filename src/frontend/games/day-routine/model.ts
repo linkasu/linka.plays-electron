@@ -32,11 +32,11 @@ export type DayRoutineBoard = {
 export const dayRoutineAudioCues = {
   prompt: {
     id: "day-routine.prompt",
-    text: "Начинаем с утра. Выбери картинку, которая бывает утром.",
+    text: "Собираем день по порядку.",
   },
   correct: {
     id: "day-routine.correct",
-    text: "Верно. Продолжаем собирать день.",
+    text: "Верно.",
   },
   mistake: {
     id: "day-routine.mistake",
@@ -147,6 +147,15 @@ export const dayRoutineItems: DayRoutineItem[] = [
 
 export function dayRoutineQuestion(period: DayRoutinePeriod) {
   return `Что бывает ${period.questionForm}?`;
+}
+
+/**
+ * The question is spoken, not only written: testers — «сейчас говорит
+ * "продолжаем собирать день", а текстом пишет "утро, день, вечер". дети не
+ * читают». Every prompt, success and mistake ends with the current question.
+ */
+export function dayRoutineQuestionCueId(period: DayRoutinePeriod) {
+  return `day-routine.question.${period.id}`;
 }
 
 export function createDayRoutineBoard(maxSteps = 8, random = Math.random): DayRoutineBoard {
