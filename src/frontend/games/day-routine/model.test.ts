@@ -6,6 +6,7 @@ import {
   dayRoutineItems,
   dayRoutinePeriods,
   dayRoutineQuestion,
+  dayRoutineQuestionCueId,
   findDayRoutinePeriod,
 } from "./model";
 
@@ -80,6 +81,9 @@ describe("createDayRoutineBoard", () => {
     ]);
     for (const cue of Object.values(dayRoutineAudioCues))
       expect(assetTextById.get(cue.id)).toBe(cue.text);
+
+    for (const period of dayRoutinePeriods)
+      expect(assetTextById.get(dayRoutineQuestionCueId(period))).toBe(dayRoutineQuestion(period));
   });
 
   it("has enough unique vocabulary cards for the configured session", () => {
