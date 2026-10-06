@@ -3,25 +3,54 @@ import {
   sampleItems,
   shuffleItems,
 } from "../../core/random";
-import { getWordsByCategory, type WordItem } from "../../data/wordBank";
+import type { WordItem } from "../../data/wordBank";
 
 export type EatOrNotEatAnswer = "food" | "thing";
+
+export type EatOrNotEatItem = WordItem & {
+  /** Picture drawn for this game, see core/gameArt.ts. */
+  artId: string;
+};
 
 export type EatOrNotEatRound = {
   roundId: string;
   prompt: string;
-  item: WordItem;
+  item: EatOrNotEatItem;
   correctAnswer: EatOrNotEatAnswer;
 };
 
-const itemsByAnswer: Record<EatOrNotEatAnswer, WordItem[]> = {
-  food: getWordsByCategory("food"),
-  thing: getWordsByCategory("thing"),
+// Testers: «перерисовать картинки». The game uses the drawn set only, so the
+// pictures in a session share one style. The prompt is spoken without the
+// item name, so no new recordings are needed.
+const item = (
+  id: string,
+  word: string,
+  emoji: string,
+  category: "food" | "thing",
+): EatOrNotEatItem => ({ id, word, emoji, category, artId: `eat-or-not-eat/${id}` });
+
+export const itemsByAnswer: Record<EatOrNotEatAnswer, EatOrNotEatItem[]> = {
+  food: [
+    item("apple", "яблоко", "🍎", "food"),
+    item("banana", "банан", "🍌", "food"),
+    item("bread", "хлеб", "🍞", "food"),
+    item("carrot", "морковь", "🥕", "food"),
+    item("cheese", "сыр", "🧀", "food"),
+    item("fish", "рыба", "🐟", "food"),
+  ],
+  thing: [
+    item("toy-car", "машинка", "🚗", "thing"),
+    item("sock", "носок", "🧦", "thing"),
+    item("soap", "мыло", "🧼", "thing"),
+    item("block", "кубик", "🧊", "thing"),
+    item("leaf", "лист", "🍃", "thing"),
+    item("crayon", "мелок", "🖍️", "thing"),
+  ],
 };
 
 function buildEatOrNotEatRound(
   roundIndex: number,
-  item: WordItem,
+  item: EatOrNotEatItem,
   correctAnswer: EatOrNotEatAnswer,
 ): EatOrNotEatRound {
   return {

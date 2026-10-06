@@ -68,10 +68,27 @@ const answers: Array<{
   title: string;
   helper: string;
   emoji: string;
+  artId: string;
   color: string;
 }> = [
-  { id: "food", title: "Еда", helper: "Можно есть", emoji: "🍎", color: "green-lighten-4" },
-  { id: "thing", title: "Не еда", helper: "Нельзя есть", emoji: "🧸", color: "blue-lighten-4" },
+  // Testers: «заменить значок несъедобное». A plate with a spoon, and the same
+  // plate crossed out, instead of an apple and a teddy bear.
+  {
+    id: "food",
+    title: "Еда",
+    helper: "Можно есть",
+    emoji: "🍎",
+    artId: "eat-or-not-eat/icon-edible",
+    color: "green-lighten-4",
+  },
+  {
+    id: "thing",
+    title: "Не еда",
+    helper: "Нельзя есть",
+    emoji: "🧸",
+    artId: "eat-or-not-eat/icon-not-edible",
+    color: "blue-lighten-4",
+  },
 ];
 
 function answerTargetId(value: EatOrNotEatAnswer) {
@@ -170,7 +187,7 @@ onUnmounted(() => {
             <div class="item-display mb-8">
               <GameWordImage
                 class="item-emoji"
-                :word-id="round.item.id"
+                :art-id="round.item.artId"
                 :word="round.item.word"
                 :emoji="round.item.emoji"
               />
@@ -188,7 +205,13 @@ onUnmounted(() => {
                   @select="answer(option.id)"
                 >
                   <template #default>
-                    <div class="choice-emoji emoji-glyph">{{ option.emoji }}</div>
+                    <GameWordImage
+                      class="choice-emoji"
+                      :art-id="option.artId"
+                      :word="option.title"
+                      :emoji="option.emoji"
+                      decorative
+                    />
                     <div class="text-h3 font-weight-bold">{{ option.title }}</div>
                     <div class="text-h6 mt-2">{{ option.helper }}</div>
                   </template>
