@@ -1,0 +1,6 @@
+Source: Wikimedia Commons, File:Synthetic bell sound.ogg
+URL: https://commons.wikimedia.org/wiki/File:Synthetic_bell_sound.ogg
+License: CC0 1.0 Universal Public Domain Dedication
+Author: Achim55
+Local file: /audio/sfx/bells/soft-bell.ogg
+Processing: trimmed to 1.8 seconds, volume reduced, fade-out added for quiet therapeutic feedback.

@@ -1,0 +1,795 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LINKa plays — что можно посмотреть</title>
+<style>
+  :root {
+    color-scheme: light;
+    --ink: #23201a;
+    --ink-soft: #6d655a;
+    --ground: #f3ece1;
+    --surface: #fdfaf4;
+    --line: #ded3c2;
+    --accent: #6f5f9c;
+    --green: #4b6a58;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    margin: 0;
+  }
+  a { color: var(--accent); }
+
+  .wrap { margin: 0 auto; max-width: 68rem; padding: 2.5rem 1.5rem 5rem; }
+  h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); letter-spacing: -0.02em; margin: 0 0 0.75rem; }
+  .lede { color: var(--ink-soft); line-height: 1.5; margin: 0 0 1.25rem; max-width: 46rem; }
+  .note {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--green);
+    border-radius: 0.25rem 0.9rem 0.9rem 0.25rem;
+    line-height: 1.5;
+    margin: 0 0 2.5rem;
+    padding: 1rem 1.25rem;
+  }
+  .note b { display: block; margin-bottom: 0.35rem; }
+  .shortcuts { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0 0 2.5rem; }
+  .shortcuts a {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.45rem 1rem;
+    text-decoration: none;
+  }
+  .category { margin-bottom: 2.25rem; }
+  .category h2 { align-items: baseline; display: flex; font-size: 1.15rem; gap: 0.6rem; margin: 0 0 0.75rem; }
+  .count { color: var(--ink-soft); font-size: 0.85rem; font-weight: 400; }
+  .games { display: grid; gap: 0.5rem; grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr)); list-style: none; margin: 0; padding: 0; }
+  .game {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 0.75rem;
+    display: grid;
+    gap: 0.15rem;
+    padding: 0.75rem 1rem;
+  }
+  .game-open { font-size: 1.02rem; font-weight: 600; text-decoration: none; }
+  .game-meta { color: var(--ink-soft); font-size: 0.78rem; }
+  .game-raw { color: var(--ink-soft); font-size: 0.78rem; justify-self: start; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>LINKa plays — что можно посмотреть</h1>
+  <p class="lede">136 игр. Ссылка открывает игру сразу, без сборки и без айтрекера — управление мышью.</p>
+
+  <div class="note">
+    <b>Чего в браузере нет</b>
+    Айтрекер, телеметрия и автообновление. Шахматы не запускаются: им нужен нативный движок,
+    игра пишет об этом на экране. Звук включается после первого нажатия — браузер не даёт
+    заговорить раньше.
+  </div>
+
+  <nav class="shortcuts">
+    <a href="play.html#/">Стартовый экран</a>
+    <a href="play.html#/menu/specialist">Режим специалиста</a>
+    <a href="play.html#/menu/self">Самостоятельный режим</a>
+    <a href="play.html#/gaze-debug">Отладка взгляда</a>
+  </nav>
+
+  
+      <section class="category">
+        <h2>Основы взгляда <span class="count">35</span></h2>
+        <ul class="games">
+        <li class="game">
+          <a class="game-open" href="play.html#/games/aquarium">Аквариум</a>
+          <span class="game-meta">aquarium · цель от 180px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/aquarium">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/balloons">Шарики</a>
+          <span class="game-meta">balloons · цель от 188px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/balloons">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/bells">Колокольчики</a>
+          <span class="game-meta">bells · цель от 190px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/bells">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/breathing-flower">Дышащий цветок</a>
+          <span class="game-meta">breathing-flower · цель от 220px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/breathing-flower">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/wake-owl">Разбуди сову</a>
+          <span class="game-meta">wake-owl · цель от 240px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/wake-owl">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/clouds">Облака</a>
+          <span class="game-meta">clouds · цель от 190px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/clouds">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/leaves-wind">Подмети двор</a>
+          <span class="game-meta">leaves-wind · цель от 180px</span>
+          <a class="game-raw" href="index.html#/games/leaves-wind">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/kite">Воздушный змей</a>
+          <span class="game-meta">kite · цель от 190px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/kite">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/firefly-meadow">Светлячковая поляна</a>
+          <span class="game-meta">firefly-meadow · цель от 180px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/firefly-meadow">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/catch-light">Поймай свет</a>
+          <span class="game-meta">catch-light · цель от 180px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/catch-light">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/starry-sky">Звёздное небо</a>
+          <span class="game-meta">starry-sky · цель от 150px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/starry-sky">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/magic-dust">Волшебная пыль</a>
+          <span class="game-meta">magic-dust · цель от 170px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/magic-dust">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/light-gallery">Галерея света</a>
+          <span class="game-meta">light-gallery · цель от 130px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/light-gallery">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/soap-circles">Мыльные круги</a>
+          <span class="game-meta">soap-circles · цель от 150px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/soap-circles">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/northern-lights">Северное сияние</a>
+          <span class="game-meta">northern-lights · цель от 180px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/northern-lights">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/sun-rays">Солнце и лучи</a>
+          <span class="game-meta">sun-rays · цель от 240px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/sun-rays">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/snowflakes">Снежинки</a>
+          <span class="game-meta">snowflakes · цель от 180px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/snowflakes">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/moon-path">Лунная дорожка</a>
+          <span class="game-meta">moon-path · цель от 180px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/moon-path">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/lighthouse">Маяк</a>
+          <span class="game-meta">lighthouse · цель от 220px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/lighthouse">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/sand-garden">Песочный сад</a>
+          <span class="game-meta">sand-garden · цель от 190px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/sand-garden">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/sea-shells">Морские ракушки</a>
+          <span class="game-meta">sea-shells · цель от 200px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/sea-shells">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/paper-lanterns">Бумажные фонарики</a>
+          <span class="game-meta">paper-lanterns · цель от 190px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/paper-lanterns">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/open-door">Открой дверцу</a>
+          <span class="game-meta">open-door · цель от 220px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/open-door">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/warm-window">Тёплое окно</a>
+          <span class="game-meta">warm-window · цель от 124px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/warm-window">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/warm-fire">Тёплый костёр</a>
+          <span class="game-meta">warm-fire · цель от 210px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/warm-fire">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/big-cards">Большие карточки</a>
+          <span class="game-meta">big-cards · цель от 212px</span>
+          <a class="game-raw" href="index.html#/games/big-cards">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/color-circle">Цветной круг</a>
+          <span class="game-meta">color-circle · цель от 180px</span>
+          <a class="game-raw" href="index.html#/games/color-circle">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/feed-animal">Покорми зверька</a>
+          <span class="game-meta">feed-animal · цель от 184px</span>
+          <a class="game-raw" href="index.html#/games/feed-animal">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/butterfly">Бабочки</a>
+          <span class="game-meta">butterfly · цель от 180px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/butterfly">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/flowers">Цветы</a>
+          <span class="game-meta">flowers · цель от 170px</span>
+          <a class="game-raw" href="index.html#/games/flowers">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/bubble-pop">Пузыри</a>
+          <span class="game-meta">bubble-pop · цель от 190px</span>
+          <a class="game-raw" href="index.html#/games/bubble-pop">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/ducks">Утки</a>
+          <span class="game-meta">ducks · цель от 160px</span>
+          <a class="game-raw" href="index.html#/games/ducks">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/fishes">Рыбки</a>
+          <span class="game-meta">fishes · цель от 160px</span>
+          <a class="game-raw" href="index.html#/games/fishes">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/jellyfish">Медузы</a>
+          <span class="game-meta">jellyfish · цель от 165px</span>
+          <a class="game-raw" href="index.html#/games/jellyfish">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/frog">Жаба</a>
+          <span class="game-meta">frog · цель от 140px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/frog">во весь экран</a>
+        </li></ul>
+      </section>
+      <section class="category">
+        <h2>Поиск и внимание <span class="count">17</span></h2>
+        <ul class="games">
+        <li class="game">
+          <a class="game-open" href="play.html#/games/hide-and-seek">Прятки</a>
+          <span class="game-meta">hide-and-seek · цель от 130px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/hide-and-seek">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/who-hiding">Кто спрятался?</a>
+          <span class="game-meta">who-hiding · цель от 170px</span>
+          <a class="game-raw" href="index.html#/games/who-hiding">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/find-color">Найди цвет</a>
+          <span class="game-meta">find-color · цель от 160px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/find-color">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/find-shape">Найди форму</a>
+          <span class="game-meta">find-shape · цель от 210px</span>
+          <a class="game-raw" href="index.html#/games/find-shape">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/match-same">Покажи такое же</a>
+          <span class="game-meta">match-same · цель от 152px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/match-same">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/what-missing">Что пропало?</a>
+          <span class="game-meta">what-missing · цель от 210px</span>
+          <a class="game-raw" href="index.html#/games/what-missing">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/follow-cue">Следуй за подсказкой</a>
+          <span class="game-meta">follow-cue · цель от 144px</span>
+          <a class="game-raw" href="index.html#/games/follow-cue">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/find-letter">Найди букву</a>
+          <span class="game-meta">find-letter · цель от 150px</span>
+          <a class="game-raw" href="index.html#/games/find-letter">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/shadow-match">Тень и предмет</a>
+          <span class="game-meta">shadow-match · цель от 152px</span>
+          <a class="game-raw" href="index.html#/games/shadow-match">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/sound-source">Где звук?</a>
+          <span class="game-meta">sound-source · цель от 88px</span>
+          <a class="game-raw" href="index.html#/games/sound-source">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/odd-one-out">Что лишнее?</a>
+          <span class="game-meta">odd-one-out · цель от 156px</span>
+          <a class="game-raw" href="index.html#/games/odd-one-out">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/find-emotion">Найди эмоцию</a>
+          <span class="game-meta">find-emotion · цель от 176px</span>
+          <a class="game-raw" href="index.html#/games/find-emotion">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/letter-hunt">Охота на буквы</a>
+          <span class="game-meta">letter-hunt · цель от 180px</span>
+          <a class="game-raw" href="index.html#/games/letter-hunt">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/find-animal">Найди животное</a>
+          <span class="game-meta">find-animal · цель от 168px</span>
+          <a class="game-raw" href="index.html#/games/find-animal">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/memory-cards">Пары</a>
+          <span class="game-meta">memory-cards · цель от 144px</span>
+          <a class="game-raw" href="index.html#/games/memory-cards">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/gaze-maze">Лабиринт взгляда-указателя</a>
+          <span class="game-meta">gaze-maze · цель от 170px</span>
+          <a class="game-raw" href="index.html#/games/gaze-maze">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/who-is-this">Покажи такое же</a>
+          <span class="game-meta">who-is-this · цель от 152px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/who-is-this">во весь экран</a>
+        </li></ul>
+      </section>
+      <section class="category">
+        <h2>Последовательности <span class="count">19</span></h2>
+        <ul class="games">
+        <li class="game">
+          <a class="game-open" href="play.html#/games/build-robot">Собери роботика</a>
+          <span class="game-meta">build-robot · цель от 132px</span>
+          <a class="game-raw" href="index.html#/games/build-robot">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/pyramid">Пирамидка</a>
+          <span class="game-meta">pyramid · цель от 120px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/pyramid">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/dress-character">Одень персонажа</a>
+          <span class="game-meta">dress-character · цель от 133px</span>
+          <a class="game-raw" href="index.html#/games/dress-character">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/train-sequence">Поезд</a>
+          <span class="game-meta">train-sequence · цель от 150px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/train-sequence">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/sandwich">Бутерброд</a>
+          <span class="game-meta">sandwich · цель от 112px</span>
+          <a class="game-raw" href="index.html#/games/sandwich">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/patterns">Паттерны</a>
+          <span class="game-meta">patterns · цель от 136px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/patterns">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/color-pattern">Цветовой узор</a>
+          <span class="game-meta">color-pattern · цель от 144px</span>
+          <a class="game-raw" href="index.html#/games/color-pattern">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/day-routine">Утро-день-вечер</a>
+          <span class="game-meta">day-routine · цель от 76px</span>
+          <a class="game-raw" href="index.html#/games/day-routine">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/three-frame-story">История из 3 кадров</a>
+          <span class="game-meta">three-frame-story · цель от 92px</span>
+          <a class="game-raw" href="index.html#/games/three-frame-story">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/first-then">Сначала-потом</a>
+          <span class="game-meta">first-then · цель от 180px</span>
+          <a class="game-raw" href="index.html#/games/first-then">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/musical-path">Музыкальная дорожка</a>
+          <span class="game-meta">musical-path · цель от 142px</span>
+          <a class="game-raw" href="index.html#/games/musical-path">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/mosaic">Мозаика</a>
+          <span class="game-meta">mosaic · цель от 109px</span>
+          <a class="game-raw" href="index.html#/games/mosaic">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/shape-dance">Танец фигур</a>
+          <span class="game-meta">shape-dance · цель от 152px</span>
+          <a class="game-raw" href="index.html#/games/shape-dance">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/soup-recipe">Рецепт супа</a>
+          <span class="game-meta">soup-recipe · цель от 103px</span>
+          <a class="game-raw" href="index.html#/games/soup-recipe">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/comic-strip">Комикс</a>
+          <span class="game-meta">comic-strip · цель от 128px</span>
+          <a class="game-raw" href="index.html#/games/comic-strip">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/schedule">Расписание</a>
+          <span class="game-meta">schedule · цель от 168px</span>
+          <a class="game-raw" href="index.html#/games/schedule">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/build-bridge">Строим мост</a>
+          <span class="game-meta">build-bridge · цель от 180px</span>
+          <a class="game-raw" href="index.html#/games/build-bridge">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/shelf-sorting">Сортировка по полкам</a>
+          <span class="game-meta">shelf-sorting · цель от 180px</span>
+          <a class="game-raw" href="index.html#/games/shelf-sorting">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/solfege">Сольфеджио</a>
+          <span class="game-meta">solfege · цель от 180px</span>
+          <a class="game-raw" href="index.html#/games/solfege">во весь экран</a>
+        </li></ul>
+      </section>
+      <section class="category">
+        <h2>Слова и ААС <span class="count">16</span></h2>
+        <ul class="games">
+        <li class="game">
+          <a class="game-open" href="play.html#/games/choose-emotion">Выбери эмоцию</a>
+          <span class="game-meta">choose-emotion · цель от 220px</span>
+          <a class="game-raw" href="index.html#/games/choose-emotion">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/choose-picture">Выбери картинку</a>
+          <span class="game-meta">choose-picture · цель от 128px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/choose-picture">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/eat-or-not-eat">Съедобное</a>
+          <span class="game-meta">eat-or-not-eat · цель от 180px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/eat-or-not-eat">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/word-categories">Категории слов</a>
+          <span class="game-meta">word-categories · цель от 180px</span>
+          <a class="game-raw" href="index.html#/games/word-categories">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/yes-no">Да / нет</a>
+          <span class="game-meta">yes-no · цель от 160px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/yes-no">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/i-want">Я хочу...</a>
+          <span class="game-meta">i-want · цель от 133px</span>
+          <a class="game-raw" href="index.html#/games/i-want">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/want-dont-want">Хочу / не хочу</a>
+          <span class="game-meta">want-dont-want · цель от 162px</span>
+          <a class="game-raw" href="index.html#/games/want-dont-want">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/object-action">Покажи действие</a>
+          <span class="game-meta">object-action · цель от 165px</span>
+          <a class="game-raw" href="index.html#/games/object-action">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/where-object">Где предмет?</a>
+          <span class="game-meta">where-object · цель от 156px</span>
+          <a class="game-raw" href="index.html#/games/where-object">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/big-small">Большой / маленький</a>
+          <span class="game-meta">big-small · цель от 200px</span>
+          <a class="game-raw" href="index.html#/games/big-small">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/one-many">Один / много</a>
+          <span class="game-meta">one-many · цель от 200px</span>
+          <a class="game-raw" href="index.html#/games/one-many">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/opposites">Противоположности</a>
+          <span class="game-meta">opposites · цель от 136px</span>
+          <a class="game-raw" href="index.html#/games/opposites">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/what-first">Что сначала?</a>
+          <span class="game-meta">what-first · цель от 172px</span>
+          <a class="game-raw" href="index.html#/games/what-first">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/mini-dialog">Мини-диалог</a>
+          <span class="game-meta">mini-dialog · цель от 120px</span>
+          <a class="game-raw" href="index.html#/games/mini-dialog">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/social-phrases">Социальные фразы</a>
+          <span class="game-meta">social-phrases · цель от 120px</span>
+          <a class="game-raw" href="index.html#/games/social-phrases">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/type-word">Печать слов</a>
+          <span class="game-meta">type-word · цель от 120px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/type-word">во весь экран</a>
+        </li></ul>
+      </section>
+      <section class="category">
+        <h2>Счёт и математика <span class="count">20</span></h2>
+        <ul class="games">
+        <li class="game">
+          <a class="game-open" href="play.html#/games/find-digit">Найди цифру</a>
+          <span class="game-meta">find-digit · цель от 180px</span>
+          <a class="game-raw" href="index.html#/games/find-digit">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/logic-pairs">Логические пары</a>
+          <span class="game-meta">logic-pairs · цель от 116px</span>
+          <a class="game-raw" href="index.html#/games/logic-pairs">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/clock">Часы</a>
+          <span class="game-meta">clock · цель от 124px</span>
+          <a class="game-raw" href="index.html#/games/clock">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/calendar">Календарь</a>
+          <span class="game-meta">calendar · цель от 116px</span>
+          <a class="game-raw" href="index.html#/games/calendar">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/count-items">Счёт</a>
+          <span class="game-meta">count-items · цель от 124px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/count-items">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/coin-counting">Сложи монетки</a>
+          <span class="game-meta">coin-counting · цель от 76px</span>
+          <a class="game-raw" href="index.html#/games/coin-counting">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/pizza-fractions">Доли пиццы</a>
+          <span class="game-meta">pizza-fractions · цель от 190px</span>
+          <a class="game-raw" href="index.html#/games/pizza-fractions">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/greater-less">Больше / меньше</a>
+          <span class="game-meta">greater-less · цель от 160px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/greater-less">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/scales">Весы</a>
+          <span class="game-meta">scales · цель от 100px</span>
+          <a class="game-raw" href="index.html#/games/scales">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/number-line">Числовая дорожка</a>
+          <span class="game-meta">number-line · цель от 106px</span>
+          <a class="game-raw" href="index.html#/games/number-line">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/number-sorting">Сортировка чисел</a>
+          <span class="game-meta">number-sorting · цель от 128px</span>
+          <a class="game-raw" href="index.html#/games/number-sorting">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/sudoku-2x2">Судоку 2x2</a>
+          <span class="game-meta">sudoku-2x2 · цель от 112px</span>
+          <a class="game-raw" href="index.html#/games/sudoku-2x2">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/lines-angles">Линии и углы</a>
+          <span class="game-meta">lines-angles · цель от 136px</span>
+          <a class="game-raw" href="index.html#/games/lines-angles">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/simple-graphs">Простые графики</a>
+          <span class="game-meta">simple-graphs · цель от 167px</span>
+          <a class="game-raw" href="index.html#/games/simple-graphs">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/number-bonds">Состав числа</a>
+          <span class="game-meta">number-bonds · цель от 170px</span>
+          <a class="game-raw" href="index.html#/games/number-bonds">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/shop">Магазин</a>
+          <span class="game-meta">shop · цель от 96px</span>
+          <a class="game-raw" href="index.html#/games/shop">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/coordinates">Координаты</a>
+          <span class="game-meta">coordinates · цель от 109px</span>
+          <a class="game-raw" href="index.html#/games/coordinates">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/shapes">Формы</a>
+          <span class="game-meta">shapes · цель от 132px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/shapes">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/color-shape">Цвет + форма</a>
+          <span class="game-meta">color-shape · цель от 140px</span>
+          <a class="game-raw" href="index.html#/games/color-shape">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/math-actions">Математика. Операции</a>
+          <span class="game-meta">math-actions · цель от 80px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/math-actions">во весь экран</a>
+        </li></ul>
+      </section>
+      <section class="category">
+        <h2>Головоломки <span class="count">17</span></h2>
+        <ul class="games">
+        <li class="game">
+          <a class="game-open" href="play.html#/games/minesweeper-safe">Сапёр</a>
+          <span class="game-meta">minesweeper-safe · цель от 60px</span>
+          <a class="game-raw" href="index.html#/games/minesweeper-safe">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/domino-matching">Домино</a>
+          <span class="game-meta">domino-matching · цель от 94px</span>
+          <a class="game-raw" href="index.html#/games/domino-matching">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/number-2048">2048</a>
+          <span class="game-meta">number-2048 · цель от 88px</span>
+          <a class="game-raw" href="index.html#/games/number-2048">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/sliding-puzzle">Пятнашки 3×3</a>
+          <span class="game-meta">sliding-puzzle · цель от 132px</span>
+          <a class="game-raw" href="index.html#/games/sliding-puzzle">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/uno-like">Уно-подобное</a>
+          <span class="game-meta">uno-like · цель от 151px</span>
+          <a class="game-raw" href="index.html#/games/uno-like">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/step-tetris">Тетрис</a>
+          <span class="game-meta">step-tetris · цель от 90px</span>
+          <a class="game-raw" href="index.html#/games/step-tetris">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/sokoban-large">Сокобан крупный</a>
+          <span class="game-meta">sokoban-large · цель от 92px</span>
+          <a class="game-raw" href="index.html#/games/sokoban-large">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/tic-tac-toe">Крестики-нолики</a>
+          <span class="game-meta">tic-tac-toe · цель от 101px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/tic-tac-toe">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/connect-four">4 в ряд</a>
+          <span class="game-meta">connect-four · цель от 97px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/connect-four">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/reversi-light">Реверси light</a>
+          <span class="game-meta">reversi-light · цель от 90px</span>
+          <a class="game-raw" href="index.html#/games/reversi-light">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/lines-five">Lines 5</a>
+          <span class="game-meta">lines-five · цель от 60px</span>
+          <a class="game-raw" href="index.html#/games/lines-five">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/checkers-light">Шашки</a>
+          <span class="game-meta">checkers-light · цель от 41px</span>
+          <a class="game-raw" href="index.html#/games/checkers-light">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/chess-mini">Шахматный тренажёр</a>
+          <span class="game-meta">chess-mini · цель от 126px</span>
+          <a class="game-raw" href="index.html#/games/chess-mini">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/battleship-light">Морской бой</a>
+          <span class="game-meta">battleship-light · цель от 130px</span>
+          <a class="game-raw" href="index.html#/games/battleship-light">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/step-pong">Понг пошаговый</a>
+          <span class="game-meta">step-pong · цель от 116px</span>
+          <a class="game-raw" href="index.html#/games/step-pong">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/route-snake">Змейка</a>
+          <span class="game-meta">route-snake · цель от 84px</span>
+          <a class="game-raw" href="index.html#/games/route-snake">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/cursor-magnet">Магнитная лаборатория</a>
+          <span class="game-meta">cursor-magnet · цель от 59px</span>
+          <a class="game-raw" href="index.html#/games/cursor-magnet">во весь экран</a>
+        </li></ul>
+      </section>
+      <section class="category">
+        <h2>Непрерывное управление <span class="count">12</span></h2>
+        <ul class="games">
+        <li class="game">
+          <a class="game-open" href="play.html#/games/boat">Лодочка</a>
+          <span class="game-meta">boat · цель от 150px</span>
+          <a class="game-raw" href="index.html#/games/boat">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/gaze-follow-snake">Змейка за взглядом</a>
+          <span class="game-meta">gaze-follow-snake · цель от 150px</span>
+          <a class="game-raw" href="index.html#/games/gaze-follow-snake">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/table-tennis">Теннис</a>
+          <span class="game-meta">table-tennis · цель от 160px · отшлифована</span>
+          <a class="game-raw" href="index.html#/games/table-tennis">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/road-car">Машинка на дороге</a>
+          <span class="game-meta">road-car · цель от 150px</span>
+          <a class="game-raw" href="index.html#/games/road-car">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/glider">Планер</a>
+          <span class="game-meta">glider · цель от 150px</span>
+          <a class="game-raw" href="index.html#/games/glider">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/line-drawing">Рисование линией</a>
+          <span class="game-meta">line-drawing · цель от 150px</span>
+          <a class="game-raw" href="index.html#/games/line-drawing">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/rails">Рельсы</a>
+          <span class="game-meta">rails · цель от 150px</span>
+          <a class="game-raw" href="index.html#/games/rails">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/balancer">Балансир</a>
+          <span class="game-meta">balancer · цель от 170px</span>
+          <a class="game-raw" href="index.html#/games/balancer">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/snow-trail">Снежная тропа</a>
+          <span class="game-meta">snow-trail · цель от 150px</span>
+          <a class="game-raw" href="index.html#/games/snow-trail">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/robot-vacuum">Робот-пылесос</a>
+          <span class="game-meta">robot-vacuum · цель от 150px</span>
+          <a class="game-raw" href="index.html#/games/robot-vacuum">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/garden-watering">Садовая лейка</a>
+          <span class="game-meta">garden-watering · цель от 150px</span>
+          <a class="game-raw" href="index.html#/games/garden-watering">во весь экран</a>
+        </li>
+        <li class="game">
+          <a class="game-open" href="play.html#/games/space-orbit">Космическая орбита</a>
+          <span class="game-meta">space-orbit · цель от 150px</span>
+          <a class="game-raw" href="index.html#/games/space-orbit">во весь экран</a>
+        </li></ul>
+      </section>
+</div>
+</body>
+</html>
