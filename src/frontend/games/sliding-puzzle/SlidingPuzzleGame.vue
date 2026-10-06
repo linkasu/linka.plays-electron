@@ -24,7 +24,9 @@ const {
   recordHint,
   startSession,
 } = useGameSessionFor("sliding-puzzle", {
-  maxSteps: 12,
+  // Only the counter in the HUD: the game ends when the puzzle is solved or the
+  // time runs out, never on a step count. 12 cut the child off mid-puzzle.
+  maxSteps: 40,
   overrides: {
     preset: "gentle",
     dwellMs: 1200,
@@ -93,7 +95,6 @@ async function chooseTile(tile: number, index: number) {
     return;
   }
 
-  const finishedAfterSuccess = session.step + 1 >= session.maxSteps;
   board.value = result.board;
   clearHints();
   movedIndex.value = result.toIndex;
@@ -112,7 +113,7 @@ async function chooseTile(tile: number, index: number) {
   isSpeaking.value = true;
   void feedbackAudio.playSuccess();
   await promptAudio.playSequenceAndWait(
-    solvedAfterMove || finishedAfterSuccess
+    solvedAfterMove
       ? ["sliding-puzzle.correct", "sliding-puzzle.complete"]
       : ["sliding-puzzle.correct"],
     80,
@@ -120,11 +121,6 @@ async function chooseTile(tile: number, index: number) {
   );
   if (solvedAfterMove) {
     finishSession("game-complete");
-    isSpeaking.value = false;
-    return;
-  }
-  if (finishedAfterSuccess) {
-    finishSession("max-steps");
     isSpeaking.value = false;
     return;
   }
