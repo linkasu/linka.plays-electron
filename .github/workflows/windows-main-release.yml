@@ -52,7 +52,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npm version --no-git-tag-version "0.1.22-beta.${GITHUB_RUN_NUMBER}"
+          npm version --no-git-tag-version "0.1.23-beta.${GITHUB_RUN_NUMBER}"
           npm pkg set "buildSha=${GITHUB_SHA}"
           npm run build:native
           npm run build
@@ -116,7 +116,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          version="0.1.22-beta.${GITHUB_RUN_NUMBER}"
+          version="0.1.23-beta.${GITHUB_RUN_NUMBER}"
           tag="v${version}"
           test -s "release/linka.plays-electron-${version}-win-x64.exe"
           test -s release/latest.yml || test -s release/beta.yml

@@ -34,7 +34,6 @@ if (smokeUserDataPath && isAbsolute(smokeUserDataPath)) {
 const hasSingleInstanceLock = app.requestSingleInstanceLock();
 
 if (!hasSingleInstanceLock) app.quit();
-if (app.isPackaged && process.platform === "win32") app.setAsDefaultProtocolClient("linka-play");
 
 ipcMain.on("app:game-link:ready", (event) => {
   if (event.sender !== mainWindow?.webContents) return;
