@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Открыть игру — Линка играй</title>
+<style>
+  :root {
+    color-scheme: light;
+    --ink: #23201a;
+    --ink-soft: #6d655a;
+    --ground: #f3ece1;
+    --surface: #fdfaf4;
+    --line: #ded3c2;
+    --accent: #6f5f9c;
+    --green: #4b6a58;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    margin: 0;
+  }
+  a { color: var(--accent); }
+
+  main { margin: 8vh auto; max-width: 36rem; padding: 2rem; }
+  h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); }
+  .actions { display: flex; flex-wrap: wrap; gap: 1rem; margin: 2rem 0; }
+  .actions a { background: var(--surface); border: 1px solid var(--line); border-radius: 0.75rem; padding: 1rem; }
+  .actions .open { background: var(--accent); color: white; }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title">Открыть игру</h1>
+  <p>Для проверки с айтрекером откройте игру в установленной программе «Линка играй» на Windows.</p>
+  <div class="actions">
+    <a class="open" id="open" hidden>Открыть в приложении</a>
+    <a id="install" href="https://github.com/linkasu/linka.plays-electron/releases">Скачать приложение для Windows</a>
+  </div>
+  <p>Если программа не открылась, установите её и нажмите «Открыть в приложении» ещё раз. Браузер может запросить разрешение.</p>
+</main>
+<script>
+  const games = {"aquarium":"Аквариум","balloons":"Шарики","bells":"Колокольчики","breathing-flower":"Дышащий цветок","wake-owl":"Разбуди сову","clouds":"Облака","leaves-wind":"Подмети двор","kite":"Воздушный змей","firefly-meadow":"Светлячковая поляна","catch-light":"Поймай свет","starry-sky":"Звёздное небо","magic-dust":"Волшебная пыль","light-gallery":"Галерея света","soap-circles":"Мыльные круги","northern-lights":"Северное сияние","sun-rays":"Солнце и лучи","snowflakes":"Снежинки","moon-path":"Лунная дорожка","lighthouse":"Маяк","sand-garden":"Песочный сад","sea-shells":"Морские ракушки","paper-lanterns":"Бумажные фонарики","open-door":"Открой дверцу","warm-window":"Тёплое окно","warm-fire":"Тёплый костёр","big-cards":"Большие карточки","color-circle":"Цветной круг","feed-animal":"Покорми зверька","butterfly":"Бабочки","flowers":"Цветы","bubble-pop":"Пузыри","ducks":"Утки","fishes":"Рыбки","jellyfish":"Медузы","frog":"Жаба","hide-and-seek":"Прятки","who-hiding":"Кто спрятался?","find-color":"Найди цвет","find-shape":"Найди форму","match-same":"Покажи такое же","what-missing":"Что пропало?","follow-cue":"Следуй за подсказкой","find-letter":"Найди букву","find-digit":"Найди цифру","logic-pairs":"Логические пары","shadow-match":"Тень и предмет","sound-source":"Где звук?","odd-one-out":"Что лишнее?","find-emotion":"Найди эмоцию","letter-hunt":"Охота на буквы","find-animal":"Найди животное","memory-cards":"Пары","gaze-maze":"Лабиринт взгляда-указателя","build-robot":"Собери роботика","pyramid":"Пирамидка","dress-character":"Одень персонажа","train-sequence":"Поезд","sandwich":"Бутерброд","patterns":"Паттерны","color-pattern":"Цветовой узор","day-routine":"Утро-день-вечер","three-frame-story":"История из 3 кадров","first-then":"Сначала-потом","musical-path":"Музыкальная дорожка","mosaic":"Мозаика","shape-dance":"Танец фигур","soup-recipe":"Рецепт супа","comic-strip":"Комикс","schedule":"Расписание","build-bridge":"Строим мост","shelf-sorting":"Сортировка по полкам","solfege":"Сольфеджио","choose-emotion":"Выбери эмоцию","choose-picture":"Выбери картинку","eat-or-not-eat":"Съедобное","word-categories":"Категории слов","yes-no":"Да / нет","i-want":"Я хочу...","want-dont-want":"Хочу / не хочу","object-action":"Покажи действие","where-object":"Где предмет?","big-small":"Большой / маленький","one-many":"Один / много","who-is-this":"Покажи такое же","opposites":"Противоположности","what-first":"Что сначала?","mini-dialog":"Мини-диалог","social-phrases":"Социальные фразы","type-word":"Печать слов","clock":"Часы","calendar":"Календарь","count-items":"Счёт","coin-counting":"Сложи монетки","pizza-fractions":"Доли пиццы","greater-less":"Больше / меньше","scales":"Весы","number-line":"Числовая дорожка","number-sorting":"Сортировка чисел","sudoku-2x2":"Судоку 2x2","lines-angles":"Линии и углы","simple-graphs":"Простые графики","number-bonds":"Состав числа","shop":"Магазин","coordinates":"Координаты","shapes":"Формы","color-shape":"Цвет + форма","math-actions":"Математика. Операции","minesweeper-safe":"Сапёр","domino-matching":"Домино","number-2048":"2048","sliding-puzzle":"Пятнашки 3×3","uno-like":"Уно-подобное","step-tetris":"Тетрис","sokoban-large":"Сокобан крупный","tic-tac-toe":"Крестики-нолики","connect-four":"4 в ряд","reversi-light":"Реверси light","lines-five":"Lines 5","checkers-light":"Шашки","chess-mini":"Шахматный тренажёр","battleship-light":"Морской бой","step-pong":"Понг пошаговый","route-snake":"Змейка","cursor-magnet":"Магнитная лаборатория","boat":"Лодочка","gaze-follow-snake":"Змейка за взглядом","table-tennis":"Теннис","road-car":"Машинка на дороге","glider":"Планер","line-drawing":"Рисование линией","rails":"Рельсы","balancer":"Балансир","snow-trail":"Снежная тропа","robot-vacuum":"Робот-пылесос","garden-watering":"Садовая лейка","space-orbit":"Космическая орбита"};
+  const id = new URLSearchParams(location.search).get("game");
+  if (id && Object.hasOwn(games, id)) {
+    document.getElementById("title").textContent = games[id];
+    const link = document.getElementById("open");
+    link.href = "linka-play://game/" + id;
+    link.hidden = false;
+  } else {
+    document.getElementById("title").textContent = "Игра не найдена";
+  }
+  fetch("https://api.github.com/repos/linkasu/linka.plays-electron/releases?per_page=20")
+    .then((response) => response.ok ? response.json() : [])
+    .then((releases) => {
+      const asset = releases.filter((release) => !release.draft)
+        .flatMap((release) => release.assets)
+        .find((file) => /-win-x64\.exe$/.test(file.name));
+      if (asset) document.getElementById("install").href = asset.browser_download_url;
+    })
+    .catch(() => {});
+</script>
+</body>
+</html>

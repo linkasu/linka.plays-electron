@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LINKa plays</title>
+<style>
+  :root {
+    color-scheme: light;
+    --ink: #23201a;
+    --ink-soft: #6d655a;
+    --ground: #f3ece1;
+    --surface: #fdfaf4;
+    --line: #ded3c2;
+    --accent: #6f5f9c;
+    --green: #4b6a58;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    margin: 0;
+  }
+  a { color: var(--accent); }
+
+  body { background: #221f1a; display: flex; flex-direction: column; height: 100dvh; }
+  .bar {
+    align-items: center;
+    color: #cfc6b8;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: 0.8rem;
+    gap: 0.75rem;
+    padding: 0.5rem 0.9rem;
+  }
+  .bar a, .bar button {
+    background: transparent;
+    border: 1px solid #4a443a;
+    border-radius: 999px;
+    color: #cfc6b8;
+    cursor: pointer;
+    font: inherit;
+    padding: 0.25rem 0.75rem;
+    text-decoration: none;
+  }
+  .bar button[aria-pressed="true"] { background: #cfc6b8; border-color: #cfc6b8; color: #221f1a; }
+  .bar .spacer { flex: 1; }
+  .bar .size { font-variant-numeric: tabular-nums; }
+  .stage { display: flex; flex: 1; min-height: 0; padding: 0 0.9rem 0.9rem; }
+  /* Размер рамки считается явно в fit(): связка aspect-ratio с max-block-size
+     и max-inline-size не даёт нужного вписывания — браузер обрезает высоту, а
+     ширину оставляет прежней, и соотношение уезжает.
+     Внутри iframe вьюпорт — это сама рамка, поэтому vh в играх не врёт. */
+  .frame {
+    background: #fbf7ef;
+    border: 0;
+    border-radius: 0.5rem;
+    margin: auto;
+  }
+</style>
+</head>
+<body>
+<div class="bar">
+  <a href="tests.html">← Все игры</a>
+  <span>Соотношение</span>
+  <button type="button" data-ratio="16:10">16:10</button>
+  <button type="button" data-ratio="16:9">16:9</button>
+  <button type="button" data-ratio="4:3">4:3</button>
+  <span class="spacer"></span>
+  <span class="size" id="size"></span>
+  <a id="raw" href="index.html">Во весь экран</a>
+</div>
+<div class="stage"><iframe class="frame" id="frame" title="LINKa plays"></iframe></div>
+<script>
+  var frame = document.getElementById("frame");
+  var sizeLabel = document.getElementById("size");
+  var raw = document.getElementById("raw");
+  var params = new URLSearchParams(location.search);
+
+  function currentRatio() {
+    var value = params.get("ratio") || localStorage.getItem("linka-play-ratio") || "16:10";
+    return /^\d+:\d+$/.test(value) ? value : "16:10";
+  }
+
+  var ratio = 16 / 10;
+
+  function applyRatio(value) {
+    var parts = value.split(":");
+    ratio = Number(parts[0]) / Number(parts[1]);
+    try { localStorage.setItem("linka-play-ratio", value); } catch (error) { /* приватное окно */ }
+    Array.prototype.forEach.call(document.querySelectorAll("[data-ratio]"), function (button) {
+      button.setAttribute("aria-pressed", String(button.dataset.ratio === value));
+    });
+    fit();
+  }
+
+  function fit() {
+    var stage = document.querySelector(".stage");
+    var box = stage.getBoundingClientRect();
+    var width = Math.min(box.width, box.height * ratio);
+    var height = width / ratio;
+    frame.style.width = Math.floor(width) + "px";
+    frame.style.height = Math.floor(height) + "px";
+    sizeLabel.textContent = Math.floor(width) + " × " + Math.floor(height);
+  }
+
+  // Маршрут берём из адреса хоста, чтобы ссылка на игру осталась ссылкой на игру.
+  function applyRoute() {
+    var route = location.hash || "#/";
+    frame.src = "index.html" + route;
+    raw.href = "index.html" + route;
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-ratio]"), function (button) {
+    button.addEventListener("click", function () { applyRatio(button.dataset.ratio); });
+  });
+  window.addEventListener("hashchange", applyRoute);
+  window.addEventListener("resize", fit);
+  frame.addEventListener("load", fit);
+
+  applyRatio(currentRatio());
+  applyRoute();
+</script>
+</body>
+</html>
