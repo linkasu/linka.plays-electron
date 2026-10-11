@@ -1,0 +1,124 @@
+name: Windows main release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    if: vars.WINDOWS_AUTO_RELEASE_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Use HTTPS for public GitHub dependencies
+        run: |
+          git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
+          git config --global url."https://github.com/".insteadOf "git@github.com:"
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run test:unit
+      - run: npm run lint:adaptive-layout -- --all
+      - run: npm run audit:readiness -- --check
+      - run: npm run audit:tts-assets
+
+  build:
+    needs: verify
+    runs-on: windows-2022
+    concurrency:
+      group: windows-main-build
+      cancel-in-progress: true
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Use HTTPS for public GitHub dependencies
+        shell: bash
+        run: |
+          git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
+          git config --global url."https://github.com/".insteadOf "git@github.com:"
+      - run: npm ci
+      - name: Version and build checked commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm version --no-git-tag-version "0.1.22-beta.${GITHUB_RUN_NUMBER}"
+          npm pkg set "buildSha=${GITHUB_SHA}"
+          npm run build:native
+          npm run build
+          npx electron-builder --win -p never
+      - name: Check packaged Electron and game links
+        run: npm run smoke:packaged-window -- --screenshot-dir release-debug/screenshots --output release-debug/packaged-window-smoke.json --log release-debug/app.log
+      - name: Check packaged privacy
+        run: npm run smoke:packaged-privacy -- --output release-debug/packaged-privacy-smoke.json --log release-debug/packaged-privacy-smoke.log
+      - name: Check installed Windows game-link registration
+        shell: pwsh
+        timeout-minutes: 5
+        run: |
+          $installer = Get-ChildItem release/*-win-x64.exe | Select-Object -First 1
+          $process = Start-Process -FilePath $installer.FullName -ArgumentList '/S' -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw "Installer exited $($process.ExitCode)" }
+          $command = (Get-Item 'Registry::HKEY_CLASSES_ROOT\linka-play\shell\open\command').GetValue('')
+          if (!$command -or $command -match 'win-unpacked') { throw "Installer did not register its game link: $command" }
+      - name: Upload tested package
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-packages-${{ github.run_id }}
+          path: |
+            release/*.exe
+            release/*.yml
+            release/*.blockmap
+            !release/builder-debug.yml
+          if-no-files-found: error
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-debug-${{ github.run_id }}
+          path: release-debug/**/*
+          if-no-files-found: ignore
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    concurrency:
+      group: windows-main-publish
+      cancel-in-progress: false
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Skip superseded commit
+        id: current
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$(gh api "repos/${GH_REPO}/commits/main" --jq .sha)" = "$GITHUB_SHA" ]; then
+            echo 'publish=true' >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/download-artifact@v4
+        if: steps.current.outputs.publish == 'true'
+        with:
+          name: Windows-packages-${{ github.run_id }}
+          path: release
+      - name: Publish complete Windows package
+        if: steps.current.outputs.publish == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="0.1.22-beta.${GITHUB_RUN_NUMBER}"
+          tag="v${version}"
+          test -s "release/linka.plays-electron-${version}-win-x64.exe"
+          test -s release/latest.yml || test -s release/beta.yml
+          gh release create "$tag" release/* --draft --target "$GITHUB_SHA" --title "$tag" --notes "Windows-сборка ${GITHUB_SHA}"
+          gh release edit "$tag" --draft=false --prerelease
