@@ -2,6 +2,12 @@
 import { onMounted, ref } from "vue";
 import { probeAudioUnlock, unlockAudio, type AudioContextLike } from "../core/audioUnlock";
 
+// «ready» — со звуком всё решено: включён, отказались или он и не был
+// заблокирован. Игру нельзя монтировать раньше: она проговаривает задание через
+// 450 мс после монтирования, в браузере эта попытка отклоняется, пока экран
+// звука ещё открыт, и больше не повторяется — игра по ссылке молчала.
+const emit = defineEmits<{ ready: [] }>();
+
 const visible = ref(false);
 let context: AudioContextLike | undefined;
 
@@ -16,12 +22,19 @@ onMounted(() => {
   const probe = probeAudioUnlock(createAudioContext);
   visible.value = probe.blocked;
   context = probe.context;
+  if (!probe.blocked) emit("ready");
 });
 
 async function start() {
   await unlockAudio(context);
   context = undefined;
   visible.value = false;
+  emit("ready");
+}
+
+function skip() {
+  visible.value = false;
+  emit("ready");
 }
 </script>
 
@@ -36,9 +49,7 @@ async function start() {
       <button class="audio-gate-button" type="button" autofocus @click="start">
         Включить звук
       </button>
-      <button class="audio-gate-skip" type="button" @click="visible = false">
-        Продолжить без звука
-      </button>
+      <button class="audio-gate-skip" type="button" @click="skip">Продолжить без звука</button>
     </div>
   </div>
 </template>
