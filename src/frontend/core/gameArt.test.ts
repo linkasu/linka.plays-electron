@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
+import { chooseEmotionFaces } from "../games/choose-emotion/model";
 import { dayRoutineItems } from "../games/day-routine/model";
+import { itemsByAnswer } from "../games/eat-or-not-eat/model";
+import { findAnimalArtId, findAnimalDrawnIds } from "../games/find-animal/model";
+import { findEmotionOptions } from "../games/find-emotion/model";
 import { sandwichChoices } from "../games/sandwich/model";
 import { dailyScheduleSteps } from "../games/schedule/model";
 import { gameArtSrc } from "./gameArt";
@@ -18,7 +22,18 @@ describe("gameArtSrc", () => {
   });
 
   it("has a file for every art id the games refer to", () => {
-    const artIds = [...sandwichChoices, ...dailyScheduleSteps, ...dayRoutineItems]
+    const artIds = [
+      ...sandwichChoices,
+      ...dailyScheduleSteps,
+      ...dayRoutineItems,
+      ...findEmotionOptions,
+      ...chooseEmotionFaces,
+      ...itemsByAnswer.food,
+      ...itemsByAnswer.thing,
+      ...findAnimalDrawnIds.map((id) => ({ artId: findAnimalArtId(id) })),
+      { artId: "eat-or-not-eat/icon-edible" },
+      { artId: "eat-or-not-eat/icon-not-edible" },
+    ]
       .map((item) => item.artId)
       .filter((artId): artId is string => Boolean(artId));
 

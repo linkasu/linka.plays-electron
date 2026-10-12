@@ -12,17 +12,21 @@ export type FindEmotionOption = {
   id: string;
   label: string;
   emoji: string;
+  /** Picture drawn for this game, see core/gameArt.ts; the emoji is the fallback. */
+  artId?: string;
 };
 
 export type FindEmotionRound = ChoiceRound<FindEmotionOption>;
 
 export const findEmotionOptions: FindEmotionOption[] = [
-  { id: "joy", label: "радость", emoji: "😊" },
-  { id: "sadness", label: "грусть", emoji: "😢" },
-  { id: "anger", label: "злость", emoji: "😠" },
-  { id: "surprise", label: "удивление", emoji: "😮" },
-  { id: "fear", label: "страх", emoji: "😨" },
-  { id: "sleepy", label: "сонливость", emoji: "😴" },
+  // Testers: «отрисовать эмоции». The drawn set has no sleepy face, so calm
+  // takes its place; its prompt (find-emotion.prompt.calm) was already recorded.
+  { id: "joy", label: "радость", emoji: "😊", artId: "find-emotion/joy" },
+  { id: "sadness", label: "грусть", emoji: "😢", artId: "find-emotion/sadness" },
+  { id: "anger", label: "злость", emoji: "😠", artId: "find-emotion/anger" },
+  { id: "surprise", label: "удивление", emoji: "😮", artId: "find-emotion/surprise" },
+  { id: "fear", label: "страх", emoji: "😨", artId: "find-emotion/fear" },
+  { id: "calm", label: "спокойствие", emoji: "🙂", artId: "find-emotion/calm" },
 ];
 
 function buildFindEmotionRound(

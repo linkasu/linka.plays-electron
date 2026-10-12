@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
@@ -211,7 +212,13 @@ onUnmounted(() => {
                     { 'emotion-choice--mistake': choice.id === lastMistakeId },
                   ]"
                 >
-                  <div class="emotion-emoji emoji-glyph" aria-hidden="true">{{ choice.emoji }}</div>
+                  <GameWordImage
+                    class="emotion-emoji"
+                    :art-id="choice.artId"
+                    :word="choice.label"
+                    :emoji="choice.emoji"
+                    decorative
+                  />
                   <div class="sr-only">{{ choice.label }}</div>
                 </div>
               </template>
@@ -254,6 +261,13 @@ onUnmounted(() => {
 .emotion-emoji {
   font-size: clamp(4.25rem, min(10vw, 15vh), 8rem);
   line-height: 1;
+}
+
+/* A drawn face fills its 1em box edge to edge, an emoji glyph overflows it:
+   at the same font size the picture read noticeably smaller than the emoji. */
+.emotion-emoji :deep(.game-word-image__asset) {
+  block-size: 1.35em;
+  inline-size: 1.35em;
 }
 
 .sr-only {
