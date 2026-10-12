@@ -30,8 +30,11 @@ const {
   finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
+// "Сколько добавить к <n>," is one recording per n: a separate "к" was read
+// as the letter name «ка», and «к два» is not Russian — testers heard
+// «сколько добавить ка 2».
 const numberBondsQuestionAssetIds = [
-  "number-bonds.question.add-to",
+  ...Array.from({ length: 9 }, (_, index) => `number-bonds.question.add-to.${index + 1}`),
   "number-bonds.question.to-make",
 ];
 const numberBondsNumberAssetIds = Array.from(
@@ -70,8 +73,7 @@ function choiceTargetId(choice: number) {
 
 function promptAssetIds() {
   return [
-    "number-bonds.question.add-to",
-    `number-bonds.number.${round.value.knownPart}`,
+    `number-bonds.question.add-to.${round.value.knownPart}`,
     "number-bonds.question.to-make",
     `number-bonds.number.${round.value.total}`,
   ];
