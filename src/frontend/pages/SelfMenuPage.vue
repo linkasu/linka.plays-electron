@@ -296,7 +296,7 @@ watch(() => route.query.category, syncCategoryFromRoute);
     radial-gradient(circle at 88% 22%, rgb(139 123 184 / 17%), transparent 28rem),
     rgb(var(--v-theme-background));
   block-size: 100dvh;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .gallery-card,

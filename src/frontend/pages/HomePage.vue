@@ -440,7 +440,7 @@ watch(searchQuery, () => {
     radial-gradient(circle at 90% 18%, rgb(111 143 168 / 18%), transparent 28rem),
     rgb(var(--v-theme-background));
   block-size: 100dvh;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .gallery-card,
