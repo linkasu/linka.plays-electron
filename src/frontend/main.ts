@@ -25,3 +25,11 @@ if (import.meta.env.DEV || new URLSearchParams(window.location.search).has("link
 }
 
 createApp(App).use(router).use(vuetify).mount("#app");
+
+if (window.linkaGameLinks) {
+  window.linkaGameLinks.onOpen((gameId) => {
+    if (router.hasRoute(gameId)) void router.push({ name: gameId });
+    else void router.push({ name: "menu-specialist" });
+  });
+  void router.isReady().then(() => window.linkaGameLinks?.ready());
+}

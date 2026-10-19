@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 
 /**
- * Builds two pages that exist only in the web build:
+ * Builds pages that exist only in the web build:
  *
  *   tests.html  a list of every game, so a tester can open one by name instead
  *               of typing a route
  *   play.html   a host that runs the app inside a frame with a fixed aspect
  *               ratio
+ *   open.html   opens a selected game in the installed Windows application
  *
  * Why the frame. The layout is not responsive by design: it fills the window
  * with viewport units and assumes a window shaped roughly like the Electron one
@@ -304,9 +305,61 @@ function renderHost() {
 `;
 }
 
+function renderAppLink(games) {
+  const gameTitles = Object.fromEntries(games.map(({ id, title }) => [id, title]));
+  return `<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Открыть игру — Линка играй</title>
+<style>${sharedStyle}
+  main { margin: 8vh auto; max-width: 36rem; padding: 2rem; }
+  h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); }
+  .actions { display: flex; flex-wrap: wrap; gap: 1rem; margin: 2rem 0; }
+  .actions a { background: var(--surface); border: 1px solid var(--line); border-radius: 0.75rem; padding: 1rem; }
+  .actions .open { background: var(--accent); color: white; }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title">Открыть игру</h1>
+  <p>Для проверки с айтрекером откройте игру в установленной программе «Линка играй» на Windows.</p>
+  <div class="actions">
+    <a class="open" id="open" hidden>Открыть в приложении</a>
+    <a id="install" href="https://github.com/linkasu/linka.plays-electron/releases">Скачать приложение для Windows</a>
+  </div>
+  <p>Если программа не открылась, установите её и нажмите «Открыть в приложении» ещё раз. Браузер может запросить разрешение.</p>
+</main>
+<script>
+  const games = ${JSON.stringify(gameTitles).replaceAll("<", "\\u003c")};
+  const id = new URLSearchParams(location.search).get("game");
+  if (id && Object.hasOwn(games, id)) {
+    document.getElementById("title").textContent = games[id];
+    const link = document.getElementById("open");
+    link.href = "linka-play://game/" + id;
+    link.hidden = false;
+  } else {
+    document.getElementById("title").textContent = "Игра не найдена";
+  }
+  fetch("https://api.github.com/repos/linkasu/linka.plays-electron/releases?per_page=20")
+    .then((response) => response.ok ? response.json() : [])
+    .then((releases) => {
+      const asset = releases.filter((release) => !release.draft)
+        .flatMap((release) => release.assets)
+        .find((file) => /-win-x64\\.exe$/.test(file.name));
+      if (asset) document.getElementById("install").href = asset.browser_download_url;
+    })
+    .catch(() => {});
+</script>
+</body>
+</html>`;
+}
+
 const games = await readRegistryGames();
 if (games.length === 0) throw new Error("No games parsed from the registry");
 
 await writeFile(path.join(outputDir, "tests.html"), renderIndex(games), "utf8");
 await writeFile(path.join(outputDir, "play.html"), renderHost(), "utf8");
-console.log(`Wrote dist/tests.html (${games.length} games) and dist/play.html.`);
+await writeFile(path.join(outputDir, "open.html"), renderAppLink(games), "utf8");
+console.log(`Wrote dist/tests.html (${games.length} games), dist/play.html and dist/open.html.`);

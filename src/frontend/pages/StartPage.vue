@@ -13,6 +13,7 @@ const privacyDialog = ref(true);
 const privacyLoading = ref(true);
 const privacySaving = ref(false);
 const privacyError = ref("");
+const buildLabel = ref("");
 const privacyRequired = computed(
   () => privacyLoading.value || telemetryPreference.value === "unknown",
 );
@@ -25,6 +26,12 @@ const privacyStatusLabel = computed(() =>
 );
 
 onMounted(async () => {
+  void window.linkaUpdater
+    ?.getAppVersion()
+    .then(({ version, buildSha }) => {
+      buildLabel.value = `${version}${buildSha ? ` · ${buildSha.slice(0, 7)}` : ""}`;
+    })
+    .catch(() => undefined);
   if (!window.linkaPrivacy) {
     telemetryPreference.value = "disabled";
     privacyLoading.value = false;
@@ -170,6 +177,9 @@ function openMode(mode: MenuMode) {
             >
               Политика аналитики
             </v-btn>
+          </div>
+          <div v-if="buildLabel" class="text-caption text-medium-emphasis mt-3">
+            Версия {{ buildLabel }}
           </div>
         </v-card>
       </v-col>

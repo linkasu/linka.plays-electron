@@ -42,6 +42,7 @@
 18. `tests/2026-06-16/` - текущий readiness и Electron CDP visual audit для реестра игр.
 19. `specs/metrics-schema.md` и `specs/privacy.md` - доставка, агрегаты и запреты клиентской телеметрии.
 20. `game-audit-remediation-plan.md` - полный аудит 136 игр и исполняемый итерационный план исправлений.
+21. `windows-tester-delivery.md` - ссылки из таблицы, Windows-установщик, автообновление и проверка с Tobii.
 
 ## Игры
 
