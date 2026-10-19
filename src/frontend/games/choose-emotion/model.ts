@@ -7,6 +7,8 @@ export type ChooseEmotionOption = {
   id: string;
   label: string;
   emoji: string;
+  /** Picture drawn for this game, see core/gameArt.ts; the emoji is the fallback. */
+  artId?: string;
 };
 
 export type ChooseEmotionScenario = {
@@ -15,6 +17,8 @@ export type ChooseEmotionScenario = {
   prompt: string;
   detail: string;
   cueEmoji: string;
+  /** Face scenarios show the drawn face instead of the emoji when there is one. */
+  cueArtId?: string;
   targetId: string;
 };
 
@@ -25,18 +29,21 @@ export type ChooseEmotionRound = {
   prompt: string;
   detail: string;
   cueEmoji: string;
+  cueArtId?: string;
   target: ChooseEmotionOption;
   choices: ChooseEmotionOption[];
   correctIndex: number;
 };
 
 export const chooseEmotionFaces: ChooseEmotionOption[] = [
-  { id: "joy", label: "радость", emoji: "😊" },
-  { id: "sadness", label: "грусть", emoji: "😢" },
-  { id: "anger", label: "злость", emoji: "😠" },
-  { id: "surprise", label: "удивление", emoji: "😮" },
-  { id: "calm", label: "спокойствие", emoji: "🙂" },
-  { id: "fear", label: "страх", emoji: "😟" },
+  // Testers: «перерисовать эмоции». Tired and pride are not drawn yet and keep
+  // their emoji until they are.
+  { id: "joy", label: "радость", emoji: "😊", artId: "choose-emotion/joy" },
+  { id: "sadness", label: "грусть", emoji: "😢", artId: "choose-emotion/sadness" },
+  { id: "anger", label: "злость", emoji: "😠", artId: "choose-emotion/anger" },
+  { id: "surprise", label: "удивление", emoji: "😮", artId: "choose-emotion/surprise" },
+  { id: "calm", label: "спокойствие", emoji: "🙂", artId: "choose-emotion/calm" },
+  { id: "fear", label: "страх", emoji: "😟", artId: "choose-emotion/fear" },
   { id: "tired", label: "усталость", emoji: "😴" },
   { id: "pride", label: "гордость", emoji: "☺️" },
 ];
@@ -50,6 +57,7 @@ export const chooseEmotionFaceScenarios: ChooseEmotionScenario[] = chooseEmotion
     prompt: chooseEmotionFacePrompt,
     detail: "Посмотри на выражение лица.",
     cueEmoji: face.emoji,
+    cueArtId: face.artId,
     targetId: face.id,
   }),
 );
@@ -168,6 +176,7 @@ function buildChooseEmotionRound(
     prompt: scenario.prompt,
     detail: scenario.detail,
     cueEmoji: scenario.cueEmoji,
+    cueArtId: scenario.cueArtId,
     target,
     choices,
     correctIndex,

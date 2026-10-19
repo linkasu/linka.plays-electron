@@ -13,7 +13,29 @@ export type FindAnimalChoice = WordItem;
 
 export type FindAnimalRound = ChoiceRound<FindAnimalChoice> & { assetMode: "image" };
 
-const animalWords = getWordsByCategory("animal");
+// Testers: «нарисовать картинки». Only the animals drawn in one set are used,
+// so a round never mixes the new pictures with the old ones; their prompts
+// (find-animal.prompt.<id>) are already recorded.
+export const findAnimalDrawnIds = [
+  "cat",
+  "dog",
+  "cow",
+  "horse",
+  "hen",
+  "duck",
+  "pig",
+  "rabbit",
+  "bear",
+  "fox",
+] as const;
+
+const animalWords = getWordsByCategory("animal").filter((word) =>
+  (findAnimalDrawnIds as readonly string[]).includes(word.id),
+);
+
+export function findAnimalArtId(id: string) {
+  return `find-animal/${id}`;
+}
 
 function buildFindAnimalRound(
   settings: SessionSettings,

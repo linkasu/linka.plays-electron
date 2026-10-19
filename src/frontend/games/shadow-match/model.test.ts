@@ -22,27 +22,32 @@ describe("shadow-match model", () => {
 
     expect(round.roundId).toBe("shadow-match:round:6");
     expect(round.choices[round.correctIndex].isCorrect).toBe(true);
-    expect(round.choices[round.correctIndex].imageSrc).toContain("-shadow-correct.png");
+    expect(round.choices[round.correctIndex].imageSrc).toBe(
+      `./images/shadow-match/${round.target.id}-shadow.png`,
+    );
   });
 
   it("uses separate artwork for the object and its shadows", () => {
     const round = generateShadowMatchRound(settingsFromPreset("standard"), 3);
 
-    expect(round.target.imageSrc).toBe("./images/shadow-match/dog.png");
+    expect(round.target.imageSrc).toBe("./images/shadow-match/cat.png");
     expect(round.target.imageSrc).not.toBe(round.choices[round.correctIndex].imageSrc);
-    expect(
-      round.choices.every((choice) => choice.imageSrc.includes(`${round.target.id}-shadow`)),
-    ).toBe(true);
+    // Wrong choices are the shadows of other objects, each one different.
+    const wrong = round.choices.filter((choice) => !choice.isCorrect);
+    expect(wrong.every((choice) => !choice.imageSrc.includes(`/${round.target.id}-shadow`))).toBe(
+      true,
+    );
+    expect(new Set(round.choices.map((choice) => choice.imageSrc)).size).toBe(round.choices.length);
     expect(round.target.hint.length).toBeGreaterThan(0);
   });
 
   it("cycles through all supplied objects", () => {
     const targetIds = Array.from(
-      { length: 8 },
+      { length: 16 },
       (_, index) => generateShadowMatchRound(settingsFromPreset("standard"), index + 1).target.id,
     );
 
-    expect(new Set(targetIds).size).toBe(4);
-    expect(targetIds.slice(0, 4)).toEqual(targetIds.slice(4));
+    expect(new Set(targetIds).size).toBe(8);
+    expect(targetIds.slice(0, 8)).toEqual(targetIds.slice(8));
   });
 });
