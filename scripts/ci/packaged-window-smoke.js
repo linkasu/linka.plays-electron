@@ -113,6 +113,25 @@ async function evaluateJson(client, expression) {
   return result.result?.value;
 }
 
+async function waitForGame(client, gameId, timeoutMs = 15000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    try {
+      if (
+        await evaluateJson(
+          client,
+          `location.hash === ${JSON.stringify(`#/games/${gameId}`)} && Boolean(window.linkaTobii)`,
+        )
+      )
+        return;
+    } catch {
+      // The renderer may still be loading when CDP first connects.
+    }
+    await wait(250);
+  }
+  throw new Error(`Packaged Electron did not open ${gameId} with the preload bridge`);
+}
+
 async function collectDiagnostics(client) {
   return evaluateJson(
     client,
@@ -135,6 +154,7 @@ async function collectDiagnostics(client) {
       bodyTextPreview: document.body.innerText.trim().slice(0, 1000),
       bodyHtmlLength: document.body.innerHTML.length,
       appExists: Boolean(app),
+      tobiiBridgeAvailable: Boolean(window.linkaTobii),
       appChildCount: app ? app.childElementCount : null,
       appHtmlLength: app ? app.innerHTML.length : null,
       bodyBackground: bodyStyle.backgroundColor,
@@ -189,18 +209,23 @@ async function main() {
 
   const exePath = findPackagedExe();
   const appLog = [];
-  const child = spawn(exePath, [`--remote-debugging-port=${port}`, "--enable-logging"], {
-    cwd: projectRoot,
-    env: {
-      ...process.env,
-      LINKA_NO_TOBII: "1",
-      LINKA_IDENTITY_URL: process.env.LINKA_IDENTITY_URL ?? "http://127.0.0.1:1",
-      LINKA_METRICS_URL: process.env.LINKA_METRICS_URL ?? "http://127.0.0.1:1",
-      ELECTRON_ENABLE_LOGGING: "1",
+  const smokeEnv = {
+    ...process.env,
+    LINKA_NO_TOBII: "1",
+    LINKA_IDENTITY_URL: process.env.LINKA_IDENTITY_URL ?? "http://127.0.0.1:1",
+    LINKA_METRICS_URL: process.env.LINKA_METRICS_URL ?? "http://127.0.0.1:1",
+    ELECTRON_ENABLE_LOGGING: "1",
+  };
+  const child = spawn(
+    exePath,
+    [`--remote-debugging-port=${port}`, "--enable-logging", "linka-play://game/space-orbit"],
+    {
+      cwd: projectRoot,
+      env: smokeEnv,
+      windowsHide: false,
+      stdio: ["ignore", "pipe", "pipe"],
     },
-    windowsHide: false,
-    stdio: ["ignore", "pipe", "pipe"],
-  });
+  );
 
   child.stdout.on("data", (data) => appLog.push(data.toString()));
   child.stderr.on("data", (data) => appLog.push(data.toString()));
@@ -222,7 +247,15 @@ async function main() {
     await client.send("Page.enable");
     await client.send("Runtime.enable");
     await client.send("Log.enable");
-    await wait(5000);
+    await waitForGame(client, "space-orbit");
+    const secondInstance = spawnSync(exePath, ["linka-play://game/gaze-maze"], {
+      timeout: 15000,
+      env: smokeEnv,
+    });
+    if (secondInstance.error || secondInstance.status !== 0) {
+      throw secondInstance.error ?? new Error(`Second instance exited ${secondInstance.status}`);
+    }
+    await waitForGame(client, "gaze-maze");
 
     const diagnostics = await collectDiagnostics(client);
     const screenshotPath = await writeScreenshot(client, screenshotDir);

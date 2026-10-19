@@ -2,6 +2,7 @@ import { BackWatch } from "@linkasu/tobii-electron/main";
 import { app, BrowserWindow, ipcMain, shell } from "electron";
 import { isAbsolute, join } from "path";
 import { migrateLooksTobiiCalibration } from "./calibrationMigration";
+import { gameIdFromArguments } from "./gameLink";
 import { registerConnectFourAiHandlers } from "./connectFourAi";
 import { registerPrivacyIpcHandlers } from "./privacyIpc";
 import {
@@ -15,6 +16,8 @@ import { TelemetryPrivacyPreferenceStore } from "./telemetry/privacyPreference";
 import { registerUpdaterHandlers, setupAutoUpdater } from "./updater";
 
 let mainWindow: BrowserWindow | undefined;
+let pendingGameId = gameIdFromArguments(process.argv);
+let gameLinkRendererReady = false;
 let noTobiiHandlersRegistered = false;
 let privacyController: TelemetryPrivacyController<MetricsTelemetry> | undefined;
 let quitReason: "app-quit" | "update-restart" = "app-quit";
@@ -31,6 +34,15 @@ if (smokeUserDataPath && isAbsolute(smokeUserDataPath)) {
 const hasSingleInstanceLock = app.requestSingleInstanceLock();
 
 if (!hasSingleInstanceLock) app.quit();
+
+ipcMain.on("app:game-link:ready", (event) => {
+  if (event.sender !== mainWindow?.webContents) return;
+  gameLinkRendererReady = true;
+  if (pendingGameId) {
+    mainWindow.webContents.send("app:game-link:open", pendingGameId);
+    pendingGameId = undefined;
+  }
+});
 
 app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required");
 registerConnectFourAiHandlers();
@@ -110,6 +122,7 @@ async function createWindow() {
   });
 
   mainWindow = win;
+  gameLinkRendererReady = false;
   if (process.env.LINKA_NO_TOBII === "1") {
     registerNoTobiiHandlers();
   } else {
@@ -125,6 +138,7 @@ async function createWindow() {
   }
   win.on("closed", () => {
     mainWindow = undefined;
+    gameLinkRendererReady = false;
   });
   win.on("close", () => {
     if (!quitPreparing && !quitPrepared)
@@ -187,7 +201,13 @@ app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) void createWindow();
 });
 
-app.on("second-instance", () => {
+app.on("second-instance", (_event, commandLine) => {
+  const gameId = gameIdFromArguments(commandLine);
+  if (gameId) {
+    if (mainWindow && gameLinkRendererReady)
+      mainWindow.webContents.send("app:game-link:open", gameId);
+    else pendingGameId = gameId;
+  }
   if (!mainWindow) return;
   if (mainWindow.isMinimized()) mainWindow.restore();
   mainWindow.show();
