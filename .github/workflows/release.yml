@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "v*"
+      - "!v*-beta.*"
   workflow_dispatch:
     inputs:
       version:
@@ -89,6 +90,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          npm pkg set "buildSha=${GITHUB_SHA}"
           npm run build:native
           npm run build
           npx electron-builder ${{ matrix.target }} -p never
@@ -99,6 +101,17 @@ jobs:
       - name: Packaged renderer smoke
         if: runner.os == 'Windows'
         run: npm run smoke:packaged-window -- --screenshot-dir release-debug/screenshots --output release-debug/packaged-window-smoke.json --log release-debug/app.log
+
+      - name: Check installed Windows game-link registration
+        if: runner.os == 'Windows'
+        shell: pwsh
+        timeout-minutes: 5
+        run: |
+          $installer = Get-ChildItem release/*-win-x64.exe | Select-Object -First 1
+          $process = Start-Process -FilePath $installer.FullName -ArgumentList '/S' -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw "Installer exited $($process.ExitCode)" }
+          $command = (Get-Item 'Registry::HKEY_CLASSES_ROOT\linka-play\shell\open\command').GetValue('')
+          if (!$command -or $command -match 'win-unpacked') { throw "Installer did not register its game link: $command" }
 
       - name: Upload tested packages
         uses: actions/upload-artifact@v4
@@ -140,14 +153,19 @@ jobs:
           set -euo pipefail
           release_tag="${{ needs.release-version.outputs.release_tag }}"
 
-          gh release view "$release_tag" >/dev/null 2>&1 || gh release create "$release_tag" --title "$release_tag" --notes ""
+          if gh release view "$release_tag" >/dev/null 2>&1; then
+            echo "Release $release_tag already exists; refusing to replace published assets" >&2
+            exit 1
+          fi
+          gh release create "$release_tag" --draft --target "$GITHUB_SHA" --title "$release_tag" --notes ""
           for artifact in release/*; do
             test -f "$artifact"
             if [ "$(basename "$artifact")" = "builder-debug.yml" ]; then
               continue
             fi
-            gh release upload "$release_tag" "$artifact" --clobber
+            gh release upload "$release_tag" "$artifact"
           done
+          gh release edit "$release_tag" --draft=false
 
   publish-updater-mirror:
     needs: [release-version, publish]

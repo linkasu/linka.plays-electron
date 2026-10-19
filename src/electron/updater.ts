@@ -2,9 +2,12 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import { autoUpdater, type ProgressInfo, type UpdateInfo } from "electron-updater";
 import Store from "electron-store";
 import { appendFileSync } from "fs";
+import { readFileSync } from "fs";
+import { join } from "path";
 
 export type AppVersionInfo = {
   version: string;
+  buildSha: string;
   platform: NodeJS.Platform;
   isPackaged: boolean;
 };
@@ -49,15 +52,25 @@ type UpdaterTelemetryHooks = {
 
 export function registerUpdaterHandlers(hooks: UpdaterTelemetryHooks = {}) {
   telemetryHooks = hooks;
-  ipcMain.handle(
-    "app:version",
-    () =>
-      ({
-        version: app.getVersion(),
-        platform: process.platform,
-        isPackaged: app.isPackaged,
-      }) satisfies AppVersionInfo,
-  );
+  ipcMain.handle("app:version", () => {
+    let buildSha = "";
+    try {
+      buildSha =
+        (
+          JSON.parse(readFileSync(join(app.getAppPath(), "package.json"), "utf8")) as {
+            buildSha?: string;
+          }
+        ).buildSha ?? "";
+    } catch {
+      // Development builds may not include packaged build metadata.
+    }
+    return {
+      version: app.getVersion(),
+      buildSha,
+      platform: process.platform,
+      isPackaged: app.isPackaged,
+    } satisfies AppVersionInfo;
+  });
   ipcMain.handle("updater:getState", () => ({ ...updateState }));
   ipcMain.on("updater:restartApp", () => {
     if (isQuittingForUpdate || !downloadedVersion || !updateState.downloaded) return;
@@ -94,7 +107,8 @@ export function setupAutoUpdater(win: BrowserWindow) {
   }
 
   autoUpdater.autoDownload = false;
-  autoUpdater.autoInstallOnAppQuit = false;
+  autoUpdater.autoInstallOnAppQuit = true;
+  if (process.platform === "win32") autoUpdater.allowPrerelease = true;
 
   autoUpdater.on("error", (error) => {
     isDownloadingUpdate = false;

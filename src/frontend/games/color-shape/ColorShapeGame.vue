@@ -255,30 +255,6 @@ onUnmounted(() => {
                         </svg>
                       </div>
                       <div class="text-h5 text-md-h4 font-weight-bold mt-3">{{ choice.label }}</div>
-                      <div class="trait-row mt-3">
-                        <v-chip
-                          class="text-white"
-                          color="deep-purple-darken-3"
-                          variant="flat"
-                          size="large"
-                          rounded="lg"
-                        >
-                          <span
-                            class="color-dot mr-2"
-                            :style="{ backgroundColor: choice.color.hex }"
-                          />
-                          {{ choice.color.label }}
-                        </v-chip>
-                        <v-chip
-                          class="text-white"
-                          color="deep-purple-darken-3"
-                          variant="flat"
-                          size="large"
-                          rounded="lg"
-                        >
-                          {{ choice.shape.label }}
-                        </v-chip>
-                      </div>
                     </div>
                   </template>
                 </GameDwellButton>
@@ -369,22 +345,6 @@ onUnmounted(() => {
   inline-size: clamp(5.5rem, min(14vw, 18vh), 8.75rem);
 }
 
-.trait-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  justify-content: center;
-}
-
-.color-dot {
-  border: 0.125rem solid rgb(255 255 255 / 80%);
-  border-radius: 999px;
-  block-size: 1rem;
-  box-shadow: 0 0.125rem 0.25rem rgb(15 23 42 / 18%);
-  display: inline-block;
-  inline-size: 1rem;
-}
-
 @media (max-height: 44rem) {
   .game-container {
     padding-block-start: 5rem;
@@ -430,10 +390,6 @@ onUnmounted(() => {
     font-size: 1.05rem !important;
     line-height: 1.1;
     margin-block-start: 0.35rem !important;
-  }
-
-  .trait-row {
-    display: none;
   }
 }
 </style>

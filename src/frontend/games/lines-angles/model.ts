@@ -150,15 +150,18 @@ export const linesAnglesTasks: LinesAnglesTask[] = [
     id: "vertical",
     prompt: "Где вертикально?",
     hint: "Вертикальная линия идёт сверху вниз.",
-    targetIds: ["straight-vertical", "curved-vertical"],
-    distractorIds: ["straight-horizontal", "curved-horizontal", "wave-curve", "straight-diagonal"],
+    // Only the straight line: testers asked for it, a bent line is not what a
+    // child learns as "vertical". Bent lines stay out of the distractors too.
+    targetIds: ["straight-vertical"],
+    distractorIds: ["straight-horizontal", "straight-diagonal", "right-angle", "open-angle"],
   },
   {
     id: "horizontal",
     prompt: "Где горизонтально?",
     hint: "Горизонтальная линия идёт слева направо.",
-    targetIds: ["straight-horizontal", "curved-horizontal", "wave-curve"],
-    distractorIds: ["straight-vertical", "curved-vertical", "straight-diagonal", "right-angle"],
+    // Testers: "горизонтальную сделать прямой, чтобы не путать детей".
+    targetIds: ["straight-horizontal"],
+    distractorIds: ["straight-vertical", "straight-diagonal", "right-angle", "open-angle"],
   },
 ];
 
