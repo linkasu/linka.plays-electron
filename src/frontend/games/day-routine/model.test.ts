@@ -7,6 +7,7 @@ import {
   dayRoutinePeriods,
   dayRoutineQuestion,
   dayRoutineQuestionCueId,
+  dayRoutineVisibleChoices,
   findDayRoutinePeriod,
 } from "./model";
 
@@ -104,5 +105,38 @@ describe("createDayRoutineBoard", () => {
       "plate",
       "bed",
     ]);
+  });
+});
+
+describe("dayRoutineVisibleChoices", () => {
+  const board = createDayRoutineBoard(8);
+  const ids = (items: { id: string }[]) => items.map((item) => item.id);
+
+  it("shows one row of four cards with every remaining card of the current period", () => {
+    const shown = dayRoutineVisibleChoices(board.choices, [], "morning");
+    const morning = board.items.filter((item) => item.periodId === "morning");
+
+    expect(shown).toHaveLength(4);
+    expect(ids(shown)).toEqual(expect.arrayContaining(ids(morning)));
+  });
+
+  it("keeps the shuffled order and hides placed cards", () => {
+    const placed = [board.items[0].id];
+    const shown = dayRoutineVisibleChoices(board.choices, placed, "morning");
+    const order = ids(board.choices);
+
+    expect(ids(shown)).not.toContain(placed[0]);
+    expect(ids(shown).map((id) => order.indexOf(id))).toEqual(
+      ids(shown)
+        .map((id) => order.indexOf(id))
+        .sort((a, b) => a - b),
+    );
+  });
+
+  it("can always finish: the last cards of a period stay visible", () => {
+    const placed = ids(board.items.slice(0, 6));
+    const shown = dayRoutineVisibleChoices(board.choices, placed, "evening");
+
+    expect(ids(shown).sort()).toEqual(ids(board.items.slice(6)).sort());
   });
 });

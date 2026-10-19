@@ -16,6 +16,7 @@ import {
   dayRoutineAudioCues,
   dayRoutineQuestion,
   dayRoutineQuestionCueId,
+  dayRoutineVisibleChoices,
   findDayRoutinePeriod,
   type DayRoutineItem,
   type DayRoutinePeriod,
@@ -66,7 +67,7 @@ const questionText = computed(() =>
   currentPeriod.value ? dayRoutineQuestion(currentPeriod.value) : dayRoutineAudioCues.complete.text,
 );
 const remainingChoices = computed(() =>
-  board.choices.filter((item) => !placedItemIds.value.includes(item.id)),
+  dayRoutineVisibleChoices(board.choices, placedItemIds.value, currentPeriod.value?.id),
 );
 
 function itemImageSrc(item: DayRoutineItem) {

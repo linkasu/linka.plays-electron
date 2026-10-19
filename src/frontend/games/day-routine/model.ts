@@ -169,6 +169,26 @@ export function createDayRoutineBoard(maxSteps = 8, random = Math.random): DayRo
   };
 }
 
+/**
+ * Choices shown at once: one row of cards. Testers on a 1366×768 screen —
+ * «собрать утро невозможно, картинка умыться вообще пропала»: with all eight
+ * cards the second row sat below the screen edge, out of reach for the gaze.
+ * Every remaining card of the current period is always shown; the rest of the
+ * row is filled with cards of other periods. Cards keep their shuffled order.
+ */
+export function dayRoutineVisibleChoices(
+  choices: DayRoutineItem[],
+  placedItemIds: string[],
+  periodId: DayRoutinePeriodId | undefined,
+  limit = 4,
+) {
+  const remaining = choices.filter((item) => !placedItemIds.includes(item.id));
+  const current = remaining.filter((item) => item.periodId === periodId);
+  const others = remaining.filter((item) => item.periodId !== periodId);
+  const shown = new Set([...current, ...others].slice(0, Math.max(limit, current.length)));
+  return remaining.filter((item) => shown.has(item));
+}
+
 export function findDayRoutinePeriod(periodId: DayRoutinePeriodId) {
   return dayRoutinePeriods.find((period) => period.id === periodId);
 }
