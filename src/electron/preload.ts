@@ -7,6 +7,15 @@ import type { RendererSessionSummaryInput, RendererTelemetryEventInput } from ".
 
 type Dispose = () => void;
 
+contextBridge.exposeInMainWorld("linkaGameLinks", {
+  ready: () => ipcRenderer.send("app:game-link:ready"),
+  onOpen: (listener: (gameId: string) => void): Dispose => {
+    const handler = (_event: Electron.IpcRendererEvent, gameId: string) => listener(gameId);
+    ipcRenderer.on("app:game-link:open", handler);
+    return () => ipcRenderer.off("app:game-link:open", handler);
+  },
+});
+
 contextBridge.exposeInMainWorld("linkaTobii", {
   getStatus: () => ipcRenderer.invoke("tobii:status:get"),
   getDiagnostics: () => ipcRenderer.invoke("tobii:diagnostics:get"),

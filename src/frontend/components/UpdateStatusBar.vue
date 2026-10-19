@@ -49,10 +49,6 @@ onUnmounted(() => {
   for (const dispose of disposers) dispose();
   disposers = [];
 });
-
-function restartApp() {
-  window.linkaUpdater?.restartApp();
-}
 </script>
 
 <template>
@@ -84,12 +80,10 @@ function restartApp() {
         <div class="flex-grow-1">
           <div class="font-weight-bold">Обновление готово</div>
           <div class="text-body-2 text-medium-emphasis">
-            Перезапустите приложение, чтобы установить новую версию.
+            Новая версия установится после завершения работы. При следующем запуске она будет
+            готова.
           </div>
         </div>
-        <v-btn color="primary" prepend-icon="mdi-restart" variant="flat" @click="restartApp">
-          Перезапустить
-        </v-btn>
       </div>
 
       <div v-else-if="errorMessage" class="d-flex align-center ga-3">

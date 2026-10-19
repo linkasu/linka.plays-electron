@@ -1,6 +1,6 @@
 {
   "name": "linka.plays-electron",
-  "version": "0.1.20",
+  "version": "0.1.22",
   "private": true,
   "description": "LINKa plays MVP on Electron, Vue and Canvas",
   "main": "dist-electron/main.js",
@@ -103,6 +103,9 @@
       "icon": "icons/icon.ico",
       "signAndEditExecutable": true,
       "verifyUpdateCodeSignature": false
+    },
+    "nsis": {
+      "include": "resources/electron/game-link.nsh"
     },
     "linux": {
       "category": "Education",

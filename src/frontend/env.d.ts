@@ -75,6 +75,7 @@ declare global {
 
   type AppVersionInfo = {
     version: string;
+    buildSha: string;
     platform: string;
     isPackaged: boolean;
   };
@@ -276,6 +277,10 @@ declare global {
   };
 
   interface Window {
+    linkaGameLinks?: {
+      ready: () => void;
+      onOpen: (listener: (gameId: string) => void) => Dispose;
+    };
     linkaTobii?: {
       getStatus: () => Promise<TobiiStatus>;
       getDiagnostics: () => Promise<TobiiDiagnosticsSnapshot>;
