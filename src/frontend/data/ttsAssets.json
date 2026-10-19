@@ -1255,56 +1255,56 @@
   {
     "id": "musical-path.prompt.1",
     "game": "musical-path",
-    "text": "Начни с камешка один: до.",
+    "text": "Начни с камешка один: нота до.",
     "voice": "jane",
     "path": "/audio/tts/musical-path/prompt-1.mp3"
   },
   {
     "id": "musical-path.prompt.2",
     "game": "musical-path",
-    "text": "Теперь камешек два: ре.",
+    "text": "Теперь камешек два: нота ре.",
     "voice": "jane",
     "path": "/audio/tts/musical-path/prompt-2.mp3"
   },
   {
     "id": "musical-path.prompt.3",
     "game": "musical-path",
-    "text": "Теперь камешек три: ми.",
+    "text": "Теперь камешек три: нота ми.",
     "voice": "jane",
     "path": "/audio/tts/musical-path/prompt-3.mp3"
   },
   {
     "id": "musical-path.prompt.4",
     "game": "musical-path",
-    "text": "Теперь камешек четыре: фа.",
+    "text": "Теперь камешек четыре: нота фа.",
     "voice": "jane",
     "path": "/audio/tts/musical-path/prompt-4.mp3"
   },
   {
     "id": "musical-path.prompt.5",
     "game": "musical-path",
-    "text": "Теперь камешек пять: соль.",
+    "text": "Теперь камешек пять: нота соль.",
     "voice": "jane",
     "path": "/audio/tts/musical-path/prompt-5.mp3"
   },
   {
     "id": "musical-path.prompt.6",
     "game": "musical-path",
-    "text": "Теперь камешек шесть: ля.",
+    "text": "Теперь камешек шесть: нота ля.",
     "voice": "jane",
     "path": "/audio/tts/musical-path/prompt-6.mp3"
   },
   {
     "id": "musical-path.prompt.7",
     "game": "musical-path",
-    "text": "Теперь камешек семь: си.",
+    "text": "Теперь камешек семь: нота си.",
     "voice": "jane",
     "path": "/audio/tts/musical-path/prompt-7.mp3"
   },
   {
     "id": "musical-path.prompt.8",
     "game": "musical-path",
-    "text": "Теперь камешек восемь: до.",
+    "text": "Теперь камешек восемь: нота до.",
     "voice": "jane",
     "path": "/audio/tts/musical-path/prompt-8.mp3"
   },
@@ -2403,14 +2403,14 @@
   {
     "id": "want-dont-want.phrase.want.hug",
     "game": "want-dont-want",
-    "text": "Хочу обнять.",
+    "text": "Хочу обниматься.",
     "voice": "jane",
     "path": "/audio/tts/want-dont-want/phrase-want-hug.mp3"
   },
   {
     "id": "want-dont-want.phrase.dont-want.hug",
     "game": "want-dont-want",
-    "text": "Не хочу обнять.",
+    "text": "Не хочу обниматься.",
     "voice": "jane",
     "path": "/audio/tts/want-dont-want/phrase-dont-want-hug.mp3"
   },
@@ -6078,7 +6078,7 @@
   {
     "id": "what-missing.observe",
     "game": "what-missing",
-    "text": "Запомни три предмета. Смотри,. Скоро один предмет пропадёт.",
+    "text": "Запомни три предмета. Смотри. Скоро один предмет пропадёт.",
     "voice": "jane",
     "path": "/audio/tts/what-missing/observe.mp3"
   },
@@ -6722,14 +6722,14 @@
   {
     "id": "day-routine.prompt",
     "game": "day-routine",
-    "text": "Начинаем с утра. Выбери картинку, которая бывает утром.",
+    "text": "Собираем день по порядку.",
     "voice": "jane",
     "path": "/audio/tts/day-routine/prompt.mp3"
   },
   {
     "id": "day-routine.correct",
     "game": "day-routine",
-    "text": "Верно. Продолжаем собирать день.",
+    "text": "Верно.",
     "voice": "jane",
     "path": "/audio/tts/day-routine/correct.mp3"
   },
@@ -6746,6 +6746,27 @@
     "text": "Готово. Утро, день и вечер собраны.",
     "voice": "jane",
     "path": "/audio/tts/day-routine/complete.mp3"
+  },
+  {
+    "id": "day-routine.question.morning",
+    "game": "day-routine",
+    "text": "Что бывает утром?",
+    "voice": "jane",
+    "path": "/audio/tts/day-routine/question-morning.mp3"
+  },
+  {
+    "id": "day-routine.question.day",
+    "game": "day-routine",
+    "text": "Что бывает днём?",
+    "voice": "jane",
+    "path": "/audio/tts/day-routine/question-day.mp3"
+  },
+  {
+    "id": "day-routine.question.evening",
+    "game": "day-routine",
+    "text": "Что бывает вечером?",
+    "voice": "jane",
+    "path": "/audio/tts/day-routine/question-evening.mp3"
   },
   {
     "id": "three-frame-story.prompt",
@@ -8435,13 +8456,6 @@
     "path": "/audio/tts/simple-graphs/question-count-cars.mp3"
   },
   {
-    "id": "number-bonds.question.add-to",
-    "game": "number-bonds",
-    "text": "Сколько добавить к",
-    "voice": "jane",
-    "path": "/audio/tts/number-bonds/question-add-to.mp3"
-  },
-  {
     "id": "number-bonds.question.to-make",
     "game": "number-bonds",
     "text": "чтобы было",
@@ -8517,6 +8531,69 @@
     "text": "десять",
     "voice": "jane",
     "path": "/audio/tts/number-bonds/number-10.mp3"
+  },
+  {
+    "id": "number-bonds.question.add-to.1",
+    "game": "number-bonds",
+    "text": "Сколько добавить к одному,",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/question-add-to-1.mp3"
+  },
+  {
+    "id": "number-bonds.question.add-to.2",
+    "game": "number-bonds",
+    "text": "Сколько добавить к двум,",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/question-add-to-2.mp3"
+  },
+  {
+    "id": "number-bonds.question.add-to.3",
+    "game": "number-bonds",
+    "text": "Сколько добавить к трём,",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/question-add-to-3.mp3"
+  },
+  {
+    "id": "number-bonds.question.add-to.4",
+    "game": "number-bonds",
+    "text": "Сколько добавить к четырём,",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/question-add-to-4.mp3"
+  },
+  {
+    "id": "number-bonds.question.add-to.5",
+    "game": "number-bonds",
+    "text": "Сколько добавить к пяти,",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/question-add-to-5.mp3"
+  },
+  {
+    "id": "number-bonds.question.add-to.6",
+    "game": "number-bonds",
+    "text": "Сколько добавить к шести,",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/question-add-to-6.mp3"
+  },
+  {
+    "id": "number-bonds.question.add-to.7",
+    "game": "number-bonds",
+    "text": "Сколько добавить к семи,",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/question-add-to-7.mp3"
+  },
+  {
+    "id": "number-bonds.question.add-to.8",
+    "game": "number-bonds",
+    "text": "Сколько добавить к восьми,",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/question-add-to-8.mp3"
+  },
+  {
+    "id": "number-bonds.question.add-to.9",
+    "game": "number-bonds",
+    "text": "Сколько добавить к девяти,",
+    "voice": "jane",
+    "path": "/audio/tts/number-bonds/question-add-to-9.mp3"
   },
   {
     "id": "shop.wallet.10",

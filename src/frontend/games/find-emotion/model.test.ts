@@ -48,7 +48,7 @@ describe("find-emotion model", () => {
       "anger",
       "surprise",
       "fear",
-      "sleepy",
+      "calm",
     ]);
     expect(new Set(findEmotionOptions.map((option) => option.emoji)).size).toBe(
       findEmotionOptions.length,

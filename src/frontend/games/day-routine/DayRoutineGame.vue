@@ -15,6 +15,7 @@ import {
   createDayRoutineBoard,
   dayRoutineAudioCues,
   dayRoutineQuestion,
+  dayRoutineQuestionCueId,
   findDayRoutinePeriod,
   type DayRoutineItem,
   type DayRoutinePeriod,
@@ -102,7 +103,13 @@ function resetFeedback() {
 
 async function playPrompt(delayMs = 0) {
   isSpeaking.value = true;
-  await promptAudio.playSequenceAndWait([dayRoutineAudioCues.prompt.id], delayMs);
+  const period = currentPeriod.value;
+  await promptAudio.playSequenceAndWait(
+    period
+      ? [dayRoutineAudioCues.prompt.id, dayRoutineQuestionCueId(period)]
+      : [dayRoutineAudioCues.prompt.id],
+    delayMs,
+  );
   isSpeaking.value = false;
 }
 
@@ -145,8 +152,12 @@ async function choose(item: DayRoutineItem) {
     } else {
       feedbackMessage.value = dayRoutineAudioCues.complete.text;
     }
-    const cue = finishedAfterSuccess ? dayRoutineAudioCues.complete : dayRoutineAudioCues.correct;
-    await promptAudio.playSequenceAndWait([cue.id], 80);
+    await promptAudio.playSequenceAndWait(
+      nextPeriod
+        ? [dayRoutineAudioCues.correct.id, dayRoutineQuestionCueId(nextPeriod)]
+        : [dayRoutineAudioCues.complete.id],
+      80,
+    );
     isSpeaking.value = false;
     pendingSelection.value = false;
 
@@ -170,7 +181,10 @@ async function choose(item: DayRoutineItem) {
   });
   void dayRoutineFeedback.playMistake(session.settings.sound);
   isSpeaking.value = true;
-  await promptAudio.playSequenceAndWait([dayRoutineAudioCues.mistake.id], 80);
+  await promptAudio.playSequenceAndWait(
+    [dayRoutineAudioCues.mistake.id, dayRoutineQuestionCueId(expectedPeriod)],
+    80,
+  );
   isSpeaking.value = false;
   feedbackTimer = window.setTimeout(() => {
     pendingSelection.value = false;

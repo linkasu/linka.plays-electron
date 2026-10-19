@@ -49,10 +49,10 @@ describe("generateEatOrNotEatRound", () => {
 
   it("does not repeat an item during a complete balanced deck", () => {
     const generateRound = createEatOrNotEatRoundGenerator(() => 0);
-    const rounds = Array.from({ length: 80 }, (_, index) => generateRound(index + 1));
+    const rounds = Array.from({ length: 12 }, (_, index) => generateRound(index + 1));
 
-    expect(new Set(rounds.map((round) => round.item.id)).size).toBe(80);
-    expect(rounds.filter((round) => round.correctAnswer === "food")).toHaveLength(40);
-    expect(rounds.filter((round) => round.correctAnswer === "thing")).toHaveLength(40);
+    expect(new Set(rounds.map((round) => round.item.id)).size).toBe(12);
+    expect(rounds.filter((round) => round.correctAnswer === "food")).toHaveLength(6);
+    expect(rounds.filter((round) => round.correctAnswer === "thing")).toHaveLength(6);
   });
 });

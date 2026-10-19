@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import wordImageManifest from "../../../../public/images/words/manifest.json";
 import { settingsFromPreset } from "../../core/settings";
-import { createFindAnimalRoundGenerator, generateFindAnimalRound } from "./model";
+import {
+  createFindAnimalRoundGenerator,
+  findAnimalDrawnIds,
+  generateFindAnimalRound,
+} from "./model";
 
 function expectValidRound(round: ReturnType<typeof generateFindAnimalRound>) {
   const choiceIds = round.choices.map((choice) => choice.id);
@@ -60,7 +64,7 @@ describe("generateFindAnimalRound", () => {
   it("draws targets from a shuffled deck without repeats until it is exhausted", () => {
     const generateRound = createFindAnimalRoundGenerator(() => 0.37);
     const targetIds = Array.from(
-      { length: 30 },
+      { length: findAnimalDrawnIds.length },
       (_, index) => generateRound(settingsFromPreset("standard"), index + 1).target.id,
     );
 
