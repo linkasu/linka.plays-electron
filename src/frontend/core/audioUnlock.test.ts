@@ -1,5 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import { probeAudioUnlock, unlockAudio, type AudioContextLike } from "./audioUnlock";
+import {
+  declineSound,
+  isSoundDeclined,
+  probeAudioUnlock,
+  unlockAudio,
+  type AudioContextLike,
+} from "./audioUnlock";
 
 function makeContext(state: string): AudioContextLike & { closed: boolean } {
   return {
@@ -57,5 +63,21 @@ describe("unlockAudio", () => {
 
   it("does nothing when there is no context", async () => {
     await expect(unlockAudio(undefined)).resolves.toBe(true);
+  });
+});
+
+describe("audio gate fallbacks", () => {
+  it("opens the app when the browser refuses to create a context", () => {
+    const probe = probeAudioUnlock(() => {
+      throw new DOMException("too many contexts", "NotSupportedError");
+    });
+
+    expect(probe).toEqual({ blocked: false });
+  });
+
+  it("remembers «Продолжить без звука» so games start silent", () => {
+    expect(isSoundDeclined()).toBe(false);
+    declineSound();
+    expect(isSoundDeclined()).toBe(true);
   });
 });

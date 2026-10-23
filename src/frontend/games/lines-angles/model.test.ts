@@ -33,3 +33,13 @@ describe("lines-angles model", () => {
     }
   });
 });
+
+describe("lines-angles direction tasks", () => {
+  // The right angle is drawn with a vertical and a horizontal segment, so as a
+  // distractor it was a correct answer that counted as a mistake.
+  it.each(["vertical", "horizontal"])("keeps shapes with a %s segment out of distractors", (id) => {
+    const task = linesAnglesTasks.find((item) => item.id === id);
+
+    expect(task?.distractorIds).not.toContain("right-angle");
+  });
+});

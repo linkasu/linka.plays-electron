@@ -25,7 +25,14 @@ export type AudioUnlockProbe = {
 };
 
 export function probeAudioUnlock(create: () => AudioContextLike | undefined): AudioUnlockProbe {
-  const context = create();
+  let context: AudioContextLike | undefined;
+  try {
+    context = create();
+  } catch {
+    // The browser refused a context (limit reached, policy). Nothing to unlock:
+    // the app must still open, otherwise the page stays empty behind the gate.
+    return { blocked: false };
+  }
   if (!context) return { blocked: false };
   if (context.state !== "suspended") {
     void context.close().catch(() => undefined);
@@ -46,4 +53,19 @@ export async function unlockAudio(context: AudioContextLike | undefined) {
   } catch {
     return false;
   }
+}
+
+let soundDeclined = false;
+
+/**
+ * «Продолжить без звука». The click on that button is itself a user gesture, so
+ * without this flag the game would speak its task anyway, against the choice.
+ * Games read it when their session starts (see core/session.ts).
+ */
+export function declineSound() {
+  soundDeclined = true;
+}
+
+export function isSoundDeclined() {
+  return soundDeclined;
 }
