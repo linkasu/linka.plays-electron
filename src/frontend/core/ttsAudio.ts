@@ -104,6 +104,11 @@ export function playTtsAsset(enabled: boolean, asset: TtsAsset | undefined, volu
   }
 }
 
+function playbackGuardMs(audio: HTMLAudioElement) {
+  const seconds = audio.duration;
+  return Number.isFinite(seconds) && seconds > 0 ? Math.max(6000, seconds * 1000 + 1500) : 6000;
+}
+
 export function playTtsAssetAndWait(enabled: boolean, asset: TtsAsset | undefined, volume = 0.42) {
   if (!enabled || !asset) return Promise.resolve();
   try {
@@ -114,9 +119,18 @@ export function playTtsAssetAndWait(enabled: boolean, asset: TtsAsset | undefine
       let fallbackTimer = 0;
       const finish = trackTtsPlayback(audio, () => {
         window.clearTimeout(fallbackTimer);
+        audio.removeEventListener("loadedmetadata", scheduleFallback);
         resolve();
       });
-      fallbackTimer = window.setTimeout(finish, 6000);
+      // The guard covers a recording that never reports "ended". A fixed 6 s
+      // cut longer recordings (a 7.9 s social-phrases instruction): wait for
+      // the recording's own length once the browser knows it.
+      function scheduleFallback() {
+        window.clearTimeout(fallbackTimer);
+        fallbackTimer = window.setTimeout(finish, playbackGuardMs(audio));
+      }
+      audio.addEventListener("loadedmetadata", scheduleFallback);
+      scheduleFallback();
 
       try {
         void audio.play().catch(finish);
