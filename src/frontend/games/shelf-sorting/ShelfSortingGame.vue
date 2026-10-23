@@ -498,7 +498,7 @@ onUnmounted(() => {
 
   .shelf-choice-content,
   .game-container :deep(.dwell-button) {
-    min-block-size: clamp(9rem, 32dvh, 14rem) !important;
+    min-block-size: clamp(9rem, calc(100dvh - 30rem), 14rem) !important;
   }
 }
 </style>
