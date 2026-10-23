@@ -78,7 +78,9 @@ async function answer(value: WantDontWantAnswer) {
   });
   feedback.value = communication.phrase;
   const finishedAfterSuccess = session.step >= session.maxSteps;
-  await speakSceneText(communication.phrase, session.settings.sound, 80);
+  await speakSceneText(communication.phrase, session.settings.sound, 80, {
+    gameId: "want-dont-want",
+  });
   if (finishedAfterSuccess) await promptAudio.playSequenceAndWait(["want-dont-want.complete"], 170);
 
   if (finishedAfterSuccess) {

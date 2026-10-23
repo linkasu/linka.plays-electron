@@ -1,5 +1,5 @@
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
+import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -34,7 +34,9 @@ function outputPathForAsset(asset) {
   if (!asset.path?.startsWith("/"))
     throw new Error(`TTS asset ${asset.id} must use an absolute public path.`);
   const outputPath = resolve(publicRoot, asset.path.slice(1));
-  if (!outputPath.startsWith(`${publicRoot}/`))
+  // relative() instead of a "/" prefix check: on Windows the path uses backslashes.
+  const insidePublic = relative(publicRoot, outputPath);
+  if (!insidePublic || insidePublic.startsWith("..") || isAbsolute(insidePublic))
     throw new Error(`TTS asset ${asset.id} writes outside public/`);
   return outputPath;
 }
