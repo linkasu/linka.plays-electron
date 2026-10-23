@@ -125,10 +125,10 @@ export function playTtsAssetAndWait(enabled: boolean, asset: TtsAsset | undefine
       // The guard covers a recording that never reports "ended". A fixed 6 s
       // cut longer recordings (a 7.9 s social-phrases instruction): wait for
       // the recording's own length once the browser knows it.
-      function scheduleFallback() {
+      const scheduleFallback = () => {
         window.clearTimeout(fallbackTimer);
         fallbackTimer = window.setTimeout(finish, playbackGuardMs(audio));
-      }
+      };
       audio.addEventListener("loadedmetadata", scheduleFallback);
       scheduleFallback();
 
