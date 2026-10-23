@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { probeAudioUnlock, unlockAudio, type AudioContextLike } from "../core/audioUnlock";
+import {
+  declineSound,
+  probeAudioUnlock,
+  unlockAudio,
+  type AudioContextLike,
+} from "../core/audioUnlock";
 
 // «ready» — со звуком всё решено: включён, отказались или он и не был
 // заблокирован. Игру нельзя монтировать раньше: она проговаривает задание через
@@ -33,6 +38,7 @@ async function start() {
 }
 
 function skip() {
+  declineSound();
   visible.value = false;
   emit("ready");
 }

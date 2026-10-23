@@ -10,6 +10,7 @@ import {
 } from "vue";
 import { useGazePointer } from "../composables/useGazePointer";
 import { createGazeMetricsTracker } from "./gaze";
+import { isSoundDeclined } from "./audioUnlock";
 import {
   createGameSessionSummary,
   projectSessionEvent,
@@ -102,7 +103,9 @@ export function useGameSession(
   } = {},
 ) {
   const sessionOwner = Symbol(gameId);
-  const settings = createDefaultSettings(initialSettings);
+  const settings = createDefaultSettings(
+    isSoundDeclined() ? { ...initialSettings, sound: false } : initialSettings,
+  );
   const { pointer } = useGazePointer();
   const gazeTracker = createGazeMetricsTracker();
   const telemetryContext = options.telemetryContext ?? { targetKind: "interactive" };
