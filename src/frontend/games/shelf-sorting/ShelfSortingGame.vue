@@ -455,7 +455,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-height: 44rem) {
+@media (max-height: 50rem) {
   .game-container {
     padding-block-start: 9.5rem;
   }
@@ -498,7 +498,7 @@ onUnmounted(() => {
 
   .shelf-choice-content,
   .game-container :deep(.dwell-button) {
-    min-block-size: 9rem !important;
+    min-block-size: clamp(9rem, 32dvh, 14rem) !important;
   }
 }
 </style>
