@@ -3,7 +3,7 @@ let sharedCooldownUntil = 0;
 </script>
 
 <script setup lang="ts">
-import { computed, getCurrentInstance, inject, onMounted, onUnmounted, ref } from "vue";
+import { computed, getCurrentInstance, inject, onMounted, onUnmounted, ref, watch } from "vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { activeDomGazeTargetId, registerDomGazeTarget } from "../../core/domGazeTargetCoordinator";
 import { unionRect, type GazeTargetRect } from "../../core/gazeTargetResolver";
@@ -196,7 +196,7 @@ function selectByPointerClick(event: MouseEvent) {
   sharedCooldownUntil = now + 700;
 }
 
-onMounted(() => {
+function registerTarget() {
   unregisterTarget = registerDomGazeTarget(
     {
       id: currentTargetId(),
@@ -208,8 +208,28 @@ onMounted(() => {
     },
     pointer,
   );
+}
+
+onMounted(() => {
+  registerTarget();
   frame = requestAnimationFrame(tick);
 });
+
+// A button can outlive its round: games key the cards by item id, so a card
+// that is on the next screen too is moved, not recreated, and only its
+// target-id changes. The gaze registry kept the old id, the button never
+// became active and stopped reacting to gaze (feed-animal, round 2).
+watch(
+  () => props.targetId,
+  () => {
+    if (disposed) return;
+    unregisterTarget?.();
+    registerTarget();
+    machineState = createDwellMachineState();
+    active.value = false;
+    progress.value = 0;
+  },
+);
 
 onUnmounted(() => {
   disposed = true;
