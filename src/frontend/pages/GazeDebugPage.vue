@@ -244,6 +244,12 @@ const fittedCorrection = computed(() => {
   const fit = report.value?.correctionFit;
   return fit?.ok ? fit.correction : undefined;
 });
+// The button gave no sign it worked: only a caption line changed.
+const fittedIsApplied = computed(
+  () =>
+    fittedCorrection.value !== undefined &&
+    gazeCorrection.value?.createdAt === fittedCorrection.value.createdAt,
+);
 const fitFailure = computed(() => {
   const fit = report.value?.correctionFit;
   return fit && !fit.ok ? fit.reason : "";
@@ -534,8 +540,13 @@ onBeforeUnmount(() => {
           }}</v-alert>
         </v-card-text>
         <v-card-actions class="pa-4 pt-0 flex-wrap ga-2">
-          <v-btn v-if="fittedCorrection" color="primary" @click="applyCorrection"
-            >Применить поправку</v-btn
+          <v-btn
+            v-if="fittedCorrection"
+            color="primary"
+            :disabled="fittedIsApplied"
+            :prepend-icon="fittedIsApplied ? 'mdi-check' : undefined"
+            @click="applyCorrection"
+            >{{ fittedIsApplied ? "Поправка применена" : "Применить поправку" }}</v-btn
           >
           <v-btn v-if="gazeCorrection" variant="tonal" @click="resetCorrection"
             >Сбросить поправку</v-btn
