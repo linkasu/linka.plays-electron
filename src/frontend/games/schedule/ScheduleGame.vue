@@ -469,7 +469,7 @@ onUnmounted(() => {
   min-block-size: clamp(8.75rem, 22.5vh, 15.5rem) !important;
 }
 
-@media (min-height: 40.625rem) and (max-height: 56.25rem) {
+@media (min-height: 50.001rem) and (max-height: 56.25rem) {
   .choice-row :deep(.dwell-button),
   .choice-row :deep(.dwell-hitbox) {
     min-block-size: clamp(10.5rem, 20dvh, 12rem) !important;
@@ -496,7 +496,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-height: 40.625rem) {
+@media (max-height: 50rem) {
   .game-container {
     padding-block-start: 4.25rem;
   }

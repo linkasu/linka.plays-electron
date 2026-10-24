@@ -382,13 +382,49 @@ onUnmounted(() => {
   }
 }
 
-@media (max-height: 40rem) {
+/* A 1366×768 laptop leaves the app window about 690 px: the scheme stays,
+   only shorter, so the answers fit; the spoken hint and the caption go. */
+@media (max-height: 50rem) {
   .game-container {
     padding-block-start: 9.25rem;
   }
 
+  .number-bonds-card {
+    padding-block: 0.75rem !important;
+  }
+
+  .number-bonds-card > .text-overline,
+  .number-bonds-card > .v-alert {
+    display: none;
+  }
+
+  .number-bonds-card > h1 {
+    margin-block-end: 0.5rem !important;
+  }
+
+  .bond-panel {
+    margin-block-end: 0.75rem !important;
+    padding: 0.6rem 1rem !important;
+  }
+
   .bond-equation {
-    font-size: clamp(2.75rem, min(9vw, 10vh), 5.25rem);
+    font-size: clamp(2.25rem, min(8vw, 8vh), 4.5rem);
+  }
+
+  .part-card {
+    padding: 0.4rem 0.75rem;
+  }
+
+  .dot-row {
+    min-block-size: 2.5rem;
+  }
+
+  .choice-card {
+    min-block-size: 6.5rem;
+  }
+
+  .choice-card__number {
+    font-size: clamp(3rem, min(9vw, 9vh), 4.75rem);
   }
 }
 

@@ -362,6 +362,47 @@ onUnmounted(() => {
   }
 }
 
+/* A 1366×768 laptop leaves the app window about 690 px. Keep the title and
+   the think button, start below the self-mode «В меню» / «Пауза» buttons and
+   size the cells from the free height instead of the 5rem low-window cells. */
+@media (max-height: 50rem) and (min-height: 42.501rem) {
+  .game-container {
+    padding-block-start: 9.25rem;
+  }
+
+  .game-container :deep(.v-card) {
+    padding-block: 0.75rem !important;
+  }
+
+  .game-container .text-overline,
+  .game-container p,
+  .game-container > .v-row .text-body-1.text-medium-emphasis {
+    display: none;
+  }
+
+  .game-container h1 {
+    font-size: 2rem !important;
+    margin-block-end: 0 !important;
+  }
+
+  .game-container .d-flex.flex-column.flex-md-row {
+    margin-block-end: 0.75rem !important;
+  }
+
+  .game-container .d-flex.flex-column.flex-md-row :deep(.dwell-button) {
+    min-block-size: 5.5rem !important;
+  }
+
+  .board-grid {
+    gap: 0.6rem;
+    max-inline-size: clamp(18rem, calc((100dvh - 20rem) * 1.15), 30rem);
+  }
+
+  .board-grid :deep(.dwell-button) {
+    min-block-size: clamp(5.5rem, calc((100dvh - 21rem) / 3), 8.5rem) !important;
+  }
+}
+
 @media (max-height: 42.5rem) {
   .game-container {
     padding-block-start: 4.75rem;

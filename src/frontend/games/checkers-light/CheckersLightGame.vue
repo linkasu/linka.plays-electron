@@ -633,7 +633,7 @@ watch(
   }
 }
 
-@media (max-height: 42.5rem) {
+@media (max-height: 50rem) {
   .game-container {
     padding-block-start: 7.25rem;
   }

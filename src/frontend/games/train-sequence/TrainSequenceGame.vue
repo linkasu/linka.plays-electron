@@ -504,7 +504,7 @@ watch(
   }
 }
 
-@media (max-height: 42.5rem) {
+@media (max-height: 50rem) {
   .game-container {
     padding-block-start: 6.5rem;
   }
@@ -538,9 +538,16 @@ watch(
     gap: 0.75rem;
   }
 
+  /* One row of wagons, so the train being built stays on screen on a
+     laptop window (about 690 px high) too. */
   .wagon-grid {
     gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
     order: -1;
+  }
+
+  .wagon-grid :deep(.dwell-button) {
+    min-block-size: 7.5rem !important;
   }
 
   .track-card {
