@@ -5,6 +5,8 @@ export type RobotPart = {
   label: string;
   instructionLabel: string;
   icon: string;
+  /** Drawn pictures of the part (core/gameArt.ts), drawn together. */
+  art: string[];
   color: string;
 };
 
@@ -21,17 +23,40 @@ export type BuildRobotRound = {
 
 export const buildRobotPartOrder: RobotPartId[] = ["head", "body", "arms", "legs"];
 
+// Testers: «мб перерисовать?». The redrawn robot replaces the CSS shapes; the
+// head is drawn with its antenna, the arms as a left and a right one.
 const baseParts: Record<RobotPartId, Omit<RobotPart, "color">> = {
   head: {
     id: "head",
     label: "голова",
     instructionLabel: "голову",
     icon: "mdi-robot-happy-outline",
+    art: ["build-robot/antenna", "build-robot/head"],
   },
-  body: { id: "body", label: "корпус", instructionLabel: "корпус", icon: "mdi-cube-outline" },
-  arms: { id: "arms", label: "руки", instructionLabel: "руки", icon: "mdi-arm-flex-outline" },
-  legs: { id: "legs", label: "ноги", instructionLabel: "ноги", icon: "mdi-shoe-print" },
+  body: {
+    id: "body",
+    label: "корпус",
+    instructionLabel: "корпус",
+    icon: "mdi-cube-outline",
+    art: ["build-robot/body"],
+  },
+  arms: {
+    id: "arms",
+    label: "руки",
+    instructionLabel: "руки",
+    icon: "mdi-arm-flex-outline",
+    art: ["build-robot/arm-left", "build-robot/arm-right"],
+  },
+  legs: {
+    id: "legs",
+    label: "ноги",
+    instructionLabel: "ноги",
+    icon: "mdi-shoe-print",
+    art: ["build-robot/legs"],
+  },
 };
+
+export const buildRobotArtIds = Object.values(baseParts).flatMap((part) => part.art);
 
 const robotPalettes: Record<RobotPartId, string>[] = [
   { head: "#90caf9", body: "#a5d6a7", arms: "#ffe082", legs: "#ce93d8" },

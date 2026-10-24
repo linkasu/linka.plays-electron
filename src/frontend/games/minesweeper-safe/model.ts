@@ -164,3 +164,14 @@ function shuffleIndexes(totalCells: number, random: () => number) {
 
   return indexes;
 }
+
+// Testers: «дорисовать элементы по аналогии в самой игре». Drawn tiles
+// (core/gameArt.ts): a closed and an open cell, a flag and the numbers 1–8.
+export function minesweeperTileArtId(state: "closed" | "open" | "flag" | number) {
+  return `minesweeper-safe/tile-${state}`;
+}
+
+export const minesweeperSafeArtIds = [
+  ...(["closed", "open", "flag"] as const).map(minesweeperTileArtId),
+  ...[1, 2, 3, 4, 5, 6, 7, 8].map(minesweeperTileArtId),
+];

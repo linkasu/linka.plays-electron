@@ -8,6 +8,7 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useGameTimers } from "../../composables/useGameTimers";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
   disposeBuildRobotAudio,
@@ -204,6 +205,12 @@ function partStyle(part: RobotPart) {
   return { "--part-color": part.color };
 }
 
+// The three robots share one drawing; a hue shift keeps them apart, as the
+// three colour palettes did before.
+const robotArtStyle = computed(() => ({
+  filter: `hue-rotate(${((round.value.robotIndex - 1) % 3) * 120}deg)`,
+}));
+
 function slotFilled(partId: RobotPartId) {
   return displayedPartIds.value.has(partId);
 }
@@ -269,19 +276,22 @@ onUnmounted(() => {
                       rounded="xl"
                       variant="flat"
                     >
-                      <div
+                      <span
                         :class="[
-                          'part-art',
-                          'part-art--head',
-                          { 'part-art--ghost': !slotFilled('head') },
+                          'robot-art',
+                          'robot-art--head',
+                          { 'robot-art--ghost': !slotFilled('head') },
                         ]"
-                        :style="partStyle(partById.head)"
+                        :style="robotArtStyle"
                         aria-hidden="true"
                       >
-                        <span class="part-art__detail part-art__detail--one" />
-                        <span class="part-art__detail part-art__detail--two" />
-                        <span class="part-art__detail part-art__detail--three" />
-                      </div>
+                        <img
+                          v-for="artId in partById.head.art"
+                          :key="artId"
+                          :src="gameArtSrc(artId)"
+                          alt=""
+                        />
+                      </span>
                       <div class="text-subtitle-1 font-weight-bold mt-2">
                         {{ partById.head.label }}
                       </div>
@@ -299,20 +309,22 @@ onUnmounted(() => {
                         rounded="xl"
                         variant="flat"
                       >
-                        <div
+                        <span
                           :class="[
-                            'part-art',
-                            'part-art--arm-side',
-                            'part-art--arm-side-left',
-                            { 'part-art--ghost': !slotFilled('arms') },
+                            'robot-art',
+                            'robot-art--arm',
+                            { 'robot-art--ghost': !slotFilled('arms') },
                           ]"
-                          :style="partStyle(partById.arms)"
+                          :style="robotArtStyle"
                           aria-hidden="true"
                         >
-                          <span class="part-art__detail part-art__detail--one" />
-                          <span class="part-art__detail part-art__detail--two" />
-                          <span class="part-art__detail part-art__detail--three" />
-                        </div>
+                          <img
+                            v-for="artId in ['build-robot/arm-left']"
+                            :key="artId"
+                            :src="gameArtSrc(artId)"
+                            alt=""
+                          />
+                        </span>
                       </v-card>
 
                       <v-card
@@ -325,19 +337,22 @@ onUnmounted(() => {
                         rounded="xl"
                         variant="flat"
                       >
-                        <div
+                        <span
                           :class="[
-                            'part-art',
-                            'part-art--body',
-                            { 'part-art--ghost': !slotFilled('body') },
+                            'robot-art',
+                            'robot-art--body',
+                            { 'robot-art--ghost': !slotFilled('body') },
                           ]"
-                          :style="partStyle(partById.body)"
+                          :style="robotArtStyle"
                           aria-hidden="true"
                         >
-                          <span class="part-art__detail part-art__detail--one" />
-                          <span class="part-art__detail part-art__detail--two" />
-                          <span class="part-art__detail part-art__detail--three" />
-                        </div>
+                          <img
+                            v-for="artId in partById.body.art"
+                            :key="artId"
+                            :src="gameArtSrc(artId)"
+                            alt=""
+                          />
+                        </span>
                         <div class="text-subtitle-1 font-weight-bold mt-2">
                           {{ partById.body.label }}
                         </div>
@@ -354,20 +369,22 @@ onUnmounted(() => {
                         rounded="xl"
                         variant="flat"
                       >
-                        <div
+                        <span
                           :class="[
-                            'part-art',
-                            'part-art--arm-side',
-                            'part-art--arm-side-right',
-                            { 'part-art--ghost': !slotFilled('arms') },
+                            'robot-art',
+                            'robot-art--arm',
+                            { 'robot-art--ghost': !slotFilled('arms') },
                           ]"
-                          :style="partStyle(partById.arms)"
+                          :style="robotArtStyle"
                           aria-hidden="true"
                         >
-                          <span class="part-art__detail part-art__detail--one" />
-                          <span class="part-art__detail part-art__detail--two" />
-                          <span class="part-art__detail part-art__detail--three" />
-                        </div>
+                          <img
+                            v-for="artId in ['build-robot/arm-right']"
+                            :key="artId"
+                            :src="gameArtSrc(artId)"
+                            alt=""
+                          />
+                        </span>
                       </v-card>
                     </div>
 
@@ -381,19 +398,22 @@ onUnmounted(() => {
                       rounded="xl"
                       variant="flat"
                     >
-                      <div
+                      <span
                         :class="[
-                          'part-art',
-                          'part-art--legs',
-                          { 'part-art--ghost': !slotFilled('legs') },
+                          'robot-art',
+                          'robot-art--legs',
+                          { 'robot-art--ghost': !slotFilled('legs') },
                         ]"
-                        :style="partStyle(partById.legs)"
+                        :style="robotArtStyle"
                         aria-hidden="true"
                       >
-                        <span class="part-art__detail part-art__detail--one" />
-                        <span class="part-art__detail part-art__detail--two" />
-                        <span class="part-art__detail part-art__detail--three" />
-                      </div>
+                        <img
+                          v-for="artId in partById.legs.art"
+                          :key="artId"
+                          :src="gameArtSrc(artId)"
+                          alt=""
+                        />
+                      </span>
                       <div class="text-subtitle-1 font-weight-bold mt-2">
                         {{ partById.legs.label }}
                       </div>
@@ -416,15 +436,18 @@ onUnmounted(() => {
                       @select="choosePart(part)"
                     >
                       <template #default>
-                        <div
-                          :class="['part-art', 'part-art--choice', `part-art--${part.id}`]"
-                          :style="partStyle(part)"
+                        <span
+                          :class="['robot-art', 'robot-art--choice', `robot-art--${part.id}`]"
+                          :style="robotArtStyle"
                           aria-hidden="true"
                         >
-                          <span class="part-art__detail part-art__detail--one" />
-                          <span class="part-art__detail part-art__detail--two" />
-                          <span class="part-art__detail part-art__detail--three" />
-                        </div>
+                          <img
+                            v-for="artId in part.art"
+                            :key="artId"
+                            :src="gameArtSrc(artId)"
+                            alt=""
+                          />
+                        </span>
                         <div class="text-h5 text-md-h4 font-weight-bold mt-2">{{ part.label }}</div>
                       </template>
                     </GameDwellButton>
@@ -582,259 +605,44 @@ onUnmounted(() => {
   ) !important;
 }
 
-.part-art {
-  --part-color: #90caf9;
-  block-size: clamp(3.2rem, min(8vw, 11vh), 5.8rem);
-  inline-size: clamp(4.2rem, min(10vw, 14vh), 7.4rem);
+.robot-art {
+  align-items: center;
+  block-size: clamp(3.6rem, min(9vw, 12vh), 6.4rem);
+  display: flex;
+  justify-content: center;
   margin-inline: auto;
-  position: relative;
 }
 
-.part-art--choice {
-  block-size: clamp(3.6rem, min(7vw, 10vh), 5.4rem);
+.robot-art img {
+  block-size: 100%;
+  inline-size: auto;
+  max-inline-size: 100%;
+  object-fit: contain;
+}
+
+/* The antenna sits on top of the head, a third of its height. */
+.robot-art--head {
+  flex-direction: column;
+}
+
+.robot-art--head img:first-child {
+  block-size: 34%;
+  margin-block-end: -6%;
+}
+
+.robot-art--head img:last-child {
+  block-size: 72%;
+}
+
+.robot-art--choice {
+  block-size: clamp(4.2rem, min(8vw, 12vh), 6.4rem);
   filter: drop-shadow(0 0.35rem 0.25rem rgb(0 0 0 / 18%));
 }
 
-.part-art::before,
-.part-art::after,
-.part-art__detail {
-  background: var(--part-color);
-  border: 0.22rem solid rgb(255 255 255 / 92%);
-  box-shadow: inset 0 -0.25rem 0 rgb(0 0 0 / 10%);
-  content: "";
-  display: block;
-  position: absolute;
-}
-
-.robot-slot .part-art::before,
-.robot-slot .part-art::after,
-.robot-slot .part-art__detail {
-  border-color: rgb(69 88 96 / 34%);
-}
-
-.part-art--ghost::before,
-.part-art--ghost::after,
-.part-art--ghost .part-art__detail {
-  background: rgb(248 252 253 / 86%);
-  border-color: rgb(69 88 96 / 34%);
-  box-shadow: none;
-}
-
-.part-art--head::before {
-  block-size: 56%;
-  border-radius: 1.1rem 1.1rem 0.85rem 0.85rem;
-  inline-size: 64%;
-  inset-block-start: 28%;
-  inset-inline-start: 18%;
-}
-
-.part-art--head::after {
-  block-size: 16%;
-  border-radius: 999px 999px 0 0;
-  inline-size: 18%;
-  inset-block-start: 8%;
-  inset-inline-start: 41%;
-}
-
-.part-art--head .part-art__detail--one,
-.part-art--head .part-art__detail--two {
-  background: #243238;
-  block-size: 12%;
-  border: 0;
-  border-radius: 999px;
-  box-shadow: none;
-  inline-size: 12%;
-  inset-block-start: 50%;
-}
-
-.part-art--head .part-art__detail--one {
-  inset-inline-start: 34%;
-}
-
-.part-art--head .part-art__detail--two {
-  inset-inline-end: 34%;
-}
-
-.part-art--head .part-art__detail--three {
-  background: rgb(255 255 255 / 86%);
-  block-size: 10%;
-  border: 0;
-  border-radius: 999px;
-  box-shadow: none;
-  inline-size: 32%;
-  inset-block-start: 68%;
-  inset-inline-start: 34%;
-}
-
-.part-art--body::before {
-  block-size: 66%;
-  border-radius: 1.05rem;
-  inline-size: 58%;
-  inset-block-start: 18%;
-  inset-inline-start: 21%;
-  transform: perspective(5rem) rotateX(8deg);
-}
-
-.part-art--body::after {
-  background: rgb(255 255 255 / 82%);
-  block-size: 28%;
-  border: 0.14rem solid rgb(36 50 56 / 22%);
-  border-radius: 0.45rem;
-  box-shadow: none;
-  inline-size: 31%;
-  inset-block-start: 36%;
-  inset-inline-start: 34.5%;
-}
-
-.part-art--body .part-art__detail--one,
-.part-art--body .part-art__detail--two,
-.part-art--body .part-art__detail--three {
-  block-size: 10%;
-  border: 0;
-  border-radius: 999px;
-  box-shadow: none;
-  inline-size: 7%;
-  inset-block-start: 70%;
-}
-
-.part-art--body .part-art__detail--one {
-  background: #ef6f8f;
-  inset-inline-start: 37%;
-}
-
-.part-art--body .part-art__detail--two {
-  background: #ffe082;
-  inset-inline-start: 47%;
-}
-
-.part-art--body .part-art__detail--three {
-  background: #7fd3c6;
-  inset-inline-start: 57%;
-}
-
-.part-art--arms::before,
-.part-art--arms::after {
-  block-size: 22%;
-  border-radius: 999px;
-  inline-size: 54%;
-  inset-block-start: 38%;
-}
-
-.part-art--arms::before {
-  inset-inline-start: 4%;
-  transform: rotate(-28deg);
-}
-
-.part-art--arms::after {
-  inset-inline-end: 4%;
-  transform: rotate(28deg);
-}
-
-.part-art--arms .part-art__detail--one,
-.part-art--arms .part-art__detail--two {
-  background: color-mix(in srgb, var(--part-color) 72%, white);
-  block-size: 33%;
-  border-radius: 999px 999px 1rem 1rem;
-  inline-size: 18%;
-  inset-block-start: 50%;
-}
-
-.part-art--arms .part-art__detail--one {
-  inset-inline-start: 10%;
-  transform: rotate(-24deg);
-}
-
-.part-art--arms .part-art__detail--two {
-  inset-inline-end: 10%;
-  transform: rotate(24deg);
-}
-
-.part-art--arms .part-art__detail--three {
-  display: none;
-}
-
-.part-art--arm-side {
-  block-size: clamp(3rem, min(6.3vw, 8.7vh), 4.8rem);
-  inline-size: clamp(3.1rem, min(6.5vw, 9vh), 5rem);
-}
-
-.part-art--arm-side::before {
-  block-size: 22%;
-  border-radius: 999px;
-  inline-size: 82%;
-  inset-block-start: 34%;
-  inset-inline-start: 8%;
-}
-
-.part-art--arm-side::after {
-  background: color-mix(in srgb, var(--part-color) 72%, white);
-  block-size: 34%;
-  border-radius: 999px 999px 1rem 1rem;
-  inline-size: 28%;
-  inset-block-start: 48%;
-}
-
-.part-art--arm-side-left::before {
-  transform: rotate(24deg);
-}
-
-.part-art--arm-side-left::after {
-  inset-inline-start: 4%;
-  transform: rotate(-14deg);
-}
-
-.part-art--arm-side-right::before {
-  transform: rotate(-24deg);
-}
-
-.part-art--arm-side-right::after {
-  inset-inline-end: 4%;
-  transform: rotate(14deg);
-}
-
-.part-art--arm-side .part-art__detail {
-  display: none;
-}
-
-.part-art--legs::before,
-.part-art--legs::after {
-  block-size: 54%;
-  border-radius: 999px 999px 0.7rem 0.7rem;
-  inline-size: 22%;
-  inset-block-start: 16%;
-}
-
-.part-art--legs::before {
-  inset-inline-start: 27%;
-  transform: rotate(-9deg);
-}
-
-.part-art--legs::after {
-  inset-inline-end: 27%;
-  transform: rotate(9deg);
-}
-
-.part-art--legs .part-art__detail--one,
-.part-art--legs .part-art__detail--two {
-  background: color-mix(in srgb, var(--part-color) 76%, #263238);
-  block-size: 15%;
-  border-radius: 999px;
-  inline-size: 27%;
-  inset-block-start: 68%;
-}
-
-.part-art--legs .part-art__detail--one {
-  inset-inline-start: 21%;
-  transform: rotate(-8deg);
-}
-
-.part-art--legs .part-art__detail--two {
-  inset-inline-end: 21%;
-  transform: rotate(8deg);
-}
-
-.part-art--legs .part-art__detail--three {
-  display: none;
+/* An empty slot shows a pale outline of the part it waits for. */
+.robot-art--ghost img {
+  filter: grayscale(1) brightness(1.6);
+  opacity: 0.35;
 }
 
 @media (max-width: 37.5rem) {
@@ -869,8 +677,8 @@ onUnmounted(() => {
     min-block-size: clamp(4.6rem, 10vh, 6.2rem);
   }
 
-  .part-art,
-  .part-art--choice {
+  .robot-art,
+  .robot-art--choice {
     block-size: clamp(2.55rem, min(5.3vw, 7.4vh), 3.9rem);
     inline-size: clamp(3.4rem, min(7vw, 9.6vh), 5.1rem);
   }
