@@ -288,7 +288,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-height: 40rem) {
+@media (max-height: 50rem) {
   .game-container {
     padding-block-start: 0;
   }
