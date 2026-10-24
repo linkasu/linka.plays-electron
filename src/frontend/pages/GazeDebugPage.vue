@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import {
+  applyGazeCorrection,
+  fitGazeCorrection,
+  gazeCorrection,
+  setGazeCorrection,
+  type GazeCorrectionFit,
+} from "../core/gazeCorrection";
 
 type DebugSample = {
   x: number;
@@ -34,6 +41,9 @@ type DebugReport = {
   durationMs: number;
   viewport: { width: number; height: number; devicePixelRatio: number };
   diagnostics?: TobiiDiagnosticsSnapshot;
+  correctionFit?: GazeCorrectionFit;
+  /** Mean miss of this run with the correction that is already on. */
+  currentCorrectionErrorPx?: number;
 };
 
 const router = useRouter();
@@ -64,6 +74,9 @@ const targetFractions = [
   { x: 0.88, y: 0.88 },
 ];
 const pointDurationMs = 1600;
+// The first part of every point is the eyes moving over from the previous
+// target; averaging it in made a small miss look like 100-400 px.
+const settleMs = 700;
 const targetZone = 100;
 const tobiiFreshMs = 700;
 let frame = 0;
@@ -142,11 +155,14 @@ function recordSample() {
 }
 
 function buildPointReport(index: number): PointReport {
-  const valid = validSamples.value;
-  const validRatio = samples.value.length ? valid.length / samples.value.length : 0;
+  const settled = validSamples.value.filter(
+    (sample) => sample.timestamp - pointStartedAt.value >= settleMs,
+  );
+  const valid = settled.length >= 5 ? settled : validSamples.value;
+  const validRatio = samples.value.length ? validSamples.value.length / samples.value.length : 0;
   const pointReport: PointReport = {
     index,
-    samples: valid.length,
+    samples: validSamples.value.length,
     totalSamples: samples.value.length,
     rawSamples: samples.value,
     target: { ...target.value },
@@ -203,7 +219,47 @@ function buildReport(): DebugReport {
       devicePixelRatio: window.devicePixelRatio || 1,
     },
     diagnostics: diagnostics.value,
+    currentCorrectionErrorPx: currentCorrectionError(reports),
+    correctionFit: fitGazeCorrection(
+      reports.flatMap((point) =>
+        point.mean ? [{ measured: point.mean, target: point.target }] : [],
+      ),
+      { width: window.innerWidth, height: window.innerHeight },
+    ),
   };
+}
+
+function currentCorrectionError(reports: PointReport[]) {
+  const correction = gazeCorrection.value;
+  const viewport = { width: window.innerWidth, height: window.innerHeight };
+  const errors = reports.flatMap((point) => {
+    if (!correction || !point.mean) return [];
+    const fixed = applyGazeCorrection(correction, point.mean, viewport);
+    return [Math.hypot(fixed.x - point.target.x, fixed.y - point.target.y)];
+  });
+  return errors.length ? errors.reduce((sum, error) => sum + error, 0) / errors.length : undefined;
+}
+
+const fittedCorrection = computed(() => {
+  const fit = report.value?.correctionFit;
+  return fit?.ok ? fit.correction : undefined;
+});
+const fitFailure = computed(() => {
+  const fit = report.value?.correctionFit;
+  return fit && !fit.ok ? fit.reason : "";
+});
+const correctionStatus = computed(() =>
+  gazeCorrection.value
+    ? `Поправка включена с ${new Date(gazeCorrection.value.createdAt).toLocaleString("ru-RU")}.`
+    : "Поправка выключена.",
+);
+
+function applyCorrection() {
+  if (fittedCorrection.value) setGazeCorrection(fittedCorrection.value);
+}
+
+function resetCorrection() {
+  setGazeCorrection(undefined);
 }
 
 function stopTimers() {
@@ -378,6 +434,10 @@ onBeforeUnmount(() => {
             </div>
           </v-col>
           <v-col cols="6">
+            <div class="text-caption text-medium-emphasis">Поправка взгляда</div>
+            <div class="text-body-2">{{ gazeCorrection ? "включена" : "выключена" }}</div>
+          </v-col>
+          <v-col cols="6">
             <div class="text-caption text-medium-emphasis">Tobii direct</div>
             <div class="text-body-2">
               {{
@@ -446,6 +506,21 @@ onBeforeUnmount(() => {
               </tr>
             </tbody>
           </v-table>
+          <v-alert class="mt-4" :type="fittedCorrection ? 'info' : 'warning'" variant="tonal">
+            <template v-if="fittedCorrection">
+              Поправка взгляда уменьшит промах с
+              {{ formatNumber(fittedCorrection.errorBeforePx) }} до
+              {{ formatNumber(fittedCorrection.errorAfterPx) }} px. Она действует во всех играх.
+            </template>
+            <template v-else>Поправку не подобрать: {{ fitFailure }}</template>
+            <div class="mt-1 text-caption">
+              {{ correctionStatus }} Замер на этом экране всегда идёт без поправки.
+              <template v-if="report?.currentCorrectionErrorPx !== undefined">
+                С включённой поправкой промах в этом замере был бы
+                {{ formatNumber(report.currentCorrectionErrorPx) }} px.
+              </template>
+            </div>
+          </v-alert>
           <v-textarea
             class="mt-4"
             :model-value="reportText"
@@ -459,7 +534,13 @@ onBeforeUnmount(() => {
           }}</v-alert>
         </v-card-text>
         <v-card-actions class="pa-4 pt-0 flex-wrap ga-2">
-          <v-btn color="primary" @click="copyReport">Скопировать отчёт</v-btn>
+          <v-btn v-if="fittedCorrection" color="primary" @click="applyCorrection"
+            >Применить поправку</v-btn
+          >
+          <v-btn v-if="gazeCorrection" variant="tonal" @click="resetCorrection"
+            >Сбросить поправку</v-btn
+          >
+          <v-btn color="primary" variant="tonal" @click="copyReport">Скопировать отчёт</v-btn>
           <v-btn variant="tonal" @click="startMeasurement">Повторить</v-btn>
           <v-btn variant="text" @click="reportDialog = false">Закрыть</v-btn>
         </v-card-actions>
