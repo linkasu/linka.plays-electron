@@ -21,7 +21,16 @@ export type GazeCorrection = {
   /** Средний промах по точкам замера без поправки и с ней, в пикселях окна замера. */
   errorBeforePx: number;
   errorAfterPx: number;
+  /**
+   * The window the correction was measured in. The tracker's miss is in screen
+   * pixels and the app only subtracts the window position from it, so after the
+   * window is resized or moved the fitted numbers no longer hold. Then the
+   * correction is not applied until the gaze check is repeated.
+   */
+  window?: GazeCorrectionWindow;
 };
+
+export type GazeCorrectionWindow = { x: number; y: number; width: number; height: number };
 
 export type GazeCorrectionPoint = {
   measured: { x: number; y: number };
@@ -77,6 +86,30 @@ function applyNormalized(correction: GazeCorrection, u: number, v: number) {
   return { u: a * u + b * v + c, v: d * u + e * v + f };
 }
 
+/** Whether a correction measured in `measured` still holds in window `current`. */
+export function correctionFitsWindow(
+  measured: GazeCorrectionWindow | undefined,
+  current: GazeCorrectionWindow,
+) {
+  if (!measured) return true;
+  const tolerance = 2;
+  return (
+    Math.abs(measured.x - current.x) <= tolerance &&
+    Math.abs(measured.y - current.y) <= tolerance &&
+    Math.abs(measured.width - current.width) <= tolerance &&
+    Math.abs(measured.height - current.height) <= tolerance
+  );
+}
+
+export function currentGazeWindow(): GazeCorrectionWindow {
+  return {
+    x: window.screenX,
+    y: window.screenY,
+    width: window.innerWidth,
+    height: window.innerHeight,
+  };
+}
+
 export function applyGazeCorrection(
   correction: GazeCorrection | undefined,
   point: { x: number; y: number },
@@ -91,6 +124,7 @@ export function fitGazeCorrection(
   points: GazeCorrectionPoint[],
   viewport: Viewport,
   now = Date.now(),
+  measuredWindow?: GazeCorrectionWindow,
 ): GazeCorrectionFit {
   if (points.length < minPoints)
     return { ok: false, reason: `Мало точек: ${points.length} из ${minPoints}.` };
@@ -125,6 +159,7 @@ export function fitGazeCorrection(
     createdAt: now,
     errorBeforePx: 0,
     errorAfterPx: 0,
+    window: measuredWindow,
   };
   const error = (fix: (point: GazeCorrectionPoint) => { x: number; y: number }) =>
     points.reduce((sum, point) => {

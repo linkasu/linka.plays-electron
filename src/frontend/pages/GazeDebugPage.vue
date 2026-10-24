@@ -3,6 +3,8 @@ import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import {
   applyGazeCorrection,
+  correctionFitsWindow,
+  currentGazeWindow,
   fitGazeCorrection,
   gazeCorrection,
   setGazeCorrection,
@@ -225,12 +227,16 @@ function buildReport(): DebugReport {
         point.mean ? [{ measured: point.mean, target: point.target }] : [],
       ),
       { width: window.innerWidth, height: window.innerHeight },
+      Date.now(),
+      currentGazeWindow(),
     ),
   };
 }
 
 function currentCorrectionError(reports: PointReport[]) {
-  const correction = gazeCorrection.value;
+  const correction = correctionFitsWindow(gazeCorrection.value?.window, currentGazeWindow())
+    ? gazeCorrection.value
+    : undefined;
   const viewport = { width: window.innerWidth, height: window.innerHeight };
   const errors = reports.flatMap((point) => {
     if (!correction || !point.mean) return [];
@@ -254,11 +260,18 @@ const fitFailure = computed(() => {
   const fit = report.value?.correctionFit;
   return fit && !fit.ok ? fit.reason : "";
 });
-const correctionStatus = computed(() =>
-  gazeCorrection.value
-    ? `Поправка включена с ${new Date(gazeCorrection.value.createdAt).toLocaleString("ru-RU")}.`
-    : "Поправка выключена.",
+// Not reactive to window moves, but recomputed with every new report.
+const correctionWindowMatches = computed(
+  () =>
+    report.value !== undefined &&
+    correctionFitsWindow(gazeCorrection.value?.window, currentGazeWindow()),
 );
+const correctionStatus = computed(() => {
+  if (!gazeCorrection.value) return "Поправка выключена.";
+  if (!correctionWindowMatches.value)
+    return "Поправка сохранена для другого размера или положения окна и сейчас не действует. Примените новую.";
+  return `Поправка включена с ${new Date(gazeCorrection.value.createdAt).toLocaleString("ru-RU")}.`;
+});
 
 function applyCorrection() {
   if (fittedCorrection.value) setGazeCorrection(fittedCorrection.value);

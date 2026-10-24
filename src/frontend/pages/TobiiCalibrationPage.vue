@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import { setGazeCorrection } from "../core/gazeCorrection";
 import { resolveMenuRoute } from "../core/menuMode";
 
 type CalibrationPhase = "idle" | "start" | "look" | "finish";
@@ -141,6 +142,8 @@ async function applySavedCalibration() {
   calibrationError.value = "";
   try {
     const applied = await window.linkaTobii.applySavedCalibration();
+    // A correction measured on the old calibration would now push the gaze off.
+    if (applied) setGazeCorrection(undefined);
     calibrationMessage.value = applied
       ? "Сохранённая калибровка применена."
       : "Сохранённая калибровка пока не найдена.";
@@ -289,6 +292,7 @@ async function continueAfterPoint() {
   phase.value = "finish";
   try {
     await window.linkaTobii?.finishCalibration();
+    setGazeCorrection(undefined);
     calibrationMessage.value =
       "Калибровка Tobii по девяти точкам сохранена и применена. Теперь проверьте точность взгляда.";
     calibrationActive.value = false;

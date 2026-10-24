@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { applyGazeCorrection, fitGazeCorrection, type GazeCorrectionPoint } from "./gazeCorrection";
+import {
+  applyGazeCorrection,
+  correctionFitsWindow,
+  fitGazeCorrection,
+  type GazeCorrectionPoint,
+} from "./gazeCorrection";
 
 const viewport = { width: 1920, height: 991 };
 const fractions = [0.12, 0.5, 0.88];
@@ -70,5 +75,22 @@ describe("gaze correction", () => {
 
   it("leaves the point alone without a correction", () => {
     expect(applyGazeCorrection(undefined, { x: 10, y: 20 }, viewport)).toEqual({ x: 10, y: 20 });
+  });
+});
+
+describe("gaze correction window", () => {
+  const measured = { x: 0, y: 0, width: 1920, height: 991 };
+
+  it("holds in the window it was measured in", () => {
+    expect(correctionFitsWindow(measured, { ...measured, x: 1 })).toBe(true);
+  });
+
+  it("stops holding after the window is resized or moved", () => {
+    expect(correctionFitsWindow(measured, { ...measured, width: 1280 })).toBe(false);
+    expect(correctionFitsWindow(measured, { ...measured, x: 300 })).toBe(false);
+  });
+
+  it("keeps an older correction without a window", () => {
+    expect(correctionFitsWindow(undefined, measured)).toBe(true);
   });
 });
