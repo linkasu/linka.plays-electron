@@ -125,7 +125,7 @@ function shoppingActionTargetId() {
 }
 
 function playRoundPrompt(delayMs = 0) {
-  return speakSceneText(round.value.prompt, session.settings.sound, delayMs);
+  return speakSceneText(round.value.prompt, session.settings.sound, delayMs, { gameId: "shop" });
 }
 
 function resetSelection(text = round.value.helperText) {

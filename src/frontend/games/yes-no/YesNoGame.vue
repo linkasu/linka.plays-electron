@@ -11,17 +11,8 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
-import {
-  disposeTtsAssets,
-  playTtsAssetAndWait,
-  stopTtsPlayback,
-  warmTtsAssets,
-  type TtsAsset,
-} from "../../core/ttsAudio";
-import ttsAssetsData from "../../data/ttsAssets.json";
-import { findYesNoNameAsset, generateYesNoRound, type YesNoAnswer, type YesNoRound } from "./model";
-
-const allTtsAssets = ttsAssetsData as TtsAsset[];
+import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
+import { generateYesNoRound, type YesNoAnswer, type YesNoRound } from "./model";
 
 const router = useRouter();
 const {
@@ -64,10 +55,7 @@ const {
 
 const feedback = ref("Выбери ответ взглядом.");
 const isChangingRound = ref(false);
-const usedNameAssets = new Map<string, TtsAsset>();
 let questionToken = 0;
-let speechGuardTimer = 0;
-let settleSystemSpeech: (() => void) | undefined;
 
 function answerTargetId(value: YesNoAnswer) {
   return `yes-no:answer:${value}`;
@@ -75,49 +63,9 @@ function answerTargetId(value: YesNoAnswer) {
 
 function cancelRoundQuestion() {
   questionToken += 1;
-  window.clearTimeout(speechGuardTimer);
-  speechGuardTimer = 0;
-  window.speechSynthesis?.cancel();
-  settleSystemSpeech?.();
-  settleSystemSpeech = undefined;
+  cancelSceneSpeech();
   promptAudio.cancelPending();
-  stopTtsPlayback();
   isChangingRound.value = false;
-}
-
-function speakSystemText(text: string) {
-  if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window))
-    return Promise.resolve(false);
-
-  return new Promise<boolean>((resolve) => {
-    let settled = false;
-    const finish = (spoken: boolean) => {
-      if (settled) return;
-      settled = true;
-      window.clearTimeout(speechGuardTimer);
-      speechGuardTimer = 0;
-      settleSystemSpeech = undefined;
-      resolve(spoken);
-    };
-
-    try {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "ru-RU";
-      utterance.rate = 0.82;
-      utterance.pitch = 1;
-      utterance.volume = 0.32;
-      utterance.onend = () => finish(true);
-      utterance.onerror = () => finish(false);
-      settleSystemSpeech = () => finish(false);
-      window.speechSynthesis.speak(utterance);
-      speechGuardTimer = window.setTimeout(() => {
-        window.speechSynthesis.cancel();
-        finish(false);
-      }, 8000);
-    } catch {
-      finish(false);
-    }
-  });
 }
 
 async function playRoundQuestion(delayMs = 0) {
@@ -132,16 +80,9 @@ async function playRoundQuestion(delayMs = 0) {
     return;
   }
 
-  const nameAsset = findYesNoNameAsset(round.value.askedItem, allTtsAssets) as TtsAsset | undefined;
-  if (nameAsset) {
-    await speakSystemText("Это");
-    if (token !== questionToken) return;
-    usedNameAssets.set(nameAsset.id, nameAsset);
-    warmTtsAssets(true, [nameAsset]);
-    await playTtsAssetAndWait(true, nameAsset, 0.36);
-  } else {
-    await speakSystemText(round.value.prompt);
-  }
+  // The whole question is one recording: «Это» used to come from the system
+  // voice (quiet, male on Windows) and the word from another game's file.
+  await speakSceneText(round.value.prompt, true, 0, { gameId: "yes-no" });
 
   if (token === questionToken) isChangingRound.value = false;
 }
@@ -211,7 +152,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   cancelRoundQuestion();
-  disposeTtsAssets([...usedNameAssets.values()]);
 });
 </script>
 

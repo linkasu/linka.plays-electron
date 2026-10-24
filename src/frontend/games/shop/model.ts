@@ -75,6 +75,15 @@ function buildShoppingPairs(walletTotal: number) {
   return pairs;
 }
 
+export function shopCoinWord(count: number) {
+  const lastTwo = count % 100;
+  const last = count % 10;
+  if (lastTwo >= 11 && lastTwo <= 14) return "монет";
+  if (last === 1) return "монета";
+  if (last >= 2 && last <= 4) return "монеты";
+  return "монет";
+}
+
 export function buildShopPaymentSuggestion(total: number): ShopCoinValue[] {
   const coins: ShopCoinValue[] = [];
   let rest = Math.max(2, Math.min(10, Math.floor(total)));
@@ -147,7 +156,8 @@ export function generateShopRound(
   return {
     roundId: `shop:round:${roundIndex}`,
     taskKind,
-    prompt: `Оплати ${targetItem.label}: ${targetPrice}`,
+    // Testers: «озвучить задание корректно - оплати банан, его цена 6 монет».
+    prompt: `Оплати ${targetItem.label}. Цена — ${targetPrice} ${shopCoinWord(targetPrice)}.`,
     helperText: "Собери цену монетами и нажми галочку.",
     targetItem,
     targetItems: [targetItem],

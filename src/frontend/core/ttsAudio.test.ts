@@ -3,6 +3,7 @@ import {
   disposeTtsAssets,
   isTtsPlaybackActive,
   playTtsAsset,
+  playTtsAssetAndWait,
   stopTtsPlayback,
   subscribeTtsPlayback,
   type TtsAsset,
@@ -14,6 +15,7 @@ class MockAudio extends EventTarget {
   preload = "";
   volume = 1;
   currentTime = 0;
+  duration = Number.NaN;
   play = vi.fn(() => Promise.resolve());
   pause = vi.fn();
   load = vi.fn();
@@ -72,5 +74,38 @@ describe("TTS playback focus", () => {
     await Promise.resolve();
 
     expect(isTtsPlaybackActive()).toBe(false);
+  });
+});
+
+describe("TTS playback waiting", () => {
+  afterEach(() => vi.useRealTimers());
+
+  it("waits for a recording longer than the old 6 s guard", async () => {
+    vi.useFakeTimers();
+    let done = false;
+    const playing = playTtsAssetAndWait(true, asset).then(() => {
+      done = true;
+    });
+    const audio = MockAudio.instances[0];
+    audio.duration = 7.9;
+    audio.dispatchEvent(new Event("loadedmetadata"));
+
+    await vi.advanceTimersByTimeAsync(6500);
+    expect(done).toBe(false);
+
+    audio.dispatchEvent(new Event("ended"));
+    await playing;
+    expect(done).toBe(true);
+  });
+
+  it("still gives up on a recording that never ends", async () => {
+    vi.useFakeTimers();
+    let done = false;
+    void playTtsAssetAndWait(true, asset).then(() => {
+      done = true;
+    });
+
+    await vi.advanceTimersByTimeAsync(6100);
+    expect(done).toBe(true);
   });
 });
