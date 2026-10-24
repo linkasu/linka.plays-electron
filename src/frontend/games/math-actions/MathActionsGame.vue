@@ -49,9 +49,12 @@ const answer = ref("");
 const feedback = ref("Введи ответ и нажми галочку.");
 const isSpeaking = ref(false);
 const resultVisible = computed(() => session.status === "finished");
-// Digits in two rows, erase and confirm on their own row: in a 4×3 pad the
-// confirm key sat right under "0" and the gaze dot kept typing a zero.
-const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "⌫", "✓"];
+// Digits in two rows, erase and confirm in their own column to the right.
+// In a 4×3 pad the confirm key sat right under "0", and on its own row under
+// the digits it still did: the gaze dot lands above the point looked at, so a
+// look at ✓ typed the digit above it. Nothing is above ✓ now.
+const digitKeys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
+const actionKeys = ["⌫", "✓"];
 
 function keyTargetId(key: string) {
   if (key === "⌫") return "math-actions:key:backspace";
@@ -179,23 +182,28 @@ onUnmounted(() => {
             >
               {{ feedback }}
             </v-alert>
-            <GameSquareChoiceGrid
-              :items="keys"
-              :columns="5"
-              grid-offset="21rem"
-              min-size="5.5rem"
-              max-size="10.5rem"
-              compact-size="5rem"
-              width-factor="12vw"
-              :target-id="(choice) => keyTargetId(String(choice))"
-              :disabled="session.status !== 'running' || isSpeaking"
-              :dwell-ms="session.settings.dwellMs"
-              @select="selectKey"
-            >
-              <template #default="{ choice }">
-                <div class="text-h3 font-weight-bold">{{ choice }}</div>
-              </template>
-            </GameSquareChoiceGrid>
+            <div class="keypad">
+              <GameSquareChoiceGrid
+                v-for="group in [digitKeys, actionKeys]"
+                :key="group[0]"
+                class="keypad__group"
+                :items="group"
+                :columns="group.length / 2"
+                grid-offset="21rem"
+                min-size="5.5rem"
+                max-size="10.5rem"
+                compact-size="min(7rem, 9vw)"
+                width-factor="10vw"
+                :target-id="(choice) => keyTargetId(String(choice))"
+                :disabled="session.status !== 'running' || isSpeaking"
+                :dwell-ms="session.settings.dwellMs"
+                @select="selectKey"
+              >
+                <template #default="{ choice }">
+                  <div class="text-h3 font-weight-bold">{{ choice }}</div>
+                </template>
+              </GameSquareChoiceGrid>
+            </div>
           </v-card>
         </v-col>
       </v-row>
@@ -236,6 +244,19 @@ onUnmounted(() => {
   color: #6c5ce7;
 }
 
+/* The action column stands off the digits by one and a half key gaps. */
+.keypad {
+  align-items: start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(4.5rem, 10.5vmin, 6.75rem);
+  justify-content: center;
+}
+
+.keypad__group {
+  inline-size: auto;
+}
+
 @media (min-width: 68.75rem) {
   .game-container {
     padding-block-start: 7.25rem;
@@ -243,8 +264,10 @@ onUnmounted(() => {
 }
 
 @media (max-height: 40rem) {
+  /* Below the self-mode «В меню» / «Пауза» buttons: the wider keypad put «1»
+     right under them. Two key rows leave room for it. */
   .game-container {
-    padding-block-start: 5rem;
+    padding-block-start: 9.5rem;
   }
 
   .math-card {

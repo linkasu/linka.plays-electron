@@ -157,8 +157,11 @@ onUnmounted(() => {
                 decorative
               />
             </div>
+            <!-- One row: as a 2×2 block the cards sat in the middle with half the
+                 width empty, too close together for the gaze. -->
             <GameSquareChoiceGrid
               :items="round.choices"
+              :columns="round.choices.length"
               grid-offset="21rem"
               compact-size="7.75rem"
               :target-id="(choice) => choiceTargetId(Number(choice))"
