@@ -260,6 +260,7 @@ onUnmounted(() => {
   align-items: center;
   block-size: 100%;
   color: #17212b;
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -272,8 +273,11 @@ onUnmounted(() => {
   color: #17212b !important;
 }
 
+/* Capped by the card's own width: sized by the window only, «Понедельник»
+   and «Воскресенье» ran out of the card on a 1920 and a laptop screen.
+   13.5cqi keeps an 11-letter day inside the card. */
 .calendar-choice__label {
-  font-size: clamp(1.75rem, 3.8vw, 3.7rem);
+  font-size: min(clamp(1.75rem, 3.8vw, 3.7rem), 13.5cqi);
   line-height: 0.98;
   max-inline-size: 100%;
   white-space: nowrap;
@@ -297,7 +301,7 @@ onUnmounted(() => {
   }
 
   .calendar-choice__label {
-    font-size: 1.3rem;
+    font-size: min(1.3rem, 13.5cqi);
   }
 }
 
@@ -338,7 +342,7 @@ onUnmounted(() => {
   }
 
   .calendar-choice__label {
-    font-size: 2.4rem;
+    font-size: min(2.4rem, 13.5cqi);
   }
 }
 
@@ -348,7 +352,7 @@ onUnmounted(() => {
   }
 
   .calendar-choice__label {
-    font-size: 1.3rem;
+    font-size: min(1.3rem, 13.5cqi);
   }
 }
 </style>
