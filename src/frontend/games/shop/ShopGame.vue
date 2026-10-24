@@ -820,7 +820,10 @@ onUnmounted(() => {
   }
 }
 
-@media (max-height: 44rem) {
+/* Up to 50rem, like the games fixed in #29 / #31: at 735–800px (a laptop
+   window, a 1366×768 screen) the full layout put the goods in two rows and
+   the payment buttons below the window. */
+@media (max-height: 50rem) {
   /* No smaller top offset here: in self mode the gaze «В меню» / «Пауза»
      buttons are about 9rem tall, and with 4.75rem the first goods card lay
      under them, so a look at it could open the menu. There is room below. */
