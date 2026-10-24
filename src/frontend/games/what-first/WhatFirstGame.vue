@@ -326,9 +326,10 @@ onUnmounted(() => {
   }
 }
 
-@media (max-height: 42rem) {
+@media (max-height: 50rem) {
   .game-container {
-    padding-block-start: 3.5rem;
+    /* Below the self-mode «В меню» / «Пауза» buttons. */
+    padding-block-start: 9.5rem;
   }
 
   .what-first-card {
@@ -379,7 +380,7 @@ onUnmounted(() => {
   }
 
   .game-container :deep(.dwell-button) {
-    min-block-size: 8rem !important;
+    min-block-size: clamp(8rem, 30dvh, 13rem) !important;
   }
 }
 </style>
