@@ -633,10 +633,12 @@ onUnmounted(() => {
 }
 
 /* Gap between neighbouring gaze targets: with dense rows the coins and the
-   action buttons sat 8px apart and the gaze dot fired the neighbour. */
-.choice-row,
-.coin-row,
-.action-row {
+   action buttons sat 8px apart and the gaze dot fired the neighbour.
+   `.v-row.` is needed: Vuetify's `.v-row.v-row--no-gutters { margin: 0 }`
+   has the same weight, loads later and silently dropped these margins. */
+.v-row.choice-row,
+.v-row.coin-row,
+.v-row.action-row {
   --target-gap: clamp(1.75rem, 3vmin, 2.5rem);
 
   row-gap: var(--target-gap);
@@ -649,7 +651,7 @@ onUnmounted(() => {
   padding-inline: calc(var(--target-gap) / 2);
 }
 
-.action-row {
+.v-row.action-row {
   margin-block-start: var(--target-gap);
 }
 
@@ -698,7 +700,7 @@ onUnmounted(() => {
   box-shadow: inset 0 -0.5rem 2rem rgb(255 255 255 / 18%);
 }
 
-.shop-card--payment.receipt-panel {
+.shop-card--payment .receipt-panel {
   margin-block-end: clamp(0.5rem, 1.2vh, 1rem) !important;
   padding-block: clamp(0.75rem, 1.8vh, 1rem) !important;
 }
@@ -727,7 +729,7 @@ onUnmounted(() => {
   line-height: 1;
 }
 
-.shop-card--payment.receipt-panel__emoji {
+.shop-card--payment .receipt-panel__emoji {
   font-size: clamp(2.5rem, min(5vw, 7vh), 4rem);
 }
 
@@ -739,7 +741,7 @@ onUnmounted(() => {
   text-align: center;
 }
 
-.shop-card--payment.receipt-panel__price {
+.shop-card--payment .receipt-panel__price {
   font-size: clamp(3rem, min(8vw, 10vh), 5.25rem);
   margin-block: clamp(0.2rem, 0.8vh, 0.5rem);
 }
@@ -753,7 +755,7 @@ onUnmounted(() => {
   min-block-size: 3.25rem;
 }
 
-.shop-card--payment.selected-coins {
+.shop-card--payment .selected-coins {
   min-block-size: clamp(2.25rem, 5vh, 3rem);
 }
 
@@ -771,7 +773,7 @@ onUnmounted(() => {
   min-block-size: 3.25rem;
 }
 
-.shop-card--payment.selected-coin {
+.shop-card--payment .selected-coin {
   font-size: clamp(1.25rem, 3vh, 1.75rem);
   inline-size: clamp(2.25rem, 5vh, 3rem);
   min-block-size: clamp(2.25rem, 5vh, 3rem);
@@ -796,7 +798,7 @@ onUnmounted(() => {
   min-block-size: clamp(5.25rem, min(14vw, 16vh), 7.75rem);
 }
 
-.shop-card--payment.coin-card__value {
+.shop-card--payment .coin-card__value {
   font-size: clamp(2.75rem, min(7vw, 9vh), 4.75rem);
   inline-size: clamp(4.5rem, min(10vw, 12vh), 6.25rem);
   min-block-size: clamp(4.5rem, min(10vw, 12vh), 6.25rem);
@@ -806,12 +808,6 @@ onUnmounted(() => {
 .coin-card--mistake {
   filter: saturate(0.72) brightness(0.96);
   outline: 0.35rem solid rgb(var(--v-theme-secondary));
-}
-
-@media (min-width: 68.75rem) {
-  .game-container {
-    padding-block-start: 7.25rem;
-  }
 }
 
 @media (max-width: 37.5rem) {
@@ -825,10 +821,9 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
-  .game-container {
-    padding-block-start: 4.75rem;
-  }
-
+  /* No smaller top offset here: in self mode the gaze «В меню» / «Пауза»
+     buttons are about 9rem tall, and with 4.75rem the first goods card lay
+     under them, so a look at it could open the menu. There is room below. */
   .shop-card {
     padding-block: 1rem !important;
   }

@@ -333,7 +333,8 @@ onBeforeUnmount(() => {
       />
     </svg>
 
-    <v-card class="debug-panel ma-4" rounded="xl" elevation="8">
+    <!-- Hidden while measuring: the panel covered the top-left target. -->
+    <v-card v-show="!running" class="debug-panel ma-4" rounded="xl" elevation="8">
       <v-card-title class="text-h6 pb-1">Debug взгляда</v-card-title>
       <v-card-text>
         <div class="text-body-2 text-medium-emphasis mb-3">
