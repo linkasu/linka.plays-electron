@@ -72,7 +72,9 @@ const selectedCoinCounts = computed(() =>
   })),
 );
 const coinButtonMinHeight = "clamp(5.75rem, 14vh, 9.25rem)";
-const actionButtonMinHeight = "clamp(4.75rem, 9vh, 6.75rem)";
+// Taller than the coins row needs: the gaze dot lands above the point looked
+// at, and with 4.75rem a look at «Проверить сумму» picked the coin above it.
+const actionButtonMinHeight = "clamp(6rem, 15vh, 8rem)";
 
 function coinTargetId(value: CoinCountingCoinValue) {
   return `coin-counting:coin:${value}`;
@@ -428,10 +430,11 @@ onUnmounted(() => {
 }
 
 /* Gap between neighbouring gaze targets: with dense rows the coins and the
-   action buttons sat 8px apart and the gaze dot fired the neighbour. */
+   action buttons sat 8px apart and the gaze dot fired the neighbour. 28px was
+   still too little for a Tobii 5 that missed by 20–74px after calibration. */
 .coin-row,
 .action-row {
-  --target-gap: clamp(1.75rem, 3vmin, 2.5rem);
+  --target-gap: clamp(3rem, 7vmin, 4.5rem);
 
   row-gap: var(--target-gap);
   margin-inline: calc(var(--target-gap) / -2);

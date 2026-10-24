@@ -1,4 +1,10 @@
 import { onMounted, onUnmounted, ref } from "vue";
+import {
+  applyGazeCorrection,
+  correctionFitsWindow,
+  currentGazeWindow,
+  gazeCorrection,
+} from "../core/gazeCorrection";
 
 const pointer = ref<GazePoint>({
   x: window.innerWidth / 2,
@@ -69,11 +75,18 @@ function onGaze(point: GazePoint) {
     return;
   }
 
+  // The correction measured on the gaze debug page (see core/gazeCorrection),
+  // only in the window it was measured in.
+  const gazeWindow = currentGazeWindow();
+  const correction = correctionFitsWindow(gazeCorrection.value?.window, gazeWindow)
+    ? gazeCorrection.value
+    : undefined;
+  const corrected = applyGazeCorrection(correction, point, gazeWindow);
   const previous = pointer.value;
   const sameSource = previous.source === "tobii";
   const alpha = smoothingAlpha(timestamp - (previous.timestamp ?? timestamp));
-  const x = sameSource ? previous.x + (point.x - previous.x) * alpha : point.x;
-  const y = sameSource ? previous.y + (point.y - previous.y) * alpha : point.y;
+  const x = sameSource ? previous.x + (corrected.x - previous.x) * alpha : corrected.x;
+  const y = sameSource ? previous.y + (corrected.y - previous.y) * alpha : corrected.y;
   setPointer({
     x,
     y,

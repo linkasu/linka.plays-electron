@@ -91,9 +91,12 @@ const gridStyle = computed(() => ({
 
 <style scoped>
 /* Gap between neighbouring gaze targets: with 10px the gaze dot drifted onto
-   the next key ("смотришь на галочку, нажимается ноль"). */
+   the next key ("смотришь на галочку, нажимается ноль"). 28px was still too
+   little: a Tobii 5 measured on the gaze debug page missed by 20–74px even
+   after calibration, so a key needs half its size plus half the gap above
+   that. On a laptop window this gives 48px. */
 .square-choice-grid {
-  --choice-grid-gap: clamp(1.75rem, 3vmin, 2.5rem);
+  --choice-grid-gap: clamp(3rem, 7vmin, 4.5rem);
 
   display: grid;
   gap: var(--choice-grid-gap);
