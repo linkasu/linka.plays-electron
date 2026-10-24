@@ -74,6 +74,10 @@ const lanternHues = [28, 38, 48, 356, 318];
 const appearingSeconds = 1.6;
 const risingSeconds = 4.4;
 const restSeconds = 0.8;
+// A lit lantern starts fading at this share of its rise and is fully gone at fadedRise.
+const fadeStartRise = 0.76;
+const fadeRate = 1.8;
+const fadedRise = fadeStartRise + 1 / fadeRate;
 let ctx: CanvasRenderingContext2D | undefined;
 let frame = 0;
 let lastTime = performance.now();
@@ -174,9 +178,15 @@ function targetPayload(
   };
 }
 
+// Not clamped to 1: a released lantern keeps flying up until it fades out.
+// Clamped, it stopped mid-sky and hung there (testers: «некоторые подвисают»).
+function lanternRise(lantern: Lantern) {
+  return lantern.phase === "rising" ? lantern.phaseAge / risingSeconds : 0;
+}
+
 function lanternPoint(lantern: Lantern) {
   const point = percentToPixels(lantern);
-  const rise = lantern.phase === "rising" ? Math.min(1, lantern.phaseAge / risingSeconds) : 0;
+  const rise = lanternRise(lantern);
   return {
     x:
       point.x + Math.sin(lantern.age * 0.62 + lantern.sway) * lantern.radius * (0.06 + rise * 0.18),
@@ -265,8 +275,8 @@ function updateReleasedLanterns(delta: number) {
   for (let index = releasedLanterns.length - 1; index >= 0; index--) {
     const lantern = releasedLanterns[index];
     lantern.age += delta;
-    lantern.phaseAge += delta * 0.26;
-    if (lantern.phaseAge > risingSeconds * 1.7) releasedLanterns.splice(index, 1);
+    lantern.phaseAge += delta;
+    if (lanternRise(lantern) >= fadedRise) releasedLanterns.splice(index, 1);
   }
 }
 
@@ -345,11 +355,11 @@ function drawLantern(context: CanvasRenderingContext2D, lantern: Lantern, decora
   const point = lanternPoint(lantern);
   const appear =
     lantern.phase === "appearing" ? Math.min(1, lantern.phaseAge / appearingSeconds) : 1;
-  const rise = lantern.phase === "rising" ? Math.min(1, lantern.phaseAge / risingSeconds) : 0;
-  const light = Math.max(lantern.dwellProgress, rise);
+  const rise = lanternRise(lantern);
+  const light = Math.max(lantern.dwellProgress, Math.min(1, rise));
   const bodyWidth = lantern.radius * (0.94 + Math.sin(lantern.age * 0.85 + lantern.sway) * 0.025);
   const bodyHeight = lantern.radius * 1.18;
-  const alpha = appear * (decorative ? 0.46 : 1) * (1 - Math.max(0, rise - 0.76) * 1.8);
+  const alpha = appear * (1 - Math.max(0, rise - fadeStartRise) * fadeRate);
 
   context.save();
   context.globalAlpha = Math.max(0, alpha);
