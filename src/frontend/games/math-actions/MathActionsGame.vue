@@ -192,7 +192,7 @@ onUnmounted(() => {
                 grid-offset="21rem"
                 min-size="5.5rem"
                 max-size="10.5rem"
-                compact-size="7rem"
+                compact-size="min(7rem, 9vw)"
                 width-factor="10vw"
                 :target-id="(choice) => keyTargetId(String(choice))"
                 :disabled="session.status !== 'running' || isSpeaking"
