@@ -517,7 +517,7 @@ onUnmounted(() => {
                     :target-id="coinTargetId(coin.value)"
                     :disabled="session.status !== 'running' || isSpeaking"
                     :dwell-ms="session.settings.dwellMs"
-                    min-height="clamp(7rem, 17vh, 10.5rem)"
+                    min-height="clamp(7rem, 15vh, 10.5rem)"
                     color="surface"
                     @select="addCoin(coin)"
                   >
@@ -534,10 +534,10 @@ onUnmounted(() => {
                         <div class="text-body-1 text-medium-emphasis">монетка</div>
                         <v-chip
                           v-if="coin.count > 0"
-                          class="mt-2"
+                          class="coin-card__count"
                           color="primary"
                           size="large"
-                          variant="tonal"
+                          variant="flat"
                           >Выбрано: {{ coin.count }}</v-chip
                         >
                       </div>
@@ -626,6 +626,12 @@ onUnmounted(() => {
   font-size: clamp(2.5rem, min(6vw, 7vh), 4.75rem) !important;
   line-height: 1.02;
   margin-block-end: clamp(0.5rem, 1vh, 1rem) !important;
+}
+
+/* The overline repeats the title; on the payment screen its line is needed
+   for the coins and the buttons. */
+.shop-card--payment .text-overline {
+  display: none;
 }
 
 .shop-card--payment .v-alert {
@@ -782,6 +788,15 @@ onUnmounted(() => {
 .coin-card {
   background: linear-gradient(145deg, #fff8d7, #dff2ff);
   color: #332606;
+  position: relative;
+}
+
+/* Over the corner, not under the coin: the chip used to add a line, the
+   payment screen grew and scrolled as soon as a coin was chosen. */
+.coin-card__count {
+  inset-block-start: 0.5rem;
+  inset-inline-end: 0.5rem;
+  position: absolute;
 }
 
 .coin-card__value {
