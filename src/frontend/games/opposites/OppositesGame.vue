@@ -389,7 +389,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-height: 42rem) {
+@media (max-height: 50rem) {
   .game-container {
     padding-block-start: 9.25rem;
   }
@@ -426,15 +426,17 @@ onUnmounted(() => {
   }
 
   .concept-object {
-    font-size: clamp(2.5rem, 8vh, 3.75rem);
+    font-size: clamp(3rem, 10vh, 5rem);
   }
 
   .concept-visual {
     min-block-size: 4rem;
   }
 
+  /* Answers take the free height: the compact layout now also covers a
+     1366×768 laptop, where the app window leaves about 690 px for the game. */
   .game-container :deep(.dwell-button) {
-    min-block-size: 8.5rem !important;
+    min-block-size: clamp(8.5rem, 30dvh, 13rem) !important;
   }
 }
 </style>
