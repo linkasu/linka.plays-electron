@@ -54,7 +54,9 @@ function setRound(nodeId: MiniDialogNodeId) {
 
 async function playPartnerLine(delayMs = 0) {
   isChangingRound.value = true;
-  await speakSceneText(round.value.partnerLine, session.settings.sound, delayMs);
+  await speakSceneText(round.value.partnerLine, session.settings.sound, delayMs, {
+    gameId: "mini-dialog",
+  });
   isChangingRound.value = false;
 }
 
@@ -79,7 +81,7 @@ async function choose(choiceId: string) {
   if (choice.kind === "support") recordHint({ ...payload, reason: "requested-help" });
   else if (choice.kind !== "repeat") recordSuccess(payload);
 
-  await speakSceneText(communication.phrase, session.settings.sound, 80);
+  await speakSceneText(communication.phrase, session.settings.sound, 80, { gameId: "mini-dialog" });
 
   const requestedNodeId = getMiniDialogNextNodeId(choice);
   const canAutoFinish =
@@ -93,7 +95,7 @@ async function choose(choiceId: string) {
 
   if (choice.kind === "support") {
     feedback.value = "Я помогу. Послушай вопрос ещё раз; можно ответить или отказаться.";
-    await speakSceneText(feedback.value, session.settings.sound, 100);
+    await speakSceneText(feedback.value, session.settings.sound, 100, { gameId: "mini-dialog" });
   }
 
   if (round.value.isTerminal) {

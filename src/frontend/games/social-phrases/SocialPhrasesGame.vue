@@ -66,7 +66,7 @@ async function playRoundPrompt(delayMs = 0, includeInstruction = false) {
   ]
     .filter(Boolean)
     .join(" ");
-  await speakSceneText(prompt, session.settings.sound, delayMs);
+  await speakSceneText(prompt, session.settings.sound, delayMs, { gameId: "social-phrases" });
   isChangingRound.value = false;
 }
 
@@ -91,11 +91,15 @@ async function choose(choice: SocialPhraseChoice) {
     };
     if (evaluation.function === "help") recordHint({ ...payload, reason: "requested-help" });
     else recordSuccess(payload);
-    await speakSceneText(evaluation.phrase, session.settings.sound, 80);
+    await speakSceneText(evaluation.phrase, session.settings.sound, 80, {
+      gameId: "social-phrases",
+    });
 
     if (evaluation.function === "help") {
       feedback.value = "Я помогу. Послушай ситуацию ещё раз и выбери в своём темпе.";
-      await speakSceneText(feedback.value, session.settings.sound, 100);
+      await speakSceneText(feedback.value, session.settings.sound, 100, {
+        gameId: "social-phrases",
+      });
       selectedChoiceId.value = undefined;
       await playRoundPrompt(140);
       return;
@@ -103,7 +107,9 @@ async function choose(choice: SocialPhraseChoice) {
 
     if (evaluation.endsSession) {
       feedback.value = "Я услышал тебя. Останавливаемся.";
-      await speakSceneText(feedback.value, session.settings.sound, 140);
+      await speakSceneText(feedback.value, session.settings.sound, 140, {
+        gameId: "social-phrases",
+      });
       finishSession("game-complete");
       isChangingRound.value = false;
       return;
@@ -111,7 +117,9 @@ async function choose(choice: SocialPhraseChoice) {
 
     if (session.step >= session.maxSteps) {
       feedback.value = "Спасибо. Все ситуации закончились.";
-      await speakSceneText(feedback.value, session.settings.sound, 140);
+      await speakSceneText(feedback.value, session.settings.sound, 140, {
+        gameId: "social-phrases",
+      });
       finishSession("game-complete");
       isChangingRound.value = false;
       return;
@@ -137,7 +145,9 @@ async function choose(choice: SocialPhraseChoice) {
     noFail: true,
     reason: "alternative-phrase",
   });
-  await speakSceneText(evaluation.feedback, session.settings.sound, 80);
+  await speakSceneText(evaluation.feedback, session.settings.sound, 80, {
+    gameId: "social-phrases",
+  });
   selectedChoiceId.value = undefined;
   isChangingRound.value = false;
 }

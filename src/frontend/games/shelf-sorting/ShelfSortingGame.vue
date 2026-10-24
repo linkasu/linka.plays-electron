@@ -9,6 +9,7 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
 import { generateShelfSortingRound, type ShelfSortingShelf } from "./model";
 
 const router = useRouter();
@@ -52,8 +53,6 @@ const isSpeaking = ref(false);
 const wrongShelfId = ref<string>();
 const successShelfId = ref<string>();
 let feedbackTimer = 0;
-let promptTimer = 0;
-let speechGuardTimer = 0;
 let speechToken = 0;
 
 function shelfTargetId(shelf: ShelfSortingShelf) {
@@ -75,51 +74,21 @@ function resetFeedback() {
 }
 
 function cancelRoundPrompt() {
-  window.clearTimeout(promptTimer);
-  window.clearTimeout(speechGuardTimer);
-  promptTimer = 0;
-  speechGuardTimer = 0;
   speechToken += 1;
-  window.speechSynthesis?.cancel();
+  cancelSceneSpeech();
   isSpeaking.value = false;
 }
 
+// The prompt is played from recordings (see games/sceneSpeech.ts); it used to
+// go to the system synthesizer, a quiet male voice on Windows.
 function speakRoundPrompt(delayMs = 0) {
   cancelRoundPrompt();
-  if (
-    !session.settings.sound ||
-    !("speechSynthesis" in window) ||
-    !("SpeechSynthesisUtterance" in window)
-  )
-    return;
+  if (!session.settings.sound) return;
   const token = speechToken;
-
-  promptTimer = window.setTimeout(() => {
-    promptTimer = 0;
-    try {
-      const utterance = new SpeechSynthesisUtterance(round.value.prompt);
-      utterance.lang = "ru-RU";
-      utterance.rate = 0.82;
-      utterance.pitch = 1;
-      utterance.volume = 0.3;
-      const finishSpeaking = () => {
-        if (token !== speechToken) return;
-        window.clearTimeout(speechGuardTimer);
-        speechGuardTimer = 0;
-        isSpeaking.value = false;
-      };
-      utterance.onend = utterance.onerror = finishSpeaking;
-      isSpeaking.value = true;
-      window.speechSynthesis.speak(utterance);
-      speechGuardTimer = window.setTimeout(() => {
-        if (token !== speechToken) return;
-        window.speechSynthesis.cancel();
-        finishSpeaking();
-      }, 8000);
-    } catch {
-      isSpeaking.value = false;
-    }
-  }, delayMs);
+  isSpeaking.value = true;
+  void speakSceneText(round.value.prompt, true, delayMs, { gameId: "shelf-sorting" }).then(() => {
+    if (token === speechToken) isSpeaking.value = false;
+  });
 }
 
 async function chooseShelf(shelf: ShelfSortingShelf) {
@@ -455,7 +424,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-height: 44rem) {
+@media (max-height: 50rem) {
   .game-container {
     padding-block-start: 9.5rem;
   }
@@ -498,7 +467,7 @@ onUnmounted(() => {
 
   .shelf-choice-content,
   .game-container :deep(.dwell-button) {
-    min-block-size: 9rem !important;
+    min-block-size: clamp(9rem, calc(100dvh - 30rem), 14rem) !important;
   }
 }
 </style>

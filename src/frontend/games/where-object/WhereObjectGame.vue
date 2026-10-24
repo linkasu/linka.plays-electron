@@ -76,7 +76,9 @@ function choiceTargetId(choice: WhereObjectChoice) {
 async function playRoundPrompt(delayMs = 0) {
   isChangingRound.value = true;
   promptAudio.cancelPending();
-  await speakSceneText(round.value.prompt, session.settings.sound, delayMs);
+  await speakSceneText(round.value.prompt, session.settings.sound, delayMs, {
+    gameId: "where-object",
+  });
   isChangingRound.value = false;
 }
 
@@ -86,7 +88,9 @@ async function playCorrectScene(choice: WhereObjectChoice) {
     await promptAudio.playSequenceAndWait([choice.answerAssetId], 80);
     return;
   }
-  await speakSceneText(`${choice.scenePhrase}.`, session.settings.sound, 80);
+  await speakSceneText(`${choice.scenePhrase}.`, session.settings.sound, 80, {
+    gameId: "where-object",
+  });
 }
 
 async function chooseScene(choice: WhereObjectChoice) {
@@ -135,7 +139,9 @@ async function chooseScene(choice: WhereObjectChoice) {
     lastMistakeId.value = choice.id;
     void pianoFeedback.playMistake();
     promptAudio.cancelPending();
-    await speakSceneText(`Это другая картинка. ${round.value.prompt}`, session.settings.sound, 80);
+    await speakSceneText(`Это другая картинка. ${round.value.prompt}`, session.settings.sound, 80, {
+      gameId: "where-object",
+    });
   }
 
   isChangingRound.value = false;

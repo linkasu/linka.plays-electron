@@ -63,7 +63,9 @@ function choiceTargetId(choice: ObjectActionChoice) {
 async function playRoundPrompt(delayMs = 0) {
   isChangingRound.value = true;
   promptAudio.cancelPending();
-  await speakSceneText(round.value.prompt, session.settings.sound, delayMs);
+  await speakSceneText(round.value.prompt, session.settings.sound, delayMs, {
+    gameId: "object-action",
+  });
   isChangingRound.value = false;
 }
 
@@ -73,7 +75,7 @@ async function playCorrectScene(choice: ObjectActionChoice) {
     await promptAudio.playSequenceAndWait([choice.successAssetId], 80);
     return;
   }
-  await speakSceneText(choice.successText, session.settings.sound, 80);
+  await speakSceneText(choice.successText, session.settings.sound, 80, { gameId: "object-action" });
 }
 
 async function chooseAction(choice: ObjectActionChoice) {
@@ -122,7 +124,7 @@ async function chooseAction(choice: ObjectActionChoice) {
     });
     feedback.value = `Это другое действие. Покажи: ${round.value.targetAction.title}.`;
     promptAudio.cancelPending();
-    await speakSceneText(feedback.value, session.settings.sound, 80);
+    await speakSceneText(feedback.value, session.settings.sound, 80, { gameId: "object-action" });
   }
 
   isChangingRound.value = false;

@@ -6923,6 +6923,90 @@
     "path": "/audio/tts/shelf-sorting/complete.mp3"
   },
   {
+    "id": "shelf-sorting.scene.5c070e52",
+    "game": "shelf-sorting",
+    "text": "Сортируем по категории.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-5c070e52.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.e8d0756d",
+    "game": "shelf-sorting",
+    "text": "Предмет: цветок.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-e8d0756d.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.c1624287",
+    "game": "shelf-sorting",
+    "text": "Сортируем по цвету.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-c1624287.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.24fe15a6",
+    "game": "shelf-sorting",
+    "text": "Предмет: лист.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-24fe15a6.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.054e4e96",
+    "game": "shelf-sorting",
+    "text": "Предмет: яблоко.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-054e4e96.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.05f01c7d",
+    "game": "shelf-sorting",
+    "text": "Предмет: лимон.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-05f01c7d.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.ca57c3b2",
+    "game": "shelf-sorting",
+    "text": "Предмет: огурец.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-ca57c3b2.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.ab8100c2",
+    "game": "shelf-sorting",
+    "text": "Предмет: мишка.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-ab8100c2.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.bb2ea80d",
+    "game": "shelf-sorting",
+    "text": "Предмет: воздушный змей.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-bb2ea80d.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.5608f2d1",
+    "game": "shelf-sorting",
+    "text": "Предмет: река.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-5608f2d1.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.a79fd91c",
+    "game": "shelf-sorting",
+    "text": "Предмет: виноград.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-a79fd91c.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.c370b938",
+    "game": "shelf-sorting",
+    "text": "Предмет: мяч.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-c370b938.mp3"
+  },
+  {
     "id": "build-bridge.prompt",
     "game": "build-bridge",
     "text": "Сначала выбери деталь, потом место на мосту.",
@@ -6970,6 +7054,293 @@
     "text": "Готово. Места названы.",
     "voice": "jane",
     "path": "/audio/tts/where-object/complete.mp3"
+  },
+  {
+    "id": "where-object.scene.edec909b",
+    "game": "where-object",
+    "text": "Покажи: ложка рядом с коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-edec909b.mp3"
+  },
+  {
+    "id": "where-object.scene.2cd098ad",
+    "game": "where-object",
+    "text": "Это другая картинка.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-2cd098ad.mp3"
+  },
+  {
+    "id": "where-object.scene.ec929edd",
+    "game": "where-object",
+    "text": "ложка рядом с коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-ec929edd.mp3"
+  },
+  {
+    "id": "where-object.scene.eda951a6",
+    "game": "where-object",
+    "text": "Покажи: чашка на коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-eda951a6.mp3"
+  },
+  {
+    "id": "where-object.scene.40c7ed51",
+    "game": "where-object",
+    "text": "чашка рядом с коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-40c7ed51.mp3"
+  },
+  {
+    "id": "where-object.scene.4382d171",
+    "game": "where-object",
+    "text": "Покажи: мяч рядом с коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-4382d171.mp3"
+  },
+  {
+    "id": "where-object.scene.452a6a78",
+    "game": "where-object",
+    "text": "мяч рядом с коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-452a6a78.mp3"
+  },
+  {
+    "id": "where-object.scene.3d2b47d3",
+    "game": "where-object",
+    "text": "Покажи: ключ на коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-3d2b47d3.mp3"
+  },
+  {
+    "id": "where-object.scene.b78326ca",
+    "game": "where-object",
+    "text": "ключ рядом с коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-b78326ca.mp3"
+  },
+  {
+    "id": "where-object.scene.0de6c94c",
+    "game": "where-object",
+    "text": "Покажи: телефон в коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-0de6c94c.mp3"
+  },
+  {
+    "id": "where-object.scene.ae2e1873",
+    "game": "where-object",
+    "text": "телефон рядом с коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-ae2e1873.mp3"
+  },
+  {
+    "id": "where-object.scene.daa04928",
+    "game": "where-object",
+    "text": "Покажи: игрушка под коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-daa04928.mp3"
+  },
+  {
+    "id": "where-object.scene.24cb9767",
+    "game": "where-object",
+    "text": "игрушка рядом с коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-24cb9767.mp3"
+  },
+  {
+    "id": "where-object.scene.70b329bb",
+    "game": "where-object",
+    "text": "Покажи: книга под коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-70b329bb.mp3"
+  },
+  {
+    "id": "where-object.scene.8aaf160f",
+    "game": "where-object",
+    "text": "книга рядом с коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-8aaf160f.mp3"
+  },
+  {
+    "id": "where-object.scene.3a4f6549",
+    "game": "where-object",
+    "text": "Покажи: щётка в коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-3a4f6549.mp3"
+  },
+  {
+    "id": "where-object.scene.9893b005",
+    "game": "where-object",
+    "text": "щётка рядом с коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-9893b005.mp3"
+  },
+  {
+    "id": "where-object.scene.3af2fc49",
+    "game": "where-object",
+    "text": "Покажи: мяч в коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-3af2fc49.mp3"
+  },
+  {
+    "id": "where-object.scene.b9563580",
+    "game": "where-object",
+    "text": "Покажи: ключ под коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-b9563580.mp3"
+  },
+  {
+    "id": "where-object.scene.367db6d9",
+    "game": "where-object",
+    "text": "Покажи: щётка рядом с коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-367db6d9.mp3"
+  },
+  {
+    "id": "where-object.scene.33204c8f",
+    "game": "where-object",
+    "text": "Покажи: чашка под коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-33204c8f.mp3"
+  },
+  {
+    "id": "where-object.scene.f7b187b7",
+    "game": "where-object",
+    "text": "Покажи: ложка в коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-f7b187b7.mp3"
+  },
+  {
+    "id": "where-object.scene.fbc83647",
+    "game": "where-object",
+    "text": "Покажи: игрушка на коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-fbc83647.mp3"
+  },
+  {
+    "id": "where-object.scene.acdbdfc7",
+    "game": "where-object",
+    "text": "Покажи: книга на коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-acdbdfc7.mp3"
+  },
+  {
+    "id": "where-object.scene.ef52e24f",
+    "game": "where-object",
+    "text": "Покажи: телефон рядом с коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-ef52e24f.mp3"
+  },
+  {
+    "id": "where-object.scene.62a82719",
+    "game": "where-object",
+    "text": "Покажи: ложка под коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-62a82719.mp3"
+  },
+  {
+    "id": "where-object.scene.6b3d7886",
+    "game": "where-object",
+    "text": "Покажи: мяч под коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-6b3d7886.mp3"
+  },
+  {
+    "id": "where-object.scene.4a43606a",
+    "game": "where-object",
+    "text": "Покажи: телефон на коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-4a43606a.mp3"
+  },
+  {
+    "id": "where-object.scene.5318ca66",
+    "game": "where-object",
+    "text": "Покажи: игрушка в коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-5318ca66.mp3"
+  },
+  {
+    "id": "where-object.scene.0e626d17",
+    "game": "where-object",
+    "text": "Покажи: ключ рядом с коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-0e626d17.mp3"
+  },
+  {
+    "id": "where-object.scene.128b8963",
+    "game": "where-object",
+    "text": "Покажи: щётка на коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-128b8963.mp3"
+  },
+  {
+    "id": "where-object.scene.cd310f7e",
+    "game": "where-object",
+    "text": "Покажи: чашка рядом с коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-cd310f7e.mp3"
+  },
+  {
+    "id": "where-object.scene.bae1a3bf",
+    "game": "where-object",
+    "text": "Покажи: книга в коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-bae1a3bf.mp3"
+  },
+  {
+    "id": "where-object.scene.8dca5ae6",
+    "game": "where-object",
+    "text": "Покажи: ключ в коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-8dca5ae6.mp3"
+  },
+  {
+    "id": "where-object.scene.32bda86d",
+    "game": "where-object",
+    "text": "Покажи: телефон под коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-32bda86d.mp3"
+  },
+  {
+    "id": "where-object.scene.6caf4728",
+    "game": "where-object",
+    "text": "Покажи: чашка в коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-6caf4728.mp3"
+  },
+  {
+    "id": "where-object.scene.7708f5ab",
+    "game": "where-object",
+    "text": "Покажи: игрушка рядом с коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-7708f5ab.mp3"
+  },
+  {
+    "id": "where-object.scene.48229d10",
+    "game": "where-object",
+    "text": "Покажи: щётка под коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-48229d10.mp3"
+  },
+  {
+    "id": "where-object.scene.aaa10aaa",
+    "game": "where-object",
+    "text": "Покажи: книга рядом с коробкой.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-aaa10aaa.mp3"
+  },
+  {
+    "id": "where-object.scene.61fd7d39",
+    "game": "where-object",
+    "text": "Покажи: ложка на коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-61fd7d39.mp3"
+  },
+  {
+    "id": "where-object.scene.5a549161",
+    "game": "where-object",
+    "text": "Покажи: мяч на коробке.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/scene-5a549161.mp3"
   },
   {
     "id": "object-action.complete",
@@ -7049,6 +7420,1126 @@
     "path": "/audio/tts/yes-no/complete.mp3"
   },
   {
+    "id": "yes-no.scene.7a34cd94",
+    "game": "yes-no",
+    "text": "Это яблоко?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-7a34cd94.mp3"
+  },
+  {
+    "id": "yes-no.scene.34a4e6f4",
+    "game": "yes-no",
+    "text": "Это банан?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-34a4e6f4.mp3"
+  },
+  {
+    "id": "yes-no.scene.01f89d04",
+    "game": "yes-no",
+    "text": "Это хлеб?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-01f89d04.mp3"
+  },
+  {
+    "id": "yes-no.scene.d30e8072",
+    "game": "yes-no",
+    "text": "Это сыр?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-d30e8072.mp3"
+  },
+  {
+    "id": "yes-no.scene.c8f69133",
+    "game": "yes-no",
+    "text": "Это морковь?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-c8f69133.mp3"
+  },
+  {
+    "id": "yes-no.scene.bee0a5af",
+    "game": "yes-no",
+    "text": "Это груша?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-bee0a5af.mp3"
+  },
+  {
+    "id": "yes-no.scene.42265848",
+    "game": "yes-no",
+    "text": "Это апельсин?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-42265848.mp3"
+  },
+  {
+    "id": "yes-no.scene.904013a5",
+    "game": "yes-no",
+    "text": "Это лимон?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-904013a5.mp3"
+  },
+  {
+    "id": "yes-no.scene.914114ed",
+    "game": "yes-no",
+    "text": "Это виноград?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-914114ed.mp3"
+  },
+  {
+    "id": "yes-no.scene.0a5f1e73",
+    "game": "yes-no",
+    "text": "Это вишня?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-0a5f1e73.mp3"
+  },
+  {
+    "id": "yes-no.scene.6f1a3866",
+    "game": "yes-no",
+    "text": "Это клубника?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-6f1a3866.mp3"
+  },
+  {
+    "id": "yes-no.scene.26df29de",
+    "game": "yes-no",
+    "text": "Это арбуз?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-26df29de.mp3"
+  },
+  {
+    "id": "yes-no.scene.b93f31a9",
+    "game": "yes-no",
+    "text": "Это дыня?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-b93f31a9.mp3"
+  },
+  {
+    "id": "yes-no.scene.335dd453",
+    "game": "yes-no",
+    "text": "Это персик?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-335dd453.mp3"
+  },
+  {
+    "id": "yes-no.scene.6599efce",
+    "game": "yes-no",
+    "text": "Это слива?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-6599efce.mp3"
+  },
+  {
+    "id": "yes-no.scene.bd11d498",
+    "game": "yes-no",
+    "text": "Это киви?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-bd11d498.mp3"
+  },
+  {
+    "id": "yes-no.scene.dc183030",
+    "game": "yes-no",
+    "text": "Это помидор?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-dc183030.mp3"
+  },
+  {
+    "id": "yes-no.scene.e0abf10c",
+    "game": "yes-no",
+    "text": "Это огурец?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-e0abf10c.mp3"
+  },
+  {
+    "id": "yes-no.scene.4d6709b2",
+    "game": "yes-no",
+    "text": "Это картошка?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-4d6709b2.mp3"
+  },
+  {
+    "id": "yes-no.scene.9f12c270",
+    "game": "yes-no",
+    "text": "Это лук?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-9f12c270.mp3"
+  },
+  {
+    "id": "yes-no.scene.845fb9ee",
+    "game": "yes-no",
+    "text": "Это кукуруза?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-845fb9ee.mp3"
+  },
+  {
+    "id": "yes-no.scene.e8b560a2",
+    "game": "yes-no",
+    "text": "Это перец?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-e8b560a2.mp3"
+  },
+  {
+    "id": "yes-no.scene.e6874467",
+    "game": "yes-no",
+    "text": "Это гриб?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-e6874467.mp3"
+  },
+  {
+    "id": "yes-no.scene.c326372b",
+    "game": "yes-no",
+    "text": "Это яйцо?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-c326372b.mp3"
+  },
+  {
+    "id": "yes-no.scene.512c45c4",
+    "game": "yes-no",
+    "text": "Это молоко?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-512c45c4.mp3"
+  },
+  {
+    "id": "yes-no.scene.a0150cee",
+    "game": "yes-no",
+    "text": "Это сок?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-a0150cee.mp3"
+  },
+  {
+    "id": "yes-no.scene.9402015f",
+    "game": "yes-no",
+    "text": "Это чай?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-9402015f.mp3"
+  },
+  {
+    "id": "yes-no.scene.36414e77",
+    "game": "yes-no",
+    "text": "Это суп?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-36414e77.mp3"
+  },
+  {
+    "id": "yes-no.scene.d497abed",
+    "game": "yes-no",
+    "text": "Это рис?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-d497abed.mp3"
+  },
+  {
+    "id": "yes-no.scene.aff0a288",
+    "game": "yes-no",
+    "text": "Это лапша?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-aff0a288.mp3"
+  },
+  {
+    "id": "yes-no.scene.b370ae44",
+    "game": "yes-no",
+    "text": "Это мясо?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-b370ae44.mp3"
+  },
+  {
+    "id": "yes-no.scene.d5e354e3",
+    "game": "yes-no",
+    "text": "Это курятина?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-d5e354e3.mp3"
+  },
+  {
+    "id": "yes-no.scene.7b293457",
+    "game": "yes-no",
+    "text": "Это торт?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-7b293457.mp3"
+  },
+  {
+    "id": "yes-no.scene.648668f8",
+    "game": "yes-no",
+    "text": "Это печенье?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-648668f8.mp3"
+  },
+  {
+    "id": "yes-no.scene.8b31b4e5",
+    "game": "yes-no",
+    "text": "Это мёд?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-8b31b4e5.mp3"
+  },
+  {
+    "id": "yes-no.scene.e1755b21",
+    "game": "yes-no",
+    "text": "Это мороженое?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-e1755b21.mp3"
+  },
+  {
+    "id": "yes-no.scene.2a116682",
+    "game": "yes-no",
+    "text": "Это каша?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-2a116682.mp3"
+  },
+  {
+    "id": "yes-no.scene.dba139b9",
+    "game": "yes-no",
+    "text": "Это йогурт?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-dba139b9.mp3"
+  },
+  {
+    "id": "yes-no.scene.fc7e0a9d",
+    "game": "yes-no",
+    "text": "Это сосиска?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-fc7e0a9d.mp3"
+  },
+  {
+    "id": "yes-no.scene.d4f905b0",
+    "game": "yes-no",
+    "text": "Это пицца?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-d4f905b0.mp3"
+  },
+  {
+    "id": "yes-no.scene.11f81f71",
+    "game": "yes-no",
+    "text": "Это мяч?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-11f81f71.mp3"
+  },
+  {
+    "id": "yes-no.scene.df617499",
+    "game": "yes-no",
+    "text": "Это книга?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-df617499.mp3"
+  },
+  {
+    "id": "yes-no.scene.036078b5",
+    "game": "yes-no",
+    "text": "Это стул?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-036078b5.mp3"
+  },
+  {
+    "id": "yes-no.scene.e77ca0a3",
+    "game": "yes-no",
+    "text": "Это ключ?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-e77ca0a3.mp3"
+  },
+  {
+    "id": "yes-no.scene.3d8f7508",
+    "game": "yes-no",
+    "text": "Это лампа?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-3d8f7508.mp3"
+  },
+  {
+    "id": "yes-no.scene.d4c85df1",
+    "game": "yes-no",
+    "text": "Это чашка?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-d4c85df1.mp3"
+  },
+  {
+    "id": "yes-no.scene.267ccd00",
+    "game": "yes-no",
+    "text": "Это тарелка?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-267ccd00.mp3"
+  },
+  {
+    "id": "yes-no.scene.34cf771f",
+    "game": "yes-no",
+    "text": "Это ложка?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-34cf771f.mp3"
+  },
+  {
+    "id": "yes-no.scene.6c87d0db",
+    "game": "yes-no",
+    "text": "Это вилка?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-6c87d0db.mp3"
+  },
+  {
+    "id": "yes-no.scene.6517b5cc",
+    "game": "yes-no",
+    "text": "Это диван?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-6517b5cc.mp3"
+  },
+  {
+    "id": "yes-no.scene.6779c6b8",
+    "game": "yes-no",
+    "text": "Это кровать?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-6779c6b8.mp3"
+  },
+  {
+    "id": "yes-no.scene.40cf199b",
+    "game": "yes-no",
+    "text": "Это подушка?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-40cf199b.mp3"
+  },
+  {
+    "id": "yes-no.scene.34fd01b1",
+    "game": "yes-no",
+    "text": "Это рюкзак?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-34fd01b1.mp3"
+  },
+  {
+    "id": "yes-no.scene.89b36e99",
+    "game": "yes-no",
+    "text": "Это дверь?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-89b36e99.mp3"
+  },
+  {
+    "id": "yes-no.scene.3413dabf",
+    "game": "yes-no",
+    "text": "Это окно?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-3413dabf.mp3"
+  },
+  {
+    "id": "yes-no.scene.2661c883",
+    "game": "yes-no",
+    "text": "Это часы?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-2661c883.mp3"
+  },
+  {
+    "id": "yes-no.scene.b0c39ea6",
+    "game": "yes-no",
+    "text": "Это телефон?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-b0c39ea6.mp3"
+  },
+  {
+    "id": "yes-no.scene.9c798f06",
+    "game": "yes-no",
+    "text": "Это сумка?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-9c798f06.mp3"
+  },
+  {
+    "id": "yes-no.scene.385fc286",
+    "game": "yes-no",
+    "text": "Это коробка?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-385fc286.mp3"
+  },
+  {
+    "id": "yes-no.scene.5361a7fa",
+    "game": "yes-no",
+    "text": "Это карандаш?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-5361a7fa.mp3"
+  },
+  {
+    "id": "yes-no.scene.32aa6069",
+    "game": "yes-no",
+    "text": "Это ручка?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-32aa6069.mp3"
+  },
+  {
+    "id": "yes-no.scene.75c98ee3",
+    "game": "yes-no",
+    "text": "Это щётка?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-75c98ee3.mp3"
+  },
+  {
+    "id": "yes-no.scene.4e120aec",
+    "game": "yes-no",
+    "text": "Это мыло?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-4e120aec.mp3"
+  },
+  {
+    "id": "yes-no.scene.b4e2f320",
+    "game": "yes-no",
+    "text": "Это полотенце?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-b4e2f320.mp3"
+  },
+  {
+    "id": "yes-no.scene.cdc7fb61",
+    "game": "yes-no",
+    "text": "Это расчёска?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-cdc7fb61.mp3"
+  },
+  {
+    "id": "yes-no.scene.bf1ccdfe",
+    "game": "yes-no",
+    "text": "Это ножницы?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-bf1ccdfe.mp3"
+  },
+  {
+    "id": "yes-no.scene.57480c3e",
+    "game": "yes-no",
+    "text": "Это зонт?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-57480c3e.mp3"
+  },
+  {
+    "id": "yes-no.scene.d689d40d",
+    "game": "yes-no",
+    "text": "Это игрушка?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-d689d40d.mp3"
+  },
+  {
+    "id": "yes-no.scene.17cbf129",
+    "game": "yes-no",
+    "text": "Это кукла?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-17cbf129.mp3"
+  },
+  {
+    "id": "yes-no.scene.0980539c",
+    "game": "yes-no",
+    "text": "Это барабан?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-0980539c.mp3"
+  },
+  {
+    "id": "yes-no.scene.d60c548c",
+    "game": "yes-no",
+    "text": "Это колокол?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-d60c548c.mp3"
+  },
+  {
+    "id": "yes-no.scene.0765b799",
+    "game": "yes-no",
+    "text": "Это свеча?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-0765b799.mp3"
+  },
+  {
+    "id": "yes-no.scene.42f00deb",
+    "game": "yes-no",
+    "text": "Это камера?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-42f00deb.mp3"
+  },
+  {
+    "id": "yes-no.scene.257f2182",
+    "game": "yes-no",
+    "text": "Это очки?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-257f2182.mp3"
+  },
+  {
+    "id": "yes-no.scene.4d73d400",
+    "game": "yes-no",
+    "text": "Это карта?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-4d73d400.mp3"
+  },
+  {
+    "id": "yes-no.scene.d2991aca",
+    "game": "yes-no",
+    "text": "Это монета?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-d2991aca.mp3"
+  },
+  {
+    "id": "yes-no.scene.961b5b17",
+    "game": "yes-no",
+    "text": "Это флаг?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-961b5b17.mp3"
+  },
+  {
+    "id": "yes-no.scene.c9bcd9c0",
+    "game": "yes-no",
+    "text": "Это ведро?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-c9bcd9c0.mp3"
+  },
+  {
+    "id": "yes-no.scene.302ba6b7",
+    "game": "yes-no",
+    "text": "Это метла?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-302ba6b7.mp3"
+  },
+  {
+    "id": "yes-no.scene.d3051043",
+    "game": "yes-no",
+    "text": "Это корзина?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-d3051043.mp3"
+  },
+  {
+    "id": "yes-no.scene.b564d550",
+    "game": "yes-no",
+    "text": "Это кот?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-b564d550.mp3"
+  },
+  {
+    "id": "yes-no.scene.e3a256b7",
+    "game": "yes-no",
+    "text": "Это пёс?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-e3a256b7.mp3"
+  },
+  {
+    "id": "yes-no.scene.db691b51",
+    "game": "yes-no",
+    "text": "Это рыба?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-db691b51.mp3"
+  },
+  {
+    "id": "yes-no.scene.113f043e",
+    "game": "yes-no",
+    "text": "Это утка?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-113f043e.mp3"
+  },
+  {
+    "id": "yes-no.scene.ea5c946e",
+    "game": "yes-no",
+    "text": "Это корова?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-ea5c946e.mp3"
+  },
+  {
+    "id": "yes-no.scene.cc064a91",
+    "game": "yes-no",
+    "text": "Это лошадь?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-cc064a91.mp3"
+  },
+  {
+    "id": "yes-no.scene.3e1cac70",
+    "game": "yes-no",
+    "text": "Это свинья?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-3e1cac70.mp3"
+  },
+  {
+    "id": "yes-no.scene.81f29d32",
+    "game": "yes-no",
+    "text": "Это овца?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-81f29d32.mp3"
+  },
+  {
+    "id": "yes-no.scene.1a2932f0",
+    "game": "yes-no",
+    "text": "Это коза?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-1a2932f0.mp3"
+  },
+  {
+    "id": "yes-no.scene.850ba41e",
+    "game": "yes-no",
+    "text": "Это заяц?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-850ba41e.mp3"
+  },
+  {
+    "id": "yes-no.scene.ab93201f",
+    "game": "yes-no",
+    "text": "Это лиса?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-ab93201f.mp3"
+  },
+  {
+    "id": "yes-no.scene.621cf330",
+    "game": "yes-no",
+    "text": "Это медведь?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-621cf330.mp3"
+  },
+  {
+    "id": "yes-no.scene.a40b5912",
+    "game": "yes-no",
+    "text": "Это волк?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-a40b5912.mp3"
+  },
+  {
+    "id": "yes-no.scene.dc14e825",
+    "game": "yes-no",
+    "text": "Это лев?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-dc14e825.mp3"
+  },
+  {
+    "id": "yes-no.scene.fe23d526",
+    "game": "yes-no",
+    "text": "Это тигр?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-fe23d526.mp3"
+  },
+  {
+    "id": "yes-no.scene.c080582c",
+    "game": "yes-no",
+    "text": "Это слон?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-c080582c.mp3"
+  },
+  {
+    "id": "yes-no.scene.2445504b",
+    "game": "yes-no",
+    "text": "Это жираф?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-2445504b.mp3"
+  },
+  {
+    "id": "yes-no.scene.23be62c6",
+    "game": "yes-no",
+    "text": "Это зебра?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-23be62c6.mp3"
+  },
+  {
+    "id": "yes-no.scene.583fdbdf",
+    "game": "yes-no",
+    "text": "Это обезьяна?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-583fdbdf.mp3"
+  },
+  {
+    "id": "yes-no.scene.8e106f3e",
+    "game": "yes-no",
+    "text": "Это мышь?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-8e106f3e.mp3"
+  },
+  {
+    "id": "yes-no.scene.1c2fce7e",
+    "game": "yes-no",
+    "text": "Это жаба?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-1c2fce7e.mp3"
+  },
+  {
+    "id": "yes-no.scene.50e54288",
+    "game": "yes-no",
+    "text": "Это птица?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-50e54288.mp3"
+  },
+  {
+    "id": "yes-no.scene.993bdd4a",
+    "game": "yes-no",
+    "text": "Это сова?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-993bdd4a.mp3"
+  },
+  {
+    "id": "yes-no.scene.0f026e80",
+    "game": "yes-no",
+    "text": "Это курица?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-0f026e80.mp3"
+  },
+  {
+    "id": "yes-no.scene.fd81fe7e",
+    "game": "yes-no",
+    "text": "Это черепаха?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-fd81fe7e.mp3"
+  },
+  {
+    "id": "yes-no.scene.2eda975b",
+    "game": "yes-no",
+    "text": "Это дельфин?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-2eda975b.mp3"
+  },
+  {
+    "id": "yes-no.scene.e00d06c0",
+    "game": "yes-no",
+    "text": "Это кит?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-e00d06c0.mp3"
+  },
+  {
+    "id": "yes-no.scene.51ce1f35",
+    "game": "yes-no",
+    "text": "Это улитка?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-51ce1f35.mp3"
+  },
+  {
+    "id": "yes-no.scene.01818b7a",
+    "game": "yes-no",
+    "text": "Это пчела?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-01818b7a.mp3"
+  },
+  {
+    "id": "yes-no.scene.0d655855",
+    "game": "yes-no",
+    "text": "Это бабочка?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-0d655855.mp3"
+  },
+  {
+    "id": "yes-no.scene.43c4dbbd",
+    "game": "yes-no",
+    "text": "Это цветок?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-43c4dbbd.mp3"
+  },
+  {
+    "id": "yes-no.scene.5fa3e018",
+    "game": "yes-no",
+    "text": "Это дерево?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-5fa3e018.mp3"
+  },
+  {
+    "id": "yes-no.scene.ae4154aa",
+    "game": "yes-no",
+    "text": "Это солнце?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-ae4154aa.mp3"
+  },
+  {
+    "id": "yes-no.scene.5f67a0cc",
+    "game": "yes-no",
+    "text": "Это луна?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-5f67a0cc.mp3"
+  },
+  {
+    "id": "yes-no.scene.af811995",
+    "game": "yes-no",
+    "text": "Это звезда?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-af811995.mp3"
+  },
+  {
+    "id": "yes-no.scene.062421d7",
+    "game": "yes-no",
+    "text": "Это облако?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-062421d7.mp3"
+  },
+  {
+    "id": "yes-no.scene.ad0d5ceb",
+    "game": "yes-no",
+    "text": "Это дождь?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-ad0d5ceb.mp3"
+  },
+  {
+    "id": "yes-no.scene.a0d30a37",
+    "game": "yes-no",
+    "text": "Это снег?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-a0d30a37.mp3"
+  },
+  {
+    "id": "yes-no.scene.f9bf1add",
+    "game": "yes-no",
+    "text": "Это ветер?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-f9bf1add.mp3"
+  },
+  {
+    "id": "yes-no.scene.cc6fb983",
+    "game": "yes-no",
+    "text": "Это радуга?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-cc6fb983.mp3"
+  },
+  {
+    "id": "yes-no.scene.39a0b034",
+    "game": "yes-no",
+    "text": "Это река?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-39a0b034.mp3"
+  },
+  {
+    "id": "yes-no.scene.bc29738c",
+    "game": "yes-no",
+    "text": "Это озеро?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-bc29738c.mp3"
+  },
+  {
+    "id": "yes-no.scene.35c86f56",
+    "game": "yes-no",
+    "text": "Это море?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-35c86f56.mp3"
+  },
+  {
+    "id": "yes-no.scene.1e81df40",
+    "game": "yes-no",
+    "text": "Это гора?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-1e81df40.mp3"
+  },
+  {
+    "id": "yes-no.scene.755f7e13",
+    "game": "yes-no",
+    "text": "Это лес?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-755f7e13.mp3"
+  },
+  {
+    "id": "yes-no.scene.dd7ea1c4",
+    "game": "yes-no",
+    "text": "Это трава?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-dd7ea1c4.mp3"
+  },
+  {
+    "id": "yes-no.scene.719a2291",
+    "game": "yes-no",
+    "text": "Это лист?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-719a2291.mp3"
+  },
+  {
+    "id": "yes-no.scene.6209bc0b",
+    "game": "yes-no",
+    "text": "Это камень?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-6209bc0b.mp3"
+  },
+  {
+    "id": "yes-no.scene.1a149d7b",
+    "game": "yes-no",
+    "text": "Это огонь?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-1a149d7b.mp3"
+  },
+  {
+    "id": "yes-no.scene.66c342ec",
+    "game": "yes-no",
+    "text": "Это волна?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-66c342ec.mp3"
+  },
+  {
+    "id": "yes-no.scene.432162ad",
+    "game": "yes-no",
+    "text": "Это остров?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-432162ad.mp3"
+  },
+  {
+    "id": "yes-no.scene.174aa851",
+    "game": "yes-no",
+    "text": "Это песок?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-174aa851.mp3"
+  },
+  {
+    "id": "yes-no.scene.11281a21",
+    "game": "yes-no",
+    "text": "Это ракушка?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-11281a21.mp3"
+  },
+  {
+    "id": "yes-no.scene.d6c61556",
+    "game": "yes-no",
+    "text": "Это сосна?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-d6c61556.mp3"
+  },
+  {
+    "id": "yes-no.scene.cb083769",
+    "game": "yes-no",
+    "text": "Это кактус?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-cb083769.mp3"
+  },
+  {
+    "id": "yes-no.scene.8396f9e6",
+    "game": "yes-no",
+    "text": "Это машина?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-8396f9e6.mp3"
+  },
+  {
+    "id": "yes-no.scene.5b122a62",
+    "game": "yes-no",
+    "text": "Это автобус?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-5b122a62.mp3"
+  },
+  {
+    "id": "yes-no.scene.771a0f4c",
+    "game": "yes-no",
+    "text": "Это поезд?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-771a0f4c.mp3"
+  },
+  {
+    "id": "yes-no.scene.3b01dba8",
+    "game": "yes-no",
+    "text": "Это трамвай?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-3b01dba8.mp3"
+  },
+  {
+    "id": "yes-no.scene.37587955",
+    "game": "yes-no",
+    "text": "Это велосипед?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-37587955.mp3"
+  },
+  {
+    "id": "yes-no.scene.aa590d8b",
+    "game": "yes-no",
+    "text": "Это самокат?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-aa590d8b.mp3"
+  },
+  {
+    "id": "yes-no.scene.68b8e395",
+    "game": "yes-no",
+    "text": "Это лодка?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-68b8e395.mp3"
+  },
+  {
+    "id": "yes-no.scene.46f0da21",
+    "game": "yes-no",
+    "text": "Это корабль?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-46f0da21.mp3"
+  },
+  {
+    "id": "yes-no.scene.6f7fd80a",
+    "game": "yes-no",
+    "text": "Это самолёт?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-6f7fd80a.mp3"
+  },
+  {
+    "id": "yes-no.scene.e9f61fe5",
+    "game": "yes-no",
+    "text": "Это ракета?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-e9f61fe5.mp3"
+  },
+  {
+    "id": "yes-no.scene.05d12888",
+    "game": "yes-no",
+    "text": "Это глаз?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-05d12888.mp3"
+  },
+  {
+    "id": "yes-no.scene.a2755e24",
+    "game": "yes-no",
+    "text": "Это ухо?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-a2755e24.mp3"
+  },
+  {
+    "id": "yes-no.scene.c8bd4a93",
+    "game": "yes-no",
+    "text": "Это нос?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-c8bd4a93.mp3"
+  },
+  {
+    "id": "yes-no.scene.e4e62d81",
+    "game": "yes-no",
+    "text": "Это рот?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-e4e62d81.mp3"
+  },
+  {
+    "id": "yes-no.scene.81b191d4",
+    "game": "yes-no",
+    "text": "Это рука?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-81b191d4.mp3"
+  },
+  {
+    "id": "yes-no.scene.12da085e",
+    "game": "yes-no",
+    "text": "Это нога?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-12da085e.mp3"
+  },
+  {
+    "id": "yes-no.scene.287984bb",
+    "game": "yes-no",
+    "text": "Это зуб?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-287984bb.mp3"
+  },
+  {
+    "id": "yes-no.scene.3d28c972",
+    "game": "yes-no",
+    "text": "Это сердце?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-3d28c972.mp3"
+  },
+  {
+    "id": "yes-no.scene.b5cdcee1",
+    "game": "yes-no",
+    "text": "Это рубашка?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-b5cdcee1.mp3"
+  },
+  {
+    "id": "yes-no.scene.9f440fe9",
+    "game": "yes-no",
+    "text": "Это штаны?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-9f440fe9.mp3"
+  },
+  {
+    "id": "yes-no.scene.2315a93d",
+    "game": "yes-no",
+    "text": "Это платье?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-2315a93d.mp3"
+  },
+  {
+    "id": "yes-no.scene.bae791a6",
+    "game": "yes-no",
+    "text": "Это обувь?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-bae791a6.mp3"
+  },
+  {
+    "id": "yes-no.scene.d7623832",
+    "game": "yes-no",
+    "text": "Это носки?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-d7623832.mp3"
+  },
+  {
+    "id": "yes-no.scene.134e26d7",
+    "game": "yes-no",
+    "text": "Это пальто?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-134e26d7.mp3"
+  },
+  {
+    "id": "yes-no.scene.3748756d",
+    "game": "yes-no",
+    "text": "Это кепка?",
+    "voice": "jane",
+    "path": "/audio/tts/yes-no/scene-3748756d.mp3"
+  },
+  {
     "id": "choose-emotion.complete",
     "game": "choose-emotion",
     "text": "Готово. Эмоции выбраны.",
@@ -7112,6 +8603,125 @@
     "path": "/audio/tts/want-dont-want/complete.mp3"
   },
   {
+    "id": "want-dont-want.scene.df12ff7b",
+    "game": "want-dont-want",
+    "text": "Я хочу пить воду",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/scene-df12ff7b.mp3"
+  },
+  {
+    "id": "want-dont-want.scene.0f299dbc",
+    "game": "want-dont-want",
+    "text": "Я не хочу пить воду",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/scene-0f299dbc.mp3"
+  },
+  {
+    "id": "want-dont-want.scene.76a2011e",
+    "game": "want-dont-want",
+    "text": "Я хочу есть яблоко",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/scene-76a2011e.mp3"
+  },
+  {
+    "id": "want-dont-want.scene.fd691e32",
+    "game": "want-dont-want",
+    "text": "Я не хочу есть яблоко",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/scene-fd691e32.mp3"
+  },
+  {
+    "id": "want-dont-want.scene.871f8b19",
+    "game": "want-dont-want",
+    "text": "Я хочу слушать музыку",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/scene-871f8b19.mp3"
+  },
+  {
+    "id": "want-dont-want.scene.e27a4e5e",
+    "game": "want-dont-want",
+    "text": "Я не хочу слушать музыку",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/scene-e27a4e5e.mp3"
+  },
+  {
+    "id": "want-dont-want.scene.31524810",
+    "game": "want-dont-want",
+    "text": "Я хочу читать книгу",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/scene-31524810.mp3"
+  },
+  {
+    "id": "want-dont-want.scene.8d3b03bc",
+    "game": "want-dont-want",
+    "text": "Я не хочу читать книгу",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/scene-8d3b03bc.mp3"
+  },
+  {
+    "id": "want-dont-want.scene.1976903e",
+    "game": "want-dont-want",
+    "text": "Я хочу играть в мяч",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/scene-1976903e.mp3"
+  },
+  {
+    "id": "want-dont-want.scene.b5670163",
+    "game": "want-dont-want",
+    "text": "Я не хочу играть в мяч",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/scene-b5670163.mp3"
+  },
+  {
+    "id": "want-dont-want.scene.921bd684",
+    "game": "want-dont-want",
+    "text": "Я не хочу рисовать",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/scene-921bd684.mp3"
+  },
+  {
+    "id": "want-dont-want.scene.37d62e87",
+    "game": "want-dont-want",
+    "text": "Я хочу играть с игрушкой",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/scene-37d62e87.mp3"
+  },
+  {
+    "id": "want-dont-want.scene.d6cc5ab2",
+    "game": "want-dont-want",
+    "text": "Я не хочу играть с игрушкой",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/scene-d6cc5ab2.mp3"
+  },
+  {
+    "id": "want-dont-want.scene.bd1edbe4",
+    "game": "want-dont-want",
+    "text": "Я хочу отдыхать",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/scene-bd1edbe4.mp3"
+  },
+  {
+    "id": "want-dont-want.scene.9041db6b",
+    "game": "want-dont-want",
+    "text": "Я не хочу отдыхать",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/scene-9041db6b.mp3"
+  },
+  {
+    "id": "want-dont-want.scene.2717161d",
+    "game": "want-dont-want",
+    "text": "Я хочу обниматься",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/scene-2717161d.mp3"
+  },
+  {
+    "id": "want-dont-want.scene.7d489012",
+    "game": "want-dont-want",
+    "text": "Я не хочу обниматься",
+    "voice": "jane",
+    "path": "/audio/tts/want-dont-want/scene-7d489012.mp3"
+  },
+  {
     "id": "one-many.mistake",
     "game": "one-many",
     "text": "Посмотри на предметы ещё раз и выбери другую карточку.",
@@ -7168,6 +8778,216 @@
     "path": "/audio/tts/mini-dialog/complete.mp3"
   },
   {
+    "id": "mini-dialog.scene.9ca8e214",
+    "game": "mini-dialog",
+    "text": "Я Мира.",
+    "voice": "alena",
+    "path": "/audio/tts/mini-dialog/scene-9ca8e214.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.e89aa7f0",
+    "game": "mini-dialog",
+    "text": "Хочешь немного поговорить?",
+    "voice": "alena",
+    "path": "/audio/tts/mini-dialog/scene-e89aa7f0.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.858ed0c1",
+    "game": "mini-dialog",
+    "text": "Да, я хочу поговорить.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/scene-858ed0c1.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.bef7a7a3",
+    "game": "mini-dialog",
+    "text": "Нет, я не хочу разговаривать.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/scene-bef7a7a3.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.69eec7d0",
+    "game": "mini-dialog",
+    "text": "Помоги мне ответить, пожалуйста.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/scene-69eec7d0.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.01ed6960",
+    "game": "mini-dialog",
+    "text": "Скажи ещё раз, пожалуйста.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/scene-01ed6960.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.f0195cbe",
+    "game": "mini-dialog",
+    "text": "Как ты себя чувствуешь сейчас?",
+    "voice": "alena",
+    "path": "/audio/tts/mini-dialog/scene-f0195cbe.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.e1337a1d",
+    "game": "mini-dialog",
+    "text": "Мне грустно.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/scene-e1337a1d.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.26e2345d",
+    "game": "mini-dialog",
+    "text": "Я устал.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/scene-26e2345d.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.9ffda32d",
+    "game": "mini-dialog",
+    "text": "Я не хочу отвечать.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/scene-9ffda32d.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.275fddbc",
+    "game": "mini-dialog",
+    "text": "Спасибо, что ответил.",
+    "voice": "alena",
+    "path": "/audio/tts/mini-dialog/scene-275fddbc.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.1bc07e0c",
+    "game": "mini-dialog",
+    "text": "Хочешь посмотреть картинку с солнцем?",
+    "voice": "alena",
+    "path": "/audio/tts/mini-dialog/scene-1bc07e0c.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.68e4982c",
+    "game": "mini-dialog",
+    "text": "Да, я хочу посмотреть.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/scene-68e4982c.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.9288f381",
+    "game": "mini-dialog",
+    "text": "Нет, я не хочу смотреть.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/scene-9288f381.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.4848db1c",
+    "game": "mini-dialog",
+    "text": "Помоги мне посмотреть, пожалуйста.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/scene-4848db1c.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.1b19e11c",
+    "game": "mini-dialog",
+    "text": "Стоп, пожалуйста.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/scene-1b19e11c.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.65899351",
+    "game": "mini-dialog",
+    "text": "Вот солнце.",
+    "voice": "alena",
+    "path": "/audio/tts/mini-dialog/scene-65899351.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.c3172fed",
+    "game": "mini-dialog",
+    "text": "Что ты хочешь сказать о картинке?",
+    "voice": "alena",
+    "path": "/audio/tts/mini-dialog/scene-c3172fed.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.16c2624a",
+    "game": "mini-dialog",
+    "text": "Мне нравится эта картинка.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/scene-16c2624a.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.3d8d2305",
+    "game": "mini-dialog",
+    "text": "Мне не нравится эта картинка.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/scene-3d8d2305.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.5cab8069",
+    "game": "mini-dialog",
+    "text": "Расскажи ещё, пожалуйста.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/scene-5cab8069.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.60c05e01",
+    "game": "mini-dialog",
+    "text": "Хочешь поговорить ещё?",
+    "voice": "alena",
+    "path": "/audio/tts/mini-dialog/scene-60c05e01.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.9ceab3fa",
+    "game": "mini-dialog",
+    "text": "Да, давай ещё.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/scene-9ceab3fa.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.d6e224dc",
+    "game": "mini-dialog",
+    "text": "Нет, спасибо.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/scene-d6e224dc.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.b9909b9c",
+    "game": "mini-dialog",
+    "text": "Помоги мне выбрать, пожалуйста.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/scene-b9909b9c.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.b03f4fe6",
+    "game": "mini-dialog",
+    "text": "Я хочу остановиться.",
+    "voice": "filipp",
+    "path": "/audio/tts/mini-dialog/scene-b03f4fe6.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.276d5375",
+    "game": "mini-dialog",
+    "text": "Хорошо.",
+    "voice": "alena",
+    "path": "/audio/tts/mini-dialog/scene-276d5375.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.ab77230a",
+    "game": "mini-dialog",
+    "text": "Спасибо за разговор.",
+    "voice": "alena",
+    "path": "/audio/tts/mini-dialog/scene-ab77230a.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.c33dd193",
+    "game": "mini-dialog",
+    "text": "Я помогу.",
+    "voice": "julia",
+    "path": "/audio/tts/mini-dialog/scene-c33dd193.mp3"
+  },
+  {
+    "id": "mini-dialog.scene.327fa782",
+    "game": "mini-dialog",
+    "text": "Послушай вопрос ещё раз; можно ответить или отказаться.",
+    "voice": "julia",
+    "path": "/audio/tts/mini-dialog/scene-327fa782.mp3"
+  },
+  {
     "id": "social-phrases.mistake",
     "game": "social-phrases",
     "text": "Посмотри на ситуацию ещё раз и выбери другую фразу.",
@@ -7180,6 +9000,272 @@
     "text": "Спасибо. Социальные фразы потренированы.",
     "voice": "jane",
     "path": "/audio/tts/social-phrases/complete.mp3"
+  },
+  {
+    "id": "social-phrases.scene.2fb2cde1",
+    "game": "social-phrases",
+    "text": "Посмотри на ситуацию и выбери, что можно сказать.",
+    "voice": "alena",
+    "path": "/audio/tts/social-phrases/scene-2fb2cde1.mp3"
+  },
+  {
+    "id": "social-phrases.scene.f217d06f",
+    "game": "social-phrases",
+    "text": "Если тебе нужна помощь, ты не хочешь или хочешь остановиться, выбери такую карточку: это тоже важный ответ.",
+    "voice": "alena",
+    "path": "/audio/tts/social-phrases/scene-f217d06f.mp3"
+  },
+  {
+    "id": "social-phrases.scene.f5599f90",
+    "game": "social-phrases",
+    "text": "На занятии стало слишком громко.",
+    "voice": "alena",
+    "path": "/audio/tts/social-phrases/scene-f5599f90.mp3"
+  },
+  {
+    "id": "social-phrases.scene.5b262eda",
+    "game": "social-phrases",
+    "text": "Взрослый рядом может сделать звук тише или остановиться.",
+    "voice": "alena",
+    "path": "/audio/tts/social-phrases/scene-5b262eda.mp3"
+  },
+  {
+    "id": "social-phrases.scene.233bc797",
+    "game": "social-phrases",
+    "text": "Что можно попросить?",
+    "voice": "alena",
+    "path": "/audio/tts/social-phrases/scene-233bc797.mp3"
+  },
+  {
+    "id": "social-phrases.scene.ab4cfdd7",
+    "game": "social-phrases",
+    "text": "Сделай громче, пожалуйста.",
+    "voice": "filipp",
+    "path": "/audio/tts/social-phrases/scene-ab4cfdd7.mp3"
+  },
+  {
+    "id": "social-phrases.scene.ed800c5c",
+    "game": "social-phrases",
+    "text": "Эта фраза прозвучала.",
+    "voice": "julia",
+    "path": "/audio/tts/social-phrases/scene-ed800c5c.mp3"
+  },
+  {
+    "id": "social-phrases.scene.14ac34a6",
+    "game": "social-phrases",
+    "text": "Можно выбрать другую фразу или попросить помощь.",
+    "voice": "julia",
+    "path": "/audio/tts/social-phrases/scene-14ac34a6.mp3"
+  },
+  {
+    "id": "social-phrases.scene.f57cb9aa",
+    "game": "social-phrases",
+    "text": "Сделай тише, пожалуйста.",
+    "voice": "filipp",
+    "path": "/audio/tts/social-phrases/scene-f57cb9aa.mp3"
+  },
+  {
+    "id": "social-phrases.scene.0a67c0c1",
+    "game": "social-phrases",
+    "text": "Тебя услышали и сделали звук тише.",
+    "voice": "julia",
+    "path": "/audio/tts/social-phrases/scene-0a67c0c1.mp3"
+  },
+  {
+    "id": "social-phrases.scene.1b19e11c",
+    "game": "social-phrases",
+    "text": "Стоп, пожалуйста.",
+    "voice": "filipp",
+    "path": "/audio/tts/social-phrases/scene-1b19e11c.mp3"
+  },
+  {
+    "id": "social-phrases.scene.3799828a",
+    "game": "social-phrases",
+    "text": "Я услышал твой ответ.",
+    "voice": "julia",
+    "path": "/audio/tts/social-phrases/scene-3799828a.mp3"
+  },
+  {
+    "id": "social-phrases.scene.94664091",
+    "game": "social-phrases",
+    "text": "Помоги мне, пожалуйста.",
+    "voice": "filipp",
+    "path": "/audio/tts/social-phrases/scene-94664091.mp3"
+  },
+  {
+    "id": "social-phrases.scene.0876f4e0",
+    "game": "social-phrases",
+    "text": "Тебе хочется пить, а вода стоит далеко.",
+    "voice": "alena",
+    "path": "/audio/tts/social-phrases/scene-0876f4e0.mp3"
+  },
+  {
+    "id": "social-phrases.scene.820867e5",
+    "game": "social-phrases",
+    "text": "Человек рядом может подать нужный предмет.",
+    "voice": "alena",
+    "path": "/audio/tts/social-phrases/scene-820867e5.mp3"
+  },
+  {
+    "id": "social-phrases.scene.3c89a8bc",
+    "game": "social-phrases",
+    "text": "Дай книгу, пожалуйста.",
+    "voice": "filipp",
+    "path": "/audio/tts/social-phrases/scene-3c89a8bc.mp3"
+  },
+  {
+    "id": "social-phrases.scene.2e1a674d",
+    "game": "social-phrases",
+    "text": "Тебя услышали и подали воду.",
+    "voice": "julia",
+    "path": "/audio/tts/social-phrases/scene-2e1a674d.mp3"
+  },
+  {
+    "id": "social-phrases.scene.61a038f6",
+    "game": "social-phrases",
+    "text": "Помоги мне попросить воду.",
+    "voice": "filipp",
+    "path": "/audio/tts/social-phrases/scene-61a038f6.mp3"
+  },
+  {
+    "id": "social-phrases.scene.de6da915",
+    "game": "social-phrases",
+    "text": "Нет, я не хочу пить.",
+    "voice": "filipp",
+    "path": "/audio/tts/social-phrases/scene-de6da915.mp3"
+  },
+  {
+    "id": "social-phrases.scene.74a70cdd",
+    "game": "social-phrases",
+    "text": "Утром ты встречаешь знакомого взрослого.",
+    "voice": "alena",
+    "path": "/audio/tts/social-phrases/scene-74a70cdd.mp3"
+  },
+  {
+    "id": "social-phrases.scene.69da8d2d",
+    "game": "social-phrases",
+    "text": "Взрослый улыбается и смотрит на тебя.",
+    "voice": "alena",
+    "path": "/audio/tts/social-phrases/scene-69da8d2d.mp3"
+  },
+  {
+    "id": "social-phrases.scene.d47db6e9",
+    "game": "social-phrases",
+    "text": "Что можно сказать?",
+    "voice": "alena",
+    "path": "/audio/tts/social-phrases/scene-d47db6e9.mp3"
+  },
+  {
+    "id": "social-phrases.scene.7021c358",
+    "game": "social-phrases",
+    "text": "Я не хочу здороваться.",
+    "voice": "filipp",
+    "path": "/audio/tts/social-phrases/scene-7021c358.mp3"
+  },
+  {
+    "id": "social-phrases.scene.e51bfbe6",
+    "game": "social-phrases",
+    "text": "Взрослый услышал твоё приветствие.",
+    "voice": "julia",
+    "path": "/audio/tts/social-phrases/scene-e51bfbe6.mp3"
+  },
+  {
+    "id": "social-phrases.scene.266ef313",
+    "game": "social-phrases",
+    "text": "Добрый вечер!",
+    "voice": "filipp",
+    "path": "/audio/tts/social-phrases/scene-266ef313.mp3"
+  },
+  {
+    "id": "social-phrases.scene.9c00e6b4",
+    "game": "social-phrases",
+    "text": "Помоги мне поздороваться.",
+    "voice": "filipp",
+    "path": "/audio/tts/social-phrases/scene-9c00e6b4.mp3"
+  },
+  {
+    "id": "social-phrases.scene.9c655258",
+    "game": "social-phrases",
+    "text": "Тебе помогли открыть коробку.",
+    "voice": "alena",
+    "path": "/audio/tts/social-phrases/scene-9c655258.mp3"
+  },
+  {
+    "id": "social-phrases.scene.df5d43b7",
+    "game": "social-phrases",
+    "text": "Коробка открыта, и человек ждёт твоего ответа.",
+    "voice": "alena",
+    "path": "/audio/tts/social-phrases/scene-df5d43b7.mp3"
+  },
+  {
+    "id": "social-phrases.scene.9bec9604",
+    "game": "social-phrases",
+    "text": "За что можно поблагодарить?",
+    "voice": "alena",
+    "path": "/audio/tts/social-phrases/scene-9bec9604.mp3"
+  },
+  {
+    "id": "social-phrases.scene.21ba22f8",
+    "game": "social-phrases",
+    "text": "Я не хочу говорить.",
+    "voice": "filipp",
+    "path": "/audio/tts/social-phrases/scene-21ba22f8.mp3"
+  },
+  {
+    "id": "social-phrases.scene.e0d296fc",
+    "game": "social-phrases",
+    "text": "Помоги мне сказать спасибо.",
+    "voice": "filipp",
+    "path": "/audio/tts/social-phrases/scene-e0d296fc.mp3"
+  },
+  {
+    "id": "social-phrases.scene.a457bb9a",
+    "game": "social-phrases",
+    "text": "Спасибо, что помог открыть коробку.",
+    "voice": "filipp",
+    "path": "/audio/tts/social-phrases/scene-a457bb9a.mp3"
+  },
+  {
+    "id": "social-phrases.scene.5eb6e4aa",
+    "game": "social-phrases",
+    "text": "Человек понял твою благодарность.",
+    "voice": "julia",
+    "path": "/audio/tts/social-phrases/scene-5eb6e4aa.mp3"
+  },
+  {
+    "id": "social-phrases.scene.c33dd193",
+    "game": "social-phrases",
+    "text": "Я помогу.",
+    "voice": "julia",
+    "path": "/audio/tts/social-phrases/scene-c33dd193.mp3"
+  },
+  {
+    "id": "social-phrases.scene.3410ad55",
+    "game": "social-phrases",
+    "text": "Послушай ситуацию ещё раз и выбери в своём темпе.",
+    "voice": "julia",
+    "path": "/audio/tts/social-phrases/scene-3410ad55.mp3"
+  },
+  {
+    "id": "social-phrases.scene.6f6aeda7",
+    "game": "social-phrases",
+    "text": "Я услышал тебя.",
+    "voice": "julia",
+    "path": "/audio/tts/social-phrases/scene-6f6aeda7.mp3"
+  },
+  {
+    "id": "social-phrases.scene.ea90bfa9",
+    "game": "social-phrases",
+    "text": "Останавливаемся.",
+    "voice": "julia",
+    "path": "/audio/tts/social-phrases/scene-ea90bfa9.mp3"
+  },
+  {
+    "id": "social-phrases.scene.2a6a70ff",
+    "game": "social-phrases",
+    "text": "Все ситуации закончились.",
+    "voice": "julia",
+    "path": "/audio/tts/social-phrases/scene-2a6a70ff.mp3"
   },
   {
     "id": "clock.mistake",
@@ -8218,6 +10304,160 @@
     "path": "/audio/tts/object-action/phrase-book-open.mp3"
   },
   {
+    "id": "object-action.scene.af36140d",
+    "game": "object-action",
+    "text": "Покажи действие: пить.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/scene-af36140d.mp3"
+  },
+  {
+    "id": "object-action.scene.7c7713b9",
+    "game": "object-action",
+    "text": "Человек пьёт из чашки.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/scene-7c7713b9.mp3"
+  },
+  {
+    "id": "object-action.scene.3b04d70f",
+    "game": "object-action",
+    "text": "Это другое действие.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/scene-3b04d70f.mp3"
+  },
+  {
+    "id": "object-action.scene.baba0a08",
+    "game": "object-action",
+    "text": "Покажи: пить.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/scene-baba0a08.mp3"
+  },
+  {
+    "id": "object-action.scene.edd43e3d",
+    "game": "object-action",
+    "text": "Покажи действие: есть.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/scene-edd43e3d.mp3"
+  },
+  {
+    "id": "object-action.scene.c8887bb3",
+    "game": "object-action",
+    "text": "Человек ест ложкой.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/scene-c8887bb3.mp3"
+  },
+  {
+    "id": "object-action.scene.03514220",
+    "game": "object-action",
+    "text": "Покажи: есть.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/scene-03514220.mp3"
+  },
+  {
+    "id": "object-action.scene.bd3cfcec",
+    "game": "object-action",
+    "text": "Покажи действие: спать.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/scene-bd3cfcec.mp3"
+  },
+  {
+    "id": "object-action.scene.1c56aec3",
+    "game": "object-action",
+    "text": "Человек спит в кровати.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/scene-1c56aec3.mp3"
+  },
+  {
+    "id": "object-action.scene.1e273adc",
+    "game": "object-action",
+    "text": "Покажи: спать.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/scene-1e273adc.mp3"
+  },
+  {
+    "id": "object-action.scene.fe47decf",
+    "game": "object-action",
+    "text": "Покажи действие: идти.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/scene-fe47decf.mp3"
+  },
+  {
+    "id": "object-action.scene.c8a5b7de",
+    "game": "object-action",
+    "text": "Человек идёт по дорожке.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/scene-c8a5b7de.mp3"
+  },
+  {
+    "id": "object-action.scene.7f0b320b",
+    "game": "object-action",
+    "text": "Покажи: идти.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/scene-7f0b320b.mp3"
+  },
+  {
+    "id": "object-action.scene.f9de34ff",
+    "game": "object-action",
+    "text": "Покажи действие: мыть.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/scene-f9de34ff.mp3"
+  },
+  {
+    "id": "object-action.scene.a06e4615",
+    "game": "object-action",
+    "text": "Человек моет руки с мылом.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/scene-a06e4615.mp3"
+  },
+  {
+    "id": "object-action.scene.fd1d2ac9",
+    "game": "object-action",
+    "text": "Покажи: мыть.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/scene-fd1d2ac9.mp3"
+  },
+  {
+    "id": "object-action.scene.0b2c96ed",
+    "game": "object-action",
+    "text": "Покажи действие: рисовать.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/scene-0b2c96ed.mp3"
+  },
+  {
+    "id": "object-action.scene.336dbbeb",
+    "game": "object-action",
+    "text": "Человек рисует карандашом.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/scene-336dbbeb.mp3"
+  },
+  {
+    "id": "object-action.scene.55f77c4d",
+    "game": "object-action",
+    "text": "Покажи: рисовать.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/scene-55f77c4d.mp3"
+  },
+  {
+    "id": "object-action.scene.d2e868e6",
+    "game": "object-action",
+    "text": "Покажи действие: катать.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/scene-d2e868e6.mp3"
+  },
+  {
+    "id": "object-action.scene.656ef03c",
+    "game": "object-action",
+    "text": "Ребёнок катает мяч.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/scene-656ef03c.mp3"
+  },
+  {
+    "id": "object-action.scene.69d5e83a",
+    "game": "object-action",
+    "text": "Покажи: катать.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/scene-69d5e83a.mp3"
+  },
+  {
     "id": "type-word.prompt",
     "game": "type-word",
     "text": "Собери слово по буквам. Выбирай подсвеченную букву.",
@@ -8244,6 +10484,20 @@
     "text": "Готово. Все слова собраны.",
     "voice": "jane",
     "path": "/audio/tts/type-word/complete.mp3"
+  },
+  {
+    "id": "type-word.scene.38d0e39f",
+    "game": "type-word",
+    "text": "Собери название предмета.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/scene-38d0e39f.mp3"
+  },
+  {
+    "id": "type-word.scene.ae4da534",
+    "game": "type-word",
+    "text": "Выбирай буквы слева направо.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/scene-ae4da534.mp3"
   },
   {
     "id": "pizza-fractions.prompt.half",
@@ -8762,6 +11016,230 @@
     "text": "десять",
     "voice": "jane",
     "path": "/audio/tts/shop/number-10.mp3"
+  },
+  {
+    "id": "shop.scene.f17a7105",
+    "game": "shop",
+    "text": "У тебя 6 монет.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-f17a7105.mp3"
+  },
+  {
+    "id": "shop.scene.fd4a4744",
+    "game": "shop",
+    "text": "Купи яблоко и сок.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-fd4a4744.mp3"
+  },
+  {
+    "id": "shop.scene.7a941887",
+    "game": "shop",
+    "text": "Оплати ягоды.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-7a941887.mp3"
+  },
+  {
+    "id": "shop.scene.9d890796",
+    "game": "shop",
+    "text": "Цена — 9 монет.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-9d890796.mp3"
+  },
+  {
+    "id": "shop.scene.c9608946",
+    "game": "shop",
+    "text": "Оплати печенье.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-c9608946.mp3"
+  },
+  {
+    "id": "shop.scene.ede16906",
+    "game": "shop",
+    "text": "Цена — 7 монет.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-ede16906.mp3"
+  },
+  {
+    "id": "shop.scene.da460336",
+    "game": "shop",
+    "text": "Оплати хлеб.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-da460336.mp3"
+  },
+  {
+    "id": "shop.scene.3d2417b8",
+    "game": "shop",
+    "text": "Цена — 4 монеты.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-3d2417b8.mp3"
+  },
+  {
+    "id": "shop.scene.9b53bbd3",
+    "game": "shop",
+    "text": "Оплати молоко.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-9b53bbd3.mp3"
+  },
+  {
+    "id": "shop.scene.514bbdec",
+    "game": "shop",
+    "text": "Цена — 5 монет.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-514bbdec.mp3"
+  },
+  {
+    "id": "shop.scene.3c7e95fc",
+    "game": "shop",
+    "text": "Оплати сыр.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-3c7e95fc.mp3"
+  },
+  {
+    "id": "shop.scene.ef3b94d2",
+    "game": "shop",
+    "text": "Цена — 8 монет.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-ef3b94d2.mp3"
+  },
+  {
+    "id": "shop.scene.191b2998",
+    "game": "shop",
+    "text": "Купи яблоко и хлеб.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-191b2998.mp3"
+  },
+  {
+    "id": "shop.scene.e725c1a8",
+    "game": "shop",
+    "text": "Оплати сок.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-e725c1a8.mp3"
+  },
+  {
+    "id": "shop.scene.5b19d655",
+    "game": "shop",
+    "text": "Цена — 3 монеты.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-5b19d655.mp3"
+  },
+  {
+    "id": "shop.scene.03a82afa",
+    "game": "shop",
+    "text": "Оплати банан.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-03a82afa.mp3"
+  },
+  {
+    "id": "shop.scene.769d2c49",
+    "game": "shop",
+    "text": "Цена — 6 монет.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-769d2c49.mp3"
+  },
+  {
+    "id": "shop.scene.1b7e54b5",
+    "game": "shop",
+    "text": "Оплати кекс.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-1b7e54b5.mp3"
+  },
+  {
+    "id": "shop.scene.6d601f0f",
+    "game": "shop",
+    "text": "Цена — 10 монет.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-6d601f0f.mp3"
+  },
+  {
+    "id": "shop.scene.891e6f46",
+    "game": "shop",
+    "text": "Оплати яблоко.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-891e6f46.mp3"
+  },
+  {
+    "id": "shop.scene.aff4cbaf",
+    "game": "shop",
+    "text": "Цена — 2 монеты.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-aff4cbaf.mp3"
+  },
+  {
+    "id": "shop.scene.886203cd",
+    "game": "shop",
+    "text": "У тебя 10 монет.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-886203cd.mp3"
+  },
+  {
+    "id": "shop.scene.b2bb06a7",
+    "game": "shop",
+    "text": "Купи яблоко и печенье.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-b2bb06a7.mp3"
+  },
+  {
+    "id": "shop.scene.8107ec7c",
+    "game": "shop",
+    "text": "Купи яблоко и сыр.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-8107ec7c.mp3"
+  },
+  {
+    "id": "shop.scene.06f5e665",
+    "game": "shop",
+    "text": "Купи хлеб и молоко.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-06f5e665.mp3"
+  },
+  {
+    "id": "shop.scene.819787b4",
+    "game": "shop",
+    "text": "Купи яблоко и молоко.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-819787b4.mp3"
+  },
+  {
+    "id": "shop.scene.36112798",
+    "game": "shop",
+    "text": "Купи сок и молоко.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-36112798.mp3"
+  },
+  {
+    "id": "shop.scene.59d3479a",
+    "game": "shop",
+    "text": "Купи сок и банан.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-59d3479a.mp3"
+  },
+  {
+    "id": "shop.scene.862534e1",
+    "game": "shop",
+    "text": "Купи яблоко и банан.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-862534e1.mp3"
+  },
+  {
+    "id": "shop.scene.01593a43",
+    "game": "shop",
+    "text": "Купи сок и печенье.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-01593a43.mp3"
+  },
+  {
+    "id": "shop.scene.d7dab4c3",
+    "game": "shop",
+    "text": "Купи хлеб и банан.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-d7dab4c3.mp3"
+  },
+  {
+    "id": "shop.scene.9430aba5",
+    "game": "shop",
+    "text": "Купи сок и хлеб.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/scene-9430aba5.mp3"
   },
   {
     "id": "shapes.prompt.circle",

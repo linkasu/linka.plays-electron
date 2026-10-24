@@ -91,6 +91,7 @@ async function playRoundPrompt(withInstruction: boolean, delayMs = 0) {
       "Собери название предмета. Выбирай буквы слева направо.",
       session.settings.sound,
       delayMs,
+      { gameId: "type-word" },
     );
   await playWordName(withInstruction ? 0 : delayMs);
   isChangingWord.value = false;
