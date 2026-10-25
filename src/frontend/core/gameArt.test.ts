@@ -4,6 +4,7 @@ import { butterflyArtIds } from "../games/butterfly/art";
 import { chooseEmotionFaces } from "../games/choose-emotion/model";
 import { dayRoutineItems } from "../games/day-routine/model";
 import { itemsByAnswer } from "../games/eat-or-not-eat/model";
+import { feedAnimalArtIds } from "../games/feed-animal/model";
 import { findAnimalArtId, findAnimalDrawnIds } from "../games/find-animal/model";
 import { findEmotionOptions } from "../games/find-emotion/model";
 import { minesweeperSafeArtIds } from "../games/minesweeper-safe/model";
@@ -43,6 +44,7 @@ describe("gameArtSrc", () => {
       ...butterflyArtIds.map((artId) => ({ artId })),
       ...robotVacuumArtIds.map((artId) => ({ artId })),
       ...minesweeperSafeArtIds.map((artId) => ({ artId })),
+      ...feedAnimalArtIds.map((artId) => ({ artId })),
     ]
       .map((item) => item.artId)
       .filter((artId): artId is string => Boolean(artId));

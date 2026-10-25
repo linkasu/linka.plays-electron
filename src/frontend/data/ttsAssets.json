@@ -11555,5 +11555,40 @@
     "text": "Следи взглядом за медузой.",
     "voice": "jane",
     "path": "/audio/tts/jellyfish/prompt.mp3"
+  },
+  {
+    "id": "feed-animal.prompt.kitten",
+    "game": "feed-animal",
+    "text": "Покорми котёнка. Выбери, что он ест.",
+    "voice": "jane",
+    "path": "/audio/tts/feed-animal/prompt-kitten.mp3"
+  },
+  {
+    "id": "feed-animal.prompt.bird",
+    "game": "feed-animal",
+    "text": "Покорми птичку. Выбери, что она ест.",
+    "voice": "jane",
+    "path": "/audio/tts/feed-animal/prompt-bird.mp3"
+  },
+  {
+    "id": "feed-animal.prompt.mouse",
+    "game": "feed-animal",
+    "text": "Покорми мышку. Выбери, что она ест.",
+    "voice": "jane",
+    "path": "/audio/tts/feed-animal/prompt-mouse.mp3"
+  },
+  {
+    "id": "feed-animal.prompt.turtle",
+    "game": "feed-animal",
+    "text": "Покорми черепаху. Выбери, что она ест.",
+    "voice": "jane",
+    "path": "/audio/tts/feed-animal/prompt-turtle.mp3"
+  },
+  {
+    "id": "feed-animal.prompt.squirrel",
+    "game": "feed-animal",
+    "text": "Покорми белку. Выбери, что она ест.",
+    "voice": "jane",
+    "path": "/audio/tts/feed-animal/prompt-squirrel.mp3"
   }
 ]
