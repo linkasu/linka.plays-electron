@@ -16,13 +16,13 @@ function overlaps(first: SoupRect, second: SoupRect) {
 }
 
 describe("createSoupRecipeRound", () => {
-  it("returns eight unique ingredients in recipe order", () => {
+  it("returns six unique ingredients in recipe order", () => {
     const round = createSoupRecipeRound();
     const ids = round.ingredients.map((ingredient) => ingredient.id);
 
     expect(round.roundId).toBe("soup-recipe:recipe:1");
-    expect(round.ingredients).toHaveLength(8);
-    expect(new Set(ids).size).toBe(8);
+    expect(round.ingredients).toHaveLength(6);
+    expect(new Set(ids).size).toBe(6);
     expect(ids).toEqual(soupRecipeIngredients.map((ingredient) => ingredient.id));
   });
 
@@ -35,7 +35,7 @@ describe("createSoupRecipeRound", () => {
       "potatoes",
       "carrot",
       "onion",
-      "peas",
+      "cabbage",
     ]);
   });
 
@@ -56,17 +56,16 @@ describe("createSoupRecipeRound", () => {
   it("uses recognizable ingredient visuals without revealing order numbers", () => {
     expect(
       soupRecipeIngredients.map(
-        (ingredient) => ingredient.imageId ?? ingredient.icon ?? ingredient.emoji,
+        (ingredient) =>
+          ingredient.artId ?? ingredient.imageId ?? ingredient.icon ?? ingredient.emoji,
       ),
     ).toEqual([
-      "mdi-water-outline",
-      "potato",
-      "carrot",
-      "onion",
-      "🫛",
-      "pasta",
-      "mdi-shaker-outline",
-      "leaf",
+      "soup-recipe/water",
+      "soup-recipe/potatoes",
+      "soup-recipe/carrot",
+      "soup-recipe/onion",
+      "soup-recipe/cabbage",
+      "soup-recipe/salt",
     ]);
     expect(soupRecipeIngredients.every((ingredient) => !("orderIndex" in ingredient))).toBe(true);
   });
@@ -74,7 +73,7 @@ describe("createSoupRecipeRound", () => {
   it("keeps all gaze targets disjoint at the compact desktop viewport", () => {
     const slots = createSoupIngredientSlots(soupRecipeIngredients, 900, 600);
 
-    expect(slots).toHaveLength(8);
+    expect(slots).toHaveLength(soupRecipeIngredients.length);
     expect(
       slots.every((slot, index) =>
         slots.slice(index + 1).every((other) => !overlaps(slot.rect, other.rect)),

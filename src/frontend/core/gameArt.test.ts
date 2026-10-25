@@ -12,6 +12,7 @@ import { sandwichChoices } from "../games/sandwich/model";
 import { robotVacuumArtIds } from "../games/robot-vacuum/art";
 import { dailyScheduleSteps } from "../games/schedule/model";
 import { trainSequenceArtIds } from "../games/train-sequence/model";
+import { soupRecipeArtIds } from "../games/soup-recipe/model";
 import { gameArtSrc } from "./gameArt";
 
 describe("gameArtSrc", () => {
@@ -45,6 +46,7 @@ describe("gameArtSrc", () => {
       ...robotVacuumArtIds.map((artId) => ({ artId })),
       ...minesweeperSafeArtIds.map((artId) => ({ artId })),
       ...feedAnimalArtIds.map((artId) => ({ artId })),
+      ...soupRecipeArtIds.map((artId) => ({ artId })),
     ]
       .map((item) => item.artId)
       .filter((artId): artId is string => Boolean(artId));

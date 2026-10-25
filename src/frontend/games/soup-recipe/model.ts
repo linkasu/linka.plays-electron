@@ -2,6 +2,8 @@ export type SoupIngredient = {
   id: string;
   label: string;
   imageId?: string;
+  /** Drawn picture (core/gameArt.ts); wins over the word picture and the emoji. */
+  artId?: string;
   emoji: string;
   icon?: string;
   color: string;
@@ -19,16 +21,34 @@ export type SoupRecipeRound = {
   ingredients: SoupIngredient[];
 };
 
+// Testers: «картиночки надо нарисовать». Only the drawn ingredients are used
+// until noodles, peas and greens are drawn too (image request 3), so a recipe
+// never mixes drawings with emoji. Six steps also give a 3 × 2 grid with
+// larger gaze targets.
 export const soupRecipeIngredients: readonly SoupIngredient[] = [
-  { id: "water", label: "вода", emoji: "💧", icon: "mdi-water-outline", color: "#90caf9" },
-  { id: "potatoes", label: "картофель", imageId: "potato", emoji: "🥔", color: "#ffe082" },
-  { id: "carrot", label: "морковь", imageId: "carrot", emoji: "🥕", color: "#ffb74d" },
-  { id: "onion", label: "лук", imageId: "onion", emoji: "🧅", color: "#d7ccc8" },
-  { id: "peas", label: "горошек", emoji: "🫛", color: "#a5d6a7" },
-  { id: "noodles", label: "лапша", imageId: "pasta", emoji: "🍝", color: "#fff59d" },
-  { id: "salt", label: "соль", emoji: "🧂", icon: "mdi-shaker-outline", color: "#e0e0e0" },
-  { id: "greens", label: "зелень", imageId: "leaf", emoji: "🌿", color: "#81c784" },
+  { id: "water", label: "вода", artId: "soup-recipe/water", emoji: "💧", color: "#90caf9" },
+  {
+    id: "potatoes",
+    label: "картофель",
+    artId: "soup-recipe/potatoes",
+    emoji: "🥔",
+    color: "#ffe082",
+  },
+  { id: "carrot", label: "морковь", artId: "soup-recipe/carrot", emoji: "🥕", color: "#ffb74d" },
+  { id: "onion", label: "лук", artId: "soup-recipe/onion", emoji: "🧅", color: "#d7ccc8" },
+  {
+    id: "cabbage",
+    label: "капуста",
+    artId: "soup-recipe/cabbage",
+    emoji: "🥬",
+    color: "#c5e1a5",
+  },
+  { id: "salt", label: "соль", artId: "soup-recipe/salt", emoji: "🧂", color: "#e0e0e0" },
 ];
+
+export const soupRecipeArtIds = soupRecipeIngredients
+  .map((ingredient) => ingredient.artId)
+  .filter((artId): artId is string => Boolean(artId));
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
@@ -68,7 +88,7 @@ export function createSoupRecipeLayout(canvasWidth: number, canvasHeight: number
         width: panel.width - 28,
         height: contentHeight - potHeight - gap,
       },
-      columns: 4,
+      columns: 3,
       rows: 2,
     };
   }
@@ -86,7 +106,7 @@ export function createSoupRecipeLayout(canvasWidth: number, canvasHeight: number
       width: panel.width - potWidth - gap - 28,
       height: contentHeight,
     },
-    columns: 4,
+    columns: 3,
     rows: 2,
   };
 }
