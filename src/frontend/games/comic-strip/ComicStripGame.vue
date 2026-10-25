@@ -5,10 +5,10 @@ import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
-import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { playSoftPianoMelody, warmSoftPiano } from "../../core/softPiano";
 import {
@@ -248,39 +248,17 @@ onUnmounted(() => {
                   <div v-if="frameBySlot(slotIndex - 1)" class="text-center">
                     <v-avatar
                       class="comic-scene mb-3"
-                      :class="`comic-scene--${frameBySlot(slotIndex - 1)?.scene.setting}`"
                       color="white"
                       rounded="lg"
                       role="img"
                       :aria-label="frameBySlot(slotIndex - 1)?.caption"
                     >
-                      <template
-                        v-for="(layer, layerIndex) in frameBySlot(slotIndex - 1)?.scene.layers"
-                        :key="`${layer.kind}:${layerIndex}`"
-                      >
-                        <GameWordImage
-                          v-if="layer.kind === 'word'"
-                          :class="[
-                            'comic-scene__layer',
-                            `comic-scene__layer--${layer.position}`,
-                            `comic-scene__layer--${layer.size ?? 'medium'}`,
-                          ]"
-                          :word-id="layer.wordId"
-                          :word="layer.word"
-                          :emoji="layer.emoji"
-                          decorative
-                        />
-                        <v-icon
-                          v-else
-                          :class="[
-                            'comic-scene__layer',
-                            `comic-scene__layer--${layer.position}`,
-                            `comic-scene__layer--${layer.size ?? 'medium'}`,
-                          ]"
-                          :icon="layer.icon"
-                          :color="layer.color"
-                        />
-                      </template>
+                      <img
+                        class="comic-scene__art"
+                        :src="gameArtSrc(frameBySlot(slotIndex - 1)?.artId ?? '')"
+                        alt=""
+                        draggable="false"
+                      />
                     </v-avatar>
                     <div class="text-h6 text-md-h5 font-weight-bold">
                       {{ frameBySlot(slotIndex - 1)?.caption }}
@@ -342,38 +320,16 @@ onUnmounted(() => {
                     >
                       <v-avatar
                         class="comic-scene comic-scene--choice"
-                        :class="`comic-scene--${frame.scene.setting}`"
                         color="white"
                         rounded="lg"
                         aria-hidden="true"
                       >
-                        <template
-                          v-for="(layer, layerIndex) in frame.scene.layers"
-                          :key="`${layer.kind}:${layerIndex}`"
-                        >
-                          <GameWordImage
-                            v-if="layer.kind === 'word'"
-                            :class="[
-                              'comic-scene__layer',
-                              `comic-scene__layer--${layer.position}`,
-                              `comic-scene__layer--${layer.size ?? 'medium'}`,
-                            ]"
-                            :word-id="layer.wordId"
-                            :word="layer.word"
-                            :emoji="layer.emoji"
-                            decorative
-                          />
-                          <v-icon
-                            v-else
-                            :class="[
-                              'comic-scene__layer',
-                              `comic-scene__layer--${layer.position}`,
-                              `comic-scene__layer--${layer.size ?? 'medium'}`,
-                            ]"
-                            :icon="layer.icon"
-                            :color="layer.color"
-                          />
-                        </template>
+                        <img
+                          class="comic-scene__art"
+                          :src="gameArtSrc(frame.artId)"
+                          alt=""
+                          draggable="false"
+                        />
                       </v-avatar>
                     </div>
                   </template>
@@ -420,131 +376,18 @@ onUnmounted(() => {
 }
 
 .comic-scene {
-  background: linear-gradient(180deg, #dff3ff 0%, #f9fdff 100%);
+  background: #fff;
   block-size: clamp(6rem, 12vw, 9rem) !important;
   border: 0.125rem solid rgb(var(--v-theme-primary) / 10%);
   border-radius: 1rem !important;
-  box-shadow: inset 0 0 1.5rem rgb(255 255 255 / 52%);
   inline-size: min(100%, 14rem) !important;
   overflow: hidden;
-  position: relative;
 }
 
-.comic-scene::after {
-  background: #a7d47b;
-  block-size: 28%;
-  content: "";
-  inset-block-end: 0;
-  inset-inline: 0;
-  position: absolute;
-}
-
-.comic-scene--earth {
-  background: linear-gradient(180deg, #dff4ff 0%, #fff8d8 72%);
-}
-
-.comic-scene--earth::after {
-  background: linear-gradient(180deg, #8bc66a 0 22%, #9a6948 22% 100%);
-  block-size: 34%;
-}
-
-.comic-scene--table,
-.comic-scene--desk {
-  background: linear-gradient(180deg, #fff8e9 0%, #fffdf7 100%);
-}
-
-.comic-scene--table::after,
-.comic-scene--desk::after {
-  background: linear-gradient(180deg, #d9aa72, #bd824e);
-  block-size: 26%;
-}
-
-.comic-scene--desk::after {
-  background: linear-gradient(180deg, #d6b28b, #aa7a50);
-  block-size: 34%;
-}
-
-.comic-scene--room {
-  background: linear-gradient(180deg, #fff7e3 0%, #f6ebdf 100%);
-}
-
-.comic-scene--room::after {
-  background: repeating-linear-gradient(90deg, #d8b894 0 14%, #cfa87e 14% 16%);
-  block-size: 24%;
-}
-
-.comic-scene--snow {
-  background: linear-gradient(180deg, #dff4ff 0%, #f8fdff 100%);
-}
-
-.comic-scene--snow::after {
-  background: linear-gradient(180deg, #ffffff, #dceff7);
-  block-size: 32%;
-}
-
-.comic-scene--water {
-  background: linear-gradient(180deg, #dff4ff 0 58%, #70c9e8 58% 100%);
-}
-
-.comic-scene--water::after {
-  background: repeating-radial-gradient(ellipse at 50% 0%, #dcf8ff 0 8%, #4db5d8 9% 18%);
-  block-size: 30%;
-}
-
-.comic-scene__layer {
-  filter: drop-shadow(0 0.35rem 0.45rem rgb(0 0 0 / 18%));
-  position: absolute;
-  transform: translate(-50%, -50%);
-  z-index: 1;
-}
-
-.comic-scene__layer--small {
-  font-size: clamp(1.25rem, 3vw, 2rem) !important;
-}
-
-.comic-scene__layer--medium {
-  font-size: clamp(2rem, 5vw, 3.75rem) !important;
-}
-
-.comic-scene__layer--large {
-  font-size: clamp(3rem, 7vw, 5.25rem) !important;
-}
-
-.comic-scene__layer--top-left {
-  inset-block-start: 22%;
-  inset-inline-start: 20%;
-}
-.comic-scene__layer--top-center {
-  inset-block-start: 22%;
-  inset-inline-start: 50%;
-}
-.comic-scene__layer--top-right {
-  inset-block-start: 22%;
-  inset-inline-start: 80%;
-}
-.comic-scene__layer--left {
-  inset-block-start: 52%;
-  inset-inline-start: 22%;
-}
-.comic-scene__layer--center {
-  inset-block-start: 50%;
-  inset-inline-start: 50%;
-}
-.comic-scene__layer--right {
-  inset-block-start: 52%;
-  inset-inline-start: 78%;
-}
-.comic-scene__layer--bottom-left {
-  inset-block-start: 72%;
-  inset-inline-start: 22%;
-}
-.comic-scene__layer--bottom-center {
-  inset-block-start: 68%;
-  inset-inline-start: 50%;
-}
-.comic-scene__layer--bottom-right {
-  inset-block-start: 72%;
-  inset-inline-start: 78%;
+.comic-scene__art {
+  block-size: 100%;
+  inline-size: 100%;
+  object-fit: contain;
 }
 
 .choice-frame--mistake {
