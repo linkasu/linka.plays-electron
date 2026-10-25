@@ -11632,5 +11632,68 @@
     "text": "Почти. Противоположность к слову сухой: мокрый.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-dry-wet.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.3479f085",
+    "game": "shelf-sorting",
+    "text": "Предмет: миска.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-3479f085.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.0828b332",
+    "game": "shelf-sorting",
+    "text": "Предмет: кружка.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-0828b332.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.47295ada",
+    "game": "shelf-sorting",
+    "text": "Предмет: тарелка.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-47295ada.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.481b7ab6",
+    "game": "shelf-sorting",
+    "text": "Предмет: ложка.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-481b7ab6.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.e6c8c185",
+    "game": "shelf-sorting",
+    "text": "Предмет: футболка.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-e6c8c185.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.ee730917",
+    "game": "shelf-sorting",
+    "text": "Предмет: джинсы.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-ee730917.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.82253a3e",
+    "game": "shelf-sorting",
+    "text": "Предмет: ботинок.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-82253a3e.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.333f25ea",
+    "game": "shelf-sorting",
+    "text": "Предмет: кубики.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-333f25ea.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.809c9a64",
+    "game": "shelf-sorting",
+    "text": "Предмет: машинка.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-809c9a64.mp3"
   }
 ]

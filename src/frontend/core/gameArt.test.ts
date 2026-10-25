@@ -8,12 +8,13 @@ import { feedAnimalArtIds } from "../games/feed-animal/model";
 import { findAnimalArtId, findAnimalDrawnIds } from "../games/find-animal/model";
 import { findEmotionOptions } from "../games/find-emotion/model";
 import { minesweeperSafeArtIds } from "../games/minesweeper-safe/model";
-import { sandwichChoices } from "../games/sandwich/model";
-import { robotVacuumArtIds } from "../games/robot-vacuum/art";
-import { dailyScheduleSteps } from "../games/schedule/model";
-import { trainSequenceArtIds } from "../games/train-sequence/model";
 import { oppositesArtIds } from "../games/opposites/model";
+import { robotVacuumArtIds } from "../games/robot-vacuum/art";
+import { sandwichChoices } from "../games/sandwich/model";
+import { dailyScheduleSteps } from "../games/schedule/model";
+import { shelfSortingArtIds } from "../games/shelf-sorting/model";
 import { soupRecipeArtIds } from "../games/soup-recipe/model";
+import { trainSequenceArtIds } from "../games/train-sequence/model";
 import { gameArtSrc } from "./gameArt";
 
 describe("gameArtSrc", () => {
@@ -49,6 +50,7 @@ describe("gameArtSrc", () => {
       ...feedAnimalArtIds.map((artId) => ({ artId })),
       ...soupRecipeArtIds.map((artId) => ({ artId })),
       ...oppositesArtIds.map((artId) => ({ artId })),
+      ...shelfSortingArtIds.map((artId) => ({ artId })),
     ]
       .map((item) => item.artId)
       .filter((artId): artId is string => Boolean(artId));

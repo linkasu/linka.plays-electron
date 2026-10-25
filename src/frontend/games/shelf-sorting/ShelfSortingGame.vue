@@ -8,6 +8,7 @@ import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
 import { generateShelfSortingRound, type ShelfSortingShelf } from "./model";
@@ -225,8 +226,9 @@ onUnmounted(() => {
               <div class="item-caption text-caption mb-2">Предмет для сортировки</div>
               <div class="d-flex flex-column flex-sm-row align-center justify-center ga-4">
                 <GameWordImage
-                  v-if="round.item.imageId"
+                  v-if="round.item.imageId || round.item.artId"
                   :class="['item-visual', { 'item-visual--placed': successShelfId }]"
+                  :art-id="round.item.artId"
                   :word-id="round.item.imageId"
                   :word="round.item.label"
                   emoji=""
@@ -272,8 +274,9 @@ onUnmounted(() => {
                       <div class="shelf-visual mb-4" :style="shelfStyle(shelf)" aria-hidden="true">
                         <template v-if="successShelfId === shelf.id">
                           <GameWordImage
-                            v-if="round.item.imageId"
+                            v-if="round.item.imageId || round.item.artId"
                             class="shelf-placed-item"
+                            :art-id="round.item.artId"
                             :word-id="round.item.imageId"
                             :word="round.item.label"
                             emoji=""
@@ -287,8 +290,14 @@ onUnmounted(() => {
                           :icon="shelf.icon"
                           :color="shelf.accent"
                         />
+                        <img
+                          v-else-if="shelf.artId"
+                          class="shelf-art"
+                          :src="gameArtSrc(shelf.artId)"
+                          alt=""
+                        />
                         <div v-else class="shelf-swatch" />
-                        <div class="shelf-board" />
+                        <div v-if="round.rule === 'category' || !shelf.artId" class="shelf-board" />
                       </div>
                       <div class="text-h5 font-weight-bold mb-2">{{ shelf.title }}</div>
                       <div class="shelf-hint text-body-2">{{ shelfStatus(shelf) }}</div>
@@ -390,6 +399,12 @@ onUnmounted(() => {
   inline-size: clamp(5.8rem, 11vw, 9rem);
 }
 
+.shelf-art {
+  block-size: 100%;
+  inline-size: auto;
+  object-fit: contain;
+}
+
 .shelf-placed-item {
   font-size: clamp(2.6rem, 5.5vw, 4.4rem);
   inset-block-start: -0.15rem;
@@ -463,6 +478,11 @@ onUnmounted(() => {
 
   .shelf-visual {
     block-size: 4.2rem;
+  }
+
+  /* The drawn shelf is the whole symbol, so it gets the room of the plank too. */
+  .shelf-visual:has(.shelf-art) {
+    block-size: 6.5rem;
   }
 
   .shelf-choice-content,
