@@ -52,9 +52,8 @@ function drawn(
   return { id, label, emoji, tone, referenceId, visualState: id, artId: `opposites/${id}` };
 }
 
-// Testers: «заменить картинки». Only the drawn pairs are used until the up/down,
-// fast/slow and happy/sad pictures are drawn (image request 5); wet/dry came
-// with the drawings.
+// Testers: «заменить картинки». Only drawn pairs are used; happy/sad waits for
+// its pictures. Wet/dry came with the drawings.
 export const oppositePairs: OppositePair[] = [
   {
     id: "temperature",
@@ -96,6 +95,20 @@ export const oppositePairs: OppositePair[] = [
     concepts: [
       drawn("wet", "мокрый", "💧", "cyan", "towel"),
       drawn("dry", "сухой", "☀️", "orange", "towel"),
+    ],
+  },
+  {
+    id: "direction",
+    concepts: [
+      drawn("up", "вверх", "⬆️", "purple", "balloon"),
+      drawn("down", "вниз", "⬇️", "cyan", "balloon"),
+    ],
+  },
+  {
+    id: "speed",
+    concepts: [
+      drawn("fast", "быстрый", "🚗", "pink", "car"),
+      drawn("slow", "медленный", "🐢", "lime", "car"),
     ],
   },
 ];

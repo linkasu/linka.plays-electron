@@ -9,6 +9,8 @@ export type SocialPhraseChoice = {
   kind: PhraseKind | "functional";
   function?: FunctionalPhraseKind;
   icon: string;
+  /** Drawn picture shown instead of the icon. */
+  artId?: string;
   color: string;
   iconColor: string;
   text: string;
@@ -22,6 +24,7 @@ export type SocialPhraseScene = {
   prompt: string;
   partner: string;
   sceneIcon: string;
+  sceneArtId?: string;
   sceneColor: string;
   expectedKind: PhraseKind;
   choices: SocialPhraseChoice[];
@@ -52,6 +55,7 @@ export const socialPhrasesInstruction =
 export const socialPhraseScenes: SocialPhraseScene[] = [
   {
     id: "morning-adult",
+    sceneArtId: "social-phrases/morning-adult",
     scene: "Утром ты встречаешь знакомого взрослого.",
     prompt: "Что можно сказать?",
     partner: "Взрослый улыбается и смотрит на тебя.",
@@ -61,6 +65,7 @@ export const socialPhraseScenes: SocialPhraseScene[] = [
     choices: [
       {
         id: "good-morning",
+        artId: "social-phrases/good-morning",
         kind: "greeting",
         icon: "mdi-weather-sunny",
         color: "amber-lighten-4",
@@ -70,6 +75,7 @@ export const socialPhraseScenes: SocialPhraseScene[] = [
       },
       {
         id: "good-evening",
+        artId: "social-phrases/good-evening",
         kind: "greeting",
         icon: "mdi-weather-night",
         color: "deep-purple-lighten-5",
@@ -89,6 +95,7 @@ export const socialPhraseScenes: SocialPhraseScene[] = [
       },
       {
         id: "help-greeting",
+        artId: "social-phrases/help",
         kind: "functional",
         function: "help",
         icon: "mdi-help-circle-outline",
@@ -103,6 +110,7 @@ export const socialPhraseScenes: SocialPhraseScene[] = [
   },
   {
     id: "thirsty",
+    sceneArtId: "social-phrases/thirsty",
     scene: "Тебе хочется пить, а вода стоит далеко.",
     prompt: "Что можно попросить?",
     partner: "Человек рядом может подать нужный предмет.",
@@ -112,6 +120,7 @@ export const socialPhraseScenes: SocialPhraseScene[] = [
     choices: [
       {
         id: "water-please",
+        artId: "social-phrases/please",
         kind: "request",
         icon: "mdi-cup-water",
         color: "blue-lighten-4",
@@ -140,6 +149,7 @@ export const socialPhraseScenes: SocialPhraseScene[] = [
       },
       {
         id: "help-water",
+        artId: "social-phrases/help",
         kind: "functional",
         function: "help",
         icon: "mdi-help-circle-outline",
@@ -154,6 +164,7 @@ export const socialPhraseScenes: SocialPhraseScene[] = [
   },
   {
     id: "opened-box",
+    sceneArtId: "social-phrases/opened-box",
     scene: "Тебе помогли открыть коробку.",
     prompt: "За что можно поблагодарить?",
     partner: "Коробка открыта, и человек ждёт твоего ответа.",
@@ -163,6 +174,7 @@ export const socialPhraseScenes: SocialPhraseScene[] = [
     choices: [
       {
         id: "thanks-open",
+        artId: "social-phrases/thanks",
         kind: "thanks",
         icon: "mdi-package-variant-closed-check",
         color: "green-lighten-4",
@@ -191,6 +203,7 @@ export const socialPhraseScenes: SocialPhraseScene[] = [
       },
       {
         id: "help-thanks",
+        artId: "social-phrases/help",
         kind: "functional",
         function: "help",
         icon: "mdi-help-circle-outline",
@@ -205,6 +218,7 @@ export const socialPhraseScenes: SocialPhraseScene[] = [
   },
   {
     id: "loud-activity",
+    sceneArtId: "social-phrases/loud-activity",
     scene: "На занятии стало слишком громко.",
     prompt: "Что можно попросить?",
     partner: "Взрослый рядом может сделать звук тише или остановиться.",
@@ -243,6 +257,7 @@ export const socialPhraseScenes: SocialPhraseScene[] = [
       },
       {
         id: "help-noise",
+        artId: "social-phrases/help",
         kind: "functional",
         function: "help",
         icon: "mdi-help-circle-outline",

@@ -403,9 +403,10 @@ onUnmounted(() => {
                         ]"
                       >
                         <GameWordImage
-                          v-if="item.wordId"
+                          v-if="item.wordId || item.artId"
                           class="item-card__emoji"
                           :word-id="item.wordId"
+                          :art-id="item.artId"
                           :word="item.label"
                           :emoji="item.emoji"
                           decorative
@@ -478,9 +479,10 @@ onUnmounted(() => {
               <v-sheet class="receipt-panel pa-4 mb-4" color="primary" rounded="xl">
                 <div class="receipt-panel__item">
                   <GameWordImage
-                    v-if="round.targetItem.wordId"
+                    v-if="round.targetItem.wordId || round.targetItem.artId"
                     class="receipt-panel__emoji"
                     :word-id="round.targetItem.wordId"
+                    :art-id="round.targetItem.artId"
                     :word="round.targetItem.label"
                     :emoji="round.targetItem.emoji"
                     decorative

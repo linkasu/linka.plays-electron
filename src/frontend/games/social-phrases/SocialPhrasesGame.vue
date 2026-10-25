@@ -6,6 +6,7 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
 import {
@@ -204,7 +205,15 @@ onUnmounted(() => {
               variant="flat"
             >
               <div class="scene-layout">
+                <img
+                  v-if="round.sceneArtId"
+                  class="scene-art"
+                  :src="gameArtSrc(round.sceneArtId)"
+                  alt=""
+                  draggable="false"
+                />
                 <v-icon
+                  v-else
                   class="scene-icon"
                   color="primary"
                   :icon="round.sceneIcon"
@@ -237,7 +246,15 @@ onUnmounted(() => {
                   @select="choose(choice)"
                 >
                   <template #default>
+                    <img
+                      v-if="choice.artId"
+                      class="choice-art mb-2"
+                      :src="gameArtSrc(choice.artId)"
+                      alt=""
+                      draggable="false"
+                    />
                     <v-icon
+                      v-else
                       class="choice-icon mb-2"
                       :color="selectedChoiceId === choice.id ? 'white' : choice.iconColor"
                       :icon="choice.icon"
@@ -293,8 +310,21 @@ onUnmounted(() => {
   grid-template-columns: minmax(6rem, 9rem) minmax(0, 1fr);
 }
 
-.scene-icon {
+.scene-icon,
+.scene-art {
   justify-self: center;
+}
+
+.scene-art {
+  block-size: clamp(6rem, 18dvh, 9rem);
+  inline-size: 100%;
+  object-fit: contain;
+}
+
+.choice-art {
+  block-size: clamp(2.8rem, 9dvh, 5.5rem);
+  inline-size: 100%;
+  object-fit: contain;
 }
 
 .scene-title,

@@ -35,60 +35,60 @@
     "path": "/audio/tts/open-door/intro.mp3"
   },
   {
-    "id": "open-door.warm-light",
+    "id": "open-door.ball",
     "game": "open-door",
-    "text": "Тёплый свет.",
+    "text": "Мяч.",
     "voice": "jane",
-    "path": "/audio/tts/open-door/warm-light.mp3"
+    "path": "/audio/tts/open-door/ball.mp3"
   },
   {
-    "id": "open-door.pink-heart",
+    "id": "open-door.kitten",
     "game": "open-door",
-    "text": " сердце.",
+    "text": "Котёнок.",
     "voice": "jane",
-    "path": "/audio/tts/open-door/pink-heart.mp3"
+    "path": "/audio/tts/open-door/kitten.mp3"
   },
   {
-    "id": "open-door.green-flower",
+    "id": "open-door.cake",
     "game": "open-door",
-    "text": " цветок.",
+    "text": "Торт.",
     "voice": "jane",
-    "path": "/audio/tts/open-door/green-flower.mp3"
+    "path": "/audio/tts/open-door/cake.mp3"
   },
   {
-    "id": "open-door.violet-star",
+    "id": "open-door.toy-car",
     "game": "open-door",
-    "text": " звезда.",
+    "text": "Машинка.",
     "voice": "jane",
-    "path": "/audio/tts/open-door/violet-star.mp3"
+    "path": "/audio/tts/open-door/toy-car.mp3"
   },
   {
-    "id": "open-door.sun-ray",
+    "id": "open-door.flower",
     "game": "open-door",
-    "text": "Лучик солнца.",
+    "text": "Цветок.",
     "voice": "jane",
-    "path": "/audio/tts/open-door/sun-ray.mp3"
+    "path": "/audio/tts/open-door/flower.mp3"
   },
   {
-    "id": "open-door.fluffy-cloud",
+    "id": "open-door.star",
     "game": "open-door",
-    "text": "Пушистое облако.",
+    "text": "Звёздочка.",
     "voice": "jane",
-    "path": "/audio/tts/open-door/fluffy-cloud.mp3"
+    "path": "/audio/tts/open-door/star.mp3"
   },
   {
-    "id": "open-door.music-note",
+    "id": "open-door.balloon",
     "game": "open-door",
-    "text": " нота.",
+    "text": "Шарик.",
     "voice": "jane",
-    "path": "/audio/tts/open-door/music-note.mp3"
+    "path": "/audio/tts/open-door/balloon.mp3"
   },
   {
-    "id": "open-door.gold-spark",
+    "id": "open-door.gift",
     "game": "open-door",
-    "text": " искра.",
+    "text": "Подарок.",
     "voice": "jane",
-    "path": "/audio/tts/open-door/gold-spark.mp3"
+    "path": "/audio/tts/open-door/gift.mp3"
   },
   {
     "id": "warm-window.intro",

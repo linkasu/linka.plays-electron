@@ -8,6 +8,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
 import {
@@ -191,20 +192,12 @@ onUnmounted(() => {
               @select="chooseAction"
             >
               <template #default="{ choice }">
-                <div class="action-scene" role="img" :aria-label="choice.sceneLabel">
-                  <span class="action-scene__setting emoji-glyph" aria-hidden="true">{{
-                    choice.settingEmoji
-                  }}</span>
-                  <span class="action-scene__actor emoji-glyph" aria-hidden="true">{{
-                    choice.actorEmoji
-                  }}</span>
-                  <span class="action-scene__cue emoji-glyph" aria-hidden="true">{{
-                    choice.cueEmoji
-                  }}</span>
-                  <span class="action-scene__prop emoji-glyph" aria-hidden="true">{{
-                    choice.propEmoji
-                  }}</span>
-                </div>
+                <img
+                  class="action-scene"
+                  :src="gameArtSrc(`object-action/${choice.id}`)"
+                  :alt="choice.sceneLabel"
+                  draggable="false"
+                />
                 <div class="choice-title text-h5 text-md-h4 font-weight-bold mt-2">
                   {{ choice.title }}
                 </div>
@@ -230,48 +223,13 @@ onUnmounted(() => {
 
 <style scoped>
 .action-scene {
-  align-items: center;
   background: linear-gradient(180deg, #e9f6ff 0%, #fff8e8 100%);
+  block-size: 7.4rem;
   border-radius: 1.25rem;
-  display: grid;
-  grid-template-areas:
-    "setting setting setting"
-    "actor cue prop";
-  grid-template-columns: 1fr auto 1fr;
-  min-block-size: 7.4rem;
-  overflow: hidden;
-  padding: 0.45rem 0.65rem 0.75rem;
-}
-
-.action-scene__setting {
-  font-size: clamp(1.8rem, 3.5vw, 2.7rem);
-  grid-area: setting;
-  justify-self: end;
-  line-height: 1;
-  opacity: 0.72;
-}
-
-.action-scene__actor,
-.action-scene__prop {
-  font-size: clamp(3rem, 6vw, 4.8rem);
-  line-height: 1;
-}
-
-.action-scene__actor {
-  grid-area: actor;
-  justify-self: end;
-}
-
-.action-scene__cue {
-  font-size: clamp(1.7rem, 3vw, 2.5rem);
-  grid-area: cue;
-  line-height: 1;
-  padding-inline: 0.2rem;
-}
-
-.action-scene__prop {
-  grid-area: prop;
-  justify-self: start;
+  display: block;
+  inline-size: 100%;
+  object-fit: contain;
+  padding: 0.45rem;
 }
 
 .choice-title {
@@ -305,7 +263,7 @@ onUnmounted(() => {
   }
 
   .action-scene {
-    min-block-size: 5.2rem;
+    block-size: 5.2rem;
   }
 
   .choice-title {

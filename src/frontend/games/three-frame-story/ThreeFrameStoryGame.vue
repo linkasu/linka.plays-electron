@@ -5,10 +5,10 @@ import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
-import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { shuffleItems } from "../../core/random";
 import {
@@ -301,40 +301,12 @@ watch(isSpeaking, (speaking) => {
               >
                 <template v-if="frame">
                   <div class="slot-number">{{ slotIndex + 1 }}</div>
-                  <div
+                  <img
                     class="story-scene"
-                    :class="`story-scene--${frame.scene.setting}`"
-                    role="img"
-                    :aria-label="frame.label"
-                  >
-                    <template
-                      v-for="(layer, layerIndex) in frame.scene.layers"
-                      :key="`${layer.kind}:${layerIndex}`"
-                    >
-                      <GameWordImage
-                        v-if="layer.kind === 'word'"
-                        :class="[
-                          'scene-layer',
-                          `scene-layer--${layer.position}`,
-                          `scene-layer--${layer.size ?? 'medium'}`,
-                        ]"
-                        :word-id="layer.wordId"
-                        :word="layer.word"
-                        :emoji="layer.emoji"
-                        decorative
-                      />
-                      <v-icon
-                        v-else
-                        :class="[
-                          'scene-layer',
-                          `scene-layer--${layer.position}`,
-                          `scene-layer--${layer.size ?? 'medium'}`,
-                        ]"
-                        :icon="layer.icon"
-                        :color="layer.color"
-                      />
-                    </template>
-                  </div>
+                    :src="gameArtSrc(frame.artId)"
+                    :alt="frame.label"
+                    draggable="false"
+                  />
                   <div class="frame-label text-h6 font-weight-bold mt-2">{{ frame.label }}</div>
                 </template>
                 <template v-else>
@@ -360,39 +332,12 @@ watch(isSpeaking, (speaking) => {
                   @select="choose(choice)"
                 >
                   <template #default>
-                    <div
+                    <img
                       class="story-scene story-scene--choice"
-                      :class="`story-scene--${choice.scene.setting}`"
-                      aria-hidden="true"
-                    >
-                      <template
-                        v-for="(layer, layerIndex) in choice.scene.layers"
-                        :key="`${layer.kind}:${layerIndex}`"
-                      >
-                        <GameWordImage
-                          v-if="layer.kind === 'word'"
-                          :class="[
-                            'scene-layer',
-                            `scene-layer--${layer.position}`,
-                            `scene-layer--${layer.size ?? 'medium'}`,
-                          ]"
-                          :word-id="layer.wordId"
-                          :word="layer.word"
-                          :emoji="layer.emoji"
-                          decorative
-                        />
-                        <v-icon
-                          v-else
-                          :class="[
-                            'scene-layer',
-                            `scene-layer--${layer.position}`,
-                            `scene-layer--${layer.size ?? 'medium'}`,
-                          ]"
-                          :icon="layer.icon"
-                          :color="layer.color"
-                        />
-                      </template>
-                    </div>
+                      :src="gameArtSrc(choice.artId)"
+                      alt=""
+                      draggable="false"
+                    />
                   </template>
                 </GameDwellButton>
               </v-col>
@@ -445,106 +390,14 @@ watch(isSpeaking, (speaking) => {
 }
 
 .story-scene {
-  aspect-ratio: 16 / 9;
-  background: linear-gradient(180deg, #dff3ff 0%, #f9fdff 100%);
+  aspect-ratio: 4 / 3;
+  background: #fff;
   border: 0.125rem solid rgb(var(--v-theme-primary) / 10%);
   border-radius: 1rem;
-  box-shadow: inset 0 0 1.5rem rgb(255 255 255 / 52%);
+  display: block;
   inline-size: min(100%, 12rem);
-  overflow: hidden;
-  position: relative;
-}
-
-.story-scene::after {
-  background: #a7d47b;
-  block-size: 28%;
-  content: "";
-  inset-block-end: 0;
-  inset-inline: 0;
-  position: absolute;
-}
-
-.story-scene--earth {
-  background: linear-gradient(180deg, #dff4ff 0%, #fff8d8 72%);
-}
-
-.story-scene--earth::after {
-  background: linear-gradient(180deg, #8bc66a 0 22%, #9a6948 22% 100%);
-  block-size: 34%;
-}
-
-.story-scene--table {
-  background: linear-gradient(180deg, #fff8e9 0%, #fffdf7 100%);
-}
-
-.story-scene--table::after {
-  background: linear-gradient(180deg, #d9aa72, #bd824e);
-  block-size: 26%;
-}
-
-.story-scene--snow {
-  background: linear-gradient(180deg, #dff4ff 0%, #f8fdff 100%);
-}
-
-.story-scene--snow::after {
-  background: linear-gradient(180deg, #ffffff, #dceff7);
-  block-size: 32%;
-}
-
-.scene-layer {
-  filter: drop-shadow(0 0.35rem 0.45rem rgb(0 0 0 / 18%));
-  position: absolute;
-  transform: translate(-50%, -50%);
-  z-index: 1;
-}
-
-.scene-layer--small {
-  font-size: clamp(1.25rem, 3vw, 2rem) !important;
-}
-
-.scene-layer--medium {
-  font-size: clamp(2rem, 5vw, 3.75rem) !important;
-}
-
-.scene-layer--large {
-  font-size: clamp(3rem, 7vw, 5.25rem) !important;
-}
-
-.scene-layer--top-left {
-  inset-block-start: 22%;
-  inset-inline-start: 20%;
-}
-.scene-layer--top-center {
-  inset-block-start: 22%;
-  inset-inline-start: 50%;
-}
-.scene-layer--top-right {
-  inset-block-start: 22%;
-  inset-inline-start: 80%;
-}
-.scene-layer--left {
-  inset-block-start: 52%;
-  inset-inline-start: 22%;
-}
-.scene-layer--center {
-  inset-block-start: 50%;
-  inset-inline-start: 50%;
-}
-.scene-layer--right {
-  inset-block-start: 52%;
-  inset-inline-start: 78%;
-}
-.scene-layer--bottom-left {
-  inset-block-start: 72%;
-  inset-inline-start: 22%;
-}
-.scene-layer--bottom-center {
-  inset-block-start: 68%;
-  inset-inline-start: 50%;
-}
-.scene-layer--bottom-right {
-  inset-block-start: 72%;
-  inset-inline-start: 78%;
+  margin-inline: auto;
+  object-fit: contain;
 }
 
 .empty-icon {

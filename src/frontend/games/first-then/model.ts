@@ -78,6 +78,11 @@ export const firstThenPairs: FirstThenPair[] = [
   },
 ];
 
+/** Every action has a drawn picture named after its id. */
+export function firstThenArtId(action: FirstThenAction) {
+  return `first-then/${action.id}`;
+}
+
 export function createFirstThenTimeline(
   pair: FirstThenPair,
   revealedPhases: FirstThenPhase[],

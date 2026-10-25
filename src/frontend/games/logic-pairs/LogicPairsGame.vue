@@ -54,7 +54,6 @@ let feedbackTimer = 0;
 
 const relationLabel = computed(() => {
   if (round.value.relation === "meaning") return "Смысловая пара";
-  if (round.value.relation === "shape") return "Пара по форме";
   return "Пара по числу";
 });
 
@@ -219,9 +218,10 @@ onUnmounted(() => {
                 <v-sheet class="target-card pa-4" color="primary" rounded="xl">
                   <div class="text-overline text-white text-center mb-2">Найди пару для</div>
                   <GameWordImage
-                    v-if="round.target.wordId"
+                    v-if="round.target.wordId || round.target.artId"
                     class="target-card__visual"
                     :word-id="round.target.wordId"
+                    :art-id="round.target.artId"
                     :word="round.target.label"
                     :emoji="round.target.visual"
                   />
@@ -260,9 +260,10 @@ onUnmounted(() => {
                       ]"
                     >
                       <GameWordImage
-                        v-if="choice.wordId"
+                        v-if="choice.wordId || choice.artId"
                         class="choice-card__visual"
                         :word-id="choice.wordId"
+                        :art-id="choice.artId"
                         :word="choice.label"
                         :emoji="choice.visual"
                       />

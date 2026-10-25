@@ -24,14 +24,14 @@ describe("logic-pairs model", () => {
     expect(round.choices[round.correctIndex]).toBe(round.pair);
   });
 
-  it("cycles through meaning, shape and number relations", () => {
+  it("cycles through meaning and number relations", () => {
     const relations = new Set<LogicPairRelation>();
 
     for (let index = 1; index <= logicPairDefinitions.length; index += 1) {
       relations.add(generateLogicPairsRound(settingsFromPreset("standard"), index).relation);
     }
 
-    expect(relations).toEqual(new Set<LogicPairRelation>(["meaning", "shape", "number"]));
+    expect(relations).toEqual(new Set<LogicPairRelation>(["meaning", "number"]));
   });
 
   it("keeps all choices unique and includes the target pair", () => {
@@ -40,5 +40,14 @@ describe("logic-pairs model", () => {
 
     expect(ids.size).toBe(round.choices.length);
     expect(ids.has(round.pair.id)).toBe(true);
+  });
+
+  it("never offers the saucer and the plate together", () => {
+    for (let index = 1; index <= logicPairDefinitions.length * 4; index += 1) {
+      const ids = generateLogicPairsRound(settingsFromPreset("standard"), index).choices.map(
+        (choice) => choice.id,
+      );
+      expect(ids.includes("plate") && ids.includes("saucer")).toBe(false);
+    }
   });
 });
