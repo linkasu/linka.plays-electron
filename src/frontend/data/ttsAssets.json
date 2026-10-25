@@ -3684,7 +3684,7 @@
   {
     "id": "opposites.prompt.hot",
     "game": "opposites",
-    "text": "Что наоборот к слову горячий?",
+    "text": "Найди противоположность слову горячий.",
     "voice": "jane",
     "path": "/audio/tts/opposites/prompt-hot.mp3"
   },
@@ -3705,7 +3705,7 @@
   {
     "id": "opposites.prompt.cold",
     "game": "opposites",
-    "text": "Что наоборот к слову холодный?",
+    "text": "Найди противоположность слову холодный.",
     "voice": "jane",
     "path": "/audio/tts/opposites/prompt-cold.mp3"
   },
@@ -3726,7 +3726,7 @@
   {
     "id": "opposites.prompt.big",
     "game": "opposites",
-    "text": "Что наоборот к слову большой?",
+    "text": "Найди противоположность слову большой.",
     "voice": "jane",
     "path": "/audio/tts/opposites/prompt-big.mp3"
   },
@@ -3747,7 +3747,7 @@
   {
     "id": "opposites.prompt.small",
     "game": "opposites",
-    "text": "Что наоборот к слову маленький?",
+    "text": "Найди противоположность слову маленький.",
     "voice": "jane",
     "path": "/audio/tts/opposites/prompt-small.mp3"
   },
@@ -3768,7 +3768,7 @@
   {
     "id": "opposites.prompt.day",
     "game": "opposites",
-    "text": "Что наоборот к слову день?",
+    "text": "Найди противоположность слову день.",
     "voice": "jane",
     "path": "/audio/tts/opposites/prompt-day.mp3"
   },
@@ -3789,7 +3789,7 @@
   {
     "id": "opposites.prompt.night",
     "game": "opposites",
-    "text": "Что наоборот к слову ночь?",
+    "text": "Найди противоположность слову ночь.",
     "voice": "jane",
     "path": "/audio/tts/opposites/prompt-night.mp3"
   },
@@ -3810,7 +3810,7 @@
   {
     "id": "opposites.prompt.open",
     "game": "opposites",
-    "text": "Что наоборот к слову открытый?",
+    "text": "Найди противоположность слову открытый.",
     "voice": "jane",
     "path": "/audio/tts/opposites/prompt-open.mp3"
   },
@@ -3831,7 +3831,7 @@
   {
     "id": "opposites.prompt.closed",
     "game": "opposites",
-    "text": "Что наоборот к слову закрытый?",
+    "text": "Найди противоположность слову закрытый.",
     "voice": "jane",
     "path": "/audio/tts/opposites/prompt-closed.mp3"
   },
@@ -3936,7 +3936,7 @@
   {
     "id": "opposites.prompt.full",
     "game": "opposites",
-    "text": "Что наоборот к слову полный?",
+    "text": "Найди противоположность слову полный.",
     "voice": "jane",
     "path": "/audio/tts/opposites/prompt-full.mp3"
   },
@@ -3957,7 +3957,7 @@
   {
     "id": "opposites.prompt.empty",
     "game": "opposites",
-    "text": "Что наоборот к слову пустой?",
+    "text": "Найди противоположность слову пустой.",
     "voice": "jane",
     "path": "/audio/tts/opposites/prompt-empty.mp3"
   },
@@ -11555,5 +11555,145 @@
     "text": "Следи взглядом за медузой.",
     "voice": "jane",
     "path": "/audio/tts/jellyfish/prompt.mp3"
+  },
+  {
+    "id": "feed-animal.prompt.kitten",
+    "game": "feed-animal",
+    "text": "Покорми котёнка. Выбери, что он ест.",
+    "voice": "jane",
+    "path": "/audio/tts/feed-animal/prompt-kitten.mp3"
+  },
+  {
+    "id": "feed-animal.prompt.bird",
+    "game": "feed-animal",
+    "text": "Покорми птичку. Выбери, что она ест.",
+    "voice": "jane",
+    "path": "/audio/tts/feed-animal/prompt-bird.mp3"
+  },
+  {
+    "id": "feed-animal.prompt.mouse",
+    "game": "feed-animal",
+    "text": "Покорми мышку. Выбери, что она ест.",
+    "voice": "jane",
+    "path": "/audio/tts/feed-animal/prompt-mouse.mp3"
+  },
+  {
+    "id": "feed-animal.prompt.turtle",
+    "game": "feed-animal",
+    "text": "Покорми черепаху. Выбери, что она ест.",
+    "voice": "jane",
+    "path": "/audio/tts/feed-animal/prompt-turtle.mp3"
+  },
+  {
+    "id": "feed-animal.prompt.squirrel",
+    "game": "feed-animal",
+    "text": "Покорми белку. Выбери, что она ест.",
+    "voice": "jane",
+    "path": "/audio/tts/feed-animal/prompt-squirrel.mp3"
+  },
+  {
+    "id": "opposites.prompt.wet",
+    "game": "opposites",
+    "text": "Найди противоположность слову мокрый.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-wet.mp3"
+  },
+  {
+    "id": "opposites.prompt.dry",
+    "game": "opposites",
+    "text": "Найди противоположность слову сухой.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-dry.mp3"
+  },
+  {
+    "id": "opposites.correct.wet.dry",
+    "game": "opposites",
+    "text": "Верно. мокрый и сухой это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-wet-dry.mp3"
+  },
+  {
+    "id": "opposites.correct.dry.wet",
+    "game": "opposites",
+    "text": "Верно. сухой и мокрый это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-dry-wet.mp3"
+  },
+  {
+    "id": "opposites.mistake.wet.dry",
+    "game": "opposites",
+    "text": "Почти. Противоположность к слову мокрый: сухой.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-wet-dry.mp3"
+  },
+  {
+    "id": "opposites.mistake.dry.wet",
+    "game": "opposites",
+    "text": "Почти. Противоположность к слову сухой: мокрый.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-dry-wet.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.3479f085",
+    "game": "shelf-sorting",
+    "text": "Предмет: миска.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-3479f085.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.0828b332",
+    "game": "shelf-sorting",
+    "text": "Предмет: кружка.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-0828b332.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.47295ada",
+    "game": "shelf-sorting",
+    "text": "Предмет: тарелка.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-47295ada.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.481b7ab6",
+    "game": "shelf-sorting",
+    "text": "Предмет: ложка.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-481b7ab6.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.e6c8c185",
+    "game": "shelf-sorting",
+    "text": "Предмет: футболка.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-e6c8c185.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.ee730917",
+    "game": "shelf-sorting",
+    "text": "Предмет: джинсы.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-ee730917.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.82253a3e",
+    "game": "shelf-sorting",
+    "text": "Предмет: ботинок.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-82253a3e.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.333f25ea",
+    "game": "shelf-sorting",
+    "text": "Предмет: кубики.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-333f25ea.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.809c9a64",
+    "game": "shelf-sorting",
+    "text": "Предмет: машинка.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-809c9a64.mp3"
   }
 ]

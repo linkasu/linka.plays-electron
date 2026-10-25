@@ -13,6 +13,7 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { feedAnimalFeedback } from "./audio";
 import {
   animalEatsFood,
+  feedAnimals,
   generateFeedAnimalRound,
   type FeedAnimalFood,
   type FeedAnimalRound,
@@ -38,7 +39,8 @@ const {
   recordHint,
   startSession,
 } = useGameSessionFor("feed-animal", {
-  maxSteps: 8,
+  // One round per animal, so every animal (the squirrel is the ninth) is fed.
+  maxSteps: feedAnimals.length,
   overrides: {
     preset: "gentle",
     targetScale: 1.6,
@@ -221,8 +223,9 @@ onUnmounted(() => {
               variant="tonal"
             >
               <GameWordImage
-                v-if="round.animal.wordId"
+                v-if="round.animal.wordId || round.animal.artId"
                 :class="['animal-emoji', { 'animal-emoji--fed': isFeeding }]"
+                :art-id="round.animal.artId"
                 :word-id="round.animal.wordId"
                 :word="round.animal.name"
                 :emoji="round.animal.emoji"
@@ -268,8 +271,9 @@ onUnmounted(() => {
                 >
                   <template #default="{ active, progress }">
                     <GameWordImage
-                      v-if="food.wordId"
+                      v-if="food.wordId || food.artId"
                       class="food-emoji"
+                      :art-id="food.artId"
                       :word-id="food.wordId"
                       :word="food.name"
                       :emoji="food.emoji"

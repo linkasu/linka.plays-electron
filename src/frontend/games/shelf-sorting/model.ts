@@ -10,6 +10,8 @@ export type ShelfSortingShelf = {
   accent: string;
   icon?: string;
   swatch?: string;
+  /** Drawn shelf (core/gameArt.ts), shown instead of the swatch. */
+  artId?: string;
 };
 
 export type ShelfSortingItem = {
@@ -18,6 +20,8 @@ export type ShelfSortingItem = {
   categoryShelfId: string;
   colorShelfId?: string;
   imageId?: string;
+  /** Drawn picture (core/gameArt.ts); wins over the word picture and the icon. */
+  artId?: string;
   icon?: string;
 };
 
@@ -32,14 +36,26 @@ export type ShelfSortingRound = {
   correctIndex: number;
 };
 
+// Testers: «нарисовать картиночки, а то с текстом непонятно». The drawn set is
+// dishes, clothes and toys with coloured shelves, so the game sorts those
+// instead of food / toys / nature. The book is left out until there is a
+// fourth shelf; food and nature come back when they are drawn (image request 9).
 const categoryShelves: ShelfSortingShelf[] = [
   {
-    id: "food",
-    title: "Еда",
-    hint: "то, что можно есть",
-    color: "orange-lighten-4",
-    accent: "#ef6c00",
-    icon: "mdi-food-apple",
+    id: "dishes",
+    title: "Посуда",
+    hint: "из чего едят и пьют",
+    color: "blue-lighten-5",
+    accent: "#1565c0",
+    icon: "mdi-silverware-fork-knife",
+  },
+  {
+    id: "clothes",
+    title: "Одежда",
+    hint: "что надевают",
+    color: "green-lighten-5",
+    accent: "#2e7d32",
+    icon: "mdi-tshirt-crew",
   },
   {
     id: "toys",
@@ -48,14 +64,6 @@ const categoryShelves: ShelfSortingShelf[] = [
     color: "purple-lighten-4",
     accent: "#7e57c2",
     icon: "mdi-teddy-bear",
-  },
-  {
-    id: "nature",
-    title: "Природа",
-    hint: "растения, вода и небо",
-    color: "green-lighten-4",
-    accent: "#2e7d32",
-    icon: "mdi-leaf",
   },
 ];
 
@@ -67,14 +75,16 @@ const colorShelves: ShelfSortingShelf[] = [
     color: "red-lighten-4",
     accent: "#d32f2f",
     swatch: "#e53935",
+    artId: "shelf-sorting/shelf-red",
   },
   {
-    id: "yellow",
-    title: "Жёлтая",
-    hint: "жёлтый цвет",
-    color: "yellow-lighten-4",
-    accent: "#f9a825",
-    swatch: "#fdd835",
+    id: "blue",
+    title: "Синяя",
+    hint: "синий цвет",
+    color: "blue-lighten-4",
+    accent: "#1565c0",
+    swatch: "#1e88e5",
+    artId: "shelf-sorting/shelf-blue",
   },
   {
     id: "green",
@@ -83,33 +93,36 @@ const colorShelves: ShelfSortingShelf[] = [
     color: "green-lighten-4",
     accent: "#2e7d32",
     swatch: "#43a047",
+    artId: "shelf-sorting/shelf-green",
   },
 ];
 
+function item(
+  id: string,
+  label: string,
+  categoryShelfId: string,
+  colorShelfId?: string,
+): ShelfSortingItem {
+  return { id, label, categoryShelfId, colorShelfId, artId: `shelf-sorting/${id}` };
+}
+
 export const shelfSortingItems: ShelfSortingItem[] = [
-  { id: "apple", label: "яблоко", imageId: "apple", categoryShelfId: "food", colorShelfId: "red" },
-  {
-    id: "lemon",
-    label: "лимон",
-    imageId: "lemon",
-    categoryShelfId: "food",
-    colorShelfId: "yellow",
-  },
-  { id: "grapes", label: "виноград", imageId: "grapes", categoryShelfId: "food" },
-  {
-    id: "cucumber",
-    label: "огурец",
-    imageId: "cucumber",
-    categoryShelfId: "food",
-    colorShelfId: "green",
-  },
-  { id: "ball", label: "мяч", imageId: "ball", categoryShelfId: "toys" },
-  { id: "teddy", label: "мишка", icon: "mdi-teddy-bear", categoryShelfId: "toys" },
-  { id: "kite", label: "воздушный змей", icon: "mdi-kite", categoryShelfId: "toys" },
-  { id: "flower", label: "цветок", imageId: "flower", categoryShelfId: "nature" },
-  { id: "river", label: "река", imageId: "river", categoryShelfId: "nature" },
-  { id: "leaf", label: "лист", imageId: "leaf", categoryShelfId: "nature", colorShelfId: "green" },
+  item("bowl", "миска", "dishes", "red"),
+  item("mug", "кружка", "dishes", "blue"),
+  item("plate", "тарелка", "dishes"),
+  item("spoon", "ложка", "dishes"),
+  item("t-shirt", "футболка", "clothes", "green"),
+  item("jeans", "джинсы", "clothes", "blue"),
+  item("boot", "ботинок", "clothes"),
+  item("ball", "мяч", "toys"),
+  item("blocks", "кубики", "toys"),
+  item("teddy-bear", "мишка", "toys"),
+  item("toy-car", "машинка", "toys", "red"),
 ];
+
+export const shelfSortingArtIds = [...categoryShelves, ...colorShelves, ...shelfSortingItems]
+  .map((entry) => entry.artId)
+  .filter((artId): artId is string => Boolean(artId));
 
 export function shelvesForRule(rule: ShelfSortingRule) {
   return rule === "category" ? categoryShelves : colorShelves;

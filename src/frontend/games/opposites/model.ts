@@ -10,6 +10,8 @@ export type OppositeConcept = {
   visualState: string;
   assetId?: string;
   stateMarker?: string;
+  /** Drawn picture of this exact state (core/gameArt.ts); no marker or CSS state needed. */
+  artId?: string;
 };
 
 export type OppositePair = {
@@ -40,64 +42,67 @@ function concept(
   return { id, label, emoji, tone, referenceId, visualState, assetId, stateMarker };
 }
 
+function drawn(
+  id: string,
+  label: string,
+  emoji: string,
+  tone: string,
+  referenceId: string,
+): OppositeConcept {
+  return { id, label, emoji, tone, referenceId, visualState: id, artId: `opposites/${id}` };
+}
+
+// Testers: «заменить картинки». Only the drawn pairs are used until the up/down,
+// fast/slow and happy/sad pictures are drawn (image request 5); wet/dry came
+// with the drawings.
 export const oppositePairs: OppositePair[] = [
   {
     id: "temperature",
     concepts: [
-      concept("hot", "горячий", "☕", "deep-orange", "cup", "hot", "cup", "🔥"),
-      concept("cold", "холодный", "☕", "light-blue", "cup", "cold", "cup", "❄️"),
+      drawn("hot", "горячий", "☕", "deep-orange", "cup"),
+      drawn("cold", "холодный", "☕", "light-blue", "cup"),
     ],
   },
   {
     id: "size",
     concepts: [
-      concept("big", "большой", "⚽", "indigo", "ball", "big", "ball"),
-      concept("small", "маленький", "⚽", "teal", "ball", "small", "ball"),
+      drawn("big", "большой", "⚽", "indigo", "ball"),
+      drawn("small", "маленький", "⚽", "teal", "ball"),
     ],
   },
   {
     id: "light",
     concepts: [
-      concept("day", "день", "🏠", "amber", "house", "day", "house", "☀️"),
-      concept("night", "ночь", "🏠", "blue", "house", "night", "house", "🌙"),
+      drawn("day", "день", "🏠", "amber", "house"),
+      drawn("night", "ночь", "🏠", "blue", "house"),
     ],
   },
   {
     id: "state",
     concepts: [
-      concept("open", "открытый", "🚪", "green", "door", "open", "door"),
-      concept("closed", "закрытый", "🚪", "blue-grey", "door", "closed", "door", "🔒"),
-    ],
-  },
-  {
-    id: "direction",
-    concepts: [
-      concept("up", "вверх", "⬆️", "purple", "arrow", "up"),
-      concept("down", "вниз", "⬆️", "cyan", "arrow", "down"),
-    ],
-  },
-  {
-    id: "speed",
-    concepts: [
-      concept("fast", "быстрый", "🚗", "pink", "car", "fast", "car", "💨"),
-      concept("slow", "медленный", "🚗", "lime", "car", "slow", "car", "•••"),
+      drawn("open", "открытый", "🚪", "green", "door"),
+      drawn("closed", "закрытый", "🚪", "blue-grey", "door"),
     ],
   },
   {
     id: "amount",
     concepts: [
-      concept("full", "полный", "🧺", "brown", "basket", "full", "basket", "🍎"),
-      concept("empty", "пустой", "🧺", "grey", "basket", "empty", "basket"),
+      drawn("full", "полный", "🧺", "brown", "basket"),
+      drawn("empty", "пустой", "🧺", "grey", "basket"),
     ],
   },
   {
-    id: "emotion",
+    id: "wetness",
     concepts: [
-      concept("happy", "весёлый", "🙂", "yellow", "face", "happy"),
-      concept("sad", "грустный", "🙁", "blue", "face", "sad"),
+      drawn("wet", "мокрый", "💧", "cyan", "towel"),
+      drawn("dry", "сухой", "☀️", "orange", "towel"),
     ],
   },
 ];
+
+export const oppositesArtIds = oppositePairs.flatMap((pair) =>
+  pair.concepts.map((item) => item.artId).filter((artId): artId is string => Boolean(artId)),
+);
 
 function choiceCountFor(settings: SessionSettings) {
   if (settings.preset === "gentle" || settings.distractors === "none") return 3;

@@ -26,14 +26,14 @@ describe("generateShelfSortingRound", () => {
     }
   });
 
-  it("uses distinct category symbols and large-swatch data for exact colors", () => {
+  it("uses distinct category symbols and drawn shelves for exact colors", () => {
     const categoryShelves = shelvesForRule("category");
     const colorShelves = shelvesForRule("color");
 
     expect(new Set(categoryShelves.map((shelf) => shelf.icon)).size).toBe(categoryShelves.length);
     expect(categoryShelves.every((shelf) => shelf.icon && !shelf.swatch)).toBe(true);
-    expect(colorShelves.map((shelf) => shelf.id)).toEqual(["red", "yellow", "green"]);
-    expect(colorShelves.every((shelf) => shelf.swatch && !shelf.icon)).toBe(true);
+    expect(colorShelves.map((shelf) => shelf.id)).toEqual(["red", "blue", "green"]);
+    expect(colorShelves.every((shelf) => shelf.swatch && shelf.artId && !shelf.icon)).toBe(true);
   });
 
   it("only puts items with an exact color on color rounds", () => {
@@ -41,23 +41,18 @@ describe("generateShelfSortingRound", () => {
       const round = generateShelfSortingRound(2, () => index / 20);
 
       expect(round.item.colorShelfId).toBe(round.correctShelfId);
-      expect(["red", "yellow", "green"]).toContain(round.correctShelfId);
+      expect(["red", "blue", "green"]).toContain(round.correctShelfId);
     }
   });
 
-  it("uses word images when available and MDI icons for teddy and kite", () => {
-    const teddy = shelfSortingItems.find((item) => item.id === "teddy");
-    const kite = shelfSortingItems.find((item) => item.id === "kite");
-
-    expect(teddy?.icon).toBe("mdi-teddy-bear");
-    expect(teddy?.imageId).toBeUndefined();
-    expect(kite?.icon).toBe("mdi-kite");
-    expect(kite?.imageId).toBeUndefined();
-    expect(
-      shelfSortingItems
-        .filter((item) => !["teddy", "kite"].includes(item.id))
-        .every((item) => item.imageId),
-    ).toBe(true);
+  it("shows a drawn picture for every item and every color has an item", () => {
+    expect(shelfSortingItems.every((item) => item.artId === `shelf-sorting/${item.id}`)).toBe(true);
+    for (const shelf of shelvesForRule("color")) {
+      expect(shelfSortingItems.some((item) => item.colorShelfId === shelf.id)).toBe(true);
+    }
+    for (const shelf of shelvesForRule("category")) {
+      expect(shelfSortingItems.some((item) => item.categoryShelfId === shelf.id)).toBe(true);
+    }
   });
 
   it("prompts with the rule and item without naming the answer", () => {

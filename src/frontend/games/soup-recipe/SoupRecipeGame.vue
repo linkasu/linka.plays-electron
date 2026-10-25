@@ -14,6 +14,7 @@ import {
   createSoupIngredientSlots,
   createSoupRecipeLayout,
   createSoupRecipeRound,
+  soupRecipeIngredients,
   type SoupIngredient,
   type SoupRect,
 } from "./model";
@@ -44,7 +45,7 @@ const {
   startSession,
   finishSession,
 } = useGameSessionFor("soup-recipe", {
-  maxSteps: 8,
+  maxSteps: soupRecipeIngredients.length,
   overrides: { sound: true },
   finishOnMaxSteps: false,
   finishOnMistakes: false,
@@ -555,6 +556,7 @@ function ingredientSoupTint(ingredientId: string): Rgb {
   if (ingredientId === "noodles") return { r: 231, g: 204, b: 103 };
   if (ingredientId === "salt") return { r: 231, g: 224, b: 207 };
   if (ingredientId === "greens") return { r: 95, g: 161, b: 74 };
+  if (ingredientId === "cabbage") return { r: 168, g: 204, b: 120 };
   return { r: 88, g: 181, b: 235 };
 }
 
@@ -794,7 +796,11 @@ function drawSoupBits(ctx: CanvasRenderingContext2D, soupRect: Rect, now: number
       ctx.globalAlpha = 0.2 + sink * 0.62;
       ctx.fillStyle = ingredient.color;
       ctx.beginPath();
-      if (ingredient.id === "noodles" || ingredient.id === "greens") {
+      if (
+        ingredient.id === "noodles" ||
+        ingredient.id === "greens" ||
+        ingredient.id === "cabbage"
+      ) {
         ctx.ellipse(x, y, size * 0.38, size * 1.35, bit * 0.7, 0, Math.PI * 2);
       } else {
         ctx.arc(x, y, size, 0, Math.PI * 2);
@@ -915,6 +921,7 @@ function drawIngredientGlyph(
       ctx.stroke();
       ctx.restore();
       break;
+    case "cabbage":
     case "greens":
       ctx.beginPath();
       ctx.ellipse(x, y, size * 0.28, size * 0.68, -0.8, 0, Math.PI * 2);
@@ -1107,7 +1114,8 @@ watch(isSpeaking, (speaking) => {
         >
           <div class="soup-recipe-visual">
             <GameWordImage
-              v-if="ingredient.imageId"
+              v-if="ingredient.imageId || ingredient.artId"
+              :art-id="ingredient.artId"
               :word-id="ingredient.imageId"
               :word="ingredient.label"
               :emoji="ingredient.emoji"
@@ -1149,7 +1157,8 @@ watch(isSpeaking, (speaking) => {
         >
           <div class="soup-ingredient-visual" :style="{ backgroundColor: slot.ingredient.color }">
             <GameWordImage
-              v-if="slot.ingredient.imageId"
+              v-if="slot.ingredient.imageId || slot.ingredient.artId"
+              :art-id="slot.ingredient.artId"
               :word-id="slot.ingredient.imageId"
               :word="slot.ingredient.label"
               :emoji="slot.ingredient.emoji"
