@@ -6,6 +6,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { randomTargetCenterPercent, percentToPixels } from "../../core/placement";
 import {
@@ -14,6 +15,7 @@ import {
   resetButterflyAudioSession,
   warmButterflyAudio,
 } from "./audio";
+import { butterflyArtIds } from "./art";
 
 type Point = { x: number; y: number };
 type TargetPhase = "appearing" | "waiting" | "gazing" | "blooming";
@@ -33,7 +35,18 @@ type RewardButterfly = Point & {
   size: number;
   hue: number;
   driftX: number;
+  /** Index into butterflyImages. */
+  art: number;
 };
+
+const butterflyImages =
+  typeof Image === "undefined"
+    ? []
+    : butterflyArtIds.map((artId) => {
+        const image = new Image();
+        image.src = gameArtSrc(artId);
+        return image;
+      });
 
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
@@ -169,6 +182,7 @@ function spawnRewardButterfly(nextTarget: GlowTarget) {
     size: nextTarget.radius * 0.42,
     hue: nextTarget.hue,
     driftX: (Math.random() - 0.5) * 16,
+    art: Math.floor(Math.random() * Math.max(1, butterflyImages.length)),
   });
   if (rewardButterflies.length > 8) rewardButterflies.shift();
 }
@@ -333,6 +347,23 @@ function drawButterfly(context: CanvasRenderingContext2D, butterfly: RewardButte
   context.save();
   context.translate(butterfly.x, butterfly.y);
   context.globalAlpha = alpha;
+
+  const image = butterflyImages[butterfly.art];
+  if (image?.complete && image.naturalWidth > 0) {
+    // On the dark sky a half-transparent picture turns brown: stay bright and
+    // fade only in the last third, with a soft glow of the target's colour.
+    context.globalAlpha = Math.min(1, (butterfly.life - butterfly.age) / (butterfly.life / 3));
+    context.shadowColor = `hsla(${butterfly.hue}, 100%, 75%, 0.75)`;
+    context.shadowBlur = butterfly.size * 0.8;
+    // Wings flap: the picture narrows and widens around its body.
+    const height = butterfly.size * 3.2;
+    const width = (height * image.naturalWidth) / image.naturalHeight;
+    context.scale(0.72 + 0.28 * Math.abs(Math.cos(butterfly.age * 5)), 1);
+    context.drawImage(image, -width / 2, -height / 2, width, height);
+    context.restore();
+    return;
+  }
+
   context.globalCompositeOperation = "lighter";
 
   const gradient = context.createRadialGradient(0, 0, 2, 0, 0, butterfly.size * 1.7);

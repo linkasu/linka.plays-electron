@@ -1,11 +1,16 @@
 import { describe, expect, it } from "vitest";
+import { buildRobotArtIds } from "../games/build-robot/model";
+import { butterflyArtIds } from "../games/butterfly/art";
 import { chooseEmotionFaces } from "../games/choose-emotion/model";
 import { dayRoutineItems } from "../games/day-routine/model";
 import { itemsByAnswer } from "../games/eat-or-not-eat/model";
 import { findAnimalArtId, findAnimalDrawnIds } from "../games/find-animal/model";
 import { findEmotionOptions } from "../games/find-emotion/model";
+import { minesweeperSafeArtIds } from "../games/minesweeper-safe/model";
 import { sandwichChoices } from "../games/sandwich/model";
+import { robotVacuumArtIds } from "../games/robot-vacuum/art";
 import { dailyScheduleSteps } from "../games/schedule/model";
+import { trainSequenceArtIds } from "../games/train-sequence/model";
 import { gameArtSrc } from "./gameArt";
 
 describe("gameArtSrc", () => {
@@ -33,6 +38,11 @@ describe("gameArtSrc", () => {
       ...findAnimalDrawnIds.map((id) => ({ artId: findAnimalArtId(id) })),
       { artId: "eat-or-not-eat/icon-edible" },
       { artId: "eat-or-not-eat/icon-not-edible" },
+      ...buildRobotArtIds.map((artId) => ({ artId })),
+      ...trainSequenceArtIds.map((artId) => ({ artId })),
+      ...butterflyArtIds.map((artId) => ({ artId })),
+      ...robotVacuumArtIds.map((artId) => ({ artId })),
+      ...minesweeperSafeArtIds.map((artId) => ({ artId })),
     ]
       .map((item) => item.artId)
       .filter((artId): artId is string => Boolean(artId));

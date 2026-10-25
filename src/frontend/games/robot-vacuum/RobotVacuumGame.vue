@@ -7,8 +7,10 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { isCanvasControlBlocked } from "../../core/domGazeTargetCoordinator";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
+import { robotVacuumArtIds } from "./art";
 
 type Point = { x: number; y: number };
 type Robot = Point & {
@@ -19,6 +21,8 @@ type Robot = Point & {
 type DustTarget = Point & {
   id: string;
   kind: "dust" | "star";
+  /** Index into litterImages for a dust target. */
+  art: number;
   radius: number;
   hue: number;
   age: number;
@@ -37,6 +41,15 @@ type RoomDot = Point & {
   radius: number;
   alpha: number;
 };
+
+const litterImages =
+  typeof Image === "undefined"
+    ? []
+    : robotVacuumArtIds.map((artId) => {
+        const image = new Image();
+        image.src = gameArtSrc(artId);
+        return image;
+      });
 
 const router = useRouter();
 const { pointer } = useGazePointer();
@@ -174,6 +187,7 @@ function createTarget(): DustTarget {
   return {
     id: `vacuum-dust-${Date.now()}-${targetSequence}`,
     kind: targetSequence % 3 === 0 ? "star" : "dust",
+    art: Math.floor(Math.random() * Math.max(1, litterImages.length)),
     x: point.x,
     y: point.y,
     radius,
@@ -444,6 +458,21 @@ function drawTarget(ctx: CanvasRenderingContext2D, target: DustTarget) {
   ctx.globalAlpha = 0.92;
   if (target.kind === "star") {
     drawStar(ctx, point.x, point.y, radius * 0.88, target.hue);
+  } else if (litterImages[target.art]?.complete && litterImages[target.art].naturalWidth > 0) {
+    const image = litterImages[target.art];
+    const size = radius * 2.4;
+    const scale = size / Math.max(image.naturalWidth, image.naturalHeight);
+    ctx.save();
+    ctx.translate(point.x, point.y);
+    ctx.rotate(Math.sin(target.age * 0.6) * 0.12);
+    ctx.drawImage(
+      image,
+      (-image.naturalWidth * scale) / 2,
+      (-image.naturalHeight * scale) / 2,
+      image.naturalWidth * scale,
+      image.naturalHeight * scale,
+    );
+    ctx.restore();
   } else {
     ctx.fillStyle = "#b79f82";
     ctx.beginPath();

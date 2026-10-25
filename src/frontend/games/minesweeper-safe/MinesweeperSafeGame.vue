@@ -7,6 +7,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
   areAllMinesFlagged,
@@ -14,6 +15,7 @@ import {
   findSuggestedSafeIndex,
   generateMinesweeperSafeBoard,
   minesweeperSafeChoiceOutcome,
+  minesweeperTileArtId,
   type MinesweeperSafeCell,
 } from "./model";
 
@@ -93,13 +95,6 @@ function cellColor(cell: MinesweeperSafeCell) {
   if (state === "revealed") return "surface";
   if (hintedIndex.value === cell.index) return "success";
   return "surface";
-}
-
-function cellNumberColor(count: number) {
-  if (count >= 3) return "deep-purple";
-  if (count === 2) return "indigo";
-  if (count === 1) return "teal";
-  return "green";
 }
 
 function revealNextBoardIfNeeded() {
@@ -314,33 +309,27 @@ onUnmounted(() => {
               >
                 <template #default>
                   <div v-if="cellStates[cell.index] === 'revealed'" class="revealed-cell">
-                    <v-icon
-                      v-if="cell.adjacentMines === 0"
-                      icon="mdi-shield-check-outline"
-                      color="success"
-                      size="34"
+                    <img
+                      class="cell-tile"
+                      :src="
+                        gameArtSrc(
+                          minesweeperTileArtId(
+                            cell.adjacentMines === 0 ? 'open' : cell.adjacentMines,
+                          ),
+                        )
+                      "
+                      :alt="cell.adjacentMines === 0 ? '' : String(cell.adjacentMines)"
                     />
-                    <span
-                      v-else
-                      class="cell-number"
-                      :class="`text-${cellNumberColor(cell.adjacentMines)}`"
-                      style="color: #17212b"
-                      >{{ cell.adjacentMines }}</span
-                    >
                   </div>
                   <div v-else-if="cellStates[cell.index] === 'flagged'" class="flagged-cell">
-                    <v-icon icon="mdi-flag-variant" color="warning" size="42" />
+                    <img class="cell-tile" :src="gameArtSrc(minesweeperTileArtId('flag'))" alt="" />
                     <span class="text-caption font-weight-bold">флажок</span>
                   </div>
                   <div v-else class="hidden-cell">
-                    <v-icon
-                      :icon="
-                        hintedIndex === cell.index
-                          ? 'mdi-shield-check-outline'
-                          : 'mdi-map-marker-question-outline'
-                      "
-                      :color="hintedIndex === cell.index ? 'success' : 'blue-grey-lighten-1'"
-                      size="34"
+                    <img
+                      class="cell-tile"
+                      :src="gameArtSrc(minesweeperTileArtId('closed'))"
+                      alt=""
                     />
                     <span class="text-caption font-weight-bold">{{
                       hintedIndex === cell.index ? "можно" : "клетка"
@@ -445,11 +434,15 @@ onUnmounted(() => {
   opacity: 0.92;
 }
 
-.cell-number {
-  color: #17212b !important;
-  font-size: clamp(2.2rem, min(7vw, 9vh), 4.2rem);
-  font-weight: 900;
-  line-height: 1;
+.cell-tile {
+  aspect-ratio: 1;
+  block-size: clamp(2.6rem, min(7vw, 8vh), 4.6rem);
+  inline-size: auto;
+}
+
+/* An open cell shows only its number tile, as large as the cell allows. */
+.revealed-cell .cell-tile {
+  block-size: clamp(3rem, min(8vw, 10vh), 5.4rem);
 }
 
 @media (max-width: 45rem) {
@@ -570,8 +563,12 @@ onUnmounted(() => {
     font-size: 1.55rem !important;
   }
 
-  .cell-number {
-    font-size: 2.2rem;
+  .cell-tile {
+    block-size: 2.2rem;
+  }
+
+  .revealed-cell .cell-tile {
+    block-size: 2.8rem;
   }
 }
 </style>

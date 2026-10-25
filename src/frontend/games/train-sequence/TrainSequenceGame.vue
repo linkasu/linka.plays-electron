@@ -6,6 +6,7 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
   disposeTrainSequenceAudio,
@@ -19,6 +20,7 @@ import {
   getOrderedTrainWagons,
   getPlacedTrainWagons,
   selectTrainWagon,
+  trainLocomotiveArtId,
   type TrainWagon,
 } from "./model";
 
@@ -236,23 +238,14 @@ watch(
                   :class="['train-track', { 'train-track--departing': trainDeparting }]"
                   aria-label="Собранный поезд"
                 >
-                  <div class="locomotive">
-                    <div class="chimney" />
-                    <div class="cabin" />
-                    <div class="engine-window" />
-                    <div class="engine-body" />
-                    <div class="wheel wheel--front" />
-                    <div class="wheel wheel--back" />
-                  </div>
+                  <img class="locomotive" :src="gameArtSrc(trainLocomotiveArtId)" alt="" />
                   <div
                     v-for="wagon in placedWagons"
                     :key="`placed-${wagon.id}`"
                     class="track-wagon"
-                    :style="{ background: wagon.color }"
                   >
-                    <span>{{ wagon.number }}</span>
-                    <div class="wagon-wheel wagon-wheel--left" />
-                    <div class="wagon-wheel wagon-wheel--right" />
+                    <img class="wagon-art" :src="gameArtSrc(wagon.artId)" alt="" />
+                    <span class="wagon-number">{{ wagon.number }}</span>
                   </div>
                 </div>
                 <div class="rail" />
@@ -277,8 +270,9 @@ watch(
                 >
                   <template #default>
                     <div class="wagon-card-content" :style="{ opacity: wagon.placed ? 0.28 : 1 }">
-                      <div class="loose-wagon" :style="{ background: wagon.color }">
-                        <span>{{ wagon.number }}</span>
+                      <div class="loose-wagon">
+                        <img class="wagon-art" :src="gameArtSrc(wagon.artId)" alt="" />
+                        <span class="wagon-number">{{ wagon.number }}</span>
                       </div>
                       <div class="text-subtitle-1 font-weight-bold mt-3">{{ wagon.label }}</div>
                     </div>
@@ -347,88 +341,44 @@ watch(
 .locomotive,
 .track-wagon,
 .loose-wagon {
-  border: 0.1875rem solid rgb(69 90 100 / 36%);
-  box-shadow: 0 0.75rem 1.25rem rgb(69 90 100 / 18%);
+  filter: drop-shadow(0 0.5rem 0.6rem rgb(69 90 100 / 18%));
   position: relative;
 }
 
 .locomotive {
-  background: linear-gradient(180deg, #80deea 0%, #26c6da 100%);
-  border-radius: 1.75rem 1.125rem 1rem 1rem;
   block-size: 7rem;
-  inline-size: 10.375rem;
-}
-
-.chimney {
-  background: #607d8b;
-  block-size: 2.625rem;
-  border-radius: 0.75rem 0.75rem 0.25rem 0.25rem;
-  inline-size: 1.75rem;
-  inset-block-start: -2.375rem;
-  inset-inline-start: 1.5rem;
-  position: absolute;
-}
-
-.cabin {
-  background: #4dd0e1;
-  block-size: 4.875rem;
-  border-radius: 1.25rem 1.25rem 0.5rem 0.5rem;
-  inline-size: 3.875rem;
-  inset-block-start: -1.75rem;
-  inset-inline-end: 1.125rem;
-  position: absolute;
-}
-
-.engine-window {
-  background: #e1f5fe;
-  block-size: 2rem;
-  border-radius: 0.625rem;
-  inline-size: 2.125rem;
-  inset-block-start: -0.625rem;
-  inset-inline-end: 2rem;
-  position: absolute;
-}
-
-.engine-body {
-  background: rgb(255 255 255 / 42%);
-  block-size: 1.875rem;
-  border-radius: 999rem;
-  inline-size: 5.25rem;
-  inset-block-start: 2.125rem;
-  inset-inline-start: 1.25rem;
-  position: absolute;
-}
-
-.wheel,
-.wagon-wheel {
-  background: #546e7a;
-  border: 0.3125rem solid #eceff1;
-  border-radius: 999rem;
-  block-size: 2.125rem;
-  inline-size: 2.125rem;
-  inset-block-end: -1.125rem;
-  position: absolute;
-}
-
-.wheel--front,
-.wagon-wheel--right {
-  inset-inline-end: 1.375rem;
-}
-
-.wheel--back,
-.wagon-wheel--left {
-  inset-inline-start: 1.375rem;
+  inline-size: auto;
+  object-fit: contain;
 }
 
 .track-wagon,
 .loose-wagon {
   align-items: center;
-  border-radius: 1.5rem;
   color: #263238;
   display: flex;
   font-size: 2.4rem;
   font-weight: 800;
   justify-content: center;
+}
+
+.wagon-art {
+  block-size: 100%;
+  inline-size: 100%;
+  object-fit: contain;
+}
+
+/* The order number sits on the wagon's side, as on the hint row above. */
+.wagon-number {
+  align-items: center;
+  background: rgb(255 255 255 / 92%);
+  border-radius: 999rem;
+  display: flex;
+  font-size: 0.6em;
+  inline-size: 1.7em;
+  block-size: 1.7em;
+  inset-block-start: 22%;
+  justify-content: center;
+  position: absolute;
 }
 
 .track-wagon {
@@ -492,7 +442,7 @@ watch(
   }
 
   .locomotive {
-    inline-size: 8.625rem;
+    block-size: 5.75rem;
   }
 
   .track-wagon {

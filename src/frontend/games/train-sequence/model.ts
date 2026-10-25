@@ -7,6 +7,8 @@ export type TrainWagon = {
   number: number;
   color: string;
   label: string;
+  /** Drawn wagon (core/gameArt.ts). */
+  artId: string;
   placed: boolean;
   placedIndex?: number;
 };
@@ -22,15 +24,29 @@ export type TrainWagonSelectionOutcome =
       isComplete: boolean;
     };
 
+const wagonBases: Omit<TrainWagon, "artId" | "placed">[] = [
+  { id: "red", number: 1, color: "#ef9a9a", label: "красный" },
+  { id: "yellow", number: 2, color: "#ffe082", label: "жёлтый" },
+  { id: "green", number: 3, color: "#a5d6a7", label: "зелёный" },
+  { id: "blue", number: 4, color: "#90caf9", label: "синий" },
+  { id: "violet", number: 5, color: "#ce93d8", label: "фиолетовый" },
+];
+
+// Testers: «мб перерисовать?». The drawn engine and wagons replace the CSS shapes.
+export const trainLocomotiveArtId = "train-sequence/locomotive";
+
+export function trainWagonArtId(id: TrainWagonId) {
+  return `train-sequence/wagon-${id}`;
+}
+
+export const trainSequenceArtIds = [
+  trainLocomotiveArtId,
+  ...wagonBases.map((wagon) => trainWagonArtId(wagon.id)),
+];
+
 export function createTrainWagons(random = Math.random): TrainWagon[] {
   return shuffleItems(
-    [
-      { id: "red", number: 1, color: "#ef9a9a", label: "красный", placed: false },
-      { id: "yellow", number: 2, color: "#ffe082", label: "жёлтый", placed: false },
-      { id: "green", number: 3, color: "#a5d6a7", label: "зелёный", placed: false },
-      { id: "blue", number: 4, color: "#90caf9", label: "синий", placed: false },
-      { id: "violet", number: 5, color: "#ce93d8", label: "фиолетовый", placed: false },
-    ],
+    wagonBases.map((wagon) => ({ ...wagon, artId: trainWagonArtId(wagon.id), placed: false })),
     random,
   );
 }
