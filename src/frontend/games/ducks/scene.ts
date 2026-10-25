@@ -1,3 +1,5 @@
+import { canvasArt } from "../../core/canvasArt";
+
 export type Point = { x: number; y: number };
 export type DuckState = "swimming" | "hit";
 export type Duck = {
@@ -442,6 +444,17 @@ function drawDuck(context: CanvasRenderingContext2D, duck: Duck) {
   context.beginPath();
   context.ellipse(-size * 0.03, size * 0.28, size * 0.56, size * 0.12, 0, 0, Math.PI * 2);
   context.fill();
+
+  // Testers asked for drawn animals: a drawn duckling paddles between two frames.
+  const art = canvasArt(Math.sin(duck.bob * 4) > 0 ? "ducks/duck-1" : "ducks/duck-2");
+  if (art) {
+    const width = size * 1.5;
+    const height = (width * art.naturalHeight) / art.naturalWidth;
+    context.drawImage(art, -size * 0.62, size * 0.4 - height, width, height);
+    context.restore();
+    if (duck.state === "swimming" && duck.dwellProgress > 0) drawAimProgress(context, duck);
+    return;
+  }
 
   const body = context.createRadialGradient(
     -size * 0.1,

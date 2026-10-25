@@ -7,6 +7,7 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeWakeOwlAudio, playWakeOwlHoot, warmWakeOwlAudio } from "./audio";
 
@@ -74,14 +75,23 @@ function eyeOpenValue(active: boolean, progress: number) {
   return Math.max(0.08, Math.min(1, awakeRatio.value + activeBoost));
 }
 
-function owlStyle(active: boolean, progress: number) {
+// Drawn owl: the same body with sleeping, half-open and open eyes.
+const owlFrames = {
+  sleep: gameArtSrc("wake-owl/owl-sleep"),
+  half: gameArtSrc("wake-owl/owl-half"),
+  awake: gameArtSrc("wake-owl/owl-awake"),
+};
+const wingSrc = {
+  left: gameArtSrc("wake-owl/wing-left"),
+  right: gameArtSrc("wake-owl/wing-right"),
+};
+
+function owlFrame(active: boolean, progress: number) {
+  if (blinking.value) return owlFrames.sleep;
   const open = eyeOpenValue(active, progress);
-  return {
-    "--eye-height": `${24 + open * 74}px`,
-    "--eye-glow": `${12 + open * 24}px`,
-    "--pupil-size": `${14 + open * 26}px`,
-    "--pupil-opacity": String(0.35 + open * 0.65),
-  } as CSSProperties;
+  if (open < 0.4) return owlFrames.sleep;
+  if (open < 0.8) return owlFrames.half;
+  return owlFrames.awake;
 }
 
 function wakeOwl() {
@@ -172,26 +182,23 @@ onUnmounted(() => {
                   'wake-owl-owl--awake': session.step >= session.maxSteps,
                 },
               ]"
-              :style="owlStyle(active, progress)"
               role="img"
               :aria-label="owlStateText"
             >
-              <div class="wake-owl-ear wake-owl-ear--left" />
-              <div class="wake-owl-ear wake-owl-ear--right" />
-              <div class="wake-owl-face">
-                <div class="wake-owl-eye wake-owl-eye--left">
-                  <span class="wake-owl-pupil" />
-                </div>
-                <div class="wake-owl-eye wake-owl-eye--right">
-                  <span class="wake-owl-pupil" />
-                </div>
-                <div class="wake-owl-beak" />
-              </div>
-              <div class="wake-owl-wing wake-owl-wing--left" />
-              <div class="wake-owl-wing wake-owl-wing--right" />
-              <div class="wake-owl-belly">
-                <v-icon icon="mdi-weather-night" size="34" />
-              </div>
+              <img
+                v-for="side in ['left', 'right'] as const"
+                :key="side"
+                :class="['wake-owl-wing', `wake-owl-wing--${side}`]"
+                :src="wingSrc[side]"
+                alt=""
+                draggable="false"
+              />
+              <img
+                class="wake-owl-frame"
+                :src="owlFrame(active, progress)"
+                alt=""
+                draggable="false"
+              />
             </div>
           </template>
         </GameDwellButton>
@@ -312,17 +319,8 @@ onUnmounted(() => {
 }
 
 .wake-owl-owl {
-  --eye-glow: 18px;
-  --eye-height: 30px;
-  --pupil-opacity: 0.4;
-  --pupil-size: 16px;
-  aspect-ratio: 1 / 0.88;
-  background: radial-gradient(circle at 50% 38%, #8a6742 0 30%, #6a4b31 62%, #4a3329 100%);
-  border: clamp(8px, 1.6vw, 14px) solid rgb(238 203 140 / 72%);
-  border-radius: 48% 48% 42% 42%;
-  box-shadow:
-    inset 0 -26px 56px rgb(42 26 22 / 34%),
-    0 34px 90px rgb(5 10 25 / 44%);
+  aspect-ratio: 1;
+  filter: drop-shadow(0 2rem 3rem rgb(5 10 25 / 44%));
   margin-inline: auto;
   max-inline-size: 100%;
   min-inline-size: 100%;
@@ -333,122 +331,48 @@ onUnmounted(() => {
 }
 
 .wake-owl-owl--active {
-  filter: drop-shadow(0 0 34px rgb(255 226 150 / 34%));
-  transform: translateY(-4px) scale(1.015);
+  filter: drop-shadow(0 0 2rem rgb(255 226 150 / 34%));
+  transform: translateY(-0.25rem) scale(1.015);
 }
 
-.wake-owl-ear {
-  background: #5a3d2d;
-  block-size: 30%;
-  border-radius: 26% 72% 20% 64%;
-  inline-size: 24%;
-  inset-block-start: -8%;
-  position: absolute;
-  z-index: -1;
-}
-
-.wake-owl-ear--left {
-  inset-inline-start: 13%;
-  transform: rotate(-26deg);
-}
-
-.wake-owl-ear--right {
-  inset-inline-end: 13%;
-  transform: scaleX(-1) rotate(-26deg);
-}
-
-.wake-owl-face {
-  align-items: center;
-  display: grid;
-  gap: clamp(1.125rem, 5vw, 2.75rem);
-  grid-template-columns: 1fr 1fr;
-  inset-block-start: 18%;
-  inset-inline: 14%;
-  justify-items: center;
-  position: absolute;
-}
-
-.wake-owl-eye {
-  align-items: center;
-  animation: wake-owl-slow-blink 7.5s ease-in-out infinite;
-  background: radial-gradient(circle at 50% 48%, #ffeaa6 0 40%, #d69a3a 70%, #7e5128 100%);
-  block-size: var(--eye-height);
-  border: clamp(5px, 1vw, 9px) solid #f8d891;
-  border-radius: 999px;
-  box-shadow:
-    inset 0 0 24px rgb(95 58 24 / 32%),
-    0 0 var(--eye-glow) rgb(255 220 128 / 34%);
-  display: flex;
-  inline-size: clamp(4.875rem, 18vw, 8rem);
-  justify-content: center;
-  overflow: hidden;
-  transform-origin: center;
-  transition:
-    block-size 180ms ease,
-    box-shadow 180ms ease;
-}
-
-.wake-owl-owl--blink.wake-owl-eye {
-  animation: wake-owl-eye-blink 520ms ease-out;
-}
-
-.wake-owl-owl--awake.wake-owl-eye {
-  animation: wake-owl-awake-blink 5.8s ease-in-out infinite;
-}
-
-.wake-owl-pupil {
-  background: radial-gradient(circle at 38% 34%, #ffffff 0 10%, #1c2531 12% 100%);
-  border-radius: 999px;
-  block-size: var(--pupil-size);
-  box-shadow: 0 0 18px rgb(255 246 202 / 42%);
-  inline-size: var(--pupil-size);
-  opacity: var(--pupil-opacity);
-  transition:
-    block-size 180ms ease,
-    inline-size 180ms ease,
-    opacity 180ms ease;
-}
-
-.wake-owl-beak {
-  background: linear-gradient(180deg, #ffc85f, #d88929);
-  block-size: clamp(1.875rem, 5vw, 2.875rem);
-  clip-path: polygon(50% 100%, 0 0, 100% 0);
-  grid-column: 1 / -1;
-  inline-size: clamp(2.625rem, 7vw, 3.875rem);
-  margin-block-start: -8px;
-}
-
+.wake-owl-frame,
 .wake-owl-wing {
-  background: rgb(65 43 34 / 58%);
-  block-size: 40%;
-  border-radius: 60% 28% 56% 36%;
-  inline-size: 22%;
-  inset-block-start: 43%;
   position: absolute;
+}
+
+.wake-owl-frame {
+  block-size: 100%;
+  inline-size: 100%;
+  inset: 0;
+  object-fit: contain;
+}
+
+/* Wings sit behind the body at the shoulders and flap when the owl wakes. */
+.wake-owl-wing {
+  block-size: 30%;
+  inline-size: 30%;
+  inset-block-start: 42%;
+  object-fit: contain;
 }
 
 .wake-owl-wing--left {
-  inset-inline-start: 4%;
-  transform: rotate(10deg);
+  inset-inline-start: 6%;
+  transform-origin: 85% 30%;
 }
 
 .wake-owl-wing--right {
-  inset-inline-end: 4%;
-  transform: scaleX(-1) rotate(10deg);
+  inset-inline-end: 6%;
+  transform-origin: 15% 30%;
 }
 
-.wake-owl-belly {
-  align-items: center;
-  background: rgb(240 206 147 / 28%);
-  block-size: 24%;
-  border-radius: 50% 50% 46% 46%;
-  color: rgb(255 236 185 / 78%);
-  display: flex;
-  inline-size: 34%;
-  inset-block-end: 8%;
-  inset-inline-start: 33%;
-  justify-content: center;
-  position: absolute;
+.wake-owl-owl--blink .wake-owl-wing--left,
+.wake-owl-owl--awake .wake-owl-wing--left {
+  animation: wake-owl-flap-left 520ms ease-in-out 2;
+}
+
+.wake-owl-owl--blink .wake-owl-wing--right,
+.wake-owl-owl--awake .wake-owl-wing--right {
+  animation: wake-owl-flap-right 520ms ease-in-out 2;
 }
 
 .wake-owl-progress {
@@ -460,38 +384,15 @@ onUnmounted(() => {
   z-index: 3;
 }
 
-@keyframes wake-owl-slow-blink {
-  0%,
-  88%,
-  100% {
-    transform: scaleY(1);
-  }
-
-  92% {
-    transform: scaleY(0.18);
+@keyframes wake-owl-flap-left {
+  50% {
+    transform: rotate(28deg);
   }
 }
 
-@keyframes wake-owl-awake-blink {
-  0%,
-  90%,
-  100% {
-    transform: scaleY(1);
-  }
-
-  94% {
-    transform: scaleY(0.12);
-  }
-}
-
-@keyframes wake-owl-eye-blink {
-  0%,
-  100% {
-    transform: scaleY(1);
-  }
-
-  44% {
-    transform: scaleY(0.1);
+@keyframes wake-owl-flap-right {
+  50% {
+    transform: rotate(-28deg);
   }
 }
 

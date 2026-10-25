@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue";
+import { canvasArt, drawCanvasArt } from "../../core/canvasArt";
 
 const props = defineProps<{
   active: boolean;
@@ -137,6 +138,20 @@ function drawSun(
   ctx.beginPath();
   ctx.arc(cx, cy, radius * (2.75 + open * 0.74), 0, Math.PI * 2);
   ctx.fill();
+
+  // Testers asked for drawn pictures: the drawn sun sleeps until the first ray
+  // and smiles once the child looks at it.
+  const art = canvasArt(
+    props.step > 0 || props.active ? "sun-rays/sun-smile" : "sun-rays/sun-sleep",
+  );
+  if (art) {
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(pulse, pulse);
+    drawCanvasArt(ctx, art, 0, 0, radius * 2.15);
+    ctx.restore();
+    return;
+  }
 
   const body = ctx.createRadialGradient(
     cx - radius * 0.28,

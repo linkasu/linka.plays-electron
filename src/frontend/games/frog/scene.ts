@@ -1,3 +1,5 @@
+import { canvasArt, drawCanvasArt } from "../../core/canvasArt";
+
 export type Point = { x: number; y: number };
 export type BugState = "flying" | "caught";
 export type Bug = Point & {
@@ -248,6 +250,16 @@ function drawFrog(context: CanvasRenderingContext2D, now: number) {
   context.ellipse(0, size * 0.08, size * 0.58, size * 0.16, 0, 0, Math.PI * 2);
   context.fill();
 
+  // Testers asked for drawn animals: the drawn frog sits with its mouth at frogMouthPoint().
+  const art = canvasArt("frog/frog-sit");
+  if (art) {
+    const width = size * 1.25;
+    const height = (width * art.naturalHeight) / art.naturalWidth;
+    context.drawImage(art, -width / 2, size * 0.12 - height, width, height);
+    context.restore();
+    return;
+  }
+
   const body = context.createRadialGradient(
     -size * 0.14,
     -size * 0.36,
@@ -361,6 +373,15 @@ function drawBug(context: CanvasRenderingContext2D, bug: Bug, now: number) {
   context.beginPath();
   context.arc(0, 0, size * 0.62, 0, Math.PI * 2);
   context.fill();
+
+  // The drawn firefly flaps between its two frames.
+  const firefly = canvasArt(wing > 0 ? "firefly-meadow/firefly-up" : "firefly-meadow/firefly-down");
+  if (firefly) {
+    drawCanvasArt(context, firefly, 0, 0, size * 0.95);
+    context.restore();
+    if (bug.state === "flying" && bug.dwellProgress > 0) drawAimProgress(context, bug);
+    return;
+  }
 
   context.fillStyle = "rgb(210 252 255 / 58%)";
   context.beginPath();
