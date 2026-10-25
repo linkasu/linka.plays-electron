@@ -13,6 +13,8 @@ export type ShopCoin = {
 export type ShopItem = {
   id: string;
   wordId?: string;
+  /** Game-specific picture for items that have no word picture. */
+  artId?: string;
   label: string;
   emoji: string;
   price: number;
@@ -49,7 +51,7 @@ export const shopItems: ShopItem[] = [
   { id: "cookie", wordId: "cookie", label: "печенье", emoji: "🍪", price: 7 },
   { id: "cheese", wordId: "cheese", label: "сыр", emoji: "🧀", price: 8 },
   { id: "berries", label: "ягоды", emoji: "🫐", price: 9 },
-  { id: "cake", label: "кекс", emoji: "🧁", price: 10 },
+  { id: "cake", artId: "shop/cupcake", label: "кекс", emoji: "🧁", price: 10 },
 ];
 
 function choiceCountFor(settings: SessionSettings) {
