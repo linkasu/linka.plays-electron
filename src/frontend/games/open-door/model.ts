@@ -1,6 +1,6 @@
 export type OpenDoorReward = {
   id: string;
-  icon: string;
+  artId: string;
   label: string;
   color: string;
   glow: string;
@@ -20,70 +20,72 @@ export type OpenDoorState = {
 
 export const openDoorTargetId = "open-door:door";
 
+// Testers: «тёплый свет? мягкое сердце?» and «перерисовать картинки» — behind
+// the door are plain drawn things named with one simple word.
 export const openDoorRewards: OpenDoorReward[] = [
   {
-    id: "warm-light",
-    icon: "mdi-lightbulb-on",
-    label: "тёплый свет",
-    color: "#e6a425",
-    glow: "#ffe5a3",
-    ttsId: "open-door.warm-light",
+    id: "ball",
+    artId: "open-door/ball",
+    label: "мяч",
+    color: "#2f80d1",
+    glow: "#cfe6ff",
+    ttsId: "open-door.ball",
   },
   {
-    id: "pink-heart",
-    icon: "mdi-heart",
-    label: "розовое сердце",
+    id: "kitten",
+    artId: "open-door/kitten",
+    label: "котёнок",
+    color: "#e08a3c",
+    glow: "#ffe0bf",
+    ttsId: "open-door.kitten",
+  },
+  {
+    id: "cake",
+    artId: "open-door/cake",
+    label: "торт",
     color: "#dc5f8b",
     glow: "#ffc2d6",
-    ttsId: "open-door.pink-heart",
+    ttsId: "open-door.cake",
   },
   {
-    id: "green-flower",
-    icon: "mdi-flower",
-    label: "зелёный цветок",
+    id: "toy-car",
+    artId: "open-door/toy-car",
+    label: "машинка",
+    color: "#d84a3a",
+    glow: "#ffd0c7",
+    ttsId: "open-door.toy-car",
+  },
+  {
+    id: "flower",
+    artId: "open-door/flower",
+    label: "цветок",
     color: "#54a96b",
     glow: "#c9f4c7",
-    ttsId: "open-door.green-flower",
+    ttsId: "open-door.flower",
   },
   {
-    id: "violet-star",
-    icon: "mdi-star",
-    label: "фиолетовая звезда",
-    color: "#9a64c5",
-    glow: "#f9e7ff",
-    ttsId: "open-door.violet-star",
-  },
-  {
-    id: "sun-ray",
-    icon: "mdi-weather-sunny",
-    label: "лучик солнца",
-    color: "#e7a72e",
-    glow: "#ffdf8a",
-    ttsId: "open-door.sun-ray",
-  },
-  {
-    id: "fluffy-cloud",
-    icon: "mdi-cloud",
-    label: "пушистое облако",
-    color: "#70a8df",
-    glow: "#d7ecff",
-    ttsId: "open-door.fluffy-cloud",
-  },
-  {
-    id: "music-note",
-    icon: "mdi-music-note",
-    label: "нота",
-    color: "#7469ca",
-    glow: "#d8d1ff",
-    ttsId: "open-door.music-note",
-  },
-  {
-    id: "gold-spark",
-    icon: "mdi-creation",
-    label: "золотая искра",
+    id: "star",
+    artId: "open-door/star",
+    label: "звёздочка",
     color: "#d6a13a",
     glow: "#ffe7bd",
-    ttsId: "open-door.gold-spark",
+    ttsId: "open-door.star",
+  },
+  {
+    id: "balloon",
+    artId: "open-door/balloon",
+    label: "шарик",
+    color: "#d9473f",
+    glow: "#ffd3cf",
+    ttsId: "open-door.balloon",
+  },
+  {
+    id: "gift",
+    artId: "open-door/gift",
+    label: "подарок",
+    color: "#9a64c5",
+    glow: "#f0dcff",
+    ttsId: "open-door.gift",
   },
 ];
 

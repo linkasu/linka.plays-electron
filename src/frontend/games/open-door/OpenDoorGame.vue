@@ -5,6 +5,7 @@ import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
 import ttsAssets from "../../data/ttsAssets.json";
@@ -158,7 +159,12 @@ onUnmounted(() => {
             />
 
             <div v-if="doorOpen && currentReward" class="open-door-reveal" aria-live="polite">
-              <v-icon :icon="currentReward.icon" class="open-door-reveal-icon" />
+              <img
+                class="open-door-reveal-art"
+                :src="gameArtSrc(currentReward.artId)"
+                alt=""
+                draggable="false"
+              />
               <span class="open-door-sr-only">{{ currentReward.label }}</span>
             </div>
 
@@ -279,9 +285,11 @@ onUnmounted(() => {
   z-index: 1;
 }
 
-.open-door-reveal-icon {
+.open-door-reveal-art {
+  block-size: clamp(7rem, 30dvh, 15rem);
   filter: drop-shadow(0 0 1.4rem rgb(255 246 211 / 92%));
-  font-size: clamp(7rem, 24dvh, 13rem);
+  inline-size: 100%;
+  object-fit: contain;
 }
 
 .open-door-panel {
