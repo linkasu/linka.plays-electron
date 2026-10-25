@@ -7,6 +7,7 @@ import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useGameTimers } from "../../composables/useGameTimers";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { gameArtSrc } from "../../core/gameArt";
@@ -53,7 +54,7 @@ const lastMistakeId = ref<string>();
 const pendingSelection = ref(false);
 const isSpeaking = ref(false);
 const failedImageRoundId = ref<string>();
-let feedbackTimer = 0;
+const { setGameTimeout, clearGameTimers } = useGameTimers();
 
 function choiceTargetId(choiceId: string) {
   return `find-animal:choice:${choiceId}`;
@@ -81,9 +82,8 @@ function disableRoundImages() {
 }
 
 function clearTimers() {
-  window.clearTimeout(feedbackTimer);
+  clearGameTimers();
   promptAudio.cancelPending();
-  feedbackTimer = 0;
 }
 
 function promptAssetId() {
@@ -91,9 +91,13 @@ function promptAssetId() {
 }
 
 async function playPrompt(delayMs = 0) {
+  const sessionId = session.sessionId;
+  const roundId = round.value.roundId;
   isSpeaking.value = true;
   await promptAudio.playSequenceAndWait([promptAssetId()], delayMs);
-  isSpeaking.value = false;
+  if (session.sessionId === sessionId && round.value.roundId === roundId) {
+    isSpeaking.value = false;
+  }
 }
 
 function resetRoundFeedback() {
@@ -107,6 +111,8 @@ function resetRoundFeedback() {
 async function answer(choice: FindAnimalChoice) {
   if (session.status !== "running" || pendingSelection.value || isSpeaking.value) return;
 
+  const sessionId = session.sessionId;
+  const roundId = round.value.roundId;
   const targetId = choiceTargetId(choice.id);
   const expectedTargetId = choiceTargetId(round.value.target.id);
   clearTimers();
@@ -124,10 +130,17 @@ async function answer(choice: FindAnimalChoice) {
     hintedRoundId.value = undefined;
     lastMistakeId.value = undefined;
     isSpeaking.value = true;
-    await promptAudio.playSequenceAndWait(["find-animal.correct"], 80);
+    const playback = await promptAudio.playSequenceAndWait(["find-animal.correct"], 80);
+    if (
+      playback === "cancelled" ||
+      session.sessionId !== sessionId ||
+      round.value.roundId !== roundId
+    ) {
+      return;
+    }
 
-    if (session.status === "running" && session.step < session.maxSteps) {
-      feedbackTimer = window.setTimeout(() => {
+    if (session.step < session.maxSteps) {
+      setGameTimeout(() => {
         nextRound();
         resetRoundFeedback();
         void playPrompt(180);
@@ -158,7 +171,18 @@ async function answer(choice: FindAnimalChoice) {
     reason: "wrong-animal-selected",
   });
   isSpeaking.value = true;
-  await promptAudio.playSequenceAndWait(["find-animal.mistake", promptAssetId()], 80, 170);
+  const playback = await promptAudio.playSequenceAndWait(
+    ["find-animal.mistake", promptAssetId()],
+    80,
+    170,
+  );
+  if (
+    playback === "cancelled" ||
+    session.sessionId !== sessionId ||
+    round.value.roundId !== roundId
+  ) {
+    return;
+  }
   pendingSelection.value = false;
   lastMistakeId.value = undefined;
   isSpeaking.value = false;

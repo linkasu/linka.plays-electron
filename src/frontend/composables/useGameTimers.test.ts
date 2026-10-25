@@ -91,4 +91,24 @@ describe("useGameTimers", () => {
       mounted.unmount();
     }
   });
+
+  it("defers round-transition callbacks scheduled while paused until session resumes", () => {
+    const initial = vi.fn();
+    const nextRound = vi.fn();
+    const mounted = mountTimers(initial);
+    try {
+      mounted.api.pauseSession();
+      mounted.timers.setGameTimeout(nextRound, 260);
+      vi.advanceTimersByTime(3_000);
+      expect(nextRound).not.toHaveBeenCalled();
+
+      mounted.api.resumeSession();
+      vi.advanceTimersByTime(259);
+      expect(nextRound).not.toHaveBeenCalled();
+      vi.advanceTimersByTime(1);
+      expect(nextRound).toHaveBeenCalledOnce();
+    } finally {
+      mounted.unmount();
+    }
+  });
 });

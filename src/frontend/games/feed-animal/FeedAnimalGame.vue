@@ -8,6 +8,7 @@ import GameWordImage from "../../components/game/GameWordImage.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useGameTimers } from "../../composables/useGameTimers";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { feedAnimalFeedback } from "./audio";
@@ -25,7 +26,7 @@ const selectedFood = ref<FeedAnimalFood>();
 const revealedFoodId = ref<string>();
 const mistakeFoodId = ref<string>();
 const feedbackText = ref("Выбери, что ест зверёк.");
-let feedbackTimer = 0;
+const { setGameTimeout, clearGameTimers } = useGameTimers();
 
 const {
   session,
@@ -93,11 +94,11 @@ function resetRoundState() {
 }
 
 function prepareNextRound() {
-  window.clearTimeout(feedbackTimer);
+  clearGameTimers();
   isFeeding.value = true;
-  feedbackTimer = window.setTimeout(() => {
+  setGameTimeout(() => {
     resetRoundState();
-    if (session.status === "running" && session.step < session.maxSteps) {
+    if (session.step < session.maxSteps) {
       nextRound();
       playPrompt(160);
     }
@@ -153,7 +154,7 @@ function feed(food: FeedAnimalFood) {
 }
 
 function restart() {
-  window.clearTimeout(feedbackTimer);
+  clearGameTimers();
   promptAudio.cancelPending();
   responseAudio.cancelPending();
   resetRoundState();
@@ -176,7 +177,7 @@ watch(
 );
 
 onUnmounted(() => {
-  window.clearTimeout(feedbackTimer);
+  clearGameTimers();
   promptAudio.dispose();
   responseAudio.dispose();
   feedAnimalFeedback.dispose();
