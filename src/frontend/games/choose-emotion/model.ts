@@ -36,16 +36,15 @@ export type ChooseEmotionRound = {
 };
 
 export const chooseEmotionFaces: ChooseEmotionOption[] = [
-  // Testers: «перерисовать эмоции». Tired and pride are not drawn yet and keep
-  // their emoji until they are.
+  // Testers: «перерисовать эмоции».
   { id: "joy", label: "радость", emoji: "😊", artId: "choose-emotion/joy" },
   { id: "sadness", label: "грусть", emoji: "😢", artId: "choose-emotion/sadness" },
   { id: "anger", label: "злость", emoji: "😠", artId: "choose-emotion/anger" },
   { id: "surprise", label: "удивление", emoji: "😮", artId: "choose-emotion/surprise" },
   { id: "calm", label: "спокойствие", emoji: "🙂", artId: "choose-emotion/calm" },
   { id: "fear", label: "страх", emoji: "😟", artId: "choose-emotion/fear" },
-  { id: "tired", label: "усталость", emoji: "😴" },
-  { id: "pride", label: "гордость", emoji: "☺️" },
+  { id: "tired", label: "усталость", emoji: "😴", artId: "choose-emotion/tired" },
+  { id: "pride", label: "гордость", emoji: "☺️", artId: "choose-emotion/pride" },
 ];
 
 export const chooseEmotionFacePrompt = "Что чувствует лицо?";

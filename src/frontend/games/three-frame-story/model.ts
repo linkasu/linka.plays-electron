@@ -5,42 +5,8 @@ export type ThreeFrameStoryFrame = {
   label: string;
   caption: string;
   color: string;
-  scene: ThreeFrameStoryScene;
-};
-
-export type ThreeFrameStorySceneSetting = "earth" | "sky" | "snow" | "table";
-export type ThreeFrameStoryScenePosition =
-  | "top-left"
-  | "top-center"
-  | "top-right"
-  | "left"
-  | "center"
-  | "right"
-  | "bottom-left"
-  | "bottom-center"
-  | "bottom-right";
-export type ThreeFrameStorySceneSize = "small" | "medium" | "large";
-
-export type ThreeFrameStorySceneLayer =
-  | {
-      kind: "word";
-      wordId: string;
-      word: string;
-      emoji: string;
-      position: ThreeFrameStoryScenePosition;
-      size?: ThreeFrameStorySceneSize;
-    }
-  | {
-      kind: "icon";
-      icon: string;
-      color: string;
-      position: ThreeFrameStoryScenePosition;
-      size?: ThreeFrameStorySceneSize;
-    };
-
-export type ThreeFrameStoryScene = {
-  setting: ThreeFrameStorySceneSetting;
-  layers: [ThreeFrameStorySceneLayer, ThreeFrameStorySceneLayer, ...ThreeFrameStorySceneLayer[]];
+  /** Drawn frame, public/images/three-frame-story/<name>.png. */
+  artId: string;
 };
 
 export type ThreeFrameStory = {
@@ -66,34 +32,7 @@ export type ThreeFrameStoryRoundOptions = {
   storyOrder?: number[];
 };
 
-function word(
-  wordId: string,
-  label: string,
-  emoji: string,
-  position: ThreeFrameStoryScenePosition,
-  size: ThreeFrameStorySceneSize = "large",
-): ThreeFrameStorySceneLayer {
-  return { kind: "word", wordId, word: label, emoji, position, size };
-}
-
-function icon(
-  iconName: string,
-  color: string,
-  position: ThreeFrameStoryScenePosition,
-  size: ThreeFrameStorySceneSize = "medium",
-): ThreeFrameStorySceneLayer {
-  return { kind: "icon", icon: iconName, color, position, size };
-}
-
-function scene(
-  setting: ThreeFrameStorySceneSetting,
-  first: ThreeFrameStorySceneLayer,
-  second: ThreeFrameStorySceneLayer,
-  ...rest: ThreeFrameStorySceneLayer[]
-): ThreeFrameStoryScene {
-  return { setting, layers: [first, second, ...rest] };
-}
-
+// Testers: «нарисовать картинки, непонятные картинки» — every frame is one drawn picture.
 export const threeFrameStories: ThreeFrameStory[] = [
   {
     id: "plant-flower",
@@ -105,36 +44,21 @@ export const threeFrameStories: ThreeFrameStory[] = [
         label: "семечко",
         caption: "Сначала семечко лежит в земле.",
         color: "brown-lighten-5",
-        scene: scene(
-          "earth",
-          icon("mdi-seed-outline", "brown-darken-2", "bottom-center", "large"),
-          icon("mdi-shovel", "blue-grey-darken-1", "left"),
-          icon("mdi-arrow-down-bold", "green-darken-2", "top-center", "small"),
-        ),
+        artId: "three-frame-story/seed-1",
       },
       {
         id: "sprout",
         label: "росток",
         caption: "Потом из земли появляется росток.",
         color: "light-green-lighten-5",
-        scene: scene(
-          "earth",
-          icon("mdi-sprout", "green-darken-2", "bottom-center", "large"),
-          icon("mdi-watering-can-outline", "light-blue-darken-2", "right"),
-          icon("mdi-water", "light-blue-darken-1", "top-right", "small"),
-        ),
+        artId: "three-frame-story/seed-2",
       },
       {
         id: "flower",
         label: "цветок",
         caption: "В конце раскрывается цветок.",
         color: "pink-lighten-5",
-        scene: scene(
-          "earth",
-          word("flower", "цветок", "🌸", "center"),
-          icon("mdi-white-balance-sunny", "amber-darken-1", "top-right"),
-          icon("mdi-sprout", "green-darken-2", "bottom-left", "small"),
-        ),
+        artId: "three-frame-story/seed-3",
       },
     ],
   },
@@ -148,36 +72,21 @@ export const threeFrameStories: ThreeFrameStory[] = [
         label: "греем воду",
         caption: "Сначала греем воду в чайнике.",
         color: "blue-grey-lighten-5",
-        scene: scene(
-          "table",
-          icon("mdi-kettle-steam-outline", "blue-grey-darken-2", "center", "large"),
-          icon("mdi-stove", "deep-orange-darken-1", "bottom-center"),
-          icon("mdi-heat-wave", "orange-darken-1", "top-center", "small"),
-        ),
+        artId: "three-frame-story/tea-1",
       },
       {
         id: "cup",
         label: "наливаем чай",
         caption: "Потом наливаем чай в чашку.",
         color: "brown-lighten-5",
-        scene: scene(
-          "table",
-          icon("mdi-kettle-outline", "blue-grey-darken-2", "left", "large"),
-          word("cup", "чашка", "☕", "right"),
-          icon("mdi-arrow-right-bold", "brown-darken-1", "center", "small"),
-        ),
+        artId: "three-frame-story/tea-2",
       },
       {
         id: "tea",
         label: "пьём чай",
         caption: "В конце чай готов.",
         color: "orange-lighten-5",
-        scene: scene(
-          "table",
-          word("tea", "чай", "🍵", "left"),
-          word("cookie", "печенье", "🍪", "right", "medium"),
-          icon("mdi-heat-wave", "orange-darken-1", "top-left", "small"),
-        ),
+        artId: "three-frame-story/tea-3",
       },
     ],
   },
@@ -191,36 +100,21 @@ export const threeFrameStories: ThreeFrameStory[] = [
         label: "туча закрыла солнце",
         caption: "Сначала туча закрывает солнце.",
         color: "blue-grey-lighten-5",
-        scene: scene(
-          "sky",
-          word("cloud", "туча", "☁️", "center"),
-          icon("mdi-white-balance-sunny", "amber-darken-1", "top-right"),
-          icon("mdi-weather-windy", "blue-grey-darken-1", "left", "small"),
-        ),
+        artId: "three-frame-story/rain-1",
       },
       {
         id: "rain",
         label: "идёт дождь",
         caption: "Потом из тучи идёт дождь.",
         color: "light-blue-lighten-5",
-        scene: scene(
-          "sky",
-          word("rain", "дождь", "🌧️", "center"),
-          icon("mdi-water", "light-blue-darken-2", "bottom-left", "small"),
-          icon("mdi-water", "light-blue-darken-2", "bottom-right", "small"),
-        ),
+        artId: "three-frame-story/rain-2",
       },
       {
         id: "rainbow",
         label: "появилась радуга",
         caption: "В конце появляется радуга.",
         color: "purple-lighten-5",
-        scene: scene(
-          "sky",
-          word("rainbow", "радуга", "🌈", "center"),
-          icon("mdi-white-balance-sunny", "amber-darken-1", "top-right"),
-          word("cloud", "облако", "☁️", "bottom-left", "small"),
-        ),
+        artId: "three-frame-story/rain-3",
       },
     ],
   },
@@ -234,36 +128,77 @@ export const threeFrameStories: ThreeFrameStory[] = [
         label: "выпал снег",
         caption: "Сначала землю укрывает снег.",
         color: "cyan-lighten-5",
-        scene: scene(
-          "snow",
-          word("snow", "снег", "❄️", "center"),
-          icon("mdi-weather-cloudy", "blue-grey-darken-1", "top-center"),
-          icon("mdi-snowflake", "light-blue-darken-1", "bottom-right", "small"),
-        ),
+        artId: "three-frame-story/snowman-1",
       },
       {
         id: "snowballs",
         label: "скатали комы",
         caption: "Потом катаем снежные комы.",
         color: "blue-lighten-5",
-        scene: scene(
-          "snow",
-          icon("mdi-circle", "blue-grey-lighten-4", "bottom-left", "large"),
-          icon("mdi-circle", "blue-grey-lighten-4", "bottom-right", "medium"),
-          icon("mdi-hand-back-right-outline", "blue-darken-1", "top-right", "small"),
-        ),
+        artId: "three-frame-story/snowman-2",
       },
       {
         id: "snowman",
         label: "собрали снеговика",
         caption: "В конце стоит снеговик.",
         color: "indigo-lighten-5",
-        scene: scene(
-          "snow",
-          icon("mdi-snowman", "blue-grey-darken-2", "center", "large"),
-          word("snow", "снег", "❄️", "bottom-left", "small"),
-          icon("mdi-white-balance-sunny", "amber-darken-1", "top-right", "small"),
-        ),
+        artId: "three-frame-story/snowman-3",
+      },
+    ],
+  },
+  {
+    id: "bake-pie",
+    title: "Пирог",
+    prompt: "Собери историю о пироге.",
+    frames: [
+      {
+        id: "dough",
+        label: "тесто",
+        caption: "Сначала замешиваем тесто.",
+        color: "amber-lighten-5",
+        artId: "three-frame-story/pie-1",
+      },
+      {
+        id: "oven",
+        label: "печём",
+        caption: "Потом пирог печётся в духовке.",
+        color: "orange-lighten-5",
+        artId: "three-frame-story/pie-2",
+      },
+      {
+        id: "pie",
+        label: "пирог готов",
+        caption: "В конце пирог готов.",
+        color: "deep-orange-lighten-5",
+        artId: "three-frame-story/pie-3",
+      },
+    ],
+  },
+  {
+    id: "butterfly",
+    title: "Бабочка",
+    prompt: "Собери историю о бабочке.",
+    frames: [
+      {
+        id: "caterpillar",
+        label: "гусеница",
+        caption: "Сначала гусеница ест листья.",
+        color: "light-green-lighten-5",
+        artId: "three-frame-story/butterfly-1",
+      },
+      {
+        id: "cocoon",
+        label: "кокон",
+        caption: "Потом гусеница прячется в кокон.",
+        color: "green-lighten-5",
+        artId: "three-frame-story/butterfly-2",
+      },
+      {
+        id: "butterfly",
+        label: "бабочка",
+        caption: "В конце из кокона вылетает бабочка.",
+        color: "orange-lighten-5",
+        artId: "three-frame-story/butterfly-3",
       },
     ],
   },

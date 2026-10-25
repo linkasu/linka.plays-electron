@@ -7,6 +7,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useGameTimers } from "../../composables/useGameTimers";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
   disposeDressCharacterAudio,
@@ -15,6 +16,7 @@ import {
   warmDressCharacterAudio,
 } from "./audio";
 import {
+  clothingArtId,
   clothingSlots,
   dressCharacterMaxSteps,
   getDressCharacterExpectedItem,
@@ -84,6 +86,21 @@ const kitStyle = computed(() => {
     ...entries,
   ]);
 });
+
+const childSrc = gameArtSrc("dress-character/child");
+// Only correct choices are put on, so a dressed slot always shows the kit's target.
+const wornItems = computed(() =>
+  currentKit.value.items
+    .filter((task) => dressed[task.slot])
+    .map((task) => {
+      const artId = clothingArtId(task.target);
+      return { slot: task.slot, kind: artId.split("/")[1], src: gameArtSrc(artId) };
+    }),
+);
+
+function choiceArtSrc(item: ClothingItem) {
+  return gameArtSrc(clothingArtId(item));
+}
 
 function choiceTargetId(item: ClothingItem) {
   return `dress-character:choice:${item.id}`;
@@ -329,40 +346,31 @@ watch(
                 <div class="character-stage" aria-label="Персонаж для одевания">
                   <div class="closet-sparkle closet-sparkle--one" />
                   <div class="closet-sparkle closet-sparkle--two" />
-                  <div
-                    :class="[
-                      'dress-piece dress-piece--hat',
-                      { 'dress-piece--visible': dressed.hat },
-                    ]"
-                  />
-                  <div class="person person--head">
-                    <span class="person-eye person-eye--left" />
-                    <span class="person-eye person-eye--right" />
-                    <span class="person-smile" />
-                  </div>
-                  <div class="person person--neck" />
-                  <div
-                    :class="[
-                      'dress-piece dress-piece--jacket',
-                      { 'dress-piece--visible': dressed.jacket },
-                    ]"
-                  >
-                    <span class="dress-piece__detail dress-piece__detail--one" />
-                    <span class="dress-piece__detail dress-piece__detail--two" />
-                  </div>
-                  <div class="person person--body" />
-                  <div class="person person--arm person--arm-left" />
-                  <div class="person person--arm person--arm-right" />
-                  <div class="person person--leg person--leg-left" />
-                  <div class="person person--leg person--leg-right" />
-                  <div
-                    :class="[
-                      'dress-piece dress-piece--shoes',
-                      { 'dress-piece--visible': dressed.shoes },
-                    ]"
-                  >
-                    <span class="dress-piece__detail dress-piece__detail--one" />
-                    <span class="dress-piece__detail dress-piece__detail--two" />
+                  <div class="person">
+                    <img class="person__child" :src="childSrc" alt="" draggable="false" />
+                    <template v-for="piece in wornItems" :key="piece.slot">
+                      <!-- A pair of shoes is split so that each shoe lands on its own foot. -->
+                      <template v-if="piece.slot === 'shoes'">
+                        <span
+                          v-for="side in ['left', 'right']"
+                          :key="side"
+                          :class="['dress-shoe', `dress-shoe--${side}`]"
+                        >
+                          <img :src="piece.src" alt="" draggable="false" />
+                        </span>
+                      </template>
+                      <img
+                        v-else
+                        :class="[
+                          'dress-piece',
+                          `dress-piece--${piece.slot}`,
+                          `dress-piece--${piece.kind}`,
+                        ]"
+                        :src="piece.src"
+                        alt=""
+                        draggable="false"
+                      />
+                    </template>
                   </div>
                   <div class="scene-rug" />
                 </div>
@@ -403,17 +411,7 @@ watch(
                         { 'choice-content--mistake': lastMistakeChoiceId === item.id },
                       ]"
                     >
-                      <div
-                        :class="[
-                          'choice-art',
-                          `choice-art--${item.slot}`,
-                          `choice-art--${item.id}`,
-                        ]"
-                        aria-hidden="true"
-                      >
-                        <span class="choice-art__detail choice-art__detail--one" />
-                        <span class="choice-art__detail choice-art__detail--two" />
-                      </div>
+                      <img class="choice-art" :src="choiceArtSrc(item)" alt="" draggable="false" />
                       <div class="text-h5 text-md-h4 font-weight-bold mt-1">{{ item.label }}</div>
                     </div>
                   </template>
@@ -523,237 +521,95 @@ watch(
   z-index: 0;
 }
 
-.person,
-.dress-piece {
+.person {
+  aspect-ratio: 292 / 470;
+  block-size: 94%;
+  inset-block-end: 2%;
+  inset-inline-start: 50%;
   position: absolute;
+  transform: translateX(-50%);
   z-index: 2;
 }
 
-.person--head {
-  background: #ffd2bd;
-  block-size: clamp(4.1rem, 10vh, 5.8rem);
-  border: 0.22rem solid rgb(93 64 55 / 18%);
-  border-radius: 50%;
-  box-shadow: inset 0 -0.35rem 0 rgb(0 0 0 / 5%);
-  inline-size: clamp(4.1rem, 10vh, 5.8rem);
-  inset-block-start: 14%;
-  inset-inline-start: 50%;
-  transform: translateX(-50%);
-  z-index: 5;
-}
-
-.person-eye {
-  background: #263238;
-  block-size: 0.45rem;
-  border-radius: 999px;
-  inline-size: 0.45rem;
-  inset-block-start: 46%;
+.person__child,
+.dress-piece,
+.dress-shoe {
   position: absolute;
 }
 
-.person-eye--left {
-  inset-inline-start: 34%;
+.person__child {
+  block-size: 100%;
+  inline-size: 100%;
+  inset: 0;
+  z-index: 2;
 }
 
-.person-eye--right {
-  inset-inline-end: 34%;
-}
-
-.person-smile {
-  border-block-end: 0.18rem solid #8d5b4c;
-  border-radius: 0 0 999px 999px;
-  block-size: 0.7rem;
-  inline-size: 1.5rem;
-  inset-block-start: 61%;
-  inset-inline-start: 50%;
-  position: absolute;
-  transform: translateX(-50%);
-}
-
-.person--neck {
-  background: #f3bda9;
-  block-size: 2rem;
-  border-radius: 0.6rem;
-  inline-size: 1.5rem;
-  inset-block-start: 31%;
-  inset-inline-start: 50%;
-  transform: translateX(-50%);
+/* Boxes are in percent of the drawn child: head 2-41 %, body 42-66 %, feet 88-98 %. */
+.dress-piece {
+  animation: dress-piece-in 260ms ease-out;
+  object-fit: contain;
   z-index: 3;
 }
 
-.person--body {
-  background: linear-gradient(180deg, #fff2d9 0%, #ffe0b2 100%);
-  block-size: clamp(7.2rem, 20vh, 10.2rem);
-  border: 0.22rem solid rgb(93 64 55 / 14%);
-  border-radius: 2rem 2rem 1.25rem 1.25rem;
-  box-shadow: inset 0 -0.5rem 0 rgb(0 0 0 / 5%);
-  inline-size: clamp(6.8rem, 16vh, 9.3rem);
-  inset-block-start: 34%;
-  inset-inline-start: 50%;
-  transform: translateX(-50%);
-  z-index: 2;
-}
-
-.person--arm {
-  background: #ffd2bd;
-  block-size: clamp(4.8rem, 13vh, 6.4rem);
-  border-radius: 999px;
-  inline-size: 1.35rem;
-  inset-block-start: 39%;
-  z-index: 1;
-}
-
-.person--arm-left {
-  inset-inline-start: calc(50% - 5.6rem);
-  transform: rotate(18deg);
-}
-
-.person--arm-right {
-  inset-inline-start: calc(50% + 4.4rem);
-  transform: rotate(-18deg);
-}
-
-.person--leg {
-  background: #78909c;
-  block-size: clamp(4.6rem, 12vh, 6.5rem);
-  border-radius: 0 0 0.8rem 0.8rem;
-  inline-size: 1.55rem;
-  inset-block-start: 68%;
-  z-index: 1;
-}
-
-.person--leg-left {
-  inset-inline-start: calc(50% - 2.2rem);
-}
-
-.person--leg-right {
-  inset-inline-start: calc(50% + 0.65rem);
-}
-
-.dress-piece {
-  opacity: 0.2;
-  transition:
-    opacity 180ms ease,
-    transform 180ms ease,
-    filter 180ms ease;
-}
-
-.dress-piece--visible {
-  opacity: 1;
-}
-
 .dress-piece--hat {
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--hat-color) 58%, white) 0%,
-    var(--hat-color) 100%
-  );
-  block-size: clamp(2.2rem, 5.5vh, 3rem);
-  border: 0.2rem solid rgb(255 255 255 / 86%);
-  border-radius: 2rem 2rem 0.75rem 0.75rem;
-  box-shadow: inset 0 -0.25rem 0 rgb(0 0 0 / 10%);
-  inline-size: clamp(5.2rem, 13vh, 7.2rem);
-  inset-block-start: 9%;
-  inset-inline-start: 50%;
-  transform: translateX(-50%) rotate(-2deg);
-  z-index: 7;
+  block-size: 30%;
+  inline-size: 86%;
+  inset-block-start: -9%;
+  inset-inline-start: 7%;
+  object-position: center bottom;
 }
 
-.dress-piece--hat::before {
-  background: #f6e7ff;
-  block-size: 1.1rem;
-  border-radius: 999px;
-  content: "";
-  inline-size: 1.1rem;
-  inset-block-start: -0.65rem;
-  inset-inline-start: 50%;
-  position: absolute;
-  transform: translateX(-50%);
+/* The hood frames the face from behind instead of covering it. */
+.dress-piece--hood {
+  block-size: 56%;
+  inline-size: 124%;
+  inset-block-start: -9%;
+  inset-inline-start: -12%;
+  object-position: center top;
+  z-index: 1;
 }
 
 .dress-piece--jacket {
-  background: linear-gradient(150deg, var(--jacket-color) 0%, var(--jacket-dark) 100%);
-  block-size: clamp(7rem, 18vh, 9.5rem);
-  border: 0.2rem solid rgb(255 255 255 / 88%);
-  border-radius: 2rem 2rem 1.1rem 1.1rem;
-  box-shadow: inset 0 -0.45rem 0 rgb(0 0 0 / 12%);
-  inline-size: clamp(8rem, 19vh, 11rem);
-  inset-block-start: 34%;
-  inset-inline-start: 50%;
-  transform: translateX(-50%);
-  z-index: 4;
+  block-size: 44%;
+  inline-size: 100%;
+  inset-block-start: 39%;
+  inset-inline-start: 0;
+  object-position: center top;
 }
 
-.dress-piece--jacket::before,
-.dress-piece--jacket::after {
-  background: linear-gradient(180deg, var(--jacket-color), var(--jacket-dark));
-  block-size: 82%;
-  border: 0.18rem solid rgb(255 255 255 / 82%);
-  border-radius: 999px;
-  content: "";
-  inline-size: 1.35rem;
-  inset-block-start: 0.7rem;
+.dress-shoe {
+  animation: dress-piece-in 260ms ease-out;
+  block-size: 30%;
+  inline-size: 24%;
+  inset-block-end: 0;
+  overflow: hidden;
+  z-index: 3;
+}
+
+/* The pair is twice as wide as the box, so each half shows one shoe. */
+.dress-shoe img {
+  inline-size: 200%;
+  inset-block-end: 0;
   position: absolute;
 }
 
-.dress-piece--jacket::before {
-  inset-inline-start: -1.15rem;
-  transform: rotate(14deg);
+.dress-shoe--left {
+  inset-inline-start: 19%;
 }
 
-.dress-piece--jacket::after {
-  inset-inline-end: -1.15rem;
-  transform: rotate(-14deg);
+.dress-shoe--right {
+  inset-inline-start: 57%;
 }
 
-.dress-piece--jacket .dress-piece__detail--one {
-  background: rgb(255 255 255 / 70%);
-  block-size: 74%;
-  inline-size: 0.18rem;
-  inset-block-start: 0.75rem;
-  inset-inline-start: 50%;
-  position: absolute;
+.dress-shoe--right img {
+  inset-inline-start: -100%;
 }
 
-.dress-piece--jacket .dress-piece__detail--two {
-  background: #ffeb3b;
-  block-size: 0.55rem;
-  border-radius: 999px;
-  inline-size: 0.55rem;
-  inset-block-start: 45%;
-  inset-inline-start: calc(50% + 0.55rem);
-  position: absolute;
-}
-
-.dress-piece--shoes {
-  block-size: 2.2rem;
-  inline-size: clamp(6.6rem, 16vh, 8.8rem);
-  inset-block-start: calc(68% + clamp(3.9rem, 10vh, 5.65rem));
-  inset-inline-start: 50%;
-  transform: translateX(-50%);
-  z-index: 5;
-}
-
-.dress-piece--shoes::before,
-.dress-piece--shoes::after {
-  background: linear-gradient(180deg, var(--shoes-color) 0%, var(--shoes-dark) 100%);
-  border: 0.18rem solid rgb(255 255 255 / 88%);
-  border-radius: 1rem 1rem 0.55rem 0.55rem;
-  box-shadow: inset 0 -0.25rem 0 rgb(0 0 0 / 12%);
-  block-size: 1.7rem;
-  content: "";
-  inline-size: 3.2rem;
-  position: absolute;
-}
-
-.dress-piece--shoes::before {
-  inset-inline-start: 0.25rem;
-  transform: rotate(-5deg);
-}
-
-.dress-piece--shoes::after {
-  inset-inline-end: 0.25rem;
-  transform: rotate(5deg);
+@keyframes dress-piece-in {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
 }
 
 .choice-grid {
@@ -792,234 +648,10 @@ watch(
 }
 
 .choice-art {
-  block-size: clamp(3.2rem, min(8vw, 10vh), 5.2rem);
+  block-size: clamp(3.6rem, min(10vw, 12vh), 6.4rem);
   inline-size: clamp(5.3rem, min(13vw, 17vh), 8.6rem);
   margin-inline: auto;
-  position: relative;
-}
-
-.choice-art::before,
-.choice-art::after,
-.choice-art__detail {
-  background: var(--item-color);
-  border: 0.2rem solid rgb(255 255 255 / 92%);
-  box-shadow: inset 0 -0.25rem 0 rgb(0 0 0 / 10%);
-  content: "";
-  display: block;
-  position: absolute;
-}
-
-.choice-art--hat::before {
-  block-size: 48%;
-  border-radius: 2rem 2rem 0.8rem 0.8rem;
-  inline-size: 72%;
-  inset-block-start: 35%;
-  inset-inline-start: 14%;
-}
-
-.choice-art--hat::after {
-  background: color-mix(in srgb, var(--item-color) 65%, white);
-  block-size: 22%;
-  border-radius: 999px;
-  inline-size: 18%;
-  inset-block-start: 13%;
-  inset-inline-start: 41%;
-}
-
-.choice-art--cold-hat-cap::before {
-  block-size: 38%;
-  border-radius: 1.4rem 1.4rem 0.45rem 0.45rem;
-  inline-size: 56%;
-  inset-block-start: 34%;
-  inset-inline-start: 22%;
-}
-
-.choice-art--cold-hat-cap::after {
-  block-size: 15%;
-  border-radius: 999rem;
-  inline-size: 44%;
-  inset-block-start: 61%;
-  inset-inline-start: 42%;
-}
-
-.choice-art--cold-hat-brim::before,
-.choice-art--rain-hat-brim::before {
-  block-size: 32%;
-  border-radius: 1.8rem 1.8rem 0.6rem 0.6rem;
-  inline-size: 42%;
-  inset-block-start: 26%;
-  inset-inline-start: 29%;
-}
-
-.choice-art--cold-hat-brim::after,
-.choice-art--rain-hat-brim::after {
-  block-size: 18%;
-  border-radius: 999rem;
-  inline-size: 86%;
-  inset-block-start: 58%;
-  inset-inline-start: 7%;
-}
-
-.choice-art--rain-hat-hood::before {
-  block-size: 64%;
-  border-radius: 2rem 2rem 0.85rem 0.85rem;
-  inline-size: 62%;
-  inset-block-start: 20%;
-  inset-inline-start: 19%;
-}
-
-.choice-art--rain-hat-hood::after {
-  background: rgb(255 255 255 / 55%);
-  block-size: 38%;
-  border-radius: 999rem;
-  inline-size: 36%;
-  inset-block-start: 32%;
-  inset-inline-start: 32%;
-}
-
-.choice-art--sun-hat-panama::before {
-  block-size: 36%;
-  border-radius: 1.6rem 1.6rem 0.55rem 0.55rem;
-  inline-size: 48%;
-  inset-block-start: 28%;
-  inset-inline-start: 26%;
-}
-
-.choice-art--sun-hat-panama::after {
-  block-size: 17%;
-  border-radius: 999rem;
-  inline-size: 76%;
-  inset-block-start: 61%;
-  inset-inline-start: 12%;
-}
-
-.choice-art--hat .choice-art__detail,
-.choice-art--shoes .choice-art__detail {
-  display: none;
-}
-
-.choice-art--jacket::before {
-  block-size: 74%;
-  border-radius: 1.2rem 1.2rem 0.75rem 0.75rem;
-  inline-size: 56%;
-  inset-block-start: 15%;
-  inset-inline-start: 22%;
-}
-
-.choice-art--jacket::after {
-  background: rgb(255 255 255 / 62%);
-  block-size: 57%;
-  border: 0;
-  box-shadow: none;
-  inline-size: 0.2rem;
-  inset-block-start: 28%;
-  inset-inline-start: 50%;
-}
-
-.choice-art--jacket .choice-art__detail--one,
-.choice-art--jacket .choice-art__detail--two {
-  block-size: 57%;
-  border-radius: 999px;
-  inline-size: 17%;
-  inset-block-start: 26%;
-}
-
-.choice-art--jacket .choice-art__detail--one {
-  inset-inline-start: 4%;
-  transform: rotate(15deg);
-}
-
-.choice-art--jacket .choice-art__detail--two {
-  inset-inline-end: 4%;
-  transform: rotate(-15deg);
-}
-
-.choice-art--cold-jacket-vest::before {
-  border-radius: 1.4rem 1.4rem 0.85rem 0.85rem;
-  inline-size: 48%;
-  inset-inline-start: 26%;
-}
-
-.choice-art--cold-jacket-vest .choice-art__detail--one,
-.choice-art--cold-jacket-vest .choice-art__detail--two {
-  display: none;
-}
-
-.choice-art--cold-jacket-shirt::before,
-.choice-art--rain-jacket-shirt::before,
-.choice-art--sun-jacket-shirt::before {
-  block-size: 54%;
-  border-radius: 1.1rem 1.1rem 0.65rem 0.65rem;
-  inline-size: 52%;
-  inset-block-start: 25%;
-  inset-inline-start: 24%;
-}
-
-.choice-art--cold-jacket-shirt .choice-art__detail--one,
-.choice-art--rain-jacket-shirt .choice-art__detail--one,
-.choice-art--sun-jacket-shirt .choice-art__detail--one,
-.choice-art--cold-jacket-shirt .choice-art__detail--two,
-.choice-art--rain-jacket-shirt .choice-art__detail--two,
-.choice-art--sun-jacket-shirt .choice-art__detail--two {
-  block-size: 30%;
-  inset-block-start: 29%;
-}
-
-.choice-art--rain-jacket-raincoat::before,
-.choice-art--sun-jacket-raincoat::before {
-  block-size: 84%;
-  border-radius: 1.4rem 1.4rem 1rem 1rem;
-  inline-size: 60%;
-  inset-block-start: 8%;
-  inset-inline-start: 20%;
-}
-
-.choice-art--shoes::before,
-.choice-art--shoes::after {
-  block-size: 42%;
-  border-radius: 1.2rem 1.2rem 0.55rem 0.55rem;
-  inline-size: 38%;
-  inset-block-start: 42%;
-}
-
-.choice-art--shoes::before {
-  inset-inline-start: 10%;
-  transform: rotate(-7deg);
-}
-
-.choice-art--shoes::after {
-  inset-inline-end: 10%;
-  transform: rotate(7deg);
-}
-
-.choice-art--cold-shoes-sandals::before,
-.choice-art--rain-shoes-sandals::before,
-.choice-art--sun-shoes-sandals::before,
-.choice-art--cold-shoes-sandals::after,
-.choice-art--rain-shoes-sandals::after,
-.choice-art--sun-shoes-sandals::after {
-  block-size: 24%;
-  border-radius: 1rem 1rem 0.45rem 0.45rem;
-  inset-block-start: 56%;
-}
-
-.choice-art--cold-shoes-rainboots::before,
-.choice-art--rain-shoes-rainboots::before,
-.choice-art--sun-shoes-rainboots::before,
-.choice-art--cold-shoes-rainboots::after,
-.choice-art--rain-shoes-rainboots::after,
-.choice-art--sun-shoes-rainboots::after {
-  block-size: 68%;
-  border-radius: 0.9rem 0.9rem 0.45rem 0.45rem;
-  inset-block-start: 16%;
-}
-
-.choice-art--cold-shoes-slippers::before,
-.choice-art--cold-shoes-slippers::after {
-  block-size: 28%;
-  border-radius: 999rem;
-  inline-size: 34%;
-  inset-block-start: 54%;
+  object-fit: contain;
 }
 
 .choice-content--mistake {

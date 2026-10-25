@@ -29,6 +29,11 @@ export type DressCharacterWeatherKit = {
 
 export const clothingSlots: ClothingSlot[] = ["hat", "jacket", "shoes"];
 
+/** Drawn picture of the item: ids end with the kind, e.g. "cold-hat-beanie" -> beanie. */
+export function clothingArtId(item: ClothingItem) {
+  return `dress-character/${item.id.split("-").slice(2).join("-")}`;
+}
+
 export const dressCharacterWeatherKits: DressCharacterWeatherKit[] = [
   {
     id: "cold",

@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GamePageShell from "../../components/game/GamePageShell.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
@@ -12,6 +13,7 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import {
   createFirstThenPairOrder,
   createFirstThenTimeline,
+  firstThenArtId,
   generateFirstThenRound,
   type FirstThenAction,
   type FirstThenPhase,
@@ -233,7 +235,13 @@ onUnmounted(() => {
                 >
                   <div class="text-overline text-primary mb-1">{{ item.label }}</div>
                   <div v-if="item.action" class="d-flex align-center ga-3">
-                    <div class="timeline-emoji emoji-glyph">{{ item.action.emoji }}</div>
+                    <GameWordImage
+                      class="timeline-emoji"
+                      :art-id="firstThenArtId(item.action)"
+                      :word="item.action.title"
+                      :emoji="item.action.emoji"
+                      decorative
+                    />
                     <div class="text-h6 text-md-h5 font-weight-bold">{{ item.action.title }}</div>
                   </div>
                   <div v-else class="timeline-empty text-body-1 text-medium-emphasis">
@@ -258,7 +266,13 @@ onUnmounted(() => {
               @select="chooseAction"
             >
               <template #default="{ choice }">
-                <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
+                <GameWordImage
+                  class="choice-emoji"
+                  :art-id="firstThenArtId(choice)"
+                  :word="choice.title"
+                  :emoji="choice.emoji"
+                  decorative
+                />
                 <div class="text-h4 text-md-h3 font-weight-bold">{{ choice.title }}</div>
               </template>
             </GameChoiceCardGrid>
@@ -299,12 +313,12 @@ onUnmounted(() => {
 }
 
 .timeline-emoji {
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-size: clamp(3rem, 8vw, 5.5rem);
   line-height: 1;
 }
 
 .choice-emoji {
-  font-size: clamp(3.75rem, 8vw, 6rem);
+  font-size: clamp(5rem, 16dvh, 9rem);
   line-height: 1;
 }
 
@@ -323,7 +337,7 @@ onUnmounted(() => {
   }
 
   .timeline-emoji {
-    font-size: clamp(2.25rem, 5vw, 3.5rem);
+    font-size: clamp(2.5rem, 6vw, 4rem);
   }
 }
 
@@ -350,7 +364,7 @@ onUnmounted(() => {
   }
 
   .choice-emoji {
-    font-size: clamp(2.75rem, 6vw, 3.75rem);
+    font-size: clamp(3.5rem, 12dvh, 5.5rem);
   }
 
   .first-then-card :deep(.dwell-button) {

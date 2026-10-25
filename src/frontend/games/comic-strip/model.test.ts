@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import wordImageManifest from "../../../../public/images/words/manifest.json";
 import {
   comicStories,
   createComicStripSlots,
@@ -89,18 +88,10 @@ describe("comic-strip model", () => {
     }
   });
 
-  it("uses composed scenes with available word images", () => {
-    const availableWordImageIds = new Set(wordImageManifest.map((asset) => asset.id));
-    const frames = comicStories.flatMap((story) => story.frames);
-    const referencedWordImageIds = frames.flatMap((frame) =>
-      frame.scene.layers.filter((layer) => layer.kind === "word").map((layer) => layer.wordId),
-    );
-
-    frames.forEach((frame) => expect(frame.scene.layers.length).toBeGreaterThanOrEqual(2));
-    expect(referencedWordImageIds.length).toBeGreaterThan(0);
-    referencedWordImageIds.forEach((wordId) =>
-      expect(availableWordImageIds.has(wordId), wordId).toBe(true),
-    );
+  it("shows every frame as a drawn picture", () => {
+    comicStories
+      .flatMap((story) => story.frames)
+      .forEach((frame) => expect(frame.artId).toMatch(/^comic-strip\//));
   });
 
   it("rotates choices without dropping items", () => {
