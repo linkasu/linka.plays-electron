@@ -40,20 +40,23 @@ export function drawDrawnFish(
   const tail = canvasArt(`fishes/${color}-tail`);
   if (!body || !tail) return false;
 
-  // The tail is 62 % of the body height and tucks 20 % of its width under the body.
+  // The tail is 62 % of the body height and tucks 15 % of its width under the body.
+  // In the picture its stub is on the left and the fins open to the right, so it is
+  // mirrored to trail behind a fish that faces +x.
   const bodyAspect = body.naturalHeight / body.naturalWidth;
   const tailAspect = tail.naturalWidth / tail.naturalHeight;
-  const bodyWidth = length / (1 + 0.8 * 0.62 * bodyAspect * tailAspect);
+  const bodyWidth = length / (1 + 0.85 * 0.62 * bodyAspect * tailAspect);
   const bodyHeight = bodyWidth * bodyAspect;
   const tailHeight = bodyHeight * 0.62;
   const tailWidth = tailHeight * tailAspect;
-  const jointX = -length / 2 + tailWidth * 0.8;
+  const jointX = -length / 2 + tailWidth * 0.85;
   const jointY = bodyHeight * 0.05;
 
   context.save();
   context.translate(jointX, jointY);
   context.rotate(Math.sin(wag) * 0.28);
-  context.drawImage(tail, -tailWidth * 0.8, -tailHeight / 2, tailWidth, tailHeight);
+  context.scale(-1, 1);
+  context.drawImage(tail, -tailWidth * 0.15, -tailHeight / 2, tailWidth, tailHeight);
   context.restore();
   context.drawImage(body, jointX - bodyWidth * 0.02, -bodyHeight / 2, bodyWidth, bodyHeight);
   return true;
