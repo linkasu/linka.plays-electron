@@ -5,6 +5,7 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { canvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 
 type Point = { x: number; y: number };
@@ -513,6 +514,16 @@ function drawSled(context: CanvasRenderingContext2D, points: Point[]) {
 
   context.translate(point.x, point.y);
   context.rotate(angle);
+  // Testers asked for drawn pictures: a drawn child on a sled, kept upright.
+  const art = canvasArt("snow-trail/sled-child");
+  if (art) {
+    if (Math.cos(angle) < 0) context.scale(1, -1);
+    const artWidth = size * 2.3;
+    const artHeight = (artWidth * art.naturalHeight) / art.naturalWidth;
+    context.drawImage(art, -artWidth / 2, size * 0.45 - artHeight, artWidth, artHeight);
+    context.restore();
+    return;
+  }
   context.strokeStyle = "rgb(73 112 143 / 64%)";
   context.lineWidth = Math.max(3, size * 0.08);
   context.lineCap = "round";

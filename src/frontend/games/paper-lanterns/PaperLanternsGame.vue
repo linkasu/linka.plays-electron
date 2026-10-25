@@ -6,6 +6,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
+import { canvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
 import {
@@ -351,6 +352,13 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
   context.fill();
 }
 
+function lanternColor(hue: number) {
+  const h = ((hue % 360) + 360) % 360;
+  if (h >= 25 && h < 90) return "yellow";
+  if (h >= 200 && h < 330) return "purple";
+  return "red";
+}
+
 function drawLantern(context: CanvasRenderingContext2D, lantern: Lantern, decorative = false) {
   const point = lanternPoint(lantern);
   const appear =
@@ -386,55 +394,73 @@ function drawLantern(context: CanvasRenderingContext2D, lantern: Lantern, decora
   );
   context.stroke();
 
-  const body = context.createRadialGradient(
-    point.x - bodyWidth * 0.2,
-    point.y - bodyHeight * 0.18,
-    bodyWidth * 0.08,
-    point.x,
-    point.y,
-    bodyWidth * 0.92,
-  );
-  body.addColorStop(0, `hsla(${lantern.hue + 18}, 100%, ${90 - light * 4}%, 0.96)`);
-  body.addColorStop(0.6, `hsla(${lantern.hue}, 88%, ${68 + light * 8}%, 0.86)`);
-  body.addColorStop(1, `hsla(${lantern.hue - 10}, 72%, ${46 + light * 10}%, 0.84)`);
-  context.fillStyle = body;
-  context.beginPath();
-  context.ellipse(point.x, point.y, bodyWidth * 0.52, bodyHeight * 0.52, 0, 0, Math.PI * 2);
-  context.fill();
-
-  context.strokeStyle = `hsla(${lantern.hue - 12}, 58%, 40%, 0.34)`;
-  context.lineWidth = Math.max(2, lantern.radius * 0.016);
-  for (const offset of [-0.32, 0, 0.32]) {
-    context.beginPath();
-    context.ellipse(
-      point.x + bodyWidth * offset,
+  // Testers asked for drawn pictures: the drawn lantern lights up as the child
+  // looks at it (the unlit picture fades into the lit one).
+  const color = lanternColor(lantern.hue);
+  const off = canvasArt(`paper-lanterns/${color}-off`);
+  const on = canvasArt(`paper-lanterns/${color}-on`);
+  if (off && on) {
+    const width = bodyWidth * 1.25;
+    for (const [art, share] of [
+      [off, 1 - light],
+      [on, light],
+    ] as const) {
+      const height = (width * art.naturalHeight) / art.naturalWidth;
+      context.globalAlpha = Math.max(0, alpha) * share;
+      context.drawImage(art, point.x - width / 2, point.y - height * 0.5, width, height);
+    }
+    context.globalAlpha = Math.max(0, alpha);
+  } else {
+    const body = context.createRadialGradient(
+      point.x - bodyWidth * 0.2,
+      point.y - bodyHeight * 0.18,
+      bodyWidth * 0.08,
+      point.x,
       point.y,
-      bodyWidth * (0.24 - Math.abs(offset) * 0.18),
-      bodyHeight * 0.5,
-      0,
-      -Math.PI * 0.5,
-      Math.PI * 0.5,
+      bodyWidth * 0.92,
     );
-    context.stroke();
-  }
+    body.addColorStop(0, `hsla(${lantern.hue + 18}, 100%, ${90 - light * 4}%, 0.96)`);
+    body.addColorStop(0.6, `hsla(${lantern.hue}, 88%, ${68 + light * 8}%, 0.86)`);
+    body.addColorStop(1, `hsla(${lantern.hue - 10}, 72%, ${46 + light * 10}%, 0.84)`);
+    context.fillStyle = body;
+    context.beginPath();
+    context.ellipse(point.x, point.y, bodyWidth * 0.52, bodyHeight * 0.52, 0, 0, Math.PI * 2);
+    context.fill();
 
-  context.fillStyle = `hsla(${lantern.hue - 8}, 64%, 35%, 0.72)`;
-  context.beginPath();
-  context.roundRect(
-    point.x - bodyWidth * 0.28,
-    point.y - bodyHeight * 0.58,
-    bodyWidth * 0.56,
-    bodyHeight * 0.12,
-    lantern.radius * 0.045,
-  );
-  context.roundRect(
-    point.x - bodyWidth * 0.26,
-    point.y + bodyHeight * 0.46,
-    bodyWidth * 0.52,
-    bodyHeight * 0.12,
-    lantern.radius * 0.045,
-  );
-  context.fill();
+    context.strokeStyle = `hsla(${lantern.hue - 12}, 58%, 40%, 0.34)`;
+    context.lineWidth = Math.max(2, lantern.radius * 0.016);
+    for (const offset of [-0.32, 0, 0.32]) {
+      context.beginPath();
+      context.ellipse(
+        point.x + bodyWidth * offset,
+        point.y,
+        bodyWidth * (0.24 - Math.abs(offset) * 0.18),
+        bodyHeight * 0.5,
+        0,
+        -Math.PI * 0.5,
+        Math.PI * 0.5,
+      );
+      context.stroke();
+    }
+
+    context.fillStyle = `hsla(${lantern.hue - 8}, 64%, 35%, 0.72)`;
+    context.beginPath();
+    context.roundRect(
+      point.x - bodyWidth * 0.28,
+      point.y - bodyHeight * 0.58,
+      bodyWidth * 0.56,
+      bodyHeight * 0.12,
+      lantern.radius * 0.045,
+    );
+    context.roundRect(
+      point.x - bodyWidth * 0.26,
+      point.y + bodyHeight * 0.46,
+      bodyWidth * 0.52,
+      bodyHeight * 0.12,
+      lantern.radius * 0.045,
+    );
+    context.fill();
+  }
 
   if (!decorative && lantern.phase !== "rising") {
     context.strokeStyle = `hsla(${lantern.hue + 22}, 96%, 88%, ${0.18 + lantern.dwellProgress * 0.28})`;

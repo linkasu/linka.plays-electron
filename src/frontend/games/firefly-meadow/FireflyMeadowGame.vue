@@ -6,6 +6,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
+import { canvasArt, drawCanvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
 import {
@@ -374,26 +375,39 @@ function drawFirefly(context: CanvasRenderingContext2D, firefly: Firefly) {
   context.arc(point.x, point.y, glowRadius * 2.35, 0, Math.PI * 2);
   context.fill();
 
-  const core = context.createRadialGradient(
-    point.x,
-    point.y,
-    0,
-    point.x,
-    point.y,
-    Math.max(8, firefly.radius * 0.16),
+  // Testers asked for drawn animals: a drawn firefly flaps inside its glow.
+  const art = canvasArt(
+    Math.sin(firefly.age * 14 + firefly.twinkleSeed) > 0
+      ? "firefly-meadow/firefly-up"
+      : "firefly-meadow/firefly-down",
   );
-  core.addColorStop(0, `hsla(${firefly.hue}, 100%, 92%, ${appear * (0.78 + gaze * 0.2)})`);
-  core.addColorStop(1, `hsla(${firefly.hue}, 92%, 62%, 0)`);
-  context.fillStyle = core;
-  context.beginPath();
-  context.arc(
-    point.x,
-    point.y,
-    Math.max(10, firefly.radius * (0.13 + gaze * 0.04)),
-    0,
-    Math.PI * 2,
-  );
-  context.fill();
+  if (art) {
+    context.globalCompositeOperation = "source-over";
+    context.globalAlpha = appear;
+    drawCanvasArt(context, art, point.x, point.y, firefly.radius * (0.82 + gaze * 0.1));
+    context.globalAlpha = 1;
+  } else {
+    const core = context.createRadialGradient(
+      point.x,
+      point.y,
+      0,
+      point.x,
+      point.y,
+      Math.max(8, firefly.radius * 0.16),
+    );
+    core.addColorStop(0, `hsla(${firefly.hue}, 100%, 92%, ${appear * (0.78 + gaze * 0.2)})`);
+    core.addColorStop(1, `hsla(${firefly.hue}, 92%, 62%, 0)`);
+    context.fillStyle = core;
+    context.beginPath();
+    context.arc(
+      point.x,
+      point.y,
+      Math.max(10, firefly.radius * (0.13 + gaze * 0.04)),
+      0,
+      Math.PI * 2,
+    );
+    context.fill();
+  }
 
   if (firefly.phase !== "lit") {
     context.globalCompositeOperation = "source-over";

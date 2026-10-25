@@ -1,3 +1,5 @@
+import { drawDrawnFish } from "./fishArt";
+
 export type Point = { x: number; y: number };
 export type FishState = "swimming" | "caught";
 export type Fish = Point & {
@@ -356,6 +358,12 @@ function drawFish(context: CanvasRenderingContext2D, fish: Fish) {
   context.beginPath();
   context.ellipse(-size * 0.03, size * 0.32, size * 0.62, size * 0.12, 0, 0, Math.PI * 2);
   context.fill();
+
+  if (drawDrawnFish(context, fish.hue, size * 1.42, fish.phase * 2.5)) {
+    context.restore();
+    if (fish.state === "swimming" && fish.dwellProgress > 0) drawCatchProgress(context, fish);
+    return;
+  }
 
   const body = context.createRadialGradient(
     -size * 0.16,

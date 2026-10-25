@@ -7,6 +7,7 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { isCanvasControlBlocked } from "../../core/domGazeTargetCoordinator";
+import { canvasArt, drawCanvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { applyGliderDamage, classifyGatePass, gliderDifficulty } from "./model";
 
@@ -557,38 +558,49 @@ function drawGlider(ctx: CanvasRenderingContext2D) {
   ctx.ellipse(-size * 0.02, size * 0.24, size * 0.84, size * 0.28, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  const body = ctx.createLinearGradient(-size * 0.62, -size * 0.32, size * 0.74, size * 0.28);
-  body.addColorStop(0, hull.value <= 1 ? "#ffe8dc" : "#f7fbff");
-  body.addColorStop(0.52, hull.value <= 1 ? "#efb8aa" : "#cfeaf8");
-  body.addColorStop(1, hull.value <= 1 ? "#bf6d67" : "#7cb8d4");
-  ctx.fillStyle = body;
-  ctx.strokeStyle = "rgb(73 129 158 / 52%)";
-  ctx.lineWidth = Math.max(2, size * 0.025);
+  // Testers asked for drawn pictures: the drawn paper plane. Its nose points up
+  // and right in the picture, so it is turned level first.
+  const art = canvasArt("glider/paper-plane");
+  if (art) {
+    ctx.save();
+    ctx.rotate(0.45);
+    if (hull.value <= 1) ctx.globalAlpha = 0.8;
+    drawCanvasArt(ctx, art, 0, 0, size * 1.55);
+    ctx.restore();
+  } else {
+    const body = ctx.createLinearGradient(-size * 0.62, -size * 0.32, size * 0.74, size * 0.28);
+    body.addColorStop(0, hull.value <= 1 ? "#ffe8dc" : "#f7fbff");
+    body.addColorStop(0.52, hull.value <= 1 ? "#efb8aa" : "#cfeaf8");
+    body.addColorStop(1, hull.value <= 1 ? "#bf6d67" : "#7cb8d4");
+    ctx.fillStyle = body;
+    ctx.strokeStyle = "rgb(73 129 158 / 52%)";
+    ctx.lineWidth = Math.max(2, size * 0.025);
 
-  ctx.beginPath();
-  ctx.moveTo(size * 0.78, 0);
-  ctx.lineTo(-size * 0.52, -size * 0.34);
-  ctx.lineTo(-size * 0.26, 0);
-  ctx.lineTo(-size * 0.52, size * 0.34);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(size * 0.78, 0);
+    ctx.lineTo(-size * 0.52, -size * 0.34);
+    ctx.lineTo(-size * 0.26, 0);
+    ctx.lineTo(-size * 0.52, size * 0.34);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
 
-  ctx.fillStyle = "rgb(255 255 255 / 70%)";
-  ctx.beginPath();
-  ctx.moveTo(size * 0.54, 0);
-  ctx.lineTo(-size * 0.44, -size * 0.2);
-  ctx.lineTo(-size * 0.12, 0);
-  ctx.lineTo(-size * 0.44, size * 0.2);
-  ctx.closePath();
-  ctx.fill();
+    ctx.fillStyle = "rgb(255 255 255 / 70%)";
+    ctx.beginPath();
+    ctx.moveTo(size * 0.54, 0);
+    ctx.lineTo(-size * 0.44, -size * 0.2);
+    ctx.lineTo(-size * 0.12, 0);
+    ctx.lineTo(-size * 0.44, size * 0.2);
+    ctx.closePath();
+    ctx.fill();
 
-  ctx.strokeStyle = "rgb(255 255 255 / 82%)";
-  ctx.lineWidth = Math.max(2, size * 0.02);
-  ctx.beginPath();
-  ctx.moveTo(-size * 0.42, 0);
-  ctx.lineTo(size * 0.62, 0);
-  ctx.stroke();
+    ctx.strokeStyle = "rgb(255 255 255 / 82%)";
+    ctx.lineWidth = Math.max(2, size * 0.02);
+    ctx.beginPath();
+    ctx.moveTo(-size * 0.42, 0);
+    ctx.lineTo(size * 0.62, 0);
+    ctx.stroke();
+  }
 
   if (glider.glow > 0.03) {
     ctx.globalAlpha = Math.min(0.7, glider.glow * 0.42 + damageFlash.value * 0.32);

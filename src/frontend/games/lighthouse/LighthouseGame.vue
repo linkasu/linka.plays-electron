@@ -6,6 +6,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
+import { canvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
   disposeLighthousePiano,
@@ -437,6 +438,15 @@ function drawLighthouse(context: CanvasRenderingContext2D, now: number) {
   context.beginPath();
   context.arc(0, lamp.y, hitRadius() * 1.3, 0, Math.PI * 2);
   context.fill();
+  // Testers asked for drawn pictures: the drawn lighthouse has its lamp at lamp.y.
+  const art = canvasArt("lighthouse/lighthouse");
+  if (art) {
+    const artHeight = (baseY - lamp.y) / 0.8;
+    const artWidth = (artHeight * art.naturalWidth) / art.naturalHeight;
+    context.drawImage(art, -artWidth / 2, lamp.y - artHeight * 0.2, artWidth, artHeight);
+    context.restore();
+    return;
+  }
   context.fillStyle = "#c74652";
   context.beginPath();
   context.moveTo(-62, lamp.y - 70);
@@ -478,6 +488,18 @@ function drawBoat(context: CanvasRenderingContext2D, boat: Boat, now: number) {
   context.save();
   context.translate(boat.x, boat.y + bobY);
   context.globalAlpha = boat.phase === "docked" ? 0.62 : 1;
+  const art = canvasArt(
+    Math.floor(boat.hue / 10) % 2 === 0 ? "lighthouse/ship-1" : "lighthouse/ship-2",
+  );
+  if (art) {
+    const artWidth = size * 1.7;
+    const artHeight = (artWidth * art.naturalHeight) / art.naturalWidth;
+    // The drawn ships face left; boats sail right towards the lighthouse.
+    context.scale(-1, 1);
+    context.drawImage(art, -artWidth / 2, size * 0.32 - artHeight, artWidth, artHeight);
+    context.restore();
+    return;
+  }
   context.fillStyle = `hsl(${boat.hue} 58% 52%)`;
   context.beginPath();
   context.moveTo(-size * 0.75, 0);

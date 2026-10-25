@@ -7,6 +7,7 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
+import { canvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
 
@@ -357,6 +358,15 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
   context.fill();
 }
 
+function balloonColor(hue: number) {
+  const h = ((hue % 360) + 360) % 360;
+  if (h >= 25 && h < 80) return "yellow";
+  if (h >= 80 && h < 170) return "green";
+  if (h >= 170 && h < 250) return "blue";
+  if (h >= 250 && h < 330) return "purple";
+  return "red";
+}
+
 function drawBalloon(context: CanvasRenderingContext2D, balloon: Balloon) {
   const point = balloonPoint(balloon);
   const appear =
@@ -405,59 +415,67 @@ function drawBalloon(context: CanvasRenderingContext2D, balloon: Balloon) {
     context.fill();
   }
 
-  const body = context.createRadialGradient(
-    point.x - radiusX * 0.32,
-    point.y - radiusY * 0.38,
-    radiusX * 0.1,
-    point.x,
-    point.y,
-    radiusX * 1.04,
-  );
-  body.addColorStop(0, `hsla(${balloon.hue + 12}, 100%, ${88 + gaze * 4}%, 0.98)`);
-  body.addColorStop(0.5, `hsla(${balloon.hue}, 88%, ${66 + gaze * 8}%, 0.94)`);
-  body.addColorStop(1, `hsla(${balloon.hue - 10}, 70%, ${45 + gaze * 7}%, 0.92)`);
-  context.fillStyle = body;
-  context.beginPath();
-  context.ellipse(point.x, point.y, radiusX, radiusY, 0, 0, Math.PI * 2);
-  context.fill();
+  // Testers asked for drawn pictures: a drawn balloon of the nearest colour.
+  const art = canvasArt(`balloons/${balloonColor(balloon.hue)}`);
+  if (art) {
+    const width = radiusX * 2.1;
+    const height = (width * art.naturalHeight) / art.naturalWidth;
+    context.drawImage(art, point.x - width / 2, point.y - height * 0.38, width, height);
+  } else {
+    const body = context.createRadialGradient(
+      point.x - radiusX * 0.32,
+      point.y - radiusY * 0.38,
+      radiusX * 0.1,
+      point.x,
+      point.y,
+      radiusX * 1.04,
+    );
+    body.addColorStop(0, `hsla(${balloon.hue + 12}, 100%, ${88 + gaze * 4}%, 0.98)`);
+    body.addColorStop(0.5, `hsla(${balloon.hue}, 88%, ${66 + gaze * 8}%, 0.94)`);
+    body.addColorStop(1, `hsla(${balloon.hue - 10}, 70%, ${45 + gaze * 7}%, 0.92)`);
+    context.fillStyle = body;
+    context.beginPath();
+    context.ellipse(point.x, point.y, radiusX, radiusY, 0, 0, Math.PI * 2);
+    context.fill();
 
-  context.strokeStyle = `hsla(${balloon.hue - 8}, 64%, 34%, 0.18)`;
-  context.lineWidth = Math.max(2, balloon.radius * 0.02);
-  context.beginPath();
-  context.ellipse(
-    point.x,
-    point.y,
-    radiusX * 0.58,
-    radiusY * 0.98,
-    0,
-    -Math.PI * 0.5,
-    Math.PI * 0.5,
-  );
-  context.stroke();
+    context.strokeStyle = `hsla(${balloon.hue - 8}, 64%, 34%, 0.18)`;
+    context.lineWidth = Math.max(2, balloon.radius * 0.02);
+    context.beginPath();
+    context.ellipse(
+      point.x,
+      point.y,
+      radiusX * 0.58,
+      radiusY * 0.98,
+      0,
+      -Math.PI * 0.5,
+      Math.PI * 0.5,
+    );
+    context.stroke();
 
-  const knotY = point.y + radiusY * 0.94;
-  context.fillStyle = `hsla(${balloon.hue - 12}, 68%, 38%, 0.92)`;
-  context.beginPath();
-  context.moveTo(point.x - balloon.radius * 0.14, knotY);
-  context.lineTo(point.x + balloon.radius * 0.14, knotY);
-  context.lineTo(point.x + balloon.radius * 0.06, knotY + balloon.radius * 0.2);
-  context.lineTo(point.x - balloon.radius * 0.06, knotY + balloon.radius * 0.2);
-  context.closePath();
-  context.fill();
+    const knotY = point.y + radiusY * 0.94;
+    context.fillStyle = `hsla(${balloon.hue - 12}, 68%, 38%, 0.92)`;
+    context.beginPath();
+    context.moveTo(point.x - balloon.radius * 0.14, knotY);
+    context.lineTo(point.x + balloon.radius * 0.14, knotY);
+    context.lineTo(point.x + balloon.radius * 0.06, knotY + balloon.radius * 0.2);
+    context.lineTo(point.x - balloon.radius * 0.06, knotY + balloon.radius * 0.2);
+    context.closePath();
+    context.fill();
 
-  context.strokeStyle = "rgb(92 117 128 / 42%)";
-  context.lineWidth = Math.max(1.5, balloon.radius * 0.012);
-  context.beginPath();
-  context.moveTo(point.x, knotY + balloon.radius * 0.18);
-  context.bezierCurveTo(
-    point.x + Math.sin(balloon.age * 0.8 + balloon.sway) * balloon.radius * 0.2,
-    knotY + balloon.radius * 0.58,
-    point.x - Math.sin(balloon.age * 0.7 + balloon.sway) * balloon.radius * 0.18,
-    knotY + balloon.radius * 0.9,
-    point.x,
-    knotY + balloon.radius * 1.22,
-  );
-  context.stroke();
+    context.strokeStyle = "rgb(92 117 128 / 42%)";
+    context.lineWidth = Math.max(1.5, balloon.radius * 0.012);
+    context.beginPath();
+    context.moveTo(point.x, knotY + balloon.radius * 0.18);
+    context.bezierCurveTo(
+      point.x + Math.sin(balloon.age * 0.8 + balloon.sway) * balloon.radius * 0.2,
+      knotY + balloon.radius * 0.58,
+      point.x - Math.sin(balloon.age * 0.7 + balloon.sway) * balloon.radius * 0.18,
+      knotY + balloon.radius * 0.9,
+      point.x,
+      knotY + balloon.radius * 1.22,
+    );
+    context.stroke();
+  }
 
   if (balloon.phase !== "flying") {
     context.strokeStyle = `hsla(${balloon.hue + 22}, 94%, 88%, ${0.22 + gaze * 0.42})`;

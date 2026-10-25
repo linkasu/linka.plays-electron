@@ -7,6 +7,7 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { adaptiveGazeHitRadius } from "../../core/gazeTarget";
+import { canvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
   disposeCloudsPiano,
@@ -323,6 +324,10 @@ function drawProgress(context: CanvasRenderingContext2D, cloud: Cloud, point: Po
   context.restore();
 }
 
+function cloudArtId(cloud: Cloud) {
+  return `clouds/cloud-${(Math.abs(Math.floor(cloud.seed * 997)) % 4) + 1}`;
+}
+
 function drawCloud(context: CanvasRenderingContext2D, cloud: Cloud) {
   if (cloud.phase === "hidden") return;
   const point = cloudPoint(cloud);
@@ -356,51 +361,79 @@ function drawCloud(context: CanvasRenderingContext2D, cloud: Cloud) {
   );
   context.fill();
 
-  for (const lobe of cloud.lobes) {
-    const wobbleX =
-      Math.sin(cloud.age * lobe.speed + lobe.seed) * cloud.baseRx * cloudRenderGeometry.lobeWobbleX;
-    const wobbleY =
-      Math.cos(cloud.age * lobe.speed * 0.8 + lobe.seed) *
-      cloud.baseRy *
-      cloudRenderGeometry.lobeWobbleY;
-    const naturalX = point.x + lobe.offsetX * cloud.baseRx + wobbleX;
-    const naturalY = point.y + lobe.offsetY * cloud.baseRy + wobbleY;
-    const awayX = pointer.value.valid ? naturalX - pointer.value.x : lobe.offsetX || 0.1;
-    const awayY = pointer.value.valid ? naturalY - pointer.value.y : lobe.offsetY || -0.1;
-    const awayLength = Math.max(1, Math.hypot(awayX, awayY));
-    const localDistance = pointer.value.valid
-      ? Math.min(1, distance({ x: naturalX, y: naturalY }, pointer.value) / (cloud.baseRx * 1.6))
-      : 1;
-    const push =
-      open *
-      (cloudRenderGeometry.pushProximity - localDistance) *
-      cloud.baseRx *
-      (cloudRenderGeometry.pushBase + lobe.radius * cloudRenderGeometry.pushRadius);
-    const x = naturalX + (awayX / awayLength) * push;
-    const y =
-      naturalY +
-      (awayY / awayLength) * push * cloudRenderGeometry.pushY -
-      clearing * cloud.baseRy * cloudRenderGeometry.clearingLift;
-    const rx =
-      cloud.baseRx *
-      lobe.radius *
-      (1 +
-        Math.sin(cloud.age * lobe.speed + lobe.seed) * cloudRenderGeometry.lobePulseX +
-        open * cloudRenderGeometry.lobeOpenRadiusX);
-    const ry =
-      cloud.baseRy *
-      lobe.radius *
-      (1 +
-        Math.cos(cloud.age * lobe.speed + lobe.seed) * cloudRenderGeometry.lobePulseY -
-        open * cloudRenderGeometry.lobeOpenRadiusY);
-    const body = context.createRadialGradient(x - rx * 0.28, y - ry * 0.38, ry * 0.12, x, y, rx);
-    body.addColorStop(0, "rgb(255 255 255 / 96%)");
-    body.addColorStop(0.64, "rgb(245 251 255 / 86%)");
-    body.addColorStop(1, "rgb(213 232 244 / 42%)");
-    context.fillStyle = body;
-    context.beginPath();
-    context.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
-    context.fill();
+  // Testers asked for drawn pictures: a drawn cloud parts in two halves while the
+  // child looks at it and floats up when it clears.
+  const art = canvasArt(cloudArtId(cloud));
+  if (art) {
+    const width = cloud.baseRx * 2.5;
+    const height = (width * art.naturalHeight) / art.naturalWidth;
+    const half = art.naturalWidth / 2;
+    const spread = open * cloud.baseRx * 0.42;
+    const bob = Math.sin(cloud.age * 0.8 + cloud.seed) * cloud.baseRy * 0.04;
+    const top =
+      point.y - height / 2 + bob - clearing * cloud.baseRy * cloudRenderGeometry.clearingLift;
+    const left = point.x - width / 2;
+    context.drawImage(art, 0, 0, half, art.naturalHeight, left - spread, top, width / 2, height);
+    context.drawImage(
+      art,
+      half,
+      0,
+      half,
+      art.naturalHeight,
+      point.x + spread,
+      top,
+      width / 2,
+      height,
+    );
+  } else {
+    for (const lobe of cloud.lobes) {
+      const wobbleX =
+        Math.sin(cloud.age * lobe.speed + lobe.seed) *
+        cloud.baseRx *
+        cloudRenderGeometry.lobeWobbleX;
+      const wobbleY =
+        Math.cos(cloud.age * lobe.speed * 0.8 + lobe.seed) *
+        cloud.baseRy *
+        cloudRenderGeometry.lobeWobbleY;
+      const naturalX = point.x + lobe.offsetX * cloud.baseRx + wobbleX;
+      const naturalY = point.y + lobe.offsetY * cloud.baseRy + wobbleY;
+      const awayX = pointer.value.valid ? naturalX - pointer.value.x : lobe.offsetX || 0.1;
+      const awayY = pointer.value.valid ? naturalY - pointer.value.y : lobe.offsetY || -0.1;
+      const awayLength = Math.max(1, Math.hypot(awayX, awayY));
+      const localDistance = pointer.value.valid
+        ? Math.min(1, distance({ x: naturalX, y: naturalY }, pointer.value) / (cloud.baseRx * 1.6))
+        : 1;
+      const push =
+        open *
+        (cloudRenderGeometry.pushProximity - localDistance) *
+        cloud.baseRx *
+        (cloudRenderGeometry.pushBase + lobe.radius * cloudRenderGeometry.pushRadius);
+      const x = naturalX + (awayX / awayLength) * push;
+      const y =
+        naturalY +
+        (awayY / awayLength) * push * cloudRenderGeometry.pushY -
+        clearing * cloud.baseRy * cloudRenderGeometry.clearingLift;
+      const rx =
+        cloud.baseRx *
+        lobe.radius *
+        (1 +
+          Math.sin(cloud.age * lobe.speed + lobe.seed) * cloudRenderGeometry.lobePulseX +
+          open * cloudRenderGeometry.lobeOpenRadiusX);
+      const ry =
+        cloud.baseRy *
+        lobe.radius *
+        (1 +
+          Math.cos(cloud.age * lobe.speed + lobe.seed) * cloudRenderGeometry.lobePulseY -
+          open * cloudRenderGeometry.lobeOpenRadiusY);
+      const body = context.createRadialGradient(x - rx * 0.28, y - ry * 0.38, ry * 0.12, x, y, rx);
+      body.addColorStop(0, "rgb(255 255 255 / 96%)");
+      body.addColorStop(0.64, "rgb(245 251 255 / 86%)");
+      body.addColorStop(1, "rgb(213 232 244 / 42%)");
+      context.fillStyle = body;
+      context.beginPath();
+      context.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+      context.fill();
+    }
   }
 
   if (open > 0.05) {

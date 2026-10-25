@@ -8,6 +8,7 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { createDwellMachineState } from "../../core/dwellStateMachine";
 import type { DwellCancelReason } from "../../core/gaze";
+import { canvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
   advanceMovingTargetDwell,
@@ -412,69 +413,94 @@ function drawJellyfish(context: CanvasRenderingContext2D, jelly: Jellyfish) {
 
   context.save();
   context.globalAlpha = 1 - rest * 0.18;
-  const body = context.createRadialGradient(
-    point.x - size * 0.22,
-    capY - size * 0.24,
-    size * 0.04,
-    point.x,
-    capY,
-    size * 0.94,
-  );
-  body.addColorStop(0, `hsla(${jelly.hue + 32}, 100%, 96%, ${0.76 + gaze * 0.14})`);
-  body.addColorStop(0.52, `hsla(${jelly.hue}, 86%, 80%, ${0.44 + gaze * 0.22})`);
-  body.addColorStop(1, `hsla(${jelly.hue - 24}, 72%, 58%, ${0.22 + gaze * 0.18})`);
-  context.fillStyle = body;
-  context.beginPath();
-  context.moveTo(point.x - size * 0.62, capY + size * 0.05);
-  context.bezierCurveTo(
-    point.x - size * 0.56,
-    capY - size * 0.56,
-    point.x + size * 0.56,
-    capY - size * 0.56,
-    point.x + size * 0.62,
-    capY + size * 0.05,
-  );
-  context.quadraticCurveTo(point.x + size * 0.46, capY + size * 0.48, point.x, capY + size * 0.48);
-  context.quadraticCurveTo(
-    point.x - size * 0.46,
-    capY + size * 0.48,
-    point.x - size * 0.62,
-    capY + size * 0.05,
-  );
-  context.fill();
-
-  context.strokeStyle = `hsla(${jelly.hue + 36}, 100%, 94%, ${0.44 + gaze * 0.28})`;
-  context.lineWidth = Math.max(2, size * 0.028);
-  context.lineCap = "round";
-  context.beginPath();
-  context.arc(
-    point.x - size * 0.12,
-    capY - size * 0.04,
-    size * 0.44,
-    Math.PI * 1.12,
-    Math.PI * 1.58,
-  );
-  context.stroke();
-
-  for (let index = -3; index <= 3; index++) {
-    const spread = index / 3;
-    const startX = point.x + spread * size * 0.42;
-    const startY = capY + size * 0.36;
-    const length = size * (0.66 + (3 - Math.abs(index)) * 0.08);
-    const sway = Math.sin(jelly.age * 0.72 + jelly.wave + index) * size * 0.12;
-    context.strokeStyle = `hsla(${jelly.hue + 18}, 92%, 88%, ${0.28 + gaze * 0.24})`;
-    context.lineWidth = Math.max(1.4, size * (0.014 + gaze * 0.004));
+  // Testers asked for drawn animals: a drawn bell over tentacles that stretch
+  // with the pulse and sway.
+  const color = jelly.hue >= 290 ? "pink" : jelly.hue >= 240 ? "purple" : "blue";
+  const bell = canvasArt(`jellyfish/${color}-bell`);
+  const tentacles = canvasArt(`jellyfish/${color}-tentacles`);
+  if (bell && tentacles) {
+    const bellWidth = size * 1.35;
+    const bellHeight = (bellWidth * bell.naturalHeight) / bell.naturalWidth;
+    const tentacleWidth = size * 1.1;
+    const tentacleHeight =
+      ((tentacleWidth * tentacles.naturalHeight) / tentacles.naturalWidth) * (0.92 + pulse * 0.12);
+    const bellTop = capY - bellHeight * 0.62;
+    context.save();
+    context.translate(point.x, bellTop + bellHeight * 0.8);
+    context.rotate(Math.sin(jelly.age * 0.72 + jelly.wave) * 0.06);
+    context.drawImage(tentacles, -tentacleWidth / 2, 0, tentacleWidth, tentacleHeight);
+    context.restore();
+    context.drawImage(bell, point.x - bellWidth / 2, bellTop, bellWidth, bellHeight);
+  } else {
+    const body = context.createRadialGradient(
+      point.x - size * 0.22,
+      capY - size * 0.24,
+      size * 0.04,
+      point.x,
+      capY,
+      size * 0.94,
+    );
+    body.addColorStop(0, `hsla(${jelly.hue + 32}, 100%, 96%, ${0.76 + gaze * 0.14})`);
+    body.addColorStop(0.52, `hsla(${jelly.hue}, 86%, 80%, ${0.44 + gaze * 0.22})`);
+    body.addColorStop(1, `hsla(${jelly.hue - 24}, 72%, 58%, ${0.22 + gaze * 0.18})`);
+    context.fillStyle = body;
     context.beginPath();
-    context.moveTo(startX, startY);
+    context.moveTo(point.x - size * 0.62, capY + size * 0.05);
     context.bezierCurveTo(
-      startX + sway * 0.4,
-      startY + length * 0.34,
-      startX - sway * 0.2,
-      startY + length * 0.68,
-      startX + sway,
-      startY + length,
+      point.x - size * 0.56,
+      capY - size * 0.56,
+      point.x + size * 0.56,
+      capY - size * 0.56,
+      point.x + size * 0.62,
+      capY + size * 0.05,
+    );
+    context.quadraticCurveTo(
+      point.x + size * 0.46,
+      capY + size * 0.48,
+      point.x,
+      capY + size * 0.48,
+    );
+    context.quadraticCurveTo(
+      point.x - size * 0.46,
+      capY + size * 0.48,
+      point.x - size * 0.62,
+      capY + size * 0.05,
+    );
+    context.fill();
+
+    context.strokeStyle = `hsla(${jelly.hue + 36}, 100%, 94%, ${0.44 + gaze * 0.28})`;
+    context.lineWidth = Math.max(2, size * 0.028);
+    context.lineCap = "round";
+    context.beginPath();
+    context.arc(
+      point.x - size * 0.12,
+      capY - size * 0.04,
+      size * 0.44,
+      Math.PI * 1.12,
+      Math.PI * 1.58,
     );
     context.stroke();
+
+    for (let index = -3; index <= 3; index++) {
+      const spread = index / 3;
+      const startX = point.x + spread * size * 0.42;
+      const startY = capY + size * 0.36;
+      const length = size * (0.66 + (3 - Math.abs(index)) * 0.08);
+      const sway = Math.sin(jelly.age * 0.72 + jelly.wave + index) * size * 0.12;
+      context.strokeStyle = `hsla(${jelly.hue + 18}, 92%, 88%, ${0.28 + gaze * 0.24})`;
+      context.lineWidth = Math.max(1.4, size * (0.014 + gaze * 0.004));
+      context.beginPath();
+      context.moveTo(startX, startY);
+      context.bezierCurveTo(
+        startX + sway * 0.4,
+        startY + length * 0.34,
+        startX - sway * 0.2,
+        startY + length * 0.68,
+        startX + sway,
+        startY + length,
+      );
+      context.stroke();
+    }
   }
 
   if (gaze > 0) {

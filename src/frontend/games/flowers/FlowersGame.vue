@@ -6,6 +6,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
+import { canvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
 import {
@@ -531,11 +532,44 @@ function drawSprout(
   context.restore();
 }
 
+type PlantStage = "sprout" | "bud" | "half" | "open";
+
+// Testers asked for drawn pictures: the drawn plant grows from a sprout to an
+// open flower; its colour is the drawn one closest to the flower's hue.
+function plantColor(hue: number) {
+  const h = ((hue % 360) + 360) % 360;
+  if (h >= 30 && h < 120) return "yellow";
+  if (h >= 200 && h < 300) return "lilac";
+  return "pink";
+}
+
+/** Draws the whole plant standing on the stem bottom; false while loading. */
+function drawPlant(
+  context: CanvasRenderingContext2D,
+  point: Point,
+  radius: number,
+  hue: number,
+  stage: PlantStage,
+  alpha: number,
+) {
+  const art = canvasArt(`flowers/${plantColor(hue)}-${stage}`);
+  if (!art) return false;
+  const bottom = point.y + radius * 1.18;
+  const height = radius * (stage === "sprout" ? 1.05 : 1.64);
+  const width = (height * art.naturalWidth) / art.naturalHeight;
+  context.save();
+  context.globalAlpha = alpha;
+  context.drawImage(art, point.x - width / 2, bottom - height, width, height);
+  context.restore();
+  return true;
+}
+
 function drawGrownFlower(context: CanvasRenderingContext2D, flower: GrownFlower) {
   const point = percentToPixels(flower);
   const bloom = flower.settled ? 1 : Math.min(1, flower.age / oldFlowerBloomSeconds);
   const alpha = 0.68;
   const radius = flower.radius * 0.58;
+  if (drawPlant(context, point, radius, flower.hue, bloom < 0.5 ? "half" : "open", 0.85)) return;
   drawStem(context, point, radius, alpha, 1);
   drawFlowerShape(context, point, {
     radius,
@@ -562,6 +596,17 @@ function drawBud(context: CanvasRenderingContext2D, bud: ActiveBud) {
   context.arc(point.x, point.y, bud.radius * 0.9, 0, Math.PI * 2);
   context.stroke();
   context.restore();
+
+  const stage: PlantStage =
+    bud.phase === "blooming"
+      ? bloom < 0.5
+        ? "half"
+        : "open"
+      : bud.dwellProgress < 0.5
+        ? "sprout"
+        : "bud";
+  const plantRadius = bud.radius * (bud.phase === "blooming" ? 0.58 + bloom * 0.2 : 0.62);
+  if (drawPlant(context, point, plantRadius, bud.hue, stage, appear)) return;
 
   if (bud.phase === "blooming") {
     const growth = Math.min(1, 0.28 + bloom * 0.72);

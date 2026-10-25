@@ -9,6 +9,7 @@ import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { adaptiveGazeHitRadius } from "../../core/gazeTarget";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { drawDrawnFish } from "../fishes/fishArt";
 import {
   disposeAquariumAudio,
   playAquariumMelody,
@@ -521,6 +522,16 @@ function drawFish(ctx: CanvasRenderingContext2D, fish: AquariumFish) {
   ctx.ellipse(0, body * 0.34, length * 0.58, body * 0.8, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.globalAlpha = 1;
+
+  ctx.save();
+  // Keep the drawn fish upright when it swims to the left.
+  if (Math.cos(fish.angle) < 0) ctx.scale(1, -1);
+  const drawn = drawDrawnFish(ctx, fish.hue, length * 1.25, fish.age * 5);
+  ctx.restore();
+  if (drawn) {
+    ctx.restore();
+    return;
+  }
 
   ctx.fillStyle = `hsla(${fish.accentHue}, 82%, 64%, 0.76)`;
   ctx.beginPath();

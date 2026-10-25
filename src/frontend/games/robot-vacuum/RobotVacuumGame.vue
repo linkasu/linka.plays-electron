@@ -6,6 +6,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
+import { canvasArt, drawCanvasArt } from "../../core/canvasArt";
 import { isCanvasControlBlocked } from "../../core/domGazeTargetCoordinator";
 import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
@@ -547,6 +548,14 @@ function drawRobot(ctx: CanvasRenderingContext2D) {
   ctx.beginPath();
   ctx.ellipse(8, radius * 0.42, radius * 1.05, radius * 0.36, 0, 0, Math.PI * 2);
   ctx.fill();
+
+  // Testers asked for drawn pictures: the drawn robot vacuum with a face.
+  const art = canvasArt("robot-vacuum/robot-vacuum");
+  if (art) {
+    drawCanvasArt(ctx, art, 0, 0, radius * 2.3);
+    ctx.restore();
+    return;
+  }
 
   const body = ctx.createLinearGradient(-radius, -radius, radius, radius);
   body.addColorStop(0, "#fafdff");

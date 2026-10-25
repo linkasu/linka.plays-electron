@@ -6,6 +6,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
+import { canvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels } from "../../core/placement";
 import { advanceFlowerGrowth } from "./model";
@@ -420,6 +421,19 @@ function drawWateringCan(ctx: CanvasRenderingContext2D) {
   const scale = Math.min(1, Math.max(0.72, Math.min(width.value, height.value) / 600));
   ctx.save();
   ctx.globalAlpha = pointer.value.valid ? 0.9 : 0.45;
+
+  // Testers asked for drawn pictures: the drawn can, mirrored so its spout (top
+  // left in the picture) ends at the pointer where the drops start.
+  const art = canvasArt("garden-watering/watering-can");
+  if (art) {
+    const artWidth = 190 * scale;
+    const artHeight = (artWidth * art.naturalHeight) / art.naturalWidth;
+    ctx.translate(x, y);
+    ctx.scale(-1, 1);
+    ctx.drawImage(art, -artWidth * 0.04, -artHeight * 0.18, artWidth, artHeight);
+    ctx.restore();
+    return;
+  }
 
   ctx.strokeStyle = "#4d8f9a";
   ctx.lineWidth = 13 * scale;

@@ -6,6 +6,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
+import { canvasArt, drawCanvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
   disposeWarmFirePiano,
@@ -399,6 +400,11 @@ function drawPsychedelicVeil(context: CanvasRenderingContext2D, now: number) {
 
 function drawHearth(context: CanvasRenderingContext2D) {
   const center = fireCenter();
+  const logs = canvasArt("warm-fire/logs");
+  if (logs) {
+    drawCanvasArt(context, logs, center.x, center.y + 104, 300);
+    return;
+  }
   context.save();
   context.fillStyle = "rgb(74 48 38 / 84%)";
   context.beginPath();
@@ -507,6 +513,28 @@ function drawFlameLayer(
   );
   context.fill();
   context.restore();
+}
+
+// Testers asked for drawn pictures: three drawn flame frames take turns and the
+// fire grows with the energy collected by looking at it.
+function drawDrawnFlame(context: CanvasRenderingContext2D, now: number) {
+  const frame = canvasArt(`warm-fire/flame-${(Math.floor(now / 160) % 3) + 1}`);
+  if (!frame) return false;
+  const intensity = clamp(fireEnergy / maxFireEnergy, 0, 1);
+  if (intensity <= 0.01) return true;
+  const height = 90 + fireEnergy * 300;
+  const width = (height * frame.naturalWidth) / frame.naturalHeight;
+  context.save();
+  context.globalAlpha = Math.min(1, 0.6 + intensity);
+  context.drawImage(
+    frame,
+    fireCenter().x - width / 2,
+    fireCenter().y + 100 - height,
+    width,
+    height,
+  );
+  context.restore();
+  return true;
 }
 
 function drawFlameFlight(context: CanvasRenderingContext2D, flame: FlameFlight, now: number) {
@@ -624,10 +652,12 @@ function draw(context: CanvasRenderingContext2D, now: number) {
   drawPsychedelicVeil(context, now);
   drawFireGlow(context);
   drawHearth(context);
-  drawFlameLayer(context, now, 1.36, 26, 0.16 + fireEnergy * 0.28, 0.2);
-  drawFlameLayer(context, now, 0.98, 42, 0.2 + fireEnergy * 0.28, 1.4);
-  drawFlameLayer(context, now, 0.68, 58 + fireEnergy * 62, 0.16 + fireEnergy * 0.28, 2.4);
-  drawFlameLayer(context, now, 0.42, 186 + fireEnergy * 54, 0.04 + fireEnergy * 0.22, 3.1);
+  if (!drawDrawnFlame(context, now)) {
+    drawFlameLayer(context, now, 1.36, 26, 0.16 + fireEnergy * 0.28, 0.2);
+    drawFlameLayer(context, now, 0.98, 42, 0.2 + fireEnergy * 0.28, 1.4);
+    drawFlameLayer(context, now, 0.68, 58 + fireEnergy * 62, 0.16 + fireEnergy * 0.28, 2.4);
+    drawFlameLayer(context, now, 0.42, 186 + fireEnergy * 54, 0.04 + fireEnergy * 0.22, 3.1);
+  }
   for (const flame of flameFlights) drawFlameFlight(context, flame, now);
   drawAuraRings(context);
   drawEmbers(context, now);
