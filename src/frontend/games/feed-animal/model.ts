@@ -34,7 +34,14 @@ export type FeedAnimalRound = {
 };
 
 export const feedAnimalFoods: FeedAnimalFood[] = [
-  { id: "carrot", wordId: "carrot", name: "Морковка", emoji: "🥕", color: "orange-lighten-4" },
+  {
+    id: "carrot",
+    wordId: "carrot",
+    artId: "feed-animal/carrot",
+    name: "Морковка",
+    emoji: "🥕",
+    color: "orange-lighten-4",
+  },
   { id: "apple", wordId: "apple", name: "Яблоко", emoji: "🍎", color: "red-lighten-4" },
   { id: "grass", wordId: "grass", name: "Трава", emoji: "🌿", color: "green-lighten-4" },
   { id: "bone", name: "Косточка", emoji: "🦴", color: "brown-lighten-4" },
@@ -74,6 +81,7 @@ export const feedAnimals: FeedAnimal[] = [
   {
     id: "rabbit",
     wordId: "rabbit",
+    artId: "feed-animal/bunny",
     name: "Зайка",
     emoji: "🐰",
     promptName: "зайку",
