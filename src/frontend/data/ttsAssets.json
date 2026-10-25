@@ -3684,7 +3684,7 @@
   {
     "id": "opposites.prompt.hot",
     "game": "opposites",
-    "text": "Что наоборот к слову горячий?",
+    "text": "Найди противоположность слову горячий.",
     "voice": "jane",
     "path": "/audio/tts/opposites/prompt-hot.mp3"
   },
@@ -3705,7 +3705,7 @@
   {
     "id": "opposites.prompt.cold",
     "game": "opposites",
-    "text": "Что наоборот к слову холодный?",
+    "text": "Найди противоположность слову холодный.",
     "voice": "jane",
     "path": "/audio/tts/opposites/prompt-cold.mp3"
   },
@@ -3726,7 +3726,7 @@
   {
     "id": "opposites.prompt.big",
     "game": "opposites",
-    "text": "Что наоборот к слову большой?",
+    "text": "Найди противоположность слову большой.",
     "voice": "jane",
     "path": "/audio/tts/opposites/prompt-big.mp3"
   },
@@ -3747,7 +3747,7 @@
   {
     "id": "opposites.prompt.small",
     "game": "opposites",
-    "text": "Что наоборот к слову маленький?",
+    "text": "Найди противоположность слову маленький.",
     "voice": "jane",
     "path": "/audio/tts/opposites/prompt-small.mp3"
   },
@@ -3768,7 +3768,7 @@
   {
     "id": "opposites.prompt.day",
     "game": "opposites",
-    "text": "Что наоборот к слову день?",
+    "text": "Найди противоположность слову день.",
     "voice": "jane",
     "path": "/audio/tts/opposites/prompt-day.mp3"
   },
@@ -3789,7 +3789,7 @@
   {
     "id": "opposites.prompt.night",
     "game": "opposites",
-    "text": "Что наоборот к слову ночь?",
+    "text": "Найди противоположность слову ночь.",
     "voice": "jane",
     "path": "/audio/tts/opposites/prompt-night.mp3"
   },
@@ -3810,7 +3810,7 @@
   {
     "id": "opposites.prompt.open",
     "game": "opposites",
-    "text": "Что наоборот к слову открытый?",
+    "text": "Найди противоположность слову открытый.",
     "voice": "jane",
     "path": "/audio/tts/opposites/prompt-open.mp3"
   },
@@ -3831,7 +3831,7 @@
   {
     "id": "opposites.prompt.closed",
     "game": "opposites",
-    "text": "Что наоборот к слову закрытый?",
+    "text": "Найди противоположность слову закрытый.",
     "voice": "jane",
     "path": "/audio/tts/opposites/prompt-closed.mp3"
   },
@@ -3936,7 +3936,7 @@
   {
     "id": "opposites.prompt.full",
     "game": "opposites",
-    "text": "Что наоборот к слову полный?",
+    "text": "Найди противоположность слову полный.",
     "voice": "jane",
     "path": "/audio/tts/opposites/prompt-full.mp3"
   },
@@ -3957,7 +3957,7 @@
   {
     "id": "opposites.prompt.empty",
     "game": "opposites",
-    "text": "Что наоборот к слову пустой?",
+    "text": "Найди противоположность слову пустой.",
     "voice": "jane",
     "path": "/audio/tts/opposites/prompt-empty.mp3"
   },
@@ -11590,5 +11590,47 @@
     "text": "Покорми белку. Выбери, что она ест.",
     "voice": "jane",
     "path": "/audio/tts/feed-animal/prompt-squirrel.mp3"
+  },
+  {
+    "id": "opposites.prompt.wet",
+    "game": "opposites",
+    "text": "Найди противоположность слову мокрый.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-wet.mp3"
+  },
+  {
+    "id": "opposites.prompt.dry",
+    "game": "opposites",
+    "text": "Найди противоположность слову сухой.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-dry.mp3"
+  },
+  {
+    "id": "opposites.correct.wet.dry",
+    "game": "opposites",
+    "text": "Верно. мокрый и сухой это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-wet-dry.mp3"
+  },
+  {
+    "id": "opposites.correct.dry.wet",
+    "game": "opposites",
+    "text": "Верно. сухой и мокрый это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-dry-wet.mp3"
+  },
+  {
+    "id": "opposites.mistake.wet.dry",
+    "game": "opposites",
+    "text": "Почти. Противоположность к слову мокрый: сухой.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-wet-dry.mp3"
+  },
+  {
+    "id": "opposites.mistake.dry.wet",
+    "game": "opposites",
+    "text": "Почти. Противоположность к слову сухой: мокрый.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-dry-wet.mp3"
   }
 ]

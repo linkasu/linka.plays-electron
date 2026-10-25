@@ -217,12 +217,16 @@ onUnmounted(() => {
                 :class="[
                   'concept-visual',
                   `concept-visual--${round.source.referenceId}`,
-                  `concept-visual--${round.source.visualState}`,
+                  {
+                    [`concept-visual--${round.source.visualState}`]: !round.source.artId,
+                    'concept-visual--art': round.source.artId,
+                  },
                 ]"
                 aria-hidden="true"
               >
                 <GameWordImage
                   class="concept-object"
+                  :art-id="round.source.artId"
                   :word-id="round.source.assetId ?? round.source.referenceId"
                   :word="round.source.label"
                   :emoji="round.source.emoji"
@@ -256,12 +260,16 @@ onUnmounted(() => {
                       :class="[
                         'concept-visual',
                         `concept-visual--${choice.referenceId}`,
-                        `concept-visual--${choice.visualState}`,
+                        {
+                          [`concept-visual--${choice.visualState}`]: !choice.artId,
+                          'concept-visual--art': choice.artId,
+                        },
                       ]"
                       aria-hidden="true"
                     >
                       <GameWordImage
                         class="concept-object"
+                        :art-id="choice.artId"
                         :word-id="choice.assetId ?? choice.referenceId"
                         :word="choice.label"
                         :emoji="choice.emoji"
@@ -320,8 +328,16 @@ onUnmounted(() => {
   display: flex;
   inline-size: min(9rem, 100%);
   justify-content: center;
+  margin-inline: auto;
   min-block-size: 7rem;
   position: relative;
+}
+
+/* A drawing fills its 1em box edge to edge while an emoji overflows it, so
+   the drawn states are scaled up, as in find-emotion (#24). */
+.concept-visual--art .concept-object :deep(.game-word-image__asset) {
+  block-size: 1.45em;
+  inline-size: 1.45em;
 }
 
 .concept-object {

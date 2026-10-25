@@ -43,7 +43,7 @@ describe("opposites model", () => {
       expect(new Set(pair.concepts.map((item) => item.assetId)).size).toBe(1);
     }
 
-    expect(oppositePairs.find((pair) => pair.id === "speed")?.concepts[1].label).toBe("медленный");
+    expect(oppositePairs.find((pair) => pair.id === "wetness")?.concepts[1].label).toBe("сухой");
   });
 
   it("uses the random source for pair and source side", () => {
