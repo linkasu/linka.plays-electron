@@ -7,6 +7,7 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { isCanvasControlBlocked } from "../../core/domGazeTargetCoordinator";
+import { canvasArt, drawCanvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
   carSize,
@@ -172,6 +173,13 @@ function drawBackground(ctx: CanvasRenderingContext2D) {
 function drawRoadsideItem(ctx: CanvasRenderingContext2D, item: RoadSideItem) {
   ctx.save();
   ctx.translate(item.x, item.y + (session.settings.reduceMotion ? 0 : Math.sin(item.phase) * 3));
+  // Testers asked for drawn pictures: a drawn warning sign and drawn bushes.
+  const art = canvasArt(item.kind === "sign" ? "road-car/sign" : "hide-and-seek/bush");
+  if (art) {
+    drawCanvasArt(ctx, art, 0, 0, item.size * (item.kind === "sign" ? 1.2 : 1.6));
+    ctx.restore();
+    return;
+  }
   if (item.kind === "sign") {
     ctx.fillStyle = "#f7e29a";
     ctx.strokeStyle = "rgb(82 96 74 / 46%)";
@@ -301,6 +309,16 @@ function drawObstacle(ctx: CanvasRenderingContext2D, obstacle: HighwayObstacle) 
   const heightValue = obstacle.kind === "truck" ? obstacle.length * 1.2 : obstacle.length;
   ctx.save();
   ctx.translate(x, obstacle.y);
+  const art = canvasArt(
+    obstacle.kind === "truck" ? "road-car/traffic-blue" : "road-car/traffic-red",
+  );
+  if (art) {
+    // Oncoming cars face down the road.
+    ctx.rotate(Math.PI);
+    ctx.drawImage(art, -widthValue * 0.6, -heightValue * 0.6, widthValue * 1.2, heightValue * 1.2);
+    ctx.restore();
+    return;
+  }
   ctx.fillStyle = obstacle.kind === "truck" ? "#7e8b99" : "#d45a55";
   ctx.strokeStyle = "rgb(24 34 44 / 58%)";
   ctx.lineWidth = Math.max(3, size * 0.035);
@@ -340,6 +358,14 @@ function drawPlayerCar(ctx: CanvasRenderingContext2D) {
   ctx.beginPath();
   ctx.arc(0, 0, size, 0, Math.PI * 2);
   ctx.fill();
+
+  const art = canvasArt("road-car/player-car");
+  if (art) {
+    if (hullRatio <= 0.34) ctx.globalAlpha = 0.75;
+    drawCanvasArt(ctx, art, 0, 0, size * 0.82);
+    ctx.restore();
+    return;
+  }
 
   ctx.fillStyle = hullRatio <= 0.34 ? "#a85c4e" : hullRatio <= 0.67 ? "#e98f54" : "#43a5ff";
   ctx.strokeStyle = damage > 0 ? "#fff7c2" : "rgb(12 54 92 / 62%)";

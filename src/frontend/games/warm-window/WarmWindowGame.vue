@@ -6,6 +6,7 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
 import ttsAssets from "../../data/ttsAssets.json";
@@ -21,11 +22,17 @@ type WindowTarget = {
   id: string;
   label: string;
   wordId?: string;
+  /** Drawn animal for this game; the word picture is the fallback. */
+  artId?: string;
   animal: string;
   gridColumn: number;
   gridRow: number;
   lit: boolean;
 };
+
+// The shuttered window read as a door, so every window shows its panes and
+// stays dim until it lights up.
+const windowArt = gameArtSrc("warm-window/window-open");
 
 const router = useRouter();
 const {
@@ -99,6 +106,7 @@ const windows = reactive<WindowTarget[]>([
   {
     id: "warm-window:window:6",
     label: "панда",
+    artId: "warm-window/panda",
     animal: "🐼",
     gridColumn: 3,
     gridRow: 2,
@@ -223,21 +231,24 @@ onUnmounted(() => {
                       },
                     ]"
                   >
+                    <img
+                      :class="[
+                        'warm-window-frame',
+                        { 'warm-window-frame--dark': !windowTarget.lit },
+                      ]"
+                      :src="windowArt"
+                      alt=""
+                      draggable="false"
+                    />
                     <GameWordImage
-                      v-if="windowTarget.lit && windowTarget.wordId"
+                      v-if="windowTarget.lit"
                       class="warm-window-animal"
                       :word-id="windowTarget.wordId"
+                      :art-id="windowTarget.artId"
                       :word="windowTarget.label"
                       :emoji="windowTarget.animal"
                       decorative
                     />
-                    <span
-                      v-else-if="windowTarget.lit"
-                      class="warm-window-animal"
-                      aria-hidden="true"
-                      >{{ windowTarget.animal }}</span
-                    >
-                    <span v-else class="warm-window-emoji" aria-hidden="true">🪟</span>
                   </div>
                 </template>
               </GameDwellButton>
@@ -383,6 +394,7 @@ onUnmounted(() => {
 
 .warm-window-pane {
   align-items: center;
+  position: relative;
   color: rgb(222 232 238 / 92%);
   display: flex;
   flex-direction: column;
@@ -405,17 +417,27 @@ onUnmounted(() => {
   filter: drop-shadow(0 0 18px rgb(255 200 102 / 64%));
 }
 
-.warm-window-emoji,
-.warm-window-animal {
-  filter: drop-shadow(0 0 18px rgb(255 223 154 / 72%));
-  font-family: "Twemoji Mozilla", "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
-  font-size: clamp(3.8rem, 7.6vw, 6.6rem);
-  line-height: 1;
+/* Testers: the 🪟 emoji is missing on Windows 10, so the window is drawn. */
+.warm-window-frame {
+  block-size: clamp(5rem, 11vw, 8.5rem);
+  inline-size: 100%;
+  object-fit: contain;
+  transition: filter 180ms ease;
 }
 
-.warm-window-emoji {
-  filter: drop-shadow(0 0 14px rgb(210 228 238 / 38%));
-  opacity: 0.86;
+.warm-window-frame--dark {
+  filter: brightness(0.55) saturate(0.7);
+}
+
+.warm-window-animal {
+  filter: drop-shadow(0 0 1.1rem rgb(255 223 154 / 72%));
+  font-family: "Twemoji Mozilla", "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+  font-size: clamp(2.4rem, 4.8vw, 4.2rem);
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  line-height: 1;
+  position: absolute;
+  transform: translate(-50%, -42%);
 }
 
 .warm-window-door {

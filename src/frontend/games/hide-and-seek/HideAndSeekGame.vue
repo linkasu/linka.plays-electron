@@ -56,6 +56,15 @@ const coverPool: HideAndSeekCover[] = [
   { id: "tree", emoji: "🌲", label: "ёлка" },
   { id: "umbrella", emoji: "☂️", label: "зонтик" },
 ];
+// Testers asked for drawn pictures: drawn bush, rock and fir tree; the box and
+// the umbrella use their word pictures.
+const coverPictures: Record<string, { artId?: string; wordId?: string }> = {
+  bush: { artId: "hide-and-seek/bush" },
+  rock: { artId: "hide-and-seek/rock" },
+  tree: { artId: "hide-and-seek/fir-tree" },
+  box: { wordId: "box" },
+  umbrella: { wordId: "umbrella" },
+};
 
 const router = useRouter();
 const {
@@ -341,7 +350,15 @@ onUnmounted(() => {
               :emoji="spot.hiddenObject.emoji"
             />
             <div v-else-if="spot.opened" class="empty-spot" aria-hidden="true">✨</div>
-            <div v-else class="cover-emoji" aria-hidden="true">{{ spot.emoji }}</div>
+            <GameWordImage
+              v-else
+              class="cover-emoji"
+              :art-id="coverPictures[spot.id]?.artId"
+              :word-id="coverPictures[spot.id]?.wordId"
+              :word="spot.label"
+              :emoji="spot.emoji"
+              decorative
+            />
           </div>
           <div class="text-h6 font-weight-bold">
             {{ spot.opened ? (spot.hiddenObject ? spot.hiddenObject.name : "пусто") : spot.label }}

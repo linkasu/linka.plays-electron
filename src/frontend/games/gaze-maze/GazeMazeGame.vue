@@ -6,6 +6,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { canvasArt, drawCanvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeGazeMazeAudio, playGazeMazeStepMelody, warmGazeMazeAudio } from "./audio";
 import {
@@ -487,7 +488,10 @@ function drawCandyNode(context: CanvasRenderingContext2D, node: MazeNode, now: n
   context.arc(drawRadius * 0.25, drawRadius * 0.18, drawRadius * 0.13, 0, Math.PI * 2);
   context.fill();
 
-  if (node.kind === "exit") {
+  const candy = node.kind === "exit" ? canvasArt("gaze-maze/candy") : undefined;
+  if (candy) {
+    drawCanvasArt(context, candy, 0, 0, drawRadius * 1.5);
+  } else if (node.kind === "exit") {
     context.fillStyle = "#243631";
     context.font = `800 ${Math.round(drawRadius * 0.58)}px system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
     context.textAlign = "center";
@@ -540,6 +544,15 @@ function drawGnome(context: CanvasRenderingContext2D, now: number) {
   context.save();
   context.translate(center.x, center.y - radius * 0.95 - runBounce);
   context.scale(facing, 1);
+  // Testers asked for drawn pictures: the drawn gnome walks the candy path.
+  const art = canvasArt("gaze-maze/gnome");
+  if (art) {
+    const artHeight = radius * 1.7;
+    const artWidth = (artHeight * art.naturalWidth) / art.naturalHeight;
+    context.drawImage(art, -artWidth / 2, radius * 0.62 - artHeight, artWidth, artHeight);
+    context.restore();
+    return;
+  }
   context.fillStyle = "#db4b56";
   context.beginPath();
   context.moveTo(0, -radius * 0.58);

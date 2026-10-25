@@ -8,6 +8,7 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { adaptiveGazeHitRadius } from "../../core/gazeTarget";
+import { canvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
   disposeKitePiano,
@@ -400,9 +401,12 @@ function drawKite(ctx: CanvasRenderingContext2D, now: number) {
   const angle = Math.sin(now * 0.00055 + kite.sway) * 0.08;
   const light = Math.max(kite.power, kite.dwellProgress, kite.glow);
 
+  // Testers asked for drawn pictures: the drawn kite brings its own tail.
+  const art = canvasArt("kite/kite-red");
+
   ctx.save();
   ctx.translate(kite.x, kite.y);
-  drawTail(ctx, size, now);
+  if (!art) drawTail(ctx, size, now);
 
   ctx.strokeStyle = "rgb(55 72 103 / 34%)";
   ctx.lineWidth = 2;
@@ -426,30 +430,36 @@ function drawKite(ctx: CanvasRenderingContext2D, now: number) {
   ctx.arc(0, 0, glowRadius, 0, Math.PI * 2);
   ctx.fill();
 
-  const body = ctx.createLinearGradient(-size * 0.36, -size * 0.42, size * 0.34, size * 0.4);
-  body.addColorStop(0, `hsl(35, 98%, ${72 + light * 8}%)`);
-  body.addColorStop(0.52, `hsl(14, 92%, ${62 + light * 8}%)`);
-  body.addColorStop(1, `hsl(205, 78%, ${54 + light * 10}%)`);
-  ctx.fillStyle = body;
-  ctx.strokeStyle = "rgb(109 68 78 / 58%)";
-  ctx.lineWidth = Math.max(3, size * 0.024);
-  ctx.beginPath();
-  ctx.moveTo(0, -size * 0.58);
-  ctx.lineTo(size * 0.45, 0);
-  ctx.lineTo(0, size * 0.48);
-  ctx.lineTo(-size * 0.45, 0);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
+  if (art) {
+    const artWidth = size * 1.2;
+    const artHeight = (artWidth * art.naturalHeight) / art.naturalWidth;
+    ctx.drawImage(art, -artWidth / 2, -artHeight * 0.27, artWidth, artHeight);
+  } else {
+    const body = ctx.createLinearGradient(-size * 0.36, -size * 0.42, size * 0.34, size * 0.4);
+    body.addColorStop(0, `hsl(35, 98%, ${72 + light * 8}%)`);
+    body.addColorStop(0.52, `hsl(14, 92%, ${62 + light * 8}%)`);
+    body.addColorStop(1, `hsl(205, 78%, ${54 + light * 10}%)`);
+    ctx.fillStyle = body;
+    ctx.strokeStyle = "rgb(109 68 78 / 58%)";
+    ctx.lineWidth = Math.max(3, size * 0.024);
+    ctx.beginPath();
+    ctx.moveTo(0, -size * 0.58);
+    ctx.lineTo(size * 0.45, 0);
+    ctx.lineTo(0, size * 0.48);
+    ctx.lineTo(-size * 0.45, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
 
-  ctx.strokeStyle = "rgb(255 248 218 / 62%)";
-  ctx.lineWidth = Math.max(2, size * 0.018);
-  ctx.beginPath();
-  ctx.moveTo(0, -size * 0.55);
-  ctx.lineTo(0, size * 0.46);
-  ctx.moveTo(-size * 0.43, 0);
-  ctx.lineTo(size * 0.43, 0);
-  ctx.stroke();
+    ctx.strokeStyle = "rgb(255 248 218 / 62%)";
+    ctx.lineWidth = Math.max(2, size * 0.018);
+    ctx.beginPath();
+    ctx.moveTo(0, -size * 0.55);
+    ctx.lineTo(0, size * 0.46);
+    ctx.moveTo(-size * 0.43, 0);
+    ctx.lineTo(size * 0.43, 0);
+    ctx.stroke();
+  }
 
   ctx.strokeStyle = `rgb(255 255 240 / ${0.28 + kite.dwellProgress * 0.32})`;
   ctx.lineWidth = 4;

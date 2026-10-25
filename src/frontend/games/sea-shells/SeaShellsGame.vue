@@ -6,6 +6,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
+import { canvasArt, drawCanvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
 import {
@@ -496,6 +497,36 @@ function drawPearl(
   context.fill();
 }
 
+// Testers asked for drawn pictures: the drawn closed shell fades into the open
+// one with a pearl while the child looks at it.
+function shellColor(hue: number) {
+  const h = ((hue % 360) + 360) % 360;
+  if (h >= 170 && h < 250) return "blue";
+  if (h >= 250 && h < 310) return "purple";
+  return "pink";
+}
+
+function drawDrawnShell(
+  context: CanvasRenderingContext2D,
+  shell: SeaShell,
+  point: Point,
+  radius: number,
+  openProgress: number,
+) {
+  const color = shellColor(shell.hue);
+  const closed = canvasArt(`sea-shells/${color}-closed`);
+  const open = canvasArt(`sea-shells/${color}-open`);
+  if (!closed || !open) return false;
+  const blend = Math.min(1, Math.max(0, (openProgress - 0.2) / 0.5));
+  const alpha = context.globalAlpha;
+  context.globalAlpha = alpha * (1 - blend);
+  drawCanvasArt(context, closed, point.x, point.y, radius * 1.9);
+  context.globalAlpha = alpha * blend;
+  drawCanvasArt(context, open, point.x, point.y, radius * 1.9);
+  context.globalAlpha = alpha;
+  return true;
+}
+
 function drawShell(context: CanvasRenderingContext2D, shell: SeaShell) {
   const point = shellPoint(shell);
   const openProgress =
@@ -548,9 +579,11 @@ function drawShell(context: CanvasRenderingContext2D, shell: SeaShell) {
     context.fill();
   }
 
-  drawShellHalf(context, shell, point, radius, openProgress, false);
-  drawPearl(context, shell, point, radius, openProgress, glow);
-  drawShellHalf(context, shell, point, radius, openProgress, true);
+  if (!drawDrawnShell(context, shell, point, radius, openProgress)) {
+    drawShellHalf(context, shell, point, radius, openProgress, false);
+    drawPearl(context, shell, point, radius, openProgress, glow);
+    drawShellHalf(context, shell, point, radius, openProgress, true);
+  }
 
   if (shell.phase === "opening") {
     context.strokeStyle = `hsla(${shell.hue + 42}, 96%, 92%, ${0.22 + shell.dwellProgress * 0.28})`;

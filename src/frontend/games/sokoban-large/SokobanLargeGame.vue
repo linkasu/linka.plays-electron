@@ -8,6 +8,7 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useGameTimers } from "../../composables/useGameTimers";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
   applySokobanLargeMove,
@@ -18,6 +19,13 @@ import {
   type SokobanLargeDirection,
   type SokobanLargePoint,
 } from "./model";
+
+// Testers asked for drawn pictures: a drawn child, crate and target.
+const sokobanArt = {
+  player: gameArtSrc("sokoban-large/player"),
+  crate: gameArtSrc("sokoban-large/crate"),
+  target: gameArtSrc("sokoban-large/target"),
+};
 
 const router = useRouter();
 const {
@@ -313,16 +321,26 @@ onUnmounted(() => {
                       :aria-label="pointTargetId({ row, column })"
                     >
                       <v-icon v-if="hasWall(row, column)" class="wall-icon" icon="mdi-wall" />
-                      <v-icon v-if="hasGoal(row, column)" class="goal-icon" icon="mdi-bullseye" />
-                      <v-icon
+                      <img
+                        v-if="hasGoal(row, column)"
+                        class="goal-icon"
+                        :src="sokobanArt.target"
+                        alt=""
+                        draggable="false"
+                      />
+                      <img
                         v-if="hasBox(row, column)"
                         class="box-icon"
-                        icon="mdi-package-variant-closed"
+                        :src="sokobanArt.crate"
+                        alt=""
+                        draggable="false"
                       />
-                      <v-icon
+                      <img
                         v-if="hasPlayer(row, column)"
                         class="player-icon"
-                        icon="mdi-account"
+                        :src="sokobanArt.player"
+                        alt=""
+                        draggable="false"
                       />
                     </div>
                   </div>
@@ -450,8 +468,9 @@ onUnmounted(() => {
 }
 
 .goal-icon {
-  color: rgb(var(--v-theme-secondary));
-  font-size: clamp(2rem, 5vw, 4.4rem);
+  block-size: 62%;
+  inline-size: 62%;
+  object-fit: contain;
   opacity: 0.86;
   position: absolute;
 }
@@ -463,8 +482,9 @@ onUnmounted(() => {
 
 .box-icon,
 .player-icon {
-  color: rgb(var(--v-theme-primary));
-  font-size: clamp(2.4rem, 6vw, 5.2rem);
+  block-size: 82%;
+  inline-size: 82%;
+  object-fit: contain;
   position: relative;
   z-index: 1;
 }

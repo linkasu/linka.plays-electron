@@ -6,6 +6,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
+import { canvasArt, drawCanvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
   disposeGazeFollowSnakeAudio,
@@ -466,6 +467,20 @@ function drawTargetLeaf(ctx: CanvasRenderingContext2D) {
 
 function drawSnake(ctx: CanvasRenderingContext2D) {
   if (segments.length === 0) return;
+
+  // Testers asked for drawn pictures: a drawn caterpillar, round body pieces
+  // behind a smiling head.
+  const headArt = canvasArt("gaze-follow-snake/head");
+  const segmentArt = canvasArt("gaze-follow-snake/segment");
+  if (headArt && segmentArt) {
+    for (let index = segments.length - 1; index >= 1; index -= 1) {
+      const segment = segments[index];
+      drawCanvasArt(ctx, segmentArt, segment.x, segment.y, segment.radius * 2.2);
+    }
+    const head = segments[0];
+    drawCanvasArt(ctx, headArt, head.x, head.y - head.radius * 0.25, head.radius * 2.7);
+    return;
+  }
 
   ctx.save();
   ctx.lineCap = "round";

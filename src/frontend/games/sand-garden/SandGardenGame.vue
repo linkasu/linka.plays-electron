@@ -7,6 +7,7 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
+import { canvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
   disposeSandGardenPiano,
@@ -300,6 +301,16 @@ function drawRake(ctx: CanvasRenderingContext2D) {
   ctx.beginPath();
   ctx.arc(rake.x, rake.y, 86 * session.settings.targetScale, 0, Math.PI * 2);
   ctx.fill();
+
+  // Testers asked for drawn pictures: the drawn rake with its teeth at the pointer.
+  const art = canvasArt("sand-garden/rake");
+  if (art) {
+    const artWidth = 120 * session.settings.targetScale;
+    const artHeight = (artWidth * art.naturalHeight) / art.naturalWidth;
+    ctx.drawImage(art, rake.x - artWidth * 0.3, rake.y - artHeight * 0.8, artWidth, artHeight);
+    ctx.restore();
+    return;
+  }
 
   ctx.strokeStyle = "#8d6844";
   ctx.lineWidth = 8;

@@ -5,6 +5,7 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { canvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { isCanvasControlBlocked } from "../../core/domGazeTargetCoordinator";
 import {
@@ -394,6 +395,27 @@ function drawStoneColumn(
   phase: number,
 ) {
   if (height <= 0) return;
+  // Testers asked for drawn pictures: the column is a pile of drawn rocks,
+  // stacked from the gap outwards.
+  const rock = canvasArt("boat/rock");
+  if (rock) {
+    const rockWidth = width * 1.15;
+    const rockHeight = (rockWidth * rock.naturalHeight) / rock.naturalWidth;
+    const step = rockHeight * 0.62;
+    context.save();
+    context.beginPath();
+    context.rect(x - width, y, width * 3, height);
+    context.clip();
+    for (let offset = 0; offset < height + step; offset += step) {
+      const top = fromBottom
+        ? y + offset - rockHeight * 0.2
+        : y + height - offset - rockHeight * 0.8;
+      const sway = Math.sin(phase + offset * 0.05) * width * 0.06;
+      context.drawImage(rock, x + (width - rockWidth) / 2 + sway, top, rockWidth, rockHeight);
+    }
+    context.restore();
+    return;
+  }
   const radius = Math.min(width, height) * 0.16;
   const gradient = context.createLinearGradient(x, y, x + width, y + height);
   gradient.addColorStop(0, "#6d7680");
@@ -462,6 +484,20 @@ function drawGate(context: CanvasRenderingContext2D) {
   context.setLineDash([]);
 }
 
+function drawCracks(context: CanvasRenderingContext2D, x: number, y: number, size: number) {
+  if (boatState.value.hull >= boatState.value.maxHull) return;
+  context.strokeStyle = "rgb(86 46 34 / 78%)";
+  context.lineWidth = 3;
+  for (let crack = 0; crack < boatState.value.maxHull - boatState.value.hull; crack += 1) {
+    const startX = x - size * (0.24 - crack * 0.22);
+    context.beginPath();
+    context.moveTo(startX, y + size * 0.22);
+    context.lineTo(startX + size * 0.08, y + size * 0.31);
+    context.lineTo(startX + size * 0.02, y + size * 0.4);
+    context.stroke();
+  }
+}
+
 function drawBoat(context: CanvasRenderingContext2D) {
   const size = boatVisualSize(viewport.value, session.settings.targetScale);
   const position = boatPoint(boatState.value, session.settings.targetScale, viewport.value);
@@ -498,6 +534,25 @@ function drawBoat(context: CanvasRenderingContext2D) {
   );
   context.fill();
 
+  // Testers asked for drawn pictures: the drawn sailboat; cracks still show damage.
+  const art = canvasArt("boat/sailboat");
+  if (art) {
+    const artWidth = size * 1.5;
+    const artHeight = (artWidth * art.naturalHeight) / art.naturalWidth;
+    context.save();
+    if (boatState.value.mode === "crashed") context.globalAlpha = 0.7;
+    context.drawImage(
+      art,
+      x - artWidth / 2,
+      position.y + size * 0.52 - artHeight,
+      artWidth,
+      artHeight,
+    );
+    context.restore();
+    drawCracks(context, x, position.y, size);
+    return;
+  }
+
   context.fillStyle = hullRatio <= 0.34 ? "#9b5a41" : hullRatio <= 0.67 ? "#d27c50" : "#f4a35f";
   context.beginPath();
   context.moveTo(x - size * 0.68, position.y + size * 0.14);
@@ -514,18 +569,7 @@ function drawBoat(context: CanvasRenderingContext2D) {
   context.lineWidth = 3 + damage * 3;
   context.stroke();
 
-  if (boatState.value.hull < boatState.value.maxHull) {
-    context.strokeStyle = "rgb(86 46 34 / 78%)";
-    context.lineWidth = 3;
-    for (let crack = 0; crack < boatState.value.maxHull - boatState.value.hull; crack += 1) {
-      const startX = x - size * (0.24 - crack * 0.22);
-      context.beginPath();
-      context.moveTo(startX, position.y + size * 0.22);
-      context.lineTo(startX + size * 0.08, position.y + size * 0.31);
-      context.lineTo(startX + size * 0.02, position.y + size * 0.4);
-      context.stroke();
-    }
-  }
+  drawCracks(context, x, position.y, size);
 
   context.strokeStyle = "#6d503c";
   context.lineWidth = 5;

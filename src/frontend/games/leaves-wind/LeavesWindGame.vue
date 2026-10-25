@@ -9,6 +9,7 @@ import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { createDwellMachineState } from "../../core/dwellStateMachine";
 import type { DwellCancelReason } from "../../core/gaze";
+import { canvasArt, drawCanvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { advanceMovingTargetDwell } from "../../core/movingTarget";
 import { disposeLeavesWindAudio, playLeavesWindFlowCue, warmLeavesWindAudio } from "./audio";
@@ -419,6 +420,8 @@ function drawWindLine(ctx: CanvasRenderingContext2D, line: WindLine) {
   ctx.restore();
 }
 
+const leafArtIds = ["maple", "oak", "birch", "yellow", "red"].map((name) => `leaves-wind/${name}`);
+
 function drawLeaf(ctx: CanvasRenderingContext2D, leaf: Leaf) {
   const isActive = leaf === activeLeaf();
   const focus = leafFocus(leaf);
@@ -433,6 +436,14 @@ function drawLeaf(ctx: CanvasRenderingContext2D, leaf: Leaf) {
   if (isActive) {
     ctx.shadowColor = "rgb(255 244 174 / 72%)";
     ctx.shadowBlur = size * 0.52;
+  }
+
+  // Testers asked for drawn pictures: five drawn leaves, picked by the leaf's seed.
+  const art = canvasArt(leafArtIds[Math.abs(Math.floor(leaf.seed * 997)) % leafArtIds.length]);
+  if (art) {
+    drawCanvasArt(ctx, art, 0, 0, size * 1.6);
+    ctx.restore();
+    return;
   }
 
   const fill = ctx.createLinearGradient(-size * 0.68, -size * 0.34, size * 0.72, size * 0.38);
