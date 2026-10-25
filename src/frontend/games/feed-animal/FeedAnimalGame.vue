@@ -13,6 +13,7 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import { feedAnimalFeedback } from "./audio";
 import {
   animalEatsFood,
+  feedAnimals,
   generateFeedAnimalRound,
   type FeedAnimalFood,
   type FeedAnimalRound,
@@ -38,7 +39,8 @@ const {
   recordHint,
   startSession,
 } = useGameSessionFor("feed-animal", {
-  maxSteps: 8,
+  // One round per animal, so every animal (the squirrel is the ninth) is fed.
+  maxSteps: feedAnimals.length,
   overrides: {
     preset: "gentle",
     targetScale: 1.6,
