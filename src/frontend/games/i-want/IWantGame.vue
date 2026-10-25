@@ -186,6 +186,7 @@ onUnmounted(() => {
                       <GameWordImage
                         class="card-emoji mb-2"
                         :word-id="card.wordId"
+                        :art-id="card.artId"
                         :word="card.label"
                         :emoji="card.emoji"
                         decorative

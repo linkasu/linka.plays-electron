@@ -3,6 +3,8 @@ export type IWantCardKind = "предмет" | "занятие" | "помощь"
 export type IWantCard = {
   id: string;
   wordId: string;
+  /** Drawn picture; the word picture is the fallback. */
+  artId?: string;
   label: string;
   phrase: string;
   emoji: string;
@@ -18,6 +20,7 @@ export type IWantRound = {
 export const iWantCards: IWantCard[] = [
   {
     id: "water",
+    artId: "i-want/water",
     wordId: "cup",
     label: "Воду",
     phrase: "Я хочу воду",
@@ -34,6 +37,7 @@ export const iWantCards: IWantCard[] = [
   },
   {
     id: "music",
+    artId: "i-want/music",
     wordId: "drum",
     label: "Музыку",
     phrase: "Я хочу музыку",
@@ -42,15 +46,25 @@ export const iWantCards: IWantCard[] = [
   },
   {
     id: "book",
+    artId: "i-want/book",
     wordId: "book",
     label: "Книгу",
     phrase: "Я хочу книгу",
     emoji: "📖",
     kind: "предмет",
   },
-  { id: "ball", wordId: "ball", label: "Мяч", phrase: "Я хочу мяч", emoji: "🟡", kind: "предмет" },
+  {
+    id: "ball",
+    wordId: "ball",
+    artId: "i-want/ball",
+    label: "Мяч",
+    phrase: "Я хочу мяч",
+    emoji: "🟡",
+    kind: "предмет",
+  },
   {
     id: "draw",
+    artId: "i-want/draw",
     wordId: "pencil",
     label: "Рисовать",
     phrase: "Я хочу рисовать",
@@ -67,6 +81,7 @@ export const iWantCards: IWantCard[] = [
   },
   {
     id: "rest",
+    artId: "i-want/rest",
     wordId: "bed",
     label: "Отдых",
     phrase: "Я хочу отдохнуть",
@@ -75,6 +90,7 @@ export const iWantCards: IWantCard[] = [
   },
   {
     id: "help",
+    artId: "i-want/help",
     wordId: "hand",
     label: "Помощь",
     phrase: "Я хочу помощь",

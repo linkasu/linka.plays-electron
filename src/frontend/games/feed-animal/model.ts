@@ -44,10 +44,23 @@ export const feedAnimalFoods: FeedAnimalFood[] = [
   },
   { id: "apple", wordId: "apple", name: "Яблоко", emoji: "🍎", color: "red-lighten-4" },
   { id: "grass", wordId: "grass", name: "Трава", emoji: "🌿", color: "green-lighten-4" },
-  { id: "bone", name: "Косточка", emoji: "🦴", color: "brown-lighten-4" },
+  {
+    id: "bone",
+    artId: "feed-animal/bone",
+    name: "Косточка",
+    emoji: "🦴",
+    color: "brown-lighten-4",
+  },
   { id: "fish", wordId: "fish", name: "Рыбка", emoji: "🐟", color: "blue-lighten-4" },
   { id: "berries", name: "Ягоды", emoji: "🫐", color: "indigo-lighten-4" },
-  { id: "honey", wordId: "honey", name: "Мёд", emoji: "🍯", color: "amber-lighten-4" },
+  {
+    id: "honey",
+    wordId: "honey",
+    artId: "feed-animal/honey",
+    name: "Мёд",
+    emoji: "🍯",
+    color: "amber-lighten-4",
+  },
   {
     id: "seeds",
     artId: "feed-animal/seeds",
@@ -72,7 +85,7 @@ export const feedAnimalFoods: FeedAnimalFood[] = [
   },
   { id: "nut", artId: "feed-animal/nut", name: "Орех", emoji: "🌰", color: "brown-lighten-5" },
   { id: "ball", wordId: "ball", name: "Мяч", emoji: "⚽", color: "blue-grey-lighten-4" },
-  { id: "boot", name: "Сапог", emoji: "🥾", color: "grey-lighten-3" },
+  { id: "boot", wordId: "shoes", name: "Сапог", emoji: "🥾", color: "grey-lighten-3" },
 ];
 
 // Testers: «мало животных». Five more animals with their food, drawn in the
@@ -94,6 +107,7 @@ export const feedAnimals: FeedAnimal[] = [
     // also counted as his food, a fish round offered no bone at all.
     id: "puppy",
     wordId: "dog",
+    artId: "feed-animal/puppy",
     name: "Щенок",
     emoji: "🐶",
     promptName: "щенка",
@@ -104,6 +118,7 @@ export const feedAnimals: FeedAnimal[] = [
   {
     id: "bear",
     wordId: "bear",
+    artId: "feed-animal/bear",
     name: "Мишка",
     emoji: "🐻",
     promptName: "мишку",

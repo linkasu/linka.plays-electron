@@ -19,6 +19,7 @@ export type ObjectActionRound = {
   explanation: string;
 };
 
+// Cards show the drawn picture images/object-action/<id>.png; the emoji fields describe the scene.
 export const objectActionChoices: ObjectActionChoice[] = [
   {
     id: "drink",

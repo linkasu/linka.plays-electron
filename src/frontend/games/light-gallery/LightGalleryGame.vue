@@ -6,6 +6,7 @@ import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
   disposeLightGalleryPiano,
@@ -19,7 +20,7 @@ type LightPanel = {
   id: string;
   title: string;
   caption: string;
-  icon: string;
+  artId: string;
   gradient: string;
   mood: {
     base: string;
@@ -57,12 +58,13 @@ const {
 });
 useStartPromptAudio({ gameId: "light-gallery", soundEnabled: toRef(session.settings, "sound") });
 
+// Testers: «картинки надо сменить» — simple kind drawn pictures.
 const panels = reactive<LightPanel[]>([
   {
     id: "light-gallery:panel:morning",
-    title: "Утро",
-    caption: " рассвет",
-    icon: "mdi-weather-sunset-up",
+    title: "Солнце",
+    caption: "утро",
+    artId: "light-gallery/sun",
     gradient: "linear-gradient(135deg, #fff1c8 0%, #ffd2b8 45%, #adc7ff 100%)",
     mood: {
       base: "#271a34",
@@ -77,9 +79,9 @@ const panels = reactive<LightPanel[]>([
   },
   {
     id: "light-gallery:panel:pond",
-    title: "Пруд",
-    caption: " вода",
-    icon: "mdi-waves",
+    title: "Кораблик",
+    caption: "на воде",
+    artId: "light-gallery/sailboat",
     gradient: "linear-gradient(135deg, #d7fff4 0%, #9ed8dd 48%, #668fc4 100%)",
     mood: {
       base: "#092537",
@@ -94,9 +96,9 @@ const panels = reactive<LightPanel[]>([
   },
   {
     id: "light-gallery:panel:meadow",
-    title: "Луг",
-    caption: "светлая трава",
-    icon: "mdi-grass",
+    title: "Дерево",
+    caption: "на лугу",
+    artId: "light-gallery/tree",
     gradient: "linear-gradient(135deg, #efffcf 0%, #b7e8b4 50%, #74bda4 100%)",
     mood: {
       base: "#11291f",
@@ -112,8 +114,8 @@ const panels = reactive<LightPanel[]>([
   {
     id: "light-gallery:panel:moon",
     title: "Луна",
-    caption: " ночь",
-    icon: "mdi-moon-waning-crescent",
+    caption: "ночь",
+    artId: "light-gallery/moon",
     gradient: "linear-gradient(135deg, #e9eeff 0%, #b9c4ee 48%, #6b79b8 100%)",
     mood: {
       base: "#0b102d",
@@ -128,9 +130,9 @@ const panels = reactive<LightPanel[]>([
   },
   {
     id: "light-gallery:panel:garden",
-    title: "Сад",
-    caption: "тёплые листья",
-    icon: "mdi-flower-tulip-outline",
+    title: "Цветок",
+    caption: "в саду",
+    artId: "light-gallery/flower",
     gradient: "linear-gradient(135deg, #ffe8be 0%, #f7b889 44%, #c9786f 100%)",
     mood: {
       base: "#301d25",
@@ -145,9 +147,9 @@ const panels = reactive<LightPanel[]>([
   },
   {
     id: "light-gallery:panel:cloud",
-    title: "Облако",
-    caption: "воздушный свет",
-    icon: "mdi-cloud-outline",
+    title: "Бабочка",
+    caption: "летает",
+    artId: "light-gallery/butterfly",
     gradient: "linear-gradient(135deg, #ffffff 0%, #dcecff 52%, #a9c1de 100%)",
     mood: {
       base: "#142439",
@@ -162,9 +164,9 @@ const panels = reactive<LightPanel[]>([
   },
   {
     id: "light-gallery:panel:lantern",
-    title: "Фонарь",
-    caption: " тепло",
-    icon: "mdi-lamps-outline",
+    title: "Домик",
+    caption: "тёплый свет",
+    artId: "light-gallery/house",
     gradient: "linear-gradient(135deg, #fff5c2 0%, #ffc875 48%, #c88b64 100%)",
     mood: {
       base: "#2f2018",
@@ -179,9 +181,9 @@ const panels = reactive<LightPanel[]>([
   },
   {
     id: "light-gallery:panel:stars",
-    title: "Звёзды",
-    caption: " мерцание",
-    icon: "mdi-star-four-points-outline",
+    title: "Кот",
+    caption: "спит",
+    artId: "light-gallery/cat",
     gradient: "linear-gradient(135deg, #f5edff 0%, #bca8f4 46%, #6c63a8 100%)",
     mood: {
       base: "#151033",
@@ -314,7 +316,12 @@ onUnmounted(() => {
                 }"
               >
                 <div class="light-gallery-panel-art" aria-hidden="true">
-                  <v-icon :icon="panel.icon" class="light-gallery-panel-icon" />
+                  <img
+                    class="light-gallery-panel-picture"
+                    :src="gameArtSrc(panel.artId)"
+                    alt=""
+                    draggable="false"
+                  />
                 </div>
                 <div class="light-gallery-panel-title text-subtitle-1 text-sm-h6 font-weight-bold">
                   {{ panel.title }}
@@ -491,16 +498,24 @@ onUnmounted(() => {
 .light-gallery-panel-art {
   align-items: center;
   background: rgb(255 255 255 / calc(0.1 + (var(--panel-progress) * 0.42)));
-  block-size: clamp(3.375rem, 7vw, 4.875rem);
-  border-radius: 999px;
+  block-size: clamp(4.5rem, 11vw, 7rem);
+  border-radius: 1.25rem;
   display: flex;
-  inline-size: clamp(3.375rem, 7vw, 4.875rem);
+  inline-size: clamp(4.5rem, 11vw, 7rem);
   justify-content: center;
   transition: background 220ms ease;
 }
 
-.light-gallery-panel-icon {
-  font-size: clamp(2rem, 4.5vw, 3.1rem);
+/* The picture lights up while the child looks at the panel. */
+.light-gallery-panel-picture {
+  block-size: 86%;
+  filter: grayscale(calc(1 - var(--panel-progress)));
+  inline-size: 86%;
+  object-fit: contain;
+  opacity: calc(0.45 + (var(--panel-progress) * 0.55));
+  transition:
+    filter 220ms ease,
+    opacity 220ms ease;
 }
 
 .light-gallery-progress {
@@ -538,8 +553,9 @@ onUnmounted(() => {
     inline-size: 3.25rem;
   }
 
-  .light-gallery-panel-icon {
-    font-size: 1.9rem;
+  .light-gallery-panel-art {
+    block-size: 3.6rem;
+    inline-size: 3.6rem;
   }
 
   .light-gallery-panel-caption {
