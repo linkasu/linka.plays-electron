@@ -10,6 +10,7 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
 import {
@@ -18,6 +19,9 @@ import {
   type WhereObjectChoice,
   type WhereObjectRound,
 } from "./model";
+
+// Testers asked for drawn pictures: the drawn open box.
+const boxSrc = gameArtSrc("where-object/box");
 
 const router = useRouter();
 const {
@@ -212,7 +216,7 @@ onUnmounted(() => {
             >
               <template #default="{ choice }">
                 <div class="mini-scene" role="img" :aria-label="choice.scenePhrase">
-                  <div class="mini-scene__box-back" aria-hidden="true" />
+                  <img class="mini-scene__box" :src="boxSrc" alt="" draggable="false" />
                   <GameWordImage
                     :class="['mini-scene__object', `mini-scene__object--${choice.id}`]"
                     :word-id="choice.targetObject.id"
@@ -220,7 +224,12 @@ onUnmounted(() => {
                     :emoji="choice.targetObject.emoji"
                     decorative
                   />
-                  <div class="mini-scene__box-front" aria-hidden="true" />
+                  <img
+                    class="mini-scene__box mini-scene__box--front"
+                    :src="boxSrc"
+                    alt=""
+                    draggable="false"
+                  />
                 </div>
               </template>
             </GameChoiceCardGrid>
@@ -252,28 +261,19 @@ onUnmounted(() => {
   position: relative;
 }
 
-.mini-scene__box-back,
-.mini-scene__box-front {
-  background: #d5a96f;
-  border: 0.12rem solid #8d6948;
-  inline-size: 38%;
+.mini-scene__box {
+  aspect-ratio: 483 / 406;
+  inline-size: 44%;
+  inset-block-end: 14%;
   inset-inline-start: 50%;
   position: absolute;
   transform: translateX(-50%);
-}
-
-.mini-scene__box-back {
-  block-size: 34%;
-  border-radius: 0.4rem 0.4rem 0 0;
-  inset-block-end: 19%;
-  transform: translateX(-50%) skewY(-5deg);
   z-index: 1;
 }
 
-.mini-scene__box-front {
-  block-size: 18%;
-  border-radius: 0 0 0.45rem 0.45rem;
-  inset-block-end: 17%;
+/* The same drawn box again, cut to its front walls, covers what is inside it. */
+.mini-scene__box--front {
+  clip-path: polygon(0 52%, 40% 52%, 92% 40%, 100% 40%, 100% 100%, 0 100%);
   z-index: 3;
 }
 

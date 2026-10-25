@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
@@ -247,7 +248,14 @@ onUnmounted(() => {
                   @select="choose(choice)"
                 >
                   <template #default>
-                    <div class="choice-emoji emoji-glyph">{{ choice.emoji }}</div>
+                    <!-- The actions are the same as in «Сначала-потом» and share its pictures. -->
+                    <GameWordImage
+                      class="choice-emoji"
+                      :art-id="`first-then/${choice.id}`"
+                      :word="choice.title"
+                      :emoji="choice.emoji"
+                      decorative
+                    />
                     <div class="text-h3 text-md-h2 font-weight-bold mb-2">{{ choice.title }}</div>
                     <v-chip
                       class="mb-3 text-white"
@@ -366,7 +374,7 @@ onUnmounted(() => {
   }
 
   .choice-emoji {
-    font-size: clamp(2.5rem, 7vh, 3.75rem);
+    font-size: clamp(3.5rem, 13vh, 5.5rem);
   }
 
   .what-first-card :deep(.dwell-button .text-h3) {
