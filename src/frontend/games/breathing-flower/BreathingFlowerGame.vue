@@ -7,8 +7,8 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
-import { canvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { drawPlantParts } from "../flowers/plantArt";
 import {
   disposeBreathingFlowerPiano,
   setBreathingFlowerPianoActive,
@@ -253,27 +253,16 @@ function drawLeaf(
   ctx.restore();
 }
 
-// Testers asked for drawn pictures: the drawn flower breathes between half-open
-// and open, cross-fading the two pictures with the openness.
+// Testers asked for drawn pictures: the drawn flower breathes by opening and
+// closing its petals, not by growing as a whole.
 function drawDrawnFlower(ctx: CanvasRenderingContext2D, center: Point, radius: number) {
-  const half = canvasArt("flowers/pink-half");
-  const open = canvasArt("flowers/pink-open");
-  if (!half || !open) return false;
-  const blend = Math.min(1, Math.max(0, (flower.openness - 0.4) / 0.45));
-  const plantHeight = radius * (2.05 + flower.openness * 0.2);
-  ctx.save();
-  ctx.translate(center.x, center.y);
-  ctx.rotate(Math.sin(flower.age * 0.22) * 0.018);
-  for (const [art, alpha] of [
-    [half, 1 - blend],
-    [open, blend],
-  ] as const) {
-    const width = (plantHeight * art.naturalWidth) / art.naturalHeight;
-    ctx.globalAlpha = alpha;
-    ctx.drawImage(art, -width / 2, -plantHeight * 0.3, width, plantHeight);
-  }
-  ctx.restore();
-  return true;
+  return drawPlantParts(ctx, center, radius * 0.78, "pink", {
+    growth: 1,
+    bloom: 1,
+    openness: Math.min(1, Math.max(0, flower.openness)),
+    sway: Math.sin(flower.age * 0.22) * 0.018,
+    alpha: 1,
+  });
 }
 
 function drawFlower(ctx: CanvasRenderingContext2D, center: Point, radius: number) {

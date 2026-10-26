@@ -6,8 +6,8 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
-import { canvasArt, drawCanvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { drawDrawnFirefly } from "./fireflyArt";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
 import {
   disposeFireflyMeadowPiano,
@@ -375,18 +375,20 @@ function drawFirefly(context: CanvasRenderingContext2D, firefly: Firefly) {
   context.arc(point.x, point.y, glowRadius * 2.35, 0, Math.PI * 2);
   context.fill();
 
-  // Testers asked for drawn animals: a drawn firefly flaps inside its glow.
-  const art = canvasArt(
-    Math.sin(firefly.age * 14 + firefly.twinkleSeed) > 0
-      ? "firefly-meadow/firefly-up"
-      : "firefly-meadow/firefly-down",
+  // Testers asked for drawn animals: a drawn firefly beats its wings inside its
+  // glow; looking at it lights its tail instead of making it bigger.
+  context.globalCompositeOperation = "source-over";
+  context.globalAlpha = appear;
+  const drawn = drawDrawnFirefly(
+    context,
+    point.x,
+    point.y,
+    firefly.radius * 0.95,
+    firefly.age * 26 + firefly.twinkleSeed,
+    Math.max(lit, gaze, 0.25 + breathe * 0.35),
   );
-  if (art) {
-    context.globalCompositeOperation = "source-over";
-    context.globalAlpha = appear;
-    drawCanvasArt(context, art, point.x, point.y, firefly.radius * (0.82 + gaze * 0.1));
-    context.globalAlpha = 1;
-  } else {
+  context.globalAlpha = 1;
+  if (!drawn) {
     const core = context.createRadialGradient(
       point.x,
       point.y,

@@ -8,6 +8,9 @@ import { feedAnimalArtIds } from "../games/feed-animal/model";
 import { findAnimalArtId, findAnimalDrawnIds } from "../games/find-animal/model";
 import { findEmotionOptions } from "../games/find-emotion/model";
 import { fishArtIds } from "../games/fishes/fishArt";
+import { fireflyArtIds } from "../games/firefly-meadow/fireflyArt";
+import { plantArtIds } from "../games/flowers/plantArt";
+import { fireArtIds } from "../games/warm-fire/fireArt";
 import { minesweeperSafeArtIds } from "../games/minesweeper-safe/model";
 import { oppositesArtIds } from "../games/opposites/model";
 import { robotVacuumArtIds } from "../games/robot-vacuum/art";
@@ -48,6 +51,7 @@ describe("gameArtSrc", () => {
       ...butterflyArtIds.map((artId) => ({ artId })),
       ...robotVacuumArtIds.map((artId) => ({ artId })),
       ...fishArtIds.map((artId) => ({ artId })),
+      ...[...fireflyArtIds, ...plantArtIds, ...fireArtIds].map((artId) => ({ artId })),
       ...minesweeperSafeArtIds.map((artId) => ({ artId })),
       ...feedAnimalArtIds.map((artId) => ({ artId })),
       ...soupRecipeArtIds.map((artId) => ({ artId })),

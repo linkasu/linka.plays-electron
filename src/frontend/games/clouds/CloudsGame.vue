@@ -7,7 +7,8 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { adaptiveGazeHitRadius } from "../../core/gazeTarget";
-import { canvasArt } from "../../core/canvasArt";
+import { canvasArt, drawCanvasArt } from "../../core/canvasArt";
+import { easeInOutSine, easeOutCubic, progressBetween } from "../../core/motion";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
   disposeCloudsPiano,
@@ -324,6 +325,18 @@ function drawProgress(context: CanvasRenderingContext2D, cloud: Cloud, point: Po
   context.restore();
 }
 
+// Puffs of the dissolving cloud, in units of the cloud's radius: where each sits
+// in the whole cloud, which way it drifts and how wide it is.
+const cloudPuffs = [
+  { artId: "clouds/puff-big-1", x: -0.42, y: 0.08, dx: -1, dy: 0.15, width: 1.05, wisp: false },
+  { artId: "clouds/puff-big-2", x: 0.4, y: 0.06, dx: 1, dy: 0.1, width: 1.05, wisp: false },
+  { artId: "clouds/puff-mid-1", x: -0.05, y: -0.26, dx: -0.25, dy: -1, width: 0.8, wisp: false },
+  { artId: "clouds/puff-mid-2", x: 0.05, y: 0.28, dx: 0.2, dy: 1, width: 0.85, wisp: false },
+  { artId: "clouds/puff-small", x: 0.66, y: -0.22, dx: 1, dy: -0.6, width: 0.55, wisp: false },
+  { artId: "clouds/wisp-1", x: -0.72, y: -0.12, dx: -1, dy: -0.35, width: 0.65, wisp: true },
+  { artId: "clouds/wisp-2", x: 0.8, y: 0.26, dx: 1, dy: 0.45, width: 0.45, wisp: true },
+];
+
 function cloudArtId(cloud: Cloud) {
   return `clouds/cloud-${(Math.abs(Math.floor(cloud.seed * 997)) % 4) + 1}`;
 }
@@ -361,30 +374,38 @@ function drawCloud(context: CanvasRenderingContext2D, cloud: Cloud) {
   );
   context.fill();
 
-  // Testers asked for drawn pictures: a drawn cloud parts in two halves while the
-  // child looks at it and floats up when it clears.
+  // Testers asked for drawn pictures. While the child looks, the drawn cloud
+  // dissolves into separate puffs that drift apart, shrink and thin out; when the
+  // gaze leaves they gather back. Clearing lifts and fades everything.
   const art = canvasArt(cloudArtId(cloud));
   if (art) {
-    const width = cloud.baseRx * 2.5;
-    const height = (width * art.naturalHeight) / art.naturalWidth;
-    const half = art.naturalWidth / 2;
-    const spread = open * cloud.baseRx * 0.42;
+    const lift = clearing * cloud.baseRy * cloudRenderGeometry.clearingLift;
     const bob = Math.sin(cloud.age * 0.8 + cloud.seed) * cloud.baseRy * 0.04;
-    const top =
-      point.y - height / 2 + bob - clearing * cloud.baseRy * cloudRenderGeometry.clearingLift;
-    const left = point.x - width / 2;
-    context.drawImage(art, 0, 0, half, art.naturalHeight, left - spread, top, width / 2, height);
-    context.drawImage(
-      art,
-      half,
-      0,
-      half,
-      art.naturalHeight,
-      point.x + spread,
-      top,
-      width / 2,
-      height,
-    );
+    const faceAlpha = 1 - progressBetween(open, 0.05, 0.35);
+    const puffAlpha = progressBetween(open, 0.02, 0.25);
+    if (faceAlpha > 0) {
+      context.globalAlpha = alpha * faceAlpha;
+      drawCanvasArt(context, art, point.x, point.y + bob - lift, cloud.baseRx * 2.5);
+    }
+    if (puffAlpha > 0) {
+      const spread = 0.1 + easeInOutSine(open) * 0.9 + clearing * 0.6;
+      cloudPuffs.forEach((puff, index) => {
+        const image = canvasArt(puff.artId);
+        if (!image) return;
+        const fade = puff.wisp ? 1 - progressBetween(open, 0.6, 1) : 1;
+        const wobble = Math.sin(cloud.age * 0.9 + cloud.seed + index * 1.7) * cloud.baseRx * 0.03;
+        const distance = spread * cloud.baseRx * (puff.wisp ? 0.9 : 0.55);
+        context.globalAlpha = alpha * puffAlpha * fade;
+        drawCanvasArt(
+          context,
+          image,
+          point.x + (puff.x + (puff.dx * distance) / cloud.baseRx) * cloud.baseRx + wobble,
+          point.y + (puff.y + (puff.dy * distance) / cloud.baseRx) * cloud.baseRx + bob - lift,
+          puff.width * cloud.baseRx * (1 - easeOutCubic(open) * 0.25),
+        );
+      });
+    }
+    context.globalAlpha = alpha;
   } else {
     for (const lobe of cloud.lobes) {
       const wobbleX =
