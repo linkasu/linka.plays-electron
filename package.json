@@ -2,6 +2,7 @@
   "name": "linka.plays-electron",
   "version": "0.1.22",
   "private": true,
+  "license": "GPL-3.0-or-later",
   "description": "LINKa plays MVP on Electron, Vue and Canvas",
   "main": "dist-electron/main.js",
   "repository": {
@@ -127,6 +128,14 @@
       "package.json"
     ],
     "extraResources": [
+      {
+        "from": "./LICENSE",
+        "to": "LICENSE"
+      },
+      {
+        "from": "./docs/licensing.md",
+        "to": "LICENSING.md"
+      },
       {
         "from": "./node_modules/@linkasu/tobii-electron/tools/tobiifree-helper/",
         "to": "extraResources/bin/tobiifree-helper",
