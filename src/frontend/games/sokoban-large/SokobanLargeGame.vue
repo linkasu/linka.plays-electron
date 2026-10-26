@@ -258,7 +258,7 @@ onUnmounted(() => {
       @resume="resumeSession"
     />
 
-    <v-container class="sokoban-large-container" fluid>
+    <v-container class="sokoban-large-container game-hud-clear" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="11" xl="10">
           <v-card

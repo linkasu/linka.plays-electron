@@ -3,6 +3,7 @@ import "roboto-fontface/css/roboto/roboto-fontface.css";
 import "twemoji-colr-font/twemoji.css";
 import "vuetify/styles";
 import "./styles/emoji.css";
+import "./styles/game-layout.css";
 
 import { createApp } from "vue";
 import App from "./App.vue";

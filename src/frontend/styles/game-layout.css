@@ -1,0 +1,11 @@
+/*
+ * Testers: in many games the game field sat higher than the «В меню» / «Пауза»
+ * buttons and went under them. GameHud publishes --game-hud-clearance — how far
+ * down its buttons reach — and every game container starts its content below it.
+ * Containers that are not .game-container or GamePageShell carry .game-hud-clear.
+ */
+.game-page-shell__content,
+.v-container.game-container:not(.game-page-shell__content *),
+.game-hud-clear {
+  padding-block-start: var(--game-hud-clearance, 10rem) !important;
+}

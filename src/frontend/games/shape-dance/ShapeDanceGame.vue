@@ -314,7 +314,7 @@ onUnmounted(() => {
       @pause="pauseSession"
       @resume="resumeSession"
     />
-    <v-container class="shape-dance-container" fluid>
+    <v-container class="shape-dance-container game-hud-clear" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
           <v-card class="shape-dance-card pa-4 pa-md-7" color="surface" rounded="xl" elevation="8">
