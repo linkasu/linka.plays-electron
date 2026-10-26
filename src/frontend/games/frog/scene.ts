@@ -1,4 +1,6 @@
-import { canvasArt, drawCanvasArt } from "../../core/canvasArt";
+import { canvasArt } from "../../core/canvasArt";
+import { approach } from "../../core/motion";
+import { drawDrawnFirefly } from "../firefly-meadow/fireflyArt";
 
 export type Point = { x: number; y: number };
 export type BugState = "flying" | "caught";
@@ -59,7 +61,7 @@ export function frogMouthPoint(): Point {
   const size = frogSize();
   return {
     x: window.innerWidth * 0.5,
-    y: frogBaseY() - size * 0.38,
+    y: frogBaseY() - size * 0.42,
   };
 }
 
@@ -237,7 +239,26 @@ function drawReeds(context: CanvasRenderingContext2D, now: number) {
   context.restore();
 }
 
-function drawFrog(context: CanvasRenderingContext2D, now: number) {
+// Testers asked for drawn animals. Four frames of the same drawn frog: it blinks,
+// opens its mouth while aiming at a bug and beams after a catch. The frames share
+// one pose, so a changed frame fades in over the plain one without jumping.
+type FrogFace = "frog-blink" | "frog-mouth-open" | "frog-happy";
+const frogFaces: FrogFace[] = ["frog-blink", "frog-mouth-open", "frog-happy"];
+const frogFaceWeight: Record<FrogFace, number> = {
+  "frog-blink": 0,
+  "frog-mouth-open": 0,
+  "frog-happy": 0,
+};
+let frogFaceTime = 0;
+
+function frogFace(options: FrogSceneOptions, aiming: boolean): FrogFace | undefined {
+  if (options.tongues.length > 0 || aiming) return "frog-mouth-open";
+  if (options.bursts.length > 0) return "frog-happy";
+  if (options.now % 4200 < 150) return "frog-blink";
+  return undefined;
+}
+
+function drawFrog(context: CanvasRenderingContext2D, now: number, face?: FrogFace) {
   const size = frogSize();
   const x = window.innerWidth * 0.5;
   const y = frogBaseY();
@@ -250,12 +271,25 @@ function drawFrog(context: CanvasRenderingContext2D, now: number) {
   context.ellipse(0, size * 0.08, size * 0.58, size * 0.16, 0, 0, Math.PI * 2);
   context.fill();
 
-  // Testers asked for drawn animals: the drawn frog sits with its mouth at frogMouthPoint().
-  const art = canvasArt("frog/frog-sit");
+  // The mouth of the drawn frog is at 46 % of the frame height, at frogMouthPoint().
+  const art = canvasArt("frog/frog-idle");
   if (art) {
-    const width = size * 1.25;
+    const delta = frogFaceTime ? Math.min(0.1, Math.max(0, (now - frogFaceTime) / 1000)) : 0;
+    frogFaceTime = now;
+    const width = size * 1.05;
     const height = (width * art.naturalHeight) / art.naturalWidth;
-    context.drawImage(art, -width / 2, size * 0.12 - height, width, height);
+    const top = size * 0.1 - height * 0.952;
+    context.drawImage(art, -width / 2, top, width, height);
+    for (const name of frogFaces) {
+      // Blinks are quick; the mouth and the smile ease in and out.
+      const rate = name === "frog-blink" ? 40 : 14;
+      frogFaceWeight[name] = approach(frogFaceWeight[name], name === face ? 1 : 0, rate, delta);
+      const overlay = canvasArt(`frog/${name}`);
+      if (!overlay || frogFaceWeight[name] < 0.01) continue;
+      context.globalAlpha = frogFaceWeight[name];
+      context.drawImage(overlay, -width / 2, top, width, height);
+      context.globalAlpha = 1;
+    }
     context.restore();
     return;
   }
@@ -374,10 +408,17 @@ function drawBug(context: CanvasRenderingContext2D, bug: Bug, now: number) {
   context.arc(0, 0, size * 0.62, 0, Math.PI * 2);
   context.fill();
 
-  // The drawn firefly flaps between its two frames.
-  const firefly = canvasArt(wing > 0 ? "firefly-meadow/firefly-up" : "firefly-meadow/firefly-down");
-  if (firefly) {
-    drawCanvasArt(context, firefly, 0, 0, size * 0.95);
+  // The drawn firefly beats its wings; its tail glows softly.
+  if (
+    drawDrawnFirefly(
+      context,
+      0,
+      0,
+      size * 1.1,
+      now / 38 + bug.phase,
+      0.6 + Math.sin(now / 400 + bug.phase) * 0.3,
+    )
+  ) {
     context.restore();
     if (bug.state === "flying" && bug.dwellProgress > 0) drawAimProgress(context, bug);
     return;
@@ -523,7 +564,7 @@ export function drawFrogScene(context: CanvasRenderingContext2D, options: FrogSc
   }
   [...options.bugs].sort((a, b) => a.y - b.y).forEach((bug) => drawBug(context, bug, options.now));
   for (const burst of options.bursts) drawBurst(context, burst);
-  drawFrog(context, options.now);
+  drawFrog(context, options.now, frogFace(options, (activeBug?.dwellProgress ?? 0) > 0.5));
   drawPointerSight(context, options.pointer, options.running);
   drawAttemptDots(context, options.attempts, options.maxAttempts);
 }

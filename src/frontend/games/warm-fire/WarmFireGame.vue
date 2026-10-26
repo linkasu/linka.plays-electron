@@ -8,6 +8,7 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { canvasArt, drawCanvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { drawDrawnFire } from "./fireArt";
 import {
   disposeWarmFirePiano,
   playWarmFireCue,
@@ -515,28 +516,6 @@ function drawFlameLayer(
   context.restore();
 }
 
-// Testers asked for drawn pictures: three drawn flame frames take turns and the
-// fire grows with the energy collected by looking at it.
-function drawDrawnFlame(context: CanvasRenderingContext2D, now: number) {
-  const frame = canvasArt(`warm-fire/flame-${(Math.floor(now / 160) % 3) + 1}`);
-  if (!frame) return false;
-  const intensity = clamp(fireEnergy / maxFireEnergy, 0, 1);
-  if (intensity <= 0.01) return true;
-  const height = 90 + fireEnergy * 300;
-  const width = (height * frame.naturalWidth) / frame.naturalHeight;
-  context.save();
-  context.globalAlpha = Math.min(1, 0.6 + intensity);
-  context.drawImage(
-    frame,
-    fireCenter().x - width / 2,
-    fireCenter().y + 100 - height,
-    width,
-    height,
-  );
-  context.restore();
-  return true;
-}
-
 function drawFlameFlight(context: CanvasRenderingContext2D, flame: FlameFlight, now: number) {
   const intensity = clamp(fireEnergy / maxFireEnergy, 0, 1);
   if (intensity <= 0.01) return;
@@ -624,7 +603,7 @@ function drawSpark(context: CanvasRenderingContext2D, spark: Spark, now: number)
   context.restore();
 }
 
-function drawGazeHalo(context: CanvasRenderingContext2D) {
+function drawGazeHalo(context: CanvasRenderingContext2D, overDrawnFire: boolean) {
   if (!pointer.value.valid || session.status !== "running") return;
   const radius = clamp(82 + gazeHeat * 84, 82, 170);
   const halo = context.createRadialGradient(
@@ -639,7 +618,8 @@ function drawGazeHalo(context: CanvasRenderingContext2D) {
   halo.addColorStop(0.5, `rgb(255 116 104 / ${0.055 + gazeHeat * 0.07})`);
   halo.addColorStop(1, "rgb(255 116 104 / 0%)");
   context.save();
-  context.globalCompositeOperation = "lighter";
+  // Added light over the bright drawn flames burns them white; tint them instead.
+  context.globalCompositeOperation = overDrawnFire ? "source-over" : "lighter";
   context.fillStyle = halo;
   context.beginPath();
   context.arc(pointer.value.x, pointer.value.y, radius, 0, Math.PI * 2);
@@ -651,18 +631,30 @@ function draw(context: CanvasRenderingContext2D, now: number) {
   drawBackground(context, now);
   drawPsychedelicVeil(context, now);
   drawFireGlow(context);
+  // The drawn fire stands behind the logs so its base hides among them.
+  const center = fireCenter();
+  const drawnFire = drawDrawnFire(
+    context,
+    center.x,
+    center.y + 100,
+    300,
+    clamp(fireEnergy / maxFireEnergy, 0, 1),
+    now,
+  );
   drawHearth(context);
-  if (!drawDrawnFlame(context, now)) {
+  if (!drawnFire) {
     drawFlameLayer(context, now, 1.36, 26, 0.16 + fireEnergy * 0.28, 0.2);
     drawFlameLayer(context, now, 0.98, 42, 0.2 + fireEnergy * 0.28, 1.4);
     drawFlameLayer(context, now, 0.68, 58 + fireEnergy * 62, 0.16 + fireEnergy * 0.28, 2.4);
     drawFlameLayer(context, now, 0.42, 186 + fireEnergy * 54, 0.04 + fireEnergy * 0.22, 3.1);
   }
-  for (const flame of flameFlights) drawFlameFlight(context, flame, now);
+  // Code-drawn flames, embers and sparks add light and would burn the drawn fire
+  // white; the drawn fire has its own sparks.
+  if (!drawnFire) for (const flame of flameFlights) drawFlameFlight(context, flame, now);
   drawAuraRings(context);
-  drawEmbers(context, now);
-  for (const spark of sparks) drawSpark(context, spark, now);
-  drawGazeHalo(context);
+  if (!drawnFire) drawEmbers(context, now);
+  if (!drawnFire) for (const spark of sparks) drawSpark(context, spark, now);
+  drawGazeHalo(context, drawnFire);
 }
 
 function tick(now: number) {

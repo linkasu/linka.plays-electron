@@ -7,6 +7,7 @@ import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { canvasArt, drawCanvasArt } from "../../core/canvasArt";
+import { approach, createFrameClock, easeInOutSine, progressBetween } from "../../core/motion";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels, randomTargetCenterPercent } from "../../core/placement";
 import {
@@ -497,14 +498,18 @@ function drawPearl(
   context.fill();
 }
 
-// Testers asked for drawn pictures: the drawn closed shell fades into the open
-// one with a pearl while the child looks at it.
+// Testers asked for drawn pictures. The drawn shell is a lower half with a pearl
+// and an upper half that lifts like a lid while the child looks at it. The lid
+// follows the game's progress smoothly, so it never jumps open.
 function shellColor(hue: number) {
   const h = ((hue % 360) + 360) % 360;
   if (h >= 170 && h < 250) return "blue";
   if (h >= 250 && h < 310) return "purple";
   return "pink";
 }
+
+const shellLid = new Map<string, number>();
+const shellClock = createFrameClock();
 
 function drawDrawnShell(
   context: CanvasRenderingContext2D,
@@ -514,16 +519,36 @@ function drawDrawnShell(
   openProgress: number,
 ) {
   const color = shellColor(shell.hue);
-  const closed = canvasArt(`sea-shells/${color}-closed`);
-  const open = canvasArt(`sea-shells/${color}-open`);
-  if (!closed || !open) return false;
-  const blend = Math.min(1, Math.max(0, (openProgress - 0.2) / 0.5));
-  const alpha = context.globalAlpha;
-  context.globalAlpha = alpha * (1 - blend);
-  drawCanvasArt(context, closed, point.x, point.y, radius * 1.9);
-  context.globalAlpha = alpha * blend;
-  drawCanvasArt(context, open, point.x, point.y, radius * 1.9);
-  context.globalAlpha = alpha;
+  const top = canvasArt(`sea-shells/${color}-top`);
+  const bottom = canvasArt(`sea-shells/${color}-bottom`);
+  const pearl = canvasArt("sea-shells/pearl");
+  if (!top || !bottom || !pearl) return false;
+  const delta = shellClock(shell.id, performance.now());
+  const lid = approach(shellLid.get(shell.id) ?? 0, openProgress, 6, delta);
+  shellLid.set(shell.id, lid);
+  const open = easeInOutSine(lid);
+
+  const width = radius * 1.9;
+  const lidHeight = (width * top.naturalHeight) / top.naturalWidth;
+  const lidBottom = point.y + lidHeight / 2;
+  const bottomWidth = width * 0.92;
+  const bottomHeight = (bottomWidth * bottom.naturalHeight) / bottom.naturalWidth;
+  const bottomTop = lidBottom + width * 0.02 - bottomHeight;
+  context.drawImage(bottom, point.x - bottomWidth / 2, bottomTop, bottomWidth, bottomHeight);
+
+  if (open > 0.05) {
+    const alpha = context.globalAlpha;
+    context.globalAlpha = alpha * progressBetween(open, 0.05, 0.4);
+    drawCanvasArt(context, pearl, point.x, bottomTop + width * (0.2 - open * 0.04), width * 0.32);
+    context.globalAlpha = alpha;
+  }
+
+  // The lid rises from its hinge at the back and tips away from the child.
+  context.save();
+  context.translate(point.x, lidBottom - open * width * 0.42);
+  context.scale(1, 1 - open * 0.3);
+  context.drawImage(top, -width / 2, -lidHeight, width, lidHeight);
+  context.restore();
   return true;
 }
 

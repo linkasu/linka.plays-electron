@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue";
 import { canvasArt, drawCanvasArt } from "../../core/canvasArt";
+import { approach, createFrameClock } from "../../core/motion";
 
 const props = defineProps<{
   active: boolean;
@@ -114,6 +115,13 @@ function drawRay(
   ctx.restore();
 }
 
+type SunFace = "face-sleep" | "face-smile" | "face-wow";
+const sunFaces: SunFace[] = ["face-sleep", "face-smile", "face-wow"];
+const faceWeight: Record<SunFace, number> = { "face-sleep": 1, "face-smile": 0, "face-wow": 0 };
+const sunClock = createFrameClock();
+let lastStep = 0;
+let wowUntil = 0;
+
 function drawSun(
   ctx: CanvasRenderingContext2D,
   cx: number,
@@ -139,16 +147,27 @@ function drawSun(
   ctx.arc(cx, cy, radius * (2.75 + open * 0.74), 0, Math.PI * 2);
   ctx.fill();
 
-  // Testers asked for drawn pictures: the drawn sun sleeps until the first ray
-  // and smiles once the child looks at it.
-  const art = canvasArt(
-    props.step > 0 || props.active ? "sun-rays/sun-smile" : "sun-rays/sun-sleep",
-  );
-  if (art) {
+  // Testers asked for drawn pictures. The drawn sun is a disc with a face on top:
+  // it sleeps until the child looks at it, wakes up smiling and is delighted for a
+  // moment with every new ray. Faces cross-fade, so it never changes at a jump.
+  const disc = canvasArt("sun-rays/sun-disc");
+  if (disc) {
+    const delta = sunClock("sun", now);
+    if (props.step > lastStep) wowUntil = now + 900;
+    lastStep = props.step;
+    const target: SunFace =
+      now < wowUntil ? "face-wow" : props.step > 0 || props.active ? "face-smile" : "face-sleep";
     ctx.save();
     ctx.translate(cx, cy);
     ctx.scale(pulse, pulse);
-    drawCanvasArt(ctx, art, 0, 0, radius * 2.15);
+    drawCanvasArt(ctx, disc, 0, 0, radius * 2.05);
+    for (const face of sunFaces) {
+      faceWeight[face] = approach(faceWeight[face], face === target ? 1 : 0, 7, delta);
+      const art = canvasArt(`sun-rays/${face}`);
+      if (!art || faceWeight[face] < 0.01) continue;
+      ctx.globalAlpha = faceWeight[face];
+      drawCanvasArt(ctx, art, 0, radius * 0.1, radius * 1.55);
+    }
     ctx.restore();
     return;
   }

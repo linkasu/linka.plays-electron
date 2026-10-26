@@ -1,4 +1,5 @@
-import { canvasArt } from "../../core/canvasArt";
+import { canvasArt, drawCanvasArt } from "../../core/canvasArt";
+import { progressBetween } from "../../core/motion";
 
 export type Point = { x: number; y: number };
 export type DuckState = "swimming" | "hit";
@@ -430,6 +431,73 @@ function drawDuckWing(context: CanvasRenderingContext2D, size: number) {
   context.restore();
 }
 
+// Testers asked for drawn animals. A drawn duckling assembled from its body and
+// a wing that lifts from the shoulder: a lazy flap while it swims, a quicker one
+// while the child looks at it; ripples pulse under it and a hit throws a splash.
+// Wing places are measured on the drawn whole duckling, in body widths/heights.
+const duckWing = {
+  folded: { x: 0.22, y: 0.505, width: 0.4635 },
+  raised: { x: 0.139, y: 0.258, width: 0.485 },
+  shoulder: { x: 0.67, y: 0.62 },
+};
+
+export function drawDrawnDuck(context: CanvasRenderingContext2D, duck: Duck) {
+  const body = canvasArt("ducks/body");
+  const folded = canvasArt("ducks/wing-folded");
+  const raised = canvasArt("ducks/wing-raised");
+  const ripple = canvasArt("ducks/ripple");
+  if (!body || !folded || !raised || !ripple) return false;
+  const width = duck.size * 1.3;
+  const height = (width * body.naturalHeight) / body.naturalWidth;
+  const left = -width * 0.48;
+  const top = duck.size * 0.32 - height;
+
+  const rippleWidth = width * (0.95 + Math.sin(duck.bob * 3) * 0.04);
+  drawCanvasArt(context, ripple, left + width * 0.47, top + height * 0.95, rippleWidth);
+  context.drawImage(body, left, top, width, height);
+
+  const eager = Math.min(1, duck.dwellProgress * 1.6);
+  const flap = 0.5 + 0.5 * Math.sin(duck.bob * (3 + eager * 5));
+  const lift = flap * (0.25 + eager * 0.75);
+  const pivotX = left + duckWing.shoulder.x * width;
+  const pivotY = top + duckWing.shoulder.y * height;
+  const alpha = context.globalAlpha;
+  for (const [art, place, weight] of [
+    [folded, duckWing.folded, 1 - progressBetween(lift, 0.45, 0.8)],
+    [raised, duckWing.raised, progressBetween(lift, 0.45, 0.8)],
+  ] as const) {
+    if (weight <= 0) continue;
+    const wingWidth = place.width * width;
+    const wingHeight = (wingWidth * art.naturalHeight) / art.naturalWidth;
+    context.save();
+    context.globalAlpha = alpha * weight;
+    context.translate(pivotX, pivotY);
+    context.rotate(-lift * 0.35);
+    context.drawImage(
+      art,
+      left + place.x * width - pivotX,
+      top + place.y * height - pivotY,
+      wingWidth,
+      wingHeight,
+    );
+    context.restore();
+  }
+
+  const splash = duck.state === "hit" ? canvasArt("ducks/splash") : undefined;
+  if (splash) {
+    context.globalAlpha = alpha * Math.max(0, 1 - duck.hitAge / 0.75);
+    drawCanvasArt(
+      context,
+      splash,
+      left + width * 0.9,
+      top + height * (0.75 - duck.hitAge * 0.4),
+      width * 0.45,
+    );
+    context.globalAlpha = alpha;
+  }
+  return true;
+}
+
 function drawDuck(context: CanvasRenderingContext2D, duck: Duck) {
   const alpha = duck.state === "hit" ? Math.max(0, 1 - duck.hitAge / 0.75) : 1;
   const size = duck.size;
@@ -445,12 +513,7 @@ function drawDuck(context: CanvasRenderingContext2D, duck: Duck) {
   context.ellipse(-size * 0.03, size * 0.28, size * 0.56, size * 0.12, 0, 0, Math.PI * 2);
   context.fill();
 
-  // Testers asked for drawn animals: a drawn duckling paddles between two frames.
-  const art = canvasArt(Math.sin(duck.bob * 4) > 0 ? "ducks/duck-1" : "ducks/duck-2");
-  if (art) {
-    const width = size * 1.5;
-    const height = (width * art.naturalHeight) / art.naturalWidth;
-    context.drawImage(art, -size * 0.62, size * 0.4 - height, width, height);
+  if (drawDrawnDuck(context, duck)) {
     context.restore();
     if (duck.state === "swimming" && duck.dwellProgress > 0) drawAimProgress(context, duck);
     return;
