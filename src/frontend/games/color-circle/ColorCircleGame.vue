@@ -208,7 +208,7 @@ onUnmounted(() => {
       @pause="pauseSession"
       @resume="resumeSession"
     />
-    <v-container class="color-circle-container d-flex align-center" fluid>
+    <v-container class="color-circle-container d-flex align-center game-hud-clear" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="8">
           <v-card class="color-circle-card pa-4 pa-md-7" rounded="xl" elevation="8">

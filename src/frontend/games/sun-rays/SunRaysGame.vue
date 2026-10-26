@@ -78,7 +78,7 @@ function restart() {
       @resume="resumeSession"
     />
 
-    <v-container class="sun-rays-container d-flex align-center justify-center" fluid>
+    <v-container class="sun-rays-container d-flex align-center justify-center game-hud-clear" fluid>
       <v-card class="sun-rays-card pa-4 pa-sm-6 pa-md-8" color="transparent" elevation="0">
         <div class="text-center mb-4 mb-md-6 sun-rays-copy">
           <div class="text-overline text-amber-darken-2">первая фиксация</div>

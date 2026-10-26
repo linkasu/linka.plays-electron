@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useDwellSettings } from "../../core/dwellSettings";
+import { fitGameBelowHud } from "../../core/fitBelowHud";
 import { resolveMenuMode, resolveMenuRoute } from "../../core/menuMode";
 import GameDwellButton from "./GameDwellButton.vue";
 import GazePointerOverlay from "./GazePointerOverlay.vue";
@@ -33,6 +34,35 @@ const progress = computed(() =>
 const showProgress = computed(() => props.showProgress !== false);
 const showTimer = computed(() => props.showTimer !== false);
 const isSelfMode = computed(() => resolveMenuMode() === "self");
+
+// Testers: the game field sat under the «В меню» / «Пауза» buttons. The HUD tells
+// the page how far down it reaches (styles/game-layout.css starts the game below).
+const hudRef = ref<HTMLElement>();
+let hudObserver: ResizeObserver | undefined;
+let stopFitting: (() => void) | undefined;
+
+function publishHudClearance() {
+  const bottom = hudRef.value?.getBoundingClientRect().bottom;
+  if (bottom === undefined) return;
+  document.documentElement.style.setProperty("--game-hud-clearance", `${Math.ceil(bottom)}px`);
+}
+
+onMounted(() => {
+  publishHudClearance();
+  if (typeof ResizeObserver !== "undefined" && hudRef.value) {
+    hudObserver = new ResizeObserver(publishHudClearance);
+    hudObserver.observe(hudRef.value);
+  }
+  window.addEventListener("resize", publishHudClearance);
+  stopFitting = fitGameBelowHud();
+});
+
+onUnmounted(() => {
+  hudObserver?.disconnect();
+  stopFitting?.();
+  window.removeEventListener("resize", publishHudClearance);
+  document.documentElement.style.removeProperty("--game-hud-clearance");
+});
 const remainingSeconds = computed(() => {
   if (!showTimer.value || props.durationMs === undefined || props.sessionSeconds === undefined)
     return undefined;
@@ -49,7 +79,7 @@ function togglePause() {
 </script>
 
 <template>
-  <div class="game-hud d-flex flex-wrap align-center ga-2 pa-3" data-canvas-overlay>
+  <div ref="hudRef" class="game-hud d-flex flex-wrap align-center ga-2 pa-3" data-canvas-overlay>
     <template v-if="isSelfMode">
       <div class="self-gaze-edge d-flex ga-2" aria-label="Управление взглядом">
         <GameDwellButton

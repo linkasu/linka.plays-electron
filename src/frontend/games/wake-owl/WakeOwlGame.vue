@@ -153,7 +153,7 @@ onUnmounted(() => {
       @resume="resumeSession"
     />
 
-    <section class="wake-owl-playfield" aria-label="Игровая область: разбуди сову">
+    <section class="wake-owl-playfield game-hud-clear" aria-label="Игровая область: разбуди сову">
       <v-card class="wake-owl-copy-card px-4 py-3 text-center" color="transparent" elevation="0">
         <div class="text-overline text-blue-lighten-4">фиксация взглядом</div>
         <h1 class="text-h4 text-sm-h3 font-weight-bold">Разбуди сонную сову</h1>
@@ -250,7 +250,7 @@ onUnmounted(() => {
 
 .wake-owl-copy-card {
   color: #f5f8ff;
-  inset-block-start: clamp(102px, 11vh, 132px);
+  inset-block-start: var(--game-hud-clearance, 10rem);
   inset-inline: clamp(22px, 7vw, 160px);
   pointer-events: none;
   position: absolute;
@@ -402,7 +402,7 @@ onUnmounted(() => {
   }
 
   .wake-owl-copy-card {
-    inset-block-start: 96px;
+    inset-block-start: var(--game-hud-clearance, 10rem);
     inset-inline: 14px;
   }
 

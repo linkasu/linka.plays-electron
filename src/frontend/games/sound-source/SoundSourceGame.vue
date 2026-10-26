@@ -418,7 +418,7 @@ onUnmounted(() => {
       @resume="resumeSession"
     />
 
-    <v-container class="sound-source-container d-flex align-center justify-center" fluid>
+    <v-container class="sound-source-container d-flex align-center justify-center game-hud-clear" fluid>
       <v-card
         class="sound-source-panel pa-3 pa-sm-4 pa-md-6"
         color="surface"
