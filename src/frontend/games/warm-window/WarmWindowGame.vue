@@ -200,7 +200,10 @@ onUnmounted(() => {
       @resume="resumeSession"
     />
 
-    <v-container class="warm-window-container d-flex align-center justify-center game-hud-clear" fluid>
+    <v-container
+      class="warm-window-container d-flex align-center justify-center game-hud-clear"
+      fluid
+    >
       <v-card class="warm-window-scene px-4 px-sm-6 px-md-8" color="transparent" elevation="0">
         <div class="warm-window-house" role="group" aria-label="Дом с окнами для игры Тёплое окно">
           <div class="warm-window-roof" aria-hidden="true">
