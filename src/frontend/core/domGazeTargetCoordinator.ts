@@ -33,7 +33,15 @@ function isVisible(element: HTMLElement, rect: DOMRect) {
   );
 }
 
-function collectCandidates() {
+/**
+ * Запас вокруг цели нужен трекеру: взгляд промахивается на десятки пикселей.
+ * Мышь точная — с запасом кнопка срабатывала, когда мышь ещё за её краем.
+ */
+export function pointerHitPadding(hitPadding: number, source: GazePoint["source"] | undefined) {
+  return source === "mouse" ? 0 : Math.max(0, hitPadding);
+}
+
+function collectCandidates(source: GazePoint["source"] | undefined) {
   const candidates: GazeTargetCandidate[] = [];
   for (const registration of registrations.values()) {
     const element = registration.element();
@@ -44,7 +52,7 @@ function collectCandidates() {
       rect: registration.shape?.() ?? box,
       enabled: registration.enabled(),
       visible: isVisible(element, box),
-      hitPadding: Math.max(0, registration.hitPadding()),
+      hitPadding: pointerHitPadding(registration.hitPadding(), source),
       priority: registration.priority(),
     });
   }
@@ -54,7 +62,7 @@ function collectCandidates() {
 function tick() {
   const pointer = pointerRef?.value;
   activeTargetId.value = pointer?.valid
-    ? resolveGazeTarget(collectCandidates(), pointer)?.id
+    ? resolveGazeTarget(collectCandidates(pointer.source), pointer)?.id
     : undefined;
   frame = window.requestAnimationFrame(tick);
 }
