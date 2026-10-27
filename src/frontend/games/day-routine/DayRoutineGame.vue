@@ -320,7 +320,12 @@ watch(isSpeaking, (speaking) => {
                       rounded="lg"
                       variant="tonal"
                     >
-                      <span>Ждёт картинку</span>
+                      <img
+                        class="empty-slot__art"
+                        :src="gameArtSrc(period.artId)"
+                        :alt="period.title"
+                        draggable="false"
+                      />
                     </v-card>
                   </div>
                 </v-card>
@@ -392,7 +397,16 @@ watch(isSpeaking, (speaking) => {
 }
 
 .empty-slot {
+  grid-column: 1 / -1;
   min-block-size: calc(clamp(2.75rem, 9dvh, 6rem) + 2.5rem);
+}
+
+/* Пока в карточке пусто, в ней картинка этого времени дня. */
+.empty-slot__art {
+  aspect-ratio: 1;
+  block-size: calc(clamp(2.75rem, 9dvh, 6rem) + 1.75rem);
+  border-radius: 0.75rem;
+  object-fit: cover;
 }
 
 /* Картинка — главное на карточке: растёт с высотой окна и занимает свободное место под игрой. */
@@ -483,8 +497,11 @@ watch(isSpeaking, (speaking) => {
   }
 
   .empty-slot {
-    font-size: 0.6875rem;
     min-block-size: calc(clamp(2.75rem, 9dvh, 6rem) + 1.25rem);
+  }
+
+  .empty-slot__art {
+    block-size: calc(clamp(2.75rem, 9dvh, 6rem) + 0.75rem);
   }
 
   .sequence-divider {
