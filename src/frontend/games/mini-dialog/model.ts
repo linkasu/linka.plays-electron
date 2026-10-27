@@ -10,7 +10,8 @@ export type MiniDialogChoiceKind = "answer" | "refusal" | "support" | "repeat" |
 export type MiniDialogCharacter = {
   name: string;
   role: string;
-  icon: string;
+  /** Drawn portrait, see core/gameArt.ts. */
+  artId: string;
   color: string;
 };
 
@@ -51,8 +52,8 @@ export const miniDialogInstruction =
 export const miniDialogCharacter: MiniDialogCharacter = {
   name: "Мира",
   role: "твой собеседник",
-  icon: "mdi-account-voice",
-  color: "#6d65c7",
+  artId: "mini-dialog/mira",
+  color: "#ede7f6",
 };
 
 export const miniDialogPath: MiniDialogNodeId[] = [

@@ -5,6 +5,7 @@ import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
 import {
@@ -160,11 +161,12 @@ onUnmounted(() => {
             >
               <div class="partner-layout">
                 <div class="partner-person">
-                  <v-avatar :color="round.character.color" size="clamp(4.8rem, 10dvh, 6.5rem)">
-                    <v-icon
-                      color="white"
-                      :icon="round.character.icon"
-                      size="clamp(2.8rem, 6dvh, 4rem)"
+                  <v-avatar :color="round.character.color" size="clamp(4.8rem, 12dvh, 7.5rem)">
+                    <img
+                      class="partner-portrait"
+                      :src="gameArtSrc(round.character.artId)"
+                      :alt="round.character.name"
+                      draggable="false"
                     />
                   </v-avatar>
                   <div class="text-h6 font-weight-bold mt-2">{{ round.character.name }}</div>
@@ -242,6 +244,13 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.partner-portrait {
+  block-size: 100%;
+  inline-size: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
 .mini-dialog-shell {
   background: linear-gradient(135deg, #eef8f4 0%, #f9f1ff 52%, #fff8e7 100%);
   min-block-size: 100vh;
