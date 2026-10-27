@@ -11695,5 +11695,26 @@
     "text": "Предмет: машинка.",
     "voice": "jane",
     "path": "/audio/tts/shelf-sorting/scene-809c9a64.mp3"
+  },
+  {
+    "id": "dress-character.prompt.cold.pants",
+    "game": "dress-character",
+    "text": "Холодно. Какие штаны надеть?",
+    "voice": "jane",
+    "path": "/audio/tts/dress-character/prompt-cold-pants.mp3"
+  },
+  {
+    "id": "dress-character.prompt.rain.pants",
+    "game": "dress-character",
+    "text": "Идёт дождь. Какие штаны надеть?",
+    "voice": "jane",
+    "path": "/audio/tts/dress-character/prompt-rain-pants.mp3"
+  },
+  {
+    "id": "dress-character.prompt.sun.pants",
+    "game": "dress-character",
+    "text": "Солнечно. Какие штаны надеть?",
+    "voice": "jane",
+    "path": "/audio/tts/dress-character/prompt-sun-pants.mp3"
   }
 ]

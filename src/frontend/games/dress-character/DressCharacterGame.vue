@@ -512,7 +512,7 @@ watch(
 }
 
 .person {
-  aspect-ratio: 400 / 640;
+  aspect-ratio: 400 / 700;
   block-size: 94%;
   inset-block-end: 2%;
   inset-inline-start: 50%;
