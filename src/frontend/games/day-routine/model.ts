@@ -9,6 +9,8 @@ export type DayRoutinePeriod = {
   title: string;
   helper: string;
   icon: string;
+  /** Picture of this time of day for an empty card, see core/gameArt.ts. */
+  artId: string;
   color: string;
 };
 
@@ -56,6 +58,7 @@ export const dayRoutinePeriods: DayRoutinePeriod[] = [
     title: "Утро",
     helper: "Сначала просыпаемся, умываемся и завтракаем.",
     icon: "mdi-weather-sunset-up",
+    artId: "day-routine/period-morning",
     color: "amber-lighten-5",
   },
   {
@@ -65,6 +68,7 @@ export const dayRoutinePeriods: DayRoutinePeriod[] = [
     title: "День",
     helper: "Днём играем, гуляем и обедаем.",
     icon: "mdi-white-balance-sunny",
+    artId: "day-routine/period-day",
     color: "light-blue-lighten-5",
   },
   {
@@ -74,6 +78,7 @@ export const dayRoutinePeriods: DayRoutinePeriod[] = [
     title: "Вечер",
     helper: "Вечером ужинаем, умываемся и готовимся ко сну.",
     icon: "mdi-weather-night",
+    artId: "day-routine/period-evening",
     color: "deep-purple-lighten-5",
   },
 ];
