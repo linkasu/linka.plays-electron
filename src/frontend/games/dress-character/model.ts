@@ -34,6 +34,15 @@ export function clothingArtId(item: ClothingItem) {
   return `dress-character/${item.id.split("-").slice(2).join("-")}`;
 }
 
+/**
+ * Whole drawing of the child for a kit with the first `dressedCount` slots put on
+ * (slots are always put on in order). Testers: separate items lay on top of the child.
+ */
+export function dressedChildArtId(kitId: DressCharacterWeatherId, dressedCount: number) {
+  const count = Math.max(0, Math.min(clothingSlots.length, Math.floor(dressedCount)));
+  return count ? `dress-character/worn/${kitId}-${count}` : "dress-character/worn/base";
+}
+
 export const dressCharacterWeatherKits: DressCharacterWeatherKit[] = [
   {
     id: "cold",
