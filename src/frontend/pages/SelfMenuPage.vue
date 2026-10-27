@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import GameDwellButton from "../components/game/GameDwellButton.vue";
+import GazePointerOverlay from "../components/game/GazePointerOverlay.vue";
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
 import { useDwellSettings } from "../core/dwellSettings";
 import { firstMenuCategory, rememberMenuCategory, rememberMenuMode } from "../core/menuMode";
@@ -86,6 +87,8 @@ watch(() => route.query.category, syncCategoryFromRoute);
 
 <template>
   <v-container class="gallery-menu pa-4 pa-md-6" fluid>
+    <!-- Точка взгляда, как в играх: без неё в меню не видно, куда смотрит трекер. -->
+    <GazePointerOverlay />
     <v-row class="h-100" justify="center" align="center">
       <v-col cols="12" lg="11" xl="10">
         <v-card class="gallery-card pa-5 pa-md-7" rounded="xl" elevation="8">

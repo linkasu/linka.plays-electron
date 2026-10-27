@@ -5,7 +5,11 @@ let sharedCooldownUntil = 0;
 <script setup lang="ts">
 import { computed, getCurrentInstance, inject, onMounted, onUnmounted, ref, watch } from "vue";
 import { useGazePointer } from "../../composables/useGazePointer";
-import { activeDomGazeTargetId, registerDomGazeTarget } from "../../core/domGazeTargetCoordinator";
+import {
+  activeDomGazeTargetId,
+  pointerHitPadding,
+  registerDomGazeTarget,
+} from "../../core/domGazeTargetCoordinator";
 import { unionRect, type GazeTargetRect } from "../../core/gazeTargetResolver";
 import { advanceDwellMachine, createDwellMachineState } from "../../core/dwellStateMachine";
 import { DEFAULT_DWELL_MS } from "../../core/dwellSettings";
@@ -128,13 +132,14 @@ function tick(now: number) {
   const previousState = machineState;
   const previousProgress = progress.value;
   const rect = currentRect();
+  const padding = pointerHitPadding(props.hitPadding, pointer.value.source);
   const releaseTargetActive = Boolean(
     rect &&
     pointer.value.valid &&
-    pointer.value.x >= rect.left - props.hitPadding &&
-    pointer.value.x <= rect.right + props.hitPadding &&
-    pointer.value.y >= rect.top - props.hitPadding &&
-    pointer.value.y <= rect.bottom + props.hitPadding,
+    pointer.value.x >= rect.left - padding &&
+    pointer.value.x <= rect.right + padding &&
+    pointer.value.y >= rect.top - padding &&
+    pointer.value.y <= rect.bottom + padding,
   );
   const result = advanceDwellMachine(machineState, {
     now,
