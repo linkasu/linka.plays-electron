@@ -13,7 +13,12 @@ import {
 import { shouldStartTelemetry } from "./telemetry/policy";
 import { TelemetryPrivacyController } from "./telemetry/privacyController";
 import { TelemetryPrivacyPreferenceStore } from "./telemetry/privacyPreference";
-import { registerUpdaterHandlers, setupAutoUpdater } from "./updater";
+import {
+  hasDownloadedUpdate,
+  installDownloadedUpdateOnQuit,
+  registerUpdaterHandlers,
+  setupAutoUpdater,
+} from "./updater";
 
 let mainWindow: BrowserWindow | undefined;
 let pendingGameId = gameIdFromArguments(process.argv);
@@ -223,11 +228,18 @@ app.on("before-quit", (event) => {
   event.preventDefault();
   if (quitPreparing) return;
   quitPreparing = true;
+  if (hasDownloadedUpdate()) quitReason = "update-restart";
   void Promise.resolve(privacyController?.closeGate())
     .then(() => privacyController?.telemetry?.shutdown(quitReason))
     .catch(() => undefined)
     .finally(() => {
       quitPrepared = true;
-      app.quit();
+      if (!installDownloadedUpdateOnQuit()) {
+        app.quit();
+        return;
+      }
+      // quitAndInstall quits by itself once the installer has started; if it could
+      // not start, close anyway rather than leave a window-less process behind.
+      setTimeout(() => app.quit(), 5000);
     });
 });
