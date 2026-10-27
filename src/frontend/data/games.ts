@@ -970,7 +970,7 @@ export const games: GameInfo[] = [
   {
     id: "dress-character",
     title: "Одень персонажа",
-    description: "Выбирай одежду по подсказке: шапку, куртку и обувь в последовательности.",
+    description: "Выбирай одежду по подсказке: шапку, куртку, штаны и обувь в последовательности.",
     selfDescription: "Одень персонажа по подсказке.",
     route: "/games/dress-character",
     category: "sequencing",

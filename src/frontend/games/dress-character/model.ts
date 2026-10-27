@@ -1,4 +1,4 @@
-export type ClothingSlot = "hat" | "jacket" | "shoes";
+export type ClothingSlot = "hat" | "jacket" | "pants" | "shoes";
 
 export type DressCharacterWeatherId = "cold" | "rain" | "sun";
 
@@ -27,7 +27,7 @@ export type DressCharacterWeatherKit = {
   items: DressCharacterTask[];
 };
 
-export const clothingSlots: ClothingSlot[] = ["hat", "jacket", "shoes"];
+export const clothingSlots: ClothingSlot[] = ["hat", "jacket", "pants", "shoes"];
 
 /** Drawn picture of the item: ids end with the kind, e.g. "cold-hat-beanie" -> beanie. */
 export function clothingArtId(item: ClothingItem) {
@@ -47,7 +47,7 @@ export const dressCharacterWeatherKits: DressCharacterWeatherKit[] = [
   {
     id: "cold",
     title: "Холодно и снежно",
-    helper: "Собираемся на морозную прогулку: шапка, куртка и тёплая обувь.",
+    helper: "Собираемся на морозную прогулку: шапка, куртка, тёплые штаны и тёплая обувь.",
     sceneStart: "#dff7f3",
     sceneEnd: "#eef3ff",
     sceneAccent: "#cfe8ff",
@@ -121,6 +121,40 @@ export const dressCharacterWeatherKits: DressCharacterWeatherKit[] = [
         ],
       },
       {
+        slot: "pants",
+        prompt: "Холодно. Какие штаны надеть?",
+        target: {
+          id: "cold-pants-warm-pants",
+          slot: "pants",
+          label: "Тёплые штаны",
+          color: "#64b5f6",
+          darkColor: "#1e3a8a",
+        },
+        choices: [
+          {
+            id: "cold-pants-warm-pants",
+            slot: "pants",
+            label: "Тёплые штаны",
+            color: "#64b5f6",
+            darkColor: "#1e3a8a",
+          },
+          {
+            id: "cold-pants-rain-pants",
+            slot: "pants",
+            label: "Непромокаемые штаны",
+            color: "#facc15",
+            darkColor: "#a16207",
+          },
+          {
+            id: "cold-pants-shorts",
+            slot: "pants",
+            label: "Шорты",
+            color: "#81c784",
+            darkColor: "#2e7d32",
+          },
+        ],
+      },
+      {
         slot: "shoes",
         prompt: "Холодно. Что надеть на ноги?",
         target: {
@@ -159,7 +193,7 @@ export const dressCharacterWeatherKits: DressCharacterWeatherKit[] = [
   {
     id: "rain",
     title: "Идёт дождь",
-    helper: "Для дождя берём капюшон, плащ и резиновые сапоги.",
+    helper: "Для дождя берём капюшон, плащ, непромокаемые штаны и резиновые сапоги.",
     sceneStart: "#dbeafe",
     sceneEnd: "#e0f2fe",
     sceneAccent: "#93c5fd",
@@ -233,6 +267,40 @@ export const dressCharacterWeatherKits: DressCharacterWeatherKit[] = [
         ],
       },
       {
+        slot: "pants",
+        prompt: "Идёт дождь. Какие штаны надеть?",
+        target: {
+          id: "rain-pants-rain-pants",
+          slot: "pants",
+          label: "Непромокаемые штаны",
+          color: "#facc15",
+          darkColor: "#a16207",
+        },
+        choices: [
+          {
+            id: "rain-pants-rain-pants",
+            slot: "pants",
+            label: "Непромокаемые штаны",
+            color: "#facc15",
+            darkColor: "#a16207",
+          },
+          {
+            id: "rain-pants-shorts",
+            slot: "pants",
+            label: "Шорты",
+            color: "#81c784",
+            darkColor: "#2e7d32",
+          },
+          {
+            id: "rain-pants-warm-pants",
+            slot: "pants",
+            label: "Тёплые штаны",
+            color: "#64b5f6",
+            darkColor: "#1e3a8a",
+          },
+        ],
+      },
+      {
         slot: "shoes",
         prompt: "Идёт дождь. Что надеть на ноги?",
         target: {
@@ -271,7 +339,7 @@ export const dressCharacterWeatherKits: DressCharacterWeatherKit[] = [
   {
     id: "sun",
     title: "Солнечно и тепло",
-    helper: "Для тёплого солнца подойдут панама, футболка и лёгкие сандалии.",
+    helper: "Для тёплого солнца подойдут панама, футболка, шорты и лёгкие сандалии.",
     sceneStart: "#fff7d6",
     sceneEnd: "#d9f99d",
     sceneAccent: "#fde68a",
@@ -341,6 +409,40 @@ export const dressCharacterWeatherKits: DressCharacterWeatherKit[] = [
             label: "Плащ",
             color: "#38bdf8",
             darkColor: "#075985",
+          },
+        ],
+      },
+      {
+        slot: "pants",
+        prompt: "Солнечно. Какие штаны надеть?",
+        target: {
+          id: "sun-pants-shorts",
+          slot: "pants",
+          label: "Шорты",
+          color: "#81c784",
+          darkColor: "#2e7d32",
+        },
+        choices: [
+          {
+            id: "sun-pants-shorts",
+            slot: "pants",
+            label: "Шорты",
+            color: "#81c784",
+            darkColor: "#2e7d32",
+          },
+          {
+            id: "sun-pants-warm-pants",
+            slot: "pants",
+            label: "Тёплые штаны",
+            color: "#64b5f6",
+            darkColor: "#1e3a8a",
+          },
+          {
+            id: "sun-pants-rain-pants",
+            slot: "pants",
+            label: "Непромокаемые штаны",
+            color: "#facc15",
+            darkColor: "#a16207",
           },
         ],
       },
