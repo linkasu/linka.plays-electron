@@ -287,11 +287,6 @@ onUnmounted(() => {
   padding-block: clamp(0.5rem, 2vh, 1.5rem) clamp(1rem, 4vh, 3rem);
 }
 
-.find-animal-card {
-  max-block-size: calc(100dvh - var(--game-hud-clearance, 10rem) - 1rem);
-  overflow: hidden;
-}
-
 .game-row {
   align-items: center;
   flex: 1 1 auto;
@@ -324,6 +319,13 @@ onUnmounted(() => {
 .animal-emoji--mistake {
   filter: saturate(0.75) opacity(0.72);
   transform: scale(0.96);
+}
+
+/* Уже md (960 px) карточки идут в два ряда: картинки ниже, чтобы оба ряда помещались. */
+@media (max-width: 59.9375rem) {
+  .animal-emoji {
+    font-size: clamp(3.1rem, min(14vw, 13dvh), 13rem);
+  }
 }
 
 @media (max-height: 44rem) {
