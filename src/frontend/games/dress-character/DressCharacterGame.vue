@@ -572,7 +572,12 @@ watch(
   ) !important;
 }
 
-/* Кнопки широкие и низкие: картинка слева во всю высоту кнопки, подпись справа. */
+/* Кнопки широкие и низкие: картинка слева во всю высоту кнопки, подпись справа.
+   На узкой кнопке (длинные подписи вроде «Непромокаемые штаны») картинка снова над подписью. */
+.choice-button :deep(.dwell-button) {
+  container-type: inline-size;
+}
+
 .choice-content {
   align-items: center;
   display: flex;
@@ -653,6 +658,17 @@ watch(
   .choice-button :deep(.dwell-button) {
     min-block-size: 6.75rem !important;
     padding: 0.35rem !important;
+  }
+}
+
+@container (max-width: 30rem) {
+  .choice-content {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .choice-art {
+    block-size: min(clamp(2.4rem, 12dvh, 6rem), 40cqi);
   }
 }
 </style>

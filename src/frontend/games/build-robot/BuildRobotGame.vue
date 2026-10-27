@@ -636,7 +636,13 @@ onUnmounted(() => {
   block-size: 72%;
 }
 
-/* Кнопки широкие и низкие: деталь слева во всю высоту кнопки, подпись справа. */
+/* Кнопки широкие и низкие: деталь слева во всю высоту кнопки, подпись справа.
+   Высота детали не больше 30% ширины кнопки (руки шире головы в 1,7 раза);
+   на узкой кнопке деталь снова над подписью. */
+.choice-target :deep(.dwell-button) {
+  container-type: inline-size;
+}
+
 .choice-content {
   align-items: center;
   display: flex;
@@ -645,7 +651,7 @@ onUnmounted(() => {
 }
 
 .robot-art--choice {
-  block-size: clamp(4.2rem, 15dvh, 8rem);
+  block-size: min(clamp(4.2rem, 15dvh, 8rem), 30cqi);
   filter: drop-shadow(0 0.35rem 0.25rem rgb(0 0 0 / 18%));
   flex: 0 0 auto;
   margin-inline: 0;
@@ -695,8 +701,20 @@ onUnmounted(() => {
   }
 
   .robot-art--choice {
-    block-size: clamp(2.55rem, 14dvh, 6rem);
+    block-size: min(clamp(2.55rem, 14dvh, 6rem), 30cqi);
     inline-size: auto;
+  }
+}
+
+@container (max-width: 20rem) {
+  .choice-content {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .robot-art--choice,
+  .robot-art.robot-art--choice {
+    block-size: min(clamp(2.55rem, 14dvh, 6rem), 45cqi);
   }
 }
 </style>
