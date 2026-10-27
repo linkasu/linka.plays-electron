@@ -386,7 +386,13 @@ async function main() {
     await new Promise((resolveClose) => metricsServer.server.close(resolveClose));
     writeFileSync(logPath, logs.join(""), "utf8");
     writeFileSync(outputPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
-    rmSync(userDataPath, { recursive: true, force: true });
+    // The closed app can hold a file in its profile for a moment ("Network/Trust Tokens"):
+    // EBUSY failed several release runs. Retry, and never fail a passed check on cleanup.
+    try {
+      rmSync(userDataPath, { recursive: true, force: true, maxRetries: 10, retryDelay: 500 });
+    } catch (error) {
+      console.warn(`Could not remove ${userDataPath}: ${error.message}`);
+    }
   }
 
   console.log(`Packaged privacy smoke passed for ${basename(executable)}.`);
