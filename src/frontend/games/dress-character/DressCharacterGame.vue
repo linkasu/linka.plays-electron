@@ -19,6 +19,8 @@ import {
   clothingArtId,
   clothingSlots,
   dressCharacterMaxSteps,
+  dressCharacterWeatherKits,
+  dressedChildArtId,
   getDressCharacterExpectedItem,
   getDressCharacterKit,
   getDressCharacterTask,
@@ -87,15 +89,17 @@ const kitStyle = computed(() => {
   ]);
 });
 
-const childSrc = gameArtSrc("dress-character/child");
-// Only correct choices are put on, so a dressed slot always shows the kit's target.
-const wornItems = computed(() =>
-  currentKit.value.items
-    .filter((task) => dressed[task.slot])
-    .map((task) => {
-      const artId = clothingArtId(task.target);
-      return { slot: task.slot, kind: artId.split("/")[1], src: gameArtSrc(artId) };
-    }),
+// The kit whose clothes are on: right after the last item the step (and currentKit)
+// already points at the next kit, while the finished outfit is still shown.
+const dressedKitId = ref(currentKit.value.id);
+// Only correct choices are put on, in slot order, so the count picks the drawing.
+const childSrc = computed(() =>
+  gameArtSrc(
+    dressedChildArtId(dressedKitId.value, clothingSlots.filter((slot) => dressed[slot]).length),
+  ),
+);
+const childArtSrcs = dressCharacterWeatherKits.flatMap((kit) =>
+  clothingSlots.map((_, index) => gameArtSrc(dressedChildArtId(kit.id, index + 1))),
 );
 
 function choiceArtSrc(item: ClothingItem) {
@@ -161,6 +165,7 @@ async function choose(item: ClothingItem) {
   if (item.id === expectedItem.id) {
     const sessionId = session.sessionId;
     isFeedbackPlaying.value = true;
+    dressedKitId.value = getDressCharacterKit(session.step).id;
     dressed[item.slot] = true;
     lastMistakeChoiceId.value = undefined;
     feedbackMessage.value = `Да, это ${item.label.toLowerCase()}. Персонажу удобно.`;
@@ -290,6 +295,8 @@ function restart() {
 }
 
 onMounted(() => {
+  // Load every dressed drawing up front so a swap never shows an empty frame.
+  for (const src of [childSrc.value, ...childArtSrcs]) new Image().src = src;
   promptAudio.warm();
   warmDressCharacterAudio(session.settings.sound);
   void playPrompt(450);
@@ -347,30 +354,13 @@ watch(
                   <div class="closet-sparkle closet-sparkle--one" />
                   <div class="closet-sparkle closet-sparkle--two" />
                   <div class="person">
-                    <img class="person__child" :src="childSrc" alt="" draggable="false" />
-                    <template v-for="piece in wornItems" :key="piece.slot">
-                      <!-- A pair of shoes is split so that each shoe lands on its own foot. -->
-                      <template v-if="piece.slot === 'shoes'">
-                        <span
-                          v-for="side in ['left', 'right']"
-                          :key="side"
-                          :class="['dress-shoe', `dress-shoe--${side}`]"
-                        >
-                          <img :src="piece.src" alt="" draggable="false" />
-                        </span>
-                      </template>
-                      <img
-                        v-else
-                        :class="[
-                          'dress-piece',
-                          `dress-piece--${piece.slot}`,
-                          `dress-piece--${piece.kind}`,
-                        ]"
-                        :src="piece.src"
-                        alt=""
-                        draggable="false"
-                      />
-                    </template>
+                    <img
+                      :key="childSrc"
+                      class="person__child"
+                      :src="childSrc"
+                      alt=""
+                      draggable="false"
+                    />
                   </div>
                   <div class="scene-rug" />
                 </div>
@@ -522,7 +512,7 @@ watch(
 }
 
 .person {
-  aspect-ratio: 292 / 470;
+  aspect-ratio: 400 / 640;
   block-size: 94%;
   inset-block-end: 2%;
   inset-inline-start: 50%;
@@ -531,84 +521,19 @@ watch(
   z-index: 2;
 }
 
-.person__child,
-.dress-piece,
-.dress-shoe {
-  position: absolute;
-}
-
+/* A new drawing replaces the old one at once; a short fade-in shows the change. */
 .person__child {
+  animation: person-dress-in 240ms ease-out;
   block-size: 100%;
   inline-size: 100%;
   inset: 0;
+  position: absolute;
   z-index: 2;
 }
 
-/* Boxes are in percent of the drawn child: head 2-41 %, body 42-66 %, feet 88-98 %. */
-.dress-piece {
-  animation: dress-piece-in 260ms ease-out;
-  object-fit: contain;
-  z-index: 3;
-}
-
-.dress-piece--hat {
-  block-size: 30%;
-  inline-size: 86%;
-  inset-block-start: -9%;
-  inset-inline-start: 7%;
-  object-position: center bottom;
-}
-
-/* The hood frames the face from behind instead of covering it. */
-.dress-piece--hood {
-  block-size: 56%;
-  inline-size: 124%;
-  inset-block-start: -9%;
-  inset-inline-start: -12%;
-  object-position: center top;
-  z-index: 1;
-}
-
-.dress-piece--jacket {
-  block-size: 44%;
-  inline-size: 100%;
-  inset-block-start: 39%;
-  inset-inline-start: 0;
-  object-position: center top;
-}
-
-.dress-shoe {
-  animation: dress-piece-in 260ms ease-out;
-  block-size: 30%;
-  inline-size: 24%;
-  inset-block-end: 0;
-  overflow: hidden;
-  z-index: 3;
-}
-
-/* The pair is twice as wide as the box, so each half shows one shoe. */
-.dress-shoe img {
-  inline-size: 200%;
-  inset-block-end: 0;
-  position: absolute;
-}
-
-.dress-shoe--left {
-  inset-inline-start: 19%;
-}
-
-.dress-shoe--right {
-  inset-inline-start: 57%;
-}
-
-.dress-shoe--right img {
-  inset-inline-start: -100%;
-}
-
-@keyframes dress-piece-in {
+@keyframes person-dress-in {
   from {
-    opacity: 0;
-    transform: scale(0.85);
+    opacity: 0.35;
   }
 }
 

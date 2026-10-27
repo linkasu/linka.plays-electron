@@ -4,6 +4,7 @@ import {
   dressCharacterKitIndex,
   dressCharacterMaxSteps,
   dressCharacterWeatherKits,
+  dressedChildArtId,
   getDressCharacterExpectedItem,
   getDressCharacterKit,
   getDressCharacterTask,
@@ -11,6 +12,13 @@ import {
 } from "./model";
 
 describe("dress-character model", () => {
+  it("picks the dressed drawing by kit and number of items put on", () => {
+    expect(dressedChildArtId("cold", 0)).toBe("dress-character/worn/base");
+    expect(dressedChildArtId("rain", 2)).toBe("dress-character/worn/rain-2");
+    expect(dressedChildArtId("sun", 3)).toBe("dress-character/worn/sun-3");
+    expect(dressedChildArtId("sun", 7)).toBe("dress-character/worn/sun-3");
+  });
+
   it("keeps three weather kits with hat, jacket and shoes tasks", () => {
     expect(dressCharacterWeatherKits.map((kit) => kit.id)).toEqual(["cold", "rain", "sun"]);
     expect(clothingSlots).toEqual(["hat", "jacket", "shoes"]);
