@@ -107,7 +107,10 @@ export function setupAutoUpdater(win: BrowserWindow) {
   }
 
   autoUpdater.autoDownload = false;
-  autoUpdater.autoInstallOnAppQuit = true;
+  // Installed from before-quit by installDownloadedUpdateOnQuit(): electron-updater's own
+  // install-on-quit runs the installer silently, and a program reopened during that
+  // minute crashed or did not start on half-replaced files.
+  autoUpdater.autoInstallOnAppQuit = false;
   if (process.platform === "win32") autoUpdater.allowPrerelease = true;
 
   autoUpdater.on("error", (error) => {
@@ -188,6 +191,30 @@ export function setupAutoUpdater(win: BrowserWindow) {
     logUpdate("update_check_error", { message });
     sendToRenderer("updater:error", message);
   });
+}
+
+/** True when a downloaded update is waiting to be installed when the program closes. */
+export function hasDownloadedUpdate() {
+  return (
+    app.isPackaged && updateState.downloaded && Boolean(downloadedVersion) && !isQuittingForUpdate
+  );
+}
+
+/**
+ * Testers: after an update the program crashed or did not start for a few minutes.
+ * The update was installed silently on quit, so nothing showed it was still being
+ * installed. Now the installer runs with its progress window and opens the program
+ * again when it is done. Returns false when there is nothing to install.
+ */
+export function installDownloadedUpdateOnQuit() {
+  if (!hasDownloadedUpdate()) return false;
+  isQuittingForUpdate = true;
+  telemetryHooks.onState?.("installing", downloadedVersion ?? undefined);
+  recordUpdateInstallAttempt(downloadedVersion);
+  logUpdate("install_on_quit", { version: downloadedVersion });
+  // Not silent: the installer shows its progress; it then starts the program itself.
+  autoUpdater.quitAndInstall(false, true);
+  return true;
 }
 
 function sendToRenderer(channel: string, payload?: unknown) {
