@@ -402,7 +402,7 @@ watch(
                       ]"
                     >
                       <img class="choice-art" :src="choiceArtSrc(item)" alt="" draggable="false" />
-                      <div class="text-h5 text-md-h4 font-weight-bold mt-1">{{ item.label }}</div>
+                      <div class="text-h5 text-md-h4 font-weight-bold">{{ item.label }}</div>
                     </div>
                   </template>
                 </GameDwellButton>
@@ -572,10 +572,24 @@ watch(
   ) !important;
 }
 
+/* Кнопки широкие и низкие: картинка слева во всю высоту кнопки, подпись справа.
+   На узкой кнопке (длинные подписи вроде «Непромокаемые штаны») картинка снова над подписью. */
+.choice-button :deep(.dwell-button) {
+  container-type: inline-size;
+}
+
+.choice-content {
+  align-items: center;
+  display: flex;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+  justify-content: center;
+}
+
 .choice-art {
-  block-size: clamp(3.6rem, min(10vw, 12vh), 6.4rem);
-  inline-size: clamp(5.3rem, min(13vw, 17vh), 8.6rem);
-  margin-inline: auto;
+  aspect-ratio: 4 / 3;
+  block-size: clamp(3.6rem, 15dvh, 8rem);
+  flex: 0 0 auto;
+  inline-size: auto;
   object-fit: contain;
 }
 
@@ -634,8 +648,7 @@ watch(
   }
 
   .choice-art {
-    block-size: clamp(2.4rem, min(5.2vw, 7vh), 3.4rem);
-    inline-size: clamp(4.2rem, min(9vw, 12vh), 5.8rem);
+    block-size: clamp(2.4rem, 14dvh, 6rem);
   }
 
   .choice-grid {
@@ -645,6 +658,17 @@ watch(
   .choice-button :deep(.dwell-button) {
     min-block-size: 6.75rem !important;
     padding: 0.35rem !important;
+  }
+}
+
+@container (max-width: 30rem) {
+  .choice-content {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .choice-art {
+    block-size: min(clamp(2.4rem, 12dvh, 6rem), 40cqi);
   }
 }
 </style>

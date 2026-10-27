@@ -322,7 +322,7 @@ onUnmounted(() => {
 }
 
 .choice-art {
-  block-size: clamp(2.8rem, 9dvh, 5.5rem);
+  block-size: clamp(2.8rem, 15dvh, 8rem);
   inline-size: 100%;
   object-fit: contain;
 }
@@ -377,7 +377,11 @@ onUnmounted(() => {
   }
 
   .scene-layout {
-    grid-template-columns: 5rem minmax(0, 1fr);
+    grid-template-columns: clamp(5rem, 22dvh, 9rem) minmax(0, 1fr);
+  }
+
+  .scene-art {
+    block-size: clamp(4rem, 15dvh, 6.5rem);
   }
 
   .scene-icon {

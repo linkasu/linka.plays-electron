@@ -308,8 +308,14 @@ onUnmounted(() => {
 }
 
 .choice-emoji {
-  font-size: clamp(4.5rem, 10vw, 7rem);
+  font-size: clamp(4.5rem, min(10vw, 14dvh), 9rem);
   line-height: 1;
+}
+
+/* Картинки-сценки широкие: в квадрате 1em они получались низкими полосками. */
+.choice-emoji :deep(.game-word-image__asset) {
+  inline-size: auto;
+  max-inline-size: 1.6em;
 }
 
 @media (max-width: 37.5rem) {
@@ -324,9 +330,12 @@ onUnmounted(() => {
     margin-block-end: 1rem !important;
   }
 
-  .scene-visual,
-  .choice-emoji {
+  .scene-visual {
     font-size: clamp(3.5rem, 8vw, 5.5rem);
+  }
+
+  .choice-emoji {
+    font-size: clamp(3.5rem, 13dvh, 7.5rem);
   }
 
   .choice-phrase {
@@ -374,7 +383,7 @@ onUnmounted(() => {
   }
 
   .choice-emoji {
-    font-size: clamp(3.5rem, 13vh, 5.5rem);
+    font-size: clamp(3.5rem, 17dvh, 7.5rem);
   }
 
   .what-first-card :deep(.dwell-button .text-h3) {

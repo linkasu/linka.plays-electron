@@ -322,6 +322,12 @@ onUnmounted(() => {
   line-height: 1;
 }
 
+/* Картинки-сценки широкие: в квадрате 1em они получались низкими полосками. */
+.choice-emoji :deep(.game-word-image__asset) {
+  inline-size: auto;
+  max-inline-size: 1.6em;
+}
+
 @media (max-height: 51.25rem) {
   .timeline-card {
     margin-block-end: 0.5rem !important;
@@ -364,7 +370,7 @@ onUnmounted(() => {
   }
 
   .choice-emoji {
-    font-size: clamp(3.5rem, 12dvh, 5.5rem);
+    font-size: clamp(3.5rem, 14dvh, 6.5rem);
   }
 
   .first-then-card :deep(.dwell-button) {
