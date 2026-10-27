@@ -661,7 +661,7 @@ onUnmounted(() => {
 
 .source-emoji {
   filter: drop-shadow(0 18px 26px color-mix(in srgb, var(--source-accent) 30%, transparent));
-  font-size: clamp(4.1rem, min(8vw, 13vh), 7rem);
+  font-size: clamp(4.1rem, min(10vw, 17dvh), 9rem);
   line-height: 1;
 }
 

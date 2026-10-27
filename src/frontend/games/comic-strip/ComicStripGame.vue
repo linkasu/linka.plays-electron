@@ -427,8 +427,8 @@ onUnmounted(() => {
   }
 
   .comic-scene--choice {
-    block-size: 5rem !important;
-    inline-size: min(100%, 8rem) !important;
+    block-size: clamp(5rem, 15dvh, 9rem) !important;
+    inline-size: min(100%, clamp(8rem, 24dvh, 14rem)) !important;
   }
 }
 
@@ -439,8 +439,8 @@ onUnmounted(() => {
   }
 
   .comic-slot .v-avatar {
-    block-size: 4.5rem !important;
-    inline-size: min(100%, 7rem) !important;
+    block-size: clamp(4.5rem, 12dvh, 7rem) !important;
+    inline-size: min(100%, clamp(7rem, 19dvh, 11rem)) !important;
     margin-block-end: 0 !important;
   }
 

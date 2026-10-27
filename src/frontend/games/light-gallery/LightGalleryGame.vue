@@ -549,13 +549,8 @@ onUnmounted(() => {
   }
 
   .light-gallery-panel-art {
-    block-size: 3.25rem;
-    inline-size: 3.25rem;
-  }
-
-  .light-gallery-panel-art {
-    block-size: 3.6rem;
-    inline-size: 3.6rem;
+    block-size: clamp(3.6rem, 15dvh, 7rem);
+    inline-size: clamp(3.6rem, 15dvh, 7rem);
   }
 
   .light-gallery-panel-caption {

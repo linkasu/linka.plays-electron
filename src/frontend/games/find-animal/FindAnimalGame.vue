@@ -278,16 +278,17 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+/* Окно минус кнопки «В меню» / «Пауза» сверху: иначе игра выше окна и вся уменьшается. */
 .game-container {
-  block-size: 100vh;
+  block-size: calc(100dvh - var(--game-hud-clearance, 10rem));
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-block: clamp(5.5rem, 11vh, 8rem) clamp(1rem, 4vh, 3rem);
+  padding-block: clamp(0.5rem, 2vh, 1.5rem) clamp(1rem, 4vh, 3rem);
 }
 
 .find-animal-card {
-  max-block-size: calc(100vh - 6.75rem);
+  max-block-size: calc(100dvh - var(--game-hud-clearance, 10rem) - 1rem);
   overflow: hidden;
 }
 
@@ -297,7 +298,7 @@ onUnmounted(() => {
 }
 
 .animal-emoji {
-  font-size: clamp(3.1rem, min(8vw, 12vh), 7rem);
+  font-size: clamp(3.1rem, min(14vw, 24dvh), 13rem);
   line-height: 1;
   transition:
     filter 160ms ease,
@@ -306,7 +307,9 @@ onUnmounted(() => {
 
 .animal-image {
   block-size: 1em;
+  display: block;
   inline-size: 1em;
+  margin-inline: auto;
   object-fit: contain;
 }
 
@@ -326,7 +329,7 @@ onUnmounted(() => {
 @media (max-height: 44rem) {
   .game-container {
     justify-content: flex-start;
-    padding-block-start: 5.25rem;
+    padding-block-start: 0.5rem;
   }
 
   .game-row {

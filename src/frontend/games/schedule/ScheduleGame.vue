@@ -441,7 +441,7 @@ onUnmounted(() => {
   border-radius: 1.25rem;
   display: inline-flex;
   filter: drop-shadow(0 0.5rem 0.625rem rgb(0 0 0 / 14%));
-  font-size: clamp(2.65rem, 7.2vh, 5.4rem);
+  font-size: clamp(2.65rem, 11dvh, 7rem);
   justify-content: center;
   min-block-size: clamp(4rem, 10dvh, 6rem);
   min-inline-size: clamp(4rem, 10dvh, 6rem);
@@ -526,9 +526,13 @@ onUnmounted(() => {
   }
 
   .choice-image {
-    font-size: clamp(2.35rem, 7vh, 3rem);
+    font-size: clamp(2.35rem, 11dvh, 5rem);
     min-block-size: 3.5rem;
     min-inline-size: 3.5rem;
+  }
+
+  .schedule-choice-chip {
+    margin-block-start: 0.25rem !important;
   }
 }
 </style>

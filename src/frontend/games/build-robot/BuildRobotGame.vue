@@ -436,19 +436,21 @@ onUnmounted(() => {
                       @select="choosePart(part)"
                     >
                       <template #default>
-                        <span
-                          :class="['robot-art', 'robot-art--choice', `robot-art--${part.id}`]"
-                          :style="robotArtStyle"
-                          aria-hidden="true"
-                        >
-                          <img
-                            v-for="artId in part.art"
-                            :key="artId"
-                            :src="gameArtSrc(artId)"
-                            alt=""
-                          />
-                        </span>
-                        <div class="text-h5 text-md-h4 font-weight-bold mt-2">{{ part.label }}</div>
+                        <div class="choice-content">
+                          <span
+                            :class="['robot-art', 'robot-art--choice', `robot-art--${part.id}`]"
+                            :style="robotArtStyle"
+                            aria-hidden="true"
+                          >
+                            <img
+                              v-for="artId in part.art"
+                              :key="artId"
+                              :src="gameArtSrc(artId)"
+                              alt=""
+                            />
+                          </span>
+                          <div class="text-h5 text-md-h4 font-weight-bold">{{ part.label }}</div>
+                        </div>
                       </template>
                     </GameDwellButton>
                   </v-col>
@@ -634,9 +636,19 @@ onUnmounted(() => {
   block-size: 72%;
 }
 
+/* Кнопки широкие и низкие: деталь слева во всю высоту кнопки, подпись справа. */
+.choice-content {
+  align-items: center;
+  display: flex;
+  gap: clamp(0.5rem, 1.5vw, 1.25rem);
+  justify-content: center;
+}
+
 .robot-art--choice {
-  block-size: clamp(4.2rem, min(8vw, 12vh), 6.4rem);
+  block-size: clamp(4.2rem, 15dvh, 8rem);
   filter: drop-shadow(0 0.35rem 0.25rem rgb(0 0 0 / 18%));
+  flex: 0 0 auto;
+  margin-inline: 0;
 }
 
 /* An empty slot shows a pale outline of the part it waits for. */
@@ -677,10 +689,14 @@ onUnmounted(() => {
     min-block-size: clamp(4.6rem, 10vh, 6.2rem);
   }
 
-  .robot-art,
-  .robot-art--choice {
+  .robot-art {
     block-size: clamp(2.55rem, min(5.3vw, 7.4vh), 3.9rem);
     inline-size: clamp(3.4rem, min(7vw, 9.6vh), 5.1rem);
+  }
+
+  .robot-art--choice {
+    block-size: clamp(2.55rem, 14dvh, 6rem);
+    inline-size: auto;
   }
 }
 </style>

@@ -392,16 +392,17 @@ watch(isSpeaking, (speaking) => {
 }
 
 .empty-slot {
-  min-block-size: 6.5rem;
+  min-block-size: calc(clamp(2.75rem, 9dvh, 6rem) + 2.5rem);
 }
 
+/* Картинка — главное на карточке: растёт с высотой окна и занимает свободное место под игрой. */
 .choice-image {
-  block-size: clamp(4.5rem, 8vw, 7rem);
+  block-size: clamp(4rem, 15dvh, 10rem);
   inline-size: 100%;
 }
 
 .placed-image {
-  block-size: 3rem;
+  block-size: clamp(2.75rem, 9dvh, 6rem);
   inline-size: 100%;
 }
 
@@ -409,10 +410,6 @@ watch(isSpeaking, (speaking) => {
   .choice-row :deep(.dwell-button) {
     min-block-size: 7rem !important;
     padding: 0.75rem !important;
-  }
-
-  .choice-image {
-    block-size: 4rem;
   }
 
   .choice-label {
@@ -479,10 +476,6 @@ watch(isSpeaking, (speaking) => {
     padding: 0.25rem !important;
   }
 
-  .placed-image {
-    block-size: 2rem;
-  }
-
   .placed-label {
     font-size: 0.625rem !important;
     line-height: 1.1;
@@ -491,7 +484,7 @@ watch(isSpeaking, (speaking) => {
 
   .empty-slot {
     font-size: 0.6875rem;
-    min-block-size: 3.25rem;
+    min-block-size: calc(clamp(2.75rem, 9dvh, 6rem) + 1.25rem);
   }
 
   .sequence-divider {
@@ -505,10 +498,6 @@ watch(isSpeaking, (speaking) => {
   .choice-row :deep(.dwell-button) {
     min-block-size: 4.75rem !important;
     padding: 0.5rem !important;
-  }
-
-  .choice-image {
-    block-size: 2.25rem;
   }
 
   .choice-label {

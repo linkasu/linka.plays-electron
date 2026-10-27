@@ -349,7 +349,7 @@ onUnmounted(() => {
 }
 
 .food-emoji {
-  font-size: clamp(3.75rem, min(8vw, 12vh), 6rem);
+  font-size: clamp(3.75rem, min(8vw, 16dvh), 9rem);
   line-height: 1;
 }
 
