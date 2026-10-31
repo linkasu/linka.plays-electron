@@ -1,0 +1,35 @@
+/* The shared skin changes decoration; game geometry and semantic colors stay local. */
+html { color-scheme: light; }
+body { margin: 0; }
+.v-application { font-family: "Roboto", sans-serif; }
+.v-application .v-btn { font-weight: 700; letter-spacing: 0; text-transform: none; }
+.v-card.dwell-button, .v-card.menu-card, .v-card.mode-card, .v-card.game-result-card {
+  border: 0.15rem solid var(--linka-outline);
+  border-radius: var(--linka-radius) !important;
+  box-shadow: var(--linka-shadow) !important;
+}
+.dwell-button--active {
+  outline: 0.25rem solid var(--linka-focus);
+  outline-offset: -0.25rem;
+}
+.dwell-progress { background: rgb(var(--v-theme-on-surface) / 12%); }
+.dwell-progress::after { background: rgb(var(--v-theme-primary)); }
+.game-hud .v-card, .game-hud .v-btn { border: 0.1rem solid var(--linka-outline); }
+.game-hud .self-gaze-edge { opacity: 1; }
+.gallery-menu {
+  background-color: rgb(var(--v-theme-background));
+  background-image: var(--linka-wallpaper);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+.gallery-card { background: var(--linka-panel) !important; border: 0.12rem solid var(--linka-outline); border-radius: var(--linka-radius) !important; box-shadow: var(--linka-shadow) !important; }
+[data-appearance="toy-world"] .dwell-button,
+[data-appearance="toy-world"] .menu-card,
+[data-appearance="toy-world"] .mode-card { border-width: 0.4rem; }
+[data-appearance="paper-story"] .dwell-button,
+[data-appearance="paper-story"] .menu-card { border-color: var(--linka-outline); }
+.v-card-title, .v-card-subtitle { color: inherit; }
+@media (prefers-reduced-motion: reduce) {
+  .dwell-button { transition: none; }
+}
