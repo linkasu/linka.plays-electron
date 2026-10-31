@@ -63,7 +63,9 @@ export function applyThemeToDocument(id: ThemeId, target: HTMLElement) {
   for (const [kind, palette] of Object.entries(theme.scenes)) {
     target.style.setProperty(`--linka-scene-${kind}`, sceneGradient(palette));
     target.style.setProperty(`--linka-scene-${kind}-base`, palette.background[0]);
-    palette.background.forEach((color, index) => target.style.setProperty(`--linka-scene-${kind}-${index}`, color));
+    palette.background.forEach((color, index) =>
+      target.style.setProperty(`--linka-scene-${kind}-${index}`, color),
+    );
   }
 }
 // Initialize before mount so even the audio gate uses the saved appearance.

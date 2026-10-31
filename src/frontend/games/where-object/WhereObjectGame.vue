@@ -251,7 +251,13 @@ onUnmounted(() => {
 
 <style scoped>
 .mini-scene {
-  background: linear-gradient(180deg, var(--linka-scene-sky-0) 0%, var(--linka-scene-sky-2) 72%, var(--linka-scene-meadow-1) 72%, var(--linka-scene-meadow-1) 100%);
+  background: linear-gradient(
+    180deg,
+    var(--linka-scene-sky-0) 0%,
+    var(--linka-scene-sky-2) 72%,
+    var(--linka-scene-meadow-1) 72%,
+    var(--linka-scene-meadow-1) 100%
+  );
   border-radius: 1.25rem;
   min-block-size: 8.2rem;
   overflow: hidden;

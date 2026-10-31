@@ -15,6 +15,11 @@ const requiredAssets = [
   "audio/sfx/bells/soft-bell.ogg",
   "audio/sfx/sound-source/bell.mp3",
   "audio/tts/aquarium/prompt.mp3",
+  "images/themes/sunny-meadow/background.png",
+  "images/themes/paper-story/background.png",
+  "images/themes/toy-world/background.png",
+  "fonts/nunito/Nunito-Variable.ttf",
+  "fonts/nunito/OFL.txt",
 ];
 
 for (const relativePath of requiredAssets) {

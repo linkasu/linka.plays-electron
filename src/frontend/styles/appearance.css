@@ -24,7 +24,7 @@ body {
   letter-spacing: 0;
   text-transform: none;
 }
-.v-card.dwell-button,
+.v-card.dwell-button:not(.dwell-button--transparent),
 .v-card.menu-card,
 .v-card.mode-card,
 .v-card.game-result-card {
@@ -32,7 +32,7 @@ body {
   border-radius: var(--linka-radius) !important;
   box-shadow: var(--linka-shadow) !important;
 }
-.dwell-button--active {
+.dwell-button--active:not(.dwell-button--transparent) {
   outline: 0.25rem solid var(--linka-focus);
   outline-offset: -0.25rem;
 }
@@ -45,6 +45,10 @@ body {
 .game-hud .v-card,
 .game-hud .v-btn {
   border: 0.1rem solid var(--linka-outline);
+}
+.game-hud {
+  background: var(--linka-panel);
+  border-block-end: 0.1rem solid var(--linka-outline);
 }
 .game-hud .self-gaze-edge {
   opacity: 1;
@@ -62,12 +66,12 @@ body {
   border-radius: var(--linka-radius) !important;
   box-shadow: var(--linka-shadow) !important;
 }
-[data-appearance="toy-world"] .dwell-button,
+[data-appearance="toy-world"] .dwell-button:not(.dwell-button--transparent),
 [data-appearance="toy-world"] .menu-card,
 [data-appearance="toy-world"] .mode-card {
   border-width: 0.4rem;
 }
-[data-appearance="paper-story"] .dwell-button,
+[data-appearance="paper-story"] .dwell-button:not(.dwell-button--transparent),
 [data-appearance="paper-story"] .menu-card {
   border-color: var(--linka-outline);
 }

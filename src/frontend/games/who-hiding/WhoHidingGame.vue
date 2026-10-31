@@ -447,7 +447,11 @@ onUnmounted(() => {
 }
 
 .search-scene {
-  background: linear-gradient(180deg, var(--linka-scene-sky-0) 0 47%, var(--linka-scene-meadow-1) 47% 100%);
+  background: linear-gradient(
+    180deg,
+    var(--linka-scene-sky-0) 0 47%,
+    var(--linka-scene-meadow-1) 47% 100%
+  );
   block-size: clamp(31rem, 64vh, 43rem);
   overflow: hidden;
   position: relative;

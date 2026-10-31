@@ -1,18 +1,30 @@
 <script setup lang="ts">
+import { computed, ref, watch } from "vue";
+import { useDisplay } from "vuetify";
 import GameDwellButton from "../game/GameDwellButton.vue";
 import { useAppearanceTheme, themeBackgroundUrl } from "../../core/themeSettings";
 import { useDwellSettings } from "../../core/dwellSettings";
 import { appearanceThemes, themeIds } from "../../themes";
 
-defineProps<{ modelValue: boolean }>();
+const props = defineProps<{ modelValue: boolean }>();
 const emit = defineEmits<{ "update:modelValue": [value: boolean] }>();
 const { themeId, setTheme } = useAppearanceTheme();
 const { dwellMs } = useDwellSettings();
+const { xs } = useDisplay();
+const previewIndex = ref(0);
+const visibleThemes = computed(() => (xs.value ? [themeIds[previewIndex.value]] : themeIds));
+watch(
+  () => props.modelValue,
+  (open) => {
+    if (open) previewIndex.value = themeIds.indexOf(themeId.value);
+  },
+);
 </script>
 
 <template>
   <v-dialog
     :model-value="modelValue"
+    :fullscreen="xs"
     max-width="58rem"
     persistent
     scrollable
@@ -27,7 +39,7 @@ const { dwellMs } = useDwellSettings();
       >
       <v-card-text class="px-0 pt-5">
         <v-row dense class="ma-0">
-          <v-col v-for="id in themeIds" :key="id" cols="12" sm="4">
+          <v-col v-for="id in visibleThemes" :key="id" cols="12" sm="4">
             <GameDwellButton
               class="theme-option h-100"
               :class="{ 'theme-option--selected': themeId === id }"
@@ -55,6 +67,28 @@ const { dwellMs } = useDwellSettings();
           </v-col>
         </v-row>
       </v-card-text>
+      <div v-if="xs" class="theme-navigation">
+        <GameDwellButton
+          target-id="theme-prev"
+          :disabled="!modelValue || previewIndex === 0"
+          :priority="50"
+          :hit-padding="0"
+          :dwell-ms="dwellMs"
+          min-height="7.5rem"
+          @select="previewIndex -= 1"
+          ><v-icon icon="mdi-arrow-left" />Предыдущая</GameDwellButton
+        >
+        <GameDwellButton
+          target-id="theme-next"
+          :disabled="!modelValue || previewIndex === themeIds.length - 1"
+          :priority="50"
+          :hit-padding="0"
+          :dwell-ms="dwellMs"
+          min-height="7.5rem"
+          @select="previewIndex += 1"
+          ><v-icon icon="mdi-arrow-right" />Следующая</GameDwellButton
+        >
+      </div>
       <GameDwellButton
         target-id="theme-close"
         :dwell-ms="dwellMs"
@@ -95,13 +129,40 @@ const { dwellMs } = useDwellSettings();
   margin-block-start: 0.75rem;
 }
 @media (max-width: 37.5rem) {
+  .theme-chooser {
+    padding: 0.75rem !important;
+  }
+  .theme-chooser :deep(.v-card-title) {
+    font-size: 1.5rem !important;
+    padding: 0.25rem 0.5rem;
+  }
+  .theme-chooser :deep(.v-card-subtitle) {
+    display: none;
+  }
+  .theme-chooser :deep(.v-card-text) {
+    padding-block: 0.5rem !important;
+    flex: 0 0 auto;
+  }
   .theme-option :deep(.dwell-button) {
     min-block-size: 8rem !important;
   }
   .theme-preview {
     inline-size: 30%;
-    block-size: 4rem;
+    block-size: 3rem;
     align-self: center;
+  }
+  .theme-option .text-body-2 {
+    display: none;
+  }
+  .theme-navigation {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+    margin-block: 0 0.75rem;
+  }
+  .theme-navigation :deep(.dwell-button) {
+    padding: 0.5rem !important;
+    font-weight: 700;
   }
 }
 </style>

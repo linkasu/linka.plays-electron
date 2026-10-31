@@ -161,8 +161,7 @@ watch(searchQuery, () => {
               <div class="text-overline text-secondary mb-2">Режим специалиста</div>
               <h1 class="text-h3 text-md-h2 font-weight-bold mb-2">Игры для занятия</h1>
               <p class="text-body-1 text-medium-emphasis mb-0">
-                Каталог разбит на страницы: крупные цели, без скролла, с ключевыми параметрами
-                занятия.
+                Выбирайте игры по папкам и настраивайте параметры занятия.
               </p>
             </div>
             <TobiiStatusBadge />
@@ -219,7 +218,7 @@ watch(searchQuery, () => {
             </v-btn>
           </div>
 
-          <v-card class="pa-4 mb-5" color="surface-variant" rounded="xl" variant="tonal">
+          <v-card class="pa-4 mb-5" color="surface-variant" rounded="xl" variant="flat">
             <div class="d-flex flex-column flex-md-row align-md-center ga-4">
               <div class="flex-grow-1">
                 <div class="text-subtitle-1 font-weight-bold">Задержка выбора взглядом</div>

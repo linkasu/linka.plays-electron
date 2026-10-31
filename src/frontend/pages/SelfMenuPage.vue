@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useDisplay } from "vuetify";
 import GameDwellButton from "../components/game/GameDwellButton.vue";
 import GazePointerOverlay from "../components/game/GazePointerOverlay.vue";
 import ThemeChooser from "../components/settings/ThemeChooser.vue";
@@ -24,20 +25,24 @@ const releaseGames = games.filter((game) => resolveGameStabilityStatus(game) ===
 const gameGroups = groupGamesByCategory(releaseGames, { excludeArchived: true });
 const selectedCategory = ref<GameCategoryId | null>(null);
 const pageIndex = ref(0);
-const pageSize = 4;
+const { xs } = useDisplay();
+const pageSize = computed(() => (xs.value ? 1 : 4));
 const selectedGroup = computed(() =>
   gameGroups.find((group) => group.category === selectedCategory.value),
 );
 const activeItems = computed(() => selectedGroup.value?.games ?? gameGroups);
-const pageCount = computed(() => Math.max(1, Math.ceil(activeItems.value.length / pageSize)));
+const pageCount = computed(() => Math.max(1, Math.ceil(activeItems.value.length / pageSize.value)));
 const visibleGroups = computed(() =>
-  gameGroups.slice(pageIndex.value * pageSize, pageIndex.value * pageSize + pageSize),
+  gameGroups.slice(
+    pageIndex.value * pageSize.value,
+    pageIndex.value * pageSize.value + pageSize.value,
+  ),
 );
 const visibleGames = computed(
   () =>
     selectedGroup.value?.games.slice(
-      pageIndex.value * pageSize,
-      pageIndex.value * pageSize + pageSize,
+      pageIndex.value * pageSize.value,
+      pageIndex.value * pageSize.value + pageSize.value,
     ) ?? [],
 );
 const pageLabel = computed(() => `Страница ${pageIndex.value + 1} / ${pageCount.value}`);
@@ -86,6 +91,9 @@ function syncCategoryFromRoute() {
 }
 
 watch(() => route.query.category, syncCategoryFromRoute);
+watch(pageSize, () => {
+  pageIndex.value = 0;
+});
 </script>
 
 <template>
@@ -323,8 +331,9 @@ watch(() => route.query.category, syncCategoryFromRoute);
 }
 .self-navigation .v-icon {
   font-size: 2rem;
+  align-self: center;
 }
-@media (max-width: 50rem) {
+@media (max-width: 37.5rem) {
   .self-header {
     flex-wrap: wrap;
   }

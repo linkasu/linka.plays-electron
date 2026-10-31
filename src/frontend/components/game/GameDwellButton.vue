@@ -247,7 +247,10 @@ onUnmounted(() => {
 <template>
   <div ref="rootRef" class="dwell-hitbox">
     <v-card
-      :class="['dwell-button', { 'dwell-button--active': active }]"
+      :class="[
+        'dwell-button',
+        { 'dwell-button--active': active, 'dwell-button--transparent': color === 'transparent' },
+      ]"
       :color="color"
       :disabled="disabled"
       :aria-pressed="pressed"
