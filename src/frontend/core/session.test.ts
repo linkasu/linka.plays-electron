@@ -43,6 +43,29 @@ describe("useGameSession", () => {
     vi.useRealTimers();
   });
 
+  it("waits for explicit start on a mode selection screen", async () => {
+    const mounted = mountSession({ sessionSeconds: 2 }, { autoStart: false });
+    try {
+      mounted.api.recordEvent("target-click", { targetId: "mode:face" });
+      mounted.api.pauseSession();
+      mounted.api.resumeSession();
+      vi.advanceTimersByTime(10_000);
+      await nextTick();
+      expect(mounted.api.session.status).toBe("idle");
+      expect(mounted.api.durationMs.value).toBe(0);
+      expect(mounted.api.session.events).toEqual([]);
+
+      mounted.api.startSession();
+      expect(mounted.api.session.status).toBe("running");
+      expect(mounted.api.session.events.map((event) => event.type)).toEqual(["session-start"]);
+      vi.advanceTimersByTime(1_000);
+      await nextTick();
+      expect(mounted.api.durationMs.value).toBe(1_000);
+    } finally {
+      mounted.unmount();
+    }
+  });
+
   it("auto-pauses while hidden without resuming a manual pause", () => {
     const mounted = mountSession({ sessionSeconds: 30 });
     try {

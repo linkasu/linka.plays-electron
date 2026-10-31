@@ -4,7 +4,6 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
-import GazePointerOverlay from "../../components/game/GazePointerOverlay.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useGameTimers } from "../../composables/useGameTimers";
 import { resolveMenuRoute } from "../../core/menuMode";
@@ -54,6 +53,7 @@ const {
   recordMistake,
   startSession,
 } = useGameSessionFor("solfege", {
+  autoStart: false,
   maxSteps: solfegeMaxSteps,
   overrides: {
     preset: "gentle",
@@ -68,7 +68,6 @@ const {
   finishOnTimeout: false,
 });
 const { setGameTimeout, clearGameTimeout, clearGameTimers } = useGameTimers();
-pauseSession();
 
 const resultVisible = computed(() => session.status === "finished");
 const hasStarted = computed(() => phase.value !== "selecting");
@@ -356,23 +355,22 @@ onUnmounted(() => {
 <template>
   <div class="solfege-shell">
     <GameHud
-      v-if="hasStarted"
       title="Сольфеджио"
       :step="session.step"
       :max-steps="session.maxSteps"
-      :score="mode === 'guided' ? session.score : undefined"
-      :mistakes="mode === 'guided' ? session.mistakes : undefined"
+      :score="hasStarted && mode === 'guided' ? session.score : undefined"
+      :mistakes="hasStarted && mode === 'guided' ? session.mistakes : undefined"
       :duration-ms="durationMs"
       :session-seconds="session.settings.sessionSeconds"
       :paused="session.status === 'paused'"
+      :pause-disabled="!hasStarted"
       :show-progress="false"
       :show-timer="false"
       @pause="pauseGame"
       @resume="resumeGame"
     />
-    <GazePointerOverlay v-else />
 
-    <v-container class="solfege-container d-flex align-center" fluid>
+    <v-container class="solfege-container game-hud-clear d-flex align-center" fluid>
       <v-row justify="center">
         <v-col cols="12" xl="10">
           <v-card class="solfege-panel pa-4 pa-md-7" rounded="xl" elevation="8">
