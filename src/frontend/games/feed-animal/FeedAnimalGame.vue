@@ -184,10 +184,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <GamePageShell
-    gradient="linear-gradient(135deg, #fff7e8 0%, #ecfff2 52%, #eef7ff 100%)"
-    padding-top="8.25rem"
-  >
+  <GamePageShell gradient="paper" padding-top="8.25rem">
     <template #hud>
       <GameHud
         title="Покорми зверька"

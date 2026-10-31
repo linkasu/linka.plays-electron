@@ -304,7 +304,7 @@ onUnmounted(() => {
 
 <style scoped>
 .opposites-shell {
-  background: linear-gradient(135deg, #fff7ec 0%, #eef8ff 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

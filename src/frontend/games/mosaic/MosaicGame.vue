@@ -235,11 +235,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <GamePageShell
-    class="mosaic-shell"
-    gradient="linear-gradient(135deg, #eef7ff 0%, #fff7e7 46%, #f2efff 100%)"
-    padding-top="5rem"
-  >
+  <GamePageShell class="mosaic-shell" gradient="paper" padding-top="5rem">
     <template #hud>
       <GameHud
         title="Мозаика"

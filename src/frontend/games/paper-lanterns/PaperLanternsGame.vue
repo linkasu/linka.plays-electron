@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -297,9 +298,9 @@ function initStars() {
 
 function drawBackground(context: CanvasRenderingContext2D, now: number) {
   const sky = context.createLinearGradient(0, 0, 0, window.innerHeight);
-  sky.addColorStop(0, "#101233");
-  sky.addColorStop(0.58, "#1c2447");
-  sky.addColorStop(1, "#2f3149");
+  sky.addColorStop(0, scenePalette("night").background[0]);
+  sky.addColorStop(0.58, scenePalette("night").background[1]);
+  sky.addColorStop(1, scenePalette("night").background[2]);
   context.fillStyle = sky;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -561,7 +562,7 @@ onUnmounted(() => {
 
 <style scoped>
 .paper-lanterns-shell {
-  background: #101233;
+  background: var(--linka-scene-night);
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;

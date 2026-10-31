@@ -281,7 +281,7 @@ onUnmounted(() => {
 
 <style scoped>
 .warm-window-shell {
-  background: linear-gradient(180deg, #19213b 0%, #283655 48%, #3f4659 100%);
+  background: var(--linka-scene-night);
   min-block-size: 100vh;
   overflow: hidden;
   position: relative;

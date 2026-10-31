@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
@@ -301,9 +302,9 @@ function drawCenteredText(
 
 function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   const gradient = ctx.createLinearGradient(0, 0, 0, height.value);
-  gradient.addColorStop(0, "#dff6f1");
-  gradient.addColorStop(0.5, "#fff7dd");
-  gradient.addColorStop(1, "#f0c993");
+  gradient.addColorStop(0, scenePalette("kitchen").background[0]);
+  gradient.addColorStop(0.5, scenePalette("kitchen").background[1]);
+  gradient.addColorStop(1, scenePalette("kitchen").background[2]);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width.value, height.value);
 
@@ -317,8 +318,8 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   ctx.globalAlpha = 0.78;
   fillRoundRect(ctx, windowRect, 32, "rgba(255, 255, 255, 0.5)");
   const sky = ctx.createLinearGradient(0, windowRect.y, 0, windowRect.y + windowRect.height);
-  sky.addColorStop(0, "#bfe9ff");
-  sky.addColorStop(1, "#e8f8d7");
+  sky.addColorStop(0, scenePalette("sky").background[0]);
+  sky.addColorStop(1, scenePalette("sky").background[2]);
   fillRoundRect(
     ctx,
     {
@@ -1190,7 +1191,7 @@ watch(isSpeaking, (speaking) => {
 
 <style scoped>
 .soup-recipe-shell {
-  background: #eef7f0;
+  background: var(--linka-scene-kitchen);
   min-block-size: 100vh;
   overflow: hidden;
   position: relative;

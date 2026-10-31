@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -333,6 +334,7 @@ function updateRipples(delta: number) {
 
 function draw(context: CanvasRenderingContext2D, now: number) {
   drawFishScene(context, {
+    palette: scenePalette("deep-water"),
     fishes,
     bubbles,
     ripples,
@@ -417,7 +419,7 @@ onUnmounted(() => {
 
 <style scoped>
 .fishes-shell {
-  background: #0b3558;
+  background: var(--linka-scene-deep-water);
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;

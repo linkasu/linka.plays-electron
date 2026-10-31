@@ -139,13 +139,7 @@ function restart() {
 
 <style scoped>
 .sun-rays-shell {
-  background: radial-gradient(
-    circle at 50% 34%,
-    #fff4ba 0%,
-    #ffe4a3 26%,
-    #f6c98f 56%,
-    #c7dff1 100%
-  );
+  background: var(--linka-scene-sky);
   min-block-size: 100dvh;
   overflow: hidden;
 }

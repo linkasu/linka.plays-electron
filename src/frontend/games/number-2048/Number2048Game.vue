@@ -336,10 +336,7 @@ onUnmounted(() => {
 
 <style scoped>
 .number-2048-shell {
-  background:
-    radial-gradient(circle at 18% 18%, rgb(200 230 201 / 64%), transparent 30%),
-    radial-gradient(circle at 84% 20%, rgb(187 222 251 / 58%), transparent 28%),
-    linear-gradient(135deg, #f7fbf1 0%, #eef8ff 54%, #fff7e8 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

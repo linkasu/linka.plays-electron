@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -326,9 +327,9 @@ function updateSnowflakes(delta: number, now: number) {
 
 function drawBackground(context: CanvasRenderingContext2D, now: number) {
   const sky = context.createLinearGradient(0, 0, 0, window.innerHeight);
-  sky.addColorStop(0, "#dff4ff");
-  sky.addColorStop(0.56, "#f3fbff");
-  sky.addColorStop(1, "#d8ecf6");
+  sky.addColorStop(0, scenePalette("winter").background[0]);
+  sky.addColorStop(0.56, scenePalette("winter").background[1]);
+  sky.addColorStop(1, scenePalette("winter").background[2]);
   context.fillStyle = sky;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -524,7 +525,7 @@ onUnmounted(() => {
 
 <style scoped>
 .snowflakes-shell {
-  background: #dff4ff;
+  background: var(--linka-scene-winter);
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;

@@ -428,10 +428,7 @@ onUnmounted(() => {
 
 <style scoped>
 .step-tetris-shell {
-  background:
-    radial-gradient(circle at 18% 18%, rgb(178 223 219 / 58%), transparent 26%),
-    radial-gradient(circle at 86% 20%, rgb(209 196 233 / 56%), transparent 28%),
-    linear-gradient(135deg, #f9fbf2 0%, #eef5ff 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

@@ -564,7 +564,7 @@ onUnmounted(() => {
 
 <style scoped>
 .sound-source-shell {
-  background: linear-gradient(135deg, #eef8ff 0%, #fff7dc 48%, #f4ecff 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
   overflow: hidden;
   position: relative;

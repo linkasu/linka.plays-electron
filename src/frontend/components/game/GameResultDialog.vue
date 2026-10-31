@@ -67,7 +67,7 @@ const emit = defineEmits<{
     transition="fade-transition"
     @update:model-value="emit('update:modelValue', $event)"
   >
-    <v-card class="pa-4 pa-md-6" rounded="xl">
+    <v-card class="game-result-card pa-4 pa-md-6" rounded="xl">
       <v-card-title class="text-h4 text-md-h3 font-weight-bold text-center pb-2">{{
         title
       }}</v-card-title>

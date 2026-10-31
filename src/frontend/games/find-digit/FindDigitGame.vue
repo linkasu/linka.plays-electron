@@ -168,11 +168,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <GamePageShell
-    gradient="linear-gradient(135deg, #f5fbff 0%, #f7f1ff 48%, #fff7df 100%)"
-    padding-top="0"
-    full-height
-  >
+  <GamePageShell gradient="paper" padding-top="0" full-height>
     <template #hud>
       <GameHud
         title="Найди цифру"

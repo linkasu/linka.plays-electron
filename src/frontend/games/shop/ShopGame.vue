@@ -606,7 +606,7 @@ onUnmounted(() => {
 
 <style scoped>
 .shop-shell {
-  background: linear-gradient(135deg, #fff5df 0%, #e8f7f2 100%);
+  background: var(--linka-scene-kitchen);
   min-block-size: 100vh;
 }
 

@@ -14,9 +14,16 @@ const vuetify = createVuetify({
   },
   theme: {
     defaultTheme: useAppearanceTheme().themeId.value,
-    themes: Object.fromEntries(Object.values(appearanceThemes).map(theme => [theme.id, { dark: false, colors: theme.colors }])),
+    themes: Object.fromEntries(
+      Object.values(appearanceThemes).map((theme) => [
+        theme.id,
+        { dark: false, colors: theme.colors },
+      ]),
+    ),
   },
 });
 
-initializeAppearance(id => { vuetify.theme.change(id); });
+initializeAppearance((id) => {
+  vuetify.theme.change(id);
+});
 export default vuetify;

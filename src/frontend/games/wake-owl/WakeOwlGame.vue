@@ -228,7 +228,7 @@ onUnmounted(() => {
 
 <style scoped>
 .wake-owl-shell {
-  background: linear-gradient(180deg, #101a34 0%, #17294d 54%, #20344b 100%);
+  background: var(--linka-scene-night);
   min-block-size: 100vh;
   overflow: hidden;
   position: relative;

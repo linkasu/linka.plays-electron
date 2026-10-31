@@ -325,7 +325,7 @@ onUnmounted(() => {
 
 <style scoped>
 .choose-emotion-shell {
-  background: linear-gradient(135deg, #fff7ed 0%, #edf7ff 52%, #f6efff 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

@@ -1,14 +1,30 @@
 export const themeIds = ["sunny-meadow", "paper-story", "toy-world"] as const;
 export type ThemeId = (typeof themeIds)[number];
 export const DEFAULT_THEME: ThemeId = "sunny-meadow";
-export type SceneKind = "sky" | "meadow" | "autumn" | "winter" | "water" | "deep-water" | "night" | "night-water" | "space" | "sand" | "paper" | "room" | "kitchen" | "laboratory";
+export type SceneKind =
+  | "sky"
+  | "meadow"
+  | "autumn"
+  | "winter"
+  | "water"
+  | "deep-water"
+  | "night"
+  | "night-water"
+  | "space"
+  | "sand"
+  | "paper"
+  | "room"
+  | "kitchen"
+  | "laboratory";
 export type ScenePalette = {
   background: readonly [string, string, string];
   ground: readonly [string, string, string];
   water: readonly [string, string, string, string];
 };
 export type AppearanceTheme = {
-  id: ThemeId; title: string; description: string;
+  id: ThemeId;
+  title: string;
+  description: string;
   colors: Record<string, string>;
   decoration: { outline: string; radius: string; shadow: string; focus: string; panel: string };
   scenes: Record<SceneKind, ScenePalette>;
@@ -68,53 +84,111 @@ function scenes(backgrounds: Record<SceneKind, Triple>): Record<SceneKind, Scene
     const dark = ["night", "night-water", "space", "deep-water"].includes(kind);
     const water = kind === "night-water" ? backgrounds["night-water"] : backgrounds.water;
     result[kind] = {
-      background: backgrounds[kind], ground: dark ? backgrounds[kind] : backgrounds.meadow,
+      background: backgrounds[kind],
+      ground: dark ? backgrounds[kind] : backgrounds.meadow,
       water: [...water, backgrounds["deep-water"][2]],
     };
   }
   return result;
 }
 const commonColors = {
-  "error": "#a72d3b", "on-error": "#ffffff", "warning": "#80521b", "on-warning": "#ffffff",
-  "success": "#286442", "on-success": "#ffffff", "info": "#315c87", "on-info": "#ffffff",
+  "error": "#a72d3b",
+  "on-error": "#ffffff",
+  "warning": "#80521b",
+  "on-warning": "#ffffff",
+  "success": "#286442",
+  "on-success": "#ffffff",
+  "info": "#315c87",
+  "on-info": "#ffffff",
 };
 export const appearanceThemes: Record<ThemeId, AppearanceTheme> = {
   "sunny-meadow": {
-    id: "sunny-meadow", title: "Sunny Meadow", description: "Солнечная полянка",
-    colors: { ...commonColors,
-      "background": "#eaf7de", "surface": "#fffbed", "surface-variant": "#e0ebcc",
-      "on-surface-variant": "#193f2b", "primary": "#24633b", "secondary": "#355d76",
-      "accent": "#f5c94b", "on-background": "#153d29", "on-surface": "#153d29",
-      "on-primary": "#ffffff", "on-secondary": "#ffffff", "on-accent": "#40310c",
+    id: "sunny-meadow",
+    title: "Sunny Meadow",
+    description: "Солнечная полянка",
+    colors: {
+      ...commonColors,
+      "background": "#eaf7de",
+      "surface": "#fffbed",
+      "surface-variant": "#e0ebcc",
+      "on-surface-variant": "#193f2b",
+      "primary": "#24633b",
+      "secondary": "#355d76",
+      "accent": "#f5c94b",
+      "on-background": "#153d29",
+      "on-surface": "#153d29",
+      "on-primary": "#ffffff",
+      "on-secondary": "#ffffff",
+      "on-accent": "#40310c",
     },
-    decoration: { outline: "#3e7443", radius: "2rem", shadow: "0 0.5rem 0 #38693924, 0 0.8rem 1.8rem #254a2824", focus: "#efb92d", panel: "#fffbedf5" },
+    decoration: {
+      outline: "#3e7443",
+      radius: "2rem",
+      shadow: "0 0.5rem 0 #38693924, 0 0.8rem 1.8rem #254a2824",
+      focus: "#efb92d",
+      panel: "#fffbedf5",
+    },
     scenes: scenes(sunnyScenes),
   },
   "paper-story": {
-    id: "paper-story", title: "Бумажная сказка", description: "Тёплая бумага и мягкие аппликации",
-    colors: { ...commonColors,
-      "background": "#f8efdd", "surface": "#fff8e9", "surface-variant": "#eadcc5",
-      "on-surface-variant": "#4b2c22", "primary": "#146774", "secondary": "#9b443c",
-      "accent": "#d57d56", "on-background": "#4b2c22", "on-surface": "#4b2c22",
-      "on-primary": "#ffffff", "on-secondary": "#ffffff", "on-accent": "#30180f",
+    id: "paper-story",
+    title: "Бумажная сказка",
+    description: "Тёплая бумага и мягкие аппликации",
+    colors: {
+      ...commonColors,
+      "background": "#f8efdd",
+      "surface": "#fff8e9",
+      "surface-variant": "#eadcc5",
+      "on-surface-variant": "#4b2c22",
+      "primary": "#146774",
+      "secondary": "#9b443c",
+      "accent": "#d57d56",
+      "on-background": "#4b2c22",
+      "on-surface": "#4b2c22",
+      "on-primary": "#ffffff",
+      "on-secondary": "#ffffff",
+      "on-accent": "#30180f",
     },
-    decoration: { outline: "#d4bd98", radius: "1.7rem", shadow: "0.2rem 0.35rem 0 #d2bb943d, 0 0.65rem 1.4rem #70513724", focus: "#c54c3e", panel: "#fff8e9f5" },
+    decoration: {
+      outline: "#d4bd98",
+      radius: "1.7rem",
+      shadow: "0.2rem 0.35rem 0 #d2bb943d, 0 0.65rem 1.4rem #70513724",
+      focus: "#c54c3e",
+      panel: "#fff8e9f5",
+    },
     scenes: scenes(paperScenes),
   },
   "toy-world": {
-    id: "toy-world", title: "Игрушечный мир", description: "Объёмные рамки и яркие акценты",
-    colors: { ...commonColors,
-      "background": "#e9ebff", "surface": "#ffffff", "surface-variant": "#e0dff8",
-      "on-surface-variant": "#24235d", "primary": "#3d4fbb", "secondary": "#6c439f",
-      "accent": "#f5ae48", "on-background": "#20215e", "on-surface": "#20215e",
-      "on-primary": "#ffffff", "on-secondary": "#ffffff", "on-accent": "#432806",
+    id: "toy-world",
+    title: "Игрушечный мир",
+    description: "Объёмные рамки и яркие акценты",
+    colors: {
+      ...commonColors,
+      "background": "#e9ebff",
+      "surface": "#ffffff",
+      "surface-variant": "#e0dff8",
+      "on-surface-variant": "#24235d",
+      "primary": "#3d4fbb",
+      "secondary": "#6c439f",
+      "accent": "#f5ae48",
+      "on-background": "#20215e",
+      "on-surface": "#20215e",
+      "on-primary": "#ffffff",
+      "on-secondary": "#ffffff",
+      "on-accent": "#432806",
     },
-    decoration: { outline: "#8b9aef", radius: "2.4rem", shadow: "inset 0 0.25rem 0 #ffffffb3, 0 0.5rem 0 #6b71ba3d, 0 0.9rem 1.8rem #343f8f2b", focus: "#d57517", panel: "#ffffffed" },
+    decoration: {
+      outline: "#8b9aef",
+      radius: "2.4rem",
+      shadow: "inset 0 0.25rem 0 #ffffffb3, 0 0.5rem 0 #6b71ba3d, 0 0.9rem 1.8rem #343f8f2b",
+      focus: "#d57517",
+      panel: "#ffffffed",
+    },
     scenes: scenes(toyScenes),
   },
 };
 export function normalizeThemeId(value: unknown): ThemeId {
-  return themeIds.includes(value as ThemeId) ? value as ThemeId : DEFAULT_THEME;
+  return themeIds.includes(value as ThemeId) ? (value as ThemeId) : DEFAULT_THEME;
 }
 export function sceneGradient(palette: ScenePalette) {
   return `linear-gradient(150deg, ${palette.background[0]}, ${palette.background[1]} 55%, ${palette.background[2]})`;

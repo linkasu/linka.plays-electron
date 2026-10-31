@@ -380,10 +380,7 @@ onUnmounted(() => {
 
 <style scoped>
 .connect-shell {
-  background:
-    radial-gradient(circle at 14% 18%, rgb(255 224 178 / 58%), transparent 28%),
-    radial-gradient(circle at 86% 20%, rgb(187 222 251 / 58%), transparent 30%),
-    linear-gradient(135deg, #fff8ec 0%, #edf6ff 100%);
+  background: var(--linka-scene-paper);
   block-size: 100vh;
   overflow: hidden;
 }

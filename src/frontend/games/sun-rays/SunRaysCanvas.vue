@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { onMounted, onUnmounted, ref } from "vue";
 import { canvasArt, drawCanvasArt } from "../../core/canvasArt";
 import { approach, createFrameClock } from "../../core/motion";
@@ -227,9 +228,9 @@ function draw(now: number) {
   ctx.clearRect(0, 0, width, height);
 
   const sky = ctx.createLinearGradient(0, 0, 0, height);
-  sky.addColorStop(0, "#fff3bd");
-  sky.addColorStop(0.52, "#ffe0a1");
-  sky.addColorStop(1, "#c7e8f5");
+  sky.addColorStop(0, scenePalette("sky").background[0]);
+  sky.addColorStop(0.52, scenePalette("sky").background[1]);
+  sky.addColorStop(1, scenePalette("sky").background[2]);
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, width, height);
 

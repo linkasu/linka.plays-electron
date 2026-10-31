@@ -438,7 +438,7 @@ watch(
 
 <style scoped>
 .pyramid-shell {
-  background: linear-gradient(135deg, #fff8e1 0%, #f1f0ff 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

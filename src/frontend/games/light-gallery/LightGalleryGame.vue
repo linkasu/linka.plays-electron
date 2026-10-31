@@ -372,7 +372,7 @@ onUnmounted(() => {
 
 <style scoped>
 .light-gallery-shell {
-  background: #081b2a;
+  background: var(--linka-scene-night);
   min-block-size: 100vh;
   overflow: hidden;
   position: relative;

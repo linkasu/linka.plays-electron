@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -276,9 +277,9 @@ function update(rawDelta: number) {
 
 function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   const sky = ctx.createLinearGradient(0, 0, 0, height.value);
-  sky.addColorStop(0, "#081531");
-  sky.addColorStop(0.54, "#15285a");
-  sky.addColorStop(1, "#241d4a");
+  sky.addColorStop(0, scenePalette("space").background[0]);
+  sky.addColorStop(0.54, scenePalette("space").background[1]);
+  sky.addColorStop(1, scenePalette("space").background[2]);
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, width.value, height.value);
 
@@ -525,7 +526,7 @@ useGameLoop({ context, update, draw });
 
 <style scoped>
 .space-orbit-shell {
-  background: #081531;
+  background: var(--linka-scene-space);
   block-size: 100dvh;
   inline-size: 100dvw;
   overflow: hidden;

@@ -359,9 +359,7 @@ onUnmounted(() => {
 
 <style scoped>
 .memory-shell {
-  background:
-    radial-gradient(circle at 20% 20%, #fff6d8 0 22%, transparent 34%),
-    linear-gradient(135deg, #e7f5ff 0%, #f7edff 52%, #fff3e2 100%);
+  background: var(--linka-scene-paper);
   block-size: 100vh;
   overflow: hidden;
 }

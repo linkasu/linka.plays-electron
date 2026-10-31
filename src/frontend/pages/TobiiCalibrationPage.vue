@@ -530,14 +530,7 @@ onBeforeUnmount(() => {
   inset: 0;
   z-index: 1000;
   overflow: hidden;
-  background:
-    radial-gradient(
-      circle at 50% 45%,
-      rgb(42 101 255 / 24%) 0%,
-      rgb(6 17 45 / 92%) 45%,
-      #020817 100%
-    ),
-    #020817;
+  background: var(--linka-scene-night);
   color: #fff;
   transition: opacity 240ms ease;
 }

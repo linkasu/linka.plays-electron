@@ -274,7 +274,7 @@ onUnmounted(() => {
 
 <style scoped>
 .patterns-shell {
-  background: linear-gradient(135deg, #eef7ff 0%, #fff4df 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

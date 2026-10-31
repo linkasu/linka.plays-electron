@@ -438,7 +438,7 @@ onUnmounted(() => {
 
 <style scoped>
 .who-hiding-shell {
-  background: linear-gradient(135deg, #eef8f5 0%, #fff7e8 52%, #f0edff 100%);
+  background: var(--linka-scene-meadow);
   min-block-size: 100vh;
 }
 
@@ -447,7 +447,7 @@ onUnmounted(() => {
 }
 
 .search-scene {
-  background: linear-gradient(180deg, #dff3ff 0 47%, #d8efc8 47% 100%);
+  background: linear-gradient(180deg, var(--linka-scene-sky-0) 0 47%, var(--linka-scene-meadow-1) 47% 100%);
   block-size: clamp(31rem, 64vh, 43rem);
   overflow: hidden;
   position: relative;

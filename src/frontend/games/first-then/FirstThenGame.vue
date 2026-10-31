@@ -192,10 +192,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <GamePageShell
-    gradient="linear-gradient(135deg, #f1f7ff 0%, #fff6e8 52%, #f3ecff 100%)"
-    padding-top="8.25rem"
-  >
+  <GamePageShell gradient="paper" padding-top="8.25rem">
     <template #hud>
       <GameHud
         title="Сначала-потом"

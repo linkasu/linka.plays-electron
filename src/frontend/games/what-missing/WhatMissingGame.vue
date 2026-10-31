@@ -315,7 +315,7 @@ onUnmounted(() => {
 
 <style scoped>
 .what-missing-shell {
-  background: linear-gradient(135deg, #f7f0ff 0%, #eef8ff 48%, #fff8e6 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

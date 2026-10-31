@@ -182,7 +182,7 @@ onUnmounted(() => {
 
 <style scoped>
 .catch-light-shell {
-  background: #080f19;
+  background: var(--linka-scene-night);
   min-block-size: 100vh;
   overflow: hidden;
   position: relative;

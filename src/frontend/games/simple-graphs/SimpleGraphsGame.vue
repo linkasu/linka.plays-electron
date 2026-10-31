@@ -294,7 +294,7 @@ onUnmounted(() => {
 
 <style scoped>
 .simple-graphs-shell {
-  background: linear-gradient(135deg, #fff8e7 0%, #e7f6ff 54%, #edf8ef 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

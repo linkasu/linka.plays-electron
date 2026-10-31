@@ -366,9 +366,7 @@ watch(
 
 <style scoped>
 .bells-shell {
-  background:
-    radial-gradient(circle at 20% 18%, rgb(255 241 184 / 52%), transparent 34%),
-    linear-gradient(135deg, #fff7dc 0%, #eef8ff 48%, #f7f0ff 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

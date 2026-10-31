@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -280,9 +281,9 @@ function drawBackground(context: CanvasRenderingContext2D) {
     window.innerHeight * 0.58,
     Math.max(window.innerWidth, window.innerHeight) * 0.8,
   );
-  gradient.addColorStop(0, "#080818");
-  gradient.addColorStop(0.58, "#03040d");
-  gradient.addColorStop(1, "#000004");
+  gradient.addColorStop(0, scenePalette("night").background[0]);
+  gradient.addColorStop(0.58, scenePalette("night").background[1]);
+  gradient.addColorStop(1, scenePalette("night").background[2]);
   context.fillStyle = gradient;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 }
@@ -461,7 +462,7 @@ onUnmounted(() => {
 
 <style scoped>
 .butterfly-shell {
-  background: #000004;
+  background: var(--linka-scene-night);
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;

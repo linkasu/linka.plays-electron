@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
@@ -443,9 +444,9 @@ function drawOffsetRail(context: CanvasRenderingContext2D, samples: RailSample[]
 
 function drawBackground(context: CanvasRenderingContext2D, now: number) {
   const sky = context.createLinearGradient(0, 0, 0, height.value);
-  sky.addColorStop(0, "#eef8ff");
-  sky.addColorStop(0.62, "#f6fbf3");
-  sky.addColorStop(1, "#efe4ce");
+  sky.addColorStop(0, scenePalette("meadow").background[0]);
+  sky.addColorStop(0.62, scenePalette("meadow").background[1]);
+  sky.addColorStop(1, scenePalette("meadow").background[2]);
   context.fillStyle = sky;
   context.fillRect(0, 0, width.value, height.value);
 
@@ -761,7 +762,7 @@ useGameLoop({ context, update, draw });
 
 <style scoped>
 .rails-shell {
-  background: #eef8ff;
+  background: var(--linka-scene-meadow);
   block-size: 100dvh;
   inline-size: 100dvw;
   overflow: hidden;

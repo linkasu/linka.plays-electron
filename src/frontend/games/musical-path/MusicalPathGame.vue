@@ -307,7 +307,7 @@ onUnmounted(() => {
 
 <style scoped>
 .musical-path-shell {
-  background: linear-gradient(180deg, #f3f8ff 0%, #f7f1ff 48%, #edf8ef 100%);
+  background: var(--linka-scene-paper);
   block-size: 100dvh;
   inline-size: 100dvw;
   overflow: hidden;
@@ -350,12 +350,12 @@ onUnmounted(() => {
 }
 
 .path-line-shadow {
-  stroke: rgb(90 116 150 / 16%);
+  stroke: rgb(var(--v-theme-primary) / 18%);
   stroke-width: 11;
 }
 
 .path-line-glow {
-  stroke: rgb(120 155 210 / 28%);
+  stroke: rgb(var(--v-theme-secondary) / 32%);
   stroke-dasharray: 1 7;
   stroke-width: 6;
 }

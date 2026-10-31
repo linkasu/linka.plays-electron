@@ -230,7 +230,7 @@ onUnmounted(() => {
 
 <style scoped>
 .number-line-shell {
-  background: linear-gradient(135deg, #f2fbff 0%, #fff2d8 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

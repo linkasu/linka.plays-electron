@@ -579,14 +579,7 @@ onBeforeUnmount(() => {
   min-block-size: 100dvh;
   overflow: hidden;
   position: relative;
-  background:
-    radial-gradient(
-      circle at 50% 50%,
-      rgb(255 244 210 / 72%),
-      rgb(202 232 244 / 88%) 42%,
-      rgb(157 207 230 / 96%) 100%
-    ),
-    rgb(var(--v-theme-background));
+  background: var(--linka-scene-sky);
 }
 
 .debug-stage {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -406,9 +407,9 @@ function update(delta: number, now: number) {
 
 function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   const sky = ctx.createLinearGradient(0, 0, 0, height.value);
-  sky.addColorStop(0, "#dff6ff");
-  sky.addColorStop(0.54, "#f2fbff");
-  sky.addColorStop(1, "#f7efd8");
+  sky.addColorStop(0, scenePalette("sky").background[0]);
+  sky.addColorStop(0.54, scenePalette("sky").background[1]);
+  sky.addColorStop(1, scenePalette("sky").background[2]);
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, width.value, height.value);
 
@@ -739,7 +740,7 @@ useGameLoop({ context, update, draw });
 
 <style scoped>
 .glider-shell {
-  background: #dff6ff;
+  background: var(--linka-scene-sky);
   block-size: 100dvh;
   inline-size: 100dvw;
   overflow: hidden;

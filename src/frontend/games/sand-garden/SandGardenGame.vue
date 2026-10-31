@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, onMounted, onUnmounted, reactive, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -220,9 +221,9 @@ function calmStepSeconds() {
 
 function drawBackground(ctx: CanvasRenderingContext2D) {
   const gradient = ctx.createLinearGradient(0, 0, 0, height.value);
-  gradient.addColorStop(0, "#f2d7a6");
-  gradient.addColorStop(0.45, "#e9c487");
-  gradient.addColorStop(1, "#dcb06e");
+  gradient.addColorStop(0, scenePalette("sand").background[0]);
+  gradient.addColorStop(0.45, scenePalette("sand").background[1]);
+  gradient.addColorStop(1, scenePalette("sand").background[2]);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width.value, height.value);
 
@@ -405,7 +406,7 @@ useGameLoop({ context, update, draw });
 
 <style scoped>
 .sand-garden-shell {
-  background: #e9c487;
+  background: var(--linka-scene-sand);
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;

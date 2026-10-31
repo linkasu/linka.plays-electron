@@ -428,9 +428,7 @@ watch(
 
 <style scoped>
 .dress-character-shell {
-  background:
-    radial-gradient(circle at 12% 18%, rgb(255 226 170 / 68%), transparent 26%),
-    linear-gradient(135deg, #fff7dc 0%, #e7f6f0 48%, #e9efff 100%);
+  background: var(--linka-scene-paper);
   block-size: 100vh;
   overflow: hidden;
 }

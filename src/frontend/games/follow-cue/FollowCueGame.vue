@@ -347,7 +347,7 @@ onUnmounted(() => {
 
 <style scoped>
 .follow-cue-shell {
-  background: linear-gradient(135deg, #f4f8ff 0%, #fff8ed 48%, #f0fbf6 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

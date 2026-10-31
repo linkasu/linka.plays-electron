@@ -428,7 +428,7 @@ onUnmounted(() => {
 
 <style scoped>
 .step-pong-shell {
-  background: linear-gradient(135deg, #eef8ff 0%, #f6fff7 52%, #fff8e8 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

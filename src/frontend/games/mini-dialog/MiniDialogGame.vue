@@ -252,7 +252,7 @@ onUnmounted(() => {
 }
 
 .mini-dialog-shell {
-  background: linear-gradient(135deg, #eef8f4 0%, #f9f1ff 52%, #fff8e7 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

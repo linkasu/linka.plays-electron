@@ -228,7 +228,7 @@ onUnmounted(() => {
 
 <style scoped>
 .soap-circles-shell {
-  background: linear-gradient(180deg, #dffaff 0%, #f2fbff 50%, #ddf4f0 100%);
+  background: var(--linka-scene-paper);
   color: #174056;
   min-block-size: 100vh;
   overflow: hidden;
