@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { access, stat } from "node:fs/promises";
+import { access, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -21,6 +21,11 @@ const requiredAssets = [
   "fonts/nunito/Nunito-Variable.ttf",
   "fonts/nunito/OFL.txt",
 ];
+
+const menuCovers = JSON.parse(
+  await readFile(path.join(distRoot, "images/menu-covers/encoding.json"), "utf8"),
+);
+requiredAssets.push(...menuCovers.map((cover) => `images/menu-covers/${cover.id}.webp`));
 
 for (const relativePath of requiredAssets) {
   const filePath = path.join(distRoot, relativePath);

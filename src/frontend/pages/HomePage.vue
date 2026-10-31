@@ -323,7 +323,7 @@ watch(searchQuery, () => {
                 >
                   <div class="d-flex h-100 ga-4 text-left text-on-surface">
                     <div class="specialist-cover">
-                      <MenuCover :game-id="item.game.id" :icon="item.game.icon" />
+                      <MenuCover :game-id="item.game.id" />
                     </div>
                     <div class="d-flex flex-column min-w-0">
                       <h3 class="text-h5 font-weight-bold text-high-emphasis mb-2">

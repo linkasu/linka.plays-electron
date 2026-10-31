@@ -168,7 +168,7 @@ watch(pageSize, () => {
             @select="openGame(game)"
           >
             <div class="self-choice-content">
-              <div class="self-cover"><MenuCover :game-id="game.id" :icon="game.icon" /></div>
+              <div class="self-cover"><MenuCover :game-id="game.id" /></div>
               <div class="self-choice-label">
                 <h2>{{ game.title }}</h2>
                 <p>{{ game.selfDescription }}</p>
