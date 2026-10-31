@@ -4,6 +4,7 @@ import "twemoji-colr-font/twemoji.css";
 import "vuetify/styles";
 import "./styles/emoji.css";
 import "./styles/game-layout.css";
+import "./styles/appearance.css";
 
 import { createApp } from "vue";
 import App from "./App.vue";

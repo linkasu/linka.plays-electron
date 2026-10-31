@@ -492,10 +492,7 @@ watch(
 
 <style scoped>
 .checkers-shell {
-  background:
-    radial-gradient(circle at 18% 18%, rgb(255 224 178 / 58%), transparent 30%),
-    radial-gradient(circle at 82% 18%, rgb(187 222 251 / 48%), transparent 30%),
-    linear-gradient(135deg, #fffaf1 0%, #edf7ff 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

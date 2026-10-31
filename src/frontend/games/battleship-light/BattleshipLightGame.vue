@@ -774,10 +774,7 @@ onUnmounted(() => {
 
 <style scoped>
 .battleship-shell {
-  background:
-    radial-gradient(circle at 14% 18%, rgb(187 222 251 / 68%), transparent 30%),
-    radial-gradient(circle at 82% 20%, rgb(178 235 242 / 58%), transparent 32%),
-    linear-gradient(135deg, #f3fbff 0%, #eaf7fb 48%, #f6fbff 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

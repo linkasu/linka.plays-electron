@@ -388,7 +388,7 @@ onUnmounted(() => {
 }
 
 .scene {
-  background: linear-gradient(135deg, #ffefd6 0%, #dff5ff 45%, #f6e5ff 100%);
+  background: var(--linka-scene-meadow);
   block-size: 100%;
   inline-size: 100%;
   position: relative;

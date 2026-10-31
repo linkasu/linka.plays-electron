@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, onMounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
@@ -264,9 +265,9 @@ function canvasFont(weight: number, size: number) {
 
 function drawBackground(ctx: CanvasRenderingContext2D) {
   const gradient = ctx.createLinearGradient(0, 0, width.value, height.value);
-  gradient.addColorStop(0, "#0a1022");
-  gradient.addColorStop(0.48, "#111d33");
-  gradient.addColorStop(1, "#18233d");
+  gradient.addColorStop(0, scenePalette("night").background[0]);
+  gradient.addColorStop(0.48, scenePalette("night").background[1]);
+  gradient.addColorStop(1, scenePalette("night").background[2]);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width.value, height.value);
 

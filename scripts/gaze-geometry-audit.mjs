@@ -233,10 +233,14 @@ async function main() {
   }
 
   const base = new URL(pageTarget.url);
+  // Production renderers expose the audit hook only with this explicit query flag.
+  base.searchParams.set("linka-audit", "");
   const results = [];
 
   for (const route of routes) {
-    await client.send("Page.navigate", { url: `${base.origin}${base.pathname}#${route}` });
+    await client.send("Page.navigate", {
+      url: `${base.origin}${base.pathname}${base.search}#${route}`,
+    });
     await client.send("Page.bringToFront");
     await wait(waitMs);
 

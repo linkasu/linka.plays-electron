@@ -20,6 +20,11 @@ npm run smoke:renderer-assets
 npm run electron:serve
 ```
 
+Оформление: Sunny Meadow по умолчанию; ещё две темы выбираются в меню. Устройство
+стилей и правила новых сцен описаны в [документации тем](docs/appearance-themes.md).
+Для smoke всех игр во всех темах в уже запущенном Electron с отдельным тестовым
+профилем: `npm run audit:themes -- --port=9223 --base-url=http://127.0.0.1:5174`.
+
 ## Tobii
 
 Сейчас Tobii-слой заложен как IPC scaffold: `tobii:status:get`, `tobii:status`, `tobii:gaze`.

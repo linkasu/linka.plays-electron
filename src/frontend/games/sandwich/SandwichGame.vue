@@ -276,11 +276,7 @@ watch(
 </script>
 
 <template>
-  <GamePageShell
-    class="sandwich-page"
-    gradient="linear-gradient(135deg, #fff8e1 0%, #eef8ee 54%, #fff3e0 100%)"
-    padding-top="4rem"
-  >
+  <GamePageShell class="sandwich-page" gradient="kitchen" padding-top="4rem">
     <template #hud>
       <GameHud
         title="Бутерброд"

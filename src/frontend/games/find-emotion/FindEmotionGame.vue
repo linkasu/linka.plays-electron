@@ -171,7 +171,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <GamePageShell gradient="linear-gradient(135deg, #fff5f8 0%, #eef8ff 100%)" padding-top="6rem">
+  <GamePageShell gradient="paper" padding-top="6rem">
     <template #hud>
       <GameHud
         title="Найди эмоцию"

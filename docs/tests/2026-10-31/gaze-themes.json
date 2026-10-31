@@ -1,0 +1,110 @@
+[
+  {
+    "theme": "sunny-meadow",
+    "routes": [
+      {
+        "route": "/menu/self",
+        "findings": []
+      },
+      {
+        "route": "/games/feed-animal",
+        "findings": []
+      },
+      {
+        "route": "/games/find-shape",
+        "findings": []
+      },
+      {
+        "route": "/games/who-hiding",
+        "findings": [
+          {
+            "kind": "target-too-small",
+            "target": "who-hiding:spot:1-0-duck",
+            "shortSidePx": 137,
+            "minTargetSizePx": 170,
+            "detail": "short side 137px is under the registry minimum"
+          },
+          {
+            "kind": "target-too-small",
+            "target": "who-hiding:spot:1-2-cat",
+            "shortSidePx": 132,
+            "minTargetSizePx": 170,
+            "detail": "short side 132px is under the registry minimum"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "theme": "paper-story",
+    "routes": [
+      {
+        "route": "/menu/self",
+        "findings": []
+      },
+      {
+        "route": "/games/feed-animal",
+        "findings": []
+      },
+      {
+        "route": "/games/find-shape",
+        "findings": []
+      },
+      {
+        "route": "/games/who-hiding",
+        "findings": [
+          {
+            "kind": "target-too-small",
+            "target": "who-hiding:spot:1-0-duck",
+            "shortSidePx": 137,
+            "minTargetSizePx": 170,
+            "detail": "short side 137px is under the registry minimum"
+          },
+          {
+            "kind": "target-too-small",
+            "target": "who-hiding:spot:1-2-cat",
+            "shortSidePx": 132,
+            "minTargetSizePx": 170,
+            "detail": "short side 132px is under the registry minimum"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "theme": "toy-world",
+    "routes": [
+      {
+        "route": "/menu/self",
+        "findings": []
+      },
+      {
+        "route": "/games/feed-animal",
+        "findings": []
+      },
+      {
+        "route": "/games/find-shape",
+        "findings": []
+      },
+      {
+        "route": "/games/who-hiding",
+        "findings": [
+          {
+            "kind": "target-too-small",
+            "target": "who-hiding:spot:1-0-duck",
+            "shortSidePx": 135,
+            "minTargetSizePx": 170,
+            "detail": "short side 135px is under the registry minimum"
+          },
+          {
+            "kind": "target-too-small",
+            "target": "who-hiding:spot:1-2-cat",
+            "shortSidePx": 131,
+            "minTargetSizePx": 170,
+            "detail": "short side 131px is under the registry minimum"
+          }
+        ]
+      }
+    ]
+  }
+]

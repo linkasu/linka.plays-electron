@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -320,9 +321,9 @@ function update(rawDelta: number, now: number) {
 
 function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   const paper = ctx.createLinearGradient(0, 0, width.value, height.value);
-  paper.addColorStop(0, "#f7fbff");
-  paper.addColorStop(0.5, "#f7f5ff");
-  paper.addColorStop(1, "#fff8ec");
+  paper.addColorStop(0, scenePalette("paper").background[0]);
+  paper.addColorStop(0.5, scenePalette("paper").background[1]);
+  paper.addColorStop(1, scenePalette("paper").background[2]);
   ctx.fillStyle = paper;
   ctx.fillRect(0, 0, width.value, height.value);
 
@@ -603,7 +604,7 @@ useGameLoop({ context, update, draw });
 
 <style scoped>
 .line-drawing-shell {
-  background: #f7fbff;
+  background: var(--linka-scene-paper);
   block-size: 100dvh;
   inline-size: 100dvw;
   overflow: hidden;

@@ -1,3 +1,4 @@
+import type { ScenePalette } from "../../themes";
 export type Point = { x: number; y: number };
 
 export type TennisPaddle = Point & {
@@ -30,6 +31,7 @@ export type TennisScenePointer = Point & {
 };
 
 export type TennisSceneOptions = {
+  palette: ScenePalette;
   paddle: TennisPaddle;
   partnerY: number;
   ball: TennisBall;
@@ -98,11 +100,16 @@ function drawCloud(
   context.restore();
 }
 
-function drawBackground(context: CanvasRenderingContext2D, now: number, reduceMotion: boolean) {
+function drawBackground(
+  context: CanvasRenderingContext2D,
+  now: number,
+  reduceMotion: boolean,
+  palette: ScenePalette,
+) {
   const sky = context.createLinearGradient(0, 0, 0, window.innerHeight);
-  sky.addColorStop(0, "#b9ebff");
-  sky.addColorStop(0.56, "#eaf8ff");
-  sky.addColorStop(1, "#d9f0d0");
+  sky.addColorStop(0, palette.background[0]);
+  sky.addColorStop(0.56, palette.background[1]);
+  sky.addColorStop(1, palette.background[2]);
   context.fillStyle = sky;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -356,7 +363,7 @@ function drawPointerHint(context: CanvasRenderingContext2D, options: TennisScene
 export function drawTennisScene(context: CanvasRenderingContext2D, options: TennisSceneOptions) {
   context.canvas.dataset.reduceMotion = String(options.reduceMotion);
   context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-  drawBackground(context, options.now, options.reduceMotion);
+  drawBackground(context, options.now, options.reduceMotion, options.palette);
   drawCourt(context);
 
   for (const trail of options.trails) drawTrail(context, trail);

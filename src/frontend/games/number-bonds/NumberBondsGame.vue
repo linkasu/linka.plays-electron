@@ -263,7 +263,7 @@ onUnmounted(() => {
 
 <style scoped>
 .number-bonds-shell {
-  background: linear-gradient(135deg, #eef8ff 0%, #fff3dc 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

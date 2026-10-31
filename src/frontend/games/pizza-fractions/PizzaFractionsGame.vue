@@ -285,7 +285,7 @@ onUnmounted(() => {
 
 <style scoped>
 .pizza-fractions-shell {
-  background: linear-gradient(135deg, #fff4df 0%, #fffaf1 48%, #e5f6ee 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

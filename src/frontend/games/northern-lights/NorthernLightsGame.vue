@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -178,9 +179,9 @@ function updateGlows(delta: number) {
 
 function drawBackground(context: CanvasRenderingContext2D, now: number) {
   const sky = context.createLinearGradient(0, 0, 0, window.innerHeight);
-  sky.addColorStop(0, "#020514");
-  sky.addColorStop(0.58, "#08142a");
-  sky.addColorStop(1, "#13211e");
+  sky.addColorStop(0, scenePalette("night").background[0]);
+  sky.addColorStop(0.58, scenePalette("night").background[1]);
+  sky.addColorStop(1, scenePalette("night").background[2]);
   context.fillStyle = sky;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -306,7 +307,7 @@ onUnmounted(() => {
 
 <style scoped>
 .northern-lights-shell {
-  background: #020514;
+  background: var(--linka-scene-night);
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -256,9 +257,9 @@ function updateGlows(delta: number) {
 
 function drawBackground(context: CanvasRenderingContext2D, now: number) {
   const sky = context.createLinearGradient(0, 0, 0, window.innerHeight);
-  sky.addColorStop(0, "#020513");
-  sky.addColorStop(0.48, "#07162c");
-  sky.addColorStop(1, "#0a1e31");
+  sky.addColorStop(0, scenePalette("night-water").background[0]);
+  sky.addColorStop(0.48, scenePalette("night-water").background[1]);
+  sky.addColorStop(1, scenePalette("night-water").background[2]);
   context.fillStyle = sky;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -276,9 +277,9 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
   drawMoon(context);
 
   const water = context.createLinearGradient(0, waterTop(), 0, window.innerHeight);
-  water.addColorStop(0, "#0b2138");
-  water.addColorStop(0.46, "#08253c");
-  water.addColorStop(1, "#041827");
+  water.addColorStop(0, scenePalette("night-water").water[0]);
+  water.addColorStop(0.46, scenePalette("night-water").water[1]);
+  water.addColorStop(1, scenePalette("night-water").water[2]);
   context.fillStyle = water;
   context.fillRect(0, waterTop(), window.innerWidth, window.innerHeight - waterTop());
 
@@ -533,7 +534,7 @@ onUnmounted(() => {
 
 <style scoped>
 .moon-path-shell {
-  background: #020513;
+  background: var(--linka-scene-night-water);
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;

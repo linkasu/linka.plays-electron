@@ -586,10 +586,7 @@ watch(
 
 <style scoped>
 .chess-shell {
-  background:
-    radial-gradient(circle at 14% 18%, rgb(255 224 178 / 62%), transparent 30%),
-    radial-gradient(circle at 86% 14%, rgb(187 222 251 / 58%), transparent 28%),
-    linear-gradient(135deg, #fff8ec 0%, #edf4ff 52%, #f4fff4 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

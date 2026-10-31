@@ -27,6 +27,7 @@ const props = withDefaults(
     priority?: number;
     graceMs?: number;
     shapeSelector?: string;
+    pressed?: boolean;
   }>(),
   {
     dwellMs: DEFAULT_DWELL_MS,
@@ -246,9 +247,13 @@ onUnmounted(() => {
 <template>
   <div ref="rootRef" class="dwell-hitbox">
     <v-card
-      :class="['dwell-button', { 'dwell-button--active': active }]"
+      :class="[
+        'dwell-button',
+        { 'dwell-button--active': active, 'dwell-button--transparent': color === 'transparent' },
+      ]"
       :color="color"
       :disabled="disabled"
+      :aria-pressed="pressed"
       :style="{ minBlockSize }"
       tag="button"
       type="button"
@@ -282,7 +287,7 @@ onUnmounted(() => {
   box-shadow:
     0 0 0 0.22rem rgb(var(--v-theme-secondary) / 32%),
     0 0.7rem 1.6rem rgb(var(--v-theme-primary) / 16%);
-  transform: scale(1.03);
+  /* Keep the visible card aligned with the registered gaze hitbox. */
 }
 
 .dwell-progress {

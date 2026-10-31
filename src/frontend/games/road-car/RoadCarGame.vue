@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -162,9 +163,9 @@ function update(delta: number) {
 
 function drawBackground(ctx: CanvasRenderingContext2D) {
   const gradient = ctx.createLinearGradient(0, 0, 0, height.value);
-  gradient.addColorStop(0, "#b9ecff");
-  gradient.addColorStop(0.48, "#e5f5d8");
-  gradient.addColorStop(1, "#b8d895");
+  gradient.addColorStop(0, scenePalette("meadow").background[0]);
+  gradient.addColorStop(0.48, scenePalette("meadow").background[1]);
+  gradient.addColorStop(1, scenePalette("meadow").background[2]);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width.value, height.value);
   for (const item of roadsideItems) drawRoadsideItem(ctx, item);
@@ -501,7 +502,7 @@ useGameLoop({ context, update, draw });
 
 <style scoped>
 .road-car-shell {
-  background: #b9ecff;
+  background: var(--linka-scene-meadow);
   block-size: 100dvh;
   inline-size: 100dvw;
   overflow: hidden;

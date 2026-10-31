@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -422,9 +423,9 @@ function updateStars(delta: number, now: number) {
 
 function drawBackground(context: CanvasRenderingContext2D, now: number) {
   const sky = context.createLinearGradient(0, 0, 0, window.innerHeight);
-  sky.addColorStop(0, "#030513");
-  sky.addColorStop(0.46, "#0b1131");
-  sky.addColorStop(1, "#171027");
+  sky.addColorStop(0, scenePalette("space").background[0]);
+  sky.addColorStop(0.46, scenePalette("space").background[1]);
+  sky.addColorStop(1, scenePalette("space").background[2]);
   context.fillStyle = sky;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -733,7 +734,7 @@ onUnmounted(() => {
 
 <style scoped>
 .starry-sky-shell {
-  background: #030513;
+  background: var(--linka-scene-space);
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;

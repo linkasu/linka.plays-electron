@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, onMounted, onUnmounted, reactive, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -367,9 +368,9 @@ function updateWindLines(delta: number) {
 
 function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   const sky = ctx.createLinearGradient(0, 0, 0, height.value);
-  sky.addColorStop(0, "#d7eef0");
-  sky.addColorStop(0.58, "#edf2cf");
-  sky.addColorStop(1, "#d7c88a");
+  sky.addColorStop(0, scenePalette("autumn").background[0]);
+  sky.addColorStop(0.58, scenePalette("autumn").background[1]);
+  sky.addColorStop(1, scenePalette("autumn").background[2]);
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, width.value, height.value);
 
@@ -624,7 +625,7 @@ useGameLoop({ context, update, draw });
 
 <style scoped>
 .leaves-wind-shell {
-  background: #d7eef0;
+  background: var(--linka-scene-autumn);
   block-size: 100dvh;
   inline-size: 100dvw;
   overflow: hidden;

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -337,9 +338,9 @@ function drawBackground(context: CanvasRenderingContext2D, now: number) {
   const center = fireCenter();
   const intensity = clamp(fireEnergy / maxFireEnergy, 0, 1);
   const sky = context.createLinearGradient(0, 0, 0, window.innerHeight);
-  sky.addColorStop(0, "#090912");
-  sky.addColorStop(0.5, "#1b1122");
-  sky.addColorStop(1, "#2a170d");
+  sky.addColorStop(0, scenePalette("night").background[0]);
+  sky.addColorStop(0.5, scenePalette("night").background[1]);
+  sky.addColorStop(1, scenePalette("night").background[2]);
   context.fillStyle = sky;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -724,7 +725,7 @@ onUnmounted(() => {
 
 <style scoped>
 .warm-fire-shell {
-  background: #090912;
+  background: var(--linka-scene-night);
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;

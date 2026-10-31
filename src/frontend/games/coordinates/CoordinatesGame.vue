@@ -238,7 +238,7 @@ onUnmounted(() => {
 
 <style scoped>
 .coordinates-shell {
-  background: linear-gradient(135deg, #f3fbff 0%, #fff8e8 52%, #f4f0ff 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

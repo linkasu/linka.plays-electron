@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
+import type { SceneKind } from "../../themes";
 type GradientPreset = "warm" | "cool" | "violet" | "forest" | "sunset" | "night" | "neutral";
 
 const props = withDefaults(
@@ -16,21 +17,20 @@ const props = withDefaults(
   },
 );
 
-const gradientPresets: Record<GradientPreset, string> = {
-  warm: "linear-gradient(135deg, #fff7ed 0%, #eef8ff 100%)",
-  cool: "linear-gradient(135deg, #eef4ff 0%, #f2f7ff 100%)",
-  violet: "linear-gradient(135deg, #fff7ed 0%, #eef8ff 52%, #f5f3ff 100%)",
-  forest: "linear-gradient(135deg, #fff8ed 0%, #edf7f0 54%, #eef4ff 100%)",
-  sunset: "linear-gradient(135deg, #fff1e6 0%, #ffe4ec 100%)",
-  night: "linear-gradient(135deg, #1a1c2c 0%, #2c2f4a 100%)",
-  neutral: "linear-gradient(135deg, #f6f7fb 0%, #eef2f7 100%)",
+const gradientPresets: Record<GradientPreset, SceneKind> = {
+  warm: "paper",
+  cool: "sky",
+  violet: "paper",
+  forest: "meadow",
+  sunset: "autumn",
+  night: "night",
+  neutral: "paper",
 };
 
 const backgroundValue = computed(() => {
   const value = props.gradient;
-  if (!value) return gradientPresets.warm;
-  if (value in gradientPresets) return gradientPresets[value as GradientPreset];
-  return value;
+  const scene = value in gradientPresets ? gradientPresets[value as GradientPreset] : value;
+  return `var(--linka-scene-${scene || "paper"})`;
 });
 
 const shellStyle = computed(() => ({

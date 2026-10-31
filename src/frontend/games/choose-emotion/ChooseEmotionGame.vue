@@ -3,6 +3,7 @@ import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameWordImage from "../../components/game/GameWordImage.vue";
+import { gameArtSrc } from "../../core/gameArt";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import GazePointerOverlay from "../../components/game/GazePointerOverlay.vue";
@@ -209,7 +210,12 @@ onUnmounted(() => {
                   >
                     <template #default>
                       <div class="d-flex flex-column align-center justify-center ga-3 pa-4">
-                        <div class="mode-emoji emoji-glyph" aria-hidden="true">😊</div>
+                        <img
+                          class="mode-emoji mode-art"
+                          :src="gameArtSrc('choose-emotion/joy')"
+                          alt=""
+                          draggable="false"
+                        />
                         <div class="text-h5 font-weight-bold">Что чувствует лицо?</div>
                         <div class="text-body-2 text-grey-darken-3">
                           Посмотри на выражение лица и выбери ответ
@@ -319,7 +325,7 @@ onUnmounted(() => {
 
 <style scoped>
 .choose-emotion-shell {
-  background: linear-gradient(135deg, #fff7ed 0%, #edf7ff 52%, #f6efff 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 
@@ -343,6 +349,13 @@ onUnmounted(() => {
 .mode-emoji {
   font-size: clamp(4rem, min(9vw, 13vh), 7rem);
   line-height: 1;
+}
+
+/* The drawn face from this game instead of the 😊 emoji. */
+.mode-art {
+  block-size: 1em;
+  inline-size: 1em;
+  object-fit: contain;
 }
 
 .emotion-choice {

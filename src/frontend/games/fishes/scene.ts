@@ -1,3 +1,4 @@
+import type { ScenePalette } from "../../themes";
 import { drawDrawnFish } from "./fishArt";
 
 export type Point = { x: number; y: number };
@@ -32,6 +33,7 @@ export type ScenePointer = Point & {
   valid: boolean;
 };
 export type FishSceneOptions = {
+  palette: ScenePalette;
   fishes: Fish[];
   bubbles: Bubble[];
   ripples: CatchRipple[];
@@ -62,12 +64,12 @@ export function fishHitRadius(fish: Pick<Fish, "size">) {
   return fish.size * 1.05;
 }
 
-function drawWater(context: CanvasRenderingContext2D) {
+function drawWater(context: CanvasRenderingContext2D, palette: ScenePalette) {
   const gradient = context.createLinearGradient(0, 0, 0, window.innerHeight);
-  gradient.addColorStop(0, "#6ec9dc");
-  gradient.addColorStop(0.22, "#278dad");
-  gradient.addColorStop(0.62, "#135f82");
-  gradient.addColorStop(1, "#0b3558");
+  gradient.addColorStop(0, palette.water[0]);
+  gradient.addColorStop(0.22, palette.water[1]);
+  gradient.addColorStop(0.62, palette.water[2]);
+  gradient.addColorStop(1, palette.water[3]);
   context.fillStyle = gradient;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -533,7 +535,7 @@ export function drawFishScene(context: CanvasRenderingContext2D, options: FishSc
   const totalMs = options.sessionSeconds * 1000;
   const progress = totalMs > 0 ? Math.min(1, Math.max(0, options.durationMs / totalMs)) : 0;
 
-  drawWater(context);
+  drawWater(context, options.palette);
   drawLightRays(context);
   for (const bubble of options.bubbles) drawBubble(context, bubble);
   drawSeabed(context, options.now);

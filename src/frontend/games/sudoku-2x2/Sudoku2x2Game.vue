@@ -275,7 +275,7 @@ onUnmounted(() => {
 
 <style scoped>
 .sudoku-shell {
-  background: linear-gradient(135deg, #eef8ff 0%, #fff7de 52%, #f4efff 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

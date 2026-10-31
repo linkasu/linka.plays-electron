@@ -63,7 +63,7 @@ function skip() {
 <style scoped>
 .audio-gate {
   align-items: center;
-  background: rgb(var(--v-theme-surface));
+  background: var(--linka-scene-paper);
   display: flex;
   inset: 0;
   justify-content: center;
@@ -73,6 +73,11 @@ function skip() {
 }
 
 .audio-gate-card {
+  padding: clamp(1rem, 3dvh, 2rem);
+  background: rgb(var(--v-theme-surface));
+  border: 0.15rem solid var(--linka-outline);
+  border-radius: var(--linka-radius);
+  box-shadow: var(--linka-shadow);
   display: flex;
   flex-direction: column;
   gap: 1.5rem;

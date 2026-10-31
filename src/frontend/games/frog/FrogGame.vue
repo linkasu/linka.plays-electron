@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -321,6 +322,7 @@ function updateEffects(delta: number) {
 
 function draw(context: CanvasRenderingContext2D, now: number) {
   drawFrogScene(context, {
+    palette: scenePalette("night-water"),
     bugs,
     bursts,
     tongues,
@@ -404,7 +406,7 @@ onUnmounted(() => {
 
 <style scoped>
 .frog-shell {
-  background: #17204c;
+  background: var(--linka-scene-night-water);
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;

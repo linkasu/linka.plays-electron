@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -351,9 +352,9 @@ function initShells() {
 
 function drawBackground(context: CanvasRenderingContext2D, now: number) {
   const water = context.createLinearGradient(0, 0, 0, window.innerHeight);
-  water.addColorStop(0, "#0c3156");
-  water.addColorStop(0.52, "#176172");
-  water.addColorStop(1, "#d6b581");
+  water.addColorStop(0, scenePalette("deep-water").background[0]);
+  water.addColorStop(0.52, scenePalette("deep-water").background[1]);
+  water.addColorStop(1, scenePalette("sand").background[1]);
   context.fillStyle = water;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -704,7 +705,7 @@ onUnmounted(() => {
 
 <style scoped>
 .sea-shells-shell {
-  background: #0c3156;
+  background: var(--linka-scene-deep-water);
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;

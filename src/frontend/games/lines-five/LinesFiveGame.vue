@@ -380,10 +380,7 @@ onUnmounted(() => {
 
 <style scoped>
 .lines-five-shell {
-  background:
-    radial-gradient(circle at 18% 18%, rgb(179 229 252 / 58%), transparent 30%),
-    radial-gradient(circle at 84% 18%, rgb(255 224 178 / 58%), transparent 28%),
-    linear-gradient(135deg, #f6fbff 0%, #fffaf0 56%, #f4fff7 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -357,9 +358,9 @@ function strokePartialPath(context: CanvasRenderingContext2D, points: Point[], r
 
 function drawBackground(context: CanvasRenderingContext2D, now: number) {
   const sky = context.createLinearGradient(0, 0, 0, window.innerHeight);
-  sky.addColorStop(0, "#dff2ff");
-  sky.addColorStop(0.58, "#edf8ff");
-  sky.addColorStop(1, "#f8fbff");
+  sky.addColorStop(0, scenePalette("winter").background[0]);
+  sky.addColorStop(0.58, scenePalette("winter").background[1]);
+  sky.addColorStop(1, scenePalette("winter").background[2]);
   context.fillStyle = sky;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -663,7 +664,7 @@ onUnmounted(() => {
 
 <style scoped>
 .snow-trail-shell {
-  background: #edf8ff;
+  background: var(--linka-scene-winter);
   block-size: 100dvh;
   inline-size: 100dvw;
   overflow: hidden;

@@ -199,7 +199,7 @@ onUnmounted(() => {
 
 <style scoped>
 .open-door-shell {
-  background: linear-gradient(180deg, #172238 0%, #2c4160 54%, #667b8a 100%);
+  background: var(--linka-scene-paper);
   block-size: 100dvh;
   overflow: hidden;
   position: relative;

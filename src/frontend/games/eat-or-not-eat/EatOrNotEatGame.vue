@@ -238,7 +238,7 @@ onUnmounted(() => {
 
 <style scoped>
 .eat-shell {
-  background: linear-gradient(135deg, #fff3df 0%, #ecfff5 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

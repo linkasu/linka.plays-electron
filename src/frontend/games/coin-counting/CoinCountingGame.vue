@@ -365,7 +365,7 @@ onUnmounted(() => {
 
 <style scoped>
 .coin-counting-shell {
-  background: linear-gradient(135deg, #fff7dc 0%, #e7f8f3 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -279,6 +280,7 @@ function updateSplashes(delta: number) {
 
 function draw(context: CanvasRenderingContext2D, now: number) {
   drawDuckScene(context, {
+    palette: scenePalette("sky"),
     ducks,
     splashes,
     pointer: pointer.value,
@@ -360,7 +362,7 @@ onUnmounted(() => {
 
 <style scoped>
 .ducks-shell {
-  background: #92d8f0;
+  background: var(--linka-scene-sky);
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;

@@ -244,7 +244,7 @@ onUnmounted(() => {
 
 <style scoped>
 .calendar-shell {
-  background: linear-gradient(135deg, #f2fbff 0%, #fff7df 48%, #eef7e8 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

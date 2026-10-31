@@ -296,7 +296,7 @@ onUnmounted(() => {
 
 <style scoped>
 .lines-angles-shell {
-  background: linear-gradient(135deg, #f3fbff 0%, #fff7ed 52%, #f4f1ff 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

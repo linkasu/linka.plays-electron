@@ -285,10 +285,7 @@ onUnmounted(() => {
 
 <style scoped>
 .uno-like-shell {
-  background:
-    radial-gradient(circle at 18% 16%, rgb(255 224 178 / 62%), transparent 30%),
-    radial-gradient(circle at 82% 18%, rgb(187 222 251 / 58%), transparent 28%),
-    linear-gradient(135deg, #fff7ed 0%, #eef8ff 52%, #f5f3ff 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

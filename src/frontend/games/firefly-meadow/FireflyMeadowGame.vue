@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -288,9 +289,9 @@ function initGrass() {
 
 function drawBackground(context: CanvasRenderingContext2D) {
   const sky = context.createLinearGradient(0, 0, 0, window.innerHeight);
-  sky.addColorStop(0, "#030512");
-  sky.addColorStop(0.55, "#071021");
-  sky.addColorStop(1, "#08170f");
+  sky.addColorStop(0, scenePalette("night").background[0]);
+  sky.addColorStop(0.55, scenePalette("night").background[1]);
+  sky.addColorStop(1, scenePalette("night").background[2]);
   context.fillStyle = sky;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -309,9 +310,9 @@ function drawBackground(context: CanvasRenderingContext2D) {
 
   const meadowTop = window.innerHeight * 0.6;
   const meadow = context.createLinearGradient(0, meadowTop, 0, window.innerHeight);
-  meadow.addColorStop(0, "#0a241a");
-  meadow.addColorStop(0.62, "#071a12");
-  meadow.addColorStop(1, "#031008");
+  meadow.addColorStop(0, scenePalette("night").ground[0]);
+  meadow.addColorStop(0.62, scenePalette("night").ground[1]);
+  meadow.addColorStop(1, scenePalette("night").ground[2]);
   context.fillStyle = meadow;
   context.fillRect(0, meadowTop, window.innerWidth, window.innerHeight - meadowTop);
 
@@ -500,7 +501,7 @@ onUnmounted(() => {
 
 <style scoped>
 .firefly-meadow-shell {
-  background: #030512;
+  background: var(--linka-scene-night);
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;

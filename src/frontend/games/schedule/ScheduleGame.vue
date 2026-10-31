@@ -329,7 +329,7 @@ onUnmounted(() => {
 
 <style scoped>
 .schedule-shell {
-  background: linear-gradient(135deg, #eef7ff 0%, #fff7e6 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100dvh;
   overflow: hidden;
 }

@@ -269,10 +269,7 @@ onUnmounted(() => {
 
 <style scoped>
 .sliding-puzzle-shell {
-  background:
-    radial-gradient(circle at 15% 18%, rgb(255 224 178 / 64%), transparent 30%),
-    radial-gradient(circle at 84% 16%, rgb(187 222 251 / 62%), transparent 28%),
-    linear-gradient(135deg, #fff8ed 0%, #eef7ff 52%, #f4f0ff 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

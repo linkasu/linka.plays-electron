@@ -289,7 +289,7 @@ onUnmounted(() => {
 
 <style scoped>
 .what-first-shell {
-  background: linear-gradient(135deg, #eef7ff 0%, #fff7e8 52%, #f3ecff 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -266,9 +267,9 @@ function update(delta: number, now: number) {
 
 function drawBackground(ctx: CanvasRenderingContext2D) {
   const sky = ctx.createLinearGradient(0, 0, 0, height.value);
-  sky.addColorStop(0, "#eef8ff");
-  sky.addColorStop(0.56, "#f4fbf4");
-  sky.addColorStop(1, "#fff7e7");
+  sky.addColorStop(0, scenePalette("meadow").background[0]);
+  sky.addColorStop(0.56, scenePalette("meadow").background[1]);
+  sky.addColorStop(1, scenePalette("meadow").background[2]);
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, width.value, height.value);
 
