@@ -313,10 +313,7 @@ onUnmounted(() => {
 
 <style scoped>
 .route-snake-shell {
-  background:
-    radial-gradient(circle at 12% 18%, rgb(255 246 198 / 84%) 0 12rem, transparent 20rem),
-    radial-gradient(circle at 88% 12%, rgb(125 210 157 / 46%) 0 10rem, transparent 18rem),
-    linear-gradient(135deg, #d8f0dd 0%, #e8f4ff 52%, #fff2c7 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

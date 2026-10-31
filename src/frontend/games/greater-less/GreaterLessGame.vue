@@ -220,7 +220,7 @@ onUnmounted(() => {
 
 <style scoped>
 .greater-less-shell {
-  background: linear-gradient(135deg, #fff6df 0%, #e8f6ff 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, onMounted, reactive } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -377,9 +378,9 @@ function update(rawDelta: number, now: number) {
 function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   const bounds = roomBounds();
   const floor = ctx.createLinearGradient(0, 0, 0, height.value);
-  floor.addColorStop(0, "#eef6ff");
-  floor.addColorStop(0.5, "#f8f3e7");
-  floor.addColorStop(1, "#e8d9c4");
+  floor.addColorStop(0, scenePalette("room").background[0]);
+  floor.addColorStop(0.5, scenePalette("room").background[1]);
+  floor.addColorStop(1, scenePalette("room").background[2]);
   ctx.fillStyle = floor;
   ctx.fillRect(0, 0, width.value, height.value);
 
@@ -649,7 +650,7 @@ useGameLoop({ context, update, draw });
 
 <style scoped>
 .robot-vacuum-shell {
-  background: #eef6ff;
+  background: var(--linka-scene-room);
   block-size: 100dvh;
   inline-size: 100dvw;
   overflow: hidden;

@@ -267,7 +267,7 @@ onUnmounted(() => {
 
 <style scoped>
 .shapes-shell {
-  background: linear-gradient(135deg, #fff7ed 0%, #ecfeff 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

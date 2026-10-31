@@ -370,10 +370,7 @@ onUnmounted(() => {
 
 <style scoped>
 .minesweeper-safe-shell {
-  background:
-    radial-gradient(circle at 16% 18%, rgb(200 230 201 / 62%), transparent 28%),
-    radial-gradient(circle at 82% 22%, rgb(187 222 251 / 54%), transparent 30%),
-    linear-gradient(135deg, #f7fbf6 0%, #eef7ff 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

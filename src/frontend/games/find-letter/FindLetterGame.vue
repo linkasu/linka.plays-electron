@@ -171,7 +171,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <GamePageShell gradient="linear-gradient(135deg, #f5f7ff 0%, #fff3e8 100%)" padding-top="6.25rem">
+  <GamePageShell gradient="paper" padding-top="6.25rem">
     <template #hud>
       <GameHud
         title="Найди букву"

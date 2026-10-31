@@ -326,7 +326,7 @@ onUnmounted(() => {
 
 <style scoped>
 .shelf-sorting-shell {
-  background: linear-gradient(135deg, #fff7e6 0%, #eaf7f0 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

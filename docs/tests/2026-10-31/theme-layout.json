@@ -1,0 +1,1712 @@
+{
+  "pilots": [
+    {
+      "theme": "sunny-meadow",
+      "checked": 24,
+      "failures": 0,
+      "summary": {
+        "routeCount": 8,
+        "viewportCount": 3,
+        "checked": 24,
+        "failureRouteCount": 0,
+        "failureViewportCount": 0,
+        "routes": [
+          {
+            "route": "/",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 1,
+            "minVisibleTargetCount": 1,
+            "minViewportAreaRatio": 0.1807,
+            "minShortSideRatio": 0.527,
+            "minBottomClearance": 139,
+            "canvasCount": 0
+          },
+          {
+            "route": "/menu/self",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 8,
+            "minVisibleTargetCount": 8,
+            "minViewportAreaRatio": 0.0252,
+            "minShortSideRatio": 0.133,
+            "minBottomClearance": 61,
+            "canvasCount": 0
+          },
+          {
+            "route": "/menu/specialist",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 0,
+            "minVisibleTargetCount": 0,
+            "minViewportAreaRatio": 0,
+            "minShortSideRatio": 0,
+            "minBottomClearance": null,
+            "canvasCount": 0
+          },
+          {
+            "route": "/games/feed-animal",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 3,
+            "minVisibleTargetCount": 3,
+            "minViewportAreaRatio": 0.0708,
+            "minShortSideRatio": 0.28,
+            "minBottomClearance": 68,
+            "canvasCount": 0
+          },
+          {
+            "route": "/games/butterfly",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 0,
+            "minVisibleTargetCount": 0,
+            "minViewportAreaRatio": 0,
+            "minShortSideRatio": 0,
+            "minBottomClearance": null,
+            "canvasCount": 1
+          },
+          {
+            "route": "/games/clouds",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 0,
+            "minVisibleTargetCount": 0,
+            "minViewportAreaRatio": 0,
+            "minShortSideRatio": 0,
+            "minBottomClearance": null,
+            "canvasCount": 1
+          },
+          {
+            "route": "/games/find-shape",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 2,
+            "minVisibleTargetCount": 2,
+            "minViewportAreaRatio": 0.0824,
+            "minShortSideRatio": 0.261,
+            "minBottomClearance": 96,
+            "canvasCount": 0
+          },
+          {
+            "route": "/games/checkers-light",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 64,
+            "minVisibleTargetCount": 64,
+            "minViewportAreaRatio": 0.0029,
+            "minShortSideRatio": 0.068,
+            "minBottomClearance": 77,
+            "canvasCount": 0
+          }
+        ]
+      }
+    },
+    {
+      "theme": "paper-story",
+      "checked": 24,
+      "failures": 0,
+      "summary": {
+        "routeCount": 8,
+        "viewportCount": 3,
+        "checked": 24,
+        "failureRouteCount": 0,
+        "failureViewportCount": 0,
+        "routes": [
+          {
+            "route": "/",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 1,
+            "minVisibleTargetCount": 1,
+            "minViewportAreaRatio": 0.1807,
+            "minShortSideRatio": 0.527,
+            "minBottomClearance": 139,
+            "canvasCount": 0
+          },
+          {
+            "route": "/menu/self",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 8,
+            "minVisibleTargetCount": 8,
+            "minViewportAreaRatio": 0.0252,
+            "minShortSideRatio": 0.133,
+            "minBottomClearance": 61,
+            "canvasCount": 0
+          },
+          {
+            "route": "/menu/specialist",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 0,
+            "minVisibleTargetCount": 0,
+            "minViewportAreaRatio": 0,
+            "minShortSideRatio": 0,
+            "minBottomClearance": null,
+            "canvasCount": 0
+          },
+          {
+            "route": "/games/feed-animal",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 3,
+            "minVisibleTargetCount": 3,
+            "minViewportAreaRatio": 0.0708,
+            "minShortSideRatio": 0.28,
+            "minBottomClearance": 68,
+            "canvasCount": 0
+          },
+          {
+            "route": "/games/butterfly",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 0,
+            "minVisibleTargetCount": 0,
+            "minViewportAreaRatio": 0,
+            "minShortSideRatio": 0,
+            "minBottomClearance": null,
+            "canvasCount": 1
+          },
+          {
+            "route": "/games/clouds",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 0,
+            "minVisibleTargetCount": 0,
+            "minViewportAreaRatio": 0,
+            "minShortSideRatio": 0,
+            "minBottomClearance": null,
+            "canvasCount": 1
+          },
+          {
+            "route": "/games/find-shape",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 2,
+            "minVisibleTargetCount": 2,
+            "minViewportAreaRatio": 0.0824,
+            "minShortSideRatio": 0.261,
+            "minBottomClearance": 96,
+            "canvasCount": 0
+          },
+          {
+            "route": "/games/checkers-light",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 64,
+            "minVisibleTargetCount": 64,
+            "minViewportAreaRatio": 0.0029,
+            "minShortSideRatio": 0.068,
+            "minBottomClearance": 77,
+            "canvasCount": 0
+          }
+        ]
+      }
+    },
+    {
+      "theme": "toy-world",
+      "checked": 24,
+      "failures": 0,
+      "summary": {
+        "routeCount": 8,
+        "viewportCount": 3,
+        "checked": 24,
+        "failureRouteCount": 0,
+        "failureViewportCount": 0,
+        "routes": [
+          {
+            "route": "/",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 1,
+            "minVisibleTargetCount": 1,
+            "minViewportAreaRatio": 0.1837,
+            "minShortSideRatio": 0.54,
+            "minBottomClearance": 135,
+            "canvasCount": 0
+          },
+          {
+            "route": "/menu/self",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 8,
+            "minVisibleTargetCount": 8,
+            "minViewportAreaRatio": 0.0252,
+            "minShortSideRatio": 0.133,
+            "minBottomClearance": 61,
+            "canvasCount": 0
+          },
+          {
+            "route": "/menu/specialist",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 0,
+            "minVisibleTargetCount": 0,
+            "minViewportAreaRatio": 0,
+            "minShortSideRatio": 0,
+            "minBottomClearance": null,
+            "canvasCount": 0
+          },
+          {
+            "route": "/games/feed-animal",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 3,
+            "minVisibleTargetCount": 3,
+            "minViewportAreaRatio": 0.0731,
+            "minShortSideRatio": 0.289,
+            "minBottomClearance": 60,
+            "canvasCount": 0
+          },
+          {
+            "route": "/games/butterfly",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 0,
+            "minVisibleTargetCount": 0,
+            "minViewportAreaRatio": 0,
+            "minShortSideRatio": 0,
+            "minBottomClearance": null,
+            "canvasCount": 1
+          },
+          {
+            "route": "/games/clouds",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 0,
+            "minVisibleTargetCount": 0,
+            "minViewportAreaRatio": 0,
+            "minShortSideRatio": 0,
+            "minBottomClearance": null,
+            "canvasCount": 1
+          },
+          {
+            "route": "/games/find-shape",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 2,
+            "minVisibleTargetCount": 2,
+            "minViewportAreaRatio": 0.0824,
+            "minShortSideRatio": 0.261,
+            "minBottomClearance": 96,
+            "canvasCount": 0
+          },
+          {
+            "route": "/games/checkers-light",
+            "checked": 3,
+            "failures": 0,
+            "errorCount": 0,
+            "horizontalOverflowCount": 0,
+            "hudOverlapCount": 0,
+            "lowContrastTargetCount": 0,
+            "bottomCrowdedTargetCount": 0,
+            "hiddenTargetViewportCount": 0,
+            "zeroVisibleTargetViewportCount": 0,
+            "wasdPartialViewportCount": 0,
+            "maxTargetCount": 64,
+            "minVisibleTargetCount": 64,
+            "minViewportAreaRatio": 0.0029,
+            "minShortSideRatio": 0.068,
+            "minBottomClearance": 77,
+            "canvasCount": 0
+          }
+        ]
+      }
+    }
+  ],
+  "menus": [
+    {
+      "screen": "self",
+      "theme": "sunny-meadow",
+      "viewport": {
+        "w": 800,
+        "h": 600,
+        "dpr": 1
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "self-folder-gaze-basics",
+          "x": 12,
+          "y": 113.578125,
+          "width": 376,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-visual-search",
+          "x": 412,
+          "y": 113.578125,
+          "width": 376,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-sequencing",
+          "x": 12,
+          "y": 257.578125,
+          "width": 376,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-language-aac",
+          "x": 412,
+          "y": 257.578125,
+          "width": 376,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "menu-theme-open",
+          "x": 412,
+          "y": 418.859375,
+          "width": 176,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-next",
+          "x": 612,
+          "y": 418.859375,
+          "width": 176,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "chooser",
+      "theme": "sunny-meadow",
+      "viewport": {
+        "w": 800,
+        "h": 600,
+        "dpr": 1
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "theme-sunny-meadow",
+          "x": 46,
+          "y": 167.625,
+          "width": 230.65625,
+          "height": 231.0625,
+          "clipped": false
+        },
+        {
+          "id": "theme-paper-story",
+          "x": 284.65625,
+          "y": 167.625,
+          "width": 230.65625,
+          "height": 231.0625,
+          "clipped": false
+        },
+        {
+          "id": "theme-toy-world",
+          "x": 523.3125,
+          "y": 167.625,
+          "width": 230.65625,
+          "height": 231.0625,
+          "clipped": false
+        },
+        {
+          "id": "theme-close",
+          "x": 42,
+          "y": 426.6875,
+          "width": 716,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "self",
+      "theme": "sunny-meadow",
+      "viewport": {
+        "w": 900,
+        "h": 600,
+        "dpr": 1
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "self-folder-gaze-basics",
+          "x": 12,
+          "y": 113.578125,
+          "width": 426,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-visual-search",
+          "x": 462,
+          "y": 113.578125,
+          "width": 426,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-sequencing",
+          "x": 12,
+          "y": 257.578125,
+          "width": 426,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-language-aac",
+          "x": 462,
+          "y": 257.578125,
+          "width": 426,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "menu-theme-open",
+          "x": 462,
+          "y": 418.859375,
+          "width": 201,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-next",
+          "x": 687,
+          "y": 418.859375,
+          "width": 201,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "chooser",
+      "theme": "sunny-meadow",
+      "viewport": {
+        "w": 900,
+        "h": 600,
+        "dpr": 1
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "theme-sunny-meadow",
+          "x": 46,
+          "y": 167.625,
+          "width": 263.984375,
+          "height": 231.0625,
+          "clipped": false
+        },
+        {
+          "id": "theme-paper-story",
+          "x": 317.984375,
+          "y": 167.625,
+          "width": 263.984375,
+          "height": 231.0625,
+          "clipped": false
+        },
+        {
+          "id": "theme-toy-world",
+          "x": 589.96875,
+          "y": 167.625,
+          "width": 263.984375,
+          "height": 231.0625,
+          "clipped": false
+        },
+        {
+          "id": "theme-close",
+          "x": 42,
+          "y": 426.6875,
+          "width": 816,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "self",
+      "theme": "sunny-meadow",
+      "viewport": {
+        "w": 1280,
+        "h": 800,
+        "dpr": 1.5
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "self-folder-gaze-basics",
+          "x": 16,
+          "y": 169.75,
+          "width": 612,
+          "height": 176,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-visual-search",
+          "x": 652,
+          "y": 169.75,
+          "width": 612,
+          "height": 176,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-sequencing",
+          "x": 16,
+          "y": 369.75,
+          "width": 612,
+          "height": 176,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-language-aac",
+          "x": 652,
+          "y": 369.75,
+          "width": 612,
+          "height": 176,
+          "clipped": false
+        },
+        {
+          "id": "menu-theme-open",
+          "x": 652,
+          "y": 588.625,
+          "width": 294,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-next",
+          "x": 970,
+          "y": 588.625,
+          "width": 294,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "chooser",
+      "theme": "sunny-meadow",
+      "viewport": {
+        "w": 1280,
+        "h": 800,
+        "dpr": 1.5
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "theme-sunny-meadow",
+          "x": 206,
+          "y": 248.21875,
+          "width": 283.984375,
+          "height": 269.875,
+          "clipped": false
+        },
+        {
+          "id": "theme-paper-story",
+          "x": 497.984375,
+          "y": 248.21875,
+          "width": 283.984375,
+          "height": 269.875,
+          "clipped": false
+        },
+        {
+          "id": "theme-toy-world",
+          "x": 789.96875,
+          "y": 248.21875,
+          "width": 283.984375,
+          "height": 269.875,
+          "clipped": false
+        },
+        {
+          "id": "theme-close",
+          "x": 202,
+          "y": 546.09375,
+          "width": 876,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "self",
+      "theme": "sunny-meadow",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "dpr": 1
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "self-folder-gaze-basics",
+          "x": 16.875,
+          "y": 280.15625,
+          "width": 356.25,
+          "height": 185.671875,
+          "clipped": false
+        },
+        {
+          "id": "menu-theme-open",
+          "x": 16.875,
+          "y": 654.109375,
+          "width": 166.125,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-next",
+          "x": 207,
+          "y": 654.109375,
+          "width": 166.125,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "chooser",
+      "theme": "sunny-meadow",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "dpr": 1
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "theme-sunny-meadow",
+          "x": 18,
+          "y": 72.390625,
+          "width": 354,
+          "height": 173.390625,
+          "clipped": false
+        },
+        {
+          "id": "theme-next",
+          "x": 207,
+          "y": 257.78125,
+          "width": 169,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "theme-close",
+          "x": 14,
+          "y": 389.78125,
+          "width": 362,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "self",
+      "theme": "paper-story",
+      "viewport": {
+        "w": 800,
+        "h": 600,
+        "dpr": 1
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "self-folder-gaze-basics",
+          "x": 12,
+          "y": 113.578125,
+          "width": 376,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-visual-search",
+          "x": 412,
+          "y": 113.578125,
+          "width": 376,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-sequencing",
+          "x": 12,
+          "y": 257.578125,
+          "width": 376,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-language-aac",
+          "x": 412,
+          "y": 257.578125,
+          "width": 376,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "menu-theme-open",
+          "x": 412,
+          "y": 418.859375,
+          "width": 176,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-next",
+          "x": 612,
+          "y": 418.859375,
+          "width": 176,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "chooser",
+      "theme": "paper-story",
+      "viewport": {
+        "w": 800,
+        "h": 600,
+        "dpr": 1
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "theme-sunny-meadow",
+          "x": 46,
+          "y": 167.625,
+          "width": 230.65625,
+          "height": 231.0625,
+          "clipped": false
+        },
+        {
+          "id": "theme-paper-story",
+          "x": 284.65625,
+          "y": 167.625,
+          "width": 230.65625,
+          "height": 231.0625,
+          "clipped": false
+        },
+        {
+          "id": "theme-toy-world",
+          "x": 523.3125,
+          "y": 167.625,
+          "width": 230.65625,
+          "height": 231.0625,
+          "clipped": false
+        },
+        {
+          "id": "theme-close",
+          "x": 42,
+          "y": 426.6875,
+          "width": 716,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "self",
+      "theme": "paper-story",
+      "viewport": {
+        "w": 900,
+        "h": 600,
+        "dpr": 1
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "self-folder-gaze-basics",
+          "x": 12,
+          "y": 113.578125,
+          "width": 426,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-visual-search",
+          "x": 462,
+          "y": 113.578125,
+          "width": 426,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-sequencing",
+          "x": 12,
+          "y": 257.578125,
+          "width": 426,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-language-aac",
+          "x": 462,
+          "y": 257.578125,
+          "width": 426,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "menu-theme-open",
+          "x": 462,
+          "y": 418.859375,
+          "width": 201,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-next",
+          "x": 687,
+          "y": 418.859375,
+          "width": 201,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "chooser",
+      "theme": "paper-story",
+      "viewport": {
+        "w": 900,
+        "h": 600,
+        "dpr": 1
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "theme-sunny-meadow",
+          "x": 46,
+          "y": 167.625,
+          "width": 263.984375,
+          "height": 231.0625,
+          "clipped": false
+        },
+        {
+          "id": "theme-paper-story",
+          "x": 317.984375,
+          "y": 167.625,
+          "width": 263.984375,
+          "height": 231.0625,
+          "clipped": false
+        },
+        {
+          "id": "theme-toy-world",
+          "x": 589.96875,
+          "y": 167.625,
+          "width": 263.984375,
+          "height": 231.0625,
+          "clipped": false
+        },
+        {
+          "id": "theme-close",
+          "x": 42,
+          "y": 426.6875,
+          "width": 816,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "self",
+      "theme": "paper-story",
+      "viewport": {
+        "w": 1280,
+        "h": 800,
+        "dpr": 1.5
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "self-folder-gaze-basics",
+          "x": 16,
+          "y": 169.75,
+          "width": 612,
+          "height": 176,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-visual-search",
+          "x": 652,
+          "y": 169.75,
+          "width": 612,
+          "height": 176,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-sequencing",
+          "x": 16,
+          "y": 369.75,
+          "width": 612,
+          "height": 176,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-language-aac",
+          "x": 652,
+          "y": 369.75,
+          "width": 612,
+          "height": 176,
+          "clipped": false
+        },
+        {
+          "id": "menu-theme-open",
+          "x": 652,
+          "y": 588.625,
+          "width": 294,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-next",
+          "x": 970,
+          "y": 588.625,
+          "width": 294,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "chooser",
+      "theme": "paper-story",
+      "viewport": {
+        "w": 1280,
+        "h": 800,
+        "dpr": 1.5
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "theme-sunny-meadow",
+          "x": 206,
+          "y": 248.21875,
+          "width": 283.984375,
+          "height": 269.875,
+          "clipped": false
+        },
+        {
+          "id": "theme-paper-story",
+          "x": 497.984375,
+          "y": 248.21875,
+          "width": 283.984375,
+          "height": 269.875,
+          "clipped": false
+        },
+        {
+          "id": "theme-toy-world",
+          "x": 789.96875,
+          "y": 248.21875,
+          "width": 283.984375,
+          "height": 269.875,
+          "clipped": false
+        },
+        {
+          "id": "theme-close",
+          "x": 202,
+          "y": 546.09375,
+          "width": 876,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "self",
+      "theme": "paper-story",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "dpr": 1
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "self-folder-gaze-basics",
+          "x": 16.875,
+          "y": 280.15625,
+          "width": 356.25,
+          "height": 185.671875,
+          "clipped": false
+        },
+        {
+          "id": "menu-theme-open",
+          "x": 16.875,
+          "y": 654.109375,
+          "width": 166.125,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-next",
+          "x": 207,
+          "y": 654.109375,
+          "width": 166.125,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "chooser",
+      "theme": "paper-story",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "dpr": 1
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "theme-paper-story",
+          "x": 18,
+          "y": 72.390625,
+          "width": 354,
+          "height": 173.390625,
+          "clipped": false
+        },
+        {
+          "id": "theme-prev",
+          "x": 14,
+          "y": 257.78125,
+          "width": 169,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "theme-next",
+          "x": 207,
+          "y": 257.78125,
+          "width": 169,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "theme-close",
+          "x": 14,
+          "y": 389.78125,
+          "width": 362,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "self",
+      "theme": "toy-world",
+      "viewport": {
+        "w": 800,
+        "h": 600,
+        "dpr": 1
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "self-folder-gaze-basics",
+          "x": 12,
+          "y": 113.578125,
+          "width": 376,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-visual-search",
+          "x": 412,
+          "y": 113.578125,
+          "width": 376,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-sequencing",
+          "x": 12,
+          "y": 257.578125,
+          "width": 376,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-language-aac",
+          "x": 412,
+          "y": 257.578125,
+          "width": 376,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "menu-theme-open",
+          "x": 412,
+          "y": 418.859375,
+          "width": 176,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-next",
+          "x": 612,
+          "y": 418.859375,
+          "width": 176,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "chooser",
+      "theme": "toy-world",
+      "viewport": {
+        "w": 800,
+        "h": 600,
+        "dpr": 1
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "theme-sunny-meadow",
+          "x": 46,
+          "y": 163.625,
+          "width": 230.65625,
+          "height": 239.0625,
+          "clipped": false
+        },
+        {
+          "id": "theme-paper-story",
+          "x": 284.65625,
+          "y": 163.625,
+          "width": 230.65625,
+          "height": 239.0625,
+          "clipped": false
+        },
+        {
+          "id": "theme-toy-world",
+          "x": 523.3125,
+          "y": 163.625,
+          "width": 230.65625,
+          "height": 239.0625,
+          "clipped": false
+        },
+        {
+          "id": "theme-close",
+          "x": 42,
+          "y": 430.6875,
+          "width": 716,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "self",
+      "theme": "toy-world",
+      "viewport": {
+        "w": 900,
+        "h": 600,
+        "dpr": 1
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "self-folder-gaze-basics",
+          "x": 12,
+          "y": 113.578125,
+          "width": 426,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-visual-search",
+          "x": 462,
+          "y": 113.578125,
+          "width": 426,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-sequencing",
+          "x": 12,
+          "y": 257.578125,
+          "width": 426,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-language-aac",
+          "x": 462,
+          "y": 257.578125,
+          "width": 426,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "menu-theme-open",
+          "x": 462,
+          "y": 418.859375,
+          "width": 201,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-next",
+          "x": 687,
+          "y": 418.859375,
+          "width": 201,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "chooser",
+      "theme": "toy-world",
+      "viewport": {
+        "w": 900,
+        "h": 600,
+        "dpr": 1
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "theme-sunny-meadow",
+          "x": 46,
+          "y": 163.625,
+          "width": 263.984375,
+          "height": 239.0625,
+          "clipped": false
+        },
+        {
+          "id": "theme-paper-story",
+          "x": 317.984375,
+          "y": 163.625,
+          "width": 263.984375,
+          "height": 239.0625,
+          "clipped": false
+        },
+        {
+          "id": "theme-toy-world",
+          "x": 589.96875,
+          "y": 163.625,
+          "width": 263.984375,
+          "height": 239.0625,
+          "clipped": false
+        },
+        {
+          "id": "theme-close",
+          "x": 42,
+          "y": 430.6875,
+          "width": 816,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "self",
+      "theme": "toy-world",
+      "viewport": {
+        "w": 1280,
+        "h": 800,
+        "dpr": 1.5
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "self-folder-gaze-basics",
+          "x": 16,
+          "y": 169.75,
+          "width": 612,
+          "height": 176,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-visual-search",
+          "x": 652,
+          "y": 169.75,
+          "width": 612,
+          "height": 176,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-sequencing",
+          "x": 16,
+          "y": 369.75,
+          "width": 612,
+          "height": 176,
+          "clipped": false
+        },
+        {
+          "id": "self-folder-language-aac",
+          "x": 652,
+          "y": 369.75,
+          "width": 612,
+          "height": 176,
+          "clipped": false
+        },
+        {
+          "id": "menu-theme-open",
+          "x": 652,
+          "y": 588.625,
+          "width": 294,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-next",
+          "x": 970,
+          "y": 588.625,
+          "width": 294,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "chooser",
+      "theme": "toy-world",
+      "viewport": {
+        "w": 1280,
+        "h": 800,
+        "dpr": 1.5
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "theme-sunny-meadow",
+          "x": 206,
+          "y": 244.21875,
+          "width": 283.984375,
+          "height": 277.875,
+          "clipped": false
+        },
+        {
+          "id": "theme-paper-story",
+          "x": 497.984375,
+          "y": 244.21875,
+          "width": 283.984375,
+          "height": 277.875,
+          "clipped": false
+        },
+        {
+          "id": "theme-toy-world",
+          "x": 789.96875,
+          "y": 244.21875,
+          "width": 283.984375,
+          "height": 277.875,
+          "clipped": false
+        },
+        {
+          "id": "theme-close",
+          "x": 202,
+          "y": 550.09375,
+          "width": 876,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "self",
+      "theme": "toy-world",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "dpr": 1
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "self-folder-gaze-basics",
+          "x": 16.875,
+          "y": 280.15625,
+          "width": 356.25,
+          "height": 185.671875,
+          "clipped": false
+        },
+        {
+          "id": "menu-theme-open",
+          "x": 16.875,
+          "y": 654.109375,
+          "width": 166.125,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "self-next",
+          "x": 207,
+          "y": 654.109375,
+          "width": 166.125,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    },
+    {
+      "screen": "chooser",
+      "theme": "toy-world",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "dpr": 1
+      },
+      "scroll": false,
+      "targets": [
+        {
+          "id": "theme-toy-world",
+          "x": 18,
+          "y": 72.390625,
+          "width": 354,
+          "height": 181.390625,
+          "clipped": false
+        },
+        {
+          "id": "theme-prev",
+          "x": 14,
+          "y": 265.78125,
+          "width": 169,
+          "height": 120,
+          "clipped": false
+        },
+        {
+          "id": "theme-close",
+          "x": 14,
+          "y": 397.78125,
+          "width": 362,
+          "height": 120,
+          "clipped": false
+        }
+      ]
+    }
+  ],
+  "auxiliary": [
+    {
+      "theme": "sunny-meadow",
+      "path": "/gaze-debug",
+      "hasContent": true
+    },
+    {
+      "theme": "sunny-meadow",
+      "path": "/tobii-calibration",
+      "hasContent": true
+    },
+    {
+      "theme": "sunny-meadow",
+      "path": "/games/not-a-real-game",
+      "hasContent": true
+    },
+    {
+      "theme": "paper-story",
+      "path": "/gaze-debug",
+      "hasContent": true
+    },
+    {
+      "theme": "paper-story",
+      "path": "/tobii-calibration",
+      "hasContent": true
+    },
+    {
+      "theme": "paper-story",
+      "path": "/games/not-a-real-game",
+      "hasContent": true
+    },
+    {
+      "theme": "toy-world",
+      "path": "/gaze-debug",
+      "hasContent": true
+    },
+    {
+      "theme": "toy-world",
+      "path": "/tobii-calibration",
+      "hasContent": true
+    },
+    {
+      "theme": "toy-world",
+      "path": "/games/not-a-real-game",
+      "hasContent": true
+    }
+  ],
+  "errors": []
+}

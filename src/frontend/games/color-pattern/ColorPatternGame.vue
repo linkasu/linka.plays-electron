@@ -299,7 +299,7 @@ onUnmounted(() => {
 
 <style scoped>
 .color-pattern-shell {
-  background: radial-gradient(circle at 20% 10%, #fff4d9 0%, #eef8ff 46%, #f6edff 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -224,9 +225,9 @@ function drawRiver(context: CanvasRenderingContext2D) {
   const { width, height } = viewport.value;
   const river = riverGeometry(viewport.value);
   const riverGradient = context.createLinearGradient(0, river.top, 0, river.bottom);
-  riverGradient.addColorStop(0, "#8bc7dc");
-  riverGradient.addColorStop(0.45, "#3c9fc3");
-  riverGradient.addColorStop(1, "#176f9d");
+  riverGradient.addColorStop(0, scenePalette("water").background[0]);
+  riverGradient.addColorStop(0.45, scenePalette("water").background[1]);
+  riverGradient.addColorStop(1, scenePalette("water").background[2]);
 
   context.fillStyle = "#d9ead0";
   context.fillRect(0, 0, width, height);
@@ -713,7 +714,7 @@ onUnmounted(() => {
 
 <style scoped>
 .boat-shell {
-  background: #d9ead0;
+  background: var(--linka-scene-water);
   block-size: 100dvh;
   inline-size: 100dvw;
   overflow: hidden;

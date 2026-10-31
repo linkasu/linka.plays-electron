@@ -152,10 +152,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <GamePageShell
-    gradient="linear-gradient(135deg, #eef8ff 0%, #fff7e8 50%, #f1ecff 100%)"
-    padding-top="8.25rem"
-  >
+  <GamePageShell gradient="paper" padding-top="8.25rem">
     <template #hud>
       <GameHud
         title="Покажи действие"
@@ -223,7 +220,7 @@ onUnmounted(() => {
 
 <style scoped>
 .action-scene {
-  background: linear-gradient(180deg, #e9f6ff 0%, #fff8e8 100%);
+  background: var(--linka-scene-sky);
   block-size: 7.4rem;
   border-radius: 1.25rem;
   display: block;

@@ -490,7 +490,7 @@ onUnmounted(() => {
 
 <style scoped>
 .build-robot-shell {
-  background: linear-gradient(135deg, #eef9ff 0%, #fff7e8 52%, #f2efff 100%);
+  background: var(--linka-scene-paper);
   block-size: 100vh;
   overflow: hidden;
 }

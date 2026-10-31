@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, onMounted, onUnmounted, reactive, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -258,9 +259,9 @@ function updateWind(delta: number) {
 
 function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   const sky = ctx.createLinearGradient(0, 0, 0, height.value);
-  sky.addColorStop(0, "#bfe9ff");
-  sky.addColorStop(0.62, "#edf8ff");
-  sky.addColorStop(1, "#e8f2c8");
+  sky.addColorStop(0, scenePalette("sky").background[0]);
+  sky.addColorStop(0.62, scenePalette("sky").background[1]);
+  sky.addColorStop(1, scenePalette("sky").background[2]);
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, width.value, height.value);
 
@@ -550,7 +551,7 @@ useGameLoop({ context, update, draw });
 
 <style scoped>
 .kite-shell {
-  background: #bfe9ff;
+  background: var(--linka-scene-sky);
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;

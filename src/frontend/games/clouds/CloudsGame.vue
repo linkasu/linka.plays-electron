@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -281,9 +282,9 @@ function audioIntensity() {
 
 function drawBackground(context: CanvasRenderingContext2D, now: number) {
   const sky = context.createLinearGradient(0, 0, 0, window.innerHeight);
-  sky.addColorStop(0, "#7fb5d5");
-  sky.addColorStop(0.54, "#9ac6dc");
-  sky.addColorStop(1, "#bfc7b6");
+  sky.addColorStop(0, scenePalette("sky").background[0]);
+  sky.addColorStop(0.54, scenePalette("sky").background[1]);
+  sky.addColorStop(1, scenePalette("sky").background[2]);
   context.fillStyle = sky;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -561,7 +562,7 @@ onUnmounted(() => {
 
 <style scoped>
 .clouds-shell {
-  background: #7fb5d5;
+  background: var(--linka-scene-sky);
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;

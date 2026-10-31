@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -333,9 +334,9 @@ function updateBubbles(delta: number) {
 
 function drawBackground(context: CanvasRenderingContext2D, now: number) {
   const water = context.createLinearGradient(0, 0, 0, window.innerHeight);
-  water.addColorStop(0, "#09284f");
-  water.addColorStop(0.5, "#103966");
-  water.addColorStop(1, "#071a35");
+  water.addColorStop(0, scenePalette("deep-water").background[0]);
+  water.addColorStop(0.5, scenePalette("deep-water").background[1]);
+  water.addColorStop(1, scenePalette("deep-water").background[2]);
   context.fillStyle = water;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -600,7 +601,7 @@ onUnmounted(() => {
 
 <style scoped>
 .jellyfish-shell {
-  background: #09284f;
+  background: var(--linka-scene-deep-water);
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;

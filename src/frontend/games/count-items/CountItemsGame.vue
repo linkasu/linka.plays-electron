@@ -193,7 +193,7 @@ onUnmounted(() => {
 
 <style scoped>
 .count-shell {
-  background: linear-gradient(135deg, #fff5dc 0%, #e4f5ff 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

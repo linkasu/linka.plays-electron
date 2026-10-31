@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -379,9 +380,9 @@ function drawCloud(context: CanvasRenderingContext2D, cloud: Cloud) {
 
 function drawBackground(context: CanvasRenderingContext2D) {
   const sky = context.createLinearGradient(0, 0, 0, window.innerHeight * 0.72);
-  sky.addColorStop(0, "#8fd0ff");
-  sky.addColorStop(0.62, "#c9ecff");
-  sky.addColorStop(1, "#eef9ff");
+  sky.addColorStop(0, scenePalette("sky").background[0]);
+  sky.addColorStop(0.62, scenePalette("sky").background[1]);
+  sky.addColorStop(1, scenePalette("sky").background[2]);
   context.fillStyle = sky;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -389,9 +390,9 @@ function drawBackground(context: CanvasRenderingContext2D) {
 
   const meadowTop = window.innerHeight * 0.58;
   const meadow = context.createLinearGradient(0, meadowTop, 0, window.innerHeight);
-  meadow.addColorStop(0, "#d8efbd");
-  meadow.addColorStop(0.52, "#bfe39b");
-  meadow.addColorStop(1, "#9ccd75");
+  meadow.addColorStop(0, scenePalette("meadow").background[0]);
+  meadow.addColorStop(0.52, scenePalette("meadow").background[1]);
+  meadow.addColorStop(1, scenePalette("meadow").background[2]);
   context.fillStyle = meadow;
   context.fillRect(0, meadowTop, window.innerWidth, window.innerHeight - meadowTop);
 
@@ -693,7 +694,7 @@ onUnmounted(() => {
 
 <style scoped>
 .flowers-shell {
-  background: #8fd0ff;
+  background: var(--linka-scene-sky);
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;

@@ -46,7 +46,8 @@
     "electron:build:win": "npm run electron:build -- --win -p never",
     "electron:build:mac": "npm run electron:build -- --mac --arm64 -p never",
     "electron:build:linux": "npm run electron:build -- --linux -p never",
-    "prepare": "husky"
+    "prepare": "husky",
+    "audit:themes": "node scripts/theme-cdp-smoke.mjs"
   },
   "dependencies": {
     "@linkasu/tobii-electron": "file:vendor/linkasu-tobii-electron-0.2.16.tgz",

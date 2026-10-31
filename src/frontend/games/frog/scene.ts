@@ -1,3 +1,4 @@
+import type { ScenePalette } from "../../themes";
 import { canvasArt } from "../../core/canvasArt";
 import { approach } from "../../core/motion";
 import { drawDrawnFirefly } from "../firefly-meadow/fireflyArt";
@@ -29,6 +30,7 @@ export type ScenePointer = Point & {
   valid: boolean;
 };
 export type FrogSceneOptions = {
+  palette: ScenePalette;
   bugs: Bug[];
   bursts: CatchBurst[];
   tongues: Tongue[];
@@ -69,11 +71,11 @@ export function bugHitRadius(bug: Bug) {
   return bug.size;
 }
 
-function drawSky(context: CanvasRenderingContext2D, progress: number) {
+function drawSky(context: CanvasRenderingContext2D, progress: number, palette: ScenePalette) {
   const sky = context.createLinearGradient(0, 0, 0, window.innerHeight);
-  sky.addColorStop(0, "#17204c");
-  sky.addColorStop(0.52, "#344a78");
-  sky.addColorStop(1, "#172b36");
+  sky.addColorStop(0, palette.background[0]);
+  sky.addColorStop(0.52, palette.background[1]);
+  sky.addColorStop(1, palette.background[2]);
   context.fillStyle = sky;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -544,7 +546,7 @@ export function drawFrogScene(context: CanvasRenderingContext2D, options: FrogSc
     .filter((bug) => bug.state === "flying" && bug.dwellProgress > 0)
     .sort((a, b) => b.dwellProgress - a.dwellProgress)[0];
 
-  drawSky(context, progress);
+  drawSky(context, progress, options.palette);
   drawMeadow(context, options.now);
   if (activeBug)
     drawTongueLine(

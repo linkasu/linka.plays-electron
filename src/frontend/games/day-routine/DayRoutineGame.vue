@@ -244,10 +244,7 @@ watch(isSpeaking, (speaking) => {
 </script>
 
 <template>
-  <GamePageShell
-    gradient="linear-gradient(135deg, #fff8e1 0%, #e3f2fd 48%, #ede7f6 100%)"
-    padding-top="5rem"
-  >
+  <GamePageShell gradient="paper" padding-top="5rem">
     <template #hud>
       <GameHud
         title="Утро-день-вечер"

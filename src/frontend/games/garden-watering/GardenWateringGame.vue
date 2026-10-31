@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -240,9 +241,9 @@ function updateFlowers(delta: number, now: number) {
 function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   const visualNow = session.settings.reduceMotion ? 0 : now;
   const sky = ctx.createLinearGradient(0, 0, 0, height.value * 0.72);
-  sky.addColorStop(0, "#cdeeff");
-  sky.addColorStop(0.58, "#ecf8ff");
-  sky.addColorStop(1, "#fbf2dc");
+  sky.addColorStop(0, scenePalette("sky").background[0]);
+  sky.addColorStop(0.58, scenePalette("sky").background[1]);
+  sky.addColorStop(1, scenePalette("sky").background[2]);
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, width.value, height.value);
 
@@ -264,9 +265,9 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
 
   const meadowTop = height.value * 0.52;
   const meadow = ctx.createLinearGradient(0, meadowTop, 0, height.value);
-  meadow.addColorStop(0, "#dcedbd");
-  meadow.addColorStop(0.56, "#bde18d");
-  meadow.addColorStop(1, "#8dc46f");
+  meadow.addColorStop(0, scenePalette("meadow").background[0]);
+  meadow.addColorStop(0.56, scenePalette("meadow").background[1]);
+  meadow.addColorStop(1, scenePalette("meadow").background[2]);
   ctx.fillStyle = meadow;
   ctx.fillRect(0, meadowTop, width.value, height.value - meadowTop);
 
@@ -535,7 +536,7 @@ useGameLoop({ context, update, draw });
 
 <style scoped>
 .garden-watering-shell {
-  background: #cdeeff;
+  background: var(--linka-scene-sky);
   block-size: 100dvh;
   inline-size: 100dvw;
   overflow: hidden;

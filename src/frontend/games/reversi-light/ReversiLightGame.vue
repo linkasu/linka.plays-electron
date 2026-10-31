@@ -413,10 +413,7 @@ onUnmounted(() => {
 
 <style scoped>
 .reversi-shell {
-  background:
-    radial-gradient(circle at 18% 20%, rgb(255 224 178 / 60%), transparent 30%),
-    radial-gradient(circle at 82% 18%, rgb(197 202 233 / 58%), transparent 28%),
-    linear-gradient(135deg, #fffaf1 0%, #eef3ff 58%, #f8fff4 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

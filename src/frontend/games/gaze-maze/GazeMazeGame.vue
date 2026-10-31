@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, nextTick, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -358,9 +359,9 @@ function restart() {
 
 function drawBackground(context: CanvasRenderingContext2D) {
   const gradient = context.createLinearGradient(0, 0, window.innerWidth, window.innerHeight);
-  gradient.addColorStop(0, "#fff4c8");
-  gradient.addColorStop(0.48, "#eef9f4");
-  gradient.addColorStop(1, "#f7edff");
+  gradient.addColorStop(0, scenePalette("paper").background[0]);
+  gradient.addColorStop(0.48, scenePalette("paper").background[1]);
+  gradient.addColorStop(1, scenePalette("paper").background[2]);
   context.fillStyle = gradient;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 

@@ -7,6 +7,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import type { TtsAsset } from "../../core/ttsAudio";
 import ttsAssets from "../../data/ttsAssets.json";
@@ -23,7 +24,8 @@ import {
 type Character = {
   id: string;
   name: string;
-  icon: string;
+  /** Drawn character peeking from behind the bush, see core/gameArt.ts. */
+  artId: string;
   color: string;
 };
 
@@ -45,14 +47,14 @@ type Spot = {
 };
 
 const characters: Character[] = [
-  { id: "cat", name: "котёнка", icon: "mdi-cat", color: "#6d4c41" },
-  { id: "owl", name: "сову", icon: "mdi-owl", color: "#7e57c2" },
-  { id: "duck", name: "утёнка", icon: "mdi-duck", color: "#f9a825" },
-  { id: "dog", name: "щенка", icon: "mdi-dog", color: "#8d6e63" },
-  { id: "bird", name: "птичку", icon: "mdi-bird", color: "#42a5f5" },
-  { id: "bear", name: "мишку", icon: "mdi-teddy-bear", color: "#795548" },
-  { id: "bunny", name: "зайку", icon: "mdi-rabbit", color: "#90a4ae" },
-  { id: "friend", name: "друга", icon: "mdi-account", color: "#26a69a" },
+  { id: "cat", name: "котёнка", artId: "who-hiding/cat", color: "#6d4c41" },
+  { id: "owl", name: "сову", artId: "who-hiding/owl", color: "#7e57c2" },
+  { id: "duck", name: "утёнка", artId: "who-hiding/duck", color: "#f9a825" },
+  { id: "dog", name: "щенка", artId: "who-hiding/dog", color: "#8d6e63" },
+  { id: "bird", name: "птичку", artId: "who-hiding/bird", color: "#42a5f5" },
+  { id: "bear", name: "мишку", artId: "who-hiding/bear", color: "#795548" },
+  { id: "bunny", name: "зайку", artId: "who-hiding/bunny", color: "#90a4ae" },
+  { id: "friend", name: "друга", artId: "who-hiding/friend", color: "#26a69a" },
 ];
 
 const covers: Cover[] = [
@@ -379,7 +381,12 @@ onUnmounted(() => {
                       '--cover-color': spot.cover.color,
                     }"
                   >
-                    <v-icon class="hidden-character" :icon="spot.character.icon" />
+                    <img
+                      class="hidden-character"
+                      :src="gameArtSrc(spot.character.artId)"
+                      alt=""
+                      draggable="false"
+                    />
                     <div
                       :class="[
                         'cover-shape',
@@ -431,7 +438,7 @@ onUnmounted(() => {
 
 <style scoped>
 .who-hiding-shell {
-  background: linear-gradient(135deg, #eef8f5 0%, #fff7e8 52%, #f0edff 100%);
+  background: var(--linka-scene-meadow);
   min-block-size: 100vh;
 }
 
@@ -440,7 +447,11 @@ onUnmounted(() => {
 }
 
 .search-scene {
-  background: linear-gradient(180deg, #dff3ff 0 47%, #d8efc8 47% 100%);
+  background: linear-gradient(
+    180deg,
+    var(--linka-scene-sky-0) 0 47%,
+    var(--linka-scene-meadow-1) 47% 100%
+  );
   block-size: clamp(31rem, 64vh, 43rem);
   overflow: hidden;
   position: relative;
@@ -556,13 +567,13 @@ onUnmounted(() => {
   z-index: 0;
 }
 
+/* Drawn head and front paws: the bush in front hides the rest. */
 .hidden-character {
-  color: var(--character-color);
-  font-size: clamp(4.7rem, 9vw, 7rem);
+  block-size: clamp(4.7rem, 9vw, 7rem);
+  inline-size: auto;
   inset-block-end: clamp(6.4rem, 8.2vw, 8rem);
   inset-inline-start: 50%;
-  line-height: 1;
-  opacity: 0.88;
+  object-fit: contain;
   position: absolute;
   transform: translateX(-50%);
   z-index: 1;

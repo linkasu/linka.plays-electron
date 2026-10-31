@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, onMounted, onUnmounted, reactive, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -355,9 +356,9 @@ function update(delta: number, now: number) {
 
 function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   const sky = ctx.createLinearGradient(0, 0, 0, height.value);
-  sky.addColorStop(0, "#eff8e8");
-  sky.addColorStop(0.58, "#dcefc4");
-  sky.addColorStop(1, "#c6dfa2");
+  sky.addColorStop(0, scenePalette("meadow").background[0]);
+  sky.addColorStop(0.58, scenePalette("meadow").background[1]);
+  sky.addColorStop(1, scenePalette("meadow").background[2]);
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, width.value, height.value);
 
@@ -612,7 +613,7 @@ useGameLoop({ context, update, draw });
 
 <style scoped>
 .gaze-follow-snake-shell {
-  background: #dcefc4;
+  background: var(--linka-scene-meadow);
   block-size: 100dvh;
   inline-size: 100dvw;
   overflow: hidden;

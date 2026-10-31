@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -412,9 +413,9 @@ function update(delta: number, now: number) {
 
 function drawBackground(ctx: CanvasRenderingContext2D) {
   const sky = ctx.createLinearGradient(0, 0, width.value, height.value);
-  sky.addColorStop(0, "#dff7fb");
-  sky.addColorStop(0.55, "#fff8df");
-  sky.addColorStop(1, "#eef7f6");
+  sky.addColorStop(0, scenePalette("sky").background[0]);
+  sky.addColorStop(0.55, scenePalette("sky").background[1]);
+  sky.addColorStop(1, scenePalette("sky").background[2]);
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, width.value, height.value);
 }
@@ -493,8 +494,8 @@ function drawWater(ctx: CanvasRenderingContext2D, rect: Rect) {
     river.x + river.width,
     river.y + river.height,
   );
-  water.addColorStop(0, "#78d5f6");
-  water.addColorStop(1, "#45b8df");
+  water.addColorStop(0, scenePalette("water").background[0]);
+  water.addColorStop(1, scenePalette("water").background[2]);
   fillRoundedRect(ctx, river, 22, water);
   ctx.save();
   roundedRect(ctx, river, 22);
@@ -965,7 +966,7 @@ onUnmounted(() => {
 
 <style scoped>
 .build-bridge-shell {
-  background: #e8f6f4;
+  background: var(--linka-scene-sky);
   block-size: 100dvh;
   inline-size: 100vw;
   overflow: hidden;

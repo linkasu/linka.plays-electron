@@ -295,7 +295,7 @@ onUnmounted(() => {
 
 <style scoped>
 .social-phrases-shell {
-  background: linear-gradient(135deg, #effaf7 0%, #f7f2ff 52%, #fff8e8 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

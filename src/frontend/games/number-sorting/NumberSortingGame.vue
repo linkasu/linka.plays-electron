@@ -284,7 +284,7 @@ onUnmounted(() => {
 
 <style scoped>
 .number-sorting-shell {
-  background: linear-gradient(135deg, #f4fbff 0%, #fff3dc 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

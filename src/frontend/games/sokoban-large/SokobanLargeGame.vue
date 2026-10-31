@@ -407,10 +407,7 @@ onUnmounted(() => {
 
 <style scoped>
 .sokoban-large-shell {
-  background:
-    radial-gradient(circle at 18% 16%, rgb(255 236 179 / 72%), transparent 30%),
-    radial-gradient(circle at 82% 22%, rgb(187 222 251 / 60%), transparent 28%),
-    linear-gradient(135deg, #f8fbef 0%, #eef7ff 52%, #fff6e7 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

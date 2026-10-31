@@ -559,9 +559,7 @@ onUnmounted(() => {
 
 <style scoped>
 .solfege-shell {
-  background:
-    radial-gradient(circle at 15% 8%, rgb(255 224 178 / 55%), transparent 34%),
-    linear-gradient(135deg, #fff8e7 0%, #edf7ff 52%, #f5ecff 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

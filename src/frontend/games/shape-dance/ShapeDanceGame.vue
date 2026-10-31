@@ -415,7 +415,7 @@ onUnmounted(() => {
 
 <style scoped>
 .shape-dance-shell {
-  background: linear-gradient(135deg, #eef4ff 0%, #f7f0ff 48%, #fff8e8 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100dvh;
 }
 

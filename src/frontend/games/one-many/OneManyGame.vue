@@ -232,7 +232,7 @@ onUnmounted(() => {
 
 <style scoped>
 .one-many-shell {
-  background: linear-gradient(135deg, #fff8df 0%, #e9f8ff 52%, #f5f1ff 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

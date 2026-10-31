@@ -300,7 +300,7 @@ watch(
 
 <style scoped>
 .train-shell {
-  background: linear-gradient(135deg, #e3f2fd 0%, #fff8e1 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 

@@ -460,7 +460,7 @@ onUnmounted(() => {
 
 <style scoped>
 .domino-shell {
-  background: linear-gradient(135deg, #f2f7ff 0%, #fff6df 52%, #eef8ee 100%);
+  background: var(--linka-scene-paper);
   min-block-size: 100dvh;
 }
 

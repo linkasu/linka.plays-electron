@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, onMounted, onUnmounted, reactive, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -165,9 +166,9 @@ function update(delta: number, now: number) {
 
 function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   const sky = ctx.createLinearGradient(0, 0, 0, height.value);
-  sky.addColorStop(0, "#e9f5ef");
-  sky.addColorStop(0.52, "#f7efe8");
-  sky.addColorStop(1, "#e6efd9");
+  sky.addColorStop(0, scenePalette("meadow").background[0]);
+  sky.addColorStop(0.52, scenePalette("meadow").background[1]);
+  sky.addColorStop(1, scenePalette("meadow").background[2]);
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, width.value, height.value);
 
@@ -415,7 +416,7 @@ useGameLoop({ context, update, draw });
 
 <style scoped>
 .breathing-flower-shell {
-  background: #e9f5ef;
+  background: var(--linka-scene-meadow);
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;

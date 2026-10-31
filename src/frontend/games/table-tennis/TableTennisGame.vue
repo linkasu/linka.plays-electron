@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -335,6 +336,7 @@ function update(delta: number, now: number) {
 
 function draw(ctx: CanvasRenderingContext2D, _delta: number, now: number) {
   drawTennisScene(ctx, {
+    palette: scenePalette("sky"),
     paddle,
     partnerY: partnerY.value,
     ball,
@@ -408,7 +410,7 @@ onUnmounted(() => {
 
 <style scoped>
 .tennis-shell {
-  background: #b9ebff;
+  background: var(--linka-scene-sky);
   block-size: 100dvh;
   inline-size: 100dvw;
   overflow: hidden;

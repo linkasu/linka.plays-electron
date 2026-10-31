@@ -1,3 +1,4 @@
+import type { ScenePalette } from "../../themes";
 import { canvasArt, drawCanvasArt } from "../../core/canvasArt";
 import { progressBetween } from "../../core/motion";
 
@@ -27,6 +28,7 @@ export type ScenePointer = Point & {
 };
 
 export type DuckSceneOptions = {
+  palette: ScenePalette;
   ducks: Duck[];
   splashes: Splash[];
   pointer: ScenePointer;
@@ -346,12 +348,16 @@ function drawVillage(context: CanvasRenderingContext2D, progress: number) {
   context.restore();
 }
 
-function drawBackground(context: CanvasRenderingContext2D, progress: number) {
+function drawBackground(
+  context: CanvasRenderingContext2D,
+  progress: number,
+  palette: ScenePalette,
+) {
   const mountainBase = waterTop() - window.innerHeight * 0.06;
   const sky = context.createLinearGradient(0, 0, 0, waterTop());
-  sky.addColorStop(0, "#5aa8ff");
-  sky.addColorStop(0.58, "#a8e4ef");
-  sky.addColorStop(1, "#e8fff1");
+  sky.addColorStop(0, palette.background[0]);
+  sky.addColorStop(0.58, palette.background[1]);
+  sky.addColorStop(1, palette.background[2]);
   context.fillStyle = sky;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -393,9 +399,9 @@ function drawBackground(context: CanvasRenderingContext2D, progress: number) {
   drawVillage(context, progress);
 
   const water = context.createLinearGradient(0, waterTop(), 0, window.innerHeight);
-  water.addColorStop(0, "#5caef4");
-  water.addColorStop(0.5, "#438ee7");
-  water.addColorStop(1, "#2f78c9");
+  water.addColorStop(0, palette.water[0]);
+  water.addColorStop(0.5, palette.water[1]);
+  water.addColorStop(1, palette.water[2]);
   context.fillStyle = water;
   context.fillRect(0, waterTop(), window.innerWidth, window.innerHeight - waterTop());
 }
@@ -641,7 +647,7 @@ export function drawDuckScene(context: CanvasRenderingContext2D, options: DuckSc
   const totalMs = options.sessionSeconds * 1000;
   const progress = totalMs > 0 ? Math.min(1, Math.max(0, options.durationMs / totalMs)) : 0;
 
-  drawBackground(context, progress);
+  drawBackground(context, progress, options.palette);
   drawWaves(context, options.now);
   [...options.ducks].sort((a, b) => a.y - b.y).forEach((duck) => drawDuck(context, duck));
   for (const splash of options.splashes) drawSplash(context, splash);

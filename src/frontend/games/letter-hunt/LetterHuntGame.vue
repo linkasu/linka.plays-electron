@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -483,9 +484,9 @@ function updateClouds(delta: number) {
 
 function drawBackground(context: CanvasRenderingContext2D, now: number) {
   const sky = context.createLinearGradient(0, 0, 0, window.innerHeight);
-  sky.addColorStop(0, "#cdefff");
-  sky.addColorStop(0.55, "#e7f7e8");
-  sky.addColorStop(1, "#f8edcf");
+  sky.addColorStop(0, scenePalette("meadow").background[0]);
+  sky.addColorStop(0.55, scenePalette("meadow").background[1]);
+  sky.addColorStop(1, scenePalette("meadow").background[2]);
   context.fillStyle = sky;
   context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -716,7 +717,7 @@ onUnmounted(() => {
 
 <style scoped>
 .letter-hunt-shell {
-  background: #cdefff;
+  background: var(--linka-scene-meadow);
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scenePalette } from "../../core/themeSettings";
 import { computed, onMounted, onUnmounted, reactive, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -403,15 +404,15 @@ function updateAquarium(rawDelta: number, now: number) {
 function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   const top = waterTop();
   const room = ctx.createLinearGradient(0, 0, 0, top);
-  room.addColorStop(0, "#e9f7f1");
-  room.addColorStop(1, "#cfeae6");
+  room.addColorStop(0, scenePalette("room").background[0]);
+  room.addColorStop(1, scenePalette("room").background[2]);
   ctx.fillStyle = room;
   ctx.fillRect(0, 0, width.value, top);
 
   const water = ctx.createLinearGradient(0, top, 0, height.value);
-  water.addColorStop(0, "#a9e4dc");
-  water.addColorStop(0.48, "#5fb8c4");
-  water.addColorStop(1, "#246d86");
+  water.addColorStop(0, scenePalette("water").background[0]);
+  water.addColorStop(0.48, scenePalette("water").background[1]);
+  water.addColorStop(1, scenePalette("water").background[2]);
   ctx.fillStyle = water;
   ctx.fillRect(0, top, width.value, height.value - top);
 
@@ -637,7 +638,7 @@ useGameLoop({ context, update: updateAquarium, draw });
 
 <style scoped>
 .aquarium-shell {
-  background: #5fb8c4;
+  background: var(--linka-scene-room);
   block-size: 100vh;
   inline-size: 100vw;
   overflow: hidden;
