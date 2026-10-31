@@ -53,6 +53,10 @@ GPL для собственного кода проекта не заменяе�
 - npm-зависимости используют собственные лицензии; сведения в `package-lock.json`
   служат указателем, а полные условия нужно брать из поставляемых пакетов.
 
+- `public/fonts/nunito/` — Nunito с кириллицей, Copyright 2014 The Nunito Project Authors;
+  SIL Open Font License 1.1. Сохранять поставляемый `OFL.txt` вместе со шрифтом.
+  Источник: [Google Fonts](https://github.com/google/fonts/tree/main/ofl/nunito).
+
 ## Перед первым GPL-релизом
 
 Добавление GPL для собственного кода не подтверждает автоматически совместимость всех

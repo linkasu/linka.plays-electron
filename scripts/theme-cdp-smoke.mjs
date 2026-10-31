@@ -1,5 +1,5 @@
 // Theme integration smoke against an already running real Electron app.
-// Uses an isolated profile; covers all registry games, including mode-selection screens.
+// Run with an isolated profile; covers all registry games, including mode-selection screens.
 import { WebSocket } from "undici";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";

@@ -44,6 +44,7 @@
 20. `game-audit-remediation-plan.md` - полный аудит 136 игр и исполняемый итерационный план исправлений.
 21. `windows-tester-delivery.md` - ссылки из таблицы, Windows-установщик, автообновление и проверка с Tobii.
 22. `licensing.md` - GPL-3.0-or-later, связь с АНО «Линка» и условия сторонних компонентов.
+23. `appearance-themes.md` - Sunny Meadow, Paper Story и Toy World: уровни стилей и правила новых сцен.
 
 ## Игры
 

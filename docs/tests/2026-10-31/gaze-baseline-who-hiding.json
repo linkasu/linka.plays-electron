@@ -1,0 +1,213 @@
+{
+  "generatedAt": "2026-10-31T12:05:30.095Z",
+  "thresholds": {
+    "minCoverage": 0.9,
+    "minGapPx": 24
+  },
+  "routes": [
+    {
+      "route": "/games/who-hiding",
+      "gameId": "who-hiding",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "targetCount": 5,
+      "targets": [
+        {
+          "id": "hud-menu",
+          "enabled": true,
+          "rect": {
+            "left": 12,
+            "top": 12,
+            "right": 140.40625,
+            "bottom": 148
+          },
+          "zone": {
+            "left": -24,
+            "top": -24,
+            "right": 176.40625,
+            "bottom": 184
+          },
+          "painted": {
+            "left": 12,
+            "top": 12,
+            "right": 140.40625,
+            "bottom": 148
+          },
+          "coverage": 1,
+          "shortSidePx": 128.40625,
+          "hitPadding": 36
+        },
+        {
+          "id": "hud-pause",
+          "enabled": true,
+          "rect": {
+            "left": 148.40625,
+            "top": 12,
+            "right": 276.8125,
+            "bottom": 148
+          },
+          "zone": {
+            "left": 112.40625,
+            "top": -24,
+            "right": 312.8125,
+            "bottom": 184
+          },
+          "painted": {
+            "left": 148.40625,
+            "top": 12,
+            "right": 276.8125,
+            "bottom": 148
+          },
+          "coverage": 1,
+          "shortSidePx": 128.40625,
+          "hitPadding": 36
+        },
+        {
+          "id": "who-hiding:spot:1-0-duck",
+          "enabled": false,
+          "rect": {
+            "left": 267.9375,
+            "top": 407.90625,
+            "right": 405.78125,
+            "bottom": 603.375
+          },
+          "zone": {
+            "left": 231.9375,
+            "top": 371.90625,
+            "right": 441.78125,
+            "bottom": 639.375
+          },
+          "painted": {
+            "left": 267.9375,
+            "top": 407.90625,
+            "right": 405.78125,
+            "bottom": 603.375
+          },
+          "coverage": 1,
+          "shortSidePx": 137.84375,
+          "hitPadding": 36
+        },
+        {
+          "id": "who-hiding:spot:1-1-dog",
+          "enabled": false,
+          "rect": {
+            "left": 588.34375,
+            "top": 389.453125,
+            "right": 771.265625,
+            "bottom": 584.921875
+          },
+          "zone": {
+            "left": 552.34375,
+            "top": 353.453125,
+            "right": 807.265625,
+            "bottom": 620.921875
+          },
+          "painted": {
+            "left": 588.34375,
+            "top": 389.453125,
+            "right": 771.265625,
+            "bottom": 584.921875
+          },
+          "coverage": 1,
+          "shortSidePx": 182.921875,
+          "hitPadding": 36
+        },
+        {
+          "id": "who-hiding:spot:1-2-cat",
+          "enabled": false,
+          "rect": {
+            "left": 920.4140625,
+            "top": 412.5078125,
+            "right": 1054.1328125,
+            "bottom": 607.9765625
+          },
+          "zone": {
+            "left": 884.4140625,
+            "top": 376.5078125,
+            "right": 1090.1328125,
+            "bottom": 643.9765625
+          },
+          "painted": {
+            "left": 920.4140625,
+            "top": 412.5078125,
+            "right": 1054.1328125,
+            "bottom": 607.9765625
+          },
+          "coverage": 1,
+          "shortSidePx": 133.71875,
+          "hitPadding": 36
+        }
+      ],
+      "pairs": [
+        {
+          "a": "hud-menu",
+          "b": "who-hiding:spot:1-0-duck",
+          "gapPx": 290
+        },
+        {
+          "a": "hud-menu",
+          "b": "who-hiding:spot:1-1-dog",
+          "gapPx": 509
+        },
+        {
+          "a": "hud-menu",
+          "b": "who-hiding:spot:1-2-cat",
+          "gapPx": 824
+        },
+        {
+          "a": "hud-pause",
+          "b": "who-hiding:spot:1-0-duck",
+          "gapPx": 260
+        },
+        {
+          "a": "hud-pause",
+          "b": "who-hiding:spot:1-1-dog",
+          "gapPx": 394
+        },
+        {
+          "a": "hud-pause",
+          "b": "who-hiding:spot:1-2-cat",
+          "gapPx": 696
+        },
+        {
+          "a": "who-hiding:spot:1-0-duck",
+          "b": "who-hiding:spot:1-1-dog",
+          "gapPx": 183
+        },
+        {
+          "a": "who-hiding:spot:1-0-duck",
+          "b": "who-hiding:spot:1-2-cat",
+          "gapPx": 515
+        },
+        {
+          "a": "who-hiding:spot:1-1-dog",
+          "b": "who-hiding:spot:1-2-cat",
+          "gapPx": 149
+        }
+      ],
+      "findings": [
+        {
+          "kind": "target-too-small",
+          "target": "who-hiding:spot:1-0-duck",
+          "shortSidePx": 138,
+          "minTargetSizePx": 170,
+          "detail": "short side 138px is under the registry minimum"
+        },
+        {
+          "kind": "target-too-small",
+          "target": "who-hiding:spot:1-2-cat",
+          "shortSidePx": 134,
+          "minTargetSizePx": 170,
+          "detail": "short side 134px is under the registry minimum"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "routes": 1,
+    "routesWithFindings": 1,
+    "findings": 2
+  }
+}

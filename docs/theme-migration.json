@@ -1,0 +1,948 @@
+{
+  "base": "main + existing character commit 73d3fd3",
+  "characterFiles": "unchanged",
+  "changes": [
+    {
+      "file": "src/frontend/games/aquarium/AquariumGame.vue",
+      "scene": "room",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/balloons/BalloonsGame.vue",
+      "scene": "sky",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/battleship-light/BattleshipLightGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/bells/BellsGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/big-cards/BigCardsGame.vue",
+      "scene": "paper",
+      "shells": 0,
+      "gradientProps": 1
+    },
+    {
+      "file": "src/frontend/games/big-small/BigSmallGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/boat/BoatGame.vue",
+      "scene": "water",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/breathing-flower/BreathingFlowerGame.vue",
+      "scene": "meadow",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/bubble-pop/BubblePopGame.vue",
+      "scene": "sky",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/build-bridge/BuildBridgeGame.vue",
+      "scene": "sky",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/build-robot/BuildRobotGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/butterfly/ButterflyGame.vue",
+      "scene": "night",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/calendar/CalendarGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/catch-light/CatchLightGame.vue",
+      "scene": "night",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/checkers-light/CheckersLightGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/chess-mini/ChessMiniGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/choose-emotion/ChooseEmotionGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/choose-picture/ChoosePictureGame.vue",
+      "scene": "paper",
+      "shells": 0,
+      "gradientProps": 1
+    },
+    {
+      "file": "src/frontend/games/clock/ClockGame.vue",
+      "scene": "paper",
+      "shells": 0,
+      "gradientProps": 1
+    },
+    {
+      "file": "src/frontend/games/clouds/CloudsGame.vue",
+      "scene": "sky",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/coin-counting/CoinCountingGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/color-circle/ColorCircleGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/color-pattern/ColorPatternGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/color-shape/ColorShapeGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/comic-strip/ComicStripGame.vue",
+      "scene": "paper",
+      "shells": 0,
+      "gradientProps": 1
+    },
+    {
+      "file": "src/frontend/games/connect-four/ConnectFourGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/coordinates/CoordinatesGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/count-items/CountItemsGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/day-routine/DayRoutineGame.vue",
+      "scene": "paper",
+      "shells": 0,
+      "gradientProps": 1
+    },
+    {
+      "file": "src/frontend/games/domino-matching/DominoMatchingGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/dress-character/DressCharacterGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/ducks/DucksGame.vue",
+      "scene": "sky",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/eat-or-not-eat/EatOrNotEatGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/feed-animal/FeedAnimalGame.vue",
+      "scene": "paper",
+      "shells": 0,
+      "gradientProps": 1
+    },
+    {
+      "file": "src/frontend/games/find-digit/FindDigitGame.vue",
+      "scene": "paper",
+      "shells": 0,
+      "gradientProps": 1
+    },
+    {
+      "file": "src/frontend/games/find-emotion/FindEmotionGame.vue",
+      "scene": "paper",
+      "shells": 0,
+      "gradientProps": 1
+    },
+    {
+      "file": "src/frontend/games/find-letter/FindLetterGame.vue",
+      "scene": "paper",
+      "shells": 0,
+      "gradientProps": 1
+    },
+    {
+      "file": "src/frontend/games/firefly-meadow/FireflyMeadowGame.vue",
+      "scene": "night",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/first-then/FirstThenGame.vue",
+      "scene": "paper",
+      "shells": 0,
+      "gradientProps": 1
+    },
+    {
+      "file": "src/frontend/games/fishes/FishesGame.vue",
+      "scene": "deep-water",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/flowers/FlowersGame.vue",
+      "scene": "sky",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/follow-cue/FollowCueGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/frog/FrogGame.vue",
+      "scene": "night-water",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/garden-watering/GardenWateringGame.vue",
+      "scene": "sky",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/gaze-follow-snake/GazeFollowSnakeGame.vue",
+      "scene": "meadow",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/glider/GliderGame.vue",
+      "scene": "sky",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/greater-less/GreaterLessGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/i-want/IWantGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/jellyfish/JellyfishGame.vue",
+      "scene": "deep-water",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/kite/KiteGame.vue",
+      "scene": "sky",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/leaves-wind/LeavesWindGame.vue",
+      "scene": "autumn",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/letter-hunt/LetterHuntGame.vue",
+      "scene": "meadow",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/light-gallery/LightGalleryGame.vue",
+      "scene": "night",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/lighthouse/LighthouseGame.vue",
+      "scene": "night-water",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/line-drawing/LineDrawingGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/lines-angles/LinesAnglesGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/lines-five/LinesFiveGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/logic-pairs/LogicPairsGame.vue",
+      "scene": "paper",
+      "shells": 0,
+      "gradientProps": 1
+    },
+    {
+      "file": "src/frontend/games/magic-dust/MagicDustGame.vue",
+      "scene": "night",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/match-same/MatchSameGame.vue",
+      "scene": "paper",
+      "shells": 0,
+      "gradientProps": 1
+    },
+    {
+      "file": "src/frontend/games/math-actions/MathActionsGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/memory-cards/MemoryCardsGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/minesweeper-safe/MinesweeperSafeGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/mini-dialog/MiniDialogGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/moon-path/MoonPathGame.vue",
+      "scene": "night-water",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/mosaic/MosaicGame.vue",
+      "scene": "paper",
+      "shells": 0,
+      "gradientProps": 1
+    },
+    {
+      "file": "src/frontend/games/musical-path/MusicalPathGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/northern-lights/NorthernLightsGame.vue",
+      "scene": "night",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/number-2048/Number2048Game.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/number-bonds/NumberBondsGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/number-line/NumberLineGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/number-sorting/NumberSortingGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/object-action/ObjectActionGame.vue",
+      "scene": "paper",
+      "shells": 0,
+      "gradientProps": 1
+    },
+    {
+      "file": "src/frontend/games/odd-one-out/OddOneOutGame.vue",
+      "scene": "paper",
+      "shells": 0,
+      "gradientProps": 1
+    },
+    {
+      "file": "src/frontend/games/one-many/OneManyGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/open-door/OpenDoorGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/opposites/OppositesGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/paper-lanterns/PaperLanternsGame.vue",
+      "scene": "night",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/patterns/PatternsGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/pizza-fractions/PizzaFractionsGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/pyramid/PyramidGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/rails/RailsGame.vue",
+      "scene": "meadow",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/reversi-light/ReversiLightGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/road-car/RoadCarGame.vue",
+      "scene": "meadow",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/robot-vacuum/RobotVacuumGame.vue",
+      "scene": "room",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/route-snake/RouteSnakeGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/sand-garden/SandGardenGame.vue",
+      "scene": "sand",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/sandwich/SandwichGame.vue",
+      "scene": "kitchen",
+      "shells": 0,
+      "gradientProps": 1
+    },
+    {
+      "file": "src/frontend/games/scales/ScalesGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/schedule/ScheduleGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/sea-shells/SeaShellsGame.vue",
+      "scene": "deep-water",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/shadow-match/ShadowMatchGame.vue",
+      "scene": "paper",
+      "shells": 0,
+      "gradientProps": 1
+    },
+    {
+      "file": "src/frontend/games/shape-dance/ShapeDanceGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/shapes/ShapesGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/shelf-sorting/ShelfSortingGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/shop/ShopGame.vue",
+      "scene": "kitchen",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/simple-graphs/SimpleGraphsGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/sliding-puzzle/SlidingPuzzleGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/snow-trail/SnowTrailGame.vue",
+      "scene": "winter",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/snowflakes/SnowflakesGame.vue",
+      "scene": "winter",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/soap-circles/SoapCirclesGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/social-phrases/SocialPhrasesGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/sokoban-large/SokobanLargeGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/solfege/SolfegeGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/sound-source/SoundSourceGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/soup-recipe/SoupRecipeGame.vue",
+      "scene": "kitchen",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/space-orbit/SpaceOrbitGame.vue",
+      "scene": "space",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/starry-sky/StarrySkyGame.vue",
+      "scene": "space",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/step-pong/StepPongGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/step-tetris/StepTetrisGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/sudoku-2x2/Sudoku2x2Game.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/sun-rays/SunRaysGame.vue",
+      "scene": "sky",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/table-tennis/TableTennisGame.vue",
+      "scene": "sky",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/three-frame-story/ThreeFrameStoryGame.vue",
+      "scene": "paper",
+      "shells": 0,
+      "gradientProps": 1
+    },
+    {
+      "file": "src/frontend/games/tic-tac-toe/TicTacToeGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/train-sequence/TrainSequenceGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/type-word/TypeWordGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/uno-like/UnoLikeGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/wake-owl/WakeOwlGame.vue",
+      "scene": "night",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/want-dont-want/WantDontWantGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/warm-fire/WarmFireGame.vue",
+      "scene": "night",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/warm-window/WarmWindowGame.vue",
+      "scene": "night",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/what-first/WhatFirstGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/what-missing/WhatMissingGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/where-object/WhereObjectGame.vue",
+      "scene": "paper",
+      "shells": 0,
+      "gradientProps": 1
+    },
+    {
+      "file": "src/frontend/games/who-hiding/WhoHidingGame.vue",
+      "scene": "meadow",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/word-categories/WordCategoriesGame.vue",
+      "scene": "paper",
+      "shells": 1,
+      "gradientProps": 0
+    },
+    {
+      "file": "src/frontend/games/yes-no/YesNoGame.vue",
+      "scene": "paper",
+      "shells": 0,
+      "gradientProps": 1
+    },
+    {
+      "file": "src/frontend/games/aquarium/AquariumGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/balancer/BalancerGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/balloons/BalloonsGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/boat/BoatGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/breathing-flower/BreathingFlowerGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/bubble-pop/BubblePopGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/build-bridge/BuildBridgeGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/butterfly/ButterflyGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/clouds/CloudsGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/cursor-magnet/CursorMagnetGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/firefly-meadow/FireflyMeadowGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/flowers/FlowersGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/garden-watering/GardenWateringGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/gaze-follow-snake/GazeFollowSnakeGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/gaze-maze/GazeMazeGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/glider/GliderGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/jellyfish/JellyfishGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/kite/KiteGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/leaves-wind/LeavesWindGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/letter-hunt/LetterHuntGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/lighthouse/LighthouseGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/line-drawing/LineDrawingGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/magic-dust/MagicDustGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/moon-path/MoonPathGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/northern-lights/NorthernLightsGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/paper-lanterns/PaperLanternsGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/rails/RailsGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/road-car/RoadCarGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/robot-vacuum/RobotVacuumGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/sand-garden/SandGardenGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/sea-shells/SeaShellsGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/snow-trail/SnowTrailGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/snowflakes/SnowflakesGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/soup-recipe/SoupRecipeGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/space-orbit/SpaceOrbitGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/starry-sky/StarrySkyGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/sun-rays/SunRaysCanvas.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/warm-fire/WarmFireGame.vue",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/ducks/scene.ts",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/fishes/scene.ts",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/frog/scene.ts",
+      "canvasPalette": true
+    },
+    {
+      "file": "src/frontend/games/table-tennis/scene.ts",
+      "canvasPalette": true
+    }
+  ],
+  "assetVerification": {
+    "files": 640,
+    "method": "SHA-256",
+    "changed": 0,
+    "baseline": "73d3fd3 (current character branch), merged with main at ced92d1"
+  }
+}
