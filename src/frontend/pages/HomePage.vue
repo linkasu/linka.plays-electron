@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import ThemeChooser from "../components/settings/ThemeChooser.vue";
+import MenuCover from "../components/MenuCover.vue";
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
 import { DWELL_STEP_MS, MAX_DWELL_MS, MIN_DWELL_MS, useDwellSettings } from "../core/dwellSettings";
 import { firstMenuCategory, rememberMenuCategory, rememberMenuMode } from "../core/menuMode";
@@ -19,6 +21,7 @@ type SpecialistGameItem = {
   searchableText: string;
 };
 
+const themeDialog = ref(false);
 const router = useRouter();
 const route = useRoute();
 const { dwellMs, setDwellMs } = useDwellSettings();
@@ -166,6 +169,14 @@ watch(searchQuery, () => {
           </div>
 
           <div class="d-flex flex-wrap align-center ga-3 mb-5">
+            <v-btn
+              color="surface"
+              prepend-icon="mdi-palette-outline"
+              size="large"
+              variant="flat"
+              @click="themeDialog = true"
+              >Оформление</v-btn
+            >
             <v-text-field
               class="search-field"
               clearable
@@ -251,9 +262,7 @@ watch(searchQuery, () => {
                   @click="selectCategory(group.category)"
                 >
                   <div class="d-flex h-100 ga-4 text-left text-on-surface">
-                    <v-avatar color="primary" size="64">
-                      <v-icon icon="mdi-folder-heart-outline" size="32" />
-                    </v-avatar>
+                    <div class="specialist-cover"><MenuCover :category-id="group.category" /></div>
                     <div class="d-flex flex-column min-w-0">
                       <h3 class="text-h5 font-weight-bold text-high-emphasis mb-2">
                         {{ group.label }}
@@ -314,9 +323,9 @@ watch(searchQuery, () => {
                   @click="openGame(item.game)"
                 >
                   <div class="d-flex h-100 ga-4 text-left text-on-surface">
-                    <v-avatar color="primary" size="64">
-                      <v-icon :icon="item.game.icon" size="32" />
-                    </v-avatar>
+                    <div class="specialist-cover">
+                      <MenuCover :game-id="item.game.id" :icon="item.game.icon" />
+                    </div>
                     <div class="d-flex flex-column min-w-0">
                       <h3 class="text-h5 font-weight-bold text-high-emphasis mb-2">
                         {{ item.game.title }}
@@ -430,22 +439,19 @@ watch(searchQuery, () => {
         </v-card>
       </v-col>
     </v-row>
+    <ThemeChooser v-model="themeDialog" />
   </v-container>
 </template>
 
 <style scoped>
 .gallery-menu {
-  background:
-    radial-gradient(circle at 10% 10%, rgb(216 154 114 / 18%), transparent 28rem),
-    radial-gradient(circle at 90% 18%, rgb(111 143 168 / 18%), transparent 28rem),
-    rgb(var(--v-theme-background));
   block-size: 100dvh;
   overflow-y: auto;
 }
 
 .gallery-card,
 .menu-card {
-  border: 0.0625rem solid rgb(93 127 120 / 15%);
+  border: 0.15rem solid var(--linka-outline);
 }
 
 .menu-card {
@@ -461,5 +467,9 @@ watch(searchQuery, () => {
   flex: 1 1 18rem;
   max-inline-size: 30rem;
   min-inline-size: min(100%, 18rem);
+}
+.specialist-cover {
+  flex: 0 0 clamp(5rem, 9vw, 9rem);
+  block-size: clamp(5rem, 13dvh, 8rem);
 }
 </style>
