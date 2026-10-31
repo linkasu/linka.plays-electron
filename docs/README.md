@@ -46,6 +46,8 @@
 22. `licensing.md` - GPL-3.0-or-later, связь с АНО «Линка» и условия сторонних компонентов.
 23. `appearance-themes.md` - Sunny Meadow, Paper Story и Toy World: уровни стилей и правила новых сцен.
 
+24. `menu-covers.md` - полный реестр иллюстрированных обложек и правила ресурсов меню.
+
 ## Игры
 
 Все registry-игры имеют документ `docs/games/<id>.md`. Список по категориям, status, stability и ready/development group находится в `games/README.md`.
