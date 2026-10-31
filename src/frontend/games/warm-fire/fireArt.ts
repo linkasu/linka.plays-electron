@@ -37,9 +37,17 @@ type Particle = {
 };
 const sparks: Particle[] = [];
 const smoke: Particle[] = [];
-let lastNow = 0;
+let lastNow: number | undefined;
 let sparkDebt = 0;
 let smokeDebt = 0;
+
+export function resetDrawnFire() {
+  sparks.length = 0;
+  smoke.length = 0;
+  lastNow = undefined;
+  sparkDebt = 0;
+  smokeDebt = 0;
+}
 
 /**
  * Draws the fire standing on (x, baseY) above logs `logsWidth` wide.
@@ -54,7 +62,7 @@ export function drawDrawnFire(
   now: number,
 ) {
   if (fireArtIds.some((artId) => !canvasArt(artId))) return false;
-  const delta = lastNow ? Math.min(0.1, Math.max(0, (now - lastNow) / 1000)) : 0;
+  const delta = lastNow === undefined ? 0 : Math.min(0.1, Math.max(0, (now - lastNow) / 1000));
   lastNow = now;
   const level = clamp01(energy);
   const t = now / 1000;
