@@ -39,8 +39,13 @@ const continuesRun = computed(() => props.modelValue && runContext?.willContinue
 // Games open this dialog from their own endings, and the time limit can stop them
 // before any of those: mid-speech, or in a game that never expected a timeout.
 const timeRanOut = computed(() => runContext?.timeRanOut() === true);
-const totalScore = computed(() => props.score + (runContext?.run.successesBefore ?? 0));
-const totalMistakes = computed(() => props.mistakes + (runContext?.run.mistakesBefore ?? 0));
+const isRun = computed(() => (runContext?.run.mode ?? "successes") !== "successes");
+const totalScore = computed(() =>
+  isRun.value ? (runContext?.totalSuccesses() ?? props.score) : props.score,
+);
+const totalMistakes = computed(() =>
+  isRun.value ? (runContext?.totalMistakes() ?? props.mistakes) : props.mistakes,
+);
 const totalDurationMs = computed(() => props.durationMs + (runContext?.run.activeMsBefore ?? 0));
 const { dwellMs } = useDwellSettings();
 const isSelfMode = computed(() => resolveMenuMode() === "self");

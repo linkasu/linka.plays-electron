@@ -38,12 +38,13 @@ const showTimer = computed(() => props.showTimer !== false);
 const isSelfMode = computed(() => resolveMenuMode() === "self");
 const runContext = inject(gameSessionRunKey, undefined);
 const countsToGoal = computed(() => (runContext?.run.mode ?? "successes") === "successes");
-const totalSuccesses = computed(() => props.step + (runContext?.run.successesBefore ?? 0));
+const totalSuccesses = computed(() => runContext?.totalSuccesses() ?? props.step);
+// Some games show their own number as the score, such as points, which a run cannot add up.
 const totalScore = computed(() =>
-  props.score === undefined ? undefined : props.score + (runContext?.run.successesBefore ?? 0),
+  props.score === undefined || countsToGoal.value ? props.score : totalSuccesses.value,
 );
 const totalMistakes = computed(() =>
-  props.mistakes === undefined ? undefined : props.mistakes + (runContext?.run.mistakesBefore ?? 0),
+  props.mistakes === undefined || countsToGoal.value ? props.mistakes : runContext?.totalMistakes(),
 );
 
 // Testers: the game field sat under the «В меню» / «Пауза» buttons. The HUD tells

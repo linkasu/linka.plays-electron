@@ -108,6 +108,8 @@ export type GameSessionRunContext = {
   timeRanOut: () => boolean;
   // Games with a setup screen keep their instance, so that it is not asked again each round.
   keepsInstanceBetweenRounds: boolean;
+  totalSuccesses: () => number;
+  totalMistakes: () => number;
   continueRun: () => void;
 };
 
@@ -452,6 +454,8 @@ export function useGameSession(
     timeRanOut: () =>
       session.status === "finished" && run.mode === "timed" && session.finishReason === "timeout",
     keepsInstanceBetweenRounds: options.autoStart === false,
+    totalSuccesses: () => run.successesBefore + session.score,
+    totalMistakes: () => run.mistakesBefore + session.mistakes,
     continueRun: () => {
       carriedRun = {
         gameId,

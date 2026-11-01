@@ -200,6 +200,7 @@ describe("useGameSession", () => {
       expect(mounted.api.session.status).toBe("running");
       expect(mounted.api.session.step).toBe(0);
       expect(mounted.runContext.run.successesBefore).toBe(2);
+      expect(mounted.runContext.totalSuccesses()).toBe(2);
       expect(mounted.runContext.run.activeMsBefore).toBe(2_000);
     } finally {
       mounted.unmount();
