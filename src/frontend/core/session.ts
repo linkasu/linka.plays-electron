@@ -112,6 +112,7 @@ export type GameSessionRunContext = {
 export const gameSessionRunKey: InjectionKey<GameSessionRunContext> = Symbol("game-session-run");
 
 const MIN_CONTINUING_SESSION_MS = 1000;
+const STALE_ENDING_MS = 500;
 
 const activeSessionStatusState = ref<SessionStatus>("idle");
 const activeSessionEpochState = ref(0);
@@ -148,6 +149,7 @@ export function useGameSession(
     activeMsBefore: 0,
   });
   let continuingRun = false;
+  let ignoreEndingsUntil = 0;
   let autoPausedByVisibility = false;
   const session = reactive<GameSessionState>({
     sessionId: crypto.randomUUID(),
@@ -259,6 +261,10 @@ export function useGameSession(
   }
 
   function startSession() {
+    // The time limit can stop a game during its final speech. Restarting cancels that
+    // speech, and the game's waiting code then reports its ending to the new session.
+    ignoreEndingsUntil =
+      run.mode === "timed" && session.finishReason === "timeout" ? Date.now() + STALE_ENDING_MS : 0;
     if (session.status === "running" || session.status === "paused") finishSession("manual");
     if (continuingRun && session.finishedAt) {
       run.successesBefore += session.score;
@@ -331,6 +337,7 @@ export function useGameSession(
   function finishSession(reason: SessionFinishReason = "manual") {
     if (session.status === "finished") return;
     const now = Date.now();
+    if (reason !== "manual" && reason !== "timeout" && now < ignoreEndingsUntil) return;
     if (session.status === "paused" && session.pausedAt) {
       session.pausedMs += now - session.pausedAt;
       session.pausedAt = undefined;
