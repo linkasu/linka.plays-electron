@@ -105,6 +105,7 @@ export type GameSessionRunContext = {
   run: Readonly<GameSessionRun>;
   hasSessionTimer: () => boolean;
   willContinue: () => boolean;
+  timeRanOut: () => boolean;
   continueRun: () => void;
 };
 
@@ -444,6 +445,8 @@ export function useGameSession(
       session.status === "finished" &&
       continuesAfterFinish(run.mode, session.finishReason) &&
       activeDurationMs(session.finishedAt) >= MIN_CONTINUING_SESSION_MS,
+    timeRanOut: () =>
+      session.status === "finished" && run.mode === "timed" && session.finishReason === "timeout",
     continueRun: () => {
       continuingRun = true;
     },

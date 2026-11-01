@@ -259,6 +259,8 @@ describe("useGameSession", () => {
       mounted.api.recordSuccess();
       expect(mounted.runContext.willContinue()).toBe(true);
 
+      expect(mounted.runContext.timeRanOut()).toBe(false);
+
       mounted.runContext.continueRun();
       mounted.api.startSession();
       vi.advanceTimersByTime(19_000);
@@ -269,6 +271,7 @@ describe("useGameSession", () => {
       await nextTick();
       expect(mounted.api.session.finishReason).toBe("timeout");
       expect(mounted.runContext.willContinue()).toBe(false);
+      expect(mounted.runContext.timeRanOut()).toBe(true);
     } finally {
       mounted.unmount();
     }

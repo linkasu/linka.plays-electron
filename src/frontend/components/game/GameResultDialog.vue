@@ -35,6 +35,9 @@ const finishReasonLabels: Record<string, string> = {
 const finishReason = computed(() => props.metrics?.finishReason);
 const runContext = inject(gameSessionRunKey, undefined);
 const continuesRun = computed(() => props.modelValue && runContext?.willContinue() === true);
+// Games open this dialog from their own endings, and the time limit can stop them
+// before any of those: mid-speech, or in a game that never expected a timeout.
+const timeRanOut = computed(() => runContext?.timeRanOut() === true);
 const totalScore = computed(() => props.score + (runContext?.run.successesBefore ?? 0));
 const totalMistakes = computed(() => props.mistakes + (runContext?.run.mistakesBefore ?? 0));
 const totalDurationMs = computed(() => props.durationMs + (runContext?.run.activeMsBefore ?? 0));
@@ -91,7 +94,7 @@ onUnmounted(clearNextRoundTimer);
 
 <template>
   <v-dialog
-    :model-value="props.modelValue && !continuesRun"
+    :model-value="(props.modelValue && !continuesRun) || timeRanOut"
     max-width="56rem"
     persistent
     transition="fade-transition"
