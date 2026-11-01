@@ -12,6 +12,12 @@ import { useGazePointer } from "../composables/useGazePointer";
 import { createGazeMetricsTracker } from "./gaze";
 import { isSoundDeclined } from "./audioUnlock";
 import {
+  continuesAfterFinish,
+  isTimeEndedGame,
+  useGameEndMode,
+  type GameEndMode,
+} from "./gameEndMode";
+import {
   createGameSessionSummary,
   projectSessionEvent,
   type SessionTelemetryContext,
@@ -85,6 +91,41 @@ export type GameSessionTelemetry = {
 export const gameSessionTelemetryKey: InjectionKey<GameSessionTelemetry> =
   Symbol("game-session-telemetry");
 
+// A run spans the rounds of one sitting: in the endless and timed modes a finished
+// session restarts by itself, and the totals carry over to the next one.
+export type GameSessionRun = {
+  mode: GameEndMode;
+  timeLimitMs: number;
+  successesBefore: number;
+  mistakesBefore: number;
+  activeMsBefore: number;
+};
+
+export type GameSessionRunContext = {
+  run: Readonly<GameSessionRun>;
+  hasSessionTimer: () => boolean;
+  willContinue: () => boolean;
+  timeRanOut: () => boolean;
+  // Games with a setup screen keep their instance, so that it is not asked again each round.
+  keepsInstanceBetweenRounds: boolean;
+  totalSuccesses: () => number;
+  totalMistakes: () => number;
+  continueRun: () => void;
+};
+
+export const gameSessionRunKey: InjectionKey<GameSessionRunContext> = Symbol("game-session-run");
+
+const MIN_CONTINUING_SESSION_MS = 1000;
+
+// Handed from a finished session to the next one, which may be a new mount of the game.
+let carriedRun: (GameSessionRun & { gameId: string }) | undefined;
+
+function takeCarriedRun(gameId: string) {
+  const carried = carriedRun?.gameId === gameId ? carriedRun : undefined;
+  carriedRun = undefined;
+  return carried;
+}
+
 const activeSessionStatusState = ref<SessionStatus>("idle");
 const activeSessionEpochState = ref(0);
 let activeSessionOwner: symbol | undefined;
@@ -111,6 +152,14 @@ export function useGameSession(
   const gazeTracker = createGazeMetricsTracker();
   const telemetryContext = options.telemetryContext ?? { targetKind: "interactive" };
   const reportedSummaries = new Set<string>();
+  const { gameEndMode, gameTimeLimitMinutes } = useGameEndMode();
+  const run = reactive<GameSessionRun>({
+    mode: gameEndMode.value,
+    timeLimitMs: gameTimeLimitMinutes.value * 60_000,
+    successesBefore: 0,
+    mistakesBefore: 0,
+    activeMsBefore: 0,
+  });
   let autoPausedByVisibility = false;
   const session = reactive<GameSessionState>({
     sessionId: crypto.randomUUID(),
@@ -130,14 +179,19 @@ export function useGameSession(
   const maxMistakesBeforeFinish = Math.max(6, settings.maxSteps * 3);
   const timer = window.setInterval(() => {
     nowMs.value = Date.now();
-    if (
-      options.finishOnTimeout !== false &&
-      session.status === "running" &&
-      activeDurationMs(nowMs.value) >= session.settings.sessionSeconds * 1000
-    ) {
-      finishSession("timeout");
-    }
+    if (session.status === "running" && hasTimedOut(nowMs.value)) finishSession("timeout");
   }, 250);
+
+  function hasSessionTimer() {
+    if (run.mode === "timed") return true;
+    return run.mode === "successes" && options.finishOnTimeout !== false && isTimeEndedGame(gameId);
+  }
+
+  function hasTimedOut(at: number) {
+    if (!hasSessionTimer()) return false;
+    if (run.mode === "timed") return run.activeMsBefore + activeDurationMs(at) >= run.timeLimitMs;
+    return activeDurationMs(at) >= session.settings.sessionSeconds * 1000;
+  }
 
   function activeDurationMs(at = Date.now()) {
     if (!session.startedAt) return 0;
@@ -218,6 +272,12 @@ export function useGameSession(
 
   function startSession() {
     if (session.status === "running" || session.status === "paused") finishSession("manual");
+    const carried = takeCarriedRun(gameId);
+    run.mode = carried?.mode ?? gameEndMode.value;
+    run.timeLimitMs = carried?.timeLimitMs ?? gameTimeLimitMinutes.value * 60_000;
+    run.successesBefore = carried?.successesBefore ?? 0;
+    run.mistakesBefore = carried?.mistakesBefore ?? 0;
+    run.activeMsBefore = carried?.activeMsBefore ?? 0;
     activeSessionOwner = sessionOwner;
     activeSessionEpochState.value += 1;
     session.sessionId = crypto.randomUUID();
@@ -321,7 +381,11 @@ export function useGameSession(
     if (session.status !== "running") return;
     session.mistakes += 1;
     recordEvent("mistake", { step: session.step, ...payload });
-    if (options.finishOnMistakes !== false && session.mistakes >= maxMistakesBeforeFinish)
+    if (
+      run.mode === "successes" &&
+      options.finishOnMistakes !== false &&
+      session.mistakes >= maxMistakesBeforeFinish
+    )
       finishSession("too-many-mistakes");
   }
 
@@ -380,6 +444,29 @@ export function useGameSession(
   );
 
   provide(gameSessionTelemetryKey, { recordEvent });
+  provide(gameSessionRunKey, {
+    run,
+    hasSessionTimer,
+    willContinue: () =>
+      session.status === "finished" &&
+      continuesAfterFinish(run.mode, session.finishReason) &&
+      activeDurationMs(session.finishedAt) >= MIN_CONTINUING_SESSION_MS,
+    timeRanOut: () =>
+      session.status === "finished" && run.mode === "timed" && session.finishReason === "timeout",
+    keepsInstanceBetweenRounds: options.autoStart === false,
+    totalSuccesses: () => run.successesBefore + session.score,
+    totalMistakes: () => run.mistakesBefore + session.mistakes,
+    continueRun: () => {
+      carriedRun = {
+        gameId,
+        mode: run.mode,
+        timeLimitMs: run.timeLimitMs,
+        successesBefore: run.successesBefore + session.score,
+        mistakesBefore: run.mistakesBefore + session.mistakes,
+        activeMsBefore: run.activeMsBefore + activeDurationMs(session.finishedAt),
+      };
+    },
+  });
 
   onUnmounted(() => {
     document.removeEventListener("visibilitychange", handleVisibilityChange);

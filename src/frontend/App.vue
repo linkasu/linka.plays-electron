@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import AudioUnlockGate from "./components/AudioUnlockGate.vue";
 import UpdateStatusBar from "./components/UpdateStatusBar.vue";
+import { gameMountEpoch } from "./core/gameEndMode";
 
 // Страницы монтируются только после экрана звука, см. AudioUnlockGate.vue.
 const audioReady = ref(false);
@@ -10,7 +11,7 @@ const audioReady = ref(false);
 <template>
   <v-app>
     <v-main>
-      <router-view v-if="audioReady" />
+      <router-view v-if="audioReady" :key="gameMountEpoch" />
     </v-main>
     <UpdateStatusBar />
     <AudioUnlockGate @ready="audioReady = true" />

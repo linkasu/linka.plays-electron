@@ -69,6 +69,10 @@ export function clearDwellMsOverride() {
     });
 }
 
+export function formatDwellSeconds(value: number) {
+  return `${(value / 1000).toLocaleString("ru-RU", { maximumFractionDigits: 2 })} с`;
+}
+
 export function resolveDwellMs(fallback = DEFAULT_DWELL_MS) {
   return explicitDwellMs.value ? dwellMs.value : normalizeDwellMs(fallback);
 }
@@ -76,6 +80,7 @@ export function resolveDwellMs(fallback = DEFAULT_DWELL_MS) {
 export function useDwellSettings() {
   return {
     dwellMs: readonly(dwellMs),
+    hasDwellOverride: readonly(explicitDwellMs),
     setDwellMs,
     clearDwellMsOverride,
   };

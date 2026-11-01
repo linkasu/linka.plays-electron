@@ -24,7 +24,7 @@ export function createInitialSessionSettings(
     sessionSeconds: info?.recommendedSessionSeconds,
     maxSteps: options.maxSteps,
     ...overrides,
-    dwellMs: overrides.dwellMs ?? resolveActiveDwellMs(info?.defaultDwellMs),
+    dwellMs: resolveActiveDwellMs(overrides.dwellMs ?? info?.defaultDwellMs),
   };
 
   for (const key of Object.keys(initial) as (keyof SessionSettings)[]) {

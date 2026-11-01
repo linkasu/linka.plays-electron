@@ -4,7 +4,19 @@ import { useRoute, useRouter } from "vue-router";
 import ThemeChooser from "../components/settings/ThemeChooser.vue";
 import MenuCover from "../components/MenuCover.vue";
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
-import { DWELL_STEP_MS, MAX_DWELL_MS, MIN_DWELL_MS, useDwellSettings } from "../core/dwellSettings";
+import {
+  DWELL_STEP_MS,
+  MAX_DWELL_MS,
+  MIN_DWELL_MS,
+  formatDwellSeconds,
+  useDwellSettings,
+} from "../core/dwellSettings";
+import {
+  GAME_TIME_LIMIT_MINUTES,
+  gameEndModeLabels,
+  gameEndModes,
+  useGameEndMode,
+} from "../core/gameEndMode";
 import {
   firstMenuCategory,
   menuReturnPage,
@@ -31,7 +43,9 @@ type SpecialistGameItem = {
 const themeDialog = ref(false);
 const router = useRouter();
 const route = useRoute();
-const { dwellMs, setDwellMs } = useDwellSettings();
+const { dwellMs, hasDwellOverride, setDwellMs, clearDwellMsOverride } = useDwellSettings();
+const { gameEndMode, gameTimeLimitMinutes, setGameEndMode, setGameTimeLimitMinutes } =
+  useGameEndMode();
 const gameGroups = groupGamesByCategory();
 const returnContext = readMenuReturn("specialist", route.query.restore);
 const selectedCategory = ref<GameCategoryId | null>(
@@ -256,7 +270,16 @@ watch(searchQuery, () => {
                   Применяется ко всем играм и самостоятельному меню
                 </div>
               </div>
-              <v-chip color="primary" size="large" variant="flat">{{ dwellMs }} мс</v-chip>
+              <v-chip color="primary" size="large" variant="flat">{{
+                hasDwellOverride ? formatDwellSeconds(dwellMs) : "В каждой игре своя"
+              }}</v-chip>
+              <v-btn
+                v-if="hasDwellOverride"
+                size="small"
+                variant="text"
+                @click="clearDwellMsOverride"
+                >Вернуть как в играх</v-btn
+              >
             </div>
             <v-slider
               class="mt-3"
@@ -269,10 +292,48 @@ watch(searchQuery, () => {
               show-ticks="always"
               thumb-label="always"
               @update:model-value="setDwellMs"
-            />
+            >
+              <template #thumb-label="{ modelValue }">{{
+                formatDwellSeconds(modelValue)
+              }}</template>
+            </v-slider>
             <div class="d-flex justify-space-between text-caption text-medium-emphasis">
-              <span>Быстрее: {{ MIN_DWELL_MS }} мс</span>
-              <span>Осторожнее: {{ MAX_DWELL_MS }} мс</span>
+              <span>Быстрее: {{ formatDwellSeconds(MIN_DWELL_MS) }}</span>
+              <span>Осторожнее: {{ formatDwellSeconds(MAX_DWELL_MS) }}</span>
+            </div>
+          </v-card>
+
+          <v-card class="pa-4 mb-5" color="surface-variant" rounded="xl" variant="flat">
+            <div class="text-subtitle-1 font-weight-bold">Как идёт игра</div>
+            <div class="text-body-2 text-medium-emphasis mb-3">
+              Применяется ко всем играм и самостоятельному меню
+            </div>
+            <div class="d-flex flex-wrap align-center ga-3">
+              <v-btn-toggle
+                color="primary"
+                divided
+                mandatory
+                :model-value="gameEndMode"
+                variant="outlined"
+                @update:model-value="setGameEndMode"
+              >
+                <v-btn v-for="mode in gameEndModes" :key="mode" :value="mode">{{
+                  gameEndModeLabels[mode]
+                }}</v-btn>
+              </v-btn-toggle>
+              <v-btn-toggle
+                v-if="gameEndMode === 'timed'"
+                color="primary"
+                divided
+                mandatory
+                :model-value="gameTimeLimitMinutes"
+                variant="outlined"
+                @update:model-value="setGameTimeLimitMinutes"
+              >
+                <v-btn v-for="minutes in GAME_TIME_LIMIT_MINUTES" :key="minutes" :value="minutes"
+                  >{{ minutes }} мин</v-btn
+                >
+              </v-btn-toggle>
             </div>
           </v-card>
 
@@ -385,11 +446,12 @@ watch(searchQuery, () => {
                           >{{ item.game.recommendedSessionSeconds }} сек</v-chip
                         >
                         <v-chip
+                          v-if="hasDwellOverride"
                           color="info"
                           prepend-icon="mdi-clock-outline"
                           size="small"
                           variant="tonal"
-                          >{{ dwellMs }} мс</v-chip
+                          >{{ formatDwellSeconds(dwellMs) }}</v-chip
                         >
                       </div>
                     </div>

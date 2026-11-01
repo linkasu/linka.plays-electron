@@ -341,7 +341,7 @@ function resumeGame() {
 }
 
 function restart() {
-  startGame("guided");
+  startGame(mode.value);
 }
 
 onUnmounted(() => {

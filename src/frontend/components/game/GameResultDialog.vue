@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, inject, onUnmounted, watch } from "vue";
 import { useDwellSettings } from "../../core/dwellSettings";
+import { mountGameAfresh } from "../../core/gameEndMode";
 import { resolveMenuMode } from "../../core/menuMode";
+import { gameSessionRunKey } from "../../core/session";
 import GameDwellButton from "./GameDwellButton.vue";
 
 const props = defineProps<{
@@ -32,6 +34,19 @@ const finishReasonLabels: Record<string, string> = {
 };
 
 const finishReason = computed(() => props.metrics?.finishReason);
+const runContext = inject(gameSessionRunKey, undefined);
+const continuesRun = computed(() => props.modelValue && runContext?.willContinue() === true);
+// Games open this dialog from their own endings, and the time limit can stop them
+// before any of those: mid-speech, or in a game that never expected a timeout.
+const timeRanOut = computed(() => runContext?.timeRanOut() === true);
+const isRun = computed(() => (runContext?.run.mode ?? "successes") !== "successes");
+const totalScore = computed(() =>
+  isRun.value ? (runContext?.totalSuccesses() ?? props.score) : props.score,
+);
+const totalMistakes = computed(() =>
+  isRun.value ? (runContext?.totalMistakes() ?? props.mistakes) : props.mistakes,
+);
+const totalDurationMs = computed(() => props.durationMs + (runContext?.run.activeMsBefore ?? 0));
 const { dwellMs } = useDwellSettings();
 const isSelfMode = computed(() => resolveMenuMode() === "self");
 const resultMessage = computed(() => {
@@ -57,11 +72,44 @@ const emit = defineEmits<{
   "restart": [];
   "menu": [];
 }>();
+
+// Long enough for the final phrase, which the next round would cut off.
+const NEXT_ROUND_DELAY_MS = 1500;
+let nextRoundTimer: number | undefined;
+
+function clearNextRoundTimer() {
+  if (nextRoundTimer !== undefined) window.clearTimeout(nextRoundTimer);
+  nextRoundTimer = undefined;
+}
+
+watch(
+  continuesRun,
+  (continues) => {
+    clearNextRoundTimer();
+    if (!continues) return;
+    nextRoundTimer = window.setTimeout(() => {
+      nextRoundTimer = undefined;
+      runContext?.continueRun();
+      if (runContext?.keepsInstanceBetweenRounds) emit("restart");
+      else mountGameAfresh();
+    }, NEXT_ROUND_DELAY_MS);
+  },
+  { immediate: true },
+);
+
+// A finished game can still be waiting on its speech, with more to do once it stops.
+// A new mount leaves that code holding the finished session and the old round.
+function restart() {
+  if (timeRanOut.value) mountGameAfresh();
+  else emit("restart");
+}
+
+onUnmounted(clearNextRoundTimer);
 </script>
 
 <template>
   <v-dialog
-    :model-value="props.modelValue"
+    :model-value="(props.modelValue && !continuesRun) || timeRanOut"
     max-width="56rem"
     persistent
     transition="fade-transition"
@@ -77,18 +125,18 @@ const emit = defineEmits<{
           <v-col cols="6">
             <v-card color="primary" variant="tonal" rounded="lg" class="pa-4">
               <div class="text-caption">Успешные шаги</div>
-              <div class="text-h4 font-weight-bold">{{ score }}</div>
+              <div class="text-h4 font-weight-bold">{{ totalScore }}</div>
             </v-card>
           </v-col>
           <v-col cols="6">
             <v-card color="warning" variant="tonal" rounded="lg" class="pa-4">
               <div class="text-caption">Ошибки</div>
-              <div class="text-h4 font-weight-bold">{{ mistakes }}</div>
+              <div class="text-h4 font-weight-bold">{{ totalMistakes }}</div>
             </v-card>
           </v-col>
         </v-row>
         <v-alert class="mt-4" color="info" variant="tonal">
-          Длительность: {{ Math.round(durationMs / 1000) }} сек. {{ recommendation }}
+          Длительность: {{ Math.round(totalDurationMs / 1000) }} сек. {{ recommendation }}
         </v-alert>
         <v-card
           v-if="metrics && !isSelfMode"
@@ -136,7 +184,7 @@ const emit = defineEmits<{
               :dwell-ms="dwellMs"
               min-height="clamp(8rem, 18vh, 12rem)"
               color="primary"
-              @select="emit('restart')"
+              @select="restart"
             >
               <template #default>
                 <div class="d-flex flex-column align-center justify-center ga-3 text-white">

@@ -1,30 +1,40 @@
-import { createApp, defineComponent, nextTick } from "vue";
+import { createApp, defineComponent, h, inject, nextTick } from "vue";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { useGameSession } from "./session";
+import { setGameEndMode, setGameTimeLimitMinutes } from "./gameEndMode";
+import { gameSessionRunKey, useGameSession, type GameSessionRunContext } from "./session";
 import type { SessionSettings } from "./settings";
 
 function mountSession(
   overrides: Partial<SessionSettings> = {},
   options: Parameters<typeof useGameSession>[2] = {},
+  gameId = "unit-game",
 ) {
   let api: ReturnType<typeof useGameSession> | undefined;
+  let runContext: GameSessionRunContext | undefined;
+  const RunProbe = defineComponent({
+    setup() {
+      runContext = inject(gameSessionRunKey);
+      return () => null;
+    },
+  });
   const root = document.createElement("div");
   document.body.append(root);
 
   const app = createApp(
     defineComponent({
       setup() {
-        api = useGameSession("unit-game", overrides, options);
-        return () => null;
+        api = useGameSession(gameId, overrides, options);
+        return () => h(RunProbe);
       },
     }),
   );
 
   app.mount(root);
-  if (!api) throw new Error("Session composable was not initialized.");
+  if (!api || !runContext) throw new Error("Session composable was not initialized.");
 
   return {
     api,
+    runContext,
     unmount: () => {
       app.unmount();
       root.remove();
@@ -40,6 +50,7 @@ describe("useGameSession", () => {
 
   afterEach(() => {
     Object.defineProperty(document, "hidden", { configurable: true, value: false });
+    setGameEndMode("successes");
     vi.useRealTimers();
   });
 
@@ -106,7 +117,7 @@ describe("useGameSession", () => {
   });
 
   it("does not count paused time toward active duration", async () => {
-    const mounted = mountSession({ maxSteps: 5, sessionSeconds: 30 });
+    const mounted = mountSession({ maxSteps: 5, sessionSeconds: 30 }, {}, "magic-dust");
 
     try {
       vi.advanceTimersByTime(5_000);
@@ -154,6 +165,114 @@ describe("useGameSession", () => {
 
       expect(mounted.api.session.status).toBe("running");
       expect(mounted.api.metrics.value.mistakes).toBe(10);
+    } finally {
+      mounted.unmount();
+    }
+  });
+
+  it("does not stop a success-goal game on time", async () => {
+    const mounted = mountSession({ maxSteps: 8, sessionSeconds: 1 });
+
+    try {
+      vi.advanceTimersByTime(5_000);
+      await nextTick();
+
+      expect(mounted.api.session.status).toBe("running");
+    } finally {
+      mounted.unmount();
+    }
+  });
+
+  it("carries the totals over when an endless session restarts", () => {
+    setGameEndMode("endless");
+    const mounted = mountSession({ maxSteps: 2, sessionSeconds: 30 });
+
+    try {
+      vi.advanceTimersByTime(2_000);
+      mounted.api.recordSuccess();
+      mounted.api.recordSuccess();
+      expect(mounted.api.session.finishReason).toBe("max-steps");
+      expect(mounted.runContext.willContinue()).toBe(true);
+
+      mounted.runContext.continueRun();
+      mounted.api.startSession();
+
+      expect(mounted.api.session.status).toBe("running");
+      expect(mounted.api.session.step).toBe(0);
+      expect(mounted.runContext.run.successesBefore).toBe(2);
+      expect(mounted.runContext.totalSuccesses()).toBe(2);
+      expect(mounted.runContext.run.activeMsBefore).toBe(2_000);
+    } finally {
+      mounted.unmount();
+    }
+  });
+
+  it("resets the totals on a restart the user asked for", () => {
+    setGameEndMode("endless");
+    const mounted = mountSession({ maxSteps: 1, sessionSeconds: 30 });
+
+    try {
+      mounted.api.recordSuccess();
+      mounted.api.startSession();
+
+      expect(mounted.runContext.run.successesBefore).toBe(0);
+    } finally {
+      mounted.unmount();
+    }
+  });
+
+  it("shows the result when a session ends too fast to continue", () => {
+    setGameEndMode("endless");
+    const mounted = mountSession({ maxSteps: 1, sessionSeconds: 30 });
+
+    try {
+      mounted.api.recordSuccess();
+
+      expect(mounted.runContext.willContinue()).toBe(false);
+    } finally {
+      mounted.unmount();
+    }
+  });
+
+  it("does not stop an endless game on mistakes or time", async () => {
+    setGameEndMode("endless");
+    const mounted = mountSession({ maxSteps: 2, sessionSeconds: 1 }, {}, "magic-dust");
+
+    try {
+      for (let index = 0; index < 20; index += 1) mounted.api.recordMistake();
+      vi.advanceTimersByTime(600_000);
+      await nextTick();
+
+      expect(mounted.api.session.status).toBe("running");
+    } finally {
+      mounted.unmount();
+    }
+  });
+
+  it("ends a timed run at the chosen limit across restarts", async () => {
+    setGameTimeLimitMinutes(1);
+    setGameEndMode("timed");
+    const mounted = mountSession({ maxSteps: 1, sessionSeconds: 30 }, { finishOnTimeout: false });
+
+    try {
+      vi.advanceTimersByTime(40_000);
+      await nextTick();
+      mounted.api.recordSuccess();
+      expect(mounted.runContext.willContinue()).toBe(true);
+
+      expect(mounted.runContext.timeRanOut()).toBe(false);
+
+      mounted.runContext.continueRun();
+      mounted.api.startSession();
+      vi.advanceTimersByTime(19_000);
+      await nextTick();
+      expect(mounted.api.session.status).toBe("running");
+
+      vi.advanceTimersByTime(1_000);
+      await nextTick();
+      expect(mounted.api.session.finishReason).toBe("timeout");
+      expect(mounted.runContext.willContinue()).toBe(false);
+      expect(mounted.runContext.timeRanOut()).toBe(true);
     } finally {
       mounted.unmount();
     }
