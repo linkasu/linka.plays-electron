@@ -9,6 +9,7 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { resolveMenuRoute } from "../../core/menuMode";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolvePublicAssetUrl } from "../../core/publicAsset";
 import type { SessionStatus } from "../../core/session";
 
@@ -17,6 +18,7 @@ type BellDefinition = {
   label: string;
   tone: string;
   accent: string;
+  artId: string;
 };
 
 type BellsRound = {
@@ -26,10 +28,10 @@ type BellsRound = {
 };
 
 const bellDefinitions: BellDefinition[] = [
-  { id: "sun", label: "Золотой", tone: "золотой", accent: "#f6bf42" },
-  { id: "sky", label: "Голубой", tone: "голубой", accent: "#5ba6f7" },
-  { id: "berry", label: "Розовый", tone: "розовый", accent: "#ec77ad" },
-  { id: "meadow", label: "Зелёный", tone: "зелёный", accent: "#74bf7a" },
+  { id: "sun", label: "Золотой", tone: "золотой", accent: "#f6bf42", artId: "bells/bell-gold" },
+  { id: "sky", label: "Голубой", tone: "голубой", accent: "#5ba6f7", artId: "bells/bell-blue" },
+  { id: "berry", label: "Розовый", tone: "розовый", accent: "#ec77ad", artId: "bells/bell-pink" },
+  { id: "meadow", label: "Зелёный", tone: "зелёный", accent: "#74bf7a", artId: "bells/bell-green" },
 ];
 
 const router = useRouter();
@@ -257,7 +259,13 @@ watch(
 </script>
 
 <template>
-  <div class="bells-shell">
+  <div
+    class="bells-shell"
+    :class="{
+      'bells-shell--paused': session.status === 'paused',
+      'bells-shell--reduced-motion': session.settings.reduceMotion,
+    }"
+  >
     <GameHud
       title="Колокольчики"
       :step="session.step"
@@ -276,10 +284,10 @@ watch(
         <v-col cols="12" xl="10">
           <v-card class="bells-panel pa-4 pa-md-7" color="surface" rounded="xl" elevation="8">
             <div class="text-overline text-primary text-center mb-2">Выбор взглядом</div>
-            <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">
+            <h1 class="bells-title text-h4 text-md-h3 font-weight-bold text-center mb-3">
               Найди {{ round.target.tone }} колокольчик
             </h1>
-            <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-6">
+            <p class="bells-intro text-body-1 text-md-h6 text-medium-emphasis text-center mb-4">
               Удержи взгляд на нужной карточке. Колокольчик качнётся и пустит волну.
             </p>
 
@@ -287,9 +295,8 @@ watch(
               <v-col
                 v-for="bell in round.cards"
                 :key="`${round.roundId}-${bell.id}`"
-                cols="12"
-                sm="6"
-                lg="3"
+                cols="6"
+                :sm="12 / round.cards.length"
               >
                 <GameDwellButton
                   :target-id="`bells:${round.roundId}:${bell.id}`"
@@ -313,7 +320,13 @@ watch(
                         class="bell-wave"
                         aria-hidden="true"
                       />
-                      <v-icon class="bell-icon mb-3" icon="mdi-bell-outline" />
+                      <img
+                        class="bell-art mb-3"
+                        :src="gameArtSrc(bell.artId)"
+                        alt=""
+                        aria-hidden="true"
+                        draggable="false"
+                      />
                       <div class="bell-label text-h5 text-md-h4 font-weight-bold">
                         {{ bell.label }}
                       </div>
@@ -332,20 +345,22 @@ watch(
                 </GameDwellButton>
               </v-col>
             </v-row>
-
-            <v-expand-transition>
-              <v-alert
-                v-if="feedbackText"
-                class="mt-5 text-h6"
-                color="primary"
-                icon="mdi-bell-ring-outline"
-                rounded="xl"
-                variant="tonal"
-              >
-                {{ feedbackText }}
-              </v-alert>
-            </v-expand-transition>
           </v-card>
+          <div class="bells-feedback-slot mt-3">
+            <v-alert
+              class="bells-feedback text-body-1"
+              :class="{ 'bells-feedback--visible': Boolean(feedbackText) }"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              color="primary"
+              icon="mdi-bell-ring-outline"
+              rounded="xl"
+              variant="tonal"
+            >
+              {{ feedbackText }}
+            </v-alert>
+          </div>
         </v-col>
       </v-row>
     </v-container>
@@ -379,6 +394,29 @@ watch(
   overflow: hidden;
 }
 
+.bells-feedback-slot {
+  block-size: clamp(5rem, 12dvh, 6rem);
+  display: flex;
+  justify-content: center;
+}
+
+.bells-feedback {
+  align-items: center;
+  block-size: 100%;
+  inline-size: min(100%, 42rem);
+  opacity: 0;
+  overflow: hidden;
+  transform: translateY(0.4rem);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+
+.bells-feedback--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .bells-grid {
   position: relative;
   z-index: 1;
@@ -398,7 +436,11 @@ watch(
 
 .bell-label,
 .bell-tone {
-  color: #17212b !important;
+  color: rgb(var(--v-theme-on-surface)) !important;
+}
+
+.bells-grid :deep(.v-card--disabled > .bell-card-content) {
+  opacity: 1;
 }
 
 .bell-card-content::before {
@@ -418,17 +460,18 @@ watch(
   transform: translate(-50%, -50%);
 }
 
-.bell-icon {
-  color: var(--bell-accent);
+.bell-art {
+  block-size: clamp(6rem, 18dvh, 11rem);
+  inline-size: min(100%, 12rem);
+  object-fit: contain;
   filter: drop-shadow(0 0.75rem 1.375rem color-mix(in srgb, var(--bell-accent) 28%, transparent));
-  font-size: clamp(5.2rem, 12vw, 8.5rem);
   position: relative;
   transform-origin: 50% 8%;
   z-index: 1;
 }
 
-.bell-card-content--active.bell-icon,
-.bell-card-content--selected.bell-icon {
+.bell-card-content--active .bell-art,
+.bell-card-content--selected .bell-art {
   animation: bell-swing 1150ms ease-in-out infinite;
 }
 
@@ -452,7 +495,55 @@ watch(
 }
 
 .bell-hint {
-  color: #17212b;
+  color: rgb(var(--v-theme-on-surface));
+}
+
+.bells-shell--paused .bell-art,
+.bells-shell--paused .bell-wave {
+  animation-play-state: paused;
+}
+
+.bells-shell--reduced-motion .bell-art,
+.bells-shell--reduced-motion .bell-wave {
+  animation: none;
+}
+
+.bells-shell--reduced-motion .bells-feedback {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bells-shell .bell-art,
+  .bells-shell .bell-wave {
+    animation: none;
+  }
+  .bells-feedback {
+    transition: none;
+  }
+}
+
+@media (max-height: 45rem) {
+  .bells-panel {
+    padding: 1rem !important;
+  }
+  .bells-panel > .text-overline,
+  .bells-intro,
+  .bell-tone {
+    display: none;
+  }
+  .bells-title {
+    font-size: clamp(1.5rem, 3.5vw, 2.4rem) !important;
+  }
+  .bells-grid :deep(.dwell-button) {
+    min-block-size: clamp(10rem, 34dvh, 14rem) !important;
+    padding: clamp(0.6rem, 2dvh, 1rem) !important;
+  }
+  .bell-card-content {
+    min-block-size: 0;
+  }
+  .bell-hint {
+    margin-block-start: 0.5rem !important;
+  }
 }
 
 @keyframes bell-swing {
