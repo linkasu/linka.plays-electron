@@ -8,6 +8,24 @@ permissions:
   contents: write
 
 jobs:
+  license-scope:
+    name: Licensing publication guard
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      deploy: ${{ steps.scope.outputs.deploy }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Test licensing guard
+        run: python3 .github/scripts/licensing-deployment-guard.py --self-test
+      - id: scope
+        run: python3 .github/scripts/licensing-deployment-guard.py
+
   verify:
     if: vars.WINDOWS_AUTO_RELEASE_ENABLED == 'true'
     runs-on: ubuntu-latest
@@ -89,7 +107,8 @@ jobs:
           if-no-files-found: ignore
 
   publish:
-    needs: build
+    if: ${{ needs.license-scope.outputs.deploy == 'true' }}
+    needs: [build, license-scope]
     runs-on: ubuntu-latest
     concurrency:
       group: windows-main-publish
