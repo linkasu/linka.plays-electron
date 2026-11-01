@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildSandwichSteps,
   isSandwichRecipeCompleteStep,
+  isSandwichChoiceAccepted,
   sandwichChoices,
   sandwichMaxSteps,
   sandwichRecipes,
@@ -79,12 +80,10 @@ describe("sandwich model", () => {
 
     expect(byId["bottom-bread"]).toMatchObject({
       imageId: "bread",
-      roleIcon: "mdi-arrow-down-bold",
       ttsAssetId: "word-categories.item.bread",
     });
     expect(byId["top-bread"]).toMatchObject({
       imageId: "bread",
-      roleIcon: "mdi-arrow-up-bold",
       ttsAssetId: "word-categories.item.bread",
     });
     expect(byId.cheese).toMatchObject({
@@ -108,5 +107,24 @@ describe("sandwich model", () => {
     expect(shuffled.map((choice) => choice.id).sort()).toEqual(
       sandwichChoices.map((choice) => choice.id).sort(),
     );
+  });
+
+  it("accepts either identical slice on both bread steps without accepting other ingredients", () => {
+    const breads = sandwichChoices.filter((choice) => choice.imageId === "bread");
+    expect(breads).toHaveLength(2);
+    for (const bread of breads) {
+      expect(bread.label).toBe("Хлеб");
+      expect(bread.roleIcon).toBeUndefined();
+      for (const expected of breads) expect(isSandwichChoiceAccepted(bread, expected)).toBe(true);
+      expect(
+        isSandwichChoiceAccepted(
+          bread,
+          sandwichChoices.find((choice) => choice.id === "cheese")!,
+        ),
+      ).toBe(false);
+    }
+    expect(
+      buildSandwichSteps().some((step) => /верхни|нижни/i.test(step.instruction + step.helper)),
+    ).toBe(false);
   });
 });

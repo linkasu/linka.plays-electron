@@ -14,6 +14,7 @@ import {
   buildSandwichSteps,
   getSandwichRecipe,
   isSandwichRecipeCompleteStep,
+  isSandwichChoiceAccepted,
   sandwichMaxSteps,
   shuffleSandwichChoices,
   type SandwichChoice,
@@ -42,7 +43,7 @@ const {
 const resultVisible = ref(false);
 const plateSteps = ref<SandwichRecipeStep[]>([]);
 const feedbackMessage = ref(
-  "Собираем бутерброд по рецепту: хлеб, масло, начинка, овощи и верхний хлеб.",
+  "Собираем бутерброд по рецепту: хлеб, масло, начинка, овощи и ещё один ломтик хлеба.",
 );
 const wrongChoiceId = ref<string>();
 const successChoiceId = ref<string>();
@@ -168,7 +169,7 @@ async function chooseIngredient(choice: SandwichChoice) {
   const expectedTargetId = choiceTargetId(expectedStep.choice);
   clearTransientFeedback();
 
-  if (choice.id === expectedStep.choice.id) {
+  if (isSandwichChoiceAccepted(choice, expectedStep.choice)) {
     isFeedbackPlaying.value = true;
     plateSteps.value.push(expectedStep);
     successChoiceId.value = choice.id;
@@ -239,7 +240,7 @@ function restart() {
   isRecipeResting.value = false;
   isInputCoolingDown.value = false;
   feedbackMessage.value =
-    "Собираем бутерброд по рецепту: хлеб, масло, начинка, овощи и верхний хлеб.";
+    "Собираем бутерброд по рецепту: хлеб, масло, начинка, овощи и ещё один ломтик хлеба.";
   startSession();
   void playPrompt(450);
 }
@@ -395,7 +396,7 @@ watch(
                       v-if="plateLayers.length === 0"
                       class="empty-plate text-body-1 text-medium-emphasis"
                     >
-                      Тарелка ждёт нижний хлеб
+                      Тарелка ждёт хлеб
                     </div>
                     <div
                       v-for="layer in plateLayers"

@@ -275,7 +275,10 @@ onUnmounted(() => {
       @resume="resumeSession"
     />
 
-    <v-container class="light-gallery-container d-flex align-center justify-center" fluid>
+    <v-container
+      class="light-gallery-container game-hud-clear d-flex align-center justify-center"
+      fluid
+    >
       <v-card class="light-gallery-frame pa-4 pa-sm-6 pa-md-8" color="transparent" elevation="0">
         <div class="text-center mb-4 mb-md-6 light-gallery-copy">
           <div class="text-overline text-indigo-lighten-4">ambient gaze basics</div>
@@ -296,7 +299,7 @@ onUnmounted(() => {
             :target-id="panel.id"
             :dwell-ms="session.settings.dwellMs"
             :disabled="session.status !== 'running' || panel.revealed"
-            :min-height="118"
+            min-height="0"
             color="indigo-darken-4"
             class="light-gallery-target"
             @select="revealPanel(panel)"
@@ -344,7 +347,7 @@ onUnmounted(() => {
           class="light-gallery-progress mt-5 mx-auto px-4 py-3"
           color="surface"
           rounded="xl"
-          variant="tonal"
+          variant="flat"
         >
           <div class="text-body-2 font-weight-medium">
             Проявлено картин: {{ revealedCount }} из {{ session.maxSteps }}
@@ -419,7 +422,7 @@ onUnmounted(() => {
 }
 
 .light-gallery-frame {
-  inline-size: min(65rem, 100%);
+  inline-size: min(80rem, 100%);
   position: relative;
   z-index: 1;
 }
@@ -431,23 +434,36 @@ onUnmounted(() => {
 
 .light-gallery-grid {
   display: grid;
-  gap: clamp(0.875rem, 2.2vw, 1.5rem);
-  grid-template-columns: repeat(4, minmax(8.5rem, 1fr));
+  gap: clamp(1.25rem, 3vmin, 2.5rem);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  block-size: min(34rem, calc(100dvh - var(--game-hud-clearance, 10rem) - 15rem));
 }
 
 .light-gallery-target {
-  min-block-size: clamp(9rem, 18vw, 11.75rem);
+  min-block-size: 0;
+  block-size: 100%;
+}
+
+.light-gallery-target :deep(.dwell-button) {
+  min-block-size: 0 !important;
+  padding: clamp(0.5rem, 1.2dvh, 1rem) !important;
+}
+
+.light-gallery-target :deep(.v-card--disabled > .light-gallery-panel) {
+  opacity: 1;
 }
 
 .light-gallery-panel {
   align-items: center;
   block-size: 100%;
   color: rgb(242 245 255 / 92%);
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  inline-size: 100%;
   gap: 0.35rem;
   justify-content: center;
-  min-block-size: 100%;
+  min-block-size: 0;
   opacity: calc(0.62 + (var(--panel-progress) * 0.38));
   position: relative;
   text-shadow: 0 1px 14px rgb(12 14 30 / 42%);
@@ -484,10 +500,10 @@ onUnmounted(() => {
   color: #19213b;
 }
 
-.light-gallery-panel--active.light-gallery-panel-title,
-.light-gallery-panel--active.light-gallery-panel-caption,
-.light-gallery-panel--revealed.light-gallery-panel-title,
-.light-gallery-panel--revealed.light-gallery-panel-caption {
+.light-gallery-panel--active .light-gallery-panel-title,
+.light-gallery-panel--active .light-gallery-panel-caption,
+.light-gallery-panel--revealed .light-gallery-panel-title,
+.light-gallery-panel--revealed .light-gallery-panel-caption {
   color: #19213b !important;
 }
 
@@ -498,19 +514,20 @@ onUnmounted(() => {
 .light-gallery-panel-art {
   align-items: center;
   background: rgb(255 255 255 / calc(0.1 + (var(--panel-progress) * 0.42)));
-  block-size: clamp(4.5rem, 11vw, 7rem);
+  block-size: 100%;
+  min-block-size: 0;
   border-radius: 1.25rem;
   display: flex;
-  inline-size: clamp(4.5rem, 11vw, 7rem);
+  inline-size: 100%;
   justify-content: center;
   transition: background 220ms ease;
 }
 
 /* The picture lights up while the child looks at the panel. */
 .light-gallery-panel-picture {
-  block-size: 86%;
+  block-size: 100%;
   filter: grayscale(calc(1 - var(--panel-progress)));
-  inline-size: 86%;
+  inline-size: 100%;
   object-fit: contain;
   opacity: calc(0.45 + (var(--panel-progress) * 0.55));
   transition:
@@ -520,12 +537,34 @@ onUnmounted(() => {
 
 .light-gallery-progress {
   max-inline-size: 35rem;
-  opacity: 0.82;
 }
 
 @media (max-width: 53.75rem) {
   .light-gallery-grid {
     grid-template-columns: repeat(2, minmax(8.5rem, 1fr));
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 53.75rem) and (min-height: 45.001rem) {
+  .light-gallery-panel {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    grid-template-rows: 1fr 1fr;
+    gap: 0.25rem 0.5rem;
+  }
+
+  .light-gallery-panel-art {
+    grid-row: 1 / 3;
+  }
+
+  .light-gallery-panel-title {
+    align-self: end;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .light-gallery-panel-caption {
+    align-self: start;
   }
 }
 
@@ -540,17 +579,19 @@ onUnmounted(() => {
   }
 
   .light-gallery-grid {
-    gap: 0.75rem;
+    gap: clamp(1.25rem, 3vmin, 2.5rem);
+    block-size: calc(100dvh - var(--game-hud-clearance, 10rem) - 4.5rem);
     grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
   }
 
   .light-gallery-target {
-    min-block-size: 7rem;
+    min-block-size: 0;
   }
 
   .light-gallery-panel-art {
-    block-size: clamp(3.6rem, 15dvh, 7rem);
-    inline-size: clamp(3.6rem, 15dvh, 7rem);
+    block-size: 100%;
+    inline-size: 100%;
   }
 
   .light-gallery-panel-caption {
@@ -558,13 +599,15 @@ onUnmounted(() => {
   }
 }
 
-@media (max-width: 32.5rem) {
+@media (max-width: 40rem) {
   .light-gallery-container {
     padding-block-start: 104px;
   }
 
   .light-gallery-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+    block-size: calc(100dvh - var(--game-hud-clearance, 10rem) - 4.5rem);
   }
 }
 </style>

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createSoupIngredientSlots,
+  createSoupRecipeLayout,
   createSoupRecipeRound,
   soupRecipeIngredients,
   type SoupRect,
@@ -88,5 +89,17 @@ describe("createSoupRecipeRound", () => {
           slot.rect.y + slot.rect.height <= 600,
       ),
     ).toBe(true);
+  });
+
+  it.each([56, 164, 220])("keeps all layers below a HUD ending at %i", (hud) => {
+    const layout = createSoupRecipeLayout(900, 600, hud);
+    const slots = createSoupIngredientSlots(soupRecipeIngredients, 900, 600, hud);
+    expect(layout.panel.y).toBeGreaterThan(hud);
+    expect(layout.recipeRect.y + layout.recipeRect.height).toBeLessThanOrEqual(layout.gridRect.y);
+    for (const slot of slots) {
+      expect(slot.rect.y).toBeGreaterThan(hud);
+      expect(slot.rect.y + slot.rect.height).toBeLessThanOrEqual(600);
+      expect(slot.rect.height).toBeGreaterThan(50);
+    }
   });
 });

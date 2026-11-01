@@ -170,7 +170,7 @@ onUnmounted(() => {
         <v-col cols="12" lg="10" xl="9">
           <v-card class="find-color-card pa-4 pa-md-7" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Смотри и выбирай</div>
-            <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
+            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
             <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-5">{{ hintText }}</p>
             <GameChoiceCardGrid
               :choices="round.choices"
@@ -223,11 +223,12 @@ onUnmounted(() => {
 
 .color-choice {
   align-items: center;
-  background: var(--find-color-bg);
-  border: 0.25rem solid rgb(255 255 255 / 82%);
+  background: transparent;
   border-radius: 1.5rem;
   block-size: 100%;
-  color: var(--find-color-text);
+  color: rgb(var(--v-theme-on-surface));
+  inline-size: 100%;
+  min-inline-size: 0;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -254,7 +255,11 @@ onUnmounted(() => {
 }
 
 .color-label {
-  text-shadow: 0 0.125rem 0.375rem rgb(0 0 0 / 28%);
+  font-size: clamp(0.95rem, min(2.2vw, 3.2dvh), 1.6rem) !important;
+  line-height: 1.2;
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
+  text-align: center;
 }
 
 .color-choice--hinted {

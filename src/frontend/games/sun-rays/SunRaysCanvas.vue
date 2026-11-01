@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { scenePalette } from "../../core/themeSettings";
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, watch } from "vue";
 import { canvasArt, drawCanvasArt } from "../../core/canvasArt";
 import { approach, createFrameClock } from "../../core/motion";
 
 const props = defineProps<{
+  paused: boolean;
+  reduceMotion: boolean;
+  sessionId: string;
   active: boolean;
   maxSteps: number;
   progress: number;
@@ -19,6 +22,10 @@ let frame = 0;
 let width = 1;
 let height = 1;
 let dpr = 1;
+let animationTime = 0;
+let lastTime = performance.now();
+let observer: ResizeObserver | undefined;
+const revealedRays: number[] = [];
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
@@ -70,22 +77,23 @@ function drawRay(
   now: number,
 ) {
   const count = Math.max(1, props.maxSteps);
-  const progress = rayProgress(index);
+  const progress = revealedRays[index] ?? 0;
   const angle = -Math.PI / 2 + (index * Math.PI * 2) / count;
   const shimmer = Math.sin(now * 0.0012 + index * 1.7) * 0.04;
-  const visible = clamp(0.2 + progress * 0.8 + shimmer * Math.max(0.25, progress), 0, 1);
-  const length = Math.min(width, height) * (0.34 + visible * 0.17);
-  const thickness = radius * (0.2 + visible * 0.1);
-  const start = radius * 0.8;
-  const end = start + length * (0.38 + visible * 0.62);
+  const visible = clamp(0.25 + progress * 0.75 + shimmer * progress, 0, 1);
+  const outerRadius = Math.min(width * 0.46, height * 0.36);
+  const start = radius * 0.92;
+  const length = Math.max(8, outerRadius - start);
+  const thickness = radius * (0.14 + progress * 0.1);
+  const end = start + length * (0.4 + progress * 0.6);
 
   ctx.save();
   ctx.translate(cx, cy);
   ctx.rotate(angle);
   const gradient = ctx.createLinearGradient(start, 0, end, 0);
-  gradient.addColorStop(0, `rgb(255 183 38 / ${0.28 + visible * 0.68})`);
-  gradient.addColorStop(0.45, `rgb(255 226 94 / ${0.24 + visible * 0.58})`);
-  gradient.addColorStop(1, "rgb(255 247 194 / 0%)");
+  gradient.addColorStop(0, `rgb(235 139 24 / ${visible})`);
+  gradient.addColorStop(0.55, `rgb(255 181 32 / ${visible})`);
+  gradient.addColorStop(1, `rgb(255 213 58 / ${visible})`);
   ctx.strokeStyle = gradient;
   ctx.lineWidth = thickness;
   ctx.lineCap = "round";
@@ -131,7 +139,7 @@ function drawSun(
   now: number,
 ) {
   const open = clamp(props.step / Math.max(1, props.maxSteps), 0, 1);
-  const pulse = props.active ? 1 + Math.sin(now * 0.004) * 0.025 : 1;
+  const pulse = props.active && !props.reduceMotion ? 1 + Math.sin(now * 0.004) * 0.025 : 1;
   const glow = ctx.createRadialGradient(
     cx,
     cy,
@@ -154,16 +162,24 @@ function drawSun(
   const disc = canvasArt("sun-rays/sun-disc");
   if (disc) {
     const delta = sunClock("sun", now);
-    if (props.step > lastStep) wowUntil = now + 900;
+    if (props.step > lastStep && !props.reduceMotion) wowUntil = now + 900;
     lastStep = props.step;
     const target: SunFace =
-      now < wowUntil ? "face-wow" : props.step > 0 || props.active ? "face-smile" : "face-sleep";
+      !props.reduceMotion && now < wowUntil
+        ? "face-wow"
+        : props.step > 0 || props.active
+          ? "face-smile"
+          : "face-sleep";
     ctx.save();
     ctx.translate(cx, cy);
     ctx.scale(pulse, pulse);
     drawCanvasArt(ctx, disc, 0, 0, radius * 2.05);
     for (const face of sunFaces) {
-      faceWeight[face] = approach(faceWeight[face], face === target ? 1 : 0, 7, delta);
+      faceWeight[face] = props.reduceMotion
+        ? face === target
+          ? 1
+          : 0
+        : approach(faceWeight[face], face === target ? 1 : 0, 7, delta);
       const art = canvasArt(`sun-rays/${face}`);
       if (!art || faceWeight[face] < 0.01) continue;
       ctx.globalAlpha = faceWeight[face];
@@ -251,27 +267,54 @@ function draw(now: number) {
 
   const cx = width * 0.5;
   const cy = height * 0.43;
-  const radius = clamp(Math.min(width, height) * 0.24, 92, 150);
+  const radius = Math.min(width, height) * 0.2;
   for (let index = 0; index < props.maxSteps; index += 1) drawRay(ctx, index, cx, cy, radius, now);
   drawSun(ctx, cx, cy, radius, now);
   drawText(ctx, cx, cy, radius);
 }
 
 function tick(now: number) {
-  draw(now);
+  const delta = Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+  lastTime = now;
+  if (!props.paused) {
+    if (!props.reduceMotion) animationTime += delta * 1000;
+    for (let index = 0; index < props.maxSteps; index += 1) {
+      const target = rayProgress(index);
+      revealedRays[index] = props.reduceMotion
+        ? target
+        : approach(revealedRays[index] ?? 0, target, 7, delta);
+    }
+  }
+  draw(animationTime);
   frame = requestAnimationFrame(tick);
 }
 
 onMounted(() => {
   resizeCanvas();
+  observer = new ResizeObserver(resizeCanvas);
+  if (canvasRef.value) observer.observe(canvasRef.value);
   window.addEventListener("resize", resizeCanvas);
   frame = requestAnimationFrame(tick);
 });
 
 onUnmounted(() => {
+  observer?.disconnect();
   window.removeEventListener("resize", resizeCanvas);
   cancelAnimationFrame(frame);
 });
+
+watch(
+  () => props.sessionId,
+  () => {
+    animationTime = 0;
+    revealedRays.length = 0;
+    lastStep = 0;
+    wowUntil = 0;
+    faceWeight["face-sleep"] = 1;
+    faceWeight["face-smile"] = 0;
+    faceWeight["face-wow"] = 0;
+  },
+);
 </script>
 
 <template>

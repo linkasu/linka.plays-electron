@@ -17,7 +17,7 @@ export const buildBridgePieces: BridgePiece[] = [
     label: "опора 1",
     shortLabel: "опора",
     kind: "support",
-    color: "#607d8b",
+    color: "#c98942",
   },
   {
     id: "support-center",
@@ -25,7 +25,7 @@ export const buildBridgePieces: BridgePiece[] = [
     label: "опора 2",
     shortLabel: "опора",
     kind: "support",
-    color: "#546e7a",
+    color: "#b97c3b",
   },
   {
     id: "support-right",
@@ -33,7 +33,7 @@ export const buildBridgePieces: BridgePiece[] = [
     label: "опора 3",
     shortLabel: "опора",
     kind: "support",
-    color: "#607d8b",
+    color: "#c98942",
   },
   {
     id: "support-far",
@@ -41,7 +41,7 @@ export const buildBridgePieces: BridgePiece[] = [
     label: "опора 4",
     shortLabel: "опора",
     kind: "support",
-    color: "#546e7a",
+    color: "#b97c3b",
   },
   {
     id: "plank-one",
@@ -49,7 +49,7 @@ export const buildBridgePieces: BridgePiece[] = [
     label: "доска 1",
     shortLabel: "доска",
     kind: "plank",
-    color: "#8d6e63",
+    color: "#e3ab54",
   },
   {
     id: "plank-two",
@@ -57,7 +57,7 @@ export const buildBridgePieces: BridgePiece[] = [
     label: "доска 2",
     shortLabel: "доска",
     kind: "plank",
-    color: "#795548",
+    color: "#d99b42",
   },
   {
     id: "plank-three",
@@ -65,7 +65,7 @@ export const buildBridgePieces: BridgePiece[] = [
     label: "доска 3",
     shortLabel: "доска",
     kind: "plank",
-    color: "#8d6e63",
+    color: "#e3ab54",
   },
   {
     id: "plank-four",
@@ -73,7 +73,7 @@ export const buildBridgePieces: BridgePiece[] = [
     label: "доска 4",
     shortLabel: "доска",
     kind: "plank",
-    color: "#795548",
+    color: "#d99b42",
   },
   {
     id: "plank-five",
@@ -81,7 +81,7 @@ export const buildBridgePieces: BridgePiece[] = [
     label: "доска 5",
     shortLabel: "доска",
     kind: "plank",
-    color: "#8d6e63",
+    color: "#e3ab54",
   },
 ];
 
