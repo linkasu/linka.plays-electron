@@ -82,6 +82,13 @@ export function setGameTimeLimitMinutes(value: unknown) {
   store(timeLimitStorageKey, String(gameTimeLimitMinutes.value));
 }
 
+// Keys the page in App.vue, so that changing it mounts the game afresh.
+export const gameMountEpoch = ref(0);
+
+export function mountGameAfresh() {
+  gameMountEpoch.value += 1;
+}
+
 export function useGameEndMode() {
   return {
     gameEndMode: readonly(gameEndMode),

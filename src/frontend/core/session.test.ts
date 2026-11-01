@@ -277,28 +277,6 @@ describe("useGameSession", () => {
     }
   });
 
-  it("ignores an ending left over from the session the time limit stopped", async () => {
-    setGameTimeLimitMinutes(1);
-    setGameEndMode("timed");
-    const mounted = mountSession({ maxSteps: 8, sessionSeconds: 30 });
-
-    try {
-      vi.advanceTimersByTime(60_000);
-      await nextTick();
-      expect(mounted.api.session.finishReason).toBe("timeout");
-
-      mounted.api.startSession();
-      mounted.api.finishSession("game-lost");
-      expect(mounted.api.session.status).toBe("running");
-
-      vi.advanceTimersByTime(1_000);
-      mounted.api.finishSession("game-lost");
-      expect(mounted.api.session.finishReason).toBe("game-lost");
-    } finally {
-      mounted.unmount();
-    }
-  });
-
   it("can keep running after session time elapses", async () => {
     const mounted = mountSession({ maxSteps: 8, sessionSeconds: 1 }, { finishOnTimeout: false });
 

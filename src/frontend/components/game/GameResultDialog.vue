@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, inject, onUnmounted, watch } from "vue";
 import { useDwellSettings } from "../../core/dwellSettings";
+import { mountGameAfresh } from "../../core/gameEndMode";
 import { resolveMenuMode } from "../../core/menuMode";
 import { gameSessionRunKey } from "../../core/session";
 import GameDwellButton from "./GameDwellButton.vue";
@@ -89,6 +90,13 @@ watch(
   { immediate: true },
 );
 
+// A game stopped by the time limit can still be waiting on its speech, with an ending
+// to report once it stops. A new mount leaves that code holding the finished session.
+function restart() {
+  if (timeRanOut.value) mountGameAfresh();
+  else emit("restart");
+}
+
 onUnmounted(clearNextRoundTimer);
 </script>
 
@@ -169,7 +177,7 @@ onUnmounted(clearNextRoundTimer);
               :dwell-ms="dwellMs"
               min-height="clamp(8rem, 18vh, 12rem)"
               color="primary"
-              @select="emit('restart')"
+              @select="restart"
             >
               <template #default>
                 <div class="d-flex flex-column align-center justify-center ga-3 text-white">
