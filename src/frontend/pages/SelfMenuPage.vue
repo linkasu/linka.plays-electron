@@ -4,7 +4,6 @@ import { useRoute, useRouter } from "vue-router";
 import { useDisplay } from "vuetify";
 import GameDwellButton from "../components/game/GameDwellButton.vue";
 import GazePointerOverlay from "../components/game/GazePointerOverlay.vue";
-import ThemeChooser from "../components/settings/ThemeChooser.vue";
 import MenuCover from "../components/MenuCover.vue";
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
 import { useDwellSettings } from "../core/dwellSettings";
@@ -24,7 +23,6 @@ import {
   type GameInfo,
 } from "../data/games";
 
-const themeDialog = ref(false);
 const router = useRouter();
 const route = useRoute();
 const { dwellMs } = useDwellSettings();
@@ -167,7 +165,6 @@ watch(pageSize, () => {
             :key="group.category"
             class="self-choice"
             :target-id="`self-folder-${group.category}`"
-            :disabled="themeDialog"
             :dwell-ms="dwellMs"
             min-height="7.5rem"
             @select="selectCategory(group.category)"
@@ -188,7 +185,6 @@ watch(pageSize, () => {
             :key="game.id"
             class="self-choice"
             :target-id="`self-game-${game.id}`"
-            :disabled="themeDialog"
             :dwell-ms="dwellMs"
             min-height="7.5rem"
             @select="openGame(game)"
@@ -208,18 +204,17 @@ watch(pageSize, () => {
       <div class="self-pagination" aria-live="polite">{{ pageLabel }}</div>
       <nav class="self-navigation" aria-label="Навигация по меню">
         <GameDwellButton
-          target-id="self-prev"
-          :disabled="themeDialog || pageIndex === 0"
+          target-id="self-back"
           :dwell-ms="dwellMs"
           min-height="7.5rem"
           color="secondary"
-          @select="previousPage"
+          @select="router.push('/')"
         >
           <v-icon icon="mdi-arrow-left" /><span>Назад</span>
         </GameDwellButton>
         <GameDwellButton
           target-id="self-folders"
-          :disabled="themeDialog || !selectedGroup"
+          :disabled="!selectedGroup"
           :dwell-ms="dwellMs"
           min-height="7.5rem"
           @select="showCategories"
@@ -227,18 +222,17 @@ watch(pageSize, () => {
           <v-icon icon="mdi-folder-multiple-outline" /><span>Папки</span>
         </GameDwellButton>
         <GameDwellButton
-          target-id="menu-theme-open"
-          :disabled="themeDialog"
+          target-id="self-prev"
+          :disabled="pageIndex === 0"
           :dwell-ms="dwellMs"
-          :hit-padding="0"
           min-height="7.5rem"
-          @select="themeDialog = true"
+          @select="previousPage"
         >
-          <v-icon icon="mdi-palette-outline" /><span>Оформление</span>
+          <v-icon icon="mdi-chevron-left" /><span>Предыдущая</span>
         </GameDwellButton>
         <GameDwellButton
           target-id="self-next"
-          :disabled="themeDialog || pageIndex >= pageCount - 1"
+          :disabled="pageIndex >= pageCount - 1"
           :dwell-ms="dwellMs"
           min-height="7.5rem"
           color="primary"
@@ -248,7 +242,6 @@ watch(pageSize, () => {
         </GameDwellButton>
       </nav>
     </div>
-    <ThemeChooser v-model="themeDialog" />
   </v-container>
 </template>
 

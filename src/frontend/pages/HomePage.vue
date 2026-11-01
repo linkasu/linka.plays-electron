@@ -422,21 +422,20 @@ watch(searchQuery, () => {
           </section>
 
           <v-row class="mt-4" align="stretch" dense>
-            <v-col cols="4">
+            <v-col cols="6" md="3">
               <v-btn
                 block
                 class="nav-action"
                 color="secondary"
-                :disabled="pageIndex === 0"
                 prepend-icon="mdi-arrow-left"
                 size="large"
                 variant="flat"
-                @click="previousPage"
+                to="/"
               >
                 Назад
               </v-btn>
             </v-col>
-            <v-col cols="4">
+            <v-col cols="6" md="3">
               <v-btn
                 block
                 class="nav-action"
@@ -450,7 +449,21 @@ watch(searchQuery, () => {
                 Папки
               </v-btn>
             </v-col>
-            <v-col cols="4">
+            <v-col cols="6" md="3">
+              <v-btn
+                block
+                class="nav-action"
+                color="surface"
+                :disabled="pageIndex === 0"
+                prepend-icon="mdi-chevron-left"
+                size="large"
+                variant="flat"
+                @click="previousPage"
+              >
+                Предыдущая
+              </v-btn>
+            </v-col>
+            <v-col cols="6" md="3">
               <v-btn
                 block
                 append-icon="mdi-arrow-right"

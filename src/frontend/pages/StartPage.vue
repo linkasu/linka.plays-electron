@@ -87,17 +87,19 @@ function openMode(mode: MenuMode) {
 
       <div class="start-modes">
         <v-card
-          class="mode-card start-mode"
+          class="mode-card"
           color="surface"
           tag="button"
           type="button"
           :disabled="privacyRequired"
           @click="openMode('specialist')"
         >
-          <div class="mode-illustration"><MenuCover mode="specialist" /></div>
-          <h2>Специалист</h2>
-          <p>Настройте занятие и выберите игры</p>
-          <span class="start-action">Открыть каталог <v-icon icon="mdi-arrow-right" /></span>
+          <div class="start-mode">
+            <div class="mode-illustration"><MenuCover mode="specialist" /></div>
+            <h2>Специалист</h2>
+            <p>Настройте занятие и выберите игры</p>
+            <span class="start-action">Настроить игру <v-icon icon="mdi-arrow-right" /></span>
+          </div>
         </v-card>
         <GameDwellButton
           class="self-mode"
@@ -298,6 +300,7 @@ function openMode(mode: MenuMode) {
 }
 .start-mode {
   padding: clamp(0.9rem, 2dvh, 1.5rem);
+  padding-block-end: 2.1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -308,6 +311,7 @@ function openMode(mode: MenuMode) {
 }
 .mode-card {
   cursor: pointer;
+  padding: 0;
 }
 .mode-illustration {
   inline-size: 100%;
@@ -337,9 +341,6 @@ function openMode(mode: MenuMode) {
 .self-mode :deep(.dwell-button) {
   padding: 0 !important;
   block-size: 100%;
-}
-.self-mode .start-mode {
-  padding-block-end: 2.1rem;
 }
 .start-tools {
   display: flex;
