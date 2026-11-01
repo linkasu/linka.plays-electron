@@ -68,7 +68,8 @@ const emit = defineEmits<{
   "menu": [];
 }>();
 
-const NEXT_ROUND_DELAY_MS = 800;
+// Long enough for the final phrase, which the next round would cut off.
+const NEXT_ROUND_DELAY_MS = 1500;
 let nextRoundTimer: number | undefined;
 
 function clearNextRoundTimer() {
@@ -84,14 +85,15 @@ watch(
     nextRoundTimer = window.setTimeout(() => {
       nextRoundTimer = undefined;
       runContext?.continueRun();
-      emit("restart");
+      if (runContext?.keepsInstanceBetweenRounds) emit("restart");
+      else mountGameAfresh();
     }, NEXT_ROUND_DELAY_MS);
   },
   { immediate: true },
 );
 
-// A game stopped by the time limit can still be waiting on its speech, with an ending
-// to report once it stops. A new mount leaves that code holding the finished session.
+// A finished game can still be waiting on its speech, with more to do once it stops.
+// A new mount leaves that code holding the finished session and the old round.
 function restart() {
   if (timeRanOut.value) mountGameAfresh();
   else emit("restart");

@@ -106,12 +106,23 @@ export type GameSessionRunContext = {
   hasSessionTimer: () => boolean;
   willContinue: () => boolean;
   timeRanOut: () => boolean;
+  // Games with a setup screen keep their instance, so that it is not asked again each round.
+  keepsInstanceBetweenRounds: boolean;
   continueRun: () => void;
 };
 
 export const gameSessionRunKey: InjectionKey<GameSessionRunContext> = Symbol("game-session-run");
 
 const MIN_CONTINUING_SESSION_MS = 1000;
+
+// Handed from a finished session to the next one, which may be a new mount of the game.
+let carriedRun: (GameSessionRun & { gameId: string }) | undefined;
+
+function takeCarriedRun(gameId: string) {
+  const carried = carriedRun?.gameId === gameId ? carriedRun : undefined;
+  carriedRun = undefined;
+  return carried;
+}
 
 const activeSessionStatusState = ref<SessionStatus>("idle");
 const activeSessionEpochState = ref(0);
@@ -147,7 +158,6 @@ export function useGameSession(
     mistakesBefore: 0,
     activeMsBefore: 0,
   });
-  let continuingRun = false;
   let autoPausedByVisibility = false;
   const session = reactive<GameSessionState>({
     sessionId: crypto.randomUUID(),
@@ -260,18 +270,12 @@ export function useGameSession(
 
   function startSession() {
     if (session.status === "running" || session.status === "paused") finishSession("manual");
-    if (continuingRun && session.finishedAt) {
-      run.successesBefore += session.score;
-      run.mistakesBefore += session.mistakes;
-      run.activeMsBefore += activeDurationMs(session.finishedAt);
-    } else {
-      run.mode = gameEndMode.value;
-      run.timeLimitMs = gameTimeLimitMinutes.value * 60_000;
-      run.successesBefore = 0;
-      run.mistakesBefore = 0;
-      run.activeMsBefore = 0;
-    }
-    continuingRun = false;
+    const carried = takeCarriedRun(gameId);
+    run.mode = carried?.mode ?? gameEndMode.value;
+    run.timeLimitMs = carried?.timeLimitMs ?? gameTimeLimitMinutes.value * 60_000;
+    run.successesBefore = carried?.successesBefore ?? 0;
+    run.mistakesBefore = carried?.mistakesBefore ?? 0;
+    run.activeMsBefore = carried?.activeMsBefore ?? 0;
     activeSessionOwner = sessionOwner;
     activeSessionEpochState.value += 1;
     session.sessionId = crypto.randomUUID();
@@ -447,8 +451,16 @@ export function useGameSession(
       activeDurationMs(session.finishedAt) >= MIN_CONTINUING_SESSION_MS,
     timeRanOut: () =>
       session.status === "finished" && run.mode === "timed" && session.finishReason === "timeout",
+    keepsInstanceBetweenRounds: options.autoStart === false,
     continueRun: () => {
-      continuingRun = true;
+      carriedRun = {
+        gameId,
+        mode: run.mode,
+        timeLimitMs: run.timeLimitMs,
+        successesBefore: run.successesBefore + session.score,
+        mistakesBefore: run.mistakesBefore + session.mistakes,
+        activeMsBefore: run.activeMsBefore + activeDurationMs(session.finishedAt),
+      };
     },
   });
 
