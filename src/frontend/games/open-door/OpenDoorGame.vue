@@ -5,14 +5,21 @@ import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useGameTimers } from "../../composables/useGameTimers";
 import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { disposeTtsAssets, playTtsAsset, warmTtsAssets, type TtsAsset } from "../../core/ttsAudio";
 import ttsAssets from "../../data/ttsAssets.json";
 import { disposeOpenDoorCue, playOpenDoorCue } from "./audio";
-import { advanceOpenDoor, createOpenDoorState, openDoorTargetId, revealOpenDoor } from "./model";
+import {
+  advanceOpenDoor,
+  createOpenDoorState,
+  openDoorRewards,
+  openDoorTargetId,
+  revealOpenDoor,
+} from "./model";
 
-const revealPauseMs = 2400;
+const revealPauseMs = 3200;
 const router = useRouter();
 const {
   session,
@@ -40,6 +47,9 @@ const {
 });
 
 const doorState = ref(createOpenDoorState(session.maxSteps));
+const imagesReady = ref(false);
+const rewardArtFailed = ref(false);
+const { setGameTimeout, clearGameTimeout } = useGameTimers();
 const doorOpen = computed(() => doorState.value.phase === "revealed");
 const currentReward = computed(() => doorState.value.reward);
 const resultVisible = computed(() => session.status === "finished");
@@ -63,7 +73,7 @@ function ttsAsset(id: string) {
 
 function clearRevealTimer() {
   if (revealTimer === undefined) return;
-  window.clearTimeout(revealTimer);
+  clearGameTimeout(revealTimer);
   revealTimer = undefined;
 }
 
@@ -83,11 +93,12 @@ function openDoor() {
   if (!reward) return;
 
   clearRevealTimer();
+  rewardArtFailed.value = false;
   doorState.value = nextState;
   recordSuccess({ targetId: openDoorTargetId, label: reward.label });
   playOpenDoorCue(session.settings.sound);
   playTtsAsset(session.settings.sound, ttsAsset(reward.ttsId), 0.32);
-  revealTimer = window.setTimeout(finishReveal, revealPauseMs);
+  revealTimer = setGameTimeout(finishReveal, revealPauseMs);
 }
 
 function resumeGame() {
@@ -97,7 +108,7 @@ function resumeGame() {
     doorState.value.phase === "revealed" &&
     revealTimer === undefined
   ) {
-    revealTimer = window.setTimeout(finishReveal, revealPauseMs);
+    revealTimer = setGameTimeout(finishReveal, revealPauseMs);
   }
 }
 
@@ -109,11 +120,19 @@ function restart() {
   playTtsAsset(session.settings.sound, ttsAsset("open-door.intro"), 0.36);
 }
 
-onMounted(() => {
+onMounted(async () => {
   warmTtsAssets(session.settings.sound, openDoorTtsAssets);
   introTimer = window.setTimeout(() => {
     playTtsAsset(session.settings.sound, ttsAsset("open-door.intro"), 0.36);
   }, 450);
+  await Promise.allSettled(
+    openDoorRewards.map(async (reward) => {
+      const image = new Image();
+      image.src = gameArtSrc(reward.artId);
+      await image.decode();
+    }),
+  );
+  imagesReady.value = true;
 });
 
 onUnmounted(() => {
@@ -136,11 +155,14 @@ onUnmounted(() => {
       @pause="pauseSession"
       @resume="resumeGame"
     />
-    <v-container class="open-door-container d-flex align-center justify-center" fluid>
+    <v-container
+      class="open-door-container game-hud-clear d-flex align-center justify-center"
+      fluid
+    >
       <GameDwellButton
         :target-id="openDoorTargetId"
         :dwell-ms="session.settings.dwellMs"
-        :disabled="session.status !== 'running' || doorState.phase !== 'closed'"
+        :disabled="!imagesReady || session.status !== 'running' || doorState.phase !== 'closed'"
         :min-height="targetMinHeight"
         :style="targetStyle"
         color="transparent"
@@ -160,11 +182,14 @@ onUnmounted(() => {
 
             <div v-if="doorOpen && currentReward" class="open-door-reveal" aria-live="polite">
               <img
+                v-if="!rewardArtFailed"
                 class="open-door-reveal-art"
                 :src="gameArtSrc(currentReward.artId)"
                 alt=""
                 draggable="false"
+                @error="rewardArtFailed = true"
               />
+              <span v-else class="text-h4">{{ currentReward.label }}</span>
               <span class="open-door-sr-only">{{ currentReward.label }}</span>
             </div>
 
@@ -175,8 +200,12 @@ onUnmounted(() => {
               ]"
               aria-hidden="true"
             >
-              <div class="open-door-panel-inset" />
-              <div class="open-door-handle" />
+              <img
+                class="open-door-panel-art"
+                :src="gameArtSrc('open-door/door-leaf-v2')"
+                alt=""
+                draggable="false"
+              />
             </div>
           </div>
         </template>
@@ -225,6 +254,10 @@ onUnmounted(() => {
   padding: 0 !important;
 }
 
+.open-door-target :deep(.v-card--disabled > .open-door-stage) {
+  opacity: 1;
+}
+
 .open-door-target :deep(.dwell-button--active) {
   box-shadow: 0 0 0 0.28rem rgb(255 229 170 / 52%);
   transform: scale(1.015);
@@ -241,7 +274,7 @@ onUnmounted(() => {
 }
 
 .open-door-doorway {
-  background: linear-gradient(180deg, #172238 0%, #251a19 100%);
+  background: rgb(var(--v-theme-surface));
   border: clamp(0.65rem, 1.8dvh, 1rem) solid #6d4935;
   border-block-end-width: clamp(0.9rem, 2.4dvh, 1.3rem);
   border-radius: 3.2rem 3.2rem 0.7rem 0.7rem;
@@ -279,34 +312,27 @@ onUnmounted(() => {
   align-items: center;
   color: var(--open-door-reward-color);
   display: flex;
-  inset: 13% 12%;
+  inset: 10% 9% 7%;
   justify-content: center;
   position: absolute;
   z-index: 1;
 }
 
 .open-door-reveal-art {
-  block-size: clamp(7rem, 30dvh, 15rem);
-  filter: drop-shadow(0 0 1.4rem rgb(255 246 211 / 92%));
+  block-size: 100%;
+  max-block-size: 100%;
   inline-size: 100%;
   object-fit: contain;
 }
 
 .open-door-panel {
-  background:
-    linear-gradient(90deg, transparent 0 8%, rgb(255 229 179 / 10%) 8% 10%, transparent 10% 100%),
-    linear-gradient(145deg, #a8734e 0%, #7b4a31 52%, #54301f 100%);
-  border: clamp(0.55rem, 1.6dvh, 0.85rem) solid #5c3827;
-  border-radius: 2.65rem 2.65rem 0.6rem 0.6rem;
-  box-shadow:
-    inset 0 0 0 0.18rem rgb(255 231 188 / 16%),
-    0 1.35rem 2.7rem rgb(31 23 23 / 36%);
   inset: 0;
   position: absolute;
   transform-origin: left center;
   transition:
     filter 180ms ease,
-    transform var(--open-door-motion-duration) cubic-bezier(0.2, 0.75, 0.25, 1);
+    transform var(--open-door-motion-duration) ease,
+    opacity var(--open-door-motion-duration) ease;
   z-index: 2;
 }
 
@@ -315,24 +341,16 @@ onUnmounted(() => {
 }
 
 .open-door-panel--open {
-  transform: rotateY(-68deg);
+  opacity: 0;
+  transform: rotateY(-110deg);
 }
 
-.open-door-panel-inset {
-  border: 0.25rem solid rgb(255 231 188 / 22%);
-  border-radius: 2rem 2rem 0.5rem 0.5rem;
-  inset: 7% 9% 20%;
-  position: absolute;
-}
-
-.open-door-handle {
-  background: #f6d58f;
-  block-size: clamp(1.2rem, 3dvh, 1.65rem);
-  border-radius: 999rem;
-  box-shadow: 0 0 1.1rem rgb(255 218 142 / 68%);
-  inline-size: clamp(1.2rem, 3dvh, 1.65rem);
-  inset-block-start: 52%;
-  inset-inline-end: 10%;
+.open-door-panel-art {
+  block-size: 104%;
+  inline-size: 174%;
+  max-inline-size: none;
+  inset-block-start: -2%;
+  inset-inline-start: -37%;
   position: absolute;
 }
 

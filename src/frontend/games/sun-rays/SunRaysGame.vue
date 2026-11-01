@@ -99,6 +99,9 @@ function restart() {
         >
           <template #default="{ active, progress }">
             <SunRaysCanvas
+              :paused="session.status !== 'running'"
+              :reduce-motion="session.settings.reduceMotion"
+              :session-id="session.sessionId"
               :active="active"
               :max-steps="session.maxSteps"
               :progress="progress"
@@ -111,9 +114,9 @@ function restart() {
 
         <v-card
           class="sun-rays-note mt-5 mx-auto px-4 py-3"
-          color="amber-lighten-5"
+          color="surface"
           rounded="xl"
-          variant="tonal"
+          variant="flat"
         >
           <div class="text-body-2 font-weight-medium">Открыто лучей: {{ raysLabel }}</div>
           <div class="text-caption text-medium-emphasis">

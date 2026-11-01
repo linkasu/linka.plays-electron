@@ -54,9 +54,9 @@ function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
 }
 
-export function createSoupRecipeLayout(canvasWidth: number, canvasHeight: number) {
+export function createSoupRecipeLayout(canvasWidth: number, canvasHeight: number, hudBottom = 0) {
   const margin = clamp(canvasWidth * 0.045, 18, 84);
-  const top = clamp(canvasHeight * 0.11, 82, 116);
+  const top = Math.max(hudBottom + 12, clamp(canvasHeight * 0.11, 82, 116));
   const bottom = clamp(canvasHeight * 0.04, 18, 44);
   const panel = {
     x: margin,
@@ -64,15 +64,15 @@ export function createSoupRecipeLayout(canvasWidth: number, canvasHeight: number
     width: canvasWidth - margin * 2,
     height: canvasHeight - top - bottom,
   };
-  const headerHeight = clamp(panel.height * 0.26, 116, 148);
+  const headerHeight = clamp(panel.height * 0.3, 116, 156);
   const recipeRect = {
     x: panel.x + 14,
-    y: panel.y + 72,
+    y: panel.y + 66,
     width: panel.width - 28,
-    height: Math.max(44, headerHeight - 78),
+    height: Math.max(44, headerHeight - 72),
   };
   const contentY = panel.y + headerHeight;
-  const contentHeight = Math.max(240, panel.height - headerHeight - 18);
+  const contentHeight = Math.max(1, panel.height - headerHeight - 18);
   const gap = clamp(canvasWidth * 0.012, 12, 26);
 
   if (canvasWidth < 720) {
@@ -115,8 +115,9 @@ export function createSoupIngredientSlots(
   ingredients: readonly SoupIngredient[],
   canvasWidth: number,
   canvasHeight: number,
+  hudBottom = 0,
 ): SoupIngredientSlot[] {
-  const layout = createSoupRecipeLayout(canvasWidth, canvasHeight);
+  const layout = createSoupRecipeLayout(canvasWidth, canvasHeight, hudBottom);
   const gap = clamp(Math.min(canvasWidth, canvasHeight) * 0.016, 8, 18);
   const cellWidth = (layout.gridRect.width - gap * (layout.columns - 1)) / layout.columns;
   const cellHeight = (layout.gridRect.height - gap * (layout.rows - 1)) / layout.rows;

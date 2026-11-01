@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { scenePalette } from "../../core/themeSettings";
-import { computed, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
+import { appearanceTheme, scenePalette } from "../../core/themeSettings";
+import { computed, onMounted, onUnmounted, reactive, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useGameHudClearance } from "../../composables/useGameHudClearance";
+import { useGameTimers } from "../../composables/useGameTimers";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveGazeTarget } from "../../core/gazeTargetResolver";
@@ -67,6 +69,7 @@ const bridgeFeedback = createStandardGameFeedback();
 const router = useRouter();
 const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
+const hudBottom = useGameHudClearance();
 const {
   session,
   durationMs,
@@ -87,6 +90,7 @@ const {
 });
 
 const bridgeState = ref(createBuildBridgeState());
+const { waitForGameTimeout } = useGameTimers();
 const placements = computed(() => bridgeState.value.placements);
 const fallingPieces = reactive<FallingPiece[]>([]);
 const message = ref("Поставь опору 1 на подходящее место.");
@@ -103,6 +107,7 @@ let activeStartedAt = 0;
 let activeProgress = 0;
 let cooldownUntil = 0;
 let fallingSequence = 0;
+let audioGeneration = 0;
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
@@ -162,20 +167,27 @@ function drawText(
     color?: string;
     align?: CanvasTextAlign;
     baseline?: CanvasTextBaseline;
+    maxWidth?: number;
   },
 ) {
-  ctx.fillStyle = options.color ?? "#1d2a32";
-  ctx.font = `${options.weight ?? 700} ${options.size}px Roboto, Arial, sans-serif`;
+  ctx.fillStyle = options.color ?? appearanceTheme.value.colors["on-surface"];
+  const maxWidth = options.maxWidth ?? width.value * 0.88;
+  let size = options.size;
+  ctx.font = `${options.weight ?? 700} ${size}px Nunito, sans-serif`;
+  while (size > Math.min(14, options.size) && ctx.measureText(text).width > maxWidth) {
+    size -= 1;
+    ctx.font = `${options.weight ?? 700} ${size}px Nunito, sans-serif`;
+  }
   ctx.textAlign = options.align ?? "center";
   ctx.textBaseline = options.baseline ?? "middle";
-  ctx.fillText(text, x, y);
+  ctx.fillText(text, x, y, Math.max(1, maxWidth));
 }
 
 function computeLayout(): Layout {
   const w = width.value;
   const h = height.value;
   const marginX = clamp(w * 0.02, 16, 44);
-  const top = clamp(h * 0.1, 68, 112);
+  const top = Math.max(hudBottom.value + 12, clamp(h * 0.1, 68, 112));
   const bottom = clamp(h * 0.025, 12, 28);
   const panel: Rect = { x: marginX, y: top, width: w - marginX * 2, height: h - top - bottom };
   const gap = clamp(h * 0.014, 8, 18);
@@ -198,7 +210,7 @@ function computeLayout(): Layout {
     x: panel.x + 24,
     y: cardsY,
     width: panel.width - 48,
-    height: Math.max(180, panel.y + panel.height - cardsY - 18),
+    height: Math.max(1, panel.y + panel.height - cardsY - 18),
   };
   return { panel, header, bridge, cards };
 }
@@ -229,12 +241,15 @@ function resetDwell(now: number, reason?: "left" | "invalid-gaze" | "disabled") 
 }
 
 async function playAudio(assetIds: string[], delayMs = 0) {
+  const generation = ++audioGeneration;
   isSpeaking.value = true;
-  await promptAudio.playSequenceAndWait(assetIds, delayMs, 170);
-  isSpeaking.value = false;
+  const result = await promptAudio.playSequenceAndWait(assetIds, delayMs, 170);
+  if (generation === audioGeneration) isSpeaking.value = false;
+  return result;
 }
 
 function restart() {
+  audioGeneration += 1;
   promptAudio.cancelPending();
   bridgeState.value = createBuildBridgeState();
   fallingPieces.splice(0);
@@ -315,9 +330,11 @@ function placeCurrentPiece(target: SlotTarget) {
       : "Мост готов. Все детали нашли опору.";
     void bridgeFeedback.playSuccess(session.settings.sound);
     if (outcome.state.phase === "complete" && session.status === "running") {
-      void playAudio(["build-bridge.correct", "build-bridge.complete"], 80).then(() =>
-        finishSession("game-complete"),
-      );
+      const sessionId = session.sessionId;
+      void playAudio(["build-bridge.correct", "build-bridge.complete"], 80).then(async (result) => {
+        if (result !== "completed" || session.sessionId !== sessionId) return;
+        if (await waitForGameTimeout(0)) finishSession("game-complete");
+      });
     } else {
       void playAudio(["build-bridge.correct"], 80);
     }
@@ -410,6 +427,14 @@ function update(delta: number, now: number) {
   if (session.status === "running") updateDwell(now);
   if (session.status !== "paused") updatePhysics(delta);
 }
+
+watch(
+  () => session.status,
+  (status) => {
+    if (status !== "running") resetDwell(performance.now(), "disabled");
+  },
+  { flush: "sync" },
+);
 
 function drawBackground(ctx: CanvasRenderingContext2D) {
   const sky = ctx.createLinearGradient(0, 0, width.value, height.value);
@@ -590,11 +615,22 @@ function drawSupport(
   x: number,
   baseY: number,
   scale: number,
-  color = "#607d8b",
+  color = "#c98942",
 ) {
   ctx.save();
-  ctx.fillStyle = color;
-  ctx.fillRect(x - scale * 0.42, baseY - scale * 1.4, scale * 0.84, scale * 0.16);
+  fillRoundedRect(
+    ctx,
+    { x: x - scale * 0.42, y: baseY - scale * 1.4, width: scale * 0.84, height: scale * 0.2 },
+    scale * 0.08,
+    color,
+  );
+  strokeRoundedRect(
+    ctx,
+    { x: x - scale * 0.42, y: baseY - scale * 1.4, width: scale * 0.84, height: scale * 0.2 },
+    scale * 0.08,
+    "#704725",
+    3,
+  );
   for (const offset of [-0.24, 0, 0.24])
     fillRoundedRect(
       ctx,
@@ -607,11 +643,16 @@ function drawSupport(
       scale * 0.05,
       color,
     );
-  ctx.fillRect(x - scale * 0.34, baseY - scale * 0.1, scale * 0.68, scale * 0.12);
+  fillRoundedRect(
+    ctx,
+    { x: x - scale * 0.34, y: baseY - scale * 0.1, width: scale * 0.68, height: scale * 0.16 },
+    scale * 0.06,
+    color,
+  );
   ctx.restore();
 }
 
-function drawBridgeSupport(ctx: CanvasRenderingContext2D, rect: Rect, color = "#607d8b") {
+function drawBridgeSupport(ctx: CanvasRenderingContext2D, rect: Rect, color = "#c98942") {
   const centerX = rect.x + rect.width * 0.5;
   const topY = rect.y + 4;
   const bedY = rect.y + rect.height;
@@ -622,7 +663,7 @@ function drawBridgeSupport(ctx: CanvasRenderingContext2D, rect: Rect, color = "#
     ctx,
     { x: centerX - capWidth * 0.5, y: topY - 8, width: capWidth, height: 12 },
     6,
-    "rgb(67 86 92 / 82%)",
+    "#936136",
   );
   ctx.fillStyle = color;
   for (const offset of [-0.24, 0, 0.24]) {
@@ -642,13 +683,13 @@ function drawBridgeSupport(ctx: CanvasRenderingContext2D, rect: Rect, color = "#
     ctx,
     { x: centerX - capWidth * 0.44, y: bedY - 30, width: capWidth * 0.88, height: 12 },
     6,
-    "rgb(67 86 92 / 78%)",
+    "#936136",
   );
   fillRoundedRect(
     ctx,
     { x: centerX - capWidth * 0.62, y: bedY - 14, width: capWidth * 1.24, height: 18 },
     9,
-    "rgb(82 94 86 / 58%)",
+    "#c99556",
   );
   ctx.restore();
 }
@@ -662,14 +703,14 @@ function drawDeckSegment(ctx: CanvasRenderingContext2D, rect: Rect, color: strin
     Math.max(0, rect.width - 10),
     Math.max(2, rect.height * 0.16),
   );
-  ctx.strokeStyle = "rgb(74 47 37 / 34%)";
-  ctx.lineWidth = 2;
+  ctx.strokeStyle = "#704725";
+  ctx.lineWidth = 3;
   ctx.stroke();
 }
 
 function drawBridgeRamps(ctx: CanvasRenderingContext2D, rect: Rect) {
   const geometry = bridgeGeometry(rect);
-  const rampColor = "#8a6454";
+  const rampColor = "#db9a4b";
   const edgeColor = "rgb(74 47 37 / 45%)";
   const leftGroundX = geometry.leftBank.x + geometry.leftBank.width - 4;
   const rightGroundX = geometry.rightBank.x + 4;
@@ -793,17 +834,6 @@ function drawBridgeScene(ctx: CanvasRenderingContext2D, rect: Rect) {
   drawBridgeRamps(ctx, rect);
   drawPlacedBridge(ctx, rect);
   drawBridgeSlots(ctx, rect);
-  const bridgeHint =
-    session.status === "finished"
-      ? "Мост собран"
-      : activePiece.value
-        ? `Поставь: ${activePiece.value.label}`
-        : "Мост собран";
-  drawText(ctx, bridgeHint, rect.x + rect.width * 0.5, rect.y + rect.height - 24, {
-    size: clamp(rect.width * 0.018, 13, 20),
-    weight: 600,
-    color: "#5d7775",
-  });
   drawFinishedMessage(ctx, rect);
 }
 
@@ -832,8 +862,8 @@ function drawPieceIcon(
 function drawCurrentPieceCard(ctx: CanvasRenderingContext2D, rect: Rect) {
   const piece = activePiece.value;
   const radius = clamp(rect.height * 0.12, 16, 28);
-  fillRoundedRect(ctx, rect, radius, "#dff3f0");
-  strokeRoundedRect(ctx, rect, radius, "rgb(27 143 118 / 32%)", 2);
+  fillRoundedRect(ctx, rect, radius, appearanceTheme.value.colors.surface);
+  strokeRoundedRect(ctx, rect, radius, appearanceTheme.value.decoration.outline, 3);
   if (!piece) return;
 
   const iconScale = clamp(Math.min(rect.width, rect.height) * 0.3, 32, 72);
@@ -846,18 +876,24 @@ function drawCurrentPieceCard(ctx: CanvasRenderingContext2D, rect: Rect) {
   drawText(ctx, piece.label, rect.x + rect.width * 0.5, rect.y + rect.height * 0.68, {
     size: clamp(rect.height * 0.15, 20, 34),
     weight: 800,
+    maxWidth: rect.width - 32,
   });
   drawText(
     ctx,
-    `деталь ${piece.order} из ${buildBridgeMaxSteps}: выбери место`,
+    `Деталь ${piece.order} из ${buildBridgeMaxSteps} · выбери место`,
     rect.x + rect.width * 0.5,
     rect.y + rect.height * 0.84,
-    { size: clamp(rect.height * 0.075, 12, 17), weight: 500, color: "#52605d" },
+    {
+      size: clamp(rect.height * 0.075, 12, 17),
+      weight: 600,
+      color: appearanceTheme.value.colors["on-surface"],
+      maxWidth: rect.width - 32,
+    },
   );
 }
 
 function drawTargets(ctx: CanvasRenderingContext2D, layout: Layout) {
-  const cardWidth = Math.min(layout.cards.width, clamp(width.value * 0.46, 260, 620));
+  const cardWidth = Math.min(layout.cards.width, clamp(width.value * 0.6, 280, 660));
   drawCurrentPieceCard(ctx, {
     x: layout.cards.x + (layout.cards.width - cardWidth) * 0.5,
     y: layout.cards.y,
@@ -908,11 +944,11 @@ function draw(ctx: CanvasRenderingContext2D) {
   const layout = computeLayout();
   targets = [];
   drawBackground(ctx);
-  fillRoundedRect(ctx, layout.panel, 28, "#fffaf1");
+  fillRoundedRect(ctx, layout.panel, 28, appearanceTheme.value.colors.surface);
   ctx.shadowColor = "rgb(42 54 56 / 22%)";
   ctx.shadowBlur = 20;
   ctx.shadowOffsetY = 8;
-  strokeRoundedRect(ctx, layout.panel, 28, "rgb(0 0 0 / 6%)", 1);
+  strokeRoundedRect(ctx, layout.panel, 28, appearanceTheme.value.decoration.outline, 3);
   ctx.shadowColor = "transparent";
   drawHeader(ctx, layout);
   drawBridgeScene(ctx, layout.bridge);

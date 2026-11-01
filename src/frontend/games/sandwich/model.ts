@@ -37,12 +37,11 @@ export type SandwichRecipe = {
 const bottomBread: SandwichChoice = {
   id: "bottom-bread",
   artId: "sandwich/bread",
-  label: "Нижний хлеб",
-  shortLabel: "нижний хлеб",
+  label: "Хлеб",
+  shortLabel: "хлеб",
   kind: "bread",
   imageId: "bread",
   emoji: "🍞",
-  roleIcon: "mdi-arrow-down-bold",
   ttsAssetId: "word-categories.item.bread",
   color: "#d9a441",
 };
@@ -50,14 +49,13 @@ const bottomBread: SandwichChoice = {
 const topBread: SandwichChoice = {
   id: "top-bread",
   artId: "sandwich/bread",
-  label: "Верхний хлеб",
-  shortLabel: "верхний хлеб",
+  label: "Хлеб",
+  shortLabel: "хлеб",
   kind: "top-bread",
   imageId: "bread",
   emoji: "🍞",
-  roleIcon: "mdi-arrow-up-bold",
   ttsAssetId: "word-categories.item.bread",
-  color: "#c7892f",
+  color: "#d9a441",
 };
 
 const butter: SandwichChoice = {
@@ -118,33 +116,38 @@ export const sandwichRecipes: SandwichRecipe[] = [
   {
     id: "cheese-salad",
     title: "Сырный бутерброд",
-    helper: "Нижний хлеб, масло, сыр, салат и верхний хлеб.",
+    helper: "Хлеб, масло, сыр, салат и ещё один ломтик хлеба.",
     steps: [bottomBread, butter, cheese, lettuce, topBread],
   },
   {
     id: "tomato-cheese",
     title: "Овощной бутерброд",
-    helper: "Нижний хлеб, масло, помидор, сыр и верхний хлеб.",
+    helper: "Хлеб, масло, помидор, сыр и ещё один ломтик хлеба.",
     steps: [bottomBread, butter, tomato, cheese, topBread],
   },
 ];
 
 function instructionFor(choice: SandwichChoice, recipe: SandwichRecipe, stepIndex: number) {
-  if (stepIndex === 0) return `${recipe.title}: сначала положи нижний хлеб.`;
+  if (stepIndex === 0) return `${recipe.title}: сначала положи хлеб.`;
   if (choice.kind === "spread") return `${recipe.title}: намажь масло на хлеб.`;
-  if (choice.kind === "top-bread") return `${recipe.title}: накрой верхним хлебом.`;
+  if (choice.kind === "top-bread") return `${recipe.title}: накрой вторым ломтиком хлеба.`;
   return `${recipe.title}: добавь ${choice.shortLabel}.`;
 }
 
 function helperFor(choice: SandwichChoice, stepIndex: number) {
   if (stepIndex === 0) return "Тарелка готова. Начинаем с основы.";
   if (choice.kind === "spread") return "Масло помогает начинке держаться на хлебе.";
-  if (choice.kind === "top-bread") return "Верхний хлеб завершает бутерброд.";
+  if (choice.kind === "top-bread") return "Ещё один ломтик хлеба завершает бутерброд.";
   return "Начинка ложится ровно поверх предыдущего слоя.";
 }
 
 export function sandwichMaxSteps(recipes = sandwichRecipes) {
   return recipes.reduce((sum, recipe) => sum + recipe.steps.length, 0);
+}
+
+export function isSandwichChoiceAccepted(choice: SandwichChoice, expected: SandwichChoice) {
+  const isBread = (item: SandwichChoice) => item.kind === "bread" || item.kind === "top-bread";
+  return (isBread(choice) && isBread(expected)) || choice.id === expected.id;
 }
 
 export function buildSandwichSteps(recipes = sandwichRecipes): SandwichRecipeStep[] {

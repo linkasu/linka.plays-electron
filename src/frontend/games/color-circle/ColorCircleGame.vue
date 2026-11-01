@@ -211,11 +211,11 @@ onUnmounted(() => {
     <v-container class="color-circle-container d-flex align-center game-hud-clear" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="8">
-          <v-card class="color-circle-card pa-4 pa-md-7" rounded="xl" elevation="8">
+          <v-card class="color-circle-card pa-2 pa-md-4" color="transparent" elevation="0">
             <div class="color-circle-overline text-overline text-secondary text-center mb-2">
               Первый выбор цвета
             </div>
-            <h1 class="color-circle-title text-h3 text-md-h2 font-weight-bold text-center mb-3">
+            <h1 class="color-circle-title text-h4 text-md-h3 font-weight-bold text-center mb-3">
               {{ round.prompt }}
             </h1>
             <div class="target-chip mx-auto mb-4" :style="targetStyle">
@@ -243,7 +243,7 @@ onUnmounted(() => {
                 :dwell-ms="session.settings.dwellMs"
                 :hit-padding="0"
                 min-height="0"
-                color="surface"
+                color="transparent"
                 @select="answer(color)"
               >
                 <template #default>
@@ -257,9 +257,7 @@ onUnmounted(() => {
                     ]"
                     :style="sectorStyle(color)"
                   >
-                    <span class="text-h5 text-md-h4 font-weight-bold color-sector__label">{{
-                      color.label
-                    }}</span>
+                    <span class="sr-only">{{ color.label }}</span>
                   </div>
                 </template>
               </GameDwellButton>
@@ -294,7 +292,9 @@ onUnmounted(() => {
 }
 
 .color-circle-card {
-  overflow: hidden;
+  overflow: visible;
+  box-shadow: none !important;
+  border: 0 !important;
 }
 
 .target-chip {
@@ -321,8 +321,6 @@ onUnmounted(() => {
 }
 
 .color-circle-board {
-  --sector-min-size: 11.25rem;
-  --board-min-size: calc(var(--sector-min-size) + var(--sector-min-size) + 2rem);
   aspect-ratio: 1;
   background: rgb(255 255 255 / 86%);
   border: 0.75rem solid rgb(255 255 255 / 90%);
@@ -332,7 +330,7 @@ onUnmounted(() => {
   gap: 0.5rem;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-template-rows: repeat(2, minmax(0, 1fr));
-  inline-size: clamp(min(var(--board-min-size), calc(100vw - 4rem)), min(78vw, 52vh), 30rem);
+  inline-size: min(76vw, calc(100dvh - var(--game-hud-clearance, 10rem) - 7rem), 30rem);
   overflow: hidden;
 }
 
@@ -344,6 +342,8 @@ onUnmounted(() => {
 }
 
 .color-sector-button :deep(.dwell-button) {
+  background: transparent !important;
+  border: 0 !important;
   border-radius: 0 !important;
   box-shadow: none;
   padding: 0 !important;
@@ -363,20 +363,19 @@ onUnmounted(() => {
     transform 180ms ease;
 }
 
-.color-sector__label {
-  font-size: clamp(1.05rem, min(2.7vw, 3.8vh), 1.75rem) !important;
-  line-height: 1.05;
-  overflow-wrap: anywhere;
-  text-align: center;
-  text-shadow: 0 0.125rem 0.5rem rgb(0 0 0 / 28%);
+.color-sector--target::after {
+  content: none;
 }
 
-.color-sector--target::after {
-  border: 0.45rem solid rgb(255 255 255 / 88%);
-  border-radius: 1.25rem;
-  content: "";
-  inset: 1.2rem;
+.color-sector--target {
+  filter: brightness(1.12);
+}
+.sr-only {
   position: absolute;
+  inline-size: 0.0625rem;
+  block-size: 0.0625rem;
+  overflow: hidden;
+  clip-path: inset(50%);
 }
 
 .color-sector--mistake {
@@ -412,7 +411,7 @@ onUnmounted(() => {
   .color-circle-board {
     border-width: 0.5rem;
     gap: 0.35rem;
-    inline-size: clamp(min(var(--board-min-size), calc(100vw - 4rem)), min(76vw, 43vh), 27rem);
+    inline-size: min(76vw, calc(100dvh - var(--game-hud-clearance, 10rem) - 6rem), 27rem);
   }
 }
 

@@ -8,6 +8,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useGameHudClearance } from "../../composables/useGameHudClearance";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { createStandardGameFeedback } from "../../core/gameFeedbackAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
@@ -73,9 +74,10 @@ const nextIngredient = computed(() =>
   round.ingredients.find((ingredient) => !placedIngredientIds.value.includes(ingredient.id)),
 );
 const recipeComplete = computed(() => placedIngredientIds.value.length >= round.ingredients.length);
-const layout = computed(() => createSoupRecipeLayout(width.value, height.value));
+const hudBottom = useGameHudClearance();
+const layout = computed(() => createSoupRecipeLayout(width.value, height.value, hudBottom.value));
 const ingredientSlots = computed(() =>
-  createSoupIngredientSlots(round.ingredients, width.value, height.value),
+  createSoupIngredientSlots(round.ingredients, width.value, height.value, hudBottom.value),
 );
 
 const flyingIngredients: FlyingIngredient[] = [];
@@ -125,7 +127,7 @@ function scheduleResultDialog() {
 }
 
 function potCenter() {
-  const currentLayout = createSoupRecipeLayout(width.value, height.value);
+  const currentLayout = layout.value;
   return {
     x: currentLayout.potRect.x + currentLayout.potRect.width * 0.5,
     y: currentLayout.potRect.y + currentLayout.potRect.height * 0.56,
@@ -294,10 +296,10 @@ function drawCenteredText(
   weight = 700,
 ) {
   ctx.fillStyle = color;
-  ctx.font = `${weight} ${size}px system-ui, -apple-system, BlinkMacSystemFont, sans-serif`;
+  ctx.font = `${weight} ${size}px Nunito, sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(text, x, y);
+  ctx.fillText(text, x, y, Math.max(1, layout.value.panel.width - 32));
 }
 
 function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
@@ -307,49 +309,6 @@ function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
   gradient.addColorStop(1, scenePalette("kitchen").background[2]);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width.value, height.value);
-
-  const windowRect = {
-    x: width.value * 0.05,
-    y: height.value * 0.16,
-    width: width.value * 0.34,
-    height: height.value * 0.34,
-  };
-  ctx.save();
-  ctx.globalAlpha = 0.78;
-  fillRoundRect(ctx, windowRect, 32, "rgba(255, 255, 255, 0.5)");
-  const sky = ctx.createLinearGradient(0, windowRect.y, 0, windowRect.y + windowRect.height);
-  sky.addColorStop(0, scenePalette("sky").background[0]);
-  sky.addColorStop(1, scenePalette("sky").background[2]);
-  fillRoundRect(
-    ctx,
-    {
-      x: windowRect.x + 16,
-      y: windowRect.y + 16,
-      width: windowRect.width - 32,
-      height: windowRect.height - 32,
-    },
-    22,
-    sky,
-  );
-  ctx.strokeStyle = "rgba(92, 128, 122, 0.16)";
-  ctx.lineWidth = 6;
-  ctx.beginPath();
-  ctx.moveTo(windowRect.x + windowRect.width * 0.5, windowRect.y + 18);
-  ctx.lineTo(windowRect.x + windowRect.width * 0.5, windowRect.y + windowRect.height - 18);
-  ctx.moveTo(windowRect.x + 18, windowRect.y + windowRect.height * 0.52);
-  ctx.lineTo(windowRect.x + windowRect.width - 18, windowRect.y + windowRect.height * 0.52);
-  ctx.stroke();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.56)";
-  for (let index = 0; index < 4; index += 1) {
-    const x = windowRect.x + 46 + ((index * 89 + now * 0.004) % Math.max(1, windowRect.width - 92));
-    const y = windowRect.y + windowRect.height * (0.34 + (index % 2) * 0.2);
-    ctx.beginPath();
-    ctx.ellipse(x - 20, y + 5, 28, 10, 0, 0, Math.PI * 2);
-    ctx.ellipse(x + 8, y, 38, 14, 0, 0, Math.PI * 2);
-    ctx.ellipse(x + 38, y + 6, 24, 9, 0, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.restore();
 
   ctx.save();
   ctx.globalAlpha = 0.2;
@@ -398,9 +357,9 @@ function drawHeader(
   fillRoundRect(
     ctx,
     {
-      x: cx - layout.panel.width * 0.31,
+      x: layout.panel.x + 12,
       y: layout.panel.y + 4,
-      width: layout.panel.width * 0.62,
+      width: layout.panel.width - 24,
       height: 56,
     },
     28,
@@ -1047,7 +1006,7 @@ function drawFlyingIngredients(ctx: CanvasRenderingContext2D, now: number) {
 
 function draw(ctx: CanvasRenderingContext2D, _delta: number, now: number) {
   updateFlights(now);
-  const currentLayout = createSoupRecipeLayout(width.value, height.value);
+  const currentLayout = layout.value;
   drawBackground(ctx, now);
   drawHeader(ctx, currentLayout);
   drawPot(ctx, currentLayout.potRect, now);
@@ -1101,7 +1060,13 @@ watch(isSpeaking, (speaking) => {
     />
     <canvas ref="canvasRef" class="soup-canvas" aria-label="Рецепт супа" />
     <div class="soup-recipe-layer" aria-label="Рецепт супа по порядку">
-      <div class="soup-recipe-strip" :style="targetStyle(layout.recipeRect)">
+      <div
+        class="soup-recipe-strip"
+        :style="{
+          ...targetStyle(layout.recipeRect),
+          gridTemplateColumns: `repeat(${round.ingredients.length}, minmax(0, 1fr))`,
+        }"
+      >
         <div
           v-for="ingredient in round.ingredients"
           :key="`recipe:${ingredient.id}`"
@@ -1136,7 +1101,10 @@ watch(isSpeaking, (speaking) => {
         v-for="slot in ingredientSlots"
         :key="slot.ingredient.id"
         class="soup-target"
-        :style="targetStyle(slot.rect)"
+        :style="{
+          ...targetStyle(slot.rect),
+          '--ingredient-size': `${Math.max(32, Math.min(slot.rect.width - 24, slot.rect.height - 48))}px`,
+        }"
         :target-id="ingredientTargetId(slot.ingredient)"
         :disabled="
           session.status !== 'running' ||
@@ -1218,7 +1186,6 @@ watch(isSpeaking, (speaking) => {
 .soup-recipe-strip {
   display: grid;
   gap: clamp(0.2rem, 0.45vw, 0.5rem);
-  grid-template-columns: repeat(8, minmax(0, 1fr));
   position: absolute;
 }
 
@@ -1228,6 +1195,7 @@ watch(isSpeaking, (speaking) => {
   border: 0.125rem solid rgb(var(--v-theme-primary) / 14%);
   border-radius: 0.75rem;
   display: flex;
+  flex-direction: column;
   gap: 0.25rem;
   justify-content: center;
   min-inline-size: 0;
@@ -1258,7 +1226,7 @@ watch(isSpeaking, (speaking) => {
   align-items: center;
   display: inline-flex;
   flex: 0 0 auto;
-  font-size: clamp(1.8rem, 5dvh, 2.8rem);
+  font-size: clamp(2rem, 6dvh, 3.2rem);
   justify-content: center;
 }
 
@@ -1283,6 +1251,10 @@ watch(isSpeaking, (speaking) => {
   border-color: rgb(var(--v-theme-primary));
 }
 
+.soup-target :deep(.v-card--disabled > .soup-ingredient-card:not(.soup-ingredient-card--placed)) {
+  opacity: 1;
+}
+
 .soup-ingredient-card {
   align-items: center;
   color: #18211d;
@@ -1301,11 +1273,11 @@ watch(isSpeaking, (speaking) => {
   align-items: center;
   border-radius: 1rem;
   display: inline-flex;
-  font-size: clamp(2.75rem, min(6.8vw, 10dvh), 5.25rem);
+  font-size: var(--ingredient-size);
   justify-content: center;
   margin-block-end: clamp(0.15rem, 0.8dvh, 0.5rem);
-  min-block-size: clamp(3.25rem, 10dvh, 5.5rem);
-  min-inline-size: clamp(3.25rem, 7vw, 5.5rem);
+  min-block-size: 0;
+  min-inline-size: 0;
   padding: 0.2rem;
 }
 
