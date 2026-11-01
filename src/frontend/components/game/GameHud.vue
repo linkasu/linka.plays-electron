@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, inject, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useDwellSettings } from "../../core/dwellSettings";
 import { fitGameBelowHud } from "../../core/fitBelowHud";
 import { resolveMenuMode, resolveMenuRoute } from "../../core/menuMode";
+import { gameSessionRunKey } from "../../core/session";
 import GameDwellButton from "./GameDwellButton.vue";
 import GazePointerOverlay from "./GazePointerOverlay.vue";
 import TobiiStatusBadge from "../TobiiStatusBadge.vue";
@@ -35,6 +36,15 @@ const progress = computed(() =>
 const showProgress = computed(() => props.showProgress !== false);
 const showTimer = computed(() => props.showTimer !== false);
 const isSelfMode = computed(() => resolveMenuMode() === "self");
+const runContext = inject(gameSessionRunKey, undefined);
+const countsToGoal = computed(() => (runContext?.run.mode ?? "successes") === "successes");
+const totalSuccesses = computed(() => props.step + (runContext?.run.successesBefore ?? 0));
+const totalScore = computed(() =>
+  props.score === undefined ? undefined : props.score + (runContext?.run.successesBefore ?? 0),
+);
+const totalMistakes = computed(() =>
+  props.mistakes === undefined ? undefined : props.mistakes + (runContext?.run.mistakesBefore ?? 0),
+);
 
 // Testers: the game field sat under the «В меню» / «Пауза» buttons. The HUD tells
 // the page how far down it reaches (styles/game-layout.css starts the game below).
@@ -65,8 +75,14 @@ onUnmounted(() => {
   document.documentElement.style.removeProperty("--game-hud-clearance");
 });
 const remainingSeconds = computed(() => {
-  if (!showTimer.value || props.durationMs === undefined || props.sessionSeconds === undefined)
-    return undefined;
+  if (props.durationMs === undefined) return undefined;
+  // The chosen time limit is always on screen, whatever the game hides from its HUD.
+  if (runContext?.run.mode === "timed") {
+    const { timeLimitMs, activeMsBefore } = runContext.run;
+    return Math.max(0, Math.ceil((timeLimitMs - activeMsBefore - props.durationMs) / 1000));
+  }
+  if (!showTimer.value || props.sessionSeconds === undefined) return undefined;
+  if (runContext && !runContext.hasSessionTimer()) return undefined;
   return Math.max(0, Math.ceil(props.sessionSeconds - props.durationMs / 1000));
 });
 
@@ -150,14 +166,23 @@ function togglePause() {
     </template>
     <v-card v-if="showProgress" class="px-3 py-1" color="surface" rounded="pill" variant="flat">
       <div class="text-caption text-medium-emphasis">{{ title }}</div>
-      <div class="text-body-2 font-weight-bold">Шаг {{ step }} / {{ maxSteps }}</div>
-      <v-progress-linear class="mt-1" :model-value="progress" color="primary" height="6" rounded />
+      <template v-if="countsToGoal">
+        <div class="text-body-2 font-weight-bold">Шаг {{ step }} / {{ maxSteps }}</div>
+        <v-progress-linear
+          class="mt-1"
+          :model-value="progress"
+          color="primary"
+          height="6"
+          rounded
+        />
+      </template>
+      <div v-else class="text-body-2 font-weight-bold">Успехов: {{ totalSuccesses }}</div>
     </v-card>
-    <v-chip v-if="score !== undefined" color="primary" size="small" variant="flat"
-      >Успех: {{ score }}</v-chip
+    <v-chip v-if="totalScore !== undefined" color="primary" size="small" variant="flat"
+      >Успех: {{ totalScore }}</v-chip
     >
-    <v-chip v-if="mistakes !== undefined" color="warning" size="small" variant="tonal"
-      >Ошибки: {{ mistakes }}</v-chip
+    <v-chip v-if="totalMistakes !== undefined" color="warning" size="small" variant="tonal"
+      >Ошибки: {{ totalMistakes }}</v-chip
     >
     <v-chip
       v-if="remainingSeconds !== undefined"

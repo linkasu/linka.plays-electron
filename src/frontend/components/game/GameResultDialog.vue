@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, inject, onUnmounted, watch } from "vue";
 import { useDwellSettings } from "../../core/dwellSettings";
 import { resolveMenuMode } from "../../core/menuMode";
+import { gameSessionRunKey } from "../../core/session";
 import GameDwellButton from "./GameDwellButton.vue";
 
 const props = defineProps<{
@@ -32,6 +33,11 @@ const finishReasonLabels: Record<string, string> = {
 };
 
 const finishReason = computed(() => props.metrics?.finishReason);
+const runContext = inject(gameSessionRunKey, undefined);
+const continuesRun = computed(() => props.modelValue && runContext?.willContinue() === true);
+const totalScore = computed(() => props.score + (runContext?.run.successesBefore ?? 0));
+const totalMistakes = computed(() => props.mistakes + (runContext?.run.mistakesBefore ?? 0));
+const totalDurationMs = computed(() => props.durationMs + (runContext?.run.activeMsBefore ?? 0));
 const { dwellMs } = useDwellSettings();
 const isSelfMode = computed(() => resolveMenuMode() === "self");
 const resultMessage = computed(() => {
@@ -57,11 +63,35 @@ const emit = defineEmits<{
   "restart": [];
   "menu": [];
 }>();
+
+const NEXT_ROUND_DELAY_MS = 800;
+let nextRoundTimer: number | undefined;
+
+function clearNextRoundTimer() {
+  if (nextRoundTimer !== undefined) window.clearTimeout(nextRoundTimer);
+  nextRoundTimer = undefined;
+}
+
+watch(
+  continuesRun,
+  (continues) => {
+    clearNextRoundTimer();
+    if (!continues) return;
+    nextRoundTimer = window.setTimeout(() => {
+      nextRoundTimer = undefined;
+      runContext?.continueRun();
+      emit("restart");
+    }, NEXT_ROUND_DELAY_MS);
+  },
+  { immediate: true },
+);
+
+onUnmounted(clearNextRoundTimer);
 </script>
 
 <template>
   <v-dialog
-    :model-value="props.modelValue"
+    :model-value="props.modelValue && !continuesRun"
     max-width="56rem"
     persistent
     transition="fade-transition"
@@ -77,18 +107,18 @@ const emit = defineEmits<{
           <v-col cols="6">
             <v-card color="primary" variant="tonal" rounded="lg" class="pa-4">
               <div class="text-caption">Успешные шаги</div>
-              <div class="text-h4 font-weight-bold">{{ score }}</div>
+              <div class="text-h4 font-weight-bold">{{ totalScore }}</div>
             </v-card>
           </v-col>
           <v-col cols="6">
             <v-card color="warning" variant="tonal" rounded="lg" class="pa-4">
               <div class="text-caption">Ошибки</div>
-              <div class="text-h4 font-weight-bold">{{ mistakes }}</div>
+              <div class="text-h4 font-weight-bold">{{ totalMistakes }}</div>
             </v-card>
           </v-col>
         </v-row>
         <v-alert class="mt-4" color="info" variant="tonal">
-          Длительность: {{ Math.round(durationMs / 1000) }} сек. {{ recommendation }}
+          Длительность: {{ Math.round(totalDurationMs / 1000) }} сек. {{ recommendation }}
         </v-alert>
         <v-card
           v-if="metrics && !isSelfMode"
