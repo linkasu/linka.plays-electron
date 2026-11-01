@@ -96,6 +96,7 @@ export function useGameSession(
   gameId: string,
   initialSettings: Partial<SessionSettings> = {},
   options: {
+    autoStart?: boolean;
     finishOnMaxSteps?: boolean;
     finishOnMistakes?: boolean;
     finishOnTimeout?: boolean;
@@ -196,6 +197,7 @@ export function useGameSession(
   const recommendation = computed(() => recommendNextSettings(metrics.value));
 
   function recordEvent(type: SessionEventType, payload?: Record<string, unknown>) {
+    if (session.status === "idle") return;
     const event: SessionEvent = {
       id: `${type}-${session.events.length}-${Date.now()}`,
       sessionId: session.sessionId,
@@ -363,7 +365,7 @@ export function useGameSession(
     );
   }
 
-  startSession();
+  if (options.autoStart !== false) startSession();
   document.addEventListener("visibilitychange", handleVisibilityChange);
 
   watch(

@@ -9,7 +9,7 @@ import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { canvasArt, drawCanvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { drawDrawnFire } from "./fireArt";
+import { drawDrawnFire, resetDrawnFire } from "./fireArt";
 import {
   disposeWarmFirePiano,
   playWarmFireCue,
@@ -88,6 +88,7 @@ const maxFireEnergy = 1.25;
 let ctx: CanvasRenderingContext2D | undefined;
 let frame = 0;
 let lastTime = performance.now();
+let animationTime = 0;
 let lastSparkAt = 0;
 let lastFlightAt = 0;
 let fireEnergy = 0.04;
@@ -159,6 +160,9 @@ function initEmbers() {
 }
 
 function resetFire() {
+  animationTime = 0;
+  lastTime = performance.now();
+  resetDrawnFire();
   sparks.splice(0);
   auraRings.splice(0);
   flameFlights.splice(0);
@@ -660,13 +664,16 @@ function draw(context: CanvasRenderingContext2D, now: number) {
 
 function tick(now: number) {
   const delta =
-    session.status === "paused" ? 0 : Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+    session.status === "running" ? Math.min(0.05, Math.max(0, (now - lastTime) / 1000)) : 0;
   lastTime = now;
-  updateAttention(delta, now);
-  updateSparks(delta, now);
+  if (session.status === "running") {
+    animationTime += delta * 1000;
+    updateAttention(delta, animationTime);
+    updateSparks(delta, animationTime);
+  }
   tickWarmFirePiano(session.settings.sound);
   setWarmFirePianoActive(session.settings.sound, session.status === "running");
-  if (ctx) draw(ctx, now);
+  if (ctx) draw(ctx, animationTime);
   frame = requestAnimationFrame(tick);
 }
 
@@ -688,6 +695,7 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener("resize", resizeCanvas);
   cancelAnimationFrame(frame);
+  resetDrawnFire();
   disposeWarmFirePiano();
 });
 </script>

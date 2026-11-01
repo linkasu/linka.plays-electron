@@ -17,6 +17,7 @@ const props = defineProps<{
   durationMs?: number;
   sessionSeconds?: number;
   paused?: boolean;
+  pauseDisabled?: boolean;
   showProgress?: boolean;
   showTimer?: boolean;
 }>();
@@ -74,6 +75,7 @@ function goToMenu() {
 }
 
 function togglePause() {
+  if (props.pauseDisabled) return;
   props.paused ? emit("resume") : emit("pause");
 }
 </script>
@@ -101,6 +103,7 @@ function togglePause() {
         <GameDwellButton
           class="self-gaze-action"
           target-id="hud-pause"
+          :disabled="pauseDisabled"
           :dwell-ms="dwellMs"
           min-height="clamp(5rem, 12dvh, 7.5rem)"
           color="surface"
@@ -130,6 +133,7 @@ function togglePause() {
         color="surface"
         density="comfortable"
         :prepend-icon="paused ? 'mdi-play' : 'mdi-pause'"
+        :disabled="pauseDisabled"
         variant="flat"
         @click="togglePause"
       >

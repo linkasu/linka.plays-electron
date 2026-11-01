@@ -5,7 +5,6 @@ import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import GameWordImage from "../../components/game/GameWordImage.vue";
-import GazePointerOverlay from "../../components/game/GazePointerOverlay.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
@@ -33,12 +32,12 @@ const {
   startSession,
   finishSession,
 } = useGameSessionFor("word-categories", {
+  autoStart: false,
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 125 },
   finishOnMaxSteps: false,
   finishOnMistakes: false,
 });
-pauseSession();
 const mode = ref<WordCategoriesMode>("item-to-category");
 const selectingMode = ref(true);
 const promptAudio = useGamePromptAudio({
@@ -256,19 +255,20 @@ onUnmounted(() => {
 <template>
   <div class="word-categories-shell">
     <GameHud
-      v-if="!selectingMode"
       title="Категории слов"
       :step="session.step"
       :max-steps="session.maxSteps"
-      :score="session.score"
-      :mistakes="session.mistakes"
+      :score="selectingMode ? undefined : session.score"
+      :mistakes="selectingMode ? undefined : session.mistakes"
       :duration-ms="durationMs"
       :session-seconds="session.settings.sessionSeconds"
       :paused="session.status === 'paused'"
+      :pause-disabled="selectingMode"
+      :show-progress="!selectingMode"
+      :show-timer="!selectingMode"
       @pause="pauseSession"
       @resume="resumeSession"
     />
-    <GazePointerOverlay v-else />
     <v-container class="game-container" fluid>
       <v-row justify="center">
         <v-col cols="12" lg="10" xl="9">

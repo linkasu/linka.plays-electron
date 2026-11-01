@@ -5,6 +5,7 @@ import { useGameSession } from "../core/session";
 import type { SessionSettings } from "../core/settings";
 
 export type UseGameSessionForOptions = {
+  autoStart?: boolean;
   overrides?: Partial<SessionSettings>;
   maxSteps?: number;
   finishOnMaxSteps?: boolean;
@@ -38,6 +39,7 @@ export function useGameSessionFor(gameId: string, options: UseGameSessionForOpti
   const info = games.find((game) => game.id === gameId);
 
   return useGameSession(gameId, initial, {
+    autoStart: options.autoStart,
     finishOnMaxSteps: options.finishOnMaxSteps,
     finishOnMistakes: options.finishOnMistakes,
     finishOnTimeout: options.finishOnTimeout,

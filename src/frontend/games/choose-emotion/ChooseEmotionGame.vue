@@ -6,7 +6,6 @@ import GameWordImage from "../../components/game/GameWordImage.vue";
 import { gameArtSrc } from "../../core/gameArt";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
-import GazePointerOverlay from "../../components/game/GazePointerOverlay.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useRoundGame } from "../../composables/useRoundGame";
@@ -30,12 +29,12 @@ const {
   startSession,
   finishSession,
 } = useGameSessionFor("choose-emotion", {
+  autoStart: false,
   maxSteps: 8,
   overrides: { dwellMs: 1300, sessionSeconds: 120 },
   finishOnMaxSteps: false,
   finishOnMistakes: false,
 });
-pauseSession();
 const promptAudio = useGamePromptAudio({
   gameId: "choose-emotion",
   soundEnabled: toRef(session.settings, "sound"),
@@ -177,19 +176,20 @@ onUnmounted(() => {
 <template>
   <div class="choose-emotion-shell">
     <GameHud
-      v-if="!selectingMode"
       title="Выбери эмоцию"
       :step="session.step"
       :max-steps="session.maxSteps"
-      :score="session.score"
-      :mistakes="session.mistakes"
+      :score="selectingMode ? undefined : session.score"
+      :mistakes="selectingMode ? undefined : session.mistakes"
       :duration-ms="durationMs"
       :session-seconds="session.settings.sessionSeconds"
       :paused="session.status === 'paused'"
+      :pause-disabled="selectingMode"
+      :show-progress="!selectingMode"
+      :show-timer="!selectingMode"
       @pause="pauseSession"
       @resume="resumeSession"
     />
-    <GazePointerOverlay v-else />
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="10" xl="9">
