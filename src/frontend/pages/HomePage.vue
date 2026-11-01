@@ -422,7 +422,7 @@ watch(searchQuery, () => {
           </section>
 
           <v-row class="mt-4" align="stretch" dense>
-            <v-col cols="6" md="3">
+            <v-col cols="12" sm="6" md="3">
               <v-btn
                 block
                 class="nav-action"
@@ -435,7 +435,7 @@ watch(searchQuery, () => {
                 Назад
               </v-btn>
             </v-col>
-            <v-col cols="6" md="3">
+            <v-col cols="12" sm="6" md="3">
               <v-btn
                 block
                 class="nav-action"
@@ -449,7 +449,7 @@ watch(searchQuery, () => {
                 Папки
               </v-btn>
             </v-col>
-            <v-col cols="6" md="3">
+            <v-col cols="12" sm="6" md="3">
               <v-btn
                 block
                 class="nav-action"
@@ -463,7 +463,7 @@ watch(searchQuery, () => {
                 Предыдущая
               </v-btn>
             </v-col>
-            <v-col cols="6" md="3">
+            <v-col cols="12" sm="6" md="3">
               <v-btn
                 block
                 append-icon="mdi-arrow-right"
