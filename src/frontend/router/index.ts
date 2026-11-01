@@ -145,6 +145,7 @@ import TobiiCalibrationPage from "../pages/TobiiCalibrationPage.vue";
 import { games } from "../data/games";
 import { stopTtsPlayback } from "../core/ttsAudio";
 import {
+  updateMenuReturnNavigation,
   firstMenuCategory,
   firstMenuMode,
   rememberMenuCategory,
@@ -309,8 +310,9 @@ const router = createRouter({
   ],
 });
 
-router.beforeEach((to) => {
+router.beforeEach((to, from) => {
   stopTtsPlayback();
+  updateMenuReturnNavigation(to.path, from.path, to.query.from, to.query.restore);
   const mode = firstMenuMode(to.query.from);
   if (mode) rememberMenuMode(mode);
 

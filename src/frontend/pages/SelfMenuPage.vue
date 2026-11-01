@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useDisplay } from "vuetify";
 import GameDwellButton from "../components/game/GameDwellButton.vue";
@@ -8,7 +8,14 @@ import ThemeChooser from "../components/settings/ThemeChooser.vue";
 import MenuCover from "../components/MenuCover.vue";
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
 import { useDwellSettings } from "../core/dwellSettings";
-import { firstMenuCategory, rememberMenuCategory, rememberMenuMode } from "../core/menuMode";
+import {
+  firstMenuCategory,
+  menuReturnPage,
+  readMenuReturn,
+  rememberMenuCategory,
+  rememberMenuMode,
+  rememberMenuReturn,
+} from "../core/menuMode";
 import {
   games,
   groupGamesByCategory,
@@ -23,8 +30,11 @@ const route = useRoute();
 const { dwellMs } = useDwellSettings();
 const releaseGames = games.filter((game) => resolveGameStabilityStatus(game) === "publish");
 const gameGroups = groupGamesByCategory(releaseGames, { excludeArchived: true });
-const selectedCategory = ref<GameCategoryId | null>(null);
-const pageIndex = ref(0);
+const returnContext = readMenuReturn("self", route.query.restore);
+const selectedCategory = ref<GameCategoryId | null>(
+  (returnContext?.category as GameCategoryId) ?? null,
+);
+const pageIndex = ref(returnContext?.pageIndex ?? 0);
 const { xs } = useDisplay();
 const pageSize = computed(() => (xs.value ? 1 : 4));
 const selectedGroup = computed(() =>
@@ -68,14 +78,30 @@ function nextPage() {
 }
 
 function openGame(game: GameInfo) {
+  rememberMenuReturn({
+    mode: "self",
+    category: selectedCategory.value ?? undefined,
+    pageIndex: pageIndex.value,
+    gameId: game.id,
+    scrollTop: window.scrollY,
+  });
   rememberMenuMode("self");
   rememberMenuCategory(game.category);
   router.push({ path: game.route, query: { from: "self", category: game.category } });
 }
 
-onMounted(() => {
+onMounted(async () => {
   rememberMenuMode("self");
-  syncCategoryFromRoute();
+  if (!returnContext) syncCategoryFromRoute();
+  else {
+    pageIndex.value = menuReturnPage(
+      returnContext,
+      selectedGroup.value?.games.map((game) => game.id) ?? [],
+      pageSize.value,
+    );
+    await nextTick();
+    requestAnimationFrame(() => window.scrollTo(0, returnContext.scrollTop));
+  }
 });
 
 function syncCategoryFromRoute() {

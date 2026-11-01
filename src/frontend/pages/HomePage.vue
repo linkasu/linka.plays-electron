@@ -1,11 +1,18 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ThemeChooser from "../components/settings/ThemeChooser.vue";
 import MenuCover from "../components/MenuCover.vue";
 import TobiiStatusBadge from "../components/TobiiStatusBadge.vue";
 import { DWELL_STEP_MS, MAX_DWELL_MS, MIN_DWELL_MS, useDwellSettings } from "../core/dwellSettings";
-import { firstMenuCategory, rememberMenuCategory, rememberMenuMode } from "../core/menuMode";
+import {
+  firstMenuCategory,
+  menuReturnPage,
+  readMenuReturn,
+  rememberMenuCategory,
+  rememberMenuMode,
+  rememberMenuReturn,
+} from "../core/menuMode";
 import {
   gameSkillLabels,
   gameStatusLabels,
@@ -26,9 +33,12 @@ const router = useRouter();
 const route = useRoute();
 const { dwellMs, setDwellMs } = useDwellSettings();
 const gameGroups = groupGamesByCategory();
-const selectedCategory = ref<GameCategoryId | null>(null);
-const pageIndex = ref(0);
-const searchQuery = ref("");
+const returnContext = readMenuReturn("specialist", route.query.restore);
+const selectedCategory = ref<GameCategoryId | null>(
+  (returnContext?.category as GameCategoryId) ?? null,
+);
+const pageIndex = ref(returnContext?.pageIndex ?? 0);
+const searchQuery = ref(returnContext?.searchQuery ?? "");
 const pageSize = 4;
 const selectedGroup = computed(() =>
   gameGroups.find((group) => group.category === selectedCategory.value),
@@ -118,6 +128,14 @@ function nextPage() {
 }
 
 function openGame(game: GameInfo) {
+  rememberMenuReturn({
+    mode: "specialist",
+    category: selectedCategory.value ?? undefined,
+    pageIndex: pageIndex.value,
+    searchQuery: searchQuery.value,
+    gameId: game.id,
+    scrollTop: document.querySelector<HTMLElement>(".gallery-menu")?.scrollTop ?? 0,
+  });
   rememberMenuMode("specialist");
   rememberMenuCategory(game.category);
   router.push(gameRoute(game));
@@ -136,9 +154,21 @@ function syncCategoryFromRoute() {
   pageIndex.value = 0;
 }
 
-onMounted(() => {
+onMounted(async () => {
   rememberMenuMode("specialist");
-  syncCategoryFromRoute();
+  if (!returnContext) syncCategoryFromRoute();
+  else {
+    const items = isSearchActive.value ? searchResults.value : selectedGameItems.value;
+    pageIndex.value = menuReturnPage(
+      returnContext,
+      items.map((item) => item.game.id),
+      pageSize,
+    );
+    await nextTick();
+    requestAnimationFrame(() =>
+      document.querySelector(".gallery-menu")?.scrollTo(0, returnContext.scrollTop),
+    );
+  }
 });
 
 watch(() => route.query.category, syncCategoryFromRoute);

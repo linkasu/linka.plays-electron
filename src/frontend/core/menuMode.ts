@@ -2,6 +2,61 @@ import { recordMetricsEvent } from "./telemetry";
 
 export type MenuMode = "specialist" | "self";
 
+export type MenuReturnContext = {
+  mode: MenuMode;
+  category?: string;
+  pageIndex: number;
+  searchQuery?: string;
+  scrollTop: number;
+  gameId: string;
+};
+let menuReturnContext: MenuReturnContext | undefined;
+let menuLaunchPending = false;
+
+export function rememberMenuReturn(context: MenuReturnContext) {
+  menuReturnContext = { ...context };
+  menuLaunchPending = true;
+}
+
+export function clearMenuReturn() {
+  menuReturnContext = undefined;
+  menuLaunchPending = false;
+}
+
+export function updateMenuReturnNavigation(
+  toPath: string,
+  fromPath: string,
+  mode: unknown,
+  restore: unknown,
+) {
+  if (!menuReturnContext) return;
+  const sourceMenu = menuRoutes[menuReturnContext.mode];
+  if (
+    menuLaunchPending &&
+    fromPath === sourceMenu &&
+    toPath === `/games/${menuReturnContext.gameId}` &&
+    firstMenuMode(mode) === menuReturnContext.mode
+  ) {
+    menuLaunchPending = false;
+    return;
+  }
+  if (toPath === sourceMenu && restore === "1") return;
+  clearMenuReturn();
+}
+
+export function readMenuReturn(mode: MenuMode, restore: unknown) {
+  return restore === "1" && menuReturnContext?.mode === mode ? { ...menuReturnContext } : undefined;
+}
+
+export function menuReturnPage(context: MenuReturnContext, gameIds: string[], pageSize: number) {
+  const index = gameIds.indexOf(context.gameId);
+  const pageCount = Math.max(1, Math.ceil(gameIds.length / pageSize));
+  return Math.min(
+    pageCount - 1,
+    Math.max(0, index < 0 ? context.pageIndex : Math.floor(index / pageSize)),
+  );
+}
+
 const menuModeStorageKey = "linka-menu-mode";
 const menuCategoryStorageKey = "linka-menu-category";
 
@@ -63,6 +118,12 @@ export function resolveMenuCategory() {
 }
 
 export function resolveMenuRoute() {
+  if (menuReturnContext) {
+    return {
+      path: menuRoutes[menuReturnContext.mode],
+      query: { category: menuReturnContext.category, restore: "1" },
+    };
+  }
   const category = resolveMenuCategory();
   if (!category) return menuRoutes[resolveMenuMode()];
   return { path: menuRoutes[resolveMenuMode()], query: { category } };
