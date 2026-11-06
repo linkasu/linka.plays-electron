@@ -102,7 +102,9 @@ export type GameSessionRun = {
 };
 
 export type GameSessionRunContext = {
+  gameId: string;
   run: Readonly<GameSessionRun>;
+  soundEnabled: () => boolean;
   hasSessionTimer: () => boolean;
   willContinue: () => boolean;
   timeRanOut: () => boolean;
@@ -445,7 +447,9 @@ export function useGameSession(
 
   provide(gameSessionTelemetryKey, { recordEvent });
   provide(gameSessionRunKey, {
+    gameId,
     run,
+    soundEnabled: () => session.settings.sound,
     hasSessionTimer,
     willContinue: () =>
       session.status === "finished" &&

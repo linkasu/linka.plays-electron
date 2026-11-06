@@ -91,7 +91,7 @@ export function generateSudoku2x2Round(roundIndex = 1): Sudoku2x2Round {
 
   return {
     roundId: `sudoku-2x2:round:${safeRoundIndex}`,
-    prompt: `Судоку ${size}×${size}: какая карточка нужна в пустой клетке?`,
+    prompt: "Какая карточка нужна в пустой клетке?",
     size,
     board,
     missingCell,
