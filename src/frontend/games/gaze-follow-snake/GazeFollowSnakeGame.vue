@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { scenePalette } from "../../core/themeSettings";
+import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { computed, onMounted, onUnmounted, reactive, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -73,6 +74,11 @@ const {
   },
   finishOnMistakes: false,
 });
+// Testers: «озвучить задание». The task is said when the game starts.
+useStartPromptAudio({
+  gameId: "gaze-follow-snake",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 const soundEnabled = toRef(session.settings, "sound");
 
 const segments = reactive<Segment[]>([]);
@@ -90,13 +96,6 @@ const leaf = reactive<Leaf>({
   progress: 0,
 });
 const resultVisible = computed(() => session.status === "finished");
-const leafProgress = computed(() => Math.round(leaf.progress * 100));
-const guidanceText = computed(() => {
-  if (session.status === "paused") return "Пауза. Змейка подождёт.";
-  if (!pointer.value.valid) return "Можно вести змейку взглядом или указателем к большому листу.";
-  if (leaf.progress > 0.08) return "Хорошо. Подержи змейку у листа ещё немного.";
-  return "Веди змейку к подсвеченному листу.";
-});
 
 let leafSequence = 0;
 let idlePhase = 0;
@@ -584,19 +583,6 @@ useGameLoop({ context, update, draw });
       @resume="resumeSession"
     />
 
-    <v-card class="gaze-follow-snake-guidance pa-4" color="surface" rounded="xl" variant="flat">
-      <div class="text-overline text-primary mb-1">Непрерывное ведение</div>
-      <div class="text-body-1 font-weight-medium">{{ guidanceText }}</div>
-      <v-progress-linear
-        class="mt-3"
-        :model-value="leafProgress"
-        color="success"
-        height="0.5rem"
-        rounded
-      />
-      <div class="text-caption text-medium-emphasis mt-2">Лист: {{ leafProgress }}%</div>
-    </v-card>
-
     <GameResultDialog
       :model-value="resultVisible"
       title="Змейка за взглядом"
@@ -624,16 +610,6 @@ useGameLoop({ context, update, draw });
   display: block;
   inset: 0;
   position: absolute;
-}
-
-.gaze-follow-snake-guidance {
-  box-shadow: 0 1rem 2.75rem rgb(79 122 70 / 14%);
-  inline-size: min(26.25rem, calc(100dvw - 2rem));
-  inset-block-start: clamp(6.5rem, 14vh, 9.25rem);
-  inset-inline-end: max(1rem, env(safe-area-inset-right));
-  opacity: 0.92;
-  position: absolute;
-  z-index: 4;
 }
 
 @media (max-width: 45rem) {

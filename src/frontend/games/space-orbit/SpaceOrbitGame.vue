@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { scenePalette } from "../../core/themeSettings";
-import { computed, onMounted, reactive, ref } from "vue";
+import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
+import { computed, onMounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
@@ -57,6 +58,8 @@ const {
   },
   finishOnMistakes: false,
 });
+// Testers: «озвучить задание». The task is said when the game starts.
+useStartPromptAudio({ gameId: "space-orbit", soundEnabled: toRef(session.settings, "sound") });
 
 const orbit = reactive({ craftAngle: -Math.PI * 0.45, targetAngle: -Math.PI * 0.45, pulse: 0 });
 const star = reactive<OrbitStar>({

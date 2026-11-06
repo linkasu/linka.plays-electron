@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { scenePalette } from "../../core/themeSettings";
-import { computed, onMounted, reactive, ref } from "vue";
+import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
+import { computed, onMounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
@@ -74,6 +75,8 @@ const {
   finishOnMaxSteps: false,
   finishOnMistakes: false,
 });
+// Testers: «озвучить задание». The task is said when the game starts.
+useStartPromptAudio({ gameId: "glider", soundEnabled: toRef(session.settings, "sound") });
 
 const glider = reactive<Glider>({
   x: window.innerWidth * 0.26,
@@ -103,14 +106,6 @@ const hull = ref(3);
 const maxHull = 3;
 const damageFlash = ref(0);
 const resultVisible = computed(() => session.status === "finished");
-const guidanceText = computed(() => {
-  if (session.status === "paused") return "Пауза. Планер ждёт продолжения.";
-  if (cleanupProgress.value > 0) return "Маршрут завершён: планер уходит в чистое небо.";
-  if (hull.value <= 1) return "Остался один шанс. Держи планер точно в просвете.";
-  if (!pointer.value.valid)
-    return "Можно вести планер взглядом или мышью. Без управления планер держит курс хуже.";
-  return "Веди планер точно через воздушные ворота: промах повреждает крыло.";
-});
 
 let gateSequence = 0;
 let trailTimer = 0;
@@ -693,24 +688,6 @@ useGameLoop({ context, update, draw });
   <div class="glider-shell">
     <canvas ref="canvasRef" class="glider-canvas" />
 
-    <v-card
-      class="glider-hint px-4 py-3"
-      color="surface"
-      rounded="xl"
-      variant="flat"
-      data-canvas-overlay
-    >
-      <div class="d-flex align-center ga-3">
-        <v-icon icon="mdi-airplane" color="primary" size="32" />
-        <div>
-          <div class="text-body-2 font-weight-medium">{{ guidanceText }}</div>
-          <div class="text-caption text-medium-emphasis">
-            Ворота уже, скорость выше, промах повреждает крыло.
-          </div>
-        </div>
-      </div>
-    </v-card>
-
     <GameHud
       title="Планер"
       :step="session.step"
@@ -751,15 +728,5 @@ useGameLoop({ context, update, draw });
   display: block;
   inset: 0;
   position: absolute;
-}
-
-.glider-hint {
-  inset-block-end: max(1.125rem, env(safe-area-inset-bottom));
-  inset-inline: 1.125rem;
-  margin-inline: auto;
-  max-inline-size: 40rem;
-  opacity: 0.94;
-  position: absolute;
-  z-index: 3;
 }
 </style>

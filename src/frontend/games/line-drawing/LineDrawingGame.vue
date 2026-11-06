@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { scenePalette } from "../../core/themeSettings";
+import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -47,7 +48,8 @@ const {
     motionSpeed: 0.52,
     distractors: "none",
     hints: "high",
-    sound: false,
+    // The level task is said aloud (testers: «озвучить задание»).
+    sound: true,
   },
   finishOnMaxSteps: false,
   finishOnMistakes: false,
@@ -59,6 +61,14 @@ const brush = reactive<Point>({ x: window.innerWidth * 0.5, y: window.innerHeigh
 const levelIndex = ref(0);
 const resultVisible = computed(() => session.status === "finished");
 const currentLevel = computed(() => drawingLevelAt(levelIndex.value));
+
+// Testers: «озвучить задание». Each level's task is said when it starts.
+function sayLevelTask(delayMs = 0) {
+  void speakSceneText(currentLevel.value.prompt, session.settings.sound, delayMs, {
+    gameId: "line-drawing",
+  });
+}
+watch(levelIndex, () => sayLevelTask(250));
 const completedDots = computed(() => dots.filter((dot) => dot.completed).length);
 const progressPercent = computed(() =>
   dots.length === 0 ? 0 : Math.round((completedDots.value / dots.length) * 100),
@@ -532,13 +542,16 @@ function drawLevelTitle(ctx: CanvasRenderingContext2D) {
 function restart() {
   resetAllLevels();
   startSession();
+  sayLevelTask(250);
 }
 
 onMounted(() => {
   resetAllLevels();
+  sayLevelTask(450);
 });
 
 onUnmounted(() => {
+  cancelSceneSpeech();
   trail.splice(0);
   dots.splice(0);
   finishDelayRemainingMs = 0;
