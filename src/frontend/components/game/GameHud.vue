@@ -90,6 +90,11 @@ const remainingSeconds = computed(() => {
   return Math.max(0, Math.ceil(props.sessionSeconds - props.durationMs / 1000));
 });
 
+// Testers: «кнопка выхода в меню не нажимается взглядом — она очень маленькая»; the same
+// for «Пауза». The buttons are wider and their gaze zone reaches further: in the corner
+// of the screen the tracker misses more than in the middle.
+const hudHitPadding = 56;
+
 function goToMenu() {
   router.push(resolveMenuRoute());
 }
@@ -125,6 +130,7 @@ function togglePause() {
           target-id="hud-menu"
           :dwell-ms="dwellMs"
           min-height="clamp(5rem, 12dvh, 7.5rem)"
+          :hit-padding="hudHitPadding"
           color="secondary"
           @select="goToMenu"
         >
@@ -142,6 +148,7 @@ function togglePause() {
           :disabled="pauseDisabled"
           :dwell-ms="dwellMs"
           min-height="clamp(5rem, 12dvh, 7.5rem)"
+          :hit-padding="hudHitPadding"
           color="surface"
           @select="togglePause"
         >
@@ -159,6 +166,7 @@ function togglePause() {
           target-id="hud-rules"
           :dwell-ms="dwellMs"
           min-height="clamp(5rem, 12dvh, 7.5rem)"
+          :hit-padding="hudHitPadding"
           color="surface"
           @select="playRules"
         >
@@ -256,13 +264,13 @@ function togglePause() {
 }
 
 .self-gaze-edge {
-  max-inline-size: min(100%, 24rem);
+  max-inline-size: min(100%, 30rem);
   opacity: 0.72;
   transition: opacity 160ms ease;
 }
 
 .self-gaze-edge--rules {
-  max-inline-size: min(100%, 36rem);
+  max-inline-size: min(100%, 45rem);
 }
 
 .self-gaze-edge:focus-within,
@@ -271,7 +279,9 @@ function togglePause() {
 }
 
 .self-gaze-action {
-  flex: 1 1 10rem;
+  flex: 1 1 auto;
+  /* The HUD row sizes this group by its content, so a flex basis alone does not widen it. */
+  min-inline-size: clamp(9rem, 13vw, 11.5rem);
 }
 
 .self-gaze-action :deep(.dwell-button) {
