@@ -11,6 +11,8 @@ const seed: GardenFlowerGrowth = {
 describe("garden-watering model", () => {
   it("uses soft falloff around the flower", () => {
     expect(wateringStrength(10, 100)).toBe(1);
+    // The whole drawn circle waters at full strength.
+    expect(wateringStrength(70, 100)).toBe(1);
     expect(wateringStrength(82, 100)).toBeGreaterThan(0);
     expect(wateringStrength(100, 100)).toBe(0);
   });

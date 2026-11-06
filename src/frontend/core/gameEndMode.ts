@@ -17,15 +17,10 @@ const endModeStorageKey = "linka-game-end-mode";
 const timeLimitStorageKey = "linka-game-time-limit-minutes";
 
 // These games have no success goal of their own: time is the only thing that ends them.
-const timeEndedGameIds = new Set([
-  "ducks",
-  "fishes",
-  "magic-dust",
-  "moon-path",
-  "northern-lights",
-  "table-tennis",
-  "warm-fire",
-]);
+// «Волшебная пыль», «Северное сияние», «Лунная дорожка» are not here: testers asked to
+// let the child play them as long as they like (decision of 06.11), so outside the
+// «На время» mode nothing ends them.
+const timeEndedGameIds = new Set(["ducks", "fishes", "table-tennis", "warm-fire"]);
 
 const continuingFinishReasons = new Set<SessionFinishReason>([
   "max-steps",

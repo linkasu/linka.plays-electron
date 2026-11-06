@@ -17,12 +17,17 @@ function clamp01(value: number) {
   return Math.min(1, Math.max(0, value));
 }
 
+// Testers: «лейкой надо целиться точно в центр цветка … надо, чтобы цветочек рос,
+// если лейка поливает в зоне его круга». The dashed circle around a flower is drawn
+// at this share of the water radius, and the whole circle waters at full strength.
+export const GARDEN_FULL_WATER_SHARE = 0.72;
+
 export function wateringStrength(distancePx: number, waterRadiusPx: number) {
   if (!Number.isFinite(distancePx) || !Number.isFinite(waterRadiusPx) || waterRadiusPx <= 0)
     return 0;
   if (distancePx >= waterRadiusPx) return 0;
 
-  const fullStrengthRadius = waterRadiusPx * 0.35;
+  const fullStrengthRadius = waterRadiusPx * GARDEN_FULL_WATER_SHARE;
   if (distancePx <= fullStrengthRadius) return 1;
 
   const falloff =

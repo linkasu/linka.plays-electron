@@ -28,10 +28,9 @@ export type WhatMissingPhaseEvent =
   | "retry"
   | "next-round";
 
-// Testers: "очень быстро пропадает картинка, нужно больше времени, чтобы ребёнок
-// запомнил". Five seconds for three objects was too short for the children
-// this game is for.
-export const DEFAULT_WHAT_MISSING_OBSERVE_MS = 9000;
+// Testers: first «очень быстро пропадает картинка» at 5 s, then «очень долго не
+// исчезает одна из карточек» at 9 s. The user chose the middle (06.11).
+export const DEFAULT_WHAT_MISSING_OBSERVE_MS = 7000;
 
 const phaseTransitions: Record<
   WhatMissingPhase,

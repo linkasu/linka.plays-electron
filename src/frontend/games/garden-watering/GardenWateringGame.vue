@@ -10,7 +10,7 @@ import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { canvasArt } from "../../core/canvasArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels } from "../../core/placement";
-import { advanceFlowerGrowth } from "./model";
+import { advanceFlowerGrowth, GARDEN_FULL_WATER_SHARE } from "./model";
 
 type Point = { x: number; y: number };
 type GardenFlower = Point & {
@@ -318,7 +318,7 @@ function drawFlower(ctx: CanvasRenderingContext2D, flower: GardenFlower) {
     ctx.lineWidth = 2;
     ctx.setLineDash([8, 12]);
     ctx.beginPath();
-    ctx.arc(head.x, head.y, waterRadius(flower) * 0.72, 0, Math.PI * 2);
+    ctx.arc(head.x, head.y, waterRadius(flower) * GARDEN_FULL_WATER_SHARE, 0, Math.PI * 2);
     ctx.stroke();
     ctx.setLineDash([]);
   }
