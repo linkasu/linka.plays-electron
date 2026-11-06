@@ -40,6 +40,16 @@ const graphItems = [
   { id: "cars", wordId: "car", label: "машинки", emoji: "🚗", color: "#a78bfa" },
 ] as const;
 
+// Testers: «какой столбик самый большой, какой самый маленький, сколько уток в столбике».
+const countQuestions: Record<string, string> = {
+  apples: "Сколько яблок?",
+  stars: "Сколько звёзд?",
+  fish: "Сколько рыбок?",
+  flowers: "Сколько цветов?",
+  ducks: "Сколько уток?",
+  cars: "Сколько машинок?",
+};
+
 function maxValueFor(settings: SessionSettings) {
   if (settings.preset === "gentle") return 5;
   if (settings.preset === "challenge") return 9;
@@ -113,7 +123,7 @@ export function generateSimpleGraphsRound(
 
     return {
       roundId: `simple-graphs:round:${roundIndex}`,
-      prompt: `Сколько у столбика "${targetBar.label}"?`,
+      prompt: countQuestions[targetBar.id] ?? `Сколько: ${targetBar.label}?`,
       helperText: "Найди столбик и выбери его число.",
       questionKind,
       bars,
@@ -138,7 +148,8 @@ export function generateSimpleGraphsRound(
 
   return {
     roundId: `simple-graphs:round:${roundIndex}`,
-    prompt: questionKind === "more" ? "Где больше?" : "Где меньше?",
+    prompt:
+      questionKind === "more" ? "Какой столбик самый большой?" : "Какой столбик самый маленький?",
     helperText:
       questionKind === "more" ? "Выбери самый высокий столбик." : "Выбери самый низкий столбик.",
     questionKind,

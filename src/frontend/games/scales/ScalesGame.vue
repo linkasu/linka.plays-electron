@@ -37,10 +37,21 @@ const {
   finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
+// Testers: «озвучить задание полностью / нормально». The voice says the task on screen.
+function promptAssetId() {
+  return `scales.prompt.${round.value.question}`;
+}
+
 const promptAudio = useGamePromptAudio({
   gameId: "scales",
   soundEnabled,
-  warmAssetIds: ["scales.prompt", "scales.correct", "scales.mistake", "scales.complete"],
+  warmAssetIds: [
+    "scales.prompt.heavier",
+    "scales.prompt.lighter",
+    "scales.correct",
+    "scales.mistake",
+    "scales.complete",
+  ],
 });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
@@ -104,7 +115,7 @@ async function choose(answer: ScalesAnswer) {
     }
     if (session.step < session.maxSteps) nextRound();
     feedback.value = "Посмотри на весы и выбери ответ.";
-    promptAudio.play("scales.prompt", 180);
+    promptAudio.play(promptAssetId(), 180);
     isSpeaking.value = false;
     return;
   }
@@ -134,12 +145,12 @@ function restartGame() {
   lastMistakeAnswer.value = undefined;
   isSpeaking.value = false;
   restart();
-  promptAudio.play("scales.prompt", 220);
+  promptAudio.play(promptAssetId(), 220);
 }
 
 onMounted(() => {
   promptAudio.warm();
-  promptAudio.play("scales.prompt", 420);
+  promptAudio.play(promptAssetId(), 420);
 });
 
 onUnmounted(() => {

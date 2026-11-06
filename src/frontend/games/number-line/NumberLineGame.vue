@@ -30,25 +30,10 @@ const {
   finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
-const numberLineTaskAssetIds = [
-  "number-line.task.find",
-  "number-line.task.next",
-  "number-line.task.previous",
-];
-const numberLineNumberAssetIds = Array.from(
-  { length: 10 },
-  (_, index) => `number-line.number.${index + 1}`,
-);
 const promptAudio = useGamePromptAudio({
   gameId: "number-line",
   soundEnabled,
-  warmAssetIds: [
-    ...numberLineTaskAssetIds,
-    ...numberLineNumberAssetIds,
-    "number-line.correct",
-    "number-line.mistake",
-    "number-line.complete",
-  ],
+  warmAssetIds: ["number-line.correct", "number-line.mistake", "number-line.complete"],
 });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
@@ -80,7 +65,8 @@ function promptAssetIds() {
     round.value.taskKind === "find"
       ? round.value.targetNumber
       : (round.value.currentNumber ?? round.value.targetNumber);
-  return [`number-line.task.${round.value.taskKind}`, `number-line.number.${taskNumber}`];
+  // Testers: «задание озвучивается коряво». One recorded phrase per task.
+  return [`number-line.prompt.${round.value.taskKind}.${taskNumber}`];
 }
 
 function playRoundPrompt(delayMs = 0) {

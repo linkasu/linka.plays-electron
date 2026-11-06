@@ -6120,7 +6120,7 @@
   {
     "id": "logic-pairs.prompt.meaning",
     "game": "logic-pairs",
-    "text": "Что подходит по смыслу? Выбери пару.",
+    "text": "Что подходит к этой картинке?",
     "voice": "jane",
     "path": "/audio/tts/logic-pairs/prompt-meaning.mp3"
   },
@@ -6134,7 +6134,7 @@
   {
     "id": "logic-pairs.prompt.number",
     "game": "logic-pairs",
-    "text": "Что подходит по числу? Выбери пару.",
+    "text": "Что подходит к этой цифре?",
     "voice": "jane",
     "path": "/audio/tts/logic-pairs/prompt-number.mp3"
   },
@@ -9275,13 +9275,6 @@
     "path": "/audio/tts/pizza-fractions/mistake.mp3"
   },
   {
-    "id": "greater-less.prompt",
-    "game": "greater-less",
-    "text": "Выбери подходящую группу.",
-    "voice": "jane",
-    "path": "/audio/tts/greater-less/prompt.mp3"
-  },
-  {
     "id": "greater-less.correct",
     "game": "greater-less",
     "text": "Верно.",
@@ -9301,13 +9294,6 @@
     "text": "Готово. Сравнение закончено.",
     "voice": "jane",
     "path": "/audio/tts/greater-less/complete.mp3"
-  },
-  {
-    "id": "scales.prompt",
-    "game": "scales",
-    "text": "Посмотри на весы и выбери ответ.",
-    "voice": "jane",
-    "path": "/audio/tts/scales/prompt.mp3"
   },
   {
     "id": "scales.correct",
@@ -9359,13 +9345,6 @@
     "path": "/audio/tts/number-line/complete.mp3"
   },
   {
-    "id": "number-sorting.prompt",
-    "game": "number-sorting",
-    "text": "Выбирай числа в нужном порядке.",
-    "voice": "jane",
-    "path": "/audio/tts/number-sorting/prompt.mp3"
-  },
-  {
     "id": "number-sorting.correct",
     "game": "number-sorting",
     "text": "Верно.",
@@ -9389,7 +9368,7 @@
   {
     "id": "sudoku-2x2.prompt",
     "game": "sudoku-2x2",
-    "text": "Посмотри на строку и столбик. Выбери карточку.",
+    "text": "Какая карточка нужна в пустой клетке?",
     "voice": "jane",
     "path": "/audio/tts/sudoku-2x2/prompt.mp3"
   },
@@ -9518,13 +9497,6 @@
     "text": "Готово. Покупки закончены.",
     "voice": "jane",
     "path": "/audio/tts/shop/complete.mp3"
-  },
-  {
-    "id": "coordinates.prompt",
-    "game": "coordinates",
-    "text": "Сначала найди букву сверху, потом цифру слева.",
-    "voice": "jane",
-    "path": "/audio/tts/coordinates/prompt.mp3"
   },
   {
     "id": "coordinates.correct",
@@ -10416,97 +10388,6 @@
     "path": "/audio/tts/pizza-fractions/prompt-whole.mp3"
   },
   {
-    "id": "number-line.task.find",
-    "game": "number-line",
-    "text": "Найди число",
-    "voice": "jane",
-    "path": "/audio/tts/number-line/task-find.mp3"
-  },
-  {
-    "id": "number-line.task.next",
-    "game": "number-line",
-    "text": "Что идёт после",
-    "voice": "jane",
-    "path": "/audio/tts/number-line/task-next.mp3"
-  },
-  {
-    "id": "number-line.task.previous",
-    "game": "number-line",
-    "text": "Что идёт перед",
-    "voice": "jane",
-    "path": "/audio/tts/number-line/task-previous.mp3"
-  },
-  {
-    "id": "number-line.number.1",
-    "game": "number-line",
-    "text": "один",
-    "voice": "jane",
-    "path": "/audio/tts/number-line/number-1.mp3"
-  },
-  {
-    "id": "number-line.number.2",
-    "game": "number-line",
-    "text": "два",
-    "voice": "jane",
-    "path": "/audio/tts/number-line/number-2.mp3"
-  },
-  {
-    "id": "number-line.number.3",
-    "game": "number-line",
-    "text": "три",
-    "voice": "jane",
-    "path": "/audio/tts/number-line/number-3.mp3"
-  },
-  {
-    "id": "number-line.number.4",
-    "game": "number-line",
-    "text": "четыре",
-    "voice": "jane",
-    "path": "/audio/tts/number-line/number-4.mp3"
-  },
-  {
-    "id": "number-line.number.5",
-    "game": "number-line",
-    "text": "пять",
-    "voice": "jane",
-    "path": "/audio/tts/number-line/number-5.mp3"
-  },
-  {
-    "id": "number-line.number.6",
-    "game": "number-line",
-    "text": "шесть",
-    "voice": "jane",
-    "path": "/audio/tts/number-line/number-6.mp3"
-  },
-  {
-    "id": "number-line.number.7",
-    "game": "number-line",
-    "text": "семь",
-    "voice": "jane",
-    "path": "/audio/tts/number-line/number-7.mp3"
-  },
-  {
-    "id": "number-line.number.8",
-    "game": "number-line",
-    "text": "восемь",
-    "voice": "jane",
-    "path": "/audio/tts/number-line/number-8.mp3"
-  },
-  {
-    "id": "number-line.number.9",
-    "game": "number-line",
-    "text": "девять",
-    "voice": "jane",
-    "path": "/audio/tts/number-line/number-9.mp3"
-  },
-  {
-    "id": "number-line.number.10",
-    "game": "number-line",
-    "text": "десять",
-    "voice": "jane",
-    "path": "/audio/tts/number-line/number-10.mp3"
-  },
-  {
     "id": "lines-angles.task.straight",
     "game": "lines-angles",
     "text": "Выбери прямую линию.",
@@ -10551,56 +10432,56 @@
   {
     "id": "simple-graphs.question.more",
     "game": "simple-graphs",
-    "text": "Где больше?",
+    "text": "Какой столбик самый большой?",
     "voice": "jane",
     "path": "/audio/tts/simple-graphs/question-more.mp3"
   },
   {
     "id": "simple-graphs.question.less",
     "game": "simple-graphs",
-    "text": "Где меньше?",
+    "text": "Какой столбик самый маленький?",
     "voice": "jane",
     "path": "/audio/tts/simple-graphs/question-less.mp3"
   },
   {
     "id": "simple-graphs.question.count.apples",
     "game": "simple-graphs",
-    "text": "Сколько у столбика яблоки?",
+    "text": "Сколько яблок?",
     "voice": "jane",
     "path": "/audio/tts/simple-graphs/question-count-apples.mp3"
   },
   {
     "id": "simple-graphs.question.count.stars",
     "game": "simple-graphs",
-    "text": "Сколько у столбика звёзды?",
+    "text": "Сколько звёзд?",
     "voice": "jane",
     "path": "/audio/tts/simple-graphs/question-count-stars.mp3"
   },
   {
     "id": "simple-graphs.question.count.fish",
     "game": "simple-graphs",
-    "text": "Сколько у столбика рыбки?",
+    "text": "Сколько рыбок?",
     "voice": "jane",
     "path": "/audio/tts/simple-graphs/question-count-fish.mp3"
   },
   {
     "id": "simple-graphs.question.count.flowers",
     "game": "simple-graphs",
-    "text": "Сколько у столбика цветы?",
+    "text": "Сколько цветов?",
     "voice": "jane",
     "path": "/audio/tts/simple-graphs/question-count-flowers.mp3"
   },
   {
     "id": "simple-graphs.question.count.ducks",
     "game": "simple-graphs",
-    "text": "Сколько у столбика утки?",
+    "text": "Сколько уток?",
     "voice": "jane",
     "path": "/audio/tts/simple-graphs/question-count-ducks.mp3"
   },
   {
     "id": "simple-graphs.question.count.cars",
     "game": "simple-graphs",
-    "text": "Сколько у столбика машинки?",
+    "text": "Сколько машинок?",
     "voice": "jane",
     "path": "/audio/tts/simple-graphs/question-count-cars.mp3"
   },
@@ -11933,5 +11814,306 @@
     "text": "Правила. Выбери направление, и змейка сделает шаг. Веди змейку к листочкам: съев листочек, она становится длиннее. Не врезайся в край поля и в свой хвост.",
     "voice": "jane",
     "path": "/audio/tts/route-snake/rules.mp3"
+  },
+  {
+    "id": "greater-less.prompt.more",
+    "game": "greater-less",
+    "text": "Где больше?",
+    "voice": "jane",
+    "path": "/audio/tts/greater-less/prompt-more.mp3"
+  },
+  {
+    "id": "greater-less.prompt.less",
+    "game": "greater-less",
+    "text": "Где меньше?",
+    "voice": "jane",
+    "path": "/audio/tts/greater-less/prompt-less.mp3"
+  },
+  {
+    "id": "scales.prompt.heavier",
+    "game": "scales",
+    "text": "Какая сторона тяжелее?",
+    "voice": "jane",
+    "path": "/audio/tts/scales/prompt-heavier.mp3"
+  },
+  {
+    "id": "scales.prompt.lighter",
+    "game": "scales",
+    "text": "Какая сторона легче?",
+    "voice": "jane",
+    "path": "/audio/tts/scales/prompt-lighter.mp3"
+  },
+  {
+    "id": "number-sorting.prompt.ascending",
+    "game": "number-sorting",
+    "text": "Выбирай числа от меньшего к большему.",
+    "voice": "jane",
+    "path": "/audio/tts/number-sorting/prompt-ascending.mp3"
+  },
+  {
+    "id": "number-sorting.prompt.descending",
+    "game": "number-sorting",
+    "text": "Выбирай числа от большего к меньшему.",
+    "voice": "jane",
+    "path": "/audio/tts/number-sorting/prompt-descending.mp3"
+  },
+  {
+    "id": "coordinates.prompt.A1",
+    "game": "coordinates",
+    "text": "Найди клетку А, один.",
+    "voice": "jane",
+    "path": "/audio/tts/coordinates/prompt-a1.mp3"
+  },
+  {
+    "id": "coordinates.prompt.A2",
+    "game": "coordinates",
+    "text": "Найди клетку А, два.",
+    "voice": "jane",
+    "path": "/audio/tts/coordinates/prompt-a2.mp3"
+  },
+  {
+    "id": "coordinates.prompt.A3",
+    "game": "coordinates",
+    "text": "Найди клетку А, три.",
+    "voice": "jane",
+    "path": "/audio/tts/coordinates/prompt-a3.mp3"
+  },
+  {
+    "id": "coordinates.prompt.B1",
+    "game": "coordinates",
+    "text": "Найди клетку Бэ, один.",
+    "voice": "jane",
+    "path": "/audio/tts/coordinates/prompt-b1.mp3"
+  },
+  {
+    "id": "coordinates.prompt.B2",
+    "game": "coordinates",
+    "text": "Найди клетку Бэ, два.",
+    "voice": "jane",
+    "path": "/audio/tts/coordinates/prompt-b2.mp3"
+  },
+  {
+    "id": "coordinates.prompt.B3",
+    "game": "coordinates",
+    "text": "Найди клетку Бэ, три.",
+    "voice": "jane",
+    "path": "/audio/tts/coordinates/prompt-b3.mp3"
+  },
+  {
+    "id": "coordinates.prompt.C1",
+    "game": "coordinates",
+    "text": "Найди клетку Цэ, один.",
+    "voice": "jane",
+    "path": "/audio/tts/coordinates/prompt-c1.mp3"
+  },
+  {
+    "id": "coordinates.prompt.C2",
+    "game": "coordinates",
+    "text": "Найди клетку Цэ, два.",
+    "voice": "jane",
+    "path": "/audio/tts/coordinates/prompt-c2.mp3"
+  },
+  {
+    "id": "coordinates.prompt.C3",
+    "game": "coordinates",
+    "text": "Найди клетку Цэ, три.",
+    "voice": "jane",
+    "path": "/audio/tts/coordinates/prompt-c3.mp3"
+  },
+  {
+    "id": "number-line.prompt.find.1",
+    "game": "number-line",
+    "text": "Найди число один.",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-find-1.mp3"
+  },
+  {
+    "id": "number-line.prompt.find.2",
+    "game": "number-line",
+    "text": "Найди число два.",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-find-2.mp3"
+  },
+  {
+    "id": "number-line.prompt.find.3",
+    "game": "number-line",
+    "text": "Найди число три.",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-find-3.mp3"
+  },
+  {
+    "id": "number-line.prompt.find.4",
+    "game": "number-line",
+    "text": "Найди число четыре.",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-find-4.mp3"
+  },
+  {
+    "id": "number-line.prompt.find.5",
+    "game": "number-line",
+    "text": "Найди число пять.",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-find-5.mp3"
+  },
+  {
+    "id": "number-line.prompt.find.6",
+    "game": "number-line",
+    "text": "Найди число шесть.",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-find-6.mp3"
+  },
+  {
+    "id": "number-line.prompt.find.7",
+    "game": "number-line",
+    "text": "Найди число семь.",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-find-7.mp3"
+  },
+  {
+    "id": "number-line.prompt.find.8",
+    "game": "number-line",
+    "text": "Найди число восемь.",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-find-8.mp3"
+  },
+  {
+    "id": "number-line.prompt.find.9",
+    "game": "number-line",
+    "text": "Найди число девять.",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-find-9.mp3"
+  },
+  {
+    "id": "number-line.prompt.find.10",
+    "game": "number-line",
+    "text": "Найди число десять.",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-find-10.mp3"
+  },
+  {
+    "id": "number-line.prompt.next.1",
+    "game": "number-line",
+    "text": "Что идёт после одного?",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-next-1.mp3"
+  },
+  {
+    "id": "number-line.prompt.next.2",
+    "game": "number-line",
+    "text": "Что идёт после двух?",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-next-2.mp3"
+  },
+  {
+    "id": "number-line.prompt.next.3",
+    "game": "number-line",
+    "text": "Что идёт после трёх?",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-next-3.mp3"
+  },
+  {
+    "id": "number-line.prompt.next.4",
+    "game": "number-line",
+    "text": "Что идёт после четырёх?",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-next-4.mp3"
+  },
+  {
+    "id": "number-line.prompt.next.5",
+    "game": "number-line",
+    "text": "Что идёт после пяти?",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-next-5.mp3"
+  },
+  {
+    "id": "number-line.prompt.next.6",
+    "game": "number-line",
+    "text": "Что идёт после шести?",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-next-6.mp3"
+  },
+  {
+    "id": "number-line.prompt.next.7",
+    "game": "number-line",
+    "text": "Что идёт после семи?",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-next-7.mp3"
+  },
+  {
+    "id": "number-line.prompt.next.8",
+    "game": "number-line",
+    "text": "Что идёт после восьми?",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-next-8.mp3"
+  },
+  {
+    "id": "number-line.prompt.next.9",
+    "game": "number-line",
+    "text": "Что идёт после девяти?",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-next-9.mp3"
+  },
+  {
+    "id": "number-line.prompt.previous.2",
+    "game": "number-line",
+    "text": "Что идёт перед двумя?",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-previous-2.mp3"
+  },
+  {
+    "id": "number-line.prompt.previous.3",
+    "game": "number-line",
+    "text": "Что идёт перед тремя?",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-previous-3.mp3"
+  },
+  {
+    "id": "number-line.prompt.previous.4",
+    "game": "number-line",
+    "text": "Что идёт перед четырьмя?",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-previous-4.mp3"
+  },
+  {
+    "id": "number-line.prompt.previous.5",
+    "game": "number-line",
+    "text": "Что идёт перед пятью?",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-previous-5.mp3"
+  },
+  {
+    "id": "number-line.prompt.previous.6",
+    "game": "number-line",
+    "text": "Что идёт перед шестью?",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-previous-6.mp3"
+  },
+  {
+    "id": "number-line.prompt.previous.7",
+    "game": "number-line",
+    "text": "Что идёт перед семью?",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-previous-7.mp3"
+  },
+  {
+    "id": "number-line.prompt.previous.8",
+    "game": "number-line",
+    "text": "Что идёт перед восемью?",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-previous-8.mp3"
+  },
+  {
+    "id": "number-line.prompt.previous.9",
+    "game": "number-line",
+    "text": "Что идёт перед девятью?",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-previous-9.mp3"
+  },
+  {
+    "id": "number-line.prompt.previous.10",
+    "game": "number-line",
+    "text": "Что идёт перед десятью?",
+    "voice": "jane",
+    "path": "/audio/tts/number-line/prompt-previous-10.mp3"
   }
 ]

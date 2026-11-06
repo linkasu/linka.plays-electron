@@ -31,11 +31,17 @@ const {
   finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
+// Testers: «озвучить задание полностью / нормально». The voice says the task on screen.
+function promptAssetId() {
+  return `greater-less.prompt.${round.value.comparison}`;
+}
+
 const promptAudio = useGamePromptAudio({
   gameId: "greater-less",
   soundEnabled,
   warmAssetIds: [
-    "greater-less.prompt",
+    "greater-less.prompt.more",
+    "greater-less.prompt.less",
     "greater-less.correct",
     "greater-less.mistake",
     "greater-less.complete",
@@ -92,7 +98,7 @@ async function choose(side: GreaterLessSide) {
     }
     if (session.step < session.maxSteps) nextRound();
     hint.value = "Выбери подходящую группу.";
-    promptAudio.play("greater-less.prompt", 180);
+    promptAudio.play(promptAssetId(), 180);
     isSpeaking.value = false;
     return;
   }
@@ -120,12 +126,12 @@ function restartGame() {
   hint.value = "Выбери подходящую группу.";
   isSpeaking.value = false;
   restart();
-  promptAudio.play("greater-less.prompt", 220);
+  promptAudio.play(promptAssetId(), 220);
 }
 
 onMounted(() => {
   promptAudio.warm();
-  promptAudio.play("greater-less.prompt", 420);
+  promptAudio.play(promptAssetId(), 420);
 });
 
 onUnmounted(() => {

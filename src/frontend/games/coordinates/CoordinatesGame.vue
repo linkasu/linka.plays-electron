@@ -35,15 +35,15 @@ const {
   finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
+// Testers: «озвучить задание полностью / нормально». The voice says the task on screen.
+function promptAssetId() {
+  return `coordinates.prompt.${round.value.target}`;
+}
+
 const promptAudio = useGamePromptAudio({
   gameId: "coordinates",
   soundEnabled,
-  warmAssetIds: [
-    "coordinates.prompt",
-    "coordinates.correct",
-    "coordinates.mistake",
-    "coordinates.complete",
-  ],
+  warmAssetIds: ["coordinates.correct", "coordinates.mistake", "coordinates.complete"],
 });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
@@ -105,7 +105,7 @@ async function answer(cell: CoordinateCell) {
       return;
     }
     if (session.step < session.maxSteps) nextRound();
-    promptAudio.play("coordinates.prompt", 180);
+    promptAudio.play(promptAssetId(), 180);
     isSpeaking.value = false;
     return;
   }
@@ -133,12 +133,12 @@ function restart() {
   lastMistakeCellId.value = undefined;
   isSpeaking.value = false;
   restartRoundGame();
-  promptAudio.play("coordinates.prompt", 220);
+  promptAudio.play(promptAssetId(), 220);
 }
 
 onMounted(() => {
   promptAudio.warm();
-  promptAudio.play("coordinates.prompt", 420);
+  promptAudio.play(promptAssetId(), 420);
 });
 
 onUnmounted(() => {

@@ -30,11 +30,17 @@ const {
   finishOnMistakes: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
+// Testers: «озвучить задание полностью / нормально». The voice says the task on screen.
+function promptAssetId() {
+  return `number-sorting.prompt.${round.value.direction}`;
+}
+
 const promptAudio = useGamePromptAudio({
   gameId: "number-sorting",
   soundEnabled,
   warmAssetIds: [
-    "number-sorting.prompt",
+    "number-sorting.prompt.ascending",
+    "number-sorting.prompt.descending",
     "number-sorting.correct",
     "number-sorting.mistake",
     "number-sorting.complete",
@@ -133,7 +139,7 @@ async function choose(card: NumberSortingCard) {
     if (completedSequence) {
       nextRound();
       resetChoices();
-      promptAudio.play("number-sorting.prompt", 180);
+      promptAudio.play(promptAssetId(), 180);
       return;
     }
 
@@ -170,12 +176,12 @@ function restart() {
   promptAudio.cancelPending();
   resetChoices();
   restartRounds();
-  promptAudio.play("number-sorting.prompt", 220);
+  promptAudio.play(promptAssetId(), 220);
 }
 
 onMounted(() => {
   promptAudio.warm();
-  promptAudio.play("number-sorting.prompt", 420);
+  promptAudio.play(promptAssetId(), 420);
 });
 
 onUnmounted(() => {
