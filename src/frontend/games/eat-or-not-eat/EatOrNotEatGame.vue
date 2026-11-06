@@ -41,12 +41,7 @@ const {
 const promptAudio = useGamePromptAudio({
   gameId: "eat-or-not-eat",
   soundEnabled: toRef(session.settings, "sound"),
-  warmAssetIds: [
-    "eat-or-not-eat.prompt",
-    "eat-or-not-eat.correct",
-    "eat-or-not-eat.mistake",
-    "eat-or-not-eat.complete",
-  ],
+  warmAssetIds: ["eat-or-not-eat.prompt", "eat-or-not-eat.correct", "eat-or-not-eat.mistake"],
 });
 
 let generateRound = createEatOrNotEatRoundGenerator();
@@ -60,7 +55,7 @@ const {
   startSession,
   generateRound: (roundIndex) => generateRound(roundIndex),
 });
-const feedbackText = ref("Выбери зону: еда или не еда.");
+const feedbackText = ref("Выбери: съедобное или несъедобное.");
 const isSpeaking = ref(false);
 
 const answers: Array<{
@@ -75,7 +70,7 @@ const answers: Array<{
   // plate crossed out, instead of an apple and a teddy bear.
   {
     id: "food",
-    title: "Еда",
+    title: "Съедобное",
     helper: "Можно есть",
     emoji: "🍎",
     artId: "eat-or-not-eat/icon-edible",
@@ -83,7 +78,7 @@ const answers: Array<{
   },
   {
     id: "thing",
-    title: "Не еда",
+    title: "Несъедобное",
     helper: "Нельзя есть",
     emoji: "🧸",
     artId: "eat-or-not-eat/icon-not-edible",
@@ -111,20 +106,14 @@ async function answer(value: EatOrNotEatAnswer) {
     feedbackText.value = "Верно.";
     isSpeaking.value = true;
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(
-      finishedAfterSuccess
-        ? ["eat-or-not-eat.correct", "eat-or-not-eat.complete"]
-        : ["eat-or-not-eat.correct"],
-      80,
-      170,
-    );
+    await promptAudio.playSequenceAndWait(["eat-or-not-eat.correct"], 80, 170);
     isSpeaking.value = false;
     if (finishedAfterSuccess) {
       finishSession("game-complete");
       return;
     }
     nextRound();
-    feedbackText.value = "Выбери зону: еда или не еда.";
+    feedbackText.value = "Выбери: съедобное или несъедобное.";
     promptAudio.play("eat-or-not-eat.prompt", 180);
   } else {
     recordMistake({
@@ -145,7 +134,7 @@ async function answer(value: EatOrNotEatAnswer) {
 }
 
 function restart() {
-  feedbackText.value = "Выбери зону: еда или не еда.";
+  feedbackText.value = "Выбери: съедобное или несъедобное.";
   isSpeaking.value = false;
   promptAudio.cancelPending();
   generateRound = createEatOrNotEatRoundGenerator();

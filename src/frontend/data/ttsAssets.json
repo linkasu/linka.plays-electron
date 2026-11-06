@@ -5700,7 +5700,7 @@
   {
     "id": "breathing-flower.prompt",
     "game": "breathing-flower",
-    "text": "Смотри в центр цветка. Дышим спокойно вместе.",
+    "text": "Смотри в центр цветка. Дышим вместе.",
     "voice": "alena",
     "path": "/audio/tts/breathing-flower/prompt.mp3"
   },
@@ -7413,13 +7413,6 @@
     "path": "/audio/tts/yes-no/mistake.mp3"
   },
   {
-    "id": "yes-no.complete",
-    "game": "yes-no",
-    "text": "Готово. Ответы выбраны.",
-    "voice": "jane",
-    "path": "/audio/tts/yes-no/complete.mp3"
-  },
-  {
     "id": "yes-no.scene.7a34cd94",
     "game": "yes-no",
     "text": "Это яблоко?",
@@ -8566,13 +8559,6 @@
     "text": "Посмотри на предмет ещё раз и выбери другой ответ.",
     "voice": "jane",
     "path": "/audio/tts/eat-or-not-eat/mistake.mp3"
-  },
-  {
-    "id": "eat-or-not-eat.complete",
-    "game": "eat-or-not-eat",
-    "text": "Готово. Ответы выбраны.",
-    "voice": "jane",
-    "path": "/audio/tts/eat-or-not-eat/complete.mp3"
   },
   {
     "id": "big-small.mistake",
@@ -9977,7 +9963,7 @@
   {
     "id": "reversi-light.prompt",
     "game": "reversi-light",
-    "text": "Правила реверси. Ставь тёплую фишку только на подсвеченную клетку. Если между твоей фишкой и новой фишкой есть фишки луны, они перевернутся. Потом луна отвечает своим ходом.",
+    "text": "Правила реверси. Ставь свою фишку только на подсвеченную клетку. Если между твоей фишкой и новой фишкой есть фишки луны, они перевернутся. Потом луна отвечает своим ходом.",
     "voice": "jane",
     "path": "/audio/tts/reversi-light/prompt.mp3"
   },

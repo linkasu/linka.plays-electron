@@ -188,7 +188,7 @@ onUnmounted(() => {
     </div>
 
     <GameHud
-      title="Тёплое окно"
+      title="Домик"
       :step="session.step"
       :max-steps="session.maxSteps"
       :duration-ms="durationMs"
@@ -205,7 +205,7 @@ onUnmounted(() => {
       fluid
     >
       <v-card class="warm-window-scene px-4 px-sm-6 px-md-8" color="transparent" elevation="0">
-        <div class="warm-window-house" role="group" aria-label="Дом с окнами для игры Тёплое окно">
+        <div class="warm-window-house" role="group" aria-label="Дом с окнами для игры Домик">
           <div class="warm-window-roof" aria-hidden="true">
             <div class="warm-window-chimney"></div>
             <div class="warm-window-roof-triangle"></div>
@@ -267,7 +267,7 @@ onUnmounted(() => {
 
     <GameResultDialog
       :model-value="resultVisible"
-      title="Тёплое окно"
+      title="Домик"
       :score="session.score"
       :mistakes="session.mistakes"
       :duration-ms="durationMs"

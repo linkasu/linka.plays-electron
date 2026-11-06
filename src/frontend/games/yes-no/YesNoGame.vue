@@ -32,7 +32,7 @@ const feedbackAudio = useStandardGameFeedback(soundEnabled);
 const promptAudio = useGamePromptAudio({
   gameId: "yes-no",
   soundEnabled,
-  warmAssetIds: ["yes-no.correct", "yes-no.mistake", "yes-no.complete"],
+  warmAssetIds: ["yes-no.correct", "yes-no.mistake"],
 });
 const recentAnswers = ref<YesNoAnswer[]>([]);
 
@@ -107,11 +107,7 @@ async function answer(value: YesNoAnswer) {
     feedback.value = "Верно.";
     void feedbackAudio.playSuccess();
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(
-      finishedAfterSuccess ? ["yes-no.correct", "yes-no.complete"] : ["yes-no.correct"],
-      80,
-      170,
-    );
+    await promptAudio.playSequenceAndWait(["yes-no.correct"], 80, 170);
     if (finishedAfterSuccess) {
       finishSession("game-complete");
       isChangingRound.value = false;

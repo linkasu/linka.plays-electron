@@ -63,7 +63,7 @@ const aiThinking = ref(false);
 const flippedCells = ref<number[]>([]);
 const lastMove = ref<number>();
 const feedbackMessage = ref(
-  "Твои тёплые фишки ходят на подсвеченные клетки. Неподходящая клетка просто даст подсказку.",
+  "Твои фишки ходят на подсвеченные клетки. Неподходящая клетка просто даст подсказку.",
 );
 const resultVisible = computed(() => session.status === "finished");
 const playerMoves = computed(() => validMoves(board.value, "player"));
@@ -334,7 +334,7 @@ onUnmounted(() => {
                 <div class="text-overline text-secondary mb-1">Мини-стратегия 4×4</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Реверси light</h1>
                 <p class="text-body-1 text-medium-emphasis mb-0">
-                  Ставь тёплую фишку на отмеченную клетку и переворачивай фишки луны.
+                  Ставь свою фишку на отмеченную клетку и переворачивай фишки луны.
                 </p>
               </div>
               <div class="d-flex flex-wrap ga-2">

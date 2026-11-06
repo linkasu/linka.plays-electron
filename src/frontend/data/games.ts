@@ -217,7 +217,7 @@ export const games: GameInfo[] = [
   {
     id: "leaves-wind",
     title: "Подмети двор",
-    description: "Веди взглядом мягкий поток: листья собираются и двор становится чище.",
+    description: "Веди взглядом поток: листья собираются и двор становится чище.",
     selfDescription: "Подмети листья взглядом.",
     route: "/games/leaves-wind",
     category: "gaze-basics",
@@ -414,7 +414,7 @@ export const games: GameInfo[] = [
   {
     id: "sand-garden",
     title: "Песочный сад",
-    description: "Веди взглядом борозды по тёплому песку: следы появляются и постепенно исчезают.",
+    description: "Веди взглядом борозды по песку: следы появляются и постепенно исчезают.",
     selfDescription: "Рисуй следы на песке взглядом.",
     route: "/games/sand-garden",
     category: "gaze-basics",
@@ -460,7 +460,7 @@ export const games: GameInfo[] = [
     id: "open-door",
     title: "Открой дверцу",
     description:
-      "Удерживай взгляд на крупной дверце: она спокойно открывается и показывает светящийся символ.",
+      "Удерживай взгляд на крупной дверце: она открывается и показывает светящийся символ.",
     selfDescription: "Открой дверцу взглядом.",
     route: "/games/open-door",
     category: "gaze-basics",
@@ -474,8 +474,8 @@ export const games: GameInfo[] = [
   },
   {
     id: "warm-window",
-    title: "Тёплое окно",
-    description: "Смотри на дом: в тёплых окнах появляются добрые зверьки.",
+    title: "Домик",
+    description: "Смотри на дом: в окнах появляются добрые зверьки.",
     selfDescription: "Зажги окна взглядом.",
     route: "/games/warm-window",
     category: "gaze-basics",
@@ -489,7 +489,7 @@ export const games: GameInfo[] = [
   },
   {
     id: "warm-fire",
-    title: "Тёплый костёр",
+    title: "Костёр",
     description:
       "Смотри на маленький огонёк: взгляд разжигает пламя, искры, музыку и цветные узоры без вспышек.",
     selfDescription: "Согрей костёр взглядом.",
@@ -938,10 +938,10 @@ export const games: GameInfo[] = [
   },
   {
     id: "build-robot",
-    title: "Собери роботика",
+    title: "Собери робота",
     description:
       "Выбирай детали робота по шагам: голова, корпус, руки и ноги; подсказка помогает найти нужную деталь.",
-    selfDescription: "Собери роботика по порядку.",
+    selfDescription: "Собери робота по порядку.",
     route: "/games/build-robot",
     category: "sequencing",
     icon: "mdi-robot-happy-outline",
@@ -1872,7 +1872,7 @@ export const games: GameInfo[] = [
     id: "sokoban-large",
     title: "Сокобан крупный",
     description:
-      "Выбирай направление, чтобы подтолкнуть ящик к цели на маленькой крупной сетке; неверный ход можно спокойно повторить.",
+      "Выбирай направление, чтобы подтолкнуть ящик к цели на маленькой крупной сетке; неверный ход можно повторить.",
     selfDescription: "Подтолкни ящик к цели.",
     route: "/games/sokoban-large",
     category: "strategy",
