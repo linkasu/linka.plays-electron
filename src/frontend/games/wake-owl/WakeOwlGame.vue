@@ -163,7 +163,14 @@ onUnmounted(() => {
       </v-card>
 
       <div class="wake-owl-target-zone" :style="owlTargetStyle">
+        <!--
+          Testers: «сова замирала с закрытыми глазами и никак не просыпалась». After a
+          select the button waits for the gaze to leave it, but the owl moves only a
+          little and the child keeps looking at it, so the old gaze point stayed
+          inside the moved owl. The owl in a new place is a new target.
+        -->
         <GameDwellButton
+          :key="owlPositionIndex"
           target-id="wake-owl:owl"
           :dwell-ms="session.settings.dwellMs"
           :disabled="session.status !== 'running'"

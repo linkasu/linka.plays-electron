@@ -50,7 +50,7 @@ const soundEnabled = toRef(session.settings, "sound");
 const promptAudio = useGamePromptAudio({
   gameId: "sokoban-large",
   soundEnabled,
-  warmAssetIds: ["sokoban-large.complete"],
+  warmAssetIds: ["sokoban-large.complete", "sokoban-large.level-complete"],
 });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 const { setGameTimeout, clearGameTimers } = useGameTimers();
@@ -67,7 +67,10 @@ const directionControls: {
   { direction: "right", key: "d", label: "Вправо", icon: "mdi-arrow-right-bold" },
 ];
 
-const boardState = ref(createSokobanLargeState());
+// Testers: «проходишь один уровень, и новый уровень не появляется … сделать несколько
+// уровней». Each level is a new board; later ones get more inner walls.
+const sokobanLevelCount = 5;
+const boardState = ref(createSokobanLargeState(0));
 const feedbackMessage = ref(
   "Выбери ход. Если направление не подходит, ящик не двигается, а правило можно проверить ещё раз.",
 );
@@ -173,6 +176,17 @@ async function chooseDirection(direction: SokobanLargeDirection) {
     roundComplete.value = true;
     feedbackMessage.value = "Готово: ящик встал на цель.";
     void feedbackAudio.playSuccess();
+    const nextLevel = result.state.roundIndex + 1;
+    if (nextLevel < sokobanLevelCount) {
+      const sessionId = session.sessionId;
+      await promptAudio.playSequenceAndWait(["sokoban-large.level-complete"], 80);
+      // A new game or the end of this one owns the board now.
+      if (session.sessionId !== sessionId || resultVisible.value) return;
+      boardState.value = createSokobanLargeState(nextLevel);
+      resetChoiceState();
+      feedbackMessage.value = "Новый уровень. Доведи ящик до цели.";
+      return;
+    }
     promptAudio.play("sokoban-large.complete", 80);
     finishSession("game-complete");
     return;
@@ -195,7 +209,7 @@ function chooseDirectionButton(control: GameWasdControl) {
 
 function restart() {
   promptAudio.cancelPending();
-  boardState.value = createSokobanLargeState();
+  boardState.value = createSokobanLargeState(0);
   resetChoiceState();
   feedbackMessage.value = "Новая доска готова. Выбери направление, чтобы довести ящик до цели.";
   startSession();
@@ -279,8 +293,8 @@ onUnmounted(() => {
               </div>
               <div class="d-flex flex-wrap ga-2">
                 <v-chip color="primary" size="large" variant="tonal"
-                  >Раунд {{ boardState.roundIndex + 1 }} · ход {{ boardState.stepIndex }} /
-                  {{ boardState.solution.length }}</v-chip
+                  >Уровень {{ boardState.roundIndex + 1 }} из {{ sokobanLevelCount }} · ход
+                  {{ boardState.stepIndex }} / {{ boardState.solution.length }}</v-chip
                 >
                 <v-chip color="secondary" size="large" variant="tonal"
                   >Цель: клетка с мишенью</v-chip

@@ -121,33 +121,13 @@ function recordSoftHint(targetId: string, text: string) {
   recordHint({ roundId: round.value.roundId, targetId, text });
 }
 
-async function addCoin(coin: CoinCountingCoin) {
+// Testers: «если ошибаешься, то не даёт нажать проверить сумму, а сразу говорит, что
+// неправильно». A coin is always added; the check button decides.
+function addCoin(coin: CoinCountingCoin) {
   if (session.status !== "running" || isSpeaking.value) return;
 
-  const targetId = coinTargetId(coin.value);
-  const nextTotal = selectedTotal.value + coin.value;
-  if (nextTotal > round.value.targetTotal) {
-    recordMistake({
-      roundId: round.value.roundId,
-      targetId,
-      expectedTargetId: actionTargetId("check"),
-      expected: round.value.targetTotal,
-      actual: nextTotal,
-      selectedCoins: [...selectedCoins.value, coin.value],
-      isCorrect: false,
-      reason: "too-much",
-    });
-    recordSoftHint(targetId, "Получилось больше. Убери монетки или выбери поменьше.");
-    void pianoFeedback.playMistake();
-    await playAudioSequence(["coin-counting.mistake.too-much-coin"], 80);
-    return;
-  }
-
   selectedCoins.value = [...selectedCoins.value, coin.value];
-  feedback.value =
-    nextTotal === round.value.targetTotal
-      ? "Сумма готова. Нажми галочку."
-      : "Хорошо. Можно добавить ещё монетку.";
+  feedback.value = "Монетка добавлена. Можно добавить ещё или нажать галочку.";
   lastMistakeTargetId.value = undefined;
 }
 

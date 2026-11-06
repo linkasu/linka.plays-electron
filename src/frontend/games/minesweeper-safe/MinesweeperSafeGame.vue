@@ -302,7 +302,6 @@ onUnmounted(() => {
                 :target-id="cellTargetId(cell.index)"
                 :disabled="isDisabled(cell)"
                 :dwell-ms="session.settings.dwellMs"
-                min-height="clamp(4.5rem, 12vh, 8.5rem)"
                 :color="cellColor(cell)"
                 role="gridcell"
                 @select="chooseCell(cell)"
@@ -410,7 +409,12 @@ onUnmounted(() => {
   font-weight: 800;
 }
 
+/* Testers: «поле открывается не до конца, часть квадратиков срезана». A row gets
+   its share of the height left under the HUD, the header and the bomb / hint
+   buttons; the tile inside a cell follows the cell. */
 .board-wrap {
+  --cell-size: min(calc((72vh - 12rem) / var(--board-size) - 1vh), 8.5rem);
+
   display: grid;
   gap: clamp(0.25rem, 1vh, 0.85rem);
   grid-auto-rows: minmax(0, 1fr);
@@ -423,6 +427,10 @@ onUnmounted(() => {
   min-inline-size: 0;
 }
 
+.mine-cell :deep(.dwell-button) {
+  min-block-size: var(--cell-size) !important;
+}
+
 .mine-cell--hinted {
   filter: drop-shadow(0 0 1rem rgb(var(--v-theme-success) / 44%));
 }
@@ -433,13 +441,13 @@ onUnmounted(() => {
 
 .cell-tile {
   aspect-ratio: 1;
-  block-size: clamp(2.6rem, min(7vw, 8vh), 4.6rem);
+  block-size: calc(var(--cell-size) * 0.5);
   inline-size: auto;
 }
 
 /* An open cell shows only its number tile, as large as the cell allows. */
 .revealed-cell .cell-tile {
-  block-size: clamp(3rem, min(8vw, 10vh), 5.4rem);
+  block-size: calc(var(--cell-size) * 0.68);
 }
 
 @media (max-width: 45rem) {
@@ -488,13 +496,14 @@ onUnmounted(() => {
   }
 
   .board-wrap {
+    --cell-size: min(calc((100vh - 20.5rem) / var(--board-size) - 0.8vh), 5.75rem);
+
     gap: 0.8vh;
     inline-size: min(100%, 67vh);
     max-inline-size: none;
   }
 
   .mine-cell :deep(.dwell-button) {
-    min-block-size: min(11.2vh, 5.75rem) !important;
     padding: 0.35rem !important;
   }
 }
@@ -537,6 +546,8 @@ onUnmounted(() => {
   }
 
   .board-wrap {
+    --cell-size: calc((100vh - 20.5rem) / var(--board-size) - 0.6vh);
+
     gap: 0.6vh;
     grid-template-columns: repeat(var(--board-size), minmax(0, 1fr));
     inline-size: min(100%, 65vh);
@@ -544,7 +555,6 @@ onUnmounted(() => {
   }
 
   .mine-cell :deep(.dwell-button) {
-    min-block-size: 9.5vh !important;
     padding: 0.3rem !important;
   }
 
