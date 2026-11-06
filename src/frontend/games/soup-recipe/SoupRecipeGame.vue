@@ -152,9 +152,19 @@ function addFlyingIngredient(ingredient: SoupIngredient) {
   });
 }
 
+// Testers: «не озвучивается, какой ингредиент надо сейчас положить». The current
+// recipe step is read out at the start and after a right step, as in «Бутерброд»;
+// a mistake does not name the ingredient (docs/games/soup-recipe.md).
+function nextIngredientAssetIds() {
+  return nextIngredient.value ? [`soup-recipe.next.${nextIngredient.value.id}`] : [];
+}
+
 async function playPrompt(delayMs = 0) {
   isSpeaking.value = true;
-  await promptAudio.playSequenceAndWait(["soup-recipe.prompt"], delayMs);
+  await promptAudio.playSequenceAndWait(
+    ["soup-recipe.prompt", ...nextIngredientAssetIds()],
+    delayMs,
+  );
   isSpeaking.value = false;
 }
 
@@ -216,7 +226,7 @@ async function chooseIngredient(ingredient: SoupIngredient) {
 
   feedbackMessage.value = "Верно. Продолжай по рецепту.";
   isSpeaking.value = true;
-  await promptAudio.playSequenceAndWait(["soup-recipe.correct"], 80);
+  await promptAudio.playSequenceAndWait(["soup-recipe.correct", ...nextIngredientAssetIds()], 80);
   isSpeaking.value = false;
   pendingSelection.value = false;
 }

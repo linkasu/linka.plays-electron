@@ -82,7 +82,7 @@ function playPrompt(delayMs = 0) {
 
 function playResponseTts(id: string, delayMs = 920) {
   responseAudio.cancelPending();
-  responseAudio.play(id, delayMs);
+  return responseAudio.playSequenceAndWait([id], delayMs);
 }
 
 function resetRoundState() {
@@ -93,17 +93,46 @@ function resetRoundState() {
   feedbackText.value = "Выбери, что ест зверёк.";
 }
 
-function prepareNextRound() {
+// Testers: «проглатывает последний слог, когда говорит „да, это подходит“». The
+// phrase ends after the next prompt used to start, and both share one audio
+// channel, so the round waits for the phrase as well as for the animation.
+let roundAdvanceToken = 0;
+let advanceAfterPause = 0;
+
+function advanceRound() {
+  resetRoundState();
+  if (session.step < session.maxSteps) {
+    nextRound();
+    playPrompt(160);
+  }
+}
+
+function prepareNextRound(response: Promise<unknown>) {
   clearGameTimers();
   isFeeding.value = true;
+  const token = ++roundAdvanceToken;
   setGameTimeout(() => {
-    resetRoundState();
-    if (session.step < session.maxSteps) {
-      nextRound();
-      playPrompt(160);
-    }
+    void response.then(() => {
+      if (token !== roundAdvanceToken) return;
+      // A pause that started while the phrase played holds the next round.
+      if (session.status === "paused") {
+        advanceAfterPause = token;
+        return;
+      }
+      advanceRound();
+    });
   }, 2300);
 }
+
+watch(
+  () => session.status,
+  (status) => {
+    if (status !== "running" || advanceAfterPause !== roundAdvanceToken || !advanceAfterPause)
+      return;
+    advanceAfterPause = 0;
+    advanceRound();
+  },
+);
 
 function feed(food: FeedAnimalFood) {
   if (session.status !== "running" || isFeeding.value) return;
@@ -118,7 +147,7 @@ function feed(food: FeedAnimalFood) {
     revealedFoodId.value = food.id;
     mistakeFoodId.value = undefined;
     void feedAnimalFeedback.playSuccess(session.settings.sound);
-    playResponseTts("feed-animal.correct");
+    const response = playResponseTts("feed-animal.correct");
     recordSuccess({
       roundId: round.value.roundId,
       targetId,
@@ -127,14 +156,14 @@ function feed(food: FeedAnimalFood) {
       label: `${round.value.animal.name}: ${food.name}`,
       isCorrect: true,
     });
-    prepareNextRound();
+    prepareNextRound(response);
     return;
   }
 
   feedbackText.value = `Нет, ${round.value.animal.name.toLowerCase()} это не ест. Попробуй ещё раз.`;
   mistakeFoodId.value = food.id;
   void feedAnimalFeedback.playMistake(session.settings.sound);
-  playResponseTts("feed-animal.mistake");
+  void playResponseTts("feed-animal.mistake");
   recordMistake({
     roundId: round.value.roundId,
     targetId,
@@ -153,6 +182,7 @@ function feed(food: FeedAnimalFood) {
 }
 
 function restart() {
+  roundAdvanceToken += 1;
   clearGameTimers();
   promptAudio.cancelPending();
   responseAudio.cancelPending();
@@ -176,6 +206,7 @@ watch(
 );
 
 onUnmounted(() => {
+  roundAdvanceToken += 1;
   clearGameTimers();
   promptAudio.dispose();
   responseAudio.dispose();
