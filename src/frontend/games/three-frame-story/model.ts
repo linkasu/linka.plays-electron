@@ -37,7 +37,7 @@ export const threeFrameStories: ThreeFrameStory[] = [
   {
     id: "plant-flower",
     title: "Цветок растёт",
-    prompt: "Собери историю о росте цветка.",
+    prompt: "Как растёт цветок? Расставь картинки по порядку.",
     frames: [
       {
         id: "seed",
@@ -65,7 +65,7 @@ export const threeFrameStories: ThreeFrameStory[] = [
   {
     id: "make-tea",
     title: "Чай готов",
-    prompt: "Собери историю о чаепитии.",
+    prompt: "Давай приготовим чай. Расставь картинки по порядку.",
     frames: [
       {
         id: "kettle",
@@ -93,7 +93,7 @@ export const threeFrameStories: ThreeFrameStory[] = [
   {
     id: "rainbow-after-rain",
     title: "После дождя",
-    prompt: "Собери историю о погоде.",
+    prompt: "Что бывает после дождя? Расставь картинки по порядку.",
     frames: [
       {
         id: "cloud",
@@ -121,7 +121,7 @@ export const threeFrameStories: ThreeFrameStory[] = [
   {
     id: "build-snowman",
     title: "Снеговик",
-    prompt: "Собери историю о снеговике.",
+    prompt: "Давай слепим снеговика. Расставь картинки по порядку.",
     frames: [
       {
         id: "snow",
@@ -149,7 +149,7 @@ export const threeFrameStories: ThreeFrameStory[] = [
   {
     id: "bake-pie",
     title: "Пирог",
-    prompt: "Собери историю о пироге.",
+    prompt: "Давай испечём пирог. Расставь картинки по порядку.",
     frames: [
       {
         id: "dough",
@@ -177,7 +177,7 @@ export const threeFrameStories: ThreeFrameStory[] = [
   {
     id: "butterfly",
     title: "Бабочка",
-    prompt: "Собери историю о бабочке.",
+    prompt: "Как появляется бабочка? Расставь картинки по порядку.",
     frames: [
       {
         id: "caterpillar",

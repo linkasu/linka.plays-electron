@@ -156,7 +156,7 @@
   {
     "id": "big-cards.intro",
     "game": "big-cards",
-    "text": "Посмотри на карточку, какая тебе больше нравится.",
+    "text": "Выбери любую картинку.",
     "voice": "jane",
     "path": "/audio/tts/big-cards/intro.mp3"
   },
@@ -4020,7 +4020,7 @@
   {
     "id": "what-first.prompt.wash-eat",
     "game": "what-first",
-    "text": "Перед едой. Что сначала?",
+    "text": "Мы хотим поесть. Что нужно сделать сначала?",
     "voice": "jane",
     "path": "/audio/tts/what-first/prompt-wash-eat.mp3"
   },
@@ -4041,7 +4041,7 @@
   {
     "id": "what-first.prompt.shoes-walk",
     "game": "what-first",
-    "text": "На прогулку. Что сначала?",
+    "text": "Мы идём гулять. Что нужно сделать сначала?",
     "voice": "jane",
     "path": "/audio/tts/what-first/prompt-shoes-walk.mp3"
   },
@@ -4062,7 +4062,7 @@
   {
     "id": "what-first.prompt.brush-sleep",
     "game": "what-first",
-    "text": "Перед сном. Что сначала?",
+    "text": "Мы ложимся спать. Что нужно сделать сначала?",
     "voice": "jane",
     "path": "/audio/tts/what-first/prompt-brush-sleep.mp3"
   },
@@ -4083,7 +4083,7 @@
   {
     "id": "what-first.prompt.open-read",
     "game": "what-first",
-    "text": "Книга. Что сначала?",
+    "text": "Мы хотим почитать книгу. Что нужно сделать сначала?",
     "voice": "jane",
     "path": "/audio/tts/what-first/prompt-open-read.mp3"
   },
@@ -4104,7 +4104,7 @@
   {
     "id": "what-first.prompt.pour-drink",
     "game": "what-first",
-    "text": "Попить воды. Что сначала?",
+    "text": "Мы хотим попить воды. Что нужно сделать сначала?",
     "voice": "jane",
     "path": "/audio/tts/what-first/prompt-pour-drink.mp3"
   },
@@ -4125,7 +4125,7 @@
   {
     "id": "what-first.prompt.soap-rinse",
     "game": "what-first",
-    "text": "Моем руки. Что сначала?",
+    "text": "Мы моем руки с мылом. Что нужно сделать сначала?",
     "voice": "jane",
     "path": "/audio/tts/what-first/prompt-soap-rinse.mp3"
   },
@@ -4146,7 +4146,7 @@
   {
     "id": "what-first.prompt.sit-buckle",
     "game": "what-first",
-    "text": "В кресле. Что сначала?",
+    "text": "Мы едем в машине. Что нужно сделать сначала?",
     "voice": "jane",
     "path": "/audio/tts/what-first/prompt-sit-buckle.mp3"
   },
@@ -4167,7 +4167,7 @@
   {
     "id": "what-first.prompt.peel-eat",
     "game": "what-first",
-    "text": "Банан. Что сначала?",
+    "text": "Мы хотим съесть банан. Что нужно сделать сначала?",
     "voice": "jane",
     "path": "/audio/tts/what-first/prompt-peel-eat.mp3"
   },
@@ -6762,13 +6762,6 @@
     "path": "/audio/tts/day-routine/question-evening.mp3"
   },
   {
-    "id": "three-frame-story.prompt",
-    "game": "three-frame-story",
-    "text": "Собери историю из трёх кадров. Выбери, что будет первым.",
-    "voice": "jane",
-    "path": "/audio/tts/three-frame-story/prompt.mp3"
-  },
-  {
     "id": "three-frame-story.correct",
     "game": "three-frame-story",
     "text": "Верно. История продолжается.",
@@ -6851,13 +6844,6 @@
     "text": "Выбери следующую карточку дня.",
     "voice": "jane",
     "path": "/audio/tts/schedule/next.mp3"
-  },
-  {
-    "id": "comic-strip.prompt",
-    "game": "comic-strip",
-    "text": "Выбери следующий кадр истории.",
-    "voice": "jane",
-    "path": "/audio/tts/comic-strip/prompt.mp3"
   },
   {
     "id": "comic-strip.correct",
@@ -8510,13 +8496,6 @@
     "text": "Это кепка?",
     "voice": "jane",
     "path": "/audio/tts/yes-no/scene-3748756d.mp3"
-  },
-  {
-    "id": "eat-or-not-eat.prompt",
-    "game": "eat-or-not-eat",
-    "text": "Выбери, можно ли это есть.",
-    "voice": "jane",
-    "path": "/audio/tts/eat-or-not-eat/prompt.mp3"
   },
   {
     "id": "eat-or-not-eat.correct",
@@ -11849,5 +11828,201 @@
     "text": "Мальчик гуляет.",
     "voice": "jane",
     "path": "/audio/tts/object-action/phrase-walk.mp3"
+  },
+  {
+    "id": "three-frame-story.story.plant-flower",
+    "game": "three-frame-story",
+    "text": "Как растёт цветок? Расставь картинки по порядку.",
+    "voice": "jane",
+    "path": "/audio/tts/three-frame-story/story-plant-flower.mp3"
+  },
+  {
+    "id": "three-frame-story.story.make-tea",
+    "game": "three-frame-story",
+    "text": "Давай приготовим чай. Расставь картинки по порядку.",
+    "voice": "jane",
+    "path": "/audio/tts/three-frame-story/story-make-tea.mp3"
+  },
+  {
+    "id": "three-frame-story.story.rainbow-after-rain",
+    "game": "three-frame-story",
+    "text": "Что бывает после дождя? Расставь картинки по порядку.",
+    "voice": "jane",
+    "path": "/audio/tts/three-frame-story/story-rainbow-after-rain.mp3"
+  },
+  {
+    "id": "three-frame-story.story.build-snowman",
+    "game": "three-frame-story",
+    "text": "Давай слепим снеговика. Расставь картинки по порядку.",
+    "voice": "jane",
+    "path": "/audio/tts/three-frame-story/story-build-snowman.mp3"
+  },
+  {
+    "id": "three-frame-story.story.bake-pie",
+    "game": "three-frame-story",
+    "text": "Давай испечём пирог. Расставь картинки по порядку.",
+    "voice": "jane",
+    "path": "/audio/tts/three-frame-story/story-bake-pie.mp3"
+  },
+  {
+    "id": "three-frame-story.story.butterfly",
+    "game": "three-frame-story",
+    "text": "Как появляется бабочка? Расставь картинки по порядку.",
+    "voice": "jane",
+    "path": "/audio/tts/three-frame-story/story-butterfly.mp3"
+  },
+  {
+    "id": "comic-strip.story.seed",
+    "game": "comic-strip",
+    "text": "Как растёт цветок? Собери историю по порядку.",
+    "voice": "jane",
+    "path": "/audio/tts/comic-strip/story-seed.mp3"
+  },
+  {
+    "id": "comic-strip.story.tea",
+    "game": "comic-strip",
+    "text": "Давай приготовим чай. Собери историю по порядку.",
+    "voice": "jane",
+    "path": "/audio/tts/comic-strip/story-tea.mp3"
+  },
+  {
+    "id": "comic-strip.story.rainbow",
+    "game": "comic-strip",
+    "text": "Что бывает после дождя? Собери историю по порядку.",
+    "voice": "jane",
+    "path": "/audio/tts/comic-strip/story-rainbow.mp3"
+  },
+  {
+    "id": "comic-strip.story.mail",
+    "game": "comic-strip",
+    "text": "Давай отправим письмо другу. Собери историю по порядку.",
+    "voice": "jane",
+    "path": "/audio/tts/comic-strip/story-mail.mp3"
+  },
+  {
+    "id": "comic-strip.story.bread",
+    "game": "comic-strip",
+    "text": "Давай испечём хлеб. Собери историю по порядку.",
+    "voice": "jane",
+    "path": "/audio/tts/comic-strip/story-bread.mp3"
+  },
+  {
+    "id": "comic-strip.story.snowman",
+    "game": "comic-strip",
+    "text": "Давай слепим снеговика. Собери историю по порядку.",
+    "voice": "jane",
+    "path": "/audio/tts/comic-strip/story-snowman.mp3"
+  },
+  {
+    "id": "comic-strip.story.house",
+    "game": "comic-strip",
+    "text": "Давай построим домик. Собери историю по порядку.",
+    "voice": "jane",
+    "path": "/audio/tts/comic-strip/story-house.mp3"
+  },
+  {
+    "id": "comic-strip.story.gift",
+    "game": "comic-strip",
+    "text": "Давай приготовим подарок другу. Собери историю по порядку.",
+    "voice": "jane",
+    "path": "/audio/tts/comic-strip/story-gift.mp3"
+  },
+  {
+    "id": "comic-strip.story.boat",
+    "game": "comic-strip",
+    "text": "Давай сделаем бумажный кораблик. Собери историю по порядку.",
+    "voice": "jane",
+    "path": "/audio/tts/comic-strip/story-boat.mp3"
+  },
+  {
+    "id": "comic-strip.story.kitten",
+    "game": "comic-strip",
+    "text": "Собери историю о котёнке по порядку.",
+    "voice": "jane",
+    "path": "/audio/tts/comic-strip/story-kitten.mp3"
+  },
+  {
+    "id": "eat-or-not-eat.prompt.apple",
+    "game": "eat-or-not-eat",
+    "text": "Куда относится яблоко: съедобное или несъедобное?",
+    "voice": "jane",
+    "path": "/audio/tts/eat-or-not-eat/prompt-apple.mp3"
+  },
+  {
+    "id": "eat-or-not-eat.prompt.banana",
+    "game": "eat-or-not-eat",
+    "text": "Куда относится банан: съедобное или несъедобное?",
+    "voice": "jane",
+    "path": "/audio/tts/eat-or-not-eat/prompt-banana.mp3"
+  },
+  {
+    "id": "eat-or-not-eat.prompt.bread",
+    "game": "eat-or-not-eat",
+    "text": "Куда относится хлеб: съедобное или несъедобное?",
+    "voice": "jane",
+    "path": "/audio/tts/eat-or-not-eat/prompt-bread.mp3"
+  },
+  {
+    "id": "eat-or-not-eat.prompt.carrot",
+    "game": "eat-or-not-eat",
+    "text": "Куда относится морковь: съедобное или несъедобное?",
+    "voice": "jane",
+    "path": "/audio/tts/eat-or-not-eat/prompt-carrot.mp3"
+  },
+  {
+    "id": "eat-or-not-eat.prompt.cheese",
+    "game": "eat-or-not-eat",
+    "text": "Куда относится сыр: съедобное или несъедобное?",
+    "voice": "jane",
+    "path": "/audio/tts/eat-or-not-eat/prompt-cheese.mp3"
+  },
+  {
+    "id": "eat-or-not-eat.prompt.fish",
+    "game": "eat-or-not-eat",
+    "text": "Куда относится рыба: съедобное или несъедобное?",
+    "voice": "jane",
+    "path": "/audio/tts/eat-or-not-eat/prompt-fish.mp3"
+  },
+  {
+    "id": "eat-or-not-eat.prompt.toy-car",
+    "game": "eat-or-not-eat",
+    "text": "Куда относится машинка: съедобное или несъедобное?",
+    "voice": "jane",
+    "path": "/audio/tts/eat-or-not-eat/prompt-toy-car.mp3"
+  },
+  {
+    "id": "eat-or-not-eat.prompt.sock",
+    "game": "eat-or-not-eat",
+    "text": "Куда относится носок: съедобное или несъедобное?",
+    "voice": "jane",
+    "path": "/audio/tts/eat-or-not-eat/prompt-sock.mp3"
+  },
+  {
+    "id": "eat-or-not-eat.prompt.soap",
+    "game": "eat-or-not-eat",
+    "text": "Куда относится мыло: съедобное или несъедобное?",
+    "voice": "jane",
+    "path": "/audio/tts/eat-or-not-eat/prompt-soap.mp3"
+  },
+  {
+    "id": "eat-or-not-eat.prompt.block",
+    "game": "eat-or-not-eat",
+    "text": "Куда относится кубик: съедобное или несъедобное?",
+    "voice": "jane",
+    "path": "/audio/tts/eat-or-not-eat/prompt-block.mp3"
+  },
+  {
+    "id": "eat-or-not-eat.prompt.leaf",
+    "game": "eat-or-not-eat",
+    "text": "Куда относится лист: съедобное или несъедобное?",
+    "voice": "jane",
+    "path": "/audio/tts/eat-or-not-eat/prompt-leaf.mp3"
+  },
+  {
+    "id": "eat-or-not-eat.prompt.crayon",
+    "game": "eat-or-not-eat",
+    "text": "Куда относится мелок: съедобное или несъедобное?",
+    "voice": "jane",
+    "path": "/audio/tts/eat-or-not-eat/prompt-crayon.mp3"
   }
 ]

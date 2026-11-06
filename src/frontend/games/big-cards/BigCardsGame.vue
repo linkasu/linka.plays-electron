@@ -63,14 +63,18 @@ function cardTargetId(roundId: string, cardId: string) {
   return `big-cards:${roundId}:card:${cardId}`;
 }
 
-function choose(card: BigCard) {
+// Testers: «задание озвучивается только один раз, потом карточек становится больше и
+// непонятно, что делать. Нужно после каждого выбора озвучить задание заново».
+let chooseToken = 0;
+
+async function choose(card: BigCard) {
   if (session.status !== "running" || isResponding.value) return;
 
+  const token = ++chooseToken;
   isResponding.value = true;
   feedbackText.value = `Ты выбрал: ${card.label}. Хорошо.`;
   const choiceResult = evaluateBigCardChoice(card);
   promptAudio.cancelPending();
-  promptAudio.play(`big-cards.${card.id}`);
   recordSuccess({
     roundId: round.value.roundId,
     targetId: cardTargetId(round.value.roundId, card.id),
@@ -78,14 +82,23 @@ function choose(card: BigCard) {
   });
 
   window.clearTimeout(feedbackTimer);
-  feedbackTimer = window.setTimeout(() => {
-    isResponding.value = false;
-    feedbackText.value = "Любой выбор будет правильным.";
-    if (session.status === "running" && session.step < session.maxSteps) nextRound();
-  }, 850);
+  await Promise.all([
+    promptAudio.playSequenceAndWait([`big-cards.${card.id}`]),
+    new Promise((resolve) => {
+      feedbackTimer = window.setTimeout(resolve, 850);
+    }),
+  ]);
+  if (token !== chooseToken) return;
+  isResponding.value = false;
+  feedbackText.value = "Любой выбор будет правильным.";
+  if (session.status === "running" && session.step < session.maxSteps) {
+    nextRound();
+    promptAudio.play("big-cards.intro", 250);
+  }
 }
 
 function restart() {
+  chooseToken += 1;
   window.clearTimeout(feedbackTimer);
   window.clearTimeout(introTimer);
   isResponding.value = false;
@@ -102,6 +115,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  chooseToken += 1;
   window.clearTimeout(feedbackTimer);
   window.clearTimeout(introTimer);
   promptAudio.dispose();
