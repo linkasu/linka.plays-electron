@@ -53,11 +53,14 @@ const breakpoints = computed(() => {
   };
 });
 
+// Testers: «сделать карточки для ответа крупнее». The cards take most of the
+// height left under the task, so a gaze lands on them without aiming.
 const computedMinHeight = computed(() => {
   if (props.minHeight !== undefined) return props.minHeight;
   const count = props.choices.length;
-  if (count <= 3) return "clamp(180px, 28vh, 300px)";
-  return "clamp(168px, 25vh, 260px)";
+  if (count <= 3) return "clamp(11.25rem, 36dvh, 28rem)";
+  if (count === 4) return "clamp(10.5rem, 36dvh, 26rem)";
+  return "clamp(9.5rem, 27dvh, 22rem)";
 });
 
 function choiceColor(choice: T) {
@@ -105,7 +108,7 @@ function choiceColor(choice: T) {
 /* Gap between neighbouring gaze targets. Eye-tracking noise makes a gaze dot
    drift into the next card when cards sit a few pixels apart (gaze audit: 8px). */
 .v-row.game-choice-grid {
-  --choice-gap: clamp(1.75rem, 3vmin, 2.5rem);
+  --choice-gap: clamp(2rem, 3vw, 3.5rem);
 
   row-gap: var(--choice-gap);
   margin-inline: calc(var(--choice-gap) / -2);

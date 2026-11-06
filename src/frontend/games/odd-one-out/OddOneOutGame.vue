@@ -203,7 +203,7 @@ onUnmounted(() => {
     </template>
     <v-container class="game-container" fluid>
       <v-row justify="center">
-        <v-col cols="12" lg="10" xl="9">
+        <v-col cols="12" lg="11" xl="10">
           <v-card class="odd-card pa-4 pa-md-8" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-1 mb-md-2">Сравни карточки</div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2 mb-md-3">
@@ -218,7 +218,6 @@ onUnmounted(() => {
               :target-id="choiceTargetId"
               :disabled="session.status !== 'running' || pendingSelection || isSpeaking"
               :dwell-ms="session.settings.dwellMs"
-              min-height="9.75rem"
               :color="choiceColor"
               :cols="6"
               :md="round.choices.length === 4 ? 3 : 4"
@@ -265,12 +264,14 @@ onUnmounted(() => {
 }
 
 .choice-emoji {
-  font-size: clamp(3.2rem, min(8vw, 11vh), 6.5rem);
+  font-size: clamp(3.2rem, min(12vw, 20dvh), 10rem);
   line-height: 1;
 }
 
 .choice-image {
   block-size: 1em;
+  display: block;
+  margin-inline: auto;
   inline-size: 1em;
   object-fit: contain;
 }

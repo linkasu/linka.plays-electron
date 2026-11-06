@@ -197,10 +197,13 @@ onUnmounted(() => {
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11" xl="10">
           <v-card class="logic-card pa-4 pa-md-6" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">{{ relationLabel }}</div>
-            <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
+            <div class="logic-kicker text-overline text-secondary text-center mb-1">
+              {{ relationLabel }}
+            </div>
+            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
             <v-alert
-              class="mb-5 text-body-1 text-md-h6 font-weight-bold"
+              class="mb-3 text-body-1 text-md-h6 font-weight-bold"
+              density="compact"
               :color="hintedRoundId === round.roundId ? 'secondary' : 'primary'"
               :icon="hintedRoundId === round.roundId ? 'mdi-heart-outline' : 'mdi-link-variant'"
               rounded="xl"
@@ -209,10 +212,10 @@ onUnmounted(() => {
               {{ helperText }}
             </v-alert>
 
-            <v-row class="pair-layout" dense align="stretch">
-              <v-col cols="12" sm="4">
-                <v-sheet class="target-card pa-4" color="primary" rounded="xl">
-                  <div class="text-overline text-white text-center mb-2">Найди пару для</div>
+            <!-- Testers: «основную картинку наверх, а не слева, а карточки для выбора под ней крупно». -->
+            <div class="pair-layout">
+              <div class="target-row">
+                <v-sheet class="target-card px-6 py-3" color="primary" rounded="xl">
                   <GameWordImage
                     v-if="round.target.wordId || round.target.artId"
                     class="target-card__visual"
@@ -222,19 +225,19 @@ onUnmounted(() => {
                     :emoji="round.target.visual"
                   />
                   <div v-else class="target-card__visual text-white">{{ round.target.visual }}</div>
-                  <div class="text-h5 text-md-h4 font-weight-bold text-white text-center mt-3">
+                  <div class="text-h5 text-md-h4 font-weight-bold text-white text-center">
                     {{ round.target.label }}
                   </div>
                 </v-sheet>
-              </v-col>
+              </div>
 
-              <v-col cols="12" sm="8">
+              <div>
                 <GameChoiceCardGrid
                   :choices="round.choices"
                   :target-id="(choice) => choiceTargetId(choice.id)"
                   :disabled="session.status !== 'running' || pendingSelection || isSpeaking"
                   :dwell-ms="session.settings.dwellMs"
-                  min-height="12rem"
+                  min-height="clamp(10rem, 30dvh, 24rem)"
                   :cols="6"
                   :sm="3"
                   @select="choose"
@@ -261,8 +264,8 @@ onUnmounted(() => {
                     </div>
                   </template>
                 </GameChoiceCardGrid>
-              </v-col>
-            </v-row>
+              </div>
+            </div>
           </v-card>
         </v-col>
       </v-row>
@@ -287,22 +290,34 @@ onUnmounted(() => {
 }
 
 .pair-layout {
-  row-gap: 1rem;
-}
-
-.target-card {
-  align-items: center;
-  block-size: 100%;
-  box-shadow: inset 0 -0.5rem 2rem rgb(255 255 255 / 18%);
   display: flex;
   flex-direction: column;
+  row-gap: clamp(1rem, 3dvh, 2rem);
+}
+
+.target-row {
+  display: flex;
   justify-content: center;
-  min-block-size: 18rem;
+}
+
+/* The picture to match sits on top, picture and word side by side, so the
+   answer cards below keep most of the height. */
+.target-card {
+  align-items: center;
+  box-shadow: inset 0 -0.5rem 2rem rgb(255 255 255 / 18%);
+  column-gap: 1.5rem;
+  display: flex;
+  justify-content: center;
+  min-inline-size: min(100%, 22rem);
+}
+
+.target-card .target-card__visual {
+  font-size: clamp(3.5rem, min(10vw, 15dvh), 9rem);
 }
 
 .target-card__visual,
 .choice-card__visual {
-  font-size: clamp(4.5rem, min(12vw, 15vh), 8rem);
+  font-size: clamp(4rem, min(12vw, 17dvh), 10rem);
   font-weight: 900;
   line-height: 1;
   text-align: center;
@@ -331,8 +346,8 @@ onUnmounted(() => {
 }
 
 @media (max-height: 44rem) {
-  .target-card {
-    min-block-size: 13rem;
+  .logic-kicker {
+    display: none;
   }
 }
 </style>

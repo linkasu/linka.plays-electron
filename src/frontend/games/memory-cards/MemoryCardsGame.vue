@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, toRef, watch } from "vue";
+import { useDisplay } from "vuetify";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -61,10 +62,18 @@ const promptAudio = useGamePromptAudio({
 
 const resultVisible = computed(() => session.status === "finished");
 const matchedCount = computed(() => cards.value.filter((card) => card.matched).length / 2);
-const targetCardHeight = computed(
-  () => `clamp(8rem, ${Math.round(20 * session.settings.targetScale)}vh, 12.5rem)`,
-);
-const cardColSpan = computed(() => (round.value.columns === 4 ? 3 : 4));
+// Testers: «очень близко друг к другу, сделать подальше и покрупнее». On a low
+// screen six cards stand in one row: two rows under the task leave each card
+// only a thin strip.
+const { height: viewportHeight } = useDisplay();
+const singleRow = computed(() => round.value.columns === 3 && viewportHeight.value < 900);
+const targetCardHeight = computed(() => {
+  const scale = session.settings.targetScale;
+  return singleRow.value
+    ? `clamp(${8 * scale}rem, ${Math.round(40 * scale)}dvh, ${22 * scale}rem)`
+    : `clamp(${7 * scale}rem, ${Math.round(21 * scale)}dvh, ${16 * scale}rem)`;
+});
+const cardColSpan = computed(() => (singleRow.value ? 2 : 3));
 
 function measureCardGap() {
   const targets = Array.from(gridRef.value?.querySelectorAll<HTMLElement>(".dwell-hitbox") ?? []);
@@ -280,7 +289,7 @@ onUnmounted(() => {
     />
     <v-container class="game-container" fluid>
       <v-row justify="center">
-        <v-col cols="12" lg="9" xl="8">
+        <v-col cols="12" lg="11" xl="10">
           <v-card
             class="memory-panel pa-3 pa-md-6"
             color="rgba(255, 255, 255, 0.9)"
@@ -299,7 +308,7 @@ onUnmounted(() => {
                 <v-col
                   v-for="card in cards"
                   :key="card.id"
-                  cols="6"
+                  :cols="cardColSpan"
                   :sm="cardColSpan"
                   :md="cardColSpan"
                 >
@@ -382,14 +391,14 @@ onUnmounted(() => {
 }
 
 .memory-grid {
-  flex: 0 1 min(1040px, 100%);
-  inline-size: min(65rem, 100%);
-  max-inline-size: 65rem;
+  inline-size: 100%;
   margin-inline: auto;
+  max-inline-size: 90rem;
 }
 
-.memory-grid :deep(.v-col) {
-  padding: 0.375rem;
+/* A column with `cols` set renders as .v-col-N, not .v-col. */
+.memory-grid > [class*="v-col"] {
+  padding: clamp(0.75rem, 1.4vw, 1.5rem);
 }
 
 .feedback-line {

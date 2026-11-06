@@ -245,7 +245,7 @@ onUnmounted(() => {
     />
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
-        <v-col cols="12" lg="10" xl="9">
+        <v-col cols="12" lg="11" xl="10">
           <v-card class="follow-cue-card pa-3 pa-md-5" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-1">Визуальная подсказка</div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
@@ -278,7 +278,7 @@ onUnmounted(() => {
                 :target-id="choiceTargetId(choice.id)"
                 :disabled="session.status !== 'running' || isSpeaking"
                 :dwell-ms="session.settings.dwellMs"
-                min-height="clamp(8.5rem, 20vh, 12rem)"
+                min-height="clamp(8.5rem, 22dvh, 18rem)"
                 :color="choiceColor(choice)"
                 role="listitem"
                 @select="answer(choice)"
@@ -338,12 +338,14 @@ onUnmounted(() => {
   overflow: hidden;
 }
 
+/* Testers: «сделать сами карточки для ответа крупнее». Wide gaps keep a gaze
+   off the neighbour card and leave room for the arrow in the middle. */
 .cue-board {
   display: grid;
-  gap: clamp(0.75rem, 1.4vw, 1rem);
+  gap: clamp(1.75rem, 4dvh, 3rem) clamp(3rem, 8vw, 8rem);
   grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-inline: auto;
-  max-inline-size: 58rem;
+  max-inline-size: 80rem;
   position: relative;
 }
 
@@ -383,8 +385,10 @@ onUnmounted(() => {
 }
 
 .choice-icon {
-  font-size: clamp(4rem, min(9vw, 13vh), 6.25rem);
+  align-self: center;
+  font-size: clamp(4rem, min(10vw, 14dvh), 10rem);
   line-height: 1;
+  margin-inline: auto;
   transition:
     filter 160ms ease,
     transform 160ms ease;

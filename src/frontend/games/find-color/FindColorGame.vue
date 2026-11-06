@@ -167,7 +167,7 @@ onUnmounted(() => {
     </template>
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
-        <v-col cols="12" lg="10" xl="9">
+        <v-col cols="12" lg="11" xl="10">
           <v-card class="find-color-card pa-4 pa-md-7" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Смотри и выбирай</div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
@@ -177,7 +177,6 @@ onUnmounted(() => {
               :target-id="(choice) => choiceTargetId(choice.id)"
               :disabled="session.status !== 'running' || isSpeaking"
               :dwell-ms="session.settings.dwellMs"
-              min-height="clamp(7.75rem, 23vh, 13.75rem)"
               @select="answer"
             >
               <template #default="{ choice }">
@@ -244,17 +243,17 @@ onUnmounted(() => {
   background: var(--find-color-bg);
   border: 0.5rem solid rgb(255 255 255 / 42%);
   border-radius: 999px;
-  block-size: clamp(3.25rem, min(8vh, 12vw), 7.5rem);
+  block-size: clamp(4rem, min(15dvh, 10vw), 10rem);
   box-shadow:
     0 0 0 0.875rem rgb(255 255 255 / 22%),
     inset 0 0.5rem 1rem rgb(255 255 255 / 18%),
     inset 0 -0.4rem 0.8rem rgb(0 0 0 / 16%);
-  inline-size: clamp(3.25rem, min(8vh, 12vw), 7.5rem);
+  inline-size: clamp(4rem, min(15dvh, 10vw), 10rem);
   opacity: 0.95;
 }
 
 .color-label {
-  font-size: clamp(0.95rem, min(2.2vw, 3.2dvh), 1.6rem) !important;
+  font-size: clamp(1.1rem, min(2.6vw, 4dvh), 2.2rem) !important;
   line-height: 1.2;
   max-inline-size: 100%;
   overflow-wrap: anywhere;
