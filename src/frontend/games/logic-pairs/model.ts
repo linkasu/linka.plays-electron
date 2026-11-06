@@ -146,8 +146,9 @@ function choiceCountForSettings(settings: SessionSettings) {
 }
 
 function promptForRelation(relation: LogicPairRelation) {
-  if (relation === "meaning") return "Что подходит по смыслу?";
-  return "Что подходит по числу?";
+  // Testers: «озвучить задание нормально, сейчас коряво: что подходит по числу».
+  if (relation === "meaning") return "Что подходит к этой картинке?";
+  return "Что подходит к этой цифре?";
 }
 
 function looksAlike(left: LogicPairDefinition, right: LogicPairDefinition) {
