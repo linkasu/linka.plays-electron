@@ -505,7 +505,8 @@ watch(
 
 .sandwich-card {
   background: rgb(255 251 244 / 96%);
-  min-block-size: min(46rem, calc(100dvh - 5rem));
+  /* Never taller than the room under the HUD, or the game is shrunk as a whole. */
+  min-block-size: min(46rem, calc(100dvh - var(--game-hud-clearance, 5rem) - 1.5rem));
 }
 
 .intro {
@@ -678,10 +679,12 @@ watch(
   inline-size: min(17.5rem, 84%);
 }
 
+/* Testers: «очень мелкие карточки с ингредиентами, надо сделать крупнее и
+   разнести подальше друг от друга, сам рецепт очень мелко». */
 .ingredient-grid {
   align-self: start;
   display: grid;
-  gap: 0.75rem;
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
   grid-template-columns: repeat(3, minmax(0, 1fr));
   inline-size: 100%;
 }
@@ -700,10 +703,6 @@ watch(
 }
 
 @media (max-height: 48rem) {
-  .recipe-strip {
-    padding-inline-start: min(15rem, 30vw);
-  }
-
   .ingredient-grid :deep(.dwell-button) {
     min-block-size: 7rem !important;
     padding: 0.5rem !important;
@@ -731,29 +730,39 @@ watch(
     display: none;
   }
 
-  .play-area {
-    grid-template-columns: minmax(18rem, 0.85fr) minmax(26rem, 1.15fr);
-  }
-
   .recipe-step {
-    min-block-size: 3.75rem;
+    min-block-size: 4.25rem;
   }
 
   .recipe-step-visual {
-    font-size: 2.5rem;
+    font-size: 3rem;
   }
 
+  .recipe-step-label {
+    font-size: 1rem !important;
+  }
+
+  /* The whole game has to fit under the HUD: otherwise it is shrunk as a whole
+     and the cards come out small again. The plate gives up some height. */
   .plate-stage {
-    block-size: clamp(13rem, 42dvh, 18rem);
+    block-size: clamp(9rem, 26dvh, 14rem);
   }
 
   .plate {
-    min-block-size: clamp(10rem, 31dvh, 14rem);
-    padding: 1.4rem 1.1rem;
+    min-block-size: clamp(7.5rem, 20dvh, 11rem);
+    padding: 1rem 1.1rem;
+  }
+
+  .play-area {
+    grid-template-columns: minmax(16rem, 0.75fr) minmax(26rem, 1.25fr);
   }
 
   .ingredient-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .ingredient-grid :deep(.dwell-button) {
+    min-block-size: clamp(6.5rem, 16dvh, 9rem) !important;
   }
 }
 

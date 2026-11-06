@@ -264,7 +264,7 @@ watch(
                   "
                   :dwell-ms="session.settings.dwellMs"
                   :hit-padding="3"
-                  min-height="9.375rem"
+                  min-height="clamp(9.375rem, 18dvh, 14rem)"
                   color="surface"
                   @select="chooseWagon(wagon)"
                 >
@@ -415,9 +415,11 @@ watch(
   border-radius: 999rem;
 }
 
+/* Testers: «разнести карточки подальше друг от друга, сейчас смотришь на одну,
+   а попадаешь на другую; сделать карточки с вагончиками крупнее». */
 .wagon-grid {
   display: grid;
-  gap: 1rem;
+  gap: clamp(1.5rem, 2.5vw, 2.75rem);
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
@@ -491,13 +493,13 @@ watch(
   /* One row of wagons, so the train being built stays on screen on a
      laptop window (about 690 px high) too. */
   .wagon-grid {
-    gap: 0.75rem;
+    gap: clamp(1.75rem, 3vw, 3rem);
     grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
     order: -1;
   }
 
   .wagon-grid :deep(.dwell-button) {
-    min-block-size: 7.5rem !important;
+    min-block-size: clamp(7.5rem, 22dvh, 11rem) !important;
   }
 
   .track-card {
@@ -505,12 +507,12 @@ watch(
   }
 
   .train-track {
-    min-block-size: 9.375rem;
-    padding-block-start: 2rem;
+    min-block-size: 8rem;
+    padding-block-start: 1rem;
   }
 
   .loose-wagon {
-    block-size: 3.375rem;
+    block-size: clamp(3.375rem, 9dvh, 5rem);
   }
 }
 </style>

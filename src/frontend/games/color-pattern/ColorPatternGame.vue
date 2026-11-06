@@ -212,7 +212,7 @@ onUnmounted(() => {
     />
     <v-container class="game-container" fluid>
       <v-row justify="center">
-        <v-col cols="12" lg="10" xl="9">
+        <v-col cols="12" lg="11" xl="10">
           <v-card class="pa-4 pa-md-5" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Продолжи ряд</div>
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">
@@ -253,7 +253,7 @@ onUnmounted(() => {
 
             <v-divider class="my-4 my-md-5" />
 
-            <v-row class="choice-row" justify="center" dense>
+            <v-row class="choice-row" justify="center">
               <v-col
                 v-for="choice in round.choices"
                 :key="choice.id"
@@ -265,7 +265,7 @@ onUnmounted(() => {
                   :target-id="choiceTargetId(choice)"
                   :disabled="session.status !== 'running' || pendingSelection || isSpeaking"
                   :dwell-ms="session.settings.dwellMs"
-                  min-height="9rem"
+                  min-height="clamp(9rem, 24dvh, 15rem)"
                   :color="choiceColor(choice)"
                   @select="choose(choice)"
                 >
@@ -337,8 +337,10 @@ onUnmounted(() => {
   border: 0.25rem dashed rgb(var(--v-theme-primary) / 44%);
 }
 
-.choice-row {
-  row-gap: 0.75rem;
+/* Testers: «чуть крупнее сделать карточки для выбора». Wider gaps keep a gaze
+   off the neighbour. A column with `cols` renders as .v-col-N. */
+.choice-row > [class*="v-col"] {
+  padding: clamp(0.875rem, 1.6vw, 1.75rem);
 }
 
 .choice-card {
@@ -380,10 +382,13 @@ onUnmounted(() => {
     gap: 0.5rem;
   }
 
-  .pattern-slot,
+  .pattern-slot {
+    min-block-size: 5.5rem !important;
+  }
+
   .choice-card,
   .choice-row :deep(.dwell-button) {
-    min-block-size: 6.5rem !important;
+    min-block-size: clamp(6.5rem, 23dvh, 12rem) !important;
   }
 
   .choice-card .color-label {
