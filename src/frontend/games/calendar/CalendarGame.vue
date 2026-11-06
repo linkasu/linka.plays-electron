@@ -38,7 +38,6 @@ const promptAudio = useGamePromptAudio({
     "calendar.prompt.weekday.monday.today",
     "calendar.prompt.relative.monday.today",
     "calendar.mistake",
-    "calendar.complete",
   ],
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
@@ -104,11 +103,7 @@ async function choose(choice: CalendarChoice) {
     });
     void pianoFeedback.playSuccess();
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(
-      finishedAfterSuccess ? [correctAssetId(), "calendar.complete"] : [correctAssetId()],
-      80,
-      170,
-    );
+    await promptAudio.playSequenceAndWait([correctAssetId()], 80, 170);
     if (finishedAfterSuccess) {
       finishSession("game-complete");
       isSpeaking.value = false;

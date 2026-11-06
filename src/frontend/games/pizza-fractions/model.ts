@@ -1,7 +1,7 @@
 import type { SessionSettings } from "../../core/settings";
 import { shuffleItems } from "../../core/random";
 
-export type PizzaFractionId = "whole" | "half" | "quarter";
+export type PizzaFractionId = "whole" | "half" | "third" | "quarter";
 
 export type PizzaFractionChoice = {
   id: PizzaFractionId;
@@ -40,6 +40,16 @@ export const pizzaFractionChoices: PizzaFractionChoice[] = [
     totalSlices: 4,
     helperText: "Заполнены две части из четырёх.",
   },
+  // Testers: «всего три вида — половина, четверть и целая … сделать ещё 1/3».
+  {
+    id: "third",
+    label: "Треть",
+    promptLabel: "треть пиццы",
+    shortLabel: "1/3",
+    filledSlices: 1,
+    totalSlices: 3,
+    helperText: "Заполнена одна часть из трёх.",
+  },
   {
     id: "quarter",
     label: "Четверть",
@@ -51,7 +61,7 @@ export const pizzaFractionChoices: PizzaFractionChoice[] = [
   },
 ];
 
-const targetOrder: PizzaFractionId[] = ["half", "quarter", "whole"];
+const targetOrder: PizzaFractionId[] = ["half", "third", "quarter", "whole"];
 
 function pickTarget(roundIndex: number) {
   return targetOrder[(Math.max(1, roundIndex) - 1) % targetOrder.length];
@@ -65,7 +75,12 @@ export function generatePizzaFractionsRound(
   const targetId = pickTarget(roundIndex);
   const target =
     pizzaFractionChoices.find((choice) => choice.id === targetId) ?? pizzaFractionChoices[0];
-  const choices = shuffleItems(pizzaFractionChoices, random);
+  // Three large pizzas on screen: the target and two of the other fractions.
+  const others = shuffleItems(
+    pizzaFractionChoices.filter((choice) => choice.id !== targetId),
+    random,
+  ).slice(0, 2);
+  const choices = shuffleItems([target, ...others], random);
 
   return {
     roundId: `pizza-fractions:round:${roundIndex}`,

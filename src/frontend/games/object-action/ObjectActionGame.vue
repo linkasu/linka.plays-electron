@@ -100,7 +100,6 @@ async function chooseAction(choice: ObjectActionChoice) {
     feedback.value = round.value.explanation;
     await playCorrectScene(choice);
     if (session.step >= session.maxSteps) {
-      await promptAudio.playSequenceAndWait(["object-action.complete"], 80);
       finishSession("game-complete");
       isChangingRound.value = false;
       return;

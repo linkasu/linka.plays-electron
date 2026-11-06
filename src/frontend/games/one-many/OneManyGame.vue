@@ -40,12 +40,7 @@ const promptAudio = useGamePromptAudio({
   gameId: "one-many",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: [
-    "one-many.prompt.one",
-    "one-many.prompt.many",
-    "one-many.mistake",
-    "one-many.complete",
-  ],
+  warmAssetIds: ["one-many.prompt.one", "one-many.prompt.many", "one-many.mistake"],
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
@@ -101,11 +96,7 @@ async function choose(choice: OneManyChoice) {
     });
     void pianoFeedback.playSuccess();
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(
-      finishedAfterSuccess ? [correctAssetId(), "one-many.complete"] : [correctAssetId()],
-      80,
-      170,
-    );
+    await promptAudio.playSequenceAndWait([correctAssetId()], 80, 170);
     if (finishedAfterSuccess) {
       finishSession("game-complete");
       isSpeaking.value = false;

@@ -3,18 +3,22 @@ import { settingsFromPreset } from "../../core/settings";
 import { generatePizzaFractionsRound, pizzaFractionChoices, type PizzaFractionId } from "./model";
 
 describe("generatePizzaFractionsRound", () => {
-  it("offers whole, half, and quarter pizza cards", () => {
+  it("offers three different pizza cards including the target", () => {
     const settings = settingsFromPreset("standard");
+    const seen = new Set<PizzaFractionId>();
 
     for (let index = 1; index <= 24; index += 1) {
       const round = generatePizzaFractionsRound(settings, index);
       const ids = new Set(round.choices.map((choice) => choice.id));
+      round.choices.forEach((choice) => seen.add(choice.id));
 
       expect(round.choices).toHaveLength(3);
-      expect(ids).toEqual(new Set(["whole", "half", "quarter"]));
+      expect(ids.size).toBe(3);
+      expect(ids.has(round.targetId)).toBe(true);
       expect(round.choices[round.correctIndex].id).toBe(round.targetId);
       expect(round.roundId).toBe(`pizza-fractions:round:${index}`);
     }
+    expect(seen).toEqual(new Set(["whole", "half", "third", "quarter"]));
   });
 
   it("cycles the requested target through the eight-step session", () => {
@@ -27,13 +31,13 @@ describe("generatePizzaFractionsRound", () => {
 
     expect(targets).toEqual([
       "half",
+      "third",
       "quarter",
       "whole",
       "half",
+      "third",
       "quarter",
       "whole",
-      "half",
-      "quarter",
     ]);
   });
 

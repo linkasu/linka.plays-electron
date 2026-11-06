@@ -20,6 +20,8 @@ export type ObjectActionRound = {
 };
 
 // Cards show the drawn picture images/object-action/<id>.png; the emoji fields describe the scene.
+// Testers: «звучит глупо — мылом мыть … надо: мальчик рисует, мальчик моет руки, мальчик
+// гуляет». The pictures show a boy.
 export const objectActionChoices: ObjectActionChoice[] = [
   {
     id: "drink",
@@ -29,7 +31,7 @@ export const objectActionChoices: ObjectActionChoice[] = [
     cueEmoji: "↗️",
     settingEmoji: "💧",
     sceneLabel: "Человек подносит чашку ко рту и пьёт",
-    successText: "Человек пьёт из чашки.",
+    successText: "Мальчик пьёт из чашки.",
     successAssetId: "object-action.phrase.cup-drink",
   },
   {
@@ -40,7 +42,7 @@ export const objectActionChoices: ObjectActionChoice[] = [
     cueEmoji: "🥄",
     settingEmoji: "🍽️",
     sceneLabel: "Человек ест ложкой из миски",
-    successText: "Человек ест ложкой.",
+    successText: "Мальчик ест ложкой.",
     successAssetId: "object-action.phrase.spoon-eat",
   },
   {
@@ -51,7 +53,8 @@ export const objectActionChoices: ObjectActionChoice[] = [
     cueEmoji: "💤",
     settingEmoji: "🌙",
     sceneLabel: "Человек спит в кровати ночью",
-    successText: "Человек спит в кровати.",
+    successText: "Мальчик спит.",
+    successAssetId: "object-action.phrase.sleep",
   },
   {
     id: "walk",
@@ -61,7 +64,8 @@ export const objectActionChoices: ObjectActionChoice[] = [
     cueEmoji: "➡️",
     settingEmoji: "🛤️",
     sceneLabel: "Человек идёт вперёд по дорожке",
-    successText: "Человек идёт по дорожке.",
+    successText: "Мальчик гуляет.",
+    successAssetId: "object-action.phrase.walk",
   },
   {
     id: "wash",
@@ -71,7 +75,7 @@ export const objectActionChoices: ObjectActionChoice[] = [
     cueEmoji: "💦",
     settingEmoji: "🚰",
     sceneLabel: "Человек моет руки водой с мылом",
-    successText: "Человек моет руки с мылом.",
+    successText: "Мальчик моет руки.",
     successAssetId: "object-action.phrase.soap-wash",
   },
   {
@@ -82,7 +86,7 @@ export const objectActionChoices: ObjectActionChoice[] = [
     cueEmoji: "✍️",
     settingEmoji: "📄",
     sceneLabel: "Человек рисует карандашом на бумаге",
-    successText: "Человек рисует карандашом.",
+    successText: "Мальчик рисует.",
     successAssetId: "object-action.phrase.pencil-draw",
   },
   {
@@ -93,7 +97,7 @@ export const objectActionChoices: ObjectActionChoice[] = [
     cueEmoji: "↔️",
     settingEmoji: "🛝",
     sceneLabel: "Ребёнок толкает и катает мяч",
-    successText: "Ребёнок катает мяч.",
+    successText: "Мальчик катает мяч.",
     successAssetId: "object-action.phrase.ball-roll",
   },
 ];

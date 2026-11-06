@@ -301,7 +301,7 @@ onUnmounted(() => {
                 rounded="xl"
                 variant="tonal"
               >
-                Следуй за стрелкой.
+                Смотри на картинку, на которую указывает стрелочка.
               </v-alert>
             </div>
           </v-card>

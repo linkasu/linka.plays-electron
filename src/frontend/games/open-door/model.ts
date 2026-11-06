@@ -66,7 +66,9 @@ export const openDoorRewards: OpenDoorReward[] = [
   {
     id: "star",
     artId: "open-door/star",
-    label: "звёздочка",
+    // Testers: the voice said «звёздча». «Звезда» is read right and matches the
+    // one-word names of the other items.
+    label: "звезда",
     color: "#d6a13a",
     glow: "#ffe7bd",
     ttsId: "open-door.star",

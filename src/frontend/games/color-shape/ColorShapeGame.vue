@@ -51,12 +51,7 @@ const colorShapePromptAssetIds = [
 const promptAudio = useGamePromptAudio({
   gameId: "color-shape",
   soundEnabled,
-  warmAssetIds: [
-    ...colorShapePromptAssetIds,
-    "color-shape.correct",
-    "color-shape.mistake",
-    "color-shape.complete",
-  ],
+  warmAssetIds: [...colorShapePromptAssetIds, "color-shape.correct", "color-shape.mistake"],
 });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
@@ -116,13 +111,7 @@ async function answer(choice: ColorShapeItem) {
     isSpeaking.value = true;
     void feedbackAudio.playSuccess();
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(
-      finishedAfterSuccess
-        ? ["color-shape.correct", "color-shape.complete"]
-        : ["color-shape.correct"],
-      80,
-      170,
-    );
+    await promptAudio.playSequenceAndWait(["color-shape.correct"], 80, 170);
     if (finishedAfterSuccess) {
       finishSession("game-complete");
       isSpeaking.value = false;
