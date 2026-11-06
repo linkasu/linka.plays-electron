@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref, toRef } from "vue";
+import { computed, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -72,7 +72,8 @@ const {
 // before the melody, before the repeat and in the free mode.
 const taskAudio = useGamePromptAudio({
   gameId: "solfege",
-  soundEnabled: toRef(session.settings, "sound"),
+  // The speaker button switches the voice off too.
+  soundEnabled: computed(() => audioEnabled.value && session.settings.sound),
 });
 const { setGameTimeout, clearGameTimeout, clearGameTimers } = useGameTimers();
 
@@ -194,6 +195,7 @@ function playPromptNote(delayMs = 0) {
 function toggleAudio() {
   if (audioEnabled.value) {
     audioEnabled.value = false;
+    taskAudio.cancelPending();
     return;
   }
 
@@ -282,7 +284,7 @@ function runDemonstration(stageIndex: number) {
   const sequence = solfegeGuidedStages[stageIndex].sequence;
   // «Послушай мелодию.» plays first; the notes wait for it.
   taskAudio.play("solfege.task.listen");
-  const initialDelay = session.settings.sound ? 1700 : 320;
+  const initialDelay = audioEnabled.value && session.settings.sound ? 1700 : 320;
   const noteInterval = 820;
 
   sequence.forEach((note, index) => {
