@@ -63,10 +63,13 @@ const promptAudio = useGamePromptAudio({
 const resultVisible = computed(() => session.status === "finished");
 const matchedCount = computed(() => cards.value.filter((card) => card.matched).length / 2);
 // Testers: «очень близко друг к другу, сделать подальше и покрупнее». On a low
-// screen six cards stand in one row: two rows under the task leave each card
-// only a thin strip.
-const { height: viewportHeight } = useDisplay();
-const singleRow = computed(() => round.value.columns === 3 && viewportHeight.value < 900);
+// but wide screen six cards stand in one row: two rows under the task leave each
+// card only a thin strip. A narrow window keeps two rows, or a closed card's
+// icon and the picture's word would not fit.
+const { height: viewportHeight, width: viewportWidth } = useDisplay();
+const singleRow = computed(
+  () => round.value.columns === 3 && viewportHeight.value < 900 && viewportWidth.value >= 1200,
+);
 const targetCardHeight = computed(() => {
   const scale = session.settings.targetScale;
   return singleRow.value
