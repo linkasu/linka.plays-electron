@@ -52,13 +52,10 @@ const promptAudio = useGamePromptAudio({
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const boardState = ref(createRouteSnakeState());
-const feedbackMessage = ref("Выбери направление. Змейка движется сама и ищет листочек.");
+const feedbackMessage = ref("Выбери направление. Змейка делает шаг туда и ищет листочек.");
 const leavesEaten = ref(0);
-const slowUntil = ref(0);
 const resultVisible = computed(() => session.status === "finished");
 const isSpeaking = ref(false);
-let lastStepAt = performance.now();
-const stepTimer = window.setInterval(tick, 180);
 
 const directionControls: {
   direction: SnakeDirection;
@@ -92,28 +89,24 @@ function directionTargetId(direction: SnakeDirection) {
   return `route-snake:direction:${direction}`;
 }
 
+// Testers: «змейка бежит сама даже без нажатия кнопок». The snake now makes one
+// step for each chosen direction and waits otherwise.
 function chooseDirection(direction: SnakeDirection) {
   if (session.status !== "running" || isSpeaking.value) return;
   const previousDirection = boardState.value.direction;
   boardState.value = setSnakeDirection(boardState.value, direction);
   feedbackMessage.value =
     previousDirection === boardState.value.direction && previousDirection !== direction
-      ? "Разворот слишком резкий. Продолжаем вперёд."
-      : "Хорошо. Змейка повернёт.";
+      ? "Разворот слишком резкий. Змейка идёт вперёд."
+      : "Хорошо. Змейка сделала шаг.";
+  void step();
 }
 
 function chooseDirectionButton(control: GameWasdControl) {
   chooseDirection(control.id as SnakeDirection);
 }
 
-async function tick() {
-  if (session.status !== "running" || isSpeaking.value) return;
-
-  const now = performance.now();
-  const delayMs = now < slowUntil.value ? 3300 : 2350;
-  if (now - lastStepAt < delayMs) return;
-
-  lastStepAt = now;
+async function step() {
   const result = stepSnake(boardState.value);
   boardState.value = result.state;
   if (routeSnakeOutcome(result) === "loss") {
@@ -154,16 +147,14 @@ async function handleStepEvent(event: RouteSnakeStepEvent, moved: boolean) {
   }
 
   if (event === "moved") {
-    feedbackMessage.value = "Движемся постепенно. Можно выбрать новый путь.";
     recordSuccess({ event, head: boardState.value.snake[0] });
     return;
   }
 
-  slowUntil.value = performance.now() + 2000;
   feedbackMessage.value =
     event === "blocked-wall"
-      ? "Край поля рядом. Змейка замедлилась и повернула."
-      : "Впереди хвостик. Сделаем паузу и выберем свободный путь.";
+      ? "Край поля рядом. Выбери другое направление."
+      : "Впереди хвостик. Выбери свободный путь.";
   recordHint({ event, moved, direction: boardState.value.direction });
   recordMistake({ event, moved, direction: boardState.value.direction });
 }
@@ -198,11 +189,9 @@ function pointMatches(point: SnakePoint, row: number, column: number) {
 function restart() {
   promptAudio.cancelPending();
   boardState.value = createRouteSnakeState();
-  feedbackMessage.value = "Выбери направление. Змейка движется сама и ищет листочек.";
+  feedbackMessage.value = "Выбери направление. Змейка делает шаг туда и ищет листочек.";
   leavesEaten.value = 0;
-  slowUntil.value = 0;
   isSpeaking.value = false;
-  lastStepAt = performance.now();
   startSession();
   promptAudio.play("route-snake.prompt", 220);
 }
@@ -212,7 +201,6 @@ function pauseGame() {
 }
 
 function resumeGame() {
-  lastStepAt = performance.now();
   resumeSession();
 }
 
@@ -223,7 +211,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   promptAudio.cancelPending();
-  window.clearInterval(stepTimer);
 });
 </script>
 

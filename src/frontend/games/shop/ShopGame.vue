@@ -100,6 +100,9 @@ const shoppingTotal = computed(() =>
   selectedShoppingItems.value.reduce((sum, item) => sum + item.price, 0),
 );
 const targetItemIds = computed(() => new Set(round.value.correctItemIds));
+const hasItemOutsideList = computed(() =>
+  selectedItemIds.value.some((id) => !targetItemIds.value.has(id)),
+);
 const shoppingReady = computed(() => validateShopShoppingCart(round.value, selectedItemIds.value));
 const selectedCoinCounts = computed(() =>
   round.value.coins.map((coin) => ({
@@ -174,28 +177,10 @@ async function toggleShoppingItem(item: ShopItem) {
     return;
   }
 
-  if (!targetItemIds.value.has(item.id)) {
-    recordMistake({
-      roundId: round.value.roundId,
-      targetId,
-      expectedTargetId: shoppingActionTargetId(),
-      prompt: round.value.prompt,
-      expected: round.value.correctItemIds,
-      actual: [...selectedItemIds.value, item.id],
-      itemId: item.id,
-      isCorrect: false,
-      reason: "not-in-list",
-    });
-    setSoftHint(targetId, "Этот товар не из списка. Выбери товары из задания.");
-    isSpeaking.value = true;
-    void feedbackAudio.playMistake();
-    await promptAudio.playSequenceAndWait(["shop.mistake"], 80);
-    isSpeaking.value = false;
-    return;
-  }
-
+  // Testers: «если ошибаешься, не даёт нажать кнопку купить, сразу выдаёт ошибку».
+  // Any item goes into the basket; «Купить» checks it.
   selectedItemIds.value = [...selectedItemIds.value, item.id];
-  feedback.value = shoppingReady.value ? "Корзина готова. Нажми Купить." : round.value.helperText;
+  feedback.value = "Товар в корзине. Когда соберёшь список, нажми Купить.";
   lastMistakeTargetId.value = undefined;
 }
 
@@ -227,13 +212,19 @@ async function buyShoppingList() {
     total: shoppingTotal.value,
     walletTotal: round.value.walletTotal,
     isCorrect: false,
-    reason: shoppingTotal.value > round.value.walletTotal ? "too-much" : "list-mismatch",
+    reason: hasItemOutsideList.value
+      ? "not-in-list"
+      : shoppingTotal.value > round.value.walletTotal
+        ? "too-much"
+        : "list-mismatch",
   });
   setSoftHint(
     targetId,
-    shoppingTotal.value > round.value.walletTotal
-      ? "Не хватает монет. Убери один товар."
-      : "Выбери все товары из списка, потом нажми Купить.",
+    hasItemOutsideList.value
+      ? "В корзине есть товар не из списка. Убери его."
+      : shoppingTotal.value > round.value.walletTotal
+        ? "Не хватает монет. Убери один товар."
+        : "Выбери все товары из списка, потом нажми Купить.",
   );
   isSpeaking.value = true;
   void feedbackAudio.playMistake();
@@ -244,32 +235,9 @@ async function buyShoppingList() {
 async function addCoin(coin: ShopCoin) {
   if (session.status !== "running" || !isPaymentRound.value || isSpeaking.value) return;
 
-  const targetId = coinTargetId(coin.value);
-  const nextTotal = selectedTotal.value + coin.value;
-  if (nextTotal > round.value.targetPrice) {
-    recordMistake({
-      roundId: round.value.roundId,
-      targetId,
-      expectedTargetId: actionTargetId("check"),
-      expected: round.value.targetPrice,
-      actual: nextTotal,
-      selectedCoins: [...selectedCoins.value, coin.value],
-      isCorrect: false,
-      reason: "too-much",
-    });
-    setSoftHint(targetId, "Получилось больше цены. Можно очистить и собрать снова.");
-    isSpeaking.value = true;
-    void feedbackAudio.playMistake();
-    await promptAudio.playSequenceAndWait(["shop.mistake"], 80);
-    isSpeaking.value = false;
-    return;
-  }
-
+  // The same for coins: the check button decides.
   selectedCoins.value = [...selectedCoins.value, coin.value];
-  feedback.value =
-    nextTotal === round.value.targetPrice
-      ? "Оплата готова. Нажми галочку."
-      : "Хорошо. Можно добавить ещё монетку.";
+  feedback.value = "Монетка добавлена. Можно добавить ещё или нажать галочку.";
   lastMistakeTargetId.value = undefined;
 }
 

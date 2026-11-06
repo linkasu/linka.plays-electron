@@ -76,6 +76,10 @@ const currentPlacement = ref(createSpawnPlacement(createPiece(pieceSequence[0]))
 const feedbackMessage = ref("Выбери колонку шагами, поверни фигуру и поставь её вниз.");
 const isSpeaking = ref(false);
 const isDropping = ref(false);
+// Testers: «поставишь фигуру, а она появляется и внизу, и остаётся вверху, пока не
+// прозвучит голос». A locked piece is part of the board; the next one appears
+// only after the phrase.
+const pieceLocked = ref(false);
 const dropRows = ref(0);
 const dropAnimationMs = 360;
 const resultVisible = computed(() => session.status === "finished");
@@ -143,13 +147,17 @@ function cellKey(row: number, column: number) {
 
 const currentCellKeys = computed(
   () =>
-    new Set(placementCells(currentPlacement.value).map((cell) => cellKey(cell.row, cell.column))),
+    new Set(
+      (pieceLocked.value ? [] : placementCells(currentPlacement.value)).map((cell) =>
+        cellKey(cell.row, cell.column),
+      ),
+    ),
 );
 const ghostCellKeys = computed(
   () =>
     new Set(
-      (ghostPlacement.value ? placementCells(ghostPlacement.value) : []).map((cell) =>
-        cellKey(cell.row, cell.column),
+      (ghostPlacement.value && !pieceLocked.value ? placementCells(ghostPlacement.value) : []).map(
+        (cell) => cellKey(cell.row, cell.column),
       ),
     ),
 );
@@ -225,10 +233,12 @@ async function nextPiece() {
 
   if (stepTetrisSpawnOutcome(board.value, piece) === "playing") {
     currentPlacement.value = placement;
+    pieceLocked.value = false;
     return;
   }
 
   currentPlacement.value = placement;
+  pieceLocked.value = false;
   feedbackMessage.value = "Наверху стало тесно. Доска завершена, можно начать снова.";
   recordMistake({ kind: "top-out", piece: piece.id, isCorrect: false });
   void feedbackAudio.playMistake();
@@ -262,6 +272,7 @@ async function dropCurrent() {
   const finishedAfterSuccess = session.step + 1 >= session.maxSteps;
   isSpeaking.value = true;
   board.value = result.board;
+  pieceLocked.value = true;
   recordSuccess({ piece: currentPlacement.value.piece.id, clearedLines: result.clearedLines });
   recordEvent("level-start", {
     kind: "piece-locked",
@@ -305,6 +316,7 @@ function restart() {
   feedbackMessage.value = "Выбери колонку шагами, поверни фигуру и поставь её вниз.";
   isSpeaking.value = false;
   isDropping.value = false;
+  pieceLocked.value = false;
   dropRows.value = 0;
   startSession();
   promptAudio.play("step-tetris.prompt", 220);

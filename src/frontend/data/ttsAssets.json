@@ -5614,13 +5614,6 @@
     "path": "/audio/tts/coin-counting/mistake-too-much.mp3"
   },
   {
-    "id": "coin-counting.mistake.too-much-coin",
-    "game": "coin-counting",
-    "text": "Получилось больше. Выбери монетку поменьше.",
-    "voice": "julia",
-    "path": "/audio/tts/coin-counting/mistake-too-much-coin.mp3"
-  },
-  {
     "id": "balloons.prompt",
     "game": "balloons",
     "text": "Смотри на шарик.",
@@ -11702,5 +11695,12 @@
     "text": "Солнечно. Какие штаны надеть?",
     "voice": "jane",
     "path": "/audio/tts/dress-character/prompt-sun-pants.mp3"
+  },
+  {
+    "id": "sokoban-large.level-complete",
+    "game": "sokoban-large",
+    "text": "Ящик на месте. Следующий уровень.",
+    "voice": "jane",
+    "path": "/audio/tts/sokoban-large/level-complete.mp3"
   }
 ]
