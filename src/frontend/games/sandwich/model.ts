@@ -66,6 +66,7 @@ const butter: SandwichChoice = {
   kind: "spread",
   emoji: "🧈",
   color: "#f8d568",
+  ttsAssetId: "word-categories.item.butter",
 };
 
 const cheese: SandwichChoice = {
@@ -89,6 +90,7 @@ const lettuce: SandwichChoice = {
   imageId: "leaf",
   emoji: "🥬",
   color: "#73b66b",
+  ttsAssetId: "word-categories.item.lettuce",
 };
 
 const tomato: SandwichChoice = {

@@ -61,7 +61,9 @@ const ingredientAudio = useGamePromptAudio({
   soundEnabled: toRef(session.settings, "sound"),
   warmAssetIds: [
     "word-categories.item.bread",
+    "word-categories.item.butter",
     "word-categories.item.cheese",
+    "word-categories.item.lettuce",
     "word-categories.item.tomato",
   ],
 });

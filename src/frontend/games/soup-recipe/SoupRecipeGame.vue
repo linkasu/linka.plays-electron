@@ -152,9 +152,17 @@ function addFlyingIngredient(ingredient: SoupIngredient) {
   });
 }
 
+// Testers: «не озвучивается, какой ингредиент надо сейчас положить».
+function nextIngredientAssetIds() {
+  return nextIngredient.value ? [`soup-recipe.next.${nextIngredient.value.id}`] : [];
+}
+
 async function playPrompt(delayMs = 0) {
   isSpeaking.value = true;
-  await promptAudio.playSequenceAndWait(["soup-recipe.prompt"], delayMs);
+  await promptAudio.playSequenceAndWait(
+    ["soup-recipe.prompt", ...nextIngredientAssetIds()],
+    delayMs,
+  );
   isSpeaking.value = false;
 }
 
@@ -186,7 +194,7 @@ async function chooseIngredient(ingredient: SoupIngredient) {
     feedbackMessage.value = "Посмотри на порядок рецепта и попробуй другой ингредиент.";
     void soupFeedback.playMistake(session.settings.sound);
     isSpeaking.value = true;
-    await promptAudio.playSequenceAndWait(["soup-recipe.mistake"], 80);
+    await promptAudio.playSequenceAndWait(["soup-recipe.mistake", ...nextIngredientAssetIds()], 80);
     isSpeaking.value = false;
     pendingSelection.value = false;
     return;
@@ -216,7 +224,7 @@ async function chooseIngredient(ingredient: SoupIngredient) {
 
   feedbackMessage.value = "Верно. Продолжай по рецепту.";
   isSpeaking.value = true;
-  await promptAudio.playSequenceAndWait(["soup-recipe.correct"], 80);
+  await promptAudio.playSequenceAndWait(["soup-recipe.correct", ...nextIngredientAssetIds()], 80);
   isSpeaking.value = false;
   pendingSelection.value = false;
 }

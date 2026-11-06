@@ -13,7 +13,6 @@ import {
   buildIWantPhrase,
   createIWantCommunication,
   generateIWantRound,
-  iWantCardAssetId,
   iWantCards,
   iWantPhraseAssetId,
   type IWantCard,
@@ -41,12 +40,7 @@ const promptAudio = useGamePromptAudio({
   gameId: "i-want",
   soundEnabled: toRef(session.settings, "sound"),
   volume: 0.34,
-  warmAssetIds: [
-    "i-want.intro",
-    "i-want.next",
-    "i-want.complete",
-    ...iWantCards.map(iWantCardAssetId),
-  ],
+  warmAssetIds: ["i-want.intro", "i-want.next", "i-want.complete"],
 });
 
 const {
@@ -71,11 +65,6 @@ const phrase = computed(() => {
 
 function cardTargetId(card: IWantCard) {
   return `i-want:card:${card.id}`;
-}
-
-function playCardPrompt(card: IWantCard) {
-  if (session.status !== "running" || isChangingRound.value) return;
-  promptAudio.play(iWantCardAssetId(card));
 }
 
 async function choose(card: IWantCard) {
@@ -178,7 +167,6 @@ onUnmounted(() => {
                   :dwell-ms="session.settings.dwellMs"
                   :min-height="cardMinHeight"
                   :color="selectedCardId === card.id ? 'deep-purple-darken-3' : 'surface'"
-                  @target-enter="playCardPrompt(card)"
                   @select="choose(card)"
                 >
                   <template #default>

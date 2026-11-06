@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import ttsAssets from "../../data/ttsAssets.json";
 import {
   buildSandwichSteps,
   isSandwichRecipeCompleteStep,
@@ -75,7 +76,8 @@ describe("sandwich model", () => {
     }
   });
 
-  it("provides recognizable visuals and only available ingredient speech", () => {
+  // Testers: «озвучивает ингредиент через один» — butter and lettuce had no phrase.
+  it("names every ingredient with an existing phrase", () => {
     const byId = Object.fromEntries(sandwichChoices.map((choice) => [choice.id, choice]));
 
     expect(byId["bottom-bread"]).toMatchObject({
@@ -94,8 +96,10 @@ describe("sandwich model", () => {
       imageId: "tomato",
       ttsAssetId: "word-categories.item.tomato",
     });
-    expect(byId.butter).toMatchObject({ emoji: "🧈" });
-    expect(byId.butter.ttsAssetId).toBeUndefined();
+    expect(byId.butter).toMatchObject({ emoji: "🧈", ttsAssetId: "word-categories.item.butter" });
+    expect(byId.lettuce).toMatchObject({ ttsAssetId: "word-categories.item.lettuce" });
+    const ttsIds = new Set(ttsAssets.map((asset) => asset.id));
+    for (const choice of sandwichChoices) expect(ttsIds.has(choice.ttsAssetId ?? "")).toBe(true);
     expect(sandwichChoices.every((choice) => choice.imageId || choice.emoji)).toBe(true);
   });
 

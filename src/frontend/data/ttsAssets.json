@@ -11702,5 +11702,61 @@
     "text": "Солнечно. Какие штаны надеть?",
     "voice": "jane",
     "path": "/audio/tts/dress-character/prompt-sun-pants.mp3"
+  },
+  {
+    "id": "word-categories.item.butter",
+    "game": "word-categories",
+    "text": "масло",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-butter.mp3"
+  },
+  {
+    "id": "word-categories.item.lettuce",
+    "game": "word-categories",
+    "text": "лист салата",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/item-lettuce.mp3"
+  },
+  {
+    "id": "soup-recipe.next.water",
+    "game": "soup-recipe",
+    "text": "Налей воду.",
+    "voice": "jane",
+    "path": "/audio/tts/soup-recipe/next-water.mp3"
+  },
+  {
+    "id": "soup-recipe.next.potatoes",
+    "game": "soup-recipe",
+    "text": "Добавь картофель.",
+    "voice": "jane",
+    "path": "/audio/tts/soup-recipe/next-potatoes.mp3"
+  },
+  {
+    "id": "soup-recipe.next.carrot",
+    "game": "soup-recipe",
+    "text": "Добавь морковь.",
+    "voice": "jane",
+    "path": "/audio/tts/soup-recipe/next-carrot.mp3"
+  },
+  {
+    "id": "soup-recipe.next.onion",
+    "game": "soup-recipe",
+    "text": "Добавь лук.",
+    "voice": "jane",
+    "path": "/audio/tts/soup-recipe/next-onion.mp3"
+  },
+  {
+    "id": "soup-recipe.next.cabbage",
+    "game": "soup-recipe",
+    "text": "Добавь капусту.",
+    "voice": "jane",
+    "path": "/audio/tts/soup-recipe/next-cabbage.mp3"
+  },
+  {
+    "id": "soup-recipe.next.salt",
+    "game": "soup-recipe",
+    "text": "Добавь соль.",
+    "voice": "jane",
+    "path": "/audio/tts/soup-recipe/next-salt.mp3"
   }
 ]
