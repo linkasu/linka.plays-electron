@@ -5,6 +5,8 @@ import { useDwellSettings } from "../../core/dwellSettings";
 import { fitGameBelowHud } from "../../core/fitBelowHud";
 import { resolveMenuMode, resolveMenuRoute } from "../../core/menuMode";
 import { gameSessionRunKey } from "../../core/session";
+import { playTtsAsset, type TtsAsset } from "../../core/ttsAudio";
+import ttsAssetsData from "../../data/ttsAssets.json";
 import GameDwellButton from "./GameDwellButton.vue";
 import GazePointerOverlay from "./GazePointerOverlay.vue";
 import TobiiStatusBadge from "../TobiiStatusBadge.vue";
@@ -91,6 +93,19 @@ function goToMenu() {
   router.push(resolveMenuRoute());
 }
 
+// The user (06.11): a «Правила» button that reads the rules of the game aloud, so the
+// task on screen can stay short. It shows only for games whose rules are recorded.
+const rulesAsset = computed(() => {
+  const gameId = runContext?.gameId;
+  if (!gameId) return undefined;
+  return (ttsAssetsData as TtsAsset[]).find((asset) => asset.id === `${gameId}.rules`);
+});
+
+function playRules() {
+  if (!rulesAsset.value) return;
+  playTtsAsset(runContext?.soundEnabled() ?? true, rulesAsset.value, 0.36);
+}
+
 function togglePause() {
   if (props.pauseDisabled) return;
   props.paused ? emit("resume") : emit("pause");
@@ -100,7 +115,10 @@ function togglePause() {
 <template>
   <div ref="hudRef" class="game-hud d-flex flex-wrap align-center ga-2 pa-3" data-canvas-overlay>
     <template v-if="isSelfMode">
-      <div class="self-gaze-edge d-flex ga-2" aria-label="Управление взглядом">
+      <div
+        :class="['self-gaze-edge', 'd-flex', 'ga-2', { 'self-gaze-edge--rules': rulesAsset }]"
+        aria-label="Управление взглядом"
+      >
         <GameDwellButton
           class="self-gaze-action"
           target-id="hud-menu"
@@ -134,6 +152,23 @@ function togglePause() {
             </div>
           </template>
         </GameDwellButton>
+        <GameDwellButton
+          v-if="rulesAsset"
+          class="self-gaze-action"
+          target-id="hud-rules"
+          :dwell-ms="dwellMs"
+          min-height="clamp(5rem, 12dvh, 7.5rem)"
+          color="surface"
+          @select="playRules"
+        >
+          <template #default>
+            <div class="d-flex flex-column align-center justify-center ga-1 text-primary">
+              <v-icon icon="mdi-book-open-variant" size="36" />
+              <div class="text-h6 font-weight-bold">Правила</div>
+              <div class="text-caption">удержи взгляд</div>
+            </div>
+          </template>
+        </GameDwellButton>
       </div>
     </template>
     <template v-else>
@@ -155,6 +190,16 @@ function togglePause() {
         @click="togglePause"
       >
         {{ paused ? "Продолжить" : "Пауза" }}
+      </v-btn>
+      <v-btn
+        v-if="rulesAsset"
+        color="surface"
+        density="comfortable"
+        prepend-icon="mdi-book-open-variant"
+        variant="flat"
+        @click="playRules"
+      >
+        Правила
       </v-btn>
       <v-chip
         color="secondary"
@@ -213,6 +258,10 @@ function togglePause() {
   max-inline-size: min(100%, 24rem);
   opacity: 0.72;
   transition: opacity 160ms ease;
+}
+
+.self-gaze-edge--rules {
+  max-inline-size: min(100%, 36rem);
 }
 
 .self-gaze-edge:focus-within,
