@@ -97,6 +97,15 @@ function resetRoundState() {
 // phrase ends after the next prompt used to start, and both share one audio
 // channel, so the round waits for the phrase as well as for the animation.
 let roundAdvanceToken = 0;
+let advanceAfterPause = 0;
+
+function advanceRound() {
+  resetRoundState();
+  if (session.step < session.maxSteps) {
+    nextRound();
+    playPrompt(160);
+  }
+}
 
 function prepareNextRound(response: Promise<unknown>) {
   clearGameTimers();
@@ -105,14 +114,25 @@ function prepareNextRound(response: Promise<unknown>) {
   setGameTimeout(() => {
     void response.then(() => {
       if (token !== roundAdvanceToken) return;
-      resetRoundState();
-      if (session.step < session.maxSteps) {
-        nextRound();
-        playPrompt(160);
+      // A pause that started while the phrase played holds the next round.
+      if (session.status === "paused") {
+        advanceAfterPause = token;
+        return;
       }
+      advanceRound();
     });
   }, 2300);
 }
+
+watch(
+  () => session.status,
+  (status) => {
+    if (status !== "running" || advanceAfterPause !== roundAdvanceToken || !advanceAfterPause)
+      return;
+    advanceAfterPause = 0;
+    advanceRound();
+  },
+);
 
 function feed(food: FeedAnimalFood) {
   if (session.status !== "running" || isFeeding.value) return;
