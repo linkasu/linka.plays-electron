@@ -24,7 +24,7 @@ export const comicStories: ComicStory[] = [
   {
     id: "seed",
     title: "Росток",
-    prompt: "Собери историю о росте цветка.",
+    prompt: "Как растёт цветок? Собери историю по порядку.",
     finalMessage: "Цветок вырос и распустился.",
     frames: [
       {
@@ -50,7 +50,7 @@ export const comicStories: ComicStory[] = [
   {
     id: "tea",
     title: "Чай",
-    prompt: "Собери историю о чаепитии.",
+    prompt: "Давай приготовим чай. Собери историю по порядку.",
     finalMessage: "Чай готов, можно сделать глоток.",
     frames: [
       {
@@ -76,7 +76,7 @@ export const comicStories: ComicStory[] = [
   {
     id: "rainbow",
     title: "После дождя",
-    prompt: "Собери историю о погоде.",
+    prompt: "Что бывает после дождя? Собери историю по порядку.",
     finalMessage: "После дождя небо стало ярким.",
     frames: [
       {
@@ -102,7 +102,7 @@ export const comicStories: ComicStory[] = [
   {
     id: "mail",
     title: "Письмо другу",
-    prompt: "Собери историю о письме другу.",
+    prompt: "Давай отправим письмо другу. Собери историю по порядку.",
     finalMessage: "Друг получил письмо и обрадовался.",
     frames: [
       {
@@ -128,7 +128,7 @@ export const comicStories: ComicStory[] = [
   {
     id: "bread",
     title: "Свежий хлеб",
-    prompt: "Собери историю о свежем хлебе.",
+    prompt: "Давай испечём хлеб. Собери историю по порядку.",
     finalMessage: "Хлеб испёкся и стал ароматным.",
     frames: [
       {
@@ -154,7 +154,7 @@ export const comicStories: ComicStory[] = [
   {
     id: "snowman",
     title: "Снеговик",
-    prompt: "Собери историю о снеговике.",
+    prompt: "Давай слепим снеговика. Собери историю по порядку.",
     finalMessage: "Снеговик стоит и улыбается.",
     frames: [
       {
@@ -180,7 +180,7 @@ export const comicStories: ComicStory[] = [
   {
     id: "house",
     title: "Домик",
-    prompt: "Собери историю о строительстве домика.",
+    prompt: "Давай построим домик. Собери историю по порядку.",
     finalMessage: "Домик готов, внутри светло.",
     frames: [
       {
@@ -206,7 +206,7 @@ export const comicStories: ComicStory[] = [
   {
     id: "gift",
     title: "Подарок",
-    prompt: "Собери историю о подарке другу.",
+    prompt: "Давай приготовим подарок другу. Собери историю по порядку.",
     finalMessage: "Подарок вручили с улыбкой.",
     frames: [
       {
@@ -232,7 +232,7 @@ export const comicStories: ComicStory[] = [
   {
     id: "boat",
     title: "Кораблик",
-    prompt: "Собери историю о бумажном кораблике.",
+    prompt: "Давай сделаем бумажный кораблик. Собери историю по порядку.",
     finalMessage: "Кораблик поплыл по воде.",
     frames: [
       {
@@ -258,7 +258,7 @@ export const comicStories: ComicStory[] = [
   {
     id: "kitten",
     title: "Котёнок",
-    prompt: "Собери историю о котёнке.",
+    prompt: "Собери историю о котёнке по порядку.",
     finalMessage: "Котёнок лёг отдыхать и замурлыкал.",
     frames: [
       {

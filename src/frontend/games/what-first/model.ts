@@ -14,6 +14,8 @@ export type WhatFirstContextVisual = {
 };
 
 export type WhatFirstScene = {
+  /** The task said and shown for this scene. */
+  question: string;
   id: string;
   title: string;
   context: string;
@@ -35,6 +37,7 @@ export const whatFirstScenes: WhatFirstScene[] = [
   {
     id: "wash-eat",
     title: "Перед едой",
+    question: "Мы хотим поесть. Что нужно сделать сначала?",
     context: "Мы хотим сесть за стол.",
     contextVisual: { emoji: "🍴", label: "Стол перед едой" },
     first: {
@@ -49,6 +52,7 @@ export const whatFirstScenes: WhatFirstScene[] = [
   {
     id: "shoes-walk",
     title: "На прогулку",
+    question: "Мы идём гулять. Что нужно сделать сначала?",
     context: "Мы собираемся выйти на улицу.",
     contextVisual: { emoji: "🚪", label: "Выход на улицу" },
     first: {
@@ -63,6 +67,7 @@ export const whatFirstScenes: WhatFirstScene[] = [
   {
     id: "brush-sleep",
     title: "Перед сном",
+    question: "Мы ложимся спать. Что нужно сделать сначала?",
     context: "Вечером пора готовиться ко сну.",
     contextVisual: { emoji: "🌙", label: "Вечер дома" },
     first: {
@@ -77,6 +82,7 @@ export const whatFirstScenes: WhatFirstScene[] = [
   {
     id: "open-read",
     title: "Книга",
+    question: "Мы хотим почитать книгу. Что нужно сделать сначала?",
     context: "Мы хотим посмотреть историю.",
     contextVisual: { emoji: "📚", label: "Книжная история" },
     first: {
@@ -91,6 +97,7 @@ export const whatFirstScenes: WhatFirstScene[] = [
   {
     id: "pour-drink",
     title: "Попить воды",
+    question: "Мы хотим попить воды. Что нужно сделать сначала?",
     context: "В стакане пока пусто.",
     contextVisual: { emoji: "🚰", label: "Вода для питья" },
     first: {
@@ -105,6 +112,7 @@ export const whatFirstScenes: WhatFirstScene[] = [
   {
     id: "soap-rinse",
     title: "Моем руки",
+    question: "Мы моем руки с мылом. Что нужно сделать сначала?",
     context: "На руках пока нет пены.",
     contextVisual: { emoji: "👐", label: "Руки у раковины" },
     first: {
@@ -119,6 +127,7 @@ export const whatFirstScenes: WhatFirstScene[] = [
   {
     id: "sit-buckle",
     title: "В кресле",
+    question: "Мы едем в машине. Что нужно сделать сначала?",
     context: "Нужно безопасно сесть перед дорогой.",
     contextVisual: { emoji: "🚗", label: "Поездка в машине" },
     first: { id: "sit", title: "Сесть", aacLabel: "сесть", phrase: "садимся", emoji: "🪑" },
@@ -133,6 +142,7 @@ export const whatFirstScenes: WhatFirstScene[] = [
   {
     id: "peel-eat",
     title: "Банан",
+    question: "Мы хотим съесть банан. Что нужно сделать сначала?",
     context: "Мы хотим съесть банан.",
     contextVisual: { emoji: "🧺", label: "Корзинка с фруктами" },
     first: {
@@ -160,7 +170,7 @@ function buildRound(
   return {
     roundId: `what-first:round:${roundIndex}`,
     scene,
-    prompt: "Что сначала?",
+    prompt: scene.question,
     expectedAction: scene.first,
     choices,
     explanation: createWhatFirstExplanation(scene),

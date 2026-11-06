@@ -41,8 +41,13 @@ const {
 const promptAudio = useGamePromptAudio({
   gameId: "eat-or-not-eat",
   soundEnabled: toRef(session.settings, "sound"),
-  warmAssetIds: ["eat-or-not-eat.prompt", "eat-or-not-eat.correct", "eat-or-not-eat.mistake"],
+  warmAssetIds: ["eat-or-not-eat.correct", "eat-or-not-eat.mistake"],
 });
+
+// Testers: «задание написано, но не озвучивается; озвучить целиком: куда относится мелок».
+function promptAssetId() {
+  return `eat-or-not-eat.prompt.${round.value.item.id}`;
+}
 
 let generateRound = createEatOrNotEatRoundGenerator();
 const {
@@ -55,7 +60,8 @@ const {
   startSession,
   generateRound: (roundIndex) => generateRound(roundIndex),
 });
-const feedbackText = ref("Выбери: съедобное или несъедобное.");
+// The question above already says what to do; this line only answers a choice.
+const feedbackText = ref("");
 const isSpeaking = ref(false);
 
 const answers: Array<{
@@ -113,8 +119,8 @@ async function answer(value: EatOrNotEatAnswer) {
       return;
     }
     nextRound();
-    feedbackText.value = "Выбери: съедобное или несъедобное.";
-    promptAudio.play("eat-or-not-eat.prompt", 180);
+    feedbackText.value = "";
+    promptAudio.play(promptAssetId(), 180);
   } else {
     recordMistake({
       roundId: round.value.roundId,
@@ -134,18 +140,18 @@ async function answer(value: EatOrNotEatAnswer) {
 }
 
 function restart() {
-  feedbackText.value = "Выбери: съедобное или несъедобное.";
+  feedbackText.value = "";
   isSpeaking.value = false;
   promptAudio.cancelPending();
   generateRound = createEatOrNotEatRoundGenerator();
   restartRoundGame();
-  promptAudio.play("eat-or-not-eat.prompt", 220);
+  promptAudio.play(promptAssetId(), 220);
 }
 
 onMounted(() => {
   warmEatOrNotEatAudio(session.settings.sound);
   promptAudio.warm();
-  promptAudio.play("eat-or-not-eat.prompt", 420);
+  promptAudio.play(promptAssetId(), 420);
 });
 
 onUnmounted(() => {
@@ -181,7 +187,9 @@ onUnmounted(() => {
                 :emoji="round.item.emoji"
               />
               <h1 class="text-h3 font-weight-bold">{{ round.prompt }}</h1>
-              <p class="text-h6 text-medium-emphasis mb-0">{{ feedbackText }}</p>
+              <p v-if="feedbackText" class="text-h6 text-medium-emphasis mb-0">
+                {{ feedbackText }}
+              </p>
             </div>
             <v-row>
               <v-col v-for="option in answers" :key="option.id" cols="12" sm="6">
