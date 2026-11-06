@@ -42,7 +42,7 @@ export function generateCoinCountingRound(
   const targetTotal = randomInt(1, 10, random);
   return {
     roundId: `coin-counting:round:${roundIndex}`,
-    prompt: `Собери ${targetTotal}`,
+    prompt: `Собери сумму ${targetTotal} и нажми галочку`,
     targetTotal,
     coins: shuffleItems(coinCountingCoins, random),
     suggestedCoins: buildCoinCountingSuggestion(targetTotal),

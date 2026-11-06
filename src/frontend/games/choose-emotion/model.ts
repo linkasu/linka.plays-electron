@@ -47,14 +47,16 @@ export const chooseEmotionFaces: ChooseEmotionOption[] = [
   { id: "pride", label: "гордость", emoji: "☺️", artId: "choose-emotion/pride" },
 ];
 
-export const chooseEmotionFacePrompt = "Что чувствует лицо?";
+// Testers: «в первом блоке задание — найди такую же эмоцию, как на картинке сверху,
+// убрать корявую фразу «что чувствует лицо?»».
+export const chooseEmotionFacePrompt = "Найди такую же эмоцию, как на картинке сверху.";
 
 export const chooseEmotionFaceScenarios: ChooseEmotionScenario[] = chooseEmotionFaces.map(
   (face) => ({
     id: `face-${face.id}`,
     mode: "face",
     prompt: chooseEmotionFacePrompt,
-    detail: "Посмотри на выражение лица.",
+    detail: "",
     cueEmoji: face.emoji,
     cueArtId: face.artId,
     targetId: face.id,

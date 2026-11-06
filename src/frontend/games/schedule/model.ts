@@ -1,5 +1,7 @@
 export type ScheduleCard = {
   id: string;
+  /** Asked when this card is next; said aloud as well. */
+  question: string;
   title: string;
   aacLabel: string;
   imageId: string;
@@ -15,6 +17,7 @@ export const scheduleMaxSteps = 8;
 export const dailyScheduleSteps: ScheduleCard[] = [
   {
     id: "wake",
+    question: "Утро. Что мы делаем сначала?",
     artId: "schedule/wake",
     title: "Проснуться",
     aacLabel: "утро",
@@ -25,6 +28,7 @@ export const dailyScheduleSteps: ScheduleCard[] = [
   },
   {
     id: "wash",
+    question: "Мы проснулись. Что дальше?",
     artId: "schedule/wash",
     title: "Умыться",
     aacLabel: "умыться",
@@ -35,6 +39,7 @@ export const dailyScheduleSteps: ScheduleCard[] = [
   },
   {
     id: "breakfast",
+    question: "Мы умылись. Что дальше?",
     artId: "schedule/breakfast",
     title: "Завтрак",
     aacLabel: "есть",
@@ -45,6 +50,7 @@ export const dailyScheduleSteps: ScheduleCard[] = [
   },
   {
     id: "dress",
+    question: "Мы позавтракали. Что дальше?",
     artId: "schedule/dress",
     title: "Одеться",
     aacLabel: "одежда",
@@ -55,6 +61,7 @@ export const dailyScheduleSteps: ScheduleCard[] = [
   },
   {
     id: "therapy",
+    question: "Мы оделись. Что дальше?",
     artId: "schedule/therapy",
     title: "Занятие",
     aacLabel: "занятие",
@@ -65,6 +72,7 @@ export const dailyScheduleSteps: ScheduleCard[] = [
   },
   {
     id: "lunch",
+    question: "Мы позанимались. Что дальше?",
     artId: "schedule/lunch",
     title: "Обед",
     aacLabel: "обед",
@@ -75,6 +83,7 @@ export const dailyScheduleSteps: ScheduleCard[] = [
   },
   {
     id: "play",
+    question: "Мы пообедали. Что дальше?",
     artId: "schedule/play",
     title: "Игра",
     aacLabel: "играть",
@@ -85,6 +94,7 @@ export const dailyScheduleSteps: ScheduleCard[] = [
   },
   {
     id: "sleep",
+    question: "Мы поиграли. Что дальше?",
     artId: "schedule/sleep",
     title: "Сон",
     aacLabel: "спать",

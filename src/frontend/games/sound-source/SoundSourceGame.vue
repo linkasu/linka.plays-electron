@@ -153,7 +153,7 @@ const round = reactive<SoundRound>(createRound(0));
 const resultVisible = computed(() => session.status === "finished");
 const promptText = computed(() =>
   session.settings.sound
-    ? "Сначала послушай, затем выбери источник звука."
+    ? "Послушай звук и найди, что звучит."
     : "Звук выключен. Найди источник по волне на экране.",
 );
 const hintVisible = computed(() => hintState.value === "revealed" || !session.settings.sound);

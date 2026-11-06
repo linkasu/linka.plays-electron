@@ -52,7 +52,8 @@ const promptAudio = useGamePromptAudio({
 });
 
 const cards = ref<ScheduleCardState[]>(makeCards());
-const feedbackMessage = ref("Собери день по порядку. Начни с первой карточки утром.");
+// Testers: «очень корявое задание». Each step asks its own question, on screen and aloud.
+const feedbackMessage = ref(dailyScheduleSteps[0]?.question ?? "Собери день по порядку.");
 const pendingSelection = ref(false);
 const isSpeaking = ref(false);
 const wrongChoiceId = ref<string>();
@@ -117,7 +118,7 @@ async function choose(card: ScheduleCardState) {
     isSpeaking.value = true;
     successChoiceId.value = card.id;
     feedbackMessage.value = nextStep.value
-      ? "Верно. Теперь выбери следующий шаг дня."
+      ? nextStep.value.question
       : "Расписание собрано. День получился понятным.";
     recordSuccess({
       roundId: currentRoundId.value,
@@ -164,7 +165,7 @@ function choiceColor(card: ScheduleCardState) {
 
 function restart() {
   cards.value = makeCards();
-  feedbackMessage.value = "Собери день по порядку. Начни с первой карточки утром.";
+  feedbackMessage.value = dailyScheduleSteps[0]?.question ?? "Собери день по порядку.";
   resetSoftHighlights();
   resultVisible.value = false;
   promptAudio.cancelPending();

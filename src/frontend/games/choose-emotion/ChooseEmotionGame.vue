@@ -120,6 +120,7 @@ async function choose(choice: ChooseEmotionOption, index: number) {
       feedbackTimer = window.setTimeout(() => {
         nextRound();
         resetFeedback();
+        promptAudio.play(taskAssetId(), 150);
       }, 920);
     }
     return;
@@ -143,6 +144,13 @@ async function choose(choice: ChooseEmotionOption, index: number) {
   }, 1250);
 }
 
+// Testers: «не озвучивается предложение, дети не читают». Each round's task is said.
+function taskAssetId() {
+  return round.value.mode === "face"
+    ? "choose-emotion.task.face"
+    : `choose-emotion.task.${round.value.scenarioId}`;
+}
+
 function restart() {
   startGame(mode.value);
 }
@@ -154,7 +162,7 @@ function startGame(nextMode: ChooseEmotionMode) {
   selectingMode.value = false;
   generateRound = createChooseEmotionRoundGenerator(nextMode);
   restartRoundGame();
-  promptAudio.play("choose-emotion.intro", 180);
+  promptAudio.play(taskAssetId(), 180);
 }
 
 onMounted(() => {
@@ -255,7 +263,10 @@ onUnmounted(() => {
               <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">
                 {{ round.prompt }}
               </h1>
-              <p class="text-h6 text-md-h5 text-medium-emphasis text-center mb-2">
+              <p
+                v-if="round.detail"
+                class="text-h6 text-md-h5 text-medium-emphasis text-center mb-2"
+              >
                 {{ round.detail }}
               </p>
               <p class="text-body-1 text-md-h6 text-primary text-center mb-5">{{ helperText }}</p>

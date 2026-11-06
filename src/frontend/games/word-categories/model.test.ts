@@ -63,10 +63,8 @@ describe("generateWordCategoriesRound", () => {
     const itemRound = generateWordCategoriesRound(settings, "item-to-category", 1);
     const categoryRound = generateWordCategoriesRound(settings, "category-to-item", 1);
 
-    expect(itemRound.prompt).toBe(`К какой категории относится «${itemRound.targetItem.word}»?`);
-    expect(categoryRound.prompt).toBe(
-      `Какой предмет относится к категории «${categoryRound.targetCategory.title}»?`,
-    );
+    expect(itemRound.prompt).toBe(`Куда относится ${itemRound.targetItem.word}?`);
+    expect(categoryRound.prompt).toMatch(/^Найди [а-яё]+\.$/);
     expect(itemRound.instruction).toBe("Предмет → категория");
     expect(categoryRound.instruction).toBe("Категория → предмет");
   });

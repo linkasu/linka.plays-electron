@@ -29,6 +29,14 @@ export type WordCategoriesRound = {
   correctIndex: number;
 };
 
+// Testers: «ужасно корявое задание, ничего не понятно ребёнку; озвучить правильно обе части».
+const categoryFindPrompts: Record<string, string> = {
+  food: "Найди еду.",
+  animal: "Найди животное.",
+  transport: "Найди транспорт.",
+  clothes: "Найди одежду.",
+};
+
 export const wordCategories: WordCategory[] = [
   {
     id: "food",
@@ -112,7 +120,7 @@ function generateItemToCategoryRound(
   return {
     roundId: `word-categories:round:${roundIndex}`,
     mode: "item-to-category",
-    prompt: `К какой категории относится «${targetItem.word}»?`,
+    prompt: `Куда относится ${targetItem.word}?`,
     instruction: "Предмет → категория",
     explanation: `${targetItem.word} относится к группе «${targetCategory.title}»: ${targetCategory.hint}.`,
     targetItem,
@@ -142,7 +150,7 @@ function generateCategoryToItemRound(
   return {
     roundId: `word-categories:round:${roundIndex}`,
     mode: "category-to-item",
-    prompt: `Какой предмет относится к категории «${targetCategory.title}»?`,
+    prompt: categoryFindPrompts[targetCategory.id] ?? `Найди: ${targetCategory.title}.`,
     instruction: "Категория → предмет",
     explanation: `${targetItem.word} подходит к группе «${targetCategory.title}»: ${targetCategory.hint}.`,
     targetItem,

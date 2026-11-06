@@ -93,7 +93,11 @@ async function playRoundPrompt(withInstruction: boolean, delayMs = 0) {
       delayMs,
       { gameId: "type-word" },
     );
-  await playWordName(withInstruction ? 0 : delayMs);
+  // Testers: «озвучить задание полностью на каждой карточке».
+  await promptAudio.playSequenceAndWait(
+    [`type-word.task.${round.value.item.id}`],
+    withInstruction ? 0 : delayMs,
+  );
   isChangingWord.value = false;
 }
 

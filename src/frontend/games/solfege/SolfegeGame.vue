@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from "vue";
+import { computed, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useGameTimers } from "../../composables/useGameTimers";
 import { resolveMenuRoute } from "../../core/menuMode";
@@ -67,6 +68,12 @@ const {
   finishOnMistakes: false,
   finishOnTimeout: false,
 });
+// Testers: «не озвучивается задание, не понятно, что делать». The voice says what to do
+// before the melody, before the repeat and in the free mode.
+const taskAudio = useGamePromptAudio({
+  gameId: "solfege",
+  soundEnabled: toRef(session.settings, "sound"),
+});
 const { setGameTimeout, clearGameTimeout, clearGameTimers } = useGameTimers();
 
 const resultVisible = computed(() => session.status === "finished");
@@ -124,6 +131,7 @@ function resetFeedback() {
 }
 
 function clearDemoTimers() {
+  taskAudio.cancelPending();
   for (const timer of demoTimers) clearGameTimeout(timer);
   demoTimers.clear();
   demonstrationNoteId.value = undefined;
@@ -272,7 +280,9 @@ function runDemonstration(stageIndex: number) {
   activeStageIndex.value = stageIndex;
   phase.value = "demonstrating";
   const sequence = solfegeGuidedStages[stageIndex].sequence;
-  const initialDelay = 320;
+  // «Послушай мелодию.» plays first; the notes wait for it.
+  taskAudio.play("solfege.task.listen");
+  const initialDelay = session.settings.sound ? 1700 : 320;
   const noteInterval = 820;
 
   sequence.forEach((note, index) => {
@@ -290,6 +300,7 @@ function runDemonstration(stageIndex: number) {
     () => {
       demonstrationNoteId.value = undefined;
       phase.value = "repeating";
+      taskAudio.play("solfege.task.repeat", 150);
     },
     initialDelay + sequence.length * noteInterval,
   );
@@ -305,6 +316,7 @@ function startGame(nextMode: SolfegeMode) {
 
   if (nextMode === "free") {
     phase.value = "free";
+    taskAudio.play("solfege.task.free", 200);
     return;
   }
 

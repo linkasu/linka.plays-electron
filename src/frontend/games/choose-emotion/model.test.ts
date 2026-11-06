@@ -63,7 +63,7 @@ describe("choose-emotion model", () => {
   });
 
   it("uses the exact child-facing prompt and the shared face visuals", () => {
-    expect(chooseEmotionFacePrompt).toBe("Что чувствует лицо?");
+    expect(chooseEmotionFacePrompt).toBe("Найди такую же эмоцию, как на картинке сверху.");
     expect(chooseEmotionFaceScenarios).toHaveLength(chooseEmotionFaces.length);
 
     for (const scenario of chooseEmotionFaceScenarios) {

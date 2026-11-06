@@ -104,17 +104,19 @@ function itemAssetId(itemId: string) {
   return `word-categories.item.${itemId}`;
 }
 
+// The task on screen, said aloud in both modes.
+function taskAssetId() {
+  return round.value.mode === "item-to-category"
+    ? `word-categories.task.item.${round.value.targetItem.id}`
+    : `word-categories.task.category.${round.value.targetCategory.id}`;
+}
+
 function playRoundItemPrompt(delayMs = 0) {
-  if (round.value.mode !== "item-to-category") return;
-  promptAudio.play(itemAssetId(round.value.targetItem.id), delayMs);
+  promptAudio.play(taskAssetId(), delayMs);
 }
 
 function playIntroPrompt(delayMs = 0) {
-  if (round.value.mode !== "item-to-category") return;
-  promptAudio.playSequence(
-    ["word-categories.intro", itemAssetId(round.value.targetItem.id)],
-    delayMs,
-  );
+  promptAudio.play(taskAssetId(), delayMs);
 }
 
 function choiceColor(choice: WordCategoryChoice) {
