@@ -39,11 +39,11 @@ const promptAudio = useGamePromptAudio({
   soundEnabled,
   warmAssetIds: [
     "pizza-fractions.prompt.half",
+    "pizza-fractions.prompt.third",
     "pizza-fractions.prompt.quarter",
     "pizza-fractions.prompt.whole",
     "pizza-fractions.correct",
     "pizza-fractions.mistake",
-    "pizza-fractions.complete",
   ],
 });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
@@ -61,25 +61,27 @@ const feedbackText = computed(() => {
   return "Посмотри на пиццу ещё раз и выбери другую долю.";
 });
 
-const pizzaSlices = [
-  { id: "top-left", path: "M50 50 L50 8 A42 42 0 0 0 8 50 Z" },
-  { id: "top-right", path: "M50 50 L92 50 A42 42 0 0 0 50 8 Z" },
-  { id: "bottom-right", path: "M50 50 L50 92 A42 42 0 0 0 92 50 Z" },
-  { id: "bottom-left", path: "M50 50 L8 50 A42 42 0 0 0 50 92 Z" },
-] as const;
+// Equal slices from the top, clockwise; the first `filledSlices` are filled.
+function slicePoint(index: number, total: number) {
+  const angle = -Math.PI / 2 + (index / total) * 2 * Math.PI;
+  return { x: 50 + 42 * Math.cos(angle), y: 50 + 42 * Math.sin(angle) };
+}
 
-const filledSliceIds: Record<PizzaFractionChoice["id"], Set<string>> = {
-  whole: new Set(pizzaSlices.map((slice) => slice.id)),
-  half: new Set(["top-left", "bottom-left"]),
-  quarter: new Set(["top-right"]),
-};
+function pizzaSlices(choice: PizzaFractionChoice) {
+  return Array.from({ length: choice.totalSlices }, (_, index) => {
+    const from = slicePoint(index, choice.totalSlices);
+    const to = slicePoint(index + 1, choice.totalSlices);
+    return {
+      id: `${choice.id}:${index}`,
+      filled: index < choice.filledSlices,
+      path: `M50 50 L${from.x} ${from.y} A42 42 0 0 1 ${to.x} ${to.y} Z`,
+      cut: `M50 50 L${from.x} ${from.y}`,
+    };
+  });
+}
 
 function choiceTargetId(choice: PizzaFractionChoice) {
   return `pizza-fractions:choice:${choice.id}`;
-}
-
-function isSliceFilled(choice: PizzaFractionChoice, sliceId: string) {
-  return filledSliceIds[choice.id].has(sliceId);
 }
 
 function promptAssetId() {
@@ -107,13 +109,7 @@ async function choose(index: number) {
     isSpeaking.value = true;
     void feedbackAudio.playSuccess();
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(
-      finishedAfterSuccess
-        ? ["pizza-fractions.correct", "pizza-fractions.complete"]
-        : ["pizza-fractions.correct"],
-      80,
-      170,
-    );
+    await promptAudio.playSequenceAndWait(["pizza-fractions.correct"], 80, 170);
     if (finishedAfterSuccess) {
       finishSession("game-complete");
       isSpeaking.value = false;
@@ -179,9 +175,7 @@ onUnmounted(() => {
       <v-row justify="center">
         <v-col cols="12" xl="11">
           <v-card class="pa-4 pa-md-6" rounded="xl" elevation="8">
-            <div class="text-overline text-secondary text-center mb-2">
-              Половина, четверть и целое
-            </div>
+            <div class="text-overline text-secondary text-center mb-2">Доли пиццы</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-3">{{ round.prompt }}</h1>
             <v-alert
               class="mb-5 text-body-1 font-weight-bold"
@@ -226,17 +220,21 @@ onUnmounted(() => {
                         <circle class="pizza-plate__crust" cx="50" cy="50" r="44" />
                         <g class="pizza-plate__slices">
                           <path
-                            v-for="slice in pizzaSlices"
+                            v-for="slice in pizzaSlices(choice)"
                             :key="slice.id"
                             :class="[
                               'pizza-plate__slice',
-                              { 'pizza-plate__slice--filled': isSliceFilled(choice, slice.id) },
+                              { 'pizza-plate__slice--filled': slice.filled },
                             ]"
                             :d="slice.path"
                           />
                         </g>
-                        <path class="pizza-plate__cut" d="M50 8 V92" />
-                        <path class="pizza-plate__cut" d="M8 50 H92" />
+                        <path
+                          v-for="slice in pizzaSlices(choice)"
+                          :key="`${slice.id}:cut`"
+                          class="pizza-plate__cut"
+                          :d="slice.cut"
+                        />
                         <circle class="pizza-plate__center" cx="50" cy="50" r="3.2" />
                         <circle
                           v-if="choice.id !== 'whole'"

@@ -3,7 +3,10 @@ import { randomInt, shuffleItems } from "../../core/random";
 
 export type ClockRound = {
   roundId: string;
+  /** Hour on the face, 1–12. */
   targetHour: number;
+  /** Hour in the task: the same, or 13–23 for the afternoon and evening. */
+  spokenHour: number;
   prompt: string;
   choices: number[];
   correctIndex: number;
@@ -28,6 +31,12 @@ function randomHour(random: () => number) {
   return randomInt(1, 12, random);
 }
 
+// Testers: «сделать не только 2 часа, 6 часов, но и 14 часов, 16 часов, 20 часов».
+// The face is the same; half of the tasks name the afternoon hour.
+export function clockSpokenHour(faceHour: number, afternoon: boolean) {
+  return afternoon && faceHour < 12 ? faceHour + 12 : faceHour;
+}
+
 function choiceCount(settings: SessionSettings) {
   return settings.preset === "gentle" ? 2 : 4;
 }
@@ -38,6 +47,7 @@ export function generateClockRound(
   random = Math.random,
 ): ClockRound {
   const targetHour = randomHour(random);
+  const spokenHour = clockSpokenHour(targetHour, random() < 0.5);
   const choices = new Set([targetHour]);
   const nearbyHours = [-1, 1, -2, 2, -3, 3, -4, 4, -5, 5, 6].map((offset) =>
     normalizeClockHour(targetHour + offset),
@@ -52,7 +62,8 @@ export function generateClockRound(
   return {
     roundId: `clock:round:${roundIndex}`,
     targetHour,
-    prompt: `Выбери ${formatClockHour(targetHour)}`,
+    spokenHour,
+    prompt: `Выбери ${spokenHour}:00`,
     choices: shuffled,
     correctIndex: shuffled.indexOf(targetHour),
   };

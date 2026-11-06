@@ -72,7 +72,7 @@
   {
     "id": "open-door.star",
     "game": "open-door",
-    "text": "Звёздочка.",
+    "text": "Звезда.",
     "voice": "jane",
     "path": "/audio/tts/open-door/star.mp3"
   },
@@ -2445,7 +2445,7 @@
   {
     "id": "object-action.phrase.ball-roll",
     "game": "object-action",
-    "text": "Подходит: мяч катить.",
+    "text": "Мальчик катает мяч.",
     "voice": "jane",
     "path": "/audio/tts/object-action/phrase-ball-roll.mp3"
   },
@@ -2459,7 +2459,7 @@
   {
     "id": "object-action.phrase.spoon-eat",
     "game": "object-action",
-    "text": "Подходит: ложкой есть.",
+    "text": "Мальчик ест ложкой.",
     "voice": "jane",
     "path": "/audio/tts/object-action/phrase-spoon-eat.mp3"
   },
@@ -2473,7 +2473,7 @@
   {
     "id": "object-action.phrase.cup-drink",
     "game": "object-action",
-    "text": "Подходит: из чашки пить.",
+    "text": "Мальчик пьёт из чашки.",
     "voice": "jane",
     "path": "/audio/tts/object-action/phrase-cup-drink.mp3"
   },
@@ -2501,7 +2501,7 @@
   {
     "id": "object-action.phrase.soap-wash",
     "game": "object-action",
-    "text": "Подходит: мылом мыть.",
+    "text": "Мальчик моет руки.",
     "voice": "jane",
     "path": "/audio/tts/object-action/phrase-soap-wash.mp3"
   },
@@ -2515,7 +2515,7 @@
   {
     "id": "object-action.phrase.pencil-draw",
     "game": "object-action",
-    "text": "Подходит: карандашом рисовать.",
+    "text": "Мальчик рисует.",
     "voice": "jane",
     "path": "/audio/tts/object-action/phrase-pencil-draw.mp3"
   },
@@ -5763,63 +5763,63 @@
   {
     "id": "who-hiding.intro",
     "game": "who-hiding",
-    "text": "Сейчас игра в прятки. Кто-то спрятался за кустом. Слушай задание и удержи взгляд на нужном месте. Ошибки не страшны: подсказка поможет.",
+    "text": "Кто-то спрятался за кустом.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/intro.mp3"
   },
   {
     "id": "who-hiding.prompt.cat",
     "game": "who-hiding",
-    "text": "Найди котёнка. Посмотри на кусты. Когда заметишь котёнка, удержи взгляд на его укрытии.",
+    "text": "Найди котёнка.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/prompt-cat.mp3"
   },
   {
     "id": "who-hiding.prompt.owl",
     "game": "who-hiding",
-    "text": "Найди сову. Сова спряталась за одним из кустов. Осмотри кусты и выбери её укрытие.",
+    "text": "Найди сову.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/prompt-owl.mp3"
   },
   {
     "id": "who-hiding.prompt.duck",
     "game": "who-hiding",
-    "text": "Найди утёнка. Проверь каждый куст взглядом. Когда увидишь утёнка, удержи взгляд.",
+    "text": "Найди утёнка.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/prompt-duck.mp3"
   },
   {
     "id": "who-hiding.prompt.dog",
     "game": "who-hiding",
-    "text": "Найди щенка. Он спрятался в зелёной сцене. Смотри на укрытия по очереди и выбери щенка.",
+    "text": "Найди щенка.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/prompt-dog.mp3"
   },
   {
     "id": "who-hiding.prompt.bird",
     "game": "who-hiding",
-    "text": "Найди птичку. Птичка прячется за кустом. Переводи взгляд и удержи его на нужном кусте.",
+    "text": "Найди птичку.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/prompt-bird.mp3"
   },
   {
     "id": "who-hiding.prompt.bear",
     "game": "who-hiding",
-    "text": "Найди мишку. Мишка выглядывает из-за фона. Смотри и выбери, где он спрятался.",
+    "text": "Найди мишку.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/prompt-bear.mp3"
   },
   {
     "id": "who-hiding.prompt.bunny",
     "game": "who-hiding",
-    "text": "Найди зайку. Зайка спрятался за кустами. Осмотри сцену и удержи взгляд там, где зайка.",
+    "text": "Найди зайку.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/prompt-bunny.mp3"
   },
   {
     "id": "who-hiding.prompt.friend",
     "game": "who-hiding",
-    "text": "Найди друга. Друг спрятался за одним из кустов. Посмотри внимательно и выбери укрытие.",
+    "text": "Найди друга.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/prompt-friend.mp3"
   },
@@ -6050,7 +6050,7 @@
   {
     "id": "match-same.prompt",
     "game": "match-same",
-    "text": "Посмотри на большую картинку. Теперь найди такую же картинку среди карточек и удержи взгляд.",
+    "text": "Найди такую же картинку.",
     "voice": "jane",
     "path": "/audio/tts/match-same/prompt.mp3"
   },
@@ -6099,7 +6099,7 @@
   {
     "id": "follow-cue.prompt",
     "game": "follow-cue",
-    "text": "Следуй за стрелкой. Посмотри, куда показывает подсказка, и выбери эту карточку взглядом.",
+    "text": "Смотри на картинку, на которую указывает стрелочка.",
     "voice": "jane",
     "path": "/audio/tts/follow-cue/prompt.mp3"
   },
@@ -6470,7 +6470,7 @@
   {
     "id": "pyramid.prompt",
     "game": "pyramid",
-    "text": "Выбери кольцо и поставь на пирамидку.",
+    "text": "Собери пирамидку, сложив колечки от большего к меньшему.",
     "voice": "jane",
     "path": "/audio/tts/pyramid/prompt.mp3"
   },
@@ -7336,13 +7336,6 @@
     "path": "/audio/tts/where-object/scene-5a549161.mp3"
   },
   {
-    "id": "object-action.complete",
-    "game": "object-action",
-    "text": "Готово. Действия выбраны.",
-    "voice": "jane",
-    "path": "/audio/tts/object-action/complete.mp3"
-  },
-  {
     "id": "who-is-this.mistake",
     "game": "who-is-this",
     "text": "Посмотри на картинку ещё раз и выбери другое слово.",
@@ -7359,7 +7352,7 @@
   {
     "id": "choose-picture.intro",
     "game": "choose-picture",
-    "text": "Посмотри на слово и выбери картинку.",
+    "text": "Прочитай слово и найди подходящую картинку.",
     "voice": "jane",
     "path": "/audio/tts/choose-picture/intro.mp3"
   },
@@ -7376,13 +7369,6 @@
     "text": "Посмотри на слово ещё раз и выбери другую картинку.",
     "voice": "jane",
     "path": "/audio/tts/choose-picture/mistake.mp3"
-  },
-  {
-    "id": "choose-picture.complete",
-    "game": "choose-picture",
-    "text": "Готово. Картинки выбраны.",
-    "voice": "jane",
-    "path": "/audio/tts/choose-picture/complete.mp3"
   },
   {
     "id": "yes-no.prompt",
@@ -8526,13 +8512,6 @@
     "path": "/audio/tts/yes-no/scene-3748756d.mp3"
   },
   {
-    "id": "choose-emotion.complete",
-    "game": "choose-emotion",
-    "text": "Готово. Эмоции выбраны.",
-    "voice": "jane",
-    "path": "/audio/tts/choose-emotion/complete.mp3"
-  },
-  {
     "id": "eat-or-not-eat.prompt",
     "game": "eat-or-not-eat",
     "text": "Выбери, можно ли это есть.",
@@ -8559,13 +8538,6 @@
     "text": "Посмотри на размеры ещё раз и выбери другую карточку.",
     "voice": "jane",
     "path": "/audio/tts/big-small/mistake.mp3"
-  },
-  {
-    "id": "big-small.complete",
-    "game": "big-small",
-    "text": "Готово. Размеры выбраны.",
-    "voice": "jane",
-    "path": "/audio/tts/big-small/complete.mp3"
   },
   {
     "id": "i-want.complete",
@@ -8708,25 +8680,11 @@
     "path": "/audio/tts/one-many/mistake.mp3"
   },
   {
-    "id": "one-many.complete",
-    "game": "one-many",
-    "text": "Готово. Количество выбрано.",
-    "voice": "jane",
-    "path": "/audio/tts/one-many/complete.mp3"
-  },
-  {
     "id": "opposites.mistake",
     "game": "opposites",
     "text": "Посмотри на слово ещё раз и выбери другую карточку.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake.mp3"
-  },
-  {
-    "id": "opposites.complete",
-    "game": "opposites",
-    "text": "Готово. Противоположности выбраны.",
-    "voice": "jane",
-    "path": "/audio/tts/opposites/complete.mp3"
   },
   {
     "id": "what-first.mistake",
@@ -9254,25 +9212,11 @@
     "path": "/audio/tts/clock/mistake.mp3"
   },
   {
-    "id": "clock.complete",
-    "game": "clock",
-    "text": "Готово. Часы выбраны.",
-    "voice": "jane",
-    "path": "/audio/tts/clock/complete.mp3"
-  },
-  {
     "id": "calendar.mistake",
     "game": "calendar",
     "text": "Посмотри на календарь ещё раз и выбери другой день.",
     "voice": "jane",
     "path": "/audio/tts/calendar/mistake.mp3"
-  },
-  {
-    "id": "calendar.complete",
-    "game": "calendar",
-    "text": "Готово. Дни выбраны.",
-    "voice": "jane",
-    "path": "/audio/tts/calendar/complete.mp3"
   },
   {
     "id": "count-items.prompt",
@@ -9329,13 +9273,6 @@
     "text": "Посмотри на пиццу ещё раз и выбери другую долю.",
     "voice": "jane",
     "path": "/audio/tts/pizza-fractions/mistake.mp3"
-  },
-  {
-    "id": "pizza-fractions.complete",
-    "game": "pizza-fractions",
-    "text": "Готово. Доли выбраны.",
-    "voice": "jane",
-    "path": "/audio/tts/pizza-fractions/complete.mp3"
   },
   {
     "id": "greater-less.prompt",
@@ -9499,13 +9436,6 @@
     "path": "/audio/tts/lines-angles/mistake.mp3"
   },
   {
-    "id": "lines-angles.complete",
-    "game": "lines-angles",
-    "text": "Готово. Линии выбраны.",
-    "voice": "jane",
-    "path": "/audio/tts/lines-angles/complete.mp3"
-  },
-  {
     "id": "simple-graphs.prompt",
     "game": "simple-graphs",
     "text": "Посмотри на график и выбери ответ.",
@@ -9639,13 +9569,6 @@
     "path": "/audio/tts/shapes/mistake.mp3"
   },
   {
-    "id": "shapes.complete",
-    "game": "shapes",
-    "text": "Готово. Формы выбраны.",
-    "voice": "jane",
-    "path": "/audio/tts/shapes/complete.mp3"
-  },
-  {
     "id": "color-shape.prompt",
     "game": "color-shape",
     "text": "Выбери карточку, где совпадают и цвет, и форма.",
@@ -9665,13 +9588,6 @@
     "text": "Проверь цвет и форму ещё раз, потом выбери другую карточку.",
     "voice": "jane",
     "path": "/audio/tts/color-shape/mistake.mp3"
-  },
-  {
-    "id": "color-shape.complete",
-    "game": "color-shape",
-    "text": "Готово. Цвет и форма выбраны.",
-    "voice": "jane",
-    "path": "/audio/tts/color-shape/complete.mp3"
   },
   {
     "id": "math-actions.prompt",
@@ -11758,5 +11674,180 @@
     "text": "Ящик на месте. Следующий уровень.",
     "voice": "jane",
     "path": "/audio/tts/sokoban-large/level-complete.mp3"
+  },
+  {
+    "id": "clock.prompt.13",
+    "game": "clock",
+    "text": "Выбери 13 часов.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/prompt-13.mp3"
+  },
+  {
+    "id": "clock.correct.13",
+    "game": "clock",
+    "text": "Да, 13 часов.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/correct-13.mp3"
+  },
+  {
+    "id": "clock.prompt.14",
+    "game": "clock",
+    "text": "Выбери 14 часов.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/prompt-14.mp3"
+  },
+  {
+    "id": "clock.correct.14",
+    "game": "clock",
+    "text": "Да, 14 часов.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/correct-14.mp3"
+  },
+  {
+    "id": "clock.prompt.15",
+    "game": "clock",
+    "text": "Выбери 15 часов.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/prompt-15.mp3"
+  },
+  {
+    "id": "clock.correct.15",
+    "game": "clock",
+    "text": "Да, 15 часов.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/correct-15.mp3"
+  },
+  {
+    "id": "clock.prompt.16",
+    "game": "clock",
+    "text": "Выбери 16 часов.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/prompt-16.mp3"
+  },
+  {
+    "id": "clock.correct.16",
+    "game": "clock",
+    "text": "Да, 16 часов.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/correct-16.mp3"
+  },
+  {
+    "id": "clock.prompt.17",
+    "game": "clock",
+    "text": "Выбери 17 часов.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/prompt-17.mp3"
+  },
+  {
+    "id": "clock.correct.17",
+    "game": "clock",
+    "text": "Да, 17 часов.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/correct-17.mp3"
+  },
+  {
+    "id": "clock.prompt.18",
+    "game": "clock",
+    "text": "Выбери 18 часов.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/prompt-18.mp3"
+  },
+  {
+    "id": "clock.correct.18",
+    "game": "clock",
+    "text": "Да, 18 часов.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/correct-18.mp3"
+  },
+  {
+    "id": "clock.prompt.19",
+    "game": "clock",
+    "text": "Выбери 19 часов.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/prompt-19.mp3"
+  },
+  {
+    "id": "clock.correct.19",
+    "game": "clock",
+    "text": "Да, 19 часов.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/correct-19.mp3"
+  },
+  {
+    "id": "clock.prompt.20",
+    "game": "clock",
+    "text": "Выбери 20 часов.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/prompt-20.mp3"
+  },
+  {
+    "id": "clock.correct.20",
+    "game": "clock",
+    "text": "Да, 20 часов.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/correct-20.mp3"
+  },
+  {
+    "id": "clock.prompt.21",
+    "game": "clock",
+    "text": "Выбери 21 час.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/prompt-21.mp3"
+  },
+  {
+    "id": "clock.correct.21",
+    "game": "clock",
+    "text": "Да, 21 час.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/correct-21.mp3"
+  },
+  {
+    "id": "clock.prompt.22",
+    "game": "clock",
+    "text": "Выбери 22 часа.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/prompt-22.mp3"
+  },
+  {
+    "id": "clock.correct.22",
+    "game": "clock",
+    "text": "Да, 22 часа.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/correct-22.mp3"
+  },
+  {
+    "id": "clock.prompt.23",
+    "game": "clock",
+    "text": "Выбери 23 часа.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/prompt-23.mp3"
+  },
+  {
+    "id": "clock.correct.23",
+    "game": "clock",
+    "text": "Да, 23 часа.",
+    "voice": "jane",
+    "path": "/audio/tts/clock/correct-23.mp3"
+  },
+  {
+    "id": "pizza-fractions.prompt.third",
+    "game": "pizza-fractions",
+    "text": "Выбери треть пиццы.",
+    "voice": "jane",
+    "path": "/audio/tts/pizza-fractions/prompt-third.mp3"
+  },
+  {
+    "id": "object-action.phrase.sleep",
+    "game": "object-action",
+    "text": "Мальчик спит.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/phrase-sleep.mp3"
+  },
+  {
+    "id": "object-action.phrase.walk",
+    "game": "object-action",
+    "text": "Мальчик гуляет.",
+    "voice": "jane",
+    "path": "/audio/tts/object-action/phrase-walk.mp3"
   }
 ]

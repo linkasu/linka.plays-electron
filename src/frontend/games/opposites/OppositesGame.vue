@@ -40,7 +40,6 @@ const promptAudio = useGamePromptAudio({
     "opposites.prompt.big",
     "opposites.prompt.day",
     "opposites.mistake",
-    "opposites.complete",
   ],
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
@@ -121,11 +120,7 @@ async function choose(index: number) {
     });
     void pianoFeedback.playSuccess();
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(
-      finishedAfterSuccess ? [correctAssetId(), "opposites.complete"] : [correctAssetId()],
-      80,
-      170,
-    );
+    await promptAudio.playSequenceAndWait([correctAssetId()], 80, 170);
 
     if (finishedAfterSuccess) {
       finishSession("game-complete");

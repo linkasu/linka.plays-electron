@@ -41,12 +41,7 @@ const linesAnglesTaskAssetIds = [
 const promptAudio = useGamePromptAudio({
   gameId: "lines-angles",
   soundEnabled,
-  warmAssetIds: [
-    ...linesAnglesTaskAssetIds,
-    "lines-angles.correct",
-    "lines-angles.mistake",
-    "lines-angles.complete",
-  ],
+  warmAssetIds: [...linesAnglesTaskAssetIds, "lines-angles.correct", "lines-angles.mistake"],
 });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
@@ -108,13 +103,7 @@ async function answer(choice: LinesAnglesOption) {
     isSpeaking.value = true;
     void feedbackAudio.playSuccess();
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(
-      finishedAfterSuccess
-        ? ["lines-angles.correct", "lines-angles.complete"]
-        : ["lines-angles.correct"],
-      80,
-      170,
-    );
+    await promptAudio.playSequenceAndWait(["lines-angles.correct"], 80, 170);
     if (finishedAfterSuccess) {
       finishSession("game-complete");
       isSpeaking.value = false;

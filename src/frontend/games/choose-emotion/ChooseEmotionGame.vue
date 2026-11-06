@@ -110,13 +110,7 @@ async function choose(choice: ChooseEmotionOption, index: number) {
     });
     isSpeaking.value = true;
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(
-      finishedAfterSuccess
-        ? [`choose-emotion.emotion.${choice.id}`, "choose-emotion.complete"]
-        : [`choose-emotion.emotion.${choice.id}`],
-      80,
-      170,
-    );
+    await promptAudio.playSequenceAndWait([`choose-emotion.emotion.${choice.id}`], 80, 170);
     isSpeaking.value = false;
     if (finishedAfterSuccess) {
       finishSession("game-complete");
