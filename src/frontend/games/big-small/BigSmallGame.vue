@@ -35,7 +35,7 @@ const promptAudio = useGamePromptAudio({
   gameId: "big-small",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: ["big-small.mistake", "big-small.complete"],
+  warmAssetIds: ["big-small.mistake"],
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
@@ -93,11 +93,7 @@ async function choose(index: number) {
     });
     void pianoFeedback.playSuccess();
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(
-      finishedAfterSuccess ? [correctAssetId(), "big-small.complete"] : [correctAssetId()],
-      80,
-      170,
-    );
+    await promptAudio.playSequenceAndWait([correctAssetId()], 80, 170);
     if (finishedAfterSuccess) {
       finishSession("game-complete");
       isSpeaking.value = false;

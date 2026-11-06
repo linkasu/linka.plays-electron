@@ -122,7 +122,9 @@ export const linesAnglesTasks: LinesAnglesTask[] = [
     id: "straight",
     prompt: "Где прямая линия?",
     hint: "Прямая линия не изгибается.",
-    targetIds: ["straight-vertical", "straight-horizontal", "straight-diagonal"],
+    // Testers (06.11): the straight line on the answer card should lie
+    // horizontally, not stand vertically.
+    targetIds: ["straight-horizontal"],
     distractorIds: ["curved-vertical", "curved-horizontal", "wave-curve", "round-arc"],
   },
   {

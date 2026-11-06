@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { settingsFromPreset } from "../../core/settings";
+import ttsAssets from "../../data/ttsAssets.json";
 import {
+  clockSpokenHour,
   formatClockHour,
   formatClockHourSpeech,
   generateClockRound,
@@ -40,7 +42,8 @@ describe("generateClockRound", () => {
       expect(new Set(round.choices).size).toBe(4);
       expect(round.choices).toContain(round.targetHour);
       expect(round.correctIndex).toBe(round.choices.indexOf(round.targetHour));
-      expect(round.prompt).toBe(`Выбери ${formatClockHour(round.targetHour)}`);
+      expect(round.prompt).toBe(`Выбери ${round.spokenHour}:00`);
+      expect(formatClockHour(round.spokenHour)).toBe(formatClockHour(round.targetHour));
     }
   });
 
@@ -52,5 +55,30 @@ describe("generateClockRound", () => {
     expect(lowRandomRound.targetHour).toBe(1);
     expect(highRandomRound.targetHour).toBe(12);
     expect(lowRandomRound.choices).not.toEqual(highRandomRound.choices);
+  });
+});
+
+describe("afternoon hours", () => {
+  it("names 13–23 for the same face in about half of the rounds", () => {
+    expect(clockSpokenHour(2, true)).toBe(14);
+    expect(clockSpokenHour(2, false)).toBe(2);
+    expect(clockSpokenHour(12, true)).toBe(12);
+
+    const settings = settingsFromPreset("standard");
+    const spoken = Array.from(
+      { length: 200 },
+      (_, index) => generateClockRound(settings, index + 1).spokenHour,
+    );
+    expect(spoken.some((hour) => hour > 12)).toBe(true);
+    expect(spoken.some((hour) => hour <= 12)).toBe(true);
+    expect(spoken.every((hour) => hour >= 1 && hour <= 23)).toBe(true);
+  });
+
+  it("has a recorded task and answer for every hour from 1 to 23", () => {
+    const ids = new Set(ttsAssets.map((asset) => asset.id));
+    for (let hour = 1; hour <= 23; hour += 1) {
+      expect(ids.has(`clock.prompt.${hour}`), `prompt ${hour}`).toBe(true);
+      expect(ids.has(`clock.correct.${hour}`), `correct ${hour}`).toBe(true);
+    }
   });
 });

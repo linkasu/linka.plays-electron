@@ -35,7 +35,7 @@ const feedback = useStandardGameFeedback(soundEnabled);
 const promptAudio = useGamePromptAudio({
   gameId: "choose-picture",
   soundEnabled,
-  warmAssetIds: ["choose-picture.correct", "choose-picture.mistake", "choose-picture.complete"],
+  warmAssetIds: ["choose-picture.correct", "choose-picture.mistake"],
 });
 const feedbackText = ref("");
 const isSpeaking = ref(false);
@@ -72,13 +72,7 @@ async function choose(choice: (typeof round.value.choices)[number]) {
     feedbackText.value = "Верно. Это нужная картинка.";
     isSpeaking.value = true;
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(
-      finishedAfterSuccess
-        ? ["choose-picture.correct", "choose-picture.complete"]
-        : ["choose-picture.correct"],
-      80,
-      170,
-    );
+    await promptAudio.playSequenceAndWait(["choose-picture.correct"], 80, 170);
     isSpeaking.value = false;
     if (finishedAfterSuccess) {
       finishSession("game-complete");

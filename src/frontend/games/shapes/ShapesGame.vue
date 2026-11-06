@@ -39,7 +39,7 @@ const shapePromptAssetIds = [
 const promptAudio = useGamePromptAudio({
   gameId: "shapes",
   soundEnabled,
-  warmAssetIds: [...shapePromptAssetIds, "shapes.correct", "shapes.mistake", "shapes.complete"],
+  warmAssetIds: [...shapePromptAssetIds, "shapes.correct", "shapes.mistake"],
 });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
@@ -97,11 +97,7 @@ async function choose(choice: ShapeOption, index: number) {
     isSpeaking.value = true;
     void feedbackAudio.playSuccess();
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(
-      finishedAfterSuccess ? ["shapes.correct", "shapes.complete"] : ["shapes.correct"],
-      80,
-      170,
-    );
+    await promptAudio.playSequenceAndWait(["shapes.correct"], 80, 170);
     if (finishedAfterSuccess) {
       finishSession("game-complete");
       isSpeaking.value = false;

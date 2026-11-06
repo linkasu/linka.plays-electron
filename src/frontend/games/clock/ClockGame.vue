@@ -32,13 +32,7 @@ const promptAudio = useGamePromptAudio({
   gameId: "clock",
   soundEnabled,
   volume: 0.34,
-  warmAssetIds: [
-    "clock.prompt.1",
-    "clock.prompt.2",
-    "clock.prompt.3",
-    "clock.mistake",
-    "clock.complete",
-  ],
+  warmAssetIds: ["clock.prompt.1", "clock.prompt.2", "clock.prompt.3", "clock.mistake"],
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
@@ -55,11 +49,11 @@ function choiceTargetId(hour: number) {
 }
 
 function promptAssetId() {
-  return `clock.prompt.${round.value.targetHour}`;
+  return `clock.prompt.${round.value.spokenHour}`;
 }
 
 function correctAssetId() {
-  return `clock.correct.${round.value.targetHour}`;
+  return `clock.correct.${round.value.spokenHour}`;
 }
 
 function mistakeAssetId() {
@@ -107,11 +101,7 @@ async function choose(hour: number) {
     });
     void pianoFeedback.playSuccess();
     const finishedAfterSuccess = session.step >= session.maxSteps;
-    await promptAudio.playSequenceAndWait(
-      finishedAfterSuccess ? [correctAssetId(), "clock.complete"] : [correctAssetId()],
-      80,
-      170,
-    );
+    await promptAudio.playSequenceAndWait([correctAssetId()], 80, 170);
     if (finishedAfterSuccess) {
       finishSession("game-complete");
       isSpeaking.value = false;
