@@ -75,10 +75,10 @@ describe("comic-strip model", () => {
       "Цветок вырос и распустился.",
     );
     expect(comicStories.find((story) => story.id === "bread")?.finalMessage).toBe(
-      "Хлеб испёкся, стал тёплым и ароматным.",
+      "Хлеб испёкся и стал ароматным.",
     );
     expect(comicStories.find((story) => story.id === "house")?.finalMessage).toBe(
-      "Домик готов, внутри светло и тепло.",
+      "Домик готов, внутри светло.",
     );
 
     for (const story of comicStories) {

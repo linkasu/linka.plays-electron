@@ -705,7 +705,7 @@ onUnmounted(() => {
     <canvas ref="canvasRef" class="warm-fire-canvas" aria-hidden="true" />
 
     <GameHud
-      title="Тёплый костёр"
+      title="Костёр"
       :step="session.step"
       :max-steps="session.maxSteps"
       :duration-ms="durationMs"
@@ -719,7 +719,7 @@ onUnmounted(() => {
 
     <GameResultDialog
       :model-value="resultVisible"
-      title="Тёплый костёр"
+      title="Костёр"
       :score="session.score"
       :mistakes="session.mistakes"
       :duration-ms="durationMs"

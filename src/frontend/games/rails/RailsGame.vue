@@ -54,8 +54,8 @@ const trainChoices: TrainChoice[] = [
   },
   {
     id: "orange",
-    title: "Тёплый",
-    label: "тёплый поезд",
+    title: "Оранжевый",
+    label: "оранжевый",
     body: "#df8b3f",
     accent: "#fff0d8",
     icon: "mdi-train",

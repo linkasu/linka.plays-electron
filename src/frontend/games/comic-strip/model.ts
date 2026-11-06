@@ -49,7 +49,7 @@ export const comicStories: ComicStory[] = [
   },
   {
     id: "tea",
-    title: "Тёплый чай",
+    title: "Чай",
     prompt: "Собери историю о чаепитии.",
     finalMessage: "Чай готов, можно сделать глоток.",
     frames: [
@@ -129,7 +129,7 @@ export const comicStories: ComicStory[] = [
     id: "bread",
     title: "Свежий хлеб",
     prompt: "Собери историю о свежем хлебе.",
-    finalMessage: "Хлеб испёкся, стал тёплым и ароматным.",
+    finalMessage: "Хлеб испёкся и стал ароматным.",
     frames: [
       {
         id: "bread-flour",
@@ -181,7 +181,7 @@ export const comicStories: ComicStory[] = [
     id: "house",
     title: "Домик",
     prompt: "Собери историю о строительстве домика.",
-    finalMessage: "Домик готов, внутри светло и тепло.",
+    finalMessage: "Домик готов, внутри светло.",
     frames: [
       {
         id: "house-bricks",

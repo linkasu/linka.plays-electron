@@ -165,7 +165,7 @@ const panels = reactive<LightPanel[]>([
   {
     id: "light-gallery:panel:lantern",
     title: "Домик",
-    caption: "тёплый свет",
+    caption: "свет в окне",
     artId: "light-gallery/house",
     gradient: "linear-gradient(135deg, #fff5c2 0%, #ffc875 48%, #c88b64 100%)",
     mood: {

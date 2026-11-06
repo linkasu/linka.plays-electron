@@ -101,7 +101,7 @@ const soundSources: SoundSource[] = [
   {
     id: "speaker",
     title: "Динамик",
-    soundLabel: "тёплая нота",
+    soundLabel: "нота",
     icon: "mdi-speaker",
     accent: "#b28be8",
     wash: "#f2e9ff",
@@ -154,7 +154,7 @@ const resultVisible = computed(() => session.status === "finished");
 const promptText = computed(() =>
   session.settings.sound
     ? "Сначала послушай, затем выбери источник звука."
-    : "Звук выключен. Найди источник по спокойной визуальной волне.",
+    : "Звук выключен. Найди источник по волне на экране.",
 );
 const hintVisible = computed(() => hintState.value === "revealed" || !session.settings.sound);
 const promptAudio = useGamePromptAudio({

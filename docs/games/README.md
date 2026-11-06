@@ -45,8 +45,8 @@
 | Морские ракушки | `sea-shells` | [sea-shells.md](sea-shells.md) | `polished` | `publish` | `ready` |
 | Бумажные фонарики | `paper-lanterns` | [paper-lanterns.md](paper-lanterns.md) | `polished` | `publish` | `ready` |
 | Открой дверцу | `open-door` | [open-door.md](open-door.md) | `polished` | `publish` | `ready` |
-| Тёплое окно | `warm-window` | [warm-window.md](warm-window.md) | `polished` | `publish` | `ready` |
-| Тёплый костёр | `warm-fire` | [warm-fire.md](warm-fire.md) | `polished` | `publish` | `ready` |
+| Домик | `warm-window` | [warm-window.md](warm-window.md) | `polished` | `publish` | `ready` |
+| Костёр | `warm-fire` | [warm-fire.md](warm-fire.md) | `polished` | `publish` | `ready` |
 | Большие карточки | `big-cards` | [big-cards.md](big-cards.md) | `therapy-ready` | `publish` | `ready` |
 | Цветной круг | `color-circle` | [color-circle.md](color-circle.md) | `therapy-ready` | `publish` | `ready` |
 | Покорми зверька | `feed-animal` | [feed-animal.md](feed-animal.md) | `therapy-ready` | `publish` | `ready` |
@@ -83,7 +83,7 @@
 
 | Игра | ID | Документ | Status | Stability | Group |
 |---|---|---|---|---|---|
-| Собери роботика | `build-robot` | [build-robot.md](build-robot.md) | `therapy-ready` | `publish` | `ready` |
+| Собери робота | `build-robot` | [build-robot.md](build-robot.md) | `therapy-ready` | `publish` | `ready` |
 | Пирамидка | `pyramid` | [pyramid.md](pyramid.md) | `polished` | `publish` | `ready` |
 | Одень персонажа | `dress-character` | [dress-character.md](dress-character.md) | `therapy-ready` | `publish` | `ready` |
 | Поезд | `train-sequence` | [train-sequence.md](train-sequence.md) | `polished` | `publish` | `ready` |

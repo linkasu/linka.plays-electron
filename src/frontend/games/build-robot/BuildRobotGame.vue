@@ -236,7 +236,7 @@ onUnmounted(() => {
 <template>
   <div class="build-robot-shell">
     <GameHud
-      title="Собери роботика"
+      title="Собери робота"
       :step="session.step"
       :max-steps="session.maxSteps"
       :score="session.score"
@@ -254,7 +254,7 @@ onUnmounted(() => {
             <div class="text-overline text-secondary text-center mb-1">
               Последовательность сборки
             </div>
-            <h1 class="text-h5 text-md-h4 font-weight-bold text-center mb-1">Собери роботика</h1>
+            <h1 class="text-h5 text-md-h4 font-weight-bold text-center mb-1">Собери робота</h1>
             <p class="feedback-line text-body-1 text-md-h6 text-medium-emphasis text-center mb-3">
               {{ feedbackText }}
             </p>
@@ -476,7 +476,7 @@ onUnmounted(() => {
     </v-container>
     <GameResultDialog
       :model-value="resultVisible"
-      title="Собери роботика"
+      title="Собери робота"
       :score="session.score"
       :mistakes="session.mistakes"
       :duration-ms="durationMs"

@@ -55,7 +55,7 @@ function buildEatOrNotEatRound(
 ): EatOrNotEatRound {
   return {
     roundId: `eat-or-not-eat:round:${roundIndex}`,
-    prompt: `Куда относится «${item.word}»: еда или не еда?`,
+    prompt: `Куда относится «${item.word}»: съедобное или несъедобное?`,
     item,
     correctAnswer,
   };
