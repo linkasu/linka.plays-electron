@@ -14,7 +14,6 @@ import {
   playFollowCueSuccessMelody,
   warmFollowCueAudio,
 } from "./audio";
-import { isFollowCueHintVisible } from "./model";
 
 type CueSlot = {
   id: string;
@@ -140,7 +139,7 @@ const cueStyle = computed(() => ({
 const cueStrengthClass = computed(() => `follow-cue--strength-${cueStrength.value}`);
 const helperText = computed(() => {
   if (!cueStrength.value) return "Смотри на стрелку.";
-  return "Выбери подсвеченную карточку.";
+  return "Смотри, куда показывает стрелка.";
 });
 
 function choiceTargetId(choiceId: string) {
@@ -148,7 +147,6 @@ function choiceTargetId(choiceId: string) {
 }
 
 function choiceColor(choice: CueChoice) {
-  if (isFollowCueHintVisible(choice.isTarget, cueStrength.value)) return "primary";
   if (lastMistakeId.value === choice.id) return "warning";
   return "surface";
 }
@@ -274,7 +272,6 @@ onUnmounted(() => {
                   'cue-target',
                   choice.slot.className,
                   {
-                    'cue-target--hinted': isFollowCueHintVisible(choice.isTarget, cueStrength),
                     'cue-target--mistake': lastMistakeId === choice.id,
                   },
                 ]"
@@ -286,31 +283,11 @@ onUnmounted(() => {
                 role="listitem"
                 @select="answer(choice)"
               >
-                <template #default="{ active, progress }">
-                  <v-icon
-                    class="choice-icon"
-                    :icon="choice.item.icon"
-                    :color="
-                      isFollowCueHintVisible(choice.isTarget, cueStrength)
-                        ? undefined
-                        : choice.item.color
-                    "
-                  />
+                <template #default>
+                  <v-icon class="choice-icon" :icon="choice.item.icon" :color="choice.item.color" />
                   <div class="text-body-1 text-md-h6 font-weight-bold mt-2">
                     {{ choice.item.label }}
                   </div>
-                  <v-chip
-                    v-if="
-                      isFollowCueHintVisible(choice.isTarget, cueStrength) &&
-                      (cueStrength > 1 || (active && progress > 0.78))
-                    "
-                    class="mt-3"
-                    color="primary"
-                    variant="flat"
-                    size="large"
-                  >
-                    сюда
-                  </v-chip>
                 </template>
               </GameDwellButton>
             </div>
@@ -405,10 +382,6 @@ onUnmounted(() => {
   z-index: 1;
 }
 
-.cue-target--hinted {
-  filter: drop-shadow(0 0 0.9rem rgb(var(--v-theme-primary) / 30%));
-}
-
 .choice-icon {
   font-size: clamp(4rem, min(9vw, 13vh), 6.25rem);
   line-height: 1;
@@ -420,13 +393,6 @@ onUnmounted(() => {
 .cue-target--mistake .choice-icon {
   filter: saturate(0.72) opacity(0.7);
   transform: scale(0.94);
-}
-
-.follow-cue--strength-1 .cue-target--hinted,
-.follow-cue--strength-2 .cue-target--hinted,
-.follow-cue--strength-3 .cue-target--hinted {
-  filter: drop-shadow(0 0 1.3rem rgb(var(--v-theme-primary) / 46%));
-  transform: scale(1.02);
 }
 
 .follow-cue--strength-1 .cue-beam,

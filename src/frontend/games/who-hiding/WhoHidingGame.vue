@@ -360,7 +360,6 @@ onUnmounted(() => {
                 :class="[
                   'hidden-choice',
                   {
-                    'hidden-choice--hint': hintedRoundId === round.roundId && spot.isTarget,
                     'hidden-choice--mistake': spot.id === lastMistakeId,
                   },
                 ]"
@@ -538,10 +537,6 @@ onUnmounted(() => {
   background: transparent !important;
   box-shadow: none;
   overflow: visible;
-}
-
-.hidden-choice--hint {
-  filter: drop-shadow(0 0 1.3rem rgb(var(--v-theme-primary) / 48%));
 }
 
 .hidden-choice--mistake {

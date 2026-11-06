@@ -55,7 +55,7 @@ const isSpeaking = ref(false);
 
 const hintText = computed(() => {
   if (mistakesInRound.value <= 0) return "Выбери карточку нужного цвета.";
-  return `Ищи ${round.value.target.label} круг. Он подсвечен рамкой.`;
+  return `Почти. Ищи ${round.value.target.label} круг.`;
 });
 
 function choiceTargetId(choiceId: string) {
@@ -185,7 +185,6 @@ onUnmounted(() => {
                   :class="[
                     'color-choice',
                     {
-                      'color-choice--hinted': mistakesInRound > 0 && choice.id === round.target.id,
                       'color-choice--mistake': choice.id === lastMistakeId,
                     },
                   ]"
@@ -260,11 +259,6 @@ onUnmounted(() => {
   max-inline-size: 100%;
   overflow-wrap: anywhere;
   text-align: center;
-}
-
-.color-choice--hinted {
-  outline: 0.45rem solid rgb(var(--v-theme-primary));
-  transform: scale(1.03);
 }
 
 .color-choice--mistake {

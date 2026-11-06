@@ -41,7 +41,6 @@ const {
 });
 
 const feedbackMessage = ref("Посмотри на образец и найди такую же букву.");
-const hintedRoundId = ref<string>();
 const wrongChoiceId = ref<string>();
 const successChoiceId = ref<string>();
 const pendingSelection = ref(false);
@@ -51,10 +50,6 @@ const promptAudio = useGamePromptAudio({
   soundEnabled: toRef(session.settings, "sound"),
 });
 let feedbackTimer = 0;
-
-const hintedChoiceId = computed(() =>
-  hintedRoundId.value === round.value.roundId ? round.value.target.id : undefined,
-);
 
 function choiceTargetId(choice: FindLetterOption) {
   return `find-letter:choice:${choice.id}`;
@@ -75,7 +70,6 @@ async function playTargetPrompt(delayMs = 0) {
 function resetFeedback() {
   clearFeedbackTimer();
   feedbackMessage.value = "Посмотри на образец и найди такую же букву.";
-  hintedRoundId.value = undefined;
   wrongChoiceId.value = undefined;
   successChoiceId.value = undefined;
   pendingSelection.value = false;
@@ -116,8 +110,7 @@ async function answer(choice: FindLetterOption) {
 
   pendingSelection.value = true;
   wrongChoiceId.value = choice.id;
-  hintedRoundId.value = round.value.roundId;
-  feedbackMessage.value = `Почти. Ищи букву ${round.value.target.letter}; она подсвечена рамкой.`;
+  feedbackMessage.value = `Почти. Ищи букву ${round.value.target.letter}.`;
   recordMistake({
     roundId: round.value.roundId,
     targetId,
@@ -141,7 +134,6 @@ async function answer(choice: FindLetterOption) {
 function choiceColor(choice: FindLetterOption) {
   if (successChoiceId.value === choice.id) return "green-lighten-4";
   if (wrongChoiceId.value === choice.id) return "orange-lighten-4";
-  if (hintedChoiceId.value === choice.id) return "primary";
   return "surface";
 }
 
@@ -216,7 +208,6 @@ onUnmounted(() => {
                   :class="[
                     'letter-choice',
                     {
-                      'letter-choice--hinted': hintedChoiceId === choice.id,
                       'letter-choice--mistake': wrongChoiceId === choice.id,
                     },
                   ]"
@@ -277,12 +268,6 @@ onUnmounted(() => {
   transition:
     transform 160ms ease,
     text-shadow 160ms ease;
-}
-
-.letter-choice--hinted {
-  color: rgb(var(--v-theme-on-primary));
-  text-shadow: 0 0 1rem rgb(255 255 255 / 42%);
-  transform: scale(1.08);
 }
 
 .letter-choice--mistake {

@@ -65,16 +65,13 @@ function choiceMinHeight(choiceCount: number) {
   return "clamp(10.5rem, 25vh, 16.25rem)";
 }
 
-const hintedChoiceId = computed(() =>
-  hintedRoundId.value === round.value.roundId ? round.value.target.id : undefined,
-);
 const showRoundImages = computed(
   () => round.value.assetMode === "image" && failedImageRoundId.value !== round.value.roundId,
 );
 const hintText = computed(() => {
   if (hintedRoundId.value !== round.value.roundId)
     return "Посмотри на названного зверька и удержи взгляд.";
-  return "Почти получилось. Верный зверёк подсвечен.";
+  return "Почти. Попробуй ещё раз.";
 });
 
 function disableRoundImages() {
@@ -247,11 +244,9 @@ onUnmounted(() => {
               :disabled="session.status !== 'running' || pendingSelection || isSpeaking"
               :dwell-ms="session.settings.dwellMs"
               :min-height="choiceMinHeight(round.choices.length)"
-              :highlight-choice="(choice) => hintedChoiceId === choice.id"
-              :color="(choice) => (hintedChoiceId === choice.id ? 'primary' : 'surface')"
               @select="answer"
             >
-              <template #default="{ choice, active, progress }">
+              <template #default="{ choice }">
                 <img
                   v-if="showRoundImages"
                   :class="[
@@ -275,11 +270,7 @@ onUnmounted(() => {
                   >{{ choice.emoji }}</span
                 >
                 <div class="animal-label text-h6 text-md-h4 font-weight-bold mt-2">
-                  {{
-                    hintedChoiceId === choice.id && active && progress > 0.78
-                      ? `Вот ${choice.word}`
-                      : choice.word
-                  }}
+                  {{ choice.word }}
                 </div>
               </template>
             </GameChoiceCardGrid>

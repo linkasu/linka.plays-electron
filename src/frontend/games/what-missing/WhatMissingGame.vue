@@ -24,7 +24,6 @@ const router = useRouter();
 const phase = ref<WhatMissingPhase>("instruction");
 const isResponding = ref(false);
 const isSpeaking = ref(false);
-const hintedRoundId = ref<string>();
 const feedbackText = ref("Запомни три предмета.");
 let observeTimer = 0;
 let flowToken = 0;
@@ -68,10 +67,6 @@ const {
   generateRound: (roundIndex) => generateWhatMissingRound(session.settings, roundIndex),
 });
 
-const hintedChoiceId = computed(() =>
-  hintedRoundId.value === round.value.roundId ? round.value.missingItem.id : undefined,
-);
-
 function choiceTargetId(choiceId: string) {
   return `what-missing:${round.value.roundId}:choice:${choiceId}`;
 }
@@ -111,7 +106,6 @@ async function startInstruction(delayMs = 120) {
   sendPhaseEvent("reset");
   isResponding.value = false;
   isSpeaking.value = false;
-  hintedRoundId.value = undefined;
   feedbackText.value = "Запомни три предмета.";
   if (!(await playSequence(["what-missing.observe"], delayMs, token))) return;
   sendPhaseEvent("instruction-complete");
@@ -144,7 +138,6 @@ async function answer(choice: WhatMissingItem) {
   const token = flowToken;
   isResponding.value = true;
   if (choice.id === round.value.missingItem.id) {
-    hintedRoundId.value = undefined;
     feedbackText.value = `Верно, пропал ${choice.label}.`;
     void whatMissingFeedback.playSuccess(session.settings.sound);
     recordSuccess({
@@ -176,7 +169,6 @@ async function answer(choice: WhatMissingItem) {
   });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "mistake" });
   void whatMissingFeedback.playMistake(session.settings.sound);
-  hintedRoundId.value = round.value.roundId;
   feedbackText.value = "Почти. Ничего страшного, попробуй ещё раз.";
   if (!(await playSequence(["what-missing.mistake", "what-missing.choose"], 80, token))) return;
   isResponding.value = false;
@@ -278,7 +270,7 @@ onUnmounted(() => {
                     "
                     :dwell-ms="session.settings.dwellMs"
                     min-height="11.25rem"
-                    :color="hintedChoiceId === choice.id ? 'deep-purple-darken-3' : 'surface'"
+                    color="surface"
                     @select="answer(choice)"
                   >
                     <template #default>

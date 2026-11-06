@@ -53,12 +53,9 @@ const promptAudio = useGamePromptAudio({
 });
 let feedbackTimer = 0;
 
-const hintedChoiceId = computed(() =>
-  mistakesInRound.value > 0 ? round.value.target.id : undefined,
-);
 const hintText = computed(() => {
   if (mistakesInRound.value <= 0) return "Выбери лицо с нужной эмоцией.";
-  return `Посмотри на подсказку: ${round.value.target.label} подсвечена рамкой.`;
+  return `Почти. Нужна эмоция: ${round.value.target.label}.`;
 });
 
 function choiceTargetId(choiceId: string) {
@@ -199,8 +196,6 @@ onUnmounted(() => {
               :disabled="session.status !== 'running' || pendingSelection || isSpeaking"
               :dwell-ms="session.settings.dwellMs"
               min-height="11rem"
-              :highlight-choice="(choice) => hintedChoiceId === choice.id"
-              :color="(choice) => (hintedChoiceId === choice.id ? 'primary' : 'surface')"
               :cols="4"
               :md="round.choices.length === 3 ? 4 : 3"
               @select="answer"

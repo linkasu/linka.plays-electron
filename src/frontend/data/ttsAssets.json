@@ -5889,56 +5889,56 @@
   {
     "id": "who-hiding.mistake.cat",
     "game": "who-hiding",
-    "text": "Это не котёнок. Всё хорошо. Давай найдём котёнка: он подсвечен подсказкой.",
+    "text": "Это не котёнок. Попробуй ещё раз.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/mistake-cat.mp3"
   },
   {
     "id": "who-hiding.mistake.owl",
     "game": "who-hiding",
-    "text": "Это не сова. Ничего страшного. Посмотри на подсветку и найди сову.",
+    "text": "Это не сова. Попробуй ещё раз.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/mistake-owl.mp3"
   },
   {
     "id": "who-hiding.mistake.duck",
     "game": "who-hiding",
-    "text": "Это не утёнок. Подсказка покажет, где искать утёнка.",
+    "text": "Это не утёнок. Попробуй ещё раз.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/mistake-duck.mp3"
   },
   {
     "id": "who-hiding.mistake.dog",
     "game": "who-hiding",
-    "text": "Это не щенок. Всё в порядке. Переведи взгляд к подсказке и найди щенка.",
+    "text": "Это не щенок. Попробуй ещё раз.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/mistake-dog.mp3"
   },
   {
     "id": "who-hiding.mistake.bird",
     "game": "who-hiding",
-    "text": "Это не птичка. Попробуем ещё раз. Птичка подсвечена.",
+    "text": "Это не птичка. Попробуй ещё раз.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/mistake-bird.mp3"
   },
   {
     "id": "who-hiding.mistake.bear",
     "game": "who-hiding",
-    "text": "Это не мишка. Ничего страшного. Мишка ждёт за подсвеченным кустом.",
+    "text": "Это не мишка. Попробуй ещё раз.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/mistake-bear.mp3"
   },
   {
     "id": "who-hiding.mistake.bunny",
     "game": "who-hiding",
-    "text": "Это не зайка. Всё хорошо. Посмотри туда, где появилась подсказка, и найди зайку.",
+    "text": "Это не зайка. Попробуй ещё раз.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/mistake-bunny.mp3"
   },
   {
     "id": "who-hiding.mistake.friend",
     "game": "who-hiding",
-    "text": "Это не друг. Ошибка не страшна. Подсказка поможет найти друга.",
+    "text": "Это не друг. Попробуй ещё раз.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/mistake-friend.mp3"
   },
@@ -6050,7 +6050,7 @@
   {
     "id": "find-color.mistake",
     "game": "find-color",
-    "text": "Почти. Это другой цвет. Посмотри на подсветку и попробуй ещё раз.",
+    "text": "Почти. Это другой цвет. Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/find-color/mistake.mp3"
   },
@@ -6071,7 +6071,7 @@
   {
     "id": "match-same.mistake",
     "game": "match-same",
-    "text": "Почти. Это другая картинка. Посмотри на подсказку и найди такую же.",
+    "text": "Почти. Это другая картинка. Найди такую же.",
     "voice": "jane",
     "path": "/audio/tts/match-same/mistake.mp3"
   },
@@ -6099,7 +6099,7 @@
   {
     "id": "what-missing.mistake",
     "game": "what-missing",
-    "text": "Почти. Это другой предмет. Посмотри на подсказку и попробуй ещё раз.",
+    "text": "Почти. Это другой предмет. Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/what-missing/mistake.mp3"
   },
@@ -6120,7 +6120,7 @@
   {
     "id": "follow-cue.mistake",
     "game": "follow-cue",
-    "text": "Почти. Это другая карточка. Подсказка станет ярче: следуй за стрелкой.",
+    "text": "Почти. Это другая карточка. Смотри, куда показывает стрелка.",
     "voice": "jane",
     "path": "/audio/tts/follow-cue/mistake.mp3"
   },
