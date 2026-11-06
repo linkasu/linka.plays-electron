@@ -86,7 +86,7 @@ export function shouldQueueV2Event(eventName: StoredTelemetryEvent["event_name"]
 function projectSummary(summary: StoredSessionSummary): ProjectedRecord | undefined {
   if (summary.session_type !== "game" || !summary.game_session_id || !summary.game_id)
     return undefined;
-  const outcome = summary.result ?? (summary.interruption_reason ? "interrupted" : "completed");
+  const outcome = summary.interruption_reason ? "interrupted" : (summary.result ?? "incomplete");
   if (
     !oneOf(outcome, "completed", "incomplete", "lost", "draw", "interrupted", "cancelled", "error")
   )

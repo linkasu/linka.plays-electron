@@ -181,9 +181,8 @@ export function finishResult(
 ): "completed" | "incomplete" | "lost" | "draw" {
   if (reason === "game-lost") return "lost";
   if (reason === "game-draw") return "draw";
-  if (reason === "timeout" || reason === "too-many-mistakes" || reason === "manual")
-    return "incomplete";
-  return "completed";
+  if (reason === "max-steps" || reason === "game-complete") return "completed";
+  return "incomplete";
 }
 
 function pointerSource(payload?: Record<string, unknown>) {
