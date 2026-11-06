@@ -2,8 +2,10 @@ import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vites
 import {
   disposeTtsAssets,
   isTtsPlaybackActive,
+  playPriorityTtsAsset,
   playTtsAsset,
   playTtsAssetAndWait,
+  stopPriorityTtsPlayback,
   stopTtsPlayback,
   subscribeTtsPlayback,
   type TtsAsset,
@@ -35,14 +37,22 @@ const asset: TtsAsset = {
   path: "/audio/test.mp3",
 };
 
+const rulesAsset: TtsAsset = {
+  id: "test.rules",
+  game: "test",
+  text: "Правила",
+  path: "/audio/test-rules.mp3",
+};
+
 beforeEach(() => {
   MockAudio.instances.length = 0;
   Object.defineProperty(window, "Audio", { configurable: true, value: MockAudio });
 });
 
 afterEach(() => {
+  stopPriorityTtsPlayback();
   stopTtsPlayback();
-  disposeTtsAssets([asset]);
+  disposeTtsAssets([asset, rulesAsset]);
 });
 
 afterAll(() => {
@@ -107,5 +117,23 @@ describe("TTS playback waiting", () => {
 
     await vi.advanceTimersByTimeAsync(6100);
     expect(done).toBe(true);
+  });
+});
+
+describe("rules the child asked for", () => {
+  it("are not cut by game phrases or a plain stop", () => {
+    playPriorityTtsAsset(true, rulesAsset);
+    const rules = MockAudio.instances.find((audio) => audio.src.includes("test-rules"));
+    expect(rules?.play).toHaveBeenCalledTimes(1);
+
+    playTtsAsset(true, asset);
+    stopTtsPlayback();
+    expect(MockAudio.instances.some((audio) => audio.src.endsWith("/audio/test.mp3"))).toBe(false);
+    expect(rules?.pause).toHaveBeenCalledTimes(1); // the reset before playing only
+
+    stopPriorityTtsPlayback();
+    expect(rules?.pause).toHaveBeenCalledTimes(2);
+    playTtsAsset(true, asset);
+    expect(MockAudio.instances.some((audio) => audio.src.endsWith("/audio/test.mp3"))).toBe(true);
   });
 });
