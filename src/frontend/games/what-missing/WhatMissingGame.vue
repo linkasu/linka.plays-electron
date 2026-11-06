@@ -92,12 +92,14 @@ async function playSequence(assetIds: string[], delayMs: number, token: number) 
   return true;
 }
 
-async function startTransition(token: number) {
+// Testers: «карточки для выбора ответа появляются не сразу». The answers show as
+// soon as the object is gone; the question plays alongside and an answer may
+// interrupt it.
+function startTransition(token: number) {
   if (token !== flowToken || !sendPhaseEvent("observe-complete")) return;
-  feedbackText.value = "Что пропало?";
-  if (!(await playSequence(["what-missing.choose"], 80, token))) return;
   sendPhaseEvent("transition-complete");
-  feedbackText.value = "Выбери предмет.";
+  feedbackText.value = "Что пропало?";
+  promptAudio.play("what-missing.choose", 80);
 }
 
 async function startInstruction(delayMs = 120) {
@@ -111,7 +113,7 @@ async function startInstruction(delayMs = 120) {
   sendPhaseEvent("instruction-complete");
   feedbackText.value = "Запоминай предметы.";
   observeTimer = window.setTimeout(() => {
-    void startTransition(token);
+    startTransition(token);
   }, DEFAULT_WHAT_MISSING_OBSERVE_MS);
 }
 

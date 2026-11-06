@@ -117,7 +117,7 @@ describe("useGameSession", () => {
   });
 
   it("does not count paused time toward active duration", async () => {
-    const mounted = mountSession({ maxSteps: 5, sessionSeconds: 30 }, {}, "magic-dust");
+    const mounted = mountSession({ maxSteps: 5, sessionSeconds: 30 }, {}, "warm-fire");
 
     try {
       vi.advanceTimersByTime(5_000);
@@ -246,6 +246,20 @@ describe("useGameSession", () => {
       expect(mounted.api.session.status).toBe("running");
     } finally {
       mounted.unmount();
+    }
+  });
+
+  it("lets the free-play games run on in the default mode", async () => {
+    for (const gameId of ["magic-dust", "northern-lights", "moon-path"]) {
+      const mounted = mountSession({ maxSteps: 2, sessionSeconds: 1 }, {}, gameId);
+      try {
+        vi.advanceTimersByTime(600_000);
+        await nextTick();
+
+        expect(mounted.api.session.status, gameId).toBe("running");
+      } finally {
+        mounted.unmount();
+      }
     }
   });
 

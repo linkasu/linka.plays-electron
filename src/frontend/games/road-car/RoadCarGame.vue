@@ -52,7 +52,9 @@ const {
     preset: "standard",
     dwellMs: 600,
     targetScale: 1.25,
-    motionSpeed: 0.9,
+    // Testers: «сделать помедленнее скорость машинки, дети не все так быстро
+    // соображают». About a third slower than 0.9.
+    motionSpeed: 0.6,
     distractors: "low",
     hints: "medium",
   },
