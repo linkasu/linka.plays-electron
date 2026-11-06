@@ -108,7 +108,11 @@ function resetFeedback(message = "Выбери следующий кадр ис�
 
 async function playPrompt(delayMs = 0) {
   isSpeaking.value = true;
-  await promptAudio.playSequenceAndWait(["three-frame-story.prompt"], delayMs);
+  // Testers: «озвучить задание для каждой истории, полностью».
+  await promptAudio.playSequenceAndWait(
+    [`three-frame-story.story.${round.value.story.id}`],
+    delayMs,
+  );
   isSpeaking.value = false;
 }
 
@@ -135,6 +139,8 @@ function scheduleNextFrame() {
     resetFeedback(
       isNewStory ? "Новая история. Выбери первый кадр." : "Хорошо. Выбери следующий кадр.",
     );
+    // Each story has its own task; say it when the next one begins.
+    if (isNewStory) void playPrompt(150);
   }, 700);
 }
 

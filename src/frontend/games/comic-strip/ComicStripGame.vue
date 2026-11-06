@@ -51,6 +51,11 @@ const feedbackText = ref("Выбери первый кадр. Если не по
 const isAdvancingStory = ref(false);
 const isSpeaking = ref(false);
 const completedStories = ref(0);
+// Testers: «озвучить задание до конца, дети не читают». The whole story task is said.
+function storyPromptId() {
+  return `comic-strip.story.${round.value.story.id}`;
+}
+
 const promptAudio = useGamePromptAudio({
   gameId: "comic-strip",
   soundEnabled: toRef(session.settings, "sound"),
@@ -91,7 +96,7 @@ function startNextStory() {
   isAdvancingStory.value = false;
   isSpeaking.value = false;
   feedbackText.value = "Начинается новая история. Выбери первый кадр.";
-  promptAudio.play("comic-strip.prompt", 300);
+  promptAudio.play(storyPromptId(), 300);
 }
 
 function playFrameNote(frameIndex: number) {
@@ -188,14 +193,14 @@ function restart() {
   isSpeaking.value = false;
   feedbackText.value = "Выбери первый кадр. Если не получится, попробуй снова.";
   startSession();
-  promptAudio.play("comic-strip.prompt", 450);
+  promptAudio.play(storyPromptId(), 450);
 }
 
 onMounted(() => {
   promptAudio.warm();
   warmSoftPiano(session.settings.sound, storyNotes);
   comicFeedback.warm(session.settings.sound);
-  promptAudio.play("comic-strip.prompt", 450);
+  promptAudio.play(storyPromptId(), 450);
 });
 
 onUnmounted(() => {

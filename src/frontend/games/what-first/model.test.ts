@@ -11,7 +11,8 @@ describe("what-first model", () => {
     const round = generateWhatFirstRound(1, () => 0.99);
 
     expect(round.roundId).toBe("what-first:round:1");
-    expect(round.prompt).toBe("Что сначала?");
+    expect(round.prompt).toBe(round.scene.question);
+    expect(round.prompt).toMatch(/Что нужно сделать сначала\?$/);
     expect(round.expectedAction).toBe(round.scene.first);
     expect(new Set(round.choices)).toEqual(new Set([round.scene.first, round.scene.then]));
   });
