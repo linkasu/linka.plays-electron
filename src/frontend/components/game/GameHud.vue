@@ -5,7 +5,7 @@ import { useDwellSettings } from "../../core/dwellSettings";
 import { fitGameBelowHud } from "../../core/fitBelowHud";
 import { resolveMenuMode, resolveMenuRoute } from "../../core/menuMode";
 import { gameSessionRunKey } from "../../core/session";
-import { playTtsAsset, type TtsAsset } from "../../core/ttsAudio";
+import { playPriorityTtsAsset, stopPriorityTtsPlayback, type TtsAsset } from "../../core/ttsAudio";
 import ttsAssetsData from "../../data/ttsAssets.json";
 import GameDwellButton from "./GameDwellButton.vue";
 import GazePointerOverlay from "./GazePointerOverlay.vue";
@@ -72,6 +72,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  stopPriorityTtsPlayback();
   hudObserver?.disconnect();
   stopFitting?.();
   window.removeEventListener("resize", publishHudClearance);
@@ -103,7 +104,7 @@ const rulesAsset = computed(() => {
 
 function playRules() {
   if (!rulesAsset.value) return;
-  playTtsAsset(runContext?.soundEnabled() ?? true, rulesAsset.value, 0.36);
+  playPriorityTtsAsset(runContext?.soundEnabled() ?? true, rulesAsset.value, 0.36);
 }
 
 function togglePause() {
