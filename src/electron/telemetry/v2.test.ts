@@ -20,44 +20,55 @@ describe("V2 telemetry projection", () => {
     });
   });
 
-  it("preserves mixed input and real session outcome aggregates", () => {
-    const sessionId = randomUUID();
-    const record: SpoolRecord = {
-      id: sessionId,
-      createdAt: Date.now(),
-      kind: "summary",
-      priority: "summary",
-      payload: {
-        session_id: sessionId,
-        session_type: "game",
-        app_session_id: randomUUID(),
-        game_session_id: sessionId,
-        game_id: "aquarium",
-        game_category: "gaze-basics",
-        input_method: "mixed",
-        started_at: new Date(Date.now() - 1000).toISOString(),
-        ended_at: new Date().toISOString(),
-        duration_ms: 1000,
-        success_count: 1,
-        mistake_count: 2,
-        hint_count: 3,
-        result: "lost",
-        app,
-      },
-    };
+  it.each([
+    { result: undefined, interruptionReason: undefined, outcome: "incomplete" },
+    { result: undefined, interruptionReason: "renderer-crash", outcome: "interrupted" },
+    { result: "completed", interruptionReason: "route-leave", outcome: "interrupted" },
+    ...["completed", "incomplete", "lost", "draw", "interrupted", "cancelled", "error"].map(
+      (result) => ({ result, interruptionReason: undefined, outcome: result }),
+    ),
+  ])(
+    "projects result $result / interruption $interruptionReason as $outcome",
+    ({ result, interruptionReason, outcome }) => {
+      const sessionId = randomUUID();
+      const record: SpoolRecord = {
+        id: sessionId,
+        createdAt: Date.now(),
+        kind: "summary",
+        priority: "summary",
+        payload: {
+          session_id: sessionId,
+          session_type: "game",
+          app_session_id: randomUUID(),
+          game_session_id: sessionId,
+          game_id: "aquarium",
+          game_category: "gaze-basics",
+          input_method: "mixed",
+          started_at: new Date(Date.now() - 1000).toISOString(),
+          ended_at: new Date().toISOString(),
+          duration_ms: 1000,
+          success_count: 1,
+          mistake_count: 2,
+          hint_count: 3,
+          result,
+          interruption_reason: interruptionReason,
+          app,
+        },
+      };
 
-    expect(projectV2Record(record)).toMatchObject({
-      stream: "plays",
-      value: {
-        kind: "session_finished",
-        input_method: "mixed",
-        outcome: "lost",
-        success_count: 1,
-        mistake_count: 2,
-        hint_count: 3,
-      },
-    });
-  });
+      expect(projectV2Record(record)).toMatchObject({
+        stream: "plays",
+        value: {
+          kind: "session_finished",
+          input_method: "mixed",
+          outcome,
+          success_count: 1,
+          mistake_count: 2,
+          hint_count: 3,
+        },
+      });
+    },
+  );
 
   it("uses an explicit unknown category instead of dropping a direct-route session", () => {
     const sessionId = randomUUID();
