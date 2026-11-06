@@ -70,8 +70,16 @@ function getAudio(asset: TtsAsset) {
   return audio;
 }
 
+// Rules the child asked for («Правила») are not cut by the game's own phrases:
+// while they play, other phrases are skipped and a plain stop leaves them on.
+let priorityAudio: HTMLAudioElement | undefined;
+
+function priorityPlaying() {
+  return Boolean(priorityAudio && !priorityAudio.paused && !priorityAudio.ended);
+}
+
 function startTtsAsset(enabled: boolean, asset: TtsAsset | undefined, volume: number) {
-  if (!enabled || !asset) return undefined;
+  if (!enabled || !asset || priorityPlaying()) return undefined;
   stopTtsPlayback();
   currentAudio = getAudio(asset);
   currentAudio.pause();
@@ -143,7 +151,21 @@ export function playTtsAssetAndWait(enabled: boolean, asset: TtsAsset | undefine
   }
 }
 
+/** Reads a phrase the child asked for; game phrases wait until it ends. */
+export function playPriorityTtsAsset(enabled: boolean, asset: TtsAsset | undefined, volume = 0.42) {
+  stopPriorityTtsPlayback();
+  playTtsAsset(enabled, asset, volume);
+  priorityAudio = currentAudio;
+}
+
+export function stopPriorityTtsPlayback() {
+  if (!priorityAudio) return;
+  priorityAudio = undefined;
+  stopTtsPlayback();
+}
+
 export function stopTtsPlayback() {
+  if (priorityPlaying()) return;
   currentPlaybackFinish?.();
   const audio = currentAudio;
   currentAudio = undefined;
