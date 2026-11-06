@@ -139,6 +139,8 @@ function scheduleNextFrame() {
     resetFeedback(
       isNewStory ? "Новая история. Выбери первый кадр." : "Хорошо. Выбери следующий кадр.",
     );
+    // Each story has its own task; say it when the next one begins.
+    if (isNewStory) void playPrompt(150);
   }, 700);
 }
 
