@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { scenePalette } from "../../core/themeSettings";
-import { computed, reactive, ref } from "vue";
+import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
+import { computed, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -88,25 +89,16 @@ const {
   },
   finishOnMistakes: false,
 });
+// Testers: «озвучить задание». The task is said when the game starts.
+useStartPromptAudio({ gameId: "rails", soundEnabled: toRef(session.settings, "sound") });
 
 const selectedTrain = ref<TrainChoice>();
 const train = reactive({ ratio: 0, visualRatio: 0, dwellMs: 0, confidence: 0, hint: 0, phase: 0 });
 const resultVisible = computed(() => session.status === "finished");
-const progressPercent = computed(() => Math.round(train.visualRatio * 100));
 const activeStation = computed(() => Math.min(session.maxSteps, session.step + 1));
 const stationDwellPercent = computed(() =>
   Math.round(Math.min(1, train.dwellMs / session.settings.dwellMs) * 100),
 );
-const guidanceText = computed(() => {
-  if (!selectedTrain.value) return "Выбери поезд взглядом, затем веди его по изогнутым рельсам.";
-  if (session.status === "paused") return "Пауза. Поезд ждёт на рельсах.";
-  if (!pointer.value.valid) return "Можно вести поезд взглядом или мышью. Рельсы ждут.";
-  if (train.dwellMs > 0)
-    return `Станция ${activeStation.value}: удержи взгляд ещё немного, ${stationDwellPercent.value}%.`;
-  if (train.hint > 0.35)
-    return "Верни взгляд к светлым рельсам или ближайшей станции. Поезд остаётся на пути.";
-  return `Веди ${selectedTrain.value.label} к станции ${activeStation.value}.`;
-});
 
 let tracking = false;
 let stationEnteredAt = 0;
@@ -683,27 +675,6 @@ useGameLoop({ context, update, draw });
       @resume="resumeSession"
     />
 
-    <v-card
-      class="rails-guidance pa-4"
-      color="surface"
-      rounded="xl"
-      variant="flat"
-      data-canvas-overlay
-    >
-      <div class="text-overline text-primary mb-1">Ведение взглядом</div>
-      <div class="text-body-1 font-weight-medium">{{ guidanceText }}</div>
-      <v-progress-linear
-        class="mt-3"
-        :model-value="progressPercent"
-        color="primary"
-        height="0.5rem"
-        rounded
-      />
-      <div class="text-caption text-medium-emphasis mt-2">
-        Прогресс: {{ progressPercent }}% · станция {{ activeStation }} из {{ session.maxSteps }}
-      </div>
-    </v-card>
-
     <v-container
       v-if="!selectedTrain && session.status !== 'finished'"
       class="rails-picker d-flex align-center justify-center"
@@ -773,16 +744,6 @@ useGameLoop({ context, update, draw });
   display: block;
   inset: 0;
   position: absolute;
-}
-
-.rails-guidance {
-  box-shadow: 0 1rem 2.75rem rgb(83 113 138 / 14%);
-  inline-size: min(27.5rem, calc(100dvw - 2rem));
-  inset-block-start: clamp(6.5rem, 14vh, 9.25rem);
-  inset-inline-end: max(1rem, env(safe-area-inset-right));
-  opacity: 0.94;
-  position: absolute;
-  z-index: 4;
 }
 
 .rails-picker {

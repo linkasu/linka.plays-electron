@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { scenePalette } from "../../core/themeSettings";
-import { computed, onMounted, reactive, ref } from "vue";
+import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
+import { computed, onMounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
@@ -56,6 +57,8 @@ const {
   },
   finishOnMistakes: false,
 });
+// Testers: «озвучить задание». The task is said when the game starts.
+useStartPromptAudio({ gameId: "balancer", soundEnabled: toRef(session.settings, "sound") });
 
 const orb = reactive<BalanceOrb>({
   x: window.innerWidth * 0.5,
@@ -77,14 +80,6 @@ const sparks = reactive<BalanceSpark[]>([]);
 const holdProgress = ref(0);
 const insideBalance = ref(false);
 const resultVisible = computed(() => session.status === "finished");
-const progressPercent = computed(() => Math.round(holdProgress.value * 100));
-const guideText = computed(() => {
-  if (session.status === "paused") return "Пауза. Шар остаётся на месте и ждёт.";
-  if (!pointer.value.valid)
-    return "Можно вести шар взглядом или мышью. Зона баланса остаётся широкой.";
-  if (!insideBalance.value) return "Верни шар в светлую зону. Прогресс просто ждёт.";
-  return "Удерживай шар в зоне баланса ещё немного.";
-});
 
 const zonePositions = [
   { x: 50, y: 56, hue: 190 },
@@ -421,16 +416,6 @@ onMounted(() => {
       @resume="resumeSession"
     />
 
-    <v-card class="balancer-card pa-4 pa-sm-5" color="surface" elevation="8" rounded="xl">
-      <div class="text-overline text-teal-darken-2">continuous control</div>
-      <h1 class="text-h4 text-sm-h3 font-weight-bold">Балансир</h1>
-      <p class="text-body-1 text-sm-h6 text-medium-emphasis mb-3">{{ guideText }}</p>
-      <v-progress-linear :model-value="progressPercent" color="teal" height="0.625rem" rounded />
-      <div class="text-caption text-medium-emphasis mt-2">
-        Прогресс сохраняется и ждёт возвращения в зону.
-      </div>
-    </v-card>
-
     <GameResultDialog
       :model-value="resultVisible"
       title="Балансир"
@@ -457,17 +442,6 @@ onMounted(() => {
   display: block;
   inset: 0;
   position: absolute;
-}
-
-.balancer-card {
-  inline-size: min(38.75rem, calc(100dvw - 2rem));
-  inset-block-start: max(6.5rem, calc(env(safe-area-inset-top) + 5.25rem));
-  inset-inline-start: 50%;
-  opacity: 0.92;
-  position: absolute;
-  text-align: center;
-  transform: translateX(-50%);
-  z-index: 2;
 }
 
 @media (max-width: 42.5rem) {

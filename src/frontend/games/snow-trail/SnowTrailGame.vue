@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { scenePalette } from "../../core/themeSettings";
-import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
+import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
@@ -41,20 +42,14 @@ const {
   finishOnMaxSteps: false,
   finishOnMistakes: false,
 });
+// Testers: «озвучить задание». The task is said when the game starts.
+useStartPromptAudio({ gameId: "snow-trail", soundEnabled: toRef(session.settings, "sound") });
 
 const progress = ref(0);
 const visualProgress = ref(0);
 const snow = reactive({ pulse: 0, confidence: 0, guide: 0, cleanup: 0 });
 const sparks = reactive<SnowSpark[]>([]);
 const resultVisible = computed(() => session.status === "finished");
-const progressPercent = computed(() => Math.round(visualProgress.value * 100));
-const guidanceText = computed(() => {
-  if (session.status === "paused") return "Пауза. Санки подождут на снегу.";
-  if (snow.cleanup > 0) return "Тропа заметает следы. Маршрут завершён.";
-  if (!pointer.value.valid) return "Можно вести санки взглядом или мышью по широкой снежной тропе.";
-  if (snow.guide > 0.45) return "Вернись к свету на тропе и веди санки дальше.";
-  return "Веди свет санок через снежные отметки.";
-});
 
 let ctx: CanvasRenderingContext2D | undefined;
 let frame = 0;
@@ -633,21 +628,6 @@ onUnmounted(() => {
       @resume="resumeSession"
     />
 
-    <v-card class="snow-trail-guidance pa-4" color="surface" rounded="xl" variant="flat">
-      <div class="text-overline text-info mb-1">Управление взглядом</div>
-      <div class="text-body-1 font-weight-medium">{{ guidanceText }}</div>
-      <v-progress-linear
-        class="mt-3"
-        :model-value="progressPercent"
-        color="info"
-        height="0.5rem"
-        rounded
-      />
-      <div class="text-caption text-medium-emphasis mt-2">
-        Отметки: {{ session.step }} / {{ session.maxSteps }}
-      </div>
-    </v-card>
-
     <GameResultDialog
       :model-value="resultVisible"
       title="Снежная тропа"
@@ -675,16 +655,6 @@ onUnmounted(() => {
   display: block;
   inset: 0;
   position: absolute;
-}
-
-.snow-trail-guidance {
-  box-shadow: 0 1.125rem 3rem rgb(74 116 150 / 14%);
-  inline-size: min(27.5rem, calc(100dvw - 2rem));
-  inset-block-start: clamp(6.5rem, 14vh, 9.25rem);
-  inset-inline-end: max(1rem, env(safe-area-inset-right));
-  opacity: 0.92;
-  position: absolute;
-  z-index: 4;
 }
 
 @media (max-width: 45rem) {

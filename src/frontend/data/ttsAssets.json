@@ -12115,5 +12115,117 @@
     "text": "Что идёт перед десятью?",
     "voice": "jane",
     "path": "/audio/tts/number-line/prompt-previous-10.mp3"
+  },
+  {
+    "id": "gaze-follow-snake.prompt",
+    "game": "gaze-follow-snake",
+    "text": "Веди змейку взглядом к листочку.",
+    "voice": "jane",
+    "path": "/audio/tts/gaze-follow-snake/prompt.mp3"
+  },
+  {
+    "id": "glider.prompt",
+    "game": "glider",
+    "text": "Веди планер взглядом через ворота.",
+    "voice": "jane",
+    "path": "/audio/tts/glider/prompt.mp3"
+  },
+  {
+    "id": "balancer.prompt",
+    "game": "balancer",
+    "text": "Держи шар взглядом в светлой зоне.",
+    "voice": "jane",
+    "path": "/audio/tts/balancer/prompt.mp3"
+  },
+  {
+    "id": "rails.prompt",
+    "game": "rails",
+    "text": "Выбери поезд и веди его взглядом по рельсам.",
+    "voice": "jane",
+    "path": "/audio/tts/rails/prompt.mp3"
+  },
+  {
+    "id": "snow-trail.prompt",
+    "game": "snow-trail",
+    "text": "Веди санки взглядом по тропе через все отметки.",
+    "voice": "jane",
+    "path": "/audio/tts/snow-trail/prompt.mp3"
+  },
+  {
+    "id": "robot-vacuum.prompt",
+    "game": "robot-vacuum",
+    "text": "Веди робота взглядом и собирай мусор.",
+    "voice": "jane",
+    "path": "/audio/tts/robot-vacuum/prompt.mp3"
+  },
+  {
+    "id": "garden-watering.prompt",
+    "game": "garden-watering",
+    "text": "Держи лейку над цветком, чтобы он вырос.",
+    "voice": "jane",
+    "path": "/audio/tts/garden-watering/prompt.mp3"
+  },
+  {
+    "id": "space-orbit.prompt",
+    "game": "space-orbit",
+    "text": "Веди ракету взглядом по орбите и собирай звёзды.",
+    "voice": "jane",
+    "path": "/audio/tts/space-orbit/prompt.mp3"
+  },
+  {
+    "id": "line-drawing.level.straight-line",
+    "game": "line-drawing",
+    "text": "Соедини две точки ровной линией.",
+    "voice": "jane",
+    "path": "/audio/tts/line-drawing/level-straight-line.mp3"
+  },
+  {
+    "id": "line-drawing.level.corner",
+    "game": "line-drawing",
+    "text": "Нарисуй угол: вниз, потом вправо.",
+    "voice": "jane",
+    "path": "/audio/tts/line-drawing/level-corner.mp3"
+  },
+  {
+    "id": "line-drawing.level.triangle",
+    "game": "line-drawing",
+    "text": "Соедини вершины треугольника.",
+    "voice": "jane",
+    "path": "/audio/tts/line-drawing/level-triangle.mp3"
+  },
+  {
+    "id": "line-drawing.level.square",
+    "game": "line-drawing",
+    "text": "Обведи квадрат по углам.",
+    "voice": "jane",
+    "path": "/audio/tts/line-drawing/level-square.mp3"
+  },
+  {
+    "id": "line-drawing.level.house",
+    "game": "line-drawing",
+    "text": "Нарисуй домик: крыша, стены и основание.",
+    "voice": "jane",
+    "path": "/audio/tts/line-drawing/level-house.mp3"
+  },
+  {
+    "id": "line-drawing.level.fish",
+    "game": "line-drawing",
+    "text": "Собери рыбку: нос, спинка, хвост и живот.",
+    "voice": "jane",
+    "path": "/audio/tts/line-drawing/level-fish.mp3"
+  },
+  {
+    "id": "line-drawing.level.cat",
+    "game": "line-drawing",
+    "text": "Нарисуй кошку: ушки, мордочку и хвост.",
+    "voice": "jane",
+    "path": "/audio/tts/line-drawing/level-cat.mp3"
+  },
+  {
+    "id": "line-drawing.level.dog",
+    "game": "line-drawing",
+    "text": "Нарисуй собаку: мордочку, ушко, спину, лапы и хвост.",
+    "voice": "jane",
+    "path": "/audio/tts/line-drawing/level-dog.mp3"
   }
 ]
