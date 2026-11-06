@@ -15,7 +15,7 @@ describe("i-want model", () => {
     const round = generateIWantRound(1);
 
     expect(round.roundId).toBe("i-want:round:1");
-    expect(round.prompt).toContain("Любая карточка подходит");
+    expect(round.prompt).toBe("Что ты хочешь? Выбери карточку.");
     expect(round.cards).toHaveLength(6);
     expect(round.cards[0]).toBe(iWantCards[0]);
   });

@@ -127,7 +127,7 @@ export function generateIWantRound(roundIndex = 1): IWantRound {
   const offset = (roundIndex - 1) % iWantCards.length;
   return {
     roundId: `i-want:round:${roundIndex}`,
-    prompt: "Что ты хочешь сейчас? Любая карточка подходит.",
+    prompt: "Что ты хочешь? Выбери карточку.",
     cards: [...iWantCards.slice(offset), ...iWantCards.slice(0, offset)].slice(0, 6),
   };
 }

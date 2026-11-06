@@ -1332,56 +1332,56 @@
   {
     "id": "schedule.prompt.wake",
     "game": "schedule",
-    "text": "Выбери следующую карточку дня.",
+    "text": "Утро. Что мы делаем сначала?",
     "voice": "jane",
     "path": "/audio/tts/schedule/prompt-wake.mp3"
   },
   {
     "id": "schedule.prompt.wash",
     "game": "schedule",
-    "text": "Выбери следующую карточку дня.",
+    "text": "Мы проснулись. Что дальше?",
     "voice": "jane",
     "path": "/audio/tts/schedule/prompt-wash.mp3"
   },
   {
     "id": "schedule.prompt.breakfast",
     "game": "schedule",
-    "text": "Выбери следующую карточку дня.",
+    "text": "Мы умылись. Что дальше?",
     "voice": "jane",
     "path": "/audio/tts/schedule/prompt-breakfast.mp3"
   },
   {
     "id": "schedule.prompt.dress",
     "game": "schedule",
-    "text": "Выбери следующую карточку дня.",
+    "text": "Мы позавтракали. Что дальше?",
     "voice": "jane",
     "path": "/audio/tts/schedule/prompt-dress.mp3"
   },
   {
     "id": "schedule.prompt.therapy",
     "game": "schedule",
-    "text": "Выбери следующую карточку дня.",
+    "text": "Мы оделись. Что дальше?",
     "voice": "jane",
     "path": "/audio/tts/schedule/prompt-therapy.mp3"
   },
   {
     "id": "schedule.prompt.lunch",
     "game": "schedule",
-    "text": "Выбери следующую карточку дня.",
+    "text": "Мы позанимались. Что дальше?",
     "voice": "jane",
     "path": "/audio/tts/schedule/prompt-lunch.mp3"
   },
   {
     "id": "schedule.prompt.play",
     "game": "schedule",
-    "text": "Выбери следующую карточку дня.",
+    "text": "Мы пообедали. Что дальше?",
     "voice": "jane",
     "path": "/audio/tts/schedule/prompt-play.mp3"
   },
   {
     "id": "schedule.prompt.sleep",
     "game": "schedule",
-    "text": "Выбери следующую карточку дня.",
+    "text": "Мы поиграли. Что дальше?",
     "voice": "jane",
     "path": "/audio/tts/schedule/prompt-sleep.mp3"
   },
@@ -2130,7 +2130,7 @@
   {
     "id": "i-want.intro",
     "game": "i-want",
-    "text": "Выбери карточку, чтобы сказать: я хочу.",
+    "text": "Что ты хочешь? Выбери карточку.",
     "voice": "jane",
     "path": "/audio/tts/i-want/intro.mp3"
   },
@@ -2277,7 +2277,7 @@
   {
     "id": "want-dont-want.intro",
     "game": "want-dont-want",
-    "text": "Посмотри на предмет и выбери: хочу или не хочу.",
+    "text": "Что ты выбираешь сейчас?",
     "voice": "jane",
     "path": "/audio/tts/want-dont-want/intro.mp3"
   },
@@ -5462,7 +5462,7 @@
   {
     "id": "coin-counting.prompt.1",
     "game": "coin-counting",
-    "text": "Собери 1.",
+    "text": "Собери сумму 1 и нажми галочку.",
     "voice": "alena",
     "path": "/audio/tts/coin-counting/prompt-1.mp3"
   },
@@ -5476,7 +5476,7 @@
   {
     "id": "coin-counting.prompt.2",
     "game": "coin-counting",
-    "text": "Собери 2.",
+    "text": "Собери сумму 2 и нажми галочку.",
     "voice": "alena",
     "path": "/audio/tts/coin-counting/prompt-2.mp3"
   },
@@ -5490,7 +5490,7 @@
   {
     "id": "coin-counting.prompt.3",
     "game": "coin-counting",
-    "text": "Собери 3.",
+    "text": "Собери сумму 3 и нажми галочку.",
     "voice": "alena",
     "path": "/audio/tts/coin-counting/prompt-3.mp3"
   },
@@ -5504,7 +5504,7 @@
   {
     "id": "coin-counting.prompt.4",
     "game": "coin-counting",
-    "text": "Собери 4.",
+    "text": "Собери сумму 4 и нажми галочку.",
     "voice": "alena",
     "path": "/audio/tts/coin-counting/prompt-4.mp3"
   },
@@ -5518,7 +5518,7 @@
   {
     "id": "coin-counting.prompt.5",
     "game": "coin-counting",
-    "text": "Собери 5.",
+    "text": "Собери сумму 5 и нажми галочку.",
     "voice": "alena",
     "path": "/audio/tts/coin-counting/prompt-5.mp3"
   },
@@ -5532,7 +5532,7 @@
   {
     "id": "coin-counting.prompt.6",
     "game": "coin-counting",
-    "text": "Собери 6.",
+    "text": "Собери сумму 6 и нажми галочку.",
     "voice": "alena",
     "path": "/audio/tts/coin-counting/prompt-6.mp3"
   },
@@ -5546,7 +5546,7 @@
   {
     "id": "coin-counting.prompt.7",
     "game": "coin-counting",
-    "text": "Собери 7.",
+    "text": "Собери сумму 7 и нажми галочку.",
     "voice": "alena",
     "path": "/audio/tts/coin-counting/prompt-7.mp3"
   },
@@ -5560,7 +5560,7 @@
   {
     "id": "coin-counting.prompt.8",
     "game": "coin-counting",
-    "text": "Собери 8.",
+    "text": "Собери сумму 8 и нажми галочку.",
     "voice": "alena",
     "path": "/audio/tts/coin-counting/prompt-8.mp3"
   },
@@ -5574,7 +5574,7 @@
   {
     "id": "coin-counting.prompt.9",
     "game": "coin-counting",
-    "text": "Собери 9.",
+    "text": "Собери сумму 9 и нажми галочку.",
     "voice": "alena",
     "path": "/audio/tts/coin-counting/prompt-9.mp3"
   },
@@ -5588,7 +5588,7 @@
   {
     "id": "coin-counting.prompt.10",
     "game": "coin-counting",
-    "text": "Собери 10.",
+    "text": "Собери сумму 10 и нажми галочку.",
     "voice": "alena",
     "path": "/audio/tts/coin-counting/prompt-10.mp3"
   },
@@ -6176,7 +6176,7 @@
   {
     "id": "sound-source.prompt",
     "game": "sound-source",
-    "text": "Послушай звук и выбери, откуда идут волны.",
+    "text": "Послушай звук и найди, что звучит.",
     "voice": "jane",
     "path": "/audio/tts/sound-source/prompt.mp3"
   },
@@ -12402,5 +12402,1076 @@
     "text": "Нарисуй собаку: мордочку, ушко, спину, лапы и хвост.",
     "voice": "jane",
     "path": "/audio/tts/line-drawing/level-dog.mp3"
+  },
+  {
+    "id": "word-categories.task.item.apple",
+    "game": "word-categories",
+    "text": "Куда относится яблоко?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-apple.mp3"
+  },
+  {
+    "id": "word-categories.task.item.banana",
+    "game": "word-categories",
+    "text": "Куда относится банан?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-banana.mp3"
+  },
+  {
+    "id": "word-categories.task.item.bread",
+    "game": "word-categories",
+    "text": "Куда относится хлеб?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-bread.mp3"
+  },
+  {
+    "id": "word-categories.task.item.cheese",
+    "game": "word-categories",
+    "text": "Куда относится сыр?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-cheese.mp3"
+  },
+  {
+    "id": "word-categories.task.item.carrot",
+    "game": "word-categories",
+    "text": "Куда относится морковь?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-carrot.mp3"
+  },
+  {
+    "id": "word-categories.task.item.pear",
+    "game": "word-categories",
+    "text": "Куда относится груша?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-pear.mp3"
+  },
+  {
+    "id": "word-categories.task.item.orange",
+    "game": "word-categories",
+    "text": "Куда относится апельсин?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-orange.mp3"
+  },
+  {
+    "id": "word-categories.task.item.lemon",
+    "game": "word-categories",
+    "text": "Куда относится лимон?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-lemon.mp3"
+  },
+  {
+    "id": "word-categories.task.item.grapes",
+    "game": "word-categories",
+    "text": "Куда относится виноград?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-grapes.mp3"
+  },
+  {
+    "id": "word-categories.task.item.cherry",
+    "game": "word-categories",
+    "text": "Куда относится вишня?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-cherry.mp3"
+  },
+  {
+    "id": "word-categories.task.item.strawberry",
+    "game": "word-categories",
+    "text": "Куда относится клубника?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-strawberry.mp3"
+  },
+  {
+    "id": "word-categories.task.item.watermelon",
+    "game": "word-categories",
+    "text": "Куда относится арбуз?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-watermelon.mp3"
+  },
+  {
+    "id": "word-categories.task.item.melon",
+    "game": "word-categories",
+    "text": "Куда относится дыня?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-melon.mp3"
+  },
+  {
+    "id": "word-categories.task.item.peach",
+    "game": "word-categories",
+    "text": "Куда относится персик?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-peach.mp3"
+  },
+  {
+    "id": "word-categories.task.item.plum",
+    "game": "word-categories",
+    "text": "Куда относится слива?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-plum.mp3"
+  },
+  {
+    "id": "word-categories.task.item.kiwi",
+    "game": "word-categories",
+    "text": "Куда относится киви?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-kiwi.mp3"
+  },
+  {
+    "id": "word-categories.task.item.tomato",
+    "game": "word-categories",
+    "text": "Куда относится помидор?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-tomato.mp3"
+  },
+  {
+    "id": "word-categories.task.item.cucumber",
+    "game": "word-categories",
+    "text": "Куда относится огурец?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-cucumber.mp3"
+  },
+  {
+    "id": "word-categories.task.item.potato",
+    "game": "word-categories",
+    "text": "Куда относится картошка?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-potato.mp3"
+  },
+  {
+    "id": "word-categories.task.item.onion",
+    "game": "word-categories",
+    "text": "Куда относится лук?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-onion.mp3"
+  },
+  {
+    "id": "word-categories.task.item.corn",
+    "game": "word-categories",
+    "text": "Куда относится кукуруза?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-corn.mp3"
+  },
+  {
+    "id": "word-categories.task.item.pepper",
+    "game": "word-categories",
+    "text": "Куда относится перец?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-pepper.mp3"
+  },
+  {
+    "id": "word-categories.task.item.mushroom",
+    "game": "word-categories",
+    "text": "Куда относится гриб?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-mushroom.mp3"
+  },
+  {
+    "id": "word-categories.task.item.egg",
+    "game": "word-categories",
+    "text": "Куда относится яйцо?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-egg.mp3"
+  },
+  {
+    "id": "word-categories.task.item.milk",
+    "game": "word-categories",
+    "text": "Куда относится молоко?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-milk.mp3"
+  },
+  {
+    "id": "word-categories.task.item.juice",
+    "game": "word-categories",
+    "text": "Куда относится сок?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-juice.mp3"
+  },
+  {
+    "id": "word-categories.task.item.tea",
+    "game": "word-categories",
+    "text": "Куда относится чай?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-tea.mp3"
+  },
+  {
+    "id": "word-categories.task.item.soup",
+    "game": "word-categories",
+    "text": "Куда относится суп?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-soup.mp3"
+  },
+  {
+    "id": "word-categories.task.item.rice",
+    "game": "word-categories",
+    "text": "Куда относится рис?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-rice.mp3"
+  },
+  {
+    "id": "word-categories.task.item.pasta",
+    "game": "word-categories",
+    "text": "Куда относится лапша?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-pasta.mp3"
+  },
+  {
+    "id": "word-categories.task.item.meat",
+    "game": "word-categories",
+    "text": "Куда относится мясо?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-meat.mp3"
+  },
+  {
+    "id": "word-categories.task.item.chicken",
+    "game": "word-categories",
+    "text": "Куда относится курятина?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-chicken.mp3"
+  },
+  {
+    "id": "word-categories.task.item.cake",
+    "game": "word-categories",
+    "text": "Куда относится торт?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-cake.mp3"
+  },
+  {
+    "id": "word-categories.task.item.cookie",
+    "game": "word-categories",
+    "text": "Куда относится печенье?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-cookie.mp3"
+  },
+  {
+    "id": "word-categories.task.item.honey",
+    "game": "word-categories",
+    "text": "Куда относится мёд?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-honey.mp3"
+  },
+  {
+    "id": "word-categories.task.item.ice_cream",
+    "game": "word-categories",
+    "text": "Куда относится мороженое?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-ice-cream.mp3"
+  },
+  {
+    "id": "word-categories.task.item.porridge",
+    "game": "word-categories",
+    "text": "Куда относится каша?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-porridge.mp3"
+  },
+  {
+    "id": "word-categories.task.item.yogurt",
+    "game": "word-categories",
+    "text": "Куда относится йогурт?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-yogurt.mp3"
+  },
+  {
+    "id": "word-categories.task.item.sausage",
+    "game": "word-categories",
+    "text": "Куда относится сосиска?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-sausage.mp3"
+  },
+  {
+    "id": "word-categories.task.item.pizza",
+    "game": "word-categories",
+    "text": "Куда относится пицца?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-pizza.mp3"
+  },
+  {
+    "id": "word-categories.task.item.cat",
+    "game": "word-categories",
+    "text": "Куда относится кот?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-cat.mp3"
+  },
+  {
+    "id": "word-categories.task.item.dog",
+    "game": "word-categories",
+    "text": "Куда относится пёс?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-dog.mp3"
+  },
+  {
+    "id": "word-categories.task.item.fish",
+    "game": "word-categories",
+    "text": "Куда относится рыба?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-fish.mp3"
+  },
+  {
+    "id": "word-categories.task.item.duck",
+    "game": "word-categories",
+    "text": "Куда относится утка?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-duck.mp3"
+  },
+  {
+    "id": "word-categories.task.item.cow",
+    "game": "word-categories",
+    "text": "Куда относится корова?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-cow.mp3"
+  },
+  {
+    "id": "word-categories.task.item.horse",
+    "game": "word-categories",
+    "text": "Куда относится лошадь?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-horse.mp3"
+  },
+  {
+    "id": "word-categories.task.item.pig",
+    "game": "word-categories",
+    "text": "Куда относится свинья?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-pig.mp3"
+  },
+  {
+    "id": "word-categories.task.item.sheep",
+    "game": "word-categories",
+    "text": "Куда относится овца?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-sheep.mp3"
+  },
+  {
+    "id": "word-categories.task.item.goat",
+    "game": "word-categories",
+    "text": "Куда относится коза?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-goat.mp3"
+  },
+  {
+    "id": "word-categories.task.item.rabbit",
+    "game": "word-categories",
+    "text": "Куда относится заяц?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-rabbit.mp3"
+  },
+  {
+    "id": "word-categories.task.item.fox",
+    "game": "word-categories",
+    "text": "Куда относится лиса?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-fox.mp3"
+  },
+  {
+    "id": "word-categories.task.item.bear",
+    "game": "word-categories",
+    "text": "Куда относится медведь?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-bear.mp3"
+  },
+  {
+    "id": "word-categories.task.item.wolf",
+    "game": "word-categories",
+    "text": "Куда относится волк?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-wolf.mp3"
+  },
+  {
+    "id": "word-categories.task.item.lion",
+    "game": "word-categories",
+    "text": "Куда относится лев?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-lion.mp3"
+  },
+  {
+    "id": "word-categories.task.item.tiger",
+    "game": "word-categories",
+    "text": "Куда относится тигр?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-tiger.mp3"
+  },
+  {
+    "id": "word-categories.task.item.elephant",
+    "game": "word-categories",
+    "text": "Куда относится слон?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-elephant.mp3"
+  },
+  {
+    "id": "word-categories.task.item.giraffe",
+    "game": "word-categories",
+    "text": "Куда относится жираф?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-giraffe.mp3"
+  },
+  {
+    "id": "word-categories.task.item.zebra",
+    "game": "word-categories",
+    "text": "Куда относится зебра?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-zebra.mp3"
+  },
+  {
+    "id": "word-categories.task.item.monkey",
+    "game": "word-categories",
+    "text": "Куда относится обезьяна?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-monkey.mp3"
+  },
+  {
+    "id": "word-categories.task.item.mouse",
+    "game": "word-categories",
+    "text": "Куда относится мышь?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-mouse.mp3"
+  },
+  {
+    "id": "word-categories.task.item.frog",
+    "game": "word-categories",
+    "text": "Куда относится жаба?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-frog.mp3"
+  },
+  {
+    "id": "word-categories.task.item.bird",
+    "game": "word-categories",
+    "text": "Куда относится птица?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-bird.mp3"
+  },
+  {
+    "id": "word-categories.task.item.owl",
+    "game": "word-categories",
+    "text": "Куда относится сова?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-owl.mp3"
+  },
+  {
+    "id": "word-categories.task.item.hen",
+    "game": "word-categories",
+    "text": "Куда относится курица?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-hen.mp3"
+  },
+  {
+    "id": "word-categories.task.item.turtle",
+    "game": "word-categories",
+    "text": "Куда относится черепаха?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-turtle.mp3"
+  },
+  {
+    "id": "word-categories.task.item.dolphin",
+    "game": "word-categories",
+    "text": "Куда относится дельфин?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-dolphin.mp3"
+  },
+  {
+    "id": "word-categories.task.item.whale",
+    "game": "word-categories",
+    "text": "Куда относится кит?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-whale.mp3"
+  },
+  {
+    "id": "word-categories.task.item.snail",
+    "game": "word-categories",
+    "text": "Куда относится улитка?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-snail.mp3"
+  },
+  {
+    "id": "word-categories.task.item.bee",
+    "game": "word-categories",
+    "text": "Куда относится пчела?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-bee.mp3"
+  },
+  {
+    "id": "word-categories.task.item.butterfly",
+    "game": "word-categories",
+    "text": "Куда относится бабочка?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-butterfly.mp3"
+  },
+  {
+    "id": "word-categories.task.item.car",
+    "game": "word-categories",
+    "text": "Куда относится машина?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-car.mp3"
+  },
+  {
+    "id": "word-categories.task.item.bus",
+    "game": "word-categories",
+    "text": "Куда относится автобус?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-bus.mp3"
+  },
+  {
+    "id": "word-categories.task.item.train",
+    "game": "word-categories",
+    "text": "Куда относится поезд?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-train.mp3"
+  },
+  {
+    "id": "word-categories.task.item.tram",
+    "game": "word-categories",
+    "text": "Куда относится трамвай?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-tram.mp3"
+  },
+  {
+    "id": "word-categories.task.item.bicycle",
+    "game": "word-categories",
+    "text": "Куда относится велосипед?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-bicycle.mp3"
+  },
+  {
+    "id": "word-categories.task.item.scooter",
+    "game": "word-categories",
+    "text": "Куда относится самокат?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-scooter.mp3"
+  },
+  {
+    "id": "word-categories.task.item.boat",
+    "game": "word-categories",
+    "text": "Куда относится лодка?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-boat.mp3"
+  },
+  {
+    "id": "word-categories.task.item.ship",
+    "game": "word-categories",
+    "text": "Куда относится корабль?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-ship.mp3"
+  },
+  {
+    "id": "word-categories.task.item.plane",
+    "game": "word-categories",
+    "text": "Куда относится самолёт?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-plane.mp3"
+  },
+  {
+    "id": "word-categories.task.item.rocket",
+    "game": "word-categories",
+    "text": "Куда относится ракета?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-rocket.mp3"
+  },
+  {
+    "id": "word-categories.task.item.shirt",
+    "game": "word-categories",
+    "text": "Куда относится рубашка?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-shirt.mp3"
+  },
+  {
+    "id": "word-categories.task.item.pants",
+    "game": "word-categories",
+    "text": "Куда относится штаны?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-pants.mp3"
+  },
+  {
+    "id": "word-categories.task.item.dress",
+    "game": "word-categories",
+    "text": "Куда относится платье?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-dress.mp3"
+  },
+  {
+    "id": "word-categories.task.item.shoes",
+    "game": "word-categories",
+    "text": "Куда относится обувь?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-shoes.mp3"
+  },
+  {
+    "id": "word-categories.task.item.socks",
+    "game": "word-categories",
+    "text": "Куда относится носки?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-socks.mp3"
+  },
+  {
+    "id": "word-categories.task.item.coat",
+    "game": "word-categories",
+    "text": "Куда относится пальто?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-coat.mp3"
+  },
+  {
+    "id": "word-categories.task.item.cap",
+    "game": "word-categories",
+    "text": "Куда относится кепка?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-item-cap.mp3"
+  },
+  {
+    "id": "word-categories.task.category.food",
+    "game": "word-categories",
+    "text": "Найди еду.",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-category-food.mp3"
+  },
+  {
+    "id": "word-categories.task.category.animal",
+    "game": "word-categories",
+    "text": "Найди животное.",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-category-animal.mp3"
+  },
+  {
+    "id": "word-categories.task.category.transport",
+    "game": "word-categories",
+    "text": "Найди транспорт.",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-category-transport.mp3"
+  },
+  {
+    "id": "word-categories.task.category.clothes",
+    "game": "word-categories",
+    "text": "Найди одежду.",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/task-category-clothes.mp3"
+  },
+  {
+    "id": "type-word.task.banana",
+    "game": "type-word",
+    "text": "Собери слово: банан.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-banana.mp3"
+  },
+  {
+    "id": "type-word.task.bread",
+    "game": "type-word",
+    "text": "Собери слово: хлеб.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-bread.mp3"
+  },
+  {
+    "id": "type-word.task.cheese",
+    "game": "type-word",
+    "text": "Собери слово: сыр.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-cheese.mp3"
+  },
+  {
+    "id": "type-word.task.pear",
+    "game": "type-word",
+    "text": "Собери слово: груша.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-pear.mp3"
+  },
+  {
+    "id": "type-word.task.lemon",
+    "game": "type-word",
+    "text": "Собери слово: лимон.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-lemon.mp3"
+  },
+  {
+    "id": "type-word.task.cherry",
+    "game": "type-word",
+    "text": "Собери слово: вишня.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-cherry.mp3"
+  },
+  {
+    "id": "type-word.task.watermelon",
+    "game": "type-word",
+    "text": "Собери слово: арбуз.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-watermelon.mp3"
+  },
+  {
+    "id": "type-word.task.melon",
+    "game": "type-word",
+    "text": "Собери слово: дыня.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-melon.mp3"
+  },
+  {
+    "id": "type-word.task.plum",
+    "game": "type-word",
+    "text": "Собери слово: слива.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-plum.mp3"
+  },
+  {
+    "id": "type-word.task.kiwi",
+    "game": "type-word",
+    "text": "Собери слово: киви.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-kiwi.mp3"
+  },
+  {
+    "id": "type-word.task.onion",
+    "game": "type-word",
+    "text": "Собери слово: лук.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-onion.mp3"
+  },
+  {
+    "id": "type-word.task.pepper",
+    "game": "type-word",
+    "text": "Собери слово: перец.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-pepper.mp3"
+  },
+  {
+    "id": "type-word.task.mushroom",
+    "game": "type-word",
+    "text": "Собери слово: гриб.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-mushroom.mp3"
+  },
+  {
+    "id": "type-word.task.egg",
+    "game": "type-word",
+    "text": "Собери слово: яйцо.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-egg.mp3"
+  },
+  {
+    "id": "type-word.task.juice",
+    "game": "type-word",
+    "text": "Собери слово: сок.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-juice.mp3"
+  },
+  {
+    "id": "type-word.task.tea",
+    "game": "type-word",
+    "text": "Собери слово: чай.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-tea.mp3"
+  },
+  {
+    "id": "type-word.task.soup",
+    "game": "type-word",
+    "text": "Собери слово: суп.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-soup.mp3"
+  },
+  {
+    "id": "type-word.task.rice",
+    "game": "type-word",
+    "text": "Собери слово: рис.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-rice.mp3"
+  },
+  {
+    "id": "type-word.task.pasta",
+    "game": "type-word",
+    "text": "Собери слово: лапша.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-pasta.mp3"
+  },
+  {
+    "id": "type-word.task.meat",
+    "game": "type-word",
+    "text": "Собери слово: мясо.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-meat.mp3"
+  },
+  {
+    "id": "type-word.task.cake",
+    "game": "type-word",
+    "text": "Собери слово: торт.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-cake.mp3"
+  },
+  {
+    "id": "type-word.task.honey",
+    "game": "type-word",
+    "text": "Собери слово: мёд.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-honey.mp3"
+  },
+  {
+    "id": "type-word.task.porridge",
+    "game": "type-word",
+    "text": "Собери слово: каша.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-porridge.mp3"
+  },
+  {
+    "id": "type-word.task.pizza",
+    "game": "type-word",
+    "text": "Собери слово: пицца.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-pizza.mp3"
+  },
+  {
+    "id": "type-word.task.cat",
+    "game": "type-word",
+    "text": "Собери слово: кот.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-cat.mp3"
+  },
+  {
+    "id": "type-word.task.dog",
+    "game": "type-word",
+    "text": "Собери слово: пёс.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-dog.mp3"
+  },
+  {
+    "id": "type-word.task.fish",
+    "game": "type-word",
+    "text": "Собери слово: рыба.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-fish.mp3"
+  },
+  {
+    "id": "type-word.task.duck",
+    "game": "type-word",
+    "text": "Собери слово: утка.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-duck.mp3"
+  },
+  {
+    "id": "type-word.task.sheep",
+    "game": "type-word",
+    "text": "Собери слово: овца.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-sheep.mp3"
+  },
+  {
+    "id": "type-word.task.goat",
+    "game": "type-word",
+    "text": "Собери слово: коза.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-goat.mp3"
+  },
+  {
+    "id": "type-word.task.rabbit",
+    "game": "type-word",
+    "text": "Собери слово: заяц.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-rabbit.mp3"
+  },
+  {
+    "id": "type-word.task.fox",
+    "game": "type-word",
+    "text": "Собери слово: лиса.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-fox.mp3"
+  },
+  {
+    "id": "type-word.task.wolf",
+    "game": "type-word",
+    "text": "Собери слово: волк.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-wolf.mp3"
+  },
+  {
+    "id": "type-word.task.lion",
+    "game": "type-word",
+    "text": "Собери слово: лев.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-lion.mp3"
+  },
+  {
+    "id": "type-word.task.tiger",
+    "game": "type-word",
+    "text": "Собери слово: тигр.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-tiger.mp3"
+  },
+  {
+    "id": "type-word.task.elephant",
+    "game": "type-word",
+    "text": "Собери слово: слон.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-elephant.mp3"
+  },
+  {
+    "id": "type-word.task.giraffe",
+    "game": "type-word",
+    "text": "Собери слово: жираф.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-giraffe.mp3"
+  },
+  {
+    "id": "type-word.task.zebra",
+    "game": "type-word",
+    "text": "Собери слово: зебра.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-zebra.mp3"
+  },
+  {
+    "id": "type-word.task.mouse",
+    "game": "type-word",
+    "text": "Собери слово: мышь.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-mouse.mp3"
+  },
+  {
+    "id": "type-word.task.frog",
+    "game": "type-word",
+    "text": "Собери слово: жаба.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-frog.mp3"
+  },
+  {
+    "id": "type-word.task.bird",
+    "game": "type-word",
+    "text": "Собери слово: птица.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-bird.mp3"
+  },
+  {
+    "id": "type-word.task.owl",
+    "game": "type-word",
+    "text": "Собери слово: сова.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-owl.mp3"
+  },
+  {
+    "id": "type-word.task.whale",
+    "game": "type-word",
+    "text": "Собери слово: кит.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-whale.mp3"
+  },
+  {
+    "id": "type-word.task.bee",
+    "game": "type-word",
+    "text": "Собери слово: пчела.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-bee.mp3"
+  },
+  {
+    "id": "type-word.task.train",
+    "game": "type-word",
+    "text": "Собери слово: поезд.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-train.mp3"
+  },
+  {
+    "id": "type-word.task.boat",
+    "game": "type-word",
+    "text": "Собери слово: лодка.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-boat.mp3"
+  },
+  {
+    "id": "type-word.task.pants",
+    "game": "type-word",
+    "text": "Собери слово: штаны.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-pants.mp3"
+  },
+  {
+    "id": "type-word.task.shoes",
+    "game": "type-word",
+    "text": "Собери слово: обувь.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-shoes.mp3"
+  },
+  {
+    "id": "type-word.task.socks",
+    "game": "type-word",
+    "text": "Собери слово: носки.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-socks.mp3"
+  },
+  {
+    "id": "type-word.task.cap",
+    "game": "type-word",
+    "text": "Собери слово: кепка.",
+    "voice": "jane",
+    "path": "/audio/tts/type-word/task-cap.mp3"
+  },
+  {
+    "id": "choose-emotion.task.face",
+    "game": "choose-emotion",
+    "text": "Найди такую же эмоцию, как на картинке сверху.",
+    "voice": "jane",
+    "path": "/audio/tts/choose-emotion/task-face.mp3"
+  },
+  {
+    "id": "choose-emotion.task.gift",
+    "game": "choose-emotion",
+    "text": "Лена получила подарок. Что она чувствует?",
+    "voice": "jane",
+    "path": "/audio/tts/choose-emotion/task-gift.mp3"
+  },
+  {
+    "id": "choose-emotion.task.broken-toy",
+    "game": "choose-emotion",
+    "text": "У Саши сломалась любимая машинка. Что он чувствует?",
+    "voice": "jane",
+    "path": "/audio/tts/choose-emotion/task-broken-toy.mp3"
+  },
+  {
+    "id": "choose-emotion.task.loud-noise",
+    "game": "choose-emotion",
+    "text": "За окном внезапно громко хлопнуло. Что чувствует ребёнок?",
+    "voice": "jane",
+    "path": "/audio/tts/choose-emotion/task-loud-noise.mp3"
+  },
+  {
+    "id": "choose-emotion.task.tower-fell",
+    "game": "choose-emotion",
+    "text": "Башня упала, хотя Миша старался. Что он может чувствовать?",
+    "voice": "jane",
+    "path": "/audio/tts/choose-emotion/task-tower-fell.mp3"
+  },
+  {
+    "id": "choose-emotion.task.new-puppy",
+    "game": "choose-emotion",
+    "text": "На пороге появился маленький щенок. Что чувствует ребёнок?",
+    "voice": "jane",
+    "path": "/audio/tts/choose-emotion/task-new-puppy.mp3"
+  },
+  {
+    "id": "choose-emotion.task.rain-blanket",
+    "game": "choose-emotion",
+    "text": "Аня сидит под пледом и слушает дождь. Что она чувствует?",
+    "voice": "jane",
+    "path": "/audio/tts/choose-emotion/task-rain-blanket.mp3"
+  },
+  {
+    "id": "choose-emotion.task.long-walk",
+    "game": "choose-emotion",
+    "text": "После длинной прогулки Паша зевает. Что он чувствует?",
+    "voice": "jane",
+    "path": "/audio/tts/choose-emotion/task-long-walk.mp3"
+  },
+  {
+    "id": "choose-emotion.task.finished-drawing",
+    "game": "choose-emotion",
+    "text": "Ника сама закончила красивый рисунок. Что она чувствует?",
+    "voice": "jane",
+    "path": "/audio/tts/choose-emotion/task-finished-drawing.mp3"
+  },
+  {
+    "id": "solfege.task.listen",
+    "game": "solfege",
+    "text": "Послушай мелодию.",
+    "voice": "jane",
+    "path": "/audio/tts/solfege/task-listen.mp3"
+  },
+  {
+    "id": "solfege.task.repeat",
+    "game": "solfege",
+    "text": "Теперь повтори: нажимай клавиши, которые подсвечиваются.",
+    "voice": "jane",
+    "path": "/audio/tts/solfege/task-repeat.mp3"
+  },
+  {
+    "id": "solfege.task.free",
+    "game": "solfege",
+    "text": "Нажимай любые клавиши и играй.",
+    "voice": "jane",
+    "path": "/audio/tts/solfege/task-free.mp3"
   }
 ]
