@@ -55,7 +55,7 @@ let feedbackTimer = 0;
 
 const hintText = computed(() => {
   if (mistakesInRound.value <= 0) return "Посмотри на карточки и выбери такую же цифру.";
-  return `Ничего страшного. Цифра ${round.value.target.label} подсвечена.`;
+  return `Почти. Найди цифру ${round.value.target.label}.`;
 });
 
 function choiceTargetId(choiceId: string) {
@@ -209,7 +209,6 @@ onUnmounted(() => {
                     'digit-scene',
                     digitTone(choice),
                     {
-                      'digit-scene--hinted': mistakesInRound > 0 && choice.id === round.target.id,
                       'digit-scene--mistake': choice.id === lastMistakeId,
                       'digit-scene--success': choice.id === successChoiceId,
                     },
@@ -301,11 +300,6 @@ onUnmounted(() => {
 .digit-scene--tone-5 {
   background: linear-gradient(145deg, #defbf6, #9edfd6);
   background-color: #bfede6;
-}
-
-.digit-scene--hinted {
-  outline: 0.45rem solid rgb(var(--v-theme-primary));
-  transform: scale(1.03);
 }
 
 .digit-scene--success {

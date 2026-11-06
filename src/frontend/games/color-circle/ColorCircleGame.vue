@@ -152,12 +152,11 @@ function answer(color: ColorCircleColor) {
   recordHint({
     roundId: round.value.roundId,
     targetId: expectedTargetId,
-    message: "Показан нужный цвет перед следующим кругом.",
+    message: "Ошибка в цвете, следующий круг.",
   });
   feedbackText.value = `Это ${color.label}. Нужен был ${round.value.target.label}. Следующий круг.`;
   void colorCircleFeedback.playMistake(session.settings.sound);
   playResponseTts(`color-circle.${color.id}`);
-  revealedTargetId.value = round.value.target.id;
   selectedMistakeId.value = color.id;
   prepareNextRound();
 }

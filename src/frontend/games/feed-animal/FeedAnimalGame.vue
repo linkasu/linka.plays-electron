@@ -131,8 +131,7 @@ function feed(food: FeedAnimalFood) {
     return;
   }
 
-  feedbackText.value = `Нет, ${round.value.animal.name.toLowerCase()} это не ест. Подходит: ${round.value.correctFood.name.toLowerCase()}.`;
-  revealedFoodId.value = round.value.correctFood.id;
+  feedbackText.value = `Нет, ${round.value.animal.name.toLowerCase()} это не ест. Попробуй ещё раз.`;
   mistakeFoodId.value = food.id;
   void feedAnimalFeedback.playMistake(session.settings.sound);
   playResponseTts("feed-animal.mistake");
@@ -149,7 +148,7 @@ function feed(food: FeedAnimalFood) {
   recordHint({
     roundId: round.value.roundId,
     targetId: expectedTargetId,
-    message: "Показана подходящая еда.",
+    message: "Ошибка в выборе еды.",
   });
 }
 

@@ -51,10 +51,6 @@ const {
   generateRound: (roundIndex) => generateShadowMatchRound(session.settings, roundIndex),
 });
 
-const hintedChoiceId = computed(() => {
-  if (hintedRoundId.value !== round.value.roundId) return undefined;
-  return round.value.choices[round.value.correctIndex].id;
-});
 const hintText = computed(() => {
   if (hintedRoundId.value === round.value.roundId)
     return `Почти получилось. Подсказка: ${round.value.target.hint}.`;
@@ -220,8 +216,6 @@ onUnmounted(() => {
               :disabled="session.status !== 'running' || pendingSelection || isSpeaking"
               :dwell-ms="session.settings.dwellMs"
               min-height="clamp(6rem, 18vh, 11rem)"
-              :highlight-choice="(choice) => hintedChoiceId === choice.id"
-              :color="(choice) => (hintedChoiceId === choice.id ? 'primary' : 'surface')"
               :cols="round.choices.length === 4 ? 3 : 4"
               :sm="round.choices.length === 4 ? 3 : 4"
               :md="round.choices.length === 3 ? 4 : 3"

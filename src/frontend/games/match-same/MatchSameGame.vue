@@ -45,7 +45,6 @@ const promptAudio = useGamePromptAudio({
 });
 const pianoFeedback = useStandardGameFeedback(soundEnabled);
 
-const hintedRoundId = ref<string>();
 const isSpeaking = ref(false);
 
 const {
@@ -58,10 +57,6 @@ const {
   startSession,
   generateRound: (roundIndex) => generateMatchSameRound(session.settings, roundIndex),
 });
-
-const hintedChoiceId = computed(() =>
-  hintedRoundId.value === round.value.roundId ? round.value.target.id : undefined,
-);
 
 function choiceTargetId(choiceId: string) {
   return `${props.gameId}:choice:${choiceId}`;
@@ -88,7 +83,6 @@ async function answer(choice: MatchSameRound["choices"][number]) {
       actual: choice.word,
       isCorrect: true,
     });
-    hintedRoundId.value = undefined;
     void pianoFeedback.playSuccess();
     await promptAudio.playSequenceAndWait(["match-same.correct"], 80);
     if (session.status === "running" && session.step < session.maxSteps) {
@@ -111,14 +105,12 @@ async function answer(choice: MatchSameRound["choices"][number]) {
     isCorrect: false,
   });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "mistake" });
-  hintedRoundId.value = round.value.roundId;
   void pianoFeedback.playMistake();
   await promptAudio.playSequenceAndWait(["match-same.mistake", "match-same.prompt"], 80, 170);
   isSpeaking.value = false;
 }
 
 function restart() {
-  hintedRoundId.value = undefined;
   isSpeaking.value = false;
   promptAudio.cancelPending();
   restartRoundGame();
@@ -172,8 +164,6 @@ onUnmounted(() => {
               :dwell-ms="session.settings.dwellMs"
               min-height="clamp(9.5rem, 22vh, 11rem)"
               :sm="3"
-              :highlight-choice="(choice) => hintedChoiceId === choice.id"
-              :color="(choice) => (hintedChoiceId === choice.id ? 'primary' : 'surface')"
               @select="answer"
             >
               <template #default="{ choice }">

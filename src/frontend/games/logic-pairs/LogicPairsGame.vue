@@ -58,8 +58,7 @@ const relationLabel = computed(() => {
 });
 
 const helperText = computed(() => {
-  if (hintedRoundId.value === round.value.roundId)
-    return `Почти. ${round.value.explanation} Правильная карточка подсвечена.`;
+  if (hintedRoundId.value === round.value.roundId) return `Почти. ${round.value.explanation}`;
   return round.value.instruction;
 });
 
@@ -236,15 +235,6 @@ onUnmounted(() => {
                   :disabled="session.status !== 'running' || pendingSelection || isSpeaking"
                   :dwell-ms="session.settings.dwellMs"
                   min-height="12rem"
-                  :highlight-choice="
-                    (choice) => hintedRoundId === round.roundId && choice.id === round.pair.id
-                  "
-                  :color="
-                    (choice) =>
-                      hintedRoundId === round.roundId && choice.id === round.pair.id
-                        ? 'primary'
-                        : 'surface'
-                  "
                   :cols="6"
                   :sm="3"
                   @select="choose"

@@ -65,7 +65,7 @@ const shapeView: Record<FindShapeId, { title: string; color: string }> = {
 
 const hintText = computed(() => {
   if (hintedRoundId.value !== round.value.roundId) return feedbackText.value;
-  return `Почти. Нужна форма: ${round.value.target.label}. Посмотри на подсветку.`;
+  return `Почти. Нужна форма: ${round.value.target.label}.`;
 });
 
 function clearTtsTimers() {
@@ -192,9 +192,6 @@ onUnmounted(() => {
               :disabled="session.status !== 'running' || advancing"
               :dwell-ms="session.settings.dwellMs"
               :min-height="round.choices.length >= 5 ? 210 : 235"
-              :highlight-choice="
-                (choice) => hintedRoundId === round.roundId && choice.id === round.target.id
-              "
               @select="choose"
             >
               <template #default="{ choice }">
