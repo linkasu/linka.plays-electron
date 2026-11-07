@@ -578,4 +578,48 @@ onUnmounted(() => {
     block-size: 2.8rem;
   }
 }
+/* Testers: «очень мелко и очень близко, попасть невозможно, кнопку „бомба“ и
+   „подсказка“ нажать невозможно». On a low wide screen the field takes the full
+   height on the left, with wider gaps; the counters and large «Бомба» /
+   «Подсказка» stand on the right. */
+@media (min-width: 56rem) and (max-height: 62rem) {
+  .minesweeper-card {
+    align-items: center;
+    column-gap: clamp(1.5rem, 3vw, 3rem);
+    display: grid;
+    grid-template-areas: "board side";
+    grid-template-columns: auto minmax(13rem, 17rem);
+    justify-content: center;
+  }
+
+  .board-header {
+    align-items: stretch !important;
+    flex-direction: column !important;
+    grid-area: side;
+    margin-block-end: 0 !important;
+  }
+
+  .header-actions {
+    align-items: stretch !important;
+    flex-direction: column !important;
+  }
+
+  .game-container .board-header .header-actions.d-flex :deep(.dwell-button) {
+    min-block-size: clamp(5rem, 15dvh, 8rem) !important;
+  }
+
+  .board-wrap {
+    --board-edge: min(
+      calc(100dvh - var(--game-hud-clearance, 10rem) - 3.5rem),
+      calc(100vw - 31rem)
+    );
+    --cell-size: calc(var(--board-edge) / var(--board-size) - 1.8dvh);
+
+    gap: 1.8dvh;
+    grid-area: board;
+    /* Never wider than the room beside the side column in a narrow tall window. */
+    inline-size: var(--board-edge);
+    max-inline-size: none;
+  }
+}
 </style>

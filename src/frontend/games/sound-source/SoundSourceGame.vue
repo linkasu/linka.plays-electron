@@ -441,7 +441,8 @@ onUnmounted(() => {
           </p>
         </div>
 
-        <v-row class="mb-3" align="stretch" dense>
+        <!-- Testers: «на карточку с подсказкой нажать глазами невозможно». -->
+        <v-row class="hint-row" align="stretch" dense>
           <v-col cols="12" sm="8">
             <v-alert
               class="fill-height"
@@ -463,8 +464,8 @@ onUnmounted(() => {
                 Boolean(selectedSourceId)
               "
               :dwell-ms="session.settings.dwellMs"
-              :hit-padding="8"
-              min-height="4rem"
+              :hit-padding="40"
+              min-height="clamp(5.5rem, 13dvh, 8rem)"
               color="blue-grey-darken-2"
               @select="revealHint"
             >
@@ -487,7 +488,7 @@ onUnmounted(() => {
             :target-id="sourceTargetId(source)"
             :disabled="session.status !== 'running' || Boolean(selectedSourceId) || pendingAudio"
             :dwell-ms="session.settings.dwellMs"
-            min-height="clamp(10rem, 28vh, 14rem)"
+            min-height="clamp(9rem, 26dvh, 18rem)"
             color="surface"
             @select="chooseSource(source)"
           >
@@ -563,6 +564,10 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.hint-row {
+  margin-block-end: clamp(1.25rem, 4dvh, 2.5rem);
+}
+
 .sound-source-shell {
   background: var(--linka-scene-paper);
   min-block-size: 100vh;

@@ -65,7 +65,8 @@ const lastMistakeId = ref<string>();
 const isChangingRound = ref(false);
 const choiceMinHeight = computed(() => {
   const scale = session.settings.targetScale;
-  return `clamp(${7.5 * scale}rem, 26dvh, ${9.5 * scale}rem)`;
+  // Testers: «сделать карточки крупнее».
+  return `clamp(${9 * scale}rem, 34dvh, ${16 * scale}rem)`;
 });
 const hintText = computed(() =>
   lastMistakeId.value
@@ -259,7 +260,7 @@ onUnmounted(() => {
     var(--linka-scene-meadow-1) 100%
   );
   border-radius: 1.25rem;
-  min-block-size: 8.2rem;
+  min-block-size: clamp(8.2rem, 28dvh, 14rem);
   overflow: hidden;
   position: relative;
 }
@@ -281,7 +282,7 @@ onUnmounted(() => {
 }
 
 .mini-scene__object {
-  font-size: clamp(3.1rem, 5.2vw, 4.6rem);
+  font-size: clamp(3.1rem, min(7vw, 11dvh), 7rem);
   position: absolute;
   transform: translate(-50%, -50%);
   z-index: 4;

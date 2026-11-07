@@ -359,7 +359,7 @@ onUnmounted(() => {
 }
 
 .snake-controls {
-  inline-size: min(100%, 29rem, 50dvh);
+  inline-size: min(100%, 36rem, 60dvh);
 }
 
 .snake-controls :deep(.dwell-button) {
@@ -479,7 +479,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-height: 42.5rem) {
+@media (max-height: 46rem) {
   .game-container {
     padding-block-start: 4.75rem;
   }
@@ -495,7 +495,7 @@ onUnmounted(() => {
   }
 
   .snake-controls {
-    inline-size: min(100%, 30rem, 48dvh);
+    inline-size: min(100%, 38rem, 60dvh);
   }
 
   .snake-layout {

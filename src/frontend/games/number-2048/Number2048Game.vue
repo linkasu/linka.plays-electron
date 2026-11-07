@@ -389,7 +389,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-height: 42.5rem) {
+@media (max-height: 46rem) {
   .game-container {
     padding-block-start: 4.75rem;
   }
@@ -428,7 +428,7 @@ onUnmounted(() => {
   }
 
   .controls-column :deep(.wasd-panel) {
-    inline-size: min(100%, 48vh);
+    inline-size: min(100%, 62dvh);
   }
 
   .controls-column :deep(.dwell-button) {
@@ -440,7 +440,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-height: 42.5rem) and (max-width: 52rem) {
+@media (max-height: 46rem) and (max-width: 52rem) {
   .play-area {
     grid-template-columns: minmax(0, 0.82fr) minmax(15rem, 0.72fr);
   }

@@ -301,7 +301,7 @@ onUnmounted(() => {
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12">
-          <v-card class="game-card pa-2 pa-sm-3 pa-md-4" rounded="xl" elevation="10">
+          <v-card class="game-card c4-card pa-2 pa-sm-3 pa-md-4" rounded="xl" elevation="10">
             <div
               class="game-header d-flex flex-column flex-sm-row align-center justify-center ga-2 mb-3"
             >
@@ -557,6 +557,65 @@ onUnmounted(() => {
   .column-hit-zones {
     gap: 0.125rem;
     padding: 0.25rem;
+  }
+}
+/* Testers: «очень мелкие поля». On a low wide screen the board takes the full
+   height on the left with gaps between the columns; the status and a large
+   «Подумать» stand on the right. */
+/* From 1120 px wide: in a narrower window the seven columns beside the side panel
+   came out narrower than in the stacked layout. */
+@media (min-width: 70rem) and (max-height: 62rem) {
+  .c4-card {
+    align-items: center;
+    column-gap: clamp(1.5rem, 3vw, 3rem);
+    display: grid;
+    grid-template-areas: "board side";
+    grid-template-columns: auto minmax(13rem, 18rem);
+    justify-content: center;
+  }
+
+  .game-header {
+    align-items: stretch !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+    grid-area: side;
+    margin-block-end: 0 !important;
+  }
+
+  .game-header .v-chip {
+    block-size: auto;
+    justify-content: center;
+    min-block-size: 2.5rem;
+    white-space: normal;
+  }
+
+  .game-header :deep(.dwell-hitbox) {
+    inline-size: 100%;
+  }
+
+  .game-container .game-header.d-flex :deep(.dwell-button) {
+    min-block-size: clamp(6rem, 22dvh, 10rem) !important;
+  }
+
+  .play-area {
+    grid-area: board;
+    inline-size: min(
+      calc(100vw - 26rem),
+      calc((100dvh - var(--game-hud-clearance, 10rem) - 3rem) * 1.8)
+    );
+  }
+
+  .board,
+  .column-hit-zones {
+    gap: clamp(0.6rem, 1.2vw, 1.1rem);
+  }
+
+  .board {
+    margin-block-end: 0 !important;
+  }
+
+  .help-text {
+    display: none;
   }
 }
 </style>
