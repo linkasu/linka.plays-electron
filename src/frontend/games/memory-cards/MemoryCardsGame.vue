@@ -16,7 +16,13 @@ import {
   playMemoryCardsMismatchMelody,
   warmMemoryCardsAudio,
 } from "./audio";
-import { createMemoryCardsRound, memoryCardHitPaddingForGap, type MemoryCard } from "./model";
+import {
+  createMemoryCardsRound,
+  memoryCardCountChoices,
+  memoryCardHitPaddingForGap,
+  type MemoryCard,
+  type MemoryCardCount,
+} from "./model";
 
 type MemoryCardState = MemoryCard & {
   matched: boolean;
@@ -43,6 +49,10 @@ const {
 });
 
 const roundIndex = ref(1);
+// Testers: «сделать возможность выбора 4 карточки, 6 карточек, 8 карточек». The game
+// opens on that choice; «Ещё раз» keeps it.
+const choosingCount = ref(true);
+const cardCount = ref<MemoryCardCount>();
 const round = ref(createMemoryCardsRound(session.settings, roundIndex.value));
 const cards = ref(createCardStates(round.value.cards));
 const selectedCardIds = ref<string[]>([]);
@@ -68,7 +78,9 @@ const matchedCount = computed(() => cards.value.filter((card) => card.matched).l
 // icon and the picture's word would not fit.
 const { height: viewportHeight, width: viewportWidth } = useDisplay();
 const singleRow = computed(
-  () => round.value.columns === 3 && viewportHeight.value < 900 && viewportWidth.value >= 1200,
+  () =>
+    round.value.cards.length === 4 ||
+    (round.value.columns === 3 && viewportHeight.value < 900 && viewportWidth.value >= 1200),
 );
 const targetCardHeight = computed(() => {
   const scale = session.settings.targetScale;
@@ -76,7 +88,10 @@ const targetCardHeight = computed(() => {
     ? `clamp(${8 * scale}rem, ${Math.round(40 * scale)}dvh, ${22 * scale}rem)`
     : `clamp(${7 * scale}rem, ${Math.round(21 * scale)}dvh, ${16 * scale}rem)`;
 });
-const cardColSpan = computed(() => (singleRow.value ? 2 : 3));
+const cardColSpan = computed(() => {
+  if (round.value.cards.length === 4) return 3;
+  return singleRow.value ? 2 : round.value.columns === 3 ? 4 : 3;
+});
 
 function measureCardGap() {
   const targets = Array.from(gridRef.value?.querySelectorAll<HTMLElement>(".dwell-hitbox") ?? []);
@@ -241,7 +256,12 @@ function restart() {
   clearCloseTimeout();
   clearAudio();
   roundIndex.value += 1;
-  round.value = createMemoryCardsRound(session.settings, roundIndex.value);
+  round.value = createMemoryCardsRound(
+    session.settings,
+    roundIndex.value,
+    Math.random,
+    cardCount.value,
+  );
   cards.value = createCardStates(round.value.cards);
   selectedCardIds.value = [];
   lastMismatchCardIds.value = [];
@@ -252,12 +272,22 @@ function restart() {
   void playPrompt(450);
 }
 
+function chooseCardCount(count: MemoryCardCount) {
+  cardCount.value = count;
+  choosingCount.value = false;
+  promptAudio.cancelPending();
+  restart();
+}
+
+function cardCountWord(count: MemoryCardCount) {
+  return count === 4 ? "карточки" : "карточек";
+}
+
 onMounted(() => {
   gridResizeObserver = new ResizeObserver(scheduleCardGapMeasurement);
-  observeMemoryGrid();
   promptAudio.warm();
   warmMemoryCardsAudio(session.settings.sound);
-  void playPrompt(450);
+  promptAudio.play("memory-cards.count-choice", 450);
 });
 
 watch(
@@ -282,11 +312,14 @@ onUnmounted(() => {
       title="Пары"
       :step="matchedCount"
       :max-steps="round.pairCount"
-      :score="session.score"
-      :mistakes="session.mistakes"
+      :score="choosingCount ? undefined : session.score"
+      :mistakes="choosingCount ? undefined : session.mistakes"
       :duration-ms="durationMs"
       :session-seconds="session.settings.sessionSeconds"
       :paused="session.status === 'paused'"
+      :pause-disabled="choosingCount"
+      :show-progress="!choosingCount"
+      :show-timer="!choosingCount"
       @pause="pauseSession"
       @resume="resumeSession"
     />
@@ -299,58 +332,81 @@ onUnmounted(() => {
             rounded="xl"
             elevation="8"
           >
-            <div class="text-overline text-secondary text-center mb-1">память</div>
-            <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">
-              Найди одинаковые карточки
-            </h1>
-            <div class="feedback-line text-body-1 text-medium-emphasis text-center mb-3">
-              {{ feedbackMessage }}
-            </div>
-            <div ref="gridRef">
-              <v-row class="memory-grid" justify="center">
-                <v-col
-                  v-for="card in cards"
-                  :key="card.id"
-                  :cols="cardColSpan"
-                  :sm="cardColSpan"
-                  :md="cardColSpan"
-                >
+            <div v-if="choosingCount" class="text-center">
+              <h1 class="text-h4 text-md-h3 font-weight-bold mb-6">Сколько будет карточек?</h1>
+              <v-row class="count-row" justify="center">
+                <v-col v-for="count in memoryCardCountChoices" :key="count" cols="4">
                   <GameDwellButton
-                    :target-id="cardTargetId(card)"
-                    :disabled="
-                      session.status !== 'running' ||
-                      inputBlocked ||
-                      isSpeaking ||
-                      card.matched ||
-                      card.revealed
-                    "
+                    :target-id="`memory-cards:count:${count}`"
                     :dwell-ms="session.settings.dwellMs"
-                    :hit-padding="cardHitPadding"
-                    :min-height="targetCardHeight"
-                    :color="cardColor(card)"
-                    @select="chooseCard(card)"
+                    min-height="clamp(9rem, 32dvh, 16rem)"
+                    color="surface"
+                    @select="chooseCardCount(count)"
                   >
                     <template #default>
-                      <div class="memory-card-content">
-                        <template v-if="isCardOpen(card)">
-                          <GameWordImage
-                            class="memory-card-emoji"
-                            :word-id="card.pairId"
-                            :word="card.label"
-                            :emoji="card.emoji"
-                          />
-                          <div class="text-h5 font-weight-bold mt-2">{{ card.label }}</div>
-                        </template>
-                        <template v-else>
-                          <v-icon icon="mdi-cards" size="4.75rem" color="primary" />
-                          <div class="sr-only">Закрытая карточка</div>
-                        </template>
+                      <div class="count-choice">
+                        <span class="count-choice__number">{{ count }}</span>
+                        <span class="text-h5 font-weight-bold">{{ cardCountWord(count) }}</span>
                       </div>
                     </template>
                   </GameDwellButton>
                 </v-col>
               </v-row>
             </div>
+            <template v-else>
+              <div class="text-overline text-secondary text-center mb-1">память</div>
+              <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">
+                Найди одинаковые карточки
+              </h1>
+              <div class="feedback-line text-body-1 text-medium-emphasis text-center mb-3">
+                {{ feedbackMessage }}
+              </div>
+              <div ref="gridRef">
+                <v-row class="memory-grid" justify="center">
+                  <v-col
+                    v-for="card in cards"
+                    :key="card.id"
+                    :cols="cardColSpan"
+                    :sm="cardColSpan"
+                    :md="cardColSpan"
+                  >
+                    <GameDwellButton
+                      :target-id="cardTargetId(card)"
+                      :disabled="
+                        session.status !== 'running' ||
+                        inputBlocked ||
+                        isSpeaking ||
+                        card.matched ||
+                        card.revealed
+                      "
+                      :dwell-ms="session.settings.dwellMs"
+                      :hit-padding="cardHitPadding"
+                      :min-height="targetCardHeight"
+                      :color="cardColor(card)"
+                      @select="chooseCard(card)"
+                    >
+                      <template #default>
+                        <div class="memory-card-content">
+                          <template v-if="isCardOpen(card)">
+                            <GameWordImage
+                              class="memory-card-emoji"
+                              :word-id="card.pairId"
+                              :word="card.label"
+                              :emoji="card.emoji"
+                            />
+                            <div class="text-h5 font-weight-bold mt-2">{{ card.label }}</div>
+                          </template>
+                          <template v-else>
+                            <v-icon icon="mdi-cards" size="4.75rem" color="primary" />
+                            <div class="sr-only">Закрытая карточка</div>
+                          </template>
+                        </div>
+                      </template>
+                    </GameDwellButton>
+                  </v-col>
+                </v-row>
+              </div>
+            </template>
           </v-card>
         </v-col>
       </v-row>
@@ -406,6 +462,24 @@ onUnmounted(() => {
 
 .feedback-line {
   min-block-size: 1.5rem;
+}
+
+.count-row > [class*="v-col"] {
+  padding: clamp(0.875rem, 1.6vw, 1.75rem);
+}
+
+.count-choice {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.count-choice__number {
+  font-size: clamp(3.5rem, min(9vw, 14dvh), 7rem);
+  font-weight: 900;
+  line-height: 1;
 }
 
 .memory-card-content {

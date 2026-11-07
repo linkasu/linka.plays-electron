@@ -13,10 +13,16 @@ export type MemoryCard = {
   emoji: string;
 };
 
+export type MemoryCardsPairCount = 2 | 3 | 4;
+
 export type MemoryCardsRoundSettings = {
-  pairCount: 3 | 4;
+  pairCount: MemoryCardsPairCount;
   columns: 3 | 4;
 };
+
+// Testers: «сделать возможность выбора 4 карточки, 6 карточек, 8 карточек».
+export const memoryCardCountChoices = [4, 6, 8] as const;
+export type MemoryCardCount = (typeof memoryCardCountChoices)[number];
 
 export type MemoryCardsRound = {
   roundId: string;
@@ -36,9 +42,17 @@ export const memoryCardSources: MemoryCardSource[] = [
   { id: "heart", label: "Сердце", emoji: "❤️" },
 ];
 
-export function getMemoryCardsRoundSettings(settings: SessionSettings): MemoryCardsRoundSettings {
-  const pairCount = settings.preset === "gentle" || settings.distractors !== "medium" ? 3 : 4;
-  return { pairCount, columns: pairCount };
+export function getMemoryCardsRoundSettings(
+  settings: SessionSettings,
+  cardCount?: MemoryCardCount,
+): MemoryCardsRoundSettings {
+  const pairCount: MemoryCardsPairCount = cardCount
+    ? ((cardCount / 2) as MemoryCardsPairCount)
+    : settings.preset === "gentle" || settings.distractors !== "medium"
+      ? 3
+      : 4;
+  // Four cards stand in one row of four, six in rows of three, eight in rows of four.
+  return { pairCount, columns: pairCount === 3 ? 3 : 4 };
 }
 
 export function shuffleMemoryCards<T>(items: T[], random = Math.random): T[] {
@@ -82,8 +96,9 @@ export function createMemoryCardsRound(
   settings: SessionSettings,
   roundIndex = 1,
   random = Math.random,
+  cardCount?: MemoryCardCount,
 ): MemoryCardsRound {
-  const roundSettings = getMemoryCardsRoundSettings(settings);
+  const roundSettings = getMemoryCardsRoundSettings(settings, cardCount);
   const deck = createMemoryCardDeck(memoryCardSources, roundSettings.pairCount, roundIndex, random);
   return {
     roundId: `memory-cards:round:${roundIndex}`,

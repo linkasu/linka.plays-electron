@@ -13473,5 +13473,12 @@
     "text": "Нажимай любые клавиши и играй.",
     "voice": "jane",
     "path": "/audio/tts/solfege/task-free.mp3"
+  },
+  {
+    "id": "memory-cards.count-choice",
+    "game": "memory-cards",
+    "text": "Сколько будет карточек?",
+    "voice": "jane",
+    "path": "/audio/tts/memory-cards/count-choice.mp3"
   }
 ]
