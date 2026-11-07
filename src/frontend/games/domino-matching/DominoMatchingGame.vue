@@ -54,14 +54,21 @@ const feedbackAudio = useStandardGameFeedback(soundEnabled);
 // Testers: «ребёнку непонятно, куда цеплять и какую цеплять; ряды уходят за рамку».
 // The chain is one line: a long chain keeps its first and last tiles, with the
 // number of hidden ones between them, and the places to attach stand at its ends.
-// A narrow window keeps two tiles at each end, so they stay full size (Codex).
-const { width: viewportWidth } = useDisplay();
-// While a tile waits to be attached the «Сюда» targets take the sides, and only
-// the open end tiles stay beside them.
-const boardEdgeTiles = computed(() => {
-  if (selectedTile.value) return viewportWidth.value < 1150 ? 1 : 2;
-  return viewportWidth.value < 1150 ? 2 : 3;
-});
+// How many tiles fit is counted from the line's measured width and the tile size,
+// which follows the window height, so the tiles keep their full size and the open
+// ends are never cut off (Codex).
+const { height: viewportHeight } = useDisplay();
+const tilesRef = ref<HTMLElement>();
+const tilesWidth = ref(0);
+let tilesObserver: ResizeObserver | undefined;
+const remPx = 16;
+const hiddenLabelPx = 7 * remPx;
+
+function tileSlotPx() {
+  const tile = Math.min(8.2 * remPx, Math.max(5.7 * remPx, viewportHeight.value * 0.105));
+  const gap = Math.min(0.75 * remPx, Math.max(0.45 * remPx, viewportHeight.value * 0.012));
+  return tile + gap;
+}
 
 const game = ref<DominoGameState>(startDominoGame(session.settings));
 const selectedTileId = ref<string>();
@@ -79,8 +86,10 @@ const selectedPlacements = computed(() =>
 );
 const boardLine = computed(() => {
   const board = game.value.board;
-  const edge = boardEdgeTiles.value;
-  if (board.length <= edge * 2 + 1) return { head: board, hidden: 0, tail: [] };
+  const slot = tileSlotPx();
+  const width = tilesWidth.value;
+  if (!width || board.length * slot <= width) return { head: board, hidden: 0, tail: [] };
+  const edge = Math.max(1, Math.floor((width - hiddenLabelPx) / slot / 2));
   return {
     head: board.slice(0, edge),
     hidden: board.length - edge * 2,
@@ -259,11 +268,16 @@ function restart() {
 }
 
 onMounted(() => {
+  tilesObserver = new ResizeObserver(([entry]) => {
+    tilesWidth.value = entry?.contentRect.width ?? 0;
+  });
+  if (tilesRef.value) tilesObserver.observe(tilesRef.value);
   promptAudio.warm();
   promptAudio.play("domino-matching.prompt", 450);
 });
 
 onUnmounted(() => {
+  tilesObserver?.disconnect();
   promptAudio.cancelPending();
 });
 </script>
@@ -343,7 +357,7 @@ onUnmounted(() => {
                     </template>
                   </GameDwellButton>
                 </div>
-                <div class="board-tiles">
+                <div ref="tilesRef" class="board-tiles">
                   <template
                     v-for="(part, partIndex) in [boardLine.head, boardLine.tail]"
                     :key="partIndex"
