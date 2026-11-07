@@ -326,10 +326,12 @@ onUnmounted(() => {
   border-radius: 50%;
   box-shadow: 0 1.25rem 3.5rem rgb(61 55 89 / 22%);
   display: grid;
-  gap: 0.5rem;
+  /* Testers: «сегменты рядом, попадать прям трудно... может, сам круг сделать
+     крупнее?» A larger circle with clear white gaps between the sectors. */
+  gap: clamp(1rem, 2.6dvh, 1.75rem);
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-template-rows: repeat(2, minmax(0, 1fr));
-  inline-size: min(76vw, calc(100dvh - var(--game-hud-clearance, 10rem) - 7rem), 30rem);
+  inline-size: min(80vw, calc(100dvh - var(--game-hud-clearance, 10rem) - 6rem), 40rem);
   overflow: hidden;
 }
 
@@ -409,8 +411,8 @@ onUnmounted(() => {
 
   .color-circle-board {
     border-width: 0.5rem;
-    gap: 0.35rem;
-    inline-size: min(76vw, calc(100dvh - var(--game-hud-clearance, 10rem) - 6rem), 27rem);
+    gap: clamp(0.9rem, 2.4dvh, 1.5rem);
+    inline-size: min(80vw, calc(100dvh - var(--game-hud-clearance, 10rem) - 9.5rem), 34rem);
   }
 }
 
@@ -427,6 +429,11 @@ onUnmounted(() => {
 
   .color-circle-title {
     margin-block-end: 0.75rem !important;
+  }
+
+  /* Without the colour chip the circle takes its line too. */
+  .color-circle-board {
+    inline-size: min(80vw, calc(100dvh - var(--game-hud-clearance, 10rem) - 6.75rem), 34rem);
   }
 }
 </style>

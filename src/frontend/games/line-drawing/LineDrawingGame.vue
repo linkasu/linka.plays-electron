@@ -94,13 +94,21 @@ function distance(a: Point, b: Point) {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
+// Testers: «круги очень маленькие, взглядом держать очень сложно».
 function dotRadius() {
-  const viewportLimit = Math.min(width.value, height.value) * 0.12;
-  return Math.min(116, Math.max(74, Math.min(viewportLimit, 62 * session.settings.targetScale)));
+  const viewportLimit = Math.min(width.value, height.value) * 0.14;
+  return Math.min(130, Math.max(84, Math.min(viewportLimit, 84 * session.settings.targetScale)));
+}
+
+// Below the HUD («В меню» / «Пауза»): a dot on the top row was drawn under it.
+function hudClearance() {
+  const value = getComputedStyle(document.documentElement).getPropertyValue("--game-hud-clearance");
+  return Number.parseFloat(value) || 0;
 }
 
 function drawingAreaFor(viewportWidth: number, viewportHeight: number) {
-  const top = Math.max(132, viewportHeight * 0.18);
+  // The drawn circle is 0.72 of the radius; its edge stays clear of the HUD.
+  const top = Math.max(132, viewportHeight * 0.18, hudClearance() + dotRadius() * 0.72 + 10);
   const side = Math.max(72, viewportWidth * 0.12);
   const guidanceReserve = Math.min(352, Math.max(0, viewportWidth - 32));
   const right = viewportWidth > 720 ? viewportWidth - guidanceReserve - 32 : viewportWidth - side;
@@ -633,7 +641,7 @@ useGameLoop({ context, update, draw });
 .line-drawing-guidance {
   box-shadow: 0 1rem 2.75rem rgb(91 121 154 / 14%);
   inline-size: min(20rem, calc(100dvw - 2rem));
-  inset-block-start: clamp(6.5rem, 14vh, 9.25rem);
+  inset-block-start: calc(var(--game-hud-clearance, 6.5rem) + 0.75rem);
   inset-inline-end: max(1rem, env(safe-area-inset-right));
   opacity: 0.92;
   position: absolute;

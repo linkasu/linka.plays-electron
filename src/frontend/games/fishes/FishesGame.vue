@@ -98,9 +98,11 @@ function progressionSpeed() {
   return 1 + Math.min(0.72, session.step * 0.12);
 }
 
+// Testers: «в движении рыбок ловить тяжело, может, сделаем их крупнее? на маленьком
+// экране они будут совсем мелкими».
 function fishSize() {
-  const viewportLimit = Math.min(window.innerWidth, window.innerHeight) * 0.17;
-  return Math.min(136, Math.max(76, Math.min(viewportLimit, 82 * session.settings.targetScale)));
+  const viewportLimit = Math.min(window.innerWidth, window.innerHeight) * 0.18;
+  return Math.min(150, Math.max(84, Math.min(viewportLimit, 105 * session.settings.targetScale)));
 }
 
 function laneY(index: number, count: number) {
@@ -128,7 +130,7 @@ function nextSpawnDirection() {
 
 function resetFish(fish: Fish, index: number, fromEdge = false) {
   const direction = fromEdge ? nextSpawnDirection() : index % 2 === 0 ? 1 : -1;
-  const depthScale = 0.76 + (index / Math.max(1, maxFishCount() - 1)) * 0.34;
+  const depthScale = 0.82 + (index / Math.max(1, maxFishCount() - 1)) * 0.3;
   const size = fishSize() * depthScale * randomRange(0.9, 1.08);
   const edgeDelay = size * (1.4 + index * 2.4 + randomRange(0, 1.6));
   fish.direction = direction;

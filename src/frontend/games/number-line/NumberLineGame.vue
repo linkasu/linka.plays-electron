@@ -169,7 +169,7 @@ onUnmounted(() => {
               {{ feedbackText }}
             </p>
 
-            <div class="number-road" aria-label="Числовая дорожка от 1 до 10">
+            <div class="number-road" :aria-label="`Числовая дорожка: ${round.numbers.join(', ')}`">
               <div class="number-road__track" aria-hidden="true" />
               <GameDwellButton
                 v-for="number in round.numbers"
@@ -177,7 +177,7 @@ onUnmounted(() => {
                 :target-id="numberTargetId(number)"
                 :disabled="session.status !== 'running' || isSpeaking"
                 :dwell-ms="session.settings.dwellMs"
-                :min-height="150"
+                min-height="clamp(9rem, 26dvh, 16rem)"
                 color="surface"
                 @select="choose(number)"
               >
@@ -230,8 +230,8 @@ onUnmounted(() => {
 
 .number-road {
   display: grid;
-  gap: 0.75rem;
-  grid-template-columns: repeat(10, minmax(5.75rem, 1fr));
+  gap: clamp(1.5rem, 3vw, 3rem);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   position: relative;
 }
 
@@ -344,7 +344,7 @@ onUnmounted(() => {
   }
 
   .number-road {
-    gap: 0.5rem;
+    gap: 1.5rem;
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 

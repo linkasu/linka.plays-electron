@@ -3,11 +3,31 @@ import { settingsFromPreset } from "../../core/settings";
 import { generateNumberLineRound, numberLineNumbers } from "./model";
 
 describe("number-line model", () => {
-  it("always shows a full number line from 1 to 10", () => {
-    const round = generateNumberLineRound(settingsFromPreset("standard"));
-
-    expect(round.numbers).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  it("shows five numbers in a row that hold every number the task names", () => {
     expect(numberLineNumbers).toHaveLength(10);
+    for (let roundIndex = 1; roundIndex <= 30; roundIndex += 1) {
+      const round = generateNumberLineRound(settingsFromPreset("standard"), roundIndex);
+
+      expect(round.numbers).toHaveLength(5);
+      expect(round.numbers.every((number, index) => number === round.numbers[0] + index)).toBe(
+        true,
+      );
+      expect(round.numbers[0]).toBeGreaterThanOrEqual(1);
+      expect(round.numbers[4]).toBeLessThanOrEqual(10);
+      expect(round.numbers).toContain(round.targetNumber);
+      if (round.currentNumber !== undefined) expect(round.numbers).toContain(round.currentNumber);
+    }
+  });
+
+  it("does not keep the answer in the same place", () => {
+    const places = new Set(
+      Array.from({ length: 30 }, (_, index) => {
+        const round = generateNumberLineRound(settingsFromPreset("standard"), index + 1);
+        return round.numbers.indexOf(round.targetNumber);
+      }),
+    );
+
+    expect(places.size).toBeGreaterThan(2);
   });
 
   it("creates search rounds with a target on the line", () => {

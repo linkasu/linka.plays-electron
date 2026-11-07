@@ -191,8 +191,10 @@ function computeLayout(): Layout {
   const bottom = clamp(h * 0.025, 12, 28);
   const panel: Rect = { x: marginX, y: top, width: w - marginX * 2, height: h - top - bottom };
   const gap = clamp(h * 0.014, 8, 18);
-  const headerHeight = h < 680 ? 44 : clamp(h * 0.12, 72, 104);
-  const bridgeHeight = clamp(panel.height * (h < 680 ? 0.3 : 0.36), 156, 320);
+  // Below 760 px the header keeps only the title: with the hint line too, the
+  // title and the hint were drawn over each other at 690 px.
+  const headerHeight = h < 760 ? 44 : clamp(h * 0.14, 104, 124);
+  const bridgeHeight = clamp(panel.height * (h < 760 ? 0.38 : 0.4), 156, 340);
   const header: Rect = {
     x: panel.x + 20,
     y: panel.y + 14,
@@ -447,19 +449,19 @@ function drawBackground(ctx: CanvasRenderingContext2D) {
 
 function drawHeader(ctx: CanvasRenderingContext2D, layout: Layout) {
   const centerX = layout.header.x + layout.header.width * 0.5;
-  if (height.value >= 680)
+  if (height.value >= 760)
     drawText(ctx, "ПОСЛЕДОВАТЕЛЬНОСТЬ ДЕТАЛЕЙ", centerX, layout.header.y + 18, {
       size: 13,
       weight: 700,
       color: "#8e76c7",
     });
-  drawText(ctx, "Построй мост", centerX, layout.header.y + (height.value < 680 ? 22 : 56), {
+  drawText(ctx, "Построй мост", centerX, layout.header.y + (height.value < 760 ? 22 : 54), {
     size: clamp(width.value * 0.034, 28, 54),
     weight: 800,
     color: "#40524f",
   });
-  if (height.value >= 680)
-    drawText(ctx, message.value, centerX, layout.header.y + layout.header.height - 16, {
+  if (height.value >= 760)
+    drawText(ctx, message.value, centerX, layout.header.y + layout.header.height - 14, {
       size: clamp(width.value * 0.012, 15, 22),
       weight: 500,
       color: "#768481",
@@ -565,7 +567,8 @@ function slotRect(bridge: Rect, slot: BridgeSlot): Rect {
   const geometry = bridgeGeometry(bridge);
   if (slot.kind === "support") {
     const x = geometry.supportXs[supportOrder(slot.acceptsPieceId) - 1];
-    const supportWidth = clamp(geometry.segmentWidth * 0.34, 42, 72);
+    // Testers: «детали очень мелкие». Wider places for the supports.
+    const supportWidth = clamp(geometry.segmentWidth * 0.5, 56, 110);
     const topY = geometry.deckY + geometry.deckHeight - 3;
     return {
       x: x - supportWidth * 0.5,
@@ -593,10 +596,10 @@ function slotTargetRect(bridge: Rect, slot: BridgeSlot): Rect {
   const rect = slotRect(bridge, slot);
   if (slot.kind === "support") {
     return {
-      x: rect.x - rect.width * 0.18,
-      y: rect.y - rect.height * 0.08,
-      width: rect.width * 1.36,
-      height: rect.height * 1.16,
+      x: rect.x - rect.width * 0.25,
+      y: rect.y - rect.height * 0.1,
+      width: rect.width * 1.5,
+      height: rect.height * 1.2,
     };
   }
   const extraX = Math.max(16, rect.width * 0.18);

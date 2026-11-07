@@ -52,8 +52,15 @@ export function seabedTop() {
   return window.innerHeight * 0.78;
 }
 
+// Below the HUD («В меню» / «Пауза»): a fish in the top lane must not swim under
+// the buttons, now that the fish are larger.
+function hudClearance() {
+  const value = getComputedStyle(document.documentElement).getPropertyValue("--game-hud-clearance");
+  return Number.parseFloat(value) || 0;
+}
+
 export function swimTop() {
-  return window.innerHeight * 0.27;
+  return Math.max(window.innerHeight * 0.27, hudClearance() + window.innerHeight * 0.1);
 }
 
 export function swimBottom() {
