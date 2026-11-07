@@ -524,7 +524,7 @@ onUnmounted(() => {
                       session.status !== 'running' || isSpeaking || selectedCoins.length === 0
                     "
                     :dwell-ms="session.settings.dwellMs"
-                    min-height="clamp(4.5rem, 10vh, 7rem)"
+                    min-height="clamp(5.5rem, 15dvh, 9rem)"
                     color="surface"
                     @select="clearCoins"
                   >
@@ -538,7 +538,7 @@ onUnmounted(() => {
                     :target-id="actionTargetId('check')"
                     :disabled="session.status !== 'running' || isSpeaking"
                     :dwell-ms="session.settings.dwellMs"
-                    min-height="clamp(4.5rem, 10vh, 7rem)"
+                    min-height="clamp(5.5rem, 15dvh, 9rem)"
                     color="primary"
                     @select="checkPayment"
                   >
@@ -717,8 +717,10 @@ onUnmounted(() => {
   text-align: center;
 }
 
+/* Testers: «кнопку „проверить оплату“ сделать крупнее, сейчас попасть невозможно».
+   The receipt gives up some height to the «Очистить» / «Проверить оплату» buttons. */
 .shop-card--payment .receipt-panel__price {
-  font-size: clamp(3rem, min(8vw, 10vh), 5.25rem);
+  font-size: clamp(2.75rem, min(7vw, 8dvh), 5.25rem);
   margin-block: clamp(0.2rem, 0.8vh, 0.5rem);
 }
 

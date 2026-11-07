@@ -233,10 +233,12 @@ onUnmounted(() => {
   padding-block-start: 9.75rem;
 }
 
+/* Testers: «мелкие кнопки, попадать сложно, особенно на галочку». The lower key
+   row, with the check mark, went 2 px past the bottom of a 690 px window. */
 .expression {
-  font-size: clamp(2.6rem, min(8vw, 10vh), 5.25rem);
+  font-size: clamp(2.6rem, min(8vw, 9dvh), 5.25rem);
   font-weight: 900;
-  line-height: 1.05;
+  line-height: 1;
   text-align: center;
 }
 

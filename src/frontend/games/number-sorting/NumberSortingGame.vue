@@ -307,6 +307,12 @@ onUnmounted(() => {
   max-inline-size: 20%;
 }
 
+/* Testers: «тяжело попадать по кнопкам». Wide gaps between the number cards; a
+   column with `cols` renders as .v-col-N, so it is matched by its own class. */
+.card-grid > .number-card-col {
+  padding-inline: clamp(0.875rem, 1.6vw, 1.75rem) !important;
+}
+
 .number-card-content {
   align-items: center;
   display: flex;

@@ -14,6 +14,19 @@ export type NumberLineRound = {
 
 export const numberLineNumbers = Array.from({ length: 10 }, (_, index) => index + 1);
 
+// Testers: «кнопки очень мелкие, нажимать не получается, может не выводить все
+// десять сразу, а выводить по пять». A round shows five numbers in a row that
+// hold every number the task names; where the answer stands in them varies.
+export const numberLineWindowSize = 5;
+
+export function numberLineWindow(low: number, high: number, seed: number) {
+  const firstStart = Math.max(1, high - numberLineWindowSize + 1);
+  const lastStart = Math.min(low, numberLineNumbers.length - numberLineWindowSize + 1);
+  const startCount = Math.max(1, lastStart - firstStart + 1);
+  const start = firstStart + (Math.abs(Math.floor(seed)) % startCount);
+  return Array.from({ length: numberLineWindowSize }, (_, index) => start + index);
+}
+
 function wrappedNumber(seed: number, max: number) {
   return ((seed - 1) % max) + 1;
 }
@@ -35,7 +48,7 @@ export function generateNumberLineRound(
       taskKind,
       prompt: `Что идёт после ${currentNumber}?`,
       helperText: "Выбери следующее число на дорожке.",
-      numbers: numberLineNumbers,
+      numbers: numberLineWindow(currentNumber, targetNumber, roundIndex * 7),
       currentNumber,
       targetNumber,
     };
@@ -50,7 +63,7 @@ export function generateNumberLineRound(
       taskKind,
       prompt: `Что идёт перед ${currentNumber}?`,
       helperText: "Выбери предыдущее число на дорожке.",
-      numbers: numberLineNumbers,
+      numbers: numberLineWindow(targetNumber, currentNumber, roundIndex * 7),
       currentNumber,
       targetNumber,
     };
@@ -63,7 +76,7 @@ export function generateNumberLineRound(
     taskKind,
     prompt: `Найди число ${targetNumber}`,
     helperText: "Выбери нужное число на дорожке.",
-    numbers: numberLineNumbers,
+    numbers: numberLineWindow(targetNumber, targetNumber, roundIndex * 7),
     targetNumber,
   };
 }

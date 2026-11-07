@@ -88,14 +88,17 @@ function progressionSpeed() {
   return 1 + Math.min(0.78, session.step * 0.13);
 }
 
+// Testers: «в движении уток ловить тяжело, может, сделаем их крупнее? на маленьком
+// экране они будут совсем мелкими». Larger ducks, and the far ones shrink less.
 function duckSize() {
   const viewportLimit = Math.min(window.innerWidth, window.innerHeight) * 0.18;
-  return Math.min(140, Math.max(74, Math.min(viewportLimit, 78 * session.settings.targetScale)));
+  return Math.min(150, Math.max(84, Math.min(viewportLimit, 105 * session.settings.targetScale)));
 }
 
 function laneY(index: number, count: number) {
-  const top = waterTop() + window.innerHeight * 0.12;
-  const bottom = window.innerHeight * 0.82;
+  // Lanes spread over the water: the larger ducks must not swim on top of each other.
+  const top = waterTop() + window.innerHeight * 0.07;
+  const bottom = window.innerHeight * 0.88;
   const spacing = count <= 1 ? 0.5 : index / (count - 1);
   return (
     top +
@@ -118,7 +121,7 @@ function nextSpawnDirection() {
 
 function resetDuck(duck: Duck, index: number, fromEdge = false) {
   const direction = fromEdge ? nextSpawnDirection() : index % 2 === 0 ? 1 : -1;
-  const depthScale = 0.58 + (index / Math.max(1, maxDuckCount() - 1)) * 0.58;
+  const depthScale = 0.8 + (index / Math.max(1, maxDuckCount() - 1)) * 0.35;
   const size = duckSize() * depthScale * randomRange(0.92, 1.08);
   const edgeDelay = size * (1.4 + index * 2.6 + randomRange(0, 1.8));
   duck.direction = direction;
