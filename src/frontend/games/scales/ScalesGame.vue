@@ -209,6 +209,7 @@ onUnmounted(() => {
                     @select="choose('left')"
                   >
                     <template #default>
+                      <span class="sr-only">{{ answerLabel("left", round.question) }}</span>
                       <div
                         :class="[
                           'scale-pan',
@@ -242,6 +243,7 @@ onUnmounted(() => {
                     @select="choose('right')"
                   >
                     <template #default>
+                      <span class="sr-only">{{ answerLabel("right", round.question) }}</span>
                       <div
                         :class="[
                           'scale-pan',
@@ -535,16 +537,17 @@ onUnmounted(() => {
   white-space: nowrap;
 }
 
+/* The question stays visible: without signed side buttons it is the only place
+   that says whether the heavier or the lighter pan is wanted (Codex). */
 @media (max-height: 42rem) {
   .game-container .text-overline,
-  .game-container h1,
   .game-container .v-alert {
     display: none;
   }
 
-  .scales-answer-col {
-    flex: 0 0 33.3333% !important;
-    max-inline-size: 33.3333% !important;
+  .game-container h1 {
+    font-size: 1.85rem !important;
+    margin-block-end: 0.35rem !important;
   }
 }
 
