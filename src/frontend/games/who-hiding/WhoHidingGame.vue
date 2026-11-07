@@ -527,9 +527,11 @@ onUnmounted(() => {
   position: absolute;
 }
 
+/* Testers: «кусты и самих зверей надо сделать крупнее, так будет легче фиксировать
+   взгляд». The whole hideout (bush, animal and its gaze area) is drawn larger. */
 .hidden-choice {
   position: absolute;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) scale(var(--hideout-scale, 1.35));
   z-index: 6;
 }
 
@@ -790,7 +792,11 @@ onUnmounted(() => {
   }
 
   .search-scene {
-    block-size: min(21.5rem, calc(100vh - 15rem));
+    block-size: min(25rem, calc(100dvh - var(--game-hud-clearance, 10rem) - 8rem));
+  }
+
+  .hidden-choice {
+    --hideout-scale: 1.15;
   }
 
   .scene-cloud {

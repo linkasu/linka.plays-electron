@@ -40,7 +40,11 @@ export type HideAndSeekSpot<T> = HideAndSeekCover & {
 const baseTargetWidth = 180;
 const baseTargetHeight = 170;
 const edgePadding = 24;
-const targetGap = 12;
+// Testers: «карточки мелкие и разбросаны, места более чем предостаточно». The
+// covers start 1.6× larger and shrink only as far as the screen needs, with wide
+// gaps so a gaze does not drift onto the neighbour.
+const targetGap = 40;
+const preferredGrowth = 1.6;
 const hitPadding = 16;
 const compactHeight = 700;
 const minimumScale = 0.35;
@@ -213,7 +217,7 @@ export function createHideAndSeekLayout(options: HideAndSeekLayoutOptions): Hide
     options.obstacles ??
     hideAndSeekFallbackObstacles(options.viewportWidth, options.viewportHeight);
   const area = placementArea(options, obstacles);
-  const desiredScale = Math.max(minimumScale, options.targetScale);
+  const desiredScale = Math.max(minimumScale, options.targetScale * preferredGrowth);
   const stepCount = Math.ceil((desiredScale - minimumScale) * 100);
 
   for (let step = 0; step <= stepCount; step += 1) {

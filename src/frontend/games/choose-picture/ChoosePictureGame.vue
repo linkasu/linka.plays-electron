@@ -133,7 +133,7 @@ onUnmounted(() => {
     </template>
     <v-container class="game-container" fluid>
       <v-row justify="center">
-        <v-col cols="12" lg="10">
+        <v-col cols="12" lg="11" xl="10">
           <v-card class="choose-picture-card pa-6 pa-md-8" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">Читаем и выбираем</div>
             <p class="text-h6 text-medium-emphasis text-center mb-2">
@@ -148,7 +148,6 @@ onUnmounted(() => {
               :target-id="(choice) => choiceTargetId(choice.id)"
               :disabled="session.status !== 'running' || isSpeaking"
               :dwell-ms="session.settings.dwellMs"
-              min-height="13.125rem"
               @select="choose"
             >
               <template #default="{ choice }">
@@ -180,7 +179,7 @@ onUnmounted(() => {
 
 <style scoped>
 .choice-emoji {
-  font-size: clamp(4rem, 9vw, 7rem);
+  font-size: clamp(4rem, min(14vw, 24dvh), 12rem);
   line-height: 1;
 }
 
