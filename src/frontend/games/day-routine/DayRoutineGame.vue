@@ -36,7 +36,8 @@ const {
   recordMistake,
   startSession,
 } = useGameSessionFor("day-routine", {
-  maxSteps: 8,
+  // Three cards for each part of the day.
+  maxSteps: 9,
   overrides: { sound: true },
   finishOnMistakes: false,
 });

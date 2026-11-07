@@ -140,6 +140,16 @@ export const dayRoutineItems: DayRoutineItem[] = [
     periodId: "evening",
     hint: "Ужин ждёт вечером.",
   },
+  // Testers: «к вечеру добавить картинку купаться в ванне, а то там две всего, а
+  // везде по три».
+  {
+    id: "bath",
+    artId: "day-routine/bath",
+    label: "купаться",
+    imageId: "soap",
+    periodId: "evening",
+    hint: "Купаются вечером перед сном.",
+  },
   {
     id: "sleep",
     artId: "day-routine/sleep",

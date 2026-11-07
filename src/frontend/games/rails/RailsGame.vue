@@ -9,6 +9,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGazePointer } from "../../composables/useGazePointer";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
+import { canvasArt } from "../../core/canvasArt";
 import { isCanvasControlBlocked } from "../../core/domGazeTargetCoordinator";
 import { resolveMenuRoute } from "../../core/menuMode";
 
@@ -123,8 +124,8 @@ function stationRadius() {
 }
 
 function trainSize() {
-  const viewportLimit = Math.min(width.value, height.value) * 0.13;
-  return Math.min(118, Math.max(74, Math.min(viewportLimit, 76 * session.settings.targetScale)));
+  const viewportLimit = Math.min(width.value, height.value) * 0.16;
+  return Math.min(140, Math.max(90, Math.min(viewportLimit, 96 * session.settings.targetScale)));
 }
 
 function controlPoints(): Point[] {
@@ -610,6 +611,18 @@ function drawTrain(context: CanvasRenderingContext2D, samples: RailSample[]) {
   context.rotate(point.angle);
   context.shadowColor = choice.body;
   context.shadowBlur = 18 + train.confidence * 12;
+
+  // Testers: «поезд очень мелкий… перерисовать паровозик». A drawn locomotive in the
+  // chosen colour, larger; it faces the way it goes and never turns upside down.
+  const art = canvasArt(`rails/locomotive-${choice.id}`);
+  if (art) {
+    const artHeight = size * 1.15;
+    const artWidth = (artHeight * art.naturalWidth) / art.naturalHeight;
+    if (Math.cos(point.angle) < 0) context.scale(1, -1);
+    context.drawImage(art, -artWidth / 2, -artHeight * 0.72, artWidth, artHeight);
+    context.restore();
+    return;
+  }
 
   context.fillStyle = choice.body;
   roundedRect(context, -size * 0.52, -size * 0.28, size * 1.04, size * 0.56, size * 0.16);
