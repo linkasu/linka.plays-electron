@@ -13473,5 +13473,173 @@
     "text": "Нажимай любые клавиши и играй.",
     "voice": "jane",
     "path": "/audio/tts/solfege/task-free.mp3"
+  },
+  {
+    "id": "shop.task.pay.banana",
+    "game": "shop",
+    "text": "Оплати банан. Цена — 6 монет.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-pay-banana.mp3"
+  },
+  {
+    "id": "shop.task.pay.cake",
+    "game": "shop",
+    "text": "Оплати кекс. Цена — 10 монет.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-pay-cake.mp3"
+  },
+  {
+    "id": "shop.task.pay.milk",
+    "game": "shop",
+    "text": "Оплати молоко. Цена — 5 монет.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-pay-milk.mp3"
+  },
+  {
+    "id": "shop.task.pay.cookie",
+    "game": "shop",
+    "text": "Оплати печенье. Цена — 7 монет.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-pay-cookie.mp3"
+  },
+  {
+    "id": "shop.task.pay.juice",
+    "game": "shop",
+    "text": "Оплати сок. Цена — 3 монеты.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-pay-juice.mp3"
+  },
+  {
+    "id": "shop.task.pay.cheese",
+    "game": "shop",
+    "text": "Оплати сыр. Цена — 8 монет.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-pay-cheese.mp3"
+  },
+  {
+    "id": "shop.task.pay.bread",
+    "game": "shop",
+    "text": "Оплати хлеб. Цена — 4 монеты.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-pay-bread.mp3"
+  },
+  {
+    "id": "shop.task.pay.apple",
+    "game": "shop",
+    "text": "Оплати яблоко. Цена — 2 монеты.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-pay-apple.mp3"
+  },
+  {
+    "id": "shop.task.pay.berries",
+    "game": "shop",
+    "text": "Оплати ягоды. Цена — 9 монет.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-pay-berries.mp3"
+  },
+  {
+    "id": "shop.task.list.10.juice-banana",
+    "game": "shop",
+    "text": "У тебя 10 монет. Купи сок и банан.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-list-10-juice-banana.mp3"
+  },
+  {
+    "id": "shop.task.list.10.juice-milk",
+    "game": "shop",
+    "text": "У тебя 10 монет. Купи сок и молоко.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-list-10-juice-milk.mp3"
+  },
+  {
+    "id": "shop.task.list.10.juice-cookie",
+    "game": "shop",
+    "text": "У тебя 10 монет. Купи сок и печенье.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-list-10-juice-cookie.mp3"
+  },
+  {
+    "id": "shop.task.list.10.juice-bread",
+    "game": "shop",
+    "text": "У тебя 10 монет. Купи сок и хлеб.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-list-10-juice-bread.mp3"
+  },
+  {
+    "id": "shop.task.list.10.bread-banana",
+    "game": "shop",
+    "text": "У тебя 10 монет. Купи хлеб и банан.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-list-10-bread-banana.mp3"
+  },
+  {
+    "id": "shop.task.list.10.bread-milk",
+    "game": "shop",
+    "text": "У тебя 10 монет. Купи хлеб и молоко.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-list-10-bread-milk.mp3"
+  },
+  {
+    "id": "shop.task.list.10.apple-banana",
+    "game": "shop",
+    "text": "У тебя 10 монет. Купи яблоко и банан.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-list-10-apple-banana.mp3"
+  },
+  {
+    "id": "shop.task.list.10.apple-milk",
+    "game": "shop",
+    "text": "У тебя 10 монет. Купи яблоко и молоко.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-list-10-apple-milk.mp3"
+  },
+  {
+    "id": "shop.task.list.10.apple-cookie",
+    "game": "shop",
+    "text": "У тебя 10 монет. Купи яблоко и печенье.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-list-10-apple-cookie.mp3"
+  },
+  {
+    "id": "shop.task.list.10.apple-juice",
+    "game": "shop",
+    "text": "У тебя 10 монет. Купи яблоко и сок.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-list-10-apple-juice.mp3"
+  },
+  {
+    "id": "shop.task.list.10.apple-cheese",
+    "game": "shop",
+    "text": "У тебя 10 монет. Купи яблоко и сыр.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-list-10-apple-cheese.mp3"
+  },
+  {
+    "id": "shop.task.list.10.apple-bread",
+    "game": "shop",
+    "text": "У тебя 10 монет. Купи яблоко и хлеб.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-list-10-apple-bread.mp3"
+  },
+  {
+    "id": "shop.task.list.6.apple-juice",
+    "game": "shop",
+    "text": "У тебя 6 монет. Купи яблоко и сок.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-list-6-apple-juice.mp3"
+  },
+  {
+    "id": "shop.task.list.6.apple-bread",
+    "game": "shop",
+    "text": "У тебя 6 монет. Купи яблоко и хлеб.",
+    "voice": "jane",
+    "path": "/audio/tts/shop/task-list-6-apple-bread.mp3"
+  },
+  {
+    "id": "word-categories.mode-choice",
+    "game": "word-categories",
+    "text": "Как будем искать слова?",
+    "voice": "jane",
+    "path": "/audio/tts/word-categories/mode-choice.mp3"
   }
 ]
