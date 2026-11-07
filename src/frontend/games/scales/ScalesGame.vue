@@ -59,6 +59,7 @@ const feedback = ref("Посмотри на весы и выбери ответ.
 const lastMistakeAnswer = ref<ScalesAnswer>();
 const isSpeaking = ref(false);
 const answerMinHeight = "clamp(6.25rem, 11vh, 9rem)";
+const buttonAnswers = scalesAnswers.filter((answer) => answer === "equal");
 const { round, resultVisible, nextRound, restart } = useRoundGame({
   session,
   startSession,
@@ -189,39 +190,77 @@ onUnmounted(() => {
             </v-alert>
 
             <v-sheet class="scale-stage pa-4 pa-md-6 mb-4" color="blue-lighten-5" rounded="xl">
-              <div :key="round.roundId" class="scale-frame" :style="frameStyle" aria-hidden="true">
+              <!-- Testers: «ответом должно быть — смотреть на чашу весов: какая чаша тяжелее, на
+                   неё смотрим, докручиваем». Each pan is a gaze target itself. -->
+              <div :key="round.roundId" class="scale-frame" :style="frameStyle">
                 <div class="scale-top">
                   <v-icon icon="mdi-scale-balance" size="46" color="primary" />
                 </div>
                 <div class="scale-beam" />
                 <div class="scale-pan-wrap scale-pan-wrap--left">
                   <div class="scale-cord" />
-                  <div class="scale-pan scale-pan--left">
-                    <GameWordImage
-                      v-for="(_item, index) in round.left.items"
-                      :key="`left-${index}`"
-                      class="pan-item"
-                      :word-id="round.left.itemId"
-                      :word="round.left.itemName"
-                      :emoji="round.left.emoji"
-                      decorative
-                    />
-                  </div>
+                  <GameDwellButton
+                    class="pan-target"
+                    :target-id="answerTargetId('left')"
+                    :disabled="session.status !== 'running' || isSpeaking"
+                    :dwell-ms="session.settings.dwellMs"
+                    min-height="0"
+                    color="transparent"
+                    @select="choose('left')"
+                  >
+                    <template #default>
+                      <div
+                        :class="[
+                          'scale-pan',
+                          'scale-pan--left',
+                          { 'scale-pan--mistake': lastMistakeAnswer === 'left' },
+                        ]"
+                      >
+                        <GameWordImage
+                          v-for="(_item, index) in round.left.items"
+                          :key="`left-${index}`"
+                          class="pan-item"
+                          :word-id="round.left.itemId"
+                          :word="round.left.itemName"
+                          :emoji="round.left.emoji"
+                          decorative
+                        />
+                      </div>
+                    </template>
+                  </GameDwellButton>
                 </div>
                 <div class="scale-pivot" />
                 <div class="scale-pan-wrap scale-pan-wrap--right">
                   <div class="scale-cord" />
-                  <div class="scale-pan scale-pan--right">
-                    <GameWordImage
-                      v-for="(_item, index) in round.right.items"
-                      :key="`right-${index}`"
-                      class="pan-item"
-                      :word-id="round.right.itemId"
-                      :word="round.right.itemName"
-                      :emoji="round.right.emoji"
-                      decorative
-                    />
-                  </div>
+                  <GameDwellButton
+                    class="pan-target"
+                    :target-id="answerTargetId('right')"
+                    :disabled="session.status !== 'running' || isSpeaking"
+                    :dwell-ms="session.settings.dwellMs"
+                    min-height="0"
+                    color="transparent"
+                    @select="choose('right')"
+                  >
+                    <template #default>
+                      <div
+                        :class="[
+                          'scale-pan',
+                          'scale-pan--right',
+                          { 'scale-pan--mistake': lastMistakeAnswer === 'right' },
+                        ]"
+                      >
+                        <GameWordImage
+                          v-for="(_item, index) in round.right.items"
+                          :key="`right-${index}`"
+                          class="pan-item"
+                          :word-id="round.right.itemId"
+                          :word="round.right.itemName"
+                          :emoji="round.right.emoji"
+                          decorative
+                        />
+                      </div>
+                    </template>
+                  </GameDwellButton>
                 </div>
                 <div class="scale-stand" />
                 <div class="scale-base" />
@@ -231,9 +270,10 @@ onUnmounted(() => {
               </div>
             </v-sheet>
 
-            <v-row class="answer-row" dense>
+            <!-- Only «Равны» stays a button: the sides are answered on the pans. -->
+            <v-row class="answer-row" justify="center" dense>
               <v-col
-                v-for="answer in scalesAnswers"
+                v-for="answer in buttonAnswers"
                 :key="answer"
                 class="scales-answer-col"
                 cols="12"
@@ -303,7 +343,7 @@ onUnmounted(() => {
 }
 
 .scale-frame {
-  block-size: clamp(14.5rem, 38vh, 22rem);
+  block-size: clamp(14.5rem, 42dvh, 25rem);
   margin-inline: auto;
   max-inline-size: 58rem;
   position: relative;
@@ -342,7 +382,7 @@ onUnmounted(() => {
 }
 
 .scale-pan-wrap {
-  inline-size: min(39%, 20.5rem);
+  inline-size: min(42%, 24rem);
   position: absolute;
   z-index: 2;
 }
@@ -383,7 +423,7 @@ onUnmounted(() => {
   flex-wrap: wrap;
   gap: 0.35rem;
   justify-content: center;
-  min-block-size: clamp(6rem, 15vh, 10rem);
+  min-block-size: clamp(7rem, 19dvh, 13rem);
   padding: 0.75rem;
   z-index: 1;
 }
@@ -394,6 +434,23 @@ onUnmounted(() => {
 
 .scale-pan--right {
   border-start-start-radius: 0.85rem;
+}
+
+.pan-target :deep(.dwell-button) {
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible;
+  padding: 0 !important;
+}
+
+.pan-target :deep(.dwell-button--active) .scale-pan {
+  box-shadow:
+    0 0 0 0.5rem rgb(var(--v-theme-primary) / 24%),
+    0 0.75rem 1.5rem rgb(75 106 145 / 15%);
+}
+
+.scale-pan--mistake {
+  filter: saturate(0.7) opacity(0.8);
 }
 
 .pan-item {
@@ -496,6 +553,22 @@ onUnmounted(() => {
   .scale-pan-wrap,
   .pan-item {
     animation: none;
+  }
+}
+/* A low window: the pans are the answer now, so the heading gives up its room. */
+@media (max-height: 50rem) {
+  .scales-card .text-overline {
+    display: none;
+  }
+
+  .scales-card h1 {
+    font-size: 2.25rem !important;
+    margin-block-end: 0.5rem !important;
+  }
+
+  .scales-card .v-alert {
+    margin-block-end: 0.5rem !important;
+    padding-block: 0.4rem !important;
   }
 }
 </style>
