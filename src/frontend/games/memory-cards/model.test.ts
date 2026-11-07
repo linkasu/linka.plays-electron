@@ -6,6 +6,7 @@ import { wordImageSrc } from "../../core/wordImage";
 import {
   createMemoryCardDeck,
   createMemoryCardsRound,
+  memoryCardCountChoices,
   memoryCardHitPaddingForGap,
   memoryCardSources,
   shuffleMemoryCards,
@@ -25,6 +26,18 @@ describe("createMemoryCardsRound", () => {
     expect(round.pairCount).toBe(3);
     expect(round.cards).toHaveLength(6);
     expect(Object.values(pairCounts(round.cards.map((card) => card.pairId)))).toEqual([2, 2, 2]);
+  });
+
+  it("deals the number of cards chosen before the game", () => {
+    for (const count of memoryCardCountChoices) {
+      const round = createMemoryCardsRound(settingsFromPreset("standard"), 1, () => 0.3, count);
+
+      expect(round.cards).toHaveLength(count);
+      expect(round.pairCount).toBe(count / 2);
+      expect(Object.values(pairCounts(round.cards.map((card) => card.pairId)))).toEqual(
+        Array.from({ length: count / 2 }, () => 2),
+      );
+    }
   });
 
   it("keeps pairs after shuffle", () => {
