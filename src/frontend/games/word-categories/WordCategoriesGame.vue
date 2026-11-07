@@ -45,7 +45,7 @@ const promptAudio = useGamePromptAudio({
   soundEnabled: toRef(session.settings, "sound"),
   volume: 0.34,
   warmAssetIds: [
-    "word-categories.intro",
+    "word-categories.mode-choice",
     "word-categories.correct",
     "word-categories.mistake",
     "word-categories.complete",
@@ -244,7 +244,8 @@ function startGame(nextMode: WordCategoriesMode) {
 onMounted(() => {
   wordCategoriesFeedback.warm(session.settings.sound);
   promptAudio.warm();
-  promptAudio.play("word-categories.intro", 450);
+  // The mode screen says its own question, not the item task of the game itself.
+  promptAudio.play("word-categories.mode-choice", 450);
 });
 
 onUnmounted(() => {
