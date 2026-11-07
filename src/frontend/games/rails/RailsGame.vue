@@ -117,6 +117,11 @@ function railWidth() {
   return Math.min(132, Math.max(86, Math.min(viewportLimit, 82 * session.settings.targetScale)));
 }
 
+// The station numbers are what the child looks at, so they are large.
+function stationRadius() {
+  return railWidth() * 0.42;
+}
+
 function trainSize() {
   const viewportLimit = Math.min(width.value, height.value) * 0.13;
   return Math.min(118, Math.max(74, Math.min(viewportLimit, 76 * session.settings.targetScale)));
@@ -284,16 +289,6 @@ function stationPayload(
   };
 }
 
-function resetStationDwell(now: number, reason?: "left" | "invalid-gaze") {
-  if (stationEnteredAt && reason)
-    recordEvent(
-      "target-cancel",
-      stationPayload(activeStation.value, train.dwellMs / session.settings.dwellMs, now, reason),
-    );
-  stationEnteredAt = 0;
-  train.dwellMs = 0;
-}
-
 function chooseTrain(choice: TrainChoice) {
   if (session.status !== "running") return;
   selectedTrain.value = choice;
@@ -341,31 +336,17 @@ function updateTracking(nearRail: boolean, projection: Projection | undefined) {
   }
 }
 
-function updateStation(delta: number, now: number, samples: RailSample[]) {
+function updateStation(now: number) {
   if (session.step >= session.maxSteps) return;
 
   const station = activeStation.value;
   const stationRatio = station / session.maxSteps;
-  const stationPoint = pointAtRatio(samples, stationRatio);
   const atStation = train.ratio >= stationRatio - 0.003;
-  const focusDistance = pointer.value.valid
-    ? distance(pointer.value, stationPoint)
-    : Number.POSITIVE_INFINITY;
-  const stationFocus = atStation && focusDistance <= railWidth() * 1.05;
+  // The ride to the station is the dwell: reaching it counts, there is no second
+  // wait on the train itself.
+  if (!atStation) return;
 
-  if (!stationFocus) {
-    if (stationEnteredAt) resetStationDwell(now, pointer.value.valid ? "left" : "invalid-gaze");
-    return;
-  }
-
-  if (!stationEnteredAt) {
-    stationEnteredAt = now;
-    train.dwellMs = 0;
-    recordEvent("target-enter", stationPayload(station, 0, now));
-  }
-
-  train.dwellMs = Math.min(session.settings.dwellMs, train.dwellMs + delta * 1000);
-  if (train.dwellMs < session.settings.dwellMs) return;
+  recordEvent("target-enter", stationPayload(station, 0, now));
 
   recordEvent("target-click", stationPayload(station, 1, now));
   recordSuccess({ targetId: stationTargetId(station), station, railProgress: train.ratio });
@@ -387,15 +368,24 @@ function update(delta: number, now: number) {
   const onRail = Boolean(projection && projection.distance <= laneWidth * 0.65);
   const targetRatio = Math.min(1, activeStation.value / session.maxSteps);
   const canMoveForward = Boolean(projection && nearRail && projection.ratio > train.ratio + 0.002);
+  // Testers: «смотреть на сам поезд невозможно, он мелкий; логичнее смотреть на цифру,
+  // к которой ехать». A look at the next station's number drives the train there.
+  const nextStationPoint = pointAtRatio(samples, targetRatio);
+  const lookingAtStation =
+    controlActive &&
+    distance(pointer.value, nextStationPoint) <= Math.max(laneWidth * 0.9, stationRadius() * 1.8);
 
   updateTracking(nearRail, projection);
 
-  const confidenceTarget = onRail ? 1 : nearRail ? 0.55 : 0;
-  const hintTarget = nearRail || !controlActive ? 0 : 1;
+  const confidenceTarget = onRail || lookingAtStation ? 1 : nearRail ? 0.55 : 0;
+  const hintTarget = nearRail || lookingAtStation || !controlActive ? 0 : 1;
   train.confidence += (confidenceTarget - train.confidence) * (1 - Math.exp(-delta * 4.4));
   train.hint += (hintTarget - train.hint) * (1 - Math.exp(-delta * 2.8));
 
-  if (canMoveForward && projection) {
+  if (lookingAtStation) {
+    const speed = 0.3 * session.settings.motionSpeed;
+    train.ratio = Math.min(targetRatio, train.ratio + speed * delta);
+  } else if (canMoveForward && projection) {
     const speed = (onRail ? 0.3 : 0.12) * session.settings.motionSpeed;
     const desiredRatio = Math.min(targetRatio, projection.ratio);
     train.ratio = Math.min(
@@ -414,7 +404,7 @@ function update(delta: number, now: number) {
     });
   }
 
-  updateStation(delta, now, samples);
+  updateStation(now);
 }
 
 function drawRailPath(context: CanvasRenderingContext2D, samples: RailSample[]) {
@@ -522,11 +512,11 @@ function drawRails(context: CanvasRenderingContext2D, samples: RailSample[]) {
 }
 
 function drawStations(context: CanvasRenderingContext2D, samples: RailSample[]) {
-  const baseRadius = railWidth() * 0.22;
+  const baseRadius = stationRadius();
   context.save();
   context.textAlign = "center";
   context.textBaseline = "middle";
-  context.font = "700 17px system-ui, sans-serif";
+  context.font = `700 ${Math.round(baseRadius * 0.85)}px system-ui, sans-serif`;
 
   for (let station = 1; station <= session.maxSteps; station += 1) {
     const point = pointAtRatio(samples, station / session.maxSteps);
@@ -633,7 +623,8 @@ function drawTrain(context: CanvasRenderingContext2D, samples: RailSample[]) {
 
 function drawHint(context: CanvasRenderingContext2D, samples: RailSample[]) {
   if (train.hint < 0.05 || !selectedTrain.value) return;
-  const point = pointAtRatio(samples, train.visualRatio);
+  // The hint rings the next station: that is where to look.
+  const point = pointAtRatio(samples, Math.min(1, activeStation.value / session.maxSteps));
   const radius = railWidth() * (0.62 + Math.sin(train.phase * 2.4) * 0.04);
   context.save();
   context.globalAlpha = train.hint * 0.68;
@@ -684,8 +675,8 @@ useGameLoop({ context, update, draw });
         <div class="text-overline text-secondary text-center mb-2">Выбор поезда</div>
         <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-2">Рельсы</h1>
         <p class="text-body-1 text-md-h6 text-medium-emphasis text-center mb-5">
-          Выбери поезд взглядом. Потом веди его по светлым рельсам через станции. Поезд остаётся на
-          пути.
+          Выбери поезд. Потом смотри на номер следующей станции — поезд поедет к ней. Поезд остаётся
+          на пути.
         </p>
 
         <v-row>
