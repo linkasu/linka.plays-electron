@@ -85,10 +85,17 @@ function trailWidth() {
   return Math.min(172, Math.max(150, Math.min(viewportLimit, 104 * session.settings.targetScale)));
 }
 
+// Below the HUD («В меню» / «Пауза»): the top of the trail, with the finish, was
+// drawn under those buttons.
+function hudClearance() {
+  const value = getComputedStyle(document.documentElement).getPropertyValue("--game-hud-clearance");
+  return Number.parseFloat(value) || 0;
+}
+
 function trailPoints(): Point[] {
   const width = window.innerWidth;
   const height = window.innerHeight;
-  const top = Math.max(128, height * 0.17);
+  const top = Math.max(128, height * 0.17, hudClearance() + trailWidth() * 0.5 + 12);
   const bottom = height - Math.max(78, height * 0.1);
   const left = Math.max(72, width * 0.12);
   const right = width - left;
