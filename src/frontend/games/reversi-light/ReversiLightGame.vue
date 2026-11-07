@@ -513,8 +513,9 @@ onUnmounted(() => {
     margin-block-end: 0.75rem !important;
   }
 
+  /* Testers: «кнопки мелкие, нажать не получается». Wider gaps between cells. */
   .board-grid {
-    gap: 0.45rem;
+    gap: 0.75rem;
     max-inline-size: min(100%, 37rem);
   }
 

@@ -350,8 +350,9 @@ onUnmounted(() => {
     margin-block-end: 0.75rem !important;
   }
 
+  /* Testers: «кнопки управления слишком близко, смотришь на одну, нажимается другая». */
   .puzzle-grid {
-    gap: 0.45rem;
+    gap: 1rem;
     max-inline-size: min(100%, 28rem);
   }
 

@@ -205,10 +205,10 @@ onUnmounted(() => {
 
     <v-container class="game-container" fluid>
       <v-row justify="center">
-        <v-col cols="12" md="10" lg="8" xl="6">
-          <v-card class="pa-5 pa-md-8" rounded="xl" elevation="10">
+        <v-col cols="12" md="10" lg="9" xl="7">
+          <v-card class="tic-card pa-5 pa-md-8" rounded="xl" elevation="10">
             <div
-              class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-6"
+              class="tic-side d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-6"
             >
               <div>
                 <div class="text-overline text-secondary mb-1">Классическая стратегия</div>
@@ -217,7 +217,7 @@ onUnmounted(() => {
                   Ты играешь крестиками. Компьютер ходит ноликами.
                 </p>
               </div>
-              <div class="d-flex flex-column flex-sm-row align-center ga-2">
+              <div class="tic-actions d-flex flex-column flex-sm-row align-center ga-2">
                 <v-chip :color="gazeBlocked ? 'secondary' : 'primary'" size="large" variant="tonal">
                   {{ statusText }}
                 </v-chip>
@@ -272,7 +272,7 @@ onUnmounted(() => {
               </GameDwellButton>
             </div>
 
-            <div class="text-body-1 text-medium-emphasis text-center">
+            <div class="tic-footer text-body-1 text-medium-emphasis text-center">
               Смотри на свободную клетку, дождись крестика и короткой паузы между ходами.
             </div>
           </v-card>
@@ -306,9 +306,13 @@ onUnmounted(() => {
 
 .board-grid {
   display: grid;
-  gap: clamp(0.625rem, 2vw, 1.125rem);
+  gap: clamp(1rem, 2.5vw, 2rem);
   grid-template-columns: repeat(3, minmax(5.5rem, 1fr));
-  max-inline-size: 32.5rem;
+  max-inline-size: 40rem;
+}
+
+.board-grid :deep(.dwell-button) {
+  min-block-size: clamp(8.5rem, 15dvh, 12rem) !important;
 }
 
 .game-container :deep(.dwell-hitbox) {
@@ -429,6 +433,71 @@ onUnmounted(() => {
   .board-grid :deep(.dwell-button) {
     min-block-size: 5rem !important;
     padding: 0.5rem !important;
+  }
+}
+/* Testers: «сделать поля крупнее и дальше друг от друга... кнопку „Подумать“ тоже
+   никак не нажать, мелкая». On a low wide screen the board takes the full height
+   on the left; the title, the status and a large «Подумать» stand on the right. */
+@media (min-width: 56rem) and (max-height: 62rem) {
+  .tic-card {
+    align-items: center;
+    column-gap: clamp(2rem, 4vw, 3.5rem);
+    display: grid;
+    grid-template-areas: "board side";
+    grid-template-columns: auto minmax(13rem, 18rem);
+    justify-content: center;
+  }
+
+  .tic-side {
+    align-items: stretch !important;
+    flex-direction: column !important;
+    grid-area: side;
+    margin-block-end: 0 !important;
+  }
+
+  .tic-actions {
+    align-items: stretch !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  .tic-actions .v-chip {
+    block-size: auto !important;
+    justify-content: center;
+    min-block-size: 2.5rem;
+    white-space: normal;
+  }
+
+  .game-container .tic-actions :deep(.dwell-hitbox) {
+    inline-size: 100%;
+  }
+
+  /* Outweighs the low-window rule for the header buttons above. */
+  .game-container .tic-side.d-flex .tic-actions.d-flex :deep(.dwell-button) {
+    min-block-size: clamp(6rem, 22dvh, 10rem) !important;
+  }
+
+  .board-grid {
+    --board-size: min(
+      calc(100dvh - var(--game-hud-clearance, 10rem) - 3.5rem),
+      calc(100vw - 32rem)
+    );
+
+    gap: clamp(1.5rem, 4dvh, 2.25rem);
+    grid-area: board;
+    /* By the free height, but never wider than the room beside the side column
+       (Codex: a narrow tall window, 900×980, pushed the board out of the card). */
+    inline-size: var(--board-size);
+    margin-block-end: 0 !important;
+    max-inline-size: none;
+  }
+
+  .board-grid :deep(.dwell-button) {
+    min-block-size: calc((var(--board-size) - 2 * clamp(1.5rem, 4dvh, 2.25rem)) / 3) !important;
+  }
+
+  .tic-footer {
+    display: none;
   }
 }
 </style>

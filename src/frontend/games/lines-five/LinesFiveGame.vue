@@ -603,4 +603,47 @@ onUnmounted(() => {
     inline-size: 2.3rem;
   }
 }
+/* Testers: «поле очень огромное, а сами кнопки мелкие, взглядом попасть невозможно».
+   On a desktop window the cells are square and the board is sized from the free
+   height: tall cells made the game taller than the window, and it was shrunk to
+   about 70 % as a whole. */
+@media (min-width: 56rem) {
+  .board-grid {
+    gap: clamp(0.5rem, 1.4dvh, 0.9rem);
+    inline-size: min(100%, 42rem, calc(100dvh - var(--game-hud-clearance, 10rem) - 8.5rem));
+    max-inline-size: none;
+  }
+
+  .board-grid :deep(.dwell-hitbox) {
+    aspect-ratio: 1;
+  }
+
+  .board-grid :deep(.dwell-button) {
+    block-size: 100%;
+    min-block-size: 0 !important;
+    padding: 0.25rem !important;
+  }
+
+  .lines-cell-content {
+    min-block-size: 0;
+  }
+
+  .ball {
+    block-size: 64% !important;
+    inline-size: auto !important;
+    aspect-ratio: 1;
+  }
+
+  /* The colour list in two columns: the side column must not be taller than the
+     board, or the whole game is shrunk again. */
+  .side-info-card :deep(.v-list) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding-block: 0;
+  }
+
+  .side-info-card {
+    padding-block: 0.75rem !important;
+  }
+}
 </style>

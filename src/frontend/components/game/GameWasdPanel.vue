@@ -85,16 +85,18 @@ const emit = defineEmits<{
 </template>
 
 <style scoped>
+/* Testers (2048, Тетрис, Сокобан, Змейка): «кнопки очень мелкие... крупнее и
+   подальше друг от друга». The pad takes more of the free height, keys apart. */
 .wasd-panel {
   aspect-ratio: 3 / 2;
   display: grid;
-  gap: clamp(0.75rem, 2.8%, 1.25rem);
+  gap: clamp(1.75rem, 7%, 3rem);
   grid-template-areas:
     ". w."
     "a s d";
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: repeat(2, minmax(0, 1fr));
-  inline-size: min(100%, 56vh);
+  inline-size: min(100%, 68dvh);
   margin-inline: auto;
 }
 
