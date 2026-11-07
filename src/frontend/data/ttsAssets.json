@@ -13648,5 +13648,208 @@
     "text": "Сколько будет карточек?",
     "voice": "jane",
     "path": "/audio/tts/memory-cards/count-choice.mp3"
+  },
+  {
+    "id": "opposites.prompt.clean",
+    "game": "opposites",
+    "text": "Найди противоположность слову чистый.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-clean.mp3"
+  },
+  {
+    "id": "opposites.correct.clean.dirty",
+    "game": "opposites",
+    "text": "Верно. чистый и грязный это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-clean-dirty.mp3"
+  },
+  {
+    "id": "opposites.mistake.clean.dirty",
+    "game": "opposites",
+    "text": "Почти. Найди противоположность слову чистый.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-clean-dirty.mp3"
+  },
+  {
+    "id": "opposites.prompt.dirty",
+    "game": "opposites",
+    "text": "Найди противоположность слову грязный.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-dirty.mp3"
+  },
+  {
+    "id": "opposites.correct.dirty.clean",
+    "game": "opposites",
+    "text": "Верно. грязный и чистый это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-dirty-clean.mp3"
+  },
+  {
+    "id": "opposites.mistake.dirty.clean",
+    "game": "opposites",
+    "text": "Почти. Найди противоположность слову грязный.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-dirty-clean.mp3"
+  },
+  {
+    "id": "opposites.prompt.short",
+    "game": "opposites",
+    "text": "Найди противоположность слову короткий.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-short.mp3"
+  },
+  {
+    "id": "opposites.correct.short.long",
+    "game": "opposites",
+    "text": "Верно. короткий и длинный это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-short-long.mp3"
+  },
+  {
+    "id": "opposites.mistake.short.long",
+    "game": "opposites",
+    "text": "Почти. Найди противоположность слову короткий.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-short-long.mp3"
+  },
+  {
+    "id": "opposites.prompt.long",
+    "game": "opposites",
+    "text": "Найди противоположность слову длинный.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-long.mp3"
+  },
+  {
+    "id": "opposites.correct.long.short",
+    "game": "opposites",
+    "text": "Верно. длинный и короткий это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-long-short.mp3"
+  },
+  {
+    "id": "opposites.mistake.long.short",
+    "game": "opposites",
+    "text": "Почти. Найди противоположность слову длинный.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-long-short.mp3"
+  },
+  {
+    "id": "opposites.prompt.low",
+    "game": "opposites",
+    "text": "Найди противоположность слову низкий.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-low.mp3"
+  },
+  {
+    "id": "opposites.correct.low.tall",
+    "game": "opposites",
+    "text": "Верно. низкий и высокий это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-low-tall.mp3"
+  },
+  {
+    "id": "opposites.mistake.low.tall",
+    "game": "opposites",
+    "text": "Почти. Найди противоположность слову низкий.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-low-tall.mp3"
+  },
+  {
+    "id": "opposites.prompt.tall",
+    "game": "opposites",
+    "text": "Найди противоположность слову высокий.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-tall.mp3"
+  },
+  {
+    "id": "opposites.correct.tall.low",
+    "game": "opposites",
+    "text": "Верно. высокий и низкий это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-tall-low.mp3"
+  },
+  {
+    "id": "opposites.mistake.tall.low",
+    "game": "opposites",
+    "text": "Почти. Найди противоположность слову высокий.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-tall-low.mp3"
+  },
+  {
+    "id": "opposites.prompt.young",
+    "game": "opposites",
+    "text": "Найди противоположность слову молодой.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-young.mp3"
+  },
+  {
+    "id": "opposites.correct.young.old",
+    "game": "opposites",
+    "text": "Верно. молодой и пожилой это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-young-old.mp3"
+  },
+  {
+    "id": "opposites.mistake.young.old",
+    "game": "opposites",
+    "text": "Почти. Найди противоположность слову молодой.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-young-old.mp3"
+  },
+  {
+    "id": "opposites.prompt.old",
+    "game": "opposites",
+    "text": "Найди противоположность слову пожилой.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/prompt-old.mp3"
+  },
+  {
+    "id": "opposites.correct.old.young",
+    "game": "opposites",
+    "text": "Верно. пожилой и молодой это противоположности.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/correct-old-young.mp3"
+  },
+  {
+    "id": "opposites.mistake.old.young",
+    "game": "opposites",
+    "text": "Почти. Найди противоположность слову пожилой.",
+    "voice": "jane",
+    "path": "/audio/tts/opposites/mistake-old-young.mp3"
+  },
+  {
+    "id": "pizza-fractions.prompt.watermelon.whole",
+    "game": "pizza-fractions",
+    "text": "Выбери целый арбуз.",
+    "voice": "jane",
+    "path": "/audio/tts/pizza-fractions/prompt-watermelon-whole.mp3"
+  },
+  {
+    "id": "pizza-fractions.prompt.watermelon.half",
+    "game": "pizza-fractions",
+    "text": "Выбери половину арбуза.",
+    "voice": "jane",
+    "path": "/audio/tts/pizza-fractions/prompt-watermelon-half.mp3"
+  },
+  {
+    "id": "pizza-fractions.prompt.watermelon.third",
+    "game": "pizza-fractions",
+    "text": "Выбери треть арбуза.",
+    "voice": "jane",
+    "path": "/audio/tts/pizza-fractions/prompt-watermelon-third.mp3"
+  },
+  {
+    "id": "pizza-fractions.prompt.watermelon.quarter",
+    "game": "pizza-fractions",
+    "text": "Выбери четверть арбуза.",
+    "voice": "jane",
+    "path": "/audio/tts/pizza-fractions/prompt-watermelon-quarter.mp3"
+  },
+  {
+    "id": "pizza-fractions.mistake.watermelon",
+    "game": "pizza-fractions",
+    "text": "Посмотри на арбуз ещё раз и выбери другую долю.",
+    "voice": "jane",
+    "path": "/audio/tts/pizza-fractions/mistake-watermelon.mp3"
   }
 ]

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, reactive, ref, toRef, watch } from "vue";
+import { gameArtSrc } from "../../core/gameArt";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -160,7 +161,13 @@ onUnmounted(() => {
             :class="{ 'catch-light-orb--active': active }"
             :style="{ '--light-color': targetTone, '--light-progress': active ? progress : 0 }"
           >
-            <v-icon icon="mdi-brightness-5" class="catch-light-icon" />
+            <!-- Testers: «нарисовать новую картинку самого света, может, светлячок». -->
+            <img
+              class="catch-light-icon catch-light-firefly"
+              :src="gameArtSrc('catch-light/firefly')"
+              alt=""
+              draggable="false"
+            />
           </div>
         </template>
       </GameDwellButton>
@@ -240,9 +247,16 @@ onUnmounted(() => {
 
 .catch-light-icon {
   color: var(--light-color);
-  filter: drop-shadow(0 0 18px var(--light-color));
+  filter: drop-shadow(0 0 1.1rem var(--light-color));
   font-size: clamp(3.2rem, 8vw, 5.6rem);
   transition: transform 220ms ease;
+}
+
+.catch-light-firefly {
+  block-size: clamp(5rem, min(11vw, 17dvh), 8rem);
+  display: block;
+  inline-size: auto;
+  object-fit: contain;
 }
 
 .catch-light-trail {

@@ -146,6 +146,7 @@ onUnmounted(() => {
               >
               <GameWordImage
                 class="item-emoji"
+                :art-id="round.item.artId"
                 :word-id="round.item.wordId"
                 :word="round.item.title"
                 :emoji="round.item.emoji"

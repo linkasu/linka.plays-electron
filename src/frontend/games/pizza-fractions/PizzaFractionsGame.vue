@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
+import { gameArtSrc } from "../../core/gameArt";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -44,6 +45,11 @@ const promptAudio = useGamePromptAudio({
     "pizza-fractions.prompt.whole",
     "pizza-fractions.correct",
     "pizza-fractions.mistake",
+    "pizza-fractions.mistake.watermelon",
+    "pizza-fractions.prompt.watermelon.half",
+    "pizza-fractions.prompt.watermelon.third",
+    "pizza-fractions.prompt.watermelon.quarter",
+    "pizza-fractions.prompt.watermelon.whole",
   ],
 });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
@@ -56,10 +62,16 @@ const { round, resultVisible, nextRound, restart } = useRoundGame<PizzaFractions
   generateRound: (roundIndex) => generatePizzaFractionsRound(session.settings, roundIndex),
 });
 
+const foodWord = computed(() => (round.value.food === "pizza" ? "пиццу" : "арбуз"));
+const foodSrc = computed(() => gameArtSrc(`pizza-fractions/${round.value.food}`));
 const feedbackText = computed(() => {
-  if (!mistakenChoiceId.value) return "Посмотри на пиццу и выбери нужную долю.";
-  return "Посмотри на пиццу ещё раз и выбери другую долю.";
+  if (!mistakenChoiceId.value) return `Посмотри на ${foodWord.value} и выбери нужную долю.`;
+  return `Посмотри на ${foodWord.value} ещё раз и выбери другую долю.`;
 });
+
+function clipId(choice: PizzaFractionChoice) {
+  return `pizza-clip-${round.value.roundId.replace(/[^a-z0-9]/gi, "-")}-${choice.id}`;
+}
 
 // Equal slices from the top, clockwise; the first `filledSlices` are filled.
 function slicePoint(index: number, total: number) {
@@ -85,7 +97,9 @@ function choiceTargetId(choice: PizzaFractionChoice) {
 }
 
 function promptAssetId() {
-  return `pizza-fractions.prompt.${round.value.targetId}`;
+  return round.value.food === "pizza"
+    ? `pizza-fractions.prompt.${round.value.targetId}`
+    : `pizza-fractions.prompt.watermelon.${round.value.targetId}`;
 }
 
 async function choose(index: number) {
@@ -135,7 +149,14 @@ async function choose(index: number) {
   });
   isSpeaking.value = true;
   void feedbackAudio.playMistake();
-  await promptAudio.playSequenceAndWait(["pizza-fractions.mistake"], 80);
+  await promptAudio.playSequenceAndWait(
+    [
+      round.value.food === "pizza"
+        ? "pizza-fractions.mistake"
+        : "pizza-fractions.mistake.watermelon",
+    ],
+    80,
+  );
   isSpeaking.value = false;
 }
 
@@ -214,21 +235,35 @@ onUnmounted(() => {
                         class="pizza-plate"
                         viewBox="0 0 100 100"
                         role="img"
-                        :aria-label="`Пицца: ${choice.label}`"
+                        :aria-label="`${round.food === 'pizza' ? 'Пицца' : 'Арбуз'}: ${choice.label}`"
                       >
+                        <defs>
+                          <clipPath :id="clipId(choice)">
+                            <path
+                              v-for="slice in pizzaSlices(choice).filter((item) => item.filled)"
+                              :key="`${slice.id}:clip`"
+                              :d="slice.path"
+                            />
+                          </clipPath>
+                        </defs>
                         <circle class="pizza-plate__shadow" cx="50" cy="50" r="46" />
-                        <circle class="pizza-plate__crust" cx="50" cy="50" r="44" />
-                        <g class="pizza-plate__slices">
-                          <path
-                            v-for="slice in pizzaSlices(choice)"
-                            :key="slice.id"
-                            :class="[
-                              'pizza-plate__slice',
-                              { 'pizza-plate__slice--filled': slice.filled },
-                            ]"
-                            :d="slice.path"
-                          />
-                        </g>
+                        <!-- The missing slices stay as a faint outline of the food. -->
+                        <image
+                          class="pizza-plate__ghost"
+                          :href="foodSrc"
+                          x="8"
+                          y="8"
+                          width="84"
+                          height="84"
+                        />
+                        <image
+                          :href="foodSrc"
+                          x="8"
+                          y="8"
+                          width="84"
+                          height="84"
+                          :clip-path="`url(#${clipId(choice)})`"
+                        />
                         <path
                           v-for="slice in pizzaSlices(choice)"
                           :key="`${slice.id}:cut`"
@@ -347,8 +382,9 @@ onUnmounted(() => {
   fill: #fffdf7;
 }
 
-.pizza-plate__crust {
-  fill: #d88939;
+.pizza-plate__ghost {
+  filter: grayscale(1);
+  opacity: 0.16;
 }
 
 .pizza-plate__slice {

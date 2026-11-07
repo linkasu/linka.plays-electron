@@ -88,8 +88,8 @@ describe("createDayRoutineBoard", () => {
   });
 
   it("has enough unique vocabulary cards for the configured session", () => {
-    expect(dayRoutineItems).toHaveLength(8);
-    expect(new Set(dayRoutineItems.map((item) => item.id)).size).toBe(8);
+    expect(dayRoutineItems).toHaveLength(9);
+    expect(new Set(dayRoutineItems.map((item) => item.id)).size).toBe(9);
     expect(
       dayRoutineItems.every(
         (item) => item.label && item.hint && findDayRoutinePeriod(item.periodId),
@@ -103,6 +103,7 @@ describe("createDayRoutineBoard", () => {
       "tree",
       "soup",
       "plate",
+      "soap",
       "bed",
     ]);
   });

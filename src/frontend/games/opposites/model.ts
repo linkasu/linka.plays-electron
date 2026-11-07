@@ -52,8 +52,19 @@ function drawn(
   return { id, label, emoji, tone, referenceId, visualState: id, artId: `opposites/${id}` };
 }
 
-// Testers: «заменить картинки». Only drawn pairs are used; happy/sad waits for
-// its pictures. Wet/dry came with the drawings.
+function drawnWith(
+  artId: string,
+  id: string,
+  label: string,
+  emoji: string,
+  tone: string,
+  referenceId: string,
+): OppositeConcept {
+  return { ...drawn(id, label, emoji, tone, referenceId), artId };
+}
+
+// Testers: «заменить картинки». Only drawn pairs are used. Wet/dry came with the
+// drawings; happy/sad uses the boy from «Выбери эмоцию».
 export const oppositePairs: OppositePair[] = [
   {
     id: "temperature",
@@ -109,6 +120,43 @@ export const oppositePairs: OppositePair[] = [
     concepts: [
       drawn("fast", "быстрый", "🚗", "pink", "car"),
       drawn("slow", "медленный", "🐢", "lime", "car"),
+    ],
+  },
+  // Testers: «очень мало вопросов, они повторяются, надо добавить ещё: чистый-грязный,
+  // короткий-длинный, высокий-низкий, молодой-пожилой, весёлый-грустный».
+  {
+    id: "cleanliness",
+    concepts: [
+      drawn("clean", "чистый", "🥾", "light-blue", "boots"),
+      drawn("dirty", "грязный", "🥾", "brown", "boots"),
+    ],
+  },
+  {
+    id: "length",
+    concepts: [
+      drawn("short", "короткий", "✏️", "red", "pencil"),
+      drawn("long", "длинный", "✏️", "deep-orange", "pencil"),
+    ],
+  },
+  {
+    id: "height",
+    concepts: [
+      drawn("low", "низкий", "🧱", "green", "tower"),
+      drawn("tall", "высокий", "🧱", "indigo", "tower"),
+    ],
+  },
+  {
+    id: "age",
+    concepts: [
+      drawn("young", "молодой", "🧑", "teal", "man"),
+      drawn("old", "пожилой", "👴", "blue-grey", "man"),
+    ],
+  },
+  {
+    id: "mood",
+    concepts: [
+      drawnWith("choose-emotion/joy", "happy", "весёлый", "😀", "amber", "boy"),
+      drawnWith("choose-emotion/sadness", "sad", "грустный", "😢", "blue", "boy"),
     ],
   },
 ];
