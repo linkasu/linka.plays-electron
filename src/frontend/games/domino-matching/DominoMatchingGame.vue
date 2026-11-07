@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
+import { useDisplay } from "vuetify";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -50,7 +51,24 @@ const promptAudio = useGamePromptAudio({
   warmAssetIds: ["domino-matching.complete"],
 });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
-const boardRowSize = 5;
+// Testers: «ребёнку непонятно, куда цеплять и какую цеплять; ряды уходят за рамку».
+// The chain is one line: a long chain keeps its first and last tiles, with the
+// number of hidden ones between them, and the places to attach stand at its ends.
+// How many tiles fit is counted from the line's measured width and the tile size,
+// which follows the window height, so the tiles keep their full size and the open
+// ends are never cut off (Codex).
+const { height: viewportHeight } = useDisplay();
+const tilesRef = ref<HTMLElement>();
+const tilesWidth = ref(0);
+let tilesObserver: ResizeObserver | undefined;
+const remPx = 16;
+const hiddenLabelPx = 7 * remPx;
+
+function tileSlotPx() {
+  const tile = Math.min(8.2 * remPx, Math.max(5.7 * remPx, viewportHeight.value * 0.105));
+  const gap = Math.min(0.75 * remPx, Math.max(0.45 * remPx, viewportHeight.value * 0.012));
+  return tile + gap;
+}
 
 const game = ref<DominoGameState>(startDominoGame(session.settings));
 const selectedTileId = ref<string>();
@@ -66,13 +84,17 @@ const selectedTile = computed(() =>
 const selectedPlacements = computed(() =>
   selectedTile.value ? getPlayablePlacements(selectedTile.value, game.value) : [],
 );
-const boardRows = computed(() => {
-  const rows: PlacedDominoTile[][] = [];
-  for (let index = 0; index < game.value.board.length; index += boardRowSize) {
-    const row = game.value.board.slice(index, index + boardRowSize);
-    rows.push(rows.length % 2 ? [...row].reverse() : row);
-  }
-  return rows;
+const boardLine = computed(() => {
+  const board = game.value.board;
+  const slot = tileSlotPx();
+  const width = tilesWidth.value;
+  if (!width || board.length * slot <= width) return { head: board, hidden: 0, tail: [] };
+  const edge = Math.max(1, Math.floor((width - hiddenLabelPx) / slot / 2));
+  return {
+    head: board.slice(0, edge),
+    hidden: board.length - edge * 2,
+    tail: board.slice(-edge),
+  };
 });
 
 const helperText = computed(() => {
@@ -246,11 +268,16 @@ function restart() {
 }
 
 onMounted(() => {
+  tilesObserver = new ResizeObserver(([entry]) => {
+    tilesWidth.value = entry?.contentRect.width ?? 0;
+  });
+  if (tilesRef.value) tilesObserver.observe(tilesRef.value);
   promptAudio.warm();
   promptAudio.play("domino-matching.prompt", 450);
 });
 
 onUnmounted(() => {
+  tilesObserver?.disconnect();
   promptAudio.cancelPending();
 });
 </script>
@@ -310,57 +337,78 @@ onUnmounted(() => {
             </div>
 
             <section class="board-zone mb-3" aria-label="Цепочка домино на столе">
-              <div :class="['board-path', { 'board-path--bent': boardRows.length > 1 }]">
-                <div
-                  v-for="(row, rowIndex) in boardRows"
-                  :key="`board-row-${rowIndex}`"
-                  :class="['board-row', { 'board-row--reverse': rowIndex % 2 === 1 }]"
-                >
-                  <div
-                    v-for="placed in row"
-                    :key="`${placed.owner}-${placed.tile.id}-${placed.left}-${placed.right}`"
-                    :class="['domino', `domino--${placed.owner}`]"
-                    :aria-label="`Костяшка ${placed.left}:${placed.right}`"
+              <div :class="['board-line', { 'board-line--attaching': selectedTile }]">
+                <div class="board-end">
+                  <GameDwellButton
+                    v-if="selectedTile"
+                    class="side-target"
+                    :target-id="sideTargetId('left')"
+                    :disabled="session.status !== 'running' || isSpeaking || !placementFor('left')"
+                    :dwell-ms="session.settings.dwellMs"
+                    color="secondary"
+                    @select="chooseSide('left')"
                   >
-                    <div class="domino__half">
-                      <span
-                        v-for="position in dotPositions(placed.left)"
-                        :key="`${placed.tile.id}-placed-left-${position}`"
-                        :class="['domino__dot', `domino__dot--${position}`]"
-                      />
+                    <template #default>
+                      <div class="side-choice">
+                        <v-icon icon="mdi-arrow-left-bold" size="34" />
+                        <div class="text-h6 font-weight-bold">Сюда</div>
+                        <div class="text-body-2">слева</div>
+                      </div>
+                    </template>
+                  </GameDwellButton>
+                </div>
+                <div ref="tilesRef" class="board-tiles">
+                  <template
+                    v-for="(part, partIndex) in [boardLine.head, boardLine.tail]"
+                    :key="partIndex"
+                  >
+                    <div v-if="partIndex === 1 && boardLine.hidden" class="board-hidden">
+                      … ещё {{ boardLine.hidden }}
                     </div>
-                    <div class="domino__half">
-                      <span
-                        v-for="position in dotPositions(placed.right)"
-                        :key="`${placed.tile.id}-placed-right-${position}`"
-                        :class="['domino__dot', `domino__dot--${position}`]"
-                      />
+                    <div
+                      v-for="placed in part"
+                      :key="`${placed.owner}-${placed.tile.id}-${placed.left}-${placed.right}`"
+                      :class="['domino', `domino--${placed.owner}`]"
+                      :aria-label="`Костяшка ${placed.left}:${placed.right}`"
+                    >
+                      <div class="domino__half">
+                        <span
+                          v-for="position in dotPositions(placed.left)"
+                          :key="`${placed.tile.id}-placed-left-${position}`"
+                          :class="['domino__dot', `domino__dot--${position}`]"
+                        />
+                      </div>
+                      <div class="domino__half">
+                        <span
+                          v-for="position in dotPositions(placed.right)"
+                          :key="`${placed.tile.id}-placed-right-${position}`"
+                          :class="['domino__dot', `domino__dot--${position}`]"
+                        />
+                      </div>
                     </div>
-                  </div>
+                  </template>
+                </div>
+                <div class="board-end">
+                  <GameDwellButton
+                    v-if="selectedTile"
+                    class="side-target"
+                    :target-id="sideTargetId('right')"
+                    :disabled="session.status !== 'running' || isSpeaking || !placementFor('right')"
+                    :dwell-ms="session.settings.dwellMs"
+                    color="secondary"
+                    @select="chooseSide('right')"
+                  >
+                    <template #default>
+                      <div class="side-choice">
+                        <v-icon icon="mdi-arrow-right-bold" size="34" />
+                        <div class="text-h6 font-weight-bold">Сюда</div>
+                        <div class="text-body-2">справа</div>
+                      </div>
+                    </template>
+                  </GameDwellButton>
                 </div>
               </div>
             </section>
-
-            <v-row v-if="selectedTile" class="side-row mb-3" dense>
-              <v-col v-for="side in ['left', 'right'] as DominoSide[]" :key="side" cols="6">
-                <GameDwellButton
-                  :target-id="sideTargetId(side)"
-                  :disabled="session.status !== 'running' || isSpeaking || !placementFor(side)"
-                  :dwell-ms="session.settings.dwellMs"
-                  color="secondary"
-                  @select="chooseSide(side)"
-                >
-                  <template #default>
-                    <div class="side-choice">
-                      <div class="text-h6 font-weight-bold">
-                        {{ side === "left" ? "Слева" : "Справа" }}
-                      </div>
-                      <div class="text-body-1">Поставить {{ tileLabel(selectedTile) }}</div>
-                    </div>
-                  </template>
-                </GameDwellButton>
-              </v-col>
-            </v-row>
 
             <div class="hand-title text-h6 font-weight-bold mb-2">Твои костяшки</div>
             <v-row class="hand-row" dense>
@@ -487,32 +535,46 @@ onUnmounted(() => {
 .board-zone {
   background: rgb(var(--v-theme-primary) / 8%);
   border-radius: 1.2rem;
-  max-block-size: clamp(9rem, 28vh, 16rem);
-  overflow: auto;
   padding: clamp(0.6rem, 1.8vh, 1rem);
 }
 
-.board-path {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(0.45rem, 1.2vh, 0.75rem);
+.board-line {
+  align-items: center;
+  display: grid;
+  gap: clamp(1rem, 2vw, 2rem);
+  grid-template-columns: 0 minmax(0, 1fr) 0;
 }
 
-.board-row {
+/* The ends take room only while a tile waits to be attached. */
+.board-line--attaching {
+  grid-template-columns: minmax(8rem, 13rem) minmax(0, 1fr) minmax(8rem, 13rem);
+}
+
+.board-tiles .domino {
+  flex-shrink: 0;
+}
+
+.board-tiles {
+  align-items: center;
+  overflow: hidden;
   display: flex;
+  flex-wrap: nowrap;
   gap: clamp(0.45rem, 1.2vh, 0.75rem);
   justify-content: center;
+  min-inline-size: 0;
 }
 
-.board-path--bent.board-row {
-  justify-content: flex-start;
+.board-hidden {
+  color: rgb(var(--v-theme-on-surface) / 70%);
+  font-size: 1.1rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
-.board-path--bent.board-row--reverse {
-  justify-content: flex-end;
+.side-target :deep(.dwell-button) {
+  min-block-size: clamp(6rem, 16dvh, 9rem) !important;
 }
 
-.side-row :deep(.dwell-button),
 .hand-row :deep(.dwell-button) {
   min-block-size: clamp(4.8rem, 12vh, 7.2rem) !important;
   padding: clamp(0.35rem, 1vh, 0.7rem) !important;
@@ -521,6 +583,11 @@ onUnmounted(() => {
 .hand-row {
   max-block-size: clamp(9rem, 31vh, 18rem);
   overflow: auto;
+}
+
+/* Testers: «кнопки управления слишком близко, смотришь на одну, нажимается другая». */
+.hand-row > [class*="v-col"] {
+  padding: clamp(0.6rem, 1.2vw, 1.25rem) !important;
 }
 
 .hand-card,
@@ -655,10 +722,6 @@ onUnmounted(() => {
 
   .instruction {
     margin-block-end: 0.45rem !important;
-  }
-
-  .board-zone {
-    max-block-size: 24vh;
   }
 
   .hand-row {
