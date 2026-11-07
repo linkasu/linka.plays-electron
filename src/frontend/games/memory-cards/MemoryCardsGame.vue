@@ -42,6 +42,9 @@ const {
   startSession,
   finishSession,
 } = useGameSessionFor("memory-cards", {
+  // The session starts once the number of cards is chosen (Codex: in «На время»
+  // the wait on the choice screen used up the time).
+  autoStart: false,
   maxSteps: 3,
   overrides: { preset: "gentle", targetScale: 1.2, sound: true },
   finishOnMaxSteps: false,
