@@ -51,15 +51,20 @@ describe("musical path model", () => {
     expect(stones.every((stone) => !stone.selected && !stone.softError)).toBe(true);
   });
 
-  it("keeps the opening notes ascending and gives the final notes separate rows", () => {
+  it("lays the path as a snake: notes 1-4 along the lower row, 5-8 back along the upper", () => {
     const stones = createMusicalPathStones();
 
-    expect(stones.slice(0, 4).map((stone) => stone.y)).toEqual([76, 70, 64, 58]);
+    expect(stones.slice(0, 4).map((stone) => [stone.x, stone.y])).toEqual([
+      [14, 65.5],
+      [38, 65.5],
+      [62, 65.5],
+      [86, 65.5],
+    ]);
     expect(stones.slice(4).map((stone) => [stone.x, stone.y])).toEqual([
-      [69, 66],
-      [90, 66],
-      [69, 35],
-      [90, 35],
+      [86, 37],
+      [62, 37],
+      [38, 37],
+      [14, 37],
     ]);
     expect(stones.slice(4).map((stone) => [stone.mobileX, stone.mobileY])).toEqual([
       [28, 60],
@@ -69,9 +74,8 @@ describe("musical path model", () => {
     ]);
   });
 
-  it("keeps the final compact-desktop effective gaze zones disjoint", () => {
-    const finalStones = createMusicalPathStones().slice(4);
-    const rects = finalStones.map(compactDesktopTargetRect);
+  it("keeps every compact-desktop effective gaze zone disjoint", () => {
+    const rects = createMusicalPathStones().map(compactDesktopTargetRect);
 
     expect(
       rects.every((rect, index) => rects.slice(index + 1).every((other) => !overlaps(rect, other))),
