@@ -277,7 +277,7 @@ watch(
     />
     <v-container class="game-container" fluid>
       <v-row justify="center">
-        <v-col cols="12" lg="10">
+        <v-col cols="12" lg="11" xl="10">
           <v-card class="pa-4 pa-md-5" rounded="xl" elevation="8">
             <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-3">Собери пирамидку</h1>
             <p class="text-body-1 text-medium-emphasis text-center mb-4">
@@ -316,7 +316,7 @@ watch(
                     session.status !== 'running' || ring.placed || pendingSelection || isSpeaking
                   "
                   :dwell-ms="session.settings.dwellMs"
-                  min-height="8rem"
+                  min-height="clamp(8rem, 22dvh, 15rem)"
                   @select="chooseRing(ring)"
                 >
                   <template #default>
@@ -450,7 +450,7 @@ watch(
   align-items: center;
   display: grid;
   gap: 2rem;
-  grid-template-columns: 1fr 1.4fr;
+  grid-template-columns: 1fr 1.9fr;
 }
 
 .stack-card {
@@ -523,9 +523,11 @@ watch(
   max-inline-size: 100%;
 }
 
+/* Testers: «сделать карточки с колечками крупнее, разнести подальше друг от
+   друга, сейчас смотришь на одну, а попадаешь на другую». */
 .rings {
   display: grid;
-  gap: 0.875rem;
+  gap: clamp(1.75rem, 3vw, 3rem);
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 

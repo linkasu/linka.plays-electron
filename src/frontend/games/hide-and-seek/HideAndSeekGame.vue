@@ -398,7 +398,7 @@ onUnmounted(() => {
   inline-size: min(27.75rem, calc(100vw - 4rem));
   left: 2rem;
   position: absolute;
-  top: 7.375rem;
+  top: calc(var(--game-hud-clearance, 7.375rem) + 0.75rem);
   z-index: 3;
 }
 
@@ -425,7 +425,7 @@ onUnmounted(() => {
 .empty-spot,
 .found-object,
 .peek-object {
-  font-size: clamp(3.5rem, 7vw, 5.5rem);
+  font-size: clamp(3.5rem, min(9vw, 15dvh), 9rem);
   line-height: 1;
 }
 
@@ -451,7 +451,7 @@ onUnmounted(() => {
     left: 50%;
     max-inline-size: min(30rem, calc(100vw - 2rem));
     padding: 0.75rem 1rem !important;
-    top: 7.75rem;
+    top: calc(var(--game-hud-clearance, 7.75rem) + 0.5rem);
     transform: translateX(-50%);
   }
 

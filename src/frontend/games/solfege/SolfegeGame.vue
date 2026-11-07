@@ -685,11 +685,14 @@ onUnmounted(() => {
   position: relative;
 }
 
+/* Testers: «кнопки очень близко, нажимать сложно... надо сделать крупнее». The
+   keys stand apart and fill the free height; the decorative black keys, which
+   covered the top of the white ones, are gone. */
 .white-keyboard {
   display: grid;
-  gap: 0.25rem;
+  gap: clamp(0.75rem, 1.4vw, 1.5rem);
   grid-template-columns: repeat(8, minmax(0, 1fr));
-  min-block-size: 13.125rem;
+  min-block-size: clamp(13.125rem, 36dvh, 22rem);
   position: relative;
   z-index: 1;
 }
@@ -762,10 +765,7 @@ onUnmounted(() => {
 }
 
 .black-keys {
-  inset-block-start: 24px;
-  inset-inline: 20px;
-  position: absolute;
-  z-index: 2;
+  display: none;
 }
 
 .black-key {
@@ -840,7 +840,7 @@ onUnmounted(() => {
   }
 
   .white-keyboard {
-    min-block-size: 8.125rem;
+    min-block-size: clamp(9rem, 40dvh, 18rem);
   }
 
   .black-keys {
@@ -875,9 +875,9 @@ onUnmounted(() => {
   }
 
   .white-keyboard {
-    gap: 0.125rem;
+    gap: clamp(0.5rem, 1.2vw, 1rem);
     grid-template-columns: repeat(8, minmax(0, 1fr));
-    min-block-size: clamp(10rem, 32dvh, 18rem);
+    min-block-size: clamp(10rem, 34dvh, 18rem);
   }
 
   .white-key {
@@ -892,17 +892,13 @@ onUnmounted(() => {
 
 @media (max-width: 75rem) and (max-height: 47.5rem) {
   .white-keyboard {
-    min-block-size: min(34dvh, 14rem);
+    min-block-size: min(34dvh, 16rem);
   }
 }
 
 @media (min-width: 75.001rem) {
   .piano-frame {
     padding-inline: 0.5rem;
-  }
-
-  .white-keyboard {
-    gap: 0;
   }
 }
 </style>

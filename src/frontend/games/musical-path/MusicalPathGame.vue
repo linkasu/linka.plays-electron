@@ -361,7 +361,7 @@ onUnmounted(() => {
 }
 
 .path-stone-target {
-  inline-size: clamp(8.875rem, 12vw, 11.5rem);
+  inline-size: clamp(8.875rem, min(14vw, 23dvh), 13rem);
   inset-block-start: var(--stone-y);
   inset-inline-start: var(--stone-x);
   position: absolute;
@@ -480,12 +480,12 @@ onUnmounted(() => {
   z-index: 1;
 }
 
+/* In the corner, under the first column: the stones keep the middle. */
 .path-instruction {
-  inline-size: min(32.5rem, calc(100dvw - 2rem));
-  inset-block-end: 1.75rem;
-  inset-inline-start: 50%;
+  inline-size: min(26rem, calc(100dvw - 2rem));
+  inset-block-end: 1rem;
+  inset-inline-start: 1rem;
   position: absolute;
-  transform: translateX(-50%);
 }
 
 @keyframes note-spark {

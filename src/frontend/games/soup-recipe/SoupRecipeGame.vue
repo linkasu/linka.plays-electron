@@ -1199,14 +1199,16 @@ watch(isSpeaking, (speaking) => {
   position: absolute;
 }
 
+/* Testers: «сам рецепт очень мелко, ребенку сложно разобрать». Picture and word
+   stand side by side, so both get the strip's full height. */
 .soup-recipe-step {
   align-items: center;
   background: rgb(var(--v-theme-surface) / 94%);
   border: 0.125rem solid rgb(var(--v-theme-primary) / 14%);
   border-radius: 0.75rem;
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  flex-direction: row;
+  gap: clamp(0.35rem, 0.8vw, 0.75rem);
   justify-content: center;
   min-inline-size: 0;
   opacity: 0.62;
@@ -1236,12 +1238,14 @@ watch(isSpeaking, (speaking) => {
   align-items: center;
   display: inline-flex;
   flex: 0 0 auto;
-  font-size: clamp(2rem, 6dvh, 3.2rem);
+  font-size: clamp(2.2rem, 7.5dvh, 4.5rem);
   justify-content: center;
 }
 
 .soup-recipe-label {
   color: #18211d;
+  font-size: clamp(1rem, min(1.5vw, 3dvh), 1.6rem) !important;
+  font-weight: 700;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

@@ -68,7 +68,9 @@ const placedCards = computed(() =>
 const placedIds = computed(() => placedCards.value.map((card) => card.id));
 const nextStep = computed(() => nextScheduleStep(placedIds.value));
 const currentRoundId = computed(() => `schedule:step:${session.step + 1}`);
-const compactChoices = computed(() => smAndDown.value || height.value <= 700);
+// Testers: «очень мелкие карточки и их очень много». Below 900 px of height eight
+// cards only fit shrunk, so four are offered at a time.
+const compactChoices = computed(() => smAndDown.value || height.value <= 900);
 const visibleCards = computed(() =>
   createScheduleCandidates(
     cards.value,
@@ -271,7 +273,7 @@ onUnmounted(() => {
               <v-col
                 v-for="card in visibleCards"
                 :key="card.id"
-                class="schedule-choice-col pa-2"
+                class="schedule-choice-col"
                 cols="6"
                 sm="3"
               >
@@ -424,12 +426,15 @@ onUnmounted(() => {
 
 .choice-row {
   flex: 1 1 auto;
-  margin: -0.5rem;
+  margin: calc(-1 * clamp(0.875rem, 1.6vw, 1.75rem));
   min-block-size: 0;
 }
 
+/* Testers: «смотришь на одну, нажимается другая». Wide gaps between the cards;
+   the no-gutters row would reset a plain padding to zero. */
 .schedule-choice-col {
   display: flex;
+  padding: clamp(0.875rem, 1.6vw, 1.75rem) !important;
 }
 
 .schedule-choice-col :deep(.dwell-hitbox) {

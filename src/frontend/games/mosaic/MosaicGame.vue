@@ -286,11 +286,19 @@ onUnmounted(() => {
                       class="mosaic-piece mosaic-piece--placed"
                       :style="tilePieceStyle(slot.tile)"
                     />
-                    <div v-else-if="slot.next" class="mosaic-empty mosaic-empty--next">
-                      <v-icon icon="mdi-help" color="primary" />
-                      <span>сюда</span>
-                    </div>
-                    <div v-else class="mosaic-empty" aria-hidden="true" />
+                    <template v-else>
+                      <!-- Testers: «открыть образец невозможно». The picture shows faintly
+                           under every empty cell, so nothing has to be opened. -->
+                      <div
+                        class="mosaic-piece mosaic-piece--ghost"
+                        :style="tilePieceStyle(slot.tile)"
+                        aria-hidden="true"
+                      />
+                      <div v-if="slot.next" class="mosaic-empty mosaic-empty--next">
+                        <v-icon icon="mdi-help" color="primary" />
+                        <span>сюда</span>
+                      </div>
+                    </template>
                   </v-card>
                 </div>
               </section>
@@ -447,7 +455,20 @@ onUnmounted(() => {
 }
 
 .mosaic-empty--next {
+  background: rgb(255 255 255 / 78%);
+  border-radius: 1rem;
   color: rgb(var(--v-theme-primary));
+  padding: 0.35rem 0.75rem;
+  position: relative;
+  z-index: 1;
+}
+
+.mosaic-piece--ghost {
+  block-size: 100%;
+  filter: saturate(0.6);
+  inset: 0;
+  opacity: 0.32;
+  position: absolute;
 }
 
 .mosaic-piece {
@@ -491,7 +512,7 @@ onUnmounted(() => {
   border-radius: 0.85rem;
   box-shadow: 0 0.45rem 1rem rgb(65 79 104 / 16%);
   display: block;
-  inline-size: clamp(5rem, 7vw, 7rem);
+  inline-size: clamp(5rem, 9vw, 9rem);
   margin-inline: auto;
   object-fit: cover;
 }
@@ -705,6 +726,25 @@ onUnmounted(() => {
 
   .mosaic-piece--choice {
     max-inline-size: 5.5rem;
+  }
+}
+/* Testers: «очень мелкие детали, попасть очень сложно, сделать крупнее». On a
+   wide screen the pieces stand in one row, large and far apart. */
+@media (min-width: 58rem) {
+  .mosaic-choices {
+    gap: clamp(1.5rem, 2.6vw, 2.75rem) !important;
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+    grid-template-columns: none !important;
+  }
+
+  .mosaic-choices :deep(.dwell-button) {
+    min-block-size: clamp(8rem, 30dvh, 15rem) !important;
+    padding: 0.75rem !important;
+  }
+
+  .mosaic-piece--choice {
+    max-inline-size: clamp(5.5rem, min(10vw, 22dvh), 11rem) !important;
   }
 }
 </style>

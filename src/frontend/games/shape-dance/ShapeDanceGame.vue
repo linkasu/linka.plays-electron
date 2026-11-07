@@ -346,7 +346,7 @@ onUnmounted(() => {
                     session.status !== 'running' || phase !== 'repeat' || isLocked || isSpeaking
                   "
                   :dwell-ms="session.settings.dwellMs"
-                  min-height="12rem"
+                  min-height="clamp(12rem, 30dvh, 20rem)"
                   :color="figureColor(figure)"
                   @select="chooseFigure(figure)"
                 >
@@ -428,9 +428,10 @@ onUnmounted(() => {
   overflow: hidden;
 }
 
+/* Testers: «сделать покрупнее карточки для выбора». */
 .dance-stage__figures {
   display: grid;
-  gap: 1rem;
+  gap: clamp(1.75rem, 3vw, 3rem);
   grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
 }
 
@@ -492,11 +493,11 @@ onUnmounted(() => {
   }
 
   .dance-stage__figures :deep(.dwell-button) {
-    min-block-size: 9.5rem !important;
+    min-block-size: clamp(9.5rem, 32dvh, 16rem) !important;
   }
 
   .dance-figure__icon {
-    font-size: clamp(3.2rem, 8vw, 5rem);
+    font-size: clamp(3.2rem, min(8vw, 14dvh), 7rem);
   }
 
   .figure-label {

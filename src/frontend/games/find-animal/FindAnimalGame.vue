@@ -60,11 +60,6 @@ function choiceTargetId(choiceId: string) {
   return `find-animal:choice:${choiceId}`;
 }
 
-function choiceMinHeight(choiceCount: number) {
-  if (choiceCount <= 3) return "clamp(11.25rem, 28vh, 18.75rem)";
-  return "clamp(10.5rem, 25vh, 16.25rem)";
-}
-
 const showRoundImages = computed(
   () => round.value.assetMode === "image" && failedImageRoundId.value !== round.value.roundId,
 );
@@ -243,7 +238,6 @@ onUnmounted(() => {
               :target-id="(choice) => choiceTargetId(choice.id)"
               :disabled="session.status !== 'running' || pendingSelection || isSpeaking"
               :dwell-ms="session.settings.dwellMs"
-              :min-height="choiceMinHeight(round.choices.length)"
               @select="answer"
             >
               <template #default="{ choice }">
@@ -308,7 +302,7 @@ onUnmounted(() => {
 }
 
 .animal-emoji {
-  font-size: clamp(3.1rem, min(14vw, 24dvh), 13rem);
+  font-size: clamp(3.1rem, min(14vw, 24dvh), 18rem);
   line-height: 1;
   transition:
     filter 160ms ease,

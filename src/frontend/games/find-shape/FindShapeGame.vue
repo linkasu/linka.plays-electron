@@ -179,7 +179,7 @@ onUnmounted(() => {
     </template>
     <v-container class="game-container" fluid>
       <v-row justify="center" no-gutters>
-        <v-col cols="12" lg="10" xl="9">
+        <v-col cols="12" lg="11" xl="10">
           <v-card class="find-shape-card pa-4 pa-md-7" rounded="xl" elevation="8">
             <div class="text-overline text-secondary text-center mb-2">выбор формы</div>
             <h1 class="text-h3 text-md-h2 font-weight-bold text-center mb-2">{{ round.prompt }}</h1>
@@ -191,7 +191,6 @@ onUnmounted(() => {
               :target-id="(choice) => choiceTargetId(choice.id)"
               :disabled="session.status !== 'running' || advancing"
               :dwell-ms="session.settings.dwellMs"
-              :min-height="round.choices.length >= 5 ? 210 : 235"
               @select="choose"
             >
               <template #default="{ choice }">
@@ -281,8 +280,8 @@ onUnmounted(() => {
 }
 
 .shape-svg {
-  block-size: clamp(5.5rem, min(14vw, 19vh), 8.75rem);
+  block-size: clamp(5.5rem, min(16vw, 26dvh), 14rem);
   filter: drop-shadow(0 0.4rem 0.45rem rgb(15 23 42 / 16%));
-  inline-size: clamp(5.5rem, min(14vw, 19vh), 8.75rem);
+  inline-size: clamp(5.5rem, min(16vw, 26dvh), 14rem);
 }
 </style>

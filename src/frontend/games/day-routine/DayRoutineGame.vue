@@ -407,8 +407,13 @@ watch(isSpeaking, (speaking) => {
 }
 
 /* Картинка — главное на карточке: растёт с высотой окна и занимает свободное место под игрой. */
+/* Testers: «можно карточки для выбора сделать крупнее». */
+.choice-row > [class*="v-col"] {
+  padding-inline: clamp(0.875rem, 1.6vw, 1.75rem);
+}
+
 .choice-image {
-  block-size: clamp(4rem, 15dvh, 10rem);
+  block-size: clamp(4rem, 17dvh, 13rem);
   inline-size: 100%;
 }
 
@@ -434,7 +439,9 @@ watch(isSpeaking, (speaking) => {
   }
 }
 
-@media (max-height: 44rem) {
+/* Up to 800 px high: the roomy layout does not fit under the HUD and the whole
+   game was shrunk to about 70 %. */
+@media (max-height: 50rem) {
   .day-routine-card {
     padding-block: 0.75rem !important;
   }
