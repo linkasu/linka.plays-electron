@@ -12315,7 +12315,7 @@
   {
     "id": "rails.prompt",
     "game": "rails",
-    "text": "Выбери поезд и веди его взглядом по рельсам.",
+    "text": "Выбери поезд. Потом смотри на номер станции, и поезд поедет к ней.",
     "voice": "jane",
     "path": "/audio/tts/rails/prompt.mp3"
   },
@@ -13641,5 +13641,12 @@
     "text": "Как будем искать слова?",
     "voice": "jane",
     "path": "/audio/tts/word-categories/mode-choice.mp3"
+  },
+  {
+    "id": "memory-cards.count-choice",
+    "game": "memory-cards",
+    "text": "Сколько будет карточек?",
+    "voice": "jane",
+    "path": "/audio/tts/memory-cards/count-choice.mp3"
   }
 ]
