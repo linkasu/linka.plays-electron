@@ -84,6 +84,12 @@ const guidanceText = computed(() => {
 const dotHues = [205, 184, 162, 128, 45, 25, 315, 266, 18, 342, 92, 235, 278];
 let finishDelayRemainingMs = 0;
 let levelDelayRemainingMs = 0;
+// Testers: «после того, как ребёнок посмотрел в правильной последовательности, его
+// каракули исчезают и появляется ровный правильный рисунок». 0 → 1 once a level
+// is done: the scribble fades and the clean figure is drawn through the dots.
+let cleanReveal = 0;
+let cleanActive = false;
+const cleanHoldMs = 2200;
 const canvasFontUnit = String.fromCharCode(112, 120);
 
 function clamp(value: number, min: number, max: number) {
@@ -197,6 +203,8 @@ function resetDrawing() {
   trail.splice(0);
   finishDelayRemainingMs = 0;
   levelDelayRemainingMs = 0;
+  cleanReveal = 0;
+  cleanActive = false;
   brush.x = width.value * 0.5;
   brush.y = height.value * 0.54;
   createDots();
@@ -278,8 +286,9 @@ function completeDot(dot: DrawingDot, now: number) {
       levelTitle: currentLevel.value.title,
       points: dots.length,
     });
-    if (levelIndex.value >= drawingLevels.length - 1) finishDelayRemainingMs = 1200;
-    else levelDelayRemainingMs = 900;
+    cleanActive = true;
+    if (levelIndex.value >= drawingLevels.length - 1) finishDelayRemainingMs = cleanHoldMs + 300;
+    else levelDelayRemainingMs = cleanHoldMs;
   }
 }
 
@@ -332,9 +341,10 @@ function update(rawDelta: number, now: number) {
   const delta = session.status === "paused" ? 0 : rawDelta;
   if (session.status === "running") {
     updateBrush(delta);
-    addTrailPoint();
+    if (!cleanActive) addTrailPoint();
     updateDots(delta, now);
   }
+  if (cleanActive) cleanReveal = Math.min(1, cleanReveal + delta * 1.6);
 }
 
 function drawBackground(ctx: CanvasRenderingContext2D, now: number) {
@@ -387,10 +397,33 @@ function drawGuide(ctx: CanvasRenderingContext2D) {
   ctx.restore();
 }
 
+function drawCleanFigure(ctx: CanvasRenderingContext2D) {
+  if (!cleanActive || dots.length < 2) return;
+  const segments = dots.length - 1;
+  const drawn = cleanReveal * segments;
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = "rgb(58 120 196)";
+  ctx.lineWidth = Math.max(10, dotRadius() * 0.16);
+  ctx.beginPath();
+  ctx.moveTo(dots[0].x, dots[0].y);
+  for (let index = 1; index <= segments; index += 1) {
+    const part = Math.min(1, drawn - (index - 1));
+    if (part <= 0) break;
+    const from = dots[index - 1];
+    const to = dots[index];
+    ctx.lineTo(from.x + (to.x - from.x) * part, from.y + (to.y - from.y) * part);
+  }
+  ctx.stroke();
+  ctx.restore();
+}
+
 function drawTrail(ctx: CanvasRenderingContext2D) {
   if (trail.length < 2) return;
 
   ctx.save();
+  ctx.globalAlpha = 1 - cleanReveal;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
 
@@ -510,6 +543,7 @@ function draw(ctx: CanvasRenderingContext2D, _delta: number, now: number) {
   drawLevelTitle(ctx);
   drawGuide(ctx);
   drawTrail(ctx);
+  drawCleanFigure(ctx);
   for (const dot of dots) drawDot(ctx, dot, now);
   drawBrush(ctx);
 }
