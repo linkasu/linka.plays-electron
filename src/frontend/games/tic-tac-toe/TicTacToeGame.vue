@@ -478,17 +478,22 @@ onUnmounted(() => {
   }
 
   .board-grid {
+    --board-size: min(
+      calc(100dvh - var(--game-hud-clearance, 10rem) - 3.5rem),
+      calc(100vw - 32rem)
+    );
+
     gap: clamp(1.5rem, 4dvh, 2.25rem);
     grid-area: board;
-    inline-size: calc(100dvh - var(--game-hud-clearance, 10rem) - 3.5rem);
+    /* By the free height, but never wider than the room beside the side column
+       (Codex: a narrow tall window, 900×980, pushed the board out of the card). */
+    inline-size: var(--board-size);
     margin-block-end: 0 !important;
     max-inline-size: none;
   }
 
   .board-grid :deep(.dwell-button) {
-    min-block-size: calc(
-      (100dvh - var(--game-hud-clearance, 10rem) - 3.5rem - 2 * clamp(1.5rem, 4dvh, 2.25rem)) / 3
-    ) !important;
+    min-block-size: calc((var(--board-size) - 2 * clamp(1.5rem, 4dvh, 2.25rem)) / 3) !important;
   }
 
   .tic-footer {

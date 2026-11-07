@@ -609,12 +609,16 @@ onUnmounted(() => {
   }
 
   .board-wrap {
-    --cell-size: calc(
-      (100dvh - var(--game-hud-clearance, 10rem) - 3.5rem) / var(--board-size) - 1.8dvh
+    --board-edge: min(
+      calc(100dvh - var(--game-hud-clearance, 10rem) - 3.5rem),
+      calc(100vw - 31rem)
     );
+    --cell-size: calc(var(--board-edge) / var(--board-size) - 1.8dvh);
+
     gap: 1.8dvh;
     grid-area: board;
-    inline-size: calc(100dvh - var(--game-hud-clearance, 10rem) - 3.5rem);
+    /* Never wider than the room beside the side column in a narrow tall window. */
+    inline-size: var(--board-edge);
     max-inline-size: none;
   }
 }

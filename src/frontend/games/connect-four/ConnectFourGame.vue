@@ -562,7 +562,9 @@ onUnmounted(() => {
 /* Testers: «очень мелкие поля». On a low wide screen the board takes the full
    height on the left with gaps between the columns; the status and a large
    «Подумать» stand on the right. */
-@media (min-width: 56rem) and (max-height: 62rem) {
+/* From 1120 px wide: in a narrower window the seven columns beside the side panel
+   came out narrower than in the stacked layout. */
+@media (min-width: 70rem) and (max-height: 62rem) {
   .c4-card {
     align-items: center;
     column-gap: clamp(1.5rem, 3vw, 3rem);
