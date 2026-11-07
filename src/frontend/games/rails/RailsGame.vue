@@ -346,7 +346,12 @@ function updateStation(now: number) {
   // wait on the train itself.
   if (!atStation) return;
 
-  recordEvent("target-enter", stationPayload(station, 0, now));
+  // The click carries the time of the ride since the train set off towards
+  // this station (Codex: a zero dwell lowered the session's mean dwell).
+  if (!stationEnteredAt) {
+    stationEnteredAt = now;
+    recordEvent("target-enter", stationPayload(station, 0, now));
+  }
 
   recordEvent("target-click", stationPayload(station, 1, now));
   recordSuccess({ targetId: stationTargetId(station), station, railProgress: train.ratio });
@@ -381,6 +386,15 @@ function update(delta: number, now: number) {
   const hintTarget = nearRail || lookingAtStation || !controlActive ? 0 : 1;
   train.confidence += (confidenceTarget - train.confidence) * (1 - Math.exp(-delta * 4.4));
   train.hint += (hintTarget - train.hint) * (1 - Math.exp(-delta * 2.8));
+
+  if (
+    (lookingAtStation || canMoveForward) &&
+    !stationEnteredAt &&
+    session.step < session.maxSteps
+  ) {
+    stationEnteredAt = now;
+    recordEvent("target-enter", stationPayload(activeStation.value, 0, now));
+  }
 
   if (lookingAtStation) {
     const speed = 0.3 * session.settings.motionSpeed;
