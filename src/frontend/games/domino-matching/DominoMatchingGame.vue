@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
+import { useDisplay } from "vuetify";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -53,7 +54,14 @@ const feedbackAudio = useStandardGameFeedback(soundEnabled);
 // Testers: «ребёнку непонятно, куда цеплять и какую цеплять; ряды уходят за рамку».
 // The chain is one line: a long chain keeps its first and last tiles, with the
 // number of hidden ones between them, and the places to attach stand at its ends.
-const boardEdgeTiles = 3;
+// A narrow window keeps two tiles at each end, so they stay full size (Codex).
+const { width: viewportWidth } = useDisplay();
+// While a tile waits to be attached the «Сюда» targets take the sides, and only
+// the open end tiles stay beside them.
+const boardEdgeTiles = computed(() => {
+  if (selectedTile.value) return viewportWidth.value < 1150 ? 1 : 2;
+  return viewportWidth.value < 1150 ? 2 : 3;
+});
 
 const game = ref<DominoGameState>(startDominoGame(session.settings));
 const selectedTileId = ref<string>();
@@ -71,11 +79,12 @@ const selectedPlacements = computed(() =>
 );
 const boardLine = computed(() => {
   const board = game.value.board;
-  if (board.length <= boardEdgeTiles * 2 + 1) return { head: board, hidden: 0, tail: [] };
+  const edge = boardEdgeTiles.value;
+  if (board.length <= edge * 2 + 1) return { head: board, hidden: 0, tail: [] };
   return {
-    head: board.slice(0, boardEdgeTiles),
-    hidden: board.length - boardEdgeTiles * 2,
-    tail: board.slice(-boardEdgeTiles),
+    head: board.slice(0, edge),
+    hidden: board.length - edge * 2,
+    tail: board.slice(-edge),
   };
 });
 
@@ -314,7 +323,7 @@ onUnmounted(() => {
             </div>
 
             <section class="board-zone mb-3" aria-label="Цепочка домино на столе">
-              <div class="board-line">
+              <div :class="['board-line', { 'board-line--attaching': selectedTile }]">
                 <div class="board-end">
                   <GameDwellButton
                     v-if="selectedTile"
@@ -519,11 +528,21 @@ onUnmounted(() => {
   align-items: center;
   display: grid;
   gap: clamp(1rem, 2vw, 2rem);
-  grid-template-columns: minmax(9rem, 13rem) minmax(0, 1fr) minmax(9rem, 13rem);
+  grid-template-columns: 0 minmax(0, 1fr) 0;
+}
+
+/* The ends take room only while a tile waits to be attached. */
+.board-line--attaching {
+  grid-template-columns: minmax(8rem, 13rem) minmax(0, 1fr) minmax(8rem, 13rem);
+}
+
+.board-tiles .domino {
+  flex-shrink: 0;
 }
 
 .board-tiles {
   align-items: center;
+  overflow: hidden;
   display: flex;
   flex-wrap: nowrap;
   gap: clamp(0.45rem, 1.2vh, 0.75rem);
