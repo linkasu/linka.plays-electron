@@ -449,7 +449,9 @@ watch(
                           class="piece-crown"
                           icon="mdi-crown"
                         />
-                        <span class="d-sr-only">{{ pieceLabel(board[cellIndex(row, column)]) }}</span>
+                        <span class="d-sr-only">{{
+                          pieceLabel(board[cellIndex(row, column)])
+                        }}</span>
                       </div>
                       <div v-else-if="isMoveTarget(cellIndex(row, column))" class="move-cue">
                         <v-icon
