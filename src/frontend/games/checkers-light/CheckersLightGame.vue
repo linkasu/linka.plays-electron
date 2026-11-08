@@ -12,7 +12,6 @@ import { resolveMenuRoute } from "../../core/menuMode";
 import {
   applyCheckersLightMove,
   cellIndex,
-  cellPosition,
   checkersLightSize,
   chooseCheckersLightAiMove,
   chooseCheckersLightCell,
@@ -119,11 +118,19 @@ function isMovablePiece(index: number) {
   return movablePieceIndexes.value.includes(index);
 }
 
-function cellColor(index: number, piece: CheckersLightCell) {
-  if (isSelected(index)) return "secondary";
-  if (isMoveTarget(index)) return "success";
-  if (piece) return "surface";
-  return isDarkCell(index) ? "brown-lighten-4" : "blue-grey-lighten-5";
+// User: «шашки тоже делаем как настоящие — разноцветная доска, как в шахматах, но без
+// нумерации». The same light and dark wood as the chess board.
+const boardColors = {
+  light: "#f0d9b5",
+  dark: "#b58863",
+  selected: "#ffd54f",
+  target: "#a5d6a7",
+};
+
+function cellColor(index: number, _piece: CheckersLightCell) {
+  if (isSelected(index)) return boardColors.selected;
+  if (isMoveTarget(index)) return boardColors.target;
+  return isDarkCell(index) ? boardColors.dark : boardColors.light;
 }
 
 function cellClasses(index: number) {
@@ -422,7 +429,7 @@ watch(
                     session.status !== 'running' || aiThinking || gameState.status !== 'playing'
                   "
                   :dwell-ms="session.settings.dwellMs"
-                  min-height="clamp(3rem, 8vh, 5rem)"
+                  min-height="0"
                   :color="cellColor(cellIndex(row, column), board[cellIndex(row, column)])"
                   role="gridcell"
                   @select="selectCell(cellIndex(row, column))"
@@ -438,14 +445,12 @@ watch(
                         ]"
                       >
                         <v-icon
-                          :icon="
-                            board[cellIndex(row, column)]?.king ? 'mdi-crown-circle' : 'mdi-circle'
-                          "
+                          v-if="board[cellIndex(row, column)]?.king"
+                          class="piece-crown"
+                          icon="mdi-crown"
                         />
-                        <span class="piece-label">{{
-                          board[cellIndex(row, column)]?.king
-                            ? "дамка"
-                            : pieceLabel(board[cellIndex(row, column)]).split(" ")[1]
+                        <span class="d-sr-only">{{
+                          pieceLabel(board[cellIndex(row, column)])
                         }}</span>
                       </div>
                       <div v-else-if="isMoveTarget(cellIndex(row, column))" class="move-cue">
@@ -460,11 +465,6 @@ watch(
                               : 'mdi-check-circle'
                           "
                         />
-                      </div>
-                      <div v-else-if="!isDarkCell(cellIndex(row, column))" class="light-cell" />
-                      <div v-else class="cell-coordinate text-caption">
-                        {{ cellPosition(cellIndex(row, column)).row + 1
-                        }}{{ cellPosition(cellIndex(row, column)).column + 1 }}
                       </div>
                     </div>
                   </template>
@@ -504,30 +504,34 @@ watch(
   margin-inline: auto;
 }
 
+/* A real board: square cells touching each other, light and dark wood. */
 .board {
+  border-radius: clamp(0.45rem, 1.2dvh, 0.9rem);
+  box-shadow: 0 0.4rem 1.2rem rgba(0, 0, 0, 0.18);
   display: grid;
-  gap: clamp(0.22rem, 0.55vw, 0.45rem);
+  gap: 0;
   grid-template-columns: repeat(8, minmax(0, 1fr));
-  inline-size: min(94vw, 42rem, 68vh);
+  inline-size: min(94vw, 46rem, calc(100dvh - 13.5rem));
+  overflow: hidden;
+}
+
+.board-cell {
+  aspect-ratio: 1;
 }
 
 .board-cell :deep(.dwell-button) {
-  border: 0.12rem solid rgb(var(--v-theme-outline-variant));
-  padding: clamp(0.18rem, 0.55vw, 0.45rem) !important;
-}
-
-.board-cell--dark :deep(.dwell-button) {
-  border-color: rgb(var(--v-theme-primary) / 34%);
+  border: 0;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
 }
 
 .cell-content {
   align-items: center;
   block-size: 100%;
-  border-radius: 0.95rem;
   display: flex;
   inline-size: 100%;
   justify-content: center;
-  min-block-size: clamp(2.6rem, 6.3vh, 4.1rem);
   position: relative;
 }
 
@@ -560,49 +564,40 @@ watch(
   background: rgb(var(--v-theme-error) / 12%);
 }
 
-.piece,
-.move-cue {
+/* A checker: a round disc with a rim, like a real wooden piece. */
+.piece {
   align-items: center;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 0 0.18rem rgba(255, 255, 255, 0.35),
+    inset 0 -0.3rem 0 rgba(0, 0, 0, 0.22),
+    0 0.2rem 0.35rem rgba(0, 0, 0, 0.35);
   display: flex;
-  flex-direction: column;
-  font-weight: 800;
-  gap: 0.1rem;
-}
-
-.piece :deep(.v-icon),
-.move-cue :deep(.v-icon) {
-  font-size: clamp(2rem, 4.8vw, 3.35rem);
+  inline-size: 78%;
+  justify-content: center;
 }
 
 .piece--gold {
-  color: #d38b00;
+  background: radial-gradient(circle at 35% 30%, #ffd77a, #d38b00 70%);
 }
 
 .piece--blue {
-  color: #1976d2;
+  background: radial-gradient(circle at 35% 30%, #8cc4ff, #1565c0 70%);
 }
 
-.piece--king {
-  filter: drop-shadow(0 0 0.45rem rgb(255 193 7 / 42%));
-}
-
-.piece-label {
-  color: #17212b !important;
-  font-size: clamp(0.58rem, 1.25vw, 0.78rem);
-  line-height: 1;
+.piece-crown {
+  color: #fff8e1;
+  filter: drop-shadow(0 0.08rem 0.1rem rgba(0, 0, 0, 0.5));
+  font-size: clamp(1.2rem, 4dvh, 2.4rem);
 }
 
 .move-cue {
   color: #0d2a17;
 }
 
-.cell-coordinate {
-  color: #17212b !important;
-  opacity: 0.52;
-}
-
-.light-cell {
-  opacity: 0.24;
+.move-cue :deep(.v-icon) {
+  font-size: clamp(1.6rem, 5dvh, 3rem);
 }
 
 @media (max-height: 68rem) {
@@ -624,10 +619,6 @@ watch(
   .game-card .v-btn {
     display: none !important;
   }
-
-  .board {
-    inline-size: min(94vw, 39rem, 70vh);
-  }
 }
 
 @media (max-height: 50rem) {
@@ -637,30 +628,6 @@ watch(
 
   .game-header {
     display: none !important;
-  }
-
-  .board {
-    gap: 0.18rem;
-    inline-size: min(94vw, 29rem, 58vh);
-  }
-
-  .board-cell :deep(.dwell-button) {
-    min-block-size: 2.65rem !important;
-    padding: 0.2rem !important;
-  }
-
-  .cell-content {
-    min-block-size: 2.35rem;
-  }
-
-  .piece-label,
-  .cell-coordinate {
-    display: none;
-  }
-
-  .piece :deep(.v-icon),
-  .move-cue :deep(.v-icon) {
-    font-size: 1.95rem;
   }
 }
 </style>
