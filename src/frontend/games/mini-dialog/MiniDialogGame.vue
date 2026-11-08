@@ -1,21 +1,20 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
-import GameDwellButton from "../../components/game/GameDwellButton.vue";
+import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { useRoundGame } from "../../composables/useRoundGame";
+import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
 import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
 import {
-  createMiniDialogCommunication,
-  generateMiniDialogRound,
-  getMiniDialogChoice,
-  getMiniDialogNextNodeId,
-  miniDialogInstruction,
-  type MiniDialogChoice,
-  type MiniDialogNodeId,
+  createMiniDialogRoundGenerator,
+  miniDialogPromptAssetId,
+  miniDialogReplyAssetId,
+  type MiniDialogReply,
   type MiniDialogRound,
 } from "./model";
 
@@ -28,102 +27,125 @@ const {
   pauseSession,
   resumeSession,
   recordSuccess,
-  recordHint,
-  finishSession,
+  recordMistake,
   startSession,
+  finishSession,
 } = useGameSessionFor("mini-dialog", {
-  maxSteps: 6,
+  maxSteps: 8,
   overrides: { dwellMs: 1350, sessionSeconds: 135, sound: true },
   finishOnMaxSteps: false,
   finishOnMistakes: false,
 });
+const soundEnabled = toRef(session.settings, "sound");
+const promptAudio = useGamePromptAudio({
+  gameId: "mini-dialog",
+  soundEnabled,
+  warmAssetIds: ["mini-dialog.task.hello", "mini-dialog.mistake"],
+});
+const pianoFeedback = useStandardGameFeedback(soundEnabled);
+const generateRound = createMiniDialogRoundGenerator();
 
-const roundIndex = ref(1);
-const round = ref<MiniDialogRound>(generateMiniDialogRound(roundIndex.value));
-const feedback = ref("Твоя реплика будет озвучена.");
-const isChangingRound = ref(false);
-const selectedChoiceId = ref<string>();
-const resultVisible = computed(() => session.status === "finished");
+const {
+  round,
+  resultVisible,
+  nextRound,
+  restart: restartRounds,
+} = useRoundGame<MiniDialogRound>({
+  session,
+  startSession,
+  generateRound: (roundIndex) => generateRound(roundIndex),
+});
 
-function choiceTargetId(choice: MiniDialogChoice) {
-  return `mini-dialog:choice:${round.value.nodeId}:${choice.id}`;
+const pending = ref(false);
+const wrongChoiceId = ref<string>();
+const successChoiceId = ref<string>();
+const choiceMinHeight = computed(() => "clamp(8.5rem, 27dvh, 15rem)");
+
+function choiceTargetId(choice: MiniDialogReply) {
+  return `mini-dialog:reply:${choice.id}`;
 }
 
-function setRound(nodeId: MiniDialogNodeId) {
-  round.value = generateMiniDialogRound(roundIndex.value, Math.random, nodeId);
+async function playRoundPrompt(delayMs = 0) {
+  pending.value = true;
+  await promptAudio.playSequenceAndWait([miniDialogPromptAssetId(round.value.situation)], delayMs);
+  pending.value = false;
 }
 
-async function playPartnerLine(delayMs = 0) {
-  isChangingRound.value = true;
-  await speakSceneText(round.value.partnerLine, session.settings.sound, delayMs, {
-    gameId: "mini-dialog",
-  });
-  isChangingRound.value = false;
-}
+async function choose(choice: MiniDialogReply) {
+  if (session.status !== "running" || pending.value) return;
+  const expected = round.value.choices[round.value.correctIndex];
 
-async function choose(choiceId: string) {
-  if (session.status !== "running" || isChangingRound.value) return;
-
-  const choice = getMiniDialogChoice(round.value, choiceId);
-  const targetId = choiceTargetId(choice);
-  const communication = createMiniDialogCommunication(choice);
-  isChangingRound.value = true;
-  selectedChoiceId.value = choice.id;
-  feedback.value = `Ты сказал: «${communication.phrase}»`;
-  const payload = {
-    roundId: round.value.roundId,
-    nodeId: round.value.nodeId,
-    targetId,
-    answerId: choice.id,
-    scenario: round.value.scenario,
-    choiceKind: choice.kind,
-    ...communication,
-  };
-  if (choice.kind === "support") recordHint({ ...payload, reason: "requested-help" });
-  else if (choice.kind !== "repeat") recordSuccess(payload);
-
-  await speakSceneText(communication.phrase, session.settings.sound, 80, { gameId: "mini-dialog" });
-
-  const requestedNodeId = getMiniDialogNextNodeId(choice);
-  const canAutoFinish =
-    choice.kind !== "support" && choice.kind !== "repeat" && choice.kind !== "more";
-  const nextNodeId = canAutoFinish && session.step >= session.maxSteps ? "finish" : requestedNodeId;
-  roundIndex.value += 1;
-  setRound(nextNodeId);
-  selectedChoiceId.value = undefined;
-  feedback.value = `Мира отвечает: «${round.value.partnerLine}»`;
-  await playPartnerLine(160);
-
-  if (choice.kind === "support") {
-    feedback.value = "Я помогу. Послушай вопрос ещё раз; можно ответить или отказаться.";
-    await speakSceneText(feedback.value, session.settings.sound, 100, { gameId: "mini-dialog" });
-  }
-
-  if (round.value.isTerminal) {
-    finishSession("game-complete");
+  if (choice.id === expected.id) {
+    pending.value = true;
+    successChoiceId.value = choice.id;
+    recordSuccess({
+      roundId: round.value.roundId,
+      targetId: choiceTargetId(choice),
+      answerId: choice.id,
+      expected: expected.text,
+      actual: choice.text,
+      isCorrect: true,
+      situation: round.value.situation.id,
+    });
+    void pianoFeedback.playSuccess();
+    const finished = session.step >= session.maxSteps;
+    // The child's reply is said aloud: «Привет!».
+    await promptAudio.playSequenceAndWait([miniDialogReplyAssetId(choice)], 80, 200);
+    successChoiceId.value = undefined;
+    if (finished) {
+      finishSession("game-complete");
+      pending.value = false;
+      return;
+    }
+    if (session.status === "running") {
+      nextRound();
+      await playRoundPrompt(160);
+      return;
+    }
+    pending.value = false;
     return;
   }
 
-  feedback.value = round.value.prompt;
+  // No green hint after a mistake (testers): only the chosen card is marked.
+  pending.value = true;
+  wrongChoiceId.value = choice.id;
+  recordMistake({
+    roundId: round.value.roundId,
+    targetId: choiceTargetId(choice),
+    expectedTargetId: choiceTargetId(expected),
+    answerId: choice.id,
+    expected: expected.text,
+    actual: choice.text,
+    isCorrect: false,
+    situation: round.value.situation.id,
+  });
+  void pianoFeedback.playMistake();
+  await promptAudio.playSequenceAndWait(["mini-dialog.mistake"], 80);
+  wrongChoiceId.value = undefined;
+  pending.value = false;
+}
+
+function choiceColor(choice: MiniDialogReply) {
+  if (successChoiceId.value === choice.id) return "green-lighten-4";
+  if (wrongChoiceId.value === choice.id) return "orange-lighten-4";
+  return "surface";
 }
 
 function restart() {
-  cancelSceneSpeech();
-  roundIndex.value = 1;
-  round.value = generateMiniDialogRound(roundIndex.value);
-  feedback.value = "Твоя реплика будет озвучена.";
-  selectedChoiceId.value = undefined;
-  isChangingRound.value = false;
-  startSession();
-  void playPartnerLine(220);
+  promptAudio.cancelPending();
+  wrongChoiceId.value = undefined;
+  successChoiceId.value = undefined;
+  restartRounds();
+  void playRoundPrompt(220);
 }
 
 onMounted(() => {
-  void playPartnerLine(420);
+  promptAudio.warm();
+  void playRoundPrompt(420);
 });
 
 onUnmounted(() => {
-  cancelSceneSpeech();
+  promptAudio.cancelPending();
 });
 </script>
 
@@ -133,98 +155,53 @@ onUnmounted(() => {
       title="Мини-диалог"
       :step="session.step"
       :max-steps="session.maxSteps"
+      :score="session.score"
+      :mistakes="session.mistakes"
       :duration-ms="durationMs"
       :session-seconds="session.settings.sessionSeconds"
       :paused="session.status === 'paused'"
       @pause="pauseSession"
       @resume="resumeSession"
     />
-    <v-container class="game-container" fluid>
-      <v-row justify="center" no-gutters>
-        <v-col cols="12" lg="11" xl="10">
-          <v-card class="mini-dialog-card pa-4 pa-md-6" rounded="xl" elevation="8">
-            <v-alert
-              class="instruction mb-4"
-              color="blue-lighten-5"
-              icon="mdi-message-text-outline"
-              rounded="xl"
-              variant="flat"
-            >
-              <div class="text-h6 text-md-h5 font-weight-bold">{{ miniDialogInstruction }}</div>
-            </v-alert>
-
-            <v-card
-              class="partner-card pa-4 mb-4"
-              color="deep-purple-lighten-5"
-              rounded="xl"
-              variant="flat"
-            >
-              <div class="partner-layout">
-                <div class="partner-person">
-                  <v-avatar :color="round.character.color" size="clamp(4.8rem, 12dvh, 7.5rem)">
-                    <img
-                      class="partner-portrait"
-                      :src="gameArtSrc(round.character.artId)"
-                      :alt="round.character.name"
-                      draggable="false"
-                    />
-                  </v-avatar>
-                  <div class="text-h6 font-weight-bold mt-2">{{ round.character.name }}</div>
-                  <div class="text-body-2 text-medium-emphasis">{{ round.character.role }}</div>
+    <v-container class="game-container game-hud-clear" fluid>
+      <v-row justify="center">
+        <v-col cols="12" lg="10" xl="9">
+          <v-card class="dialog-card pa-4 pa-md-6" rounded="xl" elevation="8">
+            <div class="situation">
+              <img
+                class="situation__mira"
+                :src="gameArtSrc(round.situation.artId)"
+                alt="Мира"
+                draggable="false"
+              />
+              <div class="situation__text">
+                <!-- What Mira says, in a speech bubble pointing at her. -->
+                <div v-if="round.situation.miraLine" class="situation__bubble text-h5 text-md-h4">
+                  {{ round.situation.miraLine }}
                 </div>
-
-                <div class="speech-bubble">
-                  <div class="d-flex align-center ga-3 mb-2">
-                    <v-icon
-                      color="deep-purple-darken-3"
-                      :icon="round.sceneIcon"
-                      size="clamp(2.5rem, 6dvh, 4rem)"
-                    />
-                    <h1 class="partner-line text-h4 text-md-h3 font-weight-bold">
-                      {{ round.partnerLine }}
-                    </h1>
-                  </div>
-                  <div class="text-h6 text-medium-emphasis">{{ round.prompt }}</div>
-                </div>
+                <h1 class="situation__prompt text-h5 text-md-h4 font-weight-bold">
+                  {{ round.situation.prompt }}
+                </h1>
               </div>
-            </v-card>
-
-            <div class="feedback text-h6 text-md-h5 font-weight-bold text-center mb-4">
-              {{ feedback }}
             </div>
 
-            <v-row v-if="!round.isTerminal" justify="center" dense>
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="6" sm="3">
-                <GameDwellButton
-                  :target-id="choiceTargetId(choice)"
-                  :disabled="session.status !== 'running' || isChangingRound"
-                  :dwell-ms="session.settings.dwellMs"
-                  min-height="clamp(7.5rem, 22dvh, 11.5rem)"
-                  :color="selectedChoiceId === choice.id ? choice.iconColor : choice.color"
-                  @select="choose(choice.id)"
-                >
-                  <template #default>
-                    <v-icon
-                      class="choice-icon mb-2"
-                      :color="selectedChoiceId === choice.id ? 'white' : choice.iconColor"
-                      :icon="choice.icon"
-                      size="clamp(2.8rem, 7dvh, 4.8rem)"
-                    />
-                    <div
-                      :class="[
-                        'choice-text',
-                        'text-h6',
-                        'text-md-h5',
-                        'font-weight-bold',
-                        { 'text-white': selectedChoiceId === choice.id },
-                      ]"
-                    >
-                      {{ choice.text }}
-                    </div>
-                  </template>
-                </GameDwellButton>
-              </v-col>
-            </v-row>
+            <GameChoiceCardGrid
+              :choices="round.choices"
+              :target-id="choiceTargetId"
+              :disabled="session.status !== 'running' || pending"
+              :dwell-ms="session.settings.dwellMs"
+              :min-height="choiceMinHeight"
+              :mistake-choice="(choice) => wrongChoiceId === choice.id"
+              :color="choiceColor"
+              @select="choose"
+            >
+              <template #default="{ choice }">
+                <div class="reply">
+                  <img class="reply__art" :src="gameArtSrc(choice.artId)" alt="" draggable="false" />
+                  <div class="text-h6 text-md-h4 font-weight-bold">{{ choice.text }}</div>
+                </div>
+              </template>
+            </GameChoiceCardGrid>
           </v-card>
         </v-col>
       </v-row>
@@ -244,123 +221,69 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.partner-portrait {
-  block-size: 100%;
-  inline-size: 100%;
-  object-fit: cover;
-  object-position: center top;
-}
-
 .mini-dialog-shell {
   background: var(--linka-scene-paper);
   min-block-size: 100vh;
 }
 
-.game-container {
-  padding-block-start: 7.5rem;
-}
-
-.partner-layout {
+.situation {
   align-items: center;
-  display: grid;
-  gap: clamp(1rem, 3vw, 2rem);
-  grid-template-columns: minmax(7rem, 11rem) minmax(0, 1fr);
+  display: flex;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  justify-content: center;
+  margin-block-end: clamp(0.75rem, 2.5dvh, 1.75rem);
 }
 
-.partner-person {
+.situation__mira {
+  block-size: clamp(7rem, 24dvh, 15rem);
+  flex: 0 0 auto;
+  inline-size: clamp(7rem, 24dvh, 15rem);
+  object-fit: contain;
+}
+
+.situation__text {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.4rem, 1.5dvh, 1rem);
+  max-inline-size: 36rem;
+}
+
+.situation__bubble {
+  /* Vuetify theme colours are "r,g,b": rgba(var(), a) works, rgb(var() / a) does not. */
+  background: rgba(var(--v-theme-primary), 0.08);
+  border: 0.18rem solid rgba(var(--v-theme-primary), 0.45);
+  border-radius: 1.25rem;
+  font-weight: 800;
+  padding: 0.3rem 1rem;
+  position: relative;
+}
+
+/* The bubble's tail, towards Mira. */
+.situation__bubble::before {
+  border-block: 0.55rem solid transparent;
+  border-inline-end: 0.8rem solid rgba(var(--v-theme-primary), 0.45);
+  content: "";
+  inset-block-start: 50%;
+  inset-inline-start: -0.85rem;
+  position: absolute;
+  transform: translateY(-50%);
+}
+
+.situation__prompt {
+  line-height: 1.15;
+}
+
+.reply {
   align-items: center;
   display: flex;
   flex-direction: column;
-  text-align: center;
+  gap: 0.35rem;
 }
 
-.speech-bubble {
-  background: rgb(255 255 255 / 86%);
-  border: 0.0625rem solid rgb(var(--v-theme-primary) / 12%);
-  border-radius: 1.75rem;
-  padding: clamp(0.85rem, 2.5dvh, 1.4rem);
-}
-
-.partner-line,
-.choice-text {
-  line-height: 1.12;
-}
-
-.feedback {
-  color: #263238;
-  min-block-size: 1.5em;
-}
-
-@media (max-width: 43.75rem) {
-  .game-container {
-    padding-block-start: 9.5rem;
-  }
-
-  .partner-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .partner-person {
-    display: none;
-  }
-}
-
-@media (max-height: 44rem) {
-  .game-container {
-    padding-block-start: 5rem;
-  }
-
-  .mini-dialog-card {
-    padding: 0.5rem !important;
-  }
-
-  .instruction {
-    margin-block-end: 0.65rem !important;
-    padding-block: 0.45rem !important;
-  }
-
-  .instruction .text-h6 {
-    font-size: 0.95rem !important;
-  }
-
-  .partner-card {
-    margin-block-end: 0.65rem !important;
-    padding: 0.7rem !important;
-  }
-
-  .partner-layout {
-    grid-template-columns: 6rem minmax(0, 1fr);
-  }
-
-  .partner-line {
-    font-size: clamp(1.3rem, 4dvh, 1.8rem) !important;
-  }
-
-  .speech-bubble {
-    padding: 0.65rem 0.85rem;
-  }
-
-  .speech-bubble .text-h6,
-  .feedback {
-    font-size: 1rem !important;
-  }
-
-  .feedback {
-    margin-block-end: 0.65rem !important;
-  }
-
-  .game-container :deep(.dwell-button) {
-    min-block-size: 7.5rem !important;
-    padding: 0.65rem !important;
-  }
-
-  .choice-icon {
-    font-size: clamp(2rem, 6dvh, 3rem) !important;
-    margin-block-end: 0.35rem !important;
-  }
-
-  .choice-text {
-    font-size: clamp(0.95rem, 2.6dvh, 1.2rem) !important;
-  }
+.reply__art {
+  block-size: clamp(5rem, 19dvh, 11rem);
+  inline-size: clamp(5rem, 19dvh, 11rem);
+  object-fit: contain;
 }
 </style>

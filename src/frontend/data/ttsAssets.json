@@ -4186,202 +4186,6 @@
     "path": "/audio/tts/what-first/mistake-peel-eat.mp3"
   },
   {
-    "id": "mini-dialog.partner.hello",
-    "game": "mini-dialog",
-    "text": "Привет! Я Мира. Я рада тебя видеть.",
-    "voice": "alena",
-    "path": "/audio/tts/mini-dialog/partner-hello.mp3"
-  },
-  {
-    "id": "mini-dialog.correct.hello.hello",
-    "game": "mini-dialog",
-    "text": "Привет, Мира.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/correct-hello-hello.mp3"
-  },
-  {
-    "id": "mini-dialog.mistake.hello.more",
-    "game": "mini-dialog",
-    "text": "Ещё будет позже. Сначала скажем привет.",
-    "voice": "julia",
-    "path": "/audio/tts/mini-dialog/mistake-hello-more.mp3"
-  },
-  {
-    "id": "mini-dialog.mistake.hello.bye",
-    "game": "mini-dialog",
-    "text": "Мы только начали. Пока скажем в конце.",
-    "voice": "julia",
-    "path": "/audio/tts/mini-dialog/mistake-hello-bye.mp3"
-  },
-  {
-    "id": "mini-dialog.partner.feeling",
-    "game": "mini-dialog",
-    "text": "Как у тебя дела?",
-    "voice": "alena",
-    "path": "/audio/tts/mini-dialog/partner-feeling.mp3"
-  },
-  {
-    "id": "mini-dialog.correct.feeling.calm",
-    "game": "mini-dialog",
-    "text": "Мне хорошо.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/correct-feeling-calm.mp3"
-  },
-  {
-    "id": "mini-dialog.mistake.feeling.eat",
-    "game": "mini-dialog",
-    "text": "Еда подождёт. Скажи Мире, как у тебя дела.",
-    "voice": "julia",
-    "path": "/audio/tts/mini-dialog/mistake-feeling-eat.mp3"
-  },
-  {
-    "id": "mini-dialog.mistake.feeling.go",
-    "game": "mini-dialog",
-    "text": "Пойдём позже. Сначала ответим Мире.",
-    "voice": "julia",
-    "path": "/audio/tts/mini-dialog/mistake-feeling-go.mp3"
-  },
-  {
-    "id": "mini-dialog.partner.ready",
-    "game": "mini-dialog",
-    "text": "Хочешь посмотреть картинку?",
-    "voice": "alena",
-    "path": "/audio/tts/mini-dialog/partner-ready.mp3"
-  },
-  {
-    "id": "mini-dialog.correct.ready.ready",
-    "game": "mini-dialog",
-    "text": "Да.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/correct-ready-ready.mp3"
-  },
-  {
-    "id": "mini-dialog.mistake.ready.thanks",
-    "game": "mini-dialog",
-    "text": "Спасибо приятно слышать. А на картинку можно ответить: да.",
-    "voice": "julia",
-    "path": "/audio/tts/mini-dialog/mistake-ready-thanks.mp3"
-  },
-  {
-    "id": "mini-dialog.mistake.ready.sleep",
-    "game": "mini-dialog",
-    "text": "Если устал, можно попросить паузу. Сейчас Мира ждёт ответ про картинку.",
-    "voice": "julia",
-    "path": "/audio/tts/mini-dialog/mistake-ready-sleep.mp3"
-  },
-  {
-    "id": "mini-dialog.partner.picture",
-    "game": "mini-dialog",
-    "text": "Вот солнце. Тебе нравится картинка?",
-    "voice": "alena",
-    "path": "/audio/tts/mini-dialog/partner-picture.mp3"
-  },
-  {
-    "id": "mini-dialog.correct.picture.like",
-    "game": "mini-dialog",
-    "text": "Нравится.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/correct-picture-like.mp3"
-  },
-  {
-    "id": "mini-dialog.mistake.picture.help",
-    "game": "mini-dialog",
-    "text": "Мира рядом. Сначала ответим про картинку.",
-    "voice": "julia",
-    "path": "/audio/tts/mini-dialog/mistake-picture-help.mp3"
-  },
-  {
-    "id": "mini-dialog.mistake.picture.bye",
-    "game": "mini-dialog",
-    "text": "До встречи скажем позже. Сейчас мы смотрим картинку.",
-    "voice": "julia",
-    "path": "/audio/tts/mini-dialog/mistake-picture-bye.mp3"
-  },
-  {
-    "id": "mini-dialog.partner.continue",
-    "game": "mini-dialog",
-    "text": "Продолжим диалог или сделаем паузу? Как хочешь?",
-    "voice": "alena",
-    "path": "/audio/tts/mini-dialog/partner-continue.mp3"
-  },
-  {
-    "id": "mini-dialog.correct.continue.continue",
-    "game": "mini-dialog",
-    "text": "Продолжим.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/correct-continue-continue.mp3"
-  },
-  {
-    "id": "mini-dialog.correct.continue.pause",
-    "game": "mini-dialog",
-    "text": "Пауза.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/correct-continue-pause.mp3"
-  },
-  {
-    "id": "mini-dialog.mistake.continue.hungry",
-    "game": "mini-dialog",
-    "text": "Поняла. Сначала скажем Мире: продолжим или пауза.",
-    "voice": "julia",
-    "path": "/audio/tts/mini-dialog/mistake-continue-hungry.mp3"
-  },
-  {
-    "id": "mini-dialog.partner.more",
-    "game": "mini-dialog",
-    "text": "Спасибо, что отвечаешь. Хочешь ещё один вопрос? Ответь: ещё или хватит.",
-    "voice": "alena",
-    "path": "/audio/tts/mini-dialog/partner-more.mp3"
-  },
-  {
-    "id": "mini-dialog.correct.more.more",
-    "game": "mini-dialog",
-    "text": "Ещё.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/correct-more-more.mp3"
-  },
-  {
-    "id": "mini-dialog.correct.more.enough",
-    "game": "mini-dialog",
-    "text": "Хватит.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/correct-more-enough.mp3"
-  },
-  {
-    "id": "mini-dialog.mistake.more.hello",
-    "game": "mini-dialog",
-    "text": "Привет уже был. Теперь можно сказать: ещё или хватит.",
-    "voice": "julia",
-    "path": "/audio/tts/mini-dialog/mistake-more-hello.mp3"
-  },
-  {
-    "id": "mini-dialog.partner.goodbye",
-    "game": "mini-dialog",
-    "text": "Спасибо за разговор. Пора попрощаться.",
-    "voice": "alena",
-    "path": "/audio/tts/mini-dialog/partner-goodbye.mp3"
-  },
-  {
-    "id": "mini-dialog.correct.goodbye.bye",
-    "game": "mini-dialog",
-    "text": "Пока.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/correct-goodbye-bye.mp3"
-  },
-  {
-    "id": "mini-dialog.correct.goodbye.thanks",
-    "game": "mini-dialog",
-    "text": "Спасибо.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/correct-goodbye-thanks.mp3"
-  },
-  {
-    "id": "mini-dialog.mistake.goodbye.again",
-    "game": "mini-dialog",
-    "text": "Начало уже было. Сейчас пора попрощаться.",
-    "voice": "julia",
-    "path": "/audio/tts/mini-dialog/mistake-goodbye-again.mp3"
-  },
-  {
     "id": "social-phrases.prompt.morning-adult",
     "game": "social-phrases",
     "text": "Утром ты видишь знакомого взрослого. Взрослый улыбается тебе. Поздоровайся.",
@@ -8713,230 +8517,6 @@
     "text": "Готово. Порядок действий стал понятнее.",
     "voice": "jane",
     "path": "/audio/tts/what-first/complete.mp3"
-  },
-  {
-    "id": "mini-dialog.mistake",
-    "game": "mini-dialog",
-    "text": "Послушай реплику ещё раз и выбери другой ответ.",
-    "voice": "jane",
-    "path": "/audio/tts/mini-dialog/mistake.mp3"
-  },
-  {
-    "id": "mini-dialog.complete",
-    "game": "mini-dialog",
-    "text": "Спасибо за диалог.",
-    "voice": "jane",
-    "path": "/audio/tts/mini-dialog/complete.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.9ca8e214",
-    "game": "mini-dialog",
-    "text": "Я Мира.",
-    "voice": "alena",
-    "path": "/audio/tts/mini-dialog/scene-9ca8e214.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.e89aa7f0",
-    "game": "mini-dialog",
-    "text": "Хочешь немного поговорить?",
-    "voice": "alena",
-    "path": "/audio/tts/mini-dialog/scene-e89aa7f0.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.858ed0c1",
-    "game": "mini-dialog",
-    "text": "Да, я хочу поговорить.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/scene-858ed0c1.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.bef7a7a3",
-    "game": "mini-dialog",
-    "text": "Нет, я не хочу разговаривать.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/scene-bef7a7a3.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.69eec7d0",
-    "game": "mini-dialog",
-    "text": "Помоги мне ответить, пожалуйста.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/scene-69eec7d0.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.01ed6960",
-    "game": "mini-dialog",
-    "text": "Скажи ещё раз, пожалуйста.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/scene-01ed6960.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.f0195cbe",
-    "game": "mini-dialog",
-    "text": "Как ты себя чувствуешь сейчас?",
-    "voice": "alena",
-    "path": "/audio/tts/mini-dialog/scene-f0195cbe.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.e1337a1d",
-    "game": "mini-dialog",
-    "text": "Мне грустно.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/scene-e1337a1d.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.26e2345d",
-    "game": "mini-dialog",
-    "text": "Я устал.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/scene-26e2345d.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.9ffda32d",
-    "game": "mini-dialog",
-    "text": "Я не хочу отвечать.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/scene-9ffda32d.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.275fddbc",
-    "game": "mini-dialog",
-    "text": "Спасибо, что ответил.",
-    "voice": "alena",
-    "path": "/audio/tts/mini-dialog/scene-275fddbc.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.1bc07e0c",
-    "game": "mini-dialog",
-    "text": "Хочешь посмотреть картинку с солнцем?",
-    "voice": "alena",
-    "path": "/audio/tts/mini-dialog/scene-1bc07e0c.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.68e4982c",
-    "game": "mini-dialog",
-    "text": "Да, я хочу посмотреть.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/scene-68e4982c.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.9288f381",
-    "game": "mini-dialog",
-    "text": "Нет, я не хочу смотреть.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/scene-9288f381.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.4848db1c",
-    "game": "mini-dialog",
-    "text": "Помоги мне посмотреть, пожалуйста.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/scene-4848db1c.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.1b19e11c",
-    "game": "mini-dialog",
-    "text": "Стоп, пожалуйста.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/scene-1b19e11c.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.65899351",
-    "game": "mini-dialog",
-    "text": "Вот солнце.",
-    "voice": "alena",
-    "path": "/audio/tts/mini-dialog/scene-65899351.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.c3172fed",
-    "game": "mini-dialog",
-    "text": "Что ты хочешь сказать о картинке?",
-    "voice": "alena",
-    "path": "/audio/tts/mini-dialog/scene-c3172fed.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.16c2624a",
-    "game": "mini-dialog",
-    "text": "Мне нравится эта картинка.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/scene-16c2624a.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.3d8d2305",
-    "game": "mini-dialog",
-    "text": "Мне не нравится эта картинка.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/scene-3d8d2305.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.5cab8069",
-    "game": "mini-dialog",
-    "text": "Расскажи ещё, пожалуйста.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/scene-5cab8069.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.60c05e01",
-    "game": "mini-dialog",
-    "text": "Хочешь поговорить ещё?",
-    "voice": "alena",
-    "path": "/audio/tts/mini-dialog/scene-60c05e01.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.9ceab3fa",
-    "game": "mini-dialog",
-    "text": "Да, давай ещё.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/scene-9ceab3fa.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.d6e224dc",
-    "game": "mini-dialog",
-    "text": "Нет, спасибо.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/scene-d6e224dc.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.b9909b9c",
-    "game": "mini-dialog",
-    "text": "Помоги мне выбрать, пожалуйста.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/scene-b9909b9c.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.b03f4fe6",
-    "game": "mini-dialog",
-    "text": "Я хочу остановиться.",
-    "voice": "filipp",
-    "path": "/audio/tts/mini-dialog/scene-b03f4fe6.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.276d5375",
-    "game": "mini-dialog",
-    "text": "Хорошо.",
-    "voice": "alena",
-    "path": "/audio/tts/mini-dialog/scene-276d5375.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.ab77230a",
-    "game": "mini-dialog",
-    "text": "Спасибо за разговор.",
-    "voice": "alena",
-    "path": "/audio/tts/mini-dialog/scene-ab77230a.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.c33dd193",
-    "game": "mini-dialog",
-    "text": "Я помогу.",
-    "voice": "julia",
-    "path": "/audio/tts/mini-dialog/scene-c33dd193.mp3"
-  },
-  {
-    "id": "mini-dialog.scene.327fa782",
-    "game": "mini-dialog",
-    "text": "Послушай вопрос ещё раз; можно ответить или отказаться.",
-    "voice": "julia",
-    "path": "/audio/tts/mini-dialog/scene-327fa782.mp3"
   },
   {
     "id": "social-phrases.mistake",
@@ -13886,5 +13466,68 @@
     "text": "Посмотри на арбуз ещё раз и выбери другую долю.",
     "voice": "jane",
     "path": "/audio/tts/pizza-fractions/mistake-watermelon.mp3"
+  },
+  {
+    "id": "mini-dialog.task.hello",
+    "game": "mini-dialog",
+    "text": "Мира сказала тебе привет. Выбери, как ей ответить.",
+    "voice": "jane",
+    "path": "/audio/tts/mini-dialog/task-hello.mp3"
+  },
+  {
+    "id": "mini-dialog.task.bye",
+    "game": "mini-dialog",
+    "text": "Мира говорит тебе пока. Что нужно ответить?",
+    "voice": "jane",
+    "path": "/audio/tts/mini-dialog/task-bye.mp3"
+  },
+  {
+    "id": "mini-dialog.task.apple",
+    "game": "mini-dialog",
+    "text": "Мира угостила тебя яблоком. Что нужно ответить?",
+    "voice": "jane",
+    "path": "/audio/tts/mini-dialog/task-apple.mp3"
+  },
+  {
+    "id": "mini-dialog.task.thanks",
+    "game": "mini-dialog",
+    "text": "Мира сказала тебе спасибо. Что нужно ответить?",
+    "voice": "jane",
+    "path": "/audio/tts/mini-dialog/task-thanks.mp3"
+  },
+  {
+    "id": "mini-dialog.reply.hello",
+    "game": "mini-dialog",
+    "text": "Привет!",
+    "voice": "jane",
+    "path": "/audio/tts/mini-dialog/reply-hello.mp3"
+  },
+  {
+    "id": "mini-dialog.reply.bye",
+    "game": "mini-dialog",
+    "text": "Пока!",
+    "voice": "jane",
+    "path": "/audio/tts/mini-dialog/reply-bye.mp3"
+  },
+  {
+    "id": "mini-dialog.reply.thanks",
+    "game": "mini-dialog",
+    "text": "Спасибо!",
+    "voice": "jane",
+    "path": "/audio/tts/mini-dialog/reply-thanks.mp3"
+  },
+  {
+    "id": "mini-dialog.reply.please",
+    "game": "mini-dialog",
+    "text": "Пожалуйста!",
+    "voice": "jane",
+    "path": "/audio/tts/mini-dialog/reply-please.mp3"
+  },
+  {
+    "id": "mini-dialog.mistake",
+    "game": "mini-dialog",
+    "text": "Почти. Подумай, что нужно ответить Мире.",
+    "voice": "jane",
+    "path": "/audio/tts/mini-dialog/mistake.mp3"
   }
 ]
