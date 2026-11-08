@@ -67,8 +67,54 @@ describe("battleship", () => {
 
   it("has a recording for every phrase", () => {
     const ids = new Set(ttsAssets.map((asset) => asset.id));
-    for (const id of ["prompt", "miss", "hit", "sunk", "complete"]) {
+    for (const id of [
+      "prompt",
+      "miss",
+      "hit",
+      "sunk",
+      "complete",
+      "mode",
+      "place",
+      "battle-start",
+      "your-turn",
+      "computer-turn",
+      "computer-miss",
+      "computer-hit",
+      "computer-sunk",
+      "win",
+      "lose",
+    ]) {
       expect(ids.has(`battleship-light.${id}`)).toBe(true);
+    }
+  });
+});
+
+describe("battle with the computer", () => {
+  it("lets a ship stand only inside the field and away from other ships", async () => {
+    const { canPlaceShip, shipCellsFrom } = await import("./model");
+    const first = { id: "ship-1", length: 3, orientation: "horizontal" as const, cells: [0, 1, 2] };
+    expect(canPlaceShip(5, [], shipCellsFrom(5, 3, 3, "horizontal"))).toBe(false);
+    expect(canPlaceShip(5, [first], shipCellsFrom(5, 5, 2, "horizontal"))).toBe(false);
+    expect(canPlaceShip(5, [first], shipCellsFrom(5, 10, 2, "horizontal"))).toBe(true);
+    expect(canPlaceShip(5, [first], shipCellsFrom(5, 4, 2, "vertical"))).toBe(true);
+  });
+
+  it("the computer finishes a hit ship before shooting at random", async () => {
+    const { chooseComputerShot, createBattleshipBoardFromShips } = await import("./model");
+    const ship = {
+      id: "ship-1",
+      length: 3,
+      orientation: "horizontal" as const,
+      cells: [11, 12, 13],
+    };
+    const board = createBattleshipBoardFromShips(5, [ship]);
+    board.shots.add(12);
+    for (let seed = 1; seed <= 20; seed += 1) {
+      expect([7, 11, 13, 17]).toContain(chooseComputerShot(board, seededRandom(seed)));
+    }
+    board.shots.add(13);
+    for (let seed = 1; seed <= 20; seed += 1) {
+      expect([11, 14]).toContain(chooseComputerShot(board, seededRandom(seed)));
     }
   });
 });

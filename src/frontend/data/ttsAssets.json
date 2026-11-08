@@ -13039,5 +13039,75 @@
     "text": "Все корабли найдены!",
     "voice": "jane",
     "path": "/audio/tts/battleship-light/complete.mp3"
+  },
+  {
+    "id": "battleship-light.mode",
+    "game": "battleship-light",
+    "text": "Как будем играть?",
+    "voice": "jane",
+    "path": "/audio/tts/battleship-light/mode.mp3"
+  },
+  {
+    "id": "battleship-light.place",
+    "game": "battleship-light",
+    "text": "Расставь свои корабли. Посмотри на клетку, где начнётся корабль.",
+    "voice": "jane",
+    "path": "/audio/tts/battleship-light/place.mp3"
+  },
+  {
+    "id": "battleship-light.battle-start",
+    "game": "battleship-light",
+    "text": "Корабли готовы. Твой ход: стреляй по полю компьютера.",
+    "voice": "jane",
+    "path": "/audio/tts/battleship-light/battle-start.mp3"
+  },
+  {
+    "id": "battleship-light.your-turn",
+    "game": "battleship-light",
+    "text": "Твой ход.",
+    "voice": "jane",
+    "path": "/audio/tts/battleship-light/your-turn.mp3"
+  },
+  {
+    "id": "battleship-light.computer-turn",
+    "game": "battleship-light",
+    "text": "Ход компьютера.",
+    "voice": "jane",
+    "path": "/audio/tts/battleship-light/computer-turn.mp3"
+  },
+  {
+    "id": "battleship-light.computer-miss",
+    "game": "battleship-light",
+    "text": "Компьютер промахнулся.",
+    "voice": "jane",
+    "path": "/audio/tts/battleship-light/computer-miss.mp3"
+  },
+  {
+    "id": "battleship-light.computer-hit",
+    "game": "battleship-light",
+    "text": "Компьютер попал.",
+    "voice": "jane",
+    "path": "/audio/tts/battleship-light/computer-hit.mp3"
+  },
+  {
+    "id": "battleship-light.computer-sunk",
+    "game": "battleship-light",
+    "text": "Компьютер потопил твой корабль.",
+    "voice": "jane",
+    "path": "/audio/tts/battleship-light/computer-sunk.mp3"
+  },
+  {
+    "id": "battleship-light.win",
+    "game": "battleship-light",
+    "text": "Ты победил! Все корабли компьютера потоплены.",
+    "voice": "jane",
+    "path": "/audio/tts/battleship-light/win.mp3"
+  },
+  {
+    "id": "battleship-light.lose",
+    "game": "battleship-light",
+    "text": "Компьютер победил. Попробуем ещё раз?",
+    "voice": "jane",
+    "path": "/audio/tts/battleship-light/lose.mp3"
   }
 ]
