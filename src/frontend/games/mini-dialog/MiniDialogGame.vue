@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -60,6 +60,17 @@ const pending = ref(false);
 const wrongChoiceId = ref<string>();
 const successChoiceId = ref<string>();
 const choiceMinHeight = computed(() => "clamp(8.5rem, 27dvh, 15rem)");
+let promptOnResume = false;
+
+watch(
+  () => session.status,
+  (status, previous) => {
+    if (status === "running" && previous === "paused" && promptOnResume) {
+      promptOnResume = false;
+      void playRoundPrompt(200);
+    }
+  },
+);
 
 function choiceTargetId(choice: MiniDialogReply) {
   return `mini-dialog:reply:${choice.id}`;
@@ -97,11 +108,14 @@ async function choose(choice: MiniDialogReply) {
       pending.value = false;
       return;
     }
+    // The answered round is done even if the game was paused meanwhile (Codex P2):
+    // move on now, and say the new task when the game runs again.
+    nextRound();
     if (session.status === "running") {
-      nextRound();
       await playRoundPrompt(160);
       return;
     }
+    promptOnResume = true;
     pending.value = false;
     return;
   }
@@ -133,6 +147,7 @@ function choiceColor(choice: MiniDialogReply) {
 
 function restart() {
   promptAudio.cancelPending();
+  promptOnResume = false;
   wrongChoiceId.value = undefined;
   successChoiceId.value = undefined;
   restartRounds();
