@@ -456,48 +456,52 @@ watch(
                      stand next to the board instead, as on a real one. -->
                 <div class="board-frame">
                   <div class="board-ranks" aria-hidden="true">
-                    <span v-for="rank in boardRanks" :key="rank" class="board-coord">{{ rank }}</span>
+                    <span v-for="rank in boardRanks" :key="rank" class="board-coord">{{
+                      rank
+                    }}</span>
                   </div>
-                <div class="board-grid" role="grid" aria-label="Шахматная доска восемь на восемь">
-                  <button
-                    v-for="cell in cells"
-                    :key="`${fen}-${cell.index}`"
-                    type="button"
-                    class="board-cell"
-                    :disabled="
-                      session.status !== 'running' ||
-                      pending ||
-                      sideToMove !== 'white' ||
-                      status !== 'playing'
-                    "
-                    :style="{
-                      '--board-cell-color': cellColor(cell.index, cell.piece),
-                    }"
-                    @click="chooseCell(cell.index)"
-                  >
-                    <div
-                      class="cell-content"
-                      :class="cellClasses(cell.index, cell.piece)"
-                      :aria-label="`${cell.label}: ${pieceLabel(cell.piece)}`"
+                  <div class="board-grid" role="grid" aria-label="Шахматная доска восемь на восемь">
+                    <button
+                      v-for="cell in cells"
+                      :key="`${fen}-${cell.index}`"
+                      type="button"
+                      class="board-cell"
+                      :disabled="
+                        session.status !== 'running' ||
+                        pending ||
+                        sideToMove !== 'white' ||
+                        status !== 'playing'
+                      "
+                      :style="{
+                        '--board-cell-color': cellColor(cell.index, cell.piece),
+                      }"
+                      @click="chooseCell(cell.index)"
                     >
-                      <img
-                        v-if="pieceArt(cell.piece)"
-                        :src="pieceArt(cell.piece)"
-                        class="piece-art"
-                        alt=""
-                      />
-                      <v-icon
-                        v-else-if="selectedTargets.has(cell.index)"
-                        icon="mdi-circle-outline"
-                        class="target-icon"
-                        size="clamp(1.2rem, 3dvh, 2.2rem)"
-                      />
-                    </div>
-                  </button>
-                </div>
+                      <div
+                        class="cell-content"
+                        :class="cellClasses(cell.index, cell.piece)"
+                        :aria-label="`${cell.label}: ${pieceLabel(cell.piece)}`"
+                      >
+                        <img
+                          v-if="pieceArt(cell.piece)"
+                          :src="pieceArt(cell.piece)"
+                          class="piece-art"
+                          alt=""
+                        />
+                        <v-icon
+                          v-else-if="selectedTargets.has(cell.index)"
+                          icon="mdi-circle-outline"
+                          class="target-icon"
+                          size="clamp(1.2rem, 3dvh, 2.2rem)"
+                        />
+                      </div>
+                    </button>
+                  </div>
                   <span class="board-corner" aria-hidden="true" />
                   <div class="board-files" aria-hidden="true">
-                    <span v-for="file in boardFiles" :key="file" class="board-coord">{{ file }}</span>
+                    <span v-for="file in boardFiles" :key="file" class="board-coord">{{
+                      file
+                    }}</span>
                   </div>
                 </div>
               </section>
