@@ -21,9 +21,19 @@ export const socialPhrases: SocialPhrase[] = [
   { id: "eat", label: "Хочу есть", phrase: "Я хочу есть.", artId: "social-phrases/eat" },
   { id: "drink", label: "Хочу пить", phrase: "Я хочу пить.", artId: "i-want/water" },
   { id: "rest", label: "Хочу отдохнуть", phrase: "Я хочу отдохнуть.", artId: "i-want/rest" },
-  { id: "toilet", label: "Хочу в туалет", phrase: "Я хочу в туалет.", artId: "social-phrases/toilet" },
+  {
+    id: "toilet",
+    label: "Хочу в туалет",
+    phrase: "Я хочу в туалет.",
+    artId: "social-phrases/toilet",
+  },
   { id: "play", label: "Хочу играть", phrase: "Я хочу играть.", artId: "social-phrases/play" },
-  { id: "help", label: "Помоги мне", phrase: "Помоги мне, пожалуйста.", artId: "social-phrases/help" },
+  {
+    id: "help",
+    label: "Помоги мне",
+    phrase: "Помоги мне, пожалуйста.",
+    artId: "social-phrases/help",
+  },
 ];
 
 export function socialPhraseAssetId(phrase: SocialPhrase) {

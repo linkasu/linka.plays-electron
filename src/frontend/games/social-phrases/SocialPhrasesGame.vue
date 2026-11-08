@@ -129,7 +129,12 @@ onUnmounted(() => {
             >
               <template #default="{ choice }">
                 <div class="phrase">
-                  <img class="phrase__art" :src="gameArtSrc(choice.artId)" alt="" draggable="false" />
+                  <img
+                    class="phrase__art"
+                    :src="gameArtSrc(choice.artId)"
+                    alt=""
+                    draggable="false"
+                  />
                   <div class="text-subtitle-1 text-md-h5 font-weight-bold">{{ choice.label }}</div>
                 </div>
               </template>

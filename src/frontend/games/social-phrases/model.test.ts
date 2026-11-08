@@ -10,7 +10,14 @@ import {
 describe("social phrases board", () => {
   it("has the phrases the testers asked for, each with its own picture", () => {
     const labels = socialPhrases.map((phrase) => phrase.label);
-    for (const label of ["Да", "Нет", "Хочу отдохнуть", "Хочу есть", "Хочу пить", "Хочу в туалет"]) {
+    for (const label of [
+      "Да",
+      "Нет",
+      "Хочу отдохнуть",
+      "Хочу есть",
+      "Хочу пить",
+      "Хочу в туалет",
+    ]) {
       expect(labels).toContain(label);
     }
     expect(new Set(socialPhrases.map((phrase) => phrase.id)).size).toBe(socialPhrases.length);
