@@ -450,8 +450,9 @@ onUnmounted(() => {
         <!-- Testers: «на карточку с подсказкой нажать глазами невозможно». -->
         <v-row class="hint-row" align="stretch" dense>
           <v-col cols="12" sm="8">
+            <!-- Testers: «текст в подсказке и в ответе можно сделать покрупнее». -->
             <v-alert
-              class="fill-height"
+              class="fill-height feedback-alert text-h6 text-md-h5 font-weight-bold"
               color="primary"
               icon="mdi-ear-hearing"
               rounded="xl"
@@ -475,8 +476,10 @@ onUnmounted(() => {
               color="blue-grey-darken-2"
               @select="revealHint"
             >
-              <v-icon class="me-2" icon="mdi-lightbulb-on-outline" />
-              {{ hintVisible ? "Подсказка показана" : "Показать подсказку" }}
+              <span class="hint-label text-h6 text-md-h5 font-weight-bold">
+                <v-icon class="me-2" icon="mdi-lightbulb-on-outline" />
+                {{ hintVisible ? "Подсказка показана" : "Показать подсказку" }}
+              </span>
             </GameDwellButton>
           </v-col>
         </v-row>
@@ -543,7 +546,7 @@ onUnmounted(() => {
                 }}</span>
                 <v-icon v-else class="source-icon" :icon="source.icon" />
                 <div class="text-h6 text-md-h4 font-weight-bold mt-2">{{ source.title }}</div>
-                <div class="source-caption text-body-2 mt-1">
+                <div class="source-caption text-subtitle-1 text-md-h6 font-weight-bold mt-1">
                   {{
                     selectedSourceId === source.id
                       ? "Да, так звучит"
