@@ -11,17 +11,24 @@ import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
   allShipsSunk,
-  battleshipColumnLetters,
   battleshipLayoutFor,
-  cellRowColumn,
+  canPlaceShip,
+  chooseComputerShot,
   createBattleshipBoard,
+  createBattleshipBoardFromShips,
   isCellOpen,
   isShipSunk,
-  shipAt,
+  placeBattleshipFleet,
+  shipCellsFrom,
   shootBattleship,
   type BattleshipBoard,
+  type BattleshipOrientation,
   type BattleshipShip,
 } from "./model";
+import SeaBoard from "./SeaBoard.vue";
+
+type Phase = "choose" | "search" | "place" | "battle";
+type Mode = "search" | "versus";
 
 const router = useRouter();
 const {
@@ -37,85 +44,178 @@ const {
   finishSession,
 } = useGameSessionFor("battleship-light", {
   maxSteps: 6,
-  overrides: { sound: true, sessionSeconds: 600 },
+  overrides: { sound: true, sessionSeconds: 900 },
   finishOnMaxSteps: false,
   finishOnMistakes: false,
   finishOnTimeout: false,
+  // The game starts after the mode is chosen.
+  autoStart: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
 const promptAudio = useGamePromptAudio({
   gameId: "battleship-light",
   soundEnabled,
-  warmAssetIds: ["battleship-light.prompt", "battleship-light.miss", "battleship-light.hit"],
+  warmAssetIds: ["battleship-light.mode", "battleship-light.miss", "battleship-light.hit"],
 });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
 const layout = computed(() => battleshipLayoutFor(session.settings.preset));
-const board = shallowRef<BattleshipBoard>(createBattleshipBoard(layout.value));
-/** Bumped after every shot: the board keeps Sets, which Vue does not watch. */
+const totalShipCells = computed(() => layout.value.ships.reduce((sum, length) => sum + length, 0));
+
+const phase = ref<Phase>("choose");
+const mode = ref<Mode>("search");
+/** The computer's ships: the child shoots here. */
+const enemy = shallowRef<BattleshipBoard>(createBattleshipBoard(layout.value));
+/** The child's ships (battle with the computer). */
+const own = shallowRef<BattleshipBoard>(createBattleshipBoardFromShips(layout.value.size, []));
+const placed = ref<BattleshipShip[]>([]);
+const orientation = ref<BattleshipOrientation>("horizontal");
+const turn = ref<"player" | "computer">("player");
+/** Bumped after every change: boards keep Sets, which Vue does not watch. */
 const version = ref(0);
 const pending = ref(false);
-const lastShot = ref<{ index: number; text: string }>();
+const message = ref("");
+let disposed = false;
+
 const resultVisible = computed(() => session.status === "finished");
-
-const cells = computed(() => {
+const nextShipLength = computed(() => layout.value.ships[placed.value.length]);
+const placingBoard = computed(() => {
   void version.value;
-  const b = board.value;
-  return Array.from({ length: b.size * b.size }, (_, index) => {
-    const ship = shipAt(b, index);
-    const shot = b.shots.has(index);
-    return {
-      index,
-      state: shot ? (ship ? "hit" : "miss") : b.cleared.has(index) ? "cleared" : "open",
-    } as const;
-  });
+  return createBattleshipBoardFromShips(layout.value.size, placed.value);
 });
 
-const sunkShips = computed(() => {
+const enemyFleet = computed(() => {
   void version.value;
-  return board.value.ships.filter((ship) => isShipSunk(board.value, ship));
+  return enemy.value.ships.map((ship) => ({ ship, sunk: isShipSunk(enemy.value, ship) }));
 });
 
-const fleet = computed(() => {
-  void version.value;
-  return board.value.ships.map((ship) => ({ ship, sunk: isShipSunk(board.value, ship) }));
-});
+const wait = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms));
 
-const totalShipCells = computed(() => layout.value.ships.reduce((sum, length) => sum + length, 0));
-const rowNumbers = computed(() => Array.from({ length: board.value.size }, (_, i) => i + 1));
-const columnLetters = computed(() => battleshipColumnLetters.slice(0, board.value.size));
-
-function cellTargetId(index: number) {
-  return `battleship-light:cell:${index}`;
+async function say(assetId: string, delayMs = 40) {
+  await promptAudio.playSequenceAndWait([`battleship-light.${assetId}`], delayMs);
 }
 
-/** A sunk ship is drawn over its squares. */
-function shipStyle(ship: BattleshipShip) {
-  const size = board.value.size;
-  const { row, column } = cellRowColumn(size, ship.cells[0]);
-  const along = `${(ship.length / size) * 100}%`;
-  const across = `${(1 / size) * 100}%`;
-  return {
-    insetInlineStart: `${(column / size) * 100}%`,
-    insetBlockStart: `${(row / size) * 100}%`,
-    inlineSize: ship.orientation === "horizontal" ? along : across,
-    blockSize: ship.orientation === "horizontal" ? across : along,
-  };
+/** Waits while the game is paused; false when it has ended meanwhile. */
+async function whileRunning() {
+  while (!disposed && session.status === "paused") await wait(300);
+  return !disposed && session.status === "running";
+}
+
+// --- Mode choice ---------------------------------------------------------
+
+function chooseMode(next: Mode) {
+  mode.value = next;
+  startSession();
+  if (next === "search") void startSearch();
+  else void startPlacing();
+}
+
+async function startSearch() {
+  enemy.value = createBattleshipBoard(layout.value);
+  version.value += 1;
+  message.value = "";
+  phase.value = "search";
+  pending.value = true;
+  await say("prompt", 220);
+  pending.value = false;
+}
+
+// --- Placing own ships ---------------------------------------------------
+
+async function startPlacing() {
+  placed.value = [];
+  orientation.value = "horizontal";
+  version.value += 1;
+  message.value = "";
+  phase.value = "place";
+  pending.value = true;
+  await say("place", 220);
+  pending.value = false;
+}
+
+function canStartShipAt(index: number) {
+  const length = nextShipLength.value;
+  if (!length) return false;
+  return canPlaceShip(
+    layout.value.size,
+    placed.value,
+    shipCellsFrom(layout.value.size, index, length, orientation.value),
+  );
+}
+
+function placeShipAt(index: number) {
+  const length = nextShipLength.value;
+  const cells = length && shipCellsFrom(layout.value.size, index, length, orientation.value);
+  if (!length || !cells || !canStartShipAt(index)) return;
+  placed.value = [
+    ...placed.value,
+    { id: `own-${placed.value.length + 1}`, length, orientation: orientation.value, cells },
+  ];
+  version.value += 1;
+  if (placed.value.length === layout.value.ships.length) void startBattle();
+}
+
+function rotate() {
+  orientation.value = orientation.value === "horizontal" ? "vertical" : "horizontal";
+}
+
+function placeForMe() {
+  // The child's ships so far stay; the rest are placed around them.
+  for (let attempt = 0; attempt < 50; attempt += 1) {
+    const rest = placeBattleshipFleet({
+      size: layout.value.size,
+      ships: layout.value.ships.slice(placed.value.length),
+    });
+    if (rest.every((ship) => canPlaceShip(layout.value.size, placed.value, ship.cells))) {
+      placed.value = [
+        ...placed.value,
+        ...rest.map((ship, i) => ({ ...ship, id: `own-${placed.value.length + i + 1}` })),
+      ];
+      version.value += 1;
+      void startBattle();
+      return;
+    }
+  }
+  placed.value = placeBattleshipFleet(layout.value).map((ship, i) => ({
+    ...ship,
+    id: `own-${i + 1}`,
+  }));
+  version.value += 1;
+  void startBattle();
+}
+
+// --- Battle --------------------------------------------------------------
+
+async function startBattle() {
+  own.value = createBattleshipBoardFromShips(layout.value.size, placed.value);
+  enemy.value = createBattleshipBoard(layout.value);
+  turn.value = "player";
+  version.value += 1;
+  phase.value = "battle";
+  message.value = "Твой ход";
+  pending.value = true;
+  await say("battle-start", 200);
+  pending.value = false;
 }
 
 async function shoot(index: number) {
-  if (session.status !== "running" || pending.value || !isCellOpen(board.value, index)) return;
-  const outcome = shootBattleship(board.value, index);
+  if (session.status !== "running" || pending.value || !isCellOpen(enemy.value, index)) return;
+  if (phase.value === "battle" && turn.value !== "player") return;
+  const outcome = shootBattleship(enemy.value, index);
   if (!outcome) return;
   version.value += 1;
   pending.value = true;
-  const targetId = cellTargetId(index);
+  const targetId = `battleship-light:cell:${index}`;
 
   if (outcome.result === "miss") {
     // A miss is part of the search, not a mistake.
-    lastShot.value = { index, text: "Мимо" };
+    message.value = "Мимо";
     recordEvent("target-click", { targetId, cell: index, result: "miss" });
-    await promptAudio.playSequenceAndWait(["battleship-light.miss"], 40);
+    await say("miss");
+    if (phase.value === "battle") {
+      await computerTurn();
+      return;
+    }
     pending.value = false;
     return;
   }
@@ -128,48 +228,78 @@ async function shoot(index: number) {
   });
   void feedbackAudio.playSuccess();
   if (outcome.result === "hit") {
-    lastShot.value = { index, text: "Попал!" };
-    await promptAudio.playSequenceAndWait(["battleship-light.hit"], 40);
+    message.value = "Попал!";
+    await say("hit");
     pending.value = false;
     return;
   }
 
-  lastShot.value = { index, text: "Корабль потоплен!" };
-  recordEvent("target-click", {
-    result: "sunk",
-    shipId: outcome.ship?.id,
-    length: outcome.ship?.length,
-  });
-  if (allShipsSunk(board.value)) {
-    await promptAudio.playSequenceAndWait(["battleship-light.complete"], 40);
+  message.value = "Корабль потоплен!";
+  recordEvent("target-click", { targetId, result: "sunk", length: outcome.ship?.length });
+  if (allShipsSunk(enemy.value)) {
+    await say(phase.value === "battle" ? "win" : "complete");
     finishSession("game-complete");
     pending.value = false;
     return;
   }
-  await promptAudio.playSequenceAndWait(["battleship-light.sunk"], 40);
+  await say("sunk");
   pending.value = false;
 }
 
-function newBoard() {
-  board.value = createBattleshipBoard(layout.value);
-  version.value += 1;
-  lastShot.value = undefined;
+/** The computer shoots until it misses (a hit gives one more shot, as in the real game). */
+async function computerTurn() {
+  turn.value = "computer";
+  message.value = "Ход компьютера";
+  await wait(500);
+  if (!(await whileRunning())) return;
+  await say("computer-turn");
+  for (;;) {
+    await wait(700);
+    if (!(await whileRunning())) return;
+    const index = chooseComputerShot(own.value);
+    const outcome = index === undefined ? undefined : shootBattleship(own.value, index);
+    version.value += 1;
+    if (!outcome || outcome.result === "miss") {
+      message.value = "Компьютер промахнулся";
+      await say("computer-miss");
+      break;
+    }
+    if (outcome.result === "hit") {
+      message.value = "Компьютер попал";
+      await say("computer-hit");
+      continue;
+    }
+    message.value = "Компьютер потопил твой корабль";
+    if (allShipsSunk(own.value)) {
+      await say("lose");
+      finishSession("game-lost");
+      pending.value = false;
+      return;
+    }
+    await say("computer-sunk");
+  }
+  if (!(await whileRunning())) return;
+  turn.value = "player";
+  message.value = "Твой ход";
+  await say("your-turn");
+  pending.value = false;
 }
 
 function restart() {
   promptAudio.cancelPending();
   pending.value = false;
-  newBoard();
   startSession();
-  void promptAudio.playSequenceAndWait(["battleship-light.prompt"], 220);
+  if (mode.value === "versus") void startPlacing();
+  else void startSearch();
 }
 
 onMounted(() => {
   promptAudio.warm();
-  void promptAudio.playSequenceAndWait(["battleship-light.prompt"], 420);
+  void say("mode", 420);
 });
 
 onUnmounted(() => {
+  disposed = true;
   promptAudio.cancelPending();
 });
 </script>
@@ -189,78 +319,77 @@ onUnmounted(() => {
     />
     <v-container class="game-container game-hud-clear" fluid>
       <v-card class="pa-3 pa-md-4" rounded="xl" elevation="8">
-        <div class="battle-layout">
-          <section class="sea-frame" aria-label="Поле морского боя">
-            <span class="sea-corner" aria-hidden="true" />
-            <div class="sea-letters" aria-hidden="true">
-              <span v-for="letter in columnLetters" :key="letter" class="sea-coord">{{
-                letter
-              }}</span>
-            </div>
-            <div class="sea-numbers" aria-hidden="true">
-              <span v-for="number in rowNumbers" :key="number" class="sea-coord">{{ number }}</span>
-            </div>
-            <div
-              class="sea"
-              role="grid"
-              :style="{ '--sea-size': board.size }"
-              aria-label="Клетки поля соперника"
+        <!-- Mode choice -->
+        <div v-if="phase === 'choose'" class="mode-choice">
+          <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-4">Как будем играть?</h1>
+          <div class="mode-grid">
+            <GameDwellButton
+              target-id="battleship-light:mode:search"
+              :dwell-ms="session.settings.dwellMs"
+              min-height="clamp(10rem, 40dvh, 22rem)"
+              @select="chooseMode('search')"
             >
-              <GameDwellButton
-                v-for="cell in cells"
-                :key="cell.index"
-                class="sea-cell"
-                :class="`sea-cell--${cell.state}`"
-                :target-id="cellTargetId(cell.index)"
-                :disabled="session.status !== 'running' || pending || cell.state !== 'open'"
-                :dwell-ms="session.settings.dwellMs"
-                min-height="0"
-                color="transparent"
-                @select="shoot(cell.index)"
-              >
-                <template #default>
-                  <img
-                    v-if="cell.state === 'miss'"
-                    class="sea-mark"
-                    :src="gameArtSrc('battleship-light/splash')"
-                    alt="Мимо"
-                  />
-                  <img
-                    v-else-if="cell.state === 'hit'"
-                    class="sea-mark sea-mark--fire"
-                    :src="gameArtSrc('battleship-light/fire')"
-                    alt="Попадание"
-                  />
-                  <span v-else-if="cell.state === 'cleared'" class="sea-dot" aria-label="Пусто" />
-                </template>
-              </GameDwellButton>
-              <div
-                v-for="ship in sunkShips"
-                :key="ship.id"
-                class="sunk-ship"
-                :class="`sunk-ship--${ship.orientation}`"
-                :style="shipStyle(ship)"
-              >
-                <img
-                  class="sunk-ship__art"
-                  :src="gameArtSrc(`battleship-light/ship-${ship.length}`)"
-                  alt=""
-                />
-              </div>
-            </div>
-          </section>
+              <template #default>
+                <div class="mode-card">
+                  <div class="mode-card__art">
+                    <img :src="gameArtSrc('battleship-light/ship-2')" alt="" />
+                    <img
+                      :src="gameArtSrc('battleship-light/splash')"
+                      alt=""
+                      class="mode-card__mark"
+                    />
+                  </div>
+                  <div class="text-h5 text-md-h4 font-weight-bold">Найди корабли</div>
+                </div>
+              </template>
+            </GameDwellButton>
+            <GameDwellButton
+              target-id="battleship-light:mode:versus"
+              :dwell-ms="session.settings.dwellMs"
+              min-height="clamp(10rem, 40dvh, 22rem)"
+              @select="chooseMode('versus')"
+            >
+              <template #default>
+                <div class="mode-card">
+                  <div class="mode-card__art">
+                    <img :src="gameArtSrc('battleship-light/ship-3')" alt="" />
+                    <img
+                      :src="gameArtSrc('battleship-light/fire')"
+                      alt=""
+                      class="mode-card__mark"
+                    />
+                  </div>
+                  <div class="text-h5 text-md-h4 font-weight-bold">Бой с компьютером</div>
+                </div>
+              </template>
+            </GameDwellButton>
+          </div>
+        </div>
 
+        <!-- Find the computer's ships -->
+        <div v-else-if="phase === 'search'" class="battle-layout">
+          <SeaBoard
+            :board="enemy"
+            :version="version"
+            mode="shoot"
+            :disabled="session.status !== 'running' || pending"
+            :dwell-ms="session.settings.dwellMs"
+            target-prefix="battleship-light:cell"
+            size="min(calc(100dvh - 15.5rem), 58vw, 40rem)"
+            label="Поле с кораблями компьютера"
+            @select="shoot"
+          />
           <aside class="battle-side">
             <h1 class="text-h5 text-md-h4 font-weight-bold mb-2">Найди корабли</h1>
             <p class="text-body-1 text-md-h6 text-medium-emphasis mb-3">
               Посмотри на клетку, чтобы выстрелить.
             </p>
             <div class="shot-result text-h5 text-md-h4 font-weight-bold mb-3" aria-live="polite">
-              {{ lastShot?.text ?? "" }}
+              {{ message }}
             </div>
-            <div class="fleet" aria-label="Корабли соперника">
+            <div class="fleet" aria-label="Корабли компьютера">
               <div
-                v-for="item in fleet"
+                v-for="item in enemyFleet"
                 :key="item.ship.id"
                 class="fleet-ship"
                 :class="{ 'fleet-ship--sunk': item.sunk }"
@@ -278,6 +407,112 @@ onUnmounted(() => {
               </div>
             </div>
           </aside>
+        </div>
+
+        <!-- Place own ships -->
+        <div v-else-if="phase === 'place'" class="battle-layout">
+          <SeaBoard
+            :board="placingBoard"
+            :version="version"
+            mode="place"
+            show-ships
+            :can-select="canStartShipAt"
+            :disabled="session.status !== 'running' || pending"
+            :dwell-ms="session.settings.dwellMs"
+            target-prefix="battleship-light:place"
+            size="min(calc(100dvh - 15.5rem), 50vw, 38rem)"
+            label="Твоё поле: расстановка кораблей"
+            @select="placeShipAt"
+          />
+          <aside class="battle-side">
+            <h1 class="text-h5 text-md-h4 font-weight-bold mb-2">Расставь корабли</h1>
+            <p class="text-body-1 text-md-h6 text-medium-emphasis mb-3">
+              Посмотри на клетку, где начнётся корабль.
+            </p>
+            <div
+              v-if="nextShipLength"
+              class="next-ship mb-3"
+              :class="{ 'next-ship--standing': orientation === 'vertical' }"
+              :style="{ '--ship-length': nextShipLength }"
+            >
+              <img
+                class="fleet-ship__art"
+                :class="{ 'next-ship--vertical': orientation === 'vertical' }"
+                :style="{ '--ship-length': nextShipLength }"
+                :src="gameArtSrc(`battleship-light/ship-${nextShipLength}`)"
+                alt=""
+              />
+              <span class="text-h6 font-weight-bold">Корабль на {{ nextShipLength }}</span>
+            </div>
+            <div class="place-actions">
+              <GameDwellButton
+                target-id="battleship-light:rotate"
+                :disabled="session.status !== 'running' || pending || !nextShipLength"
+                :dwell-ms="session.settings.dwellMs"
+                min-height="clamp(4.5rem, 12dvh, 7rem)"
+                color="blue-grey-lighten-4"
+                @select="rotate"
+              >
+                <template #default>
+                  <div class="text-h6 font-weight-bold">
+                    <v-icon icon="mdi-rotate-right" class="me-1" />Повернуть
+                  </div>
+                </template>
+              </GameDwellButton>
+              <GameDwellButton
+                target-id="battleship-light:auto-place"
+                :disabled="session.status !== 'running' || pending || !nextShipLength"
+                :dwell-ms="session.settings.dwellMs"
+                min-height="clamp(4.5rem, 12dvh, 7rem)"
+                color="blue-grey-lighten-4"
+                @select="placeForMe"
+              >
+                <template #default>
+                  <div class="text-h6 font-weight-bold">
+                    <v-icon icon="mdi-auto-fix" class="me-1" />Расставь за меня
+                  </div>
+                </template>
+              </GameDwellButton>
+            </div>
+          </aside>
+        </div>
+
+        <!-- Battle: shoot at the computer's field, see its shots on your own -->
+        <div v-else class="versus-layout">
+          <div class="versus-board">
+            <div class="versus-title text-h6 font-weight-bold">Поле компьютера</div>
+            <SeaBoard
+              :board="enemy"
+              :version="version"
+              mode="shoot"
+              :disabled="session.status !== 'running' || pending || turn !== 'player'"
+              :dwell-ms="session.settings.dwellMs"
+              target-prefix="battleship-light:cell"
+              size="min(calc(100dvh - 17.5rem), 44vw, 36rem)"
+              label="Поле компьютера"
+              @select="shoot"
+            />
+          </div>
+          <div class="versus-side">
+            <div
+              class="turn-badge text-h5 text-md-h4 font-weight-bold mb-3"
+              :class="{ 'turn-badge--computer': turn === 'computer' }"
+              aria-live="polite"
+            >
+              {{ message }}
+            </div>
+            <div class="versus-title text-h6 font-weight-bold">Твоё поле</div>
+            <SeaBoard
+              :board="own"
+              :version="version"
+              mode="none"
+              show-ships
+              :dwell-ms="session.settings.dwellMs"
+              target-prefix="battleship-light:own"
+              size="min(calc((100dvh - 17.5rem) * 0.62), 26vw, 22rem)"
+              label="Твоё поле"
+            />
+          </div>
         </div>
       </v-card>
     </v-container>
@@ -301,131 +536,42 @@ onUnmounted(() => {
   min-block-size: 100vh;
 }
 
+.mode-grid {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-inline: auto;
+  max-inline-size: 60rem;
+}
+
+.mode-card {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.mode-card__art {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.mode-card__art img {
+  block-size: clamp(3.5rem, 12dvh, 7rem);
+  object-fit: contain;
+}
+
+.mode-card__art .mode-card__mark {
+  inline-size: clamp(3.5rem, 12dvh, 7rem);
+}
+
 .battle-layout {
   align-items: center;
   display: grid;
   gap: clamp(1rem, 3vw, 2.5rem);
   grid-template-columns: auto minmax(14rem, 22rem);
   justify-content: center;
-}
-
-/* Letters along the top and numbers on the left, as in the paper game. */
-.sea-frame {
-  display: grid;
-  gap: 0.3rem;
-  grid-template-areas:
-    "corner letters"
-    "numbers sea";
-  grid-template-columns: auto auto;
-}
-
-.sea-corner {
-  grid-area: corner;
-}
-
-.sea-letters,
-.sea-numbers {
-  display: grid;
-}
-
-.sea-letters {
-  grid-area: letters;
-  grid-template-columns: repeat(var(--sea-size, 5), minmax(0, 1fr));
-}
-
-.sea-numbers {
-  grid-area: numbers;
-  grid-template-rows: repeat(var(--sea-size, 5), minmax(0, 1fr));
-}
-
-.sea-coord {
-  align-items: center;
-  color: rgba(var(--v-theme-on-surface), 0.7);
-  display: flex;
-  font-size: clamp(0.9rem, 2.4dvh, 1.4rem);
-  font-weight: 800;
-  justify-content: center;
-}
-
-.sea {
-  aspect-ratio: 1;
-  background:
-    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.35), transparent 40%),
-    linear-gradient(160deg, #6ec6f0 0%, #3b9bd6 100%);
-  border-radius: clamp(0.5rem, 1.4dvh, 1rem);
-  display: grid;
-  grid-area: sea;
-  grid-template-columns: repeat(var(--sea-size), minmax(0, 1fr));
-  inline-size: min(calc(100dvh - 15.5rem), 58vw, 40rem);
-  overflow: hidden;
-  position: relative;
-}
-
-.sea-cell {
-  aspect-ratio: 1;
-}
-
-/* Thin lines of the grid on the water. */
-.sea-cell :deep(.dwell-button) {
-  border: 0.06rem solid rgba(255, 255, 255, 0.55);
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-}
-
-/* A shot square is disabled; Vuetify would fade its splash or fire. */
-.sea-cell :deep(.v-card--disabled > *) {
-  opacity: 1;
-}
-
-.sea-cell--open :deep(.dwell-button:hover) {
-  background: rgba(255, 255, 255, 0.18) !important;
-}
-
-.sea-mark {
-  aspect-ratio: 1;
-  block-size: auto;
-  inline-size: 80%;
-  object-fit: contain;
-  pointer-events: none;
-}
-
-.sea-mark--fire {
-  position: relative;
-  z-index: 3;
-}
-
-/* A square next to a sunk ship: surely empty. */
-.sea-dot {
-  background: rgba(255, 255, 255, 0.75);
-  block-size: 18%;
-  border-radius: 50%;
-  inline-size: 18%;
-}
-
-.sunk-ship {
-  container-type: size;
-  pointer-events: none;
-  position: absolute;
-  z-index: 2;
-}
-
-.sunk-ship__art {
-  block-size: 100%;
-  inline-size: 100%;
-  object-fit: fill;
-  padding: 4%;
-}
-
-/* The drawing lies horizontally: a vertical ship is the same picture turned. */
-.sunk-ship--vertical .sunk-ship__art {
-  block-size: 100cqw;
-  inline-size: 100cqh;
-  inset-block-start: 50%;
-  inset-inline-start: 50%;
-  padding: 2% 4%;
-  position: absolute;
-  transform: translate(-50%, -50%) rotate(90deg);
 }
 
 .battle-side {
@@ -442,16 +588,28 @@ onUnmounted(() => {
   gap: clamp(0.4rem, 1.4dvh, 0.9rem);
 }
 
-.fleet-ship {
+.fleet-ship,
+.next-ship {
   align-items: center;
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .fleet-ship__art {
   block-size: clamp(2rem, 6dvh, 3.5rem);
   inline-size: calc(var(--ship-length) * clamp(2rem, 6dvh, 3.5rem));
   object-fit: fill;
+  transition: transform 200ms ease;
+}
+
+/* The next ship turns with "Повернуть". */
+.next-ship--vertical {
+  transform: rotate(90deg);
+}
+
+/* A standing ship needs its length in height: keep the text below it clear. */
+.next-ship--standing {
+  min-block-size: calc(var(--ship-length) * clamp(2rem, 6dvh, 3.5rem));
 }
 
 .fleet-ship--sunk .fleet-ship__art {
@@ -464,13 +622,42 @@ onUnmounted(() => {
   font-size: clamp(1.5rem, 4dvh, 2.4rem);
 }
 
-@media (max-width: 52rem) {
-  .battle-layout {
-    grid-template-columns: 1fr;
-  }
+.place-actions {
+  display: grid;
+  gap: 0.75rem;
+}
 
-  .sea {
-    inline-size: min(84vw, calc(100dvh - 22rem), 36rem);
+.versus-layout {
+  align-items: start;
+  display: grid;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  grid-template-columns: auto auto;
+  justify-content: center;
+}
+
+.versus-title {
+  margin-block-end: 0.25rem;
+  text-align: center;
+}
+
+.turn-badge {
+  background: rgba(var(--v-theme-primary), 0.12);
+  border-radius: 1rem;
+  color: rgb(var(--v-theme-primary));
+  padding: 0.5rem 1rem;
+  text-align: center;
+}
+
+.turn-badge--computer {
+  background: rgba(96, 125, 139, 0.15);
+  color: #455a64;
+}
+
+@media (max-width: 52rem) {
+  .battle-layout,
+  .versus-layout,
+  .mode-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>

@@ -172,3 +172,79 @@ export function allShipsSunk(board: BattleshipBoard) {
 
 /** Letters beside the field, as in the Russian game. */
 export const battleshipColumnLetters = ["А", "Б", "В", "Г", "Д", "Е"];
+
+// --- Battle with the computer (2026-11-08, user: «добавить игру с компьютером, когда игрок
+// сам выставляет свои корабли и ходы осуществляются по очереди»).
+
+/** The squares a ship would take with its first square at `index`, or undefined off the field. */
+export function shipCellsFrom(
+  size: number,
+  index: number,
+  length: number,
+  orientation: BattleshipOrientation,
+) {
+  const { row, column } = cellRowColumn(size, index);
+  return shipCellsAt(size, row, column, length, orientation);
+}
+
+/** Can a ship stand here: inside the field, not on and not next to another ship. */
+export function canPlaceShip(size: number, ships: BattleshipShip[], cells: number[] | undefined) {
+  if (!cells) return false;
+  const taken = new Set<number>();
+  for (const ship of ships) {
+    for (const cell of ship.cells) taken.add(cell);
+    for (const cell of neighbourCells(size, ship.cells)) taken.add(cell);
+  }
+  return cells.every((cell) => !taken.has(cell));
+}
+
+/** A board whose ships the child placed. */
+export function createBattleshipBoardFromShips(
+  size: number,
+  ships: BattleshipShip[],
+): BattleshipBoard {
+  return { size, ships, shots: new Set(), cleared: new Set() };
+}
+
+/**
+ * The computer's shot: finish a hit ship along its line first, otherwise a random open square.
+ */
+export function chooseComputerShot(board: BattleshipBoard, random = Math.random) {
+  const open = (index: number) => isCellOpen(board, index);
+  const wounded = board.ships.filter(
+    (ship) => !isShipSunk(board, ship) && ship.cells.some((cell) => board.shots.has(cell)),
+  );
+  if (wounded.length > 0) {
+    const ship = wounded[0];
+    const hits = ship.cells.filter((cell) => board.shots.has(cell));
+    const positions = hits.map((cell) => cellRowColumn(board.size, cell));
+    const candidates: number[] = [];
+    const add = (row: number, column: number) => {
+      if (row < 0 || column < 0 || row >= board.size || column >= board.size) return;
+      const index = cellIndex(board.size, row, column);
+      if (open(index)) candidates.push(index);
+    };
+    if (hits.length > 1) {
+      // The line is known: try both ends.
+      const sameRow = positions.every((position) => position.row === positions[0].row);
+      if (sameRow) {
+        const columns = positions.map((position) => position.column);
+        add(positions[0].row, Math.min(...columns) - 1);
+        add(positions[0].row, Math.max(...columns) + 1);
+      } else {
+        const rows = positions.map((position) => position.row);
+        add(Math.min(...rows) - 1, positions[0].column);
+        add(Math.max(...rows) + 1, positions[0].column);
+      }
+    } else {
+      const { row, column } = positions[0];
+      add(row - 1, column);
+      add(row + 1, column);
+      add(row, column - 1);
+      add(row, column + 1);
+    }
+    if (candidates.length > 0) return shuffleItems(candidates, random)[0];
+  }
+  const all = Array.from({ length: board.size * board.size }, (_, index) => index).filter(open);
+  return shuffleItems(all, random)[0];
+}
