@@ -508,11 +508,7 @@ watch(
 
               <aside class="side-panel">
                 <div class="trainer-intro">
-                  <div class="text-overline text-secondary mb-1">Тренажёр легальных ходов 8×8</div>
-                  <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Шахматный тренажёр</h1>
-                  <p class="text-body-1 text-medium-emphasis mb-0">
-                    Выполни восемь легальных ходов белыми. Чёрные отвечают C++ движком.
-                  </p>
+                  <h1 class="text-h5 text-md-h4 font-weight-bold mb-0">Шахматы</h1>
                 </div>
 
                 <v-alert
@@ -542,36 +538,52 @@ watch(
                   <div class="text-subtitle-1 font-weight-bold">
                     {{ selectedIndex === undefined ? "Выбери фигуру" : "Выбери клетку хода" }}
                   </div>
-                  <GameDwellButton
-                    v-for="index in visibleActionIndexes"
-                    :key="`action:${fen}:${selectedIndex}:${index}`"
-                    :target-id="`chess-mini:action:${index}`"
-                    :disabled="session.status !== 'running' || pending"
-                    :dwell-ms="session.settings.dwellMs"
-                    min-height="8rem"
-                    color="teal-darken-3"
-                    @select="chooseCell(index)"
-                  >
-                    <template #default>
-                      <div class="text-center">
-                        <img
-                          v-if="pieceArt(cells[index].piece)"
-                          :src="pieceArt(cells[index].piece)"
-                          class="action-piece-art"
-                          alt=""
-                        />
-                        <div class="text-h5 font-weight-bold">
-                          {{ selectedIndex === undefined ? pieceLabel(cells[index].piece) : "Ход" }}
-                          {{ squareLabel(index) }}
-                        </div>
-                      </div>
-                    </template>
-                  </GameDwellButton>
-                  <div v-if="actionPageCount > 1" class="action-pages">
+                  <!-- Two move slots and the pager always keep their place: when the list
+                       changed size, the whole game rescaled and the board jumped on every move. -->
+                  <div class="action-slots">
                     <GameDwellButton
+                      v-for="index in visibleActionIndexes"
+                      :key="`action:${fen}:${selectedIndex}:${index}`"
+                      :target-id="`chess-mini:action:${index}`"
+                      :disabled="session.status !== 'running' || pending"
+                      :dwell-ms="session.settings.dwellMs"
+                      min-height="var(--chess-action-height)"
+                      color="teal-darken-3"
+                      @select="chooseCell(index)"
+                    >
+                      <template #default>
+                        <div class="text-center">
+                          <img
+                            v-if="pieceArt(cells[index].piece)"
+                            :src="pieceArt(cells[index].piece)"
+                            class="action-piece-art"
+                            alt=""
+                          />
+                          <div class="text-h5 font-weight-bold">
+                            {{
+                              selectedIndex === undefined ? pieceLabel(cells[index].piece) : "Ход"
+                            }}
+                            {{ squareLabel(index) }}
+                          </div>
+                        </div>
+                      </template>
+                    </GameDwellButton>
+                    <div
+                      v-for="slot in 2 - visibleActionIndexes.length"
+                      :key="`action-slot:${slot}`"
+                      class="action-slot-empty"
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <div
+                    class="action-pages"
+                    :class="{ 'action-pages--hidden': actionPageCount <= 1 }"
+                  >
+                    <GameDwellButton
+                      v-if="actionPageCount > 1"
                       target-id="chess-mini:actions:next"
                       :dwell-ms="session.settings.dwellMs"
-                      min-height="8rem"
+                      min-height="var(--chess-action-height)"
                       color="blue-grey-darken-2"
                       @select="changeActionPage(1)"
                     >
@@ -632,11 +644,15 @@ watch(
   overflow: hidden;
 }
 
+/* One size for the board and the panel beside it: the panel never makes the layout
+   taller, so nothing moves or rescales when the move list changes. */
 .game-layout {
-  align-items: center;
+  --chess-board: min(calc(100dvh - 15.5rem), 56vw, 46rem);
+  --chess-action-height: clamp(4rem, 10dvh, 7rem);
+  align-items: start;
   display: grid;
   gap: clamp(0.75rem, 2vw, 1.6rem);
-  grid-template-columns: minmax(0, 1fr) minmax(14rem, 0.58fr);
+  grid-template-columns: minmax(0, 1fr) minmax(13rem, 0.58fr);
 }
 
 .board-section {
@@ -682,7 +698,7 @@ watch(
   gap: 0;
   grid-template-columns: repeat(8, minmax(0, 1fr));
   /* HUD + card padding + letters: a taller board would make the whole game zoom out. */
-  inline-size: min(calc(100dvh - 15.5rem), 56vw, 46rem);
+  inline-size: var(--chess-board);
   overflow: hidden;
 }
 
@@ -766,10 +782,27 @@ watch(
 }
 
 .side-panel {
+  block-size: calc(var(--chess-board) + 1.4rem);
   display: flex;
   flex-direction: column;
   gap: clamp(0.55rem, 1.4dvh, 1rem);
   min-inline-size: 0;
+  overflow: hidden;
+}
+
+/* The two move buttons side by side: the whole panel always fits beside the board. */
+.action-slots {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.action-slot-empty {
+  min-block-size: var(--chess-action-height);
+}
+
+.action-pages {
+  min-block-size: var(--chess-action-height);
 }
 
 @media (max-height: 42.5rem) {
@@ -778,19 +811,13 @@ watch(
   .restart-row {
     display: none;
   }
-
-  .action-picker {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .action-picker > .text-subtitle-1,
-  .action-picker > .text-body-2,
-  .action-pages {
-    grid-column: 1 / -1;
-  }
 }
 
-@media (max-width: 48rem) {
+@media (max-width: 36rem) {
+  .side-panel {
+    block-size: auto;
+  }
+
   .game-card {
     max-block-size: none;
     overflow: visible;
