@@ -313,7 +313,12 @@ onUnmounted(() => {
             <!-- User: «управление рядом с ракеткой: выбор нужного положения непосредственно
                  рядом с ракеткой». Three zones over the paddle's column: look at one and the
                  paddle moves there. -->
-            <v-card class="pong-board pa-2 pa-md-3" color="cyan-lighten-5" rounded="xl" variant="flat">
+            <v-card
+              class="pong-board pa-2 pa-md-3"
+              color="cyan-lighten-5"
+              rounded="xl"
+              variant="flat"
+            >
               <div
                 class="pong-stage"
                 :class="`pong-stage--${animationMode}`"
