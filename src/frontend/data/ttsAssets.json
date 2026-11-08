@@ -2674,20 +2674,6 @@
     "path": "/audio/tts/where-object/answer-ball-bag-in.mp3"
   },
   {
-    "id": "where-object.answer.ball.box.on",
-    "game": "where-object",
-    "text": "мяч на коробке.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-ball-box-on.mp3"
-  },
-  {
-    "id": "where-object.answer.ball.box.under",
-    "game": "where-object",
-    "text": "мяч под коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-ball-box-under.mp3"
-  },
-  {
     "id": "where-object.answer.ball.box.in",
     "game": "where-object",
     "text": "мяч в коробке.",
@@ -2756,20 +2742,6 @@
     "text": "книга в сумке.",
     "voice": "jane",
     "path": "/audio/tts/where-object/answer-book-bag-in.mp3"
-  },
-  {
-    "id": "where-object.answer.book.box.on",
-    "game": "where-object",
-    "text": "книга на коробке.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-book-box-on.mp3"
-  },
-  {
-    "id": "where-object.answer.book.box.under",
-    "game": "where-object",
-    "text": "книга под коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-book-box-under.mp3"
   },
   {
     "id": "where-object.answer.book.box.in",
@@ -2842,20 +2814,6 @@
     "path": "/audio/tts/where-object/answer-toy-bag-in.mp3"
   },
   {
-    "id": "where-object.answer.toy.box.on",
-    "game": "where-object",
-    "text": "игрушка на коробке.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-toy-box-on.mp3"
-  },
-  {
-    "id": "where-object.answer.toy.box.under",
-    "game": "where-object",
-    "text": "игрушка под коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-toy-box-under.mp3"
-  },
-  {
     "id": "where-object.answer.toy.box.in",
     "game": "where-object",
     "text": "игрушка в коробке.",
@@ -2924,20 +2882,6 @@
     "text": "ключ в сумке.",
     "voice": "jane",
     "path": "/audio/tts/where-object/answer-key-bag-in.mp3"
-  },
-  {
-    "id": "where-object.answer.key.box.on",
-    "game": "where-object",
-    "text": "ключ на коробке.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-key-box-on.mp3"
-  },
-  {
-    "id": "where-object.answer.key.box.under",
-    "game": "where-object",
-    "text": "ключ под коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-key-box-under.mp3"
   },
   {
     "id": "where-object.answer.key.box.in",
@@ -3010,20 +2954,6 @@
     "path": "/audio/tts/where-object/answer-cup-bag-in.mp3"
   },
   {
-    "id": "where-object.answer.cup.box.on",
-    "game": "where-object",
-    "text": "чашка на коробке.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-cup-box-on.mp3"
-  },
-  {
-    "id": "where-object.answer.cup.box.under",
-    "game": "where-object",
-    "text": "чашка под коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-cup-box-under.mp3"
-  },
-  {
     "id": "where-object.answer.cup.box.in",
     "game": "where-object",
     "text": "чашка в коробке.",
@@ -3092,20 +3022,6 @@
     "text": "ложка в сумке.",
     "voice": "jane",
     "path": "/audio/tts/where-object/answer-spoon-bag-in.mp3"
-  },
-  {
-    "id": "where-object.answer.spoon.box.on",
-    "game": "where-object",
-    "text": "ложка на коробке.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-spoon-box-on.mp3"
-  },
-  {
-    "id": "where-object.answer.spoon.box.under",
-    "game": "where-object",
-    "text": "ложка под коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-spoon-box-under.mp3"
   },
   {
     "id": "where-object.answer.spoon.box.in",
@@ -3178,20 +3094,6 @@
     "path": "/audio/tts/where-object/answer-phone-bag-in.mp3"
   },
   {
-    "id": "where-object.answer.phone.box.on",
-    "game": "where-object",
-    "text": "телефон на коробке.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-phone-box-on.mp3"
-  },
-  {
-    "id": "where-object.answer.phone.box.under",
-    "game": "where-object",
-    "text": "телефон под коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-phone-box-under.mp3"
-  },
-  {
     "id": "where-object.answer.phone.box.in",
     "game": "where-object",
     "text": "телефон в коробке.",
@@ -3260,20 +3162,6 @@
     "text": "щётка в сумке.",
     "voice": "jane",
     "path": "/audio/tts/where-object/answer-brush-bag-in.mp3"
-  },
-  {
-    "id": "where-object.answer.brush.box.on",
-    "game": "where-object",
-    "text": "щётка на коробке.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-brush-box-on.mp3"
-  },
-  {
-    "id": "where-object.answer.brush.box.under",
-    "game": "where-object",
-    "text": "щётка под коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-brush-box-under.mp3"
   },
   {
     "id": "where-object.answer.brush.box.in",
@@ -7070,67 +6958,11 @@
     "path": "/audio/tts/where-object/complete.mp3"
   },
   {
-    "id": "where-object.scene.edec909b",
-    "game": "where-object",
-    "text": "Покажи: ложка рядом с коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-edec909b.mp3"
-  },
-  {
     "id": "where-object.scene.2cd098ad",
     "game": "where-object",
     "text": "Это другая картинка.",
     "voice": "jane",
     "path": "/audio/tts/where-object/scene-2cd098ad.mp3"
-  },
-  {
-    "id": "where-object.scene.ec929edd",
-    "game": "where-object",
-    "text": "ложка рядом с коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-ec929edd.mp3"
-  },
-  {
-    "id": "where-object.scene.eda951a6",
-    "game": "where-object",
-    "text": "Покажи: чашка на коробке.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-eda951a6.mp3"
-  },
-  {
-    "id": "where-object.scene.40c7ed51",
-    "game": "where-object",
-    "text": "чашка рядом с коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-40c7ed51.mp3"
-  },
-  {
-    "id": "where-object.scene.4382d171",
-    "game": "where-object",
-    "text": "Покажи: мяч рядом с коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-4382d171.mp3"
-  },
-  {
-    "id": "where-object.scene.452a6a78",
-    "game": "where-object",
-    "text": "мяч рядом с коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-452a6a78.mp3"
-  },
-  {
-    "id": "where-object.scene.3d2b47d3",
-    "game": "where-object",
-    "text": "Покажи: ключ на коробке.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-3d2b47d3.mp3"
-  },
-  {
-    "id": "where-object.scene.b78326ca",
-    "game": "where-object",
-    "text": "ключ рядом с коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-b78326ca.mp3"
   },
   {
     "id": "where-object.scene.0de6c94c",
@@ -7140,53 +6972,11 @@
     "path": "/audio/tts/where-object/scene-0de6c94c.mp3"
   },
   {
-    "id": "where-object.scene.ae2e1873",
-    "game": "where-object",
-    "text": "телефон рядом с коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-ae2e1873.mp3"
-  },
-  {
-    "id": "where-object.scene.daa04928",
-    "game": "where-object",
-    "text": "Покажи: игрушка под коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-daa04928.mp3"
-  },
-  {
-    "id": "where-object.scene.24cb9767",
-    "game": "where-object",
-    "text": "игрушка рядом с коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-24cb9767.mp3"
-  },
-  {
-    "id": "where-object.scene.70b329bb",
-    "game": "where-object",
-    "text": "Покажи: книга под коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-70b329bb.mp3"
-  },
-  {
-    "id": "where-object.scene.8aaf160f",
-    "game": "where-object",
-    "text": "книга рядом с коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-8aaf160f.mp3"
-  },
-  {
     "id": "where-object.scene.3a4f6549",
     "game": "where-object",
     "text": "Покажи: щётка в коробке.",
     "voice": "jane",
     "path": "/audio/tts/where-object/scene-3a4f6549.mp3"
-  },
-  {
-    "id": "where-object.scene.9893b005",
-    "game": "where-object",
-    "text": "щётка рядом с коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-9893b005.mp3"
   },
   {
     "id": "where-object.scene.3af2fc49",
@@ -7196,27 +6986,6 @@
     "path": "/audio/tts/where-object/scene-3af2fc49.mp3"
   },
   {
-    "id": "where-object.scene.b9563580",
-    "game": "where-object",
-    "text": "Покажи: ключ под коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-b9563580.mp3"
-  },
-  {
-    "id": "where-object.scene.367db6d9",
-    "game": "where-object",
-    "text": "Покажи: щётка рядом с коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-367db6d9.mp3"
-  },
-  {
-    "id": "where-object.scene.33204c8f",
-    "game": "where-object",
-    "text": "Покажи: чашка под коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-33204c8f.mp3"
-  },
-  {
     "id": "where-object.scene.f7b187b7",
     "game": "where-object",
     "text": "Покажи: ложка в коробке.",
@@ -7224,74 +6993,11 @@
     "path": "/audio/tts/where-object/scene-f7b187b7.mp3"
   },
   {
-    "id": "where-object.scene.fbc83647",
-    "game": "where-object",
-    "text": "Покажи: игрушка на коробке.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-fbc83647.mp3"
-  },
-  {
-    "id": "where-object.scene.acdbdfc7",
-    "game": "where-object",
-    "text": "Покажи: книга на коробке.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-acdbdfc7.mp3"
-  },
-  {
-    "id": "where-object.scene.ef52e24f",
-    "game": "where-object",
-    "text": "Покажи: телефон рядом с коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-ef52e24f.mp3"
-  },
-  {
-    "id": "where-object.scene.62a82719",
-    "game": "where-object",
-    "text": "Покажи: ложка под коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-62a82719.mp3"
-  },
-  {
-    "id": "where-object.scene.6b3d7886",
-    "game": "where-object",
-    "text": "Покажи: мяч под коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-6b3d7886.mp3"
-  },
-  {
-    "id": "where-object.scene.4a43606a",
-    "game": "where-object",
-    "text": "Покажи: телефон на коробке.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-4a43606a.mp3"
-  },
-  {
     "id": "where-object.scene.5318ca66",
     "game": "where-object",
     "text": "Покажи: игрушка в коробке.",
     "voice": "jane",
     "path": "/audio/tts/where-object/scene-5318ca66.mp3"
-  },
-  {
-    "id": "where-object.scene.0e626d17",
-    "game": "where-object",
-    "text": "Покажи: ключ рядом с коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-0e626d17.mp3"
-  },
-  {
-    "id": "where-object.scene.128b8963",
-    "game": "where-object",
-    "text": "Покажи: щётка на коробке.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-128b8963.mp3"
-  },
-  {
-    "id": "where-object.scene.cd310f7e",
-    "game": "where-object",
-    "text": "Покажи: чашка рядом с коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-cd310f7e.mp3"
   },
   {
     "id": "where-object.scene.bae1a3bf",
@@ -7308,13 +7014,6 @@
     "path": "/audio/tts/where-object/scene-8dca5ae6.mp3"
   },
   {
-    "id": "where-object.scene.32bda86d",
-    "game": "where-object",
-    "text": "Покажи: телефон под коробкой.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/scene-32bda86d.mp3"
-  },
-  {
     "id": "where-object.scene.6caf4728",
     "game": "where-object",
     "text": "Покажи: чашка в коробке.",
@@ -7322,39 +7021,340 @@
     "path": "/audio/tts/where-object/scene-6caf4728.mp3"
   },
   {
-    "id": "where-object.scene.7708f5ab",
+    "id": "where-object.answer.ball.table.on",
     "game": "where-object",
-    "text": "Покажи: игрушка рядом с коробкой.",
+    "text": "мяч на столе.",
     "voice": "jane",
-    "path": "/audio/tts/where-object/scene-7708f5ab.mp3"
+    "path": "/audio/tts/where-object/answer-ball-table-on.mp3"
   },
   {
-    "id": "where-object.scene.48229d10",
+    "id": "where-object.task.ball.table.on",
     "game": "where-object",
-    "text": "Покажи: щётка под коробкой.",
+    "text": "Покажи: мяч на столе.",
     "voice": "jane",
-    "path": "/audio/tts/where-object/scene-48229d10.mp3"
+    "path": "/audio/tts/where-object/task-ball-table-on.mp3"
   },
   {
-    "id": "where-object.scene.aaa10aaa",
+    "id": "where-object.answer.ball.table.under",
     "game": "where-object",
-    "text": "Покажи: книга рядом с коробкой.",
+    "text": "мяч под столом.",
     "voice": "jane",
-    "path": "/audio/tts/where-object/scene-aaa10aaa.mp3"
+    "path": "/audio/tts/where-object/answer-ball-table-under.mp3"
   },
   {
-    "id": "where-object.scene.61fd7d39",
+    "id": "where-object.task.ball.table.under",
     "game": "where-object",
-    "text": "Покажи: ложка на коробке.",
+    "text": "Покажи: мяч под столом.",
     "voice": "jane",
-    "path": "/audio/tts/where-object/scene-61fd7d39.mp3"
+    "path": "/audio/tts/where-object/task-ball-table-under.mp3"
   },
   {
-    "id": "where-object.scene.5a549161",
+    "id": "where-object.answer.ball.table.beside",
     "game": "where-object",
-    "text": "Покажи: мяч на коробке.",
+    "text": "мяч рядом со столом.",
     "voice": "jane",
-    "path": "/audio/tts/where-object/scene-5a549161.mp3"
+    "path": "/audio/tts/where-object/answer-ball-table-beside.mp3"
+  },
+  {
+    "id": "where-object.task.ball.table.beside",
+    "game": "where-object",
+    "text": "Покажи: мяч рядом со столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/task-ball-table-beside.mp3"
+  },
+  {
+    "id": "where-object.answer.book.table.on",
+    "game": "where-object",
+    "text": "книга на столе.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-book-table-on.mp3"
+  },
+  {
+    "id": "where-object.task.book.table.on",
+    "game": "where-object",
+    "text": "Покажи: книга на столе.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/task-book-table-on.mp3"
+  },
+  {
+    "id": "where-object.answer.book.table.under",
+    "game": "where-object",
+    "text": "книга под столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-book-table-under.mp3"
+  },
+  {
+    "id": "where-object.task.book.table.under",
+    "game": "where-object",
+    "text": "Покажи: книга под столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/task-book-table-under.mp3"
+  },
+  {
+    "id": "where-object.answer.book.table.beside",
+    "game": "where-object",
+    "text": "книга рядом со столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-book-table-beside.mp3"
+  },
+  {
+    "id": "where-object.task.book.table.beside",
+    "game": "where-object",
+    "text": "Покажи: книга рядом со столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/task-book-table-beside.mp3"
+  },
+  {
+    "id": "where-object.answer.toy.table.on",
+    "game": "where-object",
+    "text": "игрушка на столе.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-toy-table-on.mp3"
+  },
+  {
+    "id": "where-object.task.toy.table.on",
+    "game": "where-object",
+    "text": "Покажи: игрушка на столе.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/task-toy-table-on.mp3"
+  },
+  {
+    "id": "where-object.answer.toy.table.under",
+    "game": "where-object",
+    "text": "игрушка под столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-toy-table-under.mp3"
+  },
+  {
+    "id": "where-object.task.toy.table.under",
+    "game": "where-object",
+    "text": "Покажи: игрушка под столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/task-toy-table-under.mp3"
+  },
+  {
+    "id": "where-object.answer.toy.table.beside",
+    "game": "where-object",
+    "text": "игрушка рядом со столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-toy-table-beside.mp3"
+  },
+  {
+    "id": "where-object.task.toy.table.beside",
+    "game": "where-object",
+    "text": "Покажи: игрушка рядом со столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/task-toy-table-beside.mp3"
+  },
+  {
+    "id": "where-object.answer.key.table.on",
+    "game": "where-object",
+    "text": "ключ на столе.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-key-table-on.mp3"
+  },
+  {
+    "id": "where-object.task.key.table.on",
+    "game": "where-object",
+    "text": "Покажи: ключ на столе.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/task-key-table-on.mp3"
+  },
+  {
+    "id": "where-object.answer.key.table.under",
+    "game": "where-object",
+    "text": "ключ под столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-key-table-under.mp3"
+  },
+  {
+    "id": "where-object.task.key.table.under",
+    "game": "where-object",
+    "text": "Покажи: ключ под столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/task-key-table-under.mp3"
+  },
+  {
+    "id": "where-object.answer.key.table.beside",
+    "game": "where-object",
+    "text": "ключ рядом со столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-key-table-beside.mp3"
+  },
+  {
+    "id": "where-object.task.key.table.beside",
+    "game": "where-object",
+    "text": "Покажи: ключ рядом со столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/task-key-table-beside.mp3"
+  },
+  {
+    "id": "where-object.answer.cup.table.on",
+    "game": "where-object",
+    "text": "чашка на столе.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-cup-table-on.mp3"
+  },
+  {
+    "id": "where-object.task.cup.table.on",
+    "game": "where-object",
+    "text": "Покажи: чашка на столе.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/task-cup-table-on.mp3"
+  },
+  {
+    "id": "where-object.answer.cup.table.under",
+    "game": "where-object",
+    "text": "чашка под столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-cup-table-under.mp3"
+  },
+  {
+    "id": "where-object.task.cup.table.under",
+    "game": "where-object",
+    "text": "Покажи: чашка под столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/task-cup-table-under.mp3"
+  },
+  {
+    "id": "where-object.answer.cup.table.beside",
+    "game": "where-object",
+    "text": "чашка рядом со столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-cup-table-beside.mp3"
+  },
+  {
+    "id": "where-object.task.cup.table.beside",
+    "game": "where-object",
+    "text": "Покажи: чашка рядом со столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/task-cup-table-beside.mp3"
+  },
+  {
+    "id": "where-object.answer.spoon.table.on",
+    "game": "where-object",
+    "text": "ложка на столе.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-spoon-table-on.mp3"
+  },
+  {
+    "id": "where-object.task.spoon.table.on",
+    "game": "where-object",
+    "text": "Покажи: ложка на столе.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/task-spoon-table-on.mp3"
+  },
+  {
+    "id": "where-object.answer.spoon.table.under",
+    "game": "where-object",
+    "text": "ложка под столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-spoon-table-under.mp3"
+  },
+  {
+    "id": "where-object.task.spoon.table.under",
+    "game": "where-object",
+    "text": "Покажи: ложка под столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/task-spoon-table-under.mp3"
+  },
+  {
+    "id": "where-object.answer.spoon.table.beside",
+    "game": "where-object",
+    "text": "ложка рядом со столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-spoon-table-beside.mp3"
+  },
+  {
+    "id": "where-object.task.spoon.table.beside",
+    "game": "where-object",
+    "text": "Покажи: ложка рядом со столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/task-spoon-table-beside.mp3"
+  },
+  {
+    "id": "where-object.answer.phone.table.on",
+    "game": "where-object",
+    "text": "телефон на столе.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-phone-table-on.mp3"
+  },
+  {
+    "id": "where-object.task.phone.table.on",
+    "game": "where-object",
+    "text": "Покажи: телефон на столе.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/task-phone-table-on.mp3"
+  },
+  {
+    "id": "where-object.answer.phone.table.under",
+    "game": "where-object",
+    "text": "телефон под столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-phone-table-under.mp3"
+  },
+  {
+    "id": "where-object.task.phone.table.under",
+    "game": "where-object",
+    "text": "Покажи: телефон под столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/task-phone-table-under.mp3"
+  },
+  {
+    "id": "where-object.answer.phone.table.beside",
+    "game": "where-object",
+    "text": "телефон рядом со столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-phone-table-beside.mp3"
+  },
+  {
+    "id": "where-object.task.phone.table.beside",
+    "game": "where-object",
+    "text": "Покажи: телефон рядом со столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/task-phone-table-beside.mp3"
+  },
+  {
+    "id": "where-object.answer.brush.table.on",
+    "game": "where-object",
+    "text": "щётка на столе.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-brush-table-on.mp3"
+  },
+  {
+    "id": "where-object.task.brush.table.on",
+    "game": "where-object",
+    "text": "Покажи: щётка на столе.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/task-brush-table-on.mp3"
+  },
+  {
+    "id": "where-object.answer.brush.table.under",
+    "game": "where-object",
+    "text": "щётка под столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-brush-table-under.mp3"
+  },
+  {
+    "id": "where-object.task.brush.table.under",
+    "game": "where-object",
+    "text": "Покажи: щётка под столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/task-brush-table-under.mp3"
+  },
+  {
+    "id": "where-object.answer.brush.table.beside",
+    "game": "where-object",
+    "text": "щётка рядом со столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/answer-brush-table-beside.mp3"
+  },
+  {
+    "id": "where-object.task.brush.table.beside",
+    "game": "where-object",
+    "text": "Покажи: щётка рядом со столом.",
+    "voice": "jane",
+    "path": "/audio/tts/where-object/task-brush-table-beside.mp3"
   },
   {
     "id": "who-is-this.mistake",
