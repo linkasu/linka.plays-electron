@@ -144,6 +144,9 @@ function pieceArt(piece: ChessPiece) {
   return piece === "." ? undefined : gameArtSrc(chessPieceMeta[piece].artId);
 }
 
+const boardFiles = ["A", "B", "C", "D", "E", "F", "G", "H"];
+const boardRanks = [8, 7, 6, 5, 4, 3, 2, 1];
+
 function pieceLabel(piece: ChessPiece) {
   return piece === "." ? "Пустая клетка" : chessPieceMeta[piece].label;
 }
@@ -449,6 +452,12 @@ watch(
           >
             <div class="game-layout">
               <section class="board-section" aria-label="Шахматная доска">
+                <!-- Testers: the square name in every square distracts. Letters and numbers
+                     stand next to the board instead, as on a real one. -->
+                <div class="board-frame">
+                  <div class="board-ranks" aria-hidden="true">
+                    <span v-for="rank in boardRanks" :key="rank" class="board-coord">{{ rank }}</span>
+                  </div>
                 <div class="board-grid" role="grid" aria-label="Шахматная доска восемь на восемь">
                   <button
                     v-for="cell in cells"
@@ -466,8 +475,11 @@ watch(
                     }"
                     @click="chooseCell(cell.index)"
                   >
-                    <div class="cell-content" :class="cellClasses(cell.index, cell.piece)">
-                      <div class="cell-label">{{ cell.label }}</div>
+                    <div
+                      class="cell-content"
+                      :class="cellClasses(cell.index, cell.piece)"
+                      :aria-label="`${cell.label}: ${pieceLabel(cell.piece)}`"
+                    >
                       <img
                         v-if="pieceArt(cell.piece)"
                         :src="pieceArt(cell.piece)"
@@ -482,6 +494,11 @@ watch(
                       />
                     </div>
                   </button>
+                </div>
+                  <span class="board-corner" aria-hidden="true" />
+                  <div class="board-files" aria-hidden="true">
+                    <span v-for="file in boardFiles" :key="file" class="board-coord">{{ file }}</span>
+                  </div>
                 </div>
               </section>
 
@@ -622,12 +639,47 @@ watch(
   min-inline-size: 0;
 }
 
-.board-grid {
+/* The board with its letters below and numbers on the left. */
+.board-frame {
   display: grid;
-  gap: clamp(0.12rem, 0.38vw, 0.32rem);
+  gap: 0.3rem;
+  grid-template-columns: auto auto;
+  justify-content: center;
+}
+
+.board-ranks,
+.board-files {
+  display: grid;
+}
+
+.board-ranks {
+  grid-template-rows: repeat(8, minmax(0, 1fr));
+}
+
+.board-files {
   grid-template-columns: repeat(8, minmax(0, 1fr));
-  inline-size: min(76dvh, 54vw, 38rem);
-  margin-inline: auto;
+}
+
+/* Same type as the old in-square labels, only outside the board. */
+.board-coord {
+  align-items: center;
+  color: rgba(var(--v-theme-on-surface), 0.68);
+  display: flex;
+  font-size: clamp(0.55rem, 1.2dvh, 0.75rem);
+  font-weight: 800;
+  justify-content: center;
+}
+
+/* Testers: «сделать немного больше ячейки и фигуры». Squares touch like on a real board
+   and the board takes the height under the HUD. */
+.board-grid {
+  border-radius: clamp(0.45rem, 1.2dvh, 0.9rem);
+  display: grid;
+  gap: 0;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  /* HUD + card padding + letters: a taller board would make the whole game zoom out. */
+  inline-size: min(calc(100dvh - 15.5rem), 56vw, 46rem);
+  overflow: hidden;
 }
 
 .board-grid > * {
@@ -643,7 +695,7 @@ watch(
 .board-cell {
   background: var(--board-cell-color);
   border: 0;
-  border-radius: clamp(0.45rem, 1.2dvh, 0.9rem);
+  border-radius: 0;
   color: inherit;
   cursor: pointer;
   min-inline-size: 0;
@@ -670,21 +722,14 @@ watch(
   position: relative;
 }
 
-.cell-label {
-  color: rgb(var(--v-theme-on-surface) / 68%);
-  font-size: clamp(0.55rem, 1.2dvh, 0.75rem);
-  font-weight: 800;
-  inset-block-start: 0.1rem;
-  inset-inline-start: 0.28rem;
-  position: absolute;
-}
-
 .piece-art {
-  block-size: 96%;
+  block-size: 100%;
   filter: drop-shadow(0 0.2rem 0.24rem rgb(0 0 0 / 22%));
-  inline-size: 96%;
+  inline-size: 100%;
   object-fit: contain;
   pointer-events: none;
+  /* The drawings keep a margin in their square: fill the cell like real pieces. */
+  transform: scale(1.1);
 }
 
 .action-piece-art {
@@ -752,7 +797,7 @@ watch(
   }
 
   .board-grid {
-    inline-size: min(92vw, 68dvh, 36rem);
+    inline-size: min(88vw, 68dvh, 36rem);
   }
 }
 </style>
