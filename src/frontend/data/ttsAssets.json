@@ -13088,5 +13088,138 @@
     "text": "Найди полку того же цвета.",
     "voice": "jane",
     "path": "/audio/tts/shelf-sorting/scene-cef6788e.mp3"
+  },
+  {
+    "id": "chess-mini.mode",
+    "game": "chess-mini",
+    "text": "Как будем играть?",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/mode.mp3"
+  },
+  {
+    "id": "chess-mini.puzzle-done",
+    "game": "chess-mini",
+    "text": "Получилось!",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/puzzle-done.mp3"
+  },
+  {
+    "id": "chess-mini.puzzle-retry",
+    "game": "chess-mini",
+    "text": "Ходы закончились. Попробуем ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/puzzle-retry.mp3"
+  },
+  {
+    "id": "chess-mini.puzzle.r-berry-1",
+    "game": "chess-mini",
+    "text": "Дойди ладьёй до ягодки за один ход.",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/puzzle-r-berry-1.mp3"
+  },
+  {
+    "id": "chess-mini.puzzle.r-mushroom-1",
+    "game": "chess-mini",
+    "text": "Дойди ладьёй до гриба за один ход.",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/puzzle-r-mushroom-1.mp3"
+  },
+  {
+    "id": "chess-mini.puzzle.b-berry-1",
+    "game": "chess-mini",
+    "text": "Дойди слоном до ягодки за один ход.",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/puzzle-b-berry-1.mp3"
+  },
+  {
+    "id": "chess-mini.puzzle.b-mushroom-1",
+    "game": "chess-mini",
+    "text": "Дойди слоном до гриба за один ход.",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/puzzle-b-mushroom-1.mp3"
+  },
+  {
+    "id": "chess-mini.puzzle.n-berry-1",
+    "game": "chess-mini",
+    "text": "Дойди конём до ягодки за один ход.",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/puzzle-n-berry-1.mp3"
+  },
+  {
+    "id": "chess-mini.puzzle.n-mushroom-1",
+    "game": "chess-mini",
+    "text": "Дойди конём до гриба за один ход.",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/puzzle-n-mushroom-1.mp3"
+  },
+  {
+    "id": "chess-mini.puzzle.k-berry-2",
+    "game": "chess-mini",
+    "text": "Дойди королём до ягодки за два хода.",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/puzzle-k-berry-2.mp3"
+  },
+  {
+    "id": "chess-mini.puzzle.k-mushroom-2",
+    "game": "chess-mini",
+    "text": "Дойди королём до гриба за два хода.",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/puzzle-k-mushroom-2.mp3"
+  },
+  {
+    "id": "chess-mini.puzzle.b-berry-2",
+    "game": "chess-mini",
+    "text": "Дойди слоном до ягодки за два хода.",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/puzzle-b-berry-2.mp3"
+  },
+  {
+    "id": "chess-mini.puzzle.b-mushroom-2",
+    "game": "chess-mini",
+    "text": "Дойди слоном до гриба за два хода.",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/puzzle-b-mushroom-2.mp3"
+  },
+  {
+    "id": "chess-mini.puzzle.n-berry-2",
+    "game": "chess-mini",
+    "text": "Дойди конём до ягодки за два хода.",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/puzzle-n-berry-2.mp3"
+  },
+  {
+    "id": "chess-mini.puzzle.n-mushroom-2",
+    "game": "chess-mini",
+    "text": "Дойди конём до гриба за два хода.",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/puzzle-n-mushroom-2.mp3"
+  },
+  {
+    "id": "chess-mini.puzzle.q-berry-2",
+    "game": "chess-mini",
+    "text": "Дойди ферзём до ягодки за два хода.",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/puzzle-q-berry-2.mp3"
+  },
+  {
+    "id": "chess-mini.puzzle.q-mushroom-2",
+    "game": "chess-mini",
+    "text": "Дойди ферзём до гриба за два хода.",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/puzzle-q-mushroom-2.mp3"
+  },
+  {
+    "id": "chess-mini.puzzle.n-berry-3",
+    "game": "chess-mini",
+    "text": "Дойди конём до ягодки за три хода.",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/puzzle-n-berry-3.mp3"
+  },
+  {
+    "id": "chess-mini.puzzle.n-mushroom-3",
+    "game": "chess-mini",
+    "text": "Дойди конём до гриба за три хода.",
+    "voice": "jane",
+    "path": "/audio/tts/chess-mini/puzzle-n-mushroom-3.mp3"
   }
 ]
