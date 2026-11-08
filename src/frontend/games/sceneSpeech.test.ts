@@ -5,11 +5,6 @@ import { objectActionChoices } from "./object-action/model";
 import { findSceneRecordings } from "./sceneSpeech";
 import { generateShelfSortingRound } from "./shelf-sorting/model";
 import { generateShopRound } from "./shop/model";
-import {
-  createSocialPhraseDeck,
-  evaluateSocialPhraseChoice,
-  socialPhrasesInstruction,
-} from "./social-phrases/model";
 import { wantDontWantItems, wantDontWantPhrase } from "./want-dont-want/model";
 import { createWhereObjectRoundGenerator } from "./where-object/model";
 import { generateYesNoRound } from "./yes-no/model";
@@ -56,32 +51,6 @@ const scenePhrases: Record<string, ScenePhrase[]> = {
       for (let seed = 1; seed <= 200; seed += 1)
         for (const roundIndex of [1, 2])
           add(generateShopRound(settingsFromPreset(preset), roundIndex, seededRandom(seed)).prompt);
-  }),
-  "social-phrases": collect((add) => {
-    for (let seed = 1; seed <= 20; seed += 1) {
-      for (const round of createSocialPhraseDeck(seededRandom(seed))) {
-        for (const includeInstruction of [true, false])
-          add(
-            [
-              includeInstruction ? socialPhrasesInstruction : "",
-              round.scene,
-              round.partner,
-              round.prompt,
-            ]
-              .filter(Boolean)
-              .join(" "),
-            "alena",
-          );
-        for (const choice of round.choices) {
-          const evaluation = evaluateSocialPhraseChoice(round, choice);
-          add(evaluation.phrase, "filipp");
-          add(evaluation.feedback, "julia");
-        }
-      }
-    }
-    add("Я помогу. Послушай ситуацию ещё раз и выбери в своём темпе.", "julia");
-    add("Я услышал тебя. Останавливаемся.", "julia");
-    add("Спасибо. Все ситуации закончились.", "julia");
   }),
   "type-word": collect((add) => add("Собери название предмета. Выбирай буквы слева направо.")),
   "want-dont-want": collect((add) => {

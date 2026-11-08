@@ -1,21 +1,19 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
-import GameDwellButton from "../../components/game/GameDwellButton.vue";
+import GameChoiceCardGrid from "../../components/game/GameChoiceCardGrid.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
-import { useRoundGame } from "../../composables/useRoundGame";
 import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
-import { cancelSceneSpeech, speakSceneText } from "../sceneSpeech";
 import {
-  createSocialPhraseDeck,
-  evaluateSocialPhraseChoice,
-  getSocialPhraseChoice,
-  socialPhrasesInstruction,
-  type SocialPhraseChoice,
-  type SocialPhraseRound,
+  socialPhraseAssetId,
+  socialPhrases,
+  socialPhrasesPrompt,
+  socialPhrasesPromptAssetId,
+  type SocialPhrase,
 } from "./model";
 
 const router = useRouter();
@@ -27,148 +25,73 @@ const {
   pauseSession,
   resumeSession,
   recordSuccess,
-  recordHint,
   startSession,
   finishSession,
 } = useGameSessionFor("social-phrases", {
-  maxSteps: 4,
-  overrides: { dwellMs: 1300, sessionSeconds: 125, sound: true },
+  maxSteps: 8,
+  overrides: { dwellMs: 1350, sessionSeconds: 135, sound: true },
   finishOnMaxSteps: false,
   finishOnMistakes: false,
 });
-
-let deck = createSocialPhraseDeck();
-const {
-  round,
-  resultVisible,
-  nextRound,
-  restart: restartRoundGame,
-} = useRoundGame<SocialPhraseRound>({
-  session,
-  startSession,
-  generateRound: (roundIndex) => deck[roundIndex - 1],
+const promptAudio = useGamePromptAudio({
+  gameId: "social-phrases",
+  soundEnabled: toRef(session.settings, "sound"),
+  warmAssetIds: [socialPhrasesPromptAssetId],
 });
 
-const feedback = ref("Твоя выбранная фраза будет озвучена.");
-const selectedChoiceId = ref<string>();
-const isChangingRound = ref(false);
+const pending = ref(false);
+const saidPhraseId = ref<string>();
 
-function choiceTargetId(choiceId: string) {
-  return `social-phrases:choice:${round.value.id}:${choiceId}`;
+function phraseTargetId(phrase: SocialPhrase) {
+  return `social-phrases:phrase:${phrase.id}`;
 }
 
-async function playRoundPrompt(delayMs = 0, includeInstruction = false) {
-  isChangingRound.value = true;
-  const prompt = [
-    includeInstruction ? socialPhrasesInstruction : "",
-    round.value.scene,
-    round.value.partner,
-    round.value.prompt,
-  ]
-    .filter(Boolean)
-    .join(" ");
-  await speakSceneText(prompt, session.settings.sound, delayMs, { gameId: "social-phrases" });
-  isChangingRound.value = false;
-}
-
-async function choose(choice: SocialPhraseChoice) {
-  if (session.status !== "running" || isChangingRound.value) return;
-
-  const selectedChoice = getSocialPhraseChoice(round.value, choice.id);
-  const evaluation = evaluateSocialPhraseChoice(round.value, selectedChoice);
-  const targetId = choiceTargetId(choice.id);
-  selectedChoiceId.value = choice.id;
-  isChangingRound.value = true;
-
-  if (evaluation.type === "communication") {
-    feedback.value = `Ты сказал: «${evaluation.phrase}»`;
-    const payload = {
-      roundId: round.value.roundId,
-      targetId,
-      answerId: choice.id,
-      expected: round.value.expectedKind,
-      actual: choice.kind,
-      ...evaluation,
-    };
-    if (evaluation.function === "help") recordHint({ ...payload, reason: "requested-help" });
-    else recordSuccess(payload);
-    await speakSceneText(evaluation.phrase, session.settings.sound, 80, {
-      gameId: "social-phrases",
-    });
-
-    if (evaluation.function === "help") {
-      feedback.value = "Я помогу. Послушай ситуацию ещё раз и выбери в своём темпе.";
-      await speakSceneText(feedback.value, session.settings.sound, 100, {
-        gameId: "social-phrases",
-      });
-      selectedChoiceId.value = undefined;
-      await playRoundPrompt(140);
-      return;
-    }
-
-    if (evaluation.endsSession) {
-      feedback.value = "Я услышал тебя. Останавливаемся.";
-      await speakSceneText(feedback.value, session.settings.sound, 140, {
-        gameId: "social-phrases",
-      });
-      finishSession("game-complete");
-      isChangingRound.value = false;
-      return;
-    }
-
-    if (session.step >= session.maxSteps) {
-      feedback.value = "Спасибо. Все ситуации закончились.";
-      await speakSceneText(feedback.value, session.settings.sound, 140, {
-        gameId: "social-phrases",
-      });
-      finishSession("game-complete");
-      isChangingRound.value = false;
-      return;
-    }
-
-    nextRound();
-    selectedChoiceId.value = undefined;
-    feedback.value = round.value.prompt;
-    await playRoundPrompt(180);
-    return;
-  }
-
-  feedback.value = evaluation.feedback;
-  recordHint({
-    roundId: round.value.roundId,
-    targetId,
-    expectedTargetId: choiceTargetId(round.value.expectedChoice.id),
-    answerId: choice.id,
-    expected: round.value.expectedKind,
-    actual: choice.kind,
-    phrase: choice.text,
-    isCorrect: false,
+async function say(phrase: SocialPhrase) {
+  if (session.status !== "running" || pending.value) return;
+  pending.value = true;
+  saidPhraseId.value = phrase.id;
+  // Every card is a message: it is said for the child and counted as communication.
+  recordSuccess({
+    roundId: `social-phrases:say:${session.step + 1}`,
+    targetId: phraseTargetId(phrase),
+    answerId: phrase.id,
+    phrase: phrase.phrase,
+    isCorrect: true,
     noFail: true,
-    reason: "alternative-phrase",
   });
-  await speakSceneText(evaluation.feedback, session.settings.sound, 80, {
-    gameId: "social-phrases",
-  });
-  selectedChoiceId.value = undefined;
-  isChangingRound.value = false;
+  const finished = session.step >= session.maxSteps;
+  await promptAudio.playSequenceAndWait([socialPhraseAssetId(phrase)], 60, 250);
+  saidPhraseId.value = undefined;
+  pending.value = false;
+  if (finished) {
+    finishSession("game-complete");
+  }
+}
+
+function phraseColor(phrase: SocialPhrase) {
+  return saidPhraseId.value === phrase.id ? "green-lighten-4" : "surface";
+}
+
+async function playPrompt(delayMs = 0) {
+  pending.value = true;
+  await promptAudio.playSequenceAndWait([socialPhrasesPromptAssetId], delayMs);
+  pending.value = false;
 }
 
 function restart() {
-  cancelSceneSpeech();
-  deck = createSocialPhraseDeck();
-  feedback.value = "Твоя выбранная фраза будет озвучена.";
-  selectedChoiceId.value = undefined;
-  isChangingRound.value = false;
-  restartRoundGame();
-  void playRoundPrompt(220, true);
+  promptAudio.cancelPending();
+  saidPhraseId.value = undefined;
+  startSession();
+  void playPrompt(220);
 }
 
 onMounted(() => {
-  void playRoundPrompt(420, true);
+  promptAudio.warm();
+  void playPrompt(420);
 });
 
 onUnmounted(() => {
-  cancelSceneSpeech();
+  promptAudio.cancelPending();
 });
 </script>
 
@@ -184,103 +107,39 @@ onUnmounted(() => {
       @pause="pauseSession"
       @resume="resumeSession"
     />
-    <v-container class="game-container" fluid>
+    <v-container class="game-container game-hud-clear" fluid>
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11" xl="10">
-          <v-card class="social-phrases-card pa-4 pa-md-6" rounded="xl" elevation="8">
-            <v-alert
-              class="instruction mb-4"
-              color="blue-lighten-5"
-              icon="mdi-information-outline"
-              rounded="xl"
-              variant="flat"
+          <v-card class="pa-3 pa-md-5" rounded="xl" elevation="8">
+            <h1 class="text-h5 text-md-h4 font-weight-bold text-center mb-3">
+              {{ socialPhrasesPrompt }}
+            </h1>
+            <GameChoiceCardGrid
+              :choices="socialPhrases"
+              :target-id="phraseTargetId"
+              :disabled="session.status !== 'running' || pending"
+              :dwell-ms="session.settings.dwellMs"
+              min-height="clamp(7.5rem, 28dvh, 16rem)"
+              :color="phraseColor"
+              :cols="6"
+              :sm="3"
+              :md="3"
+              :lg="3"
+              @select="say"
             >
-              <div class="text-h6 text-md-h5 font-weight-bold">{{ socialPhrasesInstruction }}</div>
-            </v-alert>
-
-            <v-card
-              class="scene-card pa-4 mb-4"
-              :color="round.sceneColor"
-              rounded="xl"
-              variant="flat"
-            >
-              <div class="scene-layout">
-                <img
-                  v-if="round.sceneArtId"
-                  class="scene-art"
-                  :src="gameArtSrc(round.sceneArtId)"
-                  alt=""
-                  draggable="false"
-                />
-                <v-icon
-                  v-else
-                  class="scene-icon"
-                  color="primary"
-                  :icon="round.sceneIcon"
-                  size="clamp(4rem, 12dvh, 7rem)"
-                />
-                <div>
-                  <h1 class="scene-title text-h4 text-md-h3 font-weight-bold mb-2">
-                    {{ round.scene }}
-                  </h1>
-                  <div class="scene-partner text-body-1 text-md-h6 mb-2">{{ round.partner }}</div>
-                  <div class="scene-prompt text-h6 text-md-h5 font-weight-bold">
-                    {{ round.prompt }}
-                  </div>
+              <template #default="{ choice }">
+                <div class="phrase">
+                  <img class="phrase__art" :src="gameArtSrc(choice.artId)" alt="" draggable="false" />
+                  <div class="text-subtitle-1 text-md-h5 font-weight-bold">{{ choice.label }}</div>
                 </div>
-              </div>
-            </v-card>
-
-            <div class="social-feedback text-h6 text-md-h5 font-weight-bold text-center mb-4">
-              {{ feedback }}
-            </div>
-
-            <v-row justify="center" dense>
-              <v-col v-for="choice in round.choices" :key="choice.id" cols="6" sm="3">
-                <GameDwellButton
-                  :target-id="choiceTargetId(choice.id)"
-                  :disabled="session.status !== 'running' || isChangingRound"
-                  :dwell-ms="session.settings.dwellMs"
-                  min-height="clamp(7.5rem, 22dvh, 11.5rem)"
-                  :color="selectedChoiceId === choice.id ? choice.iconColor : choice.color"
-                  @select="choose(choice)"
-                >
-                  <template #default>
-                    <img
-                      v-if="choice.artId"
-                      class="choice-art mb-2"
-                      :src="gameArtSrc(choice.artId)"
-                      alt=""
-                      draggable="false"
-                    />
-                    <v-icon
-                      v-else
-                      class="choice-icon mb-2"
-                      :color="selectedChoiceId === choice.id ? 'white' : choice.iconColor"
-                      :icon="choice.icon"
-                      size="clamp(2.8rem, 7dvh, 4.8rem)"
-                    />
-                    <div
-                      :class="[
-                        'choice-text',
-                        'text-h6',
-                        'text-md-h5',
-                        'font-weight-bold',
-                        { 'text-white': selectedChoiceId === choice.id },
-                      ]"
-                    >
-                      {{ choice.text }}
-                    </div>
-                  </template>
-                </GameDwellButton>
-              </v-col>
-            </v-row>
+              </template>
+            </GameChoiceCardGrid>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
     <GameResultDialog
-      :model-value="resultVisible"
+      :model-value="session.status === 'finished'"
       title="Социальные фразы"
       :score="session.score"
       :mistakes="session.mistakes"
@@ -299,121 +158,16 @@ onUnmounted(() => {
   min-block-size: 100vh;
 }
 
-.game-container {
-  padding-block-start: 7.5rem;
-}
-
-.scene-layout {
+.phrase {
   align-items: center;
-  display: grid;
-  gap: clamp(1rem, 3vw, 2rem);
-  grid-template-columns: minmax(6rem, 9rem) minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
-.scene-icon,
-.scene-art {
-  justify-self: center;
-}
-
-.scene-art {
-  block-size: clamp(6rem, 18dvh, 9rem);
-  inline-size: 100%;
+.phrase__art {
+  block-size: clamp(4rem, 17dvh, 10rem);
+  inline-size: clamp(4rem, 17dvh, 10rem);
   object-fit: contain;
-}
-
-.choice-art {
-  block-size: clamp(2.8rem, 15dvh, 8rem);
-  inline-size: 100%;
-  object-fit: contain;
-}
-
-.scene-title,
-.choice-text {
-  line-height: 1.12;
-}
-
-.scene-partner,
-.scene-prompt,
-.social-feedback {
-  color: #263238;
-}
-
-.social-feedback {
-  min-block-size: 1.5em;
-}
-
-@media (max-width: 43.75rem) {
-  .game-container {
-    padding-block-start: 9.5rem;
-  }
-
-  .scene-layout {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
-}
-
-@media (max-height: 44rem) {
-  .game-container {
-    padding-block-start: 5rem;
-  }
-
-  .social-phrases-card {
-    padding: 0.5rem !important;
-  }
-
-  .instruction {
-    margin-block-end: 0.65rem !important;
-    padding-block: 0.45rem !important;
-  }
-
-  .instruction .text-h6 {
-    font-size: 0.95rem !important;
-  }
-
-  .scene-card {
-    margin-block-end: 0.65rem !important;
-    padding: 0.7rem 1rem !important;
-  }
-
-  .scene-layout {
-    grid-template-columns: clamp(5rem, 22dvh, 9rem) minmax(0, 1fr);
-  }
-
-  .scene-art {
-    block-size: clamp(4rem, 15dvh, 6.5rem);
-  }
-
-  .scene-icon {
-    font-size: clamp(3rem, 10dvh, 4.5rem) !important;
-  }
-
-  .scene-title {
-    font-size: clamp(1.3rem, 4dvh, 1.8rem) !important;
-  }
-
-  .scene-partner,
-  .scene-prompt,
-  .social-feedback {
-    font-size: 1rem !important;
-  }
-
-  .social-feedback {
-    margin-block-end: 0.65rem !important;
-  }
-
-  .game-container :deep(.dwell-button) {
-    min-block-size: 7.5rem !important;
-    padding: 0.65rem !important;
-  }
-
-  .choice-icon {
-    font-size: clamp(2rem, 6dvh, 3rem) !important;
-    margin-block-end: 0.35rem !important;
-  }
-
-  .choice-text {
-    font-size: clamp(0.95rem, 2.6dvh, 1.2rem) !important;
-  }
 }
 </style>
