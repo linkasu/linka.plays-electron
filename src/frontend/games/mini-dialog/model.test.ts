@@ -1,90 +1,67 @@
 import { describe, expect, it } from "vitest";
+import ttsAssets from "../../data/ttsAssets.json";
 import {
-  createMiniDialogCommunication,
-  generateMiniDialogRound,
-  getMiniDialogChoice,
-  getMiniDialogNextNodeId,
-  miniDialogGraph,
-  miniDialogInstruction,
-  miniDialogPath,
-  validateMiniDialogGraph,
+  createMiniDialogRoundGenerator,
+  miniDialogPromptAssetId,
+  miniDialogReplies,
+  miniDialogReplyAssetId,
+  miniDialogSituations,
 } from "./model";
 
-describe("mini-dialog graph", () => {
-  it("uses complete child-facing copy for a real short dialogue", () => {
-    expect(miniDialogInstruction).toBe(
-      "Послушай Миру и выбери, что ты хочешь сказать. Здесь нет неправильных ответов.",
-    );
-    expect(miniDialogGraph.hello.partnerLine).toBe("Привет! Я Мира. Хочешь немного поговорить?");
-    expect(miniDialogGraph.feeling.partnerLine).toBe("Как ты себя чувствуешь сейчас?");
-    expect(miniDialogGraph.finish.partnerLine).toBe("Хорошо. Спасибо за разговор. Пока!");
+function seededRandom(seed: number) {
+  let state = seed >>> 0;
+  return () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 0x100000000;
+  };
+}
+
+describe("mini-dialog", () => {
+  it("follows the testers' scheme: four reply cards and Mira's situations", () => {
+    expect(miniDialogReplies.map((reply) => reply.text)).toEqual([
+      "Привет",
+      "Пока",
+      "Спасибо",
+      "Пожалуйста",
+    ]);
+    expect(miniDialogSituations.map((situation) => situation.prompt)).toEqual([
+      "Мира сказала тебе привет. Выбери, как ей ответить.",
+      "Мира говорит тебе пока. Что нужно ответить?",
+      "Мира угостила тебя яблоком. Что нужно ответить?",
+      "Мира сказала тебе спасибо. Что нужно ответить?",
+    ]);
   });
 
-  it("treats every offered reply as no-fail communication with exact copy", () => {
-    for (const nodeId of miniDialogPath) {
-      for (const choice of miniDialogGraph[nodeId].choices) {
-        expect(createMiniDialogCommunication(choice)).toEqual({
-          phrase: choice.text,
-          expected: "valid-communication",
-          actual: choice.text,
-          isCorrect: true,
-          noFail: true,
-        });
-        expect(getMiniDialogNextNodeId(choice)).toBeTruthy();
-      }
+  it("offers all four replies with exactly one right answer", () => {
+    const generate = createMiniDialogRoundGenerator(seededRandom(3));
+    for (let index = 1; index <= 12; index += 1) {
+      const round = generate(index);
+      expect(new Set(round.choices.map((choice) => choice.id)).size).toBe(4);
+      expect(round.choices[round.correctIndex].id).toBe(round.situation.answer);
     }
   });
 
-  it("offers three or four visually distinct AAC replies on every speaking turn", () => {
-    expect(validateMiniDialogGraph()).toEqual([]);
-
-    for (const nodeId of miniDialogPath.filter((id) => id !== "finish")) {
-      const choices = miniDialogGraph[nodeId].choices;
-      expect(choices.length).toBeGreaterThanOrEqual(3);
-      expect(choices.length).toBeLessThanOrEqual(4);
-      expect(new Set(choices.map((choice) => choice.icon))).toHaveLength(choices.length);
-      expect(new Set(choices.map((choice) => choice.color))).toHaveLength(choices.length);
-      expect(choices.every((choice) => choice.icon.startsWith("mdi-"))).toBe(true);
+  it("meets every situation before repeating and never repeats one in a row", () => {
+    const generate = createMiniDialogRoundGenerator(seededRandom(5));
+    const rounds = Array.from({ length: 16 }, (_, index) => generate(index + 1));
+    for (let start = 0; start < rounds.length; start += miniDialogSituations.length) {
+      const pass = rounds.slice(start, start + miniDialogSituations.length);
+      expect(new Set(pass.map((round) => round.situation.id)).size).toBe(
+        miniDialogSituations.length,
+      );
+    }
+    for (let index = 1; index < rounds.length; index += 1) {
+      expect(rounds[index].situation.id).not.toBe(rounds[index - 1].situation.id);
     }
   });
 
-  it("lets the child refuse, stop, ask for help, repeat, and ask for more", () => {
-    const kinds = new Set(
-      miniDialogPath.flatMap((nodeId) =>
-        miniDialogGraph[nodeId].choices.map((choice) => choice.kind),
-      ),
-    );
-
-    expect(kinds).toEqual(new Set(["answer", "refusal", "support", "repeat", "more", "stop"]));
-    expect(
-      miniDialogGraph.activity.choices.some((choice) => choice.text === "Стоп, пожалуйста."),
-    ).toBe(true);
-    expect(miniDialogGraph.more.choices.some((choice) => choice.text === "Да, давай ещё.")).toBe(
-      true,
-    );
-    expect(miniDialogGraph.hello.choices.find((choice) => choice.id === "help")?.nextNodeId).toBe(
-      "hello",
-    );
-    expect(
-      miniDialogGraph.activity.choices.find((choice) => choice.id === "help-picture")?.nextNodeId,
-    ).toBe("activity");
-  });
-
-  it("creates isolated shuffled rounds without changing the dialogue graph", () => {
-    const graphOrder = miniDialogGraph.hello.choices.map((choice) => choice.id);
-    const lowRandomRound = generateMiniDialogRound(1, () => 0, "hello");
-    const highRandomRound = generateMiniDialogRound(1, () => 0.99, "hello");
-
-    expect(lowRandomRound.choices.map((choice) => choice.id)).not.toEqual(
-      highRandomRound.choices.map((choice) => choice.id),
-    );
-    expect(miniDialogGraph.hello.choices.map((choice) => choice.id)).toEqual(graphOrder);
-    expect(lowRandomRound.character.name).toBe("Мира");
-  });
-
-  it("rejects unknown choice ids", () => {
-    const round = generateMiniDialogRound(1, () => 0.99, "hello");
-
-    expect(() => getMiniDialogChoice(round, "unknown")).toThrow("Нет реплики unknown");
+  it("has a recording for every task and every reply", () => {
+    const ids = new Set(ttsAssets.map((asset) => asset.id));
+    for (const situation of miniDialogSituations) {
+      expect(ids.has(miniDialogPromptAssetId(situation))).toBe(true);
+    }
+    for (const reply of miniDialogReplies)
+      expect(ids.has(miniDialogReplyAssetId(reply))).toBe(true);
+    expect(ids.has("mini-dialog.mistake")).toBe(true);
   });
 });
