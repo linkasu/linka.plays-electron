@@ -1,7 +1,7 @@
 import { shuffleItems } from "../../core/random";
 
 export type WhereObjectPrepositionId = "on" | "under" | "in" | "beside";
-export type WhereObjectPlaceId = "box";
+export type WhereObjectPlaceId = "table" | "box";
 
 export type WhereObjectPreposition = {
   id: WhereObjectPrepositionId;
@@ -11,7 +11,7 @@ export type WhereObjectPreposition = {
 export type WhereObjectPlace = {
   id: WhereObjectPlaceId;
   label: string;
-  phrases: Record<WhereObjectPrepositionId, string>;
+  phrases: Partial<Record<WhereObjectPrepositionId, string>>;
 };
 
 export type WhereObjectItem = {
@@ -46,18 +46,32 @@ export const whereObjectPrepositions: WhereObjectPreposition[] = [
   { id: "beside", label: "рядом" },
 ];
 
+// Testers: «непонятна картинка над, под, в». A thing lies on a table, under a table,
+// next to a table, and in a box: each picture is one a child already knows.
 export const whereObjectPlaces: WhereObjectPlace[] = [
+  {
+    id: "table",
+    label: "стол",
+    phrases: {
+      on: "на столе",
+      under: "под столом",
+      beside: "рядом со столом",
+    },
+  },
   {
     id: "box",
     label: "коробка",
     phrases: {
-      on: "на коробке",
-      under: "под коробкой",
       in: "в коробке",
-      beside: "рядом с коробкой",
     },
   },
 ];
+
+export function placeFor(preposition: WhereObjectPreposition): WhereObjectPlace {
+  const place = whereObjectPlaces.find((item) => item.phrases[preposition.id]);
+  if (!place) throw new Error(`Нет места для предлога «${preposition.label}».`);
+  return place;
+}
 
 export const whereObjectItems: WhereObjectItem[] = [
   { id: "ball", word: "мяч", emoji: "⚽" },
@@ -71,7 +85,9 @@ export const whereObjectItems: WhereObjectItem[] = [
 ];
 
 export function phraseFor(place: WhereObjectPlace, preposition: WhereObjectPreposition) {
-  return place.phrases[preposition.id];
+  const phrase = place.phrases[preposition.id];
+  if (!phrase) throw new Error(`У места «${place.label}» нет фразы для «${preposition.label}».`);
+  return phrase;
 }
 
 export function isWhereObjectCorrect(round: WhereObjectRound, choice: WhereObjectChoice) {
@@ -90,20 +106,20 @@ function buildWhereObjectRound(
 ): WhereObjectRound {
   const normalizedIndex = Math.max(1, Math.floor(roundIndex));
   const { targetObject, targetPreposition } = entry;
-  const targetPlace = whereObjectPlaces[0];
+  const targetPlace = placeFor(targetPreposition);
   const scenePhrase = `${targetObject.word} ${phraseFor(targetPlace, targetPreposition)}`;
   const choices = shuffleItems(
-    whereObjectPrepositions.map<WhereObjectChoice>((preposition) => ({
-      id: preposition.id,
-      preposition,
-      targetObject,
-      targetPlace,
-      scenePhrase: `${targetObject.word} ${phraseFor(targetPlace, preposition)}`,
-      answerAssetId:
-        preposition.id === "beside"
-          ? undefined
-          : `where-object.answer.${targetObject.id}.${targetPlace.id}.${preposition.id}`,
-    })),
+    whereObjectPrepositions.map<WhereObjectChoice>((preposition) => {
+      const place = placeFor(preposition);
+      return {
+        id: preposition.id,
+        preposition,
+        targetObject,
+        targetPlace: place,
+        scenePhrase: `${targetObject.word} ${phraseFor(place, preposition)}`,
+        answerAssetId: `where-object.answer.${targetObject.id}.${place.id}.${preposition.id}`,
+      };
+    }),
     random,
   );
 
