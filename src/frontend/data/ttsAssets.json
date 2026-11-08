@@ -6181,11 +6181,46 @@
     "path": "/audio/tts/sound-source/prompt.mp3"
   },
   {
-    "id": "sound-source.correct",
+    "id": "sound-source.correct.shell",
     "game": "sound-source",
-    "text": "Да. Источник звука найден.",
+    "text": "Да, так звучит ракушка.",
     "voice": "jane",
-    "path": "/audio/tts/sound-source/correct.mp3"
+    "path": "/audio/tts/sound-source/correct-shell.mp3"
+  },
+  {
+    "id": "sound-source.correct.bell",
+    "game": "sound-source",
+    "text": "Да, так звучит колокольчик.",
+    "voice": "jane",
+    "path": "/audio/tts/sound-source/correct-bell.mp3"
+  },
+  {
+    "id": "sound-source.correct.bird",
+    "game": "sound-source",
+    "text": "Да, так звучит птичка.",
+    "voice": "jane",
+    "path": "/audio/tts/sound-source/correct-bird.mp3"
+  },
+  {
+    "id": "sound-source.correct.stream",
+    "game": "sound-source",
+    "text": "Да, так звучит ручей.",
+    "voice": "jane",
+    "path": "/audio/tts/sound-source/correct-stream.mp3"
+  },
+  {
+    "id": "sound-source.correct.leaf",
+    "game": "sound-source",
+    "text": "Да, так звучит лист.",
+    "voice": "jane",
+    "path": "/audio/tts/sound-source/correct-leaf.mp3"
+  },
+  {
+    "id": "sound-source.correct.speaker",
+    "game": "sound-source",
+    "text": "Да, так звучит динамик.",
+    "voice": "jane",
+    "path": "/audio/tts/sound-source/correct-speaker.mp3"
   },
   {
     "id": "sound-source.mistake",

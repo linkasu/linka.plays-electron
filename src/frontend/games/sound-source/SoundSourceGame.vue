@@ -7,6 +7,7 @@ import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import GameWordImage from "../../components/game/GameWordImage.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { resolvePublicAssetUrl } from "../../core/publicAsset";
 import { advanceSoundSourceHint, type SoundSourceHintState } from "./model";
@@ -14,6 +15,8 @@ import { advanceSoundSourceHint, type SoundSourceHintState } from "./model";
 type SoundSource = {
   id: string;
   wordId?: string;
+  /** Our own drawing, for sources without a word picture. */
+  artId?: string;
   title: string;
   soundLabel: string;
   icon: string;
@@ -48,7 +51,7 @@ const soundSources: SoundSource[] = [
     accent: "#5ab8c8",
     wash: "#ddfbff",
     soundPath: "/audio/sfx/sound-source/shell-wave.mp3",
-    cueMs: 1700,
+    cueMs: 3300,
     volume: 0.38,
   },
   {
@@ -60,7 +63,7 @@ const soundSources: SoundSource[] = [
     accent: "#f0b64a",
     wash: "#fff1c8",
     soundPath: "/audio/sfx/sound-source/bell.mp3",
-    cueMs: 2200,
+    cueMs: 2600,
     volume: 0.32,
   },
   {
@@ -79,11 +82,12 @@ const soundSources: SoundSource[] = [
     id: "stream",
     title: "Ручей",
     soundLabel: " вода",
+    artId: "sound-source/stream",
     icon: "mdi-water",
     accent: "#6b9dec",
     wash: "#e5f0ff",
     soundPath: "/audio/sfx/sound-source/stream.mp3",
-    cueMs: 1800,
+    cueMs: 3200,
     volume: 0.36,
   },
   {
@@ -95,18 +99,19 @@ const soundSources: SoundSource[] = [
     accent: "#68b78d",
     wash: "#e4f8ec",
     soundPath: "/audio/sfx/sound-source/leaf.mp3",
-    cueMs: 1200,
+    cueMs: 2600,
     volume: 0.32,
   },
   {
     id: "speaker",
     title: "Динамик",
-    soundLabel: "нота",
+    soundLabel: "музыка",
+    artId: "sound-source/speaker",
     icon: "mdi-speaker",
     accent: "#b28be8",
     wash: "#f2e9ff",
     soundPath: "/audio/sfx/sound-source/speaker.mp3",
-    cueMs: 1100,
+    cueMs: 2900,
     volume: 0.28,
   },
 ];
@@ -264,10 +269,11 @@ async function chooseSource(source: SoundSource) {
 
   pendingAudio.value = true;
   selectedSourceId.value = source.id;
-  feedbackMessage.value = `Да, это «${source.title}». Волна найдена.`;
+  // Testers: «"Волна найдена" переписываем на что-то более адекватное и детское».
+  feedbackMessage.value = `Да, так звучит ${source.title.toLowerCase()}.`;
   recordSuccess({ roundId: round.roundId, targetId: source.id, sound: source.soundLabel });
   await playSourceCue(source, "success");
-  await promptAudio.playSequenceAndWait(["sound-source.correct"], 80);
+  await promptAudio.playSequenceAndWait([`sound-source.correct.${source.id}`], 80);
 
   if (token === playbackToken && session.status === "running") {
     window.clearTimeout(nextRoundTimer);
@@ -518,8 +524,14 @@ onUnmounted(() => {
                   }"
                   aria-hidden="true"
                 />
+                <img
+                  v-if="source.artId"
+                  class="source-emoji source-art"
+                  :src="gameArtSrc(source.artId)"
+                  alt=""
+                />
                 <GameWordImage
-                  v-if="source.wordId"
+                  v-else-if="source.wordId"
                   class="source-emoji"
                   :word-id="source.wordId"
                   :word="source.title"
@@ -534,7 +546,7 @@ onUnmounted(() => {
                 <div class="source-caption text-body-2 mt-1">
                   {{
                     selectedSourceId === source.id
-                      ? "Волна найдена"
+                      ? "Да, так звучит"
                       : lastMistakeSourceId === source.id
                         ? "Не отсюда"
                         : active
@@ -668,6 +680,12 @@ onUnmounted(() => {
   filter: drop-shadow(0 18px 26px color-mix(in srgb, var(--source-accent) 30%, transparent));
   font-size: clamp(4.1rem, min(10vw, 17dvh), 9rem);
   line-height: 1;
+}
+
+.source-art {
+  block-size: 1em;
+  inline-size: 1em;
+  object-fit: contain;
 }
 
 .source-caption {
