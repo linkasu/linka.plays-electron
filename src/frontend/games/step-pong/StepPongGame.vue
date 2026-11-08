@@ -35,7 +35,7 @@ const lanes: PaddleLane[] = [
     hint: "поднять ракетку",
     icon: "mdi-arrow-up-bold-box-outline",
     color: "blue-lighten-5",
-    y: 25,
+    y: 17,
   },
   {
     id: "middle",
@@ -51,7 +51,7 @@ const lanes: PaddleLane[] = [
     hint: "опустить ракетку",
     icon: "mdi-arrow-down-bold-box-outline",
     color: "amber-lighten-5",
-    y: 75,
+    y: 83,
   },
 ];
 
@@ -151,11 +151,12 @@ const ballStyle = computed(() => ({
   "--paddle-y": `${selectedLane.value.y}%`,
   "--shot-angle": `${(round.value.returnLane.y - round.value.incomingLane.y) * 0.22}deg`,
 }));
-const helperText = computed(() =>
-  hintStrength.value > 0
-    ? `Мяч не потерялся. Подсказка: нужна ${round.value.incomingLane.label.toLowerCase()}.`
-    : `Мяч летит в ${round.value.incomingLane.label.toLowerCase()}.`,
-);
+const ballDirection: Record<PaddleLaneId, string> = {
+  top: "вверх",
+  middle: "в середину",
+  bottom: "вниз",
+};
+const helperText = computed(() => `Мяч летит ${ballDirection[round.value.incomingLane.id]}.`);
 
 function laneTargetId(lane: PaddleLane) {
   return `step-pong:lane:${lane.id}`;
@@ -177,7 +178,7 @@ async function chooseLane(lane: PaddleLane) {
     feedbackText.value =
       outcome === "loss"
         ? "Третья сложная позиция: мяч остановился. Раунд завершён, можно начать заново."
-        : "Мяч остался в игре. Подсказка показывает, куда поставить ракетку.";
+        : "Мяч остался в игре. Посмотри, куда летит мяч, и выбери место для ракетки.";
     recordMistake({
       roundId: round.value.roundId,
       targetId,
@@ -243,11 +244,11 @@ async function chooseLane(lane: PaddleLane) {
   isSpeaking.value = false;
 }
 
-function laneColor(lane: PaddleLane) {
-  if (hintStrength.value > 0 && lane.id === round.value.incomingLane.id) return "primary";
-  if (lastMistakeLaneId.value === lane.id) return "warning";
+function laneState(lane: PaddleLane) {
+  if (lastMistakeLaneId.value === lane.id) return "mistake";
   if (lastSuccessLaneId.value === lane.id) return "success";
-  return "surface";
+  // No highlight of the right zone after a mistake (decision of 2026-11-06 for all games).
+  return "idle";
 }
 
 function restart() {
@@ -309,104 +310,71 @@ onUnmounted(() => {
               </v-chip>
             </div>
 
-            <v-row align="stretch">
-              <v-col cols="12" sm="6" class="pe-sm-4">
-                <v-card
-                  class="pong-board pa-3 pa-md-5"
-                  color="cyan-lighten-5"
-                  rounded="xl"
-                  variant="flat"
-                >
+            <!-- User: «управление рядом с ракеткой: выбор нужного положения непосредственно
+                 рядом с ракеткой». Three zones over the paddle's column: look at one and the
+                 paddle moves there. -->
+            <v-card
+              class="pong-board pa-2 pa-md-3"
+              color="cyan-lighten-5"
+              rounded="xl"
+              variant="flat"
+            >
+              <div
+                class="pong-stage"
+                :class="`pong-stage--${animationMode}`"
+                :style="ballStyle"
+                aria-label="Поле пошагового понга"
+              >
+                <div class="partner-paddle" aria-hidden="true" />
+                <div class="net" aria-hidden="true" />
+
+                <div class="lane-markers" aria-label="Линии прилёта мяча">
                   <div
-                    class="pong-stage"
-                    :class="`pong-stage--${animationMode}`"
-                    :style="ballStyle"
-                    aria-label="Поле пошагового понга"
-                  >
-                    <div class="partner-paddle" aria-hidden="true" />
-                    <div class="net" aria-hidden="true" />
+                    v-for="lane in lanes"
+                    :key="lane.id"
+                    class="lane-marker"
+                    :class="{ 'lane-marker--active': lane.id === round.incomingLane.id }"
+                    :style="{ '--lane-y': `${lane.y}%` }"
+                  />
+                </div>
 
-                    <div class="lane-markers" aria-label="Линии прилёта мяча">
+                <div class="incoming-path" aria-hidden="true" />
+                <div class="return-path" aria-hidden="true" />
+                <div class="pong-ball" aria-hidden="true" />
+                <div
+                  class="player-paddle"
+                  :class="{
+                    'player-paddle--hint': hintStrength > 0,
+                    'player-paddle--success': lastSuccessLaneId === selectedLaneId,
+                  }"
+                  aria-hidden="true"
+                />
+
+                <div class="paddle-zones">
+                  <GameDwellButton
+                    v-for="lane in lanes"
+                    :key="lane.id"
+                    class="paddle-zone"
+                    :class="`paddle-zone--${laneState(lane)}`"
+                    :target-id="laneTargetId(lane)"
+                    :disabled="session.status !== 'running' || isSpeaking"
+                    :dwell-ms="session.settings.dwellMs"
+                    min-height="0"
+                    color="transparent"
+                    @select="chooseLane(lane)"
+                  >
+                    <template #default>
+                      <span class="d-sr-only">{{ lane.label }}</span>
                       <div
-                        v-for="lane in lanes"
-                        :key="lane.id"
-                        class="lane-marker"
-                        :class="{ 'lane-marker--active': lane.id === round.incomingLane.id }"
-                        :style="{ '--lane-y': `${lane.y}%` }"
-                      >
-                        <v-icon
-                          v-if="lane.id === round.incomingLane.id"
-                          icon="mdi-bullseye-arrow"
-                          color="primary"
-                          size="26"
-                        />
-                      </div>
-                    </div>
-
-                    <div class="incoming-path" aria-hidden="true" />
-                    <div class="return-path" aria-hidden="true" />
-                    <div class="pong-ball" aria-hidden="true" />
-                    <div
-                      class="player-paddle"
-                      :class="{
-                        'player-paddle--hint': hintStrength > 0,
-                        'player-paddle--success': lastSuccessLaneId === selectedLaneId,
-                      }"
-                      aria-hidden="true"
-                    />
-                  </div>
-                </v-card>
-              </v-col>
-
-              <v-col cols="12" sm="6">
-                <v-card class="pa-4 pa-md-5 h-100" color="surface" rounded="xl" variant="outlined">
-                  <div class="text-overline text-secondary mb-2">Позиция ракетки</div>
-                  <div class="lane-grid">
-                    <GameDwellButton
-                      v-for="lane in lanes"
-                      :key="lane.id"
-                      :target-id="laneTargetId(lane)"
-                      :disabled="session.status !== 'running' || isSpeaking"
-                      :dwell-ms="session.settings.dwellMs"
-                      min-height="8.5rem"
-                      :color="laneColor(lane)"
-                      @select="chooseLane(lane)"
-                    >
-                      <template #default>
-                        <div
-                          :class="[
-                            'lane-choice',
-                            {
-                              'lane-choice--hinted':
-                                hintStrength > 0 && lane.id === round.incomingLane.id,
-                            },
-                          ]"
-                        >
-                          <v-icon :icon="lane.icon" size="42" color="on-surface" />
-                          <div
-                            class="lane-choice__label text-subtitle-1 text-md-h6 font-weight-bold mt-1"
-                          >
-                            {{ lane.label }}
-                          </div>
-                          <div class="lane-choice__hint text-body-2">{{ lane.hint }}</div>
-                        </div>
-                      </template>
-                    </GameDwellButton>
-                  </div>
-
-                  <v-alert
-                    class="game-note mt-4 text-body-1"
-                    color="info"
-                    icon="mdi-hand-heart-outline"
-                    rounded="xl"
-                    variant="tonal"
-                  >
-                    Если позиция не подошла, это промах. После трёх сложных выборов раунд
-                    завершается.
-                  </v-alert>
-                </v-card>
-              </v-col>
-            </v-row>
+                        v-if="lane.id !== selectedLaneId"
+                        class="paddle-ghost"
+                        aria-hidden="true"
+                      />
+                    </template>
+                  </GameDwellButton>
+                </div>
+              </div>
+            </v-card>
           </v-card>
         </v-col>
       </v-row>
@@ -437,14 +405,15 @@ onUnmounted(() => {
 }
 
 .pong-board {
-  min-block-size: clamp(31rem, 67vh, 43rem);
+  min-block-size: 0;
 }
 
 .pong-stage {
   background:
     radial-gradient(circle at 50% 50%, rgb(255 255 255 / 78%) 0%, transparent 36%),
     linear-gradient(180deg, #e9fbff 0%, #f8fffb 100%);
-  block-size: clamp(28rem, 61vh, 38rem);
+  /* The field takes the height under the HUD and the title. */
+  block-size: clamp(18rem, calc(100dvh - 21rem), 38rem);
   border: 0.25rem solid rgb(var(--v-theme-primary) / 14%);
   border-radius: 1.6rem;
   overflow: hidden;
@@ -484,9 +453,9 @@ onUnmounted(() => {
 
 .player-paddle {
   background: linear-gradient(180deg, #26a69a 0%, #00897b 100%);
-  block-size: clamp(6.4rem, 18vh, 9rem);
+  block-size: clamp(5rem, 18vh, 9rem);
   inset-block-start: var(--paddle-y);
-  inset-inline-end: 8%;
+  inset-inline-end: calc(11% - clamp(0.6rem, 1.1vw, 0.85rem));
   transition:
     inset-block-start 260ms ease,
     box-shadow 220ms ease;
@@ -671,20 +640,45 @@ onUnmounted(() => {
   }
 }
 
-.lane-grid {
+/* The paddle's column: three gaze zones, each a third of the field high. */
+.paddle-zones {
   display: grid;
-  gap: 0.9rem;
+  gap: 0.35rem;
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  inline-size: 16%;
+  inset-block: 0.35rem;
+  inset-inline-end: 3%;
+  position: absolute;
+  z-index: 5;
 }
 
-.lane-choice {
+.paddle-zone,
+.paddle-zone :deep(.dwell-button) {
+  block-size: 100%;
+}
+
+.paddle-zone :deep(.dwell-button) {
   align-items: center;
-  display: flex;
-  flex-direction: column;
-  text-align: center;
+  border: 0.18rem dashed rgba(var(--v-theme-primary), 0.3);
+  justify-content: center;
+  padding: 0 !important;
 }
 
-.lane-choice--hinted {
-  filter: drop-shadow(0 0 0.8rem rgb(var(--v-theme-primary) / 24%));
+.paddle-zone--mistake :deep(.dwell-button) {
+  background: rgba(255, 152, 0, 0.18) !important;
+}
+
+.paddle-zone--success :deep(.dwell-button) {
+  background: rgba(76, 175, 80, 0.18) !important;
+}
+
+/* Where the paddle will stand if this zone is chosen. */
+.paddle-ghost {
+  block-size: clamp(5rem, 18vh, 9rem);
+  border: 0.2rem dashed rgba(0, 137, 123, 0.55);
+  border-radius: 999px;
+  inline-size: clamp(1.2rem, 2.2vw, 1.7rem);
+  max-block-size: 85%;
 }
 
 @media (max-width: 60rem) {
@@ -696,50 +690,6 @@ onUnmounted(() => {
 @media (min-width: 43.75rem) and (max-height: 57.5rem) {
   .game-container {
     padding-block-start: 7.25rem;
-  }
-
-  .pong-board {
-    min-block-size: clamp(20rem, 50vh, 28rem);
-  }
-
-  .pong-stage {
-    block-size: clamp(18rem, 44vh, 25rem);
-  }
-
-  .lane-grid {
-    gap: 0.55rem;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .lane-grid :deep(.dwell-button) {
-    min-block-size: 6.5rem !important;
-    padding: 0.75rem !important;
-  }
-
-  .lane-grid > :last-child {
-    grid-column: 1 / -1;
-  }
-
-  .lane-choice :deep(.v-icon) {
-    font-size: 2.25rem !important;
-  }
-
-  .lane-choice .text-body-2 {
-    display: none;
-  }
-
-  .lane-choice {
-    color: #1f2a27;
-    min-block-size: 5.75rem;
-  }
-
-  .lane-choice :deep(.v-icon) {
-    color: #1f2a27 !important;
-  }
-
-  .lane-choice__label,
-  .lane-choice__hint {
-    color: #1f2a27 !important;
   }
 
   .game-feedback,
