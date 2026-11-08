@@ -447,6 +447,18 @@ function drawCandyPath(context: CanvasRenderingContext2D) {
   }
 }
 
+const smallCandyArtIds = [
+  "gaze-maze/candy-red",
+  "gaze-maze/candy-blue",
+  "gaze-maze/candy-green",
+] as const;
+
+function candyIndex(nodeId: string) {
+  let hash = 0;
+  for (const char of nodeId) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  return hash;
+}
+
 function drawCandyNode(context: CanvasRenderingContext2D, node: MazeNode, now: number) {
   const center = nodePoint(node);
   const radius = nodeRadius();
@@ -483,11 +495,21 @@ function drawCandyNode(context: CanvasRenderingContext2D, node: MazeNode, now: n
   context.fill();
   context.stroke();
 
-  context.fillStyle = deadEnd ? "#b46fd0" : isAdjacent ? "#ef6f8f" : "#7aa59c";
-  context.beginPath();
-  context.arc(-drawRadius * 0.32, -drawRadius * 0.18, drawRadius * 0.16, 0, Math.PI * 2);
-  context.arc(drawRadius * 0.25, drawRadius * 0.18, drawRadius * 0.13, 0, Math.PI * 2);
-  context.fill();
+  // Testers: «говорят о соседних конфетах, а там точки вместо конфет». Every path
+  // stop holds a small wrapped candy; the exit keeps the big one.
+  const smallCandy =
+    node.kind !== "exit" && node.kind !== "start" && !deadEnd
+      ? canvasArt(smallCandyArtIds[candyIndex(node.id) % smallCandyArtIds.length])
+      : undefined;
+  if (smallCandy) {
+    drawCanvasArt(context, smallCandy, 0, 0, drawRadius * 1.25);
+  } else {
+    context.fillStyle = deadEnd ? "#b46fd0" : isAdjacent ? "#ef6f8f" : "#7aa59c";
+    context.beginPath();
+    context.arc(-drawRadius * 0.32, -drawRadius * 0.18, drawRadius * 0.16, 0, Math.PI * 2);
+    context.arc(drawRadius * 0.25, drawRadius * 0.18, drawRadius * 0.13, 0, Math.PI * 2);
+    context.fill();
+  }
 
   const candy = node.kind === "exit" ? canvasArt("gaze-maze/candy") : undefined;
   if (candy) {

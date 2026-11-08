@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
+import { gameArtSrc } from "../../core/gameArt";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -284,7 +285,13 @@ onUnmounted(() => {
                 @select="answer(choice)"
               >
                 <template #default>
-                  <v-icon class="choice-icon" :icon="choice.item.icon" :color="choice.item.color" />
+                  <!-- Testers: «нарисовать новые картиночки». -->
+                  <img
+                    class="choice-icon choice-art"
+                    :src="gameArtSrc(`follow-cue/${choice.item.id}`)"
+                    alt=""
+                    draggable="false"
+                  />
                   <div class="text-body-1 text-md-h6 font-weight-bold mt-2">
                     {{ choice.item.label }}
                   </div>
@@ -392,6 +399,13 @@ onUnmounted(() => {
   transition:
     filter 160ms ease,
     transform 160ms ease;
+}
+
+.choice-art {
+  block-size: clamp(4rem, min(10vw, 14dvh), 10rem);
+  display: block;
+  inline-size: auto;
+  object-fit: contain;
 }
 
 .cue-target--mistake .choice-icon {

@@ -3,6 +3,8 @@ export type WantDontWantAnswer = "want" | "dont-want";
 export type WantDontWantItem = {
   id: string;
   wordId: string;
+  /** A drawing of its own, shown instead of the word picture. */
+  artId?: string;
   title: string;
   emoji: string;
   kind: "предмет" | "занятие";
@@ -98,6 +100,9 @@ export const wantDontWantItems: WantDontWantItem[] = [
   {
     id: "hug",
     wordId: "heart",
+    // Testers: «заменить картинку сердце в разделе я хочу обниматься, сделать картинку
+    // с объятиями».
+    artId: "want-dont-want/hug",
     title: "обниматься",
     emoji: "🫶",
     kind: "занятие",

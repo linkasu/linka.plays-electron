@@ -13,8 +13,28 @@ export type PizzaFractionChoice = {
   helperText: string;
 };
 
+// Testers: «сделать деление других предметов (арбуз, например), пицца не нарисована —
+// а просто круг». Pizza and watermelon are drawn and take turns.
+export type PizzaFood = "pizza" | "watermelon";
+
+const foodPromptLabels: Record<PizzaFood, Record<PizzaFractionId, string>> = {
+  pizza: {
+    whole: "целую пиццу",
+    half: "половину пиццы",
+    third: "треть пиццы",
+    quarter: "четверть пиццы",
+  },
+  watermelon: {
+    whole: "целый арбуз",
+    half: "половину арбуза",
+    third: "треть арбуза",
+    quarter: "четверть арбуза",
+  },
+};
+
 export type PizzaFractionsRound = {
   roundId: string;
+  food: PizzaFood;
   prompt: string;
   targetId: PizzaFractionId;
   choices: PizzaFractionChoice[];
@@ -63,6 +83,13 @@ export const pizzaFractionChoices: PizzaFractionChoice[] = [
 
 const targetOrder: PizzaFractionId[] = ["half", "third", "quarter", "whole"];
 
+// Four rounds of pizza (every fraction once), then four of watermelon, and so on.
+export function pizzaFoodForRound(roundIndex: number): PizzaFood {
+  return Math.floor((Math.max(1, roundIndex) - 1) / targetOrder.length) % 2 === 0
+    ? "pizza"
+    : "watermelon";
+}
+
 function pickTarget(roundIndex: number) {
   return targetOrder[(Math.max(1, roundIndex) - 1) % targetOrder.length];
 }
@@ -82,9 +109,11 @@ export function generatePizzaFractionsRound(
   ).slice(0, 2);
   const choices = shuffleItems([target, ...others], random);
 
+  const food = pizzaFoodForRound(roundIndex);
   return {
     roundId: `pizza-fractions:round:${roundIndex}`,
-    prompt: `Выбери ${target.promptLabel}`,
+    food,
+    prompt: `Выбери ${foodPromptLabels[food][target.id]}`,
     targetId,
     choices,
     correctIndex: choices.findIndex((choice) => choice.id === targetId),
