@@ -32,10 +32,10 @@ describe("game registry", () => {
     const miniDialog = findGame("mini-dialog");
     const socialPhrases = findGame("social-phrases");
 
-    expect(miniDialog?.description).toContain("любая реплика считается коммуникацией");
-    expect(miniDialog?.description).toContain("отказывайся");
-    expect(socialPhrases?.description).toContain("функциональную AAC-фразу");
-    expect(socialPhrases?.description).toContain("тоже считаются коммуникацией");
+    // Testers' scheme (2026-11-08): Mira speaks, the child picks the polite reply.
+    expect(miniDialog?.description).toContain("привет, пока, спасибо или пожалуйста");
+    // Testers (2026-11-08): a board of everyday phrases with pictures.
+    expect(socialPhrases?.description).toContain("Любая карточка — сообщение");
   });
 
   it("records TypeWord as a guided choice between large letter buttons", () => {
