@@ -152,8 +152,10 @@ function initScene() {
 function createBoat(index: number): Boat {
   const side = index % 2 === 0 ? -1 : 1;
   const island = islandSize();
-  const berthColumns = [-0.28, -0.13, 0.04, 0.2];
-  const berthRows = [0.28, 0.39];
+  // Testers: «когда лодочки приплывают к маяку, они как бы под ним». Berths along the
+  // shore to both sides of the tower, never on its base.
+  const berthColumns = [-0.36, 0.36, -0.2, 0.2];
+  const berthRows = [0.38, 0.95];
   return {
     id: `lighthouse-boat-${index}`,
     x: window.innerWidth * (side < 0 ? randomRange(0.12, 0.34) : randomRange(0.66, 0.88)),
@@ -553,8 +555,9 @@ function draw(context: CanvasRenderingContext2D, now: number) {
   drawIsland(context, now);
   drawBeam(context);
   drawRipples(context);
-  for (const boat of boats) drawBoat(context, boat, now);
+  // The tower first: boats on the water are in front of it, never hidden under it.
   drawLighthouse(context, now);
+  for (const boat of boats) drawBoat(context, boat, now);
 }
 
 function tick(now: number) {

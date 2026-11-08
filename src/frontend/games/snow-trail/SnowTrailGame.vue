@@ -87,6 +87,15 @@ function trailWidth() {
 
 // Below the HUD («В меню» / «Пауза»): the top of the trail, with the finish, was
 // drawn under those buttons.
+/** The next mark is a large gaze target. */
+function nextMarkRadius() {
+  return trailWidth() * 0.3;
+}
+
+function markHitRadius() {
+  return nextMarkRadius() * 1.6;
+}
+
 function hudClearance() {
   const value = getComputedStyle(document.documentElement).getPropertyValue("--game-hud-clearance");
   return Number.parseFloat(value) || 0;
@@ -298,8 +307,15 @@ function update(delta: number, now: number) {
   const points = trailPoints();
   const projection = pointer.value.valid ? projectPointToPath(pointer.value, points) : undefined;
   const width = trailWidth();
-  const onTrail = Boolean(projection && projection.distance <= width * 0.62);
-  const nearTrail = Boolean(projection && projection.distance <= width * 1.1);
+  // Testers: «смотреть на санки невозможно». As in Rails: a look at the number of the next
+  // mark is enough, the sled rides to it by itself.
+  const nextRatio = Math.min(1, (session.step + 1) / session.maxSteps);
+  const nextMark = pointAtPathProgress(points, nextRatio);
+  const lookingAtMark = Boolean(
+    pointer.value.valid && distance(pointer.value, nextMark) <= markHitRadius(),
+  );
+  const onTrail = Boolean(projection && projection.distance <= width * 0.62) || lookingAtMark;
+  const nearTrail = Boolean(projection && projection.distance <= width * 1.1) || lookingAtMark;
   const ahead = Boolean(projection && projection.ratio > progress.value + 0.003);
 
   updateTracking(nearTrail, projection);
@@ -309,7 +325,12 @@ function update(delta: number, now: number) {
   snow.confidence += (confidenceTarget - snow.confidence) * Math.min(1, delta * 4.4);
   snow.guide += (guideTarget - snow.guide) * Math.min(1, delta * 2.2);
 
-  if (projection && nearTrail && ahead) {
+  if (lookingAtMark) {
+    progress.value = Math.min(
+      nextRatio,
+      progress.value + 0.42 * session.settings.motionSpeed * delta,
+    );
+  } else if (projection && nearTrail && ahead) {
     const speed = (onTrail ? 0.42 : 0.14) * session.settings.motionSpeed;
     progress.value = Math.min(projection.ratio, progress.value + speed * delta);
   }
@@ -445,7 +466,7 @@ function drawCheckpoints(context: CanvasRenderingContext2D, points: Point[]) {
     const done = session.step > index;
     const next = session.step === index && session.status === "running";
     const pulse = next && !session.settings.reduceMotion ? 1 + Math.sin(snow.pulse * 4) * 0.07 : 1;
-    const radius = width * (done ? 0.18 : 0.15) * pulse;
+    const radius = (next ? nextMarkRadius() : width * (done ? 0.18 : 0.15)) * pulse;
 
     context.save();
     context.fillStyle = done ? "rgb(217 247 255 / 92%)" : "rgb(255 255 255 / 70%)";
@@ -460,7 +481,7 @@ function drawCheckpoints(context: CanvasRenderingContext2D, points: Point[]) {
     context.fill();
     context.stroke();
     context.fillStyle = done ? "rgb(61 150 179 / 88%)" : "rgb(89 116 145 / 70%)";
-    context.font = `800 ${Math.max(15, width * 0.14)}px system-ui, sans-serif`;
+    context.font = `800 ${Math.max(15, width * (next ? 0.26 : 0.14))}px system-ui, sans-serif`;
     context.textAlign = "center";
     context.textBaseline = "middle";
     context.fillText(done ? "✓" : String(index + 1), point.x, point.y + 1);

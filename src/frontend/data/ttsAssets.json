@@ -11202,7 +11202,7 @@
   {
     "id": "snow-trail.prompt",
     "game": "snow-trail",
-    "text": "Веди санки взглядом по тропе через все отметки.",
+    "text": "Смотри на номер следующей отметки, и санки поедут к ней.",
     "voice": "jane",
     "path": "/audio/tts/snow-trail/prompt.mp3"
   },
