@@ -1,16 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { settingsFromPreset } from "../core/settings";
 import { getAllWords } from "../data/wordBank";
-import { miniDialogGraph } from "./mini-dialog/model";
 import { objectActionChoices } from "./object-action/model";
 import { findSceneRecordings } from "./sceneSpeech";
 import { generateShelfSortingRound } from "./shelf-sorting/model";
 import { generateShopRound } from "./shop/model";
-import {
-  createSocialPhraseDeck,
-  evaluateSocialPhraseChoice,
-  socialPhrasesInstruction,
-} from "./social-phrases/model";
 import { wantDontWantItems, wantDontWantPhrase } from "./want-dont-want/model";
 import { createWhereObjectRoundGenerator } from "./where-object/model";
 import { generateYesNoRound } from "./yes-no/model";
@@ -45,13 +39,6 @@ function collect(build: (add: (text: string, voice?: Voice) => void) => void) {
 // Every phrase a game can pass to speakSceneText. Generators run on many seeds
 // so the list follows the real prompt templates instead of copying them.
 const scenePhrases: Record<string, ScenePhrase[]> = {
-  "mini-dialog": collect((add) => {
-    for (const node of Object.values(miniDialogGraph)) {
-      add(node.partnerLine, "alena");
-      for (const choice of node.choices) add(choice.text, "filipp");
-    }
-    add("Я помогу. Послушай вопрос ещё раз; можно ответить или отказаться.", "julia");
-  }),
   "object-action": collect((add) => {
     for (const action of objectActionChoices) {
       add(`Покажи действие: ${action.title}.`);
@@ -64,32 +51,6 @@ const scenePhrases: Record<string, ScenePhrase[]> = {
       for (let seed = 1; seed <= 200; seed += 1)
         for (const roundIndex of [1, 2])
           add(generateShopRound(settingsFromPreset(preset), roundIndex, seededRandom(seed)).prompt);
-  }),
-  "social-phrases": collect((add) => {
-    for (let seed = 1; seed <= 20; seed += 1) {
-      for (const round of createSocialPhraseDeck(seededRandom(seed))) {
-        for (const includeInstruction of [true, false])
-          add(
-            [
-              includeInstruction ? socialPhrasesInstruction : "",
-              round.scene,
-              round.partner,
-              round.prompt,
-            ]
-              .filter(Boolean)
-              .join(" "),
-            "alena",
-          );
-        for (const choice of round.choices) {
-          const evaluation = evaluateSocialPhraseChoice(round, choice);
-          add(evaluation.phrase, "filipp");
-          add(evaluation.feedback, "julia");
-        }
-      }
-    }
-    add("Я помогу. Послушай ситуацию ещё раз и выбери в своём темпе.", "julia");
-    add("Я услышал тебя. Останавливаемся.", "julia");
-    add("Спасибо. Все ситуации закончились.", "julia");
   }),
   "type-word": collect((add) => add("Собери название предмета. Выбирай буквы слева направо.")),
   "want-dont-want": collect((add) => {
