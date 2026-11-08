@@ -1980,8 +1980,8 @@ export const games: GameInfo[] = [
     id: "battleship-light",
     title: "Морской бой",
     description:
-      "Расставь флот, выбирай сектор и веди полноценный пошаговый морской бой против соперника.",
-    selfDescription: "Поставь корабли и стреляй.",
+      "Найди корабли компьютера на маленьком поле: посмотри на клетку — выстрел. Мимо — брызги, попал — огонь, потопленный корабль рисуется целиком.",
+    selfDescription: "Найди корабли.",
     route: "/games/battleship-light",
     category: "strategy",
     icon: "mdi-water",
