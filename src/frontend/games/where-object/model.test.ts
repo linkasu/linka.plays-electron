@@ -33,7 +33,9 @@ describe("generateWhereObjectRound", () => {
       expect(round.choices.every((choice) => choice.targetObject === round.targetObject)).toBe(
         true,
       );
-      expect(round.choices.every((choice) => choice.targetPlace === round.targetPlace)).toBe(true);
+      for (const choice of round.choices) {
+        expect(choice.targetPlace.id).toBe(choice.id === "in" ? "box" : "table");
+      }
     }
   });
 
@@ -97,13 +99,18 @@ describe("generateWhereObjectRound", () => {
     }
   });
 
-  it("uses existing full-scene TTS assets and marks beside for exact speech fallback", () => {
+  it("has a recording for every answer and every prompt", () => {
     const assetIds = new Set(ttsAssets.map((asset) => asset.id));
-    const round = createWhereObjectRoundGenerator(seededRandom(15))(1);
+    const texts = new Set(ttsAssets.map((asset) => asset.text));
+    const generateRound = createWhereObjectRoundGenerator(seededRandom(15));
+    const deckSize = whereObjectItems.length * whereObjectPrepositions.length;
 
-    for (const choice of round.choices) {
-      if (choice.id === "beside") expect(choice.answerAssetId).toBeUndefined();
-      else expect(assetIds.has(choice.answerAssetId ?? "")).toBe(true);
+    for (let index = 1; index <= deckSize; index += 1) {
+      const round = generateRound(index);
+      expect(texts.has(round.prompt)).toBe(true);
+      for (const choice of round.choices) {
+        expect(assetIds.has(choice.answerAssetId ?? "")).toBe(true);
+      }
     }
   });
 });

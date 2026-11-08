@@ -20,8 +20,9 @@ import {
   type WhereObjectRound,
 } from "./model";
 
-// Testers asked for drawn pictures: the drawn open box.
+// Testers asked for drawn pictures: the drawn open box and table.
 const boxSrc = gameArtSrc("where-object/box");
+const tableSrc = gameArtSrc("where-object/table");
 
 const router = useRouter();
 const {
@@ -213,7 +214,25 @@ onUnmounted(() => {
               @select="chooseScene"
             >
               <template #default="{ choice }">
-                <div class="mini-scene" role="img" :aria-label="choice.scenePhrase">
+                <!-- Testers: «непонятна картинка над, под, в». On / under / beside a table. -->
+                <div
+                  v-if="choice.targetPlace.id === 'table'"
+                  class="mini-scene"
+                  role="img"
+                  :aria-label="choice.scenePhrase"
+                >
+                  <div :class="['mini-table', `mini-table--${choice.id}`]">
+                    <img class="mini-table__art" :src="tableSrc" alt="" draggable="false" />
+                    <GameWordImage
+                      :class="['mini-table__object', `mini-table__object--${choice.id}`]"
+                      :word-id="choice.targetObject.id"
+                      :word="choice.targetObject.word"
+                      :emoji="choice.targetObject.emoji"
+                      decorative
+                    />
+                  </div>
+                </div>
+                <div v-else class="mini-scene" role="img" :aria-label="choice.scenePhrase">
                   <img class="mini-scene__box" :src="boxSrc" alt="" draggable="false" />
                   <GameWordImage
                     :class="['mini-scene__object', `mini-scene__object--${choice.id}`]"
@@ -286,6 +305,55 @@ onUnmounted(() => {
   position: absolute;
   transform: translate(-50%, -50%);
   z-index: 4;
+}
+
+/* The table box: its picture fills it, the object is placed against the table. */
+.mini-table {
+  aspect-ratio: 640 / 374;
+  inline-size: 70%;
+  inset-block-end: 12%;
+  inset-inline-start: 15%;
+  position: absolute;
+}
+
+.mini-table--beside {
+  inset-inline-start: 29%;
+}
+
+.mini-table__art {
+  block-size: 100%;
+  display: block;
+  inline-size: 100%;
+}
+
+.mini-table__object {
+  font-size: clamp(2.4rem, min(5vw, 8dvh), 5rem);
+  position: absolute;
+  z-index: 2;
+}
+
+/* The word pictures keep ~13 % empty margin under the drawing: shift it down by that,
+   so the thing stands on the table top or on the floor instead of hanging in the air. */
+
+/* Stands on the table top. */
+.mini-table__object--on {
+  inset-block-end: 98%;
+  inset-inline-start: 50%;
+  transform: translate(-50%, 13%);
+}
+
+/* Stands on the floor between the legs. */
+.mini-table__object--under {
+  inset-block-end: 0;
+  inset-inline-start: 50%;
+  transform: translate(-50%, 13%);
+}
+
+/* Stands on the floor left of the table. */
+.mini-table__object--beside {
+  inset-block-end: 0;
+  inset-inline-end: 100%;
+  transform: translateY(13%);
 }
 
 .mini-scene__object--on {
