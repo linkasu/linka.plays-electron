@@ -8,6 +8,7 @@ import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useGameTimers } from "../../composables/useGameTimers";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
   boardCells,
@@ -138,25 +139,35 @@ function describeSelectedPiece(index: number, piece: ChessPiece) {
   return `${pieceLabel(piece)} ${squareLabel(index)} выбрана, но сейчас у этой фигуры нет хода. Можно выбрать другую белую фигуру.`;
 }
 
-function pieceIcon(piece: ChessPiece) {
-  return piece === "." ? undefined : chessPieceMeta[piece].icon;
+// Drawn black and white pieces (the icon font drew both sides in one colour).
+function pieceArt(piece: ChessPiece) {
+  return piece === "." ? undefined : gameArtSrc(chessPieceMeta[piece].artId);
 }
 
 function pieceLabel(piece: ChessPiece) {
   return piece === "." ? "Пустая клетка" : chessPieceMeta[piece].label;
 }
 
+// Plain CSS colours: the old names ("brown-lighten-5"…) are not theme colours,
+// so every square was transparent and the board had no squares at all.
+const boardColors = {
+  light: "#f0d9b5",
+  dark: "#b58863",
+  wrong: "#ffab91",
+  selected: "#ffd54f",
+  target: "#a5d6a7",
+  lastMove: "#9fd8df",
+  movable: "#f3dc8a",
+};
+
 function cellColor(index: number, piece: ChessPiece) {
-  if (wrongTarget.value === index) return "orange-lighten-4";
-  if (selectedIndex.value === index) return "amber-lighten-3";
-  if (selectedTargets.value.has(index)) return "green-lighten-4";
+  if (wrongTarget.value === index) return boardColors.wrong;
+  if (selectedIndex.value === index) return boardColors.selected;
+  if (selectedTargets.value.has(index)) return boardColors.target;
   if (lastMove.value?.fromIndex === index || lastMove.value?.toIndex === index)
-    return "cyan-lighten-5";
-  if (isPlayerPiece(piece) && movableFrom.value.has(index)) return "amber-lighten-5";
-  if (isPlayerPiece(piece)) return "brown-lighten-5";
-  return (Math.floor(index / 8) + (index % 8)) % 2 === 0
-    ? "brown-lighten-5"
-    : "blue-grey-lighten-5";
+    return boardColors.lastMove;
+  if (isPlayerPiece(piece) && movableFrom.value.has(index)) return boardColors.movable;
+  return (Math.floor(index / 8) + (index % 8)) % 2 === 0 ? boardColors.light : boardColors.dark;
 }
 
 function cellClasses(index: number, piece: ChessPiece) {
@@ -451,17 +462,17 @@ watch(
                       status !== 'playing'
                     "
                     :style="{
-                      '--board-cell-color': `rgb(var(--v-theme-${cellColor(cell.index, cell.piece)}))`,
+                      '--board-cell-color': cellColor(cell.index, cell.piece),
                     }"
                     @click="chooseCell(cell.index)"
                   >
                     <div class="cell-content" :class="cellClasses(cell.index, cell.piece)">
                       <div class="cell-label">{{ cell.label }}</div>
-                      <v-icon
-                        v-if="pieceIcon(cell.piece)"
-                        :icon="pieceIcon(cell.piece)"
-                        class="piece-icon"
-                        size="clamp(1.75rem, 4.8dvh, 3.6rem)"
+                      <img
+                        v-if="pieceArt(cell.piece)"
+                        :src="pieceArt(cell.piece)"
+                        class="piece-art"
+                        alt=""
                       />
                       <v-icon
                         v-else-if="selectedTargets.has(cell.index)"
@@ -522,10 +533,11 @@ watch(
                   >
                     <template #default>
                       <div class="text-center">
-                        <v-icon
-                          v-if="pieceIcon(cells[index].piece)"
-                          :icon="pieceIcon(cells[index].piece)"
-                          size="3rem"
+                        <img
+                          v-if="pieceArt(cells[index].piece)"
+                          :src="pieceArt(cells[index].piece)"
+                          class="action-piece-art"
+                          alt=""
                         />
                         <div class="text-h5 font-weight-bold">
                           {{ selectedIndex === undefined ? pieceLabel(cells[index].piece) : "Ход" }}
@@ -667,16 +679,20 @@ watch(
   position: absolute;
 }
 
-.piece-icon {
-  filter: drop-shadow(0 0.2rem 0.24rem rgb(0 0 0 / 18%));
+.piece-art {
+  block-size: 96%;
+  filter: drop-shadow(0 0.2rem 0.24rem rgb(0 0 0 / 22%));
+  inline-size: 96%;
+  object-fit: contain;
+  pointer-events: none;
 }
 
-.piece-white.piece-icon {
-  color: #4e342e;
-}
-
-.piece-black.piece-icon {
-  color: #0d47a1;
+.action-piece-art {
+  block-size: 3.5rem;
+  display: block;
+  inline-size: 3.5rem;
+  margin-inline: auto;
+  object-fit: contain;
 }
 
 .cell-target::after,

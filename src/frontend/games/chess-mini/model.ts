@@ -17,20 +17,20 @@ export type ChessCell = {
 
 export const chessPieceMeta: Record<
   Exclude<ChessPiece, ".">,
-  { label: string; icon: string; side: ChessSide }
+  { label: string; artId: string; side: ChessSide }
 > = {
-  P: { label: "Пешка", icon: "mdi-chess-pawn", side: "white" },
-  N: { label: "Конь", icon: "mdi-chess-knight", side: "white" },
-  B: { label: "Слон", icon: "mdi-chess-bishop", side: "white" },
-  R: { label: "Ладья", icon: "mdi-chess-rook", side: "white" },
-  Q: { label: "Ферзь", icon: "mdi-chess-queen", side: "white" },
-  K: { label: "Король", icon: "mdi-chess-king", side: "white" },
-  p: { label: "Пешка", icon: "mdi-chess-pawn", side: "black" },
-  n: { label: "Конь", icon: "mdi-chess-knight", side: "black" },
-  b: { label: "Слон", icon: "mdi-chess-bishop", side: "black" },
-  r: { label: "Ладья", icon: "mdi-chess-rook", side: "black" },
-  q: { label: "Ферзь", icon: "mdi-chess-queen", side: "black" },
-  k: { label: "Король", icon: "mdi-chess-king", side: "black" },
+  P: { label: "Пешка", artId: "chess-mini/white-pawn", side: "white" },
+  N: { label: "Конь", artId: "chess-mini/white-knight", side: "white" },
+  B: { label: "Слон", artId: "chess-mini/white-bishop", side: "white" },
+  R: { label: "Ладья", artId: "chess-mini/white-rook", side: "white" },
+  Q: { label: "Ферзь", artId: "chess-mini/white-queen", side: "white" },
+  K: { label: "Король", artId: "chess-mini/white-king", side: "white" },
+  p: { label: "Пешка", artId: "chess-mini/black-pawn", side: "black" },
+  n: { label: "Конь", artId: "chess-mini/black-knight", side: "black" },
+  b: { label: "Слон", artId: "chess-mini/black-bishop", side: "black" },
+  r: { label: "Ладья", artId: "chess-mini/black-rook", side: "black" },
+  q: { label: "Ферзь", artId: "chess-mini/black-queen", side: "black" },
+  k: { label: "Король", artId: "chess-mini/black-king", side: "black" },
 };
 
 export function cellIndex(row: number, column: number) {
