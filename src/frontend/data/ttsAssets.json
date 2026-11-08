@@ -4074,174 +4074,6 @@
     "path": "/audio/tts/what-first/mistake-peel-eat.mp3"
   },
   {
-    "id": "social-phrases.prompt.morning-adult",
-    "game": "social-phrases",
-    "text": "Утром ты видишь знакомого взрослого. Взрослый улыбается тебе. Поздоровайся.",
-    "voice": "alena",
-    "path": "/audio/tts/social-phrases/prompt-morning-adult.mp3"
-  },
-  {
-    "id": "social-phrases.correct.morning-adult.good-morning",
-    "game": "social-phrases",
-    "text": "Доброе утро!",
-    "voice": "filipp",
-    "path": "/audio/tts/social-phrases/correct-morning-adult-good-morning.mp3"
-  },
-  {
-    "id": "social-phrases.mistake.morning-adult",
-    "game": "social-phrases",
-    "text": "Сначала можно поздороваться.",
-    "voice": "julia",
-    "path": "/audio/tts/social-phrases/mistake-morning-adult.mp3"
-  },
-  {
-    "id": "social-phrases.prompt.thirsty",
-    "game": "social-phrases",
-    "text": "Тебе хочется пить. Рядом стоит стакан с водой. Попроси воду.",
-    "voice": "alena",
-    "path": "/audio/tts/social-phrases/prompt-thirsty.mp3"
-  },
-  {
-    "id": "social-phrases.correct.thirsty.may-i-have-water",
-    "game": "social-phrases",
-    "text": "Дай воды, пожалуйста.",
-    "voice": "filipp",
-    "path": "/audio/tts/social-phrases/correct-thirsty-may-i-have-water.mp3"
-  },
-  {
-    "id": "social-phrases.mistake.thirsty",
-    "game": "social-phrases",
-    "text": "Если хочется пить, лучше попросить воду.",
-    "voice": "julia",
-    "path": "/audio/tts/social-phrases/mistake-thirsty.mp3"
-  },
-  {
-    "id": "social-phrases.prompt.opened-box",
-    "game": "social-phrases",
-    "text": "Тебе помогли открыть коробку. Коробка уже открыта. Поблагодари.",
-    "voice": "alena",
-    "path": "/audio/tts/social-phrases/prompt-opened-box.mp3"
-  },
-  {
-    "id": "social-phrases.correct.opened-box.thank-open",
-    "game": "social-phrases",
-    "text": "Спасибо, что открыл.",
-    "voice": "filipp",
-    "path": "/audio/tts/social-phrases/correct-opened-box-thank-open.mp3"
-  },
-  {
-    "id": "social-phrases.mistake.opened-box",
-    "game": "social-phrases",
-    "text": "Коробку уже открыли. Можно сказать спасибо.",
-    "voice": "julia",
-    "path": "/audio/tts/social-phrases/mistake-opened-box.mp3"
-  },
-  {
-    "id": "social-phrases.prompt.friend-arrives",
-    "game": "social-phrases",
-    "text": "В комнату пришёл друг. Друг смотрит на тебя и машет рукой. Поздоровайся с другом.",
-    "voice": "alena",
-    "path": "/audio/tts/social-phrases/prompt-friend-arrives.mp3"
-  },
-  {
-    "id": "social-phrases.correct.friend-arrives.friend-hi",
-    "game": "social-phrases",
-    "text": "Привет!",
-    "voice": "filipp",
-    "path": "/audio/tts/social-phrases/correct-friend-arrives-friend-hi.mp3"
-  },
-  {
-    "id": "social-phrases.mistake.friend-arrives",
-    "game": "social-phrases",
-    "text": "Друг пришёл и машет. Можно сказать привет.",
-    "voice": "julia",
-    "path": "/audio/tts/social-phrases/mistake-friend-arrives.mp3"
-  },
-  {
-    "id": "social-phrases.prompt.far-card",
-    "game": "social-phrases",
-    "text": "Нужная карточка лежит далеко. Человек рядом может её подать. Попроси карточку.",
-    "voice": "alena",
-    "path": "/audio/tts/social-phrases/prompt-far-card.mp3"
-  },
-  {
-    "id": "social-phrases.correct.far-card.card-please",
-    "game": "social-phrases",
-    "text": "Подай карточку, пожалуйста.",
-    "voice": "filipp",
-    "path": "/audio/tts/social-phrases/correct-far-card-card-please.mp3"
-  },
-  {
-    "id": "social-phrases.mistake.far-card",
-    "game": "social-phrases",
-    "text": "Карточка далеко. Можно попросить её подать.",
-    "voice": "julia",
-    "path": "/audio/tts/social-phrases/mistake-far-card.mp3"
-  },
-  {
-    "id": "social-phrases.prompt.favorite-book",
-    "game": "social-phrases",
-    "text": "Тебе дали любимую книгу. Книга уже у тебя в руках. Скажи спасибо.",
-    "voice": "alena",
-    "path": "/audio/tts/social-phrases/prompt-favorite-book.mp3"
-  },
-  {
-    "id": "social-phrases.correct.favorite-book.thanks-book",
-    "game": "social-phrases",
-    "text": "Спасибо за книгу.",
-    "voice": "filipp",
-    "path": "/audio/tts/social-phrases/correct-favorite-book-thanks-book.mp3"
-  },
-  {
-    "id": "social-phrases.mistake.favorite-book",
-    "game": "social-phrases",
-    "text": "Книгу уже дали. Можно поблагодарить.",
-    "voice": "julia",
-    "path": "/audio/tts/social-phrases/mistake-favorite-book.mp3"
-  },
-  {
-    "id": "social-phrases.prompt.narrow-way",
-    "game": "social-phrases",
-    "text": "Ты хочешь пройти к столу. Проход узкий. Попроси место.",
-    "voice": "alena",
-    "path": "/audio/tts/social-phrases/prompt-narrow-way.mp3"
-  },
-  {
-    "id": "social-phrases.correct.narrow-way.pass-please",
-    "game": "social-phrases",
-    "text": "Можно пройти?",
-    "voice": "filipp",
-    "path": "/audio/tts/social-phrases/correct-narrow-way-pass-please.mp3"
-  },
-  {
-    "id": "social-phrases.mistake.narrow-way",
-    "game": "social-phrases",
-    "text": "Проход узкий. Можно попросить место.",
-    "voice": "julia",
-    "path": "/audio/tts/social-phrases/mistake-narrow-way.mp3"
-  },
-  {
-    "id": "social-phrases.prompt.teacher-start",
-    "game": "social-phrases",
-    "text": "Занятие начинается. Педагог смотрит на тебя. Поздоровайся с педагогом.",
-    "voice": "alena",
-    "path": "/audio/tts/social-phrases/prompt-teacher-start.mp3"
-  },
-  {
-    "id": "social-phrases.correct.teacher-start.teacher-hello",
-    "game": "social-phrases",
-    "text": "Здравствуйте!",
-    "voice": "filipp",
-    "path": "/audio/tts/social-phrases/correct-teacher-start-teacher-hello.mp3"
-  },
-  {
-    "id": "social-phrases.mistake.teacher-start",
-    "game": "social-phrases",
-    "text": "Занятие начинается. Можно поздороваться.",
-    "voice": "julia",
-    "path": "/audio/tts/social-phrases/mistake-teacher-start.mp3"
-  },
-  {
     "id": "clock.prompt.1",
     "game": "clock",
     "text": "Выбери один час.",
@@ -8405,286 +8237,6 @@
     "text": "Готово. Порядок действий стал понятнее.",
     "voice": "jane",
     "path": "/audio/tts/what-first/complete.mp3"
-  },
-  {
-    "id": "social-phrases.mistake",
-    "game": "social-phrases",
-    "text": "Посмотри на ситуацию ещё раз и выбери другую фразу.",
-    "voice": "jane",
-    "path": "/audio/tts/social-phrases/mistake.mp3"
-  },
-  {
-    "id": "social-phrases.complete",
-    "game": "social-phrases",
-    "text": "Спасибо. Социальные фразы потренированы.",
-    "voice": "jane",
-    "path": "/audio/tts/social-phrases/complete.mp3"
-  },
-  {
-    "id": "social-phrases.scene.2fb2cde1",
-    "game": "social-phrases",
-    "text": "Посмотри на ситуацию и выбери, что можно сказать.",
-    "voice": "alena",
-    "path": "/audio/tts/social-phrases/scene-2fb2cde1.mp3"
-  },
-  {
-    "id": "social-phrases.scene.f217d06f",
-    "game": "social-phrases",
-    "text": "Если тебе нужна помощь, ты не хочешь или хочешь остановиться, выбери такую карточку: это тоже важный ответ.",
-    "voice": "alena",
-    "path": "/audio/tts/social-phrases/scene-f217d06f.mp3"
-  },
-  {
-    "id": "social-phrases.scene.f5599f90",
-    "game": "social-phrases",
-    "text": "На занятии стало слишком громко.",
-    "voice": "alena",
-    "path": "/audio/tts/social-phrases/scene-f5599f90.mp3"
-  },
-  {
-    "id": "social-phrases.scene.5b262eda",
-    "game": "social-phrases",
-    "text": "Взрослый рядом может сделать звук тише или остановиться.",
-    "voice": "alena",
-    "path": "/audio/tts/social-phrases/scene-5b262eda.mp3"
-  },
-  {
-    "id": "social-phrases.scene.233bc797",
-    "game": "social-phrases",
-    "text": "Что можно попросить?",
-    "voice": "alena",
-    "path": "/audio/tts/social-phrases/scene-233bc797.mp3"
-  },
-  {
-    "id": "social-phrases.scene.ab4cfdd7",
-    "game": "social-phrases",
-    "text": "Сделай громче, пожалуйста.",
-    "voice": "filipp",
-    "path": "/audio/tts/social-phrases/scene-ab4cfdd7.mp3"
-  },
-  {
-    "id": "social-phrases.scene.ed800c5c",
-    "game": "social-phrases",
-    "text": "Эта фраза прозвучала.",
-    "voice": "julia",
-    "path": "/audio/tts/social-phrases/scene-ed800c5c.mp3"
-  },
-  {
-    "id": "social-phrases.scene.14ac34a6",
-    "game": "social-phrases",
-    "text": "Можно выбрать другую фразу или попросить помощь.",
-    "voice": "julia",
-    "path": "/audio/tts/social-phrases/scene-14ac34a6.mp3"
-  },
-  {
-    "id": "social-phrases.scene.f57cb9aa",
-    "game": "social-phrases",
-    "text": "Сделай тише, пожалуйста.",
-    "voice": "filipp",
-    "path": "/audio/tts/social-phrases/scene-f57cb9aa.mp3"
-  },
-  {
-    "id": "social-phrases.scene.0a67c0c1",
-    "game": "social-phrases",
-    "text": "Тебя услышали и сделали звук тише.",
-    "voice": "julia",
-    "path": "/audio/tts/social-phrases/scene-0a67c0c1.mp3"
-  },
-  {
-    "id": "social-phrases.scene.1b19e11c",
-    "game": "social-phrases",
-    "text": "Стоп, пожалуйста.",
-    "voice": "filipp",
-    "path": "/audio/tts/social-phrases/scene-1b19e11c.mp3"
-  },
-  {
-    "id": "social-phrases.scene.3799828a",
-    "game": "social-phrases",
-    "text": "Я услышал твой ответ.",
-    "voice": "julia",
-    "path": "/audio/tts/social-phrases/scene-3799828a.mp3"
-  },
-  {
-    "id": "social-phrases.scene.94664091",
-    "game": "social-phrases",
-    "text": "Помоги мне, пожалуйста.",
-    "voice": "filipp",
-    "path": "/audio/tts/social-phrases/scene-94664091.mp3"
-  },
-  {
-    "id": "social-phrases.scene.0876f4e0",
-    "game": "social-phrases",
-    "text": "Тебе хочется пить, а вода стоит далеко.",
-    "voice": "alena",
-    "path": "/audio/tts/social-phrases/scene-0876f4e0.mp3"
-  },
-  {
-    "id": "social-phrases.scene.820867e5",
-    "game": "social-phrases",
-    "text": "Человек рядом может подать нужный предмет.",
-    "voice": "alena",
-    "path": "/audio/tts/social-phrases/scene-820867e5.mp3"
-  },
-  {
-    "id": "social-phrases.scene.3c89a8bc",
-    "game": "social-phrases",
-    "text": "Дай книгу, пожалуйста.",
-    "voice": "filipp",
-    "path": "/audio/tts/social-phrases/scene-3c89a8bc.mp3"
-  },
-  {
-    "id": "social-phrases.scene.2e1a674d",
-    "game": "social-phrases",
-    "text": "Тебя услышали и подали воду.",
-    "voice": "julia",
-    "path": "/audio/tts/social-phrases/scene-2e1a674d.mp3"
-  },
-  {
-    "id": "social-phrases.scene.61a038f6",
-    "game": "social-phrases",
-    "text": "Помоги мне попросить воду.",
-    "voice": "filipp",
-    "path": "/audio/tts/social-phrases/scene-61a038f6.mp3"
-  },
-  {
-    "id": "social-phrases.scene.de6da915",
-    "game": "social-phrases",
-    "text": "Нет, я не хочу пить.",
-    "voice": "filipp",
-    "path": "/audio/tts/social-phrases/scene-de6da915.mp3"
-  },
-  {
-    "id": "social-phrases.scene.74a70cdd",
-    "game": "social-phrases",
-    "text": "Утром ты встречаешь знакомого взрослого.",
-    "voice": "alena",
-    "path": "/audio/tts/social-phrases/scene-74a70cdd.mp3"
-  },
-  {
-    "id": "social-phrases.scene.69da8d2d",
-    "game": "social-phrases",
-    "text": "Взрослый улыбается и смотрит на тебя.",
-    "voice": "alena",
-    "path": "/audio/tts/social-phrases/scene-69da8d2d.mp3"
-  },
-  {
-    "id": "social-phrases.scene.d47db6e9",
-    "game": "social-phrases",
-    "text": "Что можно сказать?",
-    "voice": "alena",
-    "path": "/audio/tts/social-phrases/scene-d47db6e9.mp3"
-  },
-  {
-    "id": "social-phrases.scene.7021c358",
-    "game": "social-phrases",
-    "text": "Я не хочу здороваться.",
-    "voice": "filipp",
-    "path": "/audio/tts/social-phrases/scene-7021c358.mp3"
-  },
-  {
-    "id": "social-phrases.scene.e51bfbe6",
-    "game": "social-phrases",
-    "text": "Взрослый услышал твоё приветствие.",
-    "voice": "julia",
-    "path": "/audio/tts/social-phrases/scene-e51bfbe6.mp3"
-  },
-  {
-    "id": "social-phrases.scene.266ef313",
-    "game": "social-phrases",
-    "text": "Добрый вечер!",
-    "voice": "filipp",
-    "path": "/audio/tts/social-phrases/scene-266ef313.mp3"
-  },
-  {
-    "id": "social-phrases.scene.9c00e6b4",
-    "game": "social-phrases",
-    "text": "Помоги мне поздороваться.",
-    "voice": "filipp",
-    "path": "/audio/tts/social-phrases/scene-9c00e6b4.mp3"
-  },
-  {
-    "id": "social-phrases.scene.9c655258",
-    "game": "social-phrases",
-    "text": "Тебе помогли открыть коробку.",
-    "voice": "alena",
-    "path": "/audio/tts/social-phrases/scene-9c655258.mp3"
-  },
-  {
-    "id": "social-phrases.scene.df5d43b7",
-    "game": "social-phrases",
-    "text": "Коробка открыта, и человек ждёт твоего ответа.",
-    "voice": "alena",
-    "path": "/audio/tts/social-phrases/scene-df5d43b7.mp3"
-  },
-  {
-    "id": "social-phrases.scene.9bec9604",
-    "game": "social-phrases",
-    "text": "За что можно поблагодарить?",
-    "voice": "alena",
-    "path": "/audio/tts/social-phrases/scene-9bec9604.mp3"
-  },
-  {
-    "id": "social-phrases.scene.21ba22f8",
-    "game": "social-phrases",
-    "text": "Я не хочу говорить.",
-    "voice": "filipp",
-    "path": "/audio/tts/social-phrases/scene-21ba22f8.mp3"
-  },
-  {
-    "id": "social-phrases.scene.e0d296fc",
-    "game": "social-phrases",
-    "text": "Помоги мне сказать спасибо.",
-    "voice": "filipp",
-    "path": "/audio/tts/social-phrases/scene-e0d296fc.mp3"
-  },
-  {
-    "id": "social-phrases.scene.a457bb9a",
-    "game": "social-phrases",
-    "text": "Спасибо, что помог открыть коробку.",
-    "voice": "filipp",
-    "path": "/audio/tts/social-phrases/scene-a457bb9a.mp3"
-  },
-  {
-    "id": "social-phrases.scene.5eb6e4aa",
-    "game": "social-phrases",
-    "text": "Человек понял твою благодарность.",
-    "voice": "julia",
-    "path": "/audio/tts/social-phrases/scene-5eb6e4aa.mp3"
-  },
-  {
-    "id": "social-phrases.scene.c33dd193",
-    "game": "social-phrases",
-    "text": "Я помогу.",
-    "voice": "julia",
-    "path": "/audio/tts/social-phrases/scene-c33dd193.mp3"
-  },
-  {
-    "id": "social-phrases.scene.3410ad55",
-    "game": "social-phrases",
-    "text": "Послушай ситуацию ещё раз и выбери в своём темпе.",
-    "voice": "julia",
-    "path": "/audio/tts/social-phrases/scene-3410ad55.mp3"
-  },
-  {
-    "id": "social-phrases.scene.6f6aeda7",
-    "game": "social-phrases",
-    "text": "Я услышал тебя.",
-    "voice": "julia",
-    "path": "/audio/tts/social-phrases/scene-6f6aeda7.mp3"
-  },
-  {
-    "id": "social-phrases.scene.ea90bfa9",
-    "game": "social-phrases",
-    "text": "Останавливаемся.",
-    "voice": "julia",
-    "path": "/audio/tts/social-phrases/scene-ea90bfa9.mp3"
-  },
-  {
-    "id": "social-phrases.scene.2a6a70ff",
-    "game": "social-phrases",
-    "text": "Все ситуации закончились.",
-    "voice": "julia",
-    "path": "/audio/tts/social-phrases/scene-2a6a70ff.mp3"
   },
   {
     "id": "clock.mistake",
@@ -13417,5 +12969,68 @@
     "text": "Почти. Подумай, что нужно ответить Мире.",
     "voice": "jane",
     "path": "/audio/tts/mini-dialog/mistake.mp3"
+  },
+  {
+    "id": "social-phrases.prompt",
+    "game": "social-phrases",
+    "text": "Что ты хочешь сказать? Выбери карточку.",
+    "voice": "jane",
+    "path": "/audio/tts/social-phrases/prompt.mp3"
+  },
+  {
+    "id": "social-phrases.phrase.yes",
+    "game": "social-phrases",
+    "text": "Да.",
+    "voice": "jane",
+    "path": "/audio/tts/social-phrases/phrase-yes.mp3"
+  },
+  {
+    "id": "social-phrases.phrase.no",
+    "game": "social-phrases",
+    "text": "Нет.",
+    "voice": "jane",
+    "path": "/audio/tts/social-phrases/phrase-no.mp3"
+  },
+  {
+    "id": "social-phrases.phrase.eat",
+    "game": "social-phrases",
+    "text": "Я хочу есть.",
+    "voice": "jane",
+    "path": "/audio/tts/social-phrases/phrase-eat.mp3"
+  },
+  {
+    "id": "social-phrases.phrase.drink",
+    "game": "social-phrases",
+    "text": "Я хочу пить.",
+    "voice": "jane",
+    "path": "/audio/tts/social-phrases/phrase-drink.mp3"
+  },
+  {
+    "id": "social-phrases.phrase.rest",
+    "game": "social-phrases",
+    "text": "Я хочу отдохнуть.",
+    "voice": "jane",
+    "path": "/audio/tts/social-phrases/phrase-rest.mp3"
+  },
+  {
+    "id": "social-phrases.phrase.toilet",
+    "game": "social-phrases",
+    "text": "Я хочу в туалет.",
+    "voice": "jane",
+    "path": "/audio/tts/social-phrases/phrase-toilet.mp3"
+  },
+  {
+    "id": "social-phrases.phrase.play",
+    "game": "social-phrases",
+    "text": "Я хочу играть.",
+    "voice": "jane",
+    "path": "/audio/tts/social-phrases/phrase-play.mp3"
+  },
+  {
+    "id": "social-phrases.phrase.help",
+    "game": "social-phrases",
+    "text": "Помоги мне, пожалуйста.",
+    "voice": "jane",
+    "path": "/audio/tts/social-phrases/phrase-help.mp3"
   }
 ]
