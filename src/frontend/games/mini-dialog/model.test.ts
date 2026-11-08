@@ -60,7 +60,8 @@ describe("mini-dialog", () => {
     for (const situation of miniDialogSituations) {
       expect(ids.has(miniDialogPromptAssetId(situation))).toBe(true);
     }
-    for (const reply of miniDialogReplies) expect(ids.has(miniDialogReplyAssetId(reply))).toBe(true);
+    for (const reply of miniDialogReplies)
+      expect(ids.has(miniDialogReplyAssetId(reply))).toBe(true);
     expect(ids.has("mini-dialog.mistake")).toBe(true);
   });
 });

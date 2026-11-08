@@ -212,7 +212,12 @@ onUnmounted(() => {
             >
               <template #default="{ choice }">
                 <div class="reply">
-                  <img class="reply__art" :src="gameArtSrc(choice.artId)" alt="" draggable="false" />
+                  <img
+                    class="reply__art"
+                    :src="gameArtSrc(choice.artId)"
+                    alt=""
+                    draggable="false"
+                  />
                   <div class="text-h6 text-md-h4 font-weight-bold">{{ choice.text }}</div>
                 </div>
               </template>
