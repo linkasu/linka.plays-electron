@@ -7021,25 +7021,11 @@
     "path": "/audio/tts/where-object/scene-6caf4728.mp3"
   },
   {
-    "id": "where-object.answer.ball.table.on",
-    "game": "where-object",
-    "text": "мяч на столе.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-ball-table-on.mp3"
-  },
-  {
     "id": "where-object.task.ball.table.on",
     "game": "where-object",
     "text": "Покажи: мяч на столе.",
     "voice": "jane",
     "path": "/audio/tts/where-object/task-ball-table-on.mp3"
-  },
-  {
-    "id": "where-object.answer.ball.table.under",
-    "game": "where-object",
-    "text": "мяч под столом.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-ball-table-under.mp3"
   },
   {
     "id": "where-object.task.ball.table.under",
@@ -7063,25 +7049,11 @@
     "path": "/audio/tts/where-object/task-ball-table-beside.mp3"
   },
   {
-    "id": "where-object.answer.book.table.on",
-    "game": "where-object",
-    "text": "книга на столе.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-book-table-on.mp3"
-  },
-  {
     "id": "where-object.task.book.table.on",
     "game": "where-object",
     "text": "Покажи: книга на столе.",
     "voice": "jane",
     "path": "/audio/tts/where-object/task-book-table-on.mp3"
-  },
-  {
-    "id": "where-object.answer.book.table.under",
-    "game": "where-object",
-    "text": "книга под столом.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-book-table-under.mp3"
   },
   {
     "id": "where-object.task.book.table.under",
@@ -7105,25 +7077,11 @@
     "path": "/audio/tts/where-object/task-book-table-beside.mp3"
   },
   {
-    "id": "where-object.answer.toy.table.on",
-    "game": "where-object",
-    "text": "игрушка на столе.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-toy-table-on.mp3"
-  },
-  {
     "id": "where-object.task.toy.table.on",
     "game": "where-object",
     "text": "Покажи: игрушка на столе.",
     "voice": "jane",
     "path": "/audio/tts/where-object/task-toy-table-on.mp3"
-  },
-  {
-    "id": "where-object.answer.toy.table.under",
-    "game": "where-object",
-    "text": "игрушка под столом.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-toy-table-under.mp3"
   },
   {
     "id": "where-object.task.toy.table.under",
@@ -7147,25 +7105,11 @@
     "path": "/audio/tts/where-object/task-toy-table-beside.mp3"
   },
   {
-    "id": "where-object.answer.key.table.on",
-    "game": "where-object",
-    "text": "ключ на столе.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-key-table-on.mp3"
-  },
-  {
     "id": "where-object.task.key.table.on",
     "game": "where-object",
     "text": "Покажи: ключ на столе.",
     "voice": "jane",
     "path": "/audio/tts/where-object/task-key-table-on.mp3"
-  },
-  {
-    "id": "where-object.answer.key.table.under",
-    "game": "where-object",
-    "text": "ключ под столом.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-key-table-under.mp3"
   },
   {
     "id": "where-object.task.key.table.under",
@@ -7189,25 +7133,11 @@
     "path": "/audio/tts/where-object/task-key-table-beside.mp3"
   },
   {
-    "id": "where-object.answer.cup.table.on",
-    "game": "where-object",
-    "text": "чашка на столе.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-cup-table-on.mp3"
-  },
-  {
     "id": "where-object.task.cup.table.on",
     "game": "where-object",
     "text": "Покажи: чашка на столе.",
     "voice": "jane",
     "path": "/audio/tts/where-object/task-cup-table-on.mp3"
-  },
-  {
-    "id": "where-object.answer.cup.table.under",
-    "game": "where-object",
-    "text": "чашка под столом.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-cup-table-under.mp3"
   },
   {
     "id": "where-object.task.cup.table.under",
@@ -7231,25 +7161,11 @@
     "path": "/audio/tts/where-object/task-cup-table-beside.mp3"
   },
   {
-    "id": "where-object.answer.spoon.table.on",
-    "game": "where-object",
-    "text": "ложка на столе.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-spoon-table-on.mp3"
-  },
-  {
     "id": "where-object.task.spoon.table.on",
     "game": "where-object",
     "text": "Покажи: ложка на столе.",
     "voice": "jane",
     "path": "/audio/tts/where-object/task-spoon-table-on.mp3"
-  },
-  {
-    "id": "where-object.answer.spoon.table.under",
-    "game": "where-object",
-    "text": "ложка под столом.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-spoon-table-under.mp3"
   },
   {
     "id": "where-object.task.spoon.table.under",
@@ -7273,25 +7189,11 @@
     "path": "/audio/tts/where-object/task-spoon-table-beside.mp3"
   },
   {
-    "id": "where-object.answer.phone.table.on",
-    "game": "where-object",
-    "text": "телефон на столе.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-phone-table-on.mp3"
-  },
-  {
     "id": "where-object.task.phone.table.on",
     "game": "where-object",
     "text": "Покажи: телефон на столе.",
     "voice": "jane",
     "path": "/audio/tts/where-object/task-phone-table-on.mp3"
-  },
-  {
-    "id": "where-object.answer.phone.table.under",
-    "game": "where-object",
-    "text": "телефон под столом.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-phone-table-under.mp3"
   },
   {
     "id": "where-object.task.phone.table.under",
@@ -7315,25 +7217,11 @@
     "path": "/audio/tts/where-object/task-phone-table-beside.mp3"
   },
   {
-    "id": "where-object.answer.brush.table.on",
-    "game": "where-object",
-    "text": "щётка на столе.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-brush-table-on.mp3"
-  },
-  {
     "id": "where-object.task.brush.table.on",
     "game": "where-object",
     "text": "Покажи: щётка на столе.",
     "voice": "jane",
     "path": "/audio/tts/where-object/task-brush-table-on.mp3"
-  },
-  {
-    "id": "where-object.answer.brush.table.under",
-    "game": "where-object",
-    "text": "щётка под столом.",
-    "voice": "jane",
-    "path": "/audio/tts/where-object/answer-brush-table-under.mp3"
   },
   {
     "id": "where-object.task.brush.table.under",
