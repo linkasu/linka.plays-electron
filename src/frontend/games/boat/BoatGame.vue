@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { scenePalette } from "../../core/themeSettings";
+import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
@@ -73,6 +74,8 @@ const {
   finishOnMaxSteps: false,
   finishOnMistakes: false,
 });
+// N-009: the task is said when the game starts (no task text on the field).
+useStartPromptAudio({ gameId: "boat", soundEnabled: toRef(session.settings, "sound") });
 
 const soundEnabled = toRef(session.settings, "sound");
 const viewport = ref<ViewportSize>({ width: window.innerWidth, height: window.innerHeight });

@@ -167,6 +167,8 @@ function startGame(nextMode: ChooseEmotionMode) {
 
 onMounted(() => {
   promptAudio.warm();
+  // N-009: the mode screen says its question too.
+  if (selectingMode.value) promptAudio.play("choose-emotion.mode-choice", 420);
 });
 
 onUnmounted(() => {
@@ -218,7 +220,7 @@ onUnmounted(() => {
                           alt=""
                           draggable="false"
                         />
-                        <div class="text-h5 font-weight-bold">Что чувствует лицо?</div>
+                        <div class="text-h5 font-weight-bold">Найди такую же эмоцию</div>
                         <div class="text-body-2 text-grey-darken-3">
                           Посмотри на выражение лица и выбери ответ
                         </div>
