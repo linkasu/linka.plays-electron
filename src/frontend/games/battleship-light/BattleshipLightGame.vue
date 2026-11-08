@@ -1,37 +1,26 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
+import { computed, onMounted, onUnmounted, ref, shallowRef, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
-import { useGameTimers } from "../../composables/useGameTimers";
 import { useStandardGameFeedback } from "../../composables/useStandardGameFeedback";
+import { gameArtSrc } from "../../core/gameArt";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
   allShipsSunk,
-  autoPlaceFleet,
-  battleshipCellCount,
-  battleshipSectors,
-  battleshipShips,
-  canPlaceShip,
-  chooseAiShot,
-  coordinateLabel,
-  countShots,
-  fireAt,
-  findShipAt,
-  getSectorCells,
-  nextShipToPlace,
-  occupiedCells,
-  placeShip,
-  type BattleshipOrientation,
-  type BattleshipPhase,
-  type BattleshipSectorId,
+  battleshipColumnLetters,
+  battleshipLayoutFor,
+  cellRowColumn,
+  createBattleshipBoard,
+  isCellOpen,
+  isShipSunk,
+  shipAt,
+  shootBattleship,
+  type BattleshipBoard,
   type BattleshipShip,
-  type BattleshipShot,
-  type BattleshipShots,
-  type BattleshipWinner,
 } from "./model";
 
 const router = useRouter();
@@ -43,13 +32,12 @@ const {
   pauseSession,
   resumeSession,
   recordEvent,
-  recordMistake,
   recordSuccess,
   startSession,
   finishSession,
 } = useGameSessionFor("battleship-light", {
-  maxSteps: 100,
-  overrides: { targetScale: 1.2, sound: true, sessionSeconds: 86400 },
+  maxSteps: 6,
+  overrides: { sound: true, sessionSeconds: 600 },
   finishOnMaxSteps: false,
   finishOnMistakes: false,
   finishOnTimeout: false,
@@ -58,323 +46,131 @@ const soundEnabled = toRef(session.settings, "sound");
 const promptAudio = useGamePromptAudio({
   gameId: "battleship-light",
   soundEnabled,
-  warmAssetIds: ["battleship-light.prompt", "battleship-light.complete"],
+  warmAssetIds: ["battleship-light.prompt", "battleship-light.miss", "battleship-light.hit"],
 });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
-const { setGameTimeout, clearGameTimers } = useGameTimers();
 
-const phase = ref<BattleshipPhase>("setup");
-const playerFleet = ref<BattleshipShip[]>([]);
-const enemyFleet = ref<BattleshipShip[]>(autoPlaceFleet(2026).fleet);
-const playerShots = ref<BattleshipShots>({});
-const enemyShots = ref<BattleshipShots>({});
-const orientation = ref<BattleshipOrientation>("horizontal");
-const selectedSector = ref<BattleshipSectorId>("nw");
-const targetSelectionStep = ref<"sector" | "row" | "cell">("sector");
-const selectedSectorRow = ref(0);
-const aiSeed = ref(73);
-const winner = ref<BattleshipWinner>();
-const lastPlayerShot = ref<number>();
-const lastAiShot = ref<number>();
+const layout = computed(() => battleshipLayoutFor(session.settings.preset));
+const board = shallowRef<BattleshipBoard>(createBattleshipBoard(layout.value));
+/** Bumped after every shot: the board keeps Sets, which Vue does not watch. */
+const version = ref(0);
 const pending = ref(false);
-const feedbackMessage = ref(
-  "Расставь свой флот. Выбери сектор и крупную клетку для текущего корабля.",
-);
-
+const lastShot = ref<{ index: number; text: string }>();
 const resultVisible = computed(() => session.status === "finished");
-const currentShip = computed(() => nextShipToPlace(playerFleet.value));
-const setupComplete = computed(() => playerFleet.value.length === battleshipShips.length);
-const sectorCells = computed(() => getSectorCells(selectedSector.value));
-const sectorRows = computed(() =>
-  Array.from({ length: 5 }, (_, row) => sectorCells.value.slice(row * 5, row * 5 + 5)),
-);
-const activeCells = computed(() => sectorRows.value[selectedSectorRow.value] ?? []);
-const fullBoardCells = Array.from({ length: battleshipCellCount }, (_, index) => index);
-const playerOccupied = computed(() => occupiedCells(playerFleet.value));
-const hudStep = computed(() => countShots(playerShots.value));
-const playerHits = computed(
-  () => countShots(playerShots.value, "hit") + countShots(playerShots.value, "sunk"),
-);
-const playerMisses = computed(() => countShots(playerShots.value, "miss"));
-const enemyHits = computed(
-  () => countShots(enemyShots.value, "hit") + countShots(enemyShots.value, "sunk"),
-);
-const enemyMisses = computed(() => countShots(enemyShots.value, "miss"));
 
-const statusText = computed(() => {
-  if (phase.value === "setup")
-    return setupComplete.value
-      ? "Флот готов"
-      : `Расстановка ${playerFleet.value.length} / ${battleshipShips.length}`;
-  if (phase.value === "player-turn") return "Твой залп";
-  if (phase.value === "ai-turn") return "Ответ соперника";
-  return winner.value === "player" ? "Победа" : "Поражение";
+const cells = computed(() => {
+  void version.value;
+  const b = board.value;
+  return Array.from({ length: b.size * b.size }, (_, index) => {
+    const ship = shipAt(b, index);
+    const shot = b.shots.has(index);
+    return {
+      index,
+      state: shot ? (ship ? "hit" : "miss") : b.cleared.has(index) ? "cleared" : "open",
+    } as const;
+  });
 });
 
-function clearAiTimer() {
-  clearGameTimers();
-}
+const sunkShips = computed(() => {
+  void version.value;
+  return board.value.ships.filter((ship) => isShipSunk(board.value, ship));
+});
+
+const fleet = computed(() => {
+  void version.value;
+  return board.value.ships.map((ship) => ({ ship, sunk: isShipSunk(board.value, ship) }));
+});
+
+const totalShipCells = computed(() => layout.value.ships.reduce((sum, length) => sum + length, 0));
+const rowNumbers = computed(() => Array.from({ length: board.value.size }, (_, i) => i + 1));
+const columnLetters = computed(() => battleshipColumnLetters.slice(0, board.value.size));
 
 function cellTargetId(index: number) {
-  return `battleship-light:${phase.value}:cell:${index}`;
+  return `battleship-light:cell:${index}`;
 }
 
-function sectorTargetId(id: BattleshipSectorId) {
-  return `battleship-light:sector:${id}`;
-}
-
-function sectorLabel(id: BattleshipSectorId) {
-  return battleshipSectors.find((sector) => sector.id === id)?.label ?? id;
-}
-
-function shotIcon(shot?: BattleshipShot) {
-  if (shot === "miss") return "mdi-water";
-  if (shot === "hit") return "mdi-fire";
-  if (shot === "sunk") return "mdi-ferry";
-  return undefined;
-}
-
-function shotColor(shot?: BattleshipShot) {
-  if (shot === "miss") return "info";
-  if (shot === "hit") return "warning";
-  if (shot === "sunk") return "primary";
-  return "surface";
-}
-
-function activeCellColor(index: number) {
-  if (phase.value === "setup") {
-    const valid = currentShip.value
-      ? canPlaceShip(playerFleet.value, currentShip.value, index, orientation.value)
-      : false;
-    if (playerOccupied.value.has(index)) return "primary";
-    return valid ? "green-lighten-5" : "surface";
-  }
-
-  return shotColor(playerShots.value[index]);
-}
-
-function overviewClass(index: number, owner: "player" | "enemy") {
-  const shots = owner === "player" ? enemyShots.value : playerShots.value;
-  const ship = owner === "player" ? playerOccupied.value.has(index) : false;
+/** A sunk ship is drawn over its squares. */
+function shipStyle(ship: BattleshipShip) {
+  const size = board.value.size;
+  const { row, column } = cellRowColumn(size, ship.cells[0]);
+  const along = `${(ship.length / size) * 100}%`;
+  const across = `${(1 / size) * 100}%`;
   return {
-    "overview-cell--ship": ship,
-    "overview-cell--miss": shots[index] === "miss",
-    "overview-cell--hit": shots[index] === "hit",
-    "overview-cell--sunk": shots[index] === "sunk",
-    "overview-cell--last": index === (owner === "player" ? lastAiShot.value : lastPlayerShot.value),
+    insetInlineStart: `${(column / size) * 100}%`,
+    insetBlockStart: `${(row / size) * 100}%`,
+    inlineSize: ship.orientation === "horizontal" ? along : across,
+    blockSize: ship.orientation === "horizontal" ? across : along,
   };
 }
 
-function rotate() {
-  if (session.status !== "running" || pending.value || phase.value !== "setup") return;
-  orientation.value = orientation.value === "horizontal" ? "vertical" : "horizontal";
-}
-
-function selectSector(id: BattleshipSectorId) {
-  if (
-    session.status !== "running" ||
-    pending.value ||
-    phase.value === "ai-turn" ||
-    phase.value === "finished"
-  )
-    return;
-  selectedSector.value = id;
-  selectedSectorRow.value = 0;
-  targetSelectionStep.value = "row";
-}
-
-function selectSectorRow(row: number) {
-  if (session.status !== "running" || pending.value || targetSelectionStep.value !== "row") return;
-  selectedSectorRow.value = row;
-  targetSelectionStep.value = "cell";
-}
-
-function resetTargetSelection() {
-  targetSelectionStep.value = "sector";
-  selectedSectorRow.value = 0;
-}
-
-function previousTargetSelectionStep() {
-  if (targetSelectionStep.value === "cell") {
-    targetSelectionStep.value = "row";
-    return;
-  }
-  resetTargetSelection();
-}
-
-function autoSetup() {
-  if (session.status !== "running" || pending.value || phase.value !== "setup") return;
-  playerFleet.value = autoPlaceFleet(99).fleet;
-  feedbackMessage.value = "Флот расставлен автоматически. Можно начинать бой.";
-}
-
-function startBattle() {
-  if (session.status !== "running" || pending.value || phase.value !== "setup") return;
-  if (!setupComplete.value) {
-    feedbackMessage.value = "Сначала расставь все корабли или выбери авторасстановку.";
-    return;
-  }
-  phase.value = "player-turn";
-  selectedSector.value = "nw";
-  resetTargetSelection();
-  feedbackMessage.value = "Бой начался. Выбери клетку на поле соперника для залпа.";
-}
-
-function finishGame(nextWinner: BattleshipWinner) {
-  winner.value = nextWinner;
-  phase.value = "finished";
-  feedbackMessage.value =
-    nextWinner === "player" ? "Все корабли соперника потоплены." : "Соперник потопил твой флот.";
-  finishSession(nextWinner === "player" ? "game-complete" : "game-lost");
-  promptAudio.play("battleship-light.complete", 180);
-}
-
-function handleSetupCell(index: number) {
-  const ship = currentShip.value;
-  if (!ship) return;
-  const nextFleet = placeShip(playerFleet.value, ship, index, orientation.value);
-  if (!nextFleet) {
-    feedbackMessage.value = `${coordinateLabel(index)} не подходит: корабли не должны касаться и выходить за поле.`;
-    void feedbackAudio.playMistake();
-    recordMistake({
-      coordinate: coordinateLabel(index),
-      orientation: orientation.value,
-      reason: "illegal-placement",
-      isCorrect: false,
-    });
-    return;
-  }
-
-  playerFleet.value = nextFleet;
-  const nextShip = nextShipToPlace(nextFleet);
-  feedbackMessage.value = nextShip
-    ? `${ship.name} поставлен. Теперь поставь ${nextShip.name} длиной ${nextShip.length}.`
-    : "Флот готов. Нажми начать бой.";
-  void feedbackAudio.playSuccess();
-  resetTargetSelection();
-}
-
-function handlePlayerShot(index: number) {
-  if (playerShots.value[index]) {
-    feedbackMessage.value = `${coordinateLabel(index)} уже проверена. Выбери другую клетку.`;
-    return;
-  }
-
-  const result = fireAt(enemyFleet.value, playerShots.value, index, "player");
-  if (!result.ok || !result.result) return;
-
-  playerShots.value = result.shots;
-  lastPlayerShot.value = index;
-
-  if (result.result === "miss") {
-    feedbackMessage.value = `${coordinateLabel(index)}: вода. Теперь отвечает соперник.`;
-    void feedbackAudio.playMistake();
-    phase.value = "ai-turn";
-    resetTargetSelection();
-    scheduleAiTurn();
-    return;
-  }
-
-  recordSuccess({ coordinate: coordinateLabel(index), result: result.result, isCorrect: true });
-  resetTargetSelection();
-  feedbackMessage.value =
-    result.result === "sunk"
-      ? `${coordinateLabel(index)}: корабль потоплен. Стреляй ещё.`
-      : `${coordinateLabel(index)}: попадание. Стреляй ещё.`;
-  void feedbackAudio.playSuccess();
-  if (result.winner) finishGame(result.winner);
-}
-
-function scheduleAiTurn() {
-  clearAiTimer();
+async function shoot(index: number) {
+  if (session.status !== "running" || pending.value || !isCellOpen(board.value, index)) return;
+  const outcome = shootBattleship(board.value, index);
+  if (!outcome) return;
+  version.value += 1;
   pending.value = true;
-  setGameTimeout(runAiTurn, 850);
-}
+  const targetId = cellTargetId(index);
 
-function runAiTurn() {
-  if (phase.value !== "ai-turn" || session.status !== "running") return;
+  if (outcome.result === "miss") {
+    // A miss is part of the search, not a mistake.
+    lastShot.value = { index, text: "Мимо" };
+    recordEvent("target-click", { targetId, cell: index, result: "miss" });
+    await promptAudio.playSequenceAndWait(["battleship-light.miss"], 40);
+    pending.value = false;
+    return;
+  }
 
-  const choice = chooseAiShot(playerFleet.value, enemyShots.value, aiSeed.value);
-  aiSeed.value = choice.nextSeed;
-  const result = fireAt(playerFleet.value, enemyShots.value, choice.index, "ai");
-  if (!result.ok || !result.result) return;
+  recordSuccess({
+    roundId: `battleship-light:shot:${index}`,
+    targetId,
+    isCorrect: true,
+    cell: index,
+  });
+  void feedbackAudio.playSuccess();
+  if (outcome.result === "hit") {
+    lastShot.value = { index, text: "Попал!" };
+    await promptAudio.playSequenceAndWait(["battleship-light.hit"], 40);
+    pending.value = false;
+    return;
+  }
 
-  enemyShots.value = result.shots;
-  lastAiShot.value = choice.index;
+  lastShot.value = { index, text: "Корабль потоплен!" };
+  recordEvent("target-click", {
+    result: "sunk",
+    shipId: outcome.ship?.id,
+    length: outcome.ship?.length,
+  });
+  if (allShipsSunk(board.value)) {
+    await promptAudio.playSequenceAndWait(["battleship-light.complete"], 40);
+    finishSession("game-complete");
+    pending.value = false;
+    return;
+  }
+  await promptAudio.playSequenceAndWait(["battleship-light.sunk"], 40);
   pending.value = false;
-
-  if (result.result === "miss") {
-    phase.value = "player-turn";
-    feedbackMessage.value = `Соперник стрелял в ${coordinateLabel(choice.index)}: вода. Твой ход.`;
-    return;
-  }
-
-  feedbackMessage.value =
-    result.result === "sunk"
-      ? `Соперник стрелял в ${coordinateLabel(choice.index)} и потопил корабль.`
-      : `Соперник попал в ${coordinateLabel(choice.index)}.`;
-  if (result.winner) {
-    finishGame(result.winner);
-    return;
-  }
-  scheduleAiTurn();
 }
 
-function chooseCell(index: number) {
-  if (session.status !== "running" || pending.value || phase.value === "finished") return;
-  if (phase.value === "setup") handleSetupCell(index);
-  if (phase.value === "player-turn") handlePlayerShot(index);
+function newBoard() {
+  board.value = createBattleshipBoard(layout.value);
+  version.value += 1;
+  lastShot.value = undefined;
 }
 
 function restart() {
-  clearAiTimer();
   promptAudio.cancelPending();
-  phase.value = "setup";
-  playerFleet.value = [];
-  enemyFleet.value = autoPlaceFleet(2026).fleet;
-  playerShots.value = {};
-  enemyShots.value = {};
-  orientation.value = "horizontal";
-  selectedSector.value = "nw";
-  resetTargetSelection();
-  aiSeed.value = 73;
-  winner.value = undefined;
-  lastPlayerShot.value = undefined;
-  lastAiShot.value = undefined;
   pending.value = false;
-  feedbackMessage.value =
-    "Расставь свой флот. Выбери сектор и крупную клетку для текущего корабля.";
+  newBoard();
   startSession();
-  promptAudio.play("battleship-light.prompt", 220);
-}
-
-function activeCellText(index: number) {
-  if (phase.value === "setup") {
-    if (playerOccupied.value.has(index)) return findShipAt(playerFleet.value, index)?.length ?? "";
-    return coordinateLabel(index);
-  }
-  return coordinateLabel(index);
-}
-
-function battleCellColor(index: number) {
-  return shotColor(playerShots.value[index]);
-}
-
-function setupOverviewClass(index: number) {
-  return {
-    "setup-overview-cell--ship": playerOccupied.value.has(index),
-  };
+  void promptAudio.playSequenceAndWait(["battleship-light.prompt"], 220);
 }
 
 onMounted(() => {
   promptAudio.warm();
-  promptAudio.play("battleship-light.prompt", 420);
+  void promptAudio.playSequenceAndWait(["battleship-light.prompt"], 420);
 });
 
 onUnmounted(() => {
-  clearAiTimer();
   promptAudio.cancelPending();
-  clearGameTimers();
 });
 </script>
 
@@ -382,387 +178,114 @@ onUnmounted(() => {
   <div class="battleship-shell">
     <GameHud
       title="Морской бой"
-      :step="hudStep"
-      :max-steps="session.maxSteps"
-      :score="playerHits"
-      :mistakes="playerMisses"
+      :step="session.step"
+      :max-steps="totalShipCells"
+      :score="session.score"
       :duration-ms="durationMs"
+      :session-seconds="session.settings.sessionSeconds"
       :paused="session.status === 'paused'"
-      :show-progress="false"
-      :show-timer="false"
       @pause="pauseSession"
       @resume="resumeSession"
     />
-
-    <v-container class="game-container" fluid>
-      <v-row justify="center">
-        <v-col cols="12" xl="11">
-          <v-card
-            class="game-card pa-3 pa-md-4"
-            color="rgba(255, 255, 255, 0.95)"
-            rounded="xl"
-            elevation="10"
-          >
-            <div class="game-layout" :class="{ 'game-layout--setup': phase === 'setup' }">
-              <section class="control-panel">
-                <div>
-                  <div class="text-overline text-secondary mb-1">Полный морской бой 10×10</div>
-                  <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Морской бой</h1>
-                  <p class="text-body-1 text-medium-emphasis mb-0">
-                    Сначала расставь корабли, затем стреляй по полю соперника. Для взгляда поле
-                    делится на крупные сектора.
-                  </p>
-                </div>
-
-                <v-alert
-                  class="text-body-1 font-weight-medium"
-                  color="primary"
-                  icon="mdi-ferry"
-                  rounded="xl"
-                  variant="tonal"
-                >
-                  {{ feedbackMessage }} {{ statusText }}
-                </v-alert>
-
-                <div class="d-flex flex-wrap ga-2">
-                  <v-chip color="primary" size="large" variant="flat">{{ statusText }}</v-chip>
-                  <v-chip
-                    v-if="phase === 'setup' && currentShip"
-                    color="secondary"
-                    size="large"
-                    variant="tonal"
-                    >{{ currentShip.name }}: {{ currentShip.length }}</v-chip
-                  >
-                  <v-chip v-if="phase !== 'setup'" color="success" size="large" variant="tonal"
-                    >Попадания: {{ playerHits }}</v-chip
-                  >
-                  <v-chip v-if="phase !== 'setup'" color="warning" size="large" variant="tonal"
-                    >По нам: {{ enemyHits }}</v-chip
-                  >
-                </div>
-
-                <div v-if="phase === 'setup'" class="text-body-2 text-medium-emphasis">
-                  Кнопки управления находятся справа от поля и тоже выбираются взглядом.
-                </div>
-                <div v-else class="d-flex flex-wrap ga-2">
-                  <v-btn
-                    color="primary"
-                    prepend-icon="mdi-restart"
-                    rounded="xl"
-                    size="large"
-                    variant="tonal"
-                    @click="restart"
-                    >Новая партия</v-btn
-                  >
-                </div>
-              </section>
-
-              <section class="active-panel">
-                <div class="text-subtitle-1 font-weight-bold mb-2">
-                  {{
-                    targetSelectionStep === "sector"
-                      ? "Выбери крупный сектор"
-                      : targetSelectionStep === "row"
-                        ? `Сектор ${sectorLabel(selectedSector)}: выбери ряд`
-                        : "Выбери клетку в ряду"
-                  }}
-                </div>
-                <div v-if="phase === 'setup'" class="setup-field-row">
-                  <div>
-                    <div
-                      v-if="targetSelectionStep === 'sector'"
-                      class="setup-overview-grid mb-3"
-                      role="grid"
-                      aria-label="Обзор поля игрока десять на десять"
-                    >
-                      <div
-                        v-for="index in fullBoardCells"
-                        :key="`setup-full-${index}`"
-                        class="setup-overview-cell"
-                        :class="setupOverviewClass(index)"
-                      >
-                        <span class="setup-overview-label">{{ coordinateLabel(index) }}</span>
-                        <v-icon
-                          v-if="playerOccupied.has(index)"
-                          icon="mdi-ferry"
-                          size="clamp(1rem, 2.8dvh, 1.8rem)"
-                        />
-                      </div>
-                    </div>
-
-                    <div v-if="targetSelectionStep === 'sector'" class="sector-grid">
-                      <GameDwellButton
-                        v-for="sector in battleshipSectors"
-                        :key="sector.id"
-                        :target-id="sectorTargetId(sector.id)"
-                        :disabled="session.status !== 'running'"
-                        :dwell-ms="session.settings.dwellMs"
-                        min-height="clamp(8.25rem, 18dvh, 10rem)"
-                        color="teal-darken-3"
-                        @select="selectSector(sector.id)"
-                      >
-                        <template #default
-                          ><div class="text-h5 font-weight-bold">{{ sector.label }}</div></template
-                        >
-                      </GameDwellButton>
-                    </div>
-
-                    <div v-else-if="targetSelectionStep === 'row'" class="selection-list">
-                      <GameDwellButton
-                        v-for="(row, rowIndex) in sectorRows"
-                        :key="`${selectedSector}:row:${rowIndex}`"
-                        :target-id="`battleship-light:${phase}:row:${selectedSector}:${rowIndex}`"
-                        :disabled="session.status !== 'running'"
-                        :dwell-ms="session.settings.dwellMs"
-                        min-height="clamp(8.25rem, 18dvh, 10rem)"
-                        color="secondary"
-                        @select="selectSectorRow(rowIndex)"
-                      >
-                        <template #default
-                          ><div class="text-h5 font-weight-bold">
-                            {{ coordinateLabel(row[0]) }}–{{ coordinateLabel(row[4]) }}
-                          </div></template
-                        >
-                      </GameDwellButton>
-                    </div>
-
-                    <div v-else class="selection-list">
-                      <GameDwellButton
-                        v-for="index in activeCells"
-                        :key="`${phase}-active-${index}`"
-                        :target-id="cellTargetId(index)"
-                        :disabled="session.status !== 'running' || pending"
-                        :dwell-ms="session.settings.dwellMs"
-                        min-height="clamp(8.25rem, 18dvh, 10rem)"
-                        :color="activeCellColor(index)"
-                        @select="chooseCell(index)"
-                      >
-                        <template #default
-                          ><div class="text-h4 font-weight-bold">
-                            {{ activeCellText(index) }}
-                          </div></template
-                        >
-                      </GameDwellButton>
-                    </div>
-
-                    <GameDwellButton
-                      v-if="targetSelectionStep !== 'sector'"
-                      class="mt-3"
-                      target-id="battleship-light:selection:back"
-                      :dwell-ms="session.settings.dwellMs"
-                      min-height="clamp(8.25rem, 18dvh, 10rem)"
-                      color="blue-grey-darken-2"
-                      @select="previousTargetSelectionStep"
-                    >
-                      <template #default
-                        ><div class="text-h6 font-weight-bold">Назад</div></template
-                      >
-                    </GameDwellButton>
-                  </div>
-
-                  <div
-                    v-if="targetSelectionStep === 'sector'"
-                    class="setup-gaze-actions"
-                    aria-label="Управление расстановкой"
-                  >
-                    <GameDwellButton
-                      v-if="!setupComplete"
-                      target-id="battleship-light:action:rotate"
-                      :dwell-ms="session.settings.dwellMs"
-                      min-height="clamp(4.25rem, 10dvh, 6rem)"
-                      color="blue-grey-darken-2"
-                      @select="rotate"
-                    >
-                      <template #default>
-                        <div class="action-button-content">
-                          <v-icon icon="mdi-rotate-3d-variant" size="clamp(1.6rem, 4dvh, 2.4rem)" />
-                          <span>Повернуть</span>
-                          <small>{{
-                            orientation === "horizontal" ? "сейчас гор." : "сейчас верт."
-                          }}</small>
-                        </div>
-                      </template>
-                    </GameDwellButton>
-
-                    <GameDwellButton
-                      v-if="!setupComplete"
-                      target-id="battleship-light:action:auto-setup"
-                      :dwell-ms="session.settings.dwellMs"
-                      min-height="clamp(4.25rem, 10dvh, 6rem)"
-                      color="teal-darken-3"
-                      @select="autoSetup"
-                    >
-                      <template #default>
-                        <div class="action-button-content">
-                          <v-icon icon="mdi-auto-fix" size="clamp(1.6rem, 4dvh, 2.4rem)" />
-                          <span>Авто</span>
-                        </div>
-                      </template>
-                    </GameDwellButton>
-
-                    <GameDwellButton
-                      v-if="setupComplete"
-                      target-id="battleship-light:action:start-battle"
-                      :dwell-ms="session.settings.dwellMs"
-                      min-height="clamp(5rem, 12dvh, 7rem)"
-                      color="success"
-                      @select="startBattle"
-                    >
-                      <template #default>
-                        <div class="action-button-content action-button-content--start">
-                          <v-icon icon="mdi-play" size="clamp(1.8rem, 4.5dvh, 2.8rem)" />
-                          <span>Начать бой</span>
-                        </div>
-                      </template>
-                    </GameDwellButton>
-
-                    <GameDwellButton
-                      target-id="battleship-light:action:restart"
-                      :dwell-ms="session.settings.dwellMs"
-                      min-height="clamp(4rem, 9dvh, 5.5rem)"
-                      color="blue-grey-darken-2"
-                      @select="restart"
-                    >
-                      <template #default>
-                        <div class="action-button-content">
-                          <v-icon icon="mdi-restart" size="clamp(1.5rem, 3.8dvh, 2.3rem)" />
-                          <span>Заново</span>
-                        </div>
-                      </template>
-                    </GameDwellButton>
-                  </div>
-                </div>
-                <div v-else>
-                  <div v-if="targetSelectionStep === 'sector'" class="sector-grid">
-                    <GameDwellButton
-                      v-for="sector in battleshipSectors"
-                      :key="sector.id"
-                      :target-id="sectorTargetId(sector.id)"
-                      :disabled="session.status !== 'running' || phase !== 'player-turn' || pending"
-                      :dwell-ms="session.settings.dwellMs"
-                      min-height="clamp(8.25rem, 18dvh, 10rem)"
-                      color="teal-darken-3"
-                      @select="selectSector(sector.id)"
-                    >
-                      <template #default
-                        ><div class="text-h5 font-weight-bold">{{ sector.label }}</div></template
-                      >
-                    </GameDwellButton>
-                  </div>
-                  <div v-else-if="targetSelectionStep === 'row'" class="selection-list">
-                    <GameDwellButton
-                      v-for="(row, rowIndex) in sectorRows"
-                      :key="`${selectedSector}:row:${rowIndex}`"
-                      :target-id="`battleship-light:${phase}:row:${selectedSector}:${rowIndex}`"
-                      :disabled="session.status !== 'running' || phase !== 'player-turn' || pending"
-                      :dwell-ms="session.settings.dwellMs"
-                      min-height="clamp(8.25rem, 18dvh, 10rem)"
-                      color="secondary"
-                      @select="selectSectorRow(rowIndex)"
-                    >
-                      <template #default
-                        ><div class="text-h5 font-weight-bold">
-                          {{ coordinateLabel(row[0]) }}–{{ coordinateLabel(row[4]) }}
-                        </div></template
-                      >
-                    </GameDwellButton>
-                  </div>
-                  <div v-else class="selection-list">
-                    <GameDwellButton
-                      v-for="index in activeCells"
-                      :key="`${phase}-active-${index}`"
-                      :target-id="cellTargetId(index)"
-                      :disabled="
-                        session.status !== 'running' ||
-                        phase !== 'player-turn' ||
-                        pending ||
-                        Boolean(playerShots[index])
-                      "
-                      :dwell-ms="session.settings.dwellMs"
-                      min-height="clamp(8.25rem, 18dvh, 10rem)"
-                      :color="battleCellColor(index)"
-                      @select="chooseCell(index)"
-                    >
-                      <template #default>
-                        <div class="active-cell">
-                          <span class="text-h4 font-weight-bold">{{ coordinateLabel(index) }}</span>
-                          <v-icon
-                            v-if="shotIcon(playerShots[index])"
-                            :icon="shotIcon(playerShots[index])"
-                            size="clamp(1.8rem, 4dvh, 2.8rem)"
-                          />
-                        </div>
-                      </template>
-                    </GameDwellButton>
-                  </div>
-                  <GameDwellButton
-                    v-if="targetSelectionStep !== 'sector'"
-                    class="mt-3"
-                    target-id="battleship-light:selection:back"
-                    :dwell-ms="session.settings.dwellMs"
-                    min-height="clamp(8.25rem, 18dvh, 10rem)"
-                    color="blue-grey-darken-2"
-                    @select="previousTargetSelectionStep"
-                  >
-                    <template #default><div class="text-h6 font-weight-bold">Назад</div></template>
-                  </GameDwellButton>
-                </div>
-              </section>
-
-              <section v-if="phase !== 'setup'" class="boards-panel">
-                <div class="overview-card">
-                  <div class="text-subtitle-2 font-weight-bold mb-2">Твой флот</div>
-                  <div class="overview-grid" aria-label="Твоё поле">
-                    <div
-                      v-for="index in battleshipCellCount"
-                      :key="`player-${index}`"
-                      class="overview-cell"
-                      :class="overviewClass(index - 1, 'player')"
-                    >
-                      <v-icon
-                        v-if="enemyShots[index - 1] === 'hit' || enemyShots[index - 1] === 'sunk'"
-                        icon="mdi-fire"
-                        size="0.9rem"
-                      />
-                    </div>
-                  </div>
-                  <div class="text-caption text-medium-emphasis mt-2">
-                    Выстрелы соперника: {{ enemyHits + enemyMisses }}
-                  </div>
-                </div>
-
-                <div class="overview-card">
-                  <div class="text-subtitle-2 font-weight-bold mb-2">Поле соперника</div>
-                  <div class="overview-grid" aria-label="Поле соперника">
-                    <div
-                      v-for="index in battleshipCellCount"
-                      :key="`enemy-${index}`"
-                      class="overview-cell"
-                      :class="overviewClass(index - 1, 'enemy')"
-                    >
-                      <v-icon
-                        v-if="playerShots[index - 1] === 'hit' || playerShots[index - 1] === 'sunk'"
-                        icon="mdi-fire"
-                        size="0.9rem"
-                      />
-                    </div>
-                  </div>
-                  <div class="text-caption text-medium-emphasis mt-2">
-                    Твои залпы: {{ playerHits + playerMisses }}
-                  </div>
-                </div>
-              </section>
+    <v-container class="game-container game-hud-clear" fluid>
+      <v-card class="pa-3 pa-md-4" rounded="xl" elevation="8">
+        <div class="battle-layout">
+          <section class="sea-frame" aria-label="Поле морского боя">
+            <span class="sea-corner" aria-hidden="true" />
+            <div class="sea-letters" aria-hidden="true">
+              <span v-for="letter in columnLetters" :key="letter" class="sea-coord">{{
+                letter
+              }}</span>
             </div>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
+            <div class="sea-numbers" aria-hidden="true">
+              <span v-for="number in rowNumbers" :key="number" class="sea-coord">{{ number }}</span>
+            </div>
+            <div
+              class="sea"
+              role="grid"
+              :style="{ '--sea-size': board.size }"
+              aria-label="Клетки поля соперника"
+            >
+              <GameDwellButton
+                v-for="cell in cells"
+                :key="cell.index"
+                class="sea-cell"
+                :class="`sea-cell--${cell.state}`"
+                :target-id="cellTargetId(cell.index)"
+                :disabled="session.status !== 'running' || pending || cell.state !== 'open'"
+                :dwell-ms="session.settings.dwellMs"
+                min-height="0"
+                color="transparent"
+                @select="shoot(cell.index)"
+              >
+                <template #default>
+                  <img
+                    v-if="cell.state === 'miss'"
+                    class="sea-mark"
+                    :src="gameArtSrc('battleship-light/splash')"
+                    alt="Мимо"
+                  />
+                  <img
+                    v-else-if="cell.state === 'hit'"
+                    class="sea-mark sea-mark--fire"
+                    :src="gameArtSrc('battleship-light/fire')"
+                    alt="Попадание"
+                  />
+                  <span v-else-if="cell.state === 'cleared'" class="sea-dot" aria-label="Пусто" />
+                </template>
+              </GameDwellButton>
+              <div
+                v-for="ship in sunkShips"
+                :key="ship.id"
+                class="sunk-ship"
+                :class="`sunk-ship--${ship.orientation}`"
+                :style="shipStyle(ship)"
+              >
+                <img
+                  class="sunk-ship__art"
+                  :src="gameArtSrc(`battleship-light/ship-${ship.length}`)"
+                  alt=""
+                />
+              </div>
+            </div>
+          </section>
 
+          <aside class="battle-side">
+            <h1 class="text-h5 text-md-h4 font-weight-bold mb-2">Найди корабли</h1>
+            <p class="text-body-1 text-md-h6 text-medium-emphasis mb-3">
+              Посмотри на клетку, чтобы выстрелить.
+            </p>
+            <div class="shot-result text-h5 text-md-h4 font-weight-bold mb-3" aria-live="polite">
+              {{ lastShot?.text ?? "" }}
+            </div>
+            <div class="fleet" aria-label="Корабли соперника">
+              <div
+                v-for="item in fleet"
+                :key="item.ship.id"
+                class="fleet-ship"
+                :class="{ 'fleet-ship--sunk': item.sunk }"
+              >
+                <img
+                  class="fleet-ship__art"
+                  :style="{ '--ship-length': item.ship.length }"
+                  :src="gameArtSrc(`battleship-light/ship-${item.ship.length}`)"
+                  alt=""
+                />
+                <v-icon v-if="item.sunk" class="fleet-ship__done" icon="mdi-check-circle" />
+                <span class="d-sr-only">{{
+                  item.sunk ? "потоплен" : `корабль на ${item.ship.length} клетки`
+                }}</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </v-card>
+    </v-container>
     <GameResultDialog
       :model-value="resultVisible"
       title="Морской бой"
-      :score="playerHits"
-      :mistakes="playerMisses"
+      :score="session.score"
+      :mistakes="session.mistakes"
       :duration-ms="durationMs"
       :metrics="metrics"
       :recommendation="recommendation"
@@ -778,357 +301,176 @@ onUnmounted(() => {
   min-block-size: 100vh;
 }
 
-.game-container {
-  padding-block-start: clamp(5.2rem, 11dvh, 7rem);
-}
-
-.game-card {
-  max-block-size: calc(100dvh - clamp(6rem, 12dvh, 7.8rem));
-  overflow: hidden;
-}
-
-.game-layout {
-  display: grid;
-  gap: clamp(0.8rem, 1.8vw, 1.5rem);
-  grid-template-columns: minmax(16rem, 0.8fr) minmax(18rem, 1fr) minmax(12rem, 0.55fr);
-}
-
-.game-layout--setup {
-  grid-template-columns: minmax(15rem, 0.6fr) minmax(30rem, 1.4fr);
-}
-
-.control-panel,
-.active-panel,
-.boards-panel,
-.overview-card {
-  min-inline-size: 0;
-}
-
-.control-panel {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(0.65rem, 1.4dvh, 1rem);
-}
-
-.sector-grid {
-  display: grid;
-  gap: clamp(0.35rem, 0.8vw, 0.7rem);
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.active-grid {
-  display: grid;
-  gap: clamp(0.25rem, 0.65vw, 0.55rem);
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-}
-
-.selection-list {
-  display: grid;
-  gap: clamp(0.45rem, 1dvh, 0.75rem);
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.setup-field-row {
-  align-items: start;
-  display: grid;
-  gap: clamp(0.7rem, 1.3vw, 1rem);
-  grid-template-columns: repeat(2, minmax(18rem, 1fr));
-}
-
-.setup-overview-grid {
-  display: grid;
-  gap: clamp(0.1rem, 0.28vw, 0.24rem);
-  grid-template-columns: repeat(10, minmax(0, 1fr));
-  inline-size: min(100%, 14rem, 36dvh);
-  max-inline-size: min(100%, 14rem, 36dvh);
-}
-
-.battle-board-grid {
-  display: grid;
-  gap: clamp(0.1rem, 0.28vw, 0.24rem);
-  grid-template-columns: repeat(10, minmax(0, 1fr));
-  inline-size: min(100%, 40rem, 78dvh);
-  max-inline-size: min(100%, 40rem, 78dvh);
-}
-
-.setup-overview-grid > * {
-  min-inline-size: 0;
-}
-
-.battle-board-grid > * {
-  min-inline-size: 0;
-}
-
-.setup-overview-grid :deep(.dwell-button) {
-  border-radius: clamp(0.28rem, 0.8dvh, 0.6rem) !important;
-  padding: 0 !important;
-}
-
-.setup-gaze-actions {
-  display: grid;
-  gap: clamp(0.45rem, 1dvh, 0.75rem);
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.setup-gaze-actions :deep(.dwell-button) {
-  min-block-size: 8.25rem !important;
-  padding: clamp(0.35rem, 0.9dvh, 0.7rem) !important;
-}
-
-.action-button-content {
+.battle-layout {
   align-items: center;
-  display: flex;
-  flex-direction: column;
-  font-size: clamp(0.82rem, 1.8dvh, 1.05rem);
-  font-weight: 900;
+  display: grid;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  grid-template-columns: auto minmax(14rem, 22rem);
+  justify-content: center;
+}
+
+/* Letters along the top and numbers on the left, as in the paper game. */
+.sea-frame {
+  display: grid;
   gap: 0.3rem;
-  justify-content: center;
-  line-height: 1.12;
-  min-block-size: 100%;
-  text-align: center;
+  grid-template-areas:
+    "corner letters"
+    "numbers sea";
+  grid-template-columns: auto auto;
 }
 
-.action-button-content small {
-  font-size: 0.72em;
+.sea-corner {
+  grid-area: corner;
+}
+
+.sea-letters,
+.sea-numbers {
+  display: grid;
+}
+
+.sea-letters {
+  grid-area: letters;
+  grid-template-columns: repeat(var(--sea-size, 5), minmax(0, 1fr));
+}
+
+.sea-numbers {
+  grid-area: numbers;
+  grid-template-rows: repeat(var(--sea-size, 5), minmax(0, 1fr));
+}
+
+.sea-coord {
+  align-items: center;
+  color: rgba(var(--v-theme-on-surface), 0.7);
+  display: flex;
+  font-size: clamp(0.9rem, 2.4dvh, 1.4rem);
   font-weight: 800;
-  opacity: 0.9;
+  justify-content: center;
 }
 
-.action-button-content--start {
-  font-size: clamp(1rem, 2.2dvh, 1.35rem);
+.sea {
+  aspect-ratio: 1;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.35), transparent 40%),
+    linear-gradient(160deg, #6ec6f0 0%, #3b9bd6 100%);
+  border-radius: clamp(0.5rem, 1.4dvh, 1rem);
+  display: grid;
+  grid-area: sea;
+  grid-template-columns: repeat(var(--sea-size), minmax(0, 1fr));
+  inline-size: min(calc(100dvh - 15.5rem), 58vw, 40rem);
+  overflow: hidden;
+  position: relative;
 }
 
-.battle-board-grid :deep(.dwell-button) {
-  border-radius: clamp(0.28rem, 0.8dvh, 0.6rem) !important;
+.sea-cell {
+  aspect-ratio: 1;
+}
+
+/* Thin lines of the grid on the water. */
+.sea-cell :deep(.dwell-button) {
+  border: 0.06rem solid rgba(255, 255, 255, 0.55);
+  border-radius: 0 !important;
+  box-shadow: none !important;
   padding: 0 !important;
 }
 
-.setup-overview-cell {
-  align-items: center;
+/* A shot square is disabled; Vuetify would fade its splash or fire. */
+.sea-cell :deep(.v-card--disabled > *) {
+  opacity: 1;
+}
+
+.sea-cell--open :deep(.dwell-button:hover) {
+  background: rgba(255, 255, 255, 0.18) !important;
+}
+
+.sea-mark {
   aspect-ratio: 1;
-  background: #e4f1ee;
-  border-radius: clamp(0.28rem, 0.8dvh, 0.6rem);
-  box-shadow: inset 0 0 0 0.08rem rgb(var(--v-theme-primary) / 34%);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-block-size: 100%;
-  inline-size: 100%;
-  min-inline-size: 0;
+  block-size: auto;
+  inline-size: 80%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.sea-mark--fire {
   position: relative;
+  z-index: 3;
 }
 
-.battle-cell {
-  align-items: center;
-  aspect-ratio: 1;
-  border-radius: clamp(0.28rem, 0.8dvh, 0.6rem);
-  box-shadow: inset 0 0 0 0.08rem rgb(var(--v-theme-primary) / 18%);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-block-size: 100%;
-  inline-size: 100%;
-  min-inline-size: 0;
-  position: relative;
+/* A square next to a sunk ship: surely empty. */
+.sea-dot {
+  background: rgba(255, 255, 255, 0.75);
+  block-size: 18%;
+  border-radius: 50%;
+  inline-size: 18%;
 }
 
-.setup-overview-cell--ship {
-  background: #426960;
-  box-shadow:
-    inset 0 0 0 0.14rem #ffffff,
-    0 0.14rem 0.36rem rgb(0 0 0 / 20%);
-  color: rgb(var(--v-theme-on-primary));
-}
-
-.setup-overview-label {
-  font-size: clamp(0.42rem, 1.05dvh, 0.68rem);
-  font-weight: 900;
-  inset-block-start: 0.12rem;
-  inset-inline-start: 0.16rem;
+.sunk-ship {
+  container-type: size;
+  pointer-events: none;
   position: absolute;
+  z-index: 2;
 }
 
-.active-grid :deep(.dwell-button),
-.sector-grid :deep(.dwell-button) {
-  padding: clamp(0.2rem, 0.5dvh, 0.45rem) !important;
+.sunk-ship__art {
+  block-size: 100%;
+  inline-size: 100%;
+  object-fit: fill;
+  padding: 4%;
 }
 
-.active-cell {
-  align-items: center;
-  aspect-ratio: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-block-size: 100%;
+/* The drawing lies horizontally: a vertical ship is the same picture turned. */
+.sunk-ship--vertical .sunk-ship__art {
+  block-size: 100cqw;
+  inline-size: 100cqh;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  padding: 2% 4%;
+  position: absolute;
+  transform: translate(-50%, -50%) rotate(90deg);
 }
 
-.coordinate-label {
-  color: rgb(var(--v-theme-on-surface) / 76%);
-  font-size: clamp(0.72rem, 1.6dvh, 1.05rem);
-  font-weight: 900;
-  letter-spacing: 0.04em;
+.battle-side {
+  min-inline-size: 0;
 }
 
-.boards-panel {
+.shot-result {
+  color: rgb(var(--v-theme-primary));
+  min-block-size: 1.4em;
+}
+
+.fleet {
   display: grid;
-  gap: clamp(0.7rem, 1.5dvh, 1rem);
+  gap: clamp(0.4rem, 1.4dvh, 0.9rem);
 }
 
-.overview-card {
-  background: rgb(var(--v-theme-surface) / 70%);
-  border-radius: 1.2rem;
-  padding: clamp(0.55rem, 1.2dvh, 0.85rem);
-}
-
-.overview-grid {
-  display: grid;
-  gap: 0.12rem;
-  grid-template-columns: repeat(10, minmax(0, 1fr));
-}
-
-.overview-cell {
+.fleet-ship {
   align-items: center;
-  aspect-ratio: 1;
-  background: rgb(var(--v-theme-info) / 10%);
-  border-radius: 0.18rem;
   display: flex;
-  justify-content: center;
+  gap: 0.5rem;
 }
 
-.overview-cell--ship {
-  background: rgb(var(--v-theme-primary) / 34%);
+.fleet-ship__art {
+  block-size: clamp(2rem, 6dvh, 3.5rem);
+  inline-size: calc(var(--ship-length) * clamp(2rem, 6dvh, 3.5rem));
+  object-fit: fill;
 }
 
-.overview-cell--miss {
-  background: rgb(var(--v-theme-info) / 36%);
+.fleet-ship--sunk .fleet-ship__art {
+  filter: grayscale(0.7);
+  opacity: 0.45;
 }
 
-.overview-cell--hit {
-  background: rgb(var(--v-theme-warning) / 50%);
+.fleet-ship__done {
+  color: rgb(var(--v-theme-success));
+  font-size: clamp(1.5rem, 4dvh, 2.4rem);
 }
 
-.overview-cell--sunk {
-  background: rgb(var(--v-theme-primary) / 70%);
-}
-
-.overview-cell--last {
-  box-shadow: 0 0 0 0.12rem rgb(var(--v-theme-warning));
-}
-
-@media (max-width: 75rem) {
-  .game-card {
-    max-block-size: none;
-    overflow: visible;
-  }
-
-  .game-layout {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .game-layout--setup {
-    grid-template-columns: minmax(14rem, 0.55fr) minmax(22rem, 1fr);
-  }
-
-  .boards-panel {
-    grid-column: 1 / -1;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 48rem) {
-  .game-layout,
-  .game-layout--setup,
-  .boards-panel {
+@media (max-width: 52rem) {
+  .battle-layout {
     grid-template-columns: 1fr;
   }
 
-  .setup-field-row {
-    grid-template-columns: 1fr;
-  }
-
-  .setup-gaze-actions {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-height: 42.5rem) and (min-width: 75.01rem) {
-  .game-card h1,
-  .game-card p,
-  .game-card .text-overline {
-    display: none;
-  }
-
-  .game-layout {
-    grid-template-columns: minmax(14rem, 0.7fr) minmax(17rem, 1fr) minmax(11rem, 0.5fr);
-  }
-}
-
-@media (max-height: 42.5rem) {
-  .game-container {
-    padding-block-start: 4.5rem;
-  }
-
-  .game-card {
-    padding: 0.75rem !important;
-  }
-
-  .game-card h1,
-  .game-card p,
-  .game-card .text-overline,
-  .boards-panel {
-    display: none;
-  }
-
-  .game-layout {
-    gap: 0.7rem;
-    grid-template-columns: minmax(16rem, 0.85fr) minmax(18rem, 1fr);
-  }
-
-  .game-layout--setup {
-    grid-template-columns: minmax(13rem, 0.5fr) minmax(25rem, 1fr);
-  }
-
-  .setup-field-row {
-    grid-template-columns: 1fr;
-  }
-
-  .setup-gaze-actions :deep(.dwell-button) {
-    min-block-size: 8.25rem !important;
-  }
-
-  .setup-gaze-actions,
-  .selection-list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .control-panel {
-    gap: 0.45rem;
-  }
-
-  .control-panel :deep(.v-alert) {
-    display: none;
-  }
-
-  .active-grid {
-    max-inline-size: min(100%, 25rem);
-  }
-
-  .setup-overview-grid {
-    display: none;
-  }
-
-  .battle-board-grid {
-    inline-size: min(100%, 29rem, 72dvh);
-    max-inline-size: min(100%, 29rem, 72dvh);
-  }
-
-  .active-grid :deep(.dwell-button) {
-    min-block-size: clamp(2.45rem, 7dvh, 4rem) !important;
-  }
-
-  .sector-grid :deep(.dwell-button) {
-    min-block-size: 8.25rem !important;
+  .sea {
+    inline-size: min(84vw, calc(100dvh - 22rem), 36rem);
   }
 }
 </style>

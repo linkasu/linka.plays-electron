@@ -9016,34 +9016,6 @@
     "path": "/audio/tts/tangram/complete.mp3"
   },
   {
-    "id": "battleship-light.prompt",
-    "game": "battleship-light",
-    "text": "Морской бой. Сначала расставь свои корабли по секторам. Потом выбирай сектор поля соперника и клетку для залпа.",
-    "voice": "jane",
-    "path": "/audio/tts/battleship-light/intro-rules.mp3"
-  },
-  {
-    "id": "battleship-light.correct",
-    "game": "battleship-light",
-    "text": "Попадание.",
-    "voice": "jane",
-    "path": "/audio/tts/battleship-light/correct.mp3"
-  },
-  {
-    "id": "battleship-light.mistake",
-    "game": "battleship-light",
-    "text": "Вода, ищем дальше.",
-    "voice": "jane",
-    "path": "/audio/tts/battleship-light/mistake.mp3"
-  },
-  {
-    "id": "battleship-light.complete",
-    "game": "battleship-light",
-    "text": "Партия завершена. Посмотри на результат.",
-    "voice": "jane",
-    "path": "/audio/tts/battleship-light/complete.mp3"
-  },
-  {
     "id": "tanks-no-shooting.prompt",
     "game": "tanks-no-shooting",
     "text": "Выбирай направление и веди танк по дороге.",
@@ -13032,5 +13004,40 @@
     "text": "Помоги мне, пожалуйста.",
     "voice": "jane",
     "path": "/audio/tts/social-phrases/phrase-help.mp3"
+  },
+  {
+    "id": "battleship-light.prompt",
+    "game": "battleship-light",
+    "text": "Найди корабли. Посмотри на клетку, чтобы выстрелить.",
+    "voice": "jane",
+    "path": "/audio/tts/battleship-light/prompt.mp3"
+  },
+  {
+    "id": "battleship-light.miss",
+    "game": "battleship-light",
+    "text": "Мимо.",
+    "voice": "jane",
+    "path": "/audio/tts/battleship-light/miss.mp3"
+  },
+  {
+    "id": "battleship-light.hit",
+    "game": "battleship-light",
+    "text": "Попал!",
+    "voice": "jane",
+    "path": "/audio/tts/battleship-light/hit.mp3"
+  },
+  {
+    "id": "battleship-light.sunk",
+    "game": "battleship-light",
+    "text": "Корабль потоплен!",
+    "voice": "jane",
+    "path": "/audio/tts/battleship-light/sunk.mp3"
+  },
+  {
+    "id": "battleship-light.complete",
+    "game": "battleship-light",
+    "text": "Все корабли найдены!",
+    "voice": "jane",
+    "path": "/audio/tts/battleship-light/complete.mp3"
   }
 ]

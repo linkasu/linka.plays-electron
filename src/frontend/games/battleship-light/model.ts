@@ -1,262 +1,174 @@
-export const battleshipSize = 10;
-export const battleshipCellCount = battleshipSize * battleshipSize;
+import type { DifficultyPreset } from "../../core/settings";
+import { shuffleItems } from "../../core/random";
 
-export type BattleshipPhase = "setup" | "player-turn" | "ai-turn" | "finished";
-export type BattleshipOrientation = "horizontal" | "vertical";
-export type BattleshipShot = "hit" | "miss" | "sunk";
-export type BattleshipShots = Partial<Record<number, BattleshipShot>>;
-export type BattleshipWinner = "player" | "ai";
-export type BattleshipSectorId = "nw" | "ne" | "sw" | "se";
+// Testers: «убрать, играть в таком виде никак нельзя» (10×10, ten ships, own fleet to place).
+// Agreed redesign (2026-11-08): a small field with large squares, the child only looks for
+// the computer's ships, three ships on 5×5, a shot is a look at a square, a miss is not a mistake.
 
-export type BattleshipShipDefinition = {
-  id: string;
-  name: string;
-  length: number;
+export type BattleshipLayout = {
+  /** Squares on one side of the field. */
+  size: number;
+  /** Ship lengths, longest first. */
+  ships: number[];
 };
 
-export type BattleshipShip = BattleshipShipDefinition & {
+export type BattleshipOrientation = "horizontal" | "vertical";
+
+export type BattleshipShip = {
+  id: string;
+  length: number;
+  orientation: BattleshipOrientation;
+  /** Square indexes, from the bow-less end (left or top) on. */
   cells: number[];
 };
 
-export type BattleshipFireResult = {
-  ok: boolean;
-  result?: BattleshipShot;
-  shots: BattleshipShots;
-  shipId?: string;
-  winner?: BattleshipWinner;
+export type BattleshipShotResult = "miss" | "hit" | "sunk";
+
+export type BattleshipBoard = {
+  size: number;
+  ships: BattleshipShip[];
+  /** Shot squares. */
+  shots: Set<number>;
+  /** Squares around sunk ships: ships never touch, so they are empty for sure. */
+  cleared: Set<number>;
 };
 
-export type BattleshipAiChoice = {
-  index: number;
-  nextSeed: number;
-  mode: "target" | "hunt";
+export const battleshipLayouts: Record<Exclude<DifficultyPreset, "custom">, BattleshipLayout> = {
+  gentle: { size: 4, ships: [2, 1] },
+  standard: { size: 5, ships: [3, 2, 1] },
+  challenge: { size: 6, ships: [3, 2, 2, 1] },
 };
 
-export const battleshipShips: BattleshipShipDefinition[] = [
-  { id: "ship-4", name: "Линкор", length: 4 },
-  { id: "ship-3-a", name: "Крейсер", length: 3 },
-  { id: "ship-3-b", name: "Крейсер", length: 3 },
-  { id: "ship-2-a", name: "Эсминец", length: 2 },
-  { id: "ship-2-b", name: "Эсминец", length: 2 },
-  { id: "ship-2-c", name: "Эсминец", length: 2 },
-  { id: "ship-1-a", name: "Катер", length: 1 },
-  { id: "ship-1-b", name: "Катер", length: 1 },
-  { id: "ship-1-c", name: "Катер", length: 1 },
-  { id: "ship-1-d", name: "Катер", length: 1 },
-];
-
-export const battleshipSectors: {
-  id: BattleshipSectorId;
-  label: string;
-  rowStart: number;
-  columnStart: number;
-}[] = [
-  { id: "nw", label: "Левый верх", rowStart: 0, columnStart: 0 },
-  { id: "ne", label: "Правый верх", rowStart: 0, columnStart: 5 },
-  { id: "sw", label: "Левый низ", rowStart: 5, columnStart: 0 },
-  { id: "se", label: "Правый низ", rowStart: 5, columnStart: 5 },
-];
-
-const coordinateColumns = ["А", "Б", "В", "Г", "Д", "Е", "Ж", "З", "И", "К"];
-
-export function cellIndex(row: number, column: number) {
-  return row * battleshipSize + column;
+export function battleshipLayoutFor(preset: DifficultyPreset): BattleshipLayout {
+  return preset === "custom" ? battleshipLayouts.standard : battleshipLayouts[preset];
 }
 
-export function cellPosition(index: number) {
-  return {
-    row: Math.floor(index / battleshipSize),
-    column: index % battleshipSize,
-  };
+export function cellIndex(size: number, row: number, column: number) {
+  return row * size + column;
 }
 
-export function isInside(row: number, column: number) {
-  return row >= 0 && row < battleshipSize && column >= 0 && column < battleshipSize;
+export function cellRowColumn(size: number, index: number) {
+  return { row: Math.floor(index / size), column: index % size };
 }
 
-export function coordinateLabel(index: number) {
-  const { row, column } = cellPosition(index);
-  return `${coordinateColumns[column]}${row + 1}`;
-}
-
-export function getSectorCells(sectorId: BattleshipSectorId) {
-  const sector =
-    battleshipSectors.find((candidate) => candidate.id === sectorId) ?? battleshipSectors[0];
-  const cells: number[] = [];
-  for (let row = sector.rowStart; row < sector.rowStart + 5; row += 1) {
-    for (let column = sector.columnStart; column < sector.columnStart + 5; column += 1) {
-      cells.push(cellIndex(row, column));
+/** The squares around a set of squares (diagonals too), inside the field. */
+export function neighbourCells(size: number, cells: number[]) {
+  const own = new Set(cells);
+  const around = new Set<number>();
+  for (const index of cells) {
+    const { row, column } = cellRowColumn(size, index);
+    for (let dr = -1; dr <= 1; dr += 1) {
+      for (let dc = -1; dc <= 1; dc += 1) {
+        const r = row + dr;
+        const c = column + dc;
+        if (r < 0 || c < 0 || r >= size || c >= size) continue;
+        const next = cellIndex(size, r, c);
+        if (!own.has(next)) around.add(next);
+      }
     }
+  }
+  return around;
+}
+
+function shipCellsAt(
+  size: number,
+  row: number,
+  column: number,
+  length: number,
+  orientation: BattleshipOrientation,
+) {
+  const cells: number[] = [];
+  for (let offset = 0; offset < length; offset += 1) {
+    const r = orientation === "vertical" ? row + offset : row;
+    const c = orientation === "horizontal" ? column + offset : column;
+    if (r >= size || c >= size) return undefined;
+    cells.push(cellIndex(size, r, c));
   }
   return cells;
 }
 
-export function shipCells(anchorIndex: number, length: number, orientation: BattleshipOrientation) {
-  const { row, column } = cellPosition(anchorIndex);
-  return Array.from({ length }, (_, offset) => {
-    const nextRow = orientation === "vertical" ? row + offset : row;
-    const nextColumn = orientation === "horizontal" ? column + offset : column;
-    return isInside(nextRow, nextColumn) ? cellIndex(nextRow, nextColumn) : -1;
-  });
-}
-
-export function occupiedCells(fleet: BattleshipShip[]) {
-  return new Set(fleet.flatMap((ship) => ship.cells));
-}
-
-export function canPlaceShip(
-  fleet: BattleshipShip[],
-  ship: BattleshipShipDefinition,
-  anchorIndex: number,
-  orientation: BattleshipOrientation,
-) {
-  const cells = shipCells(anchorIndex, ship.length, orientation);
-  if (cells.some((index) => index < 0)) return false;
-
-  const occupied = occupiedCells(fleet);
-  for (const index of cells) {
-    const { row, column } = cellPosition(index);
-    for (let rowOffset = -1; rowOffset <= 1; rowOffset += 1) {
-      for (let columnOffset = -1; columnOffset <= 1; columnOffset += 1) {
-        const nextRow = row + rowOffset;
-        const nextColumn = column + columnOffset;
-        if (!isInside(nextRow, nextColumn)) continue;
-        if (occupied.has(cellIndex(nextRow, nextColumn))) return false;
+/**
+ * Places the ships at random. Ships never touch each other, not even by a corner,
+ * as in the real game, so a sunk ship tells which squares around it are empty.
+ */
+export function placeBattleshipFleet(
+  layout: BattleshipLayout,
+  random = Math.random,
+): BattleshipShip[] {
+  for (let attempt = 0; attempt < 200; attempt += 1) {
+    const ships: BattleshipShip[] = [];
+    const blocked = new Set<number>();
+    let ok = true;
+    for (const [shipIndex, length] of layout.ships.entries()) {
+      const options: BattleshipShip[] = [];
+      for (const orientation of ["horizontal", "vertical"] as const) {
+        if (length === 1 && orientation === "vertical") continue;
+        for (let row = 0; row < layout.size; row += 1) {
+          for (let column = 0; column < layout.size; column += 1) {
+            const cells = shipCellsAt(layout.size, row, column, length, orientation);
+            if (cells && cells.every((cell) => !blocked.has(cell))) {
+              options.push({ id: `ship-${shipIndex + 1}`, length, orientation, cells });
+            }
+          }
+        }
       }
+      if (options.length === 0) {
+        ok = false;
+        break;
+      }
+      const ship = shuffleItems(options, random)[0];
+      ships.push(ship);
+      for (const cell of ship.cells) blocked.add(cell);
+      for (const cell of neighbourCells(layout.size, ship.cells)) blocked.add(cell);
     }
+    if (ok) return ships;
   }
-
-  return true;
+  throw new Error("Не удалось расставить корабли.");
 }
 
-export function placeShip(
-  fleet: BattleshipShip[],
-  ship: BattleshipShipDefinition,
-  anchorIndex: number,
-  orientation: BattleshipOrientation,
-) {
-  if (!canPlaceShip(fleet, ship, anchorIndex, orientation)) return undefined;
-  return [...fleet, { ...ship, cells: shipCells(anchorIndex, ship.length, orientation) }];
+export function createBattleshipBoard(
+  layout: BattleshipLayout,
+  random = Math.random,
+): BattleshipBoard {
+  return {
+    size: layout.size,
+    ships: placeBattleshipFleet(layout, random),
+    shots: new Set(),
+    cleared: new Set(),
+  };
 }
 
-export function findShipAt(fleet: BattleshipShip[], index: number) {
-  return fleet.find((ship) => ship.cells.includes(index));
+export function shipAt(board: BattleshipBoard, index: number) {
+  return board.ships.find((ship) => ship.cells.includes(index));
 }
 
-export function isShipSunk(ship: BattleshipShip, shots: BattleshipShots) {
-  return ship.cells.every((index) => shots[index] === "hit" || shots[index] === "sunk");
+export function isShipSunk(board: BattleshipBoard, ship: BattleshipShip) {
+  return ship.cells.every((cell) => board.shots.has(cell));
 }
 
-export function allShipsSunk(fleet: BattleshipShip[], shots: BattleshipShots) {
-  return fleet.length === battleshipShips.length && fleet.every((ship) => isShipSunk(ship, shots));
+export function isCellOpen(board: BattleshipBoard, index: number) {
+  return !board.shots.has(index) && !board.cleared.has(index);
 }
 
-export function fireAt(
-  fleet: BattleshipShip[],
-  shots: BattleshipShots,
+/** Shoots a square; returns the result, or undefined when the square was already open. */
+export function shootBattleship(
+  board: BattleshipBoard,
   index: number,
-  shooter: BattleshipWinner,
-): BattleshipFireResult {
-  if (index < 0 || index >= battleshipCellCount || shots[index]) return { ok: false, shots };
-
-  const ship = findShipAt(fleet, index);
-  if (!ship) return { ok: true, result: "miss", shots: { ...shots, [index]: "miss" } };
-
-  const nextShots: BattleshipShots = { ...shots, [index]: "hit" };
-  const sunk = isShipSunk(ship, nextShots);
-  if (sunk) {
-    for (const cell of ship.cells) nextShots[cell] = "sunk";
+): { result: BattleshipShotResult; ship?: BattleshipShip } | undefined {
+  if (!isCellOpen(board, index)) return undefined;
+  board.shots.add(index);
+  const ship = shipAt(board, index);
+  if (!ship) return { result: "miss" };
+  if (!isShipSunk(board, ship)) return { result: "hit", ship };
+  for (const cell of neighbourCells(board.size, ship.cells)) {
+    if (!board.shots.has(cell)) board.cleared.add(cell);
   }
-
-  return {
-    ok: true,
-    result: sunk ? "sunk" : "hit",
-    shots: nextShots,
-    shipId: ship.id,
-    winner: allShipsSunk(fleet, nextShots) ? shooter : undefined,
-  };
+  return { result: "sunk", ship };
 }
 
-export function countShots(shots: BattleshipShots, result?: BattleshipShot) {
-  return Object.values(shots).filter((shot) => !result || shot === result).length;
+export function allShipsSunk(board: BattleshipBoard) {
+  return board.ships.every((ship) => isShipSunk(board, ship));
 }
 
-export function nextSeed(seed: number) {
-  return (seed * 1664525 + 1013904223) >>> 0;
-}
-
-export function randomInt(seed: number, max: number) {
-  const next = nextSeed(seed);
-  return { value: next % max, seed: next };
-}
-
-export function autoPlaceFleet(seed = 42) {
-  let fleet: BattleshipShip[] = [];
-  let currentSeed = seed;
-
-  for (const ship of battleshipShips) {
-    let placed = false;
-    for (let attempt = 0; attempt < 1000 && !placed; attempt += 1) {
-      const rowRoll = randomInt(currentSeed, battleshipSize);
-      currentSeed = rowRoll.seed;
-      const columnRoll = randomInt(currentSeed, battleshipSize);
-      currentSeed = columnRoll.seed;
-      const orientationRoll = randomInt(currentSeed, 2);
-      currentSeed = orientationRoll.seed;
-      const anchorIndex = cellIndex(rowRoll.value, columnRoll.value);
-      const orientation: BattleshipOrientation =
-        orientationRoll.value === 0 ? "horizontal" : "vertical";
-      const nextFleet = placeShip(fleet, ship, anchorIndex, orientation);
-      if (nextFleet) {
-        fleet = nextFleet;
-        placed = true;
-      }
-    }
-    if (!placed) throw new Error(`Cannot place ship ${ship.id}`);
-  }
-
-  return { fleet, seed: currentSeed };
-}
-
-export function chooseAiShot(
-  fleet: BattleshipShip[],
-  shots: BattleshipShots,
-  seed = 7,
-): BattleshipAiChoice {
-  const openCells = Array.from({ length: battleshipCellCount }, (_, index) => index).filter(
-    (index) => !shots[index],
-  );
-  const targetCells = Object.entries(shots)
-    .filter(([, shot]) => shot === "hit")
-    .flatMap(([index]) => neighborCells(Number(index)))
-    .filter((index) => !shots[index]);
-  const uniqueTargets = Array.from(new Set(targetCells));
-  const candidates = uniqueTargets.length > 0 ? uniqueTargets : openCells;
-  const roll = randomInt(seed, candidates.length);
-
-  return {
-    index: candidates[roll.value],
-    nextSeed: roll.seed,
-    mode: uniqueTargets.length > 0 ? "target" : "hunt",
-  };
-}
-
-export function neighborCells(index: number) {
-  const { row, column } = cellPosition(index);
-  return [
-    [row - 1, column],
-    [row + 1, column],
-    [row, column - 1],
-    [row, column + 1],
-  ]
-    .filter(([nextRow, nextColumn]) => isInside(nextRow, nextColumn))
-    .map(([nextRow, nextColumn]) => cellIndex(nextRow, nextColumn));
-}
-
-export function placementProgress(fleet: BattleshipShip[]) {
-  return Math.min(fleet.length, battleshipShips.length);
-}
-
-export function nextShipToPlace(fleet: BattleshipShip[]) {
-  return battleshipShips[placementProgress(fleet)];
-}
+/** Letters beside the field, as in the Russian game. */
+export const battleshipColumnLetters = ["А", "Б", "В", "Г", "Д", "Е"];
