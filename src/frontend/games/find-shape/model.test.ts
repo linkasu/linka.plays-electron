@@ -1,3 +1,4 @@
+import { recordedText } from "../../core/recordedText";
 import { describe, expect, it } from "vitest";
 import { settingsFromPreset } from "../../core/settings";
 import { generateFindShapeRound } from "./model";
@@ -31,7 +32,7 @@ describe("find-shape model", () => {
       const targetMatches = round.choices.filter((choice) => choice.id === round.target.id);
 
       expect(round.roundId).toBe(`find-shape:round:${index}`);
-      expect(round.prompt).toBe(`Покажи: ${round.target.promptLabel}`);
+      expect(round.prompt).toBe(recordedText(`find-shape.prompt.${round.target.id}`, ""));
       expect(targetMatches).toHaveLength(1);
       expect(round.choices[round.correctIndex]).toBe(round.target);
     }

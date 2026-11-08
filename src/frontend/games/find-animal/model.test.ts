@@ -1,3 +1,4 @@
+import { recordedText } from "../../core/recordedText";
 import { describe, expect, it } from "vitest";
 import wordImageManifest from "../../../../public/images/words/manifest.json";
 import { settingsFromPreset } from "../../core/settings";
@@ -15,7 +16,7 @@ function expectValidRound(round: ReturnType<typeof generateFindAnimalRound>) {
   expect(choiceIds).toContain(round.target.id);
   expect(new Set(choiceIds).size).toBe(round.choices.length);
   expect(round.choices.every((choice) => choice.category === "animal")).toBe(true);
-  expect(round.prompt).toContain(round.target.word);
+  expect(round.prompt).toBe(recordedText(`find-animal.prompt.${round.target.id}`, ""));
 }
 
 describe("generateFindAnimalRound", () => {

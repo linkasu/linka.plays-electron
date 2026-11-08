@@ -60,10 +60,11 @@ describe("generateShelfSortingRound", () => {
       const round = generateShelfSortingRound(roundIndex, () => 0);
       const answerTitle = round.shelves[round.correctIndex].title;
 
-      expect(round.prompt).toContain(
-        round.rule === "category" ? "Сортируем по категории" : "Сортируем по цвету",
+      expect(round.prompt).toBe(
+        `Куда положить ${round.item.accusative}? ${
+          round.rule === "category" ? "Выбери полку." : "Найди полку того же цвета."
+        }`,
       );
-      expect(round.prompt).toContain(`Предмет: ${round.item.label}`);
       expect(round.prompt).not.toContain(answerTitle);
     }
   });

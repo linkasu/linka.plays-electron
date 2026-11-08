@@ -1,3 +1,4 @@
+import { recordedText } from "../../core/recordedText";
 import type { SessionSettings } from "../../core/settings";
 import {
   buildChoiceRound,
@@ -63,7 +64,8 @@ function buildFindAnimalRound(
       choiceCount,
       pickTarget: () => target,
       isSame: idEquality,
-      prompt: (roundTarget) => `Найди животное: ${roundTarget.word}`,
+      prompt: (roundTarget) =>
+        recordedText(`find-animal.prompt.${roundTarget.id}`, `Найди животное: ${roundTarget.word}`),
       random,
     }),
     assetMode: "image",

@@ -1,3 +1,4 @@
+import { recordedText } from "../../core/recordedText";
 import type { SessionSettings } from "../../core/settings";
 import {
   buildChoiceRound,
@@ -49,7 +50,8 @@ function buildFindEmotionRound(
     choiceCount,
     pickTarget: () => target,
     isSame: idEquality,
-    prompt: (roundTarget) => `Найди эмоцию: ${roundTarget.label}`,
+    prompt: (roundTarget) =>
+      recordedText(`find-emotion.prompt.${roundTarget.id}`, `Найди эмоцию: ${roundTarget.label}`),
     random,
   });
 }

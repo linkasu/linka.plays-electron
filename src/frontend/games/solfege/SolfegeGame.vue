@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
@@ -330,6 +330,7 @@ function selectMode() {
   resetFeedback();
   pauseSession();
   phase.value = "selecting";
+  taskAudio.play("solfege.mode-choice", 200);
 }
 
 function pauseGame() {
@@ -357,6 +358,11 @@ function resumeGame() {
 function restart() {
   startGame(mode.value);
 }
+
+// N-009: the mode screen says its question too.
+onMounted(() => {
+  if (phase.value === "selecting") taskAudio.play("solfege.mode-choice", 420);
+});
 
 onUnmounted(() => {
   clearGameTimers();

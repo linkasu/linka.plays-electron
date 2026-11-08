@@ -1,3 +1,4 @@
+import { recordedText } from "../../core/recordedText";
 import type { SessionSettings } from "../../core/settings";
 
 export type LinesAnglesTaskId =
@@ -209,7 +210,7 @@ export function generateLinesAnglesRound(
 
   return {
     roundId: `lines-angles:round:${roundIndex}`,
-    prompt: task.prompt,
+    prompt: recordedText(`lines-angles.task.${task.id}`, task.prompt),
     hint: task.hint,
     task,
     target,

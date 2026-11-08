@@ -1,3 +1,4 @@
+import { recordedText } from "../../core/recordedText";
 import { describe, expect, it } from "vitest";
 import { settingsFromPreset } from "../../core/settings";
 import { generateLinesAnglesRound, isCorrectLinesAnglesChoice, linesAnglesTasks } from "./model";
@@ -27,7 +28,7 @@ describe("lines-angles model", () => {
       );
 
       expect(round.roundId).toBe(`lines-angles:round:${index}`);
-      expect(round.prompt).toBe(round.task.prompt);
+      expect(round.prompt).toBe(recordedText(`lines-angles.task.${round.task.id}`, ""));
       expect(correctChoices).toEqual([round.target]);
       expect(round.choices[round.correctIndex]).toBe(round.target);
     }

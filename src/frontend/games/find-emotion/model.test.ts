@@ -1,3 +1,4 @@
+import { recordedText } from "../../core/recordedText";
 import { describe, expect, it } from "vitest";
 import { settingsFromPreset } from "../../core/settings";
 import {
@@ -31,7 +32,7 @@ describe("find-emotion model", () => {
     expect(round.roundId).toBe("find-emotion:round:6");
     expect(round.choices).toContain(round.target);
     expect(round.choices[round.correctIndex]).toBe(round.target);
-    expect(round.prompt).toBe(`Найди эмоцию: ${round.target.label}`);
+    expect(round.prompt).toBe(recordedText(`find-emotion.prompt.${round.target.id}`, ""));
   });
 
   it("does not duplicate emotions in one round", () => {

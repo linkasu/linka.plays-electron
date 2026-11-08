@@ -17,6 +17,8 @@ export type ShelfSortingShelf = {
 export type ShelfSortingItem = {
   id: string;
   label: string;
+  /** The word in «Куда положить …?» (винительный падеж). */
+  accusative: string;
   categoryShelfId: string;
   colorShelfId?: string;
   imageId?: string;
@@ -100,24 +102,25 @@ const colorShelves: ShelfSortingShelf[] = [
 function item(
   id: string,
   label: string,
+  accusative: string,
   categoryShelfId: string,
   colorShelfId?: string,
 ): ShelfSortingItem {
-  return { id, label, categoryShelfId, colorShelfId, artId: `shelf-sorting/${id}` };
+  return { id, label, accusative, categoryShelfId, colorShelfId, artId: `shelf-sorting/${id}` };
 }
 
 export const shelfSortingItems: ShelfSortingItem[] = [
-  item("bowl", "миска", "dishes", "red"),
-  item("mug", "кружка", "dishes", "blue"),
-  item("plate", "тарелка", "dishes"),
-  item("spoon", "ложка", "dishes"),
-  item("t-shirt", "футболка", "clothes", "green"),
-  item("jeans", "джинсы", "clothes", "blue"),
-  item("boot", "ботинок", "clothes"),
-  item("ball", "мяч", "toys"),
-  item("blocks", "кубики", "toys"),
-  item("teddy-bear", "мишка", "toys"),
-  item("toy-car", "машинка", "toys", "red"),
+  item("bowl", "миска", "миску", "dishes", "red"),
+  item("mug", "кружка", "кружку", "dishes", "blue"),
+  item("plate", "тарелка", "тарелку", "dishes"),
+  item("spoon", "ложка", "ложку", "dishes"),
+  item("t-shirt", "футболка", "футболку", "clothes", "green"),
+  item("jeans", "джинсы", "джинсы", "clothes", "blue"),
+  item("boot", "ботинок", "ботинок", "clothes"),
+  item("ball", "мяч", "мяч", "toys"),
+  item("blocks", "кубики", "кубики", "toys"),
+  item("teddy-bear", "мишка", "мишку", "toys"),
+  item("toy-car", "машинка", "машинку", "toys", "red"),
 ];
 
 export const shelfSortingArtIds = [...categoryShelves, ...colorShelves, ...shelfSortingItems]
@@ -145,7 +148,9 @@ export function generateShelfSortingRound(roundIndex = 1, random = Math.random):
   return {
     roundId: `shelf-sorting:round:${roundIndex}`,
     rule,
-    prompt: `${rule === "category" ? "Сортируем по категории" : "Сортируем по цвету"}. Предмет: ${item.label}.`,
+    // Testers: «озвучить задание до конца» — «Сортируем по категории. Предмет: кружка.» did not
+    // say what to do. Now the task is a question and a step, on screen and in the voice.
+    prompt: `Куда положить ${item.accusative}? ${rule === "category" ? "Выбери полку." : "Найди полку того же цвета."}`,
     hint:
       rule === "category"
         ? "Найди полку для этого предмета."
