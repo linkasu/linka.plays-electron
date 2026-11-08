@@ -2,6 +2,8 @@
 import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
+import ChessPuzzles from "./ChessPuzzles.vue";
+import type { ChessPuzzle } from "./puzzles";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
@@ -41,9 +43,15 @@ const {
   finishOnMaxSteps: false,
   finishOnMistakes: false,
   finishOnTimeout: false,
+  // The game starts after the mode is chosen.
+  autoStart: false,
 });
 
 const soundEnabled = toRef(session.settings, "sound");
+// Testers: «сделать задачки по шахматам — дойди до ягодки за два хода слоном». Puzzles first,
+// the game with the computer stays as the second mode.
+const mode = ref<"choose" | "puzzles" | "game">("choose");
+const puzzlesKey = ref(0);
 const promptAudio = useGamePromptAudio({
   gameId: "chess-mini",
   soundEnabled,
@@ -391,14 +399,50 @@ function restart() {
   feedbackMessage.value = "Ты играешь белыми. Выбери белую фигуру, затем клетку для хода.";
   resetActionPage();
   startSession();
+  if (mode.value === "puzzles") {
+    puzzlesKey.value += 1;
+    return;
+  }
+  if (mode.value === "choose") return;
   promptAudio.play("chess-mini.prompt", 220);
   void loadLegalMoves();
 }
 
+function chooseMode(next: "puzzles" | "game") {
+  promptAudio.cancelPending();
+  mode.value = next;
+  startSession();
+  if (next === "game") {
+    promptAudio.play("chess-mini.prompt", 200);
+    void loadLegalMoves();
+  }
+}
+
+function onPuzzleSolved(puzzle: ChessPuzzle, movesUsed: number) {
+  recordSuccess({
+    roundId: puzzle.id,
+    targetId: `chess-mini:puzzle:${puzzle.target}`,
+    piece: puzzle.piece,
+    moves: puzzle.moves,
+    movesUsed,
+    isCorrect: true,
+  });
+  if (session.step >= session.maxSteps) finishSession("game-complete");
+}
+
+function onPuzzleFailed(puzzle: ChessPuzzle) {
+  recordMistake({
+    roundId: puzzle.id,
+    targetId: `chess-mini:puzzle:${puzzle.target}`,
+    piece: puzzle.piece,
+    moves: puzzle.moves,
+    isCorrect: false,
+  });
+}
+
 onMounted(() => {
   promptAudio.warm();
-  promptAudio.play("chess-mini.prompt", 420);
-  void loadLegalMoves();
+  promptAudio.play("chess-mini.mode", 420);
 });
 
 onUnmounted(() => {
@@ -450,7 +494,52 @@ watch(
             rounded="xl"
             elevation="10"
           >
-            <div class="game-layout">
+            <div v-if="mode === 'choose'" class="mode-choice">
+              <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-4">
+                Как будем играть?
+              </h1>
+              <div class="mode-grid">
+                <GameDwellButton
+                  target-id="chess-mini:mode:puzzles"
+                  :dwell-ms="session.settings.dwellMs"
+                  min-height="clamp(10rem, 40dvh, 22rem)"
+                  @select="chooseMode('puzzles')"
+                >
+                  <template #default>
+                    <div class="mode-card">
+                      <img class="mode-card__art" :src="pieceArt('B')" alt="" />
+                      <div class="text-h5 text-md-h4 font-weight-bold">Задачки</div>
+                      <div class="text-body-1">Дойди фигурой до ягодки</div>
+                    </div>
+                  </template>
+                </GameDwellButton>
+                <GameDwellButton
+                  target-id="chess-mini:mode:game"
+                  :dwell-ms="session.settings.dwellMs"
+                  min-height="clamp(10rem, 40dvh, 22rem)"
+                  @select="chooseMode('game')"
+                >
+                  <template #default>
+                    <div class="mode-card">
+                      <img class="mode-card__art" :src="pieceArt('K')" alt="" />
+                      <div class="text-h5 text-md-h4 font-weight-bold">Партия</div>
+                      <div class="text-body-1">Играй с компьютером</div>
+                    </div>
+                  </template>
+                </GameDwellButton>
+              </div>
+            </div>
+            <ChessPuzzles
+              v-else-if="mode === 'puzzles'"
+              :key="puzzlesKey"
+              :dwell-ms="session.settings.dwellMs"
+              :sound="session.settings.sound"
+              :running="session.status === 'running'"
+              :solved="session.step"
+              @solved="onPuzzleSolved"
+              @failed="onPuzzleFailed"
+            />
+            <div v-else class="game-layout">
               <section class="board-section" aria-label="Шахматная доска">
                 <!-- Testers: the square name in every square distracts. Letters and numbers
                      stand next to the board instead, as on a real one. -->
@@ -642,6 +731,26 @@ watch(
 .game-card {
   max-block-size: calc(100dvh - clamp(6.25rem, 13dvh, 8.5rem));
   overflow: hidden;
+}
+
+.mode-grid {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-inline: auto;
+  max-inline-size: 56rem;
+}
+
+.mode-card {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mode-card__art {
+  block-size: clamp(4rem, 15dvh, 8rem);
+  object-fit: contain;
 }
 
 /* One size for the board and the panel beside it: the panel never makes the layout
