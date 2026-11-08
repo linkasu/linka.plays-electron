@@ -1,3 +1,4 @@
+import { recordedText } from "../../core/recordedText";
 import type { SessionSettings } from "../../core/settings";
 import {
   buildChoiceRound,
@@ -41,6 +42,7 @@ export function generateFindShapeRound(settings: SessionSettings, roundIndex = 1
     choiceCount,
     pickTarget: (items, index) => pickByRoundIndex(items, index),
     isSame: idEquality,
-    prompt: (target) => `Покажи: ${target.promptLabel}`,
+    prompt: (target) =>
+      recordedText(`find-shape.prompt.${target.id}`, `Найди ${target.promptLabel}.`),
   });
 }

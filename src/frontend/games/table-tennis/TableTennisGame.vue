@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { scenePalette } from "../../core/themeSettings";
-import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
+import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
@@ -61,6 +62,8 @@ const {
   },
   finishOnMaxSteps: false,
 });
+// N-009: the task is said when the game starts (no task text on the field).
+useStartPromptAudio({ gameId: "table-tennis", soundEnabled: toRef(session.settings, "sound") });
 
 const paddle = reactive<TennisPaddle>({
   x: 84,

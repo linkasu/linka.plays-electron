@@ -5679,7 +5679,7 @@
   {
     "id": "shadow-match.prompt",
     "game": "shadow-match",
-    "text": "Посмотри на предмет и найди его тень.",
+    "text": "Найди правильную тень.",
     "voice": "jane",
     "path": "/audio/tts/shadow-match/prompt.mp3"
   },
@@ -6246,7 +6246,7 @@
   {
     "id": "color-pattern.prompt",
     "game": "color-pattern",
-    "text": "Посмотри на цветовой ряд и выбери следующую карточку.",
+    "text": "Какая карточка следующая?",
     "voice": "jane",
     "path": "/audio/tts/color-pattern/prompt.mp3"
   },
@@ -6344,7 +6344,7 @@
   {
     "id": "mosaic.prompt",
     "game": "mosaic",
-    "text": "Найди кусочек для подсвеченной клетки. Если нужно, открой образец и посмотри на целую картинку.",
+    "text": "Найди кусочек для подсвеченной клетки.",
     "voice": "jane",
     "path": "/audio/tts/mosaic/prompt.mp3"
   },
@@ -6461,90 +6461,6 @@
     "path": "/audio/tts/shelf-sorting/complete.mp3"
   },
   {
-    "id": "shelf-sorting.scene.5c070e52",
-    "game": "shelf-sorting",
-    "text": "Сортируем по категории.",
-    "voice": "jane",
-    "path": "/audio/tts/shelf-sorting/scene-5c070e52.mp3"
-  },
-  {
-    "id": "shelf-sorting.scene.e8d0756d",
-    "game": "shelf-sorting",
-    "text": "Предмет: цветок.",
-    "voice": "jane",
-    "path": "/audio/tts/shelf-sorting/scene-e8d0756d.mp3"
-  },
-  {
-    "id": "shelf-sorting.scene.c1624287",
-    "game": "shelf-sorting",
-    "text": "Сортируем по цвету.",
-    "voice": "jane",
-    "path": "/audio/tts/shelf-sorting/scene-c1624287.mp3"
-  },
-  {
-    "id": "shelf-sorting.scene.24fe15a6",
-    "game": "shelf-sorting",
-    "text": "Предмет: лист.",
-    "voice": "jane",
-    "path": "/audio/tts/shelf-sorting/scene-24fe15a6.mp3"
-  },
-  {
-    "id": "shelf-sorting.scene.054e4e96",
-    "game": "shelf-sorting",
-    "text": "Предмет: яблоко.",
-    "voice": "jane",
-    "path": "/audio/tts/shelf-sorting/scene-054e4e96.mp3"
-  },
-  {
-    "id": "shelf-sorting.scene.05f01c7d",
-    "game": "shelf-sorting",
-    "text": "Предмет: лимон.",
-    "voice": "jane",
-    "path": "/audio/tts/shelf-sorting/scene-05f01c7d.mp3"
-  },
-  {
-    "id": "shelf-sorting.scene.ca57c3b2",
-    "game": "shelf-sorting",
-    "text": "Предмет: огурец.",
-    "voice": "jane",
-    "path": "/audio/tts/shelf-sorting/scene-ca57c3b2.mp3"
-  },
-  {
-    "id": "shelf-sorting.scene.ab8100c2",
-    "game": "shelf-sorting",
-    "text": "Предмет: мишка.",
-    "voice": "jane",
-    "path": "/audio/tts/shelf-sorting/scene-ab8100c2.mp3"
-  },
-  {
-    "id": "shelf-sorting.scene.bb2ea80d",
-    "game": "shelf-sorting",
-    "text": "Предмет: воздушный змей.",
-    "voice": "jane",
-    "path": "/audio/tts/shelf-sorting/scene-bb2ea80d.mp3"
-  },
-  {
-    "id": "shelf-sorting.scene.5608f2d1",
-    "game": "shelf-sorting",
-    "text": "Предмет: река.",
-    "voice": "jane",
-    "path": "/audio/tts/shelf-sorting/scene-5608f2d1.mp3"
-  },
-  {
-    "id": "shelf-sorting.scene.a79fd91c",
-    "game": "shelf-sorting",
-    "text": "Предмет: виноград.",
-    "voice": "jane",
-    "path": "/audio/tts/shelf-sorting/scene-a79fd91c.mp3"
-  },
-  {
-    "id": "shelf-sorting.scene.c370b938",
-    "game": "shelf-sorting",
-    "text": "Предмет: мяч.",
-    "voice": "jane",
-    "path": "/audio/tts/shelf-sorting/scene-c370b938.mp3"
-  },
-  {
     "id": "build-bridge.prompt",
     "game": "build-bridge",
     "text": "Сначала выбери деталь, потом место на мосту.",
@@ -6554,7 +6470,7 @@
   {
     "id": "build-bridge.place",
     "game": "build-bridge",
-    "text": "Теперь выбери место на мосту.",
+    "text": "Поставь опору на подходящее место.",
     "voice": "jane",
     "path": "/audio/tts/build-bridge/place.mp3"
   },
@@ -8255,7 +8171,7 @@
   {
     "id": "count-items.prompt",
     "game": "count-items",
-    "text": "Посчитай предметы и выбери число.",
+    "text": "Сколько предметов?",
     "voice": "jane",
     "path": "/audio/tts/count-items/prompt.mp3"
   },
@@ -8682,7 +8598,7 @@
   {
     "id": "number-2048.prompt",
     "game": "number-2048",
-    "text": "Сдвигай плитки одной кнопкой и ищи одинаковые числа.",
+    "text": "Собирай одинаковые плитки.",
     "voice": "jane",
     "path": "/audio/tts/number-2048/prompt.mp3"
   },
@@ -8738,7 +8654,7 @@
   {
     "id": "uno-like.prompt",
     "game": "uno-like",
-    "text": "Сравни цвет или число с открытой картой.",
+    "text": "Выбери карту по цвету или числу.",
     "voice": "jane",
     "path": "/audio/tts/uno-like/prompt.mp3"
   },
@@ -8794,7 +8710,7 @@
   {
     "id": "sokoban-large.prompt",
     "game": "sokoban-large",
-    "text": "Выбери направление. Смотри на героя, ящик и цель.",
+    "text": "Доведи ящик до цели.",
     "voice": "jane",
     "path": "/audio/tts/sokoban-large/prompt.mp3"
   },
@@ -9074,7 +8990,7 @@
   {
     "id": "step-pong.prompt",
     "game": "step-pong",
-    "text": "Выбери позицию ракетки для удара.",
+    "text": "Поставь ракетку перед ударом.",
     "voice": "jane",
     "path": "/audio/tts/step-pong/prompt.mp3"
   },
@@ -10414,69 +10330,6 @@
     "text": "Почти. Противоположность к слову сухой: мокрый.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-dry-wet.mp3"
-  },
-  {
-    "id": "shelf-sorting.scene.3479f085",
-    "game": "shelf-sorting",
-    "text": "Предмет: миска.",
-    "voice": "jane",
-    "path": "/audio/tts/shelf-sorting/scene-3479f085.mp3"
-  },
-  {
-    "id": "shelf-sorting.scene.0828b332",
-    "game": "shelf-sorting",
-    "text": "Предмет: кружка.",
-    "voice": "jane",
-    "path": "/audio/tts/shelf-sorting/scene-0828b332.mp3"
-  },
-  {
-    "id": "shelf-sorting.scene.47295ada",
-    "game": "shelf-sorting",
-    "text": "Предмет: тарелка.",
-    "voice": "jane",
-    "path": "/audio/tts/shelf-sorting/scene-47295ada.mp3"
-  },
-  {
-    "id": "shelf-sorting.scene.481b7ab6",
-    "game": "shelf-sorting",
-    "text": "Предмет: ложка.",
-    "voice": "jane",
-    "path": "/audio/tts/shelf-sorting/scene-481b7ab6.mp3"
-  },
-  {
-    "id": "shelf-sorting.scene.e6c8c185",
-    "game": "shelf-sorting",
-    "text": "Предмет: футболка.",
-    "voice": "jane",
-    "path": "/audio/tts/shelf-sorting/scene-e6c8c185.mp3"
-  },
-  {
-    "id": "shelf-sorting.scene.ee730917",
-    "game": "shelf-sorting",
-    "text": "Предмет: джинсы.",
-    "voice": "jane",
-    "path": "/audio/tts/shelf-sorting/scene-ee730917.mp3"
-  },
-  {
-    "id": "shelf-sorting.scene.82253a3e",
-    "game": "shelf-sorting",
-    "text": "Предмет: ботинок.",
-    "voice": "jane",
-    "path": "/audio/tts/shelf-sorting/scene-82253a3e.mp3"
-  },
-  {
-    "id": "shelf-sorting.scene.333f25ea",
-    "game": "shelf-sorting",
-    "text": "Предмет: кубики.",
-    "voice": "jane",
-    "path": "/audio/tts/shelf-sorting/scene-333f25ea.mp3"
-  },
-  {
-    "id": "shelf-sorting.scene.809c9a64",
-    "game": "shelf-sorting",
-    "text": "Предмет: машинка.",
-    "voice": "jane",
-    "path": "/audio/tts/shelf-sorting/scene-809c9a64.mp3"
   },
   {
     "id": "dress-character.prompt.cold.pants",
@@ -13109,5 +12962,131 @@
     "text": "Компьютер победил. Попробуем ещё раз?",
     "voice": "jane",
     "path": "/audio/tts/battleship-light/lose.mp3"
+  },
+  {
+    "id": "boat.prompt",
+    "game": "boat",
+    "text": "Веди лодочку взглядом по реке через ворота.",
+    "voice": "jane",
+    "path": "/audio/tts/boat/prompt.mp3"
+  },
+  {
+    "id": "table-tennis.prompt",
+    "game": "table-tennis",
+    "text": "Веди ракетку взглядом и отбивай мяч.",
+    "voice": "jane",
+    "path": "/audio/tts/table-tennis/prompt.mp3"
+  },
+  {
+    "id": "road-car.prompt",
+    "game": "road-car",
+    "text": "Веди машинку взглядом по дороге к кругам.",
+    "voice": "jane",
+    "path": "/audio/tts/road-car/prompt.mp3"
+  },
+  {
+    "id": "choose-emotion.mode-choice",
+    "game": "choose-emotion",
+    "text": "Как будем выбирать эмоцию?",
+    "voice": "jane",
+    "path": "/audio/tts/choose-emotion/mode-choice.mp3"
+  },
+  {
+    "id": "solfege.mode-choice",
+    "game": "solfege",
+    "text": "Выбери режим.",
+    "voice": "jane",
+    "path": "/audio/tts/solfege/mode-choice.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.dacd99e5",
+    "game": "shelf-sorting",
+    "text": "Куда положить миску?",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-dacd99e5.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.695a6c5d",
+    "game": "shelf-sorting",
+    "text": "Куда положить кружку?",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-695a6c5d.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.a839073c",
+    "game": "shelf-sorting",
+    "text": "Куда положить тарелку?",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-a839073c.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.7b6a2c59",
+    "game": "shelf-sorting",
+    "text": "Куда положить ложку?",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-7b6a2c59.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.3a3e5d8f",
+    "game": "shelf-sorting",
+    "text": "Куда положить футболку?",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-3a3e5d8f.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.16e09de0",
+    "game": "shelf-sorting",
+    "text": "Куда положить джинсы?",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-16e09de0.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.8db482d0",
+    "game": "shelf-sorting",
+    "text": "Куда положить ботинок?",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-8db482d0.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.0b421a12",
+    "game": "shelf-sorting",
+    "text": "Куда положить мяч?",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-0b421a12.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.c09d3ecc",
+    "game": "shelf-sorting",
+    "text": "Куда положить кубики?",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-c09d3ecc.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.9776c912",
+    "game": "shelf-sorting",
+    "text": "Куда положить мишку?",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-9776c912.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.cb5ac96c",
+    "game": "shelf-sorting",
+    "text": "Куда положить машинку?",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-cb5ac96c.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.8148d88c",
+    "game": "shelf-sorting",
+    "text": "Выбери полку.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-8148d88c.mp3"
+  },
+  {
+    "id": "shelf-sorting.scene.cef6788e",
+    "game": "shelf-sorting",
+    "text": "Найди полку того же цвета.",
+    "voice": "jane",
+    "path": "/audio/tts/shelf-sorting/scene-cef6788e.mp3"
   }
 ]
