@@ -105,7 +105,8 @@ async function chooseWagon(wagon: TrainWagon) {
     });
     void playTrainSequenceSuccessMelody(session.settings.sound);
   } else {
-    feedbackMessage.value = `Сейчас нужен вагон ${outcome.expectedWagon?.number ?? "по порядку"}. Попробуй ещё раз.`;
+    // Testers: «при ошибке всё равно говорит вагон прицепился». Plain retry, no answer.
+    feedbackMessage.value = "Попробуй ещё раз.";
     recordMistake({
       roundId,
       targetId: wagonTargetId(outcome.selectedWagon),

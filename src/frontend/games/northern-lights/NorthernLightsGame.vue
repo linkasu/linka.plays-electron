@@ -282,11 +282,10 @@ onUnmounted(() => {
       title="Северное сияние"
       :step="session.step"
       :max-steps="session.maxSteps"
-      :score="session.score"
-      :mistakes="session.mistakes"
       :duration-ms="durationMs"
       :session-seconds="session.settings.sessionSeconds"
       :paused="session.status === 'paused'"
+      :show-progress="false"
       @pause="pauseSession"
       @resume="resumeSession"
     />
