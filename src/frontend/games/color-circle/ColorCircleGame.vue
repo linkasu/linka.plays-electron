@@ -26,7 +26,6 @@ const {
   resumeSession,
   recordSuccess,
   recordMistake,
-  recordHint,
   startSession,
 } = useGameSessionFor("color-circle", { maxSteps: 8, finishOnMistakes: false });
 
@@ -149,16 +148,22 @@ function answer(color: ColorCircleColor) {
     actual: color.label,
     isCorrect: false,
   });
-  recordHint({
-    roundId: round.value.roundId,
-    targetId: expectedTargetId,
-    message: "Ошибка в цвете, следующий круг.",
-  });
-  feedbackText.value = `Это ${color.label}. Нужен был ${round.value.target.label}. Следующий круг.`;
+  // Testers (recheck): «при ошибке не говорит, что это ошибка, надо, например,
+  // это зелёный, попробуй ещё раз». The same circle stays for another try.
+  feedbackText.value = `Это ${color.label}. Попробуй ещё раз.`;
   void colorCircleFeedback.playMistake(session.settings.sound);
-  playResponseTts(`color-circle.${color.id}`);
+  playResponseTts(`color-circle.mistake.${color.id}`, 320);
   selectedMistakeId.value = color.id;
-  prepareNextRound();
+  holdAfterMistake();
+}
+
+/** A short pause after a mistake, so the phrase is heard before the next look counts. */
+function holdAfterMistake() {
+  window.clearTimeout(advanceTimer);
+  advancing.value = true;
+  advanceTimer = window.setTimeout(() => {
+    advancing.value = false;
+  }, 1800);
 }
 
 function restart() {

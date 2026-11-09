@@ -69,7 +69,11 @@ function choiceColor(choice: T) {
 </script>
 
 <template>
-  <v-row class="game-choice-grid" justify="center" no-gutters>
+  <v-row
+    :class="['game-choice-grid', { 'game-choice-grid--five': choices.length === 5 }]"
+    justify="center"
+    no-gutters
+  >
     <v-col
       v-for="choice in choices"
       :key="choice.id"
@@ -116,6 +120,15 @@ function choiceColor(choice: T) {
 
 .v-row.game-choice-grid > [class*="v-col"] {
   padding-inline: calc(var(--choice-gap) / 2);
+}
+
+/* Five cards share one row equally: a twelve-column grid gives each only a sixth
+   of the row, and pictures did not fit (testers: «животные не помещаются»). */
+@media (min-width: 60rem) {
+  .v-row.game-choice-grid--five > [class*="v-col"] {
+    flex: 0 0 20%;
+    max-inline-size: 20%;
+  }
 }
 
 .game-choice-grid__cell--hinted {

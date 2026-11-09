@@ -329,6 +329,62 @@
     "path": "/audio/tts/color-circle/pink.mp3"
   },
   {
+    "id": "color-circle.mistake.red",
+    "game": "color-circle",
+    "text": "Это красный. Попробуй ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/mistake-red.mp3"
+  },
+  {
+    "id": "color-circle.mistake.yellow",
+    "game": "color-circle",
+    "text": "Это жёлтый. Попробуй ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/mistake-yellow.mp3"
+  },
+  {
+    "id": "color-circle.mistake.blue",
+    "game": "color-circle",
+    "text": "Это синий. Попробуй ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/mistake-blue.mp3"
+  },
+  {
+    "id": "color-circle.mistake.green",
+    "game": "color-circle",
+    "text": "Это зелёный. Попробуй ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/mistake-green.mp3"
+  },
+  {
+    "id": "color-circle.mistake.purple",
+    "game": "color-circle",
+    "text": "Это фиолетовый. Попробуй ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/mistake-purple.mp3"
+  },
+  {
+    "id": "color-circle.mistake.orange",
+    "game": "color-circle",
+    "text": "Это оранжевый. Попробуй ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/mistake-orange.mp3"
+  },
+  {
+    "id": "color-circle.mistake.teal",
+    "game": "color-circle",
+    "text": "Это бирюзовый. Попробуй ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/mistake-teal.mp3"
+  },
+  {
+    "id": "color-circle.mistake.pink",
+    "game": "color-circle",
+    "text": "Это розовый. Попробуй ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/color-circle/mistake-pink.mp3"
+  },
+  {
     "id": "feed-animal.prompt.rabbit",
     "game": "feed-animal",
     "text": "Покорми зайку. Выбери, что он ест.",
@@ -5462,42 +5518,42 @@
   {
     "id": "who-hiding.cover.round-bush",
     "game": "who-hiding",
-    "text": "Подсказка: цель спряталась за круглым кустом. Посмотри на круглый куст и удержи взгляд.",
+    "text": "Посмотри за круглым кустом.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/cover-round-bush.mp3"
   },
   {
     "id": "who-hiding.cover.dark-bush",
     "game": "who-hiding",
-    "text": "Подсказка: цель спряталась за тёмным кустом. Переведи взгляд к тёмному кусту.",
+    "text": "Посмотри за тёмным кустом.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/cover-dark-bush.mp3"
   },
   {
     "id": "who-hiding.cover.wide-bush",
     "game": "who-hiding",
-    "text": "Подсказка: цель спряталась за широким кустом. Найди широкий куст и удержи взгляд на нём.",
+    "text": "Посмотри за широким кустом.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/cover-wide-bush.mp3"
   },
   {
-    "id": "who-hiding.cover.flower-bush",
+    "id": "who-hiding.cover.tall-bush",
     "game": "who-hiding",
-    "text": "Подсказка: цель спряталась за цветущим кустом. Посмотри на куст с цветами.",
+    "text": "Посмотри за высоким кустом.",
     "voice": "filipp",
-    "path": "/audio/tts/who-hiding/cover-flower-bush.mp3"
+    "path": "/audio/tts/who-hiding/cover-tall-bush.mp3"
   },
   {
     "id": "who-hiding.cover.dense-bush",
     "game": "who-hiding",
-    "text": "Подсказка: цель спряталась за кустами. Выбери кусты взглядом.",
+    "text": "Посмотри за густыми кустами.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/cover-dense-bush.mp3"
   },
   {
     "id": "who-hiding.cover.low-bush",
     "game": "who-hiding",
-    "text": "Подсказка: цель спряталась за низким кустом. Посмотри на низкий куст и удержи взгляд.",
+    "text": "Посмотри за низким кустом.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/cover-low-bush.mp3"
   },

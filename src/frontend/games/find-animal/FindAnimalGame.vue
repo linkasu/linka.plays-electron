@@ -310,15 +310,18 @@ onUnmounted(() => {
 }
 
 .animal-image {
-  block-size: 1em;
+  aspect-ratio: 1;
+  block-size: auto;
   display: block;
-  inline-size: 1em;
+  /* Never wider than the card, also when five cards stand in a row. */
+  inline-size: min(1em, 100%);
   margin-inline: auto;
   object-fit: contain;
 }
 
 .animal-label {
-  overflow-wrap: anywhere;
+  font-size: min(2.125rem, 2.6vw);
+  overflow-wrap: normal;
 }
 
 .hint-line {

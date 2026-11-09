@@ -271,9 +271,6 @@ watch(isSpeaking, (speaking) => {
       <v-row justify="center">
         <v-col cols="12" xl="10">
           <v-card class="story-card pa-5 pa-md-8" rounded="xl" elevation="8">
-            <div class="story-overline text-overline text-secondary text-center mb-2">
-              Последовательность
-            </div>
             <h1 class="story-title text-h4 text-md-h3 font-weight-bold text-center mb-2">
               {{ round.story.title }}
             </h1>
@@ -310,14 +307,10 @@ watch(isSpeaking, (speaking) => {
                     :alt="frame.label"
                     draggable="false"
                   />
-                  <div class="frame-label text-h6 font-weight-bold mt-2">{{ frame.label }}</div>
                 </template>
                 <template v-else>
                   <div class="slot-number">{{ slotIndex + 1 }}</div>
                   <v-icon class="empty-icon" icon="mdi-help" color="blue-grey-darken-1" />
-                  <div class="text-body-1 font-weight-bold text-medium-emphasis mt-2">
-                    Ждёт кадр
-                  </div>
                 </template>
               </v-card>
             </div>
@@ -441,10 +434,6 @@ watch(isSpeaking, (speaking) => {
     inline-size: min(100%, 8.5rem);
   }
 
-  .story-slot .frame-label {
-    display: none;
-  }
-
   .story-choice :deep(.dwell-button) {
     min-block-size: 7rem !important;
     padding-block: 0.5rem !important;
@@ -460,7 +449,6 @@ watch(isSpeaking, (speaking) => {
     padding-block: 0.5rem;
   }
 
-  .story-overline,
   .story-prompt {
     display: none;
   }
