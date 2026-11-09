@@ -118,7 +118,7 @@ async function choose(hour: number) {
   }
 
   isSpeaking.value = true;
-  feedback.value = "Посмотри на короткую стрелку ещё раз и выбери другие часы.";
+  feedback.value = "Попробуй ещё раз.";
   recordMistake({
     roundId: round.value.roundId,
     targetId,

@@ -214,7 +214,7 @@ async function chooseIngredient(choice: SandwichChoice) {
 
   isFeedbackPlaying.value = true;
   wrongChoiceId.value = choice.id;
-  feedbackMessage.value = "Посмотри рецепт и ингредиенты ещё раз.";
+  feedbackMessage.value = "Попробуй ещё раз.";
   recordMistake({
     roundId: expectedStep.roundId,
     targetId,

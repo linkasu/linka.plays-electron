@@ -79,7 +79,7 @@ const choiceMinHeight = computed(() =>
 const feedbackText = computed(() => {
   if (mistakesInRound.value === 0)
     return `Посмотри на строку и столбик. В каждом должны быть числа от 1 до ${round.value.size}.`;
-  return "Посмотри на строку и столбик ещё раз и выбери другую карточку.";
+  return "Попробуй ещё раз.";
 });
 
 function choiceTargetId(choiceId: string) {

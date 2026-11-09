@@ -73,7 +73,7 @@ const isSpeaking = ref(false);
 const hintText = computed(() => {
   if (hintedRoundId.value !== round.value.roundId)
     return "Выбери карточку, где совпадают и цвет, и форма.";
-  return "Проверь цвет и форму ещё раз, потом выбери другую карточку.";
+  return "Попробуй ещё раз.";
 });
 
 function choiceTargetId(choiceId: string) {

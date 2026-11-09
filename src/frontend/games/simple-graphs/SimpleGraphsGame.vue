@@ -135,7 +135,7 @@ async function choose(choice: SimpleGraphsChoice) {
     return;
   }
 
-  feedback.value = "Посмотри на график ещё раз и выбери другой ответ.";
+  feedback.value = "Попробуй ещё раз.";
   lastMistakeTargetId.value = targetId;
   recordMistake({
     roundId: round.value.roundId,

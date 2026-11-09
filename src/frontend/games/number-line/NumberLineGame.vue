@@ -53,7 +53,7 @@ const isSpeaking = ref(false);
 
 const feedbackText = computed(() => {
   if (lastMistakeNumber.value === undefined) return round.value.helperText;
-  return "Попробуй ещё раз и выбери другое число.";
+  return "Попробуй ещё раз.";
 });
 
 function numberTargetId(number: number) {

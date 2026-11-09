@@ -110,7 +110,7 @@ async function choose(index: number) {
 
   isSpeaking.value = true;
   mistakenChoiceId.value = choice.choiceId;
-  hint.value = "Посмотри на размеры ещё раз и выбери другую карточку.";
+  hint.value = "Попробуй ещё раз.";
   recordMistake({
     roundId: round.value.roundId,
     targetId,
@@ -173,7 +173,7 @@ onUnmounted(() => {
               rounded="xl"
               variant="tonal"
             >
-              {{ hint }} Посмотри ещё раз.
+              {{ hint }}
             </v-alert>
             <v-row class="choice-row" dense>
               <v-col

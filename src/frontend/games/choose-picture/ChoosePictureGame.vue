@@ -91,7 +91,7 @@ async function choose(choice: (typeof round.value.choices)[number]) {
       isCorrect: false,
     });
     void feedback.playMistake();
-    feedbackText.value = "Посмотри на слово ещё раз и выбери другую картинку.";
+    feedbackText.value = "Попробуй ещё раз.";
     isSpeaking.value = true;
     await promptAudio.playSequenceAndWait(["choose-picture.mistake"], 80);
     isSpeaking.value = false;

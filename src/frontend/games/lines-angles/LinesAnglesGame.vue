@@ -63,7 +63,7 @@ const isSpeaking = ref(false);
 const hintText = computed(() => {
   if (hintedRoundId.value !== round.value.roundId)
     return "Посмотри на линии и выбери подходящую карточку.";
-  return "Посмотри на линии ещё раз и выбери другую карточку.";
+  return "Попробуй ещё раз.";
 });
 
 function choiceTargetId(choiceId: string) {

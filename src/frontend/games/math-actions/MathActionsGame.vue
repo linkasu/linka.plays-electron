@@ -117,7 +117,7 @@ async function pressKey(key: string) {
       isCorrect: false,
     });
     answer.value = "";
-    feedback.value = "Попробуй ещё раз и введи другой ответ.";
+    feedback.value = "Попробуй ещё раз.";
     isSpeaking.value = true;
     void feedbackAudio.playMistake();
     await promptAudio.playSequenceAndWait(["math-actions.mistake"], 80);

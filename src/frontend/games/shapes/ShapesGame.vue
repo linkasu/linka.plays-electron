@@ -112,7 +112,7 @@ async function choose(choice: ShapeOption, index: number) {
     return;
   }
 
-  hintText.value = "Посмотри на форму ещё раз и выбери другую карточку.";
+  hintText.value = "Попробуй ещё раз.";
   lastMistakeId.value = choice.id;
   recordMistake({
     roundId: round.value.roundId,

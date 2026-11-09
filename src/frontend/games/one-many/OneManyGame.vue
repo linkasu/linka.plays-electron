@@ -113,7 +113,7 @@ async function choose(choice: OneManyChoice) {
   }
 
   isSpeaking.value = true;
-  feedback.value = "Посмотри на предметы ещё раз и выбери другую карточку.";
+  feedback.value = "Попробуй ещё раз.";
   recordMistake({
     roundId: round.value.roundId,
     targetId,

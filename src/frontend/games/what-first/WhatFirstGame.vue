@@ -157,7 +157,7 @@ async function choose(action: WhatFirstAction) {
     sceneId: round.value.scene.id,
     isCorrect: false,
   });
-  feedback.value = "Посмотри на сцену ещё раз и выбери другое действие.";
+  feedback.value = "Попробуй ещё раз.";
   void pianoFeedback.playMistake();
   await promptAudio.playSequenceAndWait([mistakeAssetId()], 80);
   wrongChoiceId.value = undefined;

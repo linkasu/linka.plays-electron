@@ -70,9 +70,7 @@ const choiceMinHeight = computed(() => {
   return `clamp(${9 * scale}rem, 34dvh, ${16 * scale}rem)`;
 });
 const hintText = computed(() =>
-  lastMistakeId.value
-    ? "Посмотри на все картинки ещё раз."
-    : "Выбери картинку, которая точно подходит к заданию.",
+  lastMistakeId.value ? "Попробуй ещё раз." : "Выбери картинку, которая точно подходит к заданию.",
 );
 
 function choiceTargetId(choice: WhereObjectChoice) {

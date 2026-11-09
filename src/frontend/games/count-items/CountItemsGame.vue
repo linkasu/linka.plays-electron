@@ -87,7 +87,7 @@ async function answer(index: number) {
     return;
   }
   isSpeaking.value = true;
-  feedback.value = "Посчитай предметы ещё раз и выбери другое число.";
+  feedback.value = "Попробуй ещё раз.";
   recordMistake({
     roundId: round.value.roundId,
     targetId,
