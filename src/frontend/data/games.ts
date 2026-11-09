@@ -2029,8 +2029,8 @@ export const games: GameInfo[] = [
     id: "cursor-magnet",
     title: "Магнитная лаборатория",
     description:
-      "Настраивай полюса и силу магнитов, запускай симуляцию и проводи капсулу через лабораторные контуры.",
-    selfDescription: "Собери магнитную схему.",
+      "Переключай магниты взглядом — синий тянет, красный толкает — и запускай шарик к звезде.",
+    selfDescription: "Настрой магниты и докати шарик до звезды.",
     route: "/games/cursor-magnet",
     category: "strategy",
     icon: "mdi-magnet-on",
