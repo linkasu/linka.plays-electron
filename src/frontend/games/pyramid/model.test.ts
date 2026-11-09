@@ -36,14 +36,13 @@ describe("pyramid model", () => {
     expect(getNextPyramidRing(outcome.rings)?.id).toBe("ring-2");
   });
 
-  it("still places a wrong ring and reports the expected ring", () => {
+  it("does not place a wrong ring and reports the expected one", () => {
     const outcome = selectPyramidRing(createPyramidRings(), "ring-4");
 
-    expect(outcome.kind).toBe("placed");
-    if (outcome.kind !== "placed") return;
-    expect(outcome.isCorrect).toBe(false);
+    expect(outcome.kind).toBe("rejected");
+    if (outcome.kind !== "rejected") return;
     expect(outcome.expectedRing?.id).toBe("ring-1");
-    expect(outcome.selectedRing.placedIndex).toBe(1);
+    expect(outcome.selectedRing.placed).toBe(false);
   });
 
   it("ignores already placed rings", () => {
@@ -53,19 +52,19 @@ describe("pyramid model", () => {
     expect(selectPyramidRing(first.rings, "ring-1")).toEqual({ kind: "ignored" });
   });
 
-  it("completes after all rings are placed in any order", () => {
+  it("completes after all rings are placed from the largest to the smallest", () => {
     let rings = createPyramidRings();
-    for (const ringId of ["ring-4", "ring-1", "ring-3", "ring-2"] as const) {
+    for (const ringId of ["ring-1", "ring-2", "ring-3", "ring-4"] as const) {
       const outcome = selectPyramidRing(rings, ringId);
       if (outcome.kind !== "placed") throw new Error(`Expected ${ringId} placement.`);
       rings = outcome.rings;
     }
 
     expect(getPlacedPyramidRings(rings).map((ring) => ring.id)).toEqual([
-      "ring-4",
       "ring-1",
-      "ring-3",
       "ring-2",
+      "ring-3",
+      "ring-4",
     ]);
     expect(rings.every((ring) => ring.placed)).toBe(true);
   });

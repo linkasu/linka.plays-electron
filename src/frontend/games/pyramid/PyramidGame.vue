@@ -155,6 +155,24 @@ async function chooseRing(ring: PyramidRing) {
   if (outcome.kind === "ignored") return;
 
   pendingSelection.value = true;
+  if (outcome.kind === "rejected") {
+    // Testers: a wrong ring is not put on; the voice says «Попробуй ещё раз.».
+    feedbackMessage.value = "Попробуй ещё раз.";
+    recordMistake({
+      roundId,
+      targetId: ringTargetId(outcome.selectedRing),
+      expectedTargetId: outcome.expectedRing ? ringTargetId(outcome.expectedRing) : undefined,
+      expected: outcome.expectedRing?.id,
+      actual: outcome.selectedRing.id,
+      isCorrect: false,
+    });
+    void playPyramidMistakeMelody(session.settings.sound);
+    isSpeaking.value = true;
+    await promptAudio.playSequenceAndWait(["pyramid.mistake"], 80);
+    isSpeaking.value = false;
+    pendingSelection.value = false;
+    return;
+  }
   rings.splice(0, rings.length, ...outcome.rings);
 
   if (outcome.isCorrect) {

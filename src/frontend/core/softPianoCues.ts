@@ -13,8 +13,8 @@ export function createSoftPianoCuePlayer<TCue extends string>(
     warm(enabled: boolean) {
       warmSoftPiano(enabled, notesToLoad);
     },
-    play(enabled: boolean, cue: TCue) {
-      return playSoftPianoMelody(enabled, cues[cue]);
+    play(enabled: boolean, cue: TCue, options?: { overlap?: boolean }) {
+      return playSoftPianoMelody(enabled, cues[cue], options);
     },
     dispose() {
       disposeSoftPiano();

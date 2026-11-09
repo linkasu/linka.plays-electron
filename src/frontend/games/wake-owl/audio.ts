@@ -22,8 +22,10 @@ export function warmWakeOwlAudio(enabled: boolean) {
   player.warm(enabled);
 }
 
+// Testers: «сова иногда будится, но мелодии при этом нет» — the next wake came while the
+// 2.5 s melody still sounded and was dropped. Every wake plays its melody.
 export function playWakeOwlHoot(enabled: boolean) {
-  return player.play(enabled, "hoot").catch(() => undefined);
+  return player.play(enabled, "hoot", { overlap: true }).catch(() => undefined);
 }
 
 export function disposeWakeOwlAudio() {
