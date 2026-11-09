@@ -55,7 +55,7 @@ const isSpeaking = ref(false);
 
 const hintText = computed(() => {
   if (mistakesInRound.value <= 0) return "Выбери карточку нужного цвета.";
-  return `Почти. Ищи ${round.value.target.label} круг.`;
+  return "Попробуй ещё раз.";
 });
 
 function choiceTargetId(choiceId: string) {

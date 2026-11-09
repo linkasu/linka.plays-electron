@@ -110,7 +110,7 @@ async function answer(choice: FindLetterOption) {
 
   pendingSelection.value = true;
   wrongChoiceId.value = choice.id;
-  feedbackMessage.value = `Почти. Ищи букву ${round.value.target.letter}.`;
+  feedbackMessage.value = "Попробуй ещё раз.";
   recordMistake({
     roundId: round.value.roundId,
     targetId,

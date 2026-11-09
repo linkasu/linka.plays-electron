@@ -195,7 +195,7 @@ async function chooseFigure(figure: ShapeDanceFigure) {
     phase.value = "feedback";
     isLocked.value = true;
     activeFigureId.value = figure.id;
-    feedbackText.value = "Почти. Сейчас фигуры повторят танец ещё раз.";
+    feedbackText.value = "Попробуй ещё раз.";
     void danceFeedback.playMistake(session.settings.sound);
     recordMistake({
       roundId: round.value.roundId,

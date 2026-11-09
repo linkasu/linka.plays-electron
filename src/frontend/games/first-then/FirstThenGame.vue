@@ -150,7 +150,7 @@ async function chooseAction(action: FirstThenAction) {
       phase: phase.value,
       isCorrect: false,
     });
-    feedback.value = "Посмотри на порядок действий и попробуй выбрать другую карточку.";
+    feedback.value = "Попробуй ещё раз.";
     await promptAudio.playSequenceAndWait(["first-then.mistake"], 80);
   }
 

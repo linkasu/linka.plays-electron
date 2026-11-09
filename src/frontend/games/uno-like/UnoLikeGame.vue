@@ -61,7 +61,7 @@ const isSpeaking = ref(false);
 
 const helperText = computed(() => {
   if (hintedRoundId.value !== round.value.roundId) return round.value.instruction;
-  return "Почти. Сравни цвет и число открытой карты ещё раз, потом выбери другую карточку.";
+  return "Попробуй ещё раз.";
 });
 
 function cardTargetId(card: UnoLikeCard) {

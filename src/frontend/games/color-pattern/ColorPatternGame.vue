@@ -142,7 +142,7 @@ async function choose(choice: ColorPatternColor) {
   const sessionId = session.sessionId;
   const roundId = round.value.roundId;
   wrongChoiceId.value = choice.id;
-  feedbackText.value = "Посмотри на повтор цветов и попробуй ещё раз.";
+  feedbackText.value = "Посмотри, в каком порядке идут цвета.";
   recordMistake({
     roundId: round.value.roundId,
     targetId,

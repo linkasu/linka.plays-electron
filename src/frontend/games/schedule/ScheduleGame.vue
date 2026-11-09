@@ -144,7 +144,7 @@ async function choose(card: ScheduleCardState) {
   pendingSelection.value = true;
   isSpeaking.value = true;
   wrongChoiceId.value = card.id;
-  feedbackMessage.value = "Посмотри на порядок дня и попробуй выбрать другую карточку.";
+  feedbackMessage.value = "Попробуй ещё раз.";
   recordMistake({
     roundId: currentRoundId.value,
     targetId: scheduleTargetId(card),

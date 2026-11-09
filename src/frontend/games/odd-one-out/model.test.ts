@@ -52,8 +52,7 @@ describe("generateOddOneOutRound", () => {
 
       expect(round.choices).toHaveLength(4);
       expect(commonChoices).toHaveLength(3);
-      expect(round.mistakeHint).toContain(round.commonCategory.label);
-      expect(round.mistakeHint).toContain(round.commonCategory.helper);
+      expect(round.mistakeHint).toBe("Попробуй ещё раз.");
     }
   });
 

@@ -171,7 +171,7 @@ async function chooseFrame(frame: ComicFrame) {
   });
   isAdvancingStory.value = true;
   lastMistakeFrameId.value = frame.id;
-  feedbackText.value = "Посмотри на историю и попробуй выбрать другой кадр.";
+  feedbackText.value = "Попробуй ещё раз.";
   void comicFeedback.playMistake(session.settings.sound);
   isSpeaking.value = true;
   await promptAudio.playSequenceAndWait(["comic-strip.mistake"], 80);

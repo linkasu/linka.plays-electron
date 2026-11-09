@@ -485,7 +485,7 @@
   {
     "id": "hide-and-seek.mistake",
     "game": "hide-and-seek",
-    "text": "Почти. Попробуй ещё раз.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/hide-and-seek/mistake.mp3"
   },
@@ -541,7 +541,7 @@
   {
     "id": "find-shape.mistake",
     "game": "find-shape",
-    "text": "Почти. Попробуй ещё раз.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/find-shape/mistake.mp3"
   },
@@ -730,7 +730,7 @@
   {
     "id": "find-letter.mistake",
     "game": "find-letter",
-    "text": "Почти. Попробуй ещё раз.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/find-letter/mistake.mp3"
   },
@@ -814,7 +814,7 @@
   {
     "id": "find-digit.mistake",
     "game": "find-digit",
-    "text": "Почти. Попробуй ещё раз.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/find-digit/mistake.mp3"
   },
@@ -1038,7 +1038,7 @@
   {
     "id": "find-animal.mistake",
     "game": "find-animal",
-    "text": "Почти. Попробуй ещё раз.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/find-animal/mistake.mp3"
   },
@@ -1066,7 +1066,7 @@
   {
     "id": "first-then.mistake",
     "game": "first-then",
-    "text": "Посмотри на порядок действий и попробуй выбрать другую карточку.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/first-then/mistake.mp3"
   },
@@ -1101,7 +1101,7 @@
   {
     "id": "first-then.mistake.wash-eat",
     "game": "first-then",
-    "text": "Посмотри на порядок действий и попробуй выбрать другую карточку.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/first-then/mistake-wash-eat.mp3"
   },
@@ -1122,7 +1122,7 @@
   {
     "id": "first-then.mistake.shoes-walk",
     "game": "first-then",
-    "text": "Посмотри на порядок действий и попробуй выбрать другую карточку.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/first-then/mistake-shoes-walk.mp3"
   },
@@ -1143,7 +1143,7 @@
   {
     "id": "first-then.mistake.toothbrush-bed",
     "game": "first-then",
-    "text": "Посмотри на порядок действий и попробуй выбрать другую карточку.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/first-then/mistake-toothbrush-bed.mp3"
   },
@@ -1164,7 +1164,7 @@
   {
     "id": "first-then.mistake.open-read",
     "game": "first-then",
-    "text": "Посмотри на порядок действий и попробуй выбрать другую карточку.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/first-then/mistake-open-read.mp3"
   },
@@ -1185,7 +1185,7 @@
   {
     "id": "first-then.mistake.pour-drink",
     "game": "first-then",
-    "text": "Посмотри на порядок действий и попробуй выбрать другую карточку.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/first-then/mistake-pour-drink.mp3"
   },
@@ -1206,7 +1206,7 @@
   {
     "id": "first-then.mistake.paint-clean",
     "game": "first-then",
-    "text": "Посмотри на порядок действий и попробуй выбрать другую карточку.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/first-then/mistake-paint-clean.mp3"
   },
@@ -1227,7 +1227,7 @@
   {
     "id": "first-then.mistake.soap-rinse",
     "game": "first-then",
-    "text": "Посмотри на порядок действий и попробуй выбрать другую карточку.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/first-then/mistake-soap-rinse.mp3"
   },
@@ -1248,7 +1248,7 @@
   {
     "id": "first-then.mistake.sit-buckle",
     "game": "first-then",
-    "text": "Посмотри на порядок действий и попробуй выбрать другую карточку.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/first-then/mistake-sit-buckle.mp3"
   },
@@ -1395,7 +1395,7 @@
   {
     "id": "schedule.mistake",
     "game": "schedule",
-    "text": "Посмотри на порядок дня и попробуй выбрать другую карточку.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/schedule/mistake.mp3"
   },
@@ -3173,14 +3173,14 @@
   {
     "id": "big-small.mistake.big",
     "game": "big-small",
-    "text": "Почти. Нужен большой предмет.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/big-small/mistake-big.mp3"
   },
   {
     "id": "big-small.mistake.small",
     "game": "big-small",
-    "text": "Почти. Нужен маленький предмет.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/big-small/mistake-small.mp3"
   },
@@ -3439,14 +3439,14 @@
   {
     "id": "one-many.mistake.one",
     "game": "one-many",
-    "text": "Почти. Нужна карточка один.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/one-many/mistake-one.mp3"
   },
   {
     "id": "one-many.mistake.many",
     "game": "one-many",
-    "text": "Почти. Нужна карточка много.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/one-many/mistake-many.mp3"
   },
@@ -3467,7 +3467,7 @@
   {
     "id": "who-is-this.mistake.mom",
     "game": "who-is-this",
-    "text": "Почти. Здесь подходит: мама.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/who-is-this/mistake-mom.mp3"
   },
@@ -3481,7 +3481,7 @@
   {
     "id": "who-is-this.mistake.dad",
     "game": "who-is-this",
-    "text": "Почти. Здесь подходит: папа.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/who-is-this/mistake-dad.mp3"
   },
@@ -3495,7 +3495,7 @@
   {
     "id": "who-is-this.mistake.doctor",
     "game": "who-is-this",
-    "text": "Почти. Здесь подходит: врач.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/who-is-this/mistake-doctor.mp3"
   },
@@ -3509,7 +3509,7 @@
   {
     "id": "who-is-this.mistake.friend",
     "game": "who-is-this",
-    "text": "Почти. Здесь подходит: друг.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/who-is-this/mistake-friend.mp3"
   },
@@ -3523,7 +3523,7 @@
   {
     "id": "who-is-this.mistake.cat",
     "game": "who-is-this",
-    "text": "Почти. Здесь подходит: кот.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/who-is-this/mistake-cat.mp3"
   },
@@ -3537,7 +3537,7 @@
   {
     "id": "who-is-this.mistake.dog",
     "game": "who-is-this",
-    "text": "Почти. Здесь подходит: пёс.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/who-is-this/mistake-dog.mp3"
   },
@@ -3551,7 +3551,7 @@
   {
     "id": "who-is-this.mistake.teacher",
     "game": "who-is-this",
-    "text": "Почти. Здесь подходит: учитель.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/who-is-this/mistake-teacher.mp3"
   },
@@ -3565,7 +3565,7 @@
   {
     "id": "who-is-this.mistake.grandma",
     "game": "who-is-this",
-    "text": "Почти. Здесь подходит: бабушка.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/who-is-this/mistake-grandma.mp3"
   },
@@ -3586,7 +3586,7 @@
   {
     "id": "opposites.mistake.hot.cold",
     "game": "opposites",
-    "text": "Почти. Противоположность к слову горячий: холодный.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-hot-cold.mp3"
   },
@@ -3607,7 +3607,7 @@
   {
     "id": "opposites.mistake.cold.hot",
     "game": "opposites",
-    "text": "Почти. Противоположность к слову холодный: горячий.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-cold-hot.mp3"
   },
@@ -3628,7 +3628,7 @@
   {
     "id": "opposites.mistake.big.small",
     "game": "opposites",
-    "text": "Почти. Противоположность к слову большой: маленький.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-big-small.mp3"
   },
@@ -3649,7 +3649,7 @@
   {
     "id": "opposites.mistake.small.big",
     "game": "opposites",
-    "text": "Почти. Противоположность к слову маленький: большой.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-small-big.mp3"
   },
@@ -3670,7 +3670,7 @@
   {
     "id": "opposites.mistake.day.night",
     "game": "opposites",
-    "text": "Почти. Противоположность к слову день: ночь.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-day-night.mp3"
   },
@@ -3691,7 +3691,7 @@
   {
     "id": "opposites.mistake.night.day",
     "game": "opposites",
-    "text": "Почти. Противоположность к слову ночь: день.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-night-day.mp3"
   },
@@ -3712,7 +3712,7 @@
   {
     "id": "opposites.mistake.open.closed",
     "game": "opposites",
-    "text": "Почти. Противоположность к слову открытый: закрытый.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-open-closed.mp3"
   },
@@ -3733,7 +3733,7 @@
   {
     "id": "opposites.mistake.closed.open",
     "game": "opposites",
-    "text": "Почти. Противоположность к слову закрытый: открытый.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-closed-open.mp3"
   },
@@ -3754,7 +3754,7 @@
   {
     "id": "opposites.mistake.up.down",
     "game": "opposites",
-    "text": "Почти. Противоположность к слову вверх: вниз.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-up-down.mp3"
   },
@@ -3775,7 +3775,7 @@
   {
     "id": "opposites.mistake.down.up",
     "game": "opposites",
-    "text": "Почти. Противоположность к слову вниз: вверх.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-down-up.mp3"
   },
@@ -3796,7 +3796,7 @@
   {
     "id": "opposites.mistake.fast.slow",
     "game": "opposites",
-    "text": "Почти. Противоположность к слову быстрый: медленный.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-fast-slow.mp3"
   },
@@ -3817,7 +3817,7 @@
   {
     "id": "opposites.mistake.slow.fast",
     "game": "opposites",
-    "text": "Почти. Противоположность к слову медленный: быстрый.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-slow-fast.mp3"
   },
@@ -3838,7 +3838,7 @@
   {
     "id": "opposites.mistake.full.empty",
     "game": "opposites",
-    "text": "Почти. Противоположность к слову полный: пустой.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-full-empty.mp3"
   },
@@ -3859,7 +3859,7 @@
   {
     "id": "opposites.mistake.empty.full",
     "game": "opposites",
-    "text": "Почти. Противоположность к слову пустой: полный.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-empty-full.mp3"
   },
@@ -3880,7 +3880,7 @@
   {
     "id": "opposites.mistake.happy.sad",
     "game": "opposites",
-    "text": "Почти. Противоположность к слову весёлый: грустный.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-happy-sad.mp3"
   },
@@ -3901,7 +3901,7 @@
   {
     "id": "opposites.mistake.sad.happy",
     "game": "opposites",
-    "text": "Почти. Противоположность к слову грустный: весёлый.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-sad-happy.mp3"
   },
@@ -3922,7 +3922,7 @@
   {
     "id": "what-first.mistake.wash-eat",
     "game": "what-first",
-    "text": "Почти. Сначала моем руки, потом едим.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/what-first/mistake-wash-eat.mp3"
   },
@@ -3943,7 +3943,7 @@
   {
     "id": "what-first.mistake.shoes-walk",
     "game": "what-first",
-    "text": "Почти. Сначала надеваем обувь, потом идём гулять.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/what-first/mistake-shoes-walk.mp3"
   },
@@ -3964,7 +3964,7 @@
   {
     "id": "what-first.mistake.brush-sleep",
     "game": "what-first",
-    "text": "Почти. Сначала чистим зубы, потом ложимся спать.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/what-first/mistake-brush-sleep.mp3"
   },
@@ -3985,7 +3985,7 @@
   {
     "id": "what-first.mistake.open-read",
     "game": "what-first",
-    "text": "Почти. Сначала открываем книгу, потом читаем.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/what-first/mistake-open-read.mp3"
   },
@@ -4006,7 +4006,7 @@
   {
     "id": "what-first.mistake.pour-drink",
     "game": "what-first",
-    "text": "Почти. Сначала наливаем воду, потом пьём.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/what-first/mistake-pour-drink.mp3"
   },
@@ -4027,7 +4027,7 @@
   {
     "id": "what-first.mistake.soap-rinse",
     "game": "what-first",
-    "text": "Почти. Сначала намыливаем руки, потом смываем пену.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/what-first/mistake-soap-rinse.mp3"
   },
@@ -4048,7 +4048,7 @@
   {
     "id": "what-first.mistake.sit-buckle",
     "game": "what-first",
-    "text": "Почти. Сначала садимся, потом пристёгиваемся.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/what-first/mistake-sit-buckle.mp3"
   },
@@ -4069,7 +4069,7 @@
   {
     "id": "what-first.mistake.peel-eat",
     "game": "what-first",
-    "text": "Почти. Сначала чистим банан, потом кушаем банан.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/what-first/mistake-peel-eat.mp3"
   },
@@ -4090,7 +4090,7 @@
   {
     "id": "clock.mistake.1",
     "game": "clock",
-    "text": "Почти. Нужны часы: один час.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/clock/mistake-1.mp3"
   },
@@ -4111,7 +4111,7 @@
   {
     "id": "clock.mistake.2",
     "game": "clock",
-    "text": "Почти. Нужны часы: 2 часа.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/clock/mistake-2.mp3"
   },
@@ -4132,7 +4132,7 @@
   {
     "id": "clock.mistake.3",
     "game": "clock",
-    "text": "Почти. Нужны часы: 3 часа.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/clock/mistake-3.mp3"
   },
@@ -4153,7 +4153,7 @@
   {
     "id": "clock.mistake.4",
     "game": "clock",
-    "text": "Почти. Нужны часы: 4 часа.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/clock/mistake-4.mp3"
   },
@@ -4174,7 +4174,7 @@
   {
     "id": "clock.mistake.5",
     "game": "clock",
-    "text": "Почти. Нужны часы: 5 часов.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/clock/mistake-5.mp3"
   },
@@ -4195,7 +4195,7 @@
   {
     "id": "clock.mistake.6",
     "game": "clock",
-    "text": "Почти. Нужны часы: 6 часов.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/clock/mistake-6.mp3"
   },
@@ -4216,7 +4216,7 @@
   {
     "id": "clock.mistake.7",
     "game": "clock",
-    "text": "Почти. Нужны часы: 7 часов.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/clock/mistake-7.mp3"
   },
@@ -4237,7 +4237,7 @@
   {
     "id": "clock.mistake.8",
     "game": "clock",
-    "text": "Почти. Нужны часы: 8 часов.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/clock/mistake-8.mp3"
   },
@@ -4258,7 +4258,7 @@
   {
     "id": "clock.mistake.9",
     "game": "clock",
-    "text": "Почти. Нужны часы: 9 часов.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/clock/mistake-9.mp3"
   },
@@ -4279,7 +4279,7 @@
   {
     "id": "clock.mistake.10",
     "game": "clock",
-    "text": "Почти. Нужны часы: 10 часов.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/clock/mistake-10.mp3"
   },
@@ -4300,7 +4300,7 @@
   {
     "id": "clock.mistake.11",
     "game": "clock",
-    "text": "Почти. Нужны часы: 11 часов.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/clock/mistake-11.mp3"
   },
@@ -4321,7 +4321,7 @@
   {
     "id": "clock.mistake.12",
     "game": "clock",
-    "text": "Почти. Нужны часы: 12 часов.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/clock/mistake-12.mp3"
   },
@@ -4335,7 +4335,7 @@
   {
     "id": "calendar.mistake.weekday.monday.yesterday",
     "game": "calendar",
-    "text": "Почти. Вчера — это воскресенье.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-weekday-monday-yesterday.mp3"
   },
@@ -4349,7 +4349,7 @@
   {
     "id": "calendar.mistake.relative.monday.yesterday",
     "game": "calendar",
-    "text": "Почти. Воскресенье — это вчера.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-relative-monday-yesterday.mp3"
   },
@@ -4363,7 +4363,7 @@
   {
     "id": "calendar.mistake.weekday.monday.today",
     "game": "calendar",
-    "text": "Почти. Сегодня — это понедельник.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-weekday-monday-today.mp3"
   },
@@ -4377,7 +4377,7 @@
   {
     "id": "calendar.mistake.relative.monday.today",
     "game": "calendar",
-    "text": "Почти. Понедельник — это сегодня.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-relative-monday-today.mp3"
   },
@@ -4391,7 +4391,7 @@
   {
     "id": "calendar.mistake.weekday.monday.tomorrow",
     "game": "calendar",
-    "text": "Почти. Завтра — это вторник.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-weekday-monday-tomorrow.mp3"
   },
@@ -4405,7 +4405,7 @@
   {
     "id": "calendar.mistake.relative.monday.tomorrow",
     "game": "calendar",
-    "text": "Почти. Вторник — это завтра.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-relative-monday-tomorrow.mp3"
   },
@@ -4419,7 +4419,7 @@
   {
     "id": "calendar.mistake.weekday.tuesday.yesterday",
     "game": "calendar",
-    "text": "Почти. Вчера — это понедельник.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-weekday-tuesday-yesterday.mp3"
   },
@@ -4433,7 +4433,7 @@
   {
     "id": "calendar.mistake.relative.tuesday.yesterday",
     "game": "calendar",
-    "text": "Почти. Понедельник — это вчера.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-relative-tuesday-yesterday.mp3"
   },
@@ -4447,7 +4447,7 @@
   {
     "id": "calendar.mistake.weekday.tuesday.today",
     "game": "calendar",
-    "text": "Почти. Сегодня — это вторник.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-weekday-tuesday-today.mp3"
   },
@@ -4461,7 +4461,7 @@
   {
     "id": "calendar.mistake.relative.tuesday.today",
     "game": "calendar",
-    "text": "Почти. Вторник — это сегодня.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-relative-tuesday-today.mp3"
   },
@@ -4475,7 +4475,7 @@
   {
     "id": "calendar.mistake.weekday.tuesday.tomorrow",
     "game": "calendar",
-    "text": "Почти. Завтра — это среда.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-weekday-tuesday-tomorrow.mp3"
   },
@@ -4489,7 +4489,7 @@
   {
     "id": "calendar.mistake.relative.tuesday.tomorrow",
     "game": "calendar",
-    "text": "Почти. Среда — это завтра.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-relative-tuesday-tomorrow.mp3"
   },
@@ -4503,7 +4503,7 @@
   {
     "id": "calendar.mistake.weekday.wednesday.yesterday",
     "game": "calendar",
-    "text": "Почти. Вчера — это вторник.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-weekday-wednesday-yesterday.mp3"
   },
@@ -4517,7 +4517,7 @@
   {
     "id": "calendar.mistake.relative.wednesday.yesterday",
     "game": "calendar",
-    "text": "Почти. Вторник — это вчера.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-relative-wednesday-yesterday.mp3"
   },
@@ -4531,7 +4531,7 @@
   {
     "id": "calendar.mistake.weekday.wednesday.today",
     "game": "calendar",
-    "text": "Почти. Сегодня — это среда.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-weekday-wednesday-today.mp3"
   },
@@ -4545,7 +4545,7 @@
   {
     "id": "calendar.mistake.relative.wednesday.today",
     "game": "calendar",
-    "text": "Почти. Среда — это сегодня.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-relative-wednesday-today.mp3"
   },
@@ -4559,7 +4559,7 @@
   {
     "id": "calendar.mistake.weekday.wednesday.tomorrow",
     "game": "calendar",
-    "text": "Почти. Завтра — это четверг.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-weekday-wednesday-tomorrow.mp3"
   },
@@ -4573,7 +4573,7 @@
   {
     "id": "calendar.mistake.relative.wednesday.tomorrow",
     "game": "calendar",
-    "text": "Почти. Четверг — это завтра.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-relative-wednesday-tomorrow.mp3"
   },
@@ -4587,7 +4587,7 @@
   {
     "id": "calendar.mistake.weekday.thursday.yesterday",
     "game": "calendar",
-    "text": "Почти. Вчера — это среда.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-weekday-thursday-yesterday.mp3"
   },
@@ -4601,7 +4601,7 @@
   {
     "id": "calendar.mistake.relative.thursday.yesterday",
     "game": "calendar",
-    "text": "Почти. Среда — это вчера.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-relative-thursday-yesterday.mp3"
   },
@@ -4615,7 +4615,7 @@
   {
     "id": "calendar.mistake.weekday.thursday.today",
     "game": "calendar",
-    "text": "Почти. Сегодня — это четверг.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-weekday-thursday-today.mp3"
   },
@@ -4629,7 +4629,7 @@
   {
     "id": "calendar.mistake.relative.thursday.today",
     "game": "calendar",
-    "text": "Почти. Четверг — это сегодня.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-relative-thursday-today.mp3"
   },
@@ -4643,7 +4643,7 @@
   {
     "id": "calendar.mistake.weekday.thursday.tomorrow",
     "game": "calendar",
-    "text": "Почти. Завтра — это пятница.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-weekday-thursday-tomorrow.mp3"
   },
@@ -4657,7 +4657,7 @@
   {
     "id": "calendar.mistake.relative.thursday.tomorrow",
     "game": "calendar",
-    "text": "Почти. Пятница — это завтра.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-relative-thursday-tomorrow.mp3"
   },
@@ -4671,7 +4671,7 @@
   {
     "id": "calendar.mistake.weekday.friday.yesterday",
     "game": "calendar",
-    "text": "Почти. Вчера — это четверг.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-weekday-friday-yesterday.mp3"
   },
@@ -4685,7 +4685,7 @@
   {
     "id": "calendar.mistake.relative.friday.yesterday",
     "game": "calendar",
-    "text": "Почти. Четверг — это вчера.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-relative-friday-yesterday.mp3"
   },
@@ -4699,7 +4699,7 @@
   {
     "id": "calendar.mistake.weekday.friday.today",
     "game": "calendar",
-    "text": "Почти. Сегодня — это пятница.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-weekday-friday-today.mp3"
   },
@@ -4713,7 +4713,7 @@
   {
     "id": "calendar.mistake.relative.friday.today",
     "game": "calendar",
-    "text": "Почти. Пятница — это сегодня.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-relative-friday-today.mp3"
   },
@@ -4727,7 +4727,7 @@
   {
     "id": "calendar.mistake.weekday.friday.tomorrow",
     "game": "calendar",
-    "text": "Почти. Завтра — это суббота.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-weekday-friday-tomorrow.mp3"
   },
@@ -4741,7 +4741,7 @@
   {
     "id": "calendar.mistake.relative.friday.tomorrow",
     "game": "calendar",
-    "text": "Почти. Суббота — это завтра.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-relative-friday-tomorrow.mp3"
   },
@@ -4755,7 +4755,7 @@
   {
     "id": "calendar.mistake.weekday.saturday.yesterday",
     "game": "calendar",
-    "text": "Почти. Вчера — это пятница.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-weekday-saturday-yesterday.mp3"
   },
@@ -4769,7 +4769,7 @@
   {
     "id": "calendar.mistake.relative.saturday.yesterday",
     "game": "calendar",
-    "text": "Почти. Пятница — это вчера.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-relative-saturday-yesterday.mp3"
   },
@@ -4783,7 +4783,7 @@
   {
     "id": "calendar.mistake.weekday.saturday.today",
     "game": "calendar",
-    "text": "Почти. Сегодня — это суббота.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-weekday-saturday-today.mp3"
   },
@@ -4797,7 +4797,7 @@
   {
     "id": "calendar.mistake.relative.saturday.today",
     "game": "calendar",
-    "text": "Почти. Суббота — это сегодня.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-relative-saturday-today.mp3"
   },
@@ -4811,7 +4811,7 @@
   {
     "id": "calendar.mistake.weekday.saturday.tomorrow",
     "game": "calendar",
-    "text": "Почти. Завтра — это воскресенье.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-weekday-saturday-tomorrow.mp3"
   },
@@ -4825,7 +4825,7 @@
   {
     "id": "calendar.mistake.relative.saturday.tomorrow",
     "game": "calendar",
-    "text": "Почти. Воскресенье — это завтра.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-relative-saturday-tomorrow.mp3"
   },
@@ -4839,7 +4839,7 @@
   {
     "id": "calendar.mistake.weekday.sunday.yesterday",
     "game": "calendar",
-    "text": "Почти. Вчера — это суббота.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-weekday-sunday-yesterday.mp3"
   },
@@ -4853,7 +4853,7 @@
   {
     "id": "calendar.mistake.relative.sunday.yesterday",
     "game": "calendar",
-    "text": "Почти. Суббота — это вчера.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-relative-sunday-yesterday.mp3"
   },
@@ -4867,7 +4867,7 @@
   {
     "id": "calendar.mistake.weekday.sunday.today",
     "game": "calendar",
-    "text": "Почти. Сегодня — это воскресенье.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-weekday-sunday-today.mp3"
   },
@@ -4881,7 +4881,7 @@
   {
     "id": "calendar.mistake.relative.sunday.today",
     "game": "calendar",
-    "text": "Почти. Воскресенье — это сегодня.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-relative-sunday-today.mp3"
   },
@@ -4895,7 +4895,7 @@
   {
     "id": "calendar.mistake.weekday.sunday.tomorrow",
     "game": "calendar",
-    "text": "Почти. Завтра — это понедельник.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-weekday-sunday-tomorrow.mp3"
   },
@@ -4909,7 +4909,7 @@
   {
     "id": "calendar.mistake.relative.sunday.tomorrow",
     "game": "calendar",
-    "text": "Почти. Понедельник — это завтра.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/calendar/mistake-relative-sunday-tomorrow.mp3"
   },
@@ -5154,7 +5154,7 @@
   {
     "id": "bells.mistake.sun",
     "game": "bells",
-    "text": "Почти. Нужен золотой колокольчик.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/bells/mistake-sun.mp3"
   },
@@ -5168,7 +5168,7 @@
   {
     "id": "bells.mistake.sky",
     "game": "bells",
-    "text": "Почти. Нужен голубой колокольчик.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/bells/mistake-sky.mp3"
   },
@@ -5182,7 +5182,7 @@
   {
     "id": "bells.mistake.berry",
     "game": "bells",
-    "text": "Почти. Нужен розовый колокольчик.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/bells/mistake-berry.mp3"
   },
@@ -5196,7 +5196,7 @@
   {
     "id": "bells.mistake.meadow",
     "game": "bells",
-    "text": "Почти. Нужен зелёный колокольчик.",
+    "text": "Попробуй ещё раз.",
     "voice": "julia",
     "path": "/audio/tts/bells/mistake-meadow.mp3"
   },
@@ -5350,56 +5350,56 @@
   {
     "id": "who-hiding.correct.cat",
     "game": "who-hiding",
-    "text": "Да, это котёнок. Ты внимательно нашёл котёнка.",
+    "text": "Да, это котёнок.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/correct-cat.mp3"
   },
   {
     "id": "who-hiding.correct.owl",
     "game": "who-hiding",
-    "text": "Верно, это сова. Ты заметил сову за кустом.",
+    "text": "Верно, это сова.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/correct-owl.mp3"
   },
   {
     "id": "who-hiding.correct.duck",
     "game": "who-hiding",
-    "text": "Да, это утёнок. Получилось найти утёнка.",
+    "text": "Да, это утёнок.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/correct-duck.mp3"
   },
   {
     "id": "who-hiding.correct.dog",
     "game": "who-hiding",
-    "text": "Верно, это щенок. Ты хорошо удержал взгляд.",
+    "text": "Верно, это щенок.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/correct-dog.mp3"
   },
   {
     "id": "who-hiding.correct.bird",
     "game": "who-hiding",
-    "text": "Да, это птичка. Ты внимательно нашёл птичку.",
+    "text": "Да, это птичка.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/correct-bird.mp3"
   },
   {
     "id": "who-hiding.correct.bear",
     "game": "who-hiding",
-    "text": "Верно, это мишка. Мишка найден.",
+    "text": "Верно, это мишка.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/correct-bear.mp3"
   },
   {
     "id": "who-hiding.correct.bunny",
     "game": "who-hiding",
-    "text": "Да, это зайка. Ты нашёл зайку.",
+    "text": "Да, это зайка.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/correct-bunny.mp3"
   },
   {
     "id": "who-hiding.correct.friend",
     "game": "who-hiding",
-    "text": "Верно, это друг. Ты нашёл друга.",
+    "text": "Верно, это друг.",
     "voice": "filipp",
     "path": "/audio/tts/who-hiding/correct-friend.mp3"
   },
@@ -5567,7 +5567,7 @@
   {
     "id": "find-color.mistake",
     "game": "find-color",
-    "text": "Почти. Это другой цвет. Попробуй ещё раз.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/find-color/mistake.mp3"
   },
@@ -5588,7 +5588,7 @@
   {
     "id": "match-same.mistake",
     "game": "match-same",
-    "text": "Почти. Это другая картинка. Найди такую же.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/match-same/mistake.mp3"
   },
@@ -5609,14 +5609,14 @@
   {
     "id": "what-missing.correct",
     "game": "what-missing",
-    "text": "Да, верно. Ты нашёл, что пропало.",
+    "text": "Верно.",
     "voice": "jane",
     "path": "/audio/tts/what-missing/correct.mp3"
   },
   {
     "id": "what-missing.mistake",
     "game": "what-missing",
-    "text": "Почти. Это другой предмет. Попробуй ещё раз.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/what-missing/mistake.mp3"
   },
@@ -5630,14 +5630,14 @@
   {
     "id": "follow-cue.correct",
     "game": "follow-cue",
-    "text": "Да, ты выбрал карточку по подсказке. Получилось.",
+    "text": "Верно.",
     "voice": "jane",
     "path": "/audio/tts/follow-cue/correct.mp3"
   },
   {
     "id": "follow-cue.mistake",
     "game": "follow-cue",
-    "text": "Почти. Это другая карточка. Смотри, куда показывает стрелка.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/follow-cue/mistake.mp3"
   },
@@ -5672,7 +5672,7 @@
   {
     "id": "logic-pairs.mistake",
     "game": "logic-pairs",
-    "text": "Почти. Попробуй ещё раз.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/logic-pairs/mistake.mp3"
   },
@@ -5693,7 +5693,7 @@
   {
     "id": "shadow-match.mistake",
     "game": "shadow-match",
-    "text": "Почти. Сравни предмет и тени ещё раз.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/shadow-match/mistake.mp3"
   },
@@ -5749,7 +5749,7 @@
   {
     "id": "sound-source.mistake",
     "game": "sound-source",
-    "text": "Почти. Посмотри на волны ещё раз.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/sound-source/mistake.mp3"
   },
@@ -5770,7 +5770,7 @@
   {
     "id": "odd-one-out.mistake",
     "game": "odd-one-out",
-    "text": "Почти. Сравни карточки ещё раз.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/odd-one-out/mistake.mp3"
   },
@@ -5840,7 +5840,7 @@
   {
     "id": "find-emotion.mistake",
     "game": "find-emotion",
-    "text": "Почти. Посмотри на лица ещё раз.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/find-emotion/mistake.mp3"
   },
@@ -5910,7 +5910,7 @@
   {
     "id": "letter-hunt.mistake",
     "game": "letter-hunt",
-    "text": "Почти. Посмотри на буквы ещё раз.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/letter-hunt/mistake.mp3"
   },
@@ -6022,7 +6022,7 @@
   {
     "id": "build-robot.mistake",
     "game": "build-robot",
-    "text": "Почти. Попробуй ещё раз.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/build-robot/mistake.mp3"
   },
@@ -6232,7 +6232,7 @@
   {
     "id": "patterns.mistake",
     "game": "patterns",
-    "text": "Посмотри на повтор и попробуй ещё раз.",
+    "text": "Посмотри, в каком порядке идут фигуры.",
     "voice": "jane",
     "path": "/audio/tts/patterns/mistake.mp3"
   },
@@ -6260,7 +6260,7 @@
   {
     "id": "color-pattern.mistake",
     "game": "color-pattern",
-    "text": "Посмотри на повтор цветов и попробуй ещё раз.",
+    "text": "Посмотри, в каком порядке идут цвета.",
     "voice": "jane",
     "path": "/audio/tts/color-pattern/mistake.mp3"
   },
@@ -6330,7 +6330,7 @@
   {
     "id": "three-frame-story.mistake",
     "game": "three-frame-story",
-    "text": "Посмотри на начало истории и попробуй выбрать другой кадр.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/three-frame-story/mistake.mp3"
   },
@@ -6414,7 +6414,7 @@
   {
     "id": "comic-strip.mistake",
     "game": "comic-strip",
-    "text": "Посмотри на историю и попробуй выбрать другой кадр.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/comic-strip/mistake.mp3"
   },
@@ -8584,7 +8584,7 @@
   {
     "id": "domino-matching.mistake",
     "game": "domino-matching",
-    "text": "Почти. Сравни указанную сторону ещё раз и выбери другую карточку.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/domino-matching/mistake.mp3"
   },
@@ -8668,7 +8668,7 @@
   {
     "id": "uno-like.mistake",
     "game": "uno-like",
-    "text": "Почти. Сравни цвет и число ещё раз.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/uno-like/mistake.mp3"
   },
@@ -10320,14 +10320,14 @@
   {
     "id": "opposites.mistake.wet.dry",
     "game": "opposites",
-    "text": "Почти. Противоположность к слову мокрый: сухой.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-wet-dry.mp3"
   },
   {
     "id": "opposites.mistake.dry.wet",
     "game": "opposites",
-    "text": "Почти. Противоположность к слову сухой: мокрый.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-dry-wet.mp3"
   },
@@ -12546,7 +12546,7 @@
   {
     "id": "opposites.mistake.clean.dirty",
     "game": "opposites",
-    "text": "Почти. Найди противоположность слову чистый.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-clean-dirty.mp3"
   },
@@ -12567,7 +12567,7 @@
   {
     "id": "opposites.mistake.dirty.clean",
     "game": "opposites",
-    "text": "Почти. Найди противоположность слову грязный.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-dirty-clean.mp3"
   },
@@ -12588,7 +12588,7 @@
   {
     "id": "opposites.mistake.short.long",
     "game": "opposites",
-    "text": "Почти. Найди противоположность слову короткий.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-short-long.mp3"
   },
@@ -12609,7 +12609,7 @@
   {
     "id": "opposites.mistake.long.short",
     "game": "opposites",
-    "text": "Почти. Найди противоположность слову длинный.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-long-short.mp3"
   },
@@ -12630,7 +12630,7 @@
   {
     "id": "opposites.mistake.low.tall",
     "game": "opposites",
-    "text": "Почти. Найди противоположность слову низкий.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-low-tall.mp3"
   },
@@ -12651,7 +12651,7 @@
   {
     "id": "opposites.mistake.tall.low",
     "game": "opposites",
-    "text": "Почти. Найди противоположность слову высокий.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-tall-low.mp3"
   },
@@ -12672,7 +12672,7 @@
   {
     "id": "opposites.mistake.young.old",
     "game": "opposites",
-    "text": "Почти. Найди противоположность слову молодой.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-young-old.mp3"
   },
@@ -12693,7 +12693,7 @@
   {
     "id": "opposites.mistake.old.young",
     "game": "opposites",
-    "text": "Почти. Найди противоположность слову пожилой.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake-old-young.mp3"
   },
@@ -12791,7 +12791,7 @@
   {
     "id": "mini-dialog.mistake",
     "game": "mini-dialog",
-    "text": "Почти. Подумай, что нужно ответить Мире.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/mini-dialog/mistake.mp3"
   },

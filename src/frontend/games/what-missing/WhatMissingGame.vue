@@ -140,7 +140,7 @@ async function answer(choice: WhatMissingItem) {
   const token = flowToken;
   isResponding.value = true;
   if (choice.id === round.value.missingItem.id) {
-    feedbackText.value = `Верно, пропал ${choice.label}.`;
+    feedbackText.value = "Верно.";
     void whatMissingFeedback.playSuccess(session.settings.sound);
     recordSuccess({
       roundId: round.value.roundId,
@@ -171,7 +171,7 @@ async function answer(choice: WhatMissingItem) {
   });
   recordHint({ roundId: round.value.roundId, targetId: expectedTargetId, reason: "mistake" });
   void whatMissingFeedback.playMistake(session.settings.sound);
-  feedbackText.value = "Почти. Ничего страшного, попробуй ещё раз.";
+  feedbackText.value = "Попробуй ещё раз.";
   if (!(await playSequence(["what-missing.mistake", "what-missing.choose"], 80, token))) return;
   isResponding.value = false;
   sendPhaseEvent("retry");
