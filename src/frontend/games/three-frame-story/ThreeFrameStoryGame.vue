@@ -181,7 +181,7 @@ async function choose(choice: ThreeFrameStoryFrame) {
 
   pendingSelection.value = true;
   wrongChoiceId.value = choice.id;
-  feedbackMessage.value = "Посмотри на начало истории и попробуй выбрать другой кадр.";
+  feedbackMessage.value = "Попробуй ещё раз.";
   recordMistake({
     roundId: round.value.roundId,
     targetId,

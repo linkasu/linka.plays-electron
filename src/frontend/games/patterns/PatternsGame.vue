@@ -133,7 +133,7 @@ async function choose(index: number) {
   const sessionId = session.sessionId;
   const roundId = round.value.roundId;
   wrongChoiceId.value = choice.id;
-  feedbackMessage.value = "Посмотри на повтор в ряду и попробуй ещё раз.";
+  feedbackMessage.value = "Посмотри, в каком порядке идут фигуры.";
   recordMistake({
     roundId: round.value.roundId,
     targetId,

@@ -58,7 +58,7 @@ const relationLabel = computed(() => {
 });
 
 const helperText = computed(() => {
-  if (hintedRoundId.value === round.value.roundId) return `Почти. ${round.value.explanation}`;
+  if (hintedRoundId.value === round.value.roundId) return "Попробуй ещё раз.";
   return round.value.instruction;
 });
 

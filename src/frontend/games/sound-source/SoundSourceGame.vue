@@ -248,7 +248,7 @@ async function chooseSource(source: SoundSource) {
     pendingAudio.value = true;
     lastMistakeSourceId.value = source.id;
     hintState.value = advanceSoundSourceHint(hintState.value, "mistake");
-    feedbackMessage.value = "Почти. Теперь подсказка показывает источник звука.";
+    feedbackMessage.value = "Попробуй ещё раз.";
     if (!mistakenSourceIds.has(source.id)) {
       mistakenSourceIds.add(source.id);
       recordMistake({

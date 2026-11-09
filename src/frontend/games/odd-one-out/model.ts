@@ -184,6 +184,6 @@ export function generateOddOneOutRound(settings: SessionSettings, roundIndex = 1
     choices,
     correctIndex: choices.indexOf(oddItem),
     assetMode,
-    mistakeHint: `Почти. Большинство карточек — ${commonCategory.label}. ${commonCategory.helper} Найди карточку из другой группы.`,
+    mistakeHint: "Попробуй ещё раз.",
   };
 }

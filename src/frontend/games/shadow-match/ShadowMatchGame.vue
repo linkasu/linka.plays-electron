@@ -52,8 +52,7 @@ const {
 });
 
 const hintText = computed(() => {
-  if (hintedRoundId.value === round.value.roundId)
-    return `Почти получилось. Подсказка: ${round.value.target.hint}.`;
+  if (hintedRoundId.value === round.value.roundId) return "Попробуй ещё раз.";
   return "Посмотри на предмет, затем выбери его тень.";
 });
 

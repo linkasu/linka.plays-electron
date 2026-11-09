@@ -66,7 +66,7 @@ const showRoundImages = computed(
 const hintText = computed(() => {
   if (hintedRoundId.value !== round.value.roundId)
     return "Посмотри на названного зверька и удержи взгляд.";
-  return "Почти. Попробуй ещё раз.";
+  return "Попробуй ещё раз.";
 });
 
 function disableRoundImages() {

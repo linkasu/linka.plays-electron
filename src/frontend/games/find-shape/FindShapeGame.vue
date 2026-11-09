@@ -65,7 +65,7 @@ const shapeView: Record<FindShapeId, { title: string; color: string }> = {
 
 const hintText = computed(() => {
   if (hintedRoundId.value !== round.value.roundId) return feedbackText.value;
-  return `Почти. Нужна форма: ${round.value.target.label}.`;
+  return "Попробуй ещё раз.";
 });
 
 function clearTtsTimers() {

@@ -55,7 +55,7 @@ let feedbackTimer = 0;
 
 const hintText = computed(() => {
   if (mistakesInRound.value <= 0) return "Посмотри на карточки и выбери такую же цифру.";
-  return `Почти. Найди цифру ${round.value.target.label}.`;
+  return "Попробуй ещё раз.";
 });
 
 function choiceTargetId(choiceId: string) {

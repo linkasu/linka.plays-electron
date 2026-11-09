@@ -60,7 +60,7 @@ const { setGameTimeout, clearGameTimers } = useGameTimers();
 
 const feedbackText = computed(() => {
   if (successPartId.value) return `Верно. ${round.value.target.label} на месте.`;
-  if (hintedRoundId.value === round.value.roundId) return "Почти. Посмотри на детали ещё раз.";
+  if (hintedRoundId.value === round.value.roundId) return "Попробуй ещё раз.";
   return round.value.prompt;
 });
 const partById = computed(
