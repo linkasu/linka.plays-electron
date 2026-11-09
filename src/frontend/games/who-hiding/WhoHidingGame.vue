@@ -61,7 +61,7 @@ const covers: Cover[] = [
   { id: "round-bush", hint: "за круглым кустом", color: "#77c66a", shape: "bush" },
   { id: "dark-bush", hint: "за тёмным кустом", color: "#285d38", shape: "bush" },
   { id: "wide-bush", hint: "за широким кустом", color: "#8acb72", shape: "bush" },
-  { id: "flower-bush", hint: "за цветущим кустом", color: "#73bf68", shape: "bush" },
+  { id: "tall-bush", hint: "за высоким кустом", color: "#73bf68", shape: "bush" },
   { id: "dense-bush", hint: "за густыми кустами", color: "#478f4f", shape: "bush" },
   { id: "low-bush", hint: "за низким кустом", color: "#9bce78", shape: "bush" },
 ];
@@ -169,7 +169,7 @@ const {
 
 const hintText = computed(() => {
   if (hintedRoundId.value !== round.value.roundId) return "Выбери нужного героя.";
-  return `Подсказка: ищи ${round.value.target.name} ${round.value.targetSpot.cover.hint}.`;
+  return `Посмотри ${round.value.targetSpot.cover.hint}.`;
 });
 
 function spotTargetId(spot: Spot) {
@@ -403,15 +403,6 @@ onUnmounted(() => {
                         <span class="bush-blob bush-blob--dense-top" aria-hidden="true" />
                         <span class="bush-blob bush-blob--dense-right" aria-hidden="true" />
                       </template>
-                      <div
-                        v-if="spot.cover.id === 'flower-bush'"
-                        class="bush-flowers"
-                        aria-hidden="true"
-                      >
-                        <span class="bush-flower bush-flower--left" />
-                        <span class="bush-flower bush-flower--center" />
-                        <span class="bush-flower bush-flower--right" />
-                      </div>
                     </div>
                   </div>
                 </template>
@@ -635,8 +626,11 @@ onUnmounted(() => {
   inset-inline-start: -13%;
 }
 
-.cover-shape--flower-bush {
-  border-color: rgb(255 244 213 / 72%);
+.cover-shape--tall-bush {
+  block-size: clamp(9rem, 13vw, 12rem);
+  border-radius: 46% 46% 34% 34%;
+  inline-size: 86%;
+  inset-inline-start: 7%;
 }
 
 .cover-shape--dense-bush {
@@ -721,44 +715,6 @@ onUnmounted(() => {
   inline-size: 42%;
   inset-block-start: -40%;
   inset-inline-end: 4%;
-}
-
-.bush-flowers {
-  inset: 0;
-  pointer-events: none;
-  position: absolute;
-  z-index: 4;
-}
-
-.bush-flower {
-  background: radial-gradient(
-    circle,
-    #f9a825 0 20%,
-    #fff8e1 22% 45%,
-    #f48fb1 47% 69%,
-    transparent 71%
-  );
-  block-size: 2.4rem;
-  border-radius: 50%;
-  inline-size: 2.4rem;
-  position: absolute;
-}
-
-.bush-flower--left {
-  inset-block-start: 8%;
-  inset-inline-start: 12%;
-  transform: rotate(-12deg);
-}
-
-.bush-flower--center {
-  inset-block-start: 30%;
-  inset-inline-start: 45%;
-}
-
-.bush-flower--right {
-  inset-block-start: 2%;
-  inset-inline-end: 10%;
-  transform: rotate(14deg) scale(0.86);
 }
 
 @media (max-width: 37.5rem) {

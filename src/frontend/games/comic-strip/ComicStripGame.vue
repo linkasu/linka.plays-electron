@@ -71,11 +71,6 @@ const choices = computed(() =>
     ? getComicFrameChoices(round.value.story, nextFrameIndex.value, storyRoundIndex.value)
     : [],
 );
-const hintText = computed(() => {
-  if (!nextFrame.value) return round.value.story.finalMessage;
-  return "Выбери, какой кадр должен быть следующим в истории.";
-});
-
 function frameTargetId(frame: ComicFrame) {
   return `comic-strip:${round.value.roundId}:frame:${frame.id}`;
 }
@@ -230,9 +225,6 @@ onUnmounted(() => {
       <v-row justify="center">
         <v-col cols="12" xl="10">
           <v-card class="comic-card pa-4 pa-md-7" color="surface" rounded="xl" elevation="8">
-            <div class="comic-overline text-overline text-secondary text-center mb-2">
-              Последовательность
-            </div>
             <h1 class="comic-title text-h3 text-md-h2 font-weight-bold text-center mb-2">Комикс</h1>
             <p class="comic-prompt text-h6 text-md-h5 text-medium-emphasis text-center mb-2">
               {{ round.story.prompt }}
@@ -262,44 +254,13 @@ onUnmounted(() => {
                         draggable="false"
                       />
                     </v-avatar>
-                    <div class="text-h6 text-md-h5 font-weight-bold">
-                      {{ frameBySlot(slotIndex - 1)?.caption }}
-                    </div>
-                    <v-chip class="mt-3" color="white" rounded="pill" variant="elevated"
-                      >Кадр {{ slotIndex }}</v-chip
-                    >
                   </div>
                   <div v-else class="empty-slot text-center text-medium-emphasis">
                     <v-icon icon="mdi-image-outline" size="4rem" />
-                    <div class="text-h6 font-weight-bold mt-2">Кадр {{ slotIndex }}</div>
-                    <div class="text-body-1">ждёт выбора</div>
                   </div>
                 </v-card>
               </v-col>
             </v-row>
-
-            <v-card
-              class="comic-hint-card pa-4 pa-md-5 mb-5"
-              color="blue-lighten-5"
-              rounded="xl"
-              variant="flat"
-            >
-              <div class="d-flex flex-column flex-md-row align-center justify-space-between ga-3">
-                <div>
-                  <div class="text-caption text-medium-emphasis">Следующий шаг</div>
-                  <div class="text-h6 text-md-h5 font-weight-bold">{{ hintText }}</div>
-                </div>
-                <v-chip
-                  color="primary"
-                  prepend-icon="mdi-filmstrip-box-multiple"
-                  rounded="pill"
-                  size="large"
-                  variant="elevated"
-                >
-                  {{ placedFrameIds.length }} / 3 кадра
-                </v-chip>
-              </div>
-            </v-card>
 
             <v-row dense justify="center">
               <v-col v-for="frame in choices" :key="frame.id" cols="4" sm="4">
@@ -401,10 +362,6 @@ onUnmounted(() => {
     padding-block: 1.25rem !important;
   }
 
-  .comic-overline {
-    display: none;
-  }
-
   .comic-title {
     font-size: clamp(2.1rem, 6vh, 2.9rem) !important;
     line-height: 1 !important;
@@ -414,10 +371,6 @@ onUnmounted(() => {
   .comic-prompt,
   .comic-feedback {
     margin-block-end: 0.35rem !important;
-  }
-
-  .comic-hint-card {
-    display: none;
   }
 
   .comic-slot {

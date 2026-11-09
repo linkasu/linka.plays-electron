@@ -54,6 +54,7 @@ const promptAudio = useGamePromptAudio({
 let ctx: CanvasRenderingContext2D | undefined;
 let frame = 0;
 let stage = { x: 0, y: 0, width: 1, height: 1 };
+let stageRadius = 42;
 let hoverNodeId: string | undefined;
 let enteredAt = 0;
 let dwellProgress = 0;
@@ -98,10 +99,8 @@ function nodePoint(node: MazeNode): Point {
 }
 
 function nodeRadius() {
-  return Math.max(
-    42,
-    Math.min(76, Math.min(stage.width, stage.height) * 0.092 * session.settings.targetScale),
-  );
+  // Testers (recheck): «сделать кружки с конфетами ещё крупнее». Set in updateStage().
+  return stageRadius;
 }
 
 function nodeScale(node: MazeNode) {
@@ -379,15 +378,48 @@ function drawBackground(context: CanvasRenderingContext2D) {
 }
 
 function updateStage() {
-  const marginX = Math.max(28, Math.min(82, window.innerWidth * 0.065));
-  const top = window.innerHeight < 680 ? 104 : Math.max(118, window.innerHeight * 0.16);
-  const bottom = window.innerHeight < 680 ? 42 : Math.max(54, window.innerHeight * 0.07);
-  stage = {
-    x: marginX,
-    y: top,
-    width: window.innerWidth - marginX * 2,
-    height: Math.max(300, window.innerHeight - top - bottom),
-  };
+  // The stops stay between the menu/pause buttons and the caption at the bottom,
+  // as large as the window allows without touching each other (testers asked for
+  // bigger candy circles).
+  const hudBottom = document.querySelector(".game-hud")?.getBoundingClientRect().bottom ?? 0;
+  const top = Math.max(hudBottom, window.innerHeight * 0.12) + 8;
+  const bottom = window.innerHeight - 74;
+  const areaHeight = Math.max(240, bottom - top);
+  let radius = Math.max(
+    42,
+    Math.min(110, Math.min(window.innerWidth * 0.072, areaHeight * 0.14)) *
+      session.settings.targetScale,
+  );
+  for (let pass = 0; pass < 4; pass += 1) {
+    stageRadius = radius;
+    const marginX = Math.max(28, radius * 1.6);
+    // Stops lie between 15 % and 90 % of the stage height.
+    const height = Math.max(200, (areaHeight - radius * 2.1) / 0.75);
+    stage = {
+      x: marginX,
+      y: top + radius * 1.05 - height * 0.15,
+      width: window.innerWidth - marginX * 2,
+      height,
+    };
+    const fitting = largestRadiusWithoutTouching();
+    if (radius <= fitting) return;
+    radius = Math.max(42, fitting);
+  }
+}
+
+/** The largest stop radius at which no two stops of the level touch. */
+function largestRadiusWithoutTouching() {
+  const nodes = currentLevel.value.nodes;
+  let fitting = Infinity;
+  for (let i = 0; i < nodes.length; i += 1) {
+    for (let j = i + 1; j < nodes.length; j += 1) {
+      const a = nodePoint(nodes[i]);
+      const b = nodePoint(nodes[j]);
+      const gap = Math.hypot(a.x - b.x, a.y - b.y) - 18;
+      fitting = Math.min(fitting, gap / (nodeScale(nodes[i]) * 1.12 + nodeScale(nodes[j]) * 1.12));
+    }
+  }
+  return fitting;
 }
 
 function drawSceneChrome(context: CanvasRenderingContext2D) {
@@ -501,15 +533,8 @@ function drawCandyNode(context: CanvasRenderingContext2D, node: MazeNode, now: n
     node.kind !== "exit" && node.kind !== "start" && !deadEnd
       ? canvasArt(smallCandyArtIds[candyIndex(node.id) % smallCandyArtIds.length])
       : undefined;
-  if (smallCandy) {
-    drawCanvasArt(context, smallCandy, 0, 0, drawRadius * 1.25);
-  } else {
-    context.fillStyle = deadEnd ? "#b46fd0" : isAdjacent ? "#ef6f8f" : "#7aa59c";
-    context.beginPath();
-    context.arc(-drawRadius * 0.32, -drawRadius * 0.18, drawRadius * 0.16, 0, Math.PI * 2);
-    context.arc(drawRadius * 0.25, drawRadius * 0.18, drawRadius * 0.13, 0, Math.PI * 2);
-    context.fill();
-  }
+  // Testers (recheck): «убрать оставшиеся точки на рисунках» — no dots on any stop.
+  if (smallCandy) drawCanvasArt(context, smallCandy, 0, 0, drawRadius * 1.4);
 
   const candy = node.kind === "exit" ? canvasArt("gaze-maze/candy") : undefined;
   if (candy) {

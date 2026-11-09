@@ -129,6 +129,13 @@ function jellyfishPoint(jelly: Jellyfish) {
   };
 }
 
+/** A hue of the next drawn colour: blue → purple → pink → blue. */
+function nextColourHue(hue: number) {
+  if (hue >= 290) return 198;
+  if (hue >= 240) return 304;
+  return 272;
+}
+
 function randomHue(index: number) {
   return hues[index % hues.length];
 }
@@ -223,6 +230,8 @@ function rewardJellyfish(jelly: Jellyfish, now: number) {
   jelly.phase = "resting";
   jelly.phaseAge = 0;
   jelly.dwellProgress = 1;
+  // Testers (recheck): «после того, как докрутится круг, медуза меняет цвет».
+  jelly.hue = nextColourHue(jelly.hue);
 
   if (session.step >= session.maxSteps) finishAfter = now + 1500;
 }
