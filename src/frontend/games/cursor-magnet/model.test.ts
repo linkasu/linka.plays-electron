@@ -2,18 +2,17 @@ import { describe, expect, it } from "vitest";
 import {
   createMagneticLabState,
   currentLevel,
-  cycleSelectedStrength,
+  cycleMagnet,
   magneticForce,
   magneticLevels,
+  magnetModeOrder,
   nextLevel,
   pointInWall,
-  selectMagnet,
-  setSelectedPole,
   startSimulation,
   stepSimulation,
   stopSimulation,
   type MagneticLabState,
-  type MagneticPole,
+  type MagnetMode,
 } from "./model";
 
 function run(state: MagneticLabState, seconds: number) {
@@ -24,58 +23,68 @@ function run(state: MagneticLabState, seconds: number) {
   return current;
 }
 
-function configuredLevel(
-  levelIndex: number,
-  config: { pole: MagneticPole; strength: 0 | 1 | 2 }[],
-) {
+function configuredLevel(levelIndex: number, modes: MagnetMode[]) {
   const state = createMagneticLabState(levelIndex);
   return {
     ...state,
-    magnets: state.magnets.map((magnet, index) => ({ ...magnet, ...config[index] })),
+    magnets: state.magnets.map((magnet, index) => ({ ...magnet, mode: modes[index] })),
   };
 }
 
+/** Every setting of a level's magnets. */
+function allSettings(count: number): MagnetMode[][] {
+  if (count === 0) return [[]];
+  return allSettings(count - 1).flatMap((rest) => magnetModeOrder.map((mode) => [...rest, mode]));
+}
+
+const solutions: MagnetMode[][] = [
+  ["pull"],
+  ["push", "pull"],
+  ["off", "off", "pull"],
+  ["off", "off", "pull"],
+  ["push", "pull", "off"],
+  ["off", "off", "pull"],
+  ["off", "off", "pull"],
+  ["push", "off", "off", "pull"],
+];
+
 describe("magnetic lab model", () => {
-  it("creates an editable level with a selected magnet", () => {
+  it("creates an editable level with the ball at its start", () => {
     const state = createMagneticLabState();
 
     expect(state.mode).toBe("editing");
     expect(state.magnets.length).toBeGreaterThan(0);
-    expect(state.selectedMagnetId).toBe(state.magnets[0].id);
-    expect(state.capsule.vx).toBe(0);
+    expect(state.capsule).toMatchObject({ ...magneticLevels[0].start, vx: 0, vy: 0 });
   });
 
-  it("attracts the positive capsule to a negative charge", () => {
-    const force = magneticForce({ x: 0.2, y: 0.5, vx: 0, vy: 0, pole: "positive" }, [
-      { id: "m", label: "M", x: 0.8, y: 0.5, pole: "negative", strength: 2 },
-    ]);
+  it("a pulling magnet pulls the ball, a pushing one pushes it, an off one does nothing", () => {
+    const ball = { x: 0.2, y: 0.5, vx: 0, vy: 0 };
+    const magnet = { id: "m", x: 0.8, y: 0.5, strength: 2 as const };
 
-    expect(force.x).toBeGreaterThan(0);
-    expect(Math.abs(force.y)).toBeLessThan(0.001);
+    expect(magneticForce(ball, [{ ...magnet, mode: "pull" }]).x).toBeGreaterThan(0);
+    expect(magneticForce(ball, [{ ...magnet, mode: "push" }]).x).toBeLessThan(0);
+    expect(magneticForce(ball, [{ ...magnet, mode: "off" }])).toEqual({ x: 0, y: 0 });
   });
 
-  it("repels the positive capsule from a positive charge", () => {
-    const force = magneticForce({ x: 0.2, y: 0.5, vx: 0, vy: 0, pole: "positive" }, [
-      { id: "m", label: "M", x: 0.8, y: 0.5, pole: "positive", strength: 2 },
-    ]);
-
-    expect(force.x).toBeLessThan(0);
+  it("looking at a magnet switches only that magnet: тянет → толкает → выключен", () => {
+    let state = configuredLevel(1, ["pull", "pull"]);
+    state = cycleMagnet(state, "beta");
+    expect(state.magnets.map((magnet) => magnet.mode)).toEqual(["pull", "push"]);
+    state = cycleMagnet(state, "beta");
+    expect(state.magnets.map((magnet) => magnet.mode)).toEqual(["pull", "off"]);
+    state = cycleMagnet(state, "beta");
+    expect(state.magnets.map((magnet) => magnet.mode)).toEqual(["pull", "pull"]);
   });
 
-  it("changes only the selected magnet", () => {
-    const selected = selectMagnet(createMagneticLabState(1), "beta");
-    const changed = setSelectedPole(selected, "positive");
-    const cycled = cycleSelectedStrength(changed);
+  it("does not switch magnets while the ball rolls, and a switch after a try puts it back", () => {
+    const running = startSimulation(createMagneticLabState(0));
+    expect(cycleMagnet(running, "alpha")).toBe(running);
 
-    expect(changed.magnets.find((magnet) => magnet.id === "beta")?.pole).toBe("positive");
-    expect(cycled.magnets.find((magnet) => magnet.id === "beta")?.strength).toBe(0);
-    expect(cycled.magnets.find((magnet) => magnet.id === "alpha")?.pole).toBe("negative");
-  });
-
-  it("can complete the first level with a configured negative charge", () => {
-    const result = run(configuredLevel(0, [{ pole: "negative", strength: 2 }]), 10);
-
-    expect(result.mode).toBe("success");
+    const failed = run(createMagneticLabState(0), 10);
+    expect(failed.mode).toBe("failed");
+    const changed = cycleMagnet(failed, "alpha");
+    expect(changed.mode).toBe("editing");
+    expect(changed.capsule).toMatchObject(magneticLevels[0].start);
   });
 
   it("does not solve levels by only pressing start", () => {
@@ -86,60 +95,30 @@ describe("magnetic lab model", () => {
     });
   });
 
-  it("has a playable solution for every lab contour", () => {
-    const solutions = [
-      [{ pole: "negative", strength: 2 }],
-      [
-        { pole: "positive", strength: 2 },
-        { pole: "negative", strength: 2 },
-      ],
-      [
-        { pole: "positive", strength: 0 },
-        { pole: "positive", strength: 0 },
-        { pole: "negative", strength: 2 },
-      ],
-      [
-        { pole: "positive", strength: 0 },
-        { pole: "positive", strength: 0 },
-        { pole: "negative", strength: 2 },
-      ],
-      [
-        { pole: "positive", strength: 2 },
-        { pole: "negative", strength: 2 },
-        { pole: "positive", strength: 0 },
-      ],
-      [
-        { pole: "positive", strength: 0 },
-        { pole: "positive", strength: 0 },
-        { pole: "negative", strength: 2 },
-      ],
-      [
-        { pole: "positive", strength: 0 },
-        { pole: "positive", strength: 0 },
-        { pole: "negative", strength: 2 },
-      ],
-      [
-        { pole: "positive", strength: 2 },
-        { pole: "positive", strength: 0 },
-        { pole: "negative", strength: 1 },
-        { pole: "negative", strength: 2 },
-      ],
-    ] satisfies { pole: MagneticPole; strength: 0 | 1 | 2 }[][];
-
+  it("has exactly one way to switch the magnets for every level, and the ball gets there soon", () => {
     expect(solutions).toHaveLength(magneticLevels.length);
-    solutions.forEach((solution, index) => {
-      const result = run(configuredLevel(index, solution), 18);
-
-      expect(result.mode, `level ${index + 1} ${magneticLevels[index].id}`).toBe("success");
+    magneticLevels.forEach((level, index) => {
+      const winning = allSettings(level.magnets.length).filter(
+        (modes) => run(configuredLevel(index, modes), 18).mode === "success",
+      );
+      expect(winning, `level ${index + 1} ${level.id}`).toEqual([solutions[index]]);
+      expect(run(configuredLevel(index, solutions[index]), 18).elapsedSeconds).toBeLessThan(9);
     });
   });
 
-  it("fails when a strong wrong pole pushes the capsule out of bounds", () => {
-    const state = setSelectedPole(createMagneticLabState(0), "positive");
-    const result = run(state, 10);
+  it("fails when a pushing magnet throws the ball out of the field", () => {
+    const result = run(configuredLevel(0, ["push"]), 10);
 
     expect(result.mode).toBe("failed");
     expect(result.failureReason).toBe("bounds");
+  });
+
+  it("stops a ball that does not move instead of waiting long", () => {
+    const result = run(configuredLevel(0, ["off"]), 10);
+
+    expect(result.mode).toBe("failed");
+    expect(result.failureReason).toBe("stalled");
+    expect(result.elapsedSeconds).toBeLessThan(4);
   });
 
   it("stops a running simulation back to editable start", () => {

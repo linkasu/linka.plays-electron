@@ -1,42 +1,37 @@
 <script setup lang="ts">
 import { scenePalette } from "../../core/themeSettings";
-import { computed, onMounted, ref, toRef } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
-import { useGazePointer } from "../../composables/useGazePointer";
 import { useCanvasStage, useGameLoop } from "../../core/canvas";
 import { resolveMenuRoute } from "../../core/menuMode";
 import {
   createMagneticLabState,
   currentLevel,
-  cycleSelectedStrength,
+  cycleMagnet,
   magneticLevels,
   nextLevel,
   resetLevel,
-  selectMagnet,
-  selectedMagnet,
-  setSelectedPole,
   startSimulation,
   stepSimulation,
   type MagneticLabState,
   type MagnetConfig,
-  type MagneticPole,
+  type MagnetMode,
   type Point,
 } from "./model";
 
-type StageRect = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-};
+// Testers: «убрать, играть невозможно». Reworked 2026-11-09 without changing the idea: the
+// magnets on the field are the gaze targets themselves (look at one to switch it), the only
+// other buttons are a big «Пуск» and «Сначала», the task is one short voiced line and the
+// rules sit behind «Правила» in the top bar. After a try the ball comes back by itself.
+
+type StageRect = { x: number; y: number; width: number; height: number };
 
 const router = useRouter();
-const { pointer } = useGazePointer();
 const { canvasRef, context, width, height } = useCanvasStage();
 const {
   session,
@@ -45,11 +40,9 @@ const {
   recommendation,
   pauseSession,
   resumeSession,
-  recordHint,
   recordMistake,
   recordSuccess,
   startSession,
-  finishSession,
 } = useGameSessionFor("cursor-magnet", {
   maxSteps: magneticLevels.length,
   overrides: {
@@ -60,160 +53,121 @@ const {
     distractors: "low",
     hints: "medium",
   },
-  finishOnMaxSteps: false,
   finishOnMistakes: false,
   finishOnTimeout: false,
 });
-const soundEnabled = toRef(session.settings, "sound");
-const taskAssetIds = magneticLevels.map((taskLevel) => `cursor-magnet.task.${taskLevel.id}`);
 const promptAudio = useGamePromptAudio({
   gameId: "cursor-magnet",
-  soundEnabled,
-  warmAssetIds: ["cursor-magnet.intro", ...taskAssetIds],
+  soundEnabled: toRef(session.settings, "sound"),
+  warmAssetIds: ["cursor-magnet.task", "cursor-magnet.success", "cursor-magnet.retry"],
 });
 
 const labState = ref<MagneticLabState>(createMagneticLabState());
-const helperText = ref("Выбери заряд, настрой знак и силу, затем нажми Пуск.");
-const lastHintAt = ref(0);
-const canvasFontUnit = String.fromCharCode(112, 120);
+const stage = ref<StageRect>({ x: 0, y: 0, width: 1, height: 1 });
+const panelRef = ref<HTMLElement>();
+/** True while the result of a try is being said: the ball waits, buttons rest. */
+const settling = ref(false);
 const resultVisible = computed(() => session.status === "finished");
 const level = computed(() => currentLevel(labState.value));
-const taskText = computed(() => `Задача: ${level.value.brief}`);
-const activeMagnet = computed(() => selectedMagnet(labState.value));
-const levelText = computed(() => `${labState.value.levelIndex + 1}/${magneticLevels.length}`);
-const canEdit = computed(() => labState.value.mode !== "running");
-const canGoNext = computed(
-  () => labState.value.mode === "success" && labState.value.levelIndex < magneticLevels.length - 1,
+const canEdit = computed(
+  () => session.status === "running" && labState.value.mode !== "running" && !settling.value,
 );
-const modeLabel = computed(() => {
-  if (labState.value.mode === "running") return "Симуляция";
-  if (labState.value.mode === "success") return "Схема сработала";
-  if (labState.value.mode === "failed") return failureText(labState.value.failureReason);
-  return "Сборка схемы";
-});
+const magnetSide = computed(() =>
+  Math.round(Math.min(stage.value.height * 0.2, stage.value.width * 0.12)),
+);
+let timer: ReturnType<typeof setTimeout> | undefined;
 
-function stageRect(): StageRect {
-  const compact = width.value < 860 || height.value < 650;
-  return {
-    x: width.value * (compact ? 0.045 : 0.055),
-    y: height.value * (compact ? 0.17 : 0.18),
-    width: width.value * (compact ? 0.52 : 0.58),
-    height: height.value * (compact ? 0.74 : 0.72),
-  };
-}
+const modeView: Record<MagnetMode, { word: string; icon: string; color: string }> = {
+  pull: { word: "тянет", icon: "mdi-arrow-collapse-horizontal", color: "#2f7cf6" },
+  push: { word: "толкает", icon: "mdi-arrow-expand-horizontal", color: "#e5484d" },
+  off: { word: "выключен", icon: "mdi-power", color: "#5c6577" },
+};
 
 function toStage(point: Point) {
-  const rect = stageRect();
   return {
-    x: rect.x + point.x * rect.width,
-    y: rect.y + point.y * rect.height,
+    x: stage.value.x + point.x * stage.value.width,
+    y: stage.value.y + point.y * stage.value.height,
   };
 }
 
 function stageLength(value: number) {
-  const rect = stageRect();
-  return value * Math.min(rect.width, rect.height);
+  return value * Math.min(stage.value.width, stage.value.height);
 }
 
-function selectMagnetById(magnetId: string) {
-  labState.value = selectMagnet(labState.value, magnetId);
-  helperText.value = "Станция выбрана. Настрой знак заряда и силу перед запуском.";
-  recordHint({ kind: "magnet-select", magnetId, levelId: level.value.id });
+function magnetStyle(magnet: MagnetConfig) {
+  const center = toStage(magnet);
+  const side = magnetSide.value;
+  return {
+    "--magnet-color": modeView[magnet.mode].color,
+    "blockSize": `${side}px`,
+    "inlineSize": `${side}px`,
+    "left": `${center.x - side / 2}px`,
+    "top": `${center.y - side / 2}px`,
+  };
 }
 
-function setPole(pole: MagneticPole) {
-  const magnet = activeMagnet.value;
-  labState.value = setSelectedPole(labState.value, pole);
-  helperText.value =
-    pole === "negative"
-      ? "Отрицательный заряд притягивает положительную капсулу."
-      : "Положительный заряд отталкивает положительную капсулу.";
-  recordHint({ kind: "magnet-pole", magnetId: magnet?.id, pole, levelId: level.value.id });
+const ballStyle = computed(() => {
+  const center = toStage(labState.value.capsule);
+  const size = Math.max(22, stageLength(0.08));
+  return {
+    blockSize: `${size}px`,
+    inlineSize: `${size}px`,
+    left: `${center.x - size / 2}px`,
+    top: `${center.y - size / 2}px`,
+  };
+});
+
+function updateStage() {
+  // The field takes the room between the top bar and the bottom, left of the buttons.
+  const hudBottom = document.querySelector(".game-hud")?.getBoundingClientRect().bottom ?? 0;
+  const panelLeft = panelRef.value?.getBoundingClientRect().left ?? window.innerWidth * 0.8;
+  const gap = Math.max(12, window.innerWidth * 0.015);
+  const top = Math.max(hudBottom, window.innerHeight * 0.12) + gap * 0.6;
+  stage.value = {
+    x: gap,
+    y: top,
+    width: Math.max(200, panelLeft - gap * 2),
+    height: Math.max(200, window.innerHeight - top - gap),
+  };
 }
 
-function cycleStrength() {
-  const magnet = activeMagnet.value;
-  labState.value = cycleSelectedStrength(labState.value);
-  helperText.value = `Сила станции ${selectedMagnet(labState.value)?.label}: ${strengthText(selectedMagnet(labState.value)?.strength ?? 0)}.`;
-  recordHint({
-    kind: "magnet-strength",
-    magnetId: magnet?.id,
-    strength: selectedMagnet(labState.value)?.strength,
-    levelId: level.value.id,
-  });
+function switchMagnet(magnetId: string) {
+  if (!canEdit.value) return;
+  labState.value = cycleMagnet(labState.value, magnetId);
 }
 
-function runSimulation() {
+function launch() {
+  if (!canEdit.value) return;
+  promptAudio.cancelPending();
   labState.value = startSimulation(labState.value);
-  helperText.value = "Симуляция запущена. Наблюдай, как поля ведут капсулу.";
-  recordHint({
-    kind: "simulation-start",
-    levelId: level.value.id,
-    magnets: labState.value.magnets,
-  });
 }
 
 function resetCurrentLevel() {
-  promptAudio.cancelPending();
+  if (!canEdit.value) return;
   labState.value = resetLevel(labState.value);
-  helperText.value = "Уровень сброшен. Проверь знаки и силу, затем нажми Пуск.";
-  recordHint({ kind: "level-reset", levelId: level.value.id });
-  playCurrentTask(120);
 }
 
-function openNextLevel() {
-  if (!canGoNext.value) return;
-  promptAudio.cancelPending();
-  labState.value = nextLevel(labState.value);
-  helperText.value = "Новая задача озвучена. Сначала изучи стены и расположение магнитов.";
-  playCurrentTask(180);
+function clearTimer() {
+  if (timer) clearTimeout(timer);
+  timer = undefined;
+}
+
+function playTask(delayMs = 0) {
+  promptAudio.play("cursor-magnet.task", delayMs);
 }
 
 function restart() {
+  clearTimer();
   promptAudio.cancelPending();
+  settling.value = false;
   startSession();
   labState.value = createMagneticLabState();
-  helperText.value = "Выбери заряд, настрой знак и силу, затем нажми Пуск.";
-  playIntroAndTask(180);
+  playTask(300);
 }
 
-function currentTaskAssetId() {
-  return `cursor-magnet.task.${level.value.id}`;
-}
-
-function playCurrentTask(delayMs = 0) {
-  promptAudio.play(currentTaskAssetId(), delayMs);
-}
-
-function playIntroAndTask(delayMs = 0) {
-  promptAudio.playSequence(["cursor-magnet.intro", currentTaskAssetId()], delayMs, 220);
-}
-
-function onCanvasClick(event: MouseEvent) {
-  if (!canEdit.value) return;
-  const rect = canvasRef.value?.getBoundingClientRect();
-  if (!rect) return;
-  const point = { x: event.clientX - rect.left, y: event.clientY - rect.top };
-  const magnet = nearestMagnet(point);
-  if (magnet) selectMagnetById(magnet.id);
-}
-
-function nearestMagnet(point: Point) {
-  return labState.value.magnets.find((magnet) => {
-    const stagePoint = toStage(magnet);
-    return Math.hypot(stagePoint.x - point.x, stagePoint.y - point.y) <= stageLength(0.065);
-  });
-}
-
-function update(delta: number, now: number) {
-  if (session.status !== "running") return;
-
-  if (!pointer.value.valid && now - lastHintAt.value > 5000) {
-    lastHintAt.value = now;
-    recordHint({ kind: "mouse-fallback", levelId: level.value.id });
-  }
-
-  if (labState.value.mode !== "running") return;
+function update(delta: number) {
+  updateStage();
+  if (session.status !== "running" || labState.value.mode !== "running") return;
   const result = stepSimulation(labState.value, delta);
   labState.value = result.state;
   if (result.event === "success") completeLevel();
@@ -221,104 +175,69 @@ function update(delta: number, now: number) {
 }
 
 function completeLevel() {
-  helperText.value =
-    labState.value.levelIndex === magneticLevels.length - 1
-      ? "Финальная схема сработала. Магнитная лаборатория пройдена."
-      : "Схема сработала. Можно перейти к следующему контуру.";
+  settling.value = true;
   recordSuccess({
     levelId: level.value.id,
     elapsedSeconds: Math.round(labState.value.elapsedSeconds * 10) / 10,
-    magnets: labState.value.magnets,
+    magnets: labState.value.magnets.map((magnet) => magnet.mode),
   });
-  if (labState.value.levelIndex === magneticLevels.length - 1) finishSession("game-complete");
+  promptAudio.play("cursor-magnet.success", 120);
+  if (session.status !== "running") return;
+  timer = setTimeout(() => {
+    settling.value = false;
+    labState.value = nextLevel(labState.value);
+    playTask(200);
+  }, 2200);
 }
 
 function failLevel() {
-  helperText.value = `${failureText(labState.value.failureReason)} Перестрой знаки зарядов или силу и запусти снова.`;
+  settling.value = true;
   recordMistake({
     levelId: level.value.id,
     reason: labState.value.failureReason,
-    magnets: labState.value.magnets,
+    magnets: labState.value.magnets.map((magnet) => magnet.mode),
   });
-}
-
-function failureText(reason: MagneticLabState["failureReason"]) {
-  if (reason === "wall") return "Капсула ударилась в перегородку.";
-  if (reason === "bounds") return "Капсулу выбросило за защитный контур.";
-  if (reason === "stalled") return "Поле слишком слабое: капсула застряла.";
-  return "Контур требует настройки.";
-}
-
-function strengthText(strength: MagnetConfig["strength"]) {
-  if (strength === 0) return "выкл";
-  if (strength === 1) return "";
-  return "сильная";
-}
-
-function chargeSymbol(pole: MagneticPole) {
-  return pole === "positive" ? "+" : "−";
-}
-
-function canvasFont(weight: number, size: number) {
-  return `${weight} ${size}${canvasFontUnit} Roboto, sans-serif`;
+  promptAudio.play("cursor-magnet.retry", 120);
+  // The same magnets stay; the ball comes back to its start for the next try.
+  timer = setTimeout(() => {
+    settling.value = false;
+    labState.value = { ...resetLevel(labState.value), magnets: labState.value.magnets };
+  }, 1600);
 }
 
 function drawBackground(ctx: CanvasRenderingContext2D) {
+  const palette = scenePalette("night").background;
   const gradient = ctx.createLinearGradient(0, 0, width.value, height.value);
-  gradient.addColorStop(0, scenePalette("night").background[0]);
-  gradient.addColorStop(0.48, scenePalette("night").background[1]);
-  gradient.addColorStop(1, scenePalette("night").background[2]);
+  gradient.addColorStop(0, palette[0]);
+  gradient.addColorStop(0.48, palette[1]);
+  gradient.addColorStop(1, palette[2]);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width.value, height.value);
-
-  ctx.save();
-  ctx.globalAlpha = 0.18;
-  ctx.strokeStyle = "#8fd8ff";
-  ctx.lineWidth = 1;
-  const grid = Math.max(28, Math.min(width.value, height.value) * 0.055);
-  for (let x = 0; x <= width.value; x += grid) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, height.value);
-    ctx.stroke();
-  }
-  for (let y = 0; y <= height.value; y += grid) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(width.value, y);
-    ctx.stroke();
-  }
-  ctx.restore();
 }
 
-function drawLabFrame(ctx: CanvasRenderingContext2D) {
-  const rect = stageRect();
+function drawField(ctx: CanvasRenderingContext2D) {
+  const rect = stage.value;
+  const corner = Math.min(rect.width, rect.height) * 0.035;
   ctx.save();
   ctx.fillStyle = "rgb(5 12 27 / 72%)";
   ctx.strokeStyle = "#63d9ff";
   ctx.lineWidth = Math.max(2, Math.min(rect.width, rect.height) * 0.006);
-  ctx.shadowColor = "rgb(89 210 255 / 44%)";
-  ctx.shadowBlur = Math.min(rect.width, rect.height) * 0.035;
   ctx.beginPath();
-  ctx.roundRect(rect.x, rect.y, rect.width, rect.height, Math.min(rect.width, rect.height) * 0.035);
+  ctx.roundRect(rect.x, rect.y, rect.width, rect.height, corner);
   ctx.fill();
   ctx.stroke();
   ctx.restore();
 }
 
 function drawWalls(ctx: CanvasRenderingContext2D) {
-  const rect = stageRect();
   ctx.save();
   for (const wall of level.value.walls) {
-    const x = rect.x + wall.x * rect.width;
-    const y = rect.y + wall.y * rect.height;
-    const wallWidth = wall.width * rect.width;
-    const wallHeight = wall.height * rect.height;
-    const fill = ctx.createLinearGradient(x, y, x + wallWidth, y + wallHeight);
-    fill.addColorStop(0, "#2b385f");
-    fill.addColorStop(1, "#60739e");
-    ctx.fillStyle = fill;
-    ctx.strokeStyle = "rgb(190 221 255 / 76%)";
+    const x = stage.value.x + wall.x * stage.value.width;
+    const y = stage.value.y + wall.y * stage.value.height;
+    const wallWidth = wall.width * stage.value.width;
+    const wallHeight = wall.height * stage.value.height;
+    ctx.fillStyle = "#6b7fae";
+    ctx.strokeStyle = "rgb(210 228 255 / 80%)";
     ctx.lineWidth = Math.max(2, Math.min(wallWidth, wallHeight) * 0.08);
     ctx.beginPath();
     ctx.roundRect(x, y, wallWidth, wallHeight, Math.min(wallWidth, wallHeight) * 0.22);
@@ -328,170 +247,72 @@ function drawWalls(ctx: CanvasRenderingContext2D) {
   ctx.restore();
 }
 
-function drawFieldLines(ctx: CanvasRenderingContext2D, now: number) {
+/** Rings around a working magnet: they run inwards when it pulls and outwards when it pushes. */
+function drawFieldRings(ctx: CanvasRenderingContext2D, now: number) {
+  const time = session.settings.reduceMotion ? 0 : now * 0.0006;
   ctx.save();
-  const time = session.settings.reduceMotion ? 0 : now * 0.001;
+  ctx.beginPath();
+  ctx.rect(stage.value.x, stage.value.y, stage.value.width, stage.value.height);
+  ctx.clip();
   for (const magnet of labState.value.magnets) {
-    if (magnet.strength === 0) continue;
+    if (magnet.mode === "off") continue;
     const center = toStage(magnet);
-    const color = magnet.pole === "positive" ? "255 73 92" : "73 152 255";
-    ctx.strokeStyle = `rgb(${color} / ${magnet.id === labState.value.selectedMagnetId ? 42 : 25}%)`;
-    ctx.lineWidth = magnet.id === labState.value.selectedMagnetId ? 3 : 2;
-    for (let ring = 1; ring <= magnet.strength + 2; ring += 1) {
-      const radius = stageLength(0.055 + ring * 0.055 + Math.sin(time + ring) * 0.004);
+    const base = magnetSide.value * 0.55;
+    const span = stageLength(0.1 + magnet.strength * 0.06);
+    const color = magnet.mode === "pull" ? "47 124 246" : "229 72 77";
+    for (let ring = 0; ring < 3; ring += 1) {
+      let phase = (time + ring / 3) % 1;
+      if (magnet.mode === "pull") phase = 1 - phase;
+      ctx.strokeStyle = `rgb(${color} / ${Math.round(55 * (1 - phase))}%)`;
+      ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.arc(center.x, center.y, radius, 0, Math.PI * 2);
+      ctx.arc(center.x, center.y, base + span * phase, 0, Math.PI * 2);
       ctx.stroke();
     }
   }
   ctx.restore();
 }
 
-function drawGoal(ctx: CanvasRenderingContext2D, now: number) {
-  const goal = toStage(level.value.goal);
-  const radius = stageLength(level.value.goal.radius);
-  const pulse = session.settings.reduceMotion ? 0 : Math.sin(now * 0.004) * 0.08;
+function drawStar(ctx: CanvasRenderingContext2D, now: number) {
+  const center = toStage(level.value.goal);
+  const radius = stageLength(level.value.goal.radius) * 1.25;
+  const pulse = session.settings.reduceMotion ? 0 : Math.sin(now * 0.004) * 0.06;
   ctx.save();
-  const glow = ctx.createRadialGradient(
-    goal.x,
-    goal.y,
-    radius * 0.25,
-    goal.x,
-    goal.y,
-    radius * 2.4,
-  );
-  glow.addColorStop(0, "rgb(128 255 209 / 58%)");
-  glow.addColorStop(0.55, "rgb(57 206 255 / 22%)");
-  glow.addColorStop(1, "rgb(57 206 255 / 0%)");
-  ctx.fillStyle = glow;
+  ctx.translate(center.x, center.y);
+  ctx.shadowColor = "rgb(255 220 90 / 80%)";
+  ctx.shadowBlur = radius * 0.8;
+  ctx.fillStyle = "#ffd54a";
+  ctx.strokeStyle = "#fff6c8";
+  ctx.lineWidth = Math.max(2, radius * 0.08);
   ctx.beginPath();
-  ctx.arc(goal.x, goal.y, radius * (2.1 + pulse), 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.strokeStyle = "#7fffd4";
-  ctx.lineWidth = Math.max(4, radius * 0.14);
-  ctx.beginPath();
-  ctx.arc(goal.x, goal.y, radius, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.fillStyle = "#d8fff6";
-  ctx.font = canvasFont(800, Math.max(14, radius * 0.42));
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText("R", goal.x, goal.y);
-  ctx.restore();
-}
-
-function drawMagnets(ctx: CanvasRenderingContext2D) {
-  for (const magnet of labState.value.magnets) drawMagnet(ctx, magnet);
-}
-
-function drawMagnet(ctx: CanvasRenderingContext2D, magnet: MagnetConfig) {
-  const point = toStage(magnet);
-  const radius = stageLength(0.048 + magnet.strength * 0.006);
-  const selected = magnet.id === labState.value.selectedMagnetId;
-  ctx.save();
-  ctx.translate(point.x, point.y);
-  ctx.shadowColor = magnet.pole === "positive" ? "rgb(255 60 90 / 70%)" : "rgb(70 150 255 / 70%)";
-  ctx.shadowBlur = selected ? radius * 0.75 : radius * 0.35;
-  ctx.fillStyle =
-    magnet.strength === 0 ? "#3b4257" : magnet.pole === "positive" ? "#e93d58" : "#3588ff";
-  ctx.strokeStyle = selected ? "#ffffff" : "rgb(255 255 255 / 52%)";
-  ctx.lineWidth = selected ? Math.max(4, radius * 0.13) : Math.max(2, radius * 0.08);
-  ctx.beginPath();
-  ctx.roundRect(-radius, -radius, radius * 2, radius * 2, radius * 0.35);
+  for (let point = 0; point < 10; point += 1) {
+    const r = (point % 2 === 0 ? radius : radius * 0.45) * (1 + pulse);
+    const angle = -Math.PI / 2 + (point * Math.PI) / 5;
+    ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
+  }
+  ctx.closePath();
   ctx.fill();
   ctx.stroke();
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = "#ffffff";
-  ctx.font = canvasFont(900, Math.max(16, radius * 0.5));
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(chargeSymbol(magnet.pole), 0, -radius * 0.16);
-  ctx.font = canvasFont(800, Math.max(12, radius * 0.26));
-  ctx.fillText(`${magnet.label} · ${magnet.strength}`, 0, radius * 0.46);
-  ctx.restore();
-}
-
-function drawCapsule(ctx: CanvasRenderingContext2D) {
-  const point = toStage(labState.value.capsule);
-  const radius = stageLength(0.035);
-  ctx.save();
-  ctx.translate(point.x, point.y);
-  ctx.shadowColor = "rgb(255 244 164 / 70%)";
-  ctx.shadowBlur = radius * 0.75;
-  const body = ctx.createLinearGradient(-radius, -radius, radius, radius);
-  body.addColorStop(0, "#fff8ba");
-  body.addColorStop(0.55, "#f2b84a");
-  body.addColorStop(1, "#c06b20");
-  ctx.fillStyle = body;
-  ctx.strokeStyle = "#ffffff";
-  ctx.lineWidth = Math.max(3, radius * 0.1);
-  ctx.beginPath();
-  ctx.ellipse(
-    0,
-    0,
-    radius * 1.22,
-    radius * 0.82,
-    Math.atan2(labState.value.capsule.vy, labState.value.capsule.vx),
-    0,
-    Math.PI * 2,
-  );
-  ctx.fill();
-  ctx.stroke();
-  ctx.fillStyle = "#281600";
-  ctx.font = canvasFont(900, Math.max(13, radius * 0.45));
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText("+", 0, 0);
-  ctx.restore();
-}
-
-function drawPointer(ctx: CanvasRenderingContext2D) {
-  if (!pointer.value.valid) return;
-  ctx.save();
-  ctx.globalAlpha = 0.65;
-  ctx.strokeStyle = pointer.value.source === "mouse" ? "#ffffff" : "#7fffd4";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(pointer.value.x, pointer.value.y, 14, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.restore();
-}
-
-function drawLabels(ctx: CanvasRenderingContext2D) {
-  const rect = stageRect();
-  ctx.save();
-  ctx.fillStyle = "rgb(232 246 255 / 92%)";
-  ctx.font = canvasFont(800, Math.max(15, height.value * 0.024));
-  ctx.textAlign = "left";
-  ctx.textBaseline = "top";
-  ctx.fillText(
-    `Контур ${levelText.value}: ${level.value.title}`,
-    rect.x,
-    rect.y - Math.max(26, height.value * 0.045),
-  );
-  ctx.font = canvasFont(600, Math.max(12, height.value * 0.018));
-  ctx.fillStyle = "rgb(188 211 230 / 90%)";
-  ctx.fillText(modeLabel.value, rect.x, rect.y + rect.height + Math.max(10, height.value * 0.015));
   ctx.restore();
 }
 
 function draw(ctx: CanvasRenderingContext2D, _delta: number, now: number) {
   drawBackground(ctx);
-  drawLabFrame(ctx);
-  drawFieldLines(ctx, now);
+  drawField(ctx);
+  drawFieldRings(ctx, now);
   drawWalls(ctx);
-  drawGoal(ctx, now);
-  drawMagnets(ctx);
-  drawCapsule(ctx);
-  drawLabels(ctx);
-  drawPointer(ctx);
+  drawStar(ctx, now);
 }
 
 onMounted(() => {
-  helperText.value = "Выбери заряд, настрой знак и силу, затем нажми Пуск.";
+  updateStage();
   promptAudio.warm();
-  playIntroAndTask(420);
+  playTask(420);
+});
+
+onUnmounted(() => {
+  clearTimer();
+  promptAudio.cancelPending();
 });
 
 useGameLoop({ context, update, draw });
@@ -499,12 +320,7 @@ useGameLoop({ context, update, draw });
 
 <template>
   <div class="magnetic-lab-shell">
-    <canvas
-      ref="canvasRef"
-      class="magnetic-lab-canvas"
-      aria-label="Игра Магнитная лаборатория"
-      @click="onCanvasClick"
-    />
+    <canvas ref="canvasRef" class="magnetic-lab-canvas" aria-label="Игра Магнитная лаборатория" />
 
     <GameHud
       title="Магнитная лаборатория"
@@ -519,108 +335,58 @@ useGameLoop({ context, update, draw });
       @resume="resumeSession"
     />
 
-    <aside class="magnetic-lab-panel" aria-label="Панель магнитной лаборатории">
-      <v-card class="magnetic-card pa-3 pa-sm-4" rounded="xl" elevation="12">
-        <div class="text-overline text-cyan-lighten-2">логика зарядов</div>
-        <h1 class="text-h5 text-sm-h4 font-weight-black mb-1">Магнитная лаборатория</h1>
-        <p class="task-text text-body-2 text-sm-body-1 mb-2">{{ taskText }}</p>
-        <p class="hint-text text-caption text-sm-body-2 mb-3">{{ helperText }}</p>
-
-        <div class="magnet-list mb-3">
-          <GameDwellButton
-            v-for="magnet in labState.magnets"
-            :key="magnet.id"
-            :target-id="`cursor-magnet:select:${magnet.id}`"
-            :disabled="!canEdit"
-            :dwell-ms="session.settings.dwellMs"
-            min-height="clamp(3.7rem, 10dvh, 5.5rem)"
-            color="indigo-darken-4"
-            @select="selectMagnetById(magnet.id)"
-          >
-            <div
-              :class="[
-                'magnet-choice',
-                { 'magnet-choice--selected': magnet.id === labState.selectedMagnetId },
-              ]"
-            >
-              <strong>{{ magnet.label }}</strong>
-              <span :class="magnet.pole === 'positive' ? 'charge-positive' : 'charge-negative'">{{
-                chargeSymbol(magnet.pole)
-              }}</span>
-              <small>{{ strengthText(magnet.strength) }}</small>
-            </div>
-          </GameDwellButton>
+    <div class="magnet-layer">
+      <GameDwellButton
+        v-for="magnet in labState.magnets"
+        :key="`${level.id}:${magnet.id}`"
+        class="magnet-target"
+        :style="magnetStyle(magnet)"
+        :target-id="`cursor-magnet:magnet:${magnet.id}`"
+        :disabled="!canEdit"
+        :dwell-ms="session.settings.dwellMs"
+        :hit-padding="12"
+        min-height="0"
+        :color="modeView[magnet.mode].color"
+        @select="switchMagnet(magnet.id)"
+      >
+        <div class="magnet-face">
+          <v-icon :icon="modeView[magnet.mode].icon" class="magnet-icon" />
+          <span class="magnet-word">{{ modeView[magnet.mode].word }}</span>
         </div>
+      </GameDwellButton>
+    </div>
 
-        <div class="control-grid mb-3">
-          <GameDwellButton
-            target-id="cursor-magnet:positive"
-            :disabled="!canEdit"
-            :dwell-ms="session.settings.dwellMs"
-            min-height="clamp(4rem, 10dvh, 5.6rem)"
-            color="red-darken-3"
-            @select="setPole('positive')"
-          >
-            <div class="control-button"><strong>+</strong><span>положительный</span></div>
-          </GameDwellButton>
-          <GameDwellButton
-            target-id="cursor-magnet:negative"
-            :disabled="!canEdit"
-            :dwell-ms="session.settings.dwellMs"
-            min-height="clamp(4rem, 10dvh, 5.6rem)"
-            color="blue-darken-3"
-            @select="setPole('negative')"
-          >
-            <div class="control-button"><strong>−</strong><span>отрицательный</span></div>
-          </GameDwellButton>
-          <GameDwellButton
-            target-id="cursor-magnet:strength"
-            :disabled="!canEdit"
-            :dwell-ms="session.settings.dwellMs"
-            min-height="clamp(4rem, 10dvh, 5.6rem)"
-            color="deep-purple-darken-3"
-            @select="cycleStrength"
-          >
-            <div class="control-button">
-              <v-icon icon="mdi-sine-wave" /><span
-                >сила: {{ strengthText(activeMagnet?.strength ?? 0) }}</span
-              >
-            </div>
-          </GameDwellButton>
-          <GameDwellButton
-            target-id="cursor-magnet:run"
-            :disabled="labState.mode === 'running'"
-            :dwell-ms="session.settings.dwellMs"
-            min-height="clamp(4rem, 10dvh, 5.6rem)"
-            color="green-darken-3"
-            @select="runSimulation"
-          >
-            <div class="control-button"><v-icon icon="mdi-play" /><span>пуск</span></div>
-          </GameDwellButton>
-        </div>
+    <div class="magnet-ball" :style="ballStyle" aria-hidden="true" />
 
-        <div class="action-row">
-          <GameDwellButton
-            target-id="cursor-magnet:reset"
-            :dwell-ms="session.settings.dwellMs"
-            min-height="clamp(3.5rem, 8dvh, 4.8rem)"
-            color="blue-grey-darken-4"
-            @select="resetCurrentLevel"
-          >
-            <div class="small-action"><v-icon icon="mdi-restore" />Сброс</div>
-          </GameDwellButton>
-          <GameDwellButton
-            v-if="canGoNext"
-            target-id="cursor-magnet:next"
-            :dwell-ms="session.settings.dwellMs"
-            min-height="clamp(3.5rem, 8dvh, 4.8rem)"
-            color="cyan-darken-4"
-            @select="openNextLevel"
-          >
-            <div class="small-action"><v-icon icon="mdi-arrow-right-bold" />Дальше</div>
-          </GameDwellButton>
+    <aside ref="panelRef" class="magnetic-lab-panel" aria-label="Пуск">
+      <p class="task-text">Настрой магниты и докати шарик до звезды.</p>
+      <GameDwellButton
+        class="run-button"
+        target-id="cursor-magnet:run"
+        :disabled="!canEdit"
+        :dwell-ms="session.settings.dwellMs"
+        min-height="clamp(8rem, 30dvh, 15rem)"
+        color="green-darken-2"
+        @select="launch"
+      >
+        <div class="panel-action">
+          <v-icon icon="mdi-play" class="panel-icon" />
+          <span>Пуск</span>
         </div>
-      </v-card>
+      </GameDwellButton>
+      <GameDwellButton
+        target-id="cursor-magnet:reset"
+        :disabled="!canEdit"
+        :dwell-ms="session.settings.dwellMs"
+        min-height="clamp(5rem, 16dvh, 8rem)"
+        color="blue-grey-darken-3"
+        @select="resetCurrentLevel"
+      >
+        <div class="panel-action panel-action--small">
+          <v-icon icon="mdi-restore" class="panel-icon" />
+          <span>Сначала</span>
+        </div>
+      </GameDwellButton>
     </aside>
 
     <GameResultDialog
@@ -652,122 +418,97 @@ useGameLoop({ context, update, draw });
   position: absolute;
 }
 
-.magnetic-lab-panel {
-  inline-size: min(34rem, 37dvw);
-  inset-block-start: clamp(4.7rem, 10dvh, 6rem);
-  inset-inline-end: clamp(0.8rem, 2vw, 2rem);
+.magnet-layer {
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
+}
+
+.magnet-target {
   pointer-events: auto;
   position: absolute;
-  z-index: 2;
 }
 
-.magnetic-card {
-  background: linear-gradient(180deg, rgb(13 25 45 / 94%), rgb(7 14 28 / 94%));
-  border: 0.12rem solid rgb(126 232 255 / 28%);
-  color: #eef8ff;
+.magnet-target :deep(.dwell-button) {
+  block-size: 100%;
+  border: 0.2rem solid rgb(255 255 255 / 85%) !important;
+  border-radius: 22% !important;
+  box-shadow: 0 0 1.2rem var(--magnet-color) !important;
+  padding: 0 !important;
 }
 
-.magnetic-card p {
-  color: #c9d8e8;
-  font-weight: 650;
+/* A magnet that cannot be switched now keeps its look. */
+.magnet-target :deep(.v-card--disabled > *) {
+  opacity: 1;
 }
 
-.magnet-list,
-.control-grid,
-.action-row {
-  display: grid;
-  gap: clamp(0.45rem, 1dvh, 0.75rem);
-}
-
-.magnet-list {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.control-grid,
-.action-row {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.action-row {
-  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
-}
-
-.magnet-choice,
-.control-button,
-.small-action {
+.magnet-face {
   align-items: center;
   color: #ffffff;
   display: flex;
   flex-direction: column;
-  font-weight: 900;
-  gap: 0.25rem;
+  gap: 0.15rem;
   justify-content: center;
 }
 
-.magnet-choice strong,
-.control-button strong {
-  font-size: clamp(1.25rem, 3dvh, 2rem);
+.magnet-icon {
+  font-size: clamp(1.8rem, 5dvh, 3rem);
+}
+
+.magnet-word {
+  font-size: clamp(0.85rem, 2.2dvh, 1.25rem);
+  font-weight: 900;
   line-height: 1;
 }
 
-.magnet-choice small,
-.control-button span,
-.small-action {
-  font-size: clamp(0.78rem, 1.8dvh, 1rem);
-  line-height: 1.1;
-  text-align: center;
+.magnet-ball {
+  background: radial-gradient(circle at 35% 30%, #ffffff, #c9d3df 35%, #7b8794 75%, #4c5562);
+  border-radius: 50%;
+  box-shadow: 0 0.2rem 0.6rem rgb(0 0 0 / 45%);
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
 }
 
-.magnet-choice--selected {
-  text-shadow: 0 0 1rem rgb(126 232 255 / 80%);
+.magnetic-lab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.8rem, 3dvh, 1.6rem);
+  inline-size: clamp(11rem, 19vw, 18rem);
+  inset-block-start: clamp(8.5rem, 26dvh, 13rem);
+  inset-inline-end: clamp(0.8rem, 1.5vw, 1.6rem);
+  position: absolute;
+  z-index: 2;
 }
 
-.charge-positive {
-  color: #ff8fa0;
+.task-text {
+  color: #eef8ff;
+  font-size: clamp(1rem, 2.6dvh, 1.5rem);
+  font-weight: 800;
+  line-height: 1.25;
+  margin: 0;
 }
 
-.charge-negative {
-  color: #8ec4ff;
+.panel-action {
+  align-items: center;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  font-size: clamp(1.4rem, 4dvh, 2.2rem);
+  font-weight: 900;
+  gap: 0.3rem;
 }
 
-.magnetic-lab-panel :deep(.dwell-button) {
-  border: 0.1rem solid rgb(255 255 255 / 18%);
+.panel-action--small {
+  font-size: clamp(1.1rem, 3dvh, 1.6rem);
 }
 
-.magnetic-lab-panel :deep(.dwell-button--active) {
-  box-shadow: 0 0 1.4rem rgb(126 232 255 / 44%);
+.panel-icon {
+  font-size: clamp(2.4rem, 7dvh, 4rem);
 }
 
-@media (max-width: 53.75rem), (max-height: 40.625rem) {
-  .magnetic-lab-panel {
-    inline-size: min(23rem, 40dvw);
-    inset-block-start: 4.6rem;
-  }
-
-  .magnetic-card h1,
-  .magnetic-card .text-overline {
-    display: none;
-  }
-
-  .magnetic-card {
-    padding: 0.75rem !important;
-  }
-
-  .magnetic-card p {
-    font-size: 0.82rem;
-    margin-block-end: 0.55rem !important;
-  }
-
-  .magnetic-card.hint-text {
-    display: none;
-  }
-
-  .magnetic-lab-panel :deep(.dwell-button) {
-    padding: 0.65rem !important;
-  }
-
-  .magnet-list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+.panel-action--small .panel-icon {
+  font-size: clamp(1.6rem, 4.5dvh, 2.6rem);
 }
 </style>

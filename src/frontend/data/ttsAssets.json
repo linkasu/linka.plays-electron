@@ -10136,67 +10136,32 @@
     "path": "/audio/tts/color-shape/prompt-yellow-star.mp3"
   },
   {
-    "id": "cursor-magnet.intro",
+    "id": "cursor-magnet.task",
     "game": "cursor-magnet",
-    "text": "Магнитная лаборатория. Капсула положительная. Противоположные заряды притягиваются: отрицательный тянет капсулу к себе. Одинаковые заряды отталкиваются: положительный толкает капсулу прочь. Настрой знаки и силу, затем нажми Пуск.",
+    "text": "Настрой магниты и докати шарик до звезды.",
     "voice": "jane",
-    "path": "/audio/tts/cursor-magnet/intro.mp3"
+    "path": "/audio/tts/cursor-magnet/task.mp3"
   },
   {
-    "id": "cursor-magnet.task.pull-gate",
+    "id": "cursor-magnet.rules",
     "game": "cursor-magnet",
-    "text": "Контур один: притяжение. Доведи капсулу до реактора. Подбери знак и силу станции, затем проверь схему.",
+    "text": "Синий магнит тянет шарик к себе. Красный магнит толкает шарик. Серый магнит выключен. Посмотри на магнит, и он переключится. Потом нажми Пуск.",
     "voice": "jane",
-    "path": "/audio/tts/cursor-magnet/task-pull-gate.mp3"
+    "path": "/audio/tts/cursor-magnet/rules.mp3"
   },
   {
-    "id": "cursor-magnet.task.repulse-turn",
+    "id": "cursor-magnet.success",
     "game": "cursor-magnet",
-    "text": "Контур два: поворот. Капсула должна обойти препятствие и попасть в реактор. Используй правило притяжения и отталкивания.",
+    "text": "Получилось!",
     "voice": "jane",
-    "path": "/audio/tts/cursor-magnet/task-repulse-turn.mp3"
+    "path": "/audio/tts/cursor-magnet/success.mp3"
   },
   {
-    "id": "cursor-magnet.task.s-curve",
+    "id": "cursor-magnet.retry",
     "game": "cursor-magnet",
-    "text": "Контур три: извилистый коридор. Проведи капсулу между перегородками. Подумай, какие поля помогают, а какие мешают.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
-    "path": "/audio/tts/cursor-magnet/task-s-curve.mp3"
-  },
-  {
-    "id": "cursor-magnet.task.interference-zone",
-    "game": "cursor-magnet",
-    "text": "Контур четыре: зона помех. Найди траекторию между стенами и проверь схему запуском.",
-    "voice": "jane",
-    "path": "/audio/tts/cursor-magnet/task-interference-zone.mp3"
-  },
-  {
-    "id": "cursor-magnet.task.upper-gate",
-    "game": "cursor-magnet",
-    "text": "Контур пять: верхний шлюз. Нужно поднять капсулу к проходу и довести её до реактора. Подбери настройки сам.",
-    "voice": "jane",
-    "path": "/audio/tts/cursor-magnet/task-upper-gate.mp3"
-  },
-  {
-    "id": "cursor-magnet.task.narrow-channel",
-    "game": "cursor-magnet",
-    "text": "Контур шесть: узкий канал. Проведи капсулу по коридору так, чтобы она не задела стены.",
-    "voice": "jane",
-    "path": "/audio/tts/cursor-magnet/task-narrow-channel.mp3"
-  },
-  {
-    "id": "cursor-magnet.task.core-bypass",
-    "game": "cursor-magnet",
-    "text": "Контур семь: обход ядра. Капсула должна пройти вокруг опасной зоны и попасть в реактор.",
-    "voice": "jane",
-    "path": "/audio/tts/cursor-magnet/task-core-bypass.mp3"
-  },
-  {
-    "id": "cursor-magnet.task.final-reactor",
-    "game": "cursor-magnet",
-    "text": "Финальный контур. Здесь несколько полей влияют на путь сразу. Подбери знаки и силу, затем проверь траекторию.",
-    "voice": "jane",
-    "path": "/audio/tts/cursor-magnet/task-final-reactor.mp3"
+    "path": "/audio/tts/cursor-magnet/retry.mp3"
   },
   {
     "id": "light-gallery.prompt",
