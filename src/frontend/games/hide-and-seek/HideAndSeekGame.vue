@@ -314,7 +314,7 @@ onUnmounted(() => {
           :emoji="currentObject.emoji"
         />
         <div class="text-h3 font-weight-bold">
-          {{ currentObject ? currentObject.name : "всех друзей" }}
+          {{ currentObject ? `Найди ${currentObject.name}` : "всех друзей" }}
         </div>
         <div class="text-body-1 text-medium-emphasis mt-2">{{ feedbackMessage }}</div>
       </v-card>
@@ -429,15 +429,18 @@ onUnmounted(() => {
   line-height: 1;
 }
 
+/* Testers: «спрятанная картинка закрывается полностью, рыбку никак не видно». The window
+   is sized from the picture (em), so about a third of it peeks out above the cover. */
 .peek-window {
-  block-size: 2.4rem;
-  inset-block-start: -0.8rem;
+  block-size: 0.42em;
+  font-size: clamp(3.5rem, min(9vw, 15dvh), 9rem);
+  inset-block-start: -0.2em;
   overflow: hidden;
   position: absolute;
 }
 
 .peek-object {
-  transform: translateY(0.45rem);
+  transform: translateY(0.04em);
 }
 
 .cover-emoji {

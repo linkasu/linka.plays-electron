@@ -10,6 +10,8 @@ export type PyramidRing = {
 
 export type PyramidSelectionOutcome =
   | { kind: "ignored" }
+  /** Testers: «при ошибке всё равно ставит неправильное кольцо». A wrong ring stays where it is. */
+  | { kind: "rejected"; selectedRing: PyramidRing; expectedRing?: PyramidRing }
   | {
       kind: "placed";
       rings: PyramidRing[];
@@ -50,6 +52,8 @@ export function selectPyramidRing(
   if (!selectedRing || selectedRing.placed) return { kind: "ignored" };
 
   const expectedRing = getNextPyramidRing(rings);
+  if (expectedRing && ringId !== expectedRing.id)
+    return { kind: "rejected", selectedRing, expectedRing };
   const nextPlacedIndex = getPlacedPyramidRings(rings).length + 1;
   const nextRings = rings.map((ring) =>
     ring.id === ringId ? { ...ring, placed: true, placedIndex: nextPlacedIndex } : ring,

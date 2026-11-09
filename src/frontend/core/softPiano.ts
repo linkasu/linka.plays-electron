@@ -186,11 +186,20 @@ export function warmSoftPiano(enabled: boolean, notesToLoad = defaultNotesToLoad
   void ensurePiano(false, notesToLoad);
 }
 
-export async function playSoftPianoMelody(enabled: boolean, melody: SoftPianoMelody) {
+/**
+ * `overlap`: start even while the previous melody still sounds. By default a new melody
+ * waits its turn and is dropped, so quick repeats do not pile up; a cue that marks every
+ * success (Wake the owl) must not go silent when successes come quickly.
+ */
+export async function playSoftPianoMelody(
+  enabled: boolean,
+  melody: SoftPianoMelody,
+  options: { overlap?: boolean } = {},
+) {
   if (!enabled) return;
   const context = await ensureAudioContext(true);
   if (!context || context.state !== "running") return;
-  if (context.currentTime < melodyUntil) return;
+  if (!options.overlap && context.currentTime < melodyUntil) return;
 
   const startAt = context.currentTime + 0.04;
   melodyUntil = startAt + melodyLength(melody);

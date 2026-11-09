@@ -5161,7 +5161,7 @@
   {
     "id": "bells.prompt.sky",
     "game": "bells",
-    "text": "Найди голубой колокольчик.",
+    "text": "Найди голуб+ой колокольчик.",
     "voice": "alena",
     "path": "/audio/tts/bells/prompt-sky.mp3"
   },
@@ -6043,7 +6043,7 @@
   {
     "id": "pyramid.mistake",
     "game": "pyramid",
-    "text": "Кольцо поставлено. Продолжай.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/pyramid/mistake.mp3"
   },
@@ -6169,7 +6169,7 @@
   {
     "id": "train-sequence.mistake",
     "game": "train-sequence",
-    "text": "Вагон прицепился. Продолжай.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/train-sequence/mistake.mp3"
   },
