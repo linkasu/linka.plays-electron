@@ -66,7 +66,7 @@ const foodWord = computed(() => (round.value.food === "pizza" ? "пиццу" : "
 const foodSrc = computed(() => gameArtSrc(`pizza-fractions/${round.value.food}`));
 const feedbackText = computed(() => {
   if (!mistakenChoiceId.value) return `Посмотри на ${foodWord.value} и выбери нужную долю.`;
-  return `Посмотри на ${foodWord.value} ещё раз и выбери другую долю.`;
+  return "Попробуй ещё раз.";
 });
 
 function clipId(choice: PizzaFractionChoice) {

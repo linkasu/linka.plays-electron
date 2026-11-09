@@ -2606,7 +2606,7 @@
   {
     "id": "where-object.mistake",
     "game": "where-object",
-    "text": "Посмотри на сцену ещё раз и выбери другое слово.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/where-object/mistake.mp3"
   },
@@ -6253,7 +6253,7 @@
   {
     "id": "sandwich.mistake",
     "game": "sandwich",
-    "text": "Посмотри рецепт ещё раз.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/sandwich/mistake.mp3"
   },
@@ -6442,7 +6442,7 @@
   {
     "id": "shape-dance.mistake",
     "game": "shape-dance",
-    "text": "Посмотри на танец ещё раз и попробуй повторить.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/shape-dance/mistake.mp3"
   },
@@ -6855,7 +6855,7 @@
   {
     "id": "who-is-this.mistake",
     "game": "who-is-this",
-    "text": "Посмотри на картинку ещё раз и выбери другое слово.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/who-is-this/mistake.mp3"
   },
@@ -6883,7 +6883,7 @@
   {
     "id": "choose-picture.mistake",
     "game": "choose-picture",
-    "text": "Посмотри на слово ещё раз и выбери другую картинку.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/choose-picture/mistake.mp3"
   },
@@ -6904,7 +6904,7 @@
   {
     "id": "yes-no.mistake",
     "game": "yes-no",
-    "text": "Посмотри на картинку и вопрос ещё раз. Попробуй выбрать другой ответ.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/yes-no/mistake.mp3"
   },
@@ -8038,14 +8038,14 @@
   {
     "id": "eat-or-not-eat.mistake",
     "game": "eat-or-not-eat",
-    "text": "Посмотри на предмет ещё раз и выбери другой ответ.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/eat-or-not-eat/mistake.mp3"
   },
   {
     "id": "big-small.mistake",
     "game": "big-small",
-    "text": "Посмотри на размеры ещё раз и выбери другую карточку.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/big-small/mistake.mp3"
   },
@@ -8185,21 +8185,21 @@
   {
     "id": "one-many.mistake",
     "game": "one-many",
-    "text": "Посмотри на предметы ещё раз и выбери другую карточку.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/one-many/mistake.mp3"
   },
   {
     "id": "opposites.mistake",
     "game": "opposites",
-    "text": "Посмотри на слово ещё раз и выбери другую карточку.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/opposites/mistake.mp3"
   },
   {
     "id": "what-first.mistake",
     "game": "what-first",
-    "text": "Посмотри на сцену ещё раз и выбери другое действие.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/what-first/mistake.mp3"
   },
@@ -8213,14 +8213,14 @@
   {
     "id": "clock.mistake",
     "game": "clock",
-    "text": "Посмотри на короткую стрелку ещё раз и выбери другие часы.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/clock/mistake.mp3"
   },
   {
     "id": "calendar.mistake",
     "game": "calendar",
-    "text": "Посмотри на календарь ещё раз и выбери другой день.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/calendar/mistake.mp3"
   },
@@ -8241,7 +8241,7 @@
   {
     "id": "count-items.mistake",
     "game": "count-items",
-    "text": "Посчитай предметы ещё раз и выбери другое число.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/count-items/mistake.mp3"
   },
@@ -8276,7 +8276,7 @@
   {
     "id": "pizza-fractions.mistake",
     "game": "pizza-fractions",
-    "text": "Посмотри на пиццу ещё раз и выбери другую долю.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/pizza-fractions/mistake.mp3"
   },
@@ -8290,7 +8290,7 @@
   {
     "id": "greater-less.mistake",
     "game": "greater-less",
-    "text": "Посмотри на группы ещё раз и выбери другую сторону.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/greater-less/mistake.mp3"
   },
@@ -8311,7 +8311,7 @@
   {
     "id": "scales.mistake",
     "game": "scales",
-    "text": "Посмотри на весы ещё раз и выбери другой ответ.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/scales/mistake.mp3"
   },
@@ -8339,7 +8339,7 @@
   {
     "id": "number-line.mistake",
     "game": "number-line",
-    "text": "Попробуй ещё раз и выбери другое число.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/number-line/mistake.mp3"
   },
@@ -8360,7 +8360,7 @@
   {
     "id": "number-sorting.mistake",
     "game": "number-sorting",
-    "text": "Посмотри на порядок ещё раз и выбери другое число.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/number-sorting/mistake.mp3"
   },
@@ -8388,7 +8388,7 @@
   {
     "id": "sudoku-2x2.mistake",
     "game": "sudoku-2x2",
-    "text": "Посмотри на строку и столбик ещё раз и выбери другую карточку.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/sudoku-2x2/mistake.mp3"
   },
@@ -8416,7 +8416,7 @@
   {
     "id": "lines-angles.mistake",
     "game": "lines-angles",
-    "text": "Посмотри на линии ещё раз и выбери другую карточку.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/lines-angles/mistake.mp3"
   },
@@ -8437,7 +8437,7 @@
   {
     "id": "simple-graphs.mistake",
     "game": "simple-graphs",
-    "text": "Посмотри на график ещё раз и выбери другой ответ.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/simple-graphs/mistake.mp3"
   },
@@ -8465,7 +8465,7 @@
   {
     "id": "number-bonds.mistake",
     "game": "number-bonds",
-    "text": "Посмотри на пример ещё раз и выбери другую часть.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/number-bonds/mistake.mp3"
   },
@@ -8493,7 +8493,7 @@
   {
     "id": "shop.mistake",
     "game": "shop",
-    "text": "Посмотри ещё раз и выбери другой вариант.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/shop/mistake.mp3"
   },
@@ -8514,7 +8514,7 @@
   {
     "id": "coordinates.mistake",
     "game": "coordinates",
-    "text": "Найди букву и цифру ещё раз, потом выбери другую клетку.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/coordinates/mistake.mp3"
   },
@@ -8542,7 +8542,7 @@
   {
     "id": "shapes.mistake",
     "game": "shapes",
-    "text": "Посмотри на форму ещё раз и выбери другую карточку.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/shapes/mistake.mp3"
   },
@@ -8563,7 +8563,7 @@
   {
     "id": "color-shape.mistake",
     "game": "color-shape",
-    "text": "Проверь цвет и форму ещё раз, потом выбери другую карточку.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/color-shape/mistake.mp3"
   },
@@ -8584,7 +8584,7 @@
   {
     "id": "math-actions.mistake",
     "game": "math-actions",
-    "text": "Попробуй ещё раз и введи другой ответ.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/math-actions/mistake.mp3"
   },
@@ -12784,7 +12784,7 @@
   {
     "id": "pizza-fractions.mistake.watermelon",
     "game": "pizza-fractions",
-    "text": "Посмотри на арбуз ещё раз и выбери другую долю.",
+    "text": "Попробуй ещё раз.",
     "voice": "jane",
     "path": "/audio/tts/pizza-fractions/mistake-watermelon.mp3"
   },

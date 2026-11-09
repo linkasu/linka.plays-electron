@@ -121,7 +121,7 @@ async function choose(answer: ScalesAnswer) {
     return;
   }
 
-  feedback.value = "Посмотри на весы ещё раз и выбери другой ответ.";
+  feedback.value = "Попробуй ещё раз.";
   lastMistakeAnswer.value = answer;
   recordMistake({
     roundId: round.value.roundId,

@@ -65,7 +65,7 @@ const {
 const hintText = computed(() => {
   if (hintedRoundId.value !== round.value.roundId)
     return "Сначала найди букву сверху, потом цифру слева.";
-  return "Ничего страшного. Найди букву и цифру ещё раз, потом выбери другую клетку.";
+  return "Попробуй ещё раз.";
 });
 
 function cellTargetId(cell: CoordinateCell) {

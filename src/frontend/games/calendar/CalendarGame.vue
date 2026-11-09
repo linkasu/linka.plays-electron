@@ -121,7 +121,7 @@ async function choose(choice: CalendarChoice) {
 
   isSpeaking.value = true;
   mistakeChoiceId.value = choice.id;
-  feedbackText.value = "Посмотри на календарь ещё раз и выбери другой день.";
+  feedbackText.value = "Попробуй ещё раз.";
   recordMistake({
     roundId: round.value.roundId,
     targetId,

@@ -140,7 +140,7 @@ async function choose(index: number) {
 
   pendingSelection.value = true;
   wrongChoiceId.value = choice.id;
-  feedbackMessage.value = "Посмотри на слово ещё раз и выбери другую карточку.";
+  feedbackMessage.value = "Попробуй ещё раз.";
   recordMistake({
     roundId: round.value.roundId,
     targetId,

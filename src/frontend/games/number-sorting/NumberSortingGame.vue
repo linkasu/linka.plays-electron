@@ -73,7 +73,7 @@ const directionLabel = computed(() =>
   round.value.direction === "ascending" ? "по возрастанию" : "по убыванию",
 );
 const feedbackText = computed(() => {
-  if (wrongNumber.value !== undefined) return "Посмотри на порядок ещё раз и выбери другое число.";
+  if (wrongNumber.value !== undefined) return "Попробуй ещё раз.";
   if (selectedNumbers.value.length > 0) return "Хорошо. Продолжай выбирать числа в нужном порядке.";
   return round.value.helperText;
 });

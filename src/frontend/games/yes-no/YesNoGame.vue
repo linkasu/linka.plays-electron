@@ -126,7 +126,7 @@ async function answer(value: YesNoAnswer) {
       actual: value,
       isCorrect: false,
     });
-    feedback.value = "Посмотри на картинку и вопрос ещё раз. Попробуй выбрать другой ответ.";
+    feedback.value = "Попробуй ещё раз.";
     void feedbackAudio.playMistake();
     await promptAudio.playSequenceAndWait(["yes-no.mistake"], 80);
     await playRoundQuestion(180);

@@ -124,7 +124,7 @@ async function answer(choice: number) {
     return;
   }
 
-  hint.value = "Посмотри на пример ещё раз и выбери другую часть.";
+  hint.value = "Попробуй ещё раз.";
   lastMistakeTargetId.value = targetId;
   recordMistake({
     roundId: round.value.roundId,

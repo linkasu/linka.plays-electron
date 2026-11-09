@@ -132,7 +132,7 @@ async function answer(value: EatOrNotEatAnswer) {
       isCorrect: false,
     });
     void playEatOrNotEatMistakeMelody(session.settings.sound);
-    feedbackText.value = "Посмотри на предмет ещё раз и выбери другой ответ.";
+    feedbackText.value = "Попробуй ещё раз.";
     isSpeaking.value = true;
     await promptAudio.playSequenceAndWait(["eat-or-not-eat.mistake"], 80);
     isSpeaking.value = false;

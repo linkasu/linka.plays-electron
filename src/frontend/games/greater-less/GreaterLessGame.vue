@@ -103,7 +103,7 @@ async function choose(side: GreaterLessSide) {
     return;
   }
 
-  hint.value = "Посмотри на группы ещё раз и выбери другую сторону.";
+  hint.value = "Попробуй ещё раз.";
   recordMistake({
     roundId: round.value.roundId,
     targetId,
