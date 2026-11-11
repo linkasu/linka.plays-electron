@@ -93,6 +93,7 @@ export const allowedTelemetryGameIds = [
   "count-items",
   "coin-counting",
   "pizza-fractions",
+  "pony-band",
   "greater-less",
   "scales",
   "number-line",

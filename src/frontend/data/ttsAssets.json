@@ -13319,5 +13319,19 @@
     "text": "Дойди конём до гриба за три хода.",
     "voice": "jane",
     "path": "/audio/tts/chess-mini/puzzle-n-mushroom-3.mp3"
+  },
+  {
+    "id": "pony-band.prompt",
+    "game": "pony-band",
+    "text": "Посмотри на пони, и он заиграет.",
+    "voice": "jane",
+    "path": "/audio/tts/pony-band/prompt.mp3"
+  },
+  {
+    "id": "pony-band.rules",
+    "game": "pony-band",
+    "text": "Посмотри на пони, и он начнёт играть. Посмотри ещё раз, и он замолчит. Пони могут играть вместе. Дирижёр слева меняет музыку.",
+    "voice": "jane",
+    "path": "/audio/tts/pony-band/rules.mp3"
   }
 ]
