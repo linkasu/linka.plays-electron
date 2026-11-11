@@ -1931,9 +1931,9 @@ export const games: GameInfo[] = [
   },
   {
     id: "lines-five",
-    title: "Lines 5",
+    title: "Линии",
     description:
-      "Ставь шарики на мини-поле 5×5 и собирай линии из 3–5 одинаковых цветов, пока поле не заполнилось.",
+      "Перекатывай шарики на поле 5×5 и собирай по четыре одинаковых в ряд, пока поле не заполнилось.",
     selfDescription: "Собери линию шариков.",
     route: "/games/lines-five",
     category: "strategy",

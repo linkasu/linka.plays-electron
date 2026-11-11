@@ -72,8 +72,10 @@ const boardStyle = computed(() => ({
           ? "11vh"
           : "14vh",
 }));
+// Testers (recheck): «по ощущениям мелковаты кнопки для выбора». Taller cards, and a gap
+// as between other gaze targets, so the gaze does not slip to the neighbour.
 const choiceMinHeight = computed(() =>
-  round.value.size >= 4 ? "clamp(5.5rem, 13vh, 8.5rem)" : "clamp(7rem, 18vh, 11rem)",
+  round.value.size >= 4 ? "clamp(7rem, 17vh, 10rem)" : "clamp(9.5rem, 30vh, 15rem)",
 );
 
 const feedbackText = computed(() => {
@@ -336,8 +338,8 @@ onUnmounted(() => {
 
 .choice-grid {
   display: grid;
-  gap: clamp(0.5rem, 1.2vh, 0.75rem);
-  grid-template-columns: repeat(auto-fit, minmax(clamp(5.75rem, 13vw, 9rem), 1fr));
+  gap: clamp(1.75rem, 5vmin, 3rem);
+  grid-template-columns: repeat(auto-fit, minmax(clamp(7rem, 15vw, 11rem), 1fr));
 }
 
 .choice-card {

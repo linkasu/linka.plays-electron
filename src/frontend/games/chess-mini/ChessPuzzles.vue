@@ -53,11 +53,18 @@ function pieceSlug(piece: ChessPuzzle["piece"]) {
   return { R: "rook", B: "bishop", N: "knight", Q: "queen", K: "king" }[piece];
 }
 
+// Testers: «дойти до ягодки невозможно — фигура ходит по диагоналям белых, а ягодка на чёрной».
+// The squares a piece could go to were repainted light green, so a bishop's dark diagonal
+// looked white next to the berry on a dark square. A square keeps its colour now; a green
+// dot marks where the piece can go.
 function squareColor(index: number) {
   const size = puzzle.value.size;
   const light = (Math.floor(index / size) + (index % size)) % 2 === 0;
-  if (reachable.value.has(index) && !pending.value) return light ? "#c5e1a5" : "#9ccc65";
   return light ? "#f0d9b5" : "#b58863";
+}
+
+function canStep(index: number) {
+  return reachable.value.has(index) && !pending.value;
 }
 
 async function playTask(delayMs = 0) {
@@ -132,6 +139,14 @@ defineExpose({ nextPuzzle });
           @select="moveTo(index - 1)"
         >
           <template #default>
+            <span
+              v-if="canStep(index - 1)"
+              :class="[
+                'puzzle-step',
+                { 'puzzle-step--ring': index - 1 === puzzle.target && !reached },
+              ]"
+              aria-hidden="true"
+            />
             <img
               v-if="index - 1 === position"
               class="puzzle-piece"
@@ -160,7 +175,7 @@ defineExpose({ nextPuzzle });
         Осталось ходов: {{ movesLeft }}
       </div>
       <p class="text-body-1 text-md-h6 text-medium-emphasis mt-3 mb-0">
-        Зелёные клетки — куда фигура может пойти.
+        Зелёный кружок — туда фигура может пойти.
       </p>
     </aside>
   </div>
@@ -222,6 +237,32 @@ defineExpose({ nextPuzzle });
 /* Disabled squares keep their colour and picture. */
 .puzzle-cell :deep(.v-card--disabled > *) {
   opacity: 1;
+}
+
+.puzzle-cell :deep(.dwell-button) {
+  position: relative;
+}
+
+.puzzle-step {
+  background: rgb(76 175 80 / 72%);
+  block-size: 34%;
+  border: 0.18rem solid rgb(255 255 255 / 85%);
+  border-radius: 50%;
+  box-shadow: 0 0 0.6rem rgb(56 142 60 / 60%);
+  inline-size: 34%;
+  inset: 0;
+  margin: auto;
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
+}
+
+/* Around the berry: a ring, so the berry stays seen. */
+.puzzle-step--ring {
+  background: transparent;
+  block-size: 86%;
+  border: 0.3rem solid rgb(76 175 80 / 90%);
+  inline-size: 86%;
 }
 
 .puzzle-piece {

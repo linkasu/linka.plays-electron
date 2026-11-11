@@ -34,7 +34,7 @@ import {
 } from "./model";
 
 type Decoration = Point & {
-  kind: "island" | "buoy" | "reeds";
+  kind: "island" | "reeds";
   size: number;
   speed: number;
   phase: number;
@@ -116,13 +116,10 @@ function safeRiverY(size: number) {
 }
 
 function createDecoration(index: number): Decoration {
-  const kind = index % 5 === 0 ? "island" : index % 3 === 0 ? "reeds" : "buoy";
-  const size =
-    kind === "island"
-      ? randomRange(58, 96)
-      : kind === "reeds"
-        ? randomRange(38, 62)
-        : randomRange(22, 34);
+  // Testers (recheck): «уберём эти непонятные круги с минусом из воды» — the buoys are gone;
+  // the river keeps islands and reeds.
+  const kind = index % 3 === 0 ? "island" : "reeds";
+  const size = kind === "island" ? randomRange(58, 96) : randomRange(38, 62);
   return {
     kind,
     size,
@@ -333,33 +330,19 @@ function drawDecoration(context: CanvasRenderingContext2D, decoration: Decoratio
     return;
   }
 
-  if (decoration.kind === "reeds") {
-    context.strokeStyle = "rgb(44 99 72 / 76%)";
-    context.lineWidth = 4;
-    for (let index = -1; index <= 1; index += 1) {
-      context.beginPath();
-      context.moveTo(decoration.x + index * decoration.size * 0.16, bobY + decoration.size * 0.28);
-      context.quadraticCurveTo(
-        decoration.x + index * decoration.size * 0.08,
-        bobY,
-        decoration.x + index * decoration.size * 0.2,
-        bobY - decoration.size * 0.38,
-      );
-      context.stroke();
-    }
-    return;
+  context.strokeStyle = "rgb(44 99 72 / 76%)";
+  context.lineWidth = 4;
+  for (let index = -1; index <= 1; index += 1) {
+    context.beginPath();
+    context.moveTo(decoration.x + index * decoration.size * 0.16, bobY + decoration.size * 0.28);
+    context.quadraticCurveTo(
+      decoration.x + index * decoration.size * 0.08,
+      bobY,
+      decoration.x + index * decoration.size * 0.2,
+      bobY - decoration.size * 0.38,
+    );
+    context.stroke();
   }
-
-  context.fillStyle = "rgb(255 245 201 / 88%)";
-  context.beginPath();
-  context.arc(decoration.x, bobY, decoration.size * 0.46, 0, Math.PI * 2);
-  context.fill();
-  context.strokeStyle = "rgb(202 77 67 / 86%)";
-  context.lineWidth = 5;
-  context.beginPath();
-  context.moveTo(decoration.x - decoration.size * 0.38, bobY);
-  context.lineTo(decoration.x + decoration.size * 0.38, bobY);
-  context.stroke();
 }
 
 function drawStoneGate(context: CanvasRenderingContext2D, hazard: BoatHazard) {

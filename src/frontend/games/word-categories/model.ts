@@ -71,7 +71,18 @@ export const wordCategories: WordCategory[] = [
 const wordsByCategory = new Map<WordCategoryId, WordItem[]>(
   wordCategories.map((category) => [category.id, getWordsByCategory(category.id)]),
 );
-const categoryWords = wordCategories.flatMap((category) => wordsByCategory.get(category.id) ?? []);
+// Testers (recheck): «в разделе предмет-категория выпадают только продукты, одежда, транспорт,
+// животные не появляются». The list was all the food first; the categories take turns now.
+function interleaveByCategory() {
+  const lists = wordCategories.map((category) => wordsByCategory.get(category.id) ?? []);
+  const longest = Math.max(0, ...lists.map((list) => list.length));
+  const result: WordItem[] = [];
+  for (let index = 0; index < longest; index += 1) {
+    for (const list of lists) if (index < list.length) result.push(list[index]);
+  }
+  return result;
+}
+export const categoryWords = interleaveByCategory();
 
 export function getWordCategory(categoryId: string) {
   return wordCategories.find((category) => category.id === categoryId);

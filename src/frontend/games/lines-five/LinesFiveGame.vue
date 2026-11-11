@@ -12,13 +12,11 @@ import {
   cellIndex,
   chooseLinesFiveCell,
   columnOf,
-  countColors,
   createInitialLinesFiveState,
   linesFiveSize,
   reachableDestinationIndexes,
   rowOf,
   type LinesFiveCell,
-  type LinesFiveColor,
 } from "./model";
 
 const router = useRouter();
@@ -49,22 +47,13 @@ const promptAudio = useGamePromptAudio({
 });
 const feedbackAudio = useStandardGameFeedback(soundEnabled);
 
-const colorLabels: Record<LinesFiveColor, string> = {
-  sky: "голубой",
-  sun: "солнечный",
-  leaf: "зелёный",
-  berry: "ягодный",
-};
-
 const gameState = ref(createInitialLinesFiveState());
 const lastMovedFrom = ref<number>();
 const lastMovedTo = ref<number>();
 const clearedIndexes = ref<number[]>([]);
 const spawnedIndexes = ref<number[]>([]);
 const pathIndexes = ref<number[]>([]);
-const feedbackMessage = ref(
-  "Выбери шарик, затем свободную клетку, до которой есть путь. Собирай линию из пяти одинаковых шаров.",
-);
+const feedbackMessage = ref("Собери четыре одинаковых шарика в ряд.");
 
 const rows = Array.from({ length: linesFiveSize }, (_, row) => row);
 const columns = Array.from({ length: linesFiveSize }, (_, column) => column);
@@ -75,7 +64,6 @@ const reachableIndexes = computed(() =>
     ? []
     : reachableDestinationIndexes(board.value, selectedIndex.value),
 );
-const counts = computed(() => countColors(board.value));
 const resultVisible = computed(() => session.status === "finished");
 
 function targetId(index: number) {
@@ -157,7 +145,7 @@ function chooseCell(index: number) {
   });
 
   if (result.event === "cleared") {
-    feedbackMessage.value = `Линия из пяти собрана: убрано ${result.cleared.length} шаров. Новые шары не появились.`;
+    feedbackMessage.value = "Ряд собран, шарики исчезли.";
     void feedbackAudio.playSuccess();
     return;
   }
@@ -181,7 +169,7 @@ function chooseCell(index: number) {
     return;
   }
 
-  feedbackMessage.value = `Шарик передвинут. Появились ${result.spawned.length} новых шара. Продолжай собирать линию из пяти.`;
+  feedbackMessage.value = "Шарик перекатился. Появились два новых шарика.";
   void feedbackAudio.playSuccess();
 }
 
@@ -212,7 +200,7 @@ onUnmounted(() => {
 <template>
   <div class="lines-five-shell">
     <GameHud
-      title="Lines 5"
+      title="Линии"
       :step="session.step"
       :max-steps="session.maxSteps"
       :score="gameState.score"
@@ -226,147 +214,57 @@ onUnmounted(() => {
       @resume="resumeSession"
     />
 
-    <v-container class="game-container" fluid>
-      <v-row justify="center">
-        <v-col cols="12" lg="10" xl="8">
-          <v-card
-            class="pa-4 pa-md-6"
-            color="rgba(255, 255, 255, 0.94)"
-            rounded="xl"
-            elevation="10"
+    <!-- Testers (recheck): «предлагаю убрать, очень мелко, играть невозможно». A 5×5 board as large
+         as the window allows, the next balls beside it; the rules are behind «Правила». -->
+    <div class="lines-layout">
+      <div class="board-grid" role="grid" aria-label="Поле: пять на пять">
+        <template v-for="row in rows" :key="row">
+          <GameDwellButton
+            v-for="column in columns"
+            :key="`${row}-${column}`"
+            :target-id="targetId(cellIndex(row, column))"
+            :disabled="session.status !== 'running' || gameState.status !== 'playing'"
+            :dwell-ms="session.settings.dwellMs"
+            min-height="0"
+            :color="cellColor(cellIndex(row, column), board[cellIndex(row, column)])"
+            role="gridcell"
+            @select="chooseCell(cellIndex(row, column))"
           >
-            <div
-              class="d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-5"
-            >
-              <div>
-                <div class="text-overline text-secondary mb-1">Полноценная стратегия Lines 5</div>
-                <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Lines 5</h1>
-                <p class="text-body-1 text-medium-emphasis mb-0">
-                  Выбери шарик, передвинь его по свободному пути и собирай линии из пяти одинаковых
-                  цветов.
-                </p>
-              </div>
-              <div class="d-flex flex-wrap ga-2">
-                <v-chip color="primary" size="large" variant="tonal"
-                  >Очки: {{ gameState.score }}</v-chip
-                >
-                <v-chip color="secondary" size="large" variant="tonal"
-                  >Ходов: {{ gameState.moveCount }}</v-chip
-                >
-              </div>
-            </div>
-
-            <v-alert
-              class="mb-5 text-body-1 font-weight-medium"
-              color="primary"
-              icon="mdi-vector-line"
-              rounded="xl"
-              role="status"
-              variant="tonal"
-            >
-              {{ feedbackMessage }}
-            </v-alert>
-
-            <v-row class="align-center" dense>
-              <v-col cols="12" md="8" class="board-column">
+            <template #default>
+              <div :class="cellClasses(cellIndex(row, column), board[cellIndex(row, column)])">
                 <div
-                  class="board-grid mx-auto"
-                  role="grid"
-                  aria-label="Поле Lines Five шесть на шесть"
-                >
-                  <template v-for="row in rows" :key="row">
-                    <GameDwellButton
-                      v-for="column in columns"
-                      :key="`${row}-${column}`"
-                      :target-id="targetId(cellIndex(row, column))"
-                      :disabled="session.status !== 'running' || gameState.status !== 'playing'"
-                      :dwell-ms="session.settings.dwellMs"
-                      min-height="clamp(3.75rem, 8.5vh, 6rem)"
-                      :color="cellColor(cellIndex(row, column), board[cellIndex(row, column)])"
-                      role="gridcell"
-                      @select="chooseCell(cellIndex(row, column))"
-                    >
-                      <template #default>
-                        <div
-                          :class="
-                            cellClasses(cellIndex(row, column), board[cellIndex(row, column)])
-                          "
-                        >
-                          <div
-                            v-if="board[cellIndex(row, column)]"
-                            :class="['ball', `ball--${board[cellIndex(row, column)]}`]"
-                          />
-                          <v-icon
-                            v-else-if="reachableIndexes.includes(cellIndex(row, column))"
-                            class="reachable-icon"
-                            icon="mdi-arrow-expand"
-                          />
-                        </div>
-                      </template>
-                    </GameDwellButton>
-                  </template>
-                </div>
-              </v-col>
+                  v-if="board[cellIndex(row, column)]"
+                  :class="['ball', `ball--${board[cellIndex(row, column)]}`]"
+                />
+                <v-icon
+                  v-else-if="reachableIndexes.includes(cellIndex(row, column))"
+                  class="reachable-icon"
+                  icon="mdi-arrow-expand"
+                />
+              </div>
+            </template>
+          </GameDwellButton>
+        </template>
+      </div>
 
-              <v-col cols="12" md="4" class="side-column">
-                <v-card
-                  class="side-info-card pa-4"
-                  color="blue-grey-lighten-5"
-                  rounded="xl"
-                  variant="flat"
-                >
-                  <div class="text-h6 font-weight-bold mb-3 text-blue-grey-darken-4">На поле</div>
-                  <v-list bg-color="transparent" density="compact">
-                    <v-list-item
-                      v-for="color in ['sky', 'sun', 'leaf', 'berry']"
-                      :key="color"
-                      class="side-list-item"
-                      :title="colorLabels[color as LinesFiveColor]"
-                      :subtitle="`${counts[color as LinesFiveColor]} шар.`"
-                    >
-                      <template #prepend>
-                        <span :class="['mini-ball', `ball--${color}`]" />
-                      </template>
-                    </v-list-item>
-                  </v-list>
-                </v-card>
-
-                <v-card
-                  class="side-info-card pa-4 mt-4"
-                  color="blue-grey-lighten-5"
-                  rounded="xl"
-                  variant="flat"
-                >
-                  <div class="text-h6 font-weight-bold mb-3 text-blue-grey-darken-4">Следующие</div>
-                  <div class="d-flex ga-3 align-center">
-                    <span
-                      v-for="(color, index) in gameState.nextBalls"
-                      :key="`${color}-${index}`"
-                      :class="['mini-ball', `ball--${color}`]"
-                    />
-                  </div>
-                </v-card>
-
-                <v-alert
-                  class="side-rule-alert mt-4 text-body-2"
-                  color="info"
-                  icon="mdi-heart-outline"
-                  rounded="xl"
-                  variant="flat"
-                >
-                  Если ход не собрал линию, появятся три новых шара. Линия из пяти освобождает
-                  клетки.
-                </v-alert>
-              </v-col>
-            </v-row>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
+      <aside class="side-column">
+        <p class="task-text">{{ feedbackMessage }}</p>
+        <div class="next-card">
+          <div class="next-title">Следующие</div>
+          <div class="d-flex ga-3 align-center justify-center">
+            <span
+              v-for="(color, index) in gameState.nextBalls"
+              :key="`${color}-${index}`"
+              :class="['mini-ball', `ball--${color}`]"
+            />
+          </div>
+        </div>
+      </aside>
+    </div>
 
     <GameResultDialog
       :model-value="resultVisible"
-      title="Lines 5"
+      title="Линии"
       :score="session.score"
       :mistakes="session.mistakes"
       :duration-ms="durationMs"
@@ -381,22 +279,37 @@ onUnmounted(() => {
 <style scoped>
 .lines-five-shell {
   background: var(--linka-scene-paper);
-  min-block-size: 100vh;
+  min-block-size: 100dvh;
 }
 
-.game-container {
-  padding-block-start: 7rem;
+.lines-layout {
+  --board-edge: min(calc(100dvh - var(--game-hud-clearance, 10.5rem) - 2rem), calc(100vw - 22rem));
+
+  align-items: center;
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  grid-template-columns: var(--board-edge) minmax(12rem, 18rem);
+  justify-content: center;
+  padding-block: calc(var(--game-hud-clearance, 10.5rem) + 0.5rem) 1rem;
+  padding-inline: 1rem;
 }
 
 .board-grid {
+  aspect-ratio: 1;
   display: grid;
-  gap: clamp(0.3rem, 0.9vw, 0.625rem);
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  max-inline-size: min(92vw, 42rem, 72vh);
+  gap: clamp(1.25rem, 3.4dvh, 2.25rem);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-rows: repeat(5, minmax(0, 1fr));
+  inline-size: var(--board-edge);
+}
+
+.board-grid :deep(.dwell-hitbox),
+.board-grid :deep(.dwell-button) {
+  block-size: 100%;
 }
 
 .board-grid :deep(.dwell-button) {
-  padding: 0.5rem !important;
+  padding: 0.35rem !important;
 }
 
 .lines-cell-content {
@@ -406,14 +319,13 @@ onUnmounted(() => {
   display: flex;
   inline-size: 100%;
   justify-content: center;
-  min-block-size: clamp(3.4rem, 7.4vh, 5rem);
   transition:
     outline 160ms ease,
     transform 160ms ease;
 }
 
 .lines-cell-content--selected {
-  outline: 0.3rem solid rgb(var(--v-theme-secondary) / 60%);
+  outline: 0.35rem solid rgb(var(--v-theme-secondary) / 70%);
   outline-offset: -0.35rem;
 }
 
@@ -441,13 +353,13 @@ onUnmounted(() => {
 
 .reachable-icon {
   color: rgb(var(--v-theme-primary));
-  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-size: calc(var(--board-edge) / 14);
   opacity: 0.72;
 }
 
 .ball,
 .mini-ball {
-  border-radius: 999px;
+  border-radius: 999rem;
   box-shadow:
     0 0.75rem 1.375rem rgb(42 38 30 / 18%),
     inset 0 -0.5625rem 1rem rgb(0 0 0 / 10%);
@@ -455,37 +367,41 @@ onUnmounted(() => {
 }
 
 .ball {
-  block-size: clamp(2.3rem, 5.8vw, 3.9rem);
-  inline-size: clamp(2.3rem, 5.8vw, 3.9rem);
+  block-size: calc(var(--board-edge) / 8);
+  inline-size: calc(var(--board-edge) / 8);
 }
 
 .mini-ball {
-  block-size: 1.75rem;
-  inline-size: 1.75rem;
+  block-size: 2.6rem;
+  inline-size: 2.6rem;
 }
 
-.side-info-card {
-  background: rgb(236 243 246) !important;
-  color: rgb(47 79 79) !important;
+.side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
-.side-list-item {
-  color: rgb(47 79 79) !important;
-}
-
-.side-list-item :deep(.v-list-item-title) {
-  color: rgb(38 68 68) !important;
+.task-text {
+  color: rgb(38 68 68);
+  font-size: clamp(1rem, 2.4dvh, 1.35rem);
   font-weight: 800;
+  line-height: 1.3;
+  margin: 0;
 }
 
-.side-list-item :deep(.v-list-item-subtitle) {
-  color: rgb(76 103 103) !important;
-  opacity: 1;
+.next-card {
+  background: rgb(236 243 246);
+  border-radius: 1.25rem;
+  padding: 1rem;
 }
 
-.side-rule-alert {
-  background: rgb(227 238 244) !important;
-  color: rgb(68 100 122) !important;
+.next-title {
+  color: rgb(38 68 68);
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-block-end: 0.75rem;
+  text-align: center;
 }
 
 .ball--sky {
@@ -504,146 +420,14 @@ onUnmounted(() => {
   background: radial-gradient(circle at 34% 28%, #fce4ec 0 24%, #f06292 25% 66%, #ad1457 100%);
 }
 
-@media (max-width: 37.5rem) {
-  .game-container {
-    padding-block-start: 9.75rem;
-  }
+@media (max-width: 45rem) {
+  .lines-layout {
+    --board-edge: min(
+      calc(100vw - 2rem),
+      calc(100dvh - var(--game-hud-clearance, 10.5rem) - 12rem)
+    );
 
-  .lines-cell-content {
-    min-block-size: 3.25rem;
-  }
-}
-
-@media (min-height: 42.5625rem) and (max-height: 68rem) {
-  .game-container {
-    padding-block-start: 4.25rem;
-  }
-
-  .game-container :deep(.v-card) {
-    padding-block: 0.9rem !important;
-  }
-
-  .game-container .text-overline,
-  .game-container h1,
-  .game-container p,
-  .game-container .v-btn {
-    display: none !important;
-  }
-
-  .game-container .d-flex.flex-column.flex-md-row {
-    margin-block-end: 0.8rem !important;
-  }
-
-  .game-container .v-alert {
-    margin-block-end: 0.8rem !important;
-    padding-block: 0.65rem !important;
-  }
-
-  .board-grid {
-    max-inline-size: min(100%, 36rem, 58vh);
-  }
-
-  .board-grid :deep(.dwell-button) {
-    min-block-size: clamp(3.6rem, 8vh, 5rem) !important;
-  }
-
-  .lines-cell-content {
-    min-block-size: clamp(3.4rem, 7.4vh, 4.75rem);
-  }
-
-  .ball {
-    block-size: clamp(2.2rem, 4.8vh, 3.4rem);
-    inline-size: clamp(2.2rem, 4.8vh, 3.4rem);
-  }
-}
-
-@media (max-height: 42.5rem) {
-  .game-container {
-    padding-block-start: 4.625rem;
-  }
-
-  .game-container :deep(.v-card) {
-    padding-block: 1rem !important;
-  }
-
-  .game-container .text-overline,
-  .game-container h1,
-  .game-container p,
-  .game-container .v-alert,
-  .game-container .v-btn,
-  .side-column {
-    display: none;
-  }
-
-  .board-column {
-    flex-basis: 100%;
-    max-inline-size: 100%;
-  }
-
-  .game-container.d-flex.flex-column.flex-md-row {
-    display: none !important;
-  }
-
-  .board-grid {
-    gap: 0.28rem;
-    max-inline-size: min(100%, 34rem, 64vh);
-  }
-
-  .board-grid :deep(.dwell-button) {
-    min-block-size: 3.55rem !important;
-    padding: 0.35rem !important;
-  }
-
-  .lines-cell-content {
-    min-block-size: 3.35rem;
-  }
-
-  .ball {
-    block-size: 2.3rem;
-    inline-size: 2.3rem;
-  }
-}
-/* Testers: «поле очень огромное, а сами кнопки мелкие, взглядом попасть невозможно».
-   On a desktop window the cells are square and the board is sized from the free
-   height: tall cells made the game taller than the window, and it was shrunk to
-   about 70 % as a whole. */
-@media (min-width: 56rem) {
-  .board-grid {
-    gap: clamp(0.5rem, 1.4dvh, 0.9rem);
-    inline-size: min(100%, 42rem, calc(100dvh - var(--game-hud-clearance, 10rem) - 8.5rem));
-    max-inline-size: none;
-  }
-
-  .board-grid :deep(.dwell-hitbox) {
-    aspect-ratio: 1;
-  }
-
-  .board-grid :deep(.dwell-button) {
-    block-size: 100%;
-    min-block-size: 0 !important;
-    padding: 0.25rem !important;
-  }
-
-  .lines-cell-content {
-    min-block-size: 0;
-  }
-
-  .ball {
-    block-size: 64% !important;
-    inline-size: auto !important;
-    aspect-ratio: 1;
-  }
-
-  /* The colour list in two columns: the side column must not be taller than the
-     board, or the whole game is shrunk again. */
-  .side-info-card :deep(.v-list) {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    padding-block: 0;
-  }
-
-  .side-info-card {
-    padding-block: 0.75rem !important;
+    grid-template-columns: var(--board-edge);
   }
 }
 </style>

@@ -268,7 +268,7 @@ onUnmounted(() => {
                   :controls="directionButtons"
                   :disabled="session.status !== 'running' || isSpeaking"
                   :dwell-ms="session.settings.dwellMs"
-                  min-height="clamp(4.2rem, 12dvh, 7rem)"
+                  min-height="clamp(5.5rem, 18dvh, 10rem)"
                   aria-label="Направления змейки"
                   :show-key-caps="false"
                   @select="chooseDirectionButton"
@@ -340,7 +340,9 @@ onUnmounted(() => {
   border-radius: clamp(1rem, 2.8dvh, 1.6rem);
   box-shadow: 0 0.85rem 1.7rem rgb(36 86 54 / 14%);
   color: #153d2a;
-  inline-size: min(100%, 32rem, 56dvh);
+  /* Testers (recheck): «места ещё достаточно — сделать стрелочки крупнее и дальше друг от
+     друга». The panel takes the free room beside the board. */
+  inline-size: min(100%, 46rem, 84dvh);
   padding: clamp(0.7rem, 1.8dvh, 1.1rem);
 }
 
@@ -359,7 +361,8 @@ onUnmounted(() => {
 }
 
 .snake-controls {
-  inline-size: min(100%, 36rem, 60dvh);
+  gap: clamp(2.5rem, 7dvh, 4rem);
+  inline-size: 100%;
 }
 
 .snake-controls :deep(.dwell-button) {
@@ -475,7 +478,7 @@ onUnmounted(() => {
   }
 
   .snake-controls {
-    inline-size: min(100%, 26rem, 45dvh);
+    inline-size: 100%;
   }
 }
 
@@ -495,7 +498,7 @@ onUnmounted(() => {
   }
 
   .snake-controls {
-    inline-size: min(100%, 38rem, 60dvh);
+    inline-size: 100%;
   }
 
   .snake-layout {

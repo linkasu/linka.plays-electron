@@ -61,6 +61,9 @@ const board = ref<ReversiLightBoard>(createInitialBoard());
 const result = ref<ReversiLightWinner>();
 const aiThinking = ref(false);
 const flippedCells = ref<number[]>([]);
+// Testers (recheck): «не понятны правила». While the gaze rests on a cell where a move is
+// possible, the computer's pieces that would turn yellow are ringed, so the rule is seen.
+const previewFlips = ref<number[]>([]);
 const lastMove = ref<number>();
 const feedbackMessage = ref(
   "Твои фишки ходят на подсвеченные клетки. Неподходящая клетка просто даст подсказку.",
@@ -74,10 +77,10 @@ let aiRequestId = 0;
 
 const statusText = computed(() => {
   if (result.value === "player") return "У тебя больше фишек";
-  if (result.value === "ai") return "У луны больше фишек";
+  if (result.value === "ai") return "У компьютера больше фишек";
   if (result.value === "draw") return "Ровная партия";
   if (session.status === "paused") return "Пауза";
-  if (aiThinking.value) return "Луна делает ход";
+  if (aiThinking.value) return "Ходит компьютер";
   if (!playerMoves.value.length) return "Сейчас ход пропускается";
   return "Выбери подсвеченную клетку";
 });
@@ -133,7 +136,7 @@ async function chooseNativeAiMove(snapshot: ReversiLightBoard) {
 
 function cellColor(index: number, cell: ReversiLightCell) {
   if (cell) return "surface";
-  if (isValidPlayerCell(index)) return "primary";
+  if (isValidPlayerCell(index)) return "green-lighten-4";
   return "blue-grey-lighten-5";
 }
 
@@ -144,8 +147,18 @@ function cellClasses(index: number, cell: ReversiLightCell) {
       "reversi-cell-content--valid": !cell && isValidPlayerCell(index),
       "reversi-cell-content--last": lastMove.value === index,
       "reversi-cell-content--flipped": flippedCells.value.includes(index),
+      "reversi-cell-content--will-flip": previewFlips.value.includes(index),
     },
   ];
+}
+
+function previewCell(index: number) {
+  if (!canChooseCell(index) || !isValidPlayerCell(index)) return;
+  previewFlips.value = applyMove(board.value, index, "player")?.flipped ?? [];
+}
+
+function clearPreview() {
+  previewFlips.value = [];
 }
 
 function pieceClasses(cell: ReversiLightCell) {
@@ -185,7 +198,7 @@ function afterAiTurn() {
   }
 
   if (!playerMoves.value.length && validMoves(board.value, "ai").length) {
-    feedbackMessage.value = "Сейчас нет подходящего хода. Луна ходит ещё раз.";
+    feedbackMessage.value = "Сейчас нет подходящего хода. Компьютер ходит ещё раз.";
     scheduleAiMove(passDelayMs);
     return;
   }
@@ -219,7 +232,7 @@ async function applyAiMove() {
       ? aiMoveChoice.move
       : chooseAiMove(board.value);
   if (move === undefined) {
-    feedbackMessage.value = "Луна пропускает ход. Выбирай подсвеченную клетку.";
+    feedbackMessage.value = "Компьютер пропускает ход. Выбирай подсвеченную клетку.";
     afterAiTurn();
     return;
   }
@@ -242,6 +255,7 @@ async function chooseCell(index: number) {
   if (!canChooseCell(index)) return;
 
   const targetId = cellTargetId(index);
+  previewFlips.value = [];
   const move = applyMove(board.value, index, "player");
   if (!move) {
     feedbackMessage.value =
@@ -266,12 +280,12 @@ async function chooseCell(index: number) {
   }
 
   if (!validMoves(board.value, "ai").length) {
-    feedbackMessage.value = "Луна пропускает ход. Можно выбрать следующую подсветку.";
+    feedbackMessage.value = "Компьютер пропускает ход. Ходи ещё раз.";
     void feedbackAudio.playSuccess();
     return;
   }
 
-  feedbackMessage.value = "Хороший ход. Луна отвечает.";
+  feedbackMessage.value = "Хороший ход. Теперь ходит компьютер.";
   void feedbackAudio.playSuccess();
   aiRequestId += 1;
   scheduleAiMove();
@@ -334,14 +348,18 @@ onUnmounted(() => {
                 <div class="text-overline text-secondary mb-1">Мини-стратегия 4×4</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Реверси light</h1>
                 <p class="text-body-1 text-medium-emphasis mb-0">
-                  Ставь свою фишку на отмеченную клетку и переворачивай фишки луны.
+                  Твои фишки жёлтые. Синие фишки между двумя жёлтыми станут жёлтыми.
                 </p>
               </div>
               <div class="d-flex flex-wrap ga-2">
-                <v-chip color="primary" size="large" variant="tonal"
-                  >Твои: {{ counts.player }}</v-chip
+                <v-chip color="amber-darken-3" size="large" variant="tonal">
+                  <span class="chip-piece piece--player" aria-hidden="true" />Твои:
+                  {{ counts.player }}</v-chip
                 >
-                <v-chip color="indigo" size="large" variant="tonal">Луна: {{ counts.ai }}</v-chip>
+                <v-chip color="indigo" size="large" variant="tonal">
+                  <span class="chip-piece piece--ai" aria-hidden="true" />Компьютер:
+                  {{ counts.ai }}</v-chip
+                >
                 <v-chip :color="aiThinking ? 'secondary' : 'primary'" size="large" variant="flat">{{
                   statusText
                 }}</v-chip>
@@ -370,6 +388,8 @@ onUnmounted(() => {
                   min-height="clamp(5.25rem, 11.5vh, 8.5rem)"
                   :color="cellColor(cellIndex(row, column), markAt(row, column))"
                   @select="chooseCell(cellIndex(row, column))"
+                  @target-enter="previewCell(cellIndex(row, column))"
+                  @target-cancel="clearPreview"
                 >
                   <template #default>
                     <div :class="cellClasses(cellIndex(row, column), markAt(row, column))">
@@ -382,15 +402,6 @@ onUnmounted(() => {
                   </template>
                 </GameDwellButton>
               </template>
-            </div>
-
-            <div
-              class="d-flex flex-column flex-sm-row align-center justify-space-between ga-3 mt-5"
-            >
-              <p class="text-body-2 text-medium-emphasis mb-0">
-                Другая пустая клетка не завершает игру: она только напоминает выбрать отмеченное
-                место.
-              </p>
             </div>
           </v-card>
         </v-col>
@@ -474,12 +485,35 @@ onUnmounted(() => {
   background: radial-gradient(circle at 34% 28%, #eef2ff 0 22%, #7986cb 23% 68%, #283593 100%);
 }
 
+/* Where a move is possible: a pale yellow piece, the one the child would put. */
 .valid-dot {
-  background: rgb(var(--v-theme-primary) / 72%);
-  block-size: 1.375rem;
+  background: radial-gradient(circle at 34% 28%, #fff8e1 0 24%, #ffca28 25% 66%, #f57f17 100%);
+  block-size: clamp(2.2rem, 7vw, 3.8rem);
+  border: 0.2rem dashed rgb(255 255 255 / 90%);
   border-radius: 999px;
-  box-shadow: 0 0 0 0.875rem rgb(var(--v-theme-primary) / 13%);
-  inline-size: 1.375rem;
+  inline-size: clamp(2.2rem, 7vw, 3.8rem);
+  opacity: 0.42;
+}
+
+/* The computer's pieces that the looked-at move would turn. */
+.reversi-cell-content--will-flip {
+  animation: will-flip 0.9s ease-in-out infinite alternate;
+  outline: 0.35rem solid #ffb300;
+  outline-offset: -0.3rem;
+}
+
+@keyframes will-flip {
+  to {
+    outline-color: rgb(255 179 0 / 35%);
+  }
+}
+
+.chip-piece {
+  block-size: 1.1rem;
+  border-radius: 999px;
+  display: inline-block;
+  inline-size: 1.1rem;
+  margin-inline-end: 0.4rem;
 }
 
 @media (max-width: 37.5rem) {
@@ -531,6 +565,11 @@ onUnmounted(() => {
   .piece {
     block-size: 2.7rem;
     inline-size: 2.7rem;
+  }
+
+  .valid-dot {
+    block-size: 2.5rem;
+    inline-size: 2.5rem;
   }
 }
 </style>

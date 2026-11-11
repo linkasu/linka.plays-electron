@@ -184,6 +184,14 @@ function tick(now: number) {
     }
   }
 
+  // The highlight belongs to a held gaze only. A select by a mouse click, or a release after
+  // a select, ends the hold without a cancel event; the card stayed lit into the next rounds
+  // (testers: «часть цифр обведены в жёлтую рамочку, а часть в зелёную» in «Счёт»).
+  if (machineState.phase !== "holding" && machineState.phase !== "grace" && active.value) {
+    active.value = false;
+    progress.value = 0;
+  }
+
   if (!disposed) frame = requestAnimationFrame(tick);
 }
 
@@ -193,6 +201,8 @@ function selectByPointerClick(event: MouseEvent) {
   const payload = makePayload(now, 1, undefined, 0, "mouse");
   record("target-click", payload);
   emit("select", payload);
+  active.value = false;
+  progress.value = 0;
   machineState = {
     ...createDwellMachineState(),
     phase: "cooldown",
