@@ -1,0 +1,12 @@
+# FluidSynth and FluidR3_GM.sf2 (download, see README.md) and rendered output stay local.
+tools/
+__pycache__/
+pop/
+rock/
+classic/
+jazz/
+lullaby/
+disco/
+*.mp3
+*.wav
+*.mid

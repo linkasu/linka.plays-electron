@@ -46,6 +46,9 @@ GPL для собственного кода проекта не заменяе�
   этого каталога. Они регулируются [Mixkit Sound Effects Free License](https://mixkit.co/license/modal/sfxFree/),
   а не GPL. Эта лицензия разрешает использование звуков в готовых играх, но запрещает
   перераспространение отдельных файлов, в том числе вместе с исходниками.
+- `public/audio/music/pony-band/` — своя музыка «Пони-оркестра» (ноты в
+  `scripts/pony-band-music/styles.py`), озвучена набором инструментов FluidR3_GM (MIT,
+  Copyright Frank Wen). Сохранять соседний `FluidR3_GM.LICENSE.txt`.
 - `vendor/linkasu-tobii-electron-0.2.16.tgz` — в `package/package.json` архива указано
   `UNLICENSED`; текста лицензии для пакета нет. В архив также входят `EyeLog.exe` и DLL Tobii,
   условия распространения которых нужно проверить отдельно. Декларация GPL в корне

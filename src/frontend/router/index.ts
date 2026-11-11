@@ -93,6 +93,7 @@ import BubblePopGame from "../games/bubble-pop/BubblePopGame.vue";
 import RailsGame from "../games/rails/RailsGame.vue";
 import ReversiLightGame from "../games/reversi-light/ReversiLightGame.vue";
 import RobotVacuumGame from "../games/robot-vacuum/RobotVacuumGame.vue";
+import PonyBandGame from "../games/pony-band/PonyBandGame.vue";
 import SandGardenGame from "../games/sand-garden/SandGardenGame.vue";
 import SandwichGame from "../games/sandwich/SandwichGame.vue";
 import ScalesGame from "../games/scales/ScalesGame.vue";
@@ -173,6 +174,7 @@ const gameComponentsById: Record<string, Component> = {
   "sun-rays": SunRaysGame,
   "snowflakes": SnowflakesGame,
   "moon-path": MoonPathGame,
+  "pony-band": PonyBandGame,
   "sand-garden": SandGardenGame,
   "sea-shells": SeaShellsGame,
   "paper-lanterns": PaperLanternsGame,

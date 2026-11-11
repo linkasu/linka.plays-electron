@@ -412,6 +412,22 @@ export const games: GameInfo[] = [
     defaultDwellMs: 1400,
   },
   {
+    id: "pony-band",
+    title: "Пони-оркестр",
+    description:
+      "Смотри на пони — каждый играет свою партию, вместе они звучат в такт. Дирижёр меняет музыку.",
+    selfDescription: "Посмотри на пони, и он заиграет.",
+    route: "/games/pony-band",
+    category: "gaze-basics",
+    icon: "mdi-music",
+    skills: ["choice", "fixation", "attention-shift"],
+    status: "therapy-ready",
+    stabilityStatus: "publish",
+    recommendedSessionSeconds: 180,
+    minTargetSizePx: 190,
+    defaultDwellMs: 1100,
+  },
+  {
     id: "sand-garden",
     title: "Песочный сад",
     description: "Веди взглядом борозды по песку: следы появляются и постепенно исчезают.",
