@@ -4,6 +4,8 @@ import { useRouter } from "vue-router";
 import GameDwellButton from "../../components/game/GameDwellButton.vue";
 import GameHud from "../../components/game/GameHud.vue";
 import GameResultDialog from "../../components/game/GameResultDialog.vue";
+import CheckersPuzzles from "./CheckersPuzzles.vue";
+import type { CheckersPuzzle } from "./puzzles";
 import { useGamePromptAudio } from "../../composables/useGamePromptAudio";
 import { useGameSessionFor } from "../../composables/useGameSessionFor";
 import { useGameTimers } from "../../composables/useGameTimers";
@@ -47,8 +49,16 @@ const {
   finishOnMaxSteps: false,
   finishOnMistakes: false,
   finishOnTimeout: false,
+  // The game starts after the mode is chosen.
+  autoStart: false,
 });
 const soundEnabled = toRef(session.settings, "sound");
+// Testers (recheck): «шашки классные, но играть очень тяжело … сделать тренажёр — съешь шашку
+// соперника в три хода». Puzzles on a small board come first, the full game stays as the second
+// mode, as in the chess game.
+const mode = ref<"choose" | "puzzles" | "game">("choose");
+const puzzlesKey = ref(0);
+const puzzlesToFinish = 8;
 const promptAudio = useGamePromptAudio({
   gameId: "checkers-light",
   soundEnabled,
@@ -317,7 +327,31 @@ function selectCell(index: number) {
   if (!finishIfNeeded("gold")) scheduleAiMove();
 }
 
+function chooseMode(next: "puzzles" | "game") {
+  promptAudio.cancelPending();
+  mode.value = next;
+  startSession();
+  if (next === "game") {
+    promptAudio.play("checkers-light.prompt", 200);
+    recordEvent("level-start", { board: "checkers-light-full" });
+  }
+}
+
+function onPuzzleSolved(puzzle: CheckersPuzzle) {
+  recordSuccess({ roundId: puzzle.id, moves: puzzle.moves, isCorrect: true });
+  if (session.step >= puzzlesToFinish) finishSession("game-complete");
+}
+
+function onPuzzleFailed(puzzle: CheckersPuzzle) {
+  recordMistake({ roundId: puzzle.id, moves: puzzle.moves, isCorrect: false });
+}
+
 function restart() {
+  if (mode.value === "puzzles") {
+    startSession();
+    puzzlesKey.value += 1;
+    return;
+  }
   promptAudio.cancelPending();
   clearGameTimers();
   aiRequestId += 1;
@@ -334,7 +368,7 @@ function restart() {
 
 onMounted(() => {
   promptAudio.warm();
-  promptAudio.play("checkers-light.prompt", 420);
+  promptAudio.play("checkers-light.mode", 420);
 });
 
 onUnmounted(() => {
@@ -362,9 +396,9 @@ watch(
   <div class="checkers-shell">
     <GameHud
       title="Шашки"
-      :step="gameState.moveCount"
-      :max-steps="session.maxSteps"
-      :score="counts.gold"
+      :step="mode === 'game' ? gameState.moveCount : session.step"
+      :max-steps="mode === 'game' ? session.maxSteps : puzzlesToFinish"
+      :score="mode === 'game' ? counts.gold : session.score"
       :mistakes="session.mistakes"
       :duration-ms="durationMs"
       :session-seconds="session.settings.sessionSeconds"
@@ -379,98 +413,158 @@ watch(
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="11" xl="10">
           <v-card class="game-card pa-4 pa-md-5" rounded="xl" elevation="10">
-            <div
-              class="game-header d-flex flex-column flex-lg-row align-lg-center justify-space-between ga-3 mb-4"
-            >
-              <div>
-                <div class="text-overline text-secondary mb-1">Русские шашки 8×8</div>
-                <h1 class="text-h4 text-md-h3 font-weight-bold mb-1">Шашки</h1>
-                <p class="text-body-1 text-medium-emphasis mb-0">
-                  Ходи золотыми шашками. Взятие обязательно, дамки ходят по диагонали на дальние
-                  клетки.
-                </p>
-              </div>
-              <div class="d-flex flex-wrap ga-2">
-                <v-chip color="amber" size="large" variant="tonal"
-                  >Золотые: {{ counts.gold }}</v-chip
-                >
-                <v-chip color="blue" size="large" variant="tonal">Синие: {{ counts.blue }}</v-chip>
-                <v-chip
-                  :color="gameState.turn === 'gold' ? 'primary' : 'secondary'"
-                  size="large"
-                  variant="flat"
-                  >{{ statusText }}</v-chip
-                >
-              </div>
-            </div>
-
-            <v-alert
-              class="feedback-alert mb-4 text-body-1 font-weight-medium"
-              color="primary"
-              icon="mdi-checkerboard"
-              rounded="xl"
-              role="status"
-              variant="tonal"
-            >
-              {{ feedbackMessage }}
-            </v-alert>
-
-            <div class="board mx-auto" role="grid" aria-label="Поле русских шашек восемь на восемь">
-              <template v-for="row in rows" :key="row">
+            <div v-if="mode === 'choose'" class="mode-choice">
+              <h1 class="text-h4 text-md-h3 font-weight-bold text-center mb-4">
+                Как будем играть?
+              </h1>
+              <div class="mode-grid">
                 <GameDwellButton
-                  v-for="column in columns"
-                  :key="`${row}-${column}`"
-                  :class="[
-                    'board-cell',
-                    { 'board-cell--dark': isDarkCell(cellIndex(row, column)) },
-                  ]"
-                  :target-id="targetId(cellIndex(row, column))"
-                  :disabled="
-                    session.status !== 'running' || aiThinking || gameState.status !== 'playing'
-                  "
+                  target-id="checkers-light:mode:puzzles"
                   :dwell-ms="session.settings.dwellMs"
-                  min-height="0"
-                  :color="cellColor(cellIndex(row, column), board[cellIndex(row, column)])"
-                  role="gridcell"
-                  @select="selectCell(cellIndex(row, column))"
+                  min-height="clamp(10rem, 40dvh, 22rem)"
+                  @select="chooseMode('puzzles')"
                 >
                   <template #default>
-                    <div :class="cellClasses(cellIndex(row, column))">
-                      <div
-                        v-if="board[cellIndex(row, column)]"
-                        :class="[
-                          'piece',
-                          `piece--${board[cellIndex(row, column)]?.side}`,
-                          { 'piece--king': board[cellIndex(row, column)]?.king },
-                        ]"
-                      >
-                        <v-icon
-                          v-if="board[cellIndex(row, column)]?.king"
-                          class="piece-crown"
-                          icon="mdi-crown"
-                        />
-                        <span class="d-sr-only">{{
-                          pieceLabel(board[cellIndex(row, column)])
-                        }}</span>
+                    <div class="mode-card">
+                      <div class="mode-card__pieces" aria-hidden="true">
+                        <span class="piece piece--gold" />
+                        <span class="piece piece--blue" />
                       </div>
-                      <div v-else-if="isMoveTarget(cellIndex(row, column))" class="move-cue">
-                        <v-icon
-                          :icon="
-                            getMoveForTarget(
-                              gameState,
-                              gameState.selectedIndex ?? -1,
-                              cellIndex(row, column),
-                            )?.capture
-                              ? 'mdi-close-circle'
-                              : 'mdi-check-circle'
-                          "
-                        />
-                      </div>
+                      <div class="text-h5 text-md-h4 font-weight-bold">Задачки</div>
+                      <div class="text-body-1">Съешь синюю шашку</div>
                     </div>
                   </template>
                 </GameDwellButton>
-              </template>
+                <GameDwellButton
+                  target-id="checkers-light:mode:game"
+                  :dwell-ms="session.settings.dwellMs"
+                  min-height="clamp(10rem, 40dvh, 22rem)"
+                  @select="chooseMode('game')"
+                >
+                  <template #default>
+                    <div class="mode-card">
+                      <div class="mode-card__pieces" aria-hidden="true">
+                        <span class="piece piece--gold" />
+                        <span class="piece piece--gold" />
+                        <span class="piece piece--blue" />
+                      </div>
+                      <div class="text-h5 text-md-h4 font-weight-bold">Партия</div>
+                      <div class="text-body-1">Играй с компьютером</div>
+                    </div>
+                  </template>
+                </GameDwellButton>
+              </div>
             </div>
+            <CheckersPuzzles
+              v-else-if="mode === 'puzzles'"
+              :key="puzzlesKey"
+              :dwell-ms="session.settings.dwellMs"
+              :sound="session.settings.sound"
+              :running="session.status === 'running'"
+              :solved="session.step"
+              @solved="onPuzzleSolved"
+              @failed="onPuzzleFailed"
+            />
+            <template v-else>
+              <div
+                class="game-header d-flex flex-column flex-lg-row align-lg-center justify-space-between ga-3 mb-4"
+              >
+                <div>
+                  <div class="text-overline text-secondary mb-1">Русские шашки 8×8</div>
+                  <h1 class="text-h4 text-md-h3 font-weight-bold mb-1">Шашки</h1>
+                  <p class="text-body-1 text-medium-emphasis mb-0">
+                    Ходи золотыми шашками. Взятие обязательно, дамки ходят по диагонали на дальние
+                    клетки.
+                  </p>
+                </div>
+                <div class="d-flex flex-wrap ga-2">
+                  <v-chip color="amber" size="large" variant="tonal"
+                    >Золотые: {{ counts.gold }}</v-chip
+                  >
+                  <v-chip color="blue" size="large" variant="tonal"
+                    >Синие: {{ counts.blue }}</v-chip
+                  >
+                  <v-chip
+                    :color="gameState.turn === 'gold' ? 'primary' : 'secondary'"
+                    size="large"
+                    variant="flat"
+                    >{{ statusText }}</v-chip
+                  >
+                </div>
+              </div>
+
+              <v-alert
+                class="feedback-alert mb-4 text-body-1 font-weight-medium"
+                color="primary"
+                icon="mdi-checkerboard"
+                rounded="xl"
+                role="status"
+                variant="tonal"
+              >
+                {{ feedbackMessage }}
+              </v-alert>
+
+              <div
+                class="board mx-auto"
+                role="grid"
+                aria-label="Поле русских шашек восемь на восемь"
+              >
+                <template v-for="row in rows" :key="row">
+                  <GameDwellButton
+                    v-for="column in columns"
+                    :key="`${row}-${column}`"
+                    :class="[
+                      'board-cell',
+                      { 'board-cell--dark': isDarkCell(cellIndex(row, column)) },
+                    ]"
+                    :target-id="targetId(cellIndex(row, column))"
+                    :disabled="
+                      session.status !== 'running' || aiThinking || gameState.status !== 'playing'
+                    "
+                    :dwell-ms="session.settings.dwellMs"
+                    min-height="0"
+                    :color="cellColor(cellIndex(row, column), board[cellIndex(row, column)])"
+                    role="gridcell"
+                    @select="selectCell(cellIndex(row, column))"
+                  >
+                    <template #default>
+                      <div :class="cellClasses(cellIndex(row, column))">
+                        <div
+                          v-if="board[cellIndex(row, column)]"
+                          :class="[
+                            'piece',
+                            `piece--${board[cellIndex(row, column)]?.side}`,
+                            { 'piece--king': board[cellIndex(row, column)]?.king },
+                          ]"
+                        >
+                          <v-icon
+                            v-if="board[cellIndex(row, column)]?.king"
+                            class="piece-crown"
+                            icon="mdi-crown"
+                          />
+                          <span class="d-sr-only">{{
+                            pieceLabel(board[cellIndex(row, column)])
+                          }}</span>
+                        </div>
+                        <div v-else-if="isMoveTarget(cellIndex(row, column))" class="move-cue">
+                          <v-icon
+                            :icon="
+                              getMoveForTarget(
+                                gameState,
+                                gameState.selectedIndex ?? -1,
+                                cellIndex(row, column),
+                              )?.capture
+                                ? 'mdi-close-circle'
+                                : 'mdi-check-circle'
+                            "
+                          />
+                        </div>
+                      </div>
+                    </template>
+                  </GameDwellButton>
+                </template>
+              </div>
+            </template>
           </v-card>
         </v-col>
       </v-row>
@@ -562,6 +656,31 @@ watch(
 
 .cell-content--captured {
   background: rgb(var(--v-theme-error) / 12%);
+}
+
+.mode-grid {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-inline: auto;
+  max-inline-size: 56rem;
+}
+
+.mode-card {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mode-card__pieces {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.mode-card__pieces .piece {
+  block-size: clamp(3rem, 10dvh, 5rem);
+  inline-size: clamp(3rem, 10dvh, 5rem);
 }
 
 /* A checker: a round disc with a rim, like a real wooden piece. */

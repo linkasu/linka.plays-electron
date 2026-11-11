@@ -150,6 +150,10 @@ const ballStyle = computed(() => ({
   "--return-y": `${round.value.returnLane.y}%`,
   "--paddle-y": `${selectedLane.value.y}%`,
   "--shot-angle": `${(round.value.returnLane.y - round.value.incomingLane.y) * 0.22}deg`,
+  // Testers (recheck): «мяч летит так быстро, что ребёнок не успевает посмотреть, куда
+  // поставить блок». The ball flew in 1.1 s and started again every 1.8 s; now it flies once,
+  // slowly, and waits in front of the paddle until a place is chosen.
+  "--incoming-ms": `${Math.round(2000 / Math.max(0.3, session.settings.motionSpeed))}ms`,
 }));
 const ballDirection: Record<PaddleLaneId, string> = {
   top: "вверх",
@@ -340,7 +344,11 @@ onUnmounted(() => {
 
                 <div class="incoming-path" aria-hidden="true" />
                 <div class="return-path" aria-hidden="true" />
-                <div class="pong-ball" aria-hidden="true" />
+                <div
+                  :key="`${round.roundId}:${animationMode}`"
+                  class="pong-ball"
+                  aria-hidden="true"
+                />
                 <div
                   class="player-paddle"
                   :class="{
@@ -528,12 +536,12 @@ onUnmounted(() => {
   opacity: 0.62;
 }
 
-.pong-stage--return.return-path {
+.pong-stage--return .return-path {
   animation: return-path-flash 900ms ease-out;
 }
 
 .pong-ball {
-  animation: ball-incoming 1.8s ease-in-out infinite;
+  animation: ball-incoming var(--incoming-ms, 3600ms) ease-out 1 both;
   background: radial-gradient(circle at 35% 30%, #ffffff 0 18%, #ffd54f 20% 64%, #fb8c00 100%);
   block-size: clamp(2.8rem, 6vw, 4rem);
   border-radius: 999px;
@@ -547,32 +555,27 @@ onUnmounted(() => {
   z-index: 4;
 }
 
-.pong-stage--return.pong-ball {
+.pong-stage--return .pong-ball {
   animation: ball-return 900ms cubic-bezier(0.2, 0.76, 0.22, 1) both;
 }
 
-.pong-stage--miss.pong-ball {
+.pong-stage--miss .pong-ball {
   animation: ball-miss 850ms ease-in both;
 }
 
-.pong-stage--return.player-paddle {
+.pong-stage--return .player-paddle {
   animation: paddle-hit 520ms ease-out;
 }
 
 @keyframes ball-incoming {
   0% {
     inset-inline-end: 78%;
-    opacity: 0.55;
-    transform: translate(50%, -50%) scale(0.82);
-  }
-  62% {
-    inset-inline-end: 17%;
-    opacity: 1;
-    transform: translate(50%, -50%) scale(1);
+    opacity: 0.7;
+    transform: translate(50%, -50%) scale(0.86);
   }
   100% {
     inset-inline-end: 17%;
-    opacity: 0.96;
+    opacity: 1;
     transform: translate(50%, -50%) scale(1);
   }
 }

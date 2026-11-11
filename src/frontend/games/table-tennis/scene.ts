@@ -179,40 +179,6 @@ function drawCourt(context: CanvasRenderingContext2D) {
   context.restore();
 }
 
-function drawProgress(context: CanvasRenderingContext2D, options: TennisSceneOptions) {
-  const progress = Math.min(1, options.durationMs / Math.max(1, options.sessionSeconds * 1000));
-  const x = window.innerWidth - Math.max(112, window.innerWidth * 0.08);
-  const y = Math.max(38, window.innerHeight * 0.06);
-  const radius = 28;
-
-  context.save();
-  context.fillStyle = "rgb(255 255 255 / 58%)";
-  roundedRect(context, x - 76, y - 27, 152, 54, 22);
-  context.fill();
-
-  context.strokeStyle = "rgb(48 88 111 / 22%)";
-  context.lineWidth = 6;
-  context.beginPath();
-  context.arc(x - 44, y, radius * 0.52, 0, Math.PI * 2);
-  context.stroke();
-
-  context.strokeStyle = "#5aa59c";
-  context.lineCap = "round";
-  context.beginPath();
-  context.arc(x - 44, y, radius * 0.52, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * progress);
-  context.stroke();
-
-  context.fillStyle = "#31546a";
-  context.font = "700 18px system-ui, sans-serif";
-  context.textAlign = "left";
-  context.textBaseline = "middle";
-  context.fillText(`${options.score}`, x - 14, y - 8);
-  context.font = "600 12px system-ui, sans-serif";
-  context.fillStyle = "rgb(49 84 106 / 72%)";
-  context.fillText(`серия ${options.streak}`, x - 14, y + 12);
-  context.restore();
-}
-
 function drawPaddle(
   context: CanvasRenderingContext2D,
   paddle: TennisPaddle,
@@ -397,6 +363,7 @@ export function drawTennisScene(context: CanvasRenderingContext2D, options: Tenn
   }
 
   drawBall(context, options.ball);
-  drawProgress(context, options);
+  // Testers (recheck): «в верхнем правом углу плашка с количеством серий наполовину уехала за
+  // экран». It sat under the top bar and repeated its «Успех»; it is not drawn any more.
   drawPointerHint(context, options);
 }

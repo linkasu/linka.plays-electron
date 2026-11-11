@@ -76,14 +76,6 @@ const roadsideItems = reactive<RoadSideItem[]>([]);
 const resultVisible = computed(() => session.status === "finished");
 const currentSegment = computed(() => highwaySegments[highwayState.value.segmentIndex]);
 const canvasFontUnit = String.fromCharCode(112, 120);
-const guidanceText = computed(() => {
-  if (session.status === "paused") return "Пауза. Машина держит полосу.";
-  if (!pointer.value.valid)
-    return "Можно вести машину взглядом или мышью: смотри на нужную полосу.";
-  if (highwayState.value.hull <= 1)
-    return "Осторожно: машина повреждена. Выбирай свободную полосу заранее.";
-  return "Выбери полосу, собери жёлтый знак и объезжай встречные машины.";
-});
 
 function randomRange(min: number, max: number) {
   return min + Math.random() * (max - min);
@@ -465,19 +457,7 @@ useGameLoop({ context, update, draw });
       aria-label="Игра Машинка на дороге: 4-полосное шоссе"
     />
 
-    <v-card
-      class="road-car-hint px-4 py-3"
-      color="surface"
-      rounded="xl"
-      variant="flat"
-      data-canvas-overlay
-    >
-      <div class="text-body-2 font-weight-medium">{{ guidanceText }}</div>
-      <div class="text-caption text-medium-emphasis">
-        Четыре полосы. Жёлтый знак собери, встречные машины объезжай.
-      </div>
-    </v-card>
-
+    <!-- Testers (recheck): «убрать текст внизу экрана». The task is voiced. -->
     <GameHud
       title="Машинка на дороге"
       :step="session.step"
@@ -518,21 +498,5 @@ useGameLoop({ context, update, draw });
   display: block;
   inset: 0;
   position: absolute;
-}
-
-.road-car-hint {
-  inset-block-end: max(1.125rem, env(safe-area-inset-bottom));
-  inset-inline: 1.125rem;
-  margin-inline: auto;
-  max-inline-size: 42rem;
-  opacity: 0.95;
-  position: absolute;
-  z-index: 3;
-}
-
-@media (max-width: 45rem), (max-height: 40rem) {
-  .road-car-hint {
-    display: none;
-  }
 }
 </style>

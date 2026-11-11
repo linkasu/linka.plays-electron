@@ -3,6 +3,19 @@ import { settingsFromPreset } from "../../core/settings";
 import { generateWordCategoriesRound, getWordCategory, wordCategories } from "./model";
 
 describe("generateWordCategoriesRound", () => {
+  it("brings every category within the first rounds of «предмет — категория»", () => {
+    const settings = settingsFromPreset("standard");
+    const seen = new Set(
+      Array.from(
+        { length: wordCategories.length },
+        (_, index) =>
+          generateWordCategoriesRound(settings, "item-to-category", index + 1).correctChoiceId,
+      ),
+    );
+
+    expect([...seen].sort()).toEqual(wordCategories.map((category) => category.id).sort());
+  });
+
   it("keeps the selected rule for the whole session", () => {
     const settings = settingsFromPreset("standard");
 

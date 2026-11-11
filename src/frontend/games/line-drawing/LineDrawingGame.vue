@@ -544,7 +544,14 @@ function draw(ctx: CanvasRenderingContext2D, _delta: number, now: number) {
   drawGuide(ctx);
   drawTrail(ctx);
   drawCleanFigure(ctx);
-  for (const dot of dots) drawDot(ctx, dot, now);
+  // Testers (recheck): «если фигура замкнута, первая и последняя точки наслаиваются, одну цифру
+  // не видно». The closing point lies on the first one; it shows only once it is the next step.
+  const closing = currentLevel.value.closed ? dots[dots.length - 1] : undefined;
+  const nextDot = dots.find((dot) => !dot.completed);
+  for (const dot of dots) {
+    if (dot === closing && nextDot !== closing && !dot.completed) continue;
+    drawDot(ctx, dot, now);
+  }
   drawBrush(ctx);
 }
 

@@ -8878,7 +8878,7 @@
   {
     "id": "lines-five.prompt",
     "game": "lines-five",
-    "text": "Собери пять одинаковых шаров в линию.",
+    "text": "Собери четыре одинаковых шарика в ряд.",
     "voice": "jane",
     "path": "/audio/tts/lines-five/prompt-rules.mp3"
   },
@@ -8930,6 +8930,48 @@
     "text": "Раунд завершён. Посмотри на результат.",
     "voice": "jane",
     "path": "/audio/tts/checkers-light/complete.mp3"
+  },
+  {
+    "id": "checkers-light.puzzle.1",
+    "game": "checkers-light",
+    "text": "Съешь синюю шашку за один ход.",
+    "voice": "jane",
+    "path": "/audio/tts/checkers-light/puzzle-1.mp3"
+  },
+  {
+    "id": "checkers-light.puzzle.2",
+    "game": "checkers-light",
+    "text": "Съешь синюю шашку за два хода.",
+    "voice": "jane",
+    "path": "/audio/tts/checkers-light/puzzle-2.mp3"
+  },
+  {
+    "id": "checkers-light.puzzle.3",
+    "game": "checkers-light",
+    "text": "Съешь синюю шашку за три хода.",
+    "voice": "jane",
+    "path": "/audio/tts/checkers-light/puzzle-3.mp3"
+  },
+  {
+    "id": "checkers-light.puzzle-done",
+    "game": "checkers-light",
+    "text": "Получилось!",
+    "voice": "jane",
+    "path": "/audio/tts/checkers-light/puzzle-done.mp3"
+  },
+  {
+    "id": "checkers-light.puzzle-retry",
+    "game": "checkers-light",
+    "text": "Ходы закончились. Попробуем ещё раз.",
+    "voice": "jane",
+    "path": "/audio/tts/checkers-light/puzzle-retry.mp3"
+  },
+  {
+    "id": "checkers-light.mode",
+    "game": "checkers-light",
+    "text": "Как будем играть?",
+    "voice": "jane",
+    "path": "/audio/tts/checkers-light/mode.mp3"
   },
   {
     "id": "chess-mini.prompt",
@@ -10607,7 +10649,7 @@
   {
     "id": "object-action.phrase.walk",
     "game": "object-action",
-    "text": "Мальчик гуляет.",
+    "text": "Мальчик идёт.",
     "voice": "jane",
     "path": "/audio/tts/object-action/phrase-walk.mp3"
   },
@@ -10628,7 +10670,7 @@
   {
     "id": "number-2048.rules",
     "game": "number-2048",
-    "text": "Правила. Выбирай стрелку, и все плитки сдвинутся в эту сторону. Две плитки с одинаковым числом соединяются в одну, и число становится в два раза больше. После каждого хода появляется новая плитка. Соединяй одинаковые числа и не дай полю заполниться.",
+    "text": "Правила. Посмотри на стрелку, и все плитки поедут в эту сторону до самого края. Если встретятся две плитки с одинаковым числом, они станут одной: две двойки станут четвёркой, две четвёрки станут восьмёркой. Соединяй одинаковые плитки.",
     "voice": "jane",
     "path": "/audio/tts/number-2048/rules.mp3"
   },
@@ -10677,14 +10719,14 @@
   {
     "id": "reversi-light.rules",
     "game": "reversi-light",
-    "text": "Правила. Ставь свою фишку только на подсвеченную клетку. Если между новой фишкой и другой твоей фишкой стоят фишки луны, они перевернутся и станут твоими. Потом ходит луна. В конце побеждает тот, у кого больше фишек.",
+    "text": "Правила. Твои фишки жёлтые, у компьютера синие. Ставь жёлтую фишку туда, где лежит бледная жёлтая фишка. Синие фишки, которые окажутся между двумя жёлтыми, станут жёлтыми. Потом ходит компьютер. Побеждает тот, у кого больше фишек.",
     "voice": "jane",
     "path": "/audio/tts/reversi-light/rules.mp3"
   },
   {
     "id": "lines-five.rules",
     "game": "lines-five",
-    "text": "Правила. Сначала выбери шарик, потом свободную подсвеченную клетку, до которой есть путь. Собери пять одинаковых шаров в линию, и они исчезнут. Если линия не собрана, появятся три новых шара. Не дай полю заполниться.",
+    "text": "Правила. Посмотри на шарик, потом на пустую клетку, и шарик перекатится туда. Собери четыре шарика одного цвета в ряд, и они исчезнут. Если ряд не собран, появятся два новых шарика. Не дай полю заполниться.",
     "voice": "jane",
     "path": "/audio/tts/lines-five/rules.mp3"
   },

@@ -232,7 +232,6 @@ onUnmounted(() => {
               class="board-header d-flex flex-column flex-md-row align-md-center justify-space-between ga-4 mb-5"
             >
               <div class="intro-copy">
-                <div class="text-overline text-secondary mb-1">стратегия</div>
                 <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">Сапёр</h1>
                 <p class="text-body-1 text-md-h6 text-medium-emphasis mb-0">{{ helperText }}</p>
               </div>
@@ -337,17 +336,6 @@ onUnmounted(() => {
                 </template>
               </GameDwellButton>
             </div>
-
-            <v-alert
-              class="mt-5 text-body-1"
-              color="info"
-              icon="mdi-flag-variant"
-              rounded="xl"
-              variant="tonal"
-            >
-              Если выбрать опасную клетку, раунд остановится. Используй числа и подсказку, чтобы
-              искать безопасные клетки.
-            </v-alert>
           </v-card>
         </v-col>
       </v-row>
@@ -582,7 +570,10 @@ onUnmounted(() => {
    „подсказка“ нажать невозможно». On a low wide screen the field takes the full
    height on the left, with wider gaps; the counters and large «Бомба» /
    «Подсказка» stand on the right. */
-@media (min-width: 56rem) and (max-height: 62rem) {
+/* Testers (recheck): «квадратики поля выходят за рамку внизу». On a tall screen the board
+   stood under the header and ran past the card; the board and the side column now sit
+   side by side on any wide window. */
+@media (min-width: 56rem) {
   .minesweeper-card {
     align-items: center;
     column-gap: clamp(1.5rem, 3vw, 3rem);

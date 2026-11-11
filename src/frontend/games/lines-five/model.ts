@@ -24,12 +24,16 @@ export type LinesFiveMoveResult = {
 
 export type LinesFiveOutcome = "playing" | "loss";
 
-export const linesFiveSize = 6;
+// Testers (recheck): «предлагаю убрать, очень мелко, играть невозможно». The owner chose to
+// redo it: a 5×5 board with cells twice as large, a line of four, two new balls a move.
+export const linesFiveSize = 5;
 export const linesFiveCellCount = linesFiveSize * linesFiveSize;
 export const linesFiveColors: LinesFiveColor[] = ["sky", "sun", "leaf", "berry"];
 
-const spawnCount = 3;
-const lineLength = 5;
+export const linesFiveSpawnCount = 2;
+export const linesFiveLineLength = 4;
+const spawnCount = linesFiveSpawnCount;
+const lineLength = linesFiveLineLength;
 const directions = [
   [0, 1],
   [1, 0],
@@ -53,16 +57,15 @@ export function createInitialLinesFiveState(seed = 0x5f3759df): LinesFiveState {
     [cellIndex(0, 0), "sky"],
     [cellIndex(0, 1), "sky"],
     [cellIndex(0, 2), "sky"],
-    [cellIndex(0, 3), "sky"],
     [cellIndex(2, 2), "sun"],
-    [cellIndex(3, 3), "leaf"],
-    [cellIndex(5, 5), "berry"],
+    [cellIndex(3, 1), "leaf"],
+    [cellIndex(4, 4), "berry"],
   ];
   for (const [index, color] of opening) board[index] = color;
 
   return {
     board,
-    nextBalls: ["sun", "leaf", "berry"],
+    nextBalls: ["sky", "leaf"],
     score: 0,
     moveCount: 0,
     seed,
@@ -230,7 +233,7 @@ export function suggestedMoveIndexes(board: LinesFiveBoard, color: LinesFiveColo
     return completedLinesThrough(nextBoard, index).length > 0;
   });
 
-  return clearingMoves.length ? clearingMoves : emptyIndexes.slice(0, 5);
+  return clearingMoves.length ? clearingMoves : emptyIndexes.slice(0, lineLength);
 }
 
 export function completedLinesThrough(board: LinesFiveBoard, index: number) {

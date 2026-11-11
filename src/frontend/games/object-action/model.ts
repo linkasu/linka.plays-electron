@@ -64,7 +64,7 @@ export const objectActionChoices: ObjectActionChoice[] = [
     cueEmoji: "➡️",
     settingEmoji: "🛤️",
     sceneLabel: "Человек идёт вперёд по дорожке",
-    successText: "Мальчик гуляет.",
+    successText: "Мальчик идёт.",
     successAssetId: "object-action.phrase.walk",
   },
   {
