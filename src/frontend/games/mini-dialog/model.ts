@@ -69,6 +69,43 @@ export const miniDialogSituations: MiniDialogSituation[] = [
     artId: "mini-dialog/mira-thanks",
     answer: "please",
   },
+  // Testers (recheck): «всего четыре диалога, может, добавим ещё аналогичных? Например: Мира дала
+  // тебе поиграть свою игрушку. Что нужно ответить? Спасибо».
+  {
+    id: "toy",
+    miraLine: "",
+    prompt: "Мира дала тебе поиграть свою игрушку. Что нужно ответить?",
+    artId: "mini-dialog/mira-toy",
+    answer: "thanks",
+  },
+  {
+    id: "pencil",
+    miraLine: "",
+    prompt: "Мира дала тебе карандаш. Что нужно ответить?",
+    artId: "mini-dialog/mira-pencil",
+    answer: "thanks",
+  },
+  {
+    id: "guest",
+    miraLine: "",
+    prompt: "Мира пришла к тебе в гости. Что нужно сказать?",
+    artId: "mini-dialog/mira-guest",
+    answer: "hello",
+  },
+  {
+    id: "home",
+    miraLine: "",
+    prompt: "Мира уходит домой. Что нужно сказать?",
+    artId: "mini-dialog/mira-bye",
+    answer: "bye",
+  },
+  {
+    id: "candy",
+    miraLine: "Спасибо!",
+    prompt: "Мира говорит тебе спасибо за конфету. Что нужно ответить?",
+    artId: "mini-dialog/mira-candy-thanks",
+    answer: "please",
+  },
 ];
 
 export function miniDialogPromptAssetId(situation: MiniDialogSituation) {
