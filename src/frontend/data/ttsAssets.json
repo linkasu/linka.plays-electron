@@ -12859,6 +12859,41 @@
     "path": "/audio/tts/mini-dialog/mistake.mp3"
   },
   {
+    "id": "mini-dialog.task.toy",
+    "game": "mini-dialog",
+    "text": "Мира дала тебе поиграть свою игрушку. Что нужно ответить?",
+    "voice": "jane",
+    "path": "/audio/tts/mini-dialog/task-toy.mp3"
+  },
+  {
+    "id": "mini-dialog.task.pencil",
+    "game": "mini-dialog",
+    "text": "Мира дала тебе карандаш. Что нужно ответить?",
+    "voice": "jane",
+    "path": "/audio/tts/mini-dialog/task-pencil.mp3"
+  },
+  {
+    "id": "mini-dialog.task.guest",
+    "game": "mini-dialog",
+    "text": "Мира пришла к тебе в гости. Что нужно сказать?",
+    "voice": "jane",
+    "path": "/audio/tts/mini-dialog/task-guest.mp3"
+  },
+  {
+    "id": "mini-dialog.task.home",
+    "game": "mini-dialog",
+    "text": "Мира уходит домой. Что нужно сказать?",
+    "voice": "jane",
+    "path": "/audio/tts/mini-dialog/task-home.mp3"
+  },
+  {
+    "id": "mini-dialog.task.candy",
+    "game": "mini-dialog",
+    "text": "Мира говорит тебе спасибо за конфету. Что нужно ответить?",
+    "voice": "jane",
+    "path": "/audio/tts/mini-dialog/task-candy.mp3"
+  },
+  {
     "id": "social-phrases.prompt",
     "game": "social-phrases",
     "text": "Что ты хочешь сказать? Выбери карточку.",

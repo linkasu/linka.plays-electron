@@ -29,6 +29,12 @@ describe("mini-dialog", () => {
       "Мира говорит тебе пока. Что нужно ответить?",
       "Мира угостила тебя яблоком. Что нужно ответить?",
       "Мира сказала тебе спасибо. Что нужно ответить?",
+      // Testers (recheck): «добавим ещё аналогичных».
+      "Мира дала тебе поиграть свою игрушку. Что нужно ответить?",
+      "Мира дала тебе карандаш. Что нужно ответить?",
+      "Мира пришла к тебе в гости. Что нужно сказать?",
+      "Мира уходит домой. Что нужно сказать?",
+      "Мира говорит тебе спасибо за конфету. Что нужно ответить?",
     ]);
   });
 
@@ -43,7 +49,9 @@ describe("mini-dialog", () => {
 
   it("meets every situation before repeating and never repeats one in a row", () => {
     const generate = createMiniDialogRoundGenerator(seededRandom(5));
-    const rounds = Array.from({ length: 16 }, (_, index) => generate(index + 1));
+    const rounds = Array.from({ length: miniDialogSituations.length * 3 }, (_, index) =>
+      generate(index + 1),
+    );
     for (let start = 0; start < rounds.length; start += miniDialogSituations.length) {
       const pass = rounds.slice(start, start + miniDialogSituations.length);
       expect(new Set(pass.map((round) => round.situation.id)).size).toBe(
