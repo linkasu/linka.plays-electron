@@ -573,8 +573,13 @@ onUnmounted(() => {
 /* Testers (recheck): «квадратики поля выходят за рамку внизу». On a tall screen the board
    stood under the header and ran past the card; the board and the side column now sit
    side by side on any wide window. */
+/* Testers (third recheck): «нижний ряд квадратиков прячется за рамку». In the specialist
+   menu the HUD is a thin bar, so the board grew taller than the card's own height cap and
+   the card clipped the bottom row. The board edge alone now sets the card height: it keeps
+   room for the card padding and a gap under the card, whatever the HUD height. */
 @media (min-width: 56rem) {
   .minesweeper-card {
+    max-block-size: none;
     align-items: center;
     column-gap: clamp(1.5rem, 3vw, 3rem);
     display: grid;
@@ -601,7 +606,7 @@ onUnmounted(() => {
 
   .board-wrap {
     --board-edge: min(
-      calc(100dvh - var(--game-hud-clearance, 10rem) - 3.5rem),
+      calc(100dvh - var(--game-hud-clearance, 10rem) - 5.5rem),
       calc(100vw - 31rem)
     );
     --cell-size: calc(var(--board-edge) / var(--board-size) - 1.8dvh);

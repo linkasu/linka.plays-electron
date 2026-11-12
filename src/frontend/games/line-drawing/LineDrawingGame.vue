@@ -460,7 +460,7 @@ function drawTrail(ctx: CanvasRenderingContext2D) {
   ctx.restore();
 }
 
-function drawDot(ctx: CanvasRenderingContext2D, dot: DrawingDot, now: number) {
+function drawDot(ctx: CanvasRenderingContext2D, dot: DrawingDot, now: number, alpha = 1) {
   const pulse = Math.sin(now * 0.003 + dot.index) * 0.04;
   const radius = dot.radius * (1 + pulse + dot.bloom * 0.08);
   const progressRadius = dot.radius * (0.46 + dot.dwellProgress * 0.38);
@@ -469,13 +469,13 @@ function drawDot(ctx: CanvasRenderingContext2D, dot: DrawingDot, now: number) {
   const glow = ctx.createRadialGradient(dot.x, dot.y, radius * 0.2, dot.x, dot.y, radius * 1.65);
   glow.addColorStop(0, `hsl(${dot.hue}, 78%, 86%)`);
   glow.addColorStop(1, `hsla(${dot.hue}, 82%, 72%, 0)`);
-  ctx.globalAlpha = dot.completed ? 0.42 : 0.72;
+  ctx.globalAlpha = (dot.completed ? 0.42 : 0.72) * alpha;
   ctx.fillStyle = glow;
   ctx.beginPath();
   ctx.arc(dot.x, dot.y, radius * 1.65, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.globalAlpha = 1;
+  ctx.globalAlpha = alpha;
   ctx.fillStyle = dot.completed ? `hsl(${dot.hue}, 50%, 86%)` : "rgb(255 255 255 / 86%)";
   ctx.strokeStyle = dot.completed ? `hsl(${dot.hue}, 52%, 58%)` : `hsl(${dot.hue}, 60%, 66%)`;
   ctx.lineWidth = Math.max(4, dot.radius * 0.055);
@@ -548,10 +548,15 @@ function draw(ctx: CanvasRenderingContext2D, _delta: number, now: number) {
   // не видно». The closing point lies on the first one; it shows only once it is the next step.
   const closing = currentLevel.value.closed ? dots[dots.length - 1] : undefined;
   const nextDot = dots.find((dot) => !dot.completed);
-  for (const dot of dots) {
-    if (dot === closing && nextDot !== closing && !dot.completed) continue;
-    drawDot(ctx, dot, now);
-  }
+  // Testers (third recheck): «когда прошёл по всем точкам и фигура нарисовалась, её не видно
+  // из-за кругов с цифрами — пусть круги исчезнут, а останется только сам рисунок». The
+  // circles fade out while the clean figure is drawn.
+  const dotsAlpha = cleanActive ? Math.max(0, 1 - cleanReveal * 1.5) : 1;
+  if (dotsAlpha > 0)
+    for (const dot of dots) {
+      if (dot === closing && nextDot !== closing && !dot.completed) continue;
+      drawDot(ctx, dot, now, dotsAlpha);
+    }
   drawBrush(ctx);
 }
 
