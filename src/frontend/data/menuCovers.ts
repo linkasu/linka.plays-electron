@@ -33,6 +33,7 @@ export const gameMenuCovers = {
   "aquarium": { kind: "images", paths: ["words/fish.png", "words/sea.png"] },
   "balloons": { kind: "images", paths: ["balloons/red.png", "balloons/blue.png"] },
   "bells": { kind: "images", paths: ["words/bell.png"] },
+  "new-year-balls": { kind: "images", paths: ["new-year-balls/pusya.jpg"] },
   "pony-band": { kind: "images", paths: ["pony-band/pop-lead.png"] },
   "breathing-flower": { kind: "images", paths: ["flowers/pink-open.png"] },
   "wake-owl": { kind: "images", paths: ["wake-owl/owl-awake.png"] },

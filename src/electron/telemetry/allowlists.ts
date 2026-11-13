@@ -30,6 +30,7 @@ export const allowedTelemetryGameIds = [
   "butterfly",
   "flowers",
   "bubble-pop",
+  "new-year-balls",
   "ducks",
   "fishes",
   "jellyfish",
