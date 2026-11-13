@@ -90,6 +90,7 @@ import PaperLanternsGame from "../games/paper-lanterns/PaperLanternsGame.vue";
 import PizzaFractionsGame from "../games/pizza-fractions/PizzaFractionsGame.vue";
 import PyramidGame from "../games/pyramid/PyramidGame.vue";
 import BubblePopGame from "../games/bubble-pop/BubblePopGame.vue";
+import NewYearBallsGame from "../games/new-year-balls/NewYearBallsGame.vue";
 import RailsGame from "../games/rails/RailsGame.vue";
 import ReversiLightGame from "../games/reversi-light/ReversiLightGame.vue";
 import RobotVacuumGame from "../games/robot-vacuum/RobotVacuumGame.vue";
@@ -187,6 +188,7 @@ const gameComponentsById: Record<string, Component> = {
   "butterfly": ButterflyGame,
   "flowers": FlowersGame,
   "bubble-pop": BubblePopGame,
+  "new-year-balls": NewYearBallsGame,
   "ducks": DucksGame,
   "calendar": CalendarGame,
   "clock": ClockGame,

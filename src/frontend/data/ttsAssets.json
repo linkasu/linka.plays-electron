@@ -13333,5 +13333,12 @@
     "text": "Посмотри на пони, и он начнёт играть. Посмотри ещё раз, и он замолчит. Пони могут играть вместе. Дирижёр слева меняет музыку.",
     "voice": "jane",
     "path": "/audio/tts/pony-band/rules.mp3"
+  },
+  {
+    "id": "new-year-balls.prompt",
+    "game": "new-year-balls",
+    "text": "Помоги Пусе собрать новогодние шарики.",
+    "voice": "jane",
+    "path": "/audio/tts/new-year-balls/prompt.mp3"
   }
 ]
