@@ -107,8 +107,7 @@ function createCdpClient(webSocketDebuggerUrl) {
 }
 
 function routeUrl(baseUrl, route, nonce) {
-  const base = new URL(baseUrl);
-  return `${base.origin}/?cdpAudit=${nonce}#${route}`;
+  return new URL(`?cdpAudit=${nonce}#${route}`, baseUrl).href;
 }
 
 function screenshotName(route, viewport) {
@@ -354,7 +353,7 @@ async function main() {
   const targets = await listResponse.json();
   const pageTarget = targets.find(
     (target) =>
-      target.type === "page" && target.webSocketDebuggerUrl && /^https?:/.test(target.url),
+      target.type === "page" && target.webSocketDebuggerUrl && /^(https?|file):/.test(target.url),
   );
   if (!pageTarget) throw new Error("No Electron page target with webSocketDebuggerUrl found");
   const originalUrl = pageTarget.url;

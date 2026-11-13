@@ -18,6 +18,8 @@ jobs:
     env:
       RELEASE_TAG: ${{ inputs.version }}
     steps:
+      - uses: actions/checkout@v4
+
       - name: Configure SSH
         shell: bash
         run: |
@@ -32,6 +34,14 @@ jobs:
         run: |
           set -euo pipefail
           expected_version="${RELEASE_TAG#v}"
+          [[ "$expected_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Expected a numeric stable version"; exit 1; }
+
+          ssh -i ~/.ssh/linka_su -o BatchMode=yes -o StrictHostKeyChecking=yes \
+            "${{ secrets.LINKA_SU_USER }}@${{ secrets.LINKA_SU_HOST }}" \
+            'mkdir -p /home/aacidov/linka-docker/release-tools'
+          scp -i ~/.ssh/linka_su -o BatchMode=yes -o StrictHostKeyChecking=yes \
+            scripts/publish-windows-release.mjs \
+            "${{ secrets.LINKA_SU_USER }}@${{ secrets.LINKA_SU_HOST }}:/home/aacidov/linka-docker/release-tools/linka-plays-publish.mjs"
 
           ssh -i ~/.ssh/linka_su \
             -o BatchMode=yes \
@@ -39,9 +49,9 @@ jobs:
             "${{ secrets.LINKA_SU_USER }}@${{ secrets.LINKA_SU_HOST }}" \
             "EXPECTED_VERSION='$expected_version' bash -s" <<'REMOTE'
           set -euo pipefail
-          cd /home/aacidov/linka-docker/wordpress/dist/linka.plays
-
-          node update.js
+          ln -sfn /home/aacidov/linka-docker/release-tools/linka-plays-publish.mjs /home/aacidov/linka-docker/wordpress/dist/linka.plays/update.js
+          node /home/aacidov/linka-docker/release-tools/linka-plays-publish.mjs "$EXPECTED_VERSION"
+          cd /home/aacidov/linka-docker/wordpress/linkaplay
 
           actual_version="$(node -p "require('./version.json').version")"
           if [ "$actual_version" != "$EXPECTED_VERSION" ]; then
@@ -49,6 +59,6 @@ jobs:
             exit 1
           fi
 
-          test -s linka.plays.setup.exe
-          ls -lh linka.plays.setup.exe version.json
+          test -s linkaplaysetup.exe
+          ls -lh linkaplaysetup.exe version.json launcher.zip
           REMOTE

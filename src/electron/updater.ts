@@ -89,7 +89,8 @@ export function registerUpdaterHandlers(hooks: UpdaterTelemetryHooks = {}) {
 export function setupAutoUpdater(win: BrowserWindow) {
   mainWindow = win;
   updateState.version = app.getVersion();
-  if (autoUpdaterInitialized || !app.isPackaged) return;
+  // Windows bundles are updated only by the external launcher, including in test mode.
+  if (process.platform === "win32" || autoUpdaterInitialized || !app.isPackaged) return;
   autoUpdaterInitialized = true;
   telemetryHooks.onState?.("checking");
 
@@ -111,7 +112,6 @@ export function setupAutoUpdater(win: BrowserWindow) {
   // install-on-quit runs the installer silently, and a program reopened during that
   // minute crashed or did not start on half-replaced files.
   autoUpdater.autoInstallOnAppQuit = false;
-  if (process.platform === "win32") autoUpdater.allowPrerelease = true;
 
   autoUpdater.on("error", (error) => {
     isDownloadingUpdate = false;

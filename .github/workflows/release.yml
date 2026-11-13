@@ -10,6 +10,10 @@ on:
       version:
         description: "Release version, with or without v prefix"
         required: true
+      publish:
+        description: "Publish after installer acceptance (false builds a candidate only)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -51,6 +55,7 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run test:unit
+      - run: node --test scripts/publish-windows-release.test.mjs
       - run: npm run lint:adaptive-layout -- --all
       - run: npm run audit:readiness -- --check
       - run: npm run audit:tts-assets
@@ -64,8 +69,6 @@ jobs:
         include:
           - os: windows-2022
             target: --win
-          - os: macos-latest
-            target: --mac --arm64
     runs-on: ${{ matrix.os }}
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -77,6 +80,18 @@ jobs:
         with:
           node-version: 22
           cache: npm
+
+      - uses: actions/checkout@v4
+        with:
+          repository: linkasu/LINKa.plays-launcher
+          ref: fa165f74b34d6b4f7da1c2f73599439d5f7912c7
+          path: .launcher-source
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            10.0.x
+            6.0.x
 
       - name: Use HTTPS for public GitHub dependencies
         shell: bash
@@ -93,7 +108,25 @@ jobs:
           npm pkg set "buildSha=${GITHUB_SHA}"
           npm run build:native
           npm run build
-          npx electron-builder ${{ matrix.target }} -p never
+          npx electron-builder --win --x64 --dir -p never
+          dotnet publish .launcher-source/LINKa.plays-launcher/LINKa.plays-launcher.csproj -c Release -r win-x64 --self-contained true -o release/launcher
+          node -e 'const p=require("./package.json");if(!/^\d+\.\d+\.\d+$/.test(p.version))throw Error("Launcher requires a numeric stable version");require("fs").writeFileSync("release/version.json",JSON.stringify({version:p.version}))'
+
+      - name: Build launcher-compatible installer
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          foreach ($package in @('microsoft.netcore.app.runtime.win-x64', 'microsoft.windowsdesktop.app.runtime.win-x64')) {
+            $runtime = Get-ChildItem "$env:USERPROFILE/.nuget/packages/$package/10.*" -Directory | Sort-Object { [version]$_.Name } -Descending | Select-Object -First 1
+            if (!$runtime) { throw "Missing runtime package: $package" }
+            $notices = Get-ChildItem $runtime.FullName -File | Where-Object Name -Match '^(LICENSE(\.TXT)?|THIRD-PARTY-NOTICES\.TXT)$'
+            if (!$notices) { throw "Missing runtime license: $package" }
+            $destination = New-Item -ItemType Directory -Force "release/launcher/notices/$package"
+            $notices | Copy-Item -Destination $destination.FullName
+          }
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DAppVersion=$version" "/DPayloadDir=$pwd\release\win-unpacked" "/DLauncherDir=$pwd\release\launcher" resources/electron/installer.iss
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed: $LASTEXITCODE" }
+          Compress-Archive release/launcher release/launcher.zip
 
       - name: Packaged privacy smoke
         run: npm run smoke:packaged-privacy -- --output release-debug/packaged-privacy-smoke.json --log release-debug/packaged-privacy-smoke.log
@@ -102,16 +135,13 @@ jobs:
         if: runner.os == 'Windows'
         run: npm run smoke:packaged-window -- --screenshot-dir release-debug/screenshots --output release-debug/packaged-window-smoke.json --log release-debug/app.log
 
-      - name: Check installed Windows game-link registration
-        if: runner.os == 'Windows'
+      - name: Check genuine Unity upgrade and clean installation
         shell: pwsh
-        timeout-minutes: 5
+        timeout-minutes: 10
         run: |
-          $installer = Get-ChildItem release/*-win-x64.exe | Select-Object -First 1
-          $process = Start-Process -FilePath $installer.FullName -ArgumentList '/S' -Wait -PassThru
-          if ($process.ExitCode -ne 0) { throw "Installer exited $($process.ExitCode)" }
-          $command = (Get-Item 'Registry::HKEY_CLASSES_ROOT\linka-play\shell\open\command').GetValue('')
-          if (!$command -or $command -match 'win-unpacked') { throw "Installer did not register its game link: $command" }
+          $installer = (Get-ChildItem release/*-win-x64.exe).FullName
+          ./scripts/ci/windows-installer-smoke.ps1 -Installer $installer
+          npm run smoke:packaged-window -- --exe "$env:LOCALAPPDATA\LINKa installer smoke\LINKa.plays.exe" --screenshot-dir release-debug/installed-screenshots --output release-debug/installed-window-smoke.json --log release-debug/installed-app.log
 
       - name: Upload tested packages
         uses: actions/upload-artifact@v4
@@ -134,8 +164,19 @@ jobs:
           path: release-debug/**/*
           if-no-files-found: ignore
 
+      - name: Upload installer failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-installer-diagnostics-${{ github.run_id }}
+          path: |
+            release/*-win-x64.exe
+            ${{ runner.temp }}/*install.log
+          if-no-files-found: ignore
+
   publish:
     needs: [release-version, build]
+    if: github.event_name == 'push' || inputs.publish
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -165,7 +206,8 @@ jobs:
             fi
             gh release upload "$release_tag" "$artifact"
           done
-          gh release edit "$release_tag" --draft=false
+          # Old Electron updaters must not mistake this Inno bundle for their NSIS update.
+          gh release edit "$release_tag" --draft=false --latest=false
 
   publish-updater-mirror:
     needs: [release-version, publish]

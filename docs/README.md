@@ -43,12 +43,14 @@
 19. `specs/metrics-schema.md` и `specs/privacy.md` - доставка, агрегаты и запреты клиентской телеметрии.
 20. `game-audit-remediation-plan.md` - полный аудит 136 игр и исполняемый итерационный план исправлений.
 21. `windows-tester-delivery.md` - ссылки из таблицы, Windows-установщик, автообновление и проверка с Tobii.
-22. `licensing.md` - GPL-3.0-or-later, связь с АНО «Линка» и условия сторонних компонентов.
+22. `licensing.md` и `third-party-notices.md` - GPL-3.0-or-later собственного кода, связь с АНО «Линка», отдельные условия сторонних компонентов и неподтверждённые права.
 23. `appearance-themes.md` - Sunny Meadow, Paper Story и Toy World: уровни стилей и правила новых сцен.
 
 24. `menu-covers.md` - полный реестр иллюстрированных обложек и правила ресурсов меню.
 
 ## Игры
+
+Порядок выпуска Windows с сохранённым лаунчером: [windows-release.md](windows-release.md).
 
 Все registry-игры имеют документ `docs/games/<id>.md`. Список по категориям, status, stability и ready/development group находится в `games/README.md`.
 
