@@ -53,6 +53,11 @@ Windows Electron-updater отключён. Версия стабильного �
 резервная копия, атомарно меняются установщики и `launcher.zip`, и лишь затем
 оба `version.json`. После сбоя проверить состояние и резервную копию до повтора.
 
+Старое зеркало принадлежит другому системному пользователю. Публикация использует
+уже настроенный `sudo -n` SSH-аккаунта, включая полный путь к Node из его окружения;
+права каталогов и sudoers не меняются. Для ручного запуска:
+`sudo -n "$(command -v node)" /home/aacidov/linka-docker/release-tools/linka-plays-publish.mjs 3.0.0`.
+
 Пути относительно `/home/aacidov/linka-docker/wordpress/`:
 
 - `linkaplay/linkaplaysetup.exe`, `linkaplay/version.json`, `linkaplay/launcher.zip`;
