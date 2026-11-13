@@ -49,8 +49,8 @@ jobs:
             "${{ secrets.LINKA_SU_USER }}@${{ secrets.LINKA_SU_HOST }}" \
             "EXPECTED_VERSION='$expected_version' bash -s" <<'REMOTE'
           set -euo pipefail
-          ln -sfn /home/aacidov/linka-docker/release-tools/linka-plays-publish.mjs /home/aacidov/linka-docker/wordpress/dist/linka.plays/update.js
-          node /home/aacidov/linka-docker/release-tools/linka-plays-publish.mjs "$EXPECTED_VERSION"
+          sudo -n ln -sfn /home/aacidov/linka-docker/release-tools/linka-plays-publish.mjs /home/aacidov/linka-docker/wordpress/dist/linka.plays/update.js
+          sudo -n "$(command -v node)" /home/aacidov/linka-docker/release-tools/linka-plays-publish.mjs "$EXPECTED_VERSION"
           cd /home/aacidov/linka-docker/wordpress/linkaplay
 
           actual_version="$(node -p "require('./version.json').version")"
