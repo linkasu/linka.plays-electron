@@ -107,8 +107,7 @@ function createCdpClient(webSocketDebuggerUrl) {
 }
 
 function routeUrl(baseUrl, route, nonce) {
-  const base = new URL(baseUrl);
-  return `${base.origin}/?cdpAudit=${nonce}#${route}`;
+  return new URL(`?cdpAudit=${nonce}#${route}`, baseUrl).href;
 }
 
 function screenshotName(route, viewport) {

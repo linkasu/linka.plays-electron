@@ -1,4 +1,4 @@
-param([Parameter(Mandatory)][string]$Installer)
+﻿param([Parameter(Mandatory)][string]$Installer)
 $ErrorActionPreference = 'Stop'
 $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
 $key = '{D17098DB-EAFA-4EFF-A280-65E1CFBAE428}_is1'
