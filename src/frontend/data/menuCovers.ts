@@ -306,7 +306,8 @@ export const categoryMenuCovers = {
 
 export const modeMenuCovers = {
   specialist: image("wake-owl/owl-awake.png"),
-  self: image("feed-animal/bunny.png"),
+  // Same bunny as «Покорми зверька», with the cut-off paws drawn in (owner, 2026-11-13).
+  self: image("menu-covers/self-bunny.png"),
 } satisfies Record<NonNullable<MenuCoverOptions["mode"]>, MenuCover>;
 
 const unknownMenuCover = image("words/book.png");
