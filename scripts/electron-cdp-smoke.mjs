@@ -353,7 +353,7 @@ async function main() {
   const targets = await listResponse.json();
   const pageTarget = targets.find(
     (target) =>
-      target.type === "page" && target.webSocketDebuggerUrl && /^https?:/.test(target.url),
+      target.type === "page" && target.webSocketDebuggerUrl && /^(https?|file):/.test(target.url),
   );
   if (!pageTarget) throw new Error("No Electron page target with webSocketDebuggerUrl found");
   const originalUrl = pageTarget.url;
