@@ -85,7 +85,7 @@ jobs:
         with:
           repository: linkasu/LINKa.plays-launcher
           ref: fa165f74b34d6b4f7da1c2f73599439d5f7912c7
-          path: build/launcher-source
+          path: .launcher-source
 
       - uses: actions/setup-dotnet@v4
         with:
@@ -109,7 +109,7 @@ jobs:
           npm run build:native
           npm run build
           npx electron-builder --win --x64 --dir -p never
-          dotnet publish build/launcher-source/LINKa.plays-launcher/LINKa.plays-launcher.csproj -c Release -r win-x64 --self-contained true -o release/launcher
+          dotnet publish .launcher-source/LINKa.plays-launcher/LINKa.plays-launcher.csproj -c Release -r win-x64 --self-contained true -o release/launcher
           node -e 'const p=require("./package.json");if(!/^\d+\.\d+\.\d+$/.test(p.version))throw Error("Launcher requires a numeric stable version");require("fs").writeFileSync("release/version.json",JSON.stringify({version:p.version}))'
 
       - name: Build launcher-compatible installer
