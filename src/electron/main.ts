@@ -126,6 +126,7 @@ async function createWindow() {
     },
   });
 
+  win.maximize();
   mainWindow = win;
   gameLinkRendererReady = false;
   if (process.env.LINKA_NO_TOBII === "1") {

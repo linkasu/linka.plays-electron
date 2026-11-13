@@ -17,6 +17,7 @@ jobs:
       - run: npm run format:check
       - run: npm run typecheck
       - run: npm run test:unit
+      - run: node --test scripts/publish-windows-release.test.mjs
       - run: npm run lint:adaptive-layout -- --all
       - run: npm run audit:readiness -- --check
       - run: npm run audit:tts-assets

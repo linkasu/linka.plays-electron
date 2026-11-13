@@ -207,7 +207,8 @@ async function main() {
   mkdirSync(resolve(outputPath, ".."), { recursive: true });
   mkdirSync(resolve(logPath, ".."), { recursive: true });
 
-  const exePath = findPackagedExe();
+  const installedExe = argValue("--exe", "");
+  const exePath = installedExe ? resolve(installedExe) : findPackagedExe();
   const appLog = [];
   const smokeEnv = {
     ...process.env,

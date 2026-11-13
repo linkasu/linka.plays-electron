@@ -1,6 +1,6 @@
 {
   "name": "linka.plays-electron",
-  "version": "0.1.22",
+  "version": "3.0.0",
   "private": true,
   "license": "GPL-3.0-or-later",
   "description": "LINKa plays MVP on Electron, Vue and Canvas",
@@ -102,6 +102,7 @@
       "category": "public.app-category.education"
     },
     "win": {
+      "executableName": "LINKa.plays",
       "icon": "icons/icon.ico",
       "signAndEditExecutable": true,
       "verifyUpdateCodeSignature": false
@@ -136,6 +137,10 @@
       {
         "from": "./docs/licensing.md",
         "to": "LICENSING.md"
+      },
+      {
+        "from": "./docs/third-party-notices.md",
+        "to": "third-party-notices.md"
       },
       {
         "from": "./node_modules/@linkasu/tobii-electron/tools/tobiifree-helper/",

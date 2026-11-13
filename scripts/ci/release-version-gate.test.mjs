@@ -37,4 +37,13 @@ describe("release version gate", () => {
     expect(workflow).toMatch(/publish:\n    needs: \[release-version, build\]/);
     expect(workflow).toMatch(/publish-updater-mirror:\n    needs: \[release-version, publish\]/);
   });
+
+  it("keeps launcher sources outside the build directory erased by node-gyp rebuild", () => {
+    const workflow = readFileSync(
+      join(scriptDirectory, "..", "..", ".github", "workflows", "release.yml"),
+      "utf8",
+    );
+    expect(workflow).toContain("path: .launcher-source");
+    expect(workflow).toContain("dotnet publish .launcher-source/LINKa.plays-launcher/");
+  });
 });
