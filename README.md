@@ -25,6 +25,12 @@ npm run electron:serve
 Для smoke всех игр во всех темах в уже запущенном Electron с отдельным тестовым
 профилем: `npm run audit:themes -- --port=9223 --base-url=http://127.0.0.1:5174`.
 
+## Windows-релиз
+
+Публичная Windows-версия 3.0.0 устанавливается вместе с сохранённым лаунчером
+и обновляется через него. Порядок сборки, проверки перехода с Unity и публикации:
+[Windows-релиз](docs/windows-release.md).
+
 ## Tobii
 
 Сейчас Tobii-слой заложен как IPC scaffold: `tobii:status:get`, `tobii:status`, `tobii:gaze`.
