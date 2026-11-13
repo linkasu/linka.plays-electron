@@ -26,7 +26,10 @@ function Assert-Installed {
   if ($command -ne "`"$path\LINKa.plays.exe`" `"%1`"") { throw "Incorrect game link: $command" }
   $shell = New-Object -ComObject WScript.Shell
   $shortcutPath = Join-Path ([Environment]::GetFolderPath('Programs')) 'LINKa. играй.lnk'
-  $shortcut = $shell.CreateShortcut($shortcutPath)
+  # WScript.Shell cannot read filenames outside the system ANSI code page.
+  $shortcutCopy = Join-Path $env:RUNNER_TEMP 'linka-start-menu.lnk'
+  Copy-Item -LiteralPath $shortcutPath -Destination $shortcutCopy -Force
+  $shortcut = $shell.CreateShortcut($shortcutCopy)
   if ($shortcut.TargetPath -ne (Join-Path $path 'LINKa.plays-launcher.exe') -or $shortcut.WorkingDirectory -ne $path) {
     throw "Wrong shortcut: file='$shortcutPath', exists=$(Test-Path $shortcutPath), target='$($shortcut.TargetPath)', cwd='$($shortcut.WorkingDirectory)', expected='$path'"
   }

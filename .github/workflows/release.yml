@@ -136,8 +136,7 @@ jobs:
         run: npm run smoke:packaged-window -- --screenshot-dir release-debug/screenshots --output release-debug/packaged-window-smoke.json --log release-debug/app.log
 
       - name: Check genuine Unity upgrade and clean installation
-        # Inspect native Windows Shell shortcuts in Windows PowerShell, not Core COM interop.
-        shell: powershell
+        shell: pwsh
         timeout-minutes: 10
         run: |
           $installer = (Get-ChildItem release/*-win-x64.exe).FullName
