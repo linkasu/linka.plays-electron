@@ -9,6 +9,7 @@ import { useStartPromptAudio } from "../../composables/useStartPromptAudio";
 import { resolveMenuRoute } from "../../core/menuMode";
 import { percentToPixels } from "../../core/placement";
 import { resolvePublicAssetUrl } from "../../core/publicAsset";
+import { nextFreeSlot, treeSlots, type BallColor, type TreeSlot } from "./model";
 import {
   disposeNewYearBallsAudio,
   playNewYearBallsMelody,
@@ -18,14 +19,17 @@ import {
 
 // Owner's idea (2026-11-13): the soap-bubble game redrawn for New Year. Pusya by the tree (the
 // owner's picture) is the background, New Year balls float across the screen, the voice says
-// «Помоги Пусе собрать новогодние шарики.» Look at a ball and it flies to Pusya.
+// «Помоги Пусе собрать новогодние шарики.» Look at a ball and it flies onto the tree: the 14
+// circles drawn on the picture are empty at first and fill up — the tree first, then the garland.
 
 type Point = { x: number; y: number };
 type BallPhase = "floating" | "gazing" | "collecting";
 type Ball = Point & {
   id: string;
   radius: number;
-  color: number;
+  color: BallColor;
+  /** The circle of the picture this ball will hang on. */
+  slot: number;
   age: number;
   phaseAge: number;
   phase: BallPhase;
@@ -34,23 +38,23 @@ type Ball = Point & {
   speed: number;
   wobble: number;
   drift: number;
-  /** Where the ball was when it was collected, in pixels: it flies from here to Pusya. */
+  /** Where the ball was when it was collected, in pixels: it flies from here to its circle. */
   from?: Point;
 };
-type Sparkle = Point & { age: number; life: number; radius: number; color: number };
+type Sparkle = Point & { age: number; life: number; radius: number; color: BallColor };
 
 // The colours of the balls on Pusya's tree: pink, yellow, sky blue, green.
-const ballColors = [
-  { fill: "#ff9fcf", shade: "#e2589f" },
-  { fill: "#ffe44d", shade: "#e0a800" },
-  { fill: "#9eeeff", shade: "#3fb6dc" },
-  { fill: "#b4f046", shade: "#68b81c" },
-];
+const ballColors: Record<BallColor, { fill: string; shade: string }> = {
+  pink: { fill: "#ff9fcf", shade: "#e2589f" },
+  yellow: { fill: "#ffe44d", shade: "#e0a800" },
+  blue: { fill: "#9eeeff", shade: "#3fb6dc" },
+  green: { fill: "#b4f046", shade: "#68b81c" },
+};
 const outline = "#1f1f1f";
-// Pusya's front paws in the picture (fractions of the picture), where collected balls fly.
-const pusyaPaws = { x: 0.33, y: 0.66 };
 const pictureRatio = 1018 / 968;
 const collectSeconds = 1.1;
+/** After the last ball the full tree stays on screen a moment before the result. */
+const admireSeconds = 2;
 
 const router = useRouter();
 const canvasRef = ref<HTMLCanvasElement>();
@@ -67,7 +71,7 @@ const {
   recordSuccess,
   startSession,
 } = useGameSessionFor("new-year-balls", {
-  maxSteps: 10,
+  maxSteps: treeSlots.length,
   overrides: {
     preset: "gentle",
     targetScale: 1.55,
@@ -82,6 +86,9 @@ useStartPromptAudio({ gameId: "new-year-balls", soundEnabled: toRef(session.sett
 
 const balls = reactive<Ball[]>([]);
 const sparkles = reactive<Sparkle[]>([]);
+/** Circles of the picture that already have their ball. */
+const filled = reactive(new Set<number>());
+let admireLeft = 0;
 const resultVisible = computed(() => session.status === "finished");
 
 const picture = new Image();
@@ -138,9 +145,17 @@ function ballArea() {
   };
 }
 
-function pusyaPoint() {
+function slotPoint(slot: TreeSlot) {
   const rect = pictureRect();
-  return { x: rect.x + rect.width * pusyaPaws.x, y: rect.y + rect.height * pusyaPaws.y };
+  return {
+    x: rect.x + rect.width * slot.x,
+    y: rect.y + rect.height * slot.y,
+    r: rect.height * slot.r,
+  };
+}
+
+function slotById(id: number) {
+  return treeSlots.find((slot) => slot.id === id) ?? treeSlots[0];
 }
 
 function randomRange(min: number, max: number) {
@@ -262,7 +277,6 @@ function placeBall(ball: Ball, first = false) {
     x: point.x,
     y: point.y,
     radius,
-    color: Math.floor(Math.random() * ballColors.length),
     age: randomRange(0, 4),
     phaseAge: 0,
     phase: "floating",
@@ -275,8 +289,14 @@ function placeBall(ball: Ball, first = false) {
   });
 }
 
-function createBall(first = false): Ball {
-  const ball = { id: `new-year-ball-${Date.now()}-${Math.random().toString(36).slice(2)}` } as Ball;
+function createBall(first = false): Ball | undefined {
+  const slot = nextFreeSlot(filled, new Set(balls.map((ball) => ball.slot)));
+  if (!slot) return undefined;
+  const ball = {
+    id: `new-year-ball-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    slot: slot.id,
+    color: slot.color,
+  } as Ball;
   placeBall(ball, first);
   return ball;
 }
@@ -315,7 +335,7 @@ function cancelBall(ball: Ball, now: number, reason: "left" | "invalid-gaze") {
 
 function collectBall(ball: Ball, now: number) {
   recordEvent("target-click", targetPayload(ball, now, 1));
-  recordSuccess({ targetId: ball.id, color: ball.color });
+  recordSuccess({ targetId: ball.id, color: ball.color, slot: ball.slot });
   void playNewYearBallsMelody(session.settings.sound);
   ball.from = ballPoint(ball);
   ball.phase = "collecting";
@@ -325,7 +345,7 @@ function collectBall(ball: Ball, now: number) {
 }
 
 function closestGazeBall() {
-  if (!pointer.value.valid || session.step >= session.maxSteps) return undefined;
+  if (!pointer.value.valid) return undefined;
   let closest: Ball | undefined;
   let closestDistance = Number.POSITIVE_INFINITY;
   for (const ball of balls) {
@@ -356,23 +376,32 @@ function updateBallGaze(ball: Ball, now: number, gazeBall?: Ball) {
   if (ball.dwellProgress >= 1) collectBall(ball, now);
 }
 
-function ensureBalls() {
+function ensureBalls(delta: number) {
   if (session.status !== "running") return;
-  if (session.step >= session.maxSteps) {
-    if (!balls.some((ball) => ball.phase === "collecting")) finishSession("max-steps");
+  // A new round started by the session itself (endless mode): an empty tree again.
+  if (session.step === 0 && filled.size > 0 && !balls.some((b) => b.phase === "collecting"))
+    filled.clear();
+  if (filled.size >= treeSlots.length || session.step >= session.maxSteps) {
+    if (balls.some((ball) => ball.phase === "collecting")) return;
+    admireLeft -= delta;
+    if (admireLeft <= 0) finishSession("max-steps");
     return;
   }
-  for (let index = balls.length; index < desiredBallCount(); index++) balls.push(createBall());
+  admireLeft = admireSeconds;
+  while (balls.length < desiredBallCount()) {
+    const ball = createBall();
+    if (!ball) break;
+    balls.push(ball);
+  }
 }
 
-function addSparkle(color: number) {
-  const point = pusyaPoint();
+function addSparkle(point: Point, color: BallColor) {
   sparkles.push({ ...point, age: 0, life: 1.2, radius: ballRadius() * 0.5, color });
   if (sparkles.length > 8) sparkles.shift();
 }
 
 function updateBalls(delta: number, now: number) {
-  ensureBalls();
+  ensureBalls(delta);
   const gazeBall = closestGazeBall();
   for (let index = balls.length - 1; index >= 0; index--) {
     const ball = balls[index];
@@ -380,7 +409,8 @@ function updateBalls(delta: number, now: number) {
     ball.phaseAge += delta;
     if (ball.phase === "collecting") {
       if (ball.phaseAge >= collectSeconds) {
-        addSparkle(ball.color);
+        filled.add(ball.slot);
+        addSparkle(slotPoint(slotById(ball.slot)), ball.color);
         balls.splice(index, 1);
       }
       continue;
@@ -418,6 +448,73 @@ function drawBackground(context: CanvasRenderingContext2D) {
   if (!picture.complete || picture.naturalWidth === 0) return;
   const rect = pictureRect();
   context.drawImage(picture, rect.x, rect.y, rect.width, rect.height);
+  for (const slot of treeSlots) {
+    const point = slotPoint(slot);
+    if (filled.has(slot.id)) drawHangingBall(context, point, slot.color);
+    else drawEmptySlot(context, point);
+  }
+}
+
+function hangingRadius(slotRadius: number) {
+  return slotRadius * 1.25;
+}
+
+/** A circle still waiting for its ball: the drawn ball is covered by a pale dashed ring. */
+function drawEmptySlot(context: CanvasRenderingContext2D, point: Point & { r: number }) {
+  context.save();
+  context.fillStyle = "#ffffff";
+  context.beginPath();
+  context.arc(point.x, point.y, point.r * 1.12, 0, Math.PI * 2);
+  context.fill();
+  context.strokeStyle = "rgb(120 120 120 / 75%)";
+  context.lineWidth = Math.max(1.5, point.r * 0.12);
+  context.setLineDash([point.r * 0.32, point.r * 0.24]);
+  context.beginPath();
+  context.arc(point.x, point.y, point.r * 0.92, 0, Math.PI * 2);
+  context.stroke();
+  context.restore();
+}
+
+/** A collected ball in its place on the tree or the garland. */
+function drawHangingBall(
+  context: CanvasRenderingContext2D,
+  point: Point & { r: number },
+  colorName: BallColor,
+) {
+  const radius = hangingRadius(point.r);
+  const color = ballColors[colorName];
+  context.save();
+  const body = context.createRadialGradient(
+    point.x - radius * 0.3,
+    point.y - radius * 0.35,
+    radius * 0.1,
+    point.x,
+    point.y,
+    radius,
+  );
+  body.addColorStop(0, color.fill);
+  body.addColorStop(0.7, color.fill);
+  body.addColorStop(1, color.shade);
+  context.fillStyle = body;
+  context.strokeStyle = outline;
+  context.lineWidth = Math.max(1.5, radius * 0.09);
+  context.beginPath();
+  context.arc(point.x, point.y, radius, 0, Math.PI * 2);
+  context.fill();
+  context.stroke();
+  context.fillStyle = "rgb(255 255 255 / 90%)";
+  context.beginPath();
+  context.ellipse(
+    point.x - radius * 0.35,
+    point.y - radius * 0.38,
+    radius * 0.22,
+    radius * 0.13,
+    -0.7,
+    0,
+    Math.PI * 2,
+  );
+  context.fill();
+  context.restore();
 }
 
 function easeInOut(t: number) {
@@ -430,14 +527,14 @@ function drawBall(context: CanvasRenderingContext2D, ball: Ball) {
   let alpha = 1;
   if (ball.phase === "collecting" && ball.from) {
     const t = easeInOut(Math.min(1, ball.phaseAge / collectSeconds));
-    const target = pusyaPoint();
+    const target = slotPoint(slotById(ball.slot));
     // A little arc on the way to Pusya.
     point = {
       x: ball.from.x + (target.x - ball.from.x) * t,
       y: ball.from.y + (target.y - ball.from.y) * t - Math.sin(t * Math.PI) * ball.radius * 1.2,
     };
-    scale = 1.08 - t * 0.6;
-    alpha = t > 0.85 ? (1 - t) / 0.15 : 1;
+    // Shrinks to the size of its circle on the picture.
+    scale = 1.08 + (hangingRadius(target.r) / ball.radius - 1.08) * t;
   }
   const radius = ball.radius * scale;
   const color = ballColors[ball.color];
@@ -560,9 +657,14 @@ function tick(now: number) {
 function initBalls() {
   balls.splice(0);
   sparkles.splice(0);
+  filled.clear();
+  admireLeft = admireSeconds;
   previousPoint = undefined;
   resetNewYearBallsAudioSession();
-  for (let index = 0; index < desiredBallCount(); index++) balls.push(createBall(index === 0));
+  for (let index = 0; index < desiredBallCount(); index++) {
+    const ball = createBall(index === 0);
+    if (ball) balls.push(ball);
+  }
   separateBalls();
 }
 
