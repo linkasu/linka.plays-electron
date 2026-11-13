@@ -16,7 +16,7 @@ function Assert-Installed {
   if ($installed.DisplayVersion -ne $version -or $installed.InstallLocation.TrimEnd('\') -ne $path) {
     throw 'Install identity, version or previous directory was not preserved'
   }
-  foreach ($file in @('LINKa.plays.exe', 'LINKa.plays-launcher.exe', 'hostfxr.dll', 'resources\app.asar')) {
+  foreach ($file in @('LINKa.plays.exe', 'LINKa.plays-launcher.exe', 'hostfxr.dll', 'resources\app.asar', 'resources\LICENSING.md', 'resources\third-party-notices.md', 'notices\microsoft.netcore.app.runtime.win-x64\LICENSE.TXT', 'notices\microsoft.windowsdesktop.app.runtime.win-x64\LICENSE')) {
     if (!(Test-Path (Join-Path $path $file))) { throw "Missing installed file: $file" }
   }
   if ((Get-Content (Join-Path $path 'version.json') -Raw | ConvertFrom-Json).version -ne $version) {
@@ -25,9 +25,10 @@ function Assert-Installed {
   $command = (Get-Item 'HKCU:\Software\Classes\linka-play\shell\open\command').GetValue('')
   if ($command -ne "`"$path\LINKa.plays.exe`" `"%1`"") { throw "Incorrect game link: $command" }
   $shell = New-Object -ComObject WScript.Shell
-  $shortcut = $shell.CreateShortcut((Join-Path ([Environment]::GetFolderPath('Programs')) 'LINKa. играй.lnk'))
+  $shortcutPath = Join-Path ([Environment]::GetFolderPath('Programs')) 'LINKa. играй.lnk'
+  $shortcut = $shell.CreateShortcut($shortcutPath)
   if ($shortcut.TargetPath -ne (Join-Path $path 'LINKa.plays-launcher.exe') -or $shortcut.WorkingDirectory -ne $path) {
-    throw 'Start menu shortcut does not start the launcher in its installation directory'
+    throw "Wrong shortcut: file='$shortcutPath', exists=$(Test-Path $shortcutPath), target='$($shortcut.TargetPath)', cwd='$($shortcut.WorkingDirectory)', expected='$path'"
   }
 }
 

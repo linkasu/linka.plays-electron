@@ -116,6 +116,14 @@ jobs:
         shell: pwsh
         run: |
           $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          foreach ($package in @('microsoft.netcore.app.runtime.win-x64', 'microsoft.windowsdesktop.app.runtime.win-x64')) {
+            $runtime = Get-ChildItem "$env:USERPROFILE/.nuget/packages/$package/10.*" -Directory | Sort-Object { [version]$_.Name } -Descending | Select-Object -First 1
+            if (!$runtime) { throw "Missing runtime package: $package" }
+            $notices = Get-ChildItem $runtime.FullName -File | Where-Object Name -Match '^(LICENSE(\.TXT)?|THIRD-PARTY-NOTICES\.TXT)$'
+            if (!$notices) { throw "Missing runtime license: $package" }
+            $destination = New-Item -ItemType Directory -Force "release/launcher/notices/$package"
+            $notices | Copy-Item -Destination $destination.FullName
+          }
           & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DAppVersion=$version" "/DPayloadDir=$pwd\release\win-unpacked" "/DLauncherDir=$pwd\release\launcher" resources/electron/installer.iss
           if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed: $LASTEXITCODE" }
           Compress-Archive release/launcher release/launcher.zip
@@ -154,6 +162,16 @@ jobs:
         with:
           name: ${{ runner.os }}-packaged-smoke-debug-${{ github.run_id }}
           path: release-debug/**/*
+          if-no-files-found: ignore
+
+      - name: Upload installer failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-installer-diagnostics-${{ github.run_id }}
+          path: |
+            release/*-win-x64.exe
+            ${{ runner.temp }}/*install.log
           if-no-files-found: ignore
 
   publish:

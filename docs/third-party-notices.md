@@ -1,5 +1,10 @@
 # Сторонние компоненты и материалы
 
+Self-contained Windows-лаунчер включает .NET 10 и WPF runtime Microsoft (MIT).
+Их штатные `LICENSE`, `LICENSE.TXT` и `THIRD-PARTY-NOTICES.TXT` из NuGet runtime-пакетов
+сохраняются в установленном каталоге `notices/` и в `launcher.zip`. GPL собственного
+кода приложения не заменяет эти условия.
+
 Этот перечень дополняет [licensing.md](licensing.md): GPL-3.0-or-later для собственного
 кода LINKa Plays Electron не перелицензирует перечисленные сторонние компоненты.
 Указание компонента здесь не предоставляет разрешения на его использование или
