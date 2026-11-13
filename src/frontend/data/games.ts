@@ -624,7 +624,7 @@ export const games: GameInfo[] = [
     skills: ["fixation", "attention-shift"],
     status: "therapy-ready",
     stabilityStatus: "publish",
-    recommendedSessionSeconds: 90,
+    recommendedSessionSeconds: 120,
     minTargetSizePx: 160,
     defaultDwellMs: 1300,
   },
