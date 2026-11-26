@@ -2,6 +2,8 @@ const { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSyn
 const { spawn, spawnSync } = require("child_process");
 const { basename, join, resolve } = require("path");
 const { WebSocket } = require("undici");
+const { createServer } = require("node:http");
+const assert = require("node:assert/strict");
 
 const projectRoot = join(__dirname, "..", "..");
 const packageOutputDir = join(projectRoot, "release");
@@ -195,6 +197,30 @@ function stopProcess(child) {
   child.kill();
 }
 
+function assertWindowsUpdaterPolicy(
+  versionInfo,
+  updaterState,
+  requests,
+  expectedVersion,
+  expectedSha,
+) {
+  assert.equal(versionInfo.platform, "win32", "Expected the packaged Windows app");
+  assert.equal(versionInfo.isPackaged, true, "Expected an installed/packaged app");
+  assert.equal(versionInfo.version, expectedVersion, "Packaged version differs from package.json");
+  if (expectedSha)
+    assert.equal(versionInfo.buildSha, expectedSha, "Packaged build SHA differs from CI commit");
+  assert.deepEqual(
+    requests,
+    [],
+    "Windows Electron contacted the update feed instead of the launcher",
+  );
+  assert.deepEqual(
+    updaterState,
+    { available: false, downloaded: false, error: "", percent: 0, version: expectedVersion },
+    "Windows Electron updater must remain inactive",
+  );
+}
+
 async function main() {
   const port = Number(argValue("--port", "9229"));
   const screenshotDir = resolve(
@@ -210,12 +236,24 @@ async function main() {
   const installedExe = argValue("--exe", "");
   const exePath = installedExe ? resolve(installedExe) : findPackagedExe();
   const appLog = [];
+  const updateRequests = [];
+  const updateFeed = createServer((request, response) => {
+    updateRequests.push(request.url);
+    response.writeHead(404);
+    response.end("Windows updates belong to the launcher");
+  });
+  await new Promise((resolveListen, reject) => {
+    updateFeed.once("error", reject);
+    updateFeed.listen(0, "127.0.0.1", resolveListen);
+  });
   const smokeEnv = {
     ...process.env,
     LINKA_NO_TOBII: "1",
     LINKA_IDENTITY_URL: process.env.LINKA_IDENTITY_URL ?? "http://127.0.0.1:1",
     LINKA_METRICS_URL: process.env.LINKA_METRICS_URL ?? "http://127.0.0.1:1",
     ELECTRON_ENABLE_LOGGING: "1",
+    UPDATE_FEED_URL: `http://127.0.0.1:${updateFeed.address().port}`,
+    UPDATE_TEST_MODE: "1",
   };
   const child = spawn(
     exePath,
@@ -258,21 +296,41 @@ async function main() {
     }
     await waitForGame(client, "gaze-maze");
 
+    const versionInfo = await evaluateJson(client, "window.linkaUpdater.getAppVersion()");
+    const updaterState = await evaluateJson(client, "window.linkaUpdater.getState()");
+    const expectedPackage = JSON.parse(readFileSync(join(projectRoot, "package.json"), "utf8"));
     const diagnostics = await collectDiagnostics(client);
     const screenshotPath = await writeScreenshot(client, screenshotDir);
     const blank = rendererLooksBlank(diagnostics);
+    let updaterPolicyError;
+    try {
+      assertWindowsUpdaterPolicy(
+        versionInfo,
+        updaterState,
+        updateRequests,
+        expectedPackage.version,
+        process.env.GITHUB_SHA || expectedPackage.buildSha,
+      );
+    } catch (error) {
+      updaterPolicyError = error.message;
+    }
     report = {
-      ok: !blank && runtimeErrors.length === 0,
+      ok: !blank && runtimeErrors.length === 0 && !updaterPolicyError,
       blank,
       exePath,
       port,
       screenshotPath,
       runtimeErrors,
+      versionInfo,
+      updaterState,
+      updateRequests,
+      updaterPolicyError,
       diagnostics,
     };
   } finally {
     if (client) client.close();
     stopProcess(child);
+    await new Promise((resolveClose) => updateFeed.close(resolveClose));
     writeFileSync(logPath, appLog.join(""), "utf8");
   }
 
@@ -288,6 +346,7 @@ async function main() {
         {
           blank: report.blank,
           runtimeErrors: report.runtimeErrors,
+          updaterPolicyError: report.updaterPolicyError,
           diagnostics: report.diagnostics,
         },
         null,
@@ -298,7 +357,11 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+module.exports = { assertWindowsUpdaterPolicy };
+
+if (require.main === module) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}

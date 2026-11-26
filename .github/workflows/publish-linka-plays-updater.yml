@@ -15,6 +15,9 @@ on:
 jobs:
   publish-updater:
     runs-on: ubuntu-latest
+    concurrency:
+      group: windows-public-mirror
+      cancel-in-progress: false
     env:
       RELEASE_TAG: ${{ inputs.version }}
     steps:
@@ -38,19 +41,18 @@ jobs:
 
           ssh -i ~/.ssh/linka_su -o BatchMode=yes -o StrictHostKeyChecking=yes \
             "${{ secrets.LINKA_SU_USER }}@${{ secrets.LINKA_SU_HOST }}" \
-            'mkdir -p /home/aacidov/linka-docker/release-tools'
+            "mkdir -p /home/aacidov/linka-docker/release-tools/${GITHUB_SHA}"
           scp -i ~/.ssh/linka_su -o BatchMode=yes -o StrictHostKeyChecking=yes \
             scripts/publish-windows-release.mjs \
-            "${{ secrets.LINKA_SU_USER }}@${{ secrets.LINKA_SU_HOST }}:/home/aacidov/linka-docker/release-tools/linka-plays-publish.mjs"
+            "${{ secrets.LINKA_SU_USER }}@${{ secrets.LINKA_SU_HOST }}:/home/aacidov/linka-docker/release-tools/${GITHUB_SHA}/linka-plays-publish.mjs"
 
           ssh -i ~/.ssh/linka_su \
             -o BatchMode=yes \
             -o StrictHostKeyChecking=yes \
             "${{ secrets.LINKA_SU_USER }}@${{ secrets.LINKA_SU_HOST }}" \
-            "EXPECTED_VERSION='$expected_version' bash -s" <<'REMOTE'
+            "EXPECTED_VERSION='$expected_version' PUBLISHER_SHA='$GITHUB_SHA' bash -s" <<'REMOTE'
           set -euo pipefail
-          sudo -n ln -sfn /home/aacidov/linka-docker/release-tools/linka-plays-publish.mjs /home/aacidov/linka-docker/wordpress/dist/linka.plays/update.js
-          sudo -n "$(command -v node)" /home/aacidov/linka-docker/release-tools/linka-plays-publish.mjs "$EXPECTED_VERSION"
+          sudo -n "$(command -v node)" "/home/aacidov/linka-docker/release-tools/$PUBLISHER_SHA/linka-plays-publish.mjs" "$EXPECTED_VERSION"
           cd /home/aacidov/linka-docker/wordpress/linkaplay
 
           actual_version="$(node -p "require('./version.json').version")"
@@ -62,3 +64,16 @@ jobs:
           test -s linkaplaysetup.exe
           ls -lh linkaplaysetup.exe version.json launcher.zip
           REMOTE
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify both public mirrors against the exact release bytes
+        run: node scripts/ci/verify-public-windows-release.mjs "${RELEASE_TAG#v}" > public-windows-release.json
+      - name: Upload public verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Public-Windows-verification-${{ github.run_id }}
+          path: public-windows-release.json
+          if-no-files-found: ignore

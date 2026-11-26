@@ -1,8 +1,7 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import { autoUpdater, type ProgressInfo, type UpdateInfo } from "electron-updater";
 import Store from "electron-store";
-import { appendFileSync } from "fs";
-import { readFileSync } from "fs";
+import { appendFileSync, readFileSync, renameSync, statSync } from "fs";
 import { join } from "path";
 
 export type AppVersionInfo = {
@@ -24,6 +23,7 @@ const isUpdateTestMode = process.env.UPDATE_TEST_MODE === "1";
 const updateFeedUrl = process.env.UPDATE_FEED_URL;
 const updateLogPath = process.env.UPDATE_LOG_PATH;
 const UPDATE_RESTART_COOLDOWN_MS = 5 * 60 * 1000;
+const UPDATE_LOG_MAX_BYTES = 1024 * 1024;
 
 const updateStore = new Store({ name: "updater" });
 const updateState: UpdaterState = {
@@ -53,20 +53,9 @@ type UpdaterTelemetryHooks = {
 export function registerUpdaterHandlers(hooks: UpdaterTelemetryHooks = {}) {
   telemetryHooks = hooks;
   ipcMain.handle("app:version", () => {
-    let buildSha = "";
-    try {
-      buildSha =
-        (
-          JSON.parse(readFileSync(join(app.getAppPath(), "package.json"), "utf8")) as {
-            buildSha?: string;
-          }
-        ).buildSha ?? "";
-    } catch {
-      // Development builds may not include packaged build metadata.
-    }
     return {
       version: app.getVersion(),
-      buildSha,
+      buildSha: getBuildSha(),
       platform: process.platform,
       isPackaged: app.isPackaged,
     } satisfies AppVersionInfo;
@@ -74,12 +63,17 @@ export function registerUpdaterHandlers(hooks: UpdaterTelemetryHooks = {}) {
   ipcMain.handle("updater:getState", () => ({ ...updateState }));
   ipcMain.on("updater:restartApp", () => {
     if (isQuittingForUpdate || !downloadedVersion || !updateState.downloaded) return;
+    const version = downloadedVersion;
     isQuittingForUpdate = true;
     telemetryHooks.onState?.("installing", downloadedVersion);
     void Promise.resolve(telemetryHooks.onRestart?.())
       .catch(() => undefined)
       .finally(() => {
-        recordUpdateInstallAttempt(downloadedVersion);
+        if (!updateState.downloaded || downloadedVersion !== version) {
+          isQuittingForUpdate = false;
+          return;
+        }
+        recordUpdateInstallAttempt(version);
         logUpdate("restart_app");
         autoUpdater.quitAndInstall();
       });
@@ -96,7 +90,7 @@ export function setupAutoUpdater(win: BrowserWindow) {
 
   if (updateFeedUrl) {
     autoUpdater.setFeedURL({ provider: "generic", url: updateFeedUrl });
-    logUpdate("update_feed_url", { url: updateFeedUrl });
+    logUpdate("update_feed_configured");
   }
 
   clearUpdateAttemptIfSucceeded();
@@ -113,53 +107,43 @@ export function setupAutoUpdater(win: BrowserWindow) {
   // minute crashed or did not start on half-replaced files.
   autoUpdater.autoInstallOnAppQuit = false;
 
-  autoUpdater.on("error", (error) => {
-    isDownloadingUpdate = false;
-    const message = error instanceof Error ? error.message : String(error);
-    updateState.error = message;
-    updateState.available = false;
-    updateState.downloaded = false;
-    telemetryHooks.onState?.("error");
-    logUpdate("update_error", { message });
-    sendToRenderer("updater:error", message);
-  });
+  autoUpdater.on("error", (error) => failUpdate("update_error", error));
 
   autoUpdater.on("update-available", (info) => {
     if (isDownloadingUpdate) return;
     isDownloadingUpdate = true;
-    downloadedVersion = info.version;
+    downloadedVersion = null;
     updateState.available = true;
     updateState.downloaded = false;
     updateState.error = "";
     updateState.percent = 0;
     telemetryHooks.onState?.("available", info.version);
     telemetryHooks.onState?.("downloading", info.version);
-    logUpdate("update_available", info);
+    logUpdate("update_available", { version: info.version });
     sendToRenderer("updater:available", info);
-    autoUpdater.downloadUpdate().catch((error) => {
-      isDownloadingUpdate = false;
-      const message = error instanceof Error ? error.message : String(error);
-      updateState.error = message;
-      telemetryHooks.onState?.("error");
-      logUpdate("update_download_error", { message });
-      sendToRenderer("updater:error", message);
-    });
+    autoUpdater.downloadUpdate().catch((error) => failUpdate("update_download_error", error));
   });
 
   autoUpdater.on("update-not-available", () => {
     isDownloadingUpdate = false;
+    downloadedVersion = null;
     updateState.available = false;
+    updateState.downloaded = false;
+    updateState.error = "";
+    updateState.percent = 0;
     telemetryHooks.onState?.("idle");
     logUpdate("update_not_available");
   });
 
   autoUpdater.on("download-progress", (info) => {
+    if (!isDownloadingUpdate) return;
     updateState.percent = info.percent;
-    logUpdate("download_progress", info);
+    logUpdate("download_progress");
     sendToRenderer("updater:info", info);
   });
 
   autoUpdater.on("update-downloaded", (info) => {
+    if (!isDownloadingUpdate) return;
     isDownloadingUpdate = false;
     downloadedVersion = info.version;
     updateState.available = false;
@@ -167,30 +151,28 @@ export function setupAutoUpdater(win: BrowserWindow) {
     updateState.error = "";
     updateState.percent = 100;
     telemetryHooks.onState?.("downloaded", info.version);
-    logUpdate("update_downloaded", info);
+    logUpdate("update_downloaded", { version: info.version });
     sendToRenderer("updater:downloaded", info);
     if (isUpdateTestMode && !isQuittingForUpdate) {
+      const version = downloadedVersion;
       isQuittingForUpdate = true;
       telemetryHooks.onState?.("installing", downloadedVersion);
       void Promise.resolve(telemetryHooks.onRestart?.())
         .catch(() => undefined)
         .finally(() => {
-          recordUpdateInstallAttempt(downloadedVersion);
+          if (!updateState.downloaded || downloadedVersion !== version) {
+            isQuittingForUpdate = false;
+            return;
+          }
+          recordUpdateInstallAttempt(version);
           logUpdate("update_test_quit_and_install");
           autoUpdater.quitAndInstall(true, false);
         });
     }
   });
 
-  autoUpdater.checkForUpdates().catch((error) => {
-    const message = error instanceof Error ? error.message : String(error);
-    updateState.error = message;
-    updateState.available = false;
-    updateState.downloaded = false;
-    telemetryHooks.onState?.("error");
-    logUpdate("update_check_error", { message });
-    sendToRenderer("updater:error", message);
-  });
+  logUpdate("update_check");
+  autoUpdater.checkForUpdates().catch((error) => failUpdate("update_check_error", error));
 }
 
 /** True when a downloaded update is waiting to be installed when the program closes. */
@@ -222,14 +204,65 @@ function sendToRenderer(channel: string, payload?: unknown) {
   mainWindow.webContents.send(channel, payload);
 }
 
-function logUpdate(message: string, payload?: unknown) {
-  if (!updateLogPath) return;
-  const safePayload = payload ? ` ${JSON.stringify(payload)}` : "";
-  const line = `[${new Date().toISOString()}] ${message}${safePayload}\n`;
+function failUpdate(stage: string, error: unknown) {
+  isDownloadingUpdate = false;
+  downloadedVersion = null;
+  updateState.available = false;
+  updateState.downloaded = false;
+  updateState.percent = 0;
+  // Raw updater errors can contain signed URLs or credentials; keep only a diagnostic code.
+  const candidate = error && typeof error === "object" && "code" in error ? error.code : "";
+  const status =
+    error && typeof error === "object" && "statusCode" in error ? error.statusCode : undefined;
+  const code =
+    typeof candidate === "string" &&
+    /^(ERR_UPDATER_(LATEST_VERSION_NOT_FOUND|INVALID_RELEASE_FEED|INVALID_RELEASE_NOTES|INVALID_PROVIDER_CONFIGURATION|NO_PUBLISHED_VERSIONS|CHANNEL_FILE_NOT_FOUND|INVALID_CHANNEL_FILE|NO_FILES_PROVIDED|CHECKSUM_MISMATCH)|ENOTFOUND|ECONNRESET|ECONNREFUSED|ETIMEDOUT|EACCES|ENOSPC)$/.test(
+      candidate,
+    )
+      ? candidate
+      : typeof status === "number" && Number.isInteger(status) && status >= 300 && status <= 599
+        ? `HTTP_${status}`
+        : "UPDATER_ERROR";
+  updateState.error = code;
+  telemetryHooks.onState?.("error");
+  logUpdate(stage, { code });
+  sendToRenderer("updater:error", code);
+}
+
+function getBuildSha() {
   try {
-    appendFileSync(updateLogPath, line);
-  } catch (error) {
-    console.warn("Failed to write update log:", error);
+    const { buildSha } = JSON.parse(
+      readFileSync(join(app.getAppPath(), "package.json"), "utf8"),
+    ) as { buildSha?: unknown };
+    return typeof buildSha === "string" && /^[a-f0-9]{7,40}$/i.test(buildSha) ? buildSha : "";
+  } catch {
+    return "";
+  }
+}
+
+function logUpdate(stage: string, payload?: { version?: string | null; code?: string }) {
+  try {
+    const path = updateLogPath || join(app.getPath("userData"), "updater.log");
+    const safeVersion = (version?: string | null) =>
+      version && /^\d{1,6}\.\d{1,6}\.\d{1,6}(?:-[a-z]+\.\d{1,6})?$/.test(version)
+        ? version
+        : undefined;
+    const line = `[${new Date().toISOString()}] ${stage} ${JSON.stringify({
+      currentVersion: safeVersion(app.getVersion()),
+      version: safeVersion(payload?.version),
+      buildSha: getBuildSha(),
+      code: payload?.code,
+    })}\n`;
+    let size = 0;
+    try {
+      size = statSync(path).size;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    }
+    if (size + Buffer.byteLength(line) > UPDATE_LOG_MAX_BYTES) renameSync(path, `${path}.1`);
+    appendFileSync(path, line);
+  } catch {
+    console.warn("Failed to write update log.");
   }
 }
 

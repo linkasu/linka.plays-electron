@@ -18,6 +18,8 @@ jobs:
       - run: npm run typecheck
       - run: npm run test:unit
       - run: node --test scripts/publish-windows-release.test.mjs
+      - run: node --test scripts/ci/packaged-window-smoke.test.cjs
+      - run: node --test scripts/ci/updater-feed-compatibility.test.cjs scripts/ci/assert-windows-release-assets.test.mjs scripts/ci/windows-nsis-migration-smoke.test.cjs scripts/ci/verify-public-windows-release.test.mjs
       - run: npm run lint:adaptive-layout -- --all
       - run: npm run audit:readiness -- --check
       - run: npm run audit:tts-assets

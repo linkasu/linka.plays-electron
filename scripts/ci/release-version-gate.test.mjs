@@ -34,8 +34,32 @@ describe("release version gate", () => {
     expect(workflow).toContain("node scripts/ci/release-version-gate.js");
     expect(workflow).toMatch(/verify:\n    needs: release-version/);
     expect(workflow).toMatch(/build:\n    needs: verify/);
-    expect(workflow).toMatch(/publish:\n    needs: \[release-version, build\]/);
+    expect(workflow).toMatch(/upgrade-3:\n    needs: build/);
+    expect(workflow).toContain("-PreviousVersion 3.0.0");
+    expect(workflow).toMatch(/upgrade-nsis:\n    needs: build/);
+    expect(workflow).toContain("windows-nsis-migration-smoke.ps1");
+    expect(workflow).toContain('"0.1.22", "0.1.23-beta.95"');
+    expect(workflow).toMatch(
+      /publish:\n    needs: \[release-version, build, upgrade-3, upgrade-nsis\]/,
+    );
     expect(workflow).toMatch(/publish-updater-mirror:\n    needs: \[release-version, publish\]/);
+  });
+
+  it("isolates Inno releases and keeps preview builds out of the legacy updater feed", () => {
+    const workflow = readFileSync(
+      join(scriptDirectory, "..", "..", ".github", "workflows", "release.yml"),
+      "utf8",
+    );
+    const preview = readFileSync(
+      join(scriptDirectory, "..", "..", ".github", "workflows", "windows-main-release.yml"),
+      "utf8",
+    );
+    expect(workflow).toContain("GH_REPO: linkasu/linka.plays-windows-releases");
+    expect(workflow).toContain("scripts/ci/assert-windows-release-assets.mjs");
+    expect(workflow).toContain("secrets.WINDOWS_RELEASE_TOKEN");
+    expect(preview).not.toContain("gh release create");
+    expect(preview).not.toContain("contents: write");
+    expect(workflow).toContain("node --test scripts/ci/updater-feed-compatibility.test.cjs");
   });
 
   it("keeps launcher sources outside the build directory erased by node-gyp rebuild", () => {

@@ -327,7 +327,7 @@ function renderAppLink(games) {
   <p>Для проверки с айтрекером откройте игру в установленной программе «Линка играй» на Windows.</p>
   <div class="actions">
     <a class="open" id="open" hidden>Открыть в приложении</a>
-    <a id="install" href="https://github.com/linkasu/linka.plays-electron/releases">Скачать приложение для Windows</a>
+    <a id="install" href="https://github.com/linkasu/linka.plays-windows-releases/releases">Скачать приложение для Windows</a>
   </div>
   <p>Если программа не открылась, установите её и нажмите «Открыть в приложении» ещё раз. Браузер может запросить разрешение.</p>
 </main>
@@ -342,7 +342,7 @@ function renderAppLink(games) {
   } else {
     document.getElementById("title").textContent = "Игра не найдена";
   }
-  fetch("https://api.github.com/repos/linkasu/linka.plays-electron/releases?per_page=20")
+  fetch("https://api.github.com/repos/linkasu/linka.plays-windows-releases/releases?per_page=20")
     .then((response) => response.ok ? response.json() : [])
     .then((releases) => {
       const asset = releases.filter((release) => !release.draft)

@@ -1,0 +1,9 @@
+# Synthetic NSIS metadata: no real executable or production digest is represented.
+version: 0.1.22
+files:
+  - url: linka.plays-electron-0.1.22-win-x64.exe
+    sha512: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+    size: 1
+path: linka.plays-electron-0.1.22-win-x64.exe
+sha512: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+releaseDate: "2026-01-01T00:00:00.000Z"
