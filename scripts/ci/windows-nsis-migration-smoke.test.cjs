@@ -26,16 +26,62 @@ test("pins the NSIS package-name default and guards both historic directory name
   }
 });
 
-test("each shortcut observation gets a unique copy and releases its COM handle", () => {
-  assert.match(script, /"shortcut-" \+ \[Guid\]::NewGuid\(\)\.ToString\('N'\) \+ '\.lnk'/);
-  assert.doesNotMatch(script, /\$index|shortcut-\$index/);
+test("reads original Unicode shortcuts via native ShellLink and releases COM", () => {
+  assert.match(script, /Guid\("00021401-0000-0000-C000-000000000046"\)/);
+  assert.match(script, /Guid\("000214F9-0000-0000-C000-000000000046"\)/);
+  assert.match(script, /InterfaceType\(ComInterfaceType\.InterfaceIsIUnknown\)/);
+  const methods = [
+    "GetPath",
+    "GetIDList",
+    "SetIDList",
+    "GetDescription",
+    "SetDescription",
+    "GetWorkingDirectory",
+  ];
+  const nativeInterface = script.slice(
+    script.indexOf("private interface IShellLinkW"),
+    script.indexOf("public static string[] Read"),
+  );
+  let previous = -1;
+  for (const method of methods) {
+    const position = nativeInterface.indexOf(`void ${method}(`);
+    assert.ok(position > previous);
+    previous = position;
+  }
+  assert.match(script, /\(\(IPersistFile\)instance\)\.Load\(path, 0\)/);
+  assert.equal(script.match(/new StringBuilder\(32768\)/g).length, 3);
+  assert.match(script, /link\.GetPath\(target, target\.Capacity, IntPtr\.Zero, 0\)/);
+  assert.match(script, /link\.GetWorkingDirectory\(workingDirectory, workingDirectory\.Capacity\)/);
+  assert.match(script, /MarshalAs\(UnmanagedType\.LPWStr\)/);
+  assert.doesNotMatch(script, /PreserveSig|WScript|CreateShortcut|shortcut-.*\.lnk/);
+  assert.match(script, /finally\s*\{\s*Marshal\.FinalReleaseComObject\(instance\);/);
+  assert.match(script, /\[ShellLinkReader\]::Read\(\$file\.FullName\)/);
+  assert.match(script, /Target = \$shortcut\[0\]; WorkingDirectory = \$shortcut\[1\]/);
+  assert.match(script, /RawTarget = \$shortcut\[2\]/);
+  assert.match(script, /\$report\.shortcutsBeforeUninstall = @\(Get-Shortcuts\)/);
+  assert.match(script, /\$report\.oldShortcuts = @\(\$report\.shortcutsBeforeUninstall \|/);
+  assert.match(script, /\$report\.shortcutsAfterUninstall = @\(Get-Shortcuts\)/);
+  assert.match(script, /\$report\.shortcutsAfterReinstall = \$shortcuts/);
+  assert.doesNotMatch(script, /Set-Acl|icacls|takeown/i);
+});
+
+test("canonicalizes existing 8.3 paths and verifies recorded shortcut files disappear", () => {
+  assert.match(script, /EntryPoint = "GetLongPathNameW"/);
+  assert.match(script, /CharSet = CharSet\.Unicode, ExactSpelling = true, SetLastError = true/);
+  assert.match(script, /if \(!File\.Exists\(path\) && !Directory\.Exists\(path\)\) return path;/);
   assert.match(
     script,
-    /finally \{\s*\[Runtime\.InteropServices\.Marshal\]::FinalReleaseComObject\(\$shortcut\) \| Out-Null/,
+    /if \(length == 0\) throw new Win32Exception\(Marshal\.GetLastWin32Error\(\)\)/,
   );
-  assert.match(script, /Target = \[string\]\$shortcut\.TargetPath/);
-  assert.match(script, /WorkingDirectory = \[string\]\$shortcut\.WorkingDirectory/);
-  assert.doesNotMatch(script, /Set-Acl|icacls|takeown/i);
+  assert.match(script, /if \(length >= buffer\.Capacity\) throw new IOException/);
+  assert.match(script, /NormalizeExistingPath\(rawTarget\)/);
+  assert.match(script, /NormalizeExistingPath\(workingDirectory\.ToString\(\)\)/);
+  assert.match(script, /foreach \(\$oldShortcut in \$report\.oldShortcuts\)/);
+  assert.match(script, /if \(Test-Path -LiteralPath \$oldShortcut\.Path\) \{ throw/);
+  assert.ok(
+    script.indexOf("foreach ($oldShortcut in $report.oldShortcuts)") >
+      script.indexOf('Invoke-Installer $uninstallerCopy "/S _?=$path"'),
+  );
 });
 
 test("covers a Unicode custom path and repeat installation without restoring preferences", () => {

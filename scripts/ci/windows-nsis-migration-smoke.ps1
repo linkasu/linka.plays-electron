@@ -115,21 +115,76 @@ $shortcutRoots = @(
   [Environment]::GetFolderPath('DesktopDirectory'),
   [Environment]::GetFolderPath('CommonDesktopDirectory')
 )
-$shell = New-Object -ComObject WScript.Shell
+Add-Type -TypeDefinition @'
+using System;
+using System.ComponentModel;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
+using System.Text;
+
+public static class ShellLinkReader
+{
+    [DllImport("kernel32.dll", EntryPoint = "GetLongPathNameW",
+     CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]
+    private static extern uint GetLongPathNameW(string path, [Out] StringBuilder buffer, uint capacity);
+
+    private static string NormalizeExistingPath(string path)
+    {
+        if (!File.Exists(path) && !Directory.Exists(path)) return path;
+        var buffer = new StringBuilder(32768);
+        uint length = GetLongPathNameW(path, buffer, (uint)buffer.Capacity);
+        if (length == 0) throw new Win32Exception(Marshal.GetLastWin32Error());
+        if (length >= buffer.Capacity) throw new IOException("ShellLink path exceeds the bounded Unicode buffer");
+        return buffer.ToString();
+    }
+
+    [ComImport, Guid("00021401-0000-0000-C000-000000000046")]
+    private class ShellLink { }
+
+    [ComImport, Guid("000214F9-0000-0000-C000-000000000046"),
+     InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    private interface IShellLinkW
+    {
+        void GetPath([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder path,
+                     int capacity, IntPtr findData, uint flags);
+        void GetIDList(out IntPtr itemIdList);
+        void SetIDList(IntPtr itemIdList);
+        void GetDescription([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder description,
+                            int capacity);
+        void SetDescription([MarshalAs(UnmanagedType.LPWStr)] string description);
+        void GetWorkingDirectory([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder directory,
+                                 int capacity);
+    }
+
+    public static string[] Read(string path)
+    {
+        object instance = new ShellLink();
+        try
+        {
+            ((IPersistFile)instance).Load(path, 0);
+            var link = (IShellLinkW)instance;
+            var target = new StringBuilder(32768);
+            var workingDirectory = new StringBuilder(32768);
+            link.GetPath(target, target.Capacity, IntPtr.Zero, 0);
+            link.GetWorkingDirectory(workingDirectory, workingDirectory.Capacity);
+            string rawTarget = target.ToString();
+            return new[] { NormalizeExistingPath(rawTarget),
+                           NormalizeExistingPath(workingDirectory.ToString()), rawTarget };
+        }
+        finally
+        {
+            Marshal.FinalReleaseComObject(instance);
+        }
+    }
+}
+'@
 function Get-Shortcuts {
   foreach ($directory in $shortcutRoots | Select-Object -Unique) {
     if ($directory -and (Test-Path -LiteralPath $directory)) {
       foreach ($file in Get-ChildItem -LiteralPath $directory -Filter '*.lnk' -File -Recurse) {
-        # COM cannot read Cyrillic filenames outside the runner's ANSI codepage.
-        $copy = Join-Path $root ("shortcut-" + [Guid]::NewGuid().ToString('N') + '.lnk')
-        Copy-Item -LiteralPath $file.FullName -Destination $copy -Force
-        $shortcut = $shell.CreateShortcut($copy)
-        try {
-          $observation = [pscustomobject]@{ Path = $file.FullName; Target = [string]$shortcut.TargetPath; WorkingDirectory = [string]$shortcut.WorkingDirectory }
-        } finally {
-          [Runtime.InteropServices.Marshal]::FinalReleaseComObject($shortcut) | Out-Null
-        }
-        $observation
+        $shortcut = [ShellLinkReader]::Read($file.FullName)
+        [pscustomobject]@{ Path = $file.FullName; Target = $shortcut[0]; WorkingDirectory = $shortcut[1]; RawTarget = $shortcut[2] }
       }
     }
   }
@@ -191,7 +246,8 @@ try {
   $report.settingsSha256Before = Get-FixtureHash $settings
   $report.fingerprintSha256Before = Get-FixtureHash $fingerprint
   $report.userFileSha256Before = Get-FixtureHash $sentinel
-  $report.oldShortcuts = @(Get-Shortcuts | Where-Object { $_.Target -eq $oldIcon })
+  $report.shortcutsBeforeUninstall = @(Get-Shortcuts)
+  $report.oldShortcuts = @($report.shortcutsBeforeUninstall | Where-Object { $_.Target -eq $oldIcon })
   if (!$report.oldShortcuts.Count) { throw 'Historical NSIS did not create its executable shortcut' }
   New-Item -ItemType Directory -Path $backup | Out-Null
   Copy-Item -LiteralPath $path -Destination (Join-Path $backup 'installation') -Recurse
@@ -225,7 +281,11 @@ try {
       }
     }
   }
-  if (@(Get-Shortcuts | Where-Object { $_.Target -eq $oldIcon }).Count) { throw 'Old executable shortcut survived official NSIS uninstall' }
+  foreach ($oldShortcut in $report.oldShortcuts) {
+    if (Test-Path -LiteralPath $oldShortcut.Path) { throw "Original NSIS shortcut survived official uninstall: $($oldShortcut.Path)" }
+  }
+  $report.shortcutsAfterUninstall = @(Get-Shortcuts)
+  if (@($report.shortcutsAfterUninstall | Where-Object { $_.Target -eq $oldIcon }).Count) { throw 'Old executable shortcut survived official NSIS uninstall' }
   $report.officialUninstallVerified = $true
 
   Invoke-Installer $Installer "/CURRENTUSER /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /DIR=`"$path`" /LOG=`"$root\inno-install.log`""
@@ -262,6 +322,7 @@ try {
   $command = (Get-Item 'HKCU:\Software\Classes\linka-play\shell\open\command').GetValue('')
   if ($command -ne "`"$path\LINKa.plays.exe`" `"%1`"") { throw 'Inno game protocol mismatch' }
   $shortcuts = @(Get-Shortcuts)
+  $report.shortcutsAfterReinstall = $shortcuts
   $startMenu = Join-Path ([Environment]::GetFolderPath('Programs')) 'LINKa. играй.lnk'
   $launcher = Join-Path $path 'LINKa.plays-launcher.exe'
   if (@($shortcuts | Where-Object { $_.Path -eq $startMenu -and $_.Target -eq $launcher -and $_.WorkingDirectory -eq $path }).Count -ne 1) {
