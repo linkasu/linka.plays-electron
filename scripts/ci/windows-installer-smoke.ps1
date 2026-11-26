@@ -1,4 +1,7 @@
-﻿param([Parameter(Mandatory)][string]$Installer)
+﻿param(
+  [Parameter(Mandatory)][string]$Installer,
+  [ValidateSet('2.0.0', '3.0.0')][string]$PreviousVersion = '2.0.0'
+)
 $ErrorActionPreference = 'Stop'
 $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
 $key = '{D17098DB-EAFA-4EFF-A280-65E1CFBAE428}_is1'
@@ -35,15 +38,26 @@ function Assert-Installed {
   }
 }
 
-# The genuine shipped Unity installer is pinned by hash, not reconstructed from source.
-$legacy = Join-Path $env:RUNNER_TEMP 'unity-2.0.0-setup.exe'
-Invoke-WebRequest 'https://linka.su/linkaplay/archive/unity-2.0.0-setup.exe' -OutFile $legacy
-if ((Get-FileHash $legacy -Algorithm SHA256).Hash.ToLowerInvariant() -ne '344b39997ebda4a1cf13211b200f06aaf590149704d341a81cbd4ca5f8593381') {
-  throw 'Unexpected Unity fixture hash'
+# Genuine shipped installers are pinned by hash, not reconstructed from source.
+$fixtures = @{
+  '2.0.0' = @{
+    Url = 'https://linka.su/linkaplay/archive/unity-2.0.0-setup.exe'
+    Hash = '344b39997ebda4a1cf13211b200f06aaf590149704d341a81cbd4ca5f8593381'
+  }
+  '3.0.0' = @{
+    Url = 'https://github.com/linkasu/linka.plays-electron/releases/download/v3.0.0/linka.plays-electron-3.0.0-win-x64.exe'
+    Hash = '36b305ce8047bf4035326a2a58d9f639ffc17a042173e40f9909018b541ecc08'
+  }
+}
+$fixture = $fixtures[$PreviousVersion]
+$legacy = Join-Path $env:RUNNER_TEMP "linka-$PreviousVersion-setup.exe"
+Invoke-WebRequest $fixture.Url -OutFile $legacy
+if ((Get-FileHash $legacy -Algorithm SHA256).Hash.ToLowerInvariant() -ne $fixture.Hash) {
+  throw "Unexpected $PreviousVersion fixture hash"
 }
 $argsCommon = '/CURRENTUSER /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-'
-Install-Checked $legacy "$argsCommon /DIR=`"$path`" /LOG=`"$env:RUNNER_TEMP\unity-install.log`""
-if ((Get-ItemProperty $registryPath).DisplayVersion -ne '2.0.0') { throw 'Wrong legacy install identity/version' }
+Install-Checked $legacy "$argsCommon /DIR=`"$path`" /LOG=`"$env:RUNNER_TEMP\previous-install.log`""
+if ((Get-ItemProperty $registryPath).DisplayVersion -ne $PreviousVersion) { throw 'Wrong previous install identity/version' }
 $sentinel = Join-Path $path 'user-data-preservation-check.txt'
 Set-Content $sentinel 'keep user files' -NoNewline
 Install-Checked $Installer "$argsCommon /LOG=`"$env:RUNNER_TEMP\upgrade-install.log`""
@@ -57,4 +71,4 @@ if (Test-Path $machineKey) { throw 'Refusing to overwrite a machine-wide install
 Install-Checked $Installer "/ALLUSERS /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /DIR=`"$cleanPath`""
 if ((Get-ItemProperty $machineKey).DisplayVersion -ne $version) { throw 'Clean install version mismatch' }
 if (!(Test-Path (Join-Path $cleanPath 'LINKa.plays-launcher.exe'))) { throw 'Clean install lost launcher' }
-Write-Output "PASS: genuine Unity 2.0.0 -> $version in previous custom directory; data/launcher/shortcuts retained; clean all-users installation"
+Write-Output "PASS: genuine $PreviousVersion -> $version in previous custom directory; user file/launcher/shortcuts retained; clean all-users installation"

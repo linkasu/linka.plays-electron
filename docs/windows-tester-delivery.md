@@ -28,9 +28,11 @@ Windows запускает Linka Play или передаёт адрес уже 
 переход не входит. Подробный порядок — [windows-release.md](windows-release.md).
 
 `.github/workflows/windows-main-release.yml` остаётся отдельным тестовым потоком
-0.1.23-beta; он не переключает публичные установщики и манифесты сайта.
+0.1.23-beta только в CI artifacts; он не публикует GitHub Releases и не переключает
+публичные установщики и манифесты сайта.
 
-Релизные артефакты и список версий: https://github.com/linkasu/linka.plays-electron/releases.
+Новые Inno-комплекты: https://github.com/linkasu/linka.plays-windows-releases/releases.
+Исторические NSIS и macOS остаются в исходном репозитории.
 Публичная страница `https://linka.su/play` использует прежний URL
 `https://linka.su/linkaplay/linkaplaysetup.exe`. Зеркало
 `https://linka.su/dist/linka.plays/linka.plays.setup.exe` содержит тот же комплект.
@@ -60,4 +62,5 @@ Windows запускает Linka Play или передаёт адрес уже 
 Оба зеркала под `/home/aacidov/linka-docker/wordpress/` публикует
 `scripts/publish-windows-release.mjs` по точному стабильному тегу, с проверкой
 SHA-256, резервной копией и заменой манифестов после готовых установщиков.
-Не запускать прежний `update.js`, который выбирал GitHub `releases/latest`.
+Не запускать прежний `update.js`. Переход NSIS → Inno выполняется с резервной копией
+и штатным удалением старой программы, не слепой установкой поверх неё.

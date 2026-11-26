@@ -16,7 +16,7 @@ on:
         default: false
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   release-version:
@@ -56,6 +56,9 @@ jobs:
       - run: npm run typecheck
       - run: npm run test:unit
       - run: node --test scripts/publish-windows-release.test.mjs
+      - run: node --test scripts/ci/packaged-window-smoke.test.cjs
+      - run: node --test scripts/ci/updater-feed-compatibility.test.cjs
+      - run: node --test scripts/ci/assert-windows-release-assets.test.mjs scripts/ci/windows-nsis-migration-smoke.test.cjs scripts/ci/verify-public-windows-release.test.mjs
       - run: npm run lint:adaptive-layout -- --all
       - run: npm run audit:readiness -- --check
       - run: npm run audit:tts-assets
@@ -149,11 +152,7 @@ jobs:
           name: ${{ runner.os }}-packages-${{ github.run_id }}
           path: |
             release/*.exe
-            release/*.dmg
             release/*.zip
-            release/*.yml
-            release/*.blockmap
-            !release/builder-debug.yml
           if-no-files-found: error
 
       - name: Upload packaged smoke debug
@@ -174,14 +173,99 @@ jobs:
             ${{ runner.temp }}/*install.log
           if-no-files-found: ignore
 
+  upgrade-3:
+    needs: build
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Use HTTPS for public GitHub dependencies
+        shell: bash
+        run: |
+          git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
+          git config --global url."https://github.com/".insteadOf "git@github.com:"
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: Windows-packages-${{ github.run_id }}
+          path: release
+      - name: Check upgrade from shipped Electron 3.0.0
+        shell: pwsh
+        timeout-minutes: 10
+        run: |
+          $installer = (Get-ChildItem release/*-win-x64.exe).FullName
+          ./scripts/ci/windows-installer-smoke.ps1 -Installer $installer -PreviousVersion 3.0.0
+          npm run smoke:packaged-window -- --exe "$env:LOCALAPPDATA\LINKa installer smoke\LINKa.plays.exe" --screenshot-dir release-debug/upgrade-3-screenshots --output release-debug/upgrade-3-window-smoke.json --log release-debug/upgrade-3-app.log
+      - name: Upload upgrade diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-upgrade-3-debug-${{ github.run_id }}
+          path: |
+            release-debug/**/*
+            ${{ runner.temp }}/*install.log
+          if-no-files-found: ignore
+
+  upgrade-nsis:
+    needs: build
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        previous: ["0.1.22", "0.1.23-beta.95"]
+        path: [custom, default]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Use HTTPS for public GitHub dependencies
+        shell: bash
+        run: |
+          git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
+          git config --global url."https://github.com/".insteadOf "git@github.com:"
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: Windows-packages-${{ github.run_id }}
+          path: release
+      - name: Check manual recovery from shipped NSIS
+        shell: pwsh
+        timeout-minutes: 15
+        run: |
+          $installer = (Get-ChildItem release/*-win-x64.exe).FullName
+          ./scripts/ci/windows-nsis-migration-smoke.ps1 -Installer $installer -PreviousVersion '${{ matrix.previous }}' -InstallPathVariant '${{ matrix.path }}'
+          $installedPath = (Get-Content "$env:RUNNER_TEMP\linka-nsis-migration\installed-path.txt" -Raw).Trim()
+          npm run smoke:packaged-window -- --exe "$installedPath\LINKa.plays.exe" --screenshot-dir release-debug/nsis-screenshots --output release-debug/nsis-window-smoke.json --log release-debug/nsis-app.log
+      - name: Upload NSIS recovery diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-NSIS-${{ matrix.previous }}-${{ matrix.path }}-${{ github.run_id }}
+          path: |
+            release-debug/**/*
+            ${{ runner.temp }}/linka-nsis-migration/*.json
+            ${{ runner.temp }}/linka-nsis-migration/*.log
+            ${{ runner.temp }}/*install.log
+          if-no-files-found: ignore
+
   publish:
-    needs: [release-version, build]
+    needs: [release-version, build, upgrade-3, upgrade-nsis]
     if: github.event_name == 'push' || inputs.publish
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GH_REPO: ${{ github.repository }}
+      GH_TOKEN: ${{ secrets.WINDOWS_RELEASE_TOKEN }}
+      GH_REPO: linkasu/linka.plays-windows-releases
     steps:
+      - uses: actions/checkout@v4
+      - name: Require explicitly configured cross-repository publishing access
+        shell: bash
+        run: |
+          test -n "$GH_TOKEN" || { echo 'Configure WINDOWS_RELEASE_TOKEN or build publish=false and publish accepted CI artifacts using existing local GitHub access.' >&2; exit 1; }
       - uses: actions/download-artifact@v4
         with:
           pattern: "*-packages-${{ github.run_id }}"
@@ -193,12 +277,13 @@ jobs:
         run: |
           set -euo pipefail
           release_tag="${{ needs.release-version.outputs.release_tag }}"
+          node scripts/ci/assert-windows-release-assets.mjs release "${release_tag#v}"
 
           if gh release view "$release_tag" >/dev/null 2>&1; then
             echo "Release $release_tag already exists; refusing to replace published assets" >&2
             exit 1
           fi
-          gh release create "$release_tag" --draft --target "$GITHUB_SHA" --title "$release_tag" --notes ""
+          gh release create "$release_tag" --draft --title "$release_tag" --notes "Source: https://github.com/${{ github.repository }}/commit/${GITHUB_SHA}; accepted CI run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}; launcher: fa165f74b34d6b4f7da1c2f73599439d5f7912c7"
           for artifact in release/*; do
             test -f "$artifact"
             if [ "$(basename "$artifact")" = "builder-debug.yml" ]; then
@@ -206,7 +291,7 @@ jobs:
             fi
             gh release upload "$release_tag" "$artifact"
           done
-          # Old Electron updaters must not mistake this Inno bundle for their NSIS update.
+          # Inno assets live outside the legacy Electron updater feed.
           gh release edit "$release_tag" --draft=false --latest=false
 
   publish-updater-mirror:

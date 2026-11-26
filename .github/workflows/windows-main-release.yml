@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   verify:
@@ -24,6 +24,8 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run test:unit
+      - run: node --test scripts/ci/packaged-window-smoke.test.cjs
+      - run: node --test scripts/ci/updater-feed-compatibility.test.cjs
       - run: npm run lint:adaptive-layout -- --all
       - run: npm run audit:readiness -- --check
       - run: npm run audit:tts-assets
@@ -87,38 +89,3 @@ jobs:
           name: Windows-debug-${{ github.run_id }}
           path: release-debug/**/*
           if-no-files-found: ignore
-
-  publish:
-    needs: build
-    runs-on: ubuntu-latest
-    concurrency:
-      group: windows-main-publish
-      cancel-in-progress: false
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GH_REPO: ${{ github.repository }}
-    steps:
-      - name: Skip superseded commit
-        id: current
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ "$(gh api "repos/${GH_REPO}/commits/main" --jq .sha)" = "$GITHUB_SHA" ]; then
-            echo 'publish=true' >> "$GITHUB_OUTPUT"
-          fi
-      - uses: actions/download-artifact@v4
-        if: steps.current.outputs.publish == 'true'
-        with:
-          name: Windows-packages-${{ github.run_id }}
-          path: release
-      - name: Publish complete Windows package
-        if: steps.current.outputs.publish == 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-          version="0.1.23-beta.${GITHUB_RUN_NUMBER}"
-          tag="v${version}"
-          test -s "release/linka.plays-electron-${version}-win-x64.exe"
-          test -s release/latest.yml || test -s release/beta.yml
-          gh release create "$tag" release/* --draft --target "$GITHUB_SHA" --title "$tag" --notes "Windows-сборка ${GITHUB_SHA}"
-          gh release edit "$tag" --draft=false --prerelease

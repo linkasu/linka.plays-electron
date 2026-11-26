@@ -1,51 +1,84 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
+import GameDwellButton from "./game/GameDwellButton.vue";
 
 const version = ref("");
 const available = ref(false);
 const downloaded = ref(false);
 const errorMessage = ref("");
 const percent = ref(0);
+const dismissed = ref(false);
 let disposers: Dispose[] = [];
+let disposed = false;
+let receivedEvent = false;
+let receivedProgress = false;
 
-const visible = computed(() => available.value || downloaded.value || !!errorMessage.value);
+const visible = computed(
+  () => !dismissed.value && (available.value || downloaded.value || !!errorMessage.value),
+);
 const progressLabel = computed(() => `${percent.value.toFixed(0)}%`);
 
-onMounted(async () => {
-  if (!window.linkaUpdater) return;
-  const appVersion = await window.linkaUpdater.getAppVersion();
-  version.value = appVersion.version;
-  const state = await window.linkaUpdater.getState();
-  available.value = state.available;
-  downloaded.value = state.downloaded;
-  errorMessage.value = state.error;
-  percent.value = state.percent;
+function showError(message: string) {
+  dismissed.value = false;
+  available.value = false;
+  downloaded.value = false;
+  percent.value = 0;
+  errorMessage.value = message;
+}
 
+onMounted(() => {
+  const updater = window.linkaUpdater;
+  if (!updater) return;
   disposers = [
-    window.linkaUpdater.onInfo((info) => {
+    updater.onInfo((info) => {
+      receivedProgress = true;
       percent.value = info.percent;
     }),
-    window.linkaUpdater.onAvailable(() => {
+    updater.onAvailable(() => {
+      receivedEvent = true;
+      dismissed.value = false;
       available.value = true;
       downloaded.value = false;
       errorMessage.value = "";
       percent.value = 0;
     }),
-    window.linkaUpdater.onDownloaded(() => {
+    updater.onDownloaded(() => {
+      receivedEvent = true;
+      dismissed.value = false;
       available.value = false;
       downloaded.value = true;
       errorMessage.value = "";
       percent.value = 100;
     }),
-    window.linkaUpdater.onError((message) => {
-      available.value = false;
-      downloaded.value = false;
-      errorMessage.value = message;
+    updater.onError((message) => {
+      receivedEvent = true;
+      showError(message);
     }),
   ];
+  void updater
+    .getAppVersion()
+    .then((appVersion) => {
+      if (!disposed) version.value = appVersion.version;
+    })
+    .catch(() => {
+      // Version metadata is optional; a rejected IPC must not disable update notifications.
+    });
+  void updater
+    .getState()
+    .then((state) => {
+      if (disposed || receivedEvent) return;
+      available.value = state.available;
+      downloaded.value = state.downloaded;
+      errorMessage.value = state.error;
+      if (!receivedProgress) percent.value = state.percent;
+    })
+    .catch(() => {
+      if (!disposed && !receivedEvent) showError("IPC_ERROR");
+    });
 });
 
 onUnmounted(() => {
+  disposed = true;
   for (const dispose of disposers) dispose();
   disposers = [];
 });
@@ -89,10 +122,22 @@ onUnmounted(() => {
       <div v-else-if="errorMessage" class="d-flex align-center ga-3">
         <v-icon color="error" icon="mdi-alert-circle-outline" />
         <div>
-          <div class="font-weight-bold">Не удалось проверить обновление</div>
-          <div class="text-body-2 text-medium-emphasis">{{ errorMessage }}</div>
+          <div class="font-weight-bold">Не удалось обновить приложение</div>
+          <div class="text-body-2 text-medium-emphasis">Можно продолжать играть.</div>
         </div>
       </div>
     </div>
+    <template #actions>
+      <GameDwellButton
+        v-if="visible"
+        target-id="update-status-close"
+        min-height="5.5rem"
+        :priority="100"
+        color="primary"
+        @select="dismissed = true"
+      >
+        Закрыть
+      </GameDwellButton>
+    </template>
   </v-snackbar>
 </template>

@@ -11,6 +11,10 @@ export default defineConfig({
       "src/electron/**/*.{test,spec}.ts",
       "scripts/ci/**/*.{test,spec}.{js,mjs}",
     ],
+    exclude: [
+      "scripts/ci/assert-windows-release-assets.test.mjs",
+      "scripts/ci/verify-public-windows-release.test.mjs",
+    ],
   },
   build: {
     outDir: "dist",
