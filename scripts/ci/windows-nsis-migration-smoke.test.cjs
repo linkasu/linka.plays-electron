@@ -5,6 +5,61 @@ const { test } = require("node:test");
 
 const script = readFileSync(join(__dirname, "windows-nsis-migration-smoke.ps1"), "utf8");
 
+test("pins the NSIS package-name default and guards both historic directory names", () => {
+  assert.ok(
+    script.includes("$defaultPath = Join-Path $env:LOCALAPPDATA 'Programs\\linka.plays-electron'"),
+  );
+  assert.match(
+    script,
+    /foreach \(\$directory in @\(\$defaultPath, \(Join-Path \$env:LOCALAPPDATA 'Programs\\Linka Play'\)\)\)/,
+  );
+  assert.match(
+    script,
+    /Test-Path -LiteralPath \$directory\).*Refusing existing default installation/,
+  );
+  const assertion = script.indexOf(
+    "if ($InstallPathVariant -eq 'custom') {",
+    script.indexOf("$oldEntry ="),
+  );
+  for (const field of ["$report.installPath = $path", "$report.oldExecutable = $oldIcon"]) {
+    assert.ok(script.indexOf(field) > 0 && script.indexOf(field) < assertion);
+  }
+});
+
+test("each shortcut observation gets a unique copy and releases its COM handle", () => {
+  assert.match(script, /"shortcut-" \+ \[Guid\]::NewGuid\(\)\.ToString\('N'\) \+ '\.lnk'/);
+  assert.doesNotMatch(script, /\$index|shortcut-\$index/);
+  assert.match(
+    script,
+    /finally \{\s*\[Runtime\.InteropServices\.Marshal\]::FinalReleaseComObject\(\$shortcut\) \| Out-Null/,
+  );
+  assert.match(script, /Target = \[string\]\$shortcut\.TargetPath/);
+  assert.match(script, /WorkingDirectory = \[string\]\$shortcut\.WorkingDirectory/);
+  assert.doesNotMatch(script, /Set-Acl|icacls|takeown/i);
+});
+
+test("covers a Unicode custom path and repeat installation without restoring preferences", () => {
+  assert.ok(script.includes("$customPath = Join-Path $root 'нестандартная установка'"));
+  assert.equal(script.match(/Invoke-Installer \$Installer /g).length, 2);
+  const repeat = script.indexOf("$report.repeatInstallAttempted = $true");
+  const restore = script.indexOf(
+    'Copy-Item -LiteralPath (Join-Path $backup "installation\\$sentinelName")',
+  );
+  assert.ok(restore > 0 && restore < script.indexOf("$report.userFileSha256BeforeRepeat ="));
+  assert.ok(script.indexOf("if ($report.userFileSha256BeforeRepeat -ne") < repeat);
+  assert.ok(repeat < script.indexOf("$report.settingsSha256After ="));
+  assert.ok(repeat < script.indexOf("$report.fingerprintSha256After ="));
+  assert.ok(repeat < script.indexOf("$report.userFileSha256After ="));
+  assert.match(script, /inno-repeat-install\.log/);
+  assert.match(script, /\$reinstalled\.DisplayVersion -ne \$installed\.DisplayVersion/);
+  assert.match(script, /\$reinstalled\.InstallLocation -ne \$installed\.InstallLocation/);
+  assert.match(script, /\$report\.repeatInstallVerified = \$true/);
+  assert.doesNotMatch(
+    script.slice(repeat),
+    /Copy-Item|WriteAllText\(\$(settings|fingerprint|sentinel)/,
+  );
+});
+
 test("refuses non-Actions, non-Windows and self-hosted machines before mutations", () => {
   const guard = script.indexOf("$env:GITHUB_ACTIONS -cne 'true'");
   assert.ok(guard > 0);

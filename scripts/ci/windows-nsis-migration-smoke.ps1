@@ -53,8 +53,10 @@ $profilePaths = @(
 foreach ($profile in $profilePaths) {
   if (Test-Path -LiteralPath $profile) { throw "Refusing existing LINKa user directory: $profile" }
 }
-$defaultPath = Join-Path $env:LOCALAPPDATA 'Programs\Linka Play'
-if (Test-Path -LiteralPath $defaultPath) { throw "Refusing existing default installation directory: $defaultPath" }
+$defaultPath = Join-Path $env:LOCALAPPDATA 'Programs\linka.plays-electron'
+foreach ($directory in @($defaultPath, (Join-Path $env:LOCALAPPDATA 'Programs\Linka Play'))) {
+  if (Test-Path -LiteralPath $directory) { throw "Refusing existing default installation directory: $directory" }
+}
 $protocolRoots = @('HKCU:\Software\Classes\linka-play', 'HKLM:\Software\Classes\linka-play')
 foreach ($key in $protocolRoots) {
   if (Test-Path $key) { throw "Refusing existing game protocol: $key" }
@@ -115,16 +117,19 @@ $shortcutRoots = @(
 )
 $shell = New-Object -ComObject WScript.Shell
 function Get-Shortcuts {
-  $index = 0
   foreach ($directory in $shortcutRoots | Select-Object -Unique) {
     if ($directory -and (Test-Path -LiteralPath $directory)) {
       foreach ($file in Get-ChildItem -LiteralPath $directory -Filter '*.lnk' -File -Recurse) {
         # COM cannot read Cyrillic filenames outside the runner's ANSI codepage.
-        $copy = Join-Path $root "shortcut-$index.lnk"
+        $copy = Join-Path $root ("shortcut-" + [Guid]::NewGuid().ToString('N') + '.lnk')
         Copy-Item -LiteralPath $file.FullName -Destination $copy -Force
         $shortcut = $shell.CreateShortcut($copy)
-        [pscustomobject]@{ Path = $file.FullName; Target = $shortcut.TargetPath; WorkingDirectory = $shortcut.WorkingDirectory }
-        $index++
+        try {
+          $observation = [pscustomobject]@{ Path = $file.FullName; Target = [string]$shortcut.TargetPath; WorkingDirectory = [string]$shortcut.WorkingDirectory }
+        } finally {
+          [Runtime.InteropServices.Marshal]::FinalReleaseComObject($shortcut) | Out-Null
+        }
+        $observation
       }
     }
   }
@@ -141,7 +146,7 @@ try {
   $env:LINKA_NO_TOBII = '1'
   $env:LINKA_OPEN_DEVTOOLS = '0'
   $arguments = '/S'
-  $customPath = Join-Path $root 'custom installation'
+  $customPath = Join-Path $root 'нестандартная установка'
   # NSIS /D must be the final argument and is not quoted, even with spaces.
   if ($InstallPathVariant -eq 'custom') { $arguments += " /D=$customPath" }
   Invoke-Installer $legacy $arguments
@@ -151,19 +156,19 @@ try {
   }
   $oldEntry = $entries[0]
   $oldIcon = ([string]$oldEntry.DisplayIcon -replace ',\s*\d+$', '').Trim('"')
+  $report.oldExecutable = $oldIcon
+  $path = Split-Path -Parent $oldIcon
+  $report.installPath = $path
+  $report.nsisRegistryPath = $oldEntry.PSPath
   if (!(Test-Path -LiteralPath $oldIcon -PathType Leaf) -or [IO.Path]::GetFileName($oldIcon) -ne 'Linka Play.exe') {
     throw 'Historical NSIS DisplayIcon does not identify the installed executable'
   }
-  $path = Split-Path -Parent $oldIcon
   if ($InstallPathVariant -eq 'custom') {
     if ($path -ne $customPath) { throw 'NSIS ignored the custom directory' }
   } else {
     Assert-InDirectory $path (Join-Path $env:LOCALAPPDATA 'Programs')
     if ($path -ne $defaultPath) { throw 'Unexpected historical NSIS default directory' }
   }
-  $report.installPath = $path
-  $report.oldExecutable = $oldIcon
-  $report.nsisRegistryPath = $oldEntry.PSPath
   Stop-FixtureProcesses $path
   # Inspect the genuine installed ASAR, rather than deriving userData from the EXE name.
   $metadataJson = & node -e 'const a=require("@electron/asar"); const p=JSON.parse(a.extractFile(process.argv[1],"package.json")); console.log(JSON.stringify({name:p.name,productName:p.productName||null,version:p.version}));' (Join-Path $path 'resources\app.asar')
@@ -235,6 +240,17 @@ try {
   if ((Get-Content (Join-Path $path 'version.json') -Raw | ConvertFrom-Json).version -ne $version) { throw 'Launcher version mismatch' }
   # Restore only the custom document, never old binaries or application configuration.
   Copy-Item -LiteralPath (Join-Path $backup "installation\$sentinelName") -Destination $sentinel -Force
+  $report.userFileSha256BeforeRepeat = Get-FixtureHash $sentinel
+  if ($report.userFileSha256BeforeRepeat -ne $report.userFileSha256Before) {
+    throw 'Restored user document does not match the backup before repeat installation'
+  }
+  $report.repeatInstallAttempted = $true
+  Invoke-Installer $Installer "/CURRENTUSER /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /DIR=`"$path`" /LOG=`"$root\inno-repeat-install.log`""
+  $reinstalled = Get-ItemProperty $innoKey
+  if ($reinstalled.DisplayVersion -ne $installed.DisplayVersion -or
+      $reinstalled.InstallLocation -ne $installed.InstallLocation -or @(Get-LinkaEntries).Count -ne 1) {
+    throw 'Repeat Inno installation changed the version, registry identity or install path'
+  }
   $report.settingsSha256After = Get-FixtureHash $settings
   $report.fingerprintSha256After = Get-FixtureHash $fingerprint
   $report.userFileSha256After = Get-FixtureHash $sentinel
@@ -255,6 +271,7 @@ try {
   $report.innoRegistryPath = $innoKey
   $report.protocolCommand = $command
   $report.launcherShortcuts = @($shortcuts | Where-Object { $_.Target -eq $launcher })
+  $report.repeatInstallVerified = $true
   [IO.File]::WriteAllText((Join-Path $root 'installed-path.txt'), $path, [Text.UTF8Encoding]::new($false))
   $report.status = 'passed'
 } catch {
