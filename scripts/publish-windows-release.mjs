@@ -1,6 +1,16 @@
 import { createHash, randomUUID } from "node:crypto";
 import { constants, createReadStream, createWriteStream, realpathSync } from "node:fs";
-import { copyFile, mkdir, mkdtemp, open, readFile, rename, rm, writeFile } from "node:fs/promises";
+import {
+  copyFile,
+  mkdir,
+  mkdtemp,
+  open,
+  readFile,
+  rename,
+  rm,
+  statfs,
+  writeFile,
+} from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { Readable, Transform, Writable } from "node:stream";
 import { pipeline } from "node:stream/promises";
@@ -264,6 +274,19 @@ export async function publishWindowsRelease(
     )
       throw new Error("Refusing same-version release with different bytes");
     if (currentVersions.every((current) => current === version)) return { unchanged: true };
+    const disk = await statfs(canonical, { bigint: true });
+    const backupBytes = originals.reduce((sum, file) => sum + BigInt(file.size), 0n);
+    const stagingBytes = BigInt(installer.size) + BigInt(launcher.size) + 1024n;
+    const replacementBytes = BigInt(
+      Math.max(installer.size, launcher.size, ...originals.map((file) => file.size)),
+    );
+    const requiredBytes = backupBytes + stagingBytes + replacementBytes + 128n * 1024n * 1024n;
+    const freeBytes = disk.bavail * disk.bsize;
+    if (freeBytes < requiredBytes) {
+      throw new Error(
+        `Insufficient disk space: need ${requiredBytes} bytes, available ${freeBytes}`,
+      );
+    }
     staging = await mkdtemp(join(canonical, ".release-"));
     await verifyWindowsDownload(installer.url, installer, request, join(staging, "installer.exe"));
     await verifyWindowsDownload(launcher.url, launcher, request, join(staging, "launcher.zip"));
