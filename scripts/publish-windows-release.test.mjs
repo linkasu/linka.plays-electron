@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { mkdtemp, mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, readdir, rm, stat, statfs, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { mock, test } from "node:test";
@@ -122,6 +122,36 @@ function releaseRequest(change = () => {}, body = bytes) {
 async function snapshot(root) {
   return Promise.all(relativeFiles.map((path) => readFile(join(root, path), "utf8")));
 }
+
+test("insufficient capacity refuses publication before downloads, backup or mutation", async (t) => {
+  const root = await fixture(t);
+  const before = await snapshot(root);
+  const disk = await statfs(root, { bigint: true });
+  const impossibleSize = Number(disk.bavail * disk.bsize + 1n);
+  assert.ok(Number.isSafeInteger(impossibleSize));
+  let requests = 0;
+  const metadata = releaseRequest((release) => {
+    release.assets[0].size = impossibleSize;
+  });
+  await assert.rejects(
+    publishWindowsRelease("3.0.0", root, async (url, options) => {
+      requests++;
+      assert.ok(
+        url.includes("api.github.com"),
+        "capacity must be checked before downloading assets",
+      );
+      return metadata(url, options);
+    }),
+    /Insufficient disk space/,
+  );
+  assert.equal(requests, 1);
+  assert.deepEqual(await snapshot(root), before);
+  assert.deepEqual((await readdir(join(root, "linkaplay"))).sort(), [
+    "launcher.zip",
+    "linkaplaysetup.exe",
+    "version.json",
+  ]);
+});
 
 for (const [name, change, body] of [
   [
